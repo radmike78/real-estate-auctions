@@ -7,8 +7,18 @@ import MapView from './components/MapView';
 import PropertyPage from './components/PropertyPage';
 import AboutPage from './components/AboutPage';
 import LivePage from './components/LivePage';
+import PreForeclosurePage from './components/PreForeclosurePage';
+import ShortSalesPage from './components/ShortSalesPage';
+import AgentsPage from './components/AgentsPage';
 
-type Route = { page: 'search' } | { page: 'property'; id: string } | { page: 'about' } | { page: 'live' };
+type Route =
+  | { page: 'search' }
+  | { page: 'property'; id: string }
+  | { page: 'about' }
+  | { page: 'live' }
+  | { page: 'preforeclosures' }
+  | { page: 'shortsales' }
+  | { page: 'agents'; shortSales: boolean };
 
 function parseHash(): Route {
   const h = window.location.hash.replace(/^#\/?/, '');
@@ -16,6 +26,9 @@ function parseHash(): Route {
   if (m) return { page: 'property', id: m[1] };
   if (h === 'about') return { page: 'about' };
   if (h === 'live') return { page: 'live' };
+  if (h === 'pre-foreclosures') return { page: 'preforeclosures' };
+  if (h === 'short-sales') return { page: 'shortsales' };
+  if (h === 'agents' || h === 'agents/short-sales') return { page: 'agents', shortSales: h.endsWith('short-sales') };
   return { page: 'search' };
 }
 
@@ -62,6 +75,9 @@ export default function App() {
         </form>
         <nav>
           <a href="#/live">Live tax sales</a>
+          <a href="#/pre-foreclosures">Pre-foreclosures</a>
+          <a href="#/short-sales">Short sales</a>
+          <a href="#/agents">Find an agent</a>
           <a href="#/about">How it works</a>
         </nav>
       </header>
@@ -76,6 +92,9 @@ export default function App() {
       {route.page === 'property' && <PropertyPage id={route.id} />}
       {route.page === 'about' && <AboutPage />}
       {route.page === 'live' && <LivePage />}
+      {route.page === 'preforeclosures' && <PreForeclosurePage />}
+      {route.page === 'shortsales' && <ShortSalesPage />}
+      {route.page === 'agents' && <AgentsPage key={String(route.shortSales)} initialSpecialty={route.shortSales ? 'Short sales' : 'any'} />}
       {route.page === 'search' && (
         <main className="search-layout">
           <FiltersPanel filters={filters} onChange={update} onReset={() => { setFilters(DEFAULT_FILTERS); setLocationInput(''); }} />

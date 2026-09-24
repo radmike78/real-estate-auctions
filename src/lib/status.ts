@@ -113,9 +113,9 @@ export function purchaseSteps(p: Property): string[] {
       ];
     case 'PRE_FORECLOSURE_NOT_YET_PURCHASABLE':
       return [
-        'There is no auction yet. Monitor the property for a recorded Notice of Trustee Sale.',
-        'Optionally, contact the owner about a direct purchase or short sale. Follow Nevada foreclosure-consultant rules (NRS 645F) and do-not-contact laws.',
-        'Set an alert on this parcel.',
+        'There is no auction yet. Track this property in the Pre-foreclosure tracker. If it proceeds, a Notice of Sale will be recorded and an auction date set.',
+        'Do not contact the homeowner. Nevada strictly regulates anyone who approaches owners in foreclosure (NRS 645F), and deals made that way can be undone.',
+        'If the owner decides to sell, the home will be listed through a licensed agent, often as a short sale. Ask a short-sale agent to watch for it.',
       ];
     case 'LIEN_CERTIFICATE_ONLY':
       return [
@@ -138,8 +138,12 @@ export const fmtMoney = (n: number | null | undefined) =>
 // regardless of where the viewer is.
 const TZ = 'America/Los_Angeles';
 
+// A date-only value (YYYY-MM-DD, e.g. a recording date) is a calendar date, not an instant:
+// format it as-is. Full timestamps are shown in Las Vegas time.
 export const fmtDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: TZ });
+  /^\d{4}-\d{2}-\d{2}$/.test(iso)
+    ? new Date(`${iso}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+    : new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: TZ });
 
 export const fmtDateTime = (iso: string) =>
   new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: TZ, timeZoneName: 'short' });

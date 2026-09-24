@@ -60,6 +60,19 @@ The first real connector reads the **Clark County Treasurer's delinquent-propert
 
 ## Features
 
+**Sections**
+
+| Page | What it does |
+| --- | --- |
+| Search (`#/`) | Forced-sale search, filters, map and property pages (sample data) |
+| Live tax sales (`#/live`) | Verified Clark County Treasurer listings (signed, expiring feed) |
+| Pre-foreclosures (`#/pre-foreclosures`) | Follows Nevada non-judicial foreclosures: default, then notice of sale (at least 3 months later, NRS 107.080), then auction, then outcome. Per-browser watchlist that flags stage changes. **Do-not-contact warning; no owner names or contact details are shown.** Sample data until a data-use agreement with the Clark County Recorder is in place. |
+| Short sales (`#/short-sales`) | What a short sale is, how to find one (through a licensed agent and the MLS), the steps, risks, and a comparison with auctions and bank-owned homes |
+| Find an agent (`#/agents`) | Partner agents, searchable by city, ZIP, specialty and language, with call and email contact. A profile is shown only while its Nevada license is active and was verified by a person on the official NRED lookup in the last 90 days. The NRED lookup blocks automated queries, so verification is manual. Sample profiles are fictional. |
+
+**Search and property pages**
+
+
 - **Search** by city and state (`Henderson, NV`), ZIP code, street address, APN or county, and by map area ("Search this area").
 - **Filters:** "only properties I can buy now", online vs. in-person bidding, sale status, sale/lien type, auction date window, maximum minimum bid, minimum estimated equity, property type, occupancy and redemption period.
 - **Acquisition status** on every record: `ONLINE_BIDDING`, `IN_PERSON_AUCTION`, `SEALED_BID`, `BROKER_OFFER`, `COURT_CONFIRMATION_REQUIRED`, `LIEN_CERTIFICATE_ONLY`, `PRE_FORECLOSURE_NOT_YET_PURCHASABLE`, `SALE_CANCELLED_OR_POSTPONED`, `STATUS_REQUIRES_CONFIRMATION`, `NOT_FOR_SALE_LIEN_ONLY`.

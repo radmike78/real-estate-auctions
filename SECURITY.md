@@ -78,6 +78,16 @@ While a source is quarantined, **it publishes no listings**. An operator checks 
 | A source that is stale, erroring, quarantined or not yet terms-reviewed publishes nothing | `publish.ts` |
 | Parcels are hidden 10 h after the auction starts | `cadence.ts` |
 
+## 5b. Agent directory and homeowner privacy
+
+- **Verified partner agents only.** An agent profile is shown only while:
+  - the Nevada license is **Active** and unexpired;
+  - a person confirmed it on the official Nevada Real Estate Division lookup within the last **90 days** (the lookup blocks automated checks);
+  - every contact link is safe (`tel:` with a +1 number, a plain `mailto:` with no injected parameters, or an `https://` website).
+
+  Anything else hides the profile automatically (`src/lib/agents.ts`). Users get the official lookup link to check the license themselves.
+- **No solicitation of distressed owners.** The pre-foreclosure tracker and property pages never show owner names or contact details for homes that aren't for sale. Every pre-foreclosure view carries a do-not-contact warning referencing NRS Chapter 645F, and the purchase guidance tells users not to contact homeowners.
+
 ## 6. Browser hardening
 
 The production build adds a Content-Security-Policy. It allows only same-origin scripts and data, no inline scripts, no plugins, and map tiles only from OpenStreetMap. Configure your host to also send these headers:

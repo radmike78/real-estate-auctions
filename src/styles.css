@@ -15,6 +15,8 @@
   --info: #2b5f9e;
   --info-bg: #e2ecf8;
   --radius: 10px;
+  --caution: #8a1c1c;
+  --caution-bg: #fdeaea;
   color-scheme: light;
 }
 
@@ -35,6 +37,8 @@
     --stop-bg: #3d2020;
     --info: #8ab8ee;
     --info-bg: #1d2c40;
+    --caution: #f4a3a3;
+    --caution-bg: #3a1c1c;
     color-scheme: dark;
   }
 }
@@ -81,7 +85,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 .brand-mark { color: var(--accent); }
 .searchbar { display: flex; gap: 8px; flex: 1; min-width: 240px; max-width: 640px; }
 .searchbar button { background: var(--accent); color: var(--surface); border-color: var(--accent); font-weight: 600; }
-.topbar nav { margin-left: auto; display: flex; gap: 14px; }
+.topbar nav { margin-left: auto; display: flex; gap: 6px 14px; flex-wrap: wrap; }
 .banner {
   background: var(--wait-bg); color: var(--text); border-bottom: 1px solid var(--border);
   padding: 8px 16px; font-size: 0.85rem;
@@ -206,3 +210,48 @@ th { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
 
 .sources { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
 .sources li { display: grid; gap: 2px; }
+
+/* Notices */
+.caution { background: var(--caution-bg); border-left: 4px solid var(--caution); border-radius: 6px; padding: 12px 14px; margin: 0 0 16px; font-size: 0.92rem; }
+.caution strong { color: var(--caution); }
+.notice { background: var(--info-bg); border-left: 4px solid var(--info); border-radius: 6px; padding: 10px 14px; margin: 0 0 16px; }
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+.toolbar input { flex: 1; min-width: 200px; width: auto; }
+.toolbar select { width: auto; }
+
+/* Pre-foreclosure tracker */
+.explainer { padding: 12px 16px !important; }
+.timeline-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; counter-reset: s; }
+.timeline-steps li { display: grid; gap: 2px; font-size: 0.85rem; padding-left: 28px; position: relative; counter-increment: s; }
+.timeline-steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: var(--surface); font-size: 0.75rem; display: grid; place-items: center; font-weight: 700; }
+.timeline-steps span { color: var(--muted); }
+.track-list, .agent-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+.track-card, .agent-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; display: grid; gap: 8px; align-content: start; }
+.track-head, .agent-head { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.track-head h3, .agent-head h3 { margin: 6px 0 2px; }
+.track-head button { white-space: nowrap; }
+.pipeline { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.pipeline li { font-size: 0.72rem; text-align: center; padding: 5px 2px; border-radius: 4px; background: var(--surface-2); color: var(--muted); line-height: 1.2; }
+.pipeline li.done { background: var(--info-bg); color: var(--info); }
+.pipeline li.current { font-weight: 700; outline: 2px solid currentColor; }
+.pipeline li.current.tone-go { background: var(--go-bg); color: var(--go); }
+.pipeline li.current.tone-wait { background: var(--wait-bg); color: var(--wait); }
+.pipeline li.current.tone-stop { background: var(--stop-bg); color: var(--stop); }
+.pipeline li.current.tone-info { background: var(--info-bg); color: var(--info); }
+.track-card p { margin: 0; }
+
+/* Agents */
+.verified { color: var(--go); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 0.75rem; padding: 2px 8px; border-radius: 999px; background: var(--surface-2); }
+.chip-strong { background: var(--go-bg); color: var(--go); font-weight: 700; }
+.agent-card p { margin: 0; }
+.contact { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+.btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+a.btn { display: inline-block; }
+
+/* Short sales guide */
+.steps-rich { padding-left: 20px; }
+.steps-rich li { margin-bottom: 10px; }
+.steps-rich li span { display: block; color: var(--muted); font-size: 0.92rem; }
+.risk-list li { margin-bottom: 8px; }

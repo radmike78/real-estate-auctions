@@ -14,6 +14,7 @@ import type {
   SaleDetails,
   SourceRef,
 } from '../types';
+import { pacificToIso } from '../lib/time';
 
 function mulberry32(seed: number) {
   return () => {
@@ -36,10 +37,10 @@ NOW.setMinutes(0, 0, 0);
 const DAY = 86_400_000;
 const daysFrom = (d: number) => new Date(NOW.getTime() + d * DAY);
 const isoDate = (d: number) => daysFrom(d).toISOString().slice(0, 10);
+// A sale `d` days from now at `hour` o'clock Las Vegas time.
 const isoAt = (d: number, hour: number) => {
   const x = daysFrom(d);
-  x.setHours(hour, 0, 0, 0);
-  return x.toISOString();
+  return pacificToIso(x.getUTCFullYear(), x.getUTCMonth(), x.getUTCDate(), hour);
 };
 
 const AREAS = [
@@ -108,11 +109,12 @@ type Scenario =
   | 'pre_foreclosure'
   | 'postponed'
   | 'lien_only'
-  | 'stale';
+  | 'stale'
+  | 'reinstated';
 
 const SCENARIOS: Scenario[] = [
   'tax_deed', 'tax_deed', 'tax_deed', 'tax_deed', 'trustee', 'trustee', 'trustee', 'trustee', 'hoa', 'hoa',
-  'sheriff', 'judicial', 'irs', 'reo', 'reo', 'pre_foreclosure', 'pre_foreclosure', 'postponed', 'lien_only',
+  'sheriff', 'judicial', 'irs', 'reo', 'reo', 'pre_foreclosure', 'pre_foreclosure', 'postponed', 'reinstated', 'lien_only',
   'lien_only', 'stale',
 ];
 
@@ -370,6 +372,16 @@ function makeProperty(i: number, scenario: Scenario): Property {
       addHoa();
       events.push(ev(int(10, 80), 'NOTICE_OF_DEFAULT', `Notice of Default and Election to Sell recorded by ${pick(TRUSTEES)}. No sale date yet (NRS 107 requires 3 months first).`));
       status = 'PRE_FORECLOSURE_NOT_YET_PURCHASABLE';
+      break;
+    }
+    case 'reinstated': {
+      liens.push(dot, lien('PROPERTY_TAX', 'Clark County Treasurer', annualTax * between(0, 0.5), 200));
+      const nod = int(120, 300);
+      events.push(
+        ev(nod, 'NOTICE_OF_DEFAULT', `Notice of Default and Election to Sell recorded by ${pick(TRUSTEES)}.`),
+        ev(int(10, nod - 30), 'SALE_CANCELLED', 'Notice of rescission recorded: the default was cured (loan reinstated or modified).'),
+      );
+      status = 'SALE_CANCELLED_OR_POSTPONED';
       break;
     }
     case 'lien_only':

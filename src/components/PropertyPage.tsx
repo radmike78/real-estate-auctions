@@ -200,7 +200,12 @@ export default function PropertyPage({ id }: { id: string }) {
         <section>
           <h2>Property record</h2>
           <dl className="facts">
-            <div><dt>Owner of record</dt><dd>{p.ownerOfRecord}</dd></div>
+            {/* Owners of homes that aren't for sale (pre-foreclosure, cancelled, lien-only) are not shown, to discourage solicitation. */}
+            {status.purchasable ? (
+              <div><dt>Owner of record</dt><dd>{p.ownerOfRecord}</dd></div>
+            ) : (
+              <div><dt>Owner of record</dt><dd className="muted">Withheld: not for sale</dd></div>
+            )}
             <div><dt>Legal description</dt><dd className="small">{p.legalDescription}</dd></div>
             <div><dt>Type</dt><dd>{p.propertyType}</dd></div>
             {p.beds !== null && <div><dt>Beds / baths</dt><dd>{p.beds} / {p.baths}</dd></div>}
