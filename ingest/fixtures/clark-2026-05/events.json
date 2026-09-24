@@ -1,0 +1,25 @@
+{
+    "Data": [
+        {
+            "SequenceNo": 1,
+            "EventNo": "1",
+            "EventDateTimeStart": "2026-05-07T08:00:00-07:00",
+            "EventDateTimeEnd": null,
+            "EventStatus": "Prior",
+            "EventType": "In-Person",
+            "Address": "Commission Chambers of the Clark County Government Center, \r\n<br/>500 S. Grand Central Parkway, Las Vegas, Nevada"
+        },
+        {
+            "SequenceNo": 2,
+            "EventNo": "2",
+            "EventDateTimeStart": "2026-05-07T14:00:00-07:00",
+            "EventDateTimeEnd": null,
+            "EventStatus": "Prior",
+            "EventType": "In-Person",
+            "Address": "Commission Chambers of the Clark County Government Center, \r\n<br/>500 S. Grand Central Parkway, Las Vegas, Nevada"
+        }
+    ],
+    "Total": 2,
+    "AggregateResults": null,
+    "Errors": null
+}

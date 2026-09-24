@@ -5,8 +5,12 @@
 
 import type { Feed, FeedListing } from './types';
 
-// Official hosts a listing may link to. Mirrors ingest/sources/registry.ts.
+// Official hosts a listing may link to. Mirrors ingest/sources/registry.ts (exact .gov names only).
 export const OFFICIAL_HOSTS = new Set(['treasurer.clarkcountynv.gov']);
+
+const APN = /^\d{3}-\d{2}-\d{3}-\d{3}$/;
+const isDate = (v: unknown) => typeof v === 'string' && !Number.isNaN(Date.parse(v));
+const shortText = (v: unknown, max: number) => v === null || (typeof v === 'string' && v.length <= max);
 
 export type VerifyResult =
   | { ok: true; feed: Feed }
@@ -25,16 +29,22 @@ export function isOfficialUrl(raw: string): boolean {
 
 function validListing(l: FeedListing): boolean {
   return (
+    l.state === 'AVAILABLE' &&
     typeof l.apn === 'string' &&
-    /^\d{3}-\d{2}-\d{3}-\d{3}$/.test(l.apn) &&
+    APN.test(l.apn) &&
     typeof l.minimumBid === 'number' &&
     Number.isFinite(l.minimumBid) &&
     l.minimumBid > 0 &&
-    l.state === 'AVAILABLE' &&
-    (l.address === null || (typeof l.address === 'string' && l.address.length <= 200)) &&
-    (l.auctionStartsAt === null || !Number.isNaN(Date.parse(l.auctionStartsAt))) &&
-    !Number.isNaN(Date.parse(l.lastVerifiedAt)) &&
+    shortText(l.address, 200) &&
+    shortText(l.auctionFormat, 40) &&
+    shortText(l.auctionLocation, 300) &&
+    (l.groupApn === null || (typeof l.groupApn === 'string' && APN.test(l.groupApn))) &&
+    typeof l.personalPropertyExcluded === 'boolean' &&
+    isDate(l.auctionStartsAt) && // no scheduled auction -> not shown
+    isDate(l.corroboratedAt) && // must be confirmed by the independent Assessor records
+    isDate(l.lastVerifiedAt) &&
     isOfficialUrl(l.sourceUrl) &&
+    typeof l.snapshotSha256 === 'string' &&
     /^[0-9a-f]{64}$/.test(l.snapshotSha256)
   );
 }

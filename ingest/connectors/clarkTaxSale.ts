@@ -1,163 +1,212 @@
-// Connector: Clark County Treasurer delinquent-property (trustee) auction list.
+// Connector: Clark County Treasurer delinquent-property (trustee) auction.
 //
-// The Treasurer publishes the list of parcels held in trust for non-payment of taxes and
-// updates it daily as owners pay; paid parcels are lined out and are no longer eligible.
+// Verified against the live site on 2026-09-24. The public Auction List page
+// (https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList) renders two data grids
+// that load JSON from the same official host:
+//   /auction/Auction/Event_Read?auctionId=N   -> auction sessions (date, In-Person/Online, place, Prior/…)
+//   /auction/Auction/Parcel_Read?auctionId=N  -> parcels (APN, MinBidAmount, IsLineOut, WinningBidAmount, …)
+// The connector reads the page only to discover the current auctionId, then reads the JSON.
 //
-// This parser is FAIL-CLOSED:
-//  - It locates the table by header names, not by position. If the required columns
-//    (parcel number and minimum bid) are missing, the whole snapshot is rejected
-//    (SchemaDriftError). A layout change can never silently produce wrong listings.
-//  - Every row is validated. Bad APNs, bad amounts, duplicates and unrecognized statuses
-//    are rejected rather than guessed at. If too many rows fail, the snapshot is rejected.
-//  - Lined-out rows (<s>/<del>/<strike>, line-through styling) and status text such as
-//    "redeemed", "paid" or "withdrawn" mark a parcel as withdrawn.
-//
-// NOTE: written against the Treasurer's published description of the list. Validate it
-// against the live page (npm run ingest -- --dry-run) before enabling scheduled runs.
+// FAIL-CLOSED rules:
+//  - Exactly one auctionId must be advertised on the page, and every parcel must belong to it.
+//  - Responses must have the expected shape (Data array, Total matching, no Errors).
+//  - Each parcel is validated; unknown or malformed values reject the row, and >5% rejected
+//    rows reject the whole snapshot (SchemaDriftError). Nothing is ever guessed.
+//  - The county's own data contains HTML (grouped parcels arrive as a <button onclick=…>,
+//    addresses contain <br/>). All values are reduced to plain text before use.
+//  - Lined-out parcels (paid/redeemed/removed) and parcels with a winning bid or recorded
+//    deed are never available.
 
-import { parse, type HTMLElement } from 'node-html-parser';
+import { createHash } from 'node:crypto';
+import type { SourceConfig } from '../sources/registry';
+import { secureFetch, type FetchOptions } from '../lib/secureFetch';
 
 export class SchemaDriftError extends Error {}
+
+export interface AuctionEvent {
+  startsAt: string; // ISO UTC
+  status: string; // e.g. "Prior"
+  format: string; // e.g. "In-Person", "Online"
+  location: string | null;
+}
 
 export interface ParsedRow {
   apn: string;
   address: string | null;
   minimumBid: number;
   withdrawn: boolean;
+  sold: boolean;
+  groupApn: string | null; // parcels sold together as one item, one bid
+  personalPropertyExcluded: boolean; // "#" marker: personal property not included in the sale
   auctionStartsAt: string | null;
 }
 
 export interface ParseResult {
-  auctionStartsAt: string | null;
+  auctionKey: string; // Treasurer auctionId: identifies the auction cycle
+  auctionStartsAt: string | null; // next session that has not happened yet, else the last one
+  auctionFormat: string | null;
+  auctionLocation: string | null;
+  events: AuctionEvent[];
   rows: ParsedRow[];
   rejected: { row: number; reason: string }[];
 }
 
-const HEADER_ALIASES = {
-  apn: /^(parcel(\s*(number|no\.?|#))?|apn)$/i,
-  minimumBid: /^(min(imum)?\.?\s*bid|minimum\s*bid\s*amount|opening\s*bid)$/i,
-  address: /^(address|situs(\s*address)?|location|property\s*address)$/i,
-  status: /^(status|remarks?|notes?)$/i,
-  auctionDate: /^(auction|sale)\s*date$/i,
-} as const;
-
-const WITHDRAWN_TEXT = /\b(redeemed|paid|withdrawn|removed|cancell?ed|not\s+available|pulled|bankruptcy)\b/i;
-const AVAILABLE_TEXT = /^(|active|available|open|for\s+sale|eligible)$/i;
 const MAX_REJECT_RATIO = 0.05;
+const APN_RE = /\b(\d{3}-\d{2}-\d{3}-\d{3})\b/;
 
-const clean = (s: string) => s.replace(/\s+/g, ' ').trim();
-
-export function normalizeApn(raw: string): string | null {
-  const digits = raw.replace(/\D/g, '');
-  if (digits.length !== 11) return null;
-  return `${digits.slice(0, 3)}-${digits.slice(3, 5)}-${digits.slice(5, 8)}-${digits.slice(8)}`;
+/** Reduces any markup to plain text (tags removed, entities decoded, whitespace collapsed). */
+export function toPlainText(v: unknown): string {
+  if (typeof v !== 'string') return '';
+  return v
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
-export function parseMoney(raw: string): number | null {
-  const s = clean(raw).replace(/[$,\s]/g, '');
-  if (!/^\d+(\.\d{1,2})?$/.test(s)) return null;
-  const n = Number(s);
-  return n > 0 && n < 50_000_000 ? n : null;
-}
-
-const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
-
-/** Converts a Las Vegas wall-clock time to an ISO UTC string (handles PST/PDT). */
-export function pacificToIso(y: number, mo: number, d: number, h: number, mi: number): string {
-  const guess = Date.UTC(y, mo, d, h, mi);
-  const offsetOf = (t: number) => {
-    const name = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', timeZoneName: 'longOffset' })
-      .formatToParts(new Date(t))
-      .find((p) => p.type === 'timeZoneName')!.value; // "GMT-07:00"
-    const m = name.match(/GMT([+-])(\d{2}):(\d{2})/);
-    return m ? (m[1] === '-' ? -1 : 1) * (Number(m[2]) * 60 + Number(m[3])) * 60_000 : 0;
-  };
-  const first = guess - offsetOf(guess);
-  return new Date(guess - offsetOf(first)).toISOString();
-}
-
-/** Finds "Month D, YYYY" (and optional "h:mm a.m.") in text. */
-export function parseAuctionDate(text: string): string | null {
-  const m = text.match(
-    /\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2}),\s*(\d{4})(?:[^0-9]{0,40}?(\d{1,2}):(\d{2})\s*([ap])\.?\s*m\.?)?/i,
-  );
-  if (!m) return null;
-  let hour = m[4] ? Number(m[4]) % 12 : 8; // Treasurer auctions have historically started at 8:00 a.m.
-  if (m[6]?.toLowerCase() === 'p') hour += 12;
-  const day = Number(m[2]);
-  const year = Number(m[3]);
-  if (day < 1 || day > 31 || year < 2000 || year > 2100) return null;
-  return pacificToIso(year, MONTHS.indexOf(m[1].toLowerCase()), day, hour, m[5] ? Number(m[5]) : 0);
-}
-
-function isLinedOut(el: HTMLElement): boolean {
-  if (el.querySelector('s, del, strike')) return true;
-  const styled = [el, ...el.querySelectorAll('*')];
-  return styled.some(
-    (x) => /line-through/i.test(x.getAttribute('style') ?? '') || /\b(strike|lined|withdrawn|redeemed)\b/i.test(x.getAttribute('class') ?? ''),
-  );
-}
-
-export function parseAuctionList(html: string): ParseResult {
-  const root = parse(html, { comment: false, blockTextElements: { script: false, style: false } });
-
-  // Find the first table whose header row contains the required columns.
-  let table: HTMLElement | null = null;
-  let col: Partial<Record<keyof typeof HEADER_ALIASES, number>> = {};
-  for (const t of root.querySelectorAll('table')) {
-    const headerCells = t.querySelectorAll('tr')[0]?.querySelectorAll('th, td') ?? [];
-    const found: typeof col = {};
-    headerCells.forEach((c, i) => {
-      const text = clean(c.text);
-      for (const [key, re] of Object.entries(HEADER_ALIASES) as [keyof typeof HEADER_ALIASES, RegExp][]) {
-        if (found[key] === undefined && re.test(text)) found[key] = i;
-      }
-    });
-    if (found.apn !== undefined && found.minimumBid !== undefined) {
-      table = t;
-      col = found;
-      break;
-    }
+export function extractAuctionId(pageHtml: string): string {
+  const ids = new Set([...pageHtml.matchAll(/Parcel_Read\?auctionId=(\d{1,6})\b/g)].map((m) => m[1]));
+  if (ids.size !== 1) {
+    throw new SchemaDriftError(`Expected exactly one auctionId on the Auction List page, found ${ids.size}. Page layout may have changed.`);
   }
-  if (!table) throw new SchemaDriftError('No table with "Parcel" and "Minimum Bid" columns found. Page layout may have changed.');
+  return [...ids][0];
+}
 
-  const pageText = clean(root.querySelector('body')?.text ?? root.text);
-  const auctionIdx = pageText.search(/auction/i);
-  const pageDate = parseAuctionDate(auctionIdx >= 0 ? pageText.slice(auctionIdx) : pageText) ?? parseAuctionDate(pageText);
+function dataArray(json: unknown, what: string): Record<string, unknown>[] {
+  const o = json as { Data?: unknown; Total?: unknown; Errors?: unknown };
+  if (!o || !Array.isArray(o.Data)) throw new SchemaDriftError(`${what}: response has no Data array.`);
+  if (o.Errors) throw new SchemaDriftError(`${what}: county returned errors: ${JSON.stringify(o.Errors).slice(0, 200)}`);
+  if (typeof o.Total === 'number' && o.Total !== o.Data.length) {
+    throw new SchemaDriftError(`${what}: got ${o.Data.length} of ${o.Total} records (response is paged). Refusing a partial list.`);
+  }
+  return o.Data as Record<string, unknown>[];
+}
+
+export function parseEvents(json: unknown): AuctionEvent[] {
+  return dataArray(json, 'Event_Read').map((e, i) => {
+    const t = typeof e.EventDateTimeStart === 'string' ? Date.parse(e.EventDateTimeStart) : NaN;
+    if (Number.isNaN(t)) throw new SchemaDriftError(`Event_Read: session ${i + 1} has no valid start time.`);
+    const location = toPlainText(e.Address).slice(0, 300) || null;
+    return { startsAt: new Date(t).toISOString(), status: toPlainText(e.EventStatus), format: toPlainText(e.EventType), location };
+  });
+}
+
+/** Sessions still to come (not marked prior/cancelled), soonest first. */
+export function upcomingEvents(events: AuctionEvent[]): AuctionEvent[] {
+  return events.filter((e) => !/prior|cancel|complete|closed/i.test(e.status)).sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+}
+
+export function parseParcels(json: unknown, auctionKey: string, events: AuctionEvent[]): ParseResult {
+  const data = dataArray(json, 'Parcel_Read');
+  const next = upcomingEvents(events)[0];
+  const last = [...events].sort((a, b) => b.startsAt.localeCompare(a.startsAt))[0];
+  const session = next ?? last ?? null;
 
   const rows: ParsedRow[] = [];
   const rejected: ParseResult['rejected'] = [];
   const seen = new Set<string>();
-  const trs = table.querySelectorAll('tr').slice(1);
 
-  trs.forEach((tr, i) => {
-    const cells = tr.querySelectorAll('td');
-    if (!cells.length || cells.every((c) => !clean(c.text))) return; // spacer row
-    const cell = (k: keyof typeof HEADER_ALIASES) => (col[k] !== undefined ? clean(cells[col[k]!]?.text ?? '') : '');
+  data.forEach((r, i) => {
+    const row = i + 1;
+    const reject = (reason: string) => void rejected.push({ row, reason });
 
-    const apn = normalizeApn(cell('apn'));
-    if (!apn) return void rejected.push({ row: i + 1, reason: `invalid parcel number "${cell('apn')}"` });
-    if (seen.has(apn)) return void rejected.push({ row: i + 1, reason: `duplicate parcel ${apn}` });
+    if (String(r.TrusteeAuctionId) !== auctionKey) return reject(`belongs to auction ${String(r.TrusteeAuctionId)}, expected ${auctionKey}`);
+
+    const shown = toPlainText(r.ShowParcelNumber);
+    const apn = shown.match(APN_RE)?.[1] ?? toPlainText(r.GroupParcelNumber).match(APN_RE)?.[1];
+    const other = toPlainText(r.ParcelNumber).match(APN_RE)?.[1];
+    if (!apn) return reject(`no valid parcel number in "${shown.slice(0, 40)}"`);
+    if (other && other !== apn) return reject(`parcel number mismatch ${apn} vs ${other}`);
+    if (seen.has(apn)) return reject(`duplicate parcel ${apn}`);
     seen.add(apn);
 
-    const minimumBid = parseMoney(cell('minimumBid'));
-    if (minimumBid === null) return void rejected.push({ row: i + 1, reason: `invalid minimum bid "${cell('minimumBid')}" for ${apn}` });
-
-    const status = cell('status');
-    const withdrawn = isLinedOut(tr) || WITHDRAWN_TEXT.test(status);
-    if (!withdrawn && !AVAILABLE_TEXT.test(status)) {
-      return void rejected.push({ row: i + 1, reason: `unrecognized status "${status}" for ${apn}` });
+    const minimumBid = r.MinBidAmount;
+    if (typeof minimumBid !== 'number' || !Number.isFinite(minimumBid) || minimumBid <= 0 || minimumBid >= 50_000_000) {
+      return reject(`invalid minimum bid for ${apn}`);
     }
+    if (typeof r.IsLineOut !== 'boolean') return reject(`missing line-out flag for ${apn}`);
+    const winning = r.WinningBidAmount ?? 0;
+    if (typeof winning !== 'number' || !Number.isFinite(winning) || winning < 0) return reject(`invalid winning bid for ${apn}`);
+    const deed = r.DeedRecordingDate;
+    if (deed !== null && deed !== undefined && (typeof deed !== 'string' || Number.isNaN(Date.parse(deed)))) {
+      return reject(`invalid deed recording date for ${apn}`);
+    }
+    const pp = r.IsPersonalPropertyNotIncluded;
+    const ppFlag = pp === true || pp === 'True' ? true : pp === false || pp === 'False' || pp === null || pp === undefined ? false : null;
+    if (ppFlag === null) return reject(`unrecognized personal-property flag for ${apn}`);
 
-    const rowDate = col.auctionDate !== undefined ? parseAuctionDate(cell('auctionDate')) : null;
-    const address = cell('address') || null;
-    rows.push({ apn, address: address && address.length <= 200 ? address : null, minimumBid, withdrawn, auctionStartsAt: rowDate ?? pageDate });
+    const sold = winning > 0 || !!deed;
+    const loc = toPlainText(r.PropertyLocation);
+    rows.push({
+      apn,
+      address: !loc || /^unassigned situs$/i.test(loc) ? null : loc.slice(0, 200),
+      minimumBid: Math.round(minimumBid * 100) / 100,
+      withdrawn: r.IsLineOut || sold,
+      sold,
+      groupApn: toPlainText(r.GroupParcelNumber).match(APN_RE)?.[1] ?? null,
+      personalPropertyExcluded: ppFlag || /#/.test(shown),
+      auctionStartsAt: session?.startsAt ?? null,
+    });
   });
 
   const total = rows.length + rejected.length;
-  if (total === 0) throw new SchemaDriftError('Auction table has no parcel rows.');
+  if (total === 0) throw new SchemaDriftError('Parcel list is empty.');
   if (rejected.length / total > MAX_REJECT_RATIO) {
-    throw new SchemaDriftError(`${rejected.length} of ${total} rows failed validation (limit ${MAX_REJECT_RATIO * 100}%). First: ${rejected[0].reason}`);
+    throw new SchemaDriftError(`${rejected.length} of ${total} parcels failed validation (limit ${MAX_REJECT_RATIO * 100}%). First: ${rejected[0].reason}`);
   }
-  return { auctionStartsAt: pageDate, rows, rejected };
+  return {
+    auctionKey,
+    auctionStartsAt: session?.startsAt ?? null,
+    auctionFormat: session?.format || null,
+    auctionLocation: session?.location ?? null,
+    events,
+    rows,
+    rejected,
+  };
+}
+
+export interface RawSnapshot {
+  page: string;
+  events: string;
+  parcels: string;
+}
+
+export function parseSnapshot(raw: RawSnapshot): { parsed: ParseResult; sha256: string } {
+  const auctionKey = extractAuctionId(raw.page);
+  let events: unknown, parcels: unknown;
+  try {
+    events = JSON.parse(raw.events);
+    parcels = JSON.parse(raw.parcels);
+  } catch {
+    throw new SchemaDriftError('County data endpoint did not return JSON (possibly an error or firewall page).');
+  }
+  const parsed = parseParcels(parcels, auctionKey, parseEvents(events));
+  // The snapshot hash covers exactly the data the listings came from.
+  const sha256 = createHash('sha256').update(raw.events).update('\n').update(raw.parcels).digest('hex');
+  return { parsed, sha256 };
+}
+
+const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Fetches the page and both JSON endpoints from the official host, politely and sequentially. */
+export async function fetchSnapshot(source: SourceConfig, extra: Pick<FetchOptions, 'fetchImpl' | 'verifyCertificate'> = {}): Promise<RawSnapshot> {
+  const opts = { allowedHosts: source.allowedHosts, ...extra };
+  const get = async (url: string, accept: RegExp) => {
+    const r = await secureFetch(url, { ...opts, acceptContentTypes: accept });
+    if (r.kind !== 'ok') throw new Error(`Unexpected 304 from ${url}`);
+    return r.body;
+  };
+  const page = await get(source.fetchUrl, /^text\/html\b/i);
+  const id = extractAuctionId(page);
+  const base = new URL('/auction/Auction/', source.fetchUrl);
+  await pause(1000);
+  const events = await get(new URL(`Event_Read?auctionId=${id}`, base).href, /^application\/json\b/i);
+  await pause(1000);
+  const parcels = await get(new URL(`Parcel_Read?auctionId=${id}`, base).href, /^application\/json\b/i);
+  return { page, events, parcels };
 }

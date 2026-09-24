@@ -2,16 +2,23 @@
 // Shared by the ingester (writer) and the browser (verifier/reader).
 
 export type ListingState =
-  | 'AVAILABLE' // on the current official list, not lined out, verified recently
-  | 'WITHDRAWN'; // lined out / redeemed / removed from the official list
+  | 'AVAILABLE' // on the current official list, not lined out, confirmed by the Assessor, verified recently
+  | 'UNCONFIRMED' // on the list but not found in the independent Assessor records: never published
+  | 'WITHDRAWN'; // lined out / redeemed / sold / removed from the official list
 
 export interface FeedListing {
   sourceId: string;
   apn: string; // ###-##-###-###
   address: string | null;
   minimumBid: number;
+  auctionId: string; // Treasurer auction cycle
   auctionStartsAt: string | null; // ISO
+  auctionFormat: string | null; // e.g. "In-Person", as published by the Treasurer
+  auctionLocation: string | null;
+  groupApn: string | null; // sold together with other parcels as one item, one bid
+  personalPropertyExcluded: boolean;
   state: ListingState;
+  corroboratedAt: string | null; // when the Assessor last confirmed the parcel exists
   firstSeenAt: string;
   lastVerifiedAt: string; // last time this row was seen on the official list
   sourceUrl: string; // official page it came from (allowlisted host)
@@ -28,6 +35,7 @@ export interface FeedSourceStatus {
   nextCheckAt: string | null;
   health: 'ok' | 'stale' | 'quarantined' | 'error' | 'terms_not_reviewed';
   message: string | null;
+  certificateIssuer: string | null; // CA that issued the verified server certificate
 }
 
 export interface Feed {

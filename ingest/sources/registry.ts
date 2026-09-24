@@ -10,8 +10,10 @@ export interface SourceConfig {
   officialUrl: string;
   /** URL the connector fetches. */
   fetchUrl: string;
-  /** Exact hostnames allowed for the fetch and every redirect hop. No wildcards. */
+  /** Exact hostnames allowed for the fetch and every redirect hop. No wildcards. Must be .gov. */
   allowedHosts: string[];
+  /** Independent official system used to confirm each parcel exists (different server). */
+  corroborationHosts: string[];
   /** What the agency says about how often it updates. Used until enough history is observed. */
   declaredCadenceHours: number;
   /** Bounds for adaptive polling. */
@@ -30,10 +32,12 @@ export const SOURCES: SourceConfig[] = [
     id: 'nv-clark-treasurer-tax-sale',
     agency: 'Clark County Treasurer',
     jurisdiction: 'NV-Clark',
-    officialUrl: 'https://treasurer.clarkcountynv.gov/auction',
+    officialUrl: 'https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList',
     fetchUrl: 'https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList',
     allowedHosts: ['treasurer.clarkcountynv.gov'],
-    // The Treasurer states the auction list is updated daily as payments are made.
+    corroborationHosts: ['maps.clarkcountynv.gov'],
+    // The Treasurer states the auction list is updated daily as payments are made
+    // ("List updated frequently" on the live page, verified 2026-09-24).
     declaredCadenceHours: 24,
     minPollMinutes: 15,
     maxPollMinutes: 6 * 60,
@@ -49,4 +53,22 @@ export function getSource(id: string): SourceConfig {
   const s = SOURCES.find((x) => x.id === id);
   if (!s) throw new Error(`Unknown source "${id}". Only registered official sources can be ingested.`);
   return s;
+}
+
+/**
+ * Registry invariants, checked at startup and in tests:
+ *  - every host is an exact .gov name (.gov registration is restricted to verified U.S.
+ *    government organizations, so a clone or look-alike cannot obtain one);
+ *  - official and fetch URLs are HTTPS on an allowed host.
+ */
+export function validateRegistry(sources: SourceConfig[] = SOURCES): void {
+  for (const s of sources) {
+    for (const h of [...s.allowedHosts, ...s.corroborationHosts]) {
+      if (!/^[a-z0-9-]+(\.[a-z0-9-]+)*\.gov$/.test(h)) throw new Error(`${s.id}: host "${h}" is not an exact .gov hostname`);
+    }
+    for (const u of [s.officialUrl, s.fetchUrl]) {
+      const url = new URL(u);
+      if (url.protocol !== 'https:' || !s.allowedHosts.includes(url.hostname)) throw new Error(`${s.id}: ${u} is not HTTPS on an allowed host`);
+    }
+  }
 }

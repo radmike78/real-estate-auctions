@@ -2,16 +2,15 @@
 //
 // Anomaly screening defends against spoofed or broken data that still parses cleanly:
 // a defaced page, a partial response, or an injected table. Suspicious snapshots are
-// QUARANTINED: nothing is updated, so existing listings age out instead of changing to
-// unverified data, and an operator must approve the snapshot hash to accept it.
+// QUARANTINED: nothing is updated and the source publishes nothing until an operator
+// approves the snapshot hash.
 
 import type { FeedListing } from '../../src/feed/types';
 import type { ParseResult } from '../connectors/clarkTaxSale';
+import type { IdentityBaseline } from './siteIdentity';
 
 export interface SourceState {
   sourceId: string;
-  etag: string | null;
-  lastModified: string | null;
   lastCheckedAt: string | null;
   lastSuccessAt: string | null;
   lastChangedAt: string | null;
@@ -21,13 +20,14 @@ export interface SourceState {
   health: 'ok' | 'stale' | 'quarantined' | 'error' | 'terms_not_reviewed';
   message: string | null;
   quarantinedSha256: string | null;
+  /** Approved TLS identity per host; a change of issuing CA requires human approval. */
+  tlsBaselines: Record<string, IdentityBaseline>;
+  pendingCertFingerprint: string | null;
   listings: Record<string, FeedListing>;
 }
 
 export const emptyState = (sourceId: string): SourceState => ({
   sourceId,
-  etag: null,
-  lastModified: null,
   lastCheckedAt: null,
   lastSuccessAt: null,
   lastChangedAt: null,
@@ -37,6 +37,8 @@ export const emptyState = (sourceId: string): SourceState => ({
   health: 'ok',
   message: null,
   quarantinedSha256: null,
+  tlsBaselines: {},
+  pendingCertFingerprint: null,
   listings: {},
 });
 
@@ -47,27 +49,30 @@ export interface Anomaly {
 
 const MIN_BASELINE = 20;
 
-export function detectAnomalies(prev: SourceState, next: ParseResult): Anomaly[] {
+export function detectAnomalies(prev: SourceState, next: ParseResult, now = new Date()): Anomaly[] {
   const prevAvail = Object.values(prev.listings).filter((l) => l.state === 'AVAILABLE');
   if (prevAvail.length < MIN_BASELINE) return []; // not enough history to judge
-  const nextAvail = next.rows.filter((r) => !r.withdrawn);
-  const prevByApn = new Map(prevAvail.map((l) => [l.apn, l]));
+  // A new auction cycle legitimately replaces the whole list.
+  if (prevAvail.some((l) => l.auctionId !== next.auctionKey)) return [];
+
   const out: Anomaly[] = [];
+  const nextByApn = new Map(next.rows.map((r) => [r.apn, r]));
 
-  // A new auction cycle legitimately replaces the list.
-  const prevDate = prevAvail[0]?.auctionStartsAt ?? null;
-  const newCycle = !!next.auctionStartsAt && !!prevDate && next.auctionStartsAt !== prevDate;
-
-  if (!newCycle && nextAvail.length < prevAvail.length * 0.5) {
-    out.push({ code: 'MASS_REMOVAL', detail: `Available parcels fell from ${prevAvail.length} to ${nextAvail.length} in one update.` });
+  // Parcels are normally removed by being LINED OUT (still present, flagged). Parcels that
+  // silently vanish from the data in bulk suggest a truncated or substituted response.
+  const auctionStarted = !!next.auctionStartsAt && Date.parse(next.auctionStartsAt) <= now.getTime();
+  const vanished = prevAvail.filter((l) => !nextByApn.has(l.apn)).length;
+  if (!auctionStarted && vanished > prevAvail.length * 0.5) {
+    out.push({ code: 'MASS_REMOVAL', detail: `${vanished} of ${prevAvail.length} available parcels vanished from the data in one update.` });
   }
-  const added = nextAvail.filter((r) => !prevByApn.has(r.apn)).length;
-  if (!newCycle && added > prevAvail.length * 0.25) {
-    out.push({ code: 'MASS_ADDITION', detail: `${added} parcels appeared that were not on the previous list for the same auction.` });
+  const prevApns = new Set(Object.keys(prev.listings));
+  const added = next.rows.filter((r) => !r.withdrawn && !prevApns.has(r.apn)).length;
+  if (added > prevAvail.length * 0.25) {
+    out.push({ code: 'MASS_ADDITION', detail: `${added} new parcels appeared for an auction whose list was already published.` });
   }
-  const shifted = nextAvail.filter((r) => {
-    const p = prevByApn.get(r.apn);
-    return p && (r.minimumBid > p.minimumBid * 3 || r.minimumBid < p.minimumBid / 3);
+  const shifted = prevAvail.filter((l) => {
+    const r = nextByApn.get(l.apn);
+    return r && !r.withdrawn && (r.minimumBid > l.minimumBid * 3 || r.minimumBid < l.minimumBid / 3);
   }).length;
   if (shifted > Math.max(3, prevAvail.length * 0.1)) {
     out.push({ code: 'BID_SHIFT', detail: `${shifted} parcels changed minimum bid by more than 3x.` });
@@ -78,7 +83,7 @@ export function detectAnomalies(prev: SourceState, next: ParseResult): Anomaly[]
 export function applySnapshot(
   prev: SourceState,
   parsed: ParseResult,
-  meta: { sha256: string; sourceUrl: string; now: Date },
+  meta: { sha256: string; sourceUrl: string; now: Date; confirmedApns: Set<string> },
 ): SourceState {
   const nowIso = meta.now.toISOString();
   const listings: Record<string, FeedListing> = {};
@@ -87,13 +92,20 @@ export function applySnapshot(
   for (const r of parsed.rows) {
     onList.add(r.apn);
     const old = prev.listings[r.apn];
+    const confirmed = meta.confirmedApns.has(r.apn);
     listings[r.apn] = {
       sourceId: prev.sourceId,
       apn: r.apn,
       address: r.address,
       minimumBid: r.minimumBid,
+      auctionId: parsed.auctionKey,
       auctionStartsAt: r.auctionStartsAt,
-      state: r.withdrawn ? 'WITHDRAWN' : 'AVAILABLE',
+      auctionFormat: parsed.auctionFormat,
+      auctionLocation: parsed.auctionLocation,
+      groupApn: r.groupApn,
+      personalPropertyExcluded: r.personalPropertyExcluded,
+      state: r.withdrawn ? 'WITHDRAWN' : confirmed ? 'AVAILABLE' : 'UNCONFIRMED',
+      corroboratedAt: confirmed ? nowIso : (old?.corroboratedAt ?? null),
       firstSeenAt: old?.firstSeenAt ?? nowIso,
       lastVerifiedAt: nowIso,
       sourceUrl: meta.sourceUrl,
@@ -105,7 +117,12 @@ export function applySnapshot(
     if (!onList.has(apn)) listings[apn] = { ...old, state: 'WITHDRAWN' };
   }
 
+  const unconfirmed = Object.values(listings).filter((l) => l.state === 'UNCONFIRMED').length;
   const changed = meta.sha256 !== prev.lastSha256;
+  const notes = [
+    parsed.rejected.length ? `${parsed.rejected.length} row(s) rejected by validation` : null,
+    unconfirmed ? `${unconfirmed} parcel(s) hidden: not found in Assessor records` : null,
+  ].filter(Boolean);
   return {
     ...prev,
     lastCheckedAt: nowIso,
@@ -115,17 +132,8 @@ export function applySnapshot(
     changeTimes: changed ? [...prev.changeTimes, nowIso].slice(-30) : prev.changeTimes,
     consecutiveErrors: 0,
     health: 'ok',
-    message: parsed.rejected.length ? `${parsed.rejected.length} row(s) rejected by validation` : null,
+    message: notes.length ? notes.join('; ') : null,
     quarantinedSha256: null,
     listings,
   };
-}
-
-/** A 304 Not Modified confirms the list is unchanged, so every listing is re-verified now. */
-export function applyNotModified(prev: SourceState, now: Date): SourceState {
-  const nowIso = now.toISOString();
-  const listings = Object.fromEntries(
-    Object.entries(prev.listings).map(([k, l]) => [k, l.state === 'AVAILABLE' ? { ...l, lastVerifiedAt: nowIso } : l]),
-  );
-  return { ...prev, lastCheckedAt: nowIso, lastSuccessAt: nowIso, consecutiveErrors: 0, health: 'ok', listings };
 }

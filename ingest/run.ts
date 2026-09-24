@@ -1,22 +1,33 @@
 // Ingestion CLI.
 //
-//   npm run ingest                       run every source that is due, then publish the signed feed
-//   npm run ingest -- --watch            keep running; sleep until the next source is due
-//   npm run ingest -- --dry-run          fetch + parse + report only (no state, no publish)
-//   npm run ingest -- --file saved.html  parse a saved copy of the official page (still dry-run unless --commit)
-//   npm run ingest -- --force            ignore the schedule and check now
-//   npm run ingest -- --approve-snapshot <sha256>   accept a quarantined snapshot after human review
+//   npm run ingest                         run every source that is due, then publish the signed feed
+//   npm run ingest -- --watch              keep running; sleep until the next source is due
+//   npm run ingest -- --dry-run            verify + fetch + parse + report only (no state, no publish)
+//   npm run ingest -- --from-dir <dir>     read page.html / events.json / parcels.json saved from the
+//                                          official site instead of fetching (dry-run unless --commit)
+//   npm run ingest -- --force              ignore the schedule and check now
+//   npm run ingest -- --approve-snapshot <sha256>     accept a quarantined data snapshot after review
+//   npm run ingest -- --approve-cert <fingerprint>    accept a server certificate from a new CA after review
+//
+// Each check, in order (any failure = nothing new is published for that source):
+//   1. Site identity: public DNS, valid TLS certificate for the exact .gov name, issuing CA unchanged
+//   2. Fetch from the exact official host (HTTPS, redirects re-checked)
+//   3. Strict parse (fail closed on any format change)
+//   4. Anomaly screening (mass removal/addition, bid manipulation) -> quarantine
+//   5. Independent corroboration: each parcel must exist in the Assessor's records
+//   6. Publish an Ed25519-signed feed that expires on the source's cadence
 //
 // Signing key: FEED_SIGNING_KEY env (PEM) or ingest/.keys/feed-signing.pem (npm run keys:generate).
 
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
-import { createHash } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { SOURCES, type SourceConfig } from './sources/registry';
-import { secureFetch } from './lib/secureFetch';
-import { parseAuctionList } from './connectors/clarkTaxSale';
-import { applyNotModified, applySnapshot, detectAnomalies, emptyState, type SourceState } from './lib/reconcile';
+import { SOURCES, validateRegistry, type SourceConfig } from './sources/registry';
+import { fetchSnapshot, parseSnapshot, type RawSnapshot } from './connectors/clarkTaxSale';
+import { applySnapshot, detectAnomalies, emptyState, type SourceState } from './lib/reconcile';
+import { auctionStillOpen } from './lib/cadence';
+import { confirmParcelsExist } from './lib/corroborate';
+import { IdentityError, makeCertificateVerifier, type CertIdentity } from './lib/siteIdentity';
 import { buildFeed, scheduleFor } from './lib/publish';
 import { loadPrivateKey, signBytes } from './lib/sign';
 
@@ -42,11 +53,19 @@ function writeAtomic(path: string, data: string | Uint8Array) {
 
 function loadState(id: string): SourceState {
   const p = join(STATE_DIR, `${id}.json`);
-  return existsSync(p) ? (JSON.parse(readFileSync(p, 'utf8')) as SourceState) : emptyState(id);
+  return existsSync(p) ? { ...emptyState(id), ...(JSON.parse(readFileSync(p, 'utf8')) as SourceState) } : emptyState(id);
 }
 const saveState = (s: SourceState) => writeAtomic(join(STATE_DIR, `${s.sourceId}.json`), JSON.stringify(s, null, 2));
 
-async function checkSource(source: SourceConfig, now: Date, opts: { dryRun: boolean; approve?: string; file?: string }): Promise<SourceState> {
+function readSnapshotDir(dir: string): RawSnapshot {
+  return {
+    page: readFileSync(join(dir, 'page.html'), 'utf8'),
+    events: readFileSync(join(dir, 'events.json'), 'utf8'),
+    parcels: readFileSync(join(dir, 'parcels.json'), 'utf8'),
+  };
+}
+
+async function checkSource(source: SourceConfig, now: Date, opts: { dryRun: boolean; fromDir?: string }): Promise<SourceState> {
   const prev = loadState(source.id);
 
   if (!source.termsReviewedAt && !opts.dryRun) {
@@ -55,39 +74,48 @@ async function checkSource(source: SourceConfig, now: Date, opts: { dryRun: bool
   }
 
   try {
-    let body: string;
-    let sha256: string;
-    let url = source.fetchUrl;
-    let validators = { etag: null as string | null, lastModified: null as string | null };
-    if (opts.file) {
-      const bytes = readFileSync(opts.file);
-      body = bytes.toString('utf8');
-      sha256 = createHash('sha256').update(bytes).digest('hex');
-    } else {
-      const res = await secureFetch(source.fetchUrl, { allowedHosts: source.allowedHosts, etag: prev.etag, lastModified: prev.lastModified });
-      if (res.kind === 'not_modified') {
-        log(`[${source.id}] not modified; ${Object.values(prev.listings).filter((l) => l.state === 'AVAILABLE').length} listings re-verified`);
-        return applyNotModified(prev, now);
-      }
-      ({ body, sha256, url } = res);
-      // Remember the validators only once this exact content has been accepted below.
-      // Saving them earlier would let a later 304 "re-verify" a rejected or quarantined page.
-      validators = { etag: res.etag, lastModified: res.lastModified };
-    }
+    const state: SourceState = { ...prev, tlsBaselines: { ...prev.tlsBaselines } };
+    // Site identity is verified on every connection that returns data (see secureFetch).
+    const observed: Record<string, CertIdentity> = {};
+    const verifyCertificate = makeCertificateVerifier(state.tlsBaselines, observed, { now, approvedFingerprint: opt('--approve-cert') });
 
-    const parsed = parseAuctionList(body);
-    const available = parsed.rows.filter((r) => !r.withdrawn).length;
-    log(`[${source.id}] parsed ${parsed.rows.length} parcels (${available} available, ${parsed.rows.length - available} lined out), ${parsed.rejected.length} rejected; auction ${parsed.auctionStartsAt ?? 'date not found'}`);
+    const raw = opts.fromDir ? readSnapshotDir(opts.fromDir) : await fetchSnapshot(source, { verifyCertificate });
+    const { parsed, sha256 } = parseSnapshot(raw);
+    const open = parsed.rows.filter((r) => !r.withdrawn);
+    log(
+      `[${source.id}] auction ${parsed.auctionKey}: ${parsed.rows.length} parcels (${open.length} not lined out/sold), ` +
+        `${parsed.rejected.length} rejected; next session ${parsed.auctionStartsAt ?? 'none'} ` +
+        `(${parsed.auctionFormat ?? '?'}; ${auctionStillOpen(parsed.auctionStartsAt, now) ? 'upcoming' : 'already held, nothing available'})`,
+    );
     for (const r of parsed.rejected.slice(0, 10)) log(`  rejected row ${r.row}: ${r.reason}`);
 
-    const anomalies = detectAnomalies(prev, parsed);
-    if (anomalies.length && opts.approve !== sha256) {
+    const anomalies = detectAnomalies(state, parsed, now);
+    if (anomalies.length && opt('--approve-snapshot') !== sha256) {
       for (const a of anomalies) log(`  ANOMALY ${a.code}: ${a.detail}`);
       log(`[${source.id}] QUARANTINED snapshot ${sha256}. Review it on the official site, then re-run with --approve-snapshot ${sha256}`);
-      return { ...prev, lastCheckedAt: now.toISOString(), health: 'quarantined', quarantinedSha256: sha256, message: anomalies.map((a) => a.detail).join(' ') };
+      return { ...state, lastCheckedAt: now.toISOString(), health: 'quarantined', quarantinedSha256: sha256, message: anomalies.map((a) => a.detail).join(' ') };
     }
-    return { ...applySnapshot(prev, parsed, { sha256, sourceUrl: url, now }), ...validators };
+
+    // Only parcels that could be shown need corroboration.
+    const candidates = auctionStillOpen(parsed.auctionStartsAt, now) ? open.map((r) => r.apn) : [];
+    const confirmed = candidates.length ? await confirmParcelsExist(candidates, source.corroborationHosts, { verifyCertificate }) : new Set<string>();
+    if (candidates.length) log(`[${source.id}] Assessor confirmed ${confirmed.size} of ${candidates.length} parcels`);
+
+    for (const [host, id] of Object.entries(observed)) {
+      const before = state.tlsBaselines[host];
+      if (before?.fingerprint256 !== id.fingerprint256) {
+        log(`[${source.id}] ${host}: ${before ? 'certificate renewed' : 'certificate baseline recorded'} (issuer ${id.issuerOrg || id.issuerCN})`);
+      }
+      state.tlsBaselines[host] = { issuerOrg: id.issuerOrg, issuerCN: id.issuerCN, fingerprint256: id.fingerprint256, approvedAt: now.toISOString() };
+    }
+    log(`[${source.id}] site identity verified: ${Object.values(observed).map((i) => `${i.host} (${i.issuerOrg || i.issuerCN})`).join(', ')}`);
+    return { ...applySnapshot(state, parsed, { sha256, sourceUrl: source.officialUrl, now, confirmedApns: confirmed }), pendingCertFingerprint: null };
   } catch (err) {
+    if (err instanceof IdentityError) {
+      log(`[${source.id}] SITE IDENTITY ${err.code}: ${err.message}`);
+      if (err.code === 'ISSUER_CHANGED') log(`  After confirming with the agency, re-run with --approve-cert ${err.fingerprint256}`);
+      return { ...prev, lastCheckedAt: now.toISOString(), health: 'quarantined', pendingCertFingerprint: err.fingerprint256, message: `Site identity check failed: ${err.message}` };
+    }
     const message = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
     log(`[${source.id}] ERROR ${message}`);
     return { ...prev, lastCheckedAt: now.toISOString(), consecutiveErrors: prev.consecutiveErrors + 1, health: 'error', message };
@@ -108,7 +136,8 @@ function publish(states: Record<string, SourceState>, now: Date) {
 
 async function runOnce(): Promise<Date> {
   const now = new Date();
-  const dryRun = flag('--dry-run') || (!!opt('--file') && !flag('--commit'));
+  const fromDir = opt('--from-dir');
+  const dryRun = flag('--dry-run') || (!!fromDir && !flag('--commit'));
   const states: Record<string, SourceState> = {};
   for (const source of SOURCES) {
     const current = loadState(source.id);
@@ -117,7 +146,7 @@ async function runOnce(): Promise<Date> {
       states[source.id] = current;
       continue;
     }
-    const next = await checkSource(source, now, { dryRun, approve: opt('--approve-snapshot'), file: opt('--file') });
+    const next = await checkSource(source, now, { dryRun, fromDir });
     if (!dryRun) saveState(next);
     states[source.id] = dryRun ? current : next;
   }
@@ -127,6 +156,7 @@ async function runOnce(): Promise<Date> {
 }
 
 async function main() {
+  validateRegistry();
   if (!flag('--watch')) {
     await runOnce();
     return;
@@ -139,6 +169,6 @@ async function main() {
 }
 
 main().catch((e) => {
-  console.error(e);
+  console.error(e instanceof Error ? e.message : e);
   process.exit(1);
 });

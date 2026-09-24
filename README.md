@@ -22,16 +22,24 @@ npm run build      # static site in dist/
 
 ## Live data
 
-The first real connector reads the **Clark County Treasurer's delinquent-property (trustee) auction list** at <https://treasurer.clarkcountynv.gov/auction>. The Treasurer says the list is updated daily as payments come in, and paid parcels are lined out. See [SECURITY.md](SECURITY.md) for how listings are verified, kept current and protected against spoofing.
+The first real connector reads the **Clark County Treasurer's delinquent-property (trustee) auction** at <https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList>. It uses the county's own data endpoints for auction sessions and parcels. Each parcel is cross-checked against the Assessor's parcel records on a separate county server. See [SECURITY.md](SECURITY.md) for how sources are authenticated, kept current and protected against spoofing.
+
+**Verified against the live site on 2026-09-24:**
+- The latest auction (#21) was held **May 7, 2026** in person at the Clark County Government Center. It had 142 parcels, 95 lined out and 63 sold.
+- No new auction is scheduled; the Treasurer holds one "only if necessary."
+- So the Live page correctly shows **no available parcels** today. It will list parcels automatically once the Treasurer publishes the next auction.
 
 ### Enabling it
 
-1. **Review the Treasurer site's terms of use and robots rules.** If automated access is allowed, set `termsReviewedAt` in `ingest/sources/registry.ts`. Until then, scheduled runs will not fetch anything.
-2. **Validate the parser against the live page.** It was written against the Treasurer's published description of the list, and tested on a synthetic copy (`ingest/fixtures/`). Run:
+1. **Record the terms-of-use review.** Review the county sites' terms of use, then set `termsReviewedAt` in `ingest/sources/registry.ts`. Scheduled runs don't fetch until this is set. On 2026-09-24:
+   - `www.clarkcountynv.gov/robots.txt` allows all automated access.
+   - `treasurer.clarkcountynv.gov` has no `robots.txt`.
+   - No site terms prohibiting automated access were found.
+2. **Check the pipeline without saving anything:**
    ```bash
    npm run ingest -- --dry-run
    ```
-   You can also save the page from your browser and run `npm run ingest -- --file saved.html`. If the layout differs, the parser rejects the page instead of guessing. In that case, update `HEADER_ALIASES` and the fixture.
+   This verifies the sites' identity, then fetches, parses and cross-checks the data. To test offline from saved responses, run `npm run ingest -- --from-dir ingest/fixtures/clark-2026-05`.
 3. **Create the signing key:**
    ```bash
    npm run keys:generate
@@ -47,7 +55,7 @@ The first real connector reads the **Clark County Treasurer's delinquent-propert
 
 - **Learns the real update rate.** It watches when the official list actually changes and checks about 4 times per update interval. For the Treasurer's daily list, that starts at every 6 hours.
 - **Speeds up near the sale.** It checks hourly in the last 3 days before the auction, and every 15 minutes on the final day.
-- **Removes parcels right away.** A parcel is withdrawn as soon as the official list lines it out or drops it.
+- **Removes parcels right away.** A parcel is withdrawn as soon as the Treasurer lines it out, it sells, or it drops off the list.
 - **Hides anything not re-checked recently.** If the county site is down or the service stops, listings disappear from the site instead of going stale.
 
 ## Features

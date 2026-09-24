@@ -59,6 +59,7 @@ export function buildFeed(sources: SourceConfig[], states: Record<string, Source
       observedChangeIntervalHours: observedChangeIntervalHours(state.changeTimes),
       nextCheckAt: sched.nextCheckAt.toISOString(),
       health,
+      certificateIssuer: Object.values(state.tlsBaselines ?? {})[0]?.issuerOrg ?? null,
       message:
         health === 'terms_not_reviewed'
           ? 'Automated collection is disabled until the terms of use are reviewed.'

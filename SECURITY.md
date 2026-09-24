@@ -2,29 +2,50 @@
 
 The main threat to this site is a **spoofed or outdated listing**: someone gets a fake property, a changed minimum bid, or a phishing "pay here" link onto a page that people trust, or the site shows a parcel that has already been redeemed. Every layer below exists to stop that. Each layer **fails closed**: when anything is in doubt, the listing is hidden. It is never shown on a guess.
 
-## 1. Only official sources
+## 1. Only genuine official sites (anti-clone, anti-spoofing)
 
-- Sources are hard-coded in `ingest/sources/registry.ts`. There is no user-submitted listing path.
-- Each source lists the exact hostnames it may be fetched from, with no wildcards. `secureFetch` enforces the following on every request **and every redirect hop**:
-  - HTTPS only, with normal TLS certificate validation (never disabled)
-  - no embedded credentials and no non-standard ports
-  - an expected content type
-  - a size limit and a timeout
+**Clones and look-alike sites can't reach the pipeline.**
+- Sources are hard-coded in `ingest/sources/registry.ts`. The system never finds sources through search, links or user submissions.
+- Every host must be an exact **`.gov`** name, enforced by `validateRegistry()` at startup and in tests. `.gov` registration is limited to verified U.S. government organizations, so a clone site (`clarkcounty-treasurer.com`, `treasurer.clarkcountynv.gov.evil.com`, `treasurer-clarkcountynv.gov`) can never be contacted.
+
+**Every connection that returns data is checked** (`secureFetch` + `siteIdentity.ts`):
+
+| Check | What it enforces |
+| --- | --- |
+| Address | HTTPS only, exact host match, no embedded credentials, no non-standard ports |
+| Redirects | Every hop is re-checked; a redirect to any other host is refused |
+| Certificate | Must be valid and chain to a trusted certificate authority (CA), the company that issues it |
+| Name | Must cover the exact hostname |
+| Validity dates | Must be current |
+| Same connection | These checks run on **the same connection that returns the data**, so a different server can't answer the data request |
+| Issuing CA | Recorded per host. A routine renewal from the same CA is accepted. A certificate from a **different CA** quarantines the source, because that is what a DNS or domain hijacker with a mis-issued certificate looks like. After confirming with the agency, an operator approves it with `--approve-cert <fingerprint>`. |
+| DNS | Without a proxy, the name is resolved once, private/internal answers are refused (DNS rebinding), and the connection goes to exactly that address |
+
+**Other rules:**
 - A source cannot be collected automatically until a person records `termsReviewedAt` (terms of use and robots rules reviewed).
+- Only plain `GET` requests at a polite pace (one request per second), identified by a descriptive User-Agent.
+
+## 1b. Independent confirmation from a second county system
+
+Every parcel the Treasurer lists must also exist in the **Clark County Assessor's parcel records**. These come from a separate county server (`maps.clarkcountynv.gov`, ArcGIS parcel layer). An attacker who compromised or impersonated one system would have to forge the same parcel in both. Parcels the Assessor doesn't return are marked `UNCONFIRMED` and never published. If the Assessor can't be reached, the check fails and nothing new is published.
 
 ## 2. Strict parsing
 
-`ingest/connectors/clarkTaxSale.ts` finds the table by its column headers and validates every row.
+`ingest/connectors/clarkTaxSale.ts` reads the Treasurer's own data endpoints (`Event_Read` and `Parcel_Read`). It checked them against the live site on 2026-09-24.
+
+**Whole-snapshot checks** (any failure rejects the snapshot, `SchemaDriftError`):
+- The Auction List page must advertise exactly one auction ID.
+- Each response must be JSON with a full, unpaged `Data` array and no `Errors`. A firewall or error page is rejected.
+- If more than 5% of rows fail, the entire snapshot is rejected and nothing changes.
 
 **Row checks:**
-- The parcel number must be 11 digits.
-- The minimum bid must be a positive amount with at most 2 decimals and under $50M.
-- Duplicate parcels are rejected.
-- A row with an unrecognized status is rejected rather than guessed at.
+- The parcel must belong to the advertised auction.
+- The parcel number must be valid and consistent, with no duplicates.
+- The minimum bid must be a positive number.
+- The line-out flag must be a real true/false value.
+- The winning bid and deed date must be valid.
 
-**Whole-snapshot checks:**
-- If the layout changes, or more than 5% of rows fail, the entire snapshot is rejected (`SchemaDriftError`) and nothing changes.
-- Source text is stored as plain text and never rendered as HTML. React escapes it, and map popups escape it by hand.
+**Plain text only.** The county's data itself contains HTML (grouped parcels arrive as a `<button onclick=…>`, and addresses include `<br/>`). All values are reduced to plain text, never rendered as HTML, and escaped again by React.
 
 ## 3. Anomaly quarantine
 
@@ -43,19 +64,19 @@ While a source is quarantined, **it publishes no listings**. An operator checks 
 - The ingester signs `public/data/listings.json` with an **Ed25519** private key. The key is kept in a secret manager (`FEED_SIGNING_KEY`), never in the repo.
 - The site has the matching public key compiled in (`src/feed/publicKey.ts`). The browser **verifies the signature over the exact bytes before parsing anything**. A modified file, a file signed with another key, or a missing signature shows zero listings.
 - Every feed carries an `expiresAt` derived from the source's update cadence. After it passes, the browser hides all listings. An open tab re-checks every 5 minutes. Replaying an old signed feed therefore stops working when it expires.
-- The browser also re-validates each listing: parcel number format, amounts, and that links point only to allowlisted official HTTPS hosts. A signed listing that links anywhere else is dropped.
+- The browser also re-validates each listing. It must have a valid parcel number and amounts, an auction date, an Assessor confirmation, and links only to allowlisted official HTTPS hosts. A signed listing that fails any of these is dropped.
 
 ## 5. Freshness: never show a parcel that is no longer for sale
 
 | Rule | Where |
 | --- | --- |
-| A parcel that is lined out, marked redeemed/paid/withdrawn, or missing from the latest official list is withdrawn at once | `reconcile.ts` |
+| A parcel that is lined out (`IsLineOut`), sold (winning bid or recorded deed), or missing from the latest official list is withdrawn at once | `reconcile.ts` |
+| With no upcoming auction session, nothing is published. The Treasurer holds a new auction "only if necessary." | `cadence.ts` |
 | Polling runs about 4 times per observed update interval (learned from content hashes, starting from the agency's stated cadence), within 15 min to 6 h | `cadence.ts` |
 | Polling tightens to hourly within 72 h of the auction and every 15 min within 24 h | `cadence.ts` |
 | A listing is published only while its last verification is younger than `2 × poll interval + 30 min`, capped at the stated cadence | `cadence.ts`, `publish.ts` |
 | A source that is stale, erroring, quarantined or not yet terms-reviewed publishes nothing | `publish.ts` |
 | Parcels are hidden 10 h after the auction starts | `cadence.ts` |
-| A `304 Not Modified` response counts as re-verification | `reconcile.ts` |
 
 ## 6. Browser hardening
 

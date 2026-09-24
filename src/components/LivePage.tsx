@@ -50,8 +50,9 @@ export default function LivePage() {
       <h1>Clark County tax sales: verified live listings</h1>
       <p className="muted">
         Parcels the Clark County Treasurer currently lists for its delinquent-tax (trustee) auction. Every row is re-checked against the
-        official list on a schedule that follows how often the Treasurer updates it. Parcels that are paid off (lined out), removed, or not
-        re-verified recently are hidden automatically.
+        official list on a schedule that follows how often the Treasurer updates it, and must also exist in the Assessor's parcel records.
+        Parcels that are paid off (lined out), sold, removed, unconfirmed, or not re-verified recently are hidden automatically. When no
+        auction is scheduled, nothing is listed.
       </p>
 
       {!result && <p>Verifying listings…</p>}
@@ -88,6 +89,9 @@ export default function LivePage() {
                   {s.observedChangeIntervalHours !== null && <> · updates about every {s.observedChangeIntervalHours.toFixed(1)} h</>}
                   {s.nextCheckAt && <> · next check {fmtDateTime(s.nextCheckAt)}</>}
                 </div>
+                {s.certificateIssuer && (
+                  <div className="small muted">Site identity verified: valid certificate for the county's .gov domain issued by {s.certificateIssuer}</div>
+                )}
                 {s.message && <div className="small">{s.message}</div>}
                 {isOfficialUrl(s.officialUrl) && (
                   <a className="small" href={s.officialUrl} target="_blank" rel="noreferrer noopener">Official auction page ↗</a>
@@ -112,11 +116,21 @@ export default function LivePage() {
               <tbody>
                 {listings.map((l) => (
                   <tr key={l.apn}>
-                    <td>{l.apn}</td>
-                    <td>{l.address ?? <span className="muted">See Assessor</span>}</td>
+                    <td>
+                      {l.apn}
+                      {l.groupApn && <div className="small warn">Sold together with group {l.groupApn} (one bid)</div>}
+                      {l.personalPropertyExcluded && <div className="small muted">Personal property not included</div>}
+                    </td>
+                    <td>{l.address ?? <span className="muted">No street address (see Assessor)</span>}</td>
                     <td className="num">{fmtMoney(l.minimumBid)}</td>
-                    <td>{l.auctionStartsAt ? fmtDateTime(l.auctionStartsAt) : <span className="muted">See official notice</span>}</td>
-                    <td className="small" title={`Snapshot SHA-256 ${l.snapshotSha256}`}>{ago(l.lastVerifiedAt, now)}</td>
+                    <td>
+                      {l.auctionStartsAt && fmtDateTime(l.auctionStartsAt)}
+                      {l.auctionFormat && <div className="small muted">{l.auctionFormat}{l.auctionLocation ? ` · ${l.auctionLocation}` : ''}</div>}
+                    </td>
+                    <td className="small" title={`Snapshot SHA-256 ${l.snapshotSha256}`}>
+                      {ago(l.lastVerifiedAt, now)}
+                      <div className="muted">Assessor confirmed</div>
+                    </td>
                     <td>
                       {isOfficialUrl(l.sourceUrl) && (
                         <a href={l.sourceUrl} target="_blank" rel="noreferrer noopener">Confirm ↗</a>

@@ -47,7 +47,10 @@ export function isFresh(lastVerifiedAt: string | null, maxAgeMin: number, now: D
   return !!lastVerifiedAt && now.getTime() - Date.parse(lastVerifiedAt) <= maxAgeMin * M;
 }
 
-/** Parcels are offered through the auction day; hide them once the sale is effectively over. */
+/**
+ * Parcels are offered through the auction day; hide them once the sale is effectively over.
+ * No published auction date means nothing is scheduled, so nothing is shown (fail closed).
+ */
 export function auctionStillOpen(auctionStartsAt: string | null, now: Date): boolean {
-  return !auctionStartsAt || now.getTime() < Date.parse(auctionStartsAt) + 10 * H;
+  return !!auctionStartsAt && now.getTime() < Date.parse(auctionStartsAt) + 10 * H;
 }
