@@ -134,8 +134,12 @@ export function purchaseSteps(p: Property): string[] {
 export const fmtMoney = (n: number | null | undefined) =>
   n === null || n === undefined ? '—' : n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
+// Sales happen at the county's wall-clock time, so always display Las Vegas (Pacific) time
+// regardless of where the viewer is.
+const TZ = 'America/Los_Angeles';
+
 export const fmtDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: TZ });
 
 export const fmtDateTime = (iso: string) =>
-  new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+  new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: TZ, timeZoneName: 'short' });

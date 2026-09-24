@@ -171,3 +171,17 @@ CREATE TABLE alert (
   created_at      timestamptz NOT NULL DEFAULT now(),
   last_sent_at    timestamptz
 );
+
+-- Every poll of a source, used to learn its real update cadence and to prove freshness.
+CREATE TABLE source_check (
+  id              bigserial PRIMARY KEY,
+  data_source_id  int NOT NULL REFERENCES data_source(id),
+  checked_at      timestamptz NOT NULL DEFAULT now(),
+  outcome         text NOT NULL CHECK (outcome IN ('changed', 'not_modified', 'unchanged', 'quarantined', 'schema_drift', 'error')),
+  content_sha256  text,
+  http_etag       text,
+  rows_parsed     int,
+  rows_rejected   int,
+  message         text
+);
+CREATE INDEX source_check_recent_idx ON source_check (data_source_id, checked_at DESC);

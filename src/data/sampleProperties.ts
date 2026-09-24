@@ -187,23 +187,23 @@ function makeProperty(i: number, scenario: Scenario): Property {
         ev((delinquentYears - 2) * 365 + 30, 'DEEDED_TO_TRUSTEE', 'Two-year redemption period expired. Property held in trust by the County Treasurer.', 'Clark County Treasurer (sample)'),
         ev(int(20, 45), 'SALE_SCHEDULED', 'Parcel listed on the Treasurer’s tax auction list.', 'Clark County Treasurer (sample)'),
       );
+      // Mirrors the Treasurer's published process: in-person auction at the Government Center,
+      // refundable registration deposit, minimum bid = taxes, penalties, interest and costs.
       sale = baseSale({
         saleType: 'TAX_DEED',
         conductedBy: 'Clark County Treasurer',
-        startsAt: isoAt(saleDay, 9),
-        endsAt: isoAt(saleDay + 2, 14),
-        location: 'Online (county tax-auction portal)',
+        startsAt: isoAt(saleDay, 8),
+        location: 'Commission Chambers, Clark County Government Center, 500 S. Grand Central Pkwy, Las Vegas',
         minimumBid: round(owed + 350, 10),
-        deposit: 'Refundable deposit required at registration (see official terms)',
-        registrationDeadline: isoAt(saleDay - 3, 17),
-        paymentMethods: ['Wire transfer', "Cashier's check"],
-        finalPaymentDeadline: isoAt(saleDay + 4, 17),
-        buyerPremiumPct: null,
+        deposit: '$5,000 registration deposit (per Treasurer FAQ; confirm in the current auction notice)',
+        registrationDeadline: isoAt(saleDay - 1, 17),
+        paymentMethods: ["Cashier's check", 'Cash'],
+        finalPaymentDeadline: isoAt(saleDay, 17),
         deedType: 'Tax deed (quitclaim form, no warranty)',
-        redemptionPeriod: 'Redemption period expired before the auction',
-        eligibility: 'Registered bidders only; county employees and the delinquent owner may be restricted',
+        redemptionPeriod: 'Redemption period expired before the auction; IRS may redeem within 120 days if it holds a lien',
+        eligibility: 'Registered bidders only; registration may be capped',
       });
-      status = 'ONLINE_BIDDING';
+      status = 'IN_PERSON_AUCTION';
       break;
     }
     case 'trustee':
@@ -350,6 +350,19 @@ function makeProperty(i: number, scenario: Scenario): Property {
         eligibility: 'Pre-approval or proof of funds',
       });
       status = 'BROKER_OFFER';
+      if (rand() < 0.5) {
+        // Some lenders sell REO through a timed online auction instead of a broker listing.
+        Object.assign(sale, {
+          location: 'Online (lender auction platform)',
+          startsAt: isoAt(saleDay, 9),
+          endsAt: isoAt(saleDay + 3, 12),
+          registrationDeadline: isoAt(saleDay + 2, 17),
+          buyerPremiumPct: 5,
+          deposit: 'Earnest money within 24 h of winning (see platform terms)',
+          finalPaymentDeadline: isoAt(saleDay + 33, 17),
+        });
+        status = 'ONLINE_BIDDING';
+      }
       break;
     }
     case 'pre_foreclosure': {

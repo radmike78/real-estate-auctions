@@ -7,16 +7,48 @@ A distressed-property and forced-sale discovery platform. It finds properties th
 3. **What liens and risks may remain?** The Nevada rules engine estimates which liens likely survive the sale.
 4. **What must I do next?** The site shows online bidding details or step-by-step in-person instructions, and always links to the official sale.
 
-> **Status: prototype on fictional sample data for Clark County, NV.** Nothing here is legal advice or a title determination. The site never claims title is "clear" and never takes bids or money.
+> **Status:** search results use fictional sample data for Clark County, NV. The **Live tax sales** page shows only verified listings from the Clark County Treasurer connector (see [Live data](#live-data)).
+> Nothing here is legal advice or a title determination. The site never claims title is "clear" and never takes bids or money.
 
 ## Run it
 
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # rules engine + search tests
+npm test           # rules engine, search, connector, freshness and security tests
 npm run build      # static site in dist/
 ```
+
+
+## Live data
+
+The first real connector reads the **Clark County Treasurer's delinquent-property (trustee) auction list** at <https://treasurer.clarkcountynv.gov/auction>. The Treasurer says the list is updated daily as payments come in, and paid parcels are lined out. See [SECURITY.md](SECURITY.md) for how listings are verified, kept current and protected against spoofing.
+
+### Enabling it
+
+1. **Review the Treasurer site's terms of use and robots rules.** If automated access is allowed, set `termsReviewedAt` in `ingest/sources/registry.ts`. Until then, scheduled runs will not fetch anything.
+2. **Validate the parser against the live page.** It was written against the Treasurer's published description of the list, and tested on a synthetic copy (`ingest/fixtures/`). Run:
+   ```bash
+   npm run ingest -- --dry-run
+   ```
+   You can also save the page from your browser and run `npm run ingest -- --file saved.html`. If the layout differs, the parser rejects the page instead of guessing. In that case, update `HEADER_ALIASES` and the fixture.
+3. **Create the signing key:**
+   ```bash
+   npm run keys:generate
+   ```
+   This writes the private key to `ingest/.keys/` (gitignored) and the public key into the site. Rebuild the site afterwards.
+4. **Run it:**
+   ```bash
+   npm run ingest -- --watch
+   ```
+   This long-running service checks each source when it is due and writes the signed feed to `public/data/`. Deploy that folder alongside the built site.
+
+### How it stays current
+
+- **Learns the real update rate.** It watches when the official list actually changes and checks about 4 times per update interval. For the Treasurer's daily list, that starts at every 6 hours.
+- **Speeds up near the sale.** It checks hourly in the last 3 days before the auction, and every 15 minutes on the final day.
+- **Removes parcels right away.** A parcel is withdrawn as soon as the official list lines it out or drops it.
+- **Hides anything not re-checked recently.** If the county site is down or the service stops, listings disappear from the site instead of going stale.
 
 ## Features
 
@@ -45,6 +77,9 @@ npm run build      # static site in dist/
 | `src/data/sampleProperties.ts` | Seeded fictional Clark County data (swap for real connectors) |
 | `src/components/` | React UI (Leaflet map, results, property page) |
 | `db/schema.sql` | Production PostgreSQL/PostGIS schema with per-fact provenance |
+| `ingest/` | Live connectors: source registry, secure fetch, Clark tax-sale parser, cadence, anomaly quarantine, feed signing |
+| `src/feed/` | Browser-side signature/expiry verification of the live feed |
+| `src/components/LivePage.tsx` | Verified live listings page |
 
 ## Roadmap
 

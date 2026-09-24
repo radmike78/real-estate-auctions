@@ -1,3 +1,8 @@
 node_modules
 dist
 *.log
+# ingestion runtime state and secrets
+ingest/state/
+ingest/.keys/
+public/data/listings.json
+public/data/listings.json.sig

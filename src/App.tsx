@@ -6,14 +6,16 @@ import ResultsList from './components/ResultsList';
 import MapView from './components/MapView';
 import PropertyPage from './components/PropertyPage';
 import AboutPage from './components/AboutPage';
+import LivePage from './components/LivePage';
 
-type Route = { page: 'search' } | { page: 'property'; id: string } | { page: 'about' };
+type Route = { page: 'search' } | { page: 'property'; id: string } | { page: 'about' } | { page: 'live' };
 
 function parseHash(): Route {
   const h = window.location.hash.replace(/^#\/?/, '');
   const m = h.match(/^property\/(.+)$/);
   if (m) return { page: 'property', id: m[1] };
   if (h === 'about') return { page: 'about' };
+  if (h === 'live') return { page: 'live' };
   return { page: 'search' };
 }
 
@@ -59,18 +61,21 @@ export default function App() {
           <button type="submit">Search</button>
         </form>
         <nav>
+          <a href="#/live">Live tax sales</a>
           <a href="#/about">How it works</a>
         </nav>
       </header>
 
       <div className="banner" role="note">
-        <strong>Prototype with sample data.</strong> Every property, owner and document here is fictional. Real sales can be paid off,
+        <strong>Search results use sample data.</strong> Every property, owner and document in search is fictional; verified
+        official listings are under <a href="#/live">Live tax sales</a>. Real sales can be paid off,
         postponed or cancelled up to the last minute, so always verify with the official source before bidding. Nothing here is legal advice
         or a title determination.
       </div>
 
       {route.page === 'property' && <PropertyPage id={route.id} />}
       {route.page === 'about' && <AboutPage />}
+      {route.page === 'live' && <LivePage />}
       {route.page === 'search' && (
         <main className="search-layout">
           <FiltersPanel filters={filters} onChange={update} onReset={() => { setFilters(DEFAULT_FILTERS); setLocationInput(''); }} />
