@@ -58,17 +58,21 @@ The gap: nobody combines **accurate, current, local data** with **an honest expl
 - HOA lender-tender rule and 60-day redemption (NRS 116.31166); tenant notices (90 days under the federal Protecting Tenants at Foreclosure Act; NRS 40.255 for the change-of-ownership notice); sheriff-sale 1-year redemption (NRS 21.210).
 - A legal fact-check against statute text corrected: special-assessment certificate rules (no deposit, day-of registration, next-morning payment, certificate expiry, deed clears other liens under NRS 271.600), the federal Foreclosure Bar for Fannie Mae / Freddie Mac loans at HOA sales, the U.S. 120-day redemption right after trustee sales, and the scope of NRS 645F.
 
-## 4. Free vs paid (recommendation, for the owner to decide)
+## 4. Pricing decision: free for users
 
-**Keep free** (builds trust and traffic): all listings and status, playbooks, checklists, the calculator, the due-diligence steps, homeowner help, and a small My deals list (for example up to 5 properties, stored in the browser).
+**Decision (owner, 2026-09-25): everything for buyers and investors is free.** The site exists to help people invest and make money, so there is no paid investor plan for now. That includes listings and status, playbooks, checklists, the max safe bid calculator, due diligence, My deals and homeowner help.
 
-**Candidates for a paid investor plan:**
+**How the site is funded:** licensed professionals (agents, lenders, title, insurance, contractors) pay a flat monthly fee to be listed in the directories. The fee is the same for everyone in a category, with fair rotating placement and a clear "Advertisement" label. No referral fees and no pay-for-position.
 
-1. Email/SMS alerts on status changes, postponements and new listings matching saved searches.
-2. Unlimited My deals, synced across devices, with exportable deal files (PDF).
+**Features to build later, free:**
+
+1. Email alerts on status changes, postponements and new listings matching saved searches.
+2. My deals synced across devices, with exportable deal files (PDF).
 3. Recorded-document pulls and a lien summary per property (where data licensing allows).
 4. Auction-day calendar exports and registration-deadline reminders.
 5. Historical results (opening bid vs sold price) for Clark County sales.
+
+Features that cost money to run (alerts, document pulls) could come back as optional paid extras later if the owner decides; nothing on the site depends on that.
 
 Avoid: income promises, courses, and anything that sells distressed-homeowner contact data.
 
