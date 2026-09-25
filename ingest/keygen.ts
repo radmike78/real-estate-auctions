@@ -1,6 +1,7 @@
 // Generates the Ed25519 feed-signing key pair.
 // Private key -> ingest/.keys/feed-signing.pem (gitignored; store it in a secret manager in production).
 // Public key  -> src/feed/publicKey.ts (compiled into the site; the browser verifies with it).
+// With --print, both keys are printed instead (for container builds; see DEPLOY.md).
 
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -9,6 +10,14 @@ import { generateSigningKeys } from './lib/sign';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const keyFile = join(ROOT, 'ingest', '.keys', 'feed-signing.pem');
+
+// --print: for container deployments. Prints both keys instead of writing files: the public key goes
+// into the image build (FEED_PUBLIC_KEY build argument), the private key into a secret.
+if (process.argv.includes('--print')) {
+  const { privatePem, publicSpkiB64 } = generateSigningKeys();
+  console.log(`FEED_PUBLIC_KEY (build argument, safe to share):\n${publicSpkiB64}\n\nFEED_SIGNING_KEY (secret, keep private):\n${privatePem}`);
+  process.exit(0);
+}
 
 if (existsSync(keyFile) && !process.argv.includes('--rotate')) {
   console.error(`${keyFile} already exists. Pass --rotate to replace it (the site must be rebuilt afterwards).`);

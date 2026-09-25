@@ -5,6 +5,7 @@ import { createServer, type Server } from 'node:http';
 import { webcrypto } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApp } from './app';
+import { openDb } from './db';
 import { hashPassword, verifyPassword, RateLimiter } from './auth';
 import type { Mail } from './mailer';
 import { leadsToCsv, monthRange, pacificDaysToUtc } from './metrics';
@@ -337,5 +338,38 @@ describe('advertiser flow (running server)', () => {
   it('signs out', async () => {
     expect((await admin('/api/admin/logout', {})).status).toBe(200);
     expect((await admin('/api/admin/applications')).status).toBe(401);
+  });
+});
+
+describe('operations: health check and backups', () => {
+  it('answers /healthz and writes a consistent database backup', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'fsf-ops-'));
+    const app = createApp({
+      dbPath: join(dir, 'app.db'),
+      dataDir: join(dir, 'data'),
+      distDir: null,
+      adminUsername: 'admin',
+      adminPasswordHash: hashPassword('correct horse battery'),
+      signingKey: null,
+      baseUrl: 'https://fsf.example',
+      mailer: { send: async () => {} },
+      secureCookies: false,
+      trustProxy: false,
+    });
+    const server = createServer(app.handler);
+    await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
+    const res = await fetch(`http://127.0.0.1:${(server.address() as { port: number }).port}/healthz`);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ ok: true });
+    expect(res.headers.get('cache-control')).toBe('no-store');
+    await new Promise<void>((r) => server.close(() => r()));
+
+    const copy = join(dir, 'backup.db');
+    app.db.backupTo(copy);
+    expect(existsSync(copy)).toBe(true);
+    const restored = openDb(copy);
+    expect(restored.ping()).toBe(true);
+    restored.close();
+    app.db.close();
   });
 });

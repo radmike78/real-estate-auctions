@@ -1,0 +1,20 @@
+# Shared manifests for Kubernetes and OpenShift. Deploy an overlay, not this folder:
+#   kubectl apply -k deploy/kubernetes/overlays/kubernetes    (any Kubernetes distribution)
+#   oc apply -k deploy/kubernetes/overlays/openshift          (OpenShift, prebuilt image)
+#   oc apply -k deploy/kubernetes/overlays/openshift-build    (OpenShift, builds the image from Git)
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+labels:
+  - pairs:
+      app.kubernetes.io/name: forced-sale-finder
+      app.kubernetes.io/part-of: forced-sale-finder
+    includeSelectors: true
+resources:
+  - pvc.yaml
+  - deployment.yaml
+  - service.yaml
+  - networkpolicy.yaml
+configMapGenerator:
+  - name: forced-sale-finder-config
+    envs:
+      - config.env

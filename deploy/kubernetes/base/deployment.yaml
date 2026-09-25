@@ -1,0 +1,85 @@
+# One pod, two containers sharing one volume:
+#   web     web server + API (port 8080), writes the SQLite database and daily backups
+#   ingest  listings updater: checks official county sources and writes the signed listings feed
+#
+# Keep replicas at 1: SQLite lives on a ReadWriteOnce volume and allows only one writer.
+# "Recreate" stops the old pod before starting the new one, so two never share the database.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forced-sale-finder
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: web
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: web
+          image: forced-sale-finder # set by the overlay (images:)
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: forced-sale-finder-config
+            - secretRef:
+                name: forced-sale-finder-secrets
+          startupProbe:
+            httpGet: { path: /healthz, port: http }
+            periodSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            httpGet: { path: /healthz, port: http }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            periodSeconds: 20
+            failureThreshold: 3
+          resources:
+            requests: { cpu: 100m, memory: 192Mi }
+            limits: { memory: 512Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - { name: data, mountPath: /data }
+            - { name: tmp, mountPath: /tmp }
+        - name: ingest
+          image: forced-sale-finder
+          command: ["node", "--import", "tsx", "ingest/run.ts", "--watch"]
+          env:
+            - name: FEED_SIGNING_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: forced-sale-finder-secrets
+                  key: FEED_SIGNING_KEY
+          resources:
+            requests: { cpu: 20m, memory: 128Mi }
+            limits: { memory: 384Mi }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - { name: data, mountPath: /data }
+            - { name: tmp, mountPath: /tmp }
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: forced-sale-finder-data
+        - name: tmp
+          emptyDir:
+            sizeLimit: 256Mi

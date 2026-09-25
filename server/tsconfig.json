@@ -4,6 +4,6 @@
     "lib": ["ES2022", "DOM"],
     "types": ["node"]
   },
-  "include": ["./**/*.ts", "../src/lib/**/*.ts", "../src/feed/**/*.ts", "../ingest/lib/sign.ts"],
+  "include": ["./**/*.ts", "../src/lib/**/*.ts", "../src/feed/**/*.ts", "../src/env.d.ts", "../ingest/lib/sign.ts"],
   "exclude": ["../src/**/*.test.ts"]
 }

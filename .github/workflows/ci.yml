@@ -1,0 +1,85 @@
+# Checks every pull request, and publishes the container image when main changes.
+#   test       type checks, unit tests, site build
+#   manifests  renders the Kubernetes/OpenShift overlays and validates them against their schemas
+#   image      builds the image with Podman (no Docker), starts it and checks /healthz;
+#              on main, pushes it to GitHub Container Registry as :latest and :<commit>
+#
+# Set the repository variable FEED_PUBLIC_KEY (Settings > Secrets and variables > Actions > Variables)
+# to your public signing key so the published image can verify your signed listings.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      - run: npm test
+      - run: npx vite build
+
+  manifests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kubeconform
+        run: curl -sL https://github.com/yannh/kubeconform/releases/download/v0.7.0/kubeconform-linux-amd64.tar.gz | sudo tar xz -C /usr/local/bin kubeconform
+      - name: Render and validate every overlay
+        run: |
+          OS=https://raw.githubusercontent.com/melmorabity/openshift-json-schemas/main/v4.14-standalone-strict
+          for o in kubernetes openshift openshift-build; do
+            echo "== $o"
+            kubectl kustomize deploy/kubernetes/overlays/$o > /tmp/$o.yaml
+            kubeconform -strict -summary -schema-location default -schema-location "$OS/{{ .ResourceKind }}.json" /tmp/$o.yaml
+          done
+
+  image:
+    needs: [test, manifests]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build with Podman
+        run: |
+          podman --version
+          podman build --build-arg RUN_TESTS=0 --build-arg FEED_PUBLIC_KEY="${{ vars.FEED_PUBLIC_KEY }}" \
+            -t "$IMAGE:${{ github.sha }}" -t "$IMAGE:latest" -f Containerfile .
+      - name: Smoke test (start it and check /healthz)
+        run: |
+          openssl genpkey -algorithm ed25519 -out /tmp/key.pem
+          HASH=$(printf 'ci-smoke-test-password\n' | podman run --rm -i "$IMAGE:latest" node --import tsx server/hash-password.ts 2>/dev/null)
+          printf '%s' "$HASH" | podman secret create hash -
+          podman secret create key /tmp/key.pem
+          podman run -d --name web -p 8080:8080 -e ADMIN_USERNAME=admin \
+            --secret hash,type=env,target=ADMIN_PASSWORD_HASH --secret key,type=env,target=FEED_SIGNING_KEY "$IMAGE:latest"
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8080/healthz && break; sleep 2; done
+          curl -fsS -o /dev/null http://127.0.0.1:8080/
+          podman logs web
+          podman stop -t 10 web
+      - name: Push to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | podman login ghcr.io -u "${{ github.actor }}" --password-stdin
+          podman push "$IMAGE:${{ github.sha }}"
+          podman push "$IMAGE:latest"

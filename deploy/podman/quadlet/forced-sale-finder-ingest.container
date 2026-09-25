@@ -1,0 +1,21 @@
+# Listings updater: checks official county sources on a schedule and writes the signed listings feed.
+[Unit]
+Description=Forced-Sale Finder listings updater
+Wants=network-online.target
+After=network-online.target forced-sale-finder-web.service
+
+[Container]
+Image=localhost/forced-sale-finder:latest
+ContainerName=forced-sale-finder-ingest
+Exec=node --import tsx ingest/run.ts --watch
+Volume=forced-sale-finder.volume:/data
+Secret=fsf-feed-signing-key,type=env,target=FEED_SIGNING_KEY
+NoNewPrivileges=true
+DropCapability=ALL
+
+[Service]
+Restart=always
+TimeoutStopSec=30
+
+[Install]
+WantedBy=default.target

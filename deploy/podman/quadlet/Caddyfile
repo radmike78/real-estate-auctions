@@ -1,0 +1,5 @@
+# Replace with your domain. Caddy handles HTTPS certificates and redirects HTTP to HTTPS.
+forced-sale-finder.example.com {
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:8080
+}

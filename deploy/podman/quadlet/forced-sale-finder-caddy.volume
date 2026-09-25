@@ -1,0 +1,3 @@
+# Caddy's certificates and account keys.
+[Volume]
+VolumeName=forced-sale-finder-caddy-data

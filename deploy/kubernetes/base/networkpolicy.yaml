@@ -1,0 +1,15 @@
+# Only web traffic on port 8080 may reach the pod. Outbound traffic stays open: the pod calls the
+# county sites, Stripe and your email provider, and plain NetworkPolicy can't filter by host name.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: forced-sale-finder
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: web
+  policyTypes: ["Ingress"]
+  ingress:
+    - ports:
+        - port: 8080
+          protocol: TCP

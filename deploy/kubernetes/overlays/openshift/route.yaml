@@ -1,0 +1,17 @@
+# HTTPS using the router's certificate (edge TLS); plain HTTP redirects to HTTPS.
+# Leave "host" out to get an automatic name like forced-sale-finder-<project>.apps.<cluster-domain>,
+# or set your own domain (point its DNS at the router and add a certificate).
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: forced-sale-finder
+spec:
+  # host: forced-sale-finder.example.com
+  to:
+    kind: Service
+    name: forced-sale-finder
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

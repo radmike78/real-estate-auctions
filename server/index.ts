@@ -11,10 +11,12 @@
 //                      STRIPE_PLANS is JSON: {"agent": {"priceId": "price_...", "amountLabel": "$199 / month"}, ...}
 //   TRUST_PROXY=1      read client IP from the LAST X-Forwarded-For entry (only behind your own reverse proxy
 //                      that appends to that header; see SECURITY.md)
+//   BACKUP_DIR         where daily database backups go, default <DB_PATH folder>/backups ("" turns backups off)
+//   BACKUP_KEEP        how many daily backups to keep, default 7
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadPrivateKey } from '../ingest/lib/sign';
 import { createApp } from './app';
@@ -53,8 +55,9 @@ if (stripeEnv.some(Boolean)) {
   console.log('Online payments off: record advertiser billing by hand in the admin page.');
 }
 
+const dbPath = env.DB_PATH ?? join(ROOT, 'server', 'data', 'app.db');
 const app = createApp({
-  dbPath: env.DB_PATH ?? join(ROOT, 'server', 'data', 'app.db'),
+  dbPath,
   dataDir: env.DATA_DIR ?? join(ROOT, 'public', 'data'),
   distDir: env.DIST_DIR === '' ? null : (env.DIST_DIR ?? join(ROOT, 'dist')),
   adminUsername: env.ADMIN_USERNAME,
@@ -72,6 +75,40 @@ const app = createApp({
 app.maintain();
 setInterval(() => app.maintain(), 3_600_000).unref();
 
-createServer(app.handler).listen(port, env.HOST ?? '127.0.0.1', () => {
+// Daily database backups on the same volume. Copy them somewhere else too (see DEPLOY.md).
+const backupDir = env.BACKUP_DIR === '' ? null : (env.BACKUP_DIR ?? join(dirname(dbPath), 'backups'));
+const backupKeep = Math.max(1, Number(env.BACKUP_KEEP ?? 7) || 7);
+function backup() {
+  if (!backupDir) return;
+  try {
+    mkdirSync(backupDir, { recursive: true });
+    const files = readdirSync(backupDir).filter((f) => /^app-.*\.db$/.test(f)).sort();
+    const newest = files[files.length - 1];
+    if (newest && Date.now() - statSync(join(backupDir, newest)).mtimeMs < 23 * 3_600_000) return;
+    const file = join(backupDir, `app-${new Date().toISOString().replace(/[:.]/g, '-')}.db`);
+    app.db.backupTo(file);
+    for (const old of [...files, basename(file)].sort().slice(0, -backupKeep)) rmSync(join(backupDir, old), { force: true });
+    console.log(`Database backed up to ${file}`);
+  } catch (e) {
+    console.error('Database backup failed:', e);
+  }
+}
+if (!backupDir) console.log('Database backups off (BACKUP_DIR is empty).');
+backup();
+setInterval(backup, 3_600_000).unref();
+
+const server = createServer(app.handler).listen(port, env.HOST ?? '127.0.0.1', () => {
   console.log(`Forced-Sale Finder server on http://${env.HOST ?? '127.0.0.1'}:${port} (public URL ${baseUrl})`);
 });
+
+// Containers are stopped with SIGTERM: finish open requests, close the database cleanly, then exit.
+function shutdown(signal: string) {
+  console.log(`${signal} received, shutting down.`);
+  server.close(() => {
+    app.db.close();
+    process.exit(0);
+  });
+  setTimeout(() => process.exit(0), 10_000).unref();
+}
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));

@@ -1,0 +1,26 @@
+# HTTPS entry point. Change the host name (twice), and ingressClassName if your cluster doesn't use nginx.
+# With cert-manager installed, the annotation below gets a free Let's Encrypt certificate automatically;
+# change "letsencrypt" to the name of your ClusterIssuer. Without cert-manager, create the TLS secret yourself.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: forced-sale-finder
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/proxy-body-size: 1m
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: ["forced-sale-finder.example.com"]
+      secretName: forced-sale-finder-tls
+  rules:
+    - host: forced-sale-finder.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: forced-sale-finder
+                port:
+                  name: http

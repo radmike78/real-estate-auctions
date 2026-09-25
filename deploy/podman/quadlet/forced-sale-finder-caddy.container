@@ -1,0 +1,19 @@
+# Optional HTTPS front end: Caddy gets a free Let's Encrypt certificate for your domain automatically.
+# Needs ports 80 and 443 (see README), and your domain's DNS pointing at this server.
+[Unit]
+Description=Forced-Sale Finder HTTPS proxy (Caddy)
+Wants=network-online.target
+After=network-online.target forced-sale-finder-web.service
+
+[Container]
+Image=docker.io/library/caddy:2
+ContainerName=forced-sale-finder-caddy
+Network=host
+Volume=./Caddyfile:/etc/caddy/Caddyfile:ro,Z
+Volume=forced-sale-finder-caddy.volume:/data
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target
