@@ -36,7 +36,7 @@ export default function PropertyPage({ id }: { id: string }) {
   if (!p) {
     return (
       <main className="page">
-        <p>Property not found. <a href="#/">Back to search</a></p>
+        <p>Property not found. <a href="#/search">Back to search</a></p>
       </main>
     );
   }
@@ -52,7 +52,7 @@ export default function PropertyPage({ id }: { id: string }) {
   return (
     <main className="page">
       <div className="page-actions no-print">
-        <a href="#/">← Back to results</a>
+        <a href="#/search">← Back to results</a>
         <button onClick={() => window.print()}>Print due-diligence report</button>
       </div>
 

@@ -1,7 +1,7 @@
 import ProDirectory from './ProDirectory';
 import Disclaimer from './Disclaimer';
 
-export default function ProsPage() {
+export default function ProsPage({ initialLocation = '' }: { initialLocation?: string }) {
   return (
     <main className="page">
       <h1>Title, insurance & repairs</h1>
@@ -11,7 +11,7 @@ export default function ProsPage() {
         written bids and proof of insurance before work starts.
       </p>
       <Disclaimer kind="services" compact />
-      <ProDirectory categories={['title_escrow', 'insurance', 'contractor']} />
+      <ProDirectory initialLocation={initialLocation} categories={['title_escrow', 'insurance', 'contractor']} />
     </main>
   );
 }

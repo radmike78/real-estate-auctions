@@ -55,15 +55,16 @@ export function ProCard({ p }: { p: Pro }) {
 }
 
 interface Props {
+  initialLocation?: string;
   categories: Category[]; // which categories this directory offers
   initialCategory?: Category | 'any';
   showCategoryFilter?: boolean;
 }
 
-export default function ProDirectory({ categories, initialCategory = 'any', showCategoryFilter = true }: Props) {
+export default function ProDirectory({ categories, initialCategory = 'any', showCategoryFilter = true, initialLocation = '' }: Props) {
   const { pros, usingSamples, error, loading } = useDirectory();
   const [cat, setCat] = useState<Category | 'any'>(initialCategory);
-  const [q, setQ] = useState<Omit<ProQuery, 'categories'>>({ location: '', service: 'any', creditProfile: 'any', language: 'any' });
+  const [q, setQ] = useState<Omit<ProQuery, 'categories'>>({ location: initialLocation, service: 'any', creditProfile: 'any', language: 'any' });
   const active = cat === 'any' ? categories : [cat];
   const financing = active.some((c) => CATEGORIES[c].financing);
   const serviceOptions = useMemo(() => [...new Set(active.flatMap((c) => servicesFor(c)))], [active.join()]); // eslint-disable-line react-hooks/exhaustive-deps

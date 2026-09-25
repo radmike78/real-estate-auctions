@@ -10,7 +10,7 @@ const OPTIONS: [string, string][] = [
   ['Credit challenges', 'FHA, non-QM and some private lenders work with lower scores, recent credit events or ITIN borrowers, usually at higher rates. Compare several offers.'],
 ];
 
-export default function FinancingPage() {
+export default function FinancingPage({ initialLocation = '' }: { initialLocation?: string }) {
   return (
     <main className="page">
       <h1>Find financing</h1>
@@ -32,7 +32,7 @@ export default function FinancingPage() {
         Credit situations are what each lender says it works with. They are not an offer or a guarantee of credit. Every lender's license or
         registration is checked on NMLS Consumer Access, FDIC BankFind or the NCUA locator.
       </p>
-      <ProDirectory categories={FINANCING_CATEGORIES} />
+      <ProDirectory initialLocation={initialLocation} categories={FINANCING_CATEGORIES} />
     </main>
   );
 }

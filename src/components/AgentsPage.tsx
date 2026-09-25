@@ -7,9 +7,9 @@ import { fmtDate } from '../lib/status';
 
 const LOOKUP_TYPES: Category[] = ['agent', 'loan_officer', 'mortgage_company', 'private_lender', 'contractor', 'insurance', 'title_escrow', 'bank', 'credit_union'];
 
-export default function AgentsPage({ shortSales = false }: { shortSales?: boolean }) {
+export default function AgentsPage({ shortSales = false, initialQuery = '' }: { shortSales?: boolean; initialQuery?: string }) {
   const [cat, setCat] = useState<Category>('agent');
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(initialQuery);
   const [copied, setCopied] = useState(false);
   const { pros } = useDirectory();
   const info = CATEGORIES[cat];
