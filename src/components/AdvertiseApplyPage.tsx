@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { CLARK_COUNTY_CITIES, LANGUAGES, validateApplication, type ApplicationInput } from '../lib/proApplication';
 import { CATEGORIES, CREDIT_PROFILES, REVERIFY_DAYS, servicesFor, type Category } from '../lib/pros';
+import PageHero from './PageHero';
 import { api, ApiError } from '../lib/api';
 
 type Errors = Partial<Record<keyof ApplicationInput | 'form', string>>;
@@ -87,7 +88,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
   if (done) {
     return (
       <main className="page prose">
-        <h1>Check your email</h1>
+        <PageHero compact title="Check your email" />
         <p>{done}</p>
         <p className="muted">
           After you confirm, we check your license on {info?.regulator ?? 'the regulator lookup'} and confirm your identity. Then we set up your
@@ -100,8 +101,12 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
 
   return (
     <main className="page">
-      <h1>Apply to advertise</h1>
-      <form className="form" onSubmit={submit} noValidate>
+      <PageHero
+        eyebrow={<span className="eyebrow">For professionals</span>}
+        title={<>Apply to <span className="grad">advertise</span></>}
+        sub={`Choose your type of business to start. It takes about five minutes, and we verify every license before you're listed.`}
+      />
+      <form className="form page-form" onSubmit={submit} noValidate>
         <div className="hp" aria-hidden="true">
           <label>Company URL <input tabIndex={-1} autoComplete="off" value={f.company_url} onChange={(e) => set('company_url', e.target.value)} /></label>
         </div>
@@ -118,7 +123,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
         {info && (
           <>
             <div className="notice small" role="note">
-              We verify your {info.licenseLabel.toLowerCase()} on{' '}
+              We verify your {info.licenseLabel.replace(/^(Individual|Company) /, (w) => w.toLowerCase())} on{' '}
               <a href={info.lookupUrl} target="_blank" rel="noreferrer noopener">{info.regulator} ↗</a>, and confirm your identity using contact
               details we find independently. We re-check every {REVERIFY_DAYS} days.
             </div>

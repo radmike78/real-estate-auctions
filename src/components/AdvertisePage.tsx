@@ -1,3 +1,4 @@
+import PageHero from './PageHero';
 import { CATEGORIES, REVERIFY_DAYS, type Category } from '../lib/pros';
 
 const GROUPS = ['Real estate', 'Financing', 'Closing & protection', 'Repairs & renovation'] as const;
@@ -5,13 +6,15 @@ const GROUPS = ['Real estate', 'Financing', 'Closing & protection', 'Repairs & r
 export default function AdvertisePage() {
   return (
     <main className="page">
-      <section className="adv-hero">
-        <h1>Reach buyers at the moment they need you</h1>
-        <p className="lede">
-          People come here to buy auction, bank-owned and short-sale properties. They need agents, financing, title, insurance and repairs.
-        </p>
-        <a className="btn big" href="#/advertise/apply">Apply to advertise</a>
-      </section>
+      <PageHero
+        eyebrow={<span className="eyebrow">For professionals</span>}
+        title={<>Reach buyers at the moment <span className="grad">they need you</span></>}
+        sub="People come here to buy auction, bank-owned and short-sale properties. They need agents, financing, title, insurance and repairs."
+      >
+        <div>
+          <a className="btn big hero-cta" href="#/advertise/apply">Apply to advertise</a>
+        </div>
+      </PageHero>
 
       <section className="options-grid" aria-label="What you get">
         {[

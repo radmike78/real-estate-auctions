@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { FEED_PUBLIC_KEY_SPKI_B64 } from '../feed/publicKey';
 import { isOfficialUrl, loadVerifiedFeed, type VerifyResult } from '../feed/verify';
 import { fmtDateTime, fmtMoney } from '../lib/status';
+import PageHero from './PageHero';
 import Disclaimer from './Disclaimer';
 
 const REVERIFY_MS = 5 * 60_000;
@@ -48,24 +49,36 @@ export default function LivePage() {
 
   return (
     <main className="page">
-      <h1>Clark County tax sales: verified live listings</h1>
+      <PageHero
+        eyebrow={<span className="eyebrow"><span className="live-dot" aria-hidden /> Verified from the Clark County Treasurer</span>}
+        title={<>Live <span className="grad">tax sales</span></>}
+        sub="Parcels the Clark County Treasurer currently lists for its delinquent-tax auction, re-checked against the official list and the Assessor's parcel records."
+      />
       <p className="muted">
-        Parcels the Clark County Treasurer currently lists for its delinquent-tax (trustee) auction. Every row is re-checked against the
-        official list on a schedule that follows how often the Treasurer updates it, and must also exist in the Assessor's parcel records.
-        Parcels that are paid off (lined out), sold, removed, unconfirmed, or not re-verified recently are hidden automatically. When no
-        auction is scheduled, nothing is listed.
+        Listings are re-checked on a schedule that follows how often the Treasurer updates them. Parcels that are paid off (lined out), sold,
+        removed, unconfirmed, or not re-verified recently are hidden automatically. When no auction is scheduled, nothing is listed.
       </p>
 
       {!result && <p>Verifying listings…</p>}
 
       {result && !result.ok && (
-        <div className="verify" role="status">
-          <strong>No live listings shown.</strong> {result.detail}
+        <div className="verify" role="status" title={result.detail}>
           {result.reason === 'NOT_CONFIGURED' || result.reason === 'MISSING' ? (
-            <> The live connector has not published a signed feed yet. See the README ("Live data").</>
+            <>
+              <strong>No live listings right now.</strong> Verified listings appear here once the Treasurer schedules its next auction and
+              the list passes our checks.
+            </>
           ) : (
-            <> For your safety, nothing is displayed unless it passes verification.</>
-          )}
+            <>
+              <strong>No live listings shown.</strong> The latest data didn't pass our security checks, so for your safety nothing is
+              displayed until verified data is published.
+            </>
+          )}{' '}
+          Meanwhile, <a href="#/search?type=TAX_DEED">browse sample tax-sale listings</a> or check the{' '}
+          <a href="https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList" target="_blank" rel="noreferrer noopener">
+            Treasurer's official auction list ↗
+          </a>
+          .
         </div>
       )}
       {expired && (

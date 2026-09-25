@@ -3,6 +3,7 @@ import ProDirectory, { useDirectory } from './ProDirectory';
 import Disclaimer from './Disclaimer';
 import { analyzeQuery, checklistFor, findInDirectory, RED_FLAGS } from '../lib/licenseLookup';
 import { CATEGORIES, REVERIFY_DAYS, type Category } from '../lib/pros';
+import PageHero from './PageHero';
 import { fmtDate } from '../lib/status';
 
 const LOOKUP_TYPES: Category[] = ['agent', 'loan_officer', 'mortgage_company', 'private_lender', 'contractor', 'insurance', 'title_escrow', 'bank', 'credit_union'];
@@ -31,9 +32,11 @@ export default function AgentsPage({ shortSales = false, initialQuery = '' }: { 
 
   return (
     <main className="page">
-      <section className="lookup-hero">
-        <h1>Find &amp; verify an agent</h1>
-        <p className="lede">Check any agent's or professional's license before you work with them. Then browse verified agents below.</p>
+      <PageHero
+        eyebrow={<span className="eyebrow">License lookup · Nevada</span>}
+        title={<>Find &amp; <span className="grad">verify</span> an agent</>}
+        sub="Check any agent's or professional's license before you work with them. Then browse verified agents below."
+      >
 
         <div className="lookup-box">
           <select aria-label="Type of professional" value={cat} onChange={(e) => setCat(e.target.value as Category)}>
@@ -64,7 +67,7 @@ export default function AgentsPage({ shortSales = false, initialQuery = '' }: { 
             {copied && <div className="lookup-line small">Copied "{a.normalized}". Paste it into the official search.</div>}
           </div>
         )}
-      </section>
+      </PageHero>
 
       <div className="lookup-grid">
         <section className="lookup-card">

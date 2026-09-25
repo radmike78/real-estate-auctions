@@ -1,5 +1,6 @@
 import ProDirectory from './ProDirectory';
 import Disclaimer from './Disclaimer';
+import PageHero from './PageHero';
 import { FINANCING_CATEGORIES } from '../lib/pros';
 
 const OPTIONS: [string, string][] = [
@@ -13,8 +14,11 @@ const OPTIONS: [string, string][] = [
 export default function FinancingPage({ initialLocation = '' }: { initialLocation?: string }) {
   return (
     <main className="page">
-      <h1>Find financing</h1>
-      <p className="lede">Loan officers, mortgage companies, banks, credit unions, and hard-money and private lenders.</p>
+      <PageHero
+        eyebrow={<span className="eyebrow">We don't lend · compare lenders</span>}
+        title={<>Find <span className="grad">financing</span></>}
+        sub="Loan officers, mortgage companies, banks, credit unions, and hard-money and private lenders."
+      />
 
       <Disclaimer kind="financing" />
 
