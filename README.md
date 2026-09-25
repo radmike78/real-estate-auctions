@@ -123,7 +123,7 @@ During development, run `npm run server` and `npm run dev` together; the dev ser
 | Live tax sales (`#/live`) | Verified Clark County Treasurer listings (signed, expiring feed) |
 | Pre-foreclosures (`#/pre-foreclosures`) | Follows Nevada non-judicial foreclosures: default, then notice of sale (at least 3 months later, NRS 107.080), then auction, then outcome. Per-browser watchlist that flags stage changes. **Do-not-contact warning; no owner names or contact details are shown.** Sample data until a data-use agreement with the Clark County Recorder is in place. |
 | Short sales (`#/short-sales`) | What a short sale is, how to find one (through a licensed agent and the MLS), the steps, risks, and a comparison with auctions and bank-owned homes |
-| Find an agent (`#/agents`) | Verified agents, searchable by city, ZIP, specialty and language |
+| Find & verify an agent (`#/agents`) | A license lookup for any agent or professional: it checks the number's format, reads the license type, and checks whether they're in our verified directory. One click copies the value and opens the official lookup (NRED, NMLS, NSCB, Division of Insurance, FDIC, NCUA), with what to check and red flags to watch for. Verified advertised agents are listed below. |
 | Financing (`#/financing`) | Financing options explained, plus lenders filtered by type, loan product and credit situation. **We don't offer financing.** |
 | Title, insurance & repairs (`#/pros`) | Title and escrow, insurance, and licensed contractors |
 | Profiles (`#/pros/:id`) | Each advertiser's own page, with a verified-license card and a link to check it on the official lookup |

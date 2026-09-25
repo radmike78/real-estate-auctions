@@ -319,7 +319,7 @@ a.btn { display: inline-block; }
 .option-card h3 { margin: 0 0 6px; }
 .option-card p { margin: 0; color: var(--muted); font-size: 0.92rem; }
 .plain-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
-.adv-hero { padding: 36px 28px; border-radius: 20px; margin-bottom: 8px; color: #f8fafc; background: radial-gradient(circle at 20% 0%, #3b82f6 0, transparent 50%), radial-gradient(circle at 90% 100%, #8b5cf6 0, transparent 45%), #0b1220; }
+.page .adv-hero { padding: 36px 28px; border: none; border-radius: 20px; margin-bottom: 8px; color: #f8fafc; background: radial-gradient(circle at 20% 0%, #3b82f6 0, transparent 50%), radial-gradient(circle at 90% 100%, #8b5cf6 0, transparent 45%), #0b1220; }
 .adv-hero h1 { font-size: 2.2rem; max-width: 720px; }
 .adv-hero .lede { color: #cbd5e1; max-width: 680px; }
 .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
@@ -368,3 +368,26 @@ a.btn { display: inline-block; }
 .role-dialog { background: var(--surface); color: var(--text); border-radius: 18px; padding: 24px; max-width: 520px; width: 100%; box-shadow: 0 24px 60px rgb(0 0 0 / 0.35); }
 .role-dialog h2 { margin-top: 0; font-size: 1.4rem; }
 .role-dialog ul { padding-left: 18px; display: grid; gap: 10px; margin: 0 0 18px; }
+
+/* License lookup */
+.page .lookup-hero { padding: 28px; border: none; border-radius: 20px; margin-bottom: 16px; color: #f8fafc; background: radial-gradient(circle at 15% 0%, #2563eb 0, transparent 55%), radial-gradient(circle at 95% 100%, #7c3aed 0, transparent 50%), #0b1220; }
+.lookup-hero h1 { font-size: 2rem; margin-bottom: 4px; }
+.lookup-hero .lede { color: #cbd5e1; }
+.lookup-box { display: grid; grid-template-columns: 220px 1fr auto; gap: 10px; margin-top: 12px; }
+@media (max-width: 800px) { .lookup-box { grid-template-columns: 1fr; } }
+.lookup-box input, .lookup-box select { padding: 12px 14px; font-size: 1rem; border-radius: 10px; border: 1px solid rgb(255 255 255 / 0.25); background: rgb(255 255 255 / 0.08); color: #f8fafc; }
+.lookup-box input::placeholder { color: #94a3b8; }
+.lookup-box select option { color: #0b1220; }
+.lookup-hero .btn { background: #f8fafc; color: #0b1220; border-radius: 10px; }
+.lookup-result { margin-top: 12px; display: grid; gap: 6px; font-size: 0.92rem; }
+.lookup-line { background: rgb(255 255 255 / 0.08); border-radius: 8px; padding: 8px 12px; }
+.lookup-line.good { background: rgb(34 197 94 / 0.18); }
+.lookup-line.bad { background: rgb(234 179 8 / 0.2); }
+.lookup-hero a { color: #93c5fd; }
+.lookup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+@media (max-width: 800px) { .lookup-grid { grid-template-columns: 1fr; } }
+.lookup-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; }
+.lookup-card h2 { margin-top: 0; font-size: 1rem; }
+.lookup-card ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 0.9rem; }
+.warn-card { border-left: 4px solid var(--wait); }
+.section-title { margin-top: 24px; }

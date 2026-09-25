@@ -146,3 +146,21 @@ describe('disclaimers', () => {
     expect(DISCLAIMERS.services.text).toMatch(/aren't a party/);
   });
 });
+
+describe('license lookup', () => {
+  it('reads license formats and finds verified matches', async () => {
+    const { analyzeQuery, findInDirectory } = await import('./licenseLookup');
+    expect(analyzeQuery('agent', 's.0012345')).toMatchObject({ mode: 'license', normalized: 'S.0012345', formatOk: true, detail: expect.stringMatching(/salesperson/) });
+    expect(analyzeQuery('agent', '12345')).toMatchObject({ mode: 'license', formatOk: false });
+    expect(analyzeQuery('loan_officer', '123456')).toMatchObject({ formatOk: true });
+    expect(analyzeQuery('agent', 'Avery')).toMatchObject({ mode: 'name', formatOk: null });
+    expect(analyzeQuery('agent', '  ').mode).toBe('empty');
+    const byNumber = findInDirectory(SAMPLE_PROS, ['agent'], analyzeQuery('agent', 'BS.0000102'));
+    expect(byNumber.map((p) => p.name)).toEqual(['Jordan Sample']);
+    expect(findInDirectory(SAMPLE_PROS, ['agent'], analyzeQuery('agent', 'desert realty')).map((p) => p.name)).toEqual(['Avery Example', 'Riley Fixture']);
+    expect(findInDirectory(SAMPLE_PROS, ['agent'], analyzeQuery('agent', 'av'))).toEqual([]); // too short
+    // A profile hidden for an overdue license check or lapsed payment is never reported as verified.
+    expect(findInDirectory(SAMPLE_PROS, ['agent'], analyzeQuery('agent', 'S.0000105'))).toEqual([]);
+    expect(findInDirectory(SAMPLE_PROS, ['agent'], analyzeQuery('agent', 'Unpaid-Example'))).toEqual([]);
+  });
+});
