@@ -66,12 +66,12 @@ export default function DrillDown(props: { sections: DrillSection[]; active?: st
       <nav className="drill-tiles" aria-label={label}>
         {sections.map((s) => (
           <a key={s.key} href={`${baseHref}/${s.key}`} className={`drill-tile${s.tone ? ` tone-${s.tone}` : ''}`}>
-            {s.icon && <span className="drill-icon" aria-hidden>{s.icon}</span>}
-            <span className="drill-text">
-              <strong>{s.title}</strong>
-              <span className="drill-summary">{s.summary}</span>
+            <span className="drill-head">
+              {s.icon && <span className="drill-icon" aria-hidden>{s.icon}</span>}
+              <strong className="drill-title">{s.title}</strong>
             </span>
-            <span className="drill-arrow" aria-hidden>→</span>
+            <span className="drill-summary">{s.summary}</span>
+            <span className="drill-open" aria-hidden>Open →</span>
           </a>
         ))}
         {showAll && <a href={`${baseHref}/all`} className="drill-all">Read everything on one page</a>}
