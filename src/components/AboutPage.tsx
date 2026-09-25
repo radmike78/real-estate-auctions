@@ -90,7 +90,7 @@ const SECTIONS: DrillSection[] = [
         <li>Take bids or hold money. It always links to the official sale instead.</li>
         <li>Say title is "clear." Only a title company or real-estate attorney can make that call.</li>
         <li>Guarantee a sale is still on. Always confirm with the trustee, Treasurer or sheriff before bidding.</li>
-        <li>Charge you. The site is free for buyers and investors, with no sign-up. It's paid for by licensed professionals who advertise in the directories, always labeled as ads, and nobody can pay for a higher spot.</li>
+        <li>Charge you. The site is free for buyers and investors, with no sign-up.</li>
       </ul>
     ),
   },
