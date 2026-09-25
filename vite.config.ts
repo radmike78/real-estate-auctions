@@ -26,6 +26,8 @@ const csp = (): Plugin => ({
 export default defineConfig({
   plugins: [react(), csp()],
   base: './',
+  // Never inline fonts as data: URLs; the CSP (font-src 'self') would block them.
+  build: { assetsInlineLimit: (file) => (/\.woff2?$/.test(file) ? false : undefined) },
   // `npm run server` provides the API; the dev server forwards /api to it.
   server: { proxy: { '/api': 'http://127.0.0.1:8080' } },
 });
