@@ -47,6 +47,30 @@ export function loginLinkEmail(to: string, name: string, link: string): Mail {
   };
 }
 
+export function approvedEmail(to: string, name: string, dashboardUrl: string, payOnline: boolean): Mail {
+  return {
+    to,
+    subject: 'You are approved to advertise on Forced-Sale Finder',
+    text:
+      `Hi ${name},\n\nWe verified your license and identity, and your advertiser profile is approved.\n\n` +
+      (payOnline
+        ? `To go live, sign in to your dashboard and choose "Start advertising". You pay by card on Stripe's secure page, and your profile goes live as soon as the payment clears:\n\n${dashboardUrl}\n`
+        : `We will contact you to set up your advertising plan. Your profile goes live once your plan is active. Your dashboard:\n\n${dashboardUrl}\n`) +
+      FOOTER,
+  };
+}
+
+export function paymentFailedEmail(to: string, name: string, dashboardUrl: string): Mail {
+  return {
+    to,
+    subject: 'Your Forced-Sale Finder payment did not go through',
+    text:
+      `Hi ${name},\n\nThe latest payment for your advertising plan did not go through. Your profile stays live until the end of the period you already paid for.\n\n` +
+      `To update your card, sign in to your dashboard and choose "Manage billing":\n\n${dashboardUrl}\n\nWe never ask for card details by email or phone.\n` +
+      FOOTER,
+  };
+}
+
 export function leadEmail(to: string, proName: string, lead: LeadRow, dashboardUrl: string): Mail {
   return {
     to,

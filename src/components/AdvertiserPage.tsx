@@ -14,7 +14,69 @@ interface Me {
   verifiedAt: string | null;
   reverifyDueInDays: number | null;
   listed: boolean;
+  payments: { available: boolean; amountLabel: string | null; status: string | null; active: boolean; cancelAtPeriodEnd: boolean; hasCard: boolean };
 }
+
+// Only ever send the browser to Stripe's own pages.
+const STRIPE_PAGES = ['https://checkout.stripe.com/', 'https://billing.stripe.com/'];
+
+function PlanCard({ me }: { me: Me }) {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [notice] = useState(() => {
+    const m = window.location.hash.match(/[?&]payment=(done|cancelled)/);
+    if (m) history.replaceState(null, '', '#/advertiser');
+    return m?.[1] ?? null;
+  });
+  const p = me.payments;
+  async function open(path: string) {
+    setBusy(true);
+    setErr(null);
+    try {
+      const r = await api<{ url: string }>(path, { body: {}, auth: true });
+      if (!STRIPE_PAGES.some((pre) => r.url.startsWith(pre))) throw new Error('Unexpected payment page address.');
+      window.location.assign(r.url);
+    } catch (e) {
+      setErr((e as Error).message);
+      setBusy(false);
+    }
+  }
+  return (
+    <section className="plan-card" aria-labelledby="plan-h">
+      <h2 id="plan-h">Your plan</h2>
+      {notice === 'done' && (
+        <div className="notice" role="status">
+          {p.active ? <><strong>Payment received. Thank you!</strong> {me.listed ? 'Your profile is live.' : 'Your profile will be live shortly.'}</> : <><strong>Thank you.</strong> Stripe is confirming your payment. Your profile goes live within a minute or two; refresh this page to check.</>}
+        </div>
+      )}
+      {notice === 'cancelled' && <div className="caution" role="status">Payment was cancelled. Nothing was charged.</div>}
+      {p.active ? (
+        <>
+          <p className="plan-line">
+            <strong>{p.amountLabel ?? me.billing?.plan}</strong>
+            {me.billing && <> · paid through <strong>{fmtDate(me.billing.paidThrough)}</strong></>}
+          </p>
+          {p.status === 'past_due' && <div className="caution">Your last payment didn't go through. Update your card to keep your profile live.</div>}
+          {p.cancelAtPeriodEnd && <p className="muted">Your plan is set to end after the current paid period.</p>}
+          <button className="btn" disabled={busy} onClick={() => open('/api/pro/billing-portal')}>{busy ? 'Opening…' : 'Manage billing'}</button>
+          <p className="muted">Change your card, download receipts or cancel on Stripe's secure page.</p>
+        </>
+      ) : p.available ? (
+        <>
+          <p className="plan-line"><strong>{p.amountLabel}</strong> · the same flat price for everyone in your category. Cancel any time.</p>
+          {me.billing && <p className="muted">Currently paid through {fmtDate(me.billing.paidThrough)}.</p>}
+          <button className="btn big plan-cta" disabled={busy} onClick={() => open('/api/pro/checkout')}>{busy ? 'Opening secure payment…' : 'Start advertising'}</button>
+          <p className="muted">You'll pay on Stripe's secure page. We never see or store your card details. Your profile goes live as soon as the payment clears.</p>
+          {p.hasCard && <button className="linkish" disabled={busy} onClick={() => open('/api/pro/billing-portal')}>Manage billing</button>}
+        </>
+      ) : (
+        <p>{me.billing ? <>Paid through <strong>{fmtDate(me.billing.paidThrough)}</strong>. </> : null}We'll contact you to set up or renew your advertising plan.</p>
+      )}
+      {err && <div className="caution" role="alert">{err}</div>}
+    </section>
+  );
+}
+
 interface Summary {
   from: string;
   to: string;
@@ -156,6 +218,8 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
           <button onClick={async () => { await api('/api/pro/logout', { body: {}, auth: true }).catch(() => {}); setMe(null); }}>Sign out</button>
         </div>
       </div>
+
+      <PlanCard me={me} />
 
       <div className="toolbar" role="group" aria-label="Date range">
         <div className="seg">

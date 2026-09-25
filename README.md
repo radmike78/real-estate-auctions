@@ -87,8 +87,8 @@ The advertiser landing page is `#/advertise`, the application form is `#/adverti
    | Contractors | Nevada State Contractors Board |
 
    The admin then **confirms identity through the company, using contact details from the regulator or the company, never from the application**. Approval is blocked until status, expiration (where licenses expire), name, type, company and identity are all recorded.
-4. **Bill.** The admin records the plan and a paid-through date after payment. A profile is live only while it is verified within the last 90 days **and** paid through today.
-5. **Publish.** Live profiles go into `public/data/pros.json`, an Ed25519-signed file that expires after 7 days and is republished hourly. The browser verifies it and re-checks every listing rule.
+4. **Pay.** Once approved, the advertiser gets an email and pays **by card from their dashboard** (Stripe; see below). Each confirmed monthly payment extends their paid-through date automatically. For payments received another way, the admin records the plan and paid-through date by hand. A profile is live only while it is verified within the last 90 days **and** paid through today.
+5. **Publish.** Live profiles go into `public/data/pros.json`, an Ed25519-signed file that expires after 24 hours and is republished hourly. The browser verifies it and re-checks every listing rule.
 
 **Fair placement.** Results are filtered by what the user needs, then shown in a daily rotating order that is the same for everyone. Payment never buys a higher position. The CFPB's 2023 RESPA advisory opinion says steering consumers based on payments violates RESPA section 8 for real estate and mortgage services. Every profile is labeled "Advertisement."
 
@@ -107,6 +107,23 @@ The advertiser landing page is `#/advertise`, the application form is `#/adverti
   - Unique visitors are counted with a salted hash that exists only in memory and changes daily.
   - Bots and rapid repeat clicks are ignored.
   - No visitor is tracked across days, and nothing identifying is stored.
+
+**Online payments (Stripe):**
+- **How it works.** An approved advertiser clicks **Start advertising** on their dashboard and pays on Stripe's hosted Checkout page. They manage their card, receipts and cancellation on Stripe's billing portal (**Manage billing**). Card details never reach this server.
+- **Pricing.** One flat monthly price per category, the same for everyone in it (no per-lead fees and no paid placement). You set the prices; the server picks the price from the advertiser's category.
+- **Going live.** A listing is extended only when Stripe sends a signed `invoice.paid` webhook, through the end of the billing period plus 3 days' grace. Coming back from Checkout grants nothing by itself. Cancelling stops renewals; time already paid for stays live. A failed payment emails the advertiser.
+- **Setup:**
+  1. In the Stripe dashboard (start in **test mode**), create a product for each category you'll sell, each with a **monthly recurring price**. Copy each price ID (`price_...`).
+  2. Add a webhook endpoint `https://YOUR-SITE/api/stripe/webhook` for these events: `checkout.session.completed`, `invoice.paid`, `invoice.payment_failed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`. Copy its signing secret (`whsec_...`).
+  3. Turn on the **customer portal** (Settings → Billing → Customer portal), allowing card updates, invoice history and cancellation.
+  4. Set three environment variables (all three, or none to keep billing manual):
+     ```bash
+     export STRIPE_SECRET_KEY=sk_test_...        # a restricted key (rk_...) works too
+     export STRIPE_WEBHOOK_SECRET=whsec_...
+     export STRIPE_PLANS='{"agent":{"priceId":"price_...","amountLabel":"$199 / month"},"loan_officer":{"priceId":"price_...","amountLabel":"$199 / month"}}'
+     ```
+     Categories left out of `STRIPE_PLANS` are billed by hand.
+  5. Test with Stripe's test card `4242 4242 4242 4242`, then switch to live keys.
 
 **Run it:**
 ```bash

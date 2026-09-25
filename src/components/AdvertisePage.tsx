@@ -45,7 +45,7 @@ export default function AdvertisePage() {
       <ol className="steps-rich">
         <li><strong>Apply and confirm your email.</strong><span>Takes about five minutes.</span></li>
         <li><strong>We verify you.</strong><span>We check your license on the official regulator lookup, and confirm your identity through contact details we find independently.</span></li>
-        <li><strong>Choose a plan.</strong><span>A flat advertising fee. Every advertiser in a category gets the same treatment.</span></li>
+        <li><strong>Pay by card and go live.</strong><span>A flat monthly fee, the same for everyone in your category, paid securely through Stripe. Cancel any time.</span></li>
         <li><strong>Go live and track results.</strong><span>Sign in any time with a one-time email link to see your numbers and leads.</span></li>
       </ol>
 

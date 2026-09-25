@@ -804,3 +804,10 @@ h3 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; line-height:
   .browse-arrow { top: 50%; transform: translateY(-50%); }
 }
 small { font-size: 0.95rem; }
+
+/* Advertiser dashboard: plan and payment */
+.page section.plan-card { display: grid; gap: 12px; justify-items: start; }
+.plan-card h2 { margin: 0; }
+.plan-line { margin: 0; font-size: 1.1rem; }
+.plan-card .notice, .plan-card .caution { justify-self: stretch; margin: 0; }
+.plan-cta { background: linear-gradient(135deg, #2563eb, #7c3aed); font-size: 1.15rem; padding: 16px 30px; }
