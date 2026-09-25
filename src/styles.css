@@ -705,3 +705,53 @@ a.btn { display: inline-block; }
 /* Live page: tiles instead of an empty page when nothing is listed */
 .page section.while-you-wait { background: none; border: 0; padding: 0; margin-top: 8px; }
 .apply-card .form-grid { align-items: end; }
+
+/* =====================================================================
+   Type hierarchy and distinct sections (site-wide).
+   Titles are clearly bigger and heavier than the text under them:
+     page title (hero)  >  section heading  >  card title  >  sub-heading  >  body text
+   ===================================================================== */
+h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: -0.025em; line-height: 1.12; }
+h2 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; }
+h3 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.25; }
+
+/* Section headings that introduce a block of content on a page. */
+.page > h2, .page > .section-title, .home-learn > h2, .while-you-wait > h2, .page-section-title {
+  display: flex; align-items: center; gap: 14px;
+  margin: 48px 0 22px; padding-bottom: 14px; border-bottom: 2px solid var(--border);
+  font-family: var(--font-display); font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; text-transform: none; color: var(--text);
+}
+.page > h2::before, .page > .section-title::before, .home-learn > h2::before, .while-you-wait > h2::before, .page-section-title::before {
+  content: ''; flex: none; width: 8px; height: 1.05em; border-radius: 4px; background: linear-gradient(180deg, #22d3ee, #3b82f6, #8b5cf6);
+}
+.page > h2 + p, .page > .section-title + p { margin-top: -8px; color: var(--muted); }
+
+/* Every content section is its own card: rounded, shadowed, with a gradient top edge. */
+.page section:not(.options-grid):not(.while-you-wait):not(.four):not(.drill-tiles) {
+  position: relative; overflow: hidden; border-radius: 18px; padding: 28px 30px; margin-bottom: 28px;
+  box-shadow: 0 14px 34px -26px rgb(15 23 42 / 0.45);
+}
+.page section:not(.options-grid):not(.while-you-wait):not(.four):not(.drill-tiles):not(.checklist-box):not(.apply-card)::before {
+  content: ''; position: absolute; inset: 0 0 auto; height: 4px; background: linear-gradient(90deg, #22d3ee, #3b82f6, #8b5cf6);
+}
+/* A card's own heading: large, with a divider separating it from the content. */
+.page section > h2:first-child, .page section > header > h2, .lookup-card > h2, .verify-card > h2, .lead-form h2, .drill-section > h2 {
+  font-size: 1.6rem; margin: 0 0 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border);
+}
+.verify-card > h2 { border-bottom-color: rgb(31 122 69 / 0.25); }
+/* Sub-headings inside a card */
+.page section h3, .profile-grid section h3 { font-size: 1.2rem; font-weight: 700; margin: 22px 0 8px; }
+
+/* Titles on cards and tiles */
+.drill-title { font-size: 1.45rem; }
+.option-card h3, .pro-card h3, .card h3, .track-head h3, .agent-head h3 { font-size: 1.3rem; font-weight: 800; margin: 6px 0 6px; }
+.option-card h3 { margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.checklist-head h2 { font-size: 1.75rem; }
+.home-main-head h2 { font-size: 2.6rem; }
+.apply-card-head h2 { font-size: 1.75rem; }
+.q h2 { font-size: 1.2rem; }
+
+/* Supporting text under a title reads as secondary */
+.option-card p, .drill-summary, .home-main-head p, .apply-card-head p, .checklist-head p { color: var(--muted); }
+/* Check items in the due-diligence report: title distinctly above its note */
+.checks li strong { font-size: 1.15rem; }
