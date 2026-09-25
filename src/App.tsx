@@ -17,6 +17,7 @@ import ApplicationConfirmPage from './components/ApplicationConfirmPage';
 import FinancingPage from './components/FinancingPage';
 import ProsPage from './components/ProsPage';
 import ProProfilePage from './components/ProProfilePage';
+import AdvertiserPage from './components/AdvertiserPage';
 import { CATEGORIES, type Category } from './lib/pros';
 
 type Route =
@@ -33,7 +34,8 @@ type Route =
   | { page: 'advertise' }
   | { page: 'apply'; category: Category | null }
   | { page: 'applicationConfirm'; token: string }
-  | { page: 'admin' };
+  | { page: 'admin' }
+  | { page: 'advertiser'; token: string | null };
 
 function parseHash(): Route {
   const h = window.location.hash.replace(/^#\/?/, '');
@@ -54,6 +56,8 @@ function parseHash(): Route {
   const confirm = h.match(/^advertise\/confirm(?:\/([A-Za-z0-9_-]+))?$/);
   if (confirm) return { page: 'applicationConfirm', token: confirm[1] ?? '' };
   if (h === 'admin') return { page: 'admin' };
+  const adv = h.match(/^advertiser(?:\/login\/([A-Za-z0-9_-]+))?$/);
+  if (adv) return { page: 'advertiser', token: adv[1] ?? null };
   return { page: 'search' };
 }
 
@@ -129,6 +133,7 @@ export default function App() {
       {route.page === 'apply' && <AdvertiseApplyPage key={route.category ?? ''} initialCategory={route.category} />}
       {route.page === 'applicationConfirm' && <ApplicationConfirmPage token={route.token} />}
       {route.page === 'admin' && <AdminPage />}
+      {route.page === 'advertiser' && <AdvertiserPage key={route.token ?? ''} token={route.token} />}
       {route.page === 'agents' && <AgentsPage shortSales={route.shortSales} />}
       {route.page === 'search' && (
         <main className="search-layout">

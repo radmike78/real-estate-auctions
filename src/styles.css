@@ -326,3 +326,37 @@ a.btn { display: inline-block; }
 .stat-row div { display: grid; background: var(--surface); border-radius: 10px; padding: 10px; }
 .stat-row strong { font-size: 1.5rem; }
 .stat-row span { font-size: 0.8rem; color: var(--muted); }
+
+/* Lead form & profile side column */
+.side-col { display: grid; gap: 16px; }
+.lead-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; }
+.lead-card h2 { margin-top: 0; }
+.lead-card .form { gap: 10px; }
+.lead-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.lead-list li { border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: var(--surface); }
+.lead-list p { margin: 6px 0 0; }
+
+/* Advertiser dashboard */
+.kpis { display: grid; grid-template-columns: 1.4fr repeat(4, 1fr); gap: 12px; margin: 12px 0 20px; background: none !important; border: none !important; padding: 0 !important; }
+@media (max-width: 900px) { .kpis { grid-template-columns: 1fr 1fr; } .kpi.hero { grid-column: 1 / -1; } }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; display: grid; gap: 4px; align-content: start; }
+.kpi strong { font-size: 1.8rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.kpi.hero strong { font-size: 3.2rem; }
+.kpi-label { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
+.kpi-sub { font-size: 0.75rem; color: var(--muted); }
+.viz-root { --series-1: #2a78d6; --viz-axis: #c9c7c0; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+@media (prefers-color-scheme: dark) { .viz-root { --series-1: #3987e5; --viz-axis: #4a4f56; } }
+.small-multiples { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+.viz { margin: 0; }
+.viz figcaption { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.viz-title { font-weight: 700; font-size: 0.9rem; }
+.viz-total { font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.viz-plot { position: relative; }
+.viz svg { width: 100%; height: 120px; display: block; overflow: visible; }
+.viz svg g { outline: none; cursor: default; }
+.viz-bar { fill: var(--series-1); }
+.viz-bar.on { fill-opacity: 0.8; }
+.viz-axis { stroke: var(--viz-axis); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.viz-readout { width: 100%; text-align: center; }
+.viz-readout strong { font-variant-numeric: tabular-nums; }
+.viz-x { display: flex; justify-content: space-between; margin-top: 4px; }

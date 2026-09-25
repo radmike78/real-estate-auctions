@@ -87,6 +87,22 @@ The advertiser landing page is `#/advertise`, the application form is `#/adverti
 
 **Fair placement.** Results are filtered by what the user needs, then shown in a daily rotating order that is the same for everyone. Payment never buys a higher position. The CFPB's 2023 RESPA advisory opinion says steering consumers based on payments violates RESPA section 8 for real estate and mortgage services. Every profile is labeled "Advertisement."
 
+**Proving the value of an advertising fee:**
+- **Every profile page has a contact form.** The buyer explicitly agrees to share their details with that one professional only. The lead is emailed to the professional right away, and the buyer gets a receipt with due-diligence reminders.
+- **Advertisers sign in at `#/advertiser`** with a one-time email link; there is no password. They see results for the last 30 days, the last 90 days or last month:
+  - leads (the headline number)
+  - appearances in search results
+  - profile views (unique visitors)
+  - phone, email and website clicks
+  - the share of visitors who reached out
+  - daily charts, a table view, and all their leads with a **CSV download**
+- **A monthly report is emailed automatically** on the 1st. An admin can also trigger it with `POST /api/admin/reports`.
+- **Counting is privacy-preserving.**
+  - Only daily totals are stored.
+  - Unique visitors are counted with a salted hash that exists only in memory and changes daily.
+  - Bots and rapid repeat clicks are ignored.
+  - No visitor is tracked across days, and nothing identifying is stored.
+
 **Run it:**
 ```bash
 npm run keys:generate                  # once: signing key (rebuild the site after)
@@ -112,6 +128,7 @@ During development, run `npm run server` and `npm run dev` together; the dev ser
 | Title, insurance & repairs (`#/pros`) | Title and escrow, insurance, and licensed contractors |
 | Profiles (`#/pros/:id`) | Each advertiser's own page, with a verified-license card and a link to check it on the official lookup |
 | Advertise (`#/advertise`) | What advertisers get, who can advertise, how listing works, and the application |
+| Advertiser dashboard (`#/advertiser`) | Sign in with an email link; results, daily charts, leads and CSV export |
 
 **Search and property pages**
 

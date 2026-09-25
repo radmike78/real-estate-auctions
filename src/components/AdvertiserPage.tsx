@@ -1,0 +1,204 @@
+import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { api } from '../lib/api';
+import { CATEGORIES } from '../lib/pros';
+import type { ProProfile, Billing } from '../lib/proApplication';
+import { fmtDate, fmtDateTime } from '../lib/status';
+import DailyColumns from './DailyColumns';
+
+interface Me {
+  id: string;
+  status: string;
+  profile: ProProfile;
+  billing: Billing | null;
+  verifiedAt: string | null;
+  reverifyDueInDays: number | null;
+  listed: boolean;
+}
+interface Summary {
+  from: string;
+  to: string;
+  totals: Record<'impression' | 'profile_view' | 'phone_click' | 'email_click' | 'website_click' | 'lead', { total: number; uniques: number }>;
+  contactRate: number | null;
+  daily: { day: string; views: number; contacts: number; leads: number }[];
+}
+interface Lead {
+  id: string;
+  createdAt: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  message: string;
+  interest: string | null;
+}
+
+// Sign-in links are single use: share one request per token even if React runs the effect twice.
+const sessions = new Map<string, Promise<unknown>>();
+
+function ranges(): Record<string, { label: string; from: string; to: string }> {
+  const day = (offset: number) => new Date(Date.now() - offset * 86_400_000).toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+  const today = day(0);
+  const [y, m] = today.split('-').map(Number);
+  const lastMonthStart = new Date(Date.UTC(y, m - 2, 1)).toISOString().slice(0, 10);
+  const lastMonthEnd = new Date(Date.UTC(y, m - 1, 0)).toISOString().slice(0, 10);
+  return {
+    d30: { label: 'Last 30 days', from: day(29), to: today },
+    d90: { label: 'Last 90 days', from: day(89), to: today },
+    lastMonth: { label: 'Last month', from: lastMonthStart, to: lastMonthEnd },
+  };
+}
+
+function SignIn() {
+  const [email, setEmail] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    const r = await api<{ message: string }>('/api/pro/login', { body: { email } }).catch((err: Error) => ({ message: err.message }));
+    setMsg(r.message);
+  }
+  return (
+    <main className="page narrow">
+      <h1>Advertiser sign-in</h1>
+      <p className="muted">Enter the business email on your profile. We'll email you a one-time sign-in link, so there's no password to remember.</p>
+      <form className="form" onSubmit={submit}>
+        <label className="field"><span>Email</span><input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
+        <button className="btn">Email me a sign-in link</button>
+      </form>
+      {msg && <div className="notice small" role="status">{msg}</div>}
+      <p className="small muted">Not listed yet? <a href="#/advertise">Advertise with us →</a></p>
+    </main>
+  );
+}
+
+export default function AdvertiserPage({ token }: { token: string | null }) {
+  const [me, setMe] = useState<Me | null | 'loading'>('loading');
+  const [error, setError] = useState<string | null>(null);
+  const [rangeKey, setRangeKey] = useState('d30');
+  const [summary, setSummary] = useState<Summary | null>(null);
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [showTable, setShowTable] = useState(false);
+  const range = ranges()[rangeKey];
+
+  const loadMe = useCallback(() => api<Me>('/api/pro/me').then(setMe).catch(() => setMe(null)), []);
+
+  useEffect(() => {
+    if (!token) {
+      loadMe();
+      return;
+    }
+    history.replaceState(null, '', '#/advertiser'); // drop the token from the address bar and history
+    if (!sessions.has(token)) sessions.set(token, api('/api/pro/session', { body: { token }, auth: true }));
+    sessions.get(token)!.then(loadMe).catch((e: Error) => {
+      setError(e.message);
+      setMe(null);
+    });
+  }, [token, loadMe]);
+
+  useEffect(() => {
+    if (!me || me === 'loading') return;
+    const qs = `?from=${range.from}&to=${range.to}`;
+    api<Summary>(`/api/pro/metrics${qs}`).then(setSummary).catch(() => setSummary(null));
+    api<{ leads: Lead[] }>(`/api/pro/leads${qs}`).then((r) => setLeads(r.leads)).catch(() => setLeads([]));
+  }, [me, range.from, range.to]);
+
+  if (me === 'loading') return <main className="page"><p>Loading…</p></main>;
+  if (!me) return <>{error && <div className="page"><div className="caution" role="alert">{error}</div></div>}<SignIn /></>;
+
+  const t = summary?.totals;
+  const contacts = t ? t.phone_click.uniques + t.email_click.uniques + t.website_click.uniques : 0;
+  const info = CATEGORIES[me.profile.category];
+
+  return (
+    <main className="page wide">
+      <div className="track-head">
+        <div>
+          <div className="pro-kicker">{info.label}</div>
+          <h1>{me.profile.name}</h1>
+          <p className="small">
+            {me.listed ? <span className="verified">● Live in the directory</span> : <span className="neg">○ Not live</span>}
+            {me.billing && <> · plan paid through {fmtDate(me.billing.paidThrough)}</>}
+            {me.reverifyDueInDays !== null && <> · license re-check {me.reverifyDueInDays >= 0 ? `due in ${me.reverifyDueInDays} days` : 'overdue'}</>}
+          </p>
+        </div>
+        <div className="row">
+          <a className="btn btn-secondary" href={`#/pros/${me.id}`}>View my profile</a>
+          <button onClick={async () => { await api('/api/pro/logout', { body: {}, auth: true }).catch(() => {}); setMe(null); }}>Sign out</button>
+        </div>
+      </div>
+
+      <div className="toolbar" role="group" aria-label="Date range">
+        <div className="seg">
+          {Object.entries(ranges()).map(([k, r]) => (
+            <button key={k} aria-selected={rangeKey === k} onClick={() => setRangeKey(k)}>{r.label}</button>
+          ))}
+        </div>
+        <span className="small muted">{fmtDate(range.from)} – {fmtDate(range.to)}</span>
+      </div>
+
+      {t && summary && (
+        <>
+          <section className="kpis" aria-label="Results">
+            <div className="kpi hero">
+              <span className="kpi-label">Leads sent to you</span>
+              <strong>{t.lead.total.toLocaleString()}</strong>
+              <span className="kpi-sub">buyers who filled in your contact form</span>
+            </div>
+            <div className="kpi"><span className="kpi-label">Appeared in results</span><strong>{t.impression.total.toLocaleString()}</strong></div>
+            <div className="kpi"><span className="kpi-label">Profile views</span><strong>{t.profile_view.uniques.toLocaleString()}</strong><span className="kpi-sub">unique visitors</span></div>
+            <div className="kpi"><span className="kpi-label">Contact clicks</span><strong>{contacts.toLocaleString()}</strong><span className="kpi-sub">{t.phone_click.uniques} call · {t.email_click.uniques} email · {t.website_click.uniques} website</span></div>
+            <div className="kpi"><span className="kpi-label">Visitors who reached out</span><strong>{summary.contactRate === null ? '—' : `${Math.round(summary.contactRate * 100)}%`}</strong><span className="kpi-sub">contact clicks ÷ profile views</span></div>
+          </section>
+
+          <div className="viz-root">
+            <div className="row" style={{ justifyContent: 'space-between' }}>
+              <h2>Daily activity</h2>
+              <button className="linkish" onClick={() => setShowTable(!showTable)}>{showTable ? 'Show charts' : 'Show as table'}</button>
+            </div>
+            {showTable ? (
+              <div className="table-wrap">
+                <table>
+                  <thead><tr><th>Day</th><th className="num">Profile views</th><th className="num">Contact clicks</th><th className="num">Leads</th></tr></thead>
+                  <tbody>{summary.daily.map((d) => <tr key={d.day}><td>{fmtDate(d.day)}</td><td className="num">{d.views}</td><td className="num">{d.contacts}</td><td className="num">{d.leads}</td></tr>)}</tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="small-multiples">
+                <DailyColumns title="Profile views" data={summary.daily.map((d) => ({ day: d.day, value: d.views }))} />
+                <DailyColumns title="Contact clicks" data={summary.daily.map((d) => ({ day: d.day, value: d.contacts }))} />
+                <DailyColumns title="Leads" data={summary.daily.map((d) => ({ day: d.day, value: d.leads }))} />
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      <section>
+        <div className="row" style={{ justifyContent: 'space-between' }}>
+          <h2>Leads ({leads.length})</h2>
+          <a className="btn btn-secondary" href={`/api/pro/leads.csv?from=${range.from}&to=${range.to}`}>Download CSV</a>
+        </div>
+        {leads.length === 0 && <p className="muted">No leads in this period yet.</p>}
+        <ul className="lead-list">
+          {leads.map((l) => (
+            <li key={l.id}>
+              <div className="row" style={{ justifyContent: 'space-between' }}>
+                <strong>{l.name}</strong>
+                <span className="small muted">{fmtDateTime(l.createdAt)}</span>
+              </div>
+              <div className="small">
+                <a href={`mailto:${l.email}`}>{l.email}</a>
+                {l.phone && <> · <a href={`tel:${l.phone}`}>{l.phone.replace(/^\+1(\d{3})(\d{3})(\d{4})$/, '($1) $2-$3')}</a></>}
+                {l.interest && <> · {l.interest}</>}
+              </div>
+              <p className="small">{l.message}</p>
+            </li>
+          ))}
+        </ul>
+        <p className="small muted">
+          Buyers agreed to share these details with you only. Respond personally and follow the laws on contacting consumers (for example, don't
+          add them to marketing lists or robocalls without consent). Leads are kept for 13 months.
+        </p>
+      </section>
+      <p className="small muted">Counts exclude known bots and repeat clicks by the same visitor on the same day. We don't track visitors across days or collect anything that identifies them.</p>
+    </main>
+  );
+}

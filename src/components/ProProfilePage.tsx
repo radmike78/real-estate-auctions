@@ -1,9 +1,16 @@
 import { CATEGORIES, REVERIFY_DAYS, safeMailto, safeTel, safeWebsite } from '../lib/pros';
 import { fmtDate } from '../lib/status';
+import { useEffect } from 'react';
+import { track } from '../lib/track';
+import LeadForm from './LeadForm';
 import { fmtPhone, useDirectory } from './ProDirectory';
 
 export default function ProProfilePage({ id }: { id: string }) {
   const { pros, loading } = useDirectory();
+  const found = pros.some((x) => x.id === id);
+  useEffect(() => {
+    if (found) track('profile_view', id);
+  }, [found, id]);
   if (loading) return <main className="page"><p>Loading…</p></main>;
   const p = pros.find((x) => x.id === id);
   if (!p) {
@@ -29,9 +36,9 @@ export default function ProProfilePage({ id }: { id: string }) {
           <h1>{p.name}</h1>
           <p className="lede">{p.headline}</p>
           <div className="contact">
-            {tel && <a className="btn" href={tel}>Call {fmtPhone(p.phone!)}</a>}
-            {mail && <a className="btn btn-secondary" href={mail}>Email</a>}
-            {web && <a className="btn btn-secondary" href={web} target="_blank" rel="noreferrer noopener nofollow">Website ↗</a>}
+            {tel && <a className="btn" href={tel} onClick={() => track('phone_click', p.id)}>Call {fmtPhone(p.phone!)}</a>}
+            {mail && <a className="btn btn-secondary" href={mail} onClick={() => track('email_click', p.id)}>Email</a>}
+            {web && <a className="btn btn-secondary" href={web} target="_blank" rel="noreferrer noopener nofollow" onClick={() => track('website_click', p.id)}>Website ↗</a>}
           </div>
         </div>
         <span className="ad-label">Advertisement{p.isSample ? ' · sample profile' : ''}</span>
@@ -56,6 +63,8 @@ export default function ProProfilePage({ id }: { id: string }) {
           <p>{p.languages.join(', ')}</p>
         </section>
 
+        <div className="side-col">
+        <LeadForm pro={p} />
         <aside className="verify-card">
           <h2>✓ Verified</h2>
           <dl className="mini">
@@ -69,6 +78,7 @@ export default function ProProfilePage({ id }: { id: string }) {
           </p>
           <a className="btn btn-secondary" href={info.lookupUrl} target="_blank" rel="noreferrer noopener">Check it yourself on {info.regulator} ↗</a>
         </aside>
+        </div>
       </div>
     </main>
   );

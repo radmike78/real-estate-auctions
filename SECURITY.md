@@ -110,6 +110,24 @@ The main risk is a **fake professional profile**, for example a real agent's or 
   - Security headers on every response: `nosniff`, `frame-ancestors 'none'`, HSTS on HTTPS.
 - **Privacy.** The individual admin's name is never published; profiles say "verified by staff." Emails are sent only to the applicant.
 
+## 5d. Leads, metrics and advertiser accounts
+
+- **Leads.**
+  - A lead is sent only after the buyer explicitly agrees to share their details with that one professional, and acknowledges the site's role.
+  - Leads are validated and stored as plain text, rate-limited (5 per network per hour), and protected by a honeypot field.
+  - Leads are kept for 13 months, then deleted.
+  - CSV exports neutralize spreadsheet-formula injection.
+- **Metrics.**
+  - Only daily aggregate counts per advertiser are stored.
+  - Unique visitors come from a SHA-256 of IP and user agent, salted with a random value that exists only in memory and rotates every day. These hashes can't be reversed or linked across days, and they are deleted after 2 days.
+  - Bots are filtered by user agent, and each visitor is limited to 60 events a minute. Only currently listed profiles can be counted, so a competitor can't meaningfully inflate or drain the numbers.
+  - Leads can only be counted through the real contact form.
+- **Advertiser sign-in.**
+  - A one-time link, valid for 15 minutes, is sent only to the email on an approved profile. Only its hash is stored.
+  - The response is identical whether or not an account exists, so accounts can't be enumerated.
+  - Sign-in requests are rate-limited per IP and per email.
+  - Sessions use a separate `fsf_pro` cookie scoped to `/api/pro` (`HttpOnly; SameSite=Strict`). Admin and advertiser cookies can't be used for each other's endpoints.
+
 ## 6. Browser hardening
 
 The production build adds a Content-Security-Policy. It allows only same-origin scripts and data, no inline scripts, no plugins, and map tiles only from OpenStreetMap. Configure your host to also send these headers:

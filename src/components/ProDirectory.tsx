@@ -3,6 +3,7 @@ import { SAMPLE_PROS } from '../data/samplePros';
 import { FEED_PUBLIC_KEY_SPKI_B64 } from '../feed/publicKey';
 import { loadVerifiedPros, type ProsFeedResult } from '../feed/prosFeed';
 import { CATEGORIES, CREDIT_PROFILES, LOAN_PRODUCTS, safeMailto, safeTel, searchPros, servicesFor, type Category, type Pro, type ProQuery } from '../lib/pros';
+import { track } from '../lib/track';
 
 /** Loads the signed directory; falls back to fictional samples only when no directory exists yet. */
 export function useDirectory(): { pros: Pro[]; usingSamples: boolean; error: string | null; loading: boolean } {
@@ -45,8 +46,8 @@ export function ProCard({ p }: { p: Pro }) {
       <div className="verified small">✓ Verified with {info.regulator}</div>
       <div className="contact">
         <a className="btn" href={`#/pros/${p.id}`}>View profile</a>
-        {tel && <a className="btn btn-secondary" href={tel}>Call</a>}
-        {!tel && mail && <a className="btn btn-secondary" href={mail}>Email</a>}
+        {tel && <a className="btn btn-secondary" href={tel} onClick={() => track('phone_click', p.id)}>Call</a>}
+        {!tel && mail && <a className="btn btn-secondary" href={mail} onClick={() => track('email_click', p.id)}>Email</a>}
       </div>
       <span className="ad-label">Advertisement</span>
     </li>
@@ -68,6 +69,14 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
   const serviceOptions = useMemo(() => [...new Set(active.flatMap((c) => servicesFor(c)))], [active.join()]); // eslint-disable-line react-hooks/exhaustive-deps
   const languages = useMemo(() => [...new Set(pros.flatMap((p) => p.languages))].sort(), [pros]);
   const results = searchPros(pros, { ...q, categories: active });
+  // Count an "appeared in results" impression once per profile per page view.
+  const seen = useMemo(() => new Set<string>(), []);
+  const resultKey = results.map((p) => p.id).join();
+  useEffect(() => {
+    const fresh = results.map((p) => p.id).filter((id) => !seen.has(id));
+    fresh.forEach((id) => seen.add(id));
+    if (fresh.length) track('impression', fresh);
+  }, [resultKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="directory">
