@@ -1,6 +1,9 @@
 import { useState, type CSSProperties } from 'react';
 import type { BuyerChecklist } from '../lib/buyerChecklists';
 
+// Checklist key → Nevada playbook with the full step-by-step process.
+const PLAYBOOK_FOR: Record<string, string> = { tax: 'tax', foreclosure: 'foreclosure', reo: 'reo', hoa: 'hoa', sheriff: 'sheriff', short: 'short', pre: 'foreclosure' };
+
 const KEY = (k: string) => `fsf.checklist.${k}.v1`;
 
 function load(k: string): number[] {
@@ -69,7 +72,10 @@ function ChecklistInner({ list, variant = 'light' }: { list: BuyerChecklist; var
           </li>
         ))}
       </ul>
-      {list.link && <a className="checklist-link" href={list.link.href}>{list.link.label} →</a>}
+      <div className="checklist-links">
+        {PLAYBOOK_FOR[list.key] && <a className="checklist-link" href={`#/playbooks/${PLAYBOOK_FOR[list.key]}`}>Full Nevada playbook: every step, what stays, mistakes, your team →</a>}
+        {list.link && <a className="checklist-link" href={list.link.href}>{list.link.label} →</a>}
+      </div>
     </section>
   );
 }

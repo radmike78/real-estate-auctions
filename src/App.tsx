@@ -17,6 +17,10 @@ import ProsPage from './components/ProsPage';
 import ProProfilePage from './components/ProProfilePage';
 import AdvertiserPage from './components/AdvertiserPage';
 import DisclaimerPage from './components/DisclaimerPage';
+import CalculatorPage from './components/CalculatorPage';
+import PlaybookPage from './components/PlaybookPage';
+import DealsPage from './components/DealsPage';
+import HomeownerHelpPage from './components/HomeownerHelpPage';
 import RoleNotice from './components/RoleNotice';
 import { ROLE_SHORT } from './lib/disclaimers';
 import { CATEGORIES, type Category } from './lib/pros';
@@ -41,7 +45,11 @@ type Route =
   | { page: 'applicationConfirm'; token: string }
   | { page: 'admin' }
   | { page: 'advertiser'; token: string | null }
-  | { page: 'disclaimer'; section?: string };
+  | { page: 'disclaimer'; section?: string }
+  | { page: 'calculator' }
+  | { page: 'deals' }
+  | { page: 'homeowner' }
+  | { page: 'playbook'; key?: string; section?: string };
 
 function hashPath(): string {
   return window.location.hash.replace(/^#\/?/, '');
@@ -87,6 +95,11 @@ function parseHash(): Route {
   const confirm = h.match(/^advertise\/confirm(?:\/([A-Za-z0-9_-]+))?$/);
   if (confirm) return { page: 'applicationConfirm', token: confirm[1] ?? '' };
   if (h === 'admin') return { page: 'admin' };
+  if (h === 'calculator') return { page: 'calculator' };
+  if (h === 'deals') return { page: 'deals' };
+  if (h === 'homeowner-help') return { page: 'homeowner' };
+  const pb = h.match(/^playbooks(?:\/([a-z]+)(?:\/([a-z-]+))?)?$/);
+  if (pb) return { page: 'playbook', key: pb[1], section: pb[2] };
   if (sub?.[1] === 'disclaimer') return { page: 'disclaimer', section: sub[2] };
   const adv = h.match(/^advertiser(?:\/login\/([A-Za-z0-9_-]+))?$/);
   if (adv) return { page: 'advertiser', token: adv[1] ?? null };
@@ -127,11 +140,16 @@ export default function App() {
       {route.page === 'applicationConfirm' && <ApplicationConfirmPage token={route.token} />}
       {route.page === 'admin' && <AdminPage />}
       {route.page === 'disclaimer' && <DisclaimerPage section={route.section} />}
+      {route.page === 'calculator' && <CalculatorPage />}
+      {route.page === 'deals' && <DealsPage />}
+      {route.page === 'homeowner' && <HomeownerHelpPage />}
+      {route.page === 'playbook' && <PlaybookPage key={route.key ?? ''} playbook={route.key} section={route.section} />}
       {route.page === 'advertiser' && <AdvertiserPage key={route.token ?? ''} token={route.token} />}
       {route.page === 'agents' && <AgentsPage key={`${route.shortSales}${route.q}`} shortSales={route.shortSales} initialQuery={route.q} />}
       <footer className="footer">
         <span>{ROLE_SHORT}</span>
         <nav aria-label="Footer">
+          <a href="#/homeowner-help">Homeowners: free help</a>
           <a href="#/disclaimer">Our role</a>
           <a href="#/about">How it works</a>
           <a href="#/advertise">Advertise</a>

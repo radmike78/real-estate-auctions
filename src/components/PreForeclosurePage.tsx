@@ -130,7 +130,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
         is for sale. Nevada strictly regulates anyone who approaches owners in foreclosure (NRS Chapter 645F), and a purchase made that way can
         be rescinded for up to 2 years. Owners may also be in the state's Foreclosure Mediation Program. For that reason this tracker shows no
         owner names or contact details. Use it only to follow a property toward auction, or to recognize it if the owner lists it for sale
-        through an agent.
+        through an agent. Homeowners can find free help on our <a href="#/homeowner-help">homeowner help page</a>.
       </div>
 
       <p className="muted">

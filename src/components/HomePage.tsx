@@ -45,6 +45,7 @@ export default function HomePage() {
             <input aria-label="City, ZIP or address" placeholder="City, ZIP or address" value={q} onChange={(e) => setQ(e.target.value)} />
             <button type="submit">Search</button>
           </form>
+          <p className="promise">We don’t promise every property is a deal. We show you how to tell, and when to walk away.</p>
         </div>
       </section>
 
@@ -60,6 +61,11 @@ export default function HomePage() {
             </a>
           ))}
         </div>
+        <nav className="browse-tools" aria-label="Tools">
+          <a href="#/playbooks">Nevada playbooks: how each sale works →</a>
+          <a href="#/calculator">Maximum safe bid calculator →</a>
+          <a href="#/deals">My deals →</a>
+        </nav>
         <ul className="browse-trust" aria-label="Why trust it">
           <li><IconShield /> Official .gov sources</li>
           <li><IconPulse /> Stale listings removed automatically</li>

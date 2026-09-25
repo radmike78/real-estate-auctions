@@ -6,8 +6,8 @@ import PageHero from './PageHero';
 import { IconDatabase, IconFlag, IconHelp, IconLayers, IconStop } from './Icons';
 
 const SALE_TYPES: [string, string, string][] = [
-  ['Tax-deed sale', 'The property itself (tax deed)', 'Online or courthouse auction'],
-  ['Tax-lien certificate', 'The tax debt only, not ownership', 'Auction. Foreclosure may come later. Nevada does not use these.'],
+  ['Tax-deed sale', 'The property (quitclaim deed); the former owner can protest for 2 years', 'In-person Treasurer auction, certified funds the same day'],
+  ['Special assessment lien certificate', 'The right to be repaid the assessment plus 1% a month, not ownership. A deed only if not redeemed in 120 days (2 years if the land has a building)', 'Clark County Treasurer (SID) sale; winners picked by random drawing'],
   ['Mortgage foreclosure', 'The property after lender enforcement', 'Trustee, sheriff or judicial auction'],
   ['HOA foreclosure', 'A property interest subject to state rules', 'HOA agent / trustee auction'],
   ['Judgment execution', "The debtor's interest", 'Sheriff sale, with redemption rights'],
