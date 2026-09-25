@@ -1,13 +1,13 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
 import { SALE_SEARCH, saleSearchHref } from '../lib/saleSearch';
 import { CHECKLISTS } from '../lib/buyerChecklists';
 import BuyerChecklistBox from './BuyerChecklistBox';
-import { IconBadge, IconBank, IconLock, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
+import { IconBadge, IconBank, IconHome, IconLock, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
 
-const HELPERS = [
-  { href: '#/agents', icon: <IconBadge />, title: 'Find an agent', text: 'Verify any license in seconds' },
-  { href: '#/financing', icon: <IconBank />, title: 'Financing', text: 'Lenders for every credit situation' },
-  { href: '#/pros', icon: <IconTools />, title: 'Title, insurance & repairs', text: 'Licensed pros to close and fix up' },
+const HELP: { href: string; icon: ReactNode; label: string }[] = [
+  { href: '#/agents', icon: <IconBadge />, label: 'Find an agent' },
+  { href: '#/financing', icon: <IconBank />, label: 'Financing' },
+  { href: '#/pros', icon: <IconTools />, label: 'Title, insurance & repairs' },
 ];
 
 export default function HomePage() {
@@ -22,56 +22,72 @@ export default function HomePage() {
 
   return (
     <main className="home">
-      <section className="hero">
+      <section className="hero hero-band">
         <div className="hero-grid" aria-hidden />
         <div className="hero-glow" aria-hidden />
         <div className="hero-inner">
           <span className="eyebrow"><span className="live-dot" aria-hidden /> Clark County, NV</span>
           <h1>
-            Foreclosures, tax&nbsp;sales
-            <br />
-            <span className="grad">&amp; short&nbsp;sales.</span>
+            Foreclosures, tax&nbsp;sales <span className="grad">&amp; short&nbsp;sales.</span>
           </h1>
           <p className="hero-sub">Properties heading to a forced sale, what you'd really be buying, and how to buy them.</p>
+        </div>
+      </section>
 
-          <form className="search-card" onSubmit={go} role="search" aria-label="Search forced-sale properties">
-            <div className="sale-chips" role="radiogroup" aria-label="Type of sale">
+      <div className="home-app">
+        <aside className="home-side" aria-label="Browse">
+          <div className="side-group">
+            <h2 className="side-heading"><IconHome /> Find property</h2>
+            <div className="side-tabs" role="tablist" aria-orientation="vertical" aria-label="Type of sale">
               {SALE_SEARCH.map((o) => (
-                <button key={o.key} type="button" role="radio" aria-checked={type === o.key} className={`sale-chip${o.key === 'liens' ? ' muted-chip' : ''}`} onClick={() => setType(o.key)}>
+                <button
+                  key={o.key}
+                  role="tab"
+                  aria-selected={type === o.key}
+                  aria-controls="home-panel"
+                  className={`side-tab${o.key === 'liens' || o.key === 'pre' ? ' not-sale' : ''}`}
+                  onClick={() => setType(o.key)}
+                >
                   {o.label}
+                  {(o.key === 'pre' || o.key === 'liens') && <span className="side-note">not for sale yet</span>}
                 </button>
               ))}
             </div>
-            <div className="search-row">
-              <span className="search-icon" aria-hidden><IconSearch /></span>
-              <input aria-label="City, ZIP or address" placeholder="City, ZIP or address (optional)" value={q} onChange={(e) => setQ(e.target.value)} />
-              <button type="submit">Search</button>
-            </div>
-            <p className="search-hint">{selected.hint}</p>
+          </div>
+
+          <div className="side-group">
+            <h2 className="side-heading">Help to buy</h2>
+            <nav className="side-links" aria-label="Help to buy">
+              {HELP.map((h) => (
+                <a key={h.href} href={h.href} className="side-link">
+                  <span className="side-link-icon">{h.icon}</span>
+                  {h.label}
+                  <span className="side-arrow" aria-hidden>→</span>
+                </a>
+              ))}
+            </nav>
+          </div>
+
+          <ul className="side-trust" aria-label="Why trust it">
+            <li><IconShield /> Official .gov sources</li>
+            <li><IconPulse /> Stale listings vanish</li>
+            <li><IconLock /> Tamper-proof data</li>
+          </ul>
+        </aside>
+
+        <section className="home-main" id="home-panel" role="tabpanel" aria-label={selected.label}>
+          <div className="home-main-head">
+            <h2>{selected.label}</h2>
+            <p>{selected.hint}</p>
+          </div>
+          <form className="search-row big" onSubmit={go} role="search" aria-label={`Search ${selected.label}`}>
+            <span className="search-icon" aria-hidden><IconSearch /></span>
+            <input aria-label="City, ZIP or address" placeholder="City, ZIP or address (optional)" value={q} onChange={(e) => setQ(e.target.value)} />
+            <button type="submit">{selected.route ? 'Open' : 'Search'}</button>
           </form>
-          <BuyerChecklistBox list={CHECKLISTS[type] ?? CHECKLISTS.all} variant="hero" />
-        </div>
-      </section>
-
-      <section className="helpers" aria-label="Help to buy">
-        <h2>Everything you need to buy</h2>
-        <div className="tiles">
-          {HELPERS.map((c) => (
-            <a key={c.href} href={c.href} className="tile">
-              <span className="tile-icon">{c.icon}</span>
-              <span className="tile-title">{c.title}</span>
-              <span className="tile-text">{c.text}</span>
-              <span className="tile-arrow" aria-hidden>→</span>
-            </a>
-          ))}
-        </div>
-      </section>
-
-      <section className="trust" aria-label="Why trust it">
-        <div><IconShield /><strong>Official sources</strong><span>.gov data, verified</span></div>
-        <div><IconPulse /><strong>Always current</strong><span>Stale listings vanish</span></div>
-        <div><IconLock /><strong>Tamper-proof</strong><span>Signed data</span></div>
-      </section>
+          <BuyerChecklistBox list={CHECKLISTS[type] ?? CHECKLISTS.all} variant="wide" />
+        </section>
+      </div>
     </main>
   );
 }

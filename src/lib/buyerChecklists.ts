@@ -26,7 +26,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     key: 'all',
     forSale: true,
     title: 'What you need to buy at a forced sale',
-    intro: 'The basics for any auction or distressed sale. Pick a sale type above for its exact requirements.',
+    intro: 'The basics for any auction or distressed sale. Choose a type of sale to see its exact requirements.',
     items: [
       { text: 'Proof of funds or financing lined up', detail: 'Most auctions need certified funds within hours; financed purchases need pre-approval.' },
       { text: 'Government-issued photo ID' },
