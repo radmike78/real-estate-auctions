@@ -1,6 +1,6 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { SALE_SEARCH, saleSearchHref } from '../lib/saleSearch';
-import { IconBank, IconCalendar, IconClock, IconFile, IconFlag, IconHome, IconLayers, IconLock, IconPulse, IconSearch, IconShield } from './Icons';
+import { IconBank, IconCalendar, IconClock, IconFile, IconFlag, IconHome, IconLayers, IconLock, IconPulse, IconSearch, IconShield, IconStar } from './Icons';
 
 // A deliberately simple homepage: say what the site is for, one search, and one tile per type of
 // sale. Details (checklists, rules, listings) live one click down, on the page each tile opens.
@@ -67,6 +67,7 @@ export default function HomePage() {
           <a href="#/deals">My deals →</a>
         </nav>
         <ul className="browse-trust" aria-label="Why trust it">
+          <li><IconStar /> Free to use, no sign-up</li>
           <li><IconShield /> Official .gov sources</li>
           <li><IconPulse /> Stale listings removed automatically</li>
           <li><IconLock /> Tamper-proof, signed data</li>

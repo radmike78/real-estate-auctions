@@ -1,5 +1,5 @@
-// "My deals": properties a buyer is working on, kept in this browser (a synced, alerting version
-// can come with the paid plan). Stores what the status was when saved, so changes stand out.
+// "My deals": properties a buyer is working on, kept in this browser. Free, like everything for
+// buyers. Stores what the status was when saved, so changes stand out.
 
 import type { AcquisitionStatus } from '../types';
 import { STATUS } from './status';
