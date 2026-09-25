@@ -1,0 +1,32 @@
+# Web server + API. Quadlet turns this file into the systemd service "forced-sale-finder-web".
+[Unit]
+Description=Forced-Sale Finder web server
+Wants=network-online.target
+After=network-online.target
+
+[Container]
+Image=localhost/forced-sale-finder:latest
+ContainerName=forced-sale-finder-web
+Volume=forced-sale-finder.volume:/data
+# Only reachable from this machine; the HTTPS proxy (Caddy below, or your own) forwards to it.
+PublishPort=127.0.0.1:8080:8080
+EnvironmentFile=forced-sale-finder.env
+Secret=fsf-admin-password-hash,type=env,target=ADMIN_PASSWORD_HASH
+Secret=fsf-feed-signing-key,type=env,target=FEED_SIGNING_KEY
+# Online card payments (optional): create these three secrets, then uncomment.
+#Secret=fsf-stripe-secret-key,type=env,target=STRIPE_SECRET_KEY
+#Secret=fsf-stripe-webhook-secret,type=env,target=STRIPE_WEBHOOK_SECRET
+#Secret=fsf-stripe-plans,type=env,target=STRIPE_PLANS
+HealthCmd=node -e "fetch('http://127.0.0.1:8080/healthz').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"
+HealthInterval=30s
+HealthStartPeriod=20s
+HealthOnFailure=kill
+NoNewPrivileges=true
+DropCapability=ALL
+
+[Service]
+Restart=always
+TimeoutStopSec=30
+
+[Install]
+WantedBy=default.target

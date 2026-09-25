@@ -1,0 +1,11 @@
+# One volume for everything the site writes: database, backups, signed feeds, updater state.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: forced-sale-finder-data
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 2Gi
+  # storageClassName: your-storage-class   # leave out to use the cluster default

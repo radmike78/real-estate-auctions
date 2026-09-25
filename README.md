@@ -19,6 +19,317 @@ npm test           # rules engine, search, connector, freshness and security tes
 npm run build      # static site in dist/
 ```
 
+To put the site online, see [Deploy](#deploy): Podman, any Kubernetes distribution, or OpenShift.
+
+
+## Deploy
+
+The site ships as **one container image**, built with **Podman** (Docker isn't used or needed). It runs in any of three ways:
+
+| Option | Best for | Time |
+| --- | --- | --- |
+| [1. Podman on one Linux server](#option-1-podman-on-one-linux-server) | The simplest production setup, or trying it on a laptop | about 15 minutes |
+| [2. Any Kubernetes distribution](#option-2-any-kubernetes-distribution) | k3s, RKE2, EKS, GKE, AKS, DigitalOcean, Linode, kind, minikube, ... | about 30 minutes |
+| [3. OpenShift](#option-3-openshift) | OpenShift 4.x, OKD, ROSA, ARO, OpenShift Local | about 20 minutes |
+
+### How it runs
+
+- **One image, two processes.** The web server and API (the default command, port 8080) and the listings updater (`node --import tsx ingest/run.ts --watch`) run as two containers from the same image.
+- **One data folder, `/data`.** Put a persistent volume there. It holds the database (`/data/db`), 7 daily backups (`/data/backups`), the signed feeds (`/data/feeds`) and the updater's state (`/data/ingest-state`).
+- **Health check:** `GET /healthz` returns `{"ok":true}` when the server and database are working.
+- **Runs one copy only.** SQLite allows one writer, so run a single copy of the web server. This is plenty for Clark County traffic. Updates stop the old copy before starting the new one, which takes 5–15 seconds.
+- **Security:** it runs as a non-root user (UID 1001, group 0), with a read-only file system apart from `/data` and `/tmp`, and no extra privileges. It works under OpenShift's default `restricted-v2` policy and the Kubernetes "restricted" Pod Security Standard.
+
+**Settings** (environment variables):
+
+| Name | Secret? | Required | What it is |
+| --- | --- | --- | --- |
+| `BASE_URL` | no | yes | The web address people use, like `https://forcedsalefinder.com`. Used in emails and for secure cookies. |
+| `ADMIN_USERNAME` | no | yes | Admin sign-in name for `/#/admin`. |
+| `ADMIN_PASSWORD_HASH` | **yes** | yes | Hash of the admin password (never the password itself). Created in step 3 below. |
+| `FEED_SIGNING_KEY` | **yes** | yes | Private signing key (PEM) for the listings and directory feeds. Created in step 2 below. |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PLANS` | **yes** | no | Online card payments for advertisers: set all three or none. See [Online payments](#advertisers-signup-verification-billing-server). |
+| `TRUST_PROXY` | no | no | `1` when a reverse proxy, Ingress or OpenShift router sits in front (it is in every option below). |
+| `BACKUP_KEEP` | no | no | Daily database backups to keep (default 7). `BACKUP_DIR=""` turns them off. |
+| `PORT`, `DB_PATH`, `DATA_DIR`, `INGEST_STATE_DIR`, `BACKUP_DIR` | no | no | Already set correctly in the image. |
+
+> **Emails:** until an email provider is connected (`server/mailer.ts`), confirmation links, leads and reports are written to the web container's log instead of being sent.
+
+### Before you start (every option)
+
+**1. Get the code**
+```bash
+git clone https://github.com/radmike78/real-estate-auctions.git
+cd real-estate-auctions
+```
+
+**2. Create the signing key** (once, with OpenSSL). The site signs its listings and directory; browsers check the signature with the public key built into the image.
+```bash
+openssl genpkey -algorithm ed25519 -out feed-signing.pem
+openssl pkey -in feed-signing.pem -pubout -outform DER | base64 | tr -d '\n' > feed-public-key.txt
+```
+- `feed-signing.pem` is the **private key**. Keep it secret and back it up. It goes into a secret, never into Git.
+- `feed-public-key.txt` is the **public key**. It's safe to share and is passed to the image build as `FEED_PUBLIC_KEY`.
+- If you lose the private key, create a new pair and rebuild the image.
+
+**3. Create the admin password hash** (after you have an image; each option shows when). Type the password when asked; it's never shown or saved.
+```bash
+read -rs -p "Admin password (12+ characters): " PW; echo
+# With Podman:
+printf '%s\n' "$PW" | podman run --rm -i <image> node --import tsx server/hash-password.ts 2>/dev/null | tr -d '\n' > admin-password-hash.txt
+# Or inside a Kubernetes/OpenShift cluster (use oc instead of kubectl on OpenShift):
+# printf '%s\n' "$PW" | kubectl run fsf-hash --rm -i --quiet --restart=Never --image=<image> -n forced-sale-finder \
+#   --command -- node --import tsx server/hash-password.ts 2>/dev/null | tr -d '\n' > admin-password-hash.txt
+unset PW
+cat admin-password-hash.txt   # should start with scrypt$
+```
+
+**4. Pick the web address** (`BASE_URL`). For HTTPS on your own domain, point the domain's DNS at your server, load balancer or OpenShift router first.
+
+---
+
+### Option 1: Podman on one Linux server
+
+**Prerequisites**
+- A Linux server:
+  - RHEL, Rocky or AlmaLinux 9, Fedora 40+, Ubuntu 24.04 or Debian 12;
+  - at least 1 vCPU, 2 GB RAM (building uses most of it) and 10 GB of disk.
+- **Podman 4.4 or newer** (Podman 5 recommended). Install it:
+  - RHEL, Rocky, Alma or Fedora: `sudo dnf install -y podman git openssl`
+  - Ubuntu or Debian: `sudo apt install -y podman git openssl`
+- **Git** and **OpenSSL**, installed by the command above.
+- **systemd**, so the site starts on boot. Every distribution above has it.
+- **For HTTPS:**
+  - a domain name whose DNS A record points to the server;
+  - ports **80 and 443** open in the firewall, for example `sudo firewall-cmd --add-service={http,https} --permanent && sudo firewall-cmd --reload`.
+- **Outbound internet:**
+  - `registry.access.redhat.com` and `registry.npmjs.org` while building;
+  - `docker.io`, only for the optional Caddy HTTPS image, which Podman pulls from Docker Hub's registry;
+  - the county sites and Stripe while running.
+- **Mac or Windows** (for trying it out): install [Podman Desktop](https://podman-desktop.io) or run `podman machine init && podman machine start`, then use `--no-systemd` below.
+
+**Install (one command)**
+```bash
+deploy/podman/install.sh
+```
+It asks for the web address, an admin username and an admin password, then does everything else:
+1. creates the signing key in `~/.config/forced-sale-finder/` (step 2 above);
+2. builds the image and runs the tests;
+3. stores the password hash and signing key as Podman secrets;
+4. installs systemd services with Quadlet: `forced-sale-finder-web`, `forced-sale-finder-ingest` and, optionally, `forced-sale-finder-caddy` for automatic HTTPS;
+5. starts them and checks `/healthz`.
+
+- Run it as **root** for a system-wide install (units go in `/etc/containers/systemd/`), or as a **normal user** for a rootless install (`~/.config/containers/systemd/`).
+- For a rootless install with Caddy, allow ports 80/443 once: `echo 'net.ipv4.ip_unprivileged_port_start=80' | sudo tee /etc/sysctl.d/99-unprivileged-ports.conf && sudo sysctl --system`.
+- Quick try-out without systemd (also on Mac or Windows): `deploy/podman/install.sh --no-systemd`, then open http://localhost:8080.
+
+**Install step by step (what the script does)**
+```bash
+# Build (on RHEL-family hosts, add --pull=newer to refresh the base images)
+podman build -t localhost/forced-sale-finder:latest \
+  --build-arg FEED_PUBLIC_KEY="$(cat feed-public-key.txt)" -f Containerfile .
+
+# Secrets (step 3 above creates admin-password-hash.txt)
+podman secret create fsf-admin-password-hash admin-password-hash.txt
+podman secret create fsf-feed-signing-key feed-signing.pem
+
+# systemd services via Quadlet (rootless: use ~/.config/containers/systemd and systemctl --user)
+sudo mkdir -p /etc/containers/systemd
+sudo cp deploy/podman/quadlet/forced-sale-finder.{env,volume} \
+        deploy/podman/quadlet/forced-sale-finder-{web,ingest}.container /etc/containers/systemd/
+sudo nano /etc/containers/systemd/forced-sale-finder.env      # set BASE_URL and ADMIN_USERNAME
+# Optional automatic HTTPS: also copy forced-sale-finder-caddy.{container,volume} and Caddyfile,
+# then put your domain in /etc/containers/systemd/Caddyfile
+sudo systemctl daemon-reload
+sudo systemctl start forced-sale-finder-web forced-sale-finder-ingest   # (and forced-sale-finder-caddy)
+```
+There's no `systemctl enable` step: Quadlet services start at boot automatically. For a rootless install, run `sudo loginctl enable-linger $USER` once so they start without you logging in.
+
+**Everyday tasks**
+
+| Task | Command (rootless: add `--user` to `systemctl`, drop `sudo`) |
+| --- | --- |
+| Status | `sudo systemctl status forced-sale-finder-web` or `sudo podman ps` |
+| Logs | `sudo podman logs -f forced-sale-finder-web` (updater: `forced-sale-finder-ingest`) |
+| Update to the latest code | `git pull && deploy/podman/install.sh --update` |
+| Change settings | edit `forced-sale-finder.env` in the Quadlet folder, then `sudo systemctl restart forced-sale-finder-web` |
+| Copy backups off the server | `sudo podman run --rm -v forced-sale-finder-data:/data:ro -v "$PWD":/out:Z localhost/forced-sale-finder:latest sh -c 'cp /data/backups/*.db /out/'` |
+| Restore a backup | stop the web service, copy the backup over `/data/db/app.db` (and delete `app.db-wal`/`app.db-shm`) with a similar `podman run`, then start it |
+| Uninstall | stop the services, delete the `forced-sale-finder*` files from the Quadlet folder, `systemctl daemon-reload`, then `podman volume rm forced-sale-finder-data` (**deletes all data**) |
+
+---
+
+### Option 2: Any Kubernetes distribution
+
+**Prerequisites**
+- A Kubernetes cluster, **version 1.27 or newer**, with:
+  - a **default StorageClass** that supports `ReadWriteOnce` volumes (check with `kubectl get storageclass`);
+  - an **Ingress controller**. The files assume [ingress-nginx](https://kubernetes.github.io/ingress-nginx/deploy/); for Traefik (the k3s default) or another controller, change `ingressClassName` in `ingress.yaml`;
+  - optional: **[cert-manager](https://cert-manager.io/docs/installation/)** with a `ClusterIssuer` for free, automatic HTTPS certificates.
+- **kubectl 1.27+** on your computer, connected to the cluster. Kustomize is built in (`kubectl apply -k`).
+- **A container image the cluster can pull.** Either:
+  - **(a)** use the image CI publishes to GitHub Container Registry (see [Continuous delivery](#continuous-delivery)); or
+  - **(b)** build it yourself with **Podman 4+** and push it to any registry (Quay.io, GHCR, Harbor, ECR, GCR, ACR, ...).
+- **OpenSSL** for the signing key. **Podman** for building the image (option b) and the password hash; you can also make the hash inside the cluster.
+- At least 0.2 CPU and 512 MB of memory free on a node, plus 2 GB of storage.
+
+**Steps**
+1. **Image.**
+   - **(a)** Use `ghcr.io/radmike78/real-estate-auctions:latest`. Set the repository variable `FEED_PUBLIC_KEY` to the contents of `feed-public-key.txt` *before* CI builds it.
+   - **(b)** Build and push your own:
+     ```bash
+     podman build -t quay.io/<you>/forced-sale-finder:1.0 --build-arg FEED_PUBLIC_KEY="$(cat feed-public-key.txt)" -f Containerfile .
+     podman login quay.io && podman push quay.io/<you>/forced-sale-finder:1.0
+     ```
+   Put the image name and tag in `deploy/kubernetes/overlays/kubernetes/kustomization.yaml` (`images:`).
+   - If the registry is private, add a pull secret:
+     ```bash
+     kubectl create secret docker-registry regcred -n forced-sale-finder --docker-server=ghcr.io --docker-username=<user> --docker-password=<token>
+     kubectl patch serviceaccount default -n forced-sale-finder -p '{"imagePullSecrets":[{"name":"regcred"}]}'
+     ```
+     (`docker-registry` is just the name of the Kubernetes secret type; no Docker software is involved.)
+2. **Namespace:** `kubectl create namespace forced-sale-finder`
+3. **Password hash:** step 3 of [Before you start](#before-you-start-every-option), using your image name, with Podman or inside the cluster.
+4. **Secret.** Add the three `STRIPE_*` values only if you use online payments:
+   ```bash
+   kubectl create secret generic forced-sale-finder-secrets -n forced-sale-finder \
+     --from-file=ADMIN_PASSWORD_HASH=admin-password-hash.txt \
+     --from-file=FEED_SIGNING_KEY=feed-signing.pem
+   #  --from-literal=STRIPE_SECRET_KEY=... --from-literal=STRIPE_WEBHOOK_SECRET=... --from-literal=STRIPE_PLANS='{...}'
+   ```
+5. **Settings:**
+   - Edit `deploy/kubernetes/base/config.env`: set `BASE_URL` and `ADMIN_USERNAME`.
+   - Edit `deploy/kubernetes/overlays/kubernetes/ingress.yaml`: set your host name (twice), `ingressClassName`, and the cert-manager issuer name. Remove the annotation if you don't use cert-manager.
+6. **Deploy:**
+   ```bash
+   kubectl apply -k deploy/kubernetes/overlays/kubernetes -n forced-sale-finder
+   kubectl rollout status deployment/forced-sale-finder -n forced-sale-finder
+   ```
+7. **Check:** `kubectl get pods,ingress -n forced-sale-finder`, then open your address. Without DNS yet, run `kubectl port-forward -n forced-sale-finder svc/forced-sale-finder 8080:8080` and open http://localhost:8080.
+
+**Everyday tasks**
+
+| Task | Command |
+| --- | --- |
+| Logs | `kubectl logs -n forced-sale-finder deploy/forced-sale-finder -c web -f` (updater: `-c ingest`) |
+| Update (`:latest` tag) | `kubectl rollout restart deployment/forced-sale-finder -n forced-sale-finder` |
+| Update (versioned tag) | change `newTag` in the overlay, then `kubectl apply -k ...` again |
+| Roll back | `kubectl rollout undo deployment/forced-sale-finder -n forced-sale-finder` |
+| Copy backups off | `kubectl cp -n forced-sale-finder -c web <pod>:/data/backups ./backups` (pod name from `kubectl get pods`) |
+| Change settings | edit `config.env`, then `kubectl apply -k ...` (the pod restarts by itself). After changing the Secret, run `kubectl rollout restart deployment/forced-sale-finder -n forced-sale-finder` |
+| Remove | `kubectl delete -k deploy/kubernetes/overlays/kubernetes -n forced-sale-finder` (**deletes the data volume**) |
+
+---
+
+### Option 3: OpenShift
+
+**Prerequisites**
+- **OpenShift 4.12 or newer.** OKD, Red Hat OpenShift on AWS (ROSA), Azure Red Hat OpenShift (ARO), OpenShift Dedicated and [OpenShift Local](https://developers.redhat.com/products/openshift-local/overview) (for trying it on a laptop) all work.
+- The **`oc` CLI**, logged in (`oc login ...`), with permission to create a project, or edit rights in an existing one.
+- A **default StorageClass** (check with `oc get storageclass`). Every managed OpenShift has one.
+- **OpenSSL** for the signing key.
+- **Option A (prebuilt image):** Podman, and an image in a registry the cluster can pull from (same as Kubernetes step 1).
+- **Option B (build in the cluster):**
+  - the cluster must reach `github.com`, `registry.access.redhat.com` and `registry.npmjs.org`;
+  - the project needs about **3 GiB of memory** for builds;
+  - no registry account or local Podman needed: OpenShift builds with Buildah, and the password hash is made in the cluster.
+
+No extra permissions are needed. Everything runs under OpenShift's default `restricted-v2` security policy, and OpenShift picks the user ID and volume permissions itself.
+
+**Common steps**
+1. `oc new-project forced-sale-finder`
+2. Edit `deploy/kubernetes/base/config.env`: set `BASE_URL` and `ADMIN_USERNAME`. If you don't know the address yet, leave it for now; after deploying, read it from `oc get route forced-sale-finder`, set it, and run the `oc apply -k` command again.
+
+The Secret is created as part of each option below:
+```bash
+oc create secret generic forced-sale-finder-secrets \
+  --from-file=ADMIN_PASSWORD_HASH=admin-password-hash.txt \
+  --from-file=FEED_SIGNING_KEY=feed-signing.pem
+# Optional online payments: add --from-literal=STRIPE_SECRET_KEY=... (all three STRIPE_* values)
+```
+
+**Option A: prebuilt image**
+1. Set the image in `deploy/kubernetes/overlays/openshift/kustomization.yaml` (`images:`). For a private registry, add a pull secret:
+   ```bash
+   oc create secret docker-registry regcred --docker-server=... --docker-username=... --docker-password=...
+   oc secrets link default regcred --for=pull
+   ```
+2. Make the password hash (step 3 of [Before you start](#before-you-start-every-option)) and create the Secret (above).
+3. `oc apply -k deploy/kubernetes/overlays/openshift`
+4. `oc rollout status deployment/forced-sale-finder`, then `oc get route forced-sale-finder` to get the HTTPS address.
+
+**Option B: build inside OpenShift from Git (no registry needed)**
+1. In `deploy/kubernetes/overlays/openshift-build/buildconfig.yaml`:
+   - paste the contents of `feed-public-key.txt` into `FEED_PUBLIC_KEY`;
+   - if you use a fork, change the Git `uri` and `ref`.
+2. Create the webhook secret (used for automatic rebuilds):
+   ```bash
+   oc create secret generic forced-sale-finder-webhook --from-literal=WebHookSecretKey="$(openssl rand -hex 20)"
+   ```
+3. If the repository is **private**, give OpenShift read access with a GitHub token that has read-only `contents` permission, then uncomment `sourceSecret` in `buildconfig.yaml`:
+   ```bash
+   oc create secret generic forced-sale-finder-git --type=kubernetes.io/basic-auth \
+     --from-literal=username=<github-user> --from-literal=password=<token>
+   ```
+4. Deploy. This starts the first build automatically; it takes about 3–5 minutes, and the tests run during the build:
+   ```bash
+   oc apply -k deploy/kubernetes/overlays/openshift-build
+   oc logs -f bc/forced-sale-finder
+   ```
+   Until the next step is done, the pod waits with `CreateContainerConfigError`. That's expected.
+5. Make the password hash with the image you just built, then create the Secret:
+   ```bash
+   read -rs -p "Admin password (12+ characters): " PW; echo
+   printf '%s\n' "$PW" | oc run fsf-hash --rm -i --quiet --restart=Never --image=forced-sale-finder:latest \
+     --command -- node --import tsx server/hash-password.ts 2>/dev/null | tr -d '\n' > admin-password-hash.txt
+   unset PW
+   oc create secret generic forced-sale-finder-secrets \
+     --from-file=ADMIN_PASSWORD_HASH=admin-password-hash.txt --from-file=FEED_SIGNING_KEY=feed-signing.pem
+   oc rollout status deployment/forced-sale-finder
+   oc get route forced-sale-finder
+   ```
+6. **Automatic rebuilds on every push:**
+   - Get the webhook URL: `oc describe bc/forced-sale-finder`, under "Webhook GitHub". Replace `<secret>` in it with the value from step 2: `oc get secret forced-sale-finder-webhook -o jsonpath='{.data.WebHookSecretKey}' | base64 -d`.
+   - In GitHub, go to repository Settings > Webhooks > Add webhook, paste the URL and choose content type `application/json`.
+   - From then on, each merge to `main` rebuilds the image and redeploys the site.
+
+**Custom domain:** set `host:` in the Route (`route.yaml`) and point your domain's DNS (a CNAME) at the router. Then either add your certificate to the Route, or use cert-manager for OpenShift.
+
+**Everyday tasks:** the same as Kubernetes with `oc` instead of `kubectl`. In the web console, go to Topology to see the pod, logs and builds.
+
+---
+
+### Continuous delivery
+
+`.github/workflows/ci.yml` runs on every pull request and on every change to `main`:
+1. **test:** type checks, all unit tests, and the site build.
+2. **manifests:** renders the three Kubernetes/OpenShift setups and validates them against the Kubernetes and OpenShift schemas.
+3. **image:** builds the image with **Podman**, starts it and checks `/healthz`. On `main`, it pushes the image to `ghcr.io/radmike78/real-estate-auctions` as `:latest` and `:<commit>`.
+
+To turn it on for your deployments:
+- Add the repository **variable** `FEED_PUBLIC_KEY` (Settings > Secrets and variables > Actions > Variables) with the contents of `feed-public-key.txt`.
+- The first push creates the package in GitHub under Packages. Either make it public, or give your cluster a pull secret (shown above).
+
+Then roll out new versions:
+- **Podman:** `deploy/podman/install.sh --update`.
+- **Kubernetes or OpenShift A:** `kubectl` or `oc rollout restart deployment/forced-sale-finder`.
+- **OpenShift B:** rolls out automatically after each build.
+
+For GitOps, point [Argo CD / OpenShift GitOps](https://argo-cd.readthedocs.io/) at `deploy/kubernetes/overlays/<option>`. The cluster then follows whatever is merged, and every change can be rolled back from Git.
+
+### Troubleshooting
+
+| Symptom | Cause and fix |
+| --- | --- |
+| Web container exits with "Set ADMIN_USERNAME and ADMIN_PASSWORD_HASH" | The secret or settings are missing. Check that the Secret has `ADMIN_PASSWORD_HASH` and `config.env` has `ADMIN_USERNAME`. |
+| Pod stuck in `Pending` | No default StorageClass, or not enough resources. Run `kubectl describe pod ...` and look at Events. |
+| `ImagePullBackOff` | Wrong image name, or a private registry without a pull secret. See step 1 of your option. |
+| `CrashLoopBackOff` with "permission denied" on `/data` | Plain Kubernetes: keep the `fsGroup: 1001` patch in the Kubernetes overlay. OpenShift handles this automatically. |
+| Live tax sales says "didn't pass our security checks" | The image was built with a different public key than the private key in the secret. Rebuild with the matching `feed-public-key.txt`. |
+| Live tax sales is always empty | Expected until the Treasurer schedules an auction, and until `termsReviewedAt` is set in `ingest/sources/registry.ts` (see [Live data](#live-data)). |
+| Admin sign-in fails behind HTTPS | `BASE_URL` must be the exact `https://` address people use. |
+| Build runs out of memory | Give the build at least 2 GB (Podman host) or 3 GiB (OpenShift build). |
+
 
 ## Live data
 
@@ -188,6 +499,11 @@ During development, run `npm run server` and `npm run dev` together; the dev ser
 | `server/` | Advertiser API (node:http + node:sqlite): signup, admin approval and billing, leads, metrics, reports, signed directory |
 | `src/lib/pros.ts` | Professional categories, regulators, listing rules, neutral rotation |
 | `src/lib/proApplication.ts` | Shared signup validation and approval rules |
+| `Containerfile` | Container image (UBI 9 + Node.js 22), built with Podman or Buildah |
+| `deploy/podman/` | `install.sh` one-command installer, and Quadlet units (systemd services) for Podman |
+| `deploy/kubernetes/` | Kustomize base and overlays for Kubernetes, OpenShift (prebuilt image) and OpenShift (build from Git) |
+| `.github/workflows/ci.yml` | Tests, manifest validation, Podman image build and smoke test; publishes to GHCR from `main` |
+| `tools/video/` | Scripted walkthrough videos of the site |
 
 ## Roadmap
 

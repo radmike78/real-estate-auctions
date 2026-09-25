@@ -327,6 +327,17 @@ export function openDb(path: string) {
         db.prepare('DELETE FROM stripe_events WHERE id = ?').run(id);
       },
     },
+    /** Cheap query used by the health check. */
+    ping(): boolean {
+      return (db.prepare('SELECT 1 AS ok').get() as { ok: number }).ok === 1;
+    },
+    /** Writes a consistent copy of the database to `file` while the site keeps running. */
+    backupTo(file: string) {
+      db.prepare('VACUUM INTO ?').run(file);
+    },
+    close() {
+      db.close();
+    },
   };
   return api;
 }

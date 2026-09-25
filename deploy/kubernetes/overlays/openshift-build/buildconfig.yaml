@@ -1,0 +1,39 @@
+# Builds the Containerfile with OpenShift's built-in builder (Buildah), not Docker.
+# Edit the Git URL/branch if you use a fork, and paste your public signing key into FEED_PUBLIC_KEY.
+# For a private repository, create a source secret and uncomment sourceSecret (see README).
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: forced-sale-finder
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/radmike78/real-estate-auctions.git
+      ref: main
+    # sourceSecret:
+    #   name: forced-sale-finder-git
+  strategy:
+    type: Docker   # OpenShift's name for "build from a Containerfile/Dockerfile"; it runs Buildah
+    dockerStrategy:
+      dockerfilePath: Containerfile
+      buildArgs:
+        - name: FEED_PUBLIC_KEY
+          value: ""   # paste the contents of feed-public-key.txt
+  output:
+    to:
+      kind: ImageStreamTag
+      name: forced-sale-finder:latest
+  resources:
+    requests: { cpu: 500m, memory: 1Gi }
+    limits: { memory: 3Gi }
+  runPolicy: Serial
+  successfulBuildsHistoryLimit: 3
+  failedBuildsHistoryLimit: 3
+  triggers:
+    - type: ConfigChange
+    # Rebuild on every push: add a webhook in GitHub (see README).
+    - type: GitHub
+      github:
+        secretReference:
+          name: forced-sale-finder-webhook

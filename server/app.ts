@@ -662,6 +662,11 @@ export function createApp(config: AppConfig) {
       return send(res, 400, { error: 'Bad request' });
     }
     try {
+      // Health check for Podman, Kubernetes and OpenShift probes: the process is up and the database answers.
+      if (path === '/healthz') {
+        res.setHeader('cache-control', 'no-store');
+        return db.ping() ? send(res, 200, { ok: true }) : send(res, 503, { ok: false });
+      }
       if (path.startsWith('/api/')) return await handleApi(req, res, path, url);
       return serveStatic(req, res, path);
     } catch (e) {

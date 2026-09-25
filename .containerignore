@@ -1,0 +1,13 @@
+# Keep the build context small and free of secrets and local state.
+.git
+node_modules
+dist
+*.log
+ingest/.keys
+ingest/state
+server/data
+public/data/*.json
+public/data/*.sig
+tools/video/*/out
+*.pem
+secrets*.env

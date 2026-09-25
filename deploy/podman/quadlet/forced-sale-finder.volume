@@ -1,0 +1,3 @@
+# Database, backups, signed feeds and updater state. Survives restarts and image updates.
+[Volume]
+VolumeName=forced-sale-finder-data

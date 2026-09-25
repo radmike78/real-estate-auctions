@@ -18,6 +18,7 @@
 //   6. Publish an Ed25519-signed feed that expires on the source's cadence
 //
 // Signing key: FEED_SIGNING_KEY env (PEM) or ingest/.keys/feed-signing.pem (npm run keys:generate).
+// Folders: DATA_DIR (signed feed output, default public/data), INGEST_STATE_DIR (default ingest/state).
 
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -32,8 +33,9 @@ import { buildFeed, scheduleFor } from './lib/publish';
 import { loadPrivateKey, signBytes } from './lib/sign';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const STATE_DIR = join(ROOT, 'ingest', 'state');
-const FEED_DIR = join(ROOT, 'public', 'data');
+// In containers these point at the shared data volume (the server serves DATA_DIR at /data/).
+const STATE_DIR = process.env.INGEST_STATE_DIR ?? join(ROOT, 'ingest', 'state');
+const FEED_DIR = process.env.DATA_DIR ?? join(ROOT, 'public', 'data');
 const KEY_FILE = join(ROOT, 'ingest', '.keys', 'feed-signing.pem');
 
 const args = process.argv.slice(2);
@@ -161,6 +163,11 @@ async function main() {
     await runOnce();
     return;
   }
+  // Containers stop with SIGTERM. Files are written atomically (temp file + rename), so exiting is safe.
+  for (const sig of ['SIGTERM', 'SIGINT'] as const) process.on(sig, () => {
+    log(`${sig} received, stopping.`);
+    process.exit(0);
+  });
   for (;;) {
     const next = await runOnce();
     log(`next check at ${next.toISOString()}`);

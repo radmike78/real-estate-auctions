@@ -1,0 +1,26 @@
+# Any Kubernetes distribution (k3s, RKE2, EKS, GKE, AKS, DigitalOcean, kind, minikube, ...).
+#   kubectl create namespace forced-sale-finder
+#   (create the Secret: see README "Deploy on Kubernetes")
+#   kubectl apply -k deploy/kubernetes/overlays/kubernetes -n forced-sale-finder
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+  - ingress.yaml
+images:
+  - name: forced-sale-finder
+    newName: ghcr.io/radmike78/real-estate-auctions # your image
+    newTag: latest
+patches:
+  # Plain Kubernetes doesn't adjust volume permissions for you: fsGroup makes the volume writable
+  # by the image's user (1001, group 0 also works for OpenShift).
+  - target:
+      kind: Deployment
+      name: forced-sale-finder
+    patch: |-
+      - op: add
+        path: /spec/template/spec/securityContext/fsGroup
+        value: 1001
+      - op: add
+        path: /spec/template/spec/securityContext/runAsUser
+        value: 1001
