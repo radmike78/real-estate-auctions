@@ -88,6 +88,28 @@ While a source is quarantined, **it publishes no listings**. An operator checks 
   Anything else hides the profile automatically (`src/lib/agents.ts`). Users get the official lookup link to check the license themselves.
 - **No solicitation of distressed owners.** The pre-foreclosure tracker and property pages never show owner names or contact details for homes that aren't for sale. Every pre-foreclosure view carries a do-not-contact warning referencing NRS Chapter 645F, and the purchase guidance tells users not to contact homeowners.
 
+## 5c. Agent signup and admin approval
+
+The main risk is a **fake agent profile**, for example a real agent's license number paired with a scammer's phone number, used to phish buyers.
+
+- **Identity, not just license.** The license lookup proves a license exists, not that the applicant owns it. Approval requires confirming identity through the **brokerage, using contact details from NRED or the brokerage**. It never uses the phone number or email on the application. The server enforces every verification step (`approvalBlockers`).
+- **Impersonation signals.** Any other application using the same license number or email is flagged in the admin view. A license can't be approved twice.
+- **Email ownership.** A single-use token, valid for 48 hours. Only its SHA-256 hash is stored.
+- **Signed directory.** The public directory is Ed25519-signed and expires after 7 days. The browser verifies it and re-applies every listing rule to each agent. If a published directory fails verification, no profiles are shown; the site never falls back to other data.
+- **Admin authentication.**
+  - Password stored as scrypt only.
+  - Session token in an `HttpOnly; SameSite=Strict` cookie. Only its hash is stored.
+  - Sessions last at most 8 hours, with a 1-hour idle timeout.
+  - Sign-in is throttled: 5 failures per IP and 10 per username per 15 minutes.
+  - Failed sign-ins are audited.
+- **CSRF.** Every admin write needs the `x-fsf-admin` header, which a cross-site page can't send without a CORS preflight, and CORS is never enabled. It also needs a same-origin `Origin` and a SameSite=Strict cookie.
+- **Input handling.**
+  - JSON only, 32 KB maximum.
+  - Strict validation, with all text reduced to plain text.
+  - Static files are served with path-traversal protection.
+  - Security headers on every response: `nosniff`, `frame-ancestors 'none'`, HSTS on HTTPS.
+- **Privacy.** The individual admin's name is never published; profiles say "verified by staff." Emails are sent only to the applicant.
+
 ## 6. Browser hardening
 
 The production build adds a Content-Security-Policy. It allows only same-origin scripts and data, no inline scripts, no plugins, and map tiles only from OpenStreetMap. Configure your host to also send these headers:

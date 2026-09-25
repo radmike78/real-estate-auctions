@@ -255,3 +255,38 @@ a.btn { display: inline-block; }
 .steps-rich li { margin-bottom: 10px; }
 .steps-rich li span { display: block; color: var(--muted); font-size: 0.92rem; }
 .risk-list li { margin-bottom: 8px; }
+
+/* Forms */
+.form { display: grid; gap: 14px; max-width: 860px; }
+.form h2 { margin: 12px 0 0; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.field { display: grid; gap: 4px; border: none; padding: 0; margin: 0; }
+.field > span, .field legend { font-weight: 600; font-size: 0.88rem; }
+.field textarea { font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; width: 100%; }
+.field [aria-invalid='true'] { border-color: var(--stop); }
+.field-error { color: var(--stop); font-size: 0.82rem; }
+.check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 2px 12px; }
+.check.attest { align-items: flex-start; }
+.check.attest input { margin-top: 4px; }
+.hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.narrow { max-width: 420px; }
+.btn { cursor: pointer; }
+.btn:disabled { opacity: 0.5; }
+.btn-danger { background: var(--stop-bg); color: var(--stop); border: 1px solid var(--stop); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* Admin */
+.page.wide { max-width: 1300px; }
+.tabs { margin: 12px 0; flex-wrap: wrap; }
+.admin-layout { display: grid; grid-template-columns: 300px 1fr; gap: 16px; align-items: start; }
+@media (max-width: 800px) { .admin-layout { grid-template-columns: 1fr; } }
+.app-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.app-item { width: 100%; text-align: left; display: grid; gap: 2px; background: var(--surface); padding: 10px; }
+.app-item.selected { border-color: var(--accent); outline: 2px solid var(--accent); }
+.detail { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: grid; gap: 12px; }
+.detail h2 { margin: 6px 0 2px; }
+.verify-panel { background: var(--surface-2); border-radius: var(--radius); padding: 14px; display: grid; gap: 10px; }
+.verify-panel h3 { margin: 0; }
+.verify-steps { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.blockers { color: var(--wait); margin: 0; padding-left: 18px; }
+.reason-box { display: grid; gap: 8px; width: 100%; max-width: 480px; }

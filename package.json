@@ -5,12 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && tsc --noEmit -p ingest && vite build",
+    "build": "tsc --noEmit && tsc --noEmit -p ingest && tsc --noEmit -p server && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p ingest",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p ingest && tsc --noEmit -p server",
     "ingest": "tsx ingest/run.ts",
-    "keys:generate": "tsx ingest/keygen.ts"
+    "keys:generate": "tsx ingest/keygen.ts",
+    "server": "tsx --no-warnings=ExperimentalWarning server/index.ts",
+    "admin:hash-password": "tsx server/hash-password.ts"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

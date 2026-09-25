@@ -10,6 +10,9 @@ import LivePage from './components/LivePage';
 import PreForeclosurePage from './components/PreForeclosurePage';
 import ShortSalesPage from './components/ShortSalesPage';
 import AgentsPage from './components/AgentsPage';
+import AgentSignupPage from './components/AgentSignupPage';
+import AgentConfirmPage from './components/AgentConfirmPage';
+import AdminPage from './components/AdminPage';
 
 type Route =
   | { page: 'search' }
@@ -18,7 +21,10 @@ type Route =
   | { page: 'live' }
   | { page: 'preforeclosures' }
   | { page: 'shortsales' }
-  | { page: 'agents'; shortSales: boolean };
+  | { page: 'agents'; shortSales: boolean }
+  | { page: 'agentJoin' }
+  | { page: 'agentConfirm'; token: string }
+  | { page: 'admin' };
 
 function parseHash(): Route {
   const h = window.location.hash.replace(/^#\/?/, '');
@@ -29,6 +35,10 @@ function parseHash(): Route {
   if (h === 'pre-foreclosures') return { page: 'preforeclosures' };
   if (h === 'short-sales') return { page: 'shortsales' };
   if (h === 'agents' || h === 'agents/short-sales') return { page: 'agents', shortSales: h.endsWith('short-sales') };
+  if (h === 'agents/join') return { page: 'agentJoin' };
+  const confirm = h.match(/^agents\/confirm(?:\/([A-Za-z0-9_-]+))?$/);
+  if (confirm) return { page: 'agentConfirm', token: confirm[1] ?? '' };
+  if (h === 'admin') return { page: 'admin' };
   return { page: 'search' };
 }
 
@@ -94,6 +104,9 @@ export default function App() {
       {route.page === 'live' && <LivePage />}
       {route.page === 'preforeclosures' && <PreForeclosurePage />}
       {route.page === 'shortsales' && <ShortSalesPage />}
+      {route.page === 'agentJoin' && <AgentSignupPage />}
+      {route.page === 'agentConfirm' && <AgentConfirmPage token={route.token} />}
+      {route.page === 'admin' && <AdminPage />}
       {route.page === 'agents' && <AgentsPage key={String(route.shortSales)} initialSpecialty={route.shortSales ? 'Short sales' : 'any'} />}
       {route.page === 'search' && (
         <main className="search-layout">

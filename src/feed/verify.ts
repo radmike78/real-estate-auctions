@@ -18,6 +18,17 @@ export type VerifyResult =
 
 const b64ToBytes = (b64: string) => Uint8Array.from(atob(b64.trim()), (c) => c.charCodeAt(0));
 
+/** Verifies an Ed25519 signature over the exact bytes. Returns an error message, or null when valid. */
+export async function checkSignature(data: ArrayBuffer, signatureB64: string, publicKeySpkiB64: string, subtle: SubtleCrypto = crypto.subtle): Promise<string | null> {
+  try {
+    const key = await subtle.importKey('spki', b64ToBytes(publicKeySpkiB64), { name: 'Ed25519' }, false, ['verify']);
+    const valid = await subtle.verify({ name: 'Ed25519' }, key, b64ToBytes(signatureB64), data);
+    return valid ? null : 'The file does not match its signature. It may have been tampered with.';
+  } catch (e) {
+    return `Signature check failed: ${(e as Error).message}`;
+  }
+}
+
 export function isOfficialUrl(raw: string): boolean {
   try {
     const u = new URL(raw);
@@ -57,14 +68,8 @@ export async function verifyFeed(
   subtle: SubtleCrypto = crypto.subtle,
 ): Promise<VerifyResult> {
   if (!publicKeySpkiB64) return { ok: false, reason: 'NOT_CONFIGURED', detail: 'No feed-signing public key is configured.' };
-  let valid = false;
-  try {
-    const key = await subtle.importKey('spki', b64ToBytes(publicKeySpkiB64), { name: 'Ed25519' }, false, ['verify']);
-    valid = await subtle.verify({ name: 'Ed25519' }, key, b64ToBytes(signatureB64), data);
-  } catch (e) {
-    return { ok: false, reason: 'BAD_SIGNATURE', detail: `Signature check failed: ${(e as Error).message}` };
-  }
-  if (!valid) return { ok: false, reason: 'BAD_SIGNATURE', detail: 'Listings file does not match its signature. It may have been tampered with.' };
+  const sigError = await checkSignature(data, signatureB64, publicKeySpkiB64, subtle);
+  if (sigError) return { ok: false, reason: 'BAD_SIGNATURE', detail: sigError };
 
   let feed: Feed;
   try {

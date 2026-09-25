@@ -58,6 +58,39 @@ The first real connector reads the **Clark County Treasurer's delinquent-propert
 - **Removes parcels right away.** A parcel is withdrawn as soon as the Treasurer lines it out, it sells, or it drops off the list.
 - **Hides anything not re-checked recently.** If the county site is down or the service stops, listings disappear from the site instead of going stale.
 
+## Agent signup and approval (server)
+
+Agents apply at `#/agents/join`. An admin reviews applications at `#/admin`. The approved directory is published as a signed file that the browser verifies before showing anyone.
+
+**Flow:**
+1. **Apply.** The agent fills in the form. The server re-checks every field with the same rules as the form:
+   - Nevada license number format, matching the license type
+   - Clark County cities and ZIPs
+   - a US phone number, a valid email, and an `https` website
+   - plain text only
+
+   Anti-spam: a hidden honeypot field, and at most 5 applications per network per hour.
+2. **Confirm email.** A single-use link, valid for 48 hours, proves the applicant controls the email address.
+3. **Admin verification.** The admin looks up the license on the NRED lookup. Then they **confirm identity through the brokerage, using contact details from NRED or the brokerage, never from the application**. Approval is blocked until all of these are recorded:
+   - the license shows Active
+   - the expiration date is in the future
+   - the name, license type and brokerage match
+   - identity was confirmed, with a note on how
+4. **Publish.** Approved agents are written to `public/data/agents.json`, signed with the feed key. The file expires after 7 days, and the server republishes every 6 hours. Agents not re-verified within 90 days drop off automatically.
+5. **Ongoing.** Admins can re-verify, suspend or reject. Everything is recorded in an audit trail. Two applications with the same license number or email are flagged as possible impersonation. A license can't be listed twice.
+
+**Run it:**
+```bash
+npm run keys:generate                  # once: feed signing key (rebuild the site after)
+npm run -s admin:hash-password         # type a 12+ character password; copy the output
+export ADMIN_USERNAME=you ADMIN_PASSWORD_HASH='scrypt$...'
+export BASE_URL=https://your-site.example   # used in confirmation emails
+npm run build && npm run server        # serves the site and API on :8080
+```
+During development, run `npm run server` and `npm run dev` together; the dev server forwards `/api` to the server.
+
+Confirmation emails are printed to the server log until you connect an email provider (`server/mailer.ts`). Data is stored in SQLite at `server/data/app.db`. Back it up.
+
 ## Features
 
 **Sections**
@@ -101,6 +134,8 @@ The first real connector reads the **Clark County Treasurer's delinquent-propert
 | `ingest/` | Live connectors: source registry, secure fetch, Clark tax-sale parser, cadence, anomaly quarantine, feed signing |
 | `src/feed/` | Browser-side signature/expiry verification of the live feed |
 | `src/components/LivePage.tsx` | Verified live listings page |
+| `server/` | Agent signup/approval API (node:http + node:sqlite), admin auth, signed directory publishing |
+| `src/lib/agentApplication.ts` | Shared signup validation and approval rules |
 
 ## Roadmap
 

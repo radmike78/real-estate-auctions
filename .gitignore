@@ -6,3 +6,6 @@ ingest/state/
 ingest/.keys/
 public/data/listings.json
 public/data/listings.json.sig
+server/data/
+public/data/agents.json
+public/data/agents.json.sig

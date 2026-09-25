@@ -1,5 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { SAMPLE_AGENTS } from '../data/sampleAgents';
+import { FEED_PUBLIC_KEY_SPKI_B64 } from '../feed/publicKey';
+import { loadVerifiedAgents, type AgentsFeedResult } from '../feed/agentsFeed';
+import type { Agent } from '../lib/agents';
 import { NRED_LOOKUP_URL, REVERIFY_DAYS, safeMailto, safeTel, safeWebsite, searchAgents, type AgentQuery, type Specialty } from '../lib/agents';
 import { fmtDate } from '../lib/status';
 
@@ -9,8 +12,18 @@ const fmtPhone = (e164: string) => e164.replace(/^\+1(\d{3})(\d{3})(\d{4})$/, '(
 
 export default function AgentsPage({ initialSpecialty = 'any' }: { initialSpecialty?: Specialty | 'any' }) {
   const [q, setQ] = useState<AgentQuery>({ location: '', specialty: initialSpecialty, language: 'any' });
-  const languages = useMemo(() => [...new Set(SAMPLE_AGENTS.flatMap((a) => a.languages))].sort(), []);
-  const results = searchAgents(SAMPLE_AGENTS, q);
+  const [feed, setFeed] = useState<AgentsFeedResult | null>(null);
+  useEffect(() => {
+    loadVerifiedAgents(FEED_PUBLIC_KEY_SPKI_B64)
+      .catch((e: Error): AgentsFeedResult => ({ ok: false, reason: 'MISSING', detail: e.message }))
+      .then(setFeed);
+  }, []);
+  // Samples are shown only when no real directory has been set up. If a published directory
+  // fails verification (tampered or expired), show nothing rather than fall back.
+  const usingSamples = feed !== null && !feed.ok && (feed.reason === 'NOT_CONFIGURED' || feed.reason === 'MISSING');
+  const agents: Agent[] = feed?.ok ? feed.feed.agents : usingSamples ? SAMPLE_AGENTS : [];
+  const languages = useMemo(() => [...new Set(agents.flatMap((a) => a.languages))].sort(), [agents]);
+  const results = searchAgents(agents, q);
 
   return (
     <main className="page">
@@ -26,8 +39,12 @@ export default function AgentsPage({ initialSpecialty = 'any' }: { initialSpecia
         is active on the official{' '}
         <a href={NRED_LOOKUP_URL} target="_blank" rel="noreferrer noopener">Nevada Real Estate Division license lookup ↗</a>. Profiles with an
         expired license or an overdue check are hidden automatically. Check the license yourself before you sign anything. Listed agents are
-        partners of this site, and being listed is not a recommendation. <strong>The profiles below are fictional samples.</strong>
+        partners of this site, and being listed is not a recommendation.
+        {usingSamples && <strong> The profiles below are fictional samples.</strong>}
       </div>
+      {feed && !feed.ok && !usingSamples && (
+        <div className="caution small" role="alert"><strong>The agent directory couldn't be verified, so no profiles are shown.</strong> {feed.detail}</div>
+      )}
 
       <div className="toolbar">
         <input aria-label="City or ZIP" placeholder="City or ZIP (e.g. Henderson or 89123)" value={q.location} onChange={(e) => setQ({ ...q, location: e.target.value })} />
@@ -91,7 +108,7 @@ export default function AgentsPage({ initialSpecialty = 'any' }: { initialSpecia
         <h2>Are you a Nevada agent?</h2>
         <p>
           To be listed, your license must be active on the Nevada Real Estate Division lookup and you must work under a Nevada broker. We
-          re-check every license at least every {REVERIFY_DAYS} days. Contact the site operator to apply.
+          re-check every license at least every {REVERIFY_DAYS} days. <a href="#/agents/join">Apply to be listed →</a>
         </p>
       </section>
     </main>
