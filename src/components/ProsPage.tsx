@@ -1,4 +1,5 @@
 import ProDirectory from './ProDirectory';
+import Disclaimer from './Disclaimer';
 
 export default function ProsPage() {
   return (
@@ -9,6 +10,7 @@ export default function ProsPage() {
         Licenses are checked with the Nevada Division of Insurance or the Nevada State Contractors Board. Use only licensed contractors, and get
         written bids and proof of insurance before work starts.
       </p>
+      <Disclaimer kind="services" compact />
       <ProDirectory categories={['title_escrow', 'insurance', 'contractor']} />
     </main>
   );

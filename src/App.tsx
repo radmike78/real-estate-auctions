@@ -18,6 +18,9 @@ import FinancingPage from './components/FinancingPage';
 import ProsPage from './components/ProsPage';
 import ProProfilePage from './components/ProProfilePage';
 import AdvertiserPage from './components/AdvertiserPage';
+import DisclaimerPage from './components/DisclaimerPage';
+import RoleNotice from './components/RoleNotice';
+import { ROLE_SHORT } from './lib/disclaimers';
 import { CATEGORIES, type Category } from './lib/pros';
 
 type Route =
@@ -35,7 +38,8 @@ type Route =
   | { page: 'apply'; category: Category | null }
   | { page: 'applicationConfirm'; token: string }
   | { page: 'admin' }
-  | { page: 'advertiser'; token: string | null };
+  | { page: 'advertiser'; token: string | null }
+  | { page: 'disclaimer' };
 
 function parseHash(): Route {
   const h = window.location.hash.replace(/^#\/?/, '');
@@ -56,6 +60,7 @@ function parseHash(): Route {
   const confirm = h.match(/^advertise\/confirm(?:\/([A-Za-z0-9_-]+))?$/);
   if (confirm) return { page: 'applicationConfirm', token: confirm[1] ?? '' };
   if (h === 'admin') return { page: 'admin' };
+  if (h === 'disclaimer') return { page: 'disclaimer' };
   const adv = h.match(/^advertiser(?:\/login\/([A-Za-z0-9_-]+))?$/);
   if (adv) return { page: 'advertiser', token: adv[1] ?? null };
   return { page: 'search' };
@@ -133,6 +138,7 @@ export default function App() {
       {route.page === 'apply' && <AdvertiseApplyPage key={route.category ?? ''} initialCategory={route.category} />}
       {route.page === 'applicationConfirm' && <ApplicationConfirmPage token={route.token} />}
       {route.page === 'admin' && <AdminPage />}
+      {route.page === 'disclaimer' && <DisclaimerPage />}
       {route.page === 'advertiser' && <AdvertiserPage key={route.token ?? ''} token={route.token} />}
       {route.page === 'agents' && <AgentsPage shortSales={route.shortSales} />}
       {route.page === 'search' && (
@@ -174,8 +180,9 @@ export default function App() {
         </main>
       )}
       <footer className="footer">
-        Links go to official auction and agency sites. This site does not accept bids or funds.
+        {ROLE_SHORT} <a href="#/disclaimer">Our role &amp; your responsibility</a> · <a href="#/advertise">Advertise</a>
       </footer>
+      <RoleNotice />
     </div>
   );
 }

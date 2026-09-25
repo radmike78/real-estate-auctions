@@ -360,3 +360,11 @@ a.btn { display: inline-block; }
 .viz-readout { width: 100%; text-align: center; }
 .viz-readout strong { font-variant-numeric: tabular-nums; }
 .viz-x { display: flex; justify-content: space-between; margin-top: 4px; }
+
+/* Disclaimers */
+.disclaimer { border: 1px solid var(--border); border-left: 4px solid var(--muted); background: var(--surface); border-radius: 8px; padding: 12px 14px; margin: 16px 0; font-size: 0.88rem; color: var(--text); }
+.disclaimer.compact { font-size: 0.8rem; padding: 8px 12px; margin: 10px 0; }
+.role-backdrop { position: fixed; inset: 0; background: rgb(5 10 20 / 0.55); backdrop-filter: blur(3px); display: grid; place-items: center; z-index: 2000; padding: 16px; }
+.role-dialog { background: var(--surface); color: var(--text); border-radius: 18px; padding: 24px; max-width: 520px; width: 100%; box-shadow: 0 24px 60px rgb(0 0 0 / 0.35); }
+.role-dialog h2 { margin-top: 0; font-size: 1.4rem; }
+.role-dialog ul { padding-left: 18px; display: grid; gap: 10px; margin: 0 0 18px; }

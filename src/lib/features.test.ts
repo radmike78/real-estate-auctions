@@ -132,3 +132,17 @@ describe('feed loading on static hosts', () => {
     expect(isFeedResponse(new Response('x', { status: 404 }))).toBe(false);
   });
 });
+
+describe('disclaimers', () => {
+  it('state the site role everywhere: finding options only, not a party, buyer due diligence, no financing', async () => {
+    const { DISCLAIMERS, ROLE_SHORT } = await import('./disclaimers');
+    expect(ROLE_SHORT).toMatch(/helps you find options/);
+    expect(ROLE_SHORT).toMatch(/not a party/);
+    expect(ROLE_SHORT).toMatch(/responsible for your own due diligence/);
+    expect(DISCLAIMERS.financing.text).toMatch(/don't make, arrange, broker or negotiate loans/);
+    expect(DISCLAIMERS.financing.text).toMatch(/aren't responsible/);
+    expect(DISCLAIMERS.sales.text).toMatch(/don't take bids or money/);
+    expect(DISCLAIMERS.professionals.text).toMatch(/pay to advertise/);
+    expect(DISCLAIMERS.services.text).toMatch(/aren't a party/);
+  });
+});

@@ -1,3 +1,5 @@
+import Disclaimer from './Disclaimer';
+
 const STEPS: [string, string][] = [
   ['Get pre-approved or show proof of funds', 'Lenders reviewing a short sale want to see that the buyer can close. A pre-approval letter or bank statement goes in with your offer.'],
   ['Hire a buyer\'s agent who has closed short sales', 'Short sales are listed on the MLS (the database agents use), marked "Short Sale" or "Subject to lender approval." An experienced agent can find them, including new listings, and knows how each lender works.'],
@@ -69,6 +71,7 @@ export default function ShortSalesPage() {
       </p>
 
       <p className="muted small">General information only, not legal, tax or financial advice. Sellers should consult a tax professional and an attorney about deficiency and tax consequences.</p>
+      <Disclaimer kind="sales" compact />
     </main>
   );
 }

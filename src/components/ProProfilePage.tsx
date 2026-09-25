@@ -3,6 +3,7 @@ import { fmtDate } from '../lib/status';
 import { useEffect } from 'react';
 import { track } from '../lib/track';
 import LeadForm from './LeadForm';
+import Disclaimer from './Disclaimer';
 import { fmtPhone, useDirectory } from './ProDirectory';
 
 export default function ProProfilePage({ id }: { id: string }) {
@@ -80,6 +81,7 @@ export default function ProProfilePage({ id }: { id: string }) {
         </aside>
         </div>
       </div>
+      <Disclaimer kind={info.financing ? 'financing' : p.category === 'agent' ? 'professionals' : 'services'} />
     </main>
   );
 }

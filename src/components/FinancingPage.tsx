@@ -1,4 +1,5 @@
 import ProDirectory from './ProDirectory';
+import Disclaimer from './Disclaimer';
 import { FINANCING_CATEGORIES } from '../lib/pros';
 
 const OPTIONS: [string, string][] = [
@@ -15,11 +16,7 @@ export default function FinancingPage() {
       <h1>Find financing</h1>
       <p className="lede">Loan officers, mortgage companies, banks, credit unions, and hard-money and private lenders.</p>
 
-      <div className="notice" role="note">
-        <strong>We don't offer financing.</strong> We help you find lenders to contact. We don't make loans, arrange or negotiate them, or
-        recommend a lender, and we're not responsible for any agreement you make with one. Compare several offers, read every disclosure
-        (Loan Estimate, fees, prepayment terms), and check each lender's license yourself before you apply or pay anything.
-      </div>
+      <Disclaimer kind="financing" />
 
       <section className="options-grid" aria-label="Financing options">
         {OPTIONS.map(([t, d]) => (

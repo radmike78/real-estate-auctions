@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { FEED_PUBLIC_KEY_SPKI_B64 } from '../feed/publicKey';
 import { isOfficialUrl, loadVerifiedFeed, type VerifyResult } from '../feed/verify';
 import { fmtDateTime, fmtMoney } from '../lib/status';
+import Disclaimer from './Disclaimer';
 
 const REVERIFY_MS = 5 * 60_000;
 
@@ -144,6 +145,7 @@ export default function LivePage() {
         </section>
       )}
       {result?.ok && !expired && listings.length === 0 && <p className="muted">No parcels are currently verified as available.</p>}
+      <Disclaimer kind="sales" />
     </main>
   );
 }

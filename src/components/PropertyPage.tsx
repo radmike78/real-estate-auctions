@@ -6,6 +6,7 @@ import { STATUS, fmtDate, fmtDateTime, fmtMoney, purchaseSteps } from '../lib/st
 import StatusBadge from './StatusBadge';
 import SourceTag from './SourceTag';
 import { daysUntil } from './ResultsList';
+import Disclaimer from './Disclaimer';
 
 const LIEN_LABEL: Record<LienType, string> = {
   PROPERTY_TAX: 'Delinquent property tax',
@@ -178,6 +179,7 @@ export default function PropertyPage({ id }: { id: string }) {
         <ol className="steps">
           {steps.map((st) => <li key={st}>{st}</li>)}
         </ol>
+        <Disclaimer kind="sales" compact />
       </section>
 
       <section>

@@ -3,6 +3,7 @@ import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
 import { foreclosureTrack, PIPELINE, STAGE_INFO, type ForeclosureStage, type ForeclosureTrack } from '../lib/foreclosure';
 import { fmtDate, fmtDateTime } from '../lib/status';
 import type { Property } from '../types';
+import Disclaimer from './Disclaimer';
 
 const WATCH_KEY = 'fsf.preforeclosure.watch.v1';
 
@@ -164,6 +165,7 @@ export default function PreForeclosurePage() {
           );
         })}
       </ul>
+      <Disclaimer kind="sales" />
     </main>
   );
 }

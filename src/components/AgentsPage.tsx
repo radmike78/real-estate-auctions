@@ -1,4 +1,5 @@
 import ProDirectory from './ProDirectory';
+import Disclaimer from './Disclaimer';
 import { REVERIFY_DAYS } from '../lib/pros';
 
 export default function AgentsPage({ shortSales = false }: { shortSales?: boolean }) {
@@ -10,6 +11,7 @@ export default function AgentsPage({ shortSales = false }: { shortSales?: boolea
         Every agent's license is checked by a person on the Nevada Real Estate Division lookup at least every {REVERIFY_DAYS} days.{' '}
         <a href="#/advertise/apply/agent">Agents: apply to be listed →</a>
       </p>
+      <Disclaimer kind="professionals" compact />
       <ProDirectory categories={['agent']} initialCategory="agent" showCategoryFilter={false} key={String(shortSales)} />
     </main>
   );
