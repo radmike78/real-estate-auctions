@@ -1,6 +1,8 @@
 import Disclaimer from './Disclaimer';
 import BuyerChecklistBox from './BuyerChecklistBox';
 import { CHECKLISTS } from '../lib/buyerChecklists';
+import DrillDown, { type DrillSection } from './DrillDown';
+import { IconCheckList, IconFlag, IconLayers, IconSteps, IconStop } from './Icons';
 
 const STEPS: [string, string][] = [
   ['Get pre-approved or show proof of funds', 'Lenders reviewing a short sale want to see that the buyer can close. A pre-approval letter or bank statement goes in with your offer.'],
@@ -22,24 +24,13 @@ const RISKS: [string, string][] = [
   ['Occupied homes', 'Confirm the home will be vacant at closing, and whether any tenant has rights under a lease.'],
 ];
 
-export default function ShortSalesPage() {
-  return (
-    <main className="page prose">
-      <h1>Short sales</h1>
-      <p>
-        In a <strong>short sale</strong>, a homeowner sells for less than they owe on the mortgage, and the lender agrees to take less than the
-        full payoff. Unlike an auction, it's a <strong>voluntary sale</strong>: the owner chooses to sell, lists with a licensed agent, and
-        the lender must approve the buyer's offer. Short sales aren't forced sales, so no government list exists. They appear on the MLS
-        (Multiple Listing Service), the database real estate agents use to share listings.
-      </p>
-
-      <div className="notice" role="note">
-        <strong>How to find short sales:</strong> work with a licensed buyer's agent who searches the MLS for listings marked "Short Sale."
-        Public listing sites often show them too, but may lag behind or miss status changes.{' '}
-        <a href="#/agents/short-sales">Find a verified short-sale agent →</a>
-      </div>
-
-      <h2>Short sale vs. foreclosure auction vs. bank-owned</h2>
+const SECTIONS: DrillSection[] = [
+  {
+    key: 'compare',
+    title: 'Short sale vs. auction vs. bank-owned',
+    icon: <IconLayers />,
+    summary: 'Who sells, how you buy, inspections, financing and title, side by side',
+    content: () => (
       <div className="table-wrap">
         <table>
           <thead><tr><th /><th>Short sale</th><th>Foreclosure / tax auction</th><th>Bank-owned (REO)</th></tr></thead>
@@ -53,26 +44,76 @@ export default function ShortSalesPage() {
           </tbody>
         </table>
       </div>
-
-      <h2>How to buy a short sale</h2>
+    ),
+  },
+  {
+    key: 'how-to-buy',
+    title: 'How to buy a short sale',
+    icon: <IconSteps />,
+    summary: `${STEPS.length} steps, from pre-approval to closing`,
+    content: () => (
       <ol className="steps-rich">
         {STEPS.map(([t, d]) => <li key={t}><strong>{t}</strong><span>{d}</span></li>)}
       </ol>
-
-      <BuyerChecklistBox list={CHECKLISTS.short} />
-
-      <h2>Risks and things to watch out for</h2>
+    ),
+  },
+  {
+    key: 'checklist',
+    title: "What you'll need",
+    icon: <IconCheckList />,
+    summary: `${CHECKLISTS.short.items.length} items to tick off before you make an offer`,
+    bare: true,
+    content: () => <BuyerChecklistBox list={CHECKLISTS.short} />,
+  },
+  {
+    key: 'risks',
+    title: 'Risks to watch out for',
+    icon: <IconFlag />,
+    tone: 'wait',
+    summary: `${RISKS.length} things that can go wrong, from long waits to fraud`,
+    content: () => (
       <ul className="risk-list">
         {RISKS.map(([t, d]) => <li key={t}><strong>{t}.</strong> {d}</li>)}
       </ul>
-
-      <h2>Don't go around the agent</h2>
+    ),
+  },
+  {
+    key: 'owners',
+    title: "Don't contact homeowners",
+    icon: <IconStop />,
+    tone: 'stop',
+    summary: 'Why you should find short sales through an agent, never by approaching owners',
+    content: () => (
       <p>
         Don't try to find short-sale candidates by contacting homeowners who are behind on payments. Nevada strictly regulates anyone who
         approaches owners in foreclosure (NRS Chapter 645F), and those deals can be undone. If an owner decides to sell, the home will be
         listed through an agent. You can follow a property's foreclosure status, without contacting anyone, in the{' '}
         <a href="#/pre-foreclosures">pre-foreclosure tracker</a>.
       </p>
+    ),
+  },
+];
+
+export default function ShortSalesPage({ section }: { section?: string }) {
+  const open = SECTIONS.some((x) => x.key === section);
+  return (
+    <main className="page prose">
+      <h1>{open ? <a className="title-link" href="#/short-sales">Short sales</a> : 'Short sales'}</h1>
+      {!open && (
+        <>
+          <p>
+            In a <strong>short sale</strong>, a homeowner sells for less than they owe on the mortgage, and the lender agrees to take less
+            than the full payoff. It's a <strong>voluntary sale</strong>, not an auction: the owner lists with a licensed agent, and the lender
+            must approve your offer.
+          </p>
+          <div className="notice" role="note">
+            <strong>How to find short sales:</strong> no government list exists. They're listed on the MLS, the database agents use, marked
+            "Short Sale." Work with a licensed buyer's agent. <a href="#/agents/short-sales">Find a verified short-sale agent →</a>
+          </div>
+        </>
+      )}
+
+      <DrillDown sections={SECTIONS} active={section} baseHref="#/short-sales" label="Short sale guide" />
 
       <p className="muted small">General information only, not legal, tax or financial advice. Sellers should consult a tax professional and an attorney about deficiency and tax consequences.</p>
       <Disclaimer kind="sales" compact />
