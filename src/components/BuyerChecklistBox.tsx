@@ -50,6 +50,12 @@ function ChecklistInner({ list, variant = 'light' }: { list: BuyerChecklist; var
           <span>ready</span>
         </div>
       </div>
+      {list.official && (
+        <div className="checklist-official">
+          <a className="btn" href={list.official.href} target="_blank" rel="noopener noreferrer">{list.official.label} ↗</a>
+          <span>{list.official.note}</span>
+        </div>
+      )}
       <ul className="checklist-items">
         {list.items.map((it, i) => (
           <li key={it.text}>
