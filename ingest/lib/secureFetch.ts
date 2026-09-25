@@ -102,10 +102,25 @@ async function readLimited(stream: AsyncIterable<Uint8Array>, maxBytes: number):
   return out;
 }
 
+/** Hard cap on one request, start to last byte (the socket timeout only catches silence, not a slow drip). */
+const TOTAL_TIMEOUT_MS = 120_000;
+
 async function nodeGet(url: URL, headers: Record<string, string>, timeoutMs: number, maxBytes: number): Promise<RawResponse> {
   const tls = await openTls(url.hostname, timeoutMs);
   const cert = tls.getPeerCertificate();
-  return new Promise((resolve, reject) => {
+  return new Promise<RawResponse>((settle, fail) => {
+    const resolve = (v: RawResponse) => {
+      clearTimeout(deadline);
+      settle(v);
+    };
+    const reject = (e: unknown) => {
+      clearTimeout(deadline);
+      fail(e);
+    };
+    const deadline = setTimeout(() => {
+      tls.destroy();
+      reject(new Error(`Request to ${url.hostname} exceeded ${TOTAL_TIMEOUT_MS / 1000}s`));
+    }, TOTAL_TIMEOUT_MS);
     const req = httpRequest(
       { host: url.hostname, path: url.pathname + url.search, method: 'GET', headers: { ...headers, host: url.hostname, connection: 'close' }, createConnection: () => tls, timeout: timeoutMs },
       (res: IncomingMessage) => {

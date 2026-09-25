@@ -3,6 +3,7 @@ import { api } from '../lib/api';
 import { CATEGORIES } from '../lib/pros';
 import type { ProProfile, Billing } from '../lib/proApplication';
 import { fmtDate, fmtDateTime } from '../lib/status';
+import PageHero from './PageHero';
 import DailyColumns from './DailyColumns';
 
 interface Me {
@@ -56,15 +57,17 @@ function SignIn() {
     setMsg(r.message);
   }
   return (
-    <main className="page narrow">
-      <h1>Advertiser sign-in</h1>
-      <p className="muted">Enter the business email on your profile. We'll email you a one-time sign-in link, so there's no password to remember.</p>
-      <form className="form" onSubmit={submit}>
-        <label className="field"><span>Email</span><input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
-        <button className="btn">Email me a sign-in link</button>
-      </form>
-      {msg && <div className="notice small" role="status">{msg}</div>}
-      <p className="small muted">Not listed yet? <a href="#/advertise">Advertise with us →</a></p>
+    <main className="page">
+      <PageHero compact title="Advertiser sign-in" />
+      <div className="narrow-box">
+        <p className="muted">Enter the business email on your profile. We'll email you a one-time sign-in link, so there's no password to remember.</p>
+        <form className="form" onSubmit={submit}>
+          <label className="field"><span>Email</span><input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
+          <button className="btn">Email me a sign-in link</button>
+        </form>
+        {msg && <div className="notice small" role="status">{msg}</div>}
+        <p className="small muted">Not listed yet? <a href="#/advertise">Advertise with us →</a></p>
+      </div>
     </main>
   );
 }
@@ -80,18 +83,22 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
 
   const loadMe = useCallback(() => api<Me>('/api/pro/me').then(setMe).catch(() => setMe(null)), []);
 
+  // A sign-in link is only used after a click, so nobody can sign you into their account just by
+  // getting you to open their link.
+  const [pending, setPending] = useState<string | null>(token);
   useEffect(() => {
-    if (!token) {
-      loadMe();
-      return;
-    }
-    history.replaceState(null, '', '#/advertiser'); // drop the token from the address bar and history
-    if (!sessions.has(token)) sessions.set(token, api('/api/pro/session', { body: { token }, auth: true }));
-    sessions.get(token)!.then(loadMe).catch((e: Error) => {
+    if (token) history.replaceState(null, '', '#/advertiser'); // drop the token from the address bar and history
+    else loadMe();
+  }, [token, loadMe]);
+  function redeemLink(t: string) {
+    if (!sessions.has(t)) sessions.set(t, api('/api/pro/session', { body: { token: t }, auth: true }));
+    setMe('loading');
+    setPending(null);
+    sessions.get(t)!.then(loadMe).catch((e: Error) => {
       setError(e.message);
       setMe(null);
     });
-  }, [token, loadMe]);
+  }
 
   useEffect(() => {
     if (!me || me === 'loading') return;
@@ -100,6 +107,21 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
     api<{ leads: Lead[] }>(`/api/pro/leads${qs}`).then((r) => setLeads(r.leads)).catch(() => setLeads([]));
   }, [me, range.from, range.to]);
 
+  if (pending) {
+    return (
+      <main className="page">
+        <PageHero compact title="Advertiser sign-in" />
+        <div className="narrow-box">
+          <p>You opened a one-time sign-in link for an advertiser dashboard.</p>
+          <p className="muted small">Only continue if you asked for this link yourself, from the sign-in page.</p>
+          <div className="form">
+            <button className="btn" onClick={() => redeemLink(pending)}>Sign in to my dashboard</button>
+          </div>
+          <p className="small muted"><a href="#/advertiser" onClick={() => { setPending(null); loadMe(); }}>Cancel</a></p>
+        </div>
+      </main>
+    );
+  }
   if (me === 'loading') return <main className="page"><p>Loading…</p></main>;
   if (!me) return <>{error && <div className="page"><div className="caution" role="alert">{error}</div></div>}<SignIn /></>;
 

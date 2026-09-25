@@ -2,10 +2,11 @@
 //
 // Privacy by design:
 //  - Only daily aggregate counts are kept per advertiser (views, contact clicks, leads).
-//  - Unique visitors are counted with a one-way hash of (IP, user agent) salted with a random
+//  - Unique visitors are counted with a one-way hash of the network address salted with a random
 //    value that exists only in memory and changes every day, so hashes can't be linked across
-//    days or reversed to an IP. The per-visitor rows are deleted after 2 days.
-//  - Obvious bots are ignored, and each visitor's events are rate limited, so a competitor
+//    days or reversed to an IP. The per-visitor rows are deleted after 2 days. (The user agent
+//    isn't part of the hash: rotating it would otherwise mint unlimited "unique" visitors.)
+//  - Obvious bots are ignored, and each network's events are rate limited, so a competitor
 //    can't inflate (or an advertiser pad) the numbers by hammering a button.
 
 import { createHash, randomBytes } from 'node:crypto';

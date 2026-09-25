@@ -9,3 +9,5 @@ public/data/listings.json.sig
 server/data/
 public/data/agents.json
 public/data/agents.json.sig
+public/data/pros.json
+public/data/pros.json.sig

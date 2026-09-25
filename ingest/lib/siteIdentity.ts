@@ -10,7 +10,7 @@
 //  - DNS answers pointing at private/internal addresses (rebinding): refused.
 
 import { lookup } from 'node:dns/promises';
-import { isIP } from 'node:net';
+import { BlockList, isIP } from 'node:net';
 import type { PeerCertificate } from 'node:tls';
 
 export interface CertIdentity {
@@ -36,22 +36,28 @@ export type IdentityVerdict =
   | { ok: true; renewed: boolean }
   | { ok: false; code: 'ISSUER_CHANGED' | 'NAME_MISMATCH' | 'EXPIRED'; detail: string };
 
-/** Private, loopback, link-local, CGNAT, multicast and reserved ranges. */
+// Every IANA special-purpose range that should never host a public .gov site: private, loopback,
+// link-local, CGNAT, documentation, benchmarking, multicast, reserved, plus IPv6 transition
+// ranges (NAT64, 6to4, Teredo, IPv4-mapped) that can smuggle an internal IPv4 address.
+const NON_PUBLIC = new BlockList();
+for (const [net, bits] of [
+  ['0.0.0.0', 8], ['10.0.0.0', 8], ['100.64.0.0', 10], ['127.0.0.0', 8], ['169.254.0.0', 16], ['172.16.0.0', 12],
+  ['192.0.0.0', 24], ['192.0.2.0', 24], ['192.88.99.0', 24], ['192.168.0.0', 16], ['198.18.0.0', 15],
+  ['198.51.100.0', 24], ['203.0.113.0', 24], ['224.0.0.0', 4], ['240.0.0.0', 4],
+] as const) NON_PUBLIC.addSubnet(net, bits, 'ipv4');
+for (const [net, bits] of [
+  ['::', 128], ['::1', 128], ['64:ff9b::', 96], ['64:ff9b:1::', 48], ['100::', 64], ['2001::', 23],
+  ['2001:db8::', 32], ['2002::', 16], ['fc00::', 7], ['fe80::', 10], ['fec0::', 10], ['ff00::', 8],
+] as const) NON_PUBLIC.addSubnet(net, bits, 'ipv6');
+
+/** True for any address that isn't ordinary public unicast (see NON_PUBLIC). Unparseable input counts as private. */
 export function isPrivateAddress(ip: string): boolean {
-  if (isIP(ip) === 4) {
-    const [a, b] = ip.split('.').map(Number);
-    return (
-      a === 0 || a === 10 || a === 127 || a >= 224 ||
-      (a === 100 && b >= 64 && b <= 127) ||
-      (a === 169 && b === 254) ||
-      (a === 172 && b >= 16 && b <= 31) ||
-      (a === 192 && b === 168) ||
-      (a === 198 && (b === 18 || b === 19))
-    );
-  }
-  const v6 = ip.toLowerCase();
-  if (v6.startsWith('::ffff:')) return isPrivateAddress(v6.slice(7));
-  return v6 === '::' || v6 === '::1' || /^f[cd]/.test(v6) || /^fe[89ab]/.test(v6) || v6.startsWith('ff');
+  const v = isIP(ip);
+  if (v === 4) return NON_PUBLIC.check(ip, 'ipv4');
+  // IPv4-mapped (::ffff:0:0/96) is checked here rather than in the list: Node's BlockList treats
+  // every IPv4 address as mapped, so adding that range there would match all of IPv4.
+  if (v === 6) return /^::ffff:/i.test(ip) || NON_PUBLIC.check(ip, 'ipv6');
+  return true;
 }
 
 export async function assertPublicDns(host: string, resolver = lookup): Promise<string[]> {

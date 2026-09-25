@@ -6,7 +6,8 @@
 //   DATA_DIR           signed feeds directory, default public/data
 //   DIST_DIR           built site to serve, default dist ("" for API only)
 //   FEED_SIGNING_KEY   Ed25519 PEM (or ingest/.keys/feed-signing.pem); without it the directory isn't published
-//   TRUST_PROXY=1      read client IP from X-Forwarded-For (only behind your own reverse proxy)
+//   TRUST_PROXY=1      read client IP from the LAST X-Forwarded-For entry (only behind your own reverse proxy
+//                      that appends to that header; see SECURITY.md)
 
 import { existsSync, readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
