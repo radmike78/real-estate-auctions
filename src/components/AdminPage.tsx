@@ -59,13 +59,23 @@ function Login({ onDone }: { onDone: (u: string) => void }) {
   return (
     <main className="page">
       <PageHero compact title="Admin sign-in" />
-      <div className="narrow-box">
-        <form className="form" onSubmit={submit}>
-          <label className="field"><span>Username</span><input autoComplete="username" value={u} onChange={(e) => setU(e.target.value)} /></label>
-          <label className="field"><span>Password</span><input type="password" autoComplete="current-password" value={p} onChange={(e) => setP(e.target.value)} /></label>
-          {err && <div className="caution" role="alert">{err}</div>}
-          <button className="btn" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
-        </form>
+      <div className="signin-card">
+        <div className="signin-info">
+          <h2>Staff only</h2>
+          <ul>
+            <li>Review and verify advertiser applications</li>
+            <li>Record billing and publish the signed directory</li>
+            <li>Every sign-in and change is logged</li>
+          </ul>
+        </div>
+        <div className="signin-form">
+          <form className="form" onSubmit={submit}>
+            <label className="field"><span>Username</span><input autoComplete="username" value={u} onChange={(e) => setU(e.target.value)} /></label>
+            <label className="field"><span>Password</span><input type="password" autoComplete="current-password" value={p} onChange={(e) => setP(e.target.value)} /></label>
+            {err && <div className="caution" role="alert">{err}</div>}
+            <button className="btn" disabled={busy}>{busy ? 'Signing in…' : 'Sign in'}</button>
+          </form>
+        </div>
       </div>
     </main>
   );

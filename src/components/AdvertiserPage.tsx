@@ -59,14 +59,24 @@ function SignIn() {
   return (
     <main className="page">
       <PageHero compact title="Advertiser sign-in" />
-      <div className="narrow-box">
-        <p className="muted">Enter the business email on your profile. We'll email you a one-time sign-in link, so there's no password to remember.</p>
-        <form className="form" onSubmit={submit}>
-          <label className="field"><span>Email</span><input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
-          <button className="btn">Email me a sign-in link</button>
-        </form>
-        {msg && <div className="notice small" role="status">{msg}</div>}
-        <p className="small muted">Not listed yet? <a href="#/advertise">Advertise with us →</a></p>
+      <div className="signin-card">
+        <div className="signin-info">
+          <h2>Your advertising dashboard</h2>
+          <ul>
+            <li>Profile views and phone, email and website clicks</li>
+            <li>Leads from buyers, with a CSV download</li>
+            <li>Your verification and plan status</li>
+          </ul>
+        </div>
+        <div className="signin-form">
+          <p className="muted">Enter the business email on your profile. We'll email you a one-time sign-in link, so there's no password to remember.</p>
+          <form className="form" onSubmit={submit}>
+            <label className="field"><span>Email</span><input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
+            <button className="btn">Email me a sign-in link</button>
+          </form>
+          {msg && <div className="notice small" role="status">{msg}</div>}
+          <p className="small muted">Not listed yet? <a href="#/advertise">Advertise with us →</a></p>
+        </div>
       </div>
     </main>
   );

@@ -3,6 +3,8 @@ import { FEED_PUBLIC_KEY_SPKI_B64 } from '../feed/publicKey';
 import { isOfficialUrl, loadVerifiedFeed, type VerifyResult } from '../feed/verify';
 import { fmtDateTime, fmtMoney } from '../lib/status';
 import PageHero from './PageHero';
+import { Tile } from './DrillDown';
+import { IconBank, IconLayers, IconSearch } from './Icons';
 import Disclaimer from './Disclaimer';
 
 const REVERIFY_MS = 5 * 60_000;
@@ -80,6 +82,16 @@ export default function LivePage() {
           </a>
           .
         </div>
+      )}
+      {result && listings.length === 0 && (
+        <section className="while-you-wait" aria-labelledby="wait-head">
+          <h2 id="wait-head">While you wait</h2>
+          <div className="drill-tiles">
+            <Tile href="#/search?type=TAX_DEED" icon={<IconSearch />} title="Sample tax-sale listings" summary="See how a tax-sale listing looks, with liens and equity worked out" />
+            <Tile href="#/about/sale-types" icon={<IconLayers />} title="How tax sales work" summary="What you receive at a tax sale compared with other forced sales" />
+            <Tile href="#/financing" icon={<IconBank />} title="Line up your money" tone="go" summary="Tax sales need certified funds fast. Compare lenders now" />
+          </div>
+        </section>
       )}
       {expired && (
         <div className="verify" role="status">

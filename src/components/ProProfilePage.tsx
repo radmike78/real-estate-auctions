@@ -46,6 +46,7 @@ export default function ProProfilePage({ id }: { id: string }) {
       </section>
 
       <div className="profile-grid">
+        <div className="main-col">
         <section>
           <h2>About</h2>
           <p>{p.bio}</p>
@@ -63,6 +64,8 @@ export default function ProProfilePage({ id }: { id: string }) {
           <h3>Languages</h3>
           <p>{p.languages.join(', ')}</p>
         </section>
+        <Disclaimer kind={info.financing ? 'financing' : p.category === 'agent' ? 'professionals' : 'services'} />
+        </div>
 
         <div className="side-col">
         <LeadForm pro={p} />
@@ -81,7 +84,6 @@ export default function ProProfilePage({ id }: { id: string }) {
         </aside>
         </div>
       </div>
-      <Disclaimer kind={info.financing ? 'financing' : p.category === 'agent' ? 'professionals' : 'services'} />
     </main>
   );
 }

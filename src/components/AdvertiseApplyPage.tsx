@@ -106,6 +106,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
         title={<>Apply to <span className="grad">advertise</span></>}
         sub={`Choose your type of business to start. It takes about five minutes, and we verify every license before you're listed.`}
       />
+      <div className="apply-layout">
       <form className="form page-form" onSubmit={submit} noValidate>
         <div className="hp" aria-hidden="true">
           <label>Company URL <input tabIndex={-1} autoComplete="off" value={f.company_url} onChange={(e) => set('company_url', e.target.value)} /></label>
@@ -178,6 +179,17 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
           </>
         )}
       </form>
+      <aside className="apply-side" aria-label="What happens next">
+        <h2>What happens next</h2>
+        <ol className="side-steps">
+          <li><strong>Confirm your email</strong><span>We send a link to your business email.</span></li>
+          <li><strong>We verify you</strong><span>License on the official regulator lookup, identity through your company.</span></li>
+          <li><strong>Choose a plan</strong><span>A flat fee. No one can pay for a higher position.</span></li>
+          <li><strong>Go live</strong><span>Track views, calls and leads from your dashboard.</span></li>
+        </ol>
+        <p className="small muted">Your profile is always labeled as an advertisement. We never take referral fees.</p>
+      </aside>
+      </div>
     </main>
   );
 }
