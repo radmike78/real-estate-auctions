@@ -2,12 +2,19 @@ import { useState, type FormEvent, type ReactNode } from 'react';
 import { SALE_SEARCH, saleSearchHref } from '../lib/saleSearch';
 import { CHECKLISTS } from '../lib/buyerChecklists';
 import BuyerChecklistBox from './BuyerChecklistBox';
-import { IconBadge, IconBank, IconHome, IconLock, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
+import { Tile, type Tone } from './DrillDown';
+import { IconBadge, IconBank, IconFile, IconHelp, IconHome, IconLock, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
 
 const HELP: { href: string; icon: ReactNode; label: string }[] = [
   { href: '#/agents', icon: <IconBadge />, label: 'Find an agent' },
   { href: '#/financing', icon: <IconBank />, label: 'Financing' },
   { href: '#/pros', icon: <IconTools />, label: 'Title, insurance & repairs' },
+];
+
+const LEARN: { href: string; icon: ReactNode; title: string; summary: string; tone?: Tone }[] = [
+  { href: '#/live', icon: <IconShield />, title: 'Verified live tax sales', summary: 'Straight from the Clark County Treasurer, checked and signed', tone: 'go' },
+  { href: '#/about', icon: <IconHelp />, title: 'How it works', summary: 'Liens vs. forced sales, status labels and the types of sale' },
+  { href: '#/disclaimer', icon: <IconFile />, title: 'Our role & your responsibility', summary: "We're not the seller or the lender. Always verify for yourself" },
 ];
 
 export default function HomePage() {
@@ -86,6 +93,12 @@ export default function HomePage() {
             <button type="submit">{selected.route ? 'Open' : 'Search'}</button>
           </form>
           <BuyerChecklistBox list={CHECKLISTS[type] ?? CHECKLISTS.all} variant="wide" />
+          <section className="home-learn" aria-labelledby="home-learn-head">
+            <h2 id="home-learn-head">Learn before you buy</h2>
+            <div className="drill-tiles">
+              {LEARN.map((l) => <Tile key={l.href} {...l} />)}
+            </div>
+          </section>
         </section>
       </div>
     </main>

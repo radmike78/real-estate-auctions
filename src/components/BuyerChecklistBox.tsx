@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import type { BuyerChecklist } from '../lib/buyerChecklists';
 
 const KEY = (k: string) => `fsf.checklist.${k}.v1`;
@@ -41,7 +41,11 @@ function ChecklistInner({ list, variant = 'light' }: { list: BuyerChecklist; var
           <h2>{list.title}</h2>
           <p>{list.intro}</p>
         </div>
-        <div className="checklist-progress" aria-label={`${count} of ${list.items.length} done`}>
+        <div
+          className={`checklist-progress${count === list.items.length ? ' done' : ''}`}
+          style={{ '--pct': `${(count / list.items.length) * 100}%` } as CSSProperties}
+          aria-label={`${count} of ${list.items.length} done`}
+        >
           <strong>{count}/{list.items.length}</strong>
           <span>ready</span>
         </div>
