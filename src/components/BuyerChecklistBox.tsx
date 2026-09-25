@@ -13,12 +13,12 @@ function load(k: string): number[] {
 }
 
 /** Tickable "what you'll need" box. Ticks are remembered in this browser only. */
-export default function BuyerChecklistBox(props: { list: BuyerChecklist; variant?: 'light' | 'hero' }) {
+export default function BuyerChecklistBox(props: { list: BuyerChecklist; variant?: 'light' | 'wide' }) {
   // Remount per checklist so each one starts from its own saved ticks.
   return <ChecklistInner key={props.list.key} {...props} />;
 }
 
-function ChecklistInner({ list, variant = 'light' }: { list: BuyerChecklist; variant?: 'light' | 'hero' }) {
+function ChecklistInner({ list, variant = 'light' }: { list: BuyerChecklist; variant?: 'light' | 'wide' }) {
   const [done, setDone] = useState<number[]>(() => load(list.key));
 
   const toggle = (i: number) =>
