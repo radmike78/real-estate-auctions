@@ -9,7 +9,7 @@ export default function CalculatorPage() {
         title={<>Maximum safe <span className="grad">bid</span></>}
         sub="Every cost counted: premium, transfer tax, liens that stay, title and quiet title, eviction, holding, financing and selling. Know your number, and when to stop bidding."
       />
-      <BidCalculator />
+      <BidCalculator headingLevel={2} />
     </main>
   );
 }

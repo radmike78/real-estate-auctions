@@ -77,7 +77,7 @@ export function maxSafeBid(i: BidInputs): BidResult {
     repairsWithContingency: r2(c.repairs),
     cashAtAuction: r2(maxBid + c.premium),
     cashToStabilize: r2(c.total - c.selling - c.loan),
-    noBidWorks: raw <= 0,
+    noBidWorks: maxBid <= 0,
   };
 }
 
@@ -142,4 +142,15 @@ export function defaultsFor(p: Property): BidInputs {
     // Clark County tax is roughly 3.3% of assessed value a year (before abatements), plus about $300/month insurance and utilities.
     monthlyCarry: Math.round((p.assessedValue * 0.033) / 12 + 300),
   };
+}
+
+/** Rebuild inputs from untrusted saved data: only known keys, only finite non-negative numbers. */
+export function sanitizeInputs(saved: unknown, defaults: BidInputs): BidInputs {
+  const out = { ...defaults };
+  if (!saved || typeof saved !== 'object') return out;
+  for (const k of Object.keys(defaults) as (keyof BidInputs)[]) {
+    const v = (saved as Record<string, unknown>)[k];
+    if (typeof v === 'number' && Number.isFinite(v) && v >= 0) out[k] = v;
+  }
+  return out;
 }

@@ -821,7 +821,7 @@ small { font-size: 0.95rem; }
 .calc-field { display: grid; gap: 6px; align-content: start; }
 .calc-label { font-weight: 700; }
 .calc-input { display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); padding: 0 12px; }
-.calc-input:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 3px rgb(59 130 246 / 0.2); }
+.calc-input:focus-within { border-color: #2563eb; outline: 2px solid #2563eb; outline-offset: 1px; }
 .calc-input input { border: 0; padding: 11px 0; background: transparent; box-shadow: none; outline: none; min-width: 0; font-variant-numeric: tabular-nums; }
 .calc-input i { font-style: normal; color: var(--muted); white-space: nowrap; }
 .calc-results { position: sticky; top: 84px; display: grid; gap: 16px; padding: 24px; border-radius: 20px; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 20px 44px -28px rgb(15 23 42 / 0.5); }
@@ -882,8 +882,8 @@ small { font-size: 0.95rem; }
 .dd-step.done { background: var(--go-bg); border-left-color: var(--go); }
 .dd-head { display: flex; align-items: center; gap: 12px; cursor: pointer; }
 .dd-head input { width: 22px; height: 22px; flex: none; accent-color: #059669; }
-.dd-num { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-weight: 800; color: #fff; background: linear-gradient(135deg, #22d3ee, #3b82f6 50%, #8b5cf6); }
-.dd-step.done .dd-num { background: linear-gradient(135deg, #34d399, #059669); }
+.dd-num { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-weight: 800; color: #fff; background: linear-gradient(135deg, #0e7490, #1d4ed8 50%, #6d28d9); }
+.dd-step.done .dd-num { background: linear-gradient(135deg, #047857, #065f46); }
 .dd-title { flex: 1; font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; }
 .dd-worst { flex: none; }
 .dd-step.worst-flag .dd-worst { background: var(--stop-bg); color: var(--stop); }
@@ -938,3 +938,20 @@ small { font-size: 0.95rem; }
   .page-hero-top { flex-wrap: wrap; }
   .page-hero-top > a { flex-basis: 100%; }
 }
+
+/* Max-bid bar pinned to the bottom of the screen on phones and tablets. */
+.calc-sticky { display: none; }
+@media (max-width: 1000px) {
+  .calc { padding-bottom: 76px; }
+  .calc-sticky {
+    display: flex; align-items: center; gap: 12px; position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 30;
+    padding: 12px 18px; border: 0; border-radius: 16px; color: #fff; text-align: left; cursor: pointer;
+    background: linear-gradient(135deg, #1d4ed8, #6d28d9); box-shadow: 0 16px 36px -12px rgb(15 23 42 / 0.6);
+  }
+  .calc-sticky.bad { background: linear-gradient(135deg, #b91c1c, #9a3412); }
+  .calc-sticky span:first-child { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.95rem; }
+  .calc-sticky strong { font-family: var(--font-display); font-size: 1.5rem; }
+  .calc-sticky-go { margin-left: auto; font-weight: 600; white-space: nowrap; }
+}
+@media (max-width: 420px) { .calc-sticky-go { display: none; } }
+@media print { .calc-sticky { display: none !important; } }

@@ -3,8 +3,10 @@ import { moneySummary, SALE_TYPE_LABEL } from '../lib/rules';
 import { fmtDate, fmtMoney } from '../lib/status';
 import StatusBadge from './StatusBadge';
 
+/** Whole days until a time: 1 means within the next day, negative means it has passed. */
 export function daysUntil(iso: string, now = Date.now()) {
-  return Math.ceil((new Date(iso).getTime() - now) / 86_400_000);
+  const ms = new Date(iso).getTime() - now;
+  return ms < 0 ? Math.floor(ms / 86_400_000) : Math.max(1, Math.ceil(ms / 86_400_000));
 }
 
 export default function ResultsList({ properties }: { properties: Property[] }) {
@@ -42,7 +44,7 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
                   <dt>Auction</dt>
                   <dd>
                     {p.sale?.startsAt ? fmtDate(p.sale.startsAt) : '—'}
-                    {d !== null && d >= 0 && <span className="muted small"> ({d === 0 ? 'today' : `${d}d`})</span>}
+                    {d !== null && d >= 0 && <span className="muted small"> ({d === 1 ? '<1d' : `${d}d`})</span>}
                   </dd>
                 </div>
                 <div>

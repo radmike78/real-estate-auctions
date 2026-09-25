@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
-import { BLANK_INPUTS, costsAtBid, defaultsFor, maxSafeBid, profitAtBid, stressTests, type BidInputs } from './bidCalc';
+import { BLANK_INPUTS, costsAtBid, defaultsFor, maxSafeBid, profitAtBid, sanitizeInputs, stressTests, type BidInputs } from './bidCalc';
+import { daysUntil } from '../components/ResultsList';
 
 const base: BidInputs = { ...BLANK_INPUTS, exitValue: 400_000, repairs: 40_000, buyerPremiumPct: 5, financedPct: 70 };
 
@@ -95,5 +96,30 @@ describe('My deals storage', () => {
     expect(list[0].statusAtSave).toBeNull();
     expect(list[0].postponementsAtSave).toBe(0);
     expect(list[0].notes).toBe('');
+  });
+});
+
+describe('review fixes', () => {
+  it('rebuilds saved calculator inputs from known numeric keys only', () => {
+    const out = sanitizeInputs({ targetProfitPct: { toString: 1 }, exitValue: 'abc', repairs: -5, holdingMonths: 9, extra: 1 }, BLANK_INPUTS);
+    expect(out.targetProfitPct).toBe(BLANK_INPUTS.targetProfitPct);
+    expect(out.exitValue).toBe(BLANK_INPUTS.exitValue);
+    expect(out.repairs).toBe(BLANK_INPUTS.repairs);
+    expect(out.holdingMonths).toBe(9);
+    expect('extra' in out).toBe(false);
+    expect(sanitizeInputs(null, BLANK_INPUTS)).toEqual(BLANK_INPUTS);
+  });
+
+  it('never shows a $0 max bid as workable', () => {
+    const r = maxSafeBid({ ...BLANK_INPUTS, exitValue: 100_000, repairs: 0, contingencyPct: 0, titleLegal: 0, possession: 0, holdingMonths: 0, transferTaxPer500: 0, sellingCostPct: 0, targetProfitPct: 99.9995 });
+    expect(r.maxBid).toBe(0);
+    expect(r.noBidWorks).toBe(true);
+  });
+
+  it('counts a sale that started hours ago as passed, and one hours away as within a day', () => {
+    const now = Date.parse('2026-09-25T12:00:00Z');
+    expect(daysUntil('2026-09-25T10:00:00Z', now)).toBeLessThan(0);
+    expect(daysUntil('2026-09-25T14:00:00Z', now)).toBe(1);
+    expect(daysUntil('2026-09-27T12:00:00Z', now)).toBe(2);
   });
 });

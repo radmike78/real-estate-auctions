@@ -44,7 +44,7 @@ export default function SiteHeader({ current }: { current: string }) {
         {PRIMARY.map(([href, label]) => (
           <a key={href} href={href} className={active(href) ? 'active' : ''}>{label}</a>
         ))}
-        <a href="#/deals" className={active('#/deals') ? 'active' : ''}>My deals{deals > 0 && <span className="nav-count" aria-label={`${deals} saved`}>{deals}</span>}</a>
+        <a href="#/deals" className={active('#/deals') ? 'active' : ''}>My deals{deals > 0 && <><span className="nav-count" aria-hidden>{deals}</span><span className="sr-only">, {deals} saved</span></>}</a>
         <details className="more">
           <summary>More</summary>
           <div className="more-menu">
