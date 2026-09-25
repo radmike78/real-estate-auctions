@@ -15,6 +15,7 @@ import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
 import { IconBadge, IconCalc, IconCalendar, IconFile, IconFlag, IconLayers, IconShield, IconSteps } from './Icons';
 import BidCalculator from './BidCalculator';
+import { DD_STEPS } from '../lib/ddFunnel';
 import DueDiligenceFunnel from './DueDiligenceFunnel';
 import SaveDealButton from './SaveDealButton';
 import TeamList from './TeamList';
@@ -226,7 +227,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       title: 'Due diligence, step by step',
       icon: <IconShield />,
       tone: flags ? 'stop' : reviews ? 'wait' : 'go',
-      summary: `12 steps · ${[flags && plural(flags, 'flag'), reviews && `${reviews} to review`, `${count('manual')} to check yourself`].filter(Boolean).join(' · ')}`,
+      summary: `${DD_STEPS.length} steps · ${[flags && plural(flags, 'flag'), reviews && `${reviews} to review`, `${count('manual')} to check yourself`].filter(Boolean).join(' · ')}`,
       content: () => <DueDiligenceFunnel p={p} maxBidHref={`${baseHref}/max-bid`} />,
     },
     ...(playbook
@@ -314,7 +315,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
                 {days !== null && days < 0 ? 'Scheduled sale was' : 'Sale starts'}
               </div>
               <div className="big">{fmtDateTime(s.startsAt)}</div>
-              {days !== null && days >= 0 && <div className="countdown-days">{days === 0 ? 'Today' : `in ${days} day${days === 1 ? '' : 's'}`}</div>}
+              {days !== null && days >= 0 && <div className="countdown-days">{days === 1 ? 'within a day' : `in ${days} days`}</div>}
             </div>
           ) : undefined
         }

@@ -127,7 +127,7 @@ export default function App() {
       {route.page === 'search' && (
         <SearchPage key={`${route.q}|${route.types}|${route.statuses}`} initialLocation={route.q} initialSaleTypes={route.types} initialStatuses={route.statuses} />
       )}
-      {route.page === 'property' && <PropertyPage id={route.id} section={route.section} />}
+      {route.page === 'property' && <PropertyPage key={route.id} id={route.id} section={route.section} />}
       {route.page === 'about' && <AboutPage section={route.section} />}
       {route.page === 'live' && <LivePage />}
       {route.page === 'preforeclosures' && <PreForeclosurePage key={route.q} initialQuery={route.q} section={route.section} />}

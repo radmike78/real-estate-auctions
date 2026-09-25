@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { BLANK_INPUTS, costsAtBid, maxSafeBid, profitAtBid, stressTests, type BidInputs } from '../lib/bidCalc';
+import { useId, useState } from 'react';
+import { BLANK_INPUTS, costsAtBid, maxSafeBid, profitAtBid, sanitizeInputs, stressTests, type BidInputs } from '../lib/bidCalc';
 import { fmtMoney } from '../lib/status';
 
 const KEY = (id: string) => `fsf.bid.${id}.v1`;
@@ -44,8 +44,7 @@ const GROUPS: { title: string; fields: Field[] }[] = [
 function load(id: string | undefined, defaults: BidInputs): BidInputs {
   if (!id) return defaults;
   try {
-    const saved = JSON.parse(localStorage.getItem(KEY(id)) ?? 'null');
-    return saved && typeof saved === 'object' ? { ...defaults, ...saved } : defaults;
+    return sanitizeInputs(JSON.parse(localStorage.getItem(KEY(id)) ?? 'null'), defaults);
   } catch {
     return defaults;
   }
@@ -55,16 +54,30 @@ function load(id: string | undefined, defaults: BidInputs): BidInputs {
 export function savedMaxBid(id: string): number | null {
   try {
     const saved = JSON.parse(localStorage.getItem(KEY(id)) ?? 'null');
-    return saved ? maxSafeBid({ ...BLANK_INPUTS, ...saved }).maxBid : null;
+    return saved && typeof saved === 'object' ? maxSafeBid(sanitizeInputs(saved, BLANK_INPUTS)).maxBid : null;
   } catch {
     return null;
   }
 }
 
-export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, openingBid }: { propertyId?: string; defaults?: BidInputs; openingBid?: number | null }) {
+const pct = (profit: number, exit: number) => (exit > 0 ? ` (${Math.round((profit / exit) * 100)}% of resale value)` : '');
+// Typed text becomes a number: empty or invalid counts as 0, negatives are not allowed.
+const toNum = (v: string) => {
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+};
+
+export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, openingBid, headingLevel = 3 }: { propertyId?: string; defaults?: BidInputs; openingBid?: number | null; headingLevel?: 2 | 3 }) {
+  const uid = useId();
   const [i, setI] = useState<BidInputs>(() => load(propertyId, defaults));
-  const [bid, setBid] = useState<number>(openingBid ?? 0);
-  const set = (k: keyof BidInputs, v: number) =>
+  // What the person typed, so a field can be cleared while editing.
+  const [draft, setDraft] = useState<Partial<Record<keyof BidInputs, string>>>({});
+  const [bidText, setBidText] = useState<string>(openingBid ? String(openingBid) : '');
+  const bid = toNum(bidText);
+  const H = headingLevel === 2 ? 'h2' : 'h3';
+  const set = (k: keyof BidInputs, text: string) => {
+    setDraft((d) => ({ ...d, [k]: text }));
+    const v = toNum(text);
     setI((cur) => {
       const next = { ...cur, [k]: v };
       if (propertyId) {
@@ -76,6 +89,7 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
       }
       return next;
     });
+  };
   const r = maxSafeBid(i);
   const tests = stressTests(i);
   const atBid = bid > 0 ? costsAtBid(i, bid) : null;
@@ -89,47 +103,59 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
           <fieldset key={g.title} className="calc-group">
             <legend>{g.title}</legend>
             {g.fields.map((f) => (
-              <label key={f.k} className="calc-field">
-                <span className="calc-label">{f.label}</span>
+              <div key={f.k} className="calc-field">
+                <label className="calc-label" htmlFor={`${uid}-${f.k}`}>{f.label}</label>
                 <span className="calc-input">
                   {f.unit === '$' && <i aria-hidden>$</i>}
-                  <input type="number" inputMode="decimal" min={0} step="any" value={Number.isFinite(i[f.k]) ? i[f.k] : 0} onChange={(e) => set(f.k, Number(e.target.value))} />
+                  <input
+                    id={`${uid}-${f.k}`}
+                    type="number"
+                    inputMode="decimal"
+                    min={0}
+                    step="any"
+                    value={draft[f.k] ?? String(i[f.k])}
+                    aria-describedby={f.hint ? `${uid}-${f.k}-hint` : undefined}
+                    onChange={(e) => set(f.k, e.target.value)}
+                    onBlur={() => setDraft((d) => ({ ...d, [f.k]: undefined }))}
+                  />
                   {f.unit !== '$' && <i aria-hidden>{f.unit === '$/500' ? 'per $500' : f.unit === 'mo' ? 'months' : '%'}</i>}
                 </span>
-                {f.hint && <small className="muted">{f.hint}</small>}
-              </label>
+                {f.hint && <small className="muted" id={`${uid}-${f.k}-hint`}>{f.hint}</small>}
+              </div>
             ))}
           </fieldset>
         ))}
         {propertyId && (
-          <button type="button" className="linkish" onClick={() => { try { localStorage.removeItem(KEY(propertyId)); } catch { /* ignore */ } setI(defaults); }}>
+          <button type="button" className="linkish" onClick={() => { try { localStorage.removeItem(KEY(propertyId)); } catch { /* ignore */ } setI(defaults); setDraft({}); }}>
             Reset to our starting estimates
           </button>
         )}
       </div>
 
-      <div className="calc-results" aria-live="polite">
-        <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`}>
+      <div className="calc-results" id={`${uid}-results`}>
+        <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
           <span>Your maximum safe bid</span>
           <strong>{r.noBidWorks ? 'No bid works' : fmtMoney(r.maxBid)}</strong>
-          <small>{r.noBidWorks ? 'Even at $0, costs leave less than your target profit. Walk away or change your plan.' : `Leaves your ${i.targetProfitPct}% target after every cost below.`}</small>
+          <small>{r.noBidWorks ? 'Even at $0, costs leave less than your target profit. Walk away or change your plan.' : `Leaves your ${i.targetProfitPct}% profit target after every cost below.`}</small>
         </div>
-        <dl className="calc-kv">
-          <div><dt>Break-even bid (zero profit)</dt><dd>{fmtMoney(r.breakEvenBid)}</dd></div>
-          <div><dt>Cash needed on auction day</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>
-          <div><dt>Total cash in the deal</dt><dd>{fmtMoney(r.cashToStabilize)}</dd></div>
-        </dl>
+        {!r.noBidWorks && (
+          <dl className="calc-kv">
+            <div><dt>Break-even bid (zero profit)</dt><dd>{fmtMoney(r.breakEvenBid)}</dd></div>
+            <div><dt>Cash needed on auction day</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>
+            <div><dt>Total cash in the deal</dt><dd>{fmtMoney(r.cashToStabilize)}</dd></div>
+          </dl>
+        )}
 
-        <label className="calc-field calc-bid">
-          <span className="calc-label">Check a bid</span>
-          <span className="calc-input"><i aria-hidden>$</i><input type="number" min={0} step="any" value={bid || ''} placeholder="e.g. the opening bid" onChange={(e) => setBid(Number(e.target.value))} /></span>
-        </label>
+        <div className="calc-field calc-bid">
+          <label className="calc-label" htmlFor={`${uid}-bid`}>Check a bid</label>
+          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="number" inputMode="decimal" min={0} step="any" value={bidText} placeholder="e.g. the opening bid" onChange={(e) => setBidText(e.target.value)} /></span>
+        </div>
         {atBid && profit !== null && (
           <div className={`calc-verdict ${over ? 'bad' : 'good'}`} role="status">
             {over ? (
-              <><strong>Above your maximum.</strong> At {fmtMoney(bid)} this deal no longer meets your target. Profit would be {fmtMoney(Math.round(profit))} ({Math.round((profit / i.exitValue) * 100)}%). Stop bidding.</>
+              <><strong>Above your maximum.</strong> At {fmtMoney(bid)} this deal no longer meets your target. Profit would be {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}. Stop bidding.</>
             ) : (
-              <><strong>Within your maximum.</strong> Estimated profit {fmtMoney(Math.round(profit))} ({Math.round((profit / i.exitValue) * 100)}% of resale value).</>
+              <><strong>Within your maximum.</strong> Estimated profit {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}.</>
             )}
           </div>
         )}
@@ -147,13 +173,20 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
           </details>
         )}
 
-        <h3>If things go worse than planned</h3>
+        <H>If things go worse than planned</H>
         <table className="calc-stress">
           <thead><tr><th>Scenario</th><th className="num">Max safe bid</th></tr></thead>
           <tbody>{tests.map((t) => <tr key={t.label}><td>{t.label}</td><td className="num">{t.maxBid > 0 ? fmtMoney(t.maxBid) : 'No bid works'}</td></tr>)}</tbody>
         </table>
         <p className="muted small">An estimate to help you set a limit before the sale, not advice. Replace every starting number with your own comps, bids and quotes.</p>
       </div>
+
+      {/* On phones the results sit below every input, so keep the answer in view while typing. */}
+      <button type="button" className={`calc-sticky${r.noBidWorks ? ' bad' : ''}`} onClick={() => document.getElementById(`${uid}-results`)?.scrollIntoView({ behavior: 'smooth' })}>
+        <span>Max safe bid</span>
+        <strong>{r.noBidWorks ? 'No bid works' : fmtMoney(r.maxBid)}</strong>
+        <span className="calc-sticky-go">See details ↓</span>
+      </button>
     </div>
   );
 }

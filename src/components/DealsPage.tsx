@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
-import { loadDeals, onDealsChange, toggleDeal, updateDeal, type SavedDeal } from '../lib/deals';
+import { loadDeals, onDealsChange, removeDeal, updateDeal, type SavedDeal } from '../lib/deals';
 import { DD_STEPS, loadDdDone } from '../lib/ddFunnel';
 import { SALE_TYPE_LABEL } from '../lib/rules';
 import { STATUS, fmtDate, fmtDateTime, fmtMoney } from '../lib/status';
@@ -12,11 +12,31 @@ import StatusBadge from './StatusBadge';
 function DealCard({ d }: { d: SavedDeal }) {
   const p = SAMPLE_PROPERTIES.find((x) => x.id === d.id);
   const [notes, setNotes] = useState(d.notes);
-  if (!p) return null;
+  // Save notes shortly after typing stops, so closing the tab doesn't lose them.
+  useEffect(() => {
+    if (notes === d.notes) return;
+    const t = setTimeout(() => updateDeal(d.id, { notes: notes.slice(0, 2000) }), 600);
+    return () => clearTimeout(t);
+  }, [notes, d.id, d.notes]);
+  if (!p) {
+    return (
+      <li className="deal-card">
+        <div className="deal-head">
+          <div>
+            <h2>No longer listed</h2>
+            <p className="muted">A property you saved on {fmtDate(d.savedAt.slice(0, 10))} is no longer in our listings. It may have sold, been paid off or been removed.</p>
+          </div>
+          <button className="linkish" aria-label="Remove property that is no longer listed" onClick={() => removeDeal(d.id)}>Remove</button>
+        </div>
+      </li>
+    );
+  }
   const s = p.sale;
-  const changed = p.status !== d.statusAtSave;
+  const was = d.statusAtSave ? STATUS[d.statusAtSave] : null;
+  const changed = was !== null && p.status !== d.statusAtSave;
   const newPostponements = (s?.postponements ?? 0) - d.postponementsAtSave;
-  const dd = loadDdDone(p.id).length;
+  const doneKeys = loadDdDone(p.id);
+  const dd = DD_STEPS.filter((x) => doneKeys.includes(x.key)).length;
   const maxBid = savedMaxBid(p.id);
   const minBid = s?.minimumBid ?? null;
   const days = s?.startsAt ? daysUntil(s.startsAt) : null;
@@ -32,20 +52,20 @@ function DealCard({ d }: { d: SavedDeal }) {
           <h2><a href={base}>{p.address}</a></h2>
           <p className="muted">{p.city}, {p.state} {p.zip} · APN {p.apn} · saved {fmtDate(d.savedAt.slice(0, 10))}</p>
         </div>
-        <button className="linkish" onClick={() => toggleDeal(p.id, p.status, s?.postponements ?? 0)}>Remove</button>
+        <button className="linkish" aria-label={`Remove ${p.address} from My deals`} onClick={() => removeDeal(p.id)}>Remove</button>
       </div>
 
       {(changed || newPostponements > 0) && (
         <div className="caution" role="status">
           <strong>Changed since you saved it:</strong>{' '}
-          {changed && <>status went from “{STATUS[d.statusAtSave].label}” to “{STATUS[p.status].label}”. </>}
+          {changed && <>status went from “{was?.label}” to “{STATUS[p.status].label}”. </>}
           {newPostponements > 0 && <>Postponed {newPostponements} more time{newPostponements === 1 ? '' : 's'}.</>}
-          <button className="linkish" onClick={() => updateDeal(p.id, { statusAtSave: p.status, postponementsAtSave: s?.postponements ?? 0 })}>Mark seen</button>
+          <button className="linkish" aria-label={`Mark changes to ${p.address} as seen`} onClick={() => updateDeal(p.id, { statusAtSave: p.status, postponementsAtSave: s?.postponements ?? 0 })}>Mark seen</button>
         </div>
       )}
 
       <dl className="deal-facts">
-        <div><dt>Sale</dt><dd>{s?.startsAt ? <>{fmtDateTime(s.startsAt)}{days !== null && days >= 0 && <span className="deal-soon"> · in {days} day{days === 1 ? '' : 's'}</span>}</> : '—'}</dd></div>
+        <div><dt>Sale</dt><dd>{s?.startsAt ? <>{fmtDateTime(s.startsAt)}{days !== null && (days < 0 ? <span className="muted"> · passed</span> : <span className="deal-soon"> · {days === 1 ? 'within a day' : `in ${days} days`}</span>)}</> : '—'}</dd></div>
         <div><dt>Register by</dt><dd>{s?.registrationDeadline ? <>{fmtDateTime(s.registrationDeadline)}{regClosed ? <span className="deal-urgent"> · closed</span> : regDays !== null && regDays <= 7 && <span className="deal-urgent"> · {regDays <= 1 ? 'closes within a day' : `${regDays} days left`}</span>}</> : '—'}</dd></div>
         <div><dt>Opening / minimum bid</dt><dd>{fmtMoney(minBid)}</dd></div>
         <div>
@@ -60,7 +80,7 @@ function DealCard({ d }: { d: SavedDeal }) {
 
       <label className="field deal-notes">
         <span>Notes</span>
-        <textarea rows={2} value={notes} placeholder="Questions for the title company, drive-by notes, your bid plan…" onChange={(e) => setNotes(e.target.value)} onBlur={() => updateDeal(p.id, { notes: notes.slice(0, 2000) })} />
+        <textarea rows={2} value={notes} placeholder="Questions for the title company, drive-by notes, your bid plan…" maxLength={2000} onChange={(e) => setNotes(e.target.value)} />
       </label>
     </li>
   );
@@ -70,8 +90,12 @@ export default function DealsPage() {
   const [deals, setDeals] = useState(loadDeals);
   useEffect(() => onDealsChange(() => setDeals(loadDeals())), []);
   const sorted = [...deals].sort((a, b) => {
-    const at = (id: string) => SAMPLE_PROPERTIES.find((p) => p.id === id)?.sale?.startsAt ?? '9999';
-    return at(a.id).localeCompare(at(b.id));
+    // Upcoming sales soonest first, then sales that have passed, then anything without a date.
+    const rank = (id: string) => {
+      const t = Date.parse(SAMPLE_PROPERTIES.find((p) => p.id === id)?.sale?.startsAt ?? '');
+      return Number.isNaN(t) ? Infinity : t >= Date.now() ? t : 1e15 - t;
+    };
+    return rank(a.id) - rank(b.id);
   });
 
   return (

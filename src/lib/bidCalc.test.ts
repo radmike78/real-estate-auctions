@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
-import { BLANK_INPUTS, costsAtBid, defaultsFor, maxSafeBid, profitAtBid, stressTests, type BidInputs } from './bidCalc';
+import { BLANK_INPUTS, costsAtBid, defaultsFor, maxSafeBid, profitAtBid, sanitizeInputs, stressTests, type BidInputs } from './bidCalc';
+import { daysUntil } from '../components/ResultsList';
 
 const base: BidInputs = { ...BLANK_INPUTS, exitValue: 400_000, repairs: 40_000, buyerPremiumPct: 5, financedPct: 70 };
 
@@ -81,5 +82,69 @@ describe('due-diligence workflow and playbooks', () => {
     expect(text).toMatch(/1:00 p\.m\./);
     expect(text).toMatch(/protest for 2 years/);
     expect(text).not.toMatch(/buyer.s premium/i); // the in-person Treasurer auction has none
+  });
+});
+
+describe('My deals storage', () => {
+  it('ignores malformed saved entries instead of crashing', async () => {
+    const store: Record<string, string> = {};
+    globalThis.localStorage = { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: string) => { store[k] = v; } } as Storage;
+    store['fsf.deals.v1'] = JSON.stringify([{ id: 'p1', statusAtSave: 'bogus', postponementsAtSave: 'x' }, { nope: 1 }, 'junk']);
+    const { loadDeals } = await import('./deals');
+    const list = loadDeals();
+    expect(list).toHaveLength(1);
+    expect(list[0].statusAtSave).toBeNull();
+    expect(list[0].postponementsAtSave).toBe(0);
+    expect(list[0].notes).toBe('');
+  });
+});
+
+describe('review fixes', () => {
+  it('rebuilds saved calculator inputs from known numeric keys only', () => {
+    const out = sanitizeInputs({ targetProfitPct: { toString: 1 }, exitValue: 'abc', repairs: -5, holdingMonths: 9, extra: 1 }, BLANK_INPUTS);
+    expect(out.targetProfitPct).toBe(BLANK_INPUTS.targetProfitPct);
+    expect(out.exitValue).toBe(BLANK_INPUTS.exitValue);
+    expect(out.repairs).toBe(BLANK_INPUTS.repairs);
+    expect(out.holdingMonths).toBe(9);
+    expect('extra' in out).toBe(false);
+    expect(sanitizeInputs(null, BLANK_INPUTS)).toEqual(BLANK_INPUTS);
+  });
+
+  it('never shows a $0 max bid as workable', () => {
+    const r = maxSafeBid({ ...BLANK_INPUTS, exitValue: 100_000, repairs: 0, contingencyPct: 0, titleLegal: 0, possession: 0, holdingMonths: 0, transferTaxPer500: 0, sellingCostPct: 0, targetProfitPct: 99.9995 });
+    expect(r.maxBid).toBe(0);
+    expect(r.noBidWorks).toBe(true);
+  });
+
+  it('counts a sale that started hours ago as passed, and one hours away as within a day', () => {
+    const now = Date.parse('2026-09-25T12:00:00Z');
+    expect(daysUntil('2026-09-25T10:00:00Z', now)).toBeLessThan(0);
+    expect(daysUntil('2026-09-25T14:00:00Z', now)).toBe(1);
+    expect(daysUntil('2026-09-27T12:00:00Z', now)).toBe(2);
+  });
+});
+
+describe('legal fact-check fixes', () => {
+  it('uses the special-assessment checklist for lien certificates, not the tax-deed one', async () => {
+    const { checklistForProperty } = await import('./buyerChecklists');
+    const sid = checklistForProperty('TAX_LIEN_CERTIFICATE', 'IN_PERSON_AUCTION');
+    expect(sid.key).toBe('sid');
+    const text = sid.items.map((i) => `${i.text} ${i.detail ?? ''}`).join(' ');
+    expect(text).toMatch(/no deposit/i);
+    expect(text).toMatch(/expires 3 years/);
+    expect(text).not.toMatch(/\$5,000/);
+  });
+
+  it('gives tenants the federal 90-day notice, not 60', async () => {
+    const { CHECKLISTS } = await import('./buyerChecklists');
+    const { playbookByKey } = await import('./playbooks');
+    const all = JSON.stringify(CHECKLISTS) + JSON.stringify(playbookByKey('foreclosure'));
+    expect(all).toMatch(/90 days/);
+    expect(all).not.toMatch(/60 days for monthly tenants/);
+  });
+
+  it('says a special-assessment deed clears other liens', async () => {
+    const { playbookByKey } = await import('./playbooks');
+    expect(playbookByKey('sid')!.survives.wipedOut.join(' ')).toMatch(/NRS 271\.600/);
   });
 });

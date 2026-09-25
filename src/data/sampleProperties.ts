@@ -199,7 +199,7 @@ function makeProperty(i: number, scenario: Scenario): Property {
         minimumBid: round(owed + 350, 10),
         deposit: '$5,000 registration deposit per bidder, certified funds; credited if you win (per the Treasurer auction notice)',
         registrationDeadline: isoAt(saleDay - 8, 17),
-        paymentMethods: ['Cash', "Cashier's check", 'Wire', 'Money order'],
+        paymentMethods: ['Cash', "Cashier's check", 'Money order'],
         finalPaymentDeadline: isoAt(saleDay, 13),
         deedType: 'Quitclaim deed from the Treasurer, recorded within 30 days, in the bidder’s individual name',
         redemptionPeriod: 'None after the auction. The former owner may protest the sale for 2 years (title insurance may be unavailable meanwhile); the IRS may redeem within 120 days if it holds a lien',

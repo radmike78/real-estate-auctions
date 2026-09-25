@@ -127,8 +127,8 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
 
       <div className="caution" role="alert">
         <strong>Do not contact these homeowners.</strong> A notice of default means an owner is behind on payments. It does not mean the home
-        is for sale. Nevada strictly regulates anyone who approaches owners in foreclosure (NRS Chapter 645F), and a purchase made that way can
-        be rescinded for up to 2 years. Owners may also be in the state's Foreclosure Mediation Program. For that reason this tracker shows no
+        is for sale. Nevada licenses and regulates foreclosure consultants and buyers who deal with owners in foreclosure (NRS Chapter 645F), and a
+        purchase made through fraud or deceit can be rescinded for up to 2 years. Owners may also be in the state's Foreclosure Mediation Program. For that reason this tracker shows no
         owner names or contact details. Use it only to follow a property toward auction, or to recognize it if the owner lists it for sale
         through an agent. Homeowners can find free help on our <a href="#/homeowner-help">homeowner help page</a>.
       </div>
