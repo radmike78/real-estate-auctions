@@ -18,9 +18,9 @@ Before you bid at a foreclosure, tax deed or HOA auction, you need one number: y
 Chapters
 0:00 Why you need a maximum safe bid
 0:12 Resale value and cost to sell
-0:27 Repairs, surviving liens, title and possession
+0:26 Repairs, surviving liens, title and possession
 0:46 Holding and financing costs
-0:57 Your profit target, and your max bid
+0:56 Your profit target, and your max bid
 1:09 Check a bid: when to stop bidding
 1:23 Using it on a real property page
 
