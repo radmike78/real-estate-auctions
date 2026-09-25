@@ -14,3 +14,14 @@ export function pacificToIso(y: number, month0: number, d: number, h: number, mi
   const first = guess - offsetOf(guess);
   return new Date(guess - offsetOf(first)).toISOString();
 }
+
+/** "5 minutes ago", "3 hours ago", "2 days ago" — for "last checked" labels. */
+export function ago(iso: string, now = Date.now()): string {
+  const s = Math.max(0, (now - Date.parse(iso)) / 1000);
+  const unit = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'} ago`;
+  if (!Number.isFinite(s)) return 'unknown';
+  if (s < 90) return 'just now';
+  if (s < 3600) return unit(Math.round(s / 60), 'minute');
+  if (s < 86_400) return unit(Math.round(s / 3600), 'hour');
+  return unit(Math.round(s / 86_400), 'day');
+}

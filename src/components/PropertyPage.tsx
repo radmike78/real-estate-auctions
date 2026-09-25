@@ -13,7 +13,14 @@ import BuyerChecklistBox from './BuyerChecklistBox';
 import { checklistForProperty } from '../lib/buyerChecklists';
 import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
-import { IconCalendar, IconCheckList, IconClock, IconFile, IconFlag, IconLayers, IconShield, IconSteps } from './Icons';
+import { IconBadge, IconCalc, IconCalendar, IconFile, IconFlag, IconLayers, IconShield, IconSteps } from './Icons';
+import BidCalculator from './BidCalculator';
+import DueDiligenceFunnel from './DueDiligenceFunnel';
+import SaveDealButton from './SaveDealButton';
+import TeamList from './TeamList';
+import { defaultsFor } from '../lib/bidCalc';
+import { playbookForSale } from '../lib/playbooks';
+import { ago } from '../lib/time';
 
 const LIEN_LABEL: Record<LienType, string> = {
   PROPERTY_TAX: 'Delinquent property tax',
@@ -36,7 +43,6 @@ const OUTCOME_LABEL: Record<SurvivalOutcome, string> = {
   UNCERTAIN: 'Uncertain, review',
 };
 
-const CHECK_LABEL: Record<CheckResult, string> = { ok: 'OK', flag: 'Flag', review: 'Review', manual: 'Manual' };
 
 export default function PropertyPage({ id, section }: { id: string; section?: string }) {
   const [printAll, setPrintAll] = useState(false);
@@ -74,21 +80,36 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   const flags = count('flag');
   const reviews = count('review');
   const surviving = liens.filter((l) => l.outcome === 'LIKELY_SURVIVES').length;
-  const lastEvent = p.events.length ? p.events[p.events.length - 1] : null;
+  const playbook = playbookForSale(s?.saleType);
   const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
 
   const sections: DrillSection[] = [
     {
       key: 'status',
-      title: 'Is it heading to sale?',
+      title: 'Status & history',
       icon: <IconFlag />,
       tone: status.tone,
-      summary: `${status.purchasable ? 'Yes' : 'Not right now'} · ${status.label}`,
+      summary: `${status.purchasable ? 'For sale' : 'Not for sale now'} · ${status.label}${s && s.postponements ? ` · postponed ${plural(s.postponements, 'time')}` : ''}`,
       content: () => (
         <>
-          <p className="lead"><strong>{status.purchasable ? 'Yes.' : 'Not right now.'}</strong> {status.explanation}</p>
+          <p className="lead"><strong>{status.purchasable ? 'Heading to sale.' : 'Not for sale right now.'}</strong> {status.explanation}</p>
+          <div className="provenance">
+            <span className="prov-chip">Record last checked {ago(p.lastUpdated)}</span>
+            {s && <span className="prov-chip">Sale run by {s.conductedBy}</span>}
+            {s && s.postponements > 0 && <span className="prov-chip warn">Postponed {plural(s.postponements, 'time')} so far</span>}
+          </div>
           <h3>What you would be buying</h3>
           <p>{s ? WHAT_YOU_BUY[s.saleType] : 'Nothing is for sale. Liens alone do not force a sale until an enforcement action is recorded.'}</p>
+          <h3>History</h3>
+          <ol className="timeline">
+            {p.events.map((e, i) => (
+              <li key={i}>
+                <div className="small muted">{fmtDate(e.date)}</div>
+                <div>{e.description}</div>
+                <SourceTag source={e.source} />
+              </li>
+            ))}
+          </ol>
         </>
       ),
     },
@@ -177,50 +198,53 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       ),
     },
     {
+      key: 'max-bid',
+      title: 'Your maximum bid',
+      icon: <IconCalc />,
+      tone: 'go',
+      summary: 'Every cost counted, your walk-away number, and what-if scenarios',
+      content: () => <BidCalculator propertyId={p.id} defaults={defaultsFor(p)} openingBid={s?.minimumBid ?? null} />,
+    },
+    {
       key: 'how-to-buy',
       title: 'How to buy it',
       icon: <IconSteps />,
-      summary: `${plural(steps.length, 'step')}, from confirming the sale to recording the deed`,
+      summary: `${plural(steps.length, 'step')} and ${plural(checklist.items.length, 'item')} to have ready`,
       content: () => (
         <>
           <ol className="steps">
             {steps.map((st) => <li key={st}>{st}</li>)}
           </ol>
+          {playbook && <p><a href={`#/playbooks/${playbook.key}`}>Read the full Nevada playbook for this sale type →</a></p>}
+          <BuyerChecklistBox list={checklist} />
           <Disclaimer kind="sales" compact />
         </>
       ),
     },
     {
-      key: 'checklist',
-      title: checklist.forSale ? "What you'll need" : 'How to prepare',
-      icon: <IconCheckList />,
-      summary: `${plural(checklist.items.length, 'item')} to tick off before you ${checklist.forSale ? 'bid' : 'act'}`,
-      bare: true,
-      content: () => <BuyerChecklistBox list={checklist} />,
-    },
-    {
       key: 'due-diligence',
-      title: 'Due-diligence report',
+      title: 'Due diligence, step by step',
       icon: <IconShield />,
       tone: flags ? 'stop' : reviews ? 'wait' : 'go',
-      summary: [flags && plural(flags, 'flag'), reviews && `${reviews} to review`, `${count('ok')} OK`, `${count('manual')} to check yourself`].filter(Boolean).join(' · '),
-      content: () => (
-        <>
-          <p className="muted small">Automated screening only. It does not clear title, and a title company or attorney must make that call.</p>
-          <ul className="checks">
-            {report.map((c) => (
-              <li key={c.area} className={`check-${c.result}`}>
-                <span className="check-tag">{CHECK_LABEL[c.result]}</span>
-                <div>
-                  <strong>{c.area}</strong>
-                  <div className="small">{c.detail}</div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </>
-      ),
+      summary: `12 steps · ${[flags && plural(flags, 'flag'), reviews && `${reviews} to review`, `${count('manual')} to check yourself`].filter(Boolean).join(' · ')}`,
+      content: () => <DueDiligenceFunnel p={p} maxBidHref={`${baseHref}/max-bid`} />,
     },
+    ...(playbook
+      ? [
+          {
+            key: 'team',
+            title: 'Your team',
+            icon: <IconBadge />,
+            summary: `${plural(playbook.team.length, 'professional')} you need for this sale type`,
+            content: () => (
+              <>
+                <p className="muted">Who you need, and when, for a {playbook.short.toLowerCase().replace(/s$/, '')}. Line them up before you bid.</p>
+                <TeamList team={playbook.team} />
+              </>
+            ),
+          } satisfies DrillSection,
+        ]
+      : []),
     {
       key: 'record',
       title: 'Property record',
@@ -240,28 +264,12 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
           {p.sqft && <div><dt>Living area</dt><dd>{p.sqft.toLocaleString()} sq ft</dd></div>}
           {p.lotSqft > 0 && <div><dt>Lot</dt><dd>{p.lotSqft.toLocaleString()} sq ft</dd></div>}
           {p.yearBuilt && <div><dt>Year built</dt><dd>{p.yearBuilt}</dd></div>}
-          <div><dt>Assessed value</dt><dd>{fmtMoney(p.assessedValue)}</dd></div>
-          <div><dt>Last sale</dt><dd>{p.lastSale ? `${fmtMoney(p.lastSale.price)} on ${fmtDate(p.lastSale.date)}` : 'None on record'}</dd></div>
-          <div><dt>Occupancy</dt><dd>{p.occupancy}</dd></div>
+          <div><dt>Assessed value <span className="prov official">County Assessor</span></dt><dd>{fmtMoney(p.assessedValue)}</dd></div>
+          <div><dt>Estimated market value <span className="prov estimate">Estimate, not verified</span></dt><dd>{fmtMoney(p.estimatedMarketValue)}</dd></div>
+          <div><dt>Last sale <span className="prov official">County Recorder</span></dt><dd>{p.lastSale ? `${fmtMoney(p.lastSale.price)} on ${fmtDate(p.lastSale.date)}` : 'None on record'}</dd></div>
+          <div><dt>Occupancy <span className="prov estimate">Drive by to confirm</span></dt><dd>{p.occupancy}</dd></div>
           <div><dt>Record updated</dt><dd>{fmtDateTime(p.lastUpdated)}</dd></div>
         </dl>
-      ),
-    },
-    {
-      key: 'timeline',
-      title: 'Timeline',
-      icon: <IconClock />,
-      summary: lastEvent ? `${plural(p.events.length, 'event')} · latest ${fmtDate(lastEvent.date)}` : 'No recorded events',
-      content: () => (
-        <ol className="timeline">
-          {p.events.map((e, i) => (
-            <li key={i}>
-              <div className="small muted">{fmtDate(e.date)}</div>
-              <div>{e.description}</div>
-              <SourceTag source={e.source} />
-            </li>
-          ))}
-        </ol>
       ),
     },
   ];
@@ -274,7 +282,10 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
         top={
           <>
             <a href={open ? baseHref : '#/search'}>{open ? '← Property overview' : '← Back to results'}</a>
-            <button className="hero-btn" onClick={() => window.print()}>Print full report</button>
+            <span className="hero-actions">
+              <SaveDealButton p={p} />
+              <button className="hero-btn" onClick={() => window.print()}>Print full report</button>
+            </span>
           </>
         }
         eyebrow={
@@ -284,7 +295,17 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
           </>
         }
         title={open ? <a className="title-link" href={baseHref}>{p.address}</a> : p.address}
-        sub={`${p.city}, ${p.state} ${p.zip} · ${p.county} County · APN ${p.apn}`}
+        sub={
+          <>
+            {p.city}, {p.state} {p.zip} · {p.county} County · APN {p.apn}
+            {!open && (
+              <span className="hero-meta">
+                <span>You’d buy: <strong>{playbook ? playbook.youGet.split(',')[0].replace(/\.$/, '') : s ? SALE_TYPE_LABEL[s.saleType] : 'nothing yet (not for sale)'}</strong></span>
+                <span>Record checked {ago(p.lastUpdated)}</span>
+              </span>
+            )}
+          </>
+        }
         aside={
           s?.startsAt && !open ? (
             <div className="countdown">

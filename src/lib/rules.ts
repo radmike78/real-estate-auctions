@@ -131,7 +131,7 @@ export function moneySummary(p: Property): MoneySummary {
 // "What exactly is the buyer purchasing?"
 export const WHAT_YOU_BUY: Record<SaleType, string> = {
   TAX_DEED: "A tax deed from the County Treasurer. It is usually a quitclaim-style deed with no warranty of title, sold as-is, and the auction exists to recover delinquent taxes rather than to act as a traditional real-estate sale.",
-  TAX_LIEN_CERTIFICATE: 'The right to collect the delinquent tax debt plus interest. You do NOT get ownership; foreclosure may come later if the owner never redeems.',
+  TAX_LIEN_CERTIFICATE: 'A lien certificate: the right to be repaid plus interest, NOT ownership. Nevada sells property-tax delinquencies as deeds; Clark County sells lien certificates only for unpaid special improvement district (SID) assessments (NRS 271), at 1% a month. If the owner never redeems (120 days, or 2 years if there is a building), you can request a deed.',
   TRUSTEE_SALE: "A trustee's deed (non-judicial foreclosure under NRS 107). There is no warranty, and the property is sold as-is, often without an interior inspection.",
   JUDICIAL_FORECLOSURE: "A sheriff's certificate of sale followed by a deed. Nevada gives the owner a redemption right for up to 1 year after a judicial sale.",
   HOA_FORECLOSURE: "A deed from the HOA's foreclosure agent under NRS 116. Whether the first mortgage survives depends on notice and how much was foreclosed. This is heavily litigated in Nevada.",
