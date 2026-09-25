@@ -12,6 +12,7 @@ interface App {
   profile: ProProfile;
   verification: (LicenseVerification & { verifiedAt: string; verifiedBy: string }) | null;
   billing: Billing | null;
+  payments?: { available: boolean; amountLabel: string | null; status: string | null; active: boolean; cancelAtPeriodEnd: boolean; hasCard: boolean };
   listed: boolean;
   decisionReason: string | null;
   createdAt: string;
@@ -167,7 +168,15 @@ function BillingForm({ app, onSaved }: { app: App; onSaved: () => void }) {
   return (
     <section className="verify-panel">
       <h3>Advertising plan</h3>
-      <p className="small muted">Record payment here after you receive it. The profile is live only while it's verified and paid through today or later.</p>
+      {app.payments?.hasCard ? (
+        <p className="small">
+          <strong>Card payments:</strong> {app.payments.status ?? 'started, not completed'}
+          {app.payments.cancelAtPeriodEnd && ' · ends after the current period'}. The paid-through date updates automatically when Stripe confirms each payment.
+        </p>
+      ) : app.payments?.available ? (
+        <p className="small">The advertiser can pay online ({app.payments.amountLabel}) from their dashboard once approved.</p>
+      ) : null}
+      <p className="small muted">For payments received another way (check, invoice), record them here. The profile is live only while it's verified and paid through today or later.</p>
       <div className="form-grid">
         <label className="field"><span>Plan</span><input value={plan} onChange={(e) => setPlan(e.target.value)} /></label>
         <label className="field"><span>Paid through</span><input type="date" value={paidThrough} onChange={(e) => setPaidThrough(e.target.value)} /></label>

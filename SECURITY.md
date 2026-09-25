@@ -132,6 +132,15 @@ The main risk is a **fake professional profile**, for example a real agent's or 
   - Opening a sign-in link doesn't sign you in until you click a button, so nobody can sign you into their account by sending you their link.
   - Suspending an advertiser ends their sessions and cancels unused sign-in links immediately.
 
+## 5d-2. Online payments (Stripe)
+
+- **No card data here.** Advertisers pay on Stripe-hosted Checkout and manage billing on Stripe's portal, so card numbers never reach this server (the lightest PCI scope, SAQ A). No card data is stored; the database keeps only the Stripe customer ID, subscription ID and status.
+- **The server sets the price.** It's chosen from the advertiser's category (`STRIPE_PLANS`); anything the browser sends about price or plan is ignored. Only signed-in, approved and verified advertisers can start checkout, rate-limited to 10 attempts an hour, with the app header and same-origin checks against CSRF.
+- **Only a signed webhook grants time.** Listings are extended only by `invoice.paid` events verified with the webhook signing secret: HMAC-SHA256 over the exact raw body, a 5-minute timestamp window, and a constant-time compare, with secret rotation supported. Coming back from Checkout grants nothing. Each event ID is processed once, so replays and redeliveries have no effect. Events for customers that aren't ours are ignored. A failure releases the event, so Stripe retries it.
+- **Safe redirects.** The server and the browser both check that payment links go to `https://checkout.stripe.com/` or `https://billing.stripe.com/` before sending anyone there. API calls go only to `https://api.stripe.com`, follow no redirects, time out after 20 seconds, and use idempotency keys. Stripe errors are logged by type only, never with customer details.
+- **Keys.** `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are read from the environment and never logged or committed. A restricted key (`rk_...`) limited to Customers, Checkout Sessions and Billing Portal (write) is recommended. The server refuses to start with only some of the settings.
+- **Audit.** Checkout started or completed, payments received or failed, scheduled cancellations and ended subscriptions are all recorded in the audit trail.
+
 ## 5e. Running behind a reverse proxy
 
 Set `TRUST_PROXY=1` only when the server sits behind your own proxy that **appends** the client address to `X-Forwarded-For` (nginx `$proxy_add_x_forwarded_for`, most load balancers). The server uses the **last** entry, the one your proxy added; anything earlier was sent by the client and can be forged. Without `TRUST_PROXY`, the socket address is used.

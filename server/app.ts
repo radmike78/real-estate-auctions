@@ -24,7 +24,8 @@ import { CATEGORIES, isListable, REVERIFY_DAYS } from '../src/lib/pros';
 import { newToken, parseCookies, RateLimiter, SESSION_IDLE_MS, SESSION_MAX_MS, safeEqualStrings, sessionCookie, sha256, verifyPasswordAsync } from './auth';
 import { METRIC_KINDS, openDb, type ApplicationRow, type Db, type MetricKind } from './db';
 import { buildProsFeed, toPro, writeSignedJson } from './directory';
-import { confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, type Mailer } from './mailer';
+import { approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, paymentFailedEmail, type Mailer } from './mailer';
+import { CHECKOUT_URL_PREFIX, invoicePeriodEnd, invoiceSubscriptionId, PORTAL_URL_PREFIX, verifyWebhook, type StripeClient, type StripeEvent } from './stripe';
 import { BOT_UA, leadsToCsv, monthlyReportText, monthRange, pacificDay, pacificDaysToUtc, summarize, VisitorHasher } from './metrics';
 
 export interface AppConfig {
@@ -38,10 +39,16 @@ export interface AppConfig {
   mailer?: Mailer;
   secureCookies?: boolean;
   trustProxy?: boolean;
+  /** Online payments. Omit to take payments offline only (admin records billing by hand). */
+  stripe?: { client: StripeClient; webhookSecret: string } | null;
   now?: () => Date;
 }
 
 const JSON_LIMIT = 32 * 1024;
+const WEBHOOK_LIMIT = 256 * 1024;
+/** Days a card-paid listing stays up past the billing period end, so a renewal that's a few hours late doesn't drop it. */
+const PAYMENT_GRACE_DAYS = 3;
+const ACTIVE_SUB = new Set(['active', 'trialing', 'past_due', 'incomplete']);
 const ID_RE = /^[a-f0-9]{24}$/;
 const EMAIL_TOKEN_TTL_MS = 48 * 3_600_000;
 const LOGIN_TOKEN_TTL_MS = 15 * 60_000;
@@ -86,6 +93,7 @@ export function createApp(config: AppConfig) {
     proLinkEmail: new RateLimiter(3, 3_600_000),
     lead: new RateLimiter(5, 3_600_000),
     events: new RateLimiter(60, 60_000),
+    checkout: new RateLimiter(10, 3_600_000),
     eventsIp: new RateLimiter(120, 60_000),
   };
   const hasher = new VisitorHasher();
@@ -102,6 +110,17 @@ export function createApp(config: AppConfig) {
   function send(res: ServerResponse, status: number, body: unknown, headers: Record<string, string> = {}) {
     res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...headers });
     res.end(JSON.stringify(body));
+  }
+
+  async function readRaw(req: IncomingMessage, limit: number): Promise<Buffer> {
+    let size = 0;
+    const chunks: Buffer[] = [];
+    for await (const c of req) {
+      size += (c as Buffer).length;
+      if (size > limit) throw new HttpError(413, 'Request too large');
+      chunks.push(c as Buffer);
+    }
+    return Buffer.concat(chunks);
   }
 
   async function readJson(req: IncomingMessage): Promise<Record<string, unknown>> {
@@ -190,7 +209,70 @@ export function createApp(config: AppConfig) {
       daysSinceVerified: age,
       reverifyDueInDays: age === null ? null : REVERIFY_DAYS - age,
       listed: !!pro && isListable(pro, now()),
+      payments: paymentsView(a),
     };
+  }
+
+  /** What an advertiser (or admin) sees about online payment for a listing. */
+  function paymentsView(a: ApplicationRow) {
+    const plan = config.stripe?.client.planFor(a.profile.category) ?? null;
+    const acct = db.stripe.forPro(a.id);
+    return {
+      available: !!plan,
+      amountLabel: plan?.amountLabel ?? null,
+      status: acct?.status ?? null,
+      active: ACTIVE_SUB.has(acct?.status ?? ''),
+      cancelAtPeriodEnd: !!acct?.cancelAtPeriodEnd,
+      hasCard: !!acct,
+    };
+  }
+
+  /** Applies a verified Stripe event. Only a paid invoice extends a listing. */
+  async function handleStripeEvent(event: StripeEvent) {
+    const o = event.data.object;
+    const customer = typeof o.customer === 'string' ? o.customer : null;
+    const acct = customer ? db.stripe.byCustomer(customer) : undefined;
+    if (!acct) return; // not one of ours (or created outside this site): ignore
+    const at = now().toISOString();
+    const row = db.get(acct.proId);
+    if (!row) return;
+    const log = (action: string, detail: string | null) => db.audit({ at, actor: 'stripe', applicationId: row.id, action, detail });
+
+    switch (event.type) {
+      case 'checkout.session.completed':
+        if (typeof o.subscription === 'string') db.stripe.setSubscription(row.id, { subscriptionId: o.subscription }, at);
+        log('CHECKOUT_COMPLETED', null);
+        return;
+      case 'invoice.paid': {
+        const end = invoicePeriodEnd(o);
+        if (!end) return;
+        const paidThrough = pacificDay(new Date((end + PAYMENT_GRACE_DAYS * 86_400) * 1000));
+        const current = row.billing?.paidThrough ?? '';
+        const plan = config.stripe?.client.planFor(row.profile.category);
+        const billing = { plan: `Card · ${plan?.amountLabel ?? 'monthly'}`, paidThrough: paidThrough > current ? paidThrough : current };
+        db.update(row.id, { billing }, at);
+        db.stripe.setSubscription(row.id, { subscriptionId: invoiceSubscriptionId(o) ?? undefined, status: 'active' }, at);
+        const amount = typeof o.amount_paid === 'number' ? `${(o.amount_paid / 100).toFixed(2)} ${String(o.currency ?? '').toUpperCase()}` : '';
+        log('PAYMENT_RECEIVED', `${amount} · listed through ${billing.paidThrough}`.trim());
+        publish();
+        return;
+      }
+      case 'invoice.payment_failed':
+        db.stripe.setSubscription(row.id, { status: 'past_due' }, at);
+        log('PAYMENT_FAILED', null);
+        await mailer.send(paymentFailedEmail(row.profile.email, row.profile.name, `${base}/#/advertiser`));
+        return;
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated':
+        db.stripe.setSubscription(row.id, { subscriptionId: typeof o.id === 'string' ? o.id : undefined, status: typeof o.status === 'string' ? o.status : null, cancelAtPeriodEnd: o.cancel_at_period_end === true }, at);
+        if (event.type === 'customer.subscription.updated' && o.cancel_at_period_end === true) log('CANCEL_SCHEDULED', 'Plan ends at the end of the paid period');
+        return;
+      case 'customer.subscription.deleted':
+        // Already-paid time stays listed; it simply isn't extended.
+        db.stripe.setSubscription(row.id, { status: 'canceled', cancelAtPeriodEnd: false }, at);
+        log('SUBSCRIPTION_ENDED', null);
+        return;
+    }
   }
 
   function loadApp(id: string): ApplicationRow {
@@ -225,6 +307,26 @@ export function createApp(config: AppConfig) {
 
   async function handleApi(req: IncomingMessage, res: ServerResponse, path: string, url: URL) {
     const method = req.method ?? 'GET';
+
+    // ---------------- payments (called by Stripe's servers, authenticated by signature) ----------------
+    if (method === 'POST' && path === '/api/stripe/webhook') {
+      if (!config.stripe) throw new HttpError(404, 'Not found');
+      const raw = await readRaw(req, WEBHOOK_LIMIT);
+      let event: StripeEvent;
+      try {
+        event = verifyWebhook(raw, req.headers['stripe-signature'] as string | undefined, config.stripe.webhookSecret, Math.floor(now().getTime() / 1000));
+      } catch {
+        throw new HttpError(400, 'Invalid signature');
+      }
+      if (!db.stripe.claimEvent(event.id, event.type, now().toISOString())) return send(res, 200, { received: true, duplicate: true });
+      try {
+        await handleStripeEvent(event);
+      } catch (e) {
+        db.stripe.releaseEvent(event.id); // let Stripe retry
+        throw e;
+      }
+      return send(res, 200, { received: true });
+    }
 
     // ---------------- public ----------------
     if (method === 'POST' && path === '/api/applications') {
@@ -356,7 +458,40 @@ export function createApp(config: AppConfig) {
           verifiedAt: row.verification?.verifiedAt ?? null,
           reverifyDueInDays: row.verification ? REVERIFY_DAYS - (daysSince(row.verification.verifiedAt) ?? 0) : null,
           listed: !!pro && isListable(pro, now()),
+          payments: paymentsView(row),
         });
+      }
+      if (method === 'POST' && path === '/api/pro/checkout') {
+        const stripe = config.stripe;
+        const plan = stripe?.client.planFor(row.profile.category);
+        if (!stripe || !plan) throw new HttpError(409, 'Online payment is not available for your category yet. We will contact you about your plan.');
+        if (!row.verification) throw new HttpError(409, 'Your license must be verified before you can start advertising.');
+        if (!limiters.checkout.hit(row.id)) throw new HttpError(429, 'Too many attempts. Try again later.');
+        let acct = db.stripe.forPro(row.id);
+        if (acct && ACTIVE_SUB.has(acct.status ?? '')) throw new HttpError(409, 'You already have an active plan. Use "Manage billing" to change your card or cancel.');
+        if (!acct) {
+          const customer = await stripe.client.createCustomer({ proId: row.id, email: row.profile.email, name: row.profile.company || row.profile.name });
+          db.stripe.link(row.id, customer.id, now().toISOString());
+          acct = db.stripe.forPro(row.id)!;
+        }
+        const session = await stripe.client.createCheckoutSession({
+          proId: row.id,
+          customerId: acct.customerId,
+          priceId: plan.priceId,
+          successUrl: `${base}/#/advertiser?payment=done`,
+          cancelUrl: `${base}/#/advertiser?payment=cancelled`,
+          attempt: newToken().slice(0, 16),
+        });
+        if (typeof session.url !== 'string' || !session.url.startsWith(CHECKOUT_URL_PREFIX)) throw new HttpError(502, 'The payment page could not be opened. Try again.');
+        db.audit({ at: now().toISOString(), actor: 'advertiser', applicationId: row.id, action: 'CHECKOUT_STARTED', detail: plan.amountLabel });
+        return send(res, 200, { url: session.url });
+      }
+      if (method === 'POST' && path === '/api/pro/billing-portal') {
+        const acct = config.stripe && db.stripe.forPro(row.id);
+        if (!config.stripe || !acct) throw new HttpError(409, 'There is no card on file to manage.');
+        const portal = await config.stripe.client.createPortalSession({ customerId: acct.customerId, returnUrl: `${base}/#/advertiser` });
+        if (typeof portal.url !== 'string' || !portal.url.startsWith(PORTAL_URL_PREFIX)) throw new HttpError(502, 'The billing page could not be opened. Try again.');
+        return send(res, 200, { url: portal.url });
       }
       if (method === 'GET' && path === '/api/pro/metrics') {
         const { from, to } = dateRange(url);
@@ -462,6 +597,7 @@ export function createApp(config: AppConfig) {
       db.update(app.id, { status: 'APPROVED', verification: { ...verification, verifiedAt: today(), verifiedBy: admin.subject }, decisionReason: null }, now().toISOString());
       audit(app.id, wasApproved ? 'REVERIFIED' : 'APPROVED', `${info.regulator}: ${verification.licenseStatus}${verification.licenseExpires ? `, expires ${verification.licenseExpires}` : ''}. Identity: ${verification.identityMethod}`);
       publish();
+      if (!wasApproved) await mailer.send(approvedEmail(app.profile.email, app.profile.name, `${base}/#/advertiser`, !!config.stripe?.client.planFor(app.profile.category)));
       return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });
     }
 

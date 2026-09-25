@@ -125,6 +125,21 @@ export function openDb(path: string) {
       sent_at TEXT NOT NULL,
       PRIMARY KEY (pro_id, month)
     );
+    -- Online payments: one Stripe customer per advertiser. No card data is ever stored here.
+    CREATE TABLE IF NOT EXISTS stripe_accounts (
+      pro_id TEXT PRIMARY KEY,
+      customer_id TEXT NOT NULL UNIQUE,
+      subscription_id TEXT,
+      status TEXT,
+      cancel_at_period_end INTEGER NOT NULL DEFAULT 0,
+      updated_at TEXT NOT NULL
+    );
+    -- Stripe events already processed (webhooks can be delivered more than once).
+    CREATE TABLE IF NOT EXISTS stripe_events (
+      id TEXT PRIMARY KEY,
+      type TEXT NOT NULL,
+      received_at TEXT NOT NULL
+    );
   `);
 
   const toRow = (r: Record<string, unknown>): ApplicationRow => ({
@@ -283,8 +298,45 @@ export function openDb(path: string) {
         db.prepare('INSERT OR IGNORE INTO reports_sent (pro_id, month, sent_at) VALUES (?, ?, ?)').run(proId, month, at);
       },
     },
+    stripe: {
+      forPro(proId: string) {
+        return db.prepare('SELECT pro_id AS proId, customer_id AS customerId, subscription_id AS subscriptionId, status, cancel_at_period_end AS cancelAtPeriodEnd FROM stripe_accounts WHERE pro_id = ?').get(proId) as StripeAccount | undefined;
+      },
+      byCustomer(customerId: string) {
+        return db.prepare('SELECT pro_id AS proId, customer_id AS customerId, subscription_id AS subscriptionId, status, cancel_at_period_end AS cancelAtPeriodEnd FROM stripe_accounts WHERE customer_id = ?').get(customerId) as StripeAccount | undefined;
+      },
+      link(proId: string, customerId: string, at: string) {
+        db.prepare('INSERT INTO stripe_accounts (pro_id, customer_id, updated_at) VALUES (?, ?, ?) ON CONFLICT (pro_id) DO NOTHING').run(proId, customerId, at);
+      },
+      setSubscription(proId: string, fields: { subscriptionId?: string | null; status?: string | null; cancelAtPeriodEnd?: boolean }, at: string) {
+        const cur = api.stripe.forPro(proId);
+        if (!cur) return;
+        db.prepare('UPDATE stripe_accounts SET subscription_id = ?, status = ?, cancel_at_period_end = ?, updated_at = ? WHERE pro_id = ?').run(
+          fields.subscriptionId === undefined ? cur.subscriptionId : fields.subscriptionId,
+          fields.status === undefined ? cur.status : fields.status,
+          (fields.cancelAtPeriodEnd === undefined ? !!cur.cancelAtPeriodEnd : fields.cancelAtPeriodEnd) ? 1 : 0,
+          at,
+          proId,
+        );
+      },
+      /** Records an event ID; returns false if it was already processed. */
+      claimEvent(id: string, type: string, at: string): boolean {
+        return db.prepare('INSERT OR IGNORE INTO stripe_events (id, type, received_at) VALUES (?, ?, ?)').run(id, type, at).changes > 0;
+      },
+      releaseEvent(id: string) {
+        db.prepare('DELETE FROM stripe_events WHERE id = ?').run(id);
+      },
+    },
   };
   return api;
 }
 
 export type Db = ReturnType<typeof openDb>;
+
+export interface StripeAccount {
+  proId: string;
+  customerId: string;
+  subscriptionId: string | null;
+  status: string | null;
+  cancelAtPeriodEnd: number;
+}
