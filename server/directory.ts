@@ -1,52 +1,51 @@
-// Publishes the signed agent directory from approved applications.
+// Publishes the signed professional directory from approved, verified, paid advertisers.
 
 import { mkdirSync, renameSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { KeyObject } from 'node:crypto';
-import { isListable, type Agent } from '../src/lib/agents';
-import type { AgentsFeed } from '../src/feed/agentsFeed';
+import { isListable, type Pro } from '../src/lib/pros';
+import type { ProsFeed } from '../src/feed/prosFeed';
 import { signBytes } from '../ingest/lib/sign';
 import type { ApplicationRow } from './db';
 
 export const DIRECTORY_TTL_DAYS = 7;
 
-export function toAgent(row: ApplicationRow): Agent | null {
+export function toPro(row: ApplicationRow): Pro | null {
   const v = row.verification;
-  if (row.status !== 'APPROVED' || !v) return null;
+  if (row.status !== 'APPROVED' || !v || !row.billing) return null;
   const p = row.profile;
   return {
     id: row.id,
+    category: p.category,
     name: p.name,
-    brokerage: p.brokerage,
-    licenseNumber: p.licenseNumber,
-    licenseType: p.licenseType,
+    company: p.company,
+    licenseId: p.licenseId,
     licenseStatus: v.licenseStatus === 'Active' ? 'Active' : 'Inactive',
     licenseExpires: v.licenseExpires,
     licenseVerifiedAt: v.verifiedAt,
     licenseVerifiedBy: 'Forced-Sale Finder staff', // the individual admin is never published
+    paidThrough: row.billing.paidThrough,
     serviceCities: p.serviceCities,
     serviceZips: p.serviceZips,
-    specialties: p.specialties,
+    services: p.services,
+    creditProfiles: p.creditProfiles,
     languages: p.languages,
-    shortSaleExperience: p.shortSaleExperience,
+    headline: p.headline,
+    bio: p.bio,
     phone: p.phone,
     email: p.email,
     website: p.website,
-    bio: p.bio,
     isSample: false,
   };
 }
 
-export function buildAgentsFeed(rows: ApplicationRow[], now: Date): AgentsFeed {
-  const agents = rows
-    .map(toAgent)
-    .filter((a): a is Agent => !!a && isListable(a, now))
-    .sort((a, b) => a.name.localeCompare(b.name));
+export function buildProsFeed(rows: ApplicationRow[], now: Date): ProsFeed {
+  const pros = rows.map(toPro).filter((p): p is Pro => !!p && isListable(p, now));
   return {
     version: 1,
     generatedAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + DIRECTORY_TTL_DAYS * 86_400_000).toISOString(),
-    agents,
+    pros,
   };
 }
 

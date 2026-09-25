@@ -58,38 +58,44 @@ The first real connector reads the **Clark County Treasurer's delinquent-propert
 - **Removes parcels right away.** A parcel is withdrawn as soon as the Treasurer lines it out, it sells, or it drops off the list.
 - **Hides anything not re-checked recently.** If the county site is down or the service stops, listings disappear from the site instead of going stale.
 
-## Agent signup and approval (server)
+## Advertisers: signup, verification, billing (server)
 
-Agents apply at `#/agents/join`. An admin reviews applications at `#/admin`. The approved directory is published as a signed file that the browser verifies before showing anyone.
+Real estate agents, loan officers, mortgage companies, banks, credit unions, hard-money and private lenders, title and escrow companies, insurance agents and contractors can advertise. Each gets a dedicated profile page (`#/pros/:id`). Profiles appear in:
+- **Find an agent** (`#/agents`)
+- **Financing** (`#/financing`), filterable by loan type and credit situation
+- **Title, insurance & repairs** (`#/pros`)
 
-**Flow:**
-1. **Apply.** The agent fills in the form. The server re-checks every field with the same rules as the form:
-   - Nevada license number format, matching the license type
-   - Clark County cities and ZIPs
-   - a US phone number, a valid email, and an `https` website
-   - plain text only
+The advertiser landing page is `#/advertise`, the application form is `#/advertise/apply`, and the admin review is at `#/admin`.
 
-   Anti-spam: a hidden honeypot field, and at most 5 applications per network per hour.
-2. **Confirm email.** A single-use link, valid for 48 hours, proves the applicant controls the email address.
-3. **Admin verification.** The admin looks up the license on the NRED lookup. Then they **confirm identity through the brokerage, using contact details from NRED or the brokerage, never from the application**. Approval is blocked until all of these are recorded:
-   - the license shows Active
-   - the expiration date is in the future
-   - the name, license type and brokerage match
-   - identity was confirmed, with a note on how
-4. **Publish.** Approved agents are written to `public/data/agents.json`, signed with the feed key. The file expires after 7 days, and the server republishes every 6 hours. Agents not re-verified within 90 days drop off automatically.
-5. **Ongoing.** Admins can re-verify, suspend or reject. Everything is recorded in an audit trail. Two applications with the same license number or email are flagged as possible impersonation. A license can't be listed twice.
+**How a profile goes live** (the server enforces every step):
+1. **Apply.** One form for every category, with category-specific rules: license format, the services or loan types offered, and credit situations (lenders only). All text is plain text only. Anti-spam: a hidden honeypot field and 5 applications per network per hour.
+2. **Confirm email.** A single-use link, valid for 48 hours.
+3. **Verify.** An admin checks the license on the official lookup for that category:
+
+   | Category | Official lookup |
+   | --- | --- |
+   | Agents | NRED |
+   | Loan officers, mortgage companies, private lenders | NMLS Consumer Access |
+   | Banks | FDIC BankFind |
+   | Credit unions | NCUA |
+   | Title and insurance | Nevada Division of Insurance |
+   | Contractors | Nevada State Contractors Board |
+
+   The admin then **confirms identity through the company, using contact details from the regulator or the company, never from the application**. Approval is blocked until status, expiration (where licenses expire), name, type, company and identity are all recorded.
+4. **Bill.** The admin records the plan and a paid-through date after payment. A profile is live only while it is verified within the last 90 days **and** paid through today.
+5. **Publish.** Live profiles go into `public/data/pros.json`, an Ed25519-signed file that expires after 7 days and is republished hourly. The browser verifies it and re-checks every listing rule.
+
+**Fair placement.** Results are filtered by what the user needs, then shown in a daily rotating order that is the same for everyone. Payment never buys a higher position. The CFPB's 2023 RESPA advisory opinion says steering consumers based on payments violates RESPA section 8 for real estate and mortgage services. Every profile is labeled "Advertisement."
 
 **Run it:**
 ```bash
-npm run keys:generate                  # once: feed signing key (rebuild the site after)
+npm run keys:generate                  # once: signing key (rebuild the site after)
 npm run -s admin:hash-password         # type a 12+ character password; copy the output
 export ADMIN_USERNAME=you ADMIN_PASSWORD_HASH='scrypt$...'
-export BASE_URL=https://your-site.example   # used in confirmation emails
+export BASE_URL=https://your-site.example   # used in emails
 npm run build && npm run server        # serves the site and API on :8080
 ```
-During development, run `npm run server` and `npm run dev` together; the dev server forwards `/api` to the server.
-
-Confirmation emails are printed to the server log until you connect an email provider (`server/mailer.ts`). Data is stored in SQLite at `server/data/app.db`. Back it up.
+During development, run `npm run server` and `npm run dev` together; the dev server forwards `/api` to the server. Emails are printed to the server log until you connect an email provider (`server/mailer.ts`). Data is stored in SQLite at `server/data/app.db`. Back it up.
 
 ## Features
 
@@ -101,7 +107,11 @@ Confirmation emails are printed to the server log until you connect an email pro
 | Live tax sales (`#/live`) | Verified Clark County Treasurer listings (signed, expiring feed) |
 | Pre-foreclosures (`#/pre-foreclosures`) | Follows Nevada non-judicial foreclosures: default, then notice of sale (at least 3 months later, NRS 107.080), then auction, then outcome. Per-browser watchlist that flags stage changes. **Do-not-contact warning; no owner names or contact details are shown.** Sample data until a data-use agreement with the Clark County Recorder is in place. |
 | Short sales (`#/short-sales`) | What a short sale is, how to find one (through a licensed agent and the MLS), the steps, risks, and a comparison with auctions and bank-owned homes |
-| Find an agent (`#/agents`) | Partner agents, searchable by city, ZIP, specialty and language, with call and email contact. A profile is shown only while its Nevada license is active and was verified by a person on the official NRED lookup in the last 90 days. The NRED lookup blocks automated queries, so verification is manual. Sample profiles are fictional. |
+| Find an agent (`#/agents`) | Verified agents, searchable by city, ZIP, specialty and language |
+| Financing (`#/financing`) | Financing options explained, plus lenders filtered by type, loan product and credit situation. **We don't offer financing.** |
+| Title, insurance & repairs (`#/pros`) | Title and escrow, insurance, and licensed contractors |
+| Profiles (`#/pros/:id`) | Each advertiser's own page, with a verified-license card and a link to check it on the official lookup |
+| Advertise (`#/advertise`) | What advertisers get, who can advertise, how listing works, and the application |
 
 **Search and property pages**
 
@@ -134,8 +144,9 @@ Confirmation emails are printed to the server log until you connect an email pro
 | `ingest/` | Live connectors: source registry, secure fetch, Clark tax-sale parser, cadence, anomaly quarantine, feed signing |
 | `src/feed/` | Browser-side signature/expiry verification of the live feed |
 | `src/components/LivePage.tsx` | Verified live listings page |
-| `server/` | Agent signup/approval API (node:http + node:sqlite), admin auth, signed directory publishing |
-| `src/lib/agentApplication.ts` | Shared signup validation and approval rules |
+| `server/` | Advertiser API (node:http + node:sqlite): signup, admin approval and billing, leads, metrics, reports, signed directory |
+| `src/lib/pros.ts` | Professional categories, regulators, listing rules, neutral rotation |
+| `src/lib/proApplication.ts` | Shared signup validation and approval rules |
 
 ## Roadmap
 

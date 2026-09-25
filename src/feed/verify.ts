@@ -29,6 +29,14 @@ export async function checkSignature(data: ArrayBuffer, signatureB64: string, pu
   }
 }
 
+/**
+ * True when a fetched feed file really exists. Many static hosts answer a missing file with the
+ * site's index.html and HTTP 200, which must count as "not published", not as a bad signature.
+ */
+export function isFeedResponse(res: Response): boolean {
+  return res.ok && !/text\/html/i.test(res.headers.get('content-type') ?? '');
+}
+
 export function isOfficialUrl(raw: string): boolean {
   try {
     const u = new URL(raw);
@@ -95,6 +103,6 @@ export async function loadVerifiedFeed(publicKeySpkiB64: string | null): Promise
     fetch('data/listings.json', { cache: 'no-store' }),
     fetch('data/listings.json.sig', { cache: 'no-store' }),
   ]);
-  if (!data.ok || !sig.ok) return { ok: false, reason: 'MISSING', detail: 'No published listings feed was found.' };
+  if (!isFeedResponse(data) || !isFeedResponse(sig)) return { ok: false, reason: 'MISSING', detail: 'No published listings feed was found.' };
   return verifyFeed(await data.arrayBuffer(), await sig.text(), publicKeySpkiB64);
 }

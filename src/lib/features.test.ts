@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { Property, PropertyEvent } from '../types';
 import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
-import { SAMPLE_AGENTS } from '../data/sampleAgents';
+import { SAMPLE_PROS } from '../data/samplePros';
 import { addMonths, foreclosureTrack } from './foreclosure';
-import { isListable, safeMailto, safeTel, safeWebsite, searchAgents, verificationProblems, type Agent } from './agents';
+import { isListable, listingProblems, rotationKey, safeMailto, safeTel, safeWebsite, searchPros, type Pro, type ProQuery } from './pros';
 import { purchaseSteps } from './status';
 
 const src = { agency: 't', url: null, lastVerified: '2026-01-01T00:00:00Z', confidence: 'high' as const };
@@ -57,19 +57,24 @@ describe('pre-foreclosure tracker', () => {
   });
 });
 
-describe('agent directory', () => {
-  const good = SAMPLE_AGENTS[0];
-  const at = (a: Partial<Agent>) => ({ ...good, ...a });
+describe('professional directory', () => {
+  const good = SAMPLE_PROS[0];
+  const at = (p: Partial<Pro>) => ({ ...good, ...p });
+  const Q: ProQuery = { categories: [], location: '', service: 'any', creditProfile: 'any', language: 'any' };
 
-  it('lists only agents with an active, unexpired, recently verified license', () => {
-    expect(verificationProblems(good)).toEqual([]);
-    expect(verificationProblems(at({ licenseStatus: 'Revoked' }))).toContain('LICENSE_NOT_ACTIVE');
-    expect(verificationProblems(at({ licenseExpires: '2020-01-01' }))).toContain('LICENSE_EXPIRED');
-    expect(verificationProblems(at({ licenseVerifiedAt: '2020-01-01' }))).toContain('VERIFICATION_STALE');
-    expect(verificationProblems(at({ licenseVerifiedAt: '2999-01-01' }))).toContain('VERIFICATION_STALE'); // future-dated = invalid
-    const listed = SAMPLE_AGENTS.filter((a) => isListable(a)).map((a) => a.id);
-    expect(listed).not.toContain('a5'); // stale verification
-    expect(listed).not.toContain('a6'); // expired license
+  it('lists only verified, unexpired, paid professionals', () => {
+    expect(listingProblems(good)).toEqual([]);
+    expect(listingProblems(at({ licenseStatus: 'Revoked' }))).toContain('LICENSE_NOT_ACTIVE');
+    expect(listingProblems(at({ licenseExpires: '2020-01-01' }))).toContain('LICENSE_EXPIRED');
+    expect(listingProblems(at({ licenseVerifiedAt: '2020-01-01' }))).toContain('VERIFICATION_STALE');
+    expect(listingProblems(at({ licenseVerifiedAt: '2999-01-01' }))).toContain('VERIFICATION_STALE');
+    expect(listingProblems(at({ paidThrough: '2020-01-01' }))).toContain('NOT_PAID');
+    // Banks and credit unions have no expiring license.
+    const bank = SAMPLE_PROS.find((p) => p.category === 'bank')!;
+    expect(bank.licenseExpires).toBeNull();
+    expect(isListable(bank)).toBe(true);
+    const hidden = SAMPLE_PROS.filter((p) => !isListable(p)).map((p) => p.name);
+    expect(hidden).toEqual(['Casey Stale-Example', 'Drew Unpaid-Example']);
   });
 
   it('only allows safe contact links', () => {
@@ -80,16 +85,31 @@ describe('agent directory', () => {
     expect(safeWebsite('https://example.com/a')).toBe('https://example.com/a');
     expect(safeWebsite('javascript:alert(1)')).toBeNull();
     expect(safeWebsite('http://example.com')).toBeNull();
-    expect(verificationProblems(at({ website: 'javascript:alert(1)' }))).toContain('UNSAFE_CONTACT');
-    expect(verificationProblems(at({ phone: null, email: null }))).toContain('MISSING_CONTACT');
+    expect(listingProblems(at({ website: 'javascript:alert(1)' }))).toContain('UNSAFE_CONTACT');
+    expect(listingProblems(at({ phone: null, email: null }))).toContain('MISSING_CONTACT');
   });
 
-  it('searches by city, ZIP, specialty and language', () => {
-    const q = { location: '', specialty: 'any' as const, language: 'any' };
-    expect(searchAgents(SAMPLE_AGENTS, { ...q, location: 'Henderson, NV' }).map((a) => a.id)).toEqual(['a2', 'a4']);
-    expect(searchAgents(SAMPLE_AGENTS, { ...q, location: '89031' }).map((a) => a.id)).toEqual(['a1']);
-    expect(searchAgents(SAMPLE_AGENTS, { ...q, specialty: 'Short sales' }).every((a) => a.specialties.includes('Short sales'))).toBe(true);
-    expect(searchAgents(SAMPLE_AGENTS, { ...q, language: 'Spanish' }).map((a) => a.id)).toEqual(['a1', 'a4']);
+  it('filters by category, location, loan type and credit situation', () => {
+    const names = (q: Partial<ProQuery>) => searchPros(SAMPLE_PROS, { ...Q, ...q }).map((p) => p.name).sort();
+    expect(names({ categories: ['agent'], location: 'Henderson, NV' })).toEqual(['Jordan Sample', 'Riley Fixture']);
+    expect(names({ categories: ['agent'], location: '89031' })).toEqual(['Avery Example']);
+    expect(names({ categories: ['loan_officer', 'mortgage_company', 'bank', 'credit_union', 'private_lender'], service: 'Hard money', creditProfile: 'Rebuilding (below 620)' })).toEqual([
+      'Fixture Private Funding',
+      'Placeholder Bridge Capital',
+    ]);
+    expect(names({ categories: ['contractor'], service: 'Roofing' })).toEqual(['Example Roof & Solar']);
+  });
+
+  it('orders results neutrally: a daily rotation that ignores payment', () => {
+    const day1 = searchPros(SAMPLE_PROS, Q, new Date('2026-10-01T12:00:00Z')).map((p) => p.id);
+    const day1again = searchPros(SAMPLE_PROS, Q, new Date('2026-10-01T20:00:00Z')).map((p) => p.id);
+    const day2 = searchPros(SAMPLE_PROS, Q, new Date('2026-10-02T12:00:00Z')).map((p) => p.id);
+    expect(day1).toEqual(day1again); // same for everyone all day
+    expect(day1).not.toEqual(day2); // rotates daily
+    // Paying longer doesn't change position.
+    const richer = SAMPLE_PROS.map((p) => (p.id === day1[day1.length - 1] ? { ...p, paidThrough: '2099-12-31' } : p));
+    expect(searchPros(richer, Q, new Date('2026-10-01T12:00:00Z')).map((p) => p.id)).toEqual(day1);
+    expect(rotationKey('a', '2026-10-01')).not.toBe(rotationKey('a', '2026-10-02'));
   });
 });
 
@@ -101,5 +121,14 @@ describe('date display', () => {
     expect(pacificToIso(2026, 9, 5, 10)).toBe('2026-10-05T17:00:00.000Z'); // 10:00 PDT
     expect(pacificToIso(2026, 11, 5, 10)).toBe('2026-12-05T18:00:00.000Z'); // 10:00 PST
     expect(fmtDateTime('2026-10-05T17:00:00.000Z')).toMatch(/Oct 5, 2026, 10:00\sAM PDT/);
+  });
+});
+
+describe('feed loading on static hosts', () => {
+  it('treats an HTML fallback page as "not published", not as a tampered file', async () => {
+    const { isFeedResponse } = await import('../feed/verify');
+    expect(isFeedResponse(new Response('<!doctype html>', { status: 200, headers: { 'content-type': 'text/html' } }))).toBe(false);
+    expect(isFeedResponse(new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } }))).toBe(true);
+    expect(isFeedResponse(new Response('x', { status: 404 }))).toBe(false);
   });
 });

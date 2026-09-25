@@ -10,10 +10,11 @@ export class ApiError extends Error {
   }
 }
 
-export async function api<T = Record<string, unknown>>(path: string, opts: { body?: unknown; admin?: boolean } = {}): Promise<T> {
+/** `auth` marks a signed-in (admin or advertiser) write; the server requires this header on those. */
+export async function api<T = Record<string, unknown>>(path: string, opts: { body?: unknown; auth?: boolean } = {}): Promise<T> {
   const headers: Record<string, string> = {};
   if (opts.body !== undefined) headers['content-type'] = 'application/json';
-  if (opts.admin) headers['x-fsf-admin'] = '1';
+  if (opts.auth) headers['x-fsf-request'] = '1';
   let res: Response;
   try {
     res = await fetch(path, {

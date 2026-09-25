@@ -27,7 +27,7 @@ if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD_HASH?.startsWith('scrypt$')) {
 
 const keyFile = join(ROOT, 'ingest', '.keys', 'feed-signing.pem');
 const pem = env.FEED_SIGNING_KEY ?? (existsSync(keyFile) ? readFileSync(keyFile, 'utf8') : null);
-if (!pem) console.warn('No feed signing key: approvals are saved but the public agent directory is not published. Run `npm run keys:generate`.');
+if (!pem) console.warn('No feed signing key: approvals are saved but the public directory is not published. Run `npm run keys:generate`.');
 
 const app = createApp({
   dbPath: env.DB_PATH ?? join(ROOT, 'server', 'data', 'app.db'),
@@ -41,9 +41,11 @@ const app = createApp({
   trustProxy: env.TRUST_PROXY === '1',
 });
 
-// Republish regularly so the directory never expires and overdue re-verifications drop off.
-app.publish();
-setInterval(() => app.publish(), 6 * 3_600_000).unref();
+// Hourly housekeeping: republish the signed directory (so it never expires and overdue
+// re-verifications or lapsed payments drop off), purge old visitor hashes, sessions and leads,
+// and on the 1st of the month email each advertiser last month's report.
+app.maintain();
+setInterval(() => app.maintain(), 3_600_000).unref();
 
 createServer(app.handler).listen(port, env.HOST ?? '127.0.0.1', () => {
   console.log(`Forced-Sale Finder server on http://${env.HOST ?? '127.0.0.1'}:${port} (public URL ${baseUrl})`);

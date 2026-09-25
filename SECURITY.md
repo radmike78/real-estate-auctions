@@ -88,14 +88,14 @@ While a source is quarantined, **it publishes no listings**. An operator checks 
   Anything else hides the profile automatically (`src/lib/agents.ts`). Users get the official lookup link to check the license themselves.
 - **No solicitation of distressed owners.** The pre-foreclosure tracker and property pages never show owner names or contact details for homes that aren't for sale. Every pre-foreclosure view carries a do-not-contact warning referencing NRS Chapter 645F, and the purchase guidance tells users not to contact homeowners.
 
-## 5c. Agent signup and admin approval
+## 5c. Advertiser signup and admin approval
 
-The main risk is a **fake agent profile**, for example a real agent's license number paired with a scammer's phone number, used to phish buyers.
+The main risk is a **fake professional profile**, for example a real agent's or lender's license number paired with a scammer's phone number, used to phish buyers or steal loan deposits.
 
-- **Identity, not just license.** The license lookup proves a license exists, not that the applicant owns it. Approval requires confirming identity through the **brokerage, using contact details from NRED or the brokerage**. It never uses the phone number or email on the application. The server enforces every verification step (`approvalBlockers`).
+- **Identity, not just license.** The regulator lookup (NRED, NMLS, FDIC, NCUA, Division of Insurance or NSCB) proves a license exists, not that the applicant owns it. Approval requires confirming identity through the **company, using contact details from the regulator or the company**. It never uses the phone number or email on the application. The server enforces every verification step (`approvalBlockers`). Profiles are also hidden when advertising lapses.
 - **Impersonation signals.** Any other application using the same license number or email is flagged in the admin view. A license can't be approved twice.
 - **Email ownership.** A single-use token, valid for 48 hours. Only its SHA-256 hash is stored.
-- **Signed directory.** The public directory is Ed25519-signed and expires after 7 days. The browser verifies it and re-applies every listing rule to each agent. If a published directory fails verification, no profiles are shown; the site never falls back to other data.
+- **Signed directory.** `pros.json` is Ed25519-signed and expires after 7 days. The browser verifies it and re-applies every listing rule to each profile. If a published directory fails verification, no profiles are shown; the site never falls back to other data. An HTML fallback page from a static host counts as "not published," not as a valid or tampered file.
 - **Admin authentication.**
   - Password stored as scrypt only.
   - Session token in an `HttpOnly; SameSite=Strict` cookie. Only its hash is stored.

@@ -10,7 +10,6 @@ import { createHash, randomBytes, scryptSync, timingSafeEqual } from 'node:crypt
 const SCRYPT = { N: 1 << 15, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
 export const SESSION_MAX_MS = 8 * 3_600_000;
 export const SESSION_IDLE_MS = 3_600_000;
-export const COOKIE = 'fsf_admin';
 
 export function hashPassword(password: string): string {
   if (password.length < 12) throw new Error('Admin password must be at least 12 characters.');
@@ -74,6 +73,6 @@ export function parseCookies(header: string | undefined): Record<string, string>
   return out;
 }
 
-export function sessionCookie(token: string, secure: boolean, maxAgeSec = SESSION_MAX_MS / 1000): string {
-  return `${COOKIE}=${token}; Path=/api/admin; HttpOnly; SameSite=Strict; Max-Age=${maxAgeSec}${secure ? '; Secure' : ''}`;
+export function sessionCookie(name: string, token: string, path: string, secure: boolean, maxAgeSec = SESSION_MAX_MS / 1000): string {
+  return `${name}=${token}; Path=${path}; HttpOnly; SameSite=Strict; Max-Age=${maxAgeSec}${secure ? '; Secure' : ''}`;
 }

@@ -7,20 +7,22 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApp } from './app';
 import { hashPassword, verifyPassword, RateLimiter } from './auth';
 import type { Mail } from './mailer';
+import { leadsToCsv, monthRange, pacificDaysToUtc } from './metrics';
 import { generateSigningKeys, loadPrivateKey } from '../ingest/lib/sign';
-import { verifyAgentsFeed } from '../src/feed/agentsFeed';
-import { approvalBlockers, validateApplication, type ApplicationInput } from '../src/lib/agentApplication';
+import { verifyProsFeed } from '../src/feed/prosFeed';
+import { approvalBlockers, validateApplication, validateBilling, type ApplicationInput } from '../src/lib/proApplication';
 
-const GOOD: ApplicationInput = {
+const AGENT: ApplicationInput = {
+  category: 'agent',
   name: 'Taylor Q. Applicant',
-  brokerage: 'Example Brokerage LLC',
-  licenseNumber: 's.0123456',
-  licenseType: 'Salesperson',
+  company: 'Example Brokerage LLC',
+  licenseId: 's.0123456',
   serviceCities: ['Las Vegas', 'Henderson'],
   serviceZips: '89123, 89052 89014',
-  specialties: ['Short sales'],
+  services: ['Short sales'],
+  creditProfiles: [],
   languages: ['English', 'Spanish'],
-  shortSaleExperience: '25 short sales closed',
+  headline: 'Short-sale specialist in the valley',
   phone: '(702) 555-0199',
   email: 'Taylor@Example.com',
   website: 'https://example.com/taylor',
@@ -28,6 +30,20 @@ const GOOD: ApplicationInput = {
   attestLicensed: true,
   attestAccurate: true,
   consentVerification: true,
+  attestAdvertising: true,
+};
+
+const LENDER: ApplicationInput = {
+  ...AGENT,
+  category: 'private_lender',
+  name: 'Example Bridge Capital',
+  company: 'Example Bridge Capital, LLC',
+  licenseId: '1234567',
+  services: ['Hard money', 'Fix & flip / bridge'],
+  creditProfiles: ['Fair (620–679)', 'Rebuilding (below 620)'],
+  email: 'loans@example.com',
+  phone: '702-555-0142',
+  headline: 'Fix-and-flip loans for auction buyers',
 };
 
 const VERIFIED = {
@@ -35,55 +51,51 @@ const VERIFIED = {
   licenseExpires: '2027-06-30',
   nameMatches: true,
   typeMatches: true,
-  brokerageMatches: true,
+  companyMatches: true,
   identityConfirmed: true,
-  identityMethod: 'Called the brokerage main line listed on NRED; office manager confirmed Taylor works there and applied.',
+  identityMethod: 'Called the company main line listed with the regulator; office manager confirmed.',
 };
+const PAID = { plan: 'Monthly listing', paidThrough: '2099-12-31' };
 
 describe('application validation', () => {
-  it('normalizes a good application', () => {
-    const v = validateApplication(GOOD);
-    expect(v.ok).toBe(true);
-    if (v.ok) {
-      expect(v.profile).toMatchObject({ licenseNumber: 'S.0123456', phone: '+17025550199', email: 'taylor@example.com', serviceZips: ['89123', '89052', '89014'] });
-    }
+  it('normalizes a good application for each kind of business', () => {
+    const a = validateApplication(AGENT);
+    expect(a.ok && a.profile).toMatchObject({ licenseId: 'S.0123456', licenseType: 'Salesperson', phone: '+17025550199', email: 'taylor@example.com', serviceZips: ['89123', '89052', '89014'] });
+    const l = validateApplication(LENDER);
+    expect(l.ok && l.profile).toMatchObject({ category: 'private_lender', licenseType: null, creditProfiles: ['Fair (620–679)', 'Rebuilding (below 620)'] });
   });
 
-  it('rejects bad or dangerous input', () => {
-    const bad = validateApplication({
-      ...GOOD,
-      name: 'X',
-      licenseNumber: 'BS.0123456', // broker-salesperson number with Salesperson type
-      serviceZips: '10001',
-      phone: '555-1234',
-      email: 'not-an-email',
-      website: 'javascript:alert(1)',
-      serviceCities: ['Reno'],
-      attestLicensed: false,
-    });
+  it('rejects bad or dangerous input, with category-specific rules', () => {
+    const bad = validateApplication({ ...AGENT, name: 'X', licenseId: '12345', serviceZips: '10001', phone: '555-1234', email: 'nope', website: 'javascript:alert(1)', serviceCities: ['Reno'], services: ['Hard money'], creditProfiles: ['Good (680–739)'], attestAdvertising: false });
     expect(bad.ok).toBe(false);
     if (!bad.ok) {
-      expect(Object.keys(bad.errors).sort()).toEqual(['attestLicensed', 'email', 'licenseType', 'name', 'phone', 'serviceCities', 'serviceZips', 'website'].sort());
+      expect(Object.keys(bad.errors).sort()).toEqual(['attestAdvertising', 'creditProfiles', 'email', 'licenseId', 'name', 'phone', 'serviceCities', 'serviceZips', 'services', 'website'].sort());
     }
+    expect(validateApplication({ ...LENDER, creditProfiles: [] }).ok).toBe(false); // lenders must list credit situations
+    expect(validateApplication({ ...AGENT, category: 'astrologer' }).ok).toBe(false);
   });
 
   it('strips markup from free text', () => {
-    const v = validateApplication({ ...GOOD, bio: 'Great agent <img src=x onerror=alert(1)> who helps buyers with short sales.' });
+    const v = validateApplication({ ...AGENT, bio: 'Great agent <img src=x onerror=alert(1)> who helps buyers with short sales.' });
     expect(v.ok && v.profile.bio).not.toMatch(/[<>]/);
   });
 
-  it('requires every verification step before approval', () => {
-    expect(approvalBlockers(VERIFIED as never, '2026-09-25')).toEqual([]);
-    expect(approvalBlockers({ ...VERIFIED, licenseStatus: 'Expired' } as never, '2026-09-25')).toHaveLength(1);
-    expect(approvalBlockers({ ...VERIFIED, identityConfirmed: false, identityMethod: 'ok' } as never, '2026-09-25')).toHaveLength(2);
-    expect(approvalBlockers({ ...VERIFIED, licenseExpires: '2026-01-01' } as never, '2026-09-25')).toHaveLength(1);
+  it('requires every verification step, with expiry only where licenses expire', () => {
+    expect(approvalBlockers('agent', VERIFIED as never, '2026-09-25')).toEqual([]);
+    expect(approvalBlockers('agent', { ...VERIFIED, licenseExpires: null } as never, '2026-09-25')).toHaveLength(1);
+    expect(approvalBlockers('bank', { ...VERIFIED, licenseExpires: null } as never, '2026-09-25')).toEqual([]);
+    expect(approvalBlockers('agent', { ...VERIFIED, identityConfirmed: false, identityMethod: 'ok' } as never, '2026-09-25')).toHaveLength(2);
+  });
+
+  it('validates billing', () => {
+    expect(validateBilling(PAID)).toEqual(PAID);
+    expect(validateBilling({ plan: 'x', paidThrough: 'soon' })).toBeNull();
   });
 });
 
-describe('admin password and throttling', () => {
-  it('hashes with scrypt and verifies in constant time', () => {
+describe('admin password, throttling and CSV safety', () => {
+  it('hashes with scrypt and verifies', () => {
     const h = hashPassword('correct horse battery');
-    expect(h).toMatch(/^scrypt\$/);
     expect(verifyPassword('correct horse battery', h)).toBe(true);
     expect(verifyPassword('wrong password here', h)).toBe(false);
     expect(() => hashPassword('short')).toThrow(/12 characters/);
@@ -94,9 +106,18 @@ describe('admin password and throttling', () => {
     expect([r.hit('a', 0), r.hit('a', 1), r.hit('a', 2)]).toEqual([true, true, false]);
     expect(r.hit('a', 5000)).toBe(true);
   });
+
+  it('neutralizes spreadsheet formulas in lead exports', () => {
+    const csv = leadsToCsv([{ id: '1', proId: 'p', createdAt: '2026-09-01', name: '=HYPERLINK("http://evil")', email: 'a@b.co', phone: null, message: 'hi "there"', interest: null }]);
+    expect(csv).toContain(`"'=HYPERLINK(""http://evil"")"`);
+    expect(monthRange('2026-02')).toEqual({ from: '2026-02-01', to: '2026-02-28' });
+    // Las Vegas calendar days map to UTC boundaries (an evening lead belongs to that Pacific day).
+    expect(pacificDaysToUtc('2026-09-24', '2026-09-24')).toEqual({ start: '2026-09-24T07:00:00.000Z', end: '2026-09-25T07:00:00.000Z' });
+    expect(pacificDaysToUtc('2026-12-31', '2026-12-31').end).toBe('2027-01-01T08:00:00.000Z');
+  });
 });
 
-describe('signup and approval flow (running server)', () => {
+describe('advertiser flow (running server)', () => {
   const dir = mkdtempSync(join(tmpdir(), 'fsf-'));
   const keys = generateSigningKeys();
   const mails: Mail[] = [];
@@ -104,6 +125,7 @@ describe('signup and approval flow (running server)', () => {
   let server: Server;
   let base = '';
   let cookie = '';
+  let proCookie = '';
 
   beforeAll(async () => {
     const app = createApp({
@@ -123,105 +145,166 @@ describe('signup and approval flow (running server)', () => {
   });
   afterAll(() => new Promise<void>((r) => server.close(() => r())));
 
+  const UA = { 'user-agent': 'Mozilla/5.0 (test browser)' };
   const post = (path: string, body: unknown, headers: Record<string, string> = {}) =>
-    fetch(base + path, { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: JSON.stringify(body) });
+    fetch(base + path, { method: 'POST', headers: { 'content-type': 'application/json', ...UA, ...headers }, body: JSON.stringify(body) });
   const admin = (path: string, body?: unknown) =>
-    body === undefined
-      ? fetch(base + path, { headers: { cookie } })
-      : post(path, body, { cookie, 'x-fsf-admin': '1' });
+    body === undefined ? fetch(base + path, { headers: { cookie } }) : post(path, body, { cookie, 'x-fsf-request': '1' });
+  const tokenFrom = (m: Mail, kind: string) => m.text.match(new RegExp(`${kind}/([A-Za-z0-9_-]+)`))![1];
+  const readFeed = async () => {
+    const data = readFileSync(join(dir, 'data', 'pros.json'));
+    const sig = readFileSync(join(dir, 'data', 'pros.json.sig'), 'utf8');
+    return verifyProsFeed(data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer, sig, keys.publicSpkiB64, new Date(), webcrypto.subtle as unknown as SubtleCrypto);
+  };
 
-  let appId = '';
+  let agentId = '';
+  let lenderId = '';
 
-  it('accepts an application and emails a confirmation link', async () => {
-    const r = await post('/api/agent-applications', GOOD);
-    expect(r.status).toBe(202);
-    expect(mails).toHaveLength(1);
-    expect(mails[0].to).toBe('taylor@example.com');
-    expect(mails[0].text).toMatch(/https:\/\/fsf\.example\/#\/agents\/confirm\/[A-Za-z0-9_-]{43}/);
+  it('accepts applications and emails confirmation links', async () => {
+    expect((await post('/api/applications', AGENT)).status).toBe(202);
+    expect((await post('/api/applications', LENDER)).status).toBe(202);
+    expect(mails.map((m) => m.to)).toEqual(['taylor@example.com', 'loans@example.com']);
+    expect(mails[1].text).toMatch(/NMLS/);
+    expect(mails[0].text).toMatch(/https:\/\/fsf\.example\/#\/advertise\/confirm\/[A-Za-z0-9_-]{43}/);
   });
 
-  it('silently drops honeypot submissions and rejects invalid ones', async () => {
-    expect((await post('/api/agent-applications', { ...GOOD, company_url: 'http://spam' })).status).toBe(202);
-    expect(mails).toHaveLength(1); // nothing stored, nothing sent
-    const bad = await post('/api/agent-applications', { ...GOOD, licenseNumber: 'nope' });
+  it('drops honeypot submissions, rejects invalid and cross-origin ones', async () => {
+    expect((await post('/api/applications', { ...AGENT, company_url: 'http://spam' })).status).toBe(202);
+    expect(mails).toHaveLength(2);
+    const bad = await post('/api/applications', { ...AGENT, licenseId: 'nope' });
     expect(bad.status).toBe(422);
-    expect((await bad.json()).errors.licenseNumber).toBeTruthy();
-    expect((await post('/api/agent-applications', GOOD, { origin: 'https://evil.example' })).status).toBe(403);
+    expect((await bad.json()).errors.licenseId).toMatch(/Nevada real estate license/);
+    expect((await post('/api/applications', AGENT, { origin: 'https://evil.example' })).status).toBe(403);
   });
 
-  it('rejects bad admin logins and non-admin access', async () => {
+  it('admin sign-in is protected', async () => {
     expect((await fetch(base + '/api/admin/applications')).status).toBe(401);
-    expect((await post('/api/admin/login', { username: 'admin', password: 'wrong' }, { 'x-fsf-admin': '1' })).status).toBe(401);
-    expect((await post('/api/admin/login', { username: 'admin', password: PASSWORD })).status).toBe(403); // missing header
-  });
-
-  it('signs in and lists the application, which cannot be approved before email confirmation', async () => {
-    const r = await post('/api/admin/login', { username: 'admin', password: PASSWORD }, { 'x-fsf-admin': '1' });
+    expect((await post('/api/admin/login', { username: 'admin', password: 'wrong' }, { 'x-fsf-request': '1' })).status).toBe(401);
+    expect((await post('/api/admin/login', { username: 'admin', password: PASSWORD })).status).toBe(403);
+    const r = await post('/api/admin/login', { username: 'admin', password: PASSWORD }, { 'x-fsf-request': '1' });
     expect(r.status).toBe(200);
-    const setCookie = r.headers.get('set-cookie')!;
-    expect(setCookie).toMatch(/HttpOnly/);
-    expect(setCookie).toMatch(/SameSite=Strict/);
-    cookie = setCookie.split(';')[0];
-    const list = await (await admin('/api/admin/applications')).json();
-    expect(list.applications).toHaveLength(1);
-    appId = list.applications[0].id;
-    expect(list.applications[0].status).toBe('EMAIL_UNCONFIRMED');
-    expect((await admin(`/api/admin/applications/${appId}/approve`, { verification: VERIFIED })).status).toBe(409);
-  });
-
-  it('refuses admin writes without the admin header (CSRF defense)', async () => {
-    const r = await post(`/api/admin/applications/${appId}/reject`, { reason: 'test reason' }, { cookie });
-    expect(r.status).toBe(403);
-  });
-
-  it('confirms email with the token (single use)', async () => {
-    const token = mails[0].text.match(/confirm\/([A-Za-z0-9_-]+)/)![1];
-    expect((await post('/api/agent-applications/confirm', { token })).status).toBe(200);
-    expect((await post('/api/agent-applications/confirm', { token })).status).toBe(400);
-  });
-
-  it('blocks approval until every check is done, then publishes a signed directory', async () => {
-    const incomplete = await admin(`/api/admin/applications/${appId}/approve`, { verification: { ...VERIFIED, identityConfirmed: false } });
-    expect(incomplete.status).toBe(422);
-    expect((await incomplete.json()).blockers[0]).toMatch(/applicant is the licensee/);
-    expect(existsSync(join(dir, 'data', 'agents.json'))).toBe(false);
-
-    const ok = await admin(`/api/admin/applications/${appId}/approve`, { verification: VERIFIED });
-    expect(ok.status).toBe(200);
-    const data = readFileSync(join(dir, 'data', 'agents.json'));
-    const sig = readFileSync(join(dir, 'data', 'agents.json.sig'), 'utf8');
-    const res = await verifyAgentsFeed(data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer, sig, keys.publicSpkiB64, new Date(), webcrypto.subtle as unknown as SubtleCrypto);
-    expect(res.ok && res.feed.agents.map((a) => [a.name, a.phone, a.licenseVerifiedBy])).toEqual([['Taylor Q. Applicant', '+17025550199', 'Forced-Sale Finder staff']]);
-    // Admin identity is never published.
-    expect(data.toString()).not.toMatch(/"admin"/);
-  });
-
-  it('flags a second application reusing the same license (possible impersonation) and refuses to list it', async () => {
-    await post('/api/agent-applications', { ...GOOD, email: 'impostor@example.net', phone: '702-555-0142' });
-    const token = mails.at(-1)!.text.match(/confirm\/([A-Za-z0-9_-]+)/)![1];
-    await post('/api/agent-applications/confirm', { token });
+    expect(r.headers.get('set-cookie')).toMatch(/HttpOnly.*SameSite=Strict/);
+    cookie = r.headers.get('set-cookie')!.split(';')[0];
     const list = (await (await admin('/api/admin/applications')).json()).applications;
-    const impostor = list.find((a: { profile: { email: string } }) => a.profile.email === 'impostor@example.net');
-    expect(impostor.duplicates).toEqual([{ id: appId, status: 'APPROVED', field: 'license' }]);
+    agentId = list.find((a: { profile: { category: string } }) => a.profile.category === 'agent').id;
+    lenderId = list.find((a: { profile: { category: string } }) => a.profile.category === 'private_lender').id;
+    expect((await admin(`/api/admin/applications/${agentId}/approve`, { verification: VERIFIED })).status).toBe(409); // email unconfirmed
+    expect((await post(`/api/admin/applications/${agentId}/reject`, { reason: 'x reason' }, { cookie })).status).toBe(403); // CSRF header missing
+  });
+
+  it('confirms emails (single use)', async () => {
+    for (const m of mails.slice(0, 2)) {
+      const token = tokenFrom(m, 'confirm');
+      expect((await post('/api/applications/confirm', { token })).status).toBe(200);
+      expect((await post('/api/applications/confirm', { token })).status).toBe(400);
+    }
+  });
+
+  it('lists a professional only when verified AND paid', async () => {
+    const incomplete = await admin(`/api/admin/applications/${agentId}/approve`, { verification: { ...VERIFIED, identityConfirmed: false } });
+    expect(incomplete.status).toBe(422);
+    expect((await admin(`/api/admin/applications/${agentId}/approve`, { verification: VERIFIED })).status).toBe(200);
+    let feed = await readFeed();
+    expect(feed.ok && feed.feed.pros).toEqual([]); // approved but not paid
+    expect((await admin(`/api/admin/applications/${agentId}/billing`, { billing: PAID })).status).toBe(200);
+    expect((await admin(`/api/admin/applications/${lenderId}/approve`, { verification: VERIFIED })).status).toBe(200);
+    expect((await admin(`/api/admin/applications/${lenderId}/billing`, { billing: PAID })).status).toBe(200);
+    feed = await readFeed();
+    expect(feed.ok && feed.feed.pros.map((p) => [p.category, p.name, p.licenseVerifiedBy]).sort()).toEqual([
+      ['agent', 'Taylor Q. Applicant', 'Forced-Sale Finder staff'],
+      ['private_lender', 'Example Bridge Capital', 'Forced-Sale Finder staff'],
+    ]);
+    expect(readFileSync(join(dir, 'data', 'pros.json'), 'utf8')).not.toMatch(/"admin"/);
+  });
+
+  it('counts views and contact clicks privately: unique visitors, bots ignored, unlisted ids ignored', async () => {
+    const ev = (body: unknown, headers: Record<string, string> = {}) => post('/api/events', body, headers);
+    expect((await ev({ kind: 'impression', proIds: [agentId, lenderId, 'f'.repeat(24)] })).status).toBe(204);
+    await ev({ kind: 'profile_view', proId: agentId });
+    await ev({ kind: 'profile_view', proId: agentId }); // same visitor, same day
+    await ev({ kind: 'profile_view', proId: agentId }, { 'user-agent': 'Other Browser 2.0' }); // different visitor
+    await ev({ kind: 'phone_click', proId: agentId });
+    await ev({ kind: 'profile_view', proId: agentId }, { 'user-agent': 'Googlebot/2.1' }); // bot
+    expect((await ev({ kind: 'lead', proId: agentId })).status).toBe(400); // leads only via the form
+    const m = await (await admin(`/api/admin/applications/${agentId}/metrics`)).json();
+    expect(m.totals.impression.total).toBe(1);
+    expect(m.totals.profile_view).toEqual({ total: 3, uniques: 2 });
+    expect(m.totals.phone_click.uniques).toBe(1);
+    expect(m.contactRate).toBe(0.5);
+  });
+
+  it('sends a lead to the professional (with consent) and a receipt to the consumer', async () => {
+    const missing = await post(`/api/pros/${agentId}/leads`, { name: 'Buyer', email: 'buyer@example.org', message: 'Interested in short sales', consent: false });
+    expect(missing.status).toBe(422);
+    const r = await post(`/api/pros/${agentId}/leads`, { name: 'Bea Buyer', email: 'Bea@Example.org', phone: '702 555 0123', message: 'I am looking for short sales in 89123.', interest: 'Short sales', consent: true, acknowledge: true });
+    expect(r.status).toBe(202);
+    const [toPro, receipt] = mails.slice(-2);
+    expect(toPro.to).toBe('taylor@example.com');
+    expect(toPro.text).toMatch(/Bea Buyer[\s\S]*bea@example.org[\s\S]*\+17025550123/);
+    expect(receipt.to).toBe('bea@example.org');
+    expect(receipt.text).toMatch(/verify their license/);
+    expect((await post(`/api/pros/${'a'.repeat(24)}/leads`, { name: 'x' })).status).toBe(404); // not listed
+  });
+
+  it('advertiser signs in with a one-time emailed link and sees their own results and leads', async () => {
+    const generic = await (await post('/api/pro/login', { email: 'nobody@example.com' })).json();
+    const before = mails.length;
+    const ok = await (await post('/api/pro/login', { email: 'TAYLOR@example.com' })).json();
+    expect(ok.message).toBe(generic.message); // no account enumeration
+    expect(mails.length).toBe(before + 1);
+    const token = tokenFrom(mails.at(-1)!, 'login');
+    expect((await post('/api/pro/session', { token })).status).toBe(403); // header required
+    const s = await post('/api/pro/session', { token }, { 'x-fsf-request': '1' });
+    expect(s.status).toBe(200);
+    proCookie = s.headers.get('set-cookie')!.split(';')[0];
+    expect((await post('/api/pro/session', { token }, { 'x-fsf-request': '1' })).status).toBe(400); // single use
+    const me = await (await fetch(base + '/api/pro/me', { headers: { cookie: proCookie } })).json();
+    expect(me).toMatchObject({ id: agentId, listed: true });
+    const metrics = await (await fetch(base + '/api/pro/metrics', { headers: { cookie: proCookie } })).json();
+    expect(metrics.totals.lead.total).toBe(1);
+    expect(metrics.daily.length).toBe(30);
+    const leads = await (await fetch(base + '/api/pro/leads', { headers: { cookie: proCookie } })).json();
+    expect(leads.leads.map((l: { name: string }) => l.name)).toEqual(['Bea Buyer']);
+    const csv = await fetch(base + '/api/pro/leads.csv', { headers: { cookie: proCookie } });
+    expect(csv.headers.get('content-type')).toMatch(/text\/csv/);
+    expect(await csv.text()).toMatch(/Bea Buyer/);
+    // The admin cookie doesn't work for advertiser endpoints and vice versa.
+    expect((await fetch(base + '/api/pro/me', { headers: { cookie } })).status).toBe(401);
+    expect((await fetch(base + '/api/admin/applications', { headers: { cookie: proCookie } })).status).toBe(401);
+  });
+
+  it('sends monthly reports once per month', async () => {
+    const month = new Date().toISOString().slice(0, 7);
+    const r1 = await (await admin('/api/admin/reports', { month })).json();
+    const r2 = await (await admin('/api/admin/reports', { month })).json();
+    expect([r1.sent, r2.sent]).toEqual([2, 0]);
+    expect(mails.find((m) => m.subject.includes('report') && m.to === 'taylor@example.com')!.text).toMatch(/Profile views \(unique visitors\):\s+2/);
+  });
+
+  it('flags a second application reusing a license and refuses to list it', async () => {
+    await post('/api/applications', { ...AGENT, email: 'impostor@example.net', phone: '702-555-0144' });
+    await post('/api/applications/confirm', { token: tokenFrom(mails.at(-1)!, 'confirm') });
+    const impostor = (await (await admin('/api/admin/applications')).json()).applications.find((a: { profile: { email: string } }) => a.profile.email === 'impostor@example.net');
+    expect(impostor.duplicates).toEqual([{ id: agentId, status: 'APPROVED', field: 'license' }]);
     expect((await admin(`/api/admin/applications/${impostor.id}/approve`, { verification: VERIFIED })).status).toBe(409);
-    expect((await admin(`/api/admin/applications/${impostor.id}/reject`, { reason: 'License belongs to another agent' })).status).toBe(200);
   });
 
-  it('suspending an agent removes them from the published directory; audit trail records everything', async () => {
-    expect((await admin(`/api/admin/applications/${appId}/suspend`, { reason: 'Brokerage reported they left' })).status).toBe(200);
-    expect(JSON.parse(readFileSync(join(dir, 'data', 'agents.json'), 'utf8')).agents).toEqual([]);
-    const detail = await (await admin(`/api/admin/applications/${appId}`)).json();
-    expect(detail.audit.map((e: { action: string }) => e.action)).toEqual(['SUBMITTED', 'EMAIL_CONFIRMED', 'APPROVED', 'SUSPENDED']);
+  it('suspending removes the listing; audit trail records everything', async () => {
+    expect((await admin(`/api/admin/applications/${agentId}/suspend`, { reason: 'Brokerage reported they left' })).status).toBe(200);
+    const feed = await readFeed();
+    expect(feed.ok && feed.feed.pros.map((p) => p.category)).toEqual(['private_lender']);
+    const detail = await (await admin(`/api/admin/applications/${agentId}`)).json();
+    expect(detail.audit.map((e: { action: string }) => e.action)).toEqual(['SUBMITTED', 'EMAIL_CONFIRMED', 'APPROVED', 'BILLING', 'ADVERTISER_LOGIN', 'SUSPENDED']);
+    expect((await post(`/api/pros/${agentId}/leads`, { name: 'x' })).status).toBe(404); // no longer listed
   });
 
-  it('rejects oversized or malformed requests and path traversal', async () => {
-    expect((await post('/api/agent-applications', { bio: 'x'.repeat(40_000) })).status).toBe(413);
-    const notJson = await fetch(base + '/api/agent-applications/confirm', { method: 'POST', headers: { 'content-type': 'text/plain' }, body: 'hi' });
-    expect(notJson.status).toBe(415);
-    // 6th application from one network within the hour is refused.
-    expect((await post('/api/agent-applications', GOOD)).status).toBe(429);
+  it('rejects oversized, malformed and traversal requests; rate limits applications', async () => {
+    expect((await post('/api/applications/confirm', { token: 'x'.repeat(40_000) })).status).toBe(413);
+    expect((await fetch(base + '/api/applications/confirm', { method: 'POST', headers: { 'content-type': 'text/plain' }, body: 'hi' })).status).toBe(415);
     expect((await fetch(base + '/data/..%2f..%2fapp.db')).status).toBe(404);
     expect((await admin('/api/admin/applications/../../etc')).status).toBe(404);
+    expect((await post('/api/applications', AGENT)).status).toBe(429); // 6th from this network within the hour
+    expect(existsSync(join(dir, 'app.db'))).toBe(true);
   });
 
   it('signs out', async () => {

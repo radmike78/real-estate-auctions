@@ -10,9 +10,14 @@ import LivePage from './components/LivePage';
 import PreForeclosurePage from './components/PreForeclosurePage';
 import ShortSalesPage from './components/ShortSalesPage';
 import AgentsPage from './components/AgentsPage';
-import AgentSignupPage from './components/AgentSignupPage';
-import AgentConfirmPage from './components/AgentConfirmPage';
 import AdminPage from './components/AdminPage';
+import AdvertisePage from './components/AdvertisePage';
+import AdvertiseApplyPage from './components/AdvertiseApplyPage';
+import ApplicationConfirmPage from './components/ApplicationConfirmPage';
+import FinancingPage from './components/FinancingPage';
+import ProsPage from './components/ProsPage';
+import ProProfilePage from './components/ProProfilePage';
+import { CATEGORIES, type Category } from './lib/pros';
 
 type Route =
   | { page: 'search' }
@@ -22,8 +27,12 @@ type Route =
   | { page: 'preforeclosures' }
   | { page: 'shortsales' }
   | { page: 'agents'; shortSales: boolean }
-  | { page: 'agentJoin' }
-  | { page: 'agentConfirm'; token: string }
+  | { page: 'financing' }
+  | { page: 'pros' }
+  | { page: 'pro'; id: string }
+  | { page: 'advertise' }
+  | { page: 'apply'; category: Category | null }
+  | { page: 'applicationConfirm'; token: string }
   | { page: 'admin' };
 
 function parseHash(): Route {
@@ -35,9 +44,15 @@ function parseHash(): Route {
   if (h === 'pre-foreclosures') return { page: 'preforeclosures' };
   if (h === 'short-sales') return { page: 'shortsales' };
   if (h === 'agents' || h === 'agents/short-sales') return { page: 'agents', shortSales: h.endsWith('short-sales') };
-  if (h === 'agents/join') return { page: 'agentJoin' };
-  const confirm = h.match(/^agents\/confirm(?:\/([A-Za-z0-9_-]+))?$/);
-  if (confirm) return { page: 'agentConfirm', token: confirm[1] ?? '' };
+  if (h === 'financing') return { page: 'financing' };
+  if (h === 'pros') return { page: 'pros' };
+  const pro = h.match(/^pros\/([A-Za-z0-9]{1,64})$/);
+  if (pro) return { page: 'pro', id: pro[1] };
+  if (h === 'advertise') return { page: 'advertise' };
+  const apply = h.match(/^(?:advertise\/apply(?:\/([a-z_]+))?|agents\/join)$/);
+  if (apply) return { page: 'apply', category: h === 'agents/join' ? 'agent' : apply[1] && apply[1] in CATEGORIES ? (apply[1] as Category) : null };
+  const confirm = h.match(/^advertise\/confirm(?:\/([A-Za-z0-9_-]+))?$/);
+  if (confirm) return { page: 'applicationConfirm', token: confirm[1] ?? '' };
   if (h === 'admin') return { page: 'admin' };
   return { page: 'search' };
 }
@@ -88,6 +103,9 @@ export default function App() {
           <a href="#/pre-foreclosures">Pre-foreclosures</a>
           <a href="#/short-sales">Short sales</a>
           <a href="#/agents">Find an agent</a>
+          <a href="#/financing">Financing</a>
+          <a href="#/pros">Title, insurance & repairs</a>
+          <a href="#/advertise">Advertise</a>
           <a href="#/about">How it works</a>
         </nav>
       </header>
@@ -104,10 +122,14 @@ export default function App() {
       {route.page === 'live' && <LivePage />}
       {route.page === 'preforeclosures' && <PreForeclosurePage />}
       {route.page === 'shortsales' && <ShortSalesPage />}
-      {route.page === 'agentJoin' && <AgentSignupPage />}
-      {route.page === 'agentConfirm' && <AgentConfirmPage token={route.token} />}
+      {route.page === 'financing' && <FinancingPage />}
+      {route.page === 'pros' && <ProsPage />}
+      {route.page === 'pro' && <ProProfilePage id={route.id} />}
+      {route.page === 'advertise' && <AdvertisePage />}
+      {route.page === 'apply' && <AdvertiseApplyPage key={route.category ?? ''} initialCategory={route.category} />}
+      {route.page === 'applicationConfirm' && <ApplicationConfirmPage token={route.token} />}
       {route.page === 'admin' && <AdminPage />}
-      {route.page === 'agents' && <AgentsPage key={String(route.shortSales)} initialSpecialty={route.shortSales ? 'Short sales' : 'any'} />}
+      {route.page === 'agents' && <AgentsPage shortSales={route.shortSales} />}
       {route.page === 'search' && (
         <main className="search-layout">
           <FiltersPanel filters={filters} onChange={update} onReset={() => { setFilters(DEFAULT_FILTERS); setLocationInput(''); }} />
