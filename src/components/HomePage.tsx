@@ -1,26 +1,24 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { SALE_SEARCH, saleSearchHref } from '../lib/saleSearch';
-import { CHECKLISTS } from '../lib/buyerChecklists';
-import BuyerChecklistBox from './BuyerChecklistBox';
-import { Tile, type Tone } from './DrillDown';
-import { IconBadge, IconBank, IconFile, IconHelp, IconHome, IconLock, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
+import { IconBank, IconCalendar, IconClock, IconFile, IconFlag, IconHome, IconLayers, IconLock, IconPulse, IconSearch, IconShield } from './Icons';
 
-const HELP: { href: string; icon: ReactNode; label: string }[] = [
-  { href: '#/agents', icon: <IconBadge />, label: 'Find an agent' },
-  { href: '#/financing', icon: <IconBank />, label: 'Financing' },
-  { href: '#/pros', icon: <IconTools />, label: 'Title, insurance & repairs' },
-];
-
-const LEARN: { href: string; icon: ReactNode; title: string; summary: string; tone?: Tone }[] = [
-  { href: '#/live', icon: <IconShield />, title: 'Verified live tax sales', summary: 'Straight from the Clark County Treasurer, checked and signed', tone: 'go' },
-  { href: '#/about', icon: <IconHelp />, title: 'How it works', summary: 'Liens vs. forced sales, status labels and the types of sale' },
-  { href: '#/disclaimer', icon: <IconFile />, title: 'Our role & your responsibility', summary: "We're not the seller or the lender. Always verify for yourself" },
-];
+// A deliberately simple homepage: say what the site is for, one search, and one tile per type of
+// sale. Details (checklists, rules, listings) live one click down, on the page each tile opens.
+const ICONS: Record<string, ReactNode> = {
+  tax: <IconFile />,
+  foreclosure: <IconCalendar />,
+  pre: <IconClock />,
+  short: <IconHome />,
+  reo: <IconBank />,
+  hoa: <IconLayers />,
+  sheriff: <IconFlag />,
+  liens: <IconShield />,
+};
+const NOT_FOR_SALE = new Set(['pre', 'liens']);
 
 export default function HomePage() {
   const [type, setType] = useState('all');
   const [q, setQ] = useState('');
-  const selected = SALE_SEARCH.find((o) => o.key === type)!;
 
   function go(e: FormEvent) {
     e.preventDefault();
@@ -29,7 +27,7 @@ export default function HomePage() {
 
   return (
     <main className="home">
-      <section className="hero hero-band">
+      <section className="hero simple-hero">
         <div className="hero-grid" aria-hidden />
         <div className="hero-glow" aria-hidden />
         <div className="hero-inner">
@@ -37,70 +35,37 @@ export default function HomePage() {
           <h1>
             Foreclosures, tax&nbsp;sales <span className="grad">&amp; short&nbsp;sales.</span>
           </h1>
-          <p className="hero-sub">Properties heading to a forced sale, what you'd really be buying, and how to buy them.</p>
+          <p className="hero-sub">Find properties heading to a forced sale, and learn exactly how to buy them.</p>
+
+          <form className="simple-search" onSubmit={go} role="search" aria-label="Search forced-sale properties">
+            <select aria-label="Type of sale" value={type} onChange={(e) => setType(e.target.value)}>
+              {SALE_SEARCH.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
+            </select>
+            <span className="search-icon" aria-hidden><IconSearch /></span>
+            <input aria-label="City, ZIP or address" placeholder="City, ZIP or address" value={q} onChange={(e) => setQ(e.target.value)} />
+            <button type="submit">Search</button>
+          </form>
         </div>
       </section>
 
-      <div className="home-app">
-        <aside className="home-side" aria-label="Browse">
-          <div className="side-group">
-            <h2 className="side-heading"><IconHome /> Find property</h2>
-            <div className="side-tabs" role="tablist" aria-orientation="vertical" aria-label="Type of sale">
-              {SALE_SEARCH.map((o) => (
-                <button
-                  key={o.key}
-                  role="tab"
-                  aria-selected={type === o.key}
-                  aria-controls="home-panel"
-                  className={`side-tab${o.key === 'liens' || o.key === 'pre' ? ' not-sale' : ''}`}
-                  onClick={() => setType(o.key)}
-                >
-                  {o.label}
-                  {(o.key === 'pre' || o.key === 'liens') && <span className="side-note">not for sale yet</span>}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="side-group">
-            <h2 className="side-heading">Help to buy</h2>
-            <nav className="side-links" aria-label="Help to buy">
-              {HELP.map((h) => (
-                <a key={h.href} href={h.href} className="side-link">
-                  <span className="side-link-icon">{h.icon}</span>
-                  {h.label}
-                  <span className="side-arrow" aria-hidden>→</span>
-                </a>
-              ))}
-            </nav>
-          </div>
-
-          <ul className="side-trust" aria-label="Why trust it">
-            <li><IconShield /> Official .gov sources</li>
-            <li><IconPulse /> Stale listings vanish</li>
-            <li><IconLock /> Tamper-proof data</li>
-          </ul>
-        </aside>
-
-        <section className="home-main" id="home-panel" role="tabpanel" aria-label={selected.label}>
-          <div className="home-main-head">
-            <h2>{selected.label}</h2>
-            <p>{selected.hint}</p>
-          </div>
-          <form className="search-row big" onSubmit={go} role="search" aria-label={`Search ${selected.label}`}>
-            <span className="search-icon" aria-hidden><IconSearch /></span>
-            <input aria-label="City, ZIP or address" placeholder="City, ZIP or address (optional)" value={q} onChange={(e) => setQ(e.target.value)} />
-            <button type="submit">{selected.route ? 'Open' : 'Search'}</button>
-          </form>
-          <BuyerChecklistBox list={CHECKLISTS[type] ?? CHECKLISTS.all} variant="wide" />
-          <section className="home-learn" aria-labelledby="home-learn-head">
-            <h2 id="home-learn-head">Learn before you buy</h2>
-            <div className="drill-tiles">
-              {LEARN.map((l) => <Tile key={l.href} {...l} />)}
-            </div>
-          </section>
-        </section>
-      </div>
+      <section className="browse" aria-labelledby="browse-head">
+        <h2 id="browse-head">Browse by type of sale</h2>
+        <div className="browse-grid">
+          {SALE_SEARCH.filter((o) => o.key !== 'all').map((o) => (
+            <a key={o.key} href={saleSearchHref(o.key, '')} className={`browse-tile${NOT_FOR_SALE.has(o.key) ? ' wait' : ''}`}>
+              <span className="browse-icon" aria-hidden>{ICONS[o.key]}</span>
+              <span className="browse-title">{o.label}</span>
+              {NOT_FOR_SALE.has(o.key) && <span className="browse-tag">Not for sale yet</span>}
+              <span className="browse-arrow" aria-hidden>→</span>
+            </a>
+          ))}
+        </div>
+        <ul className="browse-trust" aria-label="Why trust it">
+          <li><IconShield /> Official .gov sources</li>
+          <li><IconPulse /> Stale listings removed automatically</li>
+          <li><IconLock /> Tamper-proof, signed data</li>
+        </ul>
+      </section>
     </main>
   );
 }
