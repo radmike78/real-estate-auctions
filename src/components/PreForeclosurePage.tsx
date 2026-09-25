@@ -4,6 +4,8 @@ import { foreclosureTrack, PIPELINE, STAGE_INFO, type ForeclosureStage, type For
 import { fmtDate, fmtDateTime } from '../lib/status';
 import type { Property } from '../types';
 import Disclaimer from './Disclaimer';
+import BuyerChecklistBox from './BuyerChecklistBox';
+import { CHECKLISTS } from '../lib/buyerChecklists';
 
 const WATCH_KEY = 'fsf.preforeclosure.watch.v1';
 
@@ -106,6 +108,8 @@ export default function PreForeclosurePage({ initialQuery = '' }: { initialQuery
           <li><strong>Auction</strong><span>Held, postponed or cancelled. A sale becomes an auction listing on this site.</span></li>
         </ol>
       </section>
+
+      <BuyerChecklistBox list={CHECKLISTS.pre} />
 
       {changed.length > 0 && (
         <div className="notice" role="status">

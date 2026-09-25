@@ -6,6 +6,8 @@ import FiltersPanel from './FiltersPanel';
 import ResultsList from './ResultsList';
 import MapView from './MapView';
 import Disclaimer from './Disclaimer';
+import BuyerChecklistBox from './BuyerChecklistBox';
+import { checklistForFilters } from '../lib/buyerChecklists';
 
 interface Props {
   initialLocation?: string;
@@ -62,6 +64,7 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
               </div>
             </div>
           </div>
+          {(filters.saleTypes.length > 0 || filters.statuses.length > 0) && <BuyerChecklistBox list={checklistForFilters(filters.saleTypes, filters.statuses)} />}
           {view === 'map' ? <MapView properties={results} onSearchArea={(bounds) => update({ bounds })} /> : <ResultsList properties={results} />}
           <Disclaimer kind="sales" compact />
         </section>

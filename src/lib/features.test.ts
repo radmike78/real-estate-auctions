@@ -177,3 +177,22 @@ describe('homepage sale-type search', () => {
     expect(SALE_SEARCH.map((o) => o.label)).toContain('Short sales');
   });
 });
+
+describe('buyer checklists', () => {
+  it('covers every homepage sale type and maps properties and filters to the right list', async () => {
+    const { CHECKLISTS, checklistForProperty, checklistForFilters } = await import('./buyerChecklists');
+    const { SALE_SEARCH } = await import('./saleSearch');
+    for (const o of SALE_SEARCH) expect(CHECKLISTS[o.key], o.key).toBeTruthy();
+    expect(CHECKLISTS.pre.forSale).toBe(false);
+    expect(CHECKLISTS.liens.forSale).toBe(false);
+    expect(CHECKLISTS.pre.items[0].text).toMatch(/Do not contact the homeowner/);
+    expect(CHECKLISTS.tax.items.map((i) => i.text).join(' ')).toMatch(/\$5,000 refundable deposit/);
+    expect(checklistForProperty('TRUSTEE_SALE', 'IN_PERSON_AUCTION').key).toBe('foreclosure');
+    expect(checklistForProperty('FEDERAL_TAX_SEIZURE', 'SEALED_BID').key).toBe('sheriff');
+    expect(checklistForProperty(null, 'PRE_FORECLOSURE_NOT_YET_PURCHASABLE').key).toBe('pre');
+    expect(checklistForProperty(null, 'NOT_FOR_SALE_LIEN_ONLY').key).toBe('liens');
+    expect(checklistForFilters(['TRUSTEE_SALE', 'JUDICIAL_FORECLOSURE'], []).key).toBe('foreclosure');
+    expect(checklistForFilters(['TRUSTEE_SALE', 'REO'], []).key).toBe('all');
+    expect(checklistForFilters([], ['NOT_FOR_SALE_LIEN_ONLY']).key).toBe('liens');
+  });
+});

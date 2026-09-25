@@ -7,6 +7,8 @@ import StatusBadge from './StatusBadge';
 import SourceTag from './SourceTag';
 import { daysUntil } from './ResultsList';
 import Disclaimer from './Disclaimer';
+import BuyerChecklistBox from './BuyerChecklistBox';
+import { checklistForProperty } from '../lib/buyerChecklists';
 
 const LIEN_LABEL: Record<LienType, string> = {
   PROPERTY_TAX: 'Delinquent property tax',
@@ -181,6 +183,8 @@ export default function PropertyPage({ id }: { id: string }) {
         </ol>
         <Disclaimer kind="sales" compact />
       </section>
+
+      <BuyerChecklistBox list={checklistForProperty(p.sale?.saleType ?? null, p.status)} />
 
       <section>
         <h2>Due-diligence report</h2>

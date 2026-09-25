@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { SALE_SEARCH, saleSearchHref } from '../lib/saleSearch';
+import { CHECKLISTS } from '../lib/buyerChecklists';
+import BuyerChecklistBox from './BuyerChecklistBox';
 import { IconBadge, IconBank, IconLock, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
 
 const HELPERS = [
@@ -47,6 +49,7 @@ export default function HomePage() {
             </div>
             <p className="search-hint">{selected.hint}</p>
           </form>
+          <BuyerChecklistBox list={CHECKLISTS[type] ?? CHECKLISTS.all} variant="hero" />
         </div>
       </section>
 

@@ -1,4 +1,6 @@
 import Disclaimer from './Disclaimer';
+import BuyerChecklistBox from './BuyerChecklistBox';
+import { CHECKLISTS } from '../lib/buyerChecklists';
 
 const STEPS: [string, string][] = [
   ['Get pre-approved or show proof of funds', 'Lenders reviewing a short sale want to see that the buyer can close. A pre-approval letter or bank statement goes in with your offer.'],
@@ -56,6 +58,8 @@ export default function ShortSalesPage() {
       <ol className="steps-rich">
         {STEPS.map(([t, d]) => <li key={t}><strong>{t}</strong><span>{d}</span></li>)}
       </ol>
+
+      <BuyerChecklistBox list={CHECKLISTS.short} />
 
       <h2>Risks and things to watch out for</h2>
       <ul className="risk-list">
