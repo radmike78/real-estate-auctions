@@ -24,10 +24,12 @@ COPY . .
 # Public half of the feed-signing key pair, compiled into the site so browsers can verify listings.
 # Leave empty to build without it (live listings and the advertiser directory then stay off).
 ARG FEED_PUBLIC_KEY=""
+# Fictional sample properties and professionals are hidden in production images. Set to 1 for a demo site.
+ARG SHOW_SAMPLE_DATA=0
 # Set RUN_TESTS=0 to skip the test suite (not recommended).
 ARG RUN_TESTS=1
 RUN if [ "$RUN_TESTS" = "1" ]; then npm test; fi \
- && VITE_FEED_PUBLIC_KEY="$FEED_PUBLIC_KEY" npm run build \
+ && VITE_FEED_PUBLIC_KEY="$FEED_PUBLIC_KEY" VITE_SHOW_SAMPLE_DATA="$SHOW_SAMPLE_DATA" npm run build \
  && npm prune --omit=dev --no-audit --no-fund
 
 # ---------- runtime ----------

@@ -21,6 +21,8 @@ npm run build      # static site in dist/
 
 To put the site online, see [Deploy](#deploy): Podman, any Kubernetes distribution, or OpenShift.
 
+Development builds show fictional Clark County sample properties and professionals so every page can be tried. Production builds hide them: build with `VITE_SHOW_SAMPLE_DATA=0 npm run build` (the container image does this by default), and pages without a connected source say so instead of showing listings.
+
 
 ## Deploy
 
@@ -52,6 +54,14 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 | `TRUST_PROXY` | no | no | `1` when a reverse proxy, Ingress or OpenShift router sits in front (it is in every option below). |
 | `BACKUP_KEEP` | no | no | Daily database backups to keep (default 7). `BACKUP_DIR=""` turns them off. |
 | `PORT`, `DB_PATH`, `DATA_DIR`, `INGEST_STATE_DIR`, `BACKUP_DIR` | no | no | Already set correctly in the image. |
+
+**Build options** (passed to `podman build` with `--build-arg`):
+
+| Name | Default | What it does |
+| --- | --- | --- |
+| `FEED_PUBLIC_KEY` | empty | Public signing key built into the site (see step 2 below). Without it, live listings and the advertiser directory stay off. |
+| `SHOW_SAMPLE_DATA` | `0` | `1` shows the fictional sample properties and professionals, for a demo site. Leave it at `0` for a real site. |
+| `RUN_TESTS` | `1` | `0` skips the test suite during the build (not recommended). |
 
 > **Emails:** until an email provider is connected (`server/mailer.ts`), confirmation links, leads and reports are written to the web container's log instead of being sent.
 
@@ -502,6 +512,7 @@ During development, run `npm run server` and `npm run dev` together; the dev ser
 | `Containerfile` | Container image (UBI 9 + Node.js 22), built with Podman or Buildah |
 | `deploy/podman/` | `install.sh` one-command installer, and Quadlet units (systemd services) for Podman |
 | `deploy/kubernetes/` | Kustomize base and overlays for Kubernetes, OpenShift (prebuilt image) and OpenShift (build from Git) |
+| `src/data/index.ts` | The one place pages get property and advertiser data; the `VITE_SHOW_SAMPLE_DATA` switch |
 | `.github/workflows/ci.yml` | Tests, manifest validation, Podman image build and smoke test; publishes to GHCR from `main` |
 | `tools/video/` | Scripted walkthrough videos of the site |
 

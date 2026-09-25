@@ -207,3 +207,12 @@ describe('privacy policy and terms', () => {
     expect(typeof hasPlaceholders()).toBe('boolean');
   });
 });
+
+describe('sample-data switch', () => {
+  it('shows sample data in development builds (the flag is unset in tests)', async () => {
+    const { SHOW_SAMPLE_DATA, PROPERTIES, FALLBACK_PROS } = await import('../data');
+    expect(SHOW_SAMPLE_DATA).toBe(true);
+    expect(PROPERTIES.length).toBeGreaterThan(0);
+    expect(FALLBACK_PROS.every((p) => p.isSample)).toBe(true);
+  });
+});

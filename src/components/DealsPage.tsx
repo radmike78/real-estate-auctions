@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
+import { PROPERTIES } from '../data';
 import { loadDeals, onDealsChange, removeDeal, updateDeal, type SavedDeal } from '../lib/deals';
 import { DD_STEPS, loadDdDone } from '../lib/ddFunnel';
 import { SALE_TYPE_LABEL } from '../lib/rules';
@@ -10,7 +10,7 @@ import PageHero from './PageHero';
 import StatusBadge from './StatusBadge';
 
 function DealCard({ d }: { d: SavedDeal }) {
-  const p = SAMPLE_PROPERTIES.find((x) => x.id === d.id);
+  const p = PROPERTIES.find((x) => x.id === d.id);
   const [notes, setNotes] = useState(d.notes);
   // Save notes shortly after typing stops, so closing the tab doesn't lose them.
   useEffect(() => {
@@ -92,7 +92,7 @@ export default function DealsPage() {
   const sorted = [...deals].sort((a, b) => {
     // Upcoming sales soonest first, then sales that have passed, then anything without a date.
     const rank = (id: string) => {
-      const t = Date.parse(SAMPLE_PROPERTIES.find((p) => p.id === id)?.sale?.startsAt ?? '');
+      const t = Date.parse(PROPERTIES.find((p) => p.id === id)?.sale?.startsAt ?? '');
       return Number.isNaN(t) ? Infinity : t >= Date.now() ? t : 1e15 - t;
     };
     return rank(a.id) - rank(b.id);

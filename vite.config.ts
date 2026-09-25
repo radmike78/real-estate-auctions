@@ -23,8 +23,21 @@ const csp = (): Plugin => ({
     html.replace('<meta charset="UTF-8" />', `<meta charset="UTF-8" />\n    <meta http-equiv="Content-Security-Policy" content="${CSP}" />\n    <meta name="referrer" content="strict-origin-when-cross-origin" />`),
 });
 
+// Production builds set VITE_SHOW_SAMPLE_DATA=0. The sample files build their data when loaded, so the
+// bundler can't drop them on its own; this swaps in empty stand-ins so no fictional data is shipped.
+const hideSamples = ['0', 'false'].includes(process.env.VITE_SHOW_SAMPLE_DATA ?? '');
+const noSampleData = (): Plugin => ({
+  name: 'no-sample-data',
+  enforce: 'pre',
+  async resolveId(source, importer, options) {
+    if (!hideSamples || !importer || !/[\\/]src[\\/]data[\\/]index\.ts$/.test(importer)) return null;
+    if (source !== './sampleProperties' && source !== './samplePros') return null;
+    return this.resolve('./noSamples', importer, { ...options, skipSelf: true });
+  },
+});
+
 export default defineConfig({
-  plugins: [react(), csp()],
+  plugins: [react(), csp(), noSampleData()],
   base: './',
   // Never inline fonts as data: URLs; the CSP (font-src 'self') would block them.
   build: { assetsInlineLimit: (file) => (/\.woff2?$/.test(file) ? false : undefined) },

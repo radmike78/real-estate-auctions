@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { SAMPLE_PROS } from '../data/samplePros';
+import { FALLBACK_PROS } from '../data';
 import { FEED_PUBLIC_KEY_SPKI_B64 } from '../feed/publicKey';
 import { loadVerifiedPros, type ProsFeedResult } from '../feed/prosFeed';
 import { CATEGORIES, CREDIT_PROFILES, LOAN_PRODUCTS, safeMailto, safeTel, searchPros, servicesFor, type Category, type Pro, type ProQuery } from '../lib/pros';
@@ -17,8 +17,9 @@ export function useDirectory(): { pros: Pro[]; usingSamples: boolean; error: str
   }, []);
   if (!feed) return { pros: [], usingSamples: false, error: null, loading: true };
   if (feed.ok) return { pros: feed.feed.pros, usingSamples: false, error: null, loading: false };
-  const usingSamples = feed.reason === 'NOT_CONFIGURED' || feed.reason === 'MISSING';
-  return { pros: usingSamples ? SAMPLE_PROS : [], usingSamples, error: usingSamples ? null : feed.detail, loading: false };
+  const noDirectoryYet = feed.reason === 'NOT_CONFIGURED' || feed.reason === 'MISSING';
+  const usingSamples = noDirectoryYet && FALLBACK_PROS.length > 0;
+  return { pros: usingSamples ? FALLBACK_PROS : [], usingSamples, error: noDirectoryYet ? null : feed.detail, loading: false };
 }
 
 export const fmtPhone = (e164: string) => e164.replace(/^\+1(\d{3})(\d{3})(\d{4})$/, '($1) $2-$3');
@@ -111,13 +112,22 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
       </div>
       {error && <div className="caution small" role="alert"><strong>The directory couldn't be verified, so no profiles are shown.</strong> {error}</div>}
       {usingSamples && <p className="small muted">Showing fictional sample profiles until real advertisers are approved.</p>}
-      {!loading && (
+      {!loading && pros.length > 0 && (
         <p className="small muted">
           {results.length} verified {results.length === 1 ? 'professional' : 'professionals'} · shown in a daily rotating order. Advertisers can't pay
           for a higher position.
         </p>
       )}
-      {!loading && results.length === 0 && !error && <div className="empty">No verified professionals match yet. Try another city or filter.</div>}
+      {!loading && !error && pros.length === 0 && (
+        <div className="empty">
+          <p><strong>No professionals are listed here yet.</strong> Every listing is license-checked before it appears.</p>
+          <p>
+            Looking for someone now? <a href="#/agents">Look up any professional's license</a> with the official regulator. Licensed and want to be
+            listed? <a href="#/advertise">Apply to advertise</a>.
+          </p>
+        </div>
+      )}
+      {!loading && results.length === 0 && pros.length > 0 && !error && <div className="empty">No verified professionals match yet. Try another city or filter.</div>}
       <ul className="pro-grid">{results.map((p) => <ProCard key={p.id} p={p} />)}</ul>
     </div>
   );

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
+import { PROPERTIES, SHOW_SAMPLE_DATA } from '../data';
 import { foreclosureTrack, PIPELINE, STAGE_INFO, type ForeclosureStage, type ForeclosureTrack } from '../lib/foreclosure';
 import { fmtDate, fmtDateTime } from '../lib/status';
 import type { Property } from '../types';
@@ -79,7 +79,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
   const now = useMemo(() => new Date(), []);
   const rows: Row[] = useMemo(
     () =>
-      SAMPLE_PROPERTIES.map((p) => ({ p, t: foreclosureTrack(p, now) }))
+      PROPERTIES.map((p) => ({ p, t: foreclosureTrack(p, now) }))
         .filter((r): r is Row => r.t !== null)
         .sort(
           (a, b) =>
@@ -133,10 +133,12 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
         through an agent. Homeowners can find free help on our <a href="#/homeowner-help">homeowner help page</a>.
       </div>
 
-      <p className="muted">
-        <strong>Sample data:</strong> a live feed of Clark County Recorder notices will be
-        connected once a data-use agreement with the Recorder's office is in place.
-      </p>
+      {SHOW_SAMPLE_DATA && (
+        <p className="muted">
+          <strong>Sample data:</strong> a live feed of Clark County Recorder notices will be
+          connected once a data-use agreement with the Recorder's office is in place.
+        </p>
+      )}
 
       <DrillDown sections={GUIDE} active={section} baseHref="#/pre-foreclosures" label="Pre-foreclosure guide" />
 
@@ -152,6 +154,20 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
             </div>
           )}
 
+          {rows.length === 0 ? (
+            <div className="empty">
+              <p>
+                <strong>No notices to track yet.</strong> Notices of default and sale will appear here once our feed of Clark County Recorder
+                filings is connected.
+              </p>
+              <p>
+                Until then, you can search recorded notices yourself in the{' '}
+                <a href="https://recorderecomm.clarkcountynv.gov/AcclaimWeb/" target="_blank" rel="noopener noreferrer">Recorder's official records ↗</a>,
+                and read how the process works in the guide above.
+              </p>
+            </div>
+          ) : (
+          <>
           <div className="toolbar">
             <input aria-label="Filter by address, city, ZIP or APN" placeholder="Address, city, ZIP or APN" value={q} onChange={(e) => setQ(e.target.value)} />
             <select aria-label="Stage" value={stage} onChange={(e) => setStage(e.target.value as StageFilter)}>
@@ -206,6 +222,8 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
               );
             })}
           </ul>
+          </>
+          )}
         </>
       )}
       <Disclaimer kind="sales" />
