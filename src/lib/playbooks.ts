@@ -189,7 +189,7 @@ export const PLAYBOOKS: Playbook[] = [
     sources: [
       { label: 'NRS 107 (deeds of trust, trustee sales)', url: NRS('107') },
       { label: 'NRS 40 (possession after foreclosure, NRS 40.255)', url: NRS('040') },
-      { label: 'Protecting Tenants at Foreclosure Act (OCC summary)', url: 'https://www.occ.treas.gov/publications-and-resources/publications/comptrollers-handbook/files/protecting-tenants-foreclosure/pub-ch-ptfa.pdf' },
+      { label: 'Protecting Tenants at Foreclosure Act (law text, Title VII)', url: 'https://www.govinfo.gov/content/pkg/PLAW-111publ22/html/PLAW-111publ22.htm' },
       { label: 'Foreclosure mediation (Eighth Judicial District Court)', url: 'https://www.clarkcountycourts.us/departments/adr/foreclosure-mediation/' },
       { label: 'Clark County Recorder: search records', url: RECORDER },
     ],
