@@ -1,13 +1,20 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
 import { applyFilters, DEFAULT_FILTERS, type Filters } from '../lib/search';
+import type { AcquisitionStatus, SaleType } from '../types';
 import FiltersPanel from './FiltersPanel';
 import ResultsList from './ResultsList';
 import MapView from './MapView';
 import Disclaimer from './Disclaimer';
 
-export default function SearchPage({ initialLocation = '' }: { initialLocation?: string }) {
-  const [filters, setFilters] = useState<Filters>({ ...DEFAULT_FILTERS, location: initialLocation });
+interface Props {
+  initialLocation?: string;
+  initialSaleTypes?: SaleType[];
+  initialStatuses?: AcquisitionStatus[];
+}
+
+export default function SearchPage({ initialLocation = '', initialSaleTypes = [], initialStatuses = [] }: Props) {
+  const [filters, setFilters] = useState<Filters>({ ...DEFAULT_FILTERS, location: initialLocation, saleTypes: initialSaleTypes, statuses: initialStatuses });
   const [locationInput, setLocationInput] = useState(initialLocation);
   const [view, setView] = useState<'list' | 'map'>('list');
   const results = useMemo(() => applyFilters(SAMPLE_PROPERTIES, filters), [filters]);

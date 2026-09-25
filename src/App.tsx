@@ -20,14 +20,17 @@ import DisclaimerPage from './components/DisclaimerPage';
 import RoleNotice from './components/RoleNotice';
 import { ROLE_SHORT } from './lib/disclaimers';
 import { CATEGORIES, type Category } from './lib/pros';
+import { SALE_TYPE_LABEL } from './lib/rules';
+import { STATUS } from './lib/status';
+import type { AcquisitionStatus, SaleType } from './types';
 
 type Route =
   | { page: 'home' }
-  | { page: 'search'; q: string }
+  | { page: 'search'; q: string; types: SaleType[]; statuses: AcquisitionStatus[] }
   | { page: 'property'; id: string }
   | { page: 'about' }
   | { page: 'live' }
-  | { page: 'preforeclosures' }
+  | { page: 'preforeclosures'; q: string }
   | { page: 'shortsales' }
   | { page: 'agents'; shortSales: boolean; q: string }
   | { page: 'financing'; q: string }
@@ -47,19 +50,29 @@ function hashPath(): string {
 function parseHash(): Route {
   const full = hashPath();
   const [h, query = ''] = full.split('?');
-  let q = '';
+  let params = new URLSearchParams();
   try {
-    q = new URLSearchParams(query).get('q')?.slice(0, 100) ?? '';
+    params = new URLSearchParams(query);
   } catch {
-    q = '';
+    /* ignore malformed query */
   }
+  const q = params.get('q')?.slice(0, 100) ?? '';
+  // Only known sale types / statuses are accepted from the URL.
+  const list = (k: string) => (params.get(k) ?? '').split(',').filter(Boolean);
   if (h === '') return { page: 'home' };
-  if (h === 'search') return { page: 'search', q };
+  if (h === 'search') {
+    return {
+      page: 'search',
+      q,
+      types: list('type').filter((t): t is SaleType => t in SALE_TYPE_LABEL),
+      statuses: list('status').filter((t): t is AcquisitionStatus => t in STATUS),
+    };
+  }
   const m = h.match(/^property\/(.+)$/);
   if (m) return { page: 'property', id: m[1] };
   if (h === 'about') return { page: 'about' };
   if (h === 'live') return { page: 'live' };
-  if (h === 'pre-foreclosures') return { page: 'preforeclosures' };
+  if (h === 'pre-foreclosures') return { page: 'preforeclosures', q };
   if (h === 'short-sales') return { page: 'shortsales' };
   if (h === 'agents' || h === 'agents/short-sales') return { page: 'agents', shortSales: h.endsWith('short-sales'), q };
   if (h === 'financing') return { page: 'financing', q };
@@ -96,11 +109,13 @@ export default function App() {
     <div className={`app${route.page === 'home' ? ' app-home' : ''}`}>
       <SiteHeader current={path} />
       {route.page === 'home' && <HomePage />}
-      {route.page === 'search' && <SearchPage key={route.q} initialLocation={route.q} />}
+      {route.page === 'search' && (
+        <SearchPage key={`${route.q}|${route.types}|${route.statuses}`} initialLocation={route.q} initialSaleTypes={route.types} initialStatuses={route.statuses} />
+      )}
       {route.page === 'property' && <PropertyPage id={route.id} />}
       {route.page === 'about' && <AboutPage />}
       {route.page === 'live' && <LivePage />}
-      {route.page === 'preforeclosures' && <PreForeclosurePage />}
+      {route.page === 'preforeclosures' && <PreForeclosurePage key={route.q} initialQuery={route.q} />}
       {route.page === 'shortsales' && <ShortSalesPage />}
       {route.page === 'financing' && <FinancingPage key={route.q} initialLocation={route.q} />}
       {route.page === 'pros' && <ProsPage key={route.q} initialLocation={route.q} />}

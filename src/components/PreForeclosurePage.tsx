@@ -40,7 +40,7 @@ function Pipeline({ t }: { t: ForeclosureTrack }) {
   );
 }
 
-export default function PreForeclosurePage() {
+export default function PreForeclosurePage({ initialQuery = '' }: { initialQuery?: string }) {
   const now = useMemo(() => new Date(), []);
   const rows: Row[] = useMemo(
     () =>
@@ -55,7 +55,7 @@ export default function PreForeclosurePage() {
     [now],
   );
   const [watch, setWatch] = useState(loadWatch);
-  const [q, setQ] = useState('');
+  const [q, setQ] = useState(initialQuery);
   const [stage, setStage] = useState<StageFilter>('active');
   const [trackedOnly, setTrackedOnly] = useState(false);
 

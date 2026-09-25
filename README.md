@@ -119,7 +119,7 @@ During development, run `npm run server` and `npm run dev` together; the dev ser
 
 | Page | What it does |
 | --- | --- |
-| Home (`#/`) | A dark, minimal landing page. One tabbed search box (Properties · Find an agent · Financing · Pros) routes to each section with the query filled in. |
+| Home (`#/`) | Says what the site is for (foreclosures, tax sales and short sales) and searches by **type of sale**: all sales, tax sales, foreclosure auctions, pre-foreclosures, short sales, bank-owned (REO), HOA foreclosures, sheriff and IRS sales, and liens on record (not for sale). An optional location can be added. Below the search are cards for agents, financing, and title, insurance and repairs. |
 | Search (`#/search`) | Forced-sale search, filters, map and property pages (sample data) |
 | Live tax sales (`#/live`) | Verified Clark County Treasurer listings (signed, expiring feed) |
 | Pre-foreclosures (`#/pre-foreclosures`) | Follows Nevada non-judicial foreclosures: default, then notice of sale (at least 3 months later, NRS 107.080), then auction, then outcome. Per-browser watchlist that flags stage changes. **Do-not-contact warning; no owner names or contact details are shown.** Sample data until a data-use agreement with the Clark County Recorder is in place. |
