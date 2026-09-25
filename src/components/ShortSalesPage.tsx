@@ -2,6 +2,7 @@ import Disclaimer from './Disclaimer';
 import BuyerChecklistBox from './BuyerChecklistBox';
 import { CHECKLISTS } from '../lib/buyerChecklists';
 import DrillDown, { type DrillSection } from './DrillDown';
+import PageHero from './PageHero';
 import { IconCheckList, IconFlag, IconLayers, IconSteps, IconStop } from './Icons';
 
 const STEPS: [string, string][] = [
@@ -98,19 +99,24 @@ export default function ShortSalesPage({ section }: { section?: string }) {
   const open = SECTIONS.some((x) => x.key === section);
   return (
     <main className="page prose">
-      <h1>{open ? <a className="title-link" href="#/short-sales">Short sales</a> : 'Short sales'}</h1>
+      <PageHero
+        compact={open}
+        eyebrow={<span className="eyebrow">Voluntary sales · Clark County, NV</span>}
+        title={open ? <a className="title-link" href="#/short-sales">Short sales</a> : <>Short <span className="grad">sales</span></>}
+        sub={
+          open ? undefined : (
+            <>
+              A homeowner sells for less than they owe, and the lender agrees to take less than the full payoff. It's a voluntary sale, not an
+              auction: the owner lists with a licensed agent, and the lender must approve your offer.
+            </>
+          )
+        }
+      />
       {!open && (
-        <>
-          <p>
-            In a <strong>short sale</strong>, a homeowner sells for less than they owe on the mortgage, and the lender agrees to take less
-            than the full payoff. It's a <strong>voluntary sale</strong>, not an auction: the owner lists with a licensed agent, and the lender
-            must approve your offer.
-          </p>
-          <div className="notice" role="note">
-            <strong>How to find short sales:</strong> no government list exists. They're listed on the MLS, the database agents use, marked
-            "Short Sale." Work with a licensed buyer's agent. <a href="#/agents/short-sales">Find a verified short-sale agent →</a>
-          </div>
-        </>
+        <div className="notice" role="note">
+          <strong>How to find short sales:</strong> no government list exists. They're listed on the MLS, the database agents use, marked
+          "Short Sale." Work with a licensed buyer's agent. <a href="#/agents/short-sales">Find a verified short-sale agent →</a>
+        </div>
       )}
 
       <DrillDown sections={SECTIONS} active={section} baseHref="#/short-sales" label="Short sale guide" />

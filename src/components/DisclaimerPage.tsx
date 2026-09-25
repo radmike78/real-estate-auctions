@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { DISCLAIMERS, ROLE_SHORT, type DisclaimerKind } from '../lib/disclaimers';
 import DrillDown, { type DrillSection } from './DrillDown';
+import PageHero from './PageHero';
 import { IconBadge, IconBank, IconCheckList, IconFile, IconHome, IconShield, IconStop, IconTools } from './Icons';
 
 const KIND_ICON: Record<DisclaimerKind, ReactNode> = { sales: <IconHome />, professionals: <IconBadge />, financing: <IconBank />, services: <IconTools /> };
@@ -84,8 +85,18 @@ export default function DisclaimerPage({ section }: { section?: string }) {
   const open = section === 'all' || SECTIONS.some((x) => x.key === section);
   return (
     <main className="page prose">
-      <h1>{open ? <a className="title-link" href="#/disclaimer">Our role &amp; your responsibility</a> : <>Our role &amp; your responsibility</>}</h1>
-      <p className="lede">{ROLE_SHORT}</p>
+      <PageHero
+        compact={open}
+        eyebrow={<span className="eyebrow">Please read</span>}
+        title={
+          open ? (
+            <a className="title-link" href="#/disclaimer">Our role &amp; your responsibility</a>
+          ) : (
+            <>Our role &amp; <span className="grad">your responsibility</span></>
+          )
+        }
+        sub={ROLE_SHORT}
+      />
       <DrillDown sections={SECTIONS} active={section} baseHref="#/disclaimer" label="Our role and your responsibility" showAll />
     </main>
   );
