@@ -1,0 +1,82 @@
+{
+  "title": "Maximum safe bid calculator",
+  "voice": {
+    "provider": "vidIQ",
+    "name": "Eric - Smooth, Trustworthy",
+    "voiceId": "cjVigY5qzO86Huf0OWal"
+  },
+  "timing": {
+    "lead": 0.8,
+    "gap": 0.7,
+    "tail": 3.5
+  },
+  "segments": [
+    {
+      "narration": "Every buyer at a forced sale needs one number before auction day: your maximum safe bid. Here's how to find it in about a minute, for free, on Forced-Sale Finder.",
+      "captions": [
+        "Every buyer at a forced sale needs one number before auction day:",
+        "your maximum safe bid.",
+        "Here’s how to find it in about a minute, free, on Forced-Sale Finder."
+      ],
+      "duration": 10.84
+    },
+    {
+      "narration": "Start with what the home will be worth after repairs. Use real sold comparables, not the list price, and not our estimate. Then add what it costs to sell: the agent's commission and closing costs.",
+      "captions": [
+        "Start with what the home will be worth after repairs.",
+        "Use real sold comparables, not the list price, and not our estimate.",
+        "Then add what it costs to sell: commission and closing costs."
+      ],
+      "duration": 13.95
+    },
+    {
+      "narration": "Next, every cost you take on. Repairs, plus a cushion, because you usually can't see inside before an auction. Any liens that stay with the property. Title work, and possibly a quiet title action. And the cost of getting possession if someone still lives there.",
+      "captions": [
+        "Next, every cost you take on.",
+        "Repairs, plus a cushion, because you usually can’t see inside before an auction.",
+        "Any liens that stay with the property.",
+        "Title work, and possibly a quiet title action.",
+        "And the cost of getting possession if someone still lives there."
+      ],
+      "duration": 18.68
+    },
+    {
+      "narration": "Then your holding costs: how many months until you sell, what you pay each month for taxes, insurance and utilities, and any loan you'll use after the purchase.",
+      "captions": [
+        "Then your holding costs: months until you sell,",
+        "monthly taxes, insurance and utilities,",
+        "and any loan you’ll use after the purchase."
+      ],
+      "duration": 9.87
+    },
+    {
+      "narration": "Finally, the profit you require. The calculator works backward from there, and shows your maximum safe bid, your break-even bid, and the cash you'll need on auction day.",
+      "captions": [
+        "Finally, the profit you require.",
+        "The calculator works backward and shows your maximum safe bid,",
+        "your break-even bid, and the cash you’ll need on auction day."
+      ],
+      "duration": 11.81
+    },
+    {
+      "narration": "Type in a bid to check it. Go over your maximum, and it tells you plainly: stop bidding. The table below shows what happens if the sale price comes in lower, repairs run over, or the sale takes longer.",
+      "captions": [
+        "Type in a bid to check it.",
+        "Go over your maximum, and it tells you plainly: stop bidding.",
+        "The table shows what happens if the price comes in lower,",
+        "repairs run over, or the sale takes longer."
+      ],
+      "duration": 13.32
+    },
+    {
+      "narration": "Open any property, and the calculator starts with our estimates for that home, and saves your changes in your browser. It's an estimate, not advice, so replace every number with your own comps and quotes. Set your limit before the sale, and be ready to walk away.",
+      "captions": [
+        "Open any property, and the calculator starts with our estimates for that home,",
+        "and saves your changes in your browser.",
+        "It’s an estimate, not advice: replace every number with your own comps and quotes.",
+        "Set your limit before the sale, and be ready to walk away."
+      ],
+      "duration": 16.85
+    }
+  ]
+}
