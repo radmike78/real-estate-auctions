@@ -184,6 +184,43 @@ th { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
 .timeline li { padding: 0 0 12px 14px; position: relative; }
 .timeline li::before { content: ''; position: absolute; left: -6px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
 
+/* Drill-down sections: a tile per section, click to open just that one. */
+.glance { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr)); gap: 12px; margin: 0 0 20px; }
+.glance div { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; }
+.glance dt { font-size: 0.85rem; color: var(--muted); }
+.glance dd { margin: 4px 0 0; font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.drill-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 14px; }
+.drill-tile { display: flex; align-items: center; gap: 16px; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-left: 5px solid var(--border); border-radius: var(--radius); color: var(--text); text-decoration: none; transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s; min-width: 0; }
+.drill-tile:hover, .drill-tile:focus-visible { border-color: var(--accent); box-shadow: 0 6px 18px rgb(15 23 42 / 0.08); transform: translateY(-1px); }
+.drill-tile.tone-go { border-left-color: var(--go); } .drill-tile.tone-wait { border-left-color: var(--wait); }
+.drill-tile.tone-stop { border-left-color: var(--stop); } .drill-tile.tone-info { border-left-color: var(--info); }
+.drill-icon { flex: none; width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; background: var(--surface-2); color: var(--accent); }
+.drill-icon svg { width: 24px; height: 24px; }
+.drill-text { display: grid; gap: 4px; min-width: 0; }
+.drill-text strong { font-size: 1.1rem; }
+.drill-summary { color: var(--muted); font-size: 0.95rem; }
+.drill-arrow { margin-left: auto; color: var(--muted); font-size: 1.2rem; }
+.drill-tile:hover .drill-arrow { color: var(--accent); }
+.drill-nav { position: relative; display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; }
+.drill-nav a { flex: none; padding: 8px 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); text-decoration: none; font-size: 0.92rem; white-space: nowrap; }
+.drill-nav a:hover { border-color: var(--accent); }
+.drill-nav a[aria-current='page'] { background: var(--accent); border-color: var(--accent); color: var(--surface); font-weight: 600; }
+.drill-nav .drill-back { font-weight: 600; background: var(--surface-2); }
+.page section.drill-section { padding: 20px 24px; }
+.drill-section h2 { font-size: 1.35rem; margin-top: 0; }
+.drill-section .lead { font-size: 1.05rem; }
+.drill-bare { margin-bottom: 16px; } .drill-bare .checklist-box { margin-top: 0; }
+@media (max-width: 600px) { .glance div { padding: 10px 14px; } .glance dd { font-size: 1.25rem; } .drill-tile { padding: 16px; } }
+.track-key { margin: 8px 0 4px; font-size: 0.95rem; }
+.track-more summary { cursor: pointer; color: var(--accent); font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
+.title-link { color: inherit; text-decoration: none; }
+.drill-all { grid-column: 1 / -1; justify-self: start; font-weight: 600; }
+.drill-pager { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-weight: 600; }
+.prop-head.compact { margin-bottom: 8px; }
+.prop-title { font-size: 1.3rem; font-weight: 700; margin: 6px 0 2px; }
+.prop-title a { color: var(--text); text-decoration: none; }
+.money-box { max-width: 440px; margin-bottom: 12px; padding: 12px 16px; background: var(--surface-2); border-radius: var(--radius); }
+
 /* Text-heavy pages span the full width, but paragraphs keep a readable line length. */
 .prose p, .prose li { font-size: 1rem; max-width: 80ch; }
 .prose h1, .prose h2 { max-width: 80ch; }
@@ -195,6 +232,7 @@ th { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
   .site-header, .no-print, .footer, .role-backdrop { display: none; }
   body { background: #fff; color: #000; }
   .page section, .q { break-inside: avoid; border-color: #ccc; }
+  .page section.drill-section { break-inside: auto; }
 }
 
 .sources { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }

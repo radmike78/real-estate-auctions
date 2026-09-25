@@ -27,11 +27,11 @@ import type { AcquisitionStatus, SaleType } from './types';
 type Route =
   | { page: 'home' }
   | { page: 'search'; q: string; types: SaleType[]; statuses: AcquisitionStatus[] }
-  | { page: 'property'; id: string }
-  | { page: 'about' }
+  | { page: 'property'; id: string; section?: string }
+  | { page: 'about'; section?: string }
   | { page: 'live' }
-  | { page: 'preforeclosures'; q: string }
-  | { page: 'shortsales' }
+  | { page: 'preforeclosures'; q: string; section?: string }
+  | { page: 'shortsales'; section?: string }
   | { page: 'agents'; shortSales: boolean; q: string }
   | { page: 'financing'; q: string }
   | { page: 'pros'; q: string }
@@ -41,7 +41,7 @@ type Route =
   | { page: 'applicationConfirm'; token: string }
   | { page: 'admin' }
   | { page: 'advertiser'; token: string | null }
-  | { page: 'disclaimer' };
+  | { page: 'disclaimer'; section?: string };
 
 function hashPath(): string {
   return window.location.hash.replace(/^#\/?/, '');
@@ -68,12 +68,14 @@ function parseHash(): Route {
       statuses: list('status').filter((t): t is AcquisitionStatus => t in STATUS),
     };
   }
-  const m = h.match(/^property\/(.+)$/);
-  if (m) return { page: 'property', id: m[1] };
-  if (h === 'about') return { page: 'about' };
+  const m = h.match(/^property\/([^/]+)(?:\/([a-z-]+))?$/);
+  if (m) return { page: 'property', id: m[1], section: m[2] };
+  // Pages split into sections take an optional /section suffix.
+  const sub = h.match(/^(about|pre-foreclosures|short-sales|disclaimer)(?:\/([a-z-]+))?$/);
+  if (sub?.[1] === 'about') return { page: 'about', section: sub[2] };
   if (h === 'live') return { page: 'live' };
-  if (h === 'pre-foreclosures') return { page: 'preforeclosures', q };
-  if (h === 'short-sales') return { page: 'shortsales' };
+  if (sub?.[1] === 'pre-foreclosures') return { page: 'preforeclosures', q, section: sub[2] };
+  if (sub?.[1] === 'short-sales') return { page: 'shortsales', section: sub[2] };
   if (h === 'agents' || h === 'agents/short-sales') return { page: 'agents', shortSales: h.endsWith('short-sales'), q };
   if (h === 'financing') return { page: 'financing', q };
   if (h === 'pros') return { page: 'pros', q };
@@ -85,7 +87,7 @@ function parseHash(): Route {
   const confirm = h.match(/^advertise\/confirm(?:\/([A-Za-z0-9_-]+))?$/);
   if (confirm) return { page: 'applicationConfirm', token: confirm[1] ?? '' };
   if (h === 'admin') return { page: 'admin' };
-  if (h === 'disclaimer') return { page: 'disclaimer' };
+  if (sub?.[1] === 'disclaimer') return { page: 'disclaimer', section: sub[2] };
   const adv = h.match(/^advertiser(?:\/login\/([A-Za-z0-9_-]+))?$/);
   if (adv) return { page: 'advertiser', token: adv[1] ?? null };
   return { page: 'home' };
@@ -112,11 +114,11 @@ export default function App() {
       {route.page === 'search' && (
         <SearchPage key={`${route.q}|${route.types}|${route.statuses}`} initialLocation={route.q} initialSaleTypes={route.types} initialStatuses={route.statuses} />
       )}
-      {route.page === 'property' && <PropertyPage id={route.id} />}
-      {route.page === 'about' && <AboutPage />}
+      {route.page === 'property' && <PropertyPage id={route.id} section={route.section} />}
+      {route.page === 'about' && <AboutPage section={route.section} />}
       {route.page === 'live' && <LivePage />}
-      {route.page === 'preforeclosures' && <PreForeclosurePage key={route.q} initialQuery={route.q} />}
-      {route.page === 'shortsales' && <ShortSalesPage />}
+      {route.page === 'preforeclosures' && <PreForeclosurePage key={route.q} initialQuery={route.q} section={route.section} />}
+      {route.page === 'shortsales' && <ShortSalesPage section={route.section} />}
       {route.page === 'financing' && <FinancingPage key={route.q} initialLocation={route.q} />}
       {route.page === 'pros' && <ProsPage key={route.q} initialLocation={route.q} />}
       {route.page === 'pro' && <ProProfilePage id={route.id} />}
@@ -124,7 +126,7 @@ export default function App() {
       {route.page === 'apply' && <AdvertiseApplyPage key={route.category ?? ''} initialCategory={route.category} />}
       {route.page === 'applicationConfirm' && <ApplicationConfirmPage token={route.token} />}
       {route.page === 'admin' && <AdminPage />}
-      {route.page === 'disclaimer' && <DisclaimerPage />}
+      {route.page === 'disclaimer' && <DisclaimerPage section={route.section} />}
       {route.page === 'advertiser' && <AdvertiserPage key={route.token ?? ''} token={route.token} />}
       {route.page === 'agents' && <AgentsPage key={`${route.shortSales}${route.q}`} shortSales={route.shortSales} initialQuery={route.q} />}
       <footer className="footer">

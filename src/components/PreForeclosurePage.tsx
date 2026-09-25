@@ -6,6 +6,8 @@ import type { Property } from '../types';
 import Disclaimer from './Disclaimer';
 import BuyerChecklistBox from './BuyerChecklistBox';
 import { CHECKLISTS } from '../lib/buyerChecklists';
+import DrillDown, { type DrillSection } from './DrillDown';
+import { IconCheckList, IconClock } from './Icons';
 
 const WATCH_KEY = 'fsf.preforeclosure.watch.v1';
 
@@ -42,7 +44,37 @@ function Pipeline({ t }: { t: ForeclosureTrack }) {
   );
 }
 
-export default function PreForeclosurePage({ initialQuery = '' }: { initialQuery?: string }) {
+const GUIDE: DrillSection[] = [
+  {
+    key: 'how-it-works',
+    title: 'How a Nevada foreclosure progresses',
+    icon: <IconClock />,
+    summary: 'Notice of default, a 3-month wait, notice of sale, then auction',
+    content: () => (
+      <>
+        <ol className="timeline-steps">
+          <li><strong>Notice of default</strong><span>Recorded by the trustee or HOA. The owner can still cure the default.</span></li>
+          <li><strong>3+ months</strong><span>Minimum wait before a notice of sale can be recorded (NRS 107.080).</span></li>
+          <li><strong>Notice of sale</strong><span>Posted 20 days and published 3 weeks. Sets the auction date.</span></li>
+          <li><strong>Auction</strong><span>Held, postponed or cancelled. A sale becomes an auction listing on this site.</span></li>
+        </ol>
+        <p className="muted">
+          Many never reach auction, because owners catch up, modify the loan, sell (often as a short sale) or file bankruptcy.
+        </p>
+      </>
+    ),
+  },
+  {
+    key: 'prepare',
+    title: 'How to get ready',
+    icon: <IconCheckList />,
+    summary: `${CHECKLISTS.pre.items.length} things to prepare in case a tracked home goes to sale`,
+    bare: true,
+    content: () => <BuyerChecklistBox list={CHECKLISTS.pre} />,
+  },
+];
+
+export default function PreForeclosurePage({ initialQuery = '', section }: { initialQuery?: string; section?: string }) {
   const now = useMemo(() => new Date(), []);
   const rows: Row[] = useMemo(
     () =>
@@ -80,6 +112,7 @@ export default function PreForeclosurePage({ initialQuery = '' }: { initialQuery
     if (stage === 'ended') return STAGE_INFO[t.stage].ended;
     return stage === 'all' || t.stage === stage;
   });
+  const guideOpen = GUIDE.some((g) => g.key === section);
   const changed = rows.filter((r) => watch[r.p.id] && watch[r.p.id] !== r.t.stage);
 
   return (
@@ -95,80 +128,80 @@ export default function PreForeclosurePage({ initialQuery = '' }: { initialQuery
       </div>
 
       <p className="muted">
-        Tracks Nevada non-judicial foreclosures: default, then notice of sale, then auction. Many never reach auction, because owners catch up,
-        modify the loan, sell (often as a short sale) or file bankruptcy. <strong>Sample data:</strong> a live feed of Clark County Recorder
-        notices will be connected once a data-use agreement with the Recorder's office is in place.
+        Follow Nevada foreclosures from default to auction. <strong>Sample data:</strong> a live feed of Clark County Recorder notices will be
+        connected once a data-use agreement with the Recorder's office is in place.
       </p>
 
-      <section className="explainer" aria-label="How a Nevada foreclosure progresses">
-        <ol className="timeline-steps">
-          <li><strong>Notice of default</strong><span>Recorded by the trustee or HOA. The owner can still cure the default.</span></li>
-          <li><strong>3+ months</strong><span>Minimum wait before a notice of sale can be recorded (NRS 107.080).</span></li>
-          <li><strong>Notice of sale</strong><span>Posted 20 days and published 3 weeks. Sets the auction date.</span></li>
-          <li><strong>Auction</strong><span>Held, postponed or cancelled. A sale becomes an auction listing on this site.</span></li>
-        </ol>
-      </section>
+      <DrillDown sections={GUIDE} active={section} baseHref="#/pre-foreclosures" label="Pre-foreclosure guide" />
 
-      <BuyerChecklistBox list={CHECKLISTS.pre} />
+      {!guideOpen && (
+        <>
+          {changed.length > 0 && (
+            <div className="notice" role="status">
+              <strong>{changed.length} tracked {changed.length === 1 ? 'property has' : 'properties have'} moved to a new stage</strong> since you
+              last marked them seen.
+              <button className="linkish" onClick={() => update({ ...watch, ...Object.fromEntries(changed.map((r) => [r.p.id, r.t.stage])) })}>
+                Mark all seen
+              </button>
+            </div>
+          )}
 
-      {changed.length > 0 && (
-        <div className="notice" role="status">
-          <strong>{changed.length} tracked {changed.length === 1 ? 'property has' : 'properties have'} moved to a new stage</strong> since you
-          last marked them seen.
-          <button className="linkish" onClick={() => update({ ...watch, ...Object.fromEntries(changed.map((r) => [r.p.id, r.t.stage])) })}>
-            Mark all seen
-          </button>
-        </div>
+          <div className="toolbar">
+            <input aria-label="Filter by address, city, ZIP or APN" placeholder="Address, city, ZIP or APN" value={q} onChange={(e) => setQ(e.target.value)} />
+            <select aria-label="Stage" value={stage} onChange={(e) => setStage(e.target.value as StageFilter)}>
+              <option value="active">In progress</option>
+              <option value="ended">Ended</option>
+              <option value="all">All stages</option>
+              {(Object.keys(STAGE_INFO) as ForeclosureStage[]).map((s) => (
+                <option key={s} value={s}>{STAGE_INFO[s].label}</option>
+              ))}
+            </select>
+            <label className="check">
+              <input type="checkbox" checked={trackedOnly} onChange={(e) => setTrackedOnly(e.target.checked)} /> Tracked only ({Object.keys(watch).length})
+            </label>
+          </div>
+
+          <p className="small muted">{shown.length} of {rows.length} properties</p>
+          <ul className="track-list">
+            {shown.map((r) => {
+              const { p, t } = r;
+              const info = STAGE_INFO[t.stage];
+              const tracked = !!watch[p.id];
+              const moved = tracked && watch[p.id] !== t.stage;
+              return (
+                <li key={p.id} className="track-card">
+                  <div className="track-head">
+                    <div>
+                      <span className={`badge tone-${info.tone}`}>{info.label}</span> <span className="small muted">{t.kind}</span>
+                      {moved && <span className="badge tone-info">Stage changed</span>}
+                      <h3>{p.address}</h3>
+                      <div className="small muted">{p.city}, {p.state} {p.zip} · APN {p.apn}</div>
+                    </div>
+                    <button className={tracked ? 'btn' : ''} aria-pressed={tracked} onClick={() => toggle(r)}>
+                      {tracked ? '★ Tracking' : '☆ Track'}
+                    </button>
+                  </div>
+                  <Pipeline t={t} />
+                  <p className="track-key">
+                    {t.saleAt ? <>Auction <strong>{fmtDateTime(t.saleAt)}</strong></> : t.noticeOfSaleOn ? <>Notice of sale <strong>{fmtDate(t.noticeOfSaleOn)}</strong></> : <>Notice of sale not before <strong>{fmtDate(t.earliestNoticeOfSale)}</strong></>}
+                  </p>
+                  <details className="track-more">
+                    <summary>Dates &amp; what happens next</summary>
+                    <dl className="card-stats">
+                      <div><dt>Default recorded</dt><dd>{fmtDate(t.defaultRecordedOn)}</dd></div>
+                      <div><dt>Days in foreclosure</dt><dd>{info.ended ? '—' : t.daysInForeclosure}</dd></div>
+                      <div><dt>Notice of sale</dt><dd>{t.noticeOfSaleOn ? fmtDate(t.noticeOfSaleOn) : `Not before ${fmtDate(t.earliestNoticeOfSale)}`}</dd></div>
+                      <div><dt>Auction</dt><dd>{t.saleAt ? fmtDateTime(t.saleAt) : '—'}</dd></div>
+                    </dl>
+                    <p className="small">{t.next}</p>
+                  </details>
+                  <a className="small" href={`#/property/${p.id}`}>Property details →</a>
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
-
-      <div className="toolbar">
-        <input aria-label="Filter by address, city, ZIP or APN" placeholder="Address, city, ZIP or APN" value={q} onChange={(e) => setQ(e.target.value)} />
-        <select aria-label="Stage" value={stage} onChange={(e) => setStage(e.target.value as StageFilter)}>
-          <option value="active">In progress</option>
-          <option value="ended">Ended</option>
-          <option value="all">All stages</option>
-          {(Object.keys(STAGE_INFO) as ForeclosureStage[]).map((s) => (
-            <option key={s} value={s}>{STAGE_INFO[s].label}</option>
-          ))}
-        </select>
-        <label className="check">
-          <input type="checkbox" checked={trackedOnly} onChange={(e) => setTrackedOnly(e.target.checked)} /> Tracked only ({Object.keys(watch).length})
-        </label>
-      </div>
-
-      <p className="small muted">{shown.length} of {rows.length} properties</p>
-      <ul className="track-list">
-        {shown.map((r) => {
-          const { p, t } = r;
-          const info = STAGE_INFO[t.stage];
-          const tracked = !!watch[p.id];
-          const moved = tracked && watch[p.id] !== t.stage;
-          return (
-            <li key={p.id} className="track-card">
-              <div className="track-head">
-                <div>
-                  <span className={`badge tone-${info.tone}`}>{info.label}</span> <span className="small muted">{t.kind}</span>
-                  {moved && <span className="badge tone-info">Stage changed</span>}
-                  <h3>{p.address}</h3>
-                  <div className="small muted">{p.city}, {p.state} {p.zip} · APN {p.apn}</div>
-                </div>
-                <button className={tracked ? 'btn' : ''} aria-pressed={tracked} onClick={() => toggle(r)}>
-                  {tracked ? '★ Tracking' : '☆ Track'}
-                </button>
-              </div>
-              <Pipeline t={t} />
-              <dl className="card-stats">
-                <div><dt>Default recorded</dt><dd>{fmtDate(t.defaultRecordedOn)}</dd></div>
-                <div><dt>Days in foreclosure</dt><dd>{info.ended ? '—' : t.daysInForeclosure}</dd></div>
-                <div><dt>Notice of sale</dt><dd>{t.noticeOfSaleOn ? fmtDate(t.noticeOfSaleOn) : `Not before ${fmtDate(t.earliestNoticeOfSale)}`}</dd></div>
-                <div><dt>Auction</dt><dd>{t.saleAt ? fmtDateTime(t.saleAt) : '—'}</dd></div>
-              </dl>
-              <p className="small">{t.next}</p>
-              <a className="small" href={`#/property/${p.id}`}>Property details →</a>
-            </li>
-          );
-        })}
-      </ul>
       <Disclaimer kind="sales" />
     </main>
   );
