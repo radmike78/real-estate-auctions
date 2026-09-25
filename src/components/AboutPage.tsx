@@ -2,6 +2,7 @@ import type { AcquisitionStatus } from '../types';
 import { STATUS } from '../lib/status';
 import StatusBadge from './StatusBadge';
 import DrillDown, { type DrillSection } from './DrillDown';
+import PageHero from './PageHero';
 import { IconDatabase, IconFlag, IconHelp, IconLayers, IconStop } from './Icons';
 
 const SALE_TYPES: [string, string, string][] = [
@@ -98,13 +99,20 @@ export default function AboutPage({ section }: { section?: string }) {
   const open = section === 'all' || SECTIONS.some((x) => x.key === section);
   return (
     <main className="page prose">
-      <h1>{open ? <a className="title-link" href="#/about">How it works</a> : 'How it works'}</h1>
-      {!open && (
-        <p>
-          <strong>A lien does not mean a property is for sale.</strong> A property heads to a forced sale only when someone enforces a lien:
-          a notice of trustee sale, a court order, a levy, or a tax-sale listing. We only call a property buyable when a sale is on record.
-        </p>
-      )}
+      <PageHero
+        compact={open}
+        eyebrow={<span className="eyebrow">The basics</span>}
+        title={open ? <a className="title-link" href="#/about">How it works</a> : <>How it <span className="grad">works</span></>}
+        sub={
+          open ? undefined : (
+            <>
+              <strong>A lien does not mean a property is for sale.</strong> A property heads to a forced sale only when someone enforces a
+              lien: a notice of trustee sale, a court order, a levy, or a tax-sale listing. We only call a property buyable when a sale is on
+              record.
+            </>
+          )
+        }
+      />
       <DrillDown sections={SECTIONS} active={section} baseHref="#/about" label="How it works" showAll />
     </main>
   );

@@ -7,6 +7,7 @@ import Disclaimer from './Disclaimer';
 import BuyerChecklistBox from './BuyerChecklistBox';
 import { CHECKLISTS } from '../lib/buyerChecklists';
 import DrillDown, { type DrillSection } from './DrillDown';
+import PageHero from './PageHero';
 import { IconCheckList, IconClock } from './Icons';
 
 const WATCH_KEY = 'fsf.preforeclosure.watch.v1';
@@ -117,7 +118,12 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
 
   return (
     <main className="page">
-      <h1>Pre-foreclosure tracker</h1>
+      <PageHero
+        compact={guideOpen}
+        eyebrow={<span className="eyebrow">Not for sale yet · Nevada</span>}
+        title={guideOpen ? <a className="title-link" href="#/pre-foreclosures">Pre-foreclosure tracker</a> : <>Pre-foreclosure <span className="grad">tracker</span></>}
+        sub={guideOpen ? undefined : 'Follow homes from notice of default to auction, without contacting anyone.'}
+      />
 
       <div className="caution" role="alert">
         <strong>Do not contact these homeowners.</strong> A notice of default means an owner is behind on payments. It does not mean the home
@@ -128,7 +134,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
       </div>
 
       <p className="muted">
-        Follow Nevada foreclosures from default to auction. <strong>Sample data:</strong> a live feed of Clark County Recorder notices will be
+        <strong>Sample data:</strong> a live feed of Clark County Recorder notices will be
         connected once a data-use agreement with the Recorder's office is in place.
       </p>
 

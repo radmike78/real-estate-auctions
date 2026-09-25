@@ -12,6 +12,7 @@ import Disclaimer from './Disclaimer';
 import BuyerChecklistBox from './BuyerChecklistBox';
 import { checklistForProperty } from '../lib/buyerChecklists';
 import DrillDown, { type DrillSection } from './DrillDown';
+import PageHero from './PageHero';
 import { IconCalendar, IconCheckList, IconClock, IconFile, IconFlag, IconLayers, IconShield, IconSteps } from './Icons';
 
 const LIEN_LABEL: Record<LienType, string> = {
@@ -268,45 +269,50 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
 
   return (
     <main className="page">
-      <div className="page-actions no-print">
-        <a href={open ? baseHref : '#/search'}>{open ? '← Property overview' : '← Back to results'}</a>
-        <button onClick={() => window.print()}>Print full report</button>
-      </div>
-
-      <header className={`prop-head${open ? ' compact' : ''}`}>
-        <div>
-          <div className="card-top">
+      <PageHero
+        compact={open}
+        top={
+          <>
+            <a href={open ? baseHref : '#/search'}>{open ? '← Property overview' : '← Back to results'}</a>
+            <button className="hero-btn" onClick={() => window.print()}>Print full report</button>
+          </>
+        }
+        eyebrow={
+          <>
             <StatusBadge status={p.status} />
-            {s && <span className="muted">{SALE_TYPE_LABEL[s.saleType]}</span>}
-          </div>
-          {open ? <p className="prop-title"><a href={baseHref}>{p.address}</a></p> : <h1>{p.address}</h1>}
-          <p className="muted">
-            {p.city}, {p.state} {p.zip} · {p.county} County · APN {p.apn}
-          </p>
-        </div>
-        {s?.startsAt && !open && (
-          <div className="countdown">
-            <div className="small muted">{days !== null && days < 0 ? 'Scheduled sale was' : 'Sale starts'}</div>
-            <div className="big">{fmtDateTime(s.startsAt)}</div>
-            {days !== null && days >= 0 && <div className="small">{days === 0 ? 'Today' : `in ${days} day${days === 1 ? '' : 's'}`}</div>}
-          </div>
+            {s && <span className="eyebrow">{SALE_TYPE_LABEL[s.saleType]}</span>}
+          </>
+        }
+        title={open ? <a className="title-link" href={baseHref}>{p.address}</a> : p.address}
+        sub={`${p.city}, ${p.state} ${p.zip} · ${p.county} County · APN ${p.apn}`}
+        aside={
+          s?.startsAt && !open ? (
+            <div className="countdown">
+              <div className="countdown-label">
+                {days !== null && days >= 0 && <span className="live-dot" aria-hidden />}
+                {days !== null && days < 0 ? 'Scheduled sale was' : 'Sale starts'}
+              </div>
+              <div className="big">{fmtDateTime(s.startsAt)}</div>
+              {days !== null && days >= 0 && <div className="countdown-days">{days === 0 ? 'Today' : `in ${days} day${days === 1 ? '' : 's'}`}</div>}
+            </div>
+          ) : undefined
+        }
+      >
+        {!open && (
+          <dl className="glance" aria-label="At a glance">
+            <div><dt>Minimum bid</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
+            <div><dt>Est. market value</dt><dd>{fmtMoney(p.estimatedMarketValue)}</dd></div>
+            <div><dt>Liens likely {s ? 'surviving' : 'remaining'}</dt><dd className={money.likelySurviving ? 'neg' : ''}>{fmtMoney(money.likelySurviving)}</dd></div>
+            <div><dt>Rough equity</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : 'grad'}>{fmtMoney(money.estimatedEquity)}</dd></div>
+          </dl>
         )}
-      </header>
+      </PageHero>
 
       <div className="verify" role="alert">
         <strong>Verify before bidding.</strong> Sales are often paid off, postponed, cancelled or challenged at the last minute. Confirm with{' '}
         {s?.conductedBy ?? 'the conducting agency'} and read the official notice. This report is a screening tool, not a title search, and does
         not mean title is clear.
       </div>
-
-      {!open && (
-        <dl className="glance" aria-label="At a glance">
-          <div><dt>Minimum bid</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
-          <div><dt>Est. market value</dt><dd>{fmtMoney(p.estimatedMarketValue)}</dd></div>
-          <div><dt>Liens likely {s ? 'surviving' : 'remaining'}</dt><dd className={money.likelySurviving ? 'neg' : ''}>{fmtMoney(money.likelySurviving)}</dd></div>
-          <div><dt>Rough equity</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : ''}>{fmtMoney(money.estimatedEquity)}</dd></div>
-        </dl>
-      )}
 
       <DrillDown sections={sections} active={section} baseHref={baseHref} label="Property sections" printAll={printAll} />
     </main>

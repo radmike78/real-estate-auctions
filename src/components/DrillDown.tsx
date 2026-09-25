@@ -64,14 +64,15 @@ export default function DrillDown(props: { sections: DrillSection[]; active?: st
   if (i < 0) {
     return (
       <nav className="drill-tiles" aria-label={label}>
-        {sections.map((s) => (
+        {sections.map((s, n) => (
           <a key={s.key} href={`${baseHref}/${s.key}`} className={`drill-tile${s.tone ? ` tone-${s.tone}` : ''}`}>
             <span className="drill-head">
               {s.icon && <span className="drill-icon" aria-hidden>{s.icon}</span>}
               <strong className="drill-title">{s.title}</strong>
+              <span className="drill-num" aria-hidden>{String(n + 1).padStart(2, '0')}</span>
             </span>
             <span className="drill-summary">{s.summary}</span>
-            <span className="drill-open" aria-hidden>Open →</span>
+            <span className="drill-open" aria-hidden>Open <span className="drill-arrow">→</span></span>
           </a>
         ))}
         {showAll && <a href={`${baseHref}/all`} className="drill-all">Read everything on one page</a>}
