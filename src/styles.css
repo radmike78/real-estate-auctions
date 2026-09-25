@@ -315,6 +315,7 @@ th { font-size: 0.95rem; color: var(--muted); font-weight: 600; }
 .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
 .toolbar input { flex: 1; min-width: 200px; width: auto; }
 .toolbar select { width: auto; }
+.toolbar .check input { flex: none; min-width: 0; width: 20px; }
 
 /* Pre-foreclosure tracker */
 .explainer { padding: 12px 16px !important; }
