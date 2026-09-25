@@ -197,3 +197,13 @@ describe('buyer checklists', () => {
     expect(checklistForFilters([], ['NOT_FOR_SALE_LIEN_ONLY']).key).toBe('liens');
   });
 });
+
+describe('privacy policy and terms', () => {
+  it('has the business details in one place, with placeholders flagged until they are filled in', async () => {
+    const { SITE_INFO, hasPlaceholders, PRIVACY_EFFECTIVE, TERMS_EFFECTIVE } = await import('./siteInfo');
+    expect(SITE_INFO.governingLaw).toBe('Nevada');
+    expect(PRIVACY_EFFECTIVE).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(TERMS_EFFECTIVE).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(typeof hasPlaceholders()).toBe('boolean');
+  });
+});

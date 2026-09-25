@@ -17,6 +17,8 @@ import ProsPage from './components/ProsPage';
 import ProProfilePage from './components/ProProfilePage';
 import AdvertiserPage from './components/AdvertiserPage';
 import DisclaimerPage from './components/DisclaimerPage';
+import PrivacyPage from './components/PrivacyPage';
+import TermsPage from './components/TermsPage';
 import CalculatorPage from './components/CalculatorPage';
 import PlaybookPage from './components/PlaybookPage';
 import DealsPage from './components/DealsPage';
@@ -46,6 +48,8 @@ type Route =
   | { page: 'admin' }
   | { page: 'advertiser'; token: string | null }
   | { page: 'disclaimer'; section?: string }
+  | { page: 'privacy'; section?: string }
+  | { page: 'terms'; section?: string }
   | { page: 'calculator' }
   | { page: 'deals' }
   | { page: 'homeowner' }
@@ -79,7 +83,7 @@ function parseHash(): Route {
   const m = h.match(/^property\/([^/]+)(?:\/([a-z-]+))?$/);
   if (m) return { page: 'property', id: m[1], section: m[2] };
   // Pages split into sections take an optional /section suffix.
-  const sub = h.match(/^(about|pre-foreclosures|short-sales|disclaimer)(?:\/([a-z-]+))?$/);
+  const sub = h.match(/^(about|pre-foreclosures|short-sales|disclaimer|privacy|terms)(?:\/([a-z-]+))?$/);
   if (sub?.[1] === 'about') return { page: 'about', section: sub[2] };
   if (h === 'live') return { page: 'live' };
   if (sub?.[1] === 'pre-foreclosures') return { page: 'preforeclosures', q, section: sub[2] };
@@ -101,6 +105,8 @@ function parseHash(): Route {
   const pb = h.match(/^playbooks(?:\/([a-z]+)(?:\/([a-z-]+))?)?$/);
   if (pb) return { page: 'playbook', key: pb[1], section: pb[2] };
   if (sub?.[1] === 'disclaimer') return { page: 'disclaimer', section: sub[2] };
+  if (sub?.[1] === 'privacy') return { page: 'privacy', section: sub[2] };
+  if (sub?.[1] === 'terms') return { page: 'terms', section: sub[2] };
   const adv = h.match(/^advertiser(?:\/login\/([A-Za-z0-9_-]+))?$/);
   if (adv) return { page: 'advertiser', token: adv[1] ?? null };
   return { page: 'home' };
@@ -140,6 +146,8 @@ export default function App() {
       {route.page === 'applicationConfirm' && <ApplicationConfirmPage token={route.token} />}
       {route.page === 'admin' && <AdminPage />}
       {route.page === 'disclaimer' && <DisclaimerPage section={route.section} />}
+      {route.page === 'privacy' && <PrivacyPage section={route.section} />}
+      {route.page === 'terms' && <TermsPage section={route.section} />}
       {route.page === 'calculator' && <CalculatorPage />}
       {route.page === 'deals' && <DealsPage />}
       {route.page === 'homeowner' && <HomeownerHelpPage />}
@@ -154,6 +162,8 @@ export default function App() {
           <a href="#/about">How it works</a>
           <a href="#/advertise">Advertise</a>
           <a href="#/advertiser">Advertiser sign-in</a>
+          <a href="#/privacy">Privacy</a>
+          <a href="#/terms">Terms</a>
         </nav>
       </footer>
       <RoleNotice />

@@ -76,7 +76,7 @@ export default function LeadForm({ pro }: { pro: Pro }) {
         </label>
         <label className="check attest">
           <input type="checkbox" checked={f.consent} onChange={(e) => set('consent', e.target.checked)} />
-          <span>Send my name, email, phone and message to {pro.name} only, so they can contact me about my request.{errors.consent && <span className="field-error"> {errors.consent}</span>}</span>
+          <span>Send my name, email, phone and message to {pro.name} only, so they can contact me about my request. <a href="#/privacy" target="_blank" rel="noreferrer">Privacy policy</a>{errors.consent && <span className="field-error"> {errors.consent}</span>}</span>
         </label>
         <label className="check attest">
           <input type="checkbox" checked={f.acknowledge} onChange={(e) => set('acknowledge', e.target.checked)} />
