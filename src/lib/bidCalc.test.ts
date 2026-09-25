@@ -123,3 +123,28 @@ describe('review fixes', () => {
     expect(daysUntil('2026-09-27T12:00:00Z', now)).toBe(2);
   });
 });
+
+describe('legal fact-check fixes', () => {
+  it('uses the special-assessment checklist for lien certificates, not the tax-deed one', async () => {
+    const { checklistForProperty } = await import('./buyerChecklists');
+    const sid = checklistForProperty('TAX_LIEN_CERTIFICATE', 'IN_PERSON_AUCTION');
+    expect(sid.key).toBe('sid');
+    const text = sid.items.map((i) => `${i.text} ${i.detail ?? ''}`).join(' ');
+    expect(text).toMatch(/no deposit/i);
+    expect(text).toMatch(/expires 3 years/);
+    expect(text).not.toMatch(/\$5,000/);
+  });
+
+  it('gives tenants the federal 90-day notice, not 60', async () => {
+    const { CHECKLISTS } = await import('./buyerChecklists');
+    const { playbookByKey } = await import('./playbooks');
+    const all = JSON.stringify(CHECKLISTS) + JSON.stringify(playbookByKey('foreclosure'));
+    expect(all).toMatch(/90 days/);
+    expect(all).not.toMatch(/60 days for monthly tenants/);
+  });
+
+  it('says a special-assessment deed clears other liens', async () => {
+    const { playbookByKey } = await import('./playbooks');
+    expect(playbookByKey('sid')!.survives.wipedOut.join(' ')).toMatch(/NRS 271\.600/);
+  });
+});

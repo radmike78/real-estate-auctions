@@ -24,7 +24,7 @@ export default function HomeownerHelpPage() {
       <section>
         <h2>Free, trustworthy help</h2>
         <ul className="help-links">
-          <li><strong>Foreclosure Mediation Program (Nevada courts).</strong> Owner-occupants can ask for mediation with the lender after a notice of default; the notice you received explains the deadline. <a href="https://nvcourts.gov/" {...ext}>Nevada courts ↗</a></li>
+          <li><strong>Foreclosure Mediation Program (Nevada courts).</strong> If you live in the home, you can petition the district court for mediation with your lender within 30 days after the notice of default is served (NRS 107.086). There is a small filing fee. In Clark County it is run by the Eighth Judicial District Court. <a href="https://www.clarkcountycourts.us/departments/adr/foreclosure-mediation/" {...ext}>Foreclosure mediation (Clark County courts) ↗</a></li>
           <li><strong>HUD-approved housing counselors.</strong> Free advice on your options. <a href="https://www.hud.gov/findacounselor" {...ext}>Find a counselor (HUD) ↗</a> · <a href="https://www.consumerfinance.gov/find-a-housing-counselor/" {...ext}>CFPB counselor search ↗</a></li>
           <li><strong>Free legal help.</strong> <a href="https://www.lacsn.org/" {...ext}>Legal Aid Center of Southern Nevada ↗</a> · <a href="https://nevadalegalservices.org/" {...ext}>Nevada Legal Services ↗</a> · <a href="https://www.civillawselfhelpcenter.org/" {...ext}>Civil Law Self-Help Center ↗</a></li>
         </ul>
@@ -34,7 +34,7 @@ export default function HomeownerHelpPage() {
         <h2>Watch out for foreclosure scams</h2>
         <ul>
           <li>Never pay upfront fees to someone promising to “save” your home. Counselors above are free.</li>
-          <li>Never sign over your deed or sign papers you don’t understand. Nevada regulates people who buy homes from owners in foreclosure (NRS 645F), and those deals can often be cancelled.</li>
+          <li>Never sign over your deed or sign papers you don’t understand. Nevada licenses and regulates foreclosure consultants and people who buy homes from owners in foreclosure (NRS 645F). If a buyer used fraud or deceit, the sale can be cancelled within 2 years.</li>
           <li>Be wary of anyone who contacts you because they saw your home in public records.</li>
           <li>Report scams to the <a href="https://ag.nv.gov/" {...ext}>Nevada Attorney General ↗</a>.</li>
         </ul>
@@ -42,7 +42,7 @@ export default function HomeownerHelpPage() {
 
       <section>
         <h2>Renting a home that’s in foreclosure?</h2>
-        <p>If the home you rent is sold at foreclosure, the new owner must give you a notice of the change of ownership and a notice period before you can be removed: at least 60 days for a monthly tenancy (NRS 40.255). Keep paying rent as your lease requires and ask a legal aid office about your rights.</p>
+        <p>If the home you rent is sold at foreclosure, federal law (the Protecting Tenants at Foreclosure Act) gives a bona fide tenant at least 90 days’ written notice before you can be asked to leave, and lets you stay to the end of your lease unless the new owner will live in the home. Nevada also requires a notice of the change of ownership (NRS 40.255). Keep paying rent as your lease requires and ask a legal aid office about your rights.</p>
       </section>
 
       <section>

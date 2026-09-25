@@ -80,7 +80,7 @@ export function foreclosureTrack(p: Property, now = new Date()): ForeclosureTrac
   const nextByStage: Record<ForeclosureStage, string> = {
     DEFAULT_RECORDED:
       now.toISOString().slice(0, 10) < earliest
-        ? `A notice of sale can't be recorded before ${fmtDate(earliest)} (3 months after the default).`
+        ? `A notice of sale can't be recorded before ${fmtDate(earliest)} (3 months after the notice of default was recorded).`
         : 'A notice of sale may be recorded at any time. The sale would follow at least ~3 weeks later.',
     SALE_SCHEDULED: 'The auction is scheduled. Owners often reinstate, modify or sell before the date.',
     POSTPONED: 'Watch for a new sale date. Postponements are common and may repeat.',

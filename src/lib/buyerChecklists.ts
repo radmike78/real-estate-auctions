@@ -41,6 +41,20 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       CONFIRM,
     ],
   },
+  sid: {
+    key: 'sid',
+    forSale: true,
+    title: 'Buying a special assessment lien certificate',
+    intro: 'Clark County sells the lien for unpaid special improvement district (SID) assessments under NRS 271. You buy a certificate that earns 1% a month, not the property.',
+    items: [
+      { text: 'Register in person on sale day', detail: 'About an hour before the sale, with government photo ID. The certificate is issued in the name on your ID. There is no deposit or fee, and nobody can register for you.' },
+      { text: 'Funds for the next morning', detail: "Winners are drawn at random. Pay by 10:00 a.m. the next business day in cash, cashier's check or money order, or the certificate goes to an alternate." },
+      { text: 'A W-9 for the Treasurer', detail: 'Interest over $10 is reported on a 1099-INT.' },
+      { text: 'Patience for the redemption period', detail: '120 days, or 2 years if the land has a building or significant improvement. Most owners redeem.' },
+      { text: 'A calendar reminder for the deadline', detail: 'If the owner never redeems, notify them and request a deed (after paying delinquent taxes and assessments). The certificate expires 3 years after the redemption period ends.' },
+      CONFIRM,
+    ],
+  },
   tax: {
     key: 'tax',
     forSale: true,
@@ -50,7 +64,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: 'Registration form and $5,000 deposit, about a week before', detail: "Certified funds to the Treasurer by the registration deadline (in 2025, eight days before the sale). Capped at 280 bidders. No registration on auction day. The deposit is credited if you win and refunded 4–5 weeks later if you don't." },
       { text: 'Register in your own name, not an LLC or trust', detail: 'The deed is issued to the individual on the registration form. Moving it into a company later means recording a separate deed.' },
       { text: 'Photo ID and your registration confirmation on auction day', detail: 'Check-in starts at 7:00 a.m. No phones, laptops or cameras are allowed in the chambers.' },
-      { text: 'Certified funds for the full price by 1:00 p.m.', detail: "Cash, cashier's check, wire or money order. If you win several parcels, you must pay for all of them or lose the deposit and be banned from future auctions." },
+      { text: 'Certified funds for the full price by 1:00 p.m.', detail: "Cash, cashier's check or money order (confirm accepted forms in the notice). Parcels re-auctioned at 2:00 p.m. must be paid by 4:30 p.m. If you win several parcels, you must pay for all of them or lose the deposit and be banned from future auctions." },
       { text: 'Research each parcel you want', detail: 'Match the parcel number on the Assessor map and drive by. Parcels can be paid off (lined out) until the Treasurer\'s deadline a few days before the sale.' },
       { text: 'A title search, and a plan for title insurance', detail: 'Not all liens are wiped out, and the IRS can redeem within 120 days if it holds a lien. The former owner can protest the sale for 2 years, and title insurers may not insure until then or until a quiet title action.' },
       { text: 'Budget beyond the bid', detail: 'Recording fees, surviving liens, repairs, possibly quiet title ($1,500–$5,000+ if uncontested), and legal help if someone lives there. The county does not help with occupants.' },
@@ -69,7 +83,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: 'Cash or a hard-money or bridge loan arranged in advance', detail: "Regular mortgages can't fund a trustee sale." },
       { text: 'A title search', detail: 'Property taxes and the HOA super-priority lien survive. Check for IRS and other senior liens.' },
       { text: 'Confirmation the sale is still on', detail: 'Call the trustee the day before. Postponements and cancellations are common.' },
-      { text: 'An as-is repair budget and an occupancy plan', detail: 'No interior inspection. Tenants must get a change-of-ownership notice (at least 60 days for monthly tenants); former owners a 3-day notice (NRS 40.255). Budget for an eviction attorney.' },
+      { text: 'An as-is repair budget and an occupancy plan', detail: 'No interior inspection. Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act), and a lease can run to its end unless the buyer will live there; former owners get a 3-day notice (NRS 40.255). Budget for an eviction attorney.' },
       { text: 'For court-ordered sales: time for redemption', detail: 'The owner can redeem for up to 1 year, so your money may be tied up.' },
     ],
   },
@@ -102,8 +116,8 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     items: [
       { text: "Cashier's checks for your full bid", detail: 'Confirm the amount and payee with the HOA’s foreclosure agent.' },
       { text: 'Government-issued photo ID' },
-      { text: 'Proof the first mortgage is wiped out, or budget for it', detail: 'If the lender paid the HOA’s priority amount at least 5 days before the sale, the first mortgage survives (NRS 116.31166). Check the Recorder for a recorded payment or satisfaction, and get a title professional’s opinion.' },
-      { text: 'A 60-day wait before the sale is final', detail: 'The former owner or a lender can redeem within 60 days by paying your price plus 1% a month. Don’t start repairs until the redemption period ends.' },
+      { text: 'Proof the first mortgage is wiped out, or budget for it', detail: 'If the lender paid the HOA’s priority amount at least 5 days before the sale, the first mortgage survives (NRS 116.31166). It also survives if Fannie Mae or Freddie Mac owned the loan, unless the FHFA consented. Check the Recorder for a recorded payment or satisfaction, and get a title professional’s opinion.' },
+      { text: 'A 60-day wait before the sale is final', detail: 'The former owner or a lender can redeem within 60 days by paying your price plus 1% a month and the taxes, assessments and upkeep you paid. Don’t start repairs until the redemption period ends.' },
       { text: 'Cash, or hard-money financing arranged in advance' },
       { text: 'Budget for surviving liens, repairs and possession' },
       CONFIRM,
@@ -144,8 +158,8 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     title: 'Not for sale yet: how to get ready',
     intro: 'The owner is behind on payments, but nothing is for sale. Prepare now in case it goes to auction or is listed.',
     items: [
-      { text: 'Do not contact the homeowner', detail: 'Nevada strictly regulates approaching owners in foreclosure (NRS 645F).' },
-      { text: 'Track the property', detail: 'A notice of sale can come 3 months after the default. The auction is about 3+ weeks after that.' },
+      { text: 'Do not contact the homeowner', detail: 'Nevada licenses and regulates foreclosure consultants and buyers who deal with owners in foreclosure (NRS 645F). This site’s policy is no contact.' },
+      { text: 'Track the property', detail: 'A notice of sale can come 3 months after the notice of default is recorded. The auction is about 3+ weeks after that.' },
       { text: 'Line up your money now', detail: "Cash, or a hard-money or bridge loan for an auction. A pre-approval for a short-sale or bank-owned purchase." },
       { text: "Practice with cashier's checks and ID", detail: 'Trustee sales usually need certified funds for the full bid.' },
       { text: 'Order a title search once a notice of sale is recorded' },
@@ -174,8 +188,9 @@ export function checklistForProperty(saleType: SaleType | null, status: Acquisit
   if (status === 'NOT_FOR_SALE_LIEN_ONLY') return CHECKLISTS.liens;
   switch (saleType) {
     case 'TAX_DEED':
-    case 'TAX_LIEN_CERTIFICATE':
       return CHECKLISTS.tax;
+    case 'TAX_LIEN_CERTIFICATE':
+      return CHECKLISTS.sid;
     case 'TRUSTEE_SALE':
     case 'JUDICIAL_FORECLOSURE':
       return CHECKLISTS.foreclosure;

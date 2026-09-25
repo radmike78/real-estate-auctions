@@ -114,7 +114,7 @@ export function purchaseSteps(p: Property): string[] {
     case 'PRE_FORECLOSURE_NOT_YET_PURCHASABLE':
       return [
         'There is no auction yet. Track this property in the Pre-foreclosure tracker. If it proceeds, a Notice of Sale will be recorded and an auction date set.',
-        'Do not contact the homeowner. Nevada strictly regulates anyone who approaches owners in foreclosure (NRS 645F), and deals made that way can be undone.',
+        'Do not contact the homeowner. Nevada licenses and regulates foreclosure consultants and buyers who deal with owners in foreclosure (NRS 645F), and a purchase made through fraud or deceit can be undone.',
         'If the owner decides to sell, the home will be listed through a licensed agent, often as a short sale. Ask a short-sale agent to watch for it.',
       ];
     case 'LIEN_CERTIFICATE_ONLY':
