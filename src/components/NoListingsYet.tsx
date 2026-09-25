@@ -1,6 +1,6 @@
-import { HUD_NEVADA_SEARCH } from '../lib/buyerChecklists';
+import { HUD_CLARK_SEARCH } from '../lib/reoSources';
 import { Tile } from './DrillDown';
-import { IconCalc, IconCheckList, IconPulse } from './Icons';
+import { IconBank, IconCalc, IconCheckList, IconPulse } from './Icons';
 
 // Shown instead of property listings when a production build has no real listings connected yet
 // (sample data is turned off; see src/data/index.ts). Points people to the official sources and the
@@ -10,8 +10,9 @@ const OFFICIAL = [
   { label: 'Clark County Treasurer: tax-sale auction list', url: 'https://treasurer.clarkcountynv.gov/auction' },
   { label: 'Clark County Sheriff: sheriff’s sales', url: 'https://www.clarkcountynv.gov/government/departments/sheriff_civil/sheriff_s_sales/' },
   { label: 'Clark County Recorder: notices of default and trustee sales', url: 'https://recorderecomm.clarkcountynv.gov/AcclaimWeb/' },
-  { label: 'HUD Home Store: HUD-owned homes in Nevada', url: HUD_NEVADA_SEARCH },
-  { label: 'Fannie Mae HomePath: bank-owned homes', url: 'https://www.homepath.fanniemae.com/' },
+  { label: 'HUD Home Store: HUD-owned homes in Clark County', url: HUD_CLARK_SEARCH },
+  { label: 'Fannie Mae HomePath: bank-owned homes', url: 'https://homepath.fanniemae.com/property-finder' },
+  { label: 'Freddie Mac HomeSteps: bank-owned homes', url: 'https://www.homesteps.com/' },
   { label: 'IRS auctions', url: 'https://www.irsauctions.gov/' },
 ];
 
@@ -25,6 +26,7 @@ export default function NoListingsYet({ what = 'Property listings' }: { what?: s
       </p>
       <div className="drill-tiles">
         <Tile href="#/live" icon={<IconPulse />} title="Live tax sales" tone="go" summary="Verified parcels from the County Treasurer, when an auction is scheduled" />
+        <Tile href="#/bank-owned" icon={<IconBank />} title="Bank-owned homes" summary="Direct lists from HUD, Fannie Mae, Freddie Mac and banks" />
         <Tile href="#/playbooks" icon={<IconCheckList />} title="Nevada playbooks" summary="How each kind of forced sale works, step by step" />
         <Tile href="#/calculator" icon={<IconCalc />} title="Maximum safe bid" summary="Know your number, and when to stop bidding" />
       </div>

@@ -955,3 +955,13 @@ small { font-size: 0.95rem; }
 }
 @media (max-width: 420px) { .calc-sticky-go { display: none; } }
 @media print { .calc-sticky { display: none !important; } }
+
+/* ================= Bank-owned & government homes ================= */
+.reo-grid { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 16px; }
+.page .reo-card { margin: 0; max-width: none; padding: 20px 22px; border-radius: 16px; background: var(--surface-2); border: 1px solid var(--border); border-top: 3px solid #3b82f6; display: grid; gap: 8px; align-content: start; }
+.reo-owner { font-family: var(--font-mono); font-size: 0.9rem; color: var(--muted); }
+.page .reo-card h3 { margin: 0; font-size: 1.25rem; }
+.page .reo-card p { margin: 0; }
+.reo-card dl { margin: 4px 0 0; display: grid; gap: 8px; }
+.reo-card dt { font-weight: 700; font-size: 0.95rem; }
+.reo-card dd { margin: 0; color: var(--muted); }

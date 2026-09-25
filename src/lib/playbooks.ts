@@ -318,7 +318,7 @@ export const PLAYBOOKS: Playbook[] = [
       { label: 'Inspection', value: 'Usually allowed within your contingency period' },
       { label: 'Title', value: 'Normal title insurance and escrow' },
       { label: 'HUD homes', value: 'Bid through a HUD-registered broker; owner-occupants get a first bidding period' },
-      { label: 'Fannie Mae HomePath', value: 'Owner-occupants get a “First Look” period before investors' },
+      { label: 'Fannie Mae & Freddie Mac', value: 'Owner-occupants get a 30-day “First Look” period before investors' },
       { label: 'Online auctions', value: 'Check the buyer’s premium and whether the seller must approve the winning bid' },
     ],
     steps: [
@@ -338,7 +338,10 @@ export const PLAYBOOKS: Playbook[] = [
     team: [T.agent, T.mortgage, T.title, T.contractor, T.insurance],
     sources: [
       { label: 'HUD Home Store', url: 'https://www.hudhomestore.gov/' },
-      { label: 'Fannie Mae HomePath', url: 'https://www.homepath.fanniemae.com/' },
+      { label: 'Fannie Mae HomePath', url: 'https://homepath.fanniemae.com/property-finder' },
+      { label: 'Freddie Mac HomeSteps', url: 'https://www.homesteps.com/' },
+      { label: 'VA-acquired homes', url: 'https://www.benefits.va.gov/homeloans/realtors_property_mgmt.asp' },
+      { label: 'Every direct bank and government source for Clark County', url: '#/bank-owned' },
     ],
     lastReviewed: REVIEWED,
   },

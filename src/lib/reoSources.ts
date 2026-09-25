@@ -1,0 +1,168 @@
+// Where to find bank-owned (REO) and government-owned homes in Clark County, NV.
+// Direct sources only: every link goes to a government agency, a government-sponsored enterprise
+// (Fannie Mae, Freddie Mac) or the bank / credit union that owns the homes. Never link third-party
+// auction marketplaces or listing aggregators here (enforced in features.test.ts).
+
+export type ReoGroup = 'government' | 'gse' | 'bank';
+
+export interface ReoSource {
+  name: string;
+  owner: string; // who runs the site
+  group: ReoGroup;
+  url: string;
+  what: string; // what you'll find there
+  howToBuy: string;
+  firstLook?: string; // who can buy before investors
+  clarkCounty: string; // how often it has Clark County homes
+}
+
+export const HUD_CLARK_SEARCH = 'https://www.hudhomestore.gov/searchresult?citystate=Clark%20County,%20NV';
+
+export const REO_SOURCES: ReoSource[] = [
+  {
+    name: 'HUD Home Store',
+    owner: 'U.S. Department of Housing and Urban Development',
+    group: 'government',
+    url: HUD_CLARK_SEARCH,
+    what: 'Homes HUD took back after an FHA-insured loan was foreclosed.',
+    howToBuy: 'Bids go through a HUD-registered real estate broker. Some homes qualify for FHA repair loans.',
+    firstLook: 'Owner-occupants, nonprofits and government buyers get an exclusive bidding period first. Each listing shows when investor bids open.',
+    clarkCounty: 'A few Clark County homes at most times.',
+  },
+  {
+    name: 'VA-acquired homes',
+    owner: 'U.S. Department of Veterans Affairs',
+    group: 'government',
+    url: 'https://www.benefits.va.gov/homeloans/realtors_property_mgmt.asp',
+    what: 'Homes VA acquired after a VA-guaranteed loan ended in foreclosure.',
+    howToBuy: 'VA’s contractor lists them through local agents on the MLS. Ask any licensed agent to show you one.',
+    clarkCounty: 'Occasional. They appear on the MLS like other listings.',
+  },
+  {
+    name: 'USDA single-family resales',
+    owner: 'U.S. Department of Agriculture, Rural Development',
+    group: 'government',
+    url: 'https://properties.sc.egov.usda.gov/resales/public/searchSFH',
+    what: 'Homes from foreclosed USDA rural housing loans.',
+    howToBuy: 'Offers through a licensed agent. Search by state.',
+    clarkCounty: 'Rare. Only areas USDA counts as rural, such as outlying towns.',
+  },
+  {
+    name: 'IRS auctions',
+    owner: 'Internal Revenue Service',
+    group: 'government',
+    url: 'https://www.irsauctions.gov/',
+    what: 'Real estate the IRS seized for unpaid federal taxes.',
+    howToBuy: 'Sealed or public bids. The owner can redeem within 180 days.',
+    clarkCounty: 'Rare.',
+  },
+  {
+    name: 'GSA Real Estate Sales',
+    owner: 'U.S. General Services Administration',
+    group: 'government',
+    url: 'https://www.realestatesales.gov/',
+    what: 'Surplus federal buildings and land, sold by online bid.',
+    howToBuy: 'Register on the GSA site and bid online.',
+    clarkCounty: 'Rare, and usually land or commercial buildings.',
+  },
+  {
+    name: 'Treasury real property auctions',
+    owner: 'U.S. Department of the Treasury',
+    group: 'government',
+    url: 'https://www.treasury.gov/auctions/treasury/rp/index.shtml',
+    what: 'Property forfeited to the federal government.',
+    howToBuy: 'Follow the instructions on each listing.',
+    clarkCounty: 'Rare.',
+  },
+  {
+    name: 'FDIC real estate sales',
+    owner: 'Federal Deposit Insurance Corporation',
+    group: 'government',
+    url: 'https://www.fdic.gov/asset-sales/real-estate-and-property-sales',
+    what: 'Property from failed banks the FDIC took over.',
+    howToBuy: 'Follow the instructions on each listing.',
+    clarkCounty: 'Rare. Only after a bank failure.',
+  },
+  {
+    name: 'NCUA real estate for sale',
+    owner: 'National Credit Union Administration',
+    group: 'government',
+    url: 'https://ncua.gov/support-services/conservatorships-liquidations/loan-sales-available-real-estate',
+    what: 'Property from credit unions the NCUA liquidated.',
+    howToBuy: 'Follow the instructions on each listing.',
+    clarkCounty: 'Rare. Only after a credit union closes.',
+  },
+  {
+    name: 'Fannie Mae HomePath',
+    owner: 'Fannie Mae (government-sponsored)',
+    group: 'gse',
+    url: 'https://homepath.fanniemae.com/property-finder',
+    what: 'Homes Fannie Mae took back after foreclosure. Search Las Vegas or a ZIP code.',
+    howToBuy: 'Offers through your agent, submitted on HomePath.',
+    firstLook: 'First Look: during the first 30 days in Nevada, only owner-occupants, public entities and nonprofits can have offers accepted.',
+    clarkCounty: 'Regularly. One of the largest sources of bank-owned homes.',
+  },
+  {
+    name: 'Freddie Mac HomeSteps',
+    owner: 'Freddie Mac (government-sponsored)',
+    group: 'gse',
+    url: 'https://www.homesteps.com/',
+    what: 'Homes Freddie Mac took back after foreclosure.',
+    howToBuy: 'Offers through the listing agent. Search by city or ZIP code.',
+    firstLook: 'First Look: during the first 30 days on the MLS, only owner-occupants, public entities and nonprofits can buy.',
+    clarkCounty: 'Regularly.',
+  },
+  {
+    name: 'Bank of America bank-owned homes',
+    owner: 'Bank of America',
+    group: 'bank',
+    url: 'https://foreclosures.bankofamerica.com/search',
+    what: 'The bank’s own list of homes it owns after foreclosure. Search Las Vegas or a ZIP code.',
+    howToBuy: 'Offers through the listing agent shown on each home.',
+    clarkCounty: 'Varies.',
+  },
+  {
+    name: 'First Citizens Bank REO search',
+    owner: 'First Citizens Bank',
+    group: 'bank',
+    url: 'https://www.firstcitizens.com/real-estate',
+    what: 'The bank’s nationwide list of real estate it owns. Filter for Nevada.',
+    howToBuy: 'Contact the listing agent shown on each property.',
+    clarkCounty: 'Rare.',
+  },
+  {
+    name: 'U.S. Bank REO properties',
+    owner: 'U.S. Bank',
+    group: 'bank',
+    url: 'https://www.usbank.com/splash/real-estate/bank-owned-residential-real-estate-for-sale.html',
+    what: 'How U.S. Bank sells the homes it owns.',
+    howToBuy: 'Mostly listed by local agents on the MLS.',
+    clarkCounty: 'Found on the MLS through an agent.',
+  },
+  {
+    name: 'Chase REO questions',
+    owner: 'JPMorgan Chase',
+    group: 'bank',
+    url: 'https://www.chase.com/personal/mortgage/reo-faq',
+    what: 'Chase’s own answers on how it sells homes it owns.',
+    howToBuy: 'Chase lists its homes with local agents on the MLS.',
+    clarkCounty: 'Found on the MLS through an agent.',
+  },
+  {
+    name: 'Create Credit Union property for sale',
+    owner: 'Create Credit Union (formerly Clark County Credit Union)',
+    group: 'bank',
+    url: 'https://www.createcu.org/loans/auto/vehicles-and-property-for-sale/',
+    what: 'A local credit union’s list of vehicles and property it’s selling.',
+    howToBuy: 'Follow the contact instructions on the page.',
+    clarkCounty: 'Local. Property appears occasionally.',
+  },
+];
+
+export const REO_GROUPS: Record<ReoGroup, { title: string; summary: string }> = {
+  government: { title: 'Government agencies', summary: 'HUD, VA, USDA, IRS, GSA, Treasury, FDIC and NCUA' },
+  gse: { title: 'Fannie Mae & Freddie Mac', summary: 'Government-sponsored. Among the biggest sources of bank-owned homes' },
+  bank: { title: 'Banks & credit unions', summary: 'Lenders’ own lists, and how the others sell' },
+};
+
+export const reoSourcesIn = (g: ReoGroup) => REO_SOURCES.filter((s) => s.group === g);
