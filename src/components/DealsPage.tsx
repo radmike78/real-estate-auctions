@@ -14,7 +14,8 @@ function DealCard({ d }: { d: SavedDeal }) {
   const [notes, setNotes] = useState(d.notes);
   if (!p) return null;
   const s = p.sale;
-  const changed = p.status !== d.statusAtSave;
+  const was = d.statusAtSave ? STATUS[d.statusAtSave] : null;
+  const changed = was !== null && p.status !== d.statusAtSave;
   const newPostponements = (s?.postponements ?? 0) - d.postponementsAtSave;
   const dd = loadDdDone(p.id).length;
   const maxBid = savedMaxBid(p.id);
@@ -38,7 +39,7 @@ function DealCard({ d }: { d: SavedDeal }) {
       {(changed || newPostponements > 0) && (
         <div className="caution" role="status">
           <strong>Changed since you saved it:</strong>{' '}
-          {changed && <>status went from “{STATUS[d.statusAtSave].label}” to “{STATUS[p.status].label}”. </>}
+          {changed && <>status went from “{was?.label}” to “{STATUS[p.status].label}”. </>}
           {newPostponements > 0 && <>Postponed {newPostponements} more time{newPostponements === 1 ? '' : 's'}.</>}
           <button className="linkish" onClick={() => updateDeal(p.id, { statusAtSave: p.status, postponementsAtSave: s?.postponements ?? 0 })}>Mark seen</button>
         </div>

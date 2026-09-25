@@ -83,3 +83,17 @@ describe('due-diligence workflow and playbooks', () => {
     expect(text).not.toMatch(/buyer.s premium/i); // the in-person Treasurer auction has none
   });
 });
+
+describe('My deals storage', () => {
+  it('ignores malformed saved entries instead of crashing', async () => {
+    const store: Record<string, string> = {};
+    globalThis.localStorage = { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: string) => { store[k] = v; } } as Storage;
+    store['fsf.deals.v1'] = JSON.stringify([{ id: 'p1', statusAtSave: 'bogus', postponementsAtSave: 'x' }, { nope: 1 }, 'junk']);
+    const { loadDeals } = await import('./deals');
+    const list = loadDeals();
+    expect(list).toHaveLength(1);
+    expect(list[0].statusAtSave).toBeNull();
+    expect(list[0].postponementsAtSave).toBe(0);
+    expect(list[0].notes).toBe('');
+  });
+});

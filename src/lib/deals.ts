@@ -2,11 +2,12 @@
 // can come with the paid plan). Stores what the status was when saved, so changes stand out.
 
 import type { AcquisitionStatus } from '../types';
+import { STATUS } from './status';
 
 export interface SavedDeal {
   id: string;
   savedAt: string;
-  statusAtSave: AcquisitionStatus;
+  statusAtSave: AcquisitionStatus | null; // null when the stored value was unreadable
   postponementsAtSave: number;
   notes: string;
 }
@@ -17,7 +18,17 @@ const listeners = new Set<() => void>();
 export function loadDeals(): SavedDeal[] {
   try {
     const v = JSON.parse(localStorage.getItem(KEY) ?? '[]');
-    return Array.isArray(v) ? v.filter((d) => d && typeof d.id === 'string') : [];
+    if (!Array.isArray(v)) return [];
+    // Browser storage can be old or hand-edited: keep only well-formed entries and fill safe defaults.
+    return v
+      .filter((d) => d && typeof d.id === 'string' && d.id.length <= 64)
+      .map((d) => ({
+        id: d.id,
+        savedAt: typeof d.savedAt === 'string' && !Number.isNaN(Date.parse(d.savedAt)) ? d.savedAt : new Date().toISOString(),
+        statusAtSave: typeof d.statusAtSave === 'string' && d.statusAtSave in STATUS ? d.statusAtSave : null,
+        postponementsAtSave: Number.isFinite(d.postponementsAtSave) ? d.postponementsAtSave : 0,
+        notes: typeof d.notes === 'string' ? d.notes.slice(0, 5000) : '',
+      }));
   } catch {
     return [];
   }
