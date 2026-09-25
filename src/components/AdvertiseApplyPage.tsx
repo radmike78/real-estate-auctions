@@ -219,7 +219,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
                     ['attestLicensed', `I hold an active ${info.licenseLabel.replace(/ number| ID/i, '')} and I'm authorized to advertise for the company named above.`],
                     ['attestAccurate', "The information above is accurate, and I'll tell you if my license, company or contact details change."],
                     ['consentVerification', `I consent to verification with ${info.regulator} and to you contacting my company to confirm my identity.`],
-                    ['attestAdvertising', "I understand this is paid advertising with equal, rotating placement. Forced-Sale Finder isn't a party to any transaction and receives no referral fees. I'll follow all laws that apply to my services and to contacting consumers."],
+                    ['attestAdvertising', "I understand this is paid advertising with equal, rotating placement. Forced-Sale Finder isn't a party to any transaction and receives no referral fees. I'll follow all laws that apply to my services and to contacting consumers. I agree to the Terms of Use, including the Advertiser terms, and the Privacy Policy."],
                   ] as const
                 ).map(([k, label]) => (
                   <label key={k} className="check attest">
@@ -227,6 +227,10 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
                     <span>{label}{errors[k] && <span className="field-error"> {errors[k]}</span>}</span>
                   </label>
                 ))}
+                <p className="muted">
+                  Read the <a href="#/terms/advertisers" target="_blank" rel="noreferrer">Terms of Use (Advertiser terms)</a> and the{' '}
+                  <a href="#/privacy" target="_blank" rel="noreferrer">Privacy Policy</a>.
+                </p>
                 {errors.form && <div className="caution" role="alert">{errors.form}</div>}
                 <button className="btn big apply-submit" type="submit" disabled={busy}>{busy ? 'Submitting…' : 'Submit application'}</button>
               </Card>
