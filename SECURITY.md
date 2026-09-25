@@ -19,7 +19,7 @@ The main threat to this site is a **spoofed or outdated listing**: someone gets 
 | Validity dates | Must be current |
 | Same connection | These checks run on **the same connection that returns the data**, so a different server can't answer the data request |
 | Issuing CA | Recorded per host. A routine renewal from the same CA is accepted. A certificate from a **different CA** quarantines the source, because that is what a DNS or domain hijacker with a mis-issued certificate looks like. After confirming with the agency, an operator approves it with `--approve-cert <fingerprint>`. |
-| DNS | Without a proxy, the name is resolved once, private/internal answers are refused (DNS rebinding), and the connection goes to exactly that address |
+| DNS | Without a proxy, the name is resolved once, answers in any private, reserved or IPv6-transition range are refused (DNS rebinding), and the connection goes to exactly that address. Every request also has a 2-minute total deadline, so a slow-drip server can't hang an import. |
 
 **Other rules:**
 - A source cannot be collected automatically until a person records `termsReviewedAt` (terms of use and robots rules reviewed).
@@ -95,20 +95,22 @@ The main risk is a **fake professional profile**, for example a real agent's or 
 - **Identity, not just license.** The regulator lookup (NRED, NMLS, FDIC, NCUA, Division of Insurance or NSCB) proves a license exists, not that the applicant owns it. Approval requires confirming identity through the **company, using contact details from the regulator or the company**. It never uses the phone number or email on the application. The server enforces every verification step (`approvalBlockers`). Profiles are also hidden when advertising lapses.
 - **Impersonation signals.** Any other application using the same license number or email is flagged in the admin view. A license can't be approved twice.
 - **Email ownership.** A single-use token, valid for 48 hours. Only its SHA-256 hash is stored.
-- **Signed directory.** `pros.json` is Ed25519-signed and expires after 7 days. The browser verifies it and re-applies every listing rule to each profile. If a published directory fails verification, no profiles are shown; the site never falls back to other data. An HTML fallback page from a static host counts as "not published," not as a valid or tampered file.
+- **Signed directory.** `pros.json` is Ed25519-signed, marked `"type": "pros"` (so no other signed file can pass as a directory), republished hourly and expires after 24 hours. The browser verifies it, refuses copies dated in the future or older than one it has already seen (replay of a pre-suspension copy), and re-applies every listing rule to each profile. If a published directory fails verification, no profiles are shown; the site never falls back to other data. An HTML fallback page from a static host counts as "not published," not as a valid or tampered file.
 - **Admin authentication.**
   - Password stored as scrypt only.
   - Session token in an `HttpOnly; SameSite=Strict` cookie. Only its hash is stored.
   - Sessions last at most 8 hours, with a 1-hour idle timeout.
-  - Sign-in is throttled: 5 failures per IP and 10 per username per 15 minutes.
-  - Failed sign-ins are audited.
-- **CSRF.** Every admin write needs the `x-fsf-admin` header, which a cross-site page can't send without a CORS preflight, and CORS is never enabled. It also needs a same-origin `Origin` and a SameSite=Strict cookie.
+  - Sign-in is throttled: 5 failures per IP and 10 per username per 15 minutes. The per-username limit doesn't apply to networks the admin signed in from in the last 30 days, so an attacker can't lock the admin out by failing on purpose.
+  - The password hash is always checked (asynchronously), so response time doesn't reveal whether a username exists.
+  - Failed sign-ins are audited without storing unknown usernames (they are sometimes mistyped passwords). Sign-outs and lead exports are audited too.
+  - Malformed `Origin` (including `null`) and cookie headers are refused cleanly.
+- **CSRF.** Every signed-in write (admin or advertiser) needs the `x-fsf-request: 1` header, which a cross-site page can't send without a CORS preflight, and CORS is never enabled. It also needs a same-origin `Origin` and a SameSite=Strict cookie.
 - **Input handling.**
   - JSON only, 32 KB maximum.
   - Strict validation, with all text reduced to plain text.
   - Static files are served with path-traversal protection.
   - Security headers on every response: `nosniff`, `frame-ancestors 'none'`, HSTS on HTTPS.
-- **Privacy.** The individual admin's name is never published; profiles say "verified by staff." Emails are sent only to the applicant.
+- **Privacy.** The individual admin's name is never published; profiles say "verified by staff." Emails are sent only to the applicant, and never repeat text typed by an unconfirmed applicant or lead sender, so the site can't be used to send an attacker's words to someone else. Confirmation emails are capped per recipient.
 
 ## 5d. Leads, metrics and advertiser accounts
 
@@ -119,14 +121,20 @@ The main risk is a **fake professional profile**, for example a real agent's or 
   - CSV exports neutralize spreadsheet-formula injection.
 - **Metrics.**
   - Only daily aggregate counts per advertiser are stored.
-  - Unique visitors come from a SHA-256 of IP and user agent, salted with a random value that exists only in memory and rotates every day. These hashes can't be reversed or linked across days, and they are deleted after 2 days.
-  - Bots are filtered by user agent, and each visitor is limited to 60 events a minute. Only currently listed profiles can be counted, so a competitor can't meaningfully inflate or drain the numbers.
+  - Unique visitors come from a SHA-256 of the network address, salted with a random value that exists only in memory and rotates every day. These hashes can't be reversed or linked across days, and they are deleted after 2 days. The user agent is deliberately not part of it, so rotating browser strings can't inflate an advertiser's numbers.
+  - Bots are filtered by user agent, and each network is limited to 120 events a minute. Only currently listed profiles can be counted, so a competitor can't meaningfully inflate or drain the numbers.
   - Leads can only be counted through the real contact form.
 - **Advertiser sign-in.**
   - A one-time link, valid for 15 minutes, is sent only to the email on an approved profile. Only its hash is stored.
   - The response is identical whether or not an account exists, so accounts can't be enumerated.
   - Sign-in requests are rate-limited per IP and per email.
   - Sessions use a separate `fsf_pro` cookie scoped to `/api/pro` (`HttpOnly; SameSite=Strict`). Admin and advertiser cookies can't be used for each other's endpoints.
+  - Opening a sign-in link doesn't sign you in until you click a button, so nobody can sign you into their account by sending you their link.
+  - Suspending an advertiser ends their sessions and cancels unused sign-in links immediately.
+
+## 5e. Running behind a reverse proxy
+
+Set `TRUST_PROXY=1` only when the server sits behind your own proxy that **appends** the client address to `X-Forwarded-For` (nginx `$proxy_add_x_forwarded_for`, most load balancers). The server uses the **last** entry, the one your proxy added; anything earlier was sent by the client and can be forged. Without `TRUST_PROXY`, the socket address is used.
 
 ## 6. Browser hardening
 

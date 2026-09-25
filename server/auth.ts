@@ -5,7 +5,10 @@
 //  - Absolute lifetime 8 h, idle timeout 1 h.
 //  - Login throttling per client IP and per username.
 
-import { createHash, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
+import { createHash, randomBytes, scrypt, scryptSync, timingSafeEqual } from 'node:crypto';
+import { promisify } from 'node:util';
+
+const scryptAsync = promisify(scrypt) as (pw: string, salt: Buffer, len: number, opts: object) => Promise<Buffer>;
 
 const SCRYPT = { N: 1 << 15, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
 export const SESSION_MAX_MS = 8 * 3_600_000;
@@ -24,6 +27,21 @@ export function verifyPassword(password: string, stored: string): boolean {
   const [, N, r, p, saltB64, hashB64] = parts;
   const expected = Buffer.from(hashB64, 'base64');
   const actual = scryptSync(password.normalize('NFKC'), Buffer.from(saltB64, 'base64'), expected.length, {
+    N: Number(N),
+    r: Number(r),
+    p: Number(p),
+    maxmem: SCRYPT.maxmem,
+  });
+  return actual.length === expected.length && timingSafeEqual(actual, expected);
+}
+
+/** Same check as verifyPassword, without blocking the server while scrypt runs. */
+export async function verifyPasswordAsync(password: string, stored: string): Promise<boolean> {
+  const parts = stored.split('$');
+  if (parts.length !== 6 || parts[0] !== 'scrypt') return false;
+  const [, N, r, p, saltB64, hashB64] = parts;
+  const expected = Buffer.from(hashB64, 'base64');
+  const actual = await scryptAsync(password.normalize('NFKC'), Buffer.from(saltB64, 'base64'), expected.length, {
     N: Number(N),
     r: Number(r),
     p: Number(p),
@@ -68,7 +86,12 @@ export function parseCookies(header: string | undefined): Record<string, string>
   const out: Record<string, string> = {};
   for (const part of (header ?? '').split(';')) {
     const i = part.indexOf('=');
-    if (i > 0) out[part.slice(0, i).trim()] = decodeURIComponent(part.slice(i + 1).trim());
+    if (i <= 0) continue;
+    try {
+      out[part.slice(0, i).trim()] = decodeURIComponent(part.slice(i + 1).trim());
+    } catch {
+      /* malformed percent-encoding: ignore this cookie */
+    }
   }
   return out;
 }

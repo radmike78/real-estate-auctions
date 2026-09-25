@@ -1,6 +1,7 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
 import { CLARK_COUNTY_CITIES, LANGUAGES, validateApplication, type ApplicationInput } from '../lib/proApplication';
 import { CATEGORIES, CREDIT_PROFILES, REVERIFY_DAYS, servicesFor, type Category } from '../lib/pros';
+import PageHero from './PageHero';
 import { api, ApiError } from '../lib/api';
 
 type Errors = Partial<Record<keyof ApplicationInput | 'form', string>>;
@@ -43,6 +44,20 @@ function CheckGroup({ legend, options, value, onChange, error }: { legend: strin
     </fieldset>
   );
 }
+
+/** One numbered section of the application. Defined at module level so inputs keep focus while typing. */
+const Card = ({ n, id, title, sub, children }: { n: number; id: string; title: string; sub?: string; children: ReactNode }) => (
+  <section className="apply-card" id={id} aria-labelledby={`${id}-h`}>
+    <header className="apply-card-head">
+      <span className="apply-num" aria-hidden>{n}</span>
+      <div>
+        <h2 id={`${id}-h`}>{title}</h2>
+        {sub && <p>{sub}</p>}
+      </div>
+    </header>
+    {children}
+  </section>
+);
 
 export default function AdvertiseApplyPage({ initialCategory }: { initialCategory: Category | null }) {
   const [f, setF] = useState<ApplicationInput>(blank(initialCategory ?? ''));
@@ -87,7 +102,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
   if (done) {
     return (
       <main className="page prose">
-        <h1>Check your email</h1>
+        <PageHero compact title="Check your email" />
         <p>{done}</p>
         <p className="muted">
           After you confirm, we check your license on {info?.regulator ?? 'the regulator lookup'} and confirm your identity. Then we set up your
@@ -98,81 +113,127 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
     );
   }
 
+  const pick = (c: string) => setF({ ...blank(c), name: f.name, company: f.company, phone: f.phone, email: f.email, website: f.website });
+  const has = (k: keyof ApplicationInput) => !!errors[k];
+  // Each section: whether it's filled in, and whether it has an error, for the progress menu.
+  const sections: { id: string; label: string; done: boolean; bad: boolean }[] = [
+    { id: 'apply-type', label: 'Type of business', done: !!info, bad: has('category') },
+    { id: 'apply-license', label: 'License', done: !!(f.name && f.company && f.licenseId), bad: has('name') || has('company') || has('licenseId') },
+    { id: 'apply-offer', label: 'What you offer', done: !!f.headline && f.services.length > 0 && (!info?.financing || f.creditProfiles.length > 0), bad: has('headline') || has('services') || has('creditProfiles') },
+    { id: 'apply-areas', label: 'Areas & languages', done: f.serviceCities.length > 0 && f.languages.length > 0, bad: has('serviceCities') || has('serviceZips') || has('languages') },
+    { id: 'apply-contact', label: 'Contact details', done: !!(f.phone && f.email) && f.bio.length >= 30, bad: has('phone') || has('email') || has('website') || has('bio') },
+    { id: 'apply-confirm', label: 'Confirm & submit', done: f.attestLicensed && f.attestAccurate && f.consentVerification && f.attestAdvertising, bad: has('attestLicensed') || has('attestAccurate') || has('consentVerification') || has('attestAdvertising') },
+  ];
+  const go = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   return (
     <main className="page">
-      <h1>Apply to advertise</h1>
-      <form className="form" onSubmit={submit} noValidate>
-        <div className="hp" aria-hidden="true">
-          <label>Company URL <input tabIndex={-1} autoComplete="off" value={f.company_url} onChange={(e) => set('company_url', e.target.value)} /></label>
-        </div>
-
-        <label className="field">
-          <span>What kind of business are you?</span>
-          <select value={f.category} onChange={(e) => setF({ ...blank(e.target.value), name: f.name, company: f.company, phone: f.phone, email: f.email, website: f.website })} aria-invalid={!!errors.category}>
-            <option value="">Choose…</option>
-            {(Object.keys(CATEGORIES) as Category[]).map((c) => <option key={c} value={c}>{CATEGORIES[c].label}</option>)}
-          </select>
-          {errors.category && <span className="field-error">{errors.category}</span>}
-        </label>
-
-        {info && (
-          <>
-            <div className="notice small" role="note">
-              We verify your {info.licenseLabel.toLowerCase()} on{' '}
-              <a href={info.lookupUrl} target="_blank" rel="noreferrer noopener">{info.regulator} ↗</a>, and confirm your identity using contact
-              details we find independently. We re-check every {REVERIFY_DAYS} days.
-            </div>
-
-            <h2>License</h2>
-            <div className="form-grid">
-              {text('name', isAgent || f.category === 'loan_officer' || f.category === 'insurance' ? 'Your full name (as licensed)' : 'Business name (as licensed)', { autoComplete: 'name' })}
-              {text('company', isAgent ? 'Brokerage' : 'Company or employer', { autoComplete: 'organization' })}
-              {text('licenseId', info.licenseLabel, { placeholder: info.licenseHint, autoCapitalize: 'characters' })}
-            </div>
-
-            <h2>What you offer</h2>
-            {text('headline', 'Headline', { maxLength: 90, placeholder: info.financing ? 'e.g. Fix-and-flip loans that close in 10 days' : 'e.g. Short-sale specialist in Henderson' })}
-            <CheckGroup legend={info.financing ? 'Loan types you offer' : 'Services'} options={servicesFor(f.category as Category)} value={f.services} onChange={(v) => set('services', v)} error={errors.services} />
-            {info.financing && (
-              <CheckGroup legend="Credit situations you work with" options={CREDIT_PROFILES} value={f.creditProfiles} onChange={(v) => set('creditProfiles', v)} error={errors.creditProfiles} />
-            )}
-            <CheckGroup legend="Cities and areas you serve" options={CLARK_COUNTY_CITIES} value={f.serviceCities} onChange={(v) => set('serviceCities', v)} error={errors.serviceCities} />
-            {text('serviceZips', 'ZIP codes (optional)', { placeholder: '89123, 89052', inputMode: 'numeric' })}
-            <CheckGroup legend="Languages" options={LANGUAGES} value={f.languages} onChange={(v) => set('languages', v)} error={errors.languages} />
-
-            <h2>Contact details shown to buyers</h2>
-            <div className="form-grid">
-              {text('phone', 'Business phone', { type: 'tel', autoComplete: 'tel' })}
-              {text('email', 'Business email', { type: 'email', autoComplete: 'email' }, 'Leads and your sign-in links go here.')}
-              {text('website', 'Website (optional)', { type: 'url', placeholder: 'https://' })}
-            </div>
-            <label className="field">
-              <span>About you</span>
-              <textarea rows={4} maxLength={800} value={f.bio} onChange={(e) => set('bio', e.target.value)} aria-invalid={!!errors.bio} />
-              <small className="muted">{f.bio.length}/800 · plain text</small>
-              {errors.bio && <span className="field-error">{errors.bio}</span>}
-            </label>
-
-            <h2>Confirmations</h2>
-            {(
-              [
-                ['attestLicensed', `I hold an active ${info.licenseLabel.replace(/ number| ID/i, '')} and I'm authorized to advertise for the company named above.`],
-                ['attestAccurate', "The information above is accurate, and I'll tell you if my license, company or contact details change."],
-                ['consentVerification', `I consent to verification with ${info.regulator} and to you contacting my company to confirm my identity.`],
-                ['attestAdvertising', "I understand this is paid advertising with equal, rotating placement. Forced-Sale Finder isn't a party to any transaction and receives no referral fees. I'll follow all laws that apply to my services and to contacting consumers."],
-              ] as const
-            ).map(([k, label]) => (
-              <label key={k} className="check attest">
-                <input type="checkbox" checked={f[k]} onChange={(e) => set(k, e.target.checked)} />
-                <span>{label}{errors[k] && <span className="field-error"> {errors[k]}</span>}</span>
-              </label>
+      <PageHero
+        eyebrow={<span className="eyebrow">For professionals</span>}
+        title={<>Apply to <span className="grad">advertise</span></>}
+        sub="Six short sections, about five minutes. We verify every license before you're listed."
+      />
+      <div className="apply-layout">
+        <aside className="apply-nav" aria-label="Application sections">
+          <ol>
+            {sections.map((x, i) => (
+              <li key={x.id}>
+                <button type="button" className={`${x.done ? 'done' : ''}${x.bad ? ' bad' : ''}`} onClick={() => go(x.id)} disabled={i > 0 && !info}>
+                  <span className="apply-nav-num" aria-hidden>{x.bad ? '!' : x.done ? '✓' : i + 1}</span>
+                  {x.label}
+                </button>
+              </li>
             ))}
+          </ol>
+          <div className="apply-next">
+            <h3>After you apply</h3>
+            <p>We confirm your email, verify your license and identity, then you choose a plan and go live. Your profile is always labeled as an advertisement.</p>
+          </div>
+        </aside>
 
-            {errors.form && <div className="caution" role="alert">{errors.form}</div>}
-            <button className="btn big" type="submit" disabled={busy}>{busy ? 'Submitting…' : 'Submit application'}</button>
-          </>
-        )}
-      </form>
+        <form className="form apply-form" onSubmit={submit} noValidate>
+          <div className="hp" aria-hidden="true">
+            <label>Company URL <input tabIndex={-1} autoComplete="off" value={f.company_url} onChange={(e) => set('company_url', e.target.value)} /></label>
+          </div>
+
+          <Card n={1} id="apply-type" title="What kind of business are you?" sub="Pick one. The rest of the form adjusts to your license type.">
+            <div className="type-grid" role="radiogroup" aria-label="Type of business" aria-invalid={has('category')}>
+              {(Object.keys(CATEGORIES) as Category[]).map((c) => (
+                <label key={c} className={`type-option${f.category === c ? ' on' : ''}`}>
+                  <input type="radio" name="category" value={c} checked={f.category === c} onChange={() => pick(c)} />
+                  <strong>{CATEGORIES[c].label}</strong>
+                  <span>Verified on {CATEGORIES[c].regulator}</span>
+                </label>
+              ))}
+            </div>
+            {errors.category && <span className="field-error">{errors.category}</span>}
+            {info && (
+              <div className="notice" role="note">
+                We verify your {info.licenseLabel.replace(/^(Individual|Company) /, (w) => w.toLowerCase())} on{' '}
+                <a href={info.lookupUrl} target="_blank" rel="noreferrer noopener">{info.regulator} ↗</a>, and confirm your identity using contact
+                details we find independently. We re-check every {REVERIFY_DAYS} days.
+              </div>
+            )}
+          </Card>
+
+          {info && (
+            <>
+              <Card n={2} id="apply-license" title="License" sub="Exactly as it appears on your license.">
+                <div className="form-grid">
+                  {text('name', isAgent || f.category === 'loan_officer' || f.category === 'insurance' ? 'Your full name (as licensed)' : 'Business name (as licensed)', { autoComplete: 'name' })}
+                  {text('company', isAgent ? 'Brokerage' : 'Company or employer', { autoComplete: 'organization' })}
+                  {text('licenseId', info.licenseLabel, { placeholder: info.licenseHint, autoCapitalize: 'characters' })}
+                </div>
+              </Card>
+
+              <Card n={3} id="apply-offer" title="What you offer" sub="Buyers filter by these, so pick what you actually do.">
+                {text('headline', 'Headline', { maxLength: 90, placeholder: info.financing ? 'e.g. Fix-and-flip loans that close in 10 days' : 'e.g. Short-sale specialist in Henderson' })}
+                <CheckGroup legend={info.financing ? 'Loan types you offer' : 'Services'} options={servicesFor(f.category as Category)} value={f.services} onChange={(v) => set('services', v)} error={errors.services} />
+                {info.financing && (
+                  <CheckGroup legend="Credit situations you work with" options={CREDIT_PROFILES} value={f.creditProfiles} onChange={(v) => set('creditProfiles', v)} error={errors.creditProfiles} />
+                )}
+              </Card>
+
+              <Card n={4} id="apply-areas" title="Areas & languages" sub="Where you work, and the languages you can help buyers in.">
+                <CheckGroup legend="Cities and areas you serve" options={CLARK_COUNTY_CITIES} value={f.serviceCities} onChange={(v) => set('serviceCities', v)} error={errors.serviceCities} />
+                {text('serviceZips', 'ZIP codes (optional)', { placeholder: '89123, 89052', inputMode: 'numeric' })}
+                <CheckGroup legend="Languages" options={LANGUAGES} value={f.languages} onChange={(v) => set('languages', v)} error={errors.languages} />
+              </Card>
+
+              <Card n={5} id="apply-contact" title="Contact details shown to buyers" sub="Buyers see these on your profile. Leads and sign-in links go to your email.">
+                <div className="form-grid">
+                  {text('phone', 'Business phone', { type: 'tel', autoComplete: 'tel' })}
+                  {text('email', 'Business email', { type: 'email', autoComplete: 'email' })}
+                  {text('website', 'Website (optional)', { type: 'url', placeholder: 'https://' })}
+                </div>
+                <label className="field">
+                  <span>About you</span>
+                  <textarea rows={5} maxLength={800} value={f.bio} onChange={(e) => set('bio', e.target.value)} aria-invalid={!!errors.bio} placeholder="How you help buyers and investors (at least 30 characters)" />
+                  <small className="muted">{f.bio.length}/800 · plain text</small>
+                  {errors.bio && <span className="field-error">{errors.bio}</span>}
+                </label>
+              </Card>
+
+              <Card n={6} id="apply-confirm" title="Confirm & submit" sub="Tick each box to confirm.">
+                {(
+                  [
+                    ['attestLicensed', `I hold an active ${info.licenseLabel.replace(/ number| ID/i, '')} and I'm authorized to advertise for the company named above.`],
+                    ['attestAccurate', "The information above is accurate, and I'll tell you if my license, company or contact details change."],
+                    ['consentVerification', `I consent to verification with ${info.regulator} and to you contacting my company to confirm my identity.`],
+                    ['attestAdvertising', "I understand this is paid advertising with equal, rotating placement. Forced-Sale Finder isn't a party to any transaction and receives no referral fees. I'll follow all laws that apply to my services and to contacting consumers."],
+                  ] as const
+                ).map(([k, label]) => (
+                  <label key={k} className="check attest">
+                    <input type="checkbox" checked={f[k]} onChange={(e) => set(k, e.target.checked)} />
+                    <span>{label}{errors[k] && <span className="field-error"> {errors[k]}</span>}</span>
+                  </label>
+                ))}
+                {errors.form && <div className="caution" role="alert">{errors.form}</div>}
+                <button className="btn big apply-submit" type="submit" disabled={busy}>{busy ? 'Submitting…' : 'Submit application'}</button>
+              </Card>
+            </>
+          )}
+        </form>
+      </div>
     </main>
   );
 }

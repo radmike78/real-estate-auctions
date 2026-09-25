@@ -22,6 +22,11 @@ npm run build      # static site in dist/
 
 ## Live data
 
+**Other sources, not connected yet** (details and ready-to-send requests in [docs/data-access-requests.md](docs/data-access-requests.md)):
+- **HUD Home Store** (HUD-owned homes). Its robots.txt disallows all automated access and it has no public feed, so the Bank-owned checklist links to HUD's own Nevada search instead. A connector will be built only with HUD's written permission or an approved feed.
+- **Clark County Recorder** (notices of default and sale, and trustee's deeds that show a home became bank-owned). Available as the Recorder's official Official Record Indexes (FTP) subscription. Needed for real pre-foreclosure and bank-owned data.
+
+
 The first real connector reads the **Clark County Treasurer's delinquent-property (trustee) auction** at <https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList>. It uses the county's own data endpoints for auction sessions and parcels. Each parcel is cross-checked against the Assessor's parcel records on a separate county server. See [SECURITY.md](SECURITY.md) for how sources are authenticated, kept current and protected against spoofing.
 
 **Verified against the live site on 2026-09-24:**

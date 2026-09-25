@@ -8,6 +8,8 @@ import { checkSignature, isFeedResponse } from './verify';
 
 export interface ProsFeed {
   version: 1;
+  /** Binds the signature to this kind of file, so a signed listings feed can't be passed off as a directory. */
+  type: 'pros';
   generatedAt: string;
   expiresAt: string;
   pros: Pro[];
@@ -15,7 +17,10 @@ export interface ProsFeed {
 
 export type ProsFeedResult =
   | { ok: true; feed: ProsFeed }
-  | { ok: false; reason: 'NOT_CONFIGURED' | 'MISSING' | 'BAD_SIGNATURE' | 'EXPIRED' | 'MALFORMED'; detail: string };
+  | { ok: false; reason: 'NOT_CONFIGURED' | 'MISSING' | 'BAD_SIGNATURE' | 'EXPIRED' | 'MALFORMED' | 'ROLLED_BACK'; detail: string };
+
+const CLOCK_SKEW_MS = 5 * 60_000;
+const NEWEST_KEY = 'fsf.pros.newest.v1';
 
 const str = (v: unknown, max: number) => typeof v === 'string' && v.length > 0 && v.length <= max;
 const strArr = (v: unknown, maxLen: number, maxItems: number) => Array.isArray(v) && v.length <= maxItems && v.every((x) => str(x, maxLen));
@@ -58,7 +63,9 @@ export async function verifyProsFeed(
   } catch {
     return { ok: false, reason: 'MALFORMED', detail: 'Directory is not valid JSON.' };
   }
-  if (feed.version !== 1 || !Array.isArray(feed.pros)) return { ok: false, reason: 'MALFORMED', detail: 'Unexpected directory format.' };
+  if (feed.version !== 1 || feed.type !== 'pros' || !Array.isArray(feed.pros)) return { ok: false, reason: 'MALFORMED', detail: 'Unexpected directory format.' };
+  const generated = Date.parse(feed.generatedAt);
+  if (!(generated <= now.getTime() + CLOCK_SKEW_MS)) return { ok: false, reason: 'MALFORMED', detail: 'The directory is dated in the future.' };
   if (!(Date.parse(feed.expiresAt) > now.getTime())) return { ok: false, reason: 'EXPIRED', detail: 'The directory has expired and is being refreshed.' };
   return { ok: true, feed: { ...feed, pros: feed.pros.filter((p) => validPro(p, now)) } };
 }
@@ -72,8 +79,25 @@ export function loadVerifiedPros(publicKeySpkiB64: string | null): Promise<ProsF
   const result = (async () => {
     const [data, sig] = await Promise.all([fetch('data/pros.json', { cache: 'no-store' }), fetch('data/pros.json.sig', { cache: 'no-store' })]);
     if (!isFeedResponse(data) || !isFeedResponse(sig)) return { ok: false as const, reason: 'MISSING' as const, detail: 'No directory has been published yet.' };
-    return verifyProsFeed(await data.arrayBuffer(), await sig.text(), publicKeySpkiB64);
+    const r = await verifyProsFeed(await data.arrayBuffer(), await sig.text(), publicKeySpkiB64);
+    return r.ok ? refuseRollback(r) : r;
   })().catch((e: Error) => ({ ok: false as const, reason: 'MISSING' as const, detail: e.message }));
   cached = { at: Date.now(), result };
   return result;
+}
+
+/**
+ * Refuses a validly signed but OLDER directory than one this browser already saw, so whoever
+ * controls the host can't replay a copy from before an advertiser was suspended.
+ */
+function refuseRollback(r: Extract<ProsFeedResult, { ok: true }>): ProsFeedResult {
+  try {
+    const seen = Date.parse(localStorage.getItem(NEWEST_KEY) ?? '');
+    const got = Date.parse(r.feed.generatedAt);
+    if (seen && got < seen) return { ok: false, reason: 'ROLLED_BACK', detail: 'An older copy of the directory was served. It was not shown.' };
+    localStorage.setItem(NEWEST_KEY, r.feed.generatedAt);
+  } catch {
+    /* storage unavailable: signature and expiry checks still apply */
+  }
+  return r;
 }

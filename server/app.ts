@@ -21,7 +21,7 @@ import { extname, normalize, resolve, sep } from 'node:path';
 import type { KeyObject } from 'node:crypto';
 import { approvalBlockers, normalizePhone, plain, validateApplication, validateBilling, type ApplicationInput, type LicenseVerification } from '../src/lib/proApplication';
 import { CATEGORIES, isListable, REVERIFY_DAYS } from '../src/lib/pros';
-import { newToken, parseCookies, RateLimiter, SESSION_IDLE_MS, SESSION_MAX_MS, safeEqualStrings, sessionCookie, sha256, verifyPassword } from './auth';
+import { newToken, parseCookies, RateLimiter, SESSION_IDLE_MS, SESSION_MAX_MS, safeEqualStrings, sessionCookie, sha256, verifyPasswordAsync } from './auth';
 import { METRIC_KINDS, openDb, type ApplicationRow, type Db, type MetricKind } from './db';
 import { buildProsFeed, toPro, writeSignedJson } from './directory';
 import { confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, type Mailer } from './mailer';
@@ -78,6 +78,7 @@ export function createApp(config: AppConfig) {
   const secure = config.secureCookies ?? true;
   const limiters = {
     apply: new RateLimiter(5, 3_600_000),
+    applyEmail: new RateLimiter(3, 3_600_000),
     confirm: new RateLimiter(20, 3_600_000),
     loginIp: new RateLimiter(5, 15 * 60_000),
     loginUser: new RateLimiter(10, 15 * 60_000),
@@ -85,11 +86,18 @@ export function createApp(config: AppConfig) {
     proLinkEmail: new RateLimiter(3, 3_600_000),
     lead: new RateLimiter(5, 3_600_000),
     events: new RateLimiter(60, 60_000),
+    eventsIp: new RateLimiter(120, 60_000),
   };
   const hasher = new VisitorHasher();
 
+  // Behind our own reverse proxy, the client address is the LAST X-Forwarded-For entry (the one the
+  // proxy appended). Earlier entries come from the client and can be forged.
   const clientIp = (req: IncomingMessage) =>
-    (config.trustProxy ? String(req.headers['x-forwarded-for'] ?? '').split(',')[0].trim() : '') || req.socket.remoteAddress || 'unknown';
+    (config.trustProxy ? String(req.headers['x-forwarded-for'] ?? '').split(',').pop()!.trim() : '') || req.socket.remoteAddress || 'unknown';
+  // Networks the admin has signed in from recently: the per-username lockout doesn't apply to them,
+  // so an attacker can't lock the real admin out by failing logins on purpose.
+  const trustedAdminIps = new Map<string, number>();
+  const TRUSTED_IP_MS = 30 * 86_400_000;
 
   function send(res: ServerResponse, status: number, body: unknown, headers: Record<string, string> = {}) {
     res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...headers });
@@ -117,7 +125,14 @@ export function createApp(config: AppConfig) {
   /** Blocks cross-site requests: writes must come from our own pages. */
   function assertSameOrigin(req: IncomingMessage) {
     const origin = req.headers.origin;
-    if (origin && new URL(origin).host !== req.headers.host) throw new HttpError(403, 'Cross-origin request refused');
+    if (!origin) return;
+    let host: string | null = null;
+    try {
+      host = new URL(origin).host;
+    } catch {
+      /* "null" (sandboxed frames) or garbage */
+    }
+    if (host !== req.headers.host) throw new HttpError(403, 'Cross-origin request refused');
   }
   /** Custom header can't be sent cross-site without a CORS preflight, which we never allow. */
   function assertAppRequest(req: IncomingMessage) {
@@ -220,12 +235,14 @@ export function createApp(config: AppConfig) {
       if (input.company_url) return send(res, 202, accepted); // honeypot: pretend success, store nothing
       const v = validateApplication(input);
       if (!v.ok) throw new HttpError(422, 'Please fix the highlighted fields.', { errors: v.errors });
+      // Per-recipient cap: nobody can use this form to flood one inbox with confirmation emails.
+      if (!limiters.applyEmail.hit(v.profile.email)) return send(res, 202, accepted);
       const id = randomBytes(12).toString('hex');
       const token = newToken();
       const t = now();
       db.insertApplication({ id, profile: v.profile, tokenHash: sha256(token), tokenExpires: new Date(t.getTime() + EMAIL_TOKEN_TTL_MS).toISOString(), now: t.toISOString() });
       db.audit({ at: t.toISOString(), actor: 'applicant', applicationId: id, action: 'SUBMITTED', detail: CATEGORIES[v.profile.category].label });
-      await mailer.send(confirmationEmail(v.profile.email, v.profile.name, `${base}/#/advertise/confirm/${token}`, CATEGORIES[v.profile.category].regulator));
+      await mailer.send(confirmationEmail(v.profile.email, `${base}/#/advertise/confirm/${token}`, CATEGORIES[v.profile.category].regulator));
       return send(res, 202, accepted);
     }
 
@@ -246,8 +263,11 @@ export function createApp(config: AppConfig) {
       const body = await readJson(req);
       if (BOT_UA.test(ua) || !ua) return send(res, 204, {});
       const day = pacificDay(now());
-      const visitor = hasher.hash(clientIp(req), ua, day);
-      if (!limiters.events.hit(visitor)) return send(res, 204, {});
+      const ip = clientIp(req);
+      // Uniques are counted per network, not per browser string, so rotating the User-Agent from
+      // one address can't inflate an advertiser's numbers; a per-address cap bounds the totals too.
+      const visitor = hasher.hash(ip, '', day);
+      if (!limiters.eventsIp.hit(ip) || !limiters.events.hit(visitor)) return send(res, 204, {});
       const kind = body.kind as MetricKind;
       if (!METRIC_KINDS.includes(kind) || kind === 'lead') throw new HttpError(400, 'Unknown event');
       const ids = (kind === 'impression' ? (Array.isArray(body.proIds) ? body.proIds : []) : [body.proId]).slice(0, 50);
@@ -280,9 +300,9 @@ export function createApp(config: AppConfig) {
       if (Object.keys(errors).length) throw new HttpError(422, 'Please fix the highlighted fields.', { errors });
       const lead = { id: randomBytes(12).toString('hex'), proId: row.id, createdAt: now().toISOString(), name, email, phone, message, interest };
       db.leads.insert(lead);
-      db.metrics.record(row.id, pacificDay(now()), 'lead', hasher.hash(clientIp(req), String(req.headers['user-agent'] ?? ''), pacificDay(now())));
+      db.metrics.record(row.id, pacificDay(now()), 'lead', hasher.hash(clientIp(req), '', pacificDay(now())));
       await mailer.send(leadEmail(row.profile.email, row.profile.name, lead, `${base}/#/advertiser`));
-      await mailer.send(leadReceiptEmail(email, name, row.profile.name));
+      await mailer.send(leadReceiptEmail(email, row.profile.name));
       return send(res, 202, { ok: true, message: `Your message was sent to ${row.profile.name}. They will contact you directly.` });
     }
 
@@ -306,7 +326,7 @@ export function createApp(config: AppConfig) {
       const { token } = await readJson(req);
       if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{40,50}$/.test(token)) throw new HttpError(400, 'This sign-in link is invalid or has expired.');
       const proId = db.loginTokens.consume(sha256(token), now().getTime());
-      if (!proId) throw new HttpError(400, 'This sign-in link is invalid or has expired.');
+      if (!proId || db.get(proId)?.status !== 'APPROVED') throw new HttpError(400, 'This sign-in link is invalid or has expired.');
       const session = newToken();
       db.sessions.create(sha256(session), 'pro', proId, now().getTime());
       db.audit({ at: now().toISOString(), actor: 'advertiser', applicationId: proId, action: 'ADVERTISER_LOGIN', detail: null });
@@ -317,9 +337,13 @@ export function createApp(config: AppConfig) {
     if (path.startsWith('/api/pro/')) {
       const s = requireSession(req, 'pro');
       const row = db.get(s.subject);
-      if (!row) throw new HttpError(401, 'Not signed in');
+      if (!row || row.status !== 'APPROVED') {
+        db.sessions.delete(s.tokenHash);
+        throw new HttpError(401, 'Not signed in');
+      }
       if (method === 'POST' && path === '/api/pro/logout') {
         db.sessions.delete(s.tokenHash);
+        db.audit({ at: now().toISOString(), actor: 'advertiser', applicationId: row.id, action: 'ADVERTISER_LOGOUT', detail: null });
         return send(res, 200, { ok: true }, { 'set-cookie': sessionCookie(PRO_COOKIE, '', '/api/pro', secure, 0) });
       }
       if (method === 'GET' && path === '/api/pro/me') {
@@ -343,6 +367,7 @@ export function createApp(config: AppConfig) {
         const { start, end } = pacificDaysToUtc(from, to);
         const leads = db.leads.forPro(row.id, start, end);
         if (path.endsWith('.csv')) {
+          db.audit({ at: now().toISOString(), actor: 'advertiser', applicationId: row.id, action: 'LEADS_EXPORTED', detail: `${from} to ${to}, ${leads.length} leads` });
           res.writeHead(200, { 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="leads-${from}-to-${to}.csv"`, 'cache-control': 'no-store' });
           return res.end(leadsToCsv(leads));
         }
@@ -358,15 +383,20 @@ export function createApp(config: AppConfig) {
       const body = await readJson(req);
       const username = plain(body.username, 64);
       const password = typeof body.password === 'string' ? body.password.slice(0, 256) : '';
-      if (limiters.loginIp.blocked(ip) || limiters.loginUser.blocked(username)) throw new HttpError(429, 'Too many failed sign-in attempts. Wait 15 minutes.');
-      const ok = safeEqualStrings(username, config.adminUsername) && verifyPassword(password, config.adminPasswordHash);
-      if (!ok) {
+      const trusted = (trustedAdminIps.get(ip) ?? 0) > now().getTime();
+      if (limiters.loginIp.blocked(ip) || (!trusted && limiters.loginUser.blocked(username))) throw new HttpError(429, 'Too many failed sign-in attempts. Wait 15 minutes.');
+      // Always run the (slow) password check so response time doesn't reveal whether the username exists.
+      const userOk = safeEqualStrings(username, config.adminUsername);
+      const passOk = await verifyPasswordAsync(password, config.adminPasswordHash);
+      if (!(userOk && passOk)) {
         limiters.loginIp.hit(ip);
         limiters.loginUser.hit(username);
-        db.audit({ at: now().toISOString(), actor: username || '(blank)', applicationId: null, action: 'LOGIN_FAILED', detail: ip });
+        // Don't store whatever was typed as an unknown username (it's sometimes a mistyped password).
+        db.audit({ at: now().toISOString(), actor: userOk ? config.adminUsername : '(unknown user)', applicationId: null, action: 'LOGIN_FAILED', detail: ip });
         throw new HttpError(401, 'Incorrect username or password.');
       }
       limiters.loginIp.reset(ip);
+      trustedAdminIps.set(ip, now().getTime() + TRUSTED_IP_MS);
       const token = newToken();
       db.sessions.purge(now().getTime() - SESSION_MAX_MS);
       db.sessions.create(sha256(token), 'admin', config.adminUsername, now().getTime());
@@ -380,6 +410,7 @@ export function createApp(config: AppConfig) {
       db.audit({ at: now().toISOString(), actor: admin.subject, applicationId, action, detail });
 
     if (method === 'POST' && path === '/api/admin/logout') {
+      audit(null, 'LOGOUT');
       db.sessions.delete(admin.tokenHash);
       return send(res, 200, { ok: true }, { 'set-cookie': sessionCookie(ADMIN_COOKIE, '', '/api/admin', secure, 0) });
     }
@@ -454,6 +485,8 @@ export function createApp(config: AppConfig) {
     }
     if (app.status !== 'APPROVED') throw new HttpError(409, 'Only approved listings can be suspended.');
     db.update(app.id, { status: 'SUSPENDED', decisionReason: reason }, now().toISOString());
+    db.sessions.deleteForSubject('pro', app.id);
+    db.loginTokens.deleteForPro(app.id);
     audit(app.id, 'SUSPENDED', reason);
     publish();
     return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });

@@ -138,6 +138,7 @@ describe('advertiser flow (running server)', () => {
       baseUrl: 'https://fsf.example',
       mailer: { send: async (m) => void mails.push(m) },
       secureCookies: false,
+      trustProxy: true, // lets tests simulate different client networks via X-Forwarded-For
     });
     server = createServer(app.handler);
     await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
@@ -222,13 +223,14 @@ describe('advertiser flow (running server)', () => {
     expect((await ev({ kind: 'impression', proIds: [agentId, lenderId, 'f'.repeat(24)] })).status).toBe(204);
     await ev({ kind: 'profile_view', proId: agentId });
     await ev({ kind: 'profile_view', proId: agentId }); // same visitor, same day
-    await ev({ kind: 'profile_view', proId: agentId }, { 'user-agent': 'Other Browser 2.0' }); // different visitor
+    await ev({ kind: 'profile_view', proId: agentId }, { 'user-agent': 'Other Browser 2.0' }); // same network, new browser string: not a new visitor
+    await ev({ kind: 'profile_view', proId: agentId }, { 'x-forwarded-for': '198.51.100.2' }); // different network: new visitor
     await ev({ kind: 'phone_click', proId: agentId });
     await ev({ kind: 'profile_view', proId: agentId }, { 'user-agent': 'Googlebot/2.1' }); // bot
     expect((await ev({ kind: 'lead', proId: agentId })).status).toBe(400); // leads only via the form
     const m = await (await admin(`/api/admin/applications/${agentId}/metrics`)).json();
     expect(m.totals.impression.total).toBe(1);
-    expect(m.totals.profile_view).toEqual({ total: 3, uniques: 2 });
+    expect(m.totals.profile_view).toEqual({ total: 4, uniques: 2 });
     expect(m.totals.phone_click.uniques).toBe(1);
     expect(m.contactRate).toBe(0.5);
   });
@@ -294,8 +296,12 @@ describe('advertiser flow (running server)', () => {
     const feed = await readFeed();
     expect(feed.ok && feed.feed.pros.map((p) => p.category)).toEqual(['private_lender']);
     const detail = await (await admin(`/api/admin/applications/${agentId}`)).json();
-    expect(detail.audit.map((e: { action: string }) => e.action)).toEqual(['SUBMITTED', 'EMAIL_CONFIRMED', 'APPROVED', 'BILLING', 'ADVERTISER_LOGIN', 'SUSPENDED']);
+    expect(detail.audit.map((e: { action: string }) => e.action)).toEqual(['SUBMITTED', 'EMAIL_CONFIRMED', 'APPROVED', 'BILLING', 'ADVERTISER_LOGIN', 'LEADS_EXPORTED', 'SUSPENDED']);
     expect((await post(`/api/pros/${agentId}/leads`, { name: 'x' })).status).toBe(404); // no longer listed
+    // A suspended advertiser is signed out everywhere and can't use an old sign-in link.
+    expect((await fetch(base + '/api/pro/me', { headers: { cookie: proCookie } })).status).toBe(401);
+    await post('/api/pro/login', { email: 'taylor@example.com' });
+    expect(mails.filter((m) => m.subject.includes('sign-in link')).length).toBe(1); // no new link for a suspended account
   });
 
   it('rejects oversized, malformed and traversal requests; rate limits applications', async () => {
@@ -305,6 +311,27 @@ describe('advertiser flow (running server)', () => {
     expect((await admin('/api/admin/applications/../../etc')).status).toBe(404);
     expect((await post('/api/applications', AGENT)).status).toBe(429); // 6th from this network within the hour
     expect(existsSync(join(dir, 'app.db'))).toBe(true);
+  });
+
+  it('refuses malformed Origin and cookie headers cleanly, and forged forwarding addresses', async () => {
+    expect((await post('/api/applications', AGENT, { origin: 'null' })).status).toBe(403);
+    expect((await fetch(base + '/api/admin/me', { headers: { cookie: 'fsf_admin=%E0' } })).status).toBe(401);
+    // The client can prepend anything to X-Forwarded-For; only the last (proxy-added) entry counts.
+    const tries = [];
+    for (let i = 0; i < 7; i++) {
+      tries.push((await post('/api/admin/login', { username: `guess${i}`, password: 'wrong' }, { 'x-fsf-request': '1', 'x-forwarded-for': `10.9.9.${i}, 203.0.113.50` })).status);
+    }
+    expect(tries.at(-1)).toBe(429);
+  });
+
+  it("failed logins for the admin's username can't lock the admin out of a network they've used", async () => {
+    // Our earlier successful login came from 127.0.0.1. Flood failures for 'admin' from many addresses...
+    for (let i = 0; i < 12; i++) await post('/api/admin/login', { username: 'admin', password: 'wrong' }, { 'x-fsf-request': '1', 'x-forwarded-for': `203.0.113.${100 + i}` });
+    // ...a new network is locked out for a while, but the admin's usual network still gets in.
+    expect((await post('/api/admin/login', { username: 'admin', password: PASSWORD }, { 'x-fsf-request': '1', 'x-forwarded-for': '198.51.100.99' })).status).toBe(429);
+    const r = await post('/api/admin/login', { username: 'admin', password: PASSWORD }, { 'x-fsf-request': '1' });
+    expect(r.status).toBe(200);
+    cookie = r.headers.get('set-cookie')!.split(';')[0];
   });
 
   it('signs out', async () => {

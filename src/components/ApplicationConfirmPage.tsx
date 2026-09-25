@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import PageHero from './PageHero';
 import { api } from '../lib/api';
 
 // Tokens are single-use: share one request per token even if React runs the effect twice.
@@ -28,7 +29,7 @@ export default function ApplicationConfirmPage({ token }: { token: string }) {
 
   return (
     <main className="page prose">
-      <h1>Confirm your email</h1>
+      <PageHero compact title="Confirm your email" />
       {!state && <p>Confirming…</p>}
       {state && <div className={state.ok ? 'notice' : 'caution'} role="status">{state.message}</div>}
       <a href="#/advertise">Back to advertising</a>

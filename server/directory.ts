@@ -8,7 +8,8 @@ import type { ProsFeed } from '../src/feed/prosFeed';
 import { signBytes } from '../ingest/lib/sign';
 import type { ApplicationRow } from './db';
 
-export const DIRECTORY_TTL_DAYS = 7;
+// Republished hourly by the server; a short lifetime limits how long a replayed old copy could be used.
+export const DIRECTORY_TTL_HOURS = 24;
 
 export function toPro(row: ApplicationRow): Pro | null {
   const v = row.verification;
@@ -43,8 +44,9 @@ export function buildProsFeed(rows: ApplicationRow[], now: Date): ProsFeed {
   const pros = rows.map(toPro).filter((p): p is Pro => !!p && isListable(p, now));
   return {
     version: 1,
+    type: 'pros',
     generatedAt: now.toISOString(),
-    expiresAt: new Date(now.getTime() + DIRECTORY_TTL_DAYS * 86_400_000).toISOString(),
+    expiresAt: new Date(now.getTime() + DIRECTORY_TTL_HOURS * 3_600_000).toISOString(),
     pros,
   };
 }

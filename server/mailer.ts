@@ -24,12 +24,14 @@ const FOOTER =
   '\n--\nForced-Sale Finder helps people find options. We are not a lender, broker, agent or party to any transaction, ' +
   'and we are not responsible for any agreement between you and anyone you contact through the site.\n';
 
-export function confirmationEmail(to: string, name: string, link: string, regulator: string): Mail {
+// No applicant-supplied text is echoed here: the address isn't confirmed yet, so an attacker
+// could otherwise use us to send their words to anyone.
+export function confirmationEmail(to: string, link: string, regulator: string): Mail {
   return {
     to,
     subject: 'Confirm your email for your Forced-Sale Finder advertiser application',
     text:
-      `Hi ${name},\n\nThanks for applying to advertise. Please confirm this email address:\n\n${link}\n\n` +
+      `Hello,\n\nThanks for applying to advertise. Please confirm this email address:\n\n${link}\n\n` +
       `The link expires in 48 hours. After you confirm, we verify your license with ${regulator} and confirm your ` +
       `identity through contact details we find independently, before your profile goes live.\n\n` +
       `If you didn't apply, ignore this email. Nothing will be published.\n` +
@@ -59,12 +61,12 @@ export function leadEmail(to: string, proName: string, lead: LeadRow, dashboardU
   };
 }
 
-export function leadReceiptEmail(to: string, name: string, proName: string): Mail {
+export function leadReceiptEmail(to: string, proName: string): Mail {
   return {
     to,
     subject: `Your message was sent to ${proName}`,
     text:
-      `Hi ${name},\n\nWe sent your contact details and message to ${proName}. They will contact you directly.\n\n` +
+      `Hello,\n\nWe sent your contact details and message to ${proName}. They will contact you directly.\n\n` +
       `Before you sign anything or send money: verify their license yourself, compare options, read every document, ` +
       `and consider independent legal and financial advice. Never wire money based on an email or text alone.\n` +
       FOOTER,

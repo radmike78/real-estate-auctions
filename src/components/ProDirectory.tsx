@@ -30,10 +30,14 @@ export function ProCard({ p }: { p: Pro }) {
   const mail = safeMailto(p.email);
   return (
     <li className="pro-card">
+      <div className="pro-card-top">
+        <span className="ad-label">Advertisement</span>
+        {p.isSample && <span className="badge tone-info">Sample</span>}
+      </div>
       <a className="pro-card-main" href={`#/pros/${p.id}`}>
         <div className="avatar" aria-hidden>{initials(p.name)}</div>
         <div>
-          <div className="pro-kicker">{info.label}{p.isSample && <span className="badge tone-info">Sample</span>}</div>
+          <div className="pro-kicker">{info.label}</div>
           <h3>{p.name}</h3>
           <div className="small muted">{p.company}</div>
         </div>
@@ -49,7 +53,6 @@ export function ProCard({ p }: { p: Pro }) {
         {tel && <a className="btn btn-secondary" href={tel} onClick={() => track('phone_click', p.id)}>Call</a>}
         {!tel && mail && <a className="btn btn-secondary" href={mail} onClick={() => track('email_click', p.id)}>Email</a>}
       </div>
-      <span className="ad-label">Advertisement</span>
     </li>
   );
 }

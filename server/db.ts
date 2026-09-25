@@ -219,6 +219,10 @@ export function openDb(path: string) {
       purge(olderThan: number) {
         db.prepare('DELETE FROM sessions WHERE last_seen < ?').run(olderThan);
       },
+      /** Signs a subject out everywhere (e.g. when an advertiser is suspended). */
+      deleteForSubject(kind: 'admin' | 'pro', subject: string) {
+        db.prepare('DELETE FROM sessions WHERE kind = ? AND subject = ?').run(kind, subject);
+      },
     },
     loginTokens: {
       create(tokenHash: string, proId: string, expiresAt: number) {
@@ -229,6 +233,9 @@ export function openDb(path: string) {
         const r = db.prepare('SELECT pro_id AS proId, expires_at AS expiresAt FROM login_tokens WHERE token_hash = ?').get(tokenHash) as { proId: string; expiresAt: number } | undefined;
         db.prepare('DELETE FROM login_tokens WHERE token_hash = ? OR expires_at < ?').run(tokenHash, now);
         return r && r.expiresAt >= now ? r.proId : null;
+      },
+      deleteForPro(proId: string) {
+        db.prepare('DELETE FROM login_tokens WHERE pro_id = ?').run(proId);
       },
     },
     metrics: {

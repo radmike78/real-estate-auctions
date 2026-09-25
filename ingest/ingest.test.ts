@@ -186,10 +186,12 @@ describe('site identity', () => {
   });
 
   it('refuses DNS answers pointing at private or internal addresses', async () => {
-    for (const ip of ['10.0.0.5', '127.0.0.1', '192.168.1.1', '172.16.0.1', '169.254.169.254', '100.64.0.1', '::1', 'fd00::1', '::ffff:10.1.1.1']) {
+    for (const ip of ['10.0.0.5', '127.0.0.1', '192.168.1.1', '172.16.0.1', '169.254.169.254', '100.64.0.1', '::1', 'fd00::1', '::ffff:10.1.1.1',
+      '::ffff:7f00:1', '64:ff9b::a00:1', '2002:a00:1::1', 'fec0::1', '192.0.0.8', '192.0.2.1', '198.51.100.1', '203.0.113.9', 'not-an-ip']) {
       expect(isPrivateAddress(ip), ip).toBe(true);
     }
     expect(isPrivateAddress('156.99.1.10')).toBe(false);
+    expect(isPrivateAddress('2607:f8b0:4005::1')).toBe(false);
     const rebind = (async () => [{ address: '169.254.169.254', family: 4 }]) as never;
     await expect(assertPublicDns(host, rebind)).rejects.toThrow(/non-public/);
     const ok = (async () => [{ address: '156.99.1.10', family: 4 }]) as never;

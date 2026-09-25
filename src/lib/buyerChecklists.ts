@@ -17,7 +17,12 @@ export interface BuyerChecklist {
   intro: string;
   items: ChecklistItem[];
   link?: { href: string; label: string };
+  /** Official government site listing these properties (opens in a new tab). */
+  official?: { href: string; label: string; note: string };
 }
+
+/** HUD's own Nevada search on HUD Home Store (the official site for HUD-owned homes). */
+export const HUD_NEVADA_SEARCH = 'https://www.hudhomestore.gov/searchresult?citystate=NV';
 
 const CONFIRM = { text: 'Confirm the details in the official notice', detail: 'Dates, deposits and payment rules change. Check again the day before.' };
 
@@ -80,7 +85,13 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: 'A home inspection within your contingency period' },
       { text: 'Title insurance and escrow for closing' },
       { text: 'For online REO auctions: registration and buyer’s premium', detail: 'Check the platform terms before you bid.' },
+      { text: 'For HUD homes: a HUD-registered broker', detail: 'You can’t bid on a HUD home yourself. Owner-occupants get the first bidding period; investors can bid after it ends.' },
     ],
+    official: {
+      href: HUD_NEVADA_SEARCH,
+      label: 'See HUD-owned homes in Nevada on HUD Home Store',
+      note: 'HUD’s official listings. We link to them rather than copying them, so you always see HUD’s current list.',
+    },
   },
   hoa: {
     key: 'hoa',
