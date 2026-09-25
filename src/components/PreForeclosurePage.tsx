@@ -1,0 +1,175 @@
+import { useMemo, useState } from 'react';
+import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
+import { foreclosureTrack, PIPELINE, STAGE_INFO, type ForeclosureStage, type ForeclosureTrack } from '../lib/foreclosure';
+import { fmtDate, fmtDateTime } from '../lib/status';
+import type { Property } from '../types';
+import Disclaimer from './Disclaimer';
+import BuyerChecklistBox from './BuyerChecklistBox';
+import { CHECKLISTS } from '../lib/buyerChecklists';
+
+const WATCH_KEY = 'fsf.preforeclosure.watch.v1';
+
+// Watchlist is a per-browser convenience: { propertyId: stage last seen }.
+function loadWatch(): Record<string, ForeclosureStage> {
+  try {
+    const v = JSON.parse(localStorage.getItem(WATCH_KEY) ?? '{}');
+    return v && typeof v === 'object' ? v : {};
+  } catch {
+    return {};
+  }
+}
+function saveWatch(w: Record<string, ForeclosureStage>) {
+  try {
+    localStorage.setItem(WATCH_KEY, JSON.stringify(w));
+  } catch {
+    /* storage unavailable (private mode): tracking lasts for this visit only */
+  }
+}
+
+type Row = { p: Property; t: ForeclosureTrack };
+type StageFilter = 'active' | 'ended' | 'all' | ForeclosureStage;
+
+function Pipeline({ t }: { t: ForeclosureTrack }) {
+  const info = STAGE_INFO[t.stage];
+  return (
+    <ol className="pipeline" aria-label={`Stage: ${info.label}`}>
+      {PIPELINE.map((label, i) => (
+        <li key={label} className={i < info.step ? 'done' : i === info.step ? `current tone-${info.tone}` : ''}>
+          <span>{i === 3 && info.ended ? info.label : label}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+export default function PreForeclosurePage({ initialQuery = '' }: { initialQuery?: string }) {
+  const now = useMemo(() => new Date(), []);
+  const rows: Row[] = useMemo(
+    () =>
+      SAMPLE_PROPERTIES.map((p) => ({ p, t: foreclosureTrack(p, now) }))
+        .filter((r): r is Row => r.t !== null)
+        .sort(
+          (a, b) =>
+            Number(STAGE_INFO[a.t.stage].ended) - Number(STAGE_INFO[b.t.stage].ended) ||
+            (a.t.saleAt ?? '9999').localeCompare(b.t.saleAt ?? '9999') ||
+            b.t.defaultRecordedOn.localeCompare(a.t.defaultRecordedOn),
+        ),
+    [now],
+  );
+  const [watch, setWatch] = useState(loadWatch);
+  const [q, setQ] = useState(initialQuery);
+  const [stage, setStage] = useState<StageFilter>('active');
+  const [trackedOnly, setTrackedOnly] = useState(false);
+
+  const update = (w: Record<string, ForeclosureStage>) => {
+    setWatch(w);
+    saveWatch(w);
+  };
+  const toggle = (r: Row) => {
+    const w = { ...watch };
+    if (w[r.p.id]) delete w[r.p.id];
+    else w[r.p.id] = r.t.stage;
+    update(w);
+  };
+
+  const needle = q.trim().toLowerCase();
+  const shown = rows.filter(({ p, t }) => {
+    if (trackedOnly && !watch[p.id]) return false;
+    if (needle && !`${p.address} ${p.city} ${p.zip} ${p.apn}`.toLowerCase().includes(needle)) return false;
+    if (stage === 'active') return !STAGE_INFO[t.stage].ended;
+    if (stage === 'ended') return STAGE_INFO[t.stage].ended;
+    return stage === 'all' || t.stage === stage;
+  });
+  const changed = rows.filter((r) => watch[r.p.id] && watch[r.p.id] !== r.t.stage);
+
+  return (
+    <main className="page">
+      <h1>Pre-foreclosure tracker</h1>
+
+      <div className="caution" role="alert">
+        <strong>Do not contact these homeowners.</strong> A notice of default means an owner is behind on payments. It does not mean the home
+        is for sale. Nevada strictly regulates anyone who approaches owners in foreclosure (NRS Chapter 645F), and a purchase made that way can
+        be rescinded for up to 2 years. Owners may also be in the state's Foreclosure Mediation Program. For that reason this tracker shows no
+        owner names or contact details. Use it only to follow a property toward auction, or to recognize it if the owner lists it for sale
+        through an agent.
+      </div>
+
+      <p className="muted">
+        Tracks Nevada non-judicial foreclosures: default, then notice of sale, then auction. Many never reach auction, because owners catch up,
+        modify the loan, sell (often as a short sale) or file bankruptcy. <strong>Sample data:</strong> a live feed of Clark County Recorder
+        notices will be connected once a data-use agreement with the Recorder's office is in place.
+      </p>
+
+      <section className="explainer" aria-label="How a Nevada foreclosure progresses">
+        <ol className="timeline-steps">
+          <li><strong>Notice of default</strong><span>Recorded by the trustee or HOA. The owner can still cure the default.</span></li>
+          <li><strong>3+ months</strong><span>Minimum wait before a notice of sale can be recorded (NRS 107.080).</span></li>
+          <li><strong>Notice of sale</strong><span>Posted 20 days and published 3 weeks. Sets the auction date.</span></li>
+          <li><strong>Auction</strong><span>Held, postponed or cancelled. A sale becomes an auction listing on this site.</span></li>
+        </ol>
+      </section>
+
+      <BuyerChecklistBox list={CHECKLISTS.pre} />
+
+      {changed.length > 0 && (
+        <div className="notice" role="status">
+          <strong>{changed.length} tracked {changed.length === 1 ? 'property has' : 'properties have'} moved to a new stage</strong> since you
+          last marked them seen.
+          <button className="linkish" onClick={() => update({ ...watch, ...Object.fromEntries(changed.map((r) => [r.p.id, r.t.stage])) })}>
+            Mark all seen
+          </button>
+        </div>
+      )}
+
+      <div className="toolbar">
+        <input aria-label="Filter by address, city, ZIP or APN" placeholder="Address, city, ZIP or APN" value={q} onChange={(e) => setQ(e.target.value)} />
+        <select aria-label="Stage" value={stage} onChange={(e) => setStage(e.target.value as StageFilter)}>
+          <option value="active">In progress</option>
+          <option value="ended">Ended</option>
+          <option value="all">All stages</option>
+          {(Object.keys(STAGE_INFO) as ForeclosureStage[]).map((s) => (
+            <option key={s} value={s}>{STAGE_INFO[s].label}</option>
+          ))}
+        </select>
+        <label className="check">
+          <input type="checkbox" checked={trackedOnly} onChange={(e) => setTrackedOnly(e.target.checked)} /> Tracked only ({Object.keys(watch).length})
+        </label>
+      </div>
+
+      <p className="small muted">{shown.length} of {rows.length} properties</p>
+      <ul className="track-list">
+        {shown.map((r) => {
+          const { p, t } = r;
+          const info = STAGE_INFO[t.stage];
+          const tracked = !!watch[p.id];
+          const moved = tracked && watch[p.id] !== t.stage;
+          return (
+            <li key={p.id} className="track-card">
+              <div className="track-head">
+                <div>
+                  <span className={`badge tone-${info.tone}`}>{info.label}</span> <span className="small muted">{t.kind}</span>
+                  {moved && <span className="badge tone-info">Stage changed</span>}
+                  <h3>{p.address}</h3>
+                  <div className="small muted">{p.city}, {p.state} {p.zip} · APN {p.apn}</div>
+                </div>
+                <button className={tracked ? 'btn' : ''} aria-pressed={tracked} onClick={() => toggle(r)}>
+                  {tracked ? '★ Tracking' : '☆ Track'}
+                </button>
+              </div>
+              <Pipeline t={t} />
+              <dl className="card-stats">
+                <div><dt>Default recorded</dt><dd>{fmtDate(t.defaultRecordedOn)}</dd></div>
+                <div><dt>Days in foreclosure</dt><dd>{info.ended ? '—' : t.daysInForeclosure}</dd></div>
+                <div><dt>Notice of sale</dt><dd>{t.noticeOfSaleOn ? fmtDate(t.noticeOfSaleOn) : `Not before ${fmtDate(t.earliestNoticeOfSale)}`}</dd></div>
+                <div><dt>Auction</dt><dd>{t.saleAt ? fmtDateTime(t.saleAt) : '—'}</dd></div>
+              </dl>
+              <p className="small">{t.next}</p>
+              <a className="small" href={`#/property/${p.id}`}>Property details →</a>
+            </li>
+          );
+        })}
+      </ul>
+      <Disclaimer kind="sales" />
+    </main>
+  );
+}

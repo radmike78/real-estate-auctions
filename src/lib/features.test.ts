@@ -1,0 +1,198 @@
+import { describe, expect, it } from 'vitest';
+import type { Property, PropertyEvent } from '../types';
+import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
+import { SAMPLE_PROS } from '../data/samplePros';
+import { addMonths, foreclosureTrack } from './foreclosure';
+import { isListable, listingProblems, rotationKey, safeMailto, safeTel, safeWebsite, searchPros, type Pro, type ProQuery } from './pros';
+import { purchaseSteps } from './status';
+
+const src = { agency: 't', url: null, lastVerified: '2026-01-01T00:00:00Z', confidence: 'high' as const };
+const ev = (date: string, type: PropertyEvent['type'], description: string = type): PropertyEvent => ({ date, type, description, source: src });
+const withEvents = (events: PropertyEvent[], sale: Partial<NonNullable<Property['sale']>> | null = null): Property => ({
+  ...SAMPLE_PROPERTIES[0],
+  events,
+  sale: sale ? ({ ...SAMPLE_PROPERTIES.find((p) => p.sale?.saleType === 'TRUSTEE_SALE')!.sale!, ...sale } as Property['sale']) : null,
+});
+const now = new Date('2026-09-24T12:00:00Z');
+
+describe('pre-foreclosure tracker', () => {
+  it('computes the earliest notice-of-sale date (3 months after default)', () => {
+    expect(addMonths('2026-06-15', 3)).toBe('2026-09-15');
+    expect(addMonths('2026-11-30', 3)).toBe('2027-02-28');
+  });
+
+  it('follows a foreclosure from default to auction to outcome', () => {
+    const nod = ev('2026-08-01', 'NOTICE_OF_DEFAULT');
+    const t0 = foreclosureTrack(withEvents([nod]), now)!;
+    expect(t0).toMatchObject({ stage: 'DEFAULT_RECORDED', earliestNoticeOfSale: '2026-11-01', daysInForeclosure: 54 });
+    expect(t0.next).toMatch(/can't be recorded before Nov 1, 2026/);
+
+    const scheduled = withEvents([nod, ev('2026-09-10', 'NOTICE_OF_SALE')], { saleType: 'TRUSTEE_SALE', startsAt: '2026-10-05T17:00:00Z' });
+    expect(foreclosureTrack(scheduled, now)!.stage).toBe('SALE_SCHEDULED');
+    expect(foreclosureTrack(scheduled, new Date('2026-10-06T12:00:00Z'))!.stage).toBe('AWAITING_RESULT');
+
+    expect(foreclosureTrack(withEvents([nod, ev('2026-09-01', 'SALE_POSTPONED')]), now)!.stage).toBe('POSTPONED');
+    expect(foreclosureTrack(withEvents([nod, ev('2026-09-01', 'SALE_POSTPONED'), ev('2026-09-02', 'BANKRUPTCY_FILED')]), now)!.stage).toBe('BANKRUPTCY_STAY');
+    expect(foreclosureTrack(withEvents([nod, ev('2026-09-01', 'SALE_CANCELLED')]), now)!.stage).toBe('CANCELLED');
+    expect(foreclosureTrack(withEvents([nod, ev('2026-09-20', 'SOLD', 'Property reverted to the lender (REO).')]), now)!.stage).toBe('REVERTED_TO_LENDER');
+    expect(foreclosureTrack(withEvents([nod, ev('2026-09-20', 'SOLD', "Trustee's deed to third-party bidder.")]), now)!.stage).toBe('SOLD_AT_AUCTION');
+  });
+
+  it('ignores events before the latest notice of default, and properties without one', () => {
+    const old = [ev('2020-01-01', 'NOTICE_OF_DEFAULT'), ev('2020-03-01', 'SALE_CANCELLED')];
+    expect(foreclosureTrack(withEvents([...old, ev('2026-08-01', 'NOTICE_OF_DEFAULT')]), now)!.stage).toBe('DEFAULT_RECORDED');
+    expect(foreclosureTrack(withEvents([ev('2026-01-01', 'LIEN_RECORDED')]), now)).toBeNull();
+  });
+
+  it('sample data covers every stage family', () => {
+    const stages = new Set(SAMPLE_PROPERTIES.map((p) => foreclosureTrack(p)?.stage).filter(Boolean));
+    for (const s of ['DEFAULT_RECORDED', 'SALE_SCHEDULED', 'POSTPONED', 'CANCELLED', 'REVERTED_TO_LENDER']) expect(stages, s).toContain(s);
+  });
+
+  it('never advises contacting a homeowner in pre-foreclosure', () => {
+    const p = SAMPLE_PROPERTIES.find((x) => x.status === 'PRE_FORECLOSURE_NOT_YET_PURCHASABLE')!;
+    const steps = purchaseSteps(p).join(' ');
+    expect(steps).toMatch(/Do not contact the homeowner/);
+    expect(steps).not.toMatch(/contact the owner about/i);
+  });
+});
+
+describe('professional directory', () => {
+  const good = SAMPLE_PROS[0];
+  const at = (p: Partial<Pro>) => ({ ...good, ...p });
+  const Q: ProQuery = { categories: [], location: '', service: 'any', creditProfile: 'any', language: 'any' };
+
+  it('lists only verified, unexpired, paid professionals', () => {
+    expect(listingProblems(good)).toEqual([]);
+    expect(listingProblems(at({ licenseStatus: 'Revoked' }))).toContain('LICENSE_NOT_ACTIVE');
+    expect(listingProblems(at({ licenseExpires: '2020-01-01' }))).toContain('LICENSE_EXPIRED');
+    expect(listingProblems(at({ licenseVerifiedAt: '2020-01-01' }))).toContain('VERIFICATION_STALE');
+    expect(listingProblems(at({ licenseVerifiedAt: '2999-01-01' }))).toContain('VERIFICATION_STALE');
+    expect(listingProblems(at({ paidThrough: '2020-01-01' }))).toContain('NOT_PAID');
+    // Banks and credit unions have no expiring license.
+    const bank = SAMPLE_PROS.find((p) => p.category === 'bank')!;
+    expect(bank.licenseExpires).toBeNull();
+    expect(isListable(bank)).toBe(true);
+    const hidden = SAMPLE_PROS.filter((p) => !isListable(p)).map((p) => p.name);
+    expect(hidden).toEqual(['Casey Stale-Example', 'Drew Unpaid-Example']);
+  });
+
+  it('only allows safe contact links', () => {
+    expect(safeTel('+17025550101')).toBe('tel:+17025550101');
+    expect(safeTel('javascript:alert(1)')).toBeNull();
+    expect(safeMailto('a@example.com')).toBe('mailto:a@example.com');
+    expect(safeMailto('a@example.com?bcc=x@evil.com')).toBeNull();
+    expect(safeWebsite('https://example.com/a')).toBe('https://example.com/a');
+    expect(safeWebsite('javascript:alert(1)')).toBeNull();
+    expect(safeWebsite('http://example.com')).toBeNull();
+    expect(listingProblems(at({ website: 'javascript:alert(1)' }))).toContain('UNSAFE_CONTACT');
+    expect(listingProblems(at({ phone: null, email: null }))).toContain('MISSING_CONTACT');
+  });
+
+  it('filters by category, location, loan type and credit situation', () => {
+    const names = (q: Partial<ProQuery>) => searchPros(SAMPLE_PROS, { ...Q, ...q }).map((p) => p.name).sort();
+    expect(names({ categories: ['agent'], location: 'Henderson, NV' })).toEqual(['Jordan Sample', 'Riley Fixture']);
+    expect(names({ categories: ['agent'], location: '89031' })).toEqual(['Avery Example']);
+    expect(names({ categories: ['loan_officer', 'mortgage_company', 'bank', 'credit_union', 'private_lender'], service: 'Hard money', creditProfile: 'Rebuilding (below 620)' })).toEqual([
+      'Fixture Private Funding',
+      'Placeholder Bridge Capital',
+    ]);
+    expect(names({ categories: ['contractor'], service: 'Roofing' })).toEqual(['Example Roof & Solar']);
+  });
+
+  it('orders results neutrally: a daily rotation that ignores payment', () => {
+    const day1 = searchPros(SAMPLE_PROS, Q, new Date('2026-10-01T12:00:00Z')).map((p) => p.id);
+    const day1again = searchPros(SAMPLE_PROS, Q, new Date('2026-10-01T20:00:00Z')).map((p) => p.id);
+    const day2 = searchPros(SAMPLE_PROS, Q, new Date('2026-10-02T12:00:00Z')).map((p) => p.id);
+    expect(day1).toEqual(day1again); // same for everyone all day
+    expect(day1).not.toEqual(day2); // rotates daily
+    // Paying longer doesn't change position.
+    const richer = SAMPLE_PROS.map((p) => (p.id === day1[day1.length - 1] ? { ...p, paidThrough: '2099-12-31' } : p));
+    expect(searchPros(richer, Q, new Date('2026-10-01T12:00:00Z')).map((p) => p.id)).toEqual(day1);
+    expect(rotationKey('a', '2026-10-01')).not.toBe(rotationKey('a', '2026-10-02'));
+  });
+});
+
+describe('date display', () => {
+  it('shows calendar dates without a timezone shift and sale times in Las Vegas time', async () => {
+    const { fmtDate, fmtDateTime } = await import('./status');
+    const { pacificToIso } = await import('./time');
+    expect(fmtDate('2026-11-28')).toBe('Nov 28, 2026');
+    expect(pacificToIso(2026, 9, 5, 10)).toBe('2026-10-05T17:00:00.000Z'); // 10:00 PDT
+    expect(pacificToIso(2026, 11, 5, 10)).toBe('2026-12-05T18:00:00.000Z'); // 10:00 PST
+    expect(fmtDateTime('2026-10-05T17:00:00.000Z')).toMatch(/Oct 5, 2026, 10:00\sAM PDT/);
+  });
+});
+
+describe('feed loading on static hosts', () => {
+  it('treats an HTML fallback page as "not published", not as a tampered file', async () => {
+    const { isFeedResponse } = await import('../feed/verify');
+    expect(isFeedResponse(new Response('<!doctype html>', { status: 200, headers: { 'content-type': 'text/html' } }))).toBe(false);
+    expect(isFeedResponse(new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } }))).toBe(true);
+    expect(isFeedResponse(new Response('x', { status: 404 }))).toBe(false);
+  });
+});
+
+describe('disclaimers', () => {
+  it('state the site role everywhere: finding options only, not a party, buyer due diligence, no financing', async () => {
+    const { DISCLAIMERS, ROLE_SHORT } = await import('./disclaimers');
+    expect(ROLE_SHORT).toMatch(/helps you find options/);
+    expect(ROLE_SHORT).toMatch(/not a party/);
+    expect(ROLE_SHORT).toMatch(/responsible for your own due diligence/);
+    expect(DISCLAIMERS.financing.text).toMatch(/don't make, arrange, broker or negotiate loans/);
+    expect(DISCLAIMERS.financing.text).toMatch(/aren't responsible/);
+    expect(DISCLAIMERS.sales.text).toMatch(/don't take bids or money/);
+    expect(DISCLAIMERS.professionals.text).toMatch(/pay to advertise/);
+    expect(DISCLAIMERS.services.text).toMatch(/aren't a party/);
+  });
+});
+
+describe('license lookup', () => {
+  it('reads license formats and finds verified matches', async () => {
+    const { analyzeQuery, findInDirectory } = await import('./licenseLookup');
+    expect(analyzeQuery('agent', 's.0012345')).toMatchObject({ mode: 'license', normalized: 'S.0012345', formatOk: true, detail: expect.stringMatching(/salesperson/) });
+    expect(analyzeQuery('agent', '12345')).toMatchObject({ mode: 'license', formatOk: false });
+    expect(analyzeQuery('loan_officer', '123456')).toMatchObject({ formatOk: true });
+    expect(analyzeQuery('agent', 'Avery')).toMatchObject({ mode: 'name', formatOk: null });
+    expect(analyzeQuery('agent', '  ').mode).toBe('empty');
+    const byNumber = findInDirectory(SAMPLE_PROS, ['agent'], analyzeQuery('agent', 'BS.0000102'));
+    expect(byNumber.map((p) => p.name)).toEqual(['Jordan Sample']);
+    expect(findInDirectory(SAMPLE_PROS, ['agent'], analyzeQuery('agent', 'desert realty')).map((p) => p.name)).toEqual(['Avery Example', 'Riley Fixture']);
+    expect(findInDirectory(SAMPLE_PROS, ['agent'], analyzeQuery('agent', 'av'))).toEqual([]); // too short
+    // A profile hidden for an overdue license check or lapsed payment is never reported as verified.
+    expect(findInDirectory(SAMPLE_PROS, ['agent'], analyzeQuery('agent', 'S.0000105'))).toEqual([]);
+    expect(findInDirectory(SAMPLE_PROS, ['agent'], analyzeQuery('agent', 'Unpaid-Example'))).toEqual([]);
+  });
+});
+
+describe('homepage sale-type search', () => {
+  it('routes each type of sale to the right place', async () => {
+    const { saleSearchHref, SALE_SEARCH } = await import('./saleSearch');
+    expect(saleSearchHref('all', '')).toBe('#/search');
+    expect(saleSearchHref('tax', 'Henderson, NV')).toBe('#/search?q=Henderson%2C+NV&type=TAX_DEED%2CTAX_LIEN_CERTIFICATE');
+    expect(saleSearchHref('foreclosure', '89123')).toBe('#/search?q=89123&type=TRUSTEE_SALE%2CJUDICIAL_FORECLOSURE');
+    expect(saleSearchHref('liens', '')).toBe('#/search?status=NOT_FOR_SALE_LIEN_ONLY');
+    expect(saleSearchHref('pre', '89031')).toBe('#/pre-foreclosures?q=89031');
+    expect(saleSearchHref('short', '')).toBe('#/short-sales');
+    expect(SALE_SEARCH.map((o) => o.label)).toContain('Short sales');
+  });
+});
+
+describe('buyer checklists', () => {
+  it('covers every homepage sale type and maps properties and filters to the right list', async () => {
+    const { CHECKLISTS, checklistForProperty, checklistForFilters } = await import('./buyerChecklists');
+    const { SALE_SEARCH } = await import('./saleSearch');
+    for (const o of SALE_SEARCH) expect(CHECKLISTS[o.key], o.key).toBeTruthy();
+    expect(CHECKLISTS.pre.forSale).toBe(false);
+    expect(CHECKLISTS.liens.forSale).toBe(false);
+    expect(CHECKLISTS.pre.items[0].text).toMatch(/Do not contact the homeowner/);
+    expect(CHECKLISTS.tax.items.map((i) => i.text).join(' ')).toMatch(/\$5,000 refundable deposit/);
+    expect(checklistForProperty('TRUSTEE_SALE', 'IN_PERSON_AUCTION').key).toBe('foreclosure');
+    expect(checklistForProperty('FEDERAL_TAX_SEIZURE', 'SEALED_BID').key).toBe('sheriff');
+    expect(checklistForProperty(null, 'PRE_FORECLOSURE_NOT_YET_PURCHASABLE').key).toBe('pre');
+    expect(checklistForProperty(null, 'NOT_FOR_SALE_LIEN_ONLY').key).toBe('liens');
+    expect(checklistForFilters(['TRUSTEE_SALE', 'JUDICIAL_FORECLOSURE'], []).key).toBe('foreclosure');
+    expect(checklistForFilters(['TRUSTEE_SALE', 'REO'], []).key).toBe('all');
+    expect(checklistForFilters([], ['NOT_FOR_SALE_LIEN_ONLY']).key).toBe('liens');
+  });
+});

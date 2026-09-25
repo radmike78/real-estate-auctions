@@ -1,0 +1,520 @@
+// HTTP API: advertiser signup, admin approval/billing, lead forms, privacy-preserving metrics,
+// advertiser dashboard, plus static hosting of the built site.
+//
+// Public
+//   POST /api/applications                  submit an advertiser application (rate limited, honeypot)
+//   POST /api/applications/confirm          confirm email ownership with the emailed token
+//   POST /api/events                        count a view/impression/contact click for listed pros
+//   POST /api/pros/:id/leads                send a contact request to a listed pro (with consent)
+//   POST /api/pro/login                     email a one-time sign-in link to a listed advertiser
+//   POST /api/pro/session                   exchange that link's token for a session
+// Advertiser (fsf_pro cookie; writes need x-fsf-request: 1 and same origin)
+//   GET  /api/pro/me | /api/pro/metrics | /api/pro/leads | /api/pro/leads.csv ; POST /api/pro/logout
+// Admin (fsf_admin cookie; writes need x-fsf-request: 1 and same origin)
+//   POST /api/admin/login | /logout ; GET /api/admin/me | /api/admin/applications[/:id[/metrics]]
+//   POST /api/admin/applications/:id/(approve|billing|reject|suspend) ; POST /api/admin/publish | /api/admin/reports
+
+import { randomBytes } from 'node:crypto';
+import { createReadStream, existsSync, statSync } from 'node:fs';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import { extname, normalize, resolve, sep } from 'node:path';
+import type { KeyObject } from 'node:crypto';
+import { approvalBlockers, normalizePhone, plain, validateApplication, validateBilling, type ApplicationInput, type LicenseVerification } from '../src/lib/proApplication';
+import { CATEGORIES, isListable, REVERIFY_DAYS } from '../src/lib/pros';
+import { newToken, parseCookies, RateLimiter, SESSION_IDLE_MS, SESSION_MAX_MS, safeEqualStrings, sessionCookie, sha256, verifyPassword } from './auth';
+import { METRIC_KINDS, openDb, type ApplicationRow, type Db, type MetricKind } from './db';
+import { buildProsFeed, toPro, writeSignedJson } from './directory';
+import { confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, type Mailer } from './mailer';
+import { BOT_UA, leadsToCsv, monthlyReportText, monthRange, pacificDay, pacificDaysToUtc, summarize, VisitorHasher } from './metrics';
+
+export interface AppConfig {
+  dbPath: string;
+  dataDir: string; // where signed feeds are written and served from (/data/*)
+  distDir: string | null; // built site; null = API only
+  adminUsername: string;
+  adminPasswordHash: string;
+  signingKey: KeyObject | null;
+  baseUrl: string; // public site URL used in emails
+  mailer?: Mailer;
+  secureCookies?: boolean;
+  trustProxy?: boolean;
+  now?: () => Date;
+}
+
+const JSON_LIMIT = 32 * 1024;
+const ID_RE = /^[a-f0-9]{24}$/;
+const EMAIL_TOKEN_TTL_MS = 48 * 3_600_000;
+const LOGIN_TOKEN_TTL_MS = 15 * 60_000;
+const ADMIN_COOKIE = 'fsf_admin';
+const PRO_COOKIE = 'fsf_pro';
+
+const MIME: Record<string, string> = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'text/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.json': 'application/json',
+  '.sig': 'text/plain; charset=utf-8',
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.ico': 'image/x-icon',
+  '.woff2': 'font/woff2',
+};
+
+class HttpError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+    readonly body?: Record<string, unknown>,
+  ) {
+    super(message);
+  }
+}
+
+export function createApp(config: AppConfig) {
+  const db: Db = openDb(config.dbPath);
+  const mailer = config.mailer ?? consoleMailer;
+  const now = config.now ?? (() => new Date());
+  const base = config.baseUrl.replace(/\/$/, '');
+  const secure = config.secureCookies ?? true;
+  const limiters = {
+    apply: new RateLimiter(5, 3_600_000),
+    confirm: new RateLimiter(20, 3_600_000),
+    loginIp: new RateLimiter(5, 15 * 60_000),
+    loginUser: new RateLimiter(10, 15 * 60_000),
+    proLinkIp: new RateLimiter(5, 15 * 60_000),
+    proLinkEmail: new RateLimiter(3, 3_600_000),
+    lead: new RateLimiter(5, 3_600_000),
+    events: new RateLimiter(60, 60_000),
+  };
+  const hasher = new VisitorHasher();
+
+  const clientIp = (req: IncomingMessage) =>
+    (config.trustProxy ? String(req.headers['x-forwarded-for'] ?? '').split(',')[0].trim() : '') || req.socket.remoteAddress || 'unknown';
+
+  function send(res: ServerResponse, status: number, body: unknown, headers: Record<string, string> = {}) {
+    res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...headers });
+    res.end(JSON.stringify(body));
+  }
+
+  async function readJson(req: IncomingMessage): Promise<Record<string, unknown>> {
+    if (!/^application\/json\b/i.test(req.headers['content-type'] ?? '')) throw new HttpError(415, 'Expected application/json');
+    let size = 0;
+    const chunks: Buffer[] = [];
+    for await (const c of req) {
+      size += (c as Buffer).length;
+      if (size > JSON_LIMIT) throw new HttpError(413, 'Request too large');
+      chunks.push(c as Buffer);
+    }
+    try {
+      const v = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+      if (!v || typeof v !== 'object' || Array.isArray(v)) throw new Error();
+      return v;
+    } catch {
+      throw new HttpError(400, 'Invalid JSON');
+    }
+  }
+
+  /** Blocks cross-site requests: writes must come from our own pages. */
+  function assertSameOrigin(req: IncomingMessage) {
+    const origin = req.headers.origin;
+    if (origin && new URL(origin).host !== req.headers.host) throw new HttpError(403, 'Cross-origin request refused');
+  }
+  /** Custom header can't be sent cross-site without a CORS preflight, which we never allow. */
+  function assertAppRequest(req: IncomingMessage) {
+    if (req.headers['x-fsf-request'] !== '1') throw new HttpError(403, 'Missing request header');
+    assertSameOrigin(req);
+  }
+
+  function requireSession(req: IncomingMessage, kind: 'admin' | 'pro'): { subject: string; tokenHash: string } {
+    const token = parseCookies(req.headers.cookie)[kind === 'admin' ? ADMIN_COOKIE : PRO_COOKIE];
+    if (!token) throw new HttpError(401, 'Not signed in');
+    const tokenHash = sha256(token);
+    const s = db.sessions.get(tokenHash, kind);
+    const t = now().getTime();
+    if (!s || t - s.createdAt > SESSION_MAX_MS || t - s.lastSeen > SESSION_IDLE_MS) {
+      if (s) db.sessions.delete(tokenHash);
+      throw new HttpError(401, 'Session expired');
+    }
+    db.sessions.touch(tokenHash, t);
+    if (req.method !== 'GET') assertAppRequest(req);
+    return { subject: s.subject, tokenHash };
+  }
+
+  // Listed (approved, verified, paid) professionals, refreshed at most once a minute.
+  let listedCache: { at: number; ids: Map<string, ApplicationRow> } = { at: 0, ids: new Map() };
+  function listed(): Map<string, ApplicationRow> {
+    const t = now().getTime();
+    if (t - listedCache.at > 60_000) {
+      const ids = new Map<string, ApplicationRow>();
+      for (const row of db.listByStatus('APPROVED')) {
+        const p = toPro(row);
+        if (p && isListable(p, now())) ids.set(row.id, row);
+      }
+      listedCache = { at: t, ids };
+    }
+    return listedCache.ids;
+  }
+
+  function publish(): number {
+    listedCache.at = 0;
+    if (!config.signingKey) return 0;
+    const feed = buildProsFeed(db.listByStatus('APPROVED'), now());
+    writeSignedJson(config.dataDir, 'pros.json', feed, config.signingKey);
+    return feed.pros.length;
+  }
+
+  const today = () => now().toISOString().slice(0, 10);
+  const daysSince = (d: string | undefined) => (d ? Math.floor((now().getTime() - Date.parse(`${d}T00:00:00Z`)) / 86_400_000) : null);
+
+  function adminView(a: ApplicationRow) {
+    const age = daysSince(a.verification?.verifiedAt);
+    const pro = toPro(a);
+    return {
+      ...a,
+      duplicates: db.duplicates(a),
+      daysSinceVerified: age,
+      reverifyDueInDays: age === null ? null : REVERIFY_DAYS - age,
+      listed: !!pro && isListable(pro, now()),
+    };
+  }
+
+  function loadApp(id: string): ApplicationRow {
+    if (!ID_RE.test(id)) throw new HttpError(404, 'Not found');
+    const a = db.get(id);
+    if (!a) throw new HttpError(404, 'Not found');
+    return a;
+  }
+
+  function dateRange(url: URL, maxDays = 366): { from: string; to: string } {
+    const to = url.searchParams.get('to') ?? pacificDay(now());
+    const from = url.searchParams.get('from') ?? new Date(Date.parse(`${to}T12:00:00Z`) - 29 * 86_400_000).toISOString().slice(0, 10);
+    const ok = (d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d) && !Number.isNaN(Date.parse(d));
+    if (!ok(from) || !ok(to) || from > to || Date.parse(to) - Date.parse(from) > maxDays * 86_400_000) throw new HttpError(400, 'Invalid date range');
+    return { from, to };
+  }
+
+  function sendMonthlyReports(month: string): number {
+    const { from, to } = monthRange(month);
+    let sent = 0;
+    for (const row of db.listByStatus('APPROVED')) {
+      if (db.reports.wasSent(row.id, month)) continue;
+      const s = summarize(db, row.id, from, to);
+      const { start, end } = pacificDaysToUtc(from, to);
+      const leads = db.leads.forPro(row.id, start, end).length;
+      void mailer.send({ to: row.profile.email, subject: `Your Forced-Sale Finder report for ${month}`, text: monthlyReportText(row.profile.name, month, s, leads, `${base}/#/advertiser`) });
+      db.reports.markSent(row.id, month, now().toISOString());
+      sent++;
+    }
+    return sent;
+  }
+
+  async function handleApi(req: IncomingMessage, res: ServerResponse, path: string, url: URL) {
+    const method = req.method ?? 'GET';
+
+    // ---------------- public ----------------
+    if (method === 'POST' && path === '/api/applications') {
+      assertSameOrigin(req);
+      if (!limiters.apply.hit(clientIp(req))) throw new HttpError(429, 'Too many applications from this network. Try again later.');
+      const input = (await readJson(req)) as Partial<ApplicationInput>;
+      const accepted = { ok: true, message: 'Application received. Check your email to confirm your address.' };
+      if (input.company_url) return send(res, 202, accepted); // honeypot: pretend success, store nothing
+      const v = validateApplication(input);
+      if (!v.ok) throw new HttpError(422, 'Please fix the highlighted fields.', { errors: v.errors });
+      const id = randomBytes(12).toString('hex');
+      const token = newToken();
+      const t = now();
+      db.insertApplication({ id, profile: v.profile, tokenHash: sha256(token), tokenExpires: new Date(t.getTime() + EMAIL_TOKEN_TTL_MS).toISOString(), now: t.toISOString() });
+      db.audit({ at: t.toISOString(), actor: 'applicant', applicationId: id, action: 'SUBMITTED', detail: CATEGORIES[v.profile.category].label });
+      await mailer.send(confirmationEmail(v.profile.email, v.profile.name, `${base}/#/advertise/confirm/${token}`, CATEGORIES[v.profile.category].regulator));
+      return send(res, 202, accepted);
+    }
+
+    if (method === 'POST' && path === '/api/applications/confirm') {
+      assertSameOrigin(req);
+      if (!limiters.confirm.hit(clientIp(req))) throw new HttpError(429, 'Too many attempts. Try again later.');
+      const { token } = await readJson(req);
+      if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{40,50}$/.test(token)) throw new HttpError(400, 'This confirmation link is invalid or has expired.');
+      const id = db.confirmEmail(sha256(token), now().toISOString());
+      if (!id) throw new HttpError(400, 'This confirmation link is invalid or has expired.');
+      db.audit({ at: now().toISOString(), actor: 'applicant', applicationId: id, action: 'EMAIL_CONFIRMED', detail: null });
+      return send(res, 200, { ok: true, message: 'Email confirmed. We will verify your license and confirm your identity before your profile goes live.' });
+    }
+
+    if (method === 'POST' && path === '/api/events') {
+      assertSameOrigin(req);
+      const ua = String(req.headers['user-agent'] ?? '');
+      const body = await readJson(req);
+      if (BOT_UA.test(ua) || !ua) return send(res, 204, {});
+      const day = pacificDay(now());
+      const visitor = hasher.hash(clientIp(req), ua, day);
+      if (!limiters.events.hit(visitor)) return send(res, 204, {});
+      const kind = body.kind as MetricKind;
+      if (!METRIC_KINDS.includes(kind) || kind === 'lead') throw new HttpError(400, 'Unknown event');
+      const ids = (kind === 'impression' ? (Array.isArray(body.proIds) ? body.proIds : []) : [body.proId]).slice(0, 50);
+      const live = listed();
+      for (const id of new Set(ids)) if (typeof id === 'string' && live.has(id)) db.metrics.record(id, day, kind, visitor);
+      return send(res, 204, {});
+    }
+
+    const leadMatch = path.match(/^\/api\/pros\/([a-f0-9]{24})\/leads$/);
+    if (method === 'POST' && leadMatch) {
+      assertSameOrigin(req);
+      if (!limiters.lead.hit(clientIp(req))) throw new HttpError(429, 'Too many messages from this network. Try again later.');
+      const body = await readJson(req);
+      const row = listed().get(leadMatch[1]);
+      if (!row) throw new HttpError(404, 'This professional is not currently listed.');
+      if (body.company_url) return send(res, 202, { ok: true });
+      const errors: Record<string, string> = {};
+      const name = plain(body.name, 80);
+      const email = plain(body.email, 254).toLowerCase();
+      const phoneRaw = plain(body.phone, 30);
+      const phone = phoneRaw ? normalizePhone(phoneRaw) : null;
+      const message = plain(body.message, 1000);
+      const interest = plain(body.interest, 60) || null;
+      if (name.length < 2) errors.name = 'Enter your name.';
+      if (!/^[a-z0-9._%+-]{1,64}@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/.test(email)) errors.email = 'Enter a valid email address.';
+      if (phoneRaw && !phone) errors.phone = 'Enter a valid U.S. phone number, or leave it blank.';
+      if (message.length < 10) errors.message = 'Write a short message (at least 10 characters).';
+      if (body.consent !== true) errors.consent = 'Please agree to share your details with this professional.';
+      if (body.acknowledge !== true) errors.acknowledge = 'Please acknowledge the notice.';
+      if (Object.keys(errors).length) throw new HttpError(422, 'Please fix the highlighted fields.', { errors });
+      const lead = { id: randomBytes(12).toString('hex'), proId: row.id, createdAt: now().toISOString(), name, email, phone, message, interest };
+      db.leads.insert(lead);
+      db.metrics.record(row.id, pacificDay(now()), 'lead', hasher.hash(clientIp(req), String(req.headers['user-agent'] ?? ''), pacificDay(now())));
+      await mailer.send(leadEmail(row.profile.email, row.profile.name, lead, `${base}/#/advertiser`));
+      await mailer.send(leadReceiptEmail(email, name, row.profile.name));
+      return send(res, 202, { ok: true, message: `Your message was sent to ${row.profile.name}. They will contact you directly.` });
+    }
+
+    if (method === 'POST' && path === '/api/pro/login') {
+      assertSameOrigin(req);
+      const body = await readJson(req);
+      const email = plain(body.email, 254).toLowerCase();
+      const generic = { ok: true, message: 'If that email belongs to a listed advertiser, a sign-in link is on its way. It expires in 15 minutes.' };
+      if (!limiters.proLinkIp.hit(clientIp(req)) || !limiters.proLinkEmail.hit(email)) return send(res, 200, generic); // no enumeration, no spam
+      const row = db.approvedByEmail(email);
+      if (row) {
+        const token = newToken();
+        db.loginTokens.create(sha256(token), row.id, now().getTime() + LOGIN_TOKEN_TTL_MS);
+        await mailer.send(loginLinkEmail(email, row.profile.name, `${base}/#/advertiser/login/${token}`));
+      }
+      return send(res, 200, generic);
+    }
+
+    if (method === 'POST' && path === '/api/pro/session') {
+      assertAppRequest(req);
+      const { token } = await readJson(req);
+      if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{40,50}$/.test(token)) throw new HttpError(400, 'This sign-in link is invalid or has expired.');
+      const proId = db.loginTokens.consume(sha256(token), now().getTime());
+      if (!proId) throw new HttpError(400, 'This sign-in link is invalid or has expired.');
+      const session = newToken();
+      db.sessions.create(sha256(session), 'pro', proId, now().getTime());
+      db.audit({ at: now().toISOString(), actor: 'advertiser', applicationId: proId, action: 'ADVERTISER_LOGIN', detail: null });
+      return send(res, 200, { ok: true }, { 'set-cookie': sessionCookie(PRO_COOKIE, session, '/api/pro', secure) });
+    }
+
+    // ---------------- advertiser ----------------
+    if (path.startsWith('/api/pro/')) {
+      const s = requireSession(req, 'pro');
+      const row = db.get(s.subject);
+      if (!row) throw new HttpError(401, 'Not signed in');
+      if (method === 'POST' && path === '/api/pro/logout') {
+        db.sessions.delete(s.tokenHash);
+        return send(res, 200, { ok: true }, { 'set-cookie': sessionCookie(PRO_COOKIE, '', '/api/pro', secure, 0) });
+      }
+      if (method === 'GET' && path === '/api/pro/me') {
+        const pro = toPro(row);
+        return send(res, 200, {
+          id: row.id,
+          status: row.status,
+          profile: row.profile,
+          billing: row.billing,
+          verifiedAt: row.verification?.verifiedAt ?? null,
+          reverifyDueInDays: row.verification ? REVERIFY_DAYS - (daysSince(row.verification.verifiedAt) ?? 0) : null,
+          listed: !!pro && isListable(pro, now()),
+        });
+      }
+      if (method === 'GET' && path === '/api/pro/metrics') {
+        const { from, to } = dateRange(url);
+        return send(res, 200, summarize(db, row.id, from, to));
+      }
+      if (method === 'GET' && (path === '/api/pro/leads' || path === '/api/pro/leads.csv')) {
+        const { from, to } = dateRange(url);
+        const { start, end } = pacificDaysToUtc(from, to);
+        const leads = db.leads.forPro(row.id, start, end);
+        if (path.endsWith('.csv')) {
+          res.writeHead(200, { 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="leads-${from}-to-${to}.csv"`, 'cache-control': 'no-store' });
+          return res.end(leadsToCsv(leads));
+        }
+        return send(res, 200, { leads });
+      }
+      throw new HttpError(404, 'Not found');
+    }
+
+    // ---------------- admin ----------------
+    if (method === 'POST' && path === '/api/admin/login') {
+      assertAppRequest(req);
+      const ip = clientIp(req);
+      const body = await readJson(req);
+      const username = plain(body.username, 64);
+      const password = typeof body.password === 'string' ? body.password.slice(0, 256) : '';
+      if (limiters.loginIp.blocked(ip) || limiters.loginUser.blocked(username)) throw new HttpError(429, 'Too many failed sign-in attempts. Wait 15 minutes.');
+      const ok = safeEqualStrings(username, config.adminUsername) && verifyPassword(password, config.adminPasswordHash);
+      if (!ok) {
+        limiters.loginIp.hit(ip);
+        limiters.loginUser.hit(username);
+        db.audit({ at: now().toISOString(), actor: username || '(blank)', applicationId: null, action: 'LOGIN_FAILED', detail: ip });
+        throw new HttpError(401, 'Incorrect username or password.');
+      }
+      limiters.loginIp.reset(ip);
+      const token = newToken();
+      db.sessions.purge(now().getTime() - SESSION_MAX_MS);
+      db.sessions.create(sha256(token), 'admin', config.adminUsername, now().getTime());
+      db.audit({ at: now().toISOString(), actor: config.adminUsername, applicationId: null, action: 'LOGIN', detail: ip });
+      return send(res, 200, { ok: true, username: config.adminUsername }, { 'set-cookie': sessionCookie(ADMIN_COOKIE, token, '/api/admin', secure) });
+    }
+
+    if (!path.startsWith('/api/admin/')) throw new HttpError(404, 'Not found');
+    const admin = requireSession(req, 'admin');
+    const audit = (applicationId: string | null, action: string, detail: string | null = null) =>
+      db.audit({ at: now().toISOString(), actor: admin.subject, applicationId, action, detail });
+
+    if (method === 'POST' && path === '/api/admin/logout') {
+      db.sessions.delete(admin.tokenHash);
+      return send(res, 200, { ok: true }, { 'set-cookie': sessionCookie(ADMIN_COOKIE, '', '/api/admin', secure, 0) });
+    }
+    if (method === 'GET' && path === '/api/admin/me') return send(res, 200, { username: admin.subject, signingConfigured: !!config.signingKey });
+    if (method === 'GET' && path === '/api/admin/applications') return send(res, 200, { applications: db.list().map(adminView) });
+    if (method === 'POST' && path === '/api/admin/publish') {
+      const n = publish();
+      audit(null, 'PUBLISHED', `${n} listings`);
+      return send(res, 200, { ok: true, published: n });
+    }
+    if (method === 'POST' && path === '/api/admin/reports') {
+      const { month } = await readJson(req);
+      if (typeof month !== 'string' || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) throw new HttpError(400, 'month must be YYYY-MM');
+      const n = sendMonthlyReports(month);
+      audit(null, 'REPORTS_SENT', `${month}: ${n}`);
+      return send(res, 200, { ok: true, sent: n });
+    }
+
+    const m = path.match(/^\/api\/admin\/applications\/([^/]+)(?:\/(approve|billing|reject|suspend|metrics))?$/);
+    if (!m) throw new HttpError(404, 'Not found');
+    const app = loadApp(m[1]);
+    const action = m[2];
+
+    if (method === 'GET' && !action) return send(res, 200, { application: adminView(app), audit: db.auditFor(app.id) });
+    if (method === 'GET' && action === 'metrics') return send(res, 200, summarize(db, app.id, ...(Object.values(dateRange(url)) as [string, string])));
+    if (method !== 'POST' || !action || action === 'metrics') throw new HttpError(405, 'Method not allowed');
+    const body = await readJson(req);
+
+    if (action === 'approve') {
+      if (!['PENDING_REVIEW', 'APPROVED', 'SUSPENDED'].includes(app.status)) {
+        throw new HttpError(409, app.status === 'EMAIL_UNCONFIRMED' ? 'The applicant has not confirmed their email yet.' : `Can't approve an application that is ${app.status}.`);
+      }
+      const raw = (body.verification ?? {}) as Partial<LicenseVerification>;
+      const info = CATEGORIES[app.profile.category];
+      const verification: LicenseVerification = {
+        licenseStatus: raw.licenseStatus as LicenseVerification['licenseStatus'],
+        licenseExpires: info.licenseExpires ? plain(raw.licenseExpires, 10) : null,
+        nameMatches: raw.nameMatches === true,
+        typeMatches: raw.typeMatches === true,
+        companyMatches: raw.companyMatches === true,
+        identityConfirmed: raw.identityConfirmed === true,
+        identityMethod: plain(raw.identityMethod, 300),
+      };
+      const blockers = approvalBlockers(app.profile.category, verification, today());
+      if (blockers.length) throw new HttpError(422, 'Verification incomplete.', { blockers });
+      const clash = db.duplicates(app).find((d) => d.field === 'license' && d.status === 'APPROVED');
+      if (clash) throw new HttpError(409, `This ${info.licenseLabel} is already listed under another approved profile (${clash.id}). Resolve that first.`);
+      const wasApproved = app.status === 'APPROVED';
+      db.update(app.id, { status: 'APPROVED', verification: { ...verification, verifiedAt: today(), verifiedBy: admin.subject }, decisionReason: null }, now().toISOString());
+      audit(app.id, wasApproved ? 'REVERIFIED' : 'APPROVED', `${info.regulator}: ${verification.licenseStatus}${verification.licenseExpires ? `, expires ${verification.licenseExpires}` : ''}. Identity: ${verification.identityMethod}`);
+      publish();
+      return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });
+    }
+
+    if (action === 'billing') {
+      if (!['PENDING_REVIEW', 'APPROVED', 'SUSPENDED'].includes(app.status)) throw new HttpError(409, `Can't bill an application that is ${app.status}.`);
+      const billing = validateBilling((body.billing ?? {}) as Record<string, string>);
+      if (!billing) throw new HttpError(422, 'Enter a plan name and a paid-through date.');
+      db.update(app.id, { billing }, now().toISOString());
+      audit(app.id, 'BILLING', `${billing.plan}, paid through ${billing.paidThrough}`);
+      publish();
+      return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });
+    }
+
+    const reason = plain(body.reason, 300);
+    if (reason.length < 5) throw new HttpError(422, 'Give a reason (at least 5 characters).');
+    if (action === 'reject') {
+      if (!['EMAIL_UNCONFIRMED', 'PENDING_REVIEW'].includes(app.status)) throw new HttpError(409, `Can't reject an application that is ${app.status}.`);
+      db.update(app.id, { status: 'REJECTED', decisionReason: reason }, now().toISOString());
+      audit(app.id, 'REJECTED', reason);
+      return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });
+    }
+    if (app.status !== 'APPROVED') throw new HttpError(409, 'Only approved listings can be suspended.');
+    db.update(app.id, { status: 'SUSPENDED', decisionReason: reason }, now().toISOString());
+    audit(app.id, 'SUSPENDED', reason);
+    publish();
+    return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });
+  }
+
+  function serveStatic(req: IncomingMessage, res: ServerResponse, path: string) {
+    const fromData = path.startsWith('/data/');
+    const root = fromData ? config.dataDir : config.distDir;
+    if (!root || (req.method !== 'GET' && req.method !== 'HEAD')) return send(res, 404, { error: 'Not found' });
+    const rel = fromData ? path.slice('/data/'.length) : path === '/' ? 'index.html' : path.slice(1);
+    const baseDir = resolve(root);
+    const file = resolve(baseDir, normalize(rel));
+    if (file !== baseDir && !file.startsWith(baseDir + sep)) return send(res, 404, { error: 'Not found' });
+    if (!existsSync(file) || !statSync(file).isFile()) return send(res, 404, { error: 'Not found' });
+    res.writeHead(200, {
+      'content-type': MIME[extname(file)] ?? 'application/octet-stream',
+      'cache-control': fromData || file.endsWith('index.html') ? 'no-store' : 'public, max-age=31536000, immutable',
+    });
+    if (req.method === 'HEAD') return res.end();
+    createReadStream(file).pipe(res);
+  }
+
+  async function handler(req: IncomingMessage, res: ServerResponse) {
+    res.setHeader('x-content-type-options', 'nosniff');
+    res.setHeader('referrer-policy', 'strict-origin-when-cross-origin');
+    res.setHeader('x-frame-options', 'DENY');
+    res.setHeader('content-security-policy', "frame-ancestors 'none'; object-src 'none'; base-uri 'self'");
+    res.setHeader('permissions-policy', 'geolocation=(), camera=(), microphone=()');
+    if (secure) res.setHeader('strict-transport-security', 'max-age=63072000; includeSubDomains');
+
+    let url: URL;
+    let path: string;
+    try {
+      url = new URL(req.url ?? '/', 'http://x');
+      path = decodeURIComponent(url.pathname);
+    } catch {
+      return send(res, 400, { error: 'Bad request' });
+    }
+    try {
+      if (path.startsWith('/api/')) return await handleApi(req, res, path, url);
+      return serveStatic(req, res, path);
+    } catch (e) {
+      if (e instanceof HttpError) return send(res, e.status, { error: e.message, ...e.body });
+      console.error(e);
+      return send(res, 500, { error: 'Something went wrong.' });
+    }
+  }
+
+  /** Housekeeping: republish, purge old visitor hashes/sessions/leads, send last month's reports on the 1st. */
+  function maintain() {
+    const t = now();
+    publish();
+    db.metrics.purgeSeen(pacificDay(new Date(t.getTime() - 2 * 86_400_000)));
+    db.sessions.purge(t.getTime() - SESSION_MAX_MS);
+    db.leads.purgeOlderThan(new Date(t.getTime() - 400 * 86_400_000).toISOString()); // ~13 months retention
+    const day = pacificDay(t);
+    if (day.endsWith('-01')) {
+      const prev = new Date(Date.parse(`${day}T12:00:00Z`) - 86_400_000).toISOString().slice(0, 7);
+      sendMonthlyReports(prev);
+    }
+  }
+
+  return { handler, publish, maintain, sendMonthlyReports, db };
+}
