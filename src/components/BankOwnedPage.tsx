@@ -128,7 +128,7 @@ export default function BankOwnedPage({ section }: { section?: string }) {
       <div className="row" style={{ margin: '0 0 16px' }}>
         <ClassSwitch value={cls} onChange={setCls} />
         {cls === 'commercial' && (
-          <span className="small muted">HUD, VA, USDA, Fannie Mae and Freddie Mac sell homes (1–4 units) only, so they aren’t listed here.</span>
+          <span className="small muted">HUD, VA, USDA, Fannie Mae and Freddie Mac sell mainly homes, not commercial property, so they aren’t listed here.</span>
         )}
       </div>
 

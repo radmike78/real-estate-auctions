@@ -58,7 +58,7 @@ export default function LivePage() {
   return (
     <main className="page">
       <PageHero
-        eyebrow={<span className="eyebrow"><span className="live-dot" aria-hidden /> Verified from the Clark County Treasurer</span>}
+        eyebrow={<span className="eyebrow"><span className="live-dot" aria-hidden /> From the Clark County Treasurer’s list, checked by us</span>}
         title={<>Live <span className="grad">tax sales</span></>}
         sub="Parcels the Clark County Treasurer currently lists for its delinquent-tax auction, re-checked against the official list and the Assessor's parcel records."
       />

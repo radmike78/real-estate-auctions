@@ -117,7 +117,7 @@ export default function AboutPage({ section }: { section?: string }) {
             <>
               <strong>A lien does not mean a property is for sale.</strong> A property heads to a forced sale only when someone enforces a
               lien: a notice of trustee sale, a court order, a levy, or a tax-sale listing. We only call a property buyable when a sale is on
-              record.
+              record, or when a lender or agency is selling a home it already owns.
             </>
           )
         }

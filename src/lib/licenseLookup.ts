@@ -46,7 +46,7 @@ export const WHAT_TO_CHECK: Record<'agent' | 'lender' | 'contractor' | 'insuranc
     'Any disciplinary actions listed.',
   ],
   lender: [
-    'The individual or company is licensed in Nevada (look for "NV" under state licenses).',
+    'Mortgage companies and their loan officers: an active Nevada license. Bank and credit union loan officers: an active federal registration instead.',
     'The NMLS ID matches the one on their emails and Loan Estimate.',
     'Any regulatory actions listed.',
   ],
@@ -65,5 +65,5 @@ export const RED_FLAGS = [
   'Asks you to wire earnest money or fees to a personal account, or changes wiring instructions by email or text.',
   'Pressures you to decide or pay today, or to skip an inspection or title search.',
   "Won't give a license number, or the one given doesn't match the lookup.",
-  'Offers a guaranteed loan approval, or charges big fees before a Loan Estimate.',
+  'Offers a guaranteed loan approval, or charges any fee except a credit report fee before you get a Loan Estimate and say you want to go ahead.',
 ];

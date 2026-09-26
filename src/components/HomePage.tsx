@@ -69,14 +69,14 @@ export default function HomePage() {
           <a href="#/bank-owned">Bank-owned &amp; government homes →</a>
           <a href="#/business-assets">Business assets &amp; closures →</a>
           <a href="#/playbooks">Nevada playbooks: how each sale works →</a>
-          <a href="#/calculator">Maximum safe bid calculator →</a>
+          <a href="#/calculator">Maximum bid calculator →</a>
           <a href="#/deals">My deals →</a>
         </nav>
         <ul className="browse-trust" aria-label="Why trust it">
           <li><IconStar /> Free to use, no sign-up</li>
-          <li><IconShield /> Official .gov sources</li>
-          <li><IconPulse /> Stale listings removed automatically</li>
-          <li><IconLock /> Tamper-proof, signed data</li>
+          <li><IconShield /> Live tax sales straight from the County Treasurer</li>
+          <li><IconPulse /> Expired listings hidden automatically</li>
+          <li><IconLock /> Signed data, so altered copies are detected</li>
         </ul>
       </section>
     </main>

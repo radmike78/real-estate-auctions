@@ -197,9 +197,10 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             <div><dt>Likely surviving liens</dt><dd className={money.likelySurviving ? 'neg' : ''}>{fmtMoney(money.likelySurviving)}</dd></div>
             <div><dt>Uncertain liens</dt><dd>{fmtMoney(money.uncertain)}</dd></div>
             <div><dt>Est. market value</dt><dd>{fmtMoney(p.estimatedMarketValue)}</dd></div>
-            <div className="total"><dt>Rough equity</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : ''}>{fmtMoney(money.estimatedEquity)}</dd></div>
+            <div className="total"><dt>Rough spread at minimum bid</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : ''}>{fmtMoney(money.estimatedEquity)}</dd></div>
           </dl>
           <p className="muted small">
+            Spread = estimated value minus the minimum bid and likely surviving liens. It leaves out uncertain liens, repairs and costs, so it isn’t profit or equity.
             Survival is estimated from Nevada rules and recording order. Lien priority is a legal question, so confirm with a title company or
             real-estate attorney.
           </p>
@@ -368,7 +369,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             <div><dt>Minimum bid</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
             <div><dt>Est. market value</dt><dd>{fmtMoney(p.estimatedMarketValue)}</dd></div>
             <div><dt>Liens likely {s ? 'surviving' : 'remaining'}</dt><dd className={money.likelySurviving ? 'neg' : ''}>{fmtMoney(money.likelySurviving)}</dd></div>
-            <div><dt>Rough equity</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : 'grad'}>{fmtMoney(money.estimatedEquity)}</dd></div>
+            <div><dt>Rough spread</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : 'grad'}>{fmtMoney(money.estimatedEquity)}</dd></div>
           </dl>
         )}
       </PageHero>

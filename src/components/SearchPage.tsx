@@ -70,7 +70,7 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
                 Sort{' '}
                 <select value={filters.sort} onChange={(e) => update({ sort: e.target.value as Filters['sort'] })}>
                   <option value="auction">Auction date</option>
-                  <option value="equity">Estimated equity</option>
+                  <option value="equity">Estimated spread</option>
                   <option value="minBid">Minimum bid</option>
                   <option value="updated">Recently updated</option>
                 </select>

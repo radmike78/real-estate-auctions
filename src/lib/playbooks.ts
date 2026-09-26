@@ -60,7 +60,7 @@ export const PLAYBOOKS: Playbook[] = [
       { label: 'Register', value: 'Opens about 3–4 weeks before and closes about a week before. Capped at 280 bidders. No registration on the day.' },
       { label: 'Deposit', value: '$5,000 per bidder in certified funds; credited if you win' },
       { label: 'Payment', value: "Full price the same day by 1:00 p.m. (4:30 p.m. for parcels re-auctioned at 2:00 p.m.) in cash, cashier's check, wire or money order; confirm accepted forms in the notice. No financing." },
-      { label: 'Deed', value: 'Quitclaim deed in your individual name (not an LLC or trust), recorded within 30 days' },
+      { label: 'Deed', value: 'Quitclaim deed in the name on your registration form, recorded within 30 days. Recent notices required an individual’s name (not an LLC or trust); confirm in this year’s notice' },
       { label: 'After the sale', value: 'No redemption, but the former owner can protest for 2 years; title insurance may be unavailable meanwhile' },
     ],
     steps: [
@@ -69,7 +69,7 @@ export const PLAYBOOKS: Playbook[] = [
       { title: 'Research each finalist', detail: 'Search the Recorder for liens (IRS, city, sewer, special assessments), check for occupants, and drive by. The county makes no promises about condition or liens.' },
       { title: 'Set a maximum bid for each', detail: 'Count quiet title (attorneys often quote about $1,500–$5,000+ if uncontested; get a quote), liens that may stay, repairs, holding costs and possession. Use the max bid calculator.' },
       { title: 'Register and pay the deposit', detail: 'Submit the registration form in your own name with the $5,000 certified-funds deposit by the deadline. Watch for the confirmation email.' },
-      { title: 'Auction day', detail: 'Check in from 7:00 a.m. with photo ID and your confirmation. No phones or laptops in the room. Parcels are read in list order.' },
+      { title: 'Auction day', detail: 'Arrive early with photo ID and your confirmation. Recent auctions opened check-in at 7:00 a.m. and banned phones and laptops in the room; this year’s notice has the rules. Parcels are read in list order.' },
       { title: 'Pay by 1:00 p.m.', detail: 'Pay in full for every parcel you win. If you don’t, you lose the deposit and are banned from future sales. Unsold or unpaid parcels may be re-auctioned at 2:00 p.m.' },
       { title: 'After you win', detail: 'Insure the property, secure it, and plan possession with an attorney if anyone lives there (the county won’t help). Talk to a title company about when they can insure; many need a quiet title action first.' },
     ],
@@ -180,7 +180,7 @@ export const PLAYBOOKS: Playbook[] = [
       mayStay: ['Any loan recorded before the one being foreclosed', 'Property taxes', 'Up to 9 months of HOA dues (super-priority)', 'IRS liens recorded before the loan being foreclosed, and junior IRS liens if the IRS didn’t get 25 days’ notice; even when wiped out, the U.S. can buy the property back within 120 days', 'Some city liens'],
     },
     mistakes: [
-      { mistake: 'Buying at a second mortgage’s sale', prevent: 'Confirm which lien is foreclosing; the first mortgage survives a junior lien’s sale.' },
+      { mistake: 'Buying at a second mortgage’s sale', prevent: 'Confirm which lien is foreclosing; the first deed of trust survives a junior lien’s sale.' },
       { mistake: 'Driving to a sale that was postponed', prevent: 'Call the trustee the day before and check the status here.' },
       { mistake: 'Forgetting occupants', prevent: 'Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act), and a lease can run to its end unless the buyer will live there; former owners get a 3-day notice (NRS 40.255).' },
     ],
@@ -209,7 +209,7 @@ export const PLAYBOOKS: Playbook[] = [
     glance: [
       { label: 'Law', value: 'NRS 116 (common-interest communities)' },
       { label: 'Super-priority', value: 'Up to 9 months of dues (plus certain charges) rank ahead of the first mortgage' },
-      { label: 'Lender payoff', value: 'The first mortgage survives if the lender paid the priority amount at least 5 days before the sale, or offered to pay it and the HOA refused (Bank of America v. SFR, 2018)' },
+      { label: 'Lender payoff', value: 'The first deed of trust (the main home loan) survives if the lender paid the priority amount at least 5 days before the sale, or offered to pay it and the HOA refused (Bank of America v. SFR, 2018)' },
       { label: 'Fannie Mae / Freddie Mac loans', value: 'If one of them owned the loan, the mortgage survives an HOA sale unless the FHFA consented (federal Foreclosure Bar)' },
       { label: 'Redemption', value: '60 days after the sale, at your price plus 1% a month plus taxes, assessments and upkeep you paid' },
       { label: 'What you get first', value: 'A certificate of sale; a deed after the redemption period' },
@@ -289,7 +289,7 @@ export const PLAYBOOKS: Playbook[] = [
     forSale: true,
     glance: [
       { label: 'Where listed', value: 'irsauctions.gov' },
-      { label: 'Redemption', value: '180 days; the owner repays your price plus 20% a year' },
+      { label: 'Redemption', value: '180 days. The owner, or anyone with an interest or lien, can redeem by paying your price plus 20% a year, compounded daily' },
       { label: 'Deposit', value: 'Set in each sale notice; sealed bids usually need a deposit with the bid' },
       { label: 'What you get first', value: 'A certificate of sale; a deed after 180 days' },
     ],
@@ -298,11 +298,11 @@ export const PLAYBOOKS: Playbook[] = [
       { title: 'Research the title', detail: 'You get only the taxpayer’s interest. Mortgages and other senior liens stay.' },
       { title: 'Plan for 180 days', detail: 'The owner can redeem for 180 days. Whether you can collect rent, evict or move in during that time depends on state law; ask an attorney before you bid.' },
     ],
-    survives: { wipedOut: ['The federal tax lien being enforced'], mayStay: ['Mortgages and liens senior to the IRS', 'Property taxes', 'The 180-day redemption right'] },
+    survives: { wipedOut: ['The federal tax lien being enforced', 'Liens and interests junior to the federal tax lien'], mayStay: ['Mortgages and liens senior to the IRS', 'Property taxes', 'The 180-day redemption right'] },
     mistakes: [{ mistake: 'Assuming a clean title', prevent: 'Get a title search; you inherit senior liens.' }],
     example: {
       title: 'Counting the waiting period',
-      story: 'A buyer planned a 4-month flip on an IRS sale property, then learned it couldn’t be touched for 180 days.',
+      story: 'A buyer planned a 4-month flip on an IRS sale property, then learned the owner could redeem for 180 days, so any money spent on repairs was at risk.',
       lesson: 'Build the redemption period into holding costs from the start.',
     },
     team: [T.title, T.attorney, T.insurance, T.agent],

@@ -63,7 +63,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     items: [
       { text: 'Registration form and $5,000 deposit, about a week before', detail: "Certified funds to the Treasurer by the registration deadline (in 2025, eight days before the sale). Capped at 280 bidders. No registration on auction day. The deposit is credited if you win and refunded a few weeks after the sale if you don't (county notices have said 2–5 weeks)." },
       { text: 'Register in your own name, not an LLC or trust', detail: 'The deed is issued to the individual on the registration form. Moving it into a company later means recording a separate deed.' },
-      { text: 'Photo ID and your registration confirmation on auction day', detail: 'Check-in starts at 7:00 a.m. No phones, laptops or cameras are allowed in the chambers.' },
+      { text: 'Photo ID and your registration confirmation on auction day', detail: 'Arrive early. Recent auctions opened check-in at 7:00 a.m. and banned phones, laptops and cameras in the chambers; this year’s notice has the rules.' },
       { text: 'Certified funds for the full price by 1:00 p.m.', detail: "Cash, cashier's check, wire or money order (confirm accepted forms in the notice). Parcels re-auctioned at 2:00 p.m. must be paid by 4:30 p.m. If you win several parcels, you must pay for all of them or lose the deposit and be banned from future auctions." },
       { text: 'Research each parcel you want', detail: 'Match the parcel number on the Assessor map and drive by. Parcels can be paid off (lined out) until close of business 3 business days before the sale.' },
       { text: 'A title search, and a plan for title insurance', detail: 'Not all liens are wiped out. A federal tax lien can survive if the IRS wasn’t given 25 days’ notice, and even then the IRS can buy the property back within 120 days. The former owner can protest the sale for 2 years, and you may not be able to get title insurance during that time.' },
@@ -100,7 +100,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: 'A home inspection within your contingency period' },
       { text: 'Title insurance and escrow for closing' },
       { text: 'For online REO auctions: registration and buyer’s premium', detail: 'Check the platform terms before you bid.' },
-      { text: 'For HUD homes: a HUD-registered broker', detail: 'You can’t bid on a HUD home yourself. Owner-occupants get the first bidding period; investors can bid after it ends.' },
+      { text: 'For HUD homes: a HUD-registered broker', detail: 'You can’t bid on a HUD home yourself. Owner-occupants, HUD-approved nonprofits and government agencies get the first bidding period (15 days for most homes, 5 for uninsured ones). Investors can bid after that.' },
     ],
     official: {
       href: HUD_NEVADA_SEARCH,
@@ -148,7 +148,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     items: [
       { text: "Cashier's checks for your full bid", detail: 'Confirm the amount and payee with the HOA’s foreclosure agent.' },
       { text: 'Government-issued photo ID' },
-      { text: 'Proof the first mortgage is wiped out, or budget for it', detail: 'If the lender paid the HOA’s priority amount at least 5 days before the sale, the first mortgage survives (NRS 116.31166). It also survives if Fannie Mae or Freddie Mac owned the loan, unless the FHFA consented. Check the Recorder for a recorded payment or satisfaction, and get a title professional’s opinion.' },
+      { text: 'Proof the first deed of trust is wiped out, or budget for it', detail: 'If the lender paid the HOA’s priority amount at least 5 days before the sale, the first deed of trust (the main home loan) survives (NRS 116.31166). It also survives if Fannie Mae or Freddie Mac owned the loan, unless the FHFA consented. Check the Recorder for a recorded payment or satisfaction, and get a title professional’s opinion.' },
       { text: 'A 60-day wait before the sale is final', detail: 'The former owner, or a lender whose loan ranked below the HOA lien, can redeem within 60 days by paying your price plus 1% a month and the taxes, assessments and upkeep you paid. Don’t start repairs until the redemption period ends.' },
       { text: 'Cash, or hard-money financing arranged in advance' },
       { text: 'Budget for surviving liens, repairs and possession' },

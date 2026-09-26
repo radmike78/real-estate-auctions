@@ -21,14 +21,14 @@ export default function NoListingsYet({ what = 'Property listings' }: { what?: s
     <section className="no-listings" aria-labelledby="no-listings-head">
       <h2 id="no-listings-head">{what} are being connected</h2>
       <p>
-        We're connecting official Clark County sources one at a time, and we only show a property once its sale is confirmed in the official
-        record. Until then, here's where each kind of sale is listed, and free tools to get ready.
+        We're connecting official Clark County sources one at a time, and we only call a property for sale once a sale is on the official record.
+        Pre-foreclosures and liens are shown as not for sale. Until then, here's where each kind of sale is listed, and free tools to get ready.
       </p>
       <div className="drill-tiles">
         <Tile href="#/live" icon={<IconPulse />} title="Live tax sales" tone="go" summary="Verified parcels from the County Treasurer, when an auction is scheduled" />
         <Tile href="#/bank-owned" icon={<IconBank />} title="Bank-owned homes" summary="Direct lists from HUD, Fannie Mae, Freddie Mac and banks" />
         <Tile href="#/playbooks" icon={<IconCheckList />} title="Nevada playbooks" summary="How each kind of forced sale works, step by step" />
-        <Tile href="#/calculator" icon={<IconCalc />} title="Maximum safe bid" summary="Know your number, and when to stop bidding" />
+        <Tile href="#/calculator" icon={<IconCalc />} title="Your maximum bid" summary="Know your number, and when to stop bidding" />
       </div>
       <h3>Official places to find sales now</h3>
       <ul className="source-links">

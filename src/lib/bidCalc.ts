@@ -42,7 +42,7 @@ const nz = (n: number) => (Number.isFinite(n) && n > 0 ? n : 0);
 export function costsAtBid(i: BidInputs, bid: number) {
   const repairs = nz(i.repairs) * (1 + nz(i.contingencyPct) / 100);
   const premium = (bid * nz(i.buyerPremiumPct)) / 100;
-  const transferTax = (bid / 500) * nz(i.transferTaxPer500);
+  const transferTax = Math.ceil(bid / 500) * nz(i.transferTaxPer500); // per $500 or fraction (NRS 375.020/.025)
   const loan = ((bid + repairs) * Math.min(nz(i.financedPct), 100)) / 100;
   const financing = loan * ((nz(i.interestRatePct) / 100) * (nz(i.holdingMonths) / 12) + nz(i.pointsPct) / 100);
   const holding = nz(i.holdingMonths) * nz(i.monthlyCarry);
@@ -60,7 +60,8 @@ function solve(i: BidInputs, profitPct: number): number {
   const f = Math.min(nz(i.financedPct), 100) / 100;
   const k = (nz(i.interestRatePct) / 100) * (nz(i.holdingMonths) / 12) + nz(i.pointsPct) / 100;
   const perBid = 1 + nz(i.buyerPremiumPct) / 100 + nz(i.transferTaxPer500) / 500 + f * k;
-  const fixed = repairs + nz(i.survivingLiens) + nz(i.titleLegal) + nz(i.possession) + nz(i.holdingMonths) * nz(i.monthlyCarry) + f * repairs * k;
+  // + one transfer-tax step: rounding up to the next $500 costs at most one extra step.
+  const fixed = nz(i.transferTaxPer500) + repairs + nz(i.survivingLiens) + nz(i.titleLegal) + nz(i.possession) + nz(i.holdingMonths) * nz(i.monthlyCarry) + f * repairs * k;
   const available = nz(i.exitValue) * (1 - nz(i.sellingCostPct) / 100 - profitPct / 100) - fixed;
   return available / perBid;
 }

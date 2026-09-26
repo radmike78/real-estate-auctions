@@ -160,11 +160,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
                 <strong>No notices to track yet.</strong> Notices of default and sale will appear here once our feed of Clark County Recorder
                 filings is connected.
               </p>
-              <p>
-                Until then, you can search recorded notices yourself in the{' '}
-                <a href="https://recorderecomm.clarkcountynv.gov/AcclaimWeb/" target="_blank" rel="noopener noreferrer">Recorder's official records ↗</a>,
-                and read how the process works in the guide above.
-              </p>
+              <p>Until then, read how the process works in the guide above.</p>
             </div>
           ) : (
           <>

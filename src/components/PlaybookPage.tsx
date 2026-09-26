@@ -120,7 +120,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
         </>
       )}
       <DrillDown sections={s} active={section} baseHref={base} label={`${p.short} playbook`} />
-      {!open && <p className="muted playbook-note">Set your limit before the sale with the <a href="#/calculator">maximum safe bid calculator</a>.</p>}
+      {!open && <p className="muted playbook-note">Set your limit before the sale with the <a href="#/calculator">maximum bid calculator</a>.</p>}
     </main>
   );
 }

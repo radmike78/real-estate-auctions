@@ -25,7 +25,7 @@ export default function HomeownerHelpPage() {
         <h2>Free, trustworthy help</h2>
         <ul className="help-links">
           <li><strong>Foreclosure Mediation Program (Nevada courts).</strong> If you live in the home, you can petition the district court for mediation with your lender within 30 days after the notice of default is served (NRS 107.086). There is a $25 filing fee plus your half of the mediation fee; the law caps the total mediation fee at $500. In Clark County it is run by the Eighth Judicial District Court. <a href="https://www.clarkcountycourts.us/departments/adr/foreclosure-mediation/" {...ext}>Foreclosure mediation (Clark County courts) ↗</a></li>
-          <li><strong>HUD-approved housing counselors.</strong> Free advice on your options. <a href="https://www.hud.gov/findacounselor" {...ext}>Find a counselor (HUD) ↗</a> · <a href="https://www.consumerfinance.gov/find-a-housing-counselor/" {...ext}>CFPB counselor search ↗</a></li>
+          <li><strong>HUD-approved housing counselors.</strong> Free advice on your options. <a href="https://answers.hud.gov/housingcounseling/" {...ext}>Find a counselor (HUD) ↗</a> · <a href="https://www.consumerfinance.gov/find-a-housing-counselor/" {...ext}>CFPB counselor search ↗</a></li>
           <li><strong>Free legal help.</strong> <a href="https://www.lacsn.org/" {...ext}>Legal Aid Center of Southern Nevada ↗</a> · <a href="https://nevadalegalservices.org/" {...ext}>Nevada Legal Services ↗</a> · <a href="https://www.civillawselfhelpcenter.org/" {...ext}>Civil Law Self-Help Center ↗</a></li>
         </ul>
       </section>

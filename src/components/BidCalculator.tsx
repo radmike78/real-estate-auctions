@@ -146,9 +146,9 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
 
       <div className="calc-results" id={`${uid}-results`}>
         <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
-          <span>Your maximum safe bid</span>
+          <span>Your maximum bid</span>
           <strong>{r.noBidWorks ? 'No bid works' : fmtMoney(r.maxBid)}</strong>
-          <small>{r.noBidWorks ? 'Even at $0, costs leave less than your target profit. Walk away or change your plan.' : `Leaves your ${i.targetProfitPct}% profit target after every cost below.`}</small>
+          <small>{r.noBidWorks ? 'Even at $0, costs leave less than your target profit. Walk away or change your plan.' : `Leaves your ${i.targetProfitPct}% profit target after every cost below, based on your numbers. Not a guarantee.`}</small>
         </div>
         {!r.noBidWorks && (
           <dl className="calc-kv">
@@ -187,7 +187,7 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
 
         <H>If things go worse than planned</H>
         <table className="calc-stress">
-          <thead><tr><th>Scenario</th><th className="num">Max safe bid</th></tr></thead>
+          <thead><tr><th>Scenario</th><th className="num">Max bid</th></tr></thead>
           <tbody>{tests.map((t) => <tr key={t.label}><td>{t.label}</td><td className="num">{t.maxBid > 0 ? fmtMoney(t.maxBid) : 'No bid works'}</td></tr>)}</tbody>
         </table>
         <p className="muted small">An estimate to help you set a limit before the sale, not advice. Replace every starting number with your own comps, bids and quotes.</p>
@@ -195,7 +195,7 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
 
       {/* On phones the results sit below every input, so keep the answer in view while typing. */}
       <button type="button" className={`calc-sticky${r.noBidWorks ? ' bad' : ''}`} onClick={() => document.getElementById(`${uid}-results`)?.scrollIntoView({ behavior: 'smooth' })}>
-        <span>Max safe bid</span>
+        <span>Max bid</span>
         <strong>{r.noBidWorks ? 'No bid works' : fmtMoney(r.maxBid)}</strong>
         <span className="calc-sticky-go">See details ↓</span>
       </button>

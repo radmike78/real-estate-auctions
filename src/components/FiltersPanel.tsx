@@ -86,7 +86,7 @@ export default function FiltersPanel({ filters: f, onChange, onReset }: Props) {
           <input type="number" min={0} step={1000} placeholder="Any" value={f.maxMinimumBid ?? ''} onChange={(e) => onChange({ maxMinimumBid: num(e.target.value) })} />
         </label>
         <label>
-          Min est. equity
+          Min est. spread
           <input type="number" step={5000} placeholder="Any" value={f.minEquity ?? ''} onChange={(e) => onChange({ minEquity: num(e.target.value) })} />
         </label>
       </fieldset>

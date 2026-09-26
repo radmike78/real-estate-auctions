@@ -206,7 +206,7 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
         registrationDeadline: isoAt(saleDay - 8, 17),
         paymentMethods: ['Cash', "Cashier's check", 'Money order'],
         finalPaymentDeadline: isoAt(saleDay, 13),
-        deedType: 'Quitclaim deed from the Treasurer, recorded within 30 days, in the bidder’s individual name',
+        deedType: 'Quitclaim deed from the Treasurer, recorded within 30 days, in the name on the bidder’s registration form',
         redemptionPeriod: 'None after the auction. The former owner may protest the sale for 2 years (title insurance may be unavailable meanwhile); the IRS may redeem within 120 days if it holds a lien',
         eligibility: 'Registered bidders only, capped at 280; must register as an individual (not an LLC or trust)',
       });

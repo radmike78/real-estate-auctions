@@ -19,7 +19,7 @@ export default function ProProfilePage({ id }: { id: string }) {
       <main className="page prose">
         <h1>Profile not available</h1>
         <p>This professional isn't currently listed. Their license check or advertising may have lapsed.</p>
-        <a href="#/agents">Browse verified professionals</a>
+        <a href="#/agents">Browse license-checked professionals</a>
       </main>
     );
   }

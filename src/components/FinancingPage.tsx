@@ -8,7 +8,7 @@ const OPTIONS: [string, string][] = [
   ['Buying at auction', 'Most auctions need cash or certified funds within hours or days. Buyers often use savings, a HELOC, or a hard-money or bridge loan arranged before the sale.'],
   ['Fix and flip', 'Short-term fix-and-flip, bridge and hard-money loans lend against the property and the renovation plan. Costs are higher, and terms are short.'],
   ['Rental investors', 'DSCR loans qualify on the rent a property earns rather than personal income. Portfolio loans from banks are another option.'],
-  ['Credit challenges', 'FHA, non-QM and some private lenders work with lower scores, recent credit events or ITIN borrowers, usually at higher rates. Compare several offers.'],
+  ['Credit challenges', 'FHA and non-QM loans can work with lower scores or recent credit problems. Some non-QM and private lenders work with ITIN borrowers, usually at higher rates. Compare several offers.'],
 ];
 
 export default function FinancingPage({ initialLocation = '' }: { initialLocation?: string }) {
