@@ -10,7 +10,7 @@ import SourceTag from './SourceTag';
 import { daysUntil } from './ResultsList';
 import Disclaimer from './Disclaimer';
 import BuyerChecklistBox from './BuyerChecklistBox';
-import { checklistForProperty, CHECKLISTS } from '../lib/buyerChecklists';
+import { checklistForProperty, CHECKLISTS, forCommercial } from '../lib/buyerChecklists';
 import { classOfType } from '../lib/propertyClass';
 import IncomeValue from './IncomeValue';
 import DrillDown, { type DrillSection } from './DrillDown';
@@ -78,7 +78,6 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   const liens = assessLiens(p);
   const steps = purchaseSteps(p);
   const report = diligenceReport(p);
-  const checklist = checklistForProperty(s?.saleType ?? null, p.status);
   const days = s?.startsAt ? daysUntil(s.startsAt) : null;
   const online = p.status === 'ONLINE_BIDDING';
   const baseHref = `#/property/${p.id}`;
@@ -87,6 +86,8 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   const reviews = count('review');
   const surviving = liens.filter((l) => l.outcome === 'LIKELY_SURVIVES').length;
   const commercial = classOfType(p.propertyType) === 'commercial';
+  const baseChecklist = checklistForProperty(s?.saleType ?? null, p.status);
+  const checklist = commercial ? forCommercial(baseChecklist) : baseChecklist;
   const saleBook = playbookForSale(s?.saleType);
   const commercialBook = commercial ? playbookByKey('commercial') : null;
   const playbook = commercialBook ?? saleBook;
