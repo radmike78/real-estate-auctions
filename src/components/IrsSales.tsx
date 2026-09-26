@@ -2,6 +2,7 @@ import type { FeedFederalSale } from '../feed/types';
 import { isFederalSaleUrl } from '../feed/verify';
 import { irsId } from '../feed/toProperty';
 import { fmtDateTime, fmtMoney } from '../lib/status';
+import TrackButton from './TrackButton';
 
 /** Clark County property the IRS is selling, as listed on irsauctions.gov and confirmed by the Assessor. */
 export default function IrsSales({ sales, ago }: { sales: FeedFederalSale[]; ago: (iso: string) => string }) {
@@ -36,7 +37,13 @@ export default function IrsSales({ sales, ago }: { sales: FeedFederalSale[]; ago
                 <td data-label="Verified" className="small" title={`Snapshot SHA-256 ${f.snapshotSha256}`}>
                   <span>{ago(f.lastVerifiedAt)}<span className="muted"> · Assessor confirmed</span></span>
                 </td>
-                <td data-label="">{isFederalSaleUrl(f.sourceUrl) && <a href={f.sourceUrl} target="_blank" rel="noreferrer noopener">IRS notice ↗</a>}</td>
+                <td data-label="">
+                  <span>
+                    {isFederalSaleUrl(f.sourceUrl) && <a href={f.sourceUrl} target="_blank" rel="noreferrer noopener">IRS notice ↗</a>}
+                    <br />
+                    <TrackButton target={`irs:${f.id}`} label={f.address ? `${f.address}, ${f.city} (APN ${f.apns[0]})` : `${f.title} (APN ${f.apns[0]})`} />
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>

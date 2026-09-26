@@ -31,7 +31,7 @@ export function searchLabel(s: SavedSearch): string {
 }
 
 /** Whether a listing matches. Class comes from the Assessor land-use code; unclassified parcels match only "all". */
-export function matchesSearch(s: SavedSearch, l: { minimumBid: number; landUseCode?: string | null }): boolean {
-  if (s.maxBid !== null && l.minimumBid > s.maxBid) return false;
+export function matchesSearch(s: SavedSearch, l: { minimumBid: number | null; landUseCode?: string | null }): boolean {
+  if (s.maxBid !== null && (l.minimumBid === null || l.minimumBid > s.maxBid)) return false;
   return s.cls === 'all' || classOfLandUse(l.landUseCode) === s.cls;
 }

@@ -36,7 +36,7 @@ import { alertsAddEmail, alertsConfirmEmail, broadcastEmail, alertsManageLinkEma
 import { ALERT_LIMITS, CONFIRM_TTL_MS, openAlerts, openBroadcasts, type Subscriber } from './alerts';
 import { SITE_INFO } from '../src/lib/siteInfo';
 import { parseSearchTarget, searchLabel } from '../src/lib/savedSearch';
-import { collectChanges, collectDigests, feedReader, labelOf, openTracker, snapshotOf, TARGET_RE, taxTarget, type ListingSnapshot } from './tracker';
+import { collectChanges, collectDigests, feedReader, labelOf, openTracker, TARGET_RE, trackableListings, type ListingSnapshot } from './tracker';
 import { CHECKOUT_URL_PREFIX, invoicePeriodEnd, invoiceSubscriptionId, PORTAL_URL_PREFIX, verifyWebhook, type StripeClient, type StripeEvent } from './stripe';
 import { BOT_UA, leadsToCsv, monthlyReportText, monthRange, pacificDay, pacificDaysToUtc, siteSummary, summarize, VisitorHasher } from './metrics';
 
@@ -249,8 +249,7 @@ export function createApp(config: AppConfig) {
   async function trackable(target: unknown): Promise<ListingSnapshot | null> {
     if (typeof target !== 'string' || !TARGET_RE.test(target)) return null;
     const feed = await readFeed(now());
-    const l = feed?.listings.find((x) => taxTarget(x.apn) === target);
-    return l ? snapshotOf(l) : null;
+    return (feed && trackableListings(feed).get(target)) ?? null;
   }
 
   /** A property on the current verified feed, or a valid saved search: what can be added to someone's alerts. */
@@ -259,7 +258,7 @@ export function createApp(config: AppConfig) {
     const search = parseSearchTarget(target);
     if (search) return { kind: 'search', target, label: searchLabel(search) };
     const snap = await trackable(target);
-    return snap ? { kind: 'property', target: taxTarget(snap.apn), label: labelOf(snap) } : null;
+    return snap ? { kind: 'property', target, label: labelOf(snap) } : null;
   }
 
   /** Emails each subscriber the changes to the properties they track. Returns how many emails went out. */

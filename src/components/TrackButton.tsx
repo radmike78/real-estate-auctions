@@ -4,16 +4,18 @@ import { forgetManageToken, storedManageToken } from '../lib/alertsLink';
 
 /** "Email me changes" for a verified listing. With a remembered alerts link it's one click; otherwise email + confirm. */
 export default function TrackButton({ target, label }: { target: string; label: string }) {
+  const intro = target.startsWith('irs:') ? IRS_INTRO : PROPERTY_INTRO;
   const [open, setOpen] = useState(false);
   return (
     <>
       <button className="linkish track-btn" onClick={() => setOpen(true)} aria-label={`Email me changes to ${label}`}>✉ Email me changes</button>
-      {open && <AlertDialog title="Email me changes" intro={PROPERTY_INTRO} target={target} label={label} onClose={() => setOpen(false)} />}
+      {open && <AlertDialog title="Email me changes" intro={intro} target={target} label={label} onClose={() => setOpen(false)} />}
     </>
   );
 }
 
 const PROPERTY_INTRO = 'We’ll email you if it leaves the Treasurer’s list or comes back, if the auction date or minimum bid changes, and before the auction.';
+const IRS_INTRO = 'We’ll email you if the IRS cancels or relists the sale, if the sale date or minimum bid changes, and before the sale.';
 
 /** Adds one alert (a tracked property or a saved search): one click with a remembered link, otherwise by email with confirmation. */
 export function AlertDialog({ title, intro, target, label, extra, onClose }: { title: string; intro: string; target: string; label: string; extra?: ReactNode; onClose: () => void }) {

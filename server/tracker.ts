@@ -12,15 +12,17 @@ import { readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import type { DatabaseSync } from 'node:sqlite';
 import { verifyFeed } from '../src/feed/verify';
-import type { Feed, FeedListing } from '../src/feed/types';
+import type { Feed, FeedFederalSale, FeedListing } from '../src/feed/types';
 import { matchesSearch, parseSearchTarget } from '../src/lib/savedSearch';
 import { pacificDay } from './metrics';
 
 /** What we remember about a tracked listing. */
 export interface ListingSnapshot {
+  /** Which official list it's on; absent = the Clark County Treasurer's tax-sale list. */
+  source?: 'irs';
   apn: string;
   address: string | null;
-  minimumBid: number;
+  minimumBid: number | null; // null: not published (some IRS sales)
   auctionStartsAt: string | null;
   auctionFormat: string | null;
   auctionLocation: string | null;
@@ -30,16 +32,18 @@ export interface ListingSnapshot {
 
 export type Change =
   | { kind: 'removed' }
-  | { kind: 'back'; auctionStartsAt: string | null; minimumBid: number }
+  | { kind: 'back'; auctionStartsAt: string | null; minimumBid: number | null }
   | { kind: 'date'; from: string | null; to: string | null }
-  | { kind: 'minimumBid'; from: number; to: number }
+  | { kind: 'minimumBid'; from: number | null; to: number | null }
   | { kind: 'place'; format: string | null; location: string | null }
   | { kind: 'register'; auctionStartsAt: string } // about 10 days before: registration closes about a week out
   | { kind: 'tomorrow'; auctionStartsAt: string };
 
 /** Subscription target for a Clark County tax-sale parcel. */
 export const taxTarget = (apn: string) => `tax:${apn}`;
-export const TARGET_RE = /^tax:\d{3}-\d{2}-\d{3}-\d{3}$/;
+/** Subscription target for an IRS sale of Clark County property (the ad's id on irsauctions.gov). */
+export const irsTarget = (adId: string) => `irs:${adId}`;
+export const TARGET_RE = /^(tax:\d{3}-\d{2}-\d{3}-\d{3}|irs:[a-z0-9-]{3,200})$/;
 
 export const snapshotOf = (l: FeedListing): ListingSnapshot => ({
   apn: l.apn,
@@ -51,6 +55,26 @@ export const snapshotOf = (l: FeedListing): ListingSnapshot => ({
   sourceUrl: l.sourceUrl,
   landUseCode: l.landUse?.code ?? null,
 });
+
+export const federalSnapshotOf = (f: FeedFederalSale): ListingSnapshot => ({
+  source: 'irs',
+  apn: f.apns[0],
+  address: f.address ?? f.title,
+  minimumBid: f.minimumBid,
+  auctionStartsAt: f.saleStartsAt,
+  auctionFormat: f.saleFormat,
+  auctionLocation: f.saleLocation,
+  sourceUrl: f.sourceUrl,
+  landUseCode: f.landUse?.code ?? null,
+});
+
+/** Every verified listing in the feed that can be tracked, by subscription target. */
+export function trackableListings(feed: Feed): Map<string, ListingSnapshot> {
+  return new Map([
+    ...feed.listings.map((l) => [taxTarget(l.apn), snapshotOf(l)] as const),
+    ...(feed.federalSales ?? []).map((f) => [irsTarget(f.id), federalSnapshotOf(f)] as const),
+  ]);
+}
 
 export const labelOf = (s: Pick<ListingSnapshot, 'address' | 'apn'>) => (s.address ? `${s.address} (APN ${s.apn})` : `APN ${s.apn}`);
 
@@ -200,7 +224,7 @@ export function collectChanges(tracker: Tracker, feed: Feed, now: Date): Map<str
   const at = now.toISOString();
   const first = tracker.isEmpty();
   const known = tracker.all();
-  const current = new Map(feed.listings.map((l) => [taxTarget(l.apn), snapshotOf(l)]));
+  const current = trackableListings(feed);
   const out = new Map<string, { target: string; snapshot: ListingSnapshot; changes: Change[] }[]>();
   const add = (subscriberId: string, target: string, snapshot: ListingSnapshot, changes: Change[]) => {
     if (!changes.length) return;
@@ -247,7 +271,8 @@ export function collectDigests(tracker: Tracker, now: Date): Map<string, { label
   for (const s of tracker.searches()) {
     if (pacificDay(new Date(s.since)) >= today) continue; // already done today (or created today: first digest tomorrow)
     const search = parseSearchTarget(s.target);
-    const listings = search ? tracker.appearedSince(s.since).filter((l) => matchesSearch(search, l)) : [];
+    // Saved searches cover the Treasurer's tax-sale list.
+    const listings = search ? tracker.appearedSince(s.since).filter((l) => !l.source && matchesSearch(search, l)) : [];
     tracker.markDigested(s.subscriptionId, at);
     if (!listings.length) continue;
     const list = out.get(s.subscriberId) ?? [];

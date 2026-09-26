@@ -237,10 +237,24 @@ export function alertsManageLinkEmail(to: string, manageUrl: string, unsubscribe
 
 const vegasTime = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
 const when = (iso: string | null) => (iso ? vegasTime.format(new Date(iso)) : 'not scheduled');
-const usd = (n: number) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+const usd = (n: number | null) => (n === null ? 'see the notice' : n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }));
 
 /** One line per change, in plain words. */
-export function describeChange(c: Change): string {
+export function describeChange(c: Change, source?: ListingSnapshot['source']): string {
+  if (source === 'irs') {
+    switch (c.kind) {
+      case 'removed':
+        return "No longer listed on irsauctions.gov. The sale may have been canceled, postponed or held. We'll email you if it's listed again.";
+      case 'back':
+        return `Listed on irsauctions.gov${c.auctionStartsAt ? ` for the sale on ${when(c.auctionStartsAt)}` : ''}. Minimum bid ${usd(c.minimumBid)}.`;
+      case 'register':
+        return `Sale on ${when(c.auctionStartsAt)}. Read the IRS notice of sale now for registration, deposit and payment terms.`;
+      case 'tomorrow':
+        return `Sale tomorrow: ${when(c.auctionStartsAt)}. Bring payment in the form the notice of sale requires.`;
+      default:
+        break; // date, bid and place changes read the same for both lists
+    }
+  }
   switch (c.kind) {
     case 'removed':
       return "No longer on the Treasurer's auction list. It may have been paid off, withdrawn or sold. We'll email you if it comes back on a future list.";
@@ -266,13 +280,13 @@ export function trackedChangesEmail(
 ): Mail {
   const one = items.length === 1;
   const body = items
-    .map((i) => `${labelOf(i.snapshot)}\n${i.changes.map((c) => `  - ${describeChange(c)}`).join('\n')}\n  Official record: ${i.snapshot.sourceUrl}`)
+    .map((i) => `${labelOf(i.snapshot)}\n${i.changes.map((c) => `  - ${describeChange(c, i.snapshot.source)}`).join('\n')}\n  Official record: ${i.snapshot.sourceUrl}`)
     .join('\n\n');
   return {
     to,
     subject: one ? `Update: ${labelOf(items[0].snapshot)}` : `Updates on ${items.length} properties you're tracking`,
     text:
-      `Hello,\n\n${one ? 'A property you track changed' : 'Properties you track changed'} on the Clark County Treasurer's list:\n\n${body}\n\n` +
+      `Hello,\n\n${one ? 'A property you track changed' : 'Properties you track changed'} on ${items.every((i) => i.snapshot.source === 'irs') ? 'irsauctions.gov' : items.some((i) => i.snapshot.source === 'irs') ? 'the official lists' : "the Clark County Treasurer's list"}:\n\n${body}\n\n` +
       `Live tax-sale list: ${links.live}\n\nAlways confirm with the official source before you bid. Lists change often, right up to the auction.\n` +
       alertsFooter(links.manage, links.unsubscribe),
     headers: unsubscribeHeaders(links.oneClick),
