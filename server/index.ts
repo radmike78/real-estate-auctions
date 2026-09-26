@@ -15,6 +15,8 @@
 //                      POSTMARK_MESSAGE_STREAM (default "outbound").
 //   TRUST_PROXY=1      read client IP from the LAST X-Forwarded-For entry (only behind your own reverse proxy
 //                      that appends to that header; see SECURITY.md)
+//   TRUST_CLOUDFLARE=1 the domain is proxied through Cloudflare: read the visitor's address from
+//                      CF-Connecting-IP, only on requests that come from Cloudflare's address ranges
 //   BACKUP_DIR         where daily database backups go, default <DB_PATH folder>/backups ("" turns backups off)
 //   BACKUP_KEEP        how many daily backups to keep, default 7
 
@@ -92,6 +94,7 @@ const app = createApp({
   baseUrl,
   secureCookies: !/^http:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(baseUrl),
   trustProxy: env.TRUST_PROXY === '1',
+  trustCloudflare: env.TRUST_CLOUDFLARE === '1',
   stripe,
   mailer,
 });

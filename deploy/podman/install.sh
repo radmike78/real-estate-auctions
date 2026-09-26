@@ -87,6 +87,11 @@ if [ -z "${FSF_RECREATE:-}" ]; then
     [[ "${A:-y}" =~ ^[Yy] ]] && CADDY=yes
   fi
   TRUST_PROXY=0; [[ "$BASE_URL" == https://* ]] && TRUST_PROXY=1
+  TRUST_CLOUDFLARE=0
+  if [[ "$BASE_URL" == https://* ]]; then
+    read -r -p "Will Cloudflare proxy this domain (orange cloud)? See README: Cloudflare [y/N]: " A
+    [[ "${A:-n}" =~ ^[Yy] ]] && TRUST_CLOUDFLARE=1
+  fi
   echo "Email: paste your Postmark Server API token to send email now (README: Email), or press Enter to set it up later."
   read -r -s -p "Postmark Server API token [skip]: " PM_TOKEN; echo
   MAIL_FROM=""
@@ -129,6 +134,7 @@ if [ "$MODE" = systemd ]; then
 BASE_URL=$BASE_URL
 ADMIN_USERNAME=$ADMIN_USER
 TRUST_PROXY=$TRUST_PROXY
+TRUST_CLOUDFLARE=$TRUST_CLOUDFLARE
 BACKUP_KEEP=7
 EOF
   if [ -n "${MAIL_FROM:-}" ]; then printf 'MAIL_FROM=%s\n' "$MAIL_FROM" >> "$QUADLET_DIR/forced-sale-finder.env"; fi
@@ -154,7 +160,7 @@ else
   if [ -n "${FSF_RECREATE:-}" ]; then
     ENV_ARGS=(--env-file "$KEY_DIR/forced-sale-finder.env")
   else
-    printf 'BASE_URL=%s\nADMIN_USERNAME=%s\nTRUST_PROXY=%s\nBACKUP_KEEP=7\n' "$BASE_URL" "$ADMIN_USER" "$TRUST_PROXY" > "$KEY_DIR/forced-sale-finder.env"
+    printf 'BASE_URL=%s\nADMIN_USERNAME=%s\nTRUST_PROXY=%s\nTRUST_CLOUDFLARE=%s\nBACKUP_KEEP=7\n' "$BASE_URL" "$ADMIN_USER" "$TRUST_PROXY" "$TRUST_CLOUDFLARE" > "$KEY_DIR/forced-sale-finder.env"
     if [ -n "${MAIL_FROM:-}" ]; then printf 'MAIL_FROM=%s\n' "$MAIL_FROM" >> "$KEY_DIR/forced-sale-finder.env"; fi
     ENV_ARGS=(--env-file "$KEY_DIR/forced-sale-finder.env")
   fi

@@ -24,6 +24,7 @@ import { CATEGORIES, isListable, REVERIFY_DAYS } from '../src/lib/pros';
 import { newToken, parseCookies, RateLimiter, SESSION_IDLE_MS, SESSION_MAX_MS, safeEqualStrings, sessionCookie, sha256, verifyPasswordAsync } from './auth';
 import { METRIC_KINDS, openDb, type ApplicationRow, type Db, type MetricKind } from './db';
 import { buildProsFeed, toPro, writeSignedJson } from './directory';
+import { visitorIp } from './cloudflare';
 import { approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
 import { CHECKOUT_URL_PREFIX, invoicePeriodEnd, invoiceSubscriptionId, PORTAL_URL_PREFIX, verifyWebhook, type StripeClient, type StripeEvent } from './stripe';
 import { BOT_UA, leadsToCsv, monthlyReportText, monthRange, pacificDay, pacificDaysToUtc, summarize, VisitorHasher } from './metrics';
@@ -39,6 +40,8 @@ export interface AppConfig {
   mailer?: Mailer;
   secureCookies?: boolean;
   trustProxy?: boolean;
+  /** The domain is proxied through Cloudflare: take the visitor's address from CF-Connecting-IP on requests from Cloudflare. */
+  trustCloudflare?: boolean;
   /** Online payments. Omit to take payments offline only (admin records billing by hand). */
   stripe?: { client: StripeClient; webhookSecret: string } | null;
   now?: () => Date;
@@ -111,8 +114,11 @@ export function createApp(config: AppConfig) {
 
   // Behind our own reverse proxy, the client address is the LAST X-Forwarded-For entry (the one the
   // proxy appended). Earlier entries come from the client and can be forged.
-  const clientIp = (req: IncomingMessage) =>
-    (config.trustProxy ? String(req.headers['x-forwarded-for'] ?? '').split(',').pop()!.trim() : '') || req.socket.remoteAddress || 'unknown';
+  // Behind Cloudflare, that address is a Cloudflare server; the visitor's is in CF-Connecting-IP.
+  const clientIp = (req: IncomingMessage) => {
+    const peer = (config.trustProxy ? String(req.headers['x-forwarded-for'] ?? '').split(',').pop()!.trim() : '') || req.socket.remoteAddress || 'unknown';
+    return config.trustCloudflare ? visitorIp(peer, req.headers['cf-connecting-ip']) : peer;
+  };
   // Networks the admin has signed in from recently: the per-username lockout doesn't apply to them,
   // so an attacker can't lock the real admin out by failing logins on purpose.
   const trustedAdminIps = new Map<string, number>();

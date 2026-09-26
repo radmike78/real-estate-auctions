@@ -55,6 +55,7 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 | `MAIL_REPLY_TO`, `POSTMARK_MESSAGE_STREAM` | no | no | Where replies go (default: `MAIL_FROM`), and the Postmark stream (default `outbound`). |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PLANS` | **yes** | no | Online card payments for advertisers: set all three or none. See [Online payments](#advertisers-signup-verification-billing-server). |
 | `TRUST_PROXY` | no | no | `1` when a reverse proxy, Ingress or OpenShift router sits in front (it is in every option below). |
+| `TRUST_CLOUDFLARE` | no | with Cloudflare | `1` when your domain is proxied through Cloudflare, so each visitor's own address is used for spam limits. See [Cloudflare](#cloudflare-recommended). |
 | `BACKUP_KEEP` | no | no | Daily database backups to keep (default 7). `BACKUP_DIR=""` turns them off. |
 | `PORT`, `DB_PATH`, `DATA_DIR`, `INGEST_STATE_DIR`, `BACKUP_DIR` | no | no | Already set correctly in the image. |
 
@@ -67,6 +68,22 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 | `RUN_TESTS` | `1` | `0` skips the test suite during the build (not recommended). |
 
 > **Emails:** without `POSTMARK_SERVER_TOKEN` and `MAIL_FROM`, confirmation links, sign-in links, leads and reports are only written to the web container's log, and the log says `WARNING: email is OFF`. Set up [Email](#email-postmark) before real visitors arrive.
+
+### Cloudflare (recommended)
+
+Put [Cloudflare](https://www.cloudflare.com)'s free plan in front of any option below. It speeds up the site worldwide, caches the site's static files, and absorbs attacks. The site needs no other changes.
+
+**Prerequisites:** a free Cloudflare account, and your domain added to Cloudflare, with the domain's nameservers changed to Cloudflare's at your registrar. Or buy the domain from Cloudflare.
+
+**Set it up**
+1. **DNS:** add an `A` record for your domain (and `www` if you use it) pointing at your server or load balancer. Leave it **DNS only** (grey cloud) for now.
+2. **Deploy** with any option below, and check the site works on `https://`. With the Podman option, Caddy gets its certificate in this step.
+3. **Proxy on:** switch the DNS record to **Proxied** (orange cloud).
+4. **SSL/TLS → Overview → Full (strict).** Never use "Flexible": it sends traffic between Cloudflare and your server unencrypted, and loops forever with the site's own HTTPS redirect.
+5. **Tell the site:** set `TRUST_CLOUDFLARE=1` (Podman: in `forced-sale-finder.env`; Kubernetes/OpenShift: in `deploy/kubernetes/base/config.env`), keep `TRUST_PROXY=1`, and restart. Without it, every visitor looks like a Cloudflare server, so spam limits would lump everyone together.
+6. **Optional:** allow ports 80/443 only from [Cloudflare's addresses](https://www.cloudflare.com/ips/) in your server's or cloud provider's firewall, so nobody can reach the server without going through Cloudflare.
+
+Cloudflare's default caching is right for this site: it caches the scripts, styles, fonts and images (their names change with every release) and passes pages, API calls and the signed listing feeds straight through. You don't need page rules or a cache-everything setting.
 
 ### Email (Postmark)
 
@@ -381,6 +398,8 @@ For GitOps, point [Argo CD / OpenShift GitOps](https://argo-cd.readthedocs.io/) 
 | `CrashLoopBackOff` with "permission denied" on `/data` | Plain Kubernetes: keep the `fsGroup: 1001` patch in the Kubernetes overlay. OpenShift handles this automatically. |
 | Live tax sales says "didn't pass our security checks" | The image was built with a different public key than the private key in the secret. Rebuild with the matching `feed-public-key.txt`. |
 | Live tax sales is always empty | Expected until the Treasurer schedules an auction, and until `termsReviewedAt` is set in `ingest/sources/registry.ts` (see [Live data](#live-data)). |
+| Behind Cloudflare, spam limits ("Too many ... from this network") hit many people at once | Set `TRUST_CLOUDFLARE=1` ([Cloudflare](#cloudflare-recommended)). |
+| `ERR_TOO_MANY_REDIRECTS` behind Cloudflare | Cloudflare SSL mode is "Flexible". Set it to **Full (strict)**. |
 | Log says `WARNING: email is OFF` | Set `POSTMARK_SERVER_TOKEN` and `MAIL_FROM` ([Email](#email-postmark)). |
 | Log says `Email to ... was not sent: Postmark HTTP 401` | Wrong token. Copy the **Server** API token, not the Account token. |
 | `... HTTP 422, error 400` or `error 401` | `MAIL_FROM` isn't a verified (or confirmed) sender signature or domain in Postmark. |
