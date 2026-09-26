@@ -191,7 +191,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     intro: 'The owner is behind on payments, but nothing is for sale. Prepare now in case it goes to auction or is listed.',
     items: [
       { text: 'Do not contact the homeowner', detail: 'Nevada licenses foreclosure consultants, and buyers who use fraud or deceit on owners in foreclosure face criminal penalties and can have the sale undone (NRS 645F). This site’s policy is no contact.' },
-      { text: 'Track the property', detail: 'A notice of sale can come 3 months after the notice of default is recorded. The auction is about 3+ weeks after that.' },
+      { text: 'Track the property', detail: 'A notice of sale can come 3 months after the notice of default is recorded (90 days for an HOA). The auction is about 3+ weeks after that.' },
       { text: 'Line up your money now', detail: "Cash, or a hard-money or bridge loan for an auction. A pre-approval for a short-sale or bank-owned purchase." },
       { text: "Practice with cashier's checks and ID", detail: 'Trustee sales usually need certified funds for the full bid.' },
       { text: 'Order a title search once a notice of sale is recorded' },

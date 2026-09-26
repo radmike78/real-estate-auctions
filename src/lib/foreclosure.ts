@@ -2,7 +2,7 @@
 //
 // Nevada sequence (NRS 107.080 for deeds of trust; NRS 116.31162-.31164 for HOA liens):
 //   1. Notice of Default and Election to Sell is recorded.
-//   2. After at least 3 months, a Notice of Sale may be recorded. It must be posted for
+//   2. After at least 3 months (90 days for an HOA lien), a Notice of Sale may be recorded. It must be posted for
 //      20 days and published once a week for 3 weeks, so the sale is at least ~3 weeks later.
 //      Owner-occupied homes may enter the Foreclosure Mediation Program, which adds time.
 //   3. The auction is held, postponed, or cancelled (reinstatement, loan modification,
@@ -39,7 +39,7 @@ export interface ForeclosureTrack {
   stage: ForeclosureStage;
   kind: 'Mortgage (trustee)' | 'HOA';
   defaultRecordedOn: string;
-  earliestNoticeOfSale: string; // NOD + 3 months
+  earliestNoticeOfSale: string; // NOD + 3 months (mortgage) or + 90 days (HOA)
   noticeOfSaleOn: string | null;
   saleAt: string | null;
   daysInForeclosure: number;
@@ -47,6 +47,10 @@ export interface ForeclosureTrack {
 }
 
 const DAY = 86_400_000;
+
+export function addDays(isoDate: string, days: number): string {
+  return new Date(Date.parse(`${isoDate.slice(0, 10)}T12:00:00Z`) + days * DAY).toISOString().slice(0, 10);
+}
 
 export function addMonths(isoDate: string, months: number): string {
   const d = new Date(`${isoDate.slice(0, 10)}T12:00:00Z`);
@@ -76,24 +80,29 @@ export function foreclosureTrack(p: Property, now = new Date()): ForeclosureTrac
   else if (noticeOfSale) stage = 'SALE_SCHEDULED';
   else stage = 'DEFAULT_RECORDED';
 
-  const earliest = addMonths(nod.date, 3);
+  const kind: ForeclosureTrack['kind'] = p.sale?.saleType === 'HOA_FORECLOSURE' || /HOA/i.test(nod.description) ? 'HOA' : 'Mortgage (trustee)';
+  const hoa = kind === 'HOA';
+  // NRS 107.080(2): 3 months for a deed of trust. NRS 116.31162(1)(c): 90 days for an HOA lien.
+  const earliest = hoa ? addDays(nod.date, 90) : addMonths(nod.date, 3);
   const nextByStage: Record<ForeclosureStage, string> = {
     DEFAULT_RECORDED:
       now.toISOString().slice(0, 10) < earliest
-        ? `A notice of sale can't be recorded before ${fmtDate(earliest)} (3 months after the notice of default was recorded).`
+        ? `A notice of sale can't be recorded before ${fmtDate(earliest)} (${hoa ? '90 days' : '3 months'} after the notice of default was recorded).`
         : 'A notice of sale may be recorded at any time. The sale would follow at least ~3 weeks later.',
     SALE_SCHEDULED: 'The auction is scheduled. Owners often reinstate, modify or sell before the date.',
     POSTPONED: 'Watch for a new sale date. Postponements are common and may repeat.',
     BANKRUPTCY_STAY: 'The sale is on hold until the bankruptcy court lifts the stay or the case is dismissed.',
-    AWAITING_RESULT: "The sale date has passed. Check for a recorded trustee's deed, postponement or cancellation.",
+    AWAITING_RESULT: `The sale date has passed. Check for a recorded ${hoa ? 'certificate of sale' : "trustee's deed"}, postponement or cancellation.`,
     CANCELLED: 'The foreclosure was stopped. The property is not heading to auction.',
-    SOLD_AT_AUCTION: "Sold to a third-party bidder at auction. A trustee's deed is recorded.",
+    SOLD_AT_AUCTION: hoa
+      ? 'Sold to a third-party bidder at auction. A certificate of sale is recorded; the deed follows after the 60-day redemption period (NRS 116.31166).'
+      : "Sold to a third-party bidder at auction. A trustee's deed is recorded.",
     REVERTED_TO_LENDER: 'No bidder beat the lender. The lender now owns it and may list it as a bank-owned (REO) sale.',
   };
 
   return {
     stage,
-    kind: p.sale?.saleType === 'HOA_FORECLOSURE' || /HOA/i.test(nod.description) ? 'HOA' : 'Mortgage (trustee)',
+    kind,
     defaultRecordedOn: nod.date,
     earliestNoticeOfSale: earliest,
     noticeOfSaleOn: noticeOfSale?.date ?? null,

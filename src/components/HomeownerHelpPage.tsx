@@ -16,7 +16,7 @@ export default function HomeownerHelpPage() {
         <h2>First: you have time and options</h2>
         <ul>
           <li>In Nevada, at least 3 months must pass after a notice of default is recorded before a notice of sale can follow, and the sale notice must be published for 3 weeks.</li>
-          <li>You can often catch up (reinstate), work out a modification or repayment plan, sell (including a short sale), or get legal help to review your case.</li>
+          <li>You can often catch up (reinstate) until 5 days before the sale (NRS 107.0805), work out a modification or repayment plan, sell (including a short sale), or get legal help to review your case.</li>
           <li>Call your lender or servicer early and keep notes of every call.</li>
         </ul>
       </section>

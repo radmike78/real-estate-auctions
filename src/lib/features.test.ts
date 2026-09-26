@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Property, PropertyEvent } from '../types';
 import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
 import { SAMPLE_PROS } from '../data/samplePros';
-import { addMonths, foreclosureTrack } from './foreclosure';
+import { addDays, addMonths, foreclosureTrack } from './foreclosure';
 import { isListable, listingProblems, rotationKey, safeMailto, safeTel, safeWebsite, searchPros, type Pro, type ProQuery } from './pros';
 import { purchaseSteps } from './status';
 
@@ -36,6 +36,15 @@ describe('pre-foreclosure tracker', () => {
     expect(foreclosureTrack(withEvents([nod, ev('2026-09-01', 'SALE_CANCELLED')]), now)!.stage).toBe('CANCELLED');
     expect(foreclosureTrack(withEvents([nod, ev('2026-09-20', 'SOLD', 'Property reverted to the lender (REO).')]), now)!.stage).toBe('REVERTED_TO_LENDER');
     expect(foreclosureTrack(withEvents([nod, ev('2026-09-20', 'SOLD', "Trustee's deed to third-party bidder.")]), now)!.stage).toBe('SOLD_AT_AUCTION');
+  });
+
+  it('uses 90 days for an HOA lien (NRS 116.31162) and a certificate of sale', () => {
+    expect(addDays('2026-08-01', 90)).toBe('2026-10-30');
+    const nod = ev('2026-08-01', 'NOTICE_OF_DEFAULT', 'HOA notice of default and election to sell');
+    const t = foreclosureTrack(withEvents([nod]), now)!;
+    expect(t).toMatchObject({ kind: 'HOA', earliestNoticeOfSale: '2026-10-30' });
+    expect(t.next).toMatch(/90 days after/);
+    expect(foreclosureTrack(withEvents([nod, ev('2026-09-20', 'SOLD', 'Sold to third-party bidder.')]), now)!.next).toMatch(/certificate of sale/);
   });
 
   it('ignores events before the latest notice of default, and properties without one', () => {

@@ -55,7 +55,7 @@ const GUIDE: DrillSection[] = [
       <>
         <ol className="timeline-steps">
           <li><strong>Notice of default</strong><span>Recorded by the trustee or HOA. The owner can still cure the default.</span></li>
-          <li><strong>3+ months</strong><span>Minimum wait before a notice of sale can be recorded (NRS 107.080).</span></li>
+          <li><strong>3+ months</strong><span>Minimum wait before a notice of sale can be recorded: 3 months for a mortgage (NRS 107.080), 90 days for an HOA (NRS 116.31162).</span></li>
           <li><strong>Notice of sale</strong><span>Posted 20 days and published 3 weeks. Sets the auction date.</span></li>
           <li><strong>Auction</strong><span>Held, postponed or cancelled. A sale becomes an auction listing on this site.</span></li>
         </ol>
