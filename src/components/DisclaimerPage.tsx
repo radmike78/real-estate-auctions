@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { DISCLAIMERS, ROLE_SHORT, type DisclaimerKind } from '../lib/disclaimers';
+import { DISCLAIMERS, ROLE_SHORT, SOURCES_AND_ADVICE, type DisclaimerKind } from '../lib/disclaimers';
 import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
 import { IconBadge, IconBank, IconCheckList, IconFile, IconHome, IconShield, IconStop, IconTools } from './Icons';
@@ -25,6 +25,23 @@ const SECTIONS: DrillSection[] = [
         advertise here: agents, lenders, title and insurance companies, and contractors. That's all. We are an information and advertising
         service.
       </p>
+    ),
+  },
+  {
+    key: 'sources-and-advice',
+    title: 'Official sources, professional advice',
+    icon: <IconFile />,
+    tone: 'info',
+    summary: 'We pull from government and official sources. Legal, tax, real estate and financial advice comes from your own professionals',
+    content: () => (
+      <>
+        <p>{SOURCES_AND_ADVICE}</p>
+        <p>
+          Checking the law, the title, the taxes and the numbers for your deal is part of your due diligence. Our playbooks and checklists
+          explain how each kind of sale generally works so you know what to ask; they don't replace an attorney, tax advisor, agent or
+          financial advisor who looks at your situation.
+        </p>
+      </>
     ),
   },
   {
@@ -54,7 +71,7 @@ const SECTIONS: DrillSection[] = [
     key: 'checklist',
     title: 'Your due-diligence checklist',
     icon: <IconCheckList />,
-    summary: '7 things to do before you bid, borrow or hire',
+    summary: '8 things to do before you bid, borrow or hire',
     content: () => (
       <ol>
         <li>Confirm every sale detail (date, status, minimum bid, terms) with the official agency or trustee on the day.</li>
@@ -62,7 +79,8 @@ const SECTIONS: DrillSection[] = [
         <li>Inspect the property, or budget for unknown repairs if you can't.</li>
         <li>Check every professional's license yourself, using the regulator link on their profile.</li>
         <li>Compare several lenders and read every disclosure before you apply or pay any fee.</li>
-        <li>Get all agreements in writing, and consider independent legal advice.</li>
+        <li>Get all agreements in writing, and have your own attorney review them.</li>
+        <li>Talk to a tax advisor and a financial advisor about how the purchase fits your finances.</li>
         <li>Never wire money based on an email, text or phone call alone. Confirm wiring instructions by calling a number you already know is real.</li>
       </ol>
     ),
@@ -74,7 +92,7 @@ const SECTIONS: DrillSection[] = [
     summary: 'Information is provided "as is." Always rely on the official source',
     content: () => (
       <p>
-        We work hard to show only current, verified information, but sources change and errors happen. Information is provided "as is,"
+        We make every effort to show only current information from government and official sources, but sources change and errors happen. Information is provided "as is,"
         without warranties. Always rely on the official source. If you find something wrong, tell us so we can fix it.
       </p>
     ),

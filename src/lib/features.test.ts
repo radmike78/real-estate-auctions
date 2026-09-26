@@ -148,6 +148,9 @@ describe('disclaimers', () => {
     expect(ROLE_SHORT).toMatch(/helps you find options/);
     expect(ROLE_SHORT).toMatch(/not a party/);
     expect(ROLE_SHORT).toMatch(/responsible for your own due diligence/);
+    const { SOURCES_AND_ADVICE } = await import('./disclaimers');
+    expect(SOURCES_AND_ADVICE).toMatch(/government and other official sources/);
+    expect(SOURCES_AND_ADVICE).toMatch(/legal, tax, real estate or financial advice/);
     expect(DISCLAIMERS.financing.text).toMatch(/don't make, arrange, broker or negotiate loans/);
     expect(DISCLAIMERS.financing.text).toMatch(/aren't responsible/);
     expect(DISCLAIMERS.sales.text).toMatch(/don't take bids or money/);
