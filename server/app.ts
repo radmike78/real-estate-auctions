@@ -18,6 +18,7 @@
 // Admin (fsf_admin cookie; writes need x-fsf-request: 1 and same origin)
 //   POST /api/admin/login | /logout ; GET /api/admin/me | /api/admin/applications[/:id[/metrics]]
 //   POST /api/admin/applications/:id/(approve|billing|reject|suspend) ; POST /api/admin/publish | /api/admin/reports
+//   GET  /api/admin/email | /api/admin/email/list.csv ; POST /api/admin/email/test | /api/admin/email/send   (general email list)
 
 import { randomBytes } from 'node:crypto';
 import { createReadStream, existsSync, statSync } from 'node:fs';
@@ -31,8 +32,9 @@ import { METRIC_KINDS, openDb, type ApplicationRow, type Db, type MetricKind } f
 import { buildProsFeed, toPro, writeSignedJson } from './directory';
 import { isSiteAction, isSitePage } from '../src/lib/siteStats';
 import { visitorIp } from './cloudflare';
-import { alertsAddEmail, alertsConfirmEmail, alertsManageLinkEmail, alertsWelcomeEmail, searchDigestEmail, trackedChangesEmail, approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
-import { ALERT_LIMITS, CONFIRM_TTL_MS, openAlerts, type Subscriber } from './alerts';
+import { alertsAddEmail, alertsConfirmEmail, broadcastEmail, alertsManageLinkEmail, alertsWelcomeEmail, searchDigestEmail, trackedChangesEmail, approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
+import { ALERT_LIMITS, CONFIRM_TTL_MS, openAlerts, openBroadcasts, type Subscriber } from './alerts';
+import { SITE_INFO } from '../src/lib/siteInfo';
 import { parseSearchTarget, searchLabel } from '../src/lib/savedSearch';
 import { collectChanges, collectDigests, feedReader, labelOf, openTracker, snapshotOf, TARGET_RE, taxTarget, type ListingSnapshot } from './tracker';
 import { CHECKOUT_URL_PREFIX, invoicePeriodEnd, invoiceSubscriptionId, PORTAL_URL_PREFIX, verifyWebhook, type StripeClient, type StripeEvent } from './stripe';
@@ -54,6 +56,8 @@ export interface AppConfig {
   /** Online payments. Omit to take payments offline only (admin records billing by hand). */
   stripe?: { client: StripeClient; webhookSecret: string } | null;
   now?: () => Date;
+  /** Whether the business name and postal address are set (CAN-SPAM). Defaults to checking src/lib/siteInfo.ts. */
+  postalAddressReady?: boolean;
 }
 
 const JSON_LIMIT = 32 * 1024;
@@ -94,6 +98,8 @@ export function createApp(config: AppConfig) {
   const db: Db = openDb(config.dbPath);
   const alerts = openAlerts(db.raw);
   const tracker = openTracker(db.raw);
+  const broadcasts = openBroadcasts(db.raw);
+  const postalReady = config.postalAddressReady ?? ![SITE_INFO.operatorName, SITE_INFO.mailingAddress].some((v) => /^\[.*\]$/.test(v));
   const readFeed = feedReader(config.dataDir, config.signingKey);
   const mailer = config.mailer ?? consoleMailer;
   // Sending never breaks a request: a failure is logged (without the message body, which can hold
@@ -280,6 +286,43 @@ export function createApp(config: AppConfig) {
     } finally {
       checking = false;
     }
+  }
+
+  /** Sends queued updates to the general list, one recipient at a time; resumes after a restart. */
+  let pumping = false;
+  async function sendBroadcasts(): Promise<number> {
+    if (pumping) return 0;
+    pumping = true;
+    let n = 0;
+    try {
+      for (let batch = broadcasts.queued(50); batch.length; batch = broadcasts.queued(50)) {
+        for (const { broadcast: b, subscriberId } of batch) {
+          const s = alerts.get(subscriberId);
+          // Unsubscribed or opted out since the send started: skip them.
+          if (!s || s.status !== 'ACTIVE' || !s.listOptIn) {
+            broadcasts.mark(b.id, subscriberId, 'SKIPPED', now().toISOString());
+            continue;
+          }
+          const ok = await deliver(broadcastEmail(s.email, b.subject, b.body, alertLinks(s)));
+          broadcasts.mark(b.id, subscriberId, ok ? 'SENT' : 'FAILED', now().toISOString());
+          if (ok) n++;
+        }
+      }
+    } finally {
+      pumping = false;
+    }
+    return n;
+  }
+
+  /** The admin's subject and body: plain text, no control characters, sensible lengths. */
+  function validateBroadcast(body: Record<string, unknown>): { subject: string; text: string } {
+    const subject = String(body.subject ?? '').replace(/[\u0000-\u001f\u007f]+/g, ' ').trim();
+    const text = String(body.body ?? '').replace(/\r\n?/g, '\n').replace(/[\u0000-\u0008\u000b-\u001f\u007f]/g, '').trim();
+    const errors: Record<string, string> = {};
+    if (subject.length < 5 || subject.length > 120) errors.subject = 'Write a subject of 5 to 120 characters.';
+    if (text.length < 20 || text.length > 20_000) errors.body = 'Write a message of 20 to 20,000 characters.';
+    if (Object.keys(errors).length) throw new HttpError(422, 'Please fix the highlighted fields.', { errors });
+    return { subject, text };
   }
 
   /** What the manage page shows. Only the holder of the manage link sees it. */
@@ -770,6 +813,49 @@ export function createApp(config: AppConfig) {
       audit(null, 'PUBLISHED', `${n} listings`);
       return send(res, 200, { ok: true, published: n });
     }
+    // ---------------- general email list ----------------
+    if (method === 'GET' && path === '/api/admin/email') {
+      const c = alerts.counts();
+      const subs = db.raw.prepare(`SELECT kind, COUNT(*) AS n FROM subscriptions s JOIN subscribers u ON u.id = s.subscriber_id WHERE u.status = 'ACTIVE' GROUP BY kind`).all() as { kind: string; n: number }[];
+      const count = (k: string) => subs.find((x) => x.kind === k)?.n ?? 0;
+      return send(res, 200, { counts: { ...c, trackedProperties: count('property'), savedSearches: count('search') }, postalAddressReady: postalReady, broadcasts: broadcasts.recent() });
+    }
+    if (method === 'GET' && path === '/api/admin/email/list.csv') {
+      const rows = broadcasts.listMembers();
+      audit(null, 'EMAIL_LIST_EXPORTED', `${rows.length} addresses`);
+      const cell = (v: string | null) => `"${(v ?? '').replace(/"/g, '""').replace(/^([=+\-@\t\r])/, "'$1")}"`;
+      res.writeHead(200, { 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="email-list-${pacificDay(now())}.csv"`, 'cache-control': 'no-store' });
+      return res.end([['Email', 'Confirmed'].map(cell).join(','), ...rows.map((r) => [r.email, r.confirmedAt].map(cell).join(','))].join('\r\n'));
+    }
+    if (method === 'POST' && path === '/api/admin/email/test') {
+      const body = await readJson(req);
+      const { subject, text } = validateBroadcast(body);
+      const to = plain(body.to, 254).toLowerCase();
+      if (!EMAIL_RE.test(to)) throw new HttpError(422, 'Please fix the highlighted fields.', { errors: { to: 'Enter the address to send the test to.' } });
+      const sample = { manage: `${base}/#/alerts`, unsubscribe: `${base}/#/alerts`, oneClick: `${base}/#/alerts` };
+      if (!(await deliver({ ...broadcastEmail(to, `[Test] ${subject}`, text, sample), headers: undefined }))) throw new HttpError(503, 'The test email could not be sent. Check the server log.');
+      audit(null, 'EMAIL_TEST_SENT', `${subject} → ${maskEmail(to)}`);
+      return send(res, 200, { ok: true, message: `Test sent to ${to}.` });
+    }
+    if (method === 'POST' && path === '/api/admin/email/send') {
+      const body = await readJson(req);
+      const { subject, text } = validateBroadcast(body);
+      if (!postalReady) throw new HttpError(409, 'Set your business name and postal address in src/lib/siteInfo.ts first. The law requires them in every update (CAN-SPAM).');
+      if (broadcasts.sending()) throw new HttpError(409, 'Another update is still sending. Wait until it finishes.');
+      // A double click, or a repeat by mistake, must not email everyone twice.
+      const repeat = broadcasts.recent(5).find((b) => b.subject === subject && b.body === text && now().getTime() - Date.parse(b.createdAt) < 86_400_000);
+      if (repeat) throw new HttpError(409, 'You already sent this update in the last 24 hours.');
+      const recipients = alerts.counts().listOptIn;
+      if (recipients === 0) throw new HttpError(409, 'Nobody has signed up for general updates yet.');
+      // The admin confirms the number they saw; if it changed, they look again before anything goes out.
+      if (body.expectedRecipients !== recipients) throw new HttpError(409, `The list now has ${recipients} ${recipients === 1 ? 'address' : 'addresses'}. Review and confirm again.`, { recipients });
+      const b = broadcasts.create(subject, text, admin.subject, now().toISOString());
+      broadcasts.closeIfEmpty(b.id, now().toISOString());
+      audit(null, 'EMAIL_UPDATE_SENT', `"${subject}" to ${b.recipients}`);
+      void sendBroadcasts();
+      return send(res, 202, { ok: true, broadcast: b });
+    }
+
     if (method === 'POST' && path === '/api/admin/reports') {
       const { month } = await readJson(req);
       if (typeof month !== 'string' || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) throw new HttpError(400, 'month must be YYYY-MM');
@@ -899,6 +985,7 @@ export function createApp(config: AppConfig) {
     db.sessions.purge(t.getTime() - SESSION_MAX_MS);
     db.leads.purgeOlderThan(new Date(t.getTime() - 400 * 86_400_000).toISOString()); // ~13 months retention
     alerts.purgeUnconfirmed(t.toISOString());
+    void sendBroadcasts(); // resume a send interrupted by a restart
     const day = pacificDay(t);
     if (day.endsWith('-01')) {
       const prev = new Date(Date.parse(`${day}T12:00:00Z`) - 86_400_000).toISOString().slice(0, 7);
@@ -906,5 +993,5 @@ export function createApp(config: AppConfig) {
     }
   }
 
-  return { handler, publish, maintain, sendMonthlyReports, checkTracked, db, alerts };
+  return { handler, publish, maintain, sendMonthlyReports, checkTracked, sendBroadcasts, db, alerts };
 }

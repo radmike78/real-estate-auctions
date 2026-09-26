@@ -66,6 +66,27 @@ export function openAlerts(db: DatabaseSync) {
       UNIQUE (subscriber_id, kind, target)
     );
     CREATE INDEX IF NOT EXISTS subscriptions_target ON subscriptions(kind, target);
+    -- Updates the admin sends to everyone on the general list, and each recipient's delivery,
+    -- so a send resumes after a restart and nobody gets the same update twice.
+    CREATE TABLE IF NOT EXISTS broadcasts (
+      id TEXT PRIMARY KEY,
+      subject TEXT NOT NULL,
+      body TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      created_by TEXT NOT NULL,
+      recipients INTEGER NOT NULL,
+      sent INTEGER NOT NULL DEFAULT 0,
+      failed INTEGER NOT NULL DEFAULT 0,
+      skipped INTEGER NOT NULL DEFAULT 0,
+      status TEXT NOT NULL, -- SENDING | DONE
+      finished_at TEXT
+    );
+    CREATE TABLE IF NOT EXISTS broadcast_sends (
+      broadcast_id TEXT NOT NULL REFERENCES broadcasts(id) ON DELETE CASCADE,
+      subscriber_id TEXT NOT NULL,
+      status TEXT NOT NULL, -- QUEUED | SENT | FAILED | SKIPPED
+      PRIMARY KEY (broadcast_id, subscriber_id)
+    );
   `);
 
   let secret = (db.prepare(`SELECT value FROM settings WHERE key = 'alerts_link_key'`).get() as { value: string } | undefined)?.value;
@@ -178,3 +199,74 @@ export function openAlerts(db: DatabaseSync) {
 }
 
 export type Alerts = ReturnType<typeof openAlerts>;
+
+export interface Broadcast {
+  id: string;
+  subject: string;
+  body: string;
+  createdAt: string;
+  createdBy: string;
+  recipients: number;
+  sent: number;
+  failed: number;
+  skipped: number;
+  status: 'SENDING' | 'DONE';
+  finishedAt: string | null;
+}
+
+export function openBroadcasts(db: DatabaseSync) {
+  const cols = `id, subject, body, created_at AS createdAt, created_by AS createdBy, recipients, sent, failed, skipped, status, finished_at AS finishedAt`;
+  return {
+    /** Confirmed addresses on the general list, oldest first (for the admin export). */
+    listMembers(): { email: string; confirmedAt: string | null }[] {
+      return db
+        .prepare(`SELECT email, confirmed_at AS confirmedAt FROM subscribers WHERE status = 'ACTIVE' AND list_opt_in = 1 ORDER BY confirmed_at`)
+        .all() as { email: string; confirmedAt: string | null }[];
+    },
+    sending(): Broadcast | null {
+      return (db.prepare(`SELECT ${cols} FROM broadcasts WHERE status = 'SENDING' LIMIT 1`).get() as Broadcast | undefined) ?? null;
+    },
+    recent(limit = 20): Broadcast[] {
+      return db.prepare(`SELECT ${cols} FROM broadcasts ORDER BY created_at DESC LIMIT ?`).all(limit) as unknown as Broadcast[];
+    },
+    /** Creates a send and queues every confirmed address on the general list. */
+    create(subject: string, body: string, createdBy: string, now: string): Broadcast {
+      const id = randomBytes(12).toString('hex');
+      db.exec('BEGIN');
+      try {
+        db.prepare(`INSERT INTO broadcasts (id, subject, body, created_at, created_by, recipients, status) VALUES (?, ?, ?, ?, ?, 0, 'SENDING')`).run(id, subject, body, now, createdBy);
+        const n = db
+          .prepare(`INSERT INTO broadcast_sends (broadcast_id, subscriber_id, status) SELECT ?, id, 'QUEUED' FROM subscribers WHERE status = 'ACTIVE' AND list_opt_in = 1`)
+          .run(id).changes as number;
+        db.prepare('UPDATE broadcasts SET recipients = ? WHERE id = ?').run(n, id);
+        db.exec('COMMIT');
+      } catch (e) {
+        db.exec('ROLLBACK');
+        throw e;
+      }
+      return db.prepare(`SELECT ${cols} FROM broadcasts WHERE id = ?`).get(id) as unknown as Broadcast;
+    },
+    queued(limit: number): { broadcast: Broadcast; subscriberId: string }[] {
+      const b = this.sending();
+      if (!b) return [];
+      const rows = db.prepare(`SELECT subscriber_id AS s FROM broadcast_sends WHERE broadcast_id = ? AND status = 'QUEUED' LIMIT ?`).all(b.id, limit) as { s: string }[];
+      return rows.map((r) => ({ broadcast: b, subscriberId: r.s }));
+    },
+    /** Records one recipient's result; closes the send when nobody is left in the queue. */
+    mark(broadcastId: string, subscriberId: string, status: 'SENT' | 'FAILED' | 'SKIPPED', now: string) {
+      const changed = db.prepare(`UPDATE broadcast_sends SET status = ? WHERE broadcast_id = ? AND subscriber_id = ? AND status = 'QUEUED'`).run(status, broadcastId, subscriberId).changes;
+      if (!changed) return;
+      const col = status === 'SENT' ? 'sent' : status === 'FAILED' ? 'failed' : 'skipped';
+      db.prepare(`UPDATE broadcasts SET ${col} = ${col} + 1 WHERE id = ?`).run(broadcastId);
+      const left = db.prepare(`SELECT 1 FROM broadcast_sends WHERE broadcast_id = ? AND status = 'QUEUED' LIMIT 1`).get(broadcastId);
+      if (!left) db.prepare(`UPDATE broadcasts SET status = 'DONE', finished_at = ? WHERE id = ?`).run(now, broadcastId);
+    },
+    /** A send with nobody on the list has nothing to wait for. */
+    closeIfEmpty(broadcastId: string, now: string) {
+      const left = db.prepare(`SELECT 1 FROM broadcast_sends WHERE broadcast_id = ? AND status = 'QUEUED' LIMIT 1`).get(broadcastId);
+      if (!left) db.prepare(`UPDATE broadcasts SET status = 'DONE', finished_at = ? WHERE id = ? AND status = 'SENDING'`).run(now, broadcastId);
+    },
+  };
+}
+
+export type Broadcasts = ReturnType<typeof openBroadcasts>;

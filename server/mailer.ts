@@ -13,6 +13,8 @@ export interface Mail {
   text: string;
   /** Extra headers, e.g. List-Unsubscribe on alert emails. */
   headers?: Record<string, string>;
+  /** Bulk updates to the general list go through Postmark's separate broadcast stream. */
+  stream?: 'broadcast';
 }
 
 export interface Mailer {
@@ -21,7 +23,7 @@ export interface Mailer {
 
 export const consoleMailer: Mailer = {
   async send(mail) {
-    console.log(`\n--- email to ${mail.to} ---\nSubject: ${mail.subject}\n\n${mail.text}\n--- end email ---\n`);
+    console.log(`\n--- email to ${mail.to}${mail.stream ? ` (${mail.stream} stream)` : ''} ---\nSubject: ${mail.subject}\n\n${mail.text}\n--- end email ---\n`);
   },
 };
 
@@ -38,6 +40,7 @@ export interface PostmarkOptions {
   from: string; // must be a verified sender signature or domain in Postmark
   replyTo?: string;
   messageStream?: string; // default "outbound" (Postmark's transactional stream)
+  broadcastStream?: string; // default "broadcast": for updates to the general list
   fetch?: typeof fetch; // for tests
   retryDelayMs?: number;
 }
@@ -64,7 +67,7 @@ export function postmarkMailer(opts: PostmarkOptions): Mailer {
           TextBody: mail.text,
           ...(opts.replyTo ? { ReplyTo: opts.replyTo } : {}),
           ...(mail.headers ? { Headers: Object.entries(mail.headers).map(([Name, Value]) => ({ Name: oneLine(Name), Value: oneLine(Value) })) } : {}),
-          MessageStream: opts.messageStream ?? 'outbound',
+          MessageStream: mail.stream === 'broadcast' ? (opts.broadcastStream ?? 'broadcast') : (opts.messageStream ?? 'outbound'),
           TrackOpens: false,
           TrackLinks: 'None',
         }),
@@ -316,5 +319,21 @@ export function searchDigestEmail(
       `Always confirm with the official source before you bid. Owners can pay until 3 business days before the sale, so lists change often.\n` +
       alertsFooter(links.manage, links.unsubscribe),
     headers: unsubscribeHeaders(links.oneClick),
+  };
+}
+
+/** An update the admin writes for the general list. The body is the admin's own plain text. */
+export function broadcastEmail(to: string, subject: string, body: string, links: { manage: string; unsubscribe: string; oneClick: string }): Mail {
+  return {
+    to,
+    subject,
+    text:
+      `${body.trim()}\n\n` +
+      `Always confirm details with the official source before you bid.\n` +
+      `\n--\nYou're getting this because you signed up for general updates from Forced-Sale Finder.\n` +
+      `Change what you get: ${links.manage}\nUnsubscribe from everything: ${links.unsubscribe}\n` +
+      `${SITE_INFO.operatorName}, ${SITE_INFO.mailingAddress}\n`,
+    headers: unsubscribeHeaders(links.oneClick),
+    stream: 'broadcast',
   };
 }

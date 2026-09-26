@@ -12,7 +12,8 @@
 //   POSTMARK_SERVER_TOKEN, MAIL_FROM   send email through Postmark (both, or neither: then emails are only
 //                      written to the log). MAIL_FROM is a sender verified in Postmark, e.g.
 //                      "Forced-Sale Finder <no-reply@your-domain>". Optional: MAIL_REPLY_TO,
-//                      POSTMARK_MESSAGE_STREAM (default "outbound").
+//                      POSTMARK_MESSAGE_STREAM (default "outbound"),
+//                      POSTMARK_BROADCAST_STREAM (default "broadcast", for updates to the general email list).
 //   TRUST_PROXY=1      read client IP from the LAST X-Forwarded-For entry (only behind your own reverse proxy
 //                      that appends to that header; see SECURITY.md)
 //   TRUST_CLOUDFLARE=1 the domain is proxied through Cloudflare: read the visitor's address from
@@ -76,7 +77,7 @@ if (env.POSTMARK_SERVER_TOKEN || env.MAIL_FROM) {
     console.error('MAIL_FROM must look like "Forced-Sale Finder <no-reply@your-domain>" or no-reply@your-domain, and MAIL_REPLY_TO like help@your-domain.');
     process.exit(1);
   }
-  mailer = postmarkMailer({ serverToken: env.POSTMARK_SERVER_TOKEN.trim(), from: env.MAIL_FROM.trim(), replyTo: env.MAIL_REPLY_TO?.trim() || undefined, messageStream: env.POSTMARK_MESSAGE_STREAM?.trim() || undefined });
+  mailer = postmarkMailer({ serverToken: env.POSTMARK_SERVER_TOKEN.trim(), from: env.MAIL_FROM.trim(), replyTo: env.MAIL_REPLY_TO?.trim() || undefined, messageStream: env.POSTMARK_MESSAGE_STREAM?.trim() || undefined, broadcastStream: env.POSTMARK_BROADCAST_STREAM?.trim() || undefined });
   console.log(`Email on: sending through Postmark as ${env.MAIL_FROM.trim()}${env.POSTMARK_SERVER_TOKEN.trim() === 'POSTMARK_API_TEST' ? ' (TEST token: nothing is delivered)' : ''}`);
 } else if (!/^http:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(baseUrl)) {
   console.warn('WARNING: email is OFF. Confirmation links, sign-in links and leads are only written to this log. Set POSTMARK_SERVER_TOKEN and MAIL_FROM.');
