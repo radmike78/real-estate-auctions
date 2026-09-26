@@ -71,6 +71,7 @@ export default function HomePage() {
           <a href="#/playbooks">Nevada playbooks: how each sale works →</a>
           <a href="#/calculator">Maximum bid calculator →</a>
           <a href="#/deals">My deals →</a>
+          <a href="#/alerts">Email alerts →</a>
         </nav>
         <ul className="browse-trust" aria-label="Why trust it">
           <li><IconStar /> Free to use, no sign-up</li>
