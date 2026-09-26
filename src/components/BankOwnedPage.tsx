@@ -1,4 +1,6 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
+import ClassSwitch from './ClassSwitch';
+import type { ClassFilter } from '../lib/propertyClass';
 import { CHECKLISTS } from '../lib/buyerChecklists';
 import { REO_GROUPS, reoSourcesIn, type ReoGroup, type ReoSource } from '../lib/reoSources';
 import BuyerChecklistBox from './BuyerChecklistBox';
@@ -22,18 +24,24 @@ function SourceCard({ s }: { s: ReoSource }) {
   );
 }
 
-const group = (g: ReoGroup, icon: ReactNode, note?: ReactNode): DrillSection => ({
-  key: g === 'gse' ? 'fannie-freddie' : g === 'bank' ? 'banks' : 'government',
-  title: REO_GROUPS[g].title,
-  icon,
-  summary: `${reoSourcesIn(g).length} direct sources · ${REO_GROUPS[g].summary}`,
-  content: () => (
-    <>
-      {note}
-      <ul className="reo-grid">{reoSourcesIn(g).map((s) => <SourceCard key={s.url} s={s} />)}</ul>
-    </>
-  ),
-});
+const group = (g: ReoGroup, cls: ClassFilter, icon: ReactNode, note?: ReactNode): DrillSection[] => {
+  const list = reoSourcesIn(g, cls);
+  if (!list.length) return [];
+  return [
+    {
+      key: g === 'gse' ? 'fannie-freddie' : g === 'bank' ? 'banks' : 'government',
+      title: REO_GROUPS[g].title,
+      icon,
+      summary: `${list.length} direct source${list.length === 1 ? '' : 's'} · ${(cls === 'commercial' && REO_GROUPS[g].commercialSummary) || REO_GROUPS[g].summary}`,
+      content: () => (
+        <>
+          {note}
+          <ul className="reo-grid">{list.map((s) => <SourceCard key={s.url} s={s} />)}</ul>
+        </>
+      ),
+    },
+  ];
+};
 
 const STEPS: [string, string][] = [
   ['Get pre-approved or show proof of funds', 'Sellers of bank-owned homes want proof you can close. Cash buyers need a recent bank statement.'],
@@ -44,11 +52,15 @@ const STEPS: [string, string][] = [
   ['Close through escrow', 'Usually with a special warranty deed and title insurance, like a normal purchase.'],
 ];
 
-const SECTIONS: DrillSection[] = [
-  group('gse', <IconHome />),
-  group('government', <IconShield />),
-  group(
+// The last choice is remembered while the visitor moves between sections of this page.
+let lastClass: ClassFilter = 'all';
+
+const sectionsFor = (cls: ClassFilter): DrillSection[] => [
+  ...group('gse', cls, <IconHome />),
+  ...group('government', cls, <IconShield />),
+  ...group(
     'bank',
+    cls,
     <IconBank />,
     <p>
       Most banks don’t post their homes on their own sites. They hire a local agent who lists them on the MLS, the database agents use. Wells
@@ -78,18 +90,31 @@ const SECTIONS: DrillSection[] = [
 ];
 
 export default function BankOwnedPage({ section }: { section?: string }) {
+  const [cls, setClsState] = useState<ClassFilter>(lastClass);
+  const setCls = (c: ClassFilter) => {
+    lastClass = c;
+    setClsState(c);
+  };
+  const SECTIONS = sectionsFor(cls);
   const open = SECTIONS.some((x) => x.key === section);
   return (
     <main className="page prose">
       <PageHero
         compact={open}
         eyebrow={<span className="eyebrow">Bank-owned (REO) · Clark County, NV</span>}
-        title={open ? <a className="title-link" href="#/bank-owned">Bank-owned &amp; government homes</a> : <>Bank-owned &amp; <span className="grad">government homes</span></>}
+        title={
+          open ? (
+            <a className="title-link" href="#/bank-owned">Bank-owned &amp; government {cls === 'commercial' ? 'properties' : 'homes'}</a>
+          ) : (
+            <>Bank-owned &amp; <span className="grad">government {cls === 'commercial' ? 'properties' : 'homes'}</span></>
+          )
+        }
         sub={
           open ? undefined : (
             <>
-              Homes a lender or government agency already owns, usually after a foreclosure auction where no one outbid the lender. You buy them
-              like a normal home: an offer through an agent, with inspections, financing and title insurance.
+              {cls === 'commercial'
+                ? 'Commercial buildings and land a lender or government agency already owns, usually after a foreclosure. You buy them by offer through the listing broker, or by bid for government sales, with your own inspections, environmental review and financing.'
+                : 'Homes a lender or government agency already owns, usually after a foreclosure auction where no one outbid the lender. You buy them like a normal home: an offer through an agent, with inspections, financing and title insurance.'}
             </>
           )
         }
@@ -100,6 +125,12 @@ export default function BankOwnedPage({ section }: { section?: string }) {
           that owns the homes. No third-party auction or listing sites.
         </div>
       )}
+      <div className="row" style={{ margin: '0 0 16px' }}>
+        <ClassSwitch value={cls} onChange={setCls} />
+        {cls === 'commercial' && (
+          <span className="small muted">HUD, VA, USDA, Fannie Mae and Freddie Mac sell homes (1–4 units) only, so they aren’t listed here.</span>
+        )}
+      </div>
 
       <DrillDown sections={SECTIONS} active={section} baseHref="#/bank-owned" label="Bank-owned homes guide" />
 

@@ -22,6 +22,8 @@ export interface FeedListing {
   firstSeenAt: string;
   lastVerifiedAt: string; // last time this row was seen on the official list
   sourceUrl: string; // official page it came from (allowlisted host)
+  /** County Assessor land use (e.g. 20.110 Single Family Residential); null if not read yet. Absent in older feeds. */
+  landUse?: { code: string; description: string } | null;
   snapshotSha256: string; // hash of the raw source document it came from
 }
 

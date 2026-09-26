@@ -27,6 +27,7 @@ import { SOURCES, validateRegistry, type SourceConfig } from './sources/registry
 import { fetchSnapshot, parseSnapshot, type RawSnapshot } from './connectors/clarkTaxSale';
 import { applySnapshot, detectAnomalies, emptyState, type SourceState } from './lib/reconcile';
 import { auctionStillOpen } from './lib/cadence';
+import { fetchLandUse } from './lib/landUse';
 import { confirmParcelsExist } from './lib/corroborate';
 import { IdentityError, makeCertificateVerifier, type CertIdentity } from './lib/siteIdentity';
 import { buildFeed, scheduleFor } from './lib/publish';
@@ -102,6 +103,10 @@ async function checkSource(source: SourceConfig, now: Date, opts: { dryRun: bool
     const candidates = auctionStillOpen(parsed.auctionStartsAt, now) ? open.map((r) => r.apn) : [];
     const confirmed = candidates.length ? await confirmParcelsExist(candidates, source.corroborationHosts, { verifyCertificate }) : new Set<string>();
     if (candidates.length) log(`[${source.id}] Assessor confirmed ${confirmed.size} of ${candidates.length} parcels`);
+    // Land use (residential / commercial) for confirmed parcels we haven't classified yet; kept between runs.
+    const needLandUse = [...confirmed].filter((apn) => !prev.listings[apn]?.landUse).slice(0, 500);
+    const landUse = needLandUse.length ? await fetchLandUse(needLandUse, source.corroborationHosts, { verifyCertificate }) : new Map();
+    if (needLandUse.length) log(`[${source.id}] land use read for ${landUse.size} of ${needLandUse.length} parcels`);
 
     for (const [host, id] of Object.entries(observed)) {
       const before = state.tlsBaselines[host];
@@ -111,7 +116,7 @@ async function checkSource(source: SourceConfig, now: Date, opts: { dryRun: bool
       state.tlsBaselines[host] = { issuerOrg: id.issuerOrg, issuerCN: id.issuerCN, fingerprint256: id.fingerprint256, approvedAt: now.toISOString() };
     }
     log(`[${source.id}] site identity verified: ${Object.values(observed).map((i) => `${i.host} (${i.issuerOrg || i.issuerCN})`).join(', ')}`);
-    return { ...applySnapshot(state, parsed, { sha256, sourceUrl: source.officialUrl, now, confirmedApns: confirmed }), pendingCertFingerprint: null };
+    return { ...applySnapshot(state, parsed, { sha256, sourceUrl: source.officialUrl, now, confirmedApns: confirmed, landUse }), pendingCertFingerprint: null };
   } catch (err) {
     if (err instanceof IdentityError) {
       log(`[${source.id}] SITE IDENTITY ${err.code}: ${err.message}`);

@@ -992,3 +992,10 @@ small { font-size: 0.95rem; }
   body.print-kit .media-kit { border-color: #ccc; }
   body.print-kit .media-kit-grid div { background: none; border: 1px solid #ccc; }
 }
+
+/* ================= Residential | Commercial switch ================= */
+.class-switch button { padding: 8px 16px; font-weight: 600; }
+.hero-class { display: flex; justify-content: center; margin: 0 0 14px; }
+.hero-class .seg { border-color: rgb(255 255 255 / 0.25); background: rgb(255 255 255 / 0.06); }
+.hero-class .seg button { background: transparent; color: #e2e8f0; }
+.hero-class .seg button[aria-selected='true'] { background: #2563eb; color: #fff; }

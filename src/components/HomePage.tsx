@@ -1,5 +1,7 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { SALE_SEARCH, saleSearchHref } from '../lib/saleSearch';
+import ClassSwitch from './ClassSwitch';
+import type { ClassFilter } from '../lib/propertyClass';
 import { IconBank, IconCalendar, IconClock, IconFile, IconFlag, IconHome, IconLayers, IconLock, IconPulse, IconSearch, IconShield, IconStar } from './Icons';
 
 // A deliberately simple homepage: say what the site is for, one search, and one tile per type of
@@ -19,10 +21,11 @@ const NOT_FOR_SALE = new Set(['pre', 'liens']);
 export default function HomePage() {
   const [type, setType] = useState('all');
   const [q, setQ] = useState('');
+  const [cls, setCls] = useState<ClassFilter>('all');
 
   function go(e: FormEvent) {
     e.preventDefault();
-    window.location.hash = saleSearchHref(type, q);
+    window.location.hash = saleSearchHref(type, q, cls);
   }
 
   return (
@@ -37,6 +40,7 @@ export default function HomePage() {
           </h1>
           <p className="hero-sub">Find properties heading to a forced sale, and learn exactly how to buy them.</p>
 
+          <div className="hero-class"><ClassSwitch value={cls} onChange={setCls} label="Residential or commercial" /></div>
           <form className="simple-search" onSubmit={go} role="search" aria-label="Search forced-sale properties">
             <select aria-label="Type of sale" value={type} onChange={(e) => setType(e.target.value)}>
               {SALE_SEARCH.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
@@ -53,7 +57,7 @@ export default function HomePage() {
         <h2 id="browse-head">Browse by type of sale</h2>
         <div className="browse-grid">
           {SALE_SEARCH.filter((o) => o.key !== 'all').map((o) => (
-            <a key={o.key} href={saleSearchHref(o.key, '')} className={`browse-tile${NOT_FOR_SALE.has(o.key) ? ' wait' : ''}`}>
+            <a key={o.key} href={saleSearchHref(o.key, '', cls)} className={`browse-tile${NOT_FOR_SALE.has(o.key) ? ' wait' : ''}`}>
               <span className="browse-icon" aria-hidden>{ICONS[o.key]}</span>
               <span className="browse-title">{o.label}</span>
               {NOT_FOR_SALE.has(o.key) && <span className="browse-tag">Not for sale yet</span>}

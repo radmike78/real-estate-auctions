@@ -83,7 +83,7 @@ export function detectAnomalies(prev: SourceState, next: ParseResult, now = new 
 export function applySnapshot(
   prev: SourceState,
   parsed: ParseResult,
-  meta: { sha256: string; sourceUrl: string; now: Date; confirmedApns: Set<string> },
+  meta: { sha256: string; sourceUrl: string; now: Date; confirmedApns: Set<string>; landUse?: Map<string, { code: string; description: string }> },
 ): SourceState {
   const nowIso = meta.now.toISOString();
   const listings: Record<string, FeedListing> = {};
@@ -110,6 +110,7 @@ export function applySnapshot(
       lastVerifiedAt: nowIso,
       sourceUrl: meta.sourceUrl,
       snapshotSha256: meta.sha256,
+      landUse: meta.landUse?.get(r.apn) ?? old?.landUse ?? null,
     };
   }
   // Anything that dropped off the official list is no longer available.

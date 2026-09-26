@@ -1,5 +1,6 @@
 import type { AcquisitionStatus, Occupancy, Property, PropertyType, SaleType } from '../types';
 import { moneySummary } from './rules';
+import { classOfType, type ClassFilter } from './propertyClass';
 import { STATUS } from './status';
 
 export interface Filters {
@@ -10,6 +11,7 @@ export interface Filters {
   auctionWithinDays: number | null;
   maxMinimumBid: number | null;
   minEquity: number | null;
+  propertyClass: ClassFilter;
   propertyTypes: PropertyType[];
   occupancy: Occupancy | 'any';
   redemption: 'any' | 'none' | 'has';
@@ -26,6 +28,7 @@ export const DEFAULT_FILTERS: Filters = {
   auctionWithinDays: null,
   maxMinimumBid: null,
   minEquity: null,
+  propertyClass: 'all',
   propertyTypes: [],
   occupancy: 'any',
   redemption: 'any',
@@ -80,6 +83,7 @@ export function applyFilters(all: Property[], f: Filters, now = new Date()): Pro
     if (f.bidding === 'online' && !isOnline(p)) return false;
     if (f.bidding === 'in_person' && !isInPerson(p)) return false;
     if (f.purchasableOnly && !STATUS[p.status].purchasable) return false;
+    if (f.propertyClass !== 'all' && classOfType(p.propertyType) !== f.propertyClass) return false;
     if (f.propertyTypes.length && !f.propertyTypes.includes(p.propertyType)) return false;
     if (f.occupancy !== 'any' && p.occupancy !== f.occupancy) return false;
     if (f.redemption !== 'any') {

@@ -63,6 +63,8 @@ function validListing(l: FeedListing): boolean {
     isDate(l.corroboratedAt) && // must be confirmed by the independent Assessor records
     isDate(l.lastVerifiedAt) &&
     isOfficialUrl(l.sourceUrl) &&
+    (l.landUse == null ||
+      (typeof l.landUse === 'object' && typeof l.landUse.code === 'string' && /^\d{2}\.\d{3}(\.[A-Z])?$/.test(l.landUse.code) && typeof l.landUse.description === 'string' && l.landUse.description.length <= 80)) &&
     typeof l.snapshotSha256 === 'string' &&
     /^[0-9a-f]{64}$/.test(l.snapshotSha256)
   );

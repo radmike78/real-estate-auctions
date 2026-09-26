@@ -1,7 +1,8 @@
-import type { AcquisitionStatus, PropertyType, SaleType } from '../types';
+import type { AcquisitionStatus, SaleType } from '../types';
 import type { Filters } from '../lib/search';
 import { STATUS } from '../lib/status';
 import { SALE_TYPE_LABEL } from '../lib/rules';
+import { typesFor } from '../lib/propertyClass';
 
 interface Props {
   filters: Filters;
@@ -9,7 +10,6 @@ interface Props {
   onReset: () => void;
 }
 
-const PROPERTY_TYPES: PropertyType[] = ['Single Family', 'Condo', 'Townhouse', 'Multi-Family', 'Vacant Land'];
 // Nevada sells tax deeds, not lien certificates, so that type is hidden while only Clark County is loaded.
 const SALE_TYPES = (Object.keys(SALE_TYPE_LABEL) as SaleType[]).filter((t) => t !== 'TAX_LIEN_CERTIFICATE');
 const STATUSES = (Object.keys(STATUS) as AcquisitionStatus[]).filter((s) => s !== 'LIEN_CERTIFICATE_ONLY');
@@ -93,7 +93,7 @@ export default function FiltersPanel({ filters: f, onChange, onReset }: Props) {
 
       <fieldset>
         <legend>Property type</legend>
-        {PROPERTY_TYPES.map((t) => (
+        {typesFor(f.propertyClass).map((t) => (
           <label key={t} className="check">
             <input type="checkbox" checked={f.propertyTypes.includes(t)} onChange={() => onChange({ propertyTypes: toggle(f.propertyTypes, t) })} />
             {t}
