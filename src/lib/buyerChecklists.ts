@@ -245,3 +245,32 @@ export function checklistForFilters(saleTypes: SaleType[], statuses: Acquisition
   const keys = new Set(saleTypes.map((t) => checklistForProperty(t, 'IN_PERSON_AUCTION').key));
   return keys.size === 1 ? CHECKLISTS[[...keys][0]] : CHECKLISTS.all;
 }
+
+// Some sale-type checklist items are about homes only: HOA super-priority liens (NRS 116 covers
+// residential communities), the federal 90-day tenant notice (PTFA covers dwellings), and HUD's
+// owner-occupant rules. On a commercial property page, show commercial wording instead.
+const COMMERCIAL_WORDING: Record<string, Partial<ChecklistItem> | null> = {
+  'A title search': { detail: 'Property taxes, special assessments and liens recorded before the one being foreclosed can survive. Check for IRS and other senior liens, and recorded leases.' },
+  'An as-is repair budget and an occupancy plan': {
+    text: 'An as-is repair budget and a plan for tenants',
+    detail: 'No interior inspection. The federal 90-day tenant notice covers homes only; whether a commercial lease survives depends on recording order and its terms. Have an attorney review leases and how to take possession.',
+  },
+  'A plan if the home is occupied': { text: 'A plan for any tenants or occupants' },
+  'For HUD homes: a HUD-registered broker': null, // HUD sells homes only
+};
+
+/** The same checklist with home-only items reworded (or dropped) for a commercial property. */
+export function forCommercial(list: BuyerChecklist): BuyerChecklist {
+  const items = list.items.flatMap((item) => {
+    if (!(item.text in COMMERCIAL_WORDING)) return [item];
+    const change = COMMERCIAL_WORDING[item.text];
+    return change ? [{ ...item, ...change }] : [];
+  });
+  return {
+    ...list,
+    key: `${list.key}-commercial`, // ticks are kept separately from the residential version
+    intro: list.intro.replace('owns the home', 'owns the property'),
+    items,
+    official: list.key === 'reo' ? undefined : list.official, // HUD Home Store link is for homes
+  };
+}

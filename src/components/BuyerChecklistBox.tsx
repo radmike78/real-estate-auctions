@@ -73,7 +73,7 @@ function ChecklistInner({ list, variant = 'light' }: { list: BuyerChecklist; var
         ))}
       </ul>
       <div className="checklist-links">
-        {PLAYBOOK_FOR[list.key] && <a className="checklist-link" href={`#/playbooks/${PLAYBOOK_FOR[list.key]}`}>Full Nevada playbook: every step, what stays, mistakes, your team →</a>}
+        {PLAYBOOK_FOR[list.key.replace(/-commercial$/, '')] && <a className="checklist-link" href={`#/playbooks/${PLAYBOOK_FOR[list.key.replace(/-commercial$/, '')]}`}>Full Nevada playbook: every step, what stays, mistakes, your team →</a>}
         {list.link && <a className="checklist-link" href={list.link.href}>{list.link.label} →</a>}
       </div>
     </section>

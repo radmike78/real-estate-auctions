@@ -332,3 +332,18 @@ describe('business assets & closures', () => {
     expect(CHECKLISTS.business.items.some((i) => /NRS 360\.525/.test(i.detail ?? ''))).toBe(true);
   });
 });
+
+describe('commercial wording in sale-type checklists', () => {
+  it('drops home-only rules (HOA super-priority, PTFA, HUD) from every checklist on commercial properties', async () => {
+    const { CHECKLISTS, forCommercial } = await import('./buyerChecklists');
+    for (const list of Object.values(CHECKLISTS)) {
+      if (list.key === 'pre' || list.key === 'short') continue; // not shown for commercial sale pages
+      const c = forCommercial(list);
+      const text = JSON.stringify(c.items) + c.intro;
+      expect(text, list.key).not.toMatch(/super-priority|Protecting Tenants|HUD-registered|owns the home|the home is occupied/);
+      expect(c.key).toBe(`${list.key}-commercial`);
+    }
+    expect(forCommercial(CHECKLISTS.reo).official).toBeUndefined();
+    expect(forCommercial(CHECKLISTS.foreclosure).items.length).toBe(CHECKLISTS.foreclosure.items.length);
+  });
+});
