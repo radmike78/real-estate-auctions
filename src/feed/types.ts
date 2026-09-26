@@ -27,9 +27,33 @@ export interface FeedListing {
   snapshotSha256: string; // hash of the raw source document it came from
 }
 
+/**
+ * A special improvement district (SID) lien certificate offered at a city or county sale.
+ * The buyer gets the right to be repaid the assessment with interest, not the property, so
+ * this carries no owner details and never links to pictures or Assessor records of the home.
+ */
+export interface FeedCertificate {
+  sourceId: string;
+  apn: string; // ###-##-###-###
+  address: string | null;
+  district: string; // SID / LID number as published, e.g. "SID 128"
+  amountDue: number; // delinquent assessment, penalties and costs, as published
+  jurisdiction: string; // e.g. "City of Henderson"
+  saleDate: string; // YYYY-MM-DD, Las Vegas time
+  publishedBy: string; // the agent that publishes the list for the government, e.g. "Assessment Management Group"
+  state: ListingState;
+  corroboratedAt: string | null; // when the Assessor last confirmed the parcel exists
+  firstSeenAt: string;
+  lastVerifiedAt: string;
+  sourceUrl: string;
+  snapshotSha256: string;
+}
+
 export interface FeedSourceStatus {
   sourceId: string;
   agency: string;
+  /** Agent that publishes the list for the agency, when it isn't the agency itself. */
+  publishedBy?: string;
   officialUrl: string;
   lastCheckedAt: string | null;
   lastChangedAt: string | null;
@@ -48,4 +72,6 @@ export interface Feed {
   expiresAt: string;
   sources: FeedSourceStatus[];
   listings: FeedListing[]; // only AVAILABLE listings are published
+  /** SID lien certificates (only AVAILABLE ones). Absent in older feeds. */
+  certificates?: FeedCertificate[];
 }

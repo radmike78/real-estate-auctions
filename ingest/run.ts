@@ -5,6 +5,7 @@
 //   npm run ingest -- --dry-run            verify + fetch + parse + report only (no state, no publish)
 //   npm run ingest -- --from-dir <dir>     read page.html / events.json / parcels.json saved from the
 //                                          official site instead of fetching (dry-run unless --commit)
+//   npm run ingest -- --source <id>        check only this source (e.g. nv-clark-sid-certificate-sale)
 //   npm run ingest -- --force              ignore the schedule and check now
 //   npm run ingest -- --approve-snapshot <sha256>     accept a quarantined data snapshot after review
 //   npm run ingest -- --approve-cert <fingerprint>    accept a server certificate from a new CA after review
@@ -25,7 +26,9 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { SOURCES, validateRegistry, type SourceConfig } from './sources/registry';
 import { fetchSnapshot, parseSnapshot, type RawSnapshot } from './connectors/clarkTaxSale';
+import { fetchSidPage, parseSidSnapshot } from './connectors/sidCertificateSale';
 import { applySnapshot, detectAnomalies, emptyState, type SourceState } from './lib/reconcile';
+import { applySidSnapshot, detectSidAnomalies } from './lib/sidReconcile';
 import { auctionStillOpen } from './lib/cadence';
 import { fetchLandUse } from './lib/landUse';
 import { confirmParcelsExist } from './lib/corroborate';
@@ -75,6 +78,11 @@ async function checkSource(source: SourceConfig, now: Date, opts: { dryRun: bool
     log(`[${source.id}] skipped: set termsReviewedAt in ingest/sources/registry.ts after reviewing the site's terms of use.`);
     return { ...prev, health: 'terms_not_reviewed', message: 'Terms of use not reviewed' };
   }
+  if (!source.parserVerifiedAt && !opts.dryRun) {
+    log(`[${source.id}] skipped: check the connector against a real list with --dry-run, then set parserVerifiedAt.`);
+    return { ...prev, health: 'terms_not_reviewed', message: 'Connector not yet checked against a real list' };
+  }
+  if (source.kind === 'sid-certificate') return checkSidSource(source, prev, now, opts);
 
   try {
     const state: SourceState = { ...prev, tlsBaselines: { ...prev.tlsBaselines } };
@@ -129,6 +137,45 @@ async function checkSource(source: SourceConfig, now: Date, opts: { dryRun: bool
   }
 }
 
+/** SID lien certificates: one page on the agent's host, every parcel confirmed by the County Assessor. */
+async function checkSidSource(source: SourceConfig, prev: SourceState, now: Date, opts: { dryRun: boolean; fromDir?: string }): Promise<SourceState> {
+  try {
+    const state: SourceState = { ...prev, tlsBaselines: { ...prev.tlsBaselines } };
+    const observed: Record<string, CertIdentity> = {};
+    const verifyCertificate = makeCertificateVerifier(state.tlsBaselines, observed, { now, approvedFingerprint: opt('--approve-cert') });
+    const page = opts.fromDir ? readFileSync(join(opts.fromDir, 'page.html'), 'utf8') : await fetchSidPage(source, { verifyCertificate });
+    const { parsed, sha256 } = parseSidSnapshot(page, now);
+    // Counts only: owner details are never read, and parcel numbers aren't logged.
+    log(
+      `[${source.id}] sales announced: ${parsed.notices.map((n) => `${n.jurisdiction} ${n.saleDate}`).join('; ') || 'none'}; ` +
+        (parsed.sale ? `list for ${parsed.sale.jurisdiction} ${parsed.sale.saleDate}: ${parsed.rows.length} certificates, ${parsed.rejected.length} rejected` : 'no list posted'),
+    );
+    for (const r of parsed.rejected.slice(0, 10)) log(`  rejected row ${r.row}: ${r.reason.replace(/\d{3}-\d{2}-\d{3}-\d{3}/g, '(parcel)')}`);
+
+    const anomalies = detectSidAnomalies(state, parsed);
+    if (anomalies.length && opt('--approve-snapshot') !== sha256) {
+      for (const a of anomalies) log(`  ANOMALY ${a.code}: ${a.detail}`);
+      log(`[${source.id}] QUARANTINED snapshot ${sha256}. Review it on the official page, then re-run with --approve-snapshot ${sha256}`);
+      return { ...state, lastCheckedAt: now.toISOString(), health: 'quarantined', quarantinedSha256: sha256, message: anomalies.map((a) => a.detail).join(' ') };
+    }
+    const candidates = [...new Set(parsed.rows.map((r) => r.apn))];
+    const confirmed = candidates.length ? await confirmParcelsExist(candidates, source.corroborationHosts, { verifyCertificate }) : new Set<string>();
+    if (candidates.length) log(`[${source.id}] Assessor confirmed ${confirmed.size} of ${candidates.length} parcels`);
+    for (const [host, id] of Object.entries(observed)) {
+      state.tlsBaselines[host] = { issuerOrg: id.issuerOrg, issuerCN: id.issuerCN, fingerprint256: id.fingerprint256, approvedAt: now.toISOString() };
+    }
+    return { ...applySidSnapshot(state, parsed, { sha256, sourceUrl: source.officialUrl, publishedBy: source.publishedBy ?? source.agency, now, confirmedApns: confirmed }), pendingCertFingerprint: null };
+  } catch (err) {
+    if (err instanceof IdentityError) {
+      log(`[${source.id}] SITE IDENTITY ${err.code}: ${err.message}`);
+      return { ...prev, lastCheckedAt: now.toISOString(), health: 'quarantined', pendingCertFingerprint: err.fingerprint256, message: `Site identity check failed: ${err.message}` };
+    }
+    const message = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+    log(`[${source.id}] ERROR ${message}`);
+    return { ...prev, lastCheckedAt: now.toISOString(), consecutiveErrors: prev.consecutiveErrors + 1, health: 'error', message };
+  }
+}
+
 function publish(states: Record<string, SourceState>, now: Date) {
   const pem = process.env.FEED_SIGNING_KEY ?? (existsSync(KEY_FILE) ? readFileSync(KEY_FILE, 'utf8') : null);
   if (!pem) throw new Error('No signing key. Run `npm run keys:generate` or set FEED_SIGNING_KEY. Refusing to publish an unsigned feed.');
@@ -146,7 +193,13 @@ async function runOnce(): Promise<Date> {
   const fromDir = opt('--from-dir');
   const dryRun = flag('--dry-run') || (!!fromDir && !flag('--commit'));
   const states: Record<string, SourceState> = {};
+  const only = opt('--source');
+  if (only && !SOURCES.some((s) => s.id === only)) throw new Error(`Unknown source "${only}"`);
   for (const source of SOURCES) {
+    if (only && source.id !== only) {
+      states[source.id] = loadState(source.id);
+      continue;
+    }
     const current = loadState(source.id);
     const { nextCheckAt } = scheduleFor(source, current, now);
     if (!dryRun && !flag('--force') && current.lastCheckedAt && nextCheckAt > now) {

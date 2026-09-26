@@ -23,6 +23,8 @@ The main threat to this site is a **spoofed or outdated listing**: someone gets 
 
 **Other rules:**
 - A source cannot be collected automatically until a person records `termsReviewedAt` (terms of use and robots rules reviewed).
+- A new connector also needs `parserVerifiedAt`: the date a person checked it against a real published list.
+- Hosts must be exact `.gov` names. The one exception is a named agent that publishes a sale list for the government, confirmed from the agency's own `.gov` page and listed in `AGENT_HOSTS` (today only `www.amgnv.com`, Assessment Management Group, for SID lien certificates). It can be used only by a source that names that agent as its publisher, and parcels from it must still be confirmed by the County Assessor on a `.gov` host.
 - Only plain `GET` requests at a polite pace (one request per second), identified by a descriptive User-Agent.
 
 ## 1b. Independent confirmation from a second county system

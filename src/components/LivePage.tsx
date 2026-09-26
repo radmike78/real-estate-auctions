@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { isOfficialUrl } from '../feed/verify';
+import { isCertificateSourceUrl, isOfficialUrl } from '../feed/verify';
+import SidCertificates from './SidCertificates';
 import { useLiveFeed } from '../data/live';
 import { liveId } from '../feed/toProperty';
 import { fmtDateTime, fmtMoney } from '../lib/status';
@@ -43,6 +44,7 @@ export default function LivePage() {
 
   const expired = result?.ok && Date.parse(result.feed.expiresAt) <= now;
   const listings = result?.ok && !expired ? result.feed.listings : [];
+  const certificates = result?.ok && !expired ? (result.feed.certificates ?? []) : [];
   const shown = cls === 'all' ? listings : listings.filter((l) => classOfLandUse(l.landUse?.code) === cls);
 
   return (
@@ -115,12 +117,15 @@ export default function LivePage() {
                   {s.observedChangeIntervalHours !== null && <> · updates about every {s.observedChangeIntervalHours.toFixed(1)} h</>}
                   {s.nextCheckAt && <> · next check {fmtDateTime(s.nextCheckAt)}</>}
                 </div>
+                {s.publishedBy && <div className="small muted">Published by {s.publishedBy} for the county and the cities</div>}
                 {s.certificateIssuer && (
-                  <div className="small muted">Site identity verified: valid certificate for the county's .gov domain issued by {s.certificateIssuer}</div>
+                  <div className="small muted">
+                    Site identity verified: valid certificate for {s.publishedBy ? `${s.publishedBy}'s site` : "the county's .gov domain"} issued by {s.certificateIssuer}
+                  </div>
                 )}
                 {s.message && <div className="small">{s.message}</div>}
-                {isOfficialUrl(s.officialUrl) && (
-                  <a className="small" href={s.officialUrl} target="_blank" rel="noreferrer noopener">Official auction page ↗</a>
+                {(s.publishedBy ? isCertificateSourceUrl(s.officialUrl) : isOfficialUrl(s.officialUrl)) && (
+                  <a className="small" href={s.officialUrl} target="_blank" rel="noreferrer noopener">{s.publishedBy ? 'Official notice of sale ↗' : 'Official auction page ↗'}</a>
                 )}
               </li>
             ))}
@@ -190,6 +195,7 @@ export default function LivePage() {
         </section>
       )}
       {result?.ok && !expired && listings.length === 0 && <p className="muted">No parcels are currently verified as available.</p>}
+      <SidCertificates certificates={certificates} ago={(iso) => ago(iso, now)} />
       <Disclaimer kind="sales" />
     </main>
   );
