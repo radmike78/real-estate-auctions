@@ -3,12 +3,14 @@
 // and the Assessor publish are filled in. Everything else stays empty (null) so pages say "not
 // checked" instead of guessing: no market value, no lien search, no map location, no risk flags.
 
-import type { FeedListing } from './types';
+import type { FeedFederalSale, FeedListing } from './types';
 import type { Property, PropertyType, SourceRef } from '../types';
 import { classOfLandUse } from '../lib/propertyClass';
 
 export const LIVE_ID_PREFIX = 'tax-';
 export const liveId = (apn: string) => `${LIVE_ID_PREFIX}${apn}`;
+export const IRS_ID_PREFIX = 'irs-';
+export const irsId = (adId: string) => `${IRS_ID_PREFIX}${adId}`;
 
 /** A coarse property type from the Assessor land-use code and description. */
 export function typeFromLandUse(landUse: FeedListing['landUse']): PropertyType {
@@ -84,5 +86,68 @@ export function listingToProperty(l: FeedListing, agency = 'Clark County Treasur
     events: [{ date: l.firstSeenAt.slice(0, 10), type: 'SALE_SCHEDULED', description: "On the Clark County Treasurer's tax-sale auction list", source }],
     flags: null,
     lastUpdated: l.lastVerifiedAt,
+  };
+}
+
+/** A verified IRS sale of Clark County property. Only what the IRS ad and the Assessor say is filled in. */
+export function federalSaleToProperty(f: FeedFederalSale): Property {
+  const source: SourceRef = { agency: 'Internal Revenue Service', url: f.sourceUrl, lastVerified: f.lastVerifiedAt, confidence: 'high' };
+  const judicial = f.saleKind === 'JUDICIAL';
+  const more = f.apns.length > 1 ? ` Sold together with parcel${f.apns.length > 2 ? 's' : ''} ${f.apns.slice(1).join(', ')}.` : '';
+  return {
+    id: irsId(f.id),
+    origin: 'irs-feed',
+    apn: f.apns[0],
+    address: f.address ?? f.title,
+    city: f.city,
+    county: 'Clark',
+    state: 'NV',
+    zip: f.zip,
+    lat: null,
+    lng: null,
+    legalDescription: null,
+    ownerOfRecord: null,
+    propertyType: typeFromLandUse(f.landUse ?? null),
+    landUse: f.landUse ?? null,
+    beds: null,
+    baths: null,
+    sqft: null,
+    lotSqft: null,
+    yearBuilt: null,
+    assessedValue: null,
+    estimatedMarketValue: null,
+    lastSale: null,
+    occupancy: 'Unknown',
+    status: f.saleFormat === 'Sealed bid' ? 'SEALED_BID' : 'IN_PERSON_AUCTION',
+    sale: {
+      saleType: 'FEDERAL_TAX_SEIZURE',
+      conductedBy: 'Internal Revenue Service',
+      startsAt: f.saleStartsAt,
+      endsAt: null,
+      location: f.saleLocation ?? 'See the IRS notice of sale',
+      officialUrl: f.sourceUrl,
+      minimumBid: f.minimumBid,
+      deposit: 'Set in the IRS notice of sale',
+      registrationDeadline: null,
+      paymentMethods: ['As stated in the notice of sale (the IRS takes no personal checks or credit cards)'],
+      finalPaymentDeadline: null,
+      buyerPremiumPct: 0,
+      deedType: judicial
+        ? 'Deed as ordered by the federal court, after the court confirms the sale'
+        : 'Certificate of sale at the auction; an IRS deed after the 180-day redemption period',
+      redemptionPeriod: judicial
+        ? 'Set by the court order. Read the notice of sale and the order'
+        : '180 days: the owner, or anyone with an interest or lien, can buy it back for your price plus 20% a year',
+      eligibility: `${judicial ? 'Court-ordered (judicial) sale. ' : ''}${f.saleFormat}.${more}`,
+      postponements: 0,
+      whatYouBuy: judicial
+        ? 'A sale ordered by a federal court to collect federal taxes. The court’s order and the notice of sale set what is sold, the terms and when you get a deed; read both and have an attorney review them.'
+        : undefined,
+    },
+    liens: [],
+    liensChecked: false,
+    events: [{ date: f.firstSeenAt.slice(0, 10), type: 'SALE_SCHEDULED', description: 'Listed for sale on irsauctions.gov', source }],
+    flags: null,
+    lastUpdated: f.lastVerifiedAt,
   };
 }

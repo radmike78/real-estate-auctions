@@ -1,11 +1,11 @@
-// The verified live listings, loaded once and shared by every page (Live tax sales, search, property
+// The verified live listings (Treasurer and IRS), loaded once and shared by every page (Live tax sales, search, property
 // pages, My deals). The browser verifies the signed feed before anything is shown, re-checks it every
 // 5 minutes, and drops it the moment it expires, so a stalled update can never leave old parcels up.
 
 import { useSyncExternalStore } from 'react';
 import { FEED_PUBLIC_KEY_SPKI_B64 } from '../feed/publicKey';
 import { loadVerifiedFeed, type VerifyResult } from '../feed/verify';
-import { listingToProperty } from '../feed/toProperty';
+import { federalSaleToProperty, listingToProperty } from '../feed/toProperty';
 import type { Property } from '../types';
 import { PROPERTIES } from './index';
 
@@ -29,7 +29,8 @@ function set(next: LiveState) {
 async function load() {
   const result = await loadVerifiedFeed(FEED_PUBLIC_KEY_SPKI_B64).catch((e: Error): VerifyResult => ({ ok: false, reason: 'MISSING', detail: e.message }));
   const agency = result.ok ? (result.feed.sources.find((s) => s.sourceId === 'nv-clark-treasurer-tax-sale')?.agency ?? 'Clark County Treasurer') : '';
-  set({ result, properties: result.ok ? result.feed.listings.map((l) => listingToProperty(l, agency)) : [], checkedAt: Date.now() });
+  const properties = result.ok ? [...result.feed.listings.map((l) => listingToProperty(l, agency)), ...(result.feed.federalSales ?? []).map(federalSaleToProperty)] : [];
+  set({ result, properties, checkedAt: Date.now() });
 }
 
 /** Drops listings once the feed expires, without waiting for the next check. */

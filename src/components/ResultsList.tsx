@@ -30,6 +30,7 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
                 <StatusBadge status={p.status} />
                 {p.sale && <span className="muted small">{SALE_TYPE_LABEL[p.sale.saleType]}</span>}
                 {p.origin === 'treasurer-feed' && <span className="badge tone-go">Treasurer list</span>}
+                {p.origin === 'irs-feed' && <span className="badge tone-go">IRS sale</span>}
               </div>
               <h3>{p.address}</h3>
               <div className="muted small">

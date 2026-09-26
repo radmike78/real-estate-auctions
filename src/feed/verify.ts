@@ -3,13 +3,55 @@
 //  2. the feed has not expired (stale data is never displayed as available),
 //  3. every listing passes shape checks and links only to allowlisted official hosts.
 
-import type { Feed, FeedCertificate, FeedListing } from './types';
+import type { Feed, FeedCertificate, FeedFederalSale, FeedListing } from './types';
 
 // Official hosts a listing may link to. Mirrors ingest/sources/registry.ts (exact .gov names only).
 export const OFFICIAL_HOSTS = new Set(['treasurer.clarkcountynv.gov']);
 // Agents that publish a government sale list for the agency (AGENT_HOSTS in the registry).
 // Only SID lien certificates may link here.
 export const AGENT_HOSTS = new Set(['www.amgnv.com']);
+// Federal sale sites (irsauctions.gov). Only IRS sales may link here.
+export const FEDERAL_HOSTS = new Set(['www.irsauctions.gov']);
+
+export function isFederalSaleUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    return u.protocol === 'https:' && FEDERAL_HOSTS.has(u.hostname) && /^\/ad\/[a-z0-9-]+\/?$/.test(u.pathname) && !u.search && !u.username && !u.password;
+  } catch {
+    return false;
+  }
+}
+
+function validFederalSale(f: FeedFederalSale): boolean {
+  return (
+    !!f &&
+    f.state === 'AVAILABLE' &&
+    typeof f.id === 'string' &&
+    /^[a-z0-9-]{3,200}$/.test(f.id) &&
+    shortName(f.title, 200) &&
+    Array.isArray(f.apns) &&
+    f.apns.length > 0 &&
+    f.apns.length <= 20 &&
+    f.apns.every((a) => typeof a === 'string' && APN.test(a)) &&
+    shortText(f.address, 120) &&
+    shortName(f.city, 60) &&
+    typeof f.zip === 'string' &&
+    /^89[01]\d\d$/.test(f.zip) &&
+    (f.saleKind === 'ADMINISTRATIVE' || f.saleKind === 'JUDICIAL') &&
+    (f.saleFormat === 'Public auction' || f.saleFormat === 'Sealed bid') &&
+    (f.minimumBid === null || (typeof f.minimumBid === 'number' && Number.isFinite(f.minimumBid) && f.minimumBid > 0)) &&
+    isDate(f.saleStartsAt) &&
+    shortText(f.saleLocation, 200) &&
+    isDate(f.corroboratedAt) &&
+    isDate(f.lastVerifiedAt) &&
+    isDate(f.firstSeenAt) &&
+    isFederalSaleUrl(f.sourceUrl) &&
+    (f.landUse == null ||
+      (typeof f.landUse === 'object' && typeof f.landUse.code === 'string' && /^\d{2}\.\d{3}(\.[A-Z])?$/.test(f.landUse.code) && typeof f.landUse.description === 'string' && f.landUse.description.length <= 80)) &&
+    typeof f.snapshotSha256 === 'string' &&
+    /^[0-9a-f]{64}$/.test(f.snapshotSha256)
+  );
+}
 
 const APN = /^\d{3}-\d{2}-\d{3}-\d{3}$/;
 const isDate = (v: unknown) => typeof v === 'string' && !Number.isNaN(Date.parse(v));
@@ -135,7 +177,8 @@ export async function verifyFeed(
     return { ok: false, reason: 'EXPIRED', detail: `Listings expired at ${feed.expiresAt} and are being re-verified.` };
   }
   const certificates = Array.isArray(feed.certificates) ? feed.certificates.filter(validCertificate) : [];
-  return { ok: true, feed: { ...feed, listings: feed.listings.filter(validListing), certificates } };
+  const federalSales = Array.isArray(feed.federalSales) ? feed.federalSales.filter(validFederalSale) : [];
+  return { ok: true, feed: { ...feed, listings: feed.listings.filter(validListing), certificates, federalSales } };
 }
 
 export async function loadVerifiedFeed(publicKeySpkiB64: string | null): Promise<VerifyResult> {

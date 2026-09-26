@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { isCertificateSourceUrl, isOfficialUrl } from '../feed/verify';
 import SidCertificates from './SidCertificates';
+import IrsSales from './IrsSales';
 import { useLiveFeed } from '../data/live';
 import { liveId } from '../feed/toProperty';
 import { fmtDateTime, fmtMoney } from '../lib/status';
@@ -45,6 +46,8 @@ export default function LivePage() {
   const expired = result?.ok && Date.parse(result.feed.expiresAt) <= now;
   const listings = result?.ok && !expired ? result.feed.listings : [];
   const certificates = result?.ok && !expired ? (result.feed.certificates ?? []) : [];
+  const federalSales = result?.ok && !expired ? (result.feed.federalSales ?? []) : [];
+  const nothingLive = listings.length + certificates.length + federalSales.length === 0;
   const shown = cls === 'all' ? listings : listings.filter((l) => classOfLandUse(l.landUse?.code) === cls);
 
   return (
@@ -52,7 +55,7 @@ export default function LivePage() {
       <PageHero
         eyebrow={<span className="eyebrow"><span className="live-dot" aria-hidden /> From the Clark County Treasurer’s list, checked by us</span>}
         title={<>Live <span className="grad">tax sales</span></>}
-        sub="Parcels the Clark County Treasurer currently lists for its delinquent-tax auction, re-checked against the official list and the Assessor's parcel records."
+        sub="Parcels the Clark County Treasurer currently lists for its delinquent-tax auction, and Clark County property the IRS is selling, re-checked against the official lists and the Assessor's parcel records."
       />
       <p className="muted">
         Listings are re-checked on a schedule that follows how often the Treasurer updates them. Parcels that are paid off (lined out), sold,
@@ -85,7 +88,7 @@ export default function LivePage() {
           .
         </div>
       )}
-      {result && listings.length === 0 && (
+      {result && nothingLive && (
         <section className="while-you-wait" aria-labelledby="wait-head">
           <h2 id="wait-head">While you wait</h2>
           <div className="drill-tiles">
@@ -120,11 +123,11 @@ export default function LivePage() {
                 {s.publishedBy && <div className="small muted">Published by {s.publishedBy} for the county and the cities</div>}
                 {s.certificateIssuer && (
                   <div className="small muted">
-                    Site identity verified: valid certificate for {s.publishedBy ? `${s.publishedBy}'s site` : "the county's .gov domain"} issued by {s.certificateIssuer}
+                    Site identity verified: valid certificate for {s.publishedBy ? `${s.publishedBy}'s site` : "the agency's .gov domain"} issued by {s.certificateIssuer}
                   </div>
                 )}
                 {s.message && <div className="small">{s.message}</div>}
-                {(s.publishedBy ? isCertificateSourceUrl(s.officialUrl) : isOfficialUrl(s.officialUrl)) && (
+                {(s.publishedBy ? isCertificateSourceUrl(s.officialUrl) : isOfficialUrl(s.officialUrl) || s.officialUrl === 'https://www.irsauctions.gov/') && (
                   <a className="small" href={s.officialUrl} target="_blank" rel="noreferrer noopener">{s.publishedBy ? 'Official notice of sale ↗' : 'Official auction page ↗'}</a>
                 )}
               </li>
@@ -194,7 +197,8 @@ export default function LivePage() {
           </div>
         </section>
       )}
-      {result?.ok && !expired && listings.length === 0 && <p className="muted">No parcels are currently verified as available.</p>}
+      {result?.ok && !expired && nothingLive && <p className="muted">No parcels are currently verified as available.</p>}
+      <IrsSales sales={federalSales} ago={(iso) => ago(iso, now)} />
       <SidCertificates certificates={certificates} ago={(iso) => ago(iso, now)} />
       <Disclaimer kind="sales" />
     </main>

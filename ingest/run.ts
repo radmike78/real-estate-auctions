@@ -27,6 +27,8 @@ import { fileURLToPath } from 'node:url';
 import { SOURCES, validateRegistry, type SourceConfig } from './sources/registry';
 import { fetchSnapshot, parseSnapshot, type RawSnapshot } from './connectors/clarkTaxSale';
 import { fetchSidPage, parseSidSnapshot } from './connectors/sidCertificateSale';
+import { fetchIrsIndex, parseIrsSnapshot } from './connectors/irsAuctions';
+import { applyIrsSnapshot } from './lib/irsReconcile';
 import { applySnapshot, detectAnomalies, emptyState, type SourceState } from './lib/reconcile';
 import { applySidSnapshot, detectSidAnomalies } from './lib/sidReconcile';
 import { auctionStillOpen } from './lib/cadence';
@@ -83,6 +85,7 @@ async function checkSource(source: SourceConfig, now: Date, opts: { dryRun: bool
     return { ...prev, health: 'terms_not_reviewed', message: 'Connector not yet checked against a real list' };
   }
   if (source.kind === 'sid-certificate') return checkSidSource(source, prev, now, opts);
+  if (source.kind === 'irs-auction') return checkIrsSource(source, prev, now, opts);
 
   try {
     const state: SourceState = { ...prev, tlsBaselines: { ...prev.tlsBaselines } };
@@ -165,6 +168,37 @@ async function checkSidSource(source: SourceConfig, prev: SourceState, now: Date
       state.tlsBaselines[host] = { issuerOrg: id.issuerOrg, issuerCN: id.issuerCN, fingerprint256: id.fingerprint256, approvedAt: now.toISOString() };
     }
     return { ...applySidSnapshot(state, parsed, { sha256, sourceUrl: source.officialUrl, publishedBy: source.publishedBy ?? source.agency, now, confirmedApns: confirmed }), pendingCertFingerprint: null };
+  } catch (err) {
+    if (err instanceof IdentityError) {
+      log(`[${source.id}] SITE IDENTITY ${err.code}: ${err.message}`);
+      return { ...prev, lastCheckedAt: now.toISOString(), health: 'quarantined', pendingCertFingerprint: err.fingerprint256, message: `Site identity check failed: ${err.message}` };
+    }
+    const message = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+    log(`[${source.id}] ERROR ${message}`);
+    return { ...prev, lastCheckedAt: now.toISOString(), consecutiveErrors: prev.consecutiveErrors + 1, health: 'error', message };
+  }
+}
+
+/** IRS sales: the site's own index, kept to Clark County parcels the County Assessor confirms. */
+async function checkIrsSource(source: SourceConfig, prev: SourceState, now: Date, opts: { dryRun: boolean; fromDir?: string }): Promise<SourceState> {
+  try {
+    const state: SourceState = { ...prev, tlsBaselines: { ...prev.tlsBaselines } };
+    const observed: Record<string, CertIdentity> = {};
+    const verifyCertificate = makeCertificateVerifier(state.tlsBaselines, observed, { now, approvedFingerprint: opt('--approve-cert') });
+    const body = opts.fromDir ? readFileSync(join(opts.fromDir, 'index.json'), 'utf8') : await fetchIrsIndex(source, { verifyCertificate });
+    const { parsed, sha256 } = parseIrsSnapshot(body);
+    log(`[${source.id}] ${parsed.totalAds} ads nationwide; ${parsed.rows.length} in Clark County; ${parsed.skipped.length} Clark County ad(s) skipped`);
+    for (const s of parsed.skipped.slice(0, 10)) log(`  skipped ${s.id}: ${s.reason}`);
+    const open = parsed.rows.filter((r) => !r.canceled && r.saleStartsAt && auctionStillOpen(r.saleStartsAt, now));
+    const candidates = [...new Set(open.flatMap((r) => r.apns))];
+    const confirmed = candidates.length ? await confirmParcelsExist(candidates, source.corroborationHosts, { verifyCertificate }) : new Set<string>();
+    if (candidates.length) log(`[${source.id}] Assessor confirmed ${confirmed.size} of ${candidates.length} parcels`);
+    const firstApns = open.map((r) => r.apns[0]).filter((a) => confirmed.has(a) && !prev.federalSales?.[a]?.landUse);
+    const landUse = firstApns.length ? await fetchLandUse(firstApns, source.corroborationHosts, { verifyCertificate }) : new Map();
+    for (const [host, id] of Object.entries(observed)) {
+      state.tlsBaselines[host] = { issuerOrg: id.issuerOrg, issuerCN: id.issuerCN, fingerprint256: id.fingerprint256, approvedAt: now.toISOString() };
+    }
+    return { ...applyIrsSnapshot(state, parsed, { sha256, now, confirmedApns: confirmed, landUse }), pendingCertFingerprint: null };
   } catch (err) {
     if (err instanceof IdentityError) {
       log(`[${source.id}] SITE IDENTITY ${err.code}: ${err.message}`);
