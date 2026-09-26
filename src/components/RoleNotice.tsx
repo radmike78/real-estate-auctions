@@ -33,7 +33,7 @@ export default function RoleNotice() {
         <ul>
           <li><strong>We help you find options.</strong> We don't sell property, run auctions, or offer or arrange financing.</li>
           <li><strong>We're not part of your deal.</strong> Any sale, loan or service agreement is between you and the other party.</li>
-          <li><strong>You do the due diligence.</strong> We pull from government and official sources, but verify everything yourself, and contact professionals for legal, tax, real estate and financial advice before you commit or pay.</li>
+          <li><strong>You do the due diligence.</strong> We pull from government and official sources, but verify everything yourself, and contact professionals for legal, tax, real estate and financial advice before you bid, buy or borrow.</li>
         </ul>
         <div className="row">
           <button ref={btn} className="btn big" onClick={close}>I understand</button>
