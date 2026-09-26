@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
+import { PROPERTIES } from '../data';
 import type { LienType } from '../types';
 import { diligenceReport, type CheckResult } from '../lib/diligence';
 import { assessLiens, moneySummary, SALE_TYPE_LABEL, WHAT_YOU_BUY, type SurvivalOutcome } from '../lib/rules';
@@ -59,7 +59,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
     };
   }, []);
 
-  const p = SAMPLE_PROPERTIES.find((x) => x.id === id);
+  const p = PROPERTIES.find((x) => x.id === id);
   if (!p) {
     return (
       <main className="page">

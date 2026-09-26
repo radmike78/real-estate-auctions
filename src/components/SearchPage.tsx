@@ -1,5 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react';
-import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
+import { PROPERTIES, SHOW_SAMPLE_DATA } from '../data';
 import { applyFilters, DEFAULT_FILTERS, type Filters } from '../lib/search';
 import type { AcquisitionStatus, SaleType } from '../types';
 import FiltersPanel from './FiltersPanel';
@@ -8,6 +8,7 @@ import MapView from './MapView';
 import Disclaimer from './Disclaimer';
 import BuyerChecklistBox from './BuyerChecklistBox';
 import { checklistForFilters } from '../lib/buyerChecklists';
+import NoListingsYet from './NoListingsYet';
 
 interface Props {
   initialLocation?: string;
@@ -19,13 +20,23 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
   const [filters, setFilters] = useState<Filters>({ ...DEFAULT_FILTERS, location: initialLocation, saleTypes: initialSaleTypes, statuses: initialStatuses });
   const [locationInput, setLocationInput] = useState(initialLocation);
   const [view, setView] = useState<'list' | 'map'>('list');
-  const results = useMemo(() => applyFilters(SAMPLE_PROPERTIES, filters), [filters]);
+  const results = useMemo(() => applyFilters(PROPERTIES, filters), [filters]);
   const update = (patch: Partial<Filters>) => setFilters((f) => ({ ...f, ...patch }));
 
   function submit(e: FormEvent) {
     e.preventDefault();
     update({ location: locationInput });
     history.replaceState(null, '', locationInput ? `#/search?q=${encodeURIComponent(locationInput)}` : '#/search');
+  }
+
+  if (PROPERTIES.length === 0) {
+    return (
+      <main className="page">
+        <h1 className="sr-only">Property search</h1>
+        <NoListingsYet />
+        <Disclaimer kind="sales" compact />
+      </main>
+    );
   }
 
   return (
@@ -36,7 +47,7 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
           <input aria-label="Search location" placeholder="City, ST · ZIP · address · APN" value={locationInput} onChange={(e) => setLocationInput(e.target.value)} />
           <button type="submit">Search</button>
         </form>
-        <span className="pill">Sample data · Clark County, NV</span>
+        {SHOW_SAMPLE_DATA && <span className="pill">Sample data · Clark County, NV</span>}
         <a className="small" href="#/live">Verified live tax sales →</a>
       </div>
       <main className="search-layout">

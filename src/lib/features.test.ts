@@ -207,3 +207,30 @@ describe('privacy policy and terms', () => {
     expect(typeof hasPlaceholders()).toBe('boolean');
   });
 });
+
+describe('sample-data switch', () => {
+  it('shows sample data in development builds (the flag is unset in tests)', async () => {
+    const { SHOW_SAMPLE_DATA, PROPERTIES, FALLBACK_PROS } = await import('../data');
+    expect(SHOW_SAMPLE_DATA).toBe(true);
+    expect(PROPERTIES.length).toBeGreaterThan(0);
+    expect(FALLBACK_PROS.every((p) => p.isSample)).toBe(true);
+  });
+});
+
+describe('bank-owned and government sources', () => {
+  it('links only direct government, Fannie Mae / Freddie Mac, or bank sites, never auction marketplaces', async () => {
+    const { REO_SOURCES } = await import('./reoSources');
+    const { PLAYBOOKS } = await import('./playbooks');
+    const allowed = /(\.gov|fanniemae\.com|homesteps\.com|bankofamerica\.com|firstcitizens\.com|usbank\.com|chase\.com|createcu\.org)$/;
+    const banned = /auction\.com|xome|hubzu|realtybid|bid4assets|servicelink|williamsauction|vrmproperties|zillow|realtor\.com|redfin/;
+    const urls = [...REO_SOURCES.map((s) => s.url), ...PLAYBOOKS.flatMap((p) => p.sources.map((s) => s.url))];
+    for (const u of urls) {
+      if (u.startsWith('#/')) continue;
+      const host = new URL(u).hostname;
+      expect(u.startsWith('https://'), u).toBe(true);
+      expect(banned.test(u), u).toBe(false);
+      if (REO_SOURCES.some((s) => s.url === u)) expect(allowed.test(host), host).toBe(true);
+    }
+    expect(new Set(REO_SOURCES.map((s) => s.url)).size).toBe(REO_SOURCES.length);
+  });
+});

@@ -6,6 +6,7 @@ import PageHero from './PageHero';
 import { Tile } from './DrillDown';
 import { IconBank, IconLayers, IconSearch } from './Icons';
 import Disclaimer from './Disclaimer';
+import { SHOW_SAMPLE_DATA } from '../data';
 
 const REVERIFY_MS = 5 * 60_000;
 
@@ -76,7 +77,7 @@ export default function LivePage() {
               displayed until verified data is published.
             </>
           )}{' '}
-          Meanwhile, <a href="#/search?type=TAX_DEED">browse sample tax-sale listings</a> or check the{' '}
+          Meanwhile, {SHOW_SAMPLE_DATA && <><a href="#/search?type=TAX_DEED">browse sample tax-sale listings</a> or </>}check the{' '}
           <a href="https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList" target="_blank" rel="noreferrer noopener">
             Treasurer's official auction list ↗
           </a>
@@ -87,7 +88,7 @@ export default function LivePage() {
         <section className="while-you-wait" aria-labelledby="wait-head">
           <h2 id="wait-head">While you wait</h2>
           <div className="drill-tiles">
-            <Tile href="#/search?type=TAX_DEED" icon={<IconSearch />} title="Sample tax-sale listings" summary="See how a tax-sale listing looks, with liens and equity worked out" />
+            {SHOW_SAMPLE_DATA && <Tile href="#/search?type=TAX_DEED" icon={<IconSearch />} title="Sample tax-sale listings" summary="See how a tax-sale listing looks, with liens and equity worked out" />}
             <Tile href="#/about/sale-types" icon={<IconLayers />} title="How tax sales work" summary="What you receive at a tax sale compared with other forced sales" />
             <Tile href="#/financing" icon={<IconBank />} title="Line up your money" tone="go" summary="Tax sales need certified funds fast. Compare lenders now" />
           </div>

@@ -1,4 +1,5 @@
 import type { AcquisitionStatus } from '../types';
+import { SHOW_SAMPLE_DATA } from '../data';
 import { STATUS } from '../lib/status';
 import StatusBadge from './StatusBadge';
 import DrillDown, { type DrillSection } from './DrillDown';
@@ -72,10 +73,17 @@ const SECTIONS: DrillSection[] = [
           official auction platforms. Every fact shows its source agency, document number, recorded date, last-verified time and a
           confidence level. Hover a source tag to see them.
         </p>
-        <p>
-          This prototype runs on <strong>fictional sample data for Clark County, Nevada</strong>. Before connecting real sources, each
-          source's terms of use and public-records rules must be reviewed.
-        </p>
+        {SHOW_SAMPLE_DATA ? (
+          <p>
+            This version runs on <strong>fictional sample data for Clark County, Nevada</strong>. Before connecting real sources, each
+            source's terms of use and public-records rules must be reviewed.
+          </p>
+        ) : (
+          <p>
+            Sources are connected one at a time, only after their terms of use and public-records rules have been reviewed. Pages without a
+            connected source say so instead of showing listings.
+          </p>
+        )}
       </>
     ),
   },
