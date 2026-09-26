@@ -91,7 +91,7 @@ export function diligenceReport(p: Property): Check[] {
     },
     { area: 'Comparable sales', result: 'manual', detail: `The estimated value of ${fmtMoney(p.estimatedMarketValue)} is a model estimate. Pull comps before bidding.` },
     {
-      area: 'Estimated equity',
+      area: 'Estimated spread',
       result: money.estimatedEquity === null ? 'review' : money.estimatedEquity > 0 ? 'ok' : 'flag',
       detail:
         money.estimatedEquity === null
