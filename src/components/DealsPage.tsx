@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { PROPERTIES } from '../data';
+import { useProperties } from '../data/live';
+import type { Property } from '../types';
 import { loadDeals, onDealsChange, removeDeal, updateDeal, type SavedDeal } from '../lib/deals';
 import { DD_STEPS, loadDdDone } from '../lib/ddFunnel';
 import { SALE_TYPE_LABEL } from '../lib/rules';
@@ -9,8 +10,7 @@ import { daysUntil } from './ResultsList';
 import PageHero from './PageHero';
 import StatusBadge from './StatusBadge';
 
-function DealCard({ d }: { d: SavedDeal }) {
-  const p = PROPERTIES.find((x) => x.id === d.id);
+function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; loading: boolean }) {
   const [notes, setNotes] = useState(d.notes);
   // Save notes shortly after typing stops, so closing the tab doesn't lose them.
   useEffect(() => {
@@ -18,6 +18,7 @@ function DealCard({ d }: { d: SavedDeal }) {
     const t = setTimeout(() => updateDeal(d.id, { notes: notes.slice(0, 2000) }), 600);
     return () => clearTimeout(t);
   }, [notes, d.id, d.notes]);
+  if (!p && loading) return <li className="deal-card"><p className="muted">Checking the official lists…</p></li>;
   if (!p) {
     return (
       <li className="deal-card">
@@ -88,11 +89,12 @@ function DealCard({ d }: { d: SavedDeal }) {
 
 export default function DealsPage() {
   const [deals, setDeals] = useState(loadDeals);
+  const { properties, loading } = useProperties();
   useEffect(() => onDealsChange(() => setDeals(loadDeals())), []);
   const sorted = [...deals].sort((a, b) => {
     // Upcoming sales soonest first, then sales that have passed, then anything without a date.
     const rank = (id: string) => {
-      const t = Date.parse(PROPERTIES.find((p) => p.id === id)?.sale?.startsAt ?? '');
+      const t = Date.parse(properties.find((p) => p.id === id)?.sale?.startsAt ?? '');
       return Number.isNaN(t) ? Infinity : t >= Date.now() ? t : 1e15 - t;
     };
     return rank(a.id) - rank(b.id);
@@ -112,7 +114,7 @@ export default function DealsPage() {
           <a className="btn big" href="#/search">Browse properties</a>
         </section>
       ) : (
-        <ul className="deal-list">{sorted.map((d) => <DealCard key={d.id} d={d} />)}</ul>
+        <ul className="deal-list">{sorted.map((d) => <DealCard key={d.id} d={d} p={properties.find((x) => x.id === d.id)} loading={loading} />)}</ul>
       )}
       <p className="muted">Saved only in this browser. Clearing your browser data removes it.</p>
     </main>

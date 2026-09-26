@@ -1,5 +1,6 @@
 import { useMemo, useState, type FormEvent } from 'react';
-import { PROPERTIES, SHOW_SAMPLE_DATA } from '../data';
+import { SHOW_SAMPLE_DATA } from '../data';
+import { useProperties } from '../data/live';
 import { applyFilters, DEFAULT_FILTERS, type Filters } from '../lib/search';
 import type { AcquisitionStatus, SaleType } from '../types';
 import FiltersPanel from './FiltersPanel';
@@ -23,7 +24,8 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
   const [filters, setFilters] = useState<Filters>({ ...DEFAULT_FILTERS, location: initialLocation, saleTypes: initialSaleTypes, statuses: initialStatuses, propertyClass: initialClass });
   const [locationInput, setLocationInput] = useState(initialLocation);
   const [view, setView] = useState<'list' | 'map'>('list');
-  const results = useMemo(() => applyFilters(PROPERTIES, filters), [filters]);
+  const { properties, loading } = useProperties();
+  const results = useMemo(() => applyFilters(properties, filters), [properties, filters]);
   const update = (patch: Partial<Filters>) => setFilters((f) => ({ ...f, ...patch }));
 
   const setClass = (c: ClassFilter) => update({ propertyClass: c, propertyTypes: filters.propertyTypes.filter((t) => typesFor(c).includes(t)) });
@@ -34,7 +36,8 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
     history.replaceState(null, '', locationInput ? `#/search?q=${encodeURIComponent(locationInput)}` : '#/search');
   }
 
-  if (PROPERTIES.length === 0) {
+  if (properties.length === 0) {
+    if (loading) return <main className="page"><h1 className="sr-only">Property search</h1><p>Checking the official lists…</p></main>;
     return (
       <main className="page">
         <h1 className="sr-only">Property search</h1>

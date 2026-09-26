@@ -109,35 +109,45 @@ export type PropertyType =
   | 'Office'
   | 'Industrial'
   | 'Hotel / Motel'
-  | 'Commercial Land';
+  | 'Commercial Land'
+  | 'Other commercial' // Assessor commercial codes that aren't clearly retail, office or lodging
+  | 'Not classified'; // the Assessor record doesn't say, or the use is neither (public land, utilities)
 export type Occupancy = 'Owner-occupied' | 'Tenant-occupied' | 'Vacant' | 'Unknown';
+
+/** Where a property record comes from. Sample records never appear in production builds. */
+export type PropertyOrigin = 'sample' | 'treasurer-feed';
 
 export interface Property {
   id: string;
+  /** Absent on sample records. 'treasurer-feed' = from the signed, verified Clark County Treasurer list. */
+  origin?: PropertyOrigin;
   apn: string;
   address: string;
   city: string;
   county: string;
   state: string;
   zip: string;
-  lat: number;
-  lng: number;
-  legalDescription: string;
-  ownerOfRecord: string;
+  lat: number | null; // null = no verified map location
+  lng: number | null;
+  legalDescription: string | null;
+  ownerOfRecord: string | null;
   propertyType: PropertyType;
   beds: number | null;
   baths: number | null;
   sqft: number | null;
-  lotSqft: number;
+  lotSqft: number | null;
   yearBuilt: number | null;
-  assessedValue: number;
-  estimatedMarketValue: number;
+  assessedValue: number | null;
+  estimatedMarketValue: number | null; // null = no estimate: the buyer pulls their own comps
   lastSale: { date: string; price: number } | null;
   occupancy: Occupancy;
   status: AcquisitionStatus;
   sale: SaleDetails | null;
   liens: Lien[];
+  /** false = no lien search has been done for this record, so an empty list means "unknown", not "none". */
+  liensChecked?: boolean;
   events: PropertyEvent[];
+  /** null = not checked for this record (verified listings carry only what the official source publishes). */
   flags: {
     bankruptcy: boolean;
     codeViolations: number;
@@ -145,6 +155,8 @@ export interface Property {
     wildfireRisk: 'Low' | 'Moderate' | 'High';
     zoning: string;
     openPermits: number;
-  };
+  } | null;
+  /** Clark County Assessor land use, when the record came from the verified feed. */
+  landUse?: { code: string; description: string } | null;
   lastUpdated: string;
 }

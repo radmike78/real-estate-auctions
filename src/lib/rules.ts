@@ -124,7 +124,8 @@ export function moneySummary(p: Property): MoneySummary {
     minimumBid,
     likelySurviving,
     uncertain: p.sale ? sum('UNCERTAIN') : 0,
-    estimatedEquity: minimumBid === null ? null : p.estimatedMarketValue - minimumBid - likelySurviving,
+    // No value estimate, or liens never searched: the spread can't be worked out honestly.
+    estimatedEquity: minimumBid === null || p.estimatedMarketValue === null || p.liensChecked === false ? null : p.estimatedMarketValue - minimumBid - likelySurviving,
   };
 }
 

@@ -99,7 +99,7 @@ export function applyFilters(all: Property[], f: Filters, now = new Date()): Pro
     if (f.minEquity !== null && (money.estimatedEquity === null || money.estimatedEquity < f.minEquity)) return false;
     if (f.bounds) {
       const [s, w, n, e] = f.bounds;
-      if (p.lat < s || p.lat > n || p.lng < w || p.lng > e) return false;
+      if (p.lat === null || p.lng === null || p.lat < s || p.lat > n || p.lng < w || p.lng > e) return false;
     }
     return true;
   });
