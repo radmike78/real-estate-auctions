@@ -11,6 +11,7 @@ export const SITE_PAGES = {
   preforeclosures: 'Pre-foreclosure tracker',
   shortsales: 'Short sales guide',
   bankowned: 'Bank-owned & government homes',
+  businessassets: 'Business assets & closures',
   playbook: 'Nevada playbooks',
   calculator: 'Max bid calculator',
   deals: 'My deals',

@@ -8,6 +8,7 @@ import LivePage from './components/LivePage';
 import PreForeclosurePage from './components/PreForeclosurePage';
 import ShortSalesPage from './components/ShortSalesPage';
 import BankOwnedPage from './components/BankOwnedPage';
+import BusinessAssetsPage from './components/BusinessAssetsPage';
 import AgentsPage from './components/AgentsPage';
 import AdminPage from './components/AdminPage';
 import AdvertisePage from './components/AdvertisePage';
@@ -43,6 +44,7 @@ type Route =
   | { page: 'preforeclosures'; q: string; section?: string }
   | { page: 'shortsales'; section?: string }
   | { page: 'bankowned'; section?: string }
+  | { page: 'businessassets'; section?: string }
   | { page: 'agents'; shortSales: boolean; q: string }
   | { page: 'financing'; q: string }
   | { page: 'pros'; q: string }
@@ -89,12 +91,13 @@ function parseHash(): Route {
   const m = h.match(/^property\/([^/]+)(?:\/([a-z-]+))?$/);
   if (m) return { page: 'property', id: m[1], section: m[2] };
   // Pages split into sections take an optional /section suffix.
-  const sub = h.match(/^(about|pre-foreclosures|short-sales|bank-owned|disclaimer|privacy|terms)(?:\/([a-z-]+))?$/);
+  const sub = h.match(/^(about|pre-foreclosures|short-sales|bank-owned|business-assets|disclaimer|privacy|terms)(?:\/([a-z-]+))?$/);
   if (sub?.[1] === 'about') return { page: 'about', section: sub[2] };
   if (h === 'live') return { page: 'live' };
   if (sub?.[1] === 'pre-foreclosures') return { page: 'preforeclosures', q, section: sub[2] };
   if (sub?.[1] === 'short-sales') return { page: 'shortsales', section: sub[2] };
   if (sub?.[1] === 'bank-owned') return { page: 'bankowned', section: sub[2] };
+  if (sub?.[1] === 'business-assets') return { page: 'businessassets', section: sub[2] };
   if (h === 'agents' || h === 'agents/short-sales') return { page: 'agents', shortSales: h.endsWith('short-sales'), q };
   if (h === 'financing') return { page: 'financing', q };
   if (h === 'pros') return { page: 'pros', q };
@@ -162,6 +165,7 @@ export default function App() {
       {route.page === 'preforeclosures' && <PreForeclosurePage key={route.q} initialQuery={route.q} section={route.section} />}
       {route.page === 'shortsales' && <ShortSalesPage section={route.section} />}
       {route.page === 'bankowned' && <BankOwnedPage section={route.section} />}
+      {route.page === 'businessassets' && <BusinessAssetsPage section={route.section} />}
       {route.page === 'financing' && <FinancingPage key={route.q} initialLocation={route.q} />}
       {route.page === 'pros' && <ProsPage key={route.q} initialLocation={route.q} />}
       {route.page === 'pro' && <ProProfilePage id={route.id} />}

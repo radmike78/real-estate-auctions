@@ -15,6 +15,7 @@ const MORE = [
   ['#/pre-foreclosures', 'Pre-foreclosure tracker'],
   ['#/short-sales', 'Short sales guide'],
   ['#/bank-owned', 'Bank-owned & government homes'],
+  ['#/business-assets', 'Business assets & closures'],
   ['#/about', 'How it works'],
   ['#/disclaimer', 'Our role'],
   ['#/advertise', 'Advertise with us'],
