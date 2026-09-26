@@ -149,7 +149,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: "Cashier's checks for your full bid", detail: 'Confirm the amount and payee with the HOA’s foreclosure agent.' },
       { text: 'Government-issued photo ID' },
       { text: 'Proof the first mortgage is wiped out, or budget for it', detail: 'If the lender paid the HOA’s priority amount at least 5 days before the sale, the first mortgage survives (NRS 116.31166). It also survives if Fannie Mae or Freddie Mac owned the loan, unless the FHFA consented. Check the Recorder for a recorded payment or satisfaction, and get a title professional’s opinion.' },
-      { text: 'A 60-day wait before the sale is final', detail: 'The former owner or a lender can redeem within 60 days by paying your price plus 1% a month and the taxes, assessments and upkeep you paid. Don’t start repairs until the redemption period ends.' },
+      { text: 'A 60-day wait before the sale is final', detail: 'The former owner, or a lender whose loan ranked below the HOA lien, can redeem within 60 days by paying your price plus 1% a month and the taxes, assessments and upkeep you paid. Don’t start repairs until the redemption period ends.' },
       { text: 'Cash, or hard-money financing arranged in advance' },
       { text: 'Budget for surviving liens, repairs and possession' },
       CONFIRM,
@@ -161,7 +161,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     title: 'Buying at a sheriff or IRS sale',
     intro: 'Sales to satisfy court judgments (sheriff) or federal tax debts (IRS).',
     items: [
-      { text: 'Certified funds', detail: 'IRS sealed bids usually need a deposit of 20% of the bid or $200, whichever is greater. See the notice.' },
+      { text: 'Certified funds', detail: 'The IRS sale notice sets the deposit and how to pay. Read it for each sale.' },
       { text: 'Government-issued photo ID' },
       { text: 'Time for redemption', detail: 'Sheriff sales: up to 1 year. IRS sales: 180 days. You receive a certificate first, and the deed later.' },
       { text: 'A title search', detail: "You receive only the debtor's or taxpayer's interest. Senior liens stay." },
@@ -190,7 +190,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     title: 'Not for sale yet: how to get ready',
     intro: 'The owner is behind on payments, but nothing is for sale. Prepare now in case it goes to auction or is listed.',
     items: [
-      { text: 'Do not contact the homeowner', detail: 'Nevada licenses and regulates foreclosure consultants and buyers who deal with owners in foreclosure (NRS 645F). This site’s policy is no contact.' },
+      { text: 'Do not contact the homeowner', detail: 'Nevada licenses foreclosure consultants, and buyers who use fraud or deceit on owners in foreclosure face criminal penalties and can have the sale undone (NRS 645F). This site’s policy is no contact.' },
       { text: 'Track the property', detail: 'A notice of sale can come 3 months after the notice of default is recorded. The auction is about 3+ weeks after that.' },
       { text: 'Line up your money now', detail: "Cash, or a hard-money or bridge loan for an auction. A pre-approval for a short-sale or bank-owned purchase." },
       { text: "Practice with cashier's checks and ID", detail: 'Trustee sales usually need certified funds for the full bid.' },

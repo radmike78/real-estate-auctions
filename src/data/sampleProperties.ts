@@ -330,7 +330,7 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
         startsAt: isoAt(saleDay, 10),
         location: 'Sealed bids delivered to the IRS Property Appraisal & Liquidation Specialist (see notice)',
         minimumBid: round(value * 0.35, 1000),
-        deposit: '20% of the bid or $200, whichever is greater (see notice)',
+        deposit: 'Set in the IRS notice of sale (sample)',
         paymentMethods: ["Cashier's check", 'Certified check'],
         deedType: 'Certificate of sale, then an IRS deed',
         redemptionPeriod: '180 days (26 U.S.C. § 6337)',

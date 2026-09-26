@@ -38,7 +38,7 @@ export function diligenceReport(p: Property): Check[] {
     {
       area: 'Federal tax liens',
       result: has('FEDERAL_TAX') ? 'flag' : 'ok',
-      detail: has('FEDERAL_TAX') ? 'A federal tax lien is recorded. Confirm IRS notice timing and the 120-day redemption right.' : 'None found in the sources checked.',
+      detail: has('FEDERAL_TAX') ? 'A federal tax lien is recorded. Confirm whether it ranks ahead of the lien being foreclosed, whether the IRS got 25 days’ notice, and the U.S. redemption right (120 days, or longer after a court or sheriff sale).' : 'None found in the sources checked.',
     },
     {
       area: 'Property-tax status',

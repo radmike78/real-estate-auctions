@@ -86,8 +86,8 @@ const SECTIONS: DrillSection[] = [
     summary: 'Why you should find short sales through an agent, never by approaching owners',
     content: () => (
       <p>
-        Don't try to find short-sale candidates by contacting homeowners who are behind on payments. Nevada licenses and regulates foreclosure
-        consultants and buyers who deal with owners in foreclosure (NRS Chapter 645F), and a purchase made through fraud or deceit can be undone. If an owner decides to sell, the home will be
+        Don't try to find short-sale candidates by contacting homeowners who are behind on payments. Nevada licenses foreclosure
+        consultants, and a buyer who uses fraud or deceit on an owner in foreclosure faces criminal penalties and can have the purchase undone (NRS Chapter 645F). If an owner decides to sell, the home will be
         listed through an agent. You can follow a property's foreclosure status, without contacting anyone, in the{' '}
         <a href="#/pre-foreclosures">pre-foreclosure tracker</a>.
       </p>

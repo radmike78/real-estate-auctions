@@ -161,7 +161,7 @@ export const PLAYBOOKS: Playbook[] = [
       { label: 'Mediation', value: 'Owner-occupants can petition the court for foreclosure mediation within 30 days after the notice of default is served; a sale of an owner-occupied home needs a recorded mediation certificate' },
       { label: 'Payment', value: "Usually cashier's checks for the full bid at the sale; each trustee sets its terms" },
       { label: 'Redemption', value: 'None for the owner. If a federal tax lien was on the property, the U.S. can redeem within 120 days (26 U.S.C. § 7425)' },
-      { label: 'Challenges', value: 'A lawsuit can void the sale if filed within 30 days after the trustee’s deed is recorded (90 days for defective notice), NRS 107.080' },
+      { label: 'Challenges', value: 'A lawsuit can void the sale if filed within 30 days after the trustee’s deed is recorded. Someone who didn’t get proper notice has 90 days from the sale date (NRS 107.080)' },
       { label: 'Postponements', value: 'Common. Confirm with the trustee the day before' },
       { label: 'Where listed', value: 'Recorded notices; trustee and auction company sites; legal newspapers' },
     ],
@@ -177,7 +177,7 @@ export const PLAYBOOKS: Playbook[] = [
     ],
     survives: {
       wipedOut: ['The loan being foreclosed', 'Liens recorded after it (junior liens), in most cases'],
-      mayStay: ['Any loan recorded before the one being foreclosed', 'Property taxes', 'Up to 9 months of HOA dues (super-priority)', 'Federal tax liens if the IRS wasn’t properly notified; even if discharged, the U.S. can redeem within 120 days', 'Some city liens'],
+      mayStay: ['Any loan recorded before the one being foreclosed', 'Property taxes', 'Up to 9 months of HOA dues (super-priority)', 'IRS liens recorded before the loan being foreclosed, and junior IRS liens if the IRS didn’t get 25 days’ notice; even when wiped out, the U.S. can buy the property back within 120 days', 'Some city liens'],
     },
     mistakes: [
       { mistake: 'Buying at a second mortgage’s sale', prevent: 'Confirm which lien is foreclosing; the first mortgage survives a junior lien’s sale.' },
@@ -193,7 +193,7 @@ export const PLAYBOOKS: Playbook[] = [
     sources: [
       { label: 'NRS 107 (deeds of trust, trustee sales)', url: NRS('107') },
       { label: 'NRS 40 (possession after foreclosure, NRS 40.255)', url: NRS('040') },
-      { label: 'Protecting Tenants at Foreclosure Act (law text, Title VII)', url: 'https://www.govinfo.gov/content/pkg/PLAW-111publ22/html/PLAW-111publ22.htm' },
+      { label: 'Protecting Tenants at Foreclosure Act (made permanent in 2018; see the note to 12 U.S.C. 5220)', url: 'https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title12-section5220&num=0&edition=prelim' },
       { label: 'Foreclosure mediation (Eighth Judicial District Court)', url: 'https://www.clarkcountycourts.us/departments/adr/foreclosure-mediation/' },
       { label: 'Clark County Recorder: search records', url: RECORDER },
     ],
@@ -209,7 +209,7 @@ export const PLAYBOOKS: Playbook[] = [
     glance: [
       { label: 'Law', value: 'NRS 116 (common-interest communities)' },
       { label: 'Super-priority', value: 'Up to 9 months of dues (plus certain charges) rank ahead of the first mortgage' },
-      { label: 'Lender payoff', value: 'If the lender pays the priority amount at least 5 days before the sale, the first mortgage survives' },
+      { label: 'Lender payoff', value: 'The first mortgage survives if the lender paid the priority amount at least 5 days before the sale, or offered to pay it and the HOA refused (Bank of America v. SFR, 2018)' },
       { label: 'Fannie Mae / Freddie Mac loans', value: 'If one of them owned the loan, the mortgage survives an HOA sale unless the FHFA consented (federal Foreclosure Bar)' },
       { label: 'Redemption', value: '60 days after the sale, at your price plus 1% a month plus taxes, assessments and upkeep you paid' },
       { label: 'What you get first', value: 'A certificate of sale; a deed after the redemption period' },
@@ -221,11 +221,11 @@ export const PLAYBOOKS: Playbook[] = [
       { title: 'Get a professional opinion', detail: 'Nevada HOA sales were heavily litigated after the SFR Investments decision (2014). Have a title professional or attorney review the sale before you bid.' },
       { title: 'Set your maximum bid', detail: 'If the first mortgage may survive, add it to your costs. Use the max bid calculator.' },
       { title: 'Bid and pay', detail: 'Bring certified funds per the agent’s terms.' },
-      { title: 'Wait out the 60 days', detail: 'The former owner or a lender can redeem by paying your price plus 1% a month. Don’t spend on repairs until the period ends.' },
+      { title: 'Wait out the 60 days', detail: 'The former owner, or a lender whose loan ranked below the HOA lien, can redeem by paying your price plus 1% a month. Don’t spend on repairs until the period ends.' },
     ],
     survives: {
       wipedOut: ['The HOA lien being foreclosed', 'The first mortgage, only if the lender did not pay the priority amount, the loan wasn’t owned by Fannie Mae or Freddie Mac, and the sale was proper'],
-      mayStay: ['The first mortgage, if the lender paid the priority amount in time or Fannie Mae or Freddie Mac owned the loan', 'Property taxes', 'Federal tax liens', 'The 60-day redemption right'],
+      mayStay: ['The first mortgage, if the lender paid or validly offered the priority amount in time, or Fannie Mae or Freddie Mac owned the loan (while they are under federal conservatorship)', 'Property taxes', 'Federal tax liens', 'The 60-day redemption right'],
     },
     mistakes: [
       { mistake: 'Assuming every HOA sale wipes out the mortgage', prevent: 'Check the Recorder for the lender’s payment before bidding.' },
@@ -271,7 +271,7 @@ export const PLAYBOOKS: Playbook[] = [
     example: {
       title: 'A year of waiting',
       story: 'A buyer paid $120,000 at a sheriff’s sale and started repairs. Eleven months later the debtor redeemed, repaying the price plus 1% a month but not the repair spending.',
-      lesson: 'The interest covered the wait, not the repairs. Don’t improve a property until the redemption period ends.',
+      lesson: 'The interest covered the wait, not the repairs, and any rent collected during the year is subtracted from the payoff (NRS 21.250). Don’t improve a property until the redemption period ends.',
     },
     team: [T.attorney, T.title, T.insurance, T.agent],
     sources: [
