@@ -2,9 +2,11 @@
 //
 // Every profile is a paid advertisement, but ranking is NEUTRAL: filters decide who matches,
 // and matches are shown in a daily rotating order that is the same for everyone. Paying more
-// never buys better placement. (Under RESPA section 8, a platform that steers consumers to
-// settlement-service providers based on payments violates the anti-kickback rule; see the
-// CFPB's Feb 2023 advisory opinion on digital comparison-shopping platforms.)
+// never buys better placement. (RESPA section 8; CFPB Advisory Opinion 88 FR 9162, Feb 13, 2023,
+// still in effect in 2026: a platform that steers consumers to settlement-service providers based
+// on payments violates the anti-kickback rule. It warns that equal-fee random rotation can still be
+// steering if presented as tailored, and that disclosures don't cure it. So: never label anyone
+// "best", "top" or "recommended", and never push an advertiser to a user after a search.)
 //
 // A profile is shown only while ALL of these hold:
 //   - its license/registration was confirmed by a person on the official regulator lookup
@@ -38,7 +40,7 @@ export const CATEGORIES: Record<Category, CategoryInfo> = {
     regulator: 'Nevada Real Estate Division',
     lookupUrl: 'https://red.prod.secure.nv.gov/Lookup/LicenseLookup.aspx',
     licenseLabel: 'Nevada real estate license number',
-    licensePattern: /^(S|BS|B)\.\d{5,8}(\.[A-Z]{2,5})?$/,
+    licensePattern: /^(S|BS|B)\.\d{5,8}(\.[A-Z]{1,5})?$/,
     licenseHint: 'e.g. S.0012345, BS.0012345 or B.0012345',
     licenseExpires: true,
     services: ['Short sales', 'Bank-owned (REO)', 'Auction & tax-sale properties', 'Investors', 'First-time buyers', 'Probate & estate sales'],
@@ -48,7 +50,7 @@ export const CATEGORIES: Record<Category, CategoryInfo> = {
     label: 'Loan officer',
     plural: 'Loan officers',
     group: 'Financing',
-    regulator: 'NMLS Consumer Access',
+    regulator: 'Nevada Division of Mortgage Lending or federal registration (via NMLS Consumer Access)',
     lookupUrl: 'https://www.nmlsconsumeraccess.org/',
     licenseLabel: 'Individual NMLS ID',
     licensePattern: /^\d{3,8}$/,
@@ -61,7 +63,7 @@ export const CATEGORIES: Record<Category, CategoryInfo> = {
     label: 'Mortgage company',
     plural: 'Mortgage lenders & brokers',
     group: 'Financing',
-    regulator: 'NMLS Consumer Access',
+    regulator: 'Nevada Division of Mortgage Lending (via NMLS Consumer Access)',
     lookupUrl: 'https://www.nmlsconsumeraccess.org/',
     licenseLabel: 'Company NMLS ID',
     licensePattern: /^\d{3,8}$/,
@@ -100,11 +102,11 @@ export const CATEGORIES: Record<Category, CategoryInfo> = {
     label: 'Hard money / private lender',
     plural: 'Hard money & private lenders',
     group: 'Financing',
-    regulator: 'NMLS Consumer Access (company license)',
+    regulator: 'Nevada Division of Mortgage Lending (via NMLS Consumer Access)',
     lookupUrl: 'https://www.nmlsconsumeraccess.org/',
     licenseLabel: 'Company NMLS ID',
     licensePattern: /^\d{3,8}$/,
-    licenseHint: 'Nevada mortgage lending is licensed through NMLS (NRS 645B)',
+    licenseHint: 'Company NMLS ID. Most Nevada mortgage licenses are on NMLS (NRS 645B); commercial-only lenders without one can’t be listed yet',
     licenseExpires: true,
     services: [],
     financing: true,
@@ -113,7 +115,7 @@ export const CATEGORIES: Record<Category, CategoryInfo> = {
     label: 'Title & escrow',
     plural: 'Title & escrow companies',
     group: 'Closing & protection',
-    regulator: 'Nevada Division of Insurance',
+    regulator: 'Nevada Division of Insurance (title agents and escrow officers)',
     lookupUrl: 'https://di.nv.gov/nv/r/doi/licensing/search',
     licenseLabel: 'Nevada Division of Insurance license number',
     licensePattern: /^[A-Z0-9-]{3,15}$/,

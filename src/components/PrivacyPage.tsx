@@ -60,7 +60,7 @@ const SECTIONS: DrillSection[] = [
           </li>
           <li>
             <strong>Security.</strong> To block abuse, our server keeps network addresses in memory for a short time to limit how many requests
-            each one can make. Our server software doesn't write visitor logs; our hosting provider may keep standard network logs for security.
+            each one can make. Our server software doesn't write visitor logs. If someone tries to sign in to an administrator account, we keep the network address used, to protect against break-ins. If our email service isn't set up, messages we would have emailed, including lead messages, are written to our server's private log instead. Our hosting provider may keep standard network logs for security.
           </li>
         </ul>
         <h3>Public records about properties</h3>

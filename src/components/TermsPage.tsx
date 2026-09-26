@@ -101,7 +101,7 @@ const SECTIONS: DrillSection[] = [
         </p>
         <p>
           When you use a contact form, your details go only to the professional you chose. Any agreement, fee, loan or service is strictly between
-          you and them. We aren't a party to it, we don't receive referral fees or a share of any transaction, and we aren't responsible for their
+          you and them. We aren't a party to it, every advertiser in a category pays the same flat monthly fee, we don't charge per lead or per closing or take a share of any transaction, and we aren't responsible for their
           work.
         </p>
       </>
@@ -159,8 +159,8 @@ const SECTIONS: DrillSection[] = [
     content: () => (
       <>
         <p>
-          The site's design, text, tools, playbooks and software belong to us or our licensors. You may use them for your own personal,
-          non-commercial research. Public records stay public; our compilation and presentation of them is ours.
+          The site's design, text, tools, playbooks and software belong to us or our licensors. You may use them for your own research, including
+          for your own investing. Don't copy or resell the site or its data. Public records stay public; our compilation and presentation of them is ours.
         </p>
         <p>
           We link to government agencies, regulators, payment and map services, and professionals' websites. We don't control those sites and

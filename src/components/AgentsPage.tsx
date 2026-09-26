@@ -81,7 +81,7 @@ export default function AgentsPage({ shortSales = false, initialQuery = '' }: { 
         </section>
       </div>
 
-      <h2 className="section-title">Verified agents</h2>
+      <h2 className="section-title">License-checked agents</h2>
       <p className="small muted">
         Licenses checked by a person at least every {REVERIFY_DAYS} days. <a href="#/advertise/apply/agent">Agents: get listed →</a> · Looking for
         lenders, title or contractors? <a href="#/financing">Financing</a> · <a href="#/pros">Title, insurance &amp; repairs</a>

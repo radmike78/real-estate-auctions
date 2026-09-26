@@ -25,6 +25,7 @@ describe('maximum safe bid', () => {
     const c = costsAtBid(base, 200_000);
     expect(c.premium).toBe(10_000);
     expect(c.transferTax).toBeCloseTo(1020, 2); // $2.55 per $500
+    expect(costsAtBid(base, 200_001).transferTax).toBeCloseTo(1022.55, 2); // a fraction of $500 counts as a full $500 (NRS 375.020)
     expect(c.repairs).toBeCloseTo(46_000, 2); // 15% contingency
     expect(c.selling).toBe(32_000);
     expect(c.financing).toBeGreaterThan(0);
@@ -78,7 +79,8 @@ describe('due-diligence workflow and playbooks', () => {
   it('states the verified Clark County tax sale rules', () => {
     const tax = PLAYBOOKS.find((p) => p.key === 'tax')!;
     const text = JSON.stringify(tax);
-    expect(text).toMatch(/not an LLC or trust/);
+    expect(text).toMatch(/name on your Trustee Auction Registration Form/);
+    expect(text).not.toMatch(/not an LLC/); // the Treasurer FAQ doesn't say this
     expect(text).toMatch(/1:00 p\.m\./);
     expect(text).toMatch(/protest for 2 years/);
     expect(text).not.toMatch(/buyer.s premium/i); // the in-person Treasurer auction has none

@@ -18,10 +18,10 @@ export default function AdvertisePage() {
 
       <section className="options-grid" aria-label="What you get">
         {[
-          ['Your own profile page', 'A dedicated page with your services, service areas, languages and a verified-license badge.'],
+          ['Your own profile page', 'A dedicated page with your services, service areas, languages and a license-checked badge.'],
           ['Leads sent to you', 'Buyers send contact requests straight to your inbox. Each one agrees to share their details with you only.'],
           ['Proof it works', 'A dashboard and monthly report of profile views, phone taps, email and website clicks, and leads.'],
-          ['A trusted badge', `We verify every license with the state or federal regulator and re-check it every ${REVERIFY_DAYS} days.`],
+          ['A license-checked badge', `We check every license on the official regulator or NMLS lookup and re-check it every ${REVERIFY_DAYS} days. It isn’t a recommendation.`],
         ].map(([t, d]) => (
           <div key={t} className="option-card"><h3>{t}</h3><p>{d}</p></div>
         ))}
@@ -51,7 +51,7 @@ export default function AdvertisePage() {
 
       <div className="notice small" role="note">
         <strong>Fair placement.</strong> Results are filtered by what the buyer needs and shown in a rotating order. No one can pay for a higher
-        position. Your profile is labeled as an advertisement. We don't receive referral fees or a share of any transaction, and we aren't
+        position. Your profile is labeled as an advertisement. Every advertiser in a category pays the same flat monthly fee. We don't charge per lead or per closing, or take a share of any transaction, and we aren't
         a party to any agreement between you and a buyer.
       </div>
       <p className="small muted">Already listed? <a href="#/advertiser">Sign in to your dashboard →</a></p>

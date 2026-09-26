@@ -34,10 +34,10 @@ export const STATUS: Record<AcquisitionStatus, StatusInfo> = {
     explanation: 'The lender already owns the property and accepts offers through a listing broker.',
   },
   COURT_CONFIRMATION_REQUIRED: {
-    label: 'Court confirmation required',
+    label: 'Redemption period applies',
     tone: 'wait',
     purchasable: true,
-    explanation: 'You can bid, but a court must confirm the sale, and redemption rights may apply afterward.',
+    explanation: 'You can bid, but the owner can redeem for up to 1 year after this court-ordered sale, and the deed comes only after that.',
   },
   LIEN_CERTIFICATE_ONLY: {
     label: 'Lien certificate only',
@@ -49,7 +49,7 @@ export const STATUS: Record<AcquisitionStatus, StatusInfo> = {
     label: 'Pre-foreclosure',
     tone: 'wait',
     purchasable: false,
-    explanation: 'A default is recorded but no sale date is set yet. The only way to buy now is directly from the owner.',
+    explanation: 'A default is recorded but no sale date is set yet. Nothing is for sale. If the owner decides to sell, it will usually be listed through an agent.',
   },
   SALE_CANCELLED_OR_POSTPONED: {
     label: 'Cancelled / postponed',
@@ -100,7 +100,7 @@ export function purchaseSteps(p: Property): string[] {
         'Bid under the auctioneer or trustee procedures announced at the sale.',
         `Pay any remaining balance by ${s?.finalPaymentDeadline ? fmtDate(s.finalPaymentDeadline) : 'the posted deadline'}.`,
         p.status === 'COURT_CONFIRMATION_REQUIRED'
-          ? 'Wait for court confirmation and for any redemption period to expire before the deed is final.'
+          ? 'You receive a certificate of sale. Wait for the redemption period to end before the deed is issued.'
           : 'Obtain the deed and record it with the Clark County Recorder.',
         'Order title work and resolve any surviving liens, then handle possession and any quiet-title work.',
       ];
@@ -114,7 +114,7 @@ export function purchaseSteps(p: Property): string[] {
     case 'PRE_FORECLOSURE_NOT_YET_PURCHASABLE':
       return [
         'There is no auction yet. Track this property in the Pre-foreclosure tracker. If it proceeds, a Notice of Sale will be recorded and an auction date set.',
-        'Do not contact the homeowner. Nevada licenses and regulates foreclosure consultants and buyers who deal with owners in foreclosure (NRS 645F), and a purchase made through fraud or deceit can be undone.',
+        'Do not contact the homeowner. Nevada licenses foreclosure consultants, buyers who use fraud or deceit on owners in foreclosure face criminal penalties, and the owner can undo such a sale for up to 2 years (NRS 645F).',
         'If the owner decides to sell, the home will be listed through a licensed agent, often as a short sale. Ask a short-sale agent to watch for it.',
       ];
     case 'LIEN_CERTIFICATE_ONLY':

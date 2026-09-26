@@ -54,7 +54,7 @@ The gap: nobody combines **accurate, current, local data** with **an honest expl
 ### Added from our own research
 
 - **Homeowner help page** (`#/homeowner-help`): mediation, HUD/CFPB counselors, legal aid, scam warnings, tenant rights, excess proceeds.
-- Verified Clark County tax-sale rules in checklists: $5,000 deposit, registration closes about 8 days before, bidder must be an individual (not an LLC or trust), full payment by 1:00 p.m., no redemption but a 2-year protest window.
+- Verified Clark County tax-sale rules in checklists: $5,000 deposit, registration closes about 8 days before, deed issued to the name on the Trustee Auction Registration Form (Treasurer FAQ, checked Sept 2026), full payment by 1:00 p.m., no redemption but a 2-year protest window.
 - HOA lender-tender rule and 60-day redemption (NRS 116.31166); tenant notices (90 days under the federal Protecting Tenants at Foreclosure Act; NRS 40.255 for the change-of-ownership notice); sheriff-sale 1-year redemption (NRS 21.210).
 - A legal fact-check against statute text corrected: special-assessment certificate rules (no deposit, day-of registration, next-morning payment, certificate expiry, deed clears other liens under NRS 271.600), the federal Foreclosure Bar for Fannie Mae / Freddie Mac loans at HOA sales, the U.S. 120-day redemption right after trustee sales, and the scope of NRS 645F.
 

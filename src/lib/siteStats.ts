@@ -47,7 +47,7 @@ export function sitePageFor(route: string): SitePage | null {
   return isSitePage(route) ? route : 'other';
 }
 
-const BANK_OWNED_HOSTS = /(^|\.)(fanniemae\.com|homesteps\.com|bankofamerica\.com|firstcitizens\.com|usbank\.com|chase\.com|createcu\.org)$/;
+const BANK_OWNED_HOSTS = /(^|\.)(fanniemae\.com|homesteps\.com|bankofamerica\.com|firstcitizens\.com|usbank\.com|chase\.com)$/;
 
 /** What kind of outside link a visitor followed, for the stats; null for links we don't count. */
 export function outboundAction(href: string): SiteAction | null {

@@ -10,7 +10,7 @@ const SALE_TYPES: [string, string, string][] = [
   ['Tax-deed sale', 'The property (quitclaim deed); the former owner can protest for 2 years', 'In-person Treasurer auction, certified funds the same day'],
   ['Special assessment lien certificate', 'The right to be repaid the assessment plus 1% a month, not ownership. A deed only if not redeemed in 120 days (2 years if the land has a building)', 'Clark County Treasurer (SID) sale; winners picked by random drawing'],
   ['Mortgage foreclosure', 'The property after lender enforcement', 'Trustee, sheriff or judicial auction'],
-  ['HOA foreclosure', 'A property interest subject to state rules', 'HOA agent / trustee auction'],
+  ['HOA foreclosure', 'The owner’s title after a 60-day redemption period; the first mortgage may survive', 'HOA agent / trustee auction'],
   ['Judgment execution', "The debtor's interest", 'Sheriff sale, with redemption rights'],
   ['Federal tax seizure', "The taxpayer's interest", 'IRS public auction or sealed bid'],
   ['REO / bank-owned', 'The property from the lender', 'Offer through a broker or online auction'],
@@ -117,7 +117,7 @@ export default function AboutPage({ section }: { section?: string }) {
             <>
               <strong>A lien does not mean a property is for sale.</strong> A property heads to a forced sale only when someone enforces a
               lien: a notice of trustee sale, a court order, a levy, or a tax-sale listing. We only call a property buyable when a sale is on
-              record.
+              record, or when a lender or agency is selling a home it already owns.
             </>
           )
         }

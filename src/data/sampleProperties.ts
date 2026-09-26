@@ -206,9 +206,9 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
         registrationDeadline: isoAt(saleDay - 8, 17),
         paymentMethods: ['Cash', "Cashier's check", 'Money order'],
         finalPaymentDeadline: isoAt(saleDay, 13),
-        deedType: 'Quitclaim deed from the Treasurer, recorded within 30 days, in the bidder’s individual name',
+        deedType: 'Quitclaim deed from the Treasurer, recorded within 30 days, in the name on the bidder’s registration form',
         redemptionPeriod: 'None after the auction. The former owner may protest the sale for 2 years (title insurance may be unavailable meanwhile); the IRS may redeem within 120 days if it holds a lien',
-        eligibility: 'Registered bidders only, capped at 280; must register as an individual (not an LLC or trust)',
+        eligibility: 'Registered bidders only, capped at 280; deed issued to the name on the registration form',
       });
       status = 'IN_PERSON_AUCTION';
       break;
@@ -330,7 +330,7 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
         startsAt: isoAt(saleDay, 10),
         location: 'Sealed bids delivered to the IRS Property Appraisal & Liquidation Specialist (see notice)',
         minimumBid: round(value * 0.35, 1000),
-        deposit: '20% of the bid or $200, whichever is greater (see notice)',
+        deposit: 'Set in the IRS notice of sale (sample)',
         paymentMethods: ["Cashier's check", 'Certified check'],
         deedType: 'Certificate of sale, then an IRS deed',
         redemptionPeriod: '180 days (26 U.S.C. § 6337)',

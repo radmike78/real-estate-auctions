@@ -19,14 +19,19 @@ export const parseClass = (v: string | null | undefined): ClassFilter => (v === 
 /** Clark County Assessor land-use code (e.g. "20.110", "41.335.C") → class, or null when it's
  *  neither (public land, parks, agriculture, utilities, unknown vacant land) or not recognized.
  *  Code families checked against the Assessor's own parcel records:
- *    12–13 vacant residential land · 14–15 vacant commercial / industrial land
+ *    12 vacant single-family land · 14–15 vacant commercial / industrial land
  *    20–32 homes with 1–4 units · 33–39 apartments with 5+ units, mobile-home parks
- *    40–49 commercial (retail, offices, hotels, casinos, recreation) · 50–59 industrial */
+ *    40–49 commercial (retail, offices, hotels, casinos, recreation) · 50–59 industrial
+ *  Not classified: 13 (vacant multi-residential land, which may be zoned for apartments),
+ *  41.410–41.460 (schools, churches, libraries, social organizations, government buildings)
+ *  and 44.470 (non-profit recreation). Source: Assessor “Land Use Codes” list (4/21/2021). */
 export function classOfLandUse(code: string | null | undefined): PropertyClass | null {
-  const m = /^(\d{2})\.\d{3}/.exec(code?.trim() ?? '');
+  const m = /^(\d{2})\.(\d{3})/.exec(code?.trim() ?? '');
   if (!m) return null;
   const n = Number(m[1]);
-  if (n === 12 || n === 13 || (n >= 20 && n <= 32)) return 'residential';
+  const sub = Number(m[2]);
+  if ((n === 41 && sub >= 410 && sub <= 460) || (n === 44 && sub === 470)) return null;
+  if (n === 12 || (n >= 20 && n <= 32)) return 'residential';
   if (n === 14 || n === 15 || (n >= 33 && n <= 59)) return 'commercial';
   return null;
 }

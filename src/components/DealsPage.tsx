@@ -69,7 +69,7 @@ function DealCard({ d }: { d: SavedDeal }) {
         <div><dt>Register by</dt><dd>{s?.registrationDeadline ? <>{fmtDateTime(s.registrationDeadline)}{regClosed ? <span className="deal-urgent"> · closed</span> : regDays !== null && regDays <= 7 && <span className="deal-urgent"> · {regDays <= 1 ? 'closes within a day' : `${regDays} days left`}</span>}</> : '—'}</dd></div>
         <div><dt>Opening / minimum bid</dt><dd>{fmtMoney(minBid)}</dd></div>
         <div>
-          <dt>Your max safe bid</dt>
+          <dt>Your max bid</dt>
           <dd>{maxBid === null ? <a href={`${base}/max-bid`}>Set it →</a> : <>{fmtMoney(maxBid)}{minBid !== null && <span className={minBid > maxBid ? 'deal-urgent' : 'deal-ok'}> · {minBid > maxBid ? 'opening bid is above your max' : 'room to bid'}</span>}</>}</dd>
         </div>
         <div>

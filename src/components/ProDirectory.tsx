@@ -127,7 +127,7 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
           </p>
         </div>
       )}
-      {!loading && results.length === 0 && pros.length > 0 && !error && <div className="empty">No verified professionals match yet. Try another city or filter.</div>}
+      {!loading && results.length === 0 && pros.length > 0 && !error && <div className="empty">No license-checked professionals match yet. Try another city or filter.</div>}
       <ul className="pro-grid">{results.map((p) => <ProCard key={p.id} p={p} />)}</ul>
     </div>
   );

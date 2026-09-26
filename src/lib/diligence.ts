@@ -38,7 +38,7 @@ export function diligenceReport(p: Property): Check[] {
     {
       area: 'Federal tax liens',
       result: has('FEDERAL_TAX') ? 'flag' : 'ok',
-      detail: has('FEDERAL_TAX') ? 'A federal tax lien is recorded. Confirm IRS notice timing and the 120-day redemption right.' : 'None found in the sources checked.',
+      detail: has('FEDERAL_TAX') ? 'A federal tax lien is recorded. Confirm whether it ranks ahead of the lien being foreclosed, whether the IRS got 25 days’ notice, and the U.S. redemption right (120 days, or longer after a court or sheriff sale).' : 'None found in the sources checked.',
     },
     {
       area: 'Property-tax status',
@@ -91,7 +91,7 @@ export function diligenceReport(p: Property): Check[] {
     },
     { area: 'Comparable sales', result: 'manual', detail: `The estimated value of ${fmtMoney(p.estimatedMarketValue)} is a model estimate. Pull comps before bidding.` },
     {
-      area: 'Estimated equity',
+      area: 'Estimated spread',
       result: money.estimatedEquity === null ? 'review' : money.estimatedEquity > 0 ? 'ok' : 'flag',
       detail:
         money.estimatedEquity === null

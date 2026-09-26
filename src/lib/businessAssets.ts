@@ -65,7 +65,7 @@ export const BUSINESS_SOURCES: BusinessSource[] = [
     name: 'Nevada Department of Taxation',
     owner: 'State of Nevada',
     url: 'https://tax.nv.gov/',
-    what: 'Where a seller gets the certificate showing state taxes are paid, before you buy a business or its stock of goods.',
+    what: 'Where a seller gets the receipt or certificate showing state taxes are paid, before you buy all or part of a business or its stock of goods.',
     howToUse: 'Without it, Nevada law makes the buyer liable for the seller’s unpaid taxes, up to the price paid (NRS 360.525).',
   },
 ];

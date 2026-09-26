@@ -55,7 +55,7 @@ const GUIDE: DrillSection[] = [
       <>
         <ol className="timeline-steps">
           <li><strong>Notice of default</strong><span>Recorded by the trustee or HOA. The owner can still cure the default.</span></li>
-          <li><strong>3+ months</strong><span>Minimum wait before a notice of sale can be recorded (NRS 107.080).</span></li>
+          <li><strong>3+ months</strong><span>Minimum wait before a notice of sale can be recorded: 3 months for a mortgage (NRS 107.080), 90 days for an HOA (NRS 116.31162).</span></li>
           <li><strong>Notice of sale</strong><span>Posted 20 days and published 3 weeks. Sets the auction date.</span></li>
           <li><strong>Auction</strong><span>Held, postponed or cancelled. A sale becomes an auction listing on this site.</span></li>
         </ol>
@@ -127,8 +127,8 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
 
       <div className="caution" role="alert">
         <strong>Do not contact these homeowners.</strong> A notice of default means an owner is behind on payments. It does not mean the home
-        is for sale. Nevada licenses and regulates foreclosure consultants and buyers who deal with owners in foreclosure (NRS Chapter 645F), and a
-        purchase made through fraud or deceit can be rescinded for up to 2 years. Owners may also be in the state's Foreclosure Mediation Program. For that reason this tracker shows no
+        is for sale. Nevada licenses foreclosure consultants, and a buyer who uses fraud or deceit on an owner in foreclosure faces criminal penalties
+        (NRS Chapter 645F). The owner can rescind such a purchase for up to 2 years. Owners may also be in the state's Foreclosure Mediation Program. For that reason this tracker shows no
         owner names or contact details. Use it only to follow a property toward auction, or to recognize it if the owner lists it for sale
         through an agent. Homeowners can find free help on our <a href="#/homeowner-help">homeowner help page</a>.
       </div>
@@ -160,11 +160,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
                 <strong>No notices to track yet.</strong> Notices of default and sale will appear here once our feed of Clark County Recorder
                 filings is connected.
               </p>
-              <p>
-                Until then, you can search recorded notices yourself in the{' '}
-                <a href="https://recorderecomm.clarkcountynv.gov/AcclaimWeb/" target="_blank" rel="noopener noreferrer">Recorder's official records ↗</a>,
-                and read how the process works in the guide above.
-              </p>
+              <p>Until then, read how the process works in the guide above.</p>
             </div>
           ) : (
           <>

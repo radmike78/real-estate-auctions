@@ -53,9 +53,9 @@ const SECTIONS: DrillSection[] = [
     summary: 'Debts, taxes, licenses, leases and employees: what comes with it',
     content: () => (
       <ul className="risk-list">
-        <li><strong>Assets are simpler.</strong> Buying equipment or inventory usually leaves the old company’s debts behind, as long as liens are cleared and state taxes are settled.</li>
+        <li><strong>Assets are simpler.</strong> Buying equipment or inventory usually leaves the old company’s debts behind, as long as liens are cleared and state taxes are settled, unless the deal is really a merger or continuation of the old business. Ask an attorney.</li>
         <li><strong>Buying the company takes its history.</strong> Buying the shares or membership interests brings its debts, lawsuits and tax bills with it. Get an attorney and a CPA.</li>
-        <li><strong>Nevada tax clearance.</strong> If you buy a business or its stock of goods outside normal sales, withhold enough of the price until the seller gives you a certificate from the Department of Taxation. If you don’t, you can owe their unpaid state taxes, up to what you paid (NRS 360.525).</li>
+        <li><strong>Nevada tax clearance.</strong> If you buy all or part of a business or its stock of goods outside normal sales, hold back enough of the price until the seller gives you a receipt or certificate from the Department of Taxation. If you don’t, you can owe their unpaid state taxes, up to what you paid (NRS 360.525).</li>
         <li><strong>Liens on equipment.</strong> Lenders record UCC financing statements with the Nevada Secretary of State. A bankruptcy sale order can clear them; a sheriff or tax sale may not.</li>
         <li><strong>Licenses don’t transfer.</strong> Business, liquor, health and contractor licenses are issued to the owner. Apply in your own name before you reopen.</li>
         <li><strong>The lease and the name.</strong> The building lease usually needs the landlord’s consent. Trade names, websites and phone numbers must be included in the sale to be yours.</li>

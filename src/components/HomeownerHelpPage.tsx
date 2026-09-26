@@ -16,7 +16,7 @@ export default function HomeownerHelpPage() {
         <h2>First: you have time and options</h2>
         <ul>
           <li>In Nevada, at least 3 months must pass after a notice of default is recorded before a notice of sale can follow, and the sale notice must be published for 3 weeks.</li>
-          <li>You can often catch up (reinstate), work out a modification or repayment plan, sell (including a short sale), or get legal help to review your case.</li>
+          <li>You can often catch up (reinstate) until 5 days before the sale (NRS 107.0805), work out a modification or repayment plan, sell (including a short sale), or get legal help to review your case.</li>
           <li>Call your lender or servicer early and keep notes of every call.</li>
         </ul>
       </section>
@@ -24,8 +24,8 @@ export default function HomeownerHelpPage() {
       <section>
         <h2>Free, trustworthy help</h2>
         <ul className="help-links">
-          <li><strong>Foreclosure Mediation Program (Nevada courts).</strong> If you live in the home, you can petition the district court for mediation with your lender within 30 days after the notice of default is served (NRS 107.086). There is a small filing fee. In Clark County it is run by the Eighth Judicial District Court. <a href="https://www.clarkcountycourts.us/departments/adr/foreclosure-mediation/" {...ext}>Foreclosure mediation (Clark County courts) ↗</a></li>
-          <li><strong>HUD-approved housing counselors.</strong> Free advice on your options. <a href="https://www.hud.gov/findacounselor" {...ext}>Find a counselor (HUD) ↗</a> · <a href="https://www.consumerfinance.gov/find-a-housing-counselor/" {...ext}>CFPB counselor search ↗</a></li>
+          <li><strong>Foreclosure Mediation Program (Nevada courts).</strong> If you live in the home, you can petition the district court for mediation with your lender within 30 days after the notice of default is served (NRS 107.086). There is a $25 filing fee plus your half of the mediation fee; the law caps the total mediation fee at $500. In Clark County it is run by the Eighth Judicial District Court. <a href="https://www.clarkcountycourts.us/departments/adr/foreclosure-mediation/" {...ext}>Foreclosure mediation (Clark County courts) ↗</a></li>
+          <li><strong>HUD-approved housing counselors.</strong> Free advice on your options. <a href="https://answers.hud.gov/housingcounseling/" {...ext}>Find a counselor (HUD) ↗</a> · <a href="https://www.consumerfinance.gov/find-a-housing-counselor/" {...ext}>CFPB counselor search ↗</a></li>
           <li><strong>Free legal help.</strong> <a href="https://www.lacsn.org/" {...ext}>Legal Aid Center of Southern Nevada ↗</a> · <a href="https://nevadalegalservices.org/" {...ext}>Nevada Legal Services ↗</a> · <a href="https://www.civillawselfhelpcenter.org/" {...ext}>Civil Law Self-Help Center ↗</a></li>
         </ul>
       </section>
@@ -34,7 +34,7 @@ export default function HomeownerHelpPage() {
         <h2>Watch out for foreclosure scams</h2>
         <ul>
           <li>Never pay upfront fees to someone promising to “save” your home. Counselors above are free.</li>
-          <li>Never sign over your deed or sign papers you don’t understand. Nevada licenses and regulates foreclosure consultants and people who buy homes from owners in foreclosure (NRS 645F). If a buyer used fraud or deceit, the sale can be cancelled within 2 years.</li>
+          <li>Never sign over your deed or sign papers you don’t understand. Nevada licenses foreclosure consultants, and buyers who use fraud or deceit on owners in foreclosure face criminal penalties (NRS 645F). If a buyer used fraud or deceit, you can cancel the sale within 2 years.</li>
           <li>Be wary of anyone who contacts you because they saw your home in public records.</li>
           <li>Report scams to the <a href="https://ag.nv.gov/" {...ext}>Nevada Attorney General ↗</a>.</li>
         </ul>
