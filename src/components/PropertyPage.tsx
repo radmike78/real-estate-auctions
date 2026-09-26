@@ -366,7 +366,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             <a href={open ? baseHref : '#/search'}>{open ? '← Property overview' : '← Back to results'}</a>
             <span className="hero-actions">
               <SaveDealButton p={p} />
-              {p.origin === 'treasurer-feed' && <TrackButton target={`tax:${p.apn}`} label={`${p.address} (APN ${p.apn})`} />}
+              {verified && <TrackButton target={irs ? `irs:${p.id.slice(IRS_ID_PREFIX.length)}` : `tax:${p.apn}`} label={`${p.address} (APN ${p.apn})`} />}
               <button className="hero-btn" onClick={() => window.print()}>Print full report</button>
             </span>
           </>
