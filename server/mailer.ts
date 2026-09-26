@@ -1,6 +1,6 @@
-// Outgoing email. The default mailer prints messages to the server log so every flow works in
-// development. In production, implement `Mailer` with your email provider (SMTP or an API) and
-// pass it to createApp().
+// Outgoing email. Production sends through Postmark (postmarkMailer) when POSTMARK_SERVER_TOKEN and
+// MAIL_FROM are set; otherwise consoleMailer prints messages to the server log so every flow works
+// in development.
 
 import type { LeadRow } from './db';
 
@@ -19,6 +19,79 @@ export const consoleMailer: Mailer = {
     console.log(`\n--- email to ${mail.to} ---\nSubject: ${mail.subject}\n\n${mail.text}\n--- end email ---\n`);
   },
 };
+
+export class MailError extends Error {
+  readonly retryable: boolean;
+  constructor(message: string, retryable: boolean) {
+    super(message);
+    this.retryable = retryable;
+  }
+}
+
+export interface PostmarkOptions {
+  serverToken: string;
+  from: string; // must be a verified sender signature or domain in Postmark
+  replyTo?: string;
+  messageStream?: string; // default "outbound" (Postmark's transactional stream)
+  fetch?: typeof fetch; // for tests
+  retryDelayMs?: number;
+}
+
+const POSTMARK_URL = 'https://api.postmarkapp.com/email';
+const oneLine = (s: string) => s.replace(/[\r\n]+/g, ' ').trim();
+
+/** Sends through Postmark's email API. Open and link tracking are off: sign-in and confirmation links must
+ *  reach people unchanged, and we don't track who reads our email. Retries once on rate limits, server
+ *  errors and network failures; throws MailError when the message can't be sent. */
+export function postmarkMailer(opts: PostmarkOptions): Mailer {
+  const doFetch = opts.fetch ?? fetch;
+  const delay = opts.retryDelayMs ?? 1000;
+  async function attempt(mail: Mail): Promise<void> {
+    let res: Response;
+    try {
+      res = await doFetch(POSTMARK_URL, {
+        method: 'POST',
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'X-Postmark-Server-Token': opts.serverToken },
+        body: JSON.stringify({
+          From: opts.from,
+          To: oneLine(mail.to),
+          Subject: oneLine(mail.subject),
+          TextBody: mail.text,
+          ...(opts.replyTo ? { ReplyTo: opts.replyTo } : {}),
+          MessageStream: opts.messageStream ?? 'outbound',
+          TrackOpens: false,
+          TrackLinks: 'None',
+        }),
+        signal: AbortSignal.timeout(10_000),
+      });
+    } catch (e) {
+      throw new MailError(`Postmark request failed: ${(e as Error).message}`, true);
+    }
+    let body: { ErrorCode?: number; Message?: string } = {};
+    try {
+      body = await res.json();
+    } catch {
+      /* non-JSON error page */
+    }
+    if (res.ok && (body.ErrorCode ?? 0) === 0) return;
+    const detail = `Postmark HTTP ${res.status}${body.ErrorCode !== undefined ? `, error ${body.ErrorCode}` : ''}${body.Message ? `: ${body.Message}` : ''}`;
+    throw new MailError(detail, res.status === 429 || res.status >= 500);
+  }
+  return {
+    async send(mail) {
+      try {
+        await attempt(mail);
+      } catch (e) {
+        if (!(e instanceof MailError) || !e.retryable) throw e;
+        await new Promise((r) => setTimeout(r, delay));
+        await attempt(mail);
+      }
+    },
+  };
+}
+
+/** Hides most of an address for logs: "jo***@example.com". */
+export const maskEmail = (to: string) => to.replace(/^(.{0,2})[^@]*@/, '$1***@');
 
 const FOOTER =
   '\n--\nForced-Sale Finder helps people find options. We are not a lender, broker, agent or party to any transaction, ' +

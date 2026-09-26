@@ -141,6 +141,14 @@ The main risk is a **fake professional profile**, for example a real agent's or 
 - **Keys.** `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are read from the environment and never logged or committed. A restricted key (`rk_...`) limited to Customers, Checkout Sessions and Billing Portal (write) is recommended. The server refuses to start with only some of the settings.
 - **Audit.** Checkout started or completed, payments received or failed, scheduled cancellations and ended subscriptions are all recorded in the audit trail.
 
+## 5d-3. Email (Postmark)
+
+- **Token.** `POSTMARK_SERVER_TOKEN` is read from the environment (a Podman or Kubernetes secret). It is never logged or committed. Use a Server token, which can only send from that one Postmark server, not the Account token.
+- **No tracking.** Every message is sent with open and link tracking off. Sign-in and confirmation links reach people unchanged, and nobody's reading is tracked.
+- **Header-safe.** Messages go to Postmark's JSON API, not raw SMTP. Line breaks are stripped from the recipient and subject anyway.
+- **Quiet failures.** A failed send is logged with a masked address and the subject, never the message body (which can hold a sign-in link). A failure never crashes the server or leaks whether an account exists: sign-in requests get the same reply either way.
+- **Abuse limits.** The existing per-recipient and per-network rate limits apply before anything is sent, and confirmation emails echo no applicant-supplied text.
+
 ## 5e. Running behind a reverse proxy
 
 Set `TRUST_PROXY=1` only when the server sits behind your own proxy that **appends** the client address to `X-Forwarded-For` (nginx `$proxy_add_x_forwarded_for`, most load balancers). The server uses the **last** entry, the one your proxy added; anything earlier was sent by the client and can be forged. Without `TRUST_PROXY`, the socket address is used.
