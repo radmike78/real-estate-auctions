@@ -2,7 +2,7 @@ import { useState, type CSSProperties } from 'react';
 import type { BuyerChecklist } from '../lib/buyerChecklists';
 
 // Checklist key → Nevada playbook with the full step-by-step process.
-const PLAYBOOK_FOR: Record<string, string> = { tax: 'tax', sid: 'sid', foreclosure: 'foreclosure', reo: 'reo', hoa: 'hoa', sheriff: 'sheriff', short: 'short', pre: 'foreclosure' };
+const PLAYBOOK_FOR: Record<string, string> = { tax: 'tax', sid: 'sid', foreclosure: 'foreclosure', reo: 'reo', commercial: 'commercial', hoa: 'hoa', sheriff: 'sheriff', short: 'short', pre: 'foreclosure' };
 
 const KEY = (k: string) => `fsf.checklist.${k}.v1`;
 

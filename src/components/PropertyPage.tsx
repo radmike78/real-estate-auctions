@@ -10,19 +10,21 @@ import SourceTag from './SourceTag';
 import { daysUntil } from './ResultsList';
 import Disclaimer from './Disclaimer';
 import BuyerChecklistBox from './BuyerChecklistBox';
-import { checklistForProperty } from '../lib/buyerChecklists';
+import { checklistForProperty, CHECKLISTS } from '../lib/buyerChecklists';
+import { classOfType } from '../lib/propertyClass';
+import IncomeValue from './IncomeValue';
 import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
 import { IconBadge, IconCalc, IconCalendar, IconCamera, IconFile, IconFlag, IconLayers, IconShield, IconSteps } from './Icons';
 import PhotosAndViews from './PhotosAndViews';
 import { parcelDigits, propertyViews } from '../lib/propertyViews';
-import BidCalculator from './BidCalculator';
+import BidCalculator, { setSavedExitValue } from './BidCalculator';
 import { DD_STEPS } from '../lib/ddFunnel';
 import DueDiligenceFunnel from './DueDiligenceFunnel';
 import SaveDealButton from './SaveDealButton';
 import TeamList from './TeamList';
 import { defaultsFor } from '../lib/bidCalc';
-import { playbookForSale } from '../lib/playbooks';
+import { playbookByKey, playbookForSale } from '../lib/playbooks';
 import { ago } from '../lib/time';
 
 const LIEN_LABEL: Record<LienType, string> = {
@@ -49,6 +51,7 @@ const OUTCOME_LABEL: Record<SurvivalOutcome, string> = {
 
 export default function PropertyPage({ id, section }: { id: string; section?: string }) {
   const [printAll, setPrintAll] = useState(false);
+  const [calcVersion, setCalcVersion] = useState(0); // remounts the bid calculator when the income value is applied
   // Printing (button or Ctrl+P) always prints the full report, whichever section is open.
   useEffect(() => {
     const before = () => flushSync(() => setPrintAll(true));
@@ -83,7 +86,11 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   const flags = count('flag');
   const reviews = count('review');
   const surviving = liens.filter((l) => l.outcome === 'LIKELY_SURVIVES').length;
-  const playbook = playbookForSale(s?.saleType);
+  const commercial = classOfType(p.propertyType) === 'commercial';
+  const saleBook = playbookForSale(s?.saleType);
+  const commercialBook = commercial ? playbookByKey('commercial') : null;
+  const playbook = commercialBook ?? saleBook;
+  const bidDefaults = defaultsFor(p);
   const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
   // Pictures only for homes that are for sale (never pre-foreclosure: the Assessor's record names the owner).
   const sampleViews = parcelDigits(p.apn) === null;
@@ -223,21 +230,36 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       title: 'Your maximum bid',
       icon: <IconCalc />,
       tone: 'go',
-      summary: 'Every cost counted, your walk-away number, and what-if scenarios',
-      content: () => <BidCalculator propertyId={p.id} defaults={defaultsFor(p)} openingBid={s?.minimumBid ?? null} />,
+      summary: commercial ? 'Value by rent income, every cost counted, and your walk-away number' : 'Every cost counted, your walk-away number, and what-if scenarios',
+      content: () => (
+        <>
+          {commercial && (
+            <IncomeValue
+              propertyId={p.id}
+              onUse={(v) => {
+                setSavedExitValue(p.id, bidDefaults, v);
+                setCalcVersion((n) => n + 1);
+              }}
+            />
+          )}
+          <BidCalculator key={calcVersion} propertyId={p.id} defaults={bidDefaults} openingBid={s?.minimumBid ?? null} commercial={commercial} />
+        </>
+      ),
     },
     {
       key: 'how-to-buy',
       title: 'How to buy it',
       icon: <IconSteps />,
-      summary: `${plural(steps.length, 'step')} and ${plural(checklist.items.length, 'item')} to have ready`,
+      summary: `${plural(steps.length, 'step')} and ${plural(checklist.items.length + (commercial ? CHECKLISTS.commercial.items.length : 0), 'item')} to have ready`,
       content: () => (
         <>
           <ol className="steps">
             {steps.map((st) => <li key={st}>{st}</li>)}
           </ol>
-          {playbook && <p><a href={`#/playbooks/${playbook.key}`}>Read the full Nevada playbook for this sale type →</a></p>}
+          {saleBook && <p><a href={`#/playbooks/${saleBook.key}`}>Read the full Nevada playbook for this sale type →</a></p>}
+          {commercialBook && <p><a href="#/playbooks/commercial">Buying commercial? Read the commercial property playbook →</a></p>}
           <BuyerChecklistBox list={checklist} />
+          {commercial && <BuyerChecklistBox list={CHECKLISTS.commercial} />}
           <Disclaimer kind="sales" compact />
         </>
       ),
@@ -256,7 +278,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             key: 'team',
             title: 'Your team',
             icon: <IconBadge />,
-            summary: `${plural(playbook.team.length, 'professional')} you need for this sale type`,
+            summary: `${plural(playbook.team.length, 'professional')} you need for this ${commercial ? 'commercial property' : 'sale type'}`,
             content: () => (
               <>
                 <p className="muted">Who you need, and when, for a {playbook.short.toLowerCase().replace(/s$/, '')}. Line them up before you bid.</p>
