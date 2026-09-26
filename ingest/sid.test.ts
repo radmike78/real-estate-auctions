@@ -32,7 +32,7 @@ describe('SID source registry', () => {
     expect(() => validateRegistry([{ ...SID, corroborationHosts: [] }])).toThrow(/corroboration host/);
   });
 
-  it('stays off until the terms and the real list are checked', () => {
+  it('stays off: AMG’s terms prohibit copying without written consent', () => {
     expect(SID.termsReviewedAt).toBeNull();
     expect(SID.parserVerifiedAt).toBeNull();
   });

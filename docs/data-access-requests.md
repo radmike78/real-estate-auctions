@@ -1,6 +1,6 @@
 # Data access requests
 
-Two official sources the site needs permission or a subscription for before it can ingest their data. Each section has the background and an email you can send. Fill in the bracketed parts first.
+Official sources the site needs permission or a subscription for before it can ingest their data. Each section has the background and an email you can send. Fill in the bracketed parts first.
 
 The site's rule stays the same for both: no automated collection until a person has confirmed in writing that it's allowed. When permission arrives, record the date in `termsReviewedAt` in `ingest/sources/registry.ts` and keep a copy of the permission with the project records.
 
@@ -86,3 +86,34 @@ The **index** feed is what the site needs: document type, recording date, docume
 > [Your name]
 > [Title, company]
 > [Phone] · [Email]
+
+---
+
+## 3. Assessment Management Group (SID lien-certificate lists)
+
+**Why a request is needed.** Clark County and the cities (Las Vegas, Henderson, North Las Vegas) sell lien certificates for unpaid special improvement district (SID) assessments. The Treasurer's certificate-sale page sends buyers to Assessment Management Group (AMG), which posts the notices and lists at <https://www.amgnv.com/notice-of-sale.asp>. AMG's Terms of Use (<https://www.amgnv.com/copyright.asp>) prohibit copying, downloading or republishing its material without prior written consent. The site's SID connector is built but stays off, and the SID playbook links to AMG's page instead.
+
+**Who to contact.** Assessment Management Group, Las Vegas: office 702-796-0082 (listed on its website). The county or a city's SID administrator can also say whether the lists may be shared directly.
+
+**Email**
+
+> Subject: Permission to show SID certificate-sale lists (Clark County)
+>
+> Hello,
+>
+> I operate [site name, URL], a free public website that helps people in Clark County understand forced sales and how to buy through the official process.
+>
+> We'd like to show the special improvement district (SID) lien-certificate sale lists that AMG posts on its notice-of-sale page for Clark County and the cities. Your Terms of Use require written consent, so we are asking for it before collecting anything.
+>
+> What we would do:
+> - Read the notice-of-sale page at most a few times a day, identified in our user agent.
+> - Show only the parcel number, street address, district number, amount due and sale date, clearly marked "Lien certificate sale, not a property sale". We would never show owner names or contact details, and never help anyone contact owners.
+> - Link to your notice-of-sale page for every sale, credit AMG as the publisher for the county and the cities, and remove certificates as soon as they drop off your list.
+> - Follow any attribution, frequency or usage terms you set.
+>
+> If you prefer, a file or feed you send us would also work. Thank you for considering it.
+>
+> [Your name]
+> [Title, company]
+> [Phone] · [Email]
+> [Site URL]

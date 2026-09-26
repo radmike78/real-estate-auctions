@@ -22,7 +22,7 @@ The main threat to this site is a **spoofed or outdated listing**: someone gets 
 | DNS | Without a proxy, the name is resolved once, answers in any private, reserved or IPv6-transition range are refused (DNS rebinding), and the connection goes to exactly that address. Every request also has a 2-minute total deadline, so a slow-drip server can't hang an import. |
 
 **Other rules:**
-- A source cannot be collected automatically until a person records `termsReviewedAt` (terms of use and robots rules reviewed).
+- A source's website is never contacted, not even by a dry run, until a person records `termsReviewedAt` (terms of use and robots rules reviewed; see `docs/source-terms-review.md`). Only offline runs from saved files skip this.
 - A new connector also needs `parserVerifiedAt`: the date a person checked it against a real published list.
 - Hosts must be exact `.gov` names. The one exception is a named agent that publishes a sale list for the government, confirmed from the agency's own `.gov` page and listed in `AGENT_HOSTS` (today only `www.amgnv.com`, Assessment Management Group, for SID lien certificates). It can be used only by a source that names that agent as its publisher, and parcels from it must still be confirmed by the County Assessor on a `.gov` host.
 - Only plain `GET` requests at a polite pace (one request per second), identified by a descriptive User-Agent.

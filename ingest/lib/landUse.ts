@@ -30,7 +30,7 @@ export async function fetchLandUse(
   apns: string[],
   allowedHosts: string[],
   extra: Pick<FetchOptions, 'fetchImpl' | 'verifyCertificate'> = {},
-  pauseMs = 400,
+  pauseMs = 1000, // one page a second: the county allows crawling that doesn't slow its servers
 ): Promise<Map<string, LandUse>> {
   const out = new Map<string, LandUse>();
   for (const [i, apn] of apns.entries()) {

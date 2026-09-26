@@ -76,8 +76,9 @@ function readSnapshotDir(dir: string): RawSnapshot {
 async function checkSource(source: SourceConfig, now: Date, opts: { dryRun: boolean; fromDir?: string }): Promise<SourceState> {
   const prev = loadState(source.id);
 
-  if (!source.termsReviewedAt && !opts.dryRun) {
-    log(`[${source.id}] skipped: set termsReviewedAt in ingest/sources/registry.ts after reviewing the site's terms of use.`);
+  // Contacting a site always needs its terms review, even for a dry run. Only offline runs from saved files skip it.
+  if (!source.termsReviewedAt && !opts.fromDir) {
+    log(`[${source.id}] skipped: no terms review recorded (termsReviewedAt in ingest/sources/registry.ts; see docs/source-terms-review.md).`);
     return { ...prev, health: 'terms_not_reviewed', message: 'Terms of use not reviewed' };
   }
   if (!source.parserVerifiedAt && !opts.dryRun) {

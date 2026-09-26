@@ -53,12 +53,12 @@ export default function LivePage() {
   return (
     <main className="page">
       <PageHero
-        eyebrow={<span className="eyebrow"><span className="live-dot" aria-hidden /> From the Clark County Treasurer’s list, checked by us</span>}
+        eyebrow={<span className="eyebrow"><span className="live-dot" aria-hidden /> From official lists, checked by us</span>}
         title={<>Live <span className="grad">tax sales</span></>}
         sub="Parcels the Clark County Treasurer currently lists for its delinquent-tax auction, and Clark County property the IRS is selling, re-checked against the official lists and the Assessor's parcel records."
       />
       <p className="muted">
-        Listings are re-checked on a schedule that follows how often the Treasurer updates them. Parcels that are paid off (lined out), sold,
+        Listings are re-checked on a schedule that follows how often each official list is updated. Parcels that are paid off (lined out), sold,
         removed, unconfirmed, or not re-verified recently are hidden automatically. When no auction is scheduled, nothing is listed.
       </p>
       <div className="row live-alerts">

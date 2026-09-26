@@ -8,6 +8,7 @@
 import type { FeedCertificate, FeedFederalSale, FeedListing } from '../../src/feed/types';
 import type { ParseResult } from '../connectors/clarkTaxSale';
 import type { IdentityBaseline } from './siteIdentity';
+import { auctionStillOpen } from './cadence';
 
 export interface SourceState {
   sourceId: string;
@@ -124,9 +125,13 @@ export function applySnapshot(
 
   const unconfirmed = Object.values(listings).filter((l) => l.state === 'UNCONFIRMED').length;
   const changed = meta.sha256 !== prev.lastSha256;
+  // After the auction nothing is looked up at the Assessor, so "unconfirmed" would be misleading.
+  const held = !auctionStillOpen(parsed.auctionStartsAt, meta.now);
+  const heldOn = parsed.auctionStartsAt ? new Date(parsed.auctionStartsAt).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles', month: 'long', day: 'numeric', year: 'numeric' }) : null;
   const notes = [
+    held ? (heldOn ? `The auction on ${heldOn} has been held; no auction is scheduled, so nothing is listed.` : 'No auction is scheduled, so nothing is listed.') : null,
     parsed.rejected.length ? `${parsed.rejected.length} row(s) rejected by validation` : null,
-    unconfirmed ? `${unconfirmed} parcel(s) hidden: not found in Assessor records` : null,
+    unconfirmed && !held ? `${unconfirmed} parcel(s) hidden: not found in Assessor records` : null,
   ].filter(Boolean);
   return {
     ...prev,
