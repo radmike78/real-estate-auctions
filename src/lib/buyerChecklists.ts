@@ -108,6 +108,22 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       note: 'HUD’s official listings. We link to them rather than copying them, so you always see HUD’s current list.',
     },
   },
+  business: {
+    key: 'business',
+    forSale: true,
+    title: 'Buying business assets or a whole business',
+    intro: 'Equipment, inventory, vehicles or a whole business sold by a court trustee, receiver, the sheriff or a tax agency.',
+    items: [
+      { text: 'The sale notice and any court order', detail: 'They say exactly what is sold, the deadline, the deposit, and whether it’s free of liens.' },
+      { text: 'A lien search on the equipment', detail: 'Lenders record UCC financing statements with the Nevada Secretary of State. A sheriff or tax sale may not clear them.' },
+      { text: 'A state tax clearance for a whole business or its stock of goods', detail: 'Withhold enough of the price until the seller gives you a certificate from the Department of Taxation, or you become liable for their unpaid taxes (NRS 360.525).' },
+      { text: 'An inspection, and a plan for removal', detail: 'Items are sold as-is. Budget for rigging, transport and storage, and meet the pickup deadline.' },
+      { text: 'Certified funds, and a deposit if required' },
+      { text: 'Your own licenses and permits', detail: 'Business licenses, liquor, health and contractor licenses don’t transfer with the assets. Apply in your own name.' },
+      { text: 'Leases, customer data and titles', detail: 'The building lease needs the landlord’s consent. Customer data may carry privacy limits. Vehicles need titles.' },
+      { text: 'An attorney and a CPA for a whole business', detail: 'Buying assets and buying the company are very different for debts, taxes and liability.' },
+    ],
+  },
   commercial: {
     key: 'commercial',
     forSale: true,

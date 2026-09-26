@@ -318,3 +318,17 @@ describe('commercial value by income', () => {
     expect(CHECKLISTS.commercial.items.length).toBeGreaterThan(5);
   });
 });
+
+describe('business assets & closures', () => {
+  it('links only official sellers and government sites, never private marketplaces', async () => {
+    const { BUSINESS_SOURCES } = await import('./businessAssets');
+    const official = /(\.gov|\.uscourts\.gov|clarkcountycourts\.us)$/;
+    for (const s of BUSINESS_SOURCES) {
+      const host = new URL(s.url).hostname;
+      expect(s.url.startsWith('https://'), s.url).toBe(true);
+      expect(official.test(host), host).toBe(true);
+    }
+    const { CHECKLISTS } = await import('./buyerChecklists');
+    expect(CHECKLISTS.business.items.some((i) => /NRS 360\.525/.test(i.detail ?? ''))).toBe(true);
+  });
+});
