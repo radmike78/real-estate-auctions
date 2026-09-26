@@ -21,3 +21,4 @@ export const IconHelp = () => <svg viewBox="0 0 24 24" aria-hidden><circle {...P
 export const IconDatabase = () => <svg viewBox="0 0 24 24" aria-hidden><ellipse {...P} cx="12" cy="6" rx="7" ry="2.5" /><path {...P} d="M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5" /></svg>;
 export const IconCalc = () => <svg viewBox="0 0 24 24" aria-hidden><rect {...P} x="5" y="3.5" width="14" height="17" rx="2" /><path {...P} d="M8 7.5h8M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15h.01M12 15h.01M15.5 15h.01M8.5 18h.01M12 18h3.5" /></svg>;
 export const IconStar = () => <svg viewBox="0 0 24 24" aria-hidden><path {...P} d="m12 3.5 2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9z" /></svg>;
+export const IconCamera = () => <svg viewBox="0 0 24 24" aria-hidden><path {...P} d="M4 8h3l1.8-2.5h6.4L17 8h3v11H4z" /><circle {...P} cx="12" cy="13" r="3.5" /></svg>;
