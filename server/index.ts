@@ -28,6 +28,7 @@ import { loadPrivateKey } from '../ingest/lib/sign';
 import { createApp } from './app';
 import { consoleMailer, postmarkMailer, type Mailer } from './mailer';
 import { createStripeClient, parsePlans } from './stripe';
+import { SITE_INFO } from '../src/lib/siteInfo';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const env = process.env;
@@ -81,6 +82,11 @@ if (env.POSTMARK_SERVER_TOKEN || env.MAIL_FROM) {
   console.warn('WARNING: email is OFF. Confirmation links, sign-in links and leads are only written to this log. Set POSTMARK_SERVER_TOKEN and MAIL_FROM.');
 } else {
   console.log('Email off: messages are written to this log (set POSTMARK_SERVER_TOKEN and MAIL_FROM to send them).');
+}
+
+// Anti-spam law (CAN-SPAM) requires a real postal address in every alert email.
+if (/^\[.*\]$/.test(SITE_INFO.operatorName) || /^\[.*\]$/.test(SITE_INFO.mailingAddress)) {
+  console.warn('WARNING: set operatorName and mailingAddress in src/lib/siteInfo.ts. Every email-alert message must show your business name and postal address.');
 }
 
 const dbPath = env.DB_PATH ?? join(ROOT, 'server', 'data', 'app.db');

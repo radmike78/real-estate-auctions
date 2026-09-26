@@ -40,6 +40,18 @@ describe('Postmark mailer', () => {
     });
   });
 
+  it('passes one-click unsubscribe headers to Postmark, with line breaks removed', async () => {
+    const { f, calls } = fakeFetch([{ status: 200, body: { ErrorCode: 0 } }]);
+    await postmarkMailer({ serverToken: 't', from: 'no-reply@fsf.example', fetch: f }).send({
+      ...MAIL,
+      headers: { 'List-Unsubscribe': '<https://fsf.example/api/alerts/unsubscribe?t=x>\r\nBcc: evil@example.com', 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' },
+    });
+    expect(JSON.parse(String(calls[0].init.body)).Headers).toEqual([
+      { Name: 'List-Unsubscribe', Value: '<https://fsf.example/api/alerts/unsubscribe?t=x> Bcc: evil@example.com' },
+      { Name: 'List-Unsubscribe-Post', Value: 'List-Unsubscribe=One-Click' },
+    ]);
+  });
+
   it('retries once on server errors, rate limits and network failures', async () => {
     for (const first of [{ status: 500 }, { status: 429 }, new Error('socket hang up')]) {
       const { f, calls } = fakeFetch([first, { status: 200, body: { ErrorCode: 0 } }]);

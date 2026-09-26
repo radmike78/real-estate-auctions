@@ -3,11 +3,14 @@
 // in development.
 
 import type { LeadRow } from './db';
+import { SITE_INFO } from '../src/lib/siteInfo';
 
 export interface Mail {
   to: string;
   subject: string;
   text: string;
+  /** Extra headers, e.g. List-Unsubscribe on alert emails. */
+  headers?: Record<string, string>;
 }
 
 export interface Mailer {
@@ -58,6 +61,7 @@ export function postmarkMailer(opts: PostmarkOptions): Mailer {
           Subject: oneLine(mail.subject),
           TextBody: mail.text,
           ...(opts.replyTo ? { ReplyTo: opts.replyTo } : {}),
+          ...(mail.headers ? { Headers: Object.entries(mail.headers).map(([Name, Value]) => ({ Name: oneLine(Name), Value: oneLine(Value) })) } : {}),
           MessageStream: opts.messageStream ?? 'outbound',
           TrackOpens: false,
           TrackLinks: 'None',
@@ -167,5 +171,60 @@ export function leadReceiptEmail(to: string, proName: string): Mail {
       `Before you sign anything or send money: verify their license yourself, compare options, read every document, ` +
       `and consider independent legal and financial advice. Never wire money based on an email or text alone.\n` +
       FOOTER,
+  };
+}
+
+// ---------------- email alerts ----------------
+
+/** Every alert email ends with how to manage or stop them, and our postal address (required by CAN-SPAM). */
+function alertsFooter(manageUrl: string, unsubscribeUrl: string): string {
+  return (
+    `\n--\nYou're getting this because you signed up for email from Forced-Sale Finder.\n` +
+    `Change what you get: ${manageUrl}\nUnsubscribe from everything: ${unsubscribeUrl}\n` +
+    `${SITE_INFO.operatorName}, ${SITE_INFO.mailingAddress}\n`
+  );
+}
+
+/** Headers that let mail apps show a one-click "Unsubscribe" button (RFC 8058). */
+export const unsubscribeHeaders = (oneClickUrl: string): Record<string, string> => ({
+  'List-Unsubscribe': `<${oneClickUrl}>`,
+  'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+});
+
+// Nothing the requester typed is echoed: the address isn't confirmed yet, so this can't be used to
+// send someone else's words to a stranger.
+export function alertsConfirmEmail(to: string, link: string): Mail {
+  return {
+    to,
+    subject: 'Confirm your Forced-Sale Finder email alerts',
+    text:
+      `Hello,\n\nPlease confirm that you want email from Forced-Sale Finder:\n\n${link}\n\n` +
+      `The link expires in 48 hours. If you didn't sign up, ignore this email and you won't hear from us again.\n\n` +
+      `${SITE_INFO.operatorName}, ${SITE_INFO.mailingAddress}\n`,
+  };
+}
+
+export function alertsWelcomeEmail(to: string, manageUrl: string, unsubscribeUrl: string, oneClickUrl: string): Mail {
+  return {
+    to,
+    subject: "You're signed up for Forced-Sale Finder email",
+    text:
+      `Hello,\n\nYour email is confirmed. Keep this message: the link below lets you change or stop your alerts at any time, ` +
+      `no password needed.\n\n${manageUrl}\n\nEmail alerts are free. We never sell or share your address.\n` +
+      alertsFooter(manageUrl, unsubscribeUrl),
+    headers: unsubscribeHeaders(oneClickUrl),
+  };
+}
+
+/** Sent when someone who is already signed up asks again: their manage link, and nothing is changed. */
+export function alertsManageLinkEmail(to: string, manageUrl: string, unsubscribeUrl: string, oneClickUrl: string): Mail {
+  return {
+    to,
+    subject: 'Your Forced-Sale Finder email alerts link',
+    text:
+      `Hello,\n\nYou're already signed up. To change what you get, or to stop all email, use this link:\n\n${manageUrl}\n\n` +
+      `If you didn't ask for this, you can ignore it. Nothing has changed.\n` +
+      alertsFooter(manageUrl, unsubscribeUrl),
+    headers: unsubscribeHeaders(oneClickUrl),
   };
 }

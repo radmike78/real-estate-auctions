@@ -15,6 +15,7 @@ export const SITE_PAGES = {
   playbook: 'Nevada playbooks',
   calculator: 'Max bid calculator',
   deals: 'My deals',
+  alerts: 'Email alerts',
   agents: 'Find an agent',
   financing: 'Financing',
   pros: 'Title, insurance & repairs',

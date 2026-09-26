@@ -1008,3 +1008,15 @@ small { font-size: 0.95rem; }
 .income-value { display: grid; gap: 2px; }
 .income-value span { color: var(--muted); font-weight: 600; }
 .income-value strong { font-family: var(--font-display); font-size: 2.2rem; font-variant-numeric: tabular-nums; }
+
+/* ================= Email alerts ================= */
+.alerts-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.alerts-how ol { padding-left: 22px; display: grid; gap: 12px; margin: 0 0 16px; }
+.alerts-how h2 { margin-top: 0; }
+.alerts-narrow { max-width: 680px; display: grid; gap: 16px; }
+.alerts-narrow .lead-card h3 { margin: 22px 0 8px; }
+.alerts-stop h3 { margin-top: 0 !important; }
+.alerts-subs { list-style: none; padding: 0; margin: 0; }
+.alerts-subs li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.btn-danger { background: var(--stop); color: #fff; }
+@media (max-width: 760px) { .alerts-grid { grid-template-columns: 1fr; } }

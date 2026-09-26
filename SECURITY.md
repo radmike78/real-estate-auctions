@@ -149,6 +149,15 @@ The main risk is a **fake professional profile**, for example a real agent's or 
 - **Quiet failures.** A failed send is logged with a masked address and the subject, never the message body (which can hold a sign-in link). A failure never crashes the server or leaks whether an account exists: sign-in requests get the same reply either way.
 - **Abuse limits.** The existing per-recipient and per-network rate limits apply before anything is sent, and confirmation emails echo no applicant-supplied text.
 
+## 5d-4. Email alerts (no accounts)
+
+- **Double opt-in.** Nothing but one confirmation email goes to an address until someone clicks its link. The link is single use, stored only as a SHA-256 hash, and expires in 48 hours; unconfirmed sign-ups are deleted after that. The confirmation email echoes nothing the requester typed.
+- **No enumeration, no inbox flooding.** Sign-up always gives the same answer. An address that's already confirmed gets its manage link instead, and nothing changes. Per-network and per-address limits cap how many emails any one request source can trigger. A honeypot field drops bots.
+- **Signed links instead of stored secrets.** Manage and unsubscribe links carry `id.HMAC-SHA256(key, purpose:id:version)`. The key is random, generated on first run and kept in the database. The two purposes can't be swapped, links are compared in constant time, and bumping `token_version` invalidates every old link for that address.
+- **Manage requests** need the `x-fsf-request` header (so they can't be forged cross-site) and are rate limited.
+- **One-click unsubscribe** (RFC 8058) accepts a POST from mail providers without an origin check: the signed unsubscribe token is the authorization, and all it can do is delete that one address. The page version asks for a button press, because some mail scanners open every link.
+- **Minimal data.** Only the address, what it asked for and timestamps. Unsubscribing deletes the row and everything linked to it.
+
 ## 5e. Running behind a reverse proxy
 
 Set `TRUST_PROXY=1` only when the server sits behind your own proxy that **appends** the client address to `X-Forwarded-For` (nginx `$proxy_add_x_forwarded_for`, most load balancers). The server uses the **last** entry, the one your proxy added; anything earlier was sent by the client and can be forged. Without `TRUST_PROXY`, the socket address is used.

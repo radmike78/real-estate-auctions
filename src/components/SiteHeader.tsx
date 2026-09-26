@@ -11,6 +11,7 @@ const PRIMARY = [
 const MORE = [
   ['#/playbooks', 'Nevada playbooks'],
   ['#/calculator', 'Max bid calculator'],
+  ['#/alerts', 'Email alerts'],
   ['#/live', 'Live tax sales'],
   ['#/pre-foreclosures', 'Pre-foreclosure tracker'],
   ['#/short-sales', 'Short sales guide'],

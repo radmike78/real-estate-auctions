@@ -87,7 +87,7 @@ Cloudflare's default caching is right for this site: it caches the scripts, styl
 
 ### Email (Postmark)
 
-The site sends plain-text transactional email only: advertiser confirmation and sign-in links, approval and payment notices, leads to advertisers with receipts to buyers, and monthly reports. Open and link tracking are turned off on every message. Postmark stops sending to addresses that bounced or marked mail as spam.
+The site sends plain-text email: advertiser confirmation and sign-in links, approval and payment notices, leads to advertisers with receipts to buyers, monthly reports, and **email alerts** that people sign up for (confirmation, welcome and manage-link messages). Open and link tracking are turned off on every message. Postmark stops sending to addresses that bounced or marked mail as spam.
 
 **Prerequisites**
 - A [Postmark](https://postmarkapp.com) account (the free developer plan sends 100 emails a month; paid plans start at 10,000).
@@ -114,6 +114,8 @@ The site sends plain-text transactional email only: advertiser confirmation and 
      Then `kubectl apply -k ...` and `kubectl rollout restart deployment/forced-sale-finder -n forced-sale-finder`. On OpenShift, use `oc` instead of `kubectl`.
 6. **Check:** the web log should say `Email on: sending through Postmark as ...`. Then apply to advertise with your own address, and look for the email in Postmark's **Activity** tab.
    - To try it without sending anything, use the token `POSTMARK_API_TEST`. Postmark accepts the message but delivers nothing.
+
+**Email alerts need your business name and postal address.** Anti-spam law (CAN-SPAM) requires a real postal address (a PO box is fine) in every alert email. Set `operatorName` and `mailingAddress` in `src/lib/siteInfo.ts` before launch; the web log warns until you do. Alert emails also carry one-click unsubscribe headers (`List-Unsubscribe`), which Gmail and Yahoo require from bulk senders.
 
 If Postmark can't be reached, the site retries once. When an email still fails, the log names the reason (without the message text). Advertisers who apply are asked to try again in a few minutes. Leads are always saved and shown on the advertiser's dashboard, even if the email doesn't go out.
 
@@ -542,6 +544,7 @@ During development, run `npm run server` and `npm run dev` together; the dev ser
 | Profiles (`#/pros/:id`) | Each advertiser's own page, with a verified-license card and a link to check it on the official lookup |
 | Advertise (`#/advertise`) | What advertisers get, who can advertise, how listing works, and the application |
 | How we help (`#/disclaimer`) | What the site offers, how each kind of sale works, the steps to invest, the official-sources and professional-advice statement, and a due-diligence checklist, followed by the details: what's not in scope, the disclaimer for each kind of page, and accuracy. First-time visitors see a short "Welcome" notice. Every page shows the right disclaimer and a footer link. Wording is in `src/lib/disclaimers.ts`. |
+| Email alerts (`#/alerts`) | Free email sign-up, no account: confirm the address once (double opt-in), then change or stop alerts from the link in every email. One-click unsubscribe deletes the address. Today it offers general updates; tracked properties and saved-search digests come next. Code: `server/alerts.ts`, `src/components/AlertsPage.tsx`. |
 | Advertiser dashboard (`#/advertiser`) | Sign in with an email link; results, daily charts, leads and CSV export |
 
 **Search and property pages**

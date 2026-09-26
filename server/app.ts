@@ -8,6 +8,10 @@
 //   POST /api/pros/:id/leads                send a contact request to a listed pro (with consent)
 //   POST /api/pro/login                     email a one-time sign-in link to a listed advertiser
 //   POST /api/pro/session                   exchange that link's token for a session
+//   POST /api/alerts/signup                 sign up for email (double opt-in; already-active addresses get their manage link)
+//   POST /api/alerts/confirm                confirm the address with the emailed token
+//   POST /api/alerts/manage | /update       view or change what an address gets (manage-link token; x-fsf-request: 1)
+//   POST /api/alerts/unsubscribe?t=         stop all email and delete the address (also one-click from mail apps)
 // Advertiser (fsf_pro cookie; writes need x-fsf-request: 1 and same origin)
 //   GET  /api/pro/me | /api/pro/metrics | /api/pro/leads | /api/pro/leads.csv ; POST /api/pro/logout
 // Admin (fsf_admin cookie; writes need x-fsf-request: 1 and same origin)
@@ -26,7 +30,8 @@ import { METRIC_KINDS, openDb, type ApplicationRow, type Db, type MetricKind } f
 import { buildProsFeed, toPro, writeSignedJson } from './directory';
 import { isSiteAction, isSitePage } from '../src/lib/siteStats';
 import { visitorIp } from './cloudflare';
-import { approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
+import { alertsConfirmEmail, alertsManageLinkEmail, alertsWelcomeEmail, approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
+import { CONFIRM_TTL_MS, openAlerts, type Subscriber } from './alerts';
 import { CHECKOUT_URL_PREFIX, invoicePeriodEnd, invoiceSubscriptionId, PORTAL_URL_PREFIX, verifyWebhook, type StripeClient, type StripeEvent } from './stripe';
 import { BOT_UA, leadsToCsv, monthlyReportText, monthRange, pacificDay, pacificDaysToUtc, siteSummary, summarize, VisitorHasher } from './metrics';
 
@@ -57,6 +62,7 @@ const ID_RE = /^[a-f0-9]{24}$/;
 const EMAIL_TOKEN_TTL_MS = 48 * 3_600_000;
 const LOGIN_TOKEN_TTL_MS = 15 * 60_000;
 const ADMIN_COOKIE = 'fsf_admin';
+const EMAIL_RE = /^[a-z0-9._%+-]{1,64}@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/;
 const PRO_COOKIE = 'fsf_pro';
 
 const MIME: Record<string, string> = {
@@ -83,6 +89,7 @@ class HttpError extends Error {
 
 export function createApp(config: AppConfig) {
   const db: Db = openDb(config.dbPath);
+  const alerts = openAlerts(db.raw);
   const mailer = config.mailer ?? consoleMailer;
   // Sending never breaks a request: a failure is logged (without the message body, which can hold
   // sign-in links) and reported to the caller, which decides whether the visitor needs to know.
@@ -110,6 +117,9 @@ export function createApp(config: AppConfig) {
     events: new RateLimiter(60, 60_000),
     checkout: new RateLimiter(10, 3_600_000),
     eventsIp: new RateLimiter(120, 60_000),
+    alertsIp: new RateLimiter(10, 3_600_000),
+    alertsEmail: new RateLimiter(3, 3_600_000),
+    alertsManage: new RateLimiter(60, 10 * 60_000),
   };
   const hasher = new VisitorHasher();
 
@@ -213,6 +223,20 @@ export function createApp(config: AppConfig) {
     const feed = buildProsFeed(db.listByStatus('APPROVED'), now());
     writeSignedJson(config.dataDir, 'pros.json', feed, config.signingKey);
     return feed.pros.length;
+  }
+
+  /** Links that go in every alert email: manage, the unsubscribe page, and the one-click endpoint for mail apps. */
+  function alertLinks(s: Subscriber) {
+    const unsub = alerts.token(s, 'unsubscribe');
+    return {
+      manage: `${base}/#/alerts/manage/${alerts.token(s, 'manage')}`,
+      unsubscribe: `${base}/#/alerts/unsubscribe/${unsub}`,
+      oneClick: `${base}/api/alerts/unsubscribe?t=${encodeURIComponent(unsub)}`,
+    };
+  }
+  /** What the manage page shows. Only the holder of the manage link sees it. */
+  function alertsView(s: Subscriber) {
+    return { email: s.email, listOptIn: s.listOptIn, confirmedAt: s.confirmedAt, subscriptions: alerts.subscriptions(s.id) };
   }
 
   const today = () => now().toISOString().slice(0, 10);
@@ -408,6 +432,73 @@ export function createApp(config: AppConfig) {
       const live = listed();
       for (const id of new Set(ids)) if (typeof id === 'string' && live.has(id)) db.metrics.record(id, day, kind, visitor);
       return send(res, 204, {});
+    }
+
+    // ---------------- email alerts (no accounts: a confirmed address plus signed links) ----------------
+    if (method === 'POST' && path === '/api/alerts/signup') {
+      assertSameOrigin(req);
+      if (!limiters.alertsIp.hit(clientIp(req))) throw new HttpError(429, 'Too many sign-ups from this network. Try again later.');
+      const body = await readJson(req);
+      const accepted = { ok: true, message: 'Check your inbox for a link to confirm. It expires in 48 hours.' };
+      if (body.company_url) return send(res, 202, accepted); // honeypot
+      const email = plain(body.email, 254).toLowerCase();
+      if (!EMAIL_RE.test(email)) throw new HttpError(422, 'Please fix the highlighted fields.', { errors: { email: 'Enter a valid email address.' } });
+      if (body.list !== true) throw new HttpError(422, 'Please fix the highlighted fields.', { errors: { list: 'Choose what you’d like to get.' } });
+      // Same answer whether or not the address is known, and a per-address cap so nobody can flood an inbox.
+      if (!limiters.alertsEmail.hit(email)) return send(res, 202, accepted);
+      const current = alerts.byEmail(email);
+      if (current?.status === 'ACTIVE') {
+        const l = alertLinks(current);
+        await deliver(alertsManageLinkEmail(email, l.manage, l.unsubscribe, l.oneClick));
+        return send(res, 202, accepted);
+      }
+      const token = newToken();
+      const t = now();
+      alerts.upsertPending(email, true, sha256(token), new Date(t.getTime() + CONFIRM_TTL_MS).toISOString(), t.toISOString());
+      if (!(await deliver(alertsConfirmEmail(email, `${base}/#/alerts/confirm/${token}`)))) {
+        throw new HttpError(503, 'We couldn\'t send your confirmation email just now. Please try again in a few minutes.');
+      }
+      return send(res, 202, accepted);
+    }
+
+    if (method === 'POST' && path === '/api/alerts/confirm') {
+      assertSameOrigin(req);
+      if (!limiters.confirm.hit(clientIp(req))) throw new HttpError(429, 'Too many attempts. Try again later.');
+      const { token } = await readJson(req);
+      const invalid = new HttpError(400, 'This confirmation link is invalid or has expired. Sign up again to get a new one.');
+      if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{40,50}$/.test(token)) throw invalid;
+      const s = alerts.confirm(sha256(token), now().toISOString());
+      if (!s) throw invalid;
+      const l = alertLinks(s);
+      await deliver(alertsWelcomeEmail(s.email, l.manage, l.unsubscribe, l.oneClick));
+      return send(res, 200, { ok: true, manageToken: alerts.token(s, 'manage') });
+    }
+
+    if (method === 'POST' && (path === '/api/alerts/manage' || path === '/api/alerts/update')) {
+      assertAppRequest(req);
+      if (!limiters.alertsManage.hit(clientIp(req))) throw new HttpError(429, 'Too many requests. Try again later.');
+      const body = await readJson(req);
+      const s = alerts.verify(body.token, 'manage');
+      if (!s || s.status !== 'ACTIVE') throw new HttpError(404, 'This link doesn’t work anymore. You may have unsubscribed; sign up again to get a new one.');
+      if (path === '/api/alerts/update') {
+        if (body.deleteAll === true) {
+          alerts.delete(s.id);
+          return send(res, 200, { ok: true, deleted: true });
+        }
+        if (typeof body.list === 'boolean') alerts.setListOptIn(s.id, body.list, now().toISOString());
+        if (typeof body.remove === 'string') alerts.removeSubscription(s.id, body.remove);
+      }
+      return send(res, 200, { ok: true, ...alertsView(alerts.get(s.id)!) });
+    }
+
+    // Mail apps POST here directly for one-click unsubscribe (RFC 8058), so no same-origin check:
+    // the signed token is the authorization, and all it can do is delete that one address.
+    if (method === 'POST' && path === '/api/alerts/unsubscribe') {
+      if (!limiters.alertsManage.hit(clientIp(req))) throw new HttpError(429, 'Too many requests. Try again later.');
+      const s = alerts.verify(url.searchParams.get('t'), 'unsubscribe');
+      if (s) alerts.delete(s.id);
+      // Same answer for an unknown link: an address that was already removed is still unsubscribed.
+      return send(res, 200, { ok: true, message: 'You’re unsubscribed. We deleted your email address and everything you signed up for.' });
     }
 
     const leadMatch = path.match(/^\/api\/pros\/([a-f0-9]{24})\/leads$/);
@@ -718,6 +809,7 @@ export function createApp(config: AppConfig) {
     db.site.purgeSeen(pacificDay(new Date(t.getTime() - 2 * 86_400_000)));
     db.sessions.purge(t.getTime() - SESSION_MAX_MS);
     db.leads.purgeOlderThan(new Date(t.getTime() - 400 * 86_400_000).toISOString()); // ~13 months retention
+    alerts.purgeUnconfirmed(t.toISOString());
     const day = pacificDay(t);
     if (day.endsWith('-01')) {
       const prev = new Date(Date.parse(`${day}T12:00:00Z`) - 86_400_000).toISOString().slice(0, 7);
@@ -725,5 +817,5 @@ export function createApp(config: AppConfig) {
     }
   }
 
-  return { handler, publish, maintain, sendMonthlyReports, db };
+  return { handler, publish, maintain, sendMonthlyReports, db, alerts };
 }
