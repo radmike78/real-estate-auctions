@@ -115,10 +115,10 @@ export default function LivePage() {
                   <span className={`badge tone-${s.health === 'ok' ? 'go' : s.health === 'terms_not_reviewed' ? 'info' : 'stop'}`}>{HEALTH_LABEL[s.health]}</span>
                 </div>
                 <div className="small muted">
-                  Last checked {s.lastCheckedAt ? ago(s.lastCheckedAt, now) : 'never'}
+                  {s.health === 'terms_not_reviewed' && !s.lastCheckedAt ? 'Not collected' : <>Last checked {s.lastCheckedAt ? ago(s.lastCheckedAt, now) : 'never'}</>}
                   {s.lastChangedAt && <> · list last changed {ago(s.lastChangedAt, now)}</>}
                   {s.observedChangeIntervalHours !== null && <> · updates about every {s.observedChangeIntervalHours.toFixed(1)} h</>}
-                  {s.nextCheckAt && <> · next check {fmtDateTime(s.nextCheckAt)}</>}
+                  {s.nextCheckAt && s.health !== 'terms_not_reviewed' && <> · next check {fmtDateTime(s.nextCheckAt)}</>}
                 </div>
                 {s.publishedBy && <div className="small muted">Published by {s.publishedBy} for the county and the cities</div>}
                 {s.certificateIssuer && (
