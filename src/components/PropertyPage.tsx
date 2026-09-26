@@ -13,7 +13,9 @@ import BuyerChecklistBox from './BuyerChecklistBox';
 import { checklistForProperty } from '../lib/buyerChecklists';
 import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
-import { IconBadge, IconCalc, IconCalendar, IconFile, IconFlag, IconLayers, IconShield, IconSteps } from './Icons';
+import { IconBadge, IconCalc, IconCalendar, IconCamera, IconFile, IconFlag, IconLayers, IconShield, IconSteps } from './Icons';
+import PhotosAndViews from './PhotosAndViews';
+import { parcelDigits, propertyViews } from '../lib/propertyViews';
 import BidCalculator from './BidCalculator';
 import { DD_STEPS } from '../lib/ddFunnel';
 import DueDiligenceFunnel from './DueDiligenceFunnel';
@@ -83,6 +85,13 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   const surviving = liens.filter((l) => l.outcome === 'LIKELY_SURVIVES').length;
   const playbook = playbookForSale(s?.saleType);
   const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
+  // Pictures only for homes that are for sale (never pre-foreclosure: the Assessor's record names the owner).
+  const sampleViews = parcelDigits(p.apn) === null;
+  // Sample parcels aren't real, so they get a placeholder parcel number; their buttons are shown disabled.
+  const views = status.purchasable
+    ? propertyViews({ apn: sampleViews ? '100-00-000-000' : p.apn, address: p.address, city: p.city, lat: p.lat, lng: p.lng, listingUrl: s?.saleType === 'REO' ? s.officialUrl : null })
+    : [];
+  const auction = !!s && s.saleType !== 'REO';
 
   const sections: DrillSection[] = [
     {
@@ -114,6 +123,17 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
         </>
       ),
     },
+    ...(views.length
+      ? [
+          {
+            key: 'photos',
+            title: 'Photos & views',
+            icon: <IconCamera />,
+            summary: `${views.map((v) => v.label).join(' · ')}${auction ? ' · no interior access before auction' : ''}`,
+            content: () => <PhotosAndViews links={views} sample={sampleViews} maxBidHref={`${baseHref}/max-bid`} auction={auction} />,
+          } satisfies DrillSection,
+        ]
+      : []),
     ...(s
       ? [
           {

@@ -234,3 +234,26 @@ describe('bank-owned and government sources', () => {
     expect(new Set(REO_SOURCES.map((s) => s.url)).size).toBe(REO_SOURCES.length);
   });
 });
+
+describe('photos & views links', () => {
+  it('builds Street View, county aerial, sketch and Assessor links for a real parcel', async () => {
+    const { propertyViews } = await import('./propertyViews');
+    const v = propertyViews({ apn: '162-23-210-001', address: '1381 E University Ave', city: 'Las Vegas', lat: 36.1069, lng: -115.1398 });
+    expect(v.map((x) => x.key)).toEqual(['street', 'aerial', 'sketch', 'assessor']);
+    expect(v[0].url).toBe('https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=36.106900,-115.139800');
+    expect(v[1].url).toBe('https://maps.clarkcountynv.gov/openweb/?getParcel=16223210001');
+    expect(v[2].url).toBe('https://maps.clarkcountynv.gov/assessor/webimages/default.asp?appID=2&txtAPN=16223210001');
+    expect(v[3].url).toBe('https://maps.clarkcountynv.gov/assessor/AssessorParcelDetail/parceldetail.aspx?hdnParcel=16223210001');
+    for (const x of v) expect(x.url.startsWith('https://')).toBe(true);
+  });
+
+  it('falls back to an address search, adds seller photos only for https links, and skips fake parcels', async () => {
+    const { propertyViews, parcelDigits } = await import('./propertyViews');
+    const v = propertyViews({ apn: '000-12-345-678', address: '1 Main St & 2nd', listingUrl: 'https://www.hudhomestore.gov/x' });
+    expect(v.map((x) => x.key)).toEqual(['listing', 'street']);
+    expect(v[1].url).toBe('https://www.google.com/maps/search/?api=1&query=1%20Main%20St%20%26%202nd%2C%20NV');
+    expect(propertyViews({ apn: 'bad', address: null, listingUrl: 'javascript:alert(1)' })).toEqual([]);
+    expect(parcelDigits('162-23-210-001')).toBe('16223210001');
+    expect(parcelDigits('000-23-210-001')).toBeNull();
+  });
+});
