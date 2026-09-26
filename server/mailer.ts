@@ -196,12 +196,12 @@ export const unsubscribeHeaders = (oneClickUrl: string): Record<string, string> 
 // Nothing the requester typed is echoed: the address isn't confirmed yet, so this can't be used to
 // send someone else's words to a stranger.
 /** `tracking` is a property label from our own verified feed, never text the requester typed. */
-export function alertsConfirmEmail(to: string, link: string, tracking?: string): Mail {
+export function alertsConfirmEmail(to: string, link: string, tracking?: string, kind: 'property' | 'search' = 'property'): Mail {
   return {
     to,
     subject: 'Confirm your Forced-Sale Finder email alerts',
     text:
-      `Hello,\n\nPlease confirm that you want email from Forced-Sale Finder${tracking ? `, starting with updates on ${tracking}` : ''}:\n\n${link}\n\n` +
+      `Hello,\n\nPlease confirm that you want email from Forced-Sale Finder${tracking ? (kind === 'search' ? `, starting with daily emails about new matches for "${tracking}"` : `, starting with updates on ${tracking}`) : ''}:\n\n${link}\n\n` +
       `The link expires in 48 hours. If you didn't sign up, ignore this email and you won't hear from us again.\n\n` +
       `${SITE_INFO.operatorName}, ${SITE_INFO.mailingAddress}\n`,
   };
@@ -277,14 +277,44 @@ export function trackedChangesEmail(
 }
 
 /** For an address that's already signed up: confirm adding a property from their own manage page. */
-export function alertsAddEmail(to: string, label: string, addUrl: string, manageUrl: string, unsubscribeUrl: string, oneClickUrl: string): Mail {
+export function alertsAddEmail(to: string, label: string, addUrl: string, manageUrl: string, unsubscribeUrl: string, oneClickUrl: string, kind: 'property' | 'search' = 'property'): Mail {
+  const what = kind === 'search' ? `daily emails about new matches for "${label}"` : `updates on ${label}`;
   return {
     to,
-    subject: `Confirm: track ${label}`,
+    subject: kind === 'search' ? `Confirm: save the search "${label}"` : `Confirm: track ${label}`,
     text:
-      `Hello,\n\nSomeone (hopefully you) asked to track ${label} with your Forced-Sale Finder email alerts. To add it, open this link and choose "Track it":\n\n${addUrl}\n\n` +
+      `Hello,\n\nSomeone (hopefully you) asked to add ${what} to your Forced-Sale Finder email alerts. To add it, open this link and choose "Add it":\n\n${addUrl}\n\n` +
       `If you didn't ask for this, ignore this email. Nothing has changed.\n` +
       alertsFooter(manageUrl, unsubscribeUrl),
     headers: unsubscribeHeaders(oneClickUrl),
+  };
+}
+
+/** Most listings shown per saved search in one digest; the rest are on the site. */
+export const DIGEST_MAX = 25;
+
+export function searchDigestEmail(
+  to: string,
+  groups: { label: string; listings: ListingSnapshot[] }[],
+  links: { manage: string; unsubscribe: string; oneClick: string; live: string },
+): Mail {
+  const total = groups.reduce((n, g) => n + g.listings.length, 0);
+  const body = groups
+    .map((g) => {
+      const shown = g.listings.slice(0, DIGEST_MAX);
+      const lines = shown.map((l) => `  - ${labelOf(l)}: minimum bid ${usd(l.minimumBid)}, auction ${when(l.auctionStartsAt)}`);
+      const more = g.listings.length - shown.length;
+      return `${g.label} (${g.listings.length} new)\n${lines.join('\n')}${more > 0 ? `\n  …and ${more} more on the site.` : ''}`;
+    })
+    .join('\n\n');
+  return {
+    to,
+    subject: `${total} new ${total === 1 ? 'match' : 'matches'} for your saved ${groups.length === 1 ? 'search' : 'searches'}`,
+    text:
+      `Hello,\n\nNew parcels on the Clark County Treasurer's tax-sale list match your saved ${groups.length === 1 ? 'search' : 'searches'}:\n\n${body}\n\n` +
+      `See them all, with maps and official links: ${links.live}\n\n` +
+      `Always confirm with the official source before you bid. Owners can pay until 3 business days before the sale, so lists change often.\n` +
+      alertsFooter(links.manage, links.unsubscribe),
+    headers: unsubscribeHeaders(links.oneClick),
   };
 }

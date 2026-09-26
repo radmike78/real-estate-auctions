@@ -9,7 +9,7 @@
 //   POST /api/pro/login                     email a one-time sign-in link to a listed advertiser
 //   POST /api/pro/session                   exchange that link's token for a session
 //   POST /api/alerts/signup                 sign up for email (double opt-in; already-active addresses get their manage link)
-//   POST /api/alerts/track                  track a verified listing by email (new addresses confirm first; active ones confirm the add)
+//   POST /api/alerts/track                  track a verified listing or save a search, by email (new addresses confirm first; active ones confirm the add)
 //   POST /api/alerts/confirm                confirm the address with the emailed token
 //   POST /api/alerts/manage | /update       view or change what an address gets (manage-link token; x-fsf-request: 1)
 //   POST /api/alerts/unsubscribe?t=         stop all email and delete the address (also one-click from mail apps)
@@ -31,9 +31,10 @@ import { METRIC_KINDS, openDb, type ApplicationRow, type Db, type MetricKind } f
 import { buildProsFeed, toPro, writeSignedJson } from './directory';
 import { isSiteAction, isSitePage } from '../src/lib/siteStats';
 import { visitorIp } from './cloudflare';
-import { alertsAddEmail, alertsConfirmEmail, alertsManageLinkEmail, alertsWelcomeEmail, trackedChangesEmail, approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
+import { alertsAddEmail, alertsConfirmEmail, alertsManageLinkEmail, alertsWelcomeEmail, searchDigestEmail, trackedChangesEmail, approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
 import { ALERT_LIMITS, CONFIRM_TTL_MS, openAlerts, type Subscriber } from './alerts';
-import { collectChanges, feedReader, labelOf, openTracker, snapshotOf, TARGET_RE, taxTarget, type ListingSnapshot } from './tracker';
+import { parseSearchTarget, searchLabel } from '../src/lib/savedSearch';
+import { collectChanges, collectDigests, feedReader, labelOf, openTracker, snapshotOf, TARGET_RE, taxTarget, type ListingSnapshot } from './tracker';
 import { CHECKOUT_URL_PREFIX, invoicePeriodEnd, invoiceSubscriptionId, PORTAL_URL_PREFIX, verifyWebhook, type StripeClient, type StripeEvent } from './stripe';
 import { BOT_UA, leadsToCsv, monthlyReportText, monthRange, pacificDay, pacificDaysToUtc, siteSummary, summarize, VisitorHasher } from './metrics';
 
@@ -246,6 +247,15 @@ export function createApp(config: AppConfig) {
     return l ? snapshotOf(l) : null;
   }
 
+  /** A property on the current verified feed, or a valid saved search: what can be added to someone's alerts. */
+  async function resolveTarget(target: unknown): Promise<{ kind: 'property' | 'search'; target: string; label: string } | null> {
+    if (typeof target !== 'string') return null;
+    const search = parseSearchTarget(target);
+    if (search) return { kind: 'search', target, label: searchLabel(search) };
+    const snap = await trackable(target);
+    return snap ? { kind: 'property', target: taxTarget(snap.apn), label: labelOf(snap) } : null;
+  }
+
   /** Emails each subscriber the changes to the properties they track. Returns how many emails went out. */
   let checking = false;
   async function checkTracked(): Promise<number> {
@@ -259,6 +269,12 @@ export function createApp(config: AppConfig) {
         const s = alerts.get(subscriberId);
         if (s?.status !== 'ACTIVE') continue;
         if (await deliver(trackedChangesEmail(s.email, items, { ...alertLinks(s), live: `${base}/#/live` }))) sent++;
+      }
+      // Once a day: new listings matching each saved search.
+      for (const [subscriberId, groups] of collectDigests(tracker, now())) {
+        const s = alerts.get(subscriberId);
+        if (s?.status !== 'ACTIVE') continue;
+        if (await deliver(searchDigestEmail(s.email, groups, { ...alertLinks(s), live: `${base}/#/live` }))) sent++;
       }
       return sent;
     } finally {
@@ -501,23 +517,21 @@ export function createApp(config: AppConfig) {
       if (body.company_url) return send(res, 202, accepted);
       const email = plain(body.email, 254).toLowerCase();
       if (!EMAIL_RE.test(email)) throw new HttpError(422, 'Please fix the highlighted fields.', { errors: { email: 'Enter a valid email address.' } });
-      const snap = await trackable(body.target);
-      if (!snap) throw new HttpError(404, 'This property isn’t on the current verified list, so it can’t be tracked.');
+      const r = await resolveTarget(body.target);
+      if (!r) throw new HttpError(404, 'This property isn’t on the current verified list, so it can’t be tracked.');
       if (!limiters.alertsEmail.hit(email)) return send(res, 202, accepted);
-      const target = taxTarget(snap.apn);
-      const label = labelOf(snap);
       const current = alerts.byEmail(email);
       if (current?.status === 'ACTIVE') {
         // Already signed up: they confirm the add from their own manage page, so nobody can add alerts to someone else's inbox.
         const l = alertLinks(current);
-        await deliver(alertsAddEmail(email, label, `${l.manage}?add=${encodeURIComponent(target)}`, l.manage, l.unsubscribe, l.oneClick));
+        await deliver(alertsAddEmail(email, r.label, `${l.manage}?add=${encodeURIComponent(r.target)}`, l.manage, l.unsubscribe, l.oneClick, r.kind));
         return send(res, 202, accepted);
       }
       const token = newToken();
       const t = now();
       const s = alerts.upsertPending(email, body.list === true, sha256(token), new Date(t.getTime() + CONFIRM_TTL_MS).toISOString(), t.toISOString());
-      alerts.addSubscription(s.id, 'property', target, label, t.toISOString());
-      if (!(await deliver(alertsConfirmEmail(email, `${base}/#/alerts/confirm/${token}`, label)))) {
+      alerts.addSubscription(s.id, r.kind, r.target, r.label, t.toISOString());
+      if (!(await deliver(alertsConfirmEmail(email, `${base}/#/alerts/confirm/${token}`, r.label, r.kind)))) {
         throw new HttpError(503, 'We couldn\'t send your confirmation email just now. Please try again in a few minutes.');
       }
       return send(res, 202, accepted);
@@ -550,17 +564,18 @@ export function createApp(config: AppConfig) {
         if (typeof body.list === 'boolean') alerts.setListOptIn(s.id, body.list, now().toISOString());
         if (typeof body.remove === 'string') alerts.removeSubscription(s.id, body.remove);
         if (body.add !== undefined) {
-          const snap = await trackable(body.add);
-          if (!snap) throw new HttpError(404, 'This property isn’t on the current verified list, so it can’t be tracked.');
-          const r = alerts.addSubscription(s.id, 'property', taxTarget(snap.apn), labelOf(snap), now().toISOString());
-          if (r === 'limit') throw new HttpError(409, `You’re already tracking ${ALERT_LIMITS.property} properties, the most we allow. Remove one first.`);
+          const r = await resolveTarget(body.add);
+          if (!r) throw new HttpError(404, 'This property isn’t on the current verified list, so it can’t be tracked.');
+          if (alerts.addSubscription(s.id, r.kind, r.target, r.label, now().toISOString()) === 'limit') {
+            throw new HttpError(409, r.kind === 'search' ? `You already have ${ALERT_LIMITS.search} saved searches, the most we allow. Remove one first.` : `You’re already tracking ${ALERT_LIMITS.property} properties, the most we allow. Remove one first.`);
+          }
         }
       }
-      // The manage page can ask about a property before adding it (from an emailed "track this" link).
-      let preview: { target: string; label: string; tracked: boolean } | null = null;
+      // The manage page can ask about an alert before adding it (from an emailed "add this" link).
+      let preview: { kind: 'property' | 'search'; target: string; label: string; tracked: boolean } | null = null;
       if (typeof body.preview === 'string') {
-        const snap = await trackable(body.preview);
-        if (snap) preview = { target: taxTarget(snap.apn), label: labelOf(snap), tracked: alerts.subscriptions(s.id).some((x) => x.kind === 'property' && x.target === taxTarget(snap.apn)) };
+        const r = await resolveTarget(body.preview);
+        if (r) preview = { ...r, tracked: alerts.subscriptions(s.id).some((x) => x.kind === r.kind && x.target === r.target) };
       }
       return send(res, 200, { ok: true, ...alertsView(alerts.get(s.id)!), preview });
     }

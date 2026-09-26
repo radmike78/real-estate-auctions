@@ -16,7 +16,7 @@ interface ManageView {
   listOptIn: boolean;
   confirmedAt: string | null;
   subscriptions: Subscription[];
-  preview?: { target: string; label: string; tracked: boolean } | null;
+  preview?: { kind: 'property' | 'search'; target: string; label: string; tracked: boolean } | null;
 }
 
 const KIND_LABEL: Record<string, string> = { property: 'Tracked property', search: 'Saved search' };
@@ -185,9 +185,13 @@ function Manage({ token, welcome, add }: { token: string; welcome: boolean; add?
       )}
       {offer && (
         <div className="notice track-offer" role="status">
-          <p><strong>Track {offer.label}?</strong> We’ll email you when it changes on the Treasurer’s list, and before the auction.</p>
+          {offer.kind === 'search' ? (
+            <p><strong>Save the search “{offer.label}”?</strong> We’ll email you once a day when new parcels match.</p>
+          ) : (
+            <p><strong>Track {offer.label}?</strong> We’ll email you when it changes on the Treasurer’s list, and before the auction.</p>
+          )}
           <div className="row">
-            <button className="btn" disabled={saving} onClick={() => update({ add: offer.target }).then(() => setOffer(null))}>Track it</button>
+            <button className="btn" disabled={saving} onClick={() => update({ add: offer.target }).then(() => setOffer(null))}>Add it</button>
             <button className="linkish" onClick={() => setOffer(null)}>No thanks</button>
           </div>
         </div>
@@ -204,7 +208,7 @@ function Manage({ token, welcome, add }: { token: string; welcome: boolean; add?
         </label>
         <h3>Tracked properties and saved searches</h3>
         {view.subscriptions.length === 0 ? (
-          <p className="muted">None yet. On <a href="#/live">Live tax sales</a>, choose ✉ Email me changes on any parcel.</p>
+          <p className="muted">None yet. On <a href="#/live">Live tax sales</a>, choose ✉ Email me changes on any parcel, or ✉ Email me new matches to save a search.</p>
         ) : (
           <ul className="alerts-subs">
             {view.subscriptions.map((s) => (
@@ -218,7 +222,7 @@ function Manage({ token, welcome, add }: { token: string; welcome: boolean; add?
         {error && <div className="caution" role="alert">{error}</div>}
         {remembered && (
           <p className="muted">
-            This browser remembers your alerts link, so you can track properties in one click.{' '}
+            This browser remembers your alerts link, so you can add alerts in one click.{' '}
             <button className="linkish" onClick={() => { forgetManageToken(); setRemembered(false); }}>Forget it on this browser</button>
           </p>
         )}

@@ -138,11 +138,12 @@ describe('tracking a verified listing (running server)', () => {
     expect((await post('/api/alerts/track', { email: 'buyer@example.com', target: 'tax:100-00-000-002' })).status).toBe(202);
     expect(mails).toHaveLength(before + 1);
     expect(last().subject).toMatch(/Confirm: track 002 Test Ave/);
+    expect(last().text).toMatch(/add updates on 002 Test Ave/);
     expect(last().text).toMatch(/#\/alerts\/manage\/[^?\s]+\?add=tax%3A100-00-000-002/);
     // Nothing is added until they choose it on the manage page.
     let view = await (await post('/api/alerts/manage', { token: manageToken, preview: 'tax:100-00-000-002' }, app1)).json();
     expect(view.subscriptions).toHaveLength(1);
-    expect(view.preview).toEqual({ target: 'tax:100-00-000-002', label: '002 Test Ave (APN 100-00-000-002)', tracked: false });
+    expect(view.preview).toEqual({ kind: 'property', target: 'tax:100-00-000-002', label: '002 Test Ave (APN 100-00-000-002)', tracked: false });
     view = await (await post('/api/alerts/update', { token: manageToken, add: 'tax:100-00-000-002' }, app1)).json();
     expect(view.subscriptions).toHaveLength(2);
   });

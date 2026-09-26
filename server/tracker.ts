@@ -13,6 +13,8 @@ import { join } from 'node:path';
 import type { DatabaseSync } from 'node:sqlite';
 import { verifyFeed } from '../src/feed/verify';
 import type { Feed, FeedListing } from '../src/feed/types';
+import { matchesSearch, parseSearchTarget } from '../src/lib/savedSearch';
+import { pacificDay } from './metrics';
 
 /** What we remember about a tracked listing. */
 export interface ListingSnapshot {
@@ -23,6 +25,7 @@ export interface ListingSnapshot {
   auctionFormat: string | null;
   auctionLocation: string | null;
   sourceUrl: string;
+  landUseCode?: string | null; // Assessor land-use code, for saved-search matching
 }
 
 export type Change =
@@ -46,6 +49,7 @@ export const snapshotOf = (l: FeedListing): ListingSnapshot => ({
   auctionFormat: l.auctionFormat,
   auctionLocation: l.auctionLocation,
   sourceUrl: l.sourceUrl,
+  landUseCode: l.landUse?.code ?? null,
 });
 
 export const labelOf = (s: Pick<ListingSnapshot, 'address' | 'apn'>) => (s.address ? `${s.address} (APN ${s.apn})` : `APN ${s.apn}`);
@@ -121,7 +125,15 @@ export function openTracker(db: DatabaseSync) {
       sent_at TEXT NOT NULL,
       PRIMARY KEY (subscription_id, key)
     );
+    -- When each saved search last got its daily digest.
+    CREATE TABLE IF NOT EXISTS alert_search_state (
+      subscription_id TEXT PRIMARY KEY REFERENCES subscriptions(id) ON DELETE CASCADE,
+      last_digest_at TEXT NOT NULL
+    );
   `);
+  // When a listing (re)appeared on the list; '' for listings recorded on the very first check (the baseline).
+  const cols = db.prepare('PRAGMA table_info(alert_listings)').all() as { name: string }[];
+  if (!cols.some((c) => c.name === 'appeared_at')) db.exec(`ALTER TABLE alert_listings ADD COLUMN appeared_at TEXT NOT NULL DEFAULT ''`);
   return {
     isEmpty(): boolean {
       return !db.prepare('SELECT 1 FROM alert_listings LIMIT 1').get();
@@ -130,11 +142,37 @@ export function openTracker(db: DatabaseSync) {
       const rows = db.prepare('SELECT target, snapshot, present FROM alert_listings').all() as { target: string; snapshot: string; present: number }[];
       return new Map(rows.map((r) => [r.target, { snapshot: JSON.parse(r.snapshot) as ListingSnapshot, present: r.present === 1 }]));
     },
-    save(target: string, snapshot: ListingSnapshot, present: boolean, now: string) {
+    /** `appearedAt` is set only when a listing newly appears (or reappears); otherwise the old value stays. */
+    save(target: string, snapshot: ListingSnapshot, present: boolean, now: string, appearedAt?: string) {
       db.prepare(
-        `INSERT INTO alert_listings (target, snapshot, present, updated_at) VALUES (?, ?, ?, ?)
-         ON CONFLICT(target) DO UPDATE SET snapshot = excluded.snapshot, present = excluded.present, updated_at = excluded.updated_at`,
-      ).run(target, JSON.stringify(snapshot), present ? 1 : 0, now);
+        `INSERT INTO alert_listings (target, snapshot, present, updated_at, appeared_at) VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(target) DO UPDATE SET snapshot = excluded.snapshot, present = excluded.present, updated_at = excluded.updated_at,
+           appeared_at = CASE WHEN ? IS NULL THEN alert_listings.appeared_at ELSE excluded.appeared_at END`,
+      ).run(target, JSON.stringify(snapshot), present ? 1 : 0, now, appearedAt ?? '', appearedAt ?? null);
+    },
+    /** Listings on the list now that appeared after `since` (baseline listings never count). */
+    appearedSince(since: string): ListingSnapshot[] {
+      return (db.prepare(`SELECT snapshot FROM alert_listings WHERE present = 1 AND appeared_at != '' AND appeared_at > ? ORDER BY appeared_at, target`).all(since) as { snapshot: string }[]).map(
+        (r) => JSON.parse(r.snapshot) as ListingSnapshot,
+      );
+    },
+    /** Saved searches of confirmed addresses, with when each last got a digest (or was created). */
+    searches(): { subscriptionId: string; subscriberId: string; target: string; label: string; since: string }[] {
+      return db
+        .prepare(
+          `SELECT s.id AS subscriptionId, s.subscriber_id AS subscriberId, s.target, s.label,
+                  COALESCE(d.last_digest_at, s.created_at) AS since
+           FROM subscriptions s JOIN subscribers u ON u.id = s.subscriber_id
+           LEFT JOIN alert_search_state d ON d.subscription_id = s.id
+           WHERE s.kind = 'search' AND u.status = 'ACTIVE'`,
+        )
+        .all() as { subscriptionId: string; subscriberId: string; target: string; label: string; since: string }[];
+    },
+    markDigested(subscriptionId: string, at: string) {
+      db.prepare(
+        `INSERT INTO alert_search_state (subscription_id, last_digest_at) VALUES (?, ?)
+         ON CONFLICT(subscription_id) DO UPDATE SET last_digest_at = excluded.last_digest_at`,
+      ).run(subscriptionId, at);
     },
     /** Active subscribers tracking a target, with their subscription ids. */
     watchers(target: string): { subscriptionId: string; subscriberId: string }[] {
@@ -177,7 +215,9 @@ export function collectChanges(tracker: Tracker, feed: Feed, now: Date): Map<str
     const prev = known.get(target) ?? null;
     const cur = current.get(target) ?? null;
     const changes = first ? [] : diffSnapshots(prev?.snapshot ?? null, prev?.present ?? false, cur);
-    if (cur) tracker.save(target, cur, true, at);
+    // Newly on the list (or back on it): remember when, for saved-search digests. The first check is only a baseline.
+    const appeared = cur && !prev?.present ? (first ? '' : at) : undefined;
+    if (cur) tracker.save(target, cur, true, at, appeared);
     else if (prev?.present) tracker.save(target, prev.snapshot, false, at);
     const watchers = tracker.watchers(target);
     if (!watchers.length) continue;
@@ -187,6 +227,32 @@ export function collectChanges(tracker: Tracker, feed: Feed, now: Date): Map<str
       if (cur) for (const r of dueReminders(cur, now)) if (tracker.claim(w.subscriptionId, r.key, at)) all.push(r.change);
       add(w.subscriberId, target, snap, all);
     }
+  }
+  return out;
+}
+
+/** Digests are sent once a day, from this hour (Las Vegas time). */
+export const DIGEST_HOUR = 7;
+const vegasHour = (d: Date) => Number(new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', hourCycle: 'h23' }).format(d));
+
+/**
+ * Daily saved-search digests that are due: per subscriber, each search with the listings that appeared since
+ * its last digest. Every due search is marked as done, even with no matches, so tomorrow starts from today.
+ */
+export function collectDigests(tracker: Tracker, now: Date): Map<string, { label: string; target: string; listings: ListingSnapshot[] }[]> {
+  const out = new Map<string, { label: string; target: string; listings: ListingSnapshot[] }[]>();
+  if (vegasHour(now) < DIGEST_HOUR) return out;
+  const today = pacificDay(now);
+  const at = now.toISOString();
+  for (const s of tracker.searches()) {
+    if (pacificDay(new Date(s.since)) >= today) continue; // already done today (or created today: first digest tomorrow)
+    const search = parseSearchTarget(s.target);
+    const listings = search ? tracker.appearedSince(s.since).filter((l) => matchesSearch(search, l)) : [];
+    tracker.markDigested(s.subscriptionId, at);
+    if (!listings.length) continue;
+    const list = out.get(s.subscriberId) ?? [];
+    list.push({ label: s.label, target: s.target, listings });
+    out.set(s.subscriberId, list);
   }
   return out;
 }

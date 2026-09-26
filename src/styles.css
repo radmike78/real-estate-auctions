@@ -1024,3 +1024,7 @@ small { font-size: 0.95rem; }
 .track-dialog { max-width: 520px; }
 .track-dialog .track-label { font-weight: 700; margin: -4px 0 12px; }
 .track-offer p { margin: 0 0 10px; }
+.live-alerts { margin: 0 0 18px; gap: 14px; flex-wrap: wrap; align-items: center; }
+.search-alert-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 4px 0 14px; }
+.search-alert-fields select, .search-alert-fields input { font: inherit; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: inherit; }
+@media (max-width: 520px) { .search-alert-fields { grid-template-columns: 1fr; } }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { api, ApiError } from '../lib/api';
 import { forgetManageToken, storedManageToken } from '../lib/alertsLink';
 
@@ -8,12 +8,15 @@ export default function TrackButton({ target, label }: { target: string; label: 
   return (
     <>
       <button className="linkish track-btn" onClick={() => setOpen(true)} aria-label={`Email me changes to ${label}`}>✉ Email me changes</button>
-      {open && <TrackDialog target={target} label={label} onClose={() => setOpen(false)} />}
+      {open && <AlertDialog title="Email me changes" intro={PROPERTY_INTRO} target={target} label={label} onClose={() => setOpen(false)} />}
     </>
   );
 }
 
-function TrackDialog({ target, label, onClose }: { target: string; label: string; onClose: () => void }) {
+const PROPERTY_INTRO = 'We’ll email you if it leaves the Treasurer’s list or comes back, if the auction date or minimum bid changes, and before the auction.';
+
+/** Adds one alert (a tracked property or a saved search): one click with a remembered link, otherwise by email with confirmation. */
+export function AlertDialog({ title, intro, target, label, extra, onClose }: { title: string; intro: string; target: string; label: string; extra?: ReactNode; onClose: () => void }) {
   const [email, setEmail] = useState('');
   const [list, setList] = useState(false);
   const [hp, setHp] = useState('');
@@ -29,7 +32,7 @@ function TrackDialog({ target, label, onClose }: { target: string; label: string
     setError(null);
     try {
       await api('/api/alerts/update', { body: { token, add: target }, auth: true });
-      setDone('You’re tracking it. We’ll email you when it changes.');
+      setDone(target.startsWith('search:') ? 'Search saved. We’ll email you once a day when new parcels match.' : 'You’re tracking it. We’ll email you when it changes.');
     } catch (e) {
       if (e instanceof ApiError && e.status === 404 && /link/i.test(e.message)) {
         forgetManageToken(); // the remembered link no longer works: fall back to email
@@ -57,7 +60,8 @@ function TrackDialog({ target, label, onClose }: { target: string; label: string
   return (
     <div className="role-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="role-dialog track-dialog" role="dialog" aria-modal="true" aria-labelledby="track-title" onKeyDown={(e) => e.key === 'Escape' && onClose()}>
-        <h2 id="track-title">Email me changes</h2>
+        <h2 id="track-title">{title}</h2>
+        {!done && extra}
         <p className="track-label">{label}</p>
         {done ? (
           <>
@@ -69,16 +73,16 @@ function TrackDialog({ target, label, onClose }: { target: string; label: string
           </>
         ) : token ? (
           <>
-            <p>We’ll email you if it leaves the Treasurer’s list or comes back, if the auction date or minimum bid changes, and before the auction.</p>
+            <p>{intro}</p>
             {error && <div className="caution" role="alert">{error}</div>}
             <div className="row">
-              <button ref={(el) => void (first.current = el)} className="btn big" disabled={busy} onClick={quickAdd}>{busy ? 'Adding…' : 'Track it'}</button>
+              <button ref={(el) => void (first.current = el)} className="btn big" disabled={busy} onClick={quickAdd}>{busy ? 'Adding…' : 'Add it'}</button>
               <button className="linkish" onClick={() => { forgetManageToken(); setToken(null); }}>Use a different email</button>
             </div>
           </>
         ) : (
           <form className="form" onSubmit={submit} noValidate>
-            <p>We’ll email you if it leaves the Treasurer’s list or comes back, if the auction date or minimum bid changes, and before the auction. Free, no account.</p>
+            <p>{intro} Free, no account.</p>
             <div className="hp" aria-hidden="true">
               <label>Company URL <input tabIndex={-1} autoComplete="off" value={hp} onChange={(e) => setHp(e.target.value)} /></label>
             </div>
@@ -92,7 +96,7 @@ function TrackDialog({ target, label, onClose }: { target: string; label: string
             </label>
             {error && <div className="caution" role="alert">{error}</div>}
             <div className="row">
-              <button className="btn big" disabled={busy}>{busy ? 'Sending…' : 'Email me changes'}</button>
+              <button className="btn big" disabled={busy}>{busy ? 'Sending…' : title}</button>
               <button type="button" className="linkish" onClick={onClose}>Cancel</button>
             </div>
             <p className="muted">We’ll send a link to confirm first. <a href="#/privacy">Privacy</a></p>

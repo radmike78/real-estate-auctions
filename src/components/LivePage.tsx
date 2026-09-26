@@ -10,6 +10,7 @@ import { SHOW_SAMPLE_DATA } from '../data';
 import { propertyViews } from '../lib/propertyViews';
 import ClassSwitch from './ClassSwitch';
 import TrackButton from './TrackButton';
+import SearchAlertButton from './SearchAlertButton';
 import { CLASS_LABEL, classOfLandUse, type ClassFilter } from '../lib/propertyClass';
 
 const REVERIFY_MS = 5 * 60_000;
@@ -67,6 +68,10 @@ export default function LivePage() {
         Listings are re-checked on a schedule that follows how often the Treasurer updates them. Parcels that are paid off (lined out), sold,
         removed, unconfirmed, or not re-verified recently are hidden automatically. When no auction is scheduled, nothing is listed.
       </p>
+      <div className="row live-alerts">
+        <SearchAlertButton cls={cls} />
+        <span className="muted">A daily email when new parcels match, including when the next auction list comes out.</span>
+      </div>
 
       {!result && <p>Verifying listings…</p>}
 
