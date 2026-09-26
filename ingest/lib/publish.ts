@@ -87,7 +87,7 @@ export function buildFeed(sources: SourceConfig[], states: Record<string, Source
         health === 'terms_not_reviewed'
           ? source.termsReviewedAt
             ? 'Not enabled yet: waiting to check the first posted list.'
-            : 'Automated collection is disabled until the terms of use are reviewed.'
+            : 'Not enabled: automated collection needs a terms review or the site’s written permission.'
           : health === 'stale'
             ? 'Not re-verified recently enough. Listings are hidden until the next successful check.'
             : state.message,

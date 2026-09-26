@@ -67,7 +67,9 @@ export const SOURCES: SourceConfig[] = [
     declaredCadenceHours: 24,
     minPollMinutes: 15,
     maxPollMinutes: 6 * 60,
-    termsReviewedAt: null,
+    // Reviewed and accepted by the site owner (docs/source-terms-review.md): automated access is allowed as long
+    // as it doesn't slow the county's servers.
+    termsReviewedAt: '2026-09-26',
     parserVerifiedAt: '2026-09-24',
     notes:
       'Properties delinquent 3 consecutive fiscal years are deeded to the Treasurer as trustee and may be auctioned (NRS 361). ' +
@@ -89,6 +91,8 @@ export const SOURCES: SourceConfig[] = [
     declaredCadenceHours: 24,
     minPollMinutes: 60,
     maxPollMinutes: 24 * 60,
+    // AMG's Terms of Use prohibit copying, downloading or republishing without its prior written consent
+    // (checked 2026-09-26, docs/source-terms-review.md). Stays off unless AMG gives written permission.
     termsReviewedAt: null,
     // The first real list is expected about 3 weeks before the Henderson sale (Oct 27, 2026).
     parserVerifiedAt: null,
@@ -112,7 +116,9 @@ export const SOURCES: SourceConfig[] = [
     declaredCadenceHours: 24,
     minPollMinutes: 60,
     maxPollMinutes: 12 * 60,
-    termsReviewedAt: null,
+    // Reviewed and accepted by the site owner (docs/source-terms-review.md): robots.txt allows all, no terms of use,
+    // and U.S. Government works aren't copyrighted (17 U.S.C. 105).
+    termsReviewedAt: '2026-09-26',
     // Checked against the live index on 2026-09-26 (139 ads nationwide, none in Nevada that day).
     parserVerifiedAt: '2026-09-26',
     notes:

@@ -351,7 +351,9 @@ describe('published feed', () => {
     const now = new Date('2026-09-24T12:00:00Z');
     const { parsed, sha256 } = parseSnapshot(REAL);
     const s = applySnapshot(emptyState(SRC.id), parsed, { sha256, sourceUrl: SRC.officialUrl, now, confirmedApns: new Set(parsed.rows.map((r) => r.apn)) });
-    expect(buildFeed([SRC], { [SRC.id]: s }, now).listings).toHaveLength(0);
+    const feed = buildFeed([SRC], { [SRC.id]: s }, now);
+    expect(feed.listings).toHaveLength(0);
+    expect(feed.sources[0].message).toBe('The auction on May 7, 2026 has been held; no auction is scheduled, so nothing is listed.');
   });
 });
 

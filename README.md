@@ -429,10 +429,7 @@ The first real connector reads the **Clark County Treasurer's delinquent-propert
 
 ### Enabling it
 
-1. **Record the terms-of-use review.** Review the county sites' terms of use, then set `termsReviewedAt` in `ingest/sources/registry.ts`. Scheduled runs don't fetch until this is set. On 2026-09-24:
-   - `www.clarkcountynv.gov/robots.txt` allows all automated access.
-   - `treasurer.clarkcountynv.gov` has no `robots.txt`.
-   - No site terms prohibiting automated access were found.
+1. **Terms of use: reviewed and accepted on 2026-09-26** (`termsReviewedAt` in `ingest/sources/registry.ts`). The county allows crawling that doesn't slow its servers; the quotes and decision are in [docs/source-terms-review.md](docs/source-terms-review.md). Scheduled runs skip any source without a review date.
 2. **Check the pipeline without saving anything:**
    ```bash
    npm run ingest -- --dry-run
@@ -449,24 +446,25 @@ The first real connector reads the **Clark County Treasurer's delinquent-propert
    ```
    This long-running service checks each source when it is due and writes the signed feed to `public/data/`. Deploy that folder alongside the built site.
 
-### IRS sales (ready, needs the terms review)
+### IRS sales (enabled)
 
 A third connector reads **IRS seizure and court-ordered sales** from the Treasury Department's own site, <https://www.irsauctions.gov/>. It reads the site's JSON index of every ad (`/index.json`, the same data its cards show) and keeps an ad only when it is Clark County real estate: a Nevada location with a Clark County ZIP, and at least one Clark County parcel number in the notice. The County Assessor must confirm every parcel in the sale.
 
 - Checked against the live index on 2026-09-26: 139 ads nationwide, none in Nevada, so nothing shows today. `robots.txt` allows all automated access.
 - IRS sales appear on Live tax sales, in search (badge "IRS sale") and on their own property pages. Seizure sales show the 180-day redemption period; court-ordered sales point to the court's order for the terms.
 - The notice text names the taxpayer, so it is never stored or published; we keep the title, place, date, minimum bid, parcels and sale terms, and link to the IRS ad.
-- **To enable it:** review the site's terms of use and set `termsReviewedAt` for `us-irs-auctions` in `ingest/sources/registry.ts`. Test it with `npm run ingest -- --dry-run --source us-irs-auctions`, or offline with `--from-dir ingest/fixtures/irs-2026-09`.
+- **Terms: reviewed and accepted on 2026-09-26** (robots.txt allows all, no terms of use, and U.S. Government works aren't copyrighted; see [docs/source-terms-review.md](docs/source-terms-review.md)). Test it with `npm run ingest -- --dry-run --source us-irs-auctions`, or offline with `--from-dir ingest/fixtures/irs-2026-09`.
 
-### SID lien certificates (set up, not enabled yet)
+### SID lien certificates (built, off: needs AMG's written permission)
 
 A second connector reads the **special improvement district (SID) lien-certificate sales** held by Clark County and the cities. The Treasurer's [certificate-sale page](https://www.clarkcountynv.gov/government/elected_officials/county_treasurer/certificate-sale) sends buyers to the notice-of-sale page run by **Assessment Management Group** (<https://www.amgnv.com/notice-of-sale.asp>), which publishes the lists for them. It is the only non-.gov host the ingester may contact (`AGENT_HOSTS` in `ingest/sources/registry.ts`), and every parcel on its list is still confirmed against the County Assessor.
 
 - The site shows only the parcel number, address, district, amount due and sale, marked "Lien certificate sale, not a property sale". These homes aren't for sale: no owner names, pictures, maps, Assessor links, property pages or tracking. Owner columns on the list are never read.
 - On 2026-09-26 the page announced the **City of Henderson sale on October 27, 2026**; the list goes up about 3 weeks before. Its format isn't known yet, so the connector is written against a made-up list (`ingest/fixtures/amg-2026-09/made-up-list.html`).
-- **To enable it**, once the list is posted:
-  1. Check it: `npm run ingest -- --dry-run --source nv-clark-sid-certificate-sale`. Fix the parser if the format differs, and save a copy with owner names removed as the test fixture.
-  2. Review AMG's terms of use, then set `termsReviewedAt` and `parserVerifiedAt` for `nv-clark-sid-certificate-sale` in `ingest/sources/registry.ts`. Scheduled runs skip the source until both are set. (On 2026-09-26 its `robots.txt` had no rules that block access.)
+- **AMG's Terms of Use prohibit** copying, downloading or republishing its material without AMG's prior written consent ([amgnv.com/copyright.asp](https://www.amgnv.com/copyright.asp); see [docs/source-terms-review.md](docs/source-terms-review.md)). So the connector stays off, and the SID playbook links to AMG's notice page instead. Linking is fine.
+- **To enable it**, only with written permission from AMG (request email in [docs/data-access-requests.md](docs/data-access-requests.md)):
+  1. Keep a copy of the permission with the project records, and set `termsReviewedAt` for `nv-clark-sid-certificate-sale` in `ingest/sources/registry.ts`.
+  2. Check the connector against a real posted list: `npm run ingest -- --dry-run --source nv-clark-sid-certificate-sale` (dry runs contact a site only once its terms review is recorded). Fix the parser if the format differs, save a copy with owner names removed as the test fixture, and set `parserVerifiedAt`.
 
 ### How it stays current
 

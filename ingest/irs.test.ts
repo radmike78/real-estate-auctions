@@ -17,11 +17,11 @@ const ON = { ...IRS, termsReviewedAt: '2026-09-26' };
 const NOW = new Date('2026-11-01T17:00:00Z');
 
 describe('IRS source registry', () => {
-  it('reads only the site’s own index on the exact .gov host and stays off until the terms are reviewed', () => {
+  it('reads only the site’s own index on the exact .gov host, with the terms review recorded', () => {
     expect(() => validateRegistry()).not.toThrow();
     expect(IRS.allowedHosts).toEqual(['www.irsauctions.gov']);
     expect(IRS.fetchUrl).toBe('https://www.irsauctions.gov/index.json');
-    expect(IRS.termsReviewedAt).toBeNull();
+    expect(IRS.termsReviewedAt).toBe('2026-09-26');
   });
 });
 
@@ -81,7 +81,7 @@ describe('IRS sales in the feed', () => {
   const state = (confirmed = all) => applyIrsSnapshot(emptyState(IRS.id), snap.parsed, { sha256: snap.sha256, now: NOW, confirmedApns: confirmed });
 
   it('publishes open, Assessor-confirmed sales once the terms are reviewed', () => {
-    expect(buildFeed([IRS], { [IRS.id]: state() }, NOW).federalSales).toBeUndefined();
+    expect(buildFeed([{ ...IRS, termsReviewedAt: null }], { [IRS.id]: state() }, NOW).federalSales).toBeUndefined();
     const feed = buildFeed([ON], { [IRS.id]: state() }, NOW);
     expect(feed.federalSales!.map((f) => f.id)).toEqual(['made-up-las-vegas-home', 'made-up-judicial-sale-henderson']);
     expect(feed.sources[0].message).toMatch(/15 ads nationwide; 4 in Clark County; 1 Clark County ad\(s\) not shown/);
