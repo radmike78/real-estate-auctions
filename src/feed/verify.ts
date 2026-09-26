@@ -3,10 +3,13 @@
 //  2. the feed has not expired (stale data is never displayed as available),
 //  3. every listing passes shape checks and links only to allowlisted official hosts.
 
-import type { Feed, FeedListing } from './types';
+import type { Feed, FeedCertificate, FeedListing } from './types';
 
 // Official hosts a listing may link to. Mirrors ingest/sources/registry.ts (exact .gov names only).
 export const OFFICIAL_HOSTS = new Set(['treasurer.clarkcountynv.gov']);
+// Agents that publish a government sale list for the agency (AGENT_HOSTS in the registry).
+// Only SID lien certificates may link here.
+export const AGENT_HOSTS = new Set(['www.amgnv.com']);
 
 const APN = /^\d{3}-\d{2}-\d{3}-\d{3}$/;
 const isDate = (v: unknown) => typeof v === 'string' && !Number.isNaN(Date.parse(v));
@@ -44,6 +47,41 @@ export function isOfficialUrl(raw: string): boolean {
   } catch {
     return false;
   }
+}
+
+/** A link a SID lien certificate may use: the agency's .gov site or its named publishing agent. */
+export function isCertificateSourceUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw);
+    return u.protocol === 'https:' && (OFFICIAL_HOSTS.has(u.hostname) || AGENT_HOSTS.has(u.hostname)) && !u.username && !u.password;
+  } catch {
+    return false;
+  }
+}
+
+const shortName = (v: unknown, max: number) => typeof v === 'string' && v.length > 0 && v.length <= max;
+
+function validCertificate(c: FeedCertificate): boolean {
+  return (
+    !!c &&
+    c.state === 'AVAILABLE' &&
+    typeof c.apn === 'string' &&
+    APN.test(c.apn) &&
+    shortText(c.address, 200) &&
+    shortName(c.district, 20) &&
+    typeof c.amountDue === 'number' &&
+    Number.isFinite(c.amountDue) &&
+    c.amountDue > 0 &&
+    shortName(c.jurisdiction, 60) &&
+    shortName(c.publishedBy, 80) &&
+    typeof c.saleDate === 'string' &&
+    /^\d{4}-\d{2}-\d{2}$/.test(c.saleDate) &&
+    isDate(c.corroboratedAt) &&
+    isDate(c.lastVerifiedAt) &&
+    isCertificateSourceUrl(c.sourceUrl) &&
+    typeof c.snapshotSha256 === 'string' &&
+    /^[0-9a-f]{64}$/.test(c.snapshotSha256)
+  );
 }
 
 function validListing(l: FeedListing): boolean {
@@ -96,7 +134,8 @@ export async function verifyFeed(
   if (!(Date.parse(feed.expiresAt) > now.getTime())) {
     return { ok: false, reason: 'EXPIRED', detail: `Listings expired at ${feed.expiresAt} and are being re-verified.` };
   }
-  return { ok: true, feed: { ...feed, listings: feed.listings.filter(validListing) } };
+  const certificates = Array.isArray(feed.certificates) ? feed.certificates.filter(validCertificate) : [];
+  return { ok: true, feed: { ...feed, listings: feed.listings.filter(validListing), certificates } };
 }
 
 export async function loadVerifiedFeed(publicKeySpkiB64: string | null): Promise<VerifyResult> {

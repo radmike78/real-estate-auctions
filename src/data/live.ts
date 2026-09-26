@@ -28,7 +28,7 @@ function set(next: LiveState) {
 
 async function load() {
   const result = await loadVerifiedFeed(FEED_PUBLIC_KEY_SPKI_B64).catch((e: Error): VerifyResult => ({ ok: false, reason: 'MISSING', detail: e.message }));
-  const agency = result.ok ? (result.feed.sources[0]?.agency ?? 'Clark County Treasurer') : '';
+  const agency = result.ok ? (result.feed.sources.find((s) => s.sourceId === 'nv-clark-treasurer-tax-sale')?.agency ?? 'Clark County Treasurer') : '';
   set({ result, properties: result.ok ? result.feed.listings.map((l) => listingToProperty(l, agency)) : [], checkedAt: Date.now() });
 }
 

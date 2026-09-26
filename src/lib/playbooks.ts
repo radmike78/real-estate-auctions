@@ -120,7 +120,7 @@ export const PLAYBOOKS: Playbook[] = [
       { label: 'Taxes', value: 'You file a W-9; interest over $10 is reported on a 1099-INT' },
     ],
     steps: [
-      { title: 'Check the sale list', detail: 'Within 60 days after an installment goes delinquent, the County Commission tells the Treasurer to give notice of sale. Sales are usually held 4 times a year (late January, March, July and September), and the list is posted about 3 weeks before.' },
+      { title: 'Check the sale list', detail: 'Within 60 days after an installment goes delinquent, the County Commission tells the Treasurer to give notice of sale. Sales are usually held 4 times a year (late January, March, July and September), and the list is posted about 3 weeks before. The cities hold their own SID sales too. Assessment Management Group posts the notices and lists for the county and the cities; each city sets its own sale procedures, so read that sale’s notice.' },
       { title: 'Research the parcels', detail: 'The Assessor has parcel details but not liens; search the Recorder too. Know what the land is in case you end up owning it.' },
       { title: 'Register in person', detail: 'Bring government photo ID with your current mailing address and fill out the buyer registration form. You must be present; friends and family can’t register for you, and late arrivals can’t take part.' },
       { title: 'Drawing and payment', detail: "A random number generator picks the winner and two alternates for each parcel. Pay by 10:00 a.m. the next business day in cash, cashier's check or money order, or the certificate goes to the first alternate (then the second). Certificates nobody pays for are sold first come at the Treasurer’s window the next business day from 8:00 a.m.; after noon they go to the County, which may sell them over the counter later for the price plus 1% a month." },
@@ -145,6 +145,7 @@ export const PLAYBOOKS: Playbook[] = [
     team: [T.title, T.attorney, T.cpa],
     sources: [
       { label: 'Clark County Treasurer FAQs (special assessment certificates)', url: TREASURER_FAQ },
+      { label: 'Notice of sale, published by Assessment Management Group for Clark County and the cities', url: 'https://www.amgnv.com/notice-of-sale.asp' },
       { label: 'NRS 271 (local improvements, certificates of sale)', url: NRS('271') },
       { label: 'Clark County Recorder: search records', url: RECORDER },
     ],

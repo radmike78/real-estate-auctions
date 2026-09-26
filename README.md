@@ -449,6 +449,16 @@ The first real connector reads the **Clark County Treasurer's delinquent-propert
    ```
    This long-running service checks each source when it is due and writes the signed feed to `public/data/`. Deploy that folder alongside the built site.
 
+### SID lien certificates (set up, not enabled yet)
+
+A second connector reads the **special improvement district (SID) lien-certificate sales** held by Clark County and the cities. The Treasurer's [certificate-sale page](https://www.clarkcountynv.gov/government/elected_officials/county_treasurer/certificate-sale) sends buyers to the notice-of-sale page run by **Assessment Management Group** (<https://www.amgnv.com/notice-of-sale.asp>), which publishes the lists for them. It is the only non-.gov host the ingester may contact (`AGENT_HOSTS` in `ingest/sources/registry.ts`), and every parcel on its list is still confirmed against the County Assessor.
+
+- The site shows only the parcel number, address, district, amount due and sale, marked "Lien certificate sale, not a property sale". These homes aren't for sale: no owner names, pictures, maps, Assessor links, property pages or tracking. Owner columns on the list are never read.
+- On 2026-09-26 the page announced the **City of Henderson sale on October 27, 2026**; the list goes up about 3 weeks before. Its format isn't known yet, so the connector is written against a made-up list (`ingest/fixtures/amg-2026-09/made-up-list.html`).
+- **To enable it**, once the list is posted:
+  1. Check it: `npm run ingest -- --dry-run --source nv-clark-sid-certificate-sale`. Fix the parser if the format differs, and save a copy with owner names removed as the test fixture.
+  2. Review AMG's terms of use, then set `termsReviewedAt` and `parserVerifiedAt` for `nv-clark-sid-certificate-sale` in `ingest/sources/registry.ts`. Scheduled runs skip the source until both are set. (On 2026-09-26 its `robots.txt` had no rules that block access.)
+
 ### How it stays current
 
 - **Learns the real update rate.** It watches when the official list actually changes and checks about 4 times per update interval. For the Treasurer's daily list, that starts at every 6 hours.

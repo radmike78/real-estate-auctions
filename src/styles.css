@@ -170,6 +170,14 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 .official { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
 .btn { background: var(--accent); color: var(--surface); border: none; border-radius: 10px; padding: 10px 18px; font-weight: 600; text-decoration: none; }
 .table-wrap { overflow-x: auto; }
+.badge-wrap { white-space: normal; }
+/* Phone: each row becomes a small card with its column names. */
+@media (max-width: 600px) {
+  .stack-table thead { display: none; }
+  .stack-table tr { display: block; border-bottom: 1px solid var(--border); padding: 10px 0; }
+  .stack-table td { display: flex; justify-content: space-between; gap: 16px; border: 0; padding: 3px 0; text-align: right; }
+  .stack-table td::before { content: attr(data-label); color: var(--muted); font-weight: 600; text-align: left; }
+}
 table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
 th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
 th { font-size: 0.95rem; color: var(--muted); font-weight: 600; }

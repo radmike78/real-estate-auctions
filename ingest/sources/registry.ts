@@ -2,15 +2,35 @@
 // the exact hosts listed. Add a source only after confirming it is operated by the
 // government agency (or its contracted auction platform) that conducts the sale.
 
+/** Which connector reads the source. */
+export type SourceKind = 'tax-sale' | 'sid-certificate';
+
+/**
+ * The only non-.gov hosts ever allowed, each one the named agent that publishes a government
+ * sale for the agency, confirmed from the agency's own .gov page. Adding a host here is a
+ * reviewed code change; a source can't allow itself.
+ */
+export const AGENT_HOSTS: Record<string, { publisher: string; confirmedBy: string; confirmedAt: string }> = {
+  'www.amgnv.com': {
+    publisher: 'Assessment Management Group',
+    // The Treasurer's certificate-sale page links here for the lists and sale procedures.
+    confirmedBy: 'https://www.clarkcountynv.gov/government/elected_officials/county_treasurer/certificate-sale',
+    confirmedAt: '2026-09-26',
+  },
+};
+
 export interface SourceConfig {
   id: string;
+  kind: SourceKind;
   agency: string;
+  /** Set when an agent publishes the list for the agency; its host must be in AGENT_HOSTS. */
+  publishedBy?: string;
   jurisdiction: string;
   /** Official page a human can open to confirm a listing. */
   officialUrl: string;
   /** URL the connector fetches. */
   fetchUrl: string;
-  /** Exact hostnames allowed for the fetch and every redirect hop. No wildcards. Must be .gov. */
+  /** Exact hostnames allowed for the fetch and every redirect hop. No wildcards. Must be .gov or in AGENT_HOSTS. */
   allowedHosts: string[];
   /** Independent official system used to confirm each parcel exists (different server). */
   corroborationHosts: string[];
@@ -24,12 +44,18 @@ export interface SourceConfig {
    * confirmed automated access is permitted. Scheduled runs refuse to fetch while null.
    */
   termsReviewedAt: string | null;
+  /**
+   * Date (YYYY-MM-DD) a person checked the connector against a real published list. Scheduled
+   * runs refuse to fetch while null; dry runs still work so the format can be checked.
+   */
+  parserVerifiedAt: string | null;
   notes: string;
 }
 
 export const SOURCES: SourceConfig[] = [
   {
     id: 'nv-clark-treasurer-tax-sale',
+    kind: 'tax-sale',
     agency: 'Clark County Treasurer',
     jurisdiction: 'NV-Clark',
     officialUrl: 'https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList',
@@ -42,10 +68,34 @@ export const SOURCES: SourceConfig[] = [
     minPollMinutes: 15,
     maxPollMinutes: 6 * 60,
     termsReviewedAt: null,
+    parserVerifiedAt: '2026-09-24',
     notes:
       'Properties delinquent 3 consecutive fiscal years are deeded to the Treasurer as trustee and may be auctioned (NRS 361). ' +
       'Parcels are lined out when redeemed. Not all liens are satisfied by the sale, and the IRS may redeem within 120 days. ' +
       'Confirm sale format, deposit and date in the current auction information notice for each auction.',
+  },
+  {
+    id: 'nv-clark-sid-certificate-sale',
+    kind: 'sid-certificate',
+    agency: 'Clark County and the cities (special improvement districts)',
+    publishedBy: 'Assessment Management Group',
+    jurisdiction: 'NV-Clark',
+    officialUrl: 'https://www.amgnv.com/notice-of-sale.asp',
+    fetchUrl: 'https://www.amgnv.com/notice-of-sale.asp',
+    allowedHosts: ['www.amgnv.com'],
+    // Every parcel must also exist in the County Assessor's records.
+    corroborationHosts: ['maps.clarkcountynv.gov'],
+    // Lists go up about 3 weeks before each sale and change as owners pay.
+    declaredCadenceHours: 24,
+    minPollMinutes: 60,
+    maxPollMinutes: 24 * 60,
+    termsReviewedAt: null,
+    // The first real list is expected about 3 weeks before the Henderson sale (Oct 27, 2026).
+    parserVerifiedAt: null,
+    notes:
+      'Lien certificates for unpaid special improvement district assessments (NRS 271), not the property. ' +
+      'The buyer is repaid the assessment plus 1% a month; a deed only if the owner does not redeem in time. ' +
+      'Registration is in person 30 to 60 minutes before the sale.',
   },
 ];
 
@@ -58,14 +108,24 @@ export function getSource(id: string): SourceConfig {
 /**
  * Registry invariants, checked at startup and in tests:
  *  - every host is an exact .gov name (.gov registration is restricted to verified U.S.
- *    government organizations, so a clone or look-alike cannot obtain one);
+ *    government organizations, so a clone or look-alike cannot obtain one), except a fetch
+ *    host listed in AGENT_HOSTS for a source that names that same agent as its publisher;
+ *  - corroboration always runs against a .gov host;
  *  - official and fetch URLs are HTTPS on an allowed host.
  */
+const GOV_HOST = /^[a-z0-9-]+(\.[a-z0-9-]+)*\.gov$/;
 export function validateRegistry(sources: SourceConfig[] = SOURCES): void {
   for (const s of sources) {
-    for (const h of [...s.allowedHosts, ...s.corroborationHosts]) {
-      if (!/^[a-z0-9-]+(\.[a-z0-9-]+)*\.gov$/.test(h)) throw new Error(`${s.id}: host "${h}" is not an exact .gov hostname`);
+    for (const h of s.allowedHosts) {
+      if (GOV_HOST.test(h)) continue;
+      const agent = AGENT_HOSTS[h];
+      if (!agent) throw new Error(`${s.id}: host "${h}" is not an exact .gov hostname`);
+      if (s.publishedBy !== agent.publisher) throw new Error(`${s.id}: host "${h}" is only allowed for sources published by ${agent.publisher}`);
     }
+    for (const h of s.corroborationHosts) {
+      if (!GOV_HOST.test(h)) throw new Error(`${s.id}: corroboration host "${h}" is not an exact .gov hostname`);
+    }
+    if (!s.corroborationHosts.length) throw new Error(`${s.id}: needs an independent .gov corroboration host`);
     for (const u of [s.officialUrl, s.fetchUrl]) {
       const url = new URL(u);
       if (url.protocol !== 'https:' || !s.allowedHosts.includes(url.hostname)) throw new Error(`${s.id}: ${u} is not HTTPS on an allowed host`);

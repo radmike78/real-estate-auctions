@@ -5,7 +5,7 @@
 // QUARANTINED: nothing is updated and the source publishes nothing until an operator
 // approves the snapshot hash.
 
-import type { FeedListing } from '../../src/feed/types';
+import type { FeedCertificate, FeedListing } from '../../src/feed/types';
 import type { ParseResult } from '../connectors/clarkTaxSale';
 import type { IdentityBaseline } from './siteIdentity';
 
@@ -24,6 +24,8 @@ export interface SourceState {
   tlsBaselines: Record<string, IdentityBaseline>;
   pendingCertFingerprint: string | null;
   listings: Record<string, FeedListing>;
+  /** SID lien certificates, keyed "district|apn" (SID sources only). */
+  certificates?: Record<string, FeedCertificate>;
 }
 
 export const emptyState = (sourceId: string): SourceState => ({
