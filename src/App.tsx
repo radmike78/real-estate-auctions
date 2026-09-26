@@ -30,6 +30,8 @@ import { CATEGORIES, type Category } from './lib/pros';
 import { SALE_TYPE_LABEL } from './lib/rules';
 import { STATUS } from './lib/status';
 import type { AcquisitionStatus, SaleType } from './types';
+import { outboundAction, sitePageFor } from './lib/siteStats';
+import { trackAction, trackPage } from './lib/track';
 
 type Route =
   | { page: 'home' }
@@ -128,6 +130,22 @@ export default function App() {
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
+
+  // Anonymous site stats: one page view per navigation (section name only), and which kinds of
+  // outside sources people go on to check.
+  useEffect(() => {
+    const page = sitePageFor(route.page);
+    if (page) trackPage(page);
+  }, [path]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as Element | null)?.closest?.('a[href]');
+      const action = a ? outboundAction((a as HTMLAnchorElement).href) : null;
+      if (action && sitePageFor(route.page)) trackAction(action);
+    };
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, [route.page]);
 
   return (
     <div className={`app${route.page === 'home' ? ' app-home' : ''}`}>

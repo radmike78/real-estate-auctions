@@ -3,6 +3,7 @@ import { approvalBlockers, type Billing, type LicenseVerification, type ProProfi
 import { CATEGORIES, REVERIFY_DAYS } from '../lib/pros';
 import { api, ApiError } from '../lib/api';
 import PageHero from './PageHero';
+import SiteStats from './SiteStats';
 import { fmtDate, fmtDateTime } from '../lib/status';
 
 type Status = 'EMAIL_UNCONFIRMED' | 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
@@ -66,6 +67,7 @@ function Login({ onDone }: { onDone: (u: string) => void }) {
           <ul>
             <li>Review and verify advertiser applications</li>
             <li>Record billing and publish the signed directory</li>
+            <li>See site stats and print an advertiser summary</li>
             <li>Every sign-in and change is logged</li>
           </ul>
         </div>
@@ -314,6 +316,7 @@ export default function AdminPage() {
   const [tab, setTab] = useState('review');
   const [selected, setSelected] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const [view, setView] = useState<'apps' | 'stats'>('apps');
 
   const loadApps = useCallback(() => {
     api<{ applications: App[] }>('/api/admin/applications').then((r) => setApps(r.applications)).catch((e: ApiError) => e.status === 401 && setMe(null));
@@ -332,12 +335,19 @@ export default function AdminPage() {
 
   return (
     <main className="page wide">
-      <div className="track-head">
+      <div className="track-head admin-head">
         <div>
-          <h1>Advertiser applications</h1>
+          <h1>{view === 'apps' ? 'Advertiser applications' : 'Site stats'}</h1>
           <p className="small muted">
-            Signed in as {me.username}. Listings need an active license, identity confirmed through the company, re-checks every {REVERIFY_DAYS} days, and a paid plan.
+            Signed in as {me.username}.{' '}
+            {view === 'apps'
+              ? `Listings need an active license, identity confirmed through the company, re-checks every ${REVERIFY_DAYS} days, and a paid plan.`
+              : 'Anonymous, bot-filtered counts from our own server. Use the advertiser summary when pitching to prospects.'}
           </p>
+          <div className="seg" role="tablist" aria-label="Admin section">
+            <button role="tab" aria-selected={view === 'apps'} onClick={() => setView('apps')}>Applications</button>
+            <button role="tab" aria-selected={view === 'stats'} onClick={() => setView('stats')}>Site stats</button>
+          </div>
         </div>
         <div className="row">
           <button onClick={async () => {
@@ -350,9 +360,11 @@ export default function AdminPage() {
           }}>Sign out</button>
         </div>
       </div>
-      {!me.signingConfigured && <div className="caution small">No signing key is configured, so approvals are saved but the public directory isn't published. Run <code>npm run keys:generate</code>.</div>}
-      {msg && <div className="notice small" role="status">{msg}</div>}
+      {view === 'stats' && <SiteStats />}
+      {view === 'apps' && !me.signingConfigured && <div className="caution small">No signing key is configured, so approvals are saved but the public directory isn't published. Run <code>npm run keys:generate</code>.</div>}
+      {view === 'apps' && msg && <div className="notice small" role="status">{msg}</div>}
 
+      {view === 'apps' && <>
       <div className="seg tabs" role="tablist">
         {TABS.map((t) => (
           <button key={t.key} role="tab" aria-selected={tab === t.key} onClick={() => { setTab(t.key); setSelected(null); }}>
@@ -377,6 +389,7 @@ export default function AdminPage() {
         </ul>
         <div>{selected ? <Detail key={selected} id={selected} onChange={loadApps} /> : <p className="muted">Select an application.</p>}</div>
       </div>
+      </>}
     </main>
   );
 }

@@ -24,10 +24,11 @@ import { CATEGORIES, isListable, REVERIFY_DAYS } from '../src/lib/pros';
 import { newToken, parseCookies, RateLimiter, SESSION_IDLE_MS, SESSION_MAX_MS, safeEqualStrings, sessionCookie, sha256, verifyPasswordAsync } from './auth';
 import { METRIC_KINDS, openDb, type ApplicationRow, type Db, type MetricKind } from './db';
 import { buildProsFeed, toPro, writeSignedJson } from './directory';
+import { isSiteAction, isSitePage } from '../src/lib/siteStats';
 import { visitorIp } from './cloudflare';
 import { approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
 import { CHECKOUT_URL_PREFIX, invoicePeriodEnd, invoiceSubscriptionId, PORTAL_URL_PREFIX, verifyWebhook, type StripeClient, type StripeEvent } from './stripe';
-import { BOT_UA, leadsToCsv, monthlyReportText, monthRange, pacificDay, pacificDaysToUtc, summarize, VisitorHasher } from './metrics';
+import { BOT_UA, leadsToCsv, monthlyReportText, monthRange, pacificDay, pacificDaysToUtc, siteSummary, summarize, VisitorHasher } from './metrics';
 
 export interface AppConfig {
   dbPath: string;
@@ -389,6 +390,18 @@ export function createApp(config: AppConfig) {
       // one address can't inflate an advertiser's numbers; a per-address cap bounds the totals too.
       const visitor = hasher.hash(ip, '', day);
       if (!limiters.eventsIp.hit(ip) || !limiters.events.hit(visitor)) return send(res, 204, {});
+      // Site-wide counts: a page view (one visit per visitor per day) or a research action.
+      if (body.kind === 'pageview') {
+        if (!isSitePage(body.page)) throw new HttpError(400, 'Unknown page');
+        db.site.record(day, 'visit', '', visitor);
+        db.site.record(day, 'page', body.page, visitor);
+        return send(res, 204, {});
+      }
+      if (body.kind === 'action') {
+        if (!isSiteAction(body.action)) throw new HttpError(400, 'Unknown action');
+        db.site.record(day, 'action', body.action, visitor);
+        return send(res, 204, {});
+      }
       const kind = body.kind as MetricKind;
       if (!METRIC_KINDS.includes(kind) || kind === 'lead') throw new HttpError(400, 'Unknown event');
       const ids = (kind === 'impression' ? (Array.isArray(body.proIds) ? body.proIds : []) : [body.proId]).slice(0, 50);
@@ -571,6 +584,7 @@ export function createApp(config: AppConfig) {
     }
     if (method === 'GET' && path === '/api/admin/me') return send(res, 200, { username: admin.subject, signingConfigured: !!config.signingKey });
     if (method === 'GET' && path === '/api/admin/applications') return send(res, 200, { applications: db.list().map(adminView) });
+    if (method === 'GET' && path === '/api/admin/site-stats') return send(res, 200, siteSummary(db, ...(Object.values(dateRange(url, 400)) as [string, string])));
     if (method === 'POST' && path === '/api/admin/publish') {
       const n = publish();
       audit(null, 'PUBLISHED', `${n} listings`);
@@ -701,6 +715,7 @@ export function createApp(config: AppConfig) {
     const t = now();
     publish();
     db.metrics.purgeSeen(pacificDay(new Date(t.getTime() - 2 * 86_400_000)));
+    db.site.purgeSeen(pacificDay(new Date(t.getTime() - 2 * 86_400_000)));
     db.sessions.purge(t.getTime() - SESSION_MAX_MS);
     db.leads.purgeOlderThan(new Date(t.getTime() - 400 * 86_400_000).toISOString()); // ~13 months retention
     const day = pacificDay(t);

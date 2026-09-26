@@ -97,7 +97,7 @@ interface Lead {
 // Sign-in links are single use: share one request per token even if React runs the effect twice.
 const sessions = new Map<string, Promise<unknown>>();
 
-function ranges(): Record<string, { label: string; from: string; to: string }> {
+export function ranges(): Record<string, { label: string; from: string; to: string }> {
   const day = (offset: number) => new Date(Date.now() - offset * 86_400_000).toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
   const today = day(0);
   const [y, m] = today.split('-').map(Number);
@@ -233,7 +233,7 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
       {t && summary && (
         <>
           <section className="kpis" aria-label="Results">
-            <div className="kpi hero">
+            <div className="kpi kpi-lead">
               <span className="kpi-label">Leads sent to you</span>
               <strong>{t.lead.total.toLocaleString()}</strong>
               <span className="kpi-sub">buyers who filled in your contact form</span>
