@@ -16,3 +16,26 @@ export function track(kind: TrackKind, ids: string | string[]) {
     /* tracking must never break the page */
   }
 }
+
+import type { SiteAction, SitePage } from './siteStats';
+
+function send(body: object) {
+  try {
+    void fetch('/api/events', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), keepalive: true, credentials: 'omit' }).catch(() => {});
+  } catch {
+    /* tracking must never break the page */
+  }
+}
+
+/** Counts a page view for the site-wide stats (a section name only, never the address or query). */
+export const trackPage = (page: SitePage) => send({ kind: 'pageview', page });
+
+const doneOnce = new Set<string>();
+/** Counts a research action (calculator used, deal saved, source visited). `once` limits it to once per page load. */
+export function trackAction(action: SiteAction, once = false) {
+  if (once) {
+    if (doneOnce.has(action)) return;
+    doneOnce.add(action);
+  }
+  send({ kind: 'action', action });
+}

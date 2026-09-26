@@ -1,6 +1,7 @@
 import { useId, useState } from 'react';
 import { BLANK_INPUTS, costsAtBid, maxSafeBid, profitAtBid, sanitizeInputs, stressTests, type BidInputs } from '../lib/bidCalc';
 import { fmtMoney } from '../lib/status';
+import { trackAction } from '../lib/track';
 
 const KEY = (id: string) => `fsf.bid.${id}.v1`;
 
@@ -76,6 +77,7 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
   const bid = toNum(bidText);
   const H = headingLevel === 2 ? 'h2' : 'h3';
   const set = (k: keyof BidInputs, text: string) => {
+    trackAction('calculator_used', true);
     setDraft((d) => ({ ...d, [k]: text }));
     const v = toNum(text);
     setI((cur) => {
@@ -148,7 +150,7 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
 
         <div className="calc-field calc-bid">
           <label className="calc-label" htmlFor={`${uid}-bid`}>Check a bid</label>
-          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="number" inputMode="decimal" min={0} step="any" value={bidText} placeholder="e.g. the opening bid" onChange={(e) => setBidText(e.target.value)} /></span>
+          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="number" inputMode="decimal" min={0} step="any" value={bidText} placeholder="e.g. the opening bid" onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); }} /></span>
         </div>
         {atBid && profit !== null && (
           <div className={`calc-verdict ${over ? 'bad' : 'good'}`} role="status">

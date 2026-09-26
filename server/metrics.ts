@@ -12,6 +12,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 import type { Db, LeadRow, MetricKind } from './db';
 import { pacificToIso } from '../src/lib/time';
+import { isSiteAction, isSitePage, SITE_ACTIONS, SITE_PAGES, type SiteAction, type SitePage } from '../src/lib/siteStats';
 
 export const BOT_UA = /bot|crawl|spider|slurp|preview|headless|lighthouse|monitor|curl|wget|python|scrapy|httpclient/i;
 
@@ -68,6 +69,66 @@ export function summarize(db: Db, proId: string, from: string, to: string): Metr
     contactClicks: totals.phone_click.total + totals.email_click.total + totals.website_click.total,
     contactRate: totals.profile_view.uniques ? contactUniques / totals.profile_view.uniques : null,
     daily,
+  };
+}
+
+export interface SiteSummary {
+  from: string;
+  to: string;
+  days: number;
+  visits: number; // one per visitor per day (visitors can't be linked across days, so this is not "people per month")
+  pageViews: number;
+  avgDailyVisitors: number;
+  busiestDay: { day: string; visits: number } | null;
+  daily: { day: string; visits: number; pageViews: number }[];
+  pages: { key: string; label: string; views: number; visits: number }[];
+  actions: { key: string; label: string; total: number; visits: number }[];
+  advertisers: { appearances: number; profileViews: number; contactClicks: number; leads: number };
+}
+
+/** Site-wide totals for the admin stats page and the advertiser summary. */
+export function siteSummary(db: Db, from: string, to: string): SiteSummary {
+  const rows = db.site.series(from, to);
+  const byDay = new Map<string, { visits: number; pageViews: number }>();
+  const pages = new Map<string, { views: number; visits: number }>();
+  const actions = new Map<string, { total: number; visits: number }>();
+  for (const r of rows) {
+    if (r.metric === 'visit') byDay.set(r.day, { visits: r.uniques, pageViews: r.total });
+    if (r.metric === 'page' && isSitePage(r.key)) {
+      const p = pages.get(r.key) ?? { views: 0, visits: 0 };
+      pages.set(r.key, { views: p.views + r.total, visits: p.visits + r.uniques });
+    }
+    if (r.metric === 'action' && isSiteAction(r.key)) {
+      const a = actions.get(r.key) ?? { total: 0, visits: 0 };
+      actions.set(r.key, { total: a.total + r.total, visits: a.visits + r.uniques });
+    }
+  }
+  const daily: SiteSummary['daily'] = [];
+  for (let t = Date.parse(`${from}T12:00:00Z`); t <= Date.parse(`${to}T12:00:00Z`); t += 86_400_000) {
+    const day = new Date(t).toISOString().slice(0, 10);
+    daily.push({ day, ...(byDay.get(day) ?? { visits: 0, pageViews: 0 }) });
+  }
+  const visits = daily.reduce((n, d) => n + d.visits, 0);
+  const busiest = daily.reduce<SiteSummary['busiestDay']>((b, d) => (d.visits > (b?.visits ?? 0) ? { day: d.day, visits: d.visits } : b), null);
+  const adv = Object.fromEntries(db.site.advertiserTotals(from, to).map((r) => [r.kind, r]));
+  const sum = (k: string, f: 'total' | 'uniques') => Number(adv[k]?.[f] ?? 0);
+  return {
+    from,
+    to,
+    days: daily.length,
+    visits,
+    pageViews: daily.reduce((n, d) => n + d.pageViews, 0),
+    avgDailyVisitors: daily.length ? Math.round(visits / daily.length) : 0,
+    busiestDay: busiest,
+    daily,
+    pages: [...pages].map(([key, v]) => ({ key, label: SITE_PAGES[key as SitePage], ...v })).sort((a, b) => b.views - a.views),
+    actions: (Object.keys(SITE_ACTIONS) as SiteAction[]).map((key) => ({ key, label: SITE_ACTIONS[key], ...(actions.get(key) ?? { total: 0, visits: 0 }) })),
+    advertisers: {
+      appearances: sum('impression', 'total'),
+      profileViews: sum('profile_view', 'uniques'),
+      contactClicks: sum('phone_click', 'uniques') + sum('email_click', 'uniques') + sum('website_click', 'uniques'),
+      leads: sum('lead', 'total'),
+    },
   };
 }
 

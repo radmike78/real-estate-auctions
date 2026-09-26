@@ -491,6 +491,7 @@ The advertiser landing page is `#/advertise`, the application form is `#/adverti
   - the share of visitors who reached out
   - daily charts, a table view, and all their leads with a **CSV download**
 - **A monthly report is emailed automatically** on the 1st. An admin can also trigger it with `POST /api/admin/reports`.
+- **Site stats for you** (`#/admin` → **Site stats**): daily visits, page views, the most-visited sections, research actions (calculator used, deals saved, photos opened, official and bank-owned sources opened), and advertiser totals, for the last 30 or 90 days or last month. **Print advertiser summary** prints a one-page audience summary to show prospective advertisers. A "visit" is one visitor on one day; nothing links a visitor across days, so there's no "unique people per month" figure. Admin and advertiser pages aren't counted.
 - **Counting is privacy-preserving.**
   - Only daily totals are stored.
   - Unique visitors are counted with a salted hash that exists only in memory and changes daily.

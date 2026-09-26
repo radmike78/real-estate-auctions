@@ -110,6 +110,23 @@ export function openDb(path: string) {
       visitor TEXT NOT NULL,
       PRIMARY KEY (pro_id, day, kind, visitor)
     );
+    -- Site-wide daily totals by fixed key (page section or action). No visitor identifiers.
+    CREATE TABLE IF NOT EXISTS site_daily (
+      day TEXT NOT NULL,
+      metric TEXT NOT NULL,
+      key TEXT NOT NULL,
+      total INTEGER NOT NULL DEFAULT 0,
+      uniques INTEGER NOT NULL DEFAULT 0,
+      PRIMARY KEY (day, metric, key)
+    );
+    -- Salted one-way daily visitor hashes for site-wide unique counts; purged after 2 days.
+    CREATE TABLE IF NOT EXISTS site_seen (
+      day TEXT NOT NULL,
+      metric TEXT NOT NULL,
+      key TEXT NOT NULL,
+      visitor TEXT NOT NULL,
+      PRIMARY KEY (day, metric, key, visitor)
+    );
     CREATE TABLE IF NOT EXISTS leads (
       id TEXT PRIMARY KEY,
       pro_id TEXT NOT NULL,
@@ -274,6 +291,36 @@ export function openDb(path: string) {
       },
       purgeSeen(beforeDay: string) {
         db.prepare('DELETE FROM metric_seen WHERE day < ?').run(beforeDay);
+      },
+    },
+    site: {
+      /** Counts one site event: metric 'visit' (key ''), 'page' (section) or 'action'. */
+      record(day: string, metric: 'visit' | 'page' | 'action', key: string, visitor: string) {
+        const fresh = db.prepare('INSERT OR IGNORE INTO site_seen (day, metric, key, visitor) VALUES (?, ?, ?, ?)').run(day, metric, key, visitor).changes > 0;
+        db.prepare(
+          `INSERT INTO site_daily (day, metric, key, total, uniques) VALUES (?, ?, ?, 1, ?)
+           ON CONFLICT (day, metric, key) DO UPDATE SET total = total + 1, uniques = uniques + excluded.uniques`,
+        ).run(day, metric, key, fresh ? 1 : 0);
+      },
+      series(from: string, to: string) {
+        return db.prepare('SELECT day, metric, key, total, uniques FROM site_daily WHERE day BETWEEN ? AND ? ORDER BY day').all(from, to) as {
+          day: string;
+          metric: string;
+          key: string;
+          total: number;
+          uniques: number;
+        }[];
+      },
+      /** Advertiser totals across every profile, by kind. */
+      advertiserTotals(from: string, to: string) {
+        return db.prepare('SELECT kind, SUM(total) AS total, SUM(uniques) AS uniques FROM metrics_daily WHERE day BETWEEN ? AND ? GROUP BY kind').all(from, to) as {
+          kind: MetricKind;
+          total: number;
+          uniques: number;
+        }[];
+      },
+      purgeSeen(beforeDay: string) {
+        db.prepare('DELETE FROM site_seen WHERE day < ?').run(beforeDay);
       },
     },
     leads: {
