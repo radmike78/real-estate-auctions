@@ -153,6 +153,8 @@ The main risk is a **fake professional profile**, for example a real agent's or 
 
 Set `TRUST_PROXY=1` only when the server sits behind your own proxy that **appends** the client address to `X-Forwarded-For` (nginx `$proxy_add_x_forwarded_for`, most load balancers). The server uses the **last** entry, the one your proxy added; anything earlier was sent by the client and can be forged. Without `TRUST_PROXY`, the socket address is used.
 
+**Cloudflare.** With `TRUST_CLOUDFLARE=1`, the server takes the visitor's address from `CF-Connecting-IP`, but only when the address that reached us (after the `TRUST_PROXY` step) is inside Cloudflare's published ranges (`server/cloudflare.ts`) and the header holds a valid IP address. A request that reaches the server directly, without going through Cloudflare, can't choose its own address by sending that header. Optionally, firewall ports 80/443 to Cloudflare's ranges so nobody can bypass Cloudflare at all.
+
 ## 6. Browser hardening
 
 The production build adds a Content-Security-Policy. It allows only same-origin scripts and data, no inline scripts, no plugins, and map tiles only from OpenStreetMap. Configure your host to also send these headers:

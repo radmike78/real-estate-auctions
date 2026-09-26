@@ -51,6 +51,8 @@ export function openDb(path: string) {
   const db = new DatabaseSync(path);
   db.exec(`
     PRAGMA journal_mode = WAL;
+    PRAGMA synchronous = NORMAL; -- safe with WAL: a power cut can lose the last moment of writes, never corrupt the file
+    PRAGMA busy_timeout = 5000; -- wait up to 5 s for a lock (e.g. during a backup) instead of failing
     PRAGMA foreign_keys = ON;
     CREATE TABLE IF NOT EXISTS applications (
       id TEXT PRIMARY KEY,
