@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { DISCLAIMERS, ROLE_SHORT, SOURCES_AND_ADVICE, type DisclaimerKind } from '../lib/disclaimers';
 import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
-import { IconBadge, IconBank, IconCheckList, IconFile, IconHome, IconShield, IconStop, IconTools } from './Icons';
+import { IconBadge, IconBank, IconCheckList, IconFile, IconHome, IconLayers, IconSearch, IconSteps, IconStop, IconTools } from './Icons';
 
 const KIND_ICON: Record<DisclaimerKind, ReactNode> = { sales: <IconHome />, professionals: <IconBadge />, financing: <IconBank />, services: <IconTools /> };
 const KIND_SUMMARY: Record<DisclaimerKind, string> = {
@@ -14,59 +14,73 @@ const KIND_SUMMARY: Record<DisclaimerKind, string> = {
 
 const SECTIONS: DrillSection[] = [
   {
-    key: 'what-we-do',
-    title: 'What we do',
-    icon: <IconShield />,
+    key: 'what-we-offer',
+    title: 'What we offer',
+    icon: <IconSearch />,
     tone: 'go',
-    summary: 'An information and advertising service, nothing more',
+    summary: 'Properties from official sources, free research tools and a directory of license-checked professionals. All free',
     content: () => (
-      <p>
-        We gather public information about properties heading to forced sale, explain how those sales work, and list professionals who
-        advertise here: agents, lenders, title and insurance companies, and contractors. That's all. We are an information and advertising
-        service.
-      </p>
+      <ul>
+        <li><strong>Properties heading to a forced sale</strong>: Clark County tax sales, trustee and HOA foreclosures, sheriff sales, bank-owned and government homes, commercial property and business assets, gathered from government and other official sources.</li>
+        <li><strong>Research tools</strong>: Street View and aerial views, county maps and records, lien summaries, and license lookups for anyone you hire.</li>
+        <li><strong>Free calculators</strong>: a maximum bid calculator that counts every cost, and an income-value calculator for rental property.</li>
+        <li><strong>My deals</strong>: save properties, track sale dates and deadlines, and keep your notes in one place.</li>
+        <li><strong>Professionals who work these sales</strong>: agents, lenders, title and insurance companies and contractors, each license-checked.</li>
+      </ul>
+    ),
+  },
+  {
+    key: 'learn',
+    title: 'Learn what’s involved',
+    icon: <IconLayers />,
+    summary: 'How each kind of sale works, what you get, what stays with the property, and what it costs',
+    content: () => (
+      <>
+        <p>Every kind of forced sale has its own rules. Our <a href="#/playbooks">Nevada playbooks</a> explain, for each one:</p>
+        <ul>
+          <li>Who runs the sale, how often, and how bidding and payment work.</li>
+          <li>What you actually receive: the type of deed, and any redemption period.</li>
+          <li>Which liens and leases are wiped out and which stay with the property.</li>
+          <li>The real costs beyond the bid, and the most common mistakes, with examples.</li>
+          <li>The official laws and agency pages behind each point, so you can read them yourself.</li>
+        </ul>
+      </>
+    ),
+  },
+  {
+    key: 'steps',
+    title: 'The steps to invest',
+    icon: <IconSteps />,
+    summary: 'From choosing a kind of sale to bidding, one step at a time',
+    content: () => (
+      <ol>
+        <li>Choose the kind of sale that fits your money and timeline, and read its <a href="#/playbooks">playbook</a>.</li>
+        <li>Find properties in <a href="#/search">search</a> or the official lists we link to.</li>
+        <li>Research each one: records, liens, occupancy and condition from the outside.</li>
+        <li>Set your limit with the <a href="#/calculator">maximum bid calculator</a>.</li>
+        <li>Line up your money: certified funds for auctions, or a lender for after.</li>
+        <li>Build your team: attorney, title company, tax advisor, agent and financial advisor.</li>
+        <li>Confirm every detail with the official source, then bid or make your offer.</li>
+      </ol>
     ),
   },
   {
     key: 'sources-and-advice',
-    title: 'Official sources, professional advice',
+    title: 'Official sources, your professionals',
     icon: <IconFile />,
     tone: 'info',
-    summary: 'We pull from government and official sources. Legal, tax, real estate and financial advice comes from your own professionals',
+    summary: 'We pull from government and official sources. Your attorney, tax advisor, agent and financial advisor advise on your deal',
     content: () => (
       <>
         <p>{SOURCES_AND_ADVICE}</p>
         <p>
-          Checking the law, the title, the taxes and the numbers for your deal is part of your due diligence. Our playbooks and checklists
+          Records change and mistakes happen, so checking the law, the title, the taxes and the numbers for your deal is part of your due diligence. Our playbooks and checklists
           explain how each kind of sale generally works so you know what to ask; they don't replace an attorney, tax advisor, agent or
           financial advisor who looks at your situation.
         </p>
       </>
     ),
   },
-  {
-    key: 'what-we-dont-do',
-    title: "What we don't do",
-    icon: <IconStop />,
-    tone: 'stop',
-    summary: "We don't sell property, take money, offer loans or give advice",
-    content: () => (
-      <ul>
-        <li>We don't sell property, run auctions, take bids, or hold or move money.</li>
-        <li>We don't offer, make, arrange, broker or negotiate financing, and we don't guarantee credit.</li>
-        <li>We don't represent buyers, sellers, borrowers or lenders, and we aren't a real estate broker, mortgage broker or insurance agent.</li>
-        <li>We aren't a party to any agreement you make with a seller, lender, agent, contractor or anyone else you find through this site.</li>
-        <li>We don't give legal, tax, financial or investment advice, and nothing here is a title search or a guarantee of title.</li>
-      </ul>
-    ),
-  },
-  ...(['sales', 'professionals', 'financing', 'services'] as const).map((k) => ({
-    key: k,
-    title: DISCLAIMERS[k].title,
-    icon: KIND_ICON[k],
-    summary: KIND_SUMMARY[k],
-    content: () => <p>{DISCLAIMERS[k].text}</p>,
-  })),
   {
     key: 'checklist',
     title: 'Your due-diligence checklist',
@@ -85,6 +99,29 @@ const SECTIONS: DrillSection[] = [
       </ol>
     ),
   },
+  {
+    key: 'not-in-scope',
+    title: 'The details: what’s not in scope',
+    icon: <IconStop />,
+    summary: 'We’re an information and advertising service: no selling, bids, loans or advice',
+    content: () => (
+      <ul>
+        <li>We're an information and advertising service. Any sale, loan or service agreement is between you and the other party.</li>
+        <li>We don't sell property, run auctions, take bids, or hold or move money.</li>
+        <li>We don't offer, make, arrange, broker or negotiate financing, and we don't guarantee credit.</li>
+        <li>We don't represent buyers, sellers, borrowers or lenders, and we aren't a real estate broker, mortgage broker or insurance agent.</li>
+        <li>We aren't a party to any agreement you make with a seller, lender, agent, contractor or anyone else you find through this site.</li>
+        <li>We don't give legal, tax, real estate, financial or investment advice, and nothing here is a title search or a guarantee of title.</li>
+      </ul>
+    ),
+  },
+  ...(['sales', 'professionals', 'financing', 'services'] as const).map((k) => ({
+    key: k,
+    title: DISCLAIMERS[k].title,
+    icon: KIND_ICON[k],
+    summary: KIND_SUMMARY[k],
+    content: () => <p>{DISCLAIMERS[k].text}</p>,
+  })),
   {
     key: 'accuracy',
     title: 'Accuracy',
@@ -105,17 +142,17 @@ export default function DisclaimerPage({ section }: { section?: string }) {
     <main className="page prose">
       <PageHero
         compact={open}
-        eyebrow={<span className="eyebrow">Please read</span>}
+        eyebrow={<span className="eyebrow">Find · Learn · Invest</span>}
         title={
           open ? (
-            <a className="title-link" href="#/disclaimer">Our role &amp; your responsibility</a>
+            <a className="title-link" href="#/disclaimer">How we help you invest</a>
           ) : (
-            <>Our role &amp; <span className="grad">your responsibility</span></>
+            <>How we help you <span className="grad">invest</span></>
           )
         }
         sub={ROLE_SHORT}
       />
-      <DrillDown sections={SECTIONS} active={section} baseHref="#/disclaimer" label="Our role and your responsibility" showAll />
+      <DrillDown sections={SECTIONS} active={section} baseHref="#/disclaimer" label="How we help you invest" showAll />
     </main>
   );
 }

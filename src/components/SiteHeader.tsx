@@ -17,7 +17,7 @@ const MORE = [
   ['#/bank-owned', 'Bank-owned & government homes'],
   ['#/business-assets', 'Business assets & closures'],
   ['#/about', 'How it works'],
-  ['#/disclaimer', 'Our role'],
+  ['#/disclaimer', 'How we help'],
   ['#/advertise', 'Advertise with us'],
   ['#/advertiser', 'Advertiser sign-in'],
 ] as const;

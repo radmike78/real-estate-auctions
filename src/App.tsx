@@ -187,7 +187,7 @@ export default function App() {
         <span>{SOURCES_AND_ADVICE}</span>
         <nav aria-label="Footer">
           <a href="#/homeowner-help">Homeowners: free help</a>
-          <a href="#/disclaimer">Our role</a>
+          <a href="#/disclaimer">How we help</a>
           <a href="#/about">How it works</a>
           <a href="#/advertise">Advertise</a>
           <a href="#/advertiser">Advertiser sign-in</a>

@@ -1,13 +1,13 @@
 // Single source for the site's role and disclaimers, so every page says the same thing.
 
 export const ROLE_SHORT =
-  'Forced-Sale Finder helps you find options. We are not a party to any sale, loan or service agreement, and you are responsible for your own due diligence.';
+  'Forced-Sale Finder helps you find forced-sale properties from official sources, understand what each kind of sale involves, and follow the steps to invest. Each deal is yours to research and decide.';
 
 /** Where our information comes from, and that professional advice is the buyer's job. Shown on every page. */
 export const SOURCES_AND_ADVICE =
-  'We make every effort to pull information from government and other official sources, but records change and mistakes happen. ' +
-  'Nothing here is legal, tax, real estate or financial advice. Before you act, contact qualified professionals: an attorney, a tax ' +
-  'advisor, a licensed real estate agent or broker, and a financial advisor.';
+  'We make every effort to pull information from government and other official sources. Our guides are general education; for advice ' +
+  'on your own deal, work with qualified professionals: an attorney, a tax advisor, a licensed real estate agent or broker, and a ' +
+  'financial advisor.';
 
 export type DisclaimerKind = 'sales' | 'professionals' | 'financing' | 'services';
 

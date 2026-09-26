@@ -10,7 +10,7 @@ function acknowledged(): boolean {
   }
 }
 
-/** One-time notice on a visitor's first visit, explaining the site's role. */
+/** One-time welcome on a visitor's first visit: what the site offers, and that each deal is theirs to research. */
 export default function RoleNotice() {
   const [open, setOpen] = useState(() => !acknowledged());
   const btn = useRef<HTMLButtonElement>(null);
@@ -29,15 +29,16 @@ export default function RoleNotice() {
   return (
     <div className="role-backdrop">
       <div className="role-dialog" role="dialog" aria-modal="true" aria-labelledby="role-title" onKeyDown={(e) => e.key === 'Escape' && close()}>
-        <h2 id="role-title">Before you start</h2>
+        <h2 id="role-title">Welcome</h2>
         <ul>
-          <li><strong>We help you find options.</strong> We don't sell property, run auctions, or offer or arrange financing.</li>
-          <li><strong>We're not part of your deal.</strong> Any sale, loan or service agreement is between you and the other party.</li>
-          <li><strong>You do the due diligence.</strong> We pull from government and official sources, but verify everything yourself, and contact professionals for legal, tax, real estate and financial advice before you bid, buy or borrow.</li>
+          <li><strong>Find properties</strong> from government and official sources.</li>
+          <li><strong>Learn what’s involved</strong>: how each sale works and what it really costs.</li>
+          <li><strong>Follow the steps</strong> with playbooks, checklists and a free bid calculator.</li>
+          <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney, tax advisor, agent and financial advisor before you bid, buy or borrow.</li>
         </ul>
         <div className="row">
-          <button ref={btn} className="btn big" onClick={close}>I understand</button>
-          <a href="#/disclaimer" onClick={close}>Read the details</a>
+          <button ref={btn} className="btn big" onClick={close}>Get started</button>
+          <a href="#/disclaimer" onClick={close}>How we help &amp; the details</a>
         </div>
       </div>
     </div>
