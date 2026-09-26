@@ -26,7 +26,7 @@ import PlaybookPage from './components/PlaybookPage';
 import DealsPage from './components/DealsPage';
 import HomeownerHelpPage from './components/HomeownerHelpPage';
 import RoleNotice from './components/RoleNotice';
-import { ROLE_SHORT } from './lib/disclaimers';
+import { ROLE_SHORT, SOURCES_AND_ADVICE } from './lib/disclaimers';
 import { CATEGORIES, type Category } from './lib/pros';
 import { SALE_TYPE_LABEL } from './lib/rules';
 import { STATUS } from './lib/status';
@@ -184,9 +184,10 @@ export default function App() {
       {route.page === 'agents' && <AgentsPage key={`${route.shortSales}${route.q}`} shortSales={route.shortSales} initialQuery={route.q} />}
       <footer className="footer">
         <span>{ROLE_SHORT}</span>
+        <span>{SOURCES_AND_ADVICE}</span>
         <nav aria-label="Footer">
           <a href="#/homeowner-help">Homeowners: free help</a>
-          <a href="#/disclaimer">Our role</a>
+          <a href="#/disclaimer">How we help</a>
           <a href="#/about">How it works</a>
           <a href="#/advertise">Advertise</a>
           <a href="#/advertiser">Advertiser sign-in</a>

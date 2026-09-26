@@ -541,7 +541,7 @@ During development, run `npm run server` and `npm run dev` together; the dev ser
 | Title, insurance & repairs (`#/pros`) | Title and escrow, insurance, and licensed contractors |
 | Profiles (`#/pros/:id`) | Each advertiser's own page, with a verified-license card and a link to check it on the official lookup |
 | Advertise (`#/advertise`) | What advertisers get, who can advertise, how listing works, and the application |
-| Our role (`#/disclaimer`) | What the site does and doesn't do, the disclaimer for each kind of page, and a buyer due-diligence checklist. First-time visitors see a short "Before you start" notice. Every page shows the right disclaimer and a footer link. Wording is in `src/lib/disclaimers.ts`; have a Nevada attorney review it before launch. |
+| How we help (`#/disclaimer`) | What the site offers, how each kind of sale works, the steps to invest, the official-sources and professional-advice statement, and a due-diligence checklist, followed by the details: what's not in scope, the disclaimer for each kind of page, and accuracy. First-time visitors see a short "Welcome" notice. Every page shows the right disclaimer and a footer link. Wording is in `src/lib/disclaimers.ts`. |
 | Advertiser dashboard (`#/advertiser`) | Sign in with an email link; results, daily charts, leads and CSV export |
 
 **Search and property pages**

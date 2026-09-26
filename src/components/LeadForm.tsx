@@ -24,7 +24,7 @@ export default function LeadForm({ pro }: { pro: Pro }) {
       <section className="lead-card">
         <h2>Message sent</h2>
         <p>{sent}</p>
-        <p className="small muted">We also emailed you a copy. Verify their license and read every document before you sign or pay anything.</p>
+        <p className="small muted">We also emailed you a copy. Verify their license and read every document before you sign anything with them or send them money.</p>
       </section>
     );
   }

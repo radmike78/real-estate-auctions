@@ -145,9 +145,12 @@ describe('feed loading on static hosts', () => {
 describe('disclaimers', () => {
   it('state the site role everywhere: finding options only, not a party, buyer due diligence, no financing', async () => {
     const { DISCLAIMERS, ROLE_SHORT } = await import('./disclaimers');
-    expect(ROLE_SHORT).toMatch(/helps you find options/);
-    expect(ROLE_SHORT).toMatch(/not a party/);
-    expect(ROLE_SHORT).toMatch(/responsible for your own due diligence/);
+    expect(ROLE_SHORT).toMatch(/official sources/);
+    expect(ROLE_SHORT).toMatch(/steps to invest/);
+    expect(ROLE_SHORT).toMatch(/yours to research and decide/);
+    const { SOURCES_AND_ADVICE } = await import('./disclaimers');
+    expect(SOURCES_AND_ADVICE).toMatch(/government and other official sources/);
+    expect(SOURCES_AND_ADVICE).toMatch(/attorney, a tax advisor, a licensed real estate agent or broker, and a financial advisor/);
     expect(DISCLAIMERS.financing.text).toMatch(/don't make, arrange, broker or negotiate loans/);
     expect(DISCLAIMERS.financing.text).toMatch(/aren't responsible/);
     expect(DISCLAIMERS.sales.text).toMatch(/don't take bids or money/);

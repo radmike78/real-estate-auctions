@@ -49,7 +49,7 @@ export default function HomePage() {
             <input aria-label="City, ZIP or address" placeholder="City, ZIP or address" value={q} onChange={(e) => setQ(e.target.value)} />
             <button type="submit">Search</button>
           </form>
-          <p className="promise">We don’t promise every property is a deal. We show you how to tell, and when to walk away.</p>
+          <p className="promise">We show you how to spot a good deal, and when to walk away.</p>
         </div>
       </section>
 

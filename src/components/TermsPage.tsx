@@ -39,7 +39,7 @@ const SECTIONS: DrillSection[] = [
         <p>
           We don't sell property, run auctions, take bids or hold money. We aren't a real estate broker, lender, mortgage broker, insurance agent,
           attorney or financial advisor, and we don't represent you. Nothing on the site is legal, tax, financial or investment advice, a title
-          search, or a guarantee of title. See <a href="#/disclaimer">Our role &amp; your responsibility</a>.
+          search, or a guarantee of title. See <a href="#/disclaimer">How we help</a>.
         </p>
       </>
     ),
@@ -52,12 +52,13 @@ const SECTIONS: DrillSection[] = [
     summary: 'Always confirm with the official source before you bid, buy or borrow',
     content: () => (
       <ul>
+        <li>We make every effort to pull information from government and other official sources, but we don't guarantee it.</li>
         <li>Public records can be incomplete, late or wrong. Sales are often postponed, cancelled or paid off at the last minute.</li>
         <li>Values, equity, lien estimates, the maximum bid calculator and playbooks are estimates and general information, not promises.</li>
         <li>Pages marked as sample data use fictional properties to show how the site works.</li>
         <li>
           You're responsible for your own due diligence: confirm every detail with the official agency, trustee or seller, and get your own title,
-          legal, tax and inspection advice.
+          legal, tax, real estate, financial and inspection advice from qualified professionals.
         </li>
         <li>We may change, pause or remove any part of the site at any time.</li>
       </ul>
