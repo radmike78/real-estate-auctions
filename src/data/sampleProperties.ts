@@ -138,14 +138,18 @@ function baseSale(overrides: Partial<SaleDetails> & Pick<SaleDetails, 'saleType'
   };
 }
 
-function makeProperty(i: number, scenario: Scenario): Property {
+function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType): Property {
   const area = AREAS[i % AREAS.length];
   const propertyType: PropertyType =
-    scenario === 'tax_deed' && rand() < 0.4 ? 'Vacant Land' : pick(['Single Family', 'Single Family', 'Condo', 'Townhouse', 'Multi-Family'] as const);
-  const land = propertyType === 'Vacant Land';
-  const sqft = land ? null : propertyType === 'Condo' ? int(650, 1300) : int(1100, 3200);
-  const value = land ? round(between(25_000, 180_000), 1000) : round((sqft ?? 1500) * between(210, 330), 1000);
-  const occupancy: Occupancy = land ? 'Vacant' : pick(['Owner-occupied', 'Tenant-occupied', 'Vacant', 'Unknown'] as const);
+    commercial ?? (scenario === 'tax_deed' && rand() < 0.4 ? 'Vacant Land' : pick(['Single Family', 'Single Family', 'Condo', 'Townhouse', 'Multi-Family'] as const));
+  const land = propertyType === 'Vacant Land' || propertyType === 'Commercial Land';
+  const sqft = commercial
+    ? land ? null : propertyType === 'Apartments (5+ units)' ? int(6_000, 40_000) : propertyType === 'Hotel / Motel' ? int(15_000, 60_000) : int(2_500, 30_000)
+    : land ? null : propertyType === 'Condo' ? int(650, 1300) : int(1100, 3200);
+  const value = commercial
+    ? land ? round(between(150_000, 1_800_000), 1000) : round((sqft ?? 5000) * between(110, 260), 1000)
+    : land ? round(between(25_000, 180_000), 1000) : round((sqft ?? 1500) * between(210, 330), 1000);
+  const occupancy: Occupancy = land ? 'Vacant' : commercial ? pick(['Tenant-occupied', 'Tenant-occupied', 'Vacant', 'Unknown'] as const) : pick(['Owner-occupied', 'Tenant-occupied', 'Vacant', 'Unknown'] as const);
   const annualTax = round(value * 0.0075, 10);
   const loanAge = int(900, 5000);
   const dot = lien('FIRST_DEED_OF_TRUST', pick(LENDERS), value * between(0.45, 0.95), loanAge);
@@ -159,10 +163,11 @@ function makeProperty(i: number, scenario: Scenario): Property {
     codeViolations: rand() < 0.2 ? int(1, 3) : 0,
     floodZone: rand() < 0.15 ? 'AE (high risk)' : 'X (minimal)',
     wildfireRisk: pick(['Low', 'Low', 'Moderate', 'High'] as const),
-    zoning: land ? pick(['RE', 'R-E', 'H-2']) : pick(['R-1', 'R-2', 'RS-5.2', 'R-3']),
+    zoning: commercial ? (propertyType === 'Industrial' ? pick(['M-1', 'IL']) : propertyType === 'Apartments (5+ units)' ? pick(['R-4', 'R-5']) : pick(['C-1', 'C-2', 'CG'])) : land ? pick(['RE', 'R-E', 'H-2']) : pick(['R-1', 'R-2', 'RS-5.2', 'R-3']),
     openPermits: rand() < 0.2 ? 1 : 0,
   };
   const addHoa = () => {
+    if (commercial) return; // HOA super-priority liens are a residential (NRS 116) issue
     if (propertyType === 'Single Family' && rand() < 0.5) return;
     const hoa = pick(HOAS);
     liens.push(lien('HOA_SUPERPRIORITY', hoa, int(1800, 3600), int(200, 400)));
@@ -412,10 +417,10 @@ function makeProperty(i: number, scenario: Scenario): Property {
     legalDescription: `SAMPLE SUBDIVISION UNIT ${int(1, 9)} PLAT BOOK ${int(10, 180)} PAGE ${int(1, 99)} LOT ${int(1, 200)} BLOCK ${int(1, 20)}`,
     ownerOfRecord: status === 'BROKER_OFFER' ? `${sale?.conductedBy.split(' via')[0]}` : pick(OWNERS),
     propertyType,
-    beds: land ? null : propertyType === 'Condo' ? int(1, 2) : int(2, 5),
-    baths: land ? null : int(1, 3) + (rand() < 0.5 ? 0.5 : 0),
+    beds: land || commercial ? null : propertyType === 'Condo' ? int(1, 2) : int(2, 5),
+    baths: land || commercial ? null : int(1, 3) + (rand() < 0.5 ? 0.5 : 0),
     sqft,
-    lotSqft: land ? int(4_000, 40_000) : propertyType === 'Condo' ? 0 : int(3_500, 9_000),
+    lotSqft: commercial ? int(10_000, 220_000) : land ? int(4_000, 40_000) : propertyType === 'Condo' ? 0 : int(3_500, 9_000),
     yearBuilt: land ? null : int(1965, 2020),
     assessedValue: round(value * 0.35 * between(0.8, 1), 100),
     estimatedMarketValue: value,
@@ -430,4 +435,12 @@ function makeProperty(i: number, scenario: Scenario): Property {
   };
 }
 
-export const SAMPLE_PROPERTIES: Property[] = Array.from({ length: 60 }, (_, i) => makeProperty(i, SCENARIOS[i % SCENARIOS.length]));
+// Commercial samples come after the residential ones, so adding them didn't change any residential sample.
+const COMMERCIAL_SAMPLES: [Scenario, PropertyType][] = [
+  ['tax_deed', 'Commercial Land'], ['tax_deed', 'Retail'], ['trustee', 'Office'], ['trustee', 'Apartments (5+ units)'], ['judicial', 'Industrial'],
+  ['sheriff', 'Retail'], ['reo', 'Office'], ['reo', 'Apartments (5+ units)'], ['irs', 'Hotel / Motel'], ['tax_deed', 'Industrial'],
+];
+export const SAMPLE_PROPERTIES: Property[] = [
+  ...Array.from({ length: 60 }, (_, i) => makeProperty(i, SCENARIOS[i % SCENARIOS.length])),
+  ...COMMERCIAL_SAMPLES.map(([scenario, type], j) => makeProperty(60 + j, scenario, type)),
+];

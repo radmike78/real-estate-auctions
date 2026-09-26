@@ -218,6 +218,28 @@ describe('Assessor corroboration', () => {
   });
 });
 
+describe('Assessor land use', () => {
+  const page = (lu: string) => `<html><body><table><tr><td>Land Use</td><td>${lu}</td></tr><tr><td>Dwelling Units</td><td>1</td></tr></table></body></html>`;
+
+  it('reads the land-use code and description from a parcel page', async () => {
+    const { parseLandUse } = await import('./lib/landUse');
+    expect(parseLandUse(page('20.110 - Single Family Residential'))).toEqual({ code: '20.110', description: 'Single Family Residential' });
+    expect(parseLandUse(page('41.335.C - Offices, Professional and Business Services. Cond'))).toMatchObject({ code: '41.335.C' });
+    expect(parseLandUse('<p>no land use here</p>')).toBeNull();
+    expect(parseLandUse(page('<script>alert(1)</script>'))).toBeNull();
+  });
+
+  it('never blocks a run: unreadable pages just leave parcels unclassified', async () => {
+    const { fetchLandUse } = await import('./lib/landUse');
+    const fake = (async (u: string) =>
+      new URL(u).searchParams.get('hdnParcel') === '13801406008'
+        ? new Response(page('42.311 - Casino or Hotel Casino. Hotels - Class 2'), { headers: { 'content-type': 'text/html' } })
+        : new Response('oops', { status: 500, headers: { 'content-type': 'text/html' } })) as typeof fetch;
+    const got = await fetchLandUse(['138-01-406-008', '162-23-210-001', 'bad'], ['maps.clarkcountynv.gov'], { fetchImpl: fake }, 0);
+    expect([...got.entries()]).toEqual([['138-01-406-008', { code: '42.311', description: 'Casino or Hotel Casino. Hotels - Class 2' }]]);
+  });
+});
+
 describe('cadence and freshness', () => {
   const now = new Date('2027-05-01T12:00:00Z');
   const base = { changeTimes: [] as string[], nextAuctionAt: null, consecutiveErrors: 0, now };
@@ -346,6 +368,12 @@ describe('signed feed (anti-spoofing)', () => {
     return [buf(b), signBytes(b, loadPrivateKey(keys.privatePem))] as const;
   };
 
+  it('accepts listings with a valid land use, and older feeds without one', async () => {
+    const [b, s] = signed({ ...feed, listings: [{ ...feed.listings[0], landUse: { code: '41.335.C', description: 'Offices' } }, { ...feed.listings[1], landUse: undefined }] });
+    const r = await verifyFeed(b, s, keys.publicSpkiB64, now, subtle);
+    expect(r.ok && r.feed.listings.length).toBe(2);
+  });
+
   it('accepts a genuine feed in Node and in the browser verifier', async () => {
     expect(verifyBytes(bytes, sig, keys.publicSpkiB64)).toBe(true);
     const r = await verifyFeed(buf(bytes), sig, keys.publicSpkiB64, now, subtle);
@@ -362,7 +390,7 @@ describe('signed feed (anti-spoofing)', () => {
   });
 
   it('drops signed listings that link off official hosts or lack Assessor confirmation', async () => {
-    for (const bad of [{ sourceUrl: 'https://evil.example/pay-here' }, { corroboratedAt: null }, { auctionStartsAt: null }, { groupApn: '<b>x</b>' }]) {
+    for (const bad of [{ sourceUrl: 'https://evil.example/pay-here' }, { corroboratedAt: null }, { auctionStartsAt: null }, { groupApn: '<b>x</b>' }, { landUse: { code: 'x', description: 'y' } }, { landUse: { code: '20.110', description: null } }]) {
       const [b, s] = signed({ ...feed, listings: [{ ...feed.listings[0], ...bad }] });
       const r = await verifyFeed(b, s, keys.publicSpkiB64, now, subtle);
       expect(r.ok && r.feed.listings.length, JSON.stringify(bad)).toBe(0);

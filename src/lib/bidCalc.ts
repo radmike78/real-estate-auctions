@@ -133,7 +133,7 @@ export function defaultsFor(p: Property): BidInputs {
   return {
     ...BLANK_INPUTS,
     exitValue: Math.round(p.estimatedMarketValue / 1000) * 1000,
-    repairs: p.propertyType === 'Vacant Land' ? 0 : Math.round(((p.sqft ?? 1500) * 40) / 1000) * 1000,
+    repairs: p.propertyType === 'Vacant Land' || p.propertyType === 'Commercial Land' ? 0 : Math.round(((p.sqft ?? 1500) * 40) / 1000) * 1000,
     buyerPremiumPct: s?.buyerPremiumPct ?? 0,
     survivingLiens: Math.round(money.likelySurviving + money.uncertain),
     titleLegal,

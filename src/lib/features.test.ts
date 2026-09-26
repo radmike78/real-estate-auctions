@@ -257,3 +257,40 @@ describe('photos & views links', () => {
     expect(parcelDigits('000-23-210-001')).toBeNull();
   });
 });
+
+describe('residential and commercial', () => {
+  it('classifies Assessor land-use codes', async () => {
+    const { classOfLandUse } = await import('./propertyClass');
+    expect(classOfLandUse('20.110')).toBe('residential');
+    expect(classOfLandUse('21.170.C')).toBe('residential');
+    expect(classOfLandUse('12.000')).toBe('residential');
+    expect(classOfLandUse('33.150')).toBe('commercial'); // apartments, 5+ units
+    expect(classOfLandUse('42.311')).toBe('commercial');
+    expect(classOfLandUse('51.250')).toBe('commercial');
+    expect(classOfLandUse('14.000')).toBe('commercial');
+    expect(classOfLandUse('90.440')).toBeNull(); // public park
+    expect(classOfLandUse('10.000')).toBeNull(); // vacant, unknown use
+    expect(classOfLandUse(null)).toBeNull();
+    expect(classOfLandUse('garbage')).toBeNull();
+  });
+
+  it('filters the property search by class', async () => {
+    const { applyFilters, DEFAULT_FILTERS } = await import('./search');
+    const { classOfType } = await import('./propertyClass');
+    const com = applyFilters(SAMPLE_PROPERTIES, { ...DEFAULT_FILTERS, propertyClass: 'commercial' });
+    const res = applyFilters(SAMPLE_PROPERTIES, { ...DEFAULT_FILTERS, propertyClass: 'residential' });
+    expect(com.length).toBeGreaterThan(0);
+    expect(com.every((p) => classOfType(p.propertyType) === 'commercial')).toBe(true);
+    expect(res.every((p) => classOfType(p.propertyType) === 'residential')).toBe(true);
+    expect(com.length + res.length).toBe(applyFilters(SAMPLE_PROPERTIES, DEFAULT_FILTERS).length);
+  });
+
+  it('tags every bank-owned source, and keeps home-only programs out of commercial', async () => {
+    const { REO_SOURCES, reoSourcesIn } = await import('./reoSources');
+    expect(REO_SOURCES.every((s) => s.classes.length > 0)).toBe(true);
+    const commercial = [...reoSourcesIn('gse', 'commercial'), ...reoSourcesIn('government', 'commercial'), ...reoSourcesIn('bank', 'commercial')].map((s) => s.name);
+    expect(commercial).toContain('Bank of America commercial properties');
+    expect(commercial).not.toContain('HUD Home Store');
+    expect(commercial).not.toContain('Fannie Mae HomePath');
+  });
+});

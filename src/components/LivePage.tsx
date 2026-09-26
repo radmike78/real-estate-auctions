@@ -8,6 +8,8 @@ import { IconBank, IconLayers, IconSearch } from './Icons';
 import Disclaimer from './Disclaimer';
 import { SHOW_SAMPLE_DATA } from '../data';
 import { propertyViews } from '../lib/propertyViews';
+import ClassSwitch from './ClassSwitch';
+import { CLASS_LABEL, classOfLandUse, type ClassFilter } from '../lib/propertyClass';
 
 const REVERIFY_MS = 5 * 60_000;
 
@@ -29,6 +31,7 @@ const HEALTH_LABEL = {
 export default function LivePage() {
   const [result, setResult] = useState<VerifyResult | null>(null);
   const [now, setNow] = useState(Date.now());
+  const [cls, setCls] = useState<ClassFilter>('all');
 
   useEffect(() => {
     let alive = true;
@@ -50,6 +53,7 @@ export default function LivePage() {
 
   const expired = result?.ok && Date.parse(result.feed.expiresAt) <= now;
   const listings = result?.ok && !expired ? result.feed.listings : [];
+  const shown = cls === 'all' ? listings : listings.filter((l) => classOfLandUse(l.landUse?.code) === cls);
 
   return (
     <main className="page">
@@ -136,20 +140,34 @@ export default function LivePage() {
             <strong>Verify before bidding.</strong> Owners can pay until the parcel is offered. The Treasurer's sale does not satisfy all liens,
             and the IRS may redeem within 120 days. Registration, deposit and sale format are set in each auction's official notice.
           </div>
+          <div className="row" style={{ justifyContent: 'space-between', margin: '0 0 12px' }}>
+            <ClassSwitch value={cls} onChange={setCls} />
+            <span className="small muted">
+              {shown.length} of {listings.length} parcels{cls !== 'all' && ' · type from the County Assessor’s land-use code; unclassified parcels show under All'}
+            </span>
+          </div>
+          {shown.length === 0 && <p className="muted">No {cls} parcels on the current list.</p>}
           <div className="table-wrap">
             <table>
               <thead>
-                <tr><th>Parcel (APN)</th><th>Address</th><th className="num">Minimum bid</th><th>Auction</th><th>Verified</th><th /></tr>
+                <tr><th>Parcel (APN)</th><th>Address &amp; type</th><th className="num">Minimum bid</th><th>Auction</th><th>Verified</th><th /></tr>
               </thead>
               <tbody>
-                {listings.map((l) => (
+                {shown.map((l) => (
                   <tr key={l.apn}>
                     <td>
                       {l.apn}
                       {l.groupApn && <div className="small warn">Sold together with group {l.groupApn} (one bid)</div>}
                       {l.personalPropertyExcluded && <div className="small muted">Personal property not included</div>}
                     </td>
-                    <td>{l.address ?? <span className="muted">No street address (see Assessor)</span>}</td>
+                    <td>
+                      {l.address ?? <span className="muted">No street address (see Assessor)</span>}
+                      <div className="small muted">
+                        {l.landUse ? (
+                          <>{classOfLandUse(l.landUse.code) && <span className={`badge tone-${classOfLandUse(l.landUse.code) === 'commercial' ? 'info' : 'go'}`}>{CLASS_LABEL[classOfLandUse(l.landUse.code)!]}</span>} {l.landUse.description}</>
+                        ) : 'Type not classified yet'}
+                      </div>
+                    </td>
                     <td className="num">{fmtMoney(l.minimumBid)}</td>
                     <td>
                       {l.auctionStartsAt && fmtDateTime(l.auctionStartsAt)}

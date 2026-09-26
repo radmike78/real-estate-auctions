@@ -31,11 +31,12 @@ import { SALE_TYPE_LABEL } from './lib/rules';
 import { STATUS } from './lib/status';
 import type { AcquisitionStatus, SaleType } from './types';
 import { outboundAction, sitePageFor } from './lib/siteStats';
+import { parseClass, type ClassFilter } from './lib/propertyClass';
 import { trackAction, trackPage } from './lib/track';
 
 type Route =
   | { page: 'home' }
-  | { page: 'search'; q: string; types: SaleType[]; statuses: AcquisitionStatus[] }
+  | { page: 'search'; q: string; types: SaleType[]; statuses: AcquisitionStatus[]; cls: ClassFilter }
   | { page: 'property'; id: string; section?: string }
   | { page: 'about'; section?: string }
   | { page: 'live' }
@@ -82,6 +83,7 @@ function parseHash(): Route {
       q,
       types: list('type').filter((t): t is SaleType => t in SALE_TYPE_LABEL),
       statuses: list('status').filter((t): t is AcquisitionStatus => t in STATUS),
+      cls: parseClass(params.get('class')),
     };
   }
   const m = h.match(/^property\/([^/]+)(?:\/([a-z-]+))?$/);
@@ -152,7 +154,7 @@ export default function App() {
       <SiteHeader current={path} />
       {route.page === 'home' && <HomePage />}
       {route.page === 'search' && (
-        <SearchPage key={`${route.q}|${route.types}|${route.statuses}`} initialLocation={route.q} initialSaleTypes={route.types} initialStatuses={route.statuses} />
+        <SearchPage key={`${route.q}|${route.types}|${route.statuses}|${route.cls}`} initialLocation={route.q} initialSaleTypes={route.types} initialStatuses={route.statuses} initialClass={route.cls} />
       )}
       {route.page === 'property' && <PropertyPage key={route.id} id={route.id} section={route.section} />}
       {route.page === 'about' && <AboutPage section={route.section} />}

@@ -97,7 +97,19 @@ export interface SaleDetails {
   postponements: number;
 }
 
-export type PropertyType = 'Single Family' | 'Condo' | 'Townhouse' | 'Multi-Family' | 'Vacant Land';
+export type PropertyType =
+  | 'Single Family'
+  | 'Condo'
+  | 'Townhouse'
+  | 'Multi-Family' // 2–4 units
+  | 'Vacant Land'
+  // Commercial (see src/lib/propertyClass.ts)
+  | 'Apartments (5+ units)'
+  | 'Retail'
+  | 'Office'
+  | 'Industrial'
+  | 'Hotel / Motel'
+  | 'Commercial Land';
 export type Occupancy = 'Owner-occupied' | 'Tenant-occupied' | 'Vacant' | 'Unknown';
 
 export interface Property {

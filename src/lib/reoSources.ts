@@ -3,6 +3,8 @@
 // (Fannie Mae, Freddie Mac) or the bank / credit union that owns the homes. Never link third-party
 // auction marketplaces or listing aggregators here (enforced in features.test.ts).
 
+import type { ClassFilter, PropertyClass } from './propertyClass';
+
 export type ReoGroup = 'government' | 'gse' | 'bank';
 
 export interface ReoSource {
@@ -14,6 +16,7 @@ export interface ReoSource {
   howToBuy: string;
   firstLook?: string; // who can buy before investors
   clarkCounty: string; // how often it has Clark County homes
+  classes: PropertyClass[]; // residential (1–4 unit homes, residential land) and/or commercial
 }
 
 export const HUD_CLARK_SEARCH = 'https://www.hudhomestore.gov/searchresult?citystate=Clark%20County,%20NV';
@@ -28,6 +31,7 @@ export const REO_SOURCES: ReoSource[] = [
     howToBuy: 'Bids go through a HUD-registered real estate broker. Some homes qualify for FHA repair loans.',
     firstLook: 'Owner-occupants, nonprofits and government buyers get an exclusive bidding period first. Each listing shows when investor bids open.',
     clarkCounty: 'A few Clark County homes at most times.',
+    classes: ['residential'],
   },
   {
     name: 'VA-acquired homes',
@@ -37,6 +41,7 @@ export const REO_SOURCES: ReoSource[] = [
     what: 'Homes VA acquired after a VA-guaranteed loan ended in foreclosure.',
     howToBuy: 'VA’s contractor lists them through local agents on the MLS. Ask any licensed agent to show you one.',
     clarkCounty: 'Occasional. They appear on the MLS like other listings.',
+    classes: ['residential'],
   },
   {
     name: 'USDA single-family resales',
@@ -46,6 +51,7 @@ export const REO_SOURCES: ReoSource[] = [
     what: 'Homes from foreclosed USDA rural housing loans.',
     howToBuy: 'Offers through a licensed agent. Search by state.',
     clarkCounty: 'Rare. Only areas USDA counts as rural, such as outlying towns.',
+    classes: ['residential'],
   },
   {
     name: 'IRS auctions',
@@ -55,6 +61,7 @@ export const REO_SOURCES: ReoSource[] = [
     what: 'Real estate the IRS seized for unpaid federal taxes.',
     howToBuy: 'Sealed or public bids. The owner can redeem within 180 days.',
     clarkCounty: 'Rare.',
+    classes: ['residential', 'commercial'],
   },
   {
     name: 'GSA Real Estate Sales',
@@ -64,6 +71,7 @@ export const REO_SOURCES: ReoSource[] = [
     what: 'Surplus federal buildings and land, sold by online bid.',
     howToBuy: 'Register on the GSA site and bid online.',
     clarkCounty: 'Rare, and usually land or commercial buildings.',
+    classes: ['residential', 'commercial'],
   },
   {
     name: 'Treasury real property auctions',
@@ -73,6 +81,7 @@ export const REO_SOURCES: ReoSource[] = [
     what: 'Property forfeited to the federal government.',
     howToBuy: 'Follow the instructions on each listing.',
     clarkCounty: 'Rare.',
+    classes: ['residential', 'commercial'],
   },
   {
     name: 'FDIC real estate sales',
@@ -82,6 +91,7 @@ export const REO_SOURCES: ReoSource[] = [
     what: 'Property from failed banks the FDIC took over.',
     howToBuy: 'Follow the instructions on each listing.',
     clarkCounty: 'Rare. Only after a bank failure.',
+    classes: ['residential', 'commercial'],
   },
   {
     name: 'NCUA real estate for sale',
@@ -91,6 +101,7 @@ export const REO_SOURCES: ReoSource[] = [
     what: 'Property from credit unions the NCUA liquidated.',
     howToBuy: 'Follow the instructions on each listing.',
     clarkCounty: 'Rare. Only after a credit union closes.',
+    classes: ['residential', 'commercial'],
   },
   {
     name: 'Fannie Mae HomePath',
@@ -101,6 +112,7 @@ export const REO_SOURCES: ReoSource[] = [
     howToBuy: 'Offers through your agent, submitted on HomePath.',
     firstLook: 'First Look: during the first 30 days in Nevada, only owner-occupants, public entities and nonprofits can have offers accepted.',
     clarkCounty: 'Regularly. One of the largest sources of bank-owned homes.',
+    classes: ['residential'],
   },
   {
     name: 'Freddie Mac HomeSteps',
@@ -111,6 +123,7 @@ export const REO_SOURCES: ReoSource[] = [
     howToBuy: 'Offers through the listing agent. Search by city or ZIP code.',
     firstLook: 'First Look: during the first 30 days on the MLS, only owner-occupants, public entities and nonprofits can buy.',
     clarkCounty: 'Regularly.',
+    classes: ['residential'],
   },
   {
     name: 'Bank of America bank-owned homes',
@@ -120,6 +133,17 @@ export const REO_SOURCES: ReoSource[] = [
     what: 'The bank’s own list of homes it owns after foreclosure. Search Las Vegas or a ZIP code.',
     howToBuy: 'Offers through the listing agent shown on each home.',
     clarkCounty: 'Varies.',
+    classes: ['residential'],
+  },
+  {
+    name: 'Bank of America commercial properties',
+    owner: 'Bank of America',
+    group: 'bank',
+    url: 'https://foreclosures.bankofamerica.com/oreo',
+    what: 'The bank’s own list of commercial buildings and land it owns.',
+    howToBuy: 'Contact the listing broker shown on each property.',
+    clarkCounty: 'Occasional.',
+    classes: ['commercial'],
   },
   {
     name: 'First Citizens Bank REO search',
@@ -129,6 +153,7 @@ export const REO_SOURCES: ReoSource[] = [
     what: 'The bank’s nationwide list of real estate it owns. Filter for Nevada.',
     howToBuy: 'Contact the listing agent shown on each property.',
     clarkCounty: 'Rare.',
+    classes: ['residential', 'commercial'],
   },
   {
     name: 'U.S. Bank REO properties',
@@ -138,6 +163,7 @@ export const REO_SOURCES: ReoSource[] = [
     what: 'How U.S. Bank sells the homes it owns.',
     howToBuy: 'Mostly listed by local agents on the MLS.',
     clarkCounty: 'Found on the MLS through an agent.',
+    classes: ['residential'],
   },
   {
     name: 'Chase REO questions',
@@ -147,6 +173,7 @@ export const REO_SOURCES: ReoSource[] = [
     what: 'Chase’s own answers on how it sells homes it owns.',
     howToBuy: 'Chase lists its homes with local agents on the MLS.',
     clarkCounty: 'Found on the MLS through an agent.',
+    classes: ['residential'],
   },
   {
     name: 'Create Credit Union property for sale',
@@ -156,13 +183,14 @@ export const REO_SOURCES: ReoSource[] = [
     what: 'A local credit union’s list of vehicles and property it’s selling.',
     howToBuy: 'Follow the contact instructions on the page.',
     clarkCounty: 'Local. Property appears occasionally.',
+    classes: ['residential', 'commercial'],
   },
 ];
 
-export const REO_GROUPS: Record<ReoGroup, { title: string; summary: string }> = {
-  government: { title: 'Government agencies', summary: 'HUD, VA, USDA, IRS, GSA, Treasury, FDIC and NCUA' },
+export const REO_GROUPS: Record<ReoGroup, { title: string; summary: string; commercialSummary?: string }> = {
+  government: { title: 'Government agencies', summary: 'HUD, VA, USDA, IRS, GSA, Treasury, FDIC and NCUA', commercialSummary: 'IRS, GSA, Treasury, FDIC and NCUA' },
   gse: { title: 'Fannie Mae & Freddie Mac', summary: 'Government-sponsored. Among the biggest sources of bank-owned homes' },
   bank: { title: 'Banks & credit unions', summary: 'Lenders’ own lists, and how the others sell' },
 };
 
-export const reoSourcesIn = (g: ReoGroup) => REO_SOURCES.filter((s) => s.group === g);
+export const reoSourcesIn = (g: ReoGroup, c: ClassFilter = 'all') => REO_SOURCES.filter((s) => s.group === g && (c === 'all' || s.classes.includes(c)));

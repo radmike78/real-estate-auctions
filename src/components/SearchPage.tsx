@@ -9,19 +9,24 @@ import Disclaimer from './Disclaimer';
 import BuyerChecklistBox from './BuyerChecklistBox';
 import { checklistForFilters } from '../lib/buyerChecklists';
 import NoListingsYet from './NoListingsYet';
+import ClassSwitch from './ClassSwitch';
+import { typesFor, type ClassFilter } from '../lib/propertyClass';
 
 interface Props {
   initialLocation?: string;
   initialSaleTypes?: SaleType[];
   initialStatuses?: AcquisitionStatus[];
+  initialClass?: ClassFilter;
 }
 
-export default function SearchPage({ initialLocation = '', initialSaleTypes = [], initialStatuses = [] }: Props) {
-  const [filters, setFilters] = useState<Filters>({ ...DEFAULT_FILTERS, location: initialLocation, saleTypes: initialSaleTypes, statuses: initialStatuses });
+export default function SearchPage({ initialLocation = '', initialSaleTypes = [], initialStatuses = [], initialClass = 'all' }: Props) {
+  const [filters, setFilters] = useState<Filters>({ ...DEFAULT_FILTERS, location: initialLocation, saleTypes: initialSaleTypes, statuses: initialStatuses, propertyClass: initialClass });
   const [locationInput, setLocationInput] = useState(initialLocation);
   const [view, setView] = useState<'list' | 'map'>('list');
   const results = useMemo(() => applyFilters(PROPERTIES, filters), [filters]);
   const update = (patch: Partial<Filters>) => setFilters((f) => ({ ...f, ...patch }));
+
+  const setClass = (c: ClassFilter) => update({ propertyClass: c, propertyTypes: filters.propertyTypes.filter((t) => typesFor(c).includes(t)) });
 
   function submit(e: FormEvent) {
     e.preventDefault();
@@ -47,6 +52,7 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
           <input aria-label="Search location" placeholder="City, ST · ZIP · address · APN" value={locationInput} onChange={(e) => setLocationInput(e.target.value)} />
           <button type="submit">Search</button>
         </form>
+        <ClassSwitch value={filters.propertyClass} onChange={setClass} />
         {SHOW_SAMPLE_DATA && <span className="pill">Sample data · Clark County, NV</span>}
         <a className="small" href="#/live">Verified live tax sales →</a>
       </div>

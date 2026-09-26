@@ -25,13 +25,14 @@ export const SALE_SEARCH: SaleSearchOption[] = [
   { key: 'liens', label: 'Liens on record', hint: 'Properties with liens but no sale scheduled. A lien alone does not mean it is for sale.', statuses: ['NOT_FOR_SALE_LIEN_ONLY'] },
 ];
 
-/** Hash URL for a search choice plus an optional location. */
-export function saleSearchHref(key: string, location: string): string {
+/** Hash URL for a search choice plus an optional location and property class. */
+export function saleSearchHref(key: string, location: string, cls: 'all' | 'residential' | 'commercial' = 'all'): string {
   const o = SALE_SEARCH.find((x) => x.key === key) ?? SALE_SEARCH[0];
   const params = new URLSearchParams();
   if (location.trim()) params.set('q', location.trim());
   if (o.route) return `#/${o.route}${params.size ? `?${params}` : ''}`;
   if (o.saleTypes) params.set('type', o.saleTypes.join(','));
   if (o.statuses) params.set('status', o.statuses.join(','));
+  if (cls !== 'all') params.set('class', cls);
   return `#/search${params.size ? `?${params}` : ''}`;
 }
