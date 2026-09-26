@@ -630,7 +630,7 @@ export function createApp(config: AppConfig) {
       const s = alerts.verify(url.searchParams.get('t'), 'unsubscribe');
       if (s) alerts.delete(s.id);
       // Same answer for an unknown link: an address that was already removed is still unsubscribed.
-      return send(res, 200, { ok: true, message: 'You’re unsubscribed. We deleted your email address and everything you signed up for.' });
+      return send(res, 200, { ok: true, message: 'We deleted your email address and everything you signed up for. You won’t get any more email from us.' });
     }
 
     const leadMatch = path.match(/^\/api\/pros\/([a-f0-9]{24})\/leads$/);
