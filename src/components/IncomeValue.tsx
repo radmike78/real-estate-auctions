@@ -8,8 +8,8 @@ const FIELDS: { k: keyof IncomeInputs; label: string; unit: '$' | '%'; hint: str
   { k: 'monthlyRent', label: 'Monthly rent, fully leased', unit: '$', hint: 'From the rent roll, or market rent per square foot × the building’s size.' },
   { k: 'otherMonthly', label: 'Other monthly income', unit: '$', hint: 'Parking, signs, laundry, expense reimbursements.' },
   { k: 'vacancyPct', label: 'Vacancy and bad debt', unit: '%', hint: 'Rent you expect to lose. Higher if it’s empty now.' },
-  { k: 'expensePct', label: 'Operating costs', unit: '%', hint: 'Taxes, insurance, repairs, management, as a share of rent collected.' },
-  { k: 'capRatePct', label: 'Cap rate', unit: '%', hint: 'Ask a local commercial broker for this property type. Higher means a lower value.' },
+  { k: 'expensePct', label: 'Operating costs', unit: '%', hint: 'Taxes, insurance, repairs, management, as a share of rent collected. 10% and 35% are starting examples, not market figures. With triple-net (NNN) leases, tenants pay most costs, so yours are much lower.' },
+  { k: 'capRatePct', label: 'Cap rate', unit: '%', hint: 'Required. Get a current rate for this property type from a local commercial broker or appraiser. Rates differ widely: apartments and industrial are often lower than offices or older retail. Higher means a lower value.' },
 ];
 
 function load(id: string): IncomeInputs {
@@ -41,7 +41,7 @@ export default function IncomeValue({ propertyId, onUse }: { propertyId: string;
   return (
     <div className="income-calc" role="group" aria-labelledby={`${uid}-h`}>
       <h3 id={`${uid}-h`}>Value by income</h3>
-      <p className="muted">Commercial property is valued by what it earns. Enter the rents, then use the result as the resale value below.</p>
+      <p className="muted">A rental building is valued by what it earns. Enter the rents and a cap rate, then use the result as the resale value below. For land or a building a business will use itself, use recent sales of similar commercial property instead.</p>
       <div className="income-grid">
         <fieldset className="calc-group">
           <legend>Income and costs</legend>
@@ -65,7 +65,7 @@ export default function IncomeValue({ propertyId, onUse }: { propertyId: string;
             <div className="total"><dt>Net operating income</dt><dd>{fmtMoney(r.noi)}</dd></div>
           </dl>
           <div className="income-value">
-            <span>Value at a {i.capRatePct || 0}% cap rate</span>
+            <span>{i.capRatePct ? `Value at a ${i.capRatePct}% cap rate` : 'Value (enter a cap rate)'}</span>
             <strong>{r.value ? fmtMoney(r.value) : '—'}</strong>
           </div>
           <button className="btn" disabled={!r.value} onClick={() => onUse(r.value)}>Use as resale value below</button>

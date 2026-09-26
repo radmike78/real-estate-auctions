@@ -40,7 +40,7 @@ const T = {
   contractor: { role: 'Licensed contractor and inspector', when: 'An exterior look before the sale; a full scope once you have the keys', href: '#/pros' },
   cpa: { role: 'CPA', when: 'Before you buy: flips and rentals are taxed differently' },
   commercialBroker: { role: 'Commercial real estate broker', when: 'Current rents and cap rates for this property type, and leasing it up after', href: '#/agents' },
-  environmental: { role: 'Environmental consultant', when: 'A Phase I environmental site assessment, within 180 days before you take title' },
+  environmental: { role: 'Environmental consultant', when: 'A Phase I environmental site assessment within one year before you take title (site visit, interviews and record searches within 180 days)' },
   commercialLender: { role: 'Commercial or bridge lender', when: 'Before the sale: auctions need cash, so the long-term loan comes after', href: '#/financing' },
   propertyManager: { role: 'Commercial property manager', when: 'From day one if there are tenants: rent collection, estoppels, repairs' },
 };
@@ -358,27 +358,27 @@ export const PLAYBOOKS: Playbook[] = [
     forSale: true,
     glance: [
       { label: 'How it’s sold', value: 'The same channels as homes: Treasurer tax sales, trustee sales, court and sheriff sales, court-appointed receivers, and bank or government sellers' },
-      { label: 'Value', value: 'By income: net operating income ÷ cap rate. Not by comparing it with homes' },
-      { label: 'Environmental', value: 'A Phase I environmental site assessment within 180 days before you take title is the basis for federal cleanup-liability protection' },
-      { label: 'Tenants', value: 'Leases can survive or be wiped out, depending on recording order and lease terms. The federal tenant protection law (PTFA) covers homes only' },
+      { label: 'Value', value: 'Rental property: by income (net operating income ÷ cap rate). Land, and buildings a business will use itself: by recent sales of similar commercial property. Not by comparing it with homes' },
+      { label: 'Environmental', value: 'A Phase I environmental site assessment (ASTM E1527-21) within one year before you take title, with key parts updated within 180 days, plus meeting ongoing duties after you buy, can protect you from federal cleanup liability' },
+      { label: 'Tenants', value: 'A lease that comes after the loan being foreclosed, or that the tenant agreed to put behind it (subordination), can be wiped out unless there’s a non-disturbance agreement. Then you can remove the tenant, but the tenant can also leave. The federal tenant protection law (PTFA) covers homes only' },
       { label: 'Financing', value: 'Auctions need cash. Afterwards: commercial, bridge or hard-money loans. SBA 504 and 7(a) loans are for a business that will use the building, not rental investment' },
       { label: 'Zoning', value: 'Confirm the use is allowed, and check open code cases and permits, with the city or county planning department' },
-      { label: 'No home-buyer programs', value: 'No owner-occupant first look, and HUD, Fannie Mae and Freddie Mac don’t sell commercial property' },
+      { label: 'No home-buyer programs', value: 'No owner-occupant first look. HUD Home Store, HomePath and HomeSteps sell homes with 1–4 units only. HUD sells some large apartment buildings through separate multifamily foreclosure sales' },
     ],
     steps: [
       { title: 'Pin down what you’re buying', detail: 'Use the Assessor record for land use, building size, year built and sales, and the parcel map for access and boundaries.' },
       { title: 'Get the rent roll and leases, if you can', detail: 'A receiver or listing broker can usually provide them. At an auction you often can’t, so assume the building is empty until proven otherwise.' },
-      { title: 'Value it by income', detail: 'Net operating income (rent after vacancy and operating costs) divided by the cap rate. Ask a local commercial broker for current cap rates for this type of property.' },
+      { title: 'Value it the right way', detail: 'For a rental building: net operating income (rent after vacancy and operating costs) divided by the cap rate. Ask a local commercial broker or appraiser for current cap rates for this type of property. For land or an owner-user building: recent sales of similar commercial property.' },
       { title: 'Order a title search', detail: 'Commercial parcels often carry easements, reciprocal easement agreements, CC&Rs, mechanic’s liens and recorded leases. Know which survive the sale.' },
       { title: 'Screen for contamination', detail: 'Check EPA and state records for the address, and ask what the property was used for. Gas stations, dry cleaners and auto shops are high risk. Order a Phase I assessment if time allows.' },
       { title: 'Check zoning, code and permits', detail: 'Make sure your planned use is allowed and there are no open code cases or expired permits.' },
       { title: 'Line up your money', detail: 'Certified funds for the sale, plus a commercial or bridge lender ready to refinance after.' },
-      { title: 'Take over well', detail: 'Insure it the day you own it, secure the building, tell tenants in writing where to pay rent, and get signed estoppel certificates confirming each lease.' },
+      { title: 'Take over well', detail: 'Insure it the day you own it, secure the building, tell tenants in writing where to pay rent, and ask each tenant to sign an estoppel certificate confirming their lease (most leases require it).' },
     ],
     survives: {
       wipedOut: [
         'Liens recorded after the lien being foreclosed (trustee and court sales)',
-        'Leases recorded or signed after that lien, unless the lender agreed to keep them (non-disturbance agreement); confirm with an attorney',
+        'Leases signed after that lien, or subordinated to it, unless the lender agreed to keep them (non-disturbance agreement). A tenant whose lease is wiped out can also leave. Confirm with an attorney',
       ],
       mayStay: [
         'Property taxes and special assessments (SIDs)',
@@ -389,10 +389,10 @@ export const PLAYBOOKS: Playbook[] = [
       ],
     },
     mistakes: [
-      { mistake: 'Valuing it like a house', prevent: 'Use income and cap rate. A vacant building is worth what it costs to lease it up.' },
+      { mistake: 'Valuing it like a house', prevent: 'Use income and cap rate. A vacant building is worth its value once leased, minus the cost of getting there: lost rent, leasing commissions and tenant improvements.' },
       { mistake: 'Skipping the environmental check', prevent: 'Past uses can mean cleanup costs bigger than the price. Check EPA and state records, and ask about past tenants.' },
       { mistake: 'Assuming the tenants will keep paying', prevent: 'Get estoppel certificates, and budget for vacancy, leasing commissions and tenant improvements.' },
-      { mistake: 'Forgetting accessibility rules', prevent: 'Businesses open to the public must meet ADA requirements. Budget for fixes to parking, entrances and restrooms.' },
+      { mistake: 'Forgetting accessibility rules', prevent: 'In an existing building open to the public, barriers must be removed where that’s easy and affordable, and renovations must meet the ADA standards. As the landlord, you share responsibility with your tenants. Budget for parking, entrance and restroom fixes.' },
     ],
     example: {
       title: 'The bargain strip center',

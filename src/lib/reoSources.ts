@@ -175,16 +175,6 @@ export const REO_SOURCES: ReoSource[] = [
     clarkCounty: 'Found on the MLS through an agent.',
     classes: ['residential'],
   },
-  {
-    name: 'Create Credit Union property for sale',
-    owner: 'Create Credit Union (formerly Clark County Credit Union)',
-    group: 'bank',
-    url: 'https://www.createcu.org/loans/auto/vehicles-and-property-for-sale/',
-    what: 'A local credit union’s list of vehicles and property it’s selling.',
-    howToBuy: 'Follow the contact instructions on the page.',
-    clarkCounty: 'Local. Property appears occasionally.',
-    classes: ['residential', 'commercial'],
-  },
 ];
 
 export const REO_GROUPS: Record<ReoGroup, { title: string; summary: string; commercialSummary?: string }> = {

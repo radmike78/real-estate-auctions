@@ -11,7 +11,7 @@ export interface IncomeInputs {
   capRatePct: number;
 }
 
-export const INCOME_DEFAULTS: IncomeInputs = { monthlyRent: 0, otherMonthly: 0, vacancyPct: 10, expensePct: 35, capRatePct: 8 };
+export const INCOME_DEFAULTS: IncomeInputs = { monthlyRent: 0, otherMonthly: 0, vacancyPct: 10, expensePct: 35, capRatePct: 0 }; // no cap rate until the user enters one: rates differ widely by type
 
 export interface IncomeResult {
   grossAnnual: number;

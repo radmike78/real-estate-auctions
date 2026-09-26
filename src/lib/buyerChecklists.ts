@@ -116,7 +116,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     items: [
       { text: 'The sale notice and any court order', detail: 'They say exactly what is sold, the deadline, the deposit, and whether it’s free of liens.' },
       { text: 'A lien search on the equipment', detail: 'Lenders record UCC financing statements with the Nevada Secretary of State. A sheriff or tax sale may not clear them.' },
-      { text: 'A state tax clearance for a whole business or its stock of goods', detail: 'Withhold enough of the price until the seller gives you a certificate from the Department of Taxation, or you become liable for their unpaid taxes (NRS 360.525).' },
+      { text: 'A state tax clearance when you buy all or part of a business or its stock of goods', detail: 'Outside normal sales, hold back enough of the price until the seller gives you a receipt or certificate from the Department of Taxation. Otherwise you can owe their unpaid state taxes, up to what you paid (NRS 360.525). For a trustee or sheriff sale, ask the Department how this applies.' },
       { text: 'An inspection, and a plan for removal', detail: 'Items are sold as-is. Budget for rigging, transport and storage, and meet the pickup deadline.' },
       { text: 'Certified funds, and a deposit if required' },
       { text: 'Your own licenses and permits', detail: 'Business licenses, liquor, health and contractor licenses don’t transfer with the assets. Apply in your own name.' },
@@ -131,13 +131,13 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     intro: 'On top of the checklist for the type of sale: what’s different about stores, offices, industrial buildings, apartments with 5+ units and commercial land.',
     items: [
       { text: 'Rent roll and copies of the leases', detail: 'From the receiver or listing broker. At an auction you usually can’t get them, so value it as if empty.' },
-      { text: 'Your own value by income', detail: 'Net operating income ÷ cap rate. Ask a commercial broker for current cap rates for this property type.' },
-      { text: 'An environmental screen, and a Phase I if you can', detail: 'Check EPA and state records and past uses (gas station, dry cleaner, auto repair). A Phase I done within 180 days before you take title supports federal cleanup-liability protection.' },
+      { text: 'Your own value', detail: 'Rental property: net operating income ÷ cap rate; ask a commercial broker for current cap rates for this property type. Land or an owner-user building: recent sales of similar commercial property.' },
+      { text: 'An environmental screen, and a Phase I if you can', detail: 'Check EPA and state records and past uses (gas station, dry cleaner, auto repair). A Phase I done within one year before you take title (with the site visit, interviews and record searches updated within 180 days), plus meeting ongoing duties after you buy, can protect you from federal cleanup liability (40 CFR 312.20).' },
       { text: 'A title search that lists recorded leases and easements', detail: 'Know which leases, easements and agreements survive the sale.' },
       { text: 'Zoning, open code cases and permits', detail: 'Confirm your planned use is allowed with the city or county.' },
       { text: 'Certified funds for the sale, and a commercial lender for after', detail: 'SBA 504 and 7(a) loans are only for a business that will use the building, not rental investment.' },
       { text: 'Commercial insurance from the day you own it', detail: 'Vacant commercial buildings need a specific policy.' },
-      { text: 'Estoppel certificates from tenants after you buy', detail: 'Each tenant confirms their rent, deposit, term and any claims, in writing.' },
+      { text: 'Estoppel certificates from tenants after you buy', detail: 'Each tenant confirms their rent, deposit, term and any claims, in writing. Most leases require tenants to sign one.' },
     ],
   },
   hoa: {
@@ -253,7 +253,7 @@ const COMMERCIAL_WORDING: Record<string, Partial<ChecklistItem> | null> = {
   'A title search': { detail: 'Property taxes, special assessments and liens recorded before the one being foreclosed can survive. Check for IRS and other senior liens, and recorded leases.' },
   'An as-is repair budget and an occupancy plan': {
     text: 'An as-is repair budget and a plan for tenants',
-    detail: 'No interior inspection. The federal 90-day tenant notice covers homes only; whether a commercial lease survives depends on recording order and its terms. Have an attorney review leases and how to take possession.',
+    detail: 'No interior inspection. The federal 90-day tenant notice covers homes only; a commercial lease signed after the foreclosed loan, or subordinated to it, can be wiped out unless there’s a non-disturbance agreement, and then the tenant can also leave. Have an attorney review each lease and how to take possession.',
   },
   'A plan if the home is occupied': { text: 'A plan for any tenants or occupants' },
   'For HUD homes: a HUD-registered broker': null, // HUD sells homes only
