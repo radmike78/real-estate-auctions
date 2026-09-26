@@ -35,7 +35,7 @@ export default function AgentsPage({ shortSales = false, initialQuery = '' }: { 
       <PageHero
         eyebrow={<span className="eyebrow">License lookup · Nevada</span>}
         title={<>Find &amp; <span className="grad">verify</span> an agent</>}
-        sub="Check any agent's or professional's license before you work with them. Then browse verified agents below."
+        sub="Check any agent's or professional's license before you work with them. Then browse license-checked agents below."
       >
 
         <div className="lookup-box">

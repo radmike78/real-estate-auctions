@@ -104,6 +104,8 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
   };
   const r = maxSafeBid(i);
   const tests = stressTests(i);
+  // No resale value yet (e.g. a listing with no estimate): ask for one instead of saying "no bid works".
+  const needsValue = !(i.exitValue > 0);
   const atBid = bid > 0 ? costsAtBid(i, bid) : null;
   const profit = bid > 0 ? profitAtBid(i, bid) : null;
   const over = bid > 0 && bid > r.maxBid;
@@ -145,12 +147,20 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
       </div>
 
       <div className="calc-results" id={`${uid}-results`}>
+        {needsValue ? (
+          <div className="calc-max" role="status">
+            <span>Your maximum bid</span>
+            <strong>Enter a resale value</strong>
+            <small>We don’t estimate values for listings from the official list. Use recent sold prices of similar nearby properties.</small>
+          </div>
+        ) : (
         <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
           <span>Your maximum bid</span>
           <strong>{r.noBidWorks ? 'No bid works' : fmtMoney(r.maxBid)}</strong>
           <small>{r.noBidWorks ? 'Even at $0, costs leave less than your target profit. Walk away or change your plan.' : `Leaves your ${i.targetProfitPct}% profit target after every cost below, based on your numbers. Not a guarantee.`}</small>
         </div>
-        {!r.noBidWorks && (
+        )}
+        {!r.noBidWorks && !needsValue && (
           <dl className="calc-kv">
             <div><dt>Break-even bid (zero profit)</dt><dd>{fmtMoney(r.breakEvenBid)}</dd></div>
             <div><dt>Cash needed on auction day</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>
@@ -162,7 +172,7 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
           <label className="calc-label" htmlFor={`${uid}-bid`}>Check a bid</label>
           <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="number" inputMode="decimal" min={0} step="any" value={bidText} placeholder="e.g. the opening bid" onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); }} /></span>
         </div>
-        {atBid && profit !== null && (
+        {atBid && profit !== null && !needsValue && (
           <div className={`calc-verdict ${over ? 'bad' : 'good'}`} role="status">
             {over ? (
               <><strong>Above your maximum.</strong> At {fmtMoney(bid)} this deal no longer meets your target. Profit would be {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}. Stop bidding.</>
@@ -188,7 +198,7 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
         <H>If things go worse than planned</H>
         <table className="calc-stress">
           <thead><tr><th>Scenario</th><th className="num">Max bid</th></tr></thead>
-          <tbody>{tests.map((t) => <tr key={t.label}><td>{t.label}</td><td className="num">{t.maxBid > 0 ? fmtMoney(t.maxBid) : 'No bid works'}</td></tr>)}</tbody>
+          <tbody>{tests.map((t) => <tr key={t.label}><td>{t.label}</td><td className="num">{needsValue ? '—' : t.maxBid > 0 ? fmtMoney(t.maxBid) : 'No bid works'}</td></tr>)}</tbody>
         </table>
         <p className="muted small">An estimate to help you set a limit before the sale, not advice. Replace every starting number with your own comps, bids and quotes.</p>
       </div>
@@ -196,7 +206,7 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
       {/* On phones the results sit below every input, so keep the answer in view while typing. */}
       <button type="button" className={`calc-sticky${r.noBidWorks ? ' bad' : ''}`} onClick={() => document.getElementById(`${uid}-results`)?.scrollIntoView({ behavior: 'smooth' })}>
         <span>Max bid</span>
-        <strong>{r.noBidWorks ? 'No bid works' : fmtMoney(r.maxBid)}</strong>
+        <strong>{needsValue ? 'Enter a resale value' : r.noBidWorks ? 'No bid works' : fmtMoney(r.maxBid)}</strong>
         <span className="calc-sticky-go">See details ↓</span>
       </button>
     </div>

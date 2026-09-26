@@ -29,15 +29,16 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
               <div className="card-top">
                 <StatusBadge status={p.status} />
                 {p.sale && <span className="muted small">{SALE_TYPE_LABEL[p.sale.saleType]}</span>}
+                {p.origin === 'treasurer-feed' && <span className="badge tone-go">Treasurer list</span>}
               </div>
               <h3>{p.address}</h3>
               <div className="muted small">
-                {p.city}, {p.state} {p.zip} · APN {p.apn}
+                {p.zip ? `${p.city}, ${p.state} ${p.zip}` : `${p.city}, ${p.state}`} · APN {p.apn}
               </div>
               <div className="muted small">
                 {p.propertyType}
                 {p.beds ? ` · ${p.beds} bd / ${p.baths} ba` : ''}
-                {p.sqft ? ` · ${p.sqft.toLocaleString()} sq ft` : ''} · {p.occupancy}
+                {p.sqft ? ` · ${p.sqft.toLocaleString()} sq ft` : ''} · {p.occupancy === 'Unknown' ? 'Occupancy unknown' : p.occupancy}
               </div>
               <dl className="card-stats">
                 <div>

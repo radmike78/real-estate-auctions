@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { PROPERTIES } from '../data';
+import { useProperties } from '../data/live';
+import { LIVE_ID_PREFIX } from '../feed/toProperty';
+import TrackButton from './TrackButton';
 import type { LienType } from '../types';
 import { diligenceReport, type CheckResult } from '../lib/diligence';
 import { assessLiens, moneySummary, SALE_TYPE_LABEL, WHAT_YOU_BUY, type SurvivalOutcome } from '../lib/rules';
@@ -50,6 +52,7 @@ const OUTCOME_LABEL: Record<SurvivalOutcome, string> = {
 
 
 export default function PropertyPage({ id, section }: { id: string; section?: string }) {
+  const { properties, loading } = useProperties();
   const [printAll, setPrintAll] = useState(false);
   const [calcVersion, setCalcVersion] = useState(0); // remounts the bid calculator when the income value is applied
   // Printing (button or Ctrl+P) always prints the full report, whichever section is open.
@@ -64,14 +67,24 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
     };
   }, []);
 
-  const p = PROPERTIES.find((x) => x.id === id);
+  const p = properties.find((x) => x.id === id);
   if (!p) {
+    if (loading) return <main className="page"><p>Checking the official lists…</p></main>;
     return (
       <main className="page">
-        <p>Property not found. <a href="#/search">Back to search</a></p>
+        {id.startsWith(LIVE_ID_PREFIX) ? (
+          <p>
+            This parcel is no longer on the Clark County Treasurer’s verified auction list. It may have been paid off, withdrawn or sold.{' '}
+            <a href="#/live">See the current list</a>
+          </p>
+        ) : (
+          <p>Property not found. <a href="#/search">Back to search</a></p>
+        )}
       </main>
     );
   }
+  const verified = p.origin === 'treasurer-feed';
+  const notChecked = (v: number | null, text: string) => (v === null ? <span className="muted">{text}</span> : fmtMoney(v));
   const s = p.sale;
   const status = STATUS[p.status];
   const money = moneySummary(p);
@@ -188,15 +201,32 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       key: 'liens',
       title: 'Liens',
       icon: <IconLayers />,
-      tone: surviving > 0 ? 'stop' : undefined,
-      summary: `${plural(liens.length, 'lien')} recorded · ${fmtMoney(money.likelySurviving)} likely ${s ? 'survive' : 'remain'}`,
-      content: () => (
+      tone: surviving > 0 ? 'stop' : p.liensChecked === false ? 'wait' : undefined,
+      summary: p.liensChecked === false ? 'Not searched yet: search the County Recorder or order a title search' : `${plural(liens.length, 'lien')} recorded · ${fmtMoney(money.likelySurviving)} likely ${s ? 'survive' : 'remain'}`,
+      content: () =>
+        p.liensChecked === false ? (
+          <>
+            <div className="verify">
+              <strong>Liens haven’t been searched for this listing.</strong> The Treasurer’s list shows the minimum bid, not the liens. Not all
+              liens are cleared by a tax sale: a federal tax lien, special assessments and some government liens can stay. Before you bid, search
+              the Clark County Recorder by parcel number, or order a title search from a title company.
+            </div>
+            <dl className="mini money-box">
+              <div><dt>Minimum bid</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
+              <div><dt>Liens that may stay</dt><dd>Not searched</dd></div>
+            </dl>
+            <p className="row">
+              <a href="https://recorderecomm.clarkcountynv.gov/AcclaimWeb/" target="_blank" rel="noreferrer noopener">Search Recorder documents ↗</a>
+              <a href="#/pros">Find a title company</a>
+            </p>
+          </>
+        ) : (
         <>
           <dl className="mini money-box">
             <div><dt>Minimum / opening bid</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
             <div><dt>Likely surviving liens</dt><dd className={money.likelySurviving ? 'neg' : ''}>{fmtMoney(money.likelySurviving)}</dd></div>
             <div><dt>Uncertain liens</dt><dd>{fmtMoney(money.uncertain)}</dd></div>
-            <div><dt>Est. market value</dt><dd>{fmtMoney(p.estimatedMarketValue)}</dd></div>
+            <div><dt>Est. market value</dt><dd>{notChecked(p.estimatedMarketValue, 'Not estimated')}</dd></div>
             <div className="total"><dt>Rough spread at minimum bid</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : ''}>{fmtMoney(money.estimatedEquity)}</dd></div>
           </dl>
           <p className="muted small">
@@ -225,7 +255,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             </table>
           </div>
         </>
-      ),
+        ),
     },
     {
       key: 'max-bid',
@@ -299,19 +329,20 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
         <dl className="facts">
           {/* Owners of homes that aren't for sale (pre-foreclosure, cancelled, lien-only) are not shown, to discourage solicitation. */}
           {status.purchasable ? (
-            <div><dt>Owner of record</dt><dd>{p.ownerOfRecord}</dd></div>
+            p.ownerOfRecord && <div><dt>Owner of record</dt><dd>{p.ownerOfRecord}</dd></div>
           ) : (
             <div><dt>Owner of record</dt><dd className="muted">Withheld: not for sale</dd></div>
           )}
-          <div><dt>Legal description</dt><dd className="small">{p.legalDescription}</dd></div>
+          {p.legalDescription && <div><dt>Legal description</dt><dd className="small">{p.legalDescription}</dd></div>}
           <div><dt>Type</dt><dd>{p.propertyType}</dd></div>
+          {p.landUse && <div><dt>Land use <span className="prov official">County Assessor</span></dt><dd>{p.landUse.code} {p.landUse.description}</dd></div>}
           {p.beds !== null && <div><dt>Beds / baths</dt><dd>{p.beds} / {p.baths}</dd></div>}
           {p.sqft && <div><dt>Living area</dt><dd>{p.sqft.toLocaleString()} sq ft</dd></div>}
-          {p.lotSqft > 0 && <div><dt>Lot</dt><dd>{p.lotSqft.toLocaleString()} sq ft</dd></div>}
+          {!!p.lotSqft && <div><dt>Lot</dt><dd>{p.lotSqft.toLocaleString()} sq ft</dd></div>}
           {p.yearBuilt && <div><dt>Year built</dt><dd>{p.yearBuilt}</dd></div>}
-          <div><dt>Assessed value <span className="prov official">County Assessor</span></dt><dd>{fmtMoney(p.assessedValue)}</dd></div>
-          <div><dt>Estimated market value <span className="prov estimate">Estimate, not verified</span></dt><dd>{fmtMoney(p.estimatedMarketValue)}</dd></div>
-          <div><dt>Last sale <span className="prov official">County Recorder</span></dt><dd>{p.lastSale ? `${fmtMoney(p.lastSale.price)} on ${fmtDate(p.lastSale.date)}` : 'None on record'}</dd></div>
+          <div><dt>Assessed value <span className="prov official">County Assessor</span></dt><dd>{notChecked(p.assessedValue, 'See the Assessor record')}</dd></div>
+          <div><dt>Estimated market value <span className="prov estimate">Estimate, not verified</span></dt><dd>{notChecked(p.estimatedMarketValue, 'Not estimated: pull recent sales of similar properties')}</dd></div>
+          <div><dt>Last sale <span className="prov official">County Recorder</span></dt><dd>{p.lastSale ? `${fmtMoney(p.lastSale.price)} on ${fmtDate(p.lastSale.date)}` : verified ? <span className="muted">See the Recorder</span> : 'None on record'}</dd></div>
           <div><dt>Occupancy <span className="prov estimate">Drive by to confirm</span></dt><dd>{p.occupancy}</dd></div>
           <div><dt>Record updated</dt><dd>{fmtDateTime(p.lastUpdated)}</dd></div>
         </dl>
@@ -329,6 +360,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             <a href={open ? baseHref : '#/search'}>{open ? '← Property overview' : '← Back to results'}</a>
             <span className="hero-actions">
               <SaveDealButton p={p} />
+              {verified && <TrackButton target={`tax:${p.apn}`} label={`${p.address} (APN ${p.apn})`} />}
               <button className="hero-btn" onClick={() => window.print()}>Print full report</button>
             </span>
           </>
@@ -337,12 +369,13 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
           <>
             <StatusBadge status={p.status} />
             {s && <span className="eyebrow">{SALE_TYPE_LABEL[s.saleType]}</span>}
+            {verified && <span className="eyebrow"><span className="live-dot" aria-hidden /> On the Treasurer’s official list</span>}
           </>
         }
         title={open ? <a className="title-link" href={baseHref}>{p.address}</a> : p.address}
         sub={
           <>
-            {p.city}, {p.state} {p.zip} · {p.county} County · APN {p.apn}
+            {p.zip ? `${p.city}, ${p.state} ${p.zip} · ${p.county} County` : `${p.county} County, ${p.state}`} · APN {p.apn}
             {!open && (
               <span className="hero-meta">
                 <span>You’d buy: <strong>{playbook ? playbook.youGet.split(',')[0].replace(/\.$/, '') : s ? SALE_TYPE_LABEL[s.saleType] : 'nothing yet (not for sale)'}</strong></span>
@@ -367,14 +400,15 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
         {!open && (
           <dl className="glance" aria-label="At a glance">
             <div><dt>Minimum bid</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
-            <div><dt>Est. market value</dt><dd>{fmtMoney(p.estimatedMarketValue)}</dd></div>
-            <div><dt>Liens likely {s ? 'surviving' : 'remaining'}</dt><dd className={money.likelySurviving ? 'neg' : ''}>{fmtMoney(money.likelySurviving)}</dd></div>
-            <div><dt>Rough spread</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : 'grad'}>{fmtMoney(money.estimatedEquity)}</dd></div>
+            <div><dt>Est. market value</dt><dd>{notChecked(p.estimatedMarketValue, 'Your comps')}</dd></div>
+            <div><dt>Liens likely {s ? 'surviving' : 'remaining'}</dt><dd className={money.likelySurviving ? 'neg' : ''}>{p.liensChecked === false ? <span className="muted">Not searched</span> : fmtMoney(money.likelySurviving)}</dd></div>
+            <div><dt>Rough spread</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : 'grad'}>{notChecked(money.estimatedEquity, 'Needs your numbers')}</dd></div>
           </dl>
         )}
       </PageHero>
 
       <div className="verify" role="alert">
+        {verified && <>On the Clark County Treasurer’s official list, re-checked {ago(p.lastUpdated)}. The list shows the minimum bid and auction details only: value, liens and condition are for you to research. </>}
         <strong>Verify before bidding.</strong> Sales are often paid off, postponed, cancelled or challenged at the last minute. Confirm with{' '}
         {s?.conductedBy ?? 'the conducting agency'} and read the official notice. This report is a screening tool, not a title search, and does
         not mean title is clear.

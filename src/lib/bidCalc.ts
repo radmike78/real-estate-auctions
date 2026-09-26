@@ -133,8 +133,9 @@ export function defaultsFor(p: Property): BidInputs {
     : 6;
   return {
     ...BLANK_INPUTS,
-    exitValue: Math.round(p.estimatedMarketValue / 1000) * 1000,
-    repairs: p.propertyType === 'Vacant Land' || p.propertyType === 'Commercial Land' ? 0 : Math.round(((p.sqft ?? 1500) * 40) / 1000) * 1000,
+    exitValue: p.estimatedMarketValue === null ? 0 : Math.round(p.estimatedMarketValue / 1000) * 1000, // no estimate: the buyer enters their own comps
+    // No building size on record (e.g. a listing from the official list): start at $0 rather than invent a budget.
+    repairs: p.propertyType === 'Vacant Land' || p.propertyType === 'Commercial Land' || p.sqft === null ? 0 : Math.round((p.sqft * 40) / 1000) * 1000,
     buyerPremiumPct: s?.buyerPremiumPct ?? 0,
     survivingLiens: Math.round(money.likelySurviving + money.uncertain),
     titleLegal,
@@ -142,7 +143,7 @@ export function defaultsFor(p: Property): BidInputs {
     holdingMonths,
     // Clark County tax rates are about 2.9–3.3% of assessed value a year depending on district (before abatements);
     // 3.3% is the conservative end. Plus about $300/month insurance and utilities.
-    monthlyCarry: Math.round((p.assessedValue * 0.033) / 12 + 300),
+    monthlyCarry: Math.round(((p.assessedValue ?? 0) * 0.033) / 12 + 300),
   };
 }
 

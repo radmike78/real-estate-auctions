@@ -10,10 +10,10 @@ export type ClassFilter = 'all' | PropertyClass;
 export const CLASS_LABEL: Record<PropertyClass, string> = { residential: 'Residential', commercial: 'Commercial' };
 
 export const RESIDENTIAL_TYPES: PropertyType[] = ['Single Family', 'Condo', 'Townhouse', 'Multi-Family', 'Vacant Land'];
-export const COMMERCIAL_TYPES: PropertyType[] = ['Apartments (5+ units)', 'Retail', 'Office', 'Industrial', 'Hotel / Motel', 'Commercial Land'];
+export const COMMERCIAL_TYPES: PropertyType[] = ['Apartments (5+ units)', 'Retail', 'Office', 'Industrial', 'Hotel / Motel', 'Commercial Land', 'Other commercial'];
 
-export const classOfType = (t: PropertyType): PropertyClass => (COMMERCIAL_TYPES.includes(t) ? 'commercial' : 'residential');
-export const typesFor = (c: ClassFilter): PropertyType[] => (c === 'all' ? [...RESIDENTIAL_TYPES, ...COMMERCIAL_TYPES] : c === 'residential' ? RESIDENTIAL_TYPES : COMMERCIAL_TYPES);
+export const classOfType = (t: PropertyType): PropertyClass | null => (t === 'Not classified' ? null : COMMERCIAL_TYPES.includes(t) ? 'commercial' : 'residential');
+export const typesFor = (c: ClassFilter): PropertyType[] => (c === 'all' ? [...RESIDENTIAL_TYPES, ...COMMERCIAL_TYPES, 'Not classified'] : c === 'residential' ? RESIDENTIAL_TYPES : COMMERCIAL_TYPES);
 export const parseClass = (v: string | null | undefined): ClassFilter => (v === 'residential' || v === 'commercial' ? v : 'all');
 
 /** Clark County Assessor land-use code (e.g. "20.110", "41.335.C") → class, or null when it's

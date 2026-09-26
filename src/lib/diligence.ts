@@ -12,6 +12,33 @@ export interface Check {
   detail: string;
 }
 
+function flagChecks(flags: NonNullable<Property['flags']>): Check[] {
+  return [
+    {
+      area: 'Bankruptcy',
+      result: flags.bankruptcy ? 'flag' : 'ok',
+      detail: flags.bankruptcy ? 'A bankruptcy filing was detected. The automatic stay halts the sale until relief is granted.' : 'No filing matched to the owner (PACER check recommended).',
+    },
+    { area: 'Easements and restrictions', result: 'manual', detail: 'Review the recorded CC&Rs, plat and easements.' },
+    {
+      area: 'Code violations / demolition',
+      result: flags.codeViolations ? 'flag' : 'ok',
+      detail: flags.codeViolations ? `${flags.codeViolations} open code case(s).` : 'No open cases found.',
+    },
+    {
+      area: 'Flood, wildfire, environmental',
+      result: flags.floodZone.startsWith('A') || flags.wildfireRisk === 'High' ? 'flag' : 'ok',
+      detail: `FEMA flood zone ${flags.floodZone}; wildfire risk ${flags.wildfireRisk}. Environmental records have not been checked.`,
+    },
+    { area: 'Zoning and land use', result: 'ok', detail: `Zoned ${flags.zoning}.` },
+    {
+      area: 'Building permits',
+      result: flags.openPermits ? 'review' : 'ok',
+      detail: flags.openPermits ? `${flags.openPermits} open/expired permit(s).` : 'No open permits.',
+    },
+  ];
+}
+
 export function diligenceReport(p: Property): Check[] {
   const assessments = assessLiens(p);
   const surviving = assessments.filter((a) => a.outcome === 'LIKELY_SURVIVES');
@@ -22,7 +49,7 @@ export function diligenceReport(p: Property): Check[] {
   const lisPendens = p.events.some((e) => e.type === 'LIS_PENDENS');
   const stage = [...p.events].reverse().find((e) => ['NOTICE_OF_DEFAULT', 'NOTICE_OF_SALE', 'SALE_POSTPONED', 'SOLD', 'DEEDED_TO_TRUSTEE'].includes(e.type));
 
-  return [
+  const report: Check[] = [
     { area: 'Chain of title', result: 'manual', detail: 'Requires a full recorder search (grantor/grantee index) by a title company.' },
     {
       area: 'Mortgages and assignments',
@@ -57,28 +84,16 @@ export function diligenceReport(p: Property): Check[] {
     })(),
     { area: 'Lis pendens', result: lisPendens ? 'flag' : 'ok', detail: lisPendens ? 'Pending litigation affecting title is recorded.' : 'None recorded.' },
     { area: 'Foreclosure stage', result: stage ? 'review' : 'ok', detail: stage ? stage.description : 'No foreclosure activity recorded.' },
-    {
-      area: 'Bankruptcy',
-      result: p.flags.bankruptcy ? 'flag' : 'ok',
-      detail: p.flags.bankruptcy ? 'A bankruptcy filing was detected. The automatic stay halts the sale until relief is granted.' : 'No filing matched to the owner (PACER check recommended).',
-    },
-    { area: 'Easements and restrictions', result: 'manual', detail: 'Review the recorded CC&Rs, plat and easements.' },
-    {
-      area: 'Code violations / demolition',
-      result: p.flags.codeViolations ? 'flag' : 'ok',
-      detail: p.flags.codeViolations ? `${p.flags.codeViolations} open code case(s).` : 'No open cases found.',
-    },
-    {
-      area: 'Flood, wildfire, environmental',
-      result: p.flags.floodZone.startsWith('A') || p.flags.wildfireRisk === 'High' ? 'flag' : 'ok',
-      detail: `FEMA flood zone ${p.flags.floodZone}; wildfire risk ${p.flags.wildfireRisk}. Environmental records have not been checked.`,
-    },
-    { area: 'Zoning and land use', result: 'ok', detail: `Zoned ${p.flags.zoning}.` },
-    {
-      area: 'Building permits',
-      result: p.flags.openPermits ? 'review' : 'ok',
-      detail: p.flags.openPermits ? `${p.flags.openPermits} open/expired permit(s).` : 'No open permits.',
-    },
+    ...(p.flags
+      ? flagChecks(p.flags)
+      : ([
+          { area: 'Bankruptcy', result: 'manual', detail: 'Not checked for this listing. Search PACER for the owner (pacer.uscourts.gov).' },
+          { area: 'Easements and restrictions', result: 'manual', detail: 'Review the recorded CC&Rs, plat and easements.' },
+          { area: 'Code violations / demolition', result: 'manual', detail: 'Not checked for this listing. Ask the city or county code enforcement office.' },
+          { area: 'Flood, wildfire, environmental', result: 'manual', detail: 'Not checked for this listing. Look up the FEMA flood map and EPA and state environmental records.' },
+          { area: 'Zoning and land use', result: 'manual', detail: 'Not checked for this listing. Confirm zoning with the city or county planning department.' },
+          { area: 'Building permits', result: 'manual', detail: 'Not checked for this listing. Ask the building department about open or expired permits.' },
+        ] satisfies Check[])),
     {
       area: 'Occupancy',
       result: p.occupancy === 'Vacant' ? 'ok' : 'review',
@@ -87,15 +102,21 @@ export function diligenceReport(p: Property): Check[] {
     {
       area: 'Repair exposure',
       result: 'manual',
-      detail: p.sqft ? `Interior access is rarely allowed before auction. Budget roughly ${fmtMoney(p.sqft * 25)}–${fmtMoney(p.sqft * 60)} (about $25–60 per sq ft).` : 'Vacant land: check utilities and access.',
+      detail: p.sqft ? `Interior access is rarely allowed before auction. Budget roughly ${fmtMoney(p.sqft * 25)}–${fmtMoney(p.sqft * 60)} (about $25–60 per sq ft).` : /land/i.test(p.propertyType) ? 'Vacant land: check utilities and access.' : 'Building size not on record here. Check the Assessor record for size, and budget repairs from what you can see from the street.',
     },
-    { area: 'Comparable sales', result: 'manual', detail: `The estimated value of ${fmtMoney(p.estimatedMarketValue)} is a model estimate. Pull comps before bidding.` },
+    {
+      area: 'Comparable sales',
+      result: 'manual',
+      detail: p.estimatedMarketValue === null ? 'No value estimate for this listing. Pull recent sold prices of similar nearby properties before bidding.' : `The estimated value of ${fmtMoney(p.estimatedMarketValue)} is a model estimate. Pull comps before bidding.`,
+    },
     {
       area: 'Estimated spread',
       result: money.estimatedEquity === null ? 'review' : money.estimatedEquity > 0 ? 'ok' : 'flag',
       detail:
         money.estimatedEquity === null
-          ? 'No minimum bid is published.'
+          ? money.minimumBid === null
+            ? 'No minimum bid is published.'
+            : 'Needs your value from comps and a lien search, so it isn’t worked out here.'
           : `${fmtMoney(money.estimatedEquity)} = value − minimum bid − likely surviving liens (excludes uncertain liens, repairs and costs).`,
     },
     {
@@ -113,4 +134,17 @@ export function diligenceReport(p: Property): Check[] {
           : 'Many insurers will not insure right after a tax, HOA or execution sale without a quiet-title action. Ask a title company.',
     },
   ];
+  if (p.liensChecked !== false) return report;
+  // No lien search has been done for this record: an empty lien list means "unknown", never "none".
+  const LIEN_AREAS = new Set(['Mortgages and assignments', 'Liens and apparent priority', 'Releases / satisfactions', 'Federal tax liens', 'HOA and municipal liens', 'Lis pendens']);
+  const taxSale = p.sale?.saleType === 'TAX_DEED';
+  return report.map((c): Check => {
+    if (LIEN_AREAS.has(c.area)) return { area: c.area, result: 'manual', detail: 'Not searched for this listing. Search the County Recorder, or order a title search, before you bid.' };
+    if (c.area === 'Foreclosure stage') return { area: c.area, result: 'manual', detail: 'Not searched for this listing. Search the County Recorder for notices of default or sale.' };
+    if (c.area === 'Property-tax status')
+      return taxSale
+        ? { area: c.area, result: 'review', detail: 'Delinquent: that’s why the Treasurer is selling it. The minimum bid covers the delinquent taxes, penalties, interest and costs. Check the Treasurer’s balance for anything billed since.' }
+        : { area: c.area, result: 'manual', detail: 'Not checked for this listing. Look up the balance on the Treasurer’s website.' };
+    return c;
+  });
 }

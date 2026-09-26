@@ -32,7 +32,9 @@ export default function MapView({ properties, onSearchArea }: Props) {
   useEffect(() => {
     if (!map.current || !layer.current) return;
     layer.current.clearLayers();
-    for (const p of properties) {
+    // Records without a verified location (e.g. live tax-sale parcels) aren't placed on the map.
+    const placed = properties.filter((p): p is typeof p & { lat: number; lng: number } => p.lat !== null && p.lng !== null);
+    for (const p of placed) {
       const color = TONE_COLOR[STATUS[p.status].tone];
       const esc = (s: string) => s.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
       L.circleMarker([p.lat, p.lng], { radius: 7, color: '#fff', weight: 1.5, fillColor: color, fillOpacity: 0.9 })
@@ -43,8 +45,8 @@ export default function MapView({ properties, onSearchArea }: Props) {
         )
         .addTo(layer.current);
     }
-    if (properties.length) {
-      const b = L.latLngBounds(properties.map((p) => [p.lat, p.lng]));
+    if (placed.length) {
+      const b = L.latLngBounds(placed.map((p) => [p.lat, p.lng]));
       if (!map.current.getBounds().contains(b)) map.current.fitBounds(b.pad(0.1));
     }
   }, [properties]);

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { FEED_PUBLIC_KEY_SPKI_B64 } from '../feed/publicKey';
-import { isOfficialUrl, loadVerifiedFeed, type VerifyResult } from '../feed/verify';
+import { isOfficialUrl } from '../feed/verify';
+import { useLiveFeed } from '../data/live';
+import { liveId } from '../feed/toProperty';
 import { fmtDateTime, fmtMoney } from '../lib/status';
 import PageHero from './PageHero';
 import { Tile } from './DrillDown';
@@ -12,8 +13,6 @@ import ClassSwitch from './ClassSwitch';
 import TrackButton from './TrackButton';
 import SearchAlertButton from './SearchAlertButton';
 import { CLASS_LABEL, classOfLandUse, type ClassFilter } from '../lib/propertyClass';
-
-const REVERIFY_MS = 5 * 60_000;
 
 function ago(iso: string, now: number) {
   const m = Math.max(0, Math.round((now - Date.parse(iso)) / 60_000));
@@ -31,26 +30,15 @@ const HEALTH_LABEL = {
 } as const;
 
 export default function LivePage() {
-  const [result, setResult] = useState<VerifyResult | null>(null);
+  // The shared loader verifies the signed feed and re-checks it every 5 minutes.
+  const { result } = useLiveFeed();
   const [now, setNow] = useState(Date.now());
   const [cls, setCls] = useState<ClassFilter>('all');
 
+  // Keep "x min ago" and the expiry check current in an open tab.
   useEffect(() => {
-    let alive = true;
-    const load = () =>
-      loadVerifiedFeed(FEED_PUBLIC_KEY_SPKI_B64)
-        .catch((e: Error): VerifyResult => ({ ok: false, reason: 'MISSING', detail: e.message }))
-        .then((r) => alive && setResult(r));
-    load();
-    // Re-verify periodically so an open tab never keeps showing listings past their expiry.
-    const t = setInterval(() => {
-      setNow(Date.now());
-      load();
-    }, REVERIFY_MS);
-    return () => {
-      alive = false;
-      clearInterval(t);
-    };
+    const t = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(t);
   }, []);
 
   const expired = result?.ok && Date.parse(result.feed.expiresAt) <= now;
@@ -162,12 +150,12 @@ export default function LivePage() {
                 {shown.map((l) => (
                   <tr key={l.apn}>
                     <td>
-                      {l.apn}
+                      <a href={`#/property/${liveId(l.apn)}`}>{l.apn}</a>
                       {l.groupApn && <div className="small warn">Sold together with group {l.groupApn} (one bid)</div>}
                       {l.personalPropertyExcluded && <div className="small muted">Personal property not included</div>}
                     </td>
                     <td>
-                      {l.address ?? <span className="muted">No street address (see Assessor)</span>}
+                      {l.address ? <a href={`#/property/${liveId(l.apn)}`}>{l.address}</a> : <span className="muted">No street address (see Assessor)</span>}
                       <div className="small muted">
                         {l.landUse ? (
                           <>{classOfLandUse(l.landUse.code) && <span className={`badge tone-${classOfLandUse(l.landUse.code) === 'commercial' ? 'info' : 'go'}`}>{CLASS_LABEL[classOfLandUse(l.landUse.code)!]}</span>} {l.landUse.description}</>
