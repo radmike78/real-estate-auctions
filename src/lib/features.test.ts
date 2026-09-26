@@ -294,3 +294,27 @@ describe('residential and commercial', () => {
     expect(commercial).not.toContain('Fannie Mae HomePath');
   });
 });
+
+describe('commercial value by income', () => {
+  it('computes NOI and value from rent, vacancy, costs and cap rate', async () => {
+    const { incomeValue, sanitizeIncome } = await import('./incomeValue');
+    const r = incomeValue({ monthlyRent: 10_000, otherMonthly: 0, vacancyPct: 10, expensePct: 35, capRatePct: 8 });
+    expect(r.grossAnnual).toBe(120_000);
+    expect(r.collected).toBe(108_000);
+    expect(r.expenses).toBeCloseTo(37_800);
+    expect(r.noi).toBeCloseTo(70_200);
+    expect(r.value).toBe(878_000); // 70,200 / 0.08 = 877,500, rounded to the nearest $1,000
+    expect(incomeValue({ monthlyRent: 10_000, otherMonthly: 0, vacancyPct: 10, expensePct: 35, capRatePct: 0 }).value).toBe(0);
+    expect(incomeValue({ monthlyRent: 0, otherMonthly: 0, vacancyPct: 10, expensePct: 35, capRatePct: 8 }).value).toBe(0);
+    expect(sanitizeIncome({ monthlyRent: -5, capRatePct: 'x', vacancyPct: 20, evil: 1 })).toEqual({ monthlyRent: 0, otherMonthly: 0, vacancyPct: 20, expensePct: 35, capRatePct: 8 });
+  });
+
+  it('has a commercial playbook and checklist', async () => {
+    const { playbookByKey } = await import('./playbooks');
+    const { CHECKLISTS } = await import('./buyerChecklists');
+    const pb = playbookByKey('commercial');
+    expect(pb?.sources.every((s) => s.url.startsWith('https://'))).toBe(true);
+    expect(pb?.team.length).toBeGreaterThan(5);
+    expect(CHECKLISTS.commercial.items.length).toBeGreaterThan(5);
+  });
+});

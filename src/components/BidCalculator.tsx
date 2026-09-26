@@ -51,6 +51,15 @@ function load(id: string | undefined, defaults: BidInputs): BidInputs {
   }
 }
 
+/** Sets the calculator's resale value for a property (used by the commercial income calculator). */
+export function setSavedExitValue(id: string, defaults: BidInputs, exitValue: number) {
+  try {
+    localStorage.setItem(KEY(id), JSON.stringify({ ...load(id, defaults), exitValue }));
+  } catch {
+    /* storage unavailable: the value just isn't carried over */
+  }
+}
+
 /** Saved max bid for a property (used by My deals), if the buyer has run the calculator. */
 export function savedMaxBid(id: string): number | null {
   try {
@@ -68,7 +77,8 @@ const toNum = (v: string) => {
   return Number.isFinite(n) && n > 0 ? n : 0;
 };
 
-export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, openingBid, headingLevel = 3 }: { propertyId?: string; defaults?: BidInputs; openingBid?: number | null; headingLevel?: 2 | 3 }) {
+export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, openingBid, headingLevel = 3, commercial = false }: { propertyId?: string; defaults?: BidInputs; openingBid?: number | null; headingLevel?: 2 | 3; commercial?: boolean }) {
+  const hintFor = (f: Field) => (commercial && f.k === 'exitValue' ? 'For commercial property, use the value by income above.' : f.hint);
   const uid = useId();
   const [i, setI] = useState<BidInputs>(() => load(propertyId, defaults));
   // What the person typed, so a field can be cleared while editing.
@@ -116,13 +126,13 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
                     min={0}
                     step="any"
                     value={draft[f.k] ?? String(i[f.k])}
-                    aria-describedby={f.hint ? `${uid}-${f.k}-hint` : undefined}
+                    aria-describedby={hintFor(f) ? `${uid}-${f.k}-hint` : undefined}
                     onChange={(e) => set(f.k, e.target.value)}
                     onBlur={() => setDraft((d) => ({ ...d, [f.k]: undefined }))}
                   />
                   {f.unit !== '$' && <i aria-hidden>{f.unit === '$/500' ? 'per $500' : f.unit === 'mo' ? 'months' : '%'}</i>}
                 </span>
-                {f.hint && <small className="muted" id={`${uid}-${f.k}-hint`}>{f.hint}</small>}
+                {hintFor(f) && <small className="muted" id={`${uid}-${f.k}-hint`}>{hintFor(f)}</small>}
               </div>
             ))}
           </fieldset>

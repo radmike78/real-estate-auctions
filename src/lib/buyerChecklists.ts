@@ -108,6 +108,22 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       note: 'HUD’s official listings. We link to them rather than copying them, so you always see HUD’s current list.',
     },
   },
+  commercial: {
+    key: 'commercial',
+    forSale: true,
+    title: 'Extra checks for commercial property',
+    intro: 'On top of the checklist for the type of sale: what’s different about stores, offices, industrial buildings, apartments with 5+ units and commercial land.',
+    items: [
+      { text: 'Rent roll and copies of the leases', detail: 'From the receiver or listing broker. At an auction you usually can’t get them, so value it as if empty.' },
+      { text: 'Your own value by income', detail: 'Net operating income ÷ cap rate. Ask a commercial broker for current cap rates for this property type.' },
+      { text: 'An environmental screen, and a Phase I if you can', detail: 'Check EPA and state records and past uses (gas station, dry cleaner, auto repair). A Phase I done within 180 days before you take title supports federal cleanup-liability protection.' },
+      { text: 'A title search that lists recorded leases and easements', detail: 'Know which leases, easements and agreements survive the sale.' },
+      { text: 'Zoning, open code cases and permits', detail: 'Confirm your planned use is allowed with the city or county.' },
+      { text: 'Certified funds for the sale, and a commercial lender for after', detail: 'SBA 504 and 7(a) loans are only for a business that will use the building, not rental investment.' },
+      { text: 'Commercial insurance from the day you own it', detail: 'Vacant commercial buildings need a specific policy.' },
+      { text: 'Estoppel certificates from tenants after you buy', detail: 'Each tenant confirms their rent, deposit, term and any claims, in writing.' },
+    ],
+  },
   hoa: {
     key: 'hoa',
     forSale: true,
