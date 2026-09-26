@@ -41,7 +41,7 @@ const SECTIONS: DrillSection[] = [
         <p>Your name, email address, phone number (optional), what you're interested in, and your message. You tick a box before anything is sent.</p>
         <h3>When you sign up for email alerts</h3>
         <p>
-          Your email address, what you asked to hear about (general updates, and later any properties you track or searches you save), and when
+          Your email address, what you asked to hear about (general updates, the properties you track, and later any searches you save), and when
           you signed up and confirmed. Nothing is sent until you confirm the address from the link we email you. There's no account or password:
           every email has a link to change or stop your alerts.
         </p>

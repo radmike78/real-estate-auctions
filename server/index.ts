@@ -111,6 +111,11 @@ const app = createApp({
 app.maintain();
 setInterval(() => app.maintain(), 3_600_000).unref();
 
+// Email alerts for tracked properties: compare the verified listings feed with the last check every 10 minutes.
+const checkTracked = () => app.checkTracked().then((n) => n && console.log(`Sent ${n} tracked-property alert email(s).`)).catch((e) => console.error('Tracked-property check failed:', e));
+void checkTracked();
+setInterval(checkTracked, 10 * 60_000).unref();
+
 // Daily database backups on the same volume. Copy them somewhere else too (see DEPLOY.md).
 const backupDir = env.BACKUP_DIR === '' ? null : (env.BACKUP_DIR ?? join(dirname(dbPath), 'backups'));
 const backupKeep = Math.max(1, Number(env.BACKUP_KEEP ?? 7) || 7);

@@ -3,6 +3,8 @@
 // in development.
 
 import type { LeadRow } from './db';
+import type { Change, ListingSnapshot } from './tracker';
+import { labelOf } from './tracker';
 import { SITE_INFO } from '../src/lib/siteInfo';
 
 export interface Mail {
@@ -193,12 +195,13 @@ export const unsubscribeHeaders = (oneClickUrl: string): Record<string, string> 
 
 // Nothing the requester typed is echoed: the address isn't confirmed yet, so this can't be used to
 // send someone else's words to a stranger.
-export function alertsConfirmEmail(to: string, link: string): Mail {
+/** `tracking` is a property label from our own verified feed, never text the requester typed. */
+export function alertsConfirmEmail(to: string, link: string, tracking?: string): Mail {
   return {
     to,
     subject: 'Confirm your Forced-Sale Finder email alerts',
     text:
-      `Hello,\n\nPlease confirm that you want email from Forced-Sale Finder:\n\n${link}\n\n` +
+      `Hello,\n\nPlease confirm that you want email from Forced-Sale Finder${tracking ? `, starting with updates on ${tracking}` : ''}:\n\n${link}\n\n` +
       `The link expires in 48 hours. If you didn't sign up, ignore this email and you won't hear from us again.\n\n` +
       `${SITE_INFO.operatorName}, ${SITE_INFO.mailingAddress}\n`,
   };
@@ -224,6 +227,63 @@ export function alertsManageLinkEmail(to: string, manageUrl: string, unsubscribe
     text:
       `Hello,\n\nYou're already signed up. To change what you get, or to stop all email, use this link:\n\n${manageUrl}\n\n` +
       `If you didn't ask for this, you can ignore it. Nothing has changed.\n` +
+      alertsFooter(manageUrl, unsubscribeUrl),
+    headers: unsubscribeHeaders(oneClickUrl),
+  };
+}
+
+const vegasTime = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+const when = (iso: string | null) => (iso ? vegasTime.format(new Date(iso)) : 'not scheduled');
+const usd = (n: number) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+/** One line per change, in plain words. */
+export function describeChange(c: Change): string {
+  switch (c.kind) {
+    case 'removed':
+      return "No longer on the Treasurer's auction list. It may have been paid off, withdrawn or sold. We'll email you if it comes back on a future list.";
+    case 'back':
+      return `On the Treasurer's auction list${c.auctionStartsAt ? ` for the auction on ${when(c.auctionStartsAt)}` : ''}. Minimum bid ${usd(c.minimumBid)}.`;
+    case 'date':
+      return `Auction date changed: ${when(c.from)} → ${when(c.to)}.`;
+    case 'minimumBid':
+      return `Minimum bid changed: ${usd(c.from)} → ${usd(c.to)}.`;
+    case 'place':
+      return `Auction details changed: ${[c.format, c.location].filter(Boolean).join(', ') || 'see the official notice'}.`;
+    case 'register':
+      return `Auction on ${when(c.auctionStartsAt)}. Registration usually closes about a week before, with a $5,000 deposit in certified funds. Check this year's notice and register now if you plan to bid.`;
+    case 'tomorrow':
+      return `Auction tomorrow: ${when(c.auctionStartsAt)}. Winning bids are paid the same day in certified funds.`;
+  }
+}
+
+export function trackedChangesEmail(
+  to: string,
+  items: { snapshot: ListingSnapshot; changes: Change[] }[],
+  links: { manage: string; unsubscribe: string; oneClick: string; live: string },
+): Mail {
+  const one = items.length === 1;
+  const body = items
+    .map((i) => `${labelOf(i.snapshot)}\n${i.changes.map((c) => `  - ${describeChange(c)}`).join('\n')}\n  Official record: ${i.snapshot.sourceUrl}`)
+    .join('\n\n');
+  return {
+    to,
+    subject: one ? `Update: ${labelOf(items[0].snapshot)}` : `Updates on ${items.length} properties you're tracking`,
+    text:
+      `Hello,\n\n${one ? 'A property you track changed' : 'Properties you track changed'} on the Clark County Treasurer's list:\n\n${body}\n\n` +
+      `Live tax-sale list: ${links.live}\n\nAlways confirm with the official source before you bid. Lists change often, right up to the auction.\n` +
+      alertsFooter(links.manage, links.unsubscribe),
+    headers: unsubscribeHeaders(links.oneClick),
+  };
+}
+
+/** For an address that's already signed up: confirm adding a property from their own manage page. */
+export function alertsAddEmail(to: string, label: string, addUrl: string, manageUrl: string, unsubscribeUrl: string, oneClickUrl: string): Mail {
+  return {
+    to,
+    subject: `Confirm: track ${label}`,
+    text:
+      `Hello,\n\nSomeone (hopefully you) asked to track ${label} with your Forced-Sale Finder email alerts. To add it, open this link and choose "Track it":\n\n${addUrl}\n\n` +
+      `If you didn't ask for this, ignore this email. Nothing has changed.\n` +
       alertsFooter(manageUrl, unsubscribeUrl),
     headers: unsubscribeHeaders(oneClickUrl),
   };

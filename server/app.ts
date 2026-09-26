@@ -9,6 +9,7 @@
 //   POST /api/pro/login                     email a one-time sign-in link to a listed advertiser
 //   POST /api/pro/session                   exchange that link's token for a session
 //   POST /api/alerts/signup                 sign up for email (double opt-in; already-active addresses get their manage link)
+//   POST /api/alerts/track                  track a verified listing by email (new addresses confirm first; active ones confirm the add)
 //   POST /api/alerts/confirm                confirm the address with the emailed token
 //   POST /api/alerts/manage | /update       view or change what an address gets (manage-link token; x-fsf-request: 1)
 //   POST /api/alerts/unsubscribe?t=         stop all email and delete the address (also one-click from mail apps)
@@ -30,8 +31,9 @@ import { METRIC_KINDS, openDb, type ApplicationRow, type Db, type MetricKind } f
 import { buildProsFeed, toPro, writeSignedJson } from './directory';
 import { isSiteAction, isSitePage } from '../src/lib/siteStats';
 import { visitorIp } from './cloudflare';
-import { alertsConfirmEmail, alertsManageLinkEmail, alertsWelcomeEmail, approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
-import { CONFIRM_TTL_MS, openAlerts, type Subscriber } from './alerts';
+import { alertsAddEmail, alertsConfirmEmail, alertsManageLinkEmail, alertsWelcomeEmail, trackedChangesEmail, approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
+import { ALERT_LIMITS, CONFIRM_TTL_MS, openAlerts, type Subscriber } from './alerts';
+import { collectChanges, feedReader, labelOf, openTracker, snapshotOf, TARGET_RE, taxTarget, type ListingSnapshot } from './tracker';
 import { CHECKOUT_URL_PREFIX, invoicePeriodEnd, invoiceSubscriptionId, PORTAL_URL_PREFIX, verifyWebhook, type StripeClient, type StripeEvent } from './stripe';
 import { BOT_UA, leadsToCsv, monthlyReportText, monthRange, pacificDay, pacificDaysToUtc, siteSummary, summarize, VisitorHasher } from './metrics';
 
@@ -90,6 +92,8 @@ class HttpError extends Error {
 export function createApp(config: AppConfig) {
   const db: Db = openDb(config.dbPath);
   const alerts = openAlerts(db.raw);
+  const tracker = openTracker(db.raw);
+  const readFeed = feedReader(config.dataDir, config.signingKey);
   const mailer = config.mailer ?? consoleMailer;
   // Sending never breaks a request: a failure is logged (without the message body, which can hold
   // sign-in links) and reported to the caller, which decides whether the visitor needs to know.
@@ -234,6 +238,34 @@ export function createApp(config: AppConfig) {
       oneClick: `${base}/api/alerts/unsubscribe?t=${encodeURIComponent(unsub)}`,
     };
   }
+  /** A listing that can be tracked right now: on the current verified feed. */
+  async function trackable(target: unknown): Promise<ListingSnapshot | null> {
+    if (typeof target !== 'string' || !TARGET_RE.test(target)) return null;
+    const feed = await readFeed(now());
+    const l = feed?.listings.find((x) => taxTarget(x.apn) === target);
+    return l ? snapshotOf(l) : null;
+  }
+
+  /** Emails each subscriber the changes to the properties they track. Returns how many emails went out. */
+  let checking = false;
+  async function checkTracked(): Promise<number> {
+    if (checking) return 0;
+    checking = true;
+    try {
+      const feed = await readFeed(now());
+      if (!feed) return 0; // missing, invalid or expired: never guess
+      let sent = 0;
+      for (const [subscriberId, items] of collectChanges(tracker, feed, now())) {
+        const s = alerts.get(subscriberId);
+        if (s?.status !== 'ACTIVE') continue;
+        if (await deliver(trackedChangesEmail(s.email, items, { ...alertLinks(s), live: `${base}/#/live` }))) sent++;
+      }
+      return sent;
+    } finally {
+      checking = false;
+    }
+  }
+
   /** What the manage page shows. Only the holder of the manage link sees it. */
   function alertsView(s: Subscriber) {
     return { email: s.email, listOptIn: s.listOptIn, confirmedAt: s.confirmedAt, subscriptions: alerts.subscriptions(s.id) };
@@ -461,6 +493,36 @@ export function createApp(config: AppConfig) {
       return send(res, 202, accepted);
     }
 
+    if (method === 'POST' && path === '/api/alerts/track') {
+      assertSameOrigin(req);
+      if (!limiters.alertsIp.hit(clientIp(req))) throw new HttpError(429, 'Too many sign-ups from this network. Try again later.');
+      const body = await readJson(req);
+      const accepted = { ok: true, message: 'Check your inbox for a link to confirm. It expires in 48 hours.' };
+      if (body.company_url) return send(res, 202, accepted);
+      const email = plain(body.email, 254).toLowerCase();
+      if (!EMAIL_RE.test(email)) throw new HttpError(422, 'Please fix the highlighted fields.', { errors: { email: 'Enter a valid email address.' } });
+      const snap = await trackable(body.target);
+      if (!snap) throw new HttpError(404, 'This property isn’t on the current verified list, so it can’t be tracked.');
+      if (!limiters.alertsEmail.hit(email)) return send(res, 202, accepted);
+      const target = taxTarget(snap.apn);
+      const label = labelOf(snap);
+      const current = alerts.byEmail(email);
+      if (current?.status === 'ACTIVE') {
+        // Already signed up: they confirm the add from their own manage page, so nobody can add alerts to someone else's inbox.
+        const l = alertLinks(current);
+        await deliver(alertsAddEmail(email, label, `${l.manage}?add=${encodeURIComponent(target)}`, l.manage, l.unsubscribe, l.oneClick));
+        return send(res, 202, accepted);
+      }
+      const token = newToken();
+      const t = now();
+      const s = alerts.upsertPending(email, body.list === true, sha256(token), new Date(t.getTime() + CONFIRM_TTL_MS).toISOString(), t.toISOString());
+      alerts.addSubscription(s.id, 'property', target, label, t.toISOString());
+      if (!(await deliver(alertsConfirmEmail(email, `${base}/#/alerts/confirm/${token}`, label)))) {
+        throw new HttpError(503, 'We couldn\'t send your confirmation email just now. Please try again in a few minutes.');
+      }
+      return send(res, 202, accepted);
+    }
+
     if (method === 'POST' && path === '/api/alerts/confirm') {
       assertSameOrigin(req);
       if (!limiters.confirm.hit(clientIp(req))) throw new HttpError(429, 'Too many attempts. Try again later.');
@@ -487,8 +549,20 @@ export function createApp(config: AppConfig) {
         }
         if (typeof body.list === 'boolean') alerts.setListOptIn(s.id, body.list, now().toISOString());
         if (typeof body.remove === 'string') alerts.removeSubscription(s.id, body.remove);
+        if (body.add !== undefined) {
+          const snap = await trackable(body.add);
+          if (!snap) throw new HttpError(404, 'This property isn’t on the current verified list, so it can’t be tracked.');
+          const r = alerts.addSubscription(s.id, 'property', taxTarget(snap.apn), labelOf(snap), now().toISOString());
+          if (r === 'limit') throw new HttpError(409, `You’re already tracking ${ALERT_LIMITS.property} properties, the most we allow. Remove one first.`);
+        }
       }
-      return send(res, 200, { ok: true, ...alertsView(alerts.get(s.id)!) });
+      // The manage page can ask about a property before adding it (from an emailed "track this" link).
+      let preview: { target: string; label: string; tracked: boolean } | null = null;
+      if (typeof body.preview === 'string') {
+        const snap = await trackable(body.preview);
+        if (snap) preview = { target: taxTarget(snap.apn), label: labelOf(snap), tracked: alerts.subscriptions(s.id).some((x) => x.kind === 'property' && x.target === taxTarget(snap.apn)) };
+      }
+      return send(res, 200, { ok: true, ...alertsView(alerts.get(s.id)!), preview });
     }
 
     // Mail apps POST here directly for one-click unsubscribe (RFC 8058), so no same-origin check:
@@ -817,5 +891,5 @@ export function createApp(config: AppConfig) {
     }
   }
 
-  return { handler, publish, maintain, sendMonthlyReports, db, alerts };
+  return { handler, publish, maintain, sendMonthlyReports, checkTracked, db, alerts };
 }

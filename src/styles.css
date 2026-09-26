@@ -1020,3 +1020,7 @@ small { font-size: 0.95rem; }
 .alerts-subs li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
 .btn-danger { background: var(--stop); color: #fff; }
 @media (max-width: 760px) { .alerts-grid { grid-template-columns: 1fr; } }
+.track-btn { padding: 0; margin-top: 6px; white-space: nowrap; }
+.track-dialog { max-width: 520px; }
+.track-dialog .track-label { font-weight: 700; margin: -4px 0 12px; }
+.track-offer p { margin: 0 0 10px; }

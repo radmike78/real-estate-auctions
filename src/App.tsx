@@ -61,7 +61,7 @@ type Route =
   | { page: 'calculator' }
   | { page: 'deals' }
   | { page: 'homeowner' }
-  | { page: 'alerts'; mode: AlertsMode; token: string; welcome: boolean }
+  | { page: 'alerts'; mode: AlertsMode; token: string; welcome: boolean; add?: string }
   | { page: 'playbook'; key?: string; section?: string };
 
 function hashPath(): string {
@@ -115,7 +115,7 @@ function parseHash(): Route {
   if (h === 'deals') return { page: 'deals' };
   if (h === 'homeowner-help') return { page: 'homeowner' };
   const al = h.match(/^alerts(?:\/(confirm|manage|unsubscribe)\/([A-Za-z0-9._-]{1,100}))?$/);
-  if (al) return { page: 'alerts', mode: (al[1] as AlertsMode | undefined) ?? 'signup', token: al[2] ?? '', welcome: params.get('welcome') === '1' };
+  if (al) return { page: 'alerts', mode: (al[1] as AlertsMode | undefined) ?? 'signup', token: al[2] ?? '', welcome: params.get('welcome') === '1', add: params.get('add')?.slice(0, 40) ?? undefined };
   const pb = h.match(/^playbooks(?:\/([a-z]+)(?:\/([a-z-]+))?)?$/);
   if (pb) return { page: 'playbook', key: pb[1], section: pb[2] };
   if (sub?.[1] === 'disclaimer') return { page: 'disclaimer', section: sub[2] };
@@ -183,7 +183,7 @@ export default function App() {
       {route.page === 'calculator' && <CalculatorPage />}
       {route.page === 'deals' && <DealsPage />}
       {route.page === 'homeowner' && <HomeownerHelpPage />}
-      {route.page === 'alerts' && <AlertsPage key={`${route.mode}${route.token}`} mode={route.mode} token={route.token} welcome={route.welcome} />}
+      {route.page === 'alerts' && <AlertsPage key={`${route.mode}${route.token}${route.add ?? ''}`} mode={route.mode} token={route.token} welcome={route.welcome} add={route.add} />}
       {route.page === 'playbook' && <PlaybookPage key={route.key ?? ''} playbook={route.key} section={route.section} />}
       {route.page === 'advertiser' && <AdvertiserPage key={route.token ?? ''} token={route.token} />}
       {route.page === 'agents' && <AgentsPage key={`${route.shortSales}${route.q}`} shortSales={route.shortSales} initialQuery={route.q} />}

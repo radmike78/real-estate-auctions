@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { api, ApiError } from '../lib/api';
 import PageHero from './PageHero';
+import { forgetManageToken, rememberManageToken, storedManageToken } from '../lib/alertsLink';
 
 export type AlertsMode = 'signup' | 'confirm' | 'manage' | 'unsubscribe';
 
@@ -15,12 +16,13 @@ interface ManageView {
   listOptIn: boolean;
   confirmedAt: string | null;
   subscriptions: Subscription[];
+  preview?: { target: string; label: string; tracked: boolean } | null;
 }
 
 const KIND_LABEL: Record<string, string> = { property: 'Tracked property', search: 'Saved search' };
 
 /** Email alerts: sign up (double opt-in), confirm, manage from the emailed link, and unsubscribe. No accounts. */
-export default function AlertsPage({ mode, token, welcome }: { mode: AlertsMode; token: string; welcome?: boolean }) {
+export default function AlertsPage({ mode, token, welcome, add }: { mode: AlertsMode; token: string; welcome?: boolean; add?: string }) {
   return (
     <main className="page alerts-page">
       <PageHero
@@ -31,7 +33,7 @@ export default function AlertsPage({ mode, token, welcome }: { mode: AlertsMode;
       />
       {mode === 'signup' && <SignUp />}
       {mode === 'confirm' && <Confirm token={token} />}
-      {mode === 'manage' && <Manage token={token} welcome={!!welcome} />}
+      {mode === 'manage' && <Manage token={token} welcome={!!welcome} add={add} />}
       {mode === 'unsubscribe' && <Unsubscribe token={token} />}
     </main>
   );
@@ -133,23 +135,36 @@ function Confirm({ token }: { token: string }) {
   );
 }
 
-function Manage({ token, welcome }: { token: string; welcome: boolean }) {
+function Manage({ token, welcome, add }: { token: string; welcome: boolean; add?: string }) {
   const [view, setView] = useState<ManageView | null>(null);
+  const [offer, setOffer] = useState<ManageView['preview']>(null);
+  const [remembered, setRemembered] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleted, setDeleted] = useState(false);
 
   useEffect(() => {
-    api<ManageView>('/api/alerts/manage', { body: { token }, auth: true }).then(setView, (e: Error) => setError(e.message));
-  }, [token]);
+    api<ManageView>('/api/alerts/manage', { body: { token, preview: add }, auth: true }).then(
+      (v) => {
+        setView(v);
+        if (v.preview && !v.preview.tracked) setOffer(v.preview);
+        // Remember the link in this browser so tracking another property is one click.
+        rememberManageToken(token);
+        setRemembered(storedManageToken() === token);
+      },
+      (e: Error) => setError(e.message),
+    );
+  }, [token, add]);
 
   async function update(change: Record<string, unknown>) {
     setSaving(true);
     try {
       const r = await api<ManageView & { deleted?: boolean }>('/api/alerts/update', { body: { token, ...change }, auth: true });
-      if (r.deleted) setDeleted(true);
-      else setView(r);
+      if (r.deleted) {
+        forgetManageToken();
+        setDeleted(true);
+      } else setView(r);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -168,6 +183,15 @@ function Manage({ token, welcome }: { token: string; welcome: boolean }) {
           <strong>You’re confirmed.</strong> We emailed you this page’s link too. Keep it to change your alerts later.
         </div>
       )}
+      {offer && (
+        <div className="notice track-offer" role="status">
+          <p><strong>Track {offer.label}?</strong> We’ll email you when it changes on the Treasurer’s list, and before the auction.</p>
+          <div className="row">
+            <button className="btn" disabled={saving} onClick={() => update({ add: offer.target }).then(() => setOffer(null))}>Track it</button>
+            <button className="linkish" onClick={() => setOffer(null)}>No thanks</button>
+          </div>
+        </div>
+      )}
       <section className="lead-card">
         <h2>Alerts for {view.email}</h2>
         <label className="check attest">
@@ -180,7 +204,7 @@ function Manage({ token, welcome }: { token: string; welcome: boolean }) {
         </label>
         <h3>Tracked properties and saved searches</h3>
         {view.subscriptions.length === 0 ? (
-          <p className="muted">None yet.</p>
+          <p className="muted">None yet. On <a href="#/live">Live tax sales</a>, choose ✉ Email me changes on any parcel.</p>
         ) : (
           <ul className="alerts-subs">
             {view.subscriptions.map((s) => (
@@ -192,6 +216,12 @@ function Manage({ token, welcome }: { token: string; welcome: boolean }) {
           </ul>
         )}
         {error && <div className="caution" role="alert">{error}</div>}
+        {remembered && (
+          <p className="muted">
+            This browser remembers your alerts link, so you can track properties in one click.{' '}
+            <button className="linkish" onClick={() => { forgetManageToken(); setRemembered(false); }}>Forget it on this browser</button>
+          </p>
+        )}
       </section>
       <section className="lead-card alerts-stop">
         <h3>Stop all email</h3>
@@ -217,6 +247,7 @@ function Unsubscribe({ token }: { token: string }) {
     setState('busy');
     try {
       setMessage((await api<{ message: string }>(`/api/alerts/unsubscribe?t=${encodeURIComponent(token)}`, { body: {} })).message);
+      forgetManageToken();
       setState('done');
     } catch (e) {
       setError((e as Error).message);
