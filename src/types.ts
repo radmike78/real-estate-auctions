@@ -95,6 +95,8 @@ export interface SaleDetails {
   redemptionPeriod: string | null;
   eligibility: string | null;
   postponements: number;
+  /** Replaces the sale type's general "what you would be buying" text when this sale's terms differ. */
+  whatYouBuy?: string;
 }
 
 export type PropertyType =
@@ -115,11 +117,11 @@ export type PropertyType =
 export type Occupancy = 'Owner-occupied' | 'Tenant-occupied' | 'Vacant' | 'Unknown';
 
 /** Where a property record comes from. Sample records never appear in production builds. */
-export type PropertyOrigin = 'sample' | 'treasurer-feed';
+export type PropertyOrigin = 'sample' | 'treasurer-feed' | 'irs-feed';
 
 export interface Property {
   id: string;
-  /** Absent on sample records. 'treasurer-feed' = from the signed, verified Clark County Treasurer list. */
+  /** Absent on sample records. 'treasurer-feed' / 'irs-feed' = from the signed, verified Treasurer or IRS list. */
   origin?: PropertyOrigin;
   apn: string;
   address: string;

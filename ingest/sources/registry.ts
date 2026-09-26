@@ -3,7 +3,7 @@
 // government agency (or its contracted auction platform) that conducts the sale.
 
 /** Which connector reads the source. */
-export type SourceKind = 'tax-sale' | 'sid-certificate';
+export type SourceKind = 'tax-sale' | 'sid-certificate' | 'irs-auction';
 
 /**
  * The only non-.gov hosts ever allowed, each one the named agent that publishes a government
@@ -96,6 +96,28 @@ export const SOURCES: SourceConfig[] = [
       'Lien certificates for unpaid special improvement district assessments (NRS 271), not the property. ' +
       'The buyer is repaid the assessment plus 1% a month; a deed only if the owner does not redeem in time. ' +
       'Registration is in person 30 to 60 minutes before the sale.',
+  },
+  {
+    id: 'us-irs-auctions',
+    kind: 'irs-auction',
+    agency: 'Internal Revenue Service',
+    jurisdiction: 'NV-Clark',
+    officialUrl: 'https://www.irsauctions.gov/',
+    // The site's own index of every ad (the same data its cards show).
+    fetchUrl: 'https://www.irsauctions.gov/index.json',
+    allowedHosts: ['www.irsauctions.gov'],
+    // Only ads with a Clark County parcel the Assessor confirms are shown.
+    corroborationHosts: ['maps.clarkcountynv.gov'],
+    // Ads are posted a few weeks before each sale and updated when sales are canceled.
+    declaredCadenceHours: 24,
+    minPollMinutes: 60,
+    maxPollMinutes: 12 * 60,
+    termsReviewedAt: null,
+    // Checked against the live index on 2026-09-26 (139 ads nationwide, none in Nevada that day).
+    parserVerifiedAt: '2026-09-26',
+    notes:
+      'IRS seizure sales (IRC 6335): the taxpayer\'s interest only, subject to senior liens, with a 180-day redemption period (IRC 6337). ' +
+      'Judicial sales are ordered by a federal court, whose order sets the terms. Read each notice of sale.',
   },
 ];
 

@@ -49,6 +49,29 @@ export interface FeedCertificate {
   snapshotSha256: string;
 }
 
+/** A Clark County property the IRS is selling (irsauctions.gov). */
+export interface FeedFederalSale {
+  sourceId: string;
+  id: string; // the ad's slug on irsauctions.gov
+  title: string;
+  apns: string[]; // Clark County parcels in the sale, each confirmed by the Assessor
+  address: string | null;
+  city: string;
+  zip: string;
+  saleKind: 'ADMINISTRATIVE' | 'JUDICIAL'; // IRC 6335 seizure sale, or a federal court-ordered sale
+  saleFormat: 'Public auction' | 'Sealed bid';
+  minimumBid: number | null;
+  saleStartsAt: string; // ISO
+  saleLocation: string | null;
+  state: ListingState;
+  corroboratedAt: string | null;
+  firstSeenAt: string;
+  lastVerifiedAt: string;
+  sourceUrl: string; // the ad on irsauctions.gov
+  landUse?: { code: string; description: string } | null; // of the first parcel
+  snapshotSha256: string;
+}
+
 export interface FeedSourceStatus {
   sourceId: string;
   agency: string;
@@ -74,4 +97,6 @@ export interface Feed {
   listings: FeedListing[]; // only AVAILABLE listings are published
   /** SID lien certificates (only AVAILABLE ones). Absent in older feeds. */
   certificates?: FeedCertificate[];
+  /** IRS sales of Clark County property (only AVAILABLE ones). Absent in older feeds. */
+  federalSales?: FeedFederalSale[];
 }

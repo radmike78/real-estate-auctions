@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { useProperties } from '../data/live';
-import { LIVE_ID_PREFIX } from '../feed/toProperty';
+import { IRS_ID_PREFIX, LIVE_ID_PREFIX } from '../feed/toProperty';
 import TrackButton from './TrackButton';
 import type { LienType } from '../types';
 import { diligenceReport, type CheckResult } from '../lib/diligence';
@@ -77,13 +77,19 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             This parcel is no longer on the Clark County Treasurer’s verified auction list. It may have been paid off, withdrawn or sold.{' '}
             <a href="#/live">See the current list</a>
           </p>
+        ) : id.startsWith(IRS_ID_PREFIX) ? (
+          <p>
+            This IRS sale is no longer listed on irsauctions.gov. It may have been canceled, postponed or held.{' '}
+            <a href="#/live">See current sales</a>
+          </p>
         ) : (
           <p>Property not found. <a href="#/search">Back to search</a></p>
         )}
       </main>
     );
   }
-  const verified = p.origin === 'treasurer-feed';
+  const verified = p.origin === 'treasurer-feed' || p.origin === 'irs-feed';
+  const irs = p.origin === 'irs-feed';
   const notChecked = (v: number | null, text: string) => (v === null ? <span className="muted">{text}</span> : fmtMoney(v));
   const s = p.sale;
   const status = STATUS[p.status];
@@ -130,7 +136,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             {s && s.postponements > 0 && <span className="prov-chip warn">Postponed {plural(s.postponements, 'time')} so far</span>}
           </div>
           <h3>What you would be buying</h3>
-          <p>{s ? WHAT_YOU_BUY[s.saleType] : 'Nothing is for sale. Liens alone do not force a sale until an enforcement action is recorded.'}</p>
+          <p>{s ? (s.whatYouBuy ?? WHAT_YOU_BUY[s.saleType]) : 'Nothing is for sale. Liens alone do not force a sale until an enforcement action is recorded.'}</p>
           <h3>History</h3>
           <ol className="timeline">
             {p.events.map((e, i) => (
@@ -360,7 +366,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             <a href={open ? baseHref : '#/search'}>{open ? '← Property overview' : '← Back to results'}</a>
             <span className="hero-actions">
               <SaveDealButton p={p} />
-              {verified && <TrackButton target={`tax:${p.apn}`} label={`${p.address} (APN ${p.apn})`} />}
+              {p.origin === 'treasurer-feed' && <TrackButton target={`tax:${p.apn}`} label={`${p.address} (APN ${p.apn})`} />}
               <button className="hero-btn" onClick={() => window.print()}>Print full report</button>
             </span>
           </>
@@ -369,7 +375,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
           <>
             <StatusBadge status={p.status} />
             {s && <span className="eyebrow">{SALE_TYPE_LABEL[s.saleType]}</span>}
-            {verified && <span className="eyebrow"><span className="live-dot" aria-hidden /> On the Treasurer’s official list</span>}
+            {verified && <span className="eyebrow"><span className="live-dot" aria-hidden /> {irs ? 'Listed by the IRS on irsauctions.gov' : 'On the Treasurer’s official list'}</span>}
           </>
         }
         title={open ? <a className="title-link" href={baseHref}>{p.address}</a> : p.address}
@@ -378,7 +384,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             {p.zip ? `${p.city}, ${p.state} ${p.zip} · ${p.county} County` : `${p.county} County, ${p.state}`} · APN {p.apn}
             {!open && (
               <span className="hero-meta">
-                <span>You’d buy: <strong>{playbook ? playbook.youGet.split(',')[0].replace(/\.$/, '') : s ? SALE_TYPE_LABEL[s.saleType] : 'nothing yet (not for sale)'}</strong></span>
+                <span>You’d buy: <strong>{s?.whatYouBuy ? 'what the court’s order sets (read it)' : playbook ? playbook.youGet.split(',')[0].replace(/\.$/, '') : s ? SALE_TYPE_LABEL[s.saleType] : 'nothing yet (not for sale)'}</strong></span>
                 <span>Record checked {ago(p.lastUpdated)}</span>
               </span>
             )}
@@ -408,7 +414,8 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       </PageHero>
 
       <div className="verify" role="alert">
-        {verified && <>On the Clark County Treasurer’s official list, re-checked {ago(p.lastUpdated)}. The list shows the minimum bid and auction details only: value, liens and condition are for you to research. </>}
+        {verified && !irs && <>On the Clark County Treasurer’s official list, re-checked {ago(p.lastUpdated)}. The list shows the minimum bid and auction details only: value, liens and condition are for you to research. </>}
+        {irs && <>Listed by the IRS on irsauctions.gov, re-checked {ago(p.lastUpdated)}; the parcel is confirmed in the County Assessor’s records. Read the full notice of sale for the terms: value, liens and condition are for you to research. </>}
         <strong>Verify before bidding.</strong> Sales are often paid off, postponed, cancelled or challenged at the last minute. Confirm with{' '}
         {s?.conductedBy ?? 'the conducting agency'} and read the official notice. This report is a screening tool, not a title search, and does
         not mean title is clear.

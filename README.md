@@ -449,6 +449,15 @@ The first real connector reads the **Clark County Treasurer's delinquent-propert
    ```
    This long-running service checks each source when it is due and writes the signed feed to `public/data/`. Deploy that folder alongside the built site.
 
+### IRS sales (ready, needs the terms review)
+
+A third connector reads **IRS seizure and court-ordered sales** from the Treasury Department's own site, <https://www.irsauctions.gov/>. It reads the site's JSON index of every ad (`/index.json`, the same data its cards show) and keeps an ad only when it is Clark County real estate: a Nevada location with a Clark County ZIP, and at least one Clark County parcel number in the notice. The County Assessor must confirm every parcel in the sale.
+
+- Checked against the live index on 2026-09-26: 139 ads nationwide, none in Nevada, so nothing shows today. `robots.txt` allows all automated access.
+- IRS sales appear on Live tax sales, in search (badge "IRS sale") and on their own property pages. Seizure sales show the 180-day redemption period; court-ordered sales point to the court's order for the terms.
+- The notice text names the taxpayer, so it is never stored or published; we keep the title, place, date, minimum bid, parcels and sale terms, and link to the IRS ad.
+- **To enable it:** review the site's terms of use and set `termsReviewedAt` for `us-irs-auctions` in `ingest/sources/registry.ts`. Test it with `npm run ingest -- --dry-run --source us-irs-auctions`, or offline with `--from-dir ingest/fixtures/irs-2026-09`.
+
 ### SID lien certificates (set up, not enabled yet)
 
 A second connector reads the **special improvement district (SID) lien-certificate sales** held by Clark County and the cities. The Treasurer's [certificate-sale page](https://www.clarkcountynv.gov/government/elected_officials/county_treasurer/certificate-sale) sends buyers to the notice-of-sale page run by **Assessment Management Group** (<https://www.amgnv.com/notice-of-sale.asp>), which publishes the lists for them. It is the only non-.gov host the ingester may contact (`AGENT_HOSTS` in `ingest/sources/registry.ts`), and every parcel on its list is still confirmed against the County Assessor.
