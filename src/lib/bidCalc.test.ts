@@ -79,7 +79,8 @@ describe('due-diligence workflow and playbooks', () => {
   it('states the verified Clark County tax sale rules', () => {
     const tax = PLAYBOOKS.find((p) => p.key === 'tax')!;
     const text = JSON.stringify(tax);
-    expect(text).toMatch(/not an LLC or trust/);
+    expect(text).toMatch(/name on your Trustee Auction Registration Form/);
+    expect(text).not.toMatch(/not an LLC/); // the Treasurer FAQ doesn't say this
     expect(text).toMatch(/1:00 p\.m\./);
     expect(text).toMatch(/protest for 2 years/);
     expect(text).not.toMatch(/buyer.s premium/i); // the in-person Treasurer auction has none

@@ -196,7 +196,7 @@ describe('buyer checklists', () => {
     expect(CHECKLISTS.liens.forSale).toBe(false);
     expect(CHECKLISTS.pre.items[0].text).toMatch(/Do not contact the homeowner/);
     expect(CHECKLISTS.tax.items.map((i) => i.text).join(' ')).toMatch(/\$5,000 deposit/);
-    expect(CHECKLISTS.tax.items.map((i) => i.text).join(' ')).toMatch(/not an LLC or trust/);
+    expect(CHECKLISTS.tax.items.map((i) => i.text).join(' ')).toMatch(/name you want on the deed/);
     expect(checklistForProperty('TRUSTEE_SALE', 'IN_PERSON_AUCTION').key).toBe('foreclosure');
     expect(checklistForProperty('FEDERAL_TAX_SEIZURE', 'SEALED_BID').key).toBe('sheriff');
     expect(checklistForProperty(null, 'PRE_FORECLOSURE_NOT_YET_PURCHASABLE').key).toBe('pre');
