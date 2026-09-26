@@ -50,6 +50,9 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 | `ADMIN_USERNAME` | no | yes | Admin sign-in name for `/#/admin`. |
 | `ADMIN_PASSWORD_HASH` | **yes** | yes | Hash of the admin password (never the password itself). Created in step 3 below. |
 | `FEED_SIGNING_KEY` | **yes** | yes | Private signing key (PEM) for the listings and directory feeds. Created in step 2 below. |
+| `POSTMARK_SERVER_TOKEN` | **yes** | for a real site | Sends email through Postmark. Set it together with `MAIL_FROM`. See [Email](#email-postmark). |
+| `MAIL_FROM` | no | with the token | Sender address verified in Postmark, like `Forced-Sale Finder <no-reply@your-domain>`. |
+| `MAIL_REPLY_TO`, `POSTMARK_MESSAGE_STREAM` | no | no | Where replies go (default: `MAIL_FROM`), and the Postmark stream (default `outbound`). |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PLANS` | **yes** | no | Online card payments for advertisers: set all three or none. See [Online payments](#advertisers-signup-verification-billing-server). |
 | `TRUST_PROXY` | no | no | `1` when a reverse proxy, Ingress or OpenShift router sits in front (it is in every option below). |
 | `BACKUP_KEEP` | no | no | Daily database backups to keep (default 7). `BACKUP_DIR=""` turns them off. |
@@ -63,7 +66,40 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 | `SHOW_SAMPLE_DATA` | `0` | `1` shows the fictional sample properties and professionals, for a demo site. Leave it at `0` for a real site. |
 | `RUN_TESTS` | `1` | `0` skips the test suite during the build (not recommended). |
 
-> **Emails:** until an email provider is connected (`server/mailer.ts`), confirmation links, leads and reports are written to the web container's log instead of being sent.
+> **Emails:** without `POSTMARK_SERVER_TOKEN` and `MAIL_FROM`, confirmation links, sign-in links, leads and reports are only written to the web container's log, and the log says `WARNING: email is OFF`. Set up [Email](#email-postmark) before real visitors arrive.
+
+### Email (Postmark)
+
+The site sends plain-text transactional email only: advertiser confirmation and sign-in links, approval and payment notices, leads to advertisers with receipts to buyers, and monthly reports. Open and link tracking are turned off on every message. Postmark stops sending to addresses that bounced or marked mail as spam.
+
+**Prerequisites**
+- A [Postmark](https://postmarkapp.com) account (the free developer plan sends 100 emails a month; paid plans start at 10,000).
+- Access to your domain's DNS, to verify it.
+
+**Set it up**
+1. In Postmark, create a **Server** (for example "Forced-Sale Finder"). Its default **Transactional** stream is `outbound`, which the site uses.
+2. **Sender Signatures → Add Domain:** add your domain and create the **DKIM** and **Return-Path** DNS records Postmark shows. Wait until both show as verified.
+3. **Request account approval** (Postmark asks a few questions about what you send). Until it's approved, Postmark only delivers to addresses at your own domain.
+4. Copy the **Server API token** (your server → **API Tokens**). It's a secret: store it only as shown below, never in Git or chat.
+5. Give the site the token and your sender address:
+   - **Podman:** `deploy/podman/install.sh` asks for both. To add them later:
+     ```bash
+     printf '%s' 'YOUR-TOKEN' | podman secret create fsf-postmark-token -
+     ```
+     Then add `MAIL_FROM=Forced-Sale Finder <no-reply@your-domain>` to `forced-sale-finder.env` in the Quadlet folder. Also uncomment the `Secret=fsf-postmark-token` line in `forced-sale-finder-web.container`, then run `systemctl daemon-reload` and restart `forced-sale-finder-web`. With `--no-systemd`, run `install.sh` again and enter the token and address when it asks.
+   - **Kubernetes / OpenShift:** add `--from-literal=POSTMARK_SERVER_TOKEN=...` when you create `forced-sale-finder-secrets`, and uncomment `MAIL_FROM` in `deploy/kubernetes/base/config.env`. To add the token to an existing Secret:
+     ```bash
+     read -rs -p "Postmark Server API token: " PM; echo
+     kubectl patch secret forced-sale-finder-secrets -n forced-sale-finder --type merge \
+       -p "{\"stringData\":{\"POSTMARK_SERVER_TOKEN\":\"$PM\"}}"
+     unset PM
+     ```
+     Then `kubectl apply -k ...` and `kubectl rollout restart deployment/forced-sale-finder -n forced-sale-finder`. On OpenShift, use `oc` instead of `kubectl`.
+6. **Check:** the web log should say `Email on: sending through Postmark as ...`. Then apply to advertise with your own address, and look for the email in Postmark's **Activity** tab.
+   - To try it without sending anything, use the token `POSTMARK_API_TEST`. Postmark accepts the message but delivers nothing.
+
+If Postmark can't be reached, the site retries once. When an email still fails, the log names the reason (without the message text). Advertisers who apply are asked to try again in a few minutes. Leads are always saved and shown on the advertiser's dashboard, even if the email doesn't go out.
+
 
 ### Before you start (every option)
 
@@ -115,14 +151,14 @@ cat admin-password-hash.txt   # should start with scrypt$
 - **Outbound internet:**
   - `registry.access.redhat.com` and `registry.npmjs.org` while building;
   - `docker.io`, only for the optional Caddy HTTPS image, which Podman pulls from Docker Hub's registry;
-  - the county sites and Stripe while running.
+  - the county sites, `api.postmarkapp.com` (email) and Stripe while running.
 - **Mac or Windows** (for trying it out): install [Podman Desktop](https://podman-desktop.io) or run `podman machine init && podman machine start`, then use `--no-systemd` below.
 
 **Install (one command)**
 ```bash
 deploy/podman/install.sh
 ```
-It asks for the web address, an admin username and an admin password, then does everything else:
+It asks for the web address, an admin username, an admin password and, optionally, your Postmark token and sender address ([Email](#email-postmark); you can add them later). Then it does everything else:
 1. creates the signing key in `~/.config/forced-sale-finder/` (step 2 above);
 2. builds the image and runs the tests;
 3. stores the password hash and signing key as Podman secrets;
@@ -142,12 +178,14 @@ podman build -t localhost/forced-sale-finder:latest \
 # Secrets (step 3 above creates admin-password-hash.txt)
 podman secret create fsf-admin-password-hash admin-password-hash.txt
 podman secret create fsf-feed-signing-key feed-signing.pem
+printf '%s' 'YOUR-POSTMARK-TOKEN' | podman secret create fsf-postmark-token -   # email; see Email (Postmark)
 
 # systemd services via Quadlet (rootless: use ~/.config/containers/systemd and systemctl --user)
 sudo mkdir -p /etc/containers/systemd
 sudo cp deploy/podman/quadlet/forced-sale-finder.{env,volume} \
         deploy/podman/quadlet/forced-sale-finder-{web,ingest}.container /etc/containers/systemd/
-sudo nano /etc/containers/systemd/forced-sale-finder.env      # set BASE_URL and ADMIN_USERNAME
+sudo nano /etc/containers/systemd/forced-sale-finder.env      # set BASE_URL, ADMIN_USERNAME and MAIL_FROM
+sudo sed -i 's|^#Secret=fsf-postmark-token|Secret=fsf-postmark-token|' /etc/containers/systemd/forced-sale-finder-web.container
 # Optional automatic HTTPS: also copy forced-sale-finder-caddy.{container,volume} and Caddyfile,
 # then put your domain in /etc/containers/systemd/Caddyfile
 sudo systemctl daemon-reload
@@ -200,15 +238,18 @@ There's no `systemctl enable` step: Quadlet services start at boot automatically
      (`docker-registry` is just the name of the Kubernetes secret type; no Docker software is involved.)
 2. **Namespace:** `kubectl create namespace forced-sale-finder`
 3. **Password hash:** step 3 of [Before you start](#before-you-start-every-option), using your image name, with Podman or inside the cluster.
-4. **Secret.** Add the three `STRIPE_*` values only if you use online payments:
+4. **Secret.** Add the Postmark token for email ([Email](#email-postmark)). Add the three `STRIPE_*` values only if you use online payments:
    ```bash
+   read -rs -p "Postmark Server API token: " PM; echo
    kubectl create secret generic forced-sale-finder-secrets -n forced-sale-finder \
      --from-file=ADMIN_PASSWORD_HASH=admin-password-hash.txt \
-     --from-file=FEED_SIGNING_KEY=feed-signing.pem
+     --from-file=FEED_SIGNING_KEY=feed-signing.pem \
+     --from-literal=POSTMARK_SERVER_TOKEN="$PM"
+   unset PM
    #  --from-literal=STRIPE_SECRET_KEY=... --from-literal=STRIPE_WEBHOOK_SECRET=... --from-literal=STRIPE_PLANS='{...}'
    ```
 5. **Settings:**
-   - Edit `deploy/kubernetes/base/config.env`: set `BASE_URL` and `ADMIN_USERNAME`.
+   - Edit `deploy/kubernetes/base/config.env`: set `BASE_URL` and `ADMIN_USERNAME`, and uncomment `MAIL_FROM` with your sender address.
    - Edit `deploy/kubernetes/overlays/kubernetes/ingress.yaml`: set your host name (twice), `ingressClassName`, and the cert-manager issuer name. Remove the annotation if you don't use cert-manager.
 6. **Deploy:**
    ```bash
@@ -248,13 +289,16 @@ No extra permissions are needed. Everything runs under OpenShift's default `rest
 
 **Common steps**
 1. `oc new-project forced-sale-finder`
-2. Edit `deploy/kubernetes/base/config.env`: set `BASE_URL` and `ADMIN_USERNAME`. If you don't know the address yet, leave it for now; after deploying, read it from `oc get route forced-sale-finder`, set it, and run the `oc apply -k` command again.
+2. Edit `deploy/kubernetes/base/config.env`: set `BASE_URL` and `ADMIN_USERNAME`, and uncomment `MAIL_FROM` with your sender address. If you don't know the address yet, leave it for now; after deploying, read it from `oc get route forced-sale-finder`, set it, and run the `oc apply -k` command again.
 
 The Secret is created as part of each option below:
 ```bash
+read -rs -p "Postmark Server API token: " PM; echo
 oc create secret generic forced-sale-finder-secrets \
   --from-file=ADMIN_PASSWORD_HASH=admin-password-hash.txt \
-  --from-file=FEED_SIGNING_KEY=feed-signing.pem
+  --from-file=FEED_SIGNING_KEY=feed-signing.pem \
+  --from-literal=POSTMARK_SERVER_TOKEN="$PM"
+unset PM
 # Optional online payments: add --from-literal=STRIPE_SECRET_KEY=... (all three STRIPE_* values)
 ```
 
@@ -337,6 +381,11 @@ For GitOps, point [Argo CD / OpenShift GitOps](https://argo-cd.readthedocs.io/) 
 | `CrashLoopBackOff` with "permission denied" on `/data` | Plain Kubernetes: keep the `fsGroup: 1001` patch in the Kubernetes overlay. OpenShift handles this automatically. |
 | Live tax sales says "didn't pass our security checks" | The image was built with a different public key than the private key in the secret. Rebuild with the matching `feed-public-key.txt`. |
 | Live tax sales is always empty | Expected until the Treasurer schedules an auction, and until `termsReviewedAt` is set in `ingest/sources/registry.ts` (see [Live data](#live-data)). |
+| Log says `WARNING: email is OFF` | Set `POSTMARK_SERVER_TOKEN` and `MAIL_FROM` ([Email](#email-postmark)). |
+| Log says `Email to ... was not sent: Postmark HTTP 401` | Wrong token. Copy the **Server** API token, not the Account token. |
+| `... HTTP 422, error 400` or `error 401` | `MAIL_FROM` isn't a verified (or confirmed) sender signature or domain in Postmark. |
+| `... HTTP 422, error 412` | Your Postmark account is still pending approval: it only delivers to your own domain until approved. |
+| `... HTTP 422, error 406` | That recipient bounced or marked mail as spam before; Postmark won't send to it. You can reactivate it in Postmark. |
 | Admin sign-in fails behind HTTPS | `BASE_URL` must be the exact `https://` address people use. |
 | Build runs out of memory | Give the build at least 2 GB (Podman host) or 3 GiB (OpenShift build). |
 
@@ -454,7 +503,7 @@ export ADMIN_USERNAME=you ADMIN_PASSWORD_HASH='scrypt$...'
 export BASE_URL=https://your-site.example   # used in emails
 npm run build && npm run server        # serves the site and API on :8080
 ```
-During development, run `npm run server` and `npm run dev` together; the dev server forwards `/api` to the server. Emails are printed to the server log until you connect an email provider (`server/mailer.ts`). Data is stored in SQLite at `server/data/app.db`. Back it up.
+During development, run `npm run server` and `npm run dev` together; the dev server forwards `/api` to the server. Emails are printed to the server log unless `POSTMARK_SERVER_TOKEN` and `MAIL_FROM` are set (see [Email](#email-postmark)). Data is stored in SQLite at `server/data/app.db`. Back it up.
 
 ## Features
 

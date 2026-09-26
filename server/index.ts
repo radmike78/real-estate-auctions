@@ -9,6 +9,10 @@
 //   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PLANS   online card payments for advertisers
 //                      (all three, or none: then billing is recorded by hand in the admin page).
 //                      STRIPE_PLANS is JSON: {"agent": {"priceId": "price_...", "amountLabel": "$199 / month"}, ...}
+//   POSTMARK_SERVER_TOKEN, MAIL_FROM   send email through Postmark (both, or neither: then emails are only
+//                      written to the log). MAIL_FROM is a sender verified in Postmark, e.g.
+//                      "Forced-Sale Finder <no-reply@your-domain>". Optional: MAIL_REPLY_TO,
+//                      POSTMARK_MESSAGE_STREAM (default "outbound").
 //   TRUST_PROXY=1      read client IP from the LAST X-Forwarded-For entry (only behind your own reverse proxy
 //                      that appends to that header; see SECURITY.md)
 //   BACKUP_DIR         where daily database backups go, default <DB_PATH folder>/backups ("" turns backups off)
@@ -20,6 +24,7 @@ import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadPrivateKey } from '../ingest/lib/sign';
 import { createApp } from './app';
+import { consoleMailer, postmarkMailer, type Mailer } from './mailer';
 import { createStripeClient, parsePlans } from './stripe';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -55,6 +60,27 @@ if (stripeEnv.some(Boolean)) {
   console.log('Online payments off: record advertiser billing by hand in the admin page.');
 }
 
+// Email: Postmark when configured, otherwise the log (fine for trying the site, not for real visitors).
+const ADDRESS = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
+const validSender = (v: string) => ADDRESS.test(v) || /^[^<>\r\n]{1,80}<[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+>$/.test(v.trim());
+let mailer: Mailer = consoleMailer;
+if (env.POSTMARK_SERVER_TOKEN || env.MAIL_FROM) {
+  if (!env.POSTMARK_SERVER_TOKEN || !env.MAIL_FROM) {
+    console.error('Set both POSTMARK_SERVER_TOKEN and MAIL_FROM, or neither.');
+    process.exit(1);
+  }
+  if (!validSender(env.MAIL_FROM) || (env.MAIL_REPLY_TO && !ADDRESS.test(env.MAIL_REPLY_TO))) {
+    console.error('MAIL_FROM must look like "Forced-Sale Finder <no-reply@your-domain>" or no-reply@your-domain, and MAIL_REPLY_TO like help@your-domain.');
+    process.exit(1);
+  }
+  mailer = postmarkMailer({ serverToken: env.POSTMARK_SERVER_TOKEN.trim(), from: env.MAIL_FROM.trim(), replyTo: env.MAIL_REPLY_TO?.trim() || undefined, messageStream: env.POSTMARK_MESSAGE_STREAM?.trim() || undefined });
+  console.log(`Email on: sending through Postmark as ${env.MAIL_FROM.trim()}${env.POSTMARK_SERVER_TOKEN.trim() === 'POSTMARK_API_TEST' ? ' (TEST token: nothing is delivered)' : ''}`);
+} else if (!/^http:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(baseUrl)) {
+  console.warn('WARNING: email is OFF. Confirmation links, sign-in links and leads are only written to this log. Set POSTMARK_SERVER_TOKEN and MAIL_FROM.');
+} else {
+  console.log('Email off: messages are written to this log (set POSTMARK_SERVER_TOKEN and MAIL_FROM to send them).');
+}
+
 const dbPath = env.DB_PATH ?? join(ROOT, 'server', 'data', 'app.db');
 const app = createApp({
   dbPath,
@@ -67,6 +93,7 @@ const app = createApp({
   secureCookies: !/^http:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(baseUrl),
   trustProxy: env.TRUST_PROXY === '1',
   stripe,
+  mailer,
 });
 
 // Hourly housekeeping: republish the signed directory (so it never expires and overdue

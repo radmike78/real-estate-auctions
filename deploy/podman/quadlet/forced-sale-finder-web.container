@@ -13,6 +13,8 @@ PublishPort=127.0.0.1:8080:8080
 EnvironmentFile=forced-sale-finder.env
 Secret=fsf-admin-password-hash,type=env,target=ADMIN_PASSWORD_HASH
 Secret=fsf-feed-signing-key,type=env,target=FEED_SIGNING_KEY
+# Email through Postmark (install.sh turns this on when you give it a token; see README):
+#Secret=fsf-postmark-token,type=env,target=POSTMARK_SERVER_TOKEN
 # Online card payments (optional): create these three secrets, then uncomment.
 #Secret=fsf-stripe-secret-key,type=env,target=STRIPE_SECRET_KEY
 #Secret=fsf-stripe-webhook-secret,type=env,target=STRIPE_WEBHOOK_SECRET

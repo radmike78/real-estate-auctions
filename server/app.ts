@@ -24,7 +24,7 @@ import { CATEGORIES, isListable, REVERIFY_DAYS } from '../src/lib/pros';
 import { newToken, parseCookies, RateLimiter, SESSION_IDLE_MS, SESSION_MAX_MS, safeEqualStrings, sessionCookie, sha256, verifyPasswordAsync } from './auth';
 import { METRIC_KINDS, openDb, type ApplicationRow, type Db, type MetricKind } from './db';
 import { buildProsFeed, toPro, writeSignedJson } from './directory';
-import { approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, paymentFailedEmail, type Mailer } from './mailer';
+import { approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
 import { CHECKOUT_URL_PREFIX, invoicePeriodEnd, invoiceSubscriptionId, PORTAL_URL_PREFIX, verifyWebhook, type StripeClient, type StripeEvent } from './stripe';
 import { BOT_UA, leadsToCsv, monthlyReportText, monthRange, pacificDay, pacificDaysToUtc, summarize, VisitorHasher } from './metrics';
 
@@ -80,6 +80,17 @@ class HttpError extends Error {
 export function createApp(config: AppConfig) {
   const db: Db = openDb(config.dbPath);
   const mailer = config.mailer ?? consoleMailer;
+  // Sending never breaks a request: a failure is logged (without the message body, which can hold
+  // sign-in links) and reported to the caller, which decides whether the visitor needs to know.
+  async function deliver(mail: Mail): Promise<boolean> {
+    try {
+      await mailer.send(mail);
+      return true;
+    } catch (e) {
+      console.error(`Email to ${maskEmail(mail.to)} ("${mail.subject}") was not sent: ${(e as Error).message}`);
+      return false;
+    }
+  }
   const now = config.now ?? (() => new Date());
   const base = config.baseUrl.replace(/\/$/, '');
   const secure = config.secureCookies ?? true;
@@ -260,7 +271,7 @@ export function createApp(config: AppConfig) {
       case 'invoice.payment_failed':
         db.stripe.setSubscription(row.id, { status: 'past_due' }, at);
         log('PAYMENT_FAILED', null);
-        await mailer.send(paymentFailedEmail(row.profile.email, row.profile.name, `${base}/#/advertiser`));
+        await deliver(paymentFailedEmail(row.profile.email, row.profile.name, `${base}/#/advertiser`));
         return;
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
@@ -298,7 +309,7 @@ export function createApp(config: AppConfig) {
       const s = summarize(db, row.id, from, to);
       const { start, end } = pacificDaysToUtc(from, to);
       const leads = db.leads.forPro(row.id, start, end).length;
-      void mailer.send({ to: row.profile.email, subject: `Your Forced-Sale Finder report for ${month}`, text: monthlyReportText(row.profile.name, month, s, leads, `${base}/#/advertiser`) });
+      void deliver({ to: row.profile.email, subject: `Your Forced-Sale Finder report for ${month}`, text: monthlyReportText(row.profile.name, month, s, leads, `${base}/#/advertiser`) });
       db.reports.markSent(row.id, month, now().toISOString());
       sent++;
     }
@@ -344,7 +355,9 @@ export function createApp(config: AppConfig) {
       const t = now();
       db.insertApplication({ id, profile: v.profile, tokenHash: sha256(token), tokenExpires: new Date(t.getTime() + EMAIL_TOKEN_TTL_MS).toISOString(), now: t.toISOString() });
       db.audit({ at: t.toISOString(), actor: 'applicant', applicationId: id, action: 'SUBMITTED', detail: CATEGORIES[v.profile.category].label });
-      await mailer.send(confirmationEmail(v.profile.email, `${base}/#/advertise/confirm/${token}`, CATEGORIES[v.profile.category].regulator));
+      if (!(await deliver(confirmationEmail(v.profile.email, `${base}/#/advertise/confirm/${token}`, CATEGORIES[v.profile.category].regulator)))) {
+        throw new HttpError(503, 'We couldn\'t send your confirmation email just now. Please try again in a few minutes.');
+      }
       return send(res, 202, accepted);
     }
 
@@ -403,8 +416,9 @@ export function createApp(config: AppConfig) {
       const lead = { id: randomBytes(12).toString('hex'), proId: row.id, createdAt: now().toISOString(), name, email, phone, message, interest };
       db.leads.insert(lead);
       db.metrics.record(row.id, pacificDay(now()), 'lead', hasher.hash(clientIp(req), '', pacificDay(now())));
-      await mailer.send(leadEmail(row.profile.email, row.profile.name, lead, `${base}/#/advertiser`));
-      await mailer.send(leadReceiptEmail(email, row.profile.name));
+      // The lead is saved and shown on the advertiser's dashboard even if the email doesn't go out.
+      await deliver(leadEmail(row.profile.email, row.profile.name, lead, `${base}/#/advertiser`));
+      await deliver(leadReceiptEmail(email, row.profile.name));
       return send(res, 202, { ok: true, message: `Your message was sent to ${row.profile.name}. They will contact you directly.` });
     }
 
@@ -418,7 +432,7 @@ export function createApp(config: AppConfig) {
       if (row) {
         const token = newToken();
         db.loginTokens.create(sha256(token), row.id, now().getTime() + LOGIN_TOKEN_TTL_MS);
-        await mailer.send(loginLinkEmail(email, row.profile.name, `${base}/#/advertiser/login/${token}`));
+        await deliver(loginLinkEmail(email, row.profile.name, `${base}/#/advertiser/login/${token}`));
       }
       return send(res, 200, generic);
     }
@@ -597,7 +611,7 @@ export function createApp(config: AppConfig) {
       db.update(app.id, { status: 'APPROVED', verification: { ...verification, verifiedAt: today(), verifiedBy: admin.subject }, decisionReason: null }, now().toISOString());
       audit(app.id, wasApproved ? 'REVERIFIED' : 'APPROVED', `${info.regulator}: ${verification.licenseStatus}${verification.licenseExpires ? `, expires ${verification.licenseExpires}` : ''}. Identity: ${verification.identityMethod}`);
       publish();
-      if (!wasApproved) await mailer.send(approvedEmail(app.profile.email, app.profile.name, `${base}/#/advertiser`, !!config.stripe?.client.planFor(app.profile.category)));
+      if (!wasApproved) await deliver(approvedEmail(app.profile.email, app.profile.name, `${base}/#/advertiser`, !!config.stripe?.client.planFor(app.profile.category)));
       return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });
     }
 

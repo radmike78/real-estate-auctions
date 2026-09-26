@@ -87,6 +87,14 @@ if [ -z "${FSF_RECREATE:-}" ]; then
     [[ "${A:-y}" =~ ^[Yy] ]] && CADDY=yes
   fi
   TRUST_PROXY=0; [[ "$BASE_URL" == https://* ]] && TRUST_PROXY=1
+  echo "Email: paste your Postmark Server API token to send email now (README: Email), or press Enter to set it up later."
+  read -r -s -p "Postmark Server API token [skip]: " PM_TOKEN; echo
+  MAIL_FROM=""
+  if [ -n "$PM_TOKEN" ]; then
+    read -r -p "Send email from (an address verified in Postmark), like no-reply@your-domain: " MAIL_ADDR
+    [[ "$MAIL_ADDR" =~ ^[^[:space:]@\<\>]+@[^[:space:]@\<\>]+\.[^[:space:]@\<\>]+$ ]] || die "That doesn't look like an email address."
+    MAIL_FROM="Forced-Sale Finder <$MAIL_ADDR>"
+  fi
 
   # ---------- secrets ----------
   say "Storing secrets in Podman"
@@ -96,7 +104,13 @@ if [ -z "${FSF_RECREATE:-}" ]; then
   podman secret rm fsf-admin-password-hash fsf-feed-signing-key >/dev/null 2>&1 || true
   printf '%s' "$HASH" | podman secret create fsf-admin-password-hash - >/dev/null
   podman secret create fsf-feed-signing-key "$KEY_DIR/feed-signing.pem" >/dev/null
+  if [ -n "$PM_TOKEN" ]; then
+    podman secret rm fsf-postmark-token >/dev/null 2>&1 || true
+    printf '%s' "$PM_TOKEN" | podman secret create fsf-postmark-token - >/dev/null
+  fi
+  unset PM_TOKEN
 fi
+HAS_MAIL=""; podman secret inspect fsf-postmark-token >/dev/null 2>&1 && HAS_MAIL=1
 
 HEALTH="node -e \"fetch('http://127.0.0.1:8080/healthz').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))\""
 
@@ -110,12 +124,14 @@ if [ "$MODE" = systemd ]; then
   if [ "$CADDY" = no ] && [ "$TRUST_PROXY" = 0 ] && [ "$HOST_PART" != localhost ] && [ "$HOST_PART" != 127.0.0.1 ]; then
     sed -i 's|^PublishPort=127.0.0.1:8080:8080|PublishPort=8080:8080|' "$QUADLET_DIR/forced-sale-finder-web.container"
   fi
+  if [ -n "$HAS_MAIL" ]; then sed -i 's|^#Secret=fsf-postmark-token|Secret=fsf-postmark-token|' "$QUADLET_DIR/forced-sale-finder-web.container"; fi
   cat > "$QUADLET_DIR/forced-sale-finder.env" <<EOF
 BASE_URL=$BASE_URL
 ADMIN_USERNAME=$ADMIN_USER
 TRUST_PROXY=$TRUST_PROXY
 BACKUP_KEEP=7
 EOF
+  if [ -n "${MAIL_FROM:-}" ]; then printf 'MAIL_FROM=%s\n' "$MAIL_FROM" >> "$QUADLET_DIR/forced-sale-finder.env"; fi
   if [ "$CADDY" = yes ]; then
     DOMAIN=${BASE_URL#https://}; DOMAIN=${DOMAIN%%:*}
     cp "$REPO"/deploy/podman/quadlet/forced-sale-finder-caddy.container "$REPO"/deploy/podman/quadlet/forced-sale-finder-caddy.volume "$QUADLET_DIR/"
@@ -139,9 +155,11 @@ else
     ENV_ARGS=(--env-file "$KEY_DIR/forced-sale-finder.env")
   else
     printf 'BASE_URL=%s\nADMIN_USERNAME=%s\nTRUST_PROXY=%s\nBACKUP_KEEP=7\n' "$BASE_URL" "$ADMIN_USER" "$TRUST_PROXY" > "$KEY_DIR/forced-sale-finder.env"
+    if [ -n "${MAIL_FROM:-}" ]; then printf 'MAIL_FROM=%s\n' "$MAIL_FROM" >> "$KEY_DIR/forced-sale-finder.env"; fi
     ENV_ARGS=(--env-file "$KEY_DIR/forced-sale-finder.env")
   fi
-  podman run -d --name forced-sale-finder-web --restart=always -p "${FSF_PORT:-8080}:8080" -v forced-sale-finder-data:/data "${ENV_ARGS[@]}" \
+  MAIL_ARGS=(); if [ -n "$HAS_MAIL" ]; then MAIL_ARGS=(--secret fsf-postmark-token,type=env,target=POSTMARK_SERVER_TOKEN); fi
+  podman run -d --name forced-sale-finder-web --restart=always -p "${FSF_PORT:-8080}:8080" -v forced-sale-finder-data:/data "${ENV_ARGS[@]}" ${MAIL_ARGS[@]+"${MAIL_ARGS[@]}"} \
     --secret fsf-admin-password-hash,type=env,target=ADMIN_PASSWORD_HASH --secret fsf-feed-signing-key,type=env,target=FEED_SIGNING_KEY \
     --security-opt no-new-privileges --cap-drop all --health-cmd "$HEALTH" --health-interval 30s "$IMAGE" >/dev/null
   podman run -d --name forced-sale-finder-ingest --restart=always -v forced-sale-finder-data:/data \
@@ -166,5 +184,6 @@ Forced-Sale Finder is running.
   Signing key:   $KEY_DIR/feed-signing.pem   (back this up; keep it private)
   Data volume:   forced-sale-finder-data (database, daily backups, feeds)
   Logs:          podman logs -f forced-sale-finder-web
+  Email:         $( [ -n "$HAS_MAIL" ] && echo "on (Postmark)" || echo "OFF: emails only go to the log. See README > Email." )
   Update later:  git pull && deploy/podman/install.sh --update
 EOF
