@@ -12,7 +12,8 @@
 //   POSTMARK_SERVER_TOKEN, MAIL_FROM   send email through Postmark (both, or neither: then emails are only
 //                      written to the log). MAIL_FROM is a sender verified in Postmark, e.g.
 //                      "Forced-Sale Finder <no-reply@your-domain>". Optional: MAIL_REPLY_TO,
-//                      POSTMARK_MESSAGE_STREAM (default "outbound").
+//                      POSTMARK_MESSAGE_STREAM (default "outbound"),
+//                      POSTMARK_BROADCAST_STREAM (default "broadcast", for updates to the general email list).
 //   TRUST_PROXY=1      read client IP from the LAST X-Forwarded-For entry (only behind your own reverse proxy
 //                      that appends to that header; see SECURITY.md)
 //   TRUST_CLOUDFLARE=1 the domain is proxied through Cloudflare: read the visitor's address from
@@ -28,6 +29,7 @@ import { loadPrivateKey } from '../ingest/lib/sign';
 import { createApp } from './app';
 import { consoleMailer, postmarkMailer, type Mailer } from './mailer';
 import { createStripeClient, parsePlans } from './stripe';
+import { SITE_INFO } from '../src/lib/siteInfo';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const env = process.env;
@@ -75,12 +77,17 @@ if (env.POSTMARK_SERVER_TOKEN || env.MAIL_FROM) {
     console.error('MAIL_FROM must look like "Forced-Sale Finder <no-reply@your-domain>" or no-reply@your-domain, and MAIL_REPLY_TO like help@your-domain.');
     process.exit(1);
   }
-  mailer = postmarkMailer({ serverToken: env.POSTMARK_SERVER_TOKEN.trim(), from: env.MAIL_FROM.trim(), replyTo: env.MAIL_REPLY_TO?.trim() || undefined, messageStream: env.POSTMARK_MESSAGE_STREAM?.trim() || undefined });
+  mailer = postmarkMailer({ serverToken: env.POSTMARK_SERVER_TOKEN.trim(), from: env.MAIL_FROM.trim(), replyTo: env.MAIL_REPLY_TO?.trim() || undefined, messageStream: env.POSTMARK_MESSAGE_STREAM?.trim() || undefined, broadcastStream: env.POSTMARK_BROADCAST_STREAM?.trim() || undefined });
   console.log(`Email on: sending through Postmark as ${env.MAIL_FROM.trim()}${env.POSTMARK_SERVER_TOKEN.trim() === 'POSTMARK_API_TEST' ? ' (TEST token: nothing is delivered)' : ''}`);
 } else if (!/^http:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(baseUrl)) {
   console.warn('WARNING: email is OFF. Confirmation links, sign-in links and leads are only written to this log. Set POSTMARK_SERVER_TOKEN and MAIL_FROM.');
 } else {
   console.log('Email off: messages are written to this log (set POSTMARK_SERVER_TOKEN and MAIL_FROM to send them).');
+}
+
+// Anti-spam law (CAN-SPAM) requires a real postal address in every alert email.
+if (/^\[.*\]$/.test(SITE_INFO.operatorName) || /^\[.*\]$/.test(SITE_INFO.mailingAddress)) {
+  console.warn('WARNING: set operatorName and mailingAddress in src/lib/siteInfo.ts. Every email-alert message must show your business name and postal address.');
 }
 
 const dbPath = env.DB_PATH ?? join(ROOT, 'server', 'data', 'app.db');
@@ -104,6 +111,11 @@ const app = createApp({
 // and on the 1st of the month email each advertiser last month's report.
 app.maintain();
 setInterval(() => app.maintain(), 3_600_000).unref();
+
+// Email alerts for tracked properties: compare the verified listings feed with the last check every 10 minutes.
+const checkTracked = () => app.checkTracked().then((n) => n && console.log(`Sent ${n} tracked-property alert email(s).`)).catch((e) => console.error('Tracked-property check failed:', e));
+void checkTracked();
+setInterval(checkTracked, 10 * 60_000).unref();
 
 // Daily database backups on the same volume. Copy them somewhere else too (see DEPLOY.md).
 const backupDir = env.BACKUP_DIR === '' ? null : (env.BACKUP_DIR ?? join(dirname(dbPath), 'backups'));

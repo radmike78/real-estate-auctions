@@ -39,6 +39,12 @@ const SECTIONS: DrillSection[] = [
       <>
         <h3>When you contact a professional</h3>
         <p>Your name, email address, phone number (optional), what you're interested in, and your message. You tick a box before anything is sent.</p>
+        <h3>When you sign up for email alerts</h3>
+        <p>
+          Your email address, what you asked to hear about (general updates, the properties you track and the searches you save), and when
+          you signed up and confirmed. Nothing is sent until you confirm the address from the link we email you. There's no account or password:
+          every email has a link to change or stop your alerts.
+        </p>
         <h3>When you apply to advertise</h3>
         <p>
           Your name, company, license or registration number, service areas, services, languages, headline, business phone, email, website and
@@ -95,6 +101,7 @@ const SECTIONS: DrillSection[] = [
       <>
         <ul>
           <li><strong>The professional you contact</strong>: your name, email, phone and message, and only to that one professional.</li>
+          <li><strong>Nobody gets your alerts email address.</strong> Advertisers never see it. We use it only to send the email you asked for.</li>
           <li>
             <strong>Service providers</strong> that run the site for us: web hosting, email delivery, and our payment processor (Stripe) for
             advertisers. Stripe receives the advertiser's name and email to set up billing. Providers may use the information only to provide
@@ -149,6 +156,7 @@ const SECTIONS: DrillSection[] = [
     content: () => (
       <ul>
         <li><strong>Messages to professionals</strong>: deleted from our system after about 13 months. The professional keeps their own copy.</li>
+        <li><strong>Email alerts</strong>: kept until you unsubscribe, which deletes your address and everything you signed up for. Sign-ups that are never confirmed are deleted after 2 days.</li>
         <li><strong>Daily visitor codes</strong>: 2 days. <strong>Daily counts</strong> (no personal information): kept for advertiser reports.</li>
         <li><strong>Sign-in sessions</strong>: end after 1 hour without activity, and 8 hours at most.</li>
         <li>

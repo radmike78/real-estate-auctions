@@ -25,6 +25,7 @@ const SECTIONS: DrillSection[] = [
         <li><strong>Research tools</strong>: Street View and aerial views, county maps and records, lien summaries, and license lookups for anyone you hire.</li>
         <li><strong>Free calculators</strong>: a maximum bid calculator that counts every cost, and an income-value calculator for rental property.</li>
         <li><strong>My deals</strong>: save properties, track sale dates and deadlines, and keep your notes in one place.</li>
+        <li><strong><a href="#/alerts">Email alerts</a></strong>: free updates in your inbox, with no account. Change or stop them from any email.</li>
         <li><strong>Professionals who work these sales</strong>: agents, lenders, title and insurance companies and contractors, each license-checked.</li>
       </ul>
     ),

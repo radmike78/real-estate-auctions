@@ -8,11 +8,17 @@
 //   POST /api/pros/:id/leads                send a contact request to a listed pro (with consent)
 //   POST /api/pro/login                     email a one-time sign-in link to a listed advertiser
 //   POST /api/pro/session                   exchange that link's token for a session
+//   POST /api/alerts/signup                 sign up for email (double opt-in; already-active addresses get their manage link)
+//   POST /api/alerts/track                  track a verified listing or save a search, by email (new addresses confirm first; active ones confirm the add)
+//   POST /api/alerts/confirm                confirm the address with the emailed token
+//   POST /api/alerts/manage | /update       view or change what an address gets (manage-link token; x-fsf-request: 1)
+//   POST /api/alerts/unsubscribe?t=         stop all email and delete the address (also one-click from mail apps)
 // Advertiser (fsf_pro cookie; writes need x-fsf-request: 1 and same origin)
 //   GET  /api/pro/me | /api/pro/metrics | /api/pro/leads | /api/pro/leads.csv ; POST /api/pro/logout
 // Admin (fsf_admin cookie; writes need x-fsf-request: 1 and same origin)
 //   POST /api/admin/login | /logout ; GET /api/admin/me | /api/admin/applications[/:id[/metrics]]
 //   POST /api/admin/applications/:id/(approve|billing|reject|suspend) ; POST /api/admin/publish | /api/admin/reports
+//   GET  /api/admin/email | /api/admin/email/list.csv ; POST /api/admin/email/test | /api/admin/email/send   (general email list)
 
 import { randomBytes } from 'node:crypto';
 import { createReadStream, existsSync, statSync } from 'node:fs';
@@ -26,7 +32,11 @@ import { METRIC_KINDS, openDb, type ApplicationRow, type Db, type MetricKind } f
 import { buildProsFeed, toPro, writeSignedJson } from './directory';
 import { isSiteAction, isSitePage } from '../src/lib/siteStats';
 import { visitorIp } from './cloudflare';
-import { approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
+import { alertsAddEmail, alertsConfirmEmail, broadcastEmail, alertsManageLinkEmail, alertsWelcomeEmail, searchDigestEmail, trackedChangesEmail, approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
+import { ALERT_LIMITS, CONFIRM_TTL_MS, openAlerts, openBroadcasts, type Subscriber } from './alerts';
+import { SITE_INFO } from '../src/lib/siteInfo';
+import { parseSearchTarget, searchLabel } from '../src/lib/savedSearch';
+import { collectChanges, collectDigests, feedReader, labelOf, openTracker, snapshotOf, TARGET_RE, taxTarget, type ListingSnapshot } from './tracker';
 import { CHECKOUT_URL_PREFIX, invoicePeriodEnd, invoiceSubscriptionId, PORTAL_URL_PREFIX, verifyWebhook, type StripeClient, type StripeEvent } from './stripe';
 import { BOT_UA, leadsToCsv, monthlyReportText, monthRange, pacificDay, pacificDaysToUtc, siteSummary, summarize, VisitorHasher } from './metrics';
 
@@ -46,6 +56,8 @@ export interface AppConfig {
   /** Online payments. Omit to take payments offline only (admin records billing by hand). */
   stripe?: { client: StripeClient; webhookSecret: string } | null;
   now?: () => Date;
+  /** Whether the business name and postal address are set (CAN-SPAM). Defaults to checking src/lib/siteInfo.ts. */
+  postalAddressReady?: boolean;
 }
 
 const JSON_LIMIT = 32 * 1024;
@@ -57,6 +69,7 @@ const ID_RE = /^[a-f0-9]{24}$/;
 const EMAIL_TOKEN_TTL_MS = 48 * 3_600_000;
 const LOGIN_TOKEN_TTL_MS = 15 * 60_000;
 const ADMIN_COOKIE = 'fsf_admin';
+const EMAIL_RE = /^[a-z0-9._%+-]{1,64}@[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}$/;
 const PRO_COOKIE = 'fsf_pro';
 
 const MIME: Record<string, string> = {
@@ -83,6 +96,11 @@ class HttpError extends Error {
 
 export function createApp(config: AppConfig) {
   const db: Db = openDb(config.dbPath);
+  const alerts = openAlerts(db.raw);
+  const tracker = openTracker(db.raw);
+  const broadcasts = openBroadcasts(db.raw);
+  const postalReady = config.postalAddressReady ?? ![SITE_INFO.operatorName, SITE_INFO.mailingAddress].some((v) => /^\[.*\]$/.test(v));
+  const readFeed = feedReader(config.dataDir, config.signingKey);
   const mailer = config.mailer ?? consoleMailer;
   // Sending never breaks a request: a failure is logged (without the message body, which can hold
   // sign-in links) and reported to the caller, which decides whether the visitor needs to know.
@@ -110,6 +128,9 @@ export function createApp(config: AppConfig) {
     events: new RateLimiter(60, 60_000),
     checkout: new RateLimiter(10, 3_600_000),
     eventsIp: new RateLimiter(120, 60_000),
+    alertsIp: new RateLimiter(10, 3_600_000),
+    alertsEmail: new RateLimiter(3, 3_600_000),
+    alertsManage: new RateLimiter(60, 10 * 60_000),
   };
   const hasher = new VisitorHasher();
 
@@ -213,6 +234,100 @@ export function createApp(config: AppConfig) {
     const feed = buildProsFeed(db.listByStatus('APPROVED'), now());
     writeSignedJson(config.dataDir, 'pros.json', feed, config.signingKey);
     return feed.pros.length;
+  }
+
+  /** Links that go in every alert email: manage, the unsubscribe page, and the one-click endpoint for mail apps. */
+  function alertLinks(s: Subscriber) {
+    const unsub = alerts.token(s, 'unsubscribe');
+    return {
+      manage: `${base}/#/alerts/manage/${alerts.token(s, 'manage')}`,
+      unsubscribe: `${base}/#/alerts/unsubscribe/${unsub}`,
+      oneClick: `${base}/api/alerts/unsubscribe?t=${encodeURIComponent(unsub)}`,
+    };
+  }
+  /** A listing that can be tracked right now: on the current verified feed. */
+  async function trackable(target: unknown): Promise<ListingSnapshot | null> {
+    if (typeof target !== 'string' || !TARGET_RE.test(target)) return null;
+    const feed = await readFeed(now());
+    const l = feed?.listings.find((x) => taxTarget(x.apn) === target);
+    return l ? snapshotOf(l) : null;
+  }
+
+  /** A property on the current verified feed, or a valid saved search: what can be added to someone's alerts. */
+  async function resolveTarget(target: unknown): Promise<{ kind: 'property' | 'search'; target: string; label: string } | null> {
+    if (typeof target !== 'string') return null;
+    const search = parseSearchTarget(target);
+    if (search) return { kind: 'search', target, label: searchLabel(search) };
+    const snap = await trackable(target);
+    return snap ? { kind: 'property', target: taxTarget(snap.apn), label: labelOf(snap) } : null;
+  }
+
+  /** Emails each subscriber the changes to the properties they track. Returns how many emails went out. */
+  let checking = false;
+  async function checkTracked(): Promise<number> {
+    if (checking) return 0;
+    checking = true;
+    try {
+      const feed = await readFeed(now());
+      if (!feed) return 0; // missing, invalid or expired: never guess
+      let sent = 0;
+      for (const [subscriberId, items] of collectChanges(tracker, feed, now())) {
+        const s = alerts.get(subscriberId);
+        if (s?.status !== 'ACTIVE') continue;
+        if (await deliver(trackedChangesEmail(s.email, items, { ...alertLinks(s), live: `${base}/#/live` }))) sent++;
+      }
+      // Once a day: new listings matching each saved search.
+      for (const [subscriberId, groups] of collectDigests(tracker, now())) {
+        const s = alerts.get(subscriberId);
+        if (s?.status !== 'ACTIVE') continue;
+        if (await deliver(searchDigestEmail(s.email, groups, { ...alertLinks(s), live: `${base}/#/live` }))) sent++;
+      }
+      return sent;
+    } finally {
+      checking = false;
+    }
+  }
+
+  /** Sends queued updates to the general list, one recipient at a time; resumes after a restart. */
+  let pumping = false;
+  async function sendBroadcasts(): Promise<number> {
+    if (pumping) return 0;
+    pumping = true;
+    let n = 0;
+    try {
+      for (let batch = broadcasts.queued(50); batch.length; batch = broadcasts.queued(50)) {
+        for (const { broadcast: b, subscriberId } of batch) {
+          const s = alerts.get(subscriberId);
+          // Unsubscribed or opted out since the send started: skip them.
+          if (!s || s.status !== 'ACTIVE' || !s.listOptIn) {
+            broadcasts.mark(b.id, subscriberId, 'SKIPPED', now().toISOString());
+            continue;
+          }
+          const ok = await deliver(broadcastEmail(s.email, b.subject, b.body, alertLinks(s)));
+          broadcasts.mark(b.id, subscriberId, ok ? 'SENT' : 'FAILED', now().toISOString());
+          if (ok) n++;
+        }
+      }
+    } finally {
+      pumping = false;
+    }
+    return n;
+  }
+
+  /** The admin's subject and body: plain text, no control characters, sensible lengths. */
+  function validateBroadcast(body: Record<string, unknown>): { subject: string; text: string } {
+    const subject = String(body.subject ?? '').replace(/[\u0000-\u001f\u007f]+/g, ' ').trim();
+    const text = String(body.body ?? '').replace(/\r\n?/g, '\n').replace(/[\u0000-\u0008\u000b-\u001f\u007f]/g, '').trim();
+    const errors: Record<string, string> = {};
+    if (subject.length < 5 || subject.length > 120) errors.subject = 'Write a subject of 5 to 120 characters.';
+    if (text.length < 20 || text.length > 20_000) errors.body = 'Write a message of 20 to 20,000 characters.';
+    if (Object.keys(errors).length) throw new HttpError(422, 'Please fix the highlighted fields.', { errors });
+    return { subject, text };
+  }
+
+  /** What the manage page shows. Only the holder of the manage link sees it. */
+  function alertsView(s: Subscriber) {
+    return { email: s.email, listOptIn: s.listOptIn, confirmedAt: s.confirmedAt, subscriptions: alerts.subscriptions(s.id) };
   }
 
   const today = () => now().toISOString().slice(0, 10);
@@ -410,6 +525,114 @@ export function createApp(config: AppConfig) {
       return send(res, 204, {});
     }
 
+    // ---------------- email alerts (no accounts: a confirmed address plus signed links) ----------------
+    if (method === 'POST' && path === '/api/alerts/signup') {
+      assertSameOrigin(req);
+      if (!limiters.alertsIp.hit(clientIp(req))) throw new HttpError(429, 'Too many sign-ups from this network. Try again later.');
+      const body = await readJson(req);
+      const accepted = { ok: true, message: 'Check your inbox for a link to confirm. It expires in 48 hours.' };
+      if (body.company_url) return send(res, 202, accepted); // honeypot
+      const email = plain(body.email, 254).toLowerCase();
+      if (!EMAIL_RE.test(email)) throw new HttpError(422, 'Please fix the highlighted fields.', { errors: { email: 'Enter a valid email address.' } });
+      if (body.list !== true) throw new HttpError(422, 'Please fix the highlighted fields.', { errors: { list: 'Choose what you’d like to get.' } });
+      // Same answer whether or not the address is known, and a per-address cap so nobody can flood an inbox.
+      if (!limiters.alertsEmail.hit(email)) return send(res, 202, accepted);
+      const current = alerts.byEmail(email);
+      if (current?.status === 'ACTIVE') {
+        const l = alertLinks(current);
+        await deliver(alertsManageLinkEmail(email, l.manage, l.unsubscribe, l.oneClick));
+        return send(res, 202, accepted);
+      }
+      const token = newToken();
+      const t = now();
+      alerts.upsertPending(email, true, sha256(token), new Date(t.getTime() + CONFIRM_TTL_MS).toISOString(), t.toISOString());
+      if (!(await deliver(alertsConfirmEmail(email, `${base}/#/alerts/confirm/${token}`)))) {
+        throw new HttpError(503, 'We couldn\'t send your confirmation email just now. Please try again in a few minutes.');
+      }
+      return send(res, 202, accepted);
+    }
+
+    if (method === 'POST' && path === '/api/alerts/track') {
+      assertSameOrigin(req);
+      if (!limiters.alertsIp.hit(clientIp(req))) throw new HttpError(429, 'Too many sign-ups from this network. Try again later.');
+      const body = await readJson(req);
+      const accepted = { ok: true, message: 'Check your inbox for a link to confirm. It expires in 48 hours.' };
+      if (body.company_url) return send(res, 202, accepted);
+      const email = plain(body.email, 254).toLowerCase();
+      if (!EMAIL_RE.test(email)) throw new HttpError(422, 'Please fix the highlighted fields.', { errors: { email: 'Enter a valid email address.' } });
+      const r = await resolveTarget(body.target);
+      if (!r) throw new HttpError(404, 'This property isn’t on the current verified list, so it can’t be tracked.');
+      if (!limiters.alertsEmail.hit(email)) return send(res, 202, accepted);
+      const current = alerts.byEmail(email);
+      if (current?.status === 'ACTIVE') {
+        // Already signed up: they confirm the add from their own manage page, so nobody can add alerts to someone else's inbox.
+        const l = alertLinks(current);
+        await deliver(alertsAddEmail(email, r.label, `${l.manage}?add=${encodeURIComponent(r.target)}`, l.manage, l.unsubscribe, l.oneClick, r.kind));
+        return send(res, 202, accepted);
+      }
+      const token = newToken();
+      const t = now();
+      const s = alerts.upsertPending(email, body.list === true, sha256(token), new Date(t.getTime() + CONFIRM_TTL_MS).toISOString(), t.toISOString());
+      alerts.addSubscription(s.id, r.kind, r.target, r.label, t.toISOString());
+      if (!(await deliver(alertsConfirmEmail(email, `${base}/#/alerts/confirm/${token}`, r.label, r.kind)))) {
+        throw new HttpError(503, 'We couldn\'t send your confirmation email just now. Please try again in a few minutes.');
+      }
+      return send(res, 202, accepted);
+    }
+
+    if (method === 'POST' && path === '/api/alerts/confirm') {
+      assertSameOrigin(req);
+      if (!limiters.confirm.hit(clientIp(req))) throw new HttpError(429, 'Too many attempts. Try again later.');
+      const { token } = await readJson(req);
+      const invalid = new HttpError(400, 'This confirmation link is invalid or has expired. Sign up again to get a new one.');
+      if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{40,50}$/.test(token)) throw invalid;
+      const s = alerts.confirm(sha256(token), now().toISOString());
+      if (!s) throw invalid;
+      const l = alertLinks(s);
+      await deliver(alertsWelcomeEmail(s.email, l.manage, l.unsubscribe, l.oneClick));
+      return send(res, 200, { ok: true, manageToken: alerts.token(s, 'manage') });
+    }
+
+    if (method === 'POST' && (path === '/api/alerts/manage' || path === '/api/alerts/update')) {
+      assertAppRequest(req);
+      if (!limiters.alertsManage.hit(clientIp(req))) throw new HttpError(429, 'Too many requests. Try again later.');
+      const body = await readJson(req);
+      const s = alerts.verify(body.token, 'manage');
+      if (!s || s.status !== 'ACTIVE') throw new HttpError(404, 'This link doesn’t work anymore. You may have unsubscribed; sign up again to get a new one.');
+      if (path === '/api/alerts/update') {
+        if (body.deleteAll === true) {
+          alerts.delete(s.id);
+          return send(res, 200, { ok: true, deleted: true });
+        }
+        if (typeof body.list === 'boolean') alerts.setListOptIn(s.id, body.list, now().toISOString());
+        if (typeof body.remove === 'string') alerts.removeSubscription(s.id, body.remove);
+        if (body.add !== undefined) {
+          const r = await resolveTarget(body.add);
+          if (!r) throw new HttpError(404, 'This property isn’t on the current verified list, so it can’t be tracked.');
+          if (alerts.addSubscription(s.id, r.kind, r.target, r.label, now().toISOString()) === 'limit') {
+            throw new HttpError(409, r.kind === 'search' ? `You already have ${ALERT_LIMITS.search} saved searches, the most we allow. Remove one first.` : `You’re already tracking ${ALERT_LIMITS.property} properties, the most we allow. Remove one first.`);
+          }
+        }
+      }
+      // The manage page can ask about an alert before adding it (from an emailed "add this" link).
+      let preview: { kind: 'property' | 'search'; target: string; label: string; tracked: boolean } | null = null;
+      if (typeof body.preview === 'string') {
+        const r = await resolveTarget(body.preview);
+        if (r) preview = { ...r, tracked: alerts.subscriptions(s.id).some((x) => x.kind === r.kind && x.target === r.target) };
+      }
+      return send(res, 200, { ok: true, ...alertsView(alerts.get(s.id)!), preview });
+    }
+
+    // Mail apps POST here directly for one-click unsubscribe (RFC 8058), so no same-origin check:
+    // the signed token is the authorization, and all it can do is delete that one address.
+    if (method === 'POST' && path === '/api/alerts/unsubscribe') {
+      if (!limiters.alertsManage.hit(clientIp(req))) throw new HttpError(429, 'Too many requests. Try again later.');
+      const s = alerts.verify(url.searchParams.get('t'), 'unsubscribe');
+      if (s) alerts.delete(s.id);
+      // Same answer for an unknown link: an address that was already removed is still unsubscribed.
+      return send(res, 200, { ok: true, message: 'We deleted your email address and everything you signed up for. You won’t get any more email from us.' });
+    }
+
     const leadMatch = path.match(/^\/api\/pros\/([a-f0-9]{24})\/leads$/);
     if (method === 'POST' && leadMatch) {
       assertSameOrigin(req);
@@ -590,6 +813,49 @@ export function createApp(config: AppConfig) {
       audit(null, 'PUBLISHED', `${n} listings`);
       return send(res, 200, { ok: true, published: n });
     }
+    // ---------------- general email list ----------------
+    if (method === 'GET' && path === '/api/admin/email') {
+      const c = alerts.counts();
+      const subs = db.raw.prepare(`SELECT kind, COUNT(*) AS n FROM subscriptions s JOIN subscribers u ON u.id = s.subscriber_id WHERE u.status = 'ACTIVE' GROUP BY kind`).all() as { kind: string; n: number }[];
+      const count = (k: string) => subs.find((x) => x.kind === k)?.n ?? 0;
+      return send(res, 200, { counts: { ...c, trackedProperties: count('property'), savedSearches: count('search') }, postalAddressReady: postalReady, broadcasts: broadcasts.recent() });
+    }
+    if (method === 'GET' && path === '/api/admin/email/list.csv') {
+      const rows = broadcasts.listMembers();
+      audit(null, 'EMAIL_LIST_EXPORTED', `${rows.length} addresses`);
+      const cell = (v: string | null) => `"${(v ?? '').replace(/"/g, '""').replace(/^([=+\-@\t\r])/, "'$1")}"`;
+      res.writeHead(200, { 'content-type': 'text/csv; charset=utf-8', 'content-disposition': `attachment; filename="email-list-${pacificDay(now())}.csv"`, 'cache-control': 'no-store' });
+      return res.end([['Email', 'Confirmed'].map(cell).join(','), ...rows.map((r) => [r.email, r.confirmedAt].map(cell).join(','))].join('\r\n'));
+    }
+    if (method === 'POST' && path === '/api/admin/email/test') {
+      const body = await readJson(req);
+      const { subject, text } = validateBroadcast(body);
+      const to = plain(body.to, 254).toLowerCase();
+      if (!EMAIL_RE.test(to)) throw new HttpError(422, 'Please fix the highlighted fields.', { errors: { to: 'Enter the address to send the test to.' } });
+      const sample = { manage: `${base}/#/alerts`, unsubscribe: `${base}/#/alerts`, oneClick: `${base}/#/alerts` };
+      if (!(await deliver({ ...broadcastEmail(to, `[Test] ${subject}`, text, sample), headers: undefined }))) throw new HttpError(503, 'The test email could not be sent. Check the server log.');
+      audit(null, 'EMAIL_TEST_SENT', `${subject} → ${maskEmail(to)}`);
+      return send(res, 200, { ok: true, message: `Test sent to ${to}.` });
+    }
+    if (method === 'POST' && path === '/api/admin/email/send') {
+      const body = await readJson(req);
+      const { subject, text } = validateBroadcast(body);
+      if (!postalReady) throw new HttpError(409, 'Set your business name and postal address in src/lib/siteInfo.ts first. The law requires them in every update (CAN-SPAM).');
+      if (broadcasts.sending()) throw new HttpError(409, 'Another update is still sending. Wait until it finishes.');
+      // A double click, or a repeat by mistake, must not email everyone twice.
+      const repeat = broadcasts.recent(5).find((b) => b.subject === subject && b.body === text && now().getTime() - Date.parse(b.createdAt) < 86_400_000);
+      if (repeat) throw new HttpError(409, 'You already sent this update in the last 24 hours.');
+      const recipients = alerts.counts().listOptIn;
+      if (recipients === 0) throw new HttpError(409, 'Nobody has signed up for general updates yet.');
+      // The admin confirms the number they saw; if it changed, they look again before anything goes out.
+      if (body.expectedRecipients !== recipients) throw new HttpError(409, `The list now has ${recipients} ${recipients === 1 ? 'address' : 'addresses'}. Review and confirm again.`, { recipients });
+      const b = broadcasts.create(subject, text, admin.subject, now().toISOString());
+      broadcasts.closeIfEmpty(b.id, now().toISOString());
+      audit(null, 'EMAIL_UPDATE_SENT', `"${subject}" to ${b.recipients}`);
+      void sendBroadcasts();
+      return send(res, 202, { ok: true, broadcast: b });
+    }
+
     if (method === 'POST' && path === '/api/admin/reports') {
       const { month } = await readJson(req);
       if (typeof month !== 'string' || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) throw new HttpError(400, 'month must be YYYY-MM');
@@ -718,6 +984,8 @@ export function createApp(config: AppConfig) {
     db.site.purgeSeen(pacificDay(new Date(t.getTime() - 2 * 86_400_000)));
     db.sessions.purge(t.getTime() - SESSION_MAX_MS);
     db.leads.purgeOlderThan(new Date(t.getTime() - 400 * 86_400_000).toISOString()); // ~13 months retention
+    alerts.purgeUnconfirmed(t.toISOString());
+    void sendBroadcasts(); // resume a send interrupted by a restart
     const day = pacificDay(t);
     if (day.endsWith('-01')) {
       const prev = new Date(Date.parse(`${day}T12:00:00Z`) - 86_400_000).toISOString().slice(0, 7);
@@ -725,5 +993,5 @@ export function createApp(config: AppConfig) {
     }
   }
 
-  return { handler, publish, maintain, sendMonthlyReports, db };
+  return { handler, publish, maintain, sendMonthlyReports, checkTracked, sendBroadcasts, db, alerts };
 }

@@ -52,7 +52,7 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 | `FEED_SIGNING_KEY` | **yes** | yes | Private signing key (PEM) for the listings and directory feeds. Created in step 2 below. |
 | `POSTMARK_SERVER_TOKEN` | **yes** | for a real site | Sends email through Postmark. Set it together with `MAIL_FROM`. See [Email](#email-postmark). |
 | `MAIL_FROM` | no | with the token | Sender address verified in Postmark, like `Forced-Sale Finder <no-reply@your-domain>`. |
-| `MAIL_REPLY_TO`, `POSTMARK_MESSAGE_STREAM` | no | no | Where replies go (default: `MAIL_FROM`), and the Postmark stream (default `outbound`). |
+| `MAIL_REPLY_TO`, `POSTMARK_MESSAGE_STREAM`, `POSTMARK_BROADCAST_STREAM` | no | no | Where replies go (default: `MAIL_FROM`), the Postmark stream for sign-in, alert and other one-to-one email (default `outbound`), and the stream for updates to the general email list (default `broadcast`). |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PLANS` | **yes** | no | Online card payments for advertisers: set all three or none. See [Online payments](#advertisers-signup-verification-billing-server). |
 | `TRUST_PROXY` | no | no | `1` when a reverse proxy, Ingress or OpenShift router sits in front (it is in every option below). |
 | `TRUST_CLOUDFLARE` | no | with Cloudflare | `1` when your domain is proxied through Cloudflare, so each visitor's own address is used for spam limits. See [Cloudflare](#cloudflare-recommended). |
@@ -87,7 +87,7 @@ Cloudflare's default caching is right for this site: it caches the scripts, styl
 
 ### Email (Postmark)
 
-The site sends plain-text transactional email only: advertiser confirmation and sign-in links, approval and payment notices, leads to advertisers with receipts to buyers, and monthly reports. Open and link tracking are turned off on every message. Postmark stops sending to addresses that bounced or marked mail as spam.
+The site sends plain-text email: advertiser confirmation and sign-in links, approval and payment notices, leads to advertisers with receipts to buyers, monthly reports, and **email alerts** that people sign up for (confirmation, welcome and manage-link messages). Open and link tracking are turned off on every message. Postmark stops sending to addresses that bounced or marked mail as spam.
 
 **Prerequisites**
 - A [Postmark](https://postmarkapp.com) account (the free developer plan sends 100 emails a month; paid plans start at 10,000).
@@ -114,6 +114,10 @@ The site sends plain-text transactional email only: advertiser confirmation and 
      Then `kubectl apply -k ...` and `kubectl rollout restart deployment/forced-sale-finder -n forced-sale-finder`. On OpenShift, use `oc` instead of `kubectl`.
 6. **Check:** the web log should say `Email on: sending through Postmark as ...`. Then apply to advertise with your own address, and look for the email in Postmark's **Activity** tab.
    - To try it without sending anything, use the token `POSTMARK_API_TEST`. Postmark accepts the message but delivers nothing.
+
+**Updates to the general email list** (admin → **Email list**) go through Postmark's separate **Broadcast** stream, so bulk mail can never hurt delivery of sign-in links and alerts. New Postmark servers usually include a broadcast stream with the ID `broadcast`; check under your server → **Message Streams**, create one if it's missing, and set `POSTMARK_BROADCAST_STREAM` if its ID is different. In that stream's settings, have Postmark leave unsubscribe links to you (the site adds its own, which also delete the address from its database), so people don't see two different unsubscribe links. Postmark may ask you to confirm your broadcast sending before it's enabled.
+
+**Email alerts need your business name and postal address.** Anti-spam law (CAN-SPAM) requires a real postal address (a PO box is fine) in every alert email. Set `operatorName` and `mailingAddress` in `src/lib/siteInfo.ts` before launch; the web log warns until you do. Alert emails also carry one-click unsubscribe headers (`List-Unsubscribe`), which Gmail and Yahoo require from bulk senders.
 
 If Postmark can't be reached, the site retries once. When an email still fails, the log names the reason (without the message text). Advertisers who apply are asked to try again in a few minutes. Leads are always saved and shown on the advertiser's dashboard, even if the email doesn't go out.
 
@@ -542,6 +546,7 @@ During development, run `npm run server` and `npm run dev` together; the dev ser
 | Profiles (`#/pros/:id`) | Each advertiser's own page, with a verified-license card and a link to check it on the official lookup |
 | Advertise (`#/advertise`) | What advertisers get, who can advertise, how listing works, and the application |
 | How we help (`#/disclaimer`) | What the site offers, how each kind of sale works, the steps to invest, the official-sources and professional-advice statement, and a due-diligence checklist, followed by the details: what's not in scope, the disclaimer for each kind of page, and accuracy. First-time visitors see a short "Welcome" notice. Every page shows the right disclaimer and a footer link. Wording is in `src/lib/disclaimers.ts`. |
+| Email alerts (`#/alerts`) | Free email sign-up, no account: confirm the address once (double opt-in), then change or stop alerts from the link in every email. One-click unsubscribe deletes the address. It offers general updates and **tracked properties**: choose ✉ Email me changes on any Live tax-sale parcel. Every 10 minutes the web server compares the signed listings feed with the last check and emails each person one message listing what changed on the parcels they track: removed from the list (paid off, withdrawn or sold) or back on it, a new auction date, minimum bid, format or place, plus reminders 10 days before (register) and the day before. Only verified data triggers email: the server checks the feed's signature with its signing key and ignores missing, tampered or expired feeds. An address that's already signed up confirms each new property from its own manage page, and a browser that opened its manage link can add properties in one click. **Saved searches:** ✉ Email me new matches on Live tax sales saves a search (Residential/Commercial from the Assessor land-use code, and an optional highest minimum bid; `src/lib/savedSearch.ts`). Once a day from 7 a.m. Las Vegas time, each person gets one digest of parcels that appeared on the verified list since their last digest and match (up to 25 per search shown), and nothing on days with no new matches. Parcels recorded on the very first check never count as new; parcels that come back on the list do. Up to 10 saved searches per address. **General updates:** the admin's **Email list** tab shows sign-up counts, writes plain-text updates with a preview and a test send, and sends to everyone who opted in (with confirmation of the recipient count, one send at a time, no repeat within 24 hours, and resume after a restart). It also exports the list as CSV. Code: `server/alerts.ts`, `server/tracker.ts`, `src/components/AlertsPage.tsx`, `src/components/TrackButton.tsx`, `src/components/SearchAlertButton.tsx`. |
 | Advertiser dashboard (`#/advertiser`) | Sign in with an email link; results, daily charts, leads and CSV export |
 
 **Search and property pages**
