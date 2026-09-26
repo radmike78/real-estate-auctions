@@ -137,8 +137,8 @@ export default function LivePage() {
       {listings.length > 0 && (
         <section>
           <div className="verify" role="alert">
-            <strong>Verify before bidding.</strong> Owners can pay until the parcel is offered. The Treasurer's sale does not satisfy all liens,
-            and the IRS may redeem within 120 days. Registration, deposit and sale format are set in each auction's official notice.
+            <strong>Verify before bidding.</strong> Owners can pay until close of business 3 business days before the sale. The Treasurer's sale
+            does not satisfy all liens: a federal tax lien can survive, and the IRS can buy a property back within 120 days of the sale. Registration, deposit and sale format are set in each auction's official notice.
           </div>
           <div className="row" style={{ justifyContent: 'space-between', margin: '0 0 12px' }}>
             <ClassSwitch value={cls} onChange={setCls} />

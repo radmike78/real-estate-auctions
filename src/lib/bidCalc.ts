@@ -139,7 +139,8 @@ export function defaultsFor(p: Property): BidInputs {
     titleLegal,
     possession,
     holdingMonths,
-    // Clark County tax is roughly 3.3% of assessed value a year (before abatements), plus about $300/month insurance and utilities.
+    // Clark County tax rates are about 2.9–3.3% of assessed value a year depending on district (before abatements);
+    // 3.3% is the conservative end. Plus about $300/month insurance and utilities.
     monthlyCarry: Math.round((p.assessedValue * 0.033) / 12 + 300),
   };
 }

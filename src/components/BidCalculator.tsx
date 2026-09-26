@@ -23,13 +23,13 @@ const GROUPS: { title: string; fields: Field[] }[] = [
       { k: 'titleLegal', label: 'Title search, attorney, quiet title', unit: '$' },
       { k: 'possession', label: 'Getting possession', unit: '$', hint: 'Eviction attorney, relocation, new locks.' },
       { k: 'buyerPremiumPct', label: "Buyer's premium", unit: '%', hint: 'Auction fee on top of your bid, if any.' },
-      { k: 'transferTaxPer500', label: 'Transfer tax', unit: '$/500', hint: 'Clark County: $2.55 per $500.' },
+      { k: 'transferTaxPer500', label: 'Transfer tax', unit: '$/500', hint: 'Clark County: $2.55 per $500 of value, rounded up to the next $500.' },
     ],
   },
   {
     title: 'Holding and financing',
     fields: [
-      { k: 'holdingMonths', label: 'Months until sold', unit: 'mo', hint: 'Include any redemption period.' },
+      { k: 'holdingMonths', label: 'Months until sold', unit: 'mo', hint: 'Include any redemption period. After a tax sale, resale may wait for a quiet title action or the 2-year protest period.' },
       { k: 'monthlyCarry', label: 'Monthly holding costs', unit: '$', hint: 'Taxes, insurance, utilities, HOA.' },
       { k: 'financedPct', label: 'Share financed after purchase', unit: '%', hint: 'Auctions need cash on the day; a loan usually comes after.' },
       { k: 'interestRatePct', label: 'Interest rate (yearly)', unit: '%' },
