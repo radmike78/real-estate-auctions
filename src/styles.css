@@ -1297,3 +1297,37 @@ html { scroll-padding-top: 88px; }
 @media (max-width: 600px) {
   .toolbar > input, .toolbar > select { flex: 1 1 100%; width: 100%; min-width: 0; }
 }
+
+/* ---- Numbers first (design idea 2) ---- */
+/* Property stat tiles: one label height, every value the same size on one baseline, color only where it means something. */
+.glance dt { min-height: 2.6em; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.glance dd, .glance div.key dd, .glance div.muted-stat dd { font-size: 2.1rem; color: #f8fafc; }
+.glance dd.pos { color: #6ee7b7; }
+.glance dd.caution { color: #fcd34d; }
+.glance dd.neg { color: #fca5a5; }
+@media (max-width: 600px) { .glance dd, .glance div.key dd, .glance div.muted-stat dd { font-size: 1.45rem; } .glance dt { font-size: 0.85rem; } }
+@media print { .glance dd, .glance dd.pos, .glance dd.caution, .glance dd.neg { color: #000 !important; } }
+/* Result cards: minimum bid leads, spread in green when positive. */
+.card-stats dd { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; }
+.card-stats .key.big dd { font-size: 1.6rem; line-height: 1.15; }
+.card-stats dd.pos { color: var(--go); }
+.card-stats dd.neg { color: var(--stop); }
+
+/* ---- Whole cards are the click target; stripes mean risk (design idea 5) ---- */
+.drill-open { display: none; }
+.drill-tile .drill-head { padding-right: 46px; }
+.drill-chevron { position: absolute; top: 18px; right: 18px; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: var(--accent); background: var(--surface-2); transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease; }
+.drill-tile:hover .drill-chevron, .drill-tile:focus-visible .drill-chevron { transform: translateX(3px); background: var(--accent); color: #fff; }
+/* Brand color is neutral; amber = be careful; red = danger or not for sale. Green is no longer used for stripes. */
+.drill-tile.tone-go, .drill-tile.tone-info { --tile-grad: linear-gradient(135deg, #22d3ee, #3b82f6 50%, #8b5cf6); --tile-glow: rgb(59 130 246 / 0.45); }
+.card.risk-wait::before { background: linear-gradient(90deg, #fcd34d, #f59e0b, #f97316); opacity: 1; }
+.card.risk-stop::before { background: linear-gradient(90deg, #fb7185, #ef4444, #db2777); opacity: 1; }
+.card:hover { transform: translateY(-3px); box-shadow: 0 16px 36px -18px rgb(37 99 235 / 0.55); }
+@media (prefers-reduced-motion: reduce) { .card:hover, .drill-tile:hover .drill-chevron { transform: none; } }
+@media (max-width: 600px) { .drill-tile .drill-head { padding-right: 42px; } .drill-chevron { top: 14px; right: 14px; } }
+
+/* ---- Source at the point of decision (design idea 7) ---- */
+.source-line { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 0.95rem; color: var(--muted); }
+.source-line strong { color: var(--text); font-weight: 600; }
+.source-check { display: inline-grid; place-items: center; width: 20px; height: 20px; margin-right: 4px; border-radius: 50%; background: var(--go-bg); color: var(--go); font-weight: 800; font-size: 0.8rem; }
+.source-line.sample { color: var(--wait); }

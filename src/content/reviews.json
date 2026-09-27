@@ -20,8 +20,8 @@
       "src/lib/status.ts"
     ],
     "reviewed": "2026-09-27",
-    "hash": "76c87763a51d58ec",
-    "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
+    "hash": "46720e968d43685a",
+    "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
     "id": "property",
@@ -37,8 +37,8 @@
       "src/lib/foreclosure.ts"
     ],
     "reviewed": "2026-09-27",
-    "hash": "44a2ee2552855cf8",
-    "note": "Full content review (review round of 2026-09-27)."
+    "hash": "b41b6b1e2f6942b6",
+    "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
     "id": "checklists",
