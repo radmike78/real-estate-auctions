@@ -78,8 +78,9 @@ export default function EmailListAdmin() {
 
       {!o.postalAddressReady && (
         <div className="caution" role="alert">
-          <strong>Sending is off until you add your business details.</strong> Set <code>operatorName</code> and <code>mailingAddress</code> in{' '}
-          <code>src/lib/siteInfo.ts</code>. Anti-spam law (CAN-SPAM) requires a postal address in every update. A PO box is fine.
+          <strong>Sending general updates is off until you add a postal address.</strong> Set <code>operatorName</code> and <code>mailingAddress</code> in{' '}
+          <code>src/lib/siteInfo.ts</code>. Anti-spam law (CAN-SPAM) requires a postal address in every update. A PO box or mailbox service is fine,
+          and it only appears in these emails, never on the site. Property alerts don't need it.
         </div>
       )}
 

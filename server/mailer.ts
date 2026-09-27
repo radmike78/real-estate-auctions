@@ -181,12 +181,15 @@ export function leadReceiptEmail(to: string, proName: string): Mail {
 
 // ---------------- email alerts ----------------
 
-/** Every alert email ends with how to manage or stop them, and our postal address (required by CAN-SPAM). */
+/** Business name, plus the postal address when one is set (general updates can't be sent without it). */
+const senderLine = () => [SITE_INFO.operatorName, SITE_INFO.mailingAddress.trim()].filter(Boolean).join(', ') + '\n';
+
+/** Every alert email ends with how to manage or stop them, and who sent it. */
 function alertsFooter(manageUrl: string, unsubscribeUrl: string): string {
   return (
     `\n--\nYou're getting this because you signed up for email from DeedOwl.\n` +
     `Change what you get: ${manageUrl}\nUnsubscribe from everything: ${unsubscribeUrl}\n` +
-    `${SITE_INFO.operatorName}, ${SITE_INFO.mailingAddress}\n`
+    senderLine()
   );
 }
 
@@ -206,7 +209,7 @@ export function alertsConfirmEmail(to: string, link: string, tracking?: string, 
     text:
       `Hello,\n\nPlease confirm that you want email from DeedOwl${tracking ? (kind === 'search' ? `, starting with daily emails about new matches for "${tracking}"` : `, starting with updates on ${tracking}`) : ''}:\n\n${link}\n\n` +
       `The link expires in 48 hours. If you didn't sign up, ignore this email and you won't hear from us again.\n\n` +
-      `${SITE_INFO.operatorName}, ${SITE_INFO.mailingAddress}\n`,
+      senderLine(),
   };
 }
 
@@ -346,7 +349,7 @@ export function broadcastEmail(to: string, subject: string, body: string, links:
       `Always confirm details with the official source before you bid.\n` +
       `\n--\nYou're getting this because you signed up for general updates from DeedOwl.\n` +
       `Change what you get: ${links.manage}\nUnsubscribe from everything: ${links.unsubscribe}\n` +
-      `${SITE_INFO.operatorName}, ${SITE_INFO.mailingAddress}\n`,
+      senderLine(),
     headers: unsubscribeHeaders(links.oneClick),
     stream: 'broadcast',
   };

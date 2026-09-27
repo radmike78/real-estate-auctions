@@ -234,7 +234,7 @@ const SECTIONS: DrillSection[] = [
           least 30 days before it takes effect and email active advertisers.
         </p>
         <p>
-          {S.operatorName} runs {S.siteName}. Contact: {mail(S.privacyEmail)}, or by mail at {S.mailingAddress}.
+          {S.operatorName} runs {S.siteName}. Contact: {mail(S.privacyEmail)}.
         </p>
       </>
     ),
