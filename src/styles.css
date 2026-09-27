@@ -1242,3 +1242,58 @@ html { scroll-padding-top: 88px; }
 .guide-hit-snippet mark { background: var(--wait-bg); color: inherit; padding: 0 2px; border-radius: 3px; font-weight: 600; }
 .guide-hit-sources { margin: 10px 0 0; font-size: 1rem; color: var(--muted); overflow-wrap: anywhere; }
 .guide-note { max-width: 860px; margin-top: 28px; }
+
+/* ---- Review fixes: layout defects ---- */
+.nowrap { white-space: nowrap; }
+/* Property stat tiles: labels on top, values lined up along the bottom. */
+.glance div { display: flex; flex-direction: column; }
+.glance dd { margin-top: auto; padding-top: 6px; }
+/* Result cards in a row share one height, with the numbers at the bottom. */
+.cards > li { display: flex; }
+.cards > li > .card { display: flex; flex-direction: column; width: 100%; }
+.cards > li > .card .card-stats { margin-top: auto; padding-top: 10px; }
+/* Filter options: box, then the dot and label as one line that wraps under itself. */
+.filters .check { align-items: flex-start; }
+.filters .check input { margin-top: 3px; }
+.filters .check .dot { vertical-align: 1px; }
+/* Desktop More menu: the groups side by side, so nothing hides below the fold. */
+@media (min-width: 901px) {
+  .more-menu { grid-template-columns: repeat(2, minmax(220px, 1fr)); column-gap: 8px; align-items: start; max-height: none; overflow: visible; }
+  .more-group { align-content: start; }
+  .more-group + .more-group { border-top: 0; margin-top: 0; padding-top: 4px; }
+  .more-group:nth-child(n + 3) { border-top: 1px solid rgb(255 255 255 / 0.08); margin-top: 4px; padding-top: 8px; }
+}
+/* Phone menu: the button becomes an X, the page behind dims, and the panel can scroll to its end. */
+.menu-btn span { transition: transform 0.2s, opacity 0.2s; }
+.menu-btn[aria-expanded='true'] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.menu-btn[aria-expanded='true'] span:nth-child(2) { opacity: 0; }
+.menu-btn[aria-expanded='true'] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+@media (max-width: 900px) {
+  .site-nav.open { box-shadow: 0 0 0 100vmax rgb(2 6 23 / 0.55); clip-path: inset(0 0 -100vmax 0); padding-bottom: 28px; }
+  .site-nav { max-height: calc(100dvh - 70px); }
+}
+/* The "Get alerts" button keeps its color on the alerts page. */
+.site-nav > a.nav-cta.active { color: #fff; background: linear-gradient(135deg, #1d4ed8, #6d28d9); box-shadow: 0 0 0 2px rgb(255 255 255 / 0.35) inset; }
+/* Section tabs: fade at the edges so it's clear the row scrolls. */
+@media (max-width: 700px) {
+  .drill-nav { -webkit-mask-image: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 18px), transparent); mask-image: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 18px), transparent); padding-left: 12px; padding-right: 12px; scroll-padding: 0 24px; }
+  /* Step pages: less box-in-box, so text uses the width of the phone. */
+  .drill-section { padding: 18px 14px !important; }
+  .drill-section .steps-rich li, .drill-section .risk-list li { padding: 16px 16px !important; padding-top: 52px !important; }
+  .drill-section .risk-list li { padding-top: 16px !important; }
+  .steps-rich li::before { left: 16px; top: 14px; }
+}
+.steps-rich li strong, .risk-list li strong { font-size: 1.25rem; line-height: 1.3; }
+/* Advertiser profile on phones: the ad label sits under the buttons instead of on the photo. */
+@media (max-width: 600px) {
+  .page section > .ad-label { position: static; display: block; margin-top: 14px; }
+}
+/* Calculator max-bid bar on phones: line up with the page edges, and leave room above it. */
+@media (max-width: 1000px) {
+  .calc-sticky { left: 16px; right: 16px; }
+  .calc input:focus { scroll-margin-bottom: 110px; }
+}
+/* Filter rows on phones: every control the full width, so they line up. */
+@media (max-width: 600px) {
+  .toolbar > input, .toolbar > select { flex: 1 1 100%; width: 100%; min-width: 0; }
+}

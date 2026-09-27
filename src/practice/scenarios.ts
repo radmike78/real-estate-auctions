@@ -418,7 +418,7 @@ const TAX: Flow = {
       from: 'You',
       purpose: 'Decide these before you fill in the Treasurer’s real Trustee Auction Registration Form.',
       lines: [
-        { label: 'Name on the deed', value: 'Exactly the name you register. For an LLC or trust, ask the Treasurer first whether that name is accepted.' },
+        { label: 'Name on the deed', value: 'Exactly the bidder name you register, which must be an individual’s name. To hold it in an LLC or trust, record a new deed afterwards.' },
         { label: 'Deposit', value: '$5,000 in certified funds, by the registration deadline (about a week before the auction). Credited if you win.' },
         { label: 'Bidder limit', value: '280 bidders. No registration on auction day.' },
         { label: 'Parcels you’ll bid on', value: `${p.apn} (practice), with your maximum bid next to it.` },

@@ -70,7 +70,7 @@ export const SECTIONS: DrillSection[] = [
           </li>
           <li>
             <strong>Security.</strong> To block abuse, our server keeps network addresses in memory for a short time to limit how many requests
-            each one can make. Our server software doesn't write visitor logs. If someone tries to sign in to an administrator account, we keep the network address used, to protect against break-ins. If our email service isn't set up, messages we would have emailed, including lead messages, are written to our server's private log instead. Our hosting provider may keep standard network logs for security.
+            each one can make. Our server software doesn't write visitor logs. If someone tries to sign in to an administrator account, we keep the network address used, to protect against break-ins. If our email service isn't set up, messages we would have emailed, including lead messages, are written to our server's private log instead. Our hosting provider and our network provider (Cloudflare) may keep standard network logs for security.
           </li>
         </ul>
         <h3>Public records about properties</h3>
@@ -107,8 +107,9 @@ export const SECTIONS: DrillSection[] = [
           <li><strong>The professional you contact</strong>: your name, email, phone and message, and only to that one professional.</li>
           <li><strong>We never sell your alerts email address or share it with advertisers.</strong> Only our email delivery provider handles it, to send the email you asked for.</li>
           <li>
-            <strong>Service providers</strong> that run the site for us: web hosting, email delivery, and our payment processor (Stripe) for
-            advertisers. Stripe receives the advertiser's name and email to set up billing. Providers may use the information only to provide
+            <strong>Service providers</strong> that run the site for us: web hosting; our network and security provider (Cloudflare), which
+            carries traffic to the site and may hold an encrypted off-site copy of our database; email delivery (Resend or Postmark); and our
+            payment processor (Stripe) for advertisers. Stripe receives the advertiser's name and email to set up billing. Providers may use the information only to provide
             their service to us.
           </li>
           <li><strong>The public</strong>: an approved advertiser's profile (business contact details, license number, services, bio and approved photo) is shown on the site.</li>
@@ -167,7 +168,7 @@ export const SECTIONS: DrillSection[] = [
           <strong>Advertiser applications and records</strong> (including applications that weren't approved): kept for legal, tax, accounting and
           fraud-prevention purposes, such as spotting repeat applications, until you ask us to delete them where the law allows.
         </li>
-        <li><strong>Backups</strong>: we keep 7 daily backups, so deleted information can remain in a backup for up to 7 days.</li>
+        <li><strong>Backups</strong>: we keep 7 daily backups and may keep a continuous off-site copy, so deleted information can remain in a backup for up to 7 days.</li>
       </ul>
     ),
   },

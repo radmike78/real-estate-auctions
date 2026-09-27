@@ -193,7 +193,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
                       <span className={`badge tone-${info.tone}`}>{info.label}</span> <span className="small muted">{t.kind}</span>
                       {moved && <span className="badge tone-info">Stage changed</span>}
                       <h3>{p.address}</h3>
-                      <div className="small muted">{p.city}, {p.state} {p.zip} · Parcel {p.apn}</div>
+                      <div className="small muted">{p.city}, {p.state} {p.zip} · <span className="nowrap">Parcel {p.apn}</span></div>
                     </div>
                     <button className={tracked ? 'btn' : ''} aria-pressed={tracked} onClick={() => toggle(r)}>
                       {tracked ? '★ Tracking' : '☆ Track'}

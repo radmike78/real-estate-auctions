@@ -24,6 +24,10 @@ function verifiedPhotoUrl(sha: string): Promise<string | null> {
       }
     })();
     verified.set(sha, p);
+    // A failed download isn't remembered, so the photo can load next time.
+    void p.then((u) => {
+      if (!u) verified.delete(sha);
+    });
   }
   return p;
 }

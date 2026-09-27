@@ -80,7 +80,7 @@ describe('due-diligence workflow and playbooks', () => {
     const tax = PLAYBOOKS.find((p) => p.key === 'tax')!;
     const text = JSON.stringify(tax);
     expect(text).toMatch(/name on your Trustee Auction Registration Form/);
-    expect(text).not.toMatch(/not an LLC/); // the Treasurer FAQ doesn't say this
+    expect(text).toMatch(/individual’s name, not a company, LLC or trust/); // the Treasurer's registration form says so
     expect(text).toMatch(/1:00 p\.m\./);
     expect(text).toMatch(/2 years after the Treasurer’s deed is delivered \(NRS 361\.600\)/);
     expect(text).not.toMatch(/buyer.s premium/i); // the in-person Treasurer auction has none
@@ -148,5 +148,15 @@ describe('legal fact-check fixes', () => {
   it('says a special-assessment deed clears other liens', async () => {
     const { playbookByKey } = await import('./playbooks');
     expect(playbookByKey('sid')!.survives.wipedOut.join(' ')).toMatch(/NRS 271\.600/);
+  });
+});
+
+describe('input limits', () => {
+  it('caps percentages at 100 and money at $10 billion, and ignores negatives', async () => {
+    const { clampInput, sanitizeInputs, BLANK_INPUTS } = await import('./bidCalc');
+    expect(clampInput('financedPct', 250)).toBe(100);
+    expect(clampInput('exitValue', 1e308)).toBe(1e10);
+    expect(clampInput('repairs', -5)).toBe(0);
+    expect(sanitizeInputs({ sellingCostPct: 500, targetProfitPct: 20 }, BLANK_INPUTS)).toMatchObject({ sellingCostPct: 100, targetProfitPct: 20 });
   });
 });

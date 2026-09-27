@@ -261,6 +261,16 @@ export function openBroadcasts(db: DatabaseSync) {
       const left = db.prepare(`SELECT 1 FROM broadcast_sends WHERE broadcast_id = ? AND status = 'QUEUED' LIMIT 1`).get(broadcastId);
       if (!left) db.prepare(`UPDATE broadcasts SET status = 'DONE', finished_at = ? WHERE id = ?`).run(now, broadcastId);
     },
+    /** How many list updates went out on a (Pacific) day, for the daily limit; kept across restarts. */
+    sentOn(day: string): number {
+      const r = db.prepare(`SELECT value FROM settings WHERE key = ?`).get(`broadcast_sent:${day}`) as { value: string } | undefined;
+      return r ? Number(r.value) || 0 : 0;
+    },
+    bumpSent(day: string): number {
+      db.prepare(`DELETE FROM settings WHERE key LIKE 'broadcast_sent:%' AND key < ?`).run(`broadcast_sent:${day}`);
+      db.prepare(`INSERT INTO settings (key, value) VALUES (?, '1') ON CONFLICT(key) DO UPDATE SET value = CAST(value AS INTEGER) + 1`).run(`broadcast_sent:${day}`);
+      return this.sentOn(day);
+    },
     /** A send with nobody on the list has nothing to wait for. */
     closeIfEmpty(broadcastId: string, now: string) {
       const left = db.prepare(`SELECT 1 FROM broadcast_sends WHERE broadcast_id = ? AND status = 'QUEUED' LIMIT 1`).get(broadcastId);

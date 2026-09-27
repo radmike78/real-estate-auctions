@@ -11,7 +11,7 @@ import type { Mail } from './mailer';
 import { leadsToCsv, monthRange, pacificDaysToUtc } from './metrics';
 import { generateSigningKeys, loadPrivateKey } from '../ingest/lib/sign';
 import { verifyProsFeed } from '../src/feed/prosFeed';
-import { approvalBlockers, validateApplication, validateBilling, type ApplicationInput } from '../src/lib/proApplication';
+import { approvalBlockers, plain, validateApplication, validateBilling, type ApplicationInput } from '../src/lib/proApplication';
 
 const AGENT: ApplicationInput = {
   category: 'agent',
@@ -78,9 +78,11 @@ describe('application validation', () => {
     expect(validateApplication({ ...AGENT, category: 'astrologer' }).ok).toBe(false);
   });
 
-  it('strips markup from free text', () => {
+  it('refuses markup in free text with a clear message, and stores plain text only', () => {
     const v = validateApplication({ ...AGENT, bio: 'Great agent <img src=x onerror=alert(1)> who helps buyers with short sales.' });
-    expect(v.ok && v.profile.bio).not.toMatch(/[<>]/);
+    expect(v.ok).toBe(false);
+    expect(!v.ok && v.errors.bio).toMatch(/Remove the < and >/);
+    expect(plain('a<b>c\u0000d', 20)).toBe('a b c d');
   });
 
   it('requires every verification step, with expiry only where licenses expire', () => {

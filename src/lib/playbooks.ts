@@ -80,7 +80,7 @@ export const PLAYBOOKS: Playbook[] = [
     mistakes: [
       { mistake: 'Bidding on a parcel you never looked up', prevent: 'Match the parcel number on the Assessor map, not just the address.' },
       { mistake: 'Planning to resell right away', prevent: 'Budget for the 2-year window after the deed (NRS 361.600) or a quiet title action before a title company will insure.' },
-      { mistake: 'Registering in the wrong name', prevent: 'The deed goes to exactly the name on your registration form. If you want it in an LLC or trust, ask the Treasurer before you register whether that name is accepted; otherwise you’ll record a new deed afterwards.' },
+      { mistake: 'Registering in the wrong name', prevent: 'The deed goes to exactly the bidder name on your registration form, and the Treasurer’s form requires an individual’s name, not a company, LLC or trust. To hold it in an entity, record your own deed to it after you receive the Treasurer’s deed; ask an attorney first.' },
       { mistake: 'Hoping to buy an unsold parcel later', prevent: 'The county doesn’t sell parcels over the counter. Unsold parcels may come back at a future auction.' },
       { mistake: 'Winning several parcels without the cash for all of them', prevent: 'Bring certified funds for everything you might win. One unpaid parcel costs the deposit and a ban.' },
     ],

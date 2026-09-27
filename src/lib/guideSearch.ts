@@ -150,6 +150,12 @@ export function searchGuides(ix: GuideIndex, q: string, limit = 20): GuideResult
   const terms = queryTerms(q);
   if (!terms.length) return { hits: [], partial: false, terms };
   const variants = terms.map((t) => [t, ...(SYNONYMS[t] ?? []).map(stem)]);
+  // While someone is still typing the last word ("depo"), it also matches the words it starts.
+  const lastWord = words(q).pop() ?? '';
+  const typing = !/\s$/.test(q) && lastWord.length >= 3 && terms.length > 0 && stem(lastWord) === terms[terms.length - 1];
+  const completions = typing ? [...ix.df.keys()].filter((k) => k.length > lastWord.length && k.startsWith(lastWord)).sort((a, b) => (ix.df.get(b) ?? 0) - (ix.df.get(a) ?? 0)).slice(0, 12) : [];
+  if (completions.length) variants[variants.length - 1].push(...completions);
+  const shown = [...terms, ...completions];
   const phrase = q.trim().toLowerCase().replace(/\s+/g, ' ');
   const scored = ix.docs.map((d) => {
     let score = 0;
@@ -170,7 +176,7 @@ export function searchGuides(ix: GuideIndex, q: string, limit = 20): GuideResult
   const seen = new Set<string>();
   const hits: GuideHit[] = [];
   for (const s of pool) {
-    const snippet = snippetFor(s.d.doc.text, terms);
+    const snippet = snippetFor(s.d.doc.text, shown);
     const key = `${s.d.doc.title}|${snippet}`;
     if (seen.has(key)) continue;
     seen.add(key);
@@ -180,7 +186,7 @@ export function searchGuides(ix: GuideIndex, q: string, limit = 20): GuideResult
   return {
     hits,
     partial,
-    terms,
+    terms: shown,
   };
 }
 

@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from 'react';
-import { BLANK_INPUTS, costsAtBid, maxSafeBid, profitAtBid, sanitizeInputs, stressTests, type BidInputs } from '../lib/bidCalc';
+import { BLANK_INPUTS, clampInput, costsAtBid, INPUT_MAX, maxSafeBid, profitAtBid, sanitizeInputs, stressTests, type BidInputs } from '../lib/bidCalc';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 
@@ -93,12 +93,12 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
   // What the person typed, so a field can be cleared while editing.
   const [draft, setDraft] = useState<Partial<Record<keyof BidInputs, string>>>({});
   const [bidText, setBidText] = useState<string>(openingBid ? String(openingBid) : '');
-  const bid = toNum(bidText);
+  const bid = Math.min(toNum(bidText), 1e10);
   const H = headingLevel === 2 ? 'h2' : 'h3';
   const set = (k: keyof BidInputs, text: string) => {
     trackAction('calculator_used', true);
     setDraft((d) => ({ ...d, [k]: text }));
-    const v = toNum(text);
+    const v = clampInput(k, toNum(text));
     setI((cur) => {
       const next = { ...cur, [k]: v };
       if (propertyId) {
@@ -135,6 +135,7 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
                     type="number"
                     inputMode="decimal"
                     min={0}
+                    max={INPUT_MAX[f.k]}
                     step="any"
                     value={draft[f.k] ?? String(i[f.k])}
                     aria-describedby={hintFor(f) ? `${uid}-${f.k}-hint` : undefined}

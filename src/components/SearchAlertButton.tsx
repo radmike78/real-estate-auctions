@@ -16,9 +16,12 @@ export default function SearchAlertButton({ cls }: { cls: ClassFilter }) {
     setOpen(true);
   };
   const setMaxBid = (v: string) => {
-    const clean = v.replace(/[^\d]/g, '').slice(0, 9);
-    setMax(clean);
-    setS((x) => ({ ...x, maxBid: clean && Number(clean) > 0 ? Number(clean) : null }));
+    // Whole dollars, with or without "$", commas or cents; anything else (like a minus sign) isn't taken.
+    const clean = v.replace(/[$,\s]/g, '');
+    if (!/^\d{0,9}(\.\d{0,2})?$/.test(clean)) return;
+    setMax(v);
+    const n = Math.floor(Number(clean));
+    setS((x) => ({ ...x, maxBid: clean && n > 0 ? n : null }));
   };
   return (
     <>
@@ -42,7 +45,7 @@ export default function SearchAlertButton({ cls }: { cls: ClassFilter }) {
               </label>
               <label className="field">
                 <span>Highest minimum bid (optional)</span>
-                <input inputMode="numeric" placeholder="Any" value={max} onChange={(e) => setMaxBid(e.target.value)} />
+                <input inputMode="decimal" placeholder="Any" value={max} onChange={(e) => setMaxBid(e.target.value)} />
               </label>
             </div>
           }

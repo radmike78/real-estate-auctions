@@ -77,7 +77,7 @@ function SignUp() {
               </div>
               <label className="field">
                 <span>Your email</span>
-                <input type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} aria-invalid={!!errors.email} />
+                <input type="email" autoComplete="email" placeholder="you@example.com" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} aria-invalid={!!errors.email} />
                 {errors.email && <span className="field-error">{errors.email}</span>}
               </label>
               <label className="check attest">
@@ -88,7 +88,8 @@ function SignUp() {
                 </span>
               </label>
               {errors.form && !errors.email && !errors.list && <div className="caution" role="alert">{errors.form}</div>}
-              <button className="btn big" disabled={busy}>{busy ? 'Sending…' : 'Sign up'}</button>
+              <button className="btn big" disabled={busy}>{busy ? 'Sending…' : f.list ? 'Sign up' : 'Email me my manage link'}</button>
+              {!f.list && <p className="small muted">To sign up, tick General updates above.</p>}
               <p className="muted">Already signed up? Enter your email and we’ll send you your link to manage your alerts.</p>
             </form>
           </>

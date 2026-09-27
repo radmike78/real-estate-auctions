@@ -148,13 +148,22 @@ export function defaultsFor(p: Property): BidInputs {
   };
 }
 
+/** Largest sensible value for each input: percentages stop at 100, money at $10 billion. */
+export const INPUT_MAX: Record<keyof BidInputs, number> = {
+  exitValue: 1e10, repairs: 1e10, contingencyPct: 100, buyerPremiumPct: 100, transferTaxPer500: 100, survivingLiens: 1e10,
+  titleLegal: 1e10, possession: 1e10, holdingMonths: 600, monthlyCarry: 1e10, financedPct: 100, interestRatePct: 100,
+  pointsPct: 100, sellingCostPct: 100, targetProfitPct: 100,
+};
+/** A typed or saved value made safe: 0 for invalid or negative, capped at the input's maximum. */
+export const clampInput = (k: keyof BidInputs, v: number) => (Number.isFinite(v) && v > 0 ? Math.min(v, INPUT_MAX[k]) : 0);
+
 /** Rebuild inputs from untrusted saved data: only known keys, only finite non-negative numbers. */
 export function sanitizeInputs(saved: unknown, defaults: BidInputs): BidInputs {
   const out = { ...defaults };
   if (!saved || typeof saved !== 'object') return out;
   for (const k of Object.keys(defaults) as (keyof BidInputs)[]) {
     const v = (saved as Record<string, unknown>)[k];
-    if (typeof v === 'number' && Number.isFinite(v) && v >= 0) out[k] = v;
+    if (typeof v === 'number' && Number.isFinite(v) && v >= 0) out[k] = clampInput(k, v);
   }
   return out;
 }

@@ -13,7 +13,7 @@ import { PhotoError, processPhoto, sniffPhoto } from './photos';
 import { generateSigningKeys, loadPrivateKey } from '../ingest/lib/sign';
 import { validateApplication, type ApplicationInput } from '../src/lib/proApplication';
 
-const png = (w = 800, h = 600) => sharp({ create: { width: w, height: h, channels: 3, background: '#3366cc' } }).png().toBuffer();
+const png = (w = 800, h = 600, background = '#3366cc') => sharp({ create: { width: w, height: h, channels: 3, background } }).png().toBuffer();
 
 describe('photo cleaning', () => {
   it('turns an accepted photo into a fresh 400x400 WebP without metadata', async () => {
@@ -133,7 +133,10 @@ describe('profile photos (running server)', () => {
     const pendingSha = app.db.photos.get(proId, 'pending')!.sha256;
     expect((await fetch(`${base}/api/pro-photos/${pendingSha}.webp`)).status).toBe(404);
 
-    expect((await post(`/api/admin/applications/${proId}/photo/approve`, adminCookie)).status).toBe(200);
+    // Approving needs the hash of the photo the admin looked at.
+    expect((await post(`/api/admin/applications/${proId}/photo/approve`, adminCookie)).status).toBe(400);
+    expect((await fetch(`${base}/api/admin/applications/${proId}/photo?sha=${'0'.repeat(64)}`, { headers: { cookie: adminCookie } })).status).toBe(404);
+    expect((await post(`/api/admin/applications/${proId}/photo/approve`, adminCookie, { sha256: pendingSha })).status).toBe(200);
     const listed = directory().pros.find((p) => p.id === proId)!;
     expect(listed.photo).toBe(pendingSha);
     const pub = await fetch(`${base}/api/pro-photos/${pendingSha}.webp`);
@@ -148,13 +151,31 @@ describe('profile photos (running server)', () => {
     const live = app.db.photos.meta(proId).live;
     expect((await upload(await png(500, 900))).status).toBe(200);
     expect(directory().pros.find((p) => p.id === proId)!.photo).toBe(live);
-    expect((await post(`/api/admin/applications/${proId}/photo/reject`, adminCookie)).status).toBe(200);
-    expect(app.db.photos.meta(proId)).toEqual({ live, pendingAt: null });
-    expect((await post(`/api/admin/applications/${proId}/photo/reject`, adminCookie)).status).toBe(409);
+    const reviewed = app.db.photos.meta(proId).pending!;
+    // The advertiser swaps in another photo while the admin is looking: the stale decision is refused.
+    expect((await upload(await png(600, 600, '#cc3366'))).status).toBe(200);
+    const swapped = app.db.photos.meta(proId).pending!;
+    expect(swapped).not.toBe(reviewed);
+    const stale = await post(`/api/admin/applications/${proId}/photo/approve`, adminCookie, { sha256: reviewed });
+    expect(stale.status).toBe(409);
+    expect((await stale.json()).error).toMatch(/changed/);
+    expect(directory().pros.find((p) => p.id === proId)!.photo).toBe(live);
+    expect((await post(`/api/admin/applications/${proId}/photo/reject`, adminCookie, { sha256: swapped })).status).toBe(200);
+    expect(app.db.photos.meta(proId)).toEqual({ live, pendingAt: null, pending: null });
+    expect((await post(`/api/admin/applications/${proId}/photo/reject`, adminCookie, { sha256: swapped })).status).toBe(409);
 
     expect((await post('/api/pro/photo/remove', proCookie, { which: 'live' })).status).toBe(200);
     expect(directory().pros.find((p) => p.id === proId)!.photo).toBeNull();
     expect((await fetch(`${base}/api/pro-photos/${live}.webp`)).status).toBe(404);
     expect(app.db.auditFor(proId).map((a) => a.action)).toEqual(expect.arrayContaining(['PHOTO_UPLOADED', 'PHOTO_APPROVED', 'PHOTO_REJECTED', 'PHOTO_REMOVED']));
+  });
+
+  it('stops serving a photo when the advertiser is no longer approved', async () => {
+    expect((await upload(await png())).status).toBe(200);
+    const sha = app.db.photos.meta(proId).pending!;
+    expect((await post(`/api/admin/applications/${proId}/photo/approve`, adminCookie, { sha256: sha })).status).toBe(200);
+    expect((await fetch(`${base}/api/pro-photos/${sha}.webp`)).status).toBe(200);
+    app.db.update(proId, { status: 'SUSPENDED' }, new Date().toISOString());
+    expect((await fetch(`${base}/api/pro-photos/${sha}.webp`)).status).toBe(404);
   });
 });

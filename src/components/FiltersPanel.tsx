@@ -18,7 +18,11 @@ function toggle<T>(list: T[], item: T): T[] {
   return list.includes(item) ? list.filter((x) => x !== item) : [...list, item];
 }
 
-const num = (v: string) => (v === '' ? null : Number(v));
+// Blank means no limit; negatives and nonsense count as no limit too.
+const num = (v: string) => {
+  const n = Number(v);
+  return v === '' || !Number.isFinite(n) || n < 0 ? null : n;
+};
 
 export default function FiltersPanel({ filters: f, onChange, onReset }: Props) {
   return (
@@ -48,8 +52,7 @@ export default function FiltersPanel({ filters: f, onChange, onReset }: Props) {
         {STATUSES.map((s) => (
           <label key={s} className="check">
             <input type="checkbox" checked={f.statuses.includes(s)} onChange={() => onChange({ statuses: toggle(f.statuses, s) })} />
-            <span className={`dot tone-${STATUS[s].tone}`} aria-hidden />
-            {STATUS[s].label}
+            <span><span className={`dot tone-${STATUS[s].tone}`} aria-hidden /> {STATUS[s].label}</span>
           </label>
         ))}
       </fieldset>

@@ -5,7 +5,7 @@ import { createServer } from 'node:http';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApp, type AppConfig } from './app';
 import { hashPassword } from './auth';
-import { postmarkMailer, type Mail } from './mailer';
+import { MailError, postmarkMailer, type Mail } from './mailer';
 import { openBroadcasts } from './alerts';
 
 const PASSWORD = 'a-long-admin-password';
@@ -161,5 +161,52 @@ describe('Postmark broadcast stream', () => {
     await m.send({ to: 'a@example.com', subject: 'Update', text: 'x', stream: 'broadcast' });
     await m.send({ to: 'a@example.com', subject: 'Sign in', text: 'x' });
     expect(bodies.map((b) => b.MessageStream)).toEqual(['news', 'outbound']);
+  });
+});
+
+describe('email-service limits for list updates', () => {
+  const UPDATE = { subject: 'Spring tax auction list is out', body: 'The Treasurer published the list for the May auction. See it on Live tax sales.' };
+  const until = async (ok: () => boolean) => {
+    for (let i = 0; i < 100 && !ok(); i++) await new Promise((r) => setTimeout(r, 20));
+  };
+
+  it('sends at most the daily limit and leaves the rest queued for tomorrow', async () => {
+    const t = await start({ broadcastDailyMax: 2 });
+    for (const e of ['a@example.com', 'b@example.com', 'c@example.com']) await t.subscriber(e, true);
+    const before = t.mails.length;
+    expect((await t.admin('/api/admin/email/send', { ...UPDATE, expectedRecipients: 3 })).status).toBe(202);
+    await until(() => t.mails.length - before >= 2);
+    await new Promise((r) => setTimeout(r, 100));
+    expect(t.mails.slice(before).filter((m) => m.stream === 'broadcast')).toHaveLength(2);
+    const b = (await (await t.admin('/api/admin/email')).json()).broadcasts[0];
+    expect(b).toMatchObject({ status: 'SENDING', sent: 2, failed: 0 });
+    await new Promise<void>((r) => t.server.close(() => r()));
+  });
+
+  it('pauses when the email service says the allowance is used up, without failing anyone', async () => {
+    let quotaHit = false;
+    const t = await start({
+      mailer: {
+        send: async (m) => {
+          if (m.stream === 'broadcast') {
+            quotaHit = true;
+            throw new MailError('Resend HTTP 429, daily_quota_exceeded', false, true);
+          }
+          sent.push(m);
+        },
+      },
+    });
+    const sent: Mail[] = []; // confirmation emails, from the fake mailer above
+    for (const e of ['a@example.com', 'b@example.com']) {
+      await t.post('/api/alerts/signup', { email: e, list: true });
+      const tok = sent[sent.length - 1].text.match(/#\/alerts\/confirm\/([A-Za-z0-9_-]+)/)![1];
+      await t.post('/api/alerts/confirm', { token: tok });
+    }
+    expect((await t.admin('/api/admin/email/send', { ...UPDATE, expectedRecipients: 2 })).status).toBe(202);
+    await until(() => quotaHit);
+    await new Promise((r) => setTimeout(r, 100));
+    const b = (await (await t.admin('/api/admin/email')).json()).broadcasts[0];
+    expect(b).toMatchObject({ status: 'SENDING', sent: 0, failed: 0 });
+    await new Promise<void>((r) => t.server.close(() => r()));
   });
 });

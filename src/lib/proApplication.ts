@@ -157,6 +157,11 @@ export function validateApplication(raw: Partial<ApplicationInput>): ValidationR
   const bio = plain(raw.bio, 800);
   if (bio.length < 30) errors.bio = 'Write at least 30 characters about how you help buyers and investors.';
 
+  // Angle brackets would otherwise be quietly turned into spaces ("<b>LLC</b>" shows as "b LLC /b"): ask instead.
+  for (const k of ['name', 'company', 'headline', 'bio'] as const) {
+    if (typeof raw[k] === 'string' && /[<>]/.test(raw[k] as string)) errors[k] = 'Remove the < and > characters. Plain text only.';
+  }
+
   for (const k of ['attestLicensed', 'attestAccurate', 'consentVerification', 'attestOriginal', 'attestAdvertising'] as const) {
     if (raw[k] !== true) errors[k] = 'Required.';
   }

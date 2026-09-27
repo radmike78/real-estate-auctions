@@ -6,6 +6,8 @@ import { fmtDate, fmtDateTime } from '../lib/status';
 import PageHero from './PageHero';
 import DailyColumns from './DailyColumns';
 
+const LOGIN_KEY = 'fsf.pro-login';
+
 interface Me {
   id: string;
   status: string;
@@ -180,6 +182,10 @@ function SignIn() {
   const [msg, setMsg] = useState<string | null>(null);
   async function submit(e: FormEvent) {
     e.preventDefault();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setMsg('Enter the email address on your advertiser application.');
+      return;
+    }
     const r = await api<{ message: string }>('/api/pro/login', { body: { email } }).catch((err: Error) => ({ message: err.message }));
     setMsg(r.message);
   }
@@ -222,12 +228,31 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
 
   // A sign-in link is only used after a click, so nobody can sign you into their account just by
   // getting you to open their link.
-  const [pending, setPending] = useState<string | null>(token);
+  // The token is dropped from the address bar, but kept for this tab only, so refreshing before the click still works.
+  const [pending, setPending] = useState<string | null>(() => {
+    if (token) return token;
+    try {
+      return sessionStorage.getItem(LOGIN_KEY);
+    } catch {
+      return null;
+    }
+  });
   useEffect(() => {
-    if (token) history.replaceState(null, '', '#/advertiser'); // drop the token from the address bar and history
-    else loadMe();
-  }, [token, loadMe]);
+    if (token) {
+      try {
+        sessionStorage.setItem(LOGIN_KEY, token);
+      } catch {
+        /* storage unavailable */
+      }
+      history.replaceState(null, '', '#/advertiser'); // drop the token from the address bar and history
+    } else if (!pending) loadMe();
+  }, [token, loadMe]); // eslint-disable-line react-hooks/exhaustive-deps
   function redeemLink(t: string) {
+    try {
+      sessionStorage.removeItem(LOGIN_KEY);
+    } catch {
+      /* storage unavailable */
+    }
     if (!sessions.has(t)) sessions.set(t, api('/api/pro/session', { body: { token: t }, auth: true }));
     setMe('loading');
     setPending(null);

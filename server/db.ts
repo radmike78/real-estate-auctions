@@ -375,9 +375,10 @@ export function openDb(path: string) {
           | undefined;
         return r ? { ...r, image: Buffer.from(r.image) } : undefined;
       },
-      /** Replaces the live photo with the pending one. Returns false if nothing was pending. */
-      approve(proId: string): boolean {
-        if (!api.photos.get(proId, 'pending')) return false;
+      /** Replaces the live photo with the pending one, only if it is still the exact photo the admin reviewed
+       *  (`sha256`). Returns false if nothing matching is pending. */
+      approve(proId: string, sha256: string): boolean {
+        if (api.photos.get(proId, 'pending')?.sha256 !== sha256) return false;
         db.exec('BEGIN');
         try {
           db.prepare("DELETE FROM pro_photos WHERE pro_id = ? AND state = 'live'").run(proId);
@@ -392,9 +393,15 @@ export function openDb(path: string) {
       remove(proId: string, state: 'pending' | 'live') {
         return db.prepare('DELETE FROM pro_photos WHERE pro_id = ? AND state = ?').run(proId, state).changes > 0;
       },
-      /** An approved photo by its hash (the only way photos are served publicly). */
+      /** Rejects the pending photo only if it is still the one the admin reviewed. */
+      rejectPending(proId: string, sha256: string) {
+        return db.prepare("DELETE FROM pro_photos WHERE pro_id = ? AND state = 'pending' AND sha256 = ?").run(proId, sha256).changes > 0;
+      },
+      /** An approved photo of a currently approved advertiser, by its hash (the only way photos are served publicly). */
       liveBySha(sha256: string) {
-        const r = db.prepare("SELECT image FROM pro_photos WHERE sha256 = ? AND state = 'live' LIMIT 1").get(sha256) as { image: Uint8Array } | undefined;
+        const r = db
+          .prepare("SELECT p.image FROM pro_photos p JOIN applications a ON a.id = p.pro_id WHERE p.sha256 = ? AND p.state = 'live' AND a.status = 'APPROVED' LIMIT 1")
+          .get(sha256) as { image: Uint8Array } | undefined;
         return r ? Buffer.from(r.image) : undefined;
       },
       liveMap(): Map<string, string> {
@@ -402,9 +409,10 @@ export function openDb(path: string) {
         return new Map(rows.map((r) => [r.proId, r.sha256]));
       },
       /** Hash and upload time of each state, without the image bytes. */
-      meta(proId: string): { live: string | null; pendingAt: string | null } {
+      meta(proId: string): { live: string | null; pendingAt: string | null; pending: string | null } {
         const rows = db.prepare('SELECT state, sha256, uploaded_at AS uploadedAt FROM pro_photos WHERE pro_id = ?').all(proId) as { state: string; sha256: string; uploadedAt: string }[];
-        return { live: rows.find((r) => r.state === 'live')?.sha256 ?? null, pendingAt: rows.find((r) => r.state === 'pending')?.uploadedAt ?? null };
+        const pending = rows.find((r) => r.state === 'pending');
+        return { live: rows.find((r) => r.state === 'live')?.sha256 ?? null, pendingAt: pending?.uploadedAt ?? null, pending: pending?.sha256 ?? null };
       },
       pendingIds(): Set<string> {
         return new Set((db.prepare("SELECT pro_id AS proId FROM pro_photos WHERE state = 'pending'").all() as { proId: string }[]).map((r) => r.proId));

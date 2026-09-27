@@ -15,6 +15,8 @@ interface Broadcast {
 interface Overview {
   counts: { active: number; listOptIn: number; pending: number; trackedProperties: number; savedSearches: number };
   postalAddressReady: boolean;
+  /** Most updates sent per day (0 = no limit). */
+  dailyMax?: number;
   broadcasts: Broadcast[];
 }
 
@@ -132,6 +134,7 @@ export default function EmailListAdmin() {
               </button>
             )}
             {sending && <p className="muted">An update is sending now. You can send another when it finishes.</p>}
+            {!!o.dailyMax && c.listOptIn > o.dailyMax && <p className="muted">At most {n(o.dailyMax)} updates go out each day, to leave your email plan room for sign-in links and alerts. The rest go out over the next days automatically.</p>}
           </div>
         </section>
 
