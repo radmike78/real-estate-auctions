@@ -5,7 +5,7 @@ import { createServer } from 'node:http';
 import { describe, expect, it } from 'vitest';
 import { createApp } from './app';
 import { hashPassword } from './auth';
-import { alertsConfirmEmail, broadcastEmail, maskEmail, MailError, postmarkMailer, type Mail } from './mailer';
+import { alertsConfirmEmail, broadcastEmail, maskEmail, MailError, postmarkMailer, resendMailer, type Mail } from './mailer';
 
 const MAIL: Mail = { to: 'buyer@example.com', subject: 'Hello\r\nBcc: evil@example.com', text: 'Sign in: https://fsf.example/#/advertiser/login/abc' };
 
@@ -19,6 +19,79 @@ function fakeFetch(responses: Array<{ status: number; body?: unknown } | Error>)
   }) as unknown as typeof fetch;
   return { f, calls };
 }
+
+describe('Resend mailer', () => {
+  const opts = { apiKey: 're_test_123', from: 'DeedOwl <no-reply@fsf.example>', retryDelayMs: 0, minIntervalMs: 0 };
+
+  it('sends plain text with header-safe fields and unsubscribe headers', async () => {
+    const { f, calls } = fakeFetch([{ status: 200, body: { id: 'abc' } }]);
+    await resendMailer({ ...opts, replyTo: 'help@fsf.example', fetch: f }).send({ ...MAIL, headers: { 'List-Unsubscribe': '<https://fsf.example/u>\r\nX: y' } });
+    expect(calls).toHaveLength(1);
+    expect(calls[0].url).toBe('https://api.resend.com/emails');
+    const headers = calls[0].init.headers as Record<string, string>;
+    expect(headers.Authorization).toBe('Bearer re_test_123');
+    expect(headers['Idempotency-Key']).toMatch(/^[0-9a-f-]{36}$/);
+    expect(JSON.parse(String(calls[0].init.body))).toEqual({
+      from: 'DeedOwl <no-reply@fsf.example>',
+      to: ['buyer@example.com'],
+      subject: 'Hello Bcc: evil@example.com',
+      text: MAIL.text,
+      reply_to: 'help@fsf.example',
+      headers: { 'List-Unsubscribe': '<https://fsf.example/u> X: y' },
+    });
+  });
+
+  it('retries a rate limit once with the same idempotency key, so a message is never sent twice', async () => {
+    const { f, calls } = fakeFetch([{ status: 429, body: { name: 'rate_limit_exceeded', message: 'Too many requests' } }, { status: 200, body: { id: 'x' } }]);
+    await resendMailer({ ...opts, fetch: f }).send(MAIL);
+    expect(calls).toHaveLength(2);
+    const key = (i: number) => (calls[i].init.headers as Record<string, string>)['Idempotency-Key'];
+    expect(key(0)).toBe(key(1));
+  });
+
+  it('does not retry a used-up quota or a rejected message, and reports the reason', async () => {
+    const quota = fakeFetch([{ status: 429, body: { name: 'daily_quota_exceeded', message: 'You have reached your daily email sending quota.' } }]);
+    const e1 = await resendMailer({ ...opts, fetch: quota.f }).send(MAIL).catch((e) => e);
+    expect(quota.calls).toHaveLength(1);
+    expect(e1).toBeInstanceOf(MailError);
+    expect(e1.message).toBe('Resend HTTP 429, daily_quota_exceeded: You have reached your daily email sending quota.');
+    const bad = fakeFetch([{ status: 403, body: { name: 'validation_error', message: 'The fsf.example domain is not verified.' } }]);
+    await expect(resendMailer({ ...opts, fetch: bad.f }).send(MAIL)).rejects.toThrow(/403, validation_error/);
+    expect(bad.calls).toHaveLength(1);
+  });
+
+  it('retries network failures once, then gives up', async () => {
+    const { f, calls } = fakeFetch([new Error('ECONNRESET'), new Error('ECONNRESET')]);
+    await expect(resendMailer({ ...opts, fetch: f }).send(MAIL)).rejects.toThrow(/Resend request failed/);
+    expect(calls).toHaveLength(2);
+  });
+
+  it('sends one request at a time, spaced out, and uses the broadcast sender for list updates', async () => {
+    const times: number[] = [];
+    const bodies: Record<string, unknown>[] = [];
+    let inFlight = 0;
+    let maxInFlight = 0;
+    const f = (async (_u: string, init: RequestInit) => {
+      inFlight++;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      times.push(Date.now());
+      bodies.push(JSON.parse(String(init.body)));
+      await new Promise((r) => setTimeout(r, 5));
+      inFlight--;
+      return new Response('{"id":"x"}', { status: 200 });
+    }) as unknown as typeof fetch;
+    const m = resendMailer({ ...opts, minIntervalMs: 40, broadcastFrom: 'DeedOwl <news@updates.fsf.example>', fetch: f });
+    await Promise.all([
+      m.send({ to: 'a@example.com', subject: 'Update', text: 'x', stream: 'broadcast' }),
+      m.send({ to: 'b@example.com', subject: 'Sign in', text: 'x' }),
+      m.send({ to: 'c@example.com', subject: 'Sign in', text: 'x' }),
+    ]);
+    expect(maxInFlight).toBe(1);
+    expect(times[1] - times[0]).toBeGreaterThanOrEqual(35);
+    expect(times[2] - times[1]).toBeGreaterThanOrEqual(35);
+    expect(bodies.map((b) => b.from)).toEqual(['DeedOwl <news@updates.fsf.example>', 'DeedOwl <no-reply@fsf.example>', 'DeedOwl <no-reply@fsf.example>']);
+  });
+});
 
 describe('Postmark mailer', () => {
   it('sends a plain-text email with tracking off and header-safe fields', async () => {

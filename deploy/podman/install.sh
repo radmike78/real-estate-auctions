@@ -97,11 +97,14 @@ if [ -z "${FSF_RECREATE:-}" ]; then
     read -r -p "Will Cloudflare proxy this domain (orange cloud)? See README: Cloudflare [y/N]: " A
     [[ "${A:-n}" =~ ^[Yy] ]] && TRUST_CLOUDFLARE=1
   fi
-  echo "Email: paste your Postmark Server API token to send email now (README: Email), or press Enter to set it up later."
-  read -r -s -p "Postmark Server API token [skip]: " PM_TOKEN; echo
-  MAIL_FROM=""
-  if [ -n "$PM_TOKEN" ]; then
-    read -r -p "Send email from (an address verified in Postmark), like no-reply@your-domain: " MAIL_ADDR
+  echo "Email: paste your Resend API key (starts with re_) or Postmark Server API token to send email now (README: Email),"
+  echo "or press Enter to set it up later."
+  read -r -s -p "Resend API key or Postmark token [skip]: " MAIL_KEY; echo
+  MAIL_KEY=$(printf '%s' "$MAIL_KEY" | tr -d '[:space:]')
+  MAIL_FROM=""; MAIL_SERVICE=""
+  if [ -n "$MAIL_KEY" ]; then
+    if [[ "$MAIL_KEY" == re_* ]]; then MAIL_SERVICE=Resend; else MAIL_SERVICE=Postmark; fi
+    read -r -p "Send email from (an address on your domain verified in $MAIL_SERVICE), like no-reply@your-domain: " MAIL_ADDR
     [[ "$MAIL_ADDR" =~ ^[^[:space:]@\<\>]+@[^[:space:]@\<\>]+\.[^[:space:]@\<\>]+$ ]] || die "That doesn't look like an email address."
     MAIL_FROM="DeedOwl <$MAIL_ADDR>"
   fi
@@ -116,15 +119,21 @@ if [ -z "${FSF_RECREATE:-}" ]; then
   podman secret create fsf-feed-signing-key "$KEY_DIR/feed-signing.pem" >/dev/null
   podman secret rm fsf-directory-signing-key >/dev/null 2>&1 || true
   podman secret create fsf-directory-signing-key "$KEY_DIR/directory-signing.pem" >/dev/null
-  if [ -n "$PM_TOKEN" ]; then
-    podman secret rm fsf-postmark-token >/dev/null 2>&1 || true
-    printf '%s' "$PM_TOKEN" | podman secret create fsf-postmark-token - >/dev/null
+  # Only one email service at a time: storing a key removes the other service's secret.
+  if [ "$MAIL_SERVICE" = Resend ]; then
+    podman secret rm fsf-resend-key fsf-postmark-token >/dev/null 2>&1 || true
+    printf '%s' "$MAIL_KEY" | podman secret create fsf-resend-key - >/dev/null
+  elif [ "$MAIL_SERVICE" = Postmark ]; then
+    podman secret rm fsf-resend-key fsf-postmark-token >/dev/null 2>&1 || true
+    printf '%s' "$MAIL_KEY" | podman secret create fsf-postmark-token - >/dev/null
   fi
-  unset PM_TOKEN
+  unset MAIL_KEY
 fi
 # Installs from before the directory key existed: add its secret on update.
 podman secret inspect fsf-directory-signing-key >/dev/null 2>&1 || podman secret create fsf-directory-signing-key "$KEY_DIR/directory-signing.pem" >/dev/null
-HAS_MAIL=""; podman secret inspect fsf-postmark-token >/dev/null 2>&1 && HAS_MAIL=1
+HAS_MAIL=""; MAIL_SECRET=""; MAIL_ENV=""
+if podman secret inspect fsf-resend-key >/dev/null 2>&1; then HAS_MAIL=Resend; MAIL_SECRET=fsf-resend-key; MAIL_ENV=RESEND_API_KEY
+elif podman secret inspect fsf-postmark-token >/dev/null 2>&1; then HAS_MAIL=Postmark; MAIL_SECRET=fsf-postmark-token; MAIL_ENV=POSTMARK_SERVER_TOKEN; fi
 
 HEALTH="node -e \"fetch('http://127.0.0.1:8080/healthz').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))\""
 
@@ -138,7 +147,7 @@ if [ "$MODE" = systemd ]; then
   if [ "$CADDY" = no ] && [ "$TRUST_PROXY" = 0 ] && [ "$HOST_PART" != localhost ] && [ "$HOST_PART" != 127.0.0.1 ]; then
     sed -i 's|^PublishPort=127.0.0.1:8080:8080|PublishPort=8080:8080|' "$QUADLET_DIR/forced-sale-finder-web.container"
   fi
-  if [ -n "$HAS_MAIL" ]; then sed -i 's|^#Secret=fsf-postmark-token|Secret=fsf-postmark-token|' "$QUADLET_DIR/forced-sale-finder-web.container"; fi
+  if [ -n "$HAS_MAIL" ]; then sed -i "s|^#Secret=$MAIL_SECRET,|Secret=$MAIL_SECRET,|" "$QUADLET_DIR/forced-sale-finder-web.container"; fi
   cat > "$QUADLET_DIR/forced-sale-finder.env" <<EOF
 BASE_URL=$BASE_URL
 ADMIN_USERNAME=$ADMIN_USER
@@ -173,7 +182,7 @@ else
     if [ -n "${MAIL_FROM:-}" ]; then printf 'MAIL_FROM=%s\n' "$MAIL_FROM" >> "$KEY_DIR/forced-sale-finder.env"; fi
     ENV_ARGS=(--env-file "$KEY_DIR/forced-sale-finder.env")
   fi
-  MAIL_ARGS=(); if [ -n "$HAS_MAIL" ]; then MAIL_ARGS=(--secret fsf-postmark-token,type=env,target=POSTMARK_SERVER_TOKEN); fi
+  MAIL_ARGS=(); if [ -n "$HAS_MAIL" ]; then MAIL_ARGS=(--secret "$MAIL_SECRET,type=env,target=$MAIL_ENV"); fi
   podman run -d --name forced-sale-finder-web --restart=always -p "${FSF_PORT:-8080}:8080" -v forced-sale-finder-data:/data "${ENV_ARGS[@]}" ${MAIL_ARGS[@]+"${MAIL_ARGS[@]}"} \
     --secret fsf-admin-password-hash,type=env,target=ADMIN_PASSWORD_HASH --secret fsf-directory-signing-key,type=env,target=DIRECTORY_SIGNING_KEY \
     --read-only --security-opt no-new-privileges --cap-drop all --health-cmd "$HEALTH" --health-interval 30s "$IMAGE" >/dev/null
@@ -199,7 +208,7 @@ DeedOwl is running.
   Signing keys:  $KEY_DIR/feed-signing.pem and directory-signing.pem   (back these up; keep them private)
   Data volume:   forced-sale-finder-data (database, daily backups, feeds)
   Logs:          podman logs -f forced-sale-finder-web
-  Email:         $( [ -n "$HAS_MAIL" ] && echo "on (Postmark)" || echo "OFF: emails only go to the log. See README > Email." )
+  Email:         $( [ -n "$HAS_MAIL" ] && echo "on ($HAS_MAIL)" || echo "OFF: emails only go to the log. See README > Email." )
   Update later:  git pull && deploy/podman/install.sh --update
   Auto-deploy:   deploy/podman/auto-deploy.sh   (updates the site whenever main changes; see README)
   Off-site copy: deploy/podman/offsite-backup.sh (database to Cloudflare R2 within seconds; see README)

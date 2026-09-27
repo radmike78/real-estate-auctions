@@ -51,10 +51,11 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 | `ADMIN_PASSWORD_HASH` | **yes** | yes | Hash of the admin password (never the password itself). Created in step 3 below. |
 | `DIRECTORY_SIGNING_KEY` | **yes** | yes (web) | Private key (PEM) that signs the advertiser directory. Web server only. Created in step 2 below. |
 | `FEED_SIGNING_KEY` | **yes** | yes (updater) | Private key (PEM) that signs the listings. **Listings updater only**: the web server refuses to start if it's given this key, so a break-in to the web server can't publish fake listings. |
-| `POSTMARK_SERVER_TOKEN` | **yes** | for a real site | Sends email through Postmark. Set it together with `MAIL_FROM`. See [Email](#email-postmark). |
-| `MAIL_FROM` | no | with the token | Sender address verified in Postmark, like `DeedOwl <no-reply@your-domain>`. |
+| `RESEND_API_KEY` or `POSTMARK_SERVER_TOKEN` | **yes** | for a real site | Sends email through Resend or Postmark (one, not both). Set it together with `MAIL_FROM`. See [Email](#email-resend-or-postmark). |
+| `MAIL_FROM` | no | with the key | Sender address on a domain verified with that service, like `DeedOwl <no-reply@your-domain>`. |
 | `MAIL_POSTAL_ADDRESS` | no | only for general-list updates | Postal address shown only in updates to the general email list (CAN-SPAM). A PO box or mailbox service is fine. Never shown on the site or in alerts. |
-| `MAIL_REPLY_TO`, `POSTMARK_MESSAGE_STREAM`, `POSTMARK_BROADCAST_STREAM` | no | no | Where replies go (default: `MAIL_FROM`), the Postmark stream for sign-in, alert and other one-to-one email (default `outbound`), and the stream for updates to the general email list (default `broadcast`). |
+| `RESEND_BROADCAST_FROM` | no | no | Resend only: sender for updates to the general email list, for example on its own subdomain (default: `MAIL_FROM`). |
+| `MAIL_REPLY_TO`, `POSTMARK_MESSAGE_STREAM`, `POSTMARK_BROADCAST_STREAM` | no | no | Where replies go (default: `MAIL_FROM`); Postmark only: the stream for sign-in, alert and other one-to-one email (default `outbound`), and the stream for updates to the general email list (default `broadcast`). |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PLANS` | **yes** | no | Online card payments for advertisers: set all three or none. See [Online payments](#advertisers-signup-verification-billing-server). |
 | `TRUST_PROXY` | no | no | `1` when a reverse proxy, Ingress or OpenShift router sits in front (it is in every option below). |
 | `TRUST_CLOUDFLARE` | no | with Cloudflare | `1` when your domain is proxied through Cloudflare, so each visitor's own address is used for spam limits. See [Cloudflare](#cloudflare-strongly-recommended). |
@@ -70,7 +71,7 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 | `SHOW_SAMPLE_DATA` | `0` | `1` shows the fictional sample properties and professionals, for a demo site. Leave it at `0` for a real site. |
 | `RUN_TESTS` | `1` | `0` skips the test suite during the build (not recommended). |
 
-> **Emails:** without `POSTMARK_SERVER_TOKEN` and `MAIL_FROM`, confirmation links, sign-in links, leads and reports are only written to the web container's log, and the log says `WARNING: email is OFF`. Set up [Email](#email-postmark) before real visitors arrive.
+> **Emails:** without `RESEND_API_KEY` (or `POSTMARK_SERVER_TOKEN`) and `MAIL_FROM`, confirmation links, sign-in links, leads and reports are only written to the web container's log, and the log says `WARNING: email is OFF`. Set up [Email](#email-resend-or-postmark) before real visitors arrive.
 
 ### Cloudflare (strongly recommended)
 
@@ -108,45 +109,63 @@ Put [Cloudflare](https://www.cloudflare.com)'s free plan in front of any option 
    - **Custom rule "only normal requests":** when `not http.request.method in {"GET" "HEAD" "POST"}`, **Block**.
    - **DDoS protection:** keep the HTTP DDoS managed ruleset on (it is by default). Use **Under Attack mode** only during an attack: it also challenges Stripe's payment notices (Stripe retries them for 3 days).
    - **Bots:** Bot Fight Mode is optional. If you turn it on, check that a test Stripe payment still reaches the site and that the one-click unsubscribe in an alert email still works.
-8. **Postmark:** in Postmark, turn on bounce and spam-complaint alerts. The site also stops sending form emails (confirmations, sign-in links, leads) after 200 in one hour and logs a warning, so a spam flood can't burn through your allowance.
+8. **Email service:** in Resend or Postmark, check bounces and spam complaints now and then (Postmark can email you alerts). The site also stops sending form emails (confirmations, sign-in links, leads) after 200 in one hour and logs a warning, so a spam flood can't burn through your allowance.
 
 Cloudflare's default caching is right for this site: it caches the scripts, styles, fonts and images (their names change with every release) and passes pages, API calls and the signed listing feeds straight through. You don't need page rules or a cache-everything setting.
 
-### Email (Postmark)
+### Email (Resend or Postmark)
 
-The site sends plain-text email: advertiser confirmation and sign-in links, approval and payment notices, leads to advertisers with receipts to buyers, monthly reports, and **email alerts** that people sign up for (confirmation, welcome and manage-link messages). Open and link tracking are turned off on every message. Postmark stops sending to addresses that bounced or marked mail as spam.
+The site sends plain-text email: advertiser confirmation and sign-in links, approval and payment notices, leads to advertisers with receipts to buyers, monthly reports, and **email alerts** that people sign up for (confirmation, welcome and manage-link messages). It works with either of two email services; set up one:
+
+- **[Resend](https://resend.com)** (recommended to start): its free plan sends about 3,000 emails a month, up to 100 a day, which covers a new site.
+- **[Postmark](https://postmarkapp.com)**: excellent delivery; its free developer plan sends only 100 emails a month, and paid plans start at 10,000.
+
+Check each service's current plans before you sign up; prices and limits change. Both stop sending to addresses that bounced or marked mail as spam. The site never turns on open or click tracking.
 
 **Prerequisites**
-- A [Postmark](https://postmarkapp.com) account (the free developer plan sends 100 emails a month; paid plans start at 10,000).
-- Access to your domain's DNS, to verify it.
+- An account with the service you choose.
+- Access to your domain's DNS (Cloudflare, for DeedOwl), to verify the domain.
 
-**Set it up**
+**Set up Resend**
+1. In Resend, **Domains → Add Domain**. Resend suggests a subdomain; your main domain works too.
+2. Add the DNS records Resend shows (DKIM, SPF and the `send` MX record) in Cloudflare, as **DNS only** (grey cloud). They don't touch Cloudflare Email Routing: Resend's MX record is on its own `send` subdomain, and routing uses your main domain's MX records. Wait until Resend shows the domain as verified.
+3. In the domain's settings, leave **open tracking** and **click tracking** off (they're off by default). Click tracking rewrites links and would break sign-in and confirmation links.
+4. **API Keys → Create API Key** with **Sending access**, limited to that domain. It starts with `re_`. It's a secret: store it only as shown below, never in Git or chat.
+5. Give the site the key and your sender address (an address on the verified domain):
+   - **Podman:** `deploy/podman/install.sh` asks for both. To add them later:
+     ```bash
+     read -rs -p "Resend API key: " RK; echo
+     printf '%s' "$RK" | podman secret create fsf-resend-key -
+     unset RK
+     ```
+     Then add `MAIL_FROM=DeedOwl <no-reply@your-domain>` to `forced-sale-finder.env` in the Quadlet folder. Also uncomment the `Secret=fsf-resend-key` line in `forced-sale-finder-web.container`, then run `systemctl daemon-reload` and restart `forced-sale-finder-web`. With `--no-systemd`, run `install.sh` again and enter the key and address when it asks.
+   - **Kubernetes / OpenShift:** add `--from-literal=RESEND_API_KEY=...` when you create `forced-sale-finder-secrets`, and uncomment `MAIL_FROM` in `deploy/kubernetes/base/config.env`. To add the key to an existing Secret:
+     ```bash
+     read -rs -p "Resend API key: " RK; echo
+     kubectl patch secret forced-sale-finder-secrets -n forced-sale-finder --type merge \
+       -p "{\"stringData\":{\"RESEND_API_KEY\":\"$RK\"}}"
+     unset RK
+     ```
+     Then `kubectl apply -k ...` and `kubectl rollout restart deployment/forced-sale-finder -n forced-sale-finder`. On OpenShift, use `oc` instead of `kubectl`.
+6. **Check:** the web log should say `Email on: sending through Resend as ...`. Then apply to advertise with your own address, and look for the email under **Emails** in Resend.
+
+The site sends to Resend one message at a time, spaced out to stay under its per-second limit, and a retry can never send a message twice. On the free plan, sending stops for the day after 100 emails and the log says `daily_quota_exceeded`. Monthly reports are retried at the next hourly run, but property alerts and sign-in or confirmation emails that fail that day are not resent, so upgrade before you regularly get near the limit.
+
+**Updates to the general email list** (admin → **Email list**) use the same key. To keep bulk mail from ever affecting sign-in links and alerts, you can verify a second subdomain in Resend (for example `updates.your-domain`) and set `RESEND_BROADCAST_FROM=DeedOwl <news@updates.your-domain>`. Only those updates use it.
+
+**Set up Postmark instead**
 1. In Postmark, create a **Server** (for example "DeedOwl"). Its default **Transactional** stream is `outbound`, which the site uses.
 2. **Sender Signatures → Add Domain:** add your domain and create the **DKIM** and **Return-Path** DNS records Postmark shows. Wait until both show as verified.
 3. **Request account approval** (Postmark asks a few questions about what you send). Until it's approved, Postmark only delivers to addresses at your own domain.
-4. Copy the **Server API token** (your server → **API Tokens**). It's a secret: store it only as shown below, never in Git or chat.
-5. Give the site the token and your sender address:
-   - **Podman:** `deploy/podman/install.sh` asks for both. To add them later:
-     ```bash
-     printf '%s' 'YOUR-TOKEN' | podman secret create fsf-postmark-token -
-     ```
-     Then add `MAIL_FROM=DeedOwl <no-reply@your-domain>` to `forced-sale-finder.env` in the Quadlet folder. Also uncomment the `Secret=fsf-postmark-token` line in `forced-sale-finder-web.container`, then run `systemctl daemon-reload` and restart `forced-sale-finder-web`. With `--no-systemd`, run `install.sh` again and enter the token and address when it asks.
-   - **Kubernetes / OpenShift:** add `--from-literal=POSTMARK_SERVER_TOKEN=...` when you create `forced-sale-finder-secrets`, and uncomment `MAIL_FROM` in `deploy/kubernetes/base/config.env`. To add the token to an existing Secret:
-     ```bash
-     read -rs -p "Postmark Server API token: " PM; echo
-     kubectl patch secret forced-sale-finder-secrets -n forced-sale-finder --type merge \
-       -p "{\"stringData\":{\"POSTMARK_SERVER_TOKEN\":\"$PM\"}}"
-     unset PM
-     ```
-     Then `kubectl apply -k ...` and `kubectl rollout restart deployment/forced-sale-finder -n forced-sale-finder`. On OpenShift, use `oc` instead of `kubectl`.
-6. **Check:** the web log should say `Email on: sending through Postmark as ...`. Then apply to advertise with your own address, and look for the email in Postmark's **Activity** tab.
-   - To try it without sending anything, use the token `POSTMARK_API_TEST`. Postmark accepts the message but delivers nothing.
+4. Copy the **Server API token** (your server → **API Tokens**). It's a secret: store it only as shown here, never in Git or chat.
+5. Give the site the token and your sender address, as in step 5 above, with these names instead: the Podman secret `fsf-postmark-token` (and its `Secret=` line in `forced-sale-finder-web.container`), or `POSTMARK_SERVER_TOKEN` in the Kubernetes Secret. `install.sh` recognizes a Postmark token by itself. Set only one service: the site won't start with both keys.
+6. **Check:** the web log should say `Email on: sending through Postmark as ...`, and the email appears in Postmark's **Activity** tab. To try it without sending anything, use the token `POSTMARK_API_TEST`.
 
-**Updates to the general email list** (admin → **Email list**) go through Postmark's separate **Broadcast** stream, so bulk mail can never hurt delivery of sign-in links and alerts. New Postmark servers usually include a broadcast stream with the ID `broadcast`; check under your server → **Message Streams**, create one if it's missing, and set `POSTMARK_BROADCAST_STREAM` if its ID is different. In that stream's settings, have Postmark leave unsubscribe links to you (the site adds its own, which also delete the address from its database), so people don't see two different unsubscribe links. Postmark may ask you to confirm your broadcast sending before it's enabled.
+With Postmark, updates to the general email list go through its separate **Broadcast** stream. New Postmark servers usually include one with the ID `broadcast`; check under your server → **Message Streams**, create one if it's missing, and set `POSTMARK_BROADCAST_STREAM` if its ID is different. In that stream's settings, have Postmark leave unsubscribe links to you (the site adds its own, which also delete the address from its database). Postmark may ask you to confirm your broadcast sending before it's enabled.
 
 **Emails show your business name.** Set `operatorName` in `src/lib/siteInfo.ts` before launch; the web log warns until you do. No mailing address is needed for the site or for alerts. Only updates to the general email list need one: anti-spam law (CAN-SPAM) requires a postal address in those, so the admin can't send them until the server setting `MAIL_POSTAL_ADDRESS` is set (in `forced-sale-finder.env` for Podman, or `deploy/kubernetes/base/config.env`). A PO box or mailbox service is fine. It stays on the server and only appears in those emails, never on the site or in alerts. Alert emails also carry one-click unsubscribe headers (`List-Unsubscribe`), which Gmail and Yahoo require from bulk senders.
 
-If Postmark can't be reached, the site retries once. When an email still fails, the log names the reason (without the message text). Advertisers who apply are asked to try again in a few minutes. Leads are always saved and shown on the advertiser's dashboard, even if the email doesn't go out.
+If the email service can't be reached, the site retries once. When an email still fails, the log names the reason (without the message text). Advertisers who apply are asked to try again in a few minutes. Leads are always saved and shown on the advertiser's dashboard, even if the email doesn't go out.
 
 
 ### Before you start (every option)
@@ -201,14 +220,14 @@ cat admin-password-hash.txt   # should start with scrypt$
 - **Outbound internet:**
   - `registry.access.redhat.com` and `registry.npmjs.org` while building;
   - `docker.io`, only for the optional Caddy HTTPS image, which Podman pulls from Docker Hub's registry;
-  - the county sites, `api.postmarkapp.com` (email) and Stripe while running.
+  - the county sites, `api.resend.com` or `api.postmarkapp.com` (email) and Stripe while running.
 - **Mac or Windows** (for trying it out): install [Podman Desktop](https://podman-desktop.io) or run `podman machine init && podman machine start`, then use `--no-systemd` below.
 
 **Install (one command)**
 ```bash
 deploy/podman/install.sh
 ```
-It asks for the web address, an admin username, an admin password and, optionally, your Postmark token and sender address ([Email](#email-postmark); you can add them later). Then it does everything else:
+It asks for the web address, an admin username, an admin password and, optionally, your Resend API key (or Postmark token) and sender address ([Email](#email-resend-or-postmark); you can add them later). Then it does everything else:
 1. creates the two signing keys in `~/.config/forced-sale-finder/` (step 2 above);
 2. builds the image and runs the tests;
 3. stores the password hash and the signing keys as Podman secrets (each container gets only its own key);
@@ -230,14 +249,14 @@ podman build -t localhost/forced-sale-finder:latest \
 podman secret create fsf-admin-password-hash admin-password-hash.txt
 podman secret create fsf-feed-signing-key feed-signing.pem             # listings updater only
 podman secret create fsf-directory-signing-key directory-signing.pem   # web server only
-printf '%s' 'YOUR-POSTMARK-TOKEN' | podman secret create fsf-postmark-token -   # email; see Email (Postmark)
+read -rs -p 'Resend API key: ' RK; printf '%s' "$RK" | podman secret create fsf-resend-key -; unset RK   # email; see Email
 
 # systemd services via Quadlet (rootless: use ~/.config/containers/systemd and systemctl --user)
 sudo mkdir -p /etc/containers/systemd
 sudo cp deploy/podman/quadlet/forced-sale-finder.{env,volume} \
         deploy/podman/quadlet/forced-sale-finder-{web,ingest}.container /etc/containers/systemd/
 sudo nano /etc/containers/systemd/forced-sale-finder.env      # set BASE_URL, ADMIN_USERNAME and MAIL_FROM
-sudo sed -i 's|^#Secret=fsf-postmark-token|Secret=fsf-postmark-token|' /etc/containers/systemd/forced-sale-finder-web.container
+sudo sed -i 's|^#Secret=fsf-resend-key|Secret=fsf-resend-key|' /etc/containers/systemd/forced-sale-finder-web.container   # or fsf-postmark-token
 # Optional automatic HTTPS: also copy forced-sale-finder-caddy.{container,volume} and Caddyfile,
 # then put your domain in /etc/containers/systemd/Caddyfile
 sudo systemctl daemon-reload
@@ -312,16 +331,17 @@ Also keep a copy of the two signing keys (`~/.config/forced-sale-finder/*-signin
      (`docker-registry` is just the name of the Kubernetes secret type; no Docker software is involved.)
 2. **Namespace:** `kubectl create namespace forced-sale-finder`
 3. **Password hash:** step 3 of [Before you start](#before-you-start-every-option), using your image name, with Podman or inside the cluster.
-4. **Secrets.** Two of them: the listings key goes in its own secret that only the listings updater reads. Add the Postmark token for email ([Email](#email-postmark)). Add the three `STRIPE_*` values only if you use online payments:
+4. **Secrets.** Two of them: the listings key goes in its own secret that only the listings updater reads. Add the Resend API key (or Postmark token) for email ([Email](#email-resend-or-postmark)). Add the three `STRIPE_*` values only if you use online payments:
    ```bash
-   read -rs -p "Postmark Server API token: " PM; echo
+   read -rs -p "Resend API key: " RK; echo
    kubectl create secret generic forced-sale-finder-secrets -n forced-sale-finder \
      --from-file=ADMIN_PASSWORD_HASH=admin-password-hash.txt \
      --from-file=DIRECTORY_SIGNING_KEY=directory-signing.pem \
-     --from-literal=POSTMARK_SERVER_TOKEN="$PM"
+     --from-literal=RESEND_API_KEY="$RK"
    kubectl create secret generic forced-sale-finder-feed-key -n forced-sale-finder \
      --from-file=FEED_SIGNING_KEY=feed-signing.pem
-   unset PM
+   unset RK
+   #  Postmark instead: --from-literal=POSTMARK_SERVER_TOKEN=... (not both)
    #  --from-literal=STRIPE_SECRET_KEY=... --from-literal=STRIPE_WEBHOOK_SECRET=... --from-literal=STRIPE_PLANS='{...}'
    ```
 5. **Settings:**
@@ -369,13 +389,14 @@ No extra permissions are needed. Everything runs under OpenShift's default `rest
 
 The two Secrets are created as part of each option below (the listings key goes in its own secret that only the listings updater reads):
 ```bash
-read -rs -p "Postmark Server API token: " PM; echo
+read -rs -p "Resend API key: " RK; echo
 oc create secret generic forced-sale-finder-secrets \
   --from-file=ADMIN_PASSWORD_HASH=admin-password-hash.txt \
   --from-file=DIRECTORY_SIGNING_KEY=directory-signing.pem \
-  --from-literal=POSTMARK_SERVER_TOKEN="$PM"
+  --from-literal=RESEND_API_KEY="$RK"
 oc create secret generic forced-sale-finder-feed-key --from-file=FEED_SIGNING_KEY=feed-signing.pem
-unset PM
+unset RK
+# Postmark instead: --from-literal=POSTMARK_SERVER_TOKEN=... (not both)
 # Optional online payments: add --from-literal=STRIPE_SECRET_KEY=... (all three STRIPE_* values)
 ```
 
@@ -484,7 +505,10 @@ For GitOps, point [Argo CD / OpenShift GitOps](https://argo-cd.readthedocs.io/) 
 | Live tax sales is always empty | Expected until the Treasurer schedules an auction, and until `termsReviewedAt` is set in `ingest/sources/registry.ts` (see [Live data](#live-data)). |
 | Behind Cloudflare, spam limits ("Too many ... from this network") hit many people at once | Set `TRUST_CLOUDFLARE=1` ([Cloudflare](#cloudflare-strongly-recommended)). |
 | `ERR_TOO_MANY_REDIRECTS` behind Cloudflare | Cloudflare SSL mode is "Flexible". Set it to **Full (strict)**. |
-| Log says `WARNING: email is OFF` | Set `POSTMARK_SERVER_TOKEN` and `MAIL_FROM` ([Email](#email-postmark)). |
+| Log says `WARNING: email is OFF` | Set `RESEND_API_KEY` (or `POSTMARK_SERVER_TOKEN`) and `MAIL_FROM` ([Email](#email-resend-or-postmark)). |
+| Web container exits with "not both" | Only one email service at a time: remove either `RESEND_API_KEY` or `POSTMARK_SERVER_TOKEN`. |
+| Log says `Email to ... was not sent: Resend HTTP 401` or `403` | Wrong or restricted key, or `MAIL_FROM` isn't on a domain verified in Resend. Use a key with Sending access for that domain. |
+| `... Resend HTTP 429, daily_quota_exceeded` (or `monthly_quota_exceeded`) | You've used the free plan's allowance. Sending resumes the next day (or month); emails that failed meanwhile, except monthly reports, aren't resent. Upgrade in Resend if it keeps happening. |
 | Log says `Email to ... was not sent: Postmark HTTP 401` | Wrong token. Copy the **Server** API token, not the Account token. |
 | `... HTTP 422, error 400` or `error 401` | `MAIL_FROM` isn't a verified (or confirmed) sender signature or domain in Postmark. |
 | `... HTTP 422, error 412` | Your Postmark account is still pending approval: it only delivers to your own domain until approved. |
@@ -628,7 +652,7 @@ export ADMIN_USERNAME=you ADMIN_PASSWORD_HASH='scrypt$...'
 export BASE_URL=https://your-site.example   # used in emails
 npm run build && npm run server        # serves the site and API on :8080
 ```
-During development, run `npm run server` and `npm run dev` together; the dev server forwards `/api` to the server. Emails are printed to the server log unless `POSTMARK_SERVER_TOKEN` and `MAIL_FROM` are set (see [Email](#email-postmark)). Data is stored in SQLite at `server/data/app.db`. Back it up.
+During development, run `npm run server` and `npm run dev` together; the dev server forwards `/api` to the server. Emails are printed to the server log unless `RESEND_API_KEY` (or `POSTMARK_SERVER_TOKEN`) and `MAIL_FROM` are set (see [Email](#email-resend-or-postmark)). Data is stored in SQLite at `server/data/app.db`. Back it up.
 
 ## Features
 

@@ -129,7 +129,7 @@ export function createApp(config: AppConfig) {
   // Email a stranger can trigger by filling in a public form (confirmations, sign-in links, leads and
   // receipts) shares one site-wide hourly budget. Per-address and per-network limits come first; this is
   // the backstop against a flood from many networks at once, which would otherwise burn through the
-  // Postmark allowance or get the account suspended for complaints. Alerts, updates and reports are
+  // email service's allowance or get the account suspended for complaints. Alerts, updates and reports are
   // sent by the server itself and aren't counted.
   const formMailBudget = new RateLimiter(FORM_MAIL_PER_HOUR, 3_600_000);
   let formMailWarnedAt = 0;
@@ -486,7 +486,7 @@ export function createApp(config: AppConfig) {
       const s = summarize(db, row.id, from, to);
       const { start, end } = pacificDaysToUtc(from, to);
       const leads = db.leads.forPro(row.id, start, end).length;
-      // Marked sent only once Postmark accepts it; a failure is retried at the next hourly run.
+      // Marked sent only once the email service accepts it; a failure is retried at the next hourly run.
       void deliver({ to: row.profile.email, subject: `Your DeedOwl report for ${month}`, text: monthlyReportText(row.profile.name, month, s, leads, `${base}/#/advertiser`) }).then((ok) => {
         if (ok) db.reports.markSent(row.id, month, now().toISOString());
       });

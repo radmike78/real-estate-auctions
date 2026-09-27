@@ -13,10 +13,11 @@
 //   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PLANS   online card payments for advertisers
 //                      (all three, or none: then billing is recorded by hand in the admin page).
 //                      STRIPE_PLANS is JSON: {"agent": {"priceId": "price_...", "amountLabel": "$199 / month"}, ...}
-//   POSTMARK_SERVER_TOKEN, MAIL_FROM   send email through Postmark (both, or neither: then emails are only
-//                      written to the log). MAIL_FROM is a sender verified in Postmark, e.g.
-//                      "DeedOwl <no-reply@your-domain>". Optional: MAIL_REPLY_TO,
-//                      POSTMARK_MESSAGE_STREAM (default "outbound"),
+//   RESEND_API_KEY or POSTMARK_SERVER_TOKEN, with MAIL_FROM   send email through Resend or Postmark (one
+//                      key plus MAIL_FROM, or neither: then emails are only written to the log). MAIL_FROM is a
+//                      sender on a domain verified with that service, e.g. "DeedOwl <no-reply@your-domain>".
+//                      Optional: MAIL_REPLY_TO. Resend: RESEND_BROADCAST_FROM (sender for updates to the general
+//                      email list, default MAIL_FROM). Postmark: POSTMARK_MESSAGE_STREAM (default "outbound"),
 //                      POSTMARK_BROADCAST_STREAM (default "broadcast", for updates to the general email list).
 //   TRUST_PROXY=1      read client IP from the LAST X-Forwarded-For entry (only behind your own reverse proxy
 //                      that appends to that header; see SECURITY.md)
@@ -32,7 +33,7 @@ import { fileURLToPath } from 'node:url';
 import { createPublicKey } from 'node:crypto';
 import { loadPrivateKey } from '../ingest/lib/sign';
 import { createApp } from './app';
-import { consoleMailer, postmarkMailer, type Mailer } from './mailer';
+import { consoleMailer, postmarkMailer, resendMailer, type Mailer } from './mailer';
 import { createStripeClient, parsePlans } from './stripe';
 import { SITE_INFO } from '../src/lib/siteInfo';
 
@@ -85,25 +86,39 @@ if (stripeEnv.some(Boolean)) {
   console.log('Online payments off: record advertiser billing by hand in the admin page.');
 }
 
-// Email: Postmark when configured, otherwise the log (fine for trying the site, not for real visitors).
+// Email: Resend or Postmark when configured, otherwise the log (fine for trying the site, not for real visitors).
 const ADDRESS = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
 const validSender = (v: string) => ADDRESS.test(v) || /^[^<>\r\n]{1,80}<[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+>$/.test(v.trim());
+const resendKey = env.RESEND_API_KEY?.trim() ?? '';
+const postmarkToken = env.POSTMARK_SERVER_TOKEN?.trim() ?? '';
 let mailer: Mailer = consoleMailer;
-if (env.POSTMARK_SERVER_TOKEN || env.MAIL_FROM) {
-  if (!env.POSTMARK_SERVER_TOKEN || !env.MAIL_FROM) {
-    console.error('Set both POSTMARK_SERVER_TOKEN and MAIL_FROM, or neither.');
+if (resendKey || postmarkToken || env.MAIL_FROM) {
+  if (resendKey && postmarkToken) {
+    console.error('Set RESEND_API_KEY or POSTMARK_SERVER_TOKEN, not both.');
     process.exit(1);
   }
-  if (!validSender(env.MAIL_FROM) || (env.MAIL_REPLY_TO && !ADDRESS.test(env.MAIL_REPLY_TO))) {
-    console.error('MAIL_FROM must look like "DeedOwl <no-reply@your-domain>" or no-reply@your-domain, and MAIL_REPLY_TO like help@your-domain.');
+  if (!(resendKey || postmarkToken) || !env.MAIL_FROM) {
+    console.error('Set MAIL_FROM together with RESEND_API_KEY (or POSTMARK_SERVER_TOKEN), or none of them.');
     process.exit(1);
   }
-  mailer = postmarkMailer({ serverToken: env.POSTMARK_SERVER_TOKEN.trim(), from: env.MAIL_FROM.trim(), replyTo: env.MAIL_REPLY_TO?.trim() || undefined, messageStream: env.POSTMARK_MESSAGE_STREAM?.trim() || undefined, broadcastStream: env.POSTMARK_BROADCAST_STREAM?.trim() || undefined });
-  console.log(`Email on: sending through Postmark as ${env.MAIL_FROM.trim()}${env.POSTMARK_SERVER_TOKEN.trim() === 'POSTMARK_API_TEST' ? ' (TEST token: nothing is delivered)' : ''}`);
+  const broadcastFrom = env.RESEND_BROADCAST_FROM?.trim() || undefined;
+  if (!validSender(env.MAIL_FROM) || (broadcastFrom && !validSender(broadcastFrom)) || (env.MAIL_REPLY_TO && !ADDRESS.test(env.MAIL_REPLY_TO))) {
+    console.error('MAIL_FROM (and RESEND_BROADCAST_FROM) must look like "DeedOwl <no-reply@your-domain>" or no-reply@your-domain, and MAIL_REPLY_TO like help@your-domain.');
+    process.exit(1);
+  }
+  const from = env.MAIL_FROM.trim();
+  const replyTo = env.MAIL_REPLY_TO?.trim() || undefined;
+  if (resendKey) {
+    mailer = resendMailer({ apiKey: resendKey, from, replyTo, broadcastFrom });
+    console.log(`Email on: sending through Resend as ${from}`);
+  } else {
+    mailer = postmarkMailer({ serverToken: postmarkToken, from, replyTo, messageStream: env.POSTMARK_MESSAGE_STREAM?.trim() || undefined, broadcastStream: env.POSTMARK_BROADCAST_STREAM?.trim() || undefined });
+    console.log(`Email on: sending through Postmark as ${from}${postmarkToken === 'POSTMARK_API_TEST' ? ' (TEST token: nothing is delivered)' : ''}`);
+  }
 } else if (!/^http:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(baseUrl)) {
-  console.warn('WARNING: email is OFF. Confirmation links, sign-in links and leads are only written to this log. Set POSTMARK_SERVER_TOKEN and MAIL_FROM.');
+  console.warn('WARNING: email is OFF. Confirmation links, sign-in links and leads are only written to this log. Set RESEND_API_KEY (or POSTMARK_SERVER_TOKEN) and MAIL_FROM.');
 } else {
-  console.log('Email off: messages are written to this log (set POSTMARK_SERVER_TOKEN and MAIL_FROM to send them).');
+  console.log('Email off: messages are written to this log (set RESEND_API_KEY or POSTMARK_SERVER_TOKEN, and MAIL_FROM, to send them).');
 }
 
 // Every email names the business that sent it.
