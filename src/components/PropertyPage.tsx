@@ -28,6 +28,7 @@ import TeamList from './TeamList';
 import { defaultsFor } from '../lib/bidCalc';
 import { playbookByKey, playbookForSale } from '../lib/playbooks';
 import { ago } from '../lib/time';
+import OwlNote from './OwlNote';
 
 const LIEN_LABEL: Record<LienType, string> = {
   PROPERTY_TAX: 'Delinquent property tax',
@@ -83,7 +84,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             <a href="#/live">See current sales</a>
           </p>
         ) : (
-          <p>Property not found. <a href="#/search">Back to search</a></p>
+          <OwlNote>We couldn’t find that property. It may have sold or been removed. <a href="#/search">Back to search</a></OwlNote>
         )}
       </main>
     );
@@ -409,10 +410,10 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       >
         {!open && (
           <dl className="glance" aria-label="At a glance">
-            <div><dt>Minimum bid</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
+            <div className="key"><dt>Minimum bid</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
             <div><dt>Est. market value</dt><dd>{notChecked(p.estimatedMarketValue, 'Your comps')}</dd></div>
             <div><dt>Liens likely {s ? 'surviving' : 'remaining'}</dt><dd className={money.likelySurviving ? 'neg' : ''}>{p.liensChecked === false ? <span className="muted">Not searched</span> : fmtMoney(money.likelySurviving)}</dd></div>
-            <div><dt>Rough spread</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : 'grad'}>{notChecked(money.estimatedEquity, 'Needs your numbers')}</dd></div>
+            <div><dt>Rough spread, before costs</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : ''}>{notChecked(money.estimatedEquity, 'Needs your numbers')}</dd></div>
           </dl>
         )}
       </PageHero>

@@ -17,6 +17,7 @@ import ApplicationConfirmPage from './components/ApplicationConfirmPage';
 import FinancingPage from './components/FinancingPage';
 import ProsPage from './components/ProsPage';
 import ProProfilePage from './components/ProProfilePage';
+import OwlNote from './components/OwlNote';
 import AdvertiserPage from './components/AdvertiserPage';
 import DisclaimerPage from './components/DisclaimerPage';
 import PrivacyPage from './components/PrivacyPage';
@@ -161,7 +162,7 @@ export default function App() {
   useEffect(() => {
     const t = window.setTimeout(() => {
       const h1 = document.querySelector('main h1, h1')?.textContent?.trim();
-      document.title = route.page === 'home' || !h1 ? 'DeedOwl' : `${h1.slice(0, 70)} · DeedOwl`;
+      document.title = route.page === 'home' || !h1 ? 'DeedOwl · Know the deal before you bid' : `${h1.slice(0, 70)} · DeedOwl`;
     }, 60);
     return () => window.clearTimeout(t);
   }, [path]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -182,7 +183,7 @@ export default function App() {
       {route.page === 'notFound' && (
         <main className="page">
           <h1>We couldn’t find that page</h1>
-          <p>The link may be old or mistyped.</p>
+          <OwlNote>Even owls miss one sometimes. The link may be old or mistyped.</OwlNote>
           <p className="row"><a className="btn" href="#/">Go to the home page</a> <a className="btn btn-secondary" href="#/search">Find properties</a></p>
         </main>
       )}

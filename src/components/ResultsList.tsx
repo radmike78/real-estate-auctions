@@ -2,6 +2,7 @@ import type { Property } from '../types';
 import { moneySummary, SALE_TYPE_LABEL } from '../lib/rules';
 import { fmtDate, fmtMoney } from '../lib/status';
 import StatusBadge from './StatusBadge';
+import OwlNote from './OwlNote';
 
 /** Whole days until a time: 1 means within the next day, negative means it has passed. */
 export function daysUntil(iso: string, now = Date.now()) {
@@ -13,7 +14,7 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
   if (!properties.length) {
     return (
       <div className="empty">
-        <p>No properties match. Try a nearby ZIP code or remove some filters.</p>
+        <OwlNote>No properties match. Try a nearby ZIP code or remove some filters.</OwlNote>
         <p className="muted">This site covers Clark County, NV only: Las Vegas, Henderson, North Las Vegas, Boulder City, Mesquite and the county’s unincorporated towns.</p>
       </div>
     );
@@ -42,7 +43,11 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
                 {p.sqft ? ` · ${p.sqft.toLocaleString()} sq ft` : ''} · {p.occupancy === 'Unknown' ? 'Occupancy unknown' : p.occupancy}
               </div>
               <dl className="card-stats">
-                <div>
+                <div className="key">
+                  <dt>Min. bid</dt>
+                  <dd>{fmtMoney(m.minimumBid)}</dd>
+                </div>
+                <div className="key">
                   <dt>Auction</dt>
                   <dd>
                     {p.sale?.startsAt ? fmtDate(p.sale.startsAt) : '—'}
@@ -50,15 +55,11 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
                   </dd>
                 </div>
                 <div>
-                  <dt>Min. bid</dt>
-                  <dd>{fmtMoney(m.minimumBid)}</dd>
-                </div>
-                <div>
                   <dt>Est. value</dt>
                   <dd>{fmtMoney(p.estimatedMarketValue)}</dd>
                 </div>
                 <div>
-                  <dt title="Estimated value minus the minimum bid and likely surviving liens. Leaves out uncertain liens, repairs and costs.">Rough spread (value minus bid)</dt>
+                  <dt title="Estimated value minus the minimum bid and likely surviving liens. Leaves out uncertain liens, repairs and costs.">Rough spread, before costs</dt>
                   <dd className={m.estimatedEquity !== null && m.estimatedEquity < 0 ? 'neg' : ''}>{fmtMoney(m.estimatedEquity)}</dd>
                 </div>
               </dl>

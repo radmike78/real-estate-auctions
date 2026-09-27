@@ -4,6 +4,7 @@ import { DIRECTORY_PUBLIC_KEY_SPKI_B64 } from '../feed/publicKey';
 import { loadVerifiedPros, type ProsFeedResult } from '../feed/prosFeed';
 import { CATEGORIES, CREDIT_PROFILES, LOAN_PRODUCTS, safeMailto, safeTel, searchPros, servicesFor, type Category, type Pro, type ProQuery } from '../lib/pros';
 import { track } from '../lib/track';
+import OwlNote from './OwlNote';
 
 /** Loads the signed directory; falls back to fictional samples only when no directory exists yet. */
 export function useDirectory(): { pros: Pro[]; usingSamples: boolean; error: string | null; loading: boolean } {
@@ -120,7 +121,7 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
       )}
       {!loading && !error && pros.length === 0 && (
         <div className="empty">
-          <p><strong>No professionals are listed here yet.</strong> Every listing is license-checked before it appears.</p>
+          <OwlNote><strong>No professionals are listed here yet.</strong> Every listing is license-checked before it appears.</OwlNote>
           <p>
             Looking for someone now? <a href="#/agents">Look up any professional's license</a> with the official regulator. Licensed and want to be
             listed? <a href="#/advertise">Apply to advertise</a>.
