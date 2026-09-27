@@ -254,8 +254,29 @@ There's no `systemctl enable` step: Quadlet services start at boot automatically
 | Update to the latest code | automatic once [automatic deploys](#automatic-deploys-with-podman) are on; otherwise `git pull && deploy/podman/install.sh --update` |
 | Change settings | edit `forced-sale-finder.env` in the Quadlet folder, then `sudo systemctl restart forced-sale-finder-web` |
 | Copy backups off the server | `sudo podman run --rm -v forced-sale-finder-data:/data:ro -v "$PWD":/out:Z localhost/forced-sale-finder:latest sh -c 'cp /data/backups/*.db /out/'` |
-| Restore a backup | stop the web service, copy the backup over `/data/db/app.db` (and delete `app.db-wal`/`app.db-shm`) with a similar `podman run`, then start it |
+| Restore the off-site copy | `deploy/podman/offsite-backup.sh --restore` (see [Off-site database copy](#off-site-database-copy-litestream--cloudflare-r2)) |
+| Restore a daily backup | stop the web service, copy the backup over `/data/db/app.db` (and delete `app.db-wal`/`app.db-shm`) with a similar `podman run`, then start it |
 | Uninstall | stop the services, delete the `forced-sale-finder*` files from the Quadlet folder, `systemctl daemon-reload`, then `podman volume rm forced-sale-finder-data` (**deletes all data**) |
+
+#### Off-site database copy (Litestream + Cloudflare R2)
+
+The site's own daily backups stay on the server, so they don't help if the server itself is lost. [Litestream](https://litestream.io) (free, open source) runs as one more container and sends every database change (advertisers, alert sign-ups, leads, stats) to Cloudflare R2 within about 10 seconds. If the server is lost, you lose at most seconds of data. The signed listings don't need copying: the updater downloads them again from the official sources.
+
+**Cost:** R2's free tier includes 10 GB of storage, and the database is a few megabytes, so this should cost nothing. Check R2's usage page once in a while.
+
+Set it up once, after `install.sh`:
+1. **Cloudflare dashboard → R2 Object Storage.** Note your **Account ID** (on the right). Create a bucket, for example `deedowl-db`, and leave it private.
+2. **R2 → Manage API tokens → Create API token.** Permission: **Object Read & Write**, applied to **that bucket only**. Copy the **Access Key ID** and **Secret Access Key** (shown once).
+3. **On the server:** run `deploy/podman/offsite-backup.sh` and paste the four values when it asks. The key is stored only as Podman secrets (`fsf-r2-access-key-id`, `fsf-r2-secret-access-key`). The script starts the `forced-sale-finder-litestream` service and waits until the first copy reaches R2.
+
+| Task | Command |
+| --- | --- |
+| Is it copying? | `deploy/podman/offsite-backup.sh --status` |
+| Rebuild on a new server | run `install.sh`, then `deploy/podman/offsite-backup.sh` (same R2 details), then `deploy/podman/offsite-backup.sh --restore` |
+| Replace this server's database with the R2 copy | `deploy/podman/offsite-backup.sh --restore` (the current database is kept as `app.db.before-restore`) |
+| Change the bucket or key | run `deploy/podman/offsite-backup.sh` again |
+
+Also keep a copy of the two signing keys (`~/.config/forced-sale-finder/*-signing.pem`) somewhere safe, such as a password manager. Together with the R2 copy and the code on GitHub, that is everything needed to rebuild the site.
 
 ---
 
