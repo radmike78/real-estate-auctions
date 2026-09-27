@@ -61,7 +61,7 @@ export const PLAYBOOKS: Playbook[] = [
       { label: 'Deposit', value: '$5,000 per bidder in certified funds; credited if you win' },
       { label: 'Payment', value: "Full price the same day by 1:00 p.m. (4:30 p.m. for parcels re-auctioned at 2:00 p.m.) in cash, cashier's check, wire or money order; confirm accepted forms in the notice. No financing." },
       { label: 'Deed', value: 'Quitclaim deed to the name on your Trustee Auction Registration Form, recorded within 30 days and mailed to you. Changing the name later means recording your own new deed' },
-      { label: 'After the sale', value: 'No redemption, but the former owner can protest for 2 years; title insurance may be unavailable meanwhile' },
+      { label: 'After the sale', value: 'No redemption, but the former owner (or anyone else claiming the land) can sue to recover it for 2 years after the Treasurer’s deed is delivered (NRS 361.600); title insurance may be unavailable meanwhile' },
     ],
     steps: [
       { title: 'Get the list and the notice', detail: 'The Treasurer publishes the parcel list and the auction information notice before each sale. Owners can pay until close of business 3 business days before the sale; paid parcels are lined out (NRS 361.585).' },
@@ -75,11 +75,11 @@ export const PLAYBOOKS: Playbook[] = [
     ],
     survives: {
       wipedOut: ['The delinquent property taxes and costs paid by your bid', 'Most private liens and mortgages (confirm with a title professional)'],
-      mayStay: ['Federal tax liens: a lien survives if the IRS wasn’t notified at least 25 days before the sale; even when notified, the IRS can buy the property back within 120 days (26 U.S.C. 7425)', 'Some government and special assessment liens. If a city, town or county sold an SID lien certificate on the parcel and tells the Treasurer by 3 business days before the sale, you must pay that certificate within 20 days or the tax sale is void (NRS 361.595)', 'Easements, covenants and HOA restrictions', 'The former owner’s right to protest the sale for 2 years'],
+      mayStay: ['Federal tax liens: a lien survives if the IRS wasn’t notified at least 25 days before the sale; even when notified, the IRS can buy the property back within 120 days (26 U.S.C. 7425)', 'Some government and special assessment liens. If a city, town or county sold an SID lien certificate on the parcel and tells the Treasurer by 3 business days before the sale, you must pay that certificate within 20 days or the tax sale is void (NRS 361.595)', 'Easements, covenants and HOA restrictions', 'A 2-year window, after the deed is delivered, for anyone claiming the land to sue to recover it (NRS 361.600)'],
     },
     mistakes: [
       { mistake: 'Bidding on a parcel you never looked up', prevent: 'Match the parcel number on the Assessor map, not just the address.' },
-      { mistake: 'Planning to resell right away', prevent: 'Budget for the 2-year protest window or a quiet title action before a title company will insure.' },
+      { mistake: 'Planning to resell right away', prevent: 'Budget for the 2-year window after the deed (NRS 361.600) or a quiet title action before a title company will insure.' },
       { mistake: 'Registering in the wrong name', prevent: 'The deed goes to exactly the name on your registration form. If you want it in an LLC or trust, ask the Treasurer before you register whether that name is accepted; otherwise you’ll record a new deed afterwards.' },
       { mistake: 'Hoping to buy an unsold parcel later', prevent: 'The county doesn’t sell parcels over the counter. Unsold parcels may come back at a future auction.' },
       { mistake: 'Winning several parcels without the cash for all of them', prevent: 'Bring certified funds for everything you might win. One unpaid parcel costs the deposit and a ban.' },
@@ -116,7 +116,7 @@ export const PLAYBOOKS: Playbook[] = [
       { label: 'Payment', value: "By 10:00 a.m. the next business day, in cash, cashier's check or money order" },
       { label: 'Interest', value: '1% a month simple interest on the certificate price, paid when the owner redeems' },
       { label: 'Redemption', value: '120 days, or 2 years if there is a home or significant improvement on the land' },
-      { label: 'Deed', value: 'After the redemption period: serve the owner notice in person (and post it on the property if the public can reach it), or publish it if they can’t be found. They have 60 more days to redeem. The District Attorney reviews the notice before a deed is issued. You must pay delinquent taxes and assessments first. The certificate expires 3 years after redemption ends if you never ask for a deed (NRS 271.595).' },
+      { label: 'Deed', value: 'After the redemption period: serve the owner notice in person (and post it on the property if the public can reach it). If they can’t be found in Nevada after a diligent search of Assessor, Recorder and Secretary of State records, publish it, and mail it to every address the search turns up. They have 60 more days to redeem. The District Attorney reviews the notice before a deed is issued. You must pay delinquent taxes and assessments first. The certificate expires 3 years after redemption ends if you never ask for a deed (NRS 271.595).' },
       { label: 'Taxes', value: 'You file a W-9; interest over $10 is reported on a 1099-INT' },
     ],
     steps: [
@@ -186,7 +186,7 @@ export const PLAYBOOKS: Playbook[] = [
     mistakes: [
       { mistake: 'Buying at a second mortgage’s sale', prevent: 'Confirm which lien is foreclosing; the first deed of trust survives a junior lien’s sale.' },
       { mistake: 'Driving to a sale that was postponed', prevent: 'Call the trustee the day before and check the status here.' },
-      { mistake: 'Forgetting occupants', prevent: 'Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act), and a lease can run to its end unless the buyer will live there; former owners get a 3-day notice (NRS 40.255).' },
+      { mistake: 'Forgetting occupants', prevent: 'Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act), and a lease can run to its end unless the buyer will live there. For homes with up to 4 units, Nevada also requires a written notice of the change of ownership, and tenants keep their lease rights for a notice period, generally at least 60 days (NRS 40.255). You step into the landlord’s duties, including their existing security deposits (NRS 118A.244). Former owners get a 3-day notice (NRS 40.255).' },
     ],
     example: {
       title: 'The $40,000 opening bid',
@@ -225,15 +225,15 @@ export const PLAYBOOKS: Playbook[] = [
       { title: 'Get a professional opinion', detail: 'Nevada HOA sales were heavily litigated after the SFR Investments decision (2014). Have a title professional or attorney review the sale before you bid.' },
       { title: 'Set your maximum bid', detail: 'If the first mortgage may survive, add it to your costs. Use the max bid calculator.' },
       { title: 'Bid and pay', detail: 'Bring certified funds per the agent’s terms.' },
-      { title: 'Wait out the 60 days', detail: 'The former owner, or a lender whose loan ranked below the HOA lien, can redeem by paying your price plus 1% a month. Don’t spend on repairs until the period ends.' },
+      { title: 'Wait out the 60 days', detail: 'The former owner, or a lender whose loan ranked below the HOA lien, can redeem by paying your price plus 1% a month, plus taxes and assessments you paid and reasonable spending needed to maintain and repair the unit to the HOA’s standards (NRS 116.31166). Upgrades and renovations aren’t repaid, so save those until the period ends.' },
     ],
     survives: {
       wipedOut: ['The HOA lien being foreclosed', 'The first mortgage, only if the lender did not pay the priority amount, the loan wasn’t owned by Fannie Mae or Freddie Mac, and the sale was proper'],
-      mayStay: ['The first mortgage, if the lender paid or validly offered the priority amount in time, or Fannie Mae or Freddie Mac owned the loan (while they are under federal conservatorship)', 'Property taxes', 'Federal tax liens', 'The 60-day redemption right'],
+      mayStay: ['The first mortgage, if the lender paid the priority amount at least 5 days before the sale or validly offered it and was refused, or Fannie Mae or Freddie Mac owned the loan (while they are under federal conservatorship)', 'Property taxes', 'Federal tax liens', 'The 60-day redemption right'],
     },
     mistakes: [
       { mistake: 'Assuming every HOA sale wipes out the mortgage', prevent: 'Check the Recorder for the lender’s payment before bidding.' },
-      { mistake: 'Starting repairs right away', prevent: 'Wait until the 60-day redemption period has ended.' },
+      { mistake: 'Renovating right away', prevent: 'Only spend what’s needed to maintain and repair the unit to the HOA’s standards (a redeemer repays that); save upgrades until the 60-day redemption period ends.' },
     ],
     example: {
       title: 'The $9,000 condo',
@@ -257,14 +257,15 @@ export const PLAYBOOKS: Playbook[] = [
     glance: [
       { label: 'Law', value: 'NRS 21 (execution sales)' },
       { label: 'Where', value: 'Clark County Sheriff Civil Section sales (see the sheriff’s sales page)' },
-      { label: 'Redemption', value: '1 year after the sale, at your price plus 1% a month (NRS 21.210)' },
+      { label: 'Redemption', value: '1 year after the sale, by the debtor or a creditor with a later judgment or mortgage lien, at your price plus 1% a month, plus taxes, assessments and payments on earlier liens you made, with interest (NRS 21.200–21.210). Those creditors can redeem from each other within 60 days of each redemption, so the deed can come later (NRS 21.220)' },
       { label: 'What you get first', value: 'A certificate of sale; a deed after the redemption period' },
       { label: 'Payment', value: 'Certified funds per the sale notice' },
     ],
     steps: [
       { title: 'Find the sale', detail: 'Check the Sheriff Civil Section’s sales listings and the notice for the case.' },
       { title: 'Research the title', detail: 'You receive only the debtor’s interest. Senior mortgages and liens stay.' },
-      { title: 'Plan for a year of waiting', detail: 'The debtor can redeem for a year. Your money is tied up and you shouldn’t improve the property until then.' },
+      { title: 'Check for a homestead', detail: 'If the debtor lives there and recorded a declaration of homestead, up to $605,000 of equity is protected from execution (NRS 21.090, NRS 115), which limits a forced sale of that home. Check the Recorder, and have an attorney review the sale.' },
+      { title: 'Plan for a year of waiting', detail: 'The debtor, or a creditor with a later lien, can redeem for a year (longer if creditors redeem from each other). Your money is tied up. Taxes and payments on earlier liens are repaid with interest if someone redeems, but repairs aren’t, so don’t improve the property until then.' },
       { title: 'Set your maximum bid', detail: 'Include a year or more of holding costs. Use the max bid calculator.' },
     ],
     survives: {
@@ -318,7 +319,7 @@ export const PLAYBOOKS: Playbook[] = [
     title: 'Bank-owned (REO) and HUD homes',
     short: 'Bank-owned (REO)',
     oneLine: 'Homes a lender took back at a foreclosure auction, sold through agents or online auctions.',
-    youGet: 'The property by a normal purchase contract, usually with a lender addendum and a special warranty deed.',
+    youGet: 'The property by a normal purchase contract, usually with a lender addendum, a deed with limited promises from the lender, and title insurance.',
     forSale: true,
     glance: [
       { label: 'How it’s sold', value: 'Listed by a broker, or by online auction' },

@@ -49,7 +49,7 @@ const STEPS: [string, string][] = [
   ['Check the first-look period', 'If you’ll live in the home, you may be able to buy before investors can. Investors must wait until it ends.'],
   ['Make an offer and read the addendum', 'The seller’s addendum overrides parts of the standard contract, including repairs, deadlines and per-day late fees.'],
   ['Inspect and appraise', 'Homes are sold as-is. Use your inspection period and get a title report.'],
-  ['Close through escrow', 'Usually with a special warranty deed and title insurance, like a normal purchase.'],
+  ['Close through escrow', 'Usually with a deed that carries limited promises from the lender, and title insurance, like a normal purchase.'],
 ];
 
 // The last choice is remembered while the visitor moves between sections of this page.

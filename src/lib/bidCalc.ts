@@ -42,7 +42,7 @@ const nz = (n: number) => (Number.isFinite(n) && n > 0 ? n : 0);
 export function costsAtBid(i: BidInputs, bid: number) {
   const repairs = nz(i.repairs) * (1 + nz(i.contingencyPct) / 100);
   const premium = (bid * nz(i.buyerPremiumPct)) / 100;
-  const transferTax = Math.ceil(bid / 500) * nz(i.transferTaxPer500); // per $500 or fraction (NRS 375.020/.025)
+  const transferTax = Math.ceil(bid / 500) * nz(i.transferTaxPer500); // per $500 or fraction (NRS 375.020 and 375.023)
   const loan = ((bid + repairs) * Math.min(nz(i.financedPct), 100)) / 100;
   const financing = loan * ((nz(i.interestRatePct) / 100) * (nz(i.holdingMonths) / 12) + nz(i.pointsPct) / 100);
   const holding = nz(i.holdingMonths) * nz(i.monthlyCarry);
@@ -130,6 +130,7 @@ export function defaultsFor(p: Property): BidInputs {
     type === 'SHERIFF_EXECUTION' ? 15 // 1-year redemption before you can safely improve it
     : type === 'FEDERAL_TAX_SEIZURE' ? 9 // 180-day redemption
     : type === 'HOA_FORECLOSURE' ? 7 // 60-day redemption
+    : type === 'TAX_DEED' ? 12 // resale usually waits for a quiet title action (or the 2-year window after the deed)
     : 6;
   return {
     ...BLANK_INPUTS,

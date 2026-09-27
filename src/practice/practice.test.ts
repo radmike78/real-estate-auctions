@@ -128,14 +128,30 @@ describe('practice scenarios', () => {
         expect(n).toBeUndefined();
         continue;
       }
+      const all = text(s);
+      const a = tasks(s).find((t) => t.kind === 'afford') as Extract<Task, { kind: 'afford' }> | undefined;
+      if (a) {
+        // A home buyer's budget: bank-owned and short-sale homes, never alongside an investor worksheet.
+        expect(s.property.cls, s.id).toBe('residential');
+        expect(['reo', 'short'], s.id).toContain(s.sale);
+        expect(n, s.id).toBeUndefined();
+        expect(a.maxOffer, s.id).toBeLessThanOrEqual(a.asIsValue);
+        if (a.loanAmount) expect(a.maxOffer, s.id).toBeLessThanOrEqual(a.loanAmount / (1 - a.downPct / 100));
+        else expect(a.downPct, s.id).toBe(100);
+        for (const m of all.matchAll(/(?:win at|you offer|You offer|The list price,) \$([\d,]+)/g)) {
+          expect(Number(m[1].replace(/,/g, '')), `${s.id}: ${m[0]}`).toBeLessThanOrEqual(a.maxOffer);
+        }
+        continue;
+      }
       expect(n, s.id).toBeDefined();
       const max = maxSafeBid(n!.inputs).maxBid;
-      const all = text(s);
       if (s.sale === 'hoa') {
         // The recorded lender payment means the first mortgage survives: these are walk-away lessons.
         expect(max, s.id).toBeLessThan(n!.compareTo.amount);
         expect(all, s.id).toMatch(/Walk away/);
-      } else if (s.sale === 'reo' || s.sale === 'short') {
+      } else if (s.sale === 'reo') {
+        // Commercial bank-owned property: an investor's offer, financed after closing like any sale through escrow.
+        expect(s.property.cls, s.id).toBe('commercial');
         expect(n!.inputs.financedPct, s.id).toBeGreaterThan(0);
       } else {
         expect(n!.inputs.financedPct, `${s.id}: auctions need cash`).toBe(0);

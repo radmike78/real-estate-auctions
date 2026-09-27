@@ -51,7 +51,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: 'Funds for the next morning', detail: "Winners are drawn at random. Pay by 10:00 a.m. the next business day in cash, cashier's check or money order, or the certificate goes to an alternate." },
       { text: 'A W-9 for the Treasurer', detail: 'Interest over $10 is reported on a 1099-INT.' },
       { text: 'Patience for the redemption period', detail: '120 days, or 2 years if the land has a building or significant improvement. Most owners redeem.' },
-      { text: 'A calendar reminder for the deadline', detail: 'If the owner never redeems, serve them notice in person (or by publication if they can’t be found), then request a deed after paying delinquent taxes and assessments. The certificate expires 3 years after the redemption period ends.' },
+      { text: 'A calendar reminder for the deadline', detail: 'If the owner never redeems, serve them notice in person and post it on the property if the public can reach it (if they can’t be found, publish it and mail it to every address a diligent records search finds), then request a deed after paying delinquent taxes and assessments. The certificate expires 3 years after the redemption period ends.' },
       CONFIRM,
     ],
   },
@@ -66,7 +66,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: 'Your bidder card on auction day', detail: 'Only the registered bidder may bid, by showing their bidder card. Arrive early; the auction notice has the start time (8:00 a.m. in 2026) and the day’s rules.' },
       { text: 'Certified funds for the full price by 1:00 p.m.', detail: "Cash, cashier's check, wire or money order (confirm accepted forms in the notice). Parcels re-auctioned at 2:00 p.m. must be paid by 4:30 p.m. If you win several parcels, you must pay for all of them or lose the deposit and be banned from future auctions." },
       { text: 'Research each parcel you want', detail: 'Match the parcel number on the Assessor map and look from the street. Don’t go onto the property; it’s private until the new deed is recorded. Parcels can be paid off (lined out) until close of business 3 business days before the sale.' },
-      { text: 'A title search, and a plan for title insurance', detail: 'Not all liens are wiped out. A federal tax lien can survive if the IRS wasn’t given 25 days’ notice, and even then the IRS can buy the property back within 120 days. The former owner can protest the sale for 2 years, and you may not be able to get title insurance during that time.' },
+      { text: 'A title search, and a plan for title insurance', detail: 'Not all liens are wiped out. A federal tax lien can survive if the IRS wasn’t given 25 days’ notice, and even then the IRS can buy the property back within 120 days. Anyone claiming the land (usually the former owner) can sue to recover it for 2 years after the Treasurer’s deed is delivered (NRS 361.600), and you may not be able to get title insurance during that time.' },
       { text: 'Budget beyond the bid', detail: 'Recording fees, surviving liens, repairs, possibly quiet title (often quoted around $1,500–$5,000+ if uncontested; get an attorney’s quote), and legal help if someone lives there. The county does not help with occupants.' },
       CONFIRM,
     ],
@@ -83,7 +83,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: 'Cash or a hard-money or bridge loan arranged in advance', detail: "Regular mortgages can't fund a trustee sale." },
       { text: 'A title search', detail: 'Property taxes and the HOA super-priority lien survive. Check for IRS and other senior liens.' },
       { text: 'Confirmation the sale is still on', detail: 'Call the trustee the day before. Postponements and cancellations are common.' },
-      { text: 'An as-is repair budget and an occupancy plan', detail: 'No interior inspection. Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act), and a lease can run to its end unless the buyer will live there; former owners get a 3-day notice (NRS 40.255). Budget for an eviction attorney.' },
+      { text: 'An as-is repair budget and an occupancy plan', detail: 'No interior inspection. Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act), and a lease can run to its end unless the buyer will live there. For homes with up to 4 units, Nevada also requires a written notice of the change of ownership, and tenants keep their lease rights for a notice period, generally at least 60 days (NRS 40.255). You step into the landlord’s duties, including their existing security deposits (NRS 118A.244), so find out the amounts and budget for them. Former owners get a 3-day notice (NRS 40.255). Budget for an eviction attorney.' },
       { text: 'For court-ordered sales: time for redemption', detail: 'The owner can redeem for up to 1 year, so your money may be tied up.' },
     ],
   },
@@ -149,7 +149,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: "Cashier's checks for your full bid", detail: 'Confirm the amount and payee with the HOA’s foreclosure agent.' },
       { text: 'Government-issued photo ID' },
       { text: 'Proof the first deed of trust is wiped out, or budget for it', detail: 'If the lender paid the HOA’s priority amount at least 5 days before the sale, the first deed of trust (the main home loan) survives (NRS 116.31166). It also survives if Fannie Mae or Freddie Mac owned the loan, unless the FHFA consented. Check the Recorder for a recorded payment or satisfaction, and get a title professional’s opinion.' },
-      { text: 'A 60-day wait before the sale is final', detail: 'The former owner, or a lender whose loan ranked below the HOA lien, can redeem within 60 days by paying your price plus 1% a month and the taxes, assessments and upkeep you paid. Don’t start repairs until the redemption period ends.' },
+      { text: 'A 60-day wait before the sale is final', detail: 'The former owner, or a lender whose loan ranked below the HOA lien, can redeem within 60 days by paying your price plus 1% a month and the taxes, assessments and upkeep you paid. A redeemer also repays reasonable spending needed to maintain and repair the unit to the HOA’s standards, but not upgrades, so save renovations until the redemption period ends.' },
       { text: 'Cash, or hard-money financing arranged in advance' },
       { text: 'Budget for surviving liens, repairs and possession' },
       CONFIRM,
@@ -161,7 +161,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     title: 'Buying at a sheriff or IRS sale',
     intro: 'Sales to satisfy court judgments (sheriff) or federal tax debts (IRS).',
     items: [
-      { text: 'Certified funds', detail: 'The IRS sale notice sets the deposit and how to pay. Read it for each sale.' },
+      { text: 'Certified funds', detail: 'Each sale notice (the sheriff’s or the IRS’s) sets the deposit and how to pay. Read it for each sale.' },
       { text: 'Government-issued photo ID' },
       { text: 'Time for redemption', detail: 'Sheriff sales: up to 1 year. IRS sales: 180 days. You receive a certificate first, and the deed later.' },
       { text: 'A title search', detail: "You receive only the debtor's or taxpayer's interest. Senior liens stay." },
@@ -258,6 +258,9 @@ const COMMERCIAL_WORDING: Record<string, Partial<ChecklistItem> | null> = {
   },
   'A plan if the home is occupied': { text: 'A plan for any tenants or occupants' },
   'For HUD homes: a HUD-registered broker': null, // HUD sells homes only
+  'Mortgage pre-approval or proof of funds': { text: 'A commercial lender’s term sheet or proof of funds' },
+  'A buyer’s agent': { text: 'A commercial broker', detail: 'Bank-owned commercial property is sold through listing brokers.' },
+  'A home inspection within your contingency period': { text: 'A property inspection within your due-diligence period' },
 };
 
 /** The same checklist with home-only items reworded (or dropped) for a commercial property. */
@@ -270,6 +273,7 @@ export function forCommercial(list: BuyerChecklist): BuyerChecklist {
   return {
     ...list,
     key: `${list.key}-commercial`, // ticks are kept separately from the residential version
+    title: list.title.replace(/\bhome\b/, 'property'),
     intro: list.intro.replace('owns the home', 'owns the property'),
     items,
     official: list.key === 'reo' ? undefined : list.official, // HUD Home Store link is for homes

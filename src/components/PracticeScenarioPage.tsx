@@ -216,6 +216,38 @@ function TaskCard({ task, k, progress, update, markDone }: { task: Task; k: stri
       );
     case 'numbers':
       return <NumbersTask task={task} k={k} done={done} head={head} markDone={markDone} />;
+    case 'afford': {
+      const cash = task.loanAmount === 0;
+      const rows: [string, string][] = [
+        ['Value as it stands, from comparable sales (practice)', fmtMoney(task.asIsValue)],
+        ...(cash
+          ? ([['How you pay', 'Cash (proof of funds)']] as [string, string][])
+          : ([
+              ['Your pre-approved loan (practice)', fmtMoney(task.loanAmount)],
+              ['Your down payment', `${task.downPct}% of the price`],
+              ['Most the loan supports', fmtMoney(Math.floor(task.loanAmount / (1 - task.downPct / 100) / 1000) * 1000)],
+            ] as [string, string][])),
+        ...(task.repairs ? ([['Cash to keep for repairs', fmtMoney(task.repairs)]] as [string, string][]) : []),
+      ];
+      return (
+        <article className={`task-card${done ? ' is-done' : ''}`}>
+          {head('Numbers', task.title)}
+          <p>{task.intro}</p>
+          <table className="practice-numbers">
+            <tbody>
+              {rows.map(([l, v]) => <tr key={l}><th scope="row">{l}</th><td className="num">{v}</td></tr>)}
+            </tbody>
+            <tfoot>
+              <tr><th scope="row">Your maximum offer</th><td className="num"><strong>{fmtMoney(task.maxOffer)}</strong></td></tr>
+              <tr><th scope="row">List price</th><td className="num">{fmtMoney(task.list)}</td></tr>
+            </tfoot>
+          </table>
+          <p>{task.lesson}</p>
+          <p className="small muted">Practice numbers, not market data. A real pre-approval comes from a licensed loan officer.</p>
+          {!done && <button className="btn btn-secondary" onClick={() => markDone(k)}>I understand my budget</button>}
+        </article>
+      );
+    }
   }
 }
 

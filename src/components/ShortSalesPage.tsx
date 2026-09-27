@@ -40,7 +40,7 @@ const SECTIONS: DrillSection[] = [
             <tr><td>How you buy</td><td>Offer through an agent</td><td>Bid at auction, often cash only</td><td>Offer through an agent or online auction</td></tr>
             <tr><td>Inspection</td><td>Usually allowed</td><td>Usually no interior access</td><td>Usually allowed</td></tr>
             <tr><td>Financing</td><td>Allowed</td><td>Rarely; certified funds due quickly</td><td>Allowed</td></tr>
-            <tr><td>Title</td><td>Normal deed; liens released at closing</td><td>No warranty; some liens may survive</td><td>Usually a special warranty deed</td></tr>
+            <tr><td>Title</td><td>Normal deed; liens released at closing</td><td>No warranty; some liens may survive</td><td>Usually a deed with limited promises from the lender</td></tr>
             <tr><td>Timeline</td><td>Weeks to months for approval</td><td>Fixed auction date</td><td>Similar to a normal sale</td></tr>
           </tbody>
         </table>
