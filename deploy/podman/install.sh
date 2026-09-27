@@ -202,4 +202,5 @@ DeedOwl is running.
   Email:         $( [ -n "$HAS_MAIL" ] && echo "on (Postmark)" || echo "OFF: emails only go to the log. See README > Email." )
   Update later:  git pull && deploy/podman/install.sh --update
   Auto-deploy:   deploy/podman/auto-deploy.sh   (updates the site whenever main changes; see README)
+  Off-site copy: deploy/podman/offsite-backup.sh (database to Cloudflare R2 within seconds; see README)
 EOF

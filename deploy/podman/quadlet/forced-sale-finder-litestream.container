@@ -1,0 +1,28 @@
+# Off-site database copy: Litestream streams every database change to Cloudflare R2.
+# Installed by deploy/podman/offsite-backup.sh; Quadlet turns it into "forced-sale-finder-litestream".
+[Unit]
+Description=DeedOwl off-site database copy (Litestream to Cloudflare R2)
+Wants=network-online.target
+After=network-online.target forced-sale-finder-web.service
+
+[Container]
+Image=docker.io/litestream/litestream:0.5.17
+ContainerName=forced-sale-finder-litestream
+Exec=replicate
+# Same user as the web server, so it can read the database files it creates.
+User=1001
+Volume=forced-sale-finder.volume:/data
+Volume=./litestream.yml:/etc/litestream.yml:ro,Z
+EnvironmentFile=litestream.env
+Secret=fsf-r2-access-key-id,type=env,target=LITESTREAM_ACCESS_KEY_ID
+Secret=fsf-r2-secret-access-key,type=env,target=LITESTREAM_SECRET_ACCESS_KEY
+NoNewPrivileges=true
+ReadOnly=true
+DropCapability=ALL
+
+[Service]
+Restart=always
+TimeoutStopSec=30
+
+[Install]
+WantedBy=default.target

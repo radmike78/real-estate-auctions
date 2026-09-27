@@ -1,0 +1,15 @@
+# Litestream: a continuous off-site copy of the DeedOwl database in Cloudflare R2.
+# Every change is sent within seconds, so losing the server loses at most a few seconds of data.
+# Set up with deploy/podman/offsite-backup.sh (README > Off-site database copy). The bucket and account come
+# from litestream.env; the access keys come from Podman secrets. Nothing secret is written in this file.
+dbs:
+  - path: /data/db/app.db
+    replica:
+      type: s3
+      bucket: ${LITESTREAM_BUCKET}
+      path: deedowl
+      endpoint: https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com
+      region: auto
+      access-key-id: ${LITESTREAM_ACCESS_KEY_ID}
+      secret-access-key: ${LITESTREAM_SECRET_ACCESS_KEY}
+      sync-interval: 10s
