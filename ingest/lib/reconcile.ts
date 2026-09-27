@@ -48,7 +48,7 @@ export const emptyState = (sourceId: string): SourceState => ({
 });
 
 export interface Anomaly {
-  code: 'MASS_REMOVAL' | 'MASS_ADDITION' | 'BID_SHIFT';
+  code: 'MASS_REMOVAL' | 'MASS_ADDITION' | 'BID_SHIFT' | 'LOCATION_CHANGE';
   detail: string;
 }
 

@@ -37,7 +37,7 @@ const SECTIONS: DrillSection[] = [
           <thead><tr><th /><th>Short sale</th><th>Foreclosure / tax auction</th><th>Bank-owned (REO)</th></tr></thead>
           <tbody>
             <tr><td>Who sells</td><td>The owner, with lender approval</td><td>Trustee, sheriff or County Treasurer</td><td>The lender</td></tr>
-            <tr><td>How you buy</td><td>Offer through an agent</td><td>Bid at auction, often cash only</td><td>Offer through an agent or online auction</td></tr>
+            <tr><td>How you buy</td><td>Offer through an agent</td><td>Bid at auction, often cash only</td><td>Offer through the lender’s broker or its auction</td></tr>
             <tr><td>Inspection</td><td>Usually allowed</td><td>Usually no interior access</td><td>Usually allowed</td></tr>
             <tr><td>Financing</td><td>Allowed</td><td>Rarely; certified funds due quickly</td><td>Allowed</td></tr>
             <tr><td>Title</td><td>Normal deed; liens released at closing</td><td>No warranty; some liens may survive</td><td>Usually a deed with limited promises from the lender</td></tr>

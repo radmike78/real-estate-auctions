@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { webcrypto } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { parseIndex, parseIrsSnapshot, parseMinimumBid, parseSaleDate, SchemaDriftError } from './connectors/irsAuctions';
-import { applyIrsSnapshot } from './lib/irsReconcile';
+import { applyIrsSnapshot, detectIrsAnomalies } from './lib/irsReconcile';
 import { emptyState } from './lib/reconcile';
 import { buildFeed } from './lib/publish';
 import { generateSigningKeys, loadPrivateKey, signBytes } from './lib/sign';
@@ -102,6 +102,18 @@ describe('IRS sales in the feed', () => {
     const next = applyIrsSnapshot(first, snap2.parsed, { sha256: snap2.sha256, now: NOW, confirmedApns: all });
     expect(next.federalSales!['made-up-las-vegas-home'].state).toBe('WITHDRAWN');
     expect(next.federalSales!['made-up-canceled-condo'].state).toBe('WITHDRAWN');
+  });
+
+  it('holds a changed minimum bid, a moved sale or a burst of new sales for review (anti-spoofing)', () => {
+    const first = state();
+    expect(detectIrsAnomalies(first, snap.parsed)).toEqual([]);
+    const home = snap.parsed.rows.find((r) => r.id === 'made-up-las-vegas-home')!;
+    const edit = (patch: Partial<typeof home>) => ({ ...snap.parsed, rows: snap.parsed.rows.map((r) => (r.id === home.id ? { ...r, ...patch } : r)) });
+    expect(detectIrsAnomalies(first, edit({ minimumBid: (home.minimumBid ?? 1000) * 10 })).map((a) => a.code)).toEqual(['BID_SHIFT']);
+    expect(detectIrsAnomalies(first, edit({ saleLocation: 'Somewhere Else, Reno NV' })).map((a) => a.code)).toEqual(['LOCATION_CHANGE']);
+    expect(detectIrsAnomalies(first, edit({ canceled: true }))).toEqual([]); // postponements and cancellations are normal
+    const burst = { ...snap.parsed, rows: [...snap.parsed.rows, ...Array.from({ length: 8 }, (_, i) => ({ ...home, id: `new-${i}` }))] };
+    expect(detectIrsAnomalies(first, burst).map((a) => a.code)).toEqual(['MASS_ADDITION']);
   });
 
   it('becomes a property with the right terms for each kind of sale', () => {

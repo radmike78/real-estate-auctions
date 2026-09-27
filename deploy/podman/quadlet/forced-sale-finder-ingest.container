@@ -11,6 +11,7 @@ Exec=node --import tsx ingest/run.ts --watch
 Volume=forced-sale-finder.volume:/data
 Secret=fsf-feed-signing-key,type=env,target=FEED_SIGNING_KEY
 NoNewPrivileges=true
+ReadOnly=true
 DropCapability=ALL
 
 [Service]

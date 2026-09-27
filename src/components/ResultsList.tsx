@@ -14,7 +14,7 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
     return (
       <div className="empty">
         <p>No properties match. Try a nearby ZIP code or remove some filters.</p>
-        <p className="muted">This prototype covers Clark County, NV only (Las Vegas, Henderson, North Las Vegas, Boulder City, Mesquite).</p>
+        <p className="muted">This site covers Clark County, NV only: Las Vegas, Henderson, North Las Vegas, Boulder City, Mesquite and the county’s unincorporated towns.</p>
       </div>
     );
   }
@@ -34,7 +34,7 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
               </div>
               <h3>{p.address}</h3>
               <div className="muted small">
-                {p.zip ? `${p.city}, ${p.state} ${p.zip}` : `${p.city}, ${p.state}`} · APN {p.apn}
+                {p.zip ? `${p.city}, ${p.state} ${p.zip}` : `${p.city}, ${p.state}`} · Parcel {p.apn}
               </div>
               <div className="muted small">
                 {p.propertyType}
@@ -58,7 +58,7 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
                   <dd>{fmtMoney(p.estimatedMarketValue)}</dd>
                 </div>
                 <div>
-                  <dt title="Estimated value minus the minimum bid and likely surviving liens. Leaves out uncertain liens, repairs and costs.">Est. spread</dt>
+                  <dt title="Estimated value minus the minimum bid and likely surviving liens. Leaves out uncertain liens, repairs and costs.">Rough spread (value minus bid)</dt>
                   <dd className={m.estimatedEquity !== null && m.estimatedEquity < 0 ? 'neg' : ''}>{fmtMoney(m.estimatedEquity)}</dd>
                 </div>
               </dl>

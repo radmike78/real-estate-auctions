@@ -51,7 +51,7 @@ function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; lo
         <div>
           <div className="deal-badges"><StatusBadge status={p.status} />{s && <span className="deal-type">{SALE_TYPE_LABEL[s.saleType]}</span>}</div>
           <h2><a href={base}>{p.address}</a></h2>
-          <p className="muted">{p.city}, {p.state} {p.zip} · APN {p.apn} · saved {fmtDate(d.savedAt.slice(0, 10))}</p>
+          <p className="muted">{p.city}, {p.state} {p.zip} · Parcel {p.apn} · saved {fmtDate(d.savedAt.slice(0, 10))}</p>
         </div>
         <button className="linkish" aria-label={`Remove ${p.address} from My deals`} onClick={() => removeDeal(p.id)}>Remove</button>
       </div>

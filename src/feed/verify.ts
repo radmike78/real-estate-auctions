@@ -59,7 +59,7 @@ const shortText = (v: unknown, max: number) => v === null || (typeof v === 'stri
 
 export type VerifyResult =
   | { ok: true; feed: Feed }
-  | { ok: false; reason: 'NOT_CONFIGURED' | 'MISSING' | 'BAD_SIGNATURE' | 'EXPIRED' | 'MALFORMED'; detail: string };
+  | { ok: false; reason: 'NOT_CONFIGURED' | 'MISSING' | 'BAD_SIGNATURE' | 'EXPIRED' | 'MALFORMED' | 'ROLLED_BACK'; detail: string };
 
 const b64ToBytes = (b64: string) => Uint8Array.from(atob(b64.trim()), (c) => c.charCodeAt(0));
 
@@ -173,6 +173,11 @@ export async function verifyFeed(
   if (Date.parse(feed.generatedAt) > now.getTime() + 5 * 60_000) {
     return { ok: false, reason: 'MALFORMED', detail: 'Feed is dated in the future.' };
   }
+  // The publisher never signs a feed for more than 24 hours (ingest/lib/cadence.ts), so a longer
+  // lifetime means it wasn't made by our publisher; refuse it rather than trust it for longer.
+  if (!(Date.parse(feed.expiresAt) - Date.parse(feed.generatedAt) <= MAX_FEED_LIFETIME_MS)) {
+    return { ok: false, reason: 'MALFORMED', detail: 'Feed lifetime is longer than allowed.' };
+  }
   if (!(Date.parse(feed.expiresAt) > now.getTime())) {
     return { ok: false, reason: 'EXPIRED', detail: `Listings expired at ${feed.expiresAt} and are being re-verified.` };
   }
@@ -181,12 +186,32 @@ export async function verifyFeed(
   return { ok: true, feed: { ...feed, listings: feed.listings.filter(validListing), certificates, federalSales } };
 }
 
+export const MAX_FEED_LIFETIME_MS = 25 * 60 * 60_000; // 24 h plus clock slack
+const NEWEST_KEY = 'fsf.listings.newest.v1';
+
+/**
+ * Refuses a validly signed but OLDER listings feed than one this browser already saw, so whoever controls
+ * the host or a cache can't replay a copy from before a parcel was redeemed or lined out.
+ */
+export function refuseRollback(r: VerifyResult, storage: Pick<Storage, 'getItem' | 'setItem'> | null = globalThis.localStorage ?? null): VerifyResult {
+  if (!r.ok || !storage) return r;
+  try {
+    const seen = Date.parse(storage.getItem(NEWEST_KEY) ?? '');
+    const got = Date.parse(r.feed.generatedAt);
+    if (seen && got < seen) return { ok: false, reason: 'ROLLED_BACK', detail: 'An older copy of the listings was served. It was not shown.' };
+    storage.setItem(NEWEST_KEY, r.feed.generatedAt);
+  } catch {
+    /* storage unavailable: signature and expiry checks still apply */
+  }
+  return r;
+}
+
 export async function loadVerifiedFeed(publicKeySpkiB64: string | null): Promise<VerifyResult> {
   if (!publicKeySpkiB64) return { ok: false, reason: 'NOT_CONFIGURED', detail: 'No feed-signing public key is configured.' };
   const [data, sig] = await Promise.all([
-    fetch('data/listings.json', { cache: 'no-store' }),
-    fetch('data/listings.json.sig', { cache: 'no-store' }),
+    fetch('data/listings.json', { cache: 'no-cache' }),
+    fetch('data/listings.json.sig', { cache: 'no-cache' }),
   ]);
   if (!isFeedResponse(data) || !isFeedResponse(sig)) return { ok: false, reason: 'MISSING', detail: 'No published listings feed was found.' };
-  return verifyFeed(await data.arrayBuffer(), await sig.text(), publicKeySpkiB64);
+  return refuseRollback(await verifyFeed(await data.arrayBuffer(), await sig.text(), publicKeySpkiB64));
 }

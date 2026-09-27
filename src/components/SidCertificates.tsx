@@ -24,7 +24,7 @@ export default function SidCertificates({ certificates, ago }: { certificates: F
       </p>
       <p className="muted">
         Published by {publisher} for Clark County and the cities. Every parcel is checked against the County Assessor’s records. Registration is
-        in person, 30 to 60 minutes before the sale. At county sales the buyer is picked by random drawing, not highest bid; each sale’s
+        in person, about an hour before the sale (city sales set their own times). At county sales the buyer is picked by random drawing, not highest bid; each sale’s
         notice sets its own procedures.
       </p>
       {sales.map((s) => {

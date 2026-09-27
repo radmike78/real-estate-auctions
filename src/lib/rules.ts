@@ -138,7 +138,7 @@ export const WHAT_YOU_BUY: Record<SaleType, string> = {
   HOA_FORECLOSURE: "A deed from the HOA's foreclosure agent under NRS 116. It starts as a certificate of sale with a 60-day redemption period. The first deed of trust survives if the lender paid the priority amount at least 5 days before the sale, validly offered it and was refused, or if Fannie Mae or Freddie Mac owned the loan. This is heavily litigated in Nevada.",
   SHERIFF_EXECUTION: "A sheriff's certificate of sale on a judgment execution (NRS 21). The debtor may redeem within 1 year, and you receive only the debtor's interest.",
   FEDERAL_TAX_SEIZURE: "A certificate of sale from the IRS, then an IRS deed after a 180-day redemption period (26 U.S.C. § 6337). You receive only the taxpayer's interest.",
-  REO: 'A property the lender already owns. It is bought by offer through a broker or an online auction, usually with a deed that carries limited promises from the lender, and title insurance available.',
+  REO: 'A property the lender already owns. It is bought by offer through the lender’s broker or at an auction the lender chooses, usually with a deed that carries limited promises from the lender, and title insurance available.',
 };
 
 export const SALE_TYPE_LABEL: Record<SaleType, string> = {

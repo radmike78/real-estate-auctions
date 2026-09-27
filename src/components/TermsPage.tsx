@@ -29,7 +29,7 @@ const SECTIONS: DrillSection[] = [
     title: 'What this site is, and isn’t',
     icon: <IconShield />,
     tone: 'go',
-    summary: 'A free information and advertising service. Not a broker, lender, auctioneer or advisor',
+    summary: 'A free information service. Not a broker, lender, auctioneer or advisor',
     content: () => (
       <>
         <p>
@@ -102,8 +102,7 @@ const SECTIONS: DrillSection[] = [
         </p>
         <p>
           When you use a contact form, your details go only to the professional you chose. Any agreement, fee, loan or service is strictly between
-          you and them. We aren't a party to it, every advertiser in a category pays the same flat monthly fee, we don't charge per lead or per closing or take a share of any transaction, and we aren't responsible for their
-          work.
+          you and them. We aren't a party to it, we receive nothing from any deal you make, and we aren't responsible for their work.
         </p>
       </>
     ),

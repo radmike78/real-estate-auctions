@@ -4,9 +4,9 @@ import { CLASS_LABEL, type ClassFilter } from '../lib/propertyClass';
 export default function ClassSwitch({ value, onChange, label = 'Property class' }: { value: ClassFilter; onChange: (c: ClassFilter) => void; label?: string }) {
   const opts: [ClassFilter, string][] = [['all', 'All'], ['residential', CLASS_LABEL.residential], ['commercial', CLASS_LABEL.commercial]];
   return (
-    <div className="seg class-switch" role="tablist" aria-label={label}>
+    <div className="seg class-switch" role="group" aria-label={label}>
       {opts.map(([k, l]) => (
-        <button key={k} type="button" role="tab" aria-selected={value === k} onClick={() => onChange(k)}>{l}</button>
+        <button key={k} type="button" aria-pressed={value === k} onClick={() => onChange(k)}>{l}</button>
       ))}
     </div>
   );

@@ -41,7 +41,7 @@ export default function IrsSales({ sales, ago }: { sales: FeedFederalSale[]; ago
                   <span>
                     {isFederalSaleUrl(f.sourceUrl) && <a href={f.sourceUrl} target="_blank" rel="noreferrer noopener">IRS notice ↗</a>}
                     <br />
-                    <TrackButton target={`irs:${f.id}`} label={f.address ? `${f.address}, ${f.city} (APN ${f.apns[0]})` : `${f.title} (APN ${f.apns[0]})`} />
+                    <TrackButton target={`irs:${f.id}`} label={f.address ? `${f.address}, ${f.city} (parcel ${f.apns[0]})` : `${f.title} (parcel ${f.apns[0]})`} />
                   </span>
                 </td>
               </tr>

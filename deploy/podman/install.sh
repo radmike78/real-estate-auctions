@@ -36,20 +36,25 @@ if [ "$MODE" = systemd ]; then
   command -v systemctl >/dev/null || die "systemd not found. Run with --no-systemd instead."
 fi
 
-# ---------- signing key (created once, reused on every update) ----------
+# ---------- signing keys (created once, reused on every update) ----------
+# Two key pairs: feed-signing.pem signs listings (listings updater only); directory-signing.pem signs the
+# advertiser directory (web server only). A compromised web server then can't publish fake listings.
 mkdir -p "$KEY_DIR" && chmod 700 "$KEY_DIR"
-if [ ! -f "$KEY_DIR/feed-signing.pem" ]; then
-  say "Creating the feed-signing key in $KEY_DIR"
-  openssl genpkey -algorithm ed25519 -out "$KEY_DIR/feed-signing.pem"
-  chmod 600 "$KEY_DIR/feed-signing.pem"
-fi
-openssl pkey -in "$KEY_DIR/feed-signing.pem" -pubout -outform DER | base64 | tr -d '\n' > "$KEY_DIR/feed-public-key.txt"
+for k in feed directory; do
+  if [ ! -f "$KEY_DIR/$k-signing.pem" ]; then
+    say "Creating the $k signing key in $KEY_DIR"
+    openssl genpkey -algorithm ed25519 -out "$KEY_DIR/$k-signing.pem"
+    chmod 600 "$KEY_DIR/$k-signing.pem"
+  fi
+  openssl pkey -in "$KEY_DIR/$k-signing.pem" -pubout -outform DER | base64 | tr -d '\n' > "$KEY_DIR/$k-public-key.txt"
+done
 PUBLIC_KEY=$(cat "$KEY_DIR/feed-public-key.txt")
+DIRECTORY_PUBLIC_KEY=$(cat "$KEY_DIR/directory-public-key.txt")
 
 # ---------- build ----------
 say "Building the image (installs packages, runs the tests, builds the site; takes a few minutes)"
 # shellcheck disable=SC2086
-podman build ${PODMAN_BUILD_ARGS:-} -t "$IMAGE" --build-arg FEED_PUBLIC_KEY="$PUBLIC_KEY" -f "$REPO/Containerfile" "$REPO"
+podman build ${PODMAN_BUILD_ARGS:-} -t "$IMAGE" --build-arg FEED_PUBLIC_KEY="$PUBLIC_KEY" --build-arg DIRECTORY_PUBLIC_KEY="$DIRECTORY_PUBLIC_KEY" -f "$REPO/Containerfile" "$REPO"
 
 if [ "$MODE" = update ]; then
   say "Restarting with the new image"
@@ -109,12 +114,16 @@ if [ -z "${FSF_RECREATE:-}" ]; then
   podman secret rm fsf-admin-password-hash fsf-feed-signing-key >/dev/null 2>&1 || true
   printf '%s' "$HASH" | podman secret create fsf-admin-password-hash - >/dev/null
   podman secret create fsf-feed-signing-key "$KEY_DIR/feed-signing.pem" >/dev/null
+  podman secret rm fsf-directory-signing-key >/dev/null 2>&1 || true
+  podman secret create fsf-directory-signing-key "$KEY_DIR/directory-signing.pem" >/dev/null
   if [ -n "$PM_TOKEN" ]; then
     podman secret rm fsf-postmark-token >/dev/null 2>&1 || true
     printf '%s' "$PM_TOKEN" | podman secret create fsf-postmark-token - >/dev/null
   fi
   unset PM_TOKEN
 fi
+# Installs from before the directory key existed: add its secret on update.
+podman secret inspect fsf-directory-signing-key >/dev/null 2>&1 || podman secret create fsf-directory-signing-key "$KEY_DIR/directory-signing.pem" >/dev/null
 HAS_MAIL=""; podman secret inspect fsf-postmark-token >/dev/null 2>&1 && HAS_MAIL=1
 
 HEALTH="node -e \"fetch('http://127.0.0.1:8080/healthz').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))\""
@@ -166,10 +175,10 @@ else
   fi
   MAIL_ARGS=(); if [ -n "$HAS_MAIL" ]; then MAIL_ARGS=(--secret fsf-postmark-token,type=env,target=POSTMARK_SERVER_TOKEN); fi
   podman run -d --name forced-sale-finder-web --restart=always -p "${FSF_PORT:-8080}:8080" -v forced-sale-finder-data:/data "${ENV_ARGS[@]}" ${MAIL_ARGS[@]+"${MAIL_ARGS[@]}"} \
-    --secret fsf-admin-password-hash,type=env,target=ADMIN_PASSWORD_HASH --secret fsf-feed-signing-key,type=env,target=FEED_SIGNING_KEY \
-    --security-opt no-new-privileges --cap-drop all --health-cmd "$HEALTH" --health-interval 30s "$IMAGE" >/dev/null
+    --secret fsf-admin-password-hash,type=env,target=ADMIN_PASSWORD_HASH --secret fsf-directory-signing-key,type=env,target=DIRECTORY_SIGNING_KEY \
+    --read-only --security-opt no-new-privileges --cap-drop all --health-cmd "$HEALTH" --health-interval 30s "$IMAGE" >/dev/null
   podman run -d --name forced-sale-finder-ingest --restart=always -v forced-sale-finder-data:/data \
-    --secret fsf-feed-signing-key,type=env,target=FEED_SIGNING_KEY --security-opt no-new-privileges --cap-drop all \
+    --secret fsf-feed-signing-key,type=env,target=FEED_SIGNING_KEY --read-only --security-opt no-new-privileges --cap-drop all \
     "$IMAGE" node --import tsx ingest/run.ts --watch >/dev/null
 fi
 
@@ -187,7 +196,7 @@ cat <<EOF
 Forced-Sale Finder is running.
   Site:          $URL
   Admin page:    $URL/#/admin
-  Signing key:   $KEY_DIR/feed-signing.pem   (back this up; keep it private)
+  Signing keys:  $KEY_DIR/feed-signing.pem and directory-signing.pem   (back these up; keep them private)
   Data volume:   forced-sale-finder-data (database, daily backups, feeds)
   Logs:          podman logs -f forced-sale-finder-web
   Email:         $( [ -n "$HAS_MAIL" ] && echo "on (Postmark)" || echo "OFF: emails only go to the log. See README > Email." )

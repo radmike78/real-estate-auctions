@@ -77,7 +77,7 @@ export function loadVerifiedPros(publicKeySpkiB64: string | null): Promise<ProsF
   if (!publicKeySpkiB64) return Promise.resolve({ ok: false, reason: 'NOT_CONFIGURED', detail: 'No signing key configured.' });
   if (cached && Date.now() - cached.at < CACHE_MS) return cached.result;
   const result = (async () => {
-    const [data, sig] = await Promise.all([fetch('data/pros.json', { cache: 'no-store' }), fetch('data/pros.json.sig', { cache: 'no-store' })]);
+    const [data, sig] = await Promise.all([fetch('data/pros.json', { cache: 'no-cache' }), fetch('data/pros.json.sig', { cache: 'no-cache' })]);
     if (!isFeedResponse(data) || !isFeedResponse(sig)) return { ok: false as const, reason: 'MISSING' as const, detail: 'No directory has been published yet.' };
     const r = await verifyProsFeed(await data.arrayBuffer(), await sig.text(), publicKeySpkiB64);
     return r.ok ? refuseRollback(r) : r;

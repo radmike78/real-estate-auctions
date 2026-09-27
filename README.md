@@ -49,13 +49,14 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 | `BASE_URL` | no | yes | The web address people use, like `https://forcedsalefinder.com`. Used in emails and for secure cookies. |
 | `ADMIN_USERNAME` | no | yes | Admin sign-in name for `/#/admin`. |
 | `ADMIN_PASSWORD_HASH` | **yes** | yes | Hash of the admin password (never the password itself). Created in step 3 below. |
-| `FEED_SIGNING_KEY` | **yes** | yes | Private signing key (PEM) for the listings and directory feeds. Created in step 2 below. |
+| `DIRECTORY_SIGNING_KEY` | **yes** | yes (web) | Private key (PEM) that signs the advertiser directory. Web server only. Created in step 2 below. |
+| `FEED_SIGNING_KEY` | **yes** | yes (updater) | Private key (PEM) that signs the listings. **Listings updater only**: the web server refuses to start if it's given this key, so a break-in to the web server can't publish fake listings. |
 | `POSTMARK_SERVER_TOKEN` | **yes** | for a real site | Sends email through Postmark. Set it together with `MAIL_FROM`. See [Email](#email-postmark). |
 | `MAIL_FROM` | no | with the token | Sender address verified in Postmark, like `Forced-Sale Finder <no-reply@your-domain>`. |
 | `MAIL_REPLY_TO`, `POSTMARK_MESSAGE_STREAM`, `POSTMARK_BROADCAST_STREAM` | no | no | Where replies go (default: `MAIL_FROM`), the Postmark stream for sign-in, alert and other one-to-one email (default `outbound`), and the stream for updates to the general email list (default `broadcast`). |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PLANS` | **yes** | no | Online card payments for advertisers: set all three or none. See [Online payments](#advertisers-signup-verification-billing-server). |
 | `TRUST_PROXY` | no | no | `1` when a reverse proxy, Ingress or OpenShift router sits in front (it is in every option below). |
-| `TRUST_CLOUDFLARE` | no | with Cloudflare | `1` when your domain is proxied through Cloudflare, so each visitor's own address is used for spam limits. See [Cloudflare](#cloudflare-recommended). |
+| `TRUST_CLOUDFLARE` | no | with Cloudflare | `1` when your domain is proxied through Cloudflare, so each visitor's own address is used for spam limits. See [Cloudflare](#cloudflare-strongly-recommended). |
 | `BACKUP_KEEP` | no | no | Daily database backups to keep (default 7). `BACKUP_DIR=""` turns them off. |
 | `PORT`, `DB_PATH`, `DATA_DIR`, `INGEST_STATE_DIR`, `BACKUP_DIR` | no | no | Already set correctly in the image. |
 
@@ -63,13 +64,14 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 
 | Name | Default | What it does |
 | --- | --- | --- |
-| `FEED_PUBLIC_KEY` | empty | Public signing key built into the site (see step 2 below). Without it, live listings and the advertiser directory stay off. |
+| `FEED_PUBLIC_KEY` | empty | Public listings key, built into the site and the web server (see step 2 below). Without it, live listings stay off. |
+| `DIRECTORY_PUBLIC_KEY` | empty | Public directory key, built into the site. Without it, the advertiser directory stays off. |
 | `SHOW_SAMPLE_DATA` | `0` | `1` shows the fictional sample properties and professionals, for a demo site. Leave it at `0` for a real site. |
 | `RUN_TESTS` | `1` | `0` skips the test suite during the build (not recommended). |
 
 > **Emails:** without `POSTMARK_SERVER_TOKEN` and `MAIL_FROM`, confirmation links, sign-in links, leads and reports are only written to the web container's log, and the log says `WARNING: email is OFF`. Set up [Email](#email-postmark) before real visitors arrive.
 
-### Cloudflare (recommended)
+### Cloudflare (strongly recommended)
 
 Put [Cloudflare](https://www.cloudflare.com)'s free plan in front of any option below. It speeds up the site worldwide, caches the site's static files, and absorbs attacks. The site needs no other changes.
 
@@ -81,7 +83,31 @@ Put [Cloudflare](https://www.cloudflare.com)'s free plan in front of any option 
 3. **Proxy on:** switch the DNS record to **Proxied** (orange cloud).
 4. **SSL/TLS → Overview → Full (strict).** Never use "Flexible": it sends traffic between Cloudflare and your server unencrypted, and loops forever with the site's own HTTPS redirect.
 5. **Tell the site:** set `TRUST_CLOUDFLARE=1` (Podman: in `forced-sale-finder.env`; Kubernetes/OpenShift: in `deploy/kubernetes/base/config.env`), keep `TRUST_PROXY=1`, and restart. Without it, every visitor looks like a Cloudflare server, so spam limits would lump everyone together.
-6. **Optional:** allow ports 80/443 only from [Cloudflare's addresses](https://www.cloudflare.com/ips/) in your server's or cloud provider's firewall, so nobody can reach the server without going through Cloudflare.
+6. **Lock the server to Cloudflare (required).** Otherwise anyone who finds your server's address can skip Cloudflare and all of its protection. Allow web traffic only from [Cloudflare's addresses](https://www.cloudflare.com/ips/):
+   - **Podman** (firewalld; Caddy keeps renewing its certificate through Cloudflare):
+     ```bash
+     sudo firewall-cmd --permanent --new-ipset=cloudflare4 --type=hash:net
+     sudo firewall-cmd --permanent --new-ipset=cloudflare6 --type=hash:net --option=family=inet6
+     for n in $(curl -fsS https://www.cloudflare.com/ips-v4); do sudo firewall-cmd --permanent --ipset=cloudflare4 --add-entry=$n; done
+     for n in $(curl -fsS https://www.cloudflare.com/ips-v6); do sudo firewall-cmd --permanent --ipset=cloudflare6 --add-entry=$n; done
+     for set in cloudflare4 cloudflare6; do for port in 80 443; do
+       sudo firewall-cmd --permanent --add-rich-rule="rule source ipset=$set port port=$port protocol=tcp accept"
+     done; done
+     sudo firewall-cmd --permanent --remove-service=http --remove-service=https
+     sudo firewall-cmd --reload
+     ```
+     On a cloud server, you can instead allow only Cloudflare's addresses in the provider's firewall (security group).
+   - **Kubernetes:** uncomment `whitelist-source-range` in `deploy/kubernetes/overlays/kubernetes/ingress.yaml`, or set `loadBalancerSourceRanges` on your ingress controller's Service. The controller must see the real connecting address (`externalTrafficPolicy: Local`).
+   - **OpenShift:** uncomment `ip_allowlist` in the overlay's `route.yaml`.
+   - Step 1 made your server's address public for a while (DNS history sites keep it). If it was public for long, or ever before this setup, move to a new address after locking down.
+7. **Security rules** (Cloudflare dashboard → your domain → Security). The free plan covers these:
+   - **Rate limiting rule:** when `(http.request.method eq "POST" and starts_with(http.request.uri.path, "/api/") and not http.request.uri.path in {"/api/stripe/webhook" "/api/alerts/unsubscribe"})`, allow 20 requests per 10 seconds per IP, then **Block** for 10 seconds.
+   - **Custom rule "admin only from me":** when `starts_with(http.request.uri.path, "/api/admin/") and not ip.src in {YOUR.HOME.IP}`, **Block**. Update it if your address changes.
+   - Don't put a challenge (Managed or JS Challenge) on `/api/` paths: the site's forms send in the background and can't show one, so real visitors' forms would fail. The rate limiting rule and the site's own limits cover the forms.
+   - **Custom rule "only normal requests":** when `not http.request.method in {"GET" "HEAD" "POST"}`, **Block**.
+   - **DDoS protection:** keep the HTTP DDoS managed ruleset on (it is by default). Use **Under Attack mode** only during an attack: it also challenges Stripe's payment notices (Stripe retries them for 3 days).
+   - **Bots:** Bot Fight Mode is optional. If you turn it on, check that a test Stripe payment still reaches the site and that the one-click unsubscribe in an alert email still works.
+8. **Postmark:** in Postmark, turn on bounce and spam-complaint alerts. The site also stops sending form emails (confirmations, sign-in links, leads) after 200 in one hour and logs a warning, so a spam flood can't burn through your allowance.
 
 Cloudflare's default caching is right for this site: it caches the scripts, styles, fonts and images (their names change with every release) and passes pages, API calls and the signed listing feeds straight through. You don't need page rules or a cache-everything setting.
 
@@ -130,14 +156,16 @@ git clone https://github.com/radmike78/real-estate-auctions.git
 cd real-estate-auctions
 ```
 
-**2. Create the signing key** (once, with OpenSSL). The site signs its listings and directory; browsers check the signature with the public key built into the image.
+**2. Create the two signing keys** (once, with OpenSSL). The listings updater signs the listings, and the web server signs the advertiser directory; browsers check both signatures with the public keys built into the image. Two separate keys mean a break-in to the web server can't publish fake listings.
 ```bash
-openssl genpkey -algorithm ed25519 -out feed-signing.pem
-openssl pkey -in feed-signing.pem -pubout -outform DER | base64 | tr -d '\n' > feed-public-key.txt
+for k in feed directory; do
+  openssl genpkey -algorithm ed25519 -out $k-signing.pem
+  openssl pkey -in $k-signing.pem -pubout -outform DER | base64 | tr -d '\n' > $k-public-key.txt
+done
 ```
-- `feed-signing.pem` is the **private key**. Keep it secret and back it up. It goes into a secret, never into Git.
-- `feed-public-key.txt` is the **public key**. It's safe to share and is passed to the image build as `FEED_PUBLIC_KEY`.
-- If you lose the private key, create a new pair and rebuild the image.
+- `feed-signing.pem` and `directory-signing.pem` are the **private keys**. Keep them secret and back them up. They go into secrets, never into Git. `feed-signing.pem` goes only to the listings updater.
+- `feed-public-key.txt` and `directory-public-key.txt` are the **public keys**. They're safe to share and are passed to the image build as `FEED_PUBLIC_KEY` and `DIRECTORY_PUBLIC_KEY`.
+- If you lose a private key, create a new pair and rebuild the image.
 
 **3. Create the admin password hash** (after you have an image; each option shows when). Type the password when asked; it's never shown or saved.
 ```bash
@@ -194,11 +222,13 @@ It asks for the web address, an admin username, an admin password and, optionall
 ```bash
 # Build (on RHEL-family hosts, add --pull=newer to refresh the base images)
 podman build -t localhost/forced-sale-finder:latest \
-  --build-arg FEED_PUBLIC_KEY="$(cat feed-public-key.txt)" -f Containerfile .
+  --build-arg FEED_PUBLIC_KEY="$(cat feed-public-key.txt)" \
+  --build-arg DIRECTORY_PUBLIC_KEY="$(cat directory-public-key.txt)" -f Containerfile .
 
 # Secrets (step 3 above creates admin-password-hash.txt)
 podman secret create fsf-admin-password-hash admin-password-hash.txt
-podman secret create fsf-feed-signing-key feed-signing.pem
+podman secret create fsf-feed-signing-key feed-signing.pem             # listings updater only
+podman secret create fsf-directory-signing-key directory-signing.pem   # web server only
 printf '%s' 'YOUR-POSTMARK-TOKEN' | podman secret create fsf-postmark-token -   # email; see Email (Postmark)
 
 # systemd services via Quadlet (rootless: use ~/.config/containers/systemd and systemctl --user)
@@ -240,14 +270,15 @@ There's no `systemctl enable` step: Quadlet services start at boot automatically
   - **(a)** use the image CI publishes to GitHub Container Registry (see [Continuous delivery](#continuous-delivery)); or
   - **(b)** build it yourself with **Podman 4+** and push it to any registry (Quay.io, GHCR, Harbor, ECR, GCR, ACR, ...).
 - **OpenSSL** for the signing key. **Podman** for building the image (option b) and the password hash; you can also make the hash inside the cluster.
-- At least 0.2 CPU and 512 MB of memory free on a node, plus 2 GB of storage.
+- At least 0.2 CPU and 512 MB of memory free on a node, plus 5 GB of storage.
 
 **Steps**
 1. **Image.**
-   - **(a)** Use `ghcr.io/radmike78/real-estate-auctions:latest`. Set the repository variable `FEED_PUBLIC_KEY` to the contents of `feed-public-key.txt` *before* CI builds it.
+   - **(a)** Use `ghcr.io/radmike78/real-estate-auctions:latest`. Set the repository variables `FEED_PUBLIC_KEY` and `DIRECTORY_PUBLIC_KEY` to the contents of `feed-public-key.txt` and `directory-public-key.txt` *before* CI builds it.
    - **(b)** Build and push your own:
      ```bash
-     podman build -t quay.io/<you>/forced-sale-finder:1.0 --build-arg FEED_PUBLIC_KEY="$(cat feed-public-key.txt)" -f Containerfile .
+     podman build -t quay.io/<you>/forced-sale-finder:1.0 --build-arg FEED_PUBLIC_KEY="$(cat feed-public-key.txt)" \
+       --build-arg DIRECTORY_PUBLIC_KEY="$(cat directory-public-key.txt)" -f Containerfile .
      podman login quay.io && podman push quay.io/<you>/forced-sale-finder:1.0
      ```
    Put the image name and tag in `deploy/kubernetes/overlays/kubernetes/kustomization.yaml` (`images:`).
@@ -259,13 +290,15 @@ There's no `systemctl enable` step: Quadlet services start at boot automatically
      (`docker-registry` is just the name of the Kubernetes secret type; no Docker software is involved.)
 2. **Namespace:** `kubectl create namespace forced-sale-finder`
 3. **Password hash:** step 3 of [Before you start](#before-you-start-every-option), using your image name, with Podman or inside the cluster.
-4. **Secret.** Add the Postmark token for email ([Email](#email-postmark)). Add the three `STRIPE_*` values only if you use online payments:
+4. **Secrets.** Two of them: the listings key goes in its own secret that only the listings updater reads. Add the Postmark token for email ([Email](#email-postmark)). Add the three `STRIPE_*` values only if you use online payments:
    ```bash
    read -rs -p "Postmark Server API token: " PM; echo
    kubectl create secret generic forced-sale-finder-secrets -n forced-sale-finder \
      --from-file=ADMIN_PASSWORD_HASH=admin-password-hash.txt \
-     --from-file=FEED_SIGNING_KEY=feed-signing.pem \
+     --from-file=DIRECTORY_SIGNING_KEY=directory-signing.pem \
      --from-literal=POSTMARK_SERVER_TOKEN="$PM"
+   kubectl create secret generic forced-sale-finder-feed-key -n forced-sale-finder \
+     --from-file=FEED_SIGNING_KEY=feed-signing.pem
    unset PM
    #  --from-literal=STRIPE_SECRET_KEY=... --from-literal=STRIPE_WEBHOOK_SECRET=... --from-literal=STRIPE_PLANS='{...}'
    ```
@@ -312,13 +345,14 @@ No extra permissions are needed. Everything runs under OpenShift's default `rest
 1. `oc new-project forced-sale-finder`
 2. Edit `deploy/kubernetes/base/config.env`: set `BASE_URL` and `ADMIN_USERNAME`, and uncomment `MAIL_FROM` with your sender address. If you don't know the address yet, leave it for now; after deploying, read it from `oc get route forced-sale-finder`, set it, and run the `oc apply -k` command again.
 
-The Secret is created as part of each option below:
+The two Secrets are created as part of each option below (the listings key goes in its own secret that only the listings updater reads):
 ```bash
 read -rs -p "Postmark Server API token: " PM; echo
 oc create secret generic forced-sale-finder-secrets \
   --from-file=ADMIN_PASSWORD_HASH=admin-password-hash.txt \
-  --from-file=FEED_SIGNING_KEY=feed-signing.pem \
+  --from-file=DIRECTORY_SIGNING_KEY=directory-signing.pem \
   --from-literal=POSTMARK_SERVER_TOKEN="$PM"
+oc create secret generic forced-sale-finder-feed-key --from-file=FEED_SIGNING_KEY=feed-signing.pem
 unset PM
 # Optional online payments: add --from-literal=STRIPE_SECRET_KEY=... (all three STRIPE_* values)
 ```
@@ -329,13 +363,13 @@ unset PM
    oc create secret docker-registry regcred --docker-server=... --docker-username=... --docker-password=...
    oc secrets link default regcred --for=pull
    ```
-2. Make the password hash (step 3 of [Before you start](#before-you-start-every-option)) and create the Secret (above).
+2. Make the password hash (step 3 of [Before you start](#before-you-start-every-option)) and create the Secrets (above).
 3. `oc apply -k deploy/kubernetes/overlays/openshift`
 4. `oc rollout status deployment/forced-sale-finder`, then `oc get route forced-sale-finder` to get the HTTPS address.
 
 **Option B: build inside OpenShift from Git (no registry needed)**
 1. In `deploy/kubernetes/overlays/openshift-build/buildconfig.yaml`:
-   - paste the contents of `feed-public-key.txt` into `FEED_PUBLIC_KEY`;
+   - paste the contents of `feed-public-key.txt` into `FEED_PUBLIC_KEY`, and of `directory-public-key.txt` into `DIRECTORY_PUBLIC_KEY`;
    - if you use a fork, change the Git `uri` and `ref`.
 2. Create the webhook secret (used for automatic rebuilds):
    ```bash
@@ -352,14 +386,15 @@ unset PM
    oc logs -f bc/forced-sale-finder
    ```
    Until the next step is done, the pod waits with `CreateContainerConfigError`. That's expected.
-5. Make the password hash with the image you just built, then create the Secret:
+5. Make the password hash with the image you just built, then create the Secrets:
    ```bash
    read -rs -p "Admin password (12+ characters): " PW; echo
    printf '%s\n' "$PW" | oc run fsf-hash --rm -i --quiet --restart=Never --image=forced-sale-finder:latest \
      --command -- node --import tsx server/hash-password.ts 2>/dev/null | tr -d '\n' > admin-password-hash.txt
    unset PW
    oc create secret generic forced-sale-finder-secrets \
-     --from-file=ADMIN_PASSWORD_HASH=admin-password-hash.txt --from-file=FEED_SIGNING_KEY=feed-signing.pem
+     --from-file=ADMIN_PASSWORD_HASH=admin-password-hash.txt --from-file=DIRECTORY_SIGNING_KEY=directory-signing.pem
+   oc create secret generic forced-sale-finder-feed-key --from-file=FEED_SIGNING_KEY=feed-signing.pem
    oc rollout status deployment/forced-sale-finder
    oc get route forced-sale-finder
    ```
@@ -382,7 +417,7 @@ unset PM
 3. **image:** builds the image with **Podman**, starts it and checks `/healthz`. On `main`, it pushes the image to `ghcr.io/radmike78/real-estate-auctions` as `:latest` and `:<commit>`.
 
 To turn it on for your deployments:
-- Add the repository **variable** `FEED_PUBLIC_KEY` (Settings > Secrets and variables > Actions > Variables) with the contents of `feed-public-key.txt`.
+- Add the repository **variables** `FEED_PUBLIC_KEY` and `DIRECTORY_PUBLIC_KEY` (Settings > Secrets and variables > Actions > Variables) with the contents of `feed-public-key.txt` and `directory-public-key.txt`.
 - The first push creates the package in GitHub under Packages. Either make it public, or give your cluster a pull secret (shown above).
 
 Then roll out new versions:
@@ -401,8 +436,10 @@ For GitOps, point [Argo CD / OpenShift GitOps](https://argo-cd.readthedocs.io/) 
 | `ImagePullBackOff` | Wrong image name, or a private registry without a pull secret. See step 1 of your option. |
 | `CrashLoopBackOff` with "permission denied" on `/data` | Plain Kubernetes: keep the `fsGroup: 1001` patch in the Kubernetes overlay. OpenShift handles this automatically. |
 | Live tax sales says "didn't pass our security checks" | The image was built with a different public key than the private key in the secret. Rebuild with the matching `feed-public-key.txt`. |
+| Web container exits with "FEED_SIGNING_KEY is for the listings updater only" | The listings key was given to the web server. Put `DIRECTORY_SIGNING_KEY` in `forced-sale-finder-secrets` and `FEED_SIGNING_KEY` only in `forced-sale-finder-feed-key` (Podman: `fsf-directory-signing-key` for the web container). |
+| Pod stuck in `CreateContainerConfigError` | A secret is missing. Create both `forced-sale-finder-secrets` and `forced-sale-finder-feed-key`. |
 | Live tax sales is always empty | Expected until the Treasurer schedules an auction, and until `termsReviewedAt` is set in `ingest/sources/registry.ts` (see [Live data](#live-data)). |
-| Behind Cloudflare, spam limits ("Too many ... from this network") hit many people at once | Set `TRUST_CLOUDFLARE=1` ([Cloudflare](#cloudflare-recommended)). |
+| Behind Cloudflare, spam limits ("Too many ... from this network") hit many people at once | Set `TRUST_CLOUDFLARE=1` ([Cloudflare](#cloudflare-strongly-recommended)). |
 | `ERR_TOO_MANY_REDIRECTS` behind Cloudflare | Cloudflare SSL mode is "Flexible". Set it to **Full (strict)**. |
 | Log says `WARNING: email is OFF` | Set `POSTMARK_SERVER_TOKEN` and `MAIL_FROM` ([Email](#email-postmark)). |
 | Log says `Email to ... was not sent: Postmark HTTP 401` | Wrong token. Copy the **Server** API token, not the Account token. |
@@ -435,11 +472,11 @@ The first real connector reads the **Clark County Treasurer's delinquent-propert
    npm run ingest -- --dry-run
    ```
    This verifies the sites' identity, then fetches, parses and cross-checks the data. To test offline from saved responses, run `npm run ingest -- --from-dir ingest/fixtures/clark-2026-05`.
-3. **Create the signing key:**
+3. **Create the signing keys:**
    ```bash
    npm run keys:generate
    ```
-   This writes the private key to `ingest/.keys/` (gitignored) and the public key into the site. Rebuild the site afterwards.
+   This writes the two private keys (listings and directory) to `ingest/.keys/` (gitignored) and the public keys into the site. Rebuild the site afterwards.
 4. **Run it:**
    ```bash
    npm run ingest -- --watch
@@ -538,7 +575,7 @@ The advertiser landing page is `#/advertise`, the application form is `#/adverti
 
 **Run it:**
 ```bash
-npm run keys:generate                  # once: signing key (rebuild the site after)
+npm run keys:generate                  # once: the two signing keys (rebuild the site after)
 npm run -s admin:hash-password         # type a 12+ character password; copy the output
 export ADMIN_USERNAME=you ADMIN_PASSWORD_HASH='scrypt$...'
 export BASE_URL=https://your-site.example   # used in emails

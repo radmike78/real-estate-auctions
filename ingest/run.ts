@@ -28,7 +28,7 @@ import { SOURCES, validateRegistry, type SourceConfig } from './sources/registry
 import { fetchSnapshot, parseSnapshot, type RawSnapshot } from './connectors/clarkTaxSale';
 import { fetchSidPage, parseSidSnapshot } from './connectors/sidCertificateSale';
 import { fetchIrsIndex, parseIrsSnapshot } from './connectors/irsAuctions';
-import { applyIrsSnapshot } from './lib/irsReconcile';
+import { applyIrsSnapshot, detectIrsAnomalies } from './lib/irsReconcile';
 import { applySnapshot, detectAnomalies, emptyState, type SourceState } from './lib/reconcile';
 import { applySidSnapshot, detectSidAnomalies } from './lib/sidReconcile';
 import { auctionStillOpen } from './lib/cadence';
@@ -190,6 +190,12 @@ async function checkIrsSource(source: SourceConfig, prev: SourceState, now: Date
     const { parsed, sha256 } = parseIrsSnapshot(body);
     log(`[${source.id}] ${parsed.totalAds} ads nationwide; ${parsed.rows.length} in Clark County; ${parsed.skipped.length} Clark County ad(s) skipped`);
     for (const s of parsed.skipped.slice(0, 10)) log(`  skipped ${s.id}: ${s.reason}`);
+    const anomalies = detectIrsAnomalies(state, parsed);
+    if (anomalies.length && opt('--approve-snapshot') !== sha256) {
+      for (const a of anomalies) log(`  ANOMALY ${a.code}: ${a.detail}`);
+      log(`[${source.id}] QUARANTINED snapshot ${sha256}. Review it on irsauctions.gov, then re-run with --approve-snapshot ${sha256}`);
+      return { ...state, lastCheckedAt: now.toISOString(), health: 'quarantined', quarantinedSha256: sha256, message: anomalies.map((a) => a.detail).join(' ') };
+    }
     const open = parsed.rows.filter((r) => !r.canceled && r.saleStartsAt && auctionStillOpen(r.saleStartsAt, now));
     const candidates = [...new Set(open.flatMap((r) => r.apns))];
     const confirmed = candidates.length ? await confirmParcelsExist(candidates, source.corroborationHosts, { verifyCertificate }) : new Set<string>();

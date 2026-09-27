@@ -66,7 +66,8 @@ type Route =
   | { page: 'alerts'; mode: AlertsMode; token: string; welcome: boolean; add?: string }
   | { page: 'playbook'; key?: string; section?: string }
   | { page: 'practice'; sale?: string }
-  | { page: 'practiceRun'; id: string; stage?: string };
+  | { page: 'practiceRun'; id: string; stage?: string }
+  | { page: 'notFound' };
 
 function hashPath(): string {
   return window.location.hash.replace(/^#\/?/, '');
@@ -133,7 +134,7 @@ function parseHash(): Route {
   if (sub?.[1] === 'terms') return { page: 'terms', section: sub[2] };
   const adv = h.match(/^advertiser(?:\/login\/([A-Za-z0-9_-]+))?$/);
   if (adv) return { page: 'advertiser', token: adv[1] ?? null };
-  return { page: 'home' };
+  return { page: 'notFound' };
 }
 
 export default function App() {
@@ -156,6 +157,14 @@ export default function App() {
     const page = sitePageFor(route.page);
     if (page) trackPage(page);
   }, [path]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Each page gets its own browser-tab title from its main heading (bookmarks, history, screen readers).
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      const h1 = document.querySelector('main h1, h1')?.textContent?.trim();
+      document.title = route.page === 'home' || !h1 ? 'Forced-Sale Finder' : `${h1.slice(0, 70)} · Forced-Sale Finder`;
+    }, 60);
+    return () => window.clearTimeout(t);
+  }, [path]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       const a = (e.target as Element | null)?.closest?.('a[href]');
@@ -170,6 +179,13 @@ export default function App() {
     <div className={`app${route.page === 'home' ? ' app-home' : ''}`}>
       <SiteHeader current={path} />
       {route.page === 'home' && <HomePage />}
+      {route.page === 'notFound' && (
+        <main className="page">
+          <h1>We couldn’t find that page</h1>
+          <p>The link may be old or mistyped.</p>
+          <p className="row"><a className="btn" href="#/">Go to the home page</a> <a className="btn btn-secondary" href="#/search">Find properties</a></p>
+        </main>
+      )}
       {route.page === 'search' && (
         <SearchPage key={`${route.q}|${route.types}|${route.statuses}|${route.cls}`} initialLocation={route.q} initialSaleTypes={route.types} initialStatuses={route.statuses} initialClass={route.cls} />
       )}

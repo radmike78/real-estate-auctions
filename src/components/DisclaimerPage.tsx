@@ -21,8 +21,8 @@ const SECTIONS: DrillSection[] = [
     summary: 'Properties from official sources, free research tools and a directory of license-checked professionals. All free',
     content: () => (
       <ul>
-        <li><strong>Properties heading to a forced sale</strong>: Clark County tax sales, trustee and HOA foreclosures, sheriff sales, bank-owned and government homes, commercial property and business assets, gathered from government and other official sources.</li>
-        <li><strong>Research tools</strong>: Street View and aerial views, county maps and records, lien summaries, and license lookups for anyone you hire.</li>
+        <li><strong>Properties heading to a forced sale</strong>: live Clark County tax-sale parcels, IRS sales and special assessment (SID) lien lists, checked against official sources, plus direct links to the official sellers of bank-owned and government homes and business assets.</li>
+        <li><strong>Research tools</strong>: Street View and aerial views, county maps and records, guides to which liens survive each kind of sale, and license lookups for anyone you hire.</li>
         <li><strong>Free calculators</strong>: a maximum bid calculator that counts every cost, and an income-value calculator for rental property.</li>
         <li><strong>My deals</strong>: save properties, track sale dates and deadlines, and keep your notes in one place.</li>
         <li><strong><a href="#/alerts">Email alerts</a></strong>: free updates in your inbox, with no account. Change or stop them from any email.</li>
@@ -104,10 +104,10 @@ const SECTIONS: DrillSection[] = [
     key: 'not-in-scope',
     title: 'The details: what’s not in scope',
     icon: <IconStop />,
-    summary: 'We’re an information and advertising service: no selling, bids, loans or advice',
+    summary: 'We’re an information service: no selling, bids, loans or advice',
     content: () => (
       <ul>
-        <li>We're an information and advertising service. Any sale, loan or service agreement is between you and the other party.</li>
+        <li>We're an information service. Any sale, loan or service agreement is between you and the other party.</li>
         <li>We don't sell property, run auctions, take bids, or hold or move money.</li>
         <li>We don't offer, make, arrange, broker or negotiate financing, and we don't guarantee credit.</li>
         <li>We don't represent buyers, sellers, borrowers or lenders, and we aren't a real estate broker, mortgage broker or insurance agent.</li>

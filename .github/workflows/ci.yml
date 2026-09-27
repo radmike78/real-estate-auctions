@@ -4,8 +4,8 @@
 #   image      builds the image with Podman (no Docker), starts it and checks /healthz;
 #              on main, pushes it to GitHub Container Registry as :latest and :<commit>
 #
-# Set the repository variable FEED_PUBLIC_KEY (Settings > Secrets and variables > Actions > Variables)
-# to your public signing key so the published image can verify your signed listings.
+# Set the repository variables FEED_PUBLIC_KEY and DIRECTORY_PUBLIC_KEY (Settings > Secrets and variables >
+# Actions > Variables) to your two public signing keys so the published image can verify your signed feeds.
 name: CI
 
 on:
@@ -40,7 +40,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install kubeconform
-        run: curl -sL https://github.com/yannh/kubeconform/releases/download/v0.7.0/kubeconform-linux-amd64.tar.gz | sudo tar xz -C /usr/local/bin kubeconform
+        # Pinned version, checked against the release's published SHA-256 before it runs.
+        run: |
+          curl -fsSL -o /tmp/kubeconform.tgz https://github.com/yannh/kubeconform/releases/download/v0.7.0/kubeconform-linux-amd64.tar.gz
+          echo "c31518ddd122663b3f3aa874cfe8178cb0988de944f29c74a0b9260920d115d3  /tmp/kubeconform.tgz" | sha256sum -c -
+          sudo tar xzf /tmp/kubeconform.tgz -C /usr/local/bin kubeconform
       - name: Render and validate every overlay
         run: |
           OS=https://raw.githubusercontent.com/melmorabity/openshift-json-schemas/main/v4.14-standalone-strict
@@ -63,7 +67,7 @@ jobs:
       - name: Build with Podman
         run: |
           podman --version
-          podman build --build-arg RUN_TESTS=0 --build-arg FEED_PUBLIC_KEY="${{ vars.FEED_PUBLIC_KEY }}" \
+          podman build --build-arg RUN_TESTS=0 --build-arg FEED_PUBLIC_KEY="${{ vars.FEED_PUBLIC_KEY }}" --build-arg DIRECTORY_PUBLIC_KEY="${{ vars.DIRECTORY_PUBLIC_KEY }}" \
             -t "$IMAGE:${{ github.sha }}" -t "$IMAGE:latest" -f Containerfile .
       - name: Smoke test (start it and check /healthz)
         run: |
@@ -72,7 +76,7 @@ jobs:
           printf '%s' "$HASH" | podman secret create hash -
           podman secret create key /tmp/key.pem
           podman run -d --name web -p 8080:8080 -e ADMIN_USERNAME=admin \
-            --secret hash,type=env,target=ADMIN_PASSWORD_HASH --secret key,type=env,target=FEED_SIGNING_KEY "$IMAGE:latest"
+            --secret hash,type=env,target=ADMIN_PASSWORD_HASH --secret key,type=env,target=DIRECTORY_SIGNING_KEY --read-only "$IMAGE:latest"
           for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8080/healthz && break; sleep 2; done
           curl -fsS -o /dev/null http://127.0.0.1:8080/
           podman logs web

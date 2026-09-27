@@ -16,13 +16,15 @@ function load(k: string): number[] {
 }
 
 /** Tickable "what you'll need" box. Ticks are remembered in this browser only. */
-export default function BuyerChecklistBox(props: { list: BuyerChecklist; variant?: 'light' | 'wide' }) {
+export default function BuyerChecklistBox(props: { list: BuyerChecklist; variant?: 'light' | 'wide'; playbook?: string }) {
   // Remount per checklist so each one starts from its own saved ticks.
   return <ChecklistInner key={props.list.key} {...props} />;
 }
 
-function ChecklistInner({ list, variant = 'light' }: { list: BuyerChecklist; variant?: 'light' | 'wide' }) {
+function ChecklistInner({ list, variant = 'light', playbook: forced }: { list: BuyerChecklist; variant?: 'light' | 'wide'; playbook?: string }) {
   const [done, setDone] = useState<number[]>(() => load(list.key));
+  // Commercial and land versions share their sale type's playbook (keys like "tax-commercial-land").
+  const playbook = forced ?? PLAYBOOK_FOR[list.key.replace(/-(commercial|land)(-.*)?$/, '')];
 
   const toggle = (i: number) =>
     setDone((cur) => {
@@ -73,7 +75,7 @@ function ChecklistInner({ list, variant = 'light' }: { list: BuyerChecklist; var
         ))}
       </ul>
       <div className="checklist-links">
-        {PLAYBOOK_FOR[list.key.replace(/-commercial$/, '')] && <a className="checklist-link" href={`#/playbooks/${PLAYBOOK_FOR[list.key.replace(/-commercial$/, '')]}`}>Full Nevada playbook: every step, what stays, mistakes, your team →</a>}
+        {playbook && <a className="checklist-link" href={`#/playbooks/${playbook}`}>Full Nevada playbook: every step, what stays, mistakes, your team →</a>}
         {list.link && <a className="checklist-link" href={list.link.href}>{list.link.label} →</a>}
       </div>
     </section>

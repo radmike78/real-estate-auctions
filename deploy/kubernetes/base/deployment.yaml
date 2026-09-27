@@ -2,6 +2,10 @@
 #   web     web server + API (port 8080), writes the SQLite database and daily backups
 #   ingest  listings updater: checks official county sources and writes the signed listings feed
 #
+# Two secrets, so the web container never holds the key that signs listings:
+#   forced-sale-finder-secrets   web only: admin login, directory signing key, email and payment keys
+#   forced-sale-finder-feed-key  ingest only: FEED_SIGNING_KEY (signs listings.json)
+#
 # Keep replicas at 1: SQLite lives on a ReadWriteOnce volume and allows only one writer.
 # "Recreate" stops the old pod before starting the new one, so two never share the database.
 apiVersion: apps/v1
@@ -20,6 +24,7 @@ spec:
       labels:
         app.kubernetes.io/component: web
     spec:
+      automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
         seccompProfile:
@@ -40,13 +45,18 @@ spec:
             httpGet: { path: /healthz, port: http }
             periodSeconds: 2
             failureThreshold: 30
+          # Generous timeouts: under a traffic spike a slow answer shouldn't take the only copy of the
+          # site out of service or restart it (which would also reset its spam limits).
           readinessProbe:
             httpGet: { path: /healthz, port: http }
             periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
           livenessProbe:
             httpGet: { path: /healthz, port: http }
             periodSeconds: 20
-            failureThreshold: 3
+            timeoutSeconds: 5
+            failureThreshold: 6
           resources:
             requests: { cpu: 100m, memory: 192Mi }
             limits: { memory: 512Mi }
@@ -64,7 +74,7 @@ spec:
             - name: FEED_SIGNING_KEY
               valueFrom:
                 secretKeyRef:
-                  name: forced-sale-finder-secrets
+                  name: forced-sale-finder-feed-key
                   key: FEED_SIGNING_KEY
           resources:
             requests: { cpu: 20m, memory: 128Mi }

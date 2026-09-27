@@ -42,10 +42,19 @@ function subscribe(fn: () => void) {
   listeners.add(fn);
   if (!timer) {
     void load();
+    // Background tabs don't re-download the feed; they catch up as soon as they're visible again.
     timer = setInterval(() => {
       expireIfNeeded();
-      void load();
+      if (typeof document === 'undefined' || !document.hidden) void load();
     }, REVERIFY_MS);
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && Date.now() - state.checkedAt > REVERIFY_MS) {
+          expireIfNeeded();
+          void load();
+        }
+      });
+    }
   }
   return () => {
     listeners.delete(fn);

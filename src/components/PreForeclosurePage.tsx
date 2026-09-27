@@ -165,7 +165,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
           ) : (
           <>
           <div className="toolbar">
-            <input aria-label="Filter by address, city, ZIP or APN" placeholder="Address, city, ZIP or APN" value={q} onChange={(e) => setQ(e.target.value)} />
+            <input aria-label="Filter by address, city, ZIP or parcel number" placeholder="Address, city, ZIP or parcel number" value={q} onChange={(e) => setQ(e.target.value)} />
             <select aria-label="Stage" value={stage} onChange={(e) => setStage(e.target.value as StageFilter)}>
               <option value="active">In progress</option>
               <option value="ended">Ended</option>
@@ -193,7 +193,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
                       <span className={`badge tone-${info.tone}`}>{info.label}</span> <span className="small muted">{t.kind}</span>
                       {moved && <span className="badge tone-info">Stage changed</span>}
                       <h3>{p.address}</h3>
-                      <div className="small muted">{p.city}, {p.state} {p.zip} · APN {p.apn}</div>
+                      <div className="small muted">{p.city}, {p.state} {p.zip} · Parcel {p.apn}</div>
                     </div>
                     <button className={tracked ? 'btn' : ''} aria-pressed={tracked} onClick={() => toggle(r)}>
                       {tracked ? '★ Tracking' : '☆ Track'}

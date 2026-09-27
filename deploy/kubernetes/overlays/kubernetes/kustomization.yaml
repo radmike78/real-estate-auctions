@@ -24,3 +24,15 @@ patches:
       - op: add
         path: /spec/template/spec/securityContext/runAsUser
         value: 1001
+  # Only the ingress controller may reach the pod, so no other pod in the cluster can call it directly
+  # (and fake the X-Forwarded-For address it trusts). Change the namespace if your controller lives elsewhere.
+  - target:
+      kind: NetworkPolicy
+      name: forced-sale-finder
+    patch: |-
+      - op: add
+        path: /spec/ingress/0/from
+        value:
+          - namespaceSelector:
+              matchLabels:
+                kubernetes.io/metadata.name: ingress-nginx

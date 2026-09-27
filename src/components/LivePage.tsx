@@ -183,7 +183,7 @@ export default function LivePage() {
                       {isOfficialUrl(l.sourceUrl) && (
                         <a href={l.sourceUrl} target="_blank" rel="noreferrer noopener">Confirm ↗</a>
                       )}
-                      <div><TrackButton target={`tax:${l.apn}`} label={l.address ? `${l.address} (APN ${l.apn})` : `APN ${l.apn}`} /></div>
+                      <div><TrackButton target={`tax:${l.apn}`} label={l.address ? `${l.address} (parcel ${l.apn})` : `Parcel ${l.apn}`} /></div>
                       <div className="live-views small" aria-label={`Pictures and records for parcel ${l.apn}`}>
                         {propertyViews({ apn: l.apn, address: l.address, city: 'Clark County' }).map((v) => (
                           <a key={v.key} href={v.url} target="_blank" rel="noreferrer noopener" title={v.detail}>{v.label} ↗</a>

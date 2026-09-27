@@ -72,6 +72,8 @@ export function openDb(path: string) {
     );
     CREATE INDEX IF NOT EXISTS applications_license ON applications (category, license_id);
     CREATE INDEX IF NOT EXISTS applications_token ON applications (email_token_hash);
+    CREATE INDEX IF NOT EXISTS applications_email ON applications (email);
+    CREATE INDEX IF NOT EXISTS applications_status ON applications (status, created_at);
     CREATE TABLE IF NOT EXISTS audit (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       at TEXT NOT NULL,
@@ -80,6 +82,8 @@ export function openDb(path: string) {
       action TEXT NOT NULL,
       detail TEXT
     );
+    CREATE INDEX IF NOT EXISTS audit_application ON audit (application_id);
+    CREATE INDEX IF NOT EXISTS audit_action ON audit (action, at);
     -- kind: 'admin' | 'pro'. subject: admin username or pro id.
     CREATE TABLE IF NOT EXISTS sessions (
       token_hash TEXT PRIMARY KEY,
@@ -228,6 +232,17 @@ export function openDb(path: string) {
         now,
         id,
       );
+    },
+    /**
+     * Housekeeping so spam can't fill the disk: applications whose email was never confirmed (the link
+     * expires after 48 hours) go after 7 days; sign-in records after 90 days; processed Stripe event ids
+     * after 90 days (Stripe stops retrying after 3). Decisions about applications are kept.
+     */
+    purgeStale(nowIso: string) {
+      const daysAgo = (d: number) => new Date(Date.parse(nowIso) - d * 86_400_000).toISOString();
+      db.prepare(`DELETE FROM applications WHERE status = 'EMAIL_UNCONFIRMED' AND created_at < ?`).run(daysAgo(7));
+      db.prepare(`DELETE FROM audit WHERE action IN ('LOGIN', 'LOGIN_FAILED') AND at < ?`).run(daysAgo(90));
+      db.prepare('DELETE FROM stripe_events WHERE received_at < ?').run(daysAgo(90));
     },
     audit(e: AuditEntry) {
       db.prepare('INSERT INTO audit (at, actor, application_id, action, detail) VALUES (?, ?, ?, ?, ?)').run(e.at, e.actor, e.applicationId, e.action, e.detail);
