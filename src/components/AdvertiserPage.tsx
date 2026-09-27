@@ -224,7 +224,7 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
       <div className="toolbar" role="group" aria-label="Date range">
         <div className="seg">
           {Object.entries(ranges()).map(([k, r]) => (
-            <button key={k} aria-selected={rangeKey === k} onClick={() => setRangeKey(k)}>{r.label}</button>
+            <button key={k} aria-pressed={rangeKey === k} onClick={() => setRangeKey(k)}>{r.label}</button>
           ))}
         </div>
         <span className="small muted">{fmtDate(range.from)} – {fmtDate(range.to)}</span>

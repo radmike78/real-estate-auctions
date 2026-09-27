@@ -157,6 +157,14 @@ export default function App() {
     const page = sitePageFor(route.page);
     if (page) trackPage(page);
   }, [path]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Each page gets its own browser-tab title from its main heading (bookmarks, history, screen readers).
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      const h1 = document.querySelector('main h1, h1')?.textContent?.trim();
+      document.title = route.page === 'home' || !h1 ? 'Forced-Sale Finder' : `${h1.slice(0, 70)} · Forced-Sale Finder`;
+    }, 60);
+    return () => window.clearTimeout(t);
+  }, [path]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
       const a = (e.target as Element | null)?.closest?.('a[href]');

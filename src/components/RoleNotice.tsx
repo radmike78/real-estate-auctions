@@ -14,21 +14,42 @@ function acknowledged(): boolean {
 export default function RoleNotice() {
   const [open, setOpen] = useState(() => !acknowledged());
   const btn = useRef<HTMLButtonElement>(null);
+  const dialog = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (open) btn.current?.focus();
-  }, [open]);
+    if (!open) return;
+    btn.current?.focus();
+    // A modal keeps the keyboard inside it: Tab cycles through its own links and buttons, Escape closes it.
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') return close();
+      if (e.key !== 'Tab' || !dialog.current) return;
+      const items = [...dialog.current.querySelectorAll<HTMLElement>('a[href], button')];
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      const inside = dialog.current.contains(document.activeElement);
+      if (e.shiftKey && (document.activeElement === first || !inside)) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (document.activeElement === last || !inside)) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!open) return null;
-  const close = () => {
+  function close() {
     try {
       localStorage.setItem(KEY, '1');
     } catch {
       /* private mode: show again next visit */
     }
     setOpen(false);
-  };
+  }
   return (
     <div className="role-backdrop">
-      <div className="role-dialog" role="dialog" aria-modal="true" aria-labelledby="role-title" onKeyDown={(e) => e.key === 'Escape' && close()}>
+      <div ref={dialog} className="role-dialog" role="dialog" aria-modal="true" aria-labelledby="role-title">
         <h2 id="role-title">Welcome</h2>
         <ul>
           <li><strong>Find properties</strong> from government and official sources.</li>

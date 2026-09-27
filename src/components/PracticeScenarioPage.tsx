@@ -36,8 +36,11 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
     });
   const markDone = (key: string) => update((p) => (p.done.includes(key) ? p : { ...p, done: [...p.done, key] }));
   const stageDone = (st: Stage) => st.tasks.every((t) => progress.done.includes(taskKey(st, t)));
-  const idx = Math.max(0, s.stages.findIndex((st) => st.key === stageKey));
-  const stage = stageKey ? s.stages[idx] : null;
+  const found = s.stages.findIndex((st) => st.key === stageKey);
+  const idx = Math.max(0, found);
+  // An unknown step shows the listing (the start) with a note, never a different step by surprise.
+  const stage = stageKey && found >= 0 ? s.stages[idx] : null;
+  const unknownStage = !!stageKey && found < 0;
   const total = s.stages.reduce((n, st) => n + st.tasks.length, 0);
   const allDone = progress.done.length >= total;
 
@@ -50,6 +53,7 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
         sub={`${s.saleTitle}. ${s.property.address}, ${s.property.city} (fictional)`}
       />
       <PracticeRibbon />
+      {unknownStage && <p className="notice" role="status">We couldn’t find that step. Start from the listing below.</p>}
 
       <nav className="practice-stages" aria-label="Practice steps">
         <a href={`#/practice/${s.id}`} className={!stage ? 'active' : ''}>Listing</a>

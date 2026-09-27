@@ -86,10 +86,10 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
   return (
     <div className="directory">
       {showCategoryFilter && categories.length > 1 && (
-        <div className="chip-tabs" role="tablist" aria-label="Type">
-          <button role="tab" aria-selected={cat === 'any'} onClick={() => setCat('any')}>All</button>
+        <div className="chip-tabs" role="group" aria-label="Type">
+          <button aria-pressed={cat === 'any'} onClick={() => setCat('any')}>All</button>
           {categories.map((c) => (
-            <button key={c} role="tab" aria-selected={cat === c} onClick={() => { setCat(c); setQ({ ...q, service: 'any' }); }}>{CATEGORIES[c].plural}</button>
+            <button key={c} aria-pressed={cat === c} onClick={() => { setCat(c); setQ({ ...q, service: 'any' }); }}>{CATEGORIES[c].plural}</button>
           ))}
         </div>
       )}

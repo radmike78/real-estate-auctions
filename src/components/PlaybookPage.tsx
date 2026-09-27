@@ -94,6 +94,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
           title={<>Nevada <span className="grad">playbooks</span></>}
           sub="How each kind of forced sale really works: what you get, the steps, what stays with the property, the mistakes that cost money, and the team you need."
         />
+        {playbook && <p className="notice" role="status">We couldn’t find that playbook. Choose one below.</p>}
         <div className="drill-tiles">
           {PLAYBOOKS.map((x) => <Tile key={x.key} href={`#/playbooks/${x.key}`} icon={<IconCheckList />} title={x.short} summary={x.oneLine} />)}
         </div>

@@ -117,7 +117,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 .results-controls select { width: auto; }
 .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
 .seg button { border: none; border-radius: 0; background: var(--surface); }
-.seg button[aria-selected='true'] { background: var(--accent); color: var(--surface); }
+.seg button[aria-selected='true'], .seg button[aria-pressed='true'] { background: var(--accent); color: var(--surface); }
 .cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
 .card {
   display: block; height: 100%; padding: 20px; text-decoration: none; color: inherit;
@@ -409,7 +409,7 @@ a.btn { display: inline-block; }
 .btn.big { padding: 14px 26px; font-size: 1.05rem; }
 .chip-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 4px; }
 .chip-tabs button { border-radius: 999px; padding: 6px 14px; background: var(--surface); }
-.chip-tabs button[aria-selected='true'] { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+.chip-tabs button[aria-selected='true'], .chip-tabs button[aria-pressed='true'] { background: var(--accent); color: var(--surface); border-color: var(--accent); }
 .pro-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
 .pro-card { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 32px 22px 22px; display: grid; gap: 12px; align-content: start; transition: border-color 0.15s, box-shadow 0.15s; }
 .pro-card:hover { border-color: var(--accent); box-shadow: 0 6px 24px rgb(0 0 0 / 0.08); }
@@ -1002,7 +1002,7 @@ small { font-size: 0.95rem; }
 .hero-class { display: flex; justify-content: center; margin: 0 0 14px; }
 .hero-class .seg { border-color: rgb(255 255 255 / 0.25); background: rgb(255 255 255 / 0.06); }
 .hero-class .seg button { background: transparent; color: #e2e8f0; }
-.hero-class .seg button[aria-selected='true'] { background: #2563eb; color: #fff; }
+.hero-class .seg button[aria-selected='true'], .seg button[aria-pressed='true'] { background: #2563eb; color: #fff; }
 
 /* ================= Commercial value by income ================= */
 .income-calc { margin-bottom: 24px; }

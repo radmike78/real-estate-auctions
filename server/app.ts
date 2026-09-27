@@ -566,10 +566,18 @@ export function createApp(config: AppConfig) {
       if (body.company_url) return send(res, 202, accepted); // honeypot
       const email = plain(body.email, 254).toLowerCase();
       if (!EMAIL_RE.test(email)) throw new HttpError(422, 'Please fix the highlighted fields.', { errors: { email: 'Enter a valid email address.' } });
-      if (body.list !== true) throw new HttpError(422, 'Please fix the highlighted fields.', { errors: { list: 'Choose what you’d like to get.' } });
       // Same answer whether or not the address is known, and a per-address cap so nobody can flood an inbox.
-      if (!limiters.alertsEmail.hit(email)) return send(res, 202, accepted);
+      // Without the updates box ticked, this is "send me my manage link": only a signed-up address gets one.
+      const manageOnly = { ok: true, message: 'If this address is signed up, we’ve sent it a link to manage your alerts. To sign up, tick General updates.' };
+      if (!limiters.alertsEmail.hit(email)) return send(res, 202, body.list === true ? accepted : manageOnly);
       const current = alerts.byEmail(email);
+      if (body.list !== true) {
+        if (current?.status === 'ACTIVE') {
+          const l = alertLinks(current);
+          await deliverFromForm(alertsManageLinkEmail(email, l.manage, l.unsubscribe, l.oneClick));
+        }
+        return send(res, 202, manageOnly);
+      }
       if (current?.status === 'ACTIVE') {
         const l = alertLinks(current);
         await deliverFromForm(alertsManageLinkEmail(email, l.manage, l.unsubscribe, l.oneClick));
@@ -662,7 +670,7 @@ export function createApp(config: AppConfig) {
       const s = alerts.verify(url.searchParams.get('t'), 'unsubscribe');
       if (s) alerts.delete(s.id);
       // Same answer for an unknown link: an address that was already removed is still unsubscribed.
-      return send(res, 200, { ok: true, message: 'We deleted your email address and everything you signed up for. You won’t get any more email from us.' });
+      return send(res, 200, { ok: true, message: 'If your address was on our list, we deleted it and everything you signed up for. You won’t get any more email from us.' });
     }
 
     const leadMatch = path.match(/^\/api\/pros\/([a-f0-9]{24})\/leads$/);

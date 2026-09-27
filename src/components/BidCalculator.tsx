@@ -160,7 +160,7 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
           <div className="calc-max" role="status">
             <span>Your maximum bid</span>
             <strong>Enter a resale value</strong>
-            <small>We don’t estimate values for listings from the official list. Use recent sold prices of similar nearby properties.</small>
+            <small>{propertyId ? 'We don’t estimate values for listings from the official list. ' : ''}Use recent sold prices of similar nearby properties, as they’d be after repairs.</small>
           </div>
         ) : (
         <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">

@@ -61,7 +61,9 @@ describe('email alerts (running server)', () => {
 
   it('rejects bad input, cross-origin posts and honeypots', async () => {
     expect((await post('/api/alerts/signup', { email: 'nope', list: true })).status).toBe(422);
-    expect((await post('/api/alerts/signup', { email: 'a@b.co', list: false })).status).toBe(422);
+    // Box unticked = "send me my manage link": the same answer for anyone, and nothing created or sent for an unknown address.
+    expect((await post('/api/alerts/signup', { email: 'a@b.co', list: false })).status).toBe(202);
+    expect(app.alerts.byEmail('a@b.co')).toBeNull();
     expect((await post('/api/alerts/signup', { email: 'a@b.co', list: true }, { origin: 'https://evil.example' })).status).toBe(403);
     expect((await post('/api/alerts/signup', { email: 'bot@b.co', list: true, company_url: 'x' })).status).toBe(202);
     expect(app.alerts.byEmail('bot@b.co')).toBeNull();
@@ -96,6 +98,10 @@ describe('email alerts (running server)', () => {
     expect((await post('/api/alerts/signup', { email: 'investor@example.com', list: true })).status).toBe(202);
     expect(mails).toHaveLength(before + 1);
     expect(last().subject).toMatch(/alerts link/);
+    expect(linkIn(last(), 'manage')).toBe(manageToken);
+    // "Already signed up? Enter your email" works without ticking the updates box.
+    expect((await post('/api/alerts/signup', { email: 'investor@example.com', list: false })).status).toBe(202);
+    expect(mails).toHaveLength(before + 2);
     expect(linkIn(last(), 'manage')).toBe(manageToken);
   });
 

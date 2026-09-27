@@ -78,12 +78,15 @@ export default function DrillDown(props: { sections: DrillSection[]; active?: st
   const i = sections.findIndex((s) => s.key === active);
   if (i < 0) {
     return (
+      <>
+      {active && active !== 'all' && <p className="notice" role="status">We couldn’t find that section. Here’s everything on this page.</p>}
       <nav className="drill-tiles" aria-label={label}>
         {sections.map((s, n) => (
           <Tile key={s.key} href={`${baseHref}/${s.key}`} index={n + 1} title={s.title} summary={s.summary} icon={s.icon} tone={s.tone} />
         ))}
         {showAll && <a href={`${baseHref}/all`} className="drill-all">Read everything on one page</a>}
       </nav>
+      </>
     );
   }
 
