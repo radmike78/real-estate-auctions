@@ -66,7 +66,8 @@ type Route =
   | { page: 'alerts'; mode: AlertsMode; token: string; welcome: boolean; add?: string }
   | { page: 'playbook'; key?: string; section?: string }
   | { page: 'practice'; sale?: string }
-  | { page: 'practiceRun'; id: string; stage?: string };
+  | { page: 'practiceRun'; id: string; stage?: string }
+  | { page: 'notFound' };
 
 function hashPath(): string {
   return window.location.hash.replace(/^#\/?/, '');
@@ -133,7 +134,7 @@ function parseHash(): Route {
   if (sub?.[1] === 'terms') return { page: 'terms', section: sub[2] };
   const adv = h.match(/^advertiser(?:\/login\/([A-Za-z0-9_-]+))?$/);
   if (adv) return { page: 'advertiser', token: adv[1] ?? null };
-  return { page: 'home' };
+  return { page: 'notFound' };
 }
 
 export default function App() {
@@ -170,6 +171,13 @@ export default function App() {
     <div className={`app${route.page === 'home' ? ' app-home' : ''}`}>
       <SiteHeader current={path} />
       {route.page === 'home' && <HomePage />}
+      {route.page === 'notFound' && (
+        <main className="page">
+          <h1>We couldn’t find that page</h1>
+          <p>The link may be old or mistyped.</p>
+          <p className="row"><a className="btn" href="#/">Go to the home page</a> <a className="btn btn-secondary" href="#/search">Find properties</a></p>
+        </main>
+      )}
       {route.page === 'search' && (
         <SearchPage key={`${route.q}|${route.types}|${route.statuses}|${route.cls}`} initialLocation={route.q} initialSaleTypes={route.types} initialStatuses={route.statuses} initialClass={route.cls} />
       )}
