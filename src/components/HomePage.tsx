@@ -65,14 +65,10 @@ export default function HomePage() {
             </a>
           ))}
         </div>
-        <nav className="browse-tools" aria-label="Tools">
-          <a href="#/bank-owned">Bank-owned &amp; government homes →</a>
-          <a href="#/business-assets">Business assets &amp; closures →</a>
+        <nav className="browse-tools" aria-label="Learn before you buy">
+          <a href="#/playbooks">How each sale works →</a>
           <a href="#/practice">Practice buying, hands-on →</a>
-          <a href="#/playbooks">Nevada playbooks: how each sale works →</a>
           <a href="#/calculator">Maximum bid calculator →</a>
-          <a href="#/deals">My deals →</a>
-          <a href="#/alerts">Email alerts →</a>
         </nav>
         <ul className="browse-trust" aria-label="Why trust it">
           <li><IconStar /> Free to use, no sign-up</li>

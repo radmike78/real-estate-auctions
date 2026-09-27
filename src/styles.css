@@ -68,9 +68,7 @@ h1, h2, h3 { line-height: 1.25; margin: 0 0 0.5rem; font-family: var(--font-disp
 .logo, .drill-title, .glance dd, .countdown .big, .kpi strong, .mini dd, .card-stats dd { font-family: var(--font-display); }
 /* Mono for small uppercase labels and indexes */
 .drill-num, .countdown-label, .glance dt, .eyebrow, .checklist-tag, .side-heading { font-family: var(--font-mono); }
-h1 { font-size: 1.9rem; }
-h2 { font-size: 1.3rem; margin-bottom: 0.7rem; }
-h3 { font-size: 1.1rem; }
+h2 { margin-bottom: 0.7rem; }
 p { margin: 0 0 0.9rem; }
 li { margin-bottom: 0.35rem; }
 button, input, select { font: inherit; color: inherit; }
@@ -156,7 +154,6 @@ button:disabled { opacity: 0.6; cursor: not-allowed; }
 .verify { background: var(--wait-bg); border-left: 4px solid var(--wait); border-radius: 6px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.95rem; }
 .four { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; background: none !important; border: none !important; padding: 0 !important; }
 .q { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
-.q h2 { font-size: 0.99rem; }
 .q p { margin: 0 0 6px; font-size: 0.95rem; }
 .tone-border-go { border-top: 4px solid var(--go); } .tone-border-wait { border-top: 4px solid var(--wait); }
 .tone-border-stop { border-top: 4px solid var(--stop); } .tone-border-info { border-top: 4px solid var(--info); }
@@ -427,7 +424,6 @@ a.btn { display: inline-block; }
 .profile-hero h1 { margin: 4px 0; font-size: 2rem; }
 .profile-grid { display: grid; grid-template-columns: 1fr 320px; gap: 16px; align-items: start; }
 @media (max-width: 800px) { .profile-grid { grid-template-columns: 1fr; } .profile-hero { flex-direction: column; } }
-.profile-grid section h3 { margin: 16px 0 6px; font-size: 0.99rem; }
 .verify-card { background: var(--go-bg); border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: grid; gap: 10px; }
 .verify-card h2 { color: var(--go); margin: 0; }
 .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin: 24px 0; background: none !important; border: none !important; padding: 0 !important; }
@@ -497,7 +493,7 @@ a.btn { display: inline-block; }
 .lookup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
 @media (max-width: 800px) { .lookup-grid { grid-template-columns: 1fr; } }
 .lookup-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
-.lookup-card h2 { margin-top: 0; font-size: 1rem; }
+.lookup-card h2 { margin-top: 0; }
 .lookup-card ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 0.95rem; }
 .warn-card { border-left: 4px solid var(--wait); }
 .section-title { margin-top: 24px; }
@@ -1101,3 +1097,49 @@ small { font-size: 0.95rem; }
   .practice-doc tr { display: block; padding: 8px 0; border-bottom: 1px solid var(--border); }
   .bubble { max-width: 95%; }
 }
+
+/* ================= Readability pass (pre-launch review) =================
+   One type scale, no tiny labels, comfortable lines and big tap targets. */
+/* Jumping to a section never hides it under the sticky header. */
+html { scroll-padding-top: 88px; }
+/* Sub-page titles stay clearly bigger than the section headings below them. */
+.page-hero.compact h1 { font-size: clamp(2rem, 3.4vw, 2.6rem); }
+/* Labels read as words: normal font, sentence case, no letter-spacing. */
+.drill-num, .countdown-label, .glance dt, .eyebrow, .checklist-tag, .side-heading, .calc-max span, .calc-sticky span:first-child,
+.you-get span, .glance-facts dt, .ad-label, .pro-kicker, .media-kit-label, .task-kind {
+  font-family: inherit; text-transform: none; letter-spacing: 0;
+}
+.glance dt, .countdown-label, .calc-max span, .you-get span, .glance-facts dt { font-weight: 600; }
+.task-kind { font-size: 1rem; font-weight: 700; color: var(--text); }
+.practice-tag, .practice-stamp { font-size: 1rem; background: #fcd34d; color: #1a1205; letter-spacing: 0.02em; }
+.step-num { width: 28px; height: 28px; font-size: 1rem; }
+/* Links on tinted notices keep 4.5:1 contrast. */
+.notice a, .caution a { color: #1d4ed8; }
+/* Lines of about 70 characters are easiest to read. */
+.page p, .task-card p, .practice-listing p { max-width: 72ch; }
+/* Tap targets at least 44px tall (links inside sentences are exempt). */
+.menu-btn { padding: 11px; min-width: 44px; min-height: 44px; }
+.footer nav a, .browse-tools a, .page-hero-top a, .drill-all, .linkish, details.track-more > summary { display: inline-flex; align-items: center; min-height: 44px; }
+.footer nav { gap: 0 18px; }
+@media (max-width: 600px) {
+  .eyebrow { border-radius: 14px; }
+  /* Practice steps: one row you swipe, so the task starts near the top of the screen. */
+  .practice-stages { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; }
+  .practice-stages a { flex: none; white-space: nowrap; }
+}
+.calc-sticky[hidden] { display: none !important; }
+.more-group { display: grid; padding: 4px 0; }
+.more-group + .more-group { border-top: 1px solid rgb(255 255 255 / 0.08); margin-top: 4px; padding-top: 8px; }
+.more-group-title { color: #94a3b8; font-weight: 700; padding: 4px 12px; }
+@media (min-width: 901px) { .more-menu { min-width: 280px; } }
+.browse-tools a { padding: 10px 20px; border: 1px solid rgb(147 197 253 / 0.35); border-radius: 999px; background: rgb(255 255 255 / 0.04); }
+.browse-tools a:hover { border-color: #93c5fd; text-decoration: none; }
+/* Search: a visible title, and on phones the filters fold behind one button. */
+.search-title { flex-basis: 100%; margin: 0; font-size: clamp(2rem, 3.4vw, 2.6rem); }
+.filters-wrap { align-self: start; }
+.filters-wrap > summary { display: none; }
+@media (max-width: 800px) {
+  .filters-wrap > summary { display: flex; align-items: center; min-height: 48px; padding: 10px 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); font-weight: 700; cursor: pointer; }
+  .filters-wrap[open] > summary { margin-bottom: 10px; }
+}
+.drill-tile h2.drill-title { margin: 0; padding: 0; border: 0; font-size: 1.45rem; line-height: 1.25; }

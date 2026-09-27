@@ -28,6 +28,8 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
   const results = useMemo(() => applyFilters(properties, filters), [properties, filters]);
   const update = (patch: Partial<Filters>) => setFilters((f) => ({ ...f, ...patch }));
 
+  const [filtersOpen, setFiltersOpen] = useState(() => typeof window === 'undefined' || !window.matchMedia?.('(max-width: 800px)').matches);
+  const activeFilters = filters.saleTypes.length + filters.statuses.length + filters.propertyTypes.length;
   const setClass = (c: ClassFilter) => update({ propertyClass: c, propertyTypes: filters.propertyTypes.filter((t) => typesFor(c).includes(t)) });
 
   function submit(e: FormEvent) {
@@ -49,10 +51,10 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
 
   return (
     <div className="search-page">
-      <h1 className="sr-only">Property search</h1>
       <div className="search-top">
+        <h1 className="search-title">Properties for sale in Clark County</h1>
         <form className="searchbar" role="search" onSubmit={submit}>
-          <input aria-label="Search location" placeholder="City, ST · ZIP · address · APN" value={locationInput} onChange={(e) => setLocationInput(e.target.value)} />
+          <input aria-label="Search location" placeholder="City, ZIP or address" value={locationInput} onChange={(e) => setLocationInput(e.target.value)} />
           <button type="submit">Search</button>
         </form>
         <ClassSwitch value={filters.propertyClass} onChange={setClass} />
@@ -60,7 +62,11 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
         <a className="small" href="#/live">Verified live tax sales →</a>
       </div>
       <main className="search-layout">
-        <FiltersPanel filters={filters} onChange={update} onReset={() => { setFilters(DEFAULT_FILTERS); setLocationInput(''); }} />
+        {/* On phones the filters fold away behind one button, so results start right under the search bar. */}
+        <details className="filters-wrap" open={filtersOpen} onToggle={(e) => setFiltersOpen((e.target as HTMLDetailsElement).open)}>
+          <summary>Filters{activeFilters > 0 && ` (${activeFilters} on)`}</summary>
+          <FiltersPanel filters={filters} onChange={update} onReset={() => { setFilters(DEFAULT_FILTERS); setLocationInput(''); }} />
+        </details>
         <section className="results">
           <div className="results-head">
             <div>

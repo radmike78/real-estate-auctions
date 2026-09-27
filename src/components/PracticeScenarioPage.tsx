@@ -14,6 +14,11 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
   const scenario = useMemo(() => scenarioById(id), [id]);
   const [progress, setProgress] = useState<ScenarioProgress>(() => loadProgress(id));
   useEffect(() => setProgress(loadProgress(id)), [id]);
+  // On phones the step buttons are one swipeable row: bring the current step into view.
+  useEffect(() => {
+    const el = document.querySelector('.practice-stages a.active');
+    if (el && 'scrollIntoView' in el) el.scrollIntoView({ block: 'nearest', inline: 'center' });
+  }, [id, stageKey]);
 
   if (!scenario) {
     return (

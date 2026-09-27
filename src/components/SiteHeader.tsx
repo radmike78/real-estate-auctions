@@ -1,28 +1,20 @@
 import { useEffect, useState } from 'react';
 import { loadDeals, onDealsChange } from '../lib/deals';
 
+// The tasks people come for, one click away. Everything else is under More, grouped.
 const PRIMARY = [
   ['#/search', 'Properties'],
-  ['#/agents', 'Find an agent'],
-  ['#/financing', 'Financing'],
-  ['#/pros', 'Title, insurance & repairs'],
+  ['#/playbooks', 'Learn'],
   ['#/practice', 'Practice'],
+  ['#/calculator', 'Calculator'],
+  ['#/agents', 'Find a pro'],
 ] as const;
 
-const MORE = [
-  ['#/playbooks', 'Nevada playbooks'],
-  ['#/calculator', 'Max bid calculator'],
-  ['#/alerts', 'Email alerts'],
-  ['#/live', 'Live tax sales'],
-  ['#/pre-foreclosures', 'Pre-foreclosure tracker'],
-  ['#/short-sales', 'Short sales guide'],
-  ['#/bank-owned', 'Bank-owned & government homes'],
-  ['#/business-assets', 'Business assets & closures'],
-  ['#/about', 'How it works'],
-  ['#/disclaimer', 'How we help'],
-  ['#/advertise', 'Advertise with us'],
-  ['#/advertiser', 'Advertiser sign-in'],
-] as const;
+const MORE: { group: string; links: (readonly [string, string])[] }[] = [
+  { group: 'Buy', links: [['#/live', 'Live tax sales'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures'], ['#/pre-foreclosures', 'Pre-foreclosure tracker']] },
+  { group: 'Get help', links: [['#/agents', 'Real estate agents'], ['#/financing', 'Financing'], ['#/pros', 'Title, insurance & repairs']] },
+  { group: 'Stay informed', links: [['#/alerts', 'Email alerts'], ['#/about', 'How it works'], ['#/disclaimer', 'How we help']] },
+];
 
 export default function SiteHeader({ current }: { current: string }) {
   const [deals, setDeals] = useState(() => loadDeals().length);
@@ -36,7 +28,7 @@ export default function SiteHeader({ current }: { current: string }) {
   const active = (href: string) => {
     const path = current.split('?')[0];
     const target = href.slice(2);
-    return path === target;
+    return path === target || path.startsWith(`${target}/`) || (target === 'practice' && path.startsWith('practice/'));
   };
   return (
     <header className="site-header">
@@ -52,7 +44,12 @@ export default function SiteHeader({ current }: { current: string }) {
         <details className="more">
           <summary>More</summary>
           <div className="more-menu">
-            {MORE.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
+            {MORE.map((g) => (
+              <div key={g.group} className="more-group" role="group" aria-label={g.group}>
+                <span className="more-group-title" aria-hidden>{g.group}</span>
+                {g.links.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
+              </div>
+            ))}
           </div>
         </details>
       </nav>

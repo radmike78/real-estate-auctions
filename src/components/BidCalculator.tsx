@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { BLANK_INPUTS, costsAtBid, maxSafeBid, profitAtBid, sanitizeInputs, stressTests, type BidInputs } from '../lib/bidCalc';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
@@ -80,6 +80,15 @@ const toNum = (v: string) => {
 export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, openingBid, headingLevel = 3, commercial = false }: { propertyId?: string; defaults?: BidInputs; openingBid?: number | null; headingLevel?: 2 | 3; commercial?: boolean }) {
   const hintFor = (f: Field) => (commercial && f.k === 'exitValue' ? 'For commercial property, use the value by income above.' : f.hint);
   const uid = useId();
+  // The pinned max-bid bar (phones) steps aside once the full results are on screen, so it never covers them.
+  const [resultsVisible, setResultsVisible] = useState(false);
+  useEffect(() => {
+    const el = document.getElementById(`${uid}-results`);
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(([e]) => setResultsVisible(e.isIntersecting), { threshold: 0.15 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [uid]);
   const [i, setI] = useState<BidInputs>(() => load(propertyId, defaults));
   // What the person typed, so a field can be cleared while editing.
   const [draft, setDraft] = useState<Partial<Record<keyof BidInputs, string>>>({});
@@ -204,7 +213,7 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
       </div>
 
       {/* On phones the results sit below every input, so keep the answer in view while typing. */}
-      <button type="button" className={`calc-sticky${r.noBidWorks ? ' bad' : ''}`} onClick={() => document.getElementById(`${uid}-results`)?.scrollIntoView({ behavior: 'smooth' })}>
+      <button type="button" hidden={resultsVisible} className={`calc-sticky${r.noBidWorks ? ' bad' : ''}`} onClick={() => document.getElementById(`${uid}-results`)?.scrollIntoView({ behavior: 'smooth' })}>
         <span>Max bid</span>
         <strong>{needsValue ? 'Enter a resale value' : r.noBidWorks ? 'No bid works' : fmtMoney(r.maxBid)}</strong>
         <span className="calc-sticky-go">See details ↓</span>

@@ -370,7 +370,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             <a href={open ? baseHref : '#/search'}>{open ? '← Property overview' : '← Back to results'}</a>
             <span className="hero-actions">
               <SaveDealButton p={p} />
-              {verified && <TrackButton target={irs ? `irs:${p.id.slice(IRS_ID_PREFIX.length)}` : `tax:${p.apn}`} label={`${p.address} (APN ${p.apn})`} />}
+              {verified && <TrackButton target={irs ? `irs:${p.id.slice(IRS_ID_PREFIX.length)}` : `tax:${p.apn}`} label={`${p.address} (parcel ${p.apn})`} />}
               <button className="hero-btn" onClick={() => window.print()}>Print full report</button>
             </span>
           </>
@@ -385,7 +385,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
         title={open ? <a className="title-link" href={baseHref}>{p.address}</a> : p.address}
         sub={
           <>
-            {p.zip ? `${p.city}, ${p.state} ${p.zip} · ${p.county} County` : `${p.county} County, ${p.state}`} · APN {p.apn}
+            {p.zip ? `${p.city}, ${p.state} ${p.zip} · ${p.county} County` : `${p.county} County, ${p.state}`} · Parcel {p.apn}
             {!open && (
               <span className="hero-meta">
                 <span>You’d buy: <strong>{s?.whatYouBuy ? 'what the court’s order sets (read it)' : playbook ? playbook.youGet.split(',')[0].replace(/\.$/, '') : s ? SALE_TYPE_LABEL[s.saleType] : 'nothing yet (not for sale)'}</strong></span>

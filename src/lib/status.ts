@@ -28,7 +28,7 @@ export const STATUS: Record<AcquisitionStatus, StatusInfo> = {
     explanation: 'Written sealed bids are accepted until the deadline and opened at the posted time.',
   },
   BROKER_OFFER: {
-    label: 'Broker offer (REO)',
+    label: 'Bank-owned: make an offer',
     tone: 'go',
     purchasable: true,
     explanation: 'The lender already owns the property and accepts offers through a listing broker.',
