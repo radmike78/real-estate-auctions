@@ -45,7 +45,7 @@ function Pipeline({ t }: { t: ForeclosureTrack }) {
   );
 }
 
-const GUIDE: DrillSection[] = [
+export const GUIDE: DrillSection[] = [
   {
     key: 'how-it-works',
     title: 'How a Nevada foreclosure progresses',

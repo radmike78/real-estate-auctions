@@ -27,6 +27,7 @@ import PracticeScenarioPage from './components/PracticeScenarioPage';
 import PlaybookPage from './components/PlaybookPage';
 import DealsPage from './components/DealsPage';
 import HomeownerHelpPage from './components/HomeownerHelpPage';
+import GuidesPage from './components/GuidesPage';
 import AlertsPage, { type AlertsMode } from './components/AlertsPage';
 import RoleNotice from './components/RoleNotice';
 import { ROLE_SHORT, SOURCES_AND_ADVICE } from './lib/disclaimers';
@@ -63,6 +64,7 @@ type Route =
   | { page: 'calculator' }
   | { page: 'deals' }
   | { page: 'homeowner' }
+  | { page: 'guides'; q: string }
   | { page: 'alerts'; mode: AlertsMode; token: string; welcome: boolean; add?: string }
   | { page: 'playbook'; key?: string; section?: string }
   | { page: 'practice'; sale?: string }
@@ -119,6 +121,7 @@ function parseHash(): Route {
   if (h === 'calculator') return { page: 'calculator' };
   if (h === 'deals') return { page: 'deals' };
   if (h === 'homeowner-help') return { page: 'homeowner' };
+  if (h === 'guides') return { page: 'guides', q };
   const al = h.match(/^alerts(?:\/(confirm|manage|unsubscribe)\/([A-Za-z0-9._-]{1,100}))?$/);
   if (al) return { page: 'alerts', mode: (al[1] as AlertsMode | undefined) ?? 'signup', token: al[2] ?? '', welcome: params.get('welcome') === '1', add: params.get('add')?.slice(0, 210) ?? undefined };
   if (h === 'practice') {
@@ -214,6 +217,7 @@ export default function App() {
       {route.page === 'calculator' && <CalculatorPage />}
       {route.page === 'deals' && <DealsPage />}
       {route.page === 'homeowner' && <HomeownerHelpPage />}
+      {route.page === 'guides' && <GuidesPage key={`${nav}|${route.q}`} initialQuery={route.q} />}
       {route.page === 'alerts' && <AlertsPage key={`${route.mode}${route.token}${route.add ?? ''}`} mode={route.mode} token={route.token} welcome={route.welcome} add={route.add} />}
       {route.page === 'practice' && <PracticePage key={route.sale ?? ''} sale={route.sale} />}
       {route.page === 'practiceRun' && <PracticeScenarioPage key={route.id} id={route.id} stageKey={route.stage} />}

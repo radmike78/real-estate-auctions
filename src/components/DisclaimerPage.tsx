@@ -12,7 +12,7 @@ const KIND_SUMMARY: Record<DisclaimerKind, string> = {
   services: 'Check licenses and get every agreement in writing',
 };
 
-const SECTIONS: DrillSection[] = [
+export const SECTIONS: DrillSection[] = [
   {
     key: 'what-we-offer',
     title: 'What we offer',

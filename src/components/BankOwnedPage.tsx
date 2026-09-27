@@ -55,7 +55,7 @@ const STEPS: [string, string][] = [
 // The last choice is remembered while the visitor moves between sections of this page.
 let lastClass: ClassFilter = 'all';
 
-const sectionsFor = (cls: ClassFilter): DrillSection[] => [
+export const sectionsFor = (cls: ClassFilter): DrillSection[] => [
   ...group('gse', cls, <IconHome />),
   ...group('government', cls, <IconShield />),
   ...group(
