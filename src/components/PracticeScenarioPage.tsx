@@ -243,7 +243,7 @@ function TaskCard({ task, k, progress, update, markDone }: { task: Task; k: stri
             </tfoot>
           </table>
           <p>{task.lesson}</p>
-          <p className="small muted">Practice numbers, not market data. A real pre-approval comes from a licensed loan officer.</p>
+          <p className="small muted">Practice numbers, not market data.{!cash && ' A real pre-approval comes from a licensed loan officer.'}</p>
           {!done && <button className="btn btn-secondary" onClick={() => markDone(k)}>I understand my budget</button>}
         </article>
       );

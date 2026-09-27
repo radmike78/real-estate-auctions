@@ -33,6 +33,8 @@ export interface PracticeProperty {
   income: PracticeIncome | null;
   /** Something about the history that a careful buyer should find. */
   watchOut: string | null;
+  /** The watch-out for a negotiated purchase (bank-owned or short sale), when it differs from an auction's. */
+  watchOutNegotiated?: string;
 }
 
 /** Net operating income and value by the income approach. */
@@ -138,7 +140,8 @@ export const PRACTICE_PROPERTIES: PracticeProperty[] = [
     hoaMonthly: null,
     occupancy: 'Tenants',
     income: null,
-    watchOut: 'Three units have tenants. You won’t know their lease terms or deposits until after the sale.',
+    watchOut: 'Three units have tenants. At an auction, you won’t know their lease terms or deposits until after the sale.',
+    watchOutNegotiated: 'Three units have tenants. Ask for every lease, the rent roll and the security-deposit list during your contingency period, before you close.',
   },
   {
     id: 'lot',

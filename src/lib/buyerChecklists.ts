@@ -61,9 +61,9 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     title: 'Buying at a Clark County tax sale',
     intro: 'The Treasurer auctions properties with 3+ years of unpaid property taxes, in person at the Government Center. You receive a quitclaim deed to the property.',
     items: [
-      { text: 'Registration form and $5,000 deposit, about a week before', detail: "Certified funds to the Treasurer by the registration deadline (for the May 7, 2026 auction, April 29). Capped at 280 bidders. No registration on auction day. The deposit is credited if you win and refunded about 2–3 weeks after the sale if you don't." },
+      { text: 'Registration form and $5,000 deposit, about a week before', detail: "Certified funds to the Treasurer by the registration deadline in the auction notice (in 2026, about a week before the auction). Capped at 280 bidders. No registration on auction day. The deposit is credited if you win and refunded about 2–3 weeks after the sale if you don't." },
       { text: 'The exact name you want on the deed', detail: 'The deed is issued to the name on your Trustee Auction Registration Form. If you want an LLC or trust, ask the Treasurer before registering whether that name is accepted; changing it later means recording a separate deed.' },
-      { text: 'Your bidder card on auction day', detail: 'Only the registered bidder may bid, by showing their bidder card. Arrive early; the auction notice has the start time (8:00 a.m. in 2026) and the day’s rules.' },
+      { text: 'Your bidder card on auction day', detail: 'Only the registered bidder may bid, by showing their bidder card. Arrive early; the auction notice has the start time and the day’s rules.' },
       { text: 'Certified funds for the full price by 1:00 p.m.', detail: "Cash, cashier's check, wire or money order (confirm accepted forms in the notice). Parcels re-auctioned at 2:00 p.m. must be paid by 4:30 p.m. If you win several parcels, you must pay for all of them or lose the deposit and be banned from future auctions." },
       { text: 'Research each parcel you want', detail: 'Match the parcel number on the Assessor map and look from the street. Don’t go onto the property; it’s private until the new deed is recorded. Parcels can be paid off (lined out) until close of business 3 business days before the sale.' },
       { text: 'A title search, and a plan for title insurance', detail: 'Not all liens are wiped out. A federal tax lien can survive if the IRS wasn’t given 25 days’ notice, and even then the IRS can buy the property back within 120 days. Anyone claiming the land (usually the former owner) can sue to recover it for 2 years after the Treasurer’s deed is delivered (NRS 361.600), and you may not be able to get title insurance during that time.' },
@@ -135,7 +135,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: 'An environmental screen, and a Phase I if you can', detail: 'Check EPA and state records and past uses (gas station, dry cleaner, auto repair). A Phase I done within one year before you take title (with the site visit, interviews and record searches updated within 180 days), plus meeting ongoing duties after you buy, can protect you from federal cleanup liability (40 CFR 312.20).' },
       { text: 'A title search that lists recorded leases and easements', detail: 'Know which leases, easements and agreements survive the sale.' },
       { text: 'Zoning, open code cases and permits', detail: 'Confirm your planned use is allowed with the city or county.' },
-      { text: 'Certified funds for the sale, and a commercial lender for after', detail: 'SBA 504 and 7(a) loans are only for a business that will use the building, not rental investment.' },
+      { text: 'Your money: certified funds for an auction, or proof of funds or a lender’s term sheet for a negotiated sale', detail: 'Auctions need cash; a commercial lender can refinance after. SBA 504 and 7(a) loans are only for a business that will use the building, not rental investment.' },
       { text: 'Commercial insurance from the day you own it', detail: 'Vacant commercial buildings need a specific policy.' },
       { text: 'Estoppel certificates from tenants after you buy', detail: 'Each tenant confirms their rent, deposit, term and any claims, in writing. Most leases require tenants to sign one.' },
     ],
@@ -263,19 +263,50 @@ const COMMERCIAL_WORDING: Record<string, Partial<ChecklistItem> | null> = {
   'A home inspection within your contingency period': { text: 'A property inspection within your due-diligence period' },
 };
 
-/** The same checklist with home-only items reworded (or dropped) for a commercial property. */
-export function forCommercial(list: BuyerChecklist): BuyerChecklist {
+// Vacant land has no building, occupants to plan for, home inspection or tenants, and land is rarely
+// bought with a mortgage. On a land parcel, show land wording instead.
+const LAND_SITE_CHECK: Partial<ChecklistItem> = {
+  text: 'A site check and a clean-up budget',
+  detail: 'Drive by the lot: look for dumping, stored items or anyone camping there, and confirm legal access. Confirm zoning and what it costs to connect water, sewer and power.',
+};
+const LAND_DUE_DILIGENCE: Partial<ChecklistItem> = { text: 'Land due diligence within your contingency period', detail: 'Zoning, legal access, a survey, soils, and what it costs to connect water, sewer and power.' };
+const LAND_FUNDS: Partial<ChecklistItem> = { text: 'Proof of funds', detail: 'Land loans are harder to get than home loans. Plan on cash, or a land or construction lender lined up in advance.' };
+const LAND_WORDING: Record<string, Partial<ChecklistItem> | null> = {
+  'An as-is repair budget and an occupancy plan': LAND_SITE_CHECK,
+  'An as-is repair budget and a plan for tenants': LAND_SITE_CHECK,
+  'A home inspection within your contingency period': LAND_DUE_DILIGENCE,
+  'A property inspection within your due-diligence period': LAND_DUE_DILIGENCE,
+  'Mortgage pre-approval or proof of funds': LAND_FUNDS,
+  'A commercial lender’s term sheet or proof of funds': LAND_FUNDS,
+  'For HUD homes: a HUD-registered broker': null, // HUD sells homes only
+  'Rent roll and copies of the leases': null,
+  'Estoppel certificates from tenants after you buy': null,
+  'Commercial insurance from the day you own it': { text: 'Liability insurance from the day you own it' },
+  'Your money: certified funds for an auction, or proof of funds or a lender’s term sheet for a negotiated sale': { detail: 'Auctions need cash. Land loans are harder to get; plan on cash, or a construction lender if you’ll build.' },
+};
+
+function reword(list: BuyerChecklist, wording: Record<string, Partial<ChecklistItem> | null>, suffix: string): BuyerChecklist {
   const items = list.items.flatMap((item) => {
-    if (!(item.text in COMMERCIAL_WORDING)) return [item];
-    const change = COMMERCIAL_WORDING[item.text];
+    if (!(item.text in wording)) return [item];
+    const change = wording[item.text];
     return change ? [{ ...item, ...change }] : [];
   });
   return {
     ...list,
-    key: `${list.key}-commercial`, // ticks are kept separately from the residential version
+    key: `${list.key}-${suffix}`, // ticks are kept separately from the residential version
     title: list.title.replace(/\bhome\b/, 'property'),
     intro: list.intro.replace('owns the home', 'owns the property'),
     items,
     official: list.key === 'reo' ? undefined : list.official, // HUD Home Store link is for homes
   };
+}
+
+/** The same checklist with building, occupant and mortgage items reworded (or dropped) for vacant land. */
+export function forLand(list: BuyerChecklist): BuyerChecklist {
+  return reword(list, LAND_WORDING, 'land');
+}
+
+/** The same checklist with home-only items reworded (or dropped) for a commercial property. */
+export function forCommercial(list: BuyerChecklist): BuyerChecklist {
+  return reword(list, COMMERCIAL_WORDING, 'commercial');
 }

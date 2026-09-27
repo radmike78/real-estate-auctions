@@ -155,7 +155,7 @@ export const PLAYBOOKS: Playbook[] = [
     key: 'foreclosure',
     title: 'Trustee sale (mortgage foreclosure)',
     short: 'Foreclosure auctions',
-    oneLine: 'Most Nevada foreclosures are non-judicial: a trustee sells the home at auction after the owner defaults.',
+    oneLine: 'Most Nevada foreclosures are non-judicial: a trustee sells the property at auction after the owner defaults.',
     youGet: 'The owner’s interest by trustee’s deed, subject to anything senior to the loan being foreclosed.',
     forSale: true,
     glance: [
@@ -318,7 +318,7 @@ export const PLAYBOOKS: Playbook[] = [
     key: 'reo',
     title: 'Bank-owned (REO) and HUD homes',
     short: 'Bank-owned (REO)',
-    oneLine: 'Homes a lender took back at a foreclosure auction, sold through agents or online auctions.',
+    oneLine: 'Property a lender took back at a foreclosure auction, sold through agents or online auctions.',
     youGet: 'The property by a normal purchase contract, usually with a lender addendum, a deed with limited promises from the lender, and title insurance.',
     forSale: true,
     glance: [

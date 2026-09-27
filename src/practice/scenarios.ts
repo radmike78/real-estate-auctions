@@ -12,7 +12,7 @@
 //  - Every number is a practice number. Investor max bids use the same calculator as the real tool.
 
 import { maxSafeBid, BLANK_INPUTS, type BidInputs } from '../lib/bidCalc';
-import { CHECKLISTS, forCommercial, type BuyerChecklist } from '../lib/buyerChecklists';
+import { CHECKLISTS, forCommercial, forLand, type BuyerChecklist } from '../lib/buyerChecklists';
 import { playbookByKey, type Playbook } from '../lib/playbooks';
 import { fmtMoney } from '../lib/status';
 import { incomeValue, PRACTICE_PROPERTIES, type PracticeProperty } from './properties';
@@ -129,7 +129,7 @@ const contractorContact = (p: PracticeProperty, noEntry: boolean): Task =>
 
 /** Commercial extras for any sale: the commercial checklist, value by income, environmental, motel business. */
 function commercialResearch(p: PracticeProperty, sale: SaleKey): Task[] {
-  const list = CHECKLISTS.commercial;
+  const list = isLand(p) ? forLand(CHECKLISTS.commercial) : CHECKLISTS.commercial;
   const tasks: Task[] = [{ kind: 'checklist', id: 'commercial-checks', title: list.title, intro: list.intro, items: list.items }];
   if (p.income) {
     const iv = incomeValue(p.income);
@@ -144,7 +144,7 @@ function commercialResearch(p: PracticeProperty, sale: SaleKey): Task[] {
         `At a ${p.income.capRatePct}% cap rate (a practice rate; ask a commercial broker for current rates for this type of property): ${money(iv.noi)} ÷ ${p.income.capRatePct / 100} ≈ ${money(iv.value)}.`,
         sale === 'reo'
           ? 'That value assumes the rent roll is real. The listing broker can usually give you the rent roll and leases: check them against the tenants’ estoppel certificates before you close.'
-          : 'That value assumes the rent roll is real. At an auction you usually can’t confirm it, which is why the checklist says to value it as if empty: the value once leased, minus the lost rent, leasing commissions and tenant improvements to get there. Compare both before you set your maximum.',
+          : 'That value assumes the rent roll is real. At an auction you usually can’t confirm it, which is why the checklist says to value it as if empty: the value once leased, minus the lost rent, leasing commissions and tenant improvements to get there. The practice numbers below value it once leased, but count no rent while you hold it, as if it were empty. For a real bid, also budget the leasing commissions and tenant improvements it takes to fill it.',
       ],
     });
   }
@@ -168,7 +168,7 @@ function commercialResearch(p: PracticeProperty, sale: SaleKey): Task[] {
       body: [
         'Confirm exactly what the sale includes. The real property may be sold without the furniture, the business name or the booking accounts.',
         'Business, health and other licenses don’t transfer with the property. Apply in your own name before you reopen.',
-        'Guests and a live-in manager may be there on sale day. Have an attorney plan how you take possession.',
+        'Guests and a live-in manager may be there on sale day. Short-stay guests and a manager who lives there for the job usually aren’t tenants, but anyone who has stayed 30 days or more may have tenant rights (NRS 118A.180). Have an attorney plan how you take possession.',
       ],
     });
   }
@@ -547,7 +547,7 @@ const SID: Flow = {
   }),
   after: (p, _n, pb) => {
     const price = sidPrice(p);
-    const months = 8;
+    const months = p.hasBuilding ? 8 : 3; // within the redemption period taught: 2 years with a building, 120 days without
     return [
       {
         kind: 'read',
@@ -636,7 +636,7 @@ const FORECLOSURE: Flow = {
                   reply: residentialTenants(p)
                     ? `${tenantsNote(p, 'foreclosure')} A former owner who stays gets a 3-day notice under NRS 40.255. Don’t change locks or remove belongings yourself. (Simulated reply.)`
                     : p.id === 'motel'
-                      ? 'Guests and a live-in manager are different from tenants. Tell me who is there on sale day and I’ll plan how you take possession. Don’t change locks or remove belongings yourself. (Simulated reply.)'
+                      ? 'Short-stay guests and a manager who lives there for the job usually aren’t tenants, but anyone who has stayed 30 days or more may have tenant rights (NRS 118A.180). Tell me who is there on sale day and I’ll plan how you take possession. Don’t change locks or remove belongings yourself. (Simulated reply.)'
                       : 'If the former owner stays, they get a 3-day notice under NRS 40.255. If there turn out to be tenants, bona fide tenants get at least 90 days’ written notice under federal law, Nevada requires a written notice of the change of ownership (NRS 40.255), and you take on their security deposits (NRS 118A.244). Don’t change locks or remove belongings yourself. (Simulated reply.)',
                 },
           ]
@@ -836,9 +836,11 @@ const SHERIFF: Flow = {
       kind: 'decision',
       id: 'renovate',
       title: 'Month two',
-      question: `A contractor can start a ${money(roundTo(Math.max(p.repairs, 20_000), 1000))} renovation next week. Do it now?`,
+      question: isLand(p)
+        ? 'A builder can start $20,000 of site work (grading and utility trenches) next week. Do it now?'
+        : `A contractor can start a ${money(roundTo(Math.max(p.repairs, 20_000), 1000))} renovation next week. Do it now?`,
       choices: [
-        { label: 'No. Wait until the redemption period ends', correct: true, feedback: 'Right. If someone redeems, you get your price plus 1% a month and the taxes and earlier-lien payments you made, but not what you spent on repairs.' },
+        { label: 'No. Wait until the redemption period ends', correct: true, feedback: `Right. If someone redeems, you get your price plus 1% a month and the taxes and earlier-lien payments you made, but not what you spent on ${isLand(p) ? 'site work' : 'repairs'}.` },
         { label: 'Yes. The sooner it’s fixed, the sooner I can sell', correct: false, feedback: `In the guide’s example, the debtor redeemed after eleven months and the buyer’s repair spending was lost. ${pb.mistakes[0].prevent}` },
       ],
     },
@@ -851,7 +853,7 @@ const IRS: Flow = {
   checklist: 'sheriff',
   available: () => null,
   own: () => ({ correct: 'A certificate of sale for the taxpayer’s interest, then a deed after the 180-day redemption period', wrong: ['Free and clear title from the federal government', 'The property with the IRS paying off the mortgage'] }),
-  numbers: (p) => auctionNumbers(p, { label: 'Minimum bid', amount: roundTo(p.value * 0.25, 1000) }, { holdingMonths: 9, titleLegal: 1_500, survivingLiens: roundTo(p.value * 0.25, 1000) }),
+  numbers: (p) => auctionNumbers(p, { label: 'Minimum bid', amount: roundTo(p.value * 0.15, 1000) }, { holdingMonths: 9, titleLegal: 1_500, survivingLiens: roundTo(p.value * 0.25, 1000) }),
   research: (p, n) => [
     {
       kind: 'document',
@@ -965,7 +967,7 @@ const affordTask = (p: PracticeProperty, a: Afford, sale: 'reo' | 'short'): Task
   repairs: p.repairs,
   list: a.list,
   maxOffer: a.maxOffer,
-  lesson: `Your maximum is the lower of what comparable sales support (${money(a.asIsValue)} as it stands) and what your loan supports. Offer above comparable sales and the appraisal may come in low, leaving you to cover the gap in cash.${p.repairs ? ` Keep ${money(p.repairs)} for repairs on top of your down payment and closing costs.` : ''}`,
+  lesson: `${a.loanAmount ? `Your maximum is the lower of what comparable sales support (${money(a.asIsValue)} as it stands) and what your loan supports.` : `Your maximum is what comparable sales support: ${money(a.asIsValue)} as it stands.`} ${a.loanAmount ? 'Offer above comparable sales and the appraisal may come in low, leaving you to cover the gap in cash.' : 'Paying cash, no lender checks the price, so hold to comparable sales.'}${p.repairs ? ` Keep ${money(p.repairs)} for repairs on top of your down payment and closing costs.` : ''}`,
 });
 
 const affordDecision = (a: Afford): Task => ({
@@ -974,8 +976,8 @@ const affordDecision = (a: Afford): Task => ({
   title: 'Your offer',
   question: `Your maximum offer is ${money(a.maxOffer)}. The list price is ${money(a.list)}. What do you offer?`,
   choices: [
-    { label: `${a.list <= a.maxOffer ? `The list price, ${money(a.list)}` : `No more than ${money(a.maxOffer)}`}, backed by comparable sales and my pre-approval`, correct: true, feedback: 'Right. Your offer stays within what comparable sales and your loan support.' },
-    { label: `${money(roundTo(a.maxOffer * 1.08, 1000))}, to beat other buyers`, correct: false, feedback: 'That’s above what comparable sales support. The appraisal may come in low, and you’d have to cover the gap in cash or lose the deal.' },
+    { label: `${a.list <= a.maxOffer ? `The list price, ${money(a.list)}` : `No more than ${money(a.maxOffer)}`}, backed by comparable sales and my ${a.loanAmount ? 'pre-approval' : 'proof of funds'}`, correct: true, feedback: a.loanAmount ? 'Right. Your offer stays within what comparable sales and your loan support.' : 'Right. Your offer stays within what comparable sales support.' },
+    { label: `${money(roundTo(a.maxOffer * 1.08, 1000))}, to beat other buyers`, correct: false, feedback: a.loanAmount ? 'That’s above what comparable sales support. The appraisal may come in low, and you’d have to cover the gap in cash or lose the deal.' : 'That’s above what comparable sales support. Paying cash, nothing stops you overpaying, and you’d lose that money when you sell.' },
   ],
 });
 
@@ -1035,7 +1037,9 @@ const REO: Flow = {
               label: 'Ask about a loan',
               send: `I'm buying a bank-owned ${p.label.toLowerCase()}. What loan fits?`,
               reply:
-                p.id === 'motel'
+                isLand(p)
+                  ? 'For land, expect a bigger down payment than for a building. If you’ll build, a construction loan can cover the land and the project. SBA 504 and 7(a) loans can include land only for a business that will occupy what it builds. Send me your plan and the zoning. (Simulated reply.)'
+                  : p.id === 'motel'
                   ? 'If you’ll run the motel yourself, it’s an active business, so an SBA 7(a) or 504 loan may fit, as well as a commercial loan. If you’ll lease it to an operator, it’s a passive investment and SBA loans won’t fit. Send me your plan and the last few years of operating statements. (Simulated reply.)'
                   : 'For an investment property, a commercial or bridge loan. SBA 504 and 7(a) loans are only for a business that will use the building itself, not for rental investment. Send me the rent roll, leases and your plan. (Simulated reply.)',
             },
@@ -1103,7 +1107,7 @@ const REO: Flow = {
         title: commercial(p) ? 'The purchase agreement' : 'The addendum',
         question: `The bank’s ${commercial(p) ? 'purchase agreement' : 'addendum'} charges you a per-day penalty if closing runs late. What do you do?`,
         choices: [
-          { label: `Read every page, then line up the ${commercial(p) ? 'loan and due diligence' : 'loan, inspection and appraisal'} early so closing is on time`, correct: true, feedback: 'Right. The bank’s terms usually override parts of the standard contract and can shift costs and deadlines to you.' },
+          { label: `Read every page, then line up the ${commercial(p) ? 'loan and due diligence' : isLand(p) ? 'funds and due diligence' : 'loan, inspection and appraisal'} early so closing is on time`, correct: true, feedback: 'Right. The bank’s terms usually override parts of the standard contract and can shift costs and deadlines to you.' },
           { label: 'Sign it: it’s just paperwork', correct: false, feedback: 'The bank’s terms can shift costs and deadlines to you. Read every page before signing.' },
         ],
       },
@@ -1195,11 +1199,15 @@ const SHORT: Flow = {
 export const FLOWS: Record<SaleKey, Flow> = { tax: TAX, sid: SID, foreclosure: FORECLOSURE, hoa: HOA, sheriff: SHERIFF, irs: IRS, reo: REO, short: SHORT };
 export const SALE_ORDER: SaleKey[] = ['tax', 'foreclosure', 'reo', 'short', 'hoa', 'sheriff', 'irs', 'sid'];
 
-/** Playbook facts that only apply to homes (owner-occupant mediation, HUD and Fannie Mae / Freddie Mac rules). */
+/** Playbook facts that only apply to homes (owner-occupant mediation, HUD and Fannie Mae / Freddie Mac rules), not commercial property or land. */
 export const HOME_ONLY_FACTS = new Set(['Mediation', 'HUD homes', 'Fannie Mae & Freddie Mac']);
 
 /** Playbook steps reworded for commercial property (the playbook's version is about homes). */
 export const COMMERCIAL_STEPS: Record<string, Record<string, { title: string; detail: string }>> = {
+  // The HOA super-priority lien is for residential communities; nonresidential ones are mostly exempt (NRS 116.1201).
+  foreclosure: {
+    'Check for senior debts': { title: 'Check for senior debts', detail: 'Property taxes, special assessments, any owners’ association assessments, IRS liens and city liens may survive.' },
+  },
   reo: {
     'Get pre-approved': { title: 'Line up financing', detail: 'A commercial or bridge lender’s term sheet, or proof of funds for a cash offer.' },
     'Choose a buyer’s agent': { title: 'Work with a commercial broker', detail: 'Bank-owned commercial property is sold through listing brokers. HUD Home Store, HomePath and HomeSteps sell homes only.' },
@@ -1207,16 +1215,34 @@ export const COMMERCIAL_STEPS: Record<string, Record<string, { title: string; de
   },
 };
 
-/** The playbook's steps for this sale, with commercial wording where the playbook is about homes. */
-export function stepsFor(playbookKey: string, steps: { title: string; detail: string }[], isCommercial: boolean) {
-  const over = isCommercial ? COMMERCIAL_STEPS[playbookKey] ?? {} : {};
+/** Playbook steps reworded for vacant land (no building, occupants or mortgage). */
+export const LAND_STEPS: Record<string, Record<string, { title: string; detail: string }>> = {
+  foreclosure: {
+    'Look at the property': { title: 'Look at the lot', detail: 'Drive by. Look for dumping, stored items or anyone camping there, and confirm legal access.' },
+    'Set your maximum bid': { title: 'Set your maximum bid', detail: 'Include surviving debts, clean-up and holding costs. Use the max bid calculator.' },
+    'After you win': { title: 'After you win', detail: 'Get the trustee’s deed recorded and insure the land against liability.' },
+  },
+  sheriff: {
+    'Check for a homestead': { title: 'Check for a homestead', detail: 'A homestead protects a home the debtor lives in (NRS 115.010). Confirm there’s no dwelling on the parcel; vacant land usually isn’t a homestead.' },
+  },
+  reo: {
+    'Get pre-approved': { title: 'Have proof of funds', detail: 'Land loans are harder to get than home loans. Most land buyers pay cash or line up a land or construction lender.' },
+    'Choose a buyer’s agent': { title: 'Work with an agent who knows land', detail: 'Bank-owned land is sold through listing brokers. HUD Home Store, HomePath and HomeSteps sell homes, not land.' },
+    'Inspect and appraise': { title: 'Do your due diligence', detail: 'Zoning, legal access, a survey, soils and utility connection costs, within your contingency period.' },
+  },
+};
+
+/** The playbook's steps for this sale, with commercial or land wording where the playbook is about homes. */
+export function stepsFor(playbookKey: string, steps: { title: string; detail: string }[], isCommercial: boolean, isLandParcel = false) {
+  const over = { ...(isCommercial ? COMMERCIAL_STEPS[playbookKey] ?? {} : {}), ...(isLandParcel ? LAND_STEPS[playbookKey] ?? {} : {}) };
   return steps.map((s) => over[s.title] ?? s);
 }
 
 /** The buyer checklist for a sale, with commercial wording where needed. */
 function checklistFor(flow: Flow, p: PracticeProperty): BuyerChecklist {
   const list = CHECKLISTS[flow.checklist];
-  return commercial(p) ? forCommercial(list) : list;
+  const worded = commercial(p) ? forCommercial(list) : list;
+  return isLand(p) ? forLand(worded) : worded;
 }
 
 export function whyUnavailable(sale: SaleKey, p: PracticeProperty): string | null {
@@ -1252,7 +1278,7 @@ export function buildScenario(sale: SaleKey, p: PracticeProperty): Scenario | nu
       summary: 'What you’d own after this sale, and the steps it follows.',
       tasks: [
         ownQuiz,
-        { kind: 'checklist', id: 'official-steps', title: 'The steps for this kind of sale', intro: pb.oneLine, items: stepsFor(pb.key, pb.steps, commercial(p)).map((s) => ({ text: s.title, detail: s.detail })) },
+        { kind: 'checklist', id: 'official-steps', title: 'The steps for this kind of sale', intro: pb.oneLine, items: stepsFor(pb.key, pb.steps, commercial(p), isLand(p)).map((s) => ({ text: s.title, detail: s.detail })) },
       ],
     },
     {
@@ -1261,7 +1287,7 @@ export function buildScenario(sale: SaleKey, p: PracticeProperty): Scenario | nu
       summary: 'Title, the property, and what would stay after the sale.',
       tasks: [
         ...flow.research(p, n, pb),
-        ...(p.watchOut && !environmentalRisk(p) ? [{ kind: 'read', id: 'watch-out', title: 'What a careful buyer notices', body: [p.watchOut] } as Task] : []),
+        ...(p.watchOut && !environmentalRisk(p) ? [{ kind: 'read', id: 'watch-out', title: 'What a careful buyer notices', body: [(!auction && p.watchOutNegotiated) || p.watchOut] } as Task] : []),
         ...(isLand(p) ? [{ kind: 'read', id: 'land', title: 'Land checks', body: ['Confirm zoning and your planned use with the city or county planning department.', 'Ask the utilities what it would take to connect water, sewer and power, and what it costs.'] } as Task] : []),
         ...(commercial(p) && sale !== 'sid' ? commercialResearch(p, sale) : []),
       ],
@@ -1280,7 +1306,7 @@ export function buildScenario(sale: SaleKey, p: PracticeProperty): Scenario | nu
           },
         ]
       : a
-        ? [{ key: 'numbers', title: 'Run the numbers', summary: 'What comparable sales and your loan support.', tasks: [affordTask(p, a, sale as 'reo' | 'short'), affordDecision(a)] }]
+        ? [{ key: 'numbers', title: 'Run the numbers', summary: a.loanAmount ? 'What comparable sales and your loan support.' : 'What comparable sales support.', tasks: [affordTask(p, a, sale as 'reo' | 'short'), affordDecision(a)] }]
         : []),
     {
       key: 'prepare',
@@ -1299,7 +1325,7 @@ export function buildScenario(sale: SaleKey, p: PracticeProperty): Scenario | nu
     property: p,
     youGet: pb.youGet,
     headline: `${p.label} · ${pb.short}`,
-    sale_facts: commercial(p) ? pb.glance.filter((f) => !HOME_ONLY_FACTS.has(f.label)) : pb.glance,
+    sale_facts: commercial(p) || isLand(p) ? pb.glance.filter((f) => !HOME_ONLY_FACTS.has(f.label)) : pb.glance,
     stages,
     playbookKey: pb.key,
   };

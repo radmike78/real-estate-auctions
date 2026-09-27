@@ -4,7 +4,7 @@ import searchLib from '../lib/search.ts?raw';
 import tracker from '../../server/tracker.ts?raw';
 import { describe, expect, it } from 'vitest';
 import { maxSafeBid } from '../lib/bidCalc';
-import { CHECKLISTS, forCommercial } from '../lib/buyerChecklists';
+import { CHECKLISTS, forCommercial, forLand } from '../lib/buyerChecklists';
 import { playbookByKey } from '../lib/playbooks';
 import { PRACTICE_PROPERTIES, incomeValue } from './properties';
 import { allScenarios, buildScenario, FLOWS, HOME_ONLY_FACTS, SALE_ORDER, scenarioById, stepsFor } from './scenarios';
@@ -61,11 +61,11 @@ describe('practice scenarios', () => {
   it('show the playbook’s own facts, so the practice and the guide never disagree', () => {
     for (const s of ALL) {
       const pb = playbookByKey(s.playbookKey)!;
-      expect(s.sale_facts, s.id).toEqual(s.property.cls === 'commercial' ? pb.glance.filter((f) => !HOME_ONLY_FACTS.has(f.label)) : pb.glance);
+      expect(s.sale_facts, s.id).toEqual(s.property.cls === 'commercial' || !s.property.hasBuilding ? pb.glance.filter((f) => !HOME_ONLY_FACTS.has(f.label)) : pb.glance);
       expect(s.youGet, s.id).toBe(pb.youGet);
       const steps = tasks(s).find((t) => t.id === 'official-steps') as Extract<Task, { kind: 'checklist' }>;
-      expect(steps.items.map((i) => i.text), s.id).toEqual(stepsFor(pb.key, pb.steps, s.property.cls === 'commercial').map((x) => x.title));
-      if (s.property.cls === 'residential') expect(steps.items.map((i) => i.detail), s.id).toEqual(pb.steps.map((x) => x.detail));
+      expect(steps.items.map((i) => i.text), s.id).toEqual(stepsFor(pb.key, pb.steps, s.property.cls === 'commercial', !s.property.hasBuilding).map((x) => x.title));
+      if (s.property.cls === 'residential' && s.property.hasBuilding) expect(steps.items.map((i) => i.detail), s.id).toEqual(pb.steps.map((x) => x.detail));
     }
   });
 
@@ -73,7 +73,8 @@ describe('practice scenarios', () => {
     for (const s of ALL) {
       const list = tasks(s).find((t) => t.id === 'buyer-checklist') as Extract<Task, { kind: 'checklist' }>;
       const base = CHECKLISTS[FLOWS[s.sale].checklist];
-      expect(list.items, s.id).toEqual((s.property.cls === 'commercial' ? forCommercial(base) : base).items);
+      const worded = s.property.cls === 'commercial' ? forCommercial(base) : base;
+      expect(list.items, s.id).toEqual((s.property.hasBuilding ? worded : forLand(worded)).items);
     }
   });
 
@@ -117,7 +118,9 @@ describe('practice scenarios', () => {
 
   it('never mention a building on vacant land', () => {
     for (const s of ALL.filter((x) => !x.property.hasBuilding)) {
-      expect(text(s), s.id).not.toMatch(/next to the building|the building’s|inside access|walk-through/i);
+      const t = text(s);
+      expect(t, s.id).not.toMatch(/next to the building|the building’s|inside access|walk-through|renovation|occupancy plan|home inspection|pre-approval|appraisal|HUD-registered|rent roll|estoppel|Assume it may be occupied|sells the home/i);
+      if (s.sale === 'sid') expect(t, s.id).toMatch(/redeems after 3 months/); // inside the 120 days
     }
   });
 
@@ -162,6 +165,10 @@ describe('practice scenarios', () => {
         expect(Number(m[1].replace(/,/g, '')), `${s.id}: ${m[0]}`).toBeLessThanOrEqual(max);
       }
     }
+  });
+
+  it('never tells a negotiated-sale buyer they can’t see the leases', () => {
+    for (const s of ALL.filter((x) => x.sale === 'reo' || x.sale === 'short')) expect(text(s).replace(s.property.watchOut ?? '', ''), s.id).not.toMatch(/until after the sale/);
   });
 
   it('holds buyers for the whole redemption period in the numbers', () => {
