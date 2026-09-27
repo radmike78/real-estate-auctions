@@ -188,7 +188,7 @@ cat admin-password-hash.txt   # should start with scrypt$
 
 **Prerequisites**
 - A Linux server:
-  - RHEL, Rocky or AlmaLinux 9, Fedora 40+, Ubuntu 24.04 or Debian 12;
+  - RHEL, Rocky or AlmaLinux 9, Fedora 40+, Ubuntu 24.04 or Debian 13 (Debian 12's Podman 4.3 is too old for the systemd services);
   - at least 1 vCPU, 2 GB RAM (building uses most of it) and 10 GB of disk.
 - **Podman 4.4 or newer** (Podman 5 recommended). Install it:
   - RHEL, Rocky, Alma or Fedora: `sudo dnf install -y podman git openssl`
@@ -251,7 +251,7 @@ There's no `systemctl enable` step: Quadlet services start at boot automatically
 | --- | --- |
 | Status | `sudo systemctl status forced-sale-finder-web` or `sudo podman ps` |
 | Logs | `sudo podman logs -f forced-sale-finder-web` (updater: `forced-sale-finder-ingest`) |
-| Update to the latest code | `git pull && deploy/podman/install.sh --update` |
+| Update to the latest code | automatic once [automatic deploys](#automatic-deploys-with-podman) are on; otherwise `git pull && deploy/podman/install.sh --update` |
 | Change settings | edit `forced-sale-finder.env` in the Quadlet folder, then `sudo systemctl restart forced-sale-finder-web` |
 | Copy backups off the server | `sudo podman run --rm -v forced-sale-finder-data:/data:ro -v "$PWD":/out:Z localhost/forced-sale-finder:latest sh -c 'cp /data/backups/*.db /out/'` |
 | Restore a backup | stop the web service, copy the backup over `/data/db/app.db` (and delete `app.db-wal`/`app.db-shm`) with a similar `podman run`, then start it |
@@ -422,9 +422,30 @@ To turn it on for your deployments:
 - The first push creates the package in GitHub under Packages. Either make it public, or give your cluster a pull secret (shown above).
 
 Then roll out new versions:
-- **Podman:** `deploy/podman/install.sh --update`.
+- **Podman, automatically (recommended):** see [Automatic deploys with Podman](#automatic-deploys-with-podman) below.
+- **Podman, by hand:** `git pull && deploy/podman/install.sh --update` (builds on the server).
 - **Kubernetes or OpenShift A:** `kubectl` or `oc rollout restart deployment/forced-sale-finder`.
 - **OpenShift B:** rolls out automatically after each build.
+
+#### Automatic deploys with Podman
+
+Merge a pull request into `main`, and the site updates itself: GitHub Actions tests it, builds the image and publishes it to GitHub Container Registry; the server checks the registry every 10 minutes (`podman auto-update`), pulls the new image and restarts. If the new version doesn't start, Podman rolls back to the previous one. Nothing on GitHub can reach the server; the server only pulls.
+
+Set it up once, after `install.sh`:
+1. On the server, run `deploy/podman/auto-deploy.sh` (as the same user that ran `install.sh`). It prints your two **public** keys.
+2. In GitHub, add them as the repository **variables** `FEED_PUBLIC_KEY` and `DIRECTORY_PUBLIC_KEY` (Settings > Secrets and variables > Actions > Variables), then publish a fresh image: Actions > **CI** > **Run workflow** on `main`.
+3. Answer **y** in the script. If the image is private, it asks for your GitHub username and a token that can only read packages (GitHub > Settings > Developer settings > Personal access tokens > Tokens (classic), scope `read:packages`). The token is stored only on the server, in a file readable by its owner.
+4. The script checks that the published image carries your server's keys (so browsers will accept the listings), switches the services to it, and turns on the timer.
+
+| Task | Command (rootless: add `--user` to `systemctl` and `journalctl`) |
+| --- | --- |
+| See whether an update is waiting | `sudo podman auto-update --dry-run` |
+| Deploy right now | `sudo podman auto-update` |
+| Deploy history | `sudo journalctl -u podman-auto-update.service` |
+| Check every 5 minutes instead | `deploy/podman/auto-deploy.sh --every 5` |
+| Roll back | Automatic when a new version fails to start. To pin an older version, set `Image=ghcr.io/radmike78/real-estate-auctions:<commit>` in the Quadlet files, then `systemctl daemon-reload` and restart |
+
+Only changes merged into `main` are deployed. Pull requests are tested but never published, so review and merge is the "deploy" button.
 
 For GitOps, point [Argo CD / OpenShift GitOps](https://argo-cd.readthedocs.io/) at `deploy/kubernetes/overlays/<option>`. The cluster then follows whatever is merged, and every change can be rolled back from Git.
 

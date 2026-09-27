@@ -2,7 +2,8 @@
 #   test       type checks, unit tests, site build
 #   manifests  renders the Kubernetes/OpenShift overlays and validates them against their schemas
 #   image      builds the image with Podman (no Docker), starts it and checks /healthz;
-#              on main, pushes it to GitHub Container Registry as :latest and :<commit>
+#              on main, pushes it to GitHub Container Registry as :latest and :<commit>;
+#              servers set up with deploy/podman/auto-deploy.sh pull :latest and restart on their own
 #
 # Set the repository variables FEED_PUBLIC_KEY and DIRECTORY_PUBLIC_KEY (Settings > Secrets and variables >
 # Actions > Variables) to your two public signing keys so the published image can verify your signed feeds.
