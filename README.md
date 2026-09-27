@@ -655,6 +655,30 @@ npm run build && npm run server        # serves the site and API on :8080
 ```
 During development, run `npm run server` and `npm run dev` together; the dev server forwards `/api` to the server. Emails are printed to the server log unless `RESEND_API_KEY` (or `POSTMARK_SERVER_TOKEN`) and `MAIL_FROM` are set (see [Email](#email-resend-or-postmark)). Data is stored in SQLite at `server/data/app.db`. Back it up.
 
+## Content accuracy
+
+Every fact the guides teach has to trace back to an official source, and the repo tracks what was checked and when:
+
+| File | What it holds |
+| --- | --- |
+| `src/content/sources.ts` | Every outside link the site shows: who publishes it, its role (listing source, rules, lookup, help) and the date someone read it and matched it to the site (`checked`). |
+| `src/content/facts.ts` | The key numbers and rules (deadlines, deposits, redemption periods, name rules), each tied to its sources, the date it was checked, and the exact text on the site that states it. |
+| `src/content/reviews.json` | Every public page, the files that hold its words, and when its content was last reviewed. |
+| `src/content/fingerprints.json` | The version of each watched official page (the Treasurer's auction notice and FAQ, the SID notice of sale, the Sheriff's sales and others) that was last read. |
+
+**The tests enforce it** (`npm test`, which CI runs on every pull request):
+- Every outside link on the site must be in `sources.ts`. Listing sources must be government, Fannie Mae/Freddie Mac, the bank that owns the property, or the county's named seller.
+- A fact can only cite sources that have been checked. If its text on the site changes, the test fails until the fact is re-checked and updated.
+- If a page's words change after its last review, the test fails. Check the changed text against its sources, then record it: `npm run content:reviewed -- <page-id>`. New pages must be added to `reviews.json`.
+- If the server or deployment starts using a new outside service (email, payments, Cloudflare, maps), the privacy policy must name it.
+
+**Commands**
+- `npm run content:status`: sources never checked or checked more than 6 months ago, facts due for a re-check, and pages edited since their review.
+- `npm run content:reviewed -- <page-id> ... [--note "what you checked"]`: record a review.
+- `npm run content:check-sources`: fetch every source and report broken links and watched pages that changed. After re-reading a changed page and fixing the site, run it with `--update`.
+
+**Every week** the GitHub workflow "Official sources" (`.github/workflows/sources.yml`) runs the source check and opens an issue, "Official sources need a check", when a link breaks or a watched page changes. A change to the Treasurer's pages usually means a new auction notice: read it, compare the deposit, dates, payment and name rules with the tax playbook and checklist, and update `sources.ts` and `facts.ts`. It uses about a minute of GitHub Actions time a week, well within the free allowance. Some sites block automated checks; the report lists them so you can open them yourself now and then.
+
 ## Features
 
 **Sections**

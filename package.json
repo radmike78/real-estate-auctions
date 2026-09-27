@@ -5,14 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && tsc --noEmit -p ingest && tsc --noEmit -p server && vite build",
+    "build": "tsc --noEmit && tsc --noEmit -p ingest && tsc --noEmit -p server && tsc --noEmit -p scripts && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p ingest && tsc --noEmit -p server",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p ingest && tsc --noEmit -p server && tsc --noEmit -p scripts",
     "ingest": "tsx ingest/run.ts",
     "keys:generate": "tsx ingest/keygen.ts",
     "server": "tsx --no-warnings=ExperimentalWarning server/index.ts",
-    "admin:hash-password": "tsx server/hash-password.ts"
+    "admin:hash-password": "tsx server/hash-password.ts",
+    "content:status": "tsx scripts/content/cli.ts status",
+    "content:reviewed": "tsx scripts/content/cli.ts reviewed",
+    "content:check-sources": "tsx scripts/content/cli.ts check-sources"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",

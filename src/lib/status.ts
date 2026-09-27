@@ -104,7 +104,7 @@ export function purchaseSteps(p: Property): string[] {
         `If you win, pay the balance by ${s?.finalPaymentDeadline ? fmtDate(s.finalPaymentDeadline) : 'the posted deadline'}.`,
         deedStep(s?.saleType),
         'Order a title search, and a quiet-title action if needed, before you rely on title or resell.',
-        'Take possession lawfully. If it is occupied, you may need an eviction (summary eviction or unlawful detainer).',
+        'Take possession lawfully. If it is occupied, the process depends on who lives there and how you bought it: after a foreclosure sale, removing a former owner or their tenant follows NRS 40.255, not a regular summary eviction. Talk to an attorney before acting.',
       ];
     case 'IN_PERSON_AUCTION':
     case 'SEALED_BID':
