@@ -38,7 +38,7 @@ export function findInDirectory(pros: Pro[], categories: Category[], a: LookupAn
   return inCats.filter((p) => p.name.toLowerCase().includes(needle) || p.company.toLowerCase().includes(needle));
 }
 
-export const WHAT_TO_CHECK: Record<'agent' | 'lender' | 'contractor' | 'insurance', string[]> = {
+export const WHAT_TO_CHECK: Record<'agent' | 'lender' | 'contractor' | 'insurance' | 'professional', string[]> = {
   agent: [
     'Status is Active (not Inactive, Expired or Revoked).',
     'The name matches the person you are talking to.',
@@ -56,10 +56,15 @@ export const WHAT_TO_CHECK: Record<'agent' | 'lender' | 'contractor' | 'insuranc
     'Any complaints or disciplinary history.',
   ],
   insurance: ['The agent or agency is licensed and active in Nevada.', 'The license covers the line of insurance you need (property & casualty, title).'],
+  professional: ['Status is Active or in good standing.', 'The name matches the person you are talking to.', 'Any disciplinary actions listed.'],
 };
 
 export const checklistFor = (c: Category) =>
-  c === 'agent' ? WHAT_TO_CHECK.agent : c === 'contractor' ? WHAT_TO_CHECK.contractor : c === 'insurance' || c === 'title_escrow' ? WHAT_TO_CHECK.insurance : WHAT_TO_CHECK.lender;
+  c === 'agent' ? WHAT_TO_CHECK.agent
+    : c === 'contractor' ? WHAT_TO_CHECK.contractor
+    : c === 'insurance' || c === 'title_escrow' ? WHAT_TO_CHECK.insurance
+    : CATEGORIES[c].financing ? WHAT_TO_CHECK.lender
+    : WHAT_TO_CHECK.professional;
 
 export const RED_FLAGS = [
   'Asks you to wire earnest money or fees to a personal account, or changes wiring instructions by email or text.',

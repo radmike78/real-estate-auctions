@@ -174,13 +174,16 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
                 details we find independently. We re-check every {REVERIFY_DAYS} days.
               </div>
             )}
+            {info?.advertisingNote && (
+              <div className="caution" role="note"><strong>Advertising rule:</strong> {info.advertisingNote}</div>
+            )}
           </Card>
 
           {info && (
             <>
               <Card n={2} id="apply-license" title="License" sub="Exactly as it appears on your license.">
                 <div className="form-grid">
-                  {text('name', isAgent || f.category === 'loan_officer' || f.category === 'insurance' ? 'Your full name (as licensed)' : 'Business name (as licensed)', { autoComplete: 'name' })}
+                  {text('name', isAgent || f.category === 'loan_officer' || f.category === 'insurance' || info.individual ? 'Your full name (as licensed)' : 'Business name (as licensed)', { autoComplete: 'name' })}
                   {text('company', isAgent ? 'Brokerage' : 'Company or employer', { autoComplete: 'organization' })}
                   {text('licenseId', info.licenseLabel, { placeholder: info.licenseHint, autoCapitalize: 'characters' })}
                 </div>

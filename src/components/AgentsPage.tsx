@@ -6,7 +6,7 @@ import { CATEGORIES, REVERIFY_DAYS, type Category } from '../lib/pros';
 import PageHero from './PageHero';
 import { fmtDate } from '../lib/status';
 
-const LOOKUP_TYPES: Category[] = ['agent', 'loan_officer', 'mortgage_company', 'private_lender', 'contractor', 'insurance', 'title_escrow', 'bank', 'credit_union'];
+const LOOKUP_TYPES: Category[] = ['agent', 'loan_officer', 'mortgage_company', 'private_lender', 'contractor', 'insurance', 'title_escrow', 'home_inspector', 'property_manager', 'attorney', 'cpa', 'bank', 'credit_union'];
 
 export default function AgentsPage({ shortSales = false, initialQuery = '' }: { shortSales?: boolean; initialQuery?: string }) {
   const [cat, setCat] = useState<Category>('agent');
