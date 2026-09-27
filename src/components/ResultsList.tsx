@@ -51,7 +51,7 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
               </div>
               <h3>{p.address}</h3>
               <div className="muted small">
-                {p.zip ? `${p.city}, ${p.state} ${p.zip}` : `${p.city}, ${p.state}`} · Parcel {p.apn}
+                {p.zip ? `${p.city}, ${p.state} ${p.zip}` : `${p.city}, ${p.state}`} · <span className="nowrap">Parcel {p.apn}</span>
               </div>
               <div className="muted small">
                 {p.propertyType}

@@ -21,7 +21,7 @@ interface App {
   emailConfirmedAt: string | null;
   duplicates: { id: string; status: string; field: 'license' | 'email' }[];
   reverifyDueInDays: number | null;
-  photo?: { live: string | null; pendingAt: string | null };
+  photo?: { live: string | null; pendingAt: string | null; pending?: string | null };
 }
 interface Audit {
   at: string;
@@ -257,7 +257,7 @@ function PhotoReview({ app, onDone }: { app: App; onDone: () => void }) {
   const decide = async (d: 'approve' | 'reject') => {
     setErr(null);
     try {
-      await api(`/api/admin/applications/${app.id}/photo/${d}`, { body: {}, auth: true });
+      await api(`/api/admin/applications/${app.id}/photo/${d}`, { body: { sha256: app.photo?.pending }, auth: true });
       onDone();
     } catch (e) {
       setErr((e as Error).message);
@@ -267,7 +267,7 @@ function PhotoReview({ app, onDone }: { app: App; onDone: () => void }) {
     <section className="verify-panel">
       <h3>Photo waiting for review</h3>
       <div className="photo-row">
-        <img className="avatar photo big" src={`/api/admin/applications/${app.id}/photo?v=${encodeURIComponent(app.photo.pendingAt)}`} alt={`Photo uploaded by ${app.profile.name}`} width={84} height={84} />
+        <img className="avatar photo big" src={`/api/admin/applications/${app.id}/photo?sha=${app.photo.pending ?? ''}`} alt={`Photo uploaded by ${app.profile.name}`} width={84} height={84} />
         <ul className="small plain-list">
           <li>A clear headshot of this person, or their company's logo.</li>
           <li>No text, prices, claims, other people or other companies' logos.</li>

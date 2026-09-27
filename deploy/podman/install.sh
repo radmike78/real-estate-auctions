@@ -135,11 +135,23 @@ HAS_MAIL=""; MAIL_SECRET=""; MAIL_ENV=""
 if podman secret inspect fsf-resend-key >/dev/null 2>&1; then HAS_MAIL=Resend; MAIL_SECRET=fsf-resend-key; MAIL_ENV=RESEND_API_KEY
 elif podman secret inspect fsf-postmark-token >/dev/null 2>&1; then HAS_MAIL=Postmark; MAIL_SECRET=fsf-postmark-token; MAIL_ENV=POSTMARK_SERVER_TOKEN; fi
 
+# Running the install again keeps optional settings that it doesn't ask about (email sender and reply-to,
+# postal address, Postmark/Resend options) and the Stripe secrets that were turned on.
+KEEP_ENV_RE='^(MAIL_FROM|MAIL_REPLY_TO|MAIL_POSTAL_ADDRESS|RESEND_BROADCAST_FROM|POSTMARK_MESSAGE_STREAM|POSTMARK_BROADCAST_STREAM)='
+keep_env() { # $1 = the existing env file; prints the lines to carry over
+  [ -f "$1" ] || return 0
+  grep -E "$KEEP_ENV_RE" "$1" | { if [ -n "${MAIL_FROM:-}" ]; then grep -v '^MAIL_FROM='; else cat; fi; } || true
+}
+# Email needs a sender: without MAIL_FROM the server refuses to start with a key, so leave email off instead.
+mail_ready() { [ -n "${MAIL_FROM:-}" ] || grep -q '^MAIL_FROM=' "$1" 2>/dev/null; }
+
 HEALTH="node -e \"fetch('http://127.0.0.1:8080/healthz').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))\""
 
 if [ "$MODE" = systemd ]; then
   say "Installing systemd services in $QUADLET_DIR"
   mkdir -p "$QUADLET_DIR"
+  KEPT_ENV=$(keep_env "$QUADLET_DIR/forced-sale-finder.env")
+  KEPT_SECRETS=$(grep -E '^Secret=fsf-stripe-' "$QUADLET_DIR/forced-sale-finder-web.container" 2>/dev/null || true)
   cp "$REPO"/deploy/podman/quadlet/forced-sale-finder.volume "$REPO"/deploy/podman/quadlet/forced-sale-finder-web.container \
      "$REPO"/deploy/podman/quadlet/forced-sale-finder-ingest.container "$QUADLET_DIR/"
   # Without a proxy in front, and a real host name, listen on all interfaces instead of only this machine.
@@ -147,7 +159,9 @@ if [ "$MODE" = systemd ]; then
   if [ "$CADDY" = no ] && [ "$TRUST_PROXY" = 0 ] && [ "$HOST_PART" != localhost ] && [ "$HOST_PART" != 127.0.0.1 ]; then
     sed -i 's|^PublishPort=127.0.0.1:8080:8080|PublishPort=8080:8080|' "$QUADLET_DIR/forced-sale-finder-web.container"
   fi
-  if [ -n "$HAS_MAIL" ]; then sed -i "s|^#Secret=$MAIL_SECRET,|Secret=$MAIL_SECRET,|" "$QUADLET_DIR/forced-sale-finder-web.container"; fi
+  while IFS= read -r line; do
+    [ -n "$line" ] && sed -i "s|^#$line\$|$line|" "$QUADLET_DIR/forced-sale-finder-web.container"
+  done <<<"$KEPT_SECRETS"
   cat > "$QUADLET_DIR/forced-sale-finder.env" <<EOF
 BASE_URL=$BASE_URL
 ADMIN_USERNAME=$ADMIN_USER
@@ -156,6 +170,15 @@ TRUST_CLOUDFLARE=$TRUST_CLOUDFLARE
 BACKUP_KEEP=7
 EOF
   if [ -n "${MAIL_FROM:-}" ]; then printf 'MAIL_FROM=%s\n' "$MAIL_FROM" >> "$QUADLET_DIR/forced-sale-finder.env"; fi
+  if [ -n "$KEPT_ENV" ]; then printf '%s\n' "$KEPT_ENV" >> "$QUADLET_DIR/forced-sale-finder.env"; fi
+  if [ -n "$HAS_MAIL" ]; then
+    if mail_ready "$QUADLET_DIR/forced-sale-finder.env"; then
+      sed -i "s|^#Secret=$MAIL_SECRET,|Secret=$MAIL_SECRET,|" "$QUADLET_DIR/forced-sale-finder-web.container"
+    else
+      echo "Note: an email key is stored but no sender address (MAIL_FROM) is set, so email stays off. Run this again and enter the key and address."
+      HAS_MAIL=""
+    fi
+  fi
   if [ "$CADDY" = yes ]; then
     DOMAIN=${BASE_URL#https://}; DOMAIN=${DOMAIN%%:*}
     cp "$REPO"/deploy/podman/quadlet/forced-sale-finder-caddy.container "$REPO"/deploy/podman/quadlet/forced-sale-finder-caddy.volume "$QUADLET_DIR/"
@@ -178,9 +201,15 @@ else
   if [ -n "${FSF_RECREATE:-}" ]; then
     ENV_ARGS=(--env-file "$KEY_DIR/forced-sale-finder.env")
   else
+    KEPT_ENV=$(keep_env "$KEY_DIR/forced-sale-finder.env")
     printf 'BASE_URL=%s\nADMIN_USERNAME=%s\nTRUST_PROXY=%s\nTRUST_CLOUDFLARE=%s\nBACKUP_KEEP=7\n' "$BASE_URL" "$ADMIN_USER" "$TRUST_PROXY" "$TRUST_CLOUDFLARE" > "$KEY_DIR/forced-sale-finder.env"
     if [ -n "${MAIL_FROM:-}" ]; then printf 'MAIL_FROM=%s\n' "$MAIL_FROM" >> "$KEY_DIR/forced-sale-finder.env"; fi
+    if [ -n "$KEPT_ENV" ]; then printf '%s\n' "$KEPT_ENV" >> "$KEY_DIR/forced-sale-finder.env"; fi
     ENV_ARGS=(--env-file "$KEY_DIR/forced-sale-finder.env")
+  fi
+  if [ -n "$HAS_MAIL" ] && ! mail_ready "$KEY_DIR/forced-sale-finder.env"; then
+    echo "Note: an email key is stored but no sender address (MAIL_FROM) is set, so email stays off. Run this again and enter the key and address."
+    HAS_MAIL=""
   fi
   MAIL_ARGS=(); if [ -n "$HAS_MAIL" ]; then MAIL_ARGS=(--secret "$MAIL_SECRET,type=env,target=$MAIL_ENV"); fi
   podman run -d --name forced-sale-finder-web --restart=always -p "${FSF_PORT:-8080}:8080" -v forced-sale-finder-data:/data "${ENV_ARGS[@]}" ${MAIL_ARGS[@]+"${MAIL_ARGS[@]}"} \

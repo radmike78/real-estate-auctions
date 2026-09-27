@@ -19,6 +19,8 @@
 //                      Optional: MAIL_REPLY_TO. Resend: RESEND_BROADCAST_FROM (sender for updates to the general
 //                      email list, default MAIL_FROM). Postmark: POSTMARK_MESSAGE_STREAM (default "outbound"),
 //                      POSTMARK_BROADCAST_STREAM (default "broadcast", for updates to the general email list).
+//   BROADCAST_DAILY_MAX  most updates to the general email list sent per day, the rest the next day
+//                      (default 50 with Resend, to leave its free plan room for sign-in links; 0 = no limit).
 //   TRUST_PROXY=1      read client IP from the LAST X-Forwarded-For entry (only behind your own reverse proxy
 //                      that appends to that header; see SECURITY.md)
 //   TRUST_CLOUDFLARE=1 the domain is proxied through Cloudflare: read the visitor's address from
@@ -92,6 +94,7 @@ const validSender = (v: string) => ADDRESS.test(v) || /^[^<>\r\n]{1,80}<[^\s@<>"
 const resendKey = env.RESEND_API_KEY?.trim() ?? '';
 const postmarkToken = env.POSTMARK_SERVER_TOKEN?.trim() ?? '';
 let mailer: Mailer = consoleMailer;
+let broadcastDailyMax = 0;
 if (resendKey || postmarkToken || env.MAIL_FROM) {
   if (resendKey && postmarkToken) {
     console.error('Set RESEND_API_KEY or POSTMARK_SERVER_TOKEN, not both.');
@@ -110,6 +113,7 @@ if (resendKey || postmarkToken || env.MAIL_FROM) {
   const replyTo = env.MAIL_REPLY_TO?.trim() || undefined;
   if (resendKey) {
     mailer = resendMailer({ apiKey: resendKey, from, replyTo, broadcastFrom });
+    broadcastDailyMax = 50; // Resend's free plan sends 100 a day: keep half for sign-in links, confirmations and alerts
     console.log(`Email on: sending through Resend as ${from}`);
   } else {
     mailer = postmarkMailer({ serverToken: postmarkToken, from, replyTo, messageStream: env.POSTMARK_MESSAGE_STREAM?.trim() || undefined, broadcastStream: env.POSTMARK_BROADCAST_STREAM?.trim() || undefined });
@@ -127,6 +131,15 @@ if (/^\[.*\]$/.test(SITE_INFO.operatorName)) {
 }
 
 const dbPath = env.DB_PATH ?? join(ROOT, 'server', 'data', 'app.db');
+if (env.BROADCAST_DAILY_MAX !== undefined && env.BROADCAST_DAILY_MAX.trim() !== '') {
+  const n = Number(env.BROADCAST_DAILY_MAX);
+  if (!Number.isInteger(n) || n < 0) {
+    console.error('BROADCAST_DAILY_MAX must be a whole number (0 for no limit).');
+    process.exit(1);
+  }
+  broadcastDailyMax = n;
+}
+
 const app = createApp({
   dbPath,
   dataDir: env.DATA_DIR ?? join(ROOT, 'public', 'data'),
@@ -141,6 +154,7 @@ const app = createApp({
   trustCloudflare: env.TRUST_CLOUDFLARE === '1',
   stripe,
   mailer,
+  broadcastDailyMax,
   postalAddress: env.MAIL_POSTAL_ADDRESS?.trim() || undefined,
 });
 

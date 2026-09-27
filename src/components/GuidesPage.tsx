@@ -122,7 +122,7 @@ export default function GuidesPage({ initialQuery }: { initialQuery: string }) {
       )}
 
       <p className="muted guide-note">
-        Results come only from DeedOwl’s own guides. Nothing is pulled from other websites or written by AI, and we don’t keep what you search for. Rules, fees and dates change: always confirm in the current official notice.
+        Results are passages from DeedOwl’s own guides, matched to your words. Nothing is pulled from other websites or generated when you search, and we don’t keep what you search for. Rules, fees and dates change: always confirm in the current official notice.
       </p>
     </main>
   );

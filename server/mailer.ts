@@ -16,6 +16,8 @@ export interface Mail {
   headers?: Record<string, string>;
   /** Bulk updates to the general list: Postmark's separate broadcast stream, or Resend's broadcast sender. */
   stream?: 'broadcast';
+  /** Sent by the server on its own (alerts, reports, list updates): waits behind email someone is waiting for. */
+  bulk?: boolean;
 }
 
 export interface Mailer {
@@ -30,9 +32,12 @@ export const consoleMailer: Mailer = {
 
 export class MailError extends Error {
   readonly retryable: boolean;
-  constructor(message: string, retryable: boolean) {
+  /** The service's daily or monthly sending allowance is used up: more sends fail until it resets. */
+  readonly quota: boolean;
+  constructor(message: string, retryable: boolean, quota = false) {
     super(message);
     this.retryable = retryable;
+    this.quota = quota;
   }
 }
 
@@ -123,19 +128,40 @@ export function resendMailer(opts: ResendOptions): Mailer {
   const doFetch = opts.fetch ?? fetch;
   const delay = opts.retryDelayMs ?? 1000;
   const gap = opts.minIntervalMs ?? 600;
-  let queue: Promise<unknown> = Promise.resolve();
+  // Requests run one after another, at least `gap` ms apart. Email someone is waiting for (sign-in links,
+  // confirmations, leads) goes ahead of bulk email, so a big list update never delays a sign-in link.
+  type Job = { fn: () => Promise<void>; done: (e?: unknown) => void };
+  const urgent: Job[] = [];
+  const bulk: Job[] = [];
+  let running = false;
   let lastAt = 0;
-  /** Runs requests one after another, at least `gap` ms apart. */
-  const spaced = <T>(fn: () => Promise<T>): Promise<T> => {
-    const run = queue.then(async () => {
-      const wait = lastAt + gap - Date.now();
-      if (wait > 0) await new Promise((r) => setTimeout(r, wait));
-      lastAt = Date.now();
-      return fn();
+  async function drain() {
+    if (running) return;
+    running = true;
+    try {
+      while (urgent.length || bulk.length) {
+        // Wait first, then choose: email that arrived during the wait can still go ahead of bulk email.
+        const wait = lastAt + gap - Date.now();
+        if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+        const job = urgent.shift() ?? bulk.shift();
+        if (!job) break;
+        lastAt = Date.now();
+        try {
+          await job.fn();
+          job.done();
+        } catch (e) {
+          job.done(e ?? new Error('send failed'));
+        }
+      }
+    } finally {
+      running = false;
+    }
+  }
+  const spaced = (fn: () => Promise<void>, isBulk: boolean): Promise<void> =>
+    new Promise((resolve, reject) => {
+      (isBulk ? bulk : urgent).push({ fn, done: (e) => (e ? reject(e) : resolve()) });
+      void drain();
     });
-    queue = run.catch(() => undefined);
-    return run;
-  };
   async function attempt(mail: Mail, idempotencyKey: string): Promise<void> {
     let res: Response;
     try {
@@ -164,7 +190,7 @@ export function resendMailer(opts: ResendOptions): Mailer {
     if (res.ok) return;
     const detail = `Resend HTTP ${res.status}${body.name ? `, ${body.name}` : ''}${body.message ? `: ${body.message}` : ''}`;
     const quota = /quota/i.test(body.name ?? '');
-    throw new MailError(detail, !quota && (res.status === 429 || res.status >= 500));
+    throw new MailError(detail, !quota && (res.status === 429 || res.status >= 500), quota);
   }
   return {
     send(mail) {
@@ -177,7 +203,7 @@ export function resendMailer(opts: ResendOptions): Mailer {
           await new Promise((r) => setTimeout(r, delay));
           await attempt(mail, key);
         }
-      });
+      }, !!mail.bulk || mail.stream === 'broadcast');
     },
   };
 }

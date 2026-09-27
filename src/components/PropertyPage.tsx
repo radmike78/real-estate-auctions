@@ -392,7 +392,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
         title={open ? <a className="title-link" href={baseHref}>{p.address}</a> : p.address}
         sub={
           <>
-            {p.zip ? `${p.city}, ${p.state} ${p.zip} · ${p.county} County` : `${p.county} County, ${p.state}`} · Parcel {p.apn}
+            {p.zip ? `${p.city}, ${p.state} ${p.zip} · ${p.county} County` : `${p.county} County, ${p.state}`} · <span className="nowrap">Parcel {p.apn}</span>
             {!open && (
               <span className="hero-meta">
                 <span>You’d buy: <strong>{s?.whatYouBuy ? 'what the court’s order sets (read it)' : playbook ? playbook.youGet.split(',')[0].replace(/\.$/, '') : s ? SALE_TYPE_LABEL[s.saleType] : 'nothing yet (not for sale)'}</strong></span>
@@ -419,7 +419,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             <div className="key"><dt>Minimum bid</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
             <div><dt>Est. market value</dt><dd>{notChecked(p.estimatedMarketValue, 'Your comps')}</dd></div>
             <div><dt>Liens likely {s ? 'surviving' : 'remaining'}</dt><dd className={money.likelySurviving ? 'neg' : ''}>{p.liensChecked === false ? <span className="muted">Not searched</span> : fmtMoney(money.likelySurviving)}</dd></div>
-            <div className="muted-stat"><dt>Rough spread, before costs</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : ''}>{notChecked(money.estimatedEquity, 'Needs your numbers')}</dd></div>
+            <div className="muted-stat"><dt>Spread before costs</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : ''}>{notChecked(money.estimatedEquity, 'Needs your numbers')}</dd></div>
           </dl>
         )}
       </PageHero>

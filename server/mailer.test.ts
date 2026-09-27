@@ -93,6 +93,29 @@ describe('Resend mailer', () => {
   });
 });
 
+describe('Resend mailer ordering', () => {
+  it('sends email someone is waiting for ahead of bulk email already queued', async () => {
+    const order: string[] = [];
+    const f = (async (_u: string, init: RequestInit) => {
+      order.push(JSON.parse(String(init.body)).subject);
+      return new Response('{"id":"x"}', { status: 200 });
+    }) as unknown as typeof fetch;
+    const m = resendMailer({ apiKey: 're_x', from: 'no-reply@fsf.example', minIntervalMs: 20, retryDelayMs: 0, fetch: f });
+    const jobs = [1, 2, 3].map((i) => m.send({ to: 'a@example.com', subject: `report ${i}`, text: 'x', bulk: true }));
+    await new Promise((r) => setTimeout(r, 5));
+    jobs.push(m.send({ to: 'b@example.com', subject: 'sign-in link', text: 'x' }));
+    await Promise.all(jobs);
+    expect(order).toEqual(['report 1', 'sign-in link', 'report 2', 'report 3']);
+  });
+
+  it('marks a used-up quota so callers can pause instead of failing everyone', async () => {
+    const { f } = fakeFetch([{ status: 429, body: { name: 'monthly_quota_exceeded', message: 'Quota' } }]);
+    const e = await resendMailer({ apiKey: 're_x', from: 'no-reply@fsf.example', minIntervalMs: 0, retryDelayMs: 0, fetch: f }).send(MAIL).catch((x) => x);
+    expect(e).toBeInstanceOf(MailError);
+    expect(e.quota).toBe(true);
+  });
+});
+
 describe('Postmark mailer', () => {
   it('sends a plain-text email with tracking off and header-safe fields', async () => {
     const { f, calls } = fakeFetch([{ status: 200, body: { ErrorCode: 0, Message: 'OK' } }]);

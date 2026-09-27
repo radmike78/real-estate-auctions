@@ -77,7 +77,7 @@ function SignUp() {
               </div>
               <label className="field">
                 <span>Your email</span>
-                <input type="email" autoComplete="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} aria-invalid={!!errors.email} />
+                <input type="email" autoComplete="email" placeholder="you@example.com" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} aria-invalid={!!errors.email} />
                 {errors.email && <span className="field-error">{errors.email}</span>}
               </label>
               <label className="check attest">

@@ -37,7 +37,7 @@ import { buildProsFeed, toPro, writeSignedJson } from './directory';
 import { PHOTO_MAX_BYTES, PhotoError, processPhoto } from './photos';
 import { isSiteAction, isSitePage } from '../src/lib/siteStats';
 import { visitorIp } from './cloudflare';
-import { alertsAddEmail, alertsConfirmEmail, broadcastEmail, alertsManageLinkEmail, alertsWelcomeEmail, searchDigestEmail, trackedChangesEmail, approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
+import { alertsAddEmail, alertsConfirmEmail, broadcastEmail, alertsManageLinkEmail, alertsWelcomeEmail, searchDigestEmail, trackedChangesEmail, approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, MailError, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
 import { ALERT_LIMITS, CONFIRM_TTL_MS, openAlerts, openBroadcasts, type Subscriber } from './alerts';
 import { SITE_INFO, TERMS_EFFECTIVE } from '../src/lib/siteInfo';
 import { parseSearchTarget, searchLabel } from '../src/lib/savedSearch';
@@ -57,6 +57,9 @@ export interface AppConfig {
   feedPublicKey: string | null;
   baseUrl: string; // public site URL used in emails
   mailer?: Mailer;
+  /** Most updates to the general list sent per day (0 = no limit). Keeps a free email plan's daily allowance
+   *  free for sign-in links and alerts; the rest of an update goes out the next day. */
+  broadcastDailyMax?: number;
   secureCookies?: boolean;
   trustProxy?: boolean;
   /** The domain is proxied through Cloudflare: take the visitor's address from CF-Connecting-IP on requests from Cloudflare. */
@@ -118,12 +121,16 @@ export function createApp(config: AppConfig) {
   // Sending never breaks a request: a failure is logged (without the message body, which can hold
   // sign-in links) and reported to the caller, which decides whether the visitor needs to know.
   async function deliver(mail: Mail): Promise<boolean> {
+    return (await deliverOutcome(mail)) === 'sent';
+  }
+  /** Like deliver, but says when the email service's sending allowance is used up. */
+  async function deliverOutcome(mail: Mail): Promise<'sent' | 'failed' | 'quota'> {
     try {
       await mailer.send(mail);
-      return true;
+      return 'sent';
     } catch (e) {
       console.error(`Email to ${maskEmail(mail.to)} ("${mail.subject}") was not sent: ${(e as Error).message}`);
-      return false;
+      return e instanceof MailError && e.quota ? 'quota' : 'failed';
     }
   }
   // Email a stranger can trigger by filling in a public form (confirmations, sign-in links, leads and
@@ -315,13 +322,13 @@ export function createApp(config: AppConfig) {
       for (const [subscriberId, items] of collectChanges(tracker, feed, now())) {
         const s = alerts.get(subscriberId);
         if (s?.status !== 'ACTIVE') continue;
-        if (await deliver(trackedChangesEmail(s.email, items, { ...alertLinks(s), live: `${base}/#/live` }))) sent++;
+        if (await deliver({ ...trackedChangesEmail(s.email, items, { ...alertLinks(s), live: `${base}/#/live` }), bulk: true })) sent++;
       }
       // Once a day: new listings matching each saved search.
       for (const [subscriberId, groups] of collectDigests(tracker, now())) {
         const s = alerts.get(subscriberId);
         if (s?.status !== 'ACTIVE') continue;
-        if (await deliver(searchDigestEmail(s.email, groups, { ...alertLinks(s), live: `${base}/#/live` }))) sent++;
+        if (await deliver({ ...searchDigestEmail(s.email, groups, { ...alertLinks(s), live: `${base}/#/live` }), bulk: true })) sent++;
       }
       return sent;
     } finally {
@@ -329,24 +336,48 @@ export function createApp(config: AppConfig) {
     }
   }
 
-  /** Sends queued updates to the general list, one recipient at a time; resumes after a restart. */
+  /** Sends queued updates to the general list, one recipient at a time; resumes after a restart. At most
+   *  `broadcastDailyMax` a day (leaving the rest of a free plan's allowance for sign-in links and alerts), and
+   *  it pauses when the email service's allowance runs out: the rest stay queued and go out on later runs. */
   let pumping = false;
+  const dailyMax = config.broadcastDailyMax ?? 0;
+  let broadcastDay = '';
+  let broadcastSentToday = 0;
+  let pausedUntil = 0;
   async function sendBroadcasts(): Promise<number> {
-    if (pumping) return 0;
+    if (pumping || Date.now() < pausedUntil) return 0;
     pumping = true;
     let n = 0;
     try {
-      for (let batch = broadcasts.queued(50); batch.length; batch = broadcasts.queued(50)) {
+      outer: for (let batch = broadcasts.queued(50); batch.length; batch = broadcasts.queued(50)) {
         for (const { broadcast: b, subscriberId } of batch) {
+          const day = pacificDay(now());
+          if (day !== broadcastDay) {
+            broadcastDay = day;
+            broadcastSentToday = broadcasts.sentOn(day);
+          }
+          if (dailyMax && broadcastSentToday >= dailyMax) {
+            console.log(`Email update: ${dailyMax} sent today (the daily limit); the rest go out tomorrow.`);
+            break outer;
+          }
           const s = alerts.get(subscriberId);
           // Unsubscribed or opted out since the send started: skip them.
           if (!s || s.status !== 'ACTIVE' || !s.listOptIn) {
             broadcasts.mark(b.id, subscriberId, 'SKIPPED', now().toISOString());
             continue;
           }
-          const ok = await deliver(broadcastEmail(s.email, b.subject, b.body, alertLinks(s), postalAddress));
-          broadcasts.mark(b.id, subscriberId, ok ? 'SENT' : 'FAILED', now().toISOString());
-          if (ok) n++;
+          const result = await deliverOutcome(broadcastEmail(s.email, b.subject, b.body, alertLinks(s), postalAddress));
+          if (result === 'quota') {
+            // Leave this recipient queued and try again in an hour (the hourly housekeeping resumes it).
+            pausedUntil = Date.now() + 55 * 60_000;
+            console.warn('Email update paused: the email service says the sending allowance is used up. It resumes automatically.');
+            break outer;
+          }
+          broadcasts.mark(b.id, subscriberId, result === 'sent' ? 'SENT' : 'FAILED', now().toISOString());
+          if (result === 'sent') {
+            n++;
+            broadcastSentToday = broadcasts.bumpSent(day);
+          }
         }
       }
     } finally {
@@ -478,18 +509,24 @@ export function createApp(config: AppConfig) {
     return { from, to };
   }
 
+  /** Reports handed to the email service but not yet accepted, so a second run can't send them twice. */
+  const reportsInFlight = new Set<string>();
   function sendMonthlyReports(month: string): number {
     const { from, to } = monthRange(month);
     let sent = 0;
     for (const row of db.listByStatus('APPROVED')) {
-      if (db.reports.wasSent(row.id, month)) continue;
+      const key = `${month}|${row.id}`;
+      if (reportsInFlight.has(key) || db.reports.wasSent(row.id, month)) continue;
+      reportsInFlight.add(key);
       const s = summarize(db, row.id, from, to);
       const { start, end } = pacificDaysToUtc(from, to);
       const leads = db.leads.forPro(row.id, start, end).length;
       // Marked sent only once the email service accepts it; a failure is retried at the next hourly run.
-      void deliver({ to: row.profile.email, subject: `Your DeedOwl report for ${month}`, text: monthlyReportText(row.profile.name, month, s, leads, `${base}/#/advertiser`) }).then((ok) => {
-        if (ok) db.reports.markSent(row.id, month, now().toISOString());
-      });
+      void deliver({ to: row.profile.email, subject: `Your DeedOwl report for ${month}`, text: monthlyReportText(row.profile.name, month, s, leads, `${base}/#/advertiser`), bulk: true })
+        .then((ok) => {
+          if (ok) db.reports.markSent(row.id, month, now().toISOString());
+        })
+        .finally(() => reportsInFlight.delete(key));
       sent++;
     }
     return sent;
@@ -940,7 +977,7 @@ export function createApp(config: AppConfig) {
       const c = alerts.counts();
       const subs = db.raw.prepare(`SELECT kind, COUNT(*) AS n FROM subscriptions s JOIN subscribers u ON u.id = s.subscriber_id WHERE u.status = 'ACTIVE' GROUP BY kind`).all() as { kind: string; n: number }[];
       const count = (k: string) => subs.find((x) => x.kind === k)?.n ?? 0;
-      return send(res, 200, { counts: { ...c, trackedProperties: count('property'), savedSearches: count('search') }, postalAddressReady: postalReady, broadcasts: broadcasts.recent() });
+      return send(res, 200, { counts: { ...c, trackedProperties: count('property'), savedSearches: count('search') }, postalAddressReady: postalReady, dailyMax, broadcasts: broadcasts.recent() });
     }
     if (method === 'GET' && path === '/api/admin/email/list.csv') {
       const rows = broadcasts.listMembers();
@@ -995,16 +1032,22 @@ export function createApp(config: AppConfig) {
     if (method === 'GET' && action === 'metrics') return send(res, 200, summarize(db, app.id, ...(Object.values(dateRange(url)) as [string, string])));
     if (method === 'GET' && action === 'photo') {
       const p = db.photos.get(app.id, 'pending');
-      if (!p) throw new HttpError(404, 'No photo waiting');
+      // With ?sha=, only that exact upload: the admin sees the same photo they then approve.
+      const want = url.searchParams.get('sha');
+      if (!p || (want && want !== p.sha256)) throw new HttpError(404, 'No photo waiting');
       return sendImage(res, p.image, 'no-store');
     }
     if (method === 'POST' && (action === 'photo/approve' || action === 'photo/reject')) {
+      // The decision names the exact photo reviewed, so a replacement uploaded meanwhile is never approved unseen.
+      const sha = (await readJson(req) as { sha256?: unknown }).sha256;
+      if (typeof sha !== 'string' || !/^[0-9a-f]{64}$/.test(sha)) throw new HttpError(400, 'Say which photo you reviewed.');
+      const changed = 'The photo changed since you opened it. Review the new one.';
       if (action === 'photo/approve') {
-        if (!db.photos.approve(app.id)) throw new HttpError(409, 'No photo is waiting for review.');
+        if (!db.photos.approve(app.id, sha)) throw new HttpError(409, db.photos.meta(app.id).pending ? changed : 'No photo is waiting for review.');
         audit(app.id, 'PHOTO_APPROVED', db.photos.meta(app.id).live?.slice(0, 12) ?? null);
         publish();
       } else {
-        if (!db.photos.remove(app.id, 'pending')) throw new HttpError(409, 'No photo is waiting for review.');
+        if (!db.photos.rejectPending(app.id, sha)) throw new HttpError(409, db.photos.meta(app.id).pending ? changed : 'No photo is waiting for review.');
         audit(app.id, 'PHOTO_REJECTED', null);
       }
       return send(res, 200, { ok: true, application: adminView(app) });
