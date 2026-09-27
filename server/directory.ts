@@ -11,7 +11,7 @@ import type { ApplicationRow } from './db';
 // Republished hourly by the server; a short lifetime limits how long a replayed old copy could be used.
 export const DIRECTORY_TTL_HOURS = 24;
 
-export function toPro(row: ApplicationRow): Pro | null {
+export function toPro(row: ApplicationRow, photo: string | null = null): Pro | null {
   const v = row.verification;
   if (row.status !== 'APPROVED' || !v || !row.billing || !v.contentReviewed) return null;
   const p = row.profile;
@@ -36,12 +36,13 @@ export function toPro(row: ApplicationRow): Pro | null {
     phone: p.phone,
     email: p.email,
     website: p.website,
+    photo,
     isSample: false,
   };
 }
 
-export function buildProsFeed(rows: ApplicationRow[], now: Date): ProsFeed {
-  const pros = rows.map(toPro).filter((p): p is Pro => !!p && isListable(p, now));
+export function buildProsFeed(rows: ApplicationRow[], now: Date, photos: Map<string, string> = new Map()): ProsFeed {
+  const pros = rows.map((r) => toPro(r, photos.get(r.id) ?? null)).filter((p): p is Pro => !!p && isListable(p, now));
   return {
     version: 1,
     type: 'pros',

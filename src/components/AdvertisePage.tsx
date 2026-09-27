@@ -18,7 +18,7 @@ export default function AdvertisePage() {
 
       <section className="options-grid" aria-label="What you get">
         {[
-          ['Your own profile page', 'A dedicated page with your services, service areas, languages and a license-checked badge.'],
+          ['Your own profile page', 'A dedicated page with your photo or logo, services, service areas, languages and a license-checked badge.'],
           ['Leads sent to you', 'Buyers send contact requests straight to your inbox. Each one agrees to share their details with you only.'],
           ['Proof it works', 'A dashboard and monthly report of profile views, phone taps, email and website clicks, and leads.'],
           ['A license-checked badge', `We check every license on the official regulator or NMLS lookup and re-check it every ${REVERIFY_DAYS} days. It isn’t a recommendation.`],

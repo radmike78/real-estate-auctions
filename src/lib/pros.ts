@@ -265,6 +265,8 @@ export interface Pro {
   phone: string | null;
   email: string | null;
   website: string | null;
+  /** SHA-256 of the approved profile photo, served at /api/pro-photos/<hash>.webp. Absent or null: initials. */
+  photo?: string | null;
   isSample: boolean;
 }
 

@@ -21,6 +21,7 @@ interface App {
   emailConfirmedAt: string | null;
   duplicates: { id: string; status: string; field: 'license' | 'email' }[];
   reverifyDueInDays: number | null;
+  photo?: { live: string | null; pendingAt: string | null };
 }
 interface Audit {
   at: string;
@@ -31,6 +32,7 @@ interface Audit {
 
 const TABS: { key: string; label: string; match: (a: App) => boolean }[] = [
   { key: 'review', label: 'Needs review', match: (a) => a.status === 'PENDING_REVIEW' },
+  { key: 'photos', label: 'Photos to review', match: (a) => !!a.photo?.pendingAt },
   { key: 'due', label: 'Re-verification due', match: (a) => a.status === 'APPROVED' && (a.reverifyDueInDays ?? 0) <= 14 },
   { key: 'approved', label: 'Approved', match: (a) => a.status === 'APPROVED' },
   { key: 'unpaid', label: 'Needs a plan', match: (a) => a.status === 'APPROVED' && !a.listed },
@@ -248,6 +250,39 @@ function ReasonAction({ label, path, onDone, danger }: { label: string; path: st
   );
 }
 
+/** A profile photo waiting for review: approve it (it replaces the live one) or reject it. */
+function PhotoReview({ app, onDone }: { app: App; onDone: () => void }) {
+  const [err, setErr] = useState<string | null>(null);
+  if (!app.photo?.pendingAt) return null;
+  const decide = async (d: 'approve' | 'reject') => {
+    setErr(null);
+    try {
+      await api(`/api/admin/applications/${app.id}/photo/${d}`, { body: {}, auth: true });
+      onDone();
+    } catch (e) {
+      setErr((e as Error).message);
+    }
+  };
+  return (
+    <section className="verify-panel">
+      <h3>Photo waiting for review</h3>
+      <div className="photo-row">
+        <img className="avatar photo big" src={`/api/admin/applications/${app.id}/photo?v=${encodeURIComponent(app.photo.pendingAt)}`} alt={`Photo uploaded by ${app.profile.name}`} width={84} height={84} />
+        <ul className="small plain-list">
+          <li>A clear headshot of this person, or their company's logo.</li>
+          <li>No text, prices, claims, other people or other companies' logos.</li>
+          <li>Uploaded {fmtDateTime(app.photo.pendingAt)}.{app.photo.live ? ' Approving replaces their current photo.' : ''}</li>
+        </ul>
+      </div>
+      {err && <div className="caution small" role="alert">{err}</div>}
+      <div className="row">
+        <button className="btn" onClick={() => decide('approve')}>Approve photo</button>
+        <button className="btn btn-secondary" onClick={() => decide('reject')}>Reject</button>
+      </div>
+    </section>
+  );
+}
+
 function Detail({ id, onChange }: { id: string; onChange: () => void }) {
   const [data, setData] = useState<{ application: App; audit: Audit[] } | null>(null);
   const load = useCallback(() => {
@@ -294,6 +329,7 @@ function Detail({ id, onChange }: { id: string; onChange: () => void }) {
       </dl>
       <p className="small">{p.bio}</p>
 
+      <PhotoReview app={a} onDone={refresh} />
       {a.status === 'EMAIL_UNCONFIRMED' && <p className="notice small">Waiting for the applicant to confirm their email. Approval is disabled until then.</p>}
       {['PENDING_REVIEW', 'APPROVED', 'SUSPENDED'].includes(a.status) && <VerifyForm key={a.status + (a.verification?.verifiedAt ?? '')} app={a} onSaved={refresh} />}
       {['PENDING_REVIEW', 'APPROVED', 'SUSPENDED'].includes(a.status) && <BillingForm app={a} onSaved={refresh} />}
@@ -389,6 +425,7 @@ export default function AdminPage() {
                 <strong>{a.profile.name}</strong>
                 <span className="small muted">{CATEGORIES[a.profile.category].label} · {a.profile.licenseId} · {fmtDate(a.createdAt)}</span>
                 {a.duplicates.length > 0 && <span className="small neg">⚠ duplicate license/email</span>}
+                {a.photo?.pendingAt && <span className="badge tone-wait">photo to review</span>}
                 {a.reverifyDueInDays !== null && a.reverifyDueInDays <= 14 && <span className="small warn">Re-verify {a.reverifyDueInDays < 0 ? 'overdue' : `in ${a.reverifyDueInDays}d`}</span>}
               </button>
             </li>

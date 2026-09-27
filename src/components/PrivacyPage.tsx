@@ -51,6 +51,10 @@ const SECTIONS: DrillSection[] = [
           short bio. We also keep the result of your license check, your email confirmation, your listing status, and your billing status (paid-through
           date and the customer and subscription IDs from our payment processor). We never see or store card numbers.
         </p>
+        <p>
+          If you add a profile photo, we keep a resized copy with its hidden data (such as location) removed. We never keep the original file.
+          It appears on your profile only after we approve it, and you can remove it at any time.
+        </p>
         <h3>When you visit</h3>
         <ul>
           <li>
@@ -107,7 +111,7 @@ const SECTIONS: DrillSection[] = [
             advertisers. Stripe receives the advertiser's name and email to set up billing. Providers may use the information only to provide
             their service to us.
           </li>
-          <li><strong>The public</strong>: an approved advertiser's profile (business contact details, license number, services and bio) is shown on the site.</li>
+          <li><strong>The public</strong>: an approved advertiser's profile (business contact details, license number, services, bio and approved photo) is shown on the site.</li>
           <li><strong>Legal and safety</strong>: when the law requires it, or to protect people or the site from fraud or harm.</li>
           <li><strong>A business transfer</strong>: if the site is sold or merged, the new owner would be bound by this policy.</li>
         </ul>

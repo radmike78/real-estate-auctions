@@ -5,6 +5,7 @@ import { loadVerifiedPros, type ProsFeedResult } from '../feed/prosFeed';
 import { CATEGORIES, CREDIT_PROFILES, LOAN_PRODUCTS, safeMailto, safeTel, searchPros, servicesFor, type Category, type Pro, type ProQuery } from '../lib/pros';
 import { track } from '../lib/track';
 import OwlNote from './OwlNote';
+import ProAvatar from './ProAvatar';
 
 /** Loads the signed directory; falls back to fictional samples only when no directory exists yet. */
 export function useDirectory(): { pros: Pro[]; usingSamples: boolean; error: string | null; loading: boolean } {
@@ -24,7 +25,6 @@ export function useDirectory(): { pros: Pro[]; usingSamples: boolean; error: str
 }
 
 export const fmtPhone = (e164: string) => e164.replace(/^\+1(\d{3})(\d{3})(\d{4})$/, '($1) $2-$3');
-const initials = (name: string) => name.split(/\s+/).filter((w) => /^[A-Za-z]/.test(w)).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
 
 export function ProCard({ p }: { p: Pro }) {
   const info = CATEGORIES[p.category];
@@ -37,7 +37,7 @@ export function ProCard({ p }: { p: Pro }) {
         {p.isSample && <span className="badge tone-info">Sample</span>}
       </div>
       <a className="pro-card-main" href={`#/pros/${p.id}`}>
-        <div className="avatar" aria-hidden>{initials(p.name)}</div>
+        <ProAvatar name={p.name} photo={p.photo} />
         <div>
           <div className="pro-kicker">{info.label}</div>
           <h3>{p.name}</h3>

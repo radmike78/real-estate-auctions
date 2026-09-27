@@ -15,6 +15,7 @@ interface Me {
   reverifyDueInDays: number | null;
   listed: boolean;
   payments: { available: boolean; amountLabel: string | null; status: string | null; active: boolean; cancelAtPeriodEnd: boolean; hasCard: boolean };
+  photo: { live: string | null; pendingAt: string | null };
 }
 
 // Only ever send the browser to Stripe's own pages.
@@ -96,6 +97,70 @@ interface Lead {
 
 // Sign-in links are single use: share one request per token even if React runs the effect twice.
 const sessions = new Map<string, Promise<unknown>>();
+
+const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+/** Upload a headshot or logo. It goes live only after an admin approves it. */
+function PhotoCard({ me, onChange }: { me: Me; onChange: () => void }) {
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const photo = me.photo ?? { live: null, pendingAt: null };
+
+  async function upload(file: File | undefined) {
+    if (!file) return;
+    setMsg(null);
+    if (!PHOTO_TYPES.includes(file.type)) return setMsg({ ok: false, text: 'Use a JPG, PNG or WebP photo.' });
+    if (file.size > 5 * 1024 * 1024) return setMsg({ ok: false, text: 'That photo is over 5 MB. Choose a smaller one.' });
+    setBusy(true);
+    try {
+      const res = await fetch('/api/pro/photo', { method: 'POST', headers: { 'content-type': file.type, 'x-fsf-request': '1' }, body: file, credentials: 'same-origin' });
+      const body = (await res.json().catch(() => ({}))) as { message?: string; error?: string };
+      setMsg(res.ok ? { ok: true, text: body.message ?? 'Photo received.' } : { ok: false, text: body.error ?? `Upload failed (${res.status}).` });
+      if (res.ok) onChange();
+    } catch {
+      setMsg({ ok: false, text: "Couldn't reach the server. Check your connection and try again." });
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function remove(which: 'pending' | 'live') {
+    setBusy(true);
+    await api('/api/pro/photo/remove', { body: { which }, auth: true }).catch(() => {});
+    setBusy(false);
+    setMsg(null);
+    onChange();
+  }
+
+  return (
+    <section className="plan-card photo-card" aria-labelledby="photo-h">
+      <h2 id="photo-h">Profile photo</h2>
+      <div className="photo-row">
+        <div className="photo-slot">
+          {photo.live ? <img className="avatar photo big" src={`/api/pro/photo/live?v=${photo.live.slice(0, 12)}`} alt="Your live profile photo" width={84} height={84} /> : <div className="avatar big" aria-hidden>{me.profile.name.slice(0, 1).toUpperCase()}</div>}
+          <span className="small muted">{photo.live ? 'Live on your profile' : 'No photo yet: your initials show'}</span>
+          {photo.live && <button className="linkish" disabled={busy} onClick={() => remove('live')}>Remove</button>}
+        </div>
+        {photo.pendingAt && (
+          <div className="photo-slot">
+            <img className="avatar photo big" src={`/api/pro/photo/pending?v=${encodeURIComponent(photo.pendingAt)}`} alt="Your photo waiting for approval" width={84} height={84} />
+            <span className="small muted">Waiting for approval (sent {fmtDate(photo.pendingAt)})</span>
+            <button className="linkish" disabled={busy} onClick={() => remove('pending')}>Withdraw</button>
+          </div>
+        )}
+      </div>
+      <p className="small">
+        Use a clear headshot of you, or your company's logo. It must be your own or one you have the rights to, with no text, prices or claims.
+        We check every photo before it appears.
+      </p>
+      <label className="btn btn-secondary photo-upload">
+        {busy ? 'Uploading…' : photo.live || photo.pendingAt ? 'Upload a new photo' : 'Upload a photo'}
+        <input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={(e) => { void upload(e.target.files?.[0]); e.target.value = ''; }} />
+      </label>
+      <span className="small muted"> JPG, PNG or WebP, up to 5 MB. We crop it to a square.</span>
+      {msg && <p className={msg.ok ? 'notice' : 'caution'} role="status">{msg.text}</p>}
+    </section>
+  );
+}
 
 export function ranges(): Record<string, { label: string; from: string; to: string }> {
   const day = (offset: number) => new Date(Date.now() - offset * 86_400_000).toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
@@ -220,6 +285,7 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
       </div>
 
       <PlanCard me={me} />
+      <PhotoCard me={me} onChange={loadMe} />
 
       <div className="toolbar" role="group" aria-label="Date range">
         <div className="seg">
