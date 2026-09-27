@@ -38,7 +38,7 @@ export const BUSINESS_SOURCES: BusinessSource[] = [
     owner: 'Clark County',
     url: 'https://www.clarkcountynv.gov/government/departments/sheriff_civil/',
     what: 'Sales under a writ of execution, to pay a court judgment. Business property can be seized and sold this way (NRS Chapter 21).',
-    howToUse: 'Check the Sheriff’s notices. Payment is due at the sale, and property is sold as-is.',
+    howToUse: 'Check the Sheriff’s notices: each one sets the payment terms. Property is sold as-is.',
   },
   {
     name: 'IRS auctions',
@@ -57,9 +57,9 @@ export const BUSINESS_SOURCES: BusinessSource[] = [
   {
     name: 'Nevada Secretary of State business search',
     owner: 'State of Nevada',
-    url: 'https://esos.nv.gov/EntitySearch/OnlineEntitySearch',
+    url: 'https://orion.nv.gov/portal/public/',
     what: 'Whether a company is active, revoked or dissolved, and who its officers and registered agent are.',
-    howToUse: 'Research only: confirm who can legally sell. It isn’t a list of sales.',
+    howToUse: 'Research only: confirm who can legally sell. It isn’t a list of sales. The state moved business records to its new system in September 2026, so searching may need a free account.',
   },
   {
     name: 'Nevada Department of Taxation',

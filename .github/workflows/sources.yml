@@ -1,0 +1,43 @@
+# Weekly check of the official sources the site relies on (src/content/sources.ts):
+#   - broken or moved links;
+#   - watched pages (the Treasurer's auction notice and FAQ, the SID notice of sale, the Sheriff's sales, and
+#     others marked `watch`) that changed since they were last read.
+# When something needs attention it opens an issue titled "Official sources need a check" (or comments on the open
+# one), so a new auction notice or changed rule is never missed. Nothing is changed on the site automatically.
+name: Official sources
+
+on:
+  schedule:
+    - cron: '17 15 * * 1' # Mondays, 8:17 a.m. Pacific (daylight time)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Check every source
+        id: check
+        run: |
+          set +e
+          npm run -s content:check-sources -- --report report.md
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+      - name: Open or update the issue
+        if: steps.check.outputs.code == '2'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Official sources need a check"
+          { echo "The weekly source check found something to look at ($(date -u +%Y-%m-%d))."; echo; cat report.md; echo; echo "How to handle it: README > Content accuracy."; } > body.md
+          existing=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then gh issue comment "$existing" --body-file body.md; else gh issue create --title "$title" --body-file body.md; fi

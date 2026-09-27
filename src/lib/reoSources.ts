@@ -161,8 +161,8 @@ export const REO_SOURCES: ReoSource[] = [
     group: 'bank',
     url: 'https://www.usbank.com/splash/real-estate/bank-owned-residential-real-estate-for-sale.html',
     what: 'How U.S. Bank sells the homes it owns.',
-    howToBuy: 'Mostly listed by local agents on the MLS.',
-    clarkCounty: 'Found on the MLS through an agent.',
+    howToBuy: 'Sold through local agents on the MLS or online auctions. U.S. Bank takes no direct offers.',
+    clarkCounty: 'Found on the MLS through an agent, or in an online auction.',
     classes: ['residential'],
   },
   {

@@ -1,0 +1,298 @@
+[
+  {
+    "id": "home",
+    "title": "Home page",
+    "files": [
+      "src/components/HomePage.tsx"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "08286c5df989474b",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "search",
+    "title": "Property search",
+    "files": [
+      "src/components/SearchPage.tsx",
+      "src/components/ResultsList.tsx",
+      "src/components/FiltersPanel.tsx",
+      "src/lib/saleSearch.ts",
+      "src/lib/status.ts"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "76c87763a51d58ec",
+    "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
+  },
+  {
+    "id": "property",
+    "title": "Property pages",
+    "files": [
+      "src/components/PropertyPage.tsx",
+      "src/components/DueDiligenceFunnel.tsx",
+      "src/components/PhotosAndViews.tsx",
+      "src/lib/diligence.ts",
+      "src/lib/ddFunnel.ts",
+      "src/lib/rules.ts",
+      "src/lib/propertyViews.ts",
+      "src/lib/foreclosure.ts"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "44a2ee2552855cf8",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "checklists",
+    "title": "Buyer checklists (search, property and guide pages)",
+    "files": [
+      "src/components/BuyerChecklistBox.tsx",
+      "src/lib/buyerChecklists.ts"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "6126693426c2a7f6",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "live",
+    "title": "Live tax sales, IRS sales and SID certificates",
+    "files": [
+      "src/components/LivePage.tsx",
+      "src/components/IrsSales.tsx",
+      "src/components/SidCertificates.tsx"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "e0cd06b60bc40b86",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "preforeclosures",
+    "title": "Pre-foreclosure tracker and guide",
+    "files": [
+      "src/components/PreForeclosurePage.tsx"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "96daa92754c6da54",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "shortsales",
+    "title": "Short sales guide",
+    "files": [
+      "src/components/ShortSalesPage.tsx"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "b3a1b306815dc9eb",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "bankowned",
+    "title": "Bank-owned & government homes",
+    "files": [
+      "src/components/BankOwnedPage.tsx",
+      "src/lib/reoSources.ts"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "a6d3f0dbbfac2d08",
+    "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
+  },
+  {
+    "id": "businessassets",
+    "title": "Business assets & closures",
+    "files": [
+      "src/components/BusinessAssetsPage.tsx",
+      "src/lib/businessAssets.ts"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "3203c8adb7928bb8",
+    "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
+  },
+  {
+    "id": "playbook",
+    "title": "Nevada playbooks (Learn)",
+    "files": [
+      "src/components/PlaybookPage.tsx",
+      "src/components/TeamList.tsx",
+      "src/lib/playbooks.ts"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "f097d106277d4e53",
+    "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
+  },
+  {
+    "id": "guides",
+    "title": "Search the guides",
+    "files": [
+      "src/components/GuidesPage.tsx"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "4b6da3115a5ac811",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "practice",
+    "title": "Practice buying",
+    "files": [
+      "src/components/PracticePage.tsx",
+      "src/components/PracticeScenarioPage.tsx",
+      "src/practice/scenarios.ts"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "5c9a84638f20c9fb",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "calculator",
+    "title": "Maximum bid calculator and income value",
+    "files": [
+      "src/components/CalculatorPage.tsx",
+      "src/components/BidCalculator.tsx",
+      "src/components/IncomeValue.tsx",
+      "src/lib/bidCalc.ts",
+      "src/lib/incomeValue.ts"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "b72c848e1b0159b1",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "deals",
+    "title": "My deals",
+    "files": [
+      "src/components/DealsPage.tsx"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "02bd496b2e27c8da",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "alerts",
+    "title": "Email alerts",
+    "files": [
+      "src/components/AlertsPage.tsx",
+      "src/components/TrackButton.tsx",
+      "src/components/SearchAlertButton.tsx"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "e60cf94bf8d69805",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "agents",
+    "title": "Find a pro / license lookup",
+    "files": [
+      "src/components/AgentsPage.tsx",
+      "src/lib/licenseLookup.ts"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "80ee90d005a0c494",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "financing",
+    "title": "Financing",
+    "files": [
+      "src/components/FinancingPage.tsx"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "9a34daf85d6a47ba",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "pros",
+    "title": "Title, inspectors, attorneys & more (directory)",
+    "files": [
+      "src/components/ProsPage.tsx",
+      "src/components/ProDirectory.tsx",
+      "src/lib/pros.ts"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "4ddc14089c5eaaab",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "pro",
+    "title": "Advertiser profiles",
+    "files": [
+      "src/components/ProProfilePage.tsx",
+      "src/components/PaidAdNotice.tsx",
+      "src/components/LeadForm.tsx"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "b42e88b48b000a24",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "homeowner",
+    "title": "Homeowner help",
+    "files": [
+      "src/components/HomeownerHelpPage.tsx"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "3e191f23ff122020",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "about",
+    "title": "How it works",
+    "files": [
+      "src/components/AboutPage.tsx"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "63d33c0b715bfeed",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "advertise",
+    "title": "Advertise with us and the application",
+    "files": [
+      "src/components/AdvertisePage.tsx",
+      "src/components/AdvertiseApplyPage.tsx",
+      "src/lib/proApplication.ts"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "a39b1a1462de69c6",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "disclaimer",
+    "title": "How we help you invest (disclaimers)",
+    "files": [
+      "src/components/DisclaimerPage.tsx",
+      "src/lib/disclaimers.ts",
+      "src/components/Disclaimer.tsx",
+      "src/components/RoleNotice.tsx"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "56e80e0f98e3c8b4",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "privacy",
+    "title": "Privacy policy",
+    "files": [
+      "src/components/PrivacyPage.tsx"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "4e0156681429a4e2",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "terms",
+    "title": "Terms of use",
+    "files": [
+      "src/components/TermsPage.tsx"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "00c875e71059b17c",
+    "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "emails",
+    "title": "Emails the site sends",
+    "files": [
+      "server/mailer.ts"
+    ],
+    "reviewed": "2026-09-27",
+    "hash": "20373776f27eefaf",
+    "note": "Full content review (review round of 2026-09-27)."
+  }
+]
