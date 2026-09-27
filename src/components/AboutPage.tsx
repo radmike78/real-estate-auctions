@@ -13,7 +13,7 @@ const SALE_TYPES: [string, string, string][] = [
   ['HOA foreclosure', 'The owner’s title after a 60-day redemption period; the first mortgage may survive', 'HOA agent / trustee auction'],
   ['Judgment execution', "The debtor's interest", 'Sheriff sale, with redemption rights'],
   ['Federal tax seizure', "The taxpayer's interest", 'IRS public auction or sealed bid'],
-  ['REO / bank-owned', 'The property from the lender', 'Offer through a broker or online auction'],
+  ['REO / bank-owned', 'The property from the lender', 'Offer through the lender’s broker or its auction'],
 ];
 
 const SECTIONS: DrillSection[] = [
@@ -68,9 +68,9 @@ const SECTIONS: DrillSection[] = [
     content: () => (
       <>
         <p>
-          There is no single nationwide database. A production version combines county recorder filings (deeds of trust, notices of default
+          There is no single nationwide database. The site combines county recorder filings (deeds of trust, notices of default
           and sale, liens, releases), assessor parcel data, Treasurer delinquency and tax-auction lists, court and sheriff records, and
-          official auction platforms. Every fact shows its source agency, document number, recorded date, last-verified time and a
+          the official sellers’ own sale pages. Every fact shows its source agency, document number, recorded date, last-verified time and a
           confidence level. Hover a source tag to see them.
         </p>
         {SHOW_SAMPLE_DATA ? (

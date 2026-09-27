@@ -15,7 +15,7 @@ export interface SaleSearchOption {
 
 export const SALE_SEARCH: SaleSearchOption[] = [
   { key: 'all', label: 'All sales', hint: 'Every property heading to a forced sale.' },
-  { key: 'tax', label: 'Tax sales', hint: 'County auctions of properties with unpaid property taxes.', saleTypes: ['TAX_DEED', 'TAX_LIEN_CERTIFICATE'] },
+  { key: 'tax', label: 'Tax sales', hint: 'County auctions of properties with unpaid property taxes, plus special assessment (SID) lien certificates.', saleTypes: ['TAX_DEED', 'TAX_LIEN_CERTIFICATE'] },
   { key: 'foreclosure', label: 'Foreclosure auctions', hint: 'Trustee and court-ordered sales after a mortgage default.', saleTypes: ['TRUSTEE_SALE', 'JUDICIAL_FORECLOSURE'] },
   { key: 'pre', label: 'Pre-foreclosures', hint: 'Owners behind on payments. Not for sale yet; track them toward auction.', route: 'pre-foreclosures' },
   { key: 'short', label: 'Short sales', hint: 'Sold below the loan balance with lender approval, through an agent.', route: 'short-sales' },

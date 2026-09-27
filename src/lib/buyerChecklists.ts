@@ -61,12 +61,12 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     title: 'Buying at a Clark County tax sale',
     intro: 'The Treasurer auctions properties with 3+ years of unpaid property taxes, in person at the Government Center. You receive a quitclaim deed to the property.',
     items: [
-      { text: 'Registration form and $5,000 deposit, about a week before', detail: "Certified funds to the Treasurer by the registration deadline in the auction notice (in 2026, about a week before the auction). Capped at 280 bidders. No registration on auction day. The deposit is credited if you win and refunded about 2–3 weeks after the sale if you don't." },
+      { text: 'Registration form and $5,000 deposit, about a week before', detail: "Certified funds to the Treasurer by the registration deadline in the auction notice (in recent auctions, about a week before). Capped at 280 bidders. No registration on auction day. The deposit is credited if you win and refunded about 2–3 weeks after the sale if you don't." },
       { text: 'The exact name you want on the deed', detail: 'The deed is issued to the name on your Trustee Auction Registration Form. If you want an LLC or trust, ask the Treasurer before registering whether that name is accepted; changing it later means recording a separate deed.' },
       { text: 'Your bidder card on auction day', detail: 'Only the registered bidder may bid, by showing their bidder card. Arrive early; the auction notice has the start time and the day’s rules.' },
       { text: 'Certified funds for the full price by 1:00 p.m.', detail: "Cash, cashier's check, wire or money order (confirm accepted forms in the notice). Parcels re-auctioned at 2:00 p.m. must be paid by 4:30 p.m. If you win several parcels, you must pay for all of them or lose the deposit and be banned from future auctions." },
       { text: 'Research each parcel you want', detail: 'Match the parcel number on the Assessor map and look from the street. Don’t go onto the property; it’s private until the new deed is recorded. Parcels can be paid off (lined out) until close of business 3 business days before the sale.' },
-      { text: 'A title search, and a plan for title insurance', detail: 'Not all liens are wiped out. A federal tax lien can survive if the IRS wasn’t given 25 days’ notice, and even then the IRS can buy the property back within 120 days. Anyone claiming the land (usually the former owner) can sue to recover it for 2 years after the Treasurer’s deed is delivered (NRS 361.600), and you may not be able to get title insurance during that time.' },
+      { text: 'A title search, and a plan for title insurance', detail: 'Not all liens are wiped out. A federal tax lien can survive if the IRS wasn’t given 25 days’ notice (not needed for a lien filed 30 days or less before the sale), and even then the IRS can buy the property back within 120 days. Anyone claiming the land (usually the former owner) can sue to recover it for 2 years after the Treasurer’s deed is delivered (NRS 361.600), and you may not be able to get title insurance during that time.' },
       { text: 'Budget beyond the bid', detail: 'Recording fees, surviving liens, repairs, possibly quiet title (often quoted around $1,500–$5,000+ if uncontested; get an attorney’s quote), and legal help if someone lives there. The county does not help with occupants.' },
       CONFIRM,
     ],
@@ -91,7 +91,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     key: 'reo',
     forSale: true,
     title: 'Buying a bank-owned (REO) home',
-    intro: 'The lender owns the home and sells it through an agent or an online auction.',
+    intro: 'The lender owns the home and sells it through its listing broker or at an auction it chooses.',
     items: [
       { text: 'Mortgage pre-approval or proof of funds' },
       { text: 'A buyer’s agent', detail: 'REO sales go through listing brokers.' },
@@ -99,7 +99,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: "The lender's addendum, read carefully", detail: 'It usually overrides parts of the standard contract.' },
       { text: 'A home inspection within your contingency period' },
       { text: 'Title insurance and escrow for closing' },
-      { text: 'For online REO auctions: registration and buyer’s premium', detail: 'Check the platform terms before you bid.' },
+      { text: 'For lender-run auctions: registration and buyer’s premium', detail: 'Read the auction terms before you bid, and confirm on the recorded deed that the lender is the owner.' },
       { text: 'For HUD homes: a HUD-registered broker', detail: 'You can’t bid on a HUD home yourself. Owner-occupants, HUD-approved nonprofits and government agencies get the first bidding period (15 days for most homes, 5 for uninsured ones). Investors can bid after that.' },
     ],
     official: {

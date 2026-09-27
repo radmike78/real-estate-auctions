@@ -75,7 +75,7 @@ export const PLAYBOOKS: Playbook[] = [
     ],
     survives: {
       wipedOut: ['The delinquent property taxes and costs paid by your bid', 'Most private liens and mortgages (confirm with a title professional)'],
-      mayStay: ['Federal tax liens: a lien survives if the IRS wasn’t notified at least 25 days before the sale; even when notified, the IRS can buy the property back within 120 days (26 U.S.C. 7425)', 'Some government and special assessment liens. If a city, town or county sold an SID lien certificate on the parcel and tells the Treasurer by 3 business days before the sale, you must pay that certificate within 20 days or the tax sale is void (NRS 361.595)', 'Easements, covenants and HOA restrictions', 'A 2-year window, after the deed is delivered, for anyone claiming the land to sue to recover it (NRS 361.600)'],
+      mayStay: ['Federal tax liens: a lien survives if the IRS wasn’t notified at least 25 days before the sale (no notice is needed for a lien filed 30 days or less before the sale); even when notified, the IRS can buy the property back within 120 days (26 U.S.C. 7425)', 'Some government and special assessment liens. If a city, town or county sold an SID lien certificate on the parcel and tells the Treasurer by 3 business days before the sale, you must pay that certificate within 20 days or the tax sale is void (NRS 361.595)', 'Easements, covenants and HOA restrictions', 'A 2-year window, after the deed is delivered, for anyone claiming the land to sue to recover it (NRS 361.600)'],
     },
     mistakes: [
       { mistake: 'Bidding on a parcel you never looked up', prevent: 'Match the parcel number on the Assessor map, not just the address.' },
@@ -116,7 +116,7 @@ export const PLAYBOOKS: Playbook[] = [
       { label: 'Payment', value: "By 10:00 a.m. the next business day, in cash, cashier's check or money order" },
       { label: 'Interest', value: '1% a month simple interest on the certificate price, paid when the owner redeems' },
       { label: 'Redemption', value: '120 days, or 2 years if there is a home or significant improvement on the land' },
-      { label: 'Deed', value: 'After the redemption period: serve the owner notice in person (and post it on the property if the public can reach it). If they can’t be found in Nevada after a diligent search of Assessor, Recorder and Secretary of State records, publish it, and mail it to every address the search turns up. They have 60 more days to redeem. The District Attorney reviews the notice before a deed is issued. You must pay delinquent taxes and assessments first. The certificate expires 3 years after redemption ends if you never ask for a deed (NRS 271.595).' },
+      { label: 'Deed', value: 'After the redemption period: serve the owner notice in person (and post it on the property if the public can reach it). If they don’t live in Nevada, or can’t be found here after a diligent search of Assessor, Recorder and Secretary of State records, publish it, and mail it to every address the search turns up. They have 60 more days to redeem. The District Attorney reviews the notice before a deed is issued. You must pay delinquent taxes and assessments first. The certificate expires 3 years after redemption ends if you never ask for a deed (NRS 271.595).' },
       { label: 'Taxes', value: 'You file a W-9; interest over $10 is reported on a 1099-INT' },
     ],
     steps: [
@@ -167,7 +167,7 @@ export const PLAYBOOKS: Playbook[] = [
       { label: 'Redemption', value: 'None for the owner. If a federal tax lien was on the property, the U.S. can redeem within 120 days (26 U.S.C. § 7425)' },
       { label: 'Challenges', value: 'A lawsuit can void the sale if filed within 30 days after the trustee’s deed is recorded. Someone who didn’t get proper notice has 90 days from the sale date (NRS 107.080)' },
       { label: 'Postponements', value: 'Common. Confirm with the trustee the day before' },
-      { label: 'Where listed', value: 'Recorded notices; trustee and auction company sites; legal newspapers' },
+      { label: 'Where listed', value: 'Recorded notices of sale (County Recorder), the trustee named in the notice, and legal newspapers' },
     ],
     steps: [
       { title: 'Follow the notices', detail: 'Track the notice of default and notice of sale (the pre-foreclosure tracker shows where each one is). The notice of sale gives the date, place and trustee.' },
@@ -181,7 +181,7 @@ export const PLAYBOOKS: Playbook[] = [
     ],
     survives: {
       wipedOut: ['The loan being foreclosed', 'Liens recorded after it (junior liens), in most cases'],
-      mayStay: ['Any loan recorded before the one being foreclosed', 'Property taxes', 'Up to 9 months of HOA dues (super-priority)', 'IRS liens recorded before the loan being foreclosed, and junior IRS liens if the IRS didn’t get 25 days’ notice; even when wiped out, the U.S. can buy the property back within 120 days', 'Some city liens'],
+      mayStay: ['Any loan recorded before the one being foreclosed', 'Property taxes', 'Up to 9 months of HOA dues (super-priority)', 'IRS liens recorded before the loan being foreclosed, and junior IRS liens if the IRS didn’t get 25 days’ notice (unless the lien was filed 30 days or less before the sale); even when wiped out, the U.S. can buy the property back within 120 days', 'Some city liens'],
     },
     mistakes: [
       { mistake: 'Buying at a second mortgage’s sale', prevent: 'Confirm which lien is foreclosing; the first deed of trust survives a junior lien’s sale.' },
@@ -318,17 +318,17 @@ export const PLAYBOOKS: Playbook[] = [
     key: 'reo',
     title: 'Bank-owned (REO) and HUD homes',
     short: 'Bank-owned (REO)',
-    oneLine: 'Property a lender took back at a foreclosure auction, sold through agents or online auctions.',
+    oneLine: 'Property a lender took back at a foreclosure auction, sold through the lender’s broker or an auction it chooses.',
     youGet: 'The property by a normal purchase contract, usually with a lender addendum, a deed with limited promises from the lender, and title insurance.',
     forSale: true,
     glance: [
-      { label: 'How it’s sold', value: 'Listed by a broker, or by online auction' },
+      { label: 'How it’s sold', value: 'Listed by the lender’s broker, or at an auction the lender chooses' },
       { label: 'Financing', value: 'Allowed; get pre-approved first' },
       { label: 'Inspection', value: 'Usually allowed within your contingency period' },
       { label: 'Title', value: 'Normal title insurance and escrow' },
       { label: 'HUD homes', value: 'Bid through a HUD-registered broker; owner-occupants get a first bidding period' },
       { label: 'Fannie Mae & Freddie Mac', value: 'Owner-occupants get a 30-day “First Look” period before investors' },
-      { label: 'Online auctions', value: 'Check the buyer’s premium and whether the seller must approve the winning bid' },
+      { label: 'Lender-run auctions', value: 'Check the buyer’s premium, whether the lender must approve the winning bid, and that the lender is the owner of record' },
     ],
     steps: [
       { title: 'Get pre-approved', detail: 'Or have proof of funds ready for cash offers.' },

@@ -14,7 +14,7 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
     return (
       <div className="empty">
         <p>No properties match. Try a nearby ZIP code or remove some filters.</p>
-        <p className="muted">This prototype covers Clark County, NV only (Las Vegas, Henderson, North Las Vegas, Boulder City, Mesquite).</p>
+        <p className="muted">This site covers Clark County, NV only: Las Vegas, Henderson, North Las Vegas, Boulder City, Mesquite and the county’s unincorporated towns.</p>
       </div>
     );
   }

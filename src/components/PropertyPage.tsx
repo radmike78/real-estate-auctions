@@ -214,9 +214,11 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
         p.liensChecked === false ? (
           <>
             <div className="verify">
-              <strong>Liens haven’t been searched for this listing.</strong> The Treasurer’s list shows the minimum bid, not the liens. Not all
-              liens are cleared by a tax sale: a federal tax lien, special assessments and some government liens can stay. Before you bid, search
-              the Clark County Recorder by parcel number, or order a title search from a title company.
+              <strong>Liens haven’t been searched for this listing.</strong>{' '}
+              {s?.saleType === 'FEDERAL_TAX_SEIZURE'
+                ? 'The IRS notice doesn’t list other liens. You get only the taxpayer’s interest: mortgages and other liens recorded before the federal tax lien, and property taxes, stay with the property.'
+                : 'The Treasurer’s list shows the minimum bid, not the liens. Not all liens are cleared by a tax sale: a federal tax lien, special assessments and some government liens can stay.'}{' '}
+              Before you bid, search the Clark County Recorder by parcel number, or order a title search from a title company.
             </div>
             <dl className="mini money-box">
               <div><dt>Minimum bid</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
@@ -297,8 +299,8 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
           </ol>
           {saleBook && <p><a href={`#/playbooks/${saleBook.key}`}>Read the full Nevada playbook for this sale type →</a></p>}
           {commercialBook && <p><a href="#/playbooks/commercial">Buying commercial? Read the commercial property playbook →</a></p>}
-          <BuyerChecklistBox list={checklist} />
-          {commercial && <BuyerChecklistBox list={CHECKLISTS.commercial} />}
+          <BuyerChecklistBox list={checklist} playbook={s?.saleType === 'FEDERAL_TAX_SEIZURE' ? 'irs' : undefined} />
+          {commercial && <BuyerChecklistBox list={p.propertyType === 'Commercial Land' ? forLand(CHECKLISTS.commercial) : CHECKLISTS.commercial} />}
           <Disclaimer kind="sales" compact />
         </>
       ),
@@ -334,11 +336,12 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       summary: [p.propertyType, p.beds !== null && `${p.beds} bd / ${p.baths} ba`, p.sqft && `${p.sqft.toLocaleString()} sq ft`, p.occupancy].filter(Boolean).join(' · '),
       content: () => (
         <dl className="facts">
-          {/* Owners of homes that aren't for sale (pre-foreclosure, cancelled, lien-only) are not shown, to discourage solicitation. */}
-          {status.purchasable ? (
+          {/* Owners of homes that aren't for sale (pre-foreclosure, cancelled, lien-only) are not shown, to discourage solicitation.
+              Nor before a trustee or HOA foreclosure sale: until the sale, the owner is still a homeowner in foreclosure. */}
+          {status.purchasable && s?.saleType !== 'TRUSTEE_SALE' && s?.saleType !== 'HOA_FORECLOSURE' && s?.saleType !== 'JUDICIAL_FORECLOSURE' ? (
             p.ownerOfRecord && <div><dt>Owner of record</dt><dd>{p.ownerOfRecord}</dd></div>
           ) : (
-            <div><dt>Owner of record</dt><dd className="muted">Withheld: not for sale</dd></div>
+            <div><dt>Owner of record</dt><dd className="muted">{status.purchasable ? 'Withheld: the owner is a homeowner in foreclosure' : 'Withheld: not for sale'}</dd></div>
           )}
           {p.legalDescription && <div><dt>Legal description</dt><dd className="small">{p.legalDescription}</dd></div>}
           <div><dt>Type</dt><dd>{p.propertyType}</dd></div>

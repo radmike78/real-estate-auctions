@@ -259,8 +259,8 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
       maybeExtras();
       events.push(
         ev(int(250, 400), 'LIEN_RECORDED', `Notice of Delinquent Assessment Lien recorded by ${hoa}.`),
-        ev(int(120, 200), 'NOTICE_OF_DEFAULT', 'HOA Notice of Default and Election to Sell (NRS 116.31162).'),
-        ev(int(20, 50), 'NOTICE_OF_SALE', 'HOA Notice of Foreclosure Sale recorded and mailed.'),
+        ev(int(130, 200), 'NOTICE_OF_DEFAULT', 'HOA Notice of Default and Election to Sell (NRS 116.31162).'),
+        ev(int(20, 30), 'NOTICE_OF_SALE', 'HOA Notice of Foreclosure Sale recorded and mailed.'), // at least 90 days after the default notice
       );
       sale = baseSale({
         saleType: 'HOA_FORECLOSURE',
@@ -270,6 +270,7 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
         deposit: "Cashier's checks; confirm the amount with the HOA agent",
         finalPaymentDeadline: isoAt(saleDay, 17),
         deedType: 'Foreclosure deed (NRS 116, no warranty)',
+        redemptionPeriod: '60 days (NRS 116.31166)',
         eligibility: 'Open to the public',
       });
       status = 'IN_PERSON_AUCTION';

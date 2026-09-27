@@ -1,4 +1,4 @@
-import type { AcquisitionStatus, Property } from '../types';
+import type { AcquisitionStatus, Property, SaleType } from '../types';
 
 interface StatusInfo {
   label: string;
@@ -13,7 +13,7 @@ export const STATUS: Record<AcquisitionStatus, StatusInfo> = {
     label: 'Online bidding',
     tone: 'go',
     purchasable: true,
-    explanation: 'A sale is scheduled and bids are accepted online through the official auction platform.',
+    explanation: 'A sale is scheduled and bids are accepted online through the seller’s official auction site.',
   },
   IN_PERSON_AUCTION: {
     label: 'In-person auction',
@@ -43,7 +43,7 @@ export const STATUS: Record<AcquisitionStatus, StatusInfo> = {
     label: 'Lien certificate only',
     tone: 'info',
     purchasable: false,
-    explanation: 'Only the tax debt is sold. Buying it does not give you ownership of the property.',
+    explanation: 'Only an unpaid special assessment (SID) lien is sold. Buying it does not give you ownership of the property.',
   },
   PRE_FORECLOSURE_NOT_YET_PURCHASABLE: {
     label: 'Pre-foreclosure',
@@ -72,6 +72,25 @@ export const STATUS: Record<AcquisitionStatus, StatusInfo> = {
   },
 };
 
+/** What happens with the deed after you win, which differs by type of sale. */
+function deedStep(saleType: SaleType | undefined): string {
+  switch (saleType) {
+    case 'TAX_DEED':
+      return 'The Treasurer records the quitclaim deed (usually within 30 days) and mails it to you.';
+    case 'TRUSTEE_SALE':
+      return 'The trustee records the trustee’s deed within 30 days, or gives it to you within 20 days for you to record within 10 (NRS 107.080).';
+    case 'HOA_FORECLOSURE':
+      return 'You receive a certificate of sale. The deed comes after the 60-day redemption period, if no one redeems (NRS 116.31166).';
+    case 'FEDERAL_TAX_SEIZURE':
+      return 'You receive a certificate of sale. The IRS deed comes after the 180-day redemption period, if no one redeems (26 U.S.C. §§ 6337–6338).';
+    case 'SHERIFF_EXECUTION':
+    case 'JUDICIAL_FORECLOSURE':
+      return 'You receive a certificate of sale. The deed comes after the redemption period (up to 1 year), if no one redeems (NRS 21.190–21.210).';
+    default:
+      return 'Get the deed, and make sure it is recorded with the Clark County Recorder.';
+  }
+}
+
 // "What must the buyer do next?"
 export function purchaseSteps(p: Property): string[] {
   const s = p.sale;
@@ -83,7 +102,7 @@ export function purchaseSteps(p: Property): string[] {
         'Read the official terms of sale, including the deed type, buyer premium and what liens are not satisfied.',
         `Bid online between ${s?.startsAt ? fmtDateTime(s.startsAt) : 'TBD'} and ${s?.endsAt ? fmtDateTime(s.endsAt) : 'TBD'}.`,
         `If you win, pay the balance by ${s?.finalPaymentDeadline ? fmtDate(s.finalPaymentDeadline) : 'the posted deadline'}.`,
-        'Record the deed with the Clark County Recorder.',
+        deedStep(s?.saleType),
         'Order a title search, and a quiet-title action if needed, before you rely on title or resell.',
         'Take possession lawfully. If it is occupied, you may need an eviction (summary eviction or unlawful detainer).',
       ];
@@ -93,7 +112,7 @@ export function purchaseSteps(p: Property): string[] {
       return [
         `Confirm the sale is still on with ${s?.conductedBy ?? 'the conducting agency'} the day before. Sales are often postponed at the last minute.`,
         'Bring government ID and complete any required bidder affidavit.',
-        `Bring certified funds: ${s?.deposit ?? 'check the posted requirements'}. Trustee sales in Nevada usually require cashier's checks.`,
+        `Bring certified funds: ${s?.deposit ?? 'check the posted requirements'}.${s?.saleType === 'TRUSTEE_SALE' ? " Trustee sales in Nevada usually require cashier's checks." : ''}`,
         p.status === 'SEALED_BID'
           ? `Deliver your sealed bid to ${s?.location} before the deadline.`
           : `Attend the auction at ${s?.location} on ${s?.startsAt ? fmtDateTime(s.startsAt) : 'the posted date'}.`,
@@ -101,7 +120,7 @@ export function purchaseSteps(p: Property): string[] {
         `Pay any remaining balance by ${s?.finalPaymentDeadline ? fmtDate(s.finalPaymentDeadline) : 'the posted deadline'}.`,
         p.status === 'COURT_CONFIRMATION_REQUIRED'
           ? 'You receive a certificate of sale. Wait for the redemption period to end before the deed is issued.'
-          : 'Obtain the deed and record it with the Clark County Recorder.',
+          : deedStep(s?.saleType),
         'Order title work and resolve any surviving liens, then handle possession and any quiet-title work.',
       ];
     case 'BROKER_OFFER':
@@ -120,8 +139,8 @@ export function purchaseSteps(p: Property): string[] {
     case 'LIEN_CERTIFICATE_ONLY':
       return [
         'Understand that you are buying a debt, not the property.',
-        'Review the redemption period and the interest rate set by statute.',
-        'Plan for the cost of foreclosing on the certificate if the owner never redeems.',
+        'Review the redemption period (2 years with a building, 120 days without) and the 1% a month interest set by statute (NRS 271.595, 271.610).',
+        'If the owner never redeems, plan for serving notice (in person or by publication), paying the delinquent taxes and assessments, and asking for the deed before the certificate expires 3 years after redemption ends (NRS 271.595).',
       ];
     default:
       return [

@@ -62,7 +62,7 @@ const SECTIONS: DrillSection[] = [
           <li>
             <strong>Site statistics.</strong> The same way, we count daily visits, which sections of the site are viewed (for example "property
             pages" or "calculator", never the address you looked at or what you searched for), and how often tools are used or official sources
-            are opened. These are anonymous daily totals. We use them to improve the site and to show advertisers how many people use it.
+            are opened. These are anonymous daily totals. We use them to improve the site and to give listed professionals totals for their own listing.
           </li>
           <li>
             <strong>Security.</strong> To block abuse, our server keeps network addresses in memory for a short time to limit how many requests
@@ -87,7 +87,7 @@ const SECTIONS: DrillSection[] = [
         <li>To send your message to the one professional you chose, and to send you a receipt.</li>
         <li>To review, verify and publish advertiser listings, bill advertisers, and send them sign-in links, account notices and monthly reports.</li>
         <li>To show advertisers how their listing is doing, as totals only. They never see who viewed them.</li>
-        <li>To see which parts of the site are used, and to show advertisers how many people visit, as anonymous daily totals.</li>
+        <li>To see which parts of the site are used, as anonymous daily totals.</li>
         <li>To protect the site, prevent fraud and spam, and meet legal obligations.</li>
       </ul>
     ),
