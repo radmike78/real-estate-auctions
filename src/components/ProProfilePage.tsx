@@ -5,6 +5,7 @@ import { track } from '../lib/track';
 import LeadForm from './LeadForm';
 import Disclaimer from './Disclaimer';
 import { fmtPhone, useDirectory } from './ProDirectory';
+import PaidAdNotice from './PaidAdNotice';
 
 export default function ProProfilePage({ id }: { id: string }) {
   const { pros, loading } = useDirectory();
@@ -44,6 +45,7 @@ export default function ProProfilePage({ id }: { id: string }) {
         </div>
         <span className="ad-label">Advertisement{p.isSample ? ' · sample profile' : ''}</span>
       </section>
+      <PaidAdNotice />
 
       <div className="profile-grid">
         <div className="main-col">
