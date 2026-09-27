@@ -515,7 +515,7 @@ a.btn { display: inline-block; }
 .menu-btn span { display: block; width: 22px; height: 2px; margin: 5px 0; background: #e6eaf2; border-radius: 2px; }
 @media (max-width: 900px) {
   .menu-btn { display: block; }
-  .site-nav { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; align-items: stretch; padding: 10px 16px 16px; background: #070b14; border-bottom: 1px solid rgb(255 255 255 / 0.08); }
+  .site-nav { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; align-items: stretch; padding: 10px 16px 16px; background: #070b14; border-bottom: 1px solid rgb(255 255 255 / 0.08); max-height: calc(100dvh - 70px); overflow-y: auto; overscroll-behavior: contain; }
   .site-nav.open { display: flex; }
   .more-menu { position: static; box-shadow: none; border: 0; background: transparent; padding: 0 0 0 10px; }
 }
@@ -838,7 +838,7 @@ small { font-size: 0.95rem; }
 .calc-verdict strong { display: block; font-size: 1.1rem; }
 .calc-breakdown summary { cursor: pointer; font-weight: 700; color: var(--accent); }
 .calc-stress { width: 100%; }
-@media (max-width: 1000px) { .calc { grid-template-columns: 1fr; } .calc-results { position: static; } }
+@media (max-width: 1000px) { .calc { grid-template-columns: minmax(0, 1fr); } .calc-results { position: static; } }
 
 /* ================= Nevada playbooks ================= */
 .you-get { display: grid; gap: 6px; margin: 0 0 20px; padding: 20px 24px; border-radius: 18px; background: var(--info-bg); border-left: 6px solid #3b82f6; }
@@ -1208,3 +1208,11 @@ html { scroll-padding-top: 88px; }
   .glance div.key dd { font-size: 1.9rem; }
   .glance div.muted-stat dd { color: #000; }
 }
+.empty-page .owl-note { margin: 24px auto 8px; }
+.deals-empty { display: flex; flex-direction: column; align-items: center; }
+.deals-empty h2 { justify-content: center; }
+.empty-page > * { margin-left: auto; margin-right: auto; }
+.empty-page .owl-empty { margin-top: 24px; }
+/* Huge numbers wrap instead of pushing the calculator wider than a phone. */
+.calc > *, .calc-results, .calc-results > *, .calc-kv div, .calc-kv dt, .calc-kv dd { min-width: 0; }
+.calc-max strong, .calc-kv dd { overflow-wrap: anywhere; }

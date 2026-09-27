@@ -16,8 +16,9 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
   useEffect(() => setProgress(loadProgress(id)), [id]);
   // On phones the step buttons are one swipeable row: bring the current step into view.
   useEffect(() => {
-    const el = document.querySelector('.practice-stages a.active');
-    if (el && 'scrollIntoView' in el) el.scrollIntoView({ block: 'nearest', inline: 'center' });
+    const el = document.querySelector<HTMLElement>('.practice-stages a.active');
+    const row = el?.parentElement;
+    if (el && row) row.scrollLeft = el.offsetLeft - row.offsetLeft - (row.clientWidth - el.clientWidth) / 2;
   }, [id, stageKey]);
 
   if (!scenario) {

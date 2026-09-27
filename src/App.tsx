@@ -17,7 +17,6 @@ import ApplicationConfirmPage from './components/ApplicationConfirmPage';
 import FinancingPage from './components/FinancingPage';
 import ProsPage from './components/ProsPage';
 import ProProfilePage from './components/ProProfilePage';
-import OwlNote from './components/OwlNote';
 import AdvertiserPage from './components/AdvertiserPage';
 import DisclaimerPage from './components/DisclaimerPage';
 import PrivacyPage from './components/PrivacyPage';
@@ -141,11 +140,15 @@ function parseHash(): Route {
 export default function App() {
   const [route, setRoute] = useState<Route>(parseHash);
   const [path, setPath] = useState(hashPath);
+  // Counts real navigations. Search rewrites its own URL (replaceState) as filters change, so the route
+  // alone can look unchanged when someone clicks back to plain #/search; this makes that a fresh page.
+  const [nav, setNav] = useState(0);
 
   useEffect(() => {
     const onHash = () => {
       setRoute(parseHash());
       setPath(hashPath());
+      setNav((n) => n + 1);
       window.scrollTo(0, 0);
     };
     window.addEventListener('hashchange', onHash);
@@ -178,17 +181,18 @@ export default function App() {
 
   return (
     <div className={`app${route.page === 'home' ? ' app-home' : ''}`}>
-      <SiteHeader current={path} />
+      <SiteHeader current={path} nav={nav} />
       {route.page === 'home' && <HomePage />}
       {route.page === 'notFound' && (
         <main className="page empty-page">
-          <OwlNote big>Even owls miss one sometimes. The link may be old or mistyped.</OwlNote>
+          <img className="owl-empty" src="logo.svg" alt="" width={128} height={128} />
           <h1>We couldn’t find that page</h1>
+          <p>Even owls miss one sometimes. The link may be old or mistyped.</p>
           <p className="row"><a className="btn" href="#/">Go to the home page</a> <a className="btn btn-secondary" href="#/search">Find properties</a></p>
         </main>
       )}
       {route.page === 'search' && (
-        <SearchPage key={`${route.q}|${route.types}|${route.statuses}|${route.cls}`} initialLocation={route.q} initialSaleTypes={route.types} initialStatuses={route.statuses} initialClass={route.cls} />
+        <SearchPage key={`${nav}|${route.q}|${route.types}|${route.statuses}|${route.cls}`} initialLocation={route.q} initialSaleTypes={route.types} initialStatuses={route.statuses} initialClass={route.cls} />
       )}
       {route.page === 'property' && <PropertyPage key={route.id} id={route.id} section={route.section} />}
       {route.page === 'about' && <AboutPage section={route.section} />}

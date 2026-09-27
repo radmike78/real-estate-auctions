@@ -42,7 +42,9 @@ export default function PracticePage({ sale }: { sale?: string }) {
         <div className="practice-sales">
           {SALE_ORDER.map((s) => {
             const runs = PRACTICE_PROPERTIES.map((p) => buildScenario(s, p)).filter((x): x is NonNullable<typeof x> => !!x);
-            const done = runs.filter((r) => completion(r.id, r.stages.reduce((n, st) => n + st.tasks.length, 0)) === 1).length;
+            const pct = runs.map((r) => completion(r.id, r.stages.reduce((n, st) => n + st.tasks.length, 0)));
+            const done = pct.filter((x) => x === 1).length;
+            const started = pct.filter((x) => x > 0 && x < 1).length;
             return (
               <a key={s} href={`#/practice?sale=${s}`} className="practice-sale-tile">
                 <strong>{titleOf(s)}</strong>
@@ -50,6 +52,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
                 <span className="practice-card-foot">
                   <span className="badge tone-info">{runs.length} {runs.length === 1 ? 'property' : 'properties'}</span>
                   {done > 0 && <span className="badge tone-go">{done} completed</span>}
+                  {started > 0 && <span className="badge tone-wait">{started} in progress</span>}
                   <span aria-hidden>→</span>
                 </span>
               </a>

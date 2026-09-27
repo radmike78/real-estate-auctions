@@ -15,7 +15,7 @@ export interface SaleSearchOption {
 
 export const SALE_SEARCH: SaleSearchOption[] = [
   { key: 'all', label: 'All sales', hint: 'Every property heading to a forced sale.' },
-  { key: 'tax', label: 'Tax sales', hint: 'County auctions of properties with unpaid property taxes, plus special assessment (SID) lien certificates.', saleTypes: ['TAX_DEED', 'TAX_LIEN_CERTIFICATE'] },
+  { key: 'tax', label: 'Tax sales', hint: 'County auctions of properties with unpaid property taxes.', saleTypes: ['TAX_DEED'] },
   { key: 'foreclosure', label: 'Foreclosure auctions', hint: 'Trustee and court-ordered sales after a mortgage default.', saleTypes: ['TRUSTEE_SALE', 'JUDICIAL_FORECLOSURE'] },
   { key: 'pre', label: 'Pre-foreclosures', hint: 'Owners behind on payments. Not for sale yet; track them toward auction.', route: 'pre-foreclosures' },
   { key: 'short', label: 'Short sales', hint: 'Sold below the loan balance with lender approval, through an agent.', route: 'short-sales' },
@@ -30,6 +30,7 @@ export function saleSearchHref(key: string, location: string, cls: 'all' | 'resi
   const o = SALE_SEARCH.find((x) => x.key === key) ?? SALE_SEARCH[0];
   const params = new URLSearchParams();
   if (location.trim()) params.set('q', location.trim());
+  if (o.route === 'short-sales') return '#/short-sales'; // listed through agents: no location search here
   if (o.route) return `#/${o.route}${params.size ? `?${params}` : ''}`;
   if (o.saleTypes) params.set('type', o.saleTypes.join(','));
   if (o.statuses) params.set('status', o.statuses.join(','));
