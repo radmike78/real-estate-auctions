@@ -10,9 +10,16 @@ import type { SaleKey } from '../practice/types';
 
 export function PracticeRibbon() {
   return (
-    <div className="practice-ribbon" role="note">
-      <strong>Practice mode.</strong> Fictional properties for hands-on learning. Nothing here is for sale, and every name, address and number is made up.
-    </div>
+    <>
+      <div className="practice-ribbon" role="note">
+        <strong>Practice mode.</strong> Fictional properties for hands-on learning. Nothing here is for sale, and every name, address and number is made up.
+      </div>
+      <p className="practice-advice" role="note">
+        <strong>Get professional advice.</strong> You can do every step on your own, but we still recommend professional advice, especially if you’re new
+        to investing. It matters most for complex investments, financing and taxes: talk with a real estate attorney, a licensed lender and a tax
+        advisor before you commit to a real deal.
+      </p>
+    </>
   );
 }
 

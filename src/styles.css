@@ -1143,3 +1143,5 @@ html { scroll-padding-top: 88px; }
   .filters-wrap[open] > summary { margin-bottom: 10px; }
 }
 .drill-tile h2.drill-title { margin: 0; padding: 0; border: 0; font-size: 1.45rem; line-height: 1.25; }
+/* Professional-advice note on every practice page */
+.practice-advice { background: var(--info-bg); border-left: 4px solid var(--info); border-radius: 8px; padding: 12px 16px; margin: -6px 0 18px; }
