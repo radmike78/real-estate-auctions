@@ -1217,3 +1217,10 @@ html { scroll-padding-top: 88px; }
 .calc > *, .calc-results, .calc-results > *, .calc-kv div, .calc-kv dt, .calc-kv dd { min-width: 0; }
 .calc-max strong, .calc-kv dd { overflow-wrap: anywhere; }
 .promise.coverage + .promise { margin-top: 8px; }
+
+.avatar.photo { object-fit: cover; padding: 0; background: var(--surface-2); }
+.photo-row { display: flex; gap: 28px; flex-wrap: wrap; margin: 6px 0 12px; }
+.photo-slot { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.photo-upload { position: relative; overflow: hidden; display: inline-block; cursor: pointer; }
+.photo-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.photo-upload:focus-within { outline: 3px solid var(--accent); outline-offset: 2px; }

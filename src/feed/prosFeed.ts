@@ -40,6 +40,7 @@ export function validPro(p: Pro, now = new Date()): boolean {
     str(p.headline, 90) &&
     str(p.bio, 800) &&
     p.isSample === false &&
+    (p.photo === undefined || p.photo === null || (typeof p.photo === 'string' && /^[0-9a-f]{64}$/.test(p.photo))) &&
     (p.phone === null || !!safeTel(p.phone)) &&
     (p.email === null || !!safeMailto(p.email)) &&
     (p.website === null || !!safeWebsite(p.website)) &&

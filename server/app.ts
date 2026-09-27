@@ -15,9 +15,12 @@
 //   POST /api/alerts/unsubscribe?t=         stop all email and delete the address (also one-click from mail apps)
 // Advertiser (fsf_pro cookie; writes need x-fsf-request: 1 and same origin)
 //   GET  /api/pro/me | /api/pro/metrics | /api/pro/leads | /api/pro/leads.csv ; POST /api/pro/logout
+//   POST /api/pro/photo (raw image body) | /api/pro/photo/remove ; GET /api/pro/photo/(pending|live)
+// Public: GET /api/pro-photos/<sha256>.webp   approved profile photos only, by the hash in the signed directory
 // Admin (fsf_admin cookie; writes need x-fsf-request: 1 and same origin)
 //   POST /api/admin/login | /logout ; GET /api/admin/me | /api/admin/applications[/:id[/metrics]]
 //   POST /api/admin/applications/:id/(approve|billing|reject|suspend) ; POST /api/admin/publish | /api/admin/reports
+//   GET  /api/admin/applications/:id/photo (pending photo) ; POST /api/admin/applications/:id/photo/(approve|reject)
 //   GET  /api/admin/email | /api/admin/email/list.csv ; POST /api/admin/email/test | /api/admin/email/send   (general email list)
 
 import { randomBytes } from 'node:crypto';
@@ -31,6 +34,7 @@ import { CATEGORIES, isListable, REVERIFY_DAYS } from '../src/lib/pros';
 import { clientKey, newToken, parseCookies, RateLimiter, SESSION_IDLE_MS, SESSION_MAX_MS, safeEqualStrings, sessionCookie, sha256, verifyPasswordAsync } from './auth';
 import { METRIC_KINDS, openDb, type ApplicationRow, type Db, type MetricKind } from './db';
 import { buildProsFeed, toPro, writeSignedJson } from './directory';
+import { PHOTO_MAX_BYTES, PhotoError, processPhoto } from './photos';
 import { isSiteAction, isSitePage } from '../src/lib/siteStats';
 import { visitorIp } from './cloudflare';
 import { alertsAddEmail, alertsConfirmEmail, broadcastEmail, alertsManageLinkEmail, alertsWelcomeEmail, searchDigestEmail, trackedChangesEmail, approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
@@ -158,6 +162,8 @@ export function createApp(config: AppConfig) {
     proSession: new RateLimiter(20, 15 * 60_000),
     events: new RateLimiter(60, 60_000),
     checkout: new RateLimiter(10, 3_600_000),
+    // Each upload is decoded and re-encoded (CPU): keep it to a handful per advertiser per hour.
+    proPhoto: new RateLimiter(10, 3_600_000),
     eventsIp: new RateLimiter(120, 60_000),
     alertsIp: new RateLimiter(10, 3_600_000),
     alertsEmail: new RateLimiter(3, 3_600_000),
@@ -267,7 +273,7 @@ export function createApp(config: AppConfig) {
   function publish(): number {
     listedCache.at = 0;
     if (!config.directorySigningKey) return 0;
-    const feed = buildProsFeed(db.listByStatus('APPROVED'), now());
+    const feed = buildProsFeed(db.listByStatus('APPROVED'), now(), db.photos.liveMap());
     writeSignedJson(config.dataDir, 'pros.json', feed, config.directorySigningKey);
     return feed.pros.length;
   }
@@ -378,7 +384,21 @@ export function createApp(config: AppConfig) {
       reverifyDueInDays: age === null ? null : REVERIFY_DAYS - age,
       listed: !!pro && isListable(pro, now()),
       payments: paymentsView(a),
+      photo: db.photos.meta(a.id),
     };
+  }
+
+  /** Sends a stored (already re-encoded) photo. */
+  function sendImage(res: ServerResponse, image: Buffer, cache: string) {
+    res.writeHead(200, {
+      'content-type': 'image/webp',
+      'content-length': String(image.length),
+      'cache-control': cache,
+      'x-content-type-options': 'nosniff',
+      'content-security-policy': "default-src 'none'",
+      'cross-origin-resource-policy': 'same-origin',
+    });
+    res.end(image);
   }
 
   /** What an advertiser (or admin) sees about online payment for a listing. */
@@ -711,6 +731,14 @@ export function createApp(config: AppConfig) {
       return send(res, 202, { ok: true, message: `Your message was sent to ${row.profile.name}. They will contact you directly.` });
     }
 
+    // Approved profile photos, by the hash the signed directory lists. Pending photos are never public.
+    const photoPath = method === 'GET' ? path.match(/^\/api\/pro-photos\/([0-9a-f]{64})\.webp$/) : null;
+    if (photoPath) {
+      const image = db.photos.liveBySha(photoPath[1]);
+      if (!image) throw new HttpError(404, 'Not found');
+      return sendImage(res, image, 'public, max-age=31536000, immutable');
+    }
+
     if (method === 'POST' && path === '/api/pro/login') {
       assertSameOrigin(req);
       const body = await readJson(req);
@@ -763,7 +791,46 @@ export function createApp(config: AppConfig) {
           reverifyDueInDays: row.verification ? REVERIFY_DAYS - (daysSince(row.verification.verifiedAt) ?? 0) : null,
           listed: !!pro && isListable(pro, now()),
           payments: paymentsView(row),
+          photo: db.photos.meta(row.id),
         });
+      }
+      const ownPhoto = method === 'GET' ? path.match(/^\/api\/pro\/photo\/(pending|live)$/) : null;
+      if (ownPhoto) {
+        const p = db.photos.get(row.id, ownPhoto[1] as 'pending' | 'live');
+        if (!p) throw new HttpError(404, 'No photo');
+        return sendImage(res, p.image, 'no-store');
+      }
+      if (method === 'POST' && path === '/api/pro/photo') {
+        assertAppRequest(req);
+        if (!/^image\/(jpeg|png|webp)$/i.test(req.headers['content-type'] ?? '')) throw new HttpError(415, 'Use a JPG, PNG or WebP photo.');
+        if (!limiters.proPhoto.hit(row.id)) throw new HttpError(429, 'Too many uploads. Try again in an hour.');
+        let raw: Buffer;
+        try {
+          raw = await readRaw(req, PHOTO_MAX_BYTES);
+        } catch (e) {
+          if (e instanceof HttpError && e.status === 413) throw new HttpError(413, 'That photo is over 5 MB. Choose a smaller one.');
+          throw e;
+        }
+        let photo: Awaited<ReturnType<typeof processPhoto>>;
+        try {
+          photo = await processPhoto(raw);
+        } catch (e) {
+          if (e instanceof PhotoError) throw new HttpError(422, e.message);
+          throw e;
+        }
+        db.photos.setPending(row.id, photo.sha256, photo.image, now().toISOString());
+        db.audit({ at: now().toISOString(), actor: 'advertiser', applicationId: row.id, action: 'PHOTO_UPLOADED', detail: photo.sha256.slice(0, 12) });
+        return send(res, 200, { ok: true, message: 'Photo received. It will appear on your profile once we approve it, usually within a business day.' });
+      }
+      if (method === 'POST' && path === '/api/pro/photo/remove') {
+        assertAppRequest(req);
+        const which = (await readJson(req)).which;
+        if (which !== 'pending' && which !== 'live') throw new HttpError(400, 'Say which photo to remove.');
+        if (db.photos.remove(row.id, which)) {
+          db.audit({ at: now().toISOString(), actor: 'advertiser', applicationId: row.id, action: which === 'live' ? 'PHOTO_REMOVED' : 'PHOTO_WITHDRAWN', detail: null });
+          if (which === 'live') publish();
+        }
+        return send(res, 200, { ok: true });
       }
       if (method === 'POST' && path === '/api/pro/checkout') {
         const stripe = config.stripe;
@@ -919,13 +986,29 @@ export function createApp(config: AppConfig) {
       return send(res, 200, { ok: true, sent: n });
     }
 
-    const m = path.match(/^\/api\/admin\/applications\/([^/]+)(?:\/(approve|billing|reject|suspend|metrics))?$/);
+    const m = path.match(/^\/api\/admin\/applications\/([^/]+)(?:\/(approve|billing|reject|suspend|metrics|photo|photo\/approve|photo\/reject))?$/);
     if (!m) throw new HttpError(404, 'Not found');
     const app = loadApp(m[1]);
     const action = m[2];
 
     if (method === 'GET' && !action) return send(res, 200, { application: adminView(app), audit: db.auditFor(app.id) });
     if (method === 'GET' && action === 'metrics') return send(res, 200, summarize(db, app.id, ...(Object.values(dateRange(url)) as [string, string])));
+    if (method === 'GET' && action === 'photo') {
+      const p = db.photos.get(app.id, 'pending');
+      if (!p) throw new HttpError(404, 'No photo waiting');
+      return sendImage(res, p.image, 'no-store');
+    }
+    if (method === 'POST' && (action === 'photo/approve' || action === 'photo/reject')) {
+      if (action === 'photo/approve') {
+        if (!db.photos.approve(app.id)) throw new HttpError(409, 'No photo is waiting for review.');
+        audit(app.id, 'PHOTO_APPROVED', db.photos.meta(app.id).live?.slice(0, 12) ?? null);
+        publish();
+      } else {
+        if (!db.photos.remove(app.id, 'pending')) throw new HttpError(409, 'No photo is waiting for review.');
+        audit(app.id, 'PHOTO_REJECTED', null);
+      }
+      return send(res, 200, { ok: true, application: adminView(app) });
+    }
     if (method !== 'POST' || !action || action === 'metrics') throw new HttpError(405, 'Method not allowed');
     const body = await readJson(req);
 

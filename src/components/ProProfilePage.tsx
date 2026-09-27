@@ -6,6 +6,7 @@ import LeadForm from './LeadForm';
 import Disclaimer from './Disclaimer';
 import { fmtPhone, useDirectory } from './ProDirectory';
 import PaidAdNotice from './PaidAdNotice';
+import ProAvatar from './ProAvatar';
 
 export default function ProProfilePage({ id }: { id: string }) {
   const { pros, loading } = useDirectory();
@@ -32,7 +33,7 @@ export default function ProProfilePage({ id }: { id: string }) {
   return (
     <main className="page profile">
       <section className="profile-hero">
-        <div className="avatar big" aria-hidden>{p.name.split(/\s+/).filter((w) => /^[A-Za-z]/.test(w)).slice(0, 2).map((w) => w[0]).join('')}</div>
+        <ProAvatar name={p.name} photo={p.photo} big />
         <div>
           <div className="pro-kicker">{info.label} · {p.company}</div>
           <h1>{p.name}</h1>

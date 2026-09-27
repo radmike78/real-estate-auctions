@@ -148,6 +148,17 @@ export function openDb(path: string) {
       sent_at TEXT NOT NULL,
       PRIMARY KEY (pro_id, month)
     );
+    -- Profile photos, already cleaned and re-encoded (server/photos.ts). 'pending' waits for an admin;
+    -- 'live' is the approved one shown on the site. At most one of each per advertiser.
+    CREATE TABLE IF NOT EXISTS pro_photos (
+      pro_id TEXT NOT NULL,
+      state TEXT NOT NULL CHECK (state IN ('pending', 'live')),
+      sha256 TEXT NOT NULL,
+      image BLOB NOT NULL,
+      uploaded_at TEXT NOT NULL,
+      PRIMARY KEY (pro_id, state)
+    );
+    CREATE INDEX IF NOT EXISTS pro_photos_sha ON pro_photos (sha256);
     -- Online payments: one Stripe customer per advertiser. No card data is ever stored here.
     CREATE TABLE IF NOT EXISTS stripe_accounts (
       pro_id TEXT PRIMARY KEY,
@@ -352,6 +363,51 @@ export function openDb(path: string) {
       },
       purgeOlderThan(iso: string) {
         db.prepare('DELETE FROM leads WHERE created_at < ?').run(iso);
+      },
+    },
+    photos: {
+      setPending(proId: string, sha256: string, image: Buffer, at: string) {
+        db.prepare("INSERT OR REPLACE INTO pro_photos (pro_id, state, sha256, image, uploaded_at) VALUES (?, 'pending', ?, ?, ?)").run(proId, sha256, image, at);
+      },
+      get(proId: string, state: 'pending' | 'live') {
+        const r = db.prepare('SELECT sha256, image, uploaded_at AS uploadedAt FROM pro_photos WHERE pro_id = ? AND state = ?').get(proId, state) as
+          | { sha256: string; image: Uint8Array; uploadedAt: string }
+          | undefined;
+        return r ? { ...r, image: Buffer.from(r.image) } : undefined;
+      },
+      /** Replaces the live photo with the pending one. Returns false if nothing was pending. */
+      approve(proId: string): boolean {
+        if (!api.photos.get(proId, 'pending')) return false;
+        db.exec('BEGIN');
+        try {
+          db.prepare("DELETE FROM pro_photos WHERE pro_id = ? AND state = 'live'").run(proId);
+          db.prepare("UPDATE pro_photos SET state = 'live' WHERE pro_id = ? AND state = 'pending'").run(proId);
+          db.exec('COMMIT');
+        } catch (e) {
+          db.exec('ROLLBACK');
+          throw e;
+        }
+        return true;
+      },
+      remove(proId: string, state: 'pending' | 'live') {
+        return db.prepare('DELETE FROM pro_photos WHERE pro_id = ? AND state = ?').run(proId, state).changes > 0;
+      },
+      /** An approved photo by its hash (the only way photos are served publicly). */
+      liveBySha(sha256: string) {
+        const r = db.prepare("SELECT image FROM pro_photos WHERE sha256 = ? AND state = 'live' LIMIT 1").get(sha256) as { image: Uint8Array } | undefined;
+        return r ? Buffer.from(r.image) : undefined;
+      },
+      liveMap(): Map<string, string> {
+        const rows = db.prepare("SELECT pro_id AS proId, sha256 FROM pro_photos WHERE state = 'live'").all() as { proId: string; sha256: string }[];
+        return new Map(rows.map((r) => [r.proId, r.sha256]));
+      },
+      /** Hash and upload time of each state, without the image bytes. */
+      meta(proId: string): { live: string | null; pendingAt: string | null } {
+        const rows = db.prepare('SELECT state, sha256, uploaded_at AS uploadedAt FROM pro_photos WHERE pro_id = ?').all(proId) as { state: string; sha256: string; uploadedAt: string }[];
+        return { live: rows.find((r) => r.state === 'live')?.sha256 ?? null, pendingAt: rows.find((r) => r.state === 'pending')?.uploadedAt ?? null };
+      },
+      pendingIds(): Set<string> {
+        return new Set((db.prepare("SELECT pro_id AS proId FROM pro_photos WHERE state = 'pending'").all() as { proId: string }[]).map((r) => r.proId));
       },
     },
     reports: {
