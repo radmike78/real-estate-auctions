@@ -68,6 +68,7 @@ export default function HomePage() {
         <nav className="browse-tools" aria-label="Tools">
           <a href="#/bank-owned">Bank-owned &amp; government homes →</a>
           <a href="#/business-assets">Business assets &amp; closures →</a>
+          <a href="#/practice">Practice buying, hands-on →</a>
           <a href="#/playbooks">Nevada playbooks: how each sale works →</a>
           <a href="#/calculator">Maximum bid calculator →</a>
           <a href="#/deals">My deals →</a>

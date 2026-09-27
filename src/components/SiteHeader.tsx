@@ -6,6 +6,7 @@ const PRIMARY = [
   ['#/agents', 'Find an agent'],
   ['#/financing', 'Financing'],
   ['#/pros', 'Title, insurance & repairs'],
+  ['#/practice', 'Practice'],
 ] as const;
 
 const MORE = [

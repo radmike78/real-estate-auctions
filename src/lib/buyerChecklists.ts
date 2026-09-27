@@ -247,13 +247,14 @@ export function checklistForFilters(saleTypes: SaleType[], statuses: Acquisition
 }
 
 // Some sale-type checklist items are about homes only: HOA super-priority liens (NRS 116 covers
-// residential communities), the federal 90-day tenant notice (PTFA covers dwellings), and HUD's
+// residential communities), the federal 90-day tenant notice (PTFA covers residential tenants, including
+// apartment buildings, but not stores, offices or other commercial tenants), and HUD's
 // owner-occupant rules. On a commercial property page, show commercial wording instead.
 const COMMERCIAL_WORDING: Record<string, Partial<ChecklistItem> | null> = {
   'A title search': { detail: 'Property taxes, special assessments and liens recorded before the one being foreclosed can survive. Check for IRS and other senior liens, and recorded leases.' },
   'An as-is repair budget and an occupancy plan': {
     text: 'An as-is repair budget and a plan for tenants',
-    detail: 'No interior inspection. The federal 90-day tenant notice covers homes only; a commercial lease signed after the foreclosed loan, or subordinated to it, can be wiped out unless there’s a non-disturbance agreement, and then the tenant can also leave. Have an attorney review each lease and how to take possession.',
+    detail: 'No interior inspection. The federal 90-day tenant notice protects residential tenants, including in apartment buildings, but not commercial tenants. A commercial lease signed after the foreclosed loan, or subordinated to it, can be wiped out unless there’s a non-disturbance agreement, and then the tenant can also leave. Have an attorney review each lease and how to take possession.',
   },
   'A plan if the home is occupied': { text: 'A plan for any tenants or occupants' },
   'For HUD homes: a HUD-registered broker': null, // HUD sells homes only
