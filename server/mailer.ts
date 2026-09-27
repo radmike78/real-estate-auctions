@@ -1,7 +1,8 @@
-// Outgoing email. Production sends through Postmark (postmarkMailer) when POSTMARK_SERVER_TOKEN and
-// MAIL_FROM are set; otherwise consoleMailer prints messages to the server log so every flow works
-// in development.
+// Outgoing email. Production sends through Resend (resendMailer, RESEND_API_KEY) or Postmark (postmarkMailer,
+// POSTMARK_SERVER_TOKEN), together with MAIL_FROM; otherwise consoleMailer prints messages to the server log so
+// every flow works in development.
 
+import { randomUUID } from 'node:crypto';
 import type { LeadRow } from './db';
 import type { Change, ListingSnapshot } from './tracker';
 import { labelOf } from './tracker';
@@ -13,7 +14,7 @@ export interface Mail {
   text: string;
   /** Extra headers, e.g. List-Unsubscribe on alert emails. */
   headers?: Record<string, string>;
-  /** Bulk updates to the general list go through Postmark's separate broadcast stream. */
+  /** Bulk updates to the general list: Postmark's separate broadcast stream, or Resend's broadcast sender. */
   stream?: 'broadcast';
 }
 
@@ -95,6 +96,88 @@ export function postmarkMailer(opts: PostmarkOptions): Mailer {
         await new Promise((r) => setTimeout(r, delay));
         await attempt(mail);
       }
+    },
+  };
+}
+
+export interface ResendOptions {
+  apiKey: string;
+  from: string; // must be on a domain verified in Resend
+  replyTo?: string;
+  /** Optional sender for updates to the general list, e.g. on a separate subdomain, so bulk mail can't hurt
+   *  delivery of sign-in links. Default: `from`. */
+  broadcastFrom?: string;
+  fetch?: typeof fetch; // for tests
+  retryDelayMs?: number;
+  /** Space between requests, to stay under Resend's per-second rate limit. Default 600 ms. */
+  minIntervalMs?: number;
+}
+
+const RESEND_URL = 'https://api.resend.com/emails';
+
+/** Sends through Resend's email API, one request at a time and spaced out to stay under its rate limit.
+ *  Retries once on rate limits, server errors and network failures, with the same idempotency key so a retry
+ *  can never send the message twice. A used-up daily or monthly quota is not retried. Open and click tracking
+ *  are Resend domain settings and are off unless you turn them on; leave them off (see README: Email). */
+export function resendMailer(opts: ResendOptions): Mailer {
+  const doFetch = opts.fetch ?? fetch;
+  const delay = opts.retryDelayMs ?? 1000;
+  const gap = opts.minIntervalMs ?? 600;
+  let queue: Promise<unknown> = Promise.resolve();
+  let lastAt = 0;
+  /** Runs requests one after another, at least `gap` ms apart. */
+  const spaced = <T>(fn: () => Promise<T>): Promise<T> => {
+    const run = queue.then(async () => {
+      const wait = lastAt + gap - Date.now();
+      if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+      lastAt = Date.now();
+      return fn();
+    });
+    queue = run.catch(() => undefined);
+    return run;
+  };
+  async function attempt(mail: Mail, idempotencyKey: string): Promise<void> {
+    let res: Response;
+    try {
+      res = await doFetch(RESEND_URL, {
+        method: 'POST',
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json', Authorization: `Bearer ${opts.apiKey}`, 'Idempotency-Key': idempotencyKey },
+        body: JSON.stringify({
+          from: mail.stream === 'broadcast' && opts.broadcastFrom ? opts.broadcastFrom : opts.from,
+          to: [oneLine(mail.to)],
+          subject: oneLine(mail.subject),
+          text: mail.text,
+          ...(opts.replyTo ? { reply_to: opts.replyTo } : {}),
+          ...(mail.headers ? { headers: Object.fromEntries(Object.entries(mail.headers).map(([k, v]) => [oneLine(k), oneLine(v)])) } : {}),
+        }),
+        signal: AbortSignal.timeout(10_000),
+      });
+    } catch (e) {
+      throw new MailError(`Resend request failed: ${(e as Error).message}`, true);
+    }
+    let body: { name?: string; message?: string } = {};
+    try {
+      body = await res.json();
+    } catch {
+      /* non-JSON error page */
+    }
+    if (res.ok) return;
+    const detail = `Resend HTTP ${res.status}${body.name ? `, ${body.name}` : ''}${body.message ? `: ${body.message}` : ''}`;
+    const quota = /quota/i.test(body.name ?? '');
+    throw new MailError(detail, !quota && (res.status === 429 || res.status >= 500));
+  }
+  return {
+    send(mail) {
+      const key = randomUUID();
+      return spaced(async () => {
+        try {
+          await attempt(mail, key);
+        } catch (e) {
+          if (!(e instanceof MailError) || !e.retryable) throw e;
+          await new Promise((r) => setTimeout(r, delay));
+          await attempt(mail, key);
+        }
+      });
     },
   };
 }
