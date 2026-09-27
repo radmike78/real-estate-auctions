@@ -32,6 +32,7 @@ const AGENT: ApplicationInput = {
   attestAccurate: true,
   consentVerification: true,
   attestAdvertising: true,
+  attestOriginal: true,
 };
 
 const LENDER: ApplicationInput = {
@@ -54,6 +55,7 @@ const VERIFIED = {
   typeMatches: true,
   companyMatches: true,
   identityConfirmed: true,
+  contentReviewed: true,
   identityMethod: 'Called the company main line listed with the regulator; office manager confirmed.',
 };
 const PAID = { plan: 'Monthly listing', paidThrough: '2099-12-31' };
@@ -86,6 +88,13 @@ describe('application validation', () => {
     expect(approvalBlockers('agent', { ...VERIFIED, licenseExpires: null } as never, '2026-09-25')).toHaveLength(1);
     expect(approvalBlockers('bank', { ...VERIFIED, licenseExpires: null } as never, '2026-09-25')).toEqual([]);
     expect(approvalBlockers('agent', { ...VERIFIED, identityConfirmed: false, identityMethod: 'ok' } as never, '2026-09-25')).toHaveLength(2);
+    expect(approvalBlockers('agent', { ...VERIFIED, contentReviewed: false } as never, '2026-09-25')).toEqual(['Check the headline and bio against the content rules.']);
+  });
+
+  it('requires the applicant to confirm their content is original', () => {
+    const r = validateApplication({ ...AGENT, attestOriginal: false });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(Object.keys(r.errors)).toEqual(['attestOriginal']);
   });
 
   it('validates billing', () => {

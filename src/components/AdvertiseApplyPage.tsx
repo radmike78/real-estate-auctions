@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
-import { CLARK_COUNTY_CITIES, LANGUAGES, validateApplication, type ApplicationInput } from '../lib/proApplication';
+import { CLARK_COUNTY_CITIES, CONTENT_RULES, LANGUAGES, validateApplication, type ApplicationInput } from '../lib/proApplication';
 import { CATEGORIES, CREDIT_PROFILES, REVERIFY_DAYS, servicesFor, type Category } from '../lib/pros';
 import PageHero from './PageHero';
 import { api, ApiError } from '../lib/api';
@@ -25,6 +25,7 @@ const blank = (category: string): ApplicationInput => ({
   attestAccurate: false,
   consentVerification: false,
   attestAdvertising: false,
+  attestOriginal: false,
   company_url: '',
 });
 
@@ -122,7 +123,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
     { id: 'apply-offer', label: 'What you offer', done: !!f.headline && f.services.length > 0 && (!info?.financing || f.creditProfiles.length > 0), bad: has('headline') || has('services') || has('creditProfiles') },
     { id: 'apply-areas', label: 'Areas & languages', done: f.serviceCities.length > 0 && f.languages.length > 0, bad: has('serviceCities') || has('serviceZips') || has('languages') },
     { id: 'apply-contact', label: 'Contact details', done: !!(f.phone && f.email) && f.bio.length >= 30, bad: has('phone') || has('email') || has('website') || has('bio') },
-    { id: 'apply-confirm', label: 'Confirm & submit', done: f.attestLicensed && f.attestAccurate && f.consentVerification && f.attestAdvertising, bad: has('attestLicensed') || has('attestAccurate') || has('consentVerification') || has('attestAdvertising') },
+    { id: 'apply-confirm', label: 'Confirm & submit', done: f.attestLicensed && f.attestAccurate && f.consentVerification && f.attestOriginal && f.attestAdvertising, bad: has('attestLicensed') || has('attestAccurate') || has('consentVerification') || has('attestOriginal') || has('attestAdvertising') },
   ];
   const go = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   return (
@@ -211,6 +212,10 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
                   <small className="muted">{f.bio.length}/800 · plain text</small>
                   {errors.bio && <span className="field-error">{errors.bio}</span>}
                 </label>
+                <div className="content-rules" role="note">
+                  <h3>Write it yourself. Your profile must not include:</h3>
+                  <ul>{CONTENT_RULES.map((r) => <li key={r}>{r}</li>)}</ul>
+                </div>
               </Card>
 
               <Card n={6} id="apply-confirm" title="Confirm & submit" sub="Tick each box to confirm.">
@@ -219,6 +224,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
                     ['attestLicensed', `I hold an active ${info.licenseLabel.replace(/ number| ID/i, '')} and I'm authorized to advertise for the company named above.`],
                     ['attestAccurate', "The information above is accurate, and I'll tell you if my license, company or contact details change."],
                     ['consentVerification', `I consent to verification with ${info.regulator} and to you contacting my company to confirm my identity.`],
+                    ['attestOriginal', "Everything I submit, now or later, is my own original work or material I have written permission to use. I haven't copied text, images or logos from anyone else, and my profile follows the content rules above. I'm responsible for my content and will cover DeedOwl's costs if someone makes a claim because of it. DeedOwl may edit or remove any content."],
                     ['attestAdvertising', "I understand this is paid advertising with equal, rotating placement. DeedOwl isn't a party to any transaction and receives no referral fees. I'll follow all laws that apply to my services and to contacting consumers. I agree to the Terms of Use, including the Advertiser terms, and the Privacy Policy."],
                   ] as const
                 ).map(([k, label]) => (

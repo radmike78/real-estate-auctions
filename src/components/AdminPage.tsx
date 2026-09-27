@@ -94,6 +94,7 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
     typeMatches: false,
     companyMatches: false,
     identityConfirmed: false,
+    contentReviewed: false,
     identityMethod: '',
   });
   const [err, setErr] = useState<string | null>(null);
@@ -113,7 +114,7 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
     }
   }
 
-  const box = (k: 'nameMatches' | 'typeMatches' | 'companyMatches' | 'identityConfirmed', label: string) => (
+  const box = (k: 'nameMatches' | 'typeMatches' | 'companyMatches' | 'identityConfirmed' | 'contentReviewed', label: string) => (
     <label className="check attest"><input type="checkbox" checked={v[k]} onChange={(e) => set(k, e.target.checked)} /><span>{label}</span></label>
   );
 
@@ -149,6 +150,7 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
       {box('typeMatches', app.profile.licenseType ? `License type is ${app.profile.licenseType}` : `License type or classification fits "${info.label}"`)}
       {box('companyMatches', `${info.regulator} shows them with "${app.profile.company}"`)}
       {box('identityConfirmed', 'I confirmed the applicant is this licensee, using contact details that did not come from this application')}
+      {box('contentReviewed', 'I checked the headline and bio against the content rules, and searched a sentence online to make sure it isn\u2019t copied')}
       <label className="field">
         <span>How identity was confirmed</span>
         <textarea rows={2} value={v.identityMethod} onChange={(e) => set('identityMethod', e.target.value)} placeholder="e.g. Called the brokerage number listed on NRED; spoke with the office manager, who confirmed…" />

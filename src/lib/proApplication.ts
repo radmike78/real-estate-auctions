@@ -11,6 +11,17 @@ export const CLARK_COUNTY_CITIES = [
   'Sunrise Manor', 'Whitney', 'Winchester',
 ] as const;
 
+/** What an advertiser's profile must never contain. Shown on the application and in the Advertiser terms. */
+export const CONTENT_RULES = [
+  "Text copied from another website, another professional's profile or a company's marketing, unless you own it or have written permission.",
+  "Other companies' logos, slogans or brand names used to suggest a connection. Naming your own brokerage or employer is fine.",
+  'Claims that a government agency, HUD, Fannie Mae, Freddie Mac, a county or DeedOwl endorses you or works with you.',
+  'Promises nobody can keep, such as "guaranteed approval", "guaranteed profit" or "we can stop any foreclosure".',
+  "Reviews, testimonials, awards or sales numbers you can't back up.",
+  "Anyone else's name, photo or personal details, including clients and homeowners.",
+  'Wording that prefers or excludes anyone based on a group protected by federal or Nevada fair housing law.',
+] as const;
+
 export const LANGUAGES = [
   'English', 'Spanish', 'Tagalog', 'Chinese', 'Vietnamese', 'Korean', 'Japanese', 'Amharic', 'Arabic', 'French', 'German',
   'Hindi', 'Italian', 'Portuguese', 'Russian', 'Thai', 'American Sign Language',
@@ -37,6 +48,8 @@ export interface ApplicationInput {
   attestAccurate: boolean;
   consentVerification: boolean;
   attestAdvertising: boolean;
+  /** Everything they submit is their own original work (or they have permission), and follows CONTENT_RULES. */
+  attestOriginal: boolean;
   /** Honeypot: hidden from people; bots fill it. Must stay empty. */
   company_url?: string;
 }
@@ -143,7 +156,7 @@ export function validateApplication(raw: Partial<ApplicationInput>): ValidationR
   const bio = plain(raw.bio, 800);
   if (bio.length < 30) errors.bio = 'Write at least 30 characters about how you help buyers and investors.';
 
-  for (const k of ['attestLicensed', 'attestAccurate', 'consentVerification', 'attestAdvertising'] as const) {
+  for (const k of ['attestLicensed', 'attestAccurate', 'consentVerification', 'attestOriginal', 'attestAdvertising'] as const) {
     if (raw[k] !== true) errors[k] = 'Required.';
   }
 
@@ -163,6 +176,7 @@ export interface LicenseVerification {
   typeMatches: boolean; // license type / classification fits the category
   companyMatches: boolean; // regulator shows them with this company / brokerage
   identityConfirmed: boolean; // confirmed the applicant IS this licensee
+  contentReviewed: boolean; // headline and bio checked against CONTENT_RULES
   identityMethod: string; // how, using contact details NOT taken from the application
 }
 
@@ -178,6 +192,7 @@ export function approvalBlockers(category: Category, v: Partial<LicenseVerificat
   if (!v.typeMatches) out.push(`Confirm the license type or classification fits "${info.label}".`);
   if (!v.companyMatches) out.push(`Confirm ${info.regulator} shows them with this company.`);
   if (!v.identityConfirmed) out.push('Confirm the applicant is the licensee, using contact details that did not come from the application.');
+  if (!v.contentReviewed) out.push('Check the headline and bio against the content rules.');
   if (plain(v.identityMethod, 300).length < 15) out.push('Describe how identity was confirmed (at least 15 characters).');
   return out;
 }
