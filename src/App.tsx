@@ -17,7 +17,6 @@ import ApplicationConfirmPage from './components/ApplicationConfirmPage';
 import FinancingPage from './components/FinancingPage';
 import ProsPage from './components/ProsPage';
 import ProProfilePage from './components/ProProfilePage';
-import OwlNote from './components/OwlNote';
 import AdvertiserPage from './components/AdvertiserPage';
 import DisclaimerPage from './components/DisclaimerPage';
 import PrivacyPage from './components/PrivacyPage';
@@ -182,8 +181,9 @@ export default function App() {
       {route.page === 'home' && <HomePage />}
       {route.page === 'notFound' && (
         <main className="page empty-page">
-          <OwlNote big>Even owls miss one sometimes. The link may be old or mistyped.</OwlNote>
+          <img className="owl-empty" src="logo.svg" alt="" width={128} height={128} />
           <h1>We couldn’t find that page</h1>
+          <p>Even owls miss one sometimes. The link may be old or mistyped.</p>
           <p className="row"><a className="btn" href="#/">Go to the home page</a> <a className="btn btn-secondary" href="#/search">Find properties</a></p>
         </main>
       )}

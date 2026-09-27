@@ -1208,3 +1208,8 @@ html { scroll-padding-top: 88px; }
   .glance div.key dd { font-size: 1.9rem; }
   .glance div.muted-stat dd { color: #000; }
 }
+.empty-page .owl-note { margin: 24px auto 8px; }
+.deals-empty { display: flex; flex-direction: column; align-items: center; }
+.deals-empty h2 { justify-content: center; }
+.empty-page > * { margin-left: auto; margin-right: auto; }
+.empty-page .owl-empty { margin-top: 24px; }
