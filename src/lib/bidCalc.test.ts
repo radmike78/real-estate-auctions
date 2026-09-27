@@ -150,3 +150,13 @@ describe('legal fact-check fixes', () => {
     expect(playbookByKey('sid')!.survives.wipedOut.join(' ')).toMatch(/NRS 271\.600/);
   });
 });
+
+describe('input limits', () => {
+  it('caps percentages at 100 and money at $10 billion, and ignores negatives', async () => {
+    const { clampInput, sanitizeInputs, BLANK_INPUTS } = await import('./bidCalc');
+    expect(clampInput('financedPct', 250)).toBe(100);
+    expect(clampInput('exitValue', 1e308)).toBe(1e10);
+    expect(clampInput('repairs', -5)).toBe(0);
+    expect(sanitizeInputs({ sellingCostPct: 500, targetProfitPct: 20 }, BLANK_INPUTS)).toMatchObject({ sellingCostPct: 100, targetProfitPct: 20 });
+  });
+});

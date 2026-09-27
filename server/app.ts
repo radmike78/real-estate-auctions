@@ -624,7 +624,7 @@ export function createApp(config: AppConfig) {
       assertSameOrigin(req);
       if (!limiters.alertsIp.hit(clientIp(req))) throw new HttpError(429, 'Too many sign-ups from this network. Try again later.');
       const body = await readJson(req);
-      const accepted = { ok: true, message: 'Check your inbox for a link to confirm. It expires in 48 hours.' };
+      const accepted = { ok: true, message: 'Check your inbox. New sign-ups get a link to confirm (it expires in 48 hours); if you’re already signed up, we’ve sent your link to manage your alerts instead.' };
       if (body.company_url) return send(res, 202, accepted); // honeypot
       const email = plain(body.email, 254).toLowerCase();
       if (!EMAIL_RE.test(email)) throw new HttpError(422, 'Please fix the highlighted fields.', { errors: { email: 'Enter a valid email address.' } });

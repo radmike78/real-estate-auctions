@@ -68,3 +68,13 @@ describe('the site’s guide index', () => {
     expect(searchGuides(ix, 'tax sale').hits.length).toBeGreaterThan(3);
   });
 });
+
+describe('search while typing', () => {
+  it('matches a word that is still being typed, but not once it is finished', () => {
+    const ix = buildIndex([{ href: '#/a', page: 'A', title: 'Pay', text: 'Bring the deposit in certified funds.', sources: [] }]);
+    const typing = searchGuides(ix, 'depo');
+    expect(typing.hits.map((h) => h.doc.href)).toEqual(['#/a']);
+    expect(typing.terms).toContain('deposit');
+    expect(searchGuides(ix, 'depo ').hits).toEqual([]);
+  });
+});

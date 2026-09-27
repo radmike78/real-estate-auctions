@@ -88,7 +88,8 @@ function SignUp() {
                 </span>
               </label>
               {errors.form && !errors.email && !errors.list && <div className="caution" role="alert">{errors.form}</div>}
-              <button className="btn big" disabled={busy}>{busy ? 'Sending…' : 'Sign up'}</button>
+              <button className="btn big" disabled={busy}>{busy ? 'Sending…' : f.list ? 'Sign up' : 'Email me my manage link'}</button>
+              {!f.list && <p className="small muted">To sign up, tick General updates above.</p>}
               <p className="muted">Already signed up? Enter your email and we’ll send you your link to manage your alerts.</p>
             </form>
           </>
