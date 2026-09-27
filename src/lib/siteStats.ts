@@ -13,6 +13,7 @@ export const SITE_PAGES = {
   bankowned: 'Bank-owned & government homes',
   businessassets: 'Business assets & closures',
   playbook: 'Nevada playbooks',
+  practice: 'Practice buying',
   calculator: 'Max bid calculator',
   deals: 'My deals',
   alerts: 'Email alerts',
@@ -44,6 +45,7 @@ export const isSiteAction = (k: unknown): k is SiteAction => typeof k === 'strin
 export function sitePageFor(route: string): SitePage | null {
   if (route === 'admin' || route === 'advertiser' || route === 'applicationConfirm') return null;
   if (route === 'apply') return 'advertise';
+  if (route === 'practiceRun') return 'practice';
   if (route === 'disclaimer' || route === 'privacy' || route === 'terms') return 'other';
   return isSitePage(route) ? route : 'other';
 }

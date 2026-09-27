@@ -12,7 +12,7 @@ import SourceTag from './SourceTag';
 import { daysUntil } from './ResultsList';
 import Disclaimer from './Disclaimer';
 import BuyerChecklistBox from './BuyerChecklistBox';
-import { checklistForProperty, CHECKLISTS, forCommercial } from '../lib/buyerChecklists';
+import { checklistForProperty, CHECKLISTS, forCommercial, forLand } from '../lib/buyerChecklists';
 import { classOfType } from '../lib/propertyClass';
 import IncomeValue from './IncomeValue';
 import DrillDown, { type DrillSection } from './DrillDown';
@@ -106,7 +106,8 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   const surviving = liens.filter((l) => l.outcome === 'LIKELY_SURVIVES').length;
   const commercial = classOfType(p.propertyType) === 'commercial';
   const baseChecklist = checklistForProperty(s?.saleType ?? null, p.status);
-  const checklist = commercial ? forCommercial(baseChecklist) : baseChecklist;
+  const worded = commercial ? forCommercial(baseChecklist) : baseChecklist;
+  const checklist = p.propertyType === 'Vacant Land' || p.propertyType === 'Commercial Land' ? forLand(worded) : worded;
   const saleBook = playbookForSale(s?.saleType);
   const commercialBook = commercial ? playbookByKey('commercial') : null;
   const playbook = commercialBook ?? saleBook;

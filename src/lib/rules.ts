@@ -82,7 +82,7 @@ function assess(lien: Lien, saleType: SaleType, foreclosing: Lien | undefined): 
         return {
           outcome: 'UNCERTAIN',
           reason:
-            'A properly noticed HOA super-priority sale can extinguish a first deed of trust (SFR Investments v. U.S. Bank, 2014), unless the lender paid (or validly offered, even if refused) the priority amount at least 5 days before the sale or Fannie Mae or Freddie Mac owned the loan. These sales are frequently litigated.',
+            'A properly noticed HOA super-priority sale can extinguish a first deed of trust (SFR Investments v. U.S. Bank, 2014), unless the lender paid the priority amount at least 5 days before the sale, validly offered it and was refused, or Fannie Mae or Freddie Mac owned the loan. These sales are frequently litigated.',
         };
       }
       if (lien.type in special) return special[lien.type]!;
@@ -135,10 +135,10 @@ export const WHAT_YOU_BUY: Record<SaleType, string> = {
   TAX_LIEN_CERTIFICATE: 'A lien certificate: the right to be repaid plus interest, NOT ownership. Nevada sells property-tax delinquencies as deeds; the Clark County Treasurer sells lien certificates only for unpaid special improvement district (SID) assessments (NRS 271), at 1% a month. If the owner never redeems (120 days, or 2 years if there is a building), you can request a deed, but the certificate expires 3 years after the redemption period ends.',
   TRUSTEE_SALE: "A trustee's deed (non-judicial foreclosure under NRS 107). There is no warranty, and the property is sold as-is, often without an interior inspection.",
   JUDICIAL_FORECLOSURE: "A sheriff's certificate of sale followed by a deed. Nevada gives the owner a redemption right for up to 1 year after a judicial sale.",
-  HOA_FORECLOSURE: "A deed from the HOA's foreclosure agent under NRS 116. It starts as a certificate of sale with a 60-day redemption period. The first deed of trust survives if the lender paid or validly offered the priority amount at least 5 days before the sale, or if Fannie Mae or Freddie Mac owned the loan. This is heavily litigated in Nevada.",
+  HOA_FORECLOSURE: "A deed from the HOA's foreclosure agent under NRS 116. It starts as a certificate of sale with a 60-day redemption period. The first deed of trust survives if the lender paid the priority amount at least 5 days before the sale, validly offered it and was refused, or if Fannie Mae or Freddie Mac owned the loan. This is heavily litigated in Nevada.",
   SHERIFF_EXECUTION: "A sheriff's certificate of sale on a judgment execution (NRS 21). The debtor may redeem within 1 year, and you receive only the debtor's interest.",
   FEDERAL_TAX_SEIZURE: "A certificate of sale from the IRS, then an IRS deed after a 180-day redemption period (26 U.S.C. § 6337). You receive only the taxpayer's interest.",
-  REO: 'A property the lender already owns. It is bought by offer through a broker or an online auction, usually with a special warranty deed and title insurance available.',
+  REO: 'A property the lender already owns. It is bought by offer through a broker or an online auction, usually with a deed that carries limited promises from the lender, and title insurance available.',
 };
 
 export const SALE_TYPE_LABEL: Record<SaleType, string> = {

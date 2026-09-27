@@ -77,7 +77,7 @@ export function listingToProperty(l: FeedListing, agency = 'Clark County Treasur
       finalPaymentDeadline: null,
       buyerPremiumPct: 0,
       deedType: 'Quitclaim deed from the Treasurer, recorded within 30 days, to the name on your registration form',
-      redemptionPeriod: 'None after the auction. The former owner can protest the sale for 2 years, and title insurance may be unavailable meanwhile',
+      redemptionPeriod: 'None after the auction. Anyone claiming the land can sue to recover it for 2 years after the Treasurer’s deed is delivered (NRS 361.600), and title insurance may be unavailable meanwhile',
       eligibility: notes.length ? notes.join(' ') : null,
       postponements: 0,
     },

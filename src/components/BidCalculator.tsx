@@ -29,7 +29,7 @@ const GROUPS: { title: string; fields: Field[] }[] = [
   {
     title: 'Holding and financing',
     fields: [
-      { k: 'holdingMonths', label: 'Months until sold', unit: 'mo', hint: 'Include any redemption period. After a tax sale, resale may wait for a quiet title action or the 2-year protest period.' },
+      { k: 'holdingMonths', label: 'Months until sold', unit: 'mo', hint: 'Include any redemption period. After a tax sale, resale may wait for a quiet title action or the 2-year window after the Treasurer’s deed (NRS 361.600).' },
       { k: 'monthlyCarry', label: 'Monthly holding costs', unit: '$', hint: 'Taxes, insurance, utilities, HOA.' },
       { k: 'financedPct', label: 'Share financed after purchase', unit: '%', hint: 'Auctions need cash on the day; a loan usually comes after.' },
       { k: 'interestRatePct', label: 'Interest rate (yearly)', unit: '%' },

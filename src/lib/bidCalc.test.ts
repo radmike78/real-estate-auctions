@@ -82,7 +82,7 @@ describe('due-diligence workflow and playbooks', () => {
     expect(text).toMatch(/name on your Trustee Auction Registration Form/);
     expect(text).not.toMatch(/not an LLC/); // the Treasurer FAQ doesn't say this
     expect(text).toMatch(/1:00 p\.m\./);
-    expect(text).toMatch(/protest for 2 years/);
+    expect(text).toMatch(/2 years after the Treasurer’s deed is delivered \(NRS 361\.600\)/);
     expect(text).not.toMatch(/buyer.s premium/i); // the in-person Treasurer auction has none
   });
 });

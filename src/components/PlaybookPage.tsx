@@ -1,5 +1,8 @@
 import DrillDown, { Tile, type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
+import { SALE_ORDER } from '../practice/scenarios';
+
+const PRACTICE_SALES = new Set<string>(SALE_ORDER);
 import TeamList from './TeamList';
 import { IconBadge, IconCheckList, IconFile, IconFlag, IconLayers, IconSteps } from './Icons';
 import { PLAYBOOKS, playbookByKey, type Playbook } from '../lib/playbooks';
@@ -121,6 +124,8 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
       )}
       <DrillDown sections={s} active={section} baseHref={base} label={`${p.short} playbook`} />
       {!open && <p className="muted playbook-note">Set your limit before the sale with the <a href="#/calculator">maximum bid calculator</a>.</p>}
+      {!open && PRACTICE_SALES.has(p.key) && <p className="playbook-note"><a className="btn btn-secondary" href={`#/practice?sale=${p.key}`}>Practice this kind of sale, hands-on →</a></p>}
+      {!open && p.key === 'commercial' && <p className="playbook-note"><a className="btn btn-secondary" href="#/practice">Practice buying commercial property, hands-on →</a></p>}
     </main>
   );
 }

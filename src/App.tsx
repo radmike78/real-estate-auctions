@@ -22,6 +22,8 @@ import DisclaimerPage from './components/DisclaimerPage';
 import PrivacyPage from './components/PrivacyPage';
 import TermsPage from './components/TermsPage';
 import CalculatorPage from './components/CalculatorPage';
+import PracticePage from './components/PracticePage';
+import PracticeScenarioPage from './components/PracticeScenarioPage';
 import PlaybookPage from './components/PlaybookPage';
 import DealsPage from './components/DealsPage';
 import HomeownerHelpPage from './components/HomeownerHelpPage';
@@ -62,7 +64,9 @@ type Route =
   | { page: 'deals' }
   | { page: 'homeowner' }
   | { page: 'alerts'; mode: AlertsMode; token: string; welcome: boolean; add?: string }
-  | { page: 'playbook'; key?: string; section?: string };
+  | { page: 'playbook'; key?: string; section?: string }
+  | { page: 'practice'; sale?: string }
+  | { page: 'practiceRun'; id: string; stage?: string };
 
 function hashPath(): string {
   return window.location.hash.replace(/^#\/?/, '');
@@ -116,6 +120,12 @@ function parseHash(): Route {
   if (h === 'homeowner-help') return { page: 'homeowner' };
   const al = h.match(/^alerts(?:\/(confirm|manage|unsubscribe)\/([A-Za-z0-9._-]{1,100}))?$/);
   if (al) return { page: 'alerts', mode: (al[1] as AlertsMode | undefined) ?? 'signup', token: al[2] ?? '', welcome: params.get('welcome') === '1', add: params.get('add')?.slice(0, 40) ?? undefined };
+  if (h === 'practice') {
+    const sale = params.get('sale') ?? undefined;
+    return { page: 'practice', sale: sale && /^[a-z]{2,12}$/.test(sale) ? sale : undefined };
+  }
+  const pr = h.match(/^practice\/([a-z]{2,12}-[a-z-]{2,30})(?:\/([a-z]{2,20}))?$/);
+  if (pr) return { page: 'practiceRun', id: pr[1], stage: pr[2] };
   const pb = h.match(/^playbooks(?:\/([a-z]+)(?:\/([a-z-]+))?)?$/);
   if (pb) return { page: 'playbook', key: pb[1], section: pb[2] };
   if (sub?.[1] === 'disclaimer') return { page: 'disclaimer', section: sub[2] };
@@ -184,6 +194,8 @@ export default function App() {
       {route.page === 'deals' && <DealsPage />}
       {route.page === 'homeowner' && <HomeownerHelpPage />}
       {route.page === 'alerts' && <AlertsPage key={`${route.mode}${route.token}${route.add ?? ''}`} mode={route.mode} token={route.token} welcome={route.welcome} add={route.add} />}
+      {route.page === 'practice' && <PracticePage key={route.sale ?? ''} sale={route.sale} />}
+      {route.page === 'practiceRun' && <PracticeScenarioPage key={route.id} id={route.id} stageKey={route.stage} />}
       {route.page === 'playbook' && <PlaybookPage key={route.key ?? ''} playbook={route.key} section={route.section} />}
       {route.page === 'advertiser' && <AdvertiserPage key={route.token ?? ''} token={route.token} />}
       {route.page === 'agents' && <AgentsPage key={`${route.shortSales}${route.q}`} shortSales={route.shortSales} initialQuery={route.q} />}
