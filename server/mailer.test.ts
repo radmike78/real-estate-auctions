@@ -5,7 +5,7 @@ import { createServer } from 'node:http';
 import { describe, expect, it } from 'vitest';
 import { createApp } from './app';
 import { hashPassword } from './auth';
-import { maskEmail, MailError, postmarkMailer, type Mail } from './mailer';
+import { alertsConfirmEmail, broadcastEmail, maskEmail, MailError, postmarkMailer, type Mail } from './mailer';
 
 const MAIL: Mail = { to: 'buyer@example.com', subject: 'Hello\r\nBcc: evil@example.com', text: 'Sign in: https://fsf.example/#/advertiser/login/abc' };
 
@@ -74,6 +74,14 @@ describe('Postmark mailer', () => {
   it('masks addresses for logs', () => {
     expect(maskEmail('taylor@example.com')).toBe('ta***@example.com');
     expect(maskEmail('a@example.com')).toBe('a***@example.com');
+  });
+});
+
+describe('postal address', () => {
+  it('appears only in general-list updates, never in alert confirmations', () => {
+    const links = { manage: 'https://x/m', unsubscribe: 'https://x/u', oneClick: 'https://x/o' };
+    expect(broadcastEmail('a@example.com', 'Hi', 'Body', links, 'PO Box 1, Las Vegas, NV 89101').text).toContain('PO Box 1, Las Vegas, NV 89101');
+    expect(alertsConfirmEmail('a@example.com', 'https://x/c').text).not.toMatch(/PO Box|undefined/);
   });
 });
 

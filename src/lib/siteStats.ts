@@ -14,7 +14,7 @@ export const SITE_PAGES = {
   businessassets: 'Business assets & closures',
   playbook: 'Nevada playbooks',
   practice: 'Practice buying',
-  calculator: 'Max bid calculator',
+  calculator: 'Maximum bid calculator',
   deals: 'My deals',
   alerts: 'Email alerts',
   agents: 'Find an agent',

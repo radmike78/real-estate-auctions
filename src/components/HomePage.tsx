@@ -26,6 +26,8 @@ export default function HomePage() {
   const [cls, setCls] = useState<ClassFilter>('all');
   const live = useLiveFeed();
   const liveCount = live.properties.length;
+  // The oldest re-check among the listings counted, so the claim is never fresher than the data.
+  const oldestCheck = live.properties.reduce<string | null>((o, p) => (p.lastUpdated && (!o || p.lastUpdated < o) ? p.lastUpdated : o), null);
 
   function go(e: FormEvent) {
     e.preventDefault();
@@ -65,7 +67,7 @@ export default function HomePage() {
             <a key={o.key} href={saleSearchHref(o.key, '', cls)} className={`browse-tile${NOT_FOR_SALE.has(o.key) ? ' wait' : ''}`}>
               <span className="browse-icon" aria-hidden>{ICONS[o.key]}</span>
               <span className="browse-title">{o.label}</span>
-              {NOT_FOR_SALE.has(o.key) && <span className="browse-tag">Not for sale yet</span>}
+              {NOT_FOR_SALE.has(o.key) && <span className="browse-tag">{o.key === 'liens' ? 'Not for sale' : 'Not for sale yet'}</span>}
               <span className="browse-arrow" aria-hidden>→</span>
             </a>
           ))}
@@ -78,10 +80,10 @@ export default function HomePage() {
           </span>
         </nav>
         <ul className="browse-trust" aria-label="Why trust it">
-          {live.result?.ok && liveCount > 0 && (
-            <li className="trust-live"><IconPulse /> {liveCount} live {liveCount === 1 ? 'listing' : 'listings'}, checked {ago(live.result.feed.generatedAt)}</li>
+          {live.result?.ok && liveCount > 0 && oldestCheck && (
+            <li className="trust-live"><IconPulse /> {liveCount} live {liveCount === 1 ? 'listing' : 'listings'} · oldest re-check {ago(oldestCheck)}</li>
           )}
-          <li><IconShield /> Official government and lender sources only</li>
+          <li><IconShield /> Listings from official sources only</li>
           <li><IconStar /> Free to use, no sign-up</li>
           <li><IconClock /> Expired listings hidden automatically</li>
         </ul>

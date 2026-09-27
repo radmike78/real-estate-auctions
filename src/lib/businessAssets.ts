@@ -17,7 +17,7 @@ export const BUSINESS_SOURCES: BusinessSource[] = [
     owner: 'Federal court',
     url: 'https://www.nvb.uscourts.gov/',
     what: 'Chapter 7 and Chapter 11 cases for Nevada businesses. Trustees sell equipment, inventory, vehicles, real estate and whole businesses, with court approval.',
-    howToUse: 'Sale notices and bid procedures are filed in each case. Contact the trustee or debtor’s attorney named in the notice.',
+    howToUse: 'Sale notices and bid procedures are filed in each case. Contact the trustee, or the sale contact named in the court’s sale notice.',
   },
   {
     name: 'PACER: federal court records',
@@ -81,7 +81,7 @@ export interface SaleChannel {
 export const SALE_CHANNELS: SaleChannel[] = [
   {
     name: 'Bankruptcy sale',
-    seller: 'Chapter 7 trustee, or the business itself in Chapter 11',
+    seller: 'Chapter 7 trustee, or in Chapter 11 the debtor in possession, selling under court approval',
     howItWorks: 'The trustee proposes a sale, often with a first "stalking horse" bid, then takes higher offers by a deadline or at an auction. The court approves the winner.',
     whatYouGet: 'Often "free and clear" of liens, when the court’s sale order says so.',
     watchFor: 'Tight deadlines, deposits, and objections that can delay or change the sale. Read the sale order.',

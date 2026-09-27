@@ -11,9 +11,9 @@ const PRIMARY = [
 
 const MORE: { group: string; links: (readonly [string, string])[] }[] = [
   { group: 'Tools', links: [['#/calculator', 'Maximum bid calculator'], ['#/deals', 'My deals']] },
-  { group: 'Buy', links: [['#/live', 'Live tax sales'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures'], ['#/pre-foreclosures', 'Pre-foreclosure tracker']] },
-  { group: 'Get help', links: [['#/agents', 'Real estate agents'], ['#/financing', 'Financing'], ['#/pros', 'Title, insurance & repairs']] },
-  { group: 'Stay informed', links: [['#/about', 'How it works'], ['#/disclaimer', 'How we help']] },
+  { group: 'Buy', links: [['#/live', 'Live tax sales'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures']] },
+  { group: 'Get help', links: [['#/financing', 'Financing'], ['#/pros', 'Title, insurance & repairs']] },
+  { group: 'Research & about', links: [['#/pre-foreclosures', 'Pre-foreclosures (not for sale)'], ['#/about', 'How it works'], ['#/disclaimer', 'How we help']] },
 ];
 
 export default function SiteHeader({ current }: { current: string }) {

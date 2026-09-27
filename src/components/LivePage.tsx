@@ -83,7 +83,7 @@ export default function LivePage() {
           )}{' '}
           Meanwhile, {SHOW_SAMPLE_DATA && <><a href="#/search?type=TAX_DEED">browse sample tax-sale listings</a> or </>}check the{' '}
           <a href="https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList" target="_blank" rel="noreferrer noopener">
-            Treasurer's official auction list ↗
+            Treasurer’s official auction list ↗
           </a>
           .
         </div>
@@ -139,7 +139,7 @@ export default function LivePage() {
       {listings.length > 0 && (
         <section>
           <div className="verify" role="alert">
-            <strong>Verify before bidding.</strong> Owners can pay until close of business 3 business days before the sale. The Treasurer's sale
+            <strong>Verify before bidding.</strong> Owners can pay until close of business 3 business days before the sale. The Treasurer’s sale
             does not satisfy all liens: a federal tax lien can survive, and the IRS can buy a property back within 120 days of the sale. Registration, deposit and sale format are set in each auction's official notice.
           </div>
           <div className="row" style={{ justifyContent: 'space-between', margin: '0 0 12px' }}>

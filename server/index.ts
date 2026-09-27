@@ -126,6 +126,7 @@ const app = createApp({
   trustCloudflare: env.TRUST_CLOUDFLARE === '1',
   stripe,
   mailer,
+  postalAddress: env.MAIL_POSTAL_ADDRESS?.trim() || undefined,
 });
 
 // Hourly housekeeping: republish the signed directory (so it never expires and overdue
@@ -147,7 +148,7 @@ const checkTracked = () => app.checkTracked().then((n) => n && console.log(`Sent
 void checkTracked();
 setInterval(checkTracked, 10 * 60_000).unref();
 
-// Daily database backups on the same volume. Copy them somewhere else too (see DEPLOY.md).
+// Daily database backups on the same volume. Copy them somewhere else too (see README, Deploy).
 const backupDir = env.BACKUP_DIR === '' ? null : (env.BACKUP_DIR ?? join(dirname(dbPath), 'backups'));
 const backupKeep = Math.max(1, Number(env.BACKUP_KEEP ?? 7) || 7);
 function backup() {

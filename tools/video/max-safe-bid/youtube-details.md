@@ -13,7 +13,7 @@
 ## Description
 
 ```
-Before you bid at a foreclosure, tax deed or HOA auction, you need one number: your maximum safe bid. This walkthrough shows how to find it in about a minute with the free calculator on Forced-Sale Finder (Clark County / Las Vegas, NV).
+Before you bid at a foreclosure, tax deed or HOA auction, you need one number: your maximum safe bid. This walkthrough shows how to find it in about a minute with the free calculator on DeedOwl (Clark County / Las Vegas, NV).
 
 Chapters
 0:00 Why you need a maximum safe bid

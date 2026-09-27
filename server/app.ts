@@ -60,7 +60,9 @@ export interface AppConfig {
   /** Online payments. Omit to take payments offline only (admin records billing by hand). */
   stripe?: { client: StripeClient; webhookSecret: string } | null;
   now?: () => Date;
-  /** Whether the business name and postal address are set (CAN-SPAM). Defaults to checking src/lib/siteInfo.ts. */
+  /** Postal address for updates to the general email list (CAN-SPAM). Server-only: never sent to the browser. */
+  postalAddress?: string;
+  /** Tests only: override whether general-list sending is allowed. */
   postalAddressReady?: boolean;
 }
 
@@ -105,7 +107,8 @@ export function createApp(config: AppConfig) {
   const alerts = openAlerts(db.raw);
   const tracker = openTracker(db.raw);
   const broadcasts = openBroadcasts(db.raw);
-  const postalReady = config.postalAddressReady ?? [SITE_INFO.operatorName, SITE_INFO.mailingAddress].every((v) => v.trim() !== '' && !/^\[.*\]$/.test(v));
+  const postalAddress = (config.postalAddress ?? '').trim();
+  const postalReady = config.postalAddressReady ?? (postalAddress !== '' && !/^\[.*\]$/.test(SITE_INFO.operatorName));
   const readFeed = feedReader(config.dataDir, config.feedPublicKey);
   const mailer = config.mailer ?? consoleMailer;
   // Sending never breaks a request: a failure is logged (without the message body, which can hold
@@ -335,7 +338,7 @@ export function createApp(config: AppConfig) {
             broadcasts.mark(b.id, subscriberId, 'SKIPPED', now().toISOString());
             continue;
           }
-          const ok = await deliver(broadcastEmail(s.email, b.subject, b.body, alertLinks(s)));
+          const ok = await deliver(broadcastEmail(s.email, b.subject, b.body, alertLinks(s), postalAddress));
           broadcasts.mark(b.id, subscriberId, ok ? 'SENT' : 'FAILED', now().toISOString());
           if (ok) n++;
         }
@@ -463,8 +466,10 @@ export function createApp(config: AppConfig) {
       const s = summarize(db, row.id, from, to);
       const { start, end } = pacificDaysToUtc(from, to);
       const leads = db.leads.forPro(row.id, start, end).length;
-      void deliver({ to: row.profile.email, subject: `Your DeedOwl report for ${month}`, text: monthlyReportText(row.profile.name, month, s, leads, `${base}/#/advertiser`) });
-      db.reports.markSent(row.id, month, now().toISOString());
+      // Marked sent only once Postmark accepts it; a failure is retried at the next hourly run.
+      void deliver({ to: row.profile.email, subject: `Your DeedOwl report for ${month}`, text: monthlyReportText(row.profile.name, month, s, leads, `${base}/#/advertiser`) }).then((ok) => {
+        if (ok) db.reports.markSent(row.id, month, now().toISOString());
+      });
       sent++;
     }
     return sent;
@@ -883,14 +888,14 @@ export function createApp(config: AppConfig) {
       const to = plain(body.to, 254).toLowerCase();
       if (!EMAIL_RE.test(to)) throw new HttpError(422, 'Please fix the highlighted fields.', { errors: { to: 'Enter the address to send the test to.' } });
       const sample = { manage: `${base}/#/alerts`, unsubscribe: `${base}/#/alerts`, oneClick: `${base}/#/alerts` };
-      if (!(await deliver({ ...broadcastEmail(to, `[Test] ${subject}`, text, sample), headers: undefined }))) throw new HttpError(503, 'The test email could not be sent. Check the server log.');
+      if (!(await deliver({ ...broadcastEmail(to, `[Test] ${subject}`, text, sample, postalAddress || '(postal address)'), headers: undefined }))) throw new HttpError(503, 'The test email could not be sent. Check the server log.');
       audit(null, 'EMAIL_TEST_SENT', `${subject} → ${maskEmail(to)}`);
       return send(res, 200, { ok: true, message: `Test sent to ${to}.` });
     }
     if (method === 'POST' && path === '/api/admin/email/send') {
       const body = await readJson(req);
       const { subject, text } = validateBroadcast(body);
-      if (!postalReady) throw new HttpError(409, 'Set your business name and postal address in src/lib/siteInfo.ts first. The law requires them in every update (CAN-SPAM).');
+      if (!postalReady) throw new HttpError(409, 'Set your business name (src/lib/siteInfo.ts) and postal address (MAIL_POSTAL_ADDRESS) first. The law requires them in every update (CAN-SPAM).');
       if (broadcasts.sending()) throw new HttpError(409, 'Another update is still sending. Wait until it finishes.');
       // A double click, or a repeat by mistake, must not email everyone twice.
       const repeat = broadcasts.recent(5).find((b) => b.subject === subject && b.body === text && now().getTime() - Date.parse(b.createdAt) < 86_400_000);

@@ -7,7 +7,7 @@ record(__dirname, async (v) => {
 
   await v.goto('calculator');
   await p.waitForTimeout(300);
-  await v.card(`<div><div class="k">Forced-Sale Finder · Clark County, NV</div><h1>Your <span>maximum safe bid</span></h1><p>Know your number, and when to stop bidding.</p></div>`);
+  await v.card(`<div><div class="k">DeedOwl · Clark County, NV</div><h1>Your <span>maximum safe bid</span></h1><p>Know your number, and when to stop bidding.</p></div>`);
   await p.waitForTimeout(700);
   await v.start();
 
@@ -78,7 +78,7 @@ record(__dirname, async (v) => {
   await at(START[6] + DUR[6] + 0.3);
   await v.clearHighlight();
   await v.badge(null);
-  await v.card(`<div><div class="k">Free · No sign-up · Clark County, NV</div><h1>Set your limit.<br><span>Be ready to walk away.</span></h1><p>Forced-Sale Finder</p></div>`);
+  await v.card(`<div><div class="k">Free · No sign-up · Clark County, NV</div><h1>Set your limit.<br><span>Be ready to walk away.</span></h1><p>DeedOwl</p></div>`);
 }).catch((e) => {
   console.error(e);
   process.exit(1);

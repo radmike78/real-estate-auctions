@@ -290,13 +290,14 @@ export const PLAYBOOKS: Playbook[] = [
     title: 'IRS seizure sales',
     short: 'IRS sales',
     oneLine: 'The IRS seizes and sells property to collect unpaid federal taxes, by public auction or sealed bid.',
-    youGet: 'The taxpayer’s interest by quitclaim-type deed, after a 180-day redemption period.',
+    youGet: 'The taxpayer’s interest by quitclaim-type deed, after a 180-day redemption period (seizure sales; court-ordered sales differ).',
     forSale: true,
     glance: [
       { label: 'Where listed', value: 'irsauctions.gov' },
       { label: 'Redemption', value: '180 days. The owner, or anyone with an interest or lien, can redeem by paying your price plus 20% a year, compounded daily' },
       { label: 'Deposit', value: 'Set in each sale notice; sealed bids usually need a deposit with the bid' },
       { label: 'What you get first', value: 'A certificate of sale; a deed after 180 days' },
+      { label: 'Court-ordered sales', value: 'No 180-day redemption. The court must confirm the sale, and your deed comes under its order. Read the order of sale' },
     ],
     steps: [
       { title: 'Watch irsauctions.gov', detail: 'Sales are few and scattered. Read each notice of sale for terms, deposit and payment deadlines.' },

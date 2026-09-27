@@ -67,7 +67,6 @@ h1, h2, h3 { line-height: 1.25; margin: 0 0 0.5rem; font-family: var(--font-disp
 /* Display face for big numbers and titles outside headings */
 .logo, .drill-title, .glance dd, .countdown .big, .kpi strong, .mini dd, .card-stats dd { font-family: var(--font-display); }
 /* Mono for small uppercase labels and indexes */
-.drill-num, .countdown-label, .glance dt, .eyebrow, .checklist-tag, .side-heading { font-family: var(--font-label); }
 h2 { margin-bottom: 0.7rem; }
 p { margin: 0 0 0.9rem; }
 li { margin-bottom: 0.35rem; }
@@ -262,7 +261,6 @@ th { font-size: 0.95rem; color: var(--muted); font-weight: 600; }
 /* Title row: glowing icon + large title + index, set apart from the summary by a divider. */
 .drill-head { position: relative; display: flex; align-items: center; gap: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
 .drill-title { flex: 1; min-width: 0; font-size: 1.3rem; font-weight: 800; line-height: 1.25; letter-spacing: -0.015em; color: var(--text); }
-.drill-num { align-self: flex-start; font-family: var(--font-label); font-variant-numeric: tabular-nums; font-size: 0.95rem; font-weight: 600; letter-spacing: 0.1em; color: var(--muted); opacity: 0.8; }
 .drill-icon { flex: none; width: 50px; height: 50px; border-radius: 14px; display: grid; place-items: center; background: var(--tile-grad); color: #fff; box-shadow: 0 8px 20px -6px var(--tile-glow), inset 0 1px 0 rgb(255 255 255 / 0.3); }
 .drill-icon svg { width: 26px; height: 26px; }
 .drill-summary { position: relative; margin-top: 12px; color: var(--muted); font-size: 1rem; line-height: 1.5; }
@@ -607,8 +605,6 @@ a.btn { display: inline-block; }
 .hero-band .hero-glow { width: 1200px; height: 700px; top: 30%; }
 .home-app { display: grid; grid-template-columns: 300px minmax(0, 1fr); min-height: calc(100vh - 64px); background: linear-gradient(90deg, #0b1220 300px, var(--bg) 300px); }
 .home-side { background: #0b1220; border-right: 1px solid rgb(255 255 255 / 0.08); padding: 24px 16px; display: flex; flex-direction: column; gap: 26px; position: sticky; top: 61px; align-self: start; min-height: calc(100vh - 61px); }
-.side-heading { display: flex; align-items: center; gap: 8px; margin: 0 10px 10px; color: #94a3b8; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.08em; }
-.side-heading svg { width: 16px; height: 16px; }
 .side-tabs { display: grid; gap: 4px; }
 .side-tab { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; text-align: left; background: transparent; border: 0; border-radius: 12px; padding: 12px 14px 12px 18px; color: #e2e8f0; font-size: 1.02rem; font-weight: 600; cursor: pointer; }
 .side-tab:hover { background: rgb(255 255 255 / 0.06); color: #fff; }
@@ -635,8 +631,6 @@ a.btn { display: inline-block; }
 .search-row.big .search-icon svg { color: #3b82f6; }
 .search-row.big input { color: var(--text); }
 .checklist-box.wide { margin: 22px 0 0; }
-.home-learn { margin-top: 34px; }
-.home-learn h2 { margin: 0 0 14px; font-size: 1.1rem; font-family: var(--font-label); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .checklist-box.wide .checklist-items { grid-template-columns: repeat(3, 1fr); }
 @media (max-width: 1200px) { .checklist-box.wide .checklist-items { grid-template-columns: 1fr 1fr; } }
 
@@ -648,7 +642,6 @@ a.btn { display: inline-block; }
   .home-side > .side-group:first-child { order: 1; background: #0b1220; padding: 12px 12px 10px; min-width: 0; }
   .home-main { order: 2; }
   .home-side > .side-group:nth-child(2) { order: 3; background: #0b1220; padding: 18px 12px 28px; }
-  .side-group:first-child .side-heading { display: none; }
   .side-tabs { display: flex; overflow-x: auto; gap: 6px; scrollbar-width: none; padding-bottom: 4px; mask-image: linear-gradient(90deg, #000 88%, transparent); -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); }
   .side-tabs::-webkit-scrollbar { display: none; }
   .side-tab { flex: none; width: auto; padding: 10px 14px; border-radius: 999px; font-size: 0.99rem; background: rgb(255 255 255 / 0.06); }
@@ -721,12 +714,12 @@ h2 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; line-height: 
 h3 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.25; }
 
 /* Section headings that introduce a block of content on a page. */
-.page > h2, .page > .section-title, .home-learn > h2, .while-you-wait > h2, .page-section-title {
+.page > h2, .page > .section-title, .while-you-wait > h2, .page-section-title {
   display: flex; align-items: center; gap: 14px;
   margin: 48px 0 22px; padding-bottom: 14px; border-bottom: 2px solid var(--border);
   font-family: var(--font-display); font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; text-transform: none; color: var(--text);
 }
-.page > h2::before, .page > .section-title::before, .home-learn > h2::before, .while-you-wait > h2::before, .page-section-title::before {
+.page > h2::before, .page > .section-title::before, .while-you-wait > h2::before, .page-section-title::before {
   content: ''; flex: none; width: 8px; height: 1.05em; border-radius: 4px; background: linear-gradient(180deg, #22d3ee, #3b82f6, #8b5cf6);
 }
 .page > h2 + p, .page > .section-title + p { margin-top: -8px; color: var(--muted); }
@@ -1046,12 +1039,9 @@ small { font-size: 0.95rem; }
 .practice-ribbon strong { color: var(--wait); }
 .practice-tag { display: inline-block; background: var(--wait); color: #1a1205; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; font-size: 0.85rem; padding: 4px 10px; border-radius: 999px; }
 .practice-filter { justify-content: space-between; margin: 8px 0 20px; }
-.practice-sale { margin: 28px 0; }
-.practice-sale h2 { margin-bottom: 4px; }
 .practice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
 .practice-card { display: flex; flex-direction: column; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px; text-decoration: none; color: var(--text); min-height: 110px; }
 .practice-card:hover { border-color: var(--accent); }
-.practice-card.unavailable { background: var(--surface-2); opacity: 0.8; }
 .practice-card-type { font-weight: 700; font-size: 1.05rem; }
 .practice-card-foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; }
 .practice-stages { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 20px; }
@@ -1105,7 +1095,6 @@ html { scroll-padding-top: 88px; }
 /* Sub-page titles stay clearly bigger than the section headings below them. */
 .page-hero.compact h1 { font-size: clamp(2rem, 3.4vw, 2.6rem); }
 /* Labels read as words: normal font, sentence case, no letter-spacing. */
-.drill-num, .countdown-label, .glance dt, .eyebrow, .checklist-tag, .side-heading, .calc-max span, .calc-sticky span:first-child,
 .you-get span, .glance-facts dt, .ad-label, .pro-kicker, .media-kit-label, .task-kind {
   font-family: inherit; text-transform: none; letter-spacing: 0;
 }
@@ -1144,7 +1133,6 @@ html { scroll-padding-top: 88px; }
 }
 .drill-tile h2.drill-title { margin: 0; padding: 0; border: 0; font-size: 1.45rem; line-height: 1.25; }
 /* Professional-advice note on every practice page */
-.practice-advice { background: var(--info-bg); border-left: 4px solid var(--info); border-radius: 8px; padding: 12px 16px; margin: -6px 0 18px; }
 .content-rules { background: var(--info-bg); border-left: 4px solid var(--info); border-radius: 8px; padding: 12px 16px; margin-top: 14px; }
 .content-rules h3 { font-size: 1.05rem; margin: 0 0 6px; }
 .content-rules ul { margin: 0; padding-left: 20px; }
@@ -1152,7 +1140,6 @@ html { scroll-padding-top: 88px; }
 .paid-ad-notice { background: var(--info-bg); border-left: 4px solid var(--info); border-radius: 8px; padding: 12px 16px; margin: 16px 0; }
 
 /* Labels: Inter, semibold, gently spaced (replaces the old monospace labels). */
-.drill-num, .countdown-label, .glance dt, .eyebrow, .checklist-tag, .side-heading { font-weight: 600; }
 /* The number to act on is the minimum bid, not the spread. */
 .glance div.key { background: linear-gradient(180deg, rgb(59 130 246 / 0.22), rgb(139 92 246 / 0.12)); border-color: rgb(96 165 250 / 0.45); }
 .card-stats .key dd { font-size: 1.2rem; font-weight: 700; }

@@ -4,7 +4,7 @@
 // tampered or stale file can't add a fake professional or swap in a scammer's phone number.
 
 import { CATEGORIES, isListable, safeMailto, safeTel, safeWebsite, type Pro } from '../lib/pros';
-import { checkSignature, isFeedResponse } from './verify';
+import { checkSignature, isFeedResponse, MAX_FEED_LIFETIME_MS } from './verify';
 
 export interface ProsFeed {
   version: 1;
@@ -67,6 +67,8 @@ export async function verifyProsFeed(
   const generated = Date.parse(feed.generatedAt);
   if (!(generated <= now.getTime() + CLOCK_SKEW_MS)) return { ok: false, reason: 'MALFORMED', detail: 'The directory is dated in the future.' };
   if (!(Date.parse(feed.expiresAt) > now.getTime())) return { ok: false, reason: 'EXPIRED', detail: 'The directory has expired and is being refreshed.' };
+  // Same cap as the listings: a copy that claims to stay valid for days is refused.
+  if (!(Date.parse(feed.expiresAt) - generated <= MAX_FEED_LIFETIME_MS)) return { ok: false, reason: 'MALFORMED', detail: 'The directory claims too long a lifetime.' };
   return { ok: true, feed: { ...feed, pros: feed.pros.filter((p) => validPro(p, now)) } };
 }
 

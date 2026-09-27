@@ -7,7 +7,7 @@ A distressed-property and forced-sale discovery platform. It finds properties th
 3. **What liens and risks may remain?** The Nevada rules engine estimates which liens likely survive the sale.
 4. **What must I do next?** The site shows online bidding details or step-by-step in-person instructions, and always links to the official sale.
 
-> **Status:** search results use fictional sample data for Clark County, NV. The **Live tax sales** page shows only verified listings from the Clark County Treasurer connector (see [Live data](#live-data)).
+> **Status:** development builds add fictional sample data for Clark County, NV; production builds show only verified listings. The **Live tax sales** page shows only verified listings from the Clark County Treasurer connector (see [Live data](#live-data)).
 > Nothing here is legal advice or a title determination. The site never claims title is "clear" and never takes bids or money.
 
 ## Run it
@@ -53,6 +53,7 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 | `FEED_SIGNING_KEY` | **yes** | yes (updater) | Private key (PEM) that signs the listings. **Listings updater only**: the web server refuses to start if it's given this key, so a break-in to the web server can't publish fake listings. |
 | `POSTMARK_SERVER_TOKEN` | **yes** | for a real site | Sends email through Postmark. Set it together with `MAIL_FROM`. See [Email](#email-postmark). |
 | `MAIL_FROM` | no | with the token | Sender address verified in Postmark, like `DeedOwl <no-reply@your-domain>`. |
+| `MAIL_POSTAL_ADDRESS` | no | only for general-list updates | Postal address shown only in updates to the general email list (CAN-SPAM). A PO box or mailbox service is fine. Never shown on the site or in alerts. |
 | `MAIL_REPLY_TO`, `POSTMARK_MESSAGE_STREAM`, `POSTMARK_BROADCAST_STREAM` | no | no | Where replies go (default: `MAIL_FROM`), the Postmark stream for sign-in, alert and other one-to-one email (default `outbound`), and the stream for updates to the general email list (default `broadcast`). |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PLANS` | **yes** | no | Online card payments for advertisers: set all three or none. See [Online payments](#advertisers-signup-verification-billing-server). |
 | `TRUST_PROXY` | no | no | `1` when a reverse proxy, Ingress or OpenShift router sits in front (it is in every option below). |
@@ -143,7 +144,7 @@ The site sends plain-text email: advertiser confirmation and sign-in links, appr
 
 **Updates to the general email list** (admin → **Email list**) go through Postmark's separate **Broadcast** stream, so bulk mail can never hurt delivery of sign-in links and alerts. New Postmark servers usually include a broadcast stream with the ID `broadcast`; check under your server → **Message Streams**, create one if it's missing, and set `POSTMARK_BROADCAST_STREAM` if its ID is different. In that stream's settings, have Postmark leave unsubscribe links to you (the site adds its own, which also delete the address from its database), so people don't see two different unsubscribe links. Postmark may ask you to confirm your broadcast sending before it's enabled.
 
-**Emails show your business name.** Set `operatorName` in `src/lib/siteInfo.ts` before launch; the web log warns until you do. No mailing address is needed for the site or for alerts. Only updates to the general email list need one: anti-spam law (CAN-SPAM) requires a postal address in those, so the admin can't send them until `mailingAddress` is set. A PO box or mailbox service is fine, and it only appears in those emails, never on the site. Alert emails also carry one-click unsubscribe headers (`List-Unsubscribe`), which Gmail and Yahoo require from bulk senders.
+**Emails show your business name.** Set `operatorName` in `src/lib/siteInfo.ts` before launch; the web log warns until you do. No mailing address is needed for the site or for alerts. Only updates to the general email list need one: anti-spam law (CAN-SPAM) requires a postal address in those, so the admin can't send them until the server setting `MAIL_POSTAL_ADDRESS` is set (in `forced-sale-finder.env` for Podman, or `deploy/kubernetes/base/config.env`). A PO box or mailbox service is fine. It stays on the server and only appears in those emails, never on the site or in alerts. Alert emails also carry one-click unsubscribe headers (`List-Unsubscribe`), which Gmail and Yahoo require from bulk senders.
 
 If Postmark can't be reached, the site retries once. When an email still fails, the log names the reason (without the message text). Advertisers who apply are asked to try again in a few minutes. Leads are always saved and shown on the advertiser's dashboard, even if the email doesn't go out.
 
@@ -208,9 +209,9 @@ cat admin-password-hash.txt   # should start with scrypt$
 deploy/podman/install.sh
 ```
 It asks for the web address, an admin username, an admin password and, optionally, your Postmark token and sender address ([Email](#email-postmark); you can add them later). Then it does everything else:
-1. creates the signing key in `~/.config/forced-sale-finder/` (step 2 above);
+1. creates the two signing keys in `~/.config/forced-sale-finder/` (step 2 above);
 2. builds the image and runs the tests;
-3. stores the password hash and signing key as Podman secrets;
+3. stores the password hash and the signing keys as Podman secrets (each container gets only its own key);
 4. installs systemd services with Quadlet: `forced-sale-finder-web`, `forced-sale-finder-ingest` and, optionally, `forced-sale-finder-caddy` for automatic HTTPS;
 5. starts them and checks `/healthz`.
 

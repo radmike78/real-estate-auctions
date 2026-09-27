@@ -80,7 +80,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
           </p>
         ) : id.startsWith(IRS_ID_PREFIX) ? (
           <p>
-            This IRS sale is no longer listed on irsauctions.gov. It may have been canceled, postponed or held.{' '}
+            This IRS sale is no longer listed on irsauctions.gov. It may have been cancelled, postponed or held.{' '}
             <a href="#/live">See current sales</a>
           </p>
         ) : (
@@ -117,8 +117,12 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   // Pictures only for homes that are for sale (never pre-foreclosure: the Assessor's record names the owner).
   const sampleViews = parcelDigits(p.apn) === null;
   // Sample parcels aren't real, so they get a placeholder parcel number; their buttons are shown disabled.
+  // Before a trustee, HOA or judicial foreclosure sale the owner is still a homeowner in foreclosure: leave out the
+  // county links (aerial map, building sketch, Assessor record) that name them. Street View stays.
+  const ownerInForeclosure = s?.saleType === 'TRUSTEE_SALE' || s?.saleType === 'HOA_FORECLOSURE' || s?.saleType === 'JUDICIAL_FORECLOSURE';
   const views = status.purchasable
     ? propertyViews({ apn: sampleViews ? '100-00-000-000' : p.apn, address: p.address, city: p.city, lat: p.lat, lng: p.lng, listingUrl: s?.saleType === 'REO' ? s.officialUrl : null })
+        .filter((v) => !ownerInForeclosure || !['aerial', 'sketch', 'assessor'].includes(v.key))
     : [];
   const auction = !!s && s.saleType !== 'REO';
 

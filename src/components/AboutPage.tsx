@@ -68,10 +68,10 @@ const SECTIONS: DrillSection[] = [
     content: () => (
       <>
         <p>
-          There is no single nationwide database. The site combines county recorder filings (deeds of trust, notices of default
-          and sale, liens, releases), assessor parcel data, Treasurer delinquency and tax-auction lists, court and sheriff records, and
-          the official sellers’ own sale pages. Every fact shows its source agency, document number, recorded date, last-verified time and a
-          confidence level. Hover a source tag to see them.
+          There is no single nationwide database. Today the live listings come from the Clark County Treasurer’s tax-sale list and
+          IRS sales, each confirmed against the County Assessor’s parcel records, plus links to the official sellers’ own sale pages.
+          County Recorder filings, court and sheriff records will be added one at a time, once each source’s terms allow it. Every fact
+          shows its source agency, last-verified time and a confidence level. Tap or hover a source tag to see them.
         </p>
         {SHOW_SAMPLE_DATA ? (
           <p>

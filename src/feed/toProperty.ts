@@ -83,7 +83,7 @@ export function listingToProperty(l: FeedListing, agency = 'Clark County Treasur
     },
     liens: [],
     liensChecked: false,
-    events: [{ date: l.firstSeenAt.slice(0, 10), type: 'SALE_SCHEDULED', description: "On the Clark County Treasurer's tax-sale auction list", source }],
+    events: [{ date: l.firstSeenAt.slice(0, 10), type: 'SALE_SCHEDULED', description: 'On the Clark County Treasurer’s tax-sale auction list', source }],
     flags: null,
     lastUpdated: l.lastVerifiedAt,
   };
