@@ -9,7 +9,7 @@ import { fmtDate } from '../lib/status';
 const S = SITE_INFO;
 const mail = (addr: string) => (/^\[/.test(addr) ? <strong>{addr}</strong> : <a href={`mailto:${addr}`}>{addr}</a>);
 
-const SECTIONS: DrillSection[] = [
+export const SECTIONS: DrillSection[] = [
   {
     key: 'agreement',
     title: 'Using the site means you agree',

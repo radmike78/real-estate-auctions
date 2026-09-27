@@ -25,7 +25,7 @@ const RISKS: [string, string][] = [
   ['Occupied homes', 'Confirm the home will be vacant at closing, and whether any tenant has rights under a lease.'],
 ];
 
-const SECTIONS: DrillSection[] = [
+export const SECTIONS: DrillSection[] = [
   {
     key: 'compare',
     title: 'Short sale vs. auction vs. bank-owned',

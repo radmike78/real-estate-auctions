@@ -16,7 +16,7 @@ const SALE_TYPES: [string, string, string][] = [
   ['REO / bank-owned', 'The property from the lender', 'Offer through the lender’s broker or its auction'],
 ];
 
-const SECTIONS: DrillSection[] = [
+export const SECTIONS: DrillSection[] = [
   {
     key: 'four-questions',
     title: 'The four questions',

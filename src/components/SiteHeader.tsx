@@ -13,7 +13,7 @@ const MORE: { group: string; links: (readonly [string, string])[] }[] = [
   { group: 'Tools', links: [['#/calculator', 'Maximum bid calculator'], ['#/deals', 'My deals']] },
   { group: 'Buy', links: [['#/live', 'Live tax sales'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures']] },
   { group: 'Get help', links: [['#/financing', 'Financing'], ['#/pros', 'Title, inspectors, attorneys & more']] },
-  { group: 'Research & about', links: [['#/pre-foreclosures', 'Pre-foreclosures (not for sale)'], ['#/about', 'How it works'], ['#/disclaimer', 'How we help']] },
+  { group: 'Research & about', links: [['#/guides', 'Search the guides'], ['#/pre-foreclosures', 'Pre-foreclosures (not for sale)'], ['#/about', 'How it works'], ['#/disclaimer', 'How we help']] },
 ];
 
 export default function SiteHeader({ current, nav: navCount = 0 }: { current: string; nav?: number }) {

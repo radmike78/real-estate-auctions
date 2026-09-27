@@ -1,5 +1,6 @@
 import DrillDown, { Tile, type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
+import { GuideSearchForm } from './GuidesPage';
 import { SALE_ORDER } from '../practice/scenarios';
 
 const PRACTICE_SALES = new Set<string>(SALE_ORDER);
@@ -10,7 +11,7 @@ import { fmtDate } from '../lib/status';
 
 const isExternal = (u: string) => /^https:\/\//.test(u);
 
-function sections(p: Playbook): DrillSection[] {
+export function sections(p: Playbook): DrillSection[] {
   return [
     {
       key: 'steps',
@@ -93,7 +94,9 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
           eyebrow={<span className="eyebrow">Clark County · Nevada law</span>}
           title={<>Nevada <span className="grad">playbooks</span></>}
           sub="How each forced sale works, step by step, and the mistakes that cost money."
-        />
+        >
+          <GuideSearchForm />
+        </PageHero>
         {playbook && <p className="notice" role="status">We couldn’t find that playbook. Choose one below.</p>}
         <div className="drill-tiles">
           {PLAYBOOKS.map((x) => <Tile key={x.key} href={`#/playbooks/${x.key}`} icon={<IconCheckList />} title={x.short} summary={x.oneLine} />)}

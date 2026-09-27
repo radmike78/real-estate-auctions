@@ -6,7 +6,7 @@ import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
 import { IconCheckList, IconLayers, IconSearch, IconStop, IconTools } from './Icons';
 
-const SECTIONS: DrillSection[] = [
+export const SECTIONS: DrillSection[] = [
   {
     key: 'where',
     title: 'Where official sales are posted',
