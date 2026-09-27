@@ -42,7 +42,7 @@ export default function HomePage() {
         <div className="hero-inner">
           <span className="eyebrow"><span className="live-dot" aria-hidden /> Clark County, NV</span>
           <h1>
-            Las Vegas foreclosures &amp; tax&nbsp;sales, <span className="grad">explained.</span>
+            Las Vegas-area foreclosures &amp; tax&nbsp;sales, <span className="grad">explained.</span>
           </h1>
           <p className="hero-tagline">Know the deal before you bid.</p>
           <p className="hero-sub">Find forced-sale properties from official sources, learn every step, and set your number before the auction.</p>
@@ -56,6 +56,7 @@ export default function HomePage() {
             <input aria-label="City, ZIP or address" placeholder="City, ZIP or address" value={q} onChange={(e) => setQ(e.target.value)} />
             <button type="submit">Search</button>
           </form>
+          <p className="promise coverage">Covers all of Clark County: Las Vegas, Henderson, North Las Vegas, Boulder City, Mesquite and more.</p>
           <p className="promise">We show you how to spot a good deal, and when to walk away.</p>
         </div>
       </section>

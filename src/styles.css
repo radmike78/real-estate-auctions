@@ -1216,3 +1216,4 @@ html { scroll-padding-top: 88px; }
 /* Huge numbers wrap instead of pushing the calculator wider than a phone. */
 .calc > *, .calc-results, .calc-results > *, .calc-kv div, .calc-kv dt, .calc-kv dd { min-width: 0; }
 .calc-max strong, .calc-kv dd { overflow-wrap: anywhere; }
+.promise.coverage + .promise { margin-top: 8px; }
