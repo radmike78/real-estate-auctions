@@ -106,9 +106,9 @@ if (env.POSTMARK_SERVER_TOKEN || env.MAIL_FROM) {
   console.log('Email off: messages are written to this log (set POSTMARK_SERVER_TOKEN and MAIL_FROM to send them).');
 }
 
-// Anti-spam law (CAN-SPAM) requires a real postal address in every alert email.
-if (/^\[.*\]$/.test(SITE_INFO.operatorName) || /^\[.*\]$/.test(SITE_INFO.mailingAddress)) {
-  console.warn('WARNING: set operatorName and mailingAddress in src/lib/siteInfo.ts. Every email-alert message must show your business name and postal address.');
+// Every email names the business that sent it.
+if (/^\[.*\]$/.test(SITE_INFO.operatorName)) {
+  console.warn('WARNING: set operatorName in src/lib/siteInfo.ts. Every email shows your business name.');
 }
 
 const dbPath = env.DB_PATH ?? join(ROOT, 'server', 'data', 'app.db');

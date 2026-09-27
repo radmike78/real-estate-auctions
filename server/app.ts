@@ -105,7 +105,7 @@ export function createApp(config: AppConfig) {
   const alerts = openAlerts(db.raw);
   const tracker = openTracker(db.raw);
   const broadcasts = openBroadcasts(db.raw);
-  const postalReady = config.postalAddressReady ?? ![SITE_INFO.operatorName, SITE_INFO.mailingAddress].some((v) => /^\[.*\]$/.test(v));
+  const postalReady = config.postalAddressReady ?? [SITE_INFO.operatorName, SITE_INFO.mailingAddress].every((v) => v.trim() !== '' && !/^\[.*\]$/.test(v));
   const readFeed = feedReader(config.dataDir, config.feedPublicKey);
   const mailer = config.mailer ?? consoleMailer;
   // Sending never breaks a request: a failure is logged (without the message body, which can hold

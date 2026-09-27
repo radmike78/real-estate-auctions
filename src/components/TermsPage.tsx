@@ -224,7 +224,7 @@ const SECTIONS: DrillSection[] = [
           site at least 30 days before it takes effect and email active advertisers. Using the site after that means you accept the new Terms.
         </p>
         <p>
-          Questions: {mail(S.contactEmail)}, or by mail at {S.operatorName}, {S.mailingAddress}.
+          Questions: {mail(S.contactEmail)}.
         </p>
       </>
     ),
