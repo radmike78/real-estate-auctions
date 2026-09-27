@@ -502,7 +502,8 @@ a.btn { display: inline-block; }
 .site-header { position: sticky; top: 0; z-index: 1000; display: flex; align-items: center; gap: 24px; padding: 12px 24px; background: rgb(7 11 20 / 0.86); backdrop-filter: saturate(160%) blur(14px); border-bottom: 1px solid rgb(255 255 255 / 0.08); color: #e6eaf2; }
 .logo { display: flex; align-items: center; gap: 10px; color: #f8fafc; text-decoration: none; font-size: 1.15rem; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; }
 .logo b { background: linear-gradient(90deg, #60a5fa, #a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.logo-mark { width: 26px; height: 26px; border-radius: 8px; background: conic-gradient(from 210deg, #22d3ee, #3b82f6, #8b5cf6, #22d3ee); box-shadow: 0 0 18px rgb(59 130 246 / 0.55); }
+/* The DeedOwl mark: an owl reading the deed it holds (public/logo.svg). */
+.logo-mark { width: 32px; height: 32px; flex: none; filter: drop-shadow(0 0 10px rgb(59 130 246 / 0.45)); }
 .site-nav { display: flex; align-items: center; gap: 4px; margin-left: auto; }
 .site-nav > a, .more summary { color: #cbd5e1; text-decoration: none; padding: 8px 12px; border-radius: 999px; font-size: 0.96rem; cursor: pointer; list-style: none; }
 .more summary::-webkit-details-marker { display: none; }
