@@ -189,6 +189,23 @@ Permissions-Policy: geolocation=(), camera=(), microphone=()
 
 The site never accepts bids, payments or account credentials. Every "Confirm" link goes to the official agency page.
 
+## 7. Staying up under attack (denial of service)
+
+The site is built to keep serving pages when someone floods it. Cloudflare (README, Cloudflare) is the first line; the server defends itself too:
+
+| Defense | Where |
+| --- | --- |
+| Slow-connection limits: 15 s for headers, 30 s per request, 5 s idle keep-alive, at most 2,000 open connections | `server/index.ts` |
+| Request size limits: 32 KB JSON, 256 KB Stripe webhook; oversized requests are refused before they're read | `server/app.ts` |
+| Rate limiters that stay cheap under a flood: a key stops recording once it's over its limit, least-recently-used keys are evicted, expired keys are swept | `RateLimiter` in `server/auth.ts` |
+| IPv6 visitors are limited by their whole /64 network, so rotating addresses doesn't escape limits | `clientKey` in `server/auth.ts` |
+| Admin sign-in: each attempt counts before the slow password check, and at most two password checks run at once, so a sign-in flood can't slow the rest of the site | `/api/admin/login` |
+| Email a stranger can trigger (confirmations, sign-in links, leads, receipts) has per-address and per-network caps, a per-advertiser daily lead cap, and a site-wide cap of 200 an hour | `deliverFromForm` |
+| A failed file read, a failed hourly job or an unhandled promise is logged; it never takes the server down | `serveStatic`, `server/index.ts` |
+| Spam can't fill the disk: unconfirmed applications (7 days), sign-in records (90 days), visitor hashes (2 days) and Stripe event ids (90 days) are purged hourly | `purgeStale` and `maintain` |
+| Open tabs don't re-download the listings while hidden, and unchanged files answer with a small 304 | `src/data/live.ts`, ETags in `serveStatic` |
+| The server only accepts traffic through Cloudflare, and the Kubernetes/OpenShift network policy only lets the ingress controller reach the pod | README step 6, overlay patches |
+
 ## Operations checklist
 
 - Store the two signing keys in a secret manager, the listings key only where the updater runs. Rotate them with `npm run keys:generate -- --rotate`. Rebuild and redeploy the site in the same release.

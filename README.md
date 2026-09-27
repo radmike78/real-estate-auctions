@@ -56,7 +56,7 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 | `MAIL_REPLY_TO`, `POSTMARK_MESSAGE_STREAM`, `POSTMARK_BROADCAST_STREAM` | no | no | Where replies go (default: `MAIL_FROM`), the Postmark stream for sign-in, alert and other one-to-one email (default `outbound`), and the stream for updates to the general email list (default `broadcast`). |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PLANS` | **yes** | no | Online card payments for advertisers: set all three or none. See [Online payments](#advertisers-signup-verification-billing-server). |
 | `TRUST_PROXY` | no | no | `1` when a reverse proxy, Ingress or OpenShift router sits in front (it is in every option below). |
-| `TRUST_CLOUDFLARE` | no | with Cloudflare | `1` when your domain is proxied through Cloudflare, so each visitor's own address is used for spam limits. See [Cloudflare](#cloudflare-recommended). |
+| `TRUST_CLOUDFLARE` | no | with Cloudflare | `1` when your domain is proxied through Cloudflare, so each visitor's own address is used for spam limits. See [Cloudflare](#cloudflare-strongly-recommended). |
 | `BACKUP_KEEP` | no | no | Daily database backups to keep (default 7). `BACKUP_DIR=""` turns them off. |
 | `PORT`, `DB_PATH`, `DATA_DIR`, `INGEST_STATE_DIR`, `BACKUP_DIR` | no | no | Already set correctly in the image. |
 
@@ -71,7 +71,7 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 
 > **Emails:** without `POSTMARK_SERVER_TOKEN` and `MAIL_FROM`, confirmation links, sign-in links, leads and reports are only written to the web container's log, and the log says `WARNING: email is OFF`. Set up [Email](#email-postmark) before real visitors arrive.
 
-### Cloudflare (recommended)
+### Cloudflare (strongly recommended)
 
 Put [Cloudflare](https://www.cloudflare.com)'s free plan in front of any option below. It speeds up the site worldwide, caches the site's static files, and absorbs attacks. The site needs no other changes.
 
@@ -83,7 +83,31 @@ Put [Cloudflare](https://www.cloudflare.com)'s free plan in front of any option 
 3. **Proxy on:** switch the DNS record to **Proxied** (orange cloud).
 4. **SSL/TLS → Overview → Full (strict).** Never use "Flexible": it sends traffic between Cloudflare and your server unencrypted, and loops forever with the site's own HTTPS redirect.
 5. **Tell the site:** set `TRUST_CLOUDFLARE=1` (Podman: in `forced-sale-finder.env`; Kubernetes/OpenShift: in `deploy/kubernetes/base/config.env`), keep `TRUST_PROXY=1`, and restart. Without it, every visitor looks like a Cloudflare server, so spam limits would lump everyone together.
-6. **Optional:** allow ports 80/443 only from [Cloudflare's addresses](https://www.cloudflare.com/ips/) in your server's or cloud provider's firewall, so nobody can reach the server without going through Cloudflare.
+6. **Lock the server to Cloudflare (required).** Otherwise anyone who finds your server's address can skip Cloudflare and all of its protection. Allow web traffic only from [Cloudflare's addresses](https://www.cloudflare.com/ips/):
+   - **Podman** (firewalld; Caddy keeps renewing its certificate through Cloudflare):
+     ```bash
+     sudo firewall-cmd --permanent --new-ipset=cloudflare4 --type=hash:net
+     sudo firewall-cmd --permanent --new-ipset=cloudflare6 --type=hash:net --option=family=inet6
+     for n in $(curl -fsS https://www.cloudflare.com/ips-v4); do sudo firewall-cmd --permanent --ipset=cloudflare4 --add-entry=$n; done
+     for n in $(curl -fsS https://www.cloudflare.com/ips-v6); do sudo firewall-cmd --permanent --ipset=cloudflare6 --add-entry=$n; done
+     for set in cloudflare4 cloudflare6; do for port in 80 443; do
+       sudo firewall-cmd --permanent --add-rich-rule="rule source ipset=$set port port=$port protocol=tcp accept"
+     done; done
+     sudo firewall-cmd --permanent --remove-service=http --remove-service=https
+     sudo firewall-cmd --reload
+     ```
+     On a cloud server, you can instead allow only Cloudflare's addresses in the provider's firewall (security group).
+   - **Kubernetes:** uncomment `whitelist-source-range` in `deploy/kubernetes/overlays/kubernetes/ingress.yaml`, or set `loadBalancerSourceRanges` on your ingress controller's Service. The controller must see the real connecting address (`externalTrafficPolicy: Local`).
+   - **OpenShift:** uncomment `ip_allowlist` in the overlay's `route.yaml`.
+   - Step 1 made your server's address public for a while (DNS history sites keep it). If it was public for long, or ever before this setup, move to a new address after locking down.
+7. **Security rules** (Cloudflare dashboard → your domain → Security). The free plan covers these:
+   - **Rate limiting rule:** when `(http.request.method eq "POST" and starts_with(http.request.uri.path, "/api/") and not http.request.uri.path in {"/api/stripe/webhook" "/api/alerts/unsubscribe"})`, allow 20 requests per 10 seconds per IP, then **Block** for 10 seconds.
+   - **Custom rule "admin only from me":** when `starts_with(http.request.uri.path, "/api/admin/") and not ip.src in {YOUR.HOME.IP}`, **Block**. Update it if your address changes.
+   - Don't put a challenge (Managed or JS Challenge) on `/api/` paths: the site's forms send in the background and can't show one, so real visitors' forms would fail. The rate limiting rule and the site's own limits cover the forms.
+   - **Custom rule "only normal requests":** when `not http.request.method in {"GET" "HEAD" "POST"}`, **Block**.
+   - **DDoS protection:** keep the HTTP DDoS managed ruleset on (it is by default). Use **Under Attack mode** only during an attack: it also challenges Stripe's payment notices (Stripe retries them for 3 days).
+   - **Bots:** Bot Fight Mode is optional. If you turn it on, check that a test Stripe payment still reaches the site and that the one-click unsubscribe in an alert email still works.
+8. **Postmark:** in Postmark, turn on bounce and spam-complaint alerts. The site also stops sending form emails (confirmations, sign-in links, leads) after 200 in one hour and logs a warning, so a spam flood can't burn through your allowance.
 
 Cloudflare's default caching is right for this site: it caches the scripts, styles, fonts and images (their names change with every release) and passes pages, API calls and the signed listing feeds straight through. You don't need page rules or a cache-everything setting.
 
@@ -246,7 +270,7 @@ There's no `systemctl enable` step: Quadlet services start at boot automatically
   - **(a)** use the image CI publishes to GitHub Container Registry (see [Continuous delivery](#continuous-delivery)); or
   - **(b)** build it yourself with **Podman 4+** and push it to any registry (Quay.io, GHCR, Harbor, ECR, GCR, ACR, ...).
 - **OpenSSL** for the signing key. **Podman** for building the image (option b) and the password hash; you can also make the hash inside the cluster.
-- At least 0.2 CPU and 512 MB of memory free on a node, plus 2 GB of storage.
+- At least 0.2 CPU and 512 MB of memory free on a node, plus 5 GB of storage.
 
 **Steps**
 1. **Image.**
@@ -415,7 +439,7 @@ For GitOps, point [Argo CD / OpenShift GitOps](https://argo-cd.readthedocs.io/) 
 | Web container exits with "FEED_SIGNING_KEY is for the listings updater only" | The listings key was given to the web server. Put `DIRECTORY_SIGNING_KEY` in `forced-sale-finder-secrets` and `FEED_SIGNING_KEY` only in `forced-sale-finder-feed-key` (Podman: `fsf-directory-signing-key` for the web container). |
 | Pod stuck in `CreateContainerConfigError` | A secret is missing. Create both `forced-sale-finder-secrets` and `forced-sale-finder-feed-key`. |
 | Live tax sales is always empty | Expected until the Treasurer schedules an auction, and until `termsReviewedAt` is set in `ingest/sources/registry.ts` (see [Live data](#live-data)). |
-| Behind Cloudflare, spam limits ("Too many ... from this network") hit many people at once | Set `TRUST_CLOUDFLARE=1` ([Cloudflare](#cloudflare-recommended)). |
+| Behind Cloudflare, spam limits ("Too many ... from this network") hit many people at once | Set `TRUST_CLOUDFLARE=1` ([Cloudflare](#cloudflare-strongly-recommended)). |
 | `ERR_TOO_MANY_REDIRECTS` behind Cloudflare | Cloudflare SSL mode is "Flexible". Set it to **Full (strict)**. |
 | Log says `WARNING: email is OFF` | Set `POSTMARK_SERVER_TOKEN` and `MAIL_FROM` ([Email](#email-postmark)). |
 | Log says `Email to ... was not sent: Postmark HTTP 401` | Wrong token. Copy the **Server** API token, not the Account token. |

@@ -21,13 +21,14 @@
 //   GET  /api/admin/email | /api/admin/email/list.csv ; POST /api/admin/email/test | /api/admin/email/send   (general email list)
 
 import { randomBytes } from 'node:crypto';
-import { createReadStream, existsSync, statSync } from 'node:fs';
+import { createReadStream, statSync } from 'node:fs';
+import { pipeline } from 'node:stream';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { extname, normalize, resolve, sep } from 'node:path';
 import type { KeyObject } from 'node:crypto';
 import { approvalBlockers, normalizePhone, plain, validateApplication, validateBilling, type ApplicationInput, type LicenseVerification } from '../src/lib/proApplication';
 import { CATEGORIES, isListable, REVERIFY_DAYS } from '../src/lib/pros';
-import { newToken, parseCookies, RateLimiter, SESSION_IDLE_MS, SESSION_MAX_MS, safeEqualStrings, sessionCookie, sha256, verifyPasswordAsync } from './auth';
+import { clientKey, newToken, parseCookies, RateLimiter, SESSION_IDLE_MS, SESSION_MAX_MS, safeEqualStrings, sessionCookie, sha256, verifyPasswordAsync } from './auth';
 import { METRIC_KINDS, openDb, type ApplicationRow, type Db, type MetricKind } from './db';
 import { buildProsFeed, toPro, writeSignedJson } from './directory';
 import { isSiteAction, isSitePage } from '../src/lib/siteStats';
@@ -65,6 +66,8 @@ export interface AppConfig {
 
 const JSON_LIMIT = 32 * 1024;
 const WEBHOOK_LIMIT = 256 * 1024;
+/** Site-wide hourly budget for email triggered by public forms (see deliverFromForm). */
+const FORM_MAIL_PER_HOUR = 200;
 /** Days a card-paid listing stays up past the billing period end, so a renewal that's a few hours late doesn't drop it. */
 const PAYMENT_GRACE_DAYS = 3;
 const ACTIVE_SUB = new Set(['active', 'trialing', 'past_due', 'incomplete']);
@@ -116,6 +119,23 @@ export function createApp(config: AppConfig) {
       return false;
     }
   }
+  // Email a stranger can trigger by filling in a public form (confirmations, sign-in links, leads and
+  // receipts) shares one site-wide hourly budget. Per-address and per-network limits come first; this is
+  // the backstop against a flood from many networks at once, which would otherwise burn through the
+  // Postmark allowance or get the account suspended for complaints. Alerts, updates and reports are
+  // sent by the server itself and aren't counted.
+  const formMailBudget = new RateLimiter(FORM_MAIL_PER_HOUR, 3_600_000);
+  let formMailWarnedAt = 0;
+  async function deliverFromForm(mail: Mail): Promise<boolean> {
+    if (!formMailBudget.hit('all')) {
+      if (Date.now() - formMailWarnedAt > 3_600_000) {
+        formMailWarnedAt = Date.now();
+        console.warn(`WARNING: more than ${FORM_MAIL_PER_HOUR} form emails in the last hour; holding further ones. Check for a spam flood (see README, Cloudflare).`);
+      }
+      return false;
+    }
+    return deliver(mail);
+  }
   const now = config.now ?? (() => new Date());
   const base = config.baseUrl.replace(/\/$/, '');
   const secure = config.secureCookies ?? true;
@@ -128,6 +148,11 @@ export function createApp(config: AppConfig) {
     proLinkIp: new RateLimiter(5, 15 * 60_000),
     proLinkEmail: new RateLimiter(3, 3_600_000),
     lead: new RateLimiter(5, 3_600_000),
+    // The lead form emails the typed address a receipt and the advertiser the lead: cap both, so the form
+    // can't be used to flood someone's inbox (or an advertiser's) even from many networks.
+    leadEmail: new RateLimiter(3, 3_600_000),
+    leadPro: new RateLimiter(30, 86_400_000),
+    proSession: new RateLimiter(20, 15 * 60_000),
     events: new RateLimiter(60, 60_000),
     checkout: new RateLimiter(10, 3_600_000),
     eventsIp: new RateLimiter(120, 60_000),
@@ -140,10 +165,15 @@ export function createApp(config: AppConfig) {
   // Behind our own reverse proxy, the client address is the LAST X-Forwarded-For entry (the one the
   // proxy appended). Earlier entries come from the client and can be forged.
   // Behind Cloudflare, that address is a Cloudflare server; the visitor's is in CF-Connecting-IP.
+  // IPv6 visitors are counted by their /64 network (clientKey), so rotating addresses doesn't escape limits.
   const clientIp = (req: IncomingMessage) => {
     const peer = (config.trustProxy ? String(req.headers['x-forwarded-for'] ?? '').split(',').pop()!.trim() : '') || req.socket.remoteAddress || 'unknown';
-    return config.trustCloudflare ? visitorIp(peer, req.headers['cf-connecting-ip']) : peer;
+    return clientKey(config.trustCloudflare ? visitorIp(peer, req.headers['cf-connecting-ip']) : peer);
   };
+  // Password checks (scrypt) share Node's small worker pool with file reads and DNS; allow only two at
+  // once so a burst of sign-in attempts can't slow the rest of the site.
+  let passwordChecks = 0;
+  const MAX_PASSWORD_CHECKS = 2;
   // Networks the admin has signed in from recently: the per-username lockout doesn't apply to them,
   // so an attacker can't lock the real admin out by failing logins on purpose.
   const trustedAdminIps = new Map<string, number>();
@@ -479,7 +509,7 @@ export function createApp(config: AppConfig) {
       const t = now();
       db.insertApplication({ id, profile: v.profile, tokenHash: sha256(token), tokenExpires: new Date(t.getTime() + EMAIL_TOKEN_TTL_MS).toISOString(), now: t.toISOString() });
       db.audit({ at: t.toISOString(), actor: 'applicant', applicationId: id, action: 'SUBMITTED', detail: CATEGORIES[v.profile.category].label });
-      if (!(await deliver(confirmationEmail(v.profile.email, `${base}/#/advertise/confirm/${token}`, CATEGORIES[v.profile.category].regulator)))) {
+      if (!(await deliverFromForm(confirmationEmail(v.profile.email, `${base}/#/advertise/confirm/${token}`, CATEGORIES[v.profile.category].regulator)))) {
         throw new HttpError(503, 'We couldn\'t send your confirmation email just now. Please try again in a few minutes.');
       }
       return send(res, 202, accepted);
@@ -542,13 +572,13 @@ export function createApp(config: AppConfig) {
       const current = alerts.byEmail(email);
       if (current?.status === 'ACTIVE') {
         const l = alertLinks(current);
-        await deliver(alertsManageLinkEmail(email, l.manage, l.unsubscribe, l.oneClick));
+        await deliverFromForm(alertsManageLinkEmail(email, l.manage, l.unsubscribe, l.oneClick));
         return send(res, 202, accepted);
       }
       const token = newToken();
       const t = now();
       alerts.upsertPending(email, true, sha256(token), new Date(t.getTime() + CONFIRM_TTL_MS).toISOString(), t.toISOString());
-      if (!(await deliver(alertsConfirmEmail(email, `${base}/#/alerts/confirm/${token}`)))) {
+      if (!(await deliverFromForm(alertsConfirmEmail(email, `${base}/#/alerts/confirm/${token}`)))) {
         throw new HttpError(503, 'We couldn\'t send your confirmation email just now. Please try again in a few minutes.');
       }
       return send(res, 202, accepted);
@@ -569,14 +599,14 @@ export function createApp(config: AppConfig) {
       if (current?.status === 'ACTIVE') {
         // Already signed up: they confirm the add from their own manage page, so nobody can add alerts to someone else's inbox.
         const l = alertLinks(current);
-        await deliver(alertsAddEmail(email, r.label, `${l.manage}?add=${encodeURIComponent(r.target)}`, l.manage, l.unsubscribe, l.oneClick, r.kind));
+        await deliverFromForm(alertsAddEmail(email, r.label, `${l.manage}?add=${encodeURIComponent(r.target)}`, l.manage, l.unsubscribe, l.oneClick, r.kind));
         return send(res, 202, accepted);
       }
       const token = newToken();
       const t = now();
       const s = alerts.upsertPending(email, body.list === true, sha256(token), new Date(t.getTime() + CONFIRM_TTL_MS).toISOString(), t.toISOString());
       alerts.addSubscription(s.id, r.kind, r.target, r.label, t.toISOString());
-      if (!(await deliver(alertsConfirmEmail(email, `${base}/#/alerts/confirm/${token}`, r.label, r.kind)))) {
+      if (!(await deliverFromForm(alertsConfirmEmail(email, `${base}/#/alerts/confirm/${token}`, r.label, r.kind)))) {
         throw new HttpError(503, 'We couldn\'t send your confirmation email just now. Please try again in a few minutes.');
       }
       return send(res, 202, accepted);
@@ -591,7 +621,7 @@ export function createApp(config: AppConfig) {
       const s = alerts.confirm(sha256(token), now().toISOString());
       if (!s) throw invalid;
       const l = alertLinks(s);
-      await deliver(alertsWelcomeEmail(s.email, l.manage, l.unsubscribe, l.oneClick));
+      await deliverFromForm(alertsWelcomeEmail(s.email, l.manage, l.unsubscribe, l.oneClick));
       return send(res, 200, { ok: true, manageToken: alerts.token(s, 'manage') });
     }
 
@@ -657,12 +687,14 @@ export function createApp(config: AppConfig) {
       if (body.consent !== true) errors.consent = 'Please agree to share your details with this professional.';
       if (body.acknowledge !== true) errors.acknowledge = 'Please acknowledge the notice.';
       if (Object.keys(errors).length) throw new HttpError(422, 'Please fix the highlighted fields.', { errors });
+      if (!limiters.leadEmail.hit(email)) throw new HttpError(429, 'You’ve sent several messages in the last hour. Try again later.');
+      if (!limiters.leadPro.hit(row.id)) throw new HttpError(429, 'This professional has received many messages today. Try again tomorrow, or use the contact details on their profile.');
       const lead = { id: randomBytes(12).toString('hex'), proId: row.id, createdAt: now().toISOString(), name, email, phone, message, interest };
       db.leads.insert(lead);
       db.metrics.record(row.id, pacificDay(now()), 'lead', hasher.hash(clientIp(req), '', pacificDay(now())));
       // The lead is saved and shown on the advertiser's dashboard even if the email doesn't go out.
-      await deliver(leadEmail(row.profile.email, row.profile.name, lead, `${base}/#/advertiser`));
-      await deliver(leadReceiptEmail(email, row.profile.name));
+      await deliverFromForm(leadEmail(row.profile.email, row.profile.name, lead, `${base}/#/advertiser`));
+      await deliverFromForm(leadReceiptEmail(email, row.profile.name));
       return send(res, 202, { ok: true, message: `Your message was sent to ${row.profile.name}. They will contact you directly.` });
     }
 
@@ -676,13 +708,14 @@ export function createApp(config: AppConfig) {
       if (row) {
         const token = newToken();
         db.loginTokens.create(sha256(token), row.id, now().getTime() + LOGIN_TOKEN_TTL_MS);
-        await deliver(loginLinkEmail(email, row.profile.name, `${base}/#/advertiser/login/${token}`));
+        await deliverFromForm(loginLinkEmail(email, row.profile.name, `${base}/#/advertiser/login/${token}`));
       }
       return send(res, 200, generic);
     }
 
     if (method === 'POST' && path === '/api/pro/session') {
       assertAppRequest(req);
+      if (!limiters.proSession.hit(clientIp(req))) throw new HttpError(429, 'Too many attempts. Try again in 15 minutes.');
       const { token } = await readJson(req);
       if (typeof token !== 'string' || !/^[A-Za-z0-9_-]{40,50}$/.test(token)) throw new HttpError(400, 'This sign-in link is invalid or has expired.');
       const proId = db.loginTokens.consume(sha256(token), now().getTime());
@@ -777,18 +810,25 @@ export function createApp(config: AppConfig) {
       const username = plain(body.username, 64);
       const password = typeof body.password === 'string' ? body.password.slice(0, 256) : '';
       const trusted = (trustedAdminIps.get(ip) ?? 0) > now().getTime();
-      if (limiters.loginIp.blocked(ip) || (!trusted && limiters.loginUser.blocked(username))) throw new HttpError(429, 'Too many failed sign-in attempts. Wait 15 minutes.');
+      if (passwordChecks >= MAX_PASSWORD_CHECKS) throw new HttpError(429, 'Sign-in is busy. Try again in a minute.');
+      // Count the attempt BEFORE the slow check, so parallel requests can't all slip under the limit.
+      if (!limiters.loginIp.hit(ip) || (!trusted && !limiters.loginUser.hit(username))) throw new HttpError(429, 'Too many failed sign-in attempts. Wait 15 minutes.');
       // Always run the (slow) password check so response time doesn't reveal whether the username exists.
       const userOk = safeEqualStrings(username, config.adminUsername);
-      const passOk = await verifyPasswordAsync(password, config.adminPasswordHash);
+      passwordChecks++;
+      let passOk = false;
+      try {
+        passOk = await verifyPasswordAsync(password, config.adminPasswordHash);
+      } finally {
+        passwordChecks--;
+      }
       if (!(userOk && passOk)) {
-        limiters.loginIp.hit(ip);
-        limiters.loginUser.hit(username);
         // Don't store whatever was typed as an unknown username (it's sometimes a mistyped password).
         db.audit({ at: now().toISOString(), actor: userOk ? config.adminUsername : '(unknown user)', applicationId: null, action: 'LOGIN_FAILED', detail: ip });
         throw new HttpError(401, 'Incorrect username or password.');
       }
       limiters.loginIp.reset(ip);
+      limiters.loginUser.reset(username);
       trustedAdminIps.set(ip, now().getTime() + TRUSTED_IP_MS);
       const token = newToken();
       db.sessions.purge(now().getTime() - SESSION_MAX_MS);
@@ -854,7 +894,7 @@ export function createApp(config: AppConfig) {
       const b = broadcasts.create(subject, text, admin.subject, now().toISOString());
       broadcasts.closeIfEmpty(b.id, now().toISOString());
       audit(null, 'EMAIL_UPDATE_SENT', `"${subject}" to ${b.recipients}`);
-      void sendBroadcasts();
+      sendBroadcasts().catch((e) => console.error('Sending the email update failed:', e));
       return send(res, 202, { ok: true, broadcast: b });
     }
 
@@ -938,13 +978,33 @@ export function createApp(config: AppConfig) {
     const baseDir = resolve(root);
     const file = resolve(baseDir, normalize(rel));
     if (file !== baseDir && !file.startsWith(baseDir + sep)) return send(res, 404, { error: 'Not found' });
-    if (!existsSync(file) || !statSync(file).isFile()) return send(res, 404, { error: 'Not found' });
-    res.writeHead(200, {
+    let info;
+    try {
+      info = statSync(file);
+    } catch {
+      return send(res, 404, { error: 'Not found' });
+    }
+    if (!info.isFile()) return send(res, 404, { error: 'Not found' });
+    // Only Vite's content-hashed build files can be cached forever. Everything else (index.html, the
+    // signed feeds, the favicon) is revalidated on each use; the ETag makes an unchanged file a tiny 304.
+    const hashed = !fromData && path.startsWith('/assets/');
+    const etag = `W/"${info.size.toString(36)}-${Math.floor(info.mtimeMs).toString(36)}"`;
+    const headers = {
       'content-type': MIME[extname(file)] ?? 'application/octet-stream',
-      'cache-control': fromData || file.endsWith('index.html') ? 'no-store' : 'public, max-age=31536000, immutable',
-    });
+      'cache-control': hashed ? 'public, max-age=31536000, immutable' : 'no-cache',
+      etag,
+    };
+    if (!hashed && req.headers['if-none-match'] === etag) {
+      res.writeHead(304, headers);
+      return res.end();
+    }
+    res.writeHead(200, { ...headers, 'content-length': info.size });
     if (req.method === 'HEAD') return res.end();
-    createReadStream(file).pipe(res);
+    // pipeline() handles errors (a file removed mid-deploy, too many open files): the response is
+    // closed instead of the error crashing the whole server.
+    pipeline(createReadStream(file), res, (err) => {
+      if (err && !res.destroyed) res.destroy();
+    });
   }
 
   async function handler(req: IncomingMessage, res: ServerResponse) {
@@ -987,7 +1047,8 @@ export function createApp(config: AppConfig) {
     db.sessions.purge(t.getTime() - SESSION_MAX_MS);
     db.leads.purgeOlderThan(new Date(t.getTime() - 400 * 86_400_000).toISOString()); // ~13 months retention
     alerts.purgeUnconfirmed(t.toISOString());
-    void sendBroadcasts(); // resume a send interrupted by a restart
+    db.purgeStale(t.toISOString());
+    sendBroadcasts().catch((e) => console.error('Sending the email update failed:', e)); // resume a send interrupted by a restart
     const day = pacificDay(t);
     if (day.endsWith('-01')) {
       const prev = new Date(Date.parse(`${day}T12:00:00Z`) - 86_400_000).toISOString().slice(0, 7);

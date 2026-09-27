@@ -131,8 +131,16 @@ const app = createApp({
 // Hourly housekeeping: republish the signed directory (so it never expires and overdue
 // re-verifications or lapsed payments drop off), purge old visitor hashes, sessions and leads,
 // and on the 1st of the month email each advertiser last month's report.
-app.maintain();
-setInterval(() => app.maintain(), 3_600_000).unref();
+// A failure here (a full disk, say) is logged and retried next hour; it never takes the site down.
+const maintain = () => {
+  try {
+    app.maintain();
+  } catch (e) {
+    console.error('Hourly housekeeping failed:', e);
+  }
+};
+maintain();
+setInterval(maintain, 3_600_000).unref();
 
 // Email alerts for tracked properties: compare the verified listings feed with the last check every 10 minutes.
 const checkTracked = () => app.checkTracked().then((n) => n && console.log(`Sent ${n} tracked-property alert email(s).`)).catch((e) => console.error('Tracked-property check failed:', e));
@@ -161,7 +169,16 @@ if (!backupDir) console.log('Database backups off (BACKUP_DIR is empty).');
 backup();
 setInterval(backup, 3_600_000).unref();
 
-const server = createServer(app.handler).listen(port, env.HOST ?? '127.0.0.1', () => {
+// A promise nobody handled is a bug to log, not a reason to take the whole site down.
+process.on('unhandledRejection', (e) => console.error('Unhandled promise rejection:', e));
+
+// Timeouts against slow or idle connections (Node's defaults hold them for minutes), and a cap on open
+// connections so a flood can't run the server out of file handles. Cloudflare and the reverse proxy
+// in front keep their own connections open, so these are generous for real visitors.
+const server = createServer({ headersTimeout: 15_000, requestTimeout: 30_000, keepAliveTimeout: 5_000 }, app.handler);
+server.maxConnections = 2_000;
+server.maxRequestsPerSocket = 1_000;
+server.listen(port, env.HOST ?? '127.0.0.1', () => {
   console.log(`Forced-Sale Finder server on http://${env.HOST ?? '127.0.0.1'}:${port} (public URL ${baseUrl})`);
 });
 

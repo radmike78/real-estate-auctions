@@ -1,4 +1,17 @@
 # Replace with your domain. Caddy handles HTTPS certificates and redirects HTTP to HTTPS.
+
+# Don't hold slow or idle connections open (slow-request attacks).
+{
+	servers {
+		timeouts {
+			read_header 10s
+			read_body 30s
+			write 60s
+			idle 2m
+		}
+	}
+}
+
 forced-sale-finder.example.com {
 	encode zstd gzip
 	reverse_proxy 127.0.0.1:8080

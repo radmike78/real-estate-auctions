@@ -45,13 +45,18 @@ spec:
             httpGet: { path: /healthz, port: http }
             periodSeconds: 2
             failureThreshold: 30
+          # Generous timeouts: under a traffic spike a slow answer shouldn't take the only copy of the
+          # site out of service or restart it (which would also reset its spam limits).
           readinessProbe:
             httpGet: { path: /healthz, port: http }
             periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
           livenessProbe:
             httpGet: { path: /healthz, port: http }
             periodSeconds: 20
-            failureThreshold: 3
+            timeoutSeconds: 5
+            failureThreshold: 6
           resources:
             requests: { cpu: 100m, memory: 192Mi }
             limits: { memory: 512Mi }

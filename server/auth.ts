@@ -59,27 +59,73 @@ export function safeEqualStrings(a: string, b: string): boolean {
   return timingSafeEqual(x, y);
 }
 
-/** Sliding-window limiter kept in memory (single server process). */
+/**
+ * Sliding-window limiter kept in memory (single server process). Built to survive floods:
+ * - once a key is at its limit, further hits are refused without being stored, so each key holds at
+ *   most `limit` timestamps and a flooding client costs O(limit) per request, not O(requests);
+ * - keys are kept least-recently-used first and the oldest-used are evicted past `maxKeys`, so an
+ *   attacker cycling through addresses can't push out a key that is still being hit (like "admin");
+ * - expired keys are swept regularly.
+ */
 export class RateLimiter {
   private hits = new Map<string, number[]>();
+  private sinceSweep = 0;
   constructor(
     private readonly limit: number,
     private readonly windowMs: number,
+    private readonly maxKeys = 50_000,
   ) {}
-  /** Records a hit; returns false when the key is over its limit. */
+  private recent(key: string, now: number): number[] {
+    const list = this.hits.get(key);
+    if (!list) return [];
+    const fresh = list[0] !== undefined && now - list[0] >= this.windowMs ? list.filter((t) => now - t < this.windowMs) : list;
+    // Move to the most-recently-used end.
+    this.hits.delete(key);
+    if (fresh.length) this.hits.set(key, fresh);
+    return fresh;
+  }
+  /** Records a hit; returns false (and records nothing) when the key is over its limit. */
   hit(key: string, now = Date.now()): boolean {
-    const recent = (this.hits.get(key) ?? []).filter((t) => now - t < this.windowMs);
+    if (++this.sinceSweep >= 1_000) this.sweep(now);
+    const recent = this.recent(key, now);
+    if (recent.length >= this.limit) {
+      this.hits.set(key, recent);
+      return false;
+    }
     recent.push(now);
     this.hits.set(key, recent);
-    if (this.hits.size > 10_000) this.hits.delete(this.hits.keys().next().value!); // bound memory
-    return recent.length <= this.limit;
+    while (this.hits.size > this.maxKeys) this.hits.delete(this.hits.keys().next().value!); // least recently used
+    return true;
   }
   blocked(key: string, now = Date.now()): boolean {
-    return (this.hits.get(key) ?? []).filter((t) => now - t < this.windowMs).length >= this.limit;
+    return this.recent(key, now).length >= this.limit;
   }
   reset(key: string) {
     this.hits.delete(key);
   }
+  get size() {
+    return this.hits.size;
+  }
+  private sweep(now: number) {
+    this.sinceSweep = 0;
+    for (const [k, list] of this.hits) if (!list.length || now - list[list.length - 1] >= this.windowMs) this.hits.delete(k);
+  }
+}
+
+/**
+ * The key a client is rate-limited and counted by. IPv4 as is; IPv6 by its /64 network, because one
+ * home or server usually gets a whole /64 and could otherwise rotate through billions of addresses.
+ */
+export function clientKey(ip: string): string {
+  const v4 = /^(?:::ffff:)?(\d{1,3}(?:\.\d{1,3}){3})$/i.exec(ip);
+  if (v4) return v4[1];
+  if (!ip.includes(':')) return ip;
+  const [head, tail = ''] = ip.split('%')[0].toLowerCase().split('::');
+  const h = head ? head.split(':') : [];
+  const t = tail ? tail.split(':') : [];
+  const full = ip.includes('::') ? [...h, ...Array(Math.max(0, 8 - h.length - t.length)).fill('0'), ...t] : h;
+  if (full.length !== 8 || !full.every((x) => /^[0-9a-f]{1,4}$/.test(x))) return ip;
+  return `${full.slice(0, 4).map((x) => x.replace(/^0+(?=.)/, '')).join(':')}::/64`;
 }
 
 export function parseCookies(header: string | undefined): Record<string, string> {

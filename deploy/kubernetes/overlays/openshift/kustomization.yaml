@@ -12,3 +12,16 @@ images:
   - name: forced-sale-finder
     newName: ghcr.io/radmike78/real-estate-auctions # your image
     newTag: latest
+patches:
+  # Only the OpenShift router may reach the pod, so no other pod in the cluster can call it directly
+  # (and fake the X-Forwarded-For address it trusts).
+  - target:
+      kind: NetworkPolicy
+      name: forced-sale-finder
+    patch: |-
+      - op: add
+        path: /spec/ingress/0/from
+        value:
+          - namespaceSelector:
+              matchLabels:
+                policy-group.network.openshift.io/ingress: ""
