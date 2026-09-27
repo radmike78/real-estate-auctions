@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { FALLBACK_PROS } from '../data';
-import { FEED_PUBLIC_KEY_SPKI_B64 } from '../feed/publicKey';
+import { DIRECTORY_PUBLIC_KEY_SPKI_B64 } from '../feed/publicKey';
 import { loadVerifiedPros, type ProsFeedResult } from '../feed/prosFeed';
 import { CATEGORIES, CREDIT_PROFILES, LOAN_PRODUCTS, safeMailto, safeTel, searchPros, servicesFor, type Category, type Pro, type ProQuery } from '../lib/pros';
 import { track } from '../lib/track';
@@ -10,7 +10,7 @@ export function useDirectory(): { pros: Pro[]; usingSamples: boolean; error: str
   const [feed, setFeed] = useState<ProsFeedResult | null>(null);
   useEffect(() => {
     let alive = true;
-    loadVerifiedPros(FEED_PUBLIC_KEY_SPKI_B64).then((r) => alive && setFeed(r));
+    loadVerifiedPros(DIRECTORY_PUBLIC_KEY_SPKI_B64).then((r) => alive && setFeed(r));
     return () => {
       alive = false;
     };

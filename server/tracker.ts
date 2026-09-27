@@ -7,7 +7,7 @@
 // minimum bid, a new format or place, and reminders before the auction. Nothing is sent on the very
 // first check (there's nothing to compare with), or while the feed is missing, invalid or expired.
 
-import { createPublicKey, webcrypto, type KeyObject } from 'node:crypto';
+import { webcrypto } from 'node:crypto';
 import { readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import type { DatabaseSync } from 'node:sqlite';
@@ -102,8 +102,7 @@ export function dueReminders(s: ListingSnapshot, now: Date): { key: string; chan
 }
 
 /** Reads and verifies the published listings feed; cached until the file changes. Null if missing, invalid or expired. */
-export function feedReader(dataDir: string, signingKey: KeyObject | null) {
-  const publicSpki = signingKey ? createPublicKey(signingKey).export({ type: 'spki', format: 'der' }).toString('base64') : null;
+export function feedReader(dataDir: string, publicSpki: string | null) {
   let cache: { stamp: string; feed: Feed | null } | null = null;
   return async (now: Date): Promise<Feed | null> => {
     if (!publicSpki) return null;

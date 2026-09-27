@@ -46,7 +46,10 @@ export interface AppConfig {
   distDir: string | null; // built site; null = API only
   adminUsername: string;
   adminPasswordHash: string;
-  signingKey: KeyObject | null;
+  /** Signs the advertiser directory (pros.json). Never the listings key. */
+  directorySigningKey: KeyObject | null;
+  /** Public key (SPKI, base64) of the listings key, to read the signed listings feed. */
+  feedPublicKey: string | null;
   baseUrl: string; // public site URL used in emails
   mailer?: Mailer;
   secureCookies?: boolean;
@@ -100,7 +103,7 @@ export function createApp(config: AppConfig) {
   const tracker = openTracker(db.raw);
   const broadcasts = openBroadcasts(db.raw);
   const postalReady = config.postalAddressReady ?? ![SITE_INFO.operatorName, SITE_INFO.mailingAddress].some((v) => /^\[.*\]$/.test(v));
-  const readFeed = feedReader(config.dataDir, config.signingKey);
+  const readFeed = feedReader(config.dataDir, config.feedPublicKey);
   const mailer = config.mailer ?? consoleMailer;
   // Sending never breaks a request: a failure is logged (without the message body, which can hold
   // sign-in links) and reported to the caller, which decides whether the visitor needs to know.
@@ -230,9 +233,9 @@ export function createApp(config: AppConfig) {
 
   function publish(): number {
     listedCache.at = 0;
-    if (!config.signingKey) return 0;
+    if (!config.directorySigningKey) return 0;
     const feed = buildProsFeed(db.listByStatus('APPROVED'), now());
-    writeSignedJson(config.dataDir, 'pros.json', feed, config.signingKey);
+    writeSignedJson(config.dataDir, 'pros.json', feed, config.directorySigningKey);
     return feed.pros.length;
   }
 
@@ -804,7 +807,7 @@ export function createApp(config: AppConfig) {
       db.sessions.delete(admin.tokenHash);
       return send(res, 200, { ok: true }, { 'set-cookie': sessionCookie(ADMIN_COOKIE, '', '/api/admin', secure, 0) });
     }
-    if (method === 'GET' && path === '/api/admin/me') return send(res, 200, { username: admin.subject, signingConfigured: !!config.signingKey });
+    if (method === 'GET' && path === '/api/admin/me') return send(res, 200, { username: admin.subject, signingConfigured: !!config.directorySigningKey });
     if (method === 'GET' && path === '/api/admin/applications') return send(res, 200, { applications: db.list().map(adminView) });
     if (method === 'GET' && path === '/api/admin/site-stats') return send(res, 200, siteSummary(db, ...(Object.values(dateRange(url, 400)) as [string, string])));
     if (method === 'POST' && path === '/api/admin/publish') {

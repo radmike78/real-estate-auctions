@@ -5,7 +5,11 @@
 //   DB_PATH            default server/data/app.db
 //   DATA_DIR           signed feeds directory, default public/data
 //   DIST_DIR           built site to serve, default dist ("" for API only)
-//   FEED_SIGNING_KEY   Ed25519 PEM (or ingest/.keys/feed-signing.pem); without it the directory isn't published
+//   DIRECTORY_SIGNING_KEY  Ed25519 PEM that signs the advertiser directory (or ingest/.keys/directory-signing.pem);
+//                      without it the directory isn't published
+//   FEED_PUBLIC_KEY    Ed25519 public key (SPKI, base64) of the LISTINGS key (or ingest/.keys/feed-public-key.txt),
+//                      used to read the signed listings for email alerts. Container images set it from the
+//                      FEED_PUBLIC_KEY build argument. The web server never holds the listings private key.
 //   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_PLANS   online card payments for advertisers
 //                      (all three, or none: then billing is recorded by hand in the admin page).
 //                      STRIPE_PLANS is JSON: {"agent": {"priceId": "price_...", "amountLabel": "$199 / month"}, ...}
@@ -25,6 +29,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync } fr
 import { createServer } from 'node:http';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createPublicKey } from 'node:crypto';
 import { loadPrivateKey } from '../ingest/lib/sign';
 import { createApp } from './app';
 import { consoleMailer, postmarkMailer, type Mailer } from './mailer';
@@ -41,9 +46,25 @@ if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD_HASH?.startsWith('scrypt$')) {
   process.exit(1);
 }
 
-const keyFile = join(ROOT, 'ingest', '.keys', 'feed-signing.pem');
-const pem = env.FEED_SIGNING_KEY ?? (existsSync(keyFile) ? readFileSync(keyFile, 'utf8') : null);
-if (!pem) console.warn('No feed signing key: approvals are saved but the public directory is not published. Run `npm run keys:generate`.');
+const KEY_DIR = join(ROOT, 'ingest', '.keys');
+const readKeyFile = (name: string) => (existsSync(join(KEY_DIR, name)) ? readFileSync(join(KEY_DIR, name), 'utf8').trim() : null);
+if (env.FEED_SIGNING_KEY) {
+  console.error('FEED_SIGNING_KEY is for the listings updater only. Give the web server DIRECTORY_SIGNING_KEY and FEED_PUBLIC_KEY instead (see README, Deploy).');
+  process.exit(1);
+}
+const directoryPem = env.DIRECTORY_SIGNING_KEY ?? readKeyFile('directory-signing.pem');
+const directoryKey = directoryPem ? loadPrivateKey(directoryPem) : null;
+if (!directoryKey) console.warn('No directory signing key: approvals are saved but the public directory is not published. Run `npm run keys:generate`.');
+const feedPublicKey = (env.FEED_PUBLIC_KEY ?? readKeyFile('feed-public-key.txt'))?.trim() || null;
+if (feedPublicKey && !/^[A-Za-z0-9+/=]{40,200}$/.test(feedPublicKey)) {
+  console.error('FEED_PUBLIC_KEY must be the base64 public key from feed-public-key.txt.');
+  process.exit(1);
+}
+if (!feedPublicKey) console.warn('No FEED_PUBLIC_KEY: email alerts about listings are off until it is set.');
+if (directoryKey && feedPublicKey && createPublicKey(directoryKey).export({ type: 'spki', format: 'der' }).toString('base64') === feedPublicKey) {
+  console.error('DIRECTORY_SIGNING_KEY must be a different key from the listings key. Run `npm run keys:generate` (see README, Deploy).');
+  process.exit(1);
+}
 
 // Online payments: all three settings, or none.
 const stripeEnv = [env.STRIPE_SECRET_KEY, env.STRIPE_WEBHOOK_SECRET, env.STRIPE_PLANS];
@@ -97,7 +118,8 @@ const app = createApp({
   distDir: env.DIST_DIR === '' ? null : (env.DIST_DIR ?? join(ROOT, 'dist')),
   adminUsername: env.ADMIN_USERNAME,
   adminPasswordHash: env.ADMIN_PASSWORD_HASH,
-  signingKey: pem ? loadPrivateKey(pem) : null,
+  directorySigningKey: directoryKey,
+  feedPublicKey,
   baseUrl,
   secureCookies: !/^http:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(baseUrl),
   trustProxy: env.TRUST_PROXY === '1',

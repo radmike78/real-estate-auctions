@@ -19,7 +19,7 @@ import { assertPublicDns, IdentityError, isPrivateAddress, judgeIdentity, makeCe
 import { buildFeed } from './lib/publish';
 import { generateSigningKeys, loadPrivateKey, signBytes, verifyBytes } from './lib/sign';
 import { SOURCES, validateRegistry } from './sources/registry';
-import { verifyFeed } from '../src/feed/verify';
+import { refuseRollback, verifyFeed } from '../src/feed/verify';
 
 const dir = new URL('./fixtures/clark-2026-05/', import.meta.url);
 const REAL: RawSnapshot = {
@@ -389,6 +389,22 @@ describe('signed feed (anti-spoofing)', () => {
     expect(await verifyFeed(buf(bytes), forged, keys.publicSpkiB64, now, subtle)).toMatchObject({ ok: false, reason: 'BAD_SIGNATURE' });
     expect(await verifyFeed(buf(bytes), sig, keys.publicSpkiB64, new Date('2027-05-03T00:00:00Z'), subtle)).toMatchObject({ ok: false, reason: 'EXPIRED' });
     expect(await verifyFeed(buf(bytes), sig, null, now, subtle)).toMatchObject({ ok: false, reason: 'NOT_CONFIGURED' });
+  });
+
+  it('refuses a signed feed that claims to be valid for longer than the publisher ever signs for', async () => {
+    const [b, s] = signed({ ...feed, expiresAt: new Date(now.getTime() + 30 * 86_400_000).toISOString() });
+    expect(await verifyFeed(b, s, keys.publicSpkiB64, now, subtle)).toMatchObject({ ok: false, reason: 'MALFORMED' });
+  });
+
+  it('refuses to go back to an older signed feed once a newer one was seen (replay protection)', async () => {
+    const store = new Map<string, string>();
+    const storage = { getItem: (k: string) => store.get(k) ?? null, setItem: (k: string, v: string) => void store.set(k, v) };
+    const newer = await verifyFeed(buf(bytes), sig, keys.publicSpkiB64, now, subtle);
+    const [ob, os] = signed({ ...feed, generatedAt: new Date(now.getTime() - 3_600_000).toISOString() });
+    const older = await verifyFeed(ob, os, keys.publicSpkiB64, now, subtle);
+    expect(refuseRollback(newer, storage).ok).toBe(true);
+    expect(refuseRollback(older, storage)).toMatchObject({ ok: false, reason: 'ROLLED_BACK' });
+    expect(refuseRollback(newer, storage).ok).toBe(true); // the same feed again is fine
   });
 
   it('drops signed listings that link off official hosts or lack Assessor confirmation', async () => {

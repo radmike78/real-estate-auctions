@@ -1,3 +1,4 @@
+import { createPublicKey } from 'node:crypto';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -92,7 +93,8 @@ describe('tracking a verified listing (running server)', () => {
       distDir: null,
       adminUsername: 'admin',
       adminPasswordHash: hashPassword('a-long-admin-password'),
-      signingKey: key,
+      directorySigningKey: null,
+      feedPublicKey: createPublicKey(key).export({ type: 'spki', format: 'der' }).toString('base64'),
       baseUrl: 'https://fsf.example',
       mailer: { send: async (m) => void mails.push(m) },
       secureCookies: false,
@@ -247,7 +249,8 @@ describe('tracking an IRS sale (running server)', () => {
       distDir: null,
       adminUsername: 'admin',
       adminPasswordHash: hashPassword('a-long-admin-password'),
-      signingKey: key,
+      directorySigningKey: null,
+      feedPublicKey: createPublicKey(key).export({ type: 'spki', format: 'der' }).toString('base64'),
       baseUrl: 'https://fsf.example',
       mailer: { send: async (m) => void mails.push(m) },
       secureCookies: false,

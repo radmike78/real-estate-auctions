@@ -1,7 +1,8 @@
 # Forced-Sale Finder container image. Build it with Podman or Buildah (no Docker needed):
 #
 #   podman build -t localhost/forced-sale-finder:latest \
-#     --build-arg FEED_PUBLIC_KEY="$(cat feed-public-key.txt)" -f Containerfile .
+#     --build-arg FEED_PUBLIC_KEY="$(cat feed-public-key.txt)" \
+#     --build-arg DIRECTORY_PUBLIC_KEY="$(cat directory-public-key.txt)" -f Containerfile .
 #
 # One image runs both parts of the site:
 #   default command                       web server + API on port 8080
@@ -21,19 +22,23 @@ WORKDIR /build
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY . .
-# Public half of the feed-signing key pair, compiled into the site so browsers can verify listings.
-# Leave empty to build without it (live listings and the advertiser directory then stay off).
+# Public halves of the two signing key pairs, compiled into the site so browsers can verify the feeds:
+# FEED_PUBLIC_KEY for listings, DIRECTORY_PUBLIC_KEY for the advertiser directory. Leave one empty to
+# build without it (that feed then stays off).
 ARG FEED_PUBLIC_KEY=""
+ARG DIRECTORY_PUBLIC_KEY=""
 # Fictional sample properties and professionals are hidden in production images. Set to 1 for a demo site.
 ARG SHOW_SAMPLE_DATA=0
 # Set RUN_TESTS=0 to skip the test suite (not recommended).
 ARG RUN_TESTS=1
 RUN if [ "$RUN_TESTS" = "1" ]; then npm test; fi \
- && VITE_FEED_PUBLIC_KEY="$FEED_PUBLIC_KEY" VITE_SHOW_SAMPLE_DATA="$SHOW_SAMPLE_DATA" npm run build \
+ && VITE_FEED_PUBLIC_KEY="$FEED_PUBLIC_KEY" VITE_DIRECTORY_PUBLIC_KEY="$DIRECTORY_PUBLIC_KEY" VITE_SHOW_SAMPLE_DATA="$SHOW_SAMPLE_DATA" npm run build \
  && npm prune --omit=dev --no-audit --no-fund
 
 # ---------- runtime ----------
 FROM ${RUNTIME_IMAGE}
+# The web server reads the signed listings (for email alerts) with the public listings key.
+ARG FEED_PUBLIC_KEY=""
 USER 0
 WORKDIR /opt/app-root/src
 COPY --from=build /build/package.json ./
@@ -54,7 +59,8 @@ ENV NODE_ENV=production \
     INGEST_STATE_DIR=/data/ingest-state \
     BACKUP_DIR=/data/backups \
     DIST_DIR=/opt/app-root/src/dist \
-    NODE_OPTIONS=--no-warnings=ExperimentalWarning
+    NODE_OPTIONS=--no-warnings=ExperimentalWarning \
+    FEED_PUBLIC_KEY=${FEED_PUBLIC_KEY}
 
 VOLUME ["/data"]
 EXPOSE 8080

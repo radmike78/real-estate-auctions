@@ -1,3 +1,4 @@
+import { createPublicKey } from 'node:crypto';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -64,7 +65,7 @@ describe('daily digests (running server)', () => {
     snapshotSha256: 'b'.repeat(64),
   });
   const publishFeed = (listings: FeedListing[]) => {
-    const feed: Feed = { version: 1, generatedAt: clock.toISOString(), expiresAt: new Date(clock.getTime() + 3 * 86_400_000).toISOString(), sources: [], listings };
+    const feed: Feed = { version: 1, generatedAt: clock.toISOString(), expiresAt: new Date(clock.getTime() + 24 * 3_600_000).toISOString(), sources: [], listings };
     writeSignedJson(dataDir, 'listings.json', feed, key);
   };
   const hours = (h: number) => (clock = new Date(clock.getTime() + h * 3_600_000));
@@ -77,7 +78,8 @@ describe('daily digests (running server)', () => {
       distDir: null,
       adminUsername: 'admin',
       adminPasswordHash: hashPassword('a-long-admin-password'),
-      signingKey: key,
+      directorySigningKey: null,
+      feedPublicKey: createPublicKey(key).export({ type: 'spki', format: 'der' }).toString('base64'),
       baseUrl: 'https://fsf.example',
       mailer: { send: async (m) => void mails.push(m) },
       secureCookies: false,

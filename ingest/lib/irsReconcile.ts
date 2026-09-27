@@ -3,7 +3,32 @@
 
 import type { FeedFederalSale } from '../../src/feed/types';
 import type { IrsParseResult } from '../connectors/irsAuctions';
-import type { SourceState } from './reconcile';
+import type { Anomaly, SourceState } from './reconcile';
+
+/**
+ * Changes a defaced or spoofed index would show, held for an operator to confirm on the official site
+ * (like the county sources): a sale's minimum bid moving more than 3x, a sale moved to a different
+ * place, or a burst of new Clark County sales at once. Postponements and cancellations are normal and
+ * withdraw a sale without review.
+ */
+export function detectIrsAnomalies(prev: SourceState, next: IrsParseResult): Anomaly[] {
+  const known = prev.federalSales ?? {};
+  const avail = Object.values(known).filter((x) => x.state === 'AVAILABLE');
+  const out: Anomaly[] = [];
+  let bidShifts = 0;
+  let moved = 0;
+  for (const r of next.rows) {
+    const old = known[r.id];
+    if (!old || old.state !== 'AVAILABLE' || r.canceled) continue;
+    if (old.minimumBid && r.minimumBid && (r.minimumBid > old.minimumBid * 3 || r.minimumBid * 3 < old.minimumBid)) bidShifts++;
+    if (old.saleLocation && r.saleLocation && old.saleLocation.trim().toLowerCase() !== r.saleLocation.trim().toLowerCase()) moved++;
+  }
+  if (bidShifts) out.push({ code: 'BID_SHIFT', detail: `${bidShifts} IRS sale(s) changed minimum bid by more than 3x.` });
+  if (moved) out.push({ code: 'LOCATION_CHANGE', detail: `${moved} IRS sale(s) changed sale location.` });
+  const added = next.rows.filter((r) => !known[r.id]).length;
+  if (added > Math.max(5, avail.length * 2)) out.push({ code: 'MASS_ADDITION', detail: `${added} new Clark County IRS sales appeared in one update.` });
+  return out;
+}
 
 export function applyIrsSnapshot(
   prev: SourceState,

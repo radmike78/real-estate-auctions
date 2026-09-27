@@ -59,13 +59,17 @@ A page that parses cleanly can still be wrong: a defaced page, a partial respons
 | Mass addition | New parcels exceed 25% of the list |
 | Bid shift | More than 10% of parcels change minimum bid by over 3x |
 
+SID certificates have their own mass removal and addition rules (`detectSidAnomalies`). IRS sales (`detectIrsAnomalies`) are quarantined when a sale's minimum bid changes by more than 3x, a sale moves to a different location, or more than 5 new Clark County sales (or double the current count) appear at once. Postponements and cancellations withdraw a sale without review.
+
 While a source is quarantined, **it publishes no listings**. An operator checks the official site, then accepts the snapshot by its SHA-256 hash: `npm run ingest -- --approve-snapshot <sha256>`.
 
 ## 4. Signed, expiring feed
 
 - The ingester signs `public/data/listings.json` with an **Ed25519** private key. The key is kept in a secret manager (`FEED_SIGNING_KEY`), never in the repo.
+- **Two separate key pairs.** Only the listings updater holds the listings key. The web server signs the advertiser directory with its own key (`DIRECTORY_SIGNING_KEY`) and reads listings with the public listings key only (`FEED_PUBLIC_KEY`). It refuses to start if it's given `FEED_SIGNING_KEY`, and if its directory key is the same as the listings key. So a break-in to the internet-facing web server can't publish fake listings. On Kubernetes the listings key sits in its own Secret (`forced-sale-finder-feed-key`) that only the updater container reads.
 - The site has the matching public key compiled in (`src/feed/publicKey.ts`). The browser **verifies the signature over the exact bytes before parsing anything**. A modified file, a file signed with another key, or a missing signature shows zero listings.
-- Every feed carries an `expiresAt` derived from the source's update cadence. After it passes, the browser hides all listings. An open tab re-checks every 5 minutes. Replaying an old signed feed therefore stops working when it expires.
+- Every feed carries an `expiresAt` derived from the source's update cadence (never more than 24 hours; the browser refuses a feed that claims a longer life). After it passes, the browser hides all listings. An open tab re-checks every 5 minutes. Replaying an old signed feed therefore stops working when it expires.
+- **No going back.** The browser remembers the newest feed it has verified and refuses an older signed copy (`refuseRollback`), so a cache or host can't replay yesterday's list to show a parcel that has since been redeemed or lined out. The advertiser directory has the same protection.
 - The browser also re-validates each listing. It must have a valid parcel number and amounts, an auction date, an Assessor confirmation, and links only to allowlisted official HTTPS hosts. A signed listing that fails any of these is dropped.
 
 ## 5. Freshness: never show a parcel that is no longer for sale
@@ -187,7 +191,8 @@ The site never accepts bids, payments or account credentials. Every "Confirm" li
 
 ## Operations checklist
 
-- Store the signing key in a secret manager and rotate it with `npm run keys:generate -- --rotate`. Rebuild and redeploy the site in the same release.
+- Store the two signing keys in a secret manager, the listings key only where the updater runs. Rotate them with `npm run keys:generate -- --rotate`. Rebuild and redeploy the site in the same release.
+- Watch Certificate Transparency for the source hosts (for example, a free crt.sh or Cloudflare CT monitor for `clarkcountynv.gov` and `irsauctions.gov`). A certificate the agency didn't request is an early sign of a hijack attempt, including one from the same CA, which the issuer check can't catch.
 - Deploy the site and the feed from CI with restricted write access to the hosting bucket.
 - Alert on source health `error`, `quarantined` or `stale`, and on any `SchemaDriftError`.
 - Keep the `ingest/state` snapshots, including their hashes, for audit.

@@ -49,7 +49,8 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 | `BASE_URL` | no | yes | The web address people use, like `https://forcedsalefinder.com`. Used in emails and for secure cookies. |
 | `ADMIN_USERNAME` | no | yes | Admin sign-in name for `/#/admin`. |
 | `ADMIN_PASSWORD_HASH` | **yes** | yes | Hash of the admin password (never the password itself). Created in step 3 below. |
-| `FEED_SIGNING_KEY` | **yes** | yes | Private signing key (PEM) for the listings and directory feeds. Created in step 2 below. |
+| `DIRECTORY_SIGNING_KEY` | **yes** | yes (web) | Private key (PEM) that signs the advertiser directory. Web server only. Created in step 2 below. |
+| `FEED_SIGNING_KEY` | **yes** | yes (updater) | Private key (PEM) that signs the listings. **Listings updater only**: the web server refuses to start if it's given this key, so a break-in to the web server can't publish fake listings. |
 | `POSTMARK_SERVER_TOKEN` | **yes** | for a real site | Sends email through Postmark. Set it together with `MAIL_FROM`. See [Email](#email-postmark). |
 | `MAIL_FROM` | no | with the token | Sender address verified in Postmark, like `Forced-Sale Finder <no-reply@your-domain>`. |
 | `MAIL_REPLY_TO`, `POSTMARK_MESSAGE_STREAM`, `POSTMARK_BROADCAST_STREAM` | no | no | Where replies go (default: `MAIL_FROM`), the Postmark stream for sign-in, alert and other one-to-one email (default `outbound`), and the stream for updates to the general email list (default `broadcast`). |
@@ -63,7 +64,8 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 
 | Name | Default | What it does |
 | --- | --- | --- |
-| `FEED_PUBLIC_KEY` | empty | Public signing key built into the site (see step 2 below). Without it, live listings and the advertiser directory stay off. |
+| `FEED_PUBLIC_KEY` | empty | Public listings key, built into the site and the web server (see step 2 below). Without it, live listings stay off. |
+| `DIRECTORY_PUBLIC_KEY` | empty | Public directory key, built into the site. Without it, the advertiser directory stays off. |
 | `SHOW_SAMPLE_DATA` | `0` | `1` shows the fictional sample properties and professionals, for a demo site. Leave it at `0` for a real site. |
 | `RUN_TESTS` | `1` | `0` skips the test suite during the build (not recommended). |
 
@@ -130,14 +132,16 @@ git clone https://github.com/radmike78/real-estate-auctions.git
 cd real-estate-auctions
 ```
 
-**2. Create the signing key** (once, with OpenSSL). The site signs its listings and directory; browsers check the signature with the public key built into the image.
+**2. Create the two signing keys** (once, with OpenSSL). The listings updater signs the listings, and the web server signs the advertiser directory; browsers check both signatures with the public keys built into the image. Two separate keys mean a break-in to the web server can't publish fake listings.
 ```bash
-openssl genpkey -algorithm ed25519 -out feed-signing.pem
-openssl pkey -in feed-signing.pem -pubout -outform DER | base64 | tr -d '\n' > feed-public-key.txt
+for k in feed directory; do
+  openssl genpkey -algorithm ed25519 -out $k-signing.pem
+  openssl pkey -in $k-signing.pem -pubout -outform DER | base64 | tr -d '\n' > $k-public-key.txt
+done
 ```
-- `feed-signing.pem` is the **private key**. Keep it secret and back it up. It goes into a secret, never into Git.
-- `feed-public-key.txt` is the **public key**. It's safe to share and is passed to the image build as `FEED_PUBLIC_KEY`.
-- If you lose the private key, create a new pair and rebuild the image.
+- `feed-signing.pem` and `directory-signing.pem` are the **private keys**. Keep them secret and back them up. They go into secrets, never into Git. `feed-signing.pem` goes only to the listings updater.
+- `feed-public-key.txt` and `directory-public-key.txt` are the **public keys**. They're safe to share and are passed to the image build as `FEED_PUBLIC_KEY` and `DIRECTORY_PUBLIC_KEY`.
+- If you lose a private key, create a new pair and rebuild the image.
 
 **3. Create the admin password hash** (after you have an image; each option shows when). Type the password when asked; it's never shown or saved.
 ```bash
@@ -194,11 +198,13 @@ It asks for the web address, an admin username, an admin password and, optionall
 ```bash
 # Build (on RHEL-family hosts, add --pull=newer to refresh the base images)
 podman build -t localhost/forced-sale-finder:latest \
-  --build-arg FEED_PUBLIC_KEY="$(cat feed-public-key.txt)" -f Containerfile .
+  --build-arg FEED_PUBLIC_KEY="$(cat feed-public-key.txt)" \
+  --build-arg DIRECTORY_PUBLIC_KEY="$(cat directory-public-key.txt)" -f Containerfile .
 
 # Secrets (step 3 above creates admin-password-hash.txt)
 podman secret create fsf-admin-password-hash admin-password-hash.txt
-podman secret create fsf-feed-signing-key feed-signing.pem
+podman secret create fsf-feed-signing-key feed-signing.pem             # listings updater only
+podman secret create fsf-directory-signing-key directory-signing.pem   # web server only
 printf '%s' 'YOUR-POSTMARK-TOKEN' | podman secret create fsf-postmark-token -   # email; see Email (Postmark)
 
 # systemd services via Quadlet (rootless: use ~/.config/containers/systemd and systemctl --user)
@@ -244,10 +250,11 @@ There's no `systemctl enable` step: Quadlet services start at boot automatically
 
 **Steps**
 1. **Image.**
-   - **(a)** Use `ghcr.io/radmike78/real-estate-auctions:latest`. Set the repository variable `FEED_PUBLIC_KEY` to the contents of `feed-public-key.txt` *before* CI builds it.
+   - **(a)** Use `ghcr.io/radmike78/real-estate-auctions:latest`. Set the repository variables `FEED_PUBLIC_KEY` and `DIRECTORY_PUBLIC_KEY` to the contents of `feed-public-key.txt` and `directory-public-key.txt` *before* CI builds it.
    - **(b)** Build and push your own:
      ```bash
-     podman build -t quay.io/<you>/forced-sale-finder:1.0 --build-arg FEED_PUBLIC_KEY="$(cat feed-public-key.txt)" -f Containerfile .
+     podman build -t quay.io/<you>/forced-sale-finder:1.0 --build-arg FEED_PUBLIC_KEY="$(cat feed-public-key.txt)" \
+       --build-arg DIRECTORY_PUBLIC_KEY="$(cat directory-public-key.txt)" -f Containerfile .
      podman login quay.io && podman push quay.io/<you>/forced-sale-finder:1.0
      ```
    Put the image name and tag in `deploy/kubernetes/overlays/kubernetes/kustomization.yaml` (`images:`).
@@ -259,13 +266,15 @@ There's no `systemctl enable` step: Quadlet services start at boot automatically
      (`docker-registry` is just the name of the Kubernetes secret type; no Docker software is involved.)
 2. **Namespace:** `kubectl create namespace forced-sale-finder`
 3. **Password hash:** step 3 of [Before you start](#before-you-start-every-option), using your image name, with Podman or inside the cluster.
-4. **Secret.** Add the Postmark token for email ([Email](#email-postmark)). Add the three `STRIPE_*` values only if you use online payments:
+4. **Secrets.** Two of them: the listings key goes in its own secret that only the listings updater reads. Add the Postmark token for email ([Email](#email-postmark)). Add the three `STRIPE_*` values only if you use online payments:
    ```bash
    read -rs -p "Postmark Server API token: " PM; echo
    kubectl create secret generic forced-sale-finder-secrets -n forced-sale-finder \
      --from-file=ADMIN_PASSWORD_HASH=admin-password-hash.txt \
-     --from-file=FEED_SIGNING_KEY=feed-signing.pem \
+     --from-file=DIRECTORY_SIGNING_KEY=directory-signing.pem \
      --from-literal=POSTMARK_SERVER_TOKEN="$PM"
+   kubectl create secret generic forced-sale-finder-feed-key -n forced-sale-finder \
+     --from-file=FEED_SIGNING_KEY=feed-signing.pem
    unset PM
    #  --from-literal=STRIPE_SECRET_KEY=... --from-literal=STRIPE_WEBHOOK_SECRET=... --from-literal=STRIPE_PLANS='{...}'
    ```
@@ -312,13 +321,14 @@ No extra permissions are needed. Everything runs under OpenShift's default `rest
 1. `oc new-project forced-sale-finder`
 2. Edit `deploy/kubernetes/base/config.env`: set `BASE_URL` and `ADMIN_USERNAME`, and uncomment `MAIL_FROM` with your sender address. If you don't know the address yet, leave it for now; after deploying, read it from `oc get route forced-sale-finder`, set it, and run the `oc apply -k` command again.
 
-The Secret is created as part of each option below:
+The two Secrets are created as part of each option below (the listings key goes in its own secret that only the listings updater reads):
 ```bash
 read -rs -p "Postmark Server API token: " PM; echo
 oc create secret generic forced-sale-finder-secrets \
   --from-file=ADMIN_PASSWORD_HASH=admin-password-hash.txt \
-  --from-file=FEED_SIGNING_KEY=feed-signing.pem \
+  --from-file=DIRECTORY_SIGNING_KEY=directory-signing.pem \
   --from-literal=POSTMARK_SERVER_TOKEN="$PM"
+oc create secret generic forced-sale-finder-feed-key --from-file=FEED_SIGNING_KEY=feed-signing.pem
 unset PM
 # Optional online payments: add --from-literal=STRIPE_SECRET_KEY=... (all three STRIPE_* values)
 ```
@@ -329,13 +339,13 @@ unset PM
    oc create secret docker-registry regcred --docker-server=... --docker-username=... --docker-password=...
    oc secrets link default regcred --for=pull
    ```
-2. Make the password hash (step 3 of [Before you start](#before-you-start-every-option)) and create the Secret (above).
+2. Make the password hash (step 3 of [Before you start](#before-you-start-every-option)) and create the Secrets (above).
 3. `oc apply -k deploy/kubernetes/overlays/openshift`
 4. `oc rollout status deployment/forced-sale-finder`, then `oc get route forced-sale-finder` to get the HTTPS address.
 
 **Option B: build inside OpenShift from Git (no registry needed)**
 1. In `deploy/kubernetes/overlays/openshift-build/buildconfig.yaml`:
-   - paste the contents of `feed-public-key.txt` into `FEED_PUBLIC_KEY`;
+   - paste the contents of `feed-public-key.txt` into `FEED_PUBLIC_KEY`, and of `directory-public-key.txt` into `DIRECTORY_PUBLIC_KEY`;
    - if you use a fork, change the Git `uri` and `ref`.
 2. Create the webhook secret (used for automatic rebuilds):
    ```bash
@@ -352,14 +362,15 @@ unset PM
    oc logs -f bc/forced-sale-finder
    ```
    Until the next step is done, the pod waits with `CreateContainerConfigError`. That's expected.
-5. Make the password hash with the image you just built, then create the Secret:
+5. Make the password hash with the image you just built, then create the Secrets:
    ```bash
    read -rs -p "Admin password (12+ characters): " PW; echo
    printf '%s\n' "$PW" | oc run fsf-hash --rm -i --quiet --restart=Never --image=forced-sale-finder:latest \
      --command -- node --import tsx server/hash-password.ts 2>/dev/null | tr -d '\n' > admin-password-hash.txt
    unset PW
    oc create secret generic forced-sale-finder-secrets \
-     --from-file=ADMIN_PASSWORD_HASH=admin-password-hash.txt --from-file=FEED_SIGNING_KEY=feed-signing.pem
+     --from-file=ADMIN_PASSWORD_HASH=admin-password-hash.txt --from-file=DIRECTORY_SIGNING_KEY=directory-signing.pem
+   oc create secret generic forced-sale-finder-feed-key --from-file=FEED_SIGNING_KEY=feed-signing.pem
    oc rollout status deployment/forced-sale-finder
    oc get route forced-sale-finder
    ```
@@ -382,7 +393,7 @@ unset PM
 3. **image:** builds the image with **Podman**, starts it and checks `/healthz`. On `main`, it pushes the image to `ghcr.io/radmike78/real-estate-auctions` as `:latest` and `:<commit>`.
 
 To turn it on for your deployments:
-- Add the repository **variable** `FEED_PUBLIC_KEY` (Settings > Secrets and variables > Actions > Variables) with the contents of `feed-public-key.txt`.
+- Add the repository **variables** `FEED_PUBLIC_KEY` and `DIRECTORY_PUBLIC_KEY` (Settings > Secrets and variables > Actions > Variables) with the contents of `feed-public-key.txt` and `directory-public-key.txt`.
 - The first push creates the package in GitHub under Packages. Either make it public, or give your cluster a pull secret (shown above).
 
 Then roll out new versions:
@@ -401,6 +412,8 @@ For GitOps, point [Argo CD / OpenShift GitOps](https://argo-cd.readthedocs.io/) 
 | `ImagePullBackOff` | Wrong image name, or a private registry without a pull secret. See step 1 of your option. |
 | `CrashLoopBackOff` with "permission denied" on `/data` | Plain Kubernetes: keep the `fsGroup: 1001` patch in the Kubernetes overlay. OpenShift handles this automatically. |
 | Live tax sales says "didn't pass our security checks" | The image was built with a different public key than the private key in the secret. Rebuild with the matching `feed-public-key.txt`. |
+| Web container exits with "FEED_SIGNING_KEY is for the listings updater only" | The listings key was given to the web server. Put `DIRECTORY_SIGNING_KEY` in `forced-sale-finder-secrets` and `FEED_SIGNING_KEY` only in `forced-sale-finder-feed-key` (Podman: `fsf-directory-signing-key` for the web container). |
+| Pod stuck in `CreateContainerConfigError` | A secret is missing. Create both `forced-sale-finder-secrets` and `forced-sale-finder-feed-key`. |
 | Live tax sales is always empty | Expected until the Treasurer schedules an auction, and until `termsReviewedAt` is set in `ingest/sources/registry.ts` (see [Live data](#live-data)). |
 | Behind Cloudflare, spam limits ("Too many ... from this network") hit many people at once | Set `TRUST_CLOUDFLARE=1` ([Cloudflare](#cloudflare-recommended)). |
 | `ERR_TOO_MANY_REDIRECTS` behind Cloudflare | Cloudflare SSL mode is "Flexible". Set it to **Full (strict)**. |
@@ -435,11 +448,11 @@ The first real connector reads the **Clark County Treasurer's delinquent-propert
    npm run ingest -- --dry-run
    ```
    This verifies the sites' identity, then fetches, parses and cross-checks the data. To test offline from saved responses, run `npm run ingest -- --from-dir ingest/fixtures/clark-2026-05`.
-3. **Create the signing key:**
+3. **Create the signing keys:**
    ```bash
    npm run keys:generate
    ```
-   This writes the private key to `ingest/.keys/` (gitignored) and the public key into the site. Rebuild the site afterwards.
+   This writes the two private keys (listings and directory) to `ingest/.keys/` (gitignored) and the public keys into the site. Rebuild the site afterwards.
 4. **Run it:**
    ```bash
    npm run ingest -- --watch
@@ -538,7 +551,7 @@ The advertiser landing page is `#/advertise`, the application form is `#/adverti
 
 **Run it:**
 ```bash
-npm run keys:generate                  # once: signing key (rebuild the site after)
+npm run keys:generate                  # once: the two signing keys (rebuild the site after)
 npm run -s admin:hash-password         # type a 12+ character password; copy the output
 export ADMIN_USERNAME=you ADMIN_PASSWORD_HASH='scrypt$...'
 export BASE_URL=https://your-site.example   # used in emails

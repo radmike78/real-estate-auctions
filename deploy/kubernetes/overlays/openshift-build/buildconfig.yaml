@@ -1,5 +1,5 @@
 # Builds the Containerfile with OpenShift's built-in builder (Buildah), not Docker.
-# Edit the Git URL/branch if you use a fork, and paste your public signing key into FEED_PUBLIC_KEY.
+# Edit the Git URL/branch if you use a fork, and paste your public signing keys into FEED_PUBLIC_KEY and DIRECTORY_PUBLIC_KEY.
 # For a private repository, create a source secret and uncomment sourceSecret (see README).
 apiVersion: build.openshift.io/v1
 kind: BuildConfig
@@ -20,6 +20,8 @@ spec:
       buildArgs:
         - name: FEED_PUBLIC_KEY
           value: ""   # paste the contents of feed-public-key.txt
+        - name: DIRECTORY_PUBLIC_KEY
+          value: ""   # paste the contents of directory-public-key.txt
   output:
     to:
       kind: ImageStreamTag
