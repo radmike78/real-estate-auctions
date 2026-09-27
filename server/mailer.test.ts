@@ -103,7 +103,7 @@ describe('when email cannot be sent', () => {
         serviceCities: ['Las Vegas'], serviceZips: '89123', services: ['Short sales'], creditProfiles: [], languages: ['English'],
         headline: 'Short-sale specialist in the valley', phone: '(702) 555-0199', email: 'taylor@example.com', website: '',
         bio: 'I help buyers navigate short sales and lender approval in the Las Vegas valley.',
-        attestLicensed: true, attestAccurate: true, consentVerification: true, attestAdvertising: true,
+        attestLicensed: true, attestAccurate: true, consentVerification: true, attestAdvertising: true, attestOriginal: true,
       });
       expect(r.status).toBe(503);
       expect((await r.json()).error).toMatch(/couldn't send your confirmation email/);

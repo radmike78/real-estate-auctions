@@ -29,6 +29,7 @@ export const DISCLAIMERS: Record<DisclaimerKind, { title: string; text: string }
   financing: {
     title: "We don't offer financing",
     text:
+      'Lenders listed here pay to advertise. Being listed is not an endorsement. ' +
       "We help you find lenders to contact. We don't make, arrange, broker or negotiate loans, recommend a lender, or guarantee credit. " +
       "Any terms are between you and the lender, and we aren't responsible for them. Compare several Loan Estimates, read every " +
       "disclosure, check the lender's NMLS license, and never pay fees or wire money before you have verified the lender.",

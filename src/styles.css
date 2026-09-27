@@ -1146,3 +1146,8 @@ html { scroll-padding-top: 88px; }
 .drill-tile h2.drill-title { margin: 0; padding: 0; border: 0; font-size: 1.45rem; line-height: 1.25; }
 /* Professional-advice note on every practice page */
 .practice-advice { background: var(--info-bg); border-left: 4px solid var(--info); border-radius: 8px; padding: 12px 16px; margin: -6px 0 18px; }
+.content-rules { background: var(--info-bg); border-left: 4px solid var(--info); border-radius: 8px; padding: 12px 16px; margin-top: 14px; }
+.content-rules h3 { font-size: 1.05rem; margin: 0 0 6px; }
+.content-rules ul { margin: 0; padding-left: 20px; }
+.content-rules li + li { margin-top: 4px; }
+.paid-ad-notice { background: var(--info-bg); border-left: 4px solid var(--info); border-radius: 8px; padding: 12px 16px; margin: 16px 0; }

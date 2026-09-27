@@ -35,7 +35,7 @@ import { isSiteAction, isSitePage } from '../src/lib/siteStats';
 import { visitorIp } from './cloudflare';
 import { alertsAddEmail, alertsConfirmEmail, broadcastEmail, alertsManageLinkEmail, alertsWelcomeEmail, searchDigestEmail, trackedChangesEmail, approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
 import { ALERT_LIMITS, CONFIRM_TTL_MS, openAlerts, openBroadcasts, type Subscriber } from './alerts';
-import { SITE_INFO } from '../src/lib/siteInfo';
+import { SITE_INFO, TERMS_EFFECTIVE } from '../src/lib/siteInfo';
 import { parseSearchTarget, searchLabel } from '../src/lib/savedSearch';
 import { collectChanges, collectDigests, feedReader, labelOf, openTracker, TARGET_RE, trackableListings, type ListingSnapshot } from './tracker';
 import { CHECKOUT_URL_PREFIX, invoicePeriodEnd, invoiceSubscriptionId, PORTAL_URL_PREFIX, verifyWebhook, type StripeClient, type StripeEvent } from './stripe';
@@ -508,7 +508,7 @@ export function createApp(config: AppConfig) {
       const token = newToken();
       const t = now();
       db.insertApplication({ id, profile: v.profile, tokenHash: sha256(token), tokenExpires: new Date(t.getTime() + EMAIL_TOKEN_TTL_MS).toISOString(), now: t.toISOString() });
-      db.audit({ at: t.toISOString(), actor: 'applicant', applicationId: id, action: 'SUBMITTED', detail: CATEGORIES[v.profile.category].label });
+      db.audit({ at: t.toISOString(), actor: 'applicant', applicationId: id, action: 'SUBMITTED', detail: `${CATEGORIES[v.profile.category].label}. Confirmed: licensed, accurate, verification consent, original content, Terms of ${TERMS_EFFECTIVE}` });
       if (!(await deliverFromForm(confirmationEmail(v.profile.email, `${base}/#/advertise/confirm/${token}`, CATEGORIES[v.profile.category].regulator)))) {
         throw new HttpError(503, 'We couldn\'t send your confirmation email just now. Please try again in a few minutes.');
       }
@@ -937,6 +937,7 @@ export function createApp(config: AppConfig) {
         typeMatches: raw.typeMatches === true,
         companyMatches: raw.companyMatches === true,
         identityConfirmed: raw.identityConfirmed === true,
+        contentReviewed: raw.contentReviewed === true,
         identityMethod: plain(raw.identityMethod, 300),
       };
       const blockers = approvalBlockers(app.profile.category, verification, today());

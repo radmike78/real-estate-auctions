@@ -3,6 +3,7 @@ import LegalDraftNotice from './LegalDraftNotice';
 import PageHero from './PageHero';
 import { IconBadge, IconBank, IconCheckList, IconFile, IconFlag, IconHelp, IconHome, IconLayers, IconShield, IconStop } from './Icons';
 import { SITE_INFO, TERMS_EFFECTIVE } from '../lib/siteInfo';
+import { CONTENT_RULES } from '../lib/proApplication';
 import { fmtDate } from '../lib/status';
 
 const S = SITE_INFO;
@@ -125,6 +126,21 @@ const SECTIONS: DrillSection[] = [
           </li>
           <li>You give us permission to display your profile content on the site and in our signed directory while you're listed.</li>
         </ul>
+        <h3>Your content</h3>
+        <ul>
+          <li>
+            Everything you submit, including your headline and bio, must be your own original work or material you have written permission to
+            use. You keep ownership of it.
+          </li>
+          <li>You're responsible for your content. If someone makes a claim against us because of it, you agree to cover our reasonable costs, including legal fees.</li>
+          <li>We may edit or remove any content, or take down a listing, without notice if we believe it breaks these rules or the law.</li>
+          <li>
+            Think something on the site copies your work? Email {mail(S.contactEmail)} with a link to it and proof that you own it. We'll review it
+            promptly and remove anything that infringes. Advertisers who infringe repeatedly are removed.
+          </li>
+        </ul>
+        <p>Your profile must not include:</p>
+        <ul>{CONTENT_RULES.map((r) => <li key={r}>{r}</li>)}</ul>
         <h3>Fees and billing</h3>
         <ul>
           <li>Listings are a flat monthly fee, the same for everyone in a category. The current fee is shown before you pay.</li>
