@@ -214,8 +214,8 @@ describe('advertiser flow (running server)', () => {
     expect((await admin(`/api/admin/applications/${lenderId}/billing`, { billing: PAID })).status).toBe(200);
     feed = await readFeed();
     expect(feed.ok && feed.feed.pros.map((p) => [p.category, p.name, p.licenseVerifiedBy]).sort()).toEqual([
-      ['agent', 'Taylor Q. Applicant', 'Forced-Sale Finder staff'],
-      ['private_lender', 'Example Bridge Capital', 'Forced-Sale Finder staff'],
+      ['agent', 'Taylor Q. Applicant', 'DeedOwl staff'],
+      ['private_lender', 'Example Bridge Capital', 'DeedOwl staff'],
     ]);
     expect(readFileSync(join(dir, 'data', 'pros.json'), 'utf8')).not.toMatch(/"admin"/);
   });

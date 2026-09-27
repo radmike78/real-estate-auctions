@@ -15,7 +15,7 @@
 //                      STRIPE_PLANS is JSON: {"agent": {"priceId": "price_...", "amountLabel": "$199 / month"}, ...}
 //   POSTMARK_SERVER_TOKEN, MAIL_FROM   send email through Postmark (both, or neither: then emails are only
 //                      written to the log). MAIL_FROM is a sender verified in Postmark, e.g.
-//                      "Forced-Sale Finder <no-reply@your-domain>". Optional: MAIL_REPLY_TO,
+//                      "DeedOwl <no-reply@your-domain>". Optional: MAIL_REPLY_TO,
 //                      POSTMARK_MESSAGE_STREAM (default "outbound"),
 //                      POSTMARK_BROADCAST_STREAM (default "broadcast", for updates to the general email list).
 //   TRUST_PROXY=1      read client IP from the LAST X-Forwarded-For entry (only behind your own reverse proxy
@@ -95,7 +95,7 @@ if (env.POSTMARK_SERVER_TOKEN || env.MAIL_FROM) {
     process.exit(1);
   }
   if (!validSender(env.MAIL_FROM) || (env.MAIL_REPLY_TO && !ADDRESS.test(env.MAIL_REPLY_TO))) {
-    console.error('MAIL_FROM must look like "Forced-Sale Finder <no-reply@your-domain>" or no-reply@your-domain, and MAIL_REPLY_TO like help@your-domain.');
+    console.error('MAIL_FROM must look like "DeedOwl <no-reply@your-domain>" or no-reply@your-domain, and MAIL_REPLY_TO like help@your-domain.');
     process.exit(1);
   }
   mailer = postmarkMailer({ serverToken: env.POSTMARK_SERVER_TOKEN.trim(), from: env.MAIL_FROM.trim(), replyTo: env.MAIL_REPLY_TO?.trim() || undefined, messageStream: env.POSTMARK_MESSAGE_STREAM?.trim() || undefined, broadcastStream: env.POSTMARK_BROADCAST_STREAM?.trim() || undefined });
@@ -179,7 +179,7 @@ const server = createServer({ headersTimeout: 15_000, requestTimeout: 30_000, ke
 server.maxConnections = 2_000;
 server.maxRequestsPerSocket = 1_000;
 server.listen(port, env.HOST ?? '127.0.0.1', () => {
-  console.log(`Forced-Sale Finder server on http://${env.HOST ?? '127.0.0.1'}:${port} (public URL ${baseUrl})`);
+  console.log(`DeedOwl server on http://${env.HOST ?? '127.0.0.1'}:${port} (public URL ${baseUrl})`);
 });
 
 // Containers are stopped with SIGTERM: finish open requests, close the database cleanly, then exit.

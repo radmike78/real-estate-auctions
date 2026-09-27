@@ -24,7 +24,7 @@ export function toPro(row: ApplicationRow): Pro | null {
     licenseStatus: v.licenseStatus === 'Active' ? 'Active' : 'Inactive',
     licenseExpires: v.licenseExpires,
     licenseVerifiedAt: v.verifiedAt,
-    licenseVerifiedBy: 'Forced-Sale Finder staff', // the individual admin is never published
+    licenseVerifiedBy: 'DeedOwl staff', // the individual admin is never published
     paidThrough: row.billing.paidThrough,
     serviceCities: p.serviceCities,
     serviceZips: p.serviceZips,

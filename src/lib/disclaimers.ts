@@ -1,7 +1,7 @@
 // Single source for the site's role and disclaimers, so every page says the same thing.
 
 export const ROLE_SHORT =
-  'Forced-Sale Finder helps you find forced-sale properties from official sources, understand what each kind of sale involves, and follow the steps to invest. Each deal is yours to research and decide.';
+  'DeedOwl helps you find forced-sale properties from official sources, understand what each kind of sale involves, and follow the steps to invest. Each deal is yours to research and decide.';
 
 /** Where our information comes from, and that professional advice is the buyer's job. Shown on every page. */
 export const SOURCES_AND_ADVICE =

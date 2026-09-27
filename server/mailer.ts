@@ -103,7 +103,7 @@ export function postmarkMailer(opts: PostmarkOptions): Mailer {
 export const maskEmail = (to: string) => to.replace(/^(.{0,2})[^@]*@/, '$1***@');
 
 const FOOTER =
-  '\n--\nForced-Sale Finder helps people find options. We are not a lender, broker, agent or party to any transaction, ' +
+  '\n--\nDeedOwl helps people find options. We are not a lender, broker, agent or party to any transaction, ' +
   'and we are not responsible for any agreement between you and anyone you contact through the site.\n';
 
 // No applicant-supplied text is echoed here: the address isn't confirmed yet, so an attacker
@@ -111,7 +111,7 @@ const FOOTER =
 export function confirmationEmail(to: string, link: string, regulator: string): Mail {
   return {
     to,
-    subject: 'Confirm your email for your Forced-Sale Finder advertiser application',
+    subject: 'Confirm your email for your DeedOwl advertiser application',
     text:
       `Hello,\n\nThanks for applying to advertise. Please confirm this email address:\n\n${link}\n\n` +
       `The link expires in 48 hours. After you confirm, we verify your license with ${regulator} and confirm your ` +
@@ -124,7 +124,7 @@ export function confirmationEmail(to: string, link: string, regulator: string): 
 export function loginLinkEmail(to: string, name: string, link: string): Mail {
   return {
     to,
-    subject: 'Your Forced-Sale Finder advertiser sign-in link',
+    subject: 'Your DeedOwl advertiser sign-in link',
     text: `Hi ${name},\n\nSign in to see your advertising results and leads:\n\n${link}\n\nThis link works once and expires in 15 minutes. If you didn't ask for it, ignore this email.\n` + FOOTER,
   };
 }
@@ -132,7 +132,7 @@ export function loginLinkEmail(to: string, name: string, link: string): Mail {
 export function approvedEmail(to: string, name: string, dashboardUrl: string, payOnline: boolean): Mail {
   return {
     to,
-    subject: 'You are approved to advertise on Forced-Sale Finder',
+    subject: 'You are approved to advertise on DeedOwl',
     text:
       `Hi ${name},\n\nWe verified your license and identity, and your advertiser profile is approved.\n\n` +
       (payOnline
@@ -145,7 +145,7 @@ export function approvedEmail(to: string, name: string, dashboardUrl: string, pa
 export function paymentFailedEmail(to: string, name: string, dashboardUrl: string): Mail {
   return {
     to,
-    subject: 'Your Forced-Sale Finder payment did not go through',
+    subject: 'Your DeedOwl payment did not go through',
     text:
       `Hi ${name},\n\nThe latest payment for your advertising plan did not go through. Your profile stays live until the end of the period you already paid for.\n\n` +
       `To update your card, sign in to your dashboard and choose "Manage billing":\n\n${dashboardUrl}\n\nWe never ask for card details by email or phone.\n` +
@@ -156,9 +156,9 @@ export function paymentFailedEmail(to: string, name: string, dashboardUrl: strin
 export function leadEmail(to: string, proName: string, lead: LeadRow, dashboardUrl: string): Mail {
   return {
     to,
-    subject: `New contact request from ${lead.name} via Forced-Sale Finder`,
+    subject: `New contact request from ${lead.name} via DeedOwl`,
     text:
-      `Hi ${proName},\n\n${lead.name} asked to be contacted through your Forced-Sale Finder profile.\n\n` +
+      `Hi ${proName},\n\n${lead.name} asked to be contacted through your DeedOwl profile.\n\n` +
       `  Name:    ${lead.name}\n  Email:   ${lead.email}\n  Phone:   ${lead.phone ?? '(not given)'}\n` +
       `  About:   ${lead.interest ?? '(not specified)'}\n\n  Message:\n  ${lead.message}\n\n` +
       `They agreed to share these details with you only. Please respond directly and follow all laws that apply to ` +
@@ -184,7 +184,7 @@ export function leadReceiptEmail(to: string, proName: string): Mail {
 /** Every alert email ends with how to manage or stop them, and our postal address (required by CAN-SPAM). */
 function alertsFooter(manageUrl: string, unsubscribeUrl: string): string {
   return (
-    `\n--\nYou're getting this because you signed up for email from Forced-Sale Finder.\n` +
+    `\n--\nYou're getting this because you signed up for email from DeedOwl.\n` +
     `Change what you get: ${manageUrl}\nUnsubscribe from everything: ${unsubscribeUrl}\n` +
     `${SITE_INFO.operatorName}, ${SITE_INFO.mailingAddress}\n`
   );
@@ -202,9 +202,9 @@ export const unsubscribeHeaders = (oneClickUrl: string): Record<string, string> 
 export function alertsConfirmEmail(to: string, link: string, tracking?: string, kind: 'property' | 'search' = 'property'): Mail {
   return {
     to,
-    subject: 'Confirm your Forced-Sale Finder email alerts',
+    subject: 'Confirm your DeedOwl email alerts',
     text:
-      `Hello,\n\nPlease confirm that you want email from Forced-Sale Finder${tracking ? (kind === 'search' ? `, starting with daily emails about new matches for "${tracking}"` : `, starting with updates on ${tracking}`) : ''}:\n\n${link}\n\n` +
+      `Hello,\n\nPlease confirm that you want email from DeedOwl${tracking ? (kind === 'search' ? `, starting with daily emails about new matches for "${tracking}"` : `, starting with updates on ${tracking}`) : ''}:\n\n${link}\n\n` +
       `The link expires in 48 hours. If you didn't sign up, ignore this email and you won't hear from us again.\n\n` +
       `${SITE_INFO.operatorName}, ${SITE_INFO.mailingAddress}\n`,
   };
@@ -213,7 +213,7 @@ export function alertsConfirmEmail(to: string, link: string, tracking?: string, 
 export function alertsWelcomeEmail(to: string, manageUrl: string, unsubscribeUrl: string, oneClickUrl: string): Mail {
   return {
     to,
-    subject: "You're signed up for Forced-Sale Finder email",
+    subject: "You're signed up for DeedOwl email",
     text:
       `Hello,\n\nYour email is confirmed. Keep this message: the link below lets you change or stop your alerts at any time, ` +
       `no password needed.\n\n${manageUrl}\n\nEmail alerts are free. We never sell or share your address.\n` +
@@ -226,7 +226,7 @@ export function alertsWelcomeEmail(to: string, manageUrl: string, unsubscribeUrl
 export function alertsManageLinkEmail(to: string, manageUrl: string, unsubscribeUrl: string, oneClickUrl: string): Mail {
   return {
     to,
-    subject: 'Your Forced-Sale Finder email alerts link',
+    subject: 'Your DeedOwl email alerts link',
     text:
       `Hello,\n\nYou're already signed up. To change what you get, or to stop all email, use this link:\n\n${manageUrl}\n\n` +
       `If you didn't ask for this, you can ignore it. Nothing has changed.\n` +
@@ -300,7 +300,7 @@ export function alertsAddEmail(to: string, label: string, addUrl: string, manage
     to,
     subject: kind === 'search' ? `Confirm: save the search "${label}"` : `Confirm: track ${label}`,
     text:
-      `Hello,\n\nSomeone (hopefully you) asked to add ${what} to your Forced-Sale Finder email alerts. To add it, open this link and choose "Add it":\n\n${addUrl}\n\n` +
+      `Hello,\n\nSomeone (hopefully you) asked to add ${what} to your DeedOwl email alerts. To add it, open this link and choose "Add it":\n\n${addUrl}\n\n` +
       `If you didn't ask for this, ignore this email. Nothing has changed.\n` +
       alertsFooter(manageUrl, unsubscribeUrl),
     headers: unsubscribeHeaders(oneClickUrl),
@@ -344,7 +344,7 @@ export function broadcastEmail(to: string, subject: string, body: string, links:
     text:
       `${body.trim()}\n\n` +
       `Always confirm details with the official source before you bid.\n` +
-      `\n--\nYou're getting this because you signed up for general updates from Forced-Sale Finder.\n` +
+      `\n--\nYou're getting this because you signed up for general updates from DeedOwl.\n` +
       `Change what you get: ${links.manage}\nUnsubscribe from everything: ${links.unsubscribe}\n` +
       `${SITE_INFO.operatorName}, ${SITE_INFO.mailingAddress}\n`,
     headers: unsubscribeHeaders(links.oneClick),

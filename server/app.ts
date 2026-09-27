@@ -463,7 +463,7 @@ export function createApp(config: AppConfig) {
       const s = summarize(db, row.id, from, to);
       const { start, end } = pacificDaysToUtc(from, to);
       const leads = db.leads.forPro(row.id, start, end).length;
-      void deliver({ to: row.profile.email, subject: `Your Forced-Sale Finder report for ${month}`, text: monthlyReportText(row.profile.name, month, s, leads, `${base}/#/advertiser`) });
+      void deliver({ to: row.profile.email, subject: `Your DeedOwl report for ${month}`, text: monthlyReportText(row.profile.name, month, s, leads, `${base}/#/advertiser`) });
       db.reports.markSent(row.id, month, now().toISOString());
       sent++;
     }

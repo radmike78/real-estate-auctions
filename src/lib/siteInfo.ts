@@ -3,7 +3,7 @@
 // LEGAL_REVIEWED to true once a Nevada attorney has reviewed both pages.
 
 export const SITE_INFO = {
-  siteName: 'Forced-Sale Finder',
+  siteName: 'DeedOwl',
   /** The legal name of the business that runs the site (LLC, corporation or sole proprietor). */
   operatorName: '[Legal business name]',
   /** Mailing address for legal notices. */

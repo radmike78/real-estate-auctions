@@ -140,7 +140,7 @@ export default function EmailListAdmin() {
             <strong>Subject:</strong> {subject || '(subject)'}{'\n\n'}
             {body || '(your message)'}{'\n\n'}
             Always confirm details with the official source before you bid.{'\n\n'}
-            --{'\n'}You're getting this because you signed up for general updates from Forced-Sale Finder.{'\n'}
+            --{'\n'}You're getting this because you signed up for general updates from DeedOwl.{'\n'}
             Change what you get: (their own link){'\n'}Unsubscribe from everything: (their own link){'\n'}
             (your business name and postal address)
           </pre>

@@ -81,7 +81,7 @@ export default function LeadForm({ pro }: { pro: Pro }) {
         <label className="check attest">
           <input type="checkbox" checked={f.acknowledge} onChange={(e) => set('acknowledge', e.target.checked)} />
           <span>
-            I understand Forced-Sale Finder only helps me find options. It isn't a party to any agreement I make, and I'm responsible for my own
+            I understand DeedOwl only helps me find options. It isn't a party to any agreement I make, and I'm responsible for my own
             due diligence. <a href="#/disclaimer" target="_blank" rel="noreferrer">Read more</a>
             {errors.acknowledge && <span className="field-error"> {errors.acknowledge}</span>}
           </span>

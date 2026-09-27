@@ -161,7 +161,7 @@ export default function App() {
   useEffect(() => {
     const t = window.setTimeout(() => {
       const h1 = document.querySelector('main h1, h1')?.textContent?.trim();
-      document.title = route.page === 'home' || !h1 ? 'Forced-Sale Finder' : `${h1.slice(0, 70)} · Forced-Sale Finder`;
+      document.title = route.page === 'home' || !h1 ? 'DeedOwl' : `${h1.slice(0, 70)} · DeedOwl`;
     }, 60);
     return () => window.clearTimeout(t);
   }, [path]); // eslint-disable-line react-hooks/exhaustive-deps

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Forced-Sale Finder: one-command install (or update) with Podman.
+# DeedOwl: one-command install (or update) with Podman.
 #
 #   deploy/podman/install.sh               install as systemd services (Quadlet): starts now and on every boot
 #   deploy/podman/install.sh --no-systemd  just start the containers (quick try-out, laptops, Macs)
@@ -103,7 +103,7 @@ if [ -z "${FSF_RECREATE:-}" ]; then
   if [ -n "$PM_TOKEN" ]; then
     read -r -p "Send email from (an address verified in Postmark), like no-reply@your-domain: " MAIL_ADDR
     [[ "$MAIL_ADDR" =~ ^[^[:space:]@\<\>]+@[^[:space:]@\<\>]+\.[^[:space:]@\<\>]+$ ]] || die "That doesn't look like an email address."
-    MAIL_FROM="Forced-Sale Finder <$MAIL_ADDR>"
+    MAIL_FROM="DeedOwl <$MAIL_ADDR>"
   fi
 
   # ---------- secrets ----------
@@ -193,7 +193,7 @@ podman image prune -f >/dev/null 2>&1 || true
 URL=$(grep '^BASE_URL=' "$( [ "$MODE" = systemd ] && echo "$QUADLET_DIR" || echo "$KEY_DIR")/forced-sale-finder.env" | cut -d= -f2-)
 cat <<EOF
 
-Forced-Sale Finder is running.
+DeedOwl is running.
   Site:          $URL
   Admin page:    $URL/#/admin
   Signing keys:  $KEY_DIR/feed-signing.pem and directory-signing.pem   (back these up; keep them private)

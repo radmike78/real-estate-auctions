@@ -219,7 +219,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
                     ['attestLicensed', `I hold an active ${info.licenseLabel.replace(/ number| ID/i, '')} and I'm authorized to advertise for the company named above.`],
                     ['attestAccurate', "The information above is accurate, and I'll tell you if my license, company or contact details change."],
                     ['consentVerification', `I consent to verification with ${info.regulator} and to you contacting my company to confirm my identity.`],
-                    ['attestAdvertising', "I understand this is paid advertising with equal, rotating placement. Forced-Sale Finder isn't a party to any transaction and receives no referral fees. I'll follow all laws that apply to my services and to contacting consumers. I agree to the Terms of Use, including the Advertiser terms, and the Privacy Policy."],
+                    ['attestAdvertising', "I understand this is paid advertising with equal, rotating placement. DeedOwl isn't a party to any transaction and receives no referral fees. I'll follow all laws that apply to my services and to contacting consumers. I agree to the Terms of Use, including the Advertiser terms, and the Privacy Policy."],
                   ] as const
                 ).map(([k, label]) => (
                   <label key={k} className="check attest">

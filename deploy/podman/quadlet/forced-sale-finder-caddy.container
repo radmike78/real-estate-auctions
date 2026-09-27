@@ -1,7 +1,7 @@
 # Optional HTTPS front end: Caddy gets a free Let's Encrypt certificate for your domain automatically.
 # Needs ports 80 and 443 (see README), and your domain's DNS pointing at this server.
 [Unit]
-Description=Forced-Sale Finder HTTPS proxy (Caddy)
+Description=DeedOwl HTTPS proxy (Caddy)
 Wants=network-online.target
 After=network-online.target forced-sale-finder-web.service
 

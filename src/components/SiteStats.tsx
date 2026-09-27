@@ -123,7 +123,7 @@ export default function SiteStats() {
           <section className="media-kit" aria-label="Advertiser summary">
             <div className="media-kit-head">
               <span className="media-kit-label">Audience summary</span>
-              <h2>Forced-Sale Finder · Clark County, NV</h2>
+              <h2>DeedOwl · Clark County, NV</h2>
               <p className="muted">{fmtDate(s.from)} – {fmtDate(s.to)} ({s.days} days)</p>
             </div>
             <dl className="media-kit-grid">

@@ -1,6 +1,6 @@
 # Web server + API. Quadlet turns this file into the systemd service "forced-sale-finder-web".
 [Unit]
-Description=Forced-Sale Finder web server
+Description=DeedOwl web server
 Wants=network-online.target
 After=network-online.target
 

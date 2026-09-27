@@ -151,7 +151,7 @@ export function leadsToCsv(leads: LeadRow[]): string {
 export function monthlyReportText(name: string, month: string, s: MetricsSummary, leadCount: number, dashboardUrl: string): string {
   const pct = s.contactRate === null ? 'n/a' : `${Math.round(s.contactRate * 100)}%`;
   return (
-    `Hi ${name},\n\nHere is your Forced-Sale Finder advertising report for ${month}.\n\n` +
+    `Hi ${name},\n\nHere is your DeedOwl advertising report for ${month}.\n\n` +
     `  Times your profile appeared in search results: ${s.totals.impression.total}\n` +
     `  Profile views (unique visitors):                 ${s.totals.profile_view.uniques}\n` +
     `  Phone taps:                                      ${s.totals.phone_click.uniques}\n` +
