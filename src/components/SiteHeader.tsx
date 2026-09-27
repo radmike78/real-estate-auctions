@@ -16,7 +16,7 @@ const MORE: { group: string; links: (readonly [string, string])[] }[] = [
   { group: 'Research & about', links: [['#/pre-foreclosures', 'Pre-foreclosures (not for sale)'], ['#/about', 'How it works'], ['#/disclaimer', 'How we help']] },
 ];
 
-export default function SiteHeader({ current }: { current: string }) {
+export default function SiteHeader({ current, nav: navCount = 0 }: { current: string; nav?: number }) {
   const [deals, setDeals] = useState(() => loadDeals().length);
   useEffect(() => onDealsChange(() => setDeals(loadDeals().length)), []);
   const [open, setOpen] = useState(false);
@@ -25,7 +25,22 @@ export default function SiteHeader({ current }: { current: string }) {
   useEffect(() => {
     setOpen(false);
     document.querySelectorAll('details.more[open]').forEach((d) => d.removeAttribute('open'));
-  }, [current]);
+  }, [current, navCount]);
+  // Close menus on a click outside them, and on any menu link (even one to the page you're on).
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const t = e.target as Element | null;
+      const more = document.querySelector<HTMLDetailsElement>('details.more[open]');
+      if (t?.closest?.('.site-nav a')) {
+        more?.removeAttribute('open');
+        setOpen(false);
+      } else if (more && !more.contains(t)) {
+        more.removeAttribute('open');
+      }
+    };
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, []);
   // Opening the phone menu moves the keyboard into it; Escape closes More and the phone menu.
   useEffect(() => {
     if (open) nav.current?.querySelector<HTMLElement>('a')?.focus();

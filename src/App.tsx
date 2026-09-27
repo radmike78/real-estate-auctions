@@ -140,11 +140,15 @@ function parseHash(): Route {
 export default function App() {
   const [route, setRoute] = useState<Route>(parseHash);
   const [path, setPath] = useState(hashPath);
+  // Counts real navigations. Search rewrites its own URL (replaceState) as filters change, so the route
+  // alone can look unchanged when someone clicks back to plain #/search; this makes that a fresh page.
+  const [nav, setNav] = useState(0);
 
   useEffect(() => {
     const onHash = () => {
       setRoute(parseHash());
       setPath(hashPath());
+      setNav((n) => n + 1);
       window.scrollTo(0, 0);
     };
     window.addEventListener('hashchange', onHash);
@@ -177,7 +181,7 @@ export default function App() {
 
   return (
     <div className={`app${route.page === 'home' ? ' app-home' : ''}`}>
-      <SiteHeader current={path} />
+      <SiteHeader current={path} nav={nav} />
       {route.page === 'home' && <HomePage />}
       {route.page === 'notFound' && (
         <main className="page empty-page">
@@ -188,7 +192,7 @@ export default function App() {
         </main>
       )}
       {route.page === 'search' && (
-        <SearchPage key={`${route.q}|${route.types}|${route.statuses}|${route.cls}`} initialLocation={route.q} initialSaleTypes={route.types} initialStatuses={route.statuses} initialClass={route.cls} />
+        <SearchPage key={`${nav}|${route.q}|${route.types}|${route.statuses}|${route.cls}`} initialLocation={route.q} initialSaleTypes={route.types} initialStatuses={route.statuses} initialClass={route.cls} />
       )}
       {route.page === 'property' && <PropertyPage key={route.id} id={route.id} section={route.section} />}
       {route.page === 'about' && <AboutPage section={route.section} />}

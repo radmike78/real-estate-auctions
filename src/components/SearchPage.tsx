@@ -98,7 +98,9 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
   return (
     <div className="search-page">
       <div className="search-top">
-        <h1 className="search-title">Properties for sale in Clark County</h1>
+        <h1 className="search-title">
+          {filters.statuses.length > 0 && filters.statuses.every((s) => s === 'NOT_FOR_SALE_LIEN_ONLY') ? 'Liens on record in Clark County (not for sale)' : 'Properties for sale in Clark County'}
+        </h1>
         <form className="searchbar" role="search" onSubmit={submit}>
           <input aria-label="Search location" placeholder="City, ZIP or address" value={locationInput} onChange={(e) => setLocationInput(e.target.value)} />
           <button type="submit">Search</button>
