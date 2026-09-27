@@ -29,7 +29,7 @@ export default function AlertsPage({ mode, token, welcome, add }: { mode: Alerts
         compact={mode !== 'signup'}
         eyebrow={<span className="eyebrow">Free · No account needed</span>}
         title={mode === 'signup' ? <>Email <span className="grad">alerts</span></> : 'Email alerts'}
-        sub={mode === 'signup' ? 'Updates from Forced-Sale Finder in your inbox. Confirm once, then change or stop them any time from the link in every email.' : undefined}
+        sub={mode === 'signup' ? 'Updates from DeedOwl in your inbox. Confirm once, then change or stop them any time from the link in every email.' : undefined}
       />
       {mode === 'signup' && <SignUp />}
       {mode === 'confirm' && <Confirm token={token} />}

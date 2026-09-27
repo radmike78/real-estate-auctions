@@ -35,7 +35,7 @@ export type FetchResult =
 
 export class UntrustedSourceError extends Error {}
 
-const USER_AGENT = 'ForcedSaleFinder/0.1 (public-records monitor)';
+const USER_AGENT = 'DeedOwl/0.1 (public-records monitor)';
 
 export function assertTrustedUrl(raw: string, allowedHosts: string[]): URL {
   let u: URL;

@@ -1,6 +1,6 @@
 # Listings updater: checks official county sources on a schedule and writes the signed listings feed.
 [Unit]
-Description=Forced-Sale Finder listings updater
+Description=DeedOwl listings updater
 Wants=network-online.target
 After=network-online.target forced-sale-finder-web.service
 

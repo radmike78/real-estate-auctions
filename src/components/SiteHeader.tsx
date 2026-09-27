@@ -53,9 +53,9 @@ export default function SiteHeader({ current }: { current: string }) {
   };
   return (
     <header className="site-header">
-      <a href="#/" className="logo" aria-label="Forced-Sale Finder home">
+      <a href="#/" className="logo" aria-label="DeedOwl home">
         <span className="logo-mark" aria-hidden />
-        <span>Forced-Sale <b>Finder</b></span>
+        <span>Deed<b>Owl</b></span>
       </a>
       <nav ref={nav} id="site-nav" className={`site-nav${open ? ' open' : ''}`} aria-label="Main">
         {PRIMARY.map(([href, label]) => (

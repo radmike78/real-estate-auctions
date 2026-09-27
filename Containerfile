@@ -1,4 +1,4 @@
-# Forced-Sale Finder container image. Build it with Podman or Buildah (no Docker needed):
+# DeedOwl container image. Build it with Podman or Buildah (no Docker needed):
 #
 #   podman build -t localhost/forced-sale-finder:latest \
 #     --build-arg FEED_PUBLIC_KEY="$(cat feed-public-key.txt)" \
@@ -66,10 +66,10 @@ VOLUME ["/data"]
 EXPOSE 8080
 USER 1001
 
-LABEL org.opencontainers.image.title="Forced-Sale Finder" \
+LABEL org.opencontainers.image.title="DeedOwl" \
       org.opencontainers.image.description="Clark County, NV forced-sale real estate: web server, API and listings updater" \
       org.opencontainers.image.source="https://github.com/radmike78/real-estate-auctions" \
-      io.k8s.display-name="Forced-Sale Finder" \
+      io.k8s.display-name="DeedOwl" \
       io.openshift.expose-services="8080:http"
 
 CMD ["node", "--import", "tsx", "server/index.ts"]

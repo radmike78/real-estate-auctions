@@ -1,4 +1,4 @@
-# Forced-Sale Finder
+# DeedOwl
 
 A distressed-property and forced-sale discovery platform. It finds properties that are actually heading to a forced sale (tax-deed, trustee, HOA, sheriff, judicial, IRS or REO), not just properties with liens. It then answers four questions for each one:
 
@@ -46,13 +46,13 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 
 | Name | Secret? | Required | What it is |
 | --- | --- | --- | --- |
-| `BASE_URL` | no | yes | The web address people use, like `https://forcedsalefinder.com`. Used in emails and for secure cookies. |
+| `BASE_URL` | no | yes | The web address people use, like `https://deedowl.com`. Used in emails and for secure cookies. |
 | `ADMIN_USERNAME` | no | yes | Admin sign-in name for `/#/admin`. |
 | `ADMIN_PASSWORD_HASH` | **yes** | yes | Hash of the admin password (never the password itself). Created in step 3 below. |
 | `DIRECTORY_SIGNING_KEY` | **yes** | yes (web) | Private key (PEM) that signs the advertiser directory. Web server only. Created in step 2 below. |
 | `FEED_SIGNING_KEY` | **yes** | yes (updater) | Private key (PEM) that signs the listings. **Listings updater only**: the web server refuses to start if it's given this key, so a break-in to the web server can't publish fake listings. |
 | `POSTMARK_SERVER_TOKEN` | **yes** | for a real site | Sends email through Postmark. Set it together with `MAIL_FROM`. See [Email](#email-postmark). |
-| `MAIL_FROM` | no | with the token | Sender address verified in Postmark, like `Forced-Sale Finder <no-reply@your-domain>`. |
+| `MAIL_FROM` | no | with the token | Sender address verified in Postmark, like `DeedOwl <no-reply@your-domain>`. |
 | `MAIL_REPLY_TO`, `POSTMARK_MESSAGE_STREAM`, `POSTMARK_BROADCAST_STREAM` | no | no | Where replies go (default: `MAIL_FROM`), the Postmark stream for sign-in, alert and other one-to-one email (default `outbound`), and the stream for updates to the general email list (default `broadcast`). |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PLANS` | **yes** | no | Online card payments for advertisers: set all three or none. See [Online payments](#advertisers-signup-verification-billing-server). |
 | `TRUST_PROXY` | no | no | `1` when a reverse proxy, Ingress or OpenShift router sits in front (it is in every option below). |
@@ -120,7 +120,7 @@ The site sends plain-text email: advertiser confirmation and sign-in links, appr
 - Access to your domain's DNS, to verify it.
 
 **Set it up**
-1. In Postmark, create a **Server** (for example "Forced-Sale Finder"). Its default **Transactional** stream is `outbound`, which the site uses.
+1. In Postmark, create a **Server** (for example "DeedOwl"). Its default **Transactional** stream is `outbound`, which the site uses.
 2. **Sender Signatures → Add Domain:** add your domain and create the **DKIM** and **Return-Path** DNS records Postmark shows. Wait until both show as verified.
 3. **Request account approval** (Postmark asks a few questions about what you send). Until it's approved, Postmark only delivers to addresses at your own domain.
 4. Copy the **Server API token** (your server → **API Tokens**). It's a secret: store it only as shown below, never in Git or chat.
@@ -129,7 +129,7 @@ The site sends plain-text email: advertiser confirmation and sign-in links, appr
      ```bash
      printf '%s' 'YOUR-TOKEN' | podman secret create fsf-postmark-token -
      ```
-     Then add `MAIL_FROM=Forced-Sale Finder <no-reply@your-domain>` to `forced-sale-finder.env` in the Quadlet folder. Also uncomment the `Secret=fsf-postmark-token` line in `forced-sale-finder-web.container`, then run `systemctl daemon-reload` and restart `forced-sale-finder-web`. With `--no-systemd`, run `install.sh` again and enter the token and address when it asks.
+     Then add `MAIL_FROM=DeedOwl <no-reply@your-domain>` to `forced-sale-finder.env` in the Quadlet folder. Also uncomment the `Secret=fsf-postmark-token` line in `forced-sale-finder-web.container`, then run `systemctl daemon-reload` and restart `forced-sale-finder-web`. With `--no-systemd`, run `install.sh` again and enter the token and address when it asks.
    - **Kubernetes / OpenShift:** add `--from-literal=POSTMARK_SERVER_TOKEN=...` when you create `forced-sale-finder-secrets`, and uncomment `MAIL_FROM` in `deploy/kubernetes/base/config.env`. To add the token to an existing Secret:
      ```bash
      read -rs -p "Postmark Server API token: " PM; echo

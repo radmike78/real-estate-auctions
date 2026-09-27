@@ -23,13 +23,13 @@ function fakeFetch(responses: Array<{ status: number; body?: unknown } | Error>)
 describe('Postmark mailer', () => {
   it('sends a plain-text email with tracking off and header-safe fields', async () => {
     const { f, calls } = fakeFetch([{ status: 200, body: { ErrorCode: 0, Message: 'OK' } }]);
-    await postmarkMailer({ serverToken: 'tok-123', from: 'Forced-Sale Finder <no-reply@fsf.example>', replyTo: 'help@fsf.example', fetch: f }).send(MAIL);
+    await postmarkMailer({ serverToken: 'tok-123', from: 'DeedOwl <no-reply@fsf.example>', replyTo: 'help@fsf.example', fetch: f }).send(MAIL);
     expect(calls).toHaveLength(1);
     expect(calls[0].url).toBe('https://api.postmarkapp.com/email');
     expect((calls[0].init.headers as Record<string, string>)['X-Postmark-Server-Token']).toBe('tok-123');
     const body = JSON.parse(String(calls[0].init.body));
     expect(body).toEqual({
-      From: 'Forced-Sale Finder <no-reply@fsf.example>',
+      From: 'DeedOwl <no-reply@fsf.example>',
       To: 'buyer@example.com',
       Subject: 'Hello Bcc: evil@example.com',
       TextBody: MAIL.text,
