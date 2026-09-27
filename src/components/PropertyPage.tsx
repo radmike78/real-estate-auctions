@@ -72,7 +72,9 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   if (!p) {
     if (loading) return <main className="page"><p>Checking the official lists…</p></main>;
     return (
-      <main className="page">
+      <main className="page empty-page">
+        <OwlNote big>This property isn’t available</OwlNote>
+        <h1 className="sr-only">Property not available</h1>
         {id.startsWith(LIVE_ID_PREFIX) ? (
           <p>
             This parcel is no longer on the Clark County Treasurer’s verified auction list. It may have been paid off, withdrawn or sold.{' '}
@@ -84,7 +86,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             <a href="#/live">See current sales</a>
           </p>
         ) : (
-          <OwlNote>We couldn’t find that property. It may have sold or been removed. <a href="#/search">Back to search</a></OwlNote>
+          <p>We couldn’t find that property. It may have sold or been removed. <a href="#/search">Back to search</a></p>
         )}
       </main>
     );
@@ -417,7 +419,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             <div className="key"><dt>Minimum bid</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
             <div><dt>Est. market value</dt><dd>{notChecked(p.estimatedMarketValue, 'Your comps')}</dd></div>
             <div><dt>Liens likely {s ? 'surviving' : 'remaining'}</dt><dd className={money.likelySurviving ? 'neg' : ''}>{p.liensChecked === false ? <span className="muted">Not searched</span> : fmtMoney(money.likelySurviving)}</dd></div>
-            <div><dt>Rough spread, before costs</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : ''}>{notChecked(money.estimatedEquity, 'Needs your numbers')}</dd></div>
+            <div className="muted-stat"><dt>Rough spread, before costs</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : ''}>{notChecked(money.estimatedEquity, 'Needs your numbers')}</dd></div>
           </dl>
         )}
       </PageHero>

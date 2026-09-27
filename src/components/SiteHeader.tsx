@@ -49,7 +49,8 @@ export default function SiteHeader({ current }: { current: string }) {
   const active = (href: string) => {
     const path = current.split('?')[0];
     const target = href.slice(2);
-    return path === target || path.startsWith(`${target}/`) || (target === 'practice' && path.startsWith('practice/'));
+    const pros = ['agents', 'pros', 'financing'];
+    return path === target || path.startsWith(`${target}/`) || (target === 'agents' && pros.some((x) => path === x || path.startsWith(`${x}/`)));
   };
   return (
     <header className="site-header">
@@ -62,7 +63,7 @@ export default function SiteHeader({ current }: { current: string }) {
           <a key={href} href={href} className={active(href) ? 'active' : ''}>{label}</a>
         ))}
         <details className="more">
-          <summary className={MORE.some((g) => g.links.some(([h]) => active(h))) ? 'active' : ''}>
+          <summary className={MORE.some((g) => g.links.some(([h]) => h !== '#/pros' && h !== '#/financing' && active(h))) ? 'active' : ''}>
             More{deals > 0 && <><span className="nav-count" aria-hidden>{deals}</span><span className="sr-only">, {deals} saved deals</span></>}
           </summary>
           <div className="more-menu">

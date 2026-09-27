@@ -181,9 +181,9 @@ export default function App() {
       <SiteHeader current={path} />
       {route.page === 'home' && <HomePage />}
       {route.page === 'notFound' && (
-        <main className="page">
+        <main className="page empty-page">
+          <OwlNote big>Even owls miss one sometimes. The link may be old or mistyped.</OwlNote>
           <h1>We couldn’t find that page</h1>
-          <OwlNote>Even owls miss one sometimes. The link may be old or mistyped.</OwlNote>
           <p className="row"><a className="btn" href="#/">Go to the home page</a> <a className="btn btn-secondary" href="#/search">Find properties</a></p>
         </main>
       )}

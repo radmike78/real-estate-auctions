@@ -109,6 +109,7 @@ export default function DealsPage() {
       />
       {sorted.length === 0 ? (
         <section className="deals-empty">
+          <img className="owl-empty" src="logo.svg" alt="" width={112} height={112} />
           <h2>No saved properties yet</h2>
           <p>Open any property and choose <strong>☆ Save to My deals</strong>. It will show up here with its deadlines, your max bid and your due-diligence progress.</p>
           <a className="btn big" href="#/search">Browse properties</a>

@@ -75,7 +75,7 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
                   <dd>{fmtMoney(p.estimatedMarketValue)}</dd>
                 </div>
                 <div>
-                  <dt title="Estimated value minus the minimum bid and likely surviving liens. Leaves out uncertain liens, repairs and costs.">Rough spread, before costs</dt>
+                  <dt title="Estimated value minus the minimum bid and likely surviving liens. Leaves out uncertain liens, repairs and costs.">Spread before costs</dt>
                   <dd className={m.estimatedEquity !== null && m.estimatedEquity < 0 ? 'neg' : ''}>{fmtMoney(m.estimatedEquity)}</dd>
                 </div>
               </dl>
