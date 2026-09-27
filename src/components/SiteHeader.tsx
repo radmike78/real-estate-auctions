@@ -6,14 +6,14 @@ const PRIMARY = [
   ['#/search', 'Properties'],
   ['#/playbooks', 'Learn'],
   ['#/practice', 'Practice'],
-  ['#/calculator', 'Calculator'],
   ['#/agents', 'Find a pro'],
 ] as const;
 
 const MORE: { group: string; links: (readonly [string, string])[] }[] = [
+  { group: 'Tools', links: [['#/calculator', 'Maximum bid calculator'], ['#/deals', 'My deals']] },
   { group: 'Buy', links: [['#/live', 'Live tax sales'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures'], ['#/pre-foreclosures', 'Pre-foreclosure tracker']] },
   { group: 'Get help', links: [['#/agents', 'Real estate agents'], ['#/financing', 'Financing'], ['#/pros', 'Title, insurance & repairs']] },
-  { group: 'Stay informed', links: [['#/alerts', 'Email alerts'], ['#/about', 'How it works'], ['#/disclaimer', 'How we help']] },
+  { group: 'Stay informed', links: [['#/about', 'How it works'], ['#/disclaimer', 'How we help']] },
 ];
 
 export default function SiteHeader({ current }: { current: string }) {
@@ -61,18 +61,22 @@ export default function SiteHeader({ current }: { current: string }) {
         {PRIMARY.map(([href, label]) => (
           <a key={href} href={href} className={active(href) ? 'active' : ''}>{label}</a>
         ))}
-        <a href="#/deals" className={active('#/deals') ? 'active' : ''}>My deals{deals > 0 && <><span className="nav-count" aria-hidden>{deals}</span><span className="sr-only">, {deals} saved</span></>}</a>
         <details className="more">
-          <summary>More</summary>
+          <summary className={MORE.some((g) => g.links.some(([h]) => active(h))) ? 'active' : ''}>
+            More{deals > 0 && <><span className="nav-count" aria-hidden>{deals}</span><span className="sr-only">, {deals} saved deals</span></>}
+          </summary>
           <div className="more-menu">
             {MORE.map((g) => (
               <div key={g.group} className="more-group" role="group" aria-label={g.group}>
                 <span className="more-group-title" aria-hidden>{g.group}</span>
-                {g.links.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
+                {g.links.map(([href, label]) => (
+                  <a key={href} href={href}>{label}{href === '#/deals' && deals > 0 && <span className="nav-count">{deals}</span>}</a>
+                ))}
               </div>
             ))}
           </div>
         </details>
+        <a href="#/alerts" className={`nav-cta${active('#/alerts') ? ' active' : ''}`}>Get alerts</a>
       </nav>
       <button ref={menuBtn} className="menu-btn" aria-expanded={open} aria-controls="site-nav" aria-label="Menu" onClick={() => setOpen(!open)}>
         <span /><span /><span />

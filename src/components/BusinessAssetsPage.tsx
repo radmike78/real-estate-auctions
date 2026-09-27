@@ -97,8 +97,7 @@ export default function BusinessAssetsPage({ section }: { section?: string }) {
         sub={
           open ? undefined : (
             <>
-              Equipment, inventory, vehicles and whole businesses sold when a business closes or can’t pay its debts. Sold by bankruptcy trustees,
-              court receivers, the Sheriff and tax agencies, not by the owner.
+              Equipment, inventory and whole businesses, sold by trustees, receivers, the Sheriff and tax agencies.
             </>
           )
         }

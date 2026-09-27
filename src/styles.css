@@ -1163,3 +1163,36 @@ html { scroll-padding-top: 88px; }
 .owl-note p { margin: 0; font-weight: 600; }
 .hero-tagline { margin: 0 0 6px; font-family: var(--font-display); font-weight: 700; font-size: 1.35rem; letter-spacing: -0.01em; color: #e2e8f0; }
 .trust-live { color: #86efac; font-weight: 600; }
+
+.owl-note.big { flex-direction: column; text-align: center; gap: 10px; }
+.owl-note.big img { width: 128px; height: 128px; filter: drop-shadow(0 10px 24px rgb(59 130 246 / 0.35)); }
+.owl-note.big p { font-size: 1.2rem; }
+/* Header call to action */
+.site-nav > a.nav-cta { margin-left: 6px; color: #fff; font-weight: 600; background: linear-gradient(135deg, #2563eb, #7c3aed); box-shadow: 0 6px 18px -8px rgb(99 102 241 / 0.9); }
+.site-nav > a.nav-cta:hover { background: linear-gradient(135deg, #1d4ed8, #6d28d9); }
+.more summary.active { color: #fff; background: rgb(255 255 255 / 0.1); }
+.more-menu .nav-count { margin-left: 8px; }
+/* Sale-type icon on listing cards */
+.card-icon { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; flex: none; color: #fff; background: linear-gradient(135deg, #22d3ee, #3b82f6 50%, #8b5cf6); }
+.card-icon.wait { background: linear-gradient(135deg, #fcd34d, #f59e0b 55%, #f97316); }
+.card-icon svg { width: 19px; height: 19px; }
+/* Home: one main next step, two quieter links */
+.browse-tools .browse-main { border: 0; color: #fff; }
+.browse-links { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
+.browse-links a { border: 0 !important; padding: 0 !important; background: none !important; text-decoration: underline; text-underline-offset: 4px; }
+.browse-tools { flex-direction: column; align-items: center; gap: 16px; }
+
+/* Practice: one notice, then a two-step picker */
+.practice-ribbon p { margin: 0; }
+.practice-ribbon p + p { margin-top: 8px; }
+.practice-step { display: flex; align-items: center; gap: 12px; margin: 26px 0 14px; }
+.practice-step span { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; flex: none; color: #fff; font-size: 1.1rem; background: linear-gradient(135deg, #22d3ee, #3b82f6 50%, #8b5cf6); }
+.practice-sales { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 14px; }
+.practice-sale-tile { display: flex; flex-direction: column; gap: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; text-decoration: none; color: var(--text); transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; }
+.practice-sale-tile:hover { border-color: #93c5fd; transform: translateY(-3px); box-shadow: 0 16px 36px -16px rgb(59 130 246 / 0.55); }
+.practice-sale-tile strong { font-family: var(--font-display); font-size: 1.25rem; line-height: 1.25; }
+.practice-sale-tile .practice-card-foot { gap: 8px; justify-content: flex-start; }
+.practice-sale-tile .practice-card-foot > span:last-child { margin-left: auto; }
+.page > h2.practice-step::before { display: none; }
+.browse-tools a.browse-main { background: linear-gradient(135deg, #2563eb, #7c3aed); padding: 14px 30px; border: 0; color: #fff; box-shadow: 0 10px 26px -10px rgb(99 102 241 / 0.9); }
+.browse-tools a.browse-main:hover { background: linear-gradient(135deg, #1d4ed8, #6d28d9); color: #fff; text-decoration: none; }

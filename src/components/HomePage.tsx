@@ -71,9 +71,11 @@ export default function HomePage() {
           ))}
         </div>
         <nav className="browse-tools" aria-label="Learn before you buy">
-          <a href="#/playbooks">How each sale works →</a>
-          <a href="#/practice">Practice buying, hands-on →</a>
-          <a href="#/calculator">Maximum bid calculator →</a>
+          <a className="btn big browse-main" href="#/practice">Practice buying, hands-on →</a>
+          <span className="browse-links">
+            <a href="#/playbooks">How each sale works</a>
+            <a href="#/calculator">Maximum bid calculator</a>
+          </span>
         </nav>
         <ul className="browse-trust" aria-label="Why trust it">
           {live.result?.ok && liveCount > 0 && (

@@ -10,77 +10,92 @@ import type { SaleKey } from '../practice/types';
 
 export function PracticeRibbon() {
   return (
-    <>
-      <div className="practice-ribbon" role="note">
+    <div className="practice-ribbon" role="note">
+      <p>
         <strong>Practice mode.</strong> Fictional properties for hands-on learning. Nothing here is for sale, and every name, address and number is made up.
-      </div>
-      <p className="practice-advice" role="note">
+      </p>
+      <p>
         <strong>Get professional advice.</strong> You can do every step on your own, but we still recommend professional advice, especially if you’re new
         to investing. It matters most for complex investments, financing and taxes: talk with a real estate attorney, a licensed lender and a tax
         advisor before you commit to a real deal.
       </p>
-    </>
+    </div>
   );
 }
 
-/** Pick a kind of sale and a kind of property, then practice buying it step by step. */
+/** Step 1: pick a kind of sale. Step 2: pick a property that fits it. Then practice buying it step by step. */
 export default function PracticePage({ sale }: { sale?: string }) {
   const [cls, setCls] = useState<ClassFilter>('all');
-  const sales = SALE_ORDER.filter((s) => !sale || s === sale);
-  const props = PRACTICE_PROPERTIES.filter((p) => cls === 'all' || p.cls === cls);
+  const chosen = sale && (SALE_ORDER as string[]).includes(sale) ? (sale as SaleKey) : null;
+  const titleOf = (s: SaleKey) => playbookByKey(s)?.title ?? s;
 
+  if (!chosen) {
+    return (
+      <main className="page practice">
+        <PageHero
+          eyebrow={<span className="practice-tag">Hands-on practice</span>}
+          title={<>Practice <span className="grad">buying</span></>}
+          sub="Buy a fictional property step by step, from research to the day after the sale."
+        />
+        <PracticeRibbon />
+        <h2 className="practice-step"><span aria-hidden>1</span> Choose a kind of sale</h2>
+        <div className="practice-sales">
+          {SALE_ORDER.map((s) => {
+            const runs = PRACTICE_PROPERTIES.map((p) => buildScenario(s, p)).filter((x): x is NonNullable<typeof x> => !!x);
+            const done = runs.filter((r) => completion(r.id, r.stages.reduce((n, st) => n + st.tasks.length, 0)) === 1).length;
+            return (
+              <a key={s} href={`#/practice?sale=${s}`} className="practice-sale-tile">
+                <strong>{titleOf(s)}</strong>
+                <span className="muted">{playbookByKey(s)?.oneLine}</span>
+                <span className="practice-card-foot">
+                  <span className="badge tone-info">{runs.length} {runs.length === 1 ? 'property' : 'properties'}</span>
+                  {done > 0 && <span className="badge tone-go">{done} completed</span>}
+                  <span aria-hidden>→</span>
+                </span>
+              </a>
+            );
+          })}
+        </div>
+      </main>
+    );
+  }
+
+  const props = PRACTICE_PROPERTIES.filter((p) => (cls === 'all' || p.cls === cls) && !whyUnavailable(chosen, p));
   return (
     <main className="page practice">
       <PageHero
         eyebrow={<span className="practice-tag">Hands-on practice</span>}
-        title={<>Practice <span className="grad">buying</span></>}
-        sub="Walk through a real buying process on a fictional property: research it, contact the professionals you’d need, run the numbers, prepare your documents and money, and see what happens at the sale and after."
+        title={<>Practice: <span className="grad">{titleOf(chosen)}</span></>}
+        sub={playbookByKey(chosen)?.oneLine}
       />
       <PracticeRibbon />
-      <p>
-        Choose a kind of sale, then a kind of property. Each practice run follows the rules for that kind of sale in Clark County, Nevada, taken from our{' '}
-        <a href="#/playbooks">Nevada playbooks</a>. The people you contact are fictional and their replies are simulated, so nothing is sent anywhere.
-      </p>
+      <p><a href="#/practice">← Choose a different kind of sale</a></p>
+      <h2 className="practice-step"><span aria-hidden>2</span> Choose a property</h2>
       <div className="row practice-filter">
         <ClassSwitch value={cls} onChange={setCls} label="Residential or commercial" />
-        {sale && <a href="#/practice">Show every kind of sale</a>}
       </div>
-
-      {sales.map((s) => {
-        const pb = playbookByKey(s === 'foreclosure' ? 'foreclosure' : s);
-        return (
-          <section key={s} className="practice-sale" aria-labelledby={`ps-${s}`}>
-            <h2 id={`ps-${s}`}>{pb?.title}</h2>
-            <p className="muted">{pb?.oneLine}</p>
-            <div className="practice-grid">
-              {props.map((p) => {
-                const why = whyUnavailable(s as SaleKey, p);
-                if (why) {
-                  return (
-                    <div key={p.id} className="practice-card unavailable" title={why}>
-                      <span className="practice-card-type">{p.label}</span>
-                      <span className="small muted">{why}</span>
-                    </div>
-                  );
-                }
-                const sc = buildScenario(s as SaleKey, p)!;
-                const total = sc.stages.reduce((n, st) => n + st.tasks.length, 0);
-                const pct = Math.round(completion(sc.id, total) * 100);
-                return (
-                  <a key={p.id} href={`#/practice/${sc.id}`} className="practice-card">
-                    <span className="practice-card-type">{p.label}</span>
-                    <span className="small muted">{p.cls === 'commercial' ? 'Commercial' : 'Residential'} · {p.city}</span>
-                    <span className="practice-card-foot">
-                      {pct > 0 ? <span className="badge tone-go">{pct === 100 ? 'Completed' : `${pct}% done`}</span> : <span className="badge tone-info">Practice</span>}
-                      <span aria-hidden>→</span>
-                    </span>
-                  </a>
-                );
-              })}
-            </div>
-          </section>
-        );
-      })}
+      <div className="practice-grid">
+        {props.map((p) => {
+          const sc = buildScenario(chosen, p)!;
+          const total = sc.stages.reduce((n, st) => n + st.tasks.length, 0);
+          const pct = Math.round(completion(sc.id, total) * 100);
+          return (
+            <a key={p.id} href={`#/practice/${sc.id}`} className="practice-card">
+              <span className="practice-card-type">{p.label}</span>
+              <span className="small muted">{p.cls === 'commercial' ? 'Commercial' : 'Residential'} · {p.city}</span>
+              <span className="practice-card-foot">
+                {pct > 0 ? <span className="badge tone-go">{pct === 100 ? 'Completed' : `${pct}% done`}</span> : <span className="badge tone-info">Practice</span>}
+                <span aria-hidden>→</span>
+              </span>
+            </a>
+          );
+        })}
+      </div>
+      {props.length === 0 && <p className="muted">No {cls} properties for this kind of sale. Try All.</p>}
+      <p className="muted">
+        Each practice run follows the rules for this kind of sale in Clark County, from our <a href="#/playbooks">Nevada playbooks</a>. The people you
+        contact are fictional and their replies are simulated, so nothing is sent anywhere.
+      </p>
     </main>
   );
 }

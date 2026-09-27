@@ -55,7 +55,7 @@ export default function LivePage() {
       <PageHero
         eyebrow={<span className="eyebrow"><span className="live-dot" aria-hidden /> From official lists, checked by us</span>}
         title={<>Live <span className="grad">tax sales</span></>}
-        sub="Parcels the Clark County Treasurer currently lists for its delinquent-tax auction, and Clark County property the IRS is selling, re-checked against the official lists and the Assessor's parcel records."
+        sub="Treasurer tax-sale parcels and IRS sales in Clark County, re-checked against the official lists."
       />
       <p className="muted">
         Listings are re-checked on a schedule that follows how often each official list is updated. Parcels that are paid off (lined out), sold,

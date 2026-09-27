@@ -112,16 +112,15 @@ export default function AboutPage({ section }: { section?: string }) {
         compact={open}
         eyebrow={<span className="eyebrow">The basics</span>}
         title={open ? <a className="title-link" href="#/about">How it works</a> : <>How it <span className="grad">works</span></>}
-        sub={
-          open ? undefined : (
-            <>
-              <strong>A lien does not mean a property is for sale.</strong> A property heads to a forced sale only when someone enforces a
-              lien: a notice of trustee sale, a court order, a levy, or a tax-sale listing. We only call a property buyable when a sale is on
-              record, or when a lender or agency is selling a home it already owns.
-            </>
-          )
-        }
+        sub={open ? undefined : 'Each kind of sale, when a property is really for sale, and where our data comes from.'}
       />
+      {!open && (
+        <p className="notice" role="note">
+          <strong>A lien does not mean a property is for sale.</strong> A property heads to a forced sale only when someone enforces a lien: a
+          notice of trustee sale, a court order, a levy, or a tax-sale listing. We only call a property buyable when a sale is on record, or when a
+          lender or agency is selling a home it already owns.
+        </p>
+      )}
       <DrillDown sections={SECTIONS} active={section} baseHref="#/about" label="How it works" showAll />
     </main>
   );
