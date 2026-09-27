@@ -1,4 +1,5 @@
-// Advertising professionals: real estate agents, lenders, title/escrow, insurance, contractors.
+// Advertising professionals: real estate agents, lenders, title/escrow, insurance, contractors, home inspectors,
+// property managers, real estate attorneys and CPAs. Every category needs an official Nevada lookup to verify against.
 //
 // Every profile is a paid advertisement, but ranking is NEUTRAL: filters decide who matches,
 // and matches are shown in a daily rotating order that is the same for everyone. Paying more
@@ -16,12 +17,14 @@
 
 export const REVERIFY_DAYS = 90;
 
-export type Category = 'agent' | 'loan_officer' | 'mortgage_company' | 'bank' | 'credit_union' | 'private_lender' | 'title_escrow' | 'insurance' | 'contractor';
+export type Category =
+  | 'agent' | 'loan_officer' | 'mortgage_company' | 'bank' | 'credit_union' | 'private_lender' | 'title_escrow' | 'insurance' | 'contractor'
+  | 'home_inspector' | 'property_manager' | 'attorney' | 'cpa';
 
 export interface CategoryInfo {
   label: string;
   plural: string;
-  group: 'Real estate' | 'Financing' | 'Closing & protection' | 'Repairs & renovation';
+  group: 'Real estate' | 'Financing' | 'Closing & protection' | 'Inspection & repairs' | 'Legal & tax' | 'Ownership';
   regulator: string;
   lookupUrl: string;
   licenseLabel: string;
@@ -30,6 +33,10 @@ export interface CategoryInfo {
   licenseExpires: boolean; // bank charters/FDIC certs don't expire
   services: readonly string[];
   financing: boolean;
+  /** A licensed person (not a company) advertises in this category. */
+  individual?: boolean;
+  /** A rule of this profession's regulator about advertising, shown on the application. */
+  advertisingNote?: string;
 }
 
 export const CATEGORIES: Record<Category, CategoryInfo> = {
@@ -140,7 +147,7 @@ export const CATEGORIES: Record<Category, CategoryInfo> = {
   contractor: {
     label: 'Contractor',
     plural: 'Contractors & repair companies',
-    group: 'Repairs & renovation',
+    group: 'Inspection & repairs',
     regulator: 'Nevada State Contractors Board',
     lookupUrl: 'https://app.nvcontractorsboard.com/Clients/NVSCB/Public/ContractorLicenseSearch/ContractorLicenseSearch.aspx',
     licenseLabel: 'NSCB license number',
@@ -149,6 +156,63 @@ export const CATEGORIES: Record<Category, CategoryInfo> = {
     licenseExpires: true,
     services: ['General contractor', 'Fix & flip renovations', 'Roofing', 'Plumbing', 'Electrical', 'HVAC', 'Flooring', 'Painting', 'Landscaping', 'Pools', 'Mold & water damage', 'Clean-out & trash-out'],
     financing: false,
+  },
+  home_inspector: {
+    label: 'Home inspector',
+    plural: 'Home inspectors',
+    group: 'Inspection & repairs',
+    regulator: 'Nevada Real Estate Division (inspectors of structures, NRS 645D)',
+    lookupUrl: 'https://red.prod.secure.nv.gov/Lookup/LicenseLookup.aspx',
+    licenseLabel: 'Nevada inspector of structures certificate number',
+    licensePattern: /^[A-Z0-9][A-Z0-9.-]{3,19}$/,
+    licenseHint: 'As shown on the Real Estate Division lookup',
+    licenseExpires: true,
+    services: ['Pre-purchase home inspection', 'Commercial property inspection', 'Exterior-only review (no access)', 'Roof inspection', 'Sewer scope', 'Pool & spa', 'Mold testing', 'Radon testing'],
+    financing: false,
+    individual: true,
+  },
+  property_manager: {
+    label: 'Property manager',
+    plural: 'Property managers',
+    group: 'Ownership',
+    regulator: 'Nevada Real Estate Division (property management permit)',
+    lookupUrl: 'https://red.prod.secure.nv.gov/Lookup/LicenseLookup.aspx',
+    licenseLabel: 'Nevada property management permit number',
+    licensePattern: /^[A-Z0-9][A-Z0-9.-]{3,19}$/,
+    licenseHint: 'As shown on the Real Estate Division lookup',
+    licenseExpires: true,
+    services: ['Full-service management', 'Tenant placement', 'Rent collection', 'Make-ready & turnover', 'Vacant property checks', 'Short-term rental management', 'Commercial property management'],
+    financing: false,
+    individual: true,
+  },
+  attorney: {
+    label: 'Real estate attorney',
+    plural: 'Real estate attorneys',
+    group: 'Legal & tax',
+    regulator: 'State Bar of Nevada',
+    lookupUrl: 'https://nvbar.org/for-the-public/find-a-lawyer/',
+    licenseLabel: 'State Bar of Nevada license number',
+    licensePattern: /^\d{1,6}$/,
+    licenseHint: 'Your bar number, digits only',
+    licenseExpires: false,
+    services: ['Quiet title', 'Title & lien review', 'Foreclosure sale disputes', 'HOA liens', 'Landlord & eviction', 'Contracts & closings', 'Probate & estate sales', 'Entity & LLC formation', '1031 exchange documents'],
+    financing: false,
+    individual: true,
+    advertisingNote: 'Nevada lawyers must file their advertisements with the State Bar under RPC 7.2A. Your DeedOwl profile is an advertisement, so file it before it goes live.',
+  },
+  cpa: {
+    label: 'CPA',
+    plural: 'CPAs',
+    group: 'Legal & tax',
+    regulator: 'Nevada State Board of Accountancy',
+    lookupUrl: 'https://www.nvaccountancy.com/license_verification.fx',
+    licenseLabel: 'Nevada CPA certificate number',
+    licensePattern: /^[A-Z0-9][A-Z0-9-]{1,11}$/,
+    licenseHint: 'As shown on the Board of Accountancy lookup',
+    licenseExpires: true,
+    services: ['Real estate investor taxes', '1031 exchange tax planning', 'Entity & LLC tax setup', 'Depreciation & cost segregation', 'Bookkeeping for rentals', 'Capital gains planning', 'IRS notices & tax liens'],
+    financing: false,
+    individual: true,
   },
 };
 

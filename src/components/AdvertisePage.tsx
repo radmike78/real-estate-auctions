@@ -1,7 +1,7 @@
 import PageHero from './PageHero';
 import { CATEGORIES, REVERIFY_DAYS, type Category } from '../lib/pros';
 
-const GROUPS = ['Real estate', 'Financing', 'Closing & protection', 'Repairs & renovation'] as const;
+const GROUPS = ['Real estate', 'Financing', 'Closing & protection', 'Inspection & repairs', 'Legal & tax', 'Ownership'] as const;
 
 export default function AdvertisePage() {
   return (
@@ -9,7 +9,7 @@ export default function AdvertisePage() {
       <PageHero
         eyebrow={<span className="eyebrow">For professionals</span>}
         title={<>Reach buyers at the moment <span className="grad">they need you</span></>}
-        sub="People come here to buy auction, bank-owned and short-sale properties. They need agents, financing, title, insurance and repairs."
+        sub="People come here to buy auction, bank-owned and short-sale properties. They need agents, financing, title, insurance, inspectors, repairs, and legal and tax help."
       >
         <div>
           <a className="btn big hero-cta" href="#/advertise/apply">Apply to advertise</a>

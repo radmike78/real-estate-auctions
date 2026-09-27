@@ -555,7 +555,7 @@ A second connector reads the **special improvement district (SID) lien-certifica
 
 ## Advertisers: signup, verification, billing (server)
 
-Real estate agents, loan officers, mortgage companies, banks, credit unions, hard-money and private lenders, title and escrow companies, insurance agents and contractors can advertise. Each gets a dedicated profile page (`#/pros/:id`). Profiles appear in:
+Real estate agents, loan officers, mortgage companies, banks, credit unions, hard-money and private lenders, title and escrow companies, insurance agents, contractors, home inspectors, property managers, real estate attorneys and CPAs can advertise. Each gets a dedicated profile page (`#/pros/:id`). Profiles appear in:
 - **Find an agent** (`#/agents`)
 - **Financing** (`#/financing`), filterable by loan type and credit situation
 - **Title, insurance & repairs** (`#/pros`)
@@ -575,6 +575,9 @@ The advertiser landing page is `#/advertise`, the application form is `#/adverti
    | Credit unions | NCUA |
    | Title and insurance | Nevada Division of Insurance |
    | Contractors | Nevada State Contractors Board |
+   | Home inspectors, property managers | Nevada Real Estate Division (inspector of structures certificate; property management permit) |
+   | Real estate attorneys | State Bar of Nevada (they must also file their ads with the Bar under RPC 7.2A) |
+   | CPAs | Nevada State Board of Accountancy |
 
    The admin then **confirms identity through the company, using contact details from the regulator or the company, never from the application**. Approval is blocked until status, expiration (where licenses expire), name, type, company and identity are all recorded.
 4. **Pay.** Once approved, the advertiser gets an email and pays **by card from their dashboard** (Stripe; see below). Each confirmed monthly payment extends their paid-through date automatically. For payments received another way, the admin records the plan and paid-through date by hand. A profile is live only while it is verified within the last 90 days **and** paid through today.
@@ -639,7 +642,7 @@ During development, run `npm run server` and `npm run dev` together; the dev ser
 | Short sales (`#/short-sales`) | What a short sale is, how to find one (through a licensed agent and the MLS), the steps, risks, and a comparison with auctions and bank-owned homes |
 | Find & verify an agent (`#/agents`) | A license lookup for any agent or professional: it checks the number's format, reads the license type, and checks whether they're in our verified directory. One click copies the value and opens the official lookup (NRED, NMLS, NSCB, Division of Insurance, FDIC, NCUA), with what to check and red flags to watch for. Verified advertised agents are listed below. |
 | Financing (`#/financing`) | Financing options explained, plus lenders filtered by type, loan product and credit situation. **We don't offer financing.** |
-| Title, insurance & repairs (`#/pros`) | Title and escrow, insurance, and licensed contractors |
+| Your deal team (`#/pros`) | Title and escrow, insurance, home inspectors, contractors, real estate attorneys, CPAs and property managers |
 | Profiles (`#/pros/:id`) | Each advertiser's own page, with a verified-license card and a link to check it on the official lookup |
 | Advertise (`#/advertise`) | What advertisers get, who can advertise, how listing works, and the application |
 | How we help (`#/disclaimer`) | What the site offers, how each kind of sale works, the steps to invest, the official-sources and professional-advice statement, and a due-diligence checklist, followed by the details: what's not in scope, the disclaimer for each kind of page, and accuracy. First-time visitors see a short "Welcome" notice. Every page shows the right disclaimer and a footer link. Wording is in `src/lib/disclaimers.ts`. |

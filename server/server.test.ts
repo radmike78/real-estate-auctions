@@ -91,6 +91,18 @@ describe('application validation', () => {
     expect(approvalBlockers('agent', { ...VERIFIED, contentReviewed: false } as never, '2026-09-25')).toEqual(['Check the headline and bio against the content rules.']);
   });
 
+  it('accepts the new categories with their own license formats', () => {
+    const lawyer = { ...AGENT, category: 'attorney', licenseId: '12345', services: ['Quiet title'] };
+    expect(validateApplication(lawyer).ok).toBe(true);
+    const bad = validateApplication({ ...lawyer, licenseId: 'S.0012345' });
+    expect(bad.ok).toBe(false);
+    if (!bad.ok) expect(Object.keys(bad.errors)).toEqual(['licenseId']);
+    for (const [category, services] of [['home_inspector', ['Sewer scope']], ['property_manager', ['Tenant placement']], ['cpa', ['Bookkeeping for rentals']]] as const) {
+      expect(validateApplication({ ...AGENT, category, licenseId: 'IOS.0012345', services: [...services] }).ok, category).toBe(category !== 'cpa');
+    }
+    expect(validateApplication({ ...AGENT, category: 'cpa', licenseId: 'CPA-1234', services: ['Bookkeeping for rentals'] }).ok).toBe(true);
+  });
+
   it('requires the applicant to confirm their content is original', () => {
     const r = validateApplication({ ...AGENT, attestOriginal: false });
     expect(r.ok).toBe(false);
