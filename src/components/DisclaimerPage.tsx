@@ -21,7 +21,7 @@ const SECTIONS: DrillSection[] = [
     summary: 'Properties from official sources, free research tools and a directory of license-checked professionals. All free',
     content: () => (
       <ul>
-        <li><strong>Properties heading to a forced sale</strong>: live Clark County tax-sale parcels, IRS sales and special assessment (SID) lien lists, checked against official sources, plus direct links to the official sellers of bank-owned and government homes and business assets.</li>
+        <li><strong>Properties heading to a forced sale</strong>: live Clark County tax-sale parcels and IRS sales, checked against official sources, plus links to the official special assessment (SID) certificate sale notices and direct links to the official sellers of bank-owned and government homes and business assets.</li>
         <li><strong>Research tools</strong>: Street View and aerial views, county maps and records, guides to which liens survive each kind of sale, and license lookups for anyone you hire.</li>
         <li><strong>Free calculators</strong>: a maximum bid calculator that counts every cost, and an income-value calculator for rental property.</li>
         <li><strong>My deals</strong>: save properties, track sale dates and deadlines, and keep your notes in one place.</li>

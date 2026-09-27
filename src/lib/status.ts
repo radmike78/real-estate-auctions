@@ -100,7 +100,7 @@ export function purchaseSteps(p: Property): string[] {
         `Create a bidder account on the official auction site${s?.registrationDeadline ? ` before ${fmtDate(s.registrationDeadline)}` : ''}.`,
         `Submit the required deposit${s?.deposit ? ` (${s.deposit})` : ''} using an accepted method: ${s?.paymentMethods.join(', ') || 'see official terms'}.`,
         'Read the official terms of sale, including the deed type, buyer premium and what liens are not satisfied.',
-        `Bid online between ${s?.startsAt ? fmtDateTime(s.startsAt) : 'TBD'} and ${s?.endsAt ? fmtDateTime(s.endsAt) : 'TBD'}.`,
+        s?.startsAt && s?.endsAt ? `Bid online between ${fmtDateTime(s.startsAt)} and ${fmtDateTime(s.endsAt)}.` : 'Bid online during the window in the sale notice (the dates aren’t posted yet).',
         `If you win, pay the balance by ${s?.finalPaymentDeadline ? fmtDate(s.finalPaymentDeadline) : 'the posted deadline'}.`,
         deedStep(s?.saleType),
         'Order a title search, and a quiet-title action if needed, before you rely on title or resell.',
@@ -139,7 +139,7 @@ export function purchaseSteps(p: Property): string[] {
     case 'LIEN_CERTIFICATE_ONLY':
       return [
         'Understand that you are buying a debt, not the property.',
-        'Review the redemption period (2 years with a building, 120 days without) and the 1% a month interest set by statute (NRS 271.595, 271.610).',
+        'Review the redemption period (2 years with a building, 120 days without) and interest of up to 1% a month under NRS 271.595 (Clark County uses 1%).',
         'If the owner never redeems, plan for serving notice (in person or by publication), paying the delinquent taxes and assessments, and asking for the deed before the certificate expires 3 years after redemption ends (NRS 271.595).',
       ];
     default:

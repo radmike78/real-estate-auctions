@@ -13,7 +13,7 @@ export const DIRECTORY_TTL_HOURS = 24;
 
 export function toPro(row: ApplicationRow): Pro | null {
   const v = row.verification;
-  if (row.status !== 'APPROVED' || !v || !row.billing) return null;
+  if (row.status !== 'APPROVED' || !v || !row.billing || !v.contentReviewed) return null;
   const p = row.profile;
   return {
     id: row.id,

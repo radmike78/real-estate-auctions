@@ -113,8 +113,8 @@ export default function BankOwnedPage({ section }: { section?: string }) {
           open ? undefined : (
             <>
               {cls === 'commercial'
-                ? 'Commercial buildings and land a lender or government agency already owns, usually after a foreclosure. You buy them by offer through the listing broker, or by bid for government sales, with your own inspections, environmental review and financing.'
-                : 'Homes a lender or government agency already owns, usually after a foreclosure auction where no one outbid the lender. You buy them like a normal home: an offer through an agent, with inspections, financing and title insurance.'}
+                ? 'Commercial property a lender or agency already owns. Buy by offer through the listing broker, or by bid for government sales.'
+                : 'Homes a lender or agency already owns. You buy them like a normal home, with an offer through an agent.'}
             </>
           )
         }

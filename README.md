@@ -7,7 +7,7 @@ A distressed-property and forced-sale discovery platform. It finds properties th
 3. **What liens and risks may remain?** The Nevada rules engine estimates which liens likely survive the sale.
 4. **What must I do next?** The site shows online bidding details or step-by-step in-person instructions, and always links to the official sale.
 
-> **Status:** search results use fictional sample data for Clark County, NV. The **Live tax sales** page shows only verified listings from the Clark County Treasurer connector (see [Live data](#live-data)).
+> **Status:** development builds add fictional sample data for Clark County, NV; production builds show only verified listings. The **Live tax sales** page shows only verified listings from the Clark County Treasurer connector (see [Live data](#live-data)).
 > Nothing here is legal advice or a title determination. The site never claims title is "clear" and never takes bids or money.
 
 ## Run it
@@ -53,6 +53,7 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 | `FEED_SIGNING_KEY` | **yes** | yes (updater) | Private key (PEM) that signs the listings. **Listings updater only**: the web server refuses to start if it's given this key, so a break-in to the web server can't publish fake listings. |
 | `POSTMARK_SERVER_TOKEN` | **yes** | for a real site | Sends email through Postmark. Set it together with `MAIL_FROM`. See [Email](#email-postmark). |
 | `MAIL_FROM` | no | with the token | Sender address verified in Postmark, like `DeedOwl <no-reply@your-domain>`. |
+| `MAIL_POSTAL_ADDRESS` | no | only for general-list updates | Postal address shown only in updates to the general email list (CAN-SPAM). A PO box or mailbox service is fine. Never shown on the site or in alerts. |
 | `MAIL_REPLY_TO`, `POSTMARK_MESSAGE_STREAM`, `POSTMARK_BROADCAST_STREAM` | no | no | Where replies go (default: `MAIL_FROM`), the Postmark stream for sign-in, alert and other one-to-one email (default `outbound`), and the stream for updates to the general email list (default `broadcast`). |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PLANS` | **yes** | no | Online card payments for advertisers: set all three or none. See [Online payments](#advertisers-signup-verification-billing-server). |
 | `TRUST_PROXY` | no | no | `1` when a reverse proxy, Ingress or OpenShift router sits in front (it is in every option below). |
@@ -143,7 +144,7 @@ The site sends plain-text email: advertiser confirmation and sign-in links, appr
 
 **Updates to the general email list** (admin → **Email list**) go through Postmark's separate **Broadcast** stream, so bulk mail can never hurt delivery of sign-in links and alerts. New Postmark servers usually include a broadcast stream with the ID `broadcast`; check under your server → **Message Streams**, create one if it's missing, and set `POSTMARK_BROADCAST_STREAM` if its ID is different. In that stream's settings, have Postmark leave unsubscribe links to you (the site adds its own, which also delete the address from its database), so people don't see two different unsubscribe links. Postmark may ask you to confirm your broadcast sending before it's enabled.
 
-**Emails show your business name.** Set `operatorName` in `src/lib/siteInfo.ts` before launch; the web log warns until you do. No mailing address is needed for the site or for alerts. Only updates to the general email list need one: anti-spam law (CAN-SPAM) requires a postal address in those, so the admin can't send them until `mailingAddress` is set. A PO box or mailbox service is fine, and it only appears in those emails, never on the site. Alert emails also carry one-click unsubscribe headers (`List-Unsubscribe`), which Gmail and Yahoo require from bulk senders.
+**Emails show your business name.** Set `operatorName` in `src/lib/siteInfo.ts` before launch; the web log warns until you do. No mailing address is needed for the site or for alerts. Only updates to the general email list need one: anti-spam law (CAN-SPAM) requires a postal address in those, so the admin can't send them until the server setting `MAIL_POSTAL_ADDRESS` is set (in `forced-sale-finder.env` for Podman, or `deploy/kubernetes/base/config.env`). A PO box or mailbox service is fine. It stays on the server and only appears in those emails, never on the site or in alerts. Alert emails also carry one-click unsubscribe headers (`List-Unsubscribe`), which Gmail and Yahoo require from bulk senders.
 
 If Postmark can't be reached, the site retries once. When an email still fails, the log names the reason (without the message text). Advertisers who apply are asked to try again in a few minutes. Leads are always saved and shown on the advertiser's dashboard, even if the email doesn't go out.
 
@@ -187,7 +188,7 @@ cat admin-password-hash.txt   # should start with scrypt$
 
 **Prerequisites**
 - A Linux server:
-  - RHEL, Rocky or AlmaLinux 9, Fedora 40+, Ubuntu 24.04 or Debian 12;
+  - RHEL, Rocky or AlmaLinux 9, Fedora 40+, Ubuntu 24.04 or Debian 13 (Debian 12's Podman 4.3 is too old for the systemd services);
   - at least 1 vCPU, 2 GB RAM (building uses most of it) and 10 GB of disk.
 - **Podman 4.4 or newer** (Podman 5 recommended). Install it:
   - RHEL, Rocky, Alma or Fedora: `sudo dnf install -y podman git openssl`
@@ -208,9 +209,9 @@ cat admin-password-hash.txt   # should start with scrypt$
 deploy/podman/install.sh
 ```
 It asks for the web address, an admin username, an admin password and, optionally, your Postmark token and sender address ([Email](#email-postmark); you can add them later). Then it does everything else:
-1. creates the signing key in `~/.config/forced-sale-finder/` (step 2 above);
+1. creates the two signing keys in `~/.config/forced-sale-finder/` (step 2 above);
 2. builds the image and runs the tests;
-3. stores the password hash and signing key as Podman secrets;
+3. stores the password hash and the signing keys as Podman secrets (each container gets only its own key);
 4. installs systemd services with Quadlet: `forced-sale-finder-web`, `forced-sale-finder-ingest` and, optionally, `forced-sale-finder-caddy` for automatic HTTPS;
 5. starts them and checks `/healthz`.
 
@@ -250,7 +251,7 @@ There's no `systemctl enable` step: Quadlet services start at boot automatically
 | --- | --- |
 | Status | `sudo systemctl status forced-sale-finder-web` or `sudo podman ps` |
 | Logs | `sudo podman logs -f forced-sale-finder-web` (updater: `forced-sale-finder-ingest`) |
-| Update to the latest code | `git pull && deploy/podman/install.sh --update` |
+| Update to the latest code | automatic once [automatic deploys](#automatic-deploys-with-podman) are on; otherwise `git pull && deploy/podman/install.sh --update` |
 | Change settings | edit `forced-sale-finder.env` in the Quadlet folder, then `sudo systemctl restart forced-sale-finder-web` |
 | Copy backups off the server | `sudo podman run --rm -v forced-sale-finder-data:/data:ro -v "$PWD":/out:Z localhost/forced-sale-finder:latest sh -c 'cp /data/backups/*.db /out/'` |
 | Restore a backup | stop the web service, copy the backup over `/data/db/app.db` (and delete `app.db-wal`/`app.db-shm`) with a similar `podman run`, then start it |
@@ -421,9 +422,30 @@ To turn it on for your deployments:
 - The first push creates the package in GitHub under Packages. Either make it public, or give your cluster a pull secret (shown above).
 
 Then roll out new versions:
-- **Podman:** `deploy/podman/install.sh --update`.
+- **Podman, automatically (recommended):** see [Automatic deploys with Podman](#automatic-deploys-with-podman) below.
+- **Podman, by hand:** `git pull && deploy/podman/install.sh --update` (builds on the server).
 - **Kubernetes or OpenShift A:** `kubectl` or `oc rollout restart deployment/forced-sale-finder`.
 - **OpenShift B:** rolls out automatically after each build.
+
+#### Automatic deploys with Podman
+
+Merge a pull request into `main`, and the site updates itself: GitHub Actions tests it, builds the image and publishes it to GitHub Container Registry; the server checks the registry every 10 minutes (`podman auto-update`), pulls the new image and restarts. If the new version doesn't start, Podman rolls back to the previous one. Nothing on GitHub can reach the server; the server only pulls.
+
+Set it up once, after `install.sh`:
+1. On the server, run `deploy/podman/auto-deploy.sh` (as the same user that ran `install.sh`). It prints your two **public** keys.
+2. In GitHub, add them as the repository **variables** `FEED_PUBLIC_KEY` and `DIRECTORY_PUBLIC_KEY` (Settings > Secrets and variables > Actions > Variables), then publish a fresh image: Actions > **CI** > **Run workflow** on `main`.
+3. Answer **y** in the script. If the image is private, it asks for your GitHub username and a token that can only read packages (GitHub > Settings > Developer settings > Personal access tokens > Tokens (classic), scope `read:packages`). The token is stored only on the server, in a file readable by its owner.
+4. The script checks that the published image carries your server's keys (so browsers will accept the listings), switches the services to it, and turns on the timer.
+
+| Task | Command (rootless: add `--user` to `systemctl` and `journalctl`) |
+| --- | --- |
+| See whether an update is waiting | `sudo podman auto-update --dry-run` |
+| Deploy right now | `sudo podman auto-update` |
+| Deploy history | `sudo journalctl -u podman-auto-update.service` |
+| Check every 5 minutes instead | `deploy/podman/auto-deploy.sh --every 5` |
+| Roll back | Automatic when a new version fails to start. To pin an older version, set `Image=ghcr.io/radmike78/real-estate-auctions:<commit>` in the Quadlet files, then `systemctl daemon-reload` and restart |
+
+Only changes merged into `main` are deployed. Pull requests are tested but never published, so review and merge is the "deploy" button.
 
 For GitOps, point [Argo CD / OpenShift GitOps](https://argo-cd.readthedocs.io/) at `deploy/kubernetes/overlays/<option>`. The cluster then follows whatever is merged, and every change can be rolled back from Git.
 

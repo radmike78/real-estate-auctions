@@ -359,14 +359,14 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
       });
       status = 'BROKER_OFFER';
       if (rand() < 0.5) {
-        // Some lenders sell REO through a timed online auction instead of a broker listing.
+        // Some lenders take offers online on their own website for a set period instead of through a broker.
         Object.assign(sale, {
-          location: 'Online (lender auction platform)',
+          location: 'Online offers on the lender’s own website (sample)',
           startsAt: isoAt(saleDay, 9),
           endsAt: isoAt(saleDay + 3, 12),
           registrationDeadline: isoAt(saleDay + 2, 17),
-          buyerPremiumPct: 5,
-          deposit: 'Earnest money within 24 h of winning (see platform terms)',
+          buyerPremiumPct: 0,
+          deposit: 'Earnest money within 24 h of acceptance (see the lender’s terms)',
           finalPaymentDeadline: isoAt(saleDay + 33, 17),
         });
         status = 'ONLINE_BIDDING';

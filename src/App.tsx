@@ -17,6 +17,7 @@ import ApplicationConfirmPage from './components/ApplicationConfirmPage';
 import FinancingPage from './components/FinancingPage';
 import ProsPage from './components/ProsPage';
 import ProProfilePage from './components/ProProfilePage';
+import OwlNote from './components/OwlNote';
 import AdvertiserPage from './components/AdvertiserPage';
 import DisclaimerPage from './components/DisclaimerPage';
 import PrivacyPage from './components/PrivacyPage';
@@ -120,7 +121,7 @@ function parseHash(): Route {
   if (h === 'deals') return { page: 'deals' };
   if (h === 'homeowner-help') return { page: 'homeowner' };
   const al = h.match(/^alerts(?:\/(confirm|manage|unsubscribe)\/([A-Za-z0-9._-]{1,100}))?$/);
-  if (al) return { page: 'alerts', mode: (al[1] as AlertsMode | undefined) ?? 'signup', token: al[2] ?? '', welcome: params.get('welcome') === '1', add: params.get('add')?.slice(0, 40) ?? undefined };
+  if (al) return { page: 'alerts', mode: (al[1] as AlertsMode | undefined) ?? 'signup', token: al[2] ?? '', welcome: params.get('welcome') === '1', add: params.get('add')?.slice(0, 210) ?? undefined };
   if (h === 'practice') {
     const sale = params.get('sale') ?? undefined;
     return { page: 'practice', sale: sale && /^[a-z]{2,12}$/.test(sale) ? sale : undefined };
@@ -161,7 +162,7 @@ export default function App() {
   useEffect(() => {
     const t = window.setTimeout(() => {
       const h1 = document.querySelector('main h1, h1')?.textContent?.trim();
-      document.title = route.page === 'home' || !h1 ? 'DeedOwl' : `${h1.slice(0, 70)} · DeedOwl`;
+      document.title = route.page === 'home' || !h1 ? 'DeedOwl · Know the deal before you bid' : `${h1.slice(0, 70)} · DeedOwl`;
     }, 60);
     return () => window.clearTimeout(t);
   }, [path]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -180,9 +181,9 @@ export default function App() {
       <SiteHeader current={path} />
       {route.page === 'home' && <HomePage />}
       {route.page === 'notFound' && (
-        <main className="page">
+        <main className="page empty-page">
+          <OwlNote big>Even owls miss one sometimes. The link may be old or mistyped.</OwlNote>
           <h1>We couldn’t find that page</h1>
-          <p>The link may be old or mistyped.</p>
           <p className="row"><a className="btn" href="#/">Go to the home page</a> <a className="btn btn-secondary" href="#/search">Find properties</a></p>
         </main>
       )}

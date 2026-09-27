@@ -280,6 +280,6 @@ describe('tracking an IRS sale (running server)', () => {
     clock = new Date(clock.getTime() + 3_600_000);
     publish([]);
     expect(await app.checkTracked()).toBe(1);
-    expect(last().text).toMatch(/No longer listed on irsauctions\.gov\. The sale may have been canceled, postponed or held/);
+    expect(last().text).toMatch(/No longer listed on irsauctions\.gov\. The sale may have been cancelled, postponed or held/);
   });
 });

@@ -28,6 +28,7 @@ import TeamList from './TeamList';
 import { defaultsFor } from '../lib/bidCalc';
 import { playbookByKey, playbookForSale } from '../lib/playbooks';
 import { ago } from '../lib/time';
+import OwlNote from './OwlNote';
 
 const LIEN_LABEL: Record<LienType, string> = {
   PROPERTY_TAX: 'Delinquent property tax',
@@ -71,7 +72,9 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   if (!p) {
     if (loading) return <main className="page"><p>Checking the official lists…</p></main>;
     return (
-      <main className="page">
+      <main className="page empty-page">
+        <OwlNote big>This property isn’t available</OwlNote>
+        <h1 className="sr-only">Property not available</h1>
         {id.startsWith(LIVE_ID_PREFIX) ? (
           <p>
             This parcel is no longer on the Clark County Treasurer’s verified auction list. It may have been paid off, withdrawn or sold.{' '}
@@ -79,11 +82,11 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
           </p>
         ) : id.startsWith(IRS_ID_PREFIX) ? (
           <p>
-            This IRS sale is no longer listed on irsauctions.gov. It may have been canceled, postponed or held.{' '}
+            This IRS sale is no longer listed on irsauctions.gov. It may have been cancelled, postponed or held.{' '}
             <a href="#/live">See current sales</a>
           </p>
         ) : (
-          <p>Property not found. <a href="#/search">Back to search</a></p>
+          <p>We couldn’t find that property. It may have sold or been removed. <a href="#/search">Back to search</a></p>
         )}
       </main>
     );
@@ -116,8 +119,12 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   // Pictures only for homes that are for sale (never pre-foreclosure: the Assessor's record names the owner).
   const sampleViews = parcelDigits(p.apn) === null;
   // Sample parcels aren't real, so they get a placeholder parcel number; their buttons are shown disabled.
+  // Before a trustee, HOA or judicial foreclosure sale the owner is still a homeowner in foreclosure: leave out the
+  // county links (aerial map, building sketch, Assessor record) that name them. Street View stays.
+  const ownerInForeclosure = s?.saleType === 'TRUSTEE_SALE' || s?.saleType === 'HOA_FORECLOSURE' || s?.saleType === 'JUDICIAL_FORECLOSURE';
   const views = status.purchasable
     ? propertyViews({ apn: sampleViews ? '100-00-000-000' : p.apn, address: p.address, city: p.city, lat: p.lat, lng: p.lng, listingUrl: s?.saleType === 'REO' ? s.officialUrl : null })
+        .filter((v) => !ownerInForeclosure || !['aerial', 'sketch', 'assessor'].includes(v.key))
     : [];
   const auction = !!s && s.saleType !== 'REO';
 
@@ -409,10 +416,10 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       >
         {!open && (
           <dl className="glance" aria-label="At a glance">
-            <div><dt>Minimum bid</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
+            <div className="key"><dt>Minimum bid</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
             <div><dt>Est. market value</dt><dd>{notChecked(p.estimatedMarketValue, 'Your comps')}</dd></div>
             <div><dt>Liens likely {s ? 'surviving' : 'remaining'}</dt><dd className={money.likelySurviving ? 'neg' : ''}>{p.liensChecked === false ? <span className="muted">Not searched</span> : fmtMoney(money.likelySurviving)}</dd></div>
-            <div><dt>Rough spread</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : 'grad'}>{notChecked(money.estimatedEquity, 'Needs your numbers')}</dd></div>
+            <div className="muted-stat"><dt>Rough spread, before costs</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : ''}>{notChecked(money.estimatedEquity, 'Needs your numbers')}</dd></div>
           </dl>
         )}
       </PageHero>

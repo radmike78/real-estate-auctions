@@ -6,9 +6,6 @@ export const SITE_INFO = {
   siteName: 'DeedOwl',
   /** The legal name of the business that runs the site (LLC, corporation or sole proprietor). */
   operatorName: '[Legal business name]',
-  /** Optional, and never shown on the site. Only needed to send general updates from the admin
-   *  (anti-spam law, CAN-SPAM, requires a postal address in those; a PO box or mailbox service is fine). */
-  mailingAddress: '',
   /** Where people send privacy requests, including requests not to sell their information (NRS 603A.345). */
   privacyEmail: '[privacy@your-domain]',
   /** General contact for questions about the Terms. */

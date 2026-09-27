@@ -103,7 +103,7 @@ export function postmarkMailer(opts: PostmarkOptions): Mailer {
 export const maskEmail = (to: string) => to.replace(/^(.{0,2})[^@]*@/, '$1***@');
 
 const FOOTER =
-  '\n--\nDeedOwl helps people find options. We are not a lender, broker, agent or party to any transaction, ' +
+  '\n--\nDeedOwl is a free information site about Clark County forced sales. We are not a lender, broker, agent or party to any transaction, ' +
   'and we are not responsible for any agreement between you and anyone you contact through the site.\n';
 
 // No applicant-supplied text is echoed here: the address isn't confirmed yet, so an attacker
@@ -181,8 +181,8 @@ export function leadReceiptEmail(to: string, proName: string): Mail {
 
 // ---------------- email alerts ----------------
 
-/** Business name, plus the postal address when one is set (general updates can't be sent without it). */
-const senderLine = () => [SITE_INFO.operatorName, SITE_INFO.mailingAddress.trim()].filter(Boolean).join(', ') + '\n';
+/** Who sent it: the business name. Alerts and confirmations carry no postal address. */
+const senderLine = () => `${SITE_INFO.operatorName}\n`;
 
 /** Every alert email ends with how to manage or stop them, and who sent it. */
 function alertsFooter(manageUrl: string, unsubscribeUrl: string): string {
@@ -219,7 +219,7 @@ export function alertsWelcomeEmail(to: string, manageUrl: string, unsubscribeUrl
     subject: "You're signed up for DeedOwl email",
     text:
       `Hello,\n\nYour email is confirmed. Keep this message: the link below lets you change or stop your alerts at any time, ` +
-      `no password needed.\n\n${manageUrl}\n\nEmail alerts are free. We never sell or share your address.\n` +
+      `no password needed.\n\n${manageUrl}\n\nEmail alerts are free. We never sell your address or share it with advertisers.\n` +
       alertsFooter(manageUrl, unsubscribeUrl),
     headers: unsubscribeHeaders(oneClickUrl),
   };
@@ -247,7 +247,7 @@ export function describeChange(c: Change, source?: ListingSnapshot['source']): s
   if (source === 'irs') {
     switch (c.kind) {
       case 'removed':
-        return "No longer listed on irsauctions.gov. The sale may have been canceled, postponed or held. We'll email you if it's listed again.";
+        return "No longer listed on irsauctions.gov. The sale may have been cancelled, postponed or held. We'll email you if it's listed again.";
       case 'back':
         return `Listed on irsauctions.gov${c.auctionStartsAt ? ` for the sale on ${when(c.auctionStartsAt)}` : ''}. Minimum bid ${usd(c.minimumBid)}.`;
       case 'register':
@@ -340,7 +340,8 @@ export function searchDigestEmail(
 }
 
 /** An update the admin writes for the general list. The body is the admin's own plain text. */
-export function broadcastEmail(to: string, subject: string, body: string, links: { manage: string; unsubscribe: string; oneClick: string }): Mail {
+/** `postalAddress` comes from the server's MAIL_POSTAL_ADDRESS setting; CAN-SPAM requires it in bulk updates. */
+export function broadcastEmail(to: string, subject: string, body: string, links: { manage: string; unsubscribe: string; oneClick: string }, postalAddress: string): Mail {
   return {
     to,
     subject,
@@ -349,7 +350,7 @@ export function broadcastEmail(to: string, subject: string, body: string, links:
       `Always confirm details with the official source before you bid.\n` +
       `\n--\nYou're getting this because you signed up for general updates from DeedOwl.\n` +
       `Change what you get: ${links.manage}\nUnsubscribe from everything: ${links.unsubscribe}\n` +
-      senderLine(),
+      `${SITE_INFO.operatorName}, ${postalAddress}\n`,
     headers: unsubscribeHeaders(links.oneClick),
     stream: 'broadcast',
   };

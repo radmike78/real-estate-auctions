@@ -2,6 +2,22 @@ import type { Property } from '../types';
 import { moneySummary, SALE_TYPE_LABEL } from '../lib/rules';
 import { fmtDate, fmtMoney } from '../lib/status';
 import StatusBadge from './StatusBadge';
+import OwlNote from './OwlNote';
+import type { ReactNode } from 'react';
+import type { SaleType } from '../types';
+import { IconBank, IconCalendar, IconClock, IconFile, IconFlag, IconLayers, IconShield } from './Icons';
+
+// One icon per kind of sale, so a list can be scanned by type at a glance.
+const SALE_ICON: Record<SaleType, ReactNode> = {
+  TAX_DEED: <IconFile />,
+  TAX_LIEN_CERTIFICATE: <IconShield />,
+  TRUSTEE_SALE: <IconCalendar />,
+  JUDICIAL_FORECLOSURE: <IconFlag />,
+  HOA_FORECLOSURE: <IconLayers />,
+  SHERIFF_EXECUTION: <IconFlag />,
+  FEDERAL_TAX_SEIZURE: <IconFlag />,
+  REO: <IconBank />,
+};
 
 /** Whole days until a time: 1 means within the next day, negative means it has passed. */
 export function daysUntil(iso: string, now = Date.now()) {
@@ -13,7 +29,7 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
   if (!properties.length) {
     return (
       <div className="empty">
-        <p>No properties match. Try a nearby ZIP code or remove some filters.</p>
+        <OwlNote big>No properties match. Try a nearby ZIP code or remove some filters.</OwlNote>
         <p className="muted">This site covers Clark County, NV only: Las Vegas, Henderson, North Las Vegas, Boulder City, Mesquite and the county’s unincorporated towns.</p>
       </div>
     );
@@ -27,6 +43,7 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
           <li key={p.id}>
             <a className="card" href={`#/property/${p.id}`}>
               <div className="card-top">
+                <span className={`card-icon${p.sale ? '' : ' wait'}`} aria-hidden>{p.sale ? SALE_ICON[p.sale.saleType] : <IconClock />}</span>
                 <StatusBadge status={p.status} />
                 {p.sale && <span className="muted small">{SALE_TYPE_LABEL[p.sale.saleType]}</span>}
                 {p.origin === 'treasurer-feed' && <span className="badge tone-go">Treasurer list</span>}
@@ -42,7 +59,11 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
                 {p.sqft ? ` · ${p.sqft.toLocaleString()} sq ft` : ''} · {p.occupancy === 'Unknown' ? 'Occupancy unknown' : p.occupancy}
               </div>
               <dl className="card-stats">
-                <div>
+                <div className="key">
+                  <dt>Min. bid</dt>
+                  <dd>{fmtMoney(m.minimumBid)}</dd>
+                </div>
+                <div className="key">
                   <dt>Auction</dt>
                   <dd>
                     {p.sale?.startsAt ? fmtDate(p.sale.startsAt) : '—'}
@@ -50,15 +71,11 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
                   </dd>
                 </div>
                 <div>
-                  <dt>Min. bid</dt>
-                  <dd>{fmtMoney(m.minimumBid)}</dd>
-                </div>
-                <div>
                   <dt>Est. value</dt>
                   <dd>{fmtMoney(p.estimatedMarketValue)}</dd>
                 </div>
                 <div>
-                  <dt title="Estimated value minus the minimum bid and likely surviving liens. Leaves out uncertain liens, repairs and costs.">Rough spread (value minus bid)</dt>
+                  <dt title="Estimated value minus the minimum bid and likely surviving liens. Leaves out uncertain liens, repairs and costs.">Spread before costs</dt>
                   <dd className={m.estimatedEquity !== null && m.estimatedEquity < 0 ? 'neg' : ''}>{fmtMoney(m.estimatedEquity)}</dd>
                 </div>
               </dl>

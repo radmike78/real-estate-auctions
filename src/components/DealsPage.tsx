@@ -105,10 +105,11 @@ export default function DealsPage() {
       <PageHero
         eyebrow={<span className="eyebrow">Saved in this browser</span>}
         title={<>My <span className="grad">deals</span></>}
-        sub="The properties you’re working on: what changed, what’s due, how far your due diligence has come, and whether the bid still fits your limit."
+        sub="Your saved properties: what changed, what’s due, and whether your bid still fits."
       />
       {sorted.length === 0 ? (
         <section className="deals-empty">
+          <img className="owl-empty" src="logo.svg" alt="" width={112} height={112} />
           <h2>No saved properties yet</h2>
           <p>Open any property and choose <strong>☆ Save to My deals</strong>. It will show up here with its deadlines, your max bid and your due-diligence progress.</p>
           <a className="btn big" href="#/search">Browse properties</a>

@@ -92,7 +92,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
         <PageHero
           eyebrow={<span className="eyebrow">Clark County · Nevada law</span>}
           title={<>Nevada <span className="grad">playbooks</span></>}
-          sub="How each kind of forced sale really works: what you get, the steps, what stays with the property, the mistakes that cost money, and the team you need."
+          sub="How each forced sale works, step by step, and the mistakes that cost money."
         />
         {playbook && <p className="notice" role="status">We couldn’t find that playbook. Choose one below.</p>}
         <div className="drill-tiles">

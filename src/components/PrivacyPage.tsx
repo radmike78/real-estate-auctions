@@ -25,7 +25,7 @@ const SECTIONS: DrillSection[] = [
       <ul>
         <li>You can use the whole site without an account or sign-up.</li>
         <li>Your saved deals, bid calculations and checklists stay in your own browser. They aren't sent to us.</li>
-        <li>We collect personal information only when you choose to contact a professional or apply to advertise.</li>
+        <li>We collect personal information only when you choose to contact a professional, sign up for email alerts, or apply to advertise.</li>
         <li>We don't sell personal information, and we don't use advertising networks, analytics trackers or tracking cookies.</li>
       </ul>
     ),
@@ -101,7 +101,7 @@ const SECTIONS: DrillSection[] = [
       <>
         <ul>
           <li><strong>The professional you contact</strong>: your name, email, phone and message, and only to that one professional.</li>
-          <li><strong>Nobody gets your alerts email address.</strong> Advertisers never see it. We use it only to send the email you asked for.</li>
+          <li><strong>We never sell your alerts email address or share it with advertisers.</strong> Only our email delivery provider handles it, to send the email you asked for.</li>
           <li>
             <strong>Service providers</strong> that run the site for us: web hosting, email delivery, and our payment processor (Stripe) for
             advertisers. Stripe receives the advertiser's name and email to set up billing. Providers may use the information only to provide

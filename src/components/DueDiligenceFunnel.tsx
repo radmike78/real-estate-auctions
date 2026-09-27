@@ -46,7 +46,7 @@ export default function DueDiligenceFunnel({ p, maxBidHref }: { p: Property; max
                 </ul>
               )}
               <p className="dd-how"><strong>How to check:</strong> {s.how}{s.who && <> <span className="muted">· Who helps: {s.who}</span></>}</p>
-              {s.key === 'max-bid' && <a href={maxBidHref}>Open the max bid calculator for this property →</a>}
+              {s.key === 'max-bid' && <a href={maxBidHref}>Open the maximum bid calculator for this property →</a>}
             </li>
           );
         })}

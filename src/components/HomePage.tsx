@@ -2,7 +2,9 @@ import { useState, type FormEvent, type ReactNode } from 'react';
 import { SALE_SEARCH, saleSearchHref } from '../lib/saleSearch';
 import ClassSwitch from './ClassSwitch';
 import type { ClassFilter } from '../lib/propertyClass';
-import { IconBank, IconCalendar, IconClock, IconFile, IconFlag, IconHome, IconLayers, IconLock, IconPulse, IconSearch, IconShield, IconStar } from './Icons';
+import { IconBank, IconCalendar, IconClock, IconFile, IconFlag, IconHome, IconLayers, IconPulse, IconSearch, IconShield, IconStar } from './Icons';
+import { useLiveFeed } from '../data/live';
+import { ago } from '../lib/time';
 
 // A deliberately simple homepage: say what the site is for, one search, and one tile per type of
 // sale. Details (checklists, rules, listings) live one click down, on the page each tile opens.
@@ -22,6 +24,10 @@ export default function HomePage() {
   const [type, setType] = useState('all');
   const [q, setQ] = useState('');
   const [cls, setCls] = useState<ClassFilter>('all');
+  const live = useLiveFeed();
+  const liveCount = live.properties.length;
+  // The oldest re-check among the listings counted, so the claim is never fresher than the data.
+  const oldestCheck = live.properties.reduce<string | null>((o, p) => (p.lastUpdated && (!o || p.lastUpdated < o) ? p.lastUpdated : o), null);
 
   function go(e: FormEvent) {
     e.preventDefault();
@@ -36,9 +42,10 @@ export default function HomePage() {
         <div className="hero-inner">
           <span className="eyebrow"><span className="live-dot" aria-hidden /> Clark County, NV</span>
           <h1>
-            Foreclosures, tax&nbsp;sales <span className="grad">&amp; short&nbsp;sales.</span>
+            Las Vegas foreclosures &amp; tax&nbsp;sales, <span className="grad">explained.</span>
           </h1>
-          <p className="hero-sub">Find properties heading to a forced sale, and learn exactly how to buy them.</p>
+          <p className="hero-tagline">Know the deal before you bid.</p>
+          <p className="hero-sub">Find forced-sale properties from official sources, learn every step, and set your number before the auction.</p>
 
           <div className="hero-class"><ClassSwitch value={cls} onChange={setCls} label="Residential or commercial" /></div>
           <form className="simple-search" onSubmit={go} role="search" aria-label="Search forced-sale properties">
@@ -60,21 +67,25 @@ export default function HomePage() {
             <a key={o.key} href={saleSearchHref(o.key, '', cls)} className={`browse-tile${NOT_FOR_SALE.has(o.key) ? ' wait' : ''}`}>
               <span className="browse-icon" aria-hidden>{ICONS[o.key]}</span>
               <span className="browse-title">{o.label}</span>
-              {NOT_FOR_SALE.has(o.key) && <span className="browse-tag">Not for sale yet</span>}
+              {NOT_FOR_SALE.has(o.key) && <span className="browse-tag">{o.key === 'liens' ? 'Not for sale' : 'Not for sale yet'}</span>}
               <span className="browse-arrow" aria-hidden>→</span>
             </a>
           ))}
         </div>
         <nav className="browse-tools" aria-label="Learn before you buy">
-          <a href="#/playbooks">How each sale works →</a>
-          <a href="#/practice">Practice buying, hands-on →</a>
-          <a href="#/calculator">Maximum bid calculator →</a>
+          <a className="btn big browse-main" href="#/practice">Practice buying, hands-on →</a>
+          <span className="browse-links">
+            <a href="#/playbooks">How each sale works</a>
+            <a href="#/calculator">Maximum bid calculator</a>
+          </span>
         </nav>
         <ul className="browse-trust" aria-label="Why trust it">
+          {live.result?.ok && liveCount > 0 && oldestCheck && (
+            <li className="trust-live"><IconPulse /> {liveCount} live {liveCount === 1 ? 'listing' : 'listings'} · oldest re-check {ago(oldestCheck)}</li>
+          )}
+          <li><IconShield /> Listings from official sources only</li>
           <li><IconStar /> Free to use, no sign-up</li>
-          <li><IconShield /> Live tax sales straight from the County Treasurer</li>
-          <li><IconPulse /> Expired listings hidden automatically</li>
-          <li><IconLock /> Signed data, so altered copies are detected</li>
+          <li><IconClock /> Expired listings hidden automatically</li>
         </ul>
       </section>
     </main>

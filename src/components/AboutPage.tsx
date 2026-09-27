@@ -68,10 +68,10 @@ const SECTIONS: DrillSection[] = [
     content: () => (
       <>
         <p>
-          There is no single nationwide database. The site combines county recorder filings (deeds of trust, notices of default
-          and sale, liens, releases), assessor parcel data, Treasurer delinquency and tax-auction lists, court and sheriff records, and
-          the official sellers’ own sale pages. Every fact shows its source agency, document number, recorded date, last-verified time and a
-          confidence level. Hover a source tag to see them.
+          There is no single nationwide database. Today the live listings come from the Clark County Treasurer’s tax-sale list and
+          IRS sales, each confirmed against the County Assessor’s parcel records, plus links to the official sellers’ own sale pages.
+          County Recorder filings, court and sheriff records will be added one at a time, once each source’s terms allow it. Every fact
+          shows its source agency, last-verified time and a confidence level. Tap or hover a source tag to see them.
         </p>
         {SHOW_SAMPLE_DATA ? (
           <p>
@@ -112,16 +112,15 @@ export default function AboutPage({ section }: { section?: string }) {
         compact={open}
         eyebrow={<span className="eyebrow">The basics</span>}
         title={open ? <a className="title-link" href="#/about">How it works</a> : <>How it <span className="grad">works</span></>}
-        sub={
-          open ? undefined : (
-            <>
-              <strong>A lien does not mean a property is for sale.</strong> A property heads to a forced sale only when someone enforces a
-              lien: a notice of trustee sale, a court order, a levy, or a tax-sale listing. We only call a property buyable when a sale is on
-              record, or when a lender or agency is selling a home it already owns.
-            </>
-          )
-        }
+        sub={open ? undefined : 'Each kind of sale, when a property is really for sale, and where our data comes from.'}
       />
+      {!open && (
+        <p className="notice" role="note">
+          <strong>A lien does not mean a property is for sale.</strong> A property heads to a forced sale only when someone enforces a lien: a
+          notice of trustee sale, a court order, a levy, or a tax-sale listing. We only call a property buyable when a sale is on record, or when a
+          lender or agency is selling a home it already owns.
+        </p>
+      )}
       <DrillDown sections={SECTIONS} active={section} baseHref="#/about" label="How it works" showAll />
     </main>
   );

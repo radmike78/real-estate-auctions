@@ -20,6 +20,7 @@ export const CONTENT_RULES = [
   "Reviews, testimonials, awards or sales numbers you can't back up.",
   "Anyone else's name, photo or personal details, including clients and homeowners.",
   'Wording that prefers or excludes anyone based on a group protected by federal or Nevada fair housing law.',
+  'Offers aimed at homeowners in foreclosure or behind on payments (such as "we buy houses" or "sell before the auction"), or asking visitors to refer them.',
 ] as const;
 
 export const LANGUAGES = [
