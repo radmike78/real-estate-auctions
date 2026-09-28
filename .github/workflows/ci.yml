@@ -2,7 +2,8 @@
 #   test       type checks, unit tests, site build
 #   manifests  renders the Kubernetes/OpenShift overlays and validates them against their schemas
 #   image      builds the image with Podman (no Docker), starts it and checks /healthz;
-#              on main, pushes it to GitHub Container Registry as :latest and :<commit>;
+#              on main (a merge, or Actions > CI > Run workflow), pushes it to GitHub Container Registry as
+#              :latest and :<commit>;
 #              servers set up with deploy/podman/auto-deploy.sh pull :latest and restart on their own
 #
 # Set the repository variables FEED_PUBLIC_KEY and DIRECTORY_PUBLIC_KEY (Settings > Secrets and variables >
@@ -83,7 +84,8 @@ jobs:
           podman logs web
           podman stop -t 10 web
       - name: Push to GitHub Container Registry
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        # Merges into main, and manual runs on main (auto-deploy.sh asks for one after the key variables are set).
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | podman login ghcr.io -u "${{ github.actor }}" --password-stdin
           podman push "$IMAGE:${{ github.sha }}"
