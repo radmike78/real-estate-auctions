@@ -72,7 +72,9 @@ read -r -p "Done, and the CI run on main has finished? [y/N]: " A
 # ---------- registry access ----------
 AUTH_ARGS=()
 say "Pulling $IMAGE"
-if ! podman pull "$IMAGE" >/dev/null 2>&1; then
+if [ -f "$AUTHFILE" ] && podman pull --authfile "$AUTHFILE" "$IMAGE" >/dev/null 2>&1; then
+  AUTH_ARGS=(--authfile "$AUTHFILE") # the token saved on an earlier run still works
+elif ! podman pull "$IMAGE" >/dev/null 2>&1; then
   echo "The image is private (or not published yet). Create a GitHub token that can only read packages:"
   echo "  GitHub > Settings > Developer settings > Personal access tokens > Tokens (classic) > scope: read:packages"
   read -r -p "GitHub username: " GH_USER
