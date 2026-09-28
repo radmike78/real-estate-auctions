@@ -7,6 +7,7 @@ import { PRACTICE_PROPERTIES } from '../practice/properties';
 import { buildScenario, SALE_ORDER, whyUnavailable } from '../practice/scenarios';
 import { completion } from '../practice/progress';
 import type { SaleKey } from '../practice/types';
+import OwlNote from './OwlNote';
 
 export function PracticeRibbon() {
   return (
@@ -94,7 +95,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
           );
         })}
       </div>
-      {props.length === 0 && <p className="muted">No {cls} properties for this kind of sale. Try All.</p>}
+      {props.length === 0 && <OwlNote>No {cls} properties for this kind of sale. Try All.</OwlNote>}
       <p className="muted">
         Each practice run follows the rules for this kind of sale in Clark County, from our <a href="#/playbooks">Nevada playbooks</a>. The people you
         contact are fictional and their replies are simulated, so nothing is sent anywhere.

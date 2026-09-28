@@ -962,6 +962,19 @@ small { font-size: 0.95rem; }
 .reo-card dl { margin: 4px 0 0; display: grid; gap: 8px; }
 .reo-card dt { font-weight: 700; font-size: 0.95rem; }
 .reo-card dd { margin: 0; color: var(--muted); }
+/* Line up each part across a row of cards (agency, name, summary, How to buy, Buyers first, In Clark County),
+   so titles and sections start at the same height. Cards without a "Buyers first" leave that row empty. */
+@supports (grid-template-rows: subgrid) {
+  .reo-grid { row-gap: 16px; }
+  .page .reo-card { grid-row: span 6; grid-template-rows: subgrid; row-gap: 0; align-content: stretch; }
+  .reo-card dl { display: contents; }
+  .page .reo-card h3 { margin-top: 6px; }
+  .page .reo-card > p { margin-top: 8px; }
+  .reo-card .reo-how { grid-row: 4; margin-top: 12px; }
+  .reo-card .reo-first { grid-row: 5; margin-top: 12px; }
+  .reo-card .reo-clark { grid-row: 6; margin-top: 12px; }
+  .reo-card dl > div { display: grid; gap: 4px; align-content: start; }
+}
 
 /* ================= Photos & views ================= */
 .view-grid { list-style: none; margin: 0 0 16px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 14px; }
@@ -1331,3 +1344,11 @@ html { scroll-padding-top: 88px; }
 .source-line strong { color: var(--text); font-weight: 600; }
 .source-check { display: inline-grid; place-items: center; width: 20px; height: 20px; margin-right: 4px; border-radius: 50%; background: var(--go-bg); color: var(--go); font-weight: 800; font-size: 0.8rem; }
 .source-line.sample { color: var(--wait); }
+
+/* Empty and coming-soon states: the owl, a heading and a short note, centered near the top of the page. */
+.empty-state { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; margin: 8px 0 28px; padding: 32px 22px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); }
+.empty-state .owl-empty { margin: 0 0 4px; }
+.page .empty-state h2 { margin: 0; justify-content: center; }
+.page .empty-state h2::before { display: none; }
+.empty-state p { margin: 0; max-width: 62ch; }
+.empty-state .row { justify-content: center; }

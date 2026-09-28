@@ -3,6 +3,8 @@ import { CLARK_COUNTY_CITIES, CONTENT_RULES, LANGUAGES, validateApplication, typ
 import { CATEGORIES, CREDIT_PROFILES, REVERIFY_DAYS, servicesFor, type Category } from '../lib/pros';
 import PageHero from './PageHero';
 import { api, ApiError } from '../lib/api';
+import EmptyState from './EmptyState';
+import { advertisingOpen, useSiteFeatures } from '../lib/siteFeatures';
 
 type Errors = Partial<Record<keyof ApplicationInput | 'form', string>>;
 
@@ -68,6 +70,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
   const set = <K extends keyof ApplicationInput>(k: K, v: ApplicationInput[K]) => setF((x) => ({ ...x, [k]: v }));
   const info = CATEGORIES[f.category as Category];
   const isAgent = f.category === 'agent';
+  const features = useSiteFeatures();
 
   const text = (k: keyof ApplicationInput, label: string, props: Record<string, unknown> = {}, hint?: string) => (
     <label className="field">
@@ -98,6 +101,19 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
     } finally {
       setBusy(false);
     }
+  }
+
+  if (!features) return <main className="page" />;
+  if (!advertisingOpen(features)) {
+    return (
+      <main className="page">
+        <PageHero compact title={<>Advertise on <span className="grad">DeedOwl</span></>} />
+        <EmptyState soon title="Advertising is coming soon">
+          <p>Applications for licensed professionals open soon. Every advertiser’s license is checked on the official regulator lookup before they’re listed.</p>
+          <p><a href="#/advertise">What advertising includes</a> · <a href="#/agents">Look up any professional’s license</a></p>
+        </EmptyState>
+      </main>
+    );
   }
 
   if (done) {

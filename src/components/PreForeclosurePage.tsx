@@ -9,6 +9,7 @@ import { CHECKLISTS } from '../lib/buyerChecklists';
 import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
 import { IconCheckList, IconClock } from './Icons';
+import EmptyState from './EmptyState';
 
 const WATCH_KEY = 'fsf.preforeclosure.watch.v1';
 
@@ -155,13 +156,10 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
           )}
 
           {rows.length === 0 ? (
-            <div className="empty">
-              <p>
-                <strong>No notices to track yet.</strong> Notices of default and sale will appear here once our feed of Clark County Recorder
-                filings is connected.
-              </p>
+            <EmptyState title="No notices to track yet">
+              <p>Notices of default and sale will appear here once our feed of Clark County Recorder filings is connected.</p>
               <p>Until then, read how the process works in the guide above.</p>
-            </div>
+            </EmptyState>
           ) : (
           <>
           <div className="toolbar">

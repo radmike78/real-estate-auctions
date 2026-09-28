@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { advertisingOpen, useSiteFeatures } from '../lib/siteFeatures';
 import ProDirectory, { useDirectory } from './ProDirectory';
 import Disclaimer from './Disclaimer';
 import { analyzeQuery, checklistFor, findInDirectory, RED_FLAGS } from '../lib/licenseLookup';
@@ -12,6 +13,7 @@ export default function AgentsPage({ shortSales = false, initialQuery = '' }: { 
   const [cat, setCat] = useState<Category>('agent');
   const [query, setQuery] = useState(initialQuery);
   const [copied, setCopied] = useState(false);
+  const adsOpen = advertisingOpen(useSiteFeatures());
   const { pros } = useDirectory();
   const info = CATEGORIES[cat];
   const a = analyzeQuery(cat, query);
@@ -83,7 +85,7 @@ export default function AgentsPage({ shortSales = false, initialQuery = '' }: { 
 
       <h2 className="section-title">License-checked agents</h2>
       <p className="small muted">
-        Licenses checked by a person at least every {REVERIFY_DAYS} days. <a href="#/advertise/apply/agent">Agents: get listed →</a> · Looking for
+        Licenses checked by a person at least every {REVERIFY_DAYS} days.{adsOpen && <> <a href="#/advertise/apply/agent">Agents: get listed →</a></>} · Looking for
         lenders, title or contractors? <a href="#/financing">Financing</a> · <a href="#/pros">Title, insurance &amp; repairs</a>
       </p>
       <Disclaimer kind="professionals" compact />

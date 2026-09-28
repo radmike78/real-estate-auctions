@@ -1,6 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { api, ApiError } from '../lib/api';
 import PageHero from './PageHero';
+import EmptyState from './EmptyState';
+import OwlNote from './OwlNote';
+import { useSiteFeatures } from '../lib/siteFeatures';
 import { forgetManageToken, rememberManageToken, storedManageToken } from '../lib/alertsLink';
 
 export type AlertsMode = 'signup' | 'confirm' | 'manage' | 'unsubscribe';
@@ -23,6 +26,7 @@ const KIND_LABEL: Record<string, string> = { property: 'Tracked property', searc
 
 /** Email alerts: sign up (double opt-in), confirm, manage from the emailed link, and unsubscribe. No accounts. */
 export default function AlertsPage({ mode, token, welcome, add }: { mode: AlertsMode; token: string; welcome?: boolean; add?: string }) {
+  const features = useSiteFeatures();
   return (
     <main className="page alerts-page">
       <PageHero
@@ -31,11 +35,27 @@ export default function AlertsPage({ mode, token, welcome, add }: { mode: Alerts
         title={mode === 'signup' ? <>Email <span className="grad">alerts</span></> : 'Email alerts'}
         sub={mode === 'signup' ? 'Updates from DeedOwl in your inbox. Confirm once, then change or stop them any time from the link in every email.' : undefined}
       />
-      {mode === 'signup' && <SignUp />}
+      {mode === 'signup' && features && (features.email ? <SignUp /> : <AlertsSoon />)}
       {mode === 'confirm' && <Confirm token={token} />}
       {mode === 'manage' && <Manage token={token} welcome={!!welcome} add={add} />}
       {mode === 'unsubscribe' && <Unsubscribe token={token} />}
     </main>
+  );
+}
+
+/** Shown until the server has an email service set up. */
+function AlertsSoon() {
+  return (
+    <EmptyState soon title="Email alerts are coming soon">
+      <p>
+        Soon you’ll be able to get a free email when a new tax-sale list comes out, when a parcel you’re watching changes, and before the
+        auction. No account needed.
+      </p>
+      <p>
+        Until then, check <a href="#/live">Live tax sales</a> for verified parcels, or <a href="#/deals">save properties to My deals</a> to keep
+        track of them in this browser.
+      </p>
+    </EmptyState>
   );
 }
 
@@ -209,7 +229,7 @@ function Manage({ token, welcome, add }: { token: string; welcome: boolean; add?
         </label>
         <h3>Tracked properties and saved searches</h3>
         {view.subscriptions.length === 0 ? (
-          <p className="muted">None yet. On <a href="#/live">Live tax sales</a>, choose ✉ Email me changes on any parcel, or ✉ Email me new matches to save a search.</p>
+          <OwlNote>None yet. On <a href="#/live">Live tax sales</a>, choose ✉ Email me changes on any parcel, or ✉ Email me new matches to save a search.</OwlNote>
         ) : (
           <ul className="alerts-subs">
             {view.subscriptions.map((s) => (

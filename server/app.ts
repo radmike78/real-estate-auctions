@@ -535,6 +535,9 @@ export function createApp(config: AppConfig) {
   async function handleApi(req: IncomingMessage, res: ServerResponse, path: string, url: URL) {
     const method = req.method ?? 'GET';
 
+    // What this server has set up, so pages say "coming soon" instead of offering sign-ups that can't work yet.
+    if (method === 'GET' && path === '/api/features') return send(res, 200, { email: mailer !== consoleMailer, payments: !!config.stripe });
+
     // ---------------- payments (called by Stripe's servers, authenticated by signature) ----------------
     if (method === 'POST' && path === '/api/stripe/webhook') {
       if (!config.stripe) throw new HttpError(404, 'Not found');

@@ -10,15 +10,17 @@ import PageHero from './PageHero';
 import { IconBank, IconCheckList, IconHome, IconShield, IconSteps } from './Icons';
 
 function SourceCard({ s }: { s: ReoSource }) {
+  // The ↗ stays on the same line as the name's last word.
+  const cut = s.name.lastIndexOf(' ') + 1;
   return (
     <li className="reo-card">
       <div className="reo-owner">{s.owner}</div>
-      <h3><a href={s.url} target="_blank" rel="noopener noreferrer">{s.name} ↗</a></h3>
+      <h3><a href={s.url} target="_blank" rel="noopener noreferrer">{s.name.slice(0, cut)}<span className="nowrap">{s.name.slice(cut)} ↗</span></a></h3>
       <p>{s.what}</p>
       <dl>
-        <div><dt>How to buy</dt><dd>{s.howToBuy}</dd></div>
-        {s.firstLook && <div><dt>Buyers first</dt><dd>{s.firstLook}</dd></div>}
-        <div><dt>In Clark County</dt><dd>{s.clarkCounty}</dd></div>
+        <div className="reo-how"><dt>How to buy</dt><dd>{s.howToBuy}</dd></div>
+        {s.firstLook && <div className="reo-first"><dt>Buyers first</dt><dd>{s.firstLook}</dd></div>}
+        <div className="reo-clark"><dt>In Clark County</dt><dd>{s.clarkCounty}</dd></div>
       </dl>
     </li>
   );

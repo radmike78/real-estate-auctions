@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { ClassFilter } from '../lib/propertyClass';
 import { searchLabel, searchTarget, type SavedSearch } from '../lib/savedSearch';
 import { AlertDialog } from './TrackButton';
+import { useSiteFeatures } from '../lib/siteFeatures';
 
 const INTRO = 'Once a day, we’ll email you new parcels on the Treasurer’s tax-sale list that match. No email on days with nothing new.';
 
@@ -10,6 +11,7 @@ export default function SearchAlertButton({ cls }: { cls: ClassFilter }) {
   const [open, setOpen] = useState(false);
   const [s, setS] = useState<SavedSearch>({ source: 'tax', cls, maxBid: null });
   const [max, setMax] = useState('');
+  const features = useSiteFeatures();
   const openIt = () => {
     setS({ source: 'tax', cls, maxBid: null });
     setMax('');
@@ -23,6 +25,7 @@ export default function SearchAlertButton({ cls }: { cls: ClassFilter }) {
     const n = Math.floor(Number(clean));
     setS((x) => ({ ...x, maxBid: clean && n > 0 ? n : null }));
   };
+  if (!features?.email) return null; // email alerts aren't set up on this server yet
   return (
     <>
       <button className="btn btn-secondary" onClick={openIt}>✉ Email me new matches</button>

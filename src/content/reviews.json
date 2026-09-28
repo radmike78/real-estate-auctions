@@ -59,8 +59,8 @@
       "src/components/IrsSales.tsx",
       "src/components/SidCertificates.tsx"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "e0cd06b60bc40b86",
+    "reviewed": "2026-09-28",
+    "hash": "c04ccf5bde66637c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -69,8 +69,8 @@
     "files": [
       "src/components/PreForeclosurePage.tsx"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "96daa92754c6da54",
+    "reviewed": "2026-09-28",
+    "hash": "a3a3c723621dcfcf",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -90,8 +90,8 @@
       "src/components/BankOwnedPage.tsx",
       "src/lib/reoSources.ts"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "a6d3f0dbbfac2d08",
+    "reviewed": "2026-09-28",
+    "hash": "5150e309e7fb5c1b",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -123,8 +123,8 @@
     "files": [
       "src/components/GuidesPage.tsx"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "4b6da3115a5ac811",
+    "reviewed": "2026-09-28",
+    "hash": "988c30367b691ef2",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -135,8 +135,8 @@
       "src/components/PracticeScenarioPage.tsx",
       "src/practice/scenarios.ts"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "5c9a84638f20c9fb",
+    "reviewed": "2026-09-28",
+    "hash": "a4b0be9a033ca2bf",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -171,8 +171,8 @@
       "src/components/TrackButton.tsx",
       "src/components/SearchAlertButton.tsx"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "e60cf94bf8d69805",
+    "reviewed": "2026-09-28",
+    "hash": "5f63e9c17f099d40",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -182,8 +182,8 @@
       "src/components/AgentsPage.tsx",
       "src/lib/licenseLookup.ts"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "80ee90d005a0c494",
+    "reviewed": "2026-09-28",
+    "hash": "b5a0a3cf8a0afcf4",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -204,8 +204,8 @@
       "src/components/ProDirectory.tsx",
       "src/lib/pros.ts"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "4ddc14089c5eaaab",
+    "reviewed": "2026-09-28",
+    "hash": "a84f520e7692632e",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -248,8 +248,8 @@
       "src/components/AdvertiseApplyPage.tsx",
       "src/lib/proApplication.ts"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "a39b1a1462de69c6",
+    "reviewed": "2026-09-28",
+    "hash": "a790dfeb741e223c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

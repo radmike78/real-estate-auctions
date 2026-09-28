@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { api, ApiError } from '../lib/api';
 import { forgetManageToken, storedManageToken } from '../lib/alertsLink';
+import { useSiteFeatures } from '../lib/siteFeatures';
 
 /** "Email me changes" for a verified listing. With a remembered alerts link it's one click; otherwise email + confirm. */
 export default function TrackButton({ target, label }: { target: string; label: string }) {
   const intro = target.startsWith('irs:') ? IRS_INTRO : PROPERTY_INTRO;
   const [open, setOpen] = useState(false);
+  const features = useSiteFeatures();
+  if (!features?.email) return null; // email alerts aren't set up on this server yet
   return (
     <>
       <button className="linkish track-btn" onClick={() => setOpen(true)} aria-label={`Email me changes to ${label}`}>✉ Email me changes</button>

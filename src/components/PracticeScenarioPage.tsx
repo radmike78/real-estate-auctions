@@ -72,7 +72,7 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
           <h2 id="stage-head">{idx + 1}. {stage.title}</h2>
           <p className="muted">{stage.summary}</p>
           {stage.tasks.map((t) => (
-            <TaskCard key={t.id} task={t} k={taskKey(stage, t)} progress={progress} update={update} markDone={markDone} />
+            <TaskCard key={t.id} task={t} k={taskKey(stage, t)} progress={progress} update={update} markDone={markDone} showKind={new Set(stage.tasks.map((x) => x.kind)).size > 1} />
           ))}
           <div className="row practice-next">
             {idx > 0 && <a className="btn btn-secondary" href={`#/practice/${s.id}/${s.stages[idx - 1].key}`}>← {s.stages[idx - 1].title}</a>}
@@ -142,11 +142,12 @@ function Results({ s, progress }: { s: Scenario; progress: ScenarioProgress }) {
   );
 }
 
-function TaskCard({ task, k, progress, update, markDone }: { task: Task; k: string; progress: ScenarioProgress; update: (fn: (p: ScenarioProgress) => ScenarioProgress) => void; markDone: (k: string) => void }) {
+/** `showKind`: label each card (Learn, Decide, Numbers…) only when a step mixes kinds of task; otherwise it just repeats the step. */
+function TaskCard({ task, k, progress, update, markDone, showKind }: { task: Task; k: string; progress: ScenarioProgress; update: (fn: (p: ScenarioProgress) => ScenarioProgress) => void; markDone: (k: string) => void; showKind: boolean }) {
   const done = progress.done.includes(k);
   const head = (label: string, title: string) => (
     <div className="task-head">
-      <span className={`task-kind kind-${task.kind}`}>{label}</span>
+      {showKind && <span className={`task-kind kind-${task.kind}`}>{label}</span>}
       <h3>{title}</h3>
       {done && <span className="task-done" aria-label="Done">✓</span>}
     </div>

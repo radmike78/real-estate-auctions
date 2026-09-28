@@ -137,6 +137,10 @@ describe('advertiser card payments (running server, simulated Stripe)', () => {
   });
   afterAll(() => server?.close());
 
+  it('tells pages that online payments are on', async () => {
+    expect((await (await fetch(base + '/api/features')).json()).payments).toBe(true);
+  });
+
   it('offers the flat category price and is not listed before paying', async () => {
     const m = await me();
     expect(m.payments).toMatchObject({ available: true, amountLabel: '$199 / month', active: false, hasCard: false });
