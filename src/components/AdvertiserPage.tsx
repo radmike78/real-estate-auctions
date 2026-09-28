@@ -5,6 +5,7 @@ import type { ProProfile, Billing } from '../lib/proApplication';
 import { fmtDate, fmtDateTime } from '../lib/status';
 import PageHero from './PageHero';
 import DailyColumns from './DailyColumns';
+import OwlNote from './OwlNote';
 
 const LOGIN_KEY = 'fsf.pro-login';
 
@@ -363,7 +364,7 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
           <h2>Leads ({leads.length})</h2>
           <a className="btn btn-secondary" href={`/api/pro/leads.csv?from=${range.from}&to=${range.to}`}>Download CSV</a>
         </div>
-        {leads.length === 0 && <p className="muted">No leads in this period yet.</p>}
+        {leads.length === 0 && <OwlNote>No leads in this period yet.</OwlNote>}
         <ul className="lead-list">
           {leads.map((l) => (
             <li key={l.id}>

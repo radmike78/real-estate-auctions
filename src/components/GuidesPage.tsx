@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import PageHero from './PageHero';
 import { IconSearch } from './Icons';
 import { highlight, searchGuides, type GuideIndex } from '../lib/guideSearch';
+import OwlNote from './OwlNote';
 
 const TRY = ['Deposit', 'Redemption period', 'What survives an HOA foreclosure?', 'Cashier’s check', 'Occupied home', 'Title insurance'];
 
@@ -91,7 +92,7 @@ export default function GuidesPage({ initialQuery }: { initialQuery: string }) {
               : `${results.hits.length}${results.hits.length === 20 ? '+' : ''} ${results.hits.length === 1 ? 'section' : 'sections'} ${results.partial ? 'match some of your words' : 'match'}`}
           </h2>
           {results.hits.length === 0 ? (
-            <p className="muted">Try fewer or different words, or <a href="#/playbooks">browse the playbooks</a>.</p>
+            <OwlNote>Try fewer or different words, or <a href="#/playbooks">browse the playbooks</a>.</OwlNote>
           ) : (
             <ol className="guide-results">
               {results.hits.map((h) => (

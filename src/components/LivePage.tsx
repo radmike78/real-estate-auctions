@@ -14,6 +14,9 @@ import { propertyViews } from '../lib/propertyViews';
 import ClassSwitch from './ClassSwitch';
 import TrackButton from './TrackButton';
 import SearchAlertButton from './SearchAlertButton';
+import EmptyState from './EmptyState';
+import OwlNote from './OwlNote';
+import { useSiteFeatures } from '../lib/siteFeatures';
 import { CLASS_LABEL, classOfLandUse, type ClassFilter } from '../lib/propertyClass';
 
 function ago(iso: string, now: number) {
@@ -48,6 +51,8 @@ export default function LivePage() {
   const certificates = result?.ok && !expired ? (result.feed.certificates ?? []) : [];
   const federalSales = result?.ok && !expired ? (result.feed.federalSales ?? []) : [];
   const nothingLive = listings.length + certificates.length + federalSales.length === 0;
+  const blocked = !!result && !result.ok && result.reason !== 'NOT_CONFIGURED' && result.reason !== 'MISSING';
+  const features = useSiteFeatures();
   const shown = cls === 'all' ? listings : listings.filter((l) => classOfLandUse(l.landUse?.code) === cls);
 
   return (
@@ -57,37 +62,44 @@ export default function LivePage() {
         title={<>Live <span className="grad">tax sales</span></>}
         sub="Treasurer tax-sale parcels and IRS sales in Clark County, re-checked against the official lists."
       />
+      {!result && <p>Verifying listings…</p>}
+
+      {result && nothingLive && (
+        <EmptyState title={blocked ? 'No live listings shown' : expired ? 'Listings are being re-verified' : 'No tax sales right now'}>
+          <p>
+            {blocked
+              ? "The latest data didn't pass our security checks, so for your safety nothing is shown until verified data is published."
+              : expired
+                ? 'The last verification has expired, so listings are hidden until fresh data is published.'
+                : 'No parcels are verified as for sale in Clark County right now. We re-check the official lists automatically, and parcels appear here as soon as a sale is scheduled and they pass our checks.'}
+          </p>
+          <p>
+            Meanwhile, {SHOW_SAMPLE_DATA && <><a href="#/search?type=TAX_DEED">browse sample tax-sale listings</a> or </>}check the{' '}
+            <a href="https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList" target="_blank" rel="noreferrer noopener">
+              Treasurer’s official auction list ↗
+            </a>
+            .
+          </p>
+          {features?.email && (
+            <div className="row">
+              <SearchAlertButton cls={cls} />
+              <span className="muted">Get an email when the next list comes out.</span>
+            </div>
+          )}
+        </EmptyState>
+      )}
+
       <p className="muted">
         Listings are re-checked on a schedule that follows how often each official list is updated. Parcels that are paid off (lined out), sold,
         removed, unconfirmed, or not re-verified recently are hidden automatically. When no auction is scheduled, nothing is listed.
       </p>
-      <div className="row live-alerts">
-        <SearchAlertButton cls={cls} />
-        <span className="muted">A daily email when new parcels match, including when the next auction list comes out.</span>
-      </div>
-
-      {!result && <p>Verifying listings…</p>}
-
-      {result && !result.ok && (
-        <div className="verify" role="status" title={result.detail}>
-          {result.reason === 'NOT_CONFIGURED' || result.reason === 'MISSING' ? (
-            <>
-              <strong>No live listings right now.</strong> Verified listings appear here once the Treasurer schedules its next auction and
-              the list passes our checks.
-            </>
-          ) : (
-            <>
-              <strong>No live listings shown.</strong> The latest data didn't pass our security checks, so for your safety nothing is
-              displayed until verified data is published.
-            </>
-          )}{' '}
-          Meanwhile, {SHOW_SAMPLE_DATA && <><a href="#/search?type=TAX_DEED">browse sample tax-sale listings</a> or </>}check the{' '}
-          <a href="https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList" target="_blank" rel="noreferrer noopener">
-            Treasurer’s official auction list ↗
-          </a>
-          .
+      {features?.email && !nothingLive && (
+        <div className="row live-alerts">
+          <SearchAlertButton cls={cls} />
+          <span className="muted">A daily email when new parcels match, including when the next auction list comes out.</span>
         </div>
       )}
+
       {result && nothingLive && (
         <section className="while-you-wait" aria-labelledby="wait-head">
           <h2 id="wait-head">While you wait</h2>
@@ -97,11 +109,6 @@ export default function LivePage() {
             <Tile href="#/financing" icon={<IconBank />} title="Line up your money" tone="go" summary="Tax sales need certified funds fast. Compare lenders now" />
           </div>
         </section>
-      )}
-      {expired && (
-        <div className="verify" role="status">
-          <strong>Listings are being re-verified.</strong> The last verification has expired, so listings are hidden until fresh data is published.
-        </div>
       )}
 
       {result?.ok && (
@@ -148,7 +155,7 @@ export default function LivePage() {
               {shown.length} of {listings.length} parcels{cls !== 'all' && ' · type from the County Assessor’s land-use code; unclassified parcels show under All'}
             </span>
           </div>
-          {shown.length === 0 && <p className="muted">No {cls} parcels on the current list.</p>}
+          {shown.length === 0 && <OwlNote>No {cls} parcels on the current list. Try All.</OwlNote>}
           <div className="table-wrap">
             <table>
               <thead>
@@ -197,7 +204,6 @@ export default function LivePage() {
           </div>
         </section>
       )}
-      {result?.ok && !expired && nothingLive && <p className="muted">No parcels are currently verified as available.</p>}
       <IrsSales sales={federalSales} ago={(iso) => ago(iso, now)} />
       <SidCertificates certificates={certificates} ago={(iso) => ago(iso, now)} />
       <Disclaimer kind="sales" />

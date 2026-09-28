@@ -4,6 +4,7 @@ import { DIRECTORY_PUBLIC_KEY_SPKI_B64 } from '../feed/publicKey';
 import { loadVerifiedPros, type ProsFeedResult } from '../feed/prosFeed';
 import { CATEGORIES, CREDIT_PROFILES, LOAN_PRODUCTS, safeMailto, safeTel, searchPros, servicesFor, type Category, type Pro, type ProQuery } from '../lib/pros';
 import { track } from '../lib/track';
+import { advertisingOpen, useSiteFeatures } from '../lib/siteFeatures';
 import OwlNote from './OwlNote';
 import ProAvatar from './ProAvatar';
 
@@ -69,6 +70,7 @@ interface Props {
 export default function ProDirectory({ categories, initialCategory = 'any', showCategoryFilter = true, initialLocation = '' }: Props) {
   const { pros, usingSamples, error, loading } = useDirectory();
   const [cat, setCat] = useState<Category | 'any'>(initialCategory);
+  const adsOpen = advertisingOpen(useSiteFeatures());
   const [q, setQ] = useState<Omit<ProQuery, 'categories'>>({ location: initialLocation, service: 'any', creditProfile: 'any', language: 'any' });
   const active = cat === 'any' ? categories : [cat];
   const financing = active.some((c) => CATEGORIES[c].financing);
@@ -123,12 +125,12 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
         <div className="empty">
           <OwlNote><strong>No professionals are listed here yet.</strong> Every listing is license-checked before it appears.</OwlNote>
           <p>
-            Looking for someone now? <a href="#/agents">Look up any professional's license</a> with the official regulator. Licensed and want to be
-            listed? <a href="#/advertise">Apply to advertise</a>.
+            Looking for someone now? <a href="#/agents">Look up any professional's license</a> with the official regulator.{' '}
+            {adsOpen ? <>Licensed and want to be listed? <a href="#/advertise">Apply to advertise</a>.</> : 'Advertising for licensed professionals opens soon.'}
           </p>
         </div>
       )}
-      {!loading && results.length === 0 && pros.length > 0 && !error && <div className="empty">No license-checked professionals match yet. Try another city or filter.</div>}
+      {!loading && results.length === 0 && pros.length > 0 && !error && <div className="empty"><OwlNote>No license-checked professionals match yet. Try another city or filter.</OwlNote></div>}
       <ul className="pro-grid">{results.map((p) => <ProCard key={p.id} p={p} />)}</ul>
     </div>
   );

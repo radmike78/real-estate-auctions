@@ -1,5 +1,6 @@
 import { HUD_CLARK_SEARCH } from '../lib/reoSources';
 import { Tile } from './DrillDown';
+import EmptyState from './EmptyState';
 import { IconBank, IconCalc, IconCheckList, IconPulse } from './Icons';
 
 // Shown instead of property listings when a production build has no real listings connected yet
@@ -18,12 +19,13 @@ const OFFICIAL = [
 
 export default function NoListingsYet({ what = 'Property listings' }: { what?: string }) {
   return (
-    <section className="no-listings" aria-labelledby="no-listings-head">
-      <h2 id="no-listings-head">{what} are being connected</h2>
-      <p>
-        We're connecting official Clark County sources one at a time, and we only call a property for sale once a sale is on the official record.
-        Pre-foreclosures and liens are shown as not for sale. Until then, here's where each kind of sale is listed, and free tools to get ready.
-      </p>
+    <section className="no-listings" aria-label={`${what} are being connected`}>
+      <EmptyState title={`${what} are being connected`}>
+        <p>
+          We're connecting official Clark County sources one at a time, and we only call a property for sale once a sale is on the official record.
+          Pre-foreclosures and liens are shown as not for sale. Until then, here's where each kind of sale is listed, and free tools to get ready.
+        </p>
+      </EmptyState>
       <div className="drill-tiles">
         <Tile href="#/live" icon={<IconPulse />} title="Live tax sales" tone="go" summary="Verified parcels from the County Treasurer, when an auction is scheduled" />
         <Tile href="#/bank-owned" icon={<IconBank />} title="Bank-owned homes" summary="Direct lists from HUD, Fannie Mae, Freddie Mac and banks" />

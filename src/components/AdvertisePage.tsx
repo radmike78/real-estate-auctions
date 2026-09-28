@@ -1,9 +1,12 @@
 import PageHero from './PageHero';
+import { advertisingOpen, useSiteFeatures } from '../lib/siteFeatures';
 import { CATEGORIES, REVERIFY_DAYS, type Category } from '../lib/pros';
 
 const GROUPS = ['Real estate', 'Financing', 'Closing & protection', 'Inspection & repairs', 'Legal & tax', 'Ownership'] as const;
 
 export default function AdvertisePage() {
+  const features = useSiteFeatures();
+  const open = advertisingOpen(features);
   return (
     <main className="page">
       <PageHero
@@ -11,9 +14,11 @@ export default function AdvertisePage() {
         title={<>Reach buyers at the moment <span className="grad">they need you</span></>}
         sub="People come here to buy auction, bank-owned and short-sale properties. They need agents, financing, title, insurance, inspectors, repairs, and legal and tax help."
       >
-        <div>
-          <a className="btn big hero-cta" href="#/advertise/apply">Apply to advertise</a>
-        </div>
+        {features && (
+          <div className="row">
+            {open ? <a className="btn big hero-cta" href="#/advertise/apply">Apply to advertise</a> : <><span className="badge tone-info">Coming soon</span> <span>Applications open soon.</span></>}
+          </div>
+        )}
       </PageHero>
 
       <section className="options-grid" aria-label="What you get">
@@ -34,7 +39,7 @@ export default function AdvertisePage() {
             <h3>{g}</h3>
             <ul className="plain-list">
               {(Object.keys(CATEGORIES) as Category[]).filter((c) => CATEGORIES[c].group === g).map((c) => (
-                <li key={c}><a href={`#/advertise/apply/${c}`}>{CATEGORIES[c].label}</a> <span className="small muted">({CATEGORIES[c].regulator})</span></li>
+                <li key={c}>{open ? <a href={`#/advertise/apply/${c}`}>{CATEGORIES[c].label}</a> : CATEGORIES[c].label} <span className="small muted">({CATEGORIES[c].regulator})</span></li>
               ))}
             </ul>
           </div>

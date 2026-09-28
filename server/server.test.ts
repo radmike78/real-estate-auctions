@@ -387,6 +387,9 @@ describe('operations: health check and backups', () => {
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
     expect(res.headers.get('cache-control')).toBe('no-store');
+    // Email is set up (a mailer was given); online payments aren't.
+    const features = await fetch(`http://127.0.0.1:${(server.address() as { port: number }).port}/api/features`);
+    expect(await features.json()).toEqual({ email: true, payments: false });
     await new Promise<void>((r) => server.close(() => r()));
 
     const copy = join(dir, 'backup.db');
