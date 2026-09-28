@@ -1292,7 +1292,7 @@ export function buildScenario(sale: SaleKey, p: PracticeProperty): Scenario | nu
         ...(commercial(p) && sale !== 'sid' ? commercialResearch(p, sale) : []),
       ],
     },
-    { key: 'team', title: 'Your team', summary: 'Reach out to the professionals this sale needs. Click a question on each card to see their answer.', tasks: flow.team(p, n, a) },
+    { key: 'team', title: 'Your team', summary: 'Reach out to the professionals this sale needs.', tasks: flow.team(p, n, a) },
     ...(n
       ? [
           {

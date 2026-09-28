@@ -1466,6 +1466,8 @@ html { scroll-padding-top: 88px; }
 .calc-grid-note { margin: -8px 0 0; }
 .calc-grid-table td.here { font-weight: 700; color: var(--text); }
 .calc-grid-table { font-variant-numeric: tabular-nums; }
+.stage-prompt { margin: 4px 0 16px; font-size: 1.2rem; font-weight: 600; color: var(--accent); }
+.stage-prompt strong { font-size: 1.35rem; font-weight: 800; }
 .task-prompt { margin: 8px 0 6px; font-weight: 600; color: var(--accent); }
 .calc-group { min-width: 0; }
 .calc-rule select { width: 100%; max-width: 100%; }

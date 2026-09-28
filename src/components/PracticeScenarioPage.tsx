@@ -71,6 +71,9 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
         <section aria-labelledby="stage-head">
           <h2 id="stage-head">{idx + 1}. {stage.title}</h2>
           <p className="muted">{stage.summary}</p>
+          {stage.tasks.some((t) => t.kind === 'contact') && (
+            <p className="stage-prompt">👉 <strong>Click</strong> a question on {stage.tasks.every((t) => t.kind === 'contact') ? 'each card' : 'each “Reach out” card'} to see their answer.</p>
+          )}
           {stage.tasks.map((t) => (
             <TaskCard key={t.id} task={t} k={taskKey(stage, t)} progress={progress} update={update} markDone={markDone} showKind={new Set(stage.tasks.map((x) => x.kind)).size > 1} />
           ))}
@@ -315,9 +318,6 @@ function ContactTask({ task, k, done, head, progress, update }: { task: Extract<
           </>
         )}
       </div>
-      {sent.length < task.messages.length && (
-        <p className="task-prompt">👉 Click a question to ask {task.person.split(',')[0]} and see the answer.</p>
-      )}
       <div className="row">
         {task.messages.map((m, i) => (
           <button key={i} className="btn btn-secondary" disabled={typing !== null || sent.includes(i)} onClick={() => send(i)}>{m.label}</button>
