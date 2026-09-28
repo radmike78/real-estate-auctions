@@ -1448,3 +1448,27 @@ html { scroll-padding-top: 88px; }
 .pro-card .chips { align-content: flex-start; align-items: flex-start; }
 /* Inside another box, the owl message needs no box of its own. */
 .page section .empty-state, .drill-section .empty-state, .no-listings .empty-state, .drill-bare .empty-state { border: 0; background: none; padding: 8px 0 16px; margin: 0; }
+
+/* Calculator: Quick / Detailed, kind-of-sale picker, one-line hints with a "?" for more, and result notes. */
+.calc-mode { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+.calc-mode button { padding: 8px 18px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-weight: 600; cursor: pointer; }
+.calc-mode button.on { background: linear-gradient(135deg, #2563eb, #7c3aed); border-color: transparent; color: #fff; }
+.calc-rule { display: grid; gap: 6px; margin: 0 0 16px; max-width: 520px; }
+.calc-hint { display: flex; align-items: flex-start; gap: 8px; min-height: 1.4em; }
+.calc-hint small { flex: 1; }
+.calc-more { position: relative; }
+.calc-more summary { list-style: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 0.9rem; color: var(--accent); background: var(--surface-2); cursor: pointer; }
+.calc-more summary::-webkit-details-marker { display: none; }
+.calc-more[open] summary { background: var(--accent); color: #fff; }
+.calc-more p { position: absolute; right: 0; top: 30px; z-index: 5; width: min(300px, 80vw); margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); box-shadow: 0 16px 36px -16px rgb(0 0 0 / 0.6); }
+.calc-note { padding: 12px 14px; border-radius: 12px; background: var(--surface-2); margin: 0; }
+.calc-note p { margin: 4px 0 0; }
+.calc-grid-note { margin: -8px 0 0; }
+.calc-grid-table td.here { font-weight: 700; color: var(--text); }
+.calc-grid-table { font-variant-numeric: tabular-nums; }
+.task-prompt { margin: 8px 0 6px; font-weight: 600; color: var(--accent); }
+.calc-group { min-width: 0; }
+.calc-rule select { width: 100%; max-width: 100%; }
+@media (max-width: 480px) { .calc-grid-table th, .calc-grid-table td { padding: 6px 4px; font-size: 0.95rem; } }
+.calc-rule { grid-template-columns: minmax(0, 1fr); min-width: 0; }
+.calc-group .calc-rule { clear: both; }

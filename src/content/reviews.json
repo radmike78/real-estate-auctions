@@ -70,7 +70,7 @@
       "src/components/PreForeclosurePage.tsx"
     ],
     "reviewed": "2026-09-28",
-    "hash": "7c3ce412cb0f809f",
+    "hash": "1483a46f43f550b5",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -136,7 +136,7 @@
       "src/practice/scenarios.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "8114cadc6e71963c",
+    "hash": "26fa46027d5f26be",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -150,7 +150,7 @@
       "src/lib/incomeValue.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "46261bb138855ff2",
+    "hash": "405b77476537ee97",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

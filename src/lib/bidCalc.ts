@@ -14,17 +14,34 @@ export interface BidInputs {
   survivingLiens: number; // debts that stay with the property after the sale
   titleLegal: number; // title search, attorney review, quiet title
   possession: number; // eviction, relocation, locksmith
-  holdingMonths: number;
+  /** Months the former owner (or others) can redeem after the sale. Hold off on repairs until it ends. */
+  redemptionMonths: number;
+  /** What a redemption pays you on top of your price, % a year (1% a month = 12). */
+  redemptionRatePct: number;
+  /** 1 when that interest compounds daily (IRS seizure sales), 0 for simple interest. */
+  redemptionDaily: number;
+  holdingMonths: number; // months to fix and sell, after any redemption wait
   monthlyCarry: number; // taxes, insurance, utilities, HOA dues
   financedPct: number; // share of purchase + repairs borrowed (after the sale; auctions need cash)
   interestRatePct: number; // annual
   pointsPct: number; // lender fees, % of the loan
   sellingCostPct: number; // agent commission + closing costs when you sell
   targetProfitPct: number; // profit you require, % of exit value
+  targetProfitMin: number; // ...and at least this many dollars (0 = no minimum)
+  cashAvailable: number; // cash you can bring on auction day (0 = no limit)
 }
 
 export interface BidResult {
+  /** The walk-away price: the lower of the profit limit and the cash limit. 0 when no bid works. */
   maxBid: number; // 0 when no bid meets the target
+  /** Highest bid that still meets the profit target, ignoring the cash limit. */
+  profitBid: number;
+  /** What sets the walk-away price. */
+  limitedBy: 'profit' | 'cash';
+  /** Profit at the walk-away price. */
+  profit: number;
+  /** That profit as a yearly return on the cash in the deal (e.g. 0.18 = 18% a year); null without a time frame. */
+  yearlyReturn: number | null;
   breakEvenBid: number;
   fixedCosts: number; // everything that doesn't depend on the bid
   repairsWithContingency: number;
@@ -44,8 +61,8 @@ export function costsAtBid(i: BidInputs, bid: number) {
   const premium = (bid * nz(i.buyerPremiumPct)) / 100;
   const transferTax = Math.ceil(bid / 500) * nz(i.transferTaxPer500); // per $500 or fraction (NRS 375.020 and 375.023)
   const loan = ((bid + repairs) * Math.min(nz(i.financedPct), 100)) / 100;
-  const financing = loan * ((nz(i.interestRatePct) / 100) * (nz(i.holdingMonths) / 12) + nz(i.pointsPct) / 100);
-  const holding = nz(i.holdingMonths) * nz(i.monthlyCarry);
+  const financing = loan * ((nz(i.interestRatePct) / 100) * (totalMonths(i) / 12) + nz(i.pointsPct) / 100);
+  const holding = totalMonths(i) * nz(i.monthlyCarry);
   const selling = (nz(i.exitValue) * nz(i.sellingCostPct)) / 100;
   const total = bid + premium + transferTax + repairs + nz(i.survivingLiens) + nz(i.titleLegal) + nz(i.possession) + holding + financing + selling;
   return { bid, premium, transferTax, repairs, survivingLiens: nz(i.survivingLiens), titleLegal: nz(i.titleLegal), possession: nz(i.possession), holding, financing, selling, loan, total };
@@ -55,34 +72,69 @@ export function profitAtBid(i: BidInputs, bid: number): number {
   return nz(i.exitValue) - costsAtBid(i, bid).total;
 }
 
-function solve(i: BidInputs, profitPct: number): number {
+/** Every month you carry the property: any redemption wait, then fixing and selling. */
+export const totalMonths = (i: BidInputs) => nz(i.redemptionMonths) + nz(i.holdingMonths);
+
+/** The profit you require in dollars: your % of the resale value, and at least your minimum. */
+export const requiredProfit = (i: BidInputs) => Math.max((nz(i.exitValue) * nz(i.targetProfitPct)) / 100, nz(i.targetProfitMin));
+
+function solve(i: BidInputs, profit: number): number {
   const repairs = nz(i.repairs) * (1 + nz(i.contingencyPct) / 100);
   const f = Math.min(nz(i.financedPct), 100) / 100;
-  const k = (nz(i.interestRatePct) / 100) * (nz(i.holdingMonths) / 12) + nz(i.pointsPct) / 100;
+  const k = (nz(i.interestRatePct) / 100) * (totalMonths(i) / 12) + nz(i.pointsPct) / 100;
   const perBid = 1 + nz(i.buyerPremiumPct) / 100 + nz(i.transferTaxPer500) / 500 + f * k;
   // + one transfer-tax step: rounding up to the next $500 costs at most one extra step.
-  const fixed = nz(i.transferTaxPer500) + repairs + nz(i.survivingLiens) + nz(i.titleLegal) + nz(i.possession) + nz(i.holdingMonths) * nz(i.monthlyCarry) + f * repairs * k;
-  const available = nz(i.exitValue) * (1 - nz(i.sellingCostPct) / 100 - profitPct / 100) - fixed;
+  const fixed = nz(i.transferTaxPer500) + repairs + nz(i.survivingLiens) + nz(i.titleLegal) + nz(i.possession) + totalMonths(i) * nz(i.monthlyCarry) + f * repairs * k;
+  const available = nz(i.exitValue) * (1 - nz(i.sellingCostPct) / 100) - profit - fixed;
   return available / perBid;
 }
 
+/** Highest bid whose auction-day cash (bid + buyer's premium) fits the cash you can bring; Infinity with no limit. */
+export function cashLimitedBid(i: BidInputs): number {
+  return nz(i.cashAvailable) > 0 ? Math.floor(nz(i.cashAvailable) / (1 + nz(i.buyerPremiumPct) / 100)) : Infinity;
+}
+
 export function maxSafeBid(i: BidInputs): BidResult {
-  const raw = solve(i, nz(i.targetProfitPct));
-  const maxBid = Math.max(0, Math.floor(raw));
+  const profitBid = Math.max(0, Math.floor(solve(i, requiredProfit(i))));
+  const cashBid = cashLimitedBid(i);
+  const limitedBy = cashBid < profitBid ? 'cash' : 'profit';
+  const maxBid = Math.min(profitBid, cashBid);
   const breakEvenBid = Math.max(0, Math.floor(solve(i, 0)));
   const c = costsAtBid(i, maxBid);
+  const cashToStabilize = r2(c.total - c.selling - c.loan);
+  const profit = r2(profitAtBid(i, maxBid));
+  const years = totalMonths(i) / 12;
   return {
     maxBid,
+    profitBid,
+    limitedBy,
+    profit,
+    yearlyReturn: maxBid > 0 && years > 0 && cashToStabilize > 0 ? profit / cashToStabilize / years : null,
     breakEvenBid,
     fixedCosts: r2(c.repairs + c.survivingLiens + c.titleLegal + c.possession + c.holding + c.selling),
     repairsWithContingency: r2(c.repairs),
     cashAtAuction: r2(maxBid + c.premium),
-    cashToStabilize: r2(c.total - c.selling - c.loan),
+    cashToStabilize,
     noBidWorks: maxBid <= 0,
   };
 }
 
-/** How the max bid moves if the deal goes worse than planned. */
+/**
+ * If the owner redeems at the end of the wait: what the redemption repays on your price, and what you'd have spent by
+ * then that it doesn't (premium, transfer tax, title work and holding costs). Some rules also repay taxes and
+ * assessments you paid; this leaves them out, so it's the cautious figure.
+ */
+export function redemptionOutcome(i: BidInputs, bid: number): { repaid: number; spent: number; net: number } | null {
+  const months = nz(i.redemptionMonths);
+  if (!(months > 0) || !(bid > 0)) return null;
+  const rate = nz(i.redemptionRatePct) / 100;
+  const repaid = i.redemptionDaily ? bid * (1 + rate / 365) ** Math.round((months * 365) / 12) : bid * (1 + (rate * months) / 12);
+  const c = costsAtBid(i, bid);
+  const spent = bid + c.premium + c.transferTax + c.titleLegal + months * nz(i.monthlyCarry);
+  return { repaid: r2(repaid), spent: r2(spent), net: r2(repaid - spent) };
+}
+
+/** How the walk-away price moves if the deal goes worse (or better) than planned. */
 export function stressTests(i: BidInputs): { label: string; maxBid: number }[] {
   const at = (patch: Partial<BidInputs>) => maxSafeBid({ ...i, ...patch }).maxBid;
   return [
@@ -94,6 +146,16 @@ export function stressTests(i: BidInputs): { label: string; maxBid: number }[] {
   ];
 }
 
+export const GRID_VALUE_STEPS = [-10, 0, 5] as const;
+export const GRID_REPAIR_STEPS = [0, 25, 50] as const;
+/**
+ * Highest bid that meets the profit target for each resale value change (rows) and repair overrun (columns), in %.
+ * The cash limit is left out here, so the grid shows how the deal itself moves.
+ */
+export function stressGrid(i: BidInputs): number[][] {
+  return GRID_VALUE_STEPS.map((v) => GRID_REPAIR_STEPS.map((r) => maxSafeBid({ ...i, exitValue: (i.exitValue * (100 + v)) / 100, repairs: (i.repairs * (100 + r)) / 100 }).profitBid));
+}
+
 export const BLANK_INPUTS: BidInputs = {
   exitValue: 400_000,
   repairs: 40_000,
@@ -103,6 +165,9 @@ export const BLANK_INPUTS: BidInputs = {
   survivingLiens: 0,
   titleLegal: 500,
   possession: 300,
+  redemptionMonths: 0,
+  redemptionRatePct: 0,
+  redemptionDaily: 0,
   holdingMonths: 6,
   monthlyCarry: 450,
   financedPct: 0,
@@ -110,6 +175,24 @@ export const BLANK_INPUTS: BidInputs = {
   pointsPct: 2,
   sellingCostPct: 8,
   targetProfitPct: 15,
+  targetProfitMin: 0,
+  cashAvailable: 0,
+};
+
+/**
+ * Redemption rules by kind of sale (see the playbooks and src/content/facts.ts, where each is tied to its source).
+ * Months are the longest wait; interest is what a redemption adds to your price.
+ */
+export const REDEMPTION_RULES = {
+  none: { label: 'No redemption', months: 0, ratePct: 0, daily: 0 },
+  hoa: { label: 'HOA foreclosure: 60 days, +1% a month', months: 2, ratePct: 12, daily: 0 },
+  sheriff: { label: 'Sheriff’s sale: 1 year, +1% a month', months: 12, ratePct: 12, daily: 0 },
+  irs: { label: 'IRS seizure sale: 180 days, +20% a year', months: 6, ratePct: 20, daily: 1 },
+} as const;
+export type RedemptionRule = keyof typeof REDEMPTION_RULES;
+export const ruleOf = (i: BidInputs): RedemptionRule | 'custom' => {
+  for (const [k, r] of Object.entries(REDEMPTION_RULES)) if (nz(i.redemptionMonths) === r.months && nz(i.redemptionRatePct) === r.ratePct && nz(i.redemptionDaily) === r.daily) return k as RedemptionRule;
+  return 'custom';
 };
 
 /**
@@ -126,10 +209,11 @@ export function defaultsFor(p: Property): BidInputs {
     : type === 'SHERIFF_EXECUTION' || type === 'FEDERAL_TAX_SEIZURE' ? 1_500
     : 500; // title search / O&E report + recording
   const possession = p.occupancy === 'Vacant' ? 300 : p.occupancy === 'Unknown' ? 1_500 : 3_500;
+  // The redemption wait comes first (hold off on repairs), then months to fix and sell.
+  const rule = REDEMPTION_RULES[type === 'SHERIFF_EXECUTION' ? 'sheriff' : type === 'FEDERAL_TAX_SEIZURE' ? 'irs' : type === 'HOA_FORECLOSURE' ? 'hoa' : 'none'];
   const holdingMonths =
-    type === 'SHERIFF_EXECUTION' ? 15 // 1-year redemption before you can safely improve it
-    : type === 'FEDERAL_TAX_SEIZURE' ? 9 // 180-day redemption
-    : type === 'HOA_FORECLOSURE' ? 7 // 60-day redemption
+    type === 'SHERIFF_EXECUTION' || type === 'FEDERAL_TAX_SEIZURE' ? 3
+    : type === 'HOA_FORECLOSURE' ? 5
     : type === 'TAX_DEED' ? 12 // resale usually waits for a quiet title action (or the 2-year window after the deed)
     : 6;
   return {
@@ -141,6 +225,9 @@ export function defaultsFor(p: Property): BidInputs {
     survivingLiens: Math.round(money.likelySurviving + money.uncertain),
     titleLegal,
     possession,
+    redemptionMonths: rule.months,
+    redemptionRatePct: rule.ratePct,
+    redemptionDaily: rule.daily,
     holdingMonths,
     // Clark County tax rates are about 2.9–3.3% of assessed value a year depending on district (before abatements);
     // 3.3% is the conservative end. Plus about $300/month insurance and utilities.
@@ -151,8 +238,9 @@ export function defaultsFor(p: Property): BidInputs {
 /** Largest sensible value for each input: percentages stop at 100, money at $10 billion. */
 export const INPUT_MAX: Record<keyof BidInputs, number> = {
   exitValue: 1e10, repairs: 1e10, contingencyPct: 100, buyerPremiumPct: 100, transferTaxPer500: 100, survivingLiens: 1e10,
-  titleLegal: 1e10, possession: 1e10, holdingMonths: 600, monthlyCarry: 1e10, financedPct: 100, interestRatePct: 100,
-  pointsPct: 100, sellingCostPct: 100, targetProfitPct: 100,
+  titleLegal: 1e10, possession: 1e10, redemptionMonths: 120, redemptionRatePct: 100, redemptionDaily: 1, holdingMonths: 600,
+  monthlyCarry: 1e10, financedPct: 100, interestRatePct: 100, pointsPct: 100, sellingCostPct: 100, targetProfitPct: 100,
+  targetProfitMin: 1e10, cashAvailable: 1e10,
 };
 /** A typed or saved value made safe: 0 for invalid or negative, capped at the input's maximum. */
 export const clampInput = (k: keyof BidInputs, v: number) => (Number.isFinite(v) && v > 0 ? Math.min(v, INPUT_MAX[k]) : 0);
