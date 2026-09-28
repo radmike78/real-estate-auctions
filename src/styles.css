@@ -1749,3 +1749,17 @@ h1, h2 { letter-spacing: -0.03em; }
 .theme-btn:hover { background: var(--surface-2); }
 .theme-btn svg { width: 22px; height: 22px; }
 @media (max-width: 900px) { .theme-btn { margin-left: auto; } .theme-btn + .menu-btn { margin-left: 4px; } }
+
+/* More menu: sized to hold its columns; fewer columns (down to one list) when the window is narrower */
+@media (min-width: 901px) {
+  .more-menu { width: 690px; max-width: calc(100vw - 32px); grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .more-group:nth-child(n + 4) { border-top: 1px solid var(--border); }
+}
+@media (min-width: 901px) {
+  .site-nav > a, .more summary { white-space: nowrap; }
+}
+@media (min-width: 901px) and (max-width: 1100px) {
+  .site-header { gap: 12px; padding-inline: 16px; }
+  .site-nav { gap: 0; }
+  .site-nav > a, .more summary { padding-inline: 9px; }
+}
