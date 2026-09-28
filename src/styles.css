@@ -1749,3 +1749,49 @@ h1, h2 { letter-spacing: -0.03em; }
 .theme-btn:hover { background: var(--surface-2); }
 .theme-btn svg { width: 22px; height: 22px; }
 @media (max-width: 900px) { .theme-btn { margin-left: auto; } .theme-btn + .menu-btn { margin-left: 4px; } }
+
+/* More menu: sized to hold its columns; fewer columns (down to one list) when the window is narrower */
+@media (min-width: 901px) {
+  .more-menu { width: 690px; max-width: calc(100vw - 32px); grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .more-group:nth-child(n + 4) { border-top: 1px solid var(--border); }
+}
+@media (min-width: 901px) {
+  .site-nav > a, .more summary { white-space: nowrap; }
+}
+@media (min-width: 901px) and (max-width: 1100px) {
+  .site-header { gap: 12px; padding-inline: 16px; }
+  .site-nav { gap: 0; }
+  .site-nav > a, .more summary { padding-inline: 9px; }
+}
+
+/* Home: "Browse by type of sale" close enough under the search box to see it is there */
+.simple-hero { padding-bottom: 28px; }
+.simple-hero + .browse { padding-top: 24px; }
+@media (max-width: 700px) { .simple-hero { padding-bottom: 20px; } .simple-hero + .browse { padding-top: 16px; } }
+
+/* Top sections: no dividing line. On computers each one is tall enough for the full-size watermark owl,
+   its text is centered in that space and stops before the owl. Phones get a small owl in the corner.
+   Hidden where the right side already holds buttons or a card (property pages). */
+.page-hero { border-bottom: 0; }
+.hero::after, .page-hero::after { top: 20px; width: 200px; height: 200px; background-position: center; background-size: contain; }
+@media (min-width: 701px) {
+  .page-hero { min-height: 240px; display: flex; flex-direction: column; justify-content: center; }
+  .page-hero:not(:has(.page-hero-aside, .hero-actions)) .page-hero-inner { padding-right: 230px; }
+}
+@media (max-width: 700px) {
+  /* Phones: a small owl beside the label at the top, with that row kept clear for it */
+  .page-hero::after { top: 26px; right: 12px; width: 50px; height: 50px; }
+  .page-hero:not(:has(.page-hero-aside, .hero-actions)) .page-hero-main > :first-child { margin-right: 54px; min-height: 50px; }
+  .hero::after { top: 44px; right: 12px; width: 50px; height: 50px; }
+}
+/* Homepage: a smaller owl on mid-size screens so the big headline stays clear of it */
+@media (min-width: 701px) and (max-width: 1199px) { .hero::after { width: 130px; height: 130px; } }
+.page-hero:has(.page-hero-aside, .hero-actions)::after { display: none; }
+
+/* License lookup: readable fields in both themes */
+.lookup-box input, .lookup-box select { background: var(--surface); color: var(--text); border-color: var(--border); }
+.lookup-box input::placeholder { color: var(--muted); }
+.lookup-box select option { color: var(--text); background: var(--surface); }
+
+/* Practice notice: sentences run the full width of the box */
+.practice-ribbon p { max-width: none; }

@@ -39,7 +39,7 @@ The gap: nobody combines **accurate, current, local data** with **an honest expl
 | Deal room / watchlist with change alerts | `#/deals` (My deals): status and postponement alerts, countdowns, notes, max bid vs minimum bid |
 | Team by sale type | Playbook and property **Your team** section |
 | Walk-away examples | Illustrative example in each playbook's mistakes section, clearly labelled as not a real property |
-| Brand promise | Homepage: "We show you how to spot a good deal, and when to walk away." |
+| Brand promise | Kept in the playbooks ("Many good decisions are the deals you walk away from"); the homepage line was removed to keep the hero short |
 
 ### Changed or rejected
 
