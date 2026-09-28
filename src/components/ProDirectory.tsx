@@ -42,7 +42,7 @@ export function ProCard({ p }: { p: Pro }) {
         <div>
           <div className="pro-kicker">{info.label}</div>
           <h3>{p.name}</h3>
-          <div className="small muted">{p.company}</div>
+          <div className="small muted">{p.company !== p.name ? p.company : ''}</div>
         </div>
       </a>
       <p className="pro-headline">{p.headline}</p>

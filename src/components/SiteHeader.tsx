@@ -3,6 +3,7 @@ import { loadDeals, onDealsChange } from '../lib/deals';
 
 // The tasks people come for, one click away. Everything else is under More, grouped.
 const PRIMARY = [
+  ['#/', 'Home'],
   ['#/search', 'Properties'],
   ['#/playbooks', 'Learn'],
   ['#/practice', 'Practice'],
@@ -13,7 +14,9 @@ const MORE: { group: string; links: (readonly [string, string])[] }[] = [
   { group: 'Tools', links: [['#/calculator', 'Maximum bid calculator'], ['#/deals', 'My deals']] },
   { group: 'Buy', links: [['#/live', 'Live tax sales'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures']] },
   { group: 'Get help', links: [['#/financing', 'Financing'], ['#/pros', 'Title, inspectors, attorneys & more']] },
-  { group: 'Research & about', links: [['#/guides', 'Search the guides'], ['#/pre-foreclosures', 'Pre-foreclosures (not for sale)'], ['#/about', 'How it works'], ['#/disclaimer', 'How we help']] },
+  { group: 'Research', links: [['#/guides', 'Search the guides'], ['#/pre-foreclosures', 'Pre-foreclosures (not for sale)']] },
+  { group: 'About', links: [['#/about', 'How it works'], ['#/disclaimer', 'How we help']] },
+  { group: 'For professionals', links: [['#/advertise', 'Advertise on DeedOwl'], ['#/advertiser', 'Advertiser sign-in']] },
 ];
 
 export default function SiteHeader({ current, nav: navCount = 0 }: { current: string; nav?: number }) {
