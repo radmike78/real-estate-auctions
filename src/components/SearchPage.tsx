@@ -10,6 +10,7 @@ import Disclaimer from './Disclaimer';
 import BuyerChecklistBox from './BuyerChecklistBox';
 import { checklistForFilters } from '../lib/buyerChecklists';
 import NoListingsYet from './NoListingsYet';
+import PageHero from './PageHero';
 import ClassSwitch from './ClassSwitch';
 import { typesFor, type ClassFilter } from '../lib/propertyClass';
 
@@ -88,7 +89,11 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
     if (loading) return <main className="page"><h1 className="sr-only">Property search</h1><p>Checking the official lists…</p></main>;
     return (
       <main className="page">
-        <h1 className="sr-only">Property search</h1>
+        <PageHero
+          eyebrow={<span className="eyebrow">Clark County · Official sources only</span>}
+          title={<>Properties <span className="grad">for sale</span></>}
+          sub="Forced-sale properties from official records: tax sales, foreclosures, bank-owned homes and more."
+        />
         <NoListingsYet />
         <Disclaimer kind="sales" compact />
       </main>
