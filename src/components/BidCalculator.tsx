@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from 'react';
-import { BLANK_INPUTS, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, INPUT_MAX, maxSafeBid, profitAtBid, redemptionOutcome, REDEMPTION_RULES, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs, type RedemptionRule } from '../lib/bidCalc';
+import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, INPUT_MAX, maxSafeBid, profitAtBid, redemptionOutcome, REDEMPTION_RULES, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs, type RedemptionRule } from '../lib/bidCalc';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 
@@ -24,6 +24,7 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
   {
     title: 'Buying it',
     fields: [
+      { k: 'minimumBid', label: 'Opening (minimum) bid', unit: '$', hint: 'From the auction listing.', quick: true, more: 'The lowest bid the auction will accept, stated in the listing or notice of sale. Your maximum is worked out from the resale value and every cost below; the results show how much room that leaves above the opening bid.' },
       { k: 'cashAvailable', label: 'Cash you can bring', unit: '$', hint: 'For auction day. Leave 0 for no limit.', quick: true, more: 'Most auctions want the full price in certified funds the same day or within a day. Your walk-away price never goes above what this cash covers, including any buyer’s premium.' },
       { k: 'buyerPremiumPct', label: "Buyer's premium", unit: '%', hint: 'Auction fee on top of your bid, if any.' },
       { k: 'transferTaxPer500', label: 'Transfer tax', unit: '$/500', hint: 'Clark County: $2.55 per $500.', more: 'Real property transfer tax is $2.55 for each $500 of value or fraction of $500 in Clark County. Some transfers are exempt; ask the Recorder or your title company.' },
@@ -114,7 +115,7 @@ const toNum = (v: string) => {
 const yr = (x: number | null) => (x === null ? '—' : `${Math.round(x * 100)}% a year`);
 const unitText = (u: Field['unit']) => (u === '$/500' ? 'per $500' : u === 'mo' ? 'months' : u === '%/yr' ? '% a year' : '%');
 
-export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, openingBid, headingLevel = 3, commercial = false }: { propertyId?: string; defaults?: BidInputs; openingBid?: number | null; headingLevel?: 2 | 3; commercial?: boolean }) {
+export default function BidCalculator({ propertyId, defaults = START_INPUTS, openingBid, headingLevel = 3, commercial = false }: { propertyId?: string; defaults?: BidInputs; openingBid?: number | null; headingLevel?: 2 | 3; commercial?: boolean }) {
   const hintFor = (f: Field) => (commercial && f.k === 'exitValue' ? 'Use the value by income above.' : f.hint);
   const uid = useId();
   // The pinned walk-away bar (phones) steps aside once the full results are on screen, so it never covers them.
@@ -126,7 +127,11 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
     io.observe(el);
     return () => io.disconnect();
   }, [uid]);
-  const [i, setI] = useState<BidInputs>(() => load(propertyId, defaults));
+  // The listing's opening bid is the starting point (older saved inputs didn't have it).
+  const [i, setI] = useState<BidInputs>(() => {
+    const v = load(propertyId, defaults);
+    return !v.minimumBid && openingBid ? { ...v, minimumBid: openingBid } : v;
+  });
   const [mode, setModeState] = useState<'quick' | 'detailed'>(loadMode);
   const setMode = (m: 'quick' | 'detailed') => {
     setModeState(m);
@@ -138,7 +143,7 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
   };
   // What the person typed, so a field can be cleared while editing.
   const [draft, setDraft] = useState<Partial<Record<keyof BidInputs, string>>>({});
-  const [bidText, setBidText] = useState<string>(openingBid ? String(openingBid) : '');
+  const [bidText, setBidText] = useState<string>('');
   const bid = Math.min(toNum(bidText), 1e10);
   const H = headingLevel === 2 ? 'h2' : 'h3';
   const save = (next: BidInputs) => {
@@ -175,6 +180,9 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
   const profit = bid > 0 ? profitAtBid(i, bid) : null;
   const over = bid > 0 && bid > r.maxBid;
   const target = requiredProfit(i);
+  const steps = maxBidSteps(i);
+  const atOpening = i.minimumBid > 0 ? profitAtBid(i, i.minimumBid) : 0;
+  const belowOpening = i.minimumBid > 0 && r.maxBid < i.minimumBid;
   const shown = (f: Field) => (mode === 'detailed' || f.quick) && (!f.when || f.when(i));
 
   return (
@@ -183,7 +191,7 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
         <div className="calc-mode" role="group" aria-label="How many numbers to enter">
           <button type="button" aria-pressed={mode === 'quick'} className={mode === 'quick' ? 'on' : ''} onClick={() => setMode('quick')}>Quick</button>
           <button type="button" aria-pressed={mode === 'detailed'} className={mode === 'detailed' ? 'on' : ''} onClick={() => setMode('detailed')}>Detailed</button>
-          <span className="small muted">{mode === 'quick' ? 'Five numbers. Everything else uses the starting estimates.' : 'Every cost, in the order you’d meet it.'}</span>
+          <span className="small muted">{mode === 'quick' ? 'Six numbers. Everything else uses the starting estimates.' : 'Every cost, in the order you’d meet it.'}</span>
         </div>
         {GROUPS.map((g) => {
           const fields = g.fields.filter(shown);
@@ -248,7 +256,7 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
           <div className="calc-max" role="status">
             <span>Walk-away price</span>
             <strong>Enter a resale value</strong>
-            <small>{propertyId ? 'We don’t estimate values for listings from the official list. ' : ''}Use recent sold prices of similar nearby properties, as they’d be after repairs.</small>
+            <small>{propertyId ? 'We don’t estimate values for listings from the official list. ' : 'Start with the opening bid from the listing, then the costs. '}The resale value comes from recent sold prices of similar nearby properties, as they’d be after repairs.</small>
           </div>
         ) : (
           <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
@@ -261,6 +269,25 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
                   ? `Set by the cash you can bring. Your profit target alone would allow ${fmtMoney(r.profitBid)}.`
                   : `Leaves your ${fmtMoney(Math.round(target))} profit target after every cost, based on your numbers. Not a guarantee.`}
             </small>
+          </div>
+        )}
+        {!needsValue && i.minimumBid > 0 && (
+          <div className={`calc-verdict ${belowOpening ? 'bad' : 'good'}`} role="status">
+            {belowOpening ? (
+              <><strong>Doesn’t work at the opening bid.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below your {fmtMoney(Math.round(target))} target. Skip this one or change your plan.</>
+            ) : (
+              <><strong>{fmtMoney(r.maxBid - i.minimumBid)} of room above the opening bid.</strong> The listing starts at {fmtMoney(i.minimumBid)}; stop at {fmtMoney(r.maxBid)}. At the opening bid your profit would be about {fmtMoney(Math.round(atOpening))}.</>
+            )}
+          </div>
+        )}
+        {!r.noBidWorks && !needsValue && (
+          <div className="calc-steps">
+            <strong>How we got your maximum</strong>
+            <dl className="calc-kv">
+              {steps.map((st, n) => <div key={st.label} className={n === 0 ? 'first' : ''}><dt>{st.label}</dt><dd>{n === 0 ? fmtMoney(st.amount) : `− ${fmtMoney(-st.amount)}`}</dd></div>)}
+              <div className="total"><dt>Your maximum bid</dt><dd>{fmtMoney(r.maxBid)}</dd></div>
+            </dl>
+            {r.limitedBy === 'cash' && <p className="small muted">Your cash limit is lower than this deal allows, so the profit line is larger than your target.</p>}
           </div>
         )}
         {!r.noBidWorks && !needsValue && (
@@ -284,9 +311,11 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
           </div>
         )}
 
+        {!needsValue && (
+        <>
         <div className="calc-field calc-bid">
           <label className="calc-label" htmlFor={`${uid}-bid`}>Check a bid</label>
-          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="number" inputMode="decimal" min={0} step="any" value={bidText} placeholder="e.g. the opening bid" onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); }} /></span>
+          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="number" inputMode="decimal" min={0} step="any" value={bidText} placeholder="e.g. a bid you expect to beat" onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); }} /></span>
         </div>
         {atBid && profit !== null && !needsValue && (
           <div className={`calc-verdict ${over ? 'bad' : 'good'}`} role="status">
@@ -329,6 +358,8 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
           </table>
         </div>
         {!needsValue && <p className="small">If it takes 3 months longer: <strong>{slower > 0 ? fmtMoney(slower) : 'no bid works'}</strong>.</p>}
+        </>
+        )}
         <p className="muted small">An estimate to help you set a limit before the sale, not advice. Replace every starting number with your own comps, bids and quotes.</p>
       </div>
 

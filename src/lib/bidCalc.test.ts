@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
-import { BLANK_INPUTS, costsAtBid, defaultsFor, maxSafeBid, profitAtBid, redemptionOutcome, REDEMPTION_RULES, requiredProfit, ruleOf, sanitizeInputs, stressGrid, stressTests, totalMonths, type BidInputs } from './bidCalc';
+import { BLANK_INPUTS, maxBidSteps, START_INPUTS, costsAtBid, defaultsFor, maxSafeBid, profitAtBid, redemptionOutcome, REDEMPTION_RULES, requiredProfit, ruleOf, sanitizeInputs, stressGrid, stressTests, totalMonths, type BidInputs } from './bidCalc';
 import { daysUntil } from '../components/ResultsList';
 
 const base: BidInputs = { ...BLANK_INPUTS, exitValue: 400_000, repairs: 40_000, buyerPremiumPct: 5, financedPct: 70 };
@@ -217,5 +217,26 @@ describe('walk-away price: cash limit, minimum profit, redemption, yearly return
     expect(ruleOf({ ...base, ...{ redemptionMonths: 2, redemptionRatePct: 12, redemptionDaily: 0 } })).toBe('hoa');
     expect(ruleOf(base)).toBe('none');
     expect(REDEMPTION_RULES.irs.daily).toBe(1);
+  });
+});
+
+describe('maximum bid as a subtraction', () => {
+  it('resale value minus every line equals the maximum bid, to the dollar', () => {
+    for (const i of [BLANK_INPUTS, { ...BLANK_INPUTS, buyerPremiumPct: 5, survivingLiens: 8_300, financedPct: 70, redemptionMonths: 2, redemptionRatePct: 12 }, { ...BLANK_INPUTS, cashAvailable: 90_000 }]) {
+      const steps = maxBidSteps(i);
+      expect(steps[0].label).toBe('Resale value after repairs');
+      expect(steps.reduce((a, s) => a + s.amount, 0)).toBe(maxSafeBid(i).maxBid);
+    }
+  });
+
+  it('the standalone calculator starts without made-up dollar amounts', () => {
+    expect(START_INPUTS.exitValue).toBe(0);
+    expect(START_INPUTS.repairs).toBe(0);
+    expect(START_INPUTS.minimumBid).toBe(0);
+  });
+
+  it('property defaults start from the listing’s minimum bid', () => {
+    const p = SAMPLE_PROPERTIES.find((x) => x.sale?.minimumBid);
+    if (p) expect(defaultsFor(p).minimumBid).toBe(p.sale!.minimumBid);
   });
 });

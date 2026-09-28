@@ -6,6 +6,8 @@ import type { Property } from '../types';
 import { moneySummary } from './rules';
 
 export interface BidInputs {
+  /** The opening (minimum) bid stated in the auction listing. The starting point; it doesn't change the maximum. */
+  minimumBid: number;
   exitValue: number; // conservative resale value after repairs (use your own comps)
   repairs: number;
   contingencyPct: number; // extra % on repairs for surprises (no interior inspection)
@@ -157,6 +159,7 @@ export function stressGrid(i: BidInputs): number[][] {
 }
 
 export const BLANK_INPUTS: BidInputs = {
+  minimumBid: 0,
   exitValue: 400_000,
   repairs: 40_000,
   contingencyPct: 15,
@@ -178,6 +181,43 @@ export const BLANK_INPUTS: BidInputs = {
   targetProfitMin: 0,
   cashAvailable: 0,
 };
+
+/**
+ * The standalone calculator starts empty: only typical rates (transfer tax, contingency, cost to sell, profit) are
+ * filled in, and every dollar amount comes from the listing and the buyer's own research.
+ */
+export const START_INPUTS: BidInputs = {
+  ...BLANK_INPUTS,
+  exitValue: 0,
+  repairs: 0,
+  titleLegal: 0,
+  possession: 0,
+  monthlyCarry: 0,
+};
+
+/**
+ * The maximum bid as a plain subtraction, line by line: resale value minus every cost and the profit left over equals
+ * the maximum bid. Rounded to whole dollars so the lines add up exactly.
+ */
+export function maxBidSteps(i: BidInputs): { label: string; amount: number }[] {
+  const r = maxSafeBid(i);
+  const c = costsAtBid(i, r.maxBid);
+  const costs: [string, number][] = [
+    ['Selling costs', c.selling],
+    ['Repairs and contingency', c.repairs],
+    ['Liens that stay', c.survivingLiens],
+    ['Title, attorney, quiet title', c.titleLegal],
+    ['Getting possession', c.possession],
+    ['Holding costs', c.holding],
+    ['Loan costs', c.financing],
+    ["Buyer's premium", c.premium],
+    ['Transfer tax', c.transferTax],
+  ];
+  const exit = Math.round(nz(i.exitValue));
+  const rows = costs.filter(([, v]) => v > 0).map(([label, v]) => ({ label, amount: -Math.round(v) }));
+  const profit = exit + rows.reduce((a, x) => a + x.amount, 0) - r.maxBid;
+  return [{ label: 'Resale value after repairs', amount: exit }, ...rows, { label: 'Your profit', amount: -profit }];
+}
 
 /**
  * Redemption rules by kind of sale (see the playbooks and src/content/facts.ts, where each is tied to its source).
@@ -218,6 +258,7 @@ export function defaultsFor(p: Property): BidInputs {
     : 6;
   return {
     ...BLANK_INPUTS,
+    minimumBid: s?.minimumBid ?? 0,
     exitValue: p.estimatedMarketValue === null ? 0 : Math.round(p.estimatedMarketValue / 1000) * 1000, // no estimate: the buyer enters their own comps
     // No building size on record (e.g. a listing from the official list): start at $0 rather than invent a budget.
     repairs: p.propertyType === 'Vacant Land' || p.propertyType === 'Commercial Land' || p.sqft === null ? 0 : Math.round((p.sqft * 40) / 1000) * 1000,
@@ -237,7 +278,7 @@ export function defaultsFor(p: Property): BidInputs {
 
 /** Largest sensible value for each input: percentages stop at 100, money at $10 billion. */
 export const INPUT_MAX: Record<keyof BidInputs, number> = {
-  exitValue: 1e10, repairs: 1e10, contingencyPct: 100, buyerPremiumPct: 100, transferTaxPer500: 100, survivingLiens: 1e10,
+  minimumBid: 1e10, exitValue: 1e10, repairs: 1e10, contingencyPct: 100, buyerPremiumPct: 100, transferTaxPer500: 100, survivingLiens: 1e10,
   titleLegal: 1e10, possession: 1e10, redemptionMonths: 120, redemptionRatePct: 100, redemptionDaily: 1, holdingMonths: 600,
   monthlyCarry: 1e10, financedPct: 100, interestRatePct: 100, pointsPct: 100, sellingCostPct: 100, targetProfitPct: 100,
   targetProfitMin: 1e10, cashAvailable: 1e10,

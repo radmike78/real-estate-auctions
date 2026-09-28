@@ -1478,3 +1478,8 @@ html { scroll-padding-top: 88px; }
 .strategy-tabs button { padding: 10px 18px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-weight: 600; font-size: 1rem; cursor: pointer; }
 .strategy-tabs button.on { background: linear-gradient(135deg, #2563eb, #7c3aed); border-color: transparent; color: #fff; box-shadow: 0 8px 20px -8px rgb(79 70 229 / 0.7); }
 .strategy-about { margin: 0 0 16px; color: var(--muted); }
+/* "How we got your maximum": resale value at the top, each cost subtracted, the maximum as the total. */
+.calc-steps { display: grid; gap: 8px; }
+.calc-steps .calc-kv .first dd { color: var(--text); }
+.calc-steps .calc-kv dd { font-weight: 600; }
+.calc-steps .calc-kv .total dd { font-weight: 800; }
