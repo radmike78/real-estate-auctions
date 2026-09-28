@@ -1512,3 +1512,228 @@ h1, h2, h3 { overflow-wrap: break-word; }
 }
 .no-listings-head { margin: 28px 0 14px; }
 .no-listings .empty-state { margin-top: 8px; }
+
+/* ================= DeedOwl style: sand, ink, owl blue, one terracotta accent =================
+   Visual layer only (colours, type, surfaces). Softer navy than the original dark theme, in every system mode. */
+:root, :root:is(*) {
+  --bg: #172033; --surface: #1f2a40; --surface-2: #28344d; --text: #eef1f6; --muted: #aab4c6; --border: #33405b;
+  --accent: #8aa8ff; --accent-strong: #3b63d6; --on-accent: #fff; --navy: #1b3480; --terra: #f0845a;
+  --go: #7fd4a0; --go-bg: #1f3a2c; --wait: #f0c36a; --wait-bg: #3d3220; --stop: #f39a86; --stop-bg: #45261f;
+  --info: #9db6ff; --info-bg: #253257; --caution: #f39a86; --caution-bg: #45261f;
+  --font-body: 'Hanken Grotesk Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Schibsted Grotesk Variable', 'Hanken Grotesk Variable', system-ui, sans-serif;
+  --topo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1440' height='560' viewBox='0 0 1440 560'%3E%3Cg fill='none' stroke='%23253150' stroke-width='1.2'%3E%3Cpath d='M0 90 C 300 40, 620 150, 960 90 S 1300 60, 1440 110'/%3E%3Cpath d='M0 170 C 320 120, 640 230, 980 170 S 1300 140, 1440 190'/%3E%3Cpath d='M0 250 C 340 200, 660 310, 1000 250 S 1300 220, 1440 270'/%3E%3Cpath d='M0 330 C 360 280, 680 390, 1020 330 S 1300 300, 1440 350'/%3E%3Cpath d='M0 410 C 380 360, 700 470, 1040 410 S 1300 380, 1440 430'/%3E%3Cpath d='M0 490 C 400 440, 720 550, 1060 490 S 1300 460, 1440 510'/%3E%3Cellipse cx='1130' cy='230' rx='170' ry='95'/%3E%3Cellipse cx='1130' cy='230' rx='110' ry='60'/%3E%3Cellipse cx='1130' cy='230' rx='55' ry='30'/%3E%3C/g%3E%3C/svg%3E");
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #172033; --surface: #1f2a40; --surface-2: #28344d; --text: #eef1f6; --muted: #aab4c6; --border: #33405b;
+    --accent: #8aa8ff; --go: #7fd4a0; --go-bg: #1f3a2c; --wait: #f0c36a; --wait-bg: #3d3220; --stop: #f39a86; --stop-bg: #45261f;
+    --info: #9db6ff; --info-bg: #253257; --caution: #f39a86; --caution-bg: #45261f; color-scheme: dark;
+  }
+}
+body { font-family: var(--font-body); }
+h1, h2, h3, .drill-title, .browse-title, .logo { font-family: var(--font-display); }
+h1, h2 { letter-spacing: -0.03em; }
+
+/* Header */
+.site-header { background: rgb(23 32 51 / 0.94); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+.logo { color: var(--text); font-weight: 800; }
+.logo b { background: none; color: var(--text); -webkit-text-fill-color: currentColor; }
+.logo-mark { filter: none; }
+.site-nav > a, .more summary { color: var(--muted); border-radius: 999px; }
+.site-nav > a:hover, .more summary:hover { color: var(--text); background: var(--surface-2); }
+.site-nav > a.active, .more summary.active { color: var(--text); background: var(--surface-2); }
+.site-nav > a.nav-cta, .site-nav > a.nav-cta.active, .site-nav > a.nav-cta:hover { background: var(--accent); color: #fff; box-shadow: none; }
+.more-menu { background: var(--surface); border: 1px solid var(--border); box-shadow: 0 18px 40px -18px rgb(0 0 0 / 0.5); }
+.more-menu a { color: var(--text); }
+.more-menu a:hover { background: var(--surface-2); color: var(--text); }
+.more-group-title { color: var(--muted); }
+.more-group + .more-group, .more-group:nth-child(n + 3) { border-color: var(--border) !important; }
+.menu-btn span { background: var(--text); }
+@media (max-width: 900px) { .site-nav { background: var(--surface); border-bottom: 1px solid var(--border); } }
+.nav-count { background: var(--accent); }
+
+/* Homepage hero: sand with faint topographic lines */
+.app-home { background: var(--bg); }
+.app-home .footer { color: var(--muted); border-top: 1px solid var(--border); }
+.app-home .footer a { color: var(--accent); }
+.home { color: var(--text); }
+.hero, .simple-hero { background: var(--bg) var(--topo) center / cover no-repeat; }
+.hero-grid, .hero-glow, .page-hero-glow { display: none; }
+.hero h1, .simple-hero h1 { color: var(--text); font-weight: 800; letter-spacing: -0.04em; }
+.grad { background: none; color: var(--terra); -webkit-text-fill-color: currentColor; }
+.hero-tagline { color: var(--text); font-family: var(--font-display); }
+.hero-sub, .simple-hero .hero-sub { color: var(--muted); }
+.promise { color: var(--muted); }
+.eyebrow { border-color: var(--border); background: var(--surface); color: var(--muted); }
+.hero-class .seg { border-color: var(--border); background: var(--surface); }
+.hero-class .seg button { color: var(--text); }
+.hero-class .seg button[aria-selected='true'], .seg button[aria-pressed='true'] { background: var(--text); color: var(--surface); }
+.simple-search { background: var(--surface); border: 1px solid var(--border); box-shadow: 0 24px 50px -30px rgb(0 0 0 / 0.5); }
+.simple-search:focus-within { box-shadow: 0 0 0 3px rgb(45 85 196 / 0.25); }
+.simple-search select { color: var(--text); border-color: var(--border); }
+.simple-search input { color: var(--text); }
+.simple-search input::placeholder { color: var(--muted); }
+.simple-search .search-icon svg { color: var(--muted); }
+.simple-search button, .search-row button { background: var(--accent); box-shadow: none; }
+.browse h2 { color: var(--text); }
+.browse-tile { color: var(--text); background: var(--surface); border: 1px solid var(--border); transition: border-color 0.15s, transform 0.15s; }
+.browse-tile:hover, .browse-tile:focus-visible { background: var(--surface); border-color: var(--accent); box-shadow: none; transform: translateY(-2px); }
+.browse-icon, .browse-tile.wait .browse-icon { background: var(--accent); box-shadow: none; }
+.browse-tile.wait .browse-icon { background: var(--terra); }
+.browse-tag { color: var(--terra); }
+.browse-arrow { color: var(--muted); }
+.browse-trust { color: var(--muted); }
+.browse-trust svg { color: var(--accent); }
+.browse-tools a { border-color: var(--border); background: var(--surface); color: var(--accent); }
+.browse-tools a.browse-main, .browse-tools a.browse-main:hover { background: var(--accent); color: #fff; box-shadow: none; }
+
+/* Page headers */
+.page-hero { background: var(--bg) var(--topo) center / cover no-repeat; color: var(--text); border-bottom: 1px solid var(--border); }
+.page-hero h1 { color: var(--text); font-weight: 800; }
+.page .page-hero .page-hero-sub { color: var(--muted); }
+.page-hero-sub strong, .hero-meta strong { color: var(--text); }
+.hero-meta { color: var(--muted); }
+.page-hero-top a { color: var(--accent); }
+.page-hero-top a:hover { color: var(--text); }
+.hero-btn { background: var(--surface); color: var(--text); border-color: var(--border); }
+.hero-btn:hover { background: var(--surface-2); }
+.page-hero .countdown { background: var(--surface); border-color: var(--border); box-shadow: none; backdrop-filter: none; }
+.countdown-label { color: var(--muted); }
+.page-hero .countdown .big { color: var(--text); }
+.countdown-days { color: var(--accent); }
+.glance div, .glance div.key { background: var(--surface); border-color: var(--border); }
+.glance div.key { border-color: var(--accent); }
+.glance div::before { display: none; }
+.glance dt { color: var(--muted); }
+.glance dd, .glance div.key dd { color: var(--text); }
+.glance div.muted-stat dd { color: var(--muted); }
+.glance dd.pos { color: var(--go); } .glance dd.caution { color: var(--wait); } .glance dd.neg { color: var(--stop); }
+.page-hero .lookup-box .btn { background: var(--accent); color: #fff; }
+.lookup-how { color: var(--muted); }
+
+/* Cards and sections: solid surfaces, no gradient stripes */
+.card::before, .pro-card::before, .option-card::before, .lookup-card::before, .track-card::before,
+.checklist-box::before, .apply-card::before, .deal-card::before, .glance div::before,
+.page section:not(.options-grid):not(.while-you-wait):not(.four):not(.drill-tiles):not(.checklist-box):not(.apply-card):not(.kpis)::before { display: none; }
+.page > h2::before, .page > .section-title::before, .while-you-wait > h2::before, .page-section-title::before, .drill-section h2::before, .home-main-head h2::before { background: var(--accent); }
+.page section:not(.options-grid):not(.while-you-wait):not(.four):not(.drill-tiles):not(.kpis) { box-shadow: none; border: 1px solid var(--border); }
+.card:hover, .pro-card:hover { border-color: var(--accent); box-shadow: 0 16px 34px -22px rgb(0 0 0 / 0.5); }
+
+/* Section tiles: same layout, solid colours */
+.drill-tile, .drill-tile.tone-go, .drill-tile.tone-info { --tile-grad: var(--accent); --tile-glow: rgb(0 0 0 / 0.4); box-shadow: none; }
+.drill-tile.tone-wait { --tile-grad: var(--terra); }
+.drill-tile.tone-stop { --tile-grad: var(--stop); }
+.drill-tile::before, .drill-tile::after { display: none; }
+.drill-tile:hover, .drill-tile:focus-visible { background: var(--surface); border-color: var(--tile-grad); box-shadow: 0 16px 34px -22px rgb(0 0 0 / 0.5); }
+.drill-icon { background: var(--tile-grad); box-shadow: none; }
+.drill-chevron { background: var(--surface-2); }
+.drill-tile:hover .drill-chevron, .drill-tile:focus-visible .drill-chevron { background: var(--accent); color: #fff; }
+.drill-nav a[aria-current='page'] { background: var(--accent); box-shadow: none; }
+
+/* Buttons and small accents: solid colour */
+.btn { background: var(--accent); }
+.btn-secondary { background: var(--surface); color: var(--text); border-color: var(--border); }
+.hero-cta, .checklist-official .btn, .apply-submit, .plan-cta, .save-btn.on, .calc-mode button.on, .strategy-tabs button.on, .side-tab[aria-selected='true'] { background: var(--accent); box-shadow: none; }
+.checklist-progress.done { background: var(--go); box-shadow: none; }
+.dd-bar span, .deal-bar span { background: var(--accent); }
+.dd-num, .apply-nav .done .apply-nav-num, .practice-step span, .card-icon, .side-link-icon, .avatar, .apply-num { background: var(--accent); box-shadow: none; }
+.dd-step.done .dd-num, .apply-nav .done .apply-nav-num { background: var(--go); }
+.card-icon.wait { background: var(--terra); }
+.steps-rich li::before { background: var(--accent); }
+.risk-list li { border-top-color: var(--terra); }
+.calc-max { background: var(--navy); }
+.calc-max.bad, .calc-sticky.bad { background: var(--stop); }
+@media (max-width: 1000px) { .calc-sticky { background: var(--navy); } }
+.signin-info { background: var(--navy); }
+.lookup-card.warn-card::before, .card.risk-wait::before, .card.risk-stop::before { display: none; }
+/* Proportional figures: this font's fixed-width digits put wide gaps around commas. */
+.glance dd, .kpi strong, .mini dd, .card-stats dd, .countdown .big, .calc-max strong, .page table td, .stats dd { font-variant-numeric: normal; }
+@media (prefers-color-scheme: dark) { .contact .btn:not(.btn-secondary) { color: #fff; } .viz-root { --series-1: #2d55c4; --viz-axis: #b8a78e; } }
+
+/* Solid buttons and chips use the deeper blue so white text stays readable; links use the lighter blue. */
+.site-nav > a.nav-cta, .site-nav > a.nav-cta.active, .site-nav > a.nav-cta:hover,
+.btn, .simple-search button, .search-row button, .hero-cta, .checklist-official .btn, .apply-submit, .plan-cta, .save-btn.on, .calc-mode button.on, .strategy-tabs button.on,
+.side-tab[aria-selected='true'], .drill-nav a[aria-current='page'], .browse-tools a.browse-main, .browse-tools a.browse-main:hover, .page-hero .lookup-box .btn,
+.dd-num, .practice-step span, .card-icon, .side-link-icon, .avatar, .apply-num, .steps-rich li::before, .nav-count, .browse-icon, .dd-bar span, .deal-bar span { background: var(--accent-strong); color: #fff; }
+.btn-secondary { background: var(--surface); color: var(--text); border-color: var(--border); }
+.drill-tile, .drill-tile.tone-go, .drill-tile.tone-info { --tile-grad: var(--accent-strong); }
+.drill-tile.tone-wait { --tile-grad: #c2652f; } .browse-tile.wait .browse-icon, .card-icon.wait { background: #c2652f; }
+.drill-tile:hover .drill-chevron, .drill-tile:focus-visible .drill-chevron { background: var(--accent-strong); }
+/* The homepage search stays a bright box, like the original */
+.simple-search { background: #fff; border-color: #fff; }
+.simple-search select, .simple-search input { color: #172033; }
+.simple-search select { border-color: #e2e8f0; }
+.simple-search input::placeholder { color: #64748b; }
+.simple-search .search-icon svg { color: #64748b; }
+/* Buyer checklist box: same navy surfaces as the rest of the page */
+.checklist-box { color-scheme: dark; background: var(--surface); color: var(--text); border-color: var(--border); box-shadow: none; }
+.checklist-head h2, .checklist-items strong { color: var(--text); }
+.checklist-head p, .checklist-items small, .checklist-progress span { color: var(--muted); }
+.checklist-tag { background: var(--go-bg); color: var(--go); }
+.checklist-tag.wait { background: var(--wait-bg); color: var(--wait); }
+.checklist-progress { background: conic-gradient(var(--accent) 0 var(--pct), var(--surface-2) var(--pct)); box-shadow: none; }
+.checklist-progress::before { background: var(--surface); }
+.checklist-progress strong { color: var(--accent); }
+.checklist-progress.done strong { color: var(--go); }
+.checklist-items label { background: var(--surface-2); border-color: var(--border); }
+.checklist-items label:hover { background: var(--surface-2); border-color: var(--accent); box-shadow: none; }
+.checklist-items input, .checklist-items input:checked { accent-color: var(--accent-strong); }
+.checklist-items input:checked + span strong { color: var(--go); }
+.checklist-items label:has(input:checked) { background: var(--go-bg); border-color: var(--go); box-shadow: none; }
+.checklist-link { color: var(--accent); }
+.apply-nav-num { background: var(--surface-2); color: var(--text); }
+.apply-nav .done .apply-nav-num { background: #2f7a50; color: #fff; }
+.checklist-official { background: var(--info-bg); border-color: var(--border); color: var(--text); }
+.checklist-official p, .checklist-official span { color: var(--text); }
+
+/* ================= Final palette: Fog (light) by default, softer navy for people who use dark mode =================
+   Owl blue for actions and highlighted words, no orange. Blue gradients only on progress and the max-bid result.
+   The owl watermark sits in the same place, at the same size, at the top of every page. */
+:root, :root:is(*) {
+  --bg: #f3f4f6; --surface: #ffffff; --surface-2: #eceef2; --border: #dcdfe5; --text: #15213b; --muted: #56627a;
+  --accent: #2d55c4; --accent-strong: #2d55c4; --terra: #2d55c4; --wait-mark: #64748b;
+  --go: #1f6b43; --go-bg: #e3f2e8; --wait: #8a5a12; --wait-bg: #fbefd6; --stop: #a3321c; --stop-bg: #f9e1d8;
+  --info: #2d55c4; --info-bg: #e6edfb; --caution: #a3321c; --caution-bg: #f9e1d8;
+  --topo: none; --header-bg: rgb(255 255 255 / 0.95); --owl-opacity: 0.06;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root, :root:is(*) {
+    --bg: #172033; --surface: #1f2a40; --surface-2: #28344d; --border: #33405b; --text: #eef1f6; --muted: #aab4c6;
+    --accent: #8aa8ff; --accent-strong: #3b63d6; --terra: #8aa8ff; --wait-mark: #7c8aa3;
+    --go: #7fd4a0; --go-bg: #1f3a2c; --wait: #f0c36a; --wait-bg: #3d3220; --stop: #f39a86; --stop-bg: #45261f;
+    --info: #9db6ff; --info-bg: #253257; --caution: #f39a86; --caution-bg: #45261f;
+    --header-bg: rgb(23 32 51 / 0.94); --owl-opacity: 0.07;
+    color-scheme: dark;
+  }
+}
+.site-header { background: var(--header-bg); }
+.checklist-box { color-scheme: inherit; }
+.grad, .hero h1 .grad { color: var(--terra); }
+.drill-tile.tone-wait { --tile-grad: var(--wait-mark); }
+.browse-tile.wait .browse-icon, .card-icon.wait { background: var(--wait-mark); }
+.browse-tag { color: var(--muted); }
+.risk-list li { border-top-color: var(--wait-mark); }
+.simple-search { border: 1px solid var(--border); }
+
+/* Blue-family gradients only where they mean progress or the key result */
+.dd-bar span, .deal-bar span { background: linear-gradient(90deg, #6f8fe0, #2d55c4 60%, #1b3480); }
+.checklist-progress { background: conic-gradient(from 0deg, #8fa9ec 0, #2d55c4 calc(var(--pct) * 0.6), #1b3480 var(--pct), var(--surface-2) var(--pct)); }
+.calc-max { background: linear-gradient(135deg, #1b3480, #2d55c4); }
+@media (max-width: 1000px) { .calc-sticky { background: linear-gradient(135deg, #1b3480, #2d55c4); } }
+
+/* Owl watermark: same size and position on every page */
+.hero, .simple-hero, .page-hero { background: var(--bg); }
+.hero-inner, .page-hero-inner { position: relative; z-index: 1; }
+.hero::after, .page-hero::after {
+  content: ''; position: absolute; top: 50%; right: max(24px, calc((100% - 1400px) / 2 + 24px)); width: 300px; height: 300px; transform: translateY(-50%);
+  background: url(/logo.svg) center / contain no-repeat; filter: grayscale(1); opacity: var(--owl-opacity); pointer-events: none; z-index: 0;
+}
+@media (max-width: 700px) { .hero::after, .page-hero::after { width: 180px; height: 180px; right: 12px; } }
+@media print { .hero::after, .page-hero::after { display: none; } }
+/* Anchor the watermark to the top so it is in the same place on every page, whatever the header height. */
+.hero::after, .page-hero::after { top: 28px; transform: none; width: 260px; height: 260px; }
+@media (max-width: 700px) { .hero::after, .page-hero::after { top: 20px; width: 160px; height: 160px; } }
+@media (prefers-color-scheme: dark) { .hero::after, .page-hero::after { filter: grayscale(1) brightness(3); opacity: 0.05; } }
