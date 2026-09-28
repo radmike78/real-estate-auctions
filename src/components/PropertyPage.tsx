@@ -9,7 +9,7 @@ import { assessLiens, moneySummary, SALE_TYPE_LABEL, WHAT_YOU_BUY, type Survival
 import { STATUS, fmtDate, fmtDateTime, fmtMoney, purchaseSteps } from '../lib/status';
 import StatusBadge from './StatusBadge';
 import SourceTag from './SourceTag';
-import { daysUntil } from './ResultsList';
+import { daysUntil, whenLabel } from './ResultsList';
 import Disclaimer from './Disclaimer';
 import BuyerChecklistBox from './BuyerChecklistBox';
 import { checklistForProperty, CHECKLISTS, forCommercial, forLand } from '../lib/buyerChecklists';
@@ -103,6 +103,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   const steps = purchaseSteps(p);
   const report = diligenceReport(p);
   const days = s?.startsAt ? daysUntil(s.startsAt) : null;
+  const priceLabel = s?.saleType === 'REO' ? 'List price' : 'Minimum bid';
   const online = p.status === 'ONLINE_BIDDING';
   const baseHref = `#/property/${p.id}`;
   const count = (r: CheckResult) => report.filter((c) => c.result === r).length;
@@ -185,7 +186,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
                   <div><dt>{online ? 'Bidding opens' : 'Date & time'}</dt><dd>{s.startsAt ? fmtDateTime(s.startsAt) : 'Not set'}</dd></div>
                   {s.endsAt && <div><dt>Bidding closes</dt><dd>{fmtDateTime(s.endsAt)}</dd></div>}
                   <div><dt>Where</dt><dd>{s.location}</dd></div>
-                  <div><dt>Minimum bid</dt><dd>{s.minimumBid ? fmtMoney(s.minimumBid) : 'Announced at sale'}</dd></div>
+                  <div><dt>{s.saleType === 'REO' ? 'List price' : 'Minimum bid'}</dt><dd>{s.minimumBid ? fmtMoney(s.minimumBid) : 'Announced at sale'}</dd></div>
                   {s.registrationDeadline && <div><dt>Registration deadline</dt><dd>{fmtDateTime(s.registrationDeadline)}</dd></div>}
                   <div><dt>Deposit</dt><dd>{s.deposit ?? 'See official terms'}</dd></div>
                   <div><dt>Payment accepted</dt><dd>{s.paymentMethods.join(', ')}</dd></div>
@@ -230,7 +231,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
               Before you bid, search the Clark County Recorder by parcel number, or order a title search from a title company.
             </div>
             <dl className="mini money-box">
-              <div><dt>Minimum bid</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
+              <div><dt>{priceLabel}</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
               <div><dt>Liens that may stay</dt><dd>Not searched</dd></div>
             </dl>
             <p className="row">
@@ -418,14 +419,14 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
                 {days !== null && days < 0 ? 'Scheduled sale was' : 'Sale starts'}
               </div>
               <div className="big">{fmtDateTime(s.startsAt)}</div>
-              {days !== null && days >= 0 && <div className="countdown-days">{days === 1 ? 'within a day' : `in ${days} days`}</div>}
+              {days !== null && days >= 0 && <div className="countdown-days">{whenLabel(days)}</div>}
             </div>
           ) : undefined
         }
       >
         {!open && (
           <dl className="glance" aria-label="At a glance">
-            <div className="key"><dt>Minimum bid</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
+            <div className="key"><dt>{priceLabel}</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
             <div><dt>Est. market value</dt><dd>{notChecked(p.estimatedMarketValue, 'Your comps')}</dd></div>
             <div><dt>Liens likely {s ? 'surviving' : 'remaining'}</dt><dd className={money.likelySurviving ? 'caution' : ''}>{p.liensChecked === false ? <span className="muted">Not searched</span> : fmtMoney(money.likelySurviving)}</dd></div>
             <div><dt>Spread before costs</dt><dd className={money.estimatedEquity === null ? '' : money.estimatedEquity < 0 ? 'neg' : 'pos'}>{notChecked(money.estimatedEquity, 'Needs your numbers')}</dd></div>

@@ -123,6 +123,13 @@ describe('email alerts (running server)', () => {
     expect(removed.subscriptions).toHaveLength(0);
   });
 
+  it('a repeat request for a pending address sets general updates to that request’s choice, not both', () => {
+    const t = clock.toISOString();
+    app.alerts.upsertPending('pending-list@example.com', true, 'h1', t, t);
+    expect(app.alerts.upsertPending('pending-list@example.com', false, 'h2', t, t).listOptIn).toBe(false);
+    expect(app.alerts.upsertPending('pending-list@example.com', true, 'h3', t, t).listOptIn).toBe(true);
+  });
+
   it('limits subscriptions per address', () => {
     const s = app.alerts.byEmail('investor@example.com')!;
     for (let i = 0; i < 10; i++) app.alerts.addSubscription(s.id, 'search', `q${i}`, `Search ${i}`, clock.toISOString());

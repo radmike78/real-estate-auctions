@@ -31,6 +31,7 @@ export interface LicenseSearch {
 const UA = 'DeedOwl license lookup (+https://deedowl.com)';
 const MAX_RESULTS = 20;
 const MAX_BODY = 4 * 1024 * 1024;
+const FETCH_HOSTS = new Set(['nvbar.org', 'www.nvbar.org', 'api.fdic.gov']);
 const CACHE_MS = 6 * 3_600_000;
 const CACHE_MAX = 500;
 
@@ -124,11 +125,26 @@ export function createLicenseSearch(fetchImpl: typeof fetch = fetch, now: () => 
   async function get(url: string, accept: string): Promise<string> {
     const res = await fetchImpl(url, { headers: { 'user-agent': UA, accept }, redirect: 'follow', signal: AbortSignal.timeout(12_000) });
     if (!res.ok) throw new Error(`status ${res.status}`);
+    // Redirects are followed only within the two official hosts.
+    if (res.url && !FETCH_HOSTS.has(new URL(res.url).hostname)) throw new Error('unexpected host');
     const len = Number(res.headers.get('content-length') ?? 0);
     if (len > MAX_BODY) throw new Error('too large');
-    const text = await res.text();
-    if (text.length > MAX_BODY) throw new Error('too large');
-    return text;
+    if (!res.body) return res.text();
+    // Count bytes as they arrive, so a reply without a declared size is still capped.
+    const reader = res.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let size = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > MAX_BODY) {
+        await reader.cancel();
+        throw new Error('too large');
+      }
+      chunks.push(value);
+    }
+    return Buffer.concat(chunks).toString('utf8');
   }
 
   return async function search(kind: LiveKind, q: string): Promise<LicenseSearch> {

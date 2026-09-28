@@ -139,7 +139,7 @@ export function purchaseSteps(p: Property): string[] {
     case 'LIEN_CERTIFICATE_ONLY':
       return [
         'Understand that you are buying a debt, not the property.',
-        'Review the redemption period (2 years with a building, 120 days without) and interest of up to 1% a month under NRS 271.595 (Clark County uses 1%).',
+        'Review the redemption period (2 years with a building, 120 days without) and interest of 1% a month on the price (NRS 271.610).',
         'If the owner never redeems, plan for serving notice (in person or by publication), paying the delinquent taxes and assessments, and asking for the deed before the certificate expires 3 years after redemption ends (NRS 271.595).',
       ];
     default:

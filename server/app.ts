@@ -700,7 +700,7 @@ export function createApp(config: AppConfig) {
       const t = now();
       const s = alerts.upsertPending(email, body.list === true, sha256(token), new Date(t.getTime() + CONFIRM_TTL_MS).toISOString(), t.toISOString());
       alerts.addSubscription(s.id, r.kind, r.target, r.label, t.toISOString());
-      if (!(await deliverFromForm(alertsConfirmEmail(email, `${base}/#/alerts/confirm/${token}`, r.label, r.kind)))) {
+      if (!(await deliverFromForm(alertsConfirmEmail(email, `${base}/#/alerts/confirm/${token}`, r.label, r.kind, body.list === true)))) {
         throw new HttpError(503, 'We couldn\'t send your confirmation email just now. Please try again in a few minutes.');
       }
       return send(res, 202, accepted);

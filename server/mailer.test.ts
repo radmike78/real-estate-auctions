@@ -178,6 +178,9 @@ describe('postal address', () => {
     const links = { manage: 'https://x/m', unsubscribe: 'https://x/u', oneClick: 'https://x/o' };
     expect(broadcastEmail('a@example.com', 'Hi', 'Body', links, 'PO Box 1, Las Vegas, NV 89101').text).toContain('PO Box 1, Las Vegas, NV 89101');
     expect(alertsConfirmEmail('a@example.com', 'https://x/c').text).not.toMatch(/PO Box|undefined/);
+    expect(alertsConfirmEmail('a@example.com', 'https://x/c').text).toMatch(/general DeedOwl updates/);
+    expect(alertsConfirmEmail('a@example.com', 'https://x/c', '1 Main St', 'property', false).text).not.toMatch(/general DeedOwl updates/);
+    expect(alertsConfirmEmail('a@example.com', 'https://x/c', '1 Main St', 'property', true).text).toMatch(/general DeedOwl updates/);
   });
 });
 

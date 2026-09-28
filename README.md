@@ -220,7 +220,8 @@ cat admin-password-hash.txt   # should start with scrypt$
   - ports **80 and 443** open in the firewall, for example `sudo firewall-cmd --add-service={http,https} --permanent && sudo firewall-cmd --reload`.
 - **Outbound internet:**
   - `registry.access.redhat.com` and `registry.npmjs.org` while building;
-  - `docker.io`, only for the optional Caddy HTTPS image, which Podman pulls from Docker Hub's registry;
+  - `docker.io`, only for the optional Caddy HTTPS and Litestream backup images, which Podman pulls from Docker Hub's registry;
+  - `*.r2.cloudflarestorage.com` (or your S3-compatible storage), only if you turn on the off-site Litestream backup;
   - the county sites, `api.resend.com` or `api.postmarkapp.com` (email) and Stripe while running.
 - **Mac or Windows** (for trying it out): install [Podman Desktop](https://podman-desktop.io) or run `podman machine init && podman machine start`, then use `--no-systemd` below.
 

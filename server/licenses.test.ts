@@ -103,6 +103,28 @@ describe('live lookups through the site API', () => {
     expect(asked[0]).toBe('https://nvbar.org/for-the-public/find-a-lawyer/?usearch=Smith');
   });
 
+  it('stops reading a reply with no declared size once it passes 4 MB', async () => {
+    let sent = 0;
+    const body = new ReadableStream<Uint8Array>({
+      pull(c) {
+        sent += 1;
+        c.enqueue(new Uint8Array(1024 * 1024));
+      },
+    });
+    const search = createLicenseSearch((async () => new Response(body, { status: 200 })) as typeof fetch);
+    await expect(search('attorney', 'Smith')).rejects.toThrow(/too large/);
+    expect(sent).toBeLessThan(8);
+  });
+
+  it('refuses a reply that was redirected to another host', async () => {
+    const fake = (async () => {
+      const r = new Response('<html></html>', { status: 200 });
+      Object.defineProperty(r, 'url', { value: 'https://example.com/' });
+      return r;
+    }) as typeof fetch;
+    await expect(createLicenseSearch(fake)('attorney', 'Smith')).rejects.toThrow(/unexpected host/);
+  });
+
   it('serves /api/licenses, validates input, and reports an unreachable source', async () => {
     let down = false;
     const dir = mkdtempSync(join(tmpdir(), 'fsf-lic-'));

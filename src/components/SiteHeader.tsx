@@ -108,18 +108,31 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
 const THEME_KEY = 'deedowl.theme';
 const systemDark = () => typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches;
 
-/** Light/dark switch. Until someone picks, the site follows the device setting. */
+/** Light/dark switch. Until someone picks, the site follows the device setting; picking the same mode
+ *  as the device goes back to following it. */
 function ThemeButton() {
   const [dark, setDark] = useState(() => {
     const t = document.documentElement.dataset.theme;
     return t ? t === 'dark' : systemDark();
   });
+  useEffect(() => {
+    if (typeof matchMedia !== 'function') return;
+    const mq = matchMedia('(prefers-color-scheme: dark)');
+    const onChange = () => { if (!document.documentElement.dataset.theme) setDark(mq.matches); };
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
   const toggle = () => {
     const next = !dark;
     setDark(next);
-    const theme = next ? 'dark' : 'light';
-    document.documentElement.dataset.theme = theme;
-    try { localStorage.setItem(THEME_KEY, theme); } catch { /* private mode: applies to this visit only */ }
+    const root = document.documentElement;
+    const follow = next === systemDark();
+    if (follow) delete root.dataset.theme;
+    else root.dataset.theme = next ? 'dark' : 'light';
+    try {
+      if (follow) localStorage.removeItem(THEME_KEY);
+      else localStorage.setItem(THEME_KEY, root.dataset.theme!);
+    } catch { /* private mode: applies to this visit only */ }
   };
   return (
     <button type="button" className="theme-btn" onClick={toggle} aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'} title={dark ? 'Light mode' : 'Dark mode'}>

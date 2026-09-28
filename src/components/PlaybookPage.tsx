@@ -128,7 +128,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
       )}
       <DrillDown sections={s} active={section} baseHref={base} label={`${p.short} playbook`} />
       {!open && <p className="muted playbook-note">Set your limit before the sale with the <a href="#/calculator">maximum bid calculator</a>.</p>}
-      {!open && PRACTICE_SALES.has(p.key) && <p className="playbook-note"><a className="btn btn-secondary" href={`#/practice?sale=${p.key}`}>Practice this kind of sale, hands-on →</a></p>}
+      {!open && PRACTICE_SALES.has(p.key) && <p className="playbook-note"><a className="btn" href={`#/practice?sale=${p.key}`}>Practice this kind of sale, hands-on →</a></p>}
       {!open && p.key === 'commercial' && <p className="playbook-note"><a className="btn btn-secondary" href="#/practice">Practice buying commercial property, hands-on →</a></p>}
     </main>
   );

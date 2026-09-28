@@ -311,12 +311,13 @@ export const unsubscribeHeaders = (oneClickUrl: string): Record<string, string> 
 // Nothing the requester typed is echoed: the address isn't confirmed yet, so this can't be used to
 // send someone else's words to a stranger.
 /** `tracking` is a property label from our own verified feed, never text the requester typed. */
-export function alertsConfirmEmail(to: string, link: string, tracking?: string, kind: 'property' | 'search' = 'property'): Mail {
+export function alertsConfirmEmail(to: string, link: string, tracking?: string, kind: 'property' | 'search' = 'property', list = !tracking): Mail {
   return {
     to,
     subject: 'Confirm your DeedOwl email alerts',
     text:
       `Hello,\n\nPlease confirm that you want email from DeedOwl${tracking ? (kind === 'search' ? `, starting with daily emails about new matches for "${tracking}"` : `, starting with updates on ${tracking}`) : ''}:\n\n${link}\n\n` +
+      (list ? `This includes occasional general DeedOwl updates. You can turn those off from the link in any email.\n\n` : '') +
       `The link expires in 48 hours. If you didn't sign up, ignore this email and you won't hear from us again.\n\n` +
       senderLine(),
   };
