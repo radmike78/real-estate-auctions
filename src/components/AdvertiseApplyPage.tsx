@@ -110,7 +110,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
         <PageHero compact title={<>Advertise on <span className="grad">DeedOwl</span></>} />
         <EmptyState soon title="Advertising is coming soon">
           <p>Applications for licensed professionals open soon. Every advertiser’s license is checked on the official regulator lookup before they’re listed.</p>
-          <p><a href="#/advertise">What advertising includes</a> · <a href="#/agents">Look up any professional’s license</a></p>
+          <p><a href="#/advertise">What advertising includes</a> · <a href="#/pros">Find a pro</a></p>
         </EmptyState>
       </main>
     );

@@ -7,13 +7,13 @@ const PRIMARY = [
   ['#/search', 'Properties'],
   ['#/playbooks', 'Learn'],
   ['#/practice', 'Practice'],
-  ['#/agents', 'Find a pro'],
+  ['#/pros', 'Find a pro'],
 ] as const;
 
 const MORE: { group: string; links: (readonly [string, string])[] }[] = [
   { group: 'Tools', links: [['#/calculator', 'Maximum bid calculator'], ['#/deals', 'My deals']] },
   { group: 'Buy', links: [['#/live', 'Live tax sales'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures']] },
-  { group: 'Get help', links: [['#/financing', 'Financing'], ['#/pros', 'Title, inspectors, attorneys & more']] },
+  { group: 'Get help', links: [['#/financing', 'Financing'], ['#/pros', 'Your deal team']] },
   { group: 'Research', links: [['#/guides', 'Search the guides'], ['#/pre-foreclosures', 'Pre-foreclosures (not for sale)']] },
   { group: 'About', links: [['#/about', 'How it works'], ['#/disclaimer', 'How we help']] },
   { group: 'For professionals', links: [['#/advertise', 'Advertise on DeedOwl'], ['#/advertiser', 'Advertiser sign-in']] },
@@ -78,8 +78,8 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
   const active = (href: string) => {
     const path = current.split('?')[0];
     const target = href.slice(2);
-    const pros = ['agents', 'pros', 'financing'];
-    return path === target || path.startsWith(`${target}/`) || (target === 'agents' && pros.some((x) => path === x || path.startsWith(`${x}/`)));
+    const pros = ['agents', 'pros', 'find-a-pro', 'financing'];
+    return path === target || path.startsWith(`${target}/`) || (target === 'pros' && pros.some((x) => path === x || path.startsWith(`${x}/`)));
   };
   return (
     <header className="site-header">

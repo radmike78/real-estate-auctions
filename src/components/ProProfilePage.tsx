@@ -23,7 +23,7 @@ export default function ProProfilePage({ id }: { id: string }) {
       <main className="page">
         <PageHero compact title="Profile not available" />
         <EmptyState title="This professional isn’t listed right now">
-          <p>Their license check or advertising may have lapsed. <a href="#/agents">Check a license</a> or <a href="#/pros">browse your deal team</a>.</p>
+          <p>Their license check or advertising may have lapsed. <a href="#/pros">See who helps with each step</a>.</p>
         </EmptyState>
       </main>
     );

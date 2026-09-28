@@ -115,7 +115,7 @@ export default function ShortSalesPage({ section }: { section?: string }) {
       {!open && (
         <div className="notice" role="note">
           <strong>How to find short sales:</strong> no government list exists. They're listed on the MLS, the database agents use, marked
-          "Short Sale." Work with a licensed buyer's agent. <a href="#/agents/short-sales">Find a verified short-sale agent →</a>
+          "Short Sale." Work with a licensed buyer's agent. <a href="#/pros/agent">How to find a short-sale agent →</a>
         </div>
       )}
 

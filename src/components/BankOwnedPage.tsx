@@ -67,7 +67,7 @@ export const sectionsFor = (cls: ClassFilter): DrillSection[] => [
     <p>
       Most banks don’t post their homes on their own sites. They hire a local agent who lists them on the MLS, the database agents use. Wells
       Fargo, for example, no longer runs a public list. A buyer’s agent can set up an MLS search for “bank-owned” or “REO” homes in the ZIP codes you
-      want. <a href="#/agents">Find a licensed agent →</a>
+      want. <a href="#/pros/agent">How to find an agent →</a>
     </p>,
   ),
   {

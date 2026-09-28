@@ -16,12 +16,23 @@ const SHORT: Record<Category, string> = {
   contractor: 'the Contractors Board', cpa: 'CPAverify', attorney: 'the State Bar', bank: 'the FDIC', credit_union: 'the NCUA',
 };
 
+// What to do on official lookups that can't be filled in from a link.
+const HOW_TO: Partial<Record<Category, string>> = {
+  agent: 'Type the agent’s last name (or license number, like S.0012345) in its search form.',
+  home_inspector: 'Type the inspector’s last name or license number in its search form.',
+  property_manager: 'Type the manager’s last name or permit number in its search form.',
+  contractor: 'Type the business name or license number in its search form.',
+  cpa: 'Choose Nevada, then type the CPA’s name.',
+  credit_union: 'Type the credit union’s name in its search box.',
+};
+
 const LOOKUP_TYPES: Category[] = ['agent', 'loan_officer', 'mortgage_company', 'private_lender', 'contractor', 'insurance', 'title_escrow', 'home_inspector', 'property_manager', 'attorney', 'cpa', 'bank', 'credit_union'];
 
 export default function AgentsPage({ shortSales = false, initialQuery = '' }: { shortSales?: boolean; initialQuery?: string }) {
   const [cat, setCat] = useState<Category>('agent');
   const [query, setQuery] = useState(initialQuery);
   const [copied, setCopied] = useState(false);
+  const [opened, setOpened] = useState<{ url: string; q: string; prefilled: boolean } | null>(null);
   const [live, setLive] = useState<{ q: string; data?: LicenseSearch; error?: string; loading?: boolean } | null>(null);
   const adsOpen = advertisingOpen(useSiteFeatures());
   const info = CATEGORIES[cat];
@@ -43,16 +54,18 @@ export default function AgentsPage({ shortSales = false, initialQuery = '' }: { 
       }
       return;
     }
+    // Open the official site first, while the click still counts: phones block new tabs opened after waiting on anything.
+    window.open(official.url, '_blank', 'noopener,noreferrer');
+    setOpened({ url: official.url, q: a.normalized, prefilled: official.prefilled });
     if (!official.prefilled && a.normalized) {
       try {
         await navigator.clipboard.writeText(a.normalized);
         setCopied(true);
-        setTimeout(() => setCopied(false), 5000);
+        setTimeout(() => setCopied(false), 8000);
       } catch {
         /* clipboard blocked: the value is still shown on screen */
       }
     }
-    window.open(official.url, '_blank', 'noopener,noreferrer');
   }
 
   return (
@@ -63,14 +76,14 @@ export default function AgentsPage({ shortSales = false, initialQuery = '' }: { 
         sub="Look up any agent, lender, contractor or other professional on the official record before you work with them."
       >
         <form className="lookup-box" onSubmit={search}>
-          <select aria-label="Type of professional" value={cat} onChange={(e) => { setCat(e.target.value as Category); setLive(null); }}>
+          <select aria-label="Type of professional" value={cat} onChange={(e) => { setCat(e.target.value as Category); setLive(null); setOpened(null); }}>
             {LOOKUP_TYPES.map((c) => <option key={c} value={c}>{CATEGORIES[c].label}</option>)}
           </select>
           <input
             aria-label="Name or license number"
             placeholder={cat === 'agent' ? 'Agent name or license # (e.g. S.0012345)' : cat === 'attorney' ? 'Attorney name or bar number' : cat === 'bank' ? 'Bank name' : `Name or ${info.licenseLabel}`}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => { setQuery(e.target.value); setOpened(null); }}
           />
           <button className="btn big" type="submit">{liveKind ? 'Search' : `Search on ${SHORT[cat].replace(/^the /, '')} ↗`}</button>
         </form>
@@ -85,10 +98,18 @@ export default function AgentsPage({ shortSales = false, initialQuery = '' }: { 
         {!liveKind && a.mode === 'license' && (
           <div className="lookup-result" role="status">
             <div className={`lookup-line ${a.formatOk === false ? 'bad' : ''}`}>{a.formatOk === false ? '⚠' : 'ℹ'} {a.detail}</div>
-            {copied && <div className="lookup-line small">Copied "{a.normalized}". Paste it into the official search.</div>}
           </div>
         )}
-        {!liveKind && a.mode !== 'license' && copied && <div className="lookup-result" role="status"><div className="lookup-line small">Copied "{a.normalized}". Paste it into the official search.</div></div>}
+        {!liveKind && opened && (
+          <div className="lookup-result" role="status">
+            <div className="lookup-line">
+              {opened.prefilled
+                ? <>We opened {SHORT[cat]}’s official lookup in a new tab with “{opened.q}” searched.</>
+                : <>We opened {SHORT[cat]}’s official lookup in a new tab. {HOW_TO[cat] ?? 'Enter the name or license number there.'}{copied && opened.q ? <> We copied “{opened.q}” so you can paste it.</> : null}</>}
+            </div>
+            <div className="lookup-line small">Nothing opened? <a href={opened.url} target="_blank" rel="noopener noreferrer">Open {SHORT[cat].replace(/^the /, '')} ↗</a></div>
+          </div>
+        )}
       </PageHero>
 
       {liveKind && live && (
@@ -140,13 +161,24 @@ export default function AgentsPage({ shortSales = false, initialQuery = '' }: { 
         </section>
       </div>
 
-      <h2 className="section-title">License-checked agents</h2>
-      <p className="small muted">
-        Licenses checked by a person at least every {REVERIFY_DAYS} days.{adsOpen && <> <a href="#/advertise/apply/agent">Agents: get listed →</a></>} · Looking for
-        lenders, title or contractors? <a href="#/financing">Financing</a> · <a href="#/pros">Title, insurance &amp; repairs</a>
-      </p>
-      <Disclaimer kind="professionals" compact />
-      <ProDirectory categories={['agent']} initialCategory="agent" showCategoryFilter={false} key={String(shortSales)} />
+      <ProDirectory
+        categories={['agent']}
+        initialCategory="agent"
+        showCategoryFilter={false}
+        key={String(shortSales)}
+        hideWhenEmpty
+        header={
+          <>
+            <h2 className="section-title">Agents who advertise on DeedOwl</h2>
+            <p className="small muted">
+              Paid listings. We check each agent’s license with the Real Estate Division before they appear, and again at least every {REVERIFY_DAYS} days.
+              {adsOpen && <> <a href="#/advertise/apply/agent">Agents: get listed →</a></>} Looking for lenders, title or contractors?{' '}
+              <a href="#/financing">Financing</a> · <a href="#/pros">Title, insurance &amp; repairs</a>
+            </p>
+          </>
+        }
+        notice={<Disclaimer kind="professionals" compact />}
+      />
     </main>
   );
 }

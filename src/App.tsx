@@ -9,13 +9,13 @@ import PreForeclosurePage from './components/PreForeclosurePage';
 import ShortSalesPage from './components/ShortSalesPage';
 import BankOwnedPage from './components/BankOwnedPage';
 import BusinessAssetsPage from './components/BusinessAssetsPage';
-import AgentsPage from './components/AgentsPage';
+import FindAProPage from './components/FindAProPage';
+import { proGuideByKey } from './lib/proGuide';
 import AdminPage from './components/AdminPage';
 import AdvertisePage from './components/AdvertisePage';
 import AdvertiseApplyPage from './components/AdvertiseApplyPage';
 import ApplicationConfirmPage from './components/ApplicationConfirmPage';
 import FinancingPage from './components/FinancingPage';
-import ProsPage from './components/ProsPage';
 import ProProfilePage from './components/ProProfilePage';
 import AdvertiserPage from './components/AdvertiserPage';
 import DisclaimerPage from './components/DisclaimerPage';
@@ -49,9 +49,8 @@ type Route =
   | { page: 'shortsales'; section?: string }
   | { page: 'bankowned'; section?: string }
   | { page: 'businessassets'; section?: string }
-  | { page: 'agents'; shortSales: boolean; q: string }
+  | { page: 'findpro'; section?: string }
   | { page: 'financing'; q: string }
-  | { page: 'pros'; q: string }
   | { page: 'pro'; id: string }
   | { page: 'advertise' }
   | { page: 'apply'; category: Category | null }
@@ -107,9 +106,12 @@ function parseHash(): Route {
   if (sub?.[1] === 'short-sales') return { page: 'shortsales', section: sub[2] };
   if (sub?.[1] === 'bank-owned') return { page: 'bankowned', section: sub[2] };
   if (sub?.[1] === 'business-assets') return { page: 'businessassets', section: sub[2] };
-  if (h === 'agents' || h === 'agents/short-sales') return { page: 'agents', shortSales: h.endsWith('short-sales'), q };
+  // Your deal team (the Find a pro tab): #/pros, and #/pros/<kind of professional>. Other #/pros/<id> are advertiser profiles.
+  const fp = h.match(/^(?:pros|find-a-pro)(?:\/([a-z_]+))?$/);
+  if (fp && (!fp[1] || proGuideByKey(fp[1]))) return { page: 'findpro', section: fp[1] };
+  // The old license-check page now lands on the agent section of Find a pro.
+  if (h === 'agents' || h === 'agents/short-sales') return { page: 'findpro', section: 'agent' };
   if (h === 'financing') return { page: 'financing', q };
-  if (h === 'pros') return { page: 'pros', q };
   const pro = h.match(/^pros\/([A-Za-z0-9]{1,64})$/);
   if (pro) return { page: 'pro', id: pro[1] };
   if (h === 'advertise') return { page: 'advertise' };
@@ -205,7 +207,6 @@ export default function App() {
       {route.page === 'bankowned' && <BankOwnedPage section={route.section} />}
       {route.page === 'businessassets' && <BusinessAssetsPage section={route.section} />}
       {route.page === 'financing' && <FinancingPage key={route.q} initialLocation={route.q} />}
-      {route.page === 'pros' && <ProsPage key={route.q} initialLocation={route.q} />}
       {route.page === 'pro' && <ProProfilePage id={route.id} />}
       {route.page === 'advertise' && <AdvertisePage />}
       {route.page === 'apply' && <AdvertiseApplyPage key={route.category ?? ''} initialCategory={route.category} />}
@@ -223,7 +224,7 @@ export default function App() {
       {route.page === 'practiceRun' && <PracticeScenarioPage key={route.id} id={route.id} stageKey={route.stage} />}
       {route.page === 'playbook' && <PlaybookPage key={route.key ?? ''} playbook={route.key} section={route.section} />}
       {route.page === 'advertiser' && <AdvertiserPage key={route.token ?? ''} token={route.token} />}
-      {route.page === 'agents' && <AgentsPage key={`${route.shortSales}${route.q}`} shortSales={route.shortSales} initialQuery={route.q} />}
+      {route.page === 'findpro' && <FindAProPage key={route.section ?? ''} section={route.section} />}
       <footer className="footer">
         <span>{ROLE_SHORT}</span>
         <span>{SOURCES_AND_ADVICE}</span>

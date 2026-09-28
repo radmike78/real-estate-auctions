@@ -116,5 +116,7 @@ export function officialSearch(category: Category, raw: string): { url: string; 
   }
   const nmls = NMLS_KIND[category];
   if (nmls && /^\d{1,10}$/.test(q)) return { url: `https://www.nmlsconsumeraccess.org/EntityDetails.aspx/${nmls}/${q}`, prefilled: true };
+  // NMLS Consumer Access takes a name (or company) search in the address too.
+  if (nmls) return { url: `https://www.nmlsconsumeraccess.org/Home.aspx/SubSearch?searchText=${encodeURIComponent(q)}`, prefilled: true };
   return { url: base, prefilled: false };
 }
