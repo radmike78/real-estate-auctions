@@ -1048,7 +1048,7 @@ small { font-size: 0.95rem; }
 @media (max-width: 900px) { .email-admin-grid { grid-template-columns: 1fr; } .email-kpis { grid-template-columns: 1fr 1fr !important; } }
 
 /* ---------- Practice mode: fictional properties for hands-on learning ---------- */
-.practice-ribbon { background: repeating-linear-gradient(135deg, var(--wait-bg), var(--wait-bg) 14px, var(--surface) 14px, var(--surface) 28px); border: 2px dashed var(--wait); border-radius: 10px; padding: 12px 16px; margin: 0 0 18px; }
+.practice-ribbon { background: var(--wait-bg); border: 2px dashed var(--wait); border-radius: 10px; padding: 12px 16px; margin: 0 0 18px; }
 .practice-ribbon strong { color: var(--wait); }
 .practice-tag { display: inline-block; background: var(--wait); color: #1a1205; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; font-size: 0.85rem; padding: 4px 10px; border-radius: 999px; }
 .practice-filter { justify-content: space-between; margin: 8px 0 20px; }
@@ -1071,8 +1071,10 @@ small { font-size: 0.95rem; }
 .practice-next { margin: 18px 0; align-items: center; }
 .task-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin: 0 0 14px; }
 .task-card.is-done { border-color: var(--go); }
-.task-card.event { border-left: 5px solid var(--info); }
-.task-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+/* The "what happens" bar is drawn inside the card, so its text lines up with the cards around it. */
+.task-card.event { box-shadow: inset 5px 0 0 var(--info); }
+/* The tag sits on the title's line. */
+.task-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .task-head h3 { margin: 0; flex: 1; }
 .task-kind { font-family: var(--font-label); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 6px; background: var(--surface-2); color: var(--muted); }
 .task-done { color: var(--go); font-weight: 800; font-size: 1.2rem; }
@@ -1352,3 +1354,18 @@ html { scroll-padding-top: 88px; }
 .page .empty-state h2::before { display: none; }
 .empty-state p { margin: 0; max-width: 62ch; }
 .empty-state .row { justify-content: center; }
+
+/* Practice cards: the kind of task is a quiet label on its own line above the title (no chip beside it), and each
+   checklist item's detail sits under its name, so every card reads top to bottom with even left edges. */
+.task-head { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-bottom: 6px; }
+.task-head h3 { margin: 0; }
+.task-kind { padding: 0; background: none; border-radius: 0; font-size: 0.95rem; font-weight: 600; color: var(--muted); }
+.practice-checks .check-text { display: grid; gap: 2px; }
+.practice-doc th { width: 32%; vertical-align: top; }
+.practice-doc td { vertical-align: top; }
+.practice-doc .doc-note { margin: 14px 0 0; }
+.practice-doc > p:first-of-type { margin-top: 0; }
+.task-card .task-head h3 { margin: 0; }
+/* Table text starts on the same left edge as the paragraphs around it. */
+.practice-doc th, .practice-numbers th { padding-left: 0; }
+.practice-doc td:last-child, .practice-numbers td:last-child { padding-right: 0; }

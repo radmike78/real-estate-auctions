@@ -147,9 +147,8 @@ function TaskCard({ task, k, progress, update, markDone, showKind }: { task: Tas
   const done = progress.done.includes(k);
   const head = (label: string, title: string) => (
     <div className="task-head">
-      {showKind && <span className={`task-kind kind-${task.kind}`}>{label}</span>}
-      <h3>{title}</h3>
-      {done && <span className="task-done" aria-label="Done">✓</span>}
+      {showKind && <div className={`task-kind kind-${task.kind}`}>{label}</div>}
+      <h3>{title}{done && <span className="task-done" aria-label="Done"> ✓</span>}</h3>
     </div>
   );
 
@@ -178,7 +177,7 @@ function TaskCard({ task, k, progress, update, markDone, showKind }: { task: Tas
       return (
         <article className={`task-card${done ? ' is-done' : ''}`}>
           {head('Decide', task.title)}
-          <p><strong>{task.question}</strong></p>
+          <p>{task.question}</p>
           <div className="choices" role="group" aria-label={task.question}>
             {task.choices.map((c, i) => (
               <button
@@ -212,7 +211,7 @@ function TaskCard({ task, k, progress, update, markDone, showKind }: { task: Tas
           <div className="practice-doc">
             <span className="practice-stamp" aria-hidden>PRACTICE</span>
             <p className="small muted">From: {task.from}</p>
-            <p><em>{task.purpose}</em></p>
+            <p>{task.purpose}</p>
             <table>
               <tbody>
                 {task.lines.map((l) => (
@@ -220,7 +219,7 @@ function TaskCard({ task, k, progress, update, markDone, showKind }: { task: Tas
                 ))}
               </tbody>
             </table>
-            {task.note && <p className="small muted">{task.note}</p>}
+            {task.note && <p className="small muted doc-note">{task.note}</p>}
           </div>
           {!done && <button className="btn btn-secondary" onClick={() => markDone(k)}>{task.from === 'You' || task.from.startsWith('You ') ? 'Prepared' : 'Reviewed'}</button>}
         </article>
@@ -277,7 +276,7 @@ function ChecklistTask({ task, k, done, head, markDone }: { task: Extract<Task, 
           <li key={i}>
             <label>
               <input type="checkbox" checked={ticked[i] || done} disabled={done} onChange={(e) => setTicked((t) => t.map((v, j) => (j === i ? e.target.checked : v)))} />
-              <span><strong>{it.text}</strong>{it.detail && <span className="muted"> {it.detail}</span>}</span>
+              <span className="check-text"><strong>{it.text}</strong>{it.detail && <span className="muted">{it.detail}</span>}</span>
             </label>
           </li>
         ))}
