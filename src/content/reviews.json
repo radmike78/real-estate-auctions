@@ -19,8 +19,8 @@
       "src/lib/saleSearch.ts",
       "src/lib/status.ts"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "46720e968d43685a",
+    "reviewed": "2026-09-28",
+    "hash": "5e6559b20b4139a3",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -36,8 +36,8 @@
       "src/lib/propertyViews.ts",
       "src/lib/foreclosure.ts"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "b41b6b1e2f6942b6",
+    "reviewed": "2026-09-28",
+    "hash": "7ff9a495790051e8",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -60,7 +60,7 @@
       "src/components/SidCertificates.tsx"
     ],
     "reviewed": "2026-09-28",
-    "hash": "c04ccf5bde66637c",
+    "hash": "fdb436c6bdfd7e92",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -70,7 +70,7 @@
       "src/components/PreForeclosurePage.tsx"
     ],
     "reviewed": "2026-09-28",
-    "hash": "a3a3c723621dcfcf",
+    "hash": "7c3ce412cb0f809f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -149,8 +149,8 @@
       "src/lib/bidCalc.ts",
       "src/lib/incomeValue.ts"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "b72c848e1b0159b1",
+    "reviewed": "2026-09-28",
+    "hash": "46261bb138855ff2",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -249,7 +249,7 @@
       "src/lib/proApplication.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "a790dfeb741e223c",
+    "hash": "045031ac1b108b1c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

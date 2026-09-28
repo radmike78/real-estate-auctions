@@ -186,16 +186,19 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
               const moved = tracked && watch[p.id] !== t.stage;
               return (
                 <li key={p.id} className="track-card">
-                  <div className="track-head">
-                    <div>
-                      <span className={`badge tone-${info.tone}`}>{info.label}</span> <span className="small muted">{t.kind}</span>
+                  <div className="track-top">
+                    <span className="track-badges">
+                      <span className={`badge tone-${info.tone}`}>{info.label}</span>
                       {moved && <span className="badge tone-info">Stage changed</span>}
-                      <h3>{p.address}</h3>
-                      <div className="small muted">{p.city}, {p.state} {p.zip} · <span className="nowrap">Parcel {p.apn}</span></div>
-                    </div>
+                    </span>
                     <button className={tracked ? 'btn' : ''} aria-pressed={tracked} onClick={() => toggle(r)}>
                       {tracked ? '★ Tracking' : '☆ Track'}
                     </button>
+                  </div>
+                  <div className="track-id">
+                    <div className="small muted">{t.kind}</div>
+                    <h3>{p.address}</h3>
+                    <div className="small muted">{p.city}, {p.state} {p.zip} · <span className="nowrap">Parcel {p.apn}</span></div>
                   </div>
                   <Pipeline t={t} />
                   <p className="track-key">
