@@ -1071,8 +1071,10 @@ small { font-size: 0.95rem; }
 .practice-next { margin: 18px 0; align-items: center; }
 .task-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin: 0 0 14px; }
 .task-card.is-done { border-color: var(--go); }
-.task-card.event { border-left: 5px solid var(--info); }
-.task-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+/* The "what happens" bar is drawn inside the card, so its text lines up with the cards around it. */
+.task-card.event { box-shadow: inset 5px 0 0 var(--info); }
+/* The tag sits on the title's line. */
+.task-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .task-head h3 { margin: 0; flex: 1; }
 .task-kind { font-family: var(--font-label); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 6px; background: var(--surface-2); color: var(--muted); }
 .task-done { color: var(--go); font-weight: 800; font-size: 1.2rem; }
