@@ -134,8 +134,9 @@ export function openAlerts(db: DatabaseSync) {
       const cur = api.byEmail(email);
       if (cur?.status === 'ACTIVE') return cur;
       if (cur) {
+        // A new request replaces the earlier link, so its choice (general updates or not) is the one the confirmation email describes.
         db.prepare('UPDATE subscribers SET list_opt_in = ?, confirm_token_hash = ?, confirm_expires = ?, updated_at = ? WHERE id = ?').run(
-          cur.listOptIn || listOptIn ? 1 : 0, confirmHash, expires, now, cur.id,
+          listOptIn ? 1 : 0, confirmHash, expires, now, cur.id,
         );
       } else {
         db.prepare(

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import PageHero from './PageHero';
+import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
 import { maxSafeBid, costsAtBid } from '../lib/bidCalc';
 import { fmtMoney } from '../lib/status';
@@ -24,7 +25,10 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
   if (!scenario) {
     return (
       <main className="page">
-        <p>That practice run doesn’t exist. <a href="#/practice">Choose one</a></p>
+        <PageHero compact title="Practice run not found" />
+        <EmptyState title="We couldn’t find that practice run">
+          <p>The link may be old or mistyped. <a href="#/practice">Choose a practice property</a> to start again.</p>
+        </EmptyState>
       </main>
     );
   }

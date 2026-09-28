@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import PageHero from './PageHero';
-import { api } from '../lib/api';
+import { api, unreachable } from '../lib/api';
 
 // Tokens are single-use: share one request per token even if React runs the effect twice.
 const requests = new Map<string, Promise<{ message: string }>>();
@@ -21,7 +21,12 @@ export default function ApplicationConfirmPage({ token }: { token: string }) {
     history.replaceState(null, '', '#/advertise/confirm'); // drop the token from the address bar and history
     confirmOnce(token)
       .then((r) => alive && setState({ ok: true, message: r.message }))
-      .catch((e: Error) => alive && setState({ ok: false, message: e.message }));
+      .catch((e: Error) => {
+        if (!alive) return;
+        // Server trouble, not a bad link: put the link back so "Try again" (or a reload) can retry it.
+        if (unreachable(e.message)) history.replaceState(null, '', `#/advertise/confirm/${token}`);
+        setState({ ok: false, message: e.message });
+      });
     return () => {
       alive = false;
     };
@@ -32,6 +37,7 @@ export default function ApplicationConfirmPage({ token }: { token: string }) {
       <PageHero compact title="Confirm your email" />
       {!state && <p>Confirming…</p>}
       {state && <div className={state.ok ? 'notice' : 'caution'} role="status">{state.message}</div>}
+      {state && !state.ok && unreachable(state.message) && <p><button className="btn" onClick={() => window.location.reload()}>Try again</button></p>}
       <a href="#/advertise">Back to advertising</a>
     </main>
   );

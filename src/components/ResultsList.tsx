@@ -20,11 +20,17 @@ const SALE_ICON: Record<SaleType, ReactNode> = {
   REO: <IconBank />,
 };
 
-/** Whole days until a time: 1 means within the next day, negative means it has passed. */
+const pacificDate = (t: number) => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).format(t);
+
+/** Calendar days until a time, counted on Las Vegas dates: 0 is today, 1 tomorrow; negative means it has passed. */
 export function daysUntil(iso: string, now = Date.now()) {
-  const ms = new Date(iso).getTime() - now;
-  return ms < 0 ? Math.floor(ms / 86_400_000) : Math.max(1, Math.ceil(ms / 86_400_000));
+  const t = new Date(iso).getTime();
+  const days = Math.round((Date.parse(pacificDate(t)) - Date.parse(pacificDate(now))) / 86_400_000);
+  return t < now ? Math.min(-1, days) : days;
 }
+
+/** "today", "tomorrow" or "in 5 days" for a non-negative daysUntil value. */
+export const whenLabel = (days: number) => (days === 0 ? 'today' : days === 1 ? 'tomorrow' : `in ${days} days`);
 
 export default function ResultsList({ properties }: { properties: Property[] }) {
   if (!properties.length) {
@@ -62,14 +68,14 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
               </div>
               <dl className="card-stats">
                 <div className="key big">
-                  <dt>Min. bid</dt>
+                  <dt>{p.sale?.saleType === 'REO' ? 'List price' : 'Min. bid'}</dt>
                   <dd>{fmtMoney(m.minimumBid)}</dd>
                 </div>
                 <div className="key">
                   <dt>Auction</dt>
                   <dd>
                     {p.sale?.startsAt ? fmtDate(p.sale.startsAt) : '—'}
-                    {d !== null && d >= 0 && <span className="card-days">{d <= 1 ? 'within a day' : `in ${d} days`}</span>}
+                    {d !== null && d >= 0 && <span className="card-days">{whenLabel(d)}</span>}
                   </dd>
                 </div>
                 <div>

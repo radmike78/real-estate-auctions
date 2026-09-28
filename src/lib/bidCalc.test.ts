@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
 import { BLANK_INPUTS, maxBidSteps, START_INPUTS, costsAtBid, defaultsFor, maxSafeBid, profitAtBid, redemptionOutcome, REDEMPTION_RULES, requiredProfit, ruleOf, sanitizeInputs, stressGrid, stressTests, totalMonths, type BidInputs } from './bidCalc';
-import { daysUntil } from '../components/ResultsList';
+import { daysUntil, whenLabel } from '../components/ResultsList';
 
 const base: BidInputs = { ...BLANK_INPUTS, exitValue: 400_000, repairs: 40_000, buyerPremiumPct: 5, financedPct: 70 };
 
@@ -122,11 +122,16 @@ describe('review fixes', () => {
     expect(r.noBidWorks).toBe(true);
   });
 
-  it('counts a sale that started hours ago as passed, and one hours away as within a day', () => {
-    const now = Date.parse('2026-09-25T12:00:00Z');
+  it('counts days on Las Vegas calendar dates: passed, today, tomorrow, in N days', () => {
+    const now = Date.parse('2026-09-25T12:00:00Z'); // 5:00 a.m. Friday in Las Vegas
     expect(daysUntil('2026-09-25T10:00:00Z', now)).toBeLessThan(0);
-    expect(daysUntil('2026-09-25T14:00:00Z', now)).toBe(1);
+    expect(daysUntil('2026-09-25T14:00:00Z', now)).toBe(0);
+    expect(daysUntil('2026-09-26T16:00:00Z', now)).toBe(1); // Saturday 9 a.m., 28 hours away
     expect(daysUntil('2026-09-27T12:00:00Z', now)).toBe(2);
+    expect(daysUntil('2026-09-26T06:30:00Z', Date.parse('2026-09-26T05:00:00Z'))).toBe(0); // 10 p.m. and 11:30 p.m. the same evening
+    expect(whenLabel(0)).toBe('today');
+    expect(whenLabel(1)).toBe('tomorrow');
+    expect(whenLabel(5)).toBe('in 5 days');
   });
 });
 

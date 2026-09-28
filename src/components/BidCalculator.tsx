@@ -55,7 +55,7 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
       { k: 'redemptionMonths', label: 'Redemption wait', unit: 'mo', hint: 'Hold off on repairs until it ends.', more: 'After some sales the former owner (and sometimes lenders) can buy the property back by repaying your price plus interest. Repairs you make before then are not repaid.' },
       { k: 'redemptionRatePct', label: 'Interest a redemption pays you', unit: '%/yr', hint: 'Set by the kind of sale.', when: (i) => i.redemptionMonths > 0 },
       { k: 'holdingMonths', label: 'Months to fix and sell', unit: 'mo', hint: 'After any redemption wait.', more: 'After a tax sale, resale may wait for a quiet title action or the 2-year window after the Treasurer’s deed (NRS 361.600).' },
-      { k: 'monthlyCarry', label: 'Monthly holding costs', unit: '$', hint: 'Taxes, insurance, utilities, HOA.' },
+      { k: 'monthlyCarry', label: 'Monthly holding costs', unit: '$', hint: 'Taxes, insurance, utilities. The estimate leaves out HOA dues: add them if the home has an HOA.' },
       { k: 'financedPct', label: 'Share financed after purchase', unit: '%', hint: 'Auctions need cash on the day.' },
       { k: 'interestRatePct', label: 'Interest rate (yearly)', unit: '%', when: (i) => i.financedPct > 0 },
       { k: 'pointsPct', label: 'Lender points', unit: '%', when: (i) => i.financedPct > 0 },
@@ -380,7 +380,7 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
       </div>
 
       {/* On phones the results sit below every input, so keep the answer in view while typing. */}
-      <button type="button" hidden={resultsVisible} className={`calc-sticky${r.noBidWorks ? ' bad' : ''}`} onClick={() => document.getElementById(`${uid}-results`)?.scrollIntoView({ behavior: 'smooth' })}>
+      <button type="button" hidden={resultsVisible} className={`calc-sticky${r.noBidWorks && !needsValue ? ' bad' : ''}`} onClick={() => document.getElementById(`${uid}-results`)?.scrollIntoView({ behavior: 'smooth' })}>
         <span>Walk away at</span>
         <strong>{needsValue ? 'Enter a resale value' : cashShort ? 'Not enough cash' : r.noBidWorks ? 'No bid works' : fmtMoney(r.maxBid)}</strong>
         <span className="calc-sticky-go">See details ↓</span>

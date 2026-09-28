@@ -44,12 +44,23 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
     document.addEventListener('click', onClick);
     return () => document.removeEventListener('click', onClick);
   }, []);
-  // Opening the phone menu moves the keyboard into it; Escape closes More and the phone menu.
+  // Opening the phone menu moves the keyboard into it; Escape closes More and the phone menu; Tab stays inside it.
   useEffect(() => {
     if (open) nav.current?.querySelector<HTMLElement>('a')?.focus();
   }, [open]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // While the phone menu covers the page, Tab moves only between its links and the close button.
+      if (e.key === 'Tab' && open && nav.current && menuBtn.current) {
+        const items = [...nav.current.querySelectorAll<HTMLElement>('a, summary')].filter((el) => el.offsetParent !== null);
+        const loop = [...items, menuBtn.current];
+        const i = loop.indexOf(document.activeElement as HTMLElement);
+        if (i === -1 || (e.shiftKey && i === 0) || (!e.shiftKey && i === loop.length - 1)) {
+          e.preventDefault();
+          (e.shiftKey ? loop[loop.length - 1] : loop[0]).focus();
+        }
+        return;
+      }
       if (e.key !== 'Escape') return;
       const more = document.querySelector<HTMLDetailsElement>('details.more[open]');
       if (more) {
@@ -78,7 +89,7 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
       </a>
       <nav ref={nav} id="site-nav" className={`site-nav${open ? ' open' : ''}`} aria-label="Main">
         {PRIMARY.map(([href, label]) => (
-          <a key={href} href={href} className={active(href) ? 'active' : ''}>{label}</a>
+          <a key={href} href={href} className={active(href) ? 'active' : ''} aria-current={active(href) ? 'page' : undefined}>{label}</a>
         ))}
         <details className="more">
           <summary className={MORE.some((g) => g.links.some(([h]) => h !== '#/pros' && h !== '#/financing' && active(h))) ? 'active' : ''}>
@@ -108,18 +119,31 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
 const THEME_KEY = 'deedowl.theme';
 const systemDark = () => typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches;
 
-/** Light/dark switch. Until someone picks, the site follows the device setting. */
+/** Light/dark switch. Until someone picks, the site follows the device setting; picking the same mode
+ *  as the device goes back to following it. */
 function ThemeButton() {
   const [dark, setDark] = useState(() => {
     const t = document.documentElement.dataset.theme;
     return t ? t === 'dark' : systemDark();
   });
+  useEffect(() => {
+    if (typeof matchMedia !== 'function') return;
+    const mq = matchMedia('(prefers-color-scheme: dark)');
+    const onChange = () => { if (!document.documentElement.dataset.theme) setDark(mq.matches); };
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
   const toggle = () => {
     const next = !dark;
     setDark(next);
-    const theme = next ? 'dark' : 'light';
-    document.documentElement.dataset.theme = theme;
-    try { localStorage.setItem(THEME_KEY, theme); } catch { /* private mode: applies to this visit only */ }
+    const root = document.documentElement;
+    const follow = next === systemDark();
+    if (follow) delete root.dataset.theme;
+    else root.dataset.theme = next ? 'dark' : 'light';
+    try {
+      if (follow) localStorage.removeItem(THEME_KEY);
+      else localStorage.setItem(THEME_KEY, root.dataset.theme!);
+    } catch { /* private mode: applies to this visit only */ }
   };
   return (
     <button type="button" className="theme-btn" onClick={toggle} aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'} title={dark ? 'Light mode' : 'Dark mode'}>

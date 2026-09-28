@@ -7,6 +7,8 @@ import Disclaimer from './Disclaimer';
 import { fmtPhone, useDirectory } from './ProDirectory';
 import PaidAdNotice from './PaidAdNotice';
 import ProAvatar from './ProAvatar';
+import PageHero from './PageHero';
+import EmptyState from './EmptyState';
 
 export default function ProProfilePage({ id }: { id: string }) {
   const { pros, loading } = useDirectory();
@@ -18,10 +20,11 @@ export default function ProProfilePage({ id }: { id: string }) {
   const p = pros.find((x) => x.id === id);
   if (!p) {
     return (
-      <main className="page prose">
-        <h1>Profile not available</h1>
-        <p>This professional isn't currently listed. Their license check or advertising may have lapsed.</p>
-        <a href="#/agents">Browse license-checked professionals</a>
+      <main className="page">
+        <PageHero compact title="Profile not available" />
+        <EmptyState title="This professional isn’t listed right now">
+          <p>Their license check or advertising may have lapsed. <a href="#/agents">Check a license</a> or <a href="#/pros">browse your deal team</a>.</p>
+        </EmptyState>
       </main>
     );
   }

@@ -1795,3 +1795,33 @@ h1, h2 { letter-spacing: -0.03em; }
 
 /* Practice notice: sentences run the full width of the box */
 .practice-ribbon p { max-width: none; }
+
+/* No orange: notices and practice labels use the owl blue. Amber stays on small status chips
+   (postponed, needs review, estimate) and the yellow Practice mode box, which the owner likes. */
+.verify, .email-confirm { background: var(--surface-2); border: 0; border-left: 4px solid var(--accent-strong); border-radius: 10px; }
+.verify strong { color: var(--text); }
+.warn-card { border-left-color: var(--wait-mark); }
+.practice-tag, .practice-stamp { background: var(--accent-strong); color: #fff; }
+.lookup-card.warn-card::before, .checklist-box.not-for-sale::before, .card.risk-wait::before { background: var(--wait-mark); }
+.side-note { color: var(--muted); }
+.guide-hit-snippet mark { background: var(--info-bg); }
+.source-line.sample { color: var(--info); }
+
+/* Dark mode: the homepage search box and the All / Residential / Commercial switch match the navy page */
+@media (prefers-color-scheme: dark) {
+  .simple-search { background: var(--surface); border-color: var(--border); }
+  .simple-search select, .simple-search input { color: var(--text); }
+  .simple-search select { border-color: var(--border); }
+  .simple-search input::placeholder, .simple-search .search-icon svg { color: var(--muted); }
+  .hero-class .seg { background: var(--surface); border-color: var(--border); }
+  .hero-class .seg button:not([aria-pressed='true']):not([aria-selected='true']) { color: var(--text); }
+}
+
+/* Phones: the labels above the big numbers stay at full reading size */
+@media (max-width: 600px) { .glance dt { font-size: 1rem; } }
+
+/* Section text (privacy, terms, guides): comfortable line length on wide screens */
+.drill-section > p, .drill-section > ul > li, .drill-section > ol > li { max-width: 80ch; }
+
+/* Keep "Pre-foreclosures" in one piece on the homepage tiles */
+.browse-title { hyphens: manual; }

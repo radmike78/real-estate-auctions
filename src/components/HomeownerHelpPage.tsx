@@ -47,7 +47,7 @@ export default function HomeownerHelpPage() {
 
       <section>
         <h2>If your home was sold at a county tax sale</h2>
-        <p>If it sold for more than the taxes and costs owed, you may be able to claim the extra (excess proceeds). There is a deadline. See the <a href="https://www.clarkcountynv.gov/government/elected_officials/county_treasurer/faqs" {...ext}>Clark County Treasurer ↗</a>.</p>
+        <p>If it sold for more than the taxes and costs owed, you may be able to claim the extra (excess proceeds). File a written claim with the Treasurer within 1 year after the Treasurer’s deed is recorded; after that the money goes to the county (NRS 361.610). You don’t need to pay anyone to claim it, and by law anyone who helps can charge at most 10%. See the <a href="https://www.clarkcountynv.gov/government/elected_officials/county_treasurer/faqs" {...ext}>Clark County Treasurer ↗</a>.</p>
       </section>
 
       <section>

@@ -6,7 +6,7 @@ import { DD_STEPS, loadDdDone } from '../lib/ddFunnel';
 import { SALE_TYPE_LABEL } from '../lib/rules';
 import { STATUS, fmtDate, fmtDateTime, fmtMoney } from '../lib/status';
 import { savedMaxBid } from './BidCalculator';
-import { daysUntil } from './ResultsList';
+import { daysUntil, whenLabel } from './ResultsList';
 import PageHero from './PageHero';
 import StatusBadge from './StatusBadge';
 
@@ -25,7 +25,7 @@ function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; lo
         <div className="deal-head">
           <div>
             <h2>No longer listed</h2>
-            <p className="muted">A property you saved on {fmtDate(d.savedAt.slice(0, 10))} is no longer in our listings. It may have sold, been paid off or been removed.</p>
+            <p className="muted">A property you saved on {fmtDate(d.savedAt)} is no longer in our listings. It may have sold, been paid off or been removed.</p>
           </div>
           <button className="linkish" aria-label="Remove property that is no longer listed" onClick={() => removeDeal(d.id)}>Remove</button>
         </div>
@@ -51,7 +51,7 @@ function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; lo
         <div>
           <div className="deal-badges"><StatusBadge status={p.status} />{s && <span className="deal-type">{SALE_TYPE_LABEL[s.saleType]}</span>}</div>
           <h2><a href={base}>{p.address}</a></h2>
-          <p className="muted">{p.city}, {p.state} {p.zip} · <span className="nowrap">Parcel {p.apn}</span> · saved {fmtDate(d.savedAt.slice(0, 10))}</p>
+          <p className="muted">{p.city}, {p.state} {p.zip} · <span className="nowrap">Parcel {p.apn}</span> · saved {fmtDate(d.savedAt)}</p>
         </div>
         <button className="linkish" aria-label={`Remove ${p.address} from My deals`} onClick={() => removeDeal(p.id)}>Remove</button>
       </div>
@@ -66,8 +66,8 @@ function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; lo
       )}
 
       <dl className="deal-facts">
-        <div><dt>Sale</dt><dd>{s?.startsAt ? <>{fmtDateTime(s.startsAt)}{days !== null && (days < 0 ? <span className="muted"> · passed</span> : <span className="deal-soon"> · {days === 1 ? 'within a day' : `in ${days} days`}</span>)}</> : '—'}</dd></div>
-        <div><dt>Register by</dt><dd>{s?.registrationDeadline ? <>{fmtDateTime(s.registrationDeadline)}{regClosed ? <span className="deal-urgent"> · closed</span> : regDays !== null && regDays <= 7 && <span className="deal-urgent"> · {regDays <= 1 ? 'closes within a day' : `${regDays} days left`}</span>}</> : '—'}</dd></div>
+        <div><dt>Sale</dt><dd>{s?.startsAt ? <>{fmtDateTime(s.startsAt)}{days !== null && (days < 0 ? <span className="muted"> · passed</span> : <span className="deal-soon"> · {whenLabel(days)}</span>)}</> : '—'}</dd></div>
+        <div><dt>Register by</dt><dd>{s?.registrationDeadline ? <>{fmtDateTime(s.registrationDeadline)}{regClosed ? <span className="deal-urgent"> · closed</span> : regDays !== null && regDays <= 7 && <span className="deal-urgent"> · {regDays === 0 ? 'closes today' : regDays === 1 ? 'closes tomorrow' : `${regDays} days left`}</span>}</> : '—'}</dd></div>
         <div><dt>Opening / minimum bid</dt><dd>{fmtMoney(minBid)}</dd></div>
         <div>
           <dt>Your max bid</dt>

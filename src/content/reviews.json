@@ -20,7 +20,7 @@
       "src/lib/status.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "9868897f54f03b7e",
+    "hash": "ff987e297203ba5f",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -37,7 +37,7 @@
       "src/lib/foreclosure.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "675a3e935101ed0c",
+    "hash": "999682f01d0b83eb",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -47,8 +47,8 @@
       "src/components/BuyerChecklistBox.tsx",
       "src/lib/buyerChecklists.ts"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "6126693426c2a7f6",
+    "reviewed": "2026-09-28",
+    "hash": "9f9e1f079d5aa30b",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -60,7 +60,7 @@
       "src/components/SidCertificates.tsx"
     ],
     "reviewed": "2026-09-28",
-    "hash": "fdb436c6bdfd7e92",
+    "hash": "45fc916d790ff523",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -113,8 +113,8 @@
       "src/components/TeamList.tsx",
       "src/lib/playbooks.ts"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "f097d106277d4e53",
+    "reviewed": "2026-09-28",
+    "hash": "d527f9e4b467a469",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -136,7 +136,7 @@
       "src/practice/scenarios.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "c92bcc11b9ea3b77",
+    "hash": "5023fce3a770b02f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -153,7 +153,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "4231cd7a5e4b0d13",
+    "hash": "33da0f0dba0386e9",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -162,8 +162,8 @@
     "files": [
       "src/components/DealsPage.tsx"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "02bd496b2e27c8da",
+    "reviewed": "2026-09-28",
+    "hash": "ec3294b886104e05",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -175,7 +175,7 @@
       "src/components/SearchAlertButton.tsx"
     ],
     "reviewed": "2026-09-28",
-    "hash": "5f63e9c17f099d40",
+    "hash": "43bb83f2c5ccc442",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -219,8 +219,8 @@
       "src/components/PaidAdNotice.tsx",
       "src/components/LeadForm.tsx"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "b42e88b48b000a24",
+    "reviewed": "2026-09-28",
+    "hash": "35b080aa9bce5d6c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -229,8 +229,8 @@
     "files": [
       "src/components/HomeownerHelpPage.tsx"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "3e191f23ff122020",
+    "reviewed": "2026-09-28",
+    "hash": "07388991ac1dd717",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -294,8 +294,8 @@
     "files": [
       "server/mailer.ts"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "20373776f27eefaf",
+    "reviewed": "2026-09-28",
+    "hash": "005741d77db801cd",
     "note": "Full content review (review round of 2026-09-27)."
   }
 ]

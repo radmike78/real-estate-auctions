@@ -89,10 +89,10 @@ export default function LivePage() {
         </EmptyState>
       )}
 
-      <p className="muted">
+      {!nothingLive && <p className="muted">
         Listings are re-checked on a schedule that follows how often each official list is updated. Parcels that are paid off (lined out), sold,
         removed, unconfirmed, or not re-verified recently are hidden automatically. When no auction is scheduled, nothing is listed.
-      </p>
+      </p>}
       {features?.email && !nothingLive && (
         <div className="row live-alerts">
           <SearchAlertButton cls={cls} />

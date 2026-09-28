@@ -66,10 +66,10 @@ export const FACTS: Fact[] = [
   },
   {
     id: 'tax-payoff-deadline',
-    claim: 'Owners can pay the taxes until close of business 3 business days before the sale.',
+    claim: 'Owners, and lenders or other lienholders of record, can pay the taxes until close of business 3 business days before the sale.',
     sources: ['nrs-361', 'treasurer-faq'],
-    checked: '2026-09-27',
-    where: [{ file: PB, text: 'Owners can pay until close of business 3 business days before the sale' }],
+    checked: '2026-09-28',
+    where: [{ file: PB, text: 'can pay until close of business 3 business days before the sale' }],
   },
   {
     id: 'tax-sid-certificate',
@@ -198,10 +198,10 @@ export const FACTS: Fact[] = [
   },
   {
     id: 'sheriff-homestead',
-    claim: 'A recorded homestead protects up to $605,000 of equity from execution.',
-    sources: ['nrs-021'],
-    checked: '2026-09-27',
-    where: [{ file: PB, text: 'up to $605,000 of equity is protected from execution' }],
+    claim: 'A recorded homestead protects up to $605,000 of equity from a judgment creditor’s execution, but not from a mortgage or deed of trust the owner signed, taxes or mechanic’s liens; if sold for excess equity, no bid under $605,000 can be accepted.',
+    sources: ['nrs-021', 'nrs-115'],
+    checked: '2026-09-28',
+    where: [{ file: PB, text: 'up to $605,000 of equity is protected from a judgment creditor’s execution' }],
   },
 
   // ---------------- IRS seizure sales ----------------
