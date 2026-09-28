@@ -81,10 +81,10 @@ export default function LivePage() {
             .
           </p>
           {features?.email && (
-            <div className="row">
+            <>
+              <p>Get an email when the next list comes out.</p>
               <SearchAlertButton cls={cls} />
-              <span className="muted">Get an email when the next list comes out.</span>
-            </div>
+            </>
           )}
         </EmptyState>
       )}

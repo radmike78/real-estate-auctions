@@ -1446,3 +1446,5 @@ html { scroll-padding-top: 88px; }
 .hero-meta { display: grid !important; gap: 2px; }
 .hero-meta strong { font-weight: 600; }
 .pro-card .chips { align-content: flex-start; align-items: flex-start; }
+/* Inside another box, the owl message needs no box of its own. */
+.page section .empty-state, .drill-section .empty-state, .no-listings .empty-state, .drill-bare .empty-state { border: 0; background: none; padding: 8px 0 16px; margin: 0; }
