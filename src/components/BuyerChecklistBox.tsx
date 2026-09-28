@@ -75,7 +75,7 @@ function ChecklistInner({ list, variant = 'light', playbook: forced }: { list: B
         ))}
       </ul>
       <div className="checklist-links">
-        {playbook && <a className="checklist-link" href={`#/playbooks/${playbook}`}>Full Nevada playbook: every step, what stays, mistakes, your team →</a>}
+        {playbook && <a className="checklist-link" href={`#/playbooks/${playbook}`}>Full guide: every step, what stays, mistakes, your team →</a>}
         {list.link && <a className="checklist-link" href={list.link.href}>{list.link.label} →</a>}
       </div>
     </section>

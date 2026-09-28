@@ -6,7 +6,7 @@
       "src/components/HomePage.tsx"
     ],
     "reviewed": "2026-09-28",
-    "hash": "b5937fd2c1fa5fec",
+    "hash": "80121b04af840515",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -20,7 +20,7 @@
       "src/lib/status.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "ff987e297203ba5f",
+    "hash": "87d7159133507553",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -37,7 +37,7 @@
       "src/lib/foreclosure.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "999682f01d0b83eb",
+    "hash": "03c37e5af17891e2",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -48,7 +48,7 @@
       "src/lib/buyerChecklists.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "9f9e1f079d5aa30b",
+    "hash": "095d85137957c7a7",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -91,7 +91,7 @@
       "src/lib/reoSources.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "5150e309e7fb5c1b",
+    "hash": "29efde55edbdb74e",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -101,8 +101,8 @@
       "src/components/BusinessAssetsPage.tsx",
       "src/lib/businessAssets.ts"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "3203c8adb7928bb8",
+    "reviewed": "2026-09-28",
+    "hash": "8d18a96bdfef81e9",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -114,7 +114,7 @@
       "src/lib/playbooks.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "d527f9e4b467a469",
+    "hash": "5cd6ad570295a3fe",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -124,7 +124,7 @@
       "src/components/GuidesPage.tsx"
     ],
     "reviewed": "2026-09-28",
-    "hash": "988c30367b691ef2",
+    "hash": "8b754e1236102538",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -136,7 +136,7 @@
       "src/practice/scenarios.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "5023fce3a770b02f",
+    "hash": "8bdb07f5859635d1",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -264,8 +264,8 @@
       "src/components/Disclaimer.tsx",
       "src/components/RoleNotice.tsx"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "56e80e0f98e3c8b4",
+    "reviewed": "2026-09-28",
+    "hash": "fabed076b247986a",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -284,8 +284,8 @@
     "files": [
       "src/components/TermsPage.tsx"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "00c875e71059b17c",
+    "reviewed": "2026-09-28",
+    "hash": "7ac17a65e3361b45",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

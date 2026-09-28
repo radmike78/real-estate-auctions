@@ -142,12 +142,12 @@ export const WHAT_YOU_BUY: Record<SaleType, string> = {
 };
 
 export const SALE_TYPE_LABEL: Record<SaleType, string> = {
-  TAX_DEED: 'Tax-deed sale',
-  TAX_LIEN_CERTIFICATE: 'Special assessment (SID) lien certificate',
-  TRUSTEE_SALE: 'Trustee sale (mortgage)',
-  JUDICIAL_FORECLOSURE: 'Judicial foreclosure',
+  TAX_DEED: 'Tax sale',
+  TAX_LIEN_CERTIFICATE: 'Lien certificate',
+  TRUSTEE_SALE: 'Foreclosure auction',
+  JUDICIAL_FORECLOSURE: 'Court foreclosure',
   HOA_FORECLOSURE: 'HOA foreclosure',
-  SHERIFF_EXECUTION: 'Sheriff execution sale',
-  FEDERAL_TAX_SEIZURE: 'IRS seizure sale',
-  REO: 'REO / bank-owned',
+  SHERIFF_EXECUTION: 'Sheriff sale',
+  FEDERAL_TAX_SEIZURE: 'IRS sale',
+  REO: 'Bank-owned (REO)',
 };

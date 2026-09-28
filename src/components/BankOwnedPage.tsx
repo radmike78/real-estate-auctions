@@ -138,7 +138,7 @@ export default function BankOwnedPage({ section }: { section?: string }) {
 
       {!open && (
         <p className="small muted playbook-note">
-          How this sale works in Nevada, step by step: <a href="#/playbooks/reo">bank-owned (REO) playbook →</a>
+          How this sale works in Nevada, step by step: <a href="#/playbooks/reo">bank-owned (REO) guide →</a>
         </p>
       )}
       <Disclaimer kind="sales" compact />

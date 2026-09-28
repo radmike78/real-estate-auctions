@@ -48,7 +48,7 @@ const T = {
 export const PLAYBOOKS: Playbook[] = [
   {
     key: 'tax',
-    title: 'Clark County tax sale (tax deed)',
+    title: 'Tax sales',
     short: 'Tax sales',
     oneLine: 'Properties with three or more years of unpaid property taxes (two if the county found them abandoned), sold by the Treasurer at an in-person auction.',
     youGet: 'The property, by quitclaim deed from the Treasurer, with no warranty of title.',
@@ -103,7 +103,7 @@ export const PLAYBOOKS: Playbook[] = [
   },
   {
     key: 'sid',
-    title: 'Special assessment lien certificates',
+    title: 'Lien certificates',
     short: 'Lien certificates',
     oneLine: 'The Clark County Treasurer sells the lien for unpaid special improvement district (SID) assessments. You buy a debt that earns interest, not the property.',
     youGet: 'A certificate of sale: the right to be repaid plus 1% a month. You can ask for a deed only if the owner never redeems, and the certificate expires if you wait too long.',
@@ -154,7 +154,7 @@ export const PLAYBOOKS: Playbook[] = [
   },
   {
     key: 'foreclosure',
-    title: 'Trustee sale (mortgage foreclosure)',
+    title: 'Foreclosure auctions',
     short: 'Foreclosure auctions',
     oneLine: 'Most Nevada foreclosures are non-judicial: a trustee sells the property at auction after the owner defaults.',
     youGet: 'The owner’s interest by trustee’s deed, subject to anything senior to the loan being foreclosed.',
@@ -206,7 +206,7 @@ export const PLAYBOOKS: Playbook[] = [
   },
   {
     key: 'hoa',
-    title: 'HOA foreclosure',
+    title: 'HOA foreclosures',
     short: 'HOA foreclosures',
     oneLine: 'A homeowners association sells a home to collect unpaid dues, under NRS 116.',
     youGet: 'The owner’s title, subject to a 60-day redemption period, and possibly subject to the first mortgage.',
@@ -250,7 +250,7 @@ export const PLAYBOOKS: Playbook[] = [
   },
   {
     key: 'sheriff',
-    title: 'Sheriff and constable sales (court judgments)',
+    title: 'Sheriff sales',
     short: 'Sheriff sales',
     oneLine: 'Property sold to pay a court judgment, including judicial foreclosures.',
     youGet: 'The debtor’s interest, subject to a 1-year redemption right, and to anything senior to the judgment.',
@@ -289,7 +289,7 @@ export const PLAYBOOKS: Playbook[] = [
   },
   {
     key: 'irs',
-    title: 'IRS seizure sales',
+    title: 'IRS sales',
     short: 'IRS sales',
     oneLine: 'The IRS seizes and sells property to collect unpaid federal taxes, by public auction or sealed bid.',
     youGet: 'The taxpayer’s interest by quitclaim-type deed, after a 180-day redemption period (seizure sales; court-ordered sales differ).',
@@ -319,7 +319,7 @@ export const PLAYBOOKS: Playbook[] = [
   },
   {
     key: 'reo',
-    title: 'Bank-owned (REO) and HUD homes',
+    title: 'Bank-owned (REO)',
     short: 'Bank-owned (REO)',
     oneLine: 'Property a lender took back at a foreclosure auction, sold through the lender’s broker or an auction it chooses.',
     youGet: 'The property by a normal purchase contract, usually with a lender addendum, a deed with limited promises from the lender, and title insurance.',
@@ -359,7 +359,7 @@ export const PLAYBOOKS: Playbook[] = [
   },
   {
     key: 'commercial',
-    title: 'Distressed commercial property',
+    title: 'Commercial property',
     short: 'Commercial property',
     oneLine: 'Stores, offices, industrial buildings, apartments with 5+ units and commercial land sold at tax, trustee, court and bank sales.',
     youGet: 'The same deed as a home bought the same way, but without the protections home buyers get, and often with tenants, leases and environmental history.',

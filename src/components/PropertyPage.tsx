@@ -314,8 +314,8 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
           <ol className="steps">
             {steps.map((st) => <li key={st}>{st}</li>)}
           </ol>
-          {saleBook && <p><a href={`#/playbooks/${saleBook.key}`}>Read the full Nevada playbook for this sale type →</a></p>}
-          {commercialBook && <p><a href="#/playbooks/commercial">Buying commercial? Read the commercial property playbook →</a></p>}
+          {saleBook && <p><a href={`#/playbooks/${saleBook.key}`}>Read the full guide for this sale type →</a></p>}
+          {commercialBook && <p><a href="#/playbooks/commercial">Buying commercial? Read the commercial property guide →</a></p>}
           <BuyerChecklistBox list={checklist} playbook={s?.saleType === 'FEDERAL_TAX_SEIZURE' ? 'irs' : undefined} />
           {commercial && <BuyerChecklistBox list={p.propertyType === 'Commercial Land' ? forLand(CHECKLISTS.commercial) : CHECKLISTS.commercial} />}
           <Disclaimer kind="sales" compact />

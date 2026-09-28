@@ -12,7 +12,7 @@ export const SITE_PAGES = {
   shortsales: 'Short sales guide',
   bankowned: 'Bank-owned & government homes',
   businessassets: 'Business assets & closures',
-  playbook: 'Nevada playbooks',
+  playbook: 'Learn: how each sale works',
   guides: 'Search the guides',
   practice: 'Practice buying',
   calculator: 'Maximum bid calculator',
