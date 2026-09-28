@@ -71,12 +71,13 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
         <section aria-labelledby="stage-head">
           <h2 id="stage-head">{idx + 1}. {stage.title}</h2>
           <p className="muted">{stage.summary}</p>
-          {stage.tasks.some((t) => t.kind === 'contact') && (
-            <p className="stage-prompt">👉 <strong>Click</strong> a question on {stage.tasks.every((t) => t.kind === 'contact') ? 'each card' : 'each “Reach out” card'} to see their answer.</p>
-          )}
+          <StagePrompts tasks={stage.tasks} />
           {stage.tasks.map((t) => (
             <TaskCard key={t.id} task={t} k={taskKey(stage, t)} progress={progress} update={update} markDone={markDone} showKind={new Set(stage.tasks.map((x) => x.kind)).size > 1} />
           ))}
+          {stage.tasks.some((t) => t.kind === 'contact') && (
+            <p className="small muted">These are simulated conversations with fictional professionals. Nothing is sent. For a real deal, you’d send a message like yours to a licensed professional you choose.</p>
+          )}
           <div className="row practice-next">
             {idx > 0 && <a className="btn btn-secondary" href={`#/practice/${s.id}/${s.stages[idx - 1].key}`}>← {s.stages[idx - 1].title}</a>}
             {idx < s.stages.length - 1 ? (
@@ -145,6 +146,19 @@ function Results({ s, progress }: { s: Scenario; progress: ScenarioProgress }) {
   );
 }
 
+/** One prompt per step, at the top, instead of the same line on every card. */
+function StagePrompts({ tasks }: { tasks: Task[] }) {
+  const only = (kind: Task['kind']) => tasks.every((t) => t.kind === kind);
+  const has = (kind: Task['kind']) => tasks.some((t) => t.kind === kind);
+  return (
+    <>
+      {has('contact') && <p className="stage-prompt">👉 <strong>Click</strong> a question on {only('contact') ? 'each card' : 'each “Reach out” card'} to see their answer.</p>}
+      {has('decision') && <p className="stage-prompt">👉 <strong>Click</strong> the answer you’d choose on {only('decision') ? 'each card' : 'each “Decide” card'}.</p>}
+      {has('checklist') && <p className="stage-prompt">👉 <strong>Tick</strong> each item as you’d prepare it.</p>}
+    </>
+  );
+}
+
 /** `showKind`: label each card (Learn, Decide, Numbers…) only when a step mixes kinds of task; otherwise it just repeats the step. */
 function TaskCard({ task, k, progress, update, markDone, showKind }: { task: Task; k: string; progress: ScenarioProgress; update: (fn: (p: ScenarioProgress) => ScenarioProgress) => void; markDone: (k: string) => void; showKind: boolean }) {
   const done = progress.done.includes(k);
@@ -181,7 +195,6 @@ function TaskCard({ task, k, progress, update, markDone, showKind }: { task: Tas
         <article className={`task-card${done ? ' is-done' : ''}`}>
           {head('Decide', task.title)}
           <p>{task.question}</p>
-          {!done && <p className="task-prompt">👉 Click the answer you’d choose.</p>}
           <div className="choices" role="group" aria-label={task.question}>
             {task.choices.map((c, i) => (
               <button
@@ -285,7 +298,6 @@ function ChecklistTask({ task, k, done, head, markDone }: { task: Extract<Task, 
           </li>
         ))}
       </ul>
-      {!done && <p className="small muted">Tick each one as you’d prepare it.</p>}
     </article>
   );
 }
@@ -323,7 +335,6 @@ function ContactTask({ task, k, done, head, progress, update }: { task: Extract<
           <button key={i} className="btn btn-secondary" disabled={typing !== null || sent.includes(i)} onClick={() => send(i)}>{m.label}</button>
         ))}
       </div>
-      <p className="small muted">Simulated conversation with a fictional professional. Nothing is sent. For a real deal, you’d send a message like yours to a licensed professional you choose.</p>
     </article>
   );
 }

@@ -1273,10 +1273,10 @@ html { scroll-padding-top: 88px; }
 .filters .check .dot { vertical-align: 1px; }
 /* Desktop More menu: the groups side by side, so nothing hides below the fold. */
 @media (min-width: 901px) {
-  .more-menu { grid-template-columns: repeat(2, minmax(220px, 1fr)); column-gap: 8px; align-items: start; max-height: none; overflow: visible; }
+  .more-menu { grid-template-columns: repeat(3, minmax(210px, 1fr)); column-gap: 8px; align-items: start; max-height: none; overflow: visible; }
   .more-group { align-content: start; }
   .more-group + .more-group { border-top: 0; margin-top: 0; padding-top: 4px; }
-  .more-group:nth-child(n + 3) { border-top: 1px solid rgb(255 255 255 / 0.08); margin-top: 4px; padding-top: 8px; }
+  .more-group:nth-child(n + 4) { border-top: 1px solid rgb(255 255 255 / 0.08); margin-top: 4px; padding-top: 8px; }
 }
 /* Phone menu: the button becomes an X, the page behind dims, and the panel can scroll to its end. */
 .menu-btn span { transition: transform 0.2s, opacity 0.2s; }
@@ -1468,7 +1468,7 @@ html { scroll-padding-top: 88px; }
 .calc-grid-table { font-variant-numeric: tabular-nums; }
 .stage-prompt { margin: 4px 0 16px; font-size: 1.2rem; font-weight: 600; color: var(--accent); }
 .stage-prompt strong { font-size: 1.35rem; font-weight: 800; }
-.task-prompt { margin: 8px 0 6px; font-weight: 600; color: var(--accent); }
+.stage-prompt + .stage-prompt { margin-top: -8px; }
 .calc-group { min-width: 0; }
 .calc-rule select { width: 100%; max-width: 100%; }
 @media (max-width: 480px) { .calc-grid-table th, .calc-grid-table td { padding: 6px 4px; font-size: 0.95rem; } }

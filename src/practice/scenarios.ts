@@ -420,7 +420,7 @@ const TAX: Flow = {
       lines: [
         { label: 'Name on the deed', value: 'Exactly the bidder name you register, which must be an individual’s name. To hold it in an LLC or trust, record a new deed afterwards.' },
         { label: 'Deposit', value: '$5,000 in certified funds, by the registration deadline (about a week before the auction). Credited if you win.' },
-        { label: 'Bidder limit', value: '280 bidders. No registration on auction day.' },
+        { label: 'Bidder limit', value: '280 bidders.' },
         { label: 'Parcels you’ll bid on', value: `${p.apn} (practice), with your maximum bid next to it.` },
       ],
       note: 'The real form and this year’s dates come from the Clark County Treasurer.',
@@ -520,12 +520,12 @@ const SID: Flow = {
       from: 'You',
       purpose: 'What to bring to register in person on sale day.',
       lines: [
-        { label: 'Government photo ID', value: 'Showing your current mailing address. The certificate is issued in the name on your ID.' },
+        { label: 'Government photo ID', value: 'Showing your current mailing address.' },
         { label: 'Arrive early', value: 'Registration is about an hour before the sale. Late arrivals can’t take part. One registration per person; you must be 18 or older.' },
         { label: 'Money for the next morning', value: `Practice certificate price: ${money(sidPrice(p))}. Cash, cashier’s check or money order, by 10:00 a.m. the next business day.` },
         { label: 'W-9', value: 'For the interest you’ll earn.' },
       ],
-      note: 'There is no deposit or registration fee at present. Confirm each sale’s notice.',
+      note: 'Confirm the details in each sale’s notice.',
     },
   ],
   saleDay: (p) => ({
@@ -1172,7 +1172,8 @@ const SHORT: Flow = {
     ]),
     contractorContact(p, false),
   ],
-  documents: () => [{ kind: 'checklist', id: 'packet', title: 'Your offer packet (practice)', items: CHECKLISTS.short.items }],
+  // The buyer checklist on this step already lists the offer packet.
+  documents: () => [],
   saleDay: (_p, _n, a) => ({
     title: 'Offer and lender approval',
     summary: 'Weeks to months, with two lenders.',
