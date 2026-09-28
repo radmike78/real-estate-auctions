@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import type { AtRule, Plugin as PostcssPlugin, Rule } from 'postcss';
 
 // Content-Security-Policy for production builds: only same-origin scripts and data, no plugins,
 // no inline scripts, and map tiles only from OpenStreetMap. (Dev mode skips it for HMR.)
@@ -36,7 +37,27 @@ const noSampleData = (): Plugin => ({
   },
 });
 
+// Light/dark switch: each `@media (prefers-color-scheme: dark)` block also gets a copy for
+// `<html data-theme="dark">`, and the media version is skipped when `<html data-theme="light">`.
+// `:where()` keeps each rule's specificity the same, so the cascade order is unchanged.
+const scope = (sel: string, root: string) =>
+  sel.split(',').map((s) => s.trim()).map((s) => (s.startsWith(':root') ? `:root:where(${root})${s.slice(5)}` : `:where(:root${root}) ${s}`)).join(', ');
+const themeSwitch = (): PostcssPlugin => ({
+  postcssPlugin: 'theme-switch',
+  AtRule: {
+    media(at: AtRule) {
+      if (at.params.replace(/\s/g, '') !== '(prefers-color-scheme:dark)' || (at as AtRule & { themed?: boolean }).themed) return;
+      (at as AtRule & { themed?: boolean }).themed = true;
+      const forced = at.nodes?.map((n) => n.clone()) ?? [];
+      at.walkRules((r: Rule) => { if (r.parent?.type !== 'atrule' || (r.parent as AtRule).name !== 'keyframes') r.selector = scope(r.selector, ':not([data-theme="light"])'); });
+      forced.forEach((n) => { if (n.type === 'rule') n.selector = scope(n.selector, '[data-theme="dark"]'); });
+      at.after(forced);
+    },
+  },
+});
+
 export default defineConfig({
+  css: { postcss: { plugins: [themeSwitch()] } },
   plugins: [react(), csp(), noSampleData()],
   base: './',
   // Never inline fonts as data: URLs; the CSP (font-src 'self') would block them.

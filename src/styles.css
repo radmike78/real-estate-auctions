@@ -1737,3 +1737,15 @@ h1, h2 { letter-spacing: -0.03em; }
 .hero::after, .page-hero::after { top: 28px; transform: none; width: 260px; height: 260px; }
 @media (max-width: 700px) { .hero::after, .page-hero::after { top: 20px; width: 160px; height: 160px; } }
 @media (prefers-color-scheme: dark) { .hero::after, .page-hero::after { filter: grayscale(1) brightness(3); opacity: 0.05; } }
+
+/* Watermark owl: a pale, solid version of the logo (eyes on the deed), so its details stay crisp */
+.hero::after, .page-hero::after { background-image: url(/owl-watermark.svg); filter: none; opacity: 1; }
+@media (max-width: 700px) { .hero::after, .page-hero::after { top: 10px; right: 6px; width: 112px; height: 112px; opacity: 0.8; } }
+@media (prefers-color-scheme: dark) { .hero::after, .page-hero::after { background-image: url(/owl-watermark-dark.svg); filter: none; opacity: 1; } }
+@media (max-width: 700px) { @media (prefers-color-scheme: dark) { .hero::after, .page-hero::after { opacity: 0.8; } } }
+
+/* Light / dark switch */
+.theme-btn { display: inline-grid; place-items: center; min-width: 44px; min-height: 44px; padding: 0; margin-left: 4px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); cursor: pointer; }
+.theme-btn:hover { background: var(--surface-2); }
+.theme-btn svg { width: 22px; height: 22px; }
+@media (max-width: 900px) { .theme-btn { margin-left: auto; } .theme-btn + .menu-btn { margin-left: 4px; } }
