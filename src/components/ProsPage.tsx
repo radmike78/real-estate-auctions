@@ -14,8 +14,7 @@ export default function ProsPage({ initialLocation = '' }: { initialLocation?: s
         Every license is checked with its Nevada regulator. Get written bids and proof of insurance before work starts, and a written engagement
         letter from any attorney or CPA.
       </p>
-      <Disclaimer kind="services" compact />
-      <ProDirectory initialLocation={initialLocation} categories={['title_escrow', 'insurance', 'home_inspector', 'contractor', 'attorney', 'cpa', 'property_manager']} />
+      <ProDirectory initialLocation={initialLocation} categories={['title_escrow', 'insurance', 'home_inspector', 'contractor', 'attorney', 'cpa', 'property_manager']} notice={<Disclaimer kind="services" compact />} />
     </main>
   );
 }

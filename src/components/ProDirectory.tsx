@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { FALLBACK_PROS } from '../data';
 import { DIRECTORY_PUBLIC_KEY_SPKI_B64 } from '../feed/publicKey';
 import { loadVerifiedPros, type ProsFeedResult } from '../feed/prosFeed';
@@ -65,10 +65,14 @@ interface Props {
   categories: Category[]; // which categories this directory offers
   initialCategory?: Category | 'any';
   showCategoryFilter?: boolean;
+  notice?: ReactNode; // the advertising notice, shown only when there are listings to go with it
+  header?: ReactNode; // a heading for the section, shown with the listings
+  hideWhenEmpty?: boolean; // for a directory that's a side section of another page: nothing at all until someone is listed
 }
 
-export default function ProDirectory({ categories, initialCategory = 'any', showCategoryFilter = true, initialLocation = '' }: Props) {
+export default function ProDirectory({ categories, initialCategory = 'any', showCategoryFilter = true, initialLocation = '', notice, header, hideWhenEmpty = false }: Props) {
   const { pros, usingSamples, error, loading } = useDirectory();
+  const none = !loading && !error && pros.length === 0;
   const [cat, setCat] = useState<Category | 'any'>(initialCategory);
   const adsOpen = advertisingOpen(useSiteFeatures());
   const [q, setQ] = useState<Omit<ProQuery, 'categories'>>({ location: initialLocation, service: 'any', creditProfile: 'any', language: 'any' });
@@ -86,9 +90,21 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
     if (fresh.length) track('impression', fresh);
   }, [resultKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  if (none && hideWhenEmpty) return null;
   return (
     <div className="directory">
-      {showCategoryFilter && categories.length > 1 && (
+      {header}
+      {none && (
+        <div className="empty">
+          <OwlNote><strong>No professionals advertise here yet.</strong> Every listing will be license-checked before it appears.</OwlNote>
+          <p>
+            Looking for someone now? <a href="#/agents">Check any professional’s license</a> with the official regulator.{' '}
+            {adsOpen ? <>Licensed and want to be listed? <a href="#/advertise">Apply to advertise</a>.</> : 'Advertising for licensed professionals opens soon.'}
+          </p>
+        </div>
+      )}
+      {!none && notice}
+      {!none && showCategoryFilter && categories.length > 1 && (
         <div className="chip-tabs" role="group" aria-label="Type">
           <button aria-pressed={cat === 'any'} onClick={() => setCat('any')}>All</button>
           {categories.map((c) => (
@@ -96,7 +112,7 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
           ))}
         </div>
       )}
-      <div className="toolbar">
+      {!none && <div className="toolbar">
         <input aria-label="City or ZIP" placeholder="City or ZIP" value={q.location} onChange={(e) => setQ({ ...q, location: e.target.value })} />
         <select aria-label={financing ? 'Loan type' : 'Service'} value={q.service} onChange={(e) => setQ({ ...q, service: e.target.value })}>
           <option value="any">{financing ? 'Any loan type' : 'Any service'}</option>
@@ -112,7 +128,7 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
           <option value="any">Any language</option>
           {languages.map((l) => <option key={l}>{l}</option>)}
         </select>
-      </div>
+      </div>}
       {error && <div className="caution small" role="alert"><strong>The directory couldn't be verified, so no profiles are shown.</strong> {error}</div>}
       {usingSamples && <p className="small muted">Showing fictional sample profiles until real advertisers are approved.</p>}
       {!loading && pros.length > 0 && (
@@ -120,15 +136,6 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
           {results.length} verified {results.length === 1 ? 'professional' : 'professionals'} · shown in a daily rotating order. Advertisers can't pay
           for a higher position.
         </p>
-      )}
-      {!loading && !error && pros.length === 0 && (
-        <div className="empty">
-          <OwlNote><strong>No professionals are listed here yet.</strong> Every listing is license-checked before it appears.</OwlNote>
-          <p>
-            Looking for someone now? <a href="#/agents">Look up any professional's license</a> with the official regulator.{' '}
-            {adsOpen ? <>Licensed and want to be listed? <a href="#/advertise">Apply to advertise</a>.</> : 'Advertising for licensed professionals opens soon.'}
-          </p>
-        </div>
       )}
       {!loading && results.length === 0 && pros.length > 0 && !error && <div className="empty"><OwlNote>No license-checked professionals match yet. Try another city or filter.</OwlNote></div>}
       <ul className="pro-grid">{results.map((p) => <ProCard key={p.id} p={p} />)}</ul>
