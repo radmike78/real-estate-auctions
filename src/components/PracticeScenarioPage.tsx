@@ -140,7 +140,7 @@ function Results({ s, progress }: { s: Scenario; progress: ScenarioProgress }) {
       <p className="lead">{right} of {decisions.length} decisions right on the first try.</p>
       <p>When you’re ready for a real one:</p>
       <ul>
-        <li><a href={`#/playbooks/${s.playbookKey}`}>Read the full playbook for this sale</a></li>
+        <li><a href={`#/playbooks/${s.playbookKey}`}>Read the full guide for this sale</a></li>
         <li><a href="#/calculator">Run your own numbers in the maximum bid calculator</a></li>
         <li><a href="#/pros">Find licensed title, insurance and repair professionals</a> and <a href="#/agents">agents</a></li>
         <li><a href="#/practice">Practice another kind of sale or property</a></li>

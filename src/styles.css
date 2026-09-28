@@ -1825,3 +1825,6 @@ h1, h2 { letter-spacing: -0.03em; }
 
 /* Keep "Pre-foreclosures" in one piece on the homepage tiles */
 .browse-title { hyphens: manual; }
+
+/* Search: results a page at a time */
+.show-more { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; margin: 24px 0 8px; }

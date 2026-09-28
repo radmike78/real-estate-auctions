@@ -38,16 +38,6 @@ export default function FiltersPanel({ filters: f, onChange, onReset }: Props) {
       </label>
 
       <fieldset>
-        <legend>Bidding</legend>
-        {(['any', 'online', 'in_person'] as const).map((b) => (
-          <label key={b} className="check">
-            <input type="radio" name="bidding" checked={f.bidding === b} onChange={() => onChange({ bidding: b })} />
-            {b === 'any' ? 'Any' : b === 'online' ? 'Online bidding' : 'In person / sealed bid'}
-          </label>
-        ))}
-      </fieldset>
-
-      <fieldset>
         <legend>Sale status</legend>
         {STATUSES.map((s) => (
           <label key={s} className="check">

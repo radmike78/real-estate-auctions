@@ -106,7 +106,7 @@ export default function BusinessAssetsPage({ section }: { section?: string }) {
         <div className="notice" role="note">
           <strong>Official sellers only.</strong> Every source here is a court, a court-appointed trustee or receiver, or a government agency. No
           private liquidators or business-for-sale marketplaces. Looking for the building instead? See{' '}
-          <a href="#/search?class=commercial">commercial property</a> and the <a href="#/playbooks/commercial">commercial playbook</a>.
+          <a href="#/search?class=commercial">commercial property</a> and the <a href="#/playbooks/commercial">commercial property guide</a>.
         </div>
       )}
       <DrillDown sections={SECTIONS} active={section} baseHref="#/business-assets" label="Business assets guide" />

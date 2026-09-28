@@ -55,7 +55,7 @@ export const SECTIONS: DrillSection[] = [
       <ul>
         <li>We make every effort to pull information from government and other official sources, but we don't guarantee it.</li>
         <li>Public records can be incomplete, late or wrong. Sales are often postponed, cancelled or paid off at the last minute.</li>
-        <li>Values, equity, lien estimates, the maximum bid calculator and playbooks are estimates and general information, not promises.</li>
+        <li>Values, equity, lien estimates, the maximum bid calculator and guides are estimates and general information, not promises.</li>
         <li>Pages marked as sample data use fictional properties to show how the site works.</li>
         <li>
           You're responsible for your own due diligence: confirm every detail with the official agency, trustee or seller, and get your own title,
@@ -175,7 +175,7 @@ export const SECTIONS: DrillSection[] = [
     content: () => (
       <>
         <p>
-          The site's design, text, tools, playbooks and software belong to us or our licensors. You may use them for your own research, including
+          The site's design, text, tools, guides and software belong to us or our licensors. You may use them for your own research, including
           for your own investing. Don't copy or resell the site or its data. Public records stay public; our compilation and presentation of them is ours.
         </p>
         <p>

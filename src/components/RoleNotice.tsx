@@ -54,7 +54,7 @@ export default function RoleNotice() {
         <ul>
           <li><strong>Find properties</strong> from government and official sources.</li>
           <li><strong>Learn what’s involved</strong>: how each sale works and what it really costs.</li>
-          <li><strong>Follow the steps</strong> with playbooks, checklists and a free bid calculator.</li>
+          <li><strong>Follow the steps</strong> with guides, checklists and a free bid calculator.</li>
           <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney, tax advisor, agent and financial advisor before you bid, buy or borrow.</li>
         </ul>
         <div className="row">

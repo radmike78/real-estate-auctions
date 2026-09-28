@@ -65,7 +65,7 @@ export default function GuidesPage({ initialQuery }: { initialQuery: string }) {
       <PageHero
         eyebrow={<span className="eyebrow">From our guides · Official sources</span>}
         title={<>Search the <span className="grad">guides</span></>}
-        sub="Answers from our Nevada playbooks and guides, which are written from official sources and link to them."
+        sub="Answers from our guides, which are written from official sources and link to them."
       >
         <GuideSearchForm initial={q} onSearch={search} />
       </PageHero>
@@ -92,7 +92,7 @@ export default function GuidesPage({ initialQuery }: { initialQuery: string }) {
               : `${results.hits.length}${results.hits.length === 20 ? '+' : ''} ${results.hits.length === 1 ? 'section' : 'sections'} ${results.partial ? 'match some of your words' : 'match'}`}
           </h2>
           {results.hits.length === 0 ? (
-            <OwlNote>Try fewer or different words, or <a href="#/playbooks">browse the playbooks</a>.</OwlNote>
+            <OwlNote>Try fewer or different words, or <a href="#/playbooks">browse the guides</a>.</OwlNote>
           ) : (
             <ol className="guide-results">
               {results.hits.map((h) => (

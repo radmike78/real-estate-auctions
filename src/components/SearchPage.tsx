@@ -52,7 +52,7 @@ function restoreFilters(fromLink: Filters): Filters {
     return {
       ...fromLink,
       purchasableOnly: f.purchasableOnly === true,
-      bidding: f.bidding === 'online' || f.bidding === 'in_person' ? f.bidding : 'any',
+      bidding: 'any', // the Bidding filter was folded into Sale status
       sort: f.sort === 'equity' || f.sort === 'minBid' || f.sort === 'updated' ? f.sort : 'auction',
       occupancy: typeof f.occupancy === 'string' ? (f.occupancy as Filters['occupancy']) : 'any',
       redemption: f.redemption === 'none' || f.redemption === 'has' ? f.redemption : 'any',

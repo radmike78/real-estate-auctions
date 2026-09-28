@@ -45,7 +45,7 @@ export default function HomePage() {
             Las Vegas-area foreclosures &amp; tax&nbsp;sales, <span className="grad">explained.</span>
           </h1>
           <p className="hero-tagline">Know the deal before you bid.</p>
-          <p className="hero-sub">Find forced-sale properties from official sources, learn every step, and set your number before the auction.</p>
+          <p className="hero-sub">Find forced-sale properties from official sources, learn how bidding and buying work, and set your number before the auction. Then bid or buy directly with the official seller.</p>
 
           <div className="hero-class"><ClassSwitch value={cls} onChange={setCls} label="Residential or commercial" /></div>
           <form className="simple-search" onSubmit={go} role="search" aria-label="Search forced-sale properties">

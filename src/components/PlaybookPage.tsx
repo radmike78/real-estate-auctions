@@ -92,12 +92,12 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
       <main className="page">
         <PageHero
           eyebrow={<span className="eyebrow">Clark County · Nevada law</span>}
-          title={<>Nevada <span className="grad">playbooks</span></>}
-          sub="How each forced sale works, step by step, and the mistakes that cost money."
+          title={<>How each sale <span className="grad">works</span></>}
+          sub="Every kind of forced sale in Clark County, step by step, and the mistakes that cost money."
         >
           <GuideSearchForm />
         </PageHero>
-        {playbook && <p className="notice" role="status">We couldn’t find that playbook. Choose one below.</p>}
+        {playbook && <p className="notice" role="status">We couldn’t find that guide. Choose one below.</p>}
         <div className="drill-tiles">
           {PLAYBOOKS.map((x) => <Tile key={x.key} href={`#/playbooks/${x.key}`} icon={<IconCheckList />} title={x.short} summary={x.oneLine} />)}
         </div>
@@ -113,8 +113,8 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
     <main className="page">
       <PageHero
         compact={open}
-        top={<a href={open ? base : '#/playbooks'}>{open ? `← ${p.short} playbook` : '← All playbooks'}</a>}
-        eyebrow={<span className="eyebrow">Nevada playbook · reviewed {fmtDate(p.lastReviewed)}</span>}
+        top={<a href={open ? base : '#/playbooks'}>{open ? `← ${p.short} playbook` : '← All guides'}</a>}
+        eyebrow={<span className="eyebrow">Nevada guide · reviewed {fmtDate(p.lastReviewed)}</span>}
         title={open ? <a className="title-link" href={base}>{p.title}</a> : p.title}
         sub={open ? undefined : p.oneLine}
       />
@@ -126,7 +126,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
           </dl>
         </>
       )}
-      <DrillDown sections={s} active={section} baseHref={base} label={`${p.short} playbook`} />
+      <DrillDown sections={s} active={section} baseHref={base} label={`${p.short} guide`} />
       {!open && <p className="muted playbook-note">Set your limit before the sale with the <a href="#/calculator">maximum bid calculator</a>.</p>}
       {!open && PRACTICE_SALES.has(p.key) && <p className="playbook-note"><a className="btn" href={`#/practice?sale=${p.key}`}>Practice this kind of sale, hands-on →</a></p>}
       {!open && p.key === 'commercial' && <p className="playbook-note"><a className="btn btn-secondary" href="#/practice">Practice buying commercial property, hands-on →</a></p>}

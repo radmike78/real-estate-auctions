@@ -37,7 +37,7 @@ export const SECTIONS: DrillSection[] = [
     summary: 'How each kind of sale works, what you get, what stays with the property, and what it costs',
     content: () => (
       <>
-        <p>Every kind of forced sale has its own rules. Our <a href="#/playbooks">Nevada playbooks</a> explain, for each one:</p>
+        <p>Every kind of forced sale has its own rules. Our <a href="#/playbooks">guides</a> explain, for each one:</p>
         <ul>
           <li>Who runs the sale, how often, and how bidding and payment work.</li>
           <li>What you actually receive: the type of deed, and any redemption period.</li>
@@ -75,7 +75,7 @@ export const SECTIONS: DrillSection[] = [
       <>
         <p>{SOURCES_AND_ADVICE}</p>
         <p>
-          Records change and mistakes happen, so checking the law, the title, the taxes and the numbers for your deal is part of your due diligence. Our playbooks and checklists
+          Records change and mistakes happen, so checking the law, the title, the taxes and the numbers for your deal is part of your due diligence. Our guides and checklists
           explain how each kind of sale generally works so you know what to ask; they don't replace an attorney, tax advisor, agent or
           financial advisor who looks at your situation.
         </p>

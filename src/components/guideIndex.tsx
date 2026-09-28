@@ -40,7 +40,7 @@ function homeownerDocs(): GuideDoc[] {
 export function guideDocs(): GuideDoc[] {
   const docs: GuideDoc[] = [];
   for (const p of PLAYBOOKS) {
-    const page = `${p.short} playbook`;
+    const page = `${p.short} guide`;
     docs.push({
       href: `#/playbooks/${p.key}`,
       page,

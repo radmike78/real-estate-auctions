@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import type { Property } from '../types';
 import { moneySummary, SALE_TYPE_LABEL } from '../lib/rules';
 import { fmtDate, fmtMoney, STATUS } from '../lib/status';
@@ -32,7 +33,12 @@ export function daysUntil(iso: string, now = Date.now()) {
 /** "today", "tomorrow" or "in 5 days" for a non-negative daysUntil value. */
 export const whenLabel = (days: number) => (days === 0 ? 'today' : days === 1 ? 'tomorrow' : `in ${days} days`);
 
+const PAGE = 24;
+
 export default function ResultsList({ properties }: { properties: Property[] }) {
+  // Show results a page at a time so the list stays short; a new search starts again at the first page.
+  const [shown, setShown] = useState(PAGE);
+  useEffect(() => setShown(PAGE), [properties]);
   if (!properties.length) {
     return (
       <div className="empty">
@@ -42,8 +48,9 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
     );
   }
   return (
+    <>
     <ul className="cards">
-      {properties.map((p) => {
+      {properties.slice(0, shown).map((p) => {
         const m = moneySummary(p);
         const d = p.sale?.startsAt ? daysUntil(p.sale.startsAt) : null;
         // The top stripe only signals risk: red = not for sale / cancelled, amber = caution, otherwise the brand color.
@@ -96,6 +103,15 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
         );
       })}
     </ul>
+    {properties.length > shown && (
+      <div className="show-more">
+        <button type="button" className="btn btn-secondary" onClick={() => setShown(shown + PAGE)}>
+          Show {Math.min(PAGE, properties.length - shown)} more
+        </button>
+        <span className="muted">Showing {shown} of {properties.length}</span>
+      </div>
+    )}
+    </>
   );
 }
 
