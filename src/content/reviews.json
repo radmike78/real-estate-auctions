@@ -37,7 +37,7 @@
       "src/lib/foreclosure.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "7ff9a495790051e8",
+    "hash": "675a3e935101ed0c",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -147,10 +147,13 @@
       "src/components/BidCalculator.tsx",
       "src/components/IncomeValue.tsx",
       "src/lib/bidCalc.ts",
-      "src/lib/incomeValue.ts"
+      "src/lib/incomeValue.ts",
+      "src/components/HoldCalculators.tsx",
+      "src/components/StrategyTabs.tsx",
+      "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "405b77476537ee97",
+    "hash": "5e1a20ad2eb9549f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

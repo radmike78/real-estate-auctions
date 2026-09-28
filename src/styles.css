@@ -1472,3 +1472,9 @@ html { scroll-padding-top: 88px; }
 @media (max-width: 480px) { .calc-grid-table th, .calc-grid-table td { padding: 6px 4px; font-size: 0.95rem; } }
 .calc-rule { grid-template-columns: minmax(0, 1fr); min-width: 0; }
 .calc-group .calc-rule { clear: both; }
+
+/* Calculator strategies: tabs above the calculator, one line on what the active one answers. */
+.strategy-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 10px; }
+.strategy-tabs button { padding: 10px 18px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-weight: 600; font-size: 1rem; cursor: pointer; }
+.strategy-tabs button.on { background: linear-gradient(135deg, #2563eb, #7c3aed); border-color: transparent; color: #fff; box-shadow: 0 8px 20px -8px rgb(79 70 229 / 0.7); }
+.strategy-about { margin: 0 0 16px; color: var(--muted); }
