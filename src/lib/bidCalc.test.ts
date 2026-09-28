@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
-import { BLANK_INPUTS, costsAtBid, defaultsFor, maxSafeBid, profitAtBid, sanitizeInputs, stressTests, type BidInputs } from './bidCalc';
+import { BLANK_INPUTS, costsAtBid, defaultsFor, maxSafeBid, profitAtBid, redemptionOutcome, REDEMPTION_RULES, requiredProfit, ruleOf, sanitizeInputs, stressGrid, stressTests, totalMonths, type BidInputs } from './bidCalc';
 import { daysUntil } from '../components/ResultsList';
 
 const base: BidInputs = { ...BLANK_INPUTS, exitValue: 400_000, repairs: 40_000, buyerPremiumPct: 5, financedPct: 70 };
@@ -49,7 +49,11 @@ describe('maximum safe bid', () => {
     expect(d.titleLegal).toBeGreaterThanOrEqual(3_000); // quiet title budget for tax deeds
     expect(d.exitValue).toBeGreaterThan(0);
     const sheriff = SAMPLE_PROPERTIES.find((p) => p.sale?.saleType === 'SHERIFF_EXECUTION');
-    if (sheriff) expect(defaultsFor(sheriff).holdingMonths).toBeGreaterThanOrEqual(12);
+    if (sheriff) {
+      const ds = defaultsFor(sheriff);
+      expect(ds.redemptionMonths).toBe(12); // the 1-year redemption comes before any work
+      expect(totalMonths(ds)).toBeGreaterThanOrEqual(12);
+    }
   });
 });
 
@@ -158,5 +162,60 @@ describe('input limits', () => {
     expect(clampInput('exitValue', 1e308)).toBe(1e10);
     expect(clampInput('repairs', -5)).toBe(0);
     expect(sanitizeInputs({ sellingCostPct: 500, targetProfitPct: 20 }, BLANK_INPUTS)).toMatchObject({ sellingCostPct: 100, targetProfitPct: 20 });
+  });
+});
+
+describe('walk-away price: cash limit, minimum profit, redemption, yearly return', () => {
+  const base = { ...BLANK_INPUTS };
+
+  it('never exceeds the cash you can bring, and says which limit set it', () => {
+    const free = maxSafeBid(base);
+    expect(free.limitedBy).toBe('profit');
+    const tight = maxSafeBid({ ...base, cashAvailable: 100_000, buyerPremiumPct: 5 });
+    expect(tight.limitedBy).toBe('cash');
+    expect(tight.maxBid).toBe(Math.floor(100_000 / 1.05));
+    expect(tight.cashAtAuction).toBeLessThanOrEqual(100_000);
+    expect(tight.profitBid).toBe(maxSafeBid({ ...base, buyerPremiumPct: 5 }).profitBid);
+  });
+
+  it('uses the larger of the profit % and the dollar minimum', () => {
+    expect(requiredProfit({ ...base, targetProfitPct: 10, targetProfitMin: 0 })).toBe(40_000);
+    expect(requiredProfit({ ...base, targetProfitPct: 10, targetProfitMin: 60_000 })).toBe(60_000);
+    const withMin = maxSafeBid({ ...base, targetProfitPct: 10, targetProfitMin: 60_000 });
+    expect(profitAtBid({ ...base, targetProfitPct: 10, targetProfitMin: 60_000 }, withMin.maxBid)).toBeGreaterThanOrEqual(60_000 - 1);
+  });
+
+  it('counts the redemption wait in holding costs and in the yearly return', () => {
+    const quick = maxSafeBid({ ...base, holdingMonths: 6 });
+    const waiting = maxSafeBid({ ...base, holdingMonths: 6, redemptionMonths: 12 });
+    expect(waiting.maxBid).toBeLessThan(quick.maxBid);
+    expect(quick.yearlyReturn).not.toBeNull();
+    // Same profit target spread over three times as long: a much lower return per year.
+    expect(waiting.yearlyReturn!).toBeLessThan(quick.yearlyReturn! / 2);
+  });
+
+  it('estimates what a redemption repays: simple 1% a month, or 20% a year compounded daily', () => {
+    const hoa = { ...base, redemptionMonths: 2, redemptionRatePct: 12, redemptionDaily: 0, monthlyCarry: 0, titleLegal: 0, transferTaxPer500: 0 };
+    expect(redemptionOutcome(hoa, 100_000)!.repaid).toBeCloseTo(102_000, 0);
+    const irs = { ...base, redemptionMonths: 6, redemptionRatePct: 20, redemptionDaily: 1 };
+    const out = redemptionOutcome(irs, 100_000)!;
+    expect(out.repaid).toBeGreaterThan(110_000); // compounding beats simple 20% x half a year
+    expect(out.repaid).toBeLessThan(110_600);
+    expect(redemptionOutcome(base, 100_000)).toBeNull(); // no redemption period
+  });
+
+  it('builds a 3 x 3 grid that falls as value drops and repairs rise', () => {
+    const g = stressGrid(base);
+    expect(g).toHaveLength(3);
+    expect(g[1][0]).toBe(maxSafeBid(base).profitBid);
+    expect(g[0][0]).toBeLessThan(g[1][0]);
+    expect(g[1][2]).toBeLessThan(g[1][0]);
+    expect(g[2][0]).toBeGreaterThan(g[1][0]);
+  });
+
+  it('matches the redemption presets to the rules', () => {
+    expect(ruleOf({ ...base, ...{ redemptionMonths: 2, redemptionRatePct: 12, redemptionDaily: 0 } })).toBe('hoa');
+    expect(ruleOf(base)).toBe('none');
+    expect(REDEMPTION_RULES.irs.daily).toBe(1);
   });
 });

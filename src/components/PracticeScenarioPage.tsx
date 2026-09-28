@@ -178,6 +178,7 @@ function TaskCard({ task, k, progress, update, markDone, showKind }: { task: Tas
         <article className={`task-card${done ? ' is-done' : ''}`}>
           {head('Decide', task.title)}
           <p>{task.question}</p>
+          {!done && <p className="task-prompt">👉 Click the answer you’d choose.</p>}
           <div className="choices" role="group" aria-label={task.question}>
             {task.choices.map((c, i) => (
               <button
@@ -314,6 +315,9 @@ function ContactTask({ task, k, done, head, progress, update }: { task: Extract<
           </>
         )}
       </div>
+      {sent.length < task.messages.length && (
+        <p className="task-prompt">👉 Click a question to ask {task.person.split(',')[0]} and see the answer.</p>
+      )}
       <div className="row">
         {task.messages.map((m, i) => (
           <button key={i} className="btn btn-secondary" disabled={typing !== null || sent.includes(i)} onClick={() => send(i)}>{m.label}</button>

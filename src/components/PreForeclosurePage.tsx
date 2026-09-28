@@ -141,6 +141,13 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
         </p>
       )}
 
+      {!guideOpen && rows.length === 0 && (
+        <EmptyState title="No notices to track yet">
+          <p>Notices of default and sale will appear here once our feed of Clark County Recorder filings is connected.</p>
+          <p>Until then, read how the process works in the guide below.</p>
+        </EmptyState>
+      )}
+
       <DrillDown sections={GUIDE} active={section} baseHref="#/pre-foreclosures" label="Pre-foreclosure guide" />
 
       {!guideOpen && (
@@ -155,12 +162,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
             </div>
           )}
 
-          {rows.length === 0 ? (
-            <EmptyState title="No notices to track yet">
-              <p>Notices of default and sale will appear here once our feed of Clark County Recorder filings is connected.</p>
-              <p>Until then, read how the process works in the guide above.</p>
-            </EmptyState>
-          ) : (
+          {rows.length === 0 ? null : (
           <>
           <div className="toolbar">
             <input aria-label="Filter by address, city, ZIP or parcel number" placeholder="Address, city, ZIP or parcel number" value={q} onChange={(e) => setQ(e.target.value)} />
