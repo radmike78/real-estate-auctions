@@ -153,7 +153,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "be264359d0646afc",
+    "hash": "4231cd7a5e4b0d13",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -186,7 +186,7 @@
       "src/lib/licenseLookup.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "b5a0a3cf8a0afcf4",
+    "hash": "8f11230062a39404",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -208,7 +208,7 @@
       "src/lib/pros.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "a84f520e7692632e",
+    "hash": "2b93128b0d896c99",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -274,8 +274,8 @@
     "files": [
       "src/components/PrivacyPage.tsx"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "4e0156681429a4e2",
+    "reviewed": "2026-09-28",
+    "hash": "721893016e9ef6ec",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

@@ -225,7 +225,7 @@ describe('maximum bid as a subtraction', () => {
     for (const i of [BLANK_INPUTS, { ...BLANK_INPUTS, buyerPremiumPct: 5, survivingLiens: 8_300, financedPct: 70, redemptionMonths: 2, redemptionRatePct: 12 }, { ...BLANK_INPUTS, cashAvailable: 90_000 }]) {
       const steps = maxBidSteps(i);
       expect(steps[0].label).toBe('Resale value after repairs');
-      expect(steps.reduce((a, s) => a + s.amount, 0)).toBe(maxSafeBid(i).maxBid);
+      expect(steps.reduce((a, s) => a + s.amount, 0)).toBe(maxSafeBid(i).profitBid);
     }
   });
 
