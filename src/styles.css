@@ -1764,8 +1764,7 @@ h1, h2 { letter-spacing: -0.03em; }
   .site-nav > a, .more summary { padding-inline: 9px; }
 }
 
-/* Home: cities on one line, and "Browse by type of sale" close enough to see it's there */
-.promise.coverage { max-width: 1100px; }
+/* Home: "Browse by type of sale" close enough under the search box to see it is there */
 .simple-hero { padding-bottom: 28px; }
 .simple-hero + .browse { padding-top: 24px; }
 @media (max-width: 700px) { .simple-hero { padding-bottom: 20px; } .simple-hero + .browse { padding-top: 16px; } }

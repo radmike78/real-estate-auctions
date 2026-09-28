@@ -56,8 +56,6 @@ export default function HomePage() {
             <input aria-label="City, ZIP or address" placeholder="City, ZIP or address" value={q} onChange={(e) => setQ(e.target.value)} />
             <button type="submit">Search</button>
           </form>
-          <p className="promise coverage">Covers all of Clark County: Las Vegas, Henderson, North Las Vegas, Boulder City, Mesquite and more.</p>
-          <p className="promise">We show you how to spot a good deal, and when to walk away.</p>
         </div>
       </section>
 
