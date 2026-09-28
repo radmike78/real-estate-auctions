@@ -39,7 +39,7 @@ export default function AdvertisePage() {
             <h3>{g}</h3>
             <ul className="plain-list">
               {(Object.keys(CATEGORIES) as Category[]).filter((c) => CATEGORIES[c].group === g).map((c) => (
-                <li key={c}>{open ? <a href={`#/advertise/apply/${c}`}>{CATEGORIES[c].label}</a> : CATEGORIES[c].label} <span className="small muted">({CATEGORIES[c].regulator})</span></li>
+                <li key={c}>{open ? <a href={`#/advertise/apply/${c}`}>{CATEGORIES[c].label}</a> : CATEGORIES[c].label}<span className="small muted who-reg">{CATEGORIES[c].regulator}</span></li>
               ))}
             </ul>
           </div>

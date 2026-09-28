@@ -69,7 +69,7 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
                   <dt>Auction</dt>
                   <dd>
                     {p.sale?.startsAt ? fmtDate(p.sale.startsAt) : '—'}
-                    {d !== null && d >= 0 && <span className="muted small"> ({d === 1 ? '<1d' : `${d}d`})</span>}
+                    {d !== null && d >= 0 && <span className="card-days">{d <= 1 ? 'within a day' : `in ${d} days`}</span>}
                   </dd>
                 </div>
                 <div>

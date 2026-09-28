@@ -6,24 +6,24 @@ import { trackAction } from '../lib/track';
 const KEY = (id: string) => `fsf.bid.${id}.v1`;
 
 type Field = { k: keyof BidInputs; label: string; unit: '$' | '%' | 'mo' | '$/500'; hint?: string };
+// In the order a buyer meets them: buying it, fixing it, holding it, then selling it and the profit you want.
+// The maximum bid still works back from the resale value, so every group counts.
 const GROUPS: { title: string; fields: Field[] }[] = [
   {
-    title: 'What it will be worth',
+    title: 'Buying it',
     fields: [
-      { k: 'exitValue', label: 'Resale value after repairs', unit: '$', hint: 'Use conservative sold comps, not the list price or our estimate.' },
-      { k: 'sellingCostPct', label: 'Cost to sell', unit: '%', hint: 'Agent commission plus closing costs.' },
-    ],
-  },
-  {
-    title: 'Costs you take on',
-    fields: [
-      { k: 'repairs', label: 'Repairs', unit: '$', hint: 'Usually no interior inspection before an auction.' },
-      { k: 'contingencyPct', label: 'Repair contingency', unit: '%' },
+      { k: 'buyerPremiumPct', label: "Buyer's premium", unit: '%', hint: 'Auction fee on top of your bid, if any.' },
+      { k: 'transferTaxPer500', label: 'Transfer tax', unit: '$/500', hint: 'Clark County: $2.55 per $500 of value, rounded up to the next $500.' },
       { k: 'survivingLiens', label: 'Liens that stay with the property', unit: '$', hint: 'From the Liens section. Confirm with a title search.' },
       { k: 'titleLegal', label: 'Title search, attorney, quiet title', unit: '$' },
       { k: 'possession', label: 'Getting possession', unit: '$', hint: 'Eviction attorney, relocation, new locks.' },
-      { k: 'buyerPremiumPct', label: "Buyer's premium", unit: '%', hint: 'Auction fee on top of your bid, if any.' },
-      { k: 'transferTaxPer500', label: 'Transfer tax', unit: '$/500', hint: 'Clark County: $2.55 per $500 of value, rounded up to the next $500.' },
+    ],
+  },
+  {
+    title: 'Fixing it up',
+    fields: [
+      { k: 'repairs', label: 'Repairs', unit: '$', hint: 'Usually no interior inspection before an auction.' },
+      { k: 'contingencyPct', label: 'Repair contingency', unit: '%', hint: 'A cushion for surprises.' },
     ],
   },
   {
@@ -37,8 +37,12 @@ const GROUPS: { title: string; fields: Field[] }[] = [
     ],
   },
   {
-    title: 'Your target',
-    fields: [{ k: 'targetProfitPct', label: 'Profit you require', unit: '%', hint: 'Share of the resale value. 15–20% is common for flips.' }],
+    title: 'Selling it',
+    fields: [
+      { k: 'exitValue', label: 'Resale value after repairs', unit: '$', hint: 'Use conservative sold comps, not the list price or our estimate.' },
+      { k: 'sellingCostPct', label: 'Cost to sell', unit: '%', hint: 'Agent commission plus closing costs.' },
+      { k: 'targetProfitPct', label: 'Profit you require', unit: '%', hint: 'Share of the resale value. 15–20% is common for flips.' },
+    ],
   },
 ];
 
@@ -125,28 +129,30 @@ export default function BidCalculator({ propertyId, defaults = BLANK_INPUTS, ope
         {GROUPS.map((g) => (
           <fieldset key={g.title} className="calc-group">
             <legend>{g.title}</legend>
-            {g.fields.map((f) => (
-              <div key={f.k} className="calc-field">
-                <label className="calc-label" htmlFor={`${uid}-${f.k}`}>{f.label}</label>
-                <span className="calc-input">
-                  {f.unit === '$' && <i aria-hidden>$</i>}
-                  <input
-                    id={`${uid}-${f.k}`}
-                    type="number"
-                    inputMode="decimal"
-                    min={0}
-                    max={INPUT_MAX[f.k]}
-                    step="any"
-                    value={draft[f.k] ?? String(i[f.k])}
-                    aria-describedby={hintFor(f) ? `${uid}-${f.k}-hint` : undefined}
-                    onChange={(e) => set(f.k, e.target.value)}
-                    onBlur={() => setDraft((d) => ({ ...d, [f.k]: undefined }))}
-                  />
-                  {f.unit !== '$' && <i aria-hidden>{f.unit === '$/500' ? 'per $500' : f.unit === 'mo' ? 'months' : '%'}</i>}
-                </span>
-                {hintFor(f) && <small className="muted" id={`${uid}-${f.k}-hint`}>{hintFor(f)}</small>}
-              </div>
-            ))}
+            <div className="calc-grid">
+              {g.fields.map((f) => (
+                <div key={f.k} className="calc-field">
+                  <label className="calc-label" htmlFor={`${uid}-${f.k}`}>{f.label}</label>
+                  <span className="calc-input">
+                    {f.unit === '$' && <i aria-hidden>$</i>}
+                    <input
+                      id={`${uid}-${f.k}`}
+                      type="number"
+                      inputMode="decimal"
+                      min={0}
+                      max={INPUT_MAX[f.k]}
+                      step="any"
+                      value={draft[f.k] ?? String(i[f.k])}
+                      aria-describedby={hintFor(f) ? `${uid}-${f.k}-hint` : undefined}
+                      onChange={(e) => set(f.k, e.target.value)}
+                      onBlur={() => setDraft((d) => ({ ...d, [f.k]: undefined }))}
+                    />
+                    {f.unit !== '$' && <i aria-hidden>{f.unit === '$/500' ? 'per $500' : f.unit === 'mo' ? 'months' : '%'}</i>}
+                  </span>
+                  {hintFor(f) && <small className="muted" id={`${uid}-${f.k}-hint`}>{hintFor(f)}</small>}
+                </div>
+              ))}
+            </div>
           </fieldset>
         ))}
         {propertyId && (

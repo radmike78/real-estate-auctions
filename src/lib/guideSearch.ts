@@ -226,7 +226,9 @@ export function fromHtml(html: string): { text: string; sources: GuideSource[] }
     html
       .replace(/<(script|style)[\s\S]*?<\/\1>/g, ' ')
       // A bold label followed by its detail ("<strong>Pay</strong><span>in full</span>") reads as "Pay: in full".
-      .replace(/<\/strong>(\s*<span)/g, '</strong>:$1')
+      .replace(/<\/strong>(\s*<(?:span|small|div)\b)/g, '</strong>:$1')
+      // A tag line before a heading or paragraph ("Illustrative example" then a title) ends there.
+      .replace(/<\/(span|small)>(\s*<(?:h[1-6]|p)\b)/g, '</$1>. $2')
       // Block ends become sentence breaks so list items don't run together.
       .replace(/<\/(li|p|h[1-6]|dt|dd|div|tr|section)>/g, (m) => (/h[1-6]|dt/.test(m) ? ': ' : '. '))
       .replace(/<[^>]+>/g, ' '),
