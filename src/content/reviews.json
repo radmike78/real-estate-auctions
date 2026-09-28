@@ -48,7 +48,7 @@
       "src/lib/buyerChecklists.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "095d85137957c7a7",
+    "hash": "4fa331dead366405",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -79,8 +79,8 @@
     "files": [
       "src/components/ShortSalesPage.tsx"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "b3a1b306815dc9eb",
+    "reviewed": "2026-09-28",
+    "hash": "b92c119966ff9a6c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -91,7 +91,7 @@
       "src/lib/reoSources.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "29efde55edbdb74e",
+    "hash": "7d0a2150f0d27e7c",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -114,7 +114,7 @@
       "src/lib/playbooks.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "5cd6ad570295a3fe",
+    "hash": "a3603c9d9dd02c64",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -136,7 +136,7 @@
       "src/practice/scenarios.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "8bdb07f5859635d1",
+    "hash": "4fa8c4fcb267e1ff",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -180,13 +180,15 @@
   },
   {
     "id": "agents",
-    "title": "Find a pro / license lookup",
+    "title": "Find a pro",
     "files": [
+      "src/components/FindAProPage.tsx",
+      "src/lib/proGuide.ts",
       "src/components/AgentsPage.tsx",
       "src/lib/licenseLookup.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "7842348ef1930b66",
+    "hash": "12774a5e949c8c84",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -203,12 +205,11 @@
     "id": "pros",
     "title": "Title, inspectors, attorneys & more (directory)",
     "files": [
-      "src/components/ProsPage.tsx",
       "src/components/ProDirectory.tsx",
       "src/lib/pros.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "f18958fda3ee2eab",
+    "hash": "79725b75f8fb91ba",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -220,7 +221,7 @@
       "src/components/LeadForm.tsx"
     ],
     "reviewed": "2026-09-28",
-    "hash": "35b080aa9bce5d6c",
+    "hash": "26fe8d8d9ee4b03d",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -252,7 +253,7 @@
       "src/lib/proApplication.ts"
     ],
     "reviewed": "2026-09-28",
-    "hash": "045031ac1b108b1c",
+    "hash": "1c3450d2a541a4c6",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -265,7 +266,7 @@
       "src/components/RoleNotice.tsx"
     ],
     "reviewed": "2026-09-28",
-    "hash": "fabed076b247986a",
+    "hash": "d305a037aa57d75b",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

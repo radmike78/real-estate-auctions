@@ -98,7 +98,7 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
         <div className="empty">
           <OwlNote><strong>No professionals advertise here yet.</strong> Every listing will be license-checked before it appears.</OwlNote>
           <p>
-            Looking for someone now? <a href="#/agents">Check any professional’s license</a> with the official regulator.{' '}
+            Looking for someone now? <a href="#/pros">Find a pro</a> explains who you need and how to find them.{' '}
             {adsOpen ? <>Licensed and want to be listed? <a href="#/advertise">Apply to advertise</a>.</> : 'Advertising for licensed professionals opens soon.'}
           </p>
         </div>
@@ -137,7 +137,7 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
           for a higher position.
         </p>
       )}
-      {!loading && results.length === 0 && pros.length > 0 && !error && <div className="empty"><OwlNote>No license-checked professionals match yet. Try another city or filter.</OwlNote></div>}
+      {!loading && results.length === 0 && pros.length > 0 && !error && <div className="empty"><OwlNote>No advertisers match yet. Try another city or filter.</OwlNote></div>}
       <ul className="pro-grid">{results.map((p) => <ProCard key={p.id} p={p} />)}</ul>
     </div>
   );

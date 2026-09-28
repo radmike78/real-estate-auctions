@@ -18,15 +18,15 @@ export const SECTIONS: DrillSection[] = [
     title: 'What we offer',
     icon: <IconSearch />,
     tone: 'go',
-    summary: 'Properties from official sources, free research tools and a directory of license-checked professionals. All free',
+    summary: 'Properties from official sources, free research tools and a guide to the professionals you may need. All free',
     content: () => (
       <ul>
         <li><strong>Properties heading to a forced sale</strong>: live Clark County tax-sale parcels and IRS sales, checked against official sources, plus links to the official special assessment (SID) certificate sale notices and direct links to the official sellers of bank-owned and government homes and business assets.</li>
-        <li><strong>Research tools</strong>: Street View and aerial views, county maps and records, guides to which liens survive each kind of sale, and license lookups for anyone you hire.</li>
+        <li><strong>Research tools</strong>: Street View and aerial views, county maps and records, and guides to which liens survive each kind of sale.</li>
         <li><strong>Free calculators</strong>: a maximum bid calculator that counts every cost, and an income-value calculator for rental property.</li>
         <li><strong>My deals</strong>: save properties, track sale dates and deadlines, and keep your notes in one place.</li>
         <li><strong><a href="#/alerts">Email alerts</a></strong>: free updates in your inbox, with no account. Change or stop them from any email.</li>
-        <li><strong>Professionals who work these sales</strong>: agents, lenders, title and insurance companies and contractors, each license-checked.</li>
+        <li><strong><a href="#/pros">Find a pro</a></strong>: who helps with each kind of sale (agents, lenders, title companies, attorneys, inspectors and more), when you need them and how to find one.</li>
       </ul>
     ),
   },

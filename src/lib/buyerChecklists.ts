@@ -182,7 +182,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: 'A home inspection within your contingency period' },
       { text: 'Everything paid through escrow', detail: 'Never pay side fees to anyone outside escrow.' },
     ],
-    link: { href: '#/agents/short-sales', label: 'Find a verified short-sale agent' },
+    link: { href: '#/pros/agent', label: 'How to find a short-sale agent' },
   },
   pre: {
     key: 'pre',
