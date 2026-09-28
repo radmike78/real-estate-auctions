@@ -282,6 +282,7 @@ export const PLAYBOOKS: Playbook[] = [
     team: [T.attorney, T.title, T.insurance, T.agent],
     sources: [
       { label: 'NRS 21 (execution sales; NRS 21.210 redemption)', url: NRS('021') },
+      { label: 'NRS 115 (homestead exemption)', url: NRS('115') },
       { label: 'Clark County Sheriff: sheriff’s sales', url: 'https://www.clarkcountynv.gov/government/departments/sheriff_civil/sheriff_s_sales/' },
     ],
     lastReviewed: REVIEWED,

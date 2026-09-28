@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { api, ApiError } from '../lib/api';
+import { api, ApiError, unreachable } from '../lib/api';
 import PageHero from './PageHero';
 import EmptyState from './EmptyState';
 import OwlNote from './OwlNote';
@@ -145,9 +145,9 @@ function Confirm({ token }: { token: string }) {
     <section className="lead-card alerts-narrow">
       {error ? (
         <>
-          <h2>That link didn’t work</h2>
+          <h2>{unreachable(error) ? 'We couldn’t confirm your email just now' : 'That link didn’t work'}</h2>
           <p>{error}</p>
-          <a className="btn" href="#/alerts">Sign up again</a>
+          {unreachable(error) ? <button className="btn" onClick={() => window.location.reload()}>Try again</button> : <a className="btn" href="#/alerts">Sign up again</a>}
         </>
       ) : (
         <p>Confirming your email…</p>
@@ -194,7 +194,7 @@ function Manage({ token, welcome, add }: { token: string; welcome: boolean; add?
   }
 
   if (deleted) return <Done title="You’re unsubscribed" text="We deleted your email address and everything you signed up for. You won’t get any more email from us." />;
-  if (error && !view) return <Done title="That link didn’t work" text={error} again />;
+  if (error && !view) return unreachable(error) ? <Done title="We couldn’t load your alerts just now" text={error} /> : <Done title="That link didn’t work" text={error} again />;
   if (!view) return <section className="lead-card alerts-narrow"><p>Loading your alerts…</p></section>;
 
   return (

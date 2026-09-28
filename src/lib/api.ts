@@ -28,6 +28,12 @@ export async function api<T = Record<string, unknown>>(path: string, opts: { bod
     throw new ApiError(0, "Couldn't reach the server. Check your connection and try again.", {});
   }
   const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
-  if (!res.ok) throw new ApiError(res.status, typeof body.error === 'string' ? body.error : `Request failed (${res.status})`, body);
+  if (!res.ok) {
+    const fallback = res.status >= 500 ? "We couldn't reach DeedOwl just now. Please try again in a few minutes." : 'Something went wrong. Please try again.';
+    throw new ApiError(res.status, typeof body.error === 'string' ? body.error : fallback, body);
+  }
   return body as T;
 }
+
+/** True for the "couldn't reach the server" messages above (network down or a server error), not a bad request. */
+export const unreachable = (message: string) => /couldn't reach/i.test(message);
