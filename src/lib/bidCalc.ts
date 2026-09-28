@@ -196,12 +196,13 @@ export const START_INPUTS: BidInputs = {
 };
 
 /**
- * The maximum bid as a plain subtraction, line by line: resale value minus every cost and the profit left over equals
- * the maximum bid. Rounded to whole dollars so the lines add up exactly.
+ * The maximum the deal allows, as a plain subtraction: resale value minus every cost and your profit equals the
+ * maximum bid (before any cash limit). Rounded to whole dollars so the lines add up exactly.
  */
 export function maxBidSteps(i: BidInputs): { label: string; amount: number }[] {
-  const r = maxSafeBid(i);
-  const c = costsAtBid(i, r.maxBid);
+  // The deal's own maximum (before any cash limit), so the profit line is the target, not an inflated figure.
+  const bid = maxSafeBid(i).profitBid;
+  const c = costsAtBid(i, bid);
   const costs: [string, number][] = [
     ['Selling costs', c.selling],
     ['Repairs and contingency', c.repairs],
@@ -215,7 +216,7 @@ export function maxBidSteps(i: BidInputs): { label: string; amount: number }[] {
   ];
   const exit = Math.round(nz(i.exitValue));
   const rows = costs.filter(([, v]) => v > 0).map(([label, v]) => ({ label, amount: -Math.round(v) }));
-  const profit = exit + rows.reduce((a, x) => a + x.amount, 0) - r.maxBid;
+  const profit = exit + rows.reduce((a, x) => a + x.amount, 0) - bid;
   return [{ label: 'Resale value after repairs', amount: exit }, ...rows, { label: 'Your profit', amount: -profit }];
 }
 

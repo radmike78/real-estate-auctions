@@ -147,6 +147,11 @@ export const SECTIONS: DrillSection[] = [
         <h3>Other services you may reach from our pages</h3>
         <ul>
           <li>The property map loads map images from OpenStreetMap's servers, which receive your network address and the map area you view.</li>
+          <li>
+            When you look up an attorney or a bank on the license lookup, our server sends the name or number you typed to the State Bar of
+            Nevada or the FDIC and shows you their answer. They see our server's request, not your network address. We keep the results in
+            memory for up to 6 hours so repeat searches don't ask again, and don't save them.
+          </li>
           <li>Advertisers who pay online do so on Stripe's checkout pages, under Stripe's privacy policy.</li>
           <li>Links to county, state and federal websites take you to sites with their own privacy policies.</li>
         </ul>

@@ -1483,3 +1483,15 @@ html { scroll-padding-top: 88px; }
 .calc-steps .calc-kv .first dd { color: var(--text); }
 .calc-steps .calc-kv dd { font-weight: 600; }
 .calc-steps .calc-kv .total dd { font-weight: 800; }
+
+/* License lookup: official results with contact details, one card per person or bank. */
+.lookup-how { margin: 10px 0 0; color: #cbd5e1; }
+.license-results { margin: 8px 0 24px; }
+.license-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 16px; }
+.license-card { display: grid; gap: 10px; align-content: start; padding: 18px 20px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); }
+.license-top { display: grid; gap: 6px; justify-items: start; }
+.license-top h3 { margin: 0; font-size: 1.2rem; }
+.license-facts { margin: 0; display: grid; gap: 6px; }
+.license-facts div { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 10px; }
+.license-facts dt { color: var(--muted); }
+.license-facts dd { margin: 0; overflow-wrap: anywhere; }

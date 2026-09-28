@@ -22,10 +22,18 @@ type Field = {
 // The walk-away price still works back from the resale value, so every group counts.
 const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
   {
+    title: 'The deal',
+    fields: [
+      { k: 'minimumBid', label: 'Opening (minimum) bid', unit: '$', hint: 'From the auction listing.', quick: true, more: 'The lowest bid the auction will accept, stated in the listing or notice of sale. Your maximum is worked out from the resale value and every cost; the results show how much room that leaves above the opening bid.' },
+      { k: 'exitValue', label: 'Resale value after repairs', unit: '$', hint: 'Conservative sold comps, not list prices.', quick: true },
+      { k: 'targetProfitPct', label: 'Profit you want', unit: '%', hint: 'Of the resale value. 15–20% is common.', quick: true },
+      { k: 'targetProfitMin', label: 'And at least', unit: '$', hint: 'A dollar minimum. Leave 0 for none.' },
+      { k: 'cashAvailable', label: 'Cash you can bring', unit: '$', hint: 'For auction day. Leave 0 for no limit.', quick: true, more: 'Most auctions want the full price in certified funds the same day or within a day. Your walk-away price never goes above what this cash covers, including any buyer’s premium.' },
+    ],
+  },
+  {
     title: 'Buying it',
     fields: [
-      { k: 'minimumBid', label: 'Opening (minimum) bid', unit: '$', hint: 'From the auction listing.', quick: true, more: 'The lowest bid the auction will accept, stated in the listing or notice of sale. Your maximum is worked out from the resale value and every cost below; the results show how much room that leaves above the opening bid.' },
-      { k: 'cashAvailable', label: 'Cash you can bring', unit: '$', hint: 'For auction day. Leave 0 for no limit.', quick: true, more: 'Most auctions want the full price in certified funds the same day or within a day. Your walk-away price never goes above what this cash covers, including any buyer’s premium.' },
       { k: 'buyerPremiumPct', label: "Buyer's premium", unit: '%', hint: 'Auction fee on top of your bid, if any.' },
       { k: 'transferTaxPer500', label: 'Transfer tax', unit: '$/500', hint: 'Clark County: $2.55 per $500.', more: 'Real property transfer tax is $2.55 for each $500 of value or fraction of $500 in Clark County. Some transfers are exempt; ask the Recorder or your title company.' },
       { k: 'survivingLiens', label: 'Liens that stay with the property', unit: '$', hint: 'Confirm with a title search.', quick: true },
@@ -55,12 +63,7 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
   },
   {
     title: 'Selling it',
-    fields: [
-      { k: 'exitValue', label: 'Resale value after repairs', unit: '$', hint: 'Conservative sold comps, not list prices.', quick: true },
-      { k: 'sellingCostPct', label: 'Cost to sell', unit: '%', hint: 'Agent commission plus closing costs.' },
-      { k: 'targetProfitPct', label: 'Profit you require', unit: '%', hint: 'Of the resale value. 15–20% is common.', quick: true },
-      { k: 'targetProfitMin', label: 'And at least', unit: '$', hint: 'A dollar minimum. Leave 0 for none.' },
-    ],
+    fields: [{ k: 'sellingCostPct', label: 'Cost to sell', unit: '%', hint: 'Agent commission plus closing costs.' }],
   },
 ];
 
@@ -182,7 +185,10 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
   const target = requiredProfit(i);
   const steps = maxBidSteps(i);
   const atOpening = i.minimumBid > 0 ? profitAtBid(i, i.minimumBid) : 0;
-  const belowOpening = i.minimumBid > 0 && r.maxBid < i.minimumBid;
+  // The deal itself fails at the opening bid, or only the cash you entered falls short of it.
+  const dealFails = i.minimumBid > 0 && r.profitBid < i.minimumBid;
+  const openingCash = i.minimumBid * (1 + i.buyerPremiumPct / 100);
+  const cashShort = !dealFails && i.minimumBid > 0 && i.cashAvailable > 0 && i.cashAvailable < openingCash;
   const shown = (f: Field) => (mode === 'detailed' || f.quick) && (!f.when || f.when(i));
 
   return (
@@ -191,7 +197,7 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
         <div className="calc-mode" role="group" aria-label="How many numbers to enter">
           <button type="button" aria-pressed={mode === 'quick'} className={mode === 'quick' ? 'on' : ''} onClick={() => setMode('quick')}>Quick</button>
           <button type="button" aria-pressed={mode === 'detailed'} className={mode === 'detailed' ? 'on' : ''} onClick={() => setMode('detailed')}>Detailed</button>
-          <span className="small muted">{mode === 'quick' ? 'Six numbers. Everything else uses the starting estimates.' : 'Every cost, in the order you’d meet it.'}</span>
+          <span className="small muted">{mode === 'quick' ? 'The deal, repairs and liens. Everything else uses the starting estimates.' : 'The deal first, then every cost in the order you’d meet it.'}</span>
         </div>
         {GROUPS.map((g) => {
           const fields = g.fields.filter(shown);
@@ -259,6 +265,13 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
             <small>{propertyId ? 'We don’t estimate values for listings from the official list. ' : 'Start with the opening bid from the listing, then the costs. '}The resale value comes from recent sold prices of similar nearby properties, as they’d be after repairs.</small>
           </div>
         ) : (
+          cashShort ? (
+          <div className="calc-max bad" role="status">
+            <span>Walk-away price</span>
+            <strong>Not enough cash</strong>
+            <small>You’d need at least {fmtMoney(Math.ceil(openingCash))} on auction day for the opening bid. The deal itself allows bids up to {fmtMoney(r.profitBid)}.</small>
+          </div>
+          ) : (
           <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
             <span>Walk-away price: stop bidding here</span>
             <strong>{r.noBidWorks ? 'No bid works' : fmtMoney(r.maxBid)}</strong>
@@ -270,11 +283,14 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
                   : `Leaves your ${fmtMoney(Math.round(target))} profit target after every cost, based on your numbers. Not a guarantee.`}
             </small>
           </div>
+          )
         )}
         {!needsValue && i.minimumBid > 0 && (
-          <div className={`calc-verdict ${belowOpening ? 'bad' : 'good'}`} role="status">
-            {belowOpening ? (
+          <div className={`calc-verdict ${dealFails || cashShort ? 'bad' : 'good'}`} role="status">
+            {dealFails ? (
               <><strong>Doesn’t work at the opening bid.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below your {fmtMoney(Math.round(target))} target. Skip this one or change your plan.</>
+            ) : cashShort ? (
+              <><strong>Your cash doesn’t cover the opening bid.</strong> The deal works (about {fmtMoney(Math.round(atOpening))} profit at {fmtMoney(i.minimumBid)}), but you’d need {fmtMoney(Math.ceil(openingCash))} on auction day and entered {fmtMoney(i.cashAvailable)}.</>
             ) : (
               <><strong>{fmtMoney(r.maxBid - i.minimumBid)} of room above the opening bid.</strong> The listing starts at {fmtMoney(i.minimumBid)}; stop at {fmtMoney(r.maxBid)}. At the opening bid your profit would be about {fmtMoney(Math.round(atOpening))}.</>
             )}
@@ -285,9 +301,9 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
             <strong>How we got your maximum</strong>
             <dl className="calc-kv">
               {steps.map((st, n) => <div key={st.label} className={n === 0 ? 'first' : ''}><dt>{st.label}</dt><dd>{n === 0 ? fmtMoney(st.amount) : `− ${fmtMoney(-st.amount)}`}</dd></div>)}
-              <div className="total"><dt>Your maximum bid</dt><dd>{fmtMoney(r.maxBid)}</dd></div>
+              <div className="total"><dt>{r.limitedBy === 'cash' ? 'Most the deal allows' : 'Your maximum bid'}</dt><dd>{fmtMoney(r.profitBid)}</dd></div>
             </dl>
-            {r.limitedBy === 'cash' && <p className="small muted">Your cash limit is lower than this deal allows, so the profit line is larger than your target.</p>}
+            {r.limitedBy === 'cash' && <p className="small muted">The cash you can bring sets your walk-away price lower than this.</p>}
           </div>
         )}
         {!r.noBidWorks && !needsValue && (
@@ -366,7 +382,7 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
       {/* On phones the results sit below every input, so keep the answer in view while typing. */}
       <button type="button" hidden={resultsVisible} className={`calc-sticky${r.noBidWorks ? ' bad' : ''}`} onClick={() => document.getElementById(`${uid}-results`)?.scrollIntoView({ behavior: 'smooth' })}>
         <span>Walk away at</span>
-        <strong>{needsValue ? 'Enter a resale value' : r.noBidWorks ? 'No bid works' : fmtMoney(r.maxBid)}</strong>
+        <strong>{needsValue ? 'Enter a resale value' : cashShort ? 'Not enough cash' : r.noBidWorks ? 'No bid works' : fmtMoney(r.maxBid)}</strong>
         <span className="calc-sticky-go">See details ↓</span>
       </button>
     </div>
