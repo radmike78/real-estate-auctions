@@ -1510,3 +1510,5 @@ h1, h2, h3 { overflow-wrap: break-word; }
   .seg { display: flex; max-width: 100%; }
   .seg button { flex: 1 1 auto; min-width: 0; padding-left: 10px; padding-right: 10px; }
 }
+.no-listings-head { margin: 28px 0 14px; }
+.no-listings .empty-state { margin-top: 8px; }
