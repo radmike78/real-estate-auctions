@@ -42,6 +42,7 @@ import { ALERT_LIMITS, CONFIRM_TTL_MS, openAlerts, openBroadcasts, type Subscrib
 import { SITE_INFO, TERMS_EFFECTIVE } from '../src/lib/siteInfo';
 import { parseSearchTarget, searchLabel } from '../src/lib/savedSearch';
 import { collectChanges, collectDigests, feedReader, labelOf, openTracker, TARGET_RE, trackableListings, type ListingSnapshot } from './tracker';
+import { cleanQuery, createLicenseSearch } from './licenses';
 import { CHECKOUT_URL_PREFIX, invoicePeriodEnd, invoiceSubscriptionId, PORTAL_URL_PREFIX, verifyWebhook, type StripeClient, type StripeEvent } from './stripe';
 import { BOT_UA, leadsToCsv, monthlyReportText, monthRange, pacificDay, pacificDaysToUtc, siteSummary, summarize, VisitorHasher } from './metrics';
 
@@ -71,6 +72,8 @@ export interface AppConfig {
   postalAddress?: string;
   /** Tests only: override whether general-list sending is allowed. */
   postalAddressReady?: boolean;
+  /** Tests only: stands in for the official sources the license lookup asks. */
+  licenseFetch?: typeof fetch;
 }
 
 const JSON_LIMIT = 32 * 1024;
@@ -151,6 +154,7 @@ export function createApp(config: AppConfig) {
     return deliver(mail);
   }
   const now = config.now ?? (() => new Date());
+  const licenseSearch = createLicenseSearch(config.licenseFetch ?? fetch, now);
   const base = config.baseUrl.replace(/\/$/, '');
   const secure = config.secureCookies ?? true;
   const limiters = {
@@ -173,6 +177,10 @@ export function createApp(config: AppConfig) {
     proPhoto: new RateLimiter(10, 3_600_000),
     eventsIp: new RateLimiter(120, 60_000),
     alertsIp: new RateLimiter(10, 3_600_000),
+    // Live license lookups go to the State Bar or FDIC: a few a minute per visitor, and a site-wide cap so the site
+    // never sends them more than a trickle.
+    licenseIp: new RateLimiter(20, 10 * 60_000),
+    licenseAll: new RateLimiter(300, 60 * 60_000),
     alertsEmail: new RateLimiter(3, 3_600_000),
     alertsManage: new RateLimiter(60, 10 * 60_000),
   };
@@ -534,6 +542,19 @@ export function createApp(config: AppConfig) {
 
   async function handleApi(req: IncomingMessage, res: ServerResponse, path: string, url: URL) {
     const method = req.method ?? 'GET';
+
+    // Live license lookups from official sources that allow them (server/licenses.ts).
+    if (method === 'GET' && path === '/api/licenses') {
+      const kind = url.searchParams.get('kind');
+      const q = cleanQuery(url.searchParams.get('q'));
+      if ((kind !== 'attorney' && kind !== 'bank') || !q) throw new HttpError(400, 'Enter a name or number (2 to 60 letters or digits).');
+      if (!limiters.licenseIp.hit(clientIp(req)) || !limiters.licenseAll.hit('all')) throw new HttpError(429, 'Too many searches right now. Try again in a few minutes, or use the official lookup.');
+      try {
+        return send(res, 200, await licenseSearch(kind, q), { 'cache-control': 'private, max-age=600' });
+      } catch {
+        throw new HttpError(502, kind === 'attorney' ? 'The State Bar’s directory didn’t answer. Try again, or search it directly.' : 'The FDIC didn’t answer. Try again, or search BankFind directly.');
+      }
+    }
 
     // What this server has set up, so pages say "coming soon" instead of offering sign-ups that can't work yet.
     if (method === 'GET' && path === '/api/features') return send(res, 200, { email: mailer !== consoleMailer, payments: !!config.stripe });

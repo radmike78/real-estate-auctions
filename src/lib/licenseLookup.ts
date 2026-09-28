@@ -1,8 +1,9 @@
-// License lookup helper. The official regulator lookups (NRED, NMLS, NSCB, Division of
-// Insurance) don't allow automated queries, so this tool never pretends to check them. It:
+// License lookup helper. Attorneys (State Bar) and banks (FDIC) are searched live on the official source by the
+// server (server/licenses.ts). The other regulators (NRED, NMLS, NSCB, Division of Insurance, CPAs) don't allow
+// other sites to query them, so this:
 //   1. checks a license number's format and reads what it can from it (e.g. S. = salesperson),
-//   2. looks the number or name up in OUR verified directory,
-//   3. hands the user the exact official lookup to confirm it themselves, and what to check there.
+//   2. opens the official lookup, with the search filled in where that site accepts it in the address,
+//   3. says what to check there.
 
 import { CATEGORIES, isListable, type Category, type Pro } from './pros';
 
@@ -72,3 +73,48 @@ export const RED_FLAGS = [
   "Won't give a license number, or the one given doesn't match the lookup.",
   'Offers a guaranteed loan approval, or charges any fee except a credit report fee before you get a Loan Estimate and say you want to go ahead.',
 ];
+
+// ---------------- Searching the official sources ----------------
+
+/** Professions whose official source lets our site show results directly (server/licenses.ts). */
+export const LIVE_KIND: Partial<Record<Category, 'attorney' | 'bank'>> = { attorney: 'attorney', bank: 'bank' };
+
+export interface LicenseResult {
+  name: string;
+  id: string;
+  status: string;
+  since?: string;
+  company?: string;
+  address?: string;
+  phone?: string;
+  website?: string;
+  discipline?: string[];
+  officialUrl: string;
+}
+export interface LicenseSearch {
+  source: string;
+  results: LicenseResult[];
+  more: boolean;
+  checkedAt: string;
+}
+
+const NMLS_KIND: Partial<Record<Category, 'INDIVIDUAL' | 'COMPANY'>> = { loan_officer: 'INDIVIDUAL', mortgage_company: 'COMPANY', private_lender: 'COMPANY' };
+
+/**
+ * Where to send someone for a profession we can't search directly: the official lookup, with the search filled in
+ * when that site accepts it in the address (`prefilled`). Otherwise the page copies what they typed to paste there.
+ */
+export function officialSearch(category: Category, raw: string): { url: string; prefilled: boolean } {
+  const q = raw.trim().replace(/\s+/g, ' ');
+  const base = CATEGORIES[category].lookupUrl;
+  if (!q) return { url: base, prefilled: false };
+  if (category === 'insurance' || category === 'title_escrow') {
+    const words = q.split(' ');
+    return words.length >= 2
+      ? { url: `https://di.nv.gov/nv/r/doi/licensing/9?p9_lname=${encodeURIComponent(words[words.length - 1])}&p9_fname=${encodeURIComponent(words[0])}`, prefilled: true }
+      : { url: `https://di.nv.gov/nv/r/doi/licensing/10?p10_agency=${encodeURIComponent(q)}`, prefilled: true };
+  }
+  const nmls = NMLS_KIND[category];
+  if (nmls && /^\d{1,10}$/.test(q)) return { url: `https://www.nmlsconsumeraccess.org/EntityDetails.aspx/${nmls}/${q}`, prefilled: true };
+  return { url: base, prefilled: false };
+}
