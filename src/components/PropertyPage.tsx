@@ -15,6 +15,8 @@ import BuyerChecklistBox from './BuyerChecklistBox';
 import { checklistForProperty, CHECKLISTS, forCommercial, forLand } from '../lib/buyerChecklists';
 import { classOfType } from '../lib/propertyClass';
 import IncomeValue from './IncomeValue';
+import StrategyTabs from './StrategyTabs';
+import { buyFromBid, CommercialCalculator, RentCalculator } from './HoldCalculators';
 import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
 import { IconBadge, IconCalc, IconCalendar, IconCamera, IconFile, IconFlag, IconLayers, IconShield, IconSteps } from './Icons';
@@ -290,7 +292,14 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
               }}
             />
           )}
-          <BidCalculator key={calcVersion} propertyId={p.id} defaults={bidDefaults} openingBid={s?.minimumBid ?? null} commercial={commercial} />
+          <StrategyTabs
+            strategies={[
+              { key: 'flip', label: 'Fix and sell', about: 'The most you can bid and still make your profit when you fix it up and sell it.', render: () => <BidCalculator key={calcVersion} propertyId={p.id} defaults={bidDefaults} openingBid={s?.minimumBid ?? null} commercial={commercial} /> },
+              commercial
+                ? { key: 'commercial', label: 'Commercial income', about: 'The most you can bid for the building’s income, counting the months it takes to lease it up.', render: () => <CommercialCalculator storageKey={`fsf.calc.commercial.${p.id}.v1`} start={buyFromBid(bidDefaults)} /> }
+                : { key: 'rent', label: 'Keep and rent', about: 'The most you can bid and still get your return on the cash you leave in, with or without a loan afterward.', render: () => <RentCalculator storageKey={`fsf.calc.rent.${p.id}.v1`} start={buyFromBid(bidDefaults)} /> },
+            ]}
+          />
         </>
       ),
     },
