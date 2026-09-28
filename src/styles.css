@@ -1796,10 +1796,10 @@ h1, h2 { letter-spacing: -0.03em; }
 /* Practice notice: sentences run the full width of the box */
 .practice-ribbon p { max-width: none; }
 
-/* No orange: notices and practice labels use the owl blue. Amber stays only on small status chips
-   (postponed, needs review, estimate) where it means "be careful". */
-.verify, .practice-ribbon, .email-confirm { background: var(--surface-2); border: 0; border-left: 4px solid var(--accent-strong); border-radius: 10px; }
-.practice-ribbon strong, .verify strong { color: var(--text); }
+/* No orange: notices and practice labels use the owl blue. Amber stays on small status chips
+   (postponed, needs review, estimate) and the yellow Practice mode box, which the owner likes. */
+.verify, .email-confirm { background: var(--surface-2); border: 0; border-left: 4px solid var(--accent-strong); border-radius: 10px; }
+.verify strong { color: var(--text); }
 .warn-card { border-left-color: var(--wait-mark); }
 .practice-tag, .practice-stamp { background: var(--accent-strong); color: #fff; }
 .lookup-card.warn-card::before, .checklist-box.not-for-sale::before, .card.risk-wait::before { background: var(--wait-mark); }
