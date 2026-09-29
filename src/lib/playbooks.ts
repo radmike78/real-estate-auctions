@@ -5,6 +5,8 @@
 
 import type { ProKey } from './proGuide';
 import type { SaleType } from '../types';
+import type { StateCode } from './regions';
+import { STATE_GUIDES } from './stateGuides';
 
 export interface Playbook {
   key: string;
@@ -21,7 +23,11 @@ export interface Playbook {
   team: { role: string; when: string; href?: string; pro?: ProKey }[];
   sources: { label: string; url: string }[];
   lastReviewed: string;
+  /** The state whose law the guide follows; the original guides are Nevada’s (Clark County). */
+  state?: StateCode;
 }
+
+export const stateOf = (p: Playbook): StateCode => p.state ?? 'NV';
 
 const REVIEWED = '2026-09-25';
 const NRS = (ch: string) => `https://www.leg.state.nv.us/NRS/NRS-${ch}.html`;
@@ -45,7 +51,7 @@ const T = {
   propertyManager: { role: 'Commercial property manager', when: 'From day one if there are tenants: rent collection, estoppels, repairs', href: '#/pros/property_manager', pro: 'property_manager' },
 } satisfies Record<string, Playbook['team'][number]>;
 
-export const PLAYBOOKS: Playbook[] = [
+const NEVADA: Playbook[] = [
   {
     key: 'tax',
     title: 'Tax sales',
@@ -454,6 +460,12 @@ export const PLAYBOOKS: Playbook[] = [
     lastReviewed: REVIEWED,
   },
 ];
+
+/** Every guide: Nevada’s (Clark County), then California, Arizona and Utah. */
+export const PLAYBOOKS: Playbook[] = [...NEVADA, ...STATE_GUIDES];
+
+/** The guides for one state, or all of them. */
+export const guidesFor = (st: StateCode | null) => (st ? PLAYBOOKS.filter((p) => stateOf(p) === st) : PLAYBOOKS);
 
 export const playbookByKey = (k: string) => PLAYBOOKS.find((p) => p.key === k) ?? null;
 
