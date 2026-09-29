@@ -9,6 +9,498 @@ const REVIEWED = '2026-09-29';
 
 export const STATE_GUIDES: Playbook[] = [
 {
+  key: "catax",
+  title: "California tax sales",
+  short: "Tax sales",
+  oneLine: "When property taxes go unpaid for years, the county tax collector can sell the property at auction and give the buyer a tax deed.",
+  youGet: "A tax deed from the county tax collector. It clears most private liens, such as mortgages and judgments, but some government liens, easements and IRS liens can stay.",
+  forSale: true,
+  glance: [
+    {
+      label: "Who sells",
+      value: "The county treasurer-tax collector, with approval from the board of supervisors."
+    },
+    {
+      label: "When a property can be sold",
+      value: "After 5 years of tax default, or 3 years for nonresidential commercial property (R&T 3691). A county may choose to use 5 years for commercial property too."
+    },
+    {
+      label: "Notice",
+      value: "Mailed to parties of interest 45 to 120 days before the sale, and published once a week for 3 weeks starting at least 21 days before (R&T 3701, 3702)."
+    },
+    {
+      label: "Minimum bid",
+      value: "At least the full amount to redeem plus costs (R&T 3698.5). An unsold property can be reoffered later at a lower minimum with board approval."
+    },
+    {
+      label: "Owner can redeem until",
+      value: "Close of business on the last business day before the sale starts (R&T 3707)."
+    },
+    {
+      label: "Deposit and payment",
+      value: "Set by each county. State law lets a county require a deposit of $5,000 or 10% of the minimum bid, whichever is greater, with the balance due within 90 days at most (R&T 3693.1). Confirm in your county’s terms."
+    },
+    {
+      label: "What you get",
+      value: "A tax deed, issued after you pay in full (R&T 3708)."
+    },
+    {
+      label: "Challenge window",
+      value: "About 1 year: a challenge must start with a petition to the board of supervisors within 1 year of the deed (R&T 3725)."
+    }
+  ],
+  steps: [
+    {
+      title: "Find your county’s sale",
+      detail: "Each county tax collector posts its own auction list, dates and terms. Many California counties run the online bidding through a contracted auction website, but the county is the seller and its official terms control. Read the county’s terms and conditions in full."
+    },
+    {
+      title: "Check the property is really eligible",
+      detail: "Property can be sold after 5 years of default, or 3 years for nonresidential commercial property (R&T 3691). Properties drop off the list when the owner redeems, so expect some to be withdrawn."
+    },
+    {
+      title: "Research each parcel before you bid",
+      detail: "Property is sold as is (R&T 3692.3). Check the location, access, zoning and whether the parcel is even buildable. Look up recorded liens and easements with a title company. Do not go onto private property; the Los Angeles County terms, for example, say you may inspect but may not trespass."
+    },
+    {
+      title: "Know what the tax deed will not clear",
+      detail: "The deed wipes out most prior encumbrances, but not future tax installments, liens of taxing agencies that did not consent, some special assessments, Mello-Roos and 1915 Act bond amounts not paid from the sale, easements and recorded restrictions, and some IRS liens (R&T 3712). Budget for these."
+    },
+    {
+      title: "Register and post your deposit",
+      detail: "Deposits and deadlines differ by county. Example, Los Angeles County 2026A auction: a $5,000 deposit or 10% of your spending limit, whichever is greater. Example, San Diego County 2026 auction: a $1,000 deposit plus a $35 non-refundable fee. Confirm in your county’s notice."
+    },
+    {
+      title: "Bid, then pay on time",
+      detail: "Bids start at the minimum bid. Pay the balance in the form and by the deadline your county sets, plus transfer taxes and fees. Example: San Diego County requires full payment within 5 business days of the auction close. If you miss the deadline you can lose your deposit and the owner’s right to redeem comes back (R&T 3693.1)."
+    },
+    {
+      title: "Wait for the recorded tax deed",
+      detail: "Title does not pass until the tax collector records the tax deed. Example: Los Angeles County says deeds go to the Recorder about 60 to 70 days after the sale. Until then, do not enter the property, collect rent or contact any occupants; Los Angeles County may cancel a sale for that."
+    },
+    {
+      title: "Plan for the 1-year challenge period",
+      detail: "Anyone who claims the sale was invalid must first petition the board of supervisors within 1 year of the deed (R&T 3725). Los Angeles and San Diego counties both advise waiting about a year before making improvements. Many title companies will not insure until then."
+    },
+    {
+      title: "Take possession the legal way",
+      detail: "If someone lives in the property after your deed records, talk to an eviction attorney and use the court process. Former owners and lienholders may claim any excess proceeds from the county; that is between them and the county, not the buyer (R&T 4675)."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "Mortgages and deeds of trust recorded before the sale",
+      "Private judgment liens and mechanic’s liens",
+      "The prior delinquent property taxes being collected by the sale"
+    ],
+    mayStay: [
+      "Upcoming property tax installments after the sale (R&T 3712(a))",
+      "Liens or rights of a taxing agency that did not consent to the sale",
+      "Special assessments not included in the redemption amount",
+      "Unpaid 1915 Act bond assessments and Mello-Roos special taxes not paid from the sale proceeds",
+      "Easements, separately held water rights and recorded restrictions",
+      "Recorded public offers of dedication and public-agency purchase options",
+      "Some federal IRS liens",
+      "Public liens such as PACE, weed abatement or demolition liens (Los Angeles County example)"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Bidding on a parcel you never researched",
+      prevent: "Sales are final and as is. Check the map, access, zoning and liens for every parcel before you bid."
+    },
+    {
+      mistake: "Assuming the tax deed clears everything",
+      prevent: "Read R&T 3712 and your county’s list of liens that survive. Get a title company’s view before bidding."
+    },
+    {
+      mistake: "Missing the payment deadline",
+      prevent: "Have funds ready in the exact form your county accepts. A missed deadline can cost your deposit."
+    },
+    {
+      mistake: "Moving in, fixing up or contacting occupants before the deed records",
+      prevent: "Wait for the recorded tax deed. Then use an attorney and the court process for any occupants."
+    },
+    {
+      mistake: "Spending heavily on improvements in the first year",
+      prevent: "The sale can be challenged for about a year. Many buyers wait until then and until title insurance is available."
+    }
+  ],
+  example: {
+    title: "Fictional example: a vacant lot in an online county auction",
+    story: "Dana, a first-time buyer, finds a vacant lot on a county’s tax sale list with a minimum bid of $8,000. She checks the county map and finds the lot has no legal road access, so she skips it. She picks another lot, confirms it has access, and asks a title company about recorded liens. The title company notes a sewer assessment that will stay with the lot. She wins at $14,000, pays within the county’s deadline, and waits for the recorded tax deed before visiting to clear brush. She holds off on building until the one-year challenge window passes.",
+    lesson: "Research access and surviving liens first, pay on time, and wait for the recorded deed and the challenge window before investing more."
+  },
+  sources: [
+    {
+      label: "California R&T Code 3691 (when property can be sold)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=3691"
+    },
+    {
+      label: "California R&T Code 3698.5 (minimum bid)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=3698.5"
+    },
+    {
+      label: "California R&T Code 3707 (end of redemption)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=3707"
+    },
+    {
+      label: "California R&T Code 3693.1 (deposit and deferred payment)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=3693.1"
+    },
+    {
+      label: "California R&T Code 3712 (what the tax deed does not clear)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=3712"
+    },
+    {
+      label: "California R&T Code 3725 (time to challenge a sale)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=3725"
+    },
+    {
+      label: "California R&T Code 4675 (excess proceeds claims)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=4675"
+    },
+    {
+      label: "Los Angeles County Treasurer and Tax Collector, 2026A auction terms (example)",
+      url: "https://ttc.lacounty.gov/wp-content/uploads/2026/03/2026A-Terms-and-Conditions.pdf"
+    },
+    {
+      label: "San Diego County Treasurer-Tax Collector, bidder registration (example)",
+      url: "https://www.sdttc.com/content/ttc/en/tax-collection/property-tax-sales/bidder-registration.html"
+    }
+  ],
+  team: [TEAM.title, TEAM.attorney, TEAM.cpa, TEAM.insurance, TEAM.contractor],
+  lastReviewed: REVIEWED,
+  state: 'CA'
+},
+{
+  key: "caforeclosure",
+  title: "California trustee sales",
+  short: "Trustee sales",
+  oneLine: "Most California home loans are deeds of trust, so a lender can foreclose without court through a trustee who auctions the property.",
+  youGet: "A trustee’s deed. You take the property subject to any liens senior to the loan being foreclosed, as is, and often with occupants who have legal rights.",
+  forSale: true,
+  glance: [
+    {
+      label: "Who sells",
+      value: "The trustee named in the deed of trust, on behalf of the lender (beneficiary)."
+    },
+    {
+      label: "Notice of default",
+      value: "Recorded first. At least 3 months must pass before the notice of sale (Civ 2924)."
+    },
+    {
+      label: "Notice of sale",
+      value: "Posted, recorded and first published at least 20 days before the sale (Civ 2924f)."
+    },
+    {
+      label: "Postponements",
+      value: "Common. A sale can be postponed up to 365 days in total before a new notice of sale is needed (Civ 2924g)."
+    },
+    {
+      label: "Payment",
+      value: "Cash, a cashier’s check from a bank, or a check from a credit union or savings bank. The trustee can require proof of full funds before recognizing your bid (Civ 2924h)."
+    },
+    {
+      label: "1 to 4 unit homes",
+      value: "The sale is not final right away. Eligible tenants, owner-occupants and certain nonprofits and public agencies have 15 days to give notice and up to 45 days to bid (Civ 2924m, in effect until January 1, 2031)."
+    },
+    {
+      label: "Liens",
+      value: "Senior liens stay. Junior liens are paid from any surplus in order of priority (Civ 2924k)."
+    },
+    {
+      label: "Tenants",
+      value: "Tenants generally get at least 90 days’ written notice; some fixed-term leases must be honored (CCP 1161b and the federal Protecting Tenants at Foreclosure Act)."
+    }
+  ],
+  steps: [
+    {
+      title: "Find sales from the official source",
+      detail: "Trustee sales are listed in the recorded notice of sale, which the trustee posts and publishes. Each notice names the trustee, sale time and place, and a phone number or website for sale-date updates. Deal only with the trustee; DeedOwl never helps anyone contact the homeowner."
+    },
+    {
+      title: "Learn the timeline",
+      detail: "The lender records a notice of default. At least 3 months later the trustee can give a notice of sale, which must be recorded, posted and first published at least 20 days before the sale (Civ 2924, 2924f). The owner can usually reinstate the loan until 5 business days before the sale date (Civ 2924c)."
+    },
+    {
+      title: "Order a title report",
+      detail: "The notice of sale warns that you may be bidding on a junior lien and may have to pay off all senior liens to get clear title. Ask a title company for the recorded liens and their priority, plus unpaid property taxes."
+    },
+    {
+      title: "Look, but do not trespass",
+      detail: "You usually cannot inspect inside. Drive by from the street and assume repairs are needed. Do not approach or contact occupants."
+    },
+    {
+      title: "Check the sale status the day before and the day of",
+      detail: "Sales are often postponed. The trustee must announce postponements at the sale location and keep a phone line or website with current dates (Civ 2924f, 2924g). Any postponement cancels the last bid (Civ 2924h)."
+    },
+    {
+      title: "Bring certified funds and bid",
+      detail: "Sales happen between 9 a.m. and 5 p.m. on a business day, in the county where the property is (Civ 2924g). Every bid is an irrevocable offer. The trustee can ask you to show you can pay the full bid before it is recognized, and the winning bidder must pay in full when the sale closes (Civ 2924h). The lender may credit bid up to what it is owed."
+    },
+    {
+      title: "For 1 to 4 unit homes, wait for finality",
+      detail: "Unless the winner is a prospective owner-occupant who signs the required declaration, the sale is not final for at least 15 days. If an eligible tenant buyer or eligible bidder sends a notice of intent, they have until 45 days after the sale to match or beat your bid (Civ 2924m). Title stays with the owner until the sale is final."
+    },
+    {
+      title: "Get and record the trustee’s deed",
+      detail: "The trustee issues a trustee’s deed after the sale is final and funds clear. A standard trustee sale has no redemption period afterward."
+    },
+    {
+      title: "Handle occupants lawfully",
+      detail: "A former owner who stays can be served a 3-day notice to quit once title is perfected (CCP 1161a). Tenants generally get at least 90 days’ written notice, and a fixed-term lease can continue to its end in many cases (CCP 1161b). Local just-cause and relocation rules also apply (Civ 2924n). Use an eviction attorney."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "The deed of trust being foreclosed",
+      "Junior liens recorded after it, such as a later second loan; they are paid from any surplus instead (Civ 2924k)"
+    ],
+    mayStay: [
+      "Senior loans and liens recorded ahead of the one being foreclosed",
+      "Unpaid property taxes and government assessments",
+      "Easements and recorded restrictions",
+      "Federal tax liens can have special rules; ask a title company",
+      "Tenants’ rights under CCP 1161b, the federal Protecting Tenants at Foreclosure Act and local ordinances"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Buying a junior lien by accident",
+      prevent: "Get a title report. If the foreclosing loan is a second, the first loan stays and you must deal with it."
+    },
+    {
+      mistake: "Showing up with the wrong funds",
+      prevent: "Bring cashier’s checks or other funds the notice of sale accepts. A personal check will not work."
+    },
+    {
+      mistake: "Assuming you own a 1 to 4 unit home the day you win",
+      prevent: "Plan for the 15 to 45 day finality window under Civ 2924m and keep your funds available."
+    },
+    {
+      mistake: "Trying to remove occupants yourself",
+      prevent: "Give the legally required notices and use the court process through an eviction attorney."
+    },
+    {
+      mistake: "Making deals with other bidders",
+      prevent: "Offering or accepting anything not to bid, or fixing bids, is a crime (Civ 2924h(g))."
+    }
+  ],
+  example: {
+    title: "Fictional example: a duplex at a trustee sale",
+    story: "Sam, a first-time investor, wins a trustee sale for a fictional duplex with a $310,000 cashier’s check bid. His title report showed the foreclosing loan was the first deed of trust, so no senior loan remains, but there is a year of unpaid property taxes. Because it is a 2-unit building and Sam is not moving in, the sale is not final yet. On day 12 an eligible tenant buyer sends a notice of intent. By day 45 no qualifying bid arrives, so the sale becomes final and the trustee issues the deed. Sam then gives the tenants their required written notices through his attorney instead of acting on his own.",
+    lesson: "Check lien priority first, expect a waiting period on 1 to 4 unit homes, and follow tenant notice laws exactly."
+  },
+  sources: [
+    {
+      label: "California Civil Code 2924 (notice of default, 3 months)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2924"
+    },
+    {
+      label: "California Civil Code 2924f (notice of sale, 20 days, bidder notices)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2924f"
+    },
+    {
+      label: "California Civil Code 2924g (sale rules, postponements)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2924g"
+    },
+    {
+      label: "California Civil Code 2924h (bidding and payment)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2924h"
+    },
+    {
+      label: "California Civil Code 2924m (tenant and eligible bidder window)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2924m"
+    },
+    {
+      label: "California Civil Code 2924k (surplus to junior lienholders)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2924k"
+    },
+    {
+      label: "California Code of Civil Procedure 1161b (tenants after foreclosure)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=1161b"
+    },
+    {
+      label: "California Code of Civil Procedure 1161a (notice to quit after sale)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=1161a"
+    },
+    {
+      label: "FDIC: Protecting Tenants at Foreclosure Act",
+      url: "https://www.fdic.gov/consumer-compliance-examination-manual/v-16-protecting-tenants-foreclosure-act-2009"
+    }
+  ],
+  team: [TEAM.title, TEAM.attorney, TEAM.eviction, TEAM.insurance, TEAM.contractor, TEAM.lender],
+  lastReviewed: REVIEWED,
+  state: 'CA'
+},
+{
+  key: "casheriff",
+  title: "California sheriff sales",
+  short: "Sheriff sales",
+  oneLine: "When a court orders property sold, the sheriff (the levying officer) auctions it, sometimes subject to a redemption period.",
+  youGet: "A sheriff’s deed of sale, or first a certificate of sale if the owner still has a right to redeem. Liens senior to the one being enforced stay.",
+  forSale: true,
+  glance: [
+    {
+      label: "Who sells",
+      value: "The county sheriff as levying officer, under a court judgment or writ."
+    },
+    {
+      label: "Notice of sale",
+      value: "Served, posted on the property, mailed to lienholders and first published at least 20 days before the sale (CCP 701.540)."
+    },
+    {
+      label: "Payment",
+      value: "Cash, certified check or cashier’s check (CCP 701.590)."
+    },
+    {
+      label: "Credit option",
+      value: "If your winning bid on real property is over $5,000, you may deposit $5,000 or 10% of the bid, whichever is greater, and pay the rest plus costs and interest within 10 days (CCP 701.590)."
+    },
+    {
+      label: "Redemption",
+      value: "Only in some judicial foreclosures: 3 months if the sale covers the debt, 1 year if it does not (CCP 729.030)."
+    },
+    {
+      label: "Redemption price",
+      value: "Your purchase price plus taxes, insurance, upkeep and some senior payments, with interest at the money-judgment rate, generally 10% a year (CCP 729.060, 685.010)."
+    },
+    {
+      label: "Owner’s home",
+      value: "A court order is required, and a bid must exceed the homestead exemption plus all liens (CCP 704.740, 704.800)."
+    },
+    {
+      label: "Liens",
+      value: "The lien being enforced, junior liens and state tax liens are wiped out; senior liens stay (CCP 701.630)."
+    }
+  ],
+  steps: [
+    {
+      title: "Find sales at the sheriff’s office",
+      detail: "County sheriffs post notices of sale for real property. Example: the Riverside County Sheriff lists upcoming real property sales on its Court Services page. Deal only with the sheriff; DeedOwl never helps anyone contact the owner."
+    },
+    {
+      title: "Read the notice of sale closely",
+      detail: "It gives the date, time, place, a legal description and street address (CCP 701.540). In a judicial foreclosure it must say whether the property is sold subject to a right of redemption and state the debt amount (CCP 729.010)."
+    },
+    {
+      title: "Order a title report",
+      detail: "An execution sale wipes out the lien being enforced, junior liens and state tax liens, but senior liens stay (CCP 701.630). In a judicial foreclosure, recorded interests of people who were not named in the lawsuit are not affected (CCP 726)."
+    },
+    {
+      title: "Check for homestead rules",
+      detail: "If the property is a person’s home, the sale needs a court order. No bid can be accepted unless it exceeds the homestead exemption plus all liens, and a bid under 90% of fair market value needs court approval (CCP 704.740, 704.800). The exemption is at least $300,000 and up to $600,000, adjusted for inflation (CCP 704.730)."
+    },
+    {
+      title: "Pre-qualify and bring funds",
+      detail: "Sales are held between 9 a.m. and 5 p.m. in the county where the property is (CCP 701.570). Example, Riverside County Sheriff: bidders must pre-qualify, show proof of funds, arrive on time, and pay by cashier’s check, certified check or cash payable to the Riverside County Sheriff. Confirm in your county’s notice."
+    },
+    {
+      title: "Bid and pay",
+      detail: "Pay in full at the sale, or on a real property bid over $5,000 elect a credit sale: deposit $5,000 or 10%, whichever is greater, and pay the rest plus costs and interest within 10 days. You have no right to possession until you pay in full (CCP 701.590). A bidder who defaults can owe the shortfall and costs (CCP 701.600)."
+    },
+    {
+      title: "Receive a deed or certificate of sale",
+      detail: "If there is no redemption right, the sheriff gives you a deed of sale and records a copy (CCP 701.660). If there is one, you get a certificate of sale and the deed only after the redemption period ends (CCP 729.040, 729.080)."
+    },
+    {
+      title: "During any redemption period",
+      detail: "The owner can redeem for 3 months or 1 year (CCP 729.030). You may collect rents or the value of use from whoever is in possession and may enter at reasonable hours to repair and maintain (CCP 729.090), but you must pay back rents collected if the owner redeems."
+    },
+    {
+      title: "Take possession lawfully",
+      detail: "After title is perfected, the former owner can be served a 3-day notice to quit (CCP 1161a). Tenants may have longer notice rights after a foreclosure (CCP 1161b). Use an eviction attorney."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "The judgment lien or mortgage being enforced",
+      "Liens junior to it",
+      "State tax liens on the property (CCP 701.630)"
+    ],
+    mayStay: [
+      "Senior mortgages and liens",
+      "In a judicial foreclosure, recorded interests of anyone not named in the lawsuit (CCP 726)",
+      "Property taxes and government assessments",
+      "Easements and recorded restrictions",
+      "The former owner’s right to redeem, if the notice says the sale is subject to redemption"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Ignoring the redemption period",
+      prevent: "Read the notice. If it says subject to redemption, expect a certificate of sale and a wait of 3 months to 1 year."
+    },
+    {
+      mistake: "Assuming the sale clears senior loans",
+      prevent: "Only the enforced lien and junior liens are wiped out. Get a title report and budget for senior debt."
+    },
+    {
+      mistake: "Arriving late or without proof of funds",
+      prevent: "Pre-qualify with the sheriff and bring cashier’s or certified checks for the full amount or the credit-sale deposit."
+    },
+    {
+      mistake: "Missing the 10-day balance on a credit sale",
+      prevent: "Arrange the rest of your money before the sale. A default can leave you owing the shortfall and costs."
+    },
+    {
+      mistake: "Spending heavily on a property still subject to redemption",
+      prevent: "Limit spending to taxes, insurance and needed upkeep, which are added to the redemption price. Keep receipts."
+    }
+  ],
+  example: {
+    title: "Fictional example: a judicial foreclosure with a 1-year redemption",
+    story: "Priya, a new investor, reads a sheriff’s notice for a fictional house that says it is sold subject to a right of redemption. She wins with a $220,000 bid, which is less than the debt, so the redemption period is 1 year. She receives a certificate of sale, pays the property taxes and fire insurance, and keeps every receipt. Ten months later the former owner redeems. Priya is paid back her purchase price, the taxes and insurance, and interest at the money-judgment rate, less rent she had collected.",
+    lesson: "A sale subject to redemption can end in a refund with interest instead of a house. Keep receipts and do not over-invest before the deed."
+  },
+  sources: [
+    {
+      label: "California Code of Civil Procedure 701.540 (notice of sale of real property)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=701.540"
+    },
+    {
+      label: "California Code of Civil Procedure 701.590 (payment and credit sales)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=701.590"
+    },
+    {
+      label: "California Code of Civil Procedure 701.630 (liens extinguished)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=701.630"
+    },
+    {
+      label: "California Code of Civil Procedure 704.800 (homestead minimum bid)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=704.800"
+    },
+    {
+      label: "California Code of Civil Procedure 729.030 (redemption period)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=729.030"
+    },
+    {
+      label: "California Code of Civil Procedure 729.060 (redemption price)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=729.060"
+    },
+    {
+      label: "California Code of Civil Procedure 729.090 (rents during redemption)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=729.090"
+    },
+    {
+      label: "California Code of Civil Procedure 726 (judicial foreclosure)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=726"
+    },
+    {
+      label: "Riverside County Sheriff: Sheriff’s Court Services and sales (example)",
+      url: "https://www.riversidesheriff.org/158/Sheriffs-Court-Services"
+    },
+    {
+      label: "Riverside County Sheriff: bidder pre-qualification notice (example)",
+      url: "https://www.riversidesheriff.org/DocumentCenter/View/6985/Bidder-Pre-Qualification-Notice"
+    }
+  ],
+  team: [TEAM.title, TEAM.attorney, TEAM.eviction, TEAM.insurance, TEAM.lender],
+  lastReviewed: REVIEWED,
+  state: 'CA'
+},
+{
   key: "aztaxlien",
   title: "Arizona tax lien sales",
   short: "Tax lien sales",

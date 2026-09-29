@@ -114,7 +114,7 @@
       "src/lib/playbooks.ts"
     ],
     "reviewed": "2026-09-29",
-    "hash": "aa2845ddc2b5ca7d",
+    "hash": "290b9d812ad46be7",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -321,7 +321,7 @@
       "src/lib/lessons/who-invests.ts"
     ],
     "reviewed": "2026-09-29",
-    "hash": "37480dcdbca91bb9",
+    "hash": "d86c600cd2c30c30",
     "note": "All 10 lessons; state-specific passages split so each state sees only its own rules."
   },
   {
