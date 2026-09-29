@@ -1929,3 +1929,14 @@ h1, h2 { letter-spacing: -0.03em; }
   .lesson-table td[data-label]:not([data-label=""])::before { content: attr(data-label); display: block; font-weight: 700; font-size: 0.95rem; color: var(--muted); }
 }
 .page .lesson-table th:first-child, .page .lesson-table td:first-child { padding-left: 14px; }
+
+/* Learn: recommended reading */
+.book-group { max-width: 900px; margin-bottom: 24px; }
+.book-group h2 { font-size: 1.45rem; margin: 0 0 10px; }
+.book-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); }
+.book-card { display: grid; gap: 6px; align-content: start; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; }
+.book-title { font-size: 1.1rem; line-height: 1.35; }
+.book-note { color: var(--muted); font-style: italic; }
+.book-card a { justify-self: start; font-weight: 600; }
+.book-foot { max-width: 900px; }
+.fine-print { color: var(--muted); font-size: 0.9rem; margin-top: 18px; }
