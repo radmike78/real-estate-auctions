@@ -1,33 +1,174 @@
+import { useEffect, useState } from 'react';
 import PageHero from './PageHero';
 import { Calculators } from './CalculatorPage';
+import { CalcRegion } from './calcRegion';
 import { useMarkStep } from '../lib/path';
+import { useMyState, setMyState } from '../lib/myState';
+import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
+import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, type Deal, type Plan, type SaleKind } from '../lib/analyze';
 
-const STEPS: [string, string, string?][] = [
-  ['Run the numbers', 'Find the most you can pay and still make your profit (below).'],
-  ['Check title and liens', 'A title search shows who owns it and which liens could stay with the property.', '#/pros/title'],
-  ['Check the condition', 'An inspection, or an exterior look if you can’t go inside, and a repair estimate.', '#/pros/inspector'],
-  ['Line up the money', 'Cash, a loan pre-approval, or a hard-money lender, before you make an offer or bid.', '#/pros/lender'],
-  ['Confirm with the official seller', 'Sales are paid off, postponed and cancelled. Check the date, terms and payment rules.'],
-  ['Keep track', 'Save it to My deals to follow dates, deadlines and your notes.', '#/deals'],
-];
+const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake' };
+const CURRENT = CURRENT_KEY;
 
-/** Step 6 of the path: work through a real deal, starting with the numbers. */
+function blank(st: StateCode): Deal {
+  return { id: '', name: '', state: st, county: DEFAULT_COUNTY[st], kind: 'listing', plan: 'flip', notes: '', done: [], updatedAt: new Date().toISOString() };
+}
+
+function loadCurrent(st: StateCode): Deal {
+  try {
+    const v = JSON.parse(localStorage.getItem(CURRENT) ?? 'null');
+    if (v && stateByCode(v.state) && (!st || v.state === st)) return { ...blank(v.state), ...v };
+  } catch {
+    /* start fresh */
+  }
+  return blank(st);
+}
+
+/** Step 6 of the path: describe a real deal, get the checklist for that sale in that state, and run the numbers. */
 export default function AnalyzePage() {
   useMarkStep('analyze');
+  const [mine] = useMyState();
+  const [deal, setDeal] = useState<Deal>(() => loadCurrent(mine ?? 'NV'));
+  const [saved, setSaved] = useState<Deal[]>(loadDeals);
+
+  // Keep the working deal between visits, and in the saved list once it has been saved.
+  useEffect(() => {
+    try {
+      localStorage.setItem(CURRENT, JSON.stringify(deal));
+    } catch {
+      /* private mode */
+    }
+    if (deal.id) {
+      setSaved((list) => {
+        const next = list.map((d) => (d.id === deal.id ? deal : d));
+        saveDeals(next);
+        return next;
+      });
+    }
+  }, [deal]);
+  // Choosing a state elsewhere on the site moves a new, unsaved deal to it.
+  useEffect(() => {
+    if (mine && !deal.id && mine !== deal.state) setDeal(blank(mine));
+  }, [mine]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const set = (patch: Partial<Deal>) => setDeal((d) => ({ ...d, ...patch, updatedAt: new Date().toISOString() }));
+  const st = stateByCode(deal.state)!;
+  const kinds = kindsFor(deal.state);
+  const plans = PLANS.filter((p) => plansFor(deal.kind).includes(p.key));
+  const groups = checklistFor(deal);
+  const all = groups.flatMap((g) => g.items);
+  const doneCount = all.filter((i) => deal.done.includes(i.id)).length;
+  const toggle = (id: string) => set({ done: deal.done.includes(id) ? deal.done.filter((x) => x !== id) : [...deal.done, id] });
+
+  const saveNew = () => {
+    const d = { ...deal, id: `d${Date.now().toString(36)}`, name: deal.name.trim() || `${countyName(deal.county)} deal` };
+    const next = [d, ...saved];
+    saveDeals(next);
+    setSaved(next);
+    setDeal(d);
+  };
+  const remove = (id: string) => {
+    const next = saved.filter((d) => d.id !== id);
+    saveDeals(next);
+    setSaved(next);
+    if (deal.id === id) setDeal(blank(deal.state));
+  };
+
   return (
-    <main className="page">
+    <main className="page analyze">
       <PageHero
         eyebrow={<span className="eyebrow">Step 6 of 6</span>}
         title={<>Analyze <span className="grad">a deal</span></>}
-        sub="Found one you like? Work through it step by step, and know your number before you offer or bid."
+        sub="Found one you like? Tell us about it, get the checklist for that kind of sale in your state, and know your number before you offer or bid."
       />
-      <ol className="work-steps">
-        {STEPS.map(([t, d, href]) => (
-          <li key={t}><strong>{t}</strong><span>{d}{href && <> <a href={href}>How →</a></>}</span></li>
+
+      <section className="deal-setup" aria-labelledby="setup-head">
+        <h2 id="setup-head">1. About the deal</h2>
+        <div className="deal-fields">
+          <label className="field wide">
+            <span>Address or nickname</span>
+            <input value={deal.name} maxLength={80} placeholder="e.g. 123 Main St" onChange={(e) => set({ name: e.target.value })} />
+          </label>
+          <label className="field">
+            <span>State</span>
+            <select value={deal.state} onChange={(e) => { const s = e.target.value as StateCode; const k = kindsFor(s).some((x) => x.key === deal.kind) ? deal.kind : 'listing'; set({ state: s, county: DEFAULT_COUNTY[s], kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); setMyState(s); }}>
+              {STATES.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}
+            </select>
+          </label>
+          <label className="field">
+            <span>County</span>
+            <select value={deal.county} onChange={(e) => set({ county: e.target.value })}>
+              {st.counties.map((c) => <option key={c} value={c}>{countyName(c)}</option>)}
+            </select>
+          </label>
+          <label className="field">
+            <span>Kind of sale</span>
+            <select value={deal.kind} onChange={(e) => { const k = e.target.value as SaleKind; set({ kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); }}>
+              {kinds.map((k) => <option key={k.key} value={k.key}>{kindLabel(k, deal.state)}</option>)}
+            </select>
+          </label>
+          <label className="field">
+            <span>Your plan</span>
+            <select value={deal.plan} onChange={(e) => set({ plan: e.target.value as Plan })}>
+              {plans.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
+            </select>
+          </label>
+        </div>
+        <div className="deal-actions">
+          {deal.id ? (
+            <>
+              <span className="muted">Saved as “{deal.name}”. Changes save as you go.</span>
+              <button type="button" className="btn btn-secondary" onClick={() => setDeal(blank(deal.state))}>Start a new deal</button>
+            </>
+          ) : (
+            <button type="button" className="btn" onClick={saveNew}>Save this deal</button>
+          )}
+        </div>
+        {saved.length > 0 && (
+          <div className="saved-deals">
+            <strong>Your deals</strong>
+            <ul>
+              {saved.map((d) => (
+                <li key={d.id} className={d.id === deal.id ? 'on' : ''}>
+                  <button type="button" className="linkish" onClick={() => setDeal(d)}>{d.name}</button>
+                  <span className="muted"> · {countyName(d.county)}, {d.state}</span>
+                  <button type="button" className="linkish danger" aria-label={`Delete ${d.name}`} onClick={() => remove(d.id)}>Delete</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </section>
+
+      <section className="deal-checklist" aria-labelledby="check-head">
+        <h2 id="check-head">2. Your checklist <span className="muted">({doneCount} of {all.length} done)</span></h2>
+        <p className="muted">For a {kindLabel(kinds.find((k) => k.key === deal.kind) ?? kinds[0], deal.state).toLowerCase()} in {countyName(deal.county)}, {st.name}.</p>
+        {groups.map((g) => (
+          <div key={g.title} className="check-group">
+            <h3>{g.title}</h3>
+            <ul className="decide-checklist">
+              {g.items.map((c) => (
+                <li key={c.id}>
+                  <label>
+                    <input type="checkbox" checked={deal.done.includes(c.id)} onChange={() => toggle(c.id)} />
+                    <span>{c.text}</span>
+                  </label>
+                  {c.href && (c.href.startsWith('https://') ? <a href={c.href} target="_blank" rel="noopener noreferrer">Open ↗</a> : <a href={c.href}>Go →</a>)}
+                </li>
+              ))}
+            </ul>
+          </div>
         ))}
-      </ol>
-      <h2 className="section-title">Run the numbers</h2>
-      <Calculators />
+        <label className="field deal-notes">
+          <span>Notes</span>
+          <textarea rows={3} maxLength={2000} value={deal.notes} placeholder="Questions for the title company, repair quotes, dates…" onChange={(e) => set({ notes: e.target.value })} />
+        </label>
+      </section>
+
+      <h2 className="section-title">3. Run the numbers</h2>
+      <CalcRegion.Provider value={{ state: deal.state, county: deal.county }}>
+        <Calculators key={`${deal.plan}-${deal.state}-${deal.county}`} initial={calcTabFor(deal.plan)} state={deal.state} />
+      </CalcRegion.Provider>
     </main>
   );
 }
