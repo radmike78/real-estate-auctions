@@ -21,7 +21,10 @@ import AdvertiserPage from './components/AdvertiserPage';
 import DisclaimerPage from './components/DisclaimerPage';
 import PrivacyPage from './components/PrivacyPage';
 import TermsPage from './components/TermsPage';
-import CalculatorPage from './components/CalculatorPage';
+import LearnPage from './components/LearnPage';
+import DecidePage from './components/DecidePage';
+import FindDealsPage from './components/FindDealsPage';
+import AnalyzePage from './components/AnalyzePage';
 import PracticePage from './components/PracticePage';
 import PracticeScenarioPage from './components/PracticeScenarioPage';
 import PlaybookPage from './components/PlaybookPage';
@@ -60,7 +63,10 @@ type Route =
   | { page: 'disclaimer'; section?: string }
   | { page: 'privacy'; section?: string }
   | { page: 'terms'; section?: string }
-  | { page: 'calculator' }
+  | { page: 'analyze' }
+  | { page: 'learn' }
+  | { page: 'decide' }
+  | { page: 'finddeals' }
   | { page: 'deals' }
   | { page: 'homeowner' }
   | { page: 'guides'; q: string }
@@ -120,7 +126,10 @@ function parseHash(): Route {
   const confirm = h.match(/^advertise\/confirm(?:\/([A-Za-z0-9_-]+))?$/);
   if (confirm) return { page: 'applicationConfirm', token: confirm[1] ?? '' };
   if (h === 'admin') return { page: 'admin' };
-  if (h === 'calculator') return { page: 'calculator' };
+  if (h === 'calculator' || h === 'analyze') return { page: 'analyze' };
+  if (h === 'learn') return { page: 'learn' };
+  if (h === 'decide') return { page: 'decide' };
+  if (h === 'find-deals') return { page: 'finddeals' };
   if (h === 'deals') return { page: 'deals' };
   if (h === 'homeowner-help') return { page: 'homeowner' };
   if (h === 'guides') return { page: 'guides', q };
@@ -215,7 +224,10 @@ export default function App() {
       {route.page === 'disclaimer' && <DisclaimerPage section={route.section} />}
       {route.page === 'privacy' && <PrivacyPage section={route.section} />}
       {route.page === 'terms' && <TermsPage section={route.section} />}
-      {route.page === 'calculator' && <CalculatorPage />}
+      {route.page === 'analyze' && <AnalyzePage />}
+      {route.page === 'learn' && <LearnPage />}
+      {route.page === 'decide' && <DecidePage />}
+      {route.page === 'finddeals' && <FindDealsPage />}
       {route.page === 'deals' && <DealsPage />}
       {route.page === 'homeowner' && <HomeownerHelpPage />}
       {route.page === 'guides' && <GuidesPage key={`${nav}|${route.q}`} initialQuery={route.q} />}

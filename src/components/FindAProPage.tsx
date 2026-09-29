@@ -6,6 +6,8 @@ import ProDirectory from './ProDirectory';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
 import { PLAYBOOKS } from '../lib/playbooks';
+import { useMarkStep } from '../lib/path';
+import PathNext from './PathNext';
 import { CORE_TEAM, PRO_GUIDES, proGuideByKey, type ProGuide, type ProKey } from '../lib/proGuide';
 
 const ICONS: Record<ProKey, ReactElement> = {
@@ -53,6 +55,7 @@ function GuideBody({ g }: { g: ProGuide }) {
 
 /** "Your deal team" (the Find a pro tab): who helps with a forced-sale purchase, when you need each one, and how to find them. */
 export default function FindAProPage({ section }: { section?: string }) {
+  useMarkStep('team');
   const [sale, setSale] = useState<string>('start');
   const open = !!section && !!proGuideByKey(section);
   const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
@@ -66,7 +69,7 @@ export default function FindAProPage({ section }: { section?: string }) {
       <PageHero
         compact={open}
         top={open ? <a href="#/pros">← Your deal team</a> : undefined}
-        eyebrow={open ? undefined : <span className="eyebrow">Find a pro</span>}
+        eyebrow={open ? undefined : <span className="eyebrow">Step 3 of 6</span>}
         title={open ? <a className="title-link" href="#/pros">Your deal team</a> : <>Your <span className="grad">deal team</span></>}
         sub={open ? undefined : 'Who helps with a forced-sale purchase, when you need each one, and how to find them.'}
       />
@@ -88,6 +91,7 @@ export default function FindAProPage({ section }: { section?: string }) {
       )}
       {!open && <h2 className="section-title">The professionals</h2>}
       <DrillDown sections={sections} active={open ? section : undefined} baseHref="#/pros" label="Professionals" />
+      {!open && <PathNext step="team" />}
     </main>
   );
 }

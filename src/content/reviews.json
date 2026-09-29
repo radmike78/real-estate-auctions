@@ -5,8 +5,8 @@
     "files": [
       "src/components/HomePage.tsx"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "80121b04af840515",
+    "reviewed": "2026-09-29",
+    "hash": "d72686e3f0ce61f6",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -135,8 +135,8 @@
       "src/components/PracticeScenarioPage.tsx",
       "src/practice/scenarios.ts"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "4fa8c4fcb267e1ff",
+    "reviewed": "2026-09-29",
+    "hash": "03a432c60b8840c7",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -152,8 +152,8 @@
       "src/components/StrategyTabs.tsx",
       "src/lib/holdCalc.ts"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "33da0f0dba0386e9",
+    "reviewed": "2026-09-29",
+    "hash": "78b406627fbebcff",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -187,8 +187,8 @@
       "src/components/AgentsPage.tsx",
       "src/lib/licenseLookup.ts"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "737a5caab05a5d53",
+    "reviewed": "2026-09-29",
+    "hash": "fadf05cc64bce458",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -265,8 +265,8 @@
       "src/components/Disclaimer.tsx",
       "src/components/RoleNotice.tsx"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "d305a037aa57d75b",
+    "reviewed": "2026-09-29",
+    "hash": "ed61212ceb9339ca",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -298,5 +298,50 @@
     "reviewed": "2026-09-28",
     "hash": "005741d77db801cd",
     "note": "Full content review (review round of 2026-09-27)."
+  },
+  {
+    "id": "learn",
+    "title": "Learn (step 1)",
+    "files": [
+      "src/components/LearnPage.tsx",
+      "src/lib/learn.ts"
+    ],
+    "reviewed": "2026-09-29",
+    "hash": "44c6ae9f2549e9b3",
+    "note": "New learning path, phase 1: lesson outline."
+  },
+  {
+    "id": "decide",
+    "title": "Decide (step 2)",
+    "files": [
+      "src/components/DecidePage.tsx"
+    ],
+    "reviewed": "2026-09-29",
+    "hash": "3e8743f6f4cc4247",
+    "note": "New learning path, phase 1: coming soon."
+  },
+  {
+    "id": "finddeals",
+    "title": "Find Deals (step 5)",
+    "files": [
+      "src/components/FindDealsPage.tsx",
+      "src/lib/findDeals.ts",
+      "src/lib/regions.ts"
+    ],
+    "reviewed": "2026-09-29",
+    "hash": "a9a4ea87870c8ed4",
+    "note": "New learning path, phase 1: official sources and other sites."
+  },
+  {
+    "id": "analyze",
+    "title": "Analyze a deal (step 6)",
+    "files": [
+      "src/components/AnalyzePage.tsx",
+      "src/lib/path.ts",
+      "src/components/PathNext.tsx"
+    ],
+    "reviewed": "2026-09-29",
+    "hash": "3378f144cdb4a770",
+    "note": "New learning path, phase 1."
   }
 ]

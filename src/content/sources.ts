@@ -15,7 +15,8 @@ export type SourceRole =
   | 'lookup' // research tools: records, maps, license lookups
   | 'help' // free help for homeowners and consumers
   | 'payment' // advertiser billing
-  | 'sample'; // fictional sample data only
+  | 'sample' // fictional sample data only
+  | 'other'; // listing portals and auction marketplaces: shown only under Find Deals "Other sites", never as a listing source
 
 export interface Source {
   id: string;
@@ -127,6 +128,16 @@ export const SOURCES: Source[] = [
 
   // ---------------- Research tools and billing ----------------
   { id: 'google-maps', title: 'Google Maps (Street View and map search)', publisher: 'Google', url: 'https://www.google.com/maps/', prefix: true, role: 'lookup', checked: '2026-09-27', note: 'Research tool only, never a listing source. Not linked for homes that aren’t for sale.' },
+  { id: 'hud-home', title: 'HUD Home Store', publisher: 'U.S. Department of Housing and Urban Development', url: 'https://www.hudhomestore.gov/', role: 'listing', checked: null },
+  { id: 'zillow', title: 'Zillow', publisher: 'Zillow Group', url: 'https://www.zillow.com/', role: 'other', checked: null },
+  { id: 'realtor-com', title: 'Realtor.com', publisher: 'Move, Inc.', url: 'https://www.realtor.com/', role: 'other', checked: null },
+  { id: 'redfin', title: 'Redfin', publisher: 'Redfin', url: 'https://www.redfin.com/', role: 'other', checked: null },
+  { id: 'auction-com', title: 'Auction.com', publisher: 'Auction.com', url: 'https://www.auction.com/', role: 'other', checked: null },
+  { id: 'xome', title: 'Xome', publisher: 'Xome', url: 'https://www.xome.com/', role: 'other', checked: null },
+  { id: 'hubzu', title: 'Hubzu', publisher: 'Hubzu', url: 'https://www.hubzu.com/', role: 'other', checked: null },
+  { id: 'bid4assets', title: 'Bid4Assets', publisher: 'Bid4Assets', url: 'https://www.bid4assets.com/', role: 'other', checked: null },
+  { id: 'loopnet', title: 'LoopNet', publisher: 'CoStar Group', url: 'https://www.loopnet.com/', role: 'other', checked: null },
+  { id: 'crexi', title: 'Crexi', publisher: 'Commercial Real Estate Exchange', url: 'https://www.crexi.com/', role: 'other', checked: null },
   { id: 'stripe-checkout', title: 'Stripe Checkout', publisher: 'Stripe', url: 'https://checkout.stripe.com/', prefix: true, role: 'payment', checked: null },
   { id: 'stripe-billing', title: 'Stripe billing portal', publisher: 'Stripe', url: 'https://billing.stripe.com/', prefix: true, role: 'payment', checked: null },
   { id: 'example', title: 'Placeholder addresses in fictional sample profiles', publisher: 'IANA example domain', url: 'https://example.com/', prefix: true, role: 'sample', checked: null },

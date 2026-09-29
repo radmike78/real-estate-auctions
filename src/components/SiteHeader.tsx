@@ -4,17 +4,18 @@ import { loadDeals, onDealsChange } from '../lib/deals';
 // The tasks people come for, one click away. Everything else is under More, grouped.
 const PRIMARY = [
   ['#/', 'Home'],
-  ['#/search', 'Properties'],
-  ['#/playbooks', 'Learn'],
+  ['#/learn', 'Learn'],
+  ['#/decide', 'Decide'],
+  ['#/pros', 'Your Team'],
   ['#/practice', 'Practice'],
-  ['#/pros', 'Find a pro'],
+  ['#/find-deals', 'Find Deals'],
 ] as const;
 
 const MORE: { group: string; links: (readonly [string, string])[] }[] = [
-  { group: 'Tools', links: [['#/calculator', 'Maximum bid calculator'], ['#/deals', 'My deals']] },
-  { group: 'Buy', links: [['#/live', 'Live tax sales'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures']] },
-  { group: 'Get help', links: [['#/financing', 'Financing'], ['#/pros', 'Your deal team']] },
-  { group: 'Research', links: [['#/guides', 'Search the guides'], ['#/pre-foreclosures', 'Pre-foreclosures (not for sale)']] },
+  { group: 'Tools', links: [['#/analyze', 'Analyze a deal'], ['#/deals', 'My deals']] },
+  { group: 'Learn', links: [['#/playbooks', 'How each sale works'], ['#/guides', 'Search the guides']] },
+  { group: 'Nevada deals', links: [['#/live', 'Live tax sales'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures'], ['#/pre-foreclosures', 'Pre-foreclosures (not for sale)']] },
+  { group: 'Get help', links: [['#/financing', 'Financing'], ['#/homeowner-help', 'Homeowners: free help']] },
   { group: 'About', links: [['#/about', 'How it works'], ['#/disclaimer', 'How we help']] },
   { group: 'For professionals', links: [['#/advertise', 'Advertise on DeedOwl'], ['#/advertiser', 'Advertiser sign-in']] },
 ];
@@ -78,8 +79,14 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
   const active = (href: string) => {
     const path = current.split('?')[0];
     const target = href.slice(2);
-    const pros = ['agents', 'pros', 'find-a-pro', 'financing'];
-    return path === target || path.startsWith(`${target}/`) || (target === 'pros' && pros.some((x) => path === x || path.startsWith(`${x}/`)));
+    // Pages that belong to a step light up that step's tab.
+    const also: Record<string, string[]> = {
+      learn: ['playbooks', 'guides'],
+      pros: ['agents', 'find-a-pro', 'financing'],
+      'find-deals': ['live', 'bank-owned', 'short-sales', 'business-assets', 'pre-foreclosures', 'search', 'property'],
+    };
+    const under = (x: string) => path === x || path.startsWith(`${x}/`);
+    return under(target) || (also[target] ?? []).some(under);
   };
   return (
     <header className="site-header">

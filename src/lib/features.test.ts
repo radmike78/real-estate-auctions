@@ -248,6 +248,28 @@ describe('bank-owned and government sources', () => {
   });
 });
 
+describe('Find Deals', () => {
+  it('keeps official sources and other sites apart (CLAUDE.md)', async () => {
+    const { NATIONAL_OFFICIAL, COUNTY_PAGES, OTHER_SITES } = await import('./findDeals');
+    const { SOURCES } = await import('../content/sources');
+    const allowed = /(\.gov|fanniemae\.com|homesteps\.com|bankofamerica\.com|firstcitizens\.com|usbank\.com|chase\.com)$/;
+    const official = [...NATIONAL_OFFICIAL, ...Object.values(COUNTY_PAGES).flat()].map((s) => s.url);
+    for (const u of official) if (!u.startsWith('#/')) expect(allowed.test(new URL(u).hostname), u).toBe(true);
+    const other = OTHER_SITES.flatMap((g) => g.sites.map((s) => s.url));
+    for (const u of other) {
+      expect(official.includes(u), u).toBe(false);
+      expect(SOURCES.find((s) => s.url === u)?.role, u).toBe('other');
+    }
+    // Every "other" source is shown only in that section.
+    for (const s of SOURCES.filter((x) => x.role === 'other')) expect(other, s.url).toContain(s.url);
+  });
+
+  it('covers every county in the four states', async () => {
+    const { STATES } = await import('./regions');
+    expect(STATES.map((s) => [s.code, s.counties.length])).toEqual([['NV', 17], ['CA', 58], ['AZ', 15], ['UT', 29]]);
+  });
+});
+
 describe('photos & views links', () => {
   it('builds Street View, county aerial, sketch and Assessor links for a real parcel', async () => {
     const { propertyViews } = await import('./propertyViews');
