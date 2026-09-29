@@ -1943,3 +1943,34 @@ h1, h2 { letter-spacing: -0.03em; }
 .lesson-body-text ul.lesson-links { list-style: none; padding: 0; display: grid; gap: 8px; }
 .lesson-links li { display: grid; gap: 2px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
 .lesson-links a { font-weight: 600; }
+
+/* Decide: questionnaire and results */
+.decide-card { max-width: 760px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px 24px; }
+.decide-card fieldset { border: 0; margin: 0; padding: 0; }
+.decide-card legend { padding: 0; }
+.decide-card h2 { font-size: 1.5rem; margin: 4px 0 6px; outline: none; }
+.decide-progress { display: grid; gap: 6px; color: var(--muted); margin: 0 0 6px; }
+.decide-bar { display: block; height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.decide-bar > span { display: block; height: 100%; background: var(--accent-strong); }
+.decide-options { display: grid; gap: 10px; margin: 12px 0 4px; }
+.decide-option { display: flex; gap: 12px; align-items: center; padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px; cursor: pointer; background: var(--bg); }
+.decide-option.on { border-color: var(--accent-strong); box-shadow: 0 0 0 1px var(--accent-strong) inset; }
+.decide-option input { width: 20px; height: 20px; accent-color: var(--accent-strong); flex: none; }
+.decide-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.decide-nav .btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+.decide-results-title { font-size: 1.6rem; margin: 0 0 4px; outline: none; }
+.decide-matches { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 16px; max-width: 900px; }
+.decide-match { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 22px; }
+.decide-match-head { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start; }
+.decide-match h3 { margin: 4px 0 4px; font-size: 1.3rem; }
+.decide-match h4 { margin: 14px 0 8px; font-size: 1.05rem; }
+.decide-why { margin: 10px 0 0; }
+.decide-why strong { display: inline-block; margin-right: 6px; color: var(--go, var(--accent)); }
+.decide-why.caution strong { color: var(--muted); }
+.decide-note { margin: 10px 0 0; padding: 8px 12px; border-left: 3px solid var(--accent-strong); background: var(--surface-2); border-radius: 6px; }
+.decide-checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.decide-checklist li { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; }
+.decide-checklist label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }
+.decide-checklist input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--accent-strong); flex: none; }
+.decide-checklist a { white-space: nowrap; font-weight: 600; }
+.decide-checklist input:checked + span { color: var(--muted); text-decoration: line-through; }
