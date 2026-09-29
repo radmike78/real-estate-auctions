@@ -1934,10 +1934,15 @@ h1, h2 { letter-spacing: -0.03em; }
 .book-group { max-width: 900px; margin-bottom: 24px; }
 .book-group h2 { font-size: 1.45rem; margin: 0 0 10px; }
 .book-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); }
-.book-card { display: grid; gap: 6px; align-content: start; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; }
+.book-card { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; }
+.book-info { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.book-cover { display: block; width: 96px; }
+.book-cover img { display: block; width: 96px; height: auto; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,.18); background: var(--surface-2); }
+.book-cover[hidden] { display: none; }
+@media (max-width: 420px) { .book-cover, .book-cover img { width: 76px; } }
 .book-title { font-size: 1.1rem; line-height: 1.35; }
 .book-note { color: var(--muted); font-style: italic; }
-.book-card a { justify-self: start; font-weight: 600; }
+.book-info > a { justify-self: start; font-weight: 600; }
 .book-foot { max-width: 900px; }
 .fine-print { color: var(--muted); font-size: 0.9rem; margin-top: 18px; }
 .lesson-body-text ul.lesson-links { list-style: none; padding: 0; display: grid; gap: 8px; }

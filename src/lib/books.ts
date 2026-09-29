@@ -74,4 +74,12 @@ export const BOOK_GROUPS: { topic: string; books: Book[] }[] = [
   },
 ];
 
+/**
+ * The book's cover, through Amazon's own Associates image link (the format SiteStripe's "Image" option makes);
+ * `coverFallback` is Amazon's image server, used if that link doesn't load. Covers aren't copied to our site.
+ */
+export const coverUrl = (b: Book) =>
+  `https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=${b.isbn10}&Format=_SL250_&ID=AsinImage&MarketPlace=US&ServiceVersion=20070822&WS=1${AMAZON_TAG ? `&tag=${encodeURIComponent(AMAZON_TAG)}` : ''}`;
+export const coverFallback = (b: Book) => `https://m.media-amazon.com/images/P/${b.isbn10}.01._SCLZZZZZZZ_SX250_.jpg`;
+
 export const amazonUrl = (b: Book) => b.link ?? `https://www.amazon.com/dp/${b.isbn10}${AMAZON_TAG ? `?tag=${encodeURIComponent(AMAZON_TAG)}` : ''}`;
