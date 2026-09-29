@@ -1,7 +1,12 @@
 // A Learn lesson: plain-language reading with the sources it was written from.
 
-/** A paragraph, a bulleted list, or a small comparison table. */
-export type LessonBlock = string | { list: string[] } | { table: { head: string[]; rows: string[][] } };
+/** A paragraph, a bulleted list, a small comparison table, or a list of tools to open. */
+export type LessonBlock =
+  | string
+  | { list: string[] }
+  | { table: { head: string[]; rows: string[][] } }
+  /** Official tools and offices to open, each with what it's for. */
+  | { links: { label: string; url: string; what: string }[] };
 
 export interface Lesson {
   /** Matches a LEARN_MODULES key. */
