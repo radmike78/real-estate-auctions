@@ -2,7 +2,7 @@
 // links, and the page shows the required disclosure in fine print (CLAUDE.md).
 
 /** The owner's Amazon Associates tracking ID (ends in "-20"). Empty: plain links, no disclosure. */
-export const AMAZON_TAG = '';
+export const AMAZON_TAG = 'mcmbe-20';
 
 export interface Book {
   title: string;
