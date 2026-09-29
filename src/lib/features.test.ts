@@ -249,6 +249,20 @@ describe('bank-owned and government sources', () => {
 });
 
 describe('Find Deals', () => {
+  it('links each county only to its own government offices, never an auction marketplace (CLAUDE.md)', async () => {
+    const { COUNTY_OFFICES } = await import('./countyOffices');
+    const { stateByCode } = await import('./regions');
+    const MARKETPLACE = /bid4assets|govease|realauction|mytaxsale|publicsurplus|auction\.com|xome|hubzu|grantstreet|lienhub|zeusauction/i;
+    for (const [key, offices] of Object.entries(COUNTY_OFFICES)) {
+      const [state, county] = key.split('/');
+      expect(stateByCode(state)?.counties, key).toContain(county);
+      for (const o of Object.values(offices)) {
+        expect(o.url, key).toMatch(/^https:\/\//);
+        expect(MARKETPLACE.test(new URL(o.url).hostname), `${key} ${o.url}`).toBe(false);
+      }
+    }
+  });
+
   it('keeps official sources and other sites apart (CLAUDE.md)', async () => {
     const { NATIONAL_OFFICIAL, COUNTY_PAGES, OTHER_SITES } = await import('./findDeals');
     const { SOURCES } = await import('../content/sources');

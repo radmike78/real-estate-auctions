@@ -4,6 +4,34 @@ import { lessonByKey } from '../lib/lessons';
 import type { LessonBlock } from '../lib/lessons/types';
 import { useMarkStep } from '../lib/path';
 import { fmtDate } from '../lib/status';
+import { showFor, useMyState } from '../lib/myState';
+import { STATES, type StateCode } from '../lib/regions';
+import StatePicker from './StatePicker';
+
+const STATE_NAMES = new Set(STATES.map((s) => s.name));
+
+/** The block as it applies to one state: other states' rows, columns, items and paragraphs removed. */
+function forState(b: LessonBlock, st: StateCode | null): LessonBlock | null {
+  if (!st) return b;
+  if (typeof b === 'string') return showFor(st, b) ? b : null;
+  if ('list' in b) {
+    const list = b.list.filter((x) => showFor(st, x));
+    return list.length ? { list } : null;
+  }
+  if ('links' in b) {
+    const links = b.links.filter((x) => showFor(st, x.label));
+    return links.length ? { links } : null;
+  }
+  const { head, rows } = b.table;
+  if (head.slice(1).some((h) => STATE_NAMES.has(h))) {
+    const name = STATES.find((s) => s.code === st)!.name;
+    const keep = head.map((h, i) => i === 0 || !STATE_NAMES.has(h) || h === name);
+    if (!head.some((h) => h === name)) return null;
+    return { table: { head: head.filter((_, i) => keep[i]), rows: rows.map((r) => r.filter((_, i) => keep[i])) } };
+  }
+  const kept = rows.filter((r) => showFor(st, r[0]));
+  return kept.length ? { table: { head, rows: kept } } : null;
+}
 
 function Block({ b }: { b: LessonBlock }) {
   if (typeof b === 'string') return <p>{b}</p>;
@@ -42,6 +70,12 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
   const ready = LEARN_MODULES.filter((x) => lessonByKey(x.key) || x.href);
   const next = ready[ready.indexOf(m) + 1];
   const nextHref = next && (lessonByKey(next.key) ? `#/learn/${next.key}` : next.href!);
+  const [st] = useMyState();
+  const sections = l.sections
+    .map((s) => ({ heading: s.heading, blocks: s.blocks.map((b) => forState(b, st)).filter((b): b is LessonBlock => b !== null) }))
+    .filter((s) => s.blocks.length > 0);
+  const sources = l.sources.filter((s) => showFor(st, s.label));
+  const terms = l.terms.filter((t) => showFor(st, t.meaning));
   return (
     <main className="page lesson">
       <PageHero
@@ -50,12 +84,13 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         title={m.title}
         sub={l.intro}
       />
+      <StatePicker label="Show rules for" />
       <section className="lesson-takeaways" aria-labelledby="takeaways">
         <h2 id="takeaways">What you’ll learn</h2>
         <ul>{l.takeaways.map((t) => <li key={t}>{t}</li>)}</ul>
       </section>
       <article className="lesson-body-text">
-        {l.sections.map((s) => (
+        {sections.map((s) => (
           <section key={s.heading}>
             <h2>{s.heading}</h2>
             {s.blocks.map((b, i) => <Block key={i} b={b} />)}
@@ -64,13 +99,13 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
       </article>
       <section className="lesson-terms" aria-labelledby="terms">
         <h2 id="terms">Key terms</h2>
-        <dl>{l.terms.map((t) => <div key={t.term}><dt>{t.term}</dt><dd>{t.meaning}</dd></div>)}</dl>
+        <dl>{terms.map((t) => <div key={t.term}><dt>{t.term}</dt><dd>{t.meaning}</dd></div>)}</dl>
       </section>
       {l.tryIt && <p className="lesson-try"><a className="btn btn-secondary" href={l.tryIt.href}>{l.tryIt.label} →</a></p>}
       <section className="lesson-sources" aria-labelledby="sources">
         <h2 id="sources">Sources</h2>
         <ul className="source-links">
-          {l.sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a></li>)}
+          {sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a></li>)}
         </ul>
         <p className="muted">Checked {fmtDate(l.reviewed)}. General education, not legal, tax or financial advice.</p>
       </section>

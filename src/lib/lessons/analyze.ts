@@ -8,7 +8,7 @@ export const analyze: Lesson = {
     'How value is set: comparable sales, appraisals and income.',
     'The costs buyers forget: closing, holding, repairs and selling.',
     'The core measures: NOI, cash flow, cap rate, cash-on-cash return and gross rent multiplier.',
-    'The checks to make before you buy, including Nevada and California disclosure deadlines.',
+    'The checks to make before you buy, including seller and HOA disclosure deadlines.',
   ],
   sections: [
     {
@@ -68,7 +68,7 @@ export const analyze: Lesson = {
       ],
     },
     {
-      heading: 'Disclosures in Nevada and California',
+      heading: 'Seller and HOA disclosures',
       blocks: [
         {
           table: {
@@ -80,7 +80,7 @@ export const analyze: Lesson = {
             ],
           },
         },
-        'Arizona and Utah have their own disclosure rules; we’ll add them. Until then, ask a local agent or real estate attorney.',
+        'Arizona and Utah have their own seller and HOA disclosure rules; we haven’t reviewed them yet. Until we do, ask a local agent or real estate attorney.',
       ],
     },
   ],

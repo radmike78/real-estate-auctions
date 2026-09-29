@@ -3,7 +3,8 @@ import PageHero from './PageHero';
 import PathNext from './PathNext';
 import { useMarkStep } from '../lib/path';
 import { DECIDE_KEY, QUESTIONS, rank, stateNote, type Answers } from '../lib/decide';
-import { stateByCode } from '../lib/regions';
+import { stateByCode, type StateCode } from '../lib/regions';
+import { getMyState, setMyState } from '../lib/myState';
 
 interface Saved {
   answers: Answers;
@@ -11,13 +12,14 @@ interface Saved {
 }
 
 function load(): Saved {
+  const mine = getMyState();
   try {
     const v = JSON.parse(localStorage.getItem(DECIDE_KEY) ?? 'null');
-    if (v && typeof v === 'object') return { answers: v.answers ?? {}, done: Array.isArray(v.done) ? v.done : [] };
+    if (v && typeof v === 'object') return { answers: { ...(v.answers ?? {}), ...(mine ? { state: mine } : {}) }, done: Array.isArray(v.done) ? v.done : [] };
   } catch {
     /* ignore */
   }
-  return { answers: {}, done: [] };
+  return { answers: mine ? { state: mine } : {}, done: [] };
 }
 
 function save(s: Saved) {
@@ -41,7 +43,10 @@ export default function DecidePage() {
     if (step > 0) headRef.current?.focus();
   }, [step]);
 
-  const answer = (key: string, value: string) => setSaved((s) => ({ ...s, answers: { ...s.answers, [key]: value } }));
+  const answer = (key: string, value: string) => {
+    setSaved((s) => ({ ...s, answers: { ...s.answers, [key]: value } }));
+    if (key === 'state') setMyState(value as StateCode);
+  };
   const toggle = (id: string) => setSaved((s) => ({ ...s, done: s.done.includes(id) ? s.done.filter((x) => x !== id) : [...s.done, id] }));
 
   const q = QUESTIONS[step];

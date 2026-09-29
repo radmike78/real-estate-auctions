@@ -52,7 +52,8 @@ export const markets: Lesson = {
     {
       heading: 'How leases differ',
       blocks: [
-        'Residential tenants have strong protections. In California, for example, most rentals fall under the Tenant Protection Act: rent can’t go up more than 10%, or 5% plus inflation, whichever is lower, in 12 months, and there are rules on when a landlord can end a tenancy. Nevada, Arizona and Utah have their own landlord-tenant laws.',
+        'Residential tenants have strong protections, and each state sets its own landlord-tenant law. Read yours before you rent out a home.',
+        'In California, most rentals fall under the Tenant Protection Act: rent can’t go up more than 10%, or 5% plus inflation, whichever is lower, in 12 months, and there are rules on when a landlord can end a tenancy.',
         'Commercial leases are negotiated between businesses and are often much longer. In a triple-net (NNN) lease, the tenant pays rent plus the property’s taxes, insurance and maintenance; these leases commonly run 10 or 15 years.',
       ],
     },
