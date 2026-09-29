@@ -231,8 +231,8 @@ export const REDEMPTION_RULES = {
   irs: { label: 'IRS seizure sale: 180 days, +20% a year', months: 6, ratePct: 20, daily: 1 },
 } as const;
 export type RedemptionRule = keyof typeof REDEMPTION_RULES;
-export const ruleOf = (i: BidInputs): RedemptionRule | 'custom' => {
-  for (const [k, r] of Object.entries(REDEMPTION_RULES)) if (nz(i.redemptionMonths) === r.months && nz(i.redemptionRatePct) === r.ratePct && nz(i.redemptionDaily) === r.daily) return k as RedemptionRule;
+export const ruleOf = (i: BidInputs, rules: Record<string, { months: number; ratePct: number; daily: number }> = REDEMPTION_RULES): string => {
+  for (const [k, r] of Object.entries(rules)) if (nz(i.redemptionMonths) === r.months && nz(i.redemptionRatePct) === r.ratePct && nz(i.redemptionDaily) === r.daily) return k;
   return 'custom';
 };
 

@@ -8,6 +8,8 @@ import { STATUS, fmtDate, fmtDateTime, fmtMoney } from '../lib/status';
 import { savedMaxBid } from './BidCalculator';
 import { daysUntil, whenLabel } from './ResultsList';
 import PageHero from './PageHero';
+import { kindLabel, loadDeals as loadAnalyzed, openDeal, SALE_KINDS, checklistFor } from '../lib/analyze';
+import { countyName } from '../lib/regions';
 import StatusBadge from './StatusBadge';
 
 function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; loading: boolean }) {
@@ -90,6 +92,7 @@ function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; lo
 export default function DealsPage() {
   const [deals, setDeals] = useState(loadDeals);
   const { properties, loading } = useProperties();
+  const [analyzed] = useState(loadAnalyzed);
   useEffect(() => onDealsChange(() => setDeals(loadDeals())), []);
   const sorted = [...deals].sort((a, b) => {
     // Upcoming sales soonest first, then sales that have passed, then anything without a date.
@@ -107,12 +110,36 @@ export default function DealsPage() {
         title={<>My <span className="grad">deals</span></>}
         sub="Your saved properties: what changed, what’s due, and whether your bid still fits."
       />
-      {sorted.length === 0 ? (
+      {analyzed.length > 0 && (
+        <section className="analyzed-deals" aria-labelledby="analyzed-head">
+          <h2 id="analyzed-head">Deals you’re analyzing</h2>
+          <ul className="deal-list">
+            {analyzed.map((d) => {
+              const k = SALE_KINDS.find((x) => x.key === d.kind)!;
+              const all = checklistFor(d).flatMap((g) => g.items);
+              const done = all.filter((i) => d.done.includes(i.id)).length;
+              return (
+                <li key={d.id} className="deal-card">
+                  <div className="deal-head">
+                    <div>
+                      <h3><button type="button" className="linkish" onClick={() => openDeal(d)}>{d.name}</button></h3>
+                      <p className="muted">{kindLabel(k, d.state)} · {countyName(d.county)}, {d.state} · checklist {done} of {all.length} done</p>
+                    </div>
+                    <button type="button" className="btn btn-secondary" onClick={() => openDeal(d)}>Open →</button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+      {analyzed.length > 0 && sorted.length > 0 && <h2>Saved Clark County listings</h2>}
+      {sorted.length === 0 && analyzed.length > 0 ? null : sorted.length === 0 ? (
         <section className="deals-empty">
           <img className="owl-empty" src="logo.svg" alt="" width={112} height={112} />
-          <h2>No saved properties yet</h2>
-          <p>Open any property and choose <strong>☆ Save to My deals</strong>. It will show up here with its deadlines, your max bid and your due-diligence progress.</p>
-          <a className="btn big" href="#/search">Browse properties</a>
+          <h2>No saved deals yet</h2>
+          <p>Found a property you like? Describe it in <strong>Analyze a deal</strong> and save it: it will show up here with its checklist.</p>
+          <a className="btn big" href="#/analyze">Analyze a deal</a>
         </section>
       ) : (
         <ul className="deal-list">{sorted.map((d) => <DealCard key={d.id} d={d} p={properties.find((x) => x.id === d.id)} loading={loading} />)}</ul>

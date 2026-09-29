@@ -1,5 +1,7 @@
 import { useEffect, useId, useState } from 'react';
-import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, INPUT_MAX, maxSafeBid, profitAtBid, redemptionOutcome, REDEMPTION_RULES, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs, type RedemptionRule } from '../lib/bidCalc';
+import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, INPUT_MAX, maxSafeBid, profitAtBid, redemptionOutcome, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs } from '../lib/bidCalc';
+import { redemptionPresetsFor, taxSaleWait, transferTaxFor } from '../lib/stateCosts';
+import { useCalcRegion } from './calcRegion';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 
@@ -119,7 +121,11 @@ const yr = (x: number | null) => (x === null ? '—' : `${Math.round(x * 100)}% 
 const unitText = (u: Field['unit']) => (u === '$/500' ? 'per $500' : u === 'mo' ? 'months' : u === '%/yr' ? '% a year' : '%');
 
 export default function BidCalculator({ propertyId, defaults = START_INPUTS, openingBid, headingLevel = 3, commercial = false }: { propertyId?: string; defaults?: BidInputs; openingBid?: number | null; headingLevel?: 2 | 3; commercial?: boolean }) {
-  const hintFor = (f: Field) => (commercial && f.k === 'exitValue' ? 'Use the value by income above.' : f.hint);
+  const region = useCalcRegion();
+  const tax = transferTaxFor(region.state, region.county);
+  const rules = redemptionPresetsFor(region.state);
+  const hintFor = (f: Field) => (commercial && f.k === 'exitValue' ? 'Use the value by income above.' : f.k === 'transferTaxPer500' ? tax.hint : f.hint);
+  const moreFor = (f: Field) => (f.k === 'transferTaxPer500' ? tax.more : f.k === 'holdingMonths' ? taxSaleWait(region.state) : f.more);
   const uid = useId();
   // The pinned walk-away bar (phones) steps aside once the full results are on screen, so it never covers them.
   const [resultsVisible, setResultsVisible] = useState(false);
@@ -132,7 +138,7 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
   }, [uid]);
   // The listing's opening bid is the starting point (older saved inputs didn't have it).
   const [i, setI] = useState<BidInputs>(() => {
-    const v = load(propertyId, defaults);
+    const v = load(propertyId, propertyId ? defaults : { ...defaults, transferTaxPer500: tax.per500 });
     return !v.minimumBid && openingBid ? { ...v, minimumBid: openingBid } : v;
   });
   const [mode, setModeState] = useState<'quick' | 'detailed'>(loadMode);
@@ -168,8 +174,8 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
     setDraft((d) => ({ ...d, [k]: text }));
     update({ [k]: clampInput(k, toNum(text)) });
   };
-  const pickRule = (rule: RedemptionRule) => {
-    const r = REDEMPTION_RULES[rule];
+  const pickRule = (rule: string) => {
+    const r = rules[rule];
     setDraft((d) => ({ ...d, redemptionMonths: undefined, redemptionRatePct: undefined }));
     update({ redemptionMonths: r.months, redemptionRatePct: r.ratePct, redemptionDaily: r.daily });
   };
@@ -208,9 +214,9 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
               {g.redemption && mode === 'detailed' && (
                 <label className="calc-rule">
                   <span className="calc-label">Kind of sale</span>
-                  <select value={ruleOf(i)} onChange={(e) => e.target.value !== 'custom' && pickRule(e.target.value as RedemptionRule)}>
-                    {Object.entries(REDEMPTION_RULES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-                    {ruleOf(i) === 'custom' && <option value="custom">Your own numbers</option>}
+                  <select value={ruleOf(i, rules)} onChange={(e) => e.target.value !== 'custom' && pickRule(e.target.value)}>
+                    {Object.entries(rules).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                    {ruleOf(i, rules) === 'custom' && <option value="custom">Your own numbers</option>}
                   </select>
                   <small className="muted">Fills in the redemption wait and interest. Confirm them in the sale’s official notice.</small>
                 </label>
@@ -237,10 +243,10 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
                     </span>
                     <span className="calc-hint">
                       {hintFor(f) && <small className="muted" id={`${uid}-${f.k}-hint`}>{hintFor(f)}</small>}
-                      {f.more && (
+                      {moreFor(f) && (
                         <details className="calc-more">
                           <summary aria-label={`More about ${f.label}`}>?</summary>
-                          <p className="small">{f.more}</p>
+                          <p className="small">{moreFor(f)}</p>
                         </details>
                       )}
                     </span>

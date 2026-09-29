@@ -159,6 +159,17 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
 export const calcTabFor = (plan: Plan) => (plan === 'rent' ? 'rent' : plan === 'commercial' ? 'commercial' : plan === 'lien' ? 'lien' : 'flip');
 
 const KEY = 'deedowl.analyze.v1';
+export const CURRENT_KEY = 'deedowl.analyze.current.v1';
+
+/** Open a saved deal on the Analyze page. */
+export function openDeal(d: Deal) {
+  try {
+    localStorage.setItem(CURRENT_KEY, JSON.stringify(d));
+  } catch {
+    /* private mode */
+  }
+  window.location.hash = '#/analyze';
+}
 
 export function loadDeals(): Deal[] {
   try {

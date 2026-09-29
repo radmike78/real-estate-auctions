@@ -153,7 +153,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-09-29",
-    "hash": "4b149d816e048d18",
+    "hash": "6697f021cb8dbbdd",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -162,8 +162,8 @@
     "files": [
       "src/components/DealsPage.tsx"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "ec3294b886104e05",
+    "reviewed": "2026-09-29",
+    "hash": "2597dc9d302a37c3",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -358,7 +358,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-09-29",
-    "hash": "cb27c9c0bde918b0",
+    "hash": "fb0c9acafb63a17a",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   }
 ]

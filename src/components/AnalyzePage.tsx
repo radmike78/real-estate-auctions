@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import PageHero from './PageHero';
 import { Calculators } from './CalculatorPage';
+import { CalcRegion } from './calcRegion';
 import { useMarkStep } from '../lib/path';
 import { useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { PLANS, calcTabFor, checklistFor, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, type Deal, type Plan, type SaleKind } from '../lib/analyze';
+import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, type Deal, type Plan, type SaleKind } from '../lib/analyze';
 
 const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake' };
-const CURRENT = 'deedowl.analyze.current.v1';
+const CURRENT = CURRENT_KEY;
 
 function blank(st: StateCode): Deal {
   return { id: '', name: '', state: st, county: DEFAULT_COUNTY[st], kind: 'listing', plan: 'flip', notes: '', done: [], updatedAt: new Date().toISOString() };
@@ -165,7 +166,9 @@ export default function AnalyzePage() {
       </section>
 
       <h2 className="section-title">3. Run the numbers</h2>
-      <Calculators key={`${deal.plan}-${deal.state}`} initial={calcTabFor(deal.plan)} state={deal.state} />
+      <CalcRegion.Provider value={{ state: deal.state, county: deal.county }}>
+        <Calculators key={`${deal.plan}-${deal.state}-${deal.county}`} initial={calcTabFor(deal.plan)} state={deal.state} />
+      </CalcRegion.Provider>
     </main>
   );
 }

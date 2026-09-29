@@ -4,14 +4,26 @@ import { COMMERCIAL_DEFAULTS, commercialMaxBid, commercialNoi, LIEN_DEFAULTS, li
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 import CalcFields, { type CalcGroup } from './CalcFields';
+import { useCalcRegion } from './calcRegion';
+import { transferTaxFor } from '../lib/stateCosts';
+
+/** The purchase-cost fields worded for the deal's state and county, starting at its transfer tax. */
+function useRegionTax<T extends BuyInputs>(groups: CalcGroup<T>[]): { groups: CalcGroup<T>[]; per500: number } {
+  const r = useCalcRegion();
+  const tax = transferTaxFor(r.state, r.county);
+  return {
+    per500: tax.per500,
+    groups: groups.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'transferTaxPer500' ? { ...f, hint: tax.hint, more: tax.more } : f)) })),
+  };
+}
 
 const pctText = (x: number | null) => (x === null ? '—' : `${(Math.round(x * 1000) / 10).toLocaleString()}%`);
 
 /** Inputs kept in this browser (per property when there is one); rebuilt safely from storage. */
-function useSaved<T extends object>(key: string, defaults: T): [T, (k: keyof T & string, v: number) => void] {
+function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> = {}): [T, (k: keyof T & string, v: number) => void] {
   const [v, setV] = useState<T>(() => {
     try {
-      return sanitizeNumbers(JSON.parse(localStorage.getItem(key) ?? 'null'), defaults);
+      return { ...sanitizeNumbers(JSON.parse(localStorage.getItem(key) ?? 'null'), defaults), ...force };
     } catch {
       return defaults;
     }
@@ -128,13 +140,14 @@ const RENT_GROUPS: CalcGroup<RentInputs>[] = [
   },
 ];
 
-export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', start = {} }: { storageKey?: string; start?: Partial<RentInputs> }) {
-  const [v, set] = useSaved<RentInputs>(storageKey, { ...RENT_DEFAULTS, ...start });
+export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', start = {}, regional = false }: { storageKey?: string; start?: Partial<RentInputs>; regional?: boolean }) {
+  const rt = useRegionTax(RENT_GROUPS);
+  const [v, set] = useSaved<RentInputs>(storageKey, { ...RENT_DEFAULTS, ...start }, regional ? { transferTaxPer500: rt.per500 } : {});
   const r = rentMaxBid(v);
   const n = rentNoi(v);
   return (
     <div className="calc">
-      <div className="calc-inputs"><CalcFields groups={RENT_GROUPS} values={v} onChange={set} /></div>
+      <div className="calc-inputs"><CalcFields groups={rt.groups} values={v} onChange={set} /></div>
       <div className="calc-results">
         <HoldResults r={r} title="Walk-away price to keep and rent it" target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}.`} minDscr={v.minDscr} />
       </div>
@@ -167,13 +180,14 @@ const COMMERCIAL_GROUPS: CalcGroup<CommercialInputs>[] = [
   },
 ];
 
-export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', start = {} }: { storageKey?: string; start?: Partial<CommercialInputs> }) {
-  const [v, set] = useSaved<CommercialInputs>(storageKey, { ...COMMERCIAL_DEFAULTS, ...start });
+export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', start = {}, regional = false }: { storageKey?: string; start?: Partial<CommercialInputs>; regional?: boolean }) {
+  const ct = useRegionTax(COMMERCIAL_GROUPS);
+  const [v, set] = useSaved<CommercialInputs>(storageKey, { ...COMMERCIAL_DEFAULTS, ...start }, regional ? { transferTaxPer500: ct.per500 } : {});
   const r = commercialMaxBid(v);
   const n = commercialNoi(v);
   return (
     <div className="calc">
-      <div className="calc-inputs"><CalcFields groups={COMMERCIAL_GROUPS} values={v} onChange={set} /></div>
+      <div className="calc-inputs"><CalcFields groups={ct.groups} values={v} onChange={set} /></div>
       <div className="calc-results">
         <HoldResults r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}.`} minDscr={v.minDscr} />
       </div>
@@ -201,12 +215,33 @@ const LIEN_GROUPS: CalcGroup<LienInputs>[] = [
   },
 ];
 
+const AZ_LIEN_GROUPS: CalcGroup<LienInputs>[] = [
+  {
+    title: 'The certificate',
+    fields: [
+      { k: 'price', label: 'Lien amount you pay', unit: '$', hint: 'The unpaid taxes, interest and fees on the lien.' },
+      { k: 'fees', label: 'Fees you pay', unit: '$', hint: 'Up to $10 processing per lien; not repaid.', more: 'The treasurer may charge a processing fee of up to $10 per lien (A.R.S. 42-18116), which the owner doesn’t repay. Paying later years’ taxes adds a $5 fee each time.' },
+      { k: 'ratePctMonth', label: 'Interest', unit: '%/mo', hint: 'The rate you win, divided by 12. At most 16% a year (1.33% a month).', more: 'Bidders bid the interest rate down from 16% a year; the lien earns simple interest at the winning rate from the first day of the next month, and part of a month counts as a whole month (A.R.S. 42-18053 and 42-18114).' },
+    ],
+  },
+  {
+    title: 'Timing',
+    fields: [
+      { k: 'monthsToRedeem', label: 'Months until the owner pays', unit: 'mo', hint: 'Most owners redeem.' },
+      { k: 'payoutDelayMonths', label: 'Months until you’re paid', unit: 'mo', hint: 'After they redeem.' },
+    ],
+  },
+];
+
+const AZ_LIEN_DEFAULTS: LienInputs = { price: 2_000, fees: 10, ratePctMonth: 0.75, monthsToRedeem: 12, payoutDelayMonths: 1 };
+
 export function LienCalculator() {
-  const [v, set] = useSaved<LienInputs>('fsf.calc.lien.v1', LIEN_DEFAULTS);
+  const az = useCalcRegion().state === 'AZ';
+  const [v, set] = useSaved<LienInputs>(az ? 'fsf.calc.lien.az.v1' : 'fsf.calc.lien.v1', az ? AZ_LIEN_DEFAULTS : LIEN_DEFAULTS);
   const y = lienYield(v);
   return (
     <div className="calc">
-      <div className="calc-inputs"><CalcFields groups={LIEN_GROUPS} values={v} onChange={set} /></div>
+      <div className="calc-inputs"><CalcFields groups={az ? AZ_LIEN_GROUPS : LIEN_GROUPS} values={v} onChange={set} /></div>
       <div className="calc-results">
         <div className="calc-max" role="status">
           <span>Your yearly yield</span>
@@ -218,11 +253,23 @@ export function LienCalculator() {
           <div><dt>You’re repaid</dt><dd>{fmtMoney(Math.round(y.payoff))}</dd></div>
           <div><dt>Profit after fees</dt><dd>{fmtMoney(Math.round(y.profit))}</dd></div>
         </dl>
-        <p className="calc-note small">
-          It’s a certificate, not the property. The owner keeps the home and can pay it off. You can ask for a deed only if they don’t redeem
-          in time (120 days, or 2 years if there’s a building). <a href="#/playbooks/sid">How lien certificates work →</a>
-        </p>
-        <p className="muted small">An estimate, not advice. Later taxes you pay can be added to the certificate with interest if you give the Treasurer written notice.</p>
+        {az ? (
+          <>
+            <p className="calc-note small">
+              It’s a lien, not the property. The owner can pay it off at any time. After three years (and within ten) you can go to court to foreclose
+              the right to redeem; if you don’t act within ten years, the lien expires. <a href="#/learn/forced-sales">How Arizona tax liens work →</a>
+            </p>
+            <p className="muted small">An estimate, not advice. Confirm the terms with the county treasurer before the February sale.</p>
+          </>
+        ) : (
+          <>
+            <p className="calc-note small">
+              It’s a certificate, not the property. The owner keeps the home and can pay it off. You can ask for a deed only if they don’t redeem
+              in time (120 days, or 2 years if there’s a building). <a href="#/playbooks/sid">How lien certificates work →</a>
+            </p>
+            <p className="muted small">An estimate, not advice. Later taxes you pay can be added to the certificate with interest if you give the Treasurer written notice.</p>
+          </>
+        )}
       </div>
     </div>
   );
