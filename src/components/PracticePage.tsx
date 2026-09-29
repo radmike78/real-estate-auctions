@@ -1,3 +1,5 @@
+import { useMarkStep } from '../lib/path';
+import PathNext from './PathNext';
 import { useState } from 'react';
 import PageHero from './PageHero';
 import ClassSwitch from './ClassSwitch';
@@ -26,6 +28,7 @@ export function PracticeRibbon() {
 
 /** Step 1: pick a kind of sale. Step 2: pick a property that fits it. Then practice buying it step by step. */
 export default function PracticePage({ sale }: { sale?: string }) {
+  useMarkStep('practice');
   const [cls, setCls] = useState<ClassFilter>('all');
   const chosen = sale && (SALE_ORDER as string[]).includes(sale) ? (sale as SaleKey) : null;
   const titleOf = (s: SaleKey) => playbookByKey(s)?.title ?? s;
@@ -60,6 +63,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
             );
           })}
         </div>
+        <PathNext step="practice" />
       </main>
     );
   }

@@ -1844,3 +1844,88 @@ h1, h2 { letter-spacing: -0.03em; }
 .pro-guide-cols ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
 .pro-guide-tip { background: var(--surface-2); border-left: 4px solid var(--accent-strong); border-radius: 10px; padding: 12px 16px; }
 .pro-guide-ads { margin: 24px 0 8px; }
+
+/* ===== The path: homepage steps, step pages ===== */
+.hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+.path { max-width: 1100px; margin: 0 auto; padding: 24px var(--gutter) 64px; }
+.path h2 { text-align: center; margin: 0 0 20px; }
+.path-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 14px; counter-reset: none; }
+.path-step { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding: 18px 20px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); color: var(--text); text-decoration: none; height: 100%; }
+.path-step:hover { border-color: var(--accent); }
+.path-n { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--accent-strong); color: #fff; font-weight: 800; font-size: 1.2rem; }
+.path-step.done .path-n { background: var(--surface-2); color: var(--accent); border: 2px solid var(--accent); }
+.path-body { display: grid; gap: 4px; }
+.path-body strong { font-family: var(--font-display); font-size: 1.25rem; }
+.path-body span { color: var(--muted); }
+.path-go { color: var(--accent); font-size: 1.3rem; }
+.path-next { display: flex; align-items: center; justify-content: flex-end; gap: 14px; flex-wrap: wrap; margin: 36px 0 8px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+/* Learn: lesson list */
+.lesson-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.lesson-card { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding: 16px 20px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); color: var(--text); text-decoration: none; }
+.lesson-card.ready:hover { border-color: var(--accent); }
+.lesson-n { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--surface-2); color: var(--accent); font-weight: 800; }
+.lesson-card.ready .lesson-n { background: var(--accent-strong); color: #fff; }
+.lesson-body { display: grid; gap: 2px; }
+.lesson-body strong { font-size: 1.15rem; }
+.lesson-body span { color: var(--muted); }
+.lesson-go { color: var(--accent); font-size: 1.3rem; }
+
+/* Find Deals */
+.area-picker { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
+.area-picker .field { min-width: 220px; }
+.area-picker select { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+.deal-sources { list-style: none; margin: 8px 0 24px; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 12px; }
+.deal-source { display: grid; gap: 4px; height: 100%; padding: 14px 16px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); color: var(--text); text-decoration: none; }
+.deal-source:hover { border-color: var(--accent); }
+.deal-source strong { color: var(--accent); }
+.deal-source span { color: var(--muted); }
+.deal-sources.other .deal-source strong { color: var(--text); }
+.where-to-look { display: grid; gap: 8px; margin: 12px 0 24px; max-width: 80ch; }
+.other-sites-note { background: var(--surface-2); border-left: 4px solid var(--wait-mark); border-radius: 10px; padding: 12px 16px; max-width: 100%; }
+
+/* Analyze a deal */
+.work-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 12px; padding: 0; list-style: none; counter-reset: work; margin: 0 0 28px; }
+.work-steps li { counter-increment: work; display: grid; gap: 4px; padding: 14px 16px 14px 56px; position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; }
+.work-steps li::before { content: counter(work); position: absolute; left: 14px; top: 14px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-strong); color: #fff; font-weight: 800; }
+.work-steps span { color: var(--muted); }
+/* Narrow desktops: the logo already goes home, so the Home tab makes room for the six steps */
+@media (min-width: 901px) and (max-width: 1060px) { .site-nav > a[href="#/"] { display: none; } }
+
+/* Homepage on phones: the four-state label is wide, so the small owl sits centered above it instead of beside it */
+@media (max-width: 700px) {
+  .hero.simple-hero::after { top: 14px; right: auto; left: calc(50% - 25px); }
+  .hero.simple-hero .hero-inner { padding-top: 24px; }
+}
+
+/* Learn: a lesson page, set for reading */
+.lesson .lesson-takeaways, .lesson .lesson-body-text, .lesson .lesson-terms, .lesson .lesson-sources, .lesson .lesson-try { max-width: 780px; }
+.lesson-takeaways { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent-strong); border-radius: 12px; padding: 16px 22px; margin: 8px 0 28px; }
+.lesson-takeaways h2 { font-size: 1.15rem; margin: 0 0 8px; }
+.lesson-takeaways ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.lesson-body-text section { margin-bottom: 28px; }
+.lesson-body-text h2, .lesson-terms h2, .lesson-sources h2 { font-size: 1.45rem; margin: 0 0 10px; }
+.lesson-body-text p, .lesson-body-text li { line-height: 1.65; }
+.lesson-body-text ul { padding-left: 22px; display: grid; gap: 6px; }
+.lesson-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 8px 0 12px; }
+.lesson-table th, .lesson-table td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--border); line-height: 1.5; }
+.lesson-table thead th { background: var(--surface-2); }
+.lesson-table tbody tr:last-child > * { border-bottom: 0; }
+.lesson-table tbody th { font-weight: 700; white-space: nowrap; }
+.lesson-terms dl { display: grid; gap: 10px; margin: 0 0 24px; }
+.lesson-terms dl > div { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+.lesson-terms dt { font-weight: 700; }
+.lesson-terms dd { margin: 2px 0 0; color: var(--muted); }
+.lesson-try { margin: 0 0 24px; }
+@media (max-width: 700px) { .lesson-table tbody th { white-space: normal; } }
+/* Phones: each table row becomes a small card, with the column name above each value */
+@media (max-width: 700px) {
+  .lesson-table, .lesson-table tbody, .lesson-table tr, .lesson-table th, .lesson-table td { display: block; }
+  .lesson-table { border: 0; background: none; }
+  .lesson-table thead { display: none; }
+  .lesson-table tbody tr { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+  .lesson-table tbody th { background: var(--surface-2); border-bottom: 1px solid var(--border); padding: 10px 14px; color: var(--text); }
+  .lesson-table td { border-bottom: 0; padding-top: 6px; }
+  .lesson-table td[data-label]:not([data-label=""])::before { content: attr(data-label); display: block; font-weight: 700; font-size: 0.95rem; color: var(--muted); }
+}
+.page .lesson-table th:first-child, .page .lesson-table td:first-child { padding-left: 14px; }

@@ -3,14 +3,10 @@ import { CommercialCalculator, LienCalculator, RentCalculator } from './HoldCalc
 import PageHero from './PageHero';
 import StrategyTabs from './StrategyTabs';
 
-export default function CalculatorPage() {
+/** The four calculators, one per strategy (also used on Analyze a deal). */
+export function Calculators() {
   return (
-    <main className="page">
-      <PageHero
-        eyebrow={<span className="eyebrow">Set your limit before the sale</span>}
-        title={<>Your maximum <span className="grad">bid</span></>}
-        sub="Count every cost, and know when to stop bidding."
-      />
+    <>
       <StrategyTabs
         strategies={[
           { key: 'flip', label: 'Fix and sell', about: 'The most you can bid and still make your profit when you fix it up and sell it.', render: () => <BidCalculator headingLevel={2} /> },
@@ -20,6 +16,19 @@ export default function CalculatorPage() {
         ]}
       />
       <p className="muted small">The results are only as good as the numbers you enter; they aren’t a guarantee of profit.</p>
+    </>
+  );
+}
+
+export default function CalculatorPage() {
+  return (
+    <main className="page">
+      <PageHero
+        eyebrow={<span className="eyebrow">Set your limit before the sale</span>}
+        title={<>Your maximum <span className="grad">bid</span></>}
+        sub="Count every cost, and know when to stop bidding."
+      />
+      <Calculators />
     </main>
   );
 }

@@ -15,7 +15,8 @@ export type SourceRole =
   | 'lookup' // research tools: records, maps, license lookups
   | 'help' // free help for homeowners and consumers
   | 'payment' // advertiser billing
-  | 'sample'; // fictional sample data only
+  | 'sample' // fictional sample data only
+  | 'other'; // listing portals and auction marketplaces: shown only under Find Deals "Other sites", never as a listing source
 
 export interface Source {
   id: string;
@@ -127,6 +128,37 @@ export const SOURCES: Source[] = [
 
   // ---------------- Research tools and billing ----------------
   { id: 'google-maps', title: 'Google Maps (Street View and map search)', publisher: 'Google', url: 'https://www.google.com/maps/', prefix: true, role: 'lookup', checked: '2026-09-27', note: 'Research tool only, never a listing source. Not linked for homes that aren’t for sale.' },
+  // ---------------- Learn lessons ----------------
+  { id: 'learn-cfr-text-12-1282-1', title: 'Housing goals definitions: dwelling units in mixed-use property (12 CFR 1282.1)', publisher: 'Legal Information Institute, Cornell Law School', url: 'https://www.law.cornell.edu/cfr/text/12/1282.1', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-sel-b2-3-01-general-property-eligibility', title: 'Fannie Mae Selling Guide: general property eligibility (B2-3-01)', publisher: 'Fannie Mae', url: 'https://selling-guide.fanniemae.com/sel/b2-3-01/general-property-eligibility', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-hud-partners-single-family-sfh203b', title: 'HUD: FHA 203(b) mortgage insurance', publisher: 'U.S. Department of Housing and Urban Development', url: 'https://www.hud.gov/hud-partners/single-family-sfh203b', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-dfiles-ochco-documents-2023-17hsgml-pdf', title: 'HUD Mortgagee Letter 2023-17: reserves for three- and four-unit homes', publisher: 'U.S. Department of Housing and Urban Development', url: 'https://www.hud.gov/sites/dfiles/OCHCO/documents/2023-17hsgml.pdf', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-amination-policies-manual-section3-2-pdf', title: 'FDIC examination manual: loans and supervisory LTV limits (section 3.2)', publisher: 'Federal Deposit Insurance Corporation', url: 'https://www.fdic.gov/resources/supervision-and-examinations/examination-policies-manual/section3-2.pdf', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-supervisionreg-srletters-sr2305-pdf', title: 'Federal Reserve SR 23-5: commercial real estate loans, valuation and examples', publisher: 'Board of Governors of the Federal Reserve System', url: 'https://www.federalreserve.gov/supervisionreg/srletters/SR2305.pdf', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-cfr-text-12-1026-3', title: 'Truth in Lending: business-purpose credit is exempt (12 CFR 1026.3)', publisher: 'Legal Information Institute, Cornell Law School', url: 'https://www.law.cornell.edu/cfr/text/12/1026.3', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-rules-policy-regulations-1026-interp-3', title: 'CFPB: official interpretation of the business-purpose exemption', publisher: 'Consumer Financial Protection Bureau', url: 'https://www.consumerfinance.gov/rules-policy/regulations/1026/interp-3/', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-consumers-general-landlord-tenant-issues', title: 'California Attorney General: landlord-tenant issues', publisher: 'California Attorney General', url: 'https://oag.ca.gov/consumers/general/landlord-tenant-issues', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-wex-triple-net-lease', title: 'Legal Information Institute: triple net lease', publisher: 'Legal Information Institute, Cornell Law School', url: 'https://www.law.cornell.edu/wex/triple_net_lease', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-d-in-my-monthly-mortgage-payment-en-1945', title: 'CFPB: are condo fees or HOA dues included in my mortgage payment?', publisher: 'Consumer Financial Protection Bureau', url: 'https://www.consumerfinance.gov/ask-cfpb/are-condoco-op-fees-or-homeowners-association-dues-included-in-my-monthly-mortgage-payment-en-1945/', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-hud-partners-manufactured-home-resources', title: 'HUD: manufactured home resources', publisher: 'U.S. Department of Housing and Urban Development', url: 'https://www.hud.gov/hud-partners/manufactured-home-resources', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-publications-p946', title: 'IRS Publication 946: how to depreciate property', publisher: 'Internal Revenue Service', url: 'https://www.irs.gov/publications/p946', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-files-reits-pdf', title: 'SEC investor bulletin: real estate investment trusts (REITs)', publisher: 'U.S. Securities and Exchange Commission', url: 'https://www.sec.gov/files/reits.pdf', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-publications-p527', title: 'IRS Publication 527: residential rental property', publisher: 'Internal Revenue Service', url: 'https://www.irs.gov/publications/p527', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-sel-b2-1-1-01-occupancy-types', title: 'Fannie Mae Selling Guide: occupancy types (B2-1.1-01)', publisher: 'Fannie Mae', url: 'https://selling-guide.fanniemae.com/sel/b2-1.1-01/occupancy-types', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-funding-programs-loans-504-loans', title: 'SBA: 504 loans', publisher: 'U.S. Small Business Administration', url: 'https://www.sba.gov/funding-programs/loans/504-loans', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-cfr-text-13-120-131', title: 'SBA 504 occupancy rules (13 CFR 120.131)', publisher: 'Legal Information Institute, Cornell Law School', url: 'https://www.law.cornell.edu/cfr/text/13/120.131', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-t-offerings-private-placements-rule-506b', title: 'SEC: private placements under Rule 506(b)', publisher: 'U.S. Securities and Exchange Commission', url: 'https://www.sec.gov/resources-small-businesses/exempt-offerings/private-placements-rule-506b', role: 'rules', checked: '2026-09-29' },
+  { id: 'learn-instructions-i1120rei', title: 'IRS instructions for Form 1120-REIT', publisher: 'Internal Revenue Service', url: 'https://www.irs.gov/instructions/i1120rei', role: 'rules', checked: '2026-09-29' },
+  { id: 'hud-home', title: 'HUD Home Store', publisher: 'U.S. Department of Housing and Urban Development', url: 'https://www.hudhomestore.gov/', role: 'listing', checked: null },
+  { id: 'zillow', title: 'Zillow', publisher: 'Zillow Group', url: 'https://www.zillow.com/', role: 'other', checked: null },
+  { id: 'realtor-com', title: 'Realtor.com', publisher: 'Move, Inc.', url: 'https://www.realtor.com/', role: 'other', checked: null },
+  { id: 'redfin', title: 'Redfin', publisher: 'Redfin', url: 'https://www.redfin.com/', role: 'other', checked: null },
+  { id: 'auction-com', title: 'Auction.com', publisher: 'Auction.com', url: 'https://www.auction.com/', role: 'other', checked: null },
+  { id: 'xome', title: 'Xome', publisher: 'Xome', url: 'https://www.xome.com/', role: 'other', checked: null },
+  { id: 'hubzu', title: 'Hubzu', publisher: 'Hubzu', url: 'https://www.hubzu.com/', role: 'other', checked: null },
+  { id: 'bid4assets', title: 'Bid4Assets', publisher: 'Bid4Assets', url: 'https://www.bid4assets.com/', role: 'other', checked: null },
+  { id: 'loopnet', title: 'LoopNet', publisher: 'CoStar Group', url: 'https://www.loopnet.com/', role: 'other', checked: null },
+  { id: 'crexi', title: 'Crexi', publisher: 'Commercial Real Estate Exchange', url: 'https://www.crexi.com/', role: 'other', checked: null },
   { id: 'stripe-checkout', title: 'Stripe Checkout', publisher: 'Stripe', url: 'https://checkout.stripe.com/', prefix: true, role: 'payment', checked: null },
   { id: 'stripe-billing', title: 'Stripe billing portal', publisher: 'Stripe', url: 'https://billing.stripe.com/', prefix: true, role: 'payment', checked: null },
   { id: 'example', title: 'Placeholder addresses in fictional sample profiles', publisher: 'IANA example domain', url: 'https://example.com/', prefix: true, role: 'sample', checked: null },
