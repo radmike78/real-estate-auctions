@@ -305,8 +305,12 @@
     "files": [
       "src/components/LearnPage.tsx",
       "src/components/LessonPage.tsx",
+      "src/components/ReadingPage.tsx",
+      "src/lib/books.ts",
       "src/lib/learn.ts",
       "src/lib/lessons/analyze.ts",
+      "src/lib/lessons/creative.ts",
+      "src/lib/lessons/financing.ts",
       "src/lib/lessons/index.ts",
       "src/lib/lessons/markets.ts",
       "src/lib/lessons/negotiate.ts",
@@ -315,8 +319,8 @@
       "src/lib/lessons/who-invests.ts"
     ],
     "reviewed": "2026-09-29",
-    "hash": "61573bcea3d3471c",
-    "note": "Lessons 1–5 written from federal sources, Fannie Mae, NV and CA statutes, and university pages."
+    "hash": "599d8f9c83023b11",
+    "note": "Lessons 1–7 and recommended reading, from federal and state sources."
   },
   {
     "id": "decide",
