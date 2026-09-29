@@ -311,16 +311,18 @@
       "src/lib/lessons/analyze.ts",
       "src/lib/lessons/creative.ts",
       "src/lib/lessons/financing.ts",
+      "src/lib/lessons/forced-sales.ts",
       "src/lib/lessons/index.ts",
       "src/lib/lessons/markets.ts",
       "src/lib/lessons/negotiate.ts",
+      "src/lib/lessons/tools.ts",
       "src/lib/lessons/types-of-property.ts",
       "src/lib/lessons/types.ts",
       "src/lib/lessons/who-invests.ts"
     ],
     "reviewed": "2026-09-29",
-    "hash": "599d8f9c83023b11",
-    "note": "Lessons 1–7 and recommended reading, from federal and state sources."
+    "hash": "1bdf69c29e0d3cbc",
+    "note": "All 10 lessons written from federal, state and county sources."
   },
   {
     "id": "decide",

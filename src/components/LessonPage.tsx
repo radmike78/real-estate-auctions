@@ -8,6 +8,17 @@ import { fmtDate } from '../lib/status';
 function Block({ b }: { b: LessonBlock }) {
   if (typeof b === 'string') return <p>{b}</p>;
   if ('list' in b) return <ul>{b.list.map((x) => <li key={x}>{x}</li>)}</ul>;
+  if ('links' in b)
+    return (
+      <ul className="lesson-links">
+        {b.links.map((x) => (
+          <li key={x.url}>
+            <a href={x.url} target="_blank" rel="noopener noreferrer">{x.label} ↗</a>
+            <span className="muted">{x.what}</span>
+          </li>
+        ))}
+      </ul>
+    );
   return (
     <div className="table-wrap">
       <table className="lesson-table">

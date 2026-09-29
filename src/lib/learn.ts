@@ -17,6 +17,6 @@ export const LEARN_MODULES: LearnModule[] = [
   { key: 'financing', title: 'Traditional financing', summary: 'Mortgages, commercial loans, hard-money and bridge loans: how each works and what it costs.' },
   { key: 'creative', title: 'Creative financing', summary: 'Seller financing, partnerships and other structures, with the legal risks to know first.' },
   { key: 'tools', title: 'Tools and tricks of the trade', summary: 'Records, maps, comps and checklists investors use to research a property.' },
-  { key: 'forced-sales', title: 'Buying at forced sales', summary: 'Tax, foreclosure, HOA, sheriff and IRS sales, bank-owned homes and short sales, step by step (Nevada).', href: '#/playbooks' },
+  { key: 'forced-sales', title: 'Buying at forced sales', summary: 'Tax, foreclosure, sheriff and IRS sales across Nevada, California, Arizona and Utah, with step-by-step guides.' },
   { key: 'reading', title: 'Recommended reading', summary: 'Books worth reading, picked for new investors.', href: '#/learn/reading' },
 ];

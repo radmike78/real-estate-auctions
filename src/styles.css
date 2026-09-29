@@ -1940,3 +1940,6 @@ h1, h2 { letter-spacing: -0.03em; }
 .book-card a { justify-self: start; font-weight: 600; }
 .book-foot { max-width: 900px; }
 .fine-print { color: var(--muted); font-size: 0.9rem; margin-top: 18px; }
+.lesson-body-text ul.lesson-links { list-style: none; padding: 0; display: grid; gap: 8px; }
+.lesson-links li { display: grid; gap: 2px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+.lesson-links a { font-weight: 600; }
