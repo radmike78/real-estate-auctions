@@ -65,3 +65,32 @@ export const OTHER_SITES: { group: string; sites: DealSource[] }[] = [
     ],
   },
 ];
+
+/** How forced sales work in each state, in one line each (from the forced-sales lesson). */
+export const STATE_SALES: Record<StateCode, string[]> = {
+  NV: [
+    'Tax sales: the county treasurer holds the property 2 years (1 if abandoned), then auctions it by quitclaim deed.',
+    'Foreclosures: trustee auctions at least 3 months after the notice of default, with 20 days’ posted notice.',
+  ],
+  CA: [
+    'Tax sales: the tax collector sells tax-defaulted property after 5 years (3 for nonresidential commercial), usually online.',
+    'Foreclosures: trustee auctions at least 3 months after the notice of default; on 1–4 unit homes, tenants and some buyers get 15 to 45 days to match the winning bid.',
+  ],
+  AZ: [
+    'Tax sales: the county treasurer sells tax liens, not property, each February; bidders bid the interest rate down from 16%.',
+    'Foreclosures: trustee auctions no sooner than the 91st day after the notice of sale; the winner pays by 5 p.m. the next business day.',
+  ],
+  UT: [
+    'Tax sales: the county auditor sells property in May or June after four years of unpaid taxes.',
+    'Foreclosures: trustee auctions at least 3 months after the notice of default; bids can’t be withdrawn.',
+  ],
+};
+
+/** The offices Find Deals lists for a county, in order. */
+export const OFFICE_LABELS = [
+  { key: 'taxSale', name: 'Tax sale', what: 'The county’s tax sale page: dates, rules, deposits and how to bid.' },
+  { key: 'treasurer', name: 'Treasurer / tax collector', what: 'Tax bills, unpaid taxes and sale notices.' },
+  { key: 'assessor', name: 'Assessor', what: 'Parcel numbers, owners of record, values and parcel maps.' },
+  { key: 'recorder', name: 'Recorder', what: 'Deeds, loans, liens and foreclosure notices on record.' },
+  { key: 'sheriff', name: 'Sheriff’s civil unit', what: 'Sheriff’s sales of property to pay court judgments.' },
+] as const;

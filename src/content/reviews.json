@@ -340,12 +340,13 @@
     "title": "Find Deals (step 5)",
     "files": [
       "src/components/FindDealsPage.tsx",
+      "src/lib/countyOffices.ts",
       "src/lib/findDeals.ts",
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-09-29",
-    "hash": "a9a4ea87870c8ed4",
-    "note": "New learning path, phase 1: official sources and other sites."
+    "hash": "bb0a52371a13da5a",
+    "note": "County offices from each county’s own site (in progress: CA north done)."
   },
   {
     "id": "analyze",

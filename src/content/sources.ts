@@ -9,6 +9,8 @@
 //     until then: `npm run content:status` lists everything unchecked or older than 6 months.
 // When an official page changes, re-read it, fix the site's text, and update `checked` (and `note`).
 
+import { COUNTY_OFFICES } from '../lib/countyOffices';
+
 export type SourceRole =
   | 'listing' // where properties or assets are actually sold
   | 'rules' // laws, procedures, official FAQs and notices the guides are written from
@@ -45,7 +47,7 @@ const NRS = (ch: string, title: string, checked: string | null, note?: string): 
   note,
 });
 
-export const SOURCES: Source[] = [
+const LISTED: Source[] = [
   // ---------------- Nevada law ----------------
   { id: 'nrs', title: 'Nevada Revised Statutes (chapter pages)', publisher: 'Nevada Legislature', url: 'https://www.leg.state.nv.us/NRS/NRS-', prefix: true, role: 'rules', checked: null, note: 'Pattern for chapter links; each chapter the guides rely on is listed below.' },
   NRS('021', 'execution sales (sheriff and constable)', '2026-09-27', '1-year redemption at 1% a month, 60 days between redemptions, rents deducted (21.250); homestead $605,000.'),
@@ -279,6 +281,32 @@ export const SOURCES: Source[] = [
   { id: 'stripe-billing', title: 'Stripe billing portal', publisher: 'Stripe', url: 'https://billing.stripe.com/', prefix: true, role: 'payment', checked: null },
   { id: 'example', title: 'Placeholder addresses in fictional sample profiles', publisher: 'IANA example domain', url: 'https://example.com/', prefix: true, role: 'sample', checked: null },
 ];
+
+const OFFICE_TITLE = { taxSale: 'tax sale', treasurer: 'treasurer / tax collector', assessor: 'assessor', recorder: 'recorder', sheriff: 'sheriff civil unit' } as const;
+
+/** Each county office Find Deals links to (src/lib/countyOffices.ts), listed once per page. */
+const COUNTY_SOURCES: Source[] = (() => {
+  const seen = new Set(LISTED.map((s) => s.url));
+  const out: Source[] = [];
+  for (const [key, offices] of Object.entries(COUNTY_OFFICES)) {
+    const [state, county] = key.split('/');
+    for (const [kind, o] of Object.entries(offices) as [keyof typeof OFFICE_TITLE, { url: string; checked: string | null }][]) {
+      if (seen.has(o.url)) continue;
+      seen.add(o.url);
+      out.push({
+        id: `county-${state}-${county}-${kind}`.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        title: `${county} County, ${state}: ${OFFICE_TITLE[kind]}`,
+        publisher: `${county} County`,
+        url: o.url,
+        role: kind === 'taxSale' ? 'rules' : 'lookup',
+        checked: o.checked,
+      });
+    }
+  }
+  return out;
+})();
+
+export const SOURCES: Source[] = [...LISTED, ...COUNTY_SOURCES];
 
 /** Hosts allowed as listing sources: government, Fannie Mae/Freddie Mac, the banks that own the homes, and the
  *  SID administrator the county names. Anything else as a listing source fails the tests. */

@@ -3,7 +3,8 @@ import PageHero from './PageHero';
 import OwlNote from './OwlNote';
 import PathNext from './PathNext';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { COUNTY_PAGES, NATIONAL_OFFICIAL, OTHER_SITES, WHERE_TO_LOOK, countyKey, type DealSource } from '../lib/findDeals';
+import { COUNTY_PAGES, NATIONAL_OFFICIAL, OFFICE_LABELS, OTHER_SITES, STATE_SALES, WHERE_TO_LOOK, countyKey, type DealSource } from '../lib/findDeals';
+import { COUNTY_OFFICES } from '../lib/countyOffices';
 import { useMarkStep } from '../lib/path';
 
 const AREA_KEY = 'deedowl.area.v1';
@@ -44,6 +45,15 @@ export default function FindDealsPage() {
   }, [area]);
   const st = stateByCode(area.state)!;
   const local = COUNTY_PAGES[countyKey(area.state, area.county)];
+  const offices = COUNTY_OFFICES[countyKey(area.state, area.county)];
+  const officeCards: DealSource[] = offices
+    ? OFFICE_LABELS.flatMap((o) => {
+        const x = offices[o.key];
+        if (!x) return [];
+        // Two offices can share a page (a combined assessor-recorder); list it once.
+        return [{ name: o.name, url: x.url, what: x.note ? `${o.what} ${x.note}` : o.what }];
+      }).filter((c, i, all) => all.findIndex((d) => d.url === c.url) === i)
+    : [];
   const place = `${countyName(area.county)}, ${st.name}`;
 
   return (
@@ -73,16 +83,26 @@ export default function FindDealsPage() {
       <p className="muted">Government agencies, Fannie Mae and Freddie Mac, and the banks that own the homes: the sellers themselves.</p>
 
       <h3>In {place}</h3>
-      {local ? (
-        <ul className="deal-sources">{local.map((s) => <SourceCard key={s.name} s={s} />)}</ul>
-      ) : (
+      {officeCards.length > 0 && <ul className="deal-sources">{officeCards.map((s) => <SourceCard key={s.url} s={s} />)}</ul>}
+      {local && (
         <>
-          <OwlNote>We’re still gathering {place}’s tax-sale office, auction schedule and local rules. Until then, these are the official sellers to look for there.</OwlNote>
+          {officeCards.length > 0 && <h4 className="deal-sub">On DeedOwl for {countyName(area.county)}</h4>}
+          <ul className="deal-sources">{local.map((s) => <SourceCard key={s.name} s={s} />)}</ul>
+        </>
+      )}
+      {!local && officeCards.length === 0 && (
+        <>
+          <OwlNote>We’re still gathering {place}’s tax-sale office and records. Until then, these are the official sellers to look for there.</OwlNote>
           <ul className="where-to-look">
             {WHERE_TO_LOOK.map((w) => <li key={w.title}><strong>{w.title}.</strong> {w.what}</li>)}
           </ul>
         </>
       )}
+      <div className="state-sales">
+        <strong>How sales work in {st.name}</strong>
+        <ul>{STATE_SALES[area.state].map((t) => <li key={t}>{t}</li>)}</ul>
+        <a href="#/learn/forced-sales">Read the lesson on forced sales →</a>
+      </div>
 
       <h3>Across {st.name} and nationwide</h3>
       <ul className="deal-sources">{NATIONAL_OFFICIAL.map((s) => <SourceCard key={s.name} s={s} />)}</ul>
