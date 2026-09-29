@@ -40,8 +40,8 @@ function Block({ b }: { b: LessonBlock }) {
     return (
       <ul className="lesson-links">
         {b.links.map((x) => (
-          <li key={x.url}>
-            <a href={x.url} target="_blank" rel="noopener noreferrer">{x.label} ↗</a>
+          <li key={x.label}>
+            {x.url.startsWith('#/') ? <a href={x.url}>{x.label} →</a> : <a href={x.url} target="_blank" rel="noopener noreferrer">{x.label} ↗</a>}
             <span className="muted">{x.what}</span>
           </li>
         ))}
