@@ -79,8 +79,15 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     sale.push({ id: 'offer-contingent', text: 'Make your offer contingent on financing and a satisfactory inspection, with deadlines you can meet.', href: '#/learn/negotiate' });
     if (st === 'NV') sale.push({ id: 'nv-disclosure', text: 'Nevada: the seller must give you the disclosure form at least 10 days before the home is conveyed (NRS 113.130). If it’s late, you can cancel before closing.' });
     if (st === 'CA') sale.push({ id: 'ca-tds', text: 'California: get the Transfer Disclosure Statement. If it arrives after you sign the offer, you have 3 days (5 by mail or electronically) to cancel.' });
-    if (st === 'AZ' || st === 'UT') sale.push({ id: 'azut-disclosure', text: `Ask your agent which seller disclosures ${state} requires and when you get them.` });
-    sale.push({ id: 'hoa-docs', text: st === 'NV' ? 'Condo or HOA home: read the resale package; you can cancel in writing until midnight of the fifth day after you get it (NRS 116.4109).' : st === 'CA' ? 'Condo or HOA home: get the governing documents, budget, reserves and rental limits before you commit (Civil Code 4525).' : 'Condo or HOA home: get the HOA’s rules, budget and dues before you commit.' });
+    if (st === 'AZ') sale.push({ id: 'az-disclosure', text: 'Arizona: sellers must disclose specific items, such as soil remediation they know about; for unsubdivided land outside cities you get an affidavit of disclosure at least 7 days before transfer, with 5 days to cancel. Ask your agent which disclosure form your contract uses.' });
+    if (st === 'UT') sale.push({ id: 'ut-disclosure', text: 'Utah: under the state purchase contract, the seller gives a property condition disclosure by the Seller Disclosure Deadline, and you can cancel by the Due Diligence Deadline. Sellers must disclose methamphetamine contamination they know about.' });
+    const hoa: Record<StateCode, string> = {
+      NV: 'Condo or HOA home: read the resale package; you can cancel in writing until midnight of the fifth day after you get it (NRS 116.4109).',
+      CA: 'Condo or HOA home: get the governing documents, budget, reserves and rental limits before you commit (Civil Code 4525).',
+      AZ: 'Condo or HOA home: the association must deliver its rules, budget, reserves and any lawsuits within 10 days; its fee is capped at $400.',
+      UT: 'Condo or HOA home: the seller must give you the association’s recorded governing documents before closing.',
+    };
+    sale.push({ id: 'hoa-docs', text: hoa[st] });
     sale.push({ id: 'lead', text: 'Built before 1978: you get a lead-paint pamphlet and 10 days to test for lead-based paint, unless you waive it.' });
   }
   if (d.kind === 'reo') {

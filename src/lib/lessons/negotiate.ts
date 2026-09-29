@@ -69,7 +69,8 @@ export const negotiate: Lesson = {
       blocks: [
         'In Nevada, a licensee must disclose to every party what they know about the property’s condition, where their pay comes from, any interest they have in the deal, and whether they’re acting for more than one party, which needs everyone’s written consent (NRS 645.252). Unless agreed in writing, the agent doesn’t have to inspect the property for you.',
         'In California, agents give a written agency disclosure before a listing or buyer agreement is signed and before your offer (Civil Code 2079.14). A seller’s agent works for the seller only, and one agent can act for both sides only if both agree (Civil Code 2079.16).',
-        'Arizona and Utah have their own agency rules; we haven’t reviewed them yet.',
+        'In Arizona, an agent owes a fiduciary duty to their client and must tell all parties in writing about anything they know that materially affects the price, like defects or liens. An agent buying or selling for themselves must say in writing that they’re licensed, and an agent can represent both sides only with everyone’s prior written consent (A.A.C. R4-28-1101).',
+        'In Utah, an agent can act as a limited agent for both sides only after explaining in writing what will be kept confidential and getting both parties’ written consent. An agent buying or selling for themselves must say they’re licensed at the first contact, and the purchase contract confirms who represents whom (Utah Admin. Code R162-2f-401a).',
         'Wherever you buy, ask any agent which side they represent, and get it in writing.',
       ],
     },
@@ -103,6 +104,8 @@ export const negotiate: Lesson = {
     { label: 'NRS 645: real estate licensees (duties, 645.252)', url: 'https://www.leg.state.nv.us/NRS/NRS-645.html' },
     { label: 'California Civil Code 2079.14: agency disclosure', url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2079.14' },
     { label: 'California Civil Code 2079.16: the agency disclosure form', url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2079.16' },
+    { label: 'Arizona Administrative Code R4-28-1101: duties to clients and others', url: 'https://www.law.cornell.edu/regulations/arizona/Ariz-Admin-Code-SS-R4-28-1101' },
+    { label: 'Utah Administrative Code R162-2f-401a: agency and limited agency', url: 'https://www.law.cornell.edu/regulations/utah/Utah-Admin-Code-R162-2f-401a' },
     { label: 'CFPB: mortgage closing scams', url: 'https://www.consumerfinance.gov/archive/blog/mortgage-closing-scams-how-protect-yourself-and-your-closing-funds/' },
     { label: 'FBI Internet Crime Complaint Center: real estate wire fraud warning', url: 'https://www.ic3.gov/PSA/2018/PSA180712' },
   ],

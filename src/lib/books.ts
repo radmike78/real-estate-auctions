@@ -10,6 +10,8 @@ export interface Book {
   edition: string;
   /** ISBN-10, used as the Amazon product id. */
   isbn10: string;
+  /** The owner’s own Amazon Associates link for this book (SiteStripe), used instead of the built one. */
+  link?: string;
   about: string;
   /** Shown when readers should know something first: dated, advanced, state-general. */
   note?: string;
@@ -72,4 +74,4 @@ export const BOOK_GROUPS: { topic: string; books: Book[] }[] = [
   },
 ];
 
-export const amazonUrl = (b: Book) => `https://www.amazon.com/dp/${b.isbn10}${AMAZON_TAG ? `?tag=${encodeURIComponent(AMAZON_TAG)}` : ''}`;
+export const amazonUrl = (b: Book) => b.link ?? `https://www.amazon.com/dp/${b.isbn10}${AMAZON_TAG ? `?tag=${encodeURIComponent(AMAZON_TAG)}` : ''}`;

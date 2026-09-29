@@ -321,7 +321,7 @@
       "src/lib/lessons/who-invests.ts"
     ],
     "reviewed": "2026-09-29",
-    "hash": "f03d6830df659566",
+    "hash": "be4a677292879a8b",
     "note": "All 10 lessons; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -358,7 +358,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-09-29",
-    "hash": "fb0c9acafb63a17a",
+    "hash": "e549b483a7f09427",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   }
 ]
