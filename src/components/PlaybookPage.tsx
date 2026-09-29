@@ -6,7 +6,10 @@ import { SALE_ORDER } from '../practice/scenarios';
 const PRACTICE_SALES = new Set<string>(SALE_ORDER);
 import TeamList from './TeamList';
 import { IconBadge, IconCheckList, IconFile, IconFlag, IconLayers, IconSteps } from './Icons';
-import { PLAYBOOKS, playbookByKey, type Playbook } from '../lib/playbooks';
+import { guidesFor, playbookByKey, stateOf, type Playbook } from '../lib/playbooks';
+import StatePicker from './StatePicker';
+import { useMyState } from '../lib/myState';
+import { STATES, stateByCode } from '../lib/regions';
 import { fmtDate } from '../lib/status';
 
 const isExternal = (u: string) => /^https:\/\//.test(u);
@@ -86,21 +89,30 @@ export function sections(p: Playbook): DrillSection[] {
 
 export default function PlaybookPage({ playbook, section }: { playbook?: string; section?: string }) {
   const p = playbook ? playbookByKey(playbook) : null;
+  const [mine] = useMyState();
 
   if (!p) {
+    const st = mine ? stateByCode(mine) : null;
+    const groups = st ? [{ code: st.code, name: st.name }] : STATES.map((x) => ({ code: x.code, name: x.name }));
     return (
       <main className="page">
         <PageHero
-          eyebrow={<span className="eyebrow">Clark County · Nevada law</span>}
+          eyebrow={<span className="eyebrow">{st ? `${st.name} law` : 'Nevada, California, Arizona and Utah'}</span>}
           title={<>How each sale <span className="grad">works</span></>}
-          sub="Every kind of forced sale in Clark County, step by step, and the mistakes that cost money."
+          sub={st ? `Every kind of forced sale in ${st.name}, step by step, and the mistakes that cost money.` : 'Every kind of forced sale, step by step, and the mistakes that cost money. Choose your state to see only its guides.'}
         >
           <GuideSearchForm />
         </PageHero>
+        <StatePicker label="Show guides for" />
         {playbook && <p className="notice" role="status">We couldn’t find that guide. Choose one below.</p>}
-        <div className="drill-tiles">
-          {PLAYBOOKS.map((x) => <Tile key={x.key} href={`#/playbooks/${x.key}`} icon={<IconCheckList />} title={x.short} summary={x.oneLine} />)}
-        </div>
+        {groups.map((g) => (
+          <section key={g.code} aria-label={`${g.name} guides`}>
+            {!st && <h2 className="section-title">{g.name}{g.code === 'NV' ? ' (Clark County)' : ''}</h2>}
+            <div className="drill-tiles">
+              {guidesFor(g.code).map((x) => <Tile key={x.key} href={`#/playbooks/${x.key}`} icon={<IconCheckList />} title={x.short} summary={x.oneLine} />)}
+            </div>
+          </section>
+        ))}
         <p className="muted playbook-note">No hype, no income promises. Many good decisions are the deals you walk away from.</p>
       </main>
     );
@@ -114,7 +126,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
       <PageHero
         compact={open}
         top={<a href={open ? base : '#/playbooks'}>{open ? `← ${p.short} playbook` : '← All guides'}</a>}
-        eyebrow={<span className="eyebrow">Nevada guide · reviewed {fmtDate(p.lastReviewed)}</span>}
+        eyebrow={<span className="eyebrow">{stateByCode(stateOf(p))?.name} guide{stateOf(p) === 'NV' ? ' · Clark County' : ''} · reviewed {fmtDate(p.lastReviewed)}</span>}
         title={open ? <a className="title-link" href={base}>{p.title}</a> : p.title}
         sub={open ? undefined : p.oneLine}
       />

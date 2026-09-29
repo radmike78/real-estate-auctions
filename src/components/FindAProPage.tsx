@@ -5,7 +5,8 @@ import TeamList from './TeamList';
 import ProDirectory from './ProDirectory';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
-import { PLAYBOOKS } from '../lib/playbooks';
+import { guidesFor, stateOf } from '../lib/playbooks';
+import { useMyState } from '../lib/myState';
 import { useMarkStep } from '../lib/path';
 import PathNext from './PathNext';
 import { CORE_TEAM, PRO_GUIDES, proGuideByKey, type ProGuide, type ProKey } from '../lib/proGuide';
@@ -59,7 +60,8 @@ export default function FindAProPage({ section }: { section?: string }) {
   const [sale, setSale] = useState<string>('start');
   const open = !!section && !!proGuideByKey(section);
   const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
-  const book = PLAYBOOKS.find((p) => p.key === sale);
+  const [mine] = useMyState();
+  const book = guidesFor(mine).find((p) => p.key === sale);
   const team = book
     ? book.team
     : CORE_TEAM.map((k) => proGuideByKey(k)!).map((g) => ({ role: g.title, when: g.summary, href: `#/pros/${g.key}` }));
@@ -78,8 +80,8 @@ export default function FindAProPage({ section }: { section?: string }) {
           <h2 id="pro-chooser-head" className="section-title">Who you need for your kind of sale</h2>
           <div className="chip-tabs" role="group" aria-label="Kind of sale">
             <button aria-pressed={sale === 'start'} onClick={() => setSale('start')}>Not sure yet</button>
-            {PLAYBOOKS.map((p) => (
-              <button key={p.key} aria-pressed={sale === p.key} onClick={() => setSale(p.key)}>{p.short}</button>
+            {guidesFor(mine).map((p) => (
+              <button key={p.key} aria-pressed={sale === p.key} onClick={() => setSale(p.key)}>{p.short}{mine ? '' : ` (${stateOf(p)})`}</button>
             ))}
           </div>
           <p className="muted">

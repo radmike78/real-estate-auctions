@@ -401,3 +401,21 @@ describe('commercial wording in sale-type checklists', () => {
     expect(forCommercial(CHECKLISTS.foreclosure).items.length).toBe(CHECKLISTS.foreclosure.items.length);
   });
 });
+
+describe('step-by-step guides for every state', () => {
+  it('gives California, Arizona and Utah three guides each, from official sources only', async () => {
+    const { PLAYBOOKS, guidesFor, stateOf } = await import('./playbooks');
+    for (const st of ['CA', 'AZ', 'UT'] as const) {
+      const g = guidesFor(st);
+      expect(g.length, st).toBe(3);
+      expect(g.every((p) => p.state === st)).toBe(true);
+    }
+    expect(guidesFor('NV').every((p) => stateOf(p) === 'NV')).toBe(true);
+    expect(new Set(PLAYBOOKS.map((p) => p.key)).size).toBe(PLAYBOOKS.length);
+    const MARKETPLACE = /bid4assets|govease|realauction|mytaxsale|publicsurplus|auction\.com|xome|hubzu|grantstreet|lienhub|zeusauction/i;
+    for (const p of PLAYBOOKS) {
+      expect(/^[a-z]+$/.test(p.key), p.key).toBe(true); // the route only matches letters
+      for (const s of p.sources) expect(MARKETPLACE.test(s.url), s.url).toBe(false);
+    }
+  });
+});
