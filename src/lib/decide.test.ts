@@ -1,0 +1,37 @@
+import { describe, expect, it } from 'vitest';
+import { QUESTIONS, rank, STRATEGIES, type Answers } from './decide';
+
+const top = (a: Answers) => rank(a)[0].strategy.key;
+
+describe('Decide', () => {
+  it('points typical people to the strategy that fits', () => {
+    expect(top({ goal: 'learn', cash: 'under10', borrow: 'unsure', time: 'weekly', hands: 'hire', risk: 'low', market: 'unsure' })).toBe('practice');
+    expect(top({ goal: 'income', cash: '10to50', borrow: 'live', time: 'weekly', hands: 'diy', risk: 'medium', market: 'res' })).toBe('househack');
+    expect(top({ goal: 'income', cash: '50to150', borrow: 'invest', time: 'weekly', hands: 'hire', risk: 'medium', market: 'res' })).toBe('rental');
+    expect(top({ goal: 'handsoff', cash: '10to50', borrow: 'cash', time: 'monthly', hands: 'none', risk: 'low', market: 'unsure' })).toBe('passive');
+    expect(top({ goal: 'income', cash: 'over150', borrow: 'invest', time: 'weekly', hands: 'hire', risk: 'medium', market: 'com' })).toBe('apartments');
+    expect(['flip', 'auction']).toContain(top({ goal: 'quick', cash: 'over150', borrow: 'cash', time: 'parttime', hands: 'diy', risk: 'high', market: 'res' }));
+  });
+
+  it('never sends a low-risk, low-cash beginner to auctions or flips', () => {
+    const r = rank({ goal: 'learn', cash: 'under10', borrow: 'unsure', time: 'monthly', hands: 'none', risk: 'low', market: 'res' }).slice(0, 3).map((m) => m.strategy.key);
+    expect(r).not.toContain('auction');
+    expect(r).not.toContain('flip');
+  });
+
+  it('has a weight for every option and unique checklist ids', () => {
+    for (const s of STRATEGIES) {
+      for (const q of QUESTIONS) {
+        if (q.key === 'state') continue;
+        for (const o of q.options) expect(s.weights[q.key]?.[o.value], `${s.key} ${q.key}=${o.value}`).toBeTypeOf('number');
+      }
+    }
+    const ids = STRATEGIES.flatMap((s) => s.checklist.map((c) => c.id));
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('reminds auction buyers to buy only from the official seller (CLAUDE.md)', () => {
+    const a = STRATEGIES.find((s) => s.key === 'auction')!;
+    expect(a.checklist.some((c) => /official seller/.test(c.text) && /Never contact homeowners/.test(c.text))).toBe(true);
+  });
+});

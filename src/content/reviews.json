@@ -328,11 +328,12 @@
     "id": "decide",
     "title": "Decide (step 2)",
     "files": [
-      "src/components/DecidePage.tsx"
+      "src/components/DecidePage.tsx",
+      "src/lib/decide.ts"
     ],
     "reviewed": "2026-09-29",
-    "hash": "3e8743f6f4cc4247",
-    "note": "New learning path, phase 1: coming soon."
+    "hash": "9d584129492c0749",
+    "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
     "id": "finddeals",
