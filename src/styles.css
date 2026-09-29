@@ -1975,6 +1975,15 @@ h1, h2 { letter-spacing: -0.03em; }
 .decide-checklist a { white-space: nowrap; font-weight: 600; }
 .decide-checklist input:checked + span { color: var(--muted); text-decoration: line-through; }
 .deal-sub { margin: 18px 0 8px; font-size: 1.05rem; }
-.state-sales { margin: 16px 0 8px; padding: 12px 16px; border-left: 3px solid var(--accent-strong); background: var(--surface); border-radius: 8px; max-width: 900px; }
+.state-sales { margin: 16px 0 28px; padding: 12px 16px; border-left: 3px solid var(--accent-strong); background: var(--surface); border-radius: 8px; max-width: 900px; }
 .state-sales ul { margin: 6px 0 8px; padding-left: 20px; display: grid; gap: 4px; }
 .state-sales a { font-weight: 600; }
+
+/* Your state: shared chooser (home, Learn, lessons) */
+.state-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 4px 0 20px; }
+.state-picker-label { font-weight: 700; }
+.state-picker-options { display: flex; flex-wrap: wrap; gap: 6px; }
+.state-picker button { font: inherit; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; min-height: 40px; }
+.state-picker button:hover { border-color: var(--accent); }
+.state-picker button.on { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+.path .state-picker { justify-content: center; }

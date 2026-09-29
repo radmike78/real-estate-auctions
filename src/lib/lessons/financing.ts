@@ -57,7 +57,9 @@ export const financing: Lesson = {
       heading: 'Private and hard-money lenders',
       blocks: [
         'Private lenders and hard-money lenders make loans secured by the property, often short-term, and are used for projects like flips when a bank loan doesn’t fit. Terms vary widely. Compare the rate, points, fees, term, and what happens if you can’t repay on time, and get every term in writing.',
-        'In Nevada, mortgage companies and the private investors who fund loans fall under NRS 645B. In California, finance lenders and brokers are licensed under the California Financing Law. Check any lender’s license on NMLS Consumer Access, the free national lookup.',
+        'In Nevada, mortgage companies and the private investors who fund loans fall under NRS 645B.',
+        'In California, finance lenders and brokers are licensed under the California Financing Law.',
+        'Wherever you are, check any lender’s license on NMLS Consumer Access, the free national lookup.',
       ],
     },
     {

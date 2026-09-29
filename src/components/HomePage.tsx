@@ -1,3 +1,4 @@
+import StatePicker from './StatePicker';
 import { IconCheckList, IconShield, IconStar } from './Icons';
 import { PATH, useStepsSeen } from '../lib/path';
 
@@ -28,6 +29,7 @@ export default function HomePage() {
       </section>
 
       <section className="path" aria-labelledby="path-head">
+        <StatePicker label="Where do you invest?" />
         <h2 id="path-head">Your path</h2>
         <ol className="path-steps">
           {PATH.map((s) => {

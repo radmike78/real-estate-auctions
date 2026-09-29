@@ -1,3 +1,4 @@
+import StatePicker from './StatePicker';
 import PageHero from './PageHero';
 import PathNext from './PathNext';
 import { LEARN_MODULES } from '../lib/learn';
@@ -14,6 +15,7 @@ export default function LearnPage() {
         title={<>Learn <span className="grad">real estate investing</span></>}
         sub="Residential and commercial: the markets, the property types, and how deals are found, analyzed and paid for."
       />
+      <StatePicker label="Show rules for" />
       <ol className="lesson-list">
         {LEARN_MODULES.map((m, i) => {
           const href = lessonByKey(m.key) ? `#/learn/${m.key}` : m.href;

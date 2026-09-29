@@ -68,7 +68,9 @@ export const negotiate: Lesson = {
       heading: 'Agents: who they work for',
       blocks: [
         'In Nevada, a licensee must disclose to every party what they know about the property’s condition, where their pay comes from, any interest they have in the deal, and whether they’re acting for more than one party, which needs everyone’s written consent (NRS 645.252). Unless agreed in writing, the agent doesn’t have to inspect the property for you.',
-        'In California, agents give a written agency disclosure before a listing or buyer agreement is signed and before your offer (Civil Code 2079.14). A seller’s agent works for the seller only, and one agent can act for both sides only if both agree (Civil Code 2079.16). Arizona and Utah have their own agency rules; ask any agent which side they represent.',
+        'In California, agents give a written agency disclosure before a listing or buyer agreement is signed and before your offer (Civil Code 2079.14). A seller’s agent works for the seller only, and one agent can act for both sides only if both agree (Civil Code 2079.16).',
+        'Arizona and Utah have their own agency rules; we haven’t reviewed them yet.',
+        'Wherever you buy, ask any agent which side they represent, and get it in writing.',
       ],
     },
     {

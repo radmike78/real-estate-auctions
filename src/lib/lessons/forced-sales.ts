@@ -3,13 +3,13 @@ import type { Lesson } from './types';
 export const forcedSales: Lesson = {
   key: 'forced-sales',
   minutes: 10,
-  intro: 'A forced sale is one the owner didn’t choose: a county selling for unpaid taxes, a lender’s trustee selling after a missed loan, a sheriff selling to pay a court judgment, or the IRS selling seized property. The rules change a lot from state to state. Here’s how they compare in Nevada, California, Arizona and Utah.',
+  intro: 'A forced sale is one the owner didn’t choose: a county selling for unpaid taxes, a lender’s trustee selling after a missed loan, a sheriff selling to pay a court judgment, or the IRS selling seized property. The rules change a lot from state to state: choose your state below to see only its rules.',
   takeaways: [
-    'Why Arizona sells tax liens while Nevada, California and Utah sell the property itself.',
-    'How trustee (foreclosure) auctions work in each state: timelines, notices and payment.',
+    'Whether your county sells the property itself or a tax lien.',
+    'How trustee (foreclosure) auctions work: timelines, notices and payment.',
     'Which sales leave the owner a right to buy the property back after the sale.',
     'What stays with the property, and why you buy as-is.',
-    'Where our step-by-step guides pick up.',
+    'Where to find your county’s sale offices.',
   ],
   sections: [
     {
@@ -26,13 +26,15 @@ export const forcedSales: Lesson = {
             ],
           },
         },
-        'A tax sale doesn’t clear everything. Washoe County, for example, warns that some government liens and other encumbrances may remain, and that for two years the former owner can challenge the sale, when title insurance may be hard to get. San Diego County sells “as is” and takes no responsibility for other liens, encumbrances or easements. Read the county’s rules before every sale.',
+        'A tax sale doesn’t clear everything. Read the county’s rules before every sale.',
+        'In Nevada, Washoe County warns that some government liens and other encumbrances may remain, and that for two years the former owner can challenge the sale, when title insurance may be hard to get.',
+        'In California, San Diego County sells “as is” and takes no responsibility for other liens, encumbrances or easements.',
       ],
     },
     {
       heading: 'Trustee (foreclosure) sales',
       blocks: [
-        'Most home loans in these states are deeds of trust. When a borrower defaults, a trustee can sell the home at a public auction without going to court.',
+        'Most home loans in all four states are deeds of trust. When a borrower defaults, a trustee can sell the home at a public auction without going to court.',
         {
           table: {
             head: ['State', 'Timeline and notice', 'Paying'],
@@ -80,18 +82,19 @@ export const forcedSales: Lesson = {
           'Know your walk-away price before bidding, and include the cost of any redemption period.',
           'Plan for occupants: owners and tenants have legal rights, and removing them takes a court process.',
         ] },
-        'Our step-by-step guides cover each kind of sale in detail for Clark County, Nevada. Other counties follow as we research them. Never contact homeowners facing foreclosure; buy from the official seller.',
+        'Find Deals lists each county’s tax sale page and records offices. Never contact homeowners facing foreclosure; buy from the official seller.',
+        'In Nevada, our step-by-step guides cover each kind of sale in detail for Clark County.',
       ],
     },
   ],
   terms: [
-    { term: 'Tax lien', meaning: 'A claim for unpaid taxes. In Arizona, investors buy the lien and earn interest until it’s paid or foreclosed.' },
+    { term: 'Tax lien', meaning: 'A claim for unpaid taxes. Where liens are sold, investors buy the lien and earn interest until it’s paid or foreclosed.' },
     { term: 'Tax deed', meaning: 'A deed to the property itself, sold by the county for unpaid taxes.' },
     { term: 'Trustee sale', meaning: 'An out-of-court foreclosure auction held by the trustee under a deed of trust.' },
     { term: 'Right of redemption', meaning: 'The owner’s right to buy the property back for a time after certain sales.' },
     { term: 'Quitclaim deed', meaning: 'A deed that passes whatever interest the seller has, with no promise that title is clear.' },
   ],
-  tryIt: { label: 'Open the step-by-step sale guides', href: '#/playbooks' },
+  tryIt: { label: 'Find your county’s sale offices', href: '#/find-deals' },
   sources: [
     { label: 'NRS 361: property tax and tax sales (361.570, 361.585, 361.595)', url: 'https://www.leg.state.nv.us/NRS/NRS-361.html' },
     { label: 'California Revenue and Taxation Code 3691: when tax-defaulted property can be sold', url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=3691' },

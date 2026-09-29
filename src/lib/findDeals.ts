@@ -16,6 +16,13 @@ export const NATIONAL_OFFICIAL: DealSource[] = REO_SOURCES.map((s) => ({
   what: s.what,
 }));
 
+/** The national sellers, worded for the visitor's state (the Clark County page's search tips don't apply elsewhere). */
+export const nationalOfficialFor = (stateName: string): DealSource[] =>
+  NATIONAL_OFFICIAL.map((s) => ({
+    ...s,
+    what: s.what.replace('Search Las Vegas or a ZIP code.', 'Search your city or ZIP code.').replace('Filter for Nevada.', `Filter for ${stateName}.`),
+  }));
+
 /** The kinds of official sellers to look for in any county. */
 export const WHERE_TO_LOOK: { title: string; what: string }[] = [
   { title: 'Tax sales', what: 'The county treasurer or tax collector sells properties (or tax liens) with unpaid property taxes. Look for the county’s tax sale or auction page.' },

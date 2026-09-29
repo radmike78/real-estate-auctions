@@ -6,7 +6,7 @@
       "src/components/HomePage.tsx"
     ],
     "reviewed": "2026-09-29",
-    "hash": "d72686e3f0ce61f6",
+    "hash": "88ccf5f43c9112f5",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -321,8 +321,8 @@
       "src/lib/lessons/who-invests.ts"
     ],
     "reviewed": "2026-09-29",
-    "hash": "8c7b4a58683dc48c",
-    "note": "All 10 lessons written from federal, state and county sources."
+    "hash": "f03d6830df659566",
+    "note": "All 10 lessons; state-specific passages split so each state sees only its own rules."
   },
   {
     "id": "decide",
@@ -332,7 +332,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-09-29",
-    "hash": "9d584129492c0749",
+    "hash": "cf084c634d739ca8",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -345,8 +345,8 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-09-29",
-    "hash": "bb0a52371a13da5a",
-    "note": "County offices from each county’s own site (in progress: CA north done)."
+    "hash": "1e41a5d59553e587",
+    "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
     "id": "analyze",
