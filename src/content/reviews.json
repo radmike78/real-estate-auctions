@@ -113,8 +113,8 @@
       "src/components/TeamList.tsx",
       "src/lib/playbooks.ts"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "a3603c9d9dd02c64",
+    "reviewed": "2026-09-29",
+    "hash": "aa2845ddc2b5ca7d",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -188,7 +188,7 @@
       "src/lib/licenseLookup.ts"
     ],
     "reviewed": "2026-09-29",
-    "hash": "fadf05cc64bce458",
+    "hash": "4adc510b49e9edb8",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
