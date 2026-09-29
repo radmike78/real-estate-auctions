@@ -1,7 +1,27 @@
 import PageHero from './PageHero';
 import { LEARN_MODULES } from '../lib/learn';
-import { AMAZON_TAG, amazonUrl, BOOK_GROUPS } from '../lib/books';
+import { AMAZON_TAG, amazonUrl, BOOK_GROUPS, coverFallback, coverUrl, type Book } from '../lib/books';
 import { useMarkStep } from '../lib/path';
+
+/** The cover from Amazon's image link; falls back to Amazon's image server, then hides if neither loads. */
+function Cover({ b }: { b: Book }) {
+  return (
+    <a className="book-cover" href={amazonUrl(b)} target="_blank" rel={AMAZON_TAG ? 'sponsored noopener noreferrer' : 'noopener noreferrer'} tabIndex={-1} aria-hidden>
+      <img
+        src={coverUrl(b)}
+        alt=""
+        width={110}
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        onError={(e) => {
+          const img = e.currentTarget;
+          if (img.src !== coverFallback(b)) img.src = coverFallback(b);
+          else (img.parentElement as HTMLElement).hidden = true;
+        }}
+      />
+    </a>
+  );
+}
 
 /** Learn, lesson 10: recommended books, with the Amazon Associates disclosure when links carry a tag. */
 export default function ReadingPage() {
@@ -21,11 +41,14 @@ export default function ReadingPage() {
           <ul className="book-list">
             {g.books.map((b) => (
               <li key={b.isbn10} className="book-card">
+                <Cover b={b} />
+                <div className="book-info">
                 <strong className="book-title">{b.title}</strong>
                 <span className="muted">{b.author} · {b.edition}</span>
                 <span>{b.about}</span>
                 {b.note && <span className="book-note">{b.note}</span>}
                 <a href={amazonUrl(b)} target="_blank" rel={AMAZON_TAG ? 'sponsored noopener noreferrer' : 'noopener noreferrer'}>View on Amazon ↗</a>
+                </div>
               </li>
             ))}
           </ul>
