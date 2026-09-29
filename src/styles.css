@@ -1897,3 +1897,24 @@ h1, h2 { letter-spacing: -0.03em; }
   .hero.simple-hero::after { top: 14px; right: auto; left: calc(50% - 25px); }
   .hero.simple-hero .hero-inner { padding-top: 24px; }
 }
+
+/* Learn: a lesson page, set for reading */
+.lesson .lesson-takeaways, .lesson .lesson-body-text, .lesson .lesson-terms, .lesson .lesson-sources, .lesson .lesson-try { max-width: 780px; }
+.lesson-takeaways { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent-strong); border-radius: 12px; padding: 16px 22px; margin: 8px 0 28px; }
+.lesson-takeaways h2 { font-size: 1.15rem; margin: 0 0 8px; }
+.lesson-takeaways ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.lesson-body-text section { margin-bottom: 28px; }
+.lesson-body-text h2, .lesson-terms h2, .lesson-sources h2 { font-size: 1.45rem; margin: 0 0 10px; }
+.lesson-body-text p, .lesson-body-text li { line-height: 1.65; }
+.lesson-body-text ul { padding-left: 22px; display: grid; gap: 6px; }
+.lesson-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 8px 0 12px; }
+.lesson-table th, .lesson-table td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--border); line-height: 1.5; }
+.lesson-table thead th { background: var(--surface-2); }
+.lesson-table tbody tr:last-child > * { border-bottom: 0; }
+.lesson-table tbody th { font-weight: 700; white-space: nowrap; }
+.lesson-terms dl { display: grid; gap: 10px; margin: 0 0 24px; }
+.lesson-terms dl > div { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+.lesson-terms dt { font-weight: 700; }
+.lesson-terms dd { margin: 2px 0 0; color: var(--muted); }
+.lesson-try { margin: 0 0 24px; }
+@media (max-width: 700px) { .lesson-table tbody th { white-space: normal; } }

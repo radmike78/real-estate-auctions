@@ -304,11 +304,14 @@
     "title": "Learn (step 1)",
     "files": [
       "src/components/LearnPage.tsx",
-      "src/lib/learn.ts"
+      "src/components/LessonPage.tsx",
+      "src/lib/learn.ts",
+      "src/lib/lessons/index.ts",
+      "src/lib/lessons/types.ts"
     ],
     "reviewed": "2026-09-29",
-    "hash": "44c6ae9f2549e9b3",
-    "note": "New learning path, phase 1: lesson outline."
+    "hash": "6e1fe6a56c459c86",
+    "note": "Learning path: lesson outline and lesson page."
   },
   {
     "id": "decide",

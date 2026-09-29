@@ -2,6 +2,7 @@ import PageHero from './PageHero';
 import PathNext from './PathNext';
 import { LEARN_MODULES } from '../lib/learn';
 import { useMarkStep } from '../lib/path';
+import { lessonByKey } from '../lib/lessons';
 
 /** Step 1 of the path: the lessons, in order. */
 export default function LearnPage() {
@@ -14,10 +15,12 @@ export default function LearnPage() {
         sub="Residential and commercial: the markets, the property types, and how deals are found, analyzed and paid for."
       />
       <ol className="lesson-list">
-        {LEARN_MODULES.map((m, i) => (
+        {LEARN_MODULES.map((m, i) => {
+          const href = lessonByKey(m.key) ? `#/learn/${m.key}` : m.href;
+          return (
           <li key={m.key}>
-            {m.href ? (
-              <a className="lesson-card ready" href={m.href}>
+            {href ? (
+              <a className="lesson-card ready" href={href}>
                 <span className="lesson-n" aria-hidden>{i + 1}</span>
                 <span className="lesson-body"><strong>{m.title}</strong><span>{m.summary}</span></span>
                 <span className="lesson-go" aria-hidden>→</span>
@@ -30,7 +33,8 @@ export default function LearnPage() {
               </div>
             )}
           </li>
-        ))}
+          );
+        })}
       </ol>
       <PathNext step="learn" />
     </main>
