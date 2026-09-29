@@ -1987,3 +1987,17 @@ h1, h2 { letter-spacing: -0.03em; }
 .state-picker button:hover { border-color: var(--accent); }
 .state-picker button.on { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
 .path .state-picker { justify-content: center; }
+
+/* Analyze a deal: setup and checklist */
+.deal-setup, .deal-checklist { max-width: 960px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 22px; margin-bottom: 22px; }
+.deal-setup h2, .deal-checklist h2 { font-size: 1.4rem; margin: 0 0 12px; }
+.deal-fields { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); }
+.deal-fields .field.wide { grid-column: 1 / -1; }
+.deal-fields input, .deal-fields select, .deal-notes textarea { width: 100%; box-sizing: border-box; }
+.deal-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+.saved-deals { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+.saved-deals ul { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 4px; }
+.saved-deals li.on > .linkish:first-child { font-weight: 700; }
+.saved-deals .danger { margin-left: 10px; color: var(--muted); }
+.check-group h3 { font-size: 1.1rem; margin: 16px 0 8px; }
+.deal-notes { display: grid; gap: 4px; margin-top: 16px; }

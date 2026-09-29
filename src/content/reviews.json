@@ -353,11 +353,12 @@
     "title": "Analyze a deal (step 6)",
     "files": [
       "src/components/AnalyzePage.tsx",
-      "src/lib/path.ts",
-      "src/components/PathNext.tsx"
+      "src/components/PathNext.tsx",
+      "src/lib/analyze.ts",
+      "src/lib/path.ts"
     ],
     "reviewed": "2026-09-29",
-    "hash": "3378f144cdb4a770",
-    "note": "New learning path, phase 1."
+    "hash": "cb27c9c0bde918b0",
+    "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   }
 ]
