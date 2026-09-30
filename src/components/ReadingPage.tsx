@@ -1,12 +1,12 @@
 import PageHero from './PageHero';
 import { LEARN_MODULES } from '../lib/learn';
-import { AMAZON_TAG, amazonUrl, BOOK_GROUPS, coverFallback, coverUrl, type Book } from '../lib/books';
+import { AMAZON_TAG, amazonUrl, AUDIOBOOKS, BOOK_GROUPS, coverFallback, coverUrl, type Book } from '../lib/books';
 import { useMarkStep } from '../lib/path';
 
 /** The cover from Amazon's image link; falls back to Amazon's image server, then hides if neither loads. */
-function Cover({ b }: { b: Book }) {
+function Cover({ b, href = amazonUrl(b) }: { b: Book; href?: string }) {
   return (
-    <a className="book-cover" href={amazonUrl(b)} target="_blank" rel={AMAZON_TAG ? 'sponsored noopener noreferrer' : 'noopener noreferrer'} tabIndex={-1} aria-hidden>
+    <a className="book-cover" href={href} target="_blank" rel={AMAZON_TAG ? 'sponsored noopener noreferrer' : 'noopener noreferrer'} tabIndex={-1} aria-hidden>
       <img
         src={coverUrl(b)}
         alt=""
@@ -54,6 +54,25 @@ export default function ReadingPage() {
           </ul>
         </section>
       ))}
+      {AUDIOBOOKS.length > 0 && (
+        <section className="book-group" aria-labelledby="bk-audio">
+          <h2 id="bk-audio">Audiobooks</h2>
+          <p className="muted">Prefer to listen? These books from the list above are also on Audible.</p>
+          <ul className="book-list">
+            {AUDIOBOOKS.map((b) => (
+              <li key={b.isbn10} className="book-card">
+                <Cover b={b} href={b.audio} />
+                <div className="book-info">
+                <strong className="book-title">{b.title}</strong>
+                <span className="muted">{b.author} · Audible audiobook</span>
+                <span>{b.about}</span>
+                <a href={b.audio} target="_blank" rel={AMAZON_TAG ? 'sponsored noopener noreferrer' : 'noopener noreferrer'}>Audiobook on Amazon ↗</a>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <p className="muted book-foot">Also free: your public library, and the official sources listed in each lesson.</p>
       <nav className="path-next" aria-label="Next step">
         <span className="muted">Next: step 2 of 6</span>

@@ -12,6 +12,8 @@ export interface Book {
   isbn10: string;
   /** The owner’s own Amazon Associates link for this book (SiteStripe), used instead of the built one. */
   link?: string;
+  /** The owner’s Amazon Associates link to the Audible audiobook, listed under Audiobooks. */
+  audio?: string;
   about: string;
   /** Shown when readers should know something first: dated, advanced, state-general. */
   note?: string;
@@ -21,22 +23,22 @@ export const BOOK_GROUPS: { topic: string; books: Book[] }[] = [
   {
     topic: 'Getting started',
     books: [
-      { title: 'Real Estate Investing For Dummies', author: 'Eric Tyson and Robert S. Griswold', edition: '4th edition, 2019', isbn10: '1119601762', about: 'A broad, balanced introduction: property types, financing, due diligence, closing and managing rentals.' },
-      { title: 'The Book on Rental Property Investing', author: 'Brandon Turner', edition: '2015', isbn10: '099071179X', about: 'The buy-and-hold process: finding and analyzing rentals, financing them, building a team and managing them.' },
-      { title: 'The Millionaire Real Estate Investor', author: 'Gary Keller, with Dave Jenks and Jay Papasan', edition: '2005', isbn10: '0071446370', about: 'Investor habits and a step-by-step way to build a portfolio over time.', note: 'The title is aspirational; the method is what’s useful.' },
+      { title: 'Real Estate Investing For Dummies', author: 'Eric Tyson and Robert S. Griswold', edition: '5th edition', isbn10: '1394289707', link: 'https://amzn.to/4dNvmWh', about: 'A broad, balanced introduction: property types, financing, due diligence, closing and managing rentals.' },
+      { title: 'The Book on Rental Property Investing', author: 'Brandon Turner', edition: '2015', isbn10: '099071179X', audio: 'https://amzn.to/4dNvuoJ', about: 'The buy-and-hold process: finding and analyzing rentals, financing them, building a team and managing them.' },
+      { title: 'The Millionaire Real Estate Investor', author: 'Gary Keller, with Dave Jenks and Jay Papasan', edition: '2005', isbn10: '0071446370', audio: 'https://amzn.to/4rLUCSQ', about: 'Investor habits and a step-by-step way to build a portfolio over time.', note: 'The title is aspirational; the method is what’s useful.' },
     ],
   },
   {
     topic: 'Analyzing deals',
     books: [
-      { title: 'What Every Real Estate Investor Needs to Know About Cash Flow… And 36 Other Key Financial Measures', author: 'Frank Gallinelli', edition: 'Updated edition, 2015', isbn10: '1259586189', about: 'How to calculate and read NOI, cap rate, cash-on-cash return, debt coverage and other measures.' },
-      { title: 'The Book on Estimating Rehab Costs', author: 'J Scott', edition: '2nd edition, 2019', isbn10: '1947200127', about: 'Planning a renovation and building a line-item budget for it.' },
+      { title: 'What Every Real Estate Investor Needs to Know About Cash Flow… And 36 Other Key Financial Measures', author: 'Frank Gallinelli', edition: 'Updated edition, 2015', isbn10: '1259586189', link: 'https://amzn.to/4AF3NrY', about: 'How to calculate and read NOI, cap rate, cash-on-cash return, debt coverage and other measures.' },
+      { title: 'The Book on Estimating Rehab Costs', author: 'J Scott', edition: '2nd edition, 2019', isbn10: '1947200127', link: 'https://amzn.to/4xSpgLu', about: 'Planning a renovation and building a line-item budget for it.' },
     ],
   },
   {
     topic: 'Flipping',
     books: [
-      { title: 'The Book on Flipping Houses', author: 'J Scott', edition: '2nd edition, 2019', isbn10: '1947200100', about: 'Buying, financing, renovating and reselling homes.' },
+      { title: 'The Book on Flipping Houses', author: 'J Scott', edition: '2nd edition, 2019', isbn10: '1947200100', audio: 'https://amzn.to/3TVXCzn', about: 'Buying, financing, renovating and reselling homes.' },
     ],
   },
   {
@@ -48,7 +50,7 @@ export const BOOK_GROUPS: { topic: string; books: Book[] }[] = [
   {
     topic: 'Negotiating',
     books: [
-      { title: 'Getting to Yes: Negotiating Agreement Without Giving In', author: 'Roger Fisher, William Ury and Bruce Patton', edition: '3rd edition, 2011', isbn10: '0143118757', about: 'The classic on negotiating by interests, not positions, using fair, objective standards.' },
+      { title: 'Getting to Yes: Negotiating Agreement Without Giving In', author: 'Roger Fisher, William Ury and Bruce Patton', edition: '3rd edition, 2011', isbn10: '0143118757', audio: 'https://amzn.to/4ysPbuu', about: 'The classic on negotiating by interests, not positions, using fair, objective standards.' },
       { title: 'Never Split the Difference', author: 'Chris Voss with Tahl Raz', edition: '2016', isbn10: '0062407805', about: 'Practical negotiating techniques from a former FBI hostage negotiator.' },
     ],
   },
@@ -83,3 +85,6 @@ export const coverUrl = (b: Book) =>
 export const coverFallback = (b: Book) => `https://m.media-amazon.com/images/P/${b.isbn10}.01._SCLZZZZZZZ_SX250_.jpg`;
 
 export const amazonUrl = (b: Book) => b.link ?? `https://www.amazon.com/dp/${b.isbn10}${AMAZON_TAG ? `?tag=${encodeURIComponent(AMAZON_TAG)}` : ''}`;
+
+/** Books the owner has an audiobook link for, in reading-list order. */
+export const AUDIOBOOKS: Book[] = BOOK_GROUPS.flatMap((g) => g.books).filter((b) => b.audio);
