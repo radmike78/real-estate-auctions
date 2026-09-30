@@ -32,7 +32,7 @@ export const BOOK_GROUPS: { topic: string; books: Book[] }[] = [
     topic: 'Analyzing deals',
     books: [
       { title: 'What Every Real Estate Investor Needs to Know About Cash Flow… And 36 Other Key Financial Measures', author: 'Frank Gallinelli', edition: 'Updated edition, 2015', isbn10: '1259586189', link: 'https://amzn.to/4AF3NrY', about: 'How to calculate and read NOI, cap rate, cash-on-cash return, debt coverage and other measures.' },
-      { title: 'The Book on Estimating Rehab Costs', author: 'J Scott', edition: '2nd edition, 2019', isbn10: '1947200127', about: 'Planning a renovation and building a line-item budget for it.' },
+      { title: 'The Book on Estimating Rehab Costs', author: 'J Scott', edition: '2nd edition, 2019', isbn10: '1947200127', link: 'https://amzn.to/4xSpgLu', about: 'Planning a renovation and building a line-item budget for it.' },
     ],
   },
   {
