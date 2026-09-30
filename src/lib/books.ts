@@ -50,7 +50,7 @@ export const BOOK_GROUPS: { topic: string; books: Book[] }[] = [
   {
     topic: 'Negotiating',
     books: [
-      { title: 'Getting to Yes: Negotiating Agreement Without Giving In', author: 'Roger Fisher, William Ury and Bruce Patton', edition: '3rd edition, 2011', isbn10: '0143118757', about: 'The classic on negotiating by interests, not positions, using fair, objective standards.' },
+      { title: 'Getting to Yes: Negotiating Agreement Without Giving In', author: 'Roger Fisher, William Ury and Bruce Patton', edition: '3rd edition, 2011', isbn10: '0143118757', audio: 'https://amzn.to/4ysPbuu', about: 'The classic on negotiating by interests, not positions, using fair, objective standards.' },
       { title: 'Never Split the Difference', author: 'Chris Voss with Tahl Raz', edition: '2016', isbn10: '0062407805', about: 'Practical negotiating techniques from a former FBI hostage negotiator.' },
     ],
   },
