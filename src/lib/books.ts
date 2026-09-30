@@ -38,7 +38,7 @@ export const BOOK_GROUPS: { topic: string; books: Book[] }[] = [
   {
     topic: 'Flipping',
     books: [
-      { title: 'The Book on Flipping Houses', author: 'J Scott', edition: '2nd edition, 2019', isbn10: '1947200100', about: 'Buying, financing, renovating and reselling homes.' },
+      { title: 'The Book on Flipping Houses', author: 'J Scott', edition: '2nd edition, 2019', isbn10: '1947200100', audio: 'https://amzn.to/3TVXCzn', about: 'Buying, financing, renovating and reselling homes.' },
     ],
   },
   {
