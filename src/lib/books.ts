@@ -22,7 +22,7 @@ export const BOOK_GROUPS: { topic: string; books: Book[] }[] = [
     topic: 'Getting started',
     books: [
       { title: 'Real Estate Investing For Dummies', author: 'Eric Tyson and Robert S. Griswold', edition: '5th edition', isbn10: '1394289707', link: 'https://amzn.to/4dNvmWh', about: 'A broad, balanced introduction: property types, financing, due diligence, closing and managing rentals.' },
-      { title: 'The Book on Rental Property Investing', author: 'Brandon Turner', edition: '2015', isbn10: '099071179X', about: 'The buy-and-hold process: finding and analyzing rentals, financing them, building a team and managing them.' },
+      { title: 'The Book on Rental Property Investing', author: 'Brandon Turner', edition: '2015', isbn10: '099071179X', link: 'https://amzn.to/4dNvuoJ', about: 'The buy-and-hold process: finding and analyzing rentals, financing them, building a team and managing them.' },
       { title: 'The Millionaire Real Estate Investor', author: 'Gary Keller, with Dave Jenks and Jay Papasan', edition: '2005', isbn10: '0071446370', about: 'Investor habits and a step-by-step way to build a portfolio over time.', note: 'The title is aspirational; the method is what’s useful.' },
     ],
   },
