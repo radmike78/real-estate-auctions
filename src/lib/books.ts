@@ -44,7 +44,7 @@ export const BOOK_GROUPS: { topic: string; books: Book[] }[] = [
   {
     topic: 'Financing',
     books: [
-      { title: 'The Book on Investing in Real Estate with No (and Low) Money Down', author: 'Brandon Turner', edition: '2nd edition, 2020', isbn10: '1947200976', about: 'Private lenders, partners, seller financing and other creative ways to fund a purchase.', note: 'Creative financing carries more risk and legal rules; read our creative financing lesson first.' },
+      { title: 'The Book on Investing in Real Estate with No (and Low) Money Down', author: 'Brandon Turner', edition: '2nd edition, 2020', isbn10: '1947200976', link: 'https://amzn.to/4ANhzJs', about: 'Private lenders, partners, seller financing and other creative ways to fund a purchase.', note: 'Creative financing carries more risk and legal rules; read our creative financing lesson first.' },
     ],
   },
   {
