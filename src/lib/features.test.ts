@@ -419,3 +419,29 @@ describe('step-by-step guides for every state', () => {
     }
   });
 });
+
+describe('veterans lesson', () => {
+  it('shows each state only its own benefits, citing only its own laws and agencies', async () => {
+    const { veterans } = await import('./lessons/veterans');
+    const { statesOf, showFor } = await import('./myState');
+    const MARKERS: Record<string, RegExp> = {
+      NV: /\bNRS\b|Nevada|Douglas County|Clark County/,
+      CA: /California|Revenue and Taxation Code|BOE-|CalVet|Military and Veterans Code/,
+      AZ: /Arizona|A\.R\.S\.|Mohave|Maricopa/,
+      UT: /Utah/,
+    };
+    const items = veterans.sections.flatMap((s) => s.blocks).flatMap((b) => (typeof b === 'string' ? [b] : 'list' in b ? b.list : []));
+    for (const st of ['NV', 'CA', 'AZ', 'UT'] as const) {
+      const mine = items.filter((t) => statesOf(t).includes(st));
+      expect(mine.length, st).toBeGreaterThanOrEqual(3);
+      for (const t of mine) {
+        expect(statesOf(t), t).toEqual([st]); // one state per item
+        for (const [other, re] of Object.entries(MARKERS)) if (other !== st) expect(re.test(t), `${st} item mentions ${other}: ${t}`).toBe(false);
+      }
+      // A visitor who picks this state sees none of the other states' items.
+      for (const t of items.filter((x) => statesOf(x).length && !statesOf(x).includes(st))) expect(showFor(st, t)).toBe(false);
+    }
+    // Every state-specific source names its state, so it's filtered the same way.
+    for (const s of veterans.sources) if (/leg\.state\.nv|douglascountynv|homeispossiblenv|boe\.ca|leginfo|azleg|mohave|utah/.test(s.url)) expect(statesOf(s.label).length, s.label).toBe(1);
+  });
+});
