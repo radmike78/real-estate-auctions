@@ -1,4 +1,4 @@
-// Recommended reading (Learn, lesson 10). Links go to Amazon; when AMAZON_TAG is set they are Amazon Associates
+// Recommended reading (Learn, the last lesson). Links go to Amazon; when AMAZON_TAG is set they are Amazon Associates
 // links, and the page shows the required disclosure in fine print (CLAUDE.md).
 
 /** The owner's Amazon Associates tracking ID (ends in "-20"). Empty: plain links, no disclosure. */

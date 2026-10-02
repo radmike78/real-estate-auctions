@@ -8,8 +8,9 @@ import { negotiate } from './negotiate';
 import { tools } from './tools';
 import type { Lesson } from './types';
 import { typesOfProperty } from './types-of-property';
+import { veterans } from './veterans';
 import { whoInvests } from './who-invests';
 
-export const LESSONS: Lesson[] = [markets, typesOfProperty, whoInvests, analyze, negotiate, financing, creative, tools, forcedSales];
+export const LESSONS: Lesson[] = [markets, typesOfProperty, whoInvests, analyze, negotiate, financing, creative, tools, forcedSales, veterans];
 
 export const lessonByKey = (key: string) => LESSONS.find((l) => l.key === key);

@@ -23,7 +23,7 @@ function Cover({ b, href = amazonUrl(b) }: { b: Book; href?: string }) {
   );
 }
 
-/** Learn, lesson 10: recommended books, with the Amazon Associates disclosure when links carry a tag. */
+/** Learn, last lesson: recommended books, with the Amazon Associates disclosure when links carry a tag. */
 export default function ReadingPage() {
   useMarkStep('learn');
   const n = LEARN_MODULES.findIndex((m) => m.key === 'reading') + 1;
