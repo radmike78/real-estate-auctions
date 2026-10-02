@@ -7,6 +7,7 @@ import { fmtDate } from '../lib/status';
 import { showFor, useMyState } from '../lib/myState';
 import { STATES, type StateCode } from '../lib/regions';
 import StatePicker from './StatePicker';
+import WhyBlock from './WhyBlock';
 
 const STATE_NAMES = new Set(STATES.map((s) => s.name));
 
@@ -22,6 +23,11 @@ function forState(b: LessonBlock, st: StateCode | null): LessonBlock | null {
     const links = b.links.filter((x) => showFor(st, x.label));
     return links.length ? { links } : null;
   }
+  if ('why' in b) {
+    const yes = b.why.yes.filter((p) => showFor(st, p.text));
+    const no = b.why.no.filter((p) => showFor(st, p.text));
+    return yes.length || no.length ? { why: { ...b.why, yes, no } } : null;
+  }
   const { head, rows } = b.table;
   if (head.slice(1).some((h) => STATE_NAMES.has(h))) {
     const name = STATES.find((s) => s.code === st)!.name;
@@ -36,6 +42,7 @@ function forState(b: LessonBlock, st: StateCode | null): LessonBlock | null {
 function Block({ b }: { b: LessonBlock }) {
   if (typeof b === 'string') return <p>{b}</p>;
   if ('list' in b) return <ul>{b.list.map((x) => <li key={x}>{x}</li>)}</ul>;
+  if ('why' in b) return <WhyBlock title={b.why.title} yes={b.why.yes} no={b.why.no} />;
   if ('links' in b)
     return (
       <ul className="lesson-links">

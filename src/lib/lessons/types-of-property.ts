@@ -1,14 +1,16 @@
 import type { Lesson } from './types';
+import { PROPERTY_WHY as W } from './propertyWhy';
 
 export const typesOfProperty: Lesson = {
   key: 'types',
-  minutes: 6,
+  minutes: 15,
   intro: 'Each kind of property has its own buyers, loans, costs and risks. Here’s what each one is and what an investor should know before buying one.',
   takeaways: [
     'The main kinds of residential and commercial property.',
     'Which ones qualify for home loans, and which need commercial or cash financing.',
     'Costs that come with some types, like HOA dues.',
     'Why land is the hardest kind of property to finance.',
+    'Why you would, or wouldn’t, choose each type, with real examples from recent years.',
   ],
   sections: [
     {
@@ -25,6 +27,11 @@ export const typesOfProperty: Lesson = {
             ],
           },
         },
+        'Why you would, or wouldn’t, choose each one, from different investors’ points of view:',
+        { why: { title: 'Single-family house', ...W.singleFamily } },
+        { why: { title: 'Condo or townhouse', ...W.condo } },
+        { why: { title: 'Duplex, triplex, fourplex (2–4 units)', ...W.smallMultifamily } },
+        { why: { title: 'Manufactured home', ...W.manufactured } },
       ],
     },
     {
@@ -44,6 +51,14 @@ export const typesOfProperty: Lesson = {
             ],
           },
         },
+        'Why you would, or wouldn’t, choose each one, from different investors’ points of view:',
+        { why: { title: 'Multifamily (5+ units)', ...W.multifamily } },
+        { why: { title: 'Retail', ...W.retail } },
+        { why: { title: 'Office', ...W.office } },
+        { why: { title: 'Industrial', ...W.industrial } },
+        { why: { title: 'Mixed-use', ...W.mixedUse } },
+        { why: { title: 'Hotels and motels', ...W.hotel } },
+        { why: { title: 'Self-storage', ...W.selfStorage } },
       ],
     },
     {
@@ -51,6 +66,7 @@ export const typesOfProperty: Lesson = {
       blocks: [
         'Land can be the cheapest way in, but it’s the hardest to finance. Federal guidelines suggest banks lend no more than 65% of the value of raw land, compared with 75% for land being developed and 85% for improved property, so expect a big down payment or to pay cash. Land earns no income until it’s used, and it can’t be depreciated for taxes.',
         'Before buying land, check the zoning, access, water, sewer or septic, and utilities with the county. Our guides point to each county’s records.',
+        { why: { title: 'Raw land', ...W.land } },
       ],
     },
     {
