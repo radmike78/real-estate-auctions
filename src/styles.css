@@ -1899,7 +1899,15 @@ h1, h2 { letter-spacing: -0.03em; }
 }
 
 /* Learn: a lesson page, set for reading */
-.lesson .lesson-takeaways, .lesson .lesson-body-text, .lesson .lesson-terms, .lesson .lesson-sources, .lesson .lesson-try { max-width: 780px; }
+/* Lessons use the full width of the page on every screen; text wraps with the window */
+.lesson .lesson-takeaways, .lesson .lesson-body-text, .lesson .lesson-terms, .lesson .lesson-sources, .lesson .lesson-try { max-width: none; }
+.lesson p, .lesson li, .lesson dd { max-width: none; }
+/* The intro runs wide too (its column already leaves room for the owl) */
+.page.lesson .page-hero .page-hero-sub { max-width: none; }
+/* Phones: thinner card padding, so the words get the room */
+@media (max-width: 700px) { .page.lesson section:not(.options-grid):not(.while-you-wait):not(.four):not(.drill-tiles):not(.kpis) { padding: 18px 16px; margin-bottom: 16px; } .lesson-body-text ul, .lesson-takeaways ul { padding-left: 18px; } }
+/* Larger screens: slightly larger lesson text, so long lines stay easy to read */
+@media (min-width: 1200px) { .lesson-body-text p, .lesson-body-text li, .lesson-takeaways li, .lesson-terms dd { font-size: 1.08rem; } }
 .lesson-takeaways { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent-strong); border-radius: 12px; padding: 16px 22px; margin: 8px 0 28px; }
 .lesson-takeaways h2 { font-size: 1.15rem; margin: 0 0 8px; }
 .lesson-takeaways ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
@@ -1931,7 +1939,7 @@ h1, h2 { letter-spacing: -0.03em; }
 .page .lesson-table th:first-child, .page .lesson-table td:first-child { padding-left: 14px; }
 
 /* Learn: recommended reading */
-.book-group { max-width: 900px; margin-bottom: 24px; }
+.book-group { margin-bottom: 24px; }
 .book-group h2 { font-size: 1.45rem; margin: 0 0 10px; }
 .book-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); }
 .book-card { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; }
@@ -1943,7 +1951,7 @@ h1, h2 { letter-spacing: -0.03em; }
 .book-title { font-size: 1.1rem; line-height: 1.35; }
 .book-note { color: var(--muted); font-style: italic; }
 .book-info > a { justify-self: start; font-weight: 600; }
-.book-foot { max-width: 900px; }
+.book-foot { max-width: none; }
 .fine-print { color: var(--muted); font-size: 0.9rem; margin-top: 18px; }
 .lesson-body-text ul.lesson-links { list-style: none; padding: 0; display: grid; gap: 8px; }
 .lesson-links li { display: grid; gap: 2px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
