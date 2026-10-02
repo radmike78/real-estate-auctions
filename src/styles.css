@@ -718,7 +718,7 @@ h3 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; line-height:
 .page > h2, .page > .section-title, .while-you-wait > h2, .page-section-title {
   display: flex; align-items: center; gap: 14px;
   margin: 48px 0 22px; padding-bottom: 14px; border-bottom: 2px solid var(--border);
-  font-family: var(--font-display); font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; text-transform: none; color: var(--text);
+  font-family: var(--font-display); font-size: clamp(2rem, 3.2vw, 2.6rem); font-weight: 800; letter-spacing: -0.02em; text-transform: none; color: var(--text);
 }
 .page > h2::before, .page > .section-title::before, .while-you-wait > h2::before, .page-section-title::before {
   content: ''; flex: none; width: 8px; height: 1.05em; border-radius: 4px; background: linear-gradient(180deg, #22d3ee, #3b82f6, #8b5cf6);
@@ -735,7 +735,7 @@ h3 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; line-height:
 }
 /* A card's own heading: large, with a divider separating it from the content. */
 .page section > h2:first-child, .page section > header > h2, .lookup-card > h2, .verify-card > h2, .lead-form h2, .drill-section > h2 {
-  font-size: 1.6rem; margin: 0 0 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border);
+  font-size: clamp(1.6rem, 2.4vw, 2rem); margin: 0 0 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border);
 }
 .verify-card > h2 { border-bottom-color: rgb(31 122 69 / 0.25); }
 /* Sub-headings inside a card */
@@ -2014,3 +2014,29 @@ h1, h2 { letter-spacing: -0.03em; }
 .saved-deals .danger { margin-left: 10px; color: var(--muted); }
 .check-group h3 { font-size: 1.1rem; margin: 16px 0 8px; }
 .deal-notes { display: grid; gap: 4px; margin-top: 16px; }
+
+/* Find Deals: each group of sources is its own panel, with a tinted header bar, an icon and a large title */
+.deal-band { --band: #2563eb; }
+.deal-band.tone-county { --band: #2563eb; }
+.deal-band.tone-site { --band: #7c3aed; }
+.deal-band.tone-rules { --band: #0d9488; }
+.deal-band.tone-national { --band: #16a34a; }
+.deal-band.tone-other { --band: #64748b; }
+.deal-band .band-head { display: flex; align-items: center; gap: 16px; margin: 0 0 20px; padding: 16px 18px; border-radius: 14px; background: color-mix(in srgb, var(--band) 11%, var(--surface)); border: 1px solid color-mix(in srgb, var(--band) 28%, var(--border)); }
+.deal-band .band-icon { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--band); color: #fff; }
+.deal-band .band-icon svg { width: 28px; height: 28px; }
+.page .deal-band .band-head h3 { margin: 0; padding: 0; border: 0; font-family: var(--font-display); font-size: clamp(1.45rem, 2.3vw, 1.95rem); font-weight: 800; letter-spacing: -0.015em; line-height: 1.2; color: var(--text); }
+.page .deal-band .band-head h3::before { content: none; }
+.deal-band .band-head p { margin: 4px 0 0; color: var(--muted); font-size: 1.02rem; max-width: none; }
+.deal-band .deal-sources { margin-bottom: 4px; }
+.deal-band .state-sales-list { margin: 0 0 12px; padding-left: 22px; display: grid; gap: 6px; font-size: 1.05rem; line-height: 1.6; }
+.deal-band .band-link { font-weight: 700; }
+@media (max-width: 600px) {
+  .deal-band .band-head { padding: 12px 14px; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+  .deal-band .band-icon { width: 42px; height: 42px; border-radius: 12px; }
+  .deal-band .band-icon svg { width: 22px; height: 22px; }
+}
+/* Phones: every content card gets thinner padding, so text uses the screen instead of the margins */
+@media (max-width: 600px) {
+  .page section:not(.options-grid):not(.while-you-wait):not(.four):not(.drill-tiles):not(.kpis) { padding: 18px 14px; margin-bottom: 18px; }
+}

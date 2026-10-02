@@ -344,8 +344,8 @@
       "src/lib/findDeals.ts",
       "src/lib/regions.ts"
     ],
-    "reviewed": "2026-09-29",
-    "hash": "1e41a5d59553e587",
+    "reviewed": "2026-10-02",
+    "hash": "0b241170e27302cb",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
