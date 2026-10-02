@@ -445,3 +445,24 @@ describe('veterans lesson', () => {
     for (const s of veterans.sources) if (/leg\.state\.nv|douglascountynv|homeispossiblenv|boe\.ca|leginfo|azleg|mohave|utah/.test(s.url)) expect(statesOf(s.label).length, s.label).toBe(1);
   });
 });
+
+describe('why you would / why you wouldn’t', () => {
+  it('gives every property type and professional both sides, with https sources and state-tagged state rules', async () => {
+    const { PROPERTY_WHY } = await import('./lessons/propertyWhy');
+    const { PRO_WHY } = await import('./proWhy');
+    const { PRO_GUIDES } = await import('./proGuide');
+    const { statesOf } = await import('./myState');
+    const MARKETPLACE = /bid4assets|govease|realauction|auction\.com|xome|hubzu|zillow|realtor\.com|redfin|loopnet|crexi/i;
+    for (const g of PRO_GUIDES) expect(PRO_WHY[g.key as keyof typeof PRO_WHY], g.key).toBeTruthy();
+    for (const [k, w] of [...Object.entries(PROPERTY_WHY), ...Object.entries(PRO_WHY)]) {
+      expect(w.yes.length, k).toBeGreaterThanOrEqual(3);
+      expect(w.no.length, k).toBeGreaterThanOrEqual(3);
+      for (const p of [...w.yes, ...w.no] as import("./lessons/types").WhyPoint[]) {
+        if (p.example) expect(p.source?.url.startsWith('https://'), `${k}: ${p.text}`).toBe(true);
+        if (p.source) expect(MARKETPLACE.test(p.source.url), p.source.url).toBe(false);
+        // A point about one state's law must name that state first, so other states don't see it.
+        if (/rent cap|Civil Code|NRS |A\.R\.S\./.test(p.text)) expect(statesOf(p.text).length, p.text).toBe(1);
+      }
+    }
+  });
+});
