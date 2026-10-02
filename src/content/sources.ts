@@ -11,6 +11,7 @@
 
 import { COUNTY_OFFICES } from '../lib/countyOffices';
 import { GUIDE_SOURCES } from './guideSources';
+import { WHY_SOURCES } from './whySources';
 
 export type SourceRole =
   | 'listing' // where properties or assets are actually sold
@@ -352,7 +353,7 @@ const COUNTY_SOURCES: Source[] = (() => {
   return out;
 })();
 
-export const SOURCES: Source[] = [...LISTED, ...COUNTY_SOURCES, ...GUIDE_SOURCES];
+export const SOURCES: Source[] = [...LISTED, ...COUNTY_SOURCES, ...GUIDE_SOURCES, ...WHY_SOURCES];
 
 /** Hosts allowed as listing sources: government, Fannie Mae/Freddie Mac, the banks that own the homes, and the
  *  SID administrator the county names. Anything else as a listing source fails the tests. */
