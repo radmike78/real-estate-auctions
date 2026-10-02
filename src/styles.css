@@ -718,7 +718,7 @@ h3 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; line-height:
 .page > h2, .page > .section-title, .while-you-wait > h2, .page-section-title {
   display: flex; align-items: center; gap: 14px;
   margin: 48px 0 22px; padding-bottom: 14px; border-bottom: 2px solid var(--border);
-  font-family: var(--font-display); font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; text-transform: none; color: var(--text);
+  font-family: var(--font-display); font-size: clamp(2rem, 3.2vw, 2.6rem); font-weight: 800; letter-spacing: -0.02em; text-transform: none; color: var(--text);
 }
 .page > h2::before, .page > .section-title::before, .while-you-wait > h2::before, .page-section-title::before {
   content: ''; flex: none; width: 8px; height: 1.05em; border-radius: 4px; background: linear-gradient(180deg, #22d3ee, #3b82f6, #8b5cf6);
@@ -735,7 +735,7 @@ h3 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; line-height:
 }
 /* A card's own heading: large, with a divider separating it from the content. */
 .page section > h2:first-child, .page section > header > h2, .lookup-card > h2, .verify-card > h2, .lead-form h2, .drill-section > h2 {
-  font-size: 1.6rem; margin: 0 0 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border);
+  font-size: clamp(1.6rem, 2.4vw, 2rem); margin: 0 0 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border);
 }
 .verify-card > h2 { border-bottom-color: rgb(31 122 69 / 0.25); }
 /* Sub-headings inside a card */
@@ -1899,7 +1899,15 @@ h1, h2 { letter-spacing: -0.03em; }
 }
 
 /* Learn: a lesson page, set for reading */
-.lesson .lesson-takeaways, .lesson .lesson-body-text, .lesson .lesson-terms, .lesson .lesson-sources, .lesson .lesson-try { max-width: 780px; }
+/* Lessons use the full width of the page on every screen; text wraps with the window */
+.lesson .lesson-takeaways, .lesson .lesson-body-text, .lesson .lesson-terms, .lesson .lesson-sources, .lesson .lesson-try { max-width: none; }
+.lesson p, .lesson li, .lesson dd { max-width: none; }
+/* The intro runs wide too (its column already leaves room for the owl) */
+.page.lesson .page-hero .page-hero-sub { max-width: none; }
+/* Phones: thinner card padding, so the words get the room */
+@media (max-width: 700px) { .page.lesson section:not(.options-grid):not(.while-you-wait):not(.four):not(.drill-tiles):not(.kpis) { padding: 18px 16px; margin-bottom: 16px; } .lesson-body-text ul, .lesson-takeaways ul { padding-left: 18px; } }
+/* Larger screens: slightly larger lesson text, so long lines stay easy to read */
+@media (min-width: 1200px) { .lesson-body-text p, .lesson-body-text li, .lesson-takeaways li, .lesson-terms dd { font-size: 1.08rem; } }
 .lesson-takeaways { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent-strong); border-radius: 12px; padding: 16px 22px; margin: 8px 0 28px; }
 .lesson-takeaways h2 { font-size: 1.15rem; margin: 0 0 8px; }
 .lesson-takeaways ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
@@ -1931,7 +1939,7 @@ h1, h2 { letter-spacing: -0.03em; }
 .page .lesson-table th:first-child, .page .lesson-table td:first-child { padding-left: 14px; }
 
 /* Learn: recommended reading */
-.book-group { max-width: 900px; margin-bottom: 24px; }
+.book-group { margin-bottom: 24px; }
 .book-group h2 { font-size: 1.45rem; margin: 0 0 10px; }
 .book-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); }
 .book-card { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; }
@@ -1943,7 +1951,7 @@ h1, h2 { letter-spacing: -0.03em; }
 .book-title { font-size: 1.1rem; line-height: 1.35; }
 .book-note { color: var(--muted); font-style: italic; }
 .book-info > a { justify-self: start; font-weight: 600; }
-.book-foot { max-width: 900px; }
+.book-foot { max-width: none; }
 .fine-print { color: var(--muted); font-size: 0.9rem; margin-top: 18px; }
 .lesson-body-text ul.lesson-links { list-style: none; padding: 0; display: grid; gap: 8px; }
 .lesson-links li { display: grid; gap: 2px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
@@ -2006,3 +2014,29 @@ h1, h2 { letter-spacing: -0.03em; }
 .saved-deals .danger { margin-left: 10px; color: var(--muted); }
 .check-group h3 { font-size: 1.1rem; margin: 16px 0 8px; }
 .deal-notes { display: grid; gap: 4px; margin-top: 16px; }
+
+/* Find Deals: each group of sources is its own panel, with a tinted header bar, an icon and a large title */
+.deal-band { --band: #2563eb; }
+.deal-band.tone-county { --band: #2563eb; }
+.deal-band.tone-site { --band: #7c3aed; }
+.deal-band.tone-rules { --band: #0d9488; }
+.deal-band.tone-national { --band: #16a34a; }
+.deal-band.tone-other { --band: #64748b; }
+.deal-band .band-head { display: flex; align-items: center; gap: 16px; margin: 0 0 20px; padding: 16px 18px; border-radius: 14px; background: color-mix(in srgb, var(--band) 11%, var(--surface)); border: 1px solid color-mix(in srgb, var(--band) 28%, var(--border)); }
+.deal-band .band-icon { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--band); color: #fff; }
+.deal-band .band-icon svg { width: 28px; height: 28px; }
+.page .deal-band .band-head h3 { margin: 0; padding: 0; border: 0; font-family: var(--font-display); font-size: clamp(1.45rem, 2.3vw, 1.95rem); font-weight: 800; letter-spacing: -0.015em; line-height: 1.2; color: var(--text); }
+.page .deal-band .band-head h3::before { content: none; }
+.deal-band .band-head p { margin: 4px 0 0; color: var(--muted); font-size: 1.02rem; max-width: none; }
+.deal-band .deal-sources { margin-bottom: 4px; }
+.deal-band .state-sales-list { margin: 0 0 12px; padding-left: 22px; display: grid; gap: 6px; font-size: 1.05rem; line-height: 1.6; }
+.deal-band .band-link { font-weight: 700; }
+@media (max-width: 600px) {
+  .deal-band .band-head { padding: 12px 14px; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+  .deal-band .band-icon { width: 42px; height: 42px; border-radius: 12px; }
+  .deal-band .band-icon svg { width: 22px; height: 22px; }
+}
+/* Phones: every content card gets thinner padding, so text uses the screen instead of the margins */
+@media (max-width: 600px) {
+  .page section:not(.options-grid):not(.while-you-wait):not(.four):not(.drill-tiles):not(.kpis) { padding: 18px 14px; margin-bottom: 18px; }
+}

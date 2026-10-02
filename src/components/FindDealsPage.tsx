@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import PageHero from './PageHero';
 import OwlNote from './OwlNote';
 import PathNext from './PathNext';
+import { IconBank, IconHome, IconLayers, IconSearch, IconSteps, IconFile } from './Icons';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
 import { COUNTY_PAGES, nationalOfficialFor, OFFICE_LABELS, OTHER_SITES, STATE_SALES, WHERE_TO_LOOK, countyKey, type DealSource } from '../lib/findDeals';
 import { COUNTY_OFFICES } from '../lib/countyOffices';
@@ -39,6 +40,22 @@ function SourceCard({ s }: { s: DealSource }) {
 }
 
 /** Step 5 of the path: where to look for deals in a state and county. */
+/** One group of sources: its own panel, with a colored header bar, an icon and a large title, so groups are easy to tell apart. */
+function Band({ tone, icon, title, sub, children }: { tone: 'county' | 'site' | 'rules' | 'national' | 'other'; icon: ReactNode; title: ReactNode; sub?: ReactNode; children: ReactNode }) {
+  return (
+    <section className={`deal-band tone-${tone}`}>
+      <header className="band-head">
+        <span className="band-icon" aria-hidden>{icon}</span>
+        <div>
+          <h3>{title}</h3>
+          {sub && <p>{sub}</p>}
+        </div>
+      </header>
+      {children}
+    </section>
+  );
+}
+
 export default function FindDealsPage() {
   useMarkStep('deals');
   const [area, setArea] = useState(loadArea);
@@ -93,41 +110,40 @@ export default function FindDealsPage() {
       <h2 className="section-title">Official sources</h2>
       <p className="muted">Government agencies, Fannie Mae and Freddie Mac, and the banks that own the homes: the sellers themselves.</p>
 
-      <h3>In {place}</h3>
-      {officeCards.length > 0 && <ul className="deal-sources">{officeCards.map((s) => <SourceCard key={s.url} s={s} />)}</ul>}
+      <Band tone="county" icon={<IconFile />} title={`County offices: ${place}`} sub="The county’s own pages for tax sales, records and sheriff’s sales.">
+        {officeCards.length > 0 ? (
+          <ul className="deal-sources">{officeCards.map((s) => <SourceCard key={s.url} s={s} />)}</ul>
+        ) : (
+          <>
+            <OwlNote>We’re still gathering {place}’s tax-sale office and records. Until then, these are the official sellers to look for there.</OwlNote>
+            <ul className="where-to-look">
+              {WHERE_TO_LOOK.map((w) => <li key={w.title}><strong>{w.title}.</strong> {w.what}</li>)}
+            </ul>
+          </>
+        )}
+      </Band>
       {local && (
-        <>
-          {officeCards.length > 0 && <h4 className="deal-sub">On DeedOwl for {countyName(area.county)}</h4>}
+        <Band tone="site" icon={<IconLayers />} title={`On DeedOwl for ${countyName(area.county)}`} sub="Live sale lists and step-by-step guides on this site.">
           <ul className="deal-sources">{local.map((s) => <SourceCard key={s.name} s={s} />)}</ul>
-        </>
+        </Band>
       )}
-      {!local && officeCards.length === 0 && (
-        <>
-          <OwlNote>We’re still gathering {place}’s tax-sale office and records. Until then, these are the official sellers to look for there.</OwlNote>
-          <ul className="where-to-look">
-            {WHERE_TO_LOOK.map((w) => <li key={w.title}><strong>{w.title}.</strong> {w.what}</li>)}
-          </ul>
-        </>
-      )}
-      <div className="state-sales">
-        <strong>How sales work in {st.name}</strong>
-        <ul>{STATE_SALES[area.state].map((t) => <li key={t}>{t}</li>)}</ul>
-        <a href="#/learn/forced-sales">Read the lesson on forced sales →</a>
-      </div>
-
-      <h3>Across {st.name} and nationwide</h3>
-      <ul className="deal-sources">{nationalOfficialFor(st.name).map((s) => <SourceCard key={s.name} s={s} />)}</ul>
+      <Band tone="rules" icon={<IconSteps />} title={`How sales work in ${st.name}`}>
+        <ul className="state-sales-list">{STATE_SALES[area.state].map((t) => <li key={t}>{t}</li>)}</ul>
+        <a className="band-link" href="#/learn/forced-sales">Read the lesson on forced sales →</a>
+      </Band>
+      <Band tone="national" icon={<IconBank />} title={`Across ${st.name} and nationwide`} sub="Federal agencies, Fannie Mae and Freddie Mac, and banks selling homes they own.">
+        <ul className="deal-sources">{nationalOfficialFor(st.name).map((s) => <SourceCard key={s.name} s={s} />)}</ul>
+      </Band>
 
       <h2 className="section-title">Other sites</h2>
       <p className="other-sites-note">
         <strong>Not the official seller.</strong> These listing sites and private auction companies can help you find properties, but listings may be
         out of date or already sold, and auction companies add their own fees. Confirm every property with the seller, and read each site’s terms.
       </p>
-      {OTHER_SITES.map((g) => (
-        <section key={g.group}>
-          <h3>{g.group}</h3>
+      {OTHER_SITES.map((g, i) => (
+        <Band key={g.group} tone="other" icon={[<IconHome key="h" />, <IconSearch key="s" />, <IconBank key="b" />][i % 3]} title={g.group}>
           <ul className="deal-sources other">{g.sites.map((s) => <SourceCard key={s.name} s={s} />)}</ul>
-        </section>
+        </Band>
       ))}
 
       <PathNext step="deals" />
