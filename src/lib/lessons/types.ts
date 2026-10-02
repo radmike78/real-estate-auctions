@@ -1,12 +1,22 @@
 // A Learn lesson: plain-language reading with the sources it was written from.
 
-/** A paragraph, a bulleted list, a small comparison table, or a list of tools to open. */
+/** One reason for or against, for a kind of reader, with a real example and its source when there is one. */
+export interface WhyPoint {
+  who: string;
+  text: string;
+  example?: string;
+  source?: { label: string; url: string };
+}
+
+/** A paragraph, a bulleted list, a small comparison table, a list of tools to open, or "why you would / wouldn't". */
 export type LessonBlock =
   | string
   | { list: string[] }
   | { table: { head: string[]; rows: string[][] } }
   /** Official tools and offices to open, each with what it's for. */
-  | { links: { label: string; url: string; what: string }[] };
+  | { links: { label: string; url: string; what: string }[] }
+  /** Reasons to choose it and reasons not to, side by side. */
+  | { why: { title: string; yes: WhyPoint[]; no: WhyPoint[] } };
 
 export interface Lesson {
   /** Matches a LEARN_MODULES key. */

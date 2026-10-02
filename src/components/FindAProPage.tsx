@@ -10,6 +10,7 @@ import { useMyState } from '../lib/myState';
 import { useMarkStep } from '../lib/path';
 import PathNext from './PathNext';
 import { CORE_TEAM, PRO_GUIDES, proGuideByKey, type ProGuide, type ProKey } from '../lib/proGuide';
+import WhyBlock from './WhyBlock';
 
 const ICONS: Record<ProKey, ReactElement> = {
   agent: <IconHome />, lender: <IconBank />, private_lender: <IconClock />, title: <IconFile />, attorney: <IconBadge />, inspector: <IconSearch />,
@@ -20,6 +21,7 @@ function GuideBody({ g }: { g: ProGuide }) {
   return (
     <div className="pro-guide">
       <p className="pro-guide-does">{g.does}</p>
+      {g.why && <WhyBlock yes={g.why.yes} no={g.why.no} yesLabel="Why you would hire one" noLabel="Why you might not, or when to be careful" />}
       <div className="pro-guide-cols">
         <section>
           <h3>When you need one</h3>

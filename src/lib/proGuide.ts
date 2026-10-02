@@ -3,6 +3,7 @@
 // office that licenses that kind of professional so people can look someone up themselves before hiring.
 
 import { CATEGORIES, type Category } from './pros';
+import type { WhyPoint } from './lessons/types';
 
 export type ProKey =
   | 'agent' | 'lender' | 'private_lender' | 'title' | 'attorney' | 'inspector' | 'contractor' | 'insurance' | 'cpa'
@@ -17,6 +18,8 @@ export interface ProGuide {
   when: string[];
   find: string[];
   ask: string[];
+  /** Why you would hire one, and why you might not: from different buyers' points of view, with real examples. */
+  why?: { yes: WhyPoint[]; no: WhyPoint[] };
   /** The state office that licenses them, with its public lookup. */
   license?: { who: string; url: string };
   /** Advertiser categories that match, for the "who advertises on DeedOwl" list. */

@@ -2040,3 +2040,41 @@ h1, h2 { letter-spacing: -0.03em; }
 @media (max-width: 600px) {
   .page section:not(.options-grid):not(.while-you-wait):not(.four):not(.drill-tiles):not(.kpis) { padding: 18px 14px; margin-bottom: 18px; }
 }
+
+/* Every card's own heading sits in a tinted header bar with a colored stripe, so sections stand out while scrolling.
+   Colors rotate from one section to the next (same palette as Find Deals). */
+.page section { --band: #2563eb; }
+.page section:nth-of-type(5n + 2) { --band: #7c3aed; }
+.page section:nth-of-type(5n + 3) { --band: #0d9488; }
+.page section:nth-of-type(5n + 4) { --band: #16a34a; }
+.page section:nth-of-type(5n + 5) { --band: #0284c7; }
+.page section > h2:first-child, .page section > header > h2, .drill-section > h2 {
+  margin: 0 0 20px; padding: 14px 18px 14px 22px; border: 1px solid color-mix(in srgb, var(--band) 26%, var(--border)); border-radius: 14px;
+  background: color-mix(in srgb, var(--band) 10%, var(--surface)); box-shadow: inset 6px 0 0 var(--band);
+  font-size: clamp(1.6rem, 2.4vw, 2rem); font-weight: 800; line-height: 1.2;
+}
+.page .drill-section h2::before { display: none; }
+/* Lesson takeaways keep their own look; its heading stays plain */
+.page section.lesson-takeaways > h2:first-child { background: none; border: 0; box-shadow: none; padding: 0; margin-bottom: 10px; }
+@media (max-width: 600px) {
+  .page section > h2:first-child, .page section > header > h2, .drill-section > h2 { padding: 12px 14px 12px 18px; margin-bottom: 14px; }
+}
+
+/* "Why you would / Why you wouldn't": two columns, green and red, each point naming who it's for */
+.why-block { margin: 18px 0 24px; }
+.why-title { font-size: clamp(1.25rem, 1.8vw, 1.5rem); margin: 0 0 12px; }
+.why-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 14px; }
+.why-col { border-radius: 14px; padding: 16px 18px; border: 1px solid var(--border); background: var(--surface); }
+.why-yes { border-top: 4px solid #16a34a; background: color-mix(in srgb, #16a34a 6%, var(--surface)); }
+.why-no { border-top: 4px solid #dc2626; background: color-mix(in srgb, #dc2626 5%, var(--surface)); }
+.why-col h4 { margin: 0 0 10px; font-size: 1.2rem; font-weight: 800; }
+.why-yes h4 span { color: #16a34a; }
+.why-no h4 span { color: #dc2626; }
+.why-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.why-col li { display: grid; gap: 3px; padding-bottom: 12px; border-bottom: 1px dashed var(--border); max-width: none; }
+.why-col li:last-child { border-bottom: 0; padding-bottom: 0; }
+.why-who { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.why-text { line-height: 1.55; }
+.why-example { font-size: 0.97rem; line-height: 1.5; color: var(--muted); }
+.why-example strong { color: var(--text); }
+.why-example a { font-weight: 600; }

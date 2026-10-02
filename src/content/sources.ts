@@ -19,6 +19,7 @@ export type SourceRole =
   | 'help' // free help for homeowners and consumers
   | 'payment' // advertiser billing
   | 'sample' // fictional sample data only
+  | 'research' // data and reporting behind real-life examples ("Why you would / wouldn't"); never a listing source
   | 'book' // Recommended reading: book pages (Amazon), never a listing source
   | 'other'; // listing portals and auction marketplaces: shown only under Find Deals "Other sites", never as a listing source
 
