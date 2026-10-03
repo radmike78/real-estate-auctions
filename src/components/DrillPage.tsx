@@ -4,6 +4,7 @@ import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
 import { DRILLS, drillById, type Drill, type Mission } from '../practice/drills';
 import { fmtMoney } from '../lib/status';
+import { useMyState } from '../lib/myState';
 
 const KEY = 'deedowl.drills.v1';
 
@@ -45,22 +46,40 @@ export function drillProgress(d: Drill, s: Saved = load()): { done: number; tota
 }
 
 /** The drills on the Practice page. */
+const STATE_NAMES: Record<string, string> = { NV: 'Nevada', CA: 'California', AZ: 'Arizona', UT: 'Utah' };
+
+/** The state a drill's rules come from, or null when they apply anywhere. */
+export function drillState(d: Drill): string | null {
+  const text = `${d.title} ${d.where}`;
+  return Object.keys(STATE_NAMES).find((k) => text.includes(STATE_NAMES[k])) ?? null;
+}
+
+/** The drills on the Practice page, grouped by state, with the visitor's state first. */
 export function DrillList() {
   const saved = load();
+  const [mine] = useMyState();
+  const groups = [...(mine ? [mine] : []), ...Object.keys(STATE_NAMES).filter((k) => k !== mine), null].map((st) => ({ st, drills: DRILLS.filter((d) => drillState(d) === st) }));
   return (
-    <div className="practice-grid drill-grid">
-      {DRILLS.map((d) => {
-        const p = drillProgress(d, saved);
-        return (
-          <a key={d.id} href={`#/practice/drills/${d.id}`} className="practice-card">
-            <span className="practice-card-type">Simulation · Would you buy it?</span>
-            <strong>{d.title}</strong>
-            <span>{d.teaser}</span>
-            <span className="practice-card-foot">{p.verdict ? `Your call: ${p.verdict}` : `${p.done} of ${p.total} missions done`} →</span>
-          </a>
-        );
-      })}
-    </div>
+    <>
+      {groups.filter((g) => g.drills.length).map((g) => (
+        <section key={g.st ?? 'any'} aria-label={g.st ? `${STATE_NAMES[g.st]} drills` : 'Drills for any state'}>
+          <h3 className="drill-group">{g.st ? STATE_NAMES[g.st] : 'Any state'}</h3>
+          <div className="practice-grid drill-grid">
+            {g.drills.map((d) => {
+              const p = drillProgress(d, saved);
+              return (
+                <a key={d.id} href={`#/practice/drills/${d.id}`} className="practice-card">
+                  <span className="practice-card-type">Simulation · Would you buy it?</span>
+                  <strong>{d.title}</strong>
+                  <span>{d.teaser}</span>
+                  <span className="practice-card-foot">{p.verdict ? `Your call: ${p.verdict}` : `${p.done} of ${p.total} missions done`} →</span>
+                </a>
+              );
+            })}
+          </div>
+        </section>
+      ))}
+    </>
   );
 }
 

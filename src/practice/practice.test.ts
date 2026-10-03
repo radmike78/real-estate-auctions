@@ -204,3 +204,17 @@ describe('would-you-buy-it drills', () => {
     expect(text).not.toMatch(/knock on the door|contact the owner/i);
   });
 });
+
+describe('drills by state', () => {
+  it('has drills for every state, and each state drill names only its own state', async () => {
+    const { DRILLS } = await import('./drills');
+    const { drillState } = await import('../components/DrillPage');
+    const states = new Set(DRILLS.map(drillState));
+    for (const st of ['NV', 'CA', 'AZ', 'UT']) expect(states.has(st), st).toBe(true);
+    const names = ['Nevada', 'California', 'Arizona', 'Utah'];
+    for (const d of DRILLS) {
+      const named = names.filter((n) => `${d.title} ${d.where}`.includes(n));
+      expect(named.length, d.id).toBeLessThanOrEqual(1);
+    }
+  });
+});
