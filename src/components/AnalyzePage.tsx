@@ -169,7 +169,7 @@ export default function AnalyzePage() {
 
       <h2 className="section-title">3. Run the numbers</h2>
       <CalcRegion.Provider value={{ state: deal.state, county: deal.county }}>
-        <Calculators key={`${deal.plan}-${deal.state}-${deal.county}`} initial={calcTabFor(deal.plan)} state={deal.state} />
+        <Calculators key={`${deal.plan}-${deal.state}-${deal.county}-${deal.kind}`} initial={calcTabFor(deal.plan)} state={deal.state} offer={deal.kind === 'listing' || deal.kind === 'reo'} />
       </CalcRegion.Provider>
     </main>
   );

@@ -36,9 +36,7 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
       />
       <StatePicker label="Show rules for" />
       <OnThisPage root={mainRef} selector="main > section > h2, main > * > section > h2" />
-      {d && d.overview.length > 1 && (
-        <section><h2>What owning it is really like</h2>{fit(d.overview.slice(1)).map((p) => <p key={p}>{p}</p>)}</section>
-      )}
+      {/* Answer first: who it fits, what it costs, how it's paid for and what to check. Background and stories after. */}
       {d && (
         <section>
           <h2>Who it suits, and who it doesn’t</h2>
@@ -48,6 +46,28 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
           </div>
         </section>
       )}
+      {d && (
+        <>
+          <section><h2>Costs to plan for</h2><List items={fit(d.costs)} /></section>
+          <section><h2>How people pay for it</h2><List items={fit(d.money)} /></section>
+          <section><h2>Check before you buy</h2><List items={fit(d.checklist)} /></section>
+        </>
+      )}
+      <section>
+        <h2>Why you would, or wouldn’t</h2>
+        <WhyBlock yes={why.yes.filter((p) => keep(p.text))} no={why.no.filter((p) => keep(p.text))} />
+      </section>
+      {d && d.overview.length > 1 && (
+        <section><h2>What owning it is really like</h2>{fit(d.overview.slice(1)).map((p) => <p key={p}>{p}</p>)}</section>
+      )}
+      {d && d.facts.length > 0 && (
+        <section>
+          <h2>By the numbers</h2>
+          <ul className="deep-list">
+            {d.facts.filter((f) => keep(f.text)).map((f) => <li key={f.text}>{f.text} <a href={f.source.url} target="_blank" rel="noopener noreferrer">{f.source.label} ↗</a></li>)}
+          </ul>
+        </section>
+      )}
       {d && d.stories.length > 0 && (
         <section>
           <h2>Real stories: what happened to other buyers</h2>
@@ -55,29 +75,12 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
           <StoryList stories={d.stories.filter((s) => keep(s.who))} />
         </section>
       )}
-      <section>
-        <h2>Why you would, or wouldn’t</h2>
-        <WhyBlock yes={why.yes.filter((p) => keep(p.text))} no={why.no.filter((p) => keep(p.text))} />
-      </section>
       {d && (
-        <>
-          <section><h2>Costs to plan for</h2><List items={fit(d.costs)} /></section>
-          <section><h2>How people pay for it</h2><List items={fit(d.money)} /></section>
-          <section><h2>Check before you buy</h2><List items={fit(d.checklist)} /></section>
-          {d.facts.length > 0 && (
-            <section>
-              <h2>By the numbers</h2>
-              <ul className="deep-list">
-                {d.facts.filter((f) => keep(f.text)).map((f) => <li key={f.text}>{f.text} <a href={f.source.url} target="_blank" rel="noopener noreferrer">{f.source.label} ↗</a></li>)}
-              </ul>
-            </section>
-          )}
-          <section className="lesson-sources">
-            <h2>Sources</h2>
-            <ul className="source-links">{d.sources.filter((s) => keep(s.label)).map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a></li>)}</ul>
-            <p className="muted">General education, not legal, tax or financial advice. Stories describe what happened to others; your results depend on your own deal.</p>
-          </section>
-        </>
+        <section className="lesson-sources">
+          <h2>Sources</h2>
+          <ul className="source-links">{d.sources.filter((s) => keep(s.label)).map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a></li>)}</ul>
+          <p className="muted">General education, not legal, tax or financial advice. Stories describe what happened to others; your results depend on your own deal.</p>
+        </section>
       )}
       <nav className="path-next" aria-label="Next">
         {next ? <><span className="muted">Next property type</span><a className="btn" href={topicHref(next.key)}>{next.title} →</a></> : <a className="btn" href="#/learn/types">Back to Types of property →</a>}

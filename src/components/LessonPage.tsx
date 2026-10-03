@@ -11,6 +11,10 @@ import { showFor, useMyState } from '../lib/myState';
 import { STATES, type StateCode } from '../lib/regions';
 import StatePicker from './StatePicker';
 import WhyBlock from './WhyBlock';
+import CheckYourself from './CheckYourself';
+import { LESSON_CHECKS } from '../lib/lessons/checks';
+import { Pieces } from './Term';
+import { markTerms, type Piece } from '../lib/terms';
 
 const STATE_NAMES = new Set(STATES.map((s) => s.name));
 
@@ -42,9 +46,10 @@ function forState(b: LessonBlock, st: StateCode | null): LessonBlock | null {
   return kept.length ? { table: { head, rows: kept } } : null;
 }
 
-function Block({ b }: { b: LessonBlock }) {
-  if (typeof b === 'string') return <p>{b}</p>;
-  if ('list' in b) return <ul>{b.list.map((x) => <li key={x}>{x}</li>)}</ul>;
+/** Paragraphs and list items come with their key terms already marked (`marked`), in reading order. */
+function Block({ b, marked }: { b: LessonBlock; marked?: Piece[][] }) {
+  if (typeof b === 'string') return <p>{marked ? <Pieces pieces={marked[0]} /> : b}</p>;
+  if ('list' in b) return <ul>{b.list.map((x, i) => <li key={x}>{marked ? <Pieces pieces={marked[i]} /> : x}</li>)}</ul>;
   if ('why' in b) return <WhyBlock title={b.why.title} yes={b.why.yes} no={b.why.no} more={b.why.more} />;
   if ('links' in b)
     return (
@@ -104,6 +109,14 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
     .filter((s) => s.blocks.length > 0);
   const sources = l.sources.filter((s) => showFor(st, s.label));
   const terms = l.terms.filter((t) => showFor(st, t.meaning));
+  // Each key term is explained where it first appears, in reading order (worked out once, before rendering).
+  const used = new Set<string>();
+  const marked = new Map<LessonBlock, Piece[][]>();
+  for (const sec of sections)
+    for (const b of sec.blocks) {
+      if (typeof b === 'string') marked.set(b, [markTerms(b, terms, used)]);
+      else if ('list' in b) marked.set(b, b.list.map((x) => markTerms(x, terms, used)));
+    }
   return (
     <main className="page lesson" ref={bodyRef}>
       <PageHero
@@ -124,12 +137,12 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         <h2 id="takeaways">What you’ll learn</h2>
         <ul>{l.takeaways.map((t) => <li key={t}>{t}</li>)}</ul>
       </section>
-      <OnThisPage root={bodyRef} selector=".lesson-body-text > section > h2, .lesson-terms h2, .lesson-sources h2" />
+      <OnThisPage root={bodyRef} selector=".lesson-body-text > section > h2, .lesson-terms h2, .check-yourself h2, .lesson-sources h2" />
       <article className="lesson-body-text">
         {sections.map((s) => (
           <section key={s.heading}>
             <h2>{s.heading}</h2>
-            {s.blocks.map((b, i) => <Block key={i} b={b} />)}
+            {s.blocks.map((b, i) => <Block key={i} b={b} marked={marked.get(b)} />)}
           </section>
         ))}
       </article>
@@ -137,6 +150,7 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         <h2 id="terms">Key terms</h2>
         <dl>{terms.map((t) => <div key={t.term}><dt>{t.term}</dt><dd>{t.meaning}</dd></div>)}</dl>
       </section>
+      {LESSON_CHECKS[lessonKey] && <CheckYourself key={lessonKey} checks={LESSON_CHECKS[lessonKey]} />}
       {l.practice && (
         <section className="lesson-practice" aria-labelledby="practice-head">
           <h2 id="practice-head">Put it into practice</h2>

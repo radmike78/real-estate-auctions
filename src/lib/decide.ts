@@ -142,10 +142,10 @@ export const STRATEGIES: Strategy[] = [
     what: 'Buy a 2–4 unit home, live in one unit and rent the rest. Home-loan terms, with rent helping pay the mortgage.',
     weights: {
       goal: { income: 2, growth: 2, quick: 0, handsoff: -1, learn: 2 },
-      cash: { under10: 0, '10to50': 3, '50to150': 2, over150: 1 },
+      cash: { under10: -2, '10to50': 3, '50to150': 2, over150: 1 },
       ready: { ready: 0, debt: -3, nofund: -3 },
       borrow: { live: 4, invest: -3, cash: -2, unsure: 1 },
-      time: { monthly: -1, weekly: 2, parttime: 2 },
+      time: { monthly: -2, weekly: 2, parttime: 2 },
       hands: { diy: 2, hire: 1, none: -2 },
       risk: { low: 1, medium: 2, high: 1 },
       market: { res: 1, com: -2, unsure: 0 },
