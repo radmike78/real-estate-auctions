@@ -30,12 +30,12 @@ export function drillProgress(d: Drill, s: Saved = load()): { done: number; tota
 export function DrillList() {
   const saved = load();
   return (
-    <div className="practice-grid">
+    <div className="practice-grid drill-grid">
       {DRILLS.map((d) => {
         const p = drillProgress(d, saved);
         return (
           <a key={d.id} href={`#/practice/drills/${d.id}`} className="practice-card">
-            <span className="practice-card-type">Would you buy it?</span>
+            <span className="practice-card-type">Simulation · Would you buy it?</span>
             <strong>{d.title}</strong>
             <span>{d.teaser}</span>
             <span className="practice-card-foot">{p.verdict ? `Your call: ${p.verdict}` : `${p.done} of ${p.total} missions done`} →</span>
@@ -142,7 +142,7 @@ export default function DrillPage({ id }: { id: string }) {
   return (
     <main className="page drill">
       <PracticeRibbon />
-      <PageHero eyebrow={<span className="practice-tag">Would you buy it?</span>} title={d.title} sub={d.where} />
+      <PageHero eyebrow={<span className="practice-tag">Simulation · Would you buy it?</span>} title={d.title} sub={d.where} />
       <section className="drill-mission">
         <h2>The deal</h2>
         <dl className="calc-kv">{d.facts.map((f) => <div key={f.label}><dt>{f.label}</dt><dd>{f.value}</dd></div>)}</dl>
