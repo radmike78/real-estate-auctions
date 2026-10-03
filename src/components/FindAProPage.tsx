@@ -5,7 +5,8 @@ import TeamList from './TeamList';
 import ProDirectory from './ProDirectory';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
-import { guidesFor, stateOf } from '../lib/playbooks';
+import { guidesFor } from '../lib/playbooks';
+import { STATES, stateByCode } from '../lib/regions';
 import { useMyState, forStateText } from '../lib/myState';
 import { useMarkStep } from '../lib/path';
 import PathNext from './PathNext';
@@ -86,7 +87,7 @@ export default function FindAProPage({ section }: { section?: string }) {
   const build = section === 'build';
   const all = !open && !build; // the full page: #/pros (and the old #/pros/all)
   const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
-  const [mine] = useMyState();
+  const [mine, setMine] = useMyState();
   const book = guidesFor(mine).find((p) => p.key === sale);
   const team = book
     ? book.team
@@ -112,12 +113,20 @@ export default function FindAProPage({ section }: { section?: string }) {
       {all && (
         <section className="pro-chooser" aria-labelledby="pro-chooser-head">
           <h2 id="pro-chooser-head" className="section-title">Who you need for your kind of sale</h2>
-          <div className="chip-tabs" role="group" aria-label="Kind of sale">
-            <button aria-pressed={sale === 'start'} onClick={() => setSale('start')}>Not sure yet</button>
-            {guidesFor(mine).map((p) => (
-              <button key={p.key} aria-pressed={sale === p.key} onClick={() => setSale(p.key)}>{p.short}{mine ? '' : ` (${stateOf(p)})`}</button>
-            ))}
-          </div>
+          {mine ? (
+            <div className="chip-tabs" role="group" aria-label="Kind of sale">
+              <button aria-pressed={sale === 'start'} onClick={() => setSale('start')}>Not sure yet</button>
+              {guidesFor(mine).map((p) => (
+                <button key={p.key} aria-pressed={sale === p.key} onClick={() => setSale(p.key)}>{p.short}</button>
+              ))}
+            </div>
+          ) : (
+            <div className="chip-tabs" role="group" aria-label="Your state">
+              <span className="chip-label">First, where do you invest?</span>
+              {STATES.map((st) => <button key={st.code} onClick={() => setMine(st.code)}>{st.name}</button>)}
+            </div>
+          )}
+          {mine && <p className="muted">Sales in {stateByCode(mine)?.name}. <button type="button" className="linkish" onClick={() => { setMine(null); setSale('start'); }}>Change state</button></p>}
           <p className="muted">
             {book ? <>For {book.short.toLowerCase()}, in the order you’ll usually need them.</> : <>Most first-time buyers of a forced-sale property need these five.</>}{' '}
             <a href={book ? `#/playbooks/${book.key}` : '#/playbooks'}>{book ? `How ${book.short.toLowerCase()} work →` : 'How each sale works →'}</a>

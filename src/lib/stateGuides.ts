@@ -1461,5 +1461,2418 @@ export const STATE_GUIDES: Playbook[] = [
   team: [TEAM.title, TEAM.attorney, TEAM.insurance, TEAM.eviction, TEAM.cpa],
   lastReviewed: REVIEWED,
   state: 'UT'
+},
+{
+  key: "cahoa",
+  title: "California HOA foreclosures",
+  short: "HOA foreclosures",
+  oneLine: "A California homeowners association can sell a home to collect unpaid assessments under the Davis-Stirling Act (Civil Code 5700–5740), usually through a trustee.",
+  youGet: "The owner’s interest, subject to a 90-day right of redemption after a nonjudicial sale, and usually subject to the first deed of trust and any other lien recorded before the HOA’s lien.",
+  forSale: true,
+  glance: [
+    {
+      label: "Law",
+      value: "California Davis-Stirling Act, Civil Code 5650–5740 (assessment liens and collection)."
+    },
+    {
+      label: "When the HOA can foreclose",
+      value: "Only if the unpaid regular or special assessments reach $1,800, or are more than 12 months late. Late fees, collection costs, attorney’s fees and interest don’t count toward the $1,800 (Civ 5720)."
+    },
+    {
+      label: "How it’s sold",
+      value: "By the court (judicial) or by a trustee named in the recorded notice of delinquent assessment (nonjudicial), no sooner than 30 days after that notice is recorded (Civ 5700, 5675)."
+    },
+    {
+      label: "Board vote",
+      value: "Only the HOA board can decide to foreclose, by majority vote in executive session, at least 30 days before any public sale (Civ 5705)."
+    },
+    {
+      label: "Redemption",
+      value: "After a nonjudicial HOA sale, the home can be redeemed for 90 days. The notice of sale must say the property is sold subject to this right (Civ 5715, CCP 729.035)."
+    },
+    {
+      label: "First mortgage",
+      value: "The HOA lien is ahead only of liens recorded after its notice of delinquent assessment, and the CC&Rs can put it behind others (Civ 5680). A first deed of trust recorded earlier usually stays. Confirm with a title report."
+    },
+    {
+      label: "Fines",
+      value: "Penalties for breaking HOA rules can’t be made a lien that the HOA forecloses on (Civ 5725). Late payments are the exception."
+    }
+  ],
+  steps: [
+    {
+      title: "Find the sale through the official notice",
+      detail: "A nonjudicial HOA sale follows the same notice of default and notice of sale steps as a California trustee sale (Civ 5710). The notice names the trustee, the date, time and place. Deal only with the trustee named in the notice; DeedOwl never helps anyone contact the homeowner."
+    },
+    {
+      title: "Confirm the HOA was allowed to foreclose",
+      detail: "For assessment debts from 2006 on, the HOA can’t foreclose unless the unpaid assessments reach $1,800 or are more than 12 months late (Civ 5720). The board must also have voted at least 30 days before the sale (Civ 5705). Have an attorney review the recorded notices if anything looks off."
+    },
+    {
+      title: "Order a title report",
+      detail: "The HOA lien starts when its notice of delinquent assessment is recorded and ranks ahead only of liens recorded after that (Civ 5675, 5680). A first deed of trust recorded before it usually survives, and the CC&Rs may make the HOA lien junior to it anyway. Ask the title company which loans, liens and unpaid property taxes will stay."
+    },
+    {
+      title: "Set your maximum bid",
+      detail: "Add any surviving loan balance, unpaid property taxes, dues that keep coming after you buy, and repairs. If a first deed of trust survives, its lender can foreclose on you if it isn’t paid. Use the max bid calculator."
+    },
+    {
+      title: "Bid and pay",
+      detail: "Bring the funds the notice of sale requires, usually cashier’s checks. The HOA trustee follows the same sale rules as a deed of trust sale (Civ 5710). See our California trustee sales guide for bidding and payment."
+    },
+    {
+      title: "Wait out the 90 days",
+      detail: "The home can be redeemed for 90 days after a nonjudicial HOA sale (Civ 5715, CCP 729.035). Ask an attorney how the redemption price is figured and when the trustee will deliver your deed. Don’t renovate until the period ends."
+    },
+    {
+      title: "Take possession lawfully",
+      detail: "If anyone lives there after the redemption period, use an eviction attorney and the court process. Never contact or pressure the former owner yourself."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "The HOA assessment lien being foreclosed",
+      "Liens recorded after the HOA’s notice of delinquent assessment, in most cases (confirm with a title company)"
+    ],
+    mayStay: [
+      "A first deed of trust or other lien recorded before the HOA’s notice of delinquent assessment (Civ 5680)",
+      "Liens the CC&Rs put ahead of the HOA lien",
+      "Unpaid property taxes and government assessments",
+      "HOA dues from the day you buy",
+      "The 90-day right of redemption after a nonjudicial sale (Civ 5715)"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Assuming an HOA sale wipes out the mortgage, like in Nevada",
+      prevent: "California’s HOA lien ranks ahead only of liens recorded after it (Civ 5680). Get a title report and budget for the first loan."
+    },
+    {
+      mistake: "Fixing up the home during the 90 days",
+      prevent: "The sale can still be undone by redemption (Civ 5715). Limit spending to securing and insuring the property until the period ends."
+    },
+    {
+      mistake: "Bidding on a sale the HOA may not have been allowed to hold",
+      prevent: "Check the amounts and dates in the recorded notices against the $1,800 or 12-month rule (Civ 5720) and the board-vote rule (Civ 5705). Ask an attorney if in doubt."
+    },
+    {
+      mistake: "Contacting the owner to ask about the debt or the house",
+      prevent: "Get all information from the trustee, the recorded documents and a title company. DeedOwl never helps anyone contact the owner."
+    }
+  ],
+  example: {
+    title: "Fictional example: a $14,000 condo that cost $300,000",
+    story: "Jordan, a new investor, sees a fictional condo worth about $340,000 at an HOA trustee sale with a $14,000 opening bid. The title report shows a first deed of trust of about $285,000, recorded years before the HOA’s notice of delinquent assessment. Jordan figures the real cost: the bid, plus the surviving loan, plus property taxes and repairs, comes to more than $300,000. Jordan also notes that the home could be redeemed for 90 days after the sale.",
+    lesson: "In California an HOA sale usually leaves the earlier first mortgage in place. Price the surviving loan and the redemption wait into your bid, or walk away."
+  },
+  sources: [
+    {
+      label: "California Civil Code 5675 (notice of delinquent assessment creates the lien)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=5675"
+    },
+    {
+      label: "California Civil Code 5680 (priority of the HOA lien)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=5680"
+    },
+    {
+      label: "California Civil Code 5700 (how the lien can be enforced)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=5700"
+    },
+    {
+      label: "California Civil Code 5705 (dispute resolution and board vote before foreclosure)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=5705"
+    },
+    {
+      label: "California Civil Code 5710 (trustee sale rules)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=5710"
+    },
+    {
+      label: "California Civil Code 5715 (90-day right of redemption)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=5715"
+    },
+    {
+      label: "California Civil Code 5720 ($1,800 or 12-month threshold)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=5720"
+    },
+    {
+      label: "California Civil Code 5725 (fines can’t be foreclosed as assessments)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=5725"
+    },
+    {
+      label: "California Code of Civil Procedure 729.035 (redemption after an HOA sale)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=729.035"
+    }
+  ],
+  team: [TEAM.attorney, TEAM.title, TEAM.lender, TEAM.insurance, TEAM.eviction, TEAM.contractor, TEAM.agent],
+  lastReviewed: "2026-10-03",
+  state: 'CA'
+},
+{
+  key: "cairs",
+  title: "California IRS sales",
+  short: "IRS sales",
+  oneLine: "The IRS can seize and sell California real estate to collect unpaid federal taxes, by public auction or sealed bid, under federal law.",
+  youGet: "A certificate of sale, then after 180 days without redemption, an IRS deed to the taxpayer’s interest. Mortgages and liens ahead of the federal tax lien stay.",
+  forSale: true,
+  glance: [
+    {
+      label: "Law",
+      value: "Federal: 26 U.S.C. 6335 (sale), 6337 (redemption), 6338 (certificate and deed), 6339 (effect of the deed)."
+    },
+    {
+      label: "Where listed",
+      value: "irsauctions.gov, plus a notice published in a newspaper in the county (26 U.S.C. 6335(b))."
+    },
+    {
+      label: "Sale date",
+      value: "10 to 40 days after the public notice, in the county where the property was seized unless the IRS orders otherwise (26 U.S.C. 6335(d))."
+    },
+    {
+      label: "Minimum bid",
+      value: "The IRS sets a minimum price. If no one bids it, the property goes to the government at that price or back to the owner (26 U.S.C. 6335(e))."
+    },
+    {
+      label: "Payment",
+      value: "Cash, certified, cashier’s or treasurer’s check, or a U.S. postal, bank or express money order. Full payment at the sale, or a deposit with the rest within the time in the notice, no more than 1 month (26 U.S.C. 6335(e); IRM 5.10.5.14)."
+    },
+    {
+      label: "Redemption",
+      value: "180 days. The owner, heirs, or anyone with an interest or lien can redeem by paying your price plus 20% a year interest, compounded daily (26 U.S.C. 6337; IRM 5.10.6.8)."
+    },
+    {
+      label: "What you get",
+      value: "A certificate of sale when you pay in full; a deed after 180 days if no one redeems (26 U.S.C. 6338)."
+    },
+    {
+      label: "California transfer tax",
+      value: "Counties and cities can tax deeds that transfer real property (R&T 11911). The government exemption covers deeds where the agency is acquiring title, not selling (R&T 11922). Confirm what you’ll owe with the county recorder."
+    }
+  ],
+  steps: [
+    {
+      title: "Watch irsauctions.gov",
+      detail: "IRS real estate sales in California are rare. Read each notice of sale for the minimum bid, deposit, payment deadline and whether bids are taken at public auction or by sealed bid."
+    },
+    {
+      title: "Ask for the list of known liens",
+      detail: "The IRS will give bidders Form 2434-B, which lists the liens and interests it found. It doesn’t guarantee the list is complete, so verify it yourself (IRM 5.10.5.13)."
+    },
+    {
+      title: "Order a title report",
+      detail: "You get only the taxpayer’s interest, as is, where is, with no warranty (IRM 5.10.5.7). Mortgages and liens ahead of the federal tax lien stay. Liens behind it are wiped out by the deed (26 U.S.C. 6339(c))."
+    },
+    {
+      title: "Look from the street only",
+      detail: "You usually can’t go inside. Assume repairs are needed. Don’t contact or approach the owner or occupants; direct every question to the IRS contact on the notice."
+    },
+    {
+      title: "Bid and pay on time",
+      detail: "Pay in the forms the notice allows. If you agreed to a deferred payment and don’t pay the rest, the IRS can sue you for it with 6% interest, or cancel the sale and keep what you paid (26 U.S.C. 6335(e)(3))."
+    },
+    {
+      title: "Record the certificate of sale",
+      detail: "You get a certificate of sale when you pay in full (26 U.S.C. 6338(a)). The IRS notes that recording it can stop the taxpayer from selling the property to someone else (IRM 5.10.5.17.5). Ask a title company or attorney about recording it with the county recorder."
+    },
+    {
+      title: "Plan for 180 days",
+      detail: "The property can be redeemed for 180 days by paying you your price plus 20% a year interest (26 U.S.C. 6337; IRM 5.10.6.8). If it’s vacant you may enter only as needed to prevent damage. If it’s occupied, the IRS decides with its counsel whether a court order is needed (IRM 5.10.5.19). Don’t renovate yet."
+    },
+    {
+      title: "Get and record the deed",
+      detail: "If no one redeems, surrender the certificate of sale and the IRS gives you a deed made under California’s rules for execution sales (26 U.S.C. 6338(b); IRM 5.10.6.9). Record it with the county recorder and file a change in ownership statement (R&T 480). The assessor will reassess the property to market value (BOE)."
+    },
+    {
+      title: "Take possession lawfully",
+      detail: "If anyone still lives there, use an eviction attorney and the court process. Never remove people or belongings yourself."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "The federal tax lien being enforced",
+      "Liens and interests behind the federal tax lien (26 U.S.C. 6339(c))"
+    ],
+    mayStay: [
+      "Mortgages and liens ahead of the federal tax lien",
+      "Unpaid property taxes",
+      "Easements and recorded restrictions",
+      "The 180-day right of redemption"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Trusting the IRS lien list as complete",
+      prevent: "Form 2434-B isn’t guaranteed. Get your own title report before bidding."
+    },
+    {
+      mistake: "Renovating during the 180 days",
+      prevent: "A redeemer pays your price plus interest, not your repair costs (26 U.S.C. 6337). Only prevent damage until the deed is issued."
+    },
+    {
+      mistake: "Bidding without the balance ready",
+      prevent: "Missing a deferred payment can cost you your deposit (26 U.S.C. 6335(e)(3)). Have all your funds lined up first."
+    },
+    {
+      mistake: "Forgetting California costs",
+      prevent: "Budget for documentary transfer tax (R&T 11911) and a higher property tax bill after the assessor reassesses the property."
+    }
+  ],
+  example: {
+    title: "Fictional example: a sealed-bid cabin",
+    story: "Alex, a first-time bidder, reads an IRS notice of sealed-bid sale for a fictional cabin with a $90,000 minimum bid. Alex’s title report shows a $60,000 first mortgage recorded before the federal tax lien. Alex bids $110,000, wins, and records the certificate of sale. Five months later a relative of the owner redeems, and Alex is paid back $110,000 plus 20% a year interest for the time the money was tied up.",
+    lesson: "Count the senior mortgage in your price, expect a 180-day wait, and don’t spend on improvements before the deed."
+  },
+  sources: [
+    {
+      label: "IRS auctions",
+      url: "https://www.irsauctions.gov/"
+    },
+    {
+      label: "26 U.S.C. 6335: sale of seized property (Cornell LII)",
+      url: "https://www.law.cornell.edu/uscode/text/26/6335"
+    },
+    {
+      label: "26 U.S.C. 6337: redemption (Cornell LII)",
+      url: "https://www.law.cornell.edu/uscode/text/26/6337"
+    },
+    {
+      label: "26 U.S.C. 6338: certificate of sale and deed (Cornell LII)",
+      url: "https://www.law.cornell.edu/uscode/text/26/6338"
+    },
+    {
+      label: "26 U.S.C. 6339: legal effect of the deed (Cornell LII)",
+      url: "https://www.law.cornell.edu/uscode/text/26/6339"
+    },
+    {
+      label: "IRS Internal Revenue Manual 5.10.5: conducting the sale",
+      url: "https://www.irs.gov/irm/part5/irm_05-010-005"
+    },
+    {
+      label: "IRS Internal Revenue Manual 5.10.6: after the sale (redemption, deed)",
+      url: "https://www.irs.gov/irm/part5/irm_05-010-006"
+    },
+    {
+      label: "California Revenue and Taxation Code 11911 (documentary transfer tax)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=11911"
+    },
+    {
+      label: "California Revenue and Taxation Code 11922 (government exemption)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=11922"
+    },
+    {
+      label: "California Revenue and Taxation Code 480 (change in ownership statement)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=480"
+    },
+    {
+      label: "California State Board of Equalization: change in ownership FAQs",
+      url: "https://www.boe.ca.gov/proptaxes/faqs/changeinownership.htm"
+    }
+  ],
+  team: [TEAM.title, TEAM.attorney, TEAM.insurance, TEAM.eviction, TEAM.agent],
+  lastReviewed: "2026-10-03",
+  state: 'CA'
+},
+{
+  key: "careo",
+  title: "California bank-owned (REO) homes",
+  short: "Bank-owned (REO)",
+  oneLine: "Homes a lender, Fannie Mae, Freddie Mac or HUD took back through foreclosure in California, sold through a listing agent with a normal escrow.",
+  youGet: "The property through a purchase contract plus the seller’s addendum, closed through escrow with title insurance, usually as is.",
+  forSale: true,
+  glance: [
+    {
+      label: "How it’s sold",
+      value: "Listed by the owner’s listing agent. Your agent submits the offer with the seller’s own forms and addenda."
+    },
+    {
+      label: "Seller disclosures",
+      value: "A lender selling a home it took back through foreclosure doesn’t have to give the California Transfer Disclosure Statement (Civ 1102.2) or the Natural Hazard Disclosure under Civ 1103 (Civ 1103.1). Other required disclosures may still be given separately."
+    },
+    {
+      label: "Condition",
+      value: "Usually as is. Do your own inspections during your contingency period."
+    },
+    {
+      label: "HUD homes",
+      value: "Offers go through a HUD-registered broker. Since March 1, 2022, homes eligible for FHA 203(b) financing have a 30-day exclusive listing period for owner-occupants, government entities and HUD-approved nonprofits (FHA INFO 2022-03). Investors can bid only after it ends."
+    },
+    {
+      label: "Freddie Mac (HomeSteps)",
+      value: "First Look: for the first 30 days in the MLS, only owner-occupants, public entities and certain nonprofits can offer. Multi-family homes and vacant land are excluded."
+    },
+    {
+      label: "Fannie Mae (HomePath)",
+      value: "Owner-occupant offers get priority. Owner-occupants certify they’ll move in within 60 days of closing and live there at least a year. Ask the listing agent whether a First Look period is running."
+    },
+    {
+      label: "Property taxes",
+      value: "Your purchase is a change in ownership, so the assessor reassesses to market value as of that date (BOE; R&T 110.1)."
+    }
+  ],
+  steps: [
+    {
+      title: "Search official sources only",
+      detail: "Use HUD Home Store, HomeSteps, HomePath and the REO pages of the bank or credit union that owns the home. DeedOwl lists only direct sources."
+    },
+    {
+      title: "Get pre-approved or show proof of funds",
+      detail: "Sellers want a pre-approval letter, or proof of funds for cash offers, with your offer. HomeSteps lists these among required items."
+    },
+    {
+      title: "Use a licensed agent",
+      detail: "HUD requires a HUD-registered broker to bid for you. For HomeSteps and HomePath, your agent works with the listing agent. If you’re buying to live there, say so: owner-occupants get early or priority offer periods."
+    },
+    {
+      title: "Read every addendum",
+      detail: "The seller’s addendum usually overrides parts of the standard California contract, including repairs, deadlines and earnest money. HomePath, for example, wants the deposit within two calendar days of a fully signed contract; HomeSteps wants it in certified funds."
+    },
+    {
+      title: "Inspect and appraise",
+      detail: "Because a foreclosing lender is exempt from the Transfer Disclosure Statement (Civ 1102.2), you learn about the home mostly from your own inspections. Hire a licensed inspector and check permits with the city or county."
+    },
+    {
+      title: "Check title and occupancy",
+      detail: "Review the preliminary title report for anything that stays. If tenants lived there at the foreclosure, they may have rights to stay (CCP 1161b). Ask the listing agent whether the home will be delivered vacant."
+    },
+    {
+      title: "Close through escrow",
+      detail: "Buy an owner’s title insurance policy. Pay only through escrow, never in cash or to a person directly."
+    },
+    {
+      title: "After closing",
+      detail: "File the change in ownership statement with your deed (R&T 480). Expect a supplemental property tax bill, since the assessor sets a new value on the date ownership changes (R&T 75.10)."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "Most liens are cleared by the seller before or at closing (confirm on the title report)"
+    ],
+    mayStay: [
+      "Anything listed as an exception in your title policy",
+      "Easements and recorded restrictions (CC&Rs)",
+      "Property taxes for your share of the year, and supplemental taxes after reassessment",
+      "HOA dues from closing on",
+      "Leases or tenant rights that survived the foreclosure (CCP 1161b)"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Expecting the usual seller disclosures",
+      prevent: "A lender selling after foreclosure is exempt from the Transfer Disclosure Statement (Civ 1102.2). Get full inspections."
+    },
+    {
+      mistake: "Investors offering during an owner-occupant period",
+      prevent: "Check the listing for HUD’s exclusive period or Freddie Mac’s 30-day First Look, and wait until investor offers are allowed."
+    },
+    {
+      mistake: "Falsely claiming you’ll live there",
+      prevent: "HUD, Fannie Mae and Freddie Mac require occupancy certifications. A false one can bring civil or criminal liability."
+    },
+    {
+      mistake: "Skipping the addendum",
+      prevent: "Read every page. Addenda can shorten deadlines, add per-day fees and shift costs to you."
+    }
+  ],
+  example: {
+    title: "Fictional example: a HomeSteps house in First Look",
+    story: "Maria, a teacher buying her first home, finds a fictional Freddie Mac house on HomeSteps that is 12 days into its First Look. Her agent submits her offer with a pre-approval letter, the HomeSteps addenda and her signed owner-occupant affidavit. Because the lender seller is exempt from the Transfer Disclosure Statement, she orders a full inspection, which finds a leaking water heater. She asks for a credit, Freddie Mac declines, and she closes anyway with the repair in her budget.",
+    lesson: "Owner-occupants can get an early shot at REO homes, but inspections replace the seller disclosures you’d normally get."
+  },
+  sources: [
+    { label: "HUD FHA INFO 2022-03: 30-day exclusive listing period", url: "https://www.hud.gov/sites/dfiles/SFH/documents/SFH_FHA_INFO_2022-03.pdf" },
+    {
+      label: "HUD Home Store",
+      url: "https://www.hudhomestore.gov/"
+    },
+    {
+      label: "HUD Home Store help: buyer types and listing periods",
+      url: "https://www.hudhomestore.gov/FAQ"
+    },
+    {
+      label: "Freddie Mac HomeSteps",
+      url: "https://www.homesteps.com/"
+    },
+    {
+      label: "HomeSteps: Freddie Mac First Look Initiative",
+      url: "https://www.homesteps.com/homebuyer/firstlook"
+    },
+    {
+      label: "HomeSteps: making an offer",
+      url: "https://www.homesteps.com/homebuyer/making-an-offer"
+    },
+    {
+      label: "Fannie Mae HomePath: online offer tips (PDF)",
+      url: "https://homepath.fanniemae.com/images/documents/HomePath_Online_Offer_Tips.pdf"
+    },
+    {
+      label: "Fannie Mae HomePath: Owner Occupant Certification (PDF)",
+      url: "https://homepath.fanniemae.com/images/documents/Owner_Occupant_Certification.pdf"
+    },
+    {
+      label: "California Civil Code 1102.2 (Transfer Disclosure Statement exemptions)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1102.2"
+    },
+    {
+      label: "California Civil Code 1103.1 (Natural Hazard Disclosure exemptions)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1103.1"
+    },
+    {
+      label: "California Code of Civil Procedure 1161b (tenants after foreclosure)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=1161b"
+    },
+    {
+      label: "California Revenue and Taxation Code 110.1 (base year value)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=110.1"
+    },
+    {
+      label: "California Revenue and Taxation Code 75.10 (supplemental assessment)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=75.10"
+    },
+    {
+      label: "California Revenue and Taxation Code 480 (change in ownership statement)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=480"
+    },
+    {
+      label: "California State Board of Equalization: change in ownership FAQs",
+      url: "https://www.boe.ca.gov/proptaxes/faqs/changeinownership.htm"
+    }
+  ],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.contractor, TEAM.insurance],
+  lastReviewed: "2026-10-03",
+  state: 'CA'
+},
+{
+  key: "cashort",
+  title: "California short sales",
+  short: "Short sales",
+  oneLine: "A California owner sells for less than the loan balance, with the lender’s written approval, through a listing agent and normal escrow.",
+  youGet: "The property by grant deed through escrow, once every lienholder that needs to approves the price.",
+  forSale: true,
+  glance: [
+    {
+      label: "How it’s sold",
+      value: "Listed by the owner’s agent, usually marked “short sale” or “subject to lender approval.” All contact goes through the listing agent."
+    },
+    {
+      label: "Timeline",
+      value: "Often weeks to months for lender approval. A foreclosure can still happen first."
+    },
+    {
+      label: "Owner’s protection",
+      value: "After an approved short sale of a dwelling of 1 to 4 units, the lender can’t collect the rest of the loan from the owner, with some exceptions (CCP 580e). That is why lenders insist on written approval of the exact deal."
+    },
+    {
+      label: "No side payments",
+      value: "The lender can’t require the owner to pay extra for its consent (CCP 580e(b)). Every payment goes through escrow."
+    },
+    {
+      label: "Investors and homes in foreclosure",
+      value: "If you won’t live there, and the owner lives in a 1 to 4 unit home with a recorded notice of default, California’s home equity sales law can apply: a strict written contract and a right for the owner to cancel (Civ 1695.1–1695.6). Ask an attorney."
+    },
+    {
+      label: "Disclosures",
+      value: "The owner, not a lender, is selling, so the normal California seller disclosure rules generally apply (Civ 1102). The foreclosure exemption covers lenders selling homes they took back (Civ 1102.2)."
+    },
+    {
+      label: "Financing and inspection",
+      value: "Allowed. Keep your contingencies in writing."
+    }
+  ],
+  steps: [
+    {
+      title: "Get pre-approved",
+      detail: "Lenders approving a short sale want proof you can close: a pre-approval letter or proof of funds."
+    },
+    {
+      title: "Use an agent with short-sale experience",
+      detail: "Your agent works only with the listing agent. DeedOwl never helps anyone contact the owner directly, and you shouldn’t either."
+    },
+    {
+      title: "Offer subject to lender approval",
+      detail: "The seller signs your offer first. Then the listing agent sends the package to each lender. Your contract isn’t final until every lienholder approves in writing."
+    },
+    {
+      title: "Check whether California’s equity purchaser law applies",
+      detail: "If the owner lives there, a notice of default is recorded, and you aren’t buying to live there, the contract must meet Civ 1695.2 and the owner can cancel until midnight of the fifth business day after signing, or 8 a.m. on the sale day if sooner (Civ 1695.4). Until then you can’t record documents or pay the owner (Civ 1695.6). Have an attorney review it."
+    },
+    {
+      title: "Inspect and review disclosures",
+      detail: "Expect the seller’s Transfer Disclosure Statement (Civ 1102). Do your own inspection anyway, since owners in hardship often defer repairs."
+    },
+    {
+      title: "Watch the foreclosure date",
+      detail: "Ask the listing agent whether a trustee sale is scheduled and whether the lender has agreed to postpone it. A short sale can be cancelled by a foreclosure."
+    },
+    {
+      title: "Close through escrow",
+      detail: "Pay only through escrow, with every payment disclosed to the lenders. Never pay the owner, a “negotiator” or anyone else on the side."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "Loans and liens whose holders approve the sale and are paid through escrow"
+    ],
+    mayStay: [
+      "Any lien whose holder doesn’t agree; the sale can’t close with clear title until they do",
+      "Anything listed as an exception in your title policy",
+      "Property taxes and HOA dues from closing on",
+      "Leases with tenants living there; ask the listing agent whether the home is delivered vacant"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Contacting the owner directly",
+      prevent: "Work only through the listing agent and escrow. DeedOwl never helps anyone contact the owner."
+    },
+    {
+      mistake: "Paying a “negotiator” or the owner outside escrow",
+      prevent: "All money goes through escrow and is disclosed to the lenders. California strictly limits fees for people who promise to stop a foreclosure or deal with lenders for an owner (Civ 2945.1, 2945.4)."
+    },
+    {
+      mistake: "Ignoring the equity purchaser law as an investor",
+      prevent: "If you won’t live there and a notice of default is recorded on an owner-occupied home, have an attorney prepare a compliant contract (Civ 1695.1–1695.6)."
+    },
+    {
+      mistake: "Assuming one approval is enough",
+      prevent: "Ask how many loans and liens there are. Each holder must agree before closing."
+    }
+  ],
+  example: {
+    title: "Fictional example: two lenders, one sale",
+    story: "Chris, a first-time buyer, offers $480,000 on a fictional short-sale condo listed by the owner’s agent. The first-loan lender approves after nine weeks. The second-loan holder asks for more money to release its lien, and the listing agent negotiates through escrow for three more weeks. Chris keeps his loan approval current, never contacts the owner, and closes after both lenders sign written approvals.",
+    lesson: "Expect each lienholder to negotiate, keep your financing ready, and let the listing agent and escrow handle every contact."
+  },
+  sources: [
+    {
+      label: "California Code of Civil Procedure 580e (no deficiency after an approved short sale)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=580e"
+    },
+    {
+      label: "California Civil Code 1695.1 (equity purchaser definitions)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1695.1"
+    },
+    {
+      label: "California Civil Code 1695.2 (contract requirements)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1695.2"
+    },
+    {
+      label: "California Civil Code 1695.4 (owner’s right to cancel)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1695.4"
+    },
+    {
+      label: "California Civil Code 1695.6 (equity purchaser limits)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1695.6"
+    },
+    {
+      label: "California Civil Code 2945.1 (foreclosure consultant definition)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2945.1"
+    },
+    {
+      label: "California Civil Code 2945.4 (foreclosure consultant prohibitions)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2945.4"
+    },
+    {
+      label: "California Civil Code 1102 (seller disclosures apply)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1102"
+    },
+    {
+      label: "California Civil Code 1102.2 (disclosure exemptions)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1102.2"
+    }
+  ],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.attorney, TEAM.contractor],
+  lastReviewed: "2026-10-03",
+  state: 'CA'
+},
+{
+  key: "cacommercial",
+  title: "California commercial property",
+  short: "Commercial property",
+  oneLine: "Stores, offices, industrial buildings, apartments with 5+ units and commercial land in California, sold by banks, trustees, sheriffs, receivers and tax collectors.",
+  youGet: "The same deed as a home bought the same way, but without California’s home seller disclosures, and often with tenants, leases and environmental history.",
+  forSale: true,
+  glance: [
+    {
+      label: "How it’s sold",
+      value: "The same channels as homes: tax sales, trustee sales, sheriff and court sales, court-appointed receivers, and bank or government sellers."
+    },
+    {
+      label: "Seller disclosures",
+      value: "California’s Transfer Disclosure Statement doesn’t apply to property that isn’t single-family residential (Civ 1102.2). Your own due diligence is the main protection."
+    },
+    {
+      label: "Property tax (Prop 13)",
+      value: "A purchase is a change in ownership. The assessor reassesses the property to market value as of that date, and that becomes the new base year value (BOE; R&T 60, 110.1). A supplemental tax bill can follow (R&T 75.10)."
+    },
+    {
+      label: "Transfer tax",
+      value: "Counties can tax deeds at $0.55 per $500 of value, and cities can add their own (R&T 11911). Confirm the total rate with the county recorder."
+    },
+    {
+      label: "Environmental",
+      value: "A Phase I environmental site assessment done within one year before you buy, with key parts updated within 180 days, can protect you from federal cleanup liability (EPA All Appropriate Inquiries)."
+    },
+    {
+      label: "Accessibility",
+      value: "On every new commercial lease, California owners must say whether a Certified Access Specialist (CASp) has inspected the premises (Civ 1938)."
+    },
+    {
+      label: "Residential tenants",
+      value: "In apartment buildings bought after foreclosure, month-to-month tenants get 90 days’ written notice, and many fixed-term leases continue (CCP 1161b). Local just-cause rules can also apply."
+    }
+  ],
+  steps: [
+    {
+      title: "Pin down what you’re buying",
+      detail: "Use the county assessor’s record for land use, building size and year built, and the parcel map for access and boundaries."
+    },
+    {
+      title: "Get the rent roll and leases",
+      detail: "A receiver, bank or listing broker can usually provide them. At an auction you often can’t, so assume the building is empty until proven otherwise."
+    },
+    {
+      title: "Value it by income",
+      detail: "For a rental building: net operating income (rent after vacancy and operating costs) divided by the cap rate. Use a property tax figure based on your price, not the seller’s old Prop 13 value, since the assessor will reassess (BOE)."
+    },
+    {
+      title: "Order a title report",
+      detail: "Commercial parcels often carry easements, reciprocal easement agreements, CC&Rs, mechanic’s liens and recorded leases. Ask which ones survive the kind of sale you’re buying at."
+    },
+    {
+      title: "Screen for contamination",
+      detail: "Ask what the property was used for. Gas stations, dry cleaners and auto shops are high risk. Check state cleanup databases such as DTSC EnviroStor and the Water Board’s GeoTracker, and order a Phase I assessment within one year before you buy (EPA)."
+    },
+    {
+      title: "Check zoning, code and permits",
+      detail: "Confirm with the city or county planning department that your planned use is allowed and that there are no open code cases or expired permits."
+    },
+    {
+      title: "Line up your money",
+      detail: "Auctions need certified funds. Have a commercial or bridge lender ready to refinance after. Budget for transfer tax (R&T 11911) and the reassessed property tax."
+    },
+    {
+      title: "Take over well",
+      detail: "Insure it the day you own it, file the change in ownership statement with your deed (R&T 480), tell tenants in writing where to pay rent, and ask each tenant for an estoppel certificate confirming their lease. Follow CCP 1161b for any residential tenants."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "At a trustee or sheriff sale: liens recorded after the lien being foreclosed",
+      "Leases signed after that lien, or put behind it, unless the lender agreed to keep them. Confirm with an attorney",
+      "In a bank or receiver sale: liens the seller pays off at closing (confirm on the title report)"
+    ],
+    mayStay: [
+      "Property taxes and special assessments",
+      "Liens recorded ahead of the lien being foreclosed",
+      "Environmental cleanup liability: it follows the owner, not the lien",
+      "Easements, reciprocal easement agreements and CC&Rs",
+      "Leases with priority or a non-disturbance agreement, and residential tenant rights under CCP 1161b",
+      "Anything listed as an exception in your title policy"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Using the seller’s property tax bill",
+      prevent: "Your purchase triggers reassessment to market value (BOE; R&T 110.1). Underwrite with the tax on your price."
+    },
+    {
+      mistake: "Skipping the environmental check",
+      prevent: "Past uses can mean cleanup costs bigger than the price. Get a Phase I assessment on time to keep the federal defense (EPA)."
+    },
+    {
+      mistake: "Expecting a seller disclosure statement",
+      prevent: "The Transfer Disclosure Statement doesn’t cover commercial property (Civ 1102.2). Ask for reports and do your own inspections."
+    },
+    {
+      mistake: "Assuming tenants will keep paying",
+      prevent: "Get estoppel certificates, and budget for vacancy, leasing commissions and tenant improvements."
+    }
+  ],
+  example: {
+    title: "Fictional example: the tax bill that ate the cap rate",
+    story: "Dana, a new investor, buys a fictional bank-owned strip center for $2,000,000. The seller’s tax bill was based on a Prop 13 value set decades ago. After the sale, the assessor reassesses the center to about $2,000,000 and a supplemental tax bill arrives, cutting Dana’s net operating income by tens of thousands of dollars a year. Dana had also skipped estoppels and later learned one tenant had a rent reduction not shown in the rent roll.",
+    lesson: "In California, underwrite with property tax based on your price, and confirm every lease with an estoppel certificate before closing."
+  },
+  sources: [
+    {
+      label: "California State Board of Equalization: change in ownership FAQs",
+      url: "https://www.boe.ca.gov/proptaxes/faqs/changeinownership.htm"
+    },
+    {
+      label: "California Revenue and Taxation Code 60 (change in ownership)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=60"
+    },
+    {
+      label: "California Revenue and Taxation Code 110.1 (base year value)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=110.1"
+    },
+    {
+      label: "California Revenue and Taxation Code 75.10 (supplemental assessment)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=75.10"
+    },
+    {
+      label: "California Revenue and Taxation Code 480 (change in ownership statement)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=480"
+    },
+    {
+      label: "California Revenue and Taxation Code 11911 (documentary transfer tax)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=11911"
+    },
+    {
+      label: "California Civil Code 1102.2 (disclosure exemptions)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1102.2"
+    },
+    {
+      label: "California Civil Code 1938 (CASp statement in commercial leases)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1938"
+    },
+    {
+      label: "California Code of Civil Procedure 1161b (tenants after foreclosure)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=1161b"
+    },
+    {
+      label: "EPA: All Appropriate Inquiries (Phase I environmental site assessments)",
+      url: "https://www.epa.gov/brownfields/brownfields-all-appropriate-inquiries"
+    }
+  ],
+  team: [TEAM.commercialBroker, TEAM.title, TEAM.attorney, TEAM.environmental, TEAM.commercialLender, TEAM.insurance, TEAM.contractor, TEAM.propertyManager, TEAM.cpa],
+  lastReviewed: "2026-10-03",
+  state: 'CA'
+},
+{
+  key: "azhoa",
+  title: "Arizona HOA foreclosures",
+  short: "HOA foreclosures",
+  oneLine: "An Arizona homeowners association can foreclose its lien for unpaid assessments, but only through a court case, like a mortgage, and only after a large or long delinquency. The home is then sold at a sheriff’s sale, usually subject to the first mortgage.",
+  youGet: "A certificate of sale first, and a sheriff’s deed only after the redemption period ends. You get the owner’s interest, which in most cases is still subject to the recorded first mortgage or deed of trust and to property taxes.",
+  forSale: true,
+  glance: [
+    {
+      label: "Law (planned communities)",
+      value: "A.R.S. 33-1807. Condominiums fall under a separate statute (A.R.S. 33-1256); confirm its current rules with an Arizona attorney"
+    },
+    {
+      label: "When the HOA can foreclose",
+      value: "Only if the owner has been delinquent for 18 months, or owes $10,000 or more, whichever comes first, as of the day the case is filed (A.R.S. 33-1807)"
+    },
+    {
+      label: "How",
+      value: "Through a court case, “in the same manner as a mortgage” (A.R.S. 33-1807). After judgment, the sheriff sells the home at public auction"
+    },
+    {
+      label: "Priority",
+      value: "Behind the recorded first mortgage or first deed of trust, property taxes and government assessments, and liens recorded before the HOA’s declaration (A.R.S. 33-1807). There is no Nevada-style “super-priority”"
+    },
+    {
+      label: "Payment",
+      value: "Within 5 working days after the sheriff’s sale, unless the sheriff agrees in writing to more time (A.R.S. 12-1624)"
+    },
+    {
+      label: "Redemption",
+      value: "6 months after the sale, or 30 days if the court found the home abandoned (and not farm or grazing land) (A.R.S. 12-1282, 12-1283)"
+    },
+    {
+      label: "Redemption price",
+      value: "Your price plus 8%, plus taxes or assessments you paid, with interest (A.R.S. 12-1285)"
+    },
+    {
+      label: "Deed",
+      value: "Sheriff’s deed after every redemption period ends; the sheriff records it within 30 days (A.R.S. 12-1286)"
+    }
+  ],
+  steps: [
+    {
+      title: "Confirm it really is an HOA foreclosure sale",
+      detail: "In Arizona, an HOA can’t use a quick trustee’s sale for unpaid assessments. It must file a lawsuit and win a judgment, and then the county sheriff sells the home (A.R.S. 33-1807). Find the sheriff’s notice of sale, which gives the court case number. Work only with the sheriff’s civil unit and the court file. Never contact the homeowner."
+    },
+    {
+      title: "Read the judgment",
+      detail: "Get the judgment from the court file. It says what is being sold, the amount owed and whether the court found the home abandoned, which sets the redemption period at 30 days instead of 6 months (A.R.S. 12-1282). For a condominium, the HOA’s lien is governed by A.R.S. 33-1256 instead; have an attorney confirm how it applies."
+    },
+    {
+      title: "Order a title report and find the first mortgage",
+      detail: "The HOA lien ranks behind a recorded first mortgage or first deed of trust, property taxes and government assessments, and liens recorded before the HOA’s declaration (A.R.S. 33-1807). Those generally stay on the home after an HOA sale. Ask the title company for the first loan’s recorded amount and whether a trustee’s sale on it is already scheduled."
+    },
+    {
+      title: "Set your maximum bid",
+      detail: "Add the surviving first mortgage, unpaid property taxes, any mechanic’s liens (the HOA lien doesn’t change their priority, A.R.S. 33-1807) and repairs to your price. If the total is near the home’s value, walk away. Use the max bid calculator."
+    },
+    {
+      title: "Confirm the sale is still on",
+      detail: "The owner can settle with the HOA, and the sheriff can postpone. Call the sheriff’s civil unit before you go, and ask what forms of payment it accepts."
+    },
+    {
+      title: "Bid and pay within 5 working days",
+      detail: "The sheriff sells at public auction. You must pay within five working days. If you don’t, the sheriff offers the home to the second-highest bidder, and you can owe others’ losses and attorney fees (A.R.S. 12-1624)."
+    },
+    {
+      title: "Get your certificate of sale",
+      detail: "The certificate describes the property, the price and whether it can be redeemed. You get “all the right, title, interest and claim” of the owner, nothing more (A.R.S. 12-1626)."
+    },
+    {
+      title: "Wait out the redemption period",
+      detail: "The owner can redeem for 6 months (30 days if the court found the home abandoned). After that, creditors with later liens can redeem in 5-day turns (A.R.S. 12-1282, 12-1283). If anyone redeems, you get your price plus 8%, plus taxes or assessments you paid with interest (A.R.S. 12-1285). Repairs aren’t repaid, so keep receipts and hold off on upgrades."
+    },
+    {
+      title: "Receive the sheriff’s deed and take possession lawfully",
+      detail: "When every redemption period ends, the sheriff gives you the deed and records it within 30 days (A.R.S. 12-1286). If anyone is still living there, give a written demand for possession and, if needed, file a forcible detainer (eviction) case (A.R.S. 12-1173.01). Never change locks or remove belongings yourself."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "The HOA lien that was foreclosed",
+      "The former owner’s interest, once the sheriff’s deed issues (A.R.S. 12-1626, 12-1286)",
+      "Liens junior to the HOA lien, only if the judgment cut them off. Ask your title company"
+    ],
+    mayStay: [
+      "The recorded first mortgage or first deed of trust (A.R.S. 33-1807)",
+      "Liens recorded before the HOA’s declaration (A.R.S. 33-1807)",
+      "Property taxes, which are a lien ahead of almost all others (A.R.S. 42-17153), and other government assessments",
+      "Mechanic’s and materialmen’s liens, whose priority the HOA lien doesn’t change (A.R.S. 33-1807)",
+      "The owner’s and junior creditors’ redemption rights until the periods end (A.R.S. 12-1282)",
+      "Future HOA assessments, which you owe from the day you own the home"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Assuming an Arizona HOA sale wipes out the mortgage, as it can in Nevada",
+      prevent: "In Arizona the HOA lien ranks behind the recorded first mortgage or deed of trust (A.R.S. 33-1807). Price the surviving loan into your bid."
+    },
+    {
+      mistake: "Thinking you own the home on sale day",
+      prevent: "You get a certificate of sale. Plan for a 6-month wait (30 days only if the court found the home abandoned), and for the chance you are simply paid back with 8%."
+    },
+    {
+      mistake: "Renovating during the redemption period",
+      prevent: "A redeemer repays your price plus 8% and taxes or assessments you paid, not upgrades (A.R.S. 12-1285). Wait for the deed."
+    },
+    {
+      mistake: "Ignoring a trustee’s sale on the first loan",
+      prevent: "If the first lender forecloses by trustee’s sale, liens junior to its deed of trust are cleared, and your interest from the HOA sale could be wiped out (A.R.S. 33-811). Check the recorder for a notice of trustee’s sale before you bid."
+    }
+  ],
+  example: {
+    title: "Illustrative example (fictional)",
+    story: "Riley, a fictional buyer, sees a sheriff’s sale of a townhome worth about $320,000 after an HOA judgment. Bidding opens near $14,000. Riley’s title report shows a recorded first deed of trust of about $255,000 and $3,000 in unpaid property taxes, both of which would stay. The court didn’t find the home abandoned, so the owner would have 6 months to redeem.",
+    lesson: "The real cost is the bid plus about $258,000 in surviving liens, plus repairs, and Riley might wait 6 months only to be paid back with 8%. In Arizona, an HOA sale is rarely the bargain the opening bid suggests."
+  },
+  sources: [
+    {
+      label: "A.R.S. 33-1807: Planned community assessment liens; foreclosure thresholds; priority",
+      url: "https://www.azleg.gov/ars/33/01807.htm"
+    },
+    {
+      label: "A.R.S. 12-1281: Who may redeem",
+      url: "https://www.azleg.gov/ars/12/01281.htm"
+    },
+    {
+      label: "A.R.S. 12-1282: Redemption periods: 30 days or 6 months",
+      url: "https://www.azleg.gov/ars/12/01282.htm"
+    },
+    {
+      label: "A.R.S. 12-1283: Redemption after foreclosure of mortgages and other liens",
+      url: "https://www.azleg.gov/ars/12/01283.htm"
+    },
+    {
+      label: "A.R.S. 12-1285: Redemption price: plus 8%",
+      url: "https://www.azleg.gov/ars/12/01285.htm"
+    },
+    {
+      label: "A.R.S. 12-1286: Sheriff’s deed",
+      url: "https://www.azleg.gov/ars/12/01286.htm"
+    },
+    {
+      label: "A.R.S. 12-1621: Notice of sale of real property",
+      url: "https://www.azleg.gov/ars/12/01621.htm"
+    },
+    {
+      label: "A.R.S. 12-1624: Payment within 5 working days",
+      url: "https://www.azleg.gov/ars/12/01624.htm"
+    },
+    {
+      label: "A.R.S. 12-1626: Certificate of sale; what the buyer gets",
+      url: "https://www.azleg.gov/ars/12/01626.htm"
+    },
+    {
+      label: "A.R.S. 33-811: Trustee’s deed clears junior liens",
+      url: "https://www.azleg.gov/ars/33/00811.htm"
+    },
+    {
+      label: "A.R.S. 42-17153: Property tax lien priority",
+      url: "https://www.azleg.gov/ars/42/17153.htm"
+    },
+    {
+      label: "A.R.S. 12-1173.01: Forcible detainer after a sale",
+      url: "https://www.azleg.gov/ars/12/01173-01.htm"
+    }
+  ],
+  team: [TEAM.attorney, TEAM.title, TEAM.lender, TEAM.insurance, TEAM.eviction, TEAM.contractor],
+  lastReviewed: "2026-10-03",
+  state: 'AZ'
+},
+{
+  key: "azirs",
+  title: "Arizona IRS sales",
+  short: "IRS sales",
+  oneLine: "The IRS seizes and sells real property in Arizona to collect unpaid federal taxes, by public auction or sealed bid. Federal law sets the rules, and the owner has 180 days to redeem.",
+  youGet: "A certificate of sale when you pay in full, and a deed (usually a quitclaim deed) only if no one redeems within 180 days. You get only the taxpayer’s interest, “as is” and “where is,” subject to liens senior to the IRS.",
+  forSale: true,
+  glance: [
+    {
+      label: "Law",
+      value: "Federal: 26 U.S.C. 6335 (sale), 6337 (redemption), 6338 (certificate and deed), 6339 (effect of the deed)"
+    },
+    {
+      label: "Where listed",
+      value: "irsauctions.gov, plus a notice published in a newspaper or posted in public places (26 U.S.C. 6335)"
+    },
+    {
+      label: "Sale date",
+      value: "10 to 40 days after public notice, in the county where the property was seized (26 U.S.C. 6335)"
+    },
+    {
+      label: "Minimum bid",
+      value: "The IRS sets a minimum price before the sale (26 U.S.C. 6335)"
+    },
+    {
+      label: "Payment",
+      value: "Cash, or a certified, cashier’s or treasurer’s check, or a money order, per the notice. Full payment, or a deferred balance of up to 1 month if the notice allows (26 U.S.C. 6335; IRM 5.10.5.14)"
+    },
+    {
+      label: "Redemption",
+      value: "180 days. The owner, heirs, or anyone with an interest or lien can redeem by paying your price plus 20% a year, compounded daily (26 U.S.C. 6337; IRM 5.10.6.8)"
+    },
+    {
+      label: "What you get",
+      value: "A certificate of sale; a deed after 180 days without redemption (26 U.S.C. 6338)"
+    },
+    {
+      label: "Arizona recording",
+      value: "Record the deed with the county recorder. Arizona requires an affidavit of property value with most deeds, but a deed from a federal agency may be exempt (A.R.S. 11-1134, code A3). Confirm with the county recorder"
+    }
+  ],
+  steps: [
+    {
+      title: "Watch irsauctions.gov and read the notice of sale",
+      detail: "IRS real estate sales in Arizona are few. Each notice gives the date, time, place, the property, the minimum bid and the payment terms. The sale must be 10 to 40 days after public notice and in the county where the property was seized (26 U.S.C. 6335). Ask questions only of the IRS contact named in the notice. Never contact the taxpayer."
+    },
+    {
+      title: "Research the title",
+      detail: "The IRS sells only the taxpayer’s right, title and interest, “as is” and “where is,” with no warranty (IRM 5.10.5.7). Order a title report. Mortgages and liens recorded ahead of the federal tax lien stay. Arizona property taxes are a lien ahead of almost all others (A.R.S. 42-17153), and federal law also lets local property tax liens outrank the federal tax lien (26 U.S.C. 6323(b)(6))."
+    },
+    {
+      title: "Look at the property from the street",
+      detail: "You usually can’t go inside. Price in repairs you can’t see. Check the county assessor and treasurer for the parcel, taxes owed and any special assessments."
+    },
+    {
+      title: "Bring the right payment",
+      detail: "Pay in the form the notice allows: cash, a certified, cashier’s or treasurer’s check, or a money order (IRM 5.10.5.14). If the notice allows deferred payment, the balance is due within the time it sets, no more than one month. If you don’t pay, the IRS can resell the property, and the money you paid is forfeited (26 U.S.C. 6335)."
+    },
+    {
+      title: "Get your certificate of sale",
+      detail: "When you pay in full, the IRS gives you a certificate of sale (26 U.S.C. 6338). Keep it safe; you surrender it to get the deed. Ask the IRS and a title company whether to record it with the county recorder. Recording it keeps the taxpayer from selling to an innocent buyer (IRM 5.10.5.17.5)."
+    },
+    {
+      title: "Plan for 180 days",
+      detail: "The owner, heirs, or anyone with an interest or lien can redeem within 180 days by paying you your price plus 20% a year, compounded daily (26 U.S.C. 6337; IRM 5.10.6.8). The IRS and the purchaser both must keep the property from wasting during this time (IRM 5.10.5.19). Whether you can collect rent, move in or remove occupants depends on state law, so ask an Arizona attorney before you bid."
+    },
+    {
+      title: "Get the deed",
+      detail: "If no one redeems, the IRS gives you a deed, usually a quitclaim deed, when you surrender the certificate (26 U.S.C. 6338). It is prepared under the laws of the state where the property is (IRM 5.10.6.9). It conveys the taxpayer’s interest as of when the federal tax lien attached and clears liens the federal tax lien had priority over (26 U.S.C. 6339)."
+    },
+    {
+      title: "Record the deed in Arizona",
+      detail: "Record the deed with the county recorder. Arizona requires an affidavit of property value with most deeds, and the recorder can refuse a deed without one unless it’s exempt (A.R.S. 11-1133). A deed where a U.S. agency is the named grantor is listed as exempt (A.R.S. 11-1134, code A3). Confirm with your county recorder, then buy title insurance before you spend money on the property."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "The federal tax lien being enforced",
+      "Liens and interests the federal tax lien had priority over, once the deed issues (26 U.S.C. 6339)",
+      "The taxpayer’s interest, if no one redeems within 180 days"
+    ],
+    mayStay: [
+      "Mortgages and liens recorded ahead of the federal tax lien",
+      "Property taxes and special assessments (A.R.S. 42-17153; 26 U.S.C. 6323(b)(6))",
+      "The 180-day redemption right (26 U.S.C. 6337)",
+      "Occupants, until removed through the process Arizona law requires. Ask an attorney"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Assuming a clean title",
+      prevent: "The IRS sells only the taxpayer’s interest, as is. Get a title report; senior mortgages and property taxes stay."
+    },
+    {
+      mistake: "Planning a quick flip",
+      prevent: "Build 180 days of holding costs into your bid. If someone redeems, you get 20% a year on your price, not your repair spending."
+    },
+    {
+      mistake: "Missing the deferred-payment deadline",
+      prevent: "Have the full price ready before you bid. A buyer who defaults loses what they already paid (26 U.S.C. 6335)."
+    },
+    {
+      mistake: "Moving in or evicting on your own",
+      prevent: "Possession during the redemption period depends on state law. Ask an Arizona attorney before you act."
+    }
+  ],
+  example: {
+    title: "Illustrative example (fictional)",
+    story: "Morgan, a fictional buyer, wins an IRS sealed-bid sale of a Tucson-area lot at $40,000. Four months later, a creditor with a junior lien redeems. Morgan receives the $40,000 plus about 120 days of 20% yearly interest, compounded daily, roughly $2,700.",
+    lesson: "An IRS sale may end in a short, high-rate return instead of property. Don’t spend on improvements until the 180 days pass and the deed is in your hands."
+  },
+  sources: [
+    {
+      label: "26 U.S.C. 6335: Sale of seized property",
+      url: "https://www.law.cornell.edu/uscode/text/26/6335"
+    },
+    {
+      label: "26 U.S.C. 6337: Redemption: 180 days, 20% a year",
+      url: "https://www.law.cornell.edu/uscode/text/26/6337"
+    },
+    {
+      label: "26 U.S.C. 6338: Certificate of sale and deed",
+      url: "https://www.law.cornell.edu/uscode/text/26/6338"
+    },
+    {
+      label: "26 U.S.C. 6339: Effect of the deed; junior liens discharged",
+      url: "https://www.law.cornell.edu/uscode/text/26/6339"
+    },
+    {
+      label: "26 U.S.C. 6323: Local property tax liens ahead of the federal tax lien",
+      url: "https://www.law.cornell.edu/uscode/text/26/6323"
+    },
+    {
+      label: "IRM 5.10.5: Sale procedures, payment, as-is terms, protection during redemption",
+      url: "https://www.irs.gov/irm/part5/irm_05-010-005"
+    },
+    {
+      label: "IRM 5.10.6: Redemption and deed to real property",
+      url: "https://www.irs.gov/irm/part5/irm_05-010-006"
+    },
+    {
+      label: "IRS Auctions",
+      url: "https://www.irsauctions.gov/"
+    },
+    {
+      label: "IRS Auctions: frequently asked questions",
+      url: "https://www.irsauctions.gov/frequently-asked-questions"
+    },
+    {
+      label: "A.R.S. 11-1133: Affidavit of property value required to record",
+      url: "https://www.azleg.gov/ars/11/01133.htm"
+    },
+    {
+      label: "Arizona Department of Revenue: Affidavit of Property Value (Form 82162) and exemption codes",
+      url: "https://azdor.gov/sites/default/files/2023-05/FORMS_PROPERTY_2019_82162-f.pdf"
+    },
+    {
+      label: "A.R.S. 42-17153: Property tax lien priority",
+      url: "https://www.azleg.gov/ars/42/17153.htm"
+    }
+  ],
+  team: [TEAM.title, TEAM.attorney, TEAM.insurance, TEAM.contractor, TEAM.agent],
+  lastReviewed: "2026-10-03",
+  state: 'AZ'
+},
+{
+  key: "azreo",
+  title: "Arizona bank-owned (REO) and government homes",
+  short: "Bank-owned (REO)",
+  oneLine: "Homes a lender, Fannie Mae, Freddie Mac or HUD took back after foreclosure and now sells through a listing agent. You make an offer with your own agent, usually on the seller’s addendum, and buy the home as is.",
+  youGet: "The home through a normal Arizona purchase with escrow and title insurance. The seller usually makes few promises about condition, so your inspection matters more than usual.",
+  forSale: true,
+  glance: [
+    {
+      label: "How it’s sold",
+      value: "Listed by the owner’s broker in the MLS, or on the official seller sites: HUD Home Store, Fannie Mae HomePath, Freddie Mac HomeSteps"
+    },
+    {
+      label: "HUD homes",
+      value: "Bids go through a HUD-registered broker. Since March 1, 2022, homes eligible for FHA 203(b) financing have a 30-day exclusive listing period for owner-occupants, government entities and HUD-approved nonprofits (FHA INFO 2022-03). Investors can bid only after it ends"
+    },
+    {
+      label: "Fannie Mae (HomePath)",
+      value: "Your agent must be registered in HomePath to submit offers. Owner-occupants get a First Look period before investors; confirm its length on the listing"
+    },
+    {
+      label: "Freddie Mac (HomeSteps)",
+      value: "First Look: the first 30 days a home is listed in the MLS, for owner-occupants, some nonprofits and public entities"
+    },
+    {
+      label: "Condition",
+      value: "Usually sold as is. Arizona’s Seller’s Property Disclosure Statement (SPDS) is a standard form, not a statute; a seller’s duty to disclose remains even if no SPDS is given (ADRE Buyer Advisory)"
+    },
+    {
+      label: "Rural land",
+      value: "For 5 or fewer unsubdivided parcels in an unincorporated area, the seller must give an affidavit of disclosure at least 7 days before transfer; you can rescind within 5 days after (A.R.S. 33-422)"
+    },
+    {
+      label: "Recording",
+      value: "Buyer and seller sign an affidavit of property value; $2 filing fee (A.R.S. 11-1133, 11-1134)"
+    }
+  ],
+  steps: [
+    {
+      title: "Get pre-approved or gather proof of funds",
+      detail: "Sellers want proof you can close. If you need an FHA loan, check the HUD listing code: “IE” homes need repairs of no more than $10,000 and need a repair escrow at closing (HUD Home Store FAQ)."
+    },
+    {
+      title: "Choose a buyer’s agent who can submit to each seller",
+      detail: "HUD bids must come through a HUD-registered broker. Fannie Mae requires your agent to be registered in HomePath to submit offers. Ask your agent how each bank’s listing agent takes offers. Use only the official seller sites and the MLS listing, never third-party auction sites."
+    },
+    {
+      title: "Know the owner-occupant priority periods",
+      detail: "HUD: owner-occupants, government entities and HUD-approved nonprofits bid first, for 30 days on homes eligible for FHA 203(b) financing (FHA INFO 2022-03); ask the HUD-registered broker about other homes. Freddie Mac: First Look for the first 30 days in the MLS. Fannie Mae: a First Look period; confirm the length on the listing. Fannie Mae’s owner-occupant buyers certify they’ll move in within 60 days of closing and live there at least a year, with $10,000 in damages for a false certification."
+    },
+    {
+      title: "Read the seller’s addendum before you sign",
+      detail: "Bank and government sellers use their own addendum, which usually overrides parts of the Arizona purchase contract, such as repairs, deadlines and per-day fees for late closing. Ask what disclosures the seller will give. Most sellers give an SPDS, but a lender that never lived in the home may know little. The seller’s duty to disclose what it knows remains even without an SPDS (ADRE Buyer Advisory)."
+    },
+    {
+      title: "Inspect everything you can",
+      detail: "The ADRE Buyer Advisory calls a professional inspection “absolutely essential.” In Arizona, also check: roof age, pool barriers, sewer connection (a plumber can verify it), a septic or other on-site system (the ADRE Buyer Advisory says a qualified inspector must inspect it within six months before a transfer), soil problems such as expansive soil or earth fissures, termites, and a five-year insurance claims history. Homes built before 1978 need a lead-based paint disclosure."
+    },
+    {
+      title: "Check rural and HOA disclosures",
+      detail: "For 5 or fewer parcels of unsubdivided land in an unincorporated area, the seller must give you an affidavit of disclosure covering access, flood zone, utilities, water, septic and more, at least 7 days before transfer, and you can rescind within 5 days after you get it (A.R.S. 33-422). In an HOA or condo, you should receive the resale disclosure the ADRE Buyer Advisory describes (A.R.S. 33-1260 and 33-1806). Also ask whether the home is in a Community Facilities District, which adds to the tax bill."
+    },
+    {
+      title: "Appraise and review title",
+      detail: "Your lender orders the appraisal. Read the title commitment, especially the Schedule B exceptions: easements and other items your policy won’t cover. Escrow can request an HOA statement of unpaid assessments, which the HOA must give within 10 days and which binds it (A.R.S. 33-1807)."
+    },
+    {
+      title: "Close through escrow and record",
+      detail: "Buyer and seller each sign the Arizona affidavit of property value, filed with the deed for a $2 fee unless exempt (A.R.S. 11-1133, 11-1134). A sale where a U.S. agency such as HUD is the named seller is listed as exempt (code A3)."
+    },
+    {
+      title: "Fix your property tax class",
+      detail: "A home owned in foreclosure by a financial institution is taxed as class 4 residential property (A.R.S. 42-12004). If you’ll live there, make sure the county assessor classifies it as your primary residence, class 3 (A.R.S. 42-12003). Confirm the steps with your county assessor."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "Most liens, which the seller pays off or releases at closing (confirm on the title commitment)",
+      "In a planned community, the HOA’s lien for assessments then due, if the HOA fails to give escrow its requested statement within 10 days (A.R.S. 33-1807)"
+    ],
+    mayStay: [
+      "Anything listed as an exception in Schedule B of the title commitment, such as easements and CC&Rs",
+      "Community Facilities District and other special assessments on the tax bill",
+      "Occupants, if the seller hasn’t delivered the home vacant (confirm in the addendum)",
+      "Physical problems the seller didn’t know about or disclose; you buy as is"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Skipping the addendum",
+      prevent: "Read every page. It can shift repairs, deadlines and per-day late fees to you."
+    },
+    {
+      mistake: "Skipping the inspection because the home is as is",
+      prevent: "As is means the seller won’t fix things, not that you shouldn’t know about them. Inspect within your contingency period."
+    },
+    {
+      mistake: "Signing a false owner-occupant certification",
+      prevent: "Bid during First Look only if you’ll live there. Fannie Mae’s certification carries $10,000 in damages and can bar you from future sales."
+    },
+    {
+      mistake: "Using an unregistered agent",
+      prevent: "HUD requires a HUD-registered broker, and Fannie Mae requires a HomePath-registered agent. Confirm before you find the home you want."
+    }
+  ],
+  example: {
+    title: "Illustrative example (fictional)",
+    story: "Avery, a fictional buyer, offers on a Fannie Mae home in Mesa during First Look and signs the owner-occupant certification. The inspection finds a failing roof and evidence of old termite damage. The as-is addendum means no repairs, but Avery’s agent negotiates a lower price before the inspection period ends.",
+    lesson: "Bank-owned homes are sold as is, but your inspection period still gives you room to renegotiate or walk away. Use it fully."
+  },
+  sources: [
+    { label: "HUD FHA INFO 2022-03: 30-day exclusive listing period", url: "https://www.hud.gov/sites/dfiles/SFH/documents/SFH_FHA_INFO_2022-03.pdf" },
+    {
+      label: "HUD Home Store",
+      url: "https://www.hudhomestore.gov/"
+    },
+    {
+      label: "HUD Home Store: FAQ (listing periods, owner-occupants, repair escrow)",
+      url: "https://hudhomestore.gov/FAQ"
+    },
+    {
+      label: "Fannie Mae HomePath",
+      url: "https://homepath.fanniemae.com/property-finder"
+    },
+    {
+      label: "Fannie Mae HomePath: registration and online offer process",
+      url: "https://homepath.fanniemae.com/images/documents/HomePath_Online_Offer_Tips.pdf"
+    },
+    {
+      label: "Fannie Mae HomePath: Owner Occupant Certification",
+      url: "https://homepath.fanniemae.com/images/documents/Owner_Occupant_Certification.pdf"
+    },
+    {
+      label: "Freddie Mac HomeSteps: First Look Initiative",
+      url: "https://www.homesteps.com/homebuyer/firstlook"
+    },
+    {
+      label: "Arizona Department of Real Estate: Buyer Advisory (January 2025)",
+      url: "https://azre.gov/sites/default/files/2025-08/Buyer%20Advisory%20January%202025.pdf"
+    },
+    {
+      label: "A.R.S. 33-422: Affidavit of disclosure for unsubdivided land",
+      url: "https://www.azleg.gov/ars/33/00422.htm"
+    },
+    {
+      label: "A.R.S. 33-1807: HOA statement of unpaid assessments",
+      url: "https://www.azleg.gov/ars/33/01807.htm"
+    },
+    {
+      label: "A.R.S. 11-1133: Affidavit of property value",
+      url: "https://www.azleg.gov/ars/11/01133.htm"
+    },
+    {
+      label: "Arizona Department of Revenue: Affidavit of Property Value (Form 82162) and exemption codes",
+      url: "https://azdor.gov/sites/default/files/2023-05/FORMS_PROPERTY_2019_82162-f.pdf"
+    },
+    {
+      label: "Arizona Department of Revenue: Property Classification",
+      url: "https://azdor.gov/sites/default/files/2023-03/PROPERTY_PropertyClassification.pdf"
+    }
+  ],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.contractor, TEAM.insurance],
+  lastReviewed: "2026-10-03",
+  state: 'AZ'
+},
+{
+  key: "azshort",
+  title: "Arizona short sales",
+  short: "Short sales",
+  oneLine: "The owner sells for less than the loan balance, and the lender agrees to accept less. You buy through the listing agent, and the sale can close only after every lienholder approves.",
+  youGet: "The home by a normal Arizona sale through escrow, with title insurance, once the lender (and any other lienholder) approves the price.",
+  forSale: true,
+  glance: [
+    {
+      label: "What it is",
+      value: "A sale for less than what’s owed on the mortgage, which the lender must agree to; a type of loss mitigation (CFPB)"
+    },
+    {
+      label: "How it’s sold",
+      value: "Listed by the owner’s agent, marked “short sale” or “subject to lender approval”"
+    },
+    {
+      label: "Timeline",
+      value: "Often weeks to months for lender approval; each lienholder reviews separately"
+    },
+    {
+      label: "Foreclosure risk",
+      value: "A trustee’s sale can still happen. In Arizona it is final, with no redemption (A.R.S. 33-811)"
+    },
+    {
+      label: "Financing and inspection",
+      value: "Allowed, on the usual Arizona contract plus the lender’s approval terms"
+    },
+    {
+      label: "Deficiency",
+      value: "Whether the lender can pursue the seller for the shortfall is between the seller and the lender. Arizona’s anti-deficiency statutes (A.R.S. 33-729 and 33-814) may matter; the seller should ask an attorney"
+    },
+    {
+      label: "Contact",
+      value: "Only through the listing agent and escrow. Never contact the owner directly"
+    }
+  ],
+  steps: [
+    {
+      title: "Get pre-approved",
+      detail: "Lenders approving a short sale want proof you can close. Have your pre-approval letter or proof of funds ready to send with your offer."
+    },
+    {
+      title: "Use an agent with short-sale experience",
+      detail: "Your agent works with the listing agent, who manages the seller’s file with the lender. All questions go through the agents. Never contact the owner directly, and never send the owner letters or offers outside the listing."
+    },
+    {
+      title: "Offer subject to lender approval",
+      detail: "The seller accepts your offer first. Then the listing agent sends it to the lender with the seller’s hardship package. Your contract should say what happens if approval doesn’t come by a set date."
+    },
+    {
+      title: "Ask about every lien",
+      detail: "A second mortgage, HOA lien or judgment lien must also be released, and each holder may ask for more money. Ask your title company for a preliminary report early. Escrow can request the HOA’s statement of unpaid assessments, which the HOA must give within 10 days (A.R.S. 33-1807)."
+    },
+    {
+      title: "Watch the foreclosure calendar",
+      detail: "Ask the listing agent whether a trustee’s sale is scheduled and whether the lender will postpone it. Federal servicing rules limit a foreclosure sale while a complete loss-mitigation application, which can include a short sale, is under review, if it was received more than 37 days before the sale (12 CFR 1024.41). An Arizona trustee’s sale is final, so if it goes ahead, your deal ends (A.R.S. 33-811)."
+    },
+    {
+      title: "Inspect during your inspection period",
+      detail: "Short-sale sellers often can’t afford repairs, and the lender won’t pay for them. Use your inspection period, and review the SPDS and other disclosures with your agent (ADRE Buyer Advisory)."
+    },
+    {
+      title: "Read the lender’s approval letter",
+      detail: "It sets the approved price, the closing deadline and what the lender will pay at closing. Ask your agent to check that it matches your contract. If the date is tight, line up your loan early."
+    },
+    {
+      title: "Close through escrow",
+      detail: "Every payment goes through escrow and is disclosed to the lender. Never pay a “negotiator” or anyone else outside escrow. Buyer and seller sign the Arizona affidavit of property value for recording (A.R.S. 11-1133)."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "Mortgages and liens whose holders approve the sale and release them at closing"
+    ],
+    mayStay: [
+      "Any lien whose holder doesn’t agree; the sale can’t close with a clear title until they do",
+      "Property taxes, which escrow pays at closing; they are a lien ahead of almost all others (A.R.S. 42-17153)",
+      "Easements, CC&Rs and other Schedule B exceptions on the title commitment"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Contacting the owner directly",
+      prevent: "Go through the listing agent only. DeedOwl never helps anyone contact owners in distress."
+    },
+    {
+      mistake: "Paying a fee outside escrow",
+      prevent: "All money goes through escrow and is disclosed to the lender. Walk away from anyone who asks for a side payment."
+    },
+    {
+      mistake: "Assuming the sale will close",
+      prevent: "Keep looking at other homes. The lender can reject or counter, and a trustee’s sale can still go ahead."
+    },
+    {
+      mistake: "Ignoring the second loan",
+      prevent: "Ask up front how many liens there are. Each lienholder must agree."
+    }
+  ],
+  example: {
+    title: "Illustrative example (fictional)",
+    story: "Casey, a fictional buyer, offers $340,000 on a Chandler short sale. The first lender approves after 11 weeks. Then the second-mortgage holder asks for $6,000 more to release its lien, and the first lender agrees to let escrow pay part of it. The approval letter gives 30 days to close.",
+    lesson: "Expect each lienholder to negotiate, and have your loan ready so you can meet the approval letter’s deadline."
+  },
+  sources: [
+    {
+      label: "CFPB: What is a short sale?",
+      url: "https://www.consumerfinance.gov/ask-cfpb/what-is-a-short-sale-en-290/"
+    },
+    {
+      label: "12 CFR 1024.41: Loss mitigation procedures (foreclosure sale limits)",
+      url: "https://www.consumerfinance.gov/rules-policy/regulations/1024/41/"
+    },
+    {
+      label: "A.R.S. 33-811: Trustee’s sale is final, no redemption",
+      url: "https://www.azleg.gov/ars/33/00811.htm"
+    },
+    {
+      label: "A.R.S. 33-1807: HOA statement of unpaid assessments",
+      url: "https://www.azleg.gov/ars/33/01807.htm"
+    },
+    {
+      label: "A.R.S. 42-17153: Property tax lien priority",
+      url: "https://www.azleg.gov/ars/42/17153.htm"
+    },
+    {
+      label: "A.R.S. 11-1133: Affidavit of property value",
+      url: "https://www.azleg.gov/ars/11/01133.htm"
+    },
+    {
+      label: "Arizona Department of Real Estate: Buyer Advisory (January 2025)",
+      url: "https://azre.gov/sites/default/files/2025-08/Buyer%20Advisory%20January%202025.pdf"
+    },
+    {
+      label: "Our short-sale guide",
+      url: "#/short-sales"
+    }
+  ],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.contractor, TEAM.attorney],
+  lastReviewed: "2026-10-03",
+  state: 'AZ'
+},
+{
+  key: "azcommercial",
+  title: "Arizona commercial property",
+  short: "Commercial property",
+  oneLine: "Stores, offices, industrial buildings, apartments with 5+ units and commercial land sold in Arizona at trustee, sheriff and tax sales, by receivers, and by bank or government sellers.",
+  youGet: "The same deed as a home bought the same way, but without home-buyer protections, and often with tenants, leases, city rent taxes and environmental history.",
+  forSale: true,
+  glance: [
+    {
+      label: "How it’s sold",
+      value: "The same channels as homes: trustee’s sales (final, no redemption, A.R.S. 33-811), sheriff’s sales (6-month redemption in most cases, A.R.S. 12-1282, 12-1283), tax lien sales, court receivers, and bank or government sellers"
+    },
+    {
+      label: "Value",
+      value: "Rental property: by income (net operating income ÷ cap rate). Land and owner-user buildings: by recent sales of similar commercial property"
+    },
+    {
+      label: "Environmental",
+      value: "A Phase I environmental site assessment (ASTM E1527-21) within one year before you take title, with key parts updated within 180 days, plus continuing obligations after you buy, can protect you from federal cleanup liability"
+    },
+    {
+      label: "Transfer tax",
+      value: "None. Arizona’s constitution bars new taxes or fees on transferring real property (Ariz. Const. art. 9, § 24). You file an affidavit of property value with a $2 fee (A.R.S. 11-1133, 11-1134)"
+    },
+    {
+      label: "Property tax class",
+      value: "Commercial and industrial property is class 1 (A.R.S. 42-12001); residential rentals, including apartments, are class 4 (A.R.S. 42-12004). Each class has its own assessment ratio (A.R.S. 42-15001 to 42-15009); confirm the current ratio with the county assessor"
+    },
+    {
+      label: "Rent tax",
+      value: "Commercial rent is subject to city and, in some counties, county transaction privilege tax (TPT). Look up the address on the ADOR rate tool"
+    },
+    {
+      label: "Tenants",
+      value: "A trustee’s sale clears interests junior to the deed of trust (A.R.S. 33-811), which can include later leases. The federal tenant protection law (PTFA) covers residential tenants, not stores or offices"
+    }
+  ],
+  steps: [
+    {
+      title: "Pin down what you’re buying",
+      detail: "Use the county assessor record for land use, building size, year built and property class, and the parcel map for access and boundaries. Work only with the official seller: the trustee, sheriff, receiver, treasurer or the bank’s listing broker. Never contact the owner, its employees or its customers."
+    },
+    {
+      title: "Know which sale rules apply",
+      detail: "A trustee’s sale is final with no redemption and clears liens junior to the deed of trust (A.R.S. 33-811). A sheriff’s sale after a court foreclosure has a 6-month redemption period in most cases (A.R.S. 12-1282, 12-1283). A tax lien sale gives a lien, not the building. Read the right DeedOwl guide for each."
+    },
+    {
+      title: "Get the rent roll and leases, if you can",
+      detail: "A receiver or listing broker can usually provide them. At an auction you often can’t, so assume the building is empty until proven otherwise. Leases recorded or signed before the deed of trust, or with a non-disturbance agreement, may stay. Ask an attorney."
+    },
+    {
+      title: "Value it the right way",
+      detail: "For a rental building: net operating income (rent after vacancy and operating costs) divided by the cap rate. Ask a local commercial broker or appraiser for current cap rates. Include Arizona costs: class 1 property tax, and city or county TPT on commercial rent, which covers rent and many reimbursements, such as property tax, insurance and common area charges (ADOR)."
+    },
+    {
+      title: "Order a title search",
+      detail: "Commercial parcels often carry easements, CC&Rs, reciprocal easement agreements, mechanic’s liens and recorded leases. Property taxes are a lien ahead of almost all others (A.R.S. 42-17153). Know which items survive your kind of sale."
+    },
+    {
+      title: "Screen for contamination",
+      detail: "Ask what the property was used for. Gas stations, dry cleaners and auto shops are high risk. Search EPA records and the Arizona Department of Environmental Quality (ADEQ) for nearby landfills and contamination sites. Order a Phase I assessment within one year before you take title; its site visit, interviews and records searches must be within 180 days (EPA)."
+    },
+    {
+      title: "Check zoning, code and permits",
+      detail: "Ask the city or county planning department whether your planned use is allowed and whether there are open code cases or expired permits. If the land is in an unincorporated area and the sale is 5 or fewer unsubdivided parcels, a non-auction seller must give you an affidavit of disclosure covering access, utilities, flood zone and zoning, and you can rescind within 5 days (A.R.S. 33-422)."
+    },
+    {
+      title: "Line up your money",
+      detail: "Trustee and sheriff sales need certified funds within days, with a deposit to bid at a trustee’s sale. Confirm the amounts and deadlines in the notice and in DeedOwl’s Arizona trustee and sheriff sale guides. Have a commercial or bridge lender ready to refinance after."
+    },
+    {
+      title: "Take over well",
+      detail: "Insure it the day you own it, secure the building, tell tenants in writing where to pay rent, and ask each tenant to sign an estoppel certificate confirming their lease. Register for TPT if you’ll collect commercial rent (ADOR). In a building open to the public, plan for ADA barrier removal where it’s readily achievable."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "Liens and interests junior to the deed of trust foreclosed at a trustee’s sale (A.R.S. 33-811)",
+      "Leases junior to that deed of trust, unless the lender agreed to keep them (non-disturbance agreement). A tenant whose lease is wiped out can also leave. Confirm with an attorney"
+    ],
+    mayStay: [
+      "Property taxes and special assessments (A.R.S. 42-17153)",
+      "Liens recorded before the lien being foreclosed",
+      "Environmental cleanup liability: it follows the owner, not the lien",
+      "Easements, reciprocal easement agreements and CC&Rs",
+      "Leases that have priority or a non-disturbance agreement",
+      "Residential tenants’ federal 90-day notice rights in apartment buildings (PTFA)"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Valuing it like a house",
+      prevent: "Use income and cap rate. A vacant building is worth its leased value minus the cost of getting there: lost rent, leasing commissions and tenant improvements."
+    },
+    {
+      mistake: "Forgetting Arizona’s rent tax and commercial tax class",
+      prevent: "Budget for city or county TPT on commercial rent and class 1 property tax. Confirm the address on the ADOR rate tool and the class with the county assessor."
+    },
+    {
+      mistake: "Skipping the environmental check",
+      prevent: "Past uses can mean cleanup costs bigger than the price. Check EPA and ADEQ records and get a Phase I assessment when you can."
+    },
+    {
+      mistake: "Assuming the tenants will keep paying",
+      prevent: "Get estoppel certificates, and budget for vacancy, leasing commissions and tenant improvements."
+    }
+  ],
+  example: {
+    title: "Illustrative example (fictional)",
+    story: "Jamie, a fictional buyer, wins a small Phoenix-area retail building at a trustee’s sale. The rent roll from the old listing showed full occupancy, but two tenants’ leases were signed after the deed of trust and had no non-disturbance agreements. Both tenants used the sale to leave, and Jamie’s budget hadn’t included city TPT on the remaining rent.",
+    lesson: "Check lease priority before you bid, and count Arizona’s rent tax and commercial tax class in your numbers."
+  },
+  sources: [
+    {
+      label: "A.R.S. 33-811: Trustee’s deed; junior interests cleared; no redemption",
+      url: "https://www.azleg.gov/ars/33/00811.htm"
+    },
+    {
+      label: "A.R.S. 12-1282: Redemption periods",
+      url: "https://www.azleg.gov/ars/12/01282.htm"
+    },
+    {
+      label: "A.R.S. 12-1283: Redemption after foreclosure",
+      url: "https://www.azleg.gov/ars/12/01283.htm"
+    },
+    {
+      label: "A.R.S. 42-17153: Property tax lien priority",
+      url: "https://www.azleg.gov/ars/42/17153.htm"
+    },
+    {
+      label: "A.R.S. 33-422: Affidavit of disclosure for unsubdivided land",
+      url: "https://www.azleg.gov/ars/33/00422.htm"
+    },
+    {
+      label: "Arizona Constitution art. 9, § 24: No new real property transfer taxes",
+      url: "https://azleg.gov/const/9/24.htm"
+    },
+    {
+      label: "A.R.S. 11-1133: Affidavit of property value",
+      url: "https://www.azleg.gov/ars/11/01133.htm"
+    },
+    {
+      label: "Arizona Department of Revenue: Affidavit of Property Value (Form 82162)",
+      url: "https://azdor.gov/sites/default/files/2023-05/FORMS_PROPERTY_2019_82162-f.pdf"
+    },
+    {
+      label: "Arizona Department of Revenue: Property Classification",
+      url: "https://azdor.gov/sites/default/files/2023-03/PROPERTY_PropertyClassification.pdf"
+    },
+    {
+      label: "Arizona Department of Revenue: Commercial lease (TPT)",
+      url: "https://azdor.gov/business/transaction-privilege-tax/commercial-lease"
+    },
+    {
+      label: "EPA: All Appropriate Inquiries (Phase I environmental site assessments)",
+      url: "https://www.epa.gov/brownfields/brownfields-all-appropriate-inquiries"
+    },
+    {
+      label: "Federal Reserve CA 18-4: Protecting Tenants at Foreclosure Act",
+      url: "https://www.federalreserve.gov/supervisionreg/caletters/caltr1804.htm"
+    },
+    {
+      label: "ADA.gov: businesses open to the public",
+      url: "https://www.ada.gov/topics/title-iii/"
+    },
+    {
+      label: "Arizona Department of Real Estate: Buyer Advisory (January 2025)",
+      url: "https://azre.gov/sites/default/files/2025-08/Buyer%20Advisory%20January%202025.pdf"
+    }
+  ],
+  team: [TEAM.commercialBroker, TEAM.title, TEAM.attorney, TEAM.environmental, TEAM.commercialLender, TEAM.insurance, TEAM.contractor, TEAM.propertyManager, TEAM.cpa],
+  lastReviewed: "2026-10-03",
+  state: 'AZ'
+},
+{
+  key: "uthoa",
+  title: "Utah HOA foreclosures",
+  short: "HOA foreclosures",
+  oneLine: "A Utah homeowners or condo association can sell a home to collect unpaid assessments, either through a trustee sale or a court case.",
+  youGet: "The owner’s interest, usually still subject to the first mortgage. A trustee sale has no redemption; a court (sheriff) sale has a 180-day redemption period.",
+  forSale: true,
+  glance: [
+    {
+      label: "Law",
+      value: "Community Association Act (Utah Code 57-8a-301 to 57-8a-306) for HOAs; Condominium Ownership Act (57-8-44 to 57-8-47) for condos. The rules are nearly the same."
+    },
+    {
+      label: "Two ways to foreclose",
+      value: "Nonjudicial (a trustee sale, as if the lien were a trust deed) or judicial (a court case ending in a sheriff’s sale) (57-8a-302, 57-8-45)."
+    },
+    {
+      label: "Trustee needed",
+      value: "A trustee sale can happen only if the association appoints a qualified trustee: a Utah attorney or law firm, or a title insurance company or agency with an office in Utah (57-8a-302(3), 57-1-21)."
+    },
+    {
+      label: "Priority",
+      value: "The association’s lien is junior to a first or second mortgage recorded before the association recorded its notice of lien, to liens recorded before the declaration, and to property taxes (57-8a-301(4), 57-8-44(4)). There is no Nevada-style super-priority."
+    },
+    {
+      label: "Limits on trustee sales",
+      value: "The owner must get 30 days’ warning and can demand a court case instead. A trustee sale can’t collect fines, and needs an assessment more than 180 days overdue (57-8a-303, 57-8-46)."
+    },
+    {
+      label: "Redemption",
+      value: "Trustee sale: none (57-1-28). Court foreclosure: 180 days after the sheriff’s sale (78B-6-906, URCP 69C)."
+    },
+    {
+      label: "Registration",
+      value: "An association that isn’t registered with the Utah Department of Commerce can’t enforce its lien while it is out of compliance (57-8a-105, 57-8-13.1)."
+    },
+    {
+      label: "Payment",
+      value: "As the trustee or sheriff directs. Read the notice of sale and call the office named on it."
+    }
+  ],
+  steps: [
+    {
+      title: "Find the notice and learn which kind of sale it is",
+      detail: "A trustee sale is noticed like any Utah trust deed sale: a notice of default recorded with the county recorder, then a notice of sale published and posted (57-1-24, 57-1-25). A court foreclosure ends in a sheriff’s sale under the court rules. The notice names the trustee or sheriff to call."
+    },
+    {
+      title: "Find every loan ahead of the association",
+      detail: "Order a title report. In Utah, a first or second mortgage recorded before the association’s notice of lien stays ahead of the association’s lien, and so do property taxes. Your purchase usually leaves that mortgage on the home, and its lender can still foreclose and wipe you out if it isn’t paid."
+    },
+    {
+      title: "Check that the sale was set up correctly",
+      detail: "For a trustee sale, the trustee must be a qualified Utah attorney or title company, the owner must have received the 30-day notice with the right to demand a court case, the lien can’t include fines, and it must include an assessment more than 180 days overdue (57-8a-302, 57-8a-303). Ask the trustee for its file, and have a title company or attorney review it before you bid."
+    },
+    {
+      title: "Confirm the association is registered",
+      detail: "Utah associations must register with the Department of Commerce and keep it current. While an association is out of compliance, it can’t enforce its lien (57-8a-105, 57-8-13.1). Ask the trustee or the association’s attorney to confirm registration, and have your title company check it."
+    },
+    {
+      title: "Set your maximum bid",
+      detail: "Add the surviving mortgage balance, unpaid property taxes, future dues, repairs and your holding costs. Use the max bid calculator. A cheap opening bid can be very expensive once the first mortgage is added."
+    },
+    {
+      title: "Bid and pay as directed",
+      detail: "At a trustee sale, every bid is irrevocable and you pay as the trustee directs (57-1-27, 57-1-28). At a sheriff’s sale, confirm payment terms with the sheriff’s civil office. Look at the home only from the street. Don’t contact the owner or occupants."
+    },
+    {
+      title: "Get your deed, or wait out redemption",
+      detail: "After a trustee sale, the trustee submits the trustee’s deed for recording within five business days of payment, with no redemption (57-1-28). After a sheriff’s sale, you get a certificate of sale; the owner or a junior creditor can redeem for 180 days at your price plus 6% and recorded costs (URCP 69C)."
+    },
+    {
+      title: "Take over lawfully and keep paying the loan holder in mind",
+      detail: "Insure the home, start paying the dues, and talk to the senior lender’s servicer about the loan that stayed on the property (an attorney can advise how). If anyone lives there, use the court’s unlawful detainer process with an attorney. Never change locks or remove belongings on your own."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "The association’s lien being foreclosed",
+      "The owner’s interest and liens recorded after the association’s lien, if the sale was valid",
+      "Redemption rights, after a trustee sale (there are none)"
+    ],
+    mayStay: [
+      "A first or second mortgage recorded before the association’s notice of lien (the usual case)",
+      "Liens recorded before the association’s declaration",
+      "Property taxes and other government assessments (they attach every January 1)",
+      "Easements, CC&Rs and other recorded encumbrances",
+      "The 180-day redemption right, after a court foreclosure and sheriff’s sale"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Assuming an HOA sale wipes out the mortgage",
+      prevent: "Utah’s association lien is junior to a first or second mortgage recorded before the notice of lien. Get a title report and add the surviving loan to your price."
+    },
+    {
+      mistake: "Ignoring how the sale was started",
+      prevent: "A trustee sale is invalid if the owner didn’t get the 30-day notice, demanded a court case, or the lien included fines. Have an attorney or title company review the trustee’s file."
+    },
+    {
+      mistake: "Fixing up during a sheriff’s sale redemption period",
+      prevent: "After a court foreclosure, the owner can redeem for 180 days. Spend only to protect the property, and record notice of what you pay (URCP 69C)."
+    },
+    {
+      mistake: "Forgetting the first lender can still foreclose",
+      prevent: "If the senior loan is in default, its trustee can sell the home and wipe out your interest. Check the loan status and budget to deal with it."
+    }
+  ],
+  example: {
+    title: "Illustrative example: the $6,000 townhome",
+    story: "Morgan, a made-up investor, saw a notice of trustee’s sale for a townhome in a fictional Utah HOA. The association was owed about $6,000. Morgan’s title report showed a $240,000 first trust deed recorded years before the association recorded its notice of lien, and the home was worth about $300,000. Morgan also learned the first loan was already in default.",
+    lesson: "The first trust deed would survive, so the real cost was about $246,000 plus taxes, dues and repairs, with a foreclosure risk on top. Morgan passed. In Utah, price an HOA sale as if the first mortgage stays."
+  },
+  sources: [
+    {
+      label: "Utah Code 57-8a-301 (HOA lien and priority)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter8a/57-8a-S301.html"
+    },
+    {
+      label: "Utah Code 57-8a-302 (enforcement, trustee appointment)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter8a/57-8a-S302.html"
+    },
+    {
+      label: "Utah Code 57-8a-303 (notice and limits on nonjudicial foreclosure)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter8a/57-8a-S303.html"
+    },
+    {
+      label: "Utah Code 57-8a-304 (trust deed rules apply)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter8a/57-8a-S304.html"
+    },
+    {
+      label: "Utah Code 57-8a-305 and 57-8a-306 (one-action rule, costs and fees)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter8a/57-8a-S306.html"
+    },
+    {
+      label: "Utah Code 57-8a-105 (HOA registration with Department of Commerce)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter8a/57-8a-S105.html"
+    },
+    {
+      label: "Utah Code 57-8-44 (condo association lien and priority)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter8/57-8-S44.html"
+    },
+    {
+      label: "Utah Code 57-8-45 to 57-8-47 (condo lien enforcement)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter8/57-8-S46.html"
+    },
+    {
+      label: "Utah Code 57-8-13.1 (condo association registration)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter8/57-8-S13.1.html"
+    },
+    {
+      label: "Utah Code 57-1-21 (who can be a trustee)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter1/57-1-S21.html"
+    },
+    {
+      label: "Utah Code 57-1-28 (trustee’s deed, no redemption)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter1/57-1-S28.html"
+    },
+    {
+      label: "Utah Code 78B-6-906 (redemption after court foreclosure)",
+      url: "https://le.utah.gov/xcode/Title78B/Chapter6/78B-6-S906.html"
+    },
+    {
+      label: "Utah Rules of Civil Procedure, Rule 69C (redemption)",
+      url: "https://legacy.utcourts.gov/rules/view.php?type=urcp&rule=69C"
+    },
+    {
+      label: "Utah Code 59-2-1325 (property tax lien)",
+      url: "https://le.utah.gov/xcode/Title59/Chapter2/59-2-S1325.html"
+    }
+  ],
+  team: [TEAM.title, TEAM.attorney, TEAM.lender, TEAM.insurance, TEAM.eviction, TEAM.contractor],
+  lastReviewed: "2026-10-03",
+  state: 'UT'
+},
+{
+  key: "utirs",
+  title: "Utah IRS sales",
+  short: "IRS sales",
+  oneLine: "The IRS seizes and sells a Utah property to collect unpaid federal taxes, by public auction or sealed bid, under federal law.",
+  youGet: "A certificate of sale at payment, then a deed to the taxpayer’s interest after a 180-day redemption period. The property is sold as-is, subject to liens ahead of the IRS.",
+  forSale: true,
+  glance: [
+    {
+      label: "Law",
+      value: "Federal: 26 U.S.C. 6335 (sale), 6337 (redemption), 6338 (certificate and deed), 6339 (effect of the deed). Utah law adds recording rules."
+    },
+    {
+      label: "Where listed",
+      value: "irsauctions.gov. The IRS also publishes notice in a newspaper in the county, or posts it if there is none (6335(b))."
+    },
+    {
+      label: "Timing",
+      value: "The sale is held 10 to 40 days after public notice, in the county where the property was seized unless the IRS orders otherwise (6335(d))."
+    },
+    {
+      label: "Minimum bid",
+      value: "Set by the IRS before the sale. No sale below it; if no one bids it, the property may be deemed sold to the United States or released to the owner (6335(e))."
+    },
+    {
+      label: "Payment",
+      value: "Cash, certified, cashier’s or treasurer’s check, or a U.S. postal, bank or express money order, payable to the United States Treasury (Form 2434-B). Full payment or a deferred part, as the notice says."
+    },
+    {
+      label: "Redemption",
+      value: "180 days. The owner, heirs, or anyone with an interest or lien can redeem by paying your price plus 20% a year interest. The IRS says this interest is compounded daily (6337, Form 2434-B)."
+    },
+    {
+      label: "What you get",
+      value: "A certificate of sale (Form 2435) when you pay in full; a deed after 180 days if no one redeems (6338)."
+    },
+    {
+      label: "Court-ordered sales",
+      value: "Different rules. A federal court can order a sale in a lien case (26 U.S.C. 7403); the terms come from the court’s order. Read it."
+    }
+  ],
+  steps: [
+    {
+      title: "Watch irsauctions.gov for Utah listings",
+      detail: "IRS real estate sales are rare and scattered. Each listing links a notice of sale with the date, place, minimum bid, payment terms and whether the sale is by auction or sealed bid."
+    },
+    {
+      title: "Read the notice of encumbrances (Form 2434-B)",
+      detail: "The IRS lists the liens and interests it knows about, but it doesn’t warrant that list. The taxpayer’s interest is sold subject to mortgages and liens ahead of the federal tax lien. Order your own title report from a Utah title company."
+    },
+    {
+      title: "Check whether it’s the taxpayer’s home",
+      detail: "The IRS can levy on a taxpayer’s principal residence only with a federal judge’s written approval (26 U.S.C. 6334(a)(13), (e)). If it’s a home, look for that approval in the file, and remember someone may live there."
+    },
+    {
+      title: "Inspect only what you can see legally",
+      detail: "The property is sold as-is and where-is, with no warranty about title or condition, and no refund if it isn’t what you expected (Form 2434-B). View it from the street. Don’t contact the owner or occupants."
+    },
+    {
+      title: "Set your maximum bid",
+      detail: "Add any senior mortgage, unpaid Utah property taxes, repairs, and 180 days of holding costs. Use the max bid calculator."
+    },
+    {
+      title: "Bid and pay as the notice requires",
+      detail: "If full payment is required and you don’t pay, the IRS resells right away. If part can be deferred and you miss it, you can be sued for the balance with 6% interest, or the sale can be voided and your payment forfeited (6335(e)(3))."
+    },
+    {
+      title: "Hold your certificate for 180 days",
+      detail: "Anyone entitled can redeem for 180 days by paying your price plus 20% a year. Whether you can collect rent, evict or move in during this time isn’t spelled out in the federal statutes; ask a Utah attorney before you bid, and don’t start renovations."
+    },
+    {
+      title: "Get your deed and record it with the county recorder",
+      detail: "If no one redeems, surrender the certificate of sale to the IRS office named on it to get your deed (6338, Form 2434-B). Record it right away with the recorder in the Utah county where the land sits. Utah lets a federal document be recorded without notarization (Utah Code 57-4a-3), and an unrecorded deed can lose out to a later good-faith buyer who records first (57-3-103)."
+    },
+    {
+      title: "Take possession lawfully",
+      detail: "If anyone is still living there after you have the deed, hire an attorney and use Utah’s unlawful detainer process (78B-6-802). Never use self-help."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "The federal tax lien being enforced",
+      "Liens and interests junior to that federal tax lien (6339(c))",
+      "The taxpayer’s interest, once the 180 days pass without redemption"
+    ],
+    mayStay: [
+      "Mortgages and liens ahead of the federal tax lien",
+      "Utah property taxes (they attach every January 1). Check Form 2434-B and your title report",
+      "Easements and other recorded encumbrances",
+      "The 180-day redemption right"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Treating the IRS’s lien list as a title report",
+      prevent: "The IRS says it doesn’t warrant Form 2434-B. Order your own title search before you bid."
+    },
+    {
+      mistake: "Renovating during the 180 days",
+      prevent: "A redeemer repays your price plus 20% a year, not your repairs. Wait for the deed."
+    },
+    {
+      mistake: "Bringing the wrong kind of money",
+      prevent: "Read the notice. The IRS takes cash, certified or cashier’s checks, and certain money orders, payable to the United States Treasury."
+    },
+    {
+      mistake: "Not recording the deed",
+      prevent: "Record it with the county recorder as soon as you get it. In Utah, an unrecorded document can be void against a later good-faith buyer who records first."
+    }
+  ],
+  example: {
+    title: "Illustrative example: a cabin lot near a fictional Utah town",
+    story: "Avery, a made-up buyer, won an IRS sale for a mountain lot at $38,000, paying with a cashier’s check made out to the United States Treasury. Avery’s title report showed no mortgage, but did show unpaid property taxes. Five months later, a lienholder redeemed and paid Avery the $38,000 plus 20% a year interest.",
+    lesson: "The interest paid Avery for the wait, but the lot was gone. Plan for redemption, pay attention to property taxes, and don’t spend on improvements until you have the deed."
+  },
+  sources: [
+    {
+      label: "IRS auctions (Treasury)",
+      url: "https://www.irsauctions.gov/"
+    },
+    {
+      label: "IRS Form 2434-B: notice of encumbrances and sale terms (sample)",
+      url: "https://www.irsauctions.gov/system/files/2026-04/f2434b.pdf"
+    },
+    {
+      label: "IRS: redeeming your real estate after seizure and sale",
+      url: "https://www.irs.gov/businesses/small-businesses-self-employed/redeeming-your-real-estate"
+    },
+    {
+      label: "26 U.S.C. 6335 (sale of seized property)",
+      url: "https://www.law.cornell.edu/uscode/text/26/6335"
+    },
+    {
+      label: "26 U.S.C. 6337 (redemption)",
+      url: "https://www.law.cornell.edu/uscode/text/26/6337"
+    },
+    {
+      label: "26 U.S.C. 6338 (certificate of sale, deed)",
+      url: "https://www.law.cornell.edu/uscode/text/26/6338"
+    },
+    {
+      label: "26 U.S.C. 6339 (effect of the deed, junior liens)",
+      url: "https://www.law.cornell.edu/uscode/text/26/6339"
+    },
+    {
+      label: "26 U.S.C. 6334 (principal residence needs court approval)",
+      url: "https://www.law.cornell.edu/uscode/text/26/6334"
+    },
+    {
+      label: "26 U.S.C. 7403 (court-ordered sales)",
+      url: "https://www.law.cornell.edu/uscode/text/26/7403"
+    },
+    {
+      label: "Utah Code 57-4a-3 (federal documents recordable without acknowledgment)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter4a/57-4a-S3.html"
+    },
+    {
+      label: "Utah Code 57-3-103 (effect of not recording)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter3/57-3-S103.html"
+    },
+    {
+      label: "Utah Code 59-2-1325 (property tax lien)",
+      url: "https://le.utah.gov/xcode/Title59/Chapter2/59-2-S1325.html"
+    },
+    {
+      label: "Utah Code 78B-6-802 (unlawful detainer)",
+      url: "https://le.utah.gov/xcode/Title78B/Chapter6/78B-6-S802.html"
+    }
+  ],
+  team: [TEAM.title, TEAM.attorney, TEAM.insurance, TEAM.eviction, TEAM.cpa],
+  lastReviewed: "2026-10-03",
+  state: 'UT'
+},
+{
+  key: "utreo",
+  title: "Utah bank-owned (REO) homes",
+  short: "Bank-owned (REO)",
+  oneLine: "Homes a bank, Fannie Mae, Freddie Mac or HUD took back after foreclosure, sold through a listing agent with the seller’s own contract terms.",
+  youGet: "The home by a normal purchase through a Utah title company, usually as-is, with the seller’s addendum overriding parts of the standard contract.",
+  forSale: true,
+  glance: [
+    {
+      label: "Utah contract",
+      value: "Utah licensees must use the state-approved Real Estate Purchase Contract (REPC), but buyer and seller can agree to change it or use another form. Big sellers often do."
+    },
+    {
+      label: "Fannie Mae (HomePath)",
+      value: "Your agent must register on HomePath and submits offers online. Fannie Mae uses its own Residential Real Estate Purchase and Sale Contract and won’t sign conflicting addenda."
+    },
+    {
+      label: "Freddie Mac (HomeSteps)",
+      value: "First Look: for the first 30 days a home is listed in the MLS, only owner-occupants, public entities and certain non-profits can buy. Investors can offer after that."
+    },
+    {
+      label: "HUD homes",
+      value: "Bids go through a HUD-registered broker. Since March 1, 2022, homes eligible for FHA 203(b) financing have a 30-day exclusive listing period for owner-occupants, government entities and HUD-approved non-profits."
+    },
+    {
+      label: "Condition",
+      value: "Usually as-is. The REPC itself says the buyer takes the home as-is after a due diligence period, so use that period well."
+    },
+    {
+      label: "Title",
+      value: "Close through a Utah title company with an owner’s title insurance policy. Under the REPC, the seller pays for it; a bank’s addendum may change that."
+    },
+    {
+      label: "Water",
+      value: "In Utah, water rights and water shares can be part of the sale. The REPC includes those that serve the home unless excluded. Check the seller’s addendum."
+    }
+  ],
+  steps: [
+    {
+      title: "Find homes from direct sources",
+      detail: "Search HomePath (Fannie Mae), HomeSteps (Freddie Mac), HUD Home Store and the real estate pages of banks and credit unions that own Utah homes. Avoid paid lists and middlemen."
+    },
+    {
+      title: "Get pre-approved or gather proof of funds",
+      detail: "Fannie Mae requires a pre-qualification or proof of funds for offer acceptance. HomeSteps wants a pre-approval letter, or proof of funds for cash, with every offer."
+    },
+    {
+      title: "Hire a Utah buyer’s agent who knows REO",
+      detail: "HUD requires a HUD-registered broker. HomePath requires your agent to be registered on its site. Your agent also handles the seller’s portal, forms and deadlines."
+    },
+    {
+      title: "Make your offer on the right paperwork",
+      detail: "Your agent starts from the Utah REPC or the seller’s own contract. Fannie Mae uses its own contract and won’t accept a sale-of-other-home or 1031 exchange contingency. HomeSteps requires its own addenda and certified earnest money at contract signing. Owner-occupant buyers sign an occupancy certification."
+    },
+    {
+      title: "Read every page of the addendum",
+      detail: "The seller’s addendum usually overrides the REPC on repairs, disclosures, deadlines, closing costs and penalties for late closing. Ask your agent to explain anything that shifts cost or risk to you."
+    },
+    {
+      title: "Inspect during due diligence",
+      detail: "The REPC gives you a due diligence period to inspect, test and review documents, and to cancel or resolve objections by the deadline. Miss it and your earnest money can become non-refundable. Banks that never lived in the home may give little or no condition disclosure, so hire a licensed inspector."
+    },
+    {
+      title: "Get the appraisal and loan approved",
+      detail: "Under the REPC, you can cancel if the home appraises below the price or your loan falls through, but only by the Financing & Appraisal Deadline and only if those conditions are checked. Watch the dates."
+    },
+    {
+      title: "Review the title commitment",
+      detail: "Look for liens the seller hasn’t cleared, HOA dues, easements and water rights. A home a lender took back at a Utah trustee sale came with no redemption right (57-1-28), but older liens can still be on title."
+    },
+    {
+      title: "Close through the title company",
+      detail: "Sign, pay through the title company, and get your recorded deed and owner’s title policy. Ask the listing agent whether the home is vacant and who delivers possession."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "Liens the seller pays off or clears at closing (confirm on the final title commitment)",
+      "The former owner’s rights, cleared by the foreclosure before the bank took title"
+    ],
+    mayStay: [
+      "Anything listed as an exception in the title commitment",
+      "Easements, CC&Rs and HOA dues",
+      "Current-year property taxes (prorated at closing)",
+      "Defects in the home, since it’s usually sold as-is"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Skipping the seller’s addendum",
+      prevent: "Read every page before you sign. It often overrides repair, disclosure and deadline terms in the REPC."
+    },
+    {
+      mistake: "Missing the due diligence deadline",
+      prevent: "Schedule the inspection the day the offer is accepted. Cancel or resolve objections in writing before the deadline."
+    },
+    {
+      mistake: "Investors offering during First Look",
+      prevent: "Ask the listing agent how many First Look days are left. HomeSteps and HUD consider investor offers only after their exclusive periods."
+    },
+    {
+      mistake: "Signing an owner-occupant certification you won’t keep",
+      prevent: "HomeSteps warns that a false affidavit can lead to criminal or civil liability. Only certify if you’ll live there."
+    },
+    {
+      mistake: "Overlooking water rights",
+      prevent: "Ask whether water shares or rights come with the home and how they’ll be transferred at closing."
+    }
+  ],
+  example: {
+    title: "Illustrative example: a HomeSteps home in a fictional Utah suburb",
+    story: "Sam, a made-up first-time buyer, found a Freddie Mac home on day 12 of its First Look period. Sam’s agent sent the offer with a pre-approval letter, the HomeSteps addenda and certified earnest money. The inspection found a cracked sewer line. The addendum said the seller made no repairs, so Sam negotiated a lower price before the due diligence deadline.",
+    lesson: "Use the First Look window, send a complete offer, and inspect early. In an as-is sale, your due diligence period is when you can still change the deal."
+  },
+  sources: [
+    {
+      label: "Utah Division of Real Estate: state-approved forms",
+      url: "https://commerce.utah.gov/realestate/real-estate/forms/state-approved/"
+    },
+    {
+      label: "Utah Real Estate Purchase Contract (REPC)",
+      url: "https://commerce.utah.gov/wp-content/uploads/2023/03/purchase-contract.pdf"
+    },
+    {
+      label: "Fannie Mae HomePath",
+      url: "https://homepath.fanniemae.com/"
+    },
+    {
+      label: "Fannie Mae: HomePath registration and online offer process",
+      url: "https://homepath.fanniemae.com/images/documents/HomePath_Online_Offer_Tips.pdf"
+    },
+    {
+      label: "Freddie Mac HomeSteps: First Look Initiative",
+      url: "https://www.homesteps.com/homebuyer/firstlook"
+    },
+    {
+      label: "Freddie Mac HomeSteps: making an offer",
+      url: "https://www.homesteps.com/homebuyer/making-an-offer"
+    },
+    {
+      label: "HUD Home Store",
+      url: "https://www.hudhomestore.gov/"
+    },
+    {
+      label: "HUD FHA INFO 2022-03: 30-day exclusive listing period",
+      url: "https://www.hud.gov/sites/dfiles/SFH/documents/SFH_FHA_INFO_2022-03.pdf"
+    },
+    {
+      label: "Utah Code 57-1-28 (trustee’s deed, no redemption)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter1/57-1-S28.html"
+    },
+    {
+      label: "Every direct bank and government source",
+      url: "#/bank-owned"
+    }
+  ],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.contractor, TEAM.insurance],
+  lastReviewed: "2026-10-03",
+  state: 'UT'
+},
+{
+  key: "utshort",
+  title: "Utah short sales",
+  short: "Short sales",
+  oneLine: "The owner sells for less than the loan balance, and the lender agrees to accept less. You buy through the listing agent like a normal sale, once the lender approves.",
+  youGet: "The home by a normal purchase through a Utah title company, once every lienholder approves its payoff.",
+  forSale: true,
+  glance: [
+    {
+      label: "How it’s sold",
+      value: "Listed by the owner’s agent as a short sale, subject to lender approval. All contact goes through the listing agent."
+    },
+    {
+      label: "Contract",
+      value: "The Utah REPC, with the short-sale terms in an addendum. The seller accepts first; then the lender decides."
+    },
+    {
+      label: "Timeline",
+      value: "Often weeks to months for lender approval. Each lienholder has to agree."
+    },
+    {
+      label: "Foreclosure clock",
+      value: "A Utah trustee sale can be noticed three months after the notice of default is recorded (57-1-24). Postponements up to 45 days need no new notice (57-1-27)."
+    },
+    {
+      label: "Agent rules",
+      value: "Utah agents can’t use a lender’s short sale demand letter outside the deal, can’t have the seller sign a lien for the agent, and can’t charge a fee hidden in the gap between the approved price and the payoff (R162-2f-401b)."
+    },
+    {
+      label: "Deficiency",
+      value: "That’s between the seller and the lender. After a trustee’s sale, Utah limits a deficiency to the debt above fair market value (57-1-32). After a short sale, the seller should ask their own attorney."
+    },
+    {
+      label: "Financing and inspection",
+      value: "Allowed, like a normal purchase. Use the REPC’s due diligence and financing deadlines."
+    }
+  ],
+  steps: [
+    {
+      title: "Get pre-approved",
+      detail: "Lenders reviewing a short sale want proof you can close. A pre-approval or proof of funds makes your offer stronger."
+    },
+    {
+      title: "Use a buyer’s agent with short-sale experience",
+      detail: "Your agent works with the listing agent, tracks the lender’s requests and keeps the deadlines straight. Don’t contact the owner directly; everything goes through the listing agent."
+    },
+    {
+      title: "Write the offer subject to lender approval",
+      detail: "Your agent uses the Utah REPC and an addendum that makes the deal subject to approval by every lienholder. Set your due diligence and settlement deadlines with a long approval in mind."
+    },
+    {
+      title: "Ask about the foreclosure timeline",
+      detail: "Through your agent, ask whether a notice of default or notice of sale has been recorded and whether the trustee has agreed to postpone the sale. You can also check the county recorder. A sale can go ahead while the lender is still reviewing."
+    },
+    {
+      title: "Inspect and appraise",
+      detail: "Do your inspection during due diligence. Short sales are often as-is, and the lender won’t pay for repairs."
+    },
+    {
+      title: "Wait for written approval from every lienholder",
+      detail: "A first mortgage, second mortgage, HOA or other lienholder may each want something. The title company can’t close until each lien is paid or released."
+    },
+    {
+      title: "Close through the title company, with every dollar disclosed",
+      detail: "All money moves through the title company and appears on the settlement statement the lender approves. Never pay a side fee, “negotiator” fee or the seller outside closing."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "Liens released by the lienholders who approve the sale (confirm on the final title commitment)"
+    ],
+    mayStay: [
+      "Any lien whose holder doesn’t agree. The sale can’t close until it does",
+      "Easements, CC&Rs and other exceptions on the title commitment",
+      "Current-year property taxes (prorated at closing)"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Paying anything outside closing",
+      prevent: "All payments go through the title company and are disclosed to the lender. Utah agents can’t charge a fee hidden in the gap between the approved price and the payoff."
+    },
+    {
+      mistake: "Contacting the owner directly",
+      prevent: "Work only through the listing agent. Don’t contact the owner or occupants, and don’t advise them about their debt."
+    },
+    {
+      mistake: "Assuming the foreclosure is on hold",
+      prevent: "Ask, through your agent, whether the trustee sale is scheduled and postponed. Check the recorder for new notices."
+    },
+    {
+      mistake: "Letting deadlines lapse while you wait",
+      prevent: "Extend the REPC deadlines in writing if approval runs long, or your earnest money may be at risk."
+    }
+  ],
+  example: {
+    title: "Illustrative example: two lienholders, one sale",
+    story: "Jamie, a made-up buyer, offered $395,000 on a short sale in a fictional Utah city. The first lender approved after nine weeks. The second-mortgage holder asked for more to release its lien, which added a month. Jamie’s agent got the REPC deadlines extended in writing, and the sale closed through the title company.",
+    lesson: "Ask early how many liens there are, expect each one to negotiate, and keep your contract deadlines extended in writing."
+  },
+  sources: [
+    {
+      label: "Utah Real Estate Purchase Contract (REPC)",
+      url: "https://commerce.utah.gov/wp-content/uploads/2023/03/purchase-contract.pdf"
+    },
+    {
+      label: "Utah Division of Real Estate: state-approved forms",
+      url: "https://commerce.utah.gov/realestate/real-estate/forms/state-approved/"
+    },
+    {
+      label: "Utah Admin. Code R162-2f-401b (licensee conduct in short sales)",
+      url: "https://www.law.cornell.edu/regulations/utah/Utah-Admin-Code-R162-2f-401b"
+    },
+    {
+      label: "Utah Code 57-1-24 (notice of default, three months)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter1/57-1-S24.html"
+    },
+    {
+      label: "Utah Code 57-1-27 (postponement of trustee sale)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter1/57-1-S27.html"
+    },
+    {
+      label: "Utah Code 57-1-32 (deficiency after a trustee’s sale)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter1/57-1-S32.html"
+    },
+    {
+      label: "CFPB: what is a short sale?",
+      url: "https://www.consumerfinance.gov/ask-cfpb/what-is-a-short-sale-en-290/"
+    },
+    {
+      label: "Our short-sale guide",
+      url: "#/short-sales"
+    }
+  ],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.contractor, TEAM.attorney],
+  lastReviewed: "2026-10-03",
+  state: 'UT'
+},
+{
+  key: "utcommercial",
+  title: "Utah commercial property",
+  short: "Commercial property",
+  oneLine: "Stores, offices, industrial buildings, apartments with 5+ units and commercial land sold at Utah tax, trustee, sheriff and IRS sales, or by banks and government sellers.",
+  youGet: "The same deed as a home bought the same way, but without home-buyer programs, and often with tenants, leases, water rights and environmental history.",
+  forSale: true,
+  glance: [
+    {
+      label: "How it’s sold",
+      value: "The same channels as homes: county tax sales, trustee sales, sheriff sales, IRS sales, court-appointed receivers, and bank or government sellers. Read the matching Utah guide for each."
+    },
+    {
+      label: "Value",
+      value: "Rental property: by income (net operating income ÷ cap rate). Land, and buildings a business will use itself: by recent sales of similar commercial property. Not by comparing it with homes."
+    },
+    {
+      label: "Property tax",
+      value: "The county assessor values property at fair market value as of January 1 (Utah Code 59-2-103, 59-2-301). Only residential property gets the 45% residential exemption, so a store or office is taxed on full value."
+    },
+    {
+      label: "Tax appeals",
+      value: "File with the county board of equalization by September 15 or within 45 days after the county’s valuation notice, whichever is later (59-2-1004)."
+    },
+    {
+      label: "Environmental",
+      value: "A Phase I environmental site assessment (ASTM E1527-21) within one year before you take title, with key parts updated within 180 days, plus ongoing duties after you buy, can protect you from federal cleanup liability."
+    },
+    {
+      label: "Water",
+      value: "Utah water rights and shares can be sold with land or separately. A deed can come with a water rights addendum filed with the county recorder (57-3-109). Confirm what water comes with the property."
+    },
+    {
+      label: "No home-buyer programs",
+      value: "No owner-occupant First Look. HomeSteps excludes multi-family homes and vacant land from First Look. Financing is commercial, bridge or SBA (for a business using the building)."
+    }
+  ],
+  steps: [
+    {
+      title: "Pin down what you’re buying",
+      detail: "Use the county assessor’s record for land use, building size and year built, and the county recorder for the legal description, easements and recorded leases. Check access and boundaries on the parcel map."
+    },
+    {
+      title: "Get the rent roll and leases, if you can",
+      detail: "A receiver or listing broker can usually provide them. At a tax, trustee or sheriff’s sale you often can’t, so assume the building is empty until proven otherwise."
+    },
+    {
+      title: "Value it the right way",
+      detail: "For a rental building: net operating income divided by the cap rate. Ask a local commercial broker or appraiser for current cap rates. Budget property tax on full fair market value, since only residential property gets Utah’s 45% exemption (apartments where tenants live as their primary residence can qualify)."
+    },
+    {
+      title: "Order a title search",
+      detail: "Commercial parcels often carry easements, reciprocal easement agreements, CC&Rs, mechanic’s liens and recorded leases. Know which ones survive the kind of sale you’re in. Property tax liens attach every January 1 (59-2-1325)."
+    },
+    {
+      title: "Check water rights",
+      detail: "Ask what water rights or shares serve the property and how they’ll transfer. Search the Utah Division of Water Rights records, and ask your title company and attorney to confirm."
+    },
+    {
+      title: "Screen for contamination",
+      detail: "Check EPA records for the address and ask what the property was used for. Gas stations, dry cleaners and auto shops are high risk. Order a Phase I assessment if time allows, and ask your consultant to check Utah Department of Environmental Quality records too."
+    },
+    {
+      title: "Check zoning, code and permits",
+      detail: "Confirm with the city or county planning department that your planned use is allowed and that there are no open code cases or expired permits."
+    },
+    {
+      title: "Line up your money and your contract",
+      detail: "Auctions need cash on the trustee’s or sheriff’s terms; line up a commercial or bridge lender to refinance after. For a negotiated purchase, have your attorney review whether the state-approved REPC fits the deal or a custom contract is needed."
+    },
+    {
+      title: "Take over well",
+      detail: "Insure it the day you own it, secure the building, tell tenants in writing where to pay rent, and ask each tenant to sign an estoppel certificate confirming their lease (most leases require it). If you disagree with the January 1 value, appeal on time."
+    }
+  ],
+  survives: {
+    wipedOut: [
+      "At a trustee or sheriff’s sale: liens recorded after the lien being foreclosed, if the sale was valid",
+      "Leases signed after that lien, or subordinated to it, unless the lender agreed to keep them (non-disturbance agreement). A tenant whose lease is wiped out can also leave. Confirm with an attorney",
+      "In a negotiated purchase: liens the seller pays off at closing (confirm on the title commitment)"
+    ],
+    mayStay: [
+      "Property taxes (they attach every January 1)",
+      "Liens recorded before the lien being foreclosed",
+      "Environmental cleanup liability: it follows the owner, not the lien",
+      "Easements, reciprocal easement agreements and CC&Rs",
+      "Leases that have priority or a non-disturbance agreement",
+      "A 180-day redemption right after a sheriff’s sale or IRS sale"
+    ]
+  },
+  mistakes: [
+    {
+      mistake: "Valuing it like a house",
+      prevent: "Use income and cap rate. A vacant building is worth its value once leased, minus lost rent, leasing commissions and tenant improvements."
+    },
+    {
+      mistake: "Budgeting property tax at the residential rate",
+      prevent: "Commercial property doesn’t get Utah’s 45% residential exemption. Ask the county assessor’s office about the current value and tax rate."
+    },
+    {
+      mistake: "Skipping the environmental check",
+      prevent: "Past uses can mean cleanup costs bigger than the price. Check EPA and Utah DEQ records, and get a Phase I assessment."
+    },
+    {
+      mistake: "Assuming the water comes with the land",
+      prevent: "In Utah, water rights can be sold separately. Confirm in writing what transfers, and record it properly."
+    },
+    {
+      mistake: "Assuming the tenants will keep paying",
+      prevent: "Get estoppel certificates, and budget for vacancy, leasing commissions and tenant improvements."
+    }
+  ],
+  example: {
+    title: "Illustrative example: a small shop building in a fictional Utah county",
+    story: "Taylor, a made-up investor, bought a two-unit shop building from a bank for $620,000. Taylor’s Phase I found an old fuel tank on the lot, and the bank agreed to remove it before closing. Taylor budgeted property tax on full value, not the residential rate, and had both tenants sign estoppel certificates at closing. One tenant’s lease turned out to end in four months.",
+    lesson: "Check past uses, budget Utah property tax on full value for commercial property, and confirm every lease in writing before you count on the rent."
+  },
+  sources: [
+    {
+      label: "Utah Code 59-2-103 (fair market value, residential exemption)",
+      url: "https://le.utah.gov/xcode/Title59/Chapter2/59-2-S103.html"
+    },
+    {
+      label: "Utah Code 59-2-301 (county assessor)",
+      url: "https://le.utah.gov/xcode/Title59/Chapter2/59-2-S301.html"
+    },
+    {
+      label: "Utah Code 59-2-1004 (appeal to county board of equalization)",
+      url: "https://le.utah.gov/xcode/Title59/Chapter2/59-2-S1004.html"
+    },
+    {
+      label: "Utah Code 59-2-1325 (property tax lien)",
+      url: "https://le.utah.gov/xcode/Title59/Chapter2/59-2-S1325.html"
+    },
+    {
+      label: "Utah Code 57-3-109 (water rights addendum)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter3/57-3-S109.html"
+    },
+    {
+      label: "Utah Code 57-1-28 (trustee’s deed)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter1/57-1-S28.html"
+    },
+    {
+      label: "Utah Division of Water Rights",
+      url: "https://waterrights.utah.gov/"
+    },
+    {
+      label: "Utah Real Estate Purchase Contract (REPC)",
+      url: "https://commerce.utah.gov/wp-content/uploads/2023/03/purchase-contract.pdf"
+    },
+    {
+      label: "Freddie Mac HomeSteps: First Look Initiative (exclusions)",
+      url: "https://www.homesteps.com/homebuyer/firstlook"
+    },
+    {
+      label: "EPA: All Appropriate Inquiries (Phase I environmental site assessments)",
+      url: "https://www.epa.gov/brownfields/brownfields-all-appropriate-inquiries"
+    },
+    {
+      label: "EPA Envirofacts: environmental records by address",
+      url: "https://enviro.epa.gov/"
+    },
+    {
+      label: "SBA 504 loans",
+      url: "https://www.sba.gov/loans/504-loans/"
+    },
+    {
+      label: "ADA.gov: businesses open to the public",
+      url: "https://www.ada.gov/topics/title-iii/"
+    }
+  ],
+  team: [TEAM.commercialBroker, TEAM.title, TEAM.attorney, TEAM.environmental, TEAM.commercialLender, TEAM.insurance, TEAM.contractor, TEAM.propertyManager, TEAM.cpa],
+  lastReviewed: "2026-10-03",
+  state: 'UT'
 }
 ];

@@ -2271,3 +2271,23 @@ h1, h2 { letter-spacing: -0.03em; }
 .team-all { margin: 20px 0 0; font-weight: 600; }
 .page section.not-sure { display: grid; gap: 10px; }
 .page section.not-sure .btn { justify-self: start; }
+.chip-tabs .chip-label { align-self: center; font-weight: 600; margin-right: 6px; }
+
+/* Guide fact boxes: balanced like the card grids */
+.glance-facts { display: flex; flex-wrap: wrap; justify-content: center; align-items: stretch; gap: 16px; --cols: 4; --max: 5; }
+.glance-facts > * { flex: 0 0 calc((100% - (min(var(--cols), var(--max)) - 1) * 16px) / min(var(--cols), var(--max))); min-width: 0; box-sizing: border-box; margin: 0; }
+.glance-facts:has(> :nth-child(1):last-child) { --cols: 1; }
+.glance-facts:has(> :nth-child(2):last-child) { --cols: 2; }
+.glance-facts:has(> :nth-child(3):last-child) { --cols: 3; }
+.glance-facts:has(> :nth-child(4):last-child) { --cols: 4; }
+.glance-facts:has(> :nth-child(5):last-child) { --cols: 5; }
+.glance-facts:has(> :nth-child(6):last-child) { --cols: 3; }
+.glance-facts:has(> :nth-child(7):last-child) { --cols: 4; }
+.glance-facts:has(> :nth-child(8):last-child) { --cols: 4; }
+.glance-facts:has(> :nth-child(9):last-child) { --cols: 3; }
+.glance-facts:has(> :nth-child(10):last-child) { --cols: 5; }
+.glance-facts:has(> :nth-child(11):last-child) { --cols: 4; }
+.glance-facts:has(> :nth-child(12):last-child) { --cols: 4; }
+@media (max-width: 1300px) { .glance-facts { --max: 3; } .glance-facts:has(> :nth-child(4):last-child), .glance-facts:has(> :nth-child(8):last-child) { --cols: 2; } }
+@media (max-width: 860px) { .glance-facts { --max: 2; } }
+@media (max-width: 560px) { .glance-facts { --max: 1; } }
