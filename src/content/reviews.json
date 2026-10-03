@@ -115,7 +115,7 @@
       "src/lib/playbooks.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "62746c2a0c999573",
+    "hash": "a60e5a8451740517",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -347,7 +347,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "1751627a2c906d32",
+    "hash": "2fcd9257aebc82ec",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {

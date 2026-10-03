@@ -845,10 +845,12 @@ small { font-size: 0.95rem; }
 .you-get { display: grid; gap: 6px; margin: 0 0 20px; padding: 20px 24px; border-radius: 18px; background: var(--info-bg); border-left: 6px solid #3b82f6; }
 .you-get span { font-family: var(--font-label); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
 .you-get strong { font-family: var(--font-display); font-size: 1.35rem; line-height: 1.3; }
+.you-get small { color: var(--muted); font-size: 1rem; }
 .glance-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 14px; margin: 0 0 28px; }
 .glance-facts div { padding: 16px 18px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); }
 .glance-facts dt { font-family: var(--font-label); text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 6px; }
-.glance-facts dd { margin: 0; font-weight: 600; line-height: 1.45; }
+.glance-facts dd { margin: 0; font-weight: 400; line-height: 1.45; }
+.glance-facts dd strong { font-weight: 700; }
 .survive-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .survive-col { padding: 18px 20px; border-radius: 14px; }
 .survive-col h3 { margin-top: 0; }
@@ -2371,3 +2373,10 @@ h1, h2 { letter-spacing: -0.03em; }
 /* The calculator grids are now balanced flex rows, so each field lays out on its own (a subgrid needs a grid parent
    and was clipping two-line hints into the next row). */
 .calc-group .calc-grid > .calc-field { grid-template-rows: none; grid-row: auto; grid-auto-rows: auto; }
+.top-mistake { margin: -8px 0 28px; padding: 14px 18px; border-left: 4px solid var(--stop); background: var(--surface); border-radius: 0 12px 12px 0; }
+.top-mistake strong { color: var(--text); }
+/* Types of property: each type's case for and against, folded under its name. */
+.why-fold { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); margin: 10px 0; }
+.why-fold > summary { cursor: pointer; padding: 14px 18px; font-weight: 700; font-size: 1.1rem; list-style-position: inside; }
+.why-fold[open] > summary { border-bottom: 1px solid var(--border); }
+.why-fold > .why-block { margin: 0; padding: 14px 18px; }
