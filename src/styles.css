@@ -2152,3 +2152,4 @@ h1, h2 { letter-spacing: -0.03em; }
 .buybox-summary { margin-top: 14px; padding: 14px 16px; border-radius: 8px; background: var(--info-bg); }
 .buybox-summary h3 { margin-top: 0; }
 @media print { .site-header, .site-footer, .toolkit .page-hero, .toolkit section:not(#buy-box), .buybox-summary .decide-nav { display: none !important; } }
+.practice-grid.drill-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
