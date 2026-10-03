@@ -490,3 +490,15 @@ describe('in-depth pages and real stories', () => {
     }
   });
 });
+
+describe('seminar red flags lesson', () => {
+  it('is listed, cites the FTC, and warns against borrowing to learn or to bid', async () => {
+    const { lessonByKey } = await import('./lessons');
+    const { LEARN_MODULES } = await import('./learn');
+    const l = lessonByKey('red-flags')!;
+    expect(LEARN_MODULES.some((m) => m.key === 'red-flags')).toBe(true);
+    expect(l.sources.every((s) => /^https:\/\/([a-z]+\.)?(ftc\.gov|federalreserve\.gov|irs\.gov)\//.test(s.url))).toBe(true);
+    expect(l.sections.map((s) => s.heading)).toContain('Don’t borrow to learn or to bid');
+    for (const key of ['financing', 'creative', 'forced-sales']) expect(JSON.stringify(lessonByKey(key)), key).toMatch(/401\(k\)|retirement savings/);
+  });
+});

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import PageHero from './PageHero';
 import PathNext from './PathNext';
+import OwlNote from './OwlNote';
 import { useMarkStep } from '../lib/path';
 import { DECIDE_KEY, QUESTIONS, rank, stateNote, type Answers } from '../lib/decide';
 import { stateByCode, type StateCode } from '../lib/regions';
@@ -58,7 +59,7 @@ export default function DecidePage() {
       <PageHero
         eyebrow={<span className="eyebrow">Step 2 of 6</span>}
         title={<>Decide <span className="grad">your focus</span></>}
-        sub="Answer eight quick questions about your money, time and goals. You’ll get the strategies that fit best and a checklist for each."
+        sub="Answer nine quick questions about your money, time and goals. You’ll get the strategies that fit best and a checklist for each."
       />
 
       {q ? (
@@ -98,6 +99,15 @@ export default function DecidePage() {
         <section aria-labelledby="decide-results">
           <h2 id="decide-results" ref={headRef} tabIndex={-1} className="decide-results-title">Strategies that fit you{stateName ? ` in ${stateName}` : ''}</h2>
           <p className="muted">Ranked from your answers. This is a starting point, not advice; talk with qualified professionals before you commit money.</p>
+          {(saved.answers.ready === 'debt' || saved.answers.ready === 'nofund') && (
+            <OwlNote>
+              <strong>Not yet: build your cushion first.</strong>{' '}
+              {saved.answers.ready === 'debt'
+                ? 'Pay down high-interest debt before you buy. Card interest costs more than most deals earn, and a lender will count that debt against you.'
+                : 'Save an emergency fund before you buy. Every strategy has surprises, and without savings a vacancy or a repair can force you to borrow at high rates or sell at a loss.'}{' '}
+              Meanwhile, learn and practice for free. Never borrow on credit cards, home equity or a 401(k) to pay for courses or to bid. <a href="#/learn/red-flags">Seminar red flags →</a>
+            </OwlNote>
+          )}
           <ol className="decide-matches">
             {matches.map((m, i) => {
               const note = stateNote(m.strategy.key, saved.answers.state);
@@ -114,6 +124,11 @@ export default function DecidePage() {
                   {m.fits.length > 0 && <p className="decide-why"><strong>Fits</strong> {m.fits.join('; ')}.</p>}
                   {m.cautions.length > 0 && <p className="decide-why caution"><strong>Watch</strong> {m.cautions.join('; ')}.</p>}
                   {note && <p className="decide-note">{note}</p>}
+                  <dl className="decide-risk" aria-label="Risk check">
+                    <div><dt>Worst realistic outcome</dt><dd>{m.strategy.risk.worst}</dd></div>
+                    <div><dt>Money at risk</dt><dd>{m.strategy.risk.atRisk}</dd></div>
+                    <div><dt>Time to a first deal</dt><dd>{m.strategy.risk.time}</dd></div>
+                  </dl>
                   <h4>Your checklist <span className="muted">({doneCount} of {m.strategy.checklist.length} done)</span></h4>
                   <ul className="decide-checklist">
                     {m.strategy.checklist.map((c) => (

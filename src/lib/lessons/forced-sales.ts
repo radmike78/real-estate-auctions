@@ -21,7 +21,7 @@ export const forcedSales: Lesson = {
             rows: [
               ['Nevada', 'The property, by quitclaim deed', 'The county treasurer holds the property for 2 years after the tax certificate (1 year if abandoned), then auctions it for at least the taxes, costs, penalties and interest. Owners and lenders can pay off until the third business day before the sale.'],
               ['California', 'The property (tax-defaulted land)', 'The tax collector can sell after five years of default (three for nonresidential commercial property). The minimum bid is at least the amount needed to redeem, plus costs.'],
-              ['Arizona', 'A tax lien, not the property', 'Liens are sold in February. Bidders bid down the interest rate, which can’t exceed 16% a year. The owner can redeem; after three years (and within ten), the lien holder can go to court to foreclose the right to redeem and get a deed.'],
+              ['Arizona', 'A tax lien, not the property', 'Liens are sold in February. Bidders bid down the interest rate, which can’t exceed 16% a year; on popular parcels, competition can push it far lower, even to 0%. The owner can redeem at any time, which ends your interest, so plan on earning interest rather than getting a property; after three years (and within ten), the lien holder can go to court to foreclose the right to redeem and get a deed.'],
               ['Utah', 'The property', 'Property still unpaid after four years is sold by the county auditor at a tax sale in May or June. A bid must cover the taxes, penalties, interest and costs.'],
             ],
           },
@@ -80,6 +80,7 @@ export const forcedSales: Lesson = {
           'Expect to buy as-is, usually without seeing inside.',
           'Check whether the owner has filed bankruptcy, which can stop a sale.',
           'Know your walk-away price before bidding, and include the cost of any redemption period.',
+          'Bid only cash you can afford to lose. Don’t borrow on credit cards, home equity or a 401(k) to bid: most forced sales are final and as-is.',
           'Plan for occupants: owners and tenants have legal rights, and removing them takes a court process.',
         ] },
         'Find Deals lists each county’s tax sale page and records offices. Never contact homeowners facing foreclosure; buy from the official seller.',

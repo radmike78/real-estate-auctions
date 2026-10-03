@@ -51,6 +51,19 @@ const NRS = (ch: string, title: string, checked: string | null, note?: string): 
 });
 
 const LISTED: Source[] = [
+  // Learn: Seminar red flags (src/lib/lessons/red-flags.ts)
+  { id: 'learn-rf-1', title: 'FTC: FTC acts to shut down companies operating a real estate seminar scheme (2019)', publisher: 'Federal Trade Commission', url: 'https://www.ftc.gov/news-events/news/press-releases/2019/11/ftc-acts-shut-down-companies-operating-real-estate-seminar-scheme', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-rf-2', title: 'FTC: suit leads to $16.7 million judgment against principals and celebrity endorsers (2023)', publisher: 'Federal Trade Commission', url: 'https://www.ftc.gov/news-events/news/press-releases/2023/05/ftc-suit-leads-167-million-judgment-against-principals-celebrity-endorsers-real-estate-investment', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-rf-3', title: 'FTC: action against a company using celebrity endorsements and bogus earnings claims (Zurixx, 2019)', publisher: 'Federal Trade Commission', url: 'https://www.ftc.gov/news-events/news/press-releases/2019/10/ftc-acts-against-company-using-celebrity-endorsements-bogus-earnings-claims-sell-real-estate', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-rf-4', title: 'FTC: more than $12 million in refunds to people harmed by Zurixx (2024)', publisher: 'Federal Trade Commission', url: 'https://www.ftc.gov/news-events/news/press-releases/2024/07/ftc-sends-more-12-million-refunds-consumers-harmed-zurixx-real-estate-investment-coaching-scheme', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-rf-5', title: 'FTC: investment scams', publisher: 'Federal Trade Commission', url: 'https://consumer.ftc.gov/articles/investment-scams', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-rf-6', title: 'Federal Reserve: consumer credit (G.19), credit card interest rates', publisher: 'Federal Reserve Board', url: 'https://www.federalreserve.gov/releases/g19/current/default.htm', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-rf-7', title: 'IRS: retirement plan loans', publisher: 'Internal Revenue Service', url: 'https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-loans', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-rf-8', title: 'FTC: report fraud', publisher: 'Federal Trade Commission', url: 'https://reportfraud.ftc.gov/', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-rf-9', title: 'Nevada Attorney General: file a consumer complaint', publisher: 'Nevada Attorney General', url: 'https://ag.nv.gov/Complaints/File_Complaint/', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-rf-10', title: 'California Attorney General: consumer complaint against a business', publisher: 'California Attorney General', url: 'https://oag.ca.gov/contact/consumer-complaint-against-business-or-company', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-rf-11', title: 'Arizona Attorney General: consumer complaint', publisher: 'Arizona Attorney General', url: 'https://www.azag.gov/complaints/consumer', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-rf-12', title: 'Utah Division of Consumer Protection', publisher: 'Utah Department of Commerce', url: 'https://commerce.utah.gov/dcp/', role: 'rules', checked: '2026-10-03' },
   // Learn: Benefits for veterans (src/lib/lessons/veterans.ts)
   { id: 'learn-vets-1', title: 'VA: eligibility for a VA home loan', publisher: 'U.S. Department of Veterans Affairs', url: 'https://www.va.gov/housing-assistance/home-loans/eligibility/', role: 'rules', checked: '2026-10-02' },
   { id: 'learn-vets-3', title: 'VA: loan limits and entitlement', publisher: 'U.S. Department of Veterans Affairs', url: 'https://www.va.gov/housing-assistance/home-loans/loan-limits/', role: 'rules', checked: '2026-10-02' },

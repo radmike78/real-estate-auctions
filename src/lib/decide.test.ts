@@ -35,3 +35,14 @@ describe('Decide', () => {
     expect(a.checklist.some((c) => /official seller/.test(c.text) && /Never contact homeowners/.test(c.text))).toBe(true);
   });
 });
+
+describe('Decide readiness and risk', () => {
+  it('puts learning first for anyone without savings or with high-interest debt', () => {
+    for (const ready of ['debt', 'nofund'])
+      expect(top({ goal: 'quick', cash: '50to150', ready, borrow: 'cash', time: 'parttime', hands: 'diy', risk: 'high', market: 'res' })).toBe('practice');
+  });
+
+  it('shows the worst outcome, money at risk and time for every strategy', () => {
+    for (const s of STRATEGIES) for (const v of Object.values(s.risk)) expect(v.length, s.key).toBeGreaterThan(3);
+  });
+});
