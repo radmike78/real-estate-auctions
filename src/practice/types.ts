@@ -21,7 +21,7 @@ export type Task =
   | { kind: 'decision'; id: string; title: string; question: string; choices: Choice[] }
   | { kind: 'contact'; id: string; role: string; person: string; why: string; messages: ContactMessage[] }
   | { kind: 'document'; id: string; title: string; from: string; purpose: string; lines: { label: string; value: string }[]; note?: string }
-  | { kind: 'numbers'; id: string; title: string; intro: string; inputs: BidInputs; compareTo: { label: string; amount: number }; lesson: string }
+  | { kind: 'numbers'; id: string; title: string; intro: string; inputs: BidInputs; compareTo: { label: string; amount: number }; lesson: string; /** Practice value as it stands, before repairs. */ asIsValue: number }
   | { kind: 'event'; id: string; title: string; body: string[] }
   /** An owner-occupant's budget: the most to offer is the lower of what comparable sales and the loan support. */
   | { kind: 'afford'; id: string; title: string; intro: string; asIsValue: number; loanAmount: number; downPct: number; repairs: number; list: number; maxOffer: number; lesson: string };
