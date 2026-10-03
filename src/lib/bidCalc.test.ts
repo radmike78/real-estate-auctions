@@ -186,6 +186,8 @@ describe('walk-away price: cash limit, minimum profit, redemption, yearly return
   it('uses the larger of the profit % and the dollar minimum', () => {
     expect(requiredProfit({ ...base, targetProfitPct: 10, targetProfitMin: 0 })).toBe(40_000);
     expect(requiredProfit({ ...base, targetProfitPct: 10, targetProfitMin: 60_000 })).toBe(60_000);
+    // Set as dollars: the dollar amount is the whole target, whatever the percent says.
+    expect(requiredProfit({ ...base, targetProfitPct: 10, targetProfitMin: 25_000, profitInDollars: 1 })).toBe(25_000);
     const withMin = maxSafeBid({ ...base, targetProfitPct: 10, targetProfitMin: 60_000 });
     expect(profitAtBid({ ...base, targetProfitPct: 10, targetProfitMin: 60_000 }, withMin.maxBid)).toBeGreaterThanOrEqual(60_000 - 1);
   });

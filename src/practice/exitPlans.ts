@@ -1,6 +1,6 @@
 // Practice numbers worked in the order an investor works them: start at the opening bid, add the costs to buy and
 // hold, then compare selling as-is with fixing and selling, and only then set the maximum bid.
-import { costsAtBid, maxSafeBid, profitAtBid, type BidInputs } from '../lib/bidCalc';
+import { costsAtBid, maxSafeBid, profitAtBid, requiredProfit, type BidInputs } from '../lib/bidCalc';
 
 /** Months to list and close a property sold as it stands. A practice figure. */
 export const AS_IS_MONTHS = 2;
@@ -47,7 +47,7 @@ function plan(key: ExitPlan['key'], label: string, inputs: BidInputs, start: num
     selling: c.selling,
     cashTiedUp: c.total - c.selling - c.loan,
     profitAtStart: profitAtBid(inputs, start),
-    targetProfit: Math.max((inputs.exitValue * inputs.targetProfitPct) / 100, inputs.targetProfitMin),
+    targetProfit: requiredProfit(inputs),
     maxBid: r.noBidWorks ? 0 : r.maxBid,
   };
 }
