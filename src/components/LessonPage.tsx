@@ -50,7 +50,14 @@ function forState(b: LessonBlock, st: StateCode | null): LessonBlock | null {
 function Block({ b, marked }: { b: LessonBlock; marked?: Piece[][] }) {
   if (typeof b === 'string') return <p>{marked ? <Pieces pieces={marked[0]} /> : b}</p>;
   if ('list' in b) return <ul>{b.list.map((x, i) => <li key={x}>{marked ? <Pieces pieces={marked[i]} /> : x}</li>)}</ul>;
-  if ('why' in b) return <WhyBlock title={b.why.title} yes={b.why.yes} no={b.why.no} more={b.why.more} />;
+  // Folded: the table above gives the short answer; each type's case for and against opens on a tap.
+  if ('why' in b)
+    return (
+      <details className="why-fold">
+        <summary>{b.why.title ? `${b.why.title}: why you would, or wouldn’t` : 'Why you would, or wouldn’t'}</summary>
+        <WhyBlock yes={b.why.yes} no={b.why.no} more={b.why.more} />
+      </details>
+    );
   if ('links' in b)
     return (
       <ul className="lesson-links">

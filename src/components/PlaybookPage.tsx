@@ -10,6 +10,12 @@ const PRACTICE_SALES = new Set<string>(SALE_ORDER);
 import TeamList from './TeamList';
 import { IconBadge, IconBank, IconBuilding, IconCheckList, IconFile, IconFlag, IconGavel, IconHomeDown, IconHouses, IconLayers, IconPercent, IconReceipt, IconSteps } from './Icons';
 
+/** Bold only the amounts and deadlines in a fact, so they stand out (bolding everything highlights nothing). */
+function boldNumbers(text: string) {
+  const re = /(\$[\d,]+(?:\.\d+)?|\d+(?:\.\d+)?%|\b\d+(?:–\d+)?[- ](?:business )?(?:days?|weeks?|months?|years?)\b)/gi;
+  return text.split(re).map((part, i) => (i % 2 ? <strong key={i}>{part}</strong> : part));
+}
+
 /** An icon for each kind of sale ("catax" and "tax" are both tax sales), so the guide cards differ at a glance. */
 function saleIcon(key: string) {
   const kind = key.replace(/^(ca|az|ut)(?=[a-z]{3})/, '');
@@ -152,10 +158,16 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
       />
       {!open && (
         <>
-          <div className="you-get"><span>What you get</span><strong>{p.youGet}</strong></div>
+          <div className="you-get"><span>What you get</span><strong>{p.plain ?? p.youGet}</strong>{p.plain && <small>In legal terms: {p.youGet}</small>}</div>
           <dl className="glance-facts">
-            {p.glance.map((g) => <div key={g.label}><dt>{g.label}</dt><dd>{g.value}</dd></div>)}
+            {p.glance.map((g) => <div key={g.label}><dt>{g.label}</dt><dd>{boldNumbers(g.value)}</dd></div>)}
           </dl>
+          {/* The most costly mistake goes on the first screen, not one click deep: risks stay visible for everyone. */}
+          {p.mistakes[0] && (
+            <p className="top-mistake" role="note">
+              <strong>Mistake to avoid: {p.mistakes[0].mistake.replace(/^[A-Z](?=[a-z])/, (c) => c.toLowerCase())}.</strong> {p.mistakes[0].prevent}
+            </p>
+          )}
         </>
       )}
       <DrillDown sections={s} active={section} baseHref={base} label={`${p.short} guide`} />

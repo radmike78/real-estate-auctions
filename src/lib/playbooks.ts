@@ -15,6 +15,8 @@ export interface Playbook {
   short: string; // tile label
   oneLine: string;
   youGet: string;
+  /** "What you get" in plain words, when the legal wording needs it; the legal line then shows beneath. */
+  plain?: string;
   forSale: boolean;
   glance: { label: string; value: string }[];
   steps: { title: string; detail: string }[];
@@ -45,6 +47,7 @@ const NEVADA: Playbook[] = [
     short: 'Tax sales',
     oneLine: 'Properties with three or more years of unpaid property taxes (two if the county found them abandoned), sold by the Treasurer at an in-person auction.',
     youGet: 'The property, by quitclaim deed from the Treasurer, with no warranty of title.',
+    plain: 'The house itself, but the county makes no promise that the title is clear.',
     forSale: true,
     glance: [
       { label: 'Run by', value: 'Clark County Treasurer, as trustee for the state and county' },
@@ -100,6 +103,7 @@ const NEVADA: Playbook[] = [
     short: 'Lien certificates',
     oneLine: 'The Clark County Treasurer sells the lien for unpaid special improvement district (SID) assessments. You buy a debt that earns interest, not the property.',
     youGet: 'A certificate of sale: the right to be repaid plus 1% a month. You can ask for a deed only if the owner never redeems, and the certificate expires if you wait too long.',
+    plain: 'Not the house: the right to be repaid what you paid plus 1% a month. You can ask for the deed only if the owner never pays, and that right runs out if you wait too long.',
     forSale: true,
     glance: [
       { label: 'Run by', value: 'Clark County Treasurer (special improvement districts)' },
@@ -151,6 +155,7 @@ const NEVADA: Playbook[] = [
     short: 'Foreclosure auctions',
     oneLine: 'Most Nevada foreclosures are non-judicial: a trustee sells the property at auction after the owner defaults.',
     youGet: 'The owner’s interest by trustee’s deed, subject to anything senior to the loan being foreclosed.',
+    plain: 'The house as the owner held it. Debts recorded ahead of the loan being foreclosed stay with it.',
     forSale: true,
     glance: [
       { label: 'Law', value: 'NRS 107 (deeds of trust)' },
@@ -203,6 +208,7 @@ const NEVADA: Playbook[] = [
     short: 'HOA foreclosures',
     oneLine: 'A homeowners association sells a home to collect unpaid dues, under NRS 116.',
     youGet: 'The owner’s title, subject to a 60-day redemption period, and possibly subject to the first mortgage.',
+    plain: 'The house, but the owner can buy it back within 60 days, and the first mortgage may stay with it.',
     forSale: true,
     glance: [
       { label: 'Law', value: 'NRS 116 (common-interest communities)' },
@@ -247,6 +253,7 @@ const NEVADA: Playbook[] = [
     short: 'Sheriff sales',
     oneLine: 'Property sold to pay a court judgment, including judicial foreclosures.',
     youGet: 'The debtor’s interest, subject to a 1-year redemption right, and to anything senior to the judgment.',
+    plain: 'The house as the owner held it. The owner can buy it back for 1 year, and debts recorded ahead of the judgment stay with it.',
     forSale: true,
     glance: [
       { label: 'Law', value: 'NRS 21 (execution sales)' },
@@ -286,6 +293,7 @@ const NEVADA: Playbook[] = [
     short: 'IRS sales',
     oneLine: 'The IRS seizes and sells property to collect unpaid federal taxes, by public auction or sealed bid.',
     youGet: 'The taxpayer’s interest by quitclaim-type deed, after a 180-day redemption period (seizure sales; court-ordered sales differ).',
+    plain: 'The owner’s interest in the house, once the 180 days the owner has to buy it back are over. Court-ordered IRS sales work differently.',
     forSale: true,
     glance: [
       { label: 'Where listed', value: 'irsauctions.gov' },

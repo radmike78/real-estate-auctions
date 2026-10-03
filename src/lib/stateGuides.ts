@@ -179,6 +179,7 @@ export const STATE_GUIDES: Playbook[] = [
   short: "Trustee sales",
   oneLine: "Most California home loans are deeds of trust, so a lender can foreclose without court through a trustee who auctions the property.",
   youGet: "A trustee’s deed. You take the property subject to any liens senior to the loan being foreclosed, as is, and often with occupants who have legal rights.",
+  plain: 'The house as is. Debts recorded ahead of the loan being foreclosed stay with it, and people living there may have legal rights.',
   forSale: true,
   glance: [
     {
@@ -340,6 +341,7 @@ export const STATE_GUIDES: Playbook[] = [
   short: "Sheriff sales",
   oneLine: "When a court orders property sold, the sheriff (the levying officer) auctions it, sometimes subject to a redemption period.",
   youGet: "A sheriff’s deed of sale, or first a certificate of sale if the owner still has a right to redeem. Liens senior to the one being enforced stay.",
+  plain: 'A deed to the house, or first a certificate if the owner can still buy it back. Debts recorded ahead of the one being collected stay with it.',
   forSale: true,
   glance: [
     {
@@ -674,6 +676,7 @@ export const STATE_GUIDES: Playbook[] = [
   short: "Trustee sales",
   oneLine: "Most Arizona home loans use a deed of trust. When the owner defaults, the trustee can sell the home at a public auction without a court case. The sale is final, with no redemption.",
   youGet: "A trustee’s deed that the trustee records after you pay. It is final. You take the property subject to liens senior to the deed of trust, and you must handle any occupants yourself.",
+  plain: 'The house, and the sale is final. Debts recorded ahead of the loan stay with it, and you handle anyone still living there.',
   forSale: true,
   glance: [
     {
@@ -827,6 +830,7 @@ export const STATE_GUIDES: Playbook[] = [
   short: "Sheriff sales",
   oneLine: "After a court judgment, the sheriff sells real property at a public auction near the courthouse. In most cases the owner can still redeem, so you get a certificate of sale first and a sheriff’s deed later.",
   youGet: "A certificate of sale right after you pay. A sheriff’s deed only after every redemption period ends without redemption. If someone redeems, you get your price back plus 8%.",
+  plain: 'A certificate right after you pay. The deed comes only if no one buys the house back in time; if someone does, you get your price back plus 8%.',
   forSale: true,
   glance: [
     {
@@ -1155,6 +1159,7 @@ export const STATE_GUIDES: Playbook[] = [
   short: "Trustee sales",
   oneLine: "Most Utah home loans use a trust deed, so the trustee can sell the home at a public auction without a court case.",
   youGet: "A trustee’s deed with no right of redemption. It carries the owner’s interest and wipes out interests that came after the loan being foreclosed.",
+  plain: 'The house, with no buy-back period. The sale clears debts recorded after the loan being foreclosed.',
   forSale: true,
   glance: [
     {
@@ -1316,6 +1321,7 @@ export const STATE_GUIDES: Playbook[] = [
   short: "Sheriff sales",
   oneLine: "When a court orders property sold to pay a judgment or foreclose a mortgage, the sheriff auctions it, and the owner has 180 days to redeem.",
   youGet: "A certificate of sale right away, then a deed (conveyance) after the 180-day redemption period ends, if no one redeems.",
+  plain: 'A certificate right away, then the deed after 180 days if no one buys the house back.',
   forSale: true,
   glance: [
     {
@@ -1468,6 +1474,7 @@ export const STATE_GUIDES: Playbook[] = [
   short: "HOA foreclosures",
   oneLine: "A California homeowners association can sell a home to collect unpaid assessments under the Davis-Stirling Act (Civil Code 5700–5740), usually through a trustee.",
   youGet: "The owner’s interest, subject to a 90-day right of redemption after a nonjudicial sale, and usually subject to the first deed of trust and any other lien recorded before the HOA’s lien.",
+  plain: 'The owner’s interest. The owner can buy it back within 90 days after a nonjudicial sale, and the first loan and earlier liens usually stay with it.',
   forSale: true,
   glance: [
     {
@@ -1613,6 +1620,7 @@ export const STATE_GUIDES: Playbook[] = [
   short: "IRS sales",
   oneLine: "The IRS can seize and sell California real estate to collect unpaid federal taxes, by public auction or sealed bid, under federal law.",
   youGet: "A certificate of sale, then after 180 days without redemption, an IRS deed to the taxpayer’s interest. Mortgages and liens ahead of the federal tax lien stay.",
+  plain: 'A certificate first; the deed comes after 180 days if no one buys it back. Loans and liens ahead of the federal tax lien stay with it.',
   forSale: true,
   glance: [
     {
@@ -2244,6 +2252,7 @@ export const STATE_GUIDES: Playbook[] = [
   short: "HOA foreclosures",
   oneLine: "An Arizona homeowners association can foreclose its lien for unpaid assessments, but only through a court case, like a mortgage, and only after a large or long delinquency. The home is then sold at a sheriff’s sale, usually subject to the first mortgage.",
   youGet: "A certificate of sale first, and a sheriff’s deed only after the redemption period ends. You get the owner’s interest, which in most cases is still subject to the recorded first mortgage or deed of trust and to property taxes.",
+  plain: 'A certificate first, and the deed only after the buy-back period ends. The first mortgage and property taxes usually stay with the house.',
   forSale: true,
   glance: [
     {
@@ -2415,6 +2424,7 @@ export const STATE_GUIDES: Playbook[] = [
   short: "IRS sales",
   oneLine: "The IRS seizes and sells real property in Arizona to collect unpaid federal taxes, by public auction or sealed bid. Federal law sets the rules, and the owner has 180 days to redeem.",
   youGet: "A certificate of sale when you pay in full, and a deed (usually a quitclaim deed) only if no one redeems within 180 days. You get only the taxpayer’s interest, “as is” and “where is,” subject to liens senior to the IRS.",
+  plain: 'A certificate when you pay, and a deed only if no one buys it back within 180 days. You buy it as is, and debts ahead of the IRS stay with it.',
   forSale: true,
   glance: [
     {
@@ -3061,6 +3071,7 @@ export const STATE_GUIDES: Playbook[] = [
   short: "HOA foreclosures",
   oneLine: "A Utah homeowners or condo association can sell a home to collect unpaid assessments, either through a trustee sale or a court case.",
   youGet: "The owner’s interest, usually still subject to the first mortgage. A trustee sale has no redemption; a court (sheriff) sale has a 180-day redemption period.",
+  plain: 'The owner’s interest, usually with the first mortgage still on it. No buy-back after a trustee sale; 180 days after a court sale.',
   forSale: true,
   glance: [
     {
@@ -3235,6 +3246,7 @@ export const STATE_GUIDES: Playbook[] = [
   short: "IRS sales",
   oneLine: "The IRS seizes and sells a Utah property to collect unpaid federal taxes, by public auction or sealed bid, under federal law.",
   youGet: "A certificate of sale at payment, then a deed to the taxpayer’s interest after a 180-day redemption period. The property is sold as-is, subject to liens ahead of the IRS.",
+  plain: 'A certificate when you pay, then a deed after 180 days if no one buys it back. As is, with debts ahead of the IRS still on it.',
   forSale: true,
   glance: [
     {
