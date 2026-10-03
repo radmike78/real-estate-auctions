@@ -2308,3 +2308,4 @@ h1, h2 { letter-spacing: -0.03em; }
 .lesson-body-text ul.lesson-links:has(> :nth-child(4):last-child) { --cols: 2; }
 @media (max-width: 1000px) { .lesson-body-text ul.lesson-links { --cols: 2; } .lesson-body-text ul.lesson-links:has(> :nth-child(1):last-child) { --cols: 1; } }
 @media (max-width: 640px) { .lesson-body-text ul.lesson-links, .lesson-body-text ul.lesson-links:has(> li) { --cols: 1; } }
+.page section > h2 { scroll-margin-top: 84px; }

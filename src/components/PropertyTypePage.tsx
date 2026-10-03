@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+import OnThisPage from './OnThisPage';
 import PageHero from './PageHero';
 import WhyBlock from './WhyBlock';
 import StoryList from './StoryList';
@@ -12,6 +14,7 @@ const List = ({ items }: { items: string[] }) => <ul className="deep-list">{item
 
 /** A property type in depth: what owning it is like, who it suits, real stories, costs, financing and what to check. */
 export default function PropertyTypePage({ slug }: { slug: string }) {
+  const mainRef = useRef<HTMLElement>(null);
   useMarkStep('learn');
   const [st] = useMyState();
   const t = topicBySlug(slug)!;
@@ -22,7 +25,7 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
   const i = PROPERTY_TOPICS.findIndex((x) => x.key === t.key);
   const next = PROPERTY_TOPICS[i + 1];
   return (
-    <main className="page lesson deep-page">
+    <main className="page lesson deep-page" ref={mainRef}>
       <PageHero
         top={<a href="#/learn/types">← Types of property</a>}
         eyebrow={<span className="eyebrow">{t.group} property · in depth</span>}
@@ -30,6 +33,7 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
         sub={d ? forStateText(st, d.overview[0]) : undefined}
       />
       <StatePicker label="Show rules for" />
+      <OnThisPage root={mainRef} selector="main > section > h2, main > * > section > h2" />
       {d && d.overview.length > 1 && (
         <section><h2>What owning it is really like</h2>{fit(d.overview.slice(1)).map((p) => <p key={p}>{p}</p>)}</section>
       )}
