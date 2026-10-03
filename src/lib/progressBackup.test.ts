@@ -48,3 +48,25 @@ describe('evidence log', () => {
     expect(t).toMatch(/does not clear title/);
   });
 });
+
+describe('restored data is cleaned before it reaches a page', () => {
+  it('fixes malformed analyzed deals and buy boxes, and covers per-property calculator inputs', () => {
+    const file = JSON.stringify({ app: 'deedowl', version: 1, saved: '2026-10-03T00:00:00Z', data: {
+      'deedowl.analyze.v1': JSON.stringify([{ id: 'a', state: 'NV', name: {}, done: 'x' }, { id: 'b', state: 'ZZ' }]),
+      'deedowl.buybox.v1': JSON.stringify({ types: [{}], priceMax: 'lots', notes: 5 }),
+      'fsf.calc.rent.abc.v1': '{}',
+    } });
+    const r = readBackup(file);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const deals = JSON.parse(r.data['deedowl.analyze.v1']);
+    expect(deals).toHaveLength(1);
+    expect(deals[0].name).toBe('');
+    expect(deals[0].done).toEqual([]);
+    const box = JSON.parse(r.data['deedowl.buybox.v1']);
+    expect(box.types).toEqual([]);
+    expect(box.priceMax).toBe(0);
+    expect(r.data['fsf.calc.rent.abc.v1']).toBe('{}');
+    expect(r.saved).toBe('2026-10-03T00:00:00Z');
+  });
+});

@@ -138,7 +138,7 @@
       "src/practice/scenarios.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "56e7c63c9078227e",
+    "hash": "32d62e2f3f658395",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -155,7 +155,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "c548fa6a61a35f19",
+    "hash": "54716f3c65576c2e",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -167,7 +167,7 @@
       "src/lib/evidence.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "68c43318a9a56a4d",
+    "hash": "aebda3275629f0fc",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -337,7 +337,7 @@
       "src/lib/lessons/propertyWhy.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "84e785f141b70c62",
+    "hash": "26369c1fa490c37e",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -348,7 +348,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "277d65edb32c5ea2",
+    "hash": "a3fbaab7b2c3929a",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -373,8 +373,8 @@
       "src/lib/analyze.ts",
       "src/lib/path.ts"
     ],
-    "reviewed": "2026-09-29",
-    "hash": "e549b483a7f09427",
+    "reviewed": "2026-10-03",
+    "hash": "f3497c9cb509e24c",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {
@@ -386,7 +386,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "fcb6a9093bfe5d16",
+    "hash": "a3ab943186de4cb3",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

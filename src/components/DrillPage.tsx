@@ -14,7 +14,25 @@ type Saved = Record<string, { answers: Answers; verdict?: string }>;
 function load(): Saved {
   try {
     const v = JSON.parse(localStorage.getItem(KEY) ?? '{}');
-    return v && typeof v === 'object' ? v : {};
+    if (!v || typeof v !== 'object' || Array.isArray(v)) return {};
+    // Keep only well-formed answers, so old, hand-edited or restored data can't break the page.
+    const out: Saved = {};
+    for (const d of DRILLS) {
+      const x = v[d.id];
+      if (!x || typeof x !== 'object') continue;
+      const answers: Answers = {};
+      for (const m of d.missions) {
+        const a = x.answers?.[m.id];
+        if (!a || typeof a !== 'object') continue;
+        answers[m.id] = {
+          picks: Array.isArray(a.picks) ? a.picks.filter((p: unknown): p is string => typeof p === 'string').slice(0, 20) : undefined,
+          estimate: typeof a.estimate === 'number' && Number.isFinite(a.estimate) && a.estimate >= 0 ? a.estimate : undefined,
+          done: a.done === true,
+        };
+      }
+      out[d.id] = { answers, verdict: d.verdict.choices.some((c) => c.label === x.verdict) ? x.verdict : undefined };
+    }
+    return out;
   } catch {
     return {};
   }

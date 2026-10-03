@@ -120,7 +120,7 @@ export const WORKSHEETS: { key: string; title: string; intro: string; items: str
   {
     key: 'lender',
     title: 'Lender interview',
-    intro: 'Ask two or three lenders the same questions, and compare their Loan Estimates side by side.',
+    intro: 'Ask two or three lenders the same questions, and compare their Loan Estimates or written term sheets side by side. Loans for a property you won’t live in often come with a term sheet instead of a Loan Estimate.',
     items: [
       'What loan types fit this property and my plan?',
       'What are the rate, points and closing costs?',

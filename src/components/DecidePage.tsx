@@ -16,7 +16,15 @@ function load(): Saved {
   const mine = getMyState();
   try {
     const v = JSON.parse(localStorage.getItem(DECIDE_KEY) ?? 'null');
-    if (v && typeof v === 'object') return { answers: { ...(v.answers ?? {}), ...(mine ? { state: mine } : {}) }, done: Array.isArray(v.done) ? v.done : [] };
+    if (v && typeof v === 'object') {
+      // Keep only answers that match a question's options, so old or restored data can't break the page.
+      const answers: Answers = {};
+      for (const q of QUESTIONS) {
+        const a = v.answers?.[q.key];
+        if (typeof a === 'string' && q.options.some((o) => o.value === a)) answers[q.key] = a;
+      }
+      return { answers: { ...answers, ...(mine ? { state: mine } : {}) }, done: Array.isArray(v.done) ? v.done.filter((x: unknown): x is string => typeof x === 'string') : [] };
+    }
   } catch {
     /* ignore */
   }

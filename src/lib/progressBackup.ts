@@ -2,6 +2,8 @@
 // practice runs, buy box, saved deals, evidence logs, calculator inputs), as one file they keep. There are no
 // accounts, so this is how progress moves to another device or survives clearing the browser.
 // Sign-in links and email-alert tokens are never included.
+import { cleanDeal } from './analyze';
+import { cleanBuyBox } from './toolkit';
 
 const EXACT = [
   'deedowl.path.v1',
@@ -23,12 +25,19 @@ const EXACT = [
   'fsf.calc.strategy.v1',
   'fsf.bid.mode.v1',
 ];
-const PATTERN = /^fsf\.(dd|bid)\.[A-Za-z0-9_-]{1,64}\.v1$/;
+const PATTERN = /^fsf\.(dd|bid|income|checklist|calc\.rent|calc\.commercial)\.[A-Za-z0-9_-]{1,64}\.v1$/;
 
 export const backedUp = (key: string) => EXACT.includes(key) || PATTERN.test(key);
 
 const MAX_VALUE = 200_000;
 const MAX_FILE = 2_000_000;
+
+/** Pages clean what they read from storage; these keys are also checked here because their pages render them directly. */
+const CLEAN: Record<string, (v: unknown) => unknown> = {
+  'deedowl.buybox.v1': cleanBuyBox,
+  'deedowl.analyze.v1': (v) => (Array.isArray(v) ? v.map(cleanDeal).filter(Boolean) : []),
+  'deedowl.analyze.current.v1': (v) => cleanDeal(v),
+};
 
 export interface Backup {
   app: 'deedowl';
@@ -50,7 +59,7 @@ export function makeBackup(storage: Storage = localStorage, now = new Date()): B
 }
 
 /** Checks a backup file and returns what to restore, or why it can't be used. Only known DeedOwl keys are kept. */
-export function readBackup(text: string): { ok: true; data: Record<string, string> } | { ok: false; error: string } {
+export function readBackup(text: string): { ok: true; data: Record<string, string>; saved: string } | { ok: false; error: string } {
   if (text.length > MAX_FILE) return { ok: false, error: 'That file is too large to be a DeedOwl backup.' };
   let v: unknown;
   try {
@@ -63,14 +72,16 @@ export function readBackup(text: string): { ok: true; data: Record<string, strin
   const data: Record<string, string> = {};
   for (const [k, val] of Object.entries(o.data)) {
     if (!backedUp(k) || typeof val !== 'string' || val.length > MAX_VALUE) continue;
+    let parsed: unknown;
     try {
-      JSON.parse(val);
+      parsed = JSON.parse(val);
     } catch {
-      if (k !== 'deedowl.state.v1') continue; // every saved value is JSON except the chosen state code
+      if (k === 'deedowl.state.v1' && /^[A-Z]{2}$/.test(val)) data[k] = val; // every saved value is JSON except the chosen state code
+      continue;
     }
-    data[k] = val;
+    data[k] = CLEAN[k] ? JSON.stringify(CLEAN[k](parsed)) : val;
   }
-  return { ok: true, data };
+  return { ok: true, data, saved: typeof o.saved === 'string' && !Number.isNaN(Date.parse(o.saved)) ? o.saved : '' };
 }
 
 /** Writes a checked backup into this browser. Returns how many items were restored. */

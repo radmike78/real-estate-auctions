@@ -138,6 +138,6 @@ export const financing: Lesson = {
     { label: 'CFPB: what is a Closing Disclosure?', url: 'https://www.consumerfinance.gov/ask-cfpb/what-is-a-closing-disclosure-en-1983/' },
     { label: 'CFPB: how to check a mortgage lender or broker’s license', url: 'https://www.consumerfinance.gov/ask-cfpb/is-there-any-way-i-can-check-to-see-if-the-company-or-person-i-contact-is-permitted-to-make-or-broker-mortgage-loans-en-133/' },
   ],
-  practice: 'Ask two lenders the same questions and compare their Loan Estimates side by side.',
+  practice: 'Ask two lenders the same questions and compare their Loan Estimates or written term sheets side by side.',
   reviewed: '2026-09-29',
 };

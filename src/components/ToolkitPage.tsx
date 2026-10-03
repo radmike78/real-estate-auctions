@@ -187,10 +187,21 @@ function Worksheets() {
 
 function ProgressBackup() {
   const [msg, setMsg] = useState('');
-  const onFile = async (f: File | undefined) => {
+  const onFile = async (input: HTMLInputElement) => {
+    const f = input.files?.[0];
+    input.value = ''; // so choosing the same file again still works
     if (!f) return;
-    const r = readBackup(await f.text());
+    let text: string;
+    try {
+      text = await f.text();
+    } catch {
+      return setMsg('That file couldn’t be read.');
+    }
+    const r = readBackup(text);
     if (!r.ok) return setMsg(r.error);
+    const count = Object.keys(r.data).length;
+    const when = r.saved ? ` saved ${new Date(r.saved).toLocaleString()}` : '';
+    if (!window.confirm(`Replace your progress in this browser with this backup${when} (${count} item${count === 1 ? '' : 's'})? Items in the backup replace what’s here now.`)) return setMsg('Nothing was changed.');
     const n = restoreBackup(r.data);
     setMsg(`Restored ${n} item${n === 1 ? '' : 's'}. Reloading…`);
     setTimeout(() => window.location.reload(), 800);
@@ -203,10 +214,10 @@ function ProgressBackup() {
         <button type="button" className="btn" onClick={() => downloadText(`deedowl-progress-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(makeBackup()), 'application/json')}>Download my progress</button>
         <label className="btn btn-secondary file-btn">
           Restore from a backup
-          <input type="file" accept="application/json,.json" onChange={(e) => onFile(e.target.files?.[0])} />
+          <input type="file" accept="application/json,.json" onChange={(e) => onFile(e.target)} />
         </label>
       </div>
-      {msg && <p role="status">{msg}</p>}
+      <p role="status" aria-live="polite">{msg}</p>
     </section>
   );
 }

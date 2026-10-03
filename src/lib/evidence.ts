@@ -69,12 +69,28 @@ function loadAll(): Record<string, unknown> {
   }
 }
 
-export const loadLog = (dealId: string): EvidenceLog => cleanLog(loadAll()[dealId]);
+export const loadLog = (dealId: string): EvidenceLog => cleanLog(Object.prototype.hasOwnProperty.call(loadAll(), dealId) ? loadAll()[dealId] : undefined);
+
+/** Forget a deal's log, when the deal is removed. */
+export function removeLog(dealId: string) {
+  try {
+    const all = loadAll();
+    if (!(dealId in all)) return;
+    delete all[dealId];
+    localStorage.setItem(KEY, JSON.stringify(all));
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+/** True when nothing has been entered: such logs aren't stored, so the list doesn't grow with unopened deals. */
+export const isEmptyLog = (log: EvidenceLog) => !log.gate && Object.values(log.rows).every((r) => !r.done && !r.source && !r.checked && !r.finding && !r.open && !r.owner);
 
 export function saveLog(dealId: string, log: EvidenceLog) {
   try {
     const all = loadAll();
-    all[dealId.slice(0, 64)] = log;
+    if (isEmptyLog(log)) delete all[dealId];
+    else all[dealId] = log;
     localStorage.setItem(KEY, JSON.stringify(all));
   } catch {
     /* storage unavailable: the log lasts for this visit */

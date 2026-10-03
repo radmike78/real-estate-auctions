@@ -5,7 +5,7 @@ import { CalcRegion } from './calcRegion';
 import { useMarkStep } from '../lib/path';
 import { useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, type Deal, type Plan, type SaleKind } from '../lib/analyze';
+import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, cleanDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, type Deal, type Plan, type SaleKind } from '../lib/analyze';
 
 const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake' };
 const CURRENT = CURRENT_KEY;
@@ -16,8 +16,8 @@ function blank(st: StateCode): Deal {
 
 function loadCurrent(st: StateCode): Deal {
   try {
-    const v = JSON.parse(localStorage.getItem(CURRENT) ?? 'null');
-    if (v && stateByCode(v.state) && (!st || v.state === st)) return { ...blank(v.state), ...v };
+    const v = cleanDeal(JSON.parse(localStorage.getItem(CURRENT) ?? 'null'));
+    if (v && (!st || v.state === st)) return v;
   } catch {
     /* start fresh */
   }
