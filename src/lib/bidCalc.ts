@@ -29,7 +29,9 @@ export interface BidInputs {
   pointsPct: number; // lender fees, % of the loan
   sellingCostPct: number; // agent commission + closing costs when you sell
   targetProfitPct: number; // profit you require, % of exit value
-  targetProfitMin: number; // ...and at least this many dollars (0 = no minimum)
+  targetProfitMin: number; // ...and at least this many dollars (0 = no minimum); the whole target when profitInDollars
+  /** 1 to set the profit you want as a dollar amount (targetProfitMin) instead of a % of the resale value. */
+  profitInDollars: number;
   cashAvailable: number; // cash you can bring on auction day (0 = no limit)
 }
 
@@ -77,8 +79,8 @@ export function profitAtBid(i: BidInputs, bid: number): number {
 /** Every month you carry the property: any redemption wait, then fixing and selling. */
 export const totalMonths = (i: BidInputs) => nz(i.redemptionMonths) + nz(i.holdingMonths);
 
-/** The profit you require in dollars: your % of the resale value, and at least your minimum. */
-export const requiredProfit = (i: BidInputs) => Math.max((nz(i.exitValue) * nz(i.targetProfitPct)) / 100, nz(i.targetProfitMin));
+/** The profit you require in dollars: the dollar amount you set, or your % of the resale value and at least your minimum. */
+export const requiredProfit = (i: BidInputs) => (nz(i.profitInDollars) ? nz(i.targetProfitMin) : Math.max((nz(i.exitValue) * nz(i.targetProfitPct)) / 100, nz(i.targetProfitMin)));
 
 function solve(i: BidInputs, profit: number): number {
   const repairs = nz(i.repairs) * (1 + nz(i.contingencyPct) / 100);
@@ -179,6 +181,7 @@ export const BLANK_INPUTS: BidInputs = {
   sellingCostPct: 8,
   targetProfitPct: 15,
   targetProfitMin: 0,
+  profitInDollars: 0,
   cashAvailable: 0,
 };
 
@@ -282,7 +285,7 @@ export const INPUT_MAX: Record<keyof BidInputs, number> = {
   minimumBid: 1e10, exitValue: 1e10, repairs: 1e10, contingencyPct: 100, buyerPremiumPct: 100, transferTaxPer500: 100, survivingLiens: 1e10,
   titleLegal: 1e10, possession: 1e10, redemptionMonths: 120, redemptionRatePct: 100, redemptionDaily: 1, holdingMonths: 600,
   monthlyCarry: 1e10, financedPct: 100, interestRatePct: 100, pointsPct: 100, sellingCostPct: 100, targetProfitPct: 100,
-  targetProfitMin: 1e10, cashAvailable: 1e10,
+  targetProfitMin: 1e10, profitInDollars: 1, cashAvailable: 1e10,
 };
 /** A typed or saved value made safe: 0 for invalid or negative, capped at the input's maximum. */
 export const clampInput = (k: keyof BidInputs, v: number) => (Number.isFinite(v) && v > 0 ? Math.min(v, INPUT_MAX[k]) : 0);

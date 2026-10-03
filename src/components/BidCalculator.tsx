@@ -19,6 +19,8 @@ type Field = {
   quick?: boolean;
   /** Only shown when this returns true (e.g. loan terms once something is financed). */
   when?: (i: BidInputs) => boolean;
+  /** The profit you want: switch between a % of the resale value and a dollar amount. */
+  profitSwitch?: boolean;
 };
 // In the order a buyer meets them: buying it, fixing it, holding it, then selling it and the profit you want.
 // The walk-away price still works back from the resale value, so every group counts.
@@ -28,8 +30,8 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
     fields: [
       { k: 'minimumBid', label: 'Opening (minimum) bid', unit: '$', hint: 'From the auction listing.', quick: true, more: 'The lowest bid the auction will accept, stated in the listing or notice of sale. Your maximum is worked out from the resale value and every cost; the results show how much room that leaves above the opening bid.' },
       { k: 'exitValue', label: 'Resale value after repairs', unit: '$', hint: 'Conservative sold comps, not list prices.', quick: true, more: 'This is your estimate. Value depends on the neighborhood, recent comparable sales, condition and the market, and the only way to know it is an appraisal by a licensed appraiser. Until you have one, your real estate agent can estimate it from recent comparable sales. Don’t add the cost of upgrades to the value: appraisers count what buyers in that market pay for a feature, which is often less than it cost.' },
-      { k: 'targetProfitPct', label: 'Profit you want', unit: '%', hint: 'Of the resale value. 15–20% is common.', quick: true },
-      { k: 'targetProfitMin', label: 'And at least', unit: '$', hint: 'A dollar minimum. Leave 0 for none.' },
+      { k: 'targetProfitPct', label: 'Profit you want', unit: '%', hint: 'Of the resale value. 15–20% is common.', quick: true, profitSwitch: true },
+      { k: 'targetProfitMin', label: 'And at least', unit: '$', hint: 'A dollar minimum. Leave 0 for none.', when: (i) => !i.profitInDollars },
       { k: 'cashAvailable', label: 'Cash you can bring', unit: '$', hint: 'For auction day. Leave 0 for no limit.', quick: true, more: 'Most auctions want the full price in certified funds the same day or within a day. Your walk-away price never goes above what this cash covers, including any buyer’s premium.' },
     ],
   },
@@ -222,9 +224,19 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
                 </label>
               )}
               <div className="calc-grid">
-                {fields.map((f) => (
-                  <div key={f.k} className="calc-field">
-                    <label className="calc-label" htmlFor={`${uid}-${f.k}`}>{f.label}</label>
+                {fields.map((f0) => {
+                  const f: Field = f0.profitSwitch && i.profitInDollars ? { ...f0, k: 'targetProfitMin', unit: '$', hint: 'The dollar profit you want from this deal.' } : f0;
+                  return (
+                  <div key={f0.k} className="calc-field">
+                    <span className="calc-label-row">
+                      <label className="calc-label" htmlFor={`${uid}-${f.k}`}>{f.label}</label>
+                      {f0.profitSwitch && (
+                        <span className="calc-unit-switch" role="group" aria-label="Profit as a percent or dollars">
+                          <button type="button" aria-pressed={!i.profitInDollars} onClick={() => { setDraft((d) => ({ ...d, targetProfitMin: undefined })); update({ profitInDollars: 0 }); }}>%</button>
+                          <button type="button" aria-pressed={!!i.profitInDollars} onClick={() => { setDraft((d) => ({ ...d, targetProfitMin: undefined })); update({ profitInDollars: 1 }); }}>$</button>
+                        </span>
+                      )}
+                    </span>
                     <span className="calc-input">
                       {f.unit === '$' && <i aria-hidden>$</i>}
                       <input
@@ -251,7 +263,8 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
                       )}
                     </span>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </fieldset>
           );
