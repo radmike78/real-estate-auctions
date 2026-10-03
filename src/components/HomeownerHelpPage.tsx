@@ -72,7 +72,7 @@ export default function HomeownerHelpPage() {
 
       <section>
         <h2>How this site treats homeowners</h2>
-        <p>We don’t show owner names for homes that aren’t for sale, and we tell every visitor not to contact homeowners in foreclosure. If someone contacts you and mentions this site, please tell us.</p>
+        <p>DeedOwl never contacts homeowners, before or after a sale, and never helps anyone else contact them, including about surplus money. We don’t show owner names for homes that aren’t for sale, and we tell every visitor not to contact homeowners in foreclosure. If someone contacts you and mentions this site, please tell us.</p>
       </section>
     </main>
   );
