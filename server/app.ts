@@ -27,7 +27,7 @@ import { randomBytes } from 'node:crypto';
 import { createReadStream, statSync } from 'node:fs';
 import { pipeline } from 'node:stream';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { extname, normalize, resolve, sep } from 'node:path';
+import { extname, join, normalize, resolve, sep } from 'node:path';
 import type { KeyObject } from 'node:crypto';
 import { approvalBlockers, normalizePhone, plain, validateApplication, validateBilling, type ApplicationInput, type LicenseVerification } from '../src/lib/proApplication';
 import { CATEGORIES, isListable, REVERIFY_DAYS } from '../src/lib/pros';
@@ -100,6 +100,8 @@ const MIME: Record<string, string> = {
   '.png': 'image/png',
   '.ico': 'image/x-icon',
   '.woff2': 'font/woff2',
+  '.xml': 'application/xml; charset=utf-8',
+  '.txt': 'text/plain; charset=utf-8',
 };
 
 class HttpError extends Error {
@@ -1140,11 +1142,16 @@ export function createApp(config: AppConfig) {
     if (!root || (req.method !== 'GET' && req.method !== 'HEAD')) return send(res, 404, { error: 'Not found' });
     const rel = fromData ? path.slice('/data/'.length) : path === '/' ? 'index.html' : path.slice(1);
     const baseDir = resolve(root);
-    const file = resolve(baseDir, normalize(rel));
+    let file = resolve(baseDir, normalize(rel));
     if (file !== baseDir && !file.startsWith(baseDir + sep)) return send(res, 404, { error: 'Not found' });
     let info;
     try {
       info = statSync(file);
+      // A folder of the built site serves its index.html: the crawlable copies of each page (scripts/prerender.ts).
+      if (info.isDirectory() && !fromData) {
+        file = join(file, 'index.html');
+        info = statSync(file);
+      }
     } catch {
       return send(res, 404, { error: 'Not found' });
     }

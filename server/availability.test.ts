@@ -59,6 +59,9 @@ describe('server under load', () => {
     writeFileSync(join(dist, 'index.html'), '<!doctype html><title>t</title>');
     writeFileSync(join(dist, 'assets', 'app-abc123.js'), 'console.log(1)');
     writeFileSync(join(dist, 'favicon.svg'), '<svg/>');
+    mkdirSync(join(dist, 'learn', 'markets'), { recursive: true });
+    writeFileSync(join(dist, 'learn', 'markets', 'index.html'), '<!doctype html><title>Markets</title>');
+    writeFileSync(join(dist, 'sitemap.xml'), '<urlset/>');
     const app = createApp({
       dbPath: join(dir, 'app.db'),
       dataDir: join(dir, 'data'),
@@ -107,6 +110,16 @@ describe('server under load', () => {
     expect(etag).toMatch(/^W\/"/);
     const again = await fetch(`${base}/favicon.svg`, { headers: { 'if-none-match': etag } });
     expect(again.status).toBe(304);
+  });
+
+  it('serves a page folder’s index.html and the sitemap, but never a folder listing', async () => {
+    for (const u of ['/learn/markets/', '/learn/markets']) {
+      const r = await fetch(`${base}${u}`);
+      expect(r.status, u).toBe(200);
+      expect(await r.text()).toContain('<title>Markets</title>');
+    }
+    expect((await fetch(`${base}/learn/`)).status).toBe(404);
+    expect((await fetch(`${base}/sitemap.xml`)).headers.get('content-type')).toBe('application/xml; charset=utf-8');
   });
 
   it('keeps running when a file disappears between the check and the read', async () => {
