@@ -99,5 +99,6 @@ export const typesOfProperty: Lesson = {
     { label: 'Housing goals definitions: dwelling units in mixed-use property (12 CFR 1282.1)', url: 'https://www.law.cornell.edu/cfr/text/12/1282.1' },
     { label: 'IRS Publication 527: residential rental property', url: 'https://www.irs.gov/publications/p527' },
   ],
+  practice: 'Choose the two property types that fit your money and time best, and write one reason against each.',
   reviewed: '2026-09-29',
 };

@@ -76,9 +76,10 @@ export interface HoldResult {
   maxBid: number;
   limitedBy: 'return' | 'cash';
   noBidWorks: boolean;
-  noi: number; // yearly net operating income
+  noi: number; // yearly net operating income: income after operating costs, before reserves and the loan
+  reserves: number; // yearly money set aside for big replacements (roof, HVAC), counted after NOI
   debtService: number; // yearly
-  cashFlow: number; // yearly, after the loan payment
+  cashFlow: number; // yearly, after reserves and the loan payment
   dscr: number | null; // NOI / debt service; null without a loan
   loanOk: boolean; // DSCR meets your minimum (true without a loan)
   loanNet: number; // loan proceeds after its costs
@@ -89,11 +90,11 @@ export interface HoldResult {
   capOnCost: number | null; // NOI / all-in cost
 }
 
-function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, cashFlow: number) => number, minDscr: number): HoldResult {
+function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, cashFlow: number) => number, minDscr: number, reserves = 0): HoldResult {
   const loan = (nz(i.value) * Math.min(nz(i.loanPct), 100)) / 100;
   const debtService = annualDebtService(loan, i.ratePct, i.years);
   const loanNet = loan * (1 - nz(i.loanCostPct) / 100);
-  const cashFlow = noi - debtService;
+  const cashFlow = noi - reserves - debtService;
   const dscr = debtService > 0 ? noi / debtService : null;
   const returnBid = cashFlow > 0 ? bidForAllIn(i, limit(loanNet, cashFlow)) : 0;
   const cb = cashBid(i);
@@ -105,6 +106,7 @@ function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, c
     limitedBy: cb < returnBid ? 'cash' : 'return',
     noBidWorks: maxBid <= 0,
     noi: r2(noi),
+    reserves: r2(reserves),
     debtService: r2(debtService),
     cashFlow: r2(cashFlow),
     dscr: dscr === null ? null : Math.round(dscr * 100) / 100,
@@ -118,11 +120,15 @@ function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, c
   };
 }
 
-/** Rent collected and operating costs for a year. */
-export function rentNoi(i: RentInputs): { collected: number; expenses: number; noi: number } {
+/**
+ * A year of rent: rent collected, operating costs, net operating income (NOI), and reserves for big replacements.
+ * NOI is before reserves and the loan; cash flow subtracts both.
+ */
+export function rentNoi(i: RentInputs): { collected: number; expenses: number; noi: number; reserves: number } {
   const collected = nz(i.monthlyRent) * 12 * (1 - Math.min(nz(i.vacancyPct), 100) / 100);
-  const expenses = nz(i.propertyTaxYear) + nz(i.insuranceYear) + nz(i.hoaMonthly) * 12 + (collected * (nz(i.managementPct) + nz(i.maintenancePct) + nz(i.capexPct))) / 100;
-  return { collected: r2(collected), expenses: r2(expenses), noi: r2(collected - expenses) };
+  const expenses = nz(i.propertyTaxYear) + nz(i.insuranceYear) + nz(i.hoaMonthly) * 12 + (collected * (nz(i.managementPct) + nz(i.maintenancePct))) / 100;
+  const reserves = (collected * nz(i.capexPct)) / 100;
+  return { collected: r2(collected), expenses: r2(expenses), noi: r2(collected - expenses), reserves: r2(reserves) };
 }
 
 /**
@@ -131,13 +137,43 @@ export function rentNoi(i: RentInputs): { collected: number; expenses: number; n
  */
 export function rentMaxBid(i: RentInputs): HoldResult {
   const t = nz(i.targetCocPct) / 100;
-  return hold(i, rentNoi(i).noi, (loanNet, cf) => (t > 0 ? loanNet + cf / t : Infinity), i.minDscr);
+  const n = rentNoi(i);
+  return hold(i, n.noi, (loanNet, cf) => (t > 0 ? loanNet + cf / t : Infinity), i.minDscr, n.reserves);
 }
 
 /** Monthly cash flow after the loan payment. The loan is sized on the value after repairs, so it doesn't depend on the price. */
 export function rentMonthlyCashFlow(i: RentInputs): number {
   const loan = (nz(i.value) * Math.min(nz(i.loanPct), 100)) / 100;
-  return r2((rentNoi(i).noi - annualDebtService(loan, i.ratePct, i.years)) / 12);
+  const n = rentNoi(i);
+  return r2((n.noi - n.reserves - annualDebtService(loan, i.ratePct, i.years)) / 12);
+}
+
+/** The rental at a price you choose: every step from rent to cash flow, and the cash it takes. Yearly amounts. */
+export function rentAtPrice(i: RentInputs, price: number) {
+  const n = rentNoi(i);
+  const loan = (nz(i.value) * Math.min(nz(i.loanPct), 100)) / 100;
+  const debtService = annualDebtService(loan, i.ratePct, i.years);
+  const loanNet = loan * (1 - nz(i.loanCostPct) / 100);
+  const allIn = allInCost(i, nz(price));
+  const cashIn = allIn - loanNet;
+  const cashFlow = n.noi - n.reserves - debtService;
+  return {
+    gross: r2(nz(i.monthlyRent) * 12),
+    vacancy: r2(nz(i.monthlyRent) * 12 - n.collected),
+    collected: n.collected,
+    operating: n.expenses,
+    noi: n.noi,
+    reserves: n.reserves,
+    debtService: r2(debtService),
+    cashFlow: r2(cashFlow),
+    loan: r2(loan),
+    allIn: r2(allIn),
+    cashIn: r2(cashIn),
+    cashOnCash: cashIn > 0 ? cashFlow / cashIn : null,
+    capOnPrice: nz(price) > 0 ? n.noi / nz(price) : null,
+    capOnCost: allIn > 0 ? n.noi / allIn : null,
+    dscr: debtService > 0 ? Math.round((n.noi / debtService) * 100) / 100 : null,
+  };
 }
 
 /** What the monthly cash flow becomes when common surprises happen. */

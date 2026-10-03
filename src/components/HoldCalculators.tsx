@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { BidInputs } from '../lib/bidCalc';
-import { COMMERCIAL_DEFAULTS, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs } from '../lib/holdCalc';
+import { COMMERCIAL_DEFAULTS, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs } from '../lib/holdCalc';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 import CalcFields, { type CalcGroup } from './CalcFields';
@@ -89,20 +89,21 @@ function HoldResults({ r, title, target, noiNote, minDscr }: { r: HoldResult; ti
     <>
       <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
         <span>{title}</span>
-        <strong>{r.noBidWorks ? 'No bid works' : fmtMoney(r.maxBid)}</strong>
-        <small>{r.noBidWorks ? 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.' : r.limitedBy === 'cash' ? 'Set by the cash you can bring.' : target}</small>
+        <strong>{r.noBidWorks ? 'No bid works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'}</strong>
+        <small>{r.noBidWorks ? 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.' : !Number.isFinite(r.maxBid) ? 'Enter the return you want, or the cash you can bring, to get a walk-away price.' : r.limitedBy === 'cash' ? 'Set by the cash you can bring.' : target}</small>
       </div>
-      {!r.noBidWorks && (
+      {!r.noBidWorks && Number.isFinite(r.maxBid) && (
         <dl className="calc-kv">
           <div><dt>Cash needed on auction day</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>
           <div><dt>Everything you pay, ready to rent</dt><dd>{fmtMoney(Math.round(r.allIn))}</dd></div>
-          <div><dt>Net operating income, per year</dt><dd>{fmtMoney(Math.round(r.noi))}</dd></div>
+          <div><dt>Net operating income (NOI), per year: after operating costs{r.reserves > 0 ? ', before reserves' : ''} and before the loan</dt><dd>{fmtMoney(Math.round(r.noi))}</dd></div>
+          {r.reserves > 0 && <div><dt>Reserves for big replacements, per year</dt><dd>{fmtMoney(Math.round(r.reserves))}</dd></div>}
           <div><dt>Return on everything you pay (cap rate on cost)</dt><dd>{pctText(r.capOnCost)}</dd></div>
-          {r.debtService > 0 && <div><dt>Loan payments, per year</dt><dd>{fmtMoney(Math.round(r.debtService))}</dd></div>}
-          <div><dt>Cash flow, per month</dt><dd>{fmtMoney(Math.round(r.cashFlow / 12))}</dd></div>
+          {r.debtService > 0 && <div><dt>Debt service: loan payments, per year</dt><dd>{fmtMoney(Math.round(r.debtService))}</dd></div>}
+          <div><dt>Cash flow, per month: NOI minus {r.reserves > 0 ? 'reserves and ' : ''}loan payments</dt><dd>{fmtMoney(Math.round(r.cashFlow / 12))}</dd></div>
           {r.debtService > 0 && <div><dt>Your cash left in the deal</dt><dd>{r.cashLeft > 0 ? fmtMoney(Math.round(r.cashLeft)) : 'None: the loan repays it'}</dd></div>}
           <div><dt>Cash-on-cash return</dt><dd>{r.cashOnCash === null ? 'All your cash is back' : pctText(r.cashOnCash)}</dd></div>
-          {r.dscr !== null && <div><dt>Loan coverage (DSCR)</dt><dd>{r.dscr.toFixed(2)}×</dd></div>}
+          {r.dscr !== null && <div><dt>Loan coverage (DSCR): NOI ÷ loan payments. Lenders define it differently.</dt><dd>{r.dscr.toFixed(2)}×</dd></div>}
         </dl>
       )}
       {r.dscr !== null && !r.loanOk && (
@@ -154,11 +155,53 @@ const OFTEN_FORGOTTEN = [
 ];
 
 /** Stress tests, the deal in plain words, and a checklist of easy-to-forget costs. */
-function RentDealLab({ v }: { v: RentInputs }) {
+/** The rental at a price you type: every step from rent to cash flow, with its assumptions. */
+function AtThisPrice({ v, start }: { v: RentInputs; start: number }) {
+  const walkAway = Number.isFinite(start) && start > 0 ? Math.round(start) : 0;
+  const [price, setPrice] = useState(walkAway);
+  const a = rentAtPrice(v, price);
+  const mo = (n: number) => fmtMoney(Math.round(n / 12));
+  const neg = (n: number) => (n > 0 ? `−${mo(n)}` : mo(0));
+  return (
+    <section className="at-price" aria-labelledby="at-price-head">
+      <h4 id="at-price-head">At this price</h4>
+      <label className="field">
+        <span>Price you’d pay ($)</span>
+        <input type="number" inputMode="numeric" min={0} max={1e9} step={1000} value={price || ''} onChange={(e) => { const n = Number(e.target.value); setPrice(Number.isFinite(n) ? Math.min(1e9, Math.max(0, n)) : 0); }} />
+      </label>
+      {walkAway > 0 && price !== walkAway && <button type="button" className="linkish" onClick={() => setPrice(walkAway)}>Use the walk-away price ({fmtMoney(walkAway)})</button>}
+      <table className="deal-stress waterfall">
+        <caption className="sr-only">Monthly income and costs at this price</caption>
+        <tbody>
+          <tr><th scope="row">Rent, if fully rented</th><td>{mo(a.gross)}</td></tr>
+          <tr><th scope="row">Vacancy and unpaid rent ({v.vacancyPct}%)</th><td>{neg(a.vacancy)}</td></tr>
+          <tr><th scope="row">Operating costs: tax, insurance, HOA, management ({v.managementPct}%) and repairs ({v.maintenancePct}%)</th><td>{neg(a.operating)}</td></tr>
+          <tr className={`sum${a.noi < 0 ? ' neg' : ''}`}><th scope="row">Net operating income (NOI)</th><td>{a.noi < 0 ? `−${fmtMoney(Math.round(-a.noi / 12))}` : mo(a.noi)}</td></tr>
+          <tr><th scope="row">Reserves for big replacements ({v.capexPct}%)</th><td>{neg(a.reserves)}</td></tr>
+          <tr><th scope="row">Debt service: the loan payment{a.debtService > 0 ? '' : ' (no loan)'}</th><td>{neg(a.debtService)}</td></tr>
+          <tr className={`sum${a.cashFlow < 0 ? ' neg' : ''}`}><th scope="row">Cash flow</th><td>{a.cashFlow < 0 ? `−${fmtMoney(Math.round(-a.cashFlow / 12))}` : mo(a.cashFlow)}</td></tr>
+        </tbody>
+      </table>
+      <dl className="calc-kv">
+        <div><dt>Everything you pay, ready to rent (price, buying costs, liens, title, possession, repairs)</dt><dd>{fmtMoney(Math.round(a.allIn))}</dd></div>
+        {a.loan > 0 && <div><dt>Loan ({Math.min(v.loanPct, 100)}% of the {fmtMoney(v.value)} value, after {v.loanCostPct}% loan costs)</dt><dd>{fmtMoney(Math.round(a.loan * (1 - v.loanCostPct / 100)))}</dd></div>}
+        <div><dt>Your cash in the deal</dt><dd>{a.cashIn > 0 ? fmtMoney(Math.round(a.cashIn)) : 'None: the loan covers it'}</dd></div>
+        <div><dt>Cash-on-cash return: yearly cash flow ÷ your cash in</dt><dd>{a.cashOnCash === null ? 'All your cash is back' : pctText(a.cashOnCash)}</dd></div>
+        <div><dt>Cap rate on the price: NOI ÷ price</dt><dd>{pctText(a.capOnPrice)}</dd></div>
+        <div><dt>Cap rate on everything you pay</dt><dd>{pctText(a.capOnCost)}</dd></div>
+        {a.dscr !== null && <div><dt>Loan coverage (DSCR): NOI ÷ loan payments</dt><dd>{a.dscr.toFixed(2)}×</dd></div>}
+      </dl>
+      <p className="muted small">Uses the rent, costs and loan you entered above; taxes and insurance are counted in operating costs, not in the loan payment. Your cash in doesn’t include reserves you keep in the bank. An estimate, not advice.</p>
+    </section>
+  );
+}
+
+function RentDealLab({ v, start }: { v: RentInputs; start: number }) {
   const rows = rentStress(v);
   const [ticked, setTicked] = useState<string[]>([]);
   return (
     <div className="deal-lab">
+      <AtThisPrice v={v} start={start} />
       <h4>Explain this deal</h4>
       <ul className="deal-explain">{explainRent(v).map((x) => <li key={x}>{x}</li>)}</ul>
       <h4>Stress test: cash flow per month</h4>
@@ -198,8 +241,8 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', start = {}, re
     <div className="calc">
       <div className="calc-inputs"><CalcFields groups={rt.groups} values={v} onChange={set} /></div>
       <div className="calc-results">
-        <HoldResults r={r} title="Walk-away price to keep and rent it" target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}.`} minDscr={v.minDscr} />
-        <RentDealLab v={v} />
+        <HoldResults r={r} title="Walk-away price to keep and rent it" target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} />
+        <RentDealLab v={v} start={r.maxBid} />
       </div>
     </div>
   );

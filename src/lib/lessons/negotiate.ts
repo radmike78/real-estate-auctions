@@ -109,5 +109,6 @@ export const negotiate: Lesson = {
     { label: 'CFPB: mortgage closing scams', url: 'https://www.consumerfinance.gov/archive/blog/mortgage-closing-scams-how-protect-yourself-and-your-closing-funds/' },
     { label: 'FBI Internet Crime Complaint Center: real estate wire fraud warning', url: 'https://www.ic3.gov/PSA/2018/PSA180712' },
   ],
+  practice: 'Before your next offer, write your walk-away price and two terms you could trade instead of price.',
   reviewed: '2026-09-29',
 };

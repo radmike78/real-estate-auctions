@@ -8,6 +8,8 @@ import { STATUS, fmtDate, fmtDateTime, fmtMoney } from '../lib/status';
 import { savedMaxBid } from './BidCalculator';
 import { daysUntil, whenLabel } from './ResultsList';
 import PageHero from './PageHero';
+import EvidenceLog from './EvidenceLog';
+import { removeLog } from '../lib/evidence';
 import { kindLabel, loadDeals as loadAnalyzed, openDeal, SALE_KINDS, checklistFor } from '../lib/analyze';
 import { countyName } from '../lib/regions';
 import StatusBadge from './StatusBadge';
@@ -29,7 +31,7 @@ function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; lo
             <h2>No longer listed</h2>
             <p className="muted">A property you saved on {fmtDate(d.savedAt)} is no longer in our listings. It may have sold, been paid off or been removed.</p>
           </div>
-          <button className="linkish" aria-label="Remove property that is no longer listed" onClick={() => removeDeal(d.id)}>Remove</button>
+          <button className="linkish" aria-label="Remove property that is no longer listed" onClick={() => { removeDeal(d.id); removeLog(`listing:${d.id}`); }}>Remove</button>
         </div>
       </li>
     );
@@ -55,7 +57,7 @@ function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; lo
           <h2><a href={base}>{p.address}</a></h2>
           <p className="muted">{p.city}, {p.state} {p.zip} · <span className="nowrap">Parcel {p.apn}</span> · saved {fmtDate(d.savedAt)}</p>
         </div>
-        <button className="linkish" aria-label={`Remove ${p.address} from My deals`} onClick={() => removeDeal(p.id)}>Remove</button>
+        <button className="linkish" aria-label={`Remove ${p.address} from My deals`} onClick={() => { removeDeal(p.id); removeLog(`listing:${p.id}`); }}>Remove</button>
       </div>
 
       {(changed || newPostponements > 0) && (
@@ -85,6 +87,7 @@ function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; lo
         <span>Notes</span>
         <textarea rows={2} value={notes} placeholder="Questions for the title company, drive-by notes, your bid plan…" maxLength={2000} onChange={(e) => setNotes(e.target.value)} />
       </label>
+      <EvidenceLog dealId={`listing:${p.id}`} name={p.address} />
     </li>
   );
 }
@@ -127,6 +130,7 @@ export default function DealsPage() {
                     </div>
                     <button type="button" className="btn btn-secondary" onClick={() => openDeal(d)}>Open →</button>
                   </div>
+                  <EvidenceLog dealId={`analyzed:${d.id}`} name={d.name} />
                 </li>
               );
             })}

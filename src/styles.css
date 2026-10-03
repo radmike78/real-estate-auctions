@@ -2153,3 +2153,30 @@ h1, h2 { letter-spacing: -0.03em; }
 .buybox-summary h3 { margin-top: 0; }
 @media print { .site-header, .site-footer, .toolkit .page-hero, .toolkit section:not(#buy-box), .buybox-summary .decide-nav { display: none !important; } }
 .practice-grid.drill-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.at-price { display: grid; gap: 10px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.at-price h4 { margin: 0; }
+.deal-stress.waterfall tr.sum th, .deal-stress.waterfall tr.sum td { font-weight: 700; border-top: 2px solid var(--text); }
+
+/* Evidence log (My deals) */
+.evidence-log { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px; }
+.evidence-log summary { cursor: pointer; font-weight: 700; padding: 6px 0; }
+.evidence-areas { list-style: none; padding: 0; margin: 10px 0; display: grid; gap: 14px; }
+.evidence-areas > li { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+.evidence-done, .evidence-gate label { display: flex; gap: 10px; align-items: flex-start; }
+.evidence-done input, .evidence-gate input { width: 18px; height: 18px; flex: none; margin-top: 3px; }
+.evidence-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px 12px; margin-top: 8px; }
+.evidence-gate { border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin: 10px 0; display: grid; gap: 8px; }
+.evidence-gate legend { font-weight: 700; padding: 0 6px; }
+
+.next-step { margin: 8px 0 14px; padding: 10px 14px; border-radius: 8px; background: var(--go-bg); }
+.file-btn { position: relative; overflow: hidden; }
+.file-btn input[type='file'] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.file-btn:focus-within { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.learn-path { margin-top: 18px; }
+.learn-path > h2 { margin-bottom: 2px; }
+.lesson-practice { margin: 18px 0; padding: 16px 18px; border-left: 5px solid var(--go); background: var(--go-bg); border-radius: 10px; }
+.lesson-practice h2 { margin-top: 0; }
+.drill-notes { margin-top: 14px; padding: 12px 16px; border-radius: 10px; background: var(--info-bg); }
+.drill-notes ol { margin: 6px 0 0; padding-left: 22px; }
+.drill-feedback:focus { outline: 3px solid var(--accent); outline-offset: 2px; }

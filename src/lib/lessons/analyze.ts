@@ -39,14 +39,14 @@ export const analyze: Lesson = {
             head: ['Measure', 'How to figure it', 'What it tells you'],
             rows: [
               ['Net operating income (NOI)', 'Gross rent, minus vacancy and credit loss, minus operating expenses. Loan payments and depreciation are left out.', 'What the property earns on its own, whoever owns it or however it’s financed.'],
-              ['Cash flow', 'Rent minus operating costs minus the loan payment.', 'What you actually keep each month or year.'],
+              ['Cash flow', 'NOI, minus reserves you set aside for big replacements like the roof and HVAC, minus the loan payment (debt service).', 'What you actually keep each month or year.'],
               ['Cap rate', 'NOI ÷ price (or value).', 'The return before financing. Compare with similar properties nearby.'],
               ['Cash-on-cash return', 'A year’s cash flow before taxes ÷ all the cash you put in (down payment, closing costs, repairs).', 'The return on your own money, after the loan.'],
               ['Gross rent multiplier (GRM)', 'Price ÷ gross yearly rent.', 'A quick screen: lower usually means more rent for the price. It ignores expenses.'],
             ],
           },
         },
-        'Example: a rental costs $300,000 and rents for $2,400 a month ($28,800 a year). With 5% vacancy ($1,440) and $9,000 of yearly expenses, NOI is $18,360, a 6.1% cap rate. If the loan payments are $14,000 a year, cash flow is $4,360. If you put in $80,000 in cash, the cash-on-cash return is about 5.5%. The GRM is about 10.4.',
+        'Example: a rental costs $300,000 and rents for $2,400 a month ($28,800 a year). With 5% vacancy ($1,440) and $9,000 of yearly expenses, NOI is $18,360, a 6.1% cap rate. If you set aside $1,400 a year for big replacements and the loan payments are $14,000 a year, cash flow is $2,960. If you put in $80,000 in cash, the cash-on-cash return is about 3.7%. The GRM is about 10.4.',
       ],
     },
     {
@@ -138,5 +138,6 @@ export const analyze: Lesson = {
     { label: 'Utah Code 57-8a-105.1: HOA documents before closing', url: 'https://le.utah.gov/xcode/Title57/Chapter8A/57-8a-S105.1.html' },
     { label: 'Utah Code 57-8a-106: HOA payoff fee', url: 'https://le.utah.gov/xcode/Title57/Chapter8A/57-8a-S106.html' },
   ],
+  practice: 'Take one real listing and write down where each number comes from: rented comparables, the county’s tax bill, an insurance quote. Mark every number you guessed.',
   reviewed: '2026-09-29',
 };

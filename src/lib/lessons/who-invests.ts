@@ -71,5 +71,6 @@ export const whoInvests: Lesson = {
     { label: 'IRS Publication 946: how to depreciate property', url: 'https://www.irs.gov/publications/p946' },
     { label: 'IRS Publication 527: residential rental property', url: 'https://www.irs.gov/publications/p527' },
   ],
+  practice: 'For the property you want, write down who you’d be competing with and what they can do that you can’t, such as paying cash or closing fast.',
   reviewed: '2026-09-29',
 };

@@ -178,10 +178,32 @@ export function openDeal(d: Deal) {
   window.location.hash = '#/analyze';
 }
 
+/** A stored deal, cleaned so old, hand-edited or restored data can't break the page. Null if it's unusable. */
+export function cleanDeal(v: unknown): Deal | null {
+  const d = (v && typeof v === 'object' ? v : null) as Record<string, unknown> | null;
+  if (!d || typeof d.id !== 'string' || typeof d.state !== 'string' || !stateByCode(d.state)) return null;
+  const st = stateByCode(d.state)!;
+  const kind = SALE_KINDS.find((k) => k.key === d.kind && (!k.states || k.states.includes(st.code)));
+  const kindKey = (kind?.key ?? 'listing') as SaleKind;
+  const plan = plansFor(kindKey).includes(d.plan as Plan) ? (d.plan as Plan) : plansFor(kindKey)[0];
+  const str = (x: unknown, max: number) => (typeof x === 'string' ? x.slice(0, max) : '');
+  return {
+    id: d.id.slice(0, 64),
+    name: str(d.name, 200),
+    state: st.code,
+    county: typeof d.county === 'string' && st.counties.includes(d.county) ? d.county : st.counties[0],
+    kind: kindKey,
+    plan,
+    notes: str(d.notes, 4000),
+    done: Array.isArray(d.done) ? d.done.filter((x): x is string => typeof x === 'string').slice(0, 500) : [],
+    updatedAt: typeof d.updatedAt === 'string' && !Number.isNaN(Date.parse(d.updatedAt)) ? d.updatedAt : new Date().toISOString(),
+  };
+}
+
 export function loadDeals(): Deal[] {
   try {
     const v = JSON.parse(localStorage.getItem(KEY) ?? '[]');
-    return Array.isArray(v) ? v.filter((d) => d && typeof d.id === 'string' && stateByCode(d.state)) : [];
+    return Array.isArray(v) ? v.map(cleanDeal).filter((d): d is Deal => d !== null) : [];
   } catch {
     return [];
   }

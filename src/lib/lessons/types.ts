@@ -29,6 +29,8 @@ export interface Lesson {
   terms: { term: string; meaning: string }[];
   /** Where to practice or use it on this site. */
   tryIt?: { label: string; href: string };
+  /** One concrete thing to do with the lesson before moving on. */
+  practice?: string;
   sources: { label: string; url: string }[];
   /** When the text was last checked against its sources (YYYY-MM-DD). */
   reviewed: string;

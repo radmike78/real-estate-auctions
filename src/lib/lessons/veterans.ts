@@ -134,5 +134,6 @@ export const veterans: Lesson = {
     { label: 'Utah: State Tax Commission, property tax relief table', url: 'https://files.tax.utah.gov/propertytax/media/tax-relief.pdf' },
     { label: 'Utah: Utah Housing, veteran homebuyer grant FAQ', url: 'https://utahhousingcorp.org/pdf/Veteran_Grant_FAQ.pdf' },
   ],
+  practice: 'Ask your county assessor’s or treasurer’s office which exemptions you qualify for, and the deadline to apply.',
   reviewed: '2026-10-02',
 };

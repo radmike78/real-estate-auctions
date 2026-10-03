@@ -105,5 +105,6 @@ export const afterClosing: Lesson = {
     { label: 'Arizona: A.R.S. 33-1329 (no local rent control)', url: 'https://www.azleg.gov/ars/33/01329.htm' },
     { label: 'Utah courts: refunding deposits', url: 'https://www.utcourts.gov/en/self-help/case-categories/housing/landlord/refunding-deposits.html' },
   ],
+  practice: 'Before you advertise a rental, write your tenant screening criteria and check any limit your state sets on security deposits.',
   reviewed: '2026-10-03',
 };
