@@ -1,0 +1,55 @@
+import { useEffect, useState } from 'react';
+import { emptyRow, EVIDENCE_AREAS, GATES, loadLog, logText, saveLog, type EvidenceLog as Log, type EvidenceRow } from '../lib/evidence';
+import { downloadText, fileName } from '../lib/download';
+
+/** For one deal: what you verified, where it came from and what's still open, then the decision it supports. */
+export default function EvidenceLog({ dealId, name }: { dealId: string; name: string }) {
+  const [log, setLog] = useState<Log>(() => loadLog(dealId));
+  // Save shortly after typing stops.
+  useEffect(() => {
+    const t = setTimeout(() => saveLog(dealId, log), 400);
+    return () => clearTimeout(t);
+  }, [dealId, log]);
+  const done = EVIDENCE_AREAS.filter((a) => log.rows[a.key]?.done).length;
+  const openCount = EVIDENCE_AREAS.filter((a) => (log.rows[a.key]?.open ?? '').trim()).length;
+  const set = (key: string, patch: Partial<EvidenceRow>) => setLog((l) => ({ ...l, rows: { ...l.rows, [key]: { ...(l.rows[key] ?? emptyRow()), ...patch } } }));
+  const gate = GATES.find((g) => g.key === log.gate);
+  return (
+    <details className="evidence-log">
+      <summary>Verify: evidence log ({done} of {EVIDENCE_AREAS.length} checked{openCount ? `, ${openCount} open question${openCount === 1 ? '' : 's'}` : ''}){gate ? ` · ${gate.label}` : ''}</summary>
+      <p className="muted small">For each area, record where the answer came from and when. A checkmark records your review; it doesn’t clear title or certify a deal. Get qualified local help for anything legal or title-related.</p>
+      <ol className="evidence-areas">
+        {EVIDENCE_AREAS.map((a) => {
+          const r = log.rows[a.key] ?? emptyRow();
+          const id = `${dealId}-${a.key}`;
+          return (
+            <li key={a.key}>
+              <label className="evidence-done">
+                <input type="checkbox" checked={r.done} onChange={() => set(a.key, { done: !r.done })} />
+                <span><strong>{a.title}</strong> <span className="muted">{a.what}</span></span>
+              </label>
+              <div className="evidence-fields">
+                <label className="field"><span>Source</span><input id={`${id}-src`} type="text" maxLength={300} value={r.source} placeholder="Document, office or person" onChange={(e) => set(a.key, { source: e.target.value })} /></label>
+                <label className="field"><span>Date checked</span><input type="date" value={r.checked} onChange={(e) => set(a.key, { checked: e.target.value })} /></label>
+                <label className="field"><span>Finding</span><input type="text" maxLength={600} value={r.finding} onChange={(e) => set(a.key, { finding: e.target.value })} /></label>
+                <label className="field"><span>Open question</span><input type="text" maxLength={600} value={r.open} onChange={(e) => set(a.key, { open: e.target.value })} /></label>
+                <label className="field"><span>Who handles it, by when</span><input type="text" maxLength={200} value={r.owner} onChange={(e) => set(a.key, { owner: e.target.value })} /></label>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+      <fieldset className="evidence-gate">
+        <legend>Decision</legend>
+        {GATES.map((g) => (
+          <label key={g.key}>
+            <input type="radio" name={`gate-${dealId}`} checked={log.gate === g.key} onChange={() => setLog((l) => ({ ...l, gate: g.key }))} />
+            <span><strong>{g.label}</strong> <span className="muted">{g.when}</span></span>
+          </label>
+        ))}
+      </fieldset>
+      {log.gate === 'proceed' && openCount > 0 && <p className="caution" role="status">You still have {openCount} open question{openCount === 1 ? '' : 's'}. Resolve them before you commit money.</p>}
+      <button type="button" className="btn btn-secondary" onClick={() => downloadText(fileName(`evidence log ${name}`, 'txt'), logText(name, log))}>Download the log</button>
+    </details>
+  );
+}

@@ -91,5 +91,6 @@ export const markets: Lesson = {
     { label: 'California Attorney General: landlord-tenant issues', url: 'https://oag.ca.gov/consumers/general/landlord-tenant-issues' },
     { label: 'Legal Information Institute: triple net lease', url: 'https://www.law.cornell.edu/wex/triple_net_lease' },
   ],
+  practice: 'Pick one house and one small commercial building listed near you. Write down how each would be valued: by comparable sales, or by its income and a cap rate.',
   reviewed: '2026-09-29',
 };

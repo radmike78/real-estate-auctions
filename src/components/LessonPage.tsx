@@ -108,7 +108,14 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         <h2 id="terms">Key terms</h2>
         <dl>{terms.map((t) => <div key={t.term}><dt>{t.term}</dt><dd>{t.meaning}</dd></div>)}</dl>
       </section>
-      {l.tryIt && <p className="lesson-try"><a className="btn btn-secondary" href={l.tryIt.href}>{l.tryIt.label} →</a></p>}
+      {l.practice && (
+        <section className="lesson-practice" aria-labelledby="practice-head">
+          <h2 id="practice-head">Put it into practice</h2>
+          <p>{l.practice}</p>
+          {l.tryIt && <a className="btn" href={l.tryIt.href}>{l.tryIt.label} →</a>}
+        </section>
+      )}
+      {!l.practice && l.tryIt && <p className="lesson-try"><a className="btn btn-secondary" href={l.tryIt.href}>{l.tryIt.label} →</a></p>}
       <section className="lesson-sources" aria-labelledby="sources">
         <h2 id="sources">Sources</h2>
         <ul className="source-links">

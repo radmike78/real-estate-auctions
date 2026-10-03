@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent } from './holdCalc';
+import { allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice } from './holdCalc';
 
 describe('rent / hold', () => {
   it('works out net operating income from rent, vacancy and costs', () => {
@@ -86,5 +86,23 @@ describe('rent deal lab', () => {
     expect(lines.join(' ')).toMatch(/manage it yourself/);
     expect(lines[lines.length - 1]).toMatch(/insurance quote/);
     expect(explainRent({ ...base, monthlyRent: 100 })[0]).toMatch(/loses about/);
+  });
+});
+
+describe('NOI, reserves, debt service and cash flow stay separate', () => {
+  const i = { ...RENT_DEFAULTS, monthlyRent: 2_000, vacancyPct: 0, propertyTaxYear: 1_200, insuranceYear: 1_200, hoaMonthly: 0, managementPct: 0, maintenancePct: 0, capexPct: 10, loanPct: 0 };
+  it('keeps reserves out of NOI and takes them from cash flow', () => {
+    const n = rentNoi(i);
+    expect(n.noi).toBe(24_000 - 2_400);
+    expect(n.reserves).toBe(2_400);
+    expect(rentMaxBid(i).cashFlow).toBe(24_000 - 2_400 - 2_400);
+  });
+  it('adds up from rent to cash flow at a chosen price', () => {
+    const a = rentAtPrice({ ...i, loanPct: 75, value: 300_000, ratePct: 7, years: 30 }, 250_000);
+    expect(a.gross - a.vacancy).toBeCloseTo(a.collected, 2);
+    expect(a.collected - a.operating).toBeCloseTo(a.noi, 2);
+    expect(a.noi - a.reserves - a.debtService).toBeCloseTo(a.cashFlow, 2);
+    expect(a.dscr).toBeCloseTo(a.noi / a.debtService, 2);
+    expect(a.capOnPrice).toBeCloseTo(a.noi / 250_000, 6);
   });
 });

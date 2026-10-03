@@ -8,6 +8,16 @@ export interface LearnModule {
   href?: string;
 }
 
+/** Learning paths: the lessons in order, grouped under the question each group answers. */
+export const LEARN_PATHS: { title: string; what: string; keys: string[] }[] = [
+  { title: 'Start here', what: 'The markets, the kinds of property, and who you’d compete with.', keys: ['markets', 'types', 'who'] },
+  { title: 'Is it a deal?', what: 'Running the numbers, knowing when to walk away, and making offers.', keys: ['analyze', 'walk-away', 'negotiate'] },
+  { title: 'Paying for it', what: 'Loans, creative financing, and the seminar pitches to avoid.', keys: ['financing', 'creative', 'red-flags'] },
+  { title: 'Finding and verifying', what: 'Research tools and how each kind of forced sale works in your state.', keys: ['tools', 'forced-sales'] },
+  { title: 'After you buy', what: 'Running a rental: tenants, deposits, rules and records.', keys: ['after-closing'] },
+  { title: 'More to explore', what: 'Benefits for veterans and the books we recommend.', keys: ['veterans', 'reading'] },
+];
+
 export const LEARN_MODULES: LearnModule[] = [
   { key: 'markets', title: 'Residential vs. commercial', summary: 'How the two markets differ: who buys, how prices are set, loans, leases and risk.' },
   { key: 'types', title: 'Types of property', summary: 'Houses, condos, small and large apartment buildings, retail, office, industrial and land.' },

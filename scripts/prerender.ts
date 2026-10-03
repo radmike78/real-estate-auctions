@@ -14,6 +14,9 @@ import { PROPERTY_DEEP } from '../src/lib/deep/propertyDeep';
 import { PRO_DEEP } from '../src/lib/deep/proDeep';
 import { PRO_GUIDES } from '../src/lib/proGuide';
 import { PATH } from '../src/lib/path';
+import { LEARN_PATHS } from '../src/lib/learn';
+import { DRILLS } from '../src/practice/drills';
+import { FIRST_DEAL, WORKSHEETS } from '../src/lib/toolkit';
 
 const DIST = process.argv[2] ?? 'dist';
 const SITE = (process.env.SITE_URL ?? 'https://deedowl.com').replace(/\/$/, '');
@@ -59,12 +62,16 @@ export function pages(): Page[] {
   const home = `<h1>Become a real estate investor, step by step</h1><p>Learn it, practice it, then find and analyze real deals in ${STATES}. Free, with no sign-up. We teach the process; you buy directly from the official seller.</p><h2>Your path</h2><ol>${PATH.map((s) => `<li>${link(pathOf(s.href), s.label)}: ${esc(s.blurb)}</li>`).join('')}</ol><h2>Lessons</h2><ul>${LEARN_MODULES.map((m) => `<li>${link(pathOf(m.href ?? `#/learn/${m.key}`), m.title)}: ${esc(m.summary)}</li>`).join('')}</ul>`;
   out.push({ path: '/', title: 'DeedOwl · Learn real estate investing, step by step', description: `Free, step-by-step real estate investing: lessons, practice purchases, deal calculators and official sources for foreclosures, tax sales and bank-owned homes in ${STATES}.`, body: home });
 
-  const learn = `<h1>Learn real estate investing</h1><p>Plain-language lessons, in order, with the sources each one was written from.</p><ul>${LEARN_MODULES.map((m) => `<li>${link(pathOf(m.href ?? `#/learn/${m.key}`), m.title)}: ${esc(m.summary)}</li>`).join('')}</ul><h2>Property types in depth</h2><ul>${PROPERTY_TOPICS.map((t) => `<li>${link(`/learn/types/${t.slug}/`, t.title)}</li>`).join('')}</ul>`;
+  const modLink = (k: string) => {
+    const m = LEARN_MODULES.find((x) => x.key === k)!;
+    return `<li>${link(pathOf(m.href ?? `#/learn/${m.key}`), m.title)}: ${esc(m.summary)}</li>`;
+  };
+  const learn = `<h1>Learn real estate investing</h1><p>Plain-language lessons, in order, with the sources each one was written from.</p>${LEARN_PATHS.map((p) => `<h2>${esc(p.title)}</h2><p>${esc(p.what)}</p><ul>${p.keys.map(modLink).join('')}</ul>`).join('')}<h2>Property types in depth</h2><ul>${PROPERTY_TOPICS.map((t) => `<li>${link(`/learn/types/${t.slug}/`, t.title)}</li>`).join('')}</ul>`;
   out.push({ path: '/learn/', title: 'Learn real estate investing · DeedOwl', description: 'Free lessons on markets, property types, deal analysis, financing, forced sales, scams to avoid and benefits for veterans.', body: learn });
 
   for (const l of LESSONS) {
     const m = LEARN_MODULES.find((x) => x.key === l.key)!;
-    const body = `<h1>${esc(m.title)}</h1><p>${esc(l.intro)}</p><h2>What you’ll learn</h2>${list(l.takeaways)}${l.sections.map((s) => `<h2>${esc(s.heading)}</h2>${s.blocks.map(block).join('')}`).join('')}<h2>Key terms</h2><dl>${l.terms.map((t) => `<dt>${esc(t.term)}</dt><dd>${esc(t.meaning)}</dd>`).join('')}</dl><h2>Sources</h2><ul>${l.sources.map((s) => `<li>${link(s.url, s.label)}</li>`).join('')}</ul><p>Last reviewed ${esc(l.reviewed)}.</p>`;
+    const body = `<h1>${esc(m.title)}</h1><p>${esc(l.intro)}</p><h2>What you’ll learn</h2>${list(l.takeaways)}${l.sections.map((s) => `<h2>${esc(s.heading)}</h2>${s.blocks.map(block).join('')}`).join('')}${l.practice ? `<h2>Put it into practice</h2><p>${esc(l.practice)}</p>` : ''}<h2>Key terms</h2><dl>${l.terms.map((t) => `<dt>${esc(t.term)}</dt><dd>${esc(t.meaning)}</dd>`).join('')}</dl><h2>Sources</h2><ul>${l.sources.map((s) => `<li>${link(s.url, s.label)}</li>`).join('')}</ul><p>Last reviewed ${esc(l.reviewed)}.</p>`;
     out.push({ path: `/learn/${l.key}/`, title: `${m.title} · DeedOwl`, description: m.summary, body, lastmod: l.reviewed });
   }
 
@@ -82,12 +89,35 @@ export function pages(): Page[] {
     out.push({ path: `/pros/${g.key}/`, title: `${g.title} · Your real estate team · DeedOwl`, description: g.summary, body });
   }
 
+  for (const d of DRILLS) {
+    const missions = d.missions
+      .map((m) => {
+        if (m.kind === 'facts') return `<h2>${esc(m.title)}</h2><ul>${m.lines.map((x) => `<li>${esc(x.label)}: ${esc(x.value)}</li>`).join('')}</ul><p>${esc(m.lesson)}</p>`;
+        if (m.kind === 'estimate') return `<h2>${esc(m.title)}</h2><p>${esc(m.question)}</p>${list(m.items.map((x) => x.label))}<p>${esc(m.lesson)}</p>`;
+        return `<h2>${esc(m.title)}</h2><p>${esc(m.question)}</p>${list(m.options.map((o) => `${o.label}${o.detail ? ` (${o.detail})` : ''}`))}<p>${esc(m.lesson)}</p>`;
+      })
+      .join('');
+    const body = `<p>Simulation: a fictional property for practice.</p><h1>${esc(d.title)}</h1><p>${esc(d.teaser)}</p><p>${esc(d.where)}</p><ul>${d.facts.map((f) => `<li>${esc(f.label)}: ${esc(f.value)}</li>`).join('')}</ul>${missions}<h2>${esc(d.verdict.question)}</h2><p>Buy, investigate or pass? Work through the drill to see what an experienced investor would weigh.</p>`;
+    out.push({ path: `/practice/drills/${d.id}/`, title: `${d.title} · Practice · DeedOwl`, description: `A free “Would you buy it?” practice drill: ${d.teaser}`, body });
+  }
+  out.push({
+    path: '/practice/drills/',
+    title: '“Would you buy it?” practice drills · DeedOwl',
+    description: 'Free real estate practice drills for every kind of sale: value a property, check the rent, price the repairs, find the liens, run the numbers and decide.',
+    body: `<h1>Would you buy it? Practice drills</h1><p>Simulations with fictional properties. Each one ends with buy, investigate or pass.</p><ul>${DRILLS.map((d) => `<li>${link(`/practice/drills/${d.id}/`, d.title)}: ${esc(d.teaser)}</li>`).join('')}</ul>`,
+  });
+  out.push({
+    path: '/toolkit/',
+    title: 'Free real estate investor toolkit · DeedOwl',
+    description: 'A first-deal roadmap from first idea to closing, a buy box builder, worksheets to download, and free calculators and checklists.',
+    body: `<h1>Investor toolkit</h1><h2>Your first deal, step by step</h2><ol>${FIRST_DEAL.map((x) => `<li>${esc(x.text)}</li>`).join('')}</ol><h2>Worksheets</h2>${WORKSHEETS.map((w) => `<h3>${esc(w.title)}</h3><p>${esc(w.intro)}</p>${list(w.items)}`).join('')}`,
+  });
+
   const simple: [string, string, string][] = [
     ['/decide/', 'Decide your investing strategy', 'Nine questions about your money, time and goals point to the strategies that fit, each with its risks and a checklist.'],
     ['/practice/', 'Practice buying a property', 'Buy a fictional property step by step at a tax sale, foreclosure auction, bank-owned or short sale before you risk real money.'],
     ['/find-deals/', 'Find real estate deals', `Where to look for properties in each county of ${STATES}, starting with the official sellers.`],
     ['/analyze/', 'Analyze a real estate deal', 'Free calculators for a maximum bid, flips, rentals, tax lien certificates and commercial income, with what each number means.'],
-    ['/toolkit/', 'Free real estate investor toolkit', 'A first-deal roadmap from first idea to closing, a buy box builder, and free calculators, checklists and questions to ask your team.'],
     ['/learn/reading/', 'Recommended real estate investing books', 'Books worth reading for new investors, picked for plain, practical advice, with no get-rich-quick titles or seminar sales pitches.'],
     ['/homeowner-help/', 'Facing foreclosure? Free help', 'Free, trustworthy help for homeowners and renters facing foreclosure, scams to avoid, and how to claim surplus money after a sale.'],
   ];

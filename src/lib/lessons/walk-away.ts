@@ -109,5 +109,6 @@ export const walkAway: Lesson = {
     { label: 'Arizona: A.R.S. 33-1806 (planned community resale disclosure)', url: 'https://www.azleg.gov/ars/33/01806.htm' },
     { label: 'Arizona: A.R.S. 33-1260 (condominium resale disclosure)', url: 'https://www.azleg.gov/ars/33/01260.htm' },
   ],
+  practice: 'Before you look at another property, write three deal breakers into your buy box.',
   reviewed: '2026-10-03',
 };

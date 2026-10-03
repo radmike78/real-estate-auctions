@@ -90,5 +90,6 @@ export const redFlags: Lesson = {
     { label: 'Federal Reserve: consumer credit (G.19), credit card interest rates', url: 'https://www.federalreserve.gov/releases/g19/current/default.htm' },
     { label: 'IRS: retirement plan loans', url: 'https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-loans' },
   ],
+  practice: 'Before you pay for any course, search the company’s name with “FTC” and “complaint”, and read the refund policy in writing.',
   reviewed: '2026-10-03',
 };

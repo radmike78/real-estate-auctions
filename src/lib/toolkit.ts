@@ -114,3 +114,87 @@ export const TOOLKIT: { group: string; items: { label: string; href: string; wha
     ],
   },
 ];
+
+/** Worksheets to download or print: questions to ask and checklists to work through. */
+export const WORKSHEETS: { key: string; title: string; intro: string; items: string[] }[] = [
+  {
+    key: 'lender',
+    title: 'Lender interview',
+    intro: 'Ask two or three lenders the same questions, and compare their Loan Estimates side by side.',
+    items: [
+      'What loan types fit this property and my plan?',
+      'What are the rate, points and closing costs?',
+      'What down payment and cash reserves will you require?',
+      'Do you lend on homes that need work?',
+      'If you offer DSCR loans, how do you calculate DSCR, and what minimum do you require?',
+      'What conditions must be met before closing, and how long will it take to close?',
+      'Is there a prepayment penalty, a balloon payment, or a limit on refinancing?',
+      'What is your NMLS license number?',
+    ],
+  },
+  {
+    key: 'contractor',
+    title: 'Contractor interview',
+    intro: 'Get at least two written bids for the same scope of work, and check each license with the state board.',
+    items: [
+      'Does the job fit your license’s type of work and dollar limit? What is your license number?',
+      'Do you carry liability insurance and, if you have employees, workers’ compensation?',
+      'Can I see references from similar jobs?',
+      'What is included and excluded in the written scope?',
+      'Who pulls the permits and schedules inspections?',
+      'What’s the payment schedule? (Pay as work is completed, not far ahead of it.)',
+      'How are change orders priced and approved?',
+      'What warranty do you give on the work?',
+    ],
+  },
+  {
+    key: 'property-manager',
+    title: 'Property manager interview',
+    intro: 'Read the management agreement before you sign, especially fees and how to end it.',
+    items: [
+      'What’s your monthly fee, and your fee to find a tenant and to renew a lease?',
+      'How do you screen tenants, using the same written criteria for everyone?',
+      'Who approves repairs, up to what amount, and how are they billed?',
+      'How do you handle emergencies after hours?',
+      'What reports do I get each month: rent collected, vacancy, expenses?',
+      'Do you hold a real estate or property management license where required?',
+      'How do I end the agreement, and what does it cost?',
+    ],
+  },
+  {
+    key: 'auction',
+    title: 'Auction checklist',
+    intro: 'Work through it before every tax, trustee, sheriff, HOA or IRS sale. Rules differ by state and kind of sale.',
+    items: [
+      'Find the official sale notice and who runs the sale.',
+      'Confirm the parcel number, address and exactly what interest is being sold.',
+      'Read the deposit, payment deadline and accepted forms of payment.',
+      'Have a title professional review which liens survive this kind of sale in this state.',
+      'Find out who lives there and plan a lawful path to possession.',
+      'Check any redemption period and what it means for repairs.',
+      'Budget repairs you can’t see, possession costs, holding costs and reserves.',
+      'Set a walk-away price with the calculator, and have the cash ready before you bid.',
+      'Never contact or pressure the homeowner. Deal only with the official seller.',
+    ],
+  },
+  {
+    key: 'post-purchase',
+    title: 'After you buy',
+    intro: 'The first weeks of owning a rental. See the lesson “After you buy” for your state’s rules.',
+    items: [
+      'Landlord insurance in place from the day you take ownership.',
+      'Locks changed or rekeyed once you have legal possession; utilities in your name.',
+      'A separate bank account for the property; every receipt kept.',
+      'Safety repairs done before you advertise.',
+      'Written screening criteria and a lease that follows your state’s law.',
+      'A cash reserve for repairs and vacancies.',
+      'A plan for emergencies: who answers calls, and which vendors to use.',
+      'Actual income and costs compared with your numbers each year.',
+    ],
+  },
+];
+
+/** A worksheet as plain text with space to write. */
+export function worksheetText(w: { title: string; intro: string; items: string[] }): string {
+  return [`${w.title}`, 'DeedOwl educational worksheet. General information, not legal, tax or financial advice.', '', w.intro, '', ...w.items.map((x) => `[ ] ${x}\n    Notes:\n`)].join('\n');
+}

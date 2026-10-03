@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import PageHero from './PageHero';
 import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
@@ -46,7 +46,30 @@ export function DrillList() {
   );
 }
 
-function MissionCard({ m, a, set }: { m: Mission; a: Answers[string]; set: (v: Answers[string]) => void }) {
+/** Feedback after an answer: announced to screen readers and given keyboard focus, so it's read right away. */
+function Feedback({ tone, focus, children }: { tone: string; focus: boolean; children: ReactNode }) {
+  const ref = useRef<HTMLParagraphElement>(null);
+  useEffect(() => {
+    if (focus) ref.current?.focus();
+  }, [focus]);
+  return <p ref={ref} tabIndex={-1} role="status" className={`drill-feedback ${tone}`}>{children}</p>;
+}
+
+/** Three questions to keep in view while working through any deal. */
+function InvestigationNotes() {
+  return (
+    <aside className="drill-notes" aria-label="Investigation notes">
+      <strong>Keep three questions in view</strong>
+      <ol>
+        <li>What do I actually know, and from what source?</li>
+        <li>What am I assuming?</li>
+        <li>What would change my decision?</li>
+      </ol>
+    </aside>
+  );
+}
+
+function MissionCard({ m, a, set, fresh }: { m: Mission; a: Answers[string]; set: (v: Answers[string]) => void; fresh: boolean }) {
   const done = !!a?.done;
   if (m.kind === 'facts')
     return (
@@ -75,10 +98,10 @@ function MissionCard({ m, a, set }: { m: Mission; a: Answers[string]; set: (v: A
           </form>
         ) : (
           <>
-            <p className={`drill-feedback ${est! < low ? 'bad' : 'good'}`}>
+            <Feedback focus={fresh} tone={est! < low ? 'bad' : 'good'}>
               You budgeted {fmtMoney(est!)}. The example range is {fmtMoney(low)} to {fmtMoney(high)}.{' '}
               {est! < low ? 'That’s below even the low end: the most common way flips and rentals lose money.' : est! > high ? 'Cautious, which is safer than too low.' : 'Inside the range. Budget a cushion on top for what you can’t see.'}
-            </p>
+            </Feedback>
             <p className="drill-lesson">{m.lesson}</p>
           </>
         )}
@@ -110,7 +133,7 @@ function MissionCard({ m, a, set }: { m: Mission; a: Answers[string]; set: (v: A
         <button type="button" className="btn" disabled={!picks.length} onClick={() => set({ ...a, done: true })}>Check my answer</button>
       ) : (
         <>
-          <p className={`drill-feedback ${right === m.options.length ? 'good' : 'bad'}`}>{right === m.options.length ? 'Exactly what an experienced investor would choose.' : `${right} of ${m.options.length} choices match what an experienced investor would do. Read why below each one.`}</p>
+          <Feedback focus={fresh} tone={right === m.options.length ? 'good' : 'bad'}>{right === m.options.length ? 'Exactly what an experienced investor would choose.' : `${right} of ${m.options.length} choices match what an experienced investor would do. Read why below each one.`}</Feedback>
           <p className="drill-lesson">{m.lesson}</p>
         </>
       )}
@@ -122,6 +145,8 @@ function MissionCard({ m, a, set }: { m: Mission; a: Answers[string]; set: (v: A
 export default function DrillPage({ id }: { id: string }) {
   const d = drillById(id);
   const [saved, setSaved] = useState<Saved>(load);
+  // The answer just given, so only its feedback takes focus (not every finished mission on a return visit).
+  const [fresh, setFresh] = useState('');
   useEffect(() => {
     try {
       localStorage.setItem(KEY, JSON.stringify(saved));
@@ -136,7 +161,10 @@ export default function DrillPage({ id }: { id: string }) {
       </main>
     );
   const mine = saved[d.id] ?? { answers: {} };
-  const setMission = (mid: string, v: Answers[string]) => setSaved((s) => ({ ...s, [d.id]: { ...mine, answers: { ...mine.answers, [mid]: v } } }));
+  const setMission = (mid: string, v: Answers[string]) => {
+    if (v.done && !mine.answers[mid]?.done) setFresh(mid);
+    setSaved((s) => ({ ...s, [d.id]: { ...mine, answers: { ...mine.answers, [mid]: v } } }));
+  };
   const allDone = d.missions.every((m) => mine.answers[m.id]?.done);
   const verdict = d.verdict.choices.find((c) => c.label === mine.verdict);
   return (
@@ -147,22 +175,23 @@ export default function DrillPage({ id }: { id: string }) {
         <h2>The deal</h2>
         <dl className="calc-kv">{d.facts.map((f) => <div key={f.label}><dt>{f.label}</dt><dd>{f.value}</dd></div>)}</dl>
       </section>
-      {d.missions.map((m, i) => (i === 0 || mine.answers[d.missions[i - 1].id]?.done ? <MissionCard key={m.id} m={m} a={mine.answers[m.id] ?? {}} set={(v) => setMission(m.id, v)} /> : null))}
+      <InvestigationNotes />
+      {d.missions.map((m, i) => (i === 0 || mine.answers[d.missions[i - 1].id]?.done ? <MissionCard key={m.id} m={m} a={mine.answers[m.id] ?? {}} set={(v) => setMission(m.id, v)} fresh={fresh === m.id} /> : null))}
       {allDone && (
         <section className="drill-mission">
           <h2>Your decision</h2>
           <p>{d.verdict.question}</p>
           <div className="drill-verdict">
             {d.verdict.choices.map((c) => (
-              <button key={c.label} type="button" className={`btn ${mine.verdict === c.label ? '' : 'btn-secondary'}`} aria-pressed={mine.verdict === c.label} onClick={() => setSaved((s) => ({ ...s, [d.id]: { ...mine, verdict: c.label } }))}>{c.label}</button>
+              <button key={c.label} type="button" className={`btn ${mine.verdict === c.label ? '' : 'btn-secondary'}`} aria-pressed={mine.verdict === c.label} onClick={() => { setFresh('verdict'); setSaved((s) => ({ ...s, [d.id]: { ...mine, verdict: c.label } })); }}>{c.label}</button>
             ))}
           </div>
           {verdict && (
             <>
-              <p className="drill-feedback">{verdict.feedback}</p>
+              <Feedback key={verdict.label} focus={fresh === 'verdict'} tone="">{verdict.feedback}</Feedback>
               <h3>What an experienced investor would weigh</h3>
               <p className="drill-lesson">{d.verdict.expert}</p>
-              <p className="muted">There’s no single right answer: we score how you got there. The property and prices are made up for practice.</p>
+              <p className="muted">There’s no single right answer: we score how you got there. This is a simulation: the property and prices are made up, and finishing a drill doesn’t mean you’re ready for a real transaction. Verify real deals with qualified local professionals.</p>
             </>
           )}
         </section>

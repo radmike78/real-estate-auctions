@@ -3,7 +3,10 @@ import PageHero from './PageHero';
 import { STATES } from '../lib/regions';
 import { getMyState } from '../lib/myState';
 import { fmtMoney } from '../lib/status';
-import { cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, FIRST_DEAL, PROPERTY_TYPE_OPTIONS, STRATEGY_OPTIONS, TOOLKIT, type BuyBox } from '../lib/toolkit';
+import { cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, FIRST_DEAL, PROPERTY_TYPE_OPTIONS, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox } from '../lib/toolkit';
+import { downloadText, fileName } from '../lib/download';
+import { cleanLog, logText } from '../lib/evidence';
+import { makeBackup, readBackup, restoreBackup } from '../lib/progressBackup';
 
 const ROADMAP_KEY = 'deedowl.roadmap.v1';
 const BUYBOX_KEY = 'deedowl.buybox.v1';
@@ -33,13 +36,18 @@ export function FirstDealRoadmap() {
   const [done, setDone] = useState<string[]>(roadmapDone);
   useEffect(() => write(ROADMAP_KEY, done), [done]);
   const pct = Math.round((done.length / FIRST_DEAL.length) * 100);
+  const next = FIRST_DEAL.find((s) => !done.includes(s.id));
   return (
     <section aria-labelledby="roadmap-head">
       <h2 id="roadmap-head">Your first deal: {pct}% done</h2>
       <p className="decide-progress">
         {done.length} of {FIRST_DEAL.length} steps
-        <span className="decide-bar" aria-hidden><span style={{ width: `${pct}%` }} /></span>
+        <span className="decide-bar" role="progressbar" aria-label="First-deal roadmap" aria-valuemin={0} aria-valuemax={FIRST_DEAL.length} aria-valuenow={done.length}><span style={{ width: `${pct}%` }} /></span>
       </p>
+      <div className="next-step" role="status">
+        <strong>Your next useful step:</strong>{' '}
+        {next ? <>{next.text} {next.href && <a href={next.href}>Go →</a>}</> : 'Every step is ticked. Revisit your assumptions on each new deal, and try another practice drill.'}
+      </div>
       <ol className="decide-checklist roadmap">
         {FIRST_DEAL.map((s) => (
           <li key={s.id}>
@@ -127,10 +135,78 @@ function BuyBoxBuilder() {
         {b.dealBreakers.length > 0 && <p><strong>I walk away if:</strong> {b.dealBreakers.join('; ').toLowerCase()}.</p>}
         <div className="decide-nav">
           <button type="button" className="btn btn-secondary" onClick={() => window.print()}>Print</button>
+          <button type="button" className="btn btn-secondary" onClick={() => downloadText('my-buy-box.txt', buyBoxText(b, state?.name))}>Download</button>
           <button type="button" className="btn btn-secondary" onClick={() => setB({ ...EMPTY_BUY_BOX })}>Clear</button>
         </div>
       </div>
       <p className="muted">Your roadmap and buy box are saved only in this browser.</p>
+    </section>
+  );
+}
+
+function buyBoxText(b: BuyBox, stateName?: string): string {
+  const money = (n: number) => (n ? fmtMoney(n) : '');
+  return [
+    'My buy box',
+    'DeedOwl educational worksheet.',
+    '',
+    `State: ${stateName ?? ''}`,
+    `Area: ${b.area}`,
+    `Property types: ${b.types.join(', ')}`,
+    `Bedrooms or units: ${b.beds}`,
+    `Strategy: ${b.strategy}`,
+    `Highest price: ${money(b.priceMax)}`,
+    `Most repairs I’ll take on: ${money(b.repairsMax)}`,
+    `Cash I can put in, all in: ${money(b.cashMax)}`,
+    `Least cash flow per month: ${money(b.minCashFlow)}`,
+    `I walk away if: ${b.dealBreakers.join('; ')}`,
+    `Notes: ${b.notes}`,
+  ].join('\n');
+}
+
+function Worksheets() {
+  return (
+    <section aria-labelledby="worksheets-head">
+      <h2 id="worksheets-head">Worksheets to download</h2>
+      <p>Plain-text files you can print, fill in on paper, or keep with your deal notes.</p>
+      <ul className="lesson-links">
+        {WORKSHEETS.map((w) => (
+          <li key={w.key}>
+            <button type="button" className="linkish" onClick={() => downloadText(fileName(w.title, 'txt'), worksheetText(w))}>{w.title} ↓</button>
+            <span className="muted">{w.intro}</span>
+          </li>
+        ))}
+        <li>
+          <button type="button" className="linkish" onClick={() => downloadText('evidence-log.txt', logText('(property)', cleanLog({})))}>Evidence log ↓</button>
+          <span className="muted">For each thing you verify: the source, the date, what you found, what’s still open, and who handles it by when. Saved deals have one built in, under My deals.</span>
+        </li>
+      </ul>
+    </section>
+  );
+}
+
+function ProgressBackup() {
+  const [msg, setMsg] = useState('');
+  const onFile = async (f: File | undefined) => {
+    if (!f) return;
+    const r = readBackup(await f.text());
+    if (!r.ok) return setMsg(r.error);
+    const n = restoreBackup(r.data);
+    setMsg(`Restored ${n} item${n === 1 ? '' : 's'}. Reloading…`);
+    setTimeout(() => window.location.reload(), 800);
+  };
+  return (
+    <section aria-labelledby="backup-head">
+      <h2 id="backup-head">Keep your progress</h2>
+      <p>DeedOwl has no accounts, so your roadmap, drills, practice runs, buy box, saved deals and evidence logs are kept only in this browser. Download a backup to keep them safe or move them to another device. Sign-in links and email-alert links are never included.</p>
+      <div className="decide-nav">
+        <button type="button" className="btn" onClick={() => downloadText(`deedowl-progress-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(makeBackup()), 'application/json')}>Download my progress</button>
+        <label className="btn btn-secondary file-btn">
+          Restore from a backup
+          <input type="file" accept="application/json,.json" onChange={(e) => onFile(e.target.files?.[0])} />
+        </label>
+      </div>
+      {msg && <p role="status">{msg}</p>}
     </section>
   );
 }
@@ -149,6 +225,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
       />
       <FirstDealRoadmap />
       <BuyBoxBuilder />
+      <Worksheets />
       {TOOLKIT.map((g) => (
         <section key={g.group}>
           <h2>{g.group}</h2>
@@ -162,6 +239,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
           </ul>
         </section>
       ))}
+      <ProgressBackup />
     </main>
   );
 }

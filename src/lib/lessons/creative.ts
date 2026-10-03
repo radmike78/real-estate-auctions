@@ -98,5 +98,6 @@ export const creative: Lesson = {
     { label: 'FTC: yet another real estate seminar scam', url: 'https://consumer.ftc.gov/consumer-alerts/2019/11/yet-another-real-estate-seminar-scam' },
     { label: 'FTC: mortgage relief scams', url: 'https://consumer.ftc.gov/articles/mortgage-relief-scams' },
   ],
+  practice: 'For any seller-financed or “subject-to” idea, write what happens if the loan is called or the balloon comes due, and who will review the papers.',
   reviewed: '2026-09-29',
 };

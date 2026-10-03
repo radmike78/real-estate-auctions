@@ -135,5 +135,6 @@ export const forcedSales: Lesson = {
     { label: 'HUD Home Store', url: 'https://www.hudhomestore.gov/' },
     { label: 'Federal Reserve: Protecting Tenants at Foreclosure Act restored', url: 'https://www.federalreserve.gov/supervisionreg/caletters/caltr1804.htm' },
   ],
+  practice: 'Find your county’s official sale page and write down the deposit, the payment deadline and what the deed promises.',
   reviewed: '2026-09-29',
 };

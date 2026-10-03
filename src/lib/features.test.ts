@@ -514,3 +514,12 @@ describe('walk-away and after-closing lessons', () => {
     }
   });
 });
+
+describe('learning paths', () => {
+  it('put every lesson in exactly one path, in lesson order, and give each lesson a practice step', async () => {
+    const { LEARN_MODULES, LEARN_PATHS } = await import('./learn');
+    const { LESSONS } = await import('./lessons');
+    expect(LEARN_PATHS.flatMap((p) => p.keys)).toEqual(LEARN_MODULES.map((m) => m.key));
+    for (const l of LESSONS) expect(l.practice, l.key).toBeTruthy();
+  });
+});

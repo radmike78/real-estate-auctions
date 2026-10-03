@@ -118,5 +118,6 @@ export const tools: Lesson = {
     { label: 'PACER: federal court records and fees', url: 'https://pacer.uscourts.gov/' },
     { label: 'Bankruptcy automatic stay (11 U.S.C. 362)', url: 'https://www.law.cornell.edu/uscode/text/11/362' },
   ],
+  practice: 'Look up one property’s parcel, tax bill, recorded documents and flood zone. Record the source and the date for each.',
   reviewed: '2026-09-29',
 };

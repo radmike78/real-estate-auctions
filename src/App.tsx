@@ -160,6 +160,7 @@ function parseHash(): Route {
   if (tk) return { page: 'toolkit', section: tk[1] };
   const drill = h.match(/^practice\/drills\/([a-z0-9-]{2,40})$/);
   if (drill) return { page: 'drill', id: drill[1] };
+  if (h === 'practice/drills') return { page: 'practice' };
   const pr = h.match(/^practice\/([a-z]{2,12}-[a-z-]{2,30})(?:\/([a-z]{2,20}))?$/);
   if (pr) return { page: 'practiceRun', id: pr[1], stage: pr[2] };
   const pb = h.match(/^playbooks(?:\/([a-z]+)(?:\/([a-z-]+))?)?$/);
