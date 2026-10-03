@@ -3,7 +3,7 @@ import type { Lesson } from './types';
 export const creative: Lesson = {
   key: 'creative',
   minutes: 9,
-  intro: 'Creative financing means buying without a standard bank loan: the seller finances the sale, you take over an existing loan, or partners put in money. These deals can work, but each one comes with legal rules and real risks for both sides. Learn them before you try one.',
+  intro: 'Creative financing means buying without a standard bank loan. The seller may finance the sale, you may take over an existing loan, or partners may put in money. These deals can work. But each one comes with legal rules and real risks for both sides. Learn them before you try one.',
   takeaways: [
     'How seller financing works, and the federal and state rules sellers must follow.',
     'Why “subject-to” deals and wraparound loans run into the due-on-sale clause.',
@@ -15,16 +15,16 @@ export const creative: Lesson = {
     {
       heading: 'Seller financing',
       blocks: [
-        'The seller acts as the lender: you pay the seller over time instead of a bank. It can help when a bank won’t lend on the property, or when the seller wants steady income instead of a lump sum.',
-        'Federal rules limit who can offer it without being treated as a loan originator. A seller who finances one property in 12 months (a person, estate or trust) must use a fixed rate, or one that adjusts only after five or more years with reasonable limits, and the loan can’t grow over time. A seller who finances up to three properties in 12 months must also make the loan fully pay off over its term and determine in good faith that the buyer can repay. Neither exemption covers sellers who built the home.',
+        'The seller acts as the lender. You pay the seller over time instead of a bank. It can help when a bank won’t lend on the property. It can also help when the seller wants steady income instead of a lump sum.',
+        'Federal rules limit who can offer it without being treated as a loan originator. Take a seller who finances one property in 12 months (a person, estate or trust). That seller must use a fixed rate, or one that adjusts only after five or more years with reasonable limits. The loan also can’t grow over time. A seller who finances up to three properties in 12 months has two more rules. The loan must fully pay off over its term. And the seller must determine in good faith that the buyer can repay. Neither exemption covers sellers who built the home.',
         {
           table: {
             head: ['State', 'What to know'],
             rows: [
               ['Nevada', 'A seller who offers credit secured by the property they sold is exempt from Nevada’s mortgage company licensing (NRS 645B.015).'],
-              ['California', 'On homes of up to four units where someone arranges the credit, such as an agent, the buyer and seller get a seller financing disclosure covering the note, other liens, balloon payments and the buyer’s credit (Civil Code 2956–2963). The holder must send a notice 90 to 150 days before a balloon payment is due (Civil Code 2966).'],
-              ['Arizona', 'Sales where the seller keeps title until paid are “agreements for sale.” If the buyer misses a payment, the seller can end the contract only after a grace period set by how much has been paid: 30 days if under 20%, up to nine months if 50% or more (A.R.S. 33-742).'],
-              ['Utah', 'Seller financing is used, but we haven’t reviewed Utah’s rules yet; ask a Utah real estate attorney.'],
+              ['California', 'Some sales are of homes of up to four units where someone, such as an agent, arranges the credit. In these sales, the buyer and seller get a seller financing disclosure (Civil Code 2956–2963). It covers the note, other liens, balloon payments and the buyer’s credit. The holder must send a notice 90 to 150 days before a balloon payment is due (Civil Code 2966).'],
+              ['Arizona', 'An “agreement for sale” is a sale where the seller keeps title until paid. If the buyer misses a payment, the seller can end the contract only after a grace period. Its length depends on how much has been paid: 30 days if under 20%, up to nine months if 50% or more (A.R.S. 33-742).'],
+              ['Utah', 'Seller financing is used, but we haven’t reviewed Utah’s rules yet. Ask a Utah real estate attorney.'],
             ],
           },
         },
@@ -34,30 +34,30 @@ export const creative: Lesson = {
       heading: 'Taking over a loan: “subject-to” and wraparounds',
       blocks: [
         'In a “subject-to” deal, the buyer takes title while the seller’s loan stays in place. In a wraparound, the seller keeps their loan and gives the buyer a larger loan that “wraps” it. Federal rules treat both as transfers of the property.',
-        'Most mortgages have a due-on-sale clause, and federal law lets the lender enforce it: when the property is sold or transferred, the lender can demand the whole balance. The law protects some transfers of homes with fewer than five units, such as to a spouse or child, after a death, in a divorce, or into the owner’s living trust. A sale to an investor isn’t one of them.',
-        'The seller stays responsible for a loan they no longer control, and the buyer can lose the property if the lender calls the loan or payments aren’t made. Use a real estate attorney and a title company for any deal like this.',
+        'Most mortgages have a due-on-sale clause, and federal law lets the lender enforce it. When the property is sold or transferred, the lender can demand the whole balance. The law protects some transfers of homes with fewer than five units. Examples are transfers to a spouse or child, after a death, in a divorce, or into the owner’s living trust. A sale to an investor isn’t one of them.',
+        'The seller stays responsible for a loan they no longer control. The buyer can lose the property if the lender calls the loan or payments aren’t made. Use a real estate attorney and a title company for any deal like this.',
       ],
     },
     {
       heading: 'Rent-to-own and lease options',
       blocks: [
-        'The buyer rents with an option to buy later, often paying an upfront fee. The FTC warns of red flags: the “seller” doesn’t really own the property, the house is being foreclosed on, one missed payment ends the deal, or the buyer can’t qualify for a mortgage to finish buying it. Check the owner in county records and get a title search first.',
+        'The buyer rents with an option to buy later, often paying an upfront fee. The FTC warns of these red flags. The “seller” doesn’t really own the property. The house is being foreclosed on. One missed payment ends the deal. Or the buyer can’t qualify for a mortgage to finish buying it. Check the owner in county records and get a title search first.',
       ],
     },
     {
       heading: 'Home equity contracts',
       blocks: [
-        'Some companies pay homeowners cash now in exchange for a single payment later based partly on the home’s future value. The CFPB has warned that owners who can’t pay at the end can face a forced sale or foreclosure. Read every term and compare it with a regular loan.',
+        'Some companies pay homeowners cash now. In exchange, the owner makes a single payment later, based partly on the home’s future value. The CFPB has warned that owners who can’t pay at the end can face a forced sale or foreclosure. Read every term and compare it with a regular loan.',
       ],
     },
     {
       heading: 'Partners and investors',
       blocks: [
-        'Pooling money with partners is common. But when people invest in a common venture and expect profits from someone else’s efforts, the investment can be a security; the Supreme Court set this test in a case about citrus-grove land. Selling securities requires registration or an exemption.',
+        'Pooling money with partners is common. But sometimes people invest in a common venture and expect profits from someone else’s efforts. Then the investment can be a security. The Supreme Court set this test in a case about citrus-grove land. Selling securities requires registration or an exemption.',
         { list: [
-          'Rule 506(b): unlimited money from accredited investors and up to 35 non-accredited but sophisticated investors in any 90 days, with no public advertising.',
-          'Rule 506(c): advertising is allowed, but every buyer must be accredited, and the sponsor must take reasonable steps to verify it.',
-          'Both require a Form D filed with the SEC within 15 days of the first sale, and states may require notice filings.',
+          'Rule 506(b): no public advertising. The offering can raise unlimited money from accredited investors. It can also include up to 35 non-accredited but sophisticated investors in any 90 days.',
+          'Rule 506(c): advertising is allowed, but every buyer must be accredited. The sponsor must take reasonable steps to verify it.',
+          'Both require a Form D filed with the SEC within 15 days of the first sale. States may also require notice filings.',
         ] },
         'If you’re raising money or investing in someone else’s deal, talk with a securities attorney.',
       ],
@@ -65,9 +65,9 @@ export const creative: Lesson = {
     {
       heading: 'Warning signs',
       blocks: [
-        'Be wary of seminars that promise big profits with “no money down.” In a case the FTC brought with the Utah Division of Consumer Protection, more than 95% of surveyed seminar customers paid the company more than they made from real estate. If someone says you can earn a lot with little or no risk, that’s probably a scam. Never borrow on credit cards, home equity or retirement savings to pay for training.',
+        'Be wary of seminars that promise big profits with “no money down.” The FTC brought a case with the Utah Division of Consumer Protection. In that case, more than 95% of surveyed seminar customers paid the company more than they made from real estate. If someone says you can earn a lot with little or no risk, that’s probably a scam. Never borrow on credit cards, home equity or retirement savings to pay for training.',
         { links: [{ label: 'Seminar red flags', url: '#/learn/red-flags', what: 'How seminar and coaching schemes work, and the warning signs.' }] },
-        'Never pressure a homeowner facing foreclosure into signing over their deed. The FTC warns that in foreclosure-rescue scams the owner loses the home and still owes the mortgage. DeedOwl doesn’t help anyone approach homeowners in foreclosure; buy from the official seller.',
+        'Never pressure a homeowner facing foreclosure into signing over their deed. The FTC warns that in foreclosure-rescue scams the owner loses the home and still owes the mortgage. DeedOwl doesn’t help anyone approach homeowners in foreclosure. Buy from the official seller.',
       ],
     },
   ],
@@ -98,6 +98,6 @@ export const creative: Lesson = {
     { label: 'FTC: yet another real estate seminar scam', url: 'https://consumer.ftc.gov/consumer-alerts/2019/11/yet-another-real-estate-seminar-scam' },
     { label: 'FTC: mortgage relief scams', url: 'https://consumer.ftc.gov/articles/mortgage-relief-scams' },
   ],
-  practice: 'For any seller-financed or “subject-to” idea, write what happens if the loan is called or the balloon comes due, and who will review the papers.',
+  practice: 'For any seller-financed or “subject-to” idea, write what happens if the loan is called or the balloon comes due. Also write who will review the papers.',
   reviewed: '2026-09-29',
 };

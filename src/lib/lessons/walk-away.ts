@@ -3,7 +3,7 @@ import type { Lesson } from './types';
 export const walkAway: Lesson = {
   key: 'walk-away',
   minutes: 8,
-  intro: 'Most money in real estate is lost on deals that should never have been bought. Knowing when to walk away is a skill you can learn: set your limits before you look, then check each property against the numbers, the building, the title and the terms of sale.',
+  intro: 'Most money in real estate is lost on deals that should never have been bought. Knowing when to walk away is a skill you can learn. Set your limits before you look. Then check each property against the numbers, the building, the title and the terms of sale.',
   takeaways: [
     'The numbers that say a deal doesn’t work.',
     'Building problems that cost far more than they look.',
@@ -23,10 +23,10 @@ export const walkAway: Lesson = {
       heading: 'When the numbers say no',
       blocks: [
         { list: [
-          'Cash flow is negative once you use realistic rent and every cost, including vacancy, repairs, reserves for big items and management.',
+          'Cash flow is negative once you use realistic rent and every cost. That includes vacancy, repairs, reserves for big items and management.',
           'The rent comes from the seller or an online asking price, not from homes that actually rented nearby.',
           'The value after repairs comes from bigger, remodeled or old sales instead of similar homes sold recently.',
-          'A flip only works if every estimate is right: there’s no cushion for higher repairs or a lower sale price.',
+          'A flip only works if every estimate is right. There’s no cushion for higher repairs or a lower sale price.',
           'You’d have no cash left for reserves after closing.',
           'A small change, like rent 10% lower or $1,200 more a year for insurance, wipes out the profit.',
         ] },
@@ -43,20 +43,20 @@ export const walkAway: Lesson = {
           'Additions or garage conversions without permits: check the permit history with the city or county building department. You may have to permit, fix or remove them.',
           'Signs of water damage, mold or past fire damage.',
         ] },
-        'Flood risk: look up the flood zone on FEMA’s Flood Map Service Center. Homes in high-risk flood areas with a mortgage from a government-backed lender must have flood insurance, which can change your numbers.',
-        'Lead paint: for most housing built before 1978, sellers and landlords must disclose known lead-based paint and hazards, and buyers get a 10-day period for a lead inspection unless they waive it.',
+        'Flood risk: look up the flood zone on FEMA’s Flood Map Service Center. Homes in high-risk flood areas with a mortgage from a government-backed lender must have flood insurance. That can change your numbers.',
+        'Lead paint: for most housing built before 1978, sellers and landlords must disclose known lead-based paint and hazards. Buyers also get a 10-day period for a lead inspection unless they waive it.',
         'Insurance: get a quote before you commit. If no one will insure the property at a workable price, that’s a deal breaker.',
       ],
     },
     {
       heading: 'Title, HOA and occupancy problems',
       blocks: [
-        'Have a title company or attorney check what you’d really be buying: liens that survive the sale, unpaid taxes, and anyone else with a claim. If someone lives there, find out who they are and what it will take to get possession legally.',
+        'Have a title company or attorney check what you’d really be buying. Look for liens that survive the sale, unpaid taxes, and anyone else with a claim. If someone lives there, find out who they are and what it will take to get possession legally.',
         'If there’s a homeowners’ association, read its documents before you close. Look for special assessments, lawsuits and a low reserve fund.',
         { list: [
-          'In Nevada, the seller provides the association’s resale package, which includes current and expected assessments and any unsatisfied judgments or pending lawsuits against the association. You can cancel the purchase in writing until midnight of the fifth day after you receive it (NRS 116.4109).',
-          'In California, the seller provides the association’s documents before the sale, including any regular or special assessments the board has approved but that aren’t due yet (Civil Code 4525).',
-          'In Arizona, the association must deliver its disclosure within 10 days, including any special assessment the board approved but hasn’t charged yet and a summary of pending lawsuits (A.R.S. 33-1806 for planned communities, 33-1260 for condos).',
+          'In Nevada, the seller provides the association’s resale package. The package includes current and expected assessments and any unsatisfied judgments or pending lawsuits against the association. You can cancel the purchase in writing until midnight of the fifth day after you receive it (NRS 116.4109).',
+          'In California, the seller provides the association’s documents before the sale. These include any regular or special assessments the board has approved but that aren’t due yet (Civil Code 4525).',
+          'In Arizona, the association must deliver its disclosure within 10 days. It must include any special assessment the board approved but hasn’t charged yet and a summary of pending lawsuits (A.R.S. 33-1806 for planned communities, 33-1260 for condos).',
           'In Utah, ask the association for its governing documents, budget, reserve study and any planned special assessments or lawsuits before you close.',
         ] },
       ],
