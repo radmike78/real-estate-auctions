@@ -209,8 +209,8 @@ export function refuseRollback(r: VerifyResult, storage: Pick<Storage, 'getItem'
 export async function loadVerifiedFeed(publicKeySpkiB64: string | null): Promise<VerifyResult> {
   if (!publicKeySpkiB64) return { ok: false, reason: 'NOT_CONFIGURED', detail: 'No feed-signing public key is configured.' };
   const [data, sig] = await Promise.all([
-    fetch('data/listings.json', { cache: 'no-cache' }),
-    fetch('data/listings.json.sig', { cache: 'no-cache' }),
+    fetch('/data/listings.json', { cache: 'no-cache' }),
+    fetch('/data/listings.json.sig', { cache: 'no-cache' }),
   ]);
   if (!isFeedResponse(data) || !isFeedResponse(sig)) return { ok: false, reason: 'MISSING', detail: 'No published listings feed was found.' };
   return refuseRollback(await verifyFeed(await data.arrayBuffer(), await sig.text(), publicKeySpkiB64));

@@ -98,7 +98,7 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
   return (
     <header className="site-header">
       <a href="#/" className="logo" aria-label="DeedOwl home">
-        <img className="logo-mark" src="logo.svg" alt="" width={42} height={42} />
+        <img className="logo-mark" src="/logo.svg" alt="" width={42} height={42} />
         <span>Deed<b>Owl</b></span>
       </a>
       <nav ref={nav} id="site-nav" className={`site-nav${open ? ' open' : ''}`} aria-label="Main">

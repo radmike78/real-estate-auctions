@@ -16,7 +16,7 @@ export default function RoleNotice() {
   const btn = useRef<HTMLButtonElement>(null);
   const dialog = useRef<HTMLDivElement>(null);
   // A visitor who arrives straight at a tool sees it, with a short note; the full welcome is for the home page.
-  const [home] = useState(() => { const h = window.location.hash; return !h || h === '#' || h === '#/'; });
+  const [home] = useState(() => window.location.pathname === '/' && !window.location.hash.startsWith('#/'));
   useEffect(() => {
     if (!open || !home) return;
     btn.current?.focus();

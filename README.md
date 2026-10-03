@@ -26,7 +26,7 @@ Development builds show fictional Clark County sample properties and professiona
 
 ## Deploy
 
-Search engines don't index `#/` addresses, so the build also writes a plain copy of each lesson, property type, team guide and main page to `dist/<path>/index.html` (for example `/learn/red-flags/`), with `sitemap.xml` and `robots.txt`. Their canonical links use `SITE_URL` at build time (default `https://deedowl.com`; the container build takes it as `--build-arg SITE_URL=...`). Visitors who open one of these addresses go straight to the matching page of the app. After deploying, submit `https://<your domain>/sitemap.xml` in Google Search Console.
+Every page has a normal address (for example `/learn/red-flags/`); old `#/` links from bookmarks and emails open the same page at its new address. The build writes a plain, crawlable copy of each lesson, property type, team guide and main page to `dist/<path>/index.html`, with `sitemap.xml` and `robots.txt`. Their canonical links use `SITE_URL` at build time (default `https://deedowl.com`; the container build takes it as `--build-arg SITE_URL=...`). The server answers any other page path (no file extension, not `/api/` or `/data/`) with the app, so a reverse proxy in front of it must pass every path through, not only `/`. After deploying, submit `https://<your domain>/sitemap.xml` in Google Search Console.
 
 The site ships as **one container image**, built with **Podman** (Docker isn't used or needed). It runs in any of three ways:
 
@@ -49,7 +49,7 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 | Name | Secret? | Required | What it is |
 | --- | --- | --- | --- |
 | `BASE_URL` | no | yes | The web address people use, like `https://deedowl.com`. Used in emails and for secure cookies. |
-| `ADMIN_USERNAME` | no | yes | Admin sign-in name for `/#/admin`. |
+| `ADMIN_USERNAME` | no | yes | Admin sign-in name for `/admin`. |
 | `ADMIN_PASSWORD_HASH` | **yes** | yes | Hash of the admin password (never the password itself). Created in step 3 below. |
 | `DIRECTORY_SIGNING_KEY` | **yes** | yes (web) | Private key (PEM) that signs the advertiser directory. Web server only. Created in step 2 below. |
 | `FEED_SIGNING_KEY` | **yes** | yes (updater) | Private key (PEM) that signs the listings. **Listings updater only**: the web server refuses to start if it's given this key, so a break-in to the web server can't publish fake listings. |

@@ -11,9 +11,15 @@ describe('crawlable pages', () => {
     for (const p of all) expect(p.description.length, p.path).toBeGreaterThan(40);
   });
 
-  it('links only to pages that exist, so crawlers never hit a dead end', () => {
+  it('links only to real pages, so crawlers never hit a dead end', () => {
+    // A pre-built copy, or a page the app serves at that path (the server sends the app for it).
     const paths = new Set(all.map((p) => p.path));
-    for (const p of all) for (const [, href] of p.body.matchAll(/href="(\/(?!#)[^"]*)"/g)) expect(paths.has(href), `${p.path} → ${href}`).toBe(true);
+    const APP_ONLY = new Set(['/playbooks/', '/toolkit/buy-box/']);
+    for (const p of all)
+      for (const [, href] of p.body.matchAll(/href="(\/[^"]*)"/g)) {
+        expect(href, `${p.path} → ${href}`).not.toContain('#');
+        expect(paths.has(href) || APP_ONLY.has(href), `${p.path} → ${href}`).toBe(true);
+      }
   });
 
   it('roots local files, sets the canonical URL and escapes text', () => {

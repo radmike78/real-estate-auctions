@@ -59,7 +59,8 @@ const themeSwitch = (): PostcssPlugin => ({
 export default defineConfig({
   css: { postcss: { plugins: [themeSwitch()] } },
   plugins: [react(), csp(), noSampleData()],
-  base: './',
+  // Absolute: pages live at nested paths (/learn/red-flags/), so assets must load from the site root.
+  base: '/',
   // Never inline fonts as data: URLs; the CSP (font-src 'self') would block them.
   build: { assetsInlineLimit: (file) => (/\.woff2?$/.test(file) ? false : undefined) },
   // `npm run server` provides the API; the dev server forwards /api to it.

@@ -140,7 +140,7 @@ export default function DealsPage() {
       {analyzed.length > 0 && sorted.length > 0 && <h2>Saved Clark County listings</h2>}
       {sorted.length === 0 && analyzed.length > 0 ? null : sorted.length === 0 ? (
         <section className="deals-empty">
-          <img className="owl-empty" src="logo.svg" alt="" width={112} height={112} />
+          <img className="owl-empty" src="/logo.svg" alt="" width={112} height={112} />
           <h2>No saved deals yet</h2>
           <p>Found a property you like? Describe it in <strong>Analyze a deal</strong> and save it: it will show up here with its checklist.</p>
           <a className="btn big" href="#/analyze">Analyze a deal</a>

@@ -21,7 +21,7 @@
       "src/lib/status.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "3cb0406ae3d9fcc6",
+    "hash": "b38cc163772a691a",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -124,8 +124,8 @@
     "files": [
       "src/components/GuidesPage.tsx"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "8b754e1236102538",
+    "reviewed": "2026-10-03",
+    "hash": "d822740e1c318c4b",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -168,7 +168,7 @@
       "src/lib/evidence.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "aebda3275629f0fc",
+    "hash": "bd984f5b7febd780",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -276,7 +276,7 @@
       "src/components/RoleNotice.tsx"
     ],
     "reviewed": "2026-10-03",
-    "hash": "bd034459b5d9047c",
+    "hash": "e5b54475391cd372",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -384,7 +384,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "b4ed85320a276dd3",
+    "hash": "f2b6fb90e1802088",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {

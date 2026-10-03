@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { replaceAddress, toPath } from '../lib/nav';
 import { SHOW_SAMPLE_DATA } from '../data';
 import { useProperties } from '../data/live';
 import { applyFilters, DEFAULT_FILTERS, type Filters } from '../lib/search';
@@ -37,7 +38,7 @@ function searchHash(f: Filters): string {
 const SAVED = 'fsf.search.filters.v1';
 function saveFilters(f: Filters) {
   const hash = searchHash(f);
-  if (location.hash !== hash) history.replaceState(history.state, '', hash);
+  if (`${location.pathname}${location.search}` !== toPath(hash)) replaceAddress(hash);
   try {
     sessionStorage.setItem(SAVED, JSON.stringify({ hash, filters: { ...f, bounds: null } }));
   } catch {

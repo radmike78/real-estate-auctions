@@ -122,9 +122,7 @@ export function pages(): Page[] {
     ['/homeowner-help/', 'Facing foreclosure? Free help', 'Free, trustworthy help for homeowners and renters facing foreclosure, scams to avoid, and how to claim surplus money after a sale.'],
   ];
   for (const [path, title, description] of simple) out.push({ path, title: `${title} · DeedOwl`, description, body: `<h1>${esc(title)}</h1><p>${esc(description)}</p>` });
-  // A link to a page without a crawlable copy keeps its app address.
-  const known = new Set(out.map((p) => p.path));
-  for (const p of out) p.body = p.body.replace(/href="(\/[^"]*\/)"/g, (m, h: string) => (known.has(h) ? m : `href="/#${h.replace(/\/$/, '')}"`));
+  // Every page is a normal path now: one without a crawlable copy is served by the app itself.
   return out;
 }
 
