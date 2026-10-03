@@ -9,6 +9,7 @@ export const financing: Lesson = {
     'What lenders ask of investors: larger down payments, savings in reserve and a limit on financed properties.',
     'How FHA, VA and renovation loans work.',
     'How commercial, SBA and short-term loans differ.',
+    'How one purchase compares across seven ways to pay for it.',
     'What to check before you sign.',
   ],
   sections: [
@@ -71,6 +72,27 @@ export const financing: Lesson = {
       ],
     },
     {
+      heading: 'One $300,000 home, financed seven ways',
+      blocks: [
+        'The same purchase looks very different depending on how you pay for it. This example uses round numbers to compare structures. The rates are examples, not quotes: ask lenders for today’s rates. Monthly payments are principal, interest and mortgage insurance only; taxes, insurance and closing costs come on top.',
+        {
+          table: {
+            head: ['How you pay', 'Cash at purchase', 'Monthly payment', 'The catch'],
+            rows: [
+              ['All cash', '$300,000', 'None', 'Ties up all your money in one property; no help from a loan if repairs run over.'],
+              ['Conventional investment loan: 20% down, 7% for 30 years', '$60,000', 'About $1,600', 'You qualify on your own income and credit, and need savings in reserve.'],
+              ['DSCR loan: 25% down, 7.75% for 30 years', '$75,000', 'About $1,610', 'Qualifies on the property’s rent rather than your income, usually at a higher rate and down payment.'],
+              ['FHA: 3.5% down, 6.5% for 30 years', '$10,500', 'About $2,000', 'You must live there (1–4 units). Includes FHA’s 1.75% upfront and 0.55% yearly mortgage insurance.'],
+              ['VA: no down payment, 6.5% for 30 years', '$0', 'About $1,940', 'For eligible veterans who live there. Includes the 2.15% funding fee added to the loan, unless you’re exempt.'],
+              ['Hard money: 90% of the price, 11% interest-only, 2 points', '$35,400', 'About $2,480', 'Short-term, often due in about a year: you must sell or refinance in time, or face default.'],
+              ['Seller financing: 10% down, 6%, balloon after 5 years', '$30,000', 'About $1,620', 'About $251,000 is still owed at year five. If you can’t refinance then, you could lose the property.'],
+            ],
+          },
+        },
+        'Lower cash up front usually means a bigger monthly payment, a requirement to live there, or a deadline you must meet. Run each option through the rent calculator before you choose.',
+      ],
+    },
+    {
       heading: 'Before you sign',
       blocks: [
         { list: [
@@ -94,6 +116,8 @@ export const financing: Lesson = {
   sources: [
     { label: 'HUD: FHA loans', url: 'https://www.hud.gov/helping-americans/loans' },
     { label: 'HUD Mortgagee Letter 2010-29: FHA credit scores and loan-to-value', url: 'https://www.hud.gov/sites/documents/10-29ml.pdf' },
+    { label: 'HUD Mortgagee Letter 2023-05: FHA mortgage insurance premiums', url: 'https://www.hud.gov/sites/dfiles/OCHCO/documents/2023-05hsgml.pdf' },
+    { label: 'VA: funding fee and closing costs', url: 'https://www.va.gov/housing-assistance/home-loans/funding-fee-and-closing-costs/' },
     { label: 'HUD: 203(k) rehabilitation loans', url: 'https://www.hud.gov/hud-partners/single-family-203k' },
     { label: 'VA: purchase loans', url: 'https://www.va.gov/housing-assistance/home-loans/loan-types/purchase-loan/' },
     { label: 'CFPB: what is private mortgage insurance?', url: 'https://www.consumerfinance.gov/ask-cfpb/what-is-private-mortgage-insurance-en-122/' },

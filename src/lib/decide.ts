@@ -116,7 +116,7 @@ export const QUESTIONS: Question[] = [
 
 export type Answers = Partial<Record<QuestionKey, string>>;
 
-export type StrategyKey = 'househack' | 'rental' | 'reo' | 'flip' | 'auction' | 'apartments' | 'passive' | 'practice';
+export type StrategyKey = 'househack' | 'rental' | 'reo' | 'flip' | 'brrrr' | 'auction' | 'apartments' | 'passive' | 'practice';
 
 export interface ChecklistItem {
   id: string;
@@ -250,6 +250,35 @@ export const STRATEGIES: Strategy[] = [
       { id: 'fl-costs', text: 'Budget buying, holding and selling costs, not just the repairs.', href: '#/analyze' },
       { id: 'fl-permits', text: 'Check permit rules with the city or county building department.' },
       { id: 'fl-practice', text: 'Practice a purchase from start to finish first.', href: '#/practice' },
+    ],
+  },
+  {
+    key: 'brrrr',
+    title: 'Buy, fix, rent and refinance (BRRRR)',
+    what: 'Buy a home that needs work, renovate it, rent it out, then refinance against the higher value to get some of your cash back for the next one.',
+    weights: {
+      goal: { income: 2, growth: 3, quick: 1, handsoff: -3, learn: -1 },
+      cash: { under10: -3, '10to50': -1, '50to150': 3, over150: 2 },
+      ready: { ready: 0, debt: -5, nofund: -5 },
+      borrow: { live: -1, invest: 2, cash: 2, unsure: -1 },
+      time: { monthly: -3, weekly: 1, parttime: 3 },
+      hands: { diy: 2, hire: 2, none: -3 },
+      risk: { low: -3, medium: 1, high: 3 },
+      market: { res: 2, com: -1, unsure: 0 },
+    },
+    risk: {
+      worst: 'Repairs run over or the appraisal comes in low, so the refinance returns less of your cash and it stays stuck in the property.',
+      atRisk: 'The purchase price and the whole repair budget until you refinance. Fannie Mae generally requires six months of ownership before a cash-out refinance, with an exception for homes bought with cash.',
+      time: 'Months to buy and renovate, then months more before you can refinance.',
+    },
+    checklist: [
+      { id: 'br-lessons', text: 'Read the lessons on analyzing a deal and traditional financing.', href: '#/learn/analyze' },
+      { id: 'br-refi', text: 'Before you buy, ask a lender what they’ll lend on a cash-out refinance, how long you must own it first, and what they need from the appraisal.', href: '#/pros/lender' },
+      { id: 'br-arv', text: 'Estimate the value after repairs from sold homes already in finished condition, and plan for an appraisal that comes in lower.' },
+      { id: 'br-rehab', text: 'Get a licensed contractor’s written bid and add a cushion for what you can’t see.', href: '#/pros/contractor' },
+      { id: 'br-rent', text: 'Run the rent calculator at the refinanced loan amount: the rental must still pay for itself.', href: '#/analyze' },
+      { id: 'br-reserves', text: 'Keep cash in reserve in case the refinance takes longer or returns less than planned.' },
+      { id: 'br-practice', text: 'Practice a purchase first.', href: '#/practice' },
     ],
   },
   {

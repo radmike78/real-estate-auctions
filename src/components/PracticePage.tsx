@@ -2,6 +2,7 @@ import { useMarkStep } from '../lib/path';
 import PathNext from './PathNext';
 import { useState } from 'react';
 import PageHero from './PageHero';
+import { DrillList } from './DrillPage';
 import ClassSwitch from './ClassSwitch';
 import type { ClassFilter } from '../lib/propertyClass';
 import { playbookByKey } from '../lib/playbooks';
@@ -63,6 +64,9 @@ export default function PracticePage({ sale }: { sale?: string }) {
             );
           })}
         </div>
+        <h2 className="practice-step"><span aria-hidden>2</span> Or decide: would you buy it?</h2>
+        <p className="muted">Short drills: value a property from comps, check the rent, price the repairs, find the liens and run the numbers, then make the call.</p>
+        <DrillList />
         <PathNext step="practice" />
       </main>
     );

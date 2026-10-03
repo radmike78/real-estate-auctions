@@ -51,6 +51,20 @@ const NRS = (ch: string, title: string, checked: string | null, note?: string): 
 });
 
 const LISTED: Source[] = [
+  // Learn: When to walk away and After you buy (walk-away.ts, after-closing.ts)
+  { id: 'learn-ac-hud-fha', title: 'HUD: Fair Housing Act overview', publisher: 'U.S. Department of Housing and Urban Development', url: 'https://www.hud.gov/helping-americans/fair-housing-act-overview', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-wa-epa-lead', title: 'EPA: lead-based paint disclosure rule', publisher: 'U.S. Environmental Protection Agency', url: 'https://www.epa.gov/lead/lead-based-paint-disclosure-rule-section-1018-title-x', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-ac-nrs118a', title: 'Nevada: NRS 118A (landlord and tenant)', publisher: 'Nevada Legislature', url: 'https://www.leg.state.nv.us/nrs/nrs-118a.html', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-ac-ca1950-5', title: 'California: Civil Code 1950.5 (security deposits)', publisher: 'California Legislature', url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1950.5', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-ac-ca1954', title: 'California: Civil Code 1954 (entry)', publisher: 'California Legislature', url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1954', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-ac-ca1946-2', title: 'California: Civil Code 1946.2 (just cause)', publisher: 'California Legislature', url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1946.2', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-ac-az1321', title: 'Arizona: A.R.S. 33-1321 (security deposits)', publisher: 'Arizona Legislature', url: 'https://www.azleg.gov/ars/33/01321.htm', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-ac-az1343', title: 'Arizona: A.R.S. 33-1343 (entry)', publisher: 'Arizona Legislature', url: 'https://www.azleg.gov/ars/33/01343.htm', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-ac-az1329', title: 'Arizona: A.R.S. 33-1329 (no local rent control)', publisher: 'Arizona Legislature', url: 'https://www.azleg.gov/ars/33/01329.htm', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-ac-ut-deposits', title: 'Utah courts: refunding deposits', publisher: 'Utah State Courts', url: 'https://www.utcourts.gov/en/self-help/case-categories/housing/landlord/refunding-deposits.html', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-wa-fema-maps', title: 'FEMA: flood maps', publisher: 'Federal Emergency Management Agency', url: 'https://www.fema.gov/flood-maps', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-wa-fema-ins', title: 'FEMA: flood insurance', publisher: 'Federal Emergency Management Agency', url: 'https://www.fema.gov/flood-insurance', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-fin-ml-2023-05', title: 'HUD Mortgagee Letter 2023-05: FHA mortgage insurance premiums', publisher: 'U.S. Department of Housing and Urban Development', url: 'https://www.hud.gov/sites/dfiles/OCHCO/documents/2023-05hsgml.pdf', role: 'rules', checked: '2026-10-03' },
   // Homeowner help: surplus after a sale (src/components/HomeownerHelpPage.tsx)
   { id: 'home-surplus-ut-county', title: 'Utah County Auditor: excess funds from the May tax sale', publisher: 'Utah County', url: 'https://auditor.utahcounty.gov/may-tax-sale/excess-funds', role: 'rules', checked: '2026-10-03' },
   { id: 'home-surplus-ut-unclaimed', title: 'Utah State Treasurer: unclaimed property search', publisher: 'Utah State Treasurer', url: 'https://mycash.utah.gov/', role: 'rules', checked: '2026-10-03' },

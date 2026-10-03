@@ -187,3 +187,20 @@ describe('practice stays separate from real listings', () => {
     }
   });
 });
+
+describe('would-you-buy-it drills', () => {
+  it('each drill has missions with a right and a wrong choice, and all three verdicts', async () => {
+    const { DRILLS } = await import('./drills');
+    for (const d of DRILLS) {
+      expect(d.verdict.choices.map((c) => c.label)).toEqual(['Buy', 'Investigate', 'Pass']);
+      for (const m of d.missions) if (m.kind === 'pick') expect(m.options.some((o) => o.good) && m.options.some((o) => !o.good), m.id).toBe(true);
+      for (const m of d.missions) if (m.kind === 'estimate') for (const i of m.items) expect(i.low).toBeLessThanOrEqual(i.high);
+    }
+  });
+  it('never has anyone contact or pressure a homeowner (CLAUDE.md)', async () => {
+    const { DRILLS } = await import('./drills');
+    const text = JSON.stringify(DRILLS);
+    expect(text).toMatch(/Never contact or pressure a homeowner/);
+    expect(text).not.toMatch(/knock on the door|contact the owner/i);
+  });
+});
