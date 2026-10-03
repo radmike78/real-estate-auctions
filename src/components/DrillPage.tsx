@@ -58,10 +58,13 @@ export function drillState(d: Drill): string | null {
 export function DrillList() {
   const saved = load();
   const [mine] = useMyState();
+  const own = (d: Drill) => d.commercial || d.flipBrrrr || d.manufactured || d.land;
   const groups: { key: string; title: string; drills: Drill[] }[] = [
-    ...[...(mine ? [mine] : []), ...Object.keys(STATE_NAMES).filter((k) => k !== mine)].map((st) => ({ key: st, title: STATE_NAMES[st], drills: DRILLS.filter((d) => !d.commercial && !d.flipBrrrr && drillState(d) === st) })),
-    { key: 'any', title: 'Any state', drills: DRILLS.filter((d) => !d.commercial && !d.flipBrrrr && drillState(d) === null) },
+    ...[...(mine ? [mine] : []), ...Object.keys(STATE_NAMES).filter((k) => k !== mine)].map((st) => ({ key: st, title: STATE_NAMES[st], drills: DRILLS.filter((d) => !own(d) && drillState(d) === st) })),
+    { key: 'any', title: 'Any state', drills: DRILLS.filter((d) => !own(d) && drillState(d) === null) },
     { key: 'flip-brrrr', title: 'Flips and BRRRR', drills: DRILLS.filter((d) => d.flipBrrrr) },
+    { key: 'manufactured', title: 'Manufactured homes', drills: DRILLS.filter((d) => d.manufactured) },
+    { key: 'land', title: 'Land', drills: DRILLS.filter((d) => d.land) },
     { key: 'commercial', title: 'Commercial property', drills: DRILLS.filter((d) => d.commercial) },
   ];
   return (
