@@ -2291,3 +2291,4 @@ h1, h2 { letter-spacing: -0.03em; }
 @media (max-width: 1300px) { .glance-facts { --max: 3; } .glance-facts:has(> :nth-child(4):last-child), .glance-facts:has(> :nth-child(8):last-child) { --cols: 2; } }
 @media (max-width: 860px) { .glance-facts { --max: 2; } }
 @media (max-width: 560px) { .glance-facts { --max: 1; } }
+.team-body .linkish { padding: 0; justify-self: start; text-align: left; }

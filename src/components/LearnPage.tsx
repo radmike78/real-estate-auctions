@@ -1,3 +1,5 @@
+import NarrowDown from './NarrowDown';
+import { learnConfig } from '../lib/narrow';
 import StatePicker from './StatePicker';
 import PageHero from './PageHero';
 import PathNext from './PathNext';
@@ -16,6 +18,7 @@ export default function LearnPage() {
         sub="Residential and commercial: the markets, the property types, and how deals are found, analyzed and paid for."
       />
       <StatePicker label="Show rules for" />
+      <NarrowDown config={learnConfig()} intro="Tell us where you are, and we’ll suggest the lessons to read first. Every lesson is still listed below." />
       {LEARN_PATHS.map((path) => (
         <section key={path.title} className="learn-path" aria-labelledby={`path-${path.keys[0]}`}>
           <h2 id={`path-${path.keys[0]}`}>{path.title}</h2>
