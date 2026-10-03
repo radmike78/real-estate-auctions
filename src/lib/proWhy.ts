@@ -8,8 +8,8 @@ export const PRO_WHY = {
     yes: [
       {
         who: "First-time buyer",
-        text: "A buyer’s agent can walk you through offers, contingencies and deadlines, which is where new buyers most often make costly mistakes.",
-        example: "Since August 17, 2024, agents ask buyers to sign a written buyer agreement after choosing them, and the agreement must spell out the pay (a set amount, flat fee, percent or hourly rate), so you know the cost up front.",
+        text: "A buyer’s agent can walk you through offers, contingencies and deadlines. That is where new buyers most often make costly mistakes.",
+        example: "Since August 17, 2024, agents ask buyers to sign a written buyer agreement after choosing them. The agreement must spell out the pay: a set amount, flat fee, percent or hourly rate. So you know the cost up front.",
         source: {
           label: "NAR: consumer guide to written buyer agreements",
           url: "https://www.nar.realtor/the-facts/consumer-guide-written-buyer-agreements"
@@ -17,11 +17,11 @@ export const PRO_WHY = {
       },
       {
         who: "Buyer of bank-owned (REO) homes",
-        text: "Banks and Fannie Mae/Freddie Mac often list their foreclosed homes through local agents, so an agent can get you showings and submit offers in the format the seller expects."
+        text: "Banks and Fannie Mae/Freddie Mac often list their foreclosed homes through local agents. An agent can get you showings and send offers in the form the seller expects."
       },
       {
         who: "Investor new to a market",
-        text: "A local agent knows neighborhood prices, rent levels and HOA quirks that are hard to see from listing photos or public records."
+        text: "A local agent knows neighborhood prices, rents and HOA quirks. These are hard to see from listing photos or public records."
       },
       {
         who: "Busy landlord or out-of-state buyer",
@@ -31,8 +31,8 @@ export const PRO_WHY = {
     no: [
       {
         who: "Anyone on a tight budget",
-        text: "Buyer-agent pay is now negotiated, not automatic, so you may have to cover some or all of the fee yourself if the seller won’t.",
-        example: "NAR’s own guide says the agent’s pay is negotiable and not set by law, and must be written into the buyer agreement.",
+        text: "Buyer-agent pay is now negotiated, not automatic. If the seller won’t pay, you may have to cover some or all of the fee yourself.",
+        example: "NAR’s own guide says the agent’s pay is negotiable and not set by law. It must be written into the buyer agreement.",
         source: {
           label: "NAR: consumer guide to written buyer agreements",
           url: "https://www.nar.realtor/the-facts/consumer-guide-written-buyer-agreements"
@@ -40,7 +40,7 @@ export const PRO_WHY = {
       },
       {
         who: "Tax-sale and courthouse-auction buyer",
-        text: "Government tax sales and trustee auctions are run directly by the county or trustee, so a buyer’s agent usually has no transaction to manage and may add cost without adding access.",
+        text: "The county or trustee runs government tax sales and trustee auctions directly. So a buyer’s agent usually has no deal to manage. An agent may add cost without getting you in any sooner.",
         example: "In Sonoma County, California, the treasurer-tax collector says legal title to a tax-defaulted parcel comes only from winning the county’s auction.",
         source: {
           label: "Sonoma County (CA) Treasurer-Tax Collector, Tax-defaulted property auctions FAQs",
@@ -49,11 +49,11 @@ export const PRO_WHY = {
       },
       {
         who: "Experienced investor",
-        text: "Agents are paid when a deal closes, so read the written buyer agreement carefully for the fee, the term and whether it is exclusive before you sign."
+        text: "Agents are paid when a deal closes. Before you sign, read the written buyer agreement for the fee, the term and whether it is exclusive."
       },
       {
         who: "Everyone",
-        text: "An agent is not an inspector, appraiser or lawyer; don’t rely on an agent’s opinion of a home’s condition or legal title."
+        text: "An agent is not an inspector, appraiser or lawyer. Don’t rely on an agent’s opinion of a home’s condition or legal title."
       }
     ]
   },
@@ -61,12 +61,12 @@ export const PRO_WHY = {
     yes: [
       {
         who: "First-time buyer",
-        text: "A loan officer can tell you what you qualify for, which programs fit (FHA, VA, conventional) and how big a down payment you really need."
+        text: "A loan officer can tell you what you qualify for. They can also tell you which programs fit (FHA, VA, conventional) and how big a down payment you really need."
       },
       {
         who: "Anyone financing a purchase",
-        text: "Shopping several lenders can save real money because rates differ for similar borrowers.",
-        example: "CFPB research found the average buyer paid about $300 a year more than the lowest rate available to them, or $9,000 over a 30-year loan.",
+        text: "Shopping several lenders can save real money. Rates differ, even for similar borrowers.",
+        example: "CFPB research found the average buyer paid about $300 a year more than the lowest rate available to them. That is $9,000 over a 30-year loan.",
         source: {
           label: "CFPB blog, the one thing you can do to save on your new home",
           url: "https://www.consumerfinance.gov/about-us/blog/one-thing-you-can-do-take-control-homebuying-process-and-save-your-new-home-any-housing-market/"
@@ -74,18 +74,18 @@ export const PRO_WHY = {
       },
       {
         who: "Landlord building a portfolio",
-        text: "Long-term, fixed-rate bank financing is usually far cheaper than private money, which helps rental cash flow."
+        text: "Long-term, fixed-rate bank loans are usually far cheaper than private money. That helps your rental cash flow."
       },
       {
         who: "Bank-owned (REO) buyer",
-        text: "A pre-approval letter makes your offer on a listed foreclosure more credible to the selling bank."
+        text: "A pre-approval letter makes your offer on a listed foreclosure more believable to the selling bank."
       }
     ],
     no: [
       {
         who: "Trustee-sale (foreclosure auction) buyer",
-        text: "Courthouse and trustee auctions expect payment in cash or cashier’s checks, so a normal mortgage can’t close in time.",
-        example: "California Civil Code 2924h lets the trustee require every bidder to show they can pay the full final bid in cash, a cashier’s check or a designated cash equivalent.",
+        text: "Courthouse and trustee auctions expect cash or cashier’s checks. A normal mortgage can’t close in time.",
+        example: "California Civil Code 2924h lets the trustee require every bidder to show they can pay the full final bid. Payment can be cash, a cashier’s check or a designated cash equivalent.",
         source: {
           label: "California Civil Code section 2924h (trustee’s sale bidding)",
           url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2924h"
@@ -93,8 +93,8 @@ export const PRO_WHY = {
       },
       {
         who: "Buyer of a fixer-upper",
-        text: "Many standard loans require the home to meet property standards; if the appraisal finds major repairs, the lender can require them before closing.",
-        example: "The CFPB notes a lender may require major repairs, like a new roof, to be made before closing as a condition of the loan.",
+        text: "Many standard loans require the home to meet property standards. If the appraisal finds major repairs, the lender can require them before closing.",
+        example: "The CFPB notes a lender may require major repairs, like a new roof, before closing. This can be a condition of the loan.",
         source: {
           label: "CFPB, Schedule a home inspection",
           url: "https://www.consumerfinance.gov/owning-a-home/close/schedule-a-home-inspection/"
@@ -102,11 +102,11 @@ export const PRO_WHY = {
       },
       {
         who: "Anyone on a tight budget",
-        text: "Being approved for an amount doesn’t mean you can comfortably afford it; set your own payment limit, including taxes, insurance and repairs."
+        text: "Being approved for an amount doesn’t mean you can easily afford it. Set your own payment limit, including taxes, insurance and repairs."
       },
       {
         who: "Everyone",
-        text: "Don’t take the first quote; compare Loan Estimates from at least a few lenders before you commit."
+        text: "Don’t take the first quote. Compare Loan Estimates from at least a few lenders before you commit."
       }
     ]
   },
@@ -114,33 +114,33 @@ export const PRO_WHY = {
     yes: [
       {
         who: "Fix-and-flip investor",
-        text: "Hard-money lenders lend mainly on the property’s value and can close in days, which can work for a house a bank won’t finance because of its condition."
+        text: "Hard-money lenders lend mainly on the property’s value and can close in days. That can work for a house a bank won’t finance because of its condition."
       },
       {
         who: "Auction or cash buyer",
-        text: "Some investors pay cash at auction and then use private money to repair the property before refinancing into a cheaper loan."
+        text: "Some investors pay cash at auction. Then they use private money to repair the property before refinancing into a cheaper loan."
       },
       {
         who: "Experienced investor with a clear exit",
-        text: "If you have a solid, tested plan to sell or refinance within months, the speed can be worth the higher cost."
+        text: "Say you have a solid, tested plan to sell or refinance within months. If so, the speed can be worth the higher cost."
       }
     ],
     no: [
       {
         who: "Anyone on a tight budget",
-        text: "Private loans usually carry much higher rates and upfront points than bank mortgages, so cost overruns or delays eat profits quickly."
+        text: "Private loans usually cost much more than bank mortgages, with higher rates and upfront points. Cost overruns or delays eat profits quickly."
       },
       {
         who: "First-time investor",
-        text: "These loans are short-term; if the house doesn’t sell or refinance before the loan is due, you can lose the property and your down payment."
+        text: "These loans are short-term. If the house doesn’t sell or refinance before the loan is due, you can lose the property and your down payment."
       },
       {
         who: "Landlord planning to hold",
-        text: "Short-term, high-rate money rarely fits a long-term rental unless you’re sure you can refinance; rental income seldom covers hard-money payments."
+        text: "Short-term, high-rate money rarely fits a long-term rental unless you’re sure you can refinance. Rental income seldom covers hard-money payments."
       },
       {
         who: "Everyone",
-        text: "Read the note for prepayment penalties, default interest, extension fees and balloon dates, and have an attorney review it if anything is unclear."
+        text: "Read the loan papers for prepayment penalties, default interest, extension fees and balloon dates. If anything is unclear, have an attorney review it."
       }
     ]
   },
@@ -148,12 +148,12 @@ export const PRO_WHY = {
     yes: [
       {
         who: "Every buyer",
-        text: "A neutral title and escrow company holds the money and documents and only releases them when every condition is met, which protects both sides."
+        text: "A neutral title and escrow company holds the money and papers. It only releases them when every condition is met. That protects both sides."
       },
       {
         who: "Anyone wiring closing funds",
-        text: "Wire fraud targets closings; a reputable escrow officer you call at a known number is your best check on wiring instructions.",
-        example: "In a March 2024 case handled by FBI Denver, buyers received a spoofed email from their supposed agents asking them to wire $956,342 to close; the FBI’s Recovery Asset Team stopped and returned $955,060.",
+        text: "Scammers target closings with wire fraud. Your best check on wiring instructions is a trusted escrow officer you call at a known number.",
+        example: "In a March 2024 case handled by FBI Denver, buyers got a fake email from their supposed agents. It asked them to wire $956,342 to close. The FBI’s Recovery Asset Team stopped and returned $955,060.",
         source: {
           label: "FBI Internet Crime Complaint Center, 2024 Internet Crime Report",
           url: "https://www.ic3.gov/AnnualReport/Reports/2024_IC3Report.pdf"
@@ -161,7 +161,7 @@ export const PRO_WHY = {
       },
       {
         who: "Buyer of a bank-owned or older property",
-        text: "Owner’s title insurance can protect you if someone later claims an interest in the home from before you bought it.",
+        text: "Owner’s title insurance can protect you if someone later claims a right to the home from before you bought it.",
         example: "The CFPB says such claims could come from a previous owner’s unpaid taxes or from contractors who weren’t paid.",
         source: {
           label: "CFPB, What is owner’s title insurance?",
@@ -170,13 +170,13 @@ export const PRO_WHY = {
       },
       {
         who: "Auction buyer doing research",
-        text: "A title company can run a title search or preliminary report before you bid, so you know which liens may survive the sale."
+        text: "A title company can run a title search or preliminary report before you bid. Then you know which liens may survive the sale."
       }
     ],
     no: [
       {
         who: "Tax-sale buyer",
-        text: "Title insurers often won’t insure a tax deed right away, so you may need to wait or file a quiet title action first.",
+        text: "Title insurers often won’t insure a tax deed right away. You may need to wait or file a quiet title action first.",
         example: "Sonoma County, California tells tax-sale buyers that most title companies won’t insure title for one year after the tax deed is recorded.",
         source: {
           label: "Sonoma County (CA) Treasurer-Tax Collector, Tax-defaulted property auctions FAQs",
@@ -185,15 +185,15 @@ export const PRO_WHY = {
       },
       {
         who: "Anyone with a mortgage",
-        text: "The lender’s title policy protects the lender, not you; you need a separate owner’s policy to protect your own investment."
+        text: "The lender’s title policy protects the lender, not you. You need a separate owner’s policy to protect your own money."
       },
       {
         who: "Anyone on a tight budget",
-        text: "You can usually shop for title insurance rather than accept the first provider suggested."
+        text: "You can usually shop for title insurance rather than take the first company suggested."
       },
       {
         who: "Everyone",
-        text: "Never follow wiring instructions from an email, even one that looks like it’s from escrow; scammers copy real names and logos."
+        text: "Never follow wiring instructions from an email, even one that looks like it’s from escrow. Scammers copy real names and logos."
       }
     ]
   },
@@ -201,7 +201,7 @@ export const PRO_WHY = {
     yes: [
       {
         who: "Tax-sale buyer",
-        text: "A real estate attorney can file a quiet title action, which is often what makes a tax-deed property insurable and sellable.",
+        text: "A real estate attorney can file a quiet title action. That is often what makes a tax-deed property insurable and sellable.",
         example: "Sonoma County, California warns that a quiet title action may be needed before title insurance is available on tax-sale property.",
         source: {
           label: "Sonoma County (CA) Treasurer-Tax Collector, Tax-defaulted property auctions FAQs",
@@ -210,11 +210,11 @@ export const PRO_WHY = {
       },
       {
         who: "Auction or foreclosure buyer",
-        text: "An attorney can review the sale notice and lien search to explain which debts survive the sale and what risks remain."
+        text: "An attorney can review the sale notice and lien search. They can explain which debts survive the sale and what risks remain."
       },
       {
         who: "Investor forming an LLC or partnership",
-        text: "Agreements on who puts in money, who decides and how profits are split prevent expensive disputes later."
+        text: "Write down who puts in money, who decides and how profits are split. Clear agreements prevent costly fights later."
       },
       {
         who: "Landlord",
@@ -224,12 +224,12 @@ export const PRO_WHY = {
     no: [
       {
         who: "Simple, standard purchase",
-        text: "In Nevada, California, Arizona and Utah, escrow and title companies commonly handle closings, so many routine purchases close without an attorney."
+        text: "In Nevada, California, Arizona and Utah, escrow and title companies commonly handle closings. So many routine purchases close without an attorney."
       },
       {
         who: "Anyone on a tight budget",
-        text: "Hourly fees add up; ask for a written fee agreement and an estimate before work starts.",
-        example: "In California, an attorney must put the fee contract in writing when total expected cost to the client will exceed $1,000 (with some exceptions).",
+        text: "Hourly fees add up. Ask for a written fee agreement and an estimate before work starts.",
+        example: "In California, an attorney must put the fee contract in writing when the total expected cost to the client will exceed $1,000 (with some exceptions).",
         source: {
           label: "California Business and Professions Code section 6148 (attorney fee agreements)",
           url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=BPC&sectionNum=6148"
@@ -237,11 +237,11 @@ export const PRO_WHY = {
       },
       {
         who: "Everyone",
-        text: "Check the attorney’s license with the state bar and choose someone who actually handles real estate in that state; rules differ by state."
+        text: "Check the attorney’s license with the state bar. Choose someone who actually handles real estate in that state, because rules differ by state."
       },
       {
         who: "Investor in a hurry",
-        text: "A quiet title action can take months, so factor that time into your holding costs before you bid."
+        text: "A quiet title action can take months. Count that time in your holding costs before you bid."
       }
     ]
   },
@@ -249,34 +249,34 @@ export const PRO_WHY = {
     yes: [
       {
         who: "First-time buyer",
-        text: "An inspector looks at the home’s condition; an appraisal only estimates value for the lender, so you generally need both."
+        text: "An inspector looks at the home’s condition. An appraisal only estimates value for the lender. So you generally need both."
       },
       {
         who: "Buyer of a bank-owned home",
-        text: "Foreclosures are often sold as-is; an inspection tells you what you’re getting into and can support a renegotiation or a decision to walk away."
+        text: "Foreclosures are often sold as-is. An inspection tells you what you’re getting into. It can also support asking for a better deal or walking away."
       },
       {
         who: "Landlord",
-        text: "Finding roof, plumbing or electrical problems before you buy lets you budget repairs and avoid surprise vacancies."
+        text: "Find roof, plumbing or electrical problems before you buy. Then you can budget for repairs and avoid surprise vacancies."
       },
       {
         who: "Anyone with an inspection contingency",
-        text: "If your contract allows it, an unsatisfactory inspection can let you cancel without penalty."
+        text: "If your contract allows it, a bad inspection can let you cancel without penalty."
       }
     ],
     no: [
       {
         who: "Courthouse-auction or tax-sale buyer",
-        text: "You often can’t get inside before the sale, so an inspection may be impossible and the price must allow for unknown repairs."
+        text: "You often can’t get inside before the sale, so an inspection may be impossible. Your price must allow for unknown repairs."
       },
       {
         who: "Everyone",
-        text: "Choose your own inspector; someone paid by another party, or only if the deal closes, may play down problems."
+        text: "Choose your own inspector. Someone paid by another party, or paid only if the deal closes, may play down problems."
       },
       {
         who: "Everyone",
-        text: "Check credentials; licensing rules vary by state.",
-        example: "In Nevada, acting as a home inspector without a state certificate is a misdemeanor (NRS 645D.160).",
+        text: "Check credentials. Licensing rules vary by state.",
+        example: "In Nevada, working as a home inspector without a state certificate is a misdemeanor (NRS 645D.160).",
         source: {
           label: "Nevada Revised Statutes chapter 645D (inspectors), NRS 645D.160",
           url: "https://www.leg.state.nv.us/NRS/NRS-645D.html"
@@ -284,7 +284,7 @@ export const PRO_WHY = {
       },
       {
         who: "Buyer of an older or rural home",
-        text: "A general inspection is visual and may not cover sewer lines, wells, septic, mold or pests; you may need specialists."
+        text: "A general inspection is visual. It may not cover sewer lines, wells, septic, mold or pests, so you may need specialists."
       }
     ]
   },
@@ -292,16 +292,16 @@ export const PRO_WHY = {
     yes: [
       {
         who: "Fix-and-flip investor",
-        text: "A licensed contractor can give a written bid before you buy, so your offer reflects real repair costs."
+        text: "A licensed contractor can give a written bid before you buy. Then your offer reflects real repair costs."
       },
       {
         who: "Landlord",
-        text: "Licensed contractors pull permits, which matters for safety, insurance claims and selling later."
+        text: "Licensed contractors pull permits. That matters for safety, insurance claims and selling later."
       },
       {
         who: "Anyone hiring out work in California",
-        text: "Hiring licensed is required for larger jobs and gives you access to state complaint processes.",
-        example: "In California, a contractor’s license is required for jobs of $500 or more; in a May 2024 sting in Merced, CSLB referred 11 people for misdemeanor prosecution for contracting without a license.",
+        text: "Hiring licensed is required for larger jobs. It also gives you access to state complaint processes.",
+        example: "In California, a contractor’s license is required for jobs of $500 or more. In a May 2024 sting in Merced, CSLB referred 11 people for misdemeanor charges for contracting without a license.",
         source: {
           label: "California Contractors State License Board press release, Merced sting (May 21, 2024)",
           url: "https://www.cslb.ca.gov/Resources/PressReleases/2024/Merced_Sting.pdf"
@@ -309,14 +309,14 @@ export const PRO_WHY = {
       },
       {
         who: "Buyer of an auction or REO property",
-        text: "Contractors can find structural, roof or system issues quickly once you have access, so you can plan the work in order."
+        text: "Once you have access, contractors can quickly find structural, roof or system problems. Then you can plan the work in order."
       }
     ],
     no: [
       {
         who: "Anyone on a tight budget",
-        text: "An unlicensed ‘handyman’ may be cheaper but often has no insurance and can leave you liable for injuries or bad work.",
-        example: "In Nevada, contracting without a license is a misdemeanor on the first offense and a Class E felony on the third (NRS 624.700).",
+        text: "An unlicensed ‘handyman’ may be cheaper but often has no insurance. You could be liable for injuries or bad work.",
+        example: "In Nevada, contracting without a license is a misdemeanor on the first offense. On the third, it is a Class E felony (NRS 624.700).",
         source: {
           label: "Nevada State Contractors Board, Unlicensed contracting: penalties and law",
           url: "https://www.nvcontractorsboard.com/investigations/unlicensed-contracting-penalties-law/"
@@ -325,7 +325,7 @@ export const PRO_WHY = {
       {
         who: "Everyone",
         text: "Don’t pay a large deposit up front.",
-        example: "In California, a home improvement contractor may ask for no more than 10% of the project price or $1,000, whichever is less, as a down payment.",
+        example: "In California, a home improvement contractor may ask for no more than 10% of the project price or $1,000 as a down payment, whichever is less.",
         source: {
           label: "California Contractors State License Board press release, Merced sting (May 21, 2024)",
           url: "https://www.cslb.ca.gov/Resources/PressReleases/2024/Merced_Sting.pdf"
@@ -333,11 +333,11 @@ export const PRO_WHY = {
       },
       {
         who: "Experienced investor",
-        text: "Small cosmetic jobs may not need a general contractor; managing trades yourself saves markup but costs your time, and permits still apply."
+        text: "Small cosmetic jobs may not need a general contractor. Managing trades yourself saves markup but costs your time. Permits still apply."
       },
       {
         who: "Everyone",
-        text: "Verify the license on the state board’s website (NSCB in Nevada, CSLB in California, ROC in Arizona, DOPL in Utah) before signing anything."
+        text: "Check the license on the state board’s website before signing anything: NSCB in Nevada, CSLB in California, ROC in Arizona, DOPL in Utah."
       }
     ]
   },
@@ -349,8 +349,8 @@ export const PRO_WHY = {
       },
       {
         who: "Buyer of a vacant foreclosure or flip",
-        text: "Standard policies can stop covering certain losses when a building sits empty, so you may need a vacant-property policy.",
-        example: "California’s standard fire policy form says the insurer isn’t liable for loss while a building is vacant or unoccupied beyond 60 consecutive days, unless the policy says otherwise.",
+        text: "Standard policies can stop covering certain losses when a building sits empty. You may need a vacant-property policy.",
+        example: "California’s standard fire policy form says the insurer isn’t liable for loss while a building is vacant or unoccupied beyond 60 days in a row. That holds unless the policy says otherwise.",
         source: {
           label: "California Insurance Code section 2071 (standard form fire policy)",
           url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=INS&sectionNum=2071"
@@ -358,12 +358,12 @@ export const PRO_WHY = {
       },
       {
         who: "Landlord",
-        text: "An agent can set up a landlord (dwelling fire) policy and liability coverage, which a regular homeowners policy may not provide for a rental."
+        text: "An agent can set up a landlord (dwelling fire) policy and liability coverage. A regular homeowners policy may not provide these for a rental."
       },
       {
         who: "Anyone in a flood-prone area",
-        text: "Flood is usually a separate policy, so ask about it explicitly.",
-        example: "FEMA says most homeowners insurance does not cover flood damage, and almost one-third of NFIP claims from 2014 to 2024 came from low- to moderate-risk flood zones.",
+        text: "Flood is usually a separate policy, so ask about it directly.",
+        example: "FEMA says most homeowners insurance does not cover flood damage. Almost one-third of NFIP claims from 2014 to 2024 came from low- to moderate-risk flood zones.",
         source: {
           label: "FEMA / FloodSmart, Most homeowners insurance does not cover flood damage (2025)",
           url: "https://agents.floodsmart.gov/sites/default/files/media/document/2025-08/fema_nfip-most-homeowners-insurance-does-not-cover-flood-damage_postcard_08-2025.pdf"
@@ -373,19 +373,19 @@ export const PRO_WHY = {
     no: [
       {
         who: "Anyone comparing prices",
-        text: "An agent tied to one company can only offer that company’s policies; compare with an independent agent or other carriers."
+        text: "An agent tied to one company can only offer that company’s policies. Compare with an independent agent or other insurers."
       },
       {
         who: "Everyone",
-        text: "Read the exclusions yourself; vacancy, flood, earthquake and short-term rental use are common gaps."
+        text: "Read the exclusions yourself. Vacancy, flood, earthquake and short-term rental use are common gaps."
       },
       {
         who: "Auction buyer",
-        text: "Some insurers hesitate to cover homes they can’t inspect or that need major repairs; line up options before you bid so the home isn’t uninsured after the sale."
+        text: "Some insurers hesitate to cover homes they can’t inspect or that need major repairs. Line up options before you bid, so the home isn’t uninsured after the sale."
       },
       {
         who: "Anyone on a tight budget",
-        text: "Very low premiums can mean high deductibles or thin coverage; check what you’d actually be paid after a claim."
+        text: "Very low premiums can mean high deductibles or thin coverage. Check what you’d actually be paid after a claim."
       }
     ]
   },
@@ -393,8 +393,8 @@ export const PRO_WHY = {
     yes: [
       {
         who: "Landlord with a full-time job",
-        text: "Rental losses are limited by passive activity rules, and a CPA can tell you how much you can deduct.",
-        example: "IRS Publication 925 lets active participants deduct up to $25,000 of rental losses against other income, phased out between $100,000 and $150,000 of modified AGI.",
+        text: "Passive activity rules limit rental losses. A CPA can tell you how much you can deduct.",
+        example: "IRS Publication 925 lets active participants deduct up to $25,000 of rental losses against other income. This phases out between $100,000 and $150,000 of modified AGI.",
         source: {
           label: "IRS Publication 925, Passive Activity and At-Risk Rules",
           url: "https://www.irs.gov/publications/p925"
@@ -402,7 +402,7 @@ export const PRO_WHY = {
       },
       {
         who: "New landlord",
-        text: "Depreciation is a major rental deduction, and a CPA can set it up correctly from the start.",
+        text: "Depreciation is a major rental deduction. A CPA can set it up correctly from the start.",
         example: "IRS Publication 527 says residential rental buildings are depreciated over 27.5 years under the general system.",
         source: {
           label: "IRS Publication 527, Residential Rental Property",
@@ -411,17 +411,17 @@ export const PRO_WHY = {
       },
       {
         who: "Fix-and-flip investor",
-        text: "Flips are often taxed differently from long-term rentals, and a CPA can help you plan for the tax before you sell."
+        text: "Flips are often taxed differently from long-term rentals. A CPA can help you plan for the tax before you sell."
       },
       {
         who: "Anyone starting an LLC or partnership",
-        text: "Choosing an entity affects taxes, bookkeeping and filing; a CPA can explain the trade-offs."
+        text: "The type of business you choose affects taxes, bookkeeping and filing. A CPA can explain the trade-offs."
       }
     ],
     no: [
       {
         who: "Anyone on a tight budget",
-        text: "If you have one simple rental, good records and tax software may be enough; consider a one-time consultation instead of ongoing fees."
+        text: "If you have one simple rental, good records and tax software may be enough. Think about a one-time consultation instead of ongoing fees."
       },
       {
         who: "Higher-income landlord",
@@ -429,8 +429,8 @@ export const PRO_WHY = {
       },
       {
         who: "Everyone",
-        text: "Not every tax preparer is a CPA; check credentials before you hire.",
-        example: "The IRS notes that anyone with a Preparer Tax Identification Number can prepare returns for pay, and skill levels vary.",
+        text: "Not every tax preparer is a CPA. Check credentials before you hire.",
+        example: "The IRS notes that anyone with a Preparer Tax Identification Number can prepare returns for pay. Skill levels vary.",
         source: {
           label: "IRS, Choosing a tax professional",
           url: "https://www.irs.gov/tax-professionals/choosing-a-tax-professional"
@@ -438,7 +438,7 @@ export const PRO_WHY = {
       },
       {
         who: "Everyone",
-        text: "Aggressive advice is still your responsibility; you sign the return and owe any tax, interest and penalties."
+        text: "Risky advice is still your responsibility. You sign the return and owe any tax, interest and penalties."
       }
     ]
   },
@@ -446,12 +446,12 @@ export const PRO_WHY = {
     yes: [
       {
         who: "Out-of-state or busy landlord",
-        text: "A manager handles showings, screening, rent collection and repairs so you don’t have to be on call."
+        text: "A manager handles showings, screening, rent collection and repairs. You don’t have to be on call."
       },
       {
         who: "New landlord",
-        text: "A licensed manager should know fair housing, deposit and notice rules, which helps you avoid costly mistakes.",
-        example: "In Nevada, managers must hold a real estate license plus a property management permit, which requires at least 24 classroom hours of property management instruction.",
+        text: "A licensed manager should know fair housing, deposit and notice rules. That helps you avoid costly mistakes.",
+        example: "In Nevada, managers must hold a real estate license plus a property management permit. The permit requires at least 24 classroom hours of property management training.",
         source: {
           label: "Nevada Revised Statutes chapter 645, NRS 645.230 and 645.6052",
           url: "https://www.leg.state.nv.us/NRS/NRS-645.html"
@@ -463,13 +463,13 @@ export const PRO_WHY = {
       },
       {
         who: "Owner of a property with a problem tenant",
-        text: "A manager can handle notices and coordinate with an eviction attorney while following the legal process."
+        text: "A manager can handle notices and work with an eviction attorney while following the legal process."
       }
     ],
     no: [
       {
         who: "Anyone on a tight budget",
-        text: "Fees (usually a share of monthly rent plus leasing and renewal fees) can wipe out the cash flow on a small rental; run the numbers first."
+        text: "Fees can wipe out the cash flow on a small rental. They are usually a share of monthly rent plus leasing and renewal fees. Run the numbers first."
       },
       {
         who: "Everyone",
@@ -482,7 +482,7 @@ export const PRO_WHY = {
       },
       {
         who: "Hands-on landlord",
-        text: "If you live nearby and have time, managing one or two units yourself can work and teaches you the business."
+        text: "If you live nearby and have time, managing one or two units yourself can work. It also teaches you the business."
       },
       {
         who: "Everyone",
@@ -494,8 +494,8 @@ export const PRO_WHY = {
     yes: [
       {
         who: "Landlord",
-        text: "Evictions must go through the courts; an eviction attorney helps you get the notices and filings right the first time.",
-        example: "In 2022, California’s Attorney General said the only lawful way to evict a tenant is to file a lawsuit and wait for the court to order the sheriff or marshal to carry it out.",
+        text: "Evictions must go through the courts. An eviction attorney helps you get the notices and filings right the first time.",
+        example: "In 2022, California’s Attorney General said the only lawful way to evict a tenant is to file a lawsuit. Then you wait for the court to order the sheriff or marshal to carry it out.",
         source: {
           label: "California Attorney General press release on unlawful lockouts (July 13, 2022)",
           url: "https://oag.ca.gov/node/555214"
@@ -503,15 +503,15 @@ export const PRO_WHY = {
       },
       {
         who: "Buyer of an occupied foreclosure",
-        text: "Former owners or tenants may still be living there after the sale, and removing them requires a court process and the sheriff or constable, not you."
+        text: "Former owners or tenants may still live there after the sale. Removing them takes a court process and the sheriff or constable, not you."
       },
       {
         who: "Landlord trying to save time",
-        text: "A mistake in a notice can restart the clock; professionals who file every week know local court rules."
+        text: "A mistake in a notice can restart the clock. Professionals who file every week know local court rules."
       },
       {
         who: "Any landlord",
-        text: "Self-help lockouts can cost you money even if the tenant owes rent.",
+        text: "Locking a tenant out yourself can cost you money, even if the tenant owes rent.",
         example: "In Nevada, a tenant unlawfully locked out can recover actual damages and up to $2,500 set by the court (NRS 118A.390).",
         source: {
           label: "Nevada Revised Statutes chapter 118A, NRS 118A.390",
@@ -522,11 +522,11 @@ export const PRO_WHY = {
     no: [
       {
         who: "Anyone on a tight budget",
-        text: "Eviction costs, lost rent and turnover can exceed what a tenant owes; a payment plan or negotiated move-out may cost less."
+        text: "Eviction costs, lost rent and turnover can add up to more than the tenant owes. A payment plan or agreed move-out may cost less."
       },
       {
         who: "Auction buyer",
-        text: "Factor eviction time and cost into your bid; the county or trustee generally won’t do it for you.",
+        text: "Count eviction time and cost in your bid. The county or trustee generally won’t do it for you.",
         example: "Sonoma County, California tells tax-sale buyers it does not handle foreclosure or eviction processes.",
         source: {
           label: "Sonoma County (CA) Treasurer-Tax Collector, Tax-defaulted property auctions FAQs",
@@ -535,38 +535,38 @@ export const PRO_WHY = {
       },
       {
         who: "Everyone",
-        text: "Never change locks, shut off utilities or remove belongings to force someone out, even with help from a ‘process server’."
+        text: "Never change locks, shut off utilities or remove belongings to force someone out. That holds even with help from a ‘process server’."
       },
       {
         who: "Landlord with a simple case",
-        text: "Courts publish self-help forms, so some landlords handle simple cases themselves, but errors can delay the case."
+        text: "Courts publish self-help forms, so some landlords handle simple cases themselves. But errors can delay the case."
       }
     ]
   },
   appraiser: {
     yes: [
       { who: "Investor setting a maximum bid", text: "An appraiser gives a written opinion of value. Ask for two numbers: the value as it stands today (\"as is\") and the value after repairs. Then set your top bid so the deal still works after repair costs." },
-      { who: "Cash buyer with no lender", text: "If you pay cash, no lender checks the price for you. Hiring your own state-licensed or certified appraiser gives you an independent second look before you commit your money.", example: "In a scheme run from Utah, beginner investors bought West Virginia homes using false appraisals that about doubled their value. One home appraised at $645,000 had been under contract for $355,000. It later sold in a short sale (a sale for less than the loan balance) for $282,500.", source: { label: "U.S. Attorney, S.D. West Virginia (2012)", url: "https://www.justice.gov/archive/usao/wvs/press_releases/Nov2012/attachments/110512Morris-sentencing.html" } },
-      { who: "Investor planning to refinance", text: "When you refinance, your lender may order a new appraisal and may charge you a reasonable fee for it. That appraised value helps decide how much you can borrow, so plan your numbers around a realistic value.", source: { label: "CFPB: What are appraisals?", url: "https://www.consumerfinance.gov/ask-cfpb/what-are-appraisals-and-why-do-i-need-to-look-at-them-en-167/" } },
-      { who: "Any buyer using a first mortgage on a home", text: "Federal law (the Equal Credit Opportunity Act, Regulation B) says your lender must give you a free copy of every appraisal, right after it’s finished or at least three business days before closing, whichever comes first.", source: { label: "CFPB: Regulation B § 1002.14", url: "https://www.consumerfinance.gov/rules-policy/regulations/1002/14/" } },
+      { who: "Cash buyer with no lender", text: "If you pay cash, no lender checks the price for you. Hire your own state-licensed or certified appraiser. You get an independent second look before you commit your money.", example: "In a scheme run from Utah, beginner investors bought West Virginia homes using false appraisals that about doubled their value. One home appraised at $645,000 had been under contract for $355,000. It later sold in a short sale (a sale for less than the loan balance) for $282,500.", source: { label: "U.S. Attorney, S.D. West Virginia (2012)", url: "https://www.justice.gov/archive/usao/wvs/press_releases/Nov2012/attachments/110512Morris-sentencing.html" } },
+      { who: "Investor planning to refinance", text: "When you refinance, your lender may order a new appraisal and may charge you a fair fee for it. That value helps decide how much you can borrow. So plan your numbers around a realistic value.", source: { label: "CFPB: What are appraisals?", url: "https://www.consumerfinance.gov/ask-cfpb/what-are-appraisals-and-why-do-i-need-to-look-at-them-en-167/" } },
+      { who: "Any buyer using a first mortgage on a home", text: "Federal law (the Equal Credit Opportunity Act, Regulation B) says your lender must give you a free copy of every appraisal. You get it right after it’s finished or at least three business days before closing, whichever comes first.", source: { label: "CFPB: Regulation B § 1002.14", url: "https://www.consumerfinance.gov/rules-policy/regulations/1002/14/" } },
     ],
     no: [
-      { who: "Auction buyer who can’t go inside", text: "At many foreclosure and tax sales you can’t get inside before you bid. An appraiser then has to work from the outside and public records, so hidden damage won’t show up in the value. Treat that number as rough and keep a big repair cushion." },
-      { who: "Buyer getting a Fannie Mae-backed mortgage", text: "Don’t pay for your own appraisal expecting the lender to use it. Fannie Mae says lenders choose the appraiser and may not use appraisals ordered by borrowers or others with an interest in the deal. Yours can still help you decide what to offer.", source: { label: "Fannie Mae Selling Guide B4-1.1-03", url: "https://selling-guide.fanniemae.com/sel/b4-1.1-03/appraiser-selection-criteria" } },
-      { who: "Anyone treating the number as a fact", text: "An appraisal is an opinion of value on a certain date. It can be wrong or even biased. You can ask the lender to reconsider the value and point out errors or better comparable sales, but each lender’s process is different.", example: "A Baltimore couple said their home appraised at $472,000 while family photos were up. A second appraisal, after they took the photos down, came in at $750,000.", source: { label: "CFPB blog (Mar. 13, 2023)", url: "https://www.consumerfinance.gov/about-us/blog/protecting-homeowners-from-discriminatory-home-appraisals/" } },
-      { who: "Flipper selling within six months", text: "If your buyer gets a higher-priced mortgage and you bought the home less than six months ago, the buyer’s lender may need a second appraisal with an inside inspection. That applies when the price is more than 10% higher within 90 days, or more than 20% higher within 91 to 180 days.", source: { label: "CFPB: Flipped homes and second appraisals", url: "https://www.consumerfinance.gov/ask-cfpb/i-was-told-im-buying-a-home-that-was-flipped-and-that-i-have-to-get-a-second-appraisal-how-does-that-work-en-1799/" } },
+      { who: "Auction buyer who can’t go inside", text: "At many foreclosure and tax sales you can’t get inside before you bid. Then an appraiser has to work from the outside and public records. Hidden damage won’t show up in the value. Treat that number as rough and keep a big repair cushion." },
+      { who: "Buyer getting a Fannie Mae-backed mortgage", text: "Don’t pay for your own appraisal expecting the lender to use it. Fannie Mae says lenders choose the appraiser. They may not use appraisals ordered by borrowers or others with an interest in the deal. Yours can still help you decide what to offer.", source: { label: "Fannie Mae Selling Guide B4-1.1-03", url: "https://selling-guide.fanniemae.com/sel/b4-1.1-03/appraiser-selection-criteria" } },
+      { who: "Anyone treating the number as a fact", text: "An appraisal is an opinion of value on a certain date. It can be wrong or even biased. You can ask the lender to reconsider the value. Point out errors or better comparable sales. But each lender’s process is different.", example: "A Baltimore couple said their home appraised at $472,000 while family photos were up. A second appraisal, after they took the photos down, came in at $750,000.", source: { label: "CFPB blog (Mar. 13, 2023)", url: "https://www.consumerfinance.gov/about-us/blog/protecting-homeowners-from-discriminatory-home-appraisals/" } },
+      { who: "Flipper selling within six months", text: "Say you bought the home less than six months ago, and your buyer gets a higher-priced mortgage. The buyer’s lender may need a second appraisal with an inside inspection. That applies when the price is more than 10% higher within 90 days. It also applies when it is more than 20% higher within 91 to 180 days.", source: { label: "CFPB: Flipped homes and second appraisals", url: "https://www.consumerfinance.gov/ask-cfpb/i-was-told-im-buying-a-home-that-was-flipped-and-that-i-have-to-get-a-second-appraisal-how-does-that-work-en-1799/" } },
     ],
   },
   environmental: {
     yes: [
       {
         who: "Buyer of commercial, industrial or vacant land",
-        text: "A Phase I environmental site assessment looks for signs of past contamination, like old gas stations or dry cleaners, before you buy."
+        text: "A Phase I environmental site assessment looks for signs of past pollution before you buy. Think old gas stations or dry cleaners."
       },
       {
         who: "Anyone buying former industrial property",
-        text: "Doing All Appropriate Inquiries before purchase can protect you from federal cleanup liability under CERCLA (Superfund).",
-        example: "EPA says AAI done to the ASTM E1527-21 standard can support protection as an innocent landowner, contiguous property owner or bona fide prospective purchaser.",
+        text: "Do All Appropriate Inquiries before you buy. It can protect you from federal cleanup liability under CERCLA (Superfund).",
+        example: "EPA says AAI done to the ASTM E1527-21 standard can support protection in three roles. These are innocent landowner, contiguous property owner or bona fide prospective purchaser.",
         source: {
           label: "U.S. EPA, Brownfields All Appropriate Inquiries",
           url: "https://www.epa.gov/brownfields/brownfields-all-appropriate-inquiries"
@@ -578,18 +578,18 @@ export const PRO_WHY = {
       },
       {
         who: "Business-closure or receivership buyer",
-        text: "Closed shops, garages and plants may have tanks or chemicals left behind; an assessment tells you before the cleanup becomes yours."
+        text: "Closed shops, garages and plants may have tanks or chemicals left behind. An assessment tells you before the cleanup becomes yours."
       }
     ],
     no: [
       {
         who: "Typical single-family home buyer",
-        text: "A Phase I is usually overkill for an ordinary house; a home inspection plus radon, mold or lead testing may fit better."
+        text: "A Phase I is usually overkill for an ordinary house. A home inspection plus radon, mold or lead testing may fit better."
       },
       {
         who: "Investor in a hurry",
-        text: "The timing rules are strict, so a report done too early may not protect you.",
-        example: "EPA says AAI must be done within one year before acquisition, and key parts (interviews, records review, site visit, lien search) within 180 days.",
+        text: "The timing rules are strict. A report done too early may not protect you.",
+        example: "EPA says AAI must be done within one year before you buy. Key parts must be done within 180 days: interviews, records review, site visit and lien search.",
         source: {
           label: "U.S. EPA, Brownfields All Appropriate Inquiries",
           url: "https://www.epa.gov/brownfields/brownfields-all-appropriate-inquiries"
@@ -597,8 +597,8 @@ export const PRO_WHY = {
       },
       {
         who: "Everyone",
-        text: "A Phase I is mostly a records review, interviews and a site visit; sampling soil or water is a separate Phase II, so a ‘clean’ Phase I isn’t a guarantee.",
-        example: "EPA lists Phase II sampling and analysis, along with lead paint, mold, radon and asbestos, as services beyond the scope of the AAI rule.",
+        text: "A Phase I is mostly a records review, interviews and a site visit. Testing soil or water is a separate Phase II. So a ‘clean’ Phase I isn’t a guarantee.",
+        example: "EPA lists Phase II sampling and analysis as beyond the scope of the AAI rule. The same goes for lead paint, mold, radon and asbestos.",
         source: {
           label: "U.S. EPA, Brownfields All Appropriate Inquiries",
           url: "https://www.epa.gov/brownfields/brownfields-all-appropriate-inquiries"
@@ -606,7 +606,7 @@ export const PRO_WHY = {
       },
       {
         who: "Anyone on a tight budget",
-        text: "If the Phase I flags a concern, Phase II testing and cleanup can cost far more than the property is worth; be ready to walk away."
+        text: "If the Phase I flags a concern, Phase II testing and cleanup can cost far more than the property is worth. Be ready to walk away."
       }
     ]
   }
