@@ -1242,7 +1242,7 @@ html { scroll-padding-top: 88px; }
 .photo-upload:focus-within { outline: 3px solid var(--accent); outline-offset: 2px; }
 
 /* Search the guides */
-.page-hero .guide-search { margin: 0; }
+.page-hero .guide-search { margin: 0; max-width: none; }
 .guide-search input[type='search']::-webkit-search-cancel-button { cursor: pointer; }
 .guide-try { margin-top: 28px; }
 .guide-try h2 { font-size: 1.3rem; margin-bottom: 12px; }
@@ -1728,7 +1728,7 @@ h1, h2 { letter-spacing: -0.03em; }
 .hero, .simple-hero, .page-hero { background: var(--bg); }
 .hero-inner, .page-hero-inner { position: relative; z-index: 1; }
 .hero::after, .page-hero::after {
-  content: ''; position: absolute; top: 50%; right: max(24px, calc((100% - 1400px) / 2 + 24px)); width: 300px; height: 300px; transform: translateY(-50%);
+  content: ''; position: absolute; top: 50%; right: var(--gutter); width: 300px; height: 300px; transform: translateY(-50%);
   background: url(/logo.svg) center / contain no-repeat; filter: grayscale(1); opacity: var(--owl-opacity); pointer-events: none; z-index: 0;
 }
 @media (max-width: 700px) { .hero::after, .page-hero::after { width: 180px; height: 180px; right: 12px; } }
@@ -1776,7 +1776,7 @@ h1, h2 { letter-spacing: -0.03em; }
 .hero::after, .page-hero::after { top: 20px; width: 200px; height: 200px; background-position: center; background-size: contain; }
 @media (min-width: 701px) {
   .page-hero { min-height: 240px; display: flex; flex-direction: column; justify-content: center; }
-  .page-hero:not(:has(.page-hero-aside, .hero-actions)) .page-hero-inner { padding-right: 230px; }
+  .page-hero:not(:has(.page-hero-aside, .hero-actions)) .page-hero-row { padding-right: 230px; }
 }
 @media (max-width: 700px) {
   /* Phones: a small owl beside the label at the top, with that row kept clear for it */
@@ -2199,3 +2199,20 @@ h1, h2 { letter-spacing: -0.03em; }
 .calc-unit-switch { display: inline-flex; flex: 0 0 auto; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
 .calc-unit-switch button { min-width: 40px; min-height: 32px; padding: 2px 12px; border: 0; background: transparent; color: var(--text); font-weight: 700; cursor: pointer; }
 .calc-unit-switch button[aria-pressed="true"] { background: var(--accent-strong); color: #fff; }
+
+/* Toolkit: start card, jump links, roadmap phases */
+.page section.toolkit-start { display: grid; gap: 10px; }
+.toolkit-jump { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0 0 24px; }
+.toolkit-jump .linkish { font-weight: 600; }
+.roadmap-path { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: 8px 0 16px; }
+.roadmap-path-label { font-weight: 600; }
+.roadmap-path button { min-height: 40px; padding: 6px 16px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-weight: 600; cursor: pointer; }
+.roadmap-path button[aria-pressed="true"] { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+.roadmap-phase { border: 1px solid var(--border); border-radius: 12px; margin: 12px 0 0; background: var(--surface-2); }
+.roadmap-phase > summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; cursor: pointer; }
+.roadmap-phase-title { font-weight: 700; font-size: 1.1rem; }
+.roadmap-phase > ol { padding: 0 18px 14px; margin: 0; }
+.roadmap-done-when { display: block; margin-top: 4px; color: var(--muted); font-size: 0.95rem; }
+.buybox-help .linkish { margin-left: 4px; }
+.role-note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 10px var(--gutter); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.role-note > span { flex: 1 1 320px; }

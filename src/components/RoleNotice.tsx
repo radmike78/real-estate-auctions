@@ -15,8 +15,10 @@ export default function RoleNotice() {
   const [open, setOpen] = useState(() => !acknowledged());
   const btn = useRef<HTMLButtonElement>(null);
   const dialog = useRef<HTMLDivElement>(null);
+  // A visitor who arrives straight at a tool sees it, with a short note; the full welcome is for the home page.
+  const [home] = useState(() => { const h = window.location.hash; return !h || h === '#' || h === '#/'; });
   useEffect(() => {
-    if (!open) return;
+    if (!open || !home) return;
     btn.current?.focus();
     // A modal keeps the keyboard inside it: Tab cycles through its own links and buttons, Escape closes it.
     const onKey = (e: KeyboardEvent) => {
@@ -37,7 +39,7 @@ export default function RoleNotice() {
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, home]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!open) return null;
   function close() {
     try {
@@ -46,6 +48,15 @@ export default function RoleNotice() {
       /* private mode: show again next visit */
     }
     setOpen(false);
+  }
+  if (!home) {
+    return (
+      <div className="role-note" role="note">
+        <span><strong>Welcome to DeedOwl.</strong> Free guides, checklists and calculators. Each deal is yours to research: verify with the official source and your own advisors.</span>
+        <a href="#/disclaimer" onClick={close}>How we help</a>
+        <button type="button" className="btn btn-secondary" onClick={close}>Got it</button>
+      </div>
+    );
   }
   return (
     <div className="role-backdrop">

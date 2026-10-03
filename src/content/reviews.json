@@ -6,7 +6,7 @@
       "src/components/HomePage.tsx"
     ],
     "reviewed": "2026-10-03",
-    "hash": "0bb4f72b872293b2",
+    "hash": "96858ef5ae90289d",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -138,7 +138,7 @@
       "src/practice/scenarios.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "b32b87d23572ac8f",
+    "hash": "44d91fcffe2c3204",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -272,8 +272,8 @@
       "src/components/Disclaimer.tsx",
       "src/components/RoleNotice.tsx"
     ],
-    "reviewed": "2026-09-29",
-    "hash": "ed61212ceb9339ca",
+    "reviewed": "2026-10-03",
+    "hash": "bd034459b5d9047c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -386,7 +386,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "5a26e3e01ea0b66e",
+    "hash": "f919c567ca52e28f",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

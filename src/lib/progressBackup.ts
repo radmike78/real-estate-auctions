@@ -8,6 +8,7 @@ import { cleanBuyBox } from './toolkit';
 const EXACT = [
   'deedowl.path.v1',
   'deedowl.roadmap.v1',
+  'deedowl.roadmap.path.v1',
   'deedowl.buybox.v1',
   'deedowl.drills.v1',
   'deedowl.decide.v1',
