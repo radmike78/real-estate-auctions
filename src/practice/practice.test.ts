@@ -237,3 +237,12 @@ describe('flip and BRRRR drills', () => {
     for (const d of fb) expect(d.commercial, d.id).toBeFalsy();
   });
 });
+
+describe('manufactured home and land drills', () => {
+  it('has at least three of each, in their own groups', async () => {
+    const { DRILLS } = await import('./drills');
+    expect(DRILLS.filter((d) => d.manufactured).length).toBeGreaterThanOrEqual(3);
+    expect(DRILLS.filter((d) => d.land).length).toBeGreaterThanOrEqual(3);
+    for (const d of DRILLS) expect([d.commercial, d.flipBrrrr, d.manufactured, d.land].filter(Boolean).length, d.id).toBeLessThanOrEqual(1);
+  });
+});
