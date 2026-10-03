@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { loadDeals, onDealsChange } from '../lib/deals';
 import { useSiteFeatures } from '../lib/siteFeatures';
+import { currentProgress, guidedNext, setMode, useJourney } from '../lib/journey';
 
 // The tasks people come for, one click away. Everything else is under More, grouped.
 // The logo is the link home.
@@ -19,14 +20,15 @@ const MORE: { group: string; links: (readonly [string, string])[] }[] = [
   { group: 'Learn', links: [['#/playbooks', 'How each sale works'], ['#/guides', 'Search the guides']] },
   { group: 'Nevada deals', links: [['#/live', 'Live tax sales'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures'], ['#/pre-foreclosures', 'Pre-foreclosures (not for sale)']] },
   { group: 'Get help', links: [['#/financing', 'Financing'], ['#/homeowner-help', 'Homeowners: free help']] },
-  { group: 'About', links: [['#/about', 'How it works'], ['#/disclaimer', 'How we help']] },
-  { group: 'For professionals', links: [['#/advertise', 'Advertise on DeedOwl'], ['#/advertiser', 'Advertiser sign-in']] },
+  { group: 'About', links: [['#/about', 'How it works'], ['#/disclaimer', 'How we help'], ['#/advertise', 'Advertise on DeedOwl'], ['#/advertiser', 'Advertiser sign-in']] },
 ];
 
 export default function SiteHeader({ current, nav: navCount = 0 }: { current: string; nav?: number }) {
   const [deals, setDeals] = useState(() => loadDeals().length);
   useEffect(() => onDealsChange(() => setDeals(loadDeals().length)), []);
   const features = useSiteFeatures();
+  const { mode } = useJourney();
+  const nextStep = mode === 'guided' ? guidedNext(currentProgress()) : null;
   const [open, setOpen] = useState(false);
   const nav = useRef<HTMLElement>(null);
   const menuBtn = useRef<HTMLButtonElement>(null);
@@ -108,6 +110,11 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
             More{deals > 0 && <><span className="nav-count" aria-hidden>{deals}</span><span className="sr-only">, {deals} saved deals</span></>}
           </summary>
           <div className="more-menu">
+            <div className="more-group" role="group" aria-label="How you use DeedOwl">
+              <span className="more-group-title" aria-hidden>Your view</span>
+              <button type="button" className="more-mode" aria-pressed={mode === 'guided'} onClick={() => setMode('guided')}>Guide me</button>
+              <button type="button" className="more-mode" aria-pressed={mode === 'explore'} onClick={() => setMode('explore')}>Let me explore</button>
+            </div>
             {MORE.map((g) => (
               <div key={g.group} className="more-group" role="group" aria-label={g.group}>
                 <span className="more-group-title" aria-hidden>{g.group}</span>
@@ -121,8 +128,10 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
         {/* The main button leads somewhere that works today: email alerts only once email is set up. */}
         {features?.email ? (
           <a href="#/alerts" className={`nav-cta${active('#/alerts') ? ' active' : ''}`}>Get alerts</a>
+        ) : nextStep ? (
+          <a href={nextStep.step.href} className="nav-cta" title={nextStep.step.label}>Next step</a>
         ) : (
-          <a href="#/learn" className="nav-cta">Start here</a>
+          <a href="#/" className="nav-cta">Start here</a>
         )}
       </nav>
       <ThemeButton />

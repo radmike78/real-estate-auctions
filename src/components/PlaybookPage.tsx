@@ -1,4 +1,5 @@
 import NarrowDown from './NarrowDown';
+import { useLastActivity } from '../lib/journey';
 import { guidesConfig } from '../lib/narrow';
 import DrillDown, { Tile, type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
@@ -106,6 +107,7 @@ export function sections(p: Playbook): DrillSection[] {
 
 export default function PlaybookPage({ playbook, section }: { playbook?: string; section?: string }) {
   const p = playbook ? playbookByKey(playbook) : null;
+  useLastActivity(`#/playbooks/${playbook ?? ''}`, p ? `Guide: ${p.title}` : undefined);
   const [mine] = useMyState();
 
   if (!p) {

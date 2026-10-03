@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useJourney, useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
@@ -61,6 +62,8 @@ const cardTitle = (t: string) => t.replace(/^An? (Nevada|California|Arizona|Utah
 export function DrillList() {
   const saved = load();
   const [mine] = useMyState();
+  const { mode } = useJourney();
+  const [showAll, setShowAll] = useState(false);
   const own = (d: Drill) => d.commercial || d.flipBrrrr || d.manufactured || d.land;
   const groups: { key: string; title: string; drills: Drill[] }[] = [
     ...[...(mine ? [mine] : []), ...Object.keys(STATE_NAMES).filter((k) => k !== mine)].map((st) => ({ key: st, title: STATE_NAMES[st], drills: DRILLS.filter((d) => !own(d) && drillState(d) === st) })),
@@ -70,9 +73,15 @@ export function DrillList() {
     { key: 'land', title: 'Land', drills: DRILLS.filter((d) => d.land) },
     { key: 'commercial', title: 'Commercial property', drills: DRILLS.filter((d) => d.commercial) },
   ];
+  // Guided visitors start with three drills: a rental, then a foreclosure and a tax sale in their state.
+  const st = (mine ?? 'NV').toLowerCase();
+  const starter = ['rental-265', `trustee-sale-${st}`, st === 'az' ? 'tax-lien-az' : st === 'ut' ? 'tax-sale-ut' : `tax-deed-${st}`]
+    .map((id) => DRILLS.find((d) => d.id === id))
+    .filter((d): d is Drill => !!d);
+  const shown = mode === 'guided' && !showAll ? [{ key: 'starter', title: 'Start with these three', drills: starter }] : groups;
   return (
     <>
-      {groups.filter((g) => g.drills.length).map((g) => (
+      {shown.filter((g) => g.drills.length).map((g) => (
         <section key={g.key} aria-label={`${g.title} drills`}>
           <h3 className="drill-group">{g.title}</h3>
           <div className="practice-grid drill-grid">
@@ -89,6 +98,11 @@ export function DrillList() {
           </div>
         </section>
       ))}
+      {shown !== groups && (
+        <p className="show-all-row">
+          <button type="button" className="btn btn-secondary" onClick={() => setShowAll(true)}>Show all {DRILLS.length} drills</button>
+        </p>
+      )}
     </>
   );
 }
@@ -195,6 +209,7 @@ const VALUE_MISSIONS = ['comps', 'arv'];
 /** One "Would you buy it?" drill: missions, then your decision and what an experienced investor would weigh. */
 export default function DrillPage({ id }: { id: string }) {
   const d = drillById(id);
+  useLastActivity(`#/practice/drills/${id}`, d ? `Practice: ${d.title}` : undefined);
   const [saved, setSaved] = useState<Saved>(load);
   // The answer just given, so only its feedback takes focus (not every finished mission on a return visit).
   const [fresh, setFresh] = useState('');

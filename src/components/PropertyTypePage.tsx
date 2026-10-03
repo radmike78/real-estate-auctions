@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { useLastActivity } from '../lib/journey';
 import OnThisPage from './OnThisPage';
 import PageHero from './PageHero';
 import WhyBlock from './WhyBlock';
@@ -18,6 +19,7 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
   useMarkStep('learn');
   const [st] = useMyState();
   const t = topicBySlug(slug)!;
+  useLastActivity(`#/learn/types/${slug}`, `Property type: ${t.title}`);
   const d = PROPERTY_DEEP[t.key];
   const why = PROPERTY_WHY[t.key];
   const keep = (x: string) => showFor(st, x) && forStateText(st, x) !== '';

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import { Calculators } from './CalculatorPage';
 import { CalcRegion } from './calcRegion';
@@ -27,6 +28,7 @@ function loadCurrent(st: StateCode): Deal {
 /** Step 6 of the path: describe a real deal, get the checklist for that sale in that state, and run the numbers. */
 export default function AnalyzePage() {
   useMarkStep('analyze');
+  useLastActivity('#/analyze', 'Analyze a deal');
   const [mine] = useMyState();
   const [deal, setDeal] = useState<Deal>(() => loadCurrent(mine ?? 'NV'));
   const [saved, setSaved] = useState<Deal[]>(loadDeals);

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import PathNext from './PathNext';
 import OwlNote from './OwlNote';
@@ -42,6 +43,7 @@ function save(s: Saved) {
 /** Step 2 of the path: a few questions, then the strategies that fit and a checklist for each. */
 export default function DecidePage() {
   useMarkStep('decide');
+  useLastActivity('#/decide', 'Decide: which strategy fits you');
   const [saved, setSaved] = useState<Saved>(load);
   const complete = QUESTIONS.every((q) => saved.answers[q.key]);
   const [step, setStep] = useState(() => (complete ? QUESTIONS.length : QUESTIONS.findIndex((q) => !saved.answers[q.key])));
