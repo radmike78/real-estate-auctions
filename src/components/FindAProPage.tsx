@@ -14,6 +14,7 @@ import WhyBlock from './WhyBlock';
 import { PRO_WHY } from '../lib/proWhy';
 import { PRO_DEEP } from '../lib/deep/proDeep';
 import StoryList from './StoryList';
+import TeamBuilder from './TeamBuilder';
 
 const ICONS: Record<ProKey, ReactElement> = {
   agent: <IconHome />, lender: <IconBank />, private_lender: <IconClock />, title: <IconFile />, attorney: <IconBadge />, inspector: <IconSearch />,
@@ -82,6 +83,7 @@ export default function FindAProPage({ section }: { section?: string }) {
   useMarkStep('team');
   const [sale, setSale] = useState<string>('start');
   const open = !!section && !!proGuideByKey(section);
+  const all = section === 'all';
   const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
   const [mine] = useMyState();
   const book = guidesFor(mine).find((p) => p.key === sale);
@@ -92,13 +94,15 @@ export default function FindAProPage({ section }: { section?: string }) {
   return (
     <main className="page">
       <PageHero
-        compact={open}
-        top={open ? <a href="#/pros">← Your deal team</a> : undefined}
-        eyebrow={open ? undefined : <span className="eyebrow">Step 3 of 6</span>}
-        title={open ? <a className="title-link" href="#/pros">Your deal team</a> : <>Your <span className="grad">deal team</span></>}
-        sub={open ? undefined : 'Who helps with a forced-sale purchase, when you need each one, and how to find them.'}
+        compact={open || all}
+        top={open || all ? <a href="#/pros">← Build your team</a> : undefined}
+        eyebrow={open || all ? undefined : <span className="eyebrow">Step 3 of 6</span>}
+        title={open ? <a className="title-link" href="#/pros/all">Your deal team</a> : all ? <>Everyone on a <span className="grad">deal team</span></> : <>Your <span className="grad">deal team</span></>}
+        sub={open || all ? undefined : 'Answer five quick questions and we’ll show only the professionals you need, and why.'}
       />
-      {!open && (
+      {!open && !all && <TeamBuilder />}
+      {!open && !all && <PathNext step="team" />}
+      {all && (
         <section className="pro-chooser" aria-labelledby="pro-chooser-head">
           <h2 id="pro-chooser-head" className="section-title">Who you need for your kind of sale</h2>
           <div className="chip-tabs" role="group" aria-label="Kind of sale">
@@ -114,9 +118,8 @@ export default function FindAProPage({ section }: { section?: string }) {
           <TeamList team={team} />
         </section>
       )}
-      {!open && <h2 className="section-title">The professionals</h2>}
-      <DrillDown sections={sections} active={open ? section : undefined} baseHref="#/pros" label="Professionals" />
-      {!open && <PathNext step="team" />}
+      {all && <h2 className="section-title">The professionals</h2>}
+      {(open || all) && <DrillDown sections={sections} active={open ? section : undefined} baseHref="#/pros" label="Professionals" />}
     </main>
   );
 }

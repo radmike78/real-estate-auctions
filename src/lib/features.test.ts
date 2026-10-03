@@ -539,3 +539,17 @@ describe('investing roadmap', () => {
     expect(roadmapFor('auction').some((s) => s.id === 'offer')).toBe(false);
   });
 });
+
+describe('build your team', () => {
+  it('suggests an answer for "not sure", and fits the team to the answers', async () => {
+    const { teamFor, resolved } = await import('./teamBuilder');
+    expect(resolved({}).property).toBe('home');
+    expect(resolved({ buy: 'auction', pay: 'unsure' }).pay).toBe('cash');
+    const auction = teamFor({ property: 'home', buy: 'auction', pay: 'cash', plan: 'flip', condition: 'major' }).map((t) => t.pro);
+    expect(auction).toEqual(expect.arrayContaining(['title', 'attorney', 'eviction', 'appraiser', 'contractor']));
+    expect(auction).not.toContain('inspector');
+    const home = teamFor({ property: 'home', buy: 'agent', pay: 'loan', plan: 'live', condition: 'ready' }).map((t) => t.pro);
+    expect(home).toEqual(['agent', 'lender', 'title', 'appraiser', 'inspector', 'insurance']);
+    expect(teamFor({ property: 'commercial', buy: 'agent', pay: 'loan', plan: 'rent', condition: 'ready' }).map((t) => t.pro)).toContain('environmental');
+  });
+});
