@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import { STATES } from '../lib/regions';
 import { getMyState } from '../lib/myState';
@@ -266,6 +267,7 @@ const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behav
 
 /** Everything free in one place: the first-deal roadmap, a buy box, and the calculators and checklists. */
 export default function ToolkitPage({ section }: { section?: string }) {
+  useLastActivity('#/toolkit', 'My plan');
   useEffect(() => {
     if (section === 'buy-box') document.getElementById('buy-box')?.scrollIntoView();
   }, [section]);

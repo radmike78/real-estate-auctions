@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import { currentProgress, GUIDED, guidedNext, markLessonRead, useJourney, useLastActivity } from '../lib/journey';
 import OnThisPage from './OnThisPage';
 import PageHero from './PageHero';
 import { LEARN_MODULES } from '../lib/learn';
@@ -73,8 +74,25 @@ function Block({ b }: { b: LessonBlock }) {
 /** One lesson in Learn (step 1): reading, key terms, sources, and the next lesson. */
 export default function LessonPage({ lessonKey }: { lessonKey: string }) {
   const bodyRef = useRef<HTMLElement>(null);
+  const endRef = useRef<HTMLElement>(null);
   useMarkStep('learn');
   const m = LEARN_MODULES.find((x) => x.key === lessonKey)!;
+  useLastActivity(`#/learn/${lessonKey}`, `Lesson: ${m.title}`);
+  const { mode } = useJourney();
+  // A lesson counts as read once its key terms, the end of the reading, come on screen: opening it isn't enough.
+  useEffect(() => {
+    const el = endRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver((es) => {
+      if (es.some((e) => e.isIntersecting)) {
+        markLessonRead(lessonKey);
+        io.disconnect();
+      }
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [lessonKey]);
+  const guided = mode === 'guided' ? guidedNext(currentProgress()) : null;
   const l = lessonByKey(lessonKey)!;
   const n = LEARN_MODULES.indexOf(m) + 1;
   const ready = LEARN_MODULES.filter((x) => lessonByKey(x.key) || x.href);
@@ -115,7 +133,7 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
           </section>
         ))}
       </article>
-      <section className="lesson-terms" aria-labelledby="terms">
+      <section className="lesson-terms" aria-labelledby="terms" ref={endRef}>
         <h2 id="terms">Key terms</h2>
         <dl>{terms.map((t) => <div key={t.term}><dt>{t.term}</dt><dd>{t.meaning}</dd></div>)}</dl>
       </section>
@@ -135,7 +153,12 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         <p className="muted">Checked {fmtDate(l.reviewed)}. General education, not legal, tax or financial advice.</p>
       </section>
       <nav className="path-next" aria-label="Next lesson">
-        {next ? (
+        {guided && guided.step.href !== `#/learn/${lessonKey}` ? (
+          <>
+            <span className="muted">Next on your guided path (step {guided.n} of {GUIDED.length})</span>
+            <a className="btn" href={guided.step.href}>{guided.step.label} →</a>
+          </>
+        ) : next ? (
           <>
             <span className="muted">Next lesson</span>
             <a className="btn" href={nextHref}>{next.title} →</a>

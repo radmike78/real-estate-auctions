@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
+import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
@@ -13,6 +14,7 @@ const taskKey = (stage: Stage, t: Task) => `${stage.key}/${t.id}`;
 /** One practice run: a fictional listing, then stage by stage through the purchase. */
 export default function PracticeScenarioPage({ id, stageKey }: { id: string; stageKey?: string }) {
   const scenario = useMemo(() => scenarioById(id), [id]);
+  useLastActivity(`#/practice/${id}${stageKey ? `/${stageKey}` : ''}`, scenario ? `Practice purchase: ${scenario.headline}` : undefined);
   const [progress, setProgress] = useState<ScenarioProgress>(() => loadProgress(id));
   useEffect(() => setProgress(loadProgress(id)), [id]);
   // On phones the step buttons are one swipeable row: bring the current step into view.

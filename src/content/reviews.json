@@ -3,10 +3,11 @@
     "id": "home",
     "title": "Home page",
     "files": [
-      "src/components/HomePage.tsx"
+      "src/components/HomePage.tsx",
+      "src/lib/journey.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "96858ef5ae90289d",
+    "hash": "cece69ca4fc6167f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -114,7 +115,7 @@
       "src/lib/playbooks.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "7d55f00e8e1de831",
+    "hash": "62746c2a0c999573",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -138,7 +139,7 @@
       "src/practice/scenarios.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "071fbe8a85357f55",
+    "hash": "3eaf73063e2dec68",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -342,7 +343,7 @@
       "src/components/OnThisPage.tsx"
     ],
     "reviewed": "2026-10-03",
-    "hash": "b7d7328da7d48bb5",
+    "hash": "8ab6bdad1f023365",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -353,7 +354,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "a3fbaab7b2c3929a",
+    "hash": "e72fad649430008c",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -379,7 +380,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "f3497c9cb509e24c",
+    "hash": "c2fdcc5c0bff67b4",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {
@@ -391,7 +392,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "89fad4bb123604e0",
+    "hash": "b107356e9b815ce5",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

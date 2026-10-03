@@ -1,0 +1,159 @@
+// How a visitor wants to start: "I'm new, guide me" (one recommended activity at a time) or "I know the basics, let
+// me explore" (straight to the tools and references). Optional and easy to change; every page still shows
+// everything. Kept only in this browser, with the lessons read to the end and the last activity opened, so a
+// returning visitor can continue where they left off.
+import { useEffect, useState } from 'react';
+import { QUESTIONS } from './decide';
+
+export type Mode = 'guided' | 'explore';
+
+const MODE_KEY = 'deedowl.mode.v1';
+const READ_KEY = 'deedowl.read.v1';
+const LAST_KEY = 'deedowl.last.v1';
+const EVENT = 'deedowl:journey';
+
+function read<T>(key: string, ok: (v: unknown) => v is T): T | null {
+  try {
+    const v: unknown = JSON.parse(localStorage.getItem(key) ?? 'null');
+    return ok(v) ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+function write(key: string, v: unknown) {
+  try {
+    if (v === null) localStorage.removeItem(key);
+    else localStorage.setItem(key, JSON.stringify(v));
+  } catch {
+    /* private mode: not kept, but this page still updates */
+  }
+  window.dispatchEvent(new CustomEvent(EVENT));
+}
+
+const isMode = (v: unknown): v is Mode => v === 'guided' || v === 'explore';
+export const getMode = (): Mode | null => read(MODE_KEY, isMode);
+export const setMode = (m: Mode | null) => write(MODE_KEY, m);
+
+const isKeys = (v: unknown): v is string[] => Array.isArray(v) && v.every((x) => typeof x === 'string');
+/** Lessons read to the end (opening one isn't the same as finishing it). */
+export const readLessons = (): string[] => read(READ_KEY, isKeys) ?? [];
+export function markLessonRead(key: string) {
+  const done = readLessons();
+  if (!done.includes(key)) write(READ_KEY, [...done, key]);
+}
+
+export interface LastActivity {
+  href: string;
+  label: string;
+}
+const isLast = (v: unknown): v is LastActivity =>
+  !!v && typeof v === 'object' && typeof (v as LastActivity).href === 'string' && (v as LastActivity).href.startsWith('#/') && typeof (v as LastActivity).label === 'string';
+export const getLast = (): LastActivity | null => read(LAST_KEY, isLast);
+
+/** Remembers the lesson, guide, drill or tool on screen, for "Continue where you left off". */
+export function useLastActivity(href: string, label: string | undefined) {
+  useEffect(() => {
+    if (!label) return;
+    const last = getLast();
+    if (last?.href !== href || last.label !== label) write(LAST_KEY, { href, label: label.slice(0, 120) });
+  }, [href, label]);
+}
+
+/** Re-renders when the mode, lessons read or last activity change, anywhere on the page. */
+export function useJourney() {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const on = () => setTick((t) => t + 1);
+    window.addEventListener(EVENT, on);
+    return () => window.removeEventListener(EVENT, on);
+  }, []);
+  return { mode: getMode(), read: readLessons(), last: getLast() };
+}
+
+/** What the guided path checks to know a step is finished: real work, not a page visit. */
+export interface Progress {
+  read: string[];
+  /** Drill ids with a final call made. */
+  drillsDone: string[];
+  /** Every Decide question answered. */
+  decided: boolean;
+  /** Roadmap steps ticked. */
+  roadmapDone: number;
+}
+
+export interface GuidedStep {
+  key: string;
+  label: string;
+  why: string;
+  href: string;
+  done: (p: Progress) => boolean;
+}
+
+/** The starter path: a short introduction, one worked example, a beginner exercise, then a plan. */
+export const GUIDED: GuidedStep[] = [
+  {
+    key: 'intro',
+    label: 'Read: Residential vs. commercial',
+    why: 'A short introduction to how investment property is bought, valued and paid for.',
+    href: '#/learn/markets',
+    done: (p) => p.read.includes('markets'),
+  },
+  {
+    key: 'example',
+    label: 'Read: Analyzing a deal',
+    why: 'A worked example: what a rental costs, what it earns, and what to check before you commit.',
+    href: '#/learn/analyze',
+    done: (p) => p.read.includes('analyze'),
+  },
+  {
+    key: 'exercise',
+    label: 'Practice: would you buy this $265,000 rental?',
+    why: 'Your first exercise: value a fictional house from comparable sales, price the repairs, and decide.',
+    href: '#/practice/drills/rental-265',
+    done: (p) => p.drillsDone.includes('rental-265'),
+  },
+  {
+    key: 'decide',
+    label: 'Decide: which strategy fits you',
+    why: 'A few questions about your money, time and goals, then the strategies that fit and their risks.',
+    href: '#/decide',
+    done: (p) => p.decided,
+  },
+  {
+    key: 'plan',
+    label: 'Start your plan',
+    why: 'Pick your goal and tick off the first steps of your investing roadmap.',
+    href: '#/toolkit',
+    done: (p) => p.roadmapDone > 0,
+  },
+];
+
+/** The first unfinished step and its position, or null when the starter path is done. */
+export function guidedNext(p: Progress): { step: GuidedStep; n: number } | null {
+  const i = GUIDED.findIndex((s) => !s.done(p));
+  return i < 0 ? null : { step: GUIDED[i], n: i + 1 };
+}
+
+/** Progress as this browser has it. */
+export function currentProgress(): Progress {
+  const drills = read('deedowl.drills.v1', (v): v is Record<string, { verdict?: unknown }> => !!v && typeof v === 'object');
+  const decide = read('deedowl.decide.v1', (v): v is { answers?: Record<string, unknown> } => !!v && typeof v === 'object');
+  const roadmap = read('deedowl.roadmap.v1', isKeys);
+  return {
+    read: readLessons(),
+    drillsDone: Object.entries(drills ?? {}).filter(([, d]) => d && typeof d.verdict === 'string').map(([id]) => id),
+    decided: QUESTIONS.every((q) => typeof decide?.answers?.[q.key] === 'string'),
+    roadmapDone: roadmap?.length ?? 0,
+  };
+}
+
+/** The last activity, unless it's already finished (a lesson read to the end, a drill with its call made). */
+export function unfinished(last: LastActivity | null, p: Progress): LastActivity | null {
+  if (!last) return null;
+  const lesson = last.href.match(/^#\/learn\/([a-z-]+)$/);
+  if (lesson && p.read.includes(lesson[1])) return null;
+  const drill = last.href.match(/^#\/practice\/drills\/([a-z0-9-]+)$/);
+  if (drill && p.drillsDone.includes(drill[1])) return null;
+  return last;
+}
