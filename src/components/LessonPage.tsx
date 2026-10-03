@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+import OnThisPage from './OnThisPage';
 import PageHero from './PageHero';
 import { LEARN_MODULES } from '../lib/learn';
 import { lessonByKey } from '../lib/lessons';
@@ -70,6 +72,7 @@ function Block({ b }: { b: LessonBlock }) {
 
 /** One lesson in Learn (step 1): reading, key terms, sources, and the next lesson. */
 export default function LessonPage({ lessonKey }: { lessonKey: string }) {
+  const bodyRef = useRef<HTMLElement>(null);
   useMarkStep('learn');
   const m = LEARN_MODULES.find((x) => x.key === lessonKey)!;
   const l = lessonByKey(lessonKey)!;
@@ -84,7 +87,7 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
   const sources = l.sources.filter((s) => showFor(st, s.label));
   const terms = l.terms.filter((t) => showFor(st, t.meaning));
   return (
-    <main className="page lesson">
+    <main className="page lesson" ref={bodyRef}>
       <PageHero
         top={<a href="#/learn">← All lessons</a>}
         eyebrow={<span className="eyebrow">Lesson {n} of {LEARN_MODULES.length} · {l.minutes} min read</span>}
@@ -92,10 +95,18 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         sub={l.intro}
       />
       <StatePicker label="Show rules for" />
+      {lessonKey === 'types' && (
+        <section className="not-sure" aria-labelledby="types-not-sure">
+          <h2 id="types-not-sure">Not sure which kind of property fits you?</h2>
+          <p>There are a lot of choices below. Answer a few questions about your money, time and goals, and we’ll suggest the kinds of property that fit. Every type is still listed here.</p>
+          <a className="btn" href="#/decide">Help me choose →</a>
+        </section>
+      )}
       <section className="lesson-takeaways" aria-labelledby="takeaways">
         <h2 id="takeaways">What you’ll learn</h2>
         <ul>{l.takeaways.map((t) => <li key={t}>{t}</li>)}</ul>
       </section>
+      <OnThisPage root={bodyRef} selector=".lesson-body-text > section > h2, .lesson-terms h2, .lesson-sources h2" />
       <article className="lesson-body-text">
         {sections.map((s) => (
           <section key={s.heading}>

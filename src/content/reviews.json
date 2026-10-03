@@ -113,8 +113,8 @@
       "src/components/TeamList.tsx",
       "src/lib/playbooks.ts"
     ],
-    "reviewed": "2026-09-29",
-    "hash": "290b9d812ad46be7",
+    "reviewed": "2026-10-03",
+    "hash": "56d917a1558e861e",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -138,7 +138,7 @@
       "src/practice/scenarios.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "fcbedcb47d0df7f9",
+    "hash": "b89880c4cc111fc2",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -197,7 +197,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "8de1da31428bfd78",
+    "hash": "72fb4505b24e3b0c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -336,10 +336,13 @@
       "src/components/WhyBlock.tsx",
       "src/lib/deep/propertyDeep.ts",
       "src/lib/deep/propertyTopics.ts",
-      "src/lib/lessons/propertyWhy.ts"
+      "src/lib/lessons/propertyWhy.ts",
+      "src/components/NarrowDown.tsx",
+      "src/lib/narrow.ts",
+      "src/components/OnThisPage.tsx"
     ],
     "reviewed": "2026-10-03",
-    "hash": "6abf8c40f40191c1",
+    "hash": "b7d7328da7d48bb5",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -362,8 +365,8 @@
       "src/lib/findDeals.ts",
       "src/lib/regions.ts"
     ],
-    "reviewed": "2026-10-02",
-    "hash": "0b241170e27302cb",
+    "reviewed": "2026-10-03",
+    "hash": "0acb27fc00958611",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {

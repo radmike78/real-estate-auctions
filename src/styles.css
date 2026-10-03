@@ -2291,3 +2291,21 @@ h1, h2 { letter-spacing: -0.03em; }
 @media (max-width: 1300px) { .glance-facts { --max: 3; } .glance-facts:has(> :nth-child(4):last-child), .glance-facts:has(> :nth-child(8):last-child) { --cols: 2; } }
 @media (max-width: 860px) { .glance-facts { --max: 2; } }
 @media (max-width: 560px) { .glance-facts { --max: 1; } }
+.team-body .linkish { padding: 0; justify-self: start; text-align: left; }
+
+/* Long reading pages: clear part headings, an "On this page" row, and link lists in columns */
+.on-this-page { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 20px; }
+.on-this-page-label { font-weight: 700; margin-right: 4px; }
+.on-this-page button { min-height: 38px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-weight: 600; cursor: pointer; }
+.on-this-page button:hover { border-color: var(--accent); }
+.pro-guide h3.part-head, .pro-guide-stories h3.part-head { margin: 28px 0 14px; padding: 10px 16px; font-size: 1.35rem; border-left: 4px solid var(--accent-strong); background: var(--surface-2); border-radius: 10px; scroll-margin-top: 84px; }
+.pro-guide > .on-this-page + h3.part-head { margin-top: 4px; }
+.lesson-body-text > section > h2, .lesson-terms h2, .lesson-sources h2 { scroll-margin-top: 84px; }
+.lesson-body-text ul.lesson-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; --cols: 3; }
+.lesson-body-text ul.lesson-links > li { flex: 0 0 calc((100% - (var(--cols) - 1) * 10px) / var(--cols)); min-width: 0; box-sizing: border-box; }
+.lesson-body-text ul.lesson-links:has(> :nth-child(1):last-child) { --cols: 1; }
+.lesson-body-text ul.lesson-links:has(> :nth-child(2):last-child) { --cols: 2; }
+.lesson-body-text ul.lesson-links:has(> :nth-child(4):last-child) { --cols: 2; }
+@media (max-width: 1000px) { .lesson-body-text ul.lesson-links { --cols: 2; } .lesson-body-text ul.lesson-links:has(> :nth-child(1):last-child) { --cols: 1; } }
+@media (max-width: 640px) { .lesson-body-text ul.lesson-links, .lesson-body-text ul.lesson-links:has(> li) { --cols: 1; } }
+.page section > h2 { scroll-margin-top: 84px; }

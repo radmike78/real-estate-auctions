@@ -1,3 +1,5 @@
+import NarrowDown from './NarrowDown';
+import { guidesConfig } from '../lib/narrow';
 import DrillDown, { Tile, type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
 import { GuideSearchForm } from './GuidesPage';
@@ -104,6 +106,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
           <GuideSearchForm />
         </PageHero>
         <StatePicker label="Show guides for" />
+        <NarrowDown config={guidesConfig(mine)} intro="Tell us how and what you want to buy, and we’ll point you to the guides to read first. Every guide is still listed below." />
         {playbook && <p className="notice" role="status">We couldn’t find that guide. Choose one below.</p>}
         {groups.map((g) => (
           <section key={g.code} aria-label={`${g.name} guides`}>

@@ -1,4 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import NarrowDown from './NarrowDown';
+import { findDealsConfig } from '../lib/narrow';
 import PageHero from './PageHero';
 import OwlNote from './OwlNote';
 import PathNext from './PathNext';
@@ -41,9 +43,9 @@ function SourceCard({ s }: { s: DealSource }) {
 
 /** Step 5 of the path: where to look for deals in a state and county. */
 /** One group of sources: its own panel, with a colored header bar, an icon and a large title, so groups are easy to tell apart. */
-function Band({ tone, icon, title, sub, children }: { tone: 'county' | 'site' | 'rules' | 'national' | 'other'; icon: ReactNode; title: ReactNode; sub?: ReactNode; children: ReactNode }) {
+function Band({ tone, icon, title, sub, children, id }: { tone: 'county' | 'site' | 'rules' | 'national' | 'other'; icon: ReactNode; title: ReactNode; sub?: ReactNode; children: ReactNode; id?: string }) {
   return (
-    <section className={`deal-band tone-${tone}`}>
+    <section id={id} className={`deal-band tone-${tone}`}>
       <header className="band-head">
         <span className="band-icon" aria-hidden>{icon}</span>
         <div>
@@ -107,10 +109,11 @@ export default function FindDealsPage() {
         </div>
       </PageHero>
 
+      <NarrowDown config={findDealsConfig()} intro="Answer two quick questions and we’ll point you to the best places to look first. Every source is still listed below." />
       <h2 className="section-title">Official sources</h2>
       <p className="muted">Government agencies, Fannie Mae and Freddie Mac, and the banks that own the homes: the sellers themselves.</p>
 
-      <Band tone="county" icon={<IconFile />} title={`County offices: ${place}`} sub="The county’s own pages for tax sales, records and sheriff’s sales.">
+      <Band id="deals-county" tone="county" icon={<IconFile />} title={`County offices: ${place}`} sub="The county’s own pages for tax sales, records and sheriff’s sales.">
         {officeCards.length > 0 ? (
           <ul className="deal-sources">{officeCards.map((s) => <SourceCard key={s.url} s={s} />)}</ul>
         ) : (
@@ -127,11 +130,11 @@ export default function FindDealsPage() {
           <ul className="deal-sources">{local.map((s) => <SourceCard key={s.name} s={s} />)}</ul>
         </Band>
       )}
-      <Band tone="rules" icon={<IconSteps />} title={`How sales work in ${st.name}`}>
+      <Band id="deals-rules" tone="rules" icon={<IconSteps />} title={`How sales work in ${st.name}`}>
         <ul className="state-sales-list">{STATE_SALES[area.state].map((t) => <li key={t}>{t}</li>)}</ul>
         <a className="band-link" href="#/learn/forced-sales">Read the lesson on forced sales →</a>
       </Band>
-      <Band tone="national" icon={<IconBank />} title={`Across ${st.name} and nationwide`} sub="Federal agencies, Fannie Mae and Freddie Mac, and banks selling homes they own.">
+      <Band id="deals-national" tone="national" icon={<IconBank />} title={`Across ${st.name} and nationwide`} sub="Federal agencies, Fannie Mae and Freddie Mac, and banks selling homes they own.">
         <ul className="deal-sources">{nationalOfficialFor(st.name).map((s) => <SourceCard key={s.name} s={s} />)}</ul>
       </Band>
 

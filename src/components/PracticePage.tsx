@@ -1,3 +1,6 @@
+import NarrowDown from './NarrowDown';
+import { practiceConfig } from '../lib/narrow';
+import { getMyState } from '../lib/myState';
 import { useMarkStep } from '../lib/path';
 import PathNext from './PathNext';
 import { useState } from 'react';
@@ -43,6 +46,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
           sub="Buy a fictional property step by step, from research to the day after the sale."
         />
         <PracticeRibbon />
+        <NarrowDown config={practiceConfig(getMyState())} intro="Answer a few quick questions and we’ll suggest a practice purchase or drills to start with. Everything is still listed below." />
         <h2 className="practice-step"><span aria-hidden>1</span> Choose a kind of sale</h2>
         <div className="practice-sales">
           {SALE_ORDER.map((s) => {
