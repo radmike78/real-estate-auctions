@@ -192,7 +192,7 @@ export default function App() {
   useEffect(() => {
     const t = window.setTimeout(() => {
       const h1 = document.querySelector('main h1, h1')?.textContent?.trim();
-      document.title = route.page === 'home' || !h1 ? 'DeedOwl · Las Vegas & Clark County foreclosures and tax sales' : `${h1.slice(0, 70)} · DeedOwl`;
+      document.title = route.page === 'home' || !h1 ? 'DeedOwl · Learn real estate investing, step by step' : `${h1.slice(0, 70)} · DeedOwl`;
     }, 60);
     return () => window.clearTimeout(t);
   }, [path]); // eslint-disable-line react-hooks/exhaustive-deps

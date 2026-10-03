@@ -16,7 +16,7 @@ A distressed-property and forced-sale discovery platform. It finds properties th
 npm install
 npm run dev        # http://localhost:5173
 npm test           # rules engine, search, connector, freshness and security tests
-npm run build      # static site in dist/
+npm run build      # static site in dist/, plus a crawlable copy of each public page, sitemap.xml and robots.txt
 ```
 
 To put the site online, see [Deploy](#deploy): Podman, any Kubernetes distribution, or OpenShift.
@@ -25,6 +25,8 @@ Development builds show fictional Clark County sample properties and professiona
 
 
 ## Deploy
+
+Search engines don't index `#/` addresses, so the build also writes a plain copy of each lesson, property type, team guide and main page to `dist/<path>/index.html` (for example `/learn/red-flags/`), with `sitemap.xml` and `robots.txt`. Their canonical links use `SITE_URL` at build time (default `https://deedowl.com`; the container build takes it as `--build-arg SITE_URL=...`). Visitors who open one of these addresses go straight to the matching page of the app. After deploying, submit `https://<your domain>/sitemap.xml` in Google Search Console.
 
 The site ships as **one container image**, built with **Podman** (Docker isn't used or needed). It runs in any of three ways:
 

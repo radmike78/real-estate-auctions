@@ -29,10 +29,12 @@ ARG FEED_PUBLIC_KEY=""
 ARG DIRECTORY_PUBLIC_KEY=""
 # Fictional sample properties and professionals are hidden in production images. Set to 1 for a demo site.
 ARG SHOW_SAMPLE_DATA=0
+# The public web address, for the canonical links and sitemap search engines read (scripts/prerender.ts).
+ARG SITE_URL=https://deedowl.com
 # Set RUN_TESTS=0 to skip the test suite (not recommended).
 ARG RUN_TESTS=1
 RUN if [ "$RUN_TESTS" = "1" ]; then npm test; fi \
- && VITE_FEED_PUBLIC_KEY="$FEED_PUBLIC_KEY" VITE_DIRECTORY_PUBLIC_KEY="$DIRECTORY_PUBLIC_KEY" VITE_SHOW_SAMPLE_DATA="$SHOW_SAMPLE_DATA" npm run build \
+ && VITE_FEED_PUBLIC_KEY="$FEED_PUBLIC_KEY" VITE_DIRECTORY_PUBLIC_KEY="$DIRECTORY_PUBLIC_KEY" VITE_SHOW_SAMPLE_DATA="$SHOW_SAMPLE_DATA" SITE_URL="$SITE_URL" npm run build \
  && npm prune --omit=dev --no-audit --no-fund
 
 # ---------- runtime ----------
