@@ -23,14 +23,15 @@ export default function HomeownerHelpPage() {
       <PageHero
         eyebrow={<span className="eyebrow">Free help · Nevada</span>}
         title={<>Facing foreclosure? <span className="grad">Get free help.</span></>}
-        sub="If you’re behind on your mortgage, HOA dues or property taxes, you have more options and more time than scammers want you to think."
+        sub="If you’re behind on your mortgage, HOA dues or property taxes, you likely have more options than scammers want you to think. Some deadlines are short, so act now."
       />
 
       <section>
-        <h2>First: you have time and options</h2>
+        <h2>First: act early, while you have the most options</h2>
         <ul>
           <li>In Nevada, at least 3 months must pass after a notice of default is recorded before a notice of sale can follow, and the sale notice must be published for 3 weeks.</li>
           <li>If you live in the home, you can generally catch up (reinstate) until 5 days before the sale (NRS 107.0805), work out a modification or repayment plan, sell (including a short sale), or get legal help to review your case.</li>
+          <li>Some deadlines are short: in Nevada, the request for foreclosure mediation is due within 30 days after the notice of default is served (NRS 107.086).</li>
           <li>Call your lender or servicer early and keep notes of every call.</li>
         </ul>
       </section>

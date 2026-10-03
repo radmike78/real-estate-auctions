@@ -54,6 +54,9 @@ export function drillState(d: Drill): string | null {
   return Object.keys(STATE_NAMES).find((k) => text.includes(STATE_NAMES[k])) ?? null;
 }
 
+/** Under a state's heading, "A Nevada foreclosure auction: …" reads "Foreclosure auction: …": cards differ in their first words. */
+const cardTitle = (t: string) => t.replace(/^An? (Nevada|California|Arizona|Utah) /, '').replace(/^./, (c) => c.toUpperCase());
+
 /** The drills on the Practice page, grouped by state, with the visitor's state first. */
 export function DrillList() {
   const saved = load();
@@ -77,8 +80,7 @@ export function DrillList() {
               const p = drillProgress(d, saved);
               return (
                 <a key={d.id} href={`#/practice/drills/${d.id}`} className="practice-card">
-                  <span className="practice-card-type">Simulation · Would you buy it?</span>
-                  <strong>{d.title}</strong>
+                  <strong>{g.key in STATE_NAMES ? cardTitle(d.title) : d.title}</strong>
                   <span>{d.teaser}</span>
                   <span className="practice-card-foot">{p.verdict ? `Your call: ${p.verdict}` : `${p.done} of ${p.total} missions done`} →</span>
                 </a>

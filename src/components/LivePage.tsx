@@ -121,18 +121,12 @@ export default function LivePage() {
                   <strong>{s.agency}</strong>{' '}
                   <span className={`badge tone-${s.health === 'ok' ? 'go' : s.health === 'terms_not_reviewed' ? 'info' : 'stop'}`}>{HEALTH_LABEL[s.health]}</span>
                 </div>
+                {/* What a buyer needs: where we checked and when. Fetch timing and site-certificate details stay out of the way. */}
                 <div className="small muted">
-                  {s.health === 'terms_not_reviewed' && !s.lastCheckedAt ? 'Not collected' : <>Last checked {s.lastCheckedAt ? ago(s.lastCheckedAt, now) : 'never'}</>}
+                  {s.health === 'terms_not_reviewed' && !s.lastCheckedAt ? 'Not collected' : <>Checked against {s.publishedBy ? `${s.publishedBy}'s official notice` : 'the official site'} {s.lastCheckedAt ? ago(s.lastCheckedAt, now) : 'never'}</>}
                   {s.lastChangedAt && <> · list last changed {ago(s.lastChangedAt, now)}</>}
-                  {s.observedChangeIntervalHours !== null && <> · updates about every {s.observedChangeIntervalHours.toFixed(1)} h</>}
-                  {s.nextCheckAt && s.health !== 'terms_not_reviewed' && <> · next check {fmtDateTime(s.nextCheckAt)}</>}
                 </div>
                 {s.publishedBy && <div className="small muted">Published by {s.publishedBy} for the county and the cities</div>}
-                {s.certificateIssuer && (
-                  <div className="small muted">
-                    Site identity verified: valid certificate for {s.publishedBy ? `${s.publishedBy}'s site` : "the agency's .gov domain"} issued by {s.certificateIssuer}
-                  </div>
-                )}
                 {s.message && <div className="small">{s.message}</div>}
                 {(s.publishedBy ? isCertificateSourceUrl(s.officialUrl) : isOfficialUrl(s.officialUrl) || s.officialUrl === 'https://www.irsauctions.gov/') && (
                   <a className="small" href={s.officialUrl} target="_blank" rel="noreferrer noopener">{s.publishedBy ? 'Official notice of sale ↗' : 'Official auction page ↗'}</a>

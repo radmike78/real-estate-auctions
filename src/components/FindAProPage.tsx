@@ -105,8 +105,8 @@ export default function FindAProPage({ section }: { section?: string }) {
         compact={open || build}
         top={open || build ? <a href="#/pros">← Your deal team</a> : undefined}
         eyebrow={open || build ? undefined : <span className="eyebrow">Step 3 of 6</span>}
-        title={open ? <a className="title-link" href="#/pros">Your deal team</a> : build ? <>Build <span className="grad">your team</span></> : <>Your <span className="grad">deal team</span></>}
-        sub={open || build ? undefined : 'Who helps with a purchase, when you need each one, and how to find them.'}
+        title={open ? proGuideByKey(section)!.title : build ? <>Build <span className="grad">your team</span></> : <>Your <span className="grad">deal team</span></>}
+        sub={open ? proGuideByKey(section)!.summary : build ? undefined : 'Who helps with a purchase, when you need each one, and how to find them.'}
       />
       {build && <TeamBuilder />}
       {all && (

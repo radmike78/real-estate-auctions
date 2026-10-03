@@ -19,8 +19,8 @@
       "src/lib/saleSearch.ts",
       "src/lib/status.ts"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "87d7159133507553",
+    "reviewed": "2026-10-03",
+    "hash": "3cb0406ae3d9fcc6",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -36,8 +36,8 @@
       "src/lib/propertyViews.ts",
       "src/lib/foreclosure.ts"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "03c37e5af17891e2",
+    "reviewed": "2026-10-03",
+    "hash": "72bc13e265c35dd6",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -59,8 +59,8 @@
       "src/components/IrsSales.tsx",
       "src/components/SidCertificates.tsx"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "45fc916d790ff523",
+    "reviewed": "2026-10-03",
+    "hash": "be365138e1b15936",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -114,7 +114,7 @@
       "src/lib/playbooks.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "56d917a1558e861e",
+    "hash": "7d55f00e8e1de831",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -138,7 +138,7 @@
       "src/practice/scenarios.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "b89880c4cc111fc2",
+    "hash": "071fbe8a85357f55",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -197,7 +197,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "72fb4505b24e3b0c",
+    "hash": "c92544ba3f3e21ee",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -240,7 +240,7 @@
       "src/components/HomeownerHelpPage.tsx"
     ],
     "reviewed": "2026-10-03",
-    "hash": "689ccccd819582ab",
+    "hash": "ae31d84c48b1b3b9",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

@@ -22,3 +22,11 @@ export const IconDatabase = () => <svg viewBox="0 0 24 24" aria-hidden><ellipse 
 export const IconCalc = () => <svg viewBox="0 0 24 24" aria-hidden><rect {...P} x="5" y="3.5" width="14" height="17" rx="2" /><path {...P} d="M8 7.5h8M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01M8.5 15h.01M12 15h.01M15.5 15h.01M8.5 18h.01M12 18h3.5" /></svg>;
 export const IconStar = () => <svg viewBox="0 0 24 24" aria-hidden><path {...P} d="m12 3.5 2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9z" /></svg>;
 export const IconCamera = () => <svg viewBox="0 0 24 24" aria-hidden><path {...P} d="M4 8h3l1.8-2.5h6.4L17 8h3v11H4z" /><circle {...P} cx="12" cy="13" r="3.5" /></svg>;
+
+// Kinds of sale, so each sale guide card looks different at a glance.
+export const IconGavel = () => <svg viewBox="0 0 24 24" aria-hidden><rect {...P} x="9" y="3" width="6" height="9" rx="1" transform="rotate(45 12 7.5)" /><path {...P} d="M9.5 10 4 15.5M12 20.5h8" /></svg>;
+export const IconReceipt = () => <svg viewBox="0 0 24 24" aria-hidden><path {...P} d="M6 3.5h12v17l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5-2 1.5zM9 8h6M9 12h6M9 16h3" /></svg>;
+export const IconPercent = () => <svg viewBox="0 0 24 24" aria-hidden><path {...P} d="M18 6 6 18" /><circle {...P} cx="7.5" cy="7.5" r="2" /><circle {...P} cx="16.5" cy="16.5" r="2" /></svg>;
+export const IconHouses = () => <svg viewBox="0 0 24 24" aria-hidden><path {...P} d="M2.5 12 7 8l4.5 4M3.5 11v8h7v-8M12.5 12 17 8l4.5 4M13.5 11v8h7v-8" /></svg>;
+export const IconBuilding = () => <svg viewBox="0 0 24 24" aria-hidden><path {...P} d="M5 20.5V4.5h9v16M14 9.5h5v11M3 20.5h18M8 8h3M8 11.5h3M8 15h3M16.5 13h.01M16.5 16.5h.01" /></svg>;
+export const IconHomeDown = () => <svg viewBox="0 0 24 24" aria-hidden><path {...P} d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M12 11v6M9.5 14.5 12 17l2.5-2.5" /></svg>;
