@@ -63,3 +63,7 @@ export const showFor = (state: StateCode | null, text: string) => {
   const s = statesOf(text);
   return s.length === 0 || s.includes(state);
 };
+
+/** The text as it applies to one state: drops sentences about other states (untagged sentences stay). */
+export const forStateText = (state: StateCode | null, text: string) =>
+  state ? text.split(/(?<=[.!?])\s+(?=[A-Z“"])/).filter((x) => showFor(state, x)).join(' ') : text;

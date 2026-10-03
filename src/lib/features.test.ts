@@ -466,3 +466,27 @@ describe('why you would / why you wouldn’t', () => {
     }
   });
 });
+
+describe('in-depth pages and real stories', () => {
+  it('gives every property type and professional real, sourced stories and detail', async () => {
+    const { PROPERTY_DEEP } = await import('./deep/propertyDeep');
+    const { PRO_DEEP } = await import('./deep/proDeep');
+    const { PROPERTY_TOPICS } = await import('./deep/propertyTopics');
+    const { PRO_GUIDES } = await import('./proGuide');
+    const { sourceForUrl } = await import('../content/sources');
+    const MARKETPLACE = /bid4assets|govease|realauction|auction\.com|xome|hubzu|zillow\.com|realtor\.com|redfin|loopnet|crexi/i;
+    const all = [...PROPERTY_TOPICS.map((t) => [t.key, PROPERTY_DEEP[t.key]] as const), ...PRO_GUIDES.map((g) => [g.key, PRO_DEEP[g.key]] as const)];
+    for (const [k, d] of all) {
+      expect(d, k).toBeTruthy();
+      expect(d!.overview.length, k).toBeGreaterThan(0);
+      expect(d!.stories.length, k).toBeGreaterThanOrEqual(2);
+      expect(d!.stories.some((s) => s.tone === 'caution'), k).toBe(true);
+      for (const s of d!.stories) {
+        expect(['good', 'caution']).toContain(s.tone);
+        expect(s.source.url.startsWith('https://'), s.title).toBe(true);
+        expect(MARKETPLACE.test(s.source.url), s.source.url).toBe(false);
+        expect(sourceForUrl(s.source.url), `register ${s.source.url}`).toBeTruthy();
+      }
+    }
+  });
+});

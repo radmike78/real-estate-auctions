@@ -6,7 +6,7 @@ import ProDirectory from './ProDirectory';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
 import { guidesFor, stateOf } from '../lib/playbooks';
-import { useMyState } from '../lib/myState';
+import { useMyState, forStateText } from '../lib/myState';
 import { useMarkStep } from '../lib/path';
 import PathNext from './PathNext';
 import { CORE_TEAM, PRO_GUIDES, proGuideByKey, type ProGuide, type ProKey } from '../lib/proGuide';
@@ -21,12 +21,14 @@ const ICONS: Record<ProKey, ReactElement> = {
 };
 
 function GuideBody({ g }: { g: ProGuide }) {
+  const [st] = useMyState();
+  const fit = (xs: string[]) => xs.map((x) => forStateText(st, x)).filter(Boolean);
   return (
     <div className="pro-guide">
       <p className="pro-guide-does">{g.does}</p>
       {PRO_WHY[g.key] && <WhyBlock yes={PRO_WHY[g.key].yes} no={PRO_WHY[g.key].no} yesLabel="Why you would hire one" noLabel="Why you might not, or when to be careful" />}
       {PRO_DEEP[g.key] && PRO_DEEP[g.key]!.overview.length > 0 && (
-        <div className="pro-guide-overview">{PRO_DEEP[g.key]!.overview.map((p) => <p key={p}>{p}</p>)}</div>
+        <div className="pro-guide-overview">{fit(PRO_DEEP[g.key]!.overview).map((p) => <p key={p}>{p}</p>)}</div>
       )}
       {PRO_DEEP[g.key] && PRO_DEEP[g.key]!.stories.length > 0 && (
         <div className="pro-guide-stories">
@@ -51,8 +53,8 @@ function GuideBody({ g }: { g: ProGuide }) {
       </div>
       {PRO_DEEP[g.key] && (PRO_DEEP[g.key]!.money.length > 0 || PRO_DEEP[g.key]!.checklist.length > 0) && (
         <div className="deep-two pro-guide-deep">
-          {PRO_DEEP[g.key]!.money.length > 0 && <div><h3>How they’re paid</h3><ul className="deep-list">{PRO_DEEP[g.key]!.money.map((x) => <li key={x}>{x}</li>)}</ul></div>}
-          {PRO_DEEP[g.key]!.checklist.length > 0 && <div><h3>Check before you hire</h3><ul className="deep-list">{PRO_DEEP[g.key]!.checklist.map((x) => <li key={x}>{x}</li>)}</ul></div>}
+          {PRO_DEEP[g.key]!.money.length > 0 && <div><h3>How they’re paid</h3><ul className="deep-list">{fit(PRO_DEEP[g.key]!.money).map((x) => <li key={x}>{x}</li>)}</ul></div>}
+          {PRO_DEEP[g.key]!.checklist.length > 0 && <div><h3>Check before you hire</h3><ul className="deep-list">{fit(PRO_DEEP[g.key]!.checklist).map((x) => <li key={x}>{x}</li>)}</ul></div>}
         </div>
       )}
       {g.license && (

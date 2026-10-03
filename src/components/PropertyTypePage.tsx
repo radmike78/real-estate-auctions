@@ -3,7 +3,7 @@ import WhyBlock from './WhyBlock';
 import StoryList from './StoryList';
 import StatePicker from './StatePicker';
 import { useMarkStep } from '../lib/path';
-import { showFor, useMyState } from '../lib/myState';
+import { forStateText, showFor, useMyState } from '../lib/myState';
 import { PROPERTY_TOPICS, topicBySlug, topicHref } from '../lib/deep/propertyTopics';
 import { PROPERTY_DEEP } from '../lib/deep/propertyDeep';
 import { PROPERTY_WHY } from '../lib/lessons/propertyWhy';
@@ -17,7 +17,8 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
   const t = topicBySlug(slug)!;
   const d = PROPERTY_DEEP[t.key];
   const why = PROPERTY_WHY[t.key];
-  const keep = (x: string) => showFor(st, x);
+  const keep = (x: string) => showFor(st, x) && forStateText(st, x) !== '';
+  const fit = (xs: string[]) => xs.filter(keep).map((x) => forStateText(st, x)).filter(Boolean);
   const i = PROPERTY_TOPICS.findIndex((x) => x.key === t.key);
   const next = PROPERTY_TOPICS[i + 1];
   return (
@@ -26,18 +27,18 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
         top={<a href="#/learn/types">← Types of property</a>}
         eyebrow={<span className="eyebrow">{t.group} property · in depth</span>}
         title={t.title}
-        sub={d?.overview[0]}
+        sub={d ? forStateText(st, d.overview[0]) : undefined}
       />
       <StatePicker label="Show rules for" />
       {d && d.overview.length > 1 && (
-        <section><h2>What owning it is really like</h2>{d.overview.slice(1).map((p) => <p key={p}>{p}</p>)}</section>
+        <section><h2>What owning it is really like</h2>{fit(d.overview.slice(1)).map((p) => <p key={p}>{p}</p>)}</section>
       )}
       {d && (
         <section>
           <h2>Who it suits, and who it doesn’t</h2>
           <div className="deep-two">
-            <div><h3>Good fit for</h3><List items={d.bestFor.filter(keep)} /></div>
-            <div><h3>Not a good fit for</h3><List items={d.notFor.filter(keep)} /></div>
+            <div><h3>Good fit for</h3><List items={fit(d.bestFor)} /></div>
+            <div><h3>Not a good fit for</h3><List items={fit(d.notFor)} /></div>
           </div>
         </section>
       )}
@@ -54,9 +55,9 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
       </section>
       {d && (
         <>
-          <section><h2>Costs to plan for</h2><List items={d.costs.filter(keep)} /></section>
-          <section><h2>How people pay for it</h2><List items={d.money.filter(keep)} /></section>
-          <section><h2>Check before you buy</h2><List items={d.checklist.filter(keep)} /></section>
+          <section><h2>Costs to plan for</h2><List items={fit(d.costs)} /></section>
+          <section><h2>How people pay for it</h2><List items={fit(d.money)} /></section>
+          <section><h2>Check before you buy</h2><List items={fit(d.checklist)} /></section>
           {d.facts.length > 0 && (
             <section>
               <h2>By the numbers</h2>
