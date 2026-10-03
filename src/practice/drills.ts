@@ -19,6 +19,8 @@ export interface Drill {
   id: string;
   /** Commercial property: listed in its own group on the Practice page. */
   commercial?: boolean;
+  /** A residential flip or BRRRR: listed in its own group on the Practice page. */
+  flipBrrrr?: boolean;
   title: string;
   teaser: string;
   /** Rules that depend on a state say which one. */
@@ -1192,6 +1194,241 @@ export const DRILLS: Drill[] = [
         { label: 'Pass', feedback: 'Reasonable if the seller won’t allow sampling or extend the due-diligence period.' },
       ],
       expert: 'Investigate. A Phase I in time, then a Phase II on the drains. A good price on a contaminated site can be the most expensive building you ever buy.',
+    },
+  },
+  {
+    id: 'flip-numbers',
+    flipBrrrr: true,
+    title: 'A fix-and-flip at $210,000: is there really a profit?',
+    teaser: 'A dated house is listed at $210,000. Remodeled homes nearby sell for about $340,000. Count every cost before you call it a deal.',
+    where: 'A fictional house bought with a short-term hard-money loan. All costs and rates are example assumptions.',
+    facts: [
+      { label: 'List price', value: '$210,000' },
+      { label: 'House', value: '3 bed, 2 bath, 1,600 sq ft, original 1990s finishes' },
+      { label: 'Your loan (example)', value: '90% of the price plus 100% of repairs, at 11% interest-only and 2 points' },
+      { label: 'Your plan', value: 'Renovate in 4 months, sell within 2 more' },
+    ],
+    missions: [
+      {
+        kind: 'pick',
+        id: 'arv',
+        title: 'Mission 1: What will it sell for after repairs?',
+        question: 'Which sales would you use for the after-repair value (ARV)? Pick all that fit.',
+        multi: true,
+        options: [
+          { label: 'Sale A: $345,000', detail: '3 bed, 2 bath, 1,580 sq ft, fully remodeled, sold 2 months ago, same subdivision', good: true, why: 'Similar house in the condition yours will be in, recent and close.' },
+          { label: 'Sale B: $336,000', detail: '3 bed, 2 bath, 1,640 sq ft, remodeled, sold 3 months ago, 0.5 miles away', good: true, why: 'Also a good match. Two good comps point to about $340,000.' },
+          { label: 'Sale C: $395,000', detail: '4 bed, 3 bath, 2,200 sq ft with a pool, remodeled, sold last month', good: false, why: 'Bigger and with a pool. It would inflate your ARV.' },
+          { label: 'Sale D: $228,000', detail: 'Same model, original condition, sold 2 months ago', good: false, why: 'That’s the as-is value, useful for your purchase price but not your ARV.' },
+        ],
+        lesson: 'Use sold homes already in the finished condition you’ll create, not bigger homes or listing prices.',
+      },
+      {
+        kind: 'estimate',
+        id: 'repairs',
+        title: 'Mission 2: The repair budget',
+        question: 'Enter your repair budget before you see the example ranges.',
+        items: [
+          { label: 'Kitchen: cabinets, counters, appliances', low: 18000, high: 26000, note: 'The biggest single item in most flips.' },
+          { label: 'Two bathrooms', low: 12000, high: 18000, note: 'Tile, vanities, fixtures.' },
+          { label: 'Flooring throughout', low: 8000, high: 11000, note: 'Mid-grade, to match the comps.' },
+          { label: 'Paint inside and out', low: 7000, high: 10000, note: '' },
+          { label: 'Electrical panel the inspector flagged', low: 3000, high: 5000, note: 'Needs a licensed electrician and a permit.' },
+        ],
+        lesson: 'About $48,000 to $70,000. This drill uses $60,000, and a real budget should add a cushion for what you can’t see.',
+      },
+      {
+        kind: 'facts',
+        id: 'numbers',
+        title: 'Mission 3: Every cost, not just the repairs',
+        lines: [
+          { label: 'After-repair value (ARV)', value: '$340,000' },
+          { label: '70% rule, a quick first screen: 70% of ARV minus repairs', value: '$178,000 maximum price' },
+          { label: 'Purchase price', value: '$210,000' },
+          { label: 'Buying costs (assumed 2%)', value: '$4,200' },
+          { label: 'Repairs', value: '$60,000' },
+          { label: 'Loan points (2% of $249,000)', value: '$4,980' },
+          { label: 'Loan interest, 6 months at 11%', value: '$13,695' },
+          { label: 'Taxes, insurance and utilities while you hold it (assumed $600 a month)', value: '$3,600' },
+          { label: 'Selling costs: commissions and closing (assumed 8% of ARV)', value: '$27,200' },
+          { label: 'Total cost', value: '$323,675' },
+          { label: 'Profit before taxes', value: 'About $16,300, under 5% of the sale price' },
+        ],
+        lesson: 'The asking price is $32,000 above the 70% screen, and the full count leaves a thin profit. Any surprise, a slower sale or a lower price wipes it out.',
+      },
+    ],
+    verdict: {
+      question: 'At $210,000, what do you do?',
+      choices: [
+        { label: 'Buy', feedback: 'A profit of about $16,000 on a $324,000 project is little reward for the risk. One delay or a lower sale price erases it.' },
+        { label: 'Investigate', feedback: 'Fair if you mean offering much less: around the $178,000 screen, and only after confirming the repair bids.' },
+        { label: 'Pass', feedback: 'Reasonable at this price.' },
+      ],
+      expert: 'Pass at $210,000, or offer near $178,000 to $185,000 with real contractor bids in hand. Flips need room for the surprises every flip has.',
+    },
+  },
+  {
+    id: 'flip-delays',
+    flipBrrrr: true,
+    title: 'The same flip, but nothing goes to plan',
+    teaser: 'Permits take longer, the repair bill grows 15% and prices dip 5%. See what happens to the same $210,000 flip.',
+    where: 'A fictional continuation of the $210,000 flip. All costs and rates are example assumptions.',
+    facts: [
+      { label: 'Plan', value: '6 months, $60,000 of repairs, sell at $340,000' },
+      { label: 'What happened', value: 'Permit delays and a contractor change: 10 months' },
+      { label: 'Repairs', value: '$69,000, 15% over budget' },
+      { label: 'Sale price', value: '$323,000, 5% lower after the market slowed' },
+    ],
+    missions: [
+      {
+        kind: 'pick',
+        id: 'risks',
+        title: 'Mission 1: Which risks should a flip budget cover?',
+        question: 'Pick all you would budget for before buying.',
+        multi: true,
+        options: [
+          { label: 'Permit and inspection delays', good: true, why: 'Check the building department’s current timelines before you buy.' },
+          { label: 'Repairs running over budget', good: true, why: 'Add a contingency to every repair budget.' },
+          { label: 'A lower sale price or a slower sale', good: true, why: 'Test your numbers at a lower ARV.' },
+          { label: 'Prices will keep rising, so no cushion is needed', good: false, why: 'A flip that only works if prices rise is a bet, not a plan.' },
+        ],
+        lesson: 'Every month adds loan interest, taxes, insurance and utilities.',
+      },
+      {
+        kind: 'facts',
+        id: 'numbers',
+        title: 'Mission 2: The result',
+        lines: [
+          { label: 'Purchase and buying costs', value: '$214,200' },
+          { label: 'Repairs', value: '$69,000' },
+          { label: 'Loan points (2% of $258,000)', value: '$5,160' },
+          { label: 'Loan interest, 10 months at 11%', value: '$23,650' },
+          { label: 'Holding costs, 10 months', value: '$6,000' },
+          { label: 'Selling costs (8% of $323,000)', value: '$25,840' },
+          { label: 'Total cost', value: '$343,850' },
+          { label: 'Result', value: 'A loss of about $20,850' },
+        ],
+        lesson: 'A $16,000 planned profit became a $21,000 loss with ordinary problems. Run the calculator’s stress test before you buy.',
+      },
+    ],
+    verdict: {
+      question: 'Knowing this, would you have bought at $210,000?',
+      choices: [
+        { label: 'Buy', feedback: 'Only if you could absorb a $21,000 loss, which most first flips can’t.' },
+        { label: 'Investigate', feedback: 'Good: check permit timelines and get firm bids before offering.' },
+        { label: 'Pass', feedback: 'Right at this price. A price that survives delays is the only safe one.' },
+      ],
+      expert: 'Pass at $210,000. Set your maximum price so the deal still breaks even when repairs run 15% over, it takes twice as long, and it sells for 5% less.',
+    },
+  },
+  {
+    id: 'brrrr-appraisal',
+    flipBrrrr: true,
+    title: 'A BRRRR where the appraisal comes in low',
+    teaser: 'Buy with cash, renovate, rent it, then refinance to get your money back. Then the appraiser says $270,000, not $300,000.',
+    where: 'A fictional house bought with cash, then refinanced with a conventional cash-out loan. Loan rules shown are Fannie Mae’s; rates and costs are examples.',
+    facts: [
+      { label: 'All in', value: '$229,000: $180,000 price, $45,000 rehab, $4,000 closing costs' },
+      { label: 'Expected value after rehab', value: '$300,000' },
+      { label: 'Refinance plan', value: '75% cash-out loan at 7% for 30 years, 2% loan costs' },
+      { label: 'Rent', value: '$2,600 a month, signed 1-year lease' },
+    ],
+    missions: [
+      {
+        kind: 'pick',
+        id: 'timing',
+        title: 'Mission 1: When can you refinance?',
+        question: 'You finish the rehab 3 months after buying. Can you take a cash-out refinance now?',
+        multi: false,
+        options: [
+          { label: 'Generally not yet: Fannie Mae requires 6 months on title for a cash-out refinance. Its exception for homes bought with cash limits the loan to what you documented paying to buy, not the rehab', good: true, why: 'Right. Plan your cash to last until you can refinance.' },
+          { label: 'Yes, any time after the rehab', good: false, why: 'Ask your lender about its waiting period before you buy.' },
+        ],
+        lesson: 'Ask the lender before you buy: waiting period, maximum loan, and what it needs from the appraisal.',
+      },
+      {
+        kind: 'facts',
+        id: 'appraisal',
+        title: 'Mission 2: The appraisal',
+        lines: [
+          { label: 'Loan at a $300,000 value (75%)', value: '$225,000; after 2% costs, $220,500' },
+          { label: 'Cash left in the deal', value: 'About $8,500' },
+          { label: 'Loan at a $270,000 value (75%)', value: '$202,500; after 2% costs, $198,450' },
+          { label: 'Cash left in the deal', value: 'About $30,550' },
+        ],
+        lesson: 'A $30,000 lower appraisal kept $22,000 more of your cash in the house. Plan for a lower appraisal, and keep reserves.',
+      },
+      {
+        kind: 'facts',
+        id: 'cashflow',
+        title: 'Mission 3: Does it still pay for itself?',
+        lines: [
+          { label: 'Rent collected (6% vacancy)', value: '$29,328 a year' },
+          { label: 'Operating costs: tax $3,000, insurance $1,500, management 9%, repairs 6%', value: '−$8,899' },
+          { label: 'Net operating income (NOI)', value: '$20,429' },
+          { label: 'Reserves for big replacements (6%)', value: '−$1,760' },
+          { label: 'Debt service on $225,000 at 7%', value: '−$17,963: cash flow about $59 a month, DSCR 1.14' },
+          { label: 'Debt service on $202,500 at 7%', value: '−$16,167: cash flow about $209 a month, DSCR 1.26' },
+        ],
+        lesson: 'The smaller loan leaves more of your cash in, but the rental is healthier. Taking out every dollar can leave a property that barely pays for itself.',
+      },
+    ],
+    verdict: {
+      question: 'With $30,550 left in the deal and $209 a month of cash flow, is it a success?',
+      choices: [
+        { label: 'Buy', feedback: 'It can be, if you planned for some cash staying in and the rental still covers its costs and reserves.' },
+        { label: 'Investigate', feedback: 'Reasonable: question the appraisal with better comps if they exist, or keep the loan smaller.' },
+        { label: 'Pass', feedback: 'Only if you needed every dollar back for your next deal; that’s the risk BRRRR always carries.' },
+      ],
+      expert: 'A BRRRR that leaves some cash in and pays for itself is a solid rental. The mistake is counting on getting every dollar back: plan for a lower appraisal, the waiting period and reserves.',
+    },
+  },
+  {
+    id: 'brrrr-rates',
+    flipBrrrr: true,
+    title: 'A BRRRR when rates rise before you refinance',
+    teaser: 'Your plan assumed a 7% refinance. Six months later the best rate is 8%. Does the rental still work?',
+    where: 'A fictional continuation of the BRRRR rental. Rates and costs are examples.',
+    facts: [
+      { label: 'All in', value: '$229,000' },
+      { label: 'Appraisal', value: '$300,000' },
+      { label: 'Refinance offered', value: '75% cash-out, $225,000, now at 8% for 30 years' },
+      { label: 'NOI and reserves', value: 'NOI $20,429 a year; reserves $1,760' },
+    ],
+    missions: [
+      {
+        kind: 'facts',
+        id: 'numbers',
+        title: 'Mission 1: The new numbers',
+        lines: [
+          { label: 'Debt service on $225,000 at 8%', value: '$19,812 a year' },
+          { label: 'Cash flow after reserves', value: 'About −$95 a month' },
+          { label: 'DSCR: NOI ÷ debt service', value: 'About 1.03' },
+        ],
+        lesson: 'One percentage point turned a thin positive cash flow into a loss.',
+      },
+      {
+        kind: 'pick',
+        id: 'options',
+        title: 'Mission 2: What can you do?',
+        question: 'Pick the sensible options.',
+        multi: true,
+        options: [
+          { label: 'Take a smaller loan and leave more cash in, so the rent covers the payment', good: true, why: 'Right. A rental that pays for itself beats one that needs your money every month.' },
+          { label: 'Keep the house without refinancing until you find better terms, if your cash allows', good: true, why: 'Reasonable if you don’t need the cash right away.' },
+          { label: 'Take the full loan and cover the shortfall from your paycheck indefinitely', good: false, why: 'That turns your rental into a monthly expense, and a vacancy makes it worse.' },
+        ],
+        lesson: 'Before buying, run the refinance at a rate one or two points higher than today’s.',
+      },
+    ],
+    verdict: {
+      question: 'Do you take the full 8% loan?',
+      choices: [
+        { label: 'Buy', feedback: 'Taking the full loan means about $95 a month out of pocket, more with any vacancy.' },
+        { label: 'Investigate', feedback: 'Good: compare lenders and loan sizes, and pick the largest loan the rent comfortably covers.' },
+        { label: 'Pass', feedback: 'Holding off on refinancing is a reasonable choice if your cash allows it.' },
+      ],
+      expert: 'Size the loan to the rent, not to your purchase cost. Leaving some cash in a rental that pays for itself is better than pulling it all out and feeding the property every month.',
     },
   },
 ];
