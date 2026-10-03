@@ -58,12 +58,16 @@ export function drillState(d: Drill): string | null {
 export function DrillList() {
   const saved = load();
   const [mine] = useMyState();
-  const groups = [...(mine ? [mine] : []), ...Object.keys(STATE_NAMES).filter((k) => k !== mine), null].map((st) => ({ st, drills: DRILLS.filter((d) => drillState(d) === st) }));
+  const groups: { key: string; title: string; drills: Drill[] }[] = [
+    ...[...(mine ? [mine] : []), ...Object.keys(STATE_NAMES).filter((k) => k !== mine)].map((st) => ({ key: st, title: STATE_NAMES[st], drills: DRILLS.filter((d) => !d.commercial && drillState(d) === st) })),
+    { key: 'any', title: 'Any state', drills: DRILLS.filter((d) => !d.commercial && drillState(d) === null) },
+    { key: 'commercial', title: 'Commercial property', drills: DRILLS.filter((d) => d.commercial) },
+  ];
   return (
     <>
       {groups.filter((g) => g.drills.length).map((g) => (
-        <section key={g.st ?? 'any'} aria-label={g.st ? `${STATE_NAMES[g.st]} drills` : 'Drills for any state'}>
-          <h3 className="drill-group">{g.st ? STATE_NAMES[g.st] : 'Any state'}</h3>
+        <section key={g.key} aria-label={`${g.title} drills`}>
+          <h3 className="drill-group">{g.title}</h3>
           <div className="practice-grid drill-grid">
             {g.drills.map((d) => {
               const p = drillProgress(d, saved);

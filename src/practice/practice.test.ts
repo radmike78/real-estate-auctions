@@ -218,3 +218,12 @@ describe('drills by state', () => {
     }
   });
 });
+
+describe('commercial drills', () => {
+  it('has several, each with a pass-or-investigate lesson and no state rules', async () => {
+    const { DRILLS } = await import('./drills');
+    const com = DRILLS.filter((d) => d.commercial);
+    expect(com.length).toBeGreaterThanOrEqual(4);
+    for (const d of com) expect(/Nevada|California|Arizona|Utah/.test(`${d.title} ${d.where}`), d.id).toBe(false);
+  });
+});

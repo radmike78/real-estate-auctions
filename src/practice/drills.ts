@@ -17,6 +17,8 @@ export type Mission =
 
 export interface Drill {
   id: string;
+  /** Commercial property: listed in its own group on the Practice page. */
+  commercial?: boolean;
   title: string;
   teaser: string;
   /** Rules that depend on a state say which one. */
@@ -964,6 +966,232 @@ export const DRILLS: Drill[] = [
         { label: 'Pass', feedback: 'Reasonable if you need the house, not a possible 8% return, within six months.' },
       ],
       expert: 'Investigate. You buy only the debtor’s interest, wait 6 months here, and may be paid back with 8% instead. Price the wait and senior liens before you bid.',
+    },
+  },
+  {
+    id: 'retail-strip',
+    commercial: true,
+    title: 'A $1.8 million retail strip: whose income do you trust?',
+    teaser: 'A six-unit retail strip is priced at a 7.5% cap rate on the seller’s pro forma. Check the real income before you value it.',
+    where: 'A fictional retail strip center bought from a private seller through a commercial broker.',
+    facts: [
+      { label: 'Asking price', value: '$1,800,000' },
+      { label: 'Seller’s pro forma NOI', value: '$135,000 a year (7.5% cap rate)' },
+      { label: 'Last 12 months, actual NOI', value: '$112,000 a year' },
+      { label: 'Leases', value: 'Two tenants are month-to-month; one lease ends in 4 months' },
+    ],
+    missions: [
+      {
+        kind: 'pick',
+        id: 'income',
+        title: 'Mission 1: Which income do you value?',
+        question: 'Which NOI should you use to value the property?',
+        multi: false,
+        options: [
+          { label: 'The actual last-12-months NOI, checked against the leases', good: true, why: 'Right. Value what the property earns now, not what the seller hopes it could earn.' },
+          { label: 'The seller’s pro forma, since that’s what the broker advertises', good: false, why: 'A pro forma is a projection, often with every space leased at top rents.' },
+        ],
+        lesson: 'Value = NOI ÷ cap rate. At 7.5% on the actual $112,000, it’s worth about $1,493,000, not $1,800,000.',
+      },
+      {
+        kind: 'pick',
+        id: 'verify',
+        title: 'Mission 2: Is the rent roll real?',
+        question: 'How do you confirm what the tenants actually pay and owe? Pick all that apply.',
+        multi: true,
+        options: [
+          { label: 'Read every lease, not just the rent roll summary', good: true, why: 'Right. Leases show rent, increases, options, who pays which costs, and any special rights.' },
+          { label: 'Get estoppel certificates: each tenant confirms its rent, deposit, lease term and any claims', good: true, why: 'Right. Estoppels catch side deals and disputes the seller didn’t mention.' },
+          { label: 'Trust the broker’s marketing summary', good: false, why: 'The summary is marketing. Verify against the leases and estoppels.' },
+        ],
+        lesson: 'Check which leases are triple-net (tenants pay most taxes, insurance and maintenance) and which aren’t: it changes your expenses a lot.',
+      },
+      {
+        kind: 'facts',
+        id: 'risk',
+        title: 'Mission 3: The lease risk',
+        lines: [
+          { label: 'Value on actual NOI at a 7.5% cap rate', value: 'About $1,493,000' },
+          { label: 'Asking price', value: '$1,800,000' },
+          { label: 'Gap', value: 'About $307,000 of hoped-for income' },
+          { label: 'Tenants who could leave within months', value: 'Three of six' },
+        ],
+        lesson: 'With half the tenants able to leave soon, even the actual NOI isn’t secure. Price in vacancy, leasing costs and months to re-lease.',
+      },
+    ],
+    verdict: {
+      question: 'At $1,800,000, what do you do?',
+      choices: [
+        { label: 'Buy', feedback: 'You’d pay for income the property doesn’t earn, with half the tenants able to leave.' },
+        { label: 'Investigate', feedback: 'Good, at a lower price: read the leases, get estoppels, and value on actual NOI with a cushion for turnover.' },
+        { label: 'Pass', feedback: 'Reasonable if the seller won’t price on actual income.' },
+      ],
+      expert: 'Investigate only at a price based on actual NOI, about $1.49 million at the same cap rate, and lower for the lease risk. Paying for a pro forma is paying the seller for work you’d still have to do.',
+    },
+  },
+  {
+    id: 'apartments-12',
+    commercial: true,
+    title: 'A 12-unit apartment building: will the lender agree?',
+    teaser: 'Twelve units at $1,500,000. The seller’s expenses look low. Rebuild the numbers and see what a lender will lend.',
+    where: 'A fictional 12-unit apartment building bought with a commercial loan. Rent and property tax rules depend on the state and city.',
+    facts: [
+      { label: 'Price', value: '$1,500,000' },
+      { label: 'Rents', value: '12 units at $1,350 a month' },
+      { label: 'Seller’s expenses', value: '30% of collected rent' },
+      { label: 'Loan you hoped for', value: '70% of the price, $1,050,000, at 7% over 25 years: about $89,000 a year' },
+    ],
+    missions: [
+      {
+        kind: 'pick',
+        id: 'expenses',
+        title: 'Mission 1: Are the expenses real?',
+        question: 'The seller’s expenses are 30% of collected rent. What do you check?',
+        multi: true,
+        options: [
+          { label: 'The property tax after the sale, from the county: it can rise when a building sells', good: true, why: 'Right. Ask the assessor what the tax will be at your price.' },
+          { label: 'A fresh insurance quote for the building', good: true, why: 'Right. The seller’s old policy price may not be available to you.' },
+          { label: 'Whether the seller manages it for free and left out management and repairs', good: true, why: 'Right. Owner-managed buildings often under-report costs.' },
+          { label: 'Nothing: the seller’s numbers come from their tax return', good: false, why: 'Verify anyway. Ask for the trailing 12 months of statements and the bills behind them.' },
+        ],
+        lesson: 'Rebuilt with realistic taxes, insurance, management and repairs, expenses come to about 45% of collected rent.',
+      },
+      {
+        kind: 'facts',
+        id: 'numbers',
+        title: 'Mission 2: The numbers, rebuilt',
+        lines: [
+          { label: 'Rent if fully rented', value: '$194,400 a year' },
+          { label: 'Vacancy and unpaid rent (assumed 7%)', value: '−$13,608' },
+          { label: 'Operating expenses (about 45% of collected rent)', value: '−$81,356' },
+          { label: 'Net operating income (NOI)', value: 'About $99,400' },
+          { label: 'Reserves for big replacements (assumed $300 a unit)', value: '−$3,600' },
+          { label: 'Debt service on a $1,050,000 loan', value: '−$89,054' },
+          { label: 'Cash flow', value: 'About $6,800 a year' },
+          { label: 'Loan coverage (DSCR): NOI ÷ debt service', value: 'About 1.12' },
+        ],
+        lesson: 'With the seller’s 30% expenses, DSCR would look like 1.42. With realistic expenses it’s 1.12.',
+      },
+      {
+        kind: 'pick',
+        id: 'lender',
+        title: 'Mission 3: What will the lender do?',
+        question: 'The lender requires a DSCR of at least 1.25. What happens?',
+        multi: false,
+        options: [
+          { label: 'The loan shrinks to about $938,000, so I need about $112,000 more cash', good: true, why: 'Right. At 1.25, the most debt service the NOI supports is about $79,500 a year, which carries about $938,000 at 7% over 25 years.' },
+          { label: 'The lender ignores DSCR if my credit is good', good: false, why: 'Commercial loans are sized on the property’s income.' },
+        ],
+        lesson: 'Many commercial loans also end with a balloon payment before they’re paid off. Know the term, any prepayment penalty, and whether you’re personally liable.',
+      },
+    ],
+    verdict: {
+      question: 'At $1,500,000, what do you do?',
+      choices: [
+        { label: 'Buy', feedback: 'Thin cash flow, a smaller loan than planned, and $112,000 more cash: only if you have deep reserves and a clear plan to raise income.' },
+        { label: 'Investigate', feedback: 'Good: get the real tax, insurance and operating statements, then offer a price that works at a 1.25 DSCR.' },
+        { label: 'Pass', feedback: 'Reasonable if the seller won’t move toward a price the income supports.' },
+      ],
+      expert: 'Investigate and re-price. On realistic expenses the building earns about $99,400, supports a loan of about $938,000, and leaves little cash flow. The asking price leans on the seller’s low expenses.',
+    },
+  },
+  {
+    id: 'office-lease-up',
+    commercial: true,
+    title: 'A half-empty office building: what does it cost to fill?',
+    teaser: 'A 10,000 sq ft office building is half leased. The price assumes it’s full. Count the cost of getting there.',
+    where: 'A fictional small office building. Lease terms and costs vary by market; these are example figures.',
+    facts: [
+      { label: 'Building', value: '10,000 sq ft; 5,000 sq ft empty' },
+      { label: 'Market rent (example)', value: '$24 per sq ft a year' },
+      { label: 'Price', value: 'Based on the building fully leased' },
+      { label: 'Time to lease the empty space (example)', value: '9 to 12 months' },
+    ],
+    missions: [
+      {
+        kind: 'estimate',
+        id: 'lease-up',
+        title: 'Mission 1: The cost to lease it up',
+        question: 'Enter what you think it will cost to lease the 5,000 empty square feet, before looking at the example ranges.',
+        items: [
+          { label: 'Tenant improvements: building out the space for a new tenant', low: 150000, high: 250000, note: 'Example: $30 to $50 per sq ft. Ask local brokers what tenants expect.' },
+          { label: 'Leasing commissions to brokers', low: 30000, high: 45000, note: 'Often a percentage of the lease’s total rent.' },
+          { label: 'Costs you pay on the empty space while it’s vacant', low: 30000, high: 50000, note: 'Taxes, insurance, utilities and upkeep for 9 to 12 months.' },
+        ],
+        lesson: 'Lease-up can cost $210,000 to $345,000 here. A price based on a full building should come down by at least that much, plus a margin for the risk it takes longer.',
+      },
+      {
+        kind: 'pick',
+        id: 'existing',
+        title: 'Mission 2: The tenants who are there',
+        question: 'What do you check about the existing tenants?',
+        multi: true,
+        options: [
+          { label: 'When each lease ends, and any options to leave early or renew at a fixed rent', good: true, why: 'Right. A lease ending soon can turn half-empty into mostly empty.' },
+          { label: 'Estoppel certificates confirming their rent and any claims', good: true, why: 'Right.' },
+          { label: 'Nothing: occupied space is safe income', good: false, why: 'Check every lease. Occupied isn’t the same as secure.' },
+        ],
+        lesson: 'Value the building as it is today, then subtract what it costs and how long it takes to reach full occupancy.',
+      },
+    ],
+    verdict: {
+      question: 'At a price based on a full building, what do you do?',
+      choices: [
+        { label: 'Buy', feedback: 'You’d pay for income that doesn’t exist yet and fund the lease-up yourself.' },
+        { label: 'Investigate', feedback: 'Good: talk to local leasing brokers about demand, rents and tenant improvements, then offer a price that subtracts lease-up costs.' },
+        { label: 'Pass', feedback: 'Sensible if office demand in the area is weak or you can’t fund a year of lease-up.' },
+      ],
+      expert: 'Investigate, priced as half-leased, minus $210,000 to $345,000 of lease-up costs and a cushion for time. Commercial vacancy can last much longer than a house sitting empty.',
+    },
+  },
+  {
+    id: 'warehouse-environmental',
+    commercial: true,
+    title: 'A small warehouse that used to be a repair shop',
+    teaser: 'A well-priced warehouse once housed an auto repair business. Before you buy, find out what’s in the ground.',
+    where: 'A fictional industrial building. Federal environmental rules apply in every state.',
+    facts: [
+      { label: 'Price', value: '$900,000' },
+      { label: 'History', value: 'An auto repair shop for 20 years; floor drains in the old service bays' },
+      { label: 'Use you plan', value: 'Lease it to a contractor for storage' },
+      { label: 'Your lender', value: 'Requires an environmental report' },
+    ],
+    missions: [
+      {
+        kind: 'pick',
+        id: 'phase1',
+        title: 'Mission 1: The environmental report',
+        question: 'What do you order, and when?',
+        multi: false,
+        options: [
+          { label: 'A Phase I environmental site assessment (ASTM E1527-21) completed within one year before I take title, with its site visit, interviews and record searches within 180 days', good: true, why: 'Right. That timing is what preserves the federal liability protection for a buyer who investigates first.' },
+          { label: 'Skip it: the seller says there’s never been a problem', good: false, why: 'A buyer can be held responsible for contamination they didn’t cause. The report is your protection.' },
+          { label: 'Order one after closing', good: false, why: 'Too late to protect you or renegotiate.' },
+        ],
+        lesson: 'Old repair shops, gas stations and dry cleaners are classic sources of contamination: oil, solvents and buried tanks.',
+      },
+      {
+        kind: 'pick',
+        id: 'phase2',
+        title: 'Mission 2: The Phase I finds a problem',
+        question: 'The report flags the floor drains as a “recognized environmental condition.” What do you do? Pick all that apply.',
+        multi: true,
+        options: [
+          { label: 'Ask the environmental professional about a Phase II: sampling soil and groundwater', good: true, why: 'Right. Sampling tells you whether there’s contamination and roughly what cleanup could cost.' },
+          { label: 'Use the contract’s due-diligence period to renegotiate or cancel', good: true, why: 'Right. Make sure your contract gives you time and a way out for environmental findings.' },
+          { label: 'Close on schedule and deal with it later', good: false, why: 'Cleanup costs can exceed the property’s value, and lenders may not lend.' },
+        ],
+        lesson: 'Talk with a real estate attorney about the environmental terms in your contract before you sign it.',
+      },
+    ],
+    verdict: {
+      question: 'What do you do now?',
+      choices: [
+        { label: 'Buy', feedback: 'Not before you know what’s in the ground and what cleanup would cost.' },
+        { label: 'Investigate', feedback: 'Good: Phase II sampling within your due-diligence period, then decide or renegotiate.' },
+        { label: 'Pass', feedback: 'Reasonable if the seller won’t allow sampling or extend the due-diligence period.' },
+      ],
+      expert: 'Investigate. A Phase I in time, then a Phase II on the drains. A good price on a contaminated site can be the most expensive building you ever buy.',
     },
   },
 ];
