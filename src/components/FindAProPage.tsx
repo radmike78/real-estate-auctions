@@ -83,7 +83,8 @@ export default function FindAProPage({ section }: { section?: string }) {
   useMarkStep('team');
   const [sale, setSale] = useState<string>('start');
   const open = !!section && !!proGuideByKey(section);
-  const all = section === 'all';
+  const build = section === 'build';
+  const all = !open && !build; // the full page: #/pros (and the old #/pros/all)
   const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
   const [mine] = useMyState();
   const book = guidesFor(mine).find((p) => p.key === sale);
@@ -94,14 +95,20 @@ export default function FindAProPage({ section }: { section?: string }) {
   return (
     <main className="page">
       <PageHero
-        compact={open || all}
-        top={open || all ? <a href="#/pros">← Build your team</a> : undefined}
-        eyebrow={open || all ? undefined : <span className="eyebrow">Step 3 of 6</span>}
-        title={open ? <a className="title-link" href="#/pros/all">Your deal team</a> : all ? <>Everyone on a <span className="grad">deal team</span></> : <>Your <span className="grad">deal team</span></>}
-        sub={open || all ? undefined : 'Answer five quick questions and we’ll show only the professionals you need, and why.'}
+        compact={open || build}
+        top={open || build ? <a href="#/pros">← Your deal team</a> : undefined}
+        eyebrow={open || build ? undefined : <span className="eyebrow">Step 3 of 6</span>}
+        title={open ? <a className="title-link" href="#/pros">Your deal team</a> : build ? <>Build <span className="grad">your team</span></> : <>Your <span className="grad">deal team</span></>}
+        sub={open || build ? undefined : 'Who helps with a purchase, when you need each one, and how to find them.'}
       />
-      {!open && !all && <TeamBuilder />}
-      {!open && !all && <PathNext step="team" />}
+      {build && <TeamBuilder />}
+      {all && (
+        <section className="not-sure" aria-labelledby="not-sure-head">
+          <h2 id="not-sure-head">Don’t know who you need?</h2>
+          <p>Answer five quick questions about what you want to buy and how, and we’ll narrow this down to the professionals you need, and why. If you’re not sure of an answer, we’ll suggest one.</p>
+          <a className="btn" href="#/pros/build">Help me choose →</a>
+        </section>
+      )}
       {all && (
         <section className="pro-chooser" aria-labelledby="pro-chooser-head">
           <h2 id="pro-chooser-head" className="section-title">Who you need for your kind of sale</h2>
@@ -120,6 +127,7 @@ export default function FindAProPage({ section }: { section?: string }) {
       )}
       {all && <h2 className="section-title">The professionals</h2>}
       {(open || all) && <DrillDown sections={sections} active={open ? section : undefined} baseHref="#/pros" label="Professionals" />}
+      {!open && <PathNext step="team" />}
     </main>
   );
 }

@@ -40,7 +40,7 @@ export default function TeamBuilder() {
 
   return (
     <section className="team-builder" aria-labelledby="team-builder-head">
-      <h2 id="team-builder-head">Build your team</h2>
+      <h2 id="team-builder-head">Who you need</h2>
       {q ? (
         <>
           <p className="team-progress">Question {step + 1} of {TEAM_QUESTIONS.length}</p>
@@ -93,7 +93,7 @@ export default function TeamBuilder() {
           </ol>
         </>
       )}
-      <p className="team-all"><a href="#/pros/all">See everyone who could be on your team →</a></p>
+      <p className="team-all"><a href="#/pros">See everyone who could be on your team →</a></p>
     </section>
   );
 }
