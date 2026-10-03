@@ -2194,3 +2194,4 @@ h1, h2 { letter-spacing: -0.03em; }
 .practice-plans th[scope="col"] { font-weight: 600; white-space: nowrap; width: auto; text-align: right; }
 .practice-plans td.num { white-space: nowrap; }
 .practice-plans { table-layout: fixed; }
+.numbers-note { margin: 0.5rem 0 0; }

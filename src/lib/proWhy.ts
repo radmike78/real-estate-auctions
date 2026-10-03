@@ -543,6 +543,32 @@ export const PRO_WHY = {
       }
     ]
   },
+  appraiser: {
+    yes: [
+      {
+        who: "Investor setting a maximum bid or offer",
+        text: "An appraisal gives you a professional value, as the property stands and after the repairs you plan, so your maximum isn’t built on a guess."
+      },
+      {
+        who: "Buyer paying cash",
+        text: "With no lender, nobody else checks the price. An appraisal is your check before you pay."
+      },
+      {
+        who: "Investor planning a refinance",
+        text: "The loan you get later depends on the lender’s appraisal. Knowing the value first helps you avoid a refinance that comes up short."
+      }
+    ],
+    no: [
+      {
+        who: "Auction buyer who can’t go inside",
+        text: "An appraiser who can’t see the inside can’t judge its condition. Allow extra for what the appraisal couldn’t see."
+      },
+      {
+        who: "Buyer with a mortgage",
+        text: "Lenders usually order their own appraisal, so one you order may not count for the loan. It can still help you decide what to offer."
+      }
+    ]
+  },
   environmental: {
     yes: [
       {

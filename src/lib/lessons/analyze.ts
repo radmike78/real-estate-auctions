@@ -15,6 +15,8 @@ export const analyze: Lesson = {
       heading: 'Start with value',
       blocks: [
         'An appraisal is a written opinion of what a property is worth. For a home, appraisers compare it with similar homes that sold nearby: Fannie Mae requires at least three closed comparable sales, usually from the last 12 months. You can do a rough version yourself with recent sold prices, as long as the homes really are similar in size, age, condition and location.',
+        'Your own estimate is only a starting point. Value depends on the neighborhood, recent comparable sales, the property’s condition and the market, and the only way to know what a property is worth is an appraisal by a state-licensed or certified appraiser. Until you have one, your real estate agent can estimate the value from recent comparable sales.',
+        { links: [{ label: 'Appraisers', url: '#/pros/appraiser', what: 'What they do, when to hire one and how to check a license.' }, { label: 'Real estate agents', url: '#/pros/agent', what: 'How an agent helps you estimate value and make an offer.' }] },
         'Investors who plan to fix a property estimate its value after the work is done, often called the after-repair value (ARV). That number is only as good as the comparable sales behind it, so use sold prices of homes already in that finished condition, not asking prices.',
         'For income property, value comes from the income, as in lesson 1: net operating income divided by the cap rate buyers expect.',
       ],

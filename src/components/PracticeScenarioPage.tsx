@@ -385,6 +385,7 @@ function NumbersTask({ task, k, done, head, markDone }: { task: Extract<Task, { 
           <tr><th scope="row">{two ? 'Once repaired (practice)' : 'Value (practice)'}</th><td className="num">{fmtMoney(i.exitValue)}</td></tr>
         </tbody>
       </table>
+      <p className="numbers-note">These values are made up for practice. A real property’s value depends on the neighborhood, recent comparable sales, its condition and the market, and the only way to know it is an appraisal by a <a href="#/pros/appraiser">licensed appraiser</a>. Until you have one, your <a href="#/pros/agent">real estate agent</a> can estimate it from comparable sales.</p>
       <h4 className="numbers-step">4. Your profit at the {startName}{two ? ', two ways' : ''}</h4>
       <div className="table-scroll">
         <table className="practice-numbers practice-plans">

@@ -27,7 +27,7 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
     title: 'The deal',
     fields: [
       { k: 'minimumBid', label: 'Opening (minimum) bid', unit: '$', hint: 'From the auction listing.', quick: true, more: 'The lowest bid the auction will accept, stated in the listing or notice of sale. Your maximum is worked out from the resale value and every cost; the results show how much room that leaves above the opening bid.' },
-      { k: 'exitValue', label: 'Resale value after repairs', unit: '$', hint: 'Conservative sold comps, not list prices.', quick: true },
+      { k: 'exitValue', label: 'Resale value after repairs', unit: '$', hint: 'Conservative sold comps, not list prices.', quick: true, more: 'This is your estimate. Value depends on the neighborhood, recent comparable sales, condition and the market, and the only way to know it is an appraisal by a licensed appraiser. Until you have one, your real estate agent can estimate it from recent comparable sales.' },
       { k: 'targetProfitPct', label: 'Profit you want', unit: '%', hint: 'Of the resale value. 15–20% is common.', quick: true },
       { k: 'targetProfitMin', label: 'And at least', unit: '$', hint: 'A dollar minimum. Leave 0 for none.' },
       { k: 'cashAvailable', label: 'Cash you can bring', unit: '$', hint: 'For auction day. Leave 0 for no limit.', quick: true, more: 'Most auctions want the full price in certified funds the same day or within a day. Your walk-away price never goes above what this cash covers, including any buyer’s premium.' },

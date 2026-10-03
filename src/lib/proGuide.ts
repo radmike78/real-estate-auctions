@@ -6,7 +6,7 @@ import { CATEGORIES, type Category } from './pros';
 
 export type ProKey =
   | 'agent' | 'lender' | 'private_lender' | 'title' | 'attorney' | 'inspector' | 'contractor' | 'insurance' | 'cpa'
-  | 'property_manager' | 'eviction' | 'environmental';
+  | 'property_manager' | 'eviction' | 'environmental' | 'appraiser';
 
 export interface ProGuide {
   key: ProKey;
@@ -92,6 +92,16 @@ export const PRO_GUIDES: ProGuide[] = [
     ask: ['Can I see a sample report?', 'Do you check the sewer line, roof or pool, or is that separate?', 'When will I get the report?'],
     license: lic('home_inspector'),
     directory: ['home_inspector'],
+  },
+  {
+    key: 'appraiser',
+    title: 'Appraiser',
+    summary: 'The only way to know what a property is worth.',
+    does: 'A state-licensed or certified appraiser studies the property and recent sales of similar properties nearby, and writes an appraisal: a professional opinion of its value. Value depends on the neighborhood, comparable sales, condition and the market, and an appraisal is the only way to know it. Your own numbers, and your agent’s, are estimates until then.',
+    when: ['Before you set your maximum bid or offer: the value as it stands and after the repairs you plan.', 'Before you count on a refinance, since the lender’s appraisal sets the loan.', 'At an auction you often can’t go inside. Ask whether an exterior-only appraisal is possible, and allow for what it can’t see.'],
+    find: ['Look up appraisers licensed in your state on the national registry of state-licensed and certified appraisers.', 'Ask your real estate agent or lender for appraisers they trust. Your agent can estimate the value from recent comparable sales while you wait.'],
+    ask: ['Are you licensed or certified in this state for this kind of property?', 'Can you value it both as it stands and after the repairs I plan?', 'Which comparable sales did you use, and why?', 'What does it cost, and how soon can you finish?'],
+    license: { who: 'Appraisal Subcommittee: national registry of state-licensed and certified appraisers', url: 'https://www.asc.gov/appraiser' },
   },
   {
     key: 'contractor',
