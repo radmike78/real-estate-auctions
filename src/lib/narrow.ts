@@ -156,34 +156,6 @@ export function findDealsConfig(): NarrowConfig {
   };
 }
 
-/** Learn: where to start reading, by where they are now. */
-export function learnConfig(): NarrowConfig {
-  return {
-    questions: [
-      {
-        key: 'stage',
-        question: 'Where are you right now?',
-        options: [
-          { value: 'new', label: 'Brand new', hint: 'I want to understand how it works' },
-          { value: 'deals', label: 'I know the basics', hint: 'I want to tell a good deal from a bad one' },
-          { value: 'money', label: 'Figuring out how to pay' },
-          { value: 'buying', label: 'Getting ready to buy', hint: 'Research and auctions' },
-          { value: 'owner', label: 'I just bought a rental' },
-        ],
-        suggest: () => ({ value: 'new', why: 'Start with the basics: the two markets, the kinds of property, and who you’d compete with. Each lesson takes a few minutes.' }),
-      },
-    ],
-    result: ({ stage }) => {
-      const L = (key: string, label: string, why: string): NarrowPick => ({ label, why, href: `#/learn/${key}` });
-      if (stage === 'deals') return [L('analyze', 'Analyzing a deal', 'Value, repairs, rent and returns: the numbers that decide a deal.'), L('walk-away', 'When to walk away', 'The signs that should make you pass.')];
-      if (stage === 'money') return [L('financing', 'Traditional financing', 'Mortgages, commercial and hard-money loans, compared.'), L('red-flags', 'Seminar red flags', 'The pitches to avoid, and why never to borrow to learn.')];
-      if (stage === 'buying') return [L('tools', 'Tools and tricks of the trade', 'Records, maps and comps to research a property.'), L('forced-sales', 'Buying at forced sales', 'Tax, foreclosure, sheriff and IRS sales in your state.')];
-      if (stage === 'owner') return [L('after-closing', 'After you buy: running a rental', 'Tenants, deposits, entry rules and records in your state.')];
-      return [L('markets', 'Residential vs. commercial', 'How the two markets differ.'), L('types', 'Types of property', 'Houses to warehouses, and what each is like to own.')];
-    },
-  };
-}
-
 /** Sale guides: which guides to read first. */
 export function guidesConfig(myState: string | null): NarrowConfig {
   return {

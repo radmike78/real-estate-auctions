@@ -92,6 +92,13 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         sub={l.intro}
       />
       <StatePicker label="Show rules for" />
+      {lessonKey === 'types' && (
+        <section className="not-sure" aria-labelledby="types-not-sure">
+          <h2 id="types-not-sure">Not sure which kind of property fits you?</h2>
+          <p>There are a lot of choices below. Answer a few questions about your money, time and goals, and we’ll suggest the kinds of property that fit. Every type is still listed here.</p>
+          <a className="btn" href="#/decide">Help me choose →</a>
+        </section>
+      )}
       <section className="lesson-takeaways" aria-labelledby="takeaways">
         <h2 id="takeaways">What you’ll learn</h2>
         <ul>{l.takeaways.map((t) => <li key={t}>{t}</li>)}</ul>
