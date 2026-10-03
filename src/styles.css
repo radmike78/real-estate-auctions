@@ -2111,3 +2111,17 @@ h1, h2 { letter-spacing: -0.03em; }
 .pro-guide-stories { margin: 22px 0; }
 .pro-guide-stories > h3 { font-size: clamp(1.3rem, 2vw, 1.6rem); margin: 0 0 6px; }
 .pro-guide-deep { margin: 20px 0; }
+
+/* Deal Lab (rent calculator): plain-words explanation, stress tests, often-forgotten costs. */
+.deal-lab { margin-top: 18px; display: grid; gap: 10px; }
+.deal-lab h4 { margin: 6px 0 0; }
+.deal-explain { margin: 0; padding: 12px 14px 12px 32px; background: var(--info-bg); border-radius: 8px; display: grid; gap: 6px; }
+.deal-stress { width: 100%; border-collapse: collapse; }
+.deal-stress th, .deal-stress td { padding: 7px 8px; border-bottom: 1px solid var(--border); text-align: left; font-weight: 400; }
+.deal-stress td { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.deal-stress tr.neg td, .deal-stress tr.neg th { color: var(--caution); background: var(--caution-bg); }
+.deal-forgot summary { cursor: pointer; font-weight: 700; padding: 8px 0; }
+.deal-forgot ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.deal-forgot label { display: flex; flex-direction: row; gap: 10px; align-items: flex-start; font-weight: 400; }
+.deal-forgot input[type='checkbox'] { width: 18px; height: 18px; flex: none; margin: 3px 0 0; }
+.deal-stress th { color: var(--text); }

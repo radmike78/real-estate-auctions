@@ -134,6 +134,50 @@ export function rentMaxBid(i: RentInputs): HoldResult {
   return hold(i, rentNoi(i).noi, (loanNet, cf) => (t > 0 ? loanNet + cf / t : Infinity), i.minDscr);
 }
 
+/** Monthly cash flow after the loan payment. The loan is sized on the value after repairs, so it doesn't depend on the price. */
+export function rentMonthlyCashFlow(i: RentInputs): number {
+  const loan = (nz(i.value) * Math.min(nz(i.loanPct), 100)) / 100;
+  return r2((rentNoi(i).noi - annualDebtService(loan, i.ratePct, i.years)) / 12);
+}
+
+/** What the monthly cash flow becomes when common surprises happen. */
+export function rentStress(i: RentInputs): { key: string; label: string; monthly: number }[] {
+  const at = (patch: Partial<RentInputs>, oneOff = 0) => r2(rentMonthlyCashFlow({ ...i, ...patch }) - oneOff / 12);
+  const rows = [
+    { key: 'base', label: 'As entered', monthly: at({}) },
+    { key: 'rent', label: 'Rent 10% lower', monthly: at({ monthlyRent: nz(i.monthlyRent) * 0.9 }) },
+    { key: 'insurance', label: 'Insurance up $1,200 a year', monthly: at({ insuranceYear: nz(i.insuranceYear) + 1200 }) },
+    { key: 'vacant', label: 'Empty for two months', monthly: at({ vacancyPct: Math.max(nz(i.vacancyPct), 100 / 6) }) },
+    { key: 'tax', label: 'Property tax 20% higher', monthly: at({ propertyTaxYear: nz(i.propertyTaxYear) * 1.2 }) },
+    { key: 'repair', label: 'A $5,000 repair this year', monthly: at({}, 5000) },
+  ];
+  if (nz(i.loanPct) > 0) rows.push({ key: 'rate', label: 'Interest rate 1 point higher', monthly: at({ ratePct: nz(i.ratePct) + 1 }) });
+  return rows;
+}
+
+/** The deal in plain words: what it earns, what could break it, and what to check before going further. */
+export function explainRent(i: RentInputs): string[] {
+  const money = (n: number) => `$${Math.round(Math.abs(n)).toLocaleString('en-US')}`;
+  const stress = rentStress(i);
+  const base = stress[0].monthly;
+  const out: string[] = [];
+  if (base <= 0) {
+    out.push(`With your numbers, this rental loses about ${money(base)} a month after all costs${nz(i.loanPct) > 0 ? ' and the loan payment' : ''}. Unless the rent can be higher or the costs lower, it isn’t a rental that pays for itself.`);
+  } else {
+    out.push(`With your numbers, this rental brings in about ${money(base)} a month after all costs${nz(i.loanPct) > 0 ? ' and the loan payment' : ''}.`);
+    const breaks = stress.slice(1).filter((s) => s.monthly < 0);
+    if (breaks.length) out.push(`It turns negative if any of these happen: ${breaks.map((s) => s.label.toLowerCase()).join('; ')}.`);
+    const ins = stress.find((s) => s.key === 'insurance')!;
+    if (ins.monthly >= 0 && base - ins.monthly > base / 4) out.push(`An insurance increase of $1,200 a year would take ${Math.round(((base - ins.monthly) / base) * 100)}% of your cash flow.`);
+    if (!breaks.length) out.push('It stays positive in every stress test below.');
+  }
+  if (!(nz(i.capexPct) > 0)) out.push('You set nothing aside for big replacements like the roof, HVAC and water heater. Leaving them out is the most common way rental numbers look better than they are.');
+  if (nz(i.vacancyPct) < 5) out.push(`Your vacancy of ${nz(i.vacancyPct)}% is below the 5–8% that’s common for homes.`);
+  if (!(nz(i.managementPct) > 0)) out.push('You assumed you’ll manage it yourself. If you later hire a property manager, that fee comes out of your cash flow.');
+  out.push('Before you go further, check the rent against homes that actually rented nearby, get an insurance quote, ask the county what the property tax will be after you buy, and have the roof and systems inspected.');
+  return out;
+}
+
 export function commercialNoi(i: CommercialInputs): { collected: number; expenses: number; noi: number } {
   const collected = (nz(i.monthlyRent) + nz(i.otherMonthly)) * 12 * (1 - Math.min(nz(i.vacancyPct), 100) / 100);
   const expenses = (collected * Math.min(nz(i.expensePct), 100)) / 100;
