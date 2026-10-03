@@ -2078,3 +2078,32 @@ h1, h2 { letter-spacing: -0.03em; }
 .why-example { font-size: 0.97rem; line-height: 1.5; color: var(--muted); }
 .why-example strong { color: var(--text); }
 .why-example a { font-weight: 600; }
+
+/* Real stories: what happened to other buyers, in two columns (went well / went wrong) */
+.story-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 16px; }
+.story-col h3 { margin: 0 0 10px; font-size: 1.25rem; font-weight: 800; }
+.story-good h3 { color: #15803d; }
+.story-caution h3 { color: #b91c1c; }
+.story-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.story-card { display: grid; gap: 6px; padding: 16px 18px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); max-width: none; }
+.story-good .story-card { border-left: 5px solid #16a34a; }
+.story-caution .story-card { border-left: 5px solid #dc2626; }
+.story-who { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.story-title { font-size: 1.12rem; line-height: 1.35; }
+.story-card p { margin: 0; line-height: 1.6; max-width: none; }
+.story-lesson { color: var(--muted); }
+.story-lesson strong { color: var(--text); }
+.story-card a { font-weight: 600; justify-self: start; }
+.why-more { margin-top: 12px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .story-good h3 { color: #4ade80; } :root:not([data-theme="light"]) .story-caution h3 { color: #f87171; } }
+:root[data-theme="dark"] .story-good h3 { color: #4ade80; }
+:root[data-theme="dark"] .story-caution h3 { color: #f87171; }
+.deep-list { margin: 0; padding-left: 22px; display: grid; gap: 8px; line-height: 1.6; }
+.deep-list li { max-width: none; }
+.deep-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 16px; }
+.deep-two > div { border-radius: 14px; padding: 16px 18px; border: 1px solid var(--border); background: var(--surface-2); }
+.deep-two h3 { margin: 0 0 8px; font-size: 1.2rem; }
+.pro-guide-overview p { line-height: 1.65; max-width: none; }
+.pro-guide-stories { margin: 22px 0; }
+.pro-guide-stories > h3 { font-size: clamp(1.3rem, 2vw, 1.6rem); margin: 0 0 6px; }
+.pro-guide-deep { margin: 20px 0; }

@@ -23,7 +23,9 @@ import PrivacyPage from './components/PrivacyPage';
 import TermsPage from './components/TermsPage';
 import LessonPage from './components/LessonPage';
 import ReadingPage from './components/ReadingPage';
+import PropertyTypePage from './components/PropertyTypePage';
 import { lessonByKey } from './lib/lessons';
+import { topicBySlug } from './lib/deep/propertyTopics';
 import LearnPage from './components/LearnPage';
 import DecidePage from './components/DecidePage';
 import FindDealsPage from './components/FindDealsPage';
@@ -70,6 +72,7 @@ type Route =
   | { page: 'learn' }
   | { page: 'lesson'; key: string }
   | { page: 'reading' }
+  | { page: 'propertyType'; slug: string }
   | { page: 'decide' }
   | { page: 'finddeals' }
   | { page: 'deals' }
@@ -135,6 +138,8 @@ function parseHash(): Route {
   if (h === 'learn') return { page: 'learn' };
   const lesson = h.match(/^learn\/([a-z-]{1,30})$/);
   if (h === 'learn/reading') return { page: 'reading' };
+  const ptype = h.match(/^learn\/types\/([a-z-]{1,30})$/);
+  if (ptype && topicBySlug(ptype[1])) return { page: 'propertyType', slug: ptype[1] };
   if (lesson && lessonByKey(lesson[1])) return { page: 'lesson', key: lesson[1] };
   if (h === 'decide') return { page: 'decide' };
   if (h === 'find-deals') return { page: 'finddeals' };
@@ -235,6 +240,7 @@ export default function App() {
       {route.page === 'analyze' && <AnalyzePage />}
       {route.page === 'learn' && <LearnPage />}
       {route.page === 'reading' && <ReadingPage />}
+      {route.page === 'propertyType' && <PropertyTypePage slug={route.slug} />}
       {route.page === 'lesson' && <LessonPage key={route.key} lessonKey={route.key} />}
       {route.page === 'decide' && <DecidePage />}
       {route.page === 'finddeals' && <FindDealsPage />}

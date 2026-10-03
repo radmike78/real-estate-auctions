@@ -42,7 +42,7 @@ function forState(b: LessonBlock, st: StateCode | null): LessonBlock | null {
 function Block({ b }: { b: LessonBlock }) {
   if (typeof b === 'string') return <p>{b}</p>;
   if ('list' in b) return <ul>{b.list.map((x) => <li key={x}>{x}</li>)}</ul>;
-  if ('why' in b) return <WhyBlock title={b.why.title} yes={b.why.yes} no={b.why.no} />;
+  if ('why' in b) return <WhyBlock title={b.why.title} yes={b.why.yes} no={b.why.no} more={b.why.more} />;
   if ('links' in b)
     return (
       <ul className="lesson-links">

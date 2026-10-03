@@ -1,5 +1,6 @@
 import type { Lesson } from './types';
 import { PROPERTY_WHY as W } from './propertyWhy';
+import { topicHref } from '../deep/propertyTopics';
 
 export const typesOfProperty: Lesson = {
   key: 'types',
@@ -28,10 +29,10 @@ export const typesOfProperty: Lesson = {
           },
         },
         'Why you would, or wouldn’t, choose each one, from different investors’ points of view:',
-        { why: { title: 'Single-family house', ...W.singleFamily } },
-        { why: { title: 'Condo or townhouse', ...W.condo } },
-        { why: { title: 'Duplex, triplex, fourplex (2–4 units)', ...W.smallMultifamily } },
-        { why: { title: 'Manufactured home', ...W.manufactured } },
+        { why: { title: 'Single-family house', ...W.singleFamily, more: { href: topicHref('singleFamily'), label: 'Learn more about single-family houses' } } },
+        { why: { title: 'Condo or townhouse', ...W.condo, more: { href: topicHref('condo'), label: 'Learn more about condos and townhouses' } } },
+        { why: { title: 'Duplex, triplex, fourplex (2–4 units)', ...W.smallMultifamily, more: { href: topicHref('smallMultifamily'), label: 'Learn more about duplexes to fourplexes' } } },
+        { why: { title: 'Manufactured home', ...W.manufactured, more: { href: topicHref('manufactured'), label: 'Learn more about manufactured homes' } } },
       ],
     },
     {
@@ -52,13 +53,13 @@ export const typesOfProperty: Lesson = {
           },
         },
         'Why you would, or wouldn’t, choose each one, from different investors’ points of view:',
-        { why: { title: 'Multifamily (5+ units)', ...W.multifamily } },
-        { why: { title: 'Retail', ...W.retail } },
-        { why: { title: 'Office', ...W.office } },
-        { why: { title: 'Industrial', ...W.industrial } },
-        { why: { title: 'Mixed-use', ...W.mixedUse } },
-        { why: { title: 'Hotels and motels', ...W.hotel } },
-        { why: { title: 'Self-storage', ...W.selfStorage } },
+        { why: { title: 'Multifamily (5+ units)', ...W.multifamily, more: { href: topicHref('multifamily'), label: 'Learn more about apartment buildings' } } },
+        { why: { title: 'Retail', ...W.retail, more: { href: topicHref('retail'), label: 'Learn more about retail property' } } },
+        { why: { title: 'Office', ...W.office, more: { href: topicHref('office'), label: 'Learn more about office buildings' } } },
+        { why: { title: 'Industrial', ...W.industrial, more: { href: topicHref('industrial'), label: 'Learn more about industrial property' } } },
+        { why: { title: 'Mixed-use', ...W.mixedUse, more: { href: topicHref('mixedUse'), label: 'Learn more about mixed-use buildings' } } },
+        { why: { title: 'Hotels and motels', ...W.hotel, more: { href: topicHref('hotel'), label: 'Learn more about hotels and motels' } } },
+        { why: { title: 'Self-storage', ...W.selfStorage, more: { href: topicHref('selfStorage'), label: 'Learn more about self-storage' } } },
       ],
     },
     {
@@ -66,7 +67,7 @@ export const typesOfProperty: Lesson = {
       blocks: [
         'Land can be the cheapest way in, but it’s the hardest to finance. Federal guidelines suggest banks lend no more than 65% of the value of raw land, compared with 75% for land being developed and 85% for improved property, so expect a big down payment or to pay cash. Land earns no income until it’s used, and it can’t be depreciated for taxes.',
         'Before buying land, check the zoning, access, water, sewer or septic, and utilities with the county. Our guides point to each county’s records.',
-        { why: { title: 'Raw land', ...W.land } },
+        { why: { title: 'Raw land', ...W.land, more: { href: topicHref('land'), label: 'Learn more about raw land' } } },
       ],
     },
     {

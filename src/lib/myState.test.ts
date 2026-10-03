@@ -23,3 +23,13 @@ describe('statesOf', () => {
     expect(showFor(null, 'In California, agents give')).toBe(true);
   });
 });
+
+describe('forStateText', () => {
+  it('drops sentences about other states and keeps general ones', async () => {
+    const { forStateText } = await import('./myState');
+    const t = 'Condos share costs. California has its own balcony law. In Nevada, an HOA lien can come first.';
+    expect(forStateText('NV', t)).toBe('Condos share costs. In Nevada, an HOA lien can come first.');
+    expect(forStateText('CA', t)).toBe('Condos share costs. California has its own balcony law.');
+    expect(forStateText(null, t)).toBe(t);
+  });
+});

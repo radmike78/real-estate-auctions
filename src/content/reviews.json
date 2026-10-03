@@ -185,10 +185,13 @@
       "src/components/FindAProPage.tsx",
       "src/lib/proGuide.ts",
       "src/components/AgentsPage.tsx",
-      "src/lib/licenseLookup.ts"
+      "src/lib/licenseLookup.ts",
+      "src/lib/deep/proDeep.ts",
+      "src/lib/proWhy.ts",
+      "src/components/StoryList.tsx"
     ],
-    "reviewed": "2026-10-02",
-    "hash": "ef9b0c7b89f3e430",
+    "reviewed": "2026-10-03",
+    "hash": "c168d695594496d9",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -318,11 +321,17 @@
       "src/lib/lessons/tools.ts",
       "src/lib/lessons/types-of-property.ts",
       "src/lib/lessons/types.ts",
-      "src/lib/lessons/who-invests.ts"
+      "src/lib/lessons/who-invests.ts",
+      "src/components/PropertyTypePage.tsx",
+      "src/components/StoryList.tsx",
+      "src/components/WhyBlock.tsx",
+      "src/lib/deep/propertyDeep.ts",
+      "src/lib/deep/propertyTopics.ts",
+      "src/lib/lessons/propertyWhy.ts"
     ],
-    "reviewed": "2026-10-02",
-    "hash": "df4d75877b6f7e71",
-    "note": "All 10 lessons; state-specific passages split so each state sees only its own rules."
+    "reviewed": "2026-10-03",
+    "hash": "53fb190ad8130dc9",
+    "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
     "id": "decide",
