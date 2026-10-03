@@ -2347,3 +2347,27 @@ h1, h2 { letter-spacing: -0.03em; }
 .lesson-meta { font-size: 0.95rem; color: var(--muted); }
 .lesson-read { color: var(--go); font-weight: 600; }
 .show-all-row { display: flex; justify-content: center; margin: 8px 0 24px; }
+/* Key terms where they first appear: dotted underline, tap to show the meaning inline. */
+.term { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: help; text-decoration: underline dotted var(--accent) 2px; text-underline-offset: 4px; }
+.term[aria-expanded='true'] { color: var(--accent); }
+.term-def { color: var(--muted); font-style: italic; }
+/* Check yourself: three questions at the end of a lesson. */
+.check-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; }
+.check-list fieldset { border: 0; margin: 0; padding: 0; }
+.check-list legend { font-weight: 700; font-size: 1.1rem; margin-bottom: 10px; padding: 0; }
+.check-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.check-options button { font: inherit; text-align: left; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; min-height: 48px; }
+.check-options button:hover:not(:disabled) { border-color: var(--accent); }
+.check-options button:disabled { cursor: default; }
+.check-options button.right { border: 2px solid var(--go); }
+.check-options button.right::before { content: '✓ '; color: var(--go); font-weight: 700; }
+.check-options button.wrong { border: 2px solid var(--stop); }
+.check-options button.wrong::before { content: '✗ '; color: var(--stop); font-weight: 700; }
+.check-why { margin: 10px 0 0; }
+.check-why.right strong { color: var(--go); }
+.check-why.wrong strong { color: var(--stop); }
+.check-score { font-weight: 700; margin: 16px 0 0; }
+@media (max-width: 760px) { .check-options { grid-template-columns: 1fr; } }
+/* The calculator grids are now balanced flex rows, so each field lays out on its own (a subgrid needs a grid parent
+   and was clipping two-line hints into the next row). */
+.calc-group .calc-grid > .calc-field { grid-template-rows: none; grid-row: auto; grid-auto-rows: auto; }

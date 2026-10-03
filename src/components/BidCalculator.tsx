@@ -71,6 +71,18 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
   },
 ];
 
+// A listed or bank-owned home: you make an offer instead of bidding. Auction-only fields (buyer's premium, cash on
+// auction day, redemption) drop out and the words change; the math is the same.
+const OFFER_FIELDS: Partial<Record<keyof BidInputs, Partial<Field>>> = {
+  minimumBid: { label: 'Asking price', hint: 'From the listing.', more: 'What the seller is asking. Your maximum offer is worked out from the resale value and every cost; the results show how it compares with the asking price.' },
+  survivingLiens: { label: 'Liens you’d have to pay', hint: 'Usually paid off at closing. Check the title report.' },
+  titleLegal: { label: 'Title insurance, escrow and attorney', hint: undefined },
+  possession: { hint: 'Only if a tenant or the owner stays after closing.' },
+  repairs: { hint: 'Get a contractor’s bid after your inspection.' },
+  financedPct: { label: 'Share of the price financed', hint: 'The part of the price your loan covers.' },
+};
+const OFFER_HIDDEN = new Set<keyof BidInputs>(['buyerPremiumPct', 'cashAvailable', 'redemptionMonths', 'redemptionRatePct']);
+
 const MODE_KEY = 'fsf.bid.mode.v1';
 const loadMode = (): 'quick' | 'detailed' => {
   try {
@@ -122,12 +134,16 @@ const toNum = (v: string) => {
 const yr = (x: number | null) => (x === null ? '—' : `${Math.round(x * 100)}% a year`);
 const unitText = (u: Field['unit']) => (u === '$/500' ? 'per $500' : u === 'mo' ? 'months' : u === '%/yr' ? '% a year' : '%');
 
-export default function BidCalculator({ propertyId, defaults = START_INPUTS, openingBid, headingLevel = 3, commercial = false }: { propertyId?: string; defaults?: BidInputs; openingBid?: number | null; headingLevel?: 2 | 3; commercial?: boolean }) {
+export default function BidCalculator({ propertyId, defaults = START_INPUTS, openingBid, headingLevel = 3, commercial = false, offer = false }: { propertyId?: string; defaults?: BidInputs; openingBid?: number | null; headingLevel?: 2 | 3; commercial?: boolean; offer?: boolean }) {
+  // Words for an auction bid, or an offer on a listed home.
+  const w = offer
+    ? { bid: 'offer', Bid: 'Offer', opening: 'asking price', Opening: 'Asking price', max: 'Your maximum offer', day: 'at closing' }
+    : { bid: 'bid', Bid: 'Bid', opening: 'opening bid', Opening: 'Opening bid', max: 'Your maximum bid', day: 'on auction day' };
   const region = useCalcRegion();
   const tax = transferTaxFor(region.state, region.county);
   const rules = redemptionPresetsFor(region.state);
   const hintFor = (f: Field) => (commercial && f.k === 'exitValue' ? 'Use the value by income above.' : f.k === 'transferTaxPer500' ? tax.hint : f.hint);
-  const moreFor = (f: Field) => (f.k === 'transferTaxPer500' ? tax.more : f.k === 'holdingMonths' ? taxSaleWait(region.state) : f.more);
+  const moreFor = (f: Field) => (f.k === 'transferTaxPer500' ? tax.more : f.k === 'holdingMonths' ? (offer ? undefined : taxSaleWait(region.state)) : f.more);
   const uid = useId();
   // The pinned walk-away bar (phones) steps aside once the full results are on screen, so it never covers them.
   const [resultsVisible, setResultsVisible] = useState(false);
@@ -140,7 +156,9 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
   }, [uid]);
   // The listing's opening bid is the starting point (older saved inputs didn't have it).
   const [i, setI] = useState<BidInputs>(() => {
-    const v = load(propertyId, propertyId ? defaults : { ...defaults, transferTaxPer500: tax.per500 });
+    const v0 = load(propertyId, propertyId ? defaults : { ...defaults, transferTaxPer500: tax.per500 });
+    // An offer has no auction cash limit, buyer's premium or redemption wait.
+    const v = offer ? { ...v0, cashAvailable: 0, buyerPremiumPct: 0, redemptionMonths: 0, redemptionRatePct: 0, redemptionDaily: 0 } : v0;
     return !v.minimumBid && openingBid ? { ...v, minimumBid: openingBid } : v;
   });
   const [mode, setModeState] = useState<'quick' | 'detailed'>(loadMode);
@@ -197,7 +215,7 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
   const dealFails = i.minimumBid > 0 && r.profitBid < i.minimumBid;
   const openingCash = i.minimumBid * (1 + i.buyerPremiumPct / 100);
   const cashShort = !dealFails && i.minimumBid > 0 && i.cashAvailable > 0 && i.cashAvailable < openingCash;
-  const shown = (f: Field) => (mode === 'detailed' || f.quick) && (!f.when || f.when(i));
+  const shown = (f: Field) => (mode === 'detailed' || f.quick) && (!f.when || f.when(i)) && !(offer && OFFER_HIDDEN.has(f.k));
 
   return (
     <div className="calc">
@@ -208,12 +226,12 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
           <span className="small muted">{mode === 'quick' ? 'The deal, repairs and liens. Everything else uses the starting estimates.' : 'The deal first, then every cost in the order you’d meet it.'}</span>
         </div>
         {GROUPS.map((g) => {
-          const fields = g.fields.filter(shown);
+          const fields = g.fields.filter(shown).map((f) => (offer && OFFER_FIELDS[f.k] ? { ...f, ...OFFER_FIELDS[f.k] } : f));
           if (!fields.length) return null;
           return (
             <fieldset key={g.title} className="calc-group">
               <legend>{g.title}</legend>
-              {g.redemption && mode === 'detailed' && (
+              {g.redemption && mode === 'detailed' && !offer && (
                 <label className="calc-rule">
                   <span className="calc-label">Kind of sale</span>
                   <select value={ruleOf(i, rules)} onChange={(e) => e.target.value !== 'custom' && pickRule(e.target.value)}>
@@ -281,7 +299,7 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
           <div className="calc-max" role="status">
             <span>Walk-away price</span>
             <strong>Enter a resale value</strong>
-            <small>{propertyId ? 'We don’t estimate values for listings from the official list. ' : 'Start with the opening bid from the listing, then the costs. '}The resale value comes from recent sold prices of similar nearby properties, as they’d be after repairs.</small>
+            <small>{propertyId ? 'We don’t estimate values for listings from the official list. ' : `Start with the ${w.opening} from the listing, then the costs. `}The resale value comes from recent sold prices of similar nearby properties, as they’d be after repairs.</small>
           </div>
         ) : (
           cashShort ? (
@@ -293,7 +311,7 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
           ) : (
           <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
             <span>Walk-away price: stop bidding here</span>
-            <strong>{r.noBidWorks ? 'No bid works' : fmtMoney(r.maxBid)}</strong>
+            <strong>{r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
             <small>
               {r.noBidWorks
                 ? 'Even at $0, costs leave less than your profit target. Walk away or change your plan.'
@@ -307,11 +325,11 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
         {!needsValue && i.minimumBid > 0 && (
           <div className={`calc-verdict ${dealFails || cashShort ? 'bad' : 'good'}`} role="status">
             {dealFails ? (
-              <><strong>Doesn’t work at the opening bid.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below your {fmtMoney(Math.round(target))} target. Skip this one or change your plan.</>
+              <><strong>Doesn’t work at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below your {fmtMoney(Math.round(target))} target. Skip this one or change your plan.</>
             ) : cashShort ? (
               <><strong>Your cash doesn’t cover the opening bid.</strong> The deal works (about {fmtMoney(Math.round(atOpening))} profit at {fmtMoney(i.minimumBid)}), but you’d need {fmtMoney(Math.ceil(openingCash))} on auction day and entered {fmtMoney(i.cashAvailable)}.</>
             ) : (
-              <><strong>{fmtMoney(r.maxBid - i.minimumBid)} of room above the opening bid.</strong> The listing starts at {fmtMoney(i.minimumBid)}; stop at {fmtMoney(r.maxBid)}. At the opening bid your profit would be about {fmtMoney(Math.round(atOpening))}.</>
+              <><strong>{fmtMoney(r.maxBid - i.minimumBid)} of room above the {w.opening}.</strong> The listing starts at {fmtMoney(i.minimumBid)}; stop at {fmtMoney(r.maxBid)}. At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}.</>
             )}
           </div>
         )}
@@ -320,18 +338,18 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
             <strong>How we got your maximum</strong>
             <dl className="calc-kv">
               {steps.map((st, n) => <div key={st.label} className={n === 0 ? 'first' : ''}><dt>{st.label}</dt><dd>{n === 0 ? fmtMoney(st.amount) : `− ${fmtMoney(-st.amount)}`}</dd></div>)}
-              <div className="total"><dt>{r.limitedBy === 'cash' ? 'Most the deal allows' : 'Your maximum bid'}</dt><dd>{fmtMoney(r.profitBid)}</dd></div>
+              <div className="total"><dt>{r.limitedBy === 'cash' ? 'Most the deal allows' : w.max}</dt><dd>{fmtMoney(r.profitBid)}</dd></div>
             </dl>
             {r.limitedBy === 'cash' && <p className="small muted">The cash you can bring sets your walk-away price lower than this.</p>}
           </div>
         )}
         {!r.noBidWorks && !needsValue && (
           <dl className="calc-kv">
-            <div><dt>Cash needed on auction day</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>
+            {!offer && <div><dt>Cash needed on auction day</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
             <div><dt>Total cash in the deal</dt><dd>{fmtMoney(r.cashToStabilize)}</dd></div>
             <div><dt>Profit at this price</dt><dd>{fmtMoney(Math.round(r.profit))}</dd></div>
             <div><dt>Return on your cash, per year</dt><dd>{yr(r.yearlyReturn)}</dd></div>
-            <div><dt>Break-even bid (zero profit)</dt><dd>{fmtMoney(r.breakEvenBid)}</dd></div>
+            <div><dt>Break-even {w.bid} (zero profit)</dt><dd>{fmtMoney(r.breakEvenBid)}</dd></div>
           </dl>
         )}
         {!r.noBidWorks && !needsValue && r.yearlyReturn !== null && totalMonths(i) > 12 && (
@@ -349,13 +367,13 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
         {!needsValue && (
         <>
         <div className="calc-field calc-bid">
-          <label className="calc-label" htmlFor={`${uid}-bid`}>Check a bid</label>
-          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="number" inputMode="decimal" min={0} step="any" value={bidText} placeholder="e.g. a bid you expect to beat" onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); }} /></span>
+          <label className="calc-label" htmlFor={`${uid}-bid`}>Check {offer ? 'an offer' : 'a bid'}</label>
+          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="number" inputMode="decimal" min={0} step="any" value={bidText} placeholder={offer ? 'e.g. the offer you plan to make' : 'e.g. a bid you expect to beat'} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); }} /></span>
         </div>
         {atBid && profit !== null && !needsValue && (
           <div className={`calc-verdict ${over ? 'bad' : 'good'}`} role="status">
             {over ? (
-              <><strong>Above your walk-away price.</strong> At {fmtMoney(bid)} this deal no longer meets your {r.limitedBy === 'cash' && bid <= r.profitBid ? 'cash limit' : 'target'}. Profit would be {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}. Stop bidding.</>
+              <><strong>Above your walk-away price.</strong> At {fmtMoney(bid)} this deal no longer meets your {r.limitedBy === 'cash' && bid <= r.profitBid ? 'cash limit' : 'target'}. Profit would be {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}. {offer ? 'Don’t offer more.' : 'Stop bidding.'}</>
             ) : (
               <><strong>Within your walk-away price.</strong> Estimated profit {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}.</>
             )}
@@ -366,8 +384,8 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
             <summary>Every cost at {fmtMoney(bid)}</summary>
             <dl className="calc-kv">
               {([
-                ['Bid', atBid.bid], ["Buyer's premium", atBid.premium], ['Transfer tax', atBid.transferTax], ['Liens that stay', atBid.survivingLiens],
-                ['Title, attorney, quiet title', atBid.titleLegal], ['Getting possession', atBid.possession], ['Repairs + contingency', atBid.repairs],
+                [w.Bid, atBid.bid], ...(offer ? [] : [["Buyer's premium", atBid.premium] as const]), ['Transfer tax', atBid.transferTax], ['Liens that stay', atBid.survivingLiens],
+                [offer ? 'Title, escrow, attorney' : 'Title, attorney, quiet title', atBid.titleLegal], ['Getting possession', atBid.possession], ['Repairs + contingency', atBid.repairs],
                 ['Holding costs', atBid.holding], ['Financing', atBid.financing], ['Selling costs', atBid.selling],
               ] as const).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{fmtMoney(Math.round(v))}</dd></div>)}
               <div className="total"><dt>Total</dt><dd>{fmtMoney(Math.round(atBid.total))}</dd></div>
@@ -376,7 +394,7 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
         )}
 
         <H>If things go differently</H>
-        <p className="small muted calc-grid-note">Highest bid that still meets your profit target if the resale value (rows) or repairs (columns) come in differently{i.cashAvailable > 0 ? ', before your cash limit' : ''}.</p>
+        <p className="small muted calc-grid-note">Highest {w.bid} that still meets your profit target if the resale value (rows) or repairs (columns) come in differently{i.cashAvailable > 0 ? ', before your cash limit' : ''}.</p>
         <div className="table-wrap">
           <table className="calc-stress calc-grid-table">
             <thead>
@@ -392,16 +410,16 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
             </tbody>
           </table>
         </div>
-        {!needsValue && <p className="small">If it takes 3 months longer: <strong>{slower > 0 ? fmtMoney(slower) : 'no bid works'}</strong>.</p>}
+        {!needsValue && <p className="small">If it takes 3 months longer: <strong>{slower > 0 ? fmtMoney(slower) : `no ${w.bid} works`}</strong>.</p>}
         </>
         )}
-        <p className="muted small">An estimate to help you set a limit before the sale, not advice. Replace every starting number with your own comps, bids and quotes.</p>
+        <p className="muted small">An estimate to help you set a limit before you {offer ? 'make an offer' : 'bid'}, not advice. Replace every starting number with your own comps, bids and quotes.</p>
       </div>
 
       {/* On phones the results sit below every input, so keep the answer in view while typing. */}
       <button type="button" hidden={resultsVisible} className={`calc-sticky${r.noBidWorks && !needsValue ? ' bad' : ''}`} onClick={() => document.getElementById(`${uid}-results`)?.scrollIntoView({ behavior: 'smooth' })}>
         <span>Walk away at</span>
-        <strong>{needsValue ? 'Enter a resale value' : cashShort ? 'Not enough cash' : r.noBidWorks ? 'No bid works' : fmtMoney(r.maxBid)}</strong>
+        <strong>{needsValue ? 'Enter a resale value' : cashShort ? 'Not enough cash' : r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
         <span className="calc-sticky-go">See details ↓</span>
       </button>
     </div>

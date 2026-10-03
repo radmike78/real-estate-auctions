@@ -71,6 +71,20 @@ function buyGroup<T extends BuyInputs>(repairsLabel = 'Repairs'): CalcGroup<T> {
   };
 }
 
+/** For a listed or bank-owned home: no auction cash limit or buyer's premium, and closing words instead of auction words. */
+function forOffer<T>(groups: CalcGroup<T>[]): CalcGroup<T>[] {
+  const relabel: Record<string, { label?: string; hint?: string; more?: string }> = {
+    survivingLiens: { label: 'Liens you’d have to pay', hint: 'Usually paid off at closing. Check the title report.' },
+    titleLegal: { label: 'Title insurance, escrow and attorney' },
+    possession: { hint: 'Only if a tenant or the owner stays after closing.' },
+    loanPct: { hint: 'A loan when you buy, or a refinance later. 0 for all cash.', more: 'Lenders set their own limits; ask yours what they’d lend on this property and when.' },
+  };
+  return groups.map((g) => ({
+    ...g,
+    fields: g.fields.filter((f) => f.k !== 'cashAvailable' && f.k !== 'buyerPremiumPct').map((f) => ({ ...f, ...relabel[f.k as string] })) as CalcGroup<T>['fields'],
+  }));
+}
+
 function loanGroup<T extends LoanInputs>(valueLabel: string, valueHint: string): CalcGroup<T> {
   return {
     title: 'Loan after you buy',
@@ -84,17 +98,17 @@ function loanGroup<T extends LoanInputs>(valueLabel: string, valueHint: string):
   };
 }
 
-function HoldResults({ r, title, target, noiNote, minDscr }: { r: HoldResult; title: string; target: string; noiNote: string; minDscr: number }) {
+function HoldResults({ r, title, target, noiNote, minDscr, offer = false }: { r: HoldResult; title: string; target: string; noiNote: string; minDscr: number; offer?: boolean }) {
   return (
     <>
       <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
         <span>{title}</span>
-        <strong>{r.noBidWorks ? 'No bid works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'}</strong>
+        <strong>{r.noBidWorks ? (offer ? 'No offer works' : 'No bid works') : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'}</strong>
         <small>{r.noBidWorks ? 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.' : !Number.isFinite(r.maxBid) ? 'Enter the return you want, or the cash you can bring, to get a walk-away price.' : r.limitedBy === 'cash' ? 'Set by the cash you can bring.' : target}</small>
       </div>
       {!r.noBidWorks && Number.isFinite(r.maxBid) && (
         <dl className="calc-kv">
-          <div><dt>Cash needed on auction day</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>
+          {!offer && <div><dt>Cash needed on auction day</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
           <div><dt>Everything you pay, ready to rent</dt><dd>{fmtMoney(Math.round(r.allIn))}</dd></div>
           <div><dt>Net operating income (NOI), per year: after operating costs{r.reserves > 0 ? ', before reserves' : ''} and before the loan</dt><dd>{fmtMoney(Math.round(r.noi))}</dd></div>
           {r.reserves > 0 && <div><dt>Reserves for big replacements, per year</dt><dd>{fmtMoney(Math.round(r.reserves))}</dd></div>}
@@ -232,16 +246,17 @@ function RentDealLab({ v, start }: { v: RentInputs; start: number }) {
   );
 }
 
-export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', start = {}, regional = false }: { storageKey?: string; start?: Partial<RentInputs>; regional?: boolean }) {
+export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', start = {}, regional = false, offer = false }: { storageKey?: string; start?: Partial<RentInputs>; regional?: boolean; offer?: boolean }) {
   const rt = useRegionTax(RENT_GROUPS);
-  const [v, set] = useSaved<RentInputs>(storageKey, { ...RENT_DEFAULTS, ...start }, regional ? { transferTaxPer500: rt.per500 } : {});
+  const [saved, set] = useSaved<RentInputs>(storageKey, { ...RENT_DEFAULTS, ...start }, regional ? { transferTaxPer500: rt.per500 } : {});
+  const v = offer ? { ...saved, cashAvailable: 0, buyerPremiumPct: 0 } : saved;
   const r = rentMaxBid(v);
   const n = rentNoi(v);
   return (
     <div className="calc">
-      <div className="calc-inputs"><CalcFields groups={rt.groups} values={v} onChange={set} /></div>
+      <div className="calc-inputs"><CalcFields groups={offer ? forOffer(rt.groups) : rt.groups} values={v} onChange={set} /></div>
       <div className="calc-results">
-        <HoldResults r={r} title="Walk-away price to keep and rent it" target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} />
+        <HoldResults r={r} title="Walk-away price to keep and rent it" target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} />
         <RentDealLab v={v} start={r.maxBid} />
       </div>
     </div>
@@ -273,16 +288,17 @@ const COMMERCIAL_GROUPS: CalcGroup<CommercialInputs>[] = [
   },
 ];
 
-export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', start = {}, regional = false }: { storageKey?: string; start?: Partial<CommercialInputs>; regional?: boolean }) {
+export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', start = {}, regional = false, offer = false }: { storageKey?: string; start?: Partial<CommercialInputs>; regional?: boolean; offer?: boolean }) {
   const ct = useRegionTax(COMMERCIAL_GROUPS);
-  const [v, set] = useSaved<CommercialInputs>(storageKey, { ...COMMERCIAL_DEFAULTS, ...start }, regional ? { transferTaxPer500: ct.per500 } : {});
+  const [saved, set] = useSaved<CommercialInputs>(storageKey, { ...COMMERCIAL_DEFAULTS, ...start }, regional ? { transferTaxPer500: ct.per500 } : {});
+  const v = offer ? { ...saved, cashAvailable: 0, buyerPremiumPct: 0 } : saved;
   const r = commercialMaxBid(v);
   const n = commercialNoi(v);
   return (
     <div className="calc">
-      <div className="calc-inputs"><CalcFields groups={ct.groups} values={v} onChange={set} /></div>
+      <div className="calc-inputs"><CalcFields groups={offer ? forOffer(ct.groups) : ct.groups} values={v} onChange={set} /></div>
       <div className="calc-results">
-        <HoldResults r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}.`} minDscr={v.minDscr} />
+        <HoldResults r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}.`} minDscr={v.minDscr} offer={offer} />
       </div>
     </div>
   );

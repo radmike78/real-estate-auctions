@@ -35,15 +35,7 @@ function GuideBody({ g }: { g: ProGuide }) {
       {PRO_DEEP[g.key] && PRO_DEEP[g.key]!.overview.length > 0 && (
         <div className="pro-guide-overview">{fit(PRO_DEEP[g.key]!.overview).map((p) => <p key={p}>{p}</p>)}</div>
       )}
-      {PRO_WHY[g.key] && <h3 className="part-head">Should you hire one?</h3>}
-      {PRO_WHY[g.key] && <WhyBlock yes={PRO_WHY[g.key].yes} no={PRO_WHY[g.key].no} yesLabel="Why you would hire one" noLabel="Why you might not, or when to be careful" />}
-      {PRO_DEEP[g.key] && PRO_DEEP[g.key]!.stories.length > 0 && (
-        <div className="pro-guide-stories">
-          <h3 className="part-head">Real stories: what happened to other buyers</h3>
-          <p className="muted">True accounts from news reports, court cases and government agencies. Private people aren’t named.</p>
-          <StoryList stories={PRO_DEEP[g.key]!.stories} />
-        </div>
-      )}
+      {/* The practical part first (when, how to find, what to ask, how they're paid); the case for and against and the stories after. */}
       <h3 className="part-head">Hiring one</h3>
       <div className="pro-guide-cols">
         <section>
@@ -70,6 +62,15 @@ function GuideBody({ g }: { g: ProGuide }) {
           <strong>Before you hire:</strong> look them up with the {g.license.who.replace(/ \(via NMLS Consumer Access\)$/, '')}.{' '}
           <a href={g.license.url} target="_blank" rel="noopener noreferrer">Open the official lookup ↗</a>
         </p>
+      )}
+      {PRO_WHY[g.key] && <h3 className="part-head">Should you hire one?</h3>}
+      {PRO_WHY[g.key] && <WhyBlock yes={PRO_WHY[g.key].yes} no={PRO_WHY[g.key].no} yesLabel="Why you would hire one" noLabel="Why you might not, or when to be careful" />}
+      {PRO_DEEP[g.key] && PRO_DEEP[g.key]!.stories.length > 0 && (
+        <div className="pro-guide-stories">
+          <h3 className="part-head">Real stories: what happened to other buyers</h3>
+          <p className="muted">True accounts from news reports, court cases and government agencies. Private people aren’t named.</p>
+          <StoryList stories={PRO_DEEP[g.key]!.stories} />
+        </div>
       )}
       {g.directory && (
         <ProDirectory

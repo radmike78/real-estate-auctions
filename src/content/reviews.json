@@ -156,7 +156,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "b7e854a3d32c5470",
+    "hash": "e8c842c9b5005796",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -198,7 +198,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "c92544ba3f3e21ee",
+    "hash": "0553e13f511c8fd2",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -340,10 +340,14 @@
       "src/lib/lessons/propertyWhy.ts",
       "src/components/NarrowDown.tsx",
       "src/lib/narrow.ts",
-      "src/components/OnThisPage.tsx"
+      "src/components/OnThisPage.tsx",
+      "src/lib/lessons/checks.ts",
+      "src/components/CheckYourself.tsx",
+      "src/components/Term.tsx",
+      "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "8ab6bdad1f023365",
+    "hash": "1751627a2c906d32",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -354,7 +358,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "e72fad649430008c",
+    "hash": "d1c1f2fe2f3fa047",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -380,7 +384,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "c2fdcc5c0bff67b4",
+    "hash": "b4ed85320a276dd3",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {
