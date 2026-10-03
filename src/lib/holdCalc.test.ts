@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers } from './holdCalc';
+import { allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent } from './holdCalc';
 
 describe('rent / hold', () => {
   it('works out net operating income from rent, vacancy and costs', () => {
@@ -69,5 +69,22 @@ describe('helpers', () => {
   });
   it('rebuilds saved numbers safely', () => {
     expect(sanitizeNumbers({ price: -5, fees: 'x', ratePctMonth: 2, extra: 9 }, LIEN_DEFAULTS)).toEqual({ ...LIEN_DEFAULTS, ratePctMonth: 2 });
+  });
+});
+
+describe('rent deal lab', () => {
+  const base = { ...RENT_DEFAULTS };
+  it('stress tests lower cash flow, and the base row matches the cash flow', () => {
+    const rows = rentStress(base);
+    expect(rows[0].monthly).toBeCloseTo(rentMonthlyCashFlow(base), 2);
+    for (const r of rows.slice(1)) expect(r.monthly, r.key).toBeLessThan(rows[0].monthly);
+  });
+  it('explains thin deals, missing reserves and what to verify', () => {
+    const lines = explainRent({ ...base, capexPct: 0, vacancyPct: 2, managementPct: 0 });
+    expect(lines.join(' ')).toMatch(/big replacements/);
+    expect(lines.join(' ')).toMatch(/below the 5–8%/);
+    expect(lines.join(' ')).toMatch(/manage it yourself/);
+    expect(lines[lines.length - 1]).toMatch(/insurance quote/);
+    expect(explainRent({ ...base, monthlyRent: 100 })[0]).toMatch(/loses about/);
   });
 });

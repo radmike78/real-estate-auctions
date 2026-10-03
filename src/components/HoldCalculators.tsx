@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { BidInputs } from '../lib/bidCalc';
-import { COMMERCIAL_DEFAULTS, commercialMaxBid, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs } from '../lib/holdCalc';
+import { COMMERCIAL_DEFAULTS, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs } from '../lib/holdCalc';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 import CalcFields, { type CalcGroup } from './CalcFields';
@@ -140,6 +140,55 @@ const RENT_GROUPS: CalcGroup<RentInputs>[] = [
   },
 ];
 
+/** Costs beginners often leave out of a rental budget. */
+const OFTEN_FORGOTTEN = [
+  'Leasing or tenant-placement fees when you hire someone to find a tenant',
+  'Turnover: cleaning, paint and repairs between tenants',
+  'Utilities you pay as the owner, such as water, sewer or trash',
+  'Landscaping, pest control and pool service',
+  'Legal costs if you ever need to evict',
+  'Bookkeeping and tax preparation',
+  'A business or rental license, where your city requires one',
+  'HOA special assessments on top of the monthly dues',
+  'Insurance and property tax going up after you buy',
+];
+
+/** Stress tests, the deal in plain words, and a checklist of easy-to-forget costs. */
+function RentDealLab({ v }: { v: RentInputs }) {
+  const rows = rentStress(v);
+  const [ticked, setTicked] = useState<string[]>([]);
+  return (
+    <div className="deal-lab">
+      <h4>Explain this deal</h4>
+      <ul className="deal-explain">{explainRent(v).map((x) => <li key={x}>{x}</li>)}</ul>
+      <h4>Stress test: cash flow per month</h4>
+      <table className="deal-stress">
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.key} className={r.monthly < 0 ? 'neg' : undefined}>
+              <th scope="row">{r.label}</th>
+              <td>{r.monthly < 0 ? `−${fmtMoney(Math.round(-r.monthly))}` : fmtMoney(Math.round(r.monthly))}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <details className="deal-forgot">
+        <summary>What are you forgetting? ({ticked.length} of {OFTEN_FORGOTTEN.length} checked)</summary>
+        <p className="muted small">Tick each one you’ve budgeted for, inside your repairs, management or reserves.</p>
+        <ul>
+          {OFTEN_FORGOTTEN.map((x) => (
+            <li key={x}>
+              <label>
+                <input type="checkbox" checked={ticked.includes(x)} onChange={() => setTicked((t) => (t.includes(x) ? t.filter((y) => y !== x) : [...t, x]))} /> {x}
+              </label>
+            </li>
+          ))}
+        </ul>
+      </details>
+    </div>
+  );
+}
+
 export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', start = {}, regional = false }: { storageKey?: string; start?: Partial<RentInputs>; regional?: boolean }) {
   const rt = useRegionTax(RENT_GROUPS);
   const [v, set] = useSaved<RentInputs>(storageKey, { ...RENT_DEFAULTS, ...start }, regional ? { transferTaxPer500: rt.per500 } : {});
@@ -150,6 +199,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', start = {}, re
       <div className="calc-inputs"><CalcFields groups={rt.groups} values={v} onChange={set} /></div>
       <div className="calc-results">
         <HoldResults r={r} title="Walk-away price to keep and rent it" target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}.`} minDscr={v.minDscr} />
+        <RentDealLab v={v} />
       </div>
     </div>
   );
