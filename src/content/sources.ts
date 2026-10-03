@@ -51,6 +51,9 @@ const NRS = (ch: string, title: string, checked: string | null, note?: string): 
 });
 
 const LISTED: Source[] = [
+  // Homeowner help: surplus after a sale (src/components/HomeownerHelpPage.tsx)
+  { id: 'home-surplus-ut-county', title: 'Utah County Auditor: excess funds from the May tax sale', publisher: 'Utah County', url: 'https://auditor.utahcounty.gov/may-tax-sale/excess-funds', role: 'rules', checked: '2026-10-03' },
+  { id: 'home-surplus-ut-unclaimed', title: 'Utah State Treasurer: unclaimed property search', publisher: 'Utah State Treasurer', url: 'https://mycash.utah.gov/', role: 'rules', checked: '2026-10-03' },
   // Learn: Seminar red flags (src/lib/lessons/red-flags.ts)
   { id: 'learn-rf-1', title: 'FTC: FTC acts to shut down companies operating a real estate seminar scheme (2019)', publisher: 'Federal Trade Commission', url: 'https://www.ftc.gov/news-events/news/press-releases/2019/11/ftc-acts-shut-down-companies-operating-real-estate-seminar-scheme', role: 'rules', checked: '2026-10-03' },
   { id: 'learn-rf-2', title: 'FTC: suit leads to $16.7 million judgment against principals and celebrity endorsers (2023)', publisher: 'Federal Trade Commission', url: 'https://www.ftc.gov/news-events/news/press-releases/2023/05/ftc-suit-leads-167-million-judgment-against-principals-celebrity-endorsers-real-estate-investment', role: 'rules', checked: '2026-10-03' },
