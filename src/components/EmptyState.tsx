@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 export default function EmptyState({ title, soon, children }: { title: ReactNode; soon?: boolean; children?: ReactNode }) {
   return (
     <div className="empty-state" role="status">
-      <img className="owl-empty" src="logo.svg" alt="" width={112} height={112} />
+      <img className="owl-empty" src="/logo.svg" alt="" width={112} height={112} />
       {soon && <span className="badge tone-info">Coming soon</span>}
       <h2>{title}</h2>
       {children}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { currentRoute, isAppLink, navigate, onNavigate, rewriteAppLinks, toPath } from './lib/nav';
 import SearchPage from './components/SearchPage';
 import HomePage from './components/HomePage';
 import SiteHeader from './components/SiteHeader';
@@ -88,9 +89,8 @@ type Route =
   | { page: 'toolkit'; section?: string }
   | { page: 'notFound' };
 
-function hashPath(): string {
-  return window.location.hash.replace(/^#\/?/, '');
-}
+// The route is the page's path (see lib/nav.ts); "#/" links are opened as paths.
+const hashPath = currentRoute;
 
 function parseHash(): Route {
   const full = hashPath();
@@ -181,15 +181,40 @@ export default function App() {
   const [nav, setNav] = useState(0);
 
   useEffect(() => {
-    const onHash = () => {
+    const onNav = () => {
       setRoute(parseHash());
       setPath(hashPath());
       setNav((n) => n + 1);
       window.scrollTo(0, 0);
     };
-    window.addEventListener('hashchange', onHash);
-    return () => window.removeEventListener('hashchange', onHash);
+    // Links inside the app open without reloading the page.
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null;
+      if (!a || !isAppLink(a)) return;
+      e.preventDefault();
+      const to = toPath(a.getAttribute('href')!);
+      if (to === `${window.location.pathname}${window.location.search}`) return window.scrollTo(0, 0);
+      navigate(to);
+    };
+    // Show every "#/x" link as a real "/x" address, now and whenever the page changes.
+    rewriteAppLinks();
+    const mo = new MutationObserver(() => rewriteAppLinks());
+    mo.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['href'] });
+    document.addEventListener('click', onClick);
+    const off = onNavigate(onNav);
+    return () => {
+      off();
+      mo.disconnect();
+      document.removeEventListener('click', onClick);
+    };
   }, []);
+  // The canonical address follows the page, so a shared or indexed page points at itself.
+  useEffect(() => {
+    const link = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    // Same form as the sitemap and the crawlable copies: a trailing slash ("/learn/red-flags/").
+    if (link) link.href = `${window.location.origin}${window.location.pathname.replace(/\/?$/, '/')}`;
+  }, [path]);
 
   // Anonymous site stats: one page view per navigation (section name only), and which kinds of
   // outside sources people go on to check.
@@ -222,7 +247,7 @@ export default function App() {
       {route.page === 'home' && <HomePage />}
       {route.page === 'notFound' && (
         <main className="page empty-page">
-          <img className="owl-empty" src="logo.svg" alt="" width={128} height={128} />
+          <img className="owl-empty" src="/logo.svg" alt="" width={128} height={128} />
           <h1>We couldn’t find that page</h1>
           <p>Even owls miss one sometimes. The link may be old or mistyped.</p>
           <p className="row"><a className="btn" href="#/">Go to the home page</a> <a className="btn btn-secondary" href="#/search">Find properties</a></p>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { navigate } from '../lib/nav';
 import PageHero from './PageHero';
 import { IconSearch } from './Icons';
 import { highlight, searchGuides, type GuideIndex } from '../lib/guideSearch';
@@ -13,7 +14,7 @@ export function GuideSearchForm({ initial = '', onSearch }: { initial?: string; 
   const go = (e: FormEvent) => {
     e.preventDefault();
     if (onSearch) onSearch(q);
-    else window.location.hash = `#/guides?q=${encodeURIComponent(q.trim())}`;
+    else navigate(`/guides?q=${encodeURIComponent(q.trim())}`);
   };
   return (
     <form className="simple-search guide-search" onSubmit={go} role="search" aria-label="Search the guides">

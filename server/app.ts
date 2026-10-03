@@ -1153,7 +1153,15 @@ export function createApp(config: AppConfig) {
         info = statSync(file);
       }
     } catch {
-      return send(res, 404, { error: 'Not found' });
+      // Pages are normal paths (/practice/drills/x): one without a pre-built copy gets the app, which shows the
+      // page (or its own "not found"). Missing files (anything with an extension) and data stay 404s.
+      if (fromData || /\.[a-z0-9]{1,8}$/i.test(path) || path.startsWith('/assets/')) return send(res, 404, { error: 'Not found' });
+      file = join(baseDir, 'index.html');
+      try {
+        info = statSync(file);
+      } catch {
+        return send(res, 404, { error: 'Not found' });
+      }
     }
     if (!info.isFile()) return send(res, 404, { error: 'Not found' });
     // Only Vite's content-hashed build files can be cached forever. Everything else (index.html, the

@@ -1,6 +1,7 @@
 // Analyze a Deal (step 6): the visitor describes a deal (state, county, kind of sale, plan) and gets the checklist for
 // that sale in that state. Every rule here comes from the Learn lessons and their sources. Deals are kept in this browser.
 import { COUNTY_OFFICES } from './countyOffices';
+import { navigate } from './nav';
 import { countyName, stateByCode, type StateCode } from './regions';
 
 export type SaleKind = 'listing' | 'reo' | 'trustee' | 'taxSale' | 'lien' | 'court' | 'hoa' | 'irs';
@@ -175,7 +176,7 @@ export function openDeal(d: Deal) {
   } catch {
     /* private mode */
   }
-  window.location.hash = '#/analyze';
+  navigate('/analyze');
 }
 
 /** A stored deal, cleaned so old, hand-edited or restored data can't break the page. Null if it's unusable. */

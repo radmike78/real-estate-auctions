@@ -118,7 +118,15 @@ describe('server under load', () => {
       expect(r.status, u).toBe(200);
       expect(await r.text()).toContain('<title>Markets</title>');
     }
-    expect((await fetch(`${base}/learn/`)).status).toBe(404);
+    // A folder with no page of its own, or a page with no pre-built copy, gets the app: never a folder listing.
+    for (const u of ['/learn/', '/practice/drills/some-drill']) {
+      const r = await fetch(`${base}${u}`);
+      expect(r.status, u).toBe(200);
+      expect(await r.text(), u).toBe('<!doctype html><title>t</title>');
+    }
+    // Missing files and build assets are still real 404s.
+    expect((await fetch(`${base}/nope.js`)).status).toBe(404);
+    expect((await fetch(`${base}/assets/missing`)).status).toBe(404);
     expect((await fetch(`${base}/sitemap.xml`)).headers.get('content-type')).toBe('application/xml; charset=utf-8');
   });
 

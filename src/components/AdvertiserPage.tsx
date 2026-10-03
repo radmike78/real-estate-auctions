@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { replaceAddress } from '../lib/nav';
 import { api } from '../lib/api';
 import { CATEGORIES } from '../lib/pros';
 import type { ProProfile, Billing } from '../lib/proApplication';
@@ -28,8 +29,8 @@ function PlanCard({ me }: { me: Me }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [notice] = useState(() => {
-    const m = window.location.hash.match(/[?&]payment=(done|cancelled)/);
-    if (m) history.replaceState(null, '', '#/advertiser');
+    const m = `${window.location.search}${window.location.hash}`.match(/[?&]payment=(done|cancelled)/);
+    if (m) replaceAddress('/advertiser');
     return m?.[1] ?? null;
   });
   const p = me.payments;
