@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import PageHero from './PageHero';
 import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
-import { maxSafeBid, costsAtBid } from '../lib/bidCalc';
+import { exitPlans, buyingCosts } from '../practice/exitPlans';
 import { fmtMoney } from '../lib/status';
 import { scenarioById } from '../practice/scenarios';
 import { loadProgress, resetProgress, saveProgress, type ScenarioProgress } from '../practice/progress';
@@ -345,33 +345,74 @@ function ContactTask({ task, k, done, head, progress, update }: { task: Extract<
 
 function NumbersTask({ task, k, done, head, markDone }: { task: Extract<Task, { kind: 'numbers' }>; k: string; done: boolean; head: (l: string, t: string) => ReactElement; markDone: (k: string) => void }) {
   const i = task.inputs;
-  const r = maxSafeBid(i);
-  const c = costsAtBid(i, r.maxBid);
-  const rows: [string, string][] = [
-    ['Value once repaired (practice)', fmtMoney(i.exitValue)],
-    ['Repairs, with a ' + i.contingencyPct + '% cushion', fmtMoney(c.repairs)],
-    ['Liens that may stay with the property', fmtMoney(c.survivingLiens)],
-    ['Title, legal and reports', fmtMoney(c.titleLegal)],
-    ['Taking possession', fmtMoney(c.possession)],
-    [`Holding costs, ${i.holdingMonths} months`, fmtMoney(c.holding)],
-    ...(i.financedPct > 0 ? ([[`Loan costs (${i.financedPct}% financed, ${i.interestRatePct}% interest, ${i.pointsPct} point)`, fmtMoney(c.financing)]] as [string, string][]) : []),
-    ['Real property transfer tax, if it applies', fmtMoney(c.transferTax)],
-    [`Selling costs, ${i.sellingCostPct}% of the value`, fmtMoney(c.selling)],
-    [`Your target profit, ${i.targetProfitPct}% of the value`, fmtMoney((i.exitValue * i.targetProfitPct) / 100)],
+  const start = task.compareTo.amount;
+  const startName = task.compareTo.label.replace(/ \(.*\)$/, '').toLowerCase();
+  const buy = buyingCosts(i, start);
+  const plans = exitPlans(i, task.asIsValue, start);
+  const fix = plans[plans.length - 1];
+  const two = plans.length > 1;
+  const buyRows: [string, number][] = [
+    ...(buy.premium ? ([[`Buyer’s premium, ${i.buyerPremiumPct}%`, buy.premium]] as [string, number][]) : []),
+    ['Real property transfer tax, if it applies', buy.transferTax],
+    ['Liens that may stay with the property', buy.survivingLiens],
+    ['Title, legal and reports', buy.titleLegal],
+    ['Taking possession', buy.possession],
   ];
+  const row = (label: string, f: (p: (typeof plans)[number]) => string, strong = false) => (
+    <tr key={label}><th scope="row">{label}</th>{plans.map((p) => <td key={p.key} className="num">{strong ? <strong>{f(p)}</strong> : f(p)}</td>)}</tr>
+  );
+  const signed = (n: number) => (n < 0 ? `−${fmtMoney(Math.round(-n))}` : fmtMoney(Math.round(n)));
   return (
     <article className={`task-card${done ? ' is-done' : ''}`}>
       {head('Numbers', task.title)}
       <p>{task.intro}</p>
+      <h4 className="numbers-step">1. Start with the {startName}</h4>
       <table className="practice-numbers">
-        <tbody>
-          {rows.map(([l, v]) => <tr key={l}><th scope="row">{l}</th><td className="num">{v}</td></tr>)}
-        </tbody>
+        <tbody><tr><th scope="row">{task.compareTo.label}</th><td className="num"><strong>{fmtMoney(start)}</strong></td></tr></tbody>
+      </table>
+      <h4 className="numbers-step">2. Add the costs to buy it</h4>
+      <table className="practice-numbers">
+        <tbody>{buyRows.map(([l, v]) => <tr key={l}><th scope="row">{l}</th><td className="num">{fmtMoney(v)}</td></tr>)}</tbody>
         <tfoot>
-          <tr><th scope="row">Your maximum</th><td className="num"><strong>{r.noBidWorks ? 'No price works' : fmtMoney(r.maxBid)}</strong></td></tr>
-          <tr><th scope="row">{task.compareTo.label}</th><td className="num">{fmtMoney(task.compareTo.amount)}</td></tr>
+          <tr><th scope="row">Price plus costs to buy</th><td className="num"><strong>{fmtMoney(start + buy.total)}</strong></td></tr>
+          <tr><th scope="row">Then, every month you own it</th><td className="num">{fmtMoney(i.monthlyCarry)}</td></tr>
         </tfoot>
       </table>
+      <h4 className="numbers-step">3. Estimate what it’s worth</h4>
+      <table className="practice-numbers">
+        <tbody>
+          {two && <tr><th scope="row">As it stands (practice)</th><td className="num">{fmtMoney(task.asIsValue)}</td></tr>}
+          <tr><th scope="row">{two ? 'Once repaired (practice)' : 'Value (practice)'}</th><td className="num">{fmtMoney(i.exitValue)}</td></tr>
+        </tbody>
+      </table>
+      <h4 className="numbers-step">4. Your profit at the {startName}{two ? ', two ways' : ''}</h4>
+      <div className="table-scroll">
+        <table className="practice-numbers practice-plans">
+          {two && <thead><tr><td />{plans.map((p) => <th key={p.key} scope="col" className="num">{p.label}</th>)}</tr></thead>}
+          <tbody>
+            {row('You sell for', (p) => fmtMoney(p.salePrice))}
+            {row('Price plus costs to buy', () => `−${fmtMoney(start + buy.total)}`)}
+            {fix.repairs > 0 && row(`Repairs, with a ${i.contingencyPct}% cushion`, (p) => (p.repairs ? `−${fmtMoney(p.repairs)}` : 'None'))}
+            {row('Months you own it', (p) => String(p.months))}
+            {row('Holding costs', (p) => `−${fmtMoney(p.holding)}`)}
+            {i.financedPct > 0 && row(`Loan costs, ${i.financedPct}% financed`, (p) => `−${fmtMoney(Math.round(p.financing))}`)}
+            {row(`Selling costs, ${i.sellingCostPct}%`, (p) => `−${fmtMoney(p.selling)}`)}
+          </tbody>
+          <tfoot>
+            {row('Profit', (p) => signed(p.profitAtStart), true)}
+            {row('Cash tied up until you sell', (p) => fmtMoney(Math.round(p.cashTiedUp)))}
+          </tfoot>
+        </table>
+      </div>
+      <h4 className="numbers-step">5. Now set your maximum {task.compareTo.label === 'List price' ? 'offer' : 'bid'}</h4>
+      <div className="table-scroll">
+        <table className="practice-numbers practice-plans">
+          {two && <thead><tr><td />{plans.map((p) => <th key={p.key} scope="col" className="num">{p.label}</th>)}</tr></thead>}
+          <tbody>{row(`Your target profit, ${i.targetProfitPct}% of the sale price`, (p) => fmtMoney(p.targetProfit))}</tbody>
+          <tfoot>{row('Your maximum', (p) => (p.maxBid ? fmtMoney(p.maxBid) : 'No price works'), true)}</tfoot>
+        </table>
+      </div>
+      {two && <p>Selling as-is means less work, less cash tied up and a quicker exit, for a smaller profit. Fixing it up can earn more, but your money is tied up longer, and you carry the risk of repairs running over, a slow sale or a lower price. {fix.maxBid ? `This practice buyer plans to fix and sell, so the maximum is ${fmtMoney(fix.maxBid)}.` : 'Here, no price leaves the target profit either way.'}</p>}
       <p>{task.lesson}</p>
       <p className="small muted">Practice numbers, not market data. <a href="#/calculator">Try your own in the maximum bid calculator</a>.</p>
       {!done && <button className="btn btn-secondary" onClick={() => markDone(k)}>I understand my maximum</button>}

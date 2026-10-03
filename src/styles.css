@@ -2187,3 +2187,10 @@ h1, h2 { letter-spacing: -0.03em; }
   .drill .calc-kv > div { display: block; }
   .drill .calc-kv dd { text-align: left; margin-top: 2px; }
 }
+
+/* Practice numbers, worked step by step from the opening bid */
+.numbers-step { margin: 1.25rem 0 0.25rem; font-size: 1.05rem; }
+.table-scroll { overflow-x: auto; }
+.practice-plans th[scope="col"] { font-weight: 600; white-space: nowrap; width: auto; text-align: right; }
+.practice-plans td.num { white-space: nowrap; }
+.practice-plans { table-layout: fixed; }

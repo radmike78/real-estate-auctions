@@ -17,6 +17,7 @@ import { playbookByKey, type Playbook } from '../lib/playbooks';
 import { fmtMoney } from '../lib/status';
 import { incomeValue, PRACTICE_PROPERTIES, type PracticeProperty } from './properties';
 import type { Choice, SaleKey, Scenario, Stage, Task } from './types';
+import { practiceAsIsValue } from './exitPlans';
 
 const money = (n: number) => fmtMoney(n);
 const roundTo = (n: number, to: number) => Math.round(n / to) * to;
@@ -255,10 +256,11 @@ const numbersTask = (p: PracticeProperty, inputs: BidInputs, compareTo: { label:
   kind: 'numbers',
   id: 'numbers',
   title: auction ? 'Set your maximum bid' : 'Set your maximum offer',
-  intro: `These are practice numbers for a buy-fix-sell plan, using the same calculator as the real tool. ${auction ? 'Auctions need cash, so nothing is financed at the sale.' : 'This purchase can be financed, so part of the price and repairs is borrowed.'}${tenantDeposits(p) && inputs.possession > 3_500 ? ` Taking possession includes ${money(tenantDeposits(p))} of tenant security deposits you’d take on.` : ''}`,
+  intro: `Practice numbers, worked in order from the starting price to your profit, using the same calculator as the real tool. ${auction ? 'Auctions need cash, so nothing is financed at the sale.' : 'This purchase can be financed, so part of the price and repairs is borrowed.'}${tenantDeposits(p) && inputs.possession > 3_500 ? ` Taking possession includes ${money(tenantDeposits(p))} of tenant security deposits you’d take on.` : ''}`,
   inputs,
   compareTo,
   lesson,
+  asIsValue: practiceAsIsValue(p.value, p.repairs),
 });
 
 const bidDecision = (maxBid: number, compare: { label: string; amount: number }, auction: boolean): Task => {
