@@ -12,6 +12,8 @@ import PathNext from './PathNext';
 import { CORE_TEAM, PRO_GUIDES, proGuideByKey, type ProGuide, type ProKey } from '../lib/proGuide';
 import WhyBlock from './WhyBlock';
 import { PRO_WHY } from '../lib/proWhy';
+import { PRO_DEEP } from '../lib/deep/proDeep';
+import StoryList from './StoryList';
 
 const ICONS: Record<ProKey, ReactElement> = {
   agent: <IconHome />, lender: <IconBank />, private_lender: <IconClock />, title: <IconFile />, attorney: <IconBadge />, inspector: <IconSearch />,
@@ -23,6 +25,16 @@ function GuideBody({ g }: { g: ProGuide }) {
     <div className="pro-guide">
       <p className="pro-guide-does">{g.does}</p>
       {PRO_WHY[g.key] && <WhyBlock yes={PRO_WHY[g.key].yes} no={PRO_WHY[g.key].no} yesLabel="Why you would hire one" noLabel="Why you might not, or when to be careful" />}
+      {PRO_DEEP[g.key] && PRO_DEEP[g.key]!.overview.length > 0 && (
+        <div className="pro-guide-overview">{PRO_DEEP[g.key]!.overview.map((p) => <p key={p}>{p}</p>)}</div>
+      )}
+      {PRO_DEEP[g.key] && PRO_DEEP[g.key]!.stories.length > 0 && (
+        <div className="pro-guide-stories">
+          <h3>Real stories: what happened to other buyers</h3>
+          <p className="muted">True accounts from news reports, court cases and government agencies. Private people aren’t named.</p>
+          <StoryList stories={PRO_DEEP[g.key]!.stories} />
+        </div>
+      )}
       <div className="pro-guide-cols">
         <section>
           <h3>When you need one</h3>
@@ -37,6 +49,12 @@ function GuideBody({ g }: { g: ProGuide }) {
           <ul>{g.ask.map((x) => <li key={x}>{x}</li>)}</ul>
         </section>
       </div>
+      {PRO_DEEP[g.key] && (PRO_DEEP[g.key]!.money.length > 0 || PRO_DEEP[g.key]!.checklist.length > 0) && (
+        <div className="deep-two pro-guide-deep">
+          {PRO_DEEP[g.key]!.money.length > 0 && <div><h3>How they’re paid</h3><ul className="deep-list">{PRO_DEEP[g.key]!.money.map((x) => <li key={x}>{x}</li>)}</ul></div>}
+          {PRO_DEEP[g.key]!.checklist.length > 0 && <div><h3>Check before you hire</h3><ul className="deep-list">{PRO_DEEP[g.key]!.checklist.map((x) => <li key={x}>{x}</li>)}</ul></div>}
+        </div>
+      )}
       {g.license && (
         <p className="pro-guide-tip">
           <strong>Before you hire:</strong> look them up with the {g.license.who.replace(/ \(via NMLS Consumer Access\)$/, '')}.{' '}

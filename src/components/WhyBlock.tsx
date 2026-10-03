@@ -7,7 +7,7 @@ function Point({ p }: { p: WhyPoint }) {
       <span className="why-text">{p.text}</span>
       {p.example && (
         <span className="why-example">
-          <strong>Real example:</strong> {p.example}
+          <strong>Fact:</strong> {p.example}
           {p.source && <> <a href={p.source.url} target="_blank" rel="noopener noreferrer">{p.source.label} ↗</a></>}
         </span>
       )}
@@ -16,7 +16,7 @@ function Point({ p }: { p: WhyPoint }) {
 }
 
 /** "Why you would / Why you wouldn't", side by side on wide screens and stacked on phones. */
-export default function WhyBlock({ title, yes, no, yesLabel = 'Why you would', noLabel = 'Why you wouldn’t' }: { title?: string; yes: WhyPoint[]; no: WhyPoint[]; yesLabel?: string; noLabel?: string }) {
+export default function WhyBlock({ title, yes, no, yesLabel = 'Why you would', noLabel = 'Why you wouldn’t', more }: { title?: string; yes: WhyPoint[]; no: WhyPoint[]; yesLabel?: string; noLabel?: string; more?: { href: string; label: string } }) {
   return (
     <div className="why-block">
       {title && <h3 className="why-title">{title}</h3>}
@@ -30,6 +30,7 @@ export default function WhyBlock({ title, yes, no, yesLabel = 'Why you would', n
           <ul>{no.map((p) => <Point key={p.text} p={p} />)}</ul>
         </div>
       </div>
+      {more && <p className="why-more"><a className="btn" href={more.href}>{more.label} →</a></p>}
     </div>
   );
 }

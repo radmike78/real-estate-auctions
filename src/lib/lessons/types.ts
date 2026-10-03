@@ -16,7 +16,7 @@ export type LessonBlock =
   /** Official tools and offices to open, each with what it's for. */
   | { links: { label: string; url: string; what: string }[] }
   /** Reasons to choose it and reasons not to, side by side. */
-  | { why: { title: string; yes: WhyPoint[]; no: WhyPoint[] } };
+  | { why: { title: string; yes: WhyPoint[]; no: WhyPoint[]; more?: { href: string; label: string } } };
 
 export interface Lesson {
   /** Matches a LEARN_MODULES key. */
