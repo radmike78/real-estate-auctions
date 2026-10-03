@@ -1,4 +1,5 @@
-import { useState, type ReactElement } from 'react';
+import { useRef, useState, type ReactElement } from 'react';
+import OnThisPage from './OnThisPage';
 import PageHero from './PageHero';
 import DrillDown, { type DrillSection } from './DrillDown';
 import TeamList from './TeamList';
@@ -24,21 +25,26 @@ const ICONS: Record<ProKey, ReactElement> = {
 
 function GuideBody({ g }: { g: ProGuide }) {
   const [st] = useMyState();
+  const ref = useRef<HTMLDivElement>(null);
   const fit = (xs: string[]) => xs.map((x) => forStateText(st, x)).filter(Boolean);
   return (
-    <div className="pro-guide">
+    <div className="pro-guide" ref={ref}>
+      <OnThisPage root={ref} selector="h3.part-head" />
+      <h3 className="part-head">What they do</h3>
       <p className="pro-guide-does">{g.does}</p>
-      {PRO_WHY[g.key] && <WhyBlock yes={PRO_WHY[g.key].yes} no={PRO_WHY[g.key].no} yesLabel="Why you would hire one" noLabel="Why you might not, or when to be careful" />}
       {PRO_DEEP[g.key] && PRO_DEEP[g.key]!.overview.length > 0 && (
         <div className="pro-guide-overview">{fit(PRO_DEEP[g.key]!.overview).map((p) => <p key={p}>{p}</p>)}</div>
       )}
+      {PRO_WHY[g.key] && <h3 className="part-head">Should you hire one?</h3>}
+      {PRO_WHY[g.key] && <WhyBlock yes={PRO_WHY[g.key].yes} no={PRO_WHY[g.key].no} yesLabel="Why you would hire one" noLabel="Why you might not, or when to be careful" />}
       {PRO_DEEP[g.key] && PRO_DEEP[g.key]!.stories.length > 0 && (
         <div className="pro-guide-stories">
-          <h3>Real stories: what happened to other buyers</h3>
+          <h3 className="part-head">Real stories: what happened to other buyers</h3>
           <p className="muted">True accounts from news reports, court cases and government agencies. Private people aren’t named.</p>
           <StoryList stories={PRO_DEEP[g.key]!.stories} />
         </div>
       )}
+      <h3 className="part-head">Hiring one</h3>
       <div className="pro-guide-cols">
         <section>
           <h3>When you need one</h3>
@@ -71,7 +77,7 @@ function GuideBody({ g }: { g: ProGuide }) {
           initialCategory={g.directory.length === 1 ? g.directory[0] : 'any'}
           showCategoryFilter={g.directory.length > 1}
           hideWhenEmpty
-          header={<h3 className="pro-guide-ads">Advertising on DeedOwl</h3>}
+          header={<h3 className="pro-guide-ads part-head">Advertising on DeedOwl</h3>}
           notice={<Disclaimer kind={g.key === 'lender' || g.key === 'private_lender' ? 'financing' : 'professionals'} compact />}
         />
       )}

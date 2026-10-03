@@ -197,7 +197,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "8de1da31428bfd78",
+    "hash": "72fb4505b24e3b0c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -338,10 +338,11 @@
       "src/lib/deep/propertyTopics.ts",
       "src/lib/lessons/propertyWhy.ts",
       "src/components/NarrowDown.tsx",
-      "src/lib/narrow.ts"
+      "src/lib/narrow.ts",
+      "src/components/OnThisPage.tsx"
     ],
     "reviewed": "2026-10-03",
-    "hash": "88b63ad0b9dae8ab",
+    "hash": "c4a302330aba69c4",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
