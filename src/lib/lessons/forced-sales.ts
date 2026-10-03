@@ -3,7 +3,7 @@ import type { Lesson } from './types';
 export const forcedSales: Lesson = {
   key: 'forced-sales',
   minutes: 10,
-  intro: 'A forced sale is one the owner didn’t choose: a county selling for unpaid taxes, a lender’s trustee selling after a missed loan, a sheriff selling to pay a court judgment, or the IRS selling seized property. The rules change a lot from state to state: choose your state below to see only its rules.',
+  intro: 'A forced sale is one the owner didn’t choose. A county may sell for unpaid taxes. A lender’s trustee may sell after a missed loan. A sheriff may sell to pay a court judgment. Or the IRS may sell seized property. The rules change a lot from state to state. Choose your state below to see only its rules.',
   takeaways: [
     'Whether your county sells the property itself or a tax lien.',
     'How trustee (foreclosure) auctions work: timelines, notices and payment.',
@@ -19,15 +19,15 @@ export const forcedSales: Lesson = {
           table: {
             head: ['State', 'What’s sold', 'Key rules'],
             rows: [
-              ['Nevada', 'The property, by quitclaim deed', 'The county treasurer holds the property for 2 years after the tax certificate (1 year if abandoned), then auctions it for at least the taxes, costs, penalties and interest. Owners and lenders can pay off until the third business day before the sale.'],
+              ['Nevada', 'The property, by quitclaim deed', 'The county treasurer holds the property for 2 years after the tax certificate (1 year if abandoned). Then the treasurer auctions it for at least the taxes, costs, penalties and interest. Owners and lenders can pay off until the third business day before the sale.'],
               ['California', 'The property (tax-defaulted land)', 'The tax collector can sell after five years of default (three for nonresidential commercial property). The minimum bid is at least the amount needed to redeem, plus costs.'],
-              ['Arizona', 'A tax lien, not the property', 'Liens are sold in February. Bidders bid down the interest rate, which can’t exceed 16% a year; on popular parcels, competition can push it far lower, even to 0%. The owner can redeem at any time, which ends your interest, so plan on earning interest rather than getting a property; after three years (and within ten), the lien holder can go to court to foreclose the right to redeem and get a deed.'],
-              ['Utah', 'The property', 'Property still unpaid after four years is sold by the county auditor at a tax sale in May or June. A bid must cover the taxes, penalties, interest and costs.'],
+              ['Arizona', 'A tax lien, not the property', 'Liens are sold in February. Bidders bid down the interest rate, which can’t exceed 16% a year. On popular parcels, competition can push it far lower, even to 0%. The owner can redeem at any time, which ends your interest. So plan on earning interest rather than getting a property. After three years (and within ten), the lien holder can go to court to foreclose the right to redeem and get a deed.'],
+              ['Utah', 'The property', 'The county auditor sells property still unpaid after four years at a tax sale in May or June. A bid must cover the taxes, penalties, interest and costs.'],
             ],
           },
         },
         'A tax sale doesn’t clear everything. Read the county’s rules before every sale.',
-        'In Nevada, Washoe County warns that some government liens and other encumbrances may remain, and that for two years the former owner can challenge the sale, when title insurance may be hard to get.',
+        'In Nevada, Washoe County warns that some government liens and other encumbrances may remain. It also warns that for two years the former owner can challenge the sale. During that time, title insurance may be hard to get.',
         'In California, San Diego County sells “as is” and takes no responsibility for other liens, encumbrances or easements.',
       ],
     },
@@ -40,19 +40,19 @@ export const forcedSales: Lesson = {
             head: ['State', 'Timeline and notice', 'Paying'],
             rows: [
               ['Nevada', 'At least 3 months after the notice of default is recorded. The notice of sale is posted 20 days and published once a week for 3 weeks.', 'Set by the trustee; see our guide.'],
-              ['California', 'At least 3 months after the notice of default. The notice of sale is posted at least 20 days before.', 'The trustee can require bidders to show they can pay the full bid in cash or cashier’s checks, and can require the full amount from the winner.'],
-              ['Arizona', 'The sale is no sooner than the 91st day after the notice of sale is recorded; notice is posted 20 days before and published four weeks in a row.', 'The winner pays by 5 p.m. the next business day.'],
+              ['California', 'At least 3 months after the notice of default. The notice of sale is posted at least 20 days before.', 'The trustee can require bidders to show they can pay the full bid in cash or cashier’s checks. The trustee can also require the full amount from the winner.'],
+              ['Arizona', 'The sale is no sooner than the 91st day after the notice of sale is recorded. Notice is posted 20 days before and published four weeks in a row.', 'The winner pays by 5 p.m. the next business day.'],
               ['Utah', 'At least 3 months after the notice of default. The notice of sale is published three times and posted at least 20 days before.', 'As the trustee directs. A bid can’t be withdrawn, and the trustee’s deed comes with no right of redemption.'],
             ],
           },
         },
-        'California adds a step for homes of one to four units: after the auction, eligible tenant buyers have 15 days and other eligible bidders 45 days to match the winning bid (Civil Code 2924m, in effect until 2031). The winning bid isn’t final until that period ends.',
+        'California adds a step for homes of one to four units (Civil Code 2924m, in effect until 2031). After the auction, eligible tenant buyers have 15 days to match the winning bid. Other eligible bidders have 45 days. The winning bid isn’t final until that period ends.',
       ],
     },
     {
       heading: 'Court sales and the right to redeem',
       blocks: [
-        'When a foreclosure goes through court, or a sheriff sells property to pay a judgment, the owner may be able to buy it back for a time after the sale. You own it subject to that right until it ends.',
+        'Sometimes a foreclosure goes through court, or a sheriff sells property to pay a judgment. Then the owner may be able to buy it back for a time after the sale. You own it subject to that right until it ends.',
         { list: [
           'Nevada: up to 1 year after a sheriff’s execution sale.',
           'California: 3 months after a judicial foreclosure sale if the sale paid the debt in full, or 1 year if it didn’t.',
@@ -65,9 +65,9 @@ export const forcedSales: Lesson = {
       heading: 'Federal sales',
       blocks: [
         { list: [
-          'IRS sales: the IRS sells seized property by public or sealed-bid auction. For 180 days afterward, the owner or anyone with an interest can redeem it by paying what you paid plus 20% a year interest, so you can’t count on keeping it until then.',
-          'HUD homes: foreclosed FHA homes sold through HUD Home Store; bids go through a HUD-registered broker.',
-          'Tenants: after a foreclosure, a new owner must give genuine tenants at least 90 days’ notice before eviction and generally honor their lease. The exception is a buyer who will live there, who can end the lease with 90 days’ notice.',
+          'IRS sales: the IRS sells seized property by public or sealed-bid auction. For 180 days afterward, the owner or anyone with an interest can redeem it. They pay what you paid plus 20% a year interest. So you can’t count on keeping it until then.',
+          'HUD homes: foreclosed FHA homes sold through HUD Home Store. Bids go through a HUD-registered broker.',
+          'Tenants: after a foreclosure, a new owner must give genuine tenants at least 90 days’ notice before eviction. The new owner must also generally honor their lease. The exception is a buyer who will live there. That buyer can end the lease with 90 days’ notice.',
         ] },
       ],
     },
@@ -76,15 +76,15 @@ export const forcedSales: Lesson = {
       blocks: [
         { list: [
           'Read the official notice and the seller’s rules: deposit, payment deadline, and what the deed promises.',
-          'Get a title search: which liens survive depends on the kind of sale.',
+          'Get a title search. Which liens survive depends on the kind of sale.',
           'Expect to buy as-is, usually without seeing inside.',
           'Check whether the owner has filed bankruptcy, which can stop a sale.',
           'Know your walk-away price before bidding, and include the cost of any redemption period.',
-          'Bid only cash you can afford to lose. Don’t borrow on credit cards, home equity or a 401(k) to bid: most forced sales are final and as-is.',
-          'Plan for occupants: owners and tenants have legal rights, and removing them takes a court process.',
+          'Bid only cash you can afford to lose. Don’t borrow on credit cards, home equity or a 401(k) to bid. Most forced sales are final and as-is.',
+          'Plan for people living there. Owners and tenants have legal rights, and removing them takes a court process.',
         ] },
-        'Find Deals lists each county’s tax sale page and records offices. Never contact homeowners facing foreclosure; buy from the official seller.',
-        'Our step-by-step guides walk through each kind of sale in your state, from the notice to getting possession:',
+        'Find Deals lists each county’s tax sale page and records offices. Never contact homeowners facing foreclosure. Buy from the official seller.',
+        'Our step-by-step guides walk through each kind of sale in your state. They cover every step, from the notice to getting possession.',
         { links: [
           { label: 'Nevada guides (Clark County)', url: '#/playbooks', what: 'Tax sales, lien certificates, foreclosure auctions, HOA foreclosures, sheriff sales, IRS sales, bank-owned homes, commercial property and short sales.' },
           { label: 'California guides', url: '#/playbooks', what: 'Tax sales, trustee sales and sheriff sales.' },

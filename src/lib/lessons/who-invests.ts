@@ -3,7 +3,7 @@ import type { Lesson } from './types';
 export const whoInvests: Lesson = {
   key: 'who',
   minutes: 6,
-  intro: 'From someone renting out half a duplex to funds that own thousands of buildings, investors pick property that fits their money, time and goals. Here’s who buys what, and why.',
+  intro: 'Investors pick property that fits their money, time and goals. They range from someone renting out half a duplex to funds that own thousands of buildings. Here’s who buys what, and why.',
   takeaways: [
     'The main kinds of real estate investors and what each usually buys.',
     'How owning a property differs from owning shares of a real estate fund.',
@@ -31,9 +31,9 @@ export const whoInvests: Lesson = {
     {
       heading: 'Owning a building vs. owning shares',
       blocks: [
-        'Congress created real estate investment trusts (REITs) in 1960 so individuals could invest in large income-producing property: offices, shopping centers, apartments, hotels, self-storage and warehouses. A REIT must pay out at least 90% of its taxable income as dividends each year and have at least 100 shareholders.',
-        'Shares of a REIT listed on a stock exchange can be sold any day the market is open. Non-traded REITs are different: selling your shares back is typically very limited, and upfront fees can reach 9 to 10% of what you invest. Read the offering documents and fees before investing.',
-        'Private group deals (syndications) are often sold under SEC Rule 506(b), which lets a sponsor raise unlimited money from accredited investors but bars advertising the offering to the public. If someone advertises a private real estate deal to you, ask how it complies.',
+        'Congress created real estate investment trusts (REITs) in 1960. They let individuals invest in large income-producing property: offices, shopping centers, apartments, hotels, self-storage and warehouses. A REIT must pay out at least 90% of its taxable income as dividends each year and have at least 100 shareholders.',
+        'Shares of a REIT listed on a stock exchange can be sold any day the market is open. Non-traded REITs are different. Selling your shares back is typically very limited, and upfront fees can reach 9 to 10% of what you invest. Read the offering documents and fees before investing.',
+        'Private group deals (syndications) are often sold under SEC Rule 506(b). This rule lets a sponsor raise unlimited money from accredited investors, but it bars advertising the offering to the public. If someone advertises a private real estate deal to you, ask how it complies.',
       ],
     },
     {
@@ -41,11 +41,11 @@ export const whoInvests: Lesson = {
       blocks: [
         { list: [
           'Money: living in the property unlocks the lowest down payments. Investment homes, commercial property and land need more cash up front, and many forced sales need cash.',
-          'Time: a rental you manage yourself takes regular time; a property manager or a REIT takes less.',
-          'Borrowing: home loans on 1–4 units are sized on your income; commercial loans on the property’s income. SBA 504 loans can’t be used for rental property investments.',
+          'Time: a rental you manage yourself takes regular time. A property manager or a REIT takes less.',
+          'Borrowing: home loans on 1–4 units are sized on your income. Commercial loans are sized on the property’s income. SBA 504 loans can’t be used for rental property investments.',
           'Risk: one property means one roof, one set of tenants and one neighborhood. Funds spread risk but add fees.',
-          'Taxes: buildings wear out on paper. Residential rental buildings are depreciated over 27.5 years and commercial buildings over 39; land isn’t depreciated at all. Ask a tax advisor how this applies to you.',
-          'Selling: a building can take months to sell; listed REIT shares can sell the same day.',
+          'Taxes: buildings wear out on paper. Residential rental buildings are depreciated over 27.5 years and commercial buildings over 39. Land isn’t depreciated at all. Ask a tax advisor how this applies to you.',
+          'Selling: a building can take months to sell. Listed REIT shares can sell the same day.',
         ] },
         'The Decide step turns these questions into a plan for you.',
       ],
@@ -71,6 +71,6 @@ export const whoInvests: Lesson = {
     { label: 'IRS Publication 946: how to depreciate property', url: 'https://www.irs.gov/publications/p946' },
     { label: 'IRS Publication 527: residential rental property', url: 'https://www.irs.gov/publications/p527' },
   ],
-  practice: 'For the property you want, write down who you’d be competing with and what they can do that you can’t, such as paying cash or closing fast.',
+  practice: 'For the property you want, write down who you’d be competing with. Then write what they can do that you can’t, such as paying cash or closing fast.',
   reviewed: '2026-09-29',
 };

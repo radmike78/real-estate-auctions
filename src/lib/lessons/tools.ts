@@ -3,7 +3,7 @@ import type { Lesson } from './types';
 export const tools: Lesson = {
   key: 'tools',
   minutes: 8,
-  intro: 'Most of what you need to research a property is public and free: county records, federal maps and data, and state license lookups. Here are the tools investors use, and a routine for checking any property.',
+  intro: 'Most of what you need to research a property is public and free. That includes county records, federal maps and data, and state license lookups. Here are the tools investors use, and a routine for checking any property.',
   takeaways: [
     'Which county offices hold ownership, tax and recorded-document records.',
     'Free federal tools for rents, flood risk, neighborhood data and environmental records.',
@@ -20,7 +20,7 @@ export const tools: Lesson = {
           'Recorder: recorded documents such as deeds, deeds of trust, liens, notices of default and releases. This is where a title search starts.',
           'Treasurer or tax collector: the tax bill, whether taxes are unpaid, and the county’s tax sale.',
         ] },
-        'Start with the parcel number from the assessor; the other offices use it too. The largest counties in our four states:',
+        'Start with the parcel number from the assessor. The other offices use it too. The largest counties in our four states:',
         { links: [
           { label: 'Clark County (NV) Assessor', url: 'https://www.clarkcountynv.gov/assessor', what: 'Property record search.' },
           { label: 'Clark County (NV) Recorder', url: 'https://www.clarkcountynv.gov/recorder', what: 'Recorded documents online and the GIS map.' },
@@ -39,7 +39,7 @@ export const tools: Lesson = {
           { label: 'Salt Lake County (UT) Recorder', url: 'https://www.saltlakecounty.gov/recorder/', what: 'Interactive parcel map and recorded documents.' },
           { label: 'Utah County (UT) Recorder', url: 'https://recorder.utahcounty.gov/', what: 'Land record searches.' },
         ] },
-        'For other counties, search for the county’s name with “assessor,” “recorder” or “treasurer,” and make sure the site ends in .gov or is linked from the county’s official website. Find Deals will add each county as we research it.',
+        'For other counties, search for the county’s name with “assessor,” “recorder” or “treasurer” added. Make sure the site ends in .gov or is linked from the county’s official website. Find Deals will add each county as we research it.',
       ],
     },
     {
@@ -49,9 +49,9 @@ export const tools: Lesson = {
           { label: 'HUD Fair Market Rents', url: 'https://www.huduser.gov/portal/datasets/fmr.html', what: 'HUD’s yearly rent estimates by area and bedroom count: a check on what a rental might bring. Small Area FMRs go down to ZIP codes.' },
           { label: 'Census QuickFacts', url: 'https://www.census.gov/programs-surveys/sis/resources/data-tools/quickfacts.html', what: 'Population, income, housing and business figures for states, counties, and cities over 5,000 people.' },
           { label: 'Census Geocoder', url: 'https://geocoding.geo.census.gov/geocoder/', what: 'Finds the census tract and area for an address, so you can look up its data.' },
-          { label: 'FEMA Flood Map Service Center', url: 'https://msc.fema.gov/portal/home', what: 'The official flood maps; search by address.' },
+          { label: 'FEMA Flood Map Service Center', url: 'https://msc.fema.gov/portal/home', what: 'The official flood maps. Search by address.' },
           { label: 'FEMA National Risk Index', url: 'https://www.fema.gov/emergency-managers/practitioners/resilience-analysis-and-planning-tool', what: 'Community risk for 18 natural hazards, such as wildfire, earthquake and heat.' },
-          { label: 'EPA Envirofacts', url: 'https://www.epa.gov/enviro/envirofacts-overview', what: 'EPA records on nearby waste, water, air and toxics sites; search by address or ZIP code.' },
+          { label: 'EPA Envirofacts', url: 'https://www.epa.gov/enviro/envirofacts-overview', what: 'EPA records on nearby waste, water, air and toxics sites. Search by address or ZIP code.' },
         ] },
       ],
     },
@@ -76,7 +76,7 @@ export const tools: Lesson = {
     {
       heading: 'Court records and bankruptcy',
       blocks: [
-        'When an owner files for bankruptcy, federal law automatically stops any act to enforce a lien against their property, and that can halt a foreclosure or tax sale. Federal court records, including bankruptcy cases, are on PACER; searches cost 10 cents a page, capped at $3 a document, and fees are waived if you spend $30 or less in a quarter. State court cases are on each state’s or county’s court website.',
+        'When an owner files for bankruptcy, federal law automatically stops any act to enforce a lien against their property. That can halt a foreclosure or tax sale. Federal court records, including bankruptcy cases, are on PACER. Searches cost 10 cents a page, capped at $3 a document. Fees are waived if you spend $30 or less in a quarter. State court cases are on each state’s or county’s court website.',
         { links: [
           { label: 'PACER', url: 'https://pacer.uscourts.gov/', what: 'Federal court and bankruptcy records.' },
           { label: 'PACER Case Locator', url: 'https://pcl.uscourts.gov/', what: 'Search for a person’s or company’s federal cases nationwide.' },
@@ -96,7 +96,7 @@ export const tools: Lesson = {
           'Check for a bankruptcy if a sale is coming up.',
           'Order a title search from a title company before you commit money.',
         ] },
-        'Keep notes and copies in one place; My deals can track them.',
+        'Keep notes and copies in one place. My deals can track them.',
       ],
     },
   ],

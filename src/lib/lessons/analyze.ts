@@ -3,7 +3,7 @@ import type { Lesson } from './types';
 export const analyze: Lesson = {
   key: 'analyze',
   minutes: 9,
-  intro: 'A deal is made or lost on the numbers and the paperwork. This lesson walks through what a property is worth, what it will cost you, what it can earn, and what to check before you commit.',
+  intro: 'A deal is made or lost on the numbers and the paperwork. This lesson shows you what a property is worth and what it will cost you. It also covers what it can earn and what to check before you commit.',
   takeaways: [
     'How value is set: comparable sales, appraisals and income.',
     'The costs buyers forget: closing, holding, repairs and selling.',
@@ -14,11 +14,11 @@ export const analyze: Lesson = {
     {
       heading: 'Start with value',
       blocks: [
-        'An appraisal is a written opinion of what a property is worth. For a home, appraisers compare it with similar homes that sold nearby: Fannie Mae requires at least three closed comparable sales, usually from the last 12 months. You can do a rough version yourself with recent sold prices, as long as the homes really are similar in size, age, condition and location.',
-        'Your own estimate is only a starting point. Value depends on the neighborhood, recent comparable sales, the property’s condition and the market, and the only way to know what a property is worth is an appraisal by a state-licensed or certified appraiser. Until you have one, your real estate agent can estimate the value from recent comparable sales.',
-        'Upgrades don’t add their cost to the value. A remodel can make a home more appealing, but appraisers value a feature by what buyers in that market pay for it, not by what it cost: Fannie Mae requires adjustments to reflect the market’s reaction, not equipment and installation cost dollar for dollar. An improvement bigger or costlier than is typical for the neighborhood, like a pool where pools are rare, counts only for what it adds. Real estate agents estimated in 2025 that a complete kitchen renovation recovers about 60% of its cost at resale, and a bathroom renovation about 50%.',
+        'An appraisal is a written opinion of what a property is worth. For a home, appraisers compare it with similar homes that sold nearby. Fannie Mae requires at least three closed comparable sales, usually from the last 12 months. You can do a rough version yourself with recent sold prices. It only works if the homes really are similar in size, age, condition and location.',
+        'Your own estimate is only a starting point. Value depends on the neighborhood, recent comparable sales, the property’s condition and the market. The only way to know what a property is worth is an appraisal by a state-licensed or certified appraiser. Until you have one, your real estate agent can estimate the value from recent comparable sales.',
+        'Upgrades don’t add their cost to the value. A remodel can make a home more appealing. But appraisers value a feature by what buyers in that market pay for it, not by what it cost. Fannie Mae says adjustments must reflect how the market reacts, not the cost of equipment and installation dollar for dollar. Some improvements are bigger or cost more than is typical for the neighborhood, like a pool where pools are rare. Those count only for what they add. Real estate agents estimated in 2025 that a complete kitchen renovation gets back about 60% of its cost at resale. For a bathroom renovation, they estimated about 50%.',
         { links: [{ label: 'Appraisers', url: '#/pros/appraiser', what: 'What they do, when to hire one and how to check a license.' }, { label: 'Real estate agents', url: '#/pros/agent', what: 'How an agent helps you estimate value and make an offer.' }] },
-        'Investors who plan to fix a property estimate its value after the work is done, often called the after-repair value (ARV). That number is only as good as the comparable sales behind it, so use sold prices of homes already in that finished condition, not asking prices.',
+        'Investors who plan to fix a property estimate its value after the work is done. This is often called the after-repair value (ARV). That number is only as good as the comparable sales behind it. So use sold prices of homes already in that finished condition, not asking prices.',
         'For income property, value comes from the income, as in lesson 1: net operating income divided by the cap rate buyers expect.',
       ],
     },
@@ -26,9 +26,9 @@ export const analyze: Lesson = {
       heading: 'Count every cost',
       blocks: [
         { list: [
-          'Buying: closing costs typically run 2% to 5% of the price for a home buyer, not counting the down payment. Forced sales can add their own costs, like auction deposits or fees.',
+          'Buying: closing costs usually run 2% to 5% of the price for a home buyer, not counting the down payment. Forced sales can add their own costs, like auction deposits or fees.',
           'Repairs: get a contractor’s estimate, and add a cushion for what you can’t see.',
-          'Holding: loan payments, property taxes, insurance, HOA dues, utilities and upkeep for every month you own it, including months it’s empty.',
+          'Holding: loan payments, property taxes, insurance, HOA dues, utilities and upkeep. Count each month you own it, even months it’s empty.',
           'Operating (for a rental): taxes, insurance, HOA dues, repairs and maintenance, vacancy, and property management if you hire it.',
           'Selling: agent commissions, closing costs and any concessions to the buyer.',
         ] },
@@ -41,21 +41,21 @@ export const analyze: Lesson = {
           table: {
             head: ['Measure', 'How to figure it', 'What it tells you'],
             rows: [
-              ['Net operating income (NOI)', 'Gross rent, minus vacancy and credit loss, minus operating expenses. Loan payments and depreciation are left out.', 'What the property earns on its own, whoever owns it or however it’s financed.'],
-              ['Cash flow', 'NOI, minus reserves you set aside for big replacements like the roof and HVAC, minus the loan payment (debt service).', 'What you actually keep each month or year.'],
+              ['Net operating income (NOI)', 'Gross rent, minus vacancy and credit loss, minus operating expenses. Leave out loan payments and depreciation.', 'What the property earns on its own, no matter who owns it or how it’s paid for.'],
+              ['Cash flow', 'NOI, minus reserves you set aside for big replacements like the roof and HVAC, minus the loan payment (debt service).', 'What you really keep each month or year.'],
               ['Cap rate', 'NOI ÷ price (or value).', 'The return before financing. Compare with similar properties nearby.'],
               ['Cash-on-cash return', 'A year’s cash flow before taxes ÷ all the cash you put in (down payment, closing costs, repairs).', 'The return on your own money, after the loan.'],
               ['Gross rent multiplier (GRM)', 'Price ÷ gross yearly rent.', 'A quick screen: lower usually means more rent for the price. It ignores expenses.'],
             ],
           },
         },
-        'Example: a rental costs $300,000 and rents for $2,400 a month ($28,800 a year). With 5% vacancy ($1,440) and $9,000 of yearly expenses, NOI is $18,360, a 6.1% cap rate. If you set aside $1,400 a year for big replacements and the loan payments are $14,000 a year, cash flow is $2,960. If you put in $80,000 in cash, the cash-on-cash return is about 3.7%. The GRM is about 10.4.',
+        'Example: a rental costs $300,000 and rents for $2,400 a month ($28,800 a year). Vacancy is 5% ($1,440), and yearly expenses are $9,000. That makes NOI $18,360, a 6.1% cap rate. Say you set aside $1,400 a year for big replacements, and the loan payments are $14,000 a year. Then cash flow is $2,960. If you put in $80,000 in cash, the cash-on-cash return is about 3.7%. The GRM is about 10.4.',
       ],
     },
     {
       heading: 'Rules of thumb, and their limits',
       blocks: [
-        'Flippers often quote a “70% rule”: offer no more than 70% of the after-repair value, minus repairs. It’s an informal shortcut, not a standard, and it doesn’t fit every market or price range. Use it to screen deals, then run your own numbers with real costs. For auctions, set your maximum bid before the sale and don’t go past it.',
+        'Flippers often quote a “70% rule”: offer no more than 70% of the after-repair value, minus repairs. It’s an informal shortcut, not a standard. It doesn’t fit every market or price range. Use it to screen deals, then run your own numbers with real costs. For auctions, set your top bid before the sale and don’t go past it.',
       ],
     },
     {
@@ -63,8 +63,8 @@ export const analyze: Lesson = {
       blocks: [
         { list: [
           'Title: a title search shows who owns the property and what liens are recorded. Owner’s title insurance protects you if someone later claims an interest from before you bought it. Lenders usually require their own policy.',
-          'Condition: a home inspection is different from an appraisal, and you generally need both. At an auction you often can’t go inside, so look from the street and budget for surprises.',
-          'Lead paint: for homes built before 1978, sellers must give buyers a lead hazard pamphlet and a 10-day chance to test for lead-based paint, which buyers can waive.',
+          'Condition: a home inspection is not the same as an appraisal, and you usually need both. At an auction you often can’t go inside, so look from the street and budget for surprises.',
+          'Lead paint: for homes built before 1978, sellers must give buyers a lead hazard pamphlet. Sellers must also give buyers a 10-day chance to test for lead-based paint. Buyers can waive that chance.',
           'Flood risk: check the property on FEMA’s Flood Map Service Center, the official source for flood zones.',
           'Taxes: look up the property tax bill and any unpaid taxes with the county assessor and treasurer.',
         ] },
@@ -80,29 +80,29 @@ export const analyze: Lesson = {
               [
                 'Seller’s disclosure',
                 'At least 10 days before a home is conveyed, the seller must complete and deliver a disclosure form (NRS 113.130). Sellers don’t have to disclose defects they don’t know about. If it comes late, the buyer can cancel before closing without penalty.',
-                'The seller delivers a Transfer Disclosure Statement as soon as practicable before title transfers (Civil Code 1102.3). If it arrives after the offer is signed, the buyer has 3 days after hand delivery, or 5 days by mail or electronically, to cancel.',
-                'State law requires specific disclosures, for example soil remediation the owner knows about (A.R.S. 33-434.01), and for unsubdivided land outside cities, an affidavit of disclosure at least 7 days before transfer, with 5 days to cancel (A.R.S. 33-422). Ask your agent which disclosure form your contract uses.',
-                'The state-approved purchase contract has the seller give a written property condition disclosure by the Seller Disclosure Deadline, and the buyer can cancel by the Due Diligence Deadline. Sellers must disclose methamphetamine contamination they know about (Utah Code 57-27-201).',
+                'The seller delivers a Transfer Disclosure Statement as soon as practicable before title transfers (Civil Code 1102.3). It may arrive after the offer is signed. Then the buyer has 3 days to cancel after hand delivery, or 5 days if it came by mail or electronically.',
+                'State law requires certain disclosures. One example is soil remediation the owner knows about (A.R.S. 33-434.01). State law also requires an affidavit of disclosure for unsubdivided land outside cities. It’s due at least 7 days before transfer, with 5 days to cancel (A.R.S. 33-422). Ask your agent which disclosure form your contract uses.',
+                'The state-approved purchase contract has the seller give a written property condition disclosure by the Seller Disclosure Deadline. The buyer can cancel by the Due Diligence Deadline. Sellers must disclose methamphetamine contamination they know about (Utah Code 57-27-201).',
               ],
               [
                 'HOA documents',
-                'The owner provides a resale package (governing documents, dues, budget, reserves, lawsuits, fees). The buyer can cancel in writing until midnight of the fifth day after receiving it (NRS 116.4109).',
-                'The owner provides governing documents, financial and reserve disclosures, assessments, violation notices and rental limits before transfer (Civil Code 4525).',
-                'The association delivers its documents (rules, budget, reserves, insurance, lawsuits) within 10 days after notice of a pending offer, or after the offer is accepted in smaller communities. Its fee is capped at $400, plus up to $100 for a rush (A.R.S. 33-1260 and 33-1806).',
+                'The owner gives a resale package (governing documents, dues, budget, reserves, lawsuits, fees). The buyer can cancel in writing until midnight of the fifth day after receiving it (NRS 116.4109).',
+                'The owner gives governing documents, financial and reserve disclosures, assessments, violation notices and rental limits before transfer (Civil Code 4525).',
+                'The association delivers its documents (rules, budget, reserves, insurance, lawsuits) within 10 days. The 10 days start after notice of a pending offer. In smaller communities, they start after the offer is accepted. Its fee can’t be more than $400, plus up to $100 for a rush (A.R.S. 33-1260 and 33-1806).',
                 'Before closing, the seller gives the buyer the association’s recorded governing documents (Utah Code 57-8a-105.1 and 57-8-6.1). A payoff fee can’t exceed $50.',
               ],
               [
                 'Forced sales',
                 'Auctions and bank sales usually come as-is. Check each guide for what applies.',
                 'Foreclosure sales, court-ordered sales and many resales by the foreclosing lender are exempt from the Transfer Disclosure Statement (Civil Code 1102.2).',
-                'Auctions and bank sales usually come as-is; read the sale’s terms.',
-                'Auctions and bank sales usually come as-is; read the sale’s terms.',
+                'Auctions and bank sales usually come as-is. Read the sale’s terms.',
+                'Auctions and bank sales usually come as-is. Read the sale’s terms.',
               ],
             ],
           },
         },
-        'In Arizona, sellers and agents can’t be sued for not disclosing that a home was the site of a death or felony, was lived in by someone with HIV, or is near a sex offender (A.R.S. 32-2156).',
-        'In Utah, sellers and their agents aren’t liable for not disclosing that a home was the site of a homicide, suicide or other felony, or was lived in by someone with HIV (Utah Code 57-1-37).',
+        'In Arizona, sellers and agents can’t be sued for not disclosing certain facts (A.R.S. 32-2156). These facts are that a home was the site of a death or felony, or was lived in by someone with HIV. They also include that a home is near a sex offender.',
+        'In Utah, sellers and their agents aren’t liable for not disclosing certain facts (Utah Code 57-1-37). These facts are that a home was the site of a homicide, suicide or other felony. They also include that a home was lived in by someone with HIV.',
       ],
     },
   ],
