@@ -138,7 +138,7 @@
       "src/practice/scenarios.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "7a235ea21b5b469f",
+    "hash": "b32b87d23572ac8f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -155,7 +155,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "54716f3c65576c2e",
+    "hash": "9cff834cb05d9cc4",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -195,7 +195,7 @@
       "src/components/StoryList.tsx"
     ],
     "reviewed": "2026-10-03",
-    "hash": "c168d695594496d9",
+    "hash": "023cc0f12e0c33dc",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -337,7 +337,7 @@
       "src/lib/lessons/propertyWhy.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "26369c1fa490c37e",
+    "hash": "6abf8c40f40191c1",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -386,7 +386,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "a3ab943186de4cb3",
+    "hash": "5a26e3e01ea0b66e",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]
