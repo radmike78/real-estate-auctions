@@ -16,6 +16,7 @@ export const analyze: Lesson = {
       blocks: [
         'An appraisal is a written opinion of what a property is worth. For a home, appraisers compare it with similar homes that sold nearby: Fannie Mae requires at least three closed comparable sales, usually from the last 12 months. You can do a rough version yourself with recent sold prices, as long as the homes really are similar in size, age, condition and location.',
         'Your own estimate is only a starting point. Value depends on the neighborhood, recent comparable sales, the property’s condition and the market, and the only way to know what a property is worth is an appraisal by a state-licensed or certified appraiser. Until you have one, your real estate agent can estimate the value from recent comparable sales.',
+        'Upgrades don’t add their cost to the value. A remodel can make a home more appealing, but appraisers value a feature by what buyers in that market pay for it, not by what it cost: Fannie Mae requires adjustments to reflect the market’s reaction, not equipment and installation cost dollar for dollar. An improvement bigger or costlier than is typical for the neighborhood, like a pool where pools are rare, counts only for what it adds. Real estate agents estimated in 2025 that a complete kitchen renovation recovers about 60% of its cost at resale, and a bathroom renovation about 50%.',
         { links: [{ label: 'Appraisers', url: '#/pros/appraiser', what: 'What they do, when to hire one and how to check a license.' }, { label: 'Real estate agents', url: '#/pros/agent', what: 'How an agent helps you estimate value and make an offer.' }] },
         'Investors who plan to fix a property estimate its value after the work is done, often called the after-repair value (ARV). That number is only as good as the comparable sales behind it, so use sold prices of homes already in that finished condition, not asking prices.',
         'For income property, value comes from the income, as in lesson 1: net operating income divided by the cap rate buyers expect.',
@@ -117,6 +118,10 @@ export const analyze: Lesson = {
   sources: [
     { label: 'CFPB: what are appraisals and why do I need to look at them?', url: 'https://www.consumerfinance.gov/ask-cfpb/what-are-appraisals-and-why-do-i-need-to-look-at-them-en-167/' },
     { label: 'Fannie Mae Selling Guide: comparable sales (B4-1.3-08)', url: 'https://selling-guide.fanniemae.com/sel/b4-1.3-08/comparable-sales' },
+    { label: 'Fannie Mae Selling Guide: adjustments to comparable sales (B4-1.3-09)', url: 'https://selling-guide.fanniemae.com/sel/b4-1.3-09/adjustments-comparable-sales' },
+    { label: 'Fannie Mae Selling Guide: over-improvements (B4-1.3-03)', url: 'https://selling-guide.fanniemae.com/sel/b4-1.3-03/neighborhood-section-appraisal-report' },
+    { label: 'Fannie Mae Selling Guide: improvements section of the appraisal report (B4-1.3-05)', url: 'https://selling-guide.fanniemae.com/sel/b4-1.3-05/improvements-section-appraisal-report' },
+    { label: 'NAR: 2025 Remodeling Impact Report', url: 'https://cms.nar.realtor/sites/default/files/2025-04/2025-remodeling-impact-report_04-09-2025.pdf' },
     { label: 'University of San Diego: how to analyze real estate investments', url: 'https://pce.sandiego.edu/real-estate-investment-property-analysis/' },
     { label: 'NYU Stern (Damodaran): estimating value with cap rates', url: 'https://pages.stern.nyu.edu/~adamodar/New_Home_Page/articles/caprate.htm' },
     { label: 'CFPB: figure out how much you want to spend', url: 'https://www.consumerfinance.gov/owning-a-home/prepare/figure-out-how-much-you-want-to-spend/' },
