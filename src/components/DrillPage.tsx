@@ -59,8 +59,9 @@ export function DrillList() {
   const saved = load();
   const [mine] = useMyState();
   const groups: { key: string; title: string; drills: Drill[] }[] = [
-    ...[...(mine ? [mine] : []), ...Object.keys(STATE_NAMES).filter((k) => k !== mine)].map((st) => ({ key: st, title: STATE_NAMES[st], drills: DRILLS.filter((d) => !d.commercial && drillState(d) === st) })),
-    { key: 'any', title: 'Any state', drills: DRILLS.filter((d) => !d.commercial && drillState(d) === null) },
+    ...[...(mine ? [mine] : []), ...Object.keys(STATE_NAMES).filter((k) => k !== mine)].map((st) => ({ key: st, title: STATE_NAMES[st], drills: DRILLS.filter((d) => !d.commercial && !d.flipBrrrr && drillState(d) === st) })),
+    { key: 'any', title: 'Any state', drills: DRILLS.filter((d) => !d.commercial && !d.flipBrrrr && drillState(d) === null) },
+    { key: 'flip-brrrr', title: 'Flips and BRRRR', drills: DRILLS.filter((d) => d.flipBrrrr) },
     { key: 'commercial', title: 'Commercial property', drills: DRILLS.filter((d) => d.commercial) },
   ];
   return (

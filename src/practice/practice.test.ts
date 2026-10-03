@@ -227,3 +227,13 @@ describe('commercial drills', () => {
     for (const d of com) expect(/Nevada|California|Arizona|Utah/.test(`${d.title} ${d.where}`), d.id).toBe(false);
   });
 });
+
+describe('flip and BRRRR drills', () => {
+  it('has at least two of each, all in their own group and not tied to a state', async () => {
+    const { DRILLS } = await import('./drills');
+    const fb = DRILLS.filter((d) => d.flipBrrrr);
+    expect(fb.filter((d) => d.id.startsWith('flip')).length).toBeGreaterThanOrEqual(2);
+    expect(fb.filter((d) => d.id.startsWith('brrrr')).length).toBeGreaterThanOrEqual(2);
+    for (const d of fb) expect(d.commercial, d.id).toBeFalsy();
+  });
+});
