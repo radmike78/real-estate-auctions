@@ -22,6 +22,7 @@ export const FIRST_DEAL: RoadmapStep[] = [
   { id: 'paper', text: 'Analyze ten real listings on paper with the calculators.', href: '#/analyze' },
   { id: 'walk', text: 'Know when to walk away: set your maximum price before you look.', href: '#/analyze' },
   { id: 'tour', text: 'Tour properties and have a licensed inspector check the one you want.', href: '#/pros/inspector' },
+  { id: 'appraise', text: 'Have a licensed appraiser value it. Your agent can estimate the value from comparable sales until then.', href: '#/pros/appraiser' },
   { id: 'offer', text: 'Make your first offer or bid, at or below your maximum.', href: '#/learn/negotiate' },
   { id: 'diligence', text: 'Do your due diligence: title, liens, permits, insurance and occupants.', href: '#/learn/tools' },
   { id: 'close', text: 'Close through a title or escrow company, and keep every document.', href: '#/pros/title' },
@@ -111,6 +112,7 @@ export const TOOLKIT: { group: string; items: { label: string; href: string; wha
       { label: 'Questions for a contractor', href: '#/pros/contractor', what: 'Licenses, bids, insurance and what went wrong for others.' },
       { label: 'Questions for a property manager', href: '#/pros/property_manager', what: 'Fees, screening, reports and the management agreement.' },
       { label: 'Questions for an inspector', href: '#/pros/inspector', what: 'What an inspection covers and what it misses.' },
+      { label: 'Questions for an appraiser', href: '#/pros/appraiser', what: 'The only way to know what a property is worth.' },
     ],
   },
 ];

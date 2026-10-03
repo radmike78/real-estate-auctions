@@ -543,6 +543,20 @@ export const PRO_WHY = {
       }
     ]
   },
+  appraiser: {
+    yes: [
+      { who: "Investor setting a maximum bid", text: "An appraiser gives a written opinion of value. Ask for two numbers: the value as it stands today (\"as is\") and the value after repairs. Then set your top bid so the deal still works after repair costs." },
+      { who: "Cash buyer with no lender", text: "If you pay cash, no lender checks the price for you. Hiring your own state-licensed or certified appraiser gives you an independent second look before you commit your money.", example: "In a scheme run from Utah, beginner investors bought West Virginia homes using false appraisals that about doubled their value. One home appraised at $645,000 had been under contract for $355,000. It later sold in a short sale (a sale for less than the loan balance) for $282,500.", source: { label: "U.S. Attorney, S.D. West Virginia (2012)", url: "https://www.justice.gov/archive/usao/wvs/press_releases/Nov2012/attachments/110512Morris-sentencing.html" } },
+      { who: "Investor planning to refinance", text: "When you refinance, your lender may order a new appraisal and may charge you a reasonable fee for it. That appraised value helps decide how much you can borrow, so plan your numbers around a realistic value.", source: { label: "CFPB: What are appraisals?", url: "https://www.consumerfinance.gov/ask-cfpb/what-are-appraisals-and-why-do-i-need-to-look-at-them-en-167/" } },
+      { who: "Any buyer using a first mortgage on a home", text: "Federal law (the Equal Credit Opportunity Act, Regulation B) says your lender must give you a free copy of every appraisal, right after it’s finished or at least three business days before closing, whichever comes first.", source: { label: "CFPB: Regulation B § 1002.14", url: "https://www.consumerfinance.gov/rules-policy/regulations/1002/14/" } },
+    ],
+    no: [
+      { who: "Auction buyer who can’t go inside", text: "At many foreclosure and tax sales you can’t get inside before you bid. An appraiser then has to work from the outside and public records, so hidden damage won’t show up in the value. Treat that number as rough and keep a big repair cushion." },
+      { who: "Buyer getting a Fannie Mae-backed mortgage", text: "Don’t pay for your own appraisal expecting the lender to use it. Fannie Mae says lenders choose the appraiser and may not use appraisals ordered by borrowers or others with an interest in the deal. Yours can still help you decide what to offer.", source: { label: "Fannie Mae Selling Guide B4-1.1-03", url: "https://selling-guide.fanniemae.com/sel/b4-1.1-03/appraiser-selection-criteria" } },
+      { who: "Anyone treating the number as a fact", text: "An appraisal is an opinion of value on a certain date. It can be wrong or even biased. You can ask the lender to reconsider the value and point out errors or better comparable sales, but each lender’s process is different.", example: "A Baltimore couple said their home appraised at $472,000 while family photos were up. A second appraisal, after they took the photos down, came in at $750,000.", source: { label: "CFPB blog (Mar. 13, 2023)", url: "https://www.consumerfinance.gov/about-us/blog/protecting-homeowners-from-discriminatory-home-appraisals/" } },
+      { who: "Flipper selling within six months", text: "If your buyer gets a higher-priced mortgage and you bought the home less than six months ago, the buyer’s lender may need a second appraisal with an inside inspection. That applies when the price is more than 10% higher within 90 days, or more than 20% higher within 91 to 180 days.", source: { label: "CFPB: Flipped homes and second appraisals", url: "https://www.consumerfinance.gov/ask-cfpb/i-was-told-im-buying-a-home-that-was-flipped-and-that-i-have-to-get-a-second-appraisal-how-does-that-work-en-1799/" } },
+    ],
+  },
   environmental: {
     yes: [
       {
