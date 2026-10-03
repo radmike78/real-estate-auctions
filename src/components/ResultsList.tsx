@@ -76,7 +76,8 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
               <dl className="card-stats">
                 <div className="key big">
                   <dt>{p.sale?.saleType === 'REO' ? 'List price' : 'Min. bid'}</dt>
-                  <dd>{fmtMoney(m.minimumBid)}</dd>
+                  {/* A seven-figure price takes a smaller size so it doesn't run into the auction date. */}
+                  <dd className={fmtMoney(m.minimumBid).length > 9 ? 'long' : undefined}>{fmtMoney(m.minimumBid)}</dd>
                 </div>
                 <div className="key">
                   <dt>Auction</dt>
@@ -90,8 +91,12 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
                   <dd>{fmtMoney(p.estimatedMarketValue)}</dd>
                 </div>
                 <div>
-                  <dt title="Estimated value minus the minimum bid and likely surviving liens. Leaves out uncertain liens, repairs and costs.">Spread before costs</dt>
-                  <dd className={m.estimatedEquity === null ? '' : m.estimatedEquity < 0 ? 'neg' : 'pos'}>{fmtMoney(m.estimatedEquity)}</dd>
+                  <dt>Spread before costs</dt>
+                  {/* Plain ink, not "profit" green: this is before repairs, costs and uncertain liens. */}
+                  <dd className={m.estimatedEquity !== null && m.estimatedEquity < 0 ? 'neg' : ''}>
+                    {fmtMoney(m.estimatedEquity)}
+                    <span className="card-days">not profit</span>
+                  </dd>
                 </div>
               </dl>
               {m.likelySurviving > 0 && p.sale && (

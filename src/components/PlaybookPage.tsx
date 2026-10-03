@@ -7,7 +7,22 @@ import { SALE_ORDER } from '../practice/scenarios';
 
 const PRACTICE_SALES = new Set<string>(SALE_ORDER);
 import TeamList from './TeamList';
-import { IconBadge, IconCheckList, IconFile, IconFlag, IconLayers, IconSteps } from './Icons';
+import { IconBadge, IconBank, IconBuilding, IconCheckList, IconFile, IconFlag, IconGavel, IconHomeDown, IconHouses, IconLayers, IconPercent, IconReceipt, IconSteps } from './Icons';
+
+/** An icon for each kind of sale ("catax" and "tax" are both tax sales), so the guide cards differ at a glance. */
+function saleIcon(key: string) {
+  const kind = key.replace(/^(ca|az|ut)(?=[a-z]{3})/, '');
+  if (kind === 'taxlien' || kind === 'sid') return <IconPercent />;
+  if (kind === 'tax') return <IconReceipt />;
+  if (kind === 'foreclosure') return <IconGavel />;
+  if (kind === 'hoa') return <IconHouses />;
+  if (kind === 'sheriff') return <IconBadge />;
+  if (kind === 'irs') return <IconFlag />;
+  if (kind === 'reo') return <IconBank />;
+  if (kind === 'commercial') return <IconBuilding />;
+  if (kind === 'short') return <IconHomeDown />;
+  return <IconCheckList />;
+}
 import { guidesFor, playbookByKey, stateOf, type Playbook } from '../lib/playbooks';
 import StatePicker from './StatePicker';
 import { useMyState } from '../lib/myState';
@@ -112,7 +127,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
           <section key={g.code} aria-label={`${g.name} guides`}>
             {!st && <h2 className="section-title">{g.name}{g.code === 'NV' ? ' (Clark County)' : ''}</h2>}
             <div className="drill-tiles">
-              {guidesFor(g.code).map((x) => <Tile key={x.key} href={`#/playbooks/${x.key}`} icon={<IconCheckList />} title={x.short} summary={x.oneLine} />)}
+              {guidesFor(g.code).map((x) => <Tile key={x.key} href={`#/playbooks/${x.key}`} icon={saleIcon(x.key)} title={x.short} summary={x.oneLine} />)}
             </div>
           </section>
         ))}

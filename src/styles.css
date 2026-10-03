@@ -1049,8 +1049,8 @@ small { font-size: 0.95rem; }
 @media (max-width: 900px) { .email-admin-grid { grid-template-columns: 1fr; } .email-kpis { grid-template-columns: 1fr 1fr !important; } }
 
 /* ---------- Practice mode: fictional properties for hands-on learning ---------- */
-.practice-ribbon { background: var(--wait-bg); border: 2px dashed var(--wait); border-radius: 10px; padding: 12px 16px; margin: 0 0 18px; }
-.practice-ribbon strong { color: var(--wait); }
+.practice-ribbon { border-left: 4px solid var(--accent); padding: 2px 0 2px 14px; margin: 0 0 18px; color: var(--muted); }
+.practice-ribbon strong { color: var(--text); }
 .practice-tag { display: inline-block; background: var(--wait); color: #1a1205; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; font-size: 0.85rem; padding: 4px 10px; border-radius: 999px; }
 .practice-filter { justify-content: space-between; margin: 8px 0 20px; }
 .practice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(190px, 100%), 1fr)); gap: 12px; }
@@ -1393,6 +1393,7 @@ html { scroll-padding-top: 88px; }
 .card-stats dt { white-space: normal; overflow: visible; text-overflow: clip; }
 .card-stats .card-days { display: block; font-family: inherit; font-size: 0.95rem; font-weight: 500; color: var(--muted); }
 .card-stats .key.big dd { font-size: 1.45rem; }
+.card-stats .key.big dd.long { font-size: 1.15rem; }
 /* Totals never split a number across lines: the label wraps instead, and the number keeps its full width. */
 .calc-kv dd { overflow-wrap: normal; white-space: nowrap; flex: none; }
 .calc-kv dt { flex: 1 1 auto; }
@@ -1794,7 +1795,7 @@ h1, h2 { letter-spacing: -0.03em; }
 .lookup-box select option { color: var(--text); background: var(--surface); }
 
 /* Practice notice: sentences run the full width of the box */
-.practice-ribbon p { max-width: none; }
+.practice-ribbon, .practice-ribbon p { max-width: none; }
 
 /* No orange: notices and practice labels use the owl blue. Amber stays on small status chips
    (postponed, needs review, estimate) and the yellow Practice mode box, which the owner likes. */
@@ -2309,3 +2310,11 @@ h1, h2 { letter-spacing: -0.03em; }
 @media (max-width: 1000px) { .lesson-body-text ul.lesson-links { --cols: 2; } .lesson-body-text ul.lesson-links:has(> :nth-child(1):last-child) { --cols: 1; } }
 @media (max-width: 640px) { .lesson-body-text ul.lesson-links, .lesson-body-text ul.lesson-links:has(> li) { --cols: 1; } }
 .page section > h2 { scroll-margin-top: 84px; }
+/* Between the phone menu and a wide screen, tighten the header so all the main links fit on one line. */
+@media (min-width: 901px) and (max-width: 1100px) {
+  .site-header { gap: 12px; padding-left: 16px; padding-right: 16px; }
+  .site-nav { gap: 0; }
+  .site-nav > a, .more summary { padding: 8px 8px; font-size: 0.92rem; }
+  .site-nav > a.nav-cta { margin-left: 4px; }
+}
+@media (min-width: 901px) and (max-width: 1010px) { .site-header .logo > span { display: none; } }

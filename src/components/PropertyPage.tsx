@@ -429,7 +429,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             <div className="key"><dt>{priceLabel}</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
             <div><dt>Est. market value</dt><dd>{notChecked(p.estimatedMarketValue, 'Your comps')}</dd></div>
             <div><dt>Liens likely {s ? 'surviving' : 'remaining'}</dt><dd className={money.likelySurviving ? 'caution' : ''}>{p.liensChecked === false ? <span className="muted">Not searched</span> : fmtMoney(money.likelySurviving)}</dd></div>
-            <div><dt>Spread before costs</dt><dd className={money.estimatedEquity === null ? '' : money.estimatedEquity < 0 ? 'neg' : 'pos'}>{notChecked(money.estimatedEquity, 'Needs your numbers')}</dd></div>
+            <div><dt>Spread before costs</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : ''}>{notChecked(money.estimatedEquity, 'Needs your numbers')}</dd></div>
           </dl>
         )}
       </PageHero>
