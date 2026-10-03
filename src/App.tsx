@@ -32,6 +32,8 @@ import FindDealsPage from './components/FindDealsPage';
 import AnalyzePage from './components/AnalyzePage';
 import PracticePage from './components/PracticePage';
 import PracticeScenarioPage from './components/PracticeScenarioPage';
+import DrillPage from './components/DrillPage';
+import ToolkitPage from './components/ToolkitPage';
 import PlaybookPage from './components/PlaybookPage';
 import DealsPage from './components/DealsPage';
 import HomeownerHelpPage from './components/HomeownerHelpPage';
@@ -82,6 +84,8 @@ type Route =
   | { page: 'playbook'; key?: string; section?: string }
   | { page: 'practice'; sale?: string }
   | { page: 'practiceRun'; id: string; stage?: string }
+  | { page: 'drill'; id: string }
+  | { page: 'toolkit'; section?: string }
   | { page: 'notFound' };
 
 function hashPath(): string {
@@ -152,6 +156,10 @@ function parseHash(): Route {
     const sale = params.get('sale') ?? undefined;
     return { page: 'practice', sale: sale && /^[a-z]{2,12}$/.test(sale) ? sale : undefined };
   }
+  const tk = h.match(/^toolkit(?:\/(buy-box))?$/);
+  if (tk) return { page: 'toolkit', section: tk[1] };
+  const drill = h.match(/^practice\/drills\/([a-z0-9-]{2,40})$/);
+  if (drill) return { page: 'drill', id: drill[1] };
   const pr = h.match(/^practice\/([a-z]{2,12}-[a-z-]{2,30})(?:\/([a-z]{2,20}))?$/);
   if (pr) return { page: 'practiceRun', id: pr[1], stage: pr[2] };
   const pb = h.match(/^playbooks(?:\/([a-z]+)(?:\/([a-z-]+))?)?$/);
@@ -249,6 +257,8 @@ export default function App() {
       {route.page === 'guides' && <GuidesPage key={`${nav}|${route.q}`} initialQuery={route.q} />}
       {route.page === 'alerts' && <AlertsPage key={`${route.mode}${route.token}${route.add ?? ''}`} mode={route.mode} token={route.token} welcome={route.welcome} add={route.add} />}
       {route.page === 'practice' && <PracticePage key={route.sale ?? ''} sale={route.sale} />}
+      {route.page === 'toolkit' && <ToolkitPage section={route.section} />}
+      {route.page === 'drill' && <DrillPage key={route.id} id={route.id} />}
       {route.page === 'practiceRun' && <PracticeScenarioPage key={route.id} id={route.id} stageKey={route.stage} />}
       {route.page === 'playbook' && <PlaybookPage key={route.key ?? ''} playbook={route.key} section={route.section} />}
       {route.page === 'advertiser' && <AdvertiserPage key={route.token ?? ''} token={route.token} />}

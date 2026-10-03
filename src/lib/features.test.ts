@@ -502,3 +502,15 @@ describe('seminar red flags lesson', () => {
     for (const key of ['financing', 'creative', 'forced-sales']) expect(JSON.stringify(lessonByKey(key)), key).toMatch(/401\(k\)|retirement savings/);
   });
 });
+
+describe('walk-away and after-closing lessons', () => {
+  it('names one state on every state-specific line, so each visitor sees only their state', async () => {
+    const { lessonByKey } = await import('./lessons');
+    const { statesOf } = await import('./myState');
+    for (const key of ['walk-away', 'after-closing']) {
+      const l = lessonByKey(key)!;
+      const items = l.sections.flatMap((s) => s.blocks).flatMap((b) => (typeof b === 'string' ? [b] : 'list' in b ? b.list : 'table' in b ? b.table.rows.map((r) => r[0]) : []));
+      for (const t of items.filter((x) => /^(In )?(Nevada|California|Arizona|Utah)\b/.test(x))) expect(statesOf(t).length, t.slice(0, 60)).toBe(1);
+    }
+  });
+});

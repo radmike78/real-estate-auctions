@@ -5,8 +5,8 @@
     "files": [
       "src/components/HomePage.tsx"
     ],
-    "reviewed": "2026-09-29",
-    "hash": "88ccf5f43c9112f5",
+    "reviewed": "2026-10-03",
+    "hash": "0bb4f72b872293b2",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -133,10 +133,12 @@
     "files": [
       "src/components/PracticePage.tsx",
       "src/components/PracticeScenarioPage.tsx",
+      "src/components/DrillPage.tsx",
+      "src/practice/drills.ts",
       "src/practice/scenarios.ts"
     ],
-    "reviewed": "2026-09-29",
-    "hash": "03a432c60b8840c7",
+    "reviewed": "2026-10-03",
+    "hash": "2bdd9a5795afc191",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -311,6 +313,7 @@
       "src/components/ReadingPage.tsx",
       "src/lib/books.ts",
       "src/lib/learn.ts",
+      "src/lib/lessons/after-closing.ts",
       "src/lib/lessons/analyze.ts",
       "src/lib/lessons/creative.ts",
       "src/lib/lessons/financing.ts",
@@ -323,6 +326,7 @@
       "src/lib/lessons/types-of-property.ts",
       "src/lib/lessons/types.ts",
       "src/lib/lessons/who-invests.ts",
+      "src/lib/lessons/walk-away.ts",
       "src/components/PropertyTypePage.tsx",
       "src/components/StoryList.tsx",
       "src/components/WhyBlock.tsx",
@@ -331,7 +335,7 @@
       "src/lib/lessons/propertyWhy.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "458e7b68fbaa4d3b",
+    "hash": "b68da6fc1c1875c0",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -342,7 +346,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "9e40379f42a9f8dd",
+    "hash": "277d65edb32c5ea2",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -370,5 +374,16 @@
     "reviewed": "2026-09-29",
     "hash": "e549b483a7f09427",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
+  },
+  {
+    "id": "toolkit",
+    "title": "Investor toolkit",
+    "files": [
+      "src/components/ToolkitPage.tsx",
+      "src/lib/toolkit.ts"
+    ],
+    "reviewed": "2026-10-03",
+    "hash": "e55de0af3c6f7450",
+    "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

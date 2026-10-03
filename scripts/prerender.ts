@@ -87,6 +87,7 @@ export function pages(): Page[] {
     ['/practice/', 'Practice buying a property', 'Buy a fictional property step by step at a tax sale, foreclosure auction, bank-owned or short sale before you risk real money.'],
     ['/find-deals/', 'Find real estate deals', `Where to look for properties in each county of ${STATES}, starting with the official sellers.`],
     ['/analyze/', 'Analyze a real estate deal', 'Free calculators for a maximum bid, flips, rentals, tax lien certificates and commercial income, with what each number means.'],
+    ['/toolkit/', 'Free real estate investor toolkit', 'A first-deal roadmap from first idea to closing, a buy box builder, and free calculators, checklists and questions to ask your team.'],
     ['/learn/reading/', 'Recommended real estate investing books', 'Books worth reading for new investors, picked for plain, practical advice, with no get-rich-quick titles or seminar sales pitches.'],
     ['/homeowner-help/', 'Facing foreclosure? Free help', 'Free, trustworthy help for homeowners and renters facing foreclosure, scams to avoid, and how to claim surplus money after a sale.'],
   ];

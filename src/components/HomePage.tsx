@@ -1,6 +1,8 @@
 import StatePicker from './StatePicker';
 import { IconCheckList, IconShield, IconStar } from './Icons';
 import { PATH, useStepsSeen } from '../lib/path';
+import { FIRST_DEAL } from '../lib/toolkit';
+import { roadmapDone } from './ToolkitPage';
 
 // The homepage is the path: six steps from the first lesson to a first deal. Progress (steps opened) is kept only
 // in this browser.
@@ -8,6 +10,7 @@ export default function HomePage() {
   const seen = useStepsSeen();
   const next = PATH.find((s) => !seen.includes(s.key)) ?? PATH[0];
   const started = seen.length > 0;
+  const done = roadmapDone().length;
 
   return (
     <main className="home">
@@ -49,6 +52,11 @@ export default function HomePage() {
             );
           })}
         </ol>
+        <a className="roadmap-card" href="#/toolkit">
+          <strong>Your first deal: {done} of {FIRST_DEAL.length} steps</strong>
+          <span>A checklist from first idea to closing, plus a buy box to keep you focused.</span>
+          <span className="decide-bar" aria-hidden><span style={{ width: `${Math.round((done / FIRST_DEAL.length) * 100)}%` }} /></span>
+        </a>
         <ul className="browse-trust" aria-label="Why trust it">
           <li><IconStar /> Free to use, no sign-up</li>
           <li><IconShield /> Official sources first</li>

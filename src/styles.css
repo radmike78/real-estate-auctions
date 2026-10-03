@@ -2125,3 +2125,30 @@ h1, h2 { letter-spacing: -0.03em; }
 .deal-forgot label { display: flex; flex-direction: row; gap: 10px; align-items: flex-start; font-weight: 400; }
 .deal-forgot input[type='checkbox'] { width: 18px; height: 18px; flex: none; margin: 3px 0 0; }
 .deal-stress th { color: var(--text); }
+
+/* "Would you buy it?" drills */
+.drill-mission { margin-top: 18px; }
+.drill-mission fieldset { border: 0; padding: 0; margin: 0 0 12px; }
+.drill-mission legend { font-weight: 600; margin-bottom: 10px; }
+.decide-option.good { border-color: var(--go); background: var(--go-bg); }
+.decide-option.bad { border-color: var(--caution); background: var(--caution-bg); }
+.drill-why { display: block; margin-top: 6px; }
+.drill-feedback { padding: 10px 14px; border-radius: 8px; background: var(--info-bg); }
+.drill-feedback.good { background: var(--go-bg); }
+.drill-feedback.bad { background: var(--caution-bg); }
+.drill-lesson { padding: 10px 14px; border-left: 4px solid var(--accent-strong); background: var(--surface-2); border-radius: 6px; }
+.drill-estimate { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.drill-verdict { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+
+/* Investor toolkit */
+.roadmap-card { display: grid; gap: 6px; margin: 18px 0; padding: 16px 18px; border: 1px solid var(--border); border-left: 5px solid var(--accent-strong); border-radius: var(--radius); background: var(--surface); color: var(--text); text-decoration: none; }
+.roadmap-card:hover { border-color: var(--accent-strong); }
+.roadmap-card .decide-bar { display: block; height: 8px; }
+.buybox-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 16px; margin: 12px 0; }
+.buybox-checks { border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin: 12px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px 16px; }
+.buybox-checks legend { font-weight: 700; padding: 0 6px; }
+.buybox-checks label { display: flex; gap: 8px; align-items: flex-start; }
+.buybox-checks input { width: 18px; height: 18px; flex: none; margin-top: 3px; }
+.buybox-summary { margin-top: 14px; padding: 14px 16px; border-radius: 8px; background: var(--info-bg); }
+.buybox-summary h3 { margin-top: 0; }
+@media print { .site-header, .site-footer, .toolkit .page-hero, .toolkit section:not(#buy-box), .buybox-summary .decide-nav { display: none !important; } }

@@ -12,7 +12,7 @@ const PRIMARY = [
 ] as const;
 
 const MORE: { group: string; links: (readonly [string, string])[] }[] = [
-  { group: 'Tools', links: [['#/analyze', 'Analyze a deal'], ['#/deals', 'My deals']] },
+  { group: 'Tools', links: [['#/toolkit', 'Investor toolkit'], ['#/analyze', 'Analyze a deal'], ['#/deals', 'My deals']] },
   { group: 'Learn', links: [['#/playbooks', 'How each sale works'], ['#/guides', 'Search the guides']] },
   { group: 'Nevada deals', links: [['#/live', 'Live tax sales'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures'], ['#/pre-foreclosures', 'Pre-foreclosures (not for sale)']] },
   { group: 'Get help', links: [['#/financing', 'Financing'], ['#/homeowner-help', 'Homeowners: free help']] },
