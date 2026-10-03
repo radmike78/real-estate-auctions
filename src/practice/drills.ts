@@ -858,6 +858,114 @@ export const DRILLS: Drill[] = [
       expert: 'Investigate. If the owner redeems, you earn 6% plus recorded costs; if not, you can renovate only after 180 days. Price in the wait and the older liens.',
     },
   },
+  {
+    id: 'trustee-sale-az',
+    title: 'An Arizona trustee’s sale: are you ready by 5 p.m. tomorrow?',
+    teaser: 'An Arizona trustee is auctioning a house. You need $10,000 to bid and the rest by the next business day.',
+    where: 'A fictional house at a trustee’s sale in Arizona.',
+    facts: [
+      { label: 'Sale', value: 'Trustee’s sale, Arizona' },
+      { label: 'Loan being foreclosed', value: 'The first deed of trust' },
+      { label: 'Your maximum bid', value: '$300,000' },
+      { label: 'Your money', value: '$40,000 in savings and a hard-money lender who needs 10 days to fund' },
+    ],
+    missions: [
+      {
+        kind: 'pick',
+        id: 'pay',
+        title: 'Mission 1: Paying for it',
+        question: 'If you win at $300,000, when is the rest due?',
+        multi: false,
+        options: [
+          { label: 'By 5 p.m. Arizona time the next business day, after a $10,000 deposit to bid', good: true, why: 'Right (A.R.S. 33-810 and 33-811).' },
+          { label: 'Within 30 days, like a normal closing', good: false, why: 'No. Miss the next-day deadline and you lose the $10,000 deposit, may owe the trustee’s losses and fees, and can be barred from that trustee’s future sales.' },
+        ],
+        lesson: 'With a lender who needs 10 days, you can’t meet the deadline. Have cash or funding confirmed before you bid.',
+      },
+      {
+        kind: 'pick',
+        id: 'final',
+        title: 'Mission 2: After you pay',
+        question: 'What’s true once you’ve paid?',
+        multi: true,
+        options: [
+          { label: 'The sale is final: there’s no redemption', good: true, why: 'Right (A.R.S. 33-811).' },
+          { label: 'Liens older than the deed of trust stay with the house', good: true, why: 'Right. The sale clears junior liens, not senior ones. Order a title report before the sale.' },
+          { label: 'The trustee hands over the keys and removes any occupants', good: false, why: 'Occupants are yours to handle: a written demand, then a court eviction (forcible detainer) case if needed. Bona fide tenants generally get at least 90 days under federal law.' },
+        ],
+        lesson: 'The trustee submits your deed for recording within 7 business days after payment. Work only with the trustee; never contact the homeowner.',
+      },
+      {
+        kind: 'pick',
+        id: 'morning',
+        title: 'Mission 3: The day before',
+        question: 'Why call the trustee the day before and the morning of the sale?',
+        multi: false,
+        options: [
+          { label: 'The owner can reinstate the loan until 5 p.m. the last business day before, and the trustee can postpone the sale', good: true, why: 'Right (A.R.S. 33-813 and 33-810). Many sales don’t happen on the first date.' },
+          { label: 'To ask the trustee to hold the house for me', good: false, why: 'Trustees sell at public auction to the highest bidder.' },
+        ],
+        lesson: 'Confirm the sale is still on, the deposit amount and the payment forms the trustee accepts.',
+      },
+    ],
+    verdict: {
+      question: 'With funding that takes 10 days, do you bid?',
+      choices: [
+        { label: 'Buy', feedback: 'You’d likely miss the next-day deadline and lose your $10,000 deposit.' },
+        { label: 'Investigate', feedback: 'Fine for researching the house, but don’t bid until your money can arrive by 5 p.m. the next business day.' },
+        { label: 'Pass', feedback: 'Right for this sale. Line up cash or same-day funding before the next one.' },
+      ],
+      expert: 'Pass on this sale. Arizona trustee’s sales need $10,000 to bid and the balance the next business day, and the sale is final. Bid only when the money is ready and the title report is read.',
+    },
+  },
+  {
+    id: 'sheriff-sale-az',
+    title: 'An Arizona sheriff’s sale: 30 days or 6 months?',
+    teaser: 'An Arizona sheriff sells a house after a court foreclosure. How long you wait depends on what the court found.',
+    where: 'A fictional house at a sheriff’s sale in Arizona.',
+    facts: [
+      { label: 'Sale', value: 'Sheriff’s sale after a judicial foreclosure, Arizona' },
+      { label: 'Your bid', value: '$190,000' },
+      { label: 'Judgment', value: 'The court did not find the property abandoned' },
+      { label: 'Repairs needed', value: 'About $35,000' },
+    ],
+    missions: [
+      {
+        kind: 'pick',
+        id: 'wait',
+        title: 'Mission 1: How long is the redemption period?',
+        question: 'The court did not find the property abandoned. How long can the owner redeem?',
+        multi: false,
+        options: [
+          { label: '6 months, then junior creditors may redeem in turns', good: true, why: 'Right (A.R.S. 12-1282). It’s 30 days only if the court found the property abandoned.' },
+          { label: '30 days', good: false, why: 'That’s only when the court found the property abandoned.' },
+          { label: 'None: sheriff’s sales are final', good: false, why: 'You get a certificate of sale first, and a sheriff’s deed only after every redemption period ends.' },
+        ],
+        lesson: 'Read the judgment in the court case: it says what’s being sold and whether the court found the property abandoned.',
+      },
+      {
+        kind: 'pick',
+        id: 'redeemed',
+        title: 'Mission 2: If someone redeems',
+        question: 'The owner redeems after 5 months. What do you get?',
+        multi: false,
+        options: [
+          { label: 'My price plus 8%, plus taxes or assessments I paid, with interest', good: true, why: 'Right (A.R.S. 12-1285). Keep receipts for what you pay.' },
+          { label: 'The property’s full value', good: false, why: 'Redemption repays your price plus 8% and certain costs, not the value.' },
+        ],
+        lesson: 'Repairs aren’t in that list. Hold off on the $35,000 of work until the redemption periods end.',
+      },
+    ],
+    verdict: {
+      question: 'Would you bid $190,000?',
+      choices: [
+        { label: 'Buy', feedback: 'Only if waiting 6 months, and possibly getting 8% back instead of the house, still fits your plan.' },
+        { label: 'Investigate', feedback: 'Good: read the judgment, pull title for older liens, and confirm with the sheriff’s civil unit how to pay within 5 working days.' },
+        { label: 'Pass', feedback: 'Reasonable if you need the house, not a possible 8% return, within six months.' },
+      ],
+      expert: 'Investigate. You buy only the debtor’s interest, wait 6 months here, and may be paid back with 8% instead. Price the wait and senior liens before you bid.',
+    },
+  },
 ];
 
 export const drillById = (id: string) => DRILLS.find((d) => d.id === id);
