@@ -5,7 +5,8 @@ import TeamList from './TeamList';
 import ProDirectory from './ProDirectory';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
-import { guidesFor, stateOf } from '../lib/playbooks';
+import { guidesFor } from '../lib/playbooks';
+import { STATES, stateByCode } from '../lib/regions';
 import { useMyState, forStateText } from '../lib/myState';
 import { useMarkStep } from '../lib/path';
 import PathNext from './PathNext';
@@ -14,6 +15,7 @@ import WhyBlock from './WhyBlock';
 import { PRO_WHY } from '../lib/proWhy';
 import { PRO_DEEP } from '../lib/deep/proDeep';
 import StoryList from './StoryList';
+import TeamBuilder from './TeamBuilder';
 
 const ICONS: Record<ProKey, ReactElement> = {
   agent: <IconHome />, lender: <IconBank />, private_lender: <IconClock />, title: <IconFile />, attorney: <IconBadge />, inspector: <IconSearch />,
@@ -82,8 +84,10 @@ export default function FindAProPage({ section }: { section?: string }) {
   useMarkStep('team');
   const [sale, setSale] = useState<string>('start');
   const open = !!section && !!proGuideByKey(section);
+  const build = section === 'build';
+  const all = !open && !build; // the full page: #/pros (and the old #/pros/all)
   const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
-  const [mine] = useMyState();
+  const [mine, setMine] = useMyState();
   const book = guidesFor(mine).find((p) => p.key === sale);
   const team = book
     ? book.team
@@ -92,21 +96,37 @@ export default function FindAProPage({ section }: { section?: string }) {
   return (
     <main className="page">
       <PageHero
-        compact={open}
-        top={open ? <a href="#/pros">← Your deal team</a> : undefined}
-        eyebrow={open ? undefined : <span className="eyebrow">Step 3 of 6</span>}
-        title={open ? <a className="title-link" href="#/pros">Your deal team</a> : <>Your <span className="grad">deal team</span></>}
-        sub={open ? undefined : 'Who helps with a forced-sale purchase, when you need each one, and how to find them.'}
+        compact={open || build}
+        top={open || build ? <a href="#/pros">← Your deal team</a> : undefined}
+        eyebrow={open || build ? undefined : <span className="eyebrow">Step 3 of 6</span>}
+        title={open ? <a className="title-link" href="#/pros">Your deal team</a> : build ? <>Build <span className="grad">your team</span></> : <>Your <span className="grad">deal team</span></>}
+        sub={open || build ? undefined : 'Who helps with a purchase, when you need each one, and how to find them.'}
       />
-      {!open && (
+      {build && <TeamBuilder />}
+      {all && (
+        <section className="not-sure" aria-labelledby="not-sure-head">
+          <h2 id="not-sure-head">Don’t know who you need?</h2>
+          <p>Answer five quick questions about what you want to buy and how, and we’ll narrow this down to the professionals you need, and why. If you’re not sure of an answer, we’ll suggest one.</p>
+          <a className="btn" href="#/pros/build">Help me choose →</a>
+        </section>
+      )}
+      {all && (
         <section className="pro-chooser" aria-labelledby="pro-chooser-head">
           <h2 id="pro-chooser-head" className="section-title">Who you need for your kind of sale</h2>
-          <div className="chip-tabs" role="group" aria-label="Kind of sale">
-            <button aria-pressed={sale === 'start'} onClick={() => setSale('start')}>Not sure yet</button>
-            {guidesFor(mine).map((p) => (
-              <button key={p.key} aria-pressed={sale === p.key} onClick={() => setSale(p.key)}>{p.short}{mine ? '' : ` (${stateOf(p)})`}</button>
-            ))}
-          </div>
+          {mine ? (
+            <div className="chip-tabs" role="group" aria-label="Kind of sale">
+              <button aria-pressed={sale === 'start'} onClick={() => setSale('start')}>Not sure yet</button>
+              {guidesFor(mine).map((p) => (
+                <button key={p.key} aria-pressed={sale === p.key} onClick={() => setSale(p.key)}>{p.short}</button>
+              ))}
+            </div>
+          ) : (
+            <div className="chip-tabs" role="group" aria-label="Your state">
+              <span className="chip-label">First, where do you invest?</span>
+              {STATES.map((st) => <button key={st.code} onClick={() => setMine(st.code)}>{st.name}</button>)}
+            </div>
+          )}
+          {mine && <p className="muted">Sales in {stateByCode(mine)?.name}. <button type="button" className="linkish" onClick={() => { setMine(null); setSale('start'); }}>Change state</button></p>}
           <p className="muted">
             {book ? <>For {book.short.toLowerCase()}, in the order you’ll usually need them.</> : <>Most first-time buyers of a forced-sale property need these five.</>}{' '}
             <a href={book ? `#/playbooks/${book.key}` : '#/playbooks'}>{book ? `How ${book.short.toLowerCase()} work →` : 'How each sale works →'}</a>
@@ -114,8 +134,8 @@ export default function FindAProPage({ section }: { section?: string }) {
           <TeamList team={team} />
         </section>
       )}
-      {!open && <h2 className="section-title">The professionals</h2>}
-      <DrillDown sections={sections} active={open ? section : undefined} baseHref="#/pros" label="Professionals" />
+      {all && <h2 className="section-title">The professionals</h2>}
+      {(open || all) && <DrillDown sections={sections} active={open ? section : undefined} baseHref="#/pros" label="Professionals" />}
       {!open && <PathNext step="team" />}
     </main>
   );

@@ -138,7 +138,7 @@
       "src/practice/scenarios.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "44d91fcffe2c3204",
+    "hash": "fcbedcb47d0df7f9",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -192,10 +192,12 @@
       "src/lib/licenseLookup.ts",
       "src/lib/deep/proDeep.ts",
       "src/lib/proWhy.ts",
-      "src/components/StoryList.tsx"
+      "src/components/StoryList.tsx",
+      "src/components/TeamBuilder.tsx",
+      "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "023cc0f12e0c33dc",
+    "hash": "8de1da31428bfd78",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -386,7 +388,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "f919c567ca52e28f",
+    "hash": "89fad4bb123604e0",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

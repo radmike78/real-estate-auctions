@@ -403,11 +403,11 @@ describe('commercial wording in sale-type checklists', () => {
 });
 
 describe('step-by-step guides for every state', () => {
-  it('gives California, Arizona and Utah three guides each, from official sources only', async () => {
+  it('gives California, Arizona and Utah eight guides each, from official sources only', async () => {
     const { PLAYBOOKS, guidesFor, stateOf } = await import('./playbooks');
     for (const st of ['CA', 'AZ', 'UT'] as const) {
       const g = guidesFor(st);
-      expect(g.length, st).toBe(3);
+      expect(g.length, st).toBe(8);
       expect(g.every((p) => p.state === st)).toBe(true);
     }
     expect(guidesFor('NV').every((p) => stateOf(p) === 'NV')).toBe(true);
@@ -537,5 +537,19 @@ describe('investing roadmap', () => {
       }
     }
     expect(roadmapFor('auction').some((s) => s.id === 'offer')).toBe(false);
+  });
+});
+
+describe('build your team', () => {
+  it('suggests an answer for "not sure", and fits the team to the answers', async () => {
+    const { teamFor, resolved } = await import('./teamBuilder');
+    expect(resolved({}).property).toBe('home');
+    expect(resolved({ buy: 'auction', pay: 'unsure' }).pay).toBe('cash');
+    const auction = teamFor({ property: 'home', buy: 'auction', pay: 'cash', plan: 'flip', condition: 'major' }).map((t) => t.pro);
+    expect(auction).toEqual(expect.arrayContaining(['title', 'attorney', 'eviction', 'appraiser', 'contractor']));
+    expect(auction).not.toContain('inspector');
+    const home = teamFor({ property: 'home', buy: 'agent', pay: 'loan', plan: 'live', condition: 'ready' }).map((t) => t.pro);
+    expect(home).toEqual(['agent', 'lender', 'title', 'appraiser', 'inspector', 'insurance']);
+    expect(teamFor({ property: 'commercial', buy: 'agent', pay: 'loan', plan: 'rent', condition: 'ready' }).map((t) => t.pro)).toContain('environmental');
   });
 });
