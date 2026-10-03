@@ -218,6 +218,7 @@ export default function App() {
   return (
     <div className={`app${route.page === 'home' ? ' app-home' : ''}`}>
       <SiteHeader current={path} nav={nav} />
+      <RoleNotice />
       {route.page === 'home' && <HomePage />}
       {route.page === 'notFound' && (
         <main className="page empty-page">
@@ -278,7 +279,6 @@ export default function App() {
           <a href="#/terms">Terms</a>
         </nav>
       </footer>
-      <RoleNotice />
     </div>
   );
 }

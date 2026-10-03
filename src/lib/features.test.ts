@@ -523,3 +523,19 @@ describe('learning paths', () => {
     for (const l of LESSONS) expect(l.practice, l.key).toBeTruthy();
   });
 });
+
+describe('investing roadmap', () => {
+  it('has four phases on both paths, a "done when" and a named action for every step', async () => {
+    const { ROADMAP, roadmapFor } = await import('./toolkit');
+    expect(new Set(ROADMAP.map((s) => s.id)).size).toBe(ROADMAP.length);
+    for (const path of ['listing', 'auction'] as const) {
+      const steps = roadmapFor(path);
+      expect(new Set(steps.map((s) => s.phase))).toEqual(new Set([1, 2, 3, 4]));
+      for (const s of steps) {
+        expect(s.doneWhen.length, s.id).toBeGreaterThan(10);
+        if (s.href) expect(s.action, s.id).toBeTruthy();
+      }
+    }
+    expect(roadmapFor('auction').some((s) => s.id === 'offer')).toBe(false);
+  });
+});

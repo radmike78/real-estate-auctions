@@ -2199,3 +2199,20 @@ h1, h2 { letter-spacing: -0.03em; }
 .calc-unit-switch { display: inline-flex; flex: 0 0 auto; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
 .calc-unit-switch button { min-width: 40px; min-height: 32px; padding: 2px 12px; border: 0; background: transparent; color: var(--text); font-weight: 700; cursor: pointer; }
 .calc-unit-switch button[aria-pressed="true"] { background: var(--accent-strong); color: #fff; }
+
+/* Toolkit: start card, jump links, roadmap phases */
+.page section.toolkit-start { display: grid; gap: 10px; }
+.toolkit-jump { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0 0 24px; }
+.toolkit-jump .linkish { font-weight: 600; }
+.roadmap-path { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: 8px 0 16px; }
+.roadmap-path-label { font-weight: 600; }
+.roadmap-path button { min-height: 40px; padding: 6px 16px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-weight: 600; cursor: pointer; }
+.roadmap-path button[aria-pressed="true"] { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+.roadmap-phase { border: 1px solid var(--border); border-radius: 12px; margin: 12px 0 0; background: var(--surface-2); }
+.roadmap-phase > summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; cursor: pointer; }
+.roadmap-phase-title { font-weight: 700; font-size: 1.1rem; }
+.roadmap-phase > ol { padding: 0 18px 14px; margin: 0; }
+.roadmap-done-when { display: block; margin-top: 4px; color: var(--muted); font-size: 0.95rem; }
+.buybox-help .linkish { margin-left: 4px; }
+.role-note { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 10px var(--gutter); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.role-note > span { flex: 1 1 320px; }
