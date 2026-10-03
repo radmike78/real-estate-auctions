@@ -2181,3 +2181,9 @@ h1, h2 { letter-spacing: -0.03em; }
 .drill-notes ol { margin: 6px 0 0; padding-left: 22px; }
 .drill-feedback:focus { outline: 3px solid var(--accent); outline-offset: 2px; }
 .drill-group { margin: 18px 0 8px; font-size: 1.25rem; }
+/* Drill facts: long values stack under their label on narrow screens instead of overlapping it. */
+.drill .calc-kv dd { min-width: 0; white-space: normal; flex: 0 1 auto; text-align: right; overflow-wrap: anywhere; }
+@media (max-width: 560px) {
+  .drill .calc-kv > div { display: block; }
+  .drill .calc-kv dd { text-align: left; margin-top: 2px; }
+}
