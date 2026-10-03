@@ -1689,7 +1689,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     overview: [
       "An appraisal is a written report that gives an opinion of how much a property is worth. The appraiser usually compares the home with similar nearby homes that sold recently. These are called comparable sales, or “comps”. The appraiser then adjusts for differences like size and condition.",
       "Appraisers hold state credentials at different levels. In California, a Licensed Residential appraiser may do non-complex 1–4 unit homes up to $1 million. There, a Certified Residential appraiser may do any 1–4 unit home, and a Certified General appraiser may do any type of property. A report can be “as is”, meaning the value today. Or it can be “subject to” repairs being finished.",
-      "An appraisal is the only way to know a property’s value. A real estate agent can estimate it from comparable sales in the meantime. When the appraiser can’t go inside, as at many auctions, the value rests on outside views and records. Hidden problems can be missed.",
+      "A professional appraisal is the best way to determine a property’s value. A real estate agent can estimate it from comparable sales in the meantime. When the appraiser can’t go inside, as at many auctions, the value rests on outside views and records. Hidden problems can be missed.",
       "Upgrades don’t add their cost to the value. Appraisers value a feature by what buyers in that market pay for it, not what it cost. Say an improvement is bigger or costlier than is typical for the neighborhood, like a pool where pools are rare. It counts only for what it adds. So $70,000 of upgrades doesn’t necessarily make a home worth $70,000 more.",
     ],
     bestFor: [

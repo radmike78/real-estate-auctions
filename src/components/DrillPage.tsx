@@ -196,7 +196,7 @@ function MissionCard({ m, a, set, fresh }: { m: Mission; a: Answers[string]; set
         <>
           <Feedback focus={fresh} tone={right === m.options.length ? 'good' : 'bad'}>{right === m.options.length ? 'Exactly what an experienced investor would choose.' : `${right} of ${m.options.length} choices match what an experienced investor would do. Read why below each one.`}</Feedback>
           <p className="drill-lesson">{m.lesson}</p>
-          {VALUE_MISSIONS.includes(m.id) && <p className="drill-lesson">On a real property, comparable sales give you an estimate. The only way to know the value is an appraisal by a <a href="#/pros/appraiser">licensed appraiser</a>; until then, your <a href="#/pros/agent">real estate agent</a> can estimate it from recent sales.</p>}
+          {VALUE_MISSIONS.includes(m.id) && <p className="drill-lesson">On a real property, comparable sales give you an estimate. The best way to determine the value is a professional appraisal by a <a href="#/pros/appraiser">licensed appraiser</a>; until then, your <a href="#/pros/agent">real estate agent</a> can estimate it from recent sales.</p>}
         </>
       )}
     </section>
