@@ -1981,6 +1981,10 @@ h1, h2 { letter-spacing: -0.03em; }
 .decide-why strong { display: inline-block; margin-right: 6px; color: var(--go, var(--accent)); }
 .decide-why.caution strong { color: var(--muted); }
 .decide-note { margin: 10px 0 0; padding: 8px 12px; border-left: 3px solid var(--accent-strong); background: var(--surface-2); border-radius: 6px; }
+.decide-risk { margin: 14px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.decide-risk > div { padding: 10px 14px; border-radius: 8px; background: var(--surface-2); border-top: 3px solid var(--caution); }
+.decide-risk dt { font-weight: 700; margin-bottom: 4px; }
+.decide-risk dd { margin: 0; }
 .decide-checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .decide-checklist li { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; }
 .decide-checklist label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; }

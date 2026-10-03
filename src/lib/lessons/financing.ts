@@ -66,6 +66,8 @@ export const financing: Lesson = {
       heading: 'Using equity you already have',
       blocks: [
         'A home equity line of credit (HELOC) lets you borrow repeatedly against your home’s equity. A cash-out refinance replaces your mortgage with a bigger one and pays you the difference, usually with closing costs. Both put your home on the line: if you can’t repay, you could lose it.',
+        'Don’t use home equity, credit cards or a 401(k) loan to pay for courses, coaching or an auction deposit. Seminar schemes the FTC shut down told people to do exactly that.',
+        { links: [{ label: 'Seminar red flags', url: '#/learn/red-flags', what: 'How seminar and coaching schemes work, and the warning signs.' }] },
       ],
     },
     {

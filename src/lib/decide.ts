@@ -2,7 +2,7 @@
 // goals, each with a checklist of what to do next. Answers and ticked items stay in this browser.
 import type { StateCode } from './regions';
 
-export type QuestionKey = 'goal' | 'cash' | 'borrow' | 'time' | 'hands' | 'risk' | 'market' | 'state';
+export type QuestionKey = 'goal' | 'cash' | 'ready' | 'borrow' | 'time' | 'hands' | 'risk' | 'market' | 'state';
 
 export interface Question {
   key: QuestionKey;
@@ -36,6 +36,17 @@ export const QUESTIONS: Question[] = [
       { value: '10to50', text: '$10,000 to $50,000' },
       { value: '50to150', text: '$50,000 to $150,000' },
       { value: 'over150', text: 'More than $150,000' },
+    ],
+  },
+  {
+    key: 'ready',
+    ask: 'Before you invest: where do your savings and debts stand?',
+    help: 'Deals go over budget. Savings for emergencies and no high-interest debt keep a surprise from becoming a crisis.',
+    label: 'your savings and debts',
+    options: [
+      { value: 'ready', text: 'I have an emergency fund and no high-interest debt' },
+      { value: 'debt', text: 'I carry credit card or other high-interest debt' },
+      { value: 'nofund', text: 'I don’t have an emergency fund yet' },
     ],
   },
   {
@@ -119,6 +130,8 @@ export interface Strategy {
   what: string;
   /** Points for each answer; missing answers score 0. */
   weights: Partial<Record<Exclude<QuestionKey, 'state'>, Record<string, number>>>;
+  /** The honest downside: the worst realistic outcome, the money at stake, and how long a first deal takes. */
+  risk: { worst: string; atRisk: string; time: string };
   checklist: ChecklistItem[];
 }
 
@@ -130,11 +143,17 @@ export const STRATEGIES: Strategy[] = [
     weights: {
       goal: { income: 2, growth: 2, quick: 0, handsoff: -1, learn: 2 },
       cash: { under10: 0, '10to50': 3, '50to150': 2, over150: 1 },
+      ready: { ready: 0, debt: -3, nofund: -3 },
       borrow: { live: 4, invest: -3, cash: -2, unsure: 1 },
       time: { monthly: -1, weekly: 2, parttime: 2 },
       hands: { diy: 2, hire: 1, none: -2 },
       risk: { low: 1, medium: 2, high: 1 },
       market: { res: 1, com: -2, unsure: 0 },
+    },
+    risk: {
+      worst: 'A unit sits empty or a tenant stops paying, and you still owe the whole mortgage on the home you live in.',
+      atRisk: 'Your down payment, closing costs and the reserves your lender requires.',
+      time: 'Months: pre-approval, a search, then a closing like any home purchase.',
     },
     checklist: [
       { id: 'hh-lesson', text: 'Read the traditional financing lesson: FHA and VA loans for a home you’ll live in.', href: '#/learn/financing' },
@@ -153,11 +172,17 @@ export const STRATEGIES: Strategy[] = [
     weights: {
       goal: { income: 3, growth: 2, quick: 0, handsoff: 0, learn: 1 },
       cash: { under10: -2, '10to50': 1, '50to150': 3, over150: 2 },
+      ready: { ready: 0, debt: -4, nofund: -4 },
       borrow: { live: 1, invest: 3, cash: 1, unsure: 1 },
       time: { monthly: -1, weekly: 2, parttime: 2 },
       hands: { diy: 2, hire: 2, none: -1 },
       risk: { low: 1, medium: 2, high: 1 },
       market: { res: 1, com: -1, unsure: 0 },
+    },
+    risk: {
+      worst: 'Vacancy, a tenant who stops paying or a big repair leaves you paying the mortgage yourself. Evictions take a court case.',
+      atRisk: 'The down payment, which Fannie Mae sets at 15% to 25% for investment property, plus closing costs and reserves.',
+      time: 'Months: pre-approval, a search and a closing, then finding a tenant.',
     },
     checklist: [
       { id: 'rt-lessons', text: 'Read the lessons on analyzing a deal and traditional financing.', href: '#/learn/analyze' },
@@ -176,11 +201,17 @@ export const STRATEGIES: Strategy[] = [
     weights: {
       goal: { income: 1, growth: 2, quick: 2, handsoff: -1, learn: 1 },
       cash: { under10: -1, '10to50': 2, '50to150': 3, over150: 2 },
+      ready: { ready: 0, debt: -3, nofund: -3 },
       borrow: { live: 2, invest: 2, cash: 1, unsure: 1 },
       time: { monthly: -1, weekly: 2, parttime: 2 },
       hands: { diy: 1, hire: 1, none: -1 },
       risk: { low: 2, medium: 2, high: 1 },
       market: { res: 1, com: -1, unsure: 0 },
+    },
+    risk: {
+      worst: 'Repairs cost far more than you planned. These homes are sold as-is, and the seller won’t fix what an inspection finds.',
+      atRisk: 'Your down payment or the cash price, the earnest money deposit, and the repairs.',
+      time: 'Weeks to months, often competing with other buyers’ offers.',
     },
     checklist: [
       { id: 'reo-page', text: 'Read how bank-owned and government homes are sold.', href: '#/bank-owned' },
@@ -198,11 +229,17 @@ export const STRATEGIES: Strategy[] = [
     weights: {
       goal: { income: -1, growth: 0, quick: 4, handsoff: -3, learn: -1 },
       cash: { under10: -3, '10to50': 0, '50to150': 2, over150: 3 },
+      ready: { ready: 0, debt: -5, nofund: -5 },
       borrow: { live: -1, invest: 1, cash: 2, unsure: 0 },
       time: { monthly: -3, weekly: 0, parttime: 3 },
       hands: { diy: 3, hire: 1, none: -3 },
       risk: { low: -3, medium: 1, high: 3 },
       market: { res: 1, com: -2, unsure: 0 },
+    },
+    risk: {
+      worst: 'Repairs run over, the market slows, and you sell for less than you put in while paying loan interest every month.',
+      atRisk: 'The purchase cash or down payment, the whole repair budget, and months of holding costs.',
+      time: 'Months to find a deal, then months of work before you can sell.',
     },
     checklist: [
       { id: 'fl-lessons', text: 'Read the lessons on analyzing a deal and tools of the trade.', href: '#/learn/analyze' },
@@ -222,11 +259,17 @@ export const STRATEGIES: Strategy[] = [
     weights: {
       goal: { income: 0, growth: 1, quick: 3, handsoff: -3, learn: -1 },
       cash: { under10: -3, '10to50': -1, '50to150': 2, over150: 3 },
+      ready: { ready: 0, debt: -5, nofund: -5 },
       borrow: { live: -2, invest: -1, cash: 4, unsure: -1 },
       time: { monthly: -3, weekly: 0, parttime: 3 },
       hands: { diy: 2, hire: 1, none: -3 },
       risk: { low: -4, medium: 0, high: 3 },
       market: { res: 1, com: 0, unsure: 0 },
+    },
+    risk: {
+      worst: 'You pay cash for a property with liens that survive, damage you couldn’t see, or occupants, and there’s usually no refund.',
+      atRisk: 'The full price, often due in cash within a day or two, plus any deposit.',
+      time: 'Learning a county’s process takes several sales; some tax sales happen only once a year.',
     },
     checklist: [
       { id: 'au-lesson', text: 'Read the lesson on buying at forced sales in your state.', href: '#/learn/forced-sales' },
@@ -246,11 +289,17 @@ export const STRATEGIES: Strategy[] = [
     weights: {
       goal: { income: 3, growth: 2, quick: 0, handsoff: 1, learn: -1 },
       cash: { under10: -4, '10to50': -2, '50to150': 0, over150: 3 },
+      ready: { ready: 0, debt: -4, nofund: -4 },
       borrow: { live: -1, invest: 2, cash: 1, unsure: -1 },
       time: { monthly: -1, weekly: 1, parttime: 2 },
       hands: { diy: 0, hire: 2, none: 0 },
       risk: { low: -1, medium: 1, high: 2 },
       market: { res: -2, com: 5, unsure: 0 },
+    },
+    risk: {
+      worst: 'Income falls short of the loan payment. Commercial loans can have balloon payments and personal guarantees.',
+      atRisk: 'A larger down payment than on a home loan, plus reserves and the cost of inspections and reports.',
+      time: 'Months: commercial due diligence and loans take longer than for a house.',
     },
     checklist: [
       { id: 'ap-lessons', text: 'Read the lessons on residential vs. commercial and traditional financing.', href: '#/learn/markets' },
@@ -268,11 +317,17 @@ export const STRATEGIES: Strategy[] = [
     weights: {
       goal: { income: 2, growth: 2, quick: -2, handsoff: 5, learn: 1 },
       cash: { under10: 2, '10to50': 2, '50to150': 1, over150: 1 },
+      ready: { ready: 0, debt: -2, nofund: -2 },
       borrow: { live: 0, invest: 0, cash: 1, unsure: 1 },
       time: { monthly: 3, weekly: 1, parttime: 0 },
       hands: { diy: -1, hire: 0, none: 4 },
       risk: { low: 2, medium: 1, high: 0 },
       market: { res: 0, com: 1, unsure: 1 },
+    },
+    risk: {
+      worst: 'Share prices fall, and non-traded REITs and private funds can be hard to sell for years.',
+      atRisk: 'Only what you choose to invest; you can start small.',
+      time: 'Days, with listed REIT shares bought through a brokerage account.',
     },
     checklist: [
       { id: 'ps-lesson', text: 'Read the lesson on who invests where, including how REITs work.', href: '#/learn/who' },
@@ -289,11 +344,17 @@ export const STRATEGIES: Strategy[] = [
     weights: {
       goal: { income: 0, growth: 0, quick: 0, handsoff: 0, learn: 4 },
       cash: { under10: 4, '10to50': 1, '50to150': 0, over150: 0 },
+      ready: { ready: 0, debt: 6, nofund: 6 },
       borrow: { live: 0, invest: 0, cash: 0, unsure: 2 },
       time: { monthly: 1, weekly: 2, parttime: 1 },
       hands: { diy: 1, hire: 1, none: 0 },
       risk: { low: 3, medium: 1, high: 0 },
       market: { res: 0, com: 0, unsure: 2 },
+    },
+    risk: {
+      worst: 'Nothing but your time.',
+      atRisk: 'None.',
+      time: 'You can start today.',
     },
     checklist: [
       { id: 'pr-lessons', text: 'Take the first five lessons.', href: '#/learn' },
@@ -321,6 +382,9 @@ function answerText(q: Question, v: string) {
   return /^I[’ ]/.test(t) ? t : t[0].toLowerCase() + t.slice(1);
 }
 
+/** Without savings, or with high-interest debt, the honest answer is "not yet": learning first always ranks on top. */
+const notYet = (answers: Answers, m: { strategy: Strategy }) => (m.strategy.key === 'practice' && (answers.ready === 'debt' || answers.ready === 'nofund') ? 1 : 0);
+
 /** Strategies ranked for these answers, best first. */
 export function rank(answers: Answers): Match[] {
   return STRATEGIES.map((s) => {
@@ -336,13 +400,13 @@ export function rank(answers: Answers): Match[] {
       if (v && w <= -2) cautions.push(`${q.label}: ${answerText(q, v)}`);
     }
     return { strategy: s, score, fits, cautions };
-  }).sort((a, b) => b.score - a.score);
+  }).sort((a, b) => notYet(answers, b) - notYet(answers, a) || b.score - a.score);
 }
 
 /** A state-specific note for a strategy, when the rules differ. */
 export function stateNote(key: StrategyKey, state?: string): string | null {
   const st = state as StateCode | undefined;
-  if (key === 'auction' && st === 'AZ') return 'In Arizona, counties sell tax liens, not the property: you earn interest until the owner pays, and can seek a deed only after three years. Trustee auctions sell the property itself.';
+  if (key === 'auction' && st === 'AZ') return 'In Arizona, counties sell tax liens, not the property: you earn interest until the owner pays, and can seek a deed only after three years. Competition often bids the rate far below the 16% cap, so expect modest interest, not a property. Trustee auctions sell the property itself.';
   if (key === 'auction' && st === 'CA') return 'In California, winning bids on homes of one to four units aren’t final until tenants and other eligible buyers have had 15 to 45 days to match them.';
   if (key === 'auction' && st === 'NV') return 'Our step-by-step guides cover each kind of sale in Clark County, Nevada.';
   if (key === 'auction' && st === 'UT') return 'Utah counties hold their tax sale each May or June, after four years of unpaid taxes.';

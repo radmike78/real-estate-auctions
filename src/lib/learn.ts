@@ -16,6 +16,7 @@ export const LEARN_MODULES: LearnModule[] = [
   { key: 'negotiate', title: 'Negotiating and structuring deals', summary: 'Making offers, negotiating terms, and putting a deal together when you can.' },
   { key: 'financing', title: 'Traditional financing', summary: 'Mortgages, commercial loans, hard-money and bridge loans: how each works and what it costs.' },
   { key: 'creative', title: 'Creative financing', summary: 'Seller financing, partnerships and other structures, with the legal risks to know first.' },
+  { key: 'red-flags', title: 'Seminar red flags', summary: 'How seminar and coaching scams work, the warning signs regulators found, and why you should never borrow to learn or to bid.' },
   { key: 'tools', title: 'Tools and tricks of the trade', summary: 'Records, maps, comps and checklists investors use to research a property.' },
   { key: 'forced-sales', title: 'Buying at forced sales', summary: 'Tax, foreclosure, sheriff and IRS sales across Nevada, California, Arizona and Utah, with step-by-step guides.' },
   { key: 'veterans', title: 'Benefits for veterans', summary: 'VA loans, the funding fee exemption, servicemember protections, and veteran property tax breaks in your state.' },

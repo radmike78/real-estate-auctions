@@ -233,8 +233,8 @@
     "files": [
       "src/components/HomeownerHelpPage.tsx"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "07388991ac1dd717",
+    "reviewed": "2026-10-03",
+    "hash": "cd1bcfa6b9800111",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -318,6 +318,7 @@
       "src/lib/lessons/index.ts",
       "src/lib/lessons/markets.ts",
       "src/lib/lessons/negotiate.ts",
+      "src/lib/lessons/red-flags.ts",
       "src/lib/lessons/tools.ts",
       "src/lib/lessons/types-of-property.ts",
       "src/lib/lessons/types.ts",
@@ -330,7 +331,7 @@
       "src/lib/lessons/propertyWhy.ts"
     ],
     "reviewed": "2026-10-03",
-    "hash": "53fb190ad8130dc9",
+    "hash": "458e7b68fbaa4d3b",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -340,8 +341,8 @@
       "src/components/DecidePage.tsx",
       "src/lib/decide.ts"
     ],
-    "reviewed": "2026-09-29",
-    "hash": "cf084c634d739ca8",
+    "reviewed": "2026-10-03",
+    "hash": "9e40379f42a9f8dd",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
