@@ -88,18 +88,11 @@ export default function HomePage() {
             <span className="hero-trust"><IconStar /> Free, no sign-up</span>
             <span className="hero-trust"><IconShield /> Official sources first</span>
             <span className="hero-trust"><IconCheckList /> We never take bids or money</span>
-            <span className="hero-foot-links">
             {mode && (
-              <>
-                <button type="button" className="linkish" onClick={() => setMode(mode === 'guided' ? 'explore' : 'guided')}>
-                  {mode === 'guided' ? 'Explore on your own' : 'Get guided step by step'}
-                </button>
-                {' · '}
-              </>
+              <button type="button" className="linkish" onClick={() => setMode(mode === 'guided' ? 'explore' : 'guided')}>
+                {mode === 'guided' ? 'Explore on your own' : 'Get guided step by step'}
+              </button>
             )}
-            {/* A button, not an #anchor: the site's routes live in the URL hash. */}
-            <button type="button" className="linkish" onClick={() => document.getElementById('everything')?.scrollIntoView({ behavior: 'smooth' })}>Browse everything ↓</button>
-            </span>
           </p>
         </div>
       </section>
