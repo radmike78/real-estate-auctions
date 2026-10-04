@@ -69,3 +69,35 @@ export default function EvidenceLog({ dealId, name }: { dealId: string; name: st
     </details>
   );
 }
+
+/**
+ * One area of one deal's evidence log, inside a roadmap step: the property it's about, and the same fields as the
+ * full log, saved to it. `askFinding` reminds the reader to record what they found when they mark the step done.
+ */
+export function EvidenceArea({ dealId, dealName, area, askFinding }: { dealId: string; dealName: string; area: string; askFinding?: boolean }) {
+  const a = EVIDENCE_AREAS.find((x) => x.key === area);
+  const [log, setLog] = useState<Log>(() => loadLog(dealId));
+  if (!a) return null;
+  const r = log.rows[a.key] ?? emptyRow();
+  const set = (patch: Partial<EvidenceRow>) =>
+    setLog((l) => {
+      const next = { ...l, rows: { ...l.rows, [a.key]: { ...(l.rows[a.key] ?? emptyRow()), ...patch } } };
+      saveLog(dealId, next);
+      return next;
+    });
+  return (
+    <div className="evidence-step">
+      <h4>For {dealName}: {a.title}</h4>
+      <p className="muted">{a.what} This saves to the deal’s evidence log in <a href="#/deals">My deals</a>.</p>
+      <div className="evidence-fields">
+        <label className="field"><span>Source</span><input type="text" maxLength={300} value={r.source} placeholder="Document, office or person" onChange={(e) => set({ source: e.target.value })} /></label>
+        <label className="field"><span>Date checked</span><input type="date" value={r.checked} onChange={(e) => set({ checked: e.target.value })} /></label>
+        <label className="field"><span>Finding</span><input type="text" maxLength={600} value={r.finding} onChange={(e) => set({ finding: e.target.value })} /></label>
+        <label className="field"><span>Open question</span><input type="text" maxLength={600} value={r.open} onChange={(e) => set({ open: e.target.value })} /></label>
+        <label className="field"><span>Who handles it, by when</span><input type="text" maxLength={200} value={r.owner} onChange={(e) => set({ owner: e.target.value })} /></label>
+      </div>
+      <label className="evidence-done"><input type="checkbox" checked={r.done} onChange={() => set({ done: !r.done })} /> <span>I’ve reviewed this area for this deal</span></label>
+      {askFinding && !r.finding.trim() && <p className="caution" role="status">You marked this step done. Write what you found above, so this deal’s evidence log shows it.</p>}
+    </div>
+  );
+}

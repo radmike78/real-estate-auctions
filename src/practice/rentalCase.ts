@@ -107,6 +107,8 @@ export interface CaseDoc {
   rows?: [string, string][];
   table?: { head: string[]; rows: string[][] };
   notes?: string[];
+  /** The annotated guide to the real document this teaching extract stands for (docGuides.ts). */
+  guide?: string;
 }
 
 /** Asked only when an earlier question in the same step got one of these answers (choice numbers, from 0). */
@@ -347,6 +349,7 @@ export const RENTAL_CASE: CaseStage[] = [
     docs: [
       {
         kind: 'Loan term sheet',
+        guide: 'loan-estimate',
         title: 'Investment property loan: 1-unit home',
         from: 'Example Mortgage Co. (fictional)',
         rows: [
@@ -436,6 +439,7 @@ export const RENTAL_CASE: CaseStage[] = [
     docs: [
       {
         kind: 'Purchase contract (summary)',
+        guide: 'contract',
         title: 'The contract, once both of you have signed',
         from: 'Signed by you and the seller (fictional)',
         rows: [
@@ -518,6 +522,7 @@ export const RENTAL_CASE: CaseStage[] = [
     docs: [
       {
         kind: 'Inspection report (extract)',
+        guide: 'repair-bid',
         title: 'Findings that need attention',
         from: 'Example Home Inspections and Example Plumbing (fictional)',
         table: {
@@ -608,6 +613,7 @@ export const RENTAL_CASE: CaseStage[] = [
       },
       {
         kind: 'Title commitment (extract)',
+        guide: 'title',
         title: 'Requirements and exceptions',
         from: 'Example Title Co. (fictional)',
         table: {
@@ -697,6 +703,7 @@ export const RENTAL_CASE: CaseStage[] = [
     docs: [
       {
         kind: 'Closing statement (extract)',
+        guide: 'settlement',
         title: 'Buyer’s side',
         from: 'Example Title Co. (fictional)',
         table: {

@@ -8,6 +8,10 @@ import { cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TY
 import { downloadText, fileName } from '../lib/download';
 import { cleanLog, logText } from '../lib/evidence';
 import { makeBackup, readBackup, restoreBackup } from '../lib/progressBackup';
+import { loadDeals as loadAnalyzed } from '../lib/analyze';
+import { docGuide, DOC_GUIDES } from '../lib/docGuides';
+import DocGuideView from './DocGuideView';
+import { EvidenceArea } from './EvidenceLog';
 
 const ROADMAP_KEY = 'deedowl.roadmap.v1';
 const ROADMAP_PATH_KEY = 'deedowl.roadmap.path.v1';
@@ -39,6 +43,24 @@ const cleanStatus = (v: unknown): Record<string, StepStatus> => {
   return out;
 };
 
+// Steps 4 to 6 (find, buy, own) belong to one property. With a deal chosen, their progress is kept for that deal,
+// so two properties can be at different stages; steps 1 to 3 are the learner's own, whatever the deal.
+const DEAL_KEY = 'deedowl.roadmap.deal.v1';
+const DEAL_STEPS_KEY = 'deedowl.roadmap.deals.v1';
+type DealSteps = Record<string, { done: string[]; status: Record<string, StepStatus> }>;
+const DEAL_ID = /^analyzed:[A-Za-z0-9_-]{1,64}$/;
+const cleanDealSteps = (v: unknown): DealSteps => {
+  const out: DealSteps = {};
+  if (v && typeof v === 'object' && !Array.isArray(v))
+    for (const [k, x] of Object.entries(v).slice(0, 200)) {
+      if (!DEAL_ID.test(k) || !x || typeof x !== 'object') continue;
+      const o = x as Record<string, unknown>;
+      out[k] = { done: cleanIds(o.done), status: cleanStatus(o.status) };
+    }
+  return out;
+};
+const dealScoped = (s: RoadmapStep) => s.phase >= 4;
+
 /** Ticked roadmap steps, for the homepage progress line. */
 export const roadmapDone = () => read(ROADMAP_KEY, [] as string[], cleanIds);
 /** How the visitor plans to buy: through an agent, at an auction, or lien certificates. */
@@ -51,7 +73,7 @@ export function roadmapProgress() {
 }
 
 /** One roadmap step, opened: what you'll have, what to do, what to say, the documents, when to stop, and when it's done. */
-function StepBody({ s, status, setStatus }: { s: RoadmapStep; status: StepStatus | 'done' | 'todo'; setStatus: (v: StepStatus | 'done' | 'todo') => void }) {
+function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: StepStatus | 'done' | 'todo'; setStatus: (v: StepStatus | 'done' | 'todo') => void; deal?: { id: string; name: string } }) {
   return (
     <div className="roadmap-step-body">
       <p>{s.text}</p>
@@ -78,6 +100,9 @@ function StepBody({ s, status, setStatus }: { s: RoadmapStep; status: StepStatus
           </div>
         )}
       </div>
+      {s.guides?.map((k) => docGuide(k)).filter((g) => g !== undefined).map((g) => <DocGuideView key={g.key} g={g} label={`How to read it: ${g.title}`} />)}
+      {deal && s.evidence && dealScoped(s) && <EvidenceArea key={`${deal.id}|${s.evidence}`} dealId={deal.id} dealName={deal.name} area={s.evidence} askFinding={status === 'done'} />}
+      {!deal && s.evidence && dealScoped(s) && <p className="muted">Working on a real property? Save it in <a href="#/analyze">Analyze</a>, then choose it above to record what you find here.</p>}
       {s.stop && <p className="roadmap-stop"><strong>Stop if:</strong> {s.stop}</p>}
       <p className="roadmap-done"><strong>Done when:</strong> {s.doneWhen}</p>
       {s.skip && <p className="muted roadmap-skip"><strong>Doesn’t apply if:</strong> {s.skip}</p>}
@@ -96,30 +121,50 @@ export function FirstDealRoadmap() {
   const [done, setDone] = useState<string[]>(roadmapDone);
   const [status, setStatusMap] = useState<Record<string, StepStatus>>(() => read(STATUS_KEY, {}, cleanStatus));
   const [path, setPath] = useState<RoadmapPath>(roadmapPath);
+  const [deals] = useState(loadAnalyzed);
+  const [dealId, setDealId] = useState(() => read(DEAL_KEY, '', (v) => (typeof v === 'string' && DEAL_ID.test(v) ? v : '')));
+  const [perDeal, setPerDeal] = useState<DealSteps>(() => read(DEAL_STEPS_KEY, {}, cleanDealSteps));
   useEffect(() => write(ROADMAP_KEY, done), [done]);
   useEffect(() => write(STATUS_KEY, status), [status]);
   useEffect(() => write(ROADMAP_PATH_KEY, path), [path]);
+  useEffect(() => write(DEAL_KEY, dealId), [dealId]);
+  useEffect(() => write(DEAL_STEPS_KEY, perDeal), [perDeal]);
+  const active = deals.find((d) => `analyzed:${d.id}` === dealId);
+  const deal = active ? { id: `analyzed:${active.id}`, name: active.name } : undefined;
+  const scoped = (s: RoadmapStep) => !!deal && dealScoped(s);
+  const doneOf = (s: RoadmapStep) => (scoped(s) ? (perDeal[deal!.id]?.done ?? []).includes(s.id) : done.includes(s.id));
+  const statusOf = (s: RoadmapStep): StepStatus | undefined => (scoped(s) ? perDeal[deal!.id]?.status[s.id] : status[s.id]);
   const steps = roadmapFor(path);
   // A step that doesn't apply (with its stated reason) counts as settled, so it never blocks the next one.
-  const settled = (id: string) => done.includes(id) || status[id] === 'na';
-  const count = steps.filter((s) => settled(s.id)).length;
-  const naCount = steps.filter((s) => !done.includes(s.id) && status[s.id] === 'na').length;
-  const stateOf = (id: string): StepStatus | 'done' | 'todo' => (done.includes(id) ? 'done' : status[id] ?? 'todo');
-  const walked = steps.find((s) => status[s.id] === 'stopped' && !done.includes(s.id));
+  const settled = (s: RoadmapStep) => doneOf(s) || statusOf(s) === 'na';
+  const count = steps.filter(settled).length;
+  const naCount = steps.filter((s) => !doneOf(s) && statusOf(s) === 'na').length;
+  const stateOf = (s: RoadmapStep): StepStatus | 'done' | 'todo' => (doneOf(s) ? 'done' : statusOf(s) ?? 'todo');
+  const walked = steps.find((s) => statusOf(s) === 'stopped' && !doneOf(s));
   // After walking away, the step you stopped at stays the next step (start it again with the next property),
   // rather than the later steps of a deal you left.
-  const next = walked ?? steps.find((s) => !settled(s.id) && status[s.id] !== 'stopped');
+  const next = walked ?? steps.find((s) => !settled(s) && statusOf(s) !== 'stopped');
   // The phase holding the next step starts open; after that, phases stay as the reader leaves them.
   const [openPhase] = useState(() => next?.phase ?? 1);
   const phases = ([1, 2, 3, 4, 5, 6] as const).map((n) => ({ n, title: ROADMAP_PHASES[n], steps: steps.filter((s) => s.phase === n) })).filter((ph) => ph.steps.length);
-  const setStatus = (id: string, v: StepStatus | 'done' | 'todo') => {
-    setDone((d) => (v === 'done' ? (d.includes(id) ? d : [...d, id]) : d.filter((x) => x !== id)));
-    setStatusMap((m) => {
-      const n = { ...m };
-      if (v === 'done' || v === 'todo') delete n[id];
-      else n[id] = v;
-      return n;
-    });
+  const nextDone = (d: string[], id: string, v: StepStatus | 'done' | 'todo') => (v === 'done' ? (d.includes(id) ? d : [...d, id]) : d.filter((x) => x !== id));
+  const nextStatus = (m: Record<string, StepStatus>, id: string, v: StepStatus | 'done' | 'todo') => {
+    const n = { ...m };
+    if (v === 'done' || v === 'todo') delete n[id];
+    else n[id] = v;
+    return n;
+  };
+  const setStatus = (s: RoadmapStep, v: StepStatus | 'done' | 'todo') => {
+    if (scoped(s)) {
+      const k = deal!.id;
+      setPerDeal((all) => {
+        const cur = all[k] ?? { done: [], status: {} };
+        return { ...all, [k]: { done: nextDone(cur.done, s.id, v), status: nextStatus(cur.status, s.id, v) } };
+      });
+      return;
+    }
+    setDone((d) => nextDone(d, s.id, v));
+    setStatusMap((m) => nextStatus(m, s.id, v));
   };
   return (
     <section id="roadmap" aria-labelledby="roadmap-head">
@@ -132,6 +177,22 @@ export function FirstDealRoadmap() {
         ))}
         <span className="muted">{ROADMAP_PATHS[path].hint}</span>
       </div>
+      <div className="roadmap-deal">
+        <label className="field">
+          <span>Which property are you working on?</span>
+          <select value={deal ? deal.id : ''} onChange={(e) => setDealId(e.target.value)}>
+            <option value="">None yet: I’m learning and getting ready</option>
+            {deals.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}</option>)}
+          </select>
+        </label>
+        <p className="muted">
+          {deal
+            ? `Steps 4 to 6 (find, buy, own) are tracked for ${deal.name} only, and what you record goes into its evidence log. Steps 1 to 3 are yours, whatever the property.`
+            : deals.length
+              ? 'Choose a property to track steps 4 to 6 for it. Each property keeps its own progress and evidence.'
+              : 'To track steps 4 to 6 for a real property, save it in Analyze first. Each property keeps its own progress and evidence.'}
+        </p>
+      </div>
       <p className="decide-progress">
         {count} of {steps.length} steps done{naCount > 0 && ` (${naCount} marked “doesn’t apply”)`}
         <span className="decide-bar" role="progressbar" aria-label="Investing roadmap" aria-valuemin={0} aria-valuemax={steps.length} aria-valuenow={count}><span style={{ width: `${Math.round((count / steps.length) * 100)}%` }} /></span>
@@ -143,16 +204,16 @@ export function FirstDealRoadmap() {
       )}
       {next ? (
         <div className="roadmap-next">
-          <p className="roadmap-next-label">Your next step · {ROADMAP_PHASES[next.phase]}</p>
+          <p className="roadmap-next-label">Your next step · {ROADMAP_PHASES[next.phase]}{scoped(next) ? ` · ${deal!.name}` : ''}</p>
           <h3>{next.title}</h3>
-          <StepBody s={next} status={stateOf(next.id)} setStatus={(v) => setStatus(next.id, v)} />
+          <StepBody s={next} status={stateOf(next)} setStatus={(v) => setStatus(next, v)} deal={deal} />
         </div>
       ) : (
         <p className="next-step" role="status">Every step on this route is done. Review your plan before your next deal, and keep practicing.</p>
       )}
       <h3 className="roadmap-all-head">All steps</h3>
       {phases.map((ph) => {
-        const phDone = ph.steps.filter((s) => settled(s.id)).length;
+        const phDone = ph.steps.filter(settled).length;
         return (
           <details key={ph.n} className="roadmap-phase" open={openPhase === ph.n}>
             <summary>
@@ -161,14 +222,14 @@ export function FirstDealRoadmap() {
             </summary>
             <div className="roadmap-steps">
               {ph.steps.map((s) => {
-                const st = stateOf(s.id);
+                const st = stateOf(s);
                 return (
                   <details key={s.id} className={`roadmap-step ${st}`}>
                     <summary>
                       <span className="roadmap-step-title">{s.title}</span>
                       <span className={`roadmap-chip ${st}`}>{STEP_STATUS_LABEL[st]}</span>
                     </summary>
-                    <StepBody s={s} status={st} setStatus={(v) => setStatus(s.id, v)} />
+                    <StepBody s={s} status={st} setStatus={(v) => setStatus(s, v)} deal={deal} />
                   </details>
                 );
               })}
@@ -426,6 +487,11 @@ export default function ToolkitPage({ section }: { section?: string }) {
       <CashWorksheet />
       <BuyBoxBuilder />
       <Worksheets />
+      <section id="paperwork" aria-labelledby="paperwork-head">
+        <h2 id="paperwork-head">Read the paperwork</h2>
+        <p>The documents a purchase turns on, annotated: who gives each one to you and when, the parts to find, what you fill in and what a professional prepares, and how to check a corrected version. Open one when your roadmap step reaches it.</p>
+        {DOC_GUIDES.map((g) => <DocGuideView key={g.key} g={g} label={g.title} />)}
+      </section>
       {TOOLKIT.map((g) => (
         <section key={g.group} id={`tools-${g.group.toLowerCase().replace(/[^a-z]+/g, '-')}`}>
           <h2>{g.group}</h2>

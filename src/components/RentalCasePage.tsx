@@ -4,6 +4,8 @@ import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import { PracticeRibbon } from './PracticePage';
 import { CASE_PROPERTY, CASE_TITLE, N, RENTAL_CASE, tasksFor, type CaseDoc, type CaseStage, type CaseTask, type Verdict } from '../practice/rentalCase';
+import { docGuide } from '../lib/docGuides';
+import DocGuideView from './DocGuideView';
 import { emptyCase, loadCase, saveCase, type CaseProgress } from '../practice/caseProgress';
 
 const key = (st: CaseStage, t: CaseTask) => `${st.key}/${t.id}`;
@@ -48,7 +50,7 @@ export default function RentalCasePage({ stageKey }: { stageKey?: string }) {
         compact
         eyebrow={<span className="practice-tag">Practice · fictional property</span>}
         title={CASE_TITLE}
-        sub={`${CASE_PROPERTY}. You’ll read the real paperwork of a purchase, make the calls, and finish with your own deal packet.`}
+        sub={`${CASE_PROPERTY}. You’ll read teaching versions of a purchase’s paperwork (fictional extracts, each with a guide to the real form), make the calls, and finish with your own deal packet.`}
       />
       <PracticeRibbon />
       <nav className="practice-stages" aria-label="Steps in this practice purchase" id="case-top">
@@ -177,6 +179,7 @@ function Doc({ d }: { d: CaseDoc }) {
         </div>
       )}
       {d.notes?.map((x) => <p key={x} className="case-doc-note">{x}</p>)}
+      {d.guide && docGuide(d.guide) && <DocGuideView g={docGuide(d.guide)!} />}
     </article>
   );
 }
