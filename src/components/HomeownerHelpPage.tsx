@@ -1,6 +1,4 @@
-import { useRef } from 'react';
 import PageHero from './PageHero';
-import OnThisPage from './OnThisPage';
 import { useLastActivity } from '../lib/journey';
 import { showFor, useMyState } from '../lib/myState';
 import ScriptBox from './ScriptBox';
@@ -22,10 +20,9 @@ const SURPLUS: { text: string; link?: { label: string; url: string } }[] = [
 /** For owners and tenants facing foreclosure. The site never shares their details or helps anyone contact them. */
 export default function HomeownerHelpPage() {
   const [state] = useMyState();
-  const page = useRef<HTMLElement>(null);
   useLastActivity('#/homeowner-help', 'Facing foreclosure? Free help');
   return (
-    <main className="page prose" ref={page}>
+    <main className="page prose">
       <PageHero
         eyebrow={<span className="eyebrow">Free help · Nevada</span>}
         title={<>Facing foreclosure? <span className="grad">Get free help.</span></>}
@@ -34,7 +31,6 @@ export default function HomeownerHelpPage() {
 
       <p className="page-starter"><strong>Outside Nevada?</strong> The programs and deadlines on this page are Nevada’s. HUD-approved housing counselors (below) work in every state, usually at no cost, and know your state’s deadlines.</p>
       <p className="page-starter"><a className="btn" href="https://answers.hud.gov/housingcounseling/" {...ext}>Find a free HUD-approved housing counselor ↗</a> <span className="muted">The best first call, in any state.</span></p>
-      <OnThisPage root={page} selector="section > h2" />
 
       <section>
         <h2>Free, trustworthy help: start here</h2>

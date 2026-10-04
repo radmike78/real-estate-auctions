@@ -1,5 +1,4 @@
-import { useRef, useState, type ReactElement } from 'react';
-import OnThisPage from './OnThisPage';
+import { useState, type ReactElement } from 'react';
 import PageHero from './PageHero';
 import DrillDown, { type DrillSection } from './DrillDown';
 import TeamList from './TeamList';
@@ -43,14 +42,12 @@ function LicenseCheck({ lookups, state }: { lookups: Record<StateCode, Lookup>; 
 
 function GuideBody({ g }: { g: ProGuide }) {
   const [st] = useMyState();
-  const ref = useRef<HTMLDivElement>(null);
   const fit = (xs: string[]) => xs.map((x) => forStateText(st, x)).filter(Boolean);
   return (
-    <div className="pro-guide" ref={ref}>
+    <div className="pro-guide">
       {/* One short role summary, then the practical part (when, how to find, what to ask, how they're paid); background,
           the case for and against, and the stories after. */}
       <p className="pro-guide-does">{forStateText(st, g.does)}</p>
-      <OnThisPage root={ref} selector="h3.part-head" />
       <h3 className="part-head">Hiring one</h3>
       <div className="pro-guide-cols">
         <section>
