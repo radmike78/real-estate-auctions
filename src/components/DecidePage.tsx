@@ -163,6 +163,7 @@ export default function DecidePage() {
             })}
           </ol>
           <div className="decide-nav">
+            <a className="btn" href="#/toolkit/buy-box">Next: write your buy box →</a>
             <button type="button" className="btn btn-secondary" onClick={() => setStep(0)}>Change my answers</button>
             <button
               type="button"

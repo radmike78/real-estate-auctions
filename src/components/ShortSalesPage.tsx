@@ -4,6 +4,7 @@ import { CHECKLISTS } from '../lib/buyerChecklists';
 import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
 import { IconCheckList, IconFlag, IconLayers, IconSteps, IconStop } from './Icons';
+import SaleDocsPanel from './SaleDocsPanel';
 
 const STEPS: [string, string][] = [
   ['Get pre-approved or show proof of funds', 'The lender reviewing a short sale wants to know you can close. Send a pre-approval letter or bank statement in with your offer.'],
@@ -64,7 +65,13 @@ export const SECTIONS: DrillSection[] = [
     icon: <IconCheckList />,
     summary: `${CHECKLISTS.short.items.length} items to tick off before you make an offer`,
     bare: true,
-    content: () => <BuyerChecklistBox list={CHECKLISTS.short} />,
+    content: () => (
+      <>
+        <BuyerChecklistBox list={CHECKLISTS.short} />
+        <h3 className="section-title">Documents and what to say</h3>
+        <SaleDocsPanel guideKey="short" state="NV" />
+      </>
+    ),
   },
   {
     key: 'risks',

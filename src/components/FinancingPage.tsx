@@ -2,6 +2,8 @@ import ProDirectory from './ProDirectory';
 import Disclaimer from './Disclaimer';
 import PageHero from './PageHero';
 import { FINANCING_CATEGORIES } from '../lib/pros';
+import ScriptBox from './ScriptBox';
+import { PRO_SCRIPTS } from '../lib/proScripts';
 
 const OPTIONS: [string, string][] = [
   ['Buying a home to live in', 'Conventional, FHA, VA and USDA loans from loan officers, banks and credit unions. FHA 203k and HomeStyle loans cover repairs too.'],
@@ -29,6 +31,15 @@ export default function FinancingPage({ initialLocation = '' }: { initialLocatio
             <p>{d}</p>
           </div>
         ))}
+      </section>
+
+      <section className="roadmap-cols" aria-label="Before you call a lender">
+        <ScriptBox to="A loan officer" script={PRO_SCRIPTS.lender.say} note="Ask two or three lenders the same question, so you can compare." />
+        <div>
+          <h3>Have ready</h3>
+          <ul>{PRO_SCRIPTS.lender.bring!.map((x) => <li key={x}>{x}</li>)}</ul>
+          <p><a className="btn btn-secondary" href="#/learn/financing">Compare ways to pay →</a></p>
+        </div>
       </section>
 
       <h2>Lenders</h2>

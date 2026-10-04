@@ -33,6 +33,16 @@ export const afterClosing: Lesson = {
         'For housing built before 1978, landlords must do two things before the lease is signed: tell tenants about any lead-based paint and hazards they know of, and give them the EPA’s lead pamphlet. The lease needs the federal Lead Warning Statement, a list of any lead records or reports, and the tenant’s signed acknowledgment. Keep a copy for three years.',
         'If you turn someone down, or ask for a cosigner, a bigger deposit or higher rent, because of a credit or screening report, federal law says you must tell them. Give the screening company’s name, address and phone number. Say that the company didn’t make the decision and can’t explain it. Tell them they can get a free copy of their report within 60 days and dispute anything wrong. If you used a credit score, more is required, including the score itself. Written notice is best, so you have a record (FTC: Using Consumer Reports: What Landlords Need to Know).',
         'Use a written lease that follows your state’s landlord-tenant law. A local property manager or real estate attorney can help with both.',
+        'The papers to have ready before you rent:',
+        { list: [
+          'Written screening criteria, applied the same way to every applicant',
+          'A rental application, with the applicant’s written permission to check credit and rental history',
+          'An adverse action notice, for when a report leads you to deny someone or change their terms',
+          'The lead disclosure and EPA pamphlet, for homes built before 1978',
+          'A written lease that follows your state’s law',
+          'A move-in condition checklist, signed by you both, with dated photos',
+        ] },
+        'If you hire a property manager, ask: What are all your fees, including leasing and renewal fees? How do you screen tenants? How much can you spend on a repair without asking me? Where are rent and deposits held, and when am I paid? How can either of us end the agreement?',
         { links: [
           { label: 'Property managers', url: '#/pros/property_manager', what: 'What they do, how they’re paid and what to check before you hire one.' },
           { label: 'Eviction attorneys', url: '#/pros/eviction', what: 'When you need one and how the process works.' },

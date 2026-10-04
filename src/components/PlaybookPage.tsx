@@ -36,7 +36,8 @@ import { useMyState } from '../lib/myState';
 import { STATES, stateByCode } from '../lib/regions';
 import { fmtDate } from '../lib/status';
 import { Cited } from './Cited';
-import { SALE_SCRIPTS, saleDocsFor, saleKindOf } from '../lib/saleDocs';
+import { saleDocsFor } from '../lib/saleDocs';
+import SaleDocsPanel from './SaleDocsPanel';
 import { useEffect } from 'react';
 import { replaceAddress } from '../lib/nav';
 
@@ -60,27 +61,7 @@ export function sections(p: Playbook): DrillSection[] {
       title: 'Documents and what to say',
       icon: <IconCheckList />,
       summary: `${saleDocsFor(p.key, stateOf(p)).length} documents to have, check or sign, and what to ask`,
-      content: () => (
-        <div className="roadmap-cols sale-docs">
-          <div>
-            <h3>Documents</h3>
-            <ul className="sale-doc-list">
-              {saleDocsFor(p.key, stateOf(p)).map((d) => <li key={d.name}><strong>{d.name}</strong> <span>{d.check}</span></li>)}
-            </ul>
-            <p className="muted">The official notice and your contract always have the exact forms, amounts and deadlines.</p>
-          </div>
-          <div>
-            <h3>What to say</h3>
-            {SALE_SCRIPTS[saleKindOf(p.key)].map((x) => (
-              <div key={x.to}>
-                <h4>{x.to}</h4>
-                <blockquote className="roadmap-script">{x.script}</blockquote>
-              </div>
-            ))}
-            <p className="muted">Talk only with the official seller and your own team. Never contact the owner or anyone living in the property.</p>
-          </div>
-        </div>
-      ),
+      content: () => <SaleDocsPanel guideKey={p.key} state={stateOf(p)} />,
     },
     {
       key: 'what-survives',

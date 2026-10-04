@@ -18,6 +18,8 @@ import EmptyState from './EmptyState';
 import OwlNote from './OwlNote';
 import { useSiteFeatures } from '../lib/siteFeatures';
 import { CLASS_LABEL, classOfLandUse, type ClassFilter } from '../lib/propertyClass';
+import ScriptBox from './ScriptBox';
+import { SALE_SCRIPTS } from '../lib/saleDocs';
 
 function ago(iso: string, now: number) {
   const m = Math.max(0, Math.round((now - Date.parse(iso)) / 60_000));
@@ -110,6 +112,12 @@ export default function LivePage() {
           </div>
         </section>
       )}
+
+      <section aria-labelledby="treasurer-head">
+        <h2 id="treasurer-head">Before you register: ask the Treasurer</h2>
+        <ScriptBox to={SALE_SCRIPTS.deed[0].to} script={SALE_SCRIPTS.deed[0].script} note="Call or email the Clark County Treasurer’s tax sale office using the contact on the official notice. Then read the full checklist in the tax sale guide." />
+        <p><a className="btn" href="#/playbooks/tax/documents">Documents for a tax sale →</a></p>
+      </section>
 
       {result?.ok && (
         <section>

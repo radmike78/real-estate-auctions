@@ -10,6 +10,8 @@ import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
 import { IconCheckList, IconClock } from './Icons';
 import EmptyState from './EmptyState';
+import ScriptBox from './ScriptBox';
+import { SALE_SCRIPTS } from '../lib/saleDocs';
 
 const WATCH_KEY = 'fsf.preforeclosure.watch.v1';
 
@@ -72,7 +74,24 @@ export const GUIDE: DrillSection[] = [
     icon: <IconCheckList />,
     summary: `${CHECKLISTS.pre.items.length} things to prepare in case a tracked home goes to sale`,
     bare: true,
-    content: () => <BuyerChecklistBox list={CHECKLISTS.pre} />,
+    content: () => (
+      <>
+        <BuyerChecklistBox list={CHECKLISTS.pre} />
+        <div className="roadmap-cols">
+          <div>
+            <h3>How to read a notice of sale</h3>
+            <ul>
+              <li>The date, time and place of the sale (or the website, for an online sale).</li>
+              <li>The trustee’s name and phone number: the only person to ask about the sale.</li>
+              <li>The property: address, parcel number and legal description.</li>
+              <li>An estimate of the unpaid debt. The opening bid can be different, so ask the trustee. Neither is the property’s value.</li>
+              <li>The form of payment the trustee accepts.</li>
+            </ul>
+          </div>
+          <ScriptBox to={SALE_SCRIPTS.trustee[0].to} script={SALE_SCRIPTS.trustee[0].script} note="Ask the trustee only. Never contact the owner or anyone living in the home." />
+        </div>
+      </>
+    ),
   },
 ];
 

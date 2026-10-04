@@ -3,6 +3,7 @@ import PageHero from './PageHero';
 import OnThisPage from './OnThisPage';
 import { useLastActivity } from '../lib/journey';
 import { showFor, useMyState } from '../lib/myState';
+import ScriptBox from './ScriptBox';
 
 const ext = { target: '_blank', rel: 'noopener noreferrer' } as const;
 
@@ -32,6 +33,7 @@ export default function HomeownerHelpPage() {
       />
 
       <p className="page-starter"><strong>Outside Nevada?</strong> The programs and deadlines on this page are Nevada’s. HUD-approved housing counselors (below) work in every state, usually at no cost, and know your state’s deadlines.</p>
+      <p className="page-starter"><a className="btn" href="https://answers.hud.gov/housingcounseling/" {...ext}>Find a free HUD-approved housing counselor ↗</a> <span className="muted">The best first call, in any state.</span></p>
       <OnThisPage root={page} selector="section > h2" />
 
       <section>
@@ -51,6 +53,23 @@ export default function HomeownerHelpPage() {
           <li>Some deadlines are short. In Nevada, you have to ask for foreclosure mediation within 30 days after the notice of default is served (NRS 107.086).</li>
           <li>Call your lender or servicer early and keep notes of every call.</li>
         </ul>
+      </section>
+
+      <section>
+        <h2>What to have ready, and what to say</h2>
+        <div className="roadmap-cols">
+          <div>
+            <h3>Gather these before you call</h3>
+            <ul>
+              <li>Your latest mortgage statement, with your loan number</li>
+              <li>Any notice you’ve received, such as a notice of default</li>
+              <li>Proof of income: recent pay stubs, benefits letters or tax returns</li>
+              <li>A list of your monthly bills</li>
+              <li>A short hardship letter: what happened, when, and what you can pay now</li>
+            </ul>
+          </div>
+          <ScriptBox to="Your loan servicer (the number on your statement)" script="“I’m behind on my loan, number [number]. What options do I have, such as a repayment plan, a modification or a short sale? What documents do you need from me, and what are the deadlines? Please confirm what we agree in writing.”" note="Write down the date, the person’s name and what they said on every call. A housing counselor can make this call with you." />
+        </div>
       </section>
 
       <section>
