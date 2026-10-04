@@ -85,19 +85,31 @@ function buyGroup<T extends BuyInputs>(repairsLabel = 'Repairs'): CalcGroup<T> {
   };
 }
 
-/** For a listed or bank-owned home: no auction cash limit or buyer's premium, and closing words instead of auction words. */
+/**
+ * For a listed or bank-owned home: no buyer's premium, closing words instead of auction words, and a purchase loan
+ * (a % of the price or the appraisal, whichever is lower) instead of a refinance later.
+ */
 function forOffer<T>(groups: CalcGroup<T>[]): CalcGroup<T>[] {
   const relabel: Record<string, { label?: string; hint?: string; more?: string }> = {
+    cashAvailable: { label: 'Cash you can put in, all in', hint: 'Down payment, closing costs and repairs. 0 for no limit.', more: 'Use your investable cash from My plan, less the reserves your lender wants you to keep. Your walk-away price never needs more cash than this.' },
+    transferTaxPer500: { hint: 'Your contract says who pays. Enter 0 if the seller pays it.' },
     survivingLiens: { label: 'Liens you’d have to pay', hint: 'Usually paid off at closing. Check the title report.' },
-    titleLegal: { label: 'Title insurance, escrow and attorney' },
+    titleLegal: { label: 'Closing costs: title, escrow, recording', hint: 'Lender fees go in “Loan costs” below.', more: 'Your Loan Estimate or the lender’s term sheet and the escrow officer’s estimate have the real figures. Together with lender fees, closing costs often run 2–4% of the price.' },
     possession: { hint: 'Only if a tenant or the owner stays after closing.' },
-    loanPct: { hint: 'A loan when you buy, or a refinance later. 0 for all cash.', more: 'Lenders set their own limits; ask yours what they’d lend on this property and when.' },
+    value: { label: 'Appraised value', hint: 'From sold comps. The loan uses the lower of this and the price.' },
+    loanPct: { label: 'Loan, % of the price or value (lower)', hint: '75% (25% down) is common for a rental you won’t live in. 0 for all cash.', more: 'Lenders lend a % of the price or the appraised value, whichever is lower. A lower price means a smaller loan and a lower payment. Ask your lender for their limits.' },
   };
   return groups.map((g) => ({
     ...g,
-    fields: g.fields.filter((f) => f.k !== 'cashAvailable' && f.k !== 'buyerPremiumPct').map((f) => ({ ...f, ...relabel[f.k as string] })) as CalcGroup<T>['fields'],
+    title: g.title === 'Loan after you buy' ? 'Your loan' : g.title,
+    fields: g.fields.filter((f) => f.k !== 'buyerPremiumPct').map((f) => ({ ...f, ...relabel[f.k as string] })) as CalcGroup<T>['fields'],
   }));
 }
+
+/** Starting numbers for a listed home: no possession cost, closing costs and a common rental loan. */
+const OFFER_START = { possession: 0, titleLegal: 2_500, repairs: 5_000, loanPct: 75, ratePct: 7 };
+/** A listed home's numbers are kept apart from an auction's, since the costs and the loan work differently. */
+const offerKey = (key: string) => key.replace(/\.v1$/, '.offer.v1');
 
 function loanGroup<T extends LoanInputs>(valueLabel: string, valueHint: string): CalcGroup<T> {
   return {
@@ -118,7 +130,7 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false }: { r:
       <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
         <span>{title}</span>
         <strong>{r.noBidWorks ? (offer ? 'No offer works' : 'No bid works') : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'}</strong>
-        <small>{r.noBidWorks ? 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.' : !Number.isFinite(r.maxBid) ? 'Enter the return you want, or the cash you can bring, to get a walk-away price.' : r.limitedBy === 'cash' ? 'Set by the cash you can bring.' : target}</small>
+        <small>{r.noBidWorks ? 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.' : !Number.isFinite(r.maxBid) ? 'Enter the return you want, or the cash you can bring, to get a walk-away price.' : r.limitedBy === 'cash' ? (offer ? 'Set by the cash you can put in: the down payment, closing costs and repairs.' : 'Set by the cash you can bring: the bid and every cost until it’s ready to rent.') : target}</small>
       </div>
       {!r.noBidWorks && Number.isFinite(r.maxBid) && (
         <dl className="calc-kv">
@@ -171,8 +183,8 @@ const RENT_GROUPS: CalcGroup<RentInputs>[] = [
 ];
 
 /** How long savings carry the rental with no rent: the payments don't stop when a unit is empty. */
-function CashCushion({ v }: { v: RentInputs }) {
-  const e = rentEmptyMonths(v);
+function CashCushion({ v, price, onPrice }: { v: RentInputs; price: number; onPrice: boolean }) {
+  const e = rentEmptyMonths(v, Number.isFinite(price) && price > 0 ? price : v.value, onPrice);
   if (e.monthly <= 0) return null;
   if (e.months === null) return <p className="calc-note small">Enter the cash you’ll still have after buying to see how many months you could pay {fmtMoney(Math.round(e.monthly))} a month in loan, tax, insurance and HOA costs with no rent coming in.</p>;
   const short = e.months < 6;
@@ -199,10 +211,10 @@ const OFTEN_FORGOTTEN = [
 
 /** Stress tests, the deal in plain words, and a checklist of easy-to-forget costs. */
 /** The rental at a price you type: every step from rent to cash flow, with its assumptions. */
-function AtThisPrice({ v, start }: { v: RentInputs; start: number }) {
+function AtThisPrice({ v, start, onPrice }: { v: RentInputs; start: number; onPrice: boolean }) {
   const walkAway = Number.isFinite(start) && start > 0 ? Math.round(start) : 0;
   const [price, setPrice] = useState(walkAway);
-  const a = rentAtPrice(v, price);
+  const a = rentAtPrice(v, price, onPrice);
   const mo = (n: number) => fmtMoney(Math.round(n / 12));
   const neg = (n: number) => (n > 0 ? `−${mo(n)}` : mo(0));
   return (
@@ -227,8 +239,8 @@ function AtThisPrice({ v, start }: { v: RentInputs; start: number }) {
       </table>
       <dl className="calc-kv">
         <div><dt>Everything you pay, ready to rent (price, buying costs, liens, title, possession, repairs)</dt><dd>{fmtMoney(Math.round(a.allIn))}</dd></div>
-        {a.loan > 0 && <div><dt>Loan ({Math.min(v.loanPct, 100)}% of the {fmtMoney(v.value)} value, after {v.loanCostPct}% loan costs)</dt><dd>{fmtMoney(Math.round(a.loan * (1 - v.loanCostPct / 100)))}</dd></div>}
-        <div><dt>Your cash in the deal</dt><dd>{a.cashIn > 0 ? fmtMoney(Math.round(a.cashIn)) : 'None: the loan covers it'}</dd></div>
+        {a.loan > 0 && <div><dt>Loan ({Math.min(v.loanPct, 100)}% of {onPrice ? `${fmtMoney(v.value > 0 ? Math.min(price, v.value) : price)}, the lower of the price and the value` : `the ${fmtMoney(v.value)} value`}, after {v.loanCostPct}% loan costs)</dt><dd>{fmtMoney(Math.round(a.loan * (1 - v.loanCostPct / 100)))}</dd></div>}
+        <div><dt>Your cash in the deal</dt><dd>{a.cashIn > 0 ? fmtMoney(Math.round(a.cashIn)) : 'None: the loan covers it'}{v.cashAvailable > 0 && a.cashIn > v.cashAvailable && <span className="deal-urgent"> · more than the {fmtMoney(v.cashAvailable)} you can put in</span>}</dd></div>
         <div><dt>Cash-on-cash return: yearly cash flow ÷ your cash in</dt><dd>{a.cashOnCash === null ? 'All your cash is back' : pctText(a.cashOnCash)}</dd></div>
         <div><dt>Cap rate on the price: NOI ÷ price</dt><dd>{pctText(a.capOnPrice)}</dd></div>
         <div><dt>Cap rate on everything you pay</dt><dd>{pctText(a.capOnCost)}</dd></div>
@@ -239,14 +251,15 @@ function AtThisPrice({ v, start }: { v: RentInputs; start: number }) {
   );
 }
 
-function RentDealLab({ v, start }: { v: RentInputs; start: number }) {
-  const rows = rentStress(v);
+function RentDealLab({ v, start, onPrice }: { v: RentInputs; start: number; onPrice: boolean }) {
+  const at = Number.isFinite(start) && start > 0 ? start : v.value;
+  const rows = rentStress(v, at, onPrice);
   const [ticked, setTicked] = useState<string[]>([]);
   return (
     <div className="deal-lab">
-      <AtThisPrice v={v} start={start} />
+      <AtThisPrice v={v} start={start} onPrice={onPrice} />
       <h4>Explain this deal</h4>
-      <ul className="deal-explain">{explainRent(v).map((x) => <li key={x}>{x}</li>)}</ul>
+      <ul className="deal-explain">{explainRent(v, at, onPrice).map((x) => <li key={x}>{x}</li>)}</ul>
       <h4>Stress test: cash flow per month</h4>
       <table className="deal-stress">
         <tbody>
@@ -277,17 +290,17 @@ function RentDealLab({ v, start }: { v: RentInputs; start: number }) {
 
 export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', start = {}, regional = false, offer = false }: { storageKey?: string; start?: Partial<RentInputs>; regional?: boolean; offer?: boolean }) {
   const rt = useRegionTax(RENT_GROUPS);
-  const [saved, set] = useSaved<RentInputs>(storageKey, { ...RENT_DEFAULTS, ...start }, regional ? { transferTaxPer500: rt.per500 } : {});
-  const v = offer ? { ...saved, cashAvailable: 0, buyerPremiumPct: 0 } : saved;
-  const r = rentMaxBid(v);
+  const [saved, set] = useSaved<RentInputs>(offer ? offerKey(storageKey) : storageKey, { ...RENT_DEFAULTS, ...(offer ? OFFER_START : {}), ...start }, regional ? { transferTaxPer500: rt.per500 } : {});
+  const v = offer ? { ...saved, buyerPremiumPct: 0 } : saved;
+  const r = rentMaxBid(v, offer);
   const n = rentNoi(v);
   return (
     <div className="calc">
       <div className="calc-inputs"><CalcFields groups={offer ? forOffer(rt.groups) : rt.groups} values={v} onChange={set} /></div>
       <div className="calc-results">
         <HoldResults r={r} title="Walk-away price to keep and rent it" target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} />
-        <CashCushion v={v} />
-        <RentDealLab v={v} start={r.maxBid} />
+        <CashCushion v={v} price={r.maxBid} onPrice={offer} />
+        <RentDealLab v={v} start={r.maxBid} onPrice={offer} />
       </div>
     </div>
   );
@@ -320,9 +333,9 @@ const COMMERCIAL_GROUPS: CalcGroup<CommercialInputs>[] = [
 
 export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', start = {}, regional = false, offer = false }: { storageKey?: string; start?: Partial<CommercialInputs>; regional?: boolean; offer?: boolean }) {
   const ct = useRegionTax(COMMERCIAL_GROUPS);
-  const [saved, set] = useSaved<CommercialInputs>(storageKey, { ...COMMERCIAL_DEFAULTS, ...start }, regional ? { transferTaxPer500: ct.per500 } : {});
-  const v = offer ? { ...saved, cashAvailable: 0, buyerPremiumPct: 0 } : saved;
-  const r = commercialMaxBid(v);
+  const [saved, set] = useSaved<CommercialInputs>(offer ? offerKey(storageKey) : storageKey, { ...COMMERCIAL_DEFAULTS, ...start }, regional ? { transferTaxPer500: ct.per500 } : {});
+  const v = offer ? { ...saved, buyerPremiumPct: 0 } : saved;
+  const r = commercialMaxBid(v, offer);
   const n = commercialNoi(v);
   return (
     <div className="calc">

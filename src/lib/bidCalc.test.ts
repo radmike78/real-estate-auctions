@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
-import { BLANK_INPUTS, maxBidSteps, START_INPUTS, costsAtBid, defaultsFor, maxSafeBid, profitAtBid, redemptionOutcome, REDEMPTION_RULES, requiredProfit, ruleOf, sanitizeInputs, stressGrid, stressTests, totalMonths, type BidInputs } from './bidCalc';
+import { BLANK_INPUTS, maxBidSteps, START_INPUTS, costsAtBid, defaultsFor, maxSafeBid, profitAtBid, redemptionOutcome, REDEMPTION_RULES, requiredProfit, ruleOf, sanitizeInputs, stressGrid, stressTests, totalMonths, type BidInputs, cashNeededAtBid } from './bidCalc';
 import { daysUntil, whenLabel } from '../components/ResultsList';
 
 const base: BidInputs = { ...BLANK_INPUTS, exitValue: 400_000, repairs: 40_000, buyerPremiumPct: 5, financedPct: 70 };
@@ -178,8 +178,10 @@ describe('walk-away price: cash limit, minimum profit, redemption, yearly return
     expect(free.limitedBy).toBe('profit');
     const tight = maxSafeBid({ ...base, cashAvailable: 100_000, buyerPremiumPct: 5 });
     expect(tight.limitedBy).toBe('cash');
-    expect(tight.maxBid).toBe(Math.floor(100_000 / 1.05));
+    // The cash covers the bid and every cost until the sale, not just the bid.
     expect(tight.cashAtAuction).toBeLessThanOrEqual(100_000);
+    expect(tight.cashToStabilize).toBeLessThanOrEqual(100_000);
+    expect(cashNeededAtBid({ ...base, cashAvailable: 100_000, buyerPremiumPct: 5 }, tight.maxBid + 1)).toBeGreaterThan(100_000);
     expect(tight.profitBid).toBe(maxSafeBid({ ...base, buyerPremiumPct: 5 }).profitBid);
   });
 
