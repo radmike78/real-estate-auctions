@@ -27,6 +27,29 @@ export function transferTaxFor(state: StateCode, county: string): TransferTax {
   };
 }
 
+/** What a buyer's property tax will be, which is often not the seller's bill. */
+export function propertyTaxHint(state: StateCode): { hint: string; more: string } {
+  if (state === 'CA')
+    return {
+      hint: 'Use about 1% of your price plus local charges, not the seller’s bill.',
+      more: 'In California, buying resets the taxable value to what you paid (Proposition 13), so a long-time owner’s bill doesn’t predict yours. The county also sends a separate “supplemental” bill for the rest of the tax year. It goes to you, and your loan’s impound account usually doesn’t pay it.',
+    };
+  if (state === 'AZ')
+    return {
+      hint: 'Rentals lose the homeowner rebate (up to $600 a year).',
+      more: 'In Arizona, owner-occupied homes get a rebate on part of the school tax, up to $600 a year (A.R.S. 15-972). A rental doesn’t, so expect a higher bill than an owner-occupant paid. You must also register a rental with the county assessor (A.R.S. 33-1902).',
+    };
+  if (state === 'UT')
+    return {
+      hint: 'A second home or short-term rental pays about 80% more.',
+      more: 'In Utah, a home that is someone’s main home is taxed on 55% of its value. A long-term rental counts when it’s the tenant’s main home. A second home or short-term rental is taxed on its full value, so its bill is about 80% higher.',
+    };
+  return {
+    hint: 'A rental’s bill can rise up to 8% a year, not 3%.',
+    more: 'In Nevada, the yearly increase in a tax bill is capped at 3% for an owner’s main home. For a rental it’s up to 8%, unless the rent is at or below HUD’s Fair Market Rent and you file a claim with the assessor (NRS 361.4722–361.4724). A home you buy to rent usually moves to the higher cap. Ask the assessor what next year’s bill will be.',
+  };
+}
+
 export interface RedemptionPreset {
   label: string;
   months: number;

@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import type { BidInputs } from '../lib/bidCalc';
-import { COMMERCIAL_DEFAULTS, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs } from '../lib/holdCalc';
+import { COMMERCIAL_DEFAULTS, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs } from '../lib/holdCalc';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 import CalcFields, { type CalcGroup } from './CalcFields';
 import { useCalcRegion } from './calcRegion';
-import { transferTaxFor } from '../lib/stateCosts';
+import { propertyTaxHint, transferTaxFor } from '../lib/stateCosts';
 
 /** The purchase-cost fields worded for the deal's state and county, starting at its transfer tax. */
 function useRegionTax<T extends BuyInputs>(groups: CalcGroup<T>[]): { groups: CalcGroup<T>[]; per500: number } {
   const r = useCalcRegion();
   const tax = transferTaxFor(r.state, r.county);
+  const pt = propertyTaxHint(r.state);
   return {
     per500: tax.per500,
-    groups: groups.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'transferTaxPer500' ? { ...f, hint: tax.hint, more: tax.more } : f)) })),
+    groups: groups.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'transferTaxPer500' ? { ...f, hint: tax.hint, more: tax.more } : f.k === 'propertyTaxYear' ? { ...f, hint: pt.hint, more: pt.more } : f)) })),
   };
 }
 
@@ -151,9 +152,23 @@ const RENT_GROUPS: CalcGroup<RentInputs>[] = [
     fields: [
       { k: 'targetCocPct', label: 'Cash-on-cash return you want', unit: '%', hint: 'Yearly cash flow ÷ your cash in the deal.' },
       { k: 'minDscr', label: 'Lender’s minimum coverage', unit: 'x', hint: 'Income ÷ loan payment. Often 1.2–1.25.', when: (v) => v.loanPct > 0 },
+      { k: 'reserveCash', label: 'Cash you’ll still have after buying', unit: '$', hint: 'Savings left after closing and repairs.', more: 'Beginners run out of cash before they run out of deals. This shows how many months you could keep paying with no rent coming in.' },
     ],
   },
 ];
+
+/** How long savings carry the rental with no rent: the payments don't stop when a unit is empty. */
+function CashCushion({ v }: { v: RentInputs }) {
+  const e = rentEmptyMonths(v);
+  if (e.months === null) return <p className="calc-note small">Enter the cash you’ll still have after buying to see how many months you could pay {fmtMoney(Math.round(e.monthly))} a month in loan, tax, insurance and HOA costs with no rent coming in.</p>;
+  const short = e.months < 6;
+  return (
+    <p className={`calc-note small${short ? ' warn' : ''}`} role="status">
+      <strong>With no rent, your cash lasts about {e.months.toLocaleString()} months.</strong> That pays {fmtMoney(Math.round(e.monthly))} a month in loan, tax, insurance and HOA costs.
+      {short && ' Less than 6 months is thin: Fannie Mae asks for 6 months of payments in reserve on most rental purchases, and an eviction or a big repair can take that long.'}
+    </p>
+  );
+}
 
 /** Costs beginners often leave out of a rental budget. */
 const OFTEN_FORGOTTEN = [
@@ -257,6 +272,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', start = {}, re
       <div className="calc-inputs"><CalcFields groups={offer ? forOffer(rt.groups) : rt.groups} values={v} onChange={set} /></div>
       <div className="calc-results">
         <HoldResults r={r} title="Walk-away price to keep and rent it" target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} />
+        <CashCushion v={v} />
         <RentDealLab v={v} start={r.maxBid} />
       </div>
     </div>

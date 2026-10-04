@@ -21,7 +21,25 @@ export function Calculators({ initial, onTab, state, offer = false }: { initial?
         ].filter((s) => s.key !== 'lien' || !state || state === 'NV' || state === 'AZ').map((s) => (s.key === 'lien' && state === 'AZ' ? { ...s, label: 'Tax lien', about: 'What an Arizona tax lien certificate earns per year at the rate you win, counting the wait to be paid.' } : s))}
       />
       <p className="muted small">The results are only as good as the numbers you enter; they aren’t a guarantee of profit.</p>
+      <BeforeYouCommit />
     </>
+  );
+}
+
+/** The checks that most often change a beginner's numbers, shown where the decision is made. */
+function BeforeYouCommit() {
+  return (
+    <section className="before-commit" aria-labelledby="before-commit-head">
+      <h3 id="before-commit-head">Before you commit, check these</h3>
+      <ul>
+        <li><strong>Your tax bill, not the seller’s.</strong> It can change when you buy or rent it out. <a href="#/learn/analyze">See your state</a></li>
+        <li><strong>A written insurance quote</strong> for how you’ll use it, including while it’s empty. <a href="#/learn/analyze">What to ask</a></li>
+        <li><strong>At least 6 months of payments in savings</strong> after closing and repairs.</li>
+        <li><strong>The rules for renting it:</strong> HOA limits, short-term rental rules and local rent rules.</li>
+        <li><strong>Wire instructions confirmed by phone</strong> with your title or escrow company, using a number you looked up yourself. <a href="#/learn/negotiate">Why</a></li>
+      </ul>
+      <p className="muted small">If you can’t check one of these yet, pause. It’s fine to walk away. <a href="#/learn/walk-away">When to walk away</a></p>
+    </section>
   );
 }
 

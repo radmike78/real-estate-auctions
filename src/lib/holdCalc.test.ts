@@ -106,3 +106,12 @@ describe('NOI, reserves, debt service and cash flow stay separate', () => {
     expect(a.capOnPrice).toBeCloseTo(a.noi / 250_000, 6);
   });
 });
+
+describe('rentEmptyMonths', () => {
+  it('counts the months savings cover the loan, tax, insurance and HOA with no rent', async () => {
+    const { rentEmptyMonths } = await import('./holdCalc');
+    const v = { ...RENT_DEFAULTS, loanPct: 0, propertyTaxYear: 2_400, insuranceYear: 1_200, hoaMonthly: 100 };
+    expect(rentEmptyMonths(v)).toEqual({ monthly: 400, months: null });
+    expect(rentEmptyMonths({ ...v, reserveCash: 2_000 }).months).toBe(5);
+  });
+});

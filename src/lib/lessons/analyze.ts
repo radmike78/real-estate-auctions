@@ -35,6 +35,36 @@ export const analyze: Lesson = {
       ],
     },
     {
+      heading: 'Your tax bill after you buy',
+      blocks: [
+        'The seller’s property tax bill often doesn’t predict yours. Each state changes the bill when a home is sold or stops being the owner’s home. Use the number for your situation, not the listing’s.',
+        {
+          table: {
+            head: ['State', 'What changes when you buy', 'Example'],
+            rows: [
+              ['Nevada', 'The yearly increase in the bill is capped at 3% for an owner’s main home. A rental is capped at up to 8%, unless the rent is at or below HUD’s Fair Market Rent and you file a claim with the assessor (NRS 361.4722–361.4724).', 'A $2,400 bill grows to about $2,780 in five years at 3%, but to about $3,530 at 8%.'],
+              ['California', 'Buying resets the taxable value to what you paid (Proposition 13). The county also sends a separate “supplemental” bill for the rest of the tax year. It goes to you, and your lender’s impound account doesn’t pay it.', 'A seller who bought 20 years ago may pay $3,500 a year; at today’s price you might pay $7,500, plus a supplemental bill a few months after closing.'],
+              ['Arizona', 'Owner-occupied homes get a rebate on part of the school tax, up to $600 a year (A.R.S. 15-972). A rental doesn’t. You must also register a rental with the county assessor; skipping it can cost $1,000 plus $100 a month (A.R.S. 33-1902).', 'Expect up to about $600 a year more than an owner-occupant paid.'],
+              ['Utah', 'A main home is taxed on 55% of its value (a 45% exemption). A long-term rental counts when it’s the tenant’s main home. A second home or short-term rental doesn’t, so its bill is about 80% higher.', 'A home that pays $1,500 a year as a long-term rental pays about $2,700 as a short-term rental.'],
+            ],
+          },
+        },
+        'Ask the county assessor what the bill will be for your use, and put that number in the calculator.',
+      ],
+    },
+    {
+      heading: 'Insurance before you commit',
+      blocks: [
+        { list: [
+          'A rental needs a landlord (dwelling) policy, not a homeowner’s policy. Ask your agent which kind fits how you’ll use it.',
+          'Many policies limit coverage once a home has been empty for a while, often 60 days in a row. That’s a typical repair period, so read the vacancy clause and ask about a vacant-home or builder’s risk policy.',
+          'In California’s wildfire areas, private insurers often say no. The California FAIR Plan mainly covers fire, so most owners add a separate policy for theft, water damage and liability. Get both quotes before you commit.',
+          'Most homeowner policies don’t cover flood. Check the flood zone and price a flood policy if you need one.',
+          'Get a written quote, or a binder for an auction, before your inspection period ends or before you bid. If no one will insure it at a price that works, walk away.',
+        ] },
+      ],
+    },
+    {
       heading: 'The core measures',
       blocks: [
         {
@@ -56,6 +86,16 @@ export const analyze: Lesson = {
       heading: 'Rules of thumb, and their limits',
       blocks: [
         'Flippers often quote a “70% rule”: offer no more than 70% of the after-repair value, minus repairs. It’s an informal shortcut, not a standard. It doesn’t fit every market or price range. Use it to screen deals, then run your own numbers with real costs. For auctions, set your top bid before the sale and don’t go past it.',
+        'Watch for “gross profit” in flipping reports. ATTOM reported that the typical U.S. flip in 2025 made $65,981 in gross profit, a 25.5% return, the lowest since 2008, and took 163 days to resell. Gross profit is only the sale price minus the purchase price. It leaves out repairs, holding and selling costs.',
+        { table: { head: ['A typical 2025 flip', 'Amount'], rows: [
+          ['Bought for about $259,000, sold for about $325,000 (gross profit)', '$66,000'],
+          ['Repairs (example)', '− $25,000'],
+          ['Buying costs, about 2%', '− $5,000'],
+          ['Holding: 5½ months of loan, tax, insurance and utilities at $2,000 a month (example)', '− $11,000'],
+          ['Selling costs: commission and closing, about 7%', '− $23,000'],
+          ['Left before income tax', 'about $2,000'],
+        ] } },
+        'The repair and holding numbers are examples; yours will differ. The point is that a “typical” flip can leave almost nothing once every cost is counted. Run the flip calculator with your own numbers, and try a slower sale and a lower price too.',
       ],
     },
     {
@@ -129,6 +169,15 @@ export const analyze: Lesson = {
     { label: 'CFPB: schedule a home inspection', url: 'https://www.consumerfinance.gov/owning-a-home/close/schedule-a-home-inspection/' },
     { label: 'EPA: real estate disclosures about lead hazards', url: 'https://www.epa.gov/lead/real-estate-disclosures-about-potential-lead-hazards' },
     { label: 'FEMA Flood Map Service Center', url: 'https://msc.fema.gov/portal/home' },
+    { label: 'NRS 361: property tax abatement caps (361.4722–361.4724)', url: 'https://www.leg.state.nv.us/nrs/nrs-361.html' },
+    { label: 'Clark County: property tax abatement (3% and up-to-8% caps)', url: 'https://www.clarkcountynv.gov/government/general_information/tax-abatement' },
+    { label: 'California State Board of Equalization: supplemental assessments', url: 'https://www.boe.ca.gov/proptaxes/supplemental-assessment/' },
+    { label: 'Los Angeles County Treasurer and Tax Collector: new property owners', url: 'https://ttc.lacounty.gov/new-property-owner/' },
+    { label: 'Arizona Revised Statutes 15-972: homeowner rebate, up to $600', url: 'https://www.azleg.gov/ars/15/00972.htm' },
+    { label: 'Arizona Revised Statutes 33-1902: rental property registration', url: 'https://www.azleg.gov/ars/33/01902.htm' },
+    { label: 'Salt Lake County Assessor: primary residential exemption', url: 'https://prod.saltlakecounty.gov/assessor/file-for-a-residential-property-exemption/' },
+    { label: 'California Department of Insurance: the California FAIR Plan', url: 'https://www.insurance.ca.gov/01-consumers/200-wrr/California-FAIR-Plan.cfm' },
+    { label: 'ATTOM: 2025 year-end home flipping report', url: 'https://www.attomdata.com/news/market-trends/flipping/2025-year-end-home-flipping-report/' },
     { label: 'NRS 113: residential property disclosures', url: 'https://www.leg.state.nv.us/NRS/NRS-113.html' },
     { label: 'NRS 116: common-interest communities (resale package, 116.4109)', url: 'https://www.leg.state.nv.us/NRS/NRS-116.html' },
     { label: 'California Civil Code 1102.3: delivering the Transfer Disclosure Statement', url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1102.3' },
