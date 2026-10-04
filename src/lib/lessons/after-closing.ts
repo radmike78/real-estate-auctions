@@ -72,7 +72,7 @@ export const afterClosing: Lesson = {
           'In Nevada, give at least 24 hours’ notice before entering, and enter only at reasonable times during normal business hours, except in an emergency or when the tenant clearly agrees to shorter notice or other hours (NRS 118A.330). There’s no statewide rent control.',
           'In California, give reasonable written notice before entering. The law assumes 24 hours is reasonable (Civil Code 1954). The Tenant Protection Act limits most rent increases in 12 months to 5% plus inflation, never more than 10%. It also says that after a tenant has lived there 12 months, you need a just cause to end the tenancy (if another adult joined the lease within the first 24 months, once all tenants reach 12 months or any tenant reaches 24). Some properties are exempt. Both rules run until January 1, 2030 (Civil Code 1947.12 and 1946.2). Some cities have stricter rules.',
           'In Arizona, give at least two days’ notice before entering, except in an emergency (A.R.S. 33-1343). State law doesn’t let cities or towns control rents (A.R.S. 33-1329).',
-          'In Utah, give at least 24 hours’ notice before you enter (Utah Code 57-22-4). The exceptions changed for leases signed since May 2022, so check the current law before you rely on your lease. The Utah courts’ self-help center explains the rest of Utah’s landlord-tenant law.',
+          'In Utah, unless the rental agreement says otherwise, give at least 24 hours’ notice before you enter (Utah Code 57-22-4(2)). Check the current statute and your lease before you rely on it. The Utah courts’ self-help center explains the rest of Utah’s landlord-tenant law.',
         ] },
       ],
     },

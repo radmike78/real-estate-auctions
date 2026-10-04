@@ -48,7 +48,7 @@ export const DOC_GUIDES: DocGuide[] = [
   {
     key: 'loan-estimate',
     title: 'Loan Estimate, or a lender’s term sheet',
-    from: 'For loans covered by federal consumer rules (generally a one- or two-unit home you’ll live in), the lender must give you a Loan Estimate within 3 business days of your application. For a rental you won’t live in, the loan is business credit: ask for a written term sheet with the same facts.',
+    from: 'For loans covered by federal consumer rules (generally a home for personal use: a one- or two-unit home you’ll live in, or a second home you won’t rent out), the lender must give you a Loan Estimate within 3 business days of your application. For a rental you won’t live in, the loan is business credit: ask for a written term sheet with the same facts.',
     parts: [
       { part: 'Page 1: Loan terms', look: 'Loan amount, interest rate, monthly principal and interest, and YES or NO for a prepayment penalty and a balloon payment. At the top: whether the rate is locked, and until when.', who: 'The lender fills it in. You check it against what you asked for.', example: '“My rate isn’t locked yet. What does a lock cost, and how long would it last?”' },
       { part: 'Page 1: Projected payments and cash to close', look: 'The full monthly payment with estimated taxes and insurance, and the estimated cash to close.', who: 'The lender.' },
@@ -103,8 +103,8 @@ export const DOC_GUIDES: DocGuide[] = [
     from: 'You (or your property manager) provide them before the tenant signs. Use a lease written for your state, ideally reviewed by a local attorney.',
     parts: [
       { part: 'Names, term and rent', look: 'Every adult on the lease, the start and end dates, the rent, the due date, and any late fee your state allows.', who: 'You fill these in.', example: '12-month lease from June 1; rent $2,150 due on the 1st. Check your state’s rules before setting a late fee.' },
-      { part: 'Deposit', look: 'The amount (some states cap it), where it’s held, and how and when it’s returned.', who: 'You, within your state’s limits.' },
-      { part: 'Entry, repairs and HOA rules', look: 'How much notice you give before entering, how repairs are requested, who pays which utilities, and the HOA rules the tenant must follow.', who: 'You, following your state’s law and your HOA’s rules.' },
+      { part: 'Deposit', look: 'The amount (Nevada caps it at 3 months’ rent; California at 1 month for most landlords; Arizona at 1½ months; Utah sets no cap), where it’s held, and how and when it’s returned.', who: 'You, within your state’s limits.' },
+      { part: 'Entry, repairs and HOA rules', look: 'How much notice you give before entering (Nevada: 24 hours; California: 24 hours in writing; Arizona: 2 days; Utah: 24 hours unless the lease says otherwise), how repairs are requested, who pays which utilities, and the HOA rules the tenant must follow.', who: 'You, following your state’s law and your HOA’s rules.' },
       { part: 'Lead disclosure (homes built before 1978)', look: 'Before the lease is signed: give the EPA pamphlet, disclose any known lead-based paint and any reports, and include the lead warning statement. Both of you sign the disclosure.', who: 'You provide it; the tenant signs to acknowledge it.' },
     ],
     changes: 'A renewal or a change in rent, terms or tenants is a signed amendment or a new lease. Keep the signed lead disclosure for at least 3 years from the start of the lease.',
@@ -120,7 +120,7 @@ export const DOC_GUIDES: DocGuide[] = [
       { part: 'The applicant’s rights', look: 'Their right to a free copy of the report if they ask within 60 days, and to dispute anything inaccurate or incomplete with the reporting company.', who: 'Standard wording you include.' },
       { part: 'Credit score', look: 'If you used a credit score, the score and the key factors that affected it.', who: 'You fill it in from the report.' },
     ],
-    changes: 'Apply the same written screening criteria to every applicant, and follow fair housing law. If the reason came from someone other than a reporting company, such as a former landlord you called, a different notice applies: tell the applicant they can ask, within 60 days, what that information was.',
+    changes: 'Apply the same written screening criteria to every applicant, and follow fair housing law. If the reason came from someone other than a reporting company, such as a former landlord you called, tell the applicant, when you give the decision, that they can ask in writing within 60 days for the nature of that information (FCRA section 615(b)). Ask an attorney whether this applies to your rental.',
     corrected: 'Keep a copy of the notice, the criteria you applied, and the date you gave it.',
   },
 ];

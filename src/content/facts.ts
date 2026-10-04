@@ -236,9 +236,9 @@ export const FACTS: Fact[] = [
   // ---------------- Bank-owned / government-owned ----------------
   {
     id: 'fannie-first-look',
-    claim: 'Fannie Mae gives owner-occupants a 30-day First Look period in Nevada before investors can offer.',
+    claim: 'Fannie Mae and Freddie Mac give owner-occupants a First Look period, usually 30 days, before investors can offer; the listing shows the current period.',
     sources: ['homepath'],
-    checked: '2026-09-27',
-    where: [{ file: PB, text: 'Owner-occupants get a 30-day “First Look” period before investors' }],
+    checked: '2026-10-04',
+    where: [{ file: PB, text: 'Owner-occupants get a “First Look” period before investors, usually 30 days (confirm on the listing)' }],
   },
 ];
