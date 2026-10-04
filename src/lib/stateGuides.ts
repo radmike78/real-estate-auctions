@@ -2502,7 +2502,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Payment",
-      value: "Cash, a certified, cashier’s or treasurer’s check, or a money order, as the notice says. Pay in full, or pay the rest within up to 1 month if the notice allows (26 U.S.C. 6335; IRM 5.10.5.14)"
+      value: "Cash, a certified, cashier’s or treasurer’s check, or a money order, as the notice says. Pay in full at the sale, or pay a deposit there and the rest within the time the notice gives, up to 1 month (26 U.S.C. 6335(e); IRM 5.10.5.14)"
     },
     {
       label: "Redemption",
