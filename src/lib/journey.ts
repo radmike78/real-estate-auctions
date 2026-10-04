@@ -90,15 +90,8 @@ export interface GuidedStep {
   done: (p: Progress) => boolean;
 }
 
-/** The starter path: a short introduction, one worked example, a beginner exercise, then a plan. */
+/** The starter path: a worked example first, then a beginner exercise, the background, a strategy and a plan. */
 export const GUIDED: GuidedStep[] = [
-  {
-    key: 'intro',
-    label: 'Read: Residential vs. commercial',
-    why: 'A short introduction to how investment property is bought, valued and paid for.',
-    href: '#/learn/markets',
-    done: (p) => p.read.includes('markets'),
-  },
   {
     key: 'example',
     label: 'Read: Analyzing a deal',
@@ -112,6 +105,13 @@ export const GUIDED: GuidedStep[] = [
     why: 'Your first exercise: value a fictional house from comparable sales, price the repairs, and decide.',
     href: '#/practice/drills/rental-265',
     done: (p) => p.drillsDone.includes('rental-265'),
+  },
+  {
+    key: 'intro',
+    label: 'Read: Residential vs. commercial',
+    why: 'A short introduction to how investment property is bought, valued and paid for.',
+    href: '#/learn/markets',
+    done: (p) => p.read.includes('markets'),
   },
   {
     key: 'decide',

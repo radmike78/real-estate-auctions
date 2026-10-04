@@ -395,6 +395,7 @@
     "files": [
       "src/components/ToolkitPage.tsx",
       "src/lib/toolkit.ts",
+      "src/lib/roadmap.ts",
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-04",

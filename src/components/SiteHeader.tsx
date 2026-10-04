@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { loadDeals, onDealsChange } from '../lib/deals';
 import { useSiteFeatures } from '../lib/siteFeatures';
-import { currentProgress, guidedNext, setMode, useJourney } from '../lib/journey';
+import { currentProgress, GUIDED, guidedNext, setMode, useJourney } from '../lib/journey';
 import { useMyState } from '../lib/myState';
 
 // The tasks people come for, one click away. Everything else is under More, grouped.
@@ -29,7 +29,10 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
   useEffect(() => onDealsChange(() => setDeals(loadDeals().length)), []);
   const features = useSiteFeatures();
   const { mode } = useJourney();
-  const nextStep = mode === 'guided' ? guidedNext(currentProgress()) : null;
+  // The Getting started link never pulls someone out of a task they're in the middle of (a practice purchase, a
+  // drill, their plan), where the page has its own next step.
+  const inTask = /^(practice\/[a-z]|toolkit)/.test(current);
+  const nextStep = mode === 'guided' && !inTask ? guidedNext(currentProgress()) : null;
   const [mine] = useMyState();
   // The Nevada listing pages cover Clark County only, so other states' visitors don't see them in the menu.
   const groups = MORE.filter((g) => !g.group.startsWith('Nevada') || !mine || mine === 'NV');
@@ -133,8 +136,8 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
         {features?.email ? (
           <a href="#/alerts" className={`nav-cta${active('#/alerts') ? ' active' : ''}`}>Get alerts</a>
         ) : nextStep ? (
-          <a href={nextStep.step.href} className="nav-cta" title={nextStep.step.label}>Next step</a>
-        ) : current.split('?')[0] ? ( // the home page is where "Start here" leads, so it isn't shown there
+          <a href={nextStep.step.href} className="nav-cta" title={`Getting started, step ${nextStep.n}: ${nextStep.step.label}`}>Getting started: {nextStep.n} of {GUIDED.length}</a>
+        ) : current.split('?')[0] && !inTask ? ( // the home page is where "Start here" leads, so it isn't shown there
           <a href="#/" className="nav-cta">Start here</a>
         ) : null}
       </nav>

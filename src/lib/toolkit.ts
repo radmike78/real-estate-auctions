@@ -1,65 +1,7 @@
 // The investor toolkit: a first-deal roadmap to tick off, a buy box to fill in, and links to every free tool and
 // checklist on the site. Ticks and the buy box stay in this browser.
 
-export type RoadmapPath = 'listing' | 'auction';
-
-export interface RoadmapStep {
-  id: string;
-  /** Which of the four phases it belongs to. */
-  phase: 1 | 2 | 3 | 4;
-  text: string;
-  /** What the link does, so a learner knows where it goes. */
-  action?: string;
-  href?: string;
-  /** When to tick it. */
-  doneWhen: string;
-  /** Only on one way of buying; steps without it apply to both. */
-  path?: RoadmapPath;
-}
-
-export const ROADMAP_PHASES: Record<RoadmapStep['phase'], string> = {
-  1: 'Get ready',
-  2: 'Make a plan',
-  3: 'Practice and build your team',
-  4: 'Buy your first property',
-};
-
-export const ROADMAP_PATHS: Record<RoadmapPath, { label: string; hint: string }> = {
-  listing: { label: 'Through an agent', hint: 'A home listed for sale, bank-owned homes and short sales: you make an offer with conditions.' },
-  auction: { label: 'At an auction', hint: 'Tax, foreclosure, sheriff and other sales: you research first, then bid, usually with no inside look and no way out.' },
-};
-
-/** From first idea to owning the property, in order. Step 4 depends on how you buy. */
-export const ROADMAP: RoadmapStep[] = [
-  { id: 'goal', phase: 1, text: 'Decide what you want from investing: monthly income, long-term growth or a one-time profit.', action: 'Choose your goal', href: '#/decide', doneWhen: 'You can say your goal in one sentence.' },
-  { id: 'money', phase: 1, text: 'Know your numbers: savings after an emergency fund, debts and credit.', action: 'Check your finances', href: '#/decide', doneWhen: 'You know how much cash you could invest without touching your emergency fund.' },
-  { id: 'strategy', phase: 1, text: 'Choose a strategy that fits your money, time and comfort with risk.', action: 'Compare strategies', href: '#/decide', doneWhen: 'You’ve picked one strategy to learn first.' },
-  { id: 'avoid', phase: 1, text: 'Learn the warning signs of seminar and coaching scams.', action: 'Read the warning signs', href: '#/learn/red-flags', doneWhen: 'You’ve read the lesson and know what to walk away from.' },
-  { id: 'market', phase: 2, text: 'Pick a state and county, and learn how sales work there.', action: 'Find sales near you', href: '#/find-deals', doneWhen: 'You’ve picked a county and know which kinds of sales happen there.' },
-  { id: 'buybox', phase: 2, text: 'Write your buy box: the exact properties you’re looking for.', action: 'Fill in your buy box', href: '#/toolkit/buy-box', doneWhen: 'Your buy box has an area, a property type, a price limit and deal breakers.' },
-  { id: 'financing', phase: 2, text: 'Learn how you’d pay for it, and compare the options.', action: 'Compare ways to pay', href: '#/learn/financing', doneWhen: 'You know which ways of paying fit your plan. Most auctions need cash.' },
-  { id: 'lender', phase: 2, text: 'Talk with a licensed loan officer about what you’d qualify for.', action: 'What to ask a lender', href: '#/pros/lender', doneWhen: 'You have a written pre-approval, or you know your cash limit.' },
-  { id: 'team', phase: 3, text: 'Line up your team: agent, title company, inspector, appraiser, contractor and attorney.', action: 'Meet your deal team', href: '#/pros', doneWhen: 'You have a name for each role, or know where you’ll find one.' },
-  { id: 'practice', phase: 3, text: 'Finish practice purchases and “Would you buy it?” drills.', action: 'Try a practice deal', href: '#/practice', doneWhen: 'You’ve finished one practice purchase and at least three drills.' },
-  { id: 'paper', phase: 3, text: 'Analyze ten real listings on paper with the calculators.', action: 'Open the calculators', href: '#/analyze', doneWhen: 'You’ve run the numbers on ten real properties.' },
-  { id: 'walk', phase: 3, text: 'Know when to walk away: set your maximum price before you look.', action: 'Learn when to walk away', href: '#/learn/walk-away', doneWhen: 'You can work out a maximum price before you look at a property.' },
-  { id: 'tour', phase: 4, path: 'listing', text: 'Tour properties, then have a licensed inspector check the one you want.', action: 'What an inspection covers', href: '#/pros/inspector', doneWhen: 'You have an inspection report, or an inspection condition in your offer.' },
-  { id: 'appraise', phase: 4, path: 'listing', text: 'Have a licensed appraiser value it. Your agent can estimate the value from comparable sales until then.', action: 'About appraisers', href: '#/pros/appraiser', doneWhen: 'You have an appraisal, or your offer depends on one.' },
-  { id: 'offer', phase: 4, path: 'listing', text: 'Make an offer at or below your maximum, with conditions (contingencies) for the inspection, your loan and the appraisal.', action: 'How to negotiate', href: '#/learn/negotiate', doneWhen: 'Your offer is signed and its deadlines are on your calendar.' },
-  { id: 'diligence', phase: 4, path: 'listing', text: 'Finish your checks before each deadline: title, permits, insurance and any HOA.', action: 'Research tools', href: '#/learn/tools', doneWhen: 'Every check is done before its deadline, or you canceled in time.' },
-  { id: 'close', phase: 4, path: 'listing', text: 'Close through a title or escrow company, and keep every document.', action: 'About title companies', href: '#/pros/title', doneWhen: 'The deed is recorded in your name and you have copies of everything.' },
-  { id: 'a-research', phase: 4, path: 'auction', text: 'Research before the sale: the official notice, a title search for liens that stay, and who lives there. You usually can’t go inside, and you can’t back out after you win.', action: 'Read how the sale works', href: '#/playbooks', doneWhen: 'You know what you’d own, which liens stay with it, and how you’d lawfully get possession.' },
-  { id: 'a-value', phase: 4, path: 'auction', text: 'Estimate the value from the outside: an exterior-only appraisal if one is possible, or your agent’s estimate from comparable sales.', action: 'About appraisers', href: '#/pros/appraiser', doneWhen: 'You have a value estimate and a repair budget with a cushion.' },
-  { id: 'a-max', phase: 4, path: 'auction', text: 'Set your maximum bid with every cost, and have the cash or certified funds the sale requires.', action: 'Set your maximum bid', href: '#/analyze?plan=flip', doneWhen: 'Your maximum is written down and your funds meet the sale’s payment rules.' },
-  { id: 'a-bid', phase: 4, path: 'auction', text: 'Register, bid, and stop at your maximum.', action: 'Practice an auction', href: '#/practice', doneWhen: 'You bid within your maximum, or walked away.' },
-  { id: 'a-after', phase: 4, path: 'auction', text: 'After you win: pay on time, record the deed, insure it, and take possession only through the lawful process.', action: 'How possession works', href: '#/pros/eviction', doneWhen: 'The deed is recorded, the property is insured and you have lawful possession.' },
-];
-
-/** The steps for one way of buying. */
-export const roadmapFor = (path: RoadmapPath) => ROADMAP.filter((s) => !s.path || s.path === path);
-
-/** The roadmap for buying through an agent (the default). */
-export const FIRST_DEAL: RoadmapStep[] = roadmapFor('listing');
+export * from './roadmap';
 
 /** An example buy box a beginner can start from and change. */
 export const EXAMPLE_BUY_BOX = {
