@@ -16,7 +16,7 @@ export const walkAway: Lesson = {
     {
       heading: 'Decide before you fall for it',
       blocks: [
-        'Write your maximum price and your deal breakers before you see a property, in your buy box. Once you’ve toured a house or spent weeks on research, it’s hard to let go. Passing on a bad deal is a good result, not a failure.',
+        'Write your maximum price and your deal breakers before you see a property, in your buy box. Once you’ve toured a house or spent weeks on research, it’s hard to let go. Passing on a bad deal is a good result, not a failure. An investment isn’t a home you’re fighting to keep: if the numbers don’t work, let it go. Another property will come along.',
         { links: [{ label: 'Write your buy box', url: '#/toolkit/buy-box', what: 'Your price limit, the cash you’ll put in, and the problems you won’t take on.' }] },
       ],
     },

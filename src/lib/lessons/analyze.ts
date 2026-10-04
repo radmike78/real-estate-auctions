@@ -5,12 +5,27 @@ export const analyze: Lesson = {
   minutes: 9,
   intro: 'A deal is made or lost on the numbers and the paperwork. This lesson shows you how to work out what a property is worth, what it will cost you and what it can earn, plus what to check before you commit.',
   takeaways: [
+    'Why an investment is bought on the numbers, not on how much you like it.',
     'How value is set: comparable sales, appraisals and income.',
     'The costs buyers forget: closing, holding, repairs and selling.',
     'The core measures: NOI, cash flow, cap rate, cash-on-cash return and gross rent multiplier.',
     'The checks to make before you buy, including seller and HOA disclosure deadlines.',
   ],
   sections: [
+    {
+      heading: 'A home to live in vs. an investment',
+      blocks: [
+        'When you buy a home to live in, feelings count, and they should. It’s where you’ll live, so you might pay more for the right school or backyard, and fight to keep it if something goes wrong. An investment is different. You’re buying a set of numbers: what it costs, what it earns, and what it will sell for. If the numbers don’t work, it’s the wrong property, however much you like it.',
+        { table: { head: ['', 'A home to live in', 'An investment property'], rows: [
+          ['Why you buy it', 'You want to live there', 'To make money: rent, a profit when you sell, or both'],
+          ['What sets your price', 'What it’s worth to you, within what you can afford', 'What the numbers support: value, rent and every cost. Never more.'],
+          ['The kitchen, the view, the yard', 'Can be worth paying extra for', 'Matter only if they raise the rent or the sale price'],
+          ['If the inspection or appraisal goes badly', 'You may stretch to keep the home you love', 'You renegotiate, or walk away'],
+          ['Walking away', 'Hard, and sometimes not worth it', 'Normal. Most properties you look at should fail your numbers.'],
+        ] } },
+        'Ways to stay detached: write your maximum price before you see the property; judge it on your analysis, not the tour; don’t picture yourself living there; expect to lose some to other buyers or bidders; and have someone you trust check your numbers before you commit. If you’ll live in part of it and rent the rest, be honest about which choices are about your home and which are about the investment.',
+      ],
+    },
     {
       heading: 'Start with value',
       blocks: [

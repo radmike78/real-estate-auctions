@@ -301,6 +301,17 @@ export const RENTAL_CASE: CaseStage[] = [
         tolerance: 3_000,
         worked: ['Use F, G and H: dated homes like this one that actually sold.', '($286,000 + $293,000 + $288,000) ÷ 3 ≈ $289,000', 'Leave out J (remodeled) and K (not sold yet).'],
       },
+      {
+        kind: 'choice',
+        id: 'love-it',
+        prompt: 'Suppose another house nearby has the remodeled kitchen and big backyard you’ve always wanted. It’s listed at $305,000, about $16,000 more than its comparables support. Do you offer?',
+        choices: [
+          { label: 'Stick to the numbers: offer what the comparables support, and be ready to walk away.', verdict: 'best', why: 'An investment is bought on the numbers. Paying $16,000 over value costs you that money the day you buy, and the rent doesn’t go up because you like the kitchen.' },
+          { label: 'Pay it. A house this nice will be easy to rent.', verdict: 'poor', why: 'Tenants pay what similar homes rent for: your comparables say about $2,150. The extra $16,000 is money you may never get back.' },
+          { label: 'Pay it, because you might want to live there someday.', verdict: 'poor', why: 'Then it’s a home decision, not an investment one. Judge it as a home you’d live in, against your household budget, not as this rental.' },
+        ],
+        ifDifferent: 'If the remodel let you charge more rent, and leased comparables proved it, part of the extra price could be worth paying. The evidence decides, not the feeling.',
+      },
     ],
     log: [
       { area: 'Rent', finding: `Plan on ${$(rent)} a month (leased comparables A, B and C).` },

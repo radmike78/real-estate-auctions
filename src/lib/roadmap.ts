@@ -157,7 +157,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'walk', phase: 3, title: 'Set your walk-away rules',
-    text: 'Decide in advance what makes you stop, including your maximum price.',
+    text: 'Decide in advance what makes you stop, including your maximum price. An investment is bought on the numbers, not on how much you like it.',
     outcome: 'Your walk-away rules, written next to your buy box.',
     steps: ['Read the walk-away lesson.', 'Write how you’ll set a maximum price for any property, and three things that end a deal.'],
     doneWhen: 'Your walk-away rules are written down.',
