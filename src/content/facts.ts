@@ -51,7 +51,7 @@ export const FACTS: Fact[] = [
     claim: 'Winning bids are paid in full the same day by 1:00 p.m.; parcels re-auctioned at 2:00 p.m. are paid by 4:30 p.m.',
     sources: ['treasurer-faq', 'treasurer-notice-2025-05'],
     checked: '2026-09-27',
-    where: [{ file: PB, text: 'Full price the same day by 1:00 p.m. (4:30 p.m. for parcels re-auctioned at 2:00 p.m.)' }],
+    where: [{ file: PB, text: 'full price the same day by 1:00 p.m. (4:30 p.m. for parcels re-auctioned at 2:00 p.m.)' }],
   },
   {
     id: 'tax-deed-name',
@@ -59,7 +59,7 @@ export const FACTS: Fact[] = [
     sources: ['treasurer-notice-2025-05'],
     checked: '2026-09-27',
     where: [
-      { file: PB, text: 'the Treasurer’s form requires an individual’s name, not a company, LLC or trust' },
+      { file: PB, text: 'Treasurer’s form requires an individual’s name, not a company, LLC or trust' },
       { file: CL, text: 'which must be an individual’s name, not a company, LLC or trust' },
       { file: 'src/practice/scenarios.ts', text: 'which must be an individual’s name' },
     ],
@@ -76,14 +76,14 @@ export const FACTS: Fact[] = [
     claim: 'If a city or county sold an SID lien certificate on the parcel and tells the Treasurer in time, the buyer must pay it within 20 days or the tax sale is void.',
     sources: ['nrs-361'],
     checked: '2026-09-27',
-    where: [{ file: PB, text: 'within 20 days or the tax sale is void (NRS 361.595)' }],
+    where: [{ file: PB, text: 'within 20 days, or the tax sale is void (NRS 361.595)' }],
   },
   {
     id: 'tax-challenge-window',
     claim: 'Former owners have 2 years after the Treasurer’s deed is delivered to sue to recover the land.',
     sources: ['nrs-361'],
     checked: '2026-09-27',
-    where: [{ file: PB, text: 'the Treasurer’s deed is delivered (NRS 361.600)' }],
+    where: [{ file: PB, text: 'for 2 years after the Treasurer’s deed is delivered' }],
   },
   {
     id: 'irs-7425',
@@ -144,7 +144,7 @@ export const FACTS: Fact[] = [
     sources: ['nrs-107'],
     checked: '2026-09-27',
     where: [
-      { file: PB, text: 'if filed within 30 days after the trustee’s deed is recorded' },
+      { file: PB, text: 'filed within 30 days after the trustee’s deed is recorded' },
       { file: PB, text: 'has 90 days from the sale date (NRS 107.080)' },
     ],
   },
@@ -174,7 +174,7 @@ export const FACTS: Fact[] = [
     checked: '2026-09-27',
     where: [
       { file: PB, text: 'subject to a 60-day redemption period' },
-      { file: PB, text: '60 days after the sale, at your price plus 1% a' },
+      { file: PB, text: '60 days after the sale. The redeemer pays your price plus 1% a' },
     ],
   },
   {
@@ -182,7 +182,7 @@ export const FACTS: Fact[] = [
     claim: 'If the lender pays the super-priority amount (recorded at least 2 days before the sale), the buyer takes subject to the first mortgage.',
     sources: ['nrs-116'],
     checked: '2026-09-27',
-    where: [{ file: PB, text: 'it must be recorded at least 2 days before the sale' }],
+    where: [{ file: PB, text: 'It must be recorded at least 2 days before the sale' }],
   },
 
   // ---------------- Sheriff / execution sales (NRS 21) ----------------
@@ -192,7 +192,7 @@ export const FACTS: Fact[] = [
     sources: ['nrs-021'],
     checked: '2026-09-27',
     where: [
-      { file: PB, text: 'the year is subtracted from the payoff (NRS 21.250)' },
+      { file: PB, text: 'subtracted from the payoff (NRS 21.250)' },
       { file: PB, text: 'within 60 days of each redemption' },
     ],
   },
@@ -211,7 +211,7 @@ export const FACTS: Fact[] = [
     sources: ['irs-auctions'],
     checked: '2026-09-27',
     where: [
-      { file: PB, text: 'can redeem by paying your price plus 20% a year, compounded daily' },
+      { file: PB, text: 'pay your price plus 20% a year, compounded daily' },
       { file: PB, text: 'A certificate of sale; a deed after 180 days' },
     ],
   },
