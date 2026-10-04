@@ -60,7 +60,7 @@ export const financing: Lesson = {
         'Private lenders and hard-money lenders make loans secured by the property, often short-term. People use them for projects like flips when a bank loan doesn’t fit. Terms vary widely. Compare the rate, points, fees, term, and what happens if you can’t repay on time. Get every term in writing.',
         'In Nevada, mortgage companies and the private investors who fund loans fall under NRS 645B.',
         'In California, finance lenders and brokers are licensed under the California Financing Law.',
-        'Wherever you are, check any lender’s license on NMLS Consumer Access, the free national lookup.',
+        'Many lenders can be checked on NMLS Consumer Access, the free national lookup. Some private lenders hold a different license, such as a real estate broker’s license, and some are exempt. Ask which license they hold and check it with that regulator.',
       ],
     },
     {
@@ -85,7 +85,7 @@ export const financing: Lesson = {
               ['FHA: 3.5% down, 6.5% for 30 years', '$10,500', 'About $2,000', 'You must live there (1–4 units). Includes FHA’s 1.75% upfront and 0.55% yearly mortgage insurance. With less than 10% down, the yearly premium lasts as long as the loan.'],
               ['VA: no down payment, 6.5% for 30 years', '$0', 'About $1,940', 'For eligible veterans who live there. Includes the 2.15% funding fee added to the loan, unless you’re exempt. You still need cash for closing costs unless the seller pays them.'],
               ['Hard money: 90% of the price, 11% interest-only, 2 points', '$35,400', 'About $2,480', 'Short-term, often due in about a year. You must sell or refinance in time, or face default.'],
-              ['Seller financing: 10% down, 6%, balloon after 5 years', '$30,000', 'About $1,620', 'About $251,000 is still owed at year five. If you can’t refinance then, you could lose the property. On a home the buyer will live in, a seller who doesn’t use a licensed loan originator can include a balloon only if they finance just one property in 12 months.'],
+              ['Seller financing: 10% down, 6%, 30-year schedule, balloon after 5 years', '$30,000', 'About $1,620', 'About $251,000 is still owed at year five. If you can’t refinance then, you could lose the property. On a home the buyer will live in, a seller who doesn’t use a licensed loan originator can include a balloon only if they finance just one property in 12 months.'],
             ],
           },
         },
@@ -96,9 +96,9 @@ export const financing: Lesson = {
       heading: 'Before you sign',
       blocks: [
         { list: [
-          'Compare lenders. On a loan for a home you’ll live in, the lender must give you a Loan Estimate within three business days of your application. Loans for rentals you won’t live in are business loans and don’t come with this form: ask for a written term sheet, and compare rate, points, fees, balloon and prepayment terms side by side.',
-          'Check the final numbers. On a loan for a home you’ll live in, you must receive the Closing Disclosure at least three business days before you sign the loan. Compare it with your Loan Estimate. A pre-approval is conditional: it isn’t a promise to fund.',
-          'Check licenses on NMLS Consumer Access.',
+          'Compare lenders. On a consumer loan, such as a loan to buy a one- or two-unit home you’ll live in, the lender must give you a Loan Estimate within three business days of your application. Business loans, including loans for rentals you won’t live in and loans to buy three or more units, don’t require this form: ask for a written term sheet, and compare rate, points, fees, balloon and prepayment terms side by side.',
+          'Check the final numbers. On a consumer loan, you must receive the Closing Disclosure at least three business days before you sign the loan. Compare it with your Loan Estimate. A pre-approval is conditional: it isn’t a promise to fund.',
+          'Check each lender’s license with its regulator; NMLS Consumer Access covers many of them.',
           'Plan for the worst case: higher repairs, a slow sale, or a vacancy while payments are due.',
         ] },
       ],

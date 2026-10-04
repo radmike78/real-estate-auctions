@@ -88,7 +88,7 @@ export const QUESTIONS: Question[] = [
     options: [
       { value: 'low', text: 'Low: I’d rather go slow and steady' },
       { value: 'medium', text: 'Medium: some surprises are OK' },
-      { value: 'high', text: 'High: I can handle losing part of what I put in' },
+      { value: 'high', text: 'High: I could lose all the cash I put in, and owe more on a loan, and still be OK' },
     ],
   },
   {

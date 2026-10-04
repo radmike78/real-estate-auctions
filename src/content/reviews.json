@@ -103,7 +103,7 @@
       "src/lib/businessAssets.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "6001ee8e7b6f43b9",
+    "hash": "85e8236d1751e34c",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -139,7 +139,7 @@
       "src/practice/scenarios.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "87a4f7c362f28b32",
+    "hash": "405343753d15621b",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -198,7 +198,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "2d73488b24a99eeb",
+    "hash": "c267d6ac6210b7d3",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -347,7 +347,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "c7cc2a0e76f480eb",
+    "hash": "4ac7577f850f4e3a",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -358,7 +358,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "b58a071bfdd188e4",
+    "hash": "aab7caa4eb0d9464",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
