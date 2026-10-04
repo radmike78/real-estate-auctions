@@ -3,6 +3,7 @@
 // plain text; nothing an applicant types is rendered as HTML or turned into a link without
 // passing these checks.
 
+import { isAdTier, type AdTier } from './adPlans';
 import { CATEGORIES, CREDIT_PROFILES, servicesFor, type Category } from './pros';
 
 export const CLARK_COUNTY_CITIES = [
@@ -21,7 +22,47 @@ export const CONTENT_RULES = [
   "Anyone else's name, photo or personal details, including clients and homeowners.",
   'Wording that prefers or excludes anyone based on a group protected by federal or Nevada fair housing law.',
   'Offers aimed at homeowners in foreclosure or behind on payments (such as "we buy houses" or "sell before the auction"), or asking visitors to refer them.',
+  'In your ad line: web addresses, emails or phone numbers (buyers contact you through the buttons), and words like "best", "#1", "trusted", "guaranteed" or "lowest". Lenders also leave out rates, APRs, payments and dollar amounts.',
 ] as const;
+
+/** The rules for the optional ad line, shown next to the field. Enforced by validateAdLine. */
+export const AD_LINE_RULES = [
+  'Optional. 20 to 180 characters of plain text, in your own words ("We…", "Ask us about…").',
+  'It appears in your Featured ad and topic ad boxes (Premium and Premium Plus), labeled as an ad. We review it before it goes live.',
+  'No web addresses, emails or phone numbers: buyers contact you through the buttons.',
+  'No "best", "#1", "number one", "top-rated", "trusted", "recommended", "endorsed", "guaranteed", "lowest", "cheapest" or "DeedOwl".',
+  'Lenders: no rates, APRs, percentages, payment amounts, down payments or other dollar amounts. Those trigger Truth in Lending disclosures an ad line can’t hold.',
+] as const;
+
+const AD_LINE_BANNED = /\b(best|trusted|recommended|endorsed|guarantee[ds]?|guaranteed|lowest|cheapest|deedowl|number\s+one)\b|#\s*1\b|\btop[\s-]*rated\b/i;
+const AD_LINE_URL = /https?:|www\.|\b[a-z0-9-]+\.(com|net|org|io|us|co|biz|info|gov|edu|realty|homes|house|loans|law|mortgage|properties|app|site|online|pro)\b/i;
+const AD_LINE_EMAIL = /\S@\S/;
+const AD_LINE_PHONE = /(\d[\s().-]*){7,}/;
+const AD_LINE_LENDING = /%|\bapr\b|\brates?\b|\$|\bpayments?\b|\bdown\s+payment|\bpercent\b/i;
+
+/**
+ * Checks an advertiser's ad line. Returns a message to show, or null when it's fine (an empty line is fine).
+ * Used by the form, the server and the browser's check of the signed directory.
+ */
+export function validateAdLine(raw: unknown, category: Category): string | null {
+  if (raw === undefined || raw === null || raw === '') return null;
+  if (typeof raw !== 'string') return 'Write your ad line as plain text.';
+  if (/[\u0000-\u001f\u007f<>]/.test(raw)) return 'Remove the < and > characters and line breaks. Plain text only.';
+  const line = raw.trim();
+  if (!line) return null;
+  if (line.length < 20 || line.length > 180) return 'Write 20 to 180 characters, or leave it blank.';
+  if (AD_LINE_URL.test(line) || AD_LINE_EMAIL.test(line)) return 'Leave out web addresses and emails: buyers contact you through the buttons.';
+  if (AD_LINE_PHONE.test(line)) return 'Leave out phone numbers: buyers contact you through the buttons.';
+  const banned = line.match(AD_LINE_BANNED);
+  if (banned) return `Leave out "${banned[0]}". Ad lines can’t claim to be the best, trusted, recommended or guaranteed, or mention DeedOwl.`;
+  if (CATEGORIES[category]?.financing && AD_LINE_LENDING.test(line)) return 'Lenders: leave out rates, APRs, percentages, payments and dollar amounts. They require Truth in Lending disclosures.';
+  return null;
+}
+
+/** Fills in fields added after a profile was stored, so older rows keep working. */
+export function withProfileDefaults(p: ProProfile): ProProfile {
+  return { ...p, adLine: typeof p.adLine === 'string' ? p.adLine : '', adTopic: typeof p.adTopic === 'string' ? p.adTopic : '', adLinePending: typeof p.adLinePending === 'string' ? p.adLinePending : '' };
+}
 
 export const LANGUAGES = [
   'English', 'Spanish', 'Tagalog', 'Chinese', 'Vietnamese', 'Korean', 'Japanese', 'Amharic', 'Arabic', 'French', 'German',
@@ -45,6 +86,8 @@ export interface ApplicationInput {
   email: string;
   website: string;
   bio: string;
+  /** Optional one-line ad in the advertiser's own words (AD_LINE_RULES). */
+  adLine?: string;
   attestLicensed: boolean;
   attestAccurate: boolean;
   consentVerification: boolean;
@@ -71,6 +114,12 @@ export interface ProProfile {
   email: string; // lowercase
   website: string | null;
   bio: string;
+  /** Approved ad line ('' = none). Shown in Featured and topic ad boxes. */
+  adLine: string;
+  /** The Learn/Practice topic (adTopics.ts) of a Premium Plus ad ('' = none). Chosen from a fixed list, so it needs no content review. */
+  adTopic: string;
+  /** An ad line the advertiser sent from their dashboard, waiting for an admin's review ('' = none). Never published. */
+  adLinePending: string;
 }
 
 type Field = keyof ApplicationInput | 'form';
@@ -157,6 +206,10 @@ export function validateApplication(raw: Partial<ApplicationInput>): ValidationR
   const bio = plain(raw.bio, 800);
   if (bio.length < 30) errors.bio = 'Write at least 30 characters about how you help buyers and investors.';
 
+  const adLineError = validateAdLine(raw.adLine, category);
+  if (adLineError) errors.adLine = adLineError;
+  const adLine = adLineError ? '' : typeof raw.adLine === 'string' ? raw.adLine.trim() : '';
+
   // Angle brackets would otherwise be quietly turned into spaces ("<b>LLC</b>" shows as "b LLC /b"): ask instead.
   for (const k of ['name', 'company', 'headline', 'bio'] as const) {
     if (typeof raw[k] === 'string' && /[<>]/.test(raw[k] as string)) errors[k] = 'Remove the < and > characters. Plain text only.';
@@ -169,7 +222,7 @@ export function validateApplication(raw: Partial<ApplicationInput>): ValidationR
   if (Object.keys(errors).length || !phone) return { ok: false, errors };
   return {
     ok: true,
-    profile: { category, name, company, licenseId, licenseType, serviceCities, serviceZips, services, creditProfiles: info.financing ? creditProfiles : [], languages, headline, phone, email, website, bio },
+    profile: { category, name, company, licenseId, licenseType, serviceCities, serviceZips, services, creditProfiles: info.financing ? creditProfiles : [], languages, headline, phone, email, website, bio, adLine, adTopic: '', adLinePending: '' },
   };
 }
 
@@ -182,7 +235,7 @@ export interface LicenseVerification {
   typeMatches: boolean; // license type / classification fits the category
   companyMatches: boolean; // regulator shows them with this company / brokerage
   identityConfirmed: boolean; // confirmed the applicant IS this licensee
-  contentReviewed: boolean; // headline and bio checked against CONTENT_RULES
+  contentReviewed: boolean; // headline, bio and ad line checked against CONTENT_RULES
   identityMethod: string; // how, using contact details NOT taken from the application
 }
 
@@ -198,18 +251,33 @@ export function approvalBlockers(category: Category, v: Partial<LicenseVerificat
   if (!v.typeMatches) out.push(`Confirm the license type or classification fits "${info.label}".`);
   if (!v.companyMatches) out.push(`Confirm ${info.regulator} shows them with this company.`);
   if (!v.identityConfirmed) out.push('Confirm the applicant is the licensee, using contact details that did not come from the application.');
-  if (!v.contentReviewed) out.push('Check the headline and bio against the content rules.');
+  if (!v.contentReviewed) out.push('Check the headline, bio and ad line against the content rules.');
   if (plain(v.identityMethod, 300).length < 15) out.push('Describe how identity was confirmed (at least 15 characters).');
   return out;
 }
 
 export interface Billing {
-  plan: string; // e.g. "Monthly listing"
+  plan: string; // e.g. "Card · Premium · $199 / month", or "Complimentary"
   paidThrough: string; // YYYY-MM-DD
+  /** Advertising plan. Rows stored before plans existed have none: treat as 'standard'. */
+  tier?: AdTier;
+  /** Recorded by an admin with no fee (a "Complimentary" plan label). */
+  complimentary?: boolean;
 }
 
-export function validateBilling(b: Partial<Billing>): Billing | null {
+/** The admin's plan label means no fee was charged. */
+export const isComplimentaryLabel = (plan: string) => /^complimentary\b/i.test(plan.trim());
+
+/** An admin's manual billing entry. The plan label defaults to "Complimentary" in the form; any label works. */
+export function validateBilling(b: Partial<Record<keyof Billing, unknown>>): Billing | null {
   const plan = plain(b.plan, 60);
   const paidThrough = plain(b.paidThrough, 10);
-  return plan.length >= 3 && /^\d{4}-\d{2}-\d{2}$/.test(paidThrough) ? { plan, paidThrough } : null;
+  const tier = b.tier === undefined || b.tier === null || b.tier === '' ? 'standard' : b.tier;
+  if (!isAdTier(tier)) return null;
+  return plan.length >= 3 && /^\d{4}-\d{2}-\d{2}$/.test(paidThrough) && !Number.isNaN(Date.parse(paidThrough))
+    ? { plan, paidThrough, tier, complimentary: isComplimentaryLabel(plan) }
+    : null;
 }
+
+/** A stored billing record's plan (older rows have none). */
+export const billingTier = (b: Billing | null | undefined): AdTier => (b && isAdTier(b.tier) ? b.tier : 'standard');
