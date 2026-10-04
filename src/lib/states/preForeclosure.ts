@@ -30,7 +30,7 @@ export const TIMELINE: ByStateLines = {
   UT: [
     { text: 'In Utah, lender’s notice: if the home is the owner’s main home and the lender is a bank, credit union or similar, the lender first sends the owner a notice with the amount to catch up, and at least 30 days to pay (Utah Code 57-1-24.3).' },
     { text: 'In Utah, notice of default: the trustee records it with the county recorder. Within 3 months after that, the owner or a junior lienholder can catch up and cure the default (Utah Code 57-1-24, 57-1-31).' },
-    { text: 'In Utah, 3+ months: this is the shortest wait before notice of sale can be given (Utah Code 57-1-24). An HOA uses the same steps, but first sends the owner a 30-day notice (Utah Code 57-8a-303).' },
+    { text: 'In Utah, 3+ months: this is the shortest wait before notice of sale can be given (Utah Code 57-1-24). A community association (HOA) uses the same steps, but first sends the owner a 30-day notice (Utah Code 57-8a-303).' },
     { text: 'In Utah, notice of sale: it is published in a newspaper once a week for 3 weeks, on the state’s public legal notice website for 30 days, and posted on the property and at the county recorder at least 20 days before the sale (Utah Code 57-1-25).' },
     { text: 'In Utah, auction: it is held at a courthouse in the county, between 8 a.m. and 5 p.m. It can be postponed. A postponement of more than 45 days needs a new notice (Utah Code 57-1-25, 57-1-27). A sale becomes an auction listing on this site.' },
   ],
@@ -74,9 +74,9 @@ export const BUY: ByStateLines = {
     { text: 'In California, from a listing: if an owner decides to sell (including a short sale), a licensed agent lists the home on the MLS. Make your offer through your own agent.' },
   ],
   AZ: [
-    { text: 'In Arizona, at the trustee’s sale, ask the trustee only. The trustee can give the unpaid principal and a list of recorded liens. You can ask in writing starting 30 days after the notice is recorded, while the loan can still be reinstated. The fee is $30 to $100 (A.R.S. 33-809(E)).' },
+    { text: 'In Arizona, at the trustee’s sale, ask the trustee only. The trustee can give the unpaid principal and a list of recorded liens, if it actually knows them. You can ask in writing starting 30 days after the notice is recorded, while the loan can still be reinstated. The trustee may charge a fee of up to $100 (A.R.S. 33-809(E)).' },
     { text: 'In Arizona, on the last business day before the sale, and on the sale day, the trustee must make available the lender’s opening bid or a good-faith estimate of it (A.R.S. 33-809(F)).' },
-    { text: 'In Arizona, bring a $10,000 deposit in a form the trustee accepts (A.R.S. 33-810). Pay the rest by 5 p.m. the next business day. The trustee records your deed within 7 business days after you pay. The sale clears liens junior to the deed of trust, but not senior ones (A.R.S. 33-811).' },
+    { text: 'In Arizona, bring a $10,000 deposit in a form the trustee accepts (A.R.S. 33-810). Pay the rest by 5 p.m. the next business day. The trustee must sign the deed and submit it for recording within 7 business days after you pay. The sale clears liens junior to the deed of trust, but not senior ones (A.R.S. 33-811). If a federal tax lien is recorded, the IRS may have up to 120 days after the sale to redeem (26 U.S.C. 7425).' },
     { text: 'In Arizona, after the sale (bank-owned): if no one outbids the lender, the home becomes bank-owned (REO). You buy it later through the lender’s listing agent.' },
   ],
   UT: [
@@ -113,10 +113,10 @@ export const NO_CONTACT: ByStateLines = {
     { text: 'In California, breaking these rules can bring a fine of up to $25,000, up to a year in county jail, or both (Civil Code 1695.8). If the buyer took unconscionable advantage, the owner can undo the sale for 2 years (Civil Code 1695.13, 1695.14).' },
   ],
   AZ: [
-    { text: 'In Arizona, anyone who offers an owner in foreclosure paid help to stop or delay the sale is a “foreclosure consultant.” The law bars that person from taking payment before the work is done, and from taking the owner’s deed or any interest in the home (A.R.S. 44-1378, 44-1378.02).' },
-    { text: 'In Arizona, fraud or deceit against a homeowner in these deals, including “sell me your house and rent it back” deals, is a crime (A.R.S. 44-1378.06).' },
+    { text: 'In Arizona, most people who offer an owner in foreclosure paid help to stop or delay the sale are “foreclosure consultants” (attorneys and the lender or servicer are among the exceptions). The law bars that person from taking payment before the work is done, and from taking the owner’s deed or any interest in the home (A.R.S. 44-1378, 44-1378.02).' },
+    { text: 'In Arizona, a foreclosure consultant who commits fraud or deceit against a homeowner, including in a “sell me your house and rent it back” deal, commits a class 1 misdemeanor (A.R.S. 44-1378.06).' },
   ],
   UT: [
-    { text: 'In Utah, a person paid to offer an owner a deal involving the home’s title that they say will stop a foreclosure is doing “foreclosure rescue.” That needs a Utah real estate license and a written agreement. A licensee can’t ask the owner to sign over the home, pay someone other than their servicer, or stop talking to their lender or counselor (Utah Code 61-2f-102, 61-2f-401).' },
+    { text: 'In Utah, a person paid to offer an owner a deal involving the home’s title that they say will stop a foreclosure is doing “foreclosure rescue.” That needs a Utah real estate license and a written agreement. A licensee can’t require the owner to sign the home over to the licensee or to someone they have a business tie with, pay someone other than their servicer, or stop talking to their lender or counselor (Utah Code 61-2f-102, 61-2f-401).' },
   ],
 };

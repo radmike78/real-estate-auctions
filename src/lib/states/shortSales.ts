@@ -27,8 +27,8 @@ export const DISCLOSURES: ByStateLines = {
     { text: 'In California, the listing agent must also do a visual inspection of a home of 1 to 4 units and disclose what it finds (Civil Code 2079).' },
   ],
   AZ: [
-    { text: 'In Arizona, if the home is in an HOA, you get the HOA’s documents within 10 days after your offer is accepted, such as the rules, the budget, the fees owed and any pending lawsuits. In larger communities the HOA sends them; in communities under 50 homes, the seller does (A.R.S. 33-1806; condominiums, A.R.S. 33-1260).', links: [['A.R.S. 33-1806', 'https://www.azleg.gov/ars/33/01806.htm'], ['A.R.S. 33-1260', 'https://www.azleg.gov/ars/33/01260.htm']] },
-    { text: 'In Arizona, a seller of up to five parcels of land that isn’t subdivided, in an unincorporated area of a county, must give you an affidavit of disclosure at least 7 days before the transfer. You then have 5 days to cancel (A.R.S. 33-422).', links: [['A.R.S. 33-422', 'https://www.azleg.gov/ars/33/00422.htm']] },
+    { text: 'In Arizona, if the home is in an HOA, you get the HOA’s documents within about 10 days after your offer is accepted (in communities of 50 or more homes, 10 days after the HOA gets the seller’s notice), such as the rules, the budget, the fees owed and any pending lawsuits. In larger communities the HOA sends them; in communities under 50 homes, the seller does (A.R.S. 33-1806; condominiums, A.R.S. 33-1260).', links: [['A.R.S. 33-1806', 'https://www.azleg.gov/ars/33/01806.htm'], ['A.R.S. 33-1260', 'https://www.azleg.gov/ars/33/01260.htm']] },
+    { text: 'In Arizona, if the home or land isn’t in a recorded subdivision and is in an unincorporated area of a county, the seller (of up to five parcels) must give you an affidavit of disclosure at least 7 days before the transfer. You then have 5 days after you get it to cancel (A.R.S. 33-422).', links: [['A.R.S. 33-422', 'https://www.azleg.gov/ars/33/00422.htm']] },
   ],
   UT: [
     { text: 'In Utah, licensed agents use the state-approved Real Estate Purchase Contract (REPC). Short-sale terms go in an addendum.', links: [['Real Estate Purchase Contract (Utah Division of Real Estate)', 'https://commerce.utah.gov/wp-content/uploads/2023/03/purchase-contract.pdf']] },
@@ -55,7 +55,7 @@ export const OWNERS: ByStateLines = {
     { text: 'In California, buying from an owner who lives in the home after a notice of default is recorded is covered by the Home Equity Sales Contract Act. It requires a written contract and gives the owner a right to cancel, and breaking it carries fines and jail (Civil Code 1695 and following).', links: [['Civil Code 1695.1', 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1695.1']] },
   ],
   AZ: [
-    { text: 'In Arizona, a person who offers paid help to stop an owner’s foreclosure is a foreclosure consultant. That person can’t take payment up front or take an interest in the home, and fraud or deceit against the owner is a crime (A.R.S. 44-1378.02, 44-1378.06).', links: [['A.R.S. 44-1378.02', 'https://www.azleg.gov/ars/44/01378-02.htm']] },
+    { text: 'In Arizona, most people who offer paid help to stop an owner’s foreclosure are foreclosure consultants (attorneys and the lender or servicer are among the exceptions). A consultant can’t take payment up front or take an interest in the home, and fraud or deceit against the owner is a class 1 misdemeanor (A.R.S. 44-1378.02, 44-1378.06).', links: [['A.R.S. 44-1378.02', 'https://www.azleg.gov/ars/44/01378-02.htm']] },
   ],
   UT: [
     { text: 'In Utah, offering a paid deal on an owner’s title to “stop” their foreclosure is regulated foreclosure rescue. It needs a real estate license and a written agreement, and certain deals are banned (Utah Code 61-2f-102, 61-2f-401).', links: [['Utah Code 61-2f-401', 'https://le.utah.gov/xcode/Title61/Chapter2F/61-2f-S401.html']] },
