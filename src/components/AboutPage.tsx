@@ -9,9 +9,9 @@ import { IconDatabase, IconFlag, IconHelp, IconLayers, IconStop } from './Icons'
 const SALE_TYPES: [string, string, string][] = [
   ['Tax-deed sale', 'The property (quitclaim deed); anyone claiming the land can sue to recover it for 2 years after the deed (NRS 361.600)', 'In-person Treasurer auction, certified funds the same day'],
   ['Special assessment lien certificate', 'The right to be repaid the assessment plus 1% a month, not ownership. A deed only if not redeemed in 120 days (2 years if the land has a building)', 'Clark County Treasurer (SID) sale; winners picked by random drawing'],
-  ['Mortgage foreclosure', 'The property after lender enforcement', 'Trustee, sheriff or judicial auction'],
+  ['Mortgage foreclosure', 'The property, after the lender forecloses', 'Trustee, sheriff or judicial auction'],
   ['HOA foreclosure', 'The owner’s title after a 60-day redemption period; the first mortgage may survive', 'HOA agent / trustee auction'],
-  ['Judgment execution', "The debtor's interest", 'Sheriff sale, with redemption rights'],
+  ['Sale to pay a court judgment', "Whatever the debtor owned in the property", 'Sheriff sale, with a period when it can be bought back (redemption)'],
   ['Federal tax seizure', "The taxpayer's interest", 'IRS public auction or sealed bid'],
   ['REO / bank-owned', 'The property from the lender', 'Offer through the lender’s broker or its auction'],
 ];
@@ -75,13 +75,13 @@ export const SECTIONS: DrillSection[] = [
         </p>
         {SHOW_SAMPLE_DATA ? (
           <p>
-            This version runs on <strong>fictional sample data for Clark County, Nevada</strong>. Before connecting real sources, each
-            source's terms of use and public-records rules must be reviewed.
+            This version runs on <strong>fictional sample data for Clark County, Nevada</strong>. Before we connect a real source, we
+            review its terms of use and public-records rules.
           </p>
         ) : (
           <p>
-            Sources are connected one at a time, only after their terms of use and public-records rules have been reviewed. Pages without a
-            connected source say so instead of showing listings.
+            We connect sources one at a time, and only after reviewing their terms of use and public-records rules. A page without a
+            connected source says so instead of showing listings.
           </p>
         )}
       </>

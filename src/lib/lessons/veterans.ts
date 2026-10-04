@@ -3,7 +3,7 @@ import type { Lesson } from './types';
 export const veterans: Lesson = {
   key: 'veterans',
   minutes: 10,
-  intro: 'Military service brings real estate benefits that can lower what you pay to buy, borrow and own. This lesson first covers the federal benefits that apply in every state. Then it covers the property tax and home-buying programs in Nevada, California, Arizona and Utah. Amounts change every year, so check with the agency before you count on one.',
+  intro: 'Military service brings real estate benefits that can lower what you pay to buy, borrow and own. This lesson starts with the federal benefits that apply in every state, then covers the property tax and home-buying programs in Nevada, California, Arizona and Utah. Amounts change every year, so check with the agency before you count on one.',
   takeaways: [
     'What a VA home loan offers, and why it’s for a home you live in, not a pure rental.',
     'How veterans who receive VA disability compensation skip the VA funding fee.',
@@ -14,11 +14,11 @@ export const veterans: Lesson = {
     {
       heading: 'VA home loans',
       blocks: [
-        'A VA home loan is made by a private lender. The Department of Veterans Affairs guarantees part of it. To use one, you need a Certificate of Eligibility, which shows you meet the service requirements.',
+        'A VA home loan comes from a private lender, and the Department of Veterans Affairs guarantees part of it. To use one, you need a Certificate of Eligibility, which shows you meet the service requirements.',
         { list: [
           'No down payment, as long as the price isn’t above the appraised value. You still need cash for closing costs unless the seller pays them.',
           'No private mortgage insurance (PMI), and no prepayment penalty.',
-          'No loan limit if you have full entitlement. Your county’s limit can matter if part of your entitlement is still tied up in another VA loan. It affects how much you can borrow with no down payment. Lenders still need you to qualify on income and credit.',
+          'No loan limit if you have full entitlement. If part of your entitlement is still tied up in another VA loan, your county’s limit affects how much you can borrow with no down payment. Lenders still need you to qualify on income and credit.',
           'A one-time VA funding fee, unless you’re exempt.',
         ] },
         {
@@ -32,19 +32,19 @@ export const veterans: Lesson = {
           },
         },
         'These rates have applied since April 7, 2023.',
-        'Veterans with a VA disability rating often pay no funding fee. You’re exempt if you receive VA disability compensation. You’re also exempt if you would receive it if you weren’t taking retirement or active-duty pay instead. Surviving spouses who receive Dependency and Indemnity Compensation are exempt too. So are active-duty service members who received a Purple Heart. VA may later award compensation back to a date before your closing. If so, you can get the fee refunded (38 U.S.C. 3729).',
+        'Veterans with a VA disability rating often pay no funding fee. You’re exempt if you receive VA disability compensation, or would receive it if you weren’t taking retirement or active-duty pay instead. Surviving spouses who receive Dependency and Indemnity Compensation are exempt too, and so are active-duty service members who received a Purple Heart. If VA later awards compensation back to a date before your closing, you can get the fee refunded (38 U.S.C. 3729).',
       ],
     },
     {
       heading: 'The catch: you have to live there',
       blocks: [
-        'A VA loan is for a home you’ll live in. When you apply, and again at closing, you certify that you intend to move in within a reasonable time (38 U.S.C. 3704). While you’re on active duty, a spouse or dependent child living there can meet this. A VA loan can’t buy a property that will only be a rental.',
+        'A VA loan is for a home you’ll live in. When you apply, and again at closing, you confirm in writing that you intend to move in within a reasonable time (38 U.S.C. 3704). While you’re on active duty, a spouse or dependent child living there can meet this rule for you. A VA loan can’t buy a property that will only be a rental.',
         'Within that rule, veterans still have room to invest:',
         { list: [
-          'Buy 1 to 4 units and live in one, often called house hacking. A lender can count rent from the other units only if you meet two conditions. You must show you’re likely to succeed as a landlord. You must also have 6 months of payments in reserve. The lender then counts 75% of the lease rent (38 CFR 36.4340).',
-          'Use your entitlement again. You get it back when you sell and pay off the loan. You also get it back when a veteran buyer takes over your loan and substitutes their own entitlement. Or you can get it back once if you pay off the loan and keep the home. Even without that, you may have entitlement left over to buy another home to live in.',
+          'Buy 1 to 4 units and live in one, often called house hacking. A lender can count rent from the other units only if you show you’re likely to succeed as a landlord and have 6 months of payments in reserve. Then it counts 75% of the lease rent (38 CFR 36.4340).',
+          'Use your entitlement again. You get it back when you sell and pay off the loan, or when a veteran buyer takes over your loan and substitutes their own entitlement. You can also get it back once if you pay off the loan and keep the home. Even without that, you may have entitlement left over to buy another home to live in.',
           'Refinance a former home that’s now a rental. VA’s streamline refinance (IRRRL) works on a home you live in or used to live in. A VA cash-out refinance requires that you live there now.',
-          'Sell with an assumable loan. Any buyer, veteran or not, can take over a VA loan. The payments must be current, and the buyer must qualify for credit. When they do, you’re released from liability. Your entitlement comes back only if the buyer is a veteran who substitutes theirs (38 U.S.C. 3714).',
+          'Sell with an assumable loan. Any buyer, veteran or not, can take over a VA loan, as long as the payments are current and the buyer qualifies for credit. When that happens, you’re released from liability. Your entitlement comes back only if the buyer is a veteran who substitutes theirs (38 U.S.C. 3714).',
         ] },
       ],
     },
@@ -54,22 +54,22 @@ export const veterans: Lesson = {
         'The Servicemembers Civil Relief Act (SCRA) protects people on active duty. It matters whether you’re the service member or the investor on the other side.',
         { list: [
           'Interest cap: debts taken out before active duty, including mortgages, are capped at 6% interest. For a mortgage, the cap lasts through service and 1 year after (50 U.S.C. 3937).',
-          'Auction buyers: this rule applies if a mortgage was taken out before the owner’s military service. A sale or foreclosure for missed payments during service, or within 1 year after, isn’t valid without a court order (50 U.S.C. 3953). The Department of Justice says this covers non-judicial foreclosures too. Trustees and lenders check military status in the Defense Department’s SCRA database. Ask your title company whether the sale complied before you bid.',
-          'Landlords: a tenant who enters military service can end the lease early with no fee. So can a tenant who gets orders for a permanent move or a deployment of 90 days or more. With monthly rent, the lease ends 30 days after the next rent due date following the notice (50 U.S.C. 3955).',
-          'Landlords: you can’t evict a service member or their dependents during military service without a court order. This covers homes renting below a yearly ceiling: $10,542.60 a month in 2026 (50 U.S.C. 3951).',
+          'Auction buyers: if the owner took out the mortgage before their military service, a sale or foreclosure for missed payments during service, or within 1 year after, isn’t valid without a court order (50 U.S.C. 3953). The Department of Justice says this covers non-judicial foreclosures too. Trustees and lenders check military status in the Defense Department’s SCRA database. Ask your title company whether the sale complied before you bid.',
+          'Landlords: a tenant who enters military service, or who gets orders for a permanent move or a deployment of 90 days or more, can end the lease early with no fee. With monthly rent, the lease ends 30 days after the next rent due date following the notice (50 U.S.C. 3955).',
+          'Landlords: you can’t evict a service member or their dependents during military service without a court order. This covers homes renting below a ceiling that’s updated each year: $10,542.60 a month in 2026 (50 U.S.C. 3951).',
         ] },
       ],
     },
     {
       heading: 'Selling a home you rented out',
       blocks: [
-        'You may be able to exclude the gain from selling your home from federal income tax. To do that, you generally must have owned it and lived in it for 2 of the 5 years before the sale. You can pause that 5-year period for up to 10 years if you or your spouse are on qualified official extended duty. That means orders for more than 90 days, at a duty station at least 50 miles from the home or in government housing. This pause can let a service member rent out a former home and still qualify when they sell. Depreciation from the rental years can’t be excluded (IRS Publication 523).',
+        'When you sell your home, you may be able to leave the gain out of your federal income tax. To do that, you generally must have owned it and lived in it for 2 of the 5 years before the sale. You can pause that 5-year period for up to 10 years if you or your spouse are on qualified official extended duty. That means orders for more than 90 days, at a duty station at least 50 miles from the home or in government housing. This pause can let a service member rent out a former home and still qualify when they sell. Depreciation from the rental years can’t be excluded (IRS Publication 523).',
       ],
     },
     {
       heading: 'Housing grants for veterans with disabilities',
       blocks: [
-        'VA’s housing grants help veterans with certain service-connected disabilities buy, build or change a home they’ll live in. For fiscal year 2026, a Specially Adapted Housing (SAH) grant was up to $126,526. A Special Housing Adaptation (SHA) grant was up to $25,350. VA updates the amounts each October (fiscal year 2026 ended September 30, 2026), so check VA for the current amounts. They’re for your own home, not rental property.',
+        'VA’s housing grants help veterans with certain service-connected disabilities buy, build or change a home they’ll live in. For fiscal year 2026, a Specially Adapted Housing (SAH) grant was up to $126,526, and a Special Housing Adaptation (SHA) grant was up to $25,350. VA updates the amounts each October (fiscal year 2026 ended September 30, 2026), so check VA for the current amounts. They’re for your own home, not rental property.',
       ],
     },
     {
@@ -77,8 +77,8 @@ export const veterans: Lesson = {
       blocks: [
         'Each state sets its own property tax exemptions and home-buying help. Choose your state above to see only its programs.',
         { list: [
-          'In Nevada, a qualifying veteran can take $3,640 off the assessed value of their property for the 2026-27 fiscal year (NRS 361.090). To qualify, you must have served at least 90 days of active duty. Part of it must be in a period the law lists, or in a campaign that earned a medal. You must also have been honorably discharged. The exemption can go on property tax or vehicle tax. Apply with your county assessor. To use it on your property tax bill, file by June 15.',
-          'In Nevada, a veteran with a permanent service-connected disability of 60% or more can take a larger exemption (NRS 361.091). They take it instead of the one above. For 2025-26 it was $18,200 of assessed value at 60 to 79%, $27,300 at 80 to 99%, and $36,400 at 100%. It rises every year. A qualifying surviving spouse can also claim it.',
+          'In Nevada, a qualifying veteran can take $3,640 off the assessed value of their property for the 2026-27 fiscal year (NRS 361.090). To qualify, you must have served at least 90 days of active duty, with part of it in a period the law lists or in a campaign that earned a medal, and been honorably discharged. The exemption can go on property tax or vehicle tax. Apply with your county assessor. To use it on your property tax bill, file by June 15.',
+          'In Nevada, a veteran with a permanent service-connected disability of 60% or more can take a larger exemption instead of the one above (NRS 361.091). For 2025-26 it was $18,200 of assessed value at 60 to 79%, $27,300 at 80 to 99%, and $36,400 at 100%. It rises every year. A qualifying surviving spouse can also claim it.',
           'In Nevada, the Nevada Housing Division’s Home Is Possible programs offer veterans down payment help. First-time or repeat buyers can get up to 5% of the loan amount. Buyers who haven’t owned a home in the past 3 years can get up to 4%.',
           'In California, a veteran rated 100% disabled, or paid at the 100% rate because of unemployability, can exempt part of their home’s assessed value. The exemption is $180,671 for 2026, or $271,009 if household income is $81,131 or less (Revenue and Taxation Code 205.5). It covers only the home you live in, not a rental. File form BOE-261-G with your county assessor. You must claim the low-income amount again each year by February 15.',
           'In California, a $4,000 Veterans’ Exemption is open to veterans who own little other property: no more than $5,000, or $10,000 if married. File form BOE-261 by February 15 each year.',

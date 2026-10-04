@@ -3,7 +3,7 @@ import type { Lesson } from './types';
 export const financing: Lesson = {
   key: 'financing',
   minutes: 9,
-  intro: 'Most real estate is bought with borrowed money. The loan you can get depends on a few things. Will you live in the property? How many units does it have? Is it a home or a business property? Here are the main kinds and what each asks of you.',
+  intro: 'Most real estate is bought with borrowed money. The loan you can get depends on a few things: whether you’ll live in the property, how many units it has, and whether it’s a home or a business property. Here are the main kinds and what each asks of you.',
   takeaways: [
     'Why living in the property opens the lowest down payments.',
     'What lenders ask of investors: larger down payments, savings in reserve and a limit on financed properties.',
@@ -27,7 +27,7 @@ export const financing: Lesson = {
             ],
           },
         },
-        'You can use these loans to start investing. Buy a two-to-four-unit home, live in one unit and rent the others.',
+        'You can use these loans to start investing: buy a two-to-four-unit home, live in one unit and rent out the others.',
       ],
     },
     {
@@ -45,7 +45,7 @@ export const financing: Lesson = {
     {
       heading: 'Commercial and business loans',
       blocks: [
-        'Commercial loans are sized on the property’s income. Lenders use the debt service coverage ratio (NOI divided by the year’s loan payments). Many don’t pay off over their term. Instead they end with a balloon payment, which you may need to refinance. If values fall, that can be hard.',
+        'Commercial loans are sized on the property’s income. Lenders use the debt service coverage ratio (NOI divided by the year’s loan payments). Many aren’t fully paid off by the end of their term. Instead they end with a balloon payment, which you may need to refinance, and that can be hard if values fall.',
         'Some commercial loans are nonrecourse: the lender can only take the property, not your other assets. They usually have “carve-outs” that make you personally liable in certain cases, so read them.',
         { list: [
           'SBA 7(a): up to $5 million; can be used to buy, refinance or improve real estate for your business.',
@@ -57,10 +57,10 @@ export const financing: Lesson = {
     {
       heading: 'Private and hard-money lenders',
       blocks: [
-        'Private lenders and hard-money lenders make loans secured by the property, often short-term. People use them for projects like flips when a bank loan doesn’t fit. Terms vary widely. Compare the rate, points, fees, term, and what happens if you can’t repay on time. Get every term in writing.',
-        'In Nevada, mortgage companies and the private investors who fund loans fall under NRS 645B.',
+        'Private lenders and hard-money lenders make loans secured by the property, often short-term. People use them for projects like flips when a bank loan doesn’t fit. Terms vary widely, so compare the rate, points, fees, term, and what happens if you can’t repay on time. Get every term in writing.',
+        'In Nevada, a specific state law covers mortgage companies and the private investors who fund loans (NRS 645B).',
         'In California, finance lenders and brokers are licensed under the California Financing Law.',
-        'Many lenders can be checked on NMLS Consumer Access, the free national lookup. Some private lenders hold a different license, such as a real estate broker’s license, and some are exempt. Ask which license they hold and check it with that regulator.',
+        'You can check many lenders on NMLS Consumer Access, the free national lookup. Some private lenders hold a different license, such as a real estate broker’s license, and some are exempt. Ask which license they hold and check it with that regulator.',
       ],
     },
     {

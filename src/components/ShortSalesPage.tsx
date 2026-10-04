@@ -6,7 +6,7 @@ import PageHero from './PageHero';
 import { IconCheckList, IconFlag, IconLayers, IconSteps, IconStop } from './Icons';
 
 const STEPS: [string, string][] = [
-  ['Get pre-approved or show proof of funds', 'Lenders reviewing a short sale want to see that the buyer can close. A pre-approval letter or bank statement goes in with your offer.'],
+  ['Get pre-approved or show proof of funds', 'The lender reviewing a short sale wants to know you can close. Send a pre-approval letter or bank statement in with your offer.'],
   ['Hire a buyer\'s agent who has closed short sales', 'Short sales are listed on the MLS (the database agents use), marked "Short Sale" or "Subject to lender approval." An experienced agent can find them, including new listings, and knows how each lender works.'],
   ['Make an offer "subject to lender approval"', 'The seller accepts first. Then the listing agent sends your offer, the seller\'s hardship documents and a net sheet to the lender or lenders. Your earnest money is usually held in escrow.'],
   ['Wait for the lender\'s decision', 'Approval often takes weeks to a few months, and longer when there is a second mortgage, mortgage insurance or an HOA balance. The lender may approve, reject or counter at a higher price.'],
@@ -20,7 +20,7 @@ const RISKS: [string, string][] = [
   ['More than one lender may need to agree', 'A second mortgage or HOA lien holder can block or delay the sale, or demand payment to release its lien.'],
   ['Foreclosure can happen first', 'If the owner is in foreclosure, the trustee sale may go ahead before approval arrives. Ask whether a sale date has been postponed for the short sale.'],
   ['Usually sold as-is', 'Sellers rarely make repairs or give credits. Budget for repairs and get a full inspection.'],
-  ['"Approved" prices aren\'t always bargains', 'Lenders approve prices close to market value, based on their own appraisal or broker price opinion.'],
+  ['"Approved" prices aren\'t always bargains', 'Lenders approve prices close to market value, based on their own appraisal or a broker’s price opinion.'],
   ['Watch for fraud', 'Never pay a side fee to a seller, agent or "negotiator" outside escrow. Any payment must be disclosed to the lender. Be wary of anyone asking you to wire money.'],
   ['Occupied homes', 'Confirm the home will be vacant at closing, and whether any tenant has rights under a lease.'],
 ];
@@ -86,9 +86,9 @@ export const SECTIONS: DrillSection[] = [
     summary: 'Why you should find short sales through an agent, never by approaching owners',
     content: () => (
       <p>
-        Don't try to find short-sale candidates by contacting homeowners who are behind on payments. Nevada licenses foreclosure
-        consultants, and a buyer who uses fraud or deceit on an owner in foreclosure faces criminal penalties and can have the purchase undone (NRS Chapter 645F). If an owner decides to sell, the home will be
-        listed through an agent. You can follow a property's foreclosure status, without contacting anyone, in the{' '}
+        Don't go looking for short sales by contacting homeowners who are behind on payments. Nevada licenses foreclosure
+        consultants, and a buyer who uses fraud or deceit on an owner in foreclosure faces criminal penalties and can have the purchase undone (NRS Chapter 645F). If an owner decides to sell, an agent will
+        list the home. To follow a property's foreclosure status without contacting anyone, use the{' '}
         <a href="#/pre-foreclosures">pre-foreclosure tracker</a>.
       </p>
     ),
@@ -121,7 +121,7 @@ export default function ShortSalesPage({ section }: { section?: string }) {
 
       <DrillDown sections={SECTIONS} active={section} baseHref="#/short-sales" label="Short sale guide" />
 
-      <p className="muted small">General information only, not legal, tax or financial advice. Sellers should consult a tax professional and an attorney about deficiency and tax consequences.</p>
+      <p className="muted small">General information only, not legal, tax or financial advice. If you're the seller, ask a tax professional and an attorney whether you could still owe the lender afterward (a deficiency) and what the tax consequences are.</p>
       <Disclaimer kind="sales" compact />
     </main>
   );
