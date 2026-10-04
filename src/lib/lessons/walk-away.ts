@@ -2,12 +2,13 @@ import type { Lesson } from './types';
 
 export const walkAway: Lesson = {
   key: 'walk-away',
-  minutes: 8,
+  minutes: 9,
   intro: 'Most money in real estate is lost on deals that should never have been bought. Knowing when to walk away is a skill you can learn. Set your limits before you look. Then check each property against the numbers, the building, the title and the terms of sale.',
   takeaways: [
     'The numbers that say a deal doesn’t work.',
     'Building problems that cost far more than they look.',
     'Title, HOA and occupancy problems to rule out first.',
+    'What you’re really buying from a wholesaler, and how to protect your deposit.',
     'Auction terms that should make you stop.',
     'A walk-away checklist to use on every property.',
   ],
@@ -62,6 +63,21 @@ export const walkAway: Lesson = {
       ],
     },
     {
+      heading: 'Buying from a wholesaler',
+      blocks: [
+        'A wholesaler signs a contract to buy a home and then sells you the right to that contract. You’re buying a contract, not the house. The wholesaler often doesn’t own the home and may not be able to deliver it.',
+        { list: [
+          'The price you pay usually includes the wholesaler’s fee for assigning the contract. Compare it with recent sales of similar homes, not with the wholesaler’s repair estimate.',
+          'You may get no inspection period. If the contract won’t let you inspect, treat it like an as-is auction and budget for the worst case, or walk away.',
+          'Use your own title company. Ask it to confirm who owns the home and what liens are on it before you put up money.',
+          'Put your deposit only into escrow with that title company. Never pay a deposit or fee straight to the wholesaler.',
+        ] },
+        'In Arizona, a wholesaler selling a contract for a home with fewer than five units must tell you in writing, before you sign, that they hold only an equitable interest and may not be able to convey title. If they don’t, you can cancel any time before closing and get all your earnest money back (A.R.S. 44-5101). In Nevada, California and Utah, check the current rules with a real estate attorney or the state’s real estate agency.',
+        'You don’t need a middleman to find a deal. Official sellers list their properties directly: the county, the trustee, the court, government agencies and the bank that owns the home.',
+        { links: [{ label: 'Find deals from official sellers', url: '#/find-deals', what: 'Official sellers and sale lists for your county.' }] },
+      ],
+    },
+    {
       heading: 'Auction terms that should make you stop',
       blocks: [
         { list: [
@@ -86,6 +102,8 @@ export const walkAway: Lesson = {
           'Has a title professional told me what survives the sale?',
           'Do I know who lives there and how I’d get possession legally?',
           'Have I read the HOA documents, if any?',
+          'If the plan needs nightly rentals, have I confirmed a short-term rental license is possible for this address?',
+          'If a wholesaler is selling, is my deposit going only to escrow, with my own title company?',
           'Will I still have cash in reserve after closing?',
         ] },
         'If the answer to any of these is no, fix it or walk away.',
@@ -97,6 +115,7 @@ export const walkAway: Lesson = {
     { term: 'Special assessment', meaning: 'An extra charge an HOA bills owners, often for a big repair, on top of regular dues.' },
     { term: 'Flood zone', meaning: 'The flood risk FEMA maps for an area. High-risk zones can require flood insurance.' },
     { term: 'Permit history', meaning: 'The building department’s record of approved work on a property.' },
+    { term: 'Assignment fee', meaning: 'What a wholesaler charges to hand you their purchase contract. It’s part of the price you pay.' },
   ],
   tryIt: { label: 'Practice: would you buy it?', href: '#/practice' },
   sources: [
@@ -108,7 +127,8 @@ export const walkAway: Lesson = {
     { label: 'California: Civil Code 4525 (HOA documents for buyers)', url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=4525' },
     { label: 'Arizona: A.R.S. 33-1806 (planned community resale disclosure)', url: 'https://www.azleg.gov/ars/33/01806.htm' },
     { label: 'Arizona: A.R.S. 33-1260 (condominium resale disclosure)', url: 'https://www.azleg.gov/ars/33/01260.htm' },
+    { label: 'Arizona: A.R.S. 44-5101 (wholesale buyers and sellers)', url: 'https://www.azleg.gov/ars/44/05101.htm' },
   ],
   practice: 'Before you look at another property, write three deal breakers into your buy box.',
-  reviewed: '2026-10-03',
+  reviewed: '2026-10-04',
 };
