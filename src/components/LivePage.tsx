@@ -81,6 +81,7 @@ export default function LivePage() {
             </a>
             .
           </p>
+          <p className="empty-next"><strong>Buying your first rental?</strong> You don’t have to wait for an auction. Most first rentals are bought from a listing: <a href="#/toolkit/buy-box">write your buy box</a>, ask a buyer’s agent for listings that match it, look at <a href="#/bank-owned">bank-owned homes</a>, or <a href="#/practice/case">practice a purchase</a> first.</p>
           {features?.email && (
             <>
               <p>Get an email when the next list comes out.</p>

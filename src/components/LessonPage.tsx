@@ -115,6 +115,7 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
     .map((s) => ({ heading: s.heading, blocks: s.blocks.map((b) => forState(b, st)).filter((b): b is LessonBlock => b !== null) }))
     .filter((s) => s.blocks.length > 0);
   const sources = l.sources.filter((s) => showFor(st, s.label));
+  const checks = (LESSON_CHECKS[lessonKey] ?? []).filter((c) => showFor(st, `${c.q} ${c.options.join(' ')} ${c.why}`));
   const terms = l.terms.filter((t) => showFor(st, t.meaning));
   // Each key term is explained where it first appears, in reading order (worked out once, before rendering).
   const used = new Set<string>();
@@ -161,7 +162,8 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         <h2 id="terms">Key terms</h2>
         <dl>{terms.map((t) => <div key={t.term}><dt>{t.term}</dt><dd>{t.meaning}</dd></div>)}</dl>
       </section>
-      {LESSON_CHECKS[lessonKey] && <CheckYourself key={lessonKey} checks={LESSON_CHECKS[lessonKey]} />}
+      {/* Questions about another state's rules are left out when you've chosen a state: its text is hidden above. */}
+      {checks.length > 0 && <CheckYourself key={`${lessonKey}-${st ?? 'all'}`} checks={checks} />}
       {l.practice && (
         <section className="lesson-practice" aria-labelledby="practice-head">
           <h2 id="practice-head">Put it into practice</h2>

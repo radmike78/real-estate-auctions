@@ -12,6 +12,8 @@ export const TEAM = {
   eviction: { role: 'Eviction attorney or process server', when: 'Right after the sale if anyone lives there', href: '#/pros/eviction', pro: 'eviction' },
   insurance: { role: 'Insurance agent', when: 'Vacant-property coverage starting the day you own it', href: '#/pros/insurance', pro: 'insurance' },
   contractor: { role: 'Licensed contractor and qualified inspector', when: 'An exterior look before the sale; a full scope once you have the keys', href: '#/pros/contractor', pro: 'contractor' },
+  /** For an offer on a listed home (bank-owned, short sale): you inspect during the contract, not after. */
+  offerInspector: { role: 'Home inspector and licensed contractors', when: 'Inspection and written repair bids before your inspection deadline, with the access the seller allows; ask the listing agent to turn on utilities for it', href: '#/pros/inspector', pro: 'inspector' },
   cpa: { role: 'CPA', when: 'Before you buy: flips and rentals are taxed differently', href: '#/pros/cpa', pro: 'cpa' },
   commercialBroker: { role: 'Commercial real estate broker', when: 'Current rents and cap rates for this property type, and leasing it up after', href: '#/pros/agent', pro: 'agent' },
   environmental: { role: 'Environmental consultant', when: 'A Phase I environmental site assessment within one year before you take title (site visit, interviews and record searches within 180 days)', href: '#/pros/environmental', pro: 'environmental' },

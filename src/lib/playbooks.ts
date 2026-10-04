@@ -359,7 +359,7 @@ const NEVADA: Playbook[] = [
       story: 'A buyer’s offer on a bank-owned home was accepted. But the addendum made the buyer pay a per-day penalty if closing ran late.',
       lesson: 'Line up your loan and inspection early, and read the addendum before signing.',
     },
-    team: [T.agent, T.mortgage, T.title, T.contractor, T.insurance],
+    team: [T.agent, T.mortgage, T.title, T.offerInspector, T.insurance],
     sources: [
       { label: 'HUD Home Store', url: 'https://www.hudhomestore.gov/' },
       { label: 'Fannie Mae HomePath', url: 'https://homepath.fanniemae.com/property-finder' },
@@ -466,7 +466,7 @@ const NEVADA: Playbook[] = [
       story: 'The first lender approved after 10 weeks. But the second-mortgage holder wanted more money to release its lien. That added another month.',
       lesson: 'Ask up front how many liens there are, and expect each to negotiate.',
     },
-    team: [T.agent, T.mortgage, T.title, T.contractor],
+    team: [T.agent, T.mortgage, T.title, T.offerInspector],
     sources: [
       { label: 'Our short-sale guide', url: '#/short-sales' },
       { label: 'NRS 645F (foreclosure purchasers, NRS 645F.300–645F.450)', url: NRS('645F') },

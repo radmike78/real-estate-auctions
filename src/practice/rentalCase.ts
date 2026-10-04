@@ -82,6 +82,9 @@ export const N = {
   setAside: Math.round(rent * 0.05),
   cashFlow: rent - 3 * Math.round(rent * 0.05) - tax - insurance - hoa - payment(loanAt(finalPrice, appraised)),
   maxDeposit: rent * 3,
+  /** Saving for the known roof ($14,000) and water heater ($1,600) over 4 years, the short end of the roof's estimate. */
+  replaceMonthly: Math.round((14_000 + 1_600) / 48),
+  cashFlowWithReplacements: rent - 3 * Math.round(rent * 0.05) - tax - insurance - hoa - payment(loanAt(finalPrice, appraised)) - (Math.round((14_000 + 1_600) / 48) - Math.round(rent * 0.05)),
 };
 
 const $ = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
@@ -545,7 +548,7 @@ export const RENTAL_CASE: CaseStage[] = [
             ['Electrical panel', 'A panel brand electricians associate with breakers that may fail to trip. Recommend replacement.', `${$(panel)} (electrician’s bid)`],
             ['Roof', 'Tile is fine. The underlayment beneath it has about 4–6 years left.', 'About $14,000 when it’s due'],
             ['Water heater', '14 years old, working', 'About $1,600 when it fails'],
-            ['Kitchen outlets', 'Two outlets near the sink lack shock protection (GFCI)', 'About $250'],
+            ['Kitchen outlets', 'Two outlets near the sink lack shock protection (GFCI)', 'Included in the electrician’s panel bid'],
           ],
         },
         notes: ['The listing said “roof and plumbing in good shape.” This is why you inspect.'],
@@ -559,7 +562,7 @@ export const RENTAL_CASE: CaseStage[] = [
         options: [
           { label: 'Sewer line', right: true, why: 'A backup makes the home unlivable and is expensive to clean up.' },
           { label: 'Electrical panel', right: true, why: 'A safety risk for your tenant, and some insurers ask about this kind of panel.' },
-          { label: 'Kitchen outlets', right: true, why: 'Small and cheap, but a safety item. Fix it with the electrical work.' },
+          { label: 'Kitchen outlets', right: true, why: 'Small and cheap, but a safety item. The electrician’s panel bid includes them.' },
           { label: 'Roof underlayment', right: false, why: 'Budget for it now (a reserve each month), but it has years left.' },
           { label: 'Water heater', right: false, why: 'Budget for it. Replace it when it fails or before it leaks.' },
         ],
@@ -881,14 +884,32 @@ export const RENTAL_CASE: CaseStage[] = [
         prompt: 'What is your monthly cash flow after the set-asides?',
         answer: N.cashFlow,
         tolerance: 5,
-        worked: [`${$(rent)} − 3 × ${$(N.setAside)} − ${$(tax)} − ${$(insurance)} − ${$(hoa)} − ${$(N.piFinal)} = ${$(N.cashFlow)}`, 'With a property manager at about 8% of rent, it would be close to zero. That fits your goal (rent covers costs) but leaves no room for a worse year.'],
+        worked: [`${$(rent)} − 3 × ${$(N.setAside)} − ${$(tax)} − ${$(insurance)} − ${$(hoa)} − ${$(N.piFinal)} = ${$(N.cashFlow)}`, 'That uses the 5% set-asides. The next question checks whether 5% is enough for this house.'],
+      },
+      {
+        kind: 'number',
+        id: 'replacements',
+        prompt: 'The inspection found the roof underlayment has 4–6 years left (about $14,000) and the 14-year-old water heater (about $1,600). To have both saved in 4 years, how much do you set aside each month?',
+        answer: N.replaceMonthly,
+        tolerance: 5,
+        worked: [`$14,000 + $1,600 = $15,600`, `$15,600 ÷ 48 months = ${$(N.replaceMonthly)} a month`, `Your 5% set-aside is ${$(N.setAside)}: about ${$(N.replaceMonthly - N.setAside)} a month short, before any other big replacement.`],
+      },
+      {
+        kind: 'choice',
+        id: 'replacement-plan',
+        prompt: `Your plan sets aside ${$(N.setAside)} a month for big replacements; the roof and water heater alone need about ${$(N.replaceMonthly)}. What do you do?`,
+        choices: [
+          { label: `Budget the real number: set aside about ${$(N.replaceMonthly)} a month. Cash flow drops to about ${N.cashFlowWithReplacements < 0 ? '−' : ''}${$(Math.abs(N.cashFlowWithReplacements))} a month, and you write down how you’ll cover it.`, verdict: 'best', why: 'The roof is coming whether you budget for it or not. Known replacements belong in the numbers before you decide whether the deal fits.', log: `Replacement plan: about ${$(N.replaceMonthly)} a month for the roof and water heater; cash flow about ${N.cashFlowWithReplacements < 0 ? '−' : ''}${$(Math.abs(N.cashFlowWithReplacements))} a month self-managed.` },
+          { label: 'Keep the 5% and deal with the roof when it happens.', verdict: 'poor', why: `In 4 years, ${$(N.setAside)} a month saves about ${$(N.setAside * 48)}, against a $14,000 roof. The gap would come from your emergency fund or a loan.` },
+          { label: 'Raise the rent enough to cover it.', verdict: 'poor', why: `Leased comparables A, B and C support about ${$(rent)}. A rent the market won’t pay means a longer vacancy, not more money.` },
+        ],
       },
       {
         kind: 'choice',
         id: 'good-deal',
         prompt: 'Was this a good purchase?',
         choices: [
-          { label: 'It fits the plan: the rent covers the costs with reserves set aside, and you bought at the appraised value. Time and rent growth do the rest, and nothing is guaranteed.', verdict: 'best', why: 'An honest answer: it works for a long-term goal, not for monthly income.' },
+          { label: 'It fits a long-term plan only: with the roof and water heater budgeted, the rent about covers the costs self-managed, and falls short with a manager. It doesn’t meet a monthly-income goal.', verdict: 'best', why: 'An honest answer. Appreciation and rent increases might help later, but they aren’t guaranteed, so they can’t close today’s budget gap.' },
           { label: `Yes, it makes ${$(N.cashFlow)} a month, so it’s a great investment.`, verdict: 'poor', why: 'That’s before any big repair or a vacant month. One water heater takes most of a year’s profit.' },
           { label: 'No. Any rental that doesn’t make $500 a month is a bad deal.', verdict: 'ok', why: 'A fine rule if your goal is income. This plan’s goal was long-term growth with rent covering costs.' },
         ],
@@ -901,7 +922,7 @@ export const RENTAL_CASE: CaseStage[] = [
         model: 'Examples: actual costs against these numbers · whether the set-asides covered what broke · the rent compared with new leases nearby · the roof and water heater · whether to keep self-managing · what you’d change in your buy box before the next one.',
       },
     ],
-    log: [{ area: 'Operating', finding: `Cash flow about ${$(N.cashFlow)} a month self-managed, after 15% set-asides. Review in 6 months.` }],
+    log: [{ area: 'Operating', finding: `Cash flow about ${$(N.cashFlow)} a month self-managed with 5% set-asides; about ${N.cashFlowWithReplacements < 0 ? '−' : ''}${$(Math.abs(N.cashFlowWithReplacements))} with the roof and water heater budgeted. Review in 6 months.` }],
     learnMore: [{ label: 'Lesson: after you close', href: '#/learn/after-closing' }, { label: 'My plan', href: '#/toolkit' }],
   },
 ];
