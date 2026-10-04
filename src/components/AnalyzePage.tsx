@@ -29,7 +29,9 @@ function loadCurrent(st: StateCode): Deal {
 
 /** A property sent from a listing page: a new, unsaved deal with its address, state, county and kind of sale. */
 function fromListing(f: Prefill): Deal {
-  const kind = kindsFor(f.state).some((k) => k.key === f.kind) ? f.kind : 'listing';
+  // A kind of sale this state doesn't have falls back to an auction (court sale), never to a regular listing.
+  const kinds = kindsFor(f.state);
+  const kind = kinds.some((k) => k.key === f.kind) ? f.kind : (kinds.find((k) => k.key === 'court') ?? kinds[0]).key;
   return { ...blank(f.state), name: f.name, county: f.county, kind, plan: plansFor(kind)[0] };
 }
 
@@ -47,10 +49,24 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   useMarkStep('analyze');
   useLastActivity('#/analyze', 'Analyze a deal');
   const [mine] = useMyState();
-  const [deal, setDeal] = useState<Deal>(() => (prefill ? fromListing(prefill) : forLink(loadCurrent(mine ?? 'NV'), plan)));
+  // A property opened from a listing never wipes unsaved work: a started, unsaved deal is saved to My deals first.
+  const keepUnsaved = () => {
+    const cur = loadCurrent(mine ?? 'NV');
+    if (cur.id || (!cur.name.trim() && !cur.notes.trim() && cur.done.length === 0)) return;
+    const all = loadDeals();
+    if (all.some((x) => x.updatedAt === cur.updatedAt && x.name.trim() === (cur.name.trim() || `${countyName(cur.county)} deal`))) return;
+    const d = { ...cur, id: `d${Date.now().toString(36)}`, name: cur.name.trim() || `${countyName(cur.county)} deal` };
+    saveDeals([d, ...all]);
+  };
+  const [deal, setDeal] = useState<Deal>(() => {
+    if (!prefill) return forLink(loadCurrent(mine ?? 'NV'), plan);
+    keepUnsaved();
+    return fromListing(prefill);
+  });
   // A property opened from a DeedOwl listing arrives filled in; the address then goes back to plain /analyze.
   useEffect(() => {
     if (!prefill) return;
+    setSaved(loadDeals());
     setDeal(fromListing(prefill));
     setMyState(prefill.state);
     replaceAddress('/analyze');

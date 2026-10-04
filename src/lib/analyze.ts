@@ -1,3 +1,4 @@
+import type { SaleType } from '../types';
 // Analyze a Deal (step 6): the visitor describes a deal (state, county, kind of sale, plan) and gets the checklist for
 // that sale in that state. Every rule here comes from the Learn lessons and their sources. Deals are kept in this browser.
 import { COUNTY_OFFICES } from './countyOffices';
@@ -235,7 +236,7 @@ export interface Prefill {
   kind: SaleKind;
 }
 
-const SALE_KIND_OF: Record<string, SaleKind> = {
+const SALE_KIND_OF: Record<SaleType, SaleKind> = {
   TAX_DEED: 'taxSale',
   TAX_LIEN_CERTIFICATE: 'lien',
   TRUSTEE_SALE: 'trustee',
@@ -250,7 +251,7 @@ const SALE_KIND_OF: Record<string, SaleKind> = {
 export function analyzeHref(p: { address: string; city?: string; state: string; county: string; saleType?: string }): string | null {
   const st = stateByCode(p.state);
   const county = p.county.replace(/\s+County$/i, '');
-  const kind = SALE_KIND_OF[p.saleType ?? ''] ?? 'listing';
+  const kind = (p.saleType && SALE_KIND_OF[p.saleType as SaleType]) || 'listing';
   if (!st || !st.counties.includes(county)) return null;
   const q = new URLSearchParams({ name: [p.address, p.city].filter(Boolean).join(', ').slice(0, 80), state: st.code, county, kind });
   return `#/analyze?${q.toString()}`;
@@ -261,7 +262,6 @@ export function prefillParam(params: URLSearchParams): Prefill | undefined {
   const st = stateByCode(params.get('state') ?? '');
   const county = params.get('county') ?? '';
   const kind = params.get('kind') as SaleKind | null;
-  const kinds: SaleKind[] = ['listing', 'reo', 'trustee', 'taxSale', 'lien', 'court', 'hoa', 'irs'];
-  if (!st || !st.counties.includes(county) || !kind || !kinds.includes(kind)) return undefined;
+  if (!st || !st.counties.includes(county) || !kind || !SALE_KINDS.some((k) => k.key === kind)) return undefined;
   return { name: (params.get('name') ?? '').slice(0, 80), state: st.code, county, kind };
 }

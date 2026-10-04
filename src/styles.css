@@ -2406,7 +2406,7 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .check-fold { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); margin: 10px 0; }
 .check-fold > summary { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 10px 16px; cursor: pointer; list-style: none; }
 .check-fold > summary::-webkit-details-marker { display: none; }
-.check-fold > summary::before { content: '▸'; color: var(--accent); font-size: 1.1em; transition: transform 0.15s; }
+.check-fold > summary::before { content: '▸'; display: inline-block; color: var(--accent); font-size: 1.1em; transition: transform 0.15s; }
 .check-fold[open] > summary::before { transform: rotate(90deg); }
 .check-fold-title { font-weight: 700; font-size: 1.1rem; }
 .check-fold-count { margin-left: auto; color: var(--muted); font-size: 0.95rem; white-space: nowrap; }
@@ -2473,7 +2473,7 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .roadmap-step { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
 .roadmap-step > summary { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 8px 14px; cursor: pointer; list-style: none; }
 .roadmap-step > summary::-webkit-details-marker { display: none; }
-.roadmap-step > summary::before { content: '▸'; color: var(--accent); }
+.roadmap-step > summary::before { content: '▸'; display: inline-block; color: var(--accent); }
 .roadmap-step[open] > summary::before { transform: rotate(90deg); }
 .roadmap-step-title { font-weight: 600; }
 .roadmap-step .roadmap-step-body { padding: 0 14px 14px; }

@@ -54,3 +54,23 @@ describe('Buy a rental, start to finish', () => {
     });
   });
 });
+
+describe('the deal packet', () => {
+  it('reports a walk-away without claiming a purchase, and keeps what you found', async () => {
+    const { packetSections } = await import('../components/RentalCasePage');
+    const done = RENTAL_CASE.flatMap((s) => s.tasks.map((t) => `${s.key}/${t.id}`));
+    const walked = packetSections({ done, answers: {}, first: {}, walked: 'inspection' });
+    const result = walked.find((s) => s.title === 'Result')!.rows.join(' ');
+    expect(result).toMatch(/walked away/);
+    expect(result).not.toMatch(/You bought it/);
+    expect(walked.find((s) => s.title === 'Your budget')!.rows.join(' ')).not.toMatch(/Cash the deal took/);
+    const log = walked.find((s) => s.title === 'Evidence log')!.rows.join(' ');
+    expect(log).toMatch(/Sewer/);
+    expect(log).not.toMatch(/^Price:|Renegotiated|Appraised at|mechanic/);
+  });
+
+  it('survives an out-of-range stored answer', async () => {
+    const { packetSections } = await import('../components/RentalCasePage');
+    expect(() => packetSections({ done: [], answers: { 'cash/stretch': 99, 'listing/screen': 1.5 }, first: {} })).not.toThrow();
+  });
+});

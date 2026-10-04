@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { proGuideByKey } from '../lib/proGuide';
 import { resolved, TEAM_QUESTIONS, teamFor, UNSURE, type TeamAnswers } from '../lib/teamBuilder';
 
@@ -38,8 +38,19 @@ export default function TeamBuilder() {
   const choose = (v: string) => {
     setAnswers((a) => ({ ...a, [q!.key]: v }));
     const from = step;
-    if (v !== UNSURE) window.setTimeout(() => setStep((s) => (s !== from ? s : from + 1 >= TEAM_QUESTIONS.length ? -1 : from + 1)), 250);
+    window.clearTimeout(timer.current);
+    if (v !== UNSURE) timer.current = window.setTimeout(() => { moved.current = true; setStep((s) => (s !== from ? s : from + 1 >= TEAM_QUESTIONS.length ? -1 : from + 1)); }, 250);
   };
+  // After moving on, focus goes to the new question (not a button that now means a different answer); a pending move
+  // is cancelled by Back, Close or leaving the page.
+  const timer = useRef<number | undefined>(undefined);
+  const moved = useRef(false);
+  const progress = useRef<HTMLParagraphElement>(null);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  useEffect(() => {
+    if (moved.current) progress.current?.focus();
+    moved.current = false;
+  }, [step]);
   const final = resolved(answers);
   const labelOf = (key: keyof TeamAnswers) => TEAM_QUESTIONS.find((x) => x.key === key)!.options.find((o) => o.value === final[key])?.label ?? '';
 
@@ -48,8 +59,8 @@ export default function TeamBuilder() {
       <h2 id="team-builder-head">Who you need</h2>
       {q ? (
         <>
-          <p className="team-progress">Question {step + 1} of {TEAM_QUESTIONS.length}</p>
-          <fieldset className="team-q">
+          <p className="team-progress" ref={progress} tabIndex={-1}>Question {step + 1} of {TEAM_QUESTIONS.length}</p>
+          <fieldset className="team-q" key={q.key}>
             <legend>{q.question}</legend>
             <div className="team-options">
               {q.options.map((o) => (
@@ -71,7 +82,7 @@ export default function TeamBuilder() {
             </p>
           )}
           <div className="decide-nav">
-            {step > 0 && <button type="button" className="btn btn-secondary" onClick={() => setStep((s) => s - 1)}>Back</button>}
+            {step > 0 && <button type="button" className="btn btn-secondary" onClick={() => { window.clearTimeout(timer.current); setStep((s) => s - 1); }}>Back</button>}
             <button type="button" className="btn" disabled={!picked} onClick={next}>{step + 1 === TEAM_QUESTIONS.length ? 'Show my team' : 'Next'}</button>
           </div>
         </>
