@@ -221,7 +221,7 @@ export const STRATEGIES: Strategy[] = [
       { id: 'reo-page', text: 'Read how bank-owned and government homes are sold.', href: '#/bank-owned' },
       { id: 'reo-funds', text: 'Get pre-approved or gather proof of funds before you look.', href: '#/pros/lender' },
       { id: 'reo-agent', text: 'Work with an agent; HUD homes need a HUD-registered broker to bid.', href: '#/pros/agent' },
-      { id: 'reo-asis', text: 'Expect as-is sales: the seller usually won’t repair, so inspect within the contract’s window (10 days on Fannie Mae’s contract).', href: '#/pros/inspector' },
+      { id: 'reo-asis', text: 'Expect as-is sales: the seller usually won’t repair, so inspect within the contract’s inspection period (check the bank’s contract for the deadline).', href: '#/pros/inspector' },
       { id: 'reo-numbers', text: 'Offer from your own numbers, including repairs.', href: '#/analyze' },
       { id: 'reo-title', text: 'Order a title search before closing.', href: '#/pros/title' },
     ],

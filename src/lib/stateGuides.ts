@@ -394,7 +394,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Redemption",
-      value: "Only in some judicial foreclosures. The owner gets 3 months to buy it back if the sale pays off the debt, or 1 year if it does not (CCP 729.030). Separately, if a federal lien was on the property, the U.S. can buy it back for 1 year (120 days for IRS liens, or the state period if longer) (28 U.S.C. 2410(c))."
+      value: "Only in some judicial foreclosures. The owner gets 3 months to buy it back if the sale pays off the debt, or 1 year if it does not (CCP 729.030). Separately, if the United States was named in the case and held a junior lien, it can buy the property back for 1 year (for IRS liens, 120 days or the state period if longer) (28 U.S.C. 2410(c)). If it wasn’t named, its lien isn’t wiped out."
     },
     {
       label: "Redemption price",
@@ -598,7 +598,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Pay on time",
-      detail: "Pay the full amount in cash by the treasurer’s deadline, no later than 15 days after the sale closes. Add a processing fee of up to $10 per lien. If you don’t pay, the treasurer can resell the lien or sue you for the amount. It can also bar you from Arizona tax lien sales for up to one year (ARS 42-18116)."
+      detail: "Pay the full amount in cash by the treasurer’s deadline, no later than 15 days after the sale closes. Add a processing fee of up to $10 per lien. If you don’t pay, the treasurer resells the lien if the sale is still open. If it has closed, the treasurer can sue you for the amount or bar you from Arizona tax lien sales for up to one year (ARS 42-18116)."
     },
     {
       title: "Hold the certificate and track redemptions",
@@ -618,7 +618,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Get the judgment, then the deed",
-      detail: "If the court rules for you, it directs the treasurer to deliver a treasurer’s deed. The owner or the certificate holder can ask for an excess proceeds sale instead. If the property is likely to sell for more than $2,500 above what is owed, the court must order that sale. You are then paid from the sale instead of getting the deed, and the owner gets the surplus (ARS 42-18204). Other bidders at that sale must pay a nonrefundable deposit (10% of the opening bid or $2,500, whichever is more). Buy title insurance before you spend money on the property."
+      detail: "If the court rules for you, it directs the treasurer to deliver a treasurer’s deed. The owner or the certificate holder can ask for an excess proceeds sale instead. If the property is likely to sell for more than $2,500 above what is owed, the court must order that sale. You are then paid from the sale instead of getting the deed, and the owner gets the surplus (ARS 42-18204). Other bidders at that sale must post a deposit of 10% of the opening bid or $2,500, whichever is more. It is returned to everyone except the winning bidder (ARS 42-18234). Buy title insurance before you spend money on the property."
     }
   ],
   survives: {

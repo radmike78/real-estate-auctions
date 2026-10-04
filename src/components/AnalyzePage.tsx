@@ -7,7 +7,7 @@ import { CalcRegion } from './calcRegion';
 import { useMarkStep } from '../lib/path';
 import { useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, carryDraftNumbers, cleanDeal, forgetDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
+import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
 import CheckFold from './CheckFold';
 import { linkLabel } from '../lib/linkLabel';
 import { investorProfile } from '../lib/myPlan';
@@ -16,8 +16,19 @@ import { fmtMoney } from '../lib/status';
 const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake' };
 const CURRENT = CURRENT_KEY;
 
+/** The plan a new deal starts on: from the strategy in your buy box (rentals open Keep and rent). */
+function planFromBuyBox(): Plan {
+  try {
+    const s = (JSON.parse(localStorage.getItem('deedowl.buybox.v1') ?? 'null') as { strategy?: unknown } | null)?.strategy;
+    if (typeof s === 'string' && /rental|rent the others|BRRRR/.test(s)) return 'rent';
+  } catch {
+    /* storage unavailable */
+  }
+  return 'flip';
+}
+
 function blank(st: StateCode): Deal {
-  return { id: '', name: '', state: st, county: DEFAULT_COUNTY[st], kind: 'listing', plan: 'flip', notes: '', done: [], updatedAt: new Date().toISOString() };
+  return { id: '', name: '', state: st, county: DEFAULT_COUNTY[st], kind: 'listing', plan: planFromBuyBox(), notes: '', done: [], updatedAt: new Date().toISOString() };
 }
 
 function loadCurrent(st: StateCode): Deal {
@@ -175,7 +186,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           {deal.id ? (
             <>
               <span className="muted">Saved as “{deal.name}”. Changes save as you go.</span>
-              <button type="button" className="btn btn-secondary" onClick={() => setDeal(blank(deal.state))}>Start a new deal</button>
+              <button type="button" className="btn btn-secondary" onClick={() => { clearDraftNumbers(); setDeal(blank(deal.state)); }}>Start a new deal</button>
             </>
           ) : (
             <button type="button" className="btn" onClick={saveNew}>Save this deal</button>
@@ -224,7 +235,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       <h2 className="section-title" id="numbers" ref={numbersRef}>3. Run the numbers</h2>
       <ProfileNote />
       <CalcRegion.Provider value={{ state: deal.state, county: deal.county }}>
-        <Calculators key={`${deal.id}-${deal.state}-${deal.county}-${deal.kind}`} dealId={deal.id || undefined} onAnalyze initial={calcTabFor(deal.plan)} onTab={(k) => { const p = PLANS.find((x) => calcTabFor(x.key) === k)?.key; if (p && p !== deal.plan && plans.some((x) => x.key === p)) set({ plan: p }); }} state={deal.state} offer={deal.kind === 'listing' || deal.kind === 'reo'} />
+        <Calculators key={`${deal.id}-${deal.state}-${deal.county}-${deal.kind}`} dealId={deal.id || undefined} onAnalyze initial={calcTabFor(deal.plan)} onTab={(k) => { const p = PLANS.find((x) => calcTabFor(x.key) === k)?.key; if (p && p !== deal.plan && plans.some((x) => x.key === p)) set({ plan: p }); }} state={deal.state} offer={deal.kind === 'listing' || deal.kind === 'reo'} lien={deal.kind === 'lien'} />
       </CalcRegion.Provider>
 
       {/* One clear next step once the numbers are in: keep the deal, then follow the buying steps for this kind of sale. */}

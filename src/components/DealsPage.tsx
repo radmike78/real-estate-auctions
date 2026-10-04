@@ -14,7 +14,7 @@ import { kindLabel, loadDeals as loadAnalyzed, openDeal, SALE_KINDS, checklistFo
 import { countyName } from '../lib/regions';
 import StatusBadge from './StatusBadge';
 import { downloadText, fileName } from '../lib/download';
-import { propertyPacketText } from '../lib/propertyPacket';
+import { dealNumbers, propertyPacketText } from '../lib/propertyPacket';
 
 function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; loading: boolean }) {
   const [notes, setNotes] = useState(d.notes);
@@ -135,6 +135,14 @@ export default function DealsPage() {
                     <div>
                       <h3><button type="button" className="linkish" onClick={() => openDeal(d)}>{d.name}</button></h3>
                       <p className="muted">{kindLabel(k, d.state)} · {countyName(d.county)}, {d.state} · checklist {done} of {all.length} done</p>
+                      {(() => {
+                        const n = dealNumbers(d);
+                        return n ? (
+                          <p className={n.monthly <= 0 || (n.cashOnCash !== null && n.cashOnCash < n.target / 100) ? 'deal-urgent' : undefined}>
+                            At {fmtMoney(n.price)}: {n.monthly < 0 ? `loses ${fmtMoney(Math.round(-n.monthly))}` : `${fmtMoney(Math.round(n.monthly))} cash flow`} a month · {n.cashOnCash === null ? 'all your cash back' : `${(n.cashOnCash * 100).toFixed(1)}% a year on ${fmtMoney(Math.round(n.cashIn))} of your cash`} (target {n.target}%)
+                          </p>
+                        ) : d.plan === 'rent' ? <p className="muted">No numbers yet: open it and enter the price you’d pay under Keep and rent.</p> : null;
+                      })()}
                     </div>
                     <div className="deal-actions">
                       <button type="button" className="btn btn-secondary" onClick={() => downloadText(fileName(`property packet ${d.name}`, 'txt'), propertyPacketText(d))}>Download property packet</button>

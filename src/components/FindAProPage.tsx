@@ -13,6 +13,7 @@ import { useMarkStep } from '../lib/path';
 import PathNext from './PathNext';
 import { CORE_TEAM, PRO_GUIDES, proGuideByKey, type ProGuide, type ProKey } from '../lib/proGuide';
 import WhyBlock from './WhyBlock';
+import OwlNote from './OwlNote';
 import { PRO_WHY } from '../lib/proWhy';
 import { PRO_DEEP } from '../lib/deep/proDeep';
 import StoryList from './StoryList';
@@ -109,7 +110,10 @@ function GuideBody({ g }: { g: ProGuide }) {
           <StoryList stories={PRO_DEEP[g.key]!.stories} />
         </div>
       )}
-      {g.directory && (
+      {g.directory && st && st !== 'NV' && (
+        <OwlNote>Listed professionals are Nevada only for now. In {stateByCode(st)?.name}, use the license lookup above to check anyone you find.</OwlNote>
+      )}
+      {g.directory && (!st || st === 'NV') && (
         <ProDirectory
           categories={g.directory}
           initialCategory={g.directory.length === 1 ? g.directory[0] : 'any'}

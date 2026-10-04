@@ -41,7 +41,7 @@ export const negotiate: Lesson = {
             head: ['', 'How it differs'],
             rows: [
               ['Auctions', 'Usually as-is, with no inspection or financing contingency. Expect a deposit, often by cashier’s check, and full payment in cash on a short deadline. Bidding sets the price, so decide your maximum bid before the sale. Each guide lists the rules for that kind of sale.'],
-              ['Bank-owned (REO)', 'The bank’s own contract and addenda usually replace the standard forms. Fannie Mae’s contract, for example, sells the home as-is and gives you 10 days to inspect. It doesn’t require the seller to make repairs. If the seller won’t repair, you can cancel and get your earnest money back.'],
+              ['Bank-owned (REO)', 'The bank’s own contract and addenda usually replace the standard forms. Fannie Mae’s contract, for example, sells the home as-is and sets a short inspection period; check the contract for the deadline. It doesn’t require the seller to make repairs. If the seller won’t repair, you can cancel and get your earnest money back.'],
               ['Short sales', 'The owner sells for less than the loan balance, and the lender has to agree. Expect a long wait for that approval, because the lender, not only the owner, must accept the price.'],
             ],
           },

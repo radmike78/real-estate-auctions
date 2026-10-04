@@ -472,6 +472,7 @@ a.btn { display: inline-block; }
 /* Disclaimers */
 .disclaimer { border: 1px solid var(--border); border-left: 4px solid var(--muted); background: var(--surface); border-radius: 8px; padding: 12px 14px; margin: 16px 0; font-size: 0.95rem; color: var(--text); }
 .disclaimer.compact { font-size: 0.95rem; padding: 8px 12px; margin: 10px 0; }
+.disclaimer.fine { border: 0; background: none; padding: 0; margin: 8px 0; font-size: 0.875rem; color: var(--muted); }
 .role-backdrop { position: fixed; inset: 0; background: rgb(5 10 20 / 0.55); backdrop-filter: blur(3px); display: grid; place-items: center; z-index: 2000; padding: 16px; }
 .role-dialog { background: var(--surface); color: var(--text); border-radius: 18px; padding: 24px; max-width: 520px; width: 100%; box-shadow: 0 24px 60px rgb(0 0 0 / 0.35); }
 .role-dialog h2 { margin-top: 0; font-size: 1.4rem; }

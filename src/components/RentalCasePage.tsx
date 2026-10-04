@@ -245,7 +245,7 @@ function Choice({ t, k, p, update, finish, stageKey }: { t: Extract<CaseTask, { 
   return (
     <>
       <div className="case-choices" role="group" aria-label={t.prompt}>
-        {t.choices.map((ch, i) => (
+        {shuffled(t.choices.length, t.prompt).map((i) => [t.choices[i], i] as const).map(([ch, i]) => (
           <button key={ch.label} type="button" aria-pressed={picked === i} className={picked === i ? `picked ${ch.verdict}` : undefined} onClick={() => pick(i)}>
             {ch.label}
           </button>
@@ -426,4 +426,14 @@ function Packet({ p }: { p: CaseProgress }) {
       </div>
     </section>
   );
+}
+
+/** A fixed, scrambled order for a question's answers, so the best one isn't always first (same order on every visit). */
+function shuffled(n: number, seed: string): number[] {
+  const h = (i: number) => {
+    let x = 2166136261;
+    for (const c of `${seed}#${i}`) x = Math.imul(x ^ c.charCodeAt(0), 16777619);
+    return x >>> 0;
+  };
+  return [...Array(n).keys()].sort((a, b) => h(a) - h(b));
 }

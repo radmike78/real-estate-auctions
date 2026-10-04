@@ -769,10 +769,10 @@ export const DRILLS: Drill[] = [
         question: 'The house was listed yesterday. Can an investor offer now?',
         multi: false,
         options: [
-          { label: 'Not yet: for the first 30 days, offers come only from people who will live there, public entities and nonprofits', good: true, why: 'Right. That’s Fannie Mae and Freddie Mac’s “First Look” period.' },
+          { label: 'Not yet: during First Look (30 days for Freddie Mac; 20 days for Fannie Mae, 30 in Nevada), offers come only from people who will live there, public entities and nonprofits', good: true, why: 'Right. That’s Fannie Mae and Freddie Mac’s “First Look” period.' },
           { label: 'Yes, any buyer can offer from day one', good: false, why: 'Not on Fannie Mae or Freddie Mac homes during First Look.' },
         ],
-        lesson: 'Use the 30 days to run your numbers and line up financing, so your offer is ready when investors can bid.',
+        lesson: 'Use the First Look period to run your numbers and line up financing, so your offer is ready when investors can bid.',
       },
       {
         kind: 'pick',

@@ -112,7 +112,7 @@ const NEVADA: Playbook[] = [
       { label: 'When', value: 'Usually 4 times a year (late January, March, July and September). Generally at 11:00 a.m. at the Government Center' },
       { label: 'Register', value: 'In person on sale day, about an hour before. Bring government photo ID showing your current mailing address. The certificate is issued in that name. One registration per person. No deposit or registration fee at present. You must be 18 or older. Late arrivals can’t take part.' },
       { label: 'Payment', value: "By 10:00 a.m. the next business day, in cash, cashier's check or money order" },
-      { label: 'Interest', value: '1% a month simple interest on the certificate price, paid when the owner redeems. State law sets 1% as the most allowed, not a promise (NRS 271.595). Confirm the rate in the sale notice' },
+      { label: 'Interest', value: '1% a month simple interest on the certificate price, paid when the owner redeems (NRS 271.610; NRS 271.595 caps the redemption interest at 1%). Confirm the rate in the sale notice' },
       { label: 'Redemption', value: '120 days, or 2 years if there was a home or significant improvement on the land at the time of the sale, as the county or city decides (NRS 271.595)' },
       { label: 'Deed', value: 'After the redemption period, serve the owner notice in person, and post it on the property if the public can reach it. If they don’t live in Nevada, or can’t be found here after a diligent search of Assessor, Recorder and Secretary of State records, publish the notice and mail it to every address the search turns up. The owner then has 60 more days to redeem. Before a deed is issued, the District Attorney reviews the notice, and you must pay any delinquent taxes and assessments. If you never ask for a deed, the certificate expires 3 years after redemption ends (NRS 271.595).' },
       { label: 'Taxes', value: 'You file a W-9; interest over $10 is reported on a 1099-INT' },
@@ -339,7 +339,7 @@ const NEVADA: Playbook[] = [
       { label: 'Disclosures', value: 'Nevada’s exemption from the seller disclosure form covers the foreclosure sale itself, not a later resale by the bank (NRS 113.130). Ask for the form, but expect the bank to know little about the home. Your inspection is your main protection' },
       { label: 'Title', value: 'Normal title insurance and escrow' },
       { label: 'HUD homes', value: 'Bid through a HUD-registered broker. For homes listed since May 30, 2025, owner-occupants, government entities and HUD-approved nonprofits get the first 15 days (5 days for homes marked “uninsured”) (HUD Mortgagee Letter 2025-13)' },
-      { label: 'Fannie Mae & Freddie Mac', value: 'Owner-occupants get a “First Look” period before investors, usually 30 days (confirm on the listing)' },
+      { label: 'Fannie Mae & Freddie Mac', value: 'Owner-occupants get a “First Look” period before investors: 30 days for Freddie Mac; 20 days for Fannie Mae, 30 in Nevada (confirm on the listing)' },
       { label: 'Lender-run auctions', value: 'Check the buyer’s premium and whether the lender must approve the winning bid. Make sure the lender is the owner of record' },
     ],
     steps: [

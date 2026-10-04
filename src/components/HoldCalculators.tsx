@@ -27,7 +27,10 @@ function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> 
   const sig = JSON.stringify(force);
   const [v, setV] = useState<T>(() => {
     try {
-      const saved = sanitizeNumbers(JSON.parse(localStorage.getItem(key) ?? 'null'), defaults);
+      const raw = localStorage.getItem(key);
+      // Nothing typed yet: start from the region's values (a stored region alone doesn't mean numbers were kept).
+      if (raw === null) return { ...defaults, ...force };
+      const saved = sanitizeNumbers(JSON.parse(raw), defaults);
       return localStorage.getItem(`${key}.region`) === sig ? saved : { ...saved, ...force };
     } catch {
       return { ...defaults, ...force };
@@ -244,6 +247,7 @@ function AtThisPrice({ v, start, onPrice, setPrice }: { v: RentInputs; start: nu
       )}
       {price === 0 && <p className="muted small">Enter the price you’d pay (the asking price, or your offer) to see your numbers at that price.</p>}
       {walkAway > 0 && price !== walkAway && <button type="button" className="linkish" onClick={() => setPrice(walkAway)}>Use the walk-away price ({fmtMoney(walkAway)})</button>}
+      {price > 0 && (<>
       <table className="deal-stress waterfall">
         <caption className="sr-only">Monthly income and costs at this price</caption>
         <tbody>
@@ -263,8 +267,9 @@ function AtThisPrice({ v, start, onPrice, setPrice }: { v: RentInputs; start: nu
         <div><dt>Cash-on-cash return: yearly cash flow ÷ your cash in</dt><dd>{a.cashOnCash === null ? 'All your cash is back' : pctText(a.cashOnCash)}</dd></div>
         <div><dt>Cap rate on the price: NOI ÷ price</dt><dd>{pctText(a.capOnPrice)}</dd></div>
         <div><dt>Cap rate on everything you pay</dt><dd>{pctText(a.capOnCost)}</dd></div>
-        {a.dscr !== null && <div><dt>Loan coverage (DSCR): NOI ÷ loan payments</dt><dd>{a.dscr.toFixed(2)}×</dd></div>}
+        {a.dscr !== null && <div><dt>Loan coverage (DSCR): NOI ÷ loan payments</dt><dd>{a.dscr.toFixed(2)}×{a.dscr < v.minDscr && <span className="deal-urgent"> · below the {v.minDscr}× lenders usually want; the loan may not be approved at this price</span>}</dd></div>}
       </dl>
+      </>)}
       <p className="muted small">Uses the rent, costs and loan you entered above; taxes and insurance are counted in operating costs, not in the loan payment. Your cash in doesn’t include reserves you keep in the bank. An estimate, not advice.</p>
     </section>
   );

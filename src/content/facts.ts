@@ -110,12 +110,12 @@ export const FACTS: Fact[] = [
   // ---------------- SID lien certificates ----------------
   {
     id: 'sid-interest',
-    claim: 'SID lien certificates earn 1% a month simple interest on the certificate price; NRS 271.595 sets 1% a month as the maximum rate.',
+    claim: 'SID lien certificates earn 1% a month simple interest on the original amount paid (NRS 271.610); NRS 271.595 caps the redemption interest at 1% a month.',
     sources: ['nrs-271', 'treasurer-faq'],
     checked: '2026-10-04',
     where: [
       { file: PB, text: '1% a month simple interest on the certificate pric' },
-      { file: PB, text: 'State law sets 1% as the most allowed, not a promise (NRS 271.595)' },
+      { file: PB, text: '(NRS 271.610; NRS 271.595 caps the redemption interest at 1%)' },
     ],
   },
   {
@@ -236,9 +236,9 @@ export const FACTS: Fact[] = [
   // ---------------- Bank-owned / government-owned ----------------
   {
     id: 'fannie-first-look',
-    claim: 'Fannie Mae and Freddie Mac give owner-occupants a First Look period, usually 30 days, before investors can offer; the listing shows the current period.',
+    claim: 'Fannie Mae and Freddie Mac give owner-occupants a First Look period before investors can offer (30 days for Freddie Mac; 20 days for Fannie Mae, 30 in Nevada); the listing shows the current period.',
     sources: ['homepath'],
     checked: '2026-10-04',
-    where: [{ file: PB, text: 'Owner-occupants get a “First Look” period before investors, usually 30 days (confirm on the listing)' }],
+    where: [{ file: PB, text: 'Owner-occupants get a “First Look” period before investors: 30 days for Freddie Mac; 20 days for Fannie Mae, 30 in Nevada (confirm on the listing)' }],
   },
 ];

@@ -21,6 +21,17 @@ function read(key: string): unknown {
   }
 }
 
+/** The rental numbers saved for a deal at the price you'd pay, or null until a price is entered in Keep and rent. */
+export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCash: number | null; target: number; cashIn: number } | null {
+  const offer = d.kind === 'listing' || d.kind === 'reo';
+  const raw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
+  if (!raw) return null;
+  const v = sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs;
+  if (!(v.atPrice > 0)) return null;
+  const a = rentAtPrice(v, v.atPrice, offer);
+  return { price: v.atPrice, monthly: a.cashFlow / 12, cashOnCash: a.cashOnCash, target: v.targetCocPct, cashIn: a.cashIn };
+}
+
 export function propertyPacketText(d: Deal): string {
   const offer = d.kind === 'listing' || d.kind === 'reo';
   const kind = SALE_KINDS.find((k) => k.key === d.kind);

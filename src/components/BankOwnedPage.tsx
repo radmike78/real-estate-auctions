@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import ClassSwitch from './ClassSwitch';
 import type { ClassFilter } from '../lib/propertyClass';
 import { CHECKLISTS } from '../lib/buyerChecklists';
-import { REO_GROUPS, reoSourcesIn, type ReoGroup, type ReoSource } from '../lib/reoSources';
+import { HUD_CLARK_SEARCH, REO_GROUPS, reoSourcesIn, type ReoGroup, type ReoSource } from '../lib/reoSources';
 import BuyerChecklistBox from './BuyerChecklistBox';
 import Disclaimer from './Disclaimer';
 import DrillDown, { type DrillSection } from './DrillDown';
@@ -18,10 +18,13 @@ import { BUYING, REO_GUIDE } from '../lib/states/bankOwned';
 function SourceCard({ s }: { s: ReoSource }) {
   // The ↗ stays on the same line as the name's last word.
   const cut = s.name.lastIndexOf(' ') + 1;
+  const [mine] = useMyState();
+  // HUD's link opens a Clark County search; elsewhere it opens HUD's own search to pick your area.
+  const href = s.url === HUD_CLARK_SEARCH && mine && mine !== 'NV' ? 'https://www.hudhomestore.gov/' : s.url;
   return (
     <li className="reo-card">
       <div className="reo-owner">{s.owner}</div>
-      <h3><a href={s.url} target="_blank" rel="noopener noreferrer">{s.name.slice(0, cut)}<span className="nowrap">{s.name.slice(cut)} ↗</span></a></h3>
+      <h3><a href={href} target="_blank" rel="noopener noreferrer">{s.name.slice(0, cut)}<span className="nowrap">{s.name.slice(cut)} ↗</span></a></h3>
       <p>{s.what}</p>
       <dl>
         <div className="reo-how"><dt>How to buy</dt><dd>{s.howToBuy}</dd></div>

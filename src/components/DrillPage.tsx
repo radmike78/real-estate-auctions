@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { useJourney, useLastActivity } from '../lib/journey';
+import { currentProgress, GUIDED, guidedNext, useJourney, useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
@@ -208,6 +208,7 @@ const VALUE_MISSIONS = ['comps', 'arv'];
 
 /** One "Would you buy it?" drill: missions, then your decision and what an experienced investor would weigh. */
 export default function DrillPage({ id }: { id: string }) {
+  const { mode } = useJourney();
   const d = drillById(id);
   useLastActivity(`#/practice/drills/${id}`, d ? `Practice: ${d.title}` : undefined);
   const [saved, setSaved] = useState<Saved>(load);
@@ -257,7 +258,7 @@ export default function DrillPage({ id }: { id: string }) {
               <Feedback key={verdict.label} focus={fresh === 'verdict'} tone="">{verdict.feedback}</Feedback>
               <h3>What an experienced investor would weigh</h3>
               <p className="drill-lesson">{d.verdict.expert}</p>
-              <p className="muted">There’s no single right answer: we score how you got there. This is a simulation: the property and prices are made up, and finishing a drill doesn’t mean you’re ready for a real transaction. Verify real deals with qualified local professionals.</p>
+              <p className="muted">There’s no single right answer: compare your reasoning with the expert’s. This is a simulation: the property and prices are made up, and finishing a drill doesn’t mean you’re ready for a real transaction. Verify real deals with qualified local professionals.</p>
             </>
           )}
         </section>
@@ -265,8 +266,17 @@ export default function DrillPage({ id }: { id: string }) {
       <div className="decide-nav">
         <a className="btn btn-secondary" href="#/practice">← All practice</a>
         <button type="button" className="btn btn-secondary" onClick={() => setSaved((s) => ({ ...s, [d.id]: { answers: {} } }))}>Start this drill over</button>
-        <a className="btn btn-secondary" href="#/analyze">Open the calculators</a>
+        <a className="btn btn-secondary" href={`#/analyze${/^(rental|brrrr|apartments|office|retail)/.test(d.id) ? '?plan=rent' : /^flip/.test(d.id) ? '?plan=flip' : ''}`}>Open the calculators</a>
       </div>
+      {mode === 'guided' && (() => {
+        const g = guidedNext(currentProgress());
+        return g && g.step.href !== `#/practice/drills/${d.id}` ? (
+          <nav className="path-next" aria-label="Next step">
+            <span className="muted">Next in Getting started ({g.n} of {GUIDED.length})</span>
+            <a className="btn" href={g.step.href}>{g.step.label} →</a>
+          </nav>
+        ) : null;
+      })()}
     </main>
   );
 }
