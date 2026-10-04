@@ -9,7 +9,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     overview: [
       "A single-family rental is one house on its own lot. You can rent it to one household. Or you can buy it, fix it and resell it (a “flip”). It is the easiest rental to understand and to get a loan for. Tenants often stay longer than in apartments. But all the income comes from one tenant. If that tenant stops paying or moves out, or the house sits empty, your income drops to zero. The mortgage, taxes, insurance and repairs keep coming.",
       "Flipping is a short, high-stakes bet. You bet on the price you pay, the repair budget, and the market while you hold the house. In 2021 and early 2022, Phoenix and Las Vegas were among the hottest markets for investors. Then mortgage rates jumped in 2022. Even the big buyers that set prices by computer (Zillow, Opendoor) lost money on many homes. Local flippers who bought distressed homes cheaply did better.",
-      "You also compete with large buyers who have lots of money. In late 2021, investors bought about a quarter of U.S. single-family homes sold. Phoenix and Las Vegas were among the hot spots. Cash offers often win. Small investors do best when they buy below market, for example from motivated or forced sellers. They also plan their budget with care and can hold the house for years if the market turns."
+      "You also compete with large buyers who have lots of money. In late 2021, investors bought about a quarter of U.S. single-family homes sold. Phoenix and Las Vegas were among the hot spots. Cash offers often win. Small investors do best when they buy below market, for example from banks, government agencies or public auctions. They also plan their budget with care and can hold the house for years if the market turns."
     ],
     bestFor: [
       "People with steady income and cash reserves who can pay the mortgage for several months with no rent coming in.",
@@ -28,12 +28,12 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Mortgage, property tax and insurance every month, rented or not.",
       "Vacancy and non-payment. During the pandemic, as many as 58% of small landlords (under four units) had tenants behind on rent (National Association of Realtors, via AP).",
       "Repairs and cleaning between tenants. One Las Vegas owner spent $2,000 just to clean an empty house for sale after squatters. Then the owner faced the bill again.",
-      "Flip holding costs (loan interest, utilities, taxes) and selling costs. Typical gross flip profit fell to $66,000 in 2023. ROI fell from 35.7% (2021) to the lowest since 2007 (ATTOM via FOX 11).",
+      "Flip holding costs (loan interest, utilities, taxes) and selling costs. In 2023 the typical flip sold for $66,000 more than it was bought for, and the return fell from 35.7% (2021) to the lowest since 2007 (ATTOM via FOX 11). That ‘gross profit’ is before repair, holding and selling costs, so the real profit is much smaller and can be close to zero.",
       "Property management (often a percentage of rent) if you don’t manage it yourself.",
       "Legal rules: fees and deposit deductions must be disclosed and fair. The largest single-family landlord agreed to pay $48 million (without admitting wrongdoing). It settled FTC claims over hidden fees and deposit practices."
     ],
     money: [
-      "Owner-occupied loans (FHA, VA, conventional) have the lowest down payments, but you must live in the home. Investment-property loans usually need larger down payments and higher rates.",
+      "Owner-occupied loans (FHA, VA, conventional) have the lowest down payments, but you must really live in the home. FHA expects you to move in within 60 days and stay at least a year, and its 3.5% minimum needs a credit score of 580 or more (500–579 needs 10% down). Investment-property loans usually need larger down payments and higher rates.",
       "Cash buyers often win in competitive markets. Investors ‘chase the same affordable properties that first-time buyers dependent on mortgages are also competing for’ (Bloomberg, 2022).",
       "Flips are often paid for with short-term, higher-cost loans. Every extra month you hold the house eats into profit. So the exit plan (sell or rent) must work at today’s rates."
     ],
@@ -55,7 +55,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         }
       },
       {
-        text: "Typical gross flip profit fell to $66,000 in 2023.",
+        text: "Typical gross flip profit fell to $66,000 in 2023. That is the gap between the buy and sale prices, before repair and holding costs.",
         source: {
           label: "FOX 11 Los Angeles: House flipping down nearly 30% as profits drop, data reveals (2024, citing ATTOM)",
           url: "https://www.foxla.com/news/house-flipping-down-profits-drop-real-estate"
@@ -97,7 +97,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         year: "2023",
         title: "Buying cheap made the flips work",
         happened: "An immigrant began flipping homes in Phoenix. He estimated he made about $200,000 buying, fixing and reselling homes during the 2020-2022 boom. His method was to buy low from motivated sellers with quick cash offers. Then he did much of the repair work himself. When the market cooled, a later flip still came out ahead, but by only about $2,000 after costs. He planned to shift toward renting homes out.",
-        lesson: "Your profit is mostly set by the price you pay. It shrinks fast when the market turns.",
+        lesson: "Your profit is mostly set by the price you pay, and it shrinks fast when the market turns. This is one person’s result during a boom, not a typical one.",
         source: {
           label: "Bloomberg (via WealthManagement.com): Wall Street Is Losing Out to Amateur Buyers in the Housing Slump (Jan 30, 2023)",
           url: "https://www.wealthmanagement.com/estate-planning/wall-street-is-losing-out-to-amateur-buyers-in-the-housing-slump"
@@ -181,8 +181,8 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
   },
   condo: {
     overview: [
-      "When you buy a condo or a townhouse in a homeowners association (HOA), you own your unit. But you share the building or community with everyone else. The HOA collects monthly dues. It keeps a savings account (“reserves”) for big repairs like roofs, balconies and concrete. It also sets rules on pets, parking, remodeling and renting. Its board can raise dues. It can charge “special assessments” (one-time bills) when reserves fall short. In many states it can foreclose if an owner doesn’t pay.",
-      "In 2021 the Champlain Towers South condo collapsed in Surfside, Florida, killing 98 people. Florida then required inspections and fully funded reserves for older buildings. In some buildings, owners were billed $50,000 to $140,000 each. California has its own balcony laws. Condo associations must have an engineer or architect inspect exterior elevated elements, such as balconies, walkways and stairs (Civil Code 5551, from SB 326). Apartment buildings with three or more units face similar inspections (SB 721). In Nevada, an HOA’s lien for up to 9 months of unpaid dues can come ahead of the first mortgage. That led to many HOA foreclosure sales after the housing crash.",
+      "“Condo” is a way of owning: you own your unit plus a share of the common areas. A townhouse is a building style. It can be a condo, or a home on its own lot in a planned community with an HOA. When you buy a condo or a townhouse in a homeowners association (HOA), you own your unit. But you share the building or community with everyone else. The HOA collects monthly dues. It keeps a savings account (“reserves”) for big repairs like roofs, balconies and concrete. It also sets rules on pets, parking, remodeling and renting. Its board can raise dues. It can charge “special assessments” (one-time bills) when reserves fall short. In many states it can foreclose if an owner doesn’t pay.",
+      "In 2021 the Champlain Towers South condo collapsed in Surfside, Florida, killing 98 people. Florida then required inspections and fully funded reserves for older buildings. In some buildings, owners were billed $50,000 to $140,000 each. California has its own balcony laws. Condo associations must have an engineer or architect inspect exterior elevated elements, such as balconies, walkways and stairs (Civil Code 5551, from SB 326). Apartment buildings with three or more units face similar inspections (SB 721). In Nevada, an HOA’s lien for up to 9 months of unpaid dues can come ahead of the first mortgage. That led to many HOA foreclosure sales after the housing crash. Nevada HOA sales can’t wipe out a mortgage owned by Fannie Mae or Freddie Mac, because federal law protects those loans.",
       "Condos are often the cheapest way into a market, and the HOA handles outside upkeep. The risk is that you are tied to your neighbors’ decisions. A board that kept dues low for years can leave a big bill for whoever owns the unit when repairs come due. Before buying, read the budget, reserve study, board minutes and rules (including any limits on renting)."
     ],
     bestFor: [
@@ -201,13 +201,14 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Monthly HOA dues. In Las Vegas, the Review-Journal reported condo dues of about 50 cents to a dollar per square foot (c. 2016).",
       "Special assessments after Florida’s post-Surfside law. Buildings billed owners $22,000 (Orlando), $50,000-$60,000 (Daytona Beach), and $140,000 (Miami) per unit (NBC News, 2024).",
       "Rising dues as associations build the reserves the law requires.",
-      "Late fees, collection costs and possible HOA foreclosure if dues go unpaid. In Nevada, up to 9 months of assessments plus some costs can come ahead of the first mortgage (NRS 116.3116).",
+      "Late fees, collection costs and possible HOA foreclosure if dues go unpaid. In Nevada, up to 9 months of assessments plus some costs can come ahead of the first mortgage (NRS 116.3116). Nevada HOA sales can’t wipe out a mortgage owned by Fannie Mae or Freddie Mac.",
       "Your own unit insurance (interior and contents) on top of the HOA’s master policy."
     ],
     money: [
       "Many lenders and loan programs require the condo project itself to qualify. For example, VA loans can buy a condo only in a VA-approved project.",
       "Lenders count HOA dues as part of your monthly housing cost, which can reduce how much you can borrow.",
-      "Large pending assessments, low reserves, or lawsuits against the HOA can make a unit harder to finance and resell."
+      "Large pending assessments, low reserves, or lawsuits against the HOA can make a unit harder to finance and resell.",
+      "Fannie Mae won’t buy loans in projects where one owner holds too many units (more than 2 in a 5–20 unit project, or more than 20% in a larger one). Investors buying several units can make the whole building harder to finance."
     ],
     checklist: [
       "Get the resale package: budget, reserve study, financial statements, and the last 1-2 years of board minutes. Look for talk of roofs, balconies, concrete, plumbing or insurance problems.",
@@ -354,6 +355,10 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       {
         label: "California Civil Code section 5551 (condo balcony/elevated element inspections, SB 326)",
         url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=5551"
+      },
+      {
+        label: "Fannie Mae Selling Guide B4-2.1-03, Ineligible Projects",
+        url: "https://selling-guide.fanniemae.com/sel/b4-2.1-03/ineligible-projects"
       },
       {
         label: "Las Vegas Review-Journal: condos as an affordable option in Las Vegas (Ann Friedman, c. 2016)",
@@ -734,7 +739,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Inspect every unit and the major systems. Check with the city or county for open code cases and tenant complaints.",
       "For a syndication, check the sponsor’s past deals, lawsuits and record with securities regulators. Read how fees are paid and what happens if a capital call is needed.",
       "Confirm the real purchase price (county recorder records) and get an independent appraisal. Fraud cases have used fake, inflated contracts.",
-      "Know the tenant rules in that state and city. These include rent control in parts of California and Nevada protections when a building changes hands."
+      "Know the tenant rules in that state and city. These include rent control in parts of California, Nevada protections when a building changes hands, and the federal 90-day notice for tenants after a foreclosure."
     ],
     facts: [
       {
@@ -763,6 +768,13 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         source: {
           label: "KTNV Channel 13 Las Vegas: Tenants’ futures uncertain after Las Vegas apartment complex foreclosure (Feb. 11, 2026)",
           url: "https://ktnv.com/news/where-are-we-gonna-go-tenants-futures-uncertain-after-las-vegas-apartment-complex-foreclosure"
+        }
+      },
+      {
+        text: "Federal law (the Protecting Tenants at Foreclosure Act, permanent since 2018) requires 90 days’ notice to tenants after a foreclosure. Tenants with a real lease can usually stay until it ends, unless the buyer will live in the unit.",
+        source: {
+          label: "Federal Reserve: Protecting Tenants at Foreclosure Act restored (CA 18-4)",
+          url: "https://www.federalreserve.gov/supervisionreg/caletters/caltr1804.htm"
         }
       },
       {
@@ -804,7 +816,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         year: "2026",
         title: "Las Vegas complex heads to foreclosure auction",
         happened: "Tides on Twain is a nearly 200-unit complex near Boulder Highway. Its owner fell behind on the loan. A notice taped to the leasing office said the owner owed nearly $43 million and the property would be sold at public auction. Residents said nobody had told them.",
-        lesson: "Heavy debt on an older complex leaves no room for error, and the tenants feel it too. In Nevada, a new owner must follow state tenant protections after foreclosure.",
+        lesson: "Heavy debt on an older complex leaves no room for error, and the tenants feel it too. In Nevada, a new owner must follow state and federal tenant protections after foreclosure, including 90 days’ notice under federal law.",
         source: {
           label: "KTNV Channel 13 Las Vegas: Tenants’ futures uncertain after Las Vegas apartment complex foreclosure (Feb. 11, 2026)",
           url: "https://ktnv.com/news/where-are-we-gonna-go-tenants-futures-uncertain-after-las-vegas-apartment-complex-foreclosure"
@@ -865,6 +877,10 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         url: "https://ktnv.com/news/where-are-we-gonna-go-tenants-futures-uncertain-after-las-vegas-apartment-complex-foreclosure"
       },
       {
+        label: "Federal Reserve: Protecting Tenants at Foreclosure Act restored (CA 18-4)",
+        url: "https://www.federalreserve.gov/supervisionreg/caletters/caltr1804.htm"
+      },
+      {
         label: "Salt Lake Tribune: Utah’s housing needs are actually growing faster than the state. Here’s why and one solution. (Feb. 22, 2022)",
         url: "https://sltrib.com/news/2022/02/22/utahs-housing-needs-are"
       },
@@ -913,7 +929,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     ],
     money: [
       "Banks and credit unions make commercial loans based on the center’s income and tenant quality. Leases with strong national tenants are easier to finance.",
-      "A small business that occupies most of a building may qualify for an SBA 504 loan to buy it. These are long-term, fixed-rate loans, with a maximum loan of $5.5 million.",
+      "A small business that uses at least 51% of an existing building (60% if newly built) may qualify for an SBA 504 loan to buy it. These are long-term, fixed-rate loans, with a maximum 504 loan of $5.5 million.",
       "Large malls are often financed with big securitized loans. When income drops, owners may stop paying and hand the property to the lender. That happened with the San Francisco Centre in 2023."
     ],
     checklist: [
@@ -1053,7 +1069,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
   office: {
     overview: [
       "Office buildings range from small medical and professional buildings to downtown towers. Since the pandemic, many companies need less space because people work from home part of the week. National office vacancy reached about 20% in 2024. In San Francisco it passed 33% in 2023.",
-      "Big downtown towers have lost the most value. Several San Francisco and Los Angeles buildings sold for 60–90% less than their earlier prices. Large owners such as Brookfield defaulted on loans. Some buyers see a chance to buy at the new, lower price. But leasing space still costs money (tenant improvements, commissions, free rent) and can take years.",
+      "Big downtown towers have lost the most value. Several San Francisco and Los Angeles buildings sold for 60–90% less than their earlier prices. Large owners such as Brookfield defaulted on loans. Some buyers see a chance to buy at the new, lower price. But a big drop from an old price is not proof of a bargain. What matters is the rent the building can earn after paying to fill it. But leasing space still costs money (tenant improvements, commissions, free rent) and can take years.",
       "Small office buildings used by the owner’s own business (a dentist, doctor, accountant) are a different story. The owner is the tenant, so vacancy risk is low. SBA loans can make buying possible with a small down payment. Turning offices into apartments is possible but slow and costly, and only some buildings fit."
     ],
     bestFor: [
@@ -1151,7 +1167,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         tone: "good",
         who: "Two San Francisco real estate firms with cash and a long-term view",
         year: "2023",
-        title: "Buying a downtown tower at about 75% off and planning to hold",
+        title: "Buying a mostly empty tower far below its old asking price, and planning to hold",
         happened: "SKS Partners and the Swig Company bought 350 California St., a 22-story Financial District tower, for about $61 million. That was roughly 75% below what the seller had asked in 2020. The building was mostly vacant. The buyers planned to hold it for a decade or more. The low price let them lease space at lower rents.",
         lesson: "Buying an office building cheaply only works for owners who can wait years and pay to lease it up.",
         source: {
@@ -1274,7 +1290,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     ],
     money: [
       "Bank and life-insurance-company loans based on lease income. Strong tenants on long leases get better terms.",
-      "Owner-users can use SBA 504 loans (long-term, fixed-rate, up to $5.5 million) to buy their own building.",
+      "Owner-users can use SBA 504 loans (long-term, fixed-rate, up to $5.5 million) to buy their own building, if the business uses at least 51% of it (60% if newly built).",
       "Speculative development uses construction loans that must be repaid or refinanced. If the building doesn’t lease, the developer is squeezed."
     ],
     checklist: [
@@ -1439,7 +1455,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     money: [
       "Fannie Mae buys loans on homes with a business space only if the borrower lives there as a principal residence. Examples of a business space are a day care, barber shop or doctor’s office. The borrower must also own and run the business, and the property must be mainly residential.",
       "Buildings with a storefront plus several apartments usually need a commercial or small-balance multifamily loan from a bank or credit union.",
-      "An owner-operator business may qualify for an SBA 504 loan (up to $5.5 million) for the business’s real estate. But SBA 504 loans cannot be used for speculation or investment in rental real estate.",
+      "An owner-operator business may qualify for an SBA 504 loan (up to $5.5 million) only if the business itself uses at least 51% of an existing building (60% if newly built). If apartments take up most of the space, it likely won’t qualify. SBA 504 loans cannot be used for speculation or investment in rental real estate.",
       "Buying with cash at a tax sale or foreclosure auction removes the risk of loan approval. But it leaves you to fund repairs and vacancy yourself."
     ],
     checklist: [
@@ -1568,6 +1584,10 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         url: "https://www.sba.gov/funding-programs/loans/504-loans"
       },
       {
+        label: "SBA 504 occupancy rules (13 CFR 120.131)",
+        url: "https://www.law.cornell.edu/cfr/text/13/120.131"
+      },
+      {
         label: "Baltimore Sun: Above it all (July 31, 2005)",
         url: "https://www.baltimoresun.com/2005/07/31/above-it-all-2/"
       },
@@ -1590,7 +1610,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Owning a hotel or motel means owning a business that resells the same rooms every night. Income can rise fast when travel is strong and collapse when it stops. During the 78-day shutdown in 2020, Nevada’s 219 major casinos lost an estimated $6.2 billion. Some Las Vegas properties never reopened.",
       "Small motels are often run by owner-operator families who live on site. They do much of the work themselves: the front desk, laundry, cleaning and repairs. NPR reported that Indian immigrants and their children own roughly half of U.S. motels. Many were started by families living behind the lobby.",
       "Hotels are financed and valued as businesses, not homes. Lenders look at occupancy and room revenue. Franchise brands require upgrades, and old motels can hide huge repair bills. In California, cities bought many motels during the pandemic through Project Homekey. Some became housing quickly. Others needed millions in repairs or ended in foreclosure.",
-      "Short-term rentals (renting a house or apartment by the night) are a related, small-scale version. Their income depends heavily on local rules. New York City’s 2023 registration law in effect ended most whole-apartment stays under 30 days. Arizona law, by contrast, says a city or town may not ban short-term rentals but may require permits."
+      "Short-term rentals (renting a house or apartment by the night) are a related, small-scale version. Their income depends heavily on local rules. New York City’s 2023 registration law in effect ended most whole-apartment stays under 30 days. Arizona law, by contrast, says a city or town may not ban short-term rentals but may require permits. Arizona HOAs can still ban or limit rentals in their recorded rules (CC&Rs)."
     ],
     bestFor: [
       "Owner-operator families willing to live on site and work long hours at the desk, laundry and maintenance.",
@@ -1676,7 +1696,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         year: "2016",
         title: "From living behind the lobby to a hotel company",
         happened: "Hasu P. Shah, a former electrical engineer, and his family lived behind the lobby of the 23-room Red Rose Motel. It was one of their first properties, and they did chores like mowing and skimming the pool. They kept buying hotels. By 2016, the company that grew from that motel, Hersha Hospitality Trust, owned 52 hotels and was worth $2.5 billion.",
-        lesson: "Small motels can suit hard-working owner-operator families who live on site. They keep costs low and reinvest over many years.",
+        lesson: "Small motels can suit hard-working owner-operator families who live on site, keep costs low and reinvest over many years. Growing to 52 hotels is a rare outcome, not a typical one.",
         source: {
           label: "NPR: Here to stay: How Indian-born innkeepers revolutionized America’s motels (March 5, 2016)",
           url: "https://www.npr.org/2016/03/05/469180918/here-to-stay-how-indian-born-innkeepers-revolutionized-americas-motels"
@@ -1873,7 +1893,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         year: "1972",
         title: "Two partners, $50,000, and orange doors",
         happened: "B. Wayne Hughes and a partner put up $25,000 each and opened their first Public Storage location in El Cajon. They painted the unit doors bright orange so drivers on a nearby highway would notice. The business grew into Public Storage, with more than 2,500 locations. It turned their $50,000 into a multi-billion dollar fortune.",
-        lesson: "Storage rewarded early operators who picked visible, convenient sites and grew patiently over decades.",
+        lesson: "This is one of the industry’s biggest successes, not a typical result. It came from an early start, visible sites and decades of growth.",
         source: {
           label: "USC Today: Self-storage pioneer and USC Trustee B. Wayne Hughes, 87 (Aug. 25, 2021)",
           url: "https://today.usc.edu/?p=21658"
@@ -1885,7 +1905,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         year: "1977",
         title: "A research project became a Utah-based storage giant",
         happened: "Ken Woolley got interested in self-storage through a research project as a Stanford graduate student. He built his first facility in Billings, Montana, in May 1977. His company, Extra Space Storage, went public in 2004. At the time, it was the largest IPO by a Utah-headquartered company. By 2017 it had 1,441 locations.",
-        lesson: "Careful study of demand before building, then steady growth, is what made storage pay for its most successful operators.",
+        lesson: "Study demand before you build. This is a rare outcome: most small operators never grow like this, and new facilities can take years to fill.",
         source: {
           label: "Inside Self-Storage: Self-storage REIT Extra Space celebrates 40 years in business (June 1, 2017)",
           url: "https://www.insideselfstorage.com/self-storage-investing-real-estate/self-storage-reit-extra-space-celebrates-40-years-in-business"
@@ -1950,7 +1970,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
   land: {
     overview: [
       "Raw land is property with no house or building on it. It is cheap to hold (no tenants, few repairs). But it usually earns nothing until it is built on, farmed, leased or sold. Its value depends on access, water, utilities, zoning and growth nearby.",
-      "Many cheap lots are cheap for a reason, including lots sold at county tax sales. Reasons include no legal road access, no water or power, steep or flood-prone ground, or rules that prevent building. In Arizona, a 1980 law requires subdivisions of six or more lots to prove a 100-year water supply. But lot splits of five or fewer avoided it. Homes in Rio Verde Foothills lost their hauled water supply from Scottsdale in 2023.",
+      "Many cheap lots are cheap for a reason, including lots sold at county tax sales. Reasons include no legal road access, no water or power, steep or flood-prone ground, or rules that prevent building. In Arizona, a 1980 law requires subdivisions of six or more lots inside the state’s groundwater Active Management Areas (such as the Phoenix area) to prove a 100-year water supply. Outside those areas there is no such rule, and lot splits of five or fewer avoided it. Arizona passed an ‘Ag-to-Urban’ law in 2025 that lets some builders in the Phoenix and Pinal areas use water credits from retired farmland. Homes in Rio Verde Foothills lost their hauled water supply from Scottsdale in 2023.",
       "Land also attracts scams. For decades, promoters sold desert lots in California City sight unseen, with promises of future growth. Today the FBI warns of impostors who pose as the owners of vacant land. They sell it to buyers who never meet them. Land can pay off well for patient owners when a town grows toward it. But that can take decades."
     ],
     bestFor: [
@@ -1980,14 +2000,14 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     checklist: [
       "Visit the land and verify the seller. Meet in person or confirm identity through a title company. Be wary of rushed, below-market sales by email or text only (FBI warning signs).",
       "Confirm legal access: a recorded road or easement, not just a dirt track.",
-      "Confirm water. In Arizona, check the state water department rules for the area. Ask whether a well is allowed and how deep nearby wells go.",
+      "Confirm water. In Arizona, check the state water department rules for the area; outside its Active Management Areas, lots carry no 100-year water requirement. Ask whether a well is allowed and how deep nearby wells go.",
       "Check zoning, minimum lot size and whether a building permit is possible.",
       "Look up the flood zone on FEMA flood maps and check for wetlands, steep slopes or other limits.",
       "Buy title insurance and get a survey. At tax sales, read the county’s terms about what the deed does and doesn’t guarantee."
     ],
     facts: [
       {
-        text: "Arizona’s 1980 groundwater law requires subdivisions with six or more lots to prove a 100-year water supply.",
+        text: "Arizona’s 1980 groundwater law requires subdivisions with six or more lots in its groundwater management areas, such as the Phoenix area, to prove a 100-year water supply.",
         source: {
           label: "New York Times (via Boston Globe): An Arizona suburb’s water is cut off, leading to a worst-case scenario for homeowners (Jan. 16, 2023)",
           url: "https://www.bostonglobe.com/2023/01/16/nation/an-arizona-suburbs-water-is-cut-leading-worst-case-scenario-homeowners/"
@@ -2036,7 +2056,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         year: "2014",
         title: "A 1998 land bet that landed Tesla 16 years later",
         happened: "In 1998, Reno’s casino economy was struggling. Developer Lance Gilman and a partner bought a parcel east of town larger than the city of Las Vegas. They planned an industrial park. They paid for roads, water and power and worked with county leaders. Sixteen years later, Tesla chose the park for its battery factory. By then Gilman’s park had more than 165 companies.",
-        lesson: "Land can pay off hugely. But this took deep pockets, infrastructure spending and 16 years of patience.",
+        lesson: "Land can pay off hugely, but this took deep pockets, roads, water and power, and 16 years. It is a rare outcome: most land bets don’t end with a famous tenant.",
         source: {
           label: "Las Vegas Sun: The rise of Reno: Northern Nevada is booming; what can we learn? (Sept. 28, 2014)",
           url: "https://lasvegassun.com/news/2014/sep/28/rise-reno-northern-nevada-booming-what-can-we-lear/"
@@ -2048,7 +2068,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         year: "2025",
         title: "Farm worth five times its price after 30 years",
         happened: "A diversified farmer had bought a 250-acre farm 30 years earlier. He received a $10 million offer from a data center developer, five times what he had paid. He turned it down. Around the country, landowners near growth areas have received offers above $120,000 per acre.",
-        lesson: "Land held for decades near growing areas can rise sharply in value. Owners who don’t need to sell can choose whether to cash in.",
+        lesson: "The jump came from a data-center boom nearby, which few owners can count on. Plan as if your land may only keep up with inflation.",
         source: {
           label: "University of Illinois Farm Policy News: Farmers increasingly rejecting data center bids for land (March 2026)",
           url: "https://farmpolicynews.illinois.edu/2026/03/farmers-increasingly-rejecting-data-center-bids-for-land/"
