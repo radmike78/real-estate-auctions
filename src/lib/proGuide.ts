@@ -154,5 +154,5 @@ export const PRO_GUIDES: ProGuide[] = [
 
 export const proGuideByKey = (k: string) => PRO_GUIDES.find((p) => p.key === k);
 
-/** Most first-time buyers of a forced-sale property need these, whatever the kind of sale. */
-export const CORE_TEAM: ProKey[] = ['agent', 'title', 'attorney', 'inspector', 'insurance'];
+/** Most first-time buyers need these, whatever the kind of sale (a cash buyer can skip the lender). */
+export const CORE_TEAM: ProKey[] = ['agent', 'lender', 'title', 'attorney', 'inspector', 'insurance'];

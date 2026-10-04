@@ -1,7 +1,12 @@
 import { IconBank, IconBadge, IconCalc, IconCheckList, IconFile, IconLayers, IconShield, IconStar } from './Icons';
+import { loadCase } from '../practice/caseProgress';
+
 import { PATH, useStepsSeen } from '../lib/path';
 import { currentProgress, GUIDED, guidedNext, setMode, unfinished, useJourney } from '../lib/journey';
 import { roadmapProgress } from './ToolkitPage';
+
+/** Once the practice purchase is under way, the next place to go is your own plan. */
+const caseStarted = () => loadCase().done.length > 0;
 
 // Straight to the tools and references, for "I know the basics".
 const EXPLORE = [
@@ -59,7 +64,7 @@ export default function HomePage() {
                 {next ? (
                   <a className="btn big" href={next.step.href}><span className="guided-count">{next.n} of {GUIDED.length}</span> {next.step.label} →</a>
                 ) : (
-                  <a className="btn big" href="#/practice/case">Try the full practice purchase →</a>
+                  caseStarted() ? <a className="btn big" href="#/toolkit">Open My plan →</a> : <a className="btn big" href="#/practice/case">Try the full practice purchase →</a>
                 )}
                 {continueLink && last?.href !== next?.step.href && continueLink}
               </div>
