@@ -159,7 +159,7 @@ const NEVADA: Playbook[] = [
     forSale: true,
     glance: [
       { label: 'Law', value: 'NRS 107 (deeds of trust)' },
-      { label: 'Timeline', value: 'Notice of default, then at least 3 months, then a notice of sale, then the auction' },
+      { label: 'Timeline', value: 'Notice of default, then at least 3 months, then a notice of sale, then the auction. These are legal minimums; many foreclosures take longer or never reach a sale' },
       { label: 'Notice of sale', value: 'Posted for 20 days and published once a week for 3 weeks' },
       { label: 'Mediation', value: 'Owner-occupants can petition the court for foreclosure mediation within 30 days after the notice of default is served. A sale of an owner-occupied home needs a recorded mediation certificate' },
       { label: 'Payment', value: "Usually cashier's checks for the full bid at the sale. Each trustee sets its terms" },

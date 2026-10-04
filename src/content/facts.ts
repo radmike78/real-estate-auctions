@@ -87,19 +87,36 @@ export const FACTS: Fact[] = [
   },
   {
     id: 'irs-7425',
-    claim: 'When a federal tax lien was on the property, the U.S. can redeem within 120 days of the sale.',
-    sources: ['irs-auctions'],
-    checked: '2026-09-27',
-    where: [{ file: PB, text: 'within 120 days (26 U.S.C. 7425)' }],
+    claim: 'When a federal tax lien was on the property, the U.S. can redeem within 120 days of the sale (or the state redemption period, if longer).',
+    sources: ['usc-26-7425'],
+    checked: '2026-10-04',
+    where: [
+      { file: PB, text: 'within 120 days (26 U.S.C. 7425)' },
+      { file: PB, text: 'can buy it back for 120 days (26 U.S.C. 7425)' },
+      { file: 'src/lib/stateGuides.ts', text: 'the U.S. can buy it back within 120 days (26 U.S.C. 7425(d))' },
+    ],
+  },
+  {
+    id: 'hud-exclusive-period',
+    claim: 'For HUD REO listed on or after May 30, 2025, owner-occupants, government entities and HUD-approved nonprofits get a 15-day exclusive listing period (5 days for uninsured homes).',
+    sources: ['hud-ml-2025-13'],
+    checked: '2026-10-04',
+    where: [
+      { file: PB, text: 'get the first 15 days (5 days for homes marked “uninsured”) (HUD Mortgagee Letter 2025-13)' },
+      { file: 'src/lib/stateGuides.ts', text: 'get the first 15 days (5 days for homes marked “uninsured”)' },
+    ],
   },
 
   // ---------------- SID lien certificates ----------------
   {
     id: 'sid-interest',
-    claim: 'SID lien certificates earn 1% a month simple interest on the certificate price.',
+    claim: 'SID lien certificates earn 1% a month simple interest on the certificate price; NRS 271.595 sets 1% a month as the maximum rate.',
     sources: ['nrs-271', 'treasurer-faq'],
-    checked: '2026-09-27',
-    where: [{ file: PB, text: '1% a month simple interest on the certificate pric' }],
+    checked: '2026-10-04',
+    where: [
+      { file: PB, text: '1% a month simple interest on the certificate pric' },
+      { file: PB, text: 'State law sets 1% as the most allowed, not a promise (NRS 271.595)' },
+    ],
   },
   {
     id: 'sid-redemption',
