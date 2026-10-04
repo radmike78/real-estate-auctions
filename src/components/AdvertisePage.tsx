@@ -10,7 +10,7 @@ export default function AdvertisePage() {
   return (
     <main className="page">
       <PageHero
-        eyebrow={<span className="eyebrow">For professionals</span>}
+        eyebrow={<span className="eyebrow">For professionals · Nevada only for now</span>}
         title={<>Reach buyers at the moment <span className="grad">they need you</span></>}
         sub="People come here to buy auction, bank-owned and short-sale properties. They need agents, financing, title, insurance, inspectors, repairs, and legal and tax help."
       >
@@ -33,6 +33,7 @@ export default function AdvertisePage() {
       </section>
 
       <h2>Who can advertise</h2>
+      <p>For now, the directory lists only professionals licensed or registered to work in Nevada. California, Arizona and Utah professionals can’t apply yet.</p>
       <div className="options-grid">
         {GROUPS.map((g) => (
           <div key={g} className="option-card">

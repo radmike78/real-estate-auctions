@@ -115,7 +115,7 @@ function GuideBody({ g }: { g: ProGuide }) {
           initialCategory={g.directory.length === 1 ? g.directory[0] : 'any'}
           showCategoryFilter={g.directory.length > 1}
           hideWhenEmpty
-          header={<p className="small muted pro-guide-ads">Listed professionals are paid advertisements. Check any license yourself before you hire.</p>}
+          header={<p className="small muted pro-guide-ads">Listed professionals are paid advertisements, for Nevada only for now. Check any license yourself before you hire.</p>}
           notice={<Disclaimer kind={g.key === 'lender' || g.key === 'private_lender' ? 'financing' : 'professionals'} compact />}
         />
       )}
