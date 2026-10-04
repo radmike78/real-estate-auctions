@@ -56,7 +56,7 @@ export function FirstDealRoadmap() {
   return (
     <section id="roadmap" aria-labelledby="roadmap-head">
       <h2 id="roadmap-head">Your investing roadmap</h2>
-      <p>Four phases, one step at a time. You don’t need to do it all at once: tick a step when its “Done when” is true.</p>
+      <p>The real tasks of buying, in four phases. You don’t need to do it all at once: tick a step when its “Done when” is true. This is separate from Getting started, which only introduces the site.</p>
       <div className="roadmap-path" role="group" aria-label="How you’ll buy">
         <span className="roadmap-path-label">How you’ll buy:</span>
         {(Object.keys(ROADMAP_PATHS) as RoadmapPath[]).map((k) => (

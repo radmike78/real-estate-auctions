@@ -176,7 +176,7 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
       <nav className="path-next" aria-label="Next lesson">
         {guided && guided.step.href !== `#/learn/${lessonKey}` ? (
           <>
-            <span className="muted">Next on your guided path (step {guided.n} of {GUIDED.length})</span>
+            <span className="muted">Next in Getting started ({guided.n} of {GUIDED.length})</span>
             <a className="btn" href={guided.step.href}>{guided.step.label} →</a>
           </>
         ) : next ? (

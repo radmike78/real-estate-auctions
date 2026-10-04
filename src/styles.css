@@ -271,6 +271,7 @@ th { font-size: 0.95rem; color: var(--muted); font-weight: 600; }
 /* Section bar on an open section */
 .drill-nav { position: relative; display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 6px; margin-bottom: 16px; }
 .drill-nav a { flex: none; padding: 9px 16px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text); text-decoration: none; font-size: 0.96rem; font-weight: 500; white-space: nowrap; transition: border-color 0.15s; }
+.drill-others { margin-top: 28px; }
 .drill-nav a:hover { border-color: #60a5fa; }
 .drill-nav a[aria-current='page'] { background: linear-gradient(135deg, #2563eb, #7c3aed); border-color: transparent; color: #fff; font-weight: 700; box-shadow: 0 8px 20px -8px rgb(79 70 229 / 0.7); }
 .drill-nav .drill-back { font-weight: 700; background: var(--surface-2); }
@@ -1053,6 +1054,7 @@ small { font-size: 0.95rem; }
 /* ---------- Practice mode: fictional properties for hands-on learning ---------- */
 .practice-ribbon { border-left: 4px solid var(--accent); padding: 2px 0 2px 14px; margin: 0 0 18px; color: var(--muted); }
 .practice-ribbon strong { color: var(--text); }
+.page-starter { margin: 0 0 18px; font-size: 1.05rem; }
 .practice-tag { display: inline-block; background: var(--wait); color: #1a1205; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; font-size: 0.85rem; padding: 4px 10px; border-radius: 999px; }
 .practice-filter { justify-content: space-between; margin: 8px 0 20px; }
 .practice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(190px, 100%), 1fr)); gap: 12px; }
@@ -1852,6 +1854,7 @@ h1, h2 { letter-spacing: -0.03em; }
 .hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
 .path { margin: 0 auto; padding: 24px var(--gutter) 64px; }
 .path h2 { text-align: center; margin: 0 0 20px; }
+.path-intro { text-align: center; margin: -8px 0 20px; color: var(--muted); }
 .path-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; counter-reset: none; }
 @media (max-width: 1000px) { .path-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 640px) { .path-steps { grid-template-columns: minmax(0, 1fr); } }
@@ -2271,6 +2274,9 @@ h1, h2 { letter-spacing: -0.03em; }
 .team-n { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--accent-strong); color: #fff; font-weight: 800; }
 .team-body { display: grid; gap: 4px; }
 .team-body strong { font-size: 1.15rem; }
+.team-result li.top { border: 2px solid var(--accent-strong); background: var(--surface); }
+.team-top { font-size: 0.95rem; font-weight: 700; color: var(--accent-strong); text-transform: none; }
+.team-body a.btn { justify-self: start; margin-top: 6px; }
 .team-all { margin: 20px 0 0; font-weight: 600; }
 .page section.not-sure { display: grid; gap: 10px; }
 .page section.not-sure .btn { justify-self: start; }

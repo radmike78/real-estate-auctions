@@ -3,6 +3,7 @@
 // suggestion the visitor can accept.
 import type { StateCode } from './regions';
 import { drillById } from '../practice/drills';
+import { PRACTICE_PROPERTIES } from '../practice/properties';
 import { playbookByKey } from './playbooks';
 
 export const NOT_SURE = 'unsure';
@@ -118,9 +119,21 @@ export function practiceConfig(myState: string | null): NarrowConfig {
       const st = (raw.state || myState || 'NV').toLowerCase();
       const { what, buy, property } = raw;
       if (what === 'full') {
-        const sales = buy === 'agent' ? ['reo', 'short'] : property === 'land' ? ['tax'] : ['foreclosure', 'tax'];
-        const names: Record<string, string> = { reo: 'a bank-owned purchase', short: 'a short sale', foreclosure: 'a foreclosure auction', tax: 'a tax sale' };
-        return sales.map((s) => ({ label: `Practice ${names[s]}`, href: `#/practice?sale=${s}`, why: salesFor(buy, property).find((x) => x.kind === s)?.why ?? 'A fictional property, step by step.' }));
+        // One named practice property to start with, then other ways in. Practice follows Nevada (Clark County) rules.
+        const names: Record<string, string> = { reo: 'bank-owned', short: 'short sale', foreclosure: 'foreclosure auction', tax: 'tax sale' };
+        const run = (sale: string, prop: string, why: string): NarrowPick => {
+          const label = PRACTICE_PROPERTIES.find((p) => p.id === prop)?.label.toLowerCase() ?? prop;
+          return { label: `Buy the practice ${label}: ${names[sale]}`, href: `#/practice/${sale}-${prop}`, why: `${why} A fictional Nevada property, step by step.` };
+        };
+        const drill = (id: string, why: string): NarrowPick => ({ label: drillById(id)?.title ?? id, href: `#/practice/drills/${id}`, why });
+        const prop = property === 'commercial' ? 'retail' : property === 'land' ? 'lot' : 'house';
+        const why = (k: string) => salesFor(buy, property).find((x) => x.kind === k)?.why ?? '';
+        if (buy === 'agent') {
+          if (property === 'commercial') return [run('reo', prop, why('reo')), drill('retail-strip', 'Then a quick decision on a small retail building’s leases and income.')];
+          return [run('reo', prop, why('reo')), drill('rental-265', 'Then a quick one: is a rental worth it at this price?'), run('short', prop, why('short'))];
+        }
+        if (property === 'land') return [run('tax', prop, why('tax')), drill('land-access', 'Then a quick one on access, utilities and holding costs.')];
+        return [run('foreclosure', prop, why('foreclosure') || 'Foreclosure auctions happen most weeks.'), run('tax', prop, 'Tax sales come once or twice a year in most counties, with their own rules.')];
       }
       const drills: Record<string, [string, string][]> = {
         'agent-home': [['bank-owned', 'A bank-owned home: inspection, repairs and the as-is contract.'], ['rental-265', 'Is a rental worth it at this price? Comps, rent, repairs and cash flow.']],

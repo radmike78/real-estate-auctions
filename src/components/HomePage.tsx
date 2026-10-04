@@ -58,7 +58,7 @@ export default function HomePage() {
             <div className="guided-next">
               {next ? (
                 <>
-                  <span className="guided-count">Your guided path · step {next.n} of {GUIDED.length}</span>
+                  <span className="guided-count">Getting started · {next.n} of {GUIDED.length}</span>
                   <a className="btn big" href={next.step.href}>{next.step.label} →</a>
                   <p>{next.step.why}</p>
                 </>
@@ -114,6 +114,7 @@ export default function HomePage() {
       <section className="path" id="everything" aria-labelledby="path-head">
         <StatePicker label="Where do you invest?" />
         <h2 id="path-head">Everything, in six steps</h2>
+        <p className="path-intro">How the site is laid out, in the order most people use it. A ✓ means you’ve opened that part, not finished it.</p>
         <ol className="path-steps">
           {PATH.map((s) => {
             const opened = seen.includes(s.key);
@@ -133,8 +134,8 @@ export default function HomePage() {
           })}
         </ol>
         <a className="roadmap-card" href="#/toolkit">
-          <strong>Your investing roadmap: {done} of {total} steps</strong>
-          <span>A checklist from first idea to closing, plus a buy box to keep you focused.</span>
+          <strong>Your investing roadmap: {done} of {total} real-world tasks done</strong>
+          <span>The real work of buying, from first idea to closing, plus a buy box to keep you focused. This is the progress that counts.</span>
           <span className="decide-bar" aria-hidden><span style={{ width: `${Math.round((done / total) * 100)}%` }} /></span>
         </a>
       </section>

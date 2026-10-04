@@ -164,6 +164,15 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
 }
 
 /** Which calculator tab opens for a plan. */
+/** The plan a link asks for ("#/analyze?plan=commercial"), or undefined for an unknown one. */
+export const planParam = (v: string | null | undefined): Plan | undefined => PLANS.find((p) => p.key === v)?.key;
+
+/** A deal set up for `plan`: a lien plan needs a lien sale (Nevada and Arizona only); other plans need a property sale. */
+export function withPlan(d: Deal, plan: Plan): Deal {
+  if (plan === 'lien') return d.state === 'NV' || d.state === 'AZ' ? { ...d, kind: 'lien', plan } : d;
+  return { ...d, kind: d.kind === 'lien' ? 'listing' : d.kind, plan };
+}
+
 export const calcTabFor = (plan: Plan) => (plan === 'rent' ? 'rent' : plan === 'commercial' ? 'commercial' : plan === 'lien' ? 'lien' : 'flip');
 
 const KEY = 'deedowl.analyze.v1';

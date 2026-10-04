@@ -50,7 +50,7 @@ export const ROADMAP: RoadmapStep[] = [
   { id: 'close', phase: 4, path: 'listing', text: 'Close through a title or escrow company, and keep every document.', action: 'About title companies', href: '#/pros/title', doneWhen: 'The deed is recorded in your name and you have copies of everything.' },
   { id: 'a-research', phase: 4, path: 'auction', text: 'Research before the sale: the official notice, a title search for liens that stay, and who lives there. You usually can’t go inside, and you can’t back out after you win.', action: 'Read how the sale works', href: '#/playbooks', doneWhen: 'You know what you’d own, which liens stay with it, and how you’d lawfully get possession.' },
   { id: 'a-value', phase: 4, path: 'auction', text: 'Estimate the value from the outside: an exterior-only appraisal if one is possible, or your agent’s estimate from comparable sales.', action: 'About appraisers', href: '#/pros/appraiser', doneWhen: 'You have a value estimate and a repair budget with a cushion.' },
-  { id: 'a-max', phase: 4, path: 'auction', text: 'Set your maximum bid with every cost, and have the cash or certified funds the sale requires.', action: 'Set your maximum bid', href: '#/calculator', doneWhen: 'Your maximum is written down and your funds meet the sale’s payment rules.' },
+  { id: 'a-max', phase: 4, path: 'auction', text: 'Set your maximum bid with every cost, and have the cash or certified funds the sale requires.', action: 'Set your maximum bid', href: '#/analyze?plan=flip', doneWhen: 'Your maximum is written down and your funds meet the sale’s payment rules.' },
   { id: 'a-bid', phase: 4, path: 'auction', text: 'Register, bid, and stop at your maximum.', action: 'Practice an auction', href: '#/practice', doneWhen: 'You bid within your maximum, or walked away.' },
   { id: 'a-after', phase: 4, path: 'auction', text: 'After you win: pay on time, record the deed, insure it, and take possession only through the lawful process.', action: 'How possession works', href: '#/pros/eviction', doneWhen: 'The deed is recorded, the property is insured and you have lawful possession.' },
 ];
@@ -131,9 +131,9 @@ export const TOOLKIT: { group: string; items: { label: string; href: string; wha
   {
     group: 'Calculators',
     items: [
-      { label: 'Maximum bid and flip calculator', href: '#/calculator', what: 'Your walk-away price: the most you can pay and still make your profit, with what-ifs for a lower value or higher repairs.' },
-      { label: 'Rental calculator and Deal Lab', href: '#/analyze', what: 'Monthly cash flow, your yearly return on the cash you put in (cash-on-cash), whether the rent covers the loan, and the deal explained in plain words.' },
-      { label: 'Commercial income and value', href: '#/analyze', what: 'Net operating income (rent after operating costs), cap rate (that income as a % of the price) and what the income says the building is worth.' },
+      { label: 'Maximum bid and flip calculator', href: '#/analyze?plan=flip', what: 'Your walk-away price: the most you can pay and still make your profit, with what-ifs for a lower value or higher repairs.' },
+      { label: 'Rental calculator and Deal Lab', href: '#/analyze?plan=rent', what: 'Monthly cash flow, your yearly return on the cash you put in (cash-on-cash), whether the rent covers the loan, and the deal explained in plain words.' },
+      { label: 'Commercial income and value', href: '#/analyze?plan=commercial', what: 'Net operating income (rent after operating costs), cap rate (that income as a % of the price) and what the income says the building is worth.' },
     ],
   },
   {

@@ -11,7 +11,7 @@ export interface Strategy {
 const KEY = 'fsf.calc.strategy.v1';
 
 /** Tabs for the ways to use a property: flip it, keep and rent it, lend against it, or run it for income. */
-export default function StrategyTabs({ strategies, initial }: { strategies: Strategy[]; initial?: string }) {
+export default function StrategyTabs({ strategies, initial, onChange }: { strategies: Strategy[]; initial?: string; onChange?: (key: string) => void }) {
   const [active, setActiveState] = useState(() => {
     if (initial && strategies.some((s) => s.key === initial)) return initial;
     try {
@@ -23,6 +23,7 @@ export default function StrategyTabs({ strategies, initial }: { strategies: Stra
   });
   const setActive = (k: string) => {
     setActiveState(k);
+    onChange?.(k);
     try {
       localStorage.setItem(KEY, k);
     } catch {

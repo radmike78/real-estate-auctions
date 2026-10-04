@@ -90,7 +90,7 @@ export const afterClosing: Lesson = {
     { term: 'Depreciation', meaning: 'A yearly tax deduction for the wear on a building, spread over its set recovery period.' },
     { term: 'Schedule E', meaning: 'The IRS form where most landlords report rental income and expenses.' },
   ],
-  tryIt: { label: 'Run your rental numbers in the Deal Lab', href: '#/analyze' },
+  tryIt: { label: 'Run your rental numbers in the Deal Lab', href: '#/analyze?plan=rent' },
   sources: [
     { label: 'HUD: Fair Housing Act overview', url: 'https://www.hud.gov/helping-americans/fair-housing-act-overview' },
     { label: 'EPA: lead-based paint disclosure rule', url: 'https://www.epa.gov/lead/lead-based-paint-disclosure-rule-section-1018-title-x' },

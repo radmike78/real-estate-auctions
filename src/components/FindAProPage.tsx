@@ -29,13 +29,10 @@ function GuideBody({ g }: { g: ProGuide }) {
   const fit = (xs: string[]) => xs.map((x) => forStateText(st, x)).filter(Boolean);
   return (
     <div className="pro-guide" ref={ref}>
-      <OnThisPage root={ref} selector="h3.part-head" />
-      <h3 className="part-head">What they do</h3>
+      {/* One short role summary, then the practical part (when, how to find, what to ask, how they're paid); background,
+          the case for and against, and the stories after. */}
       <p className="pro-guide-does">{g.does}</p>
-      {PRO_DEEP[g.key] && PRO_DEEP[g.key]!.overview.length > 0 && (
-        <div className="pro-guide-overview">{fit(PRO_DEEP[g.key]!.overview).map((p) => <p key={p}>{p}</p>)}</div>
-      )}
-      {/* The practical part first (when, how to find, what to ask, how they're paid); the case for and against and the stories after. */}
+      <OnThisPage root={ref} selector="h3.part-head" />
       <h3 className="part-head">Hiring one</h3>
       <div className="pro-guide-cols">
         <section>
@@ -62,6 +59,12 @@ function GuideBody({ g }: { g: ProGuide }) {
           <strong>Before you hire:</strong> look them up with the {g.license.who.replace(/ \(via NMLS Consumer Access\)$/, '')}.{' '}
           <a href={g.license.url} target="_blank" rel="noopener noreferrer">Open the official lookup ↗</a>
         </p>
+      )}
+      {PRO_DEEP[g.key] && PRO_DEEP[g.key]!.overview.length > 0 && (
+        <>
+          <h3 className="part-head">Working with one</h3>
+          <div className="pro-guide-overview">{fit(PRO_DEEP[g.key]!.overview).map((p) => <p key={p}>{p}</p>)}</div>
+        </>
       )}
       {PRO_WHY[g.key] && <h3 className="part-head">Should you hire one?</h3>}
       {PRO_WHY[g.key] && <WhyBlock yes={PRO_WHY[g.key].yes} no={PRO_WHY[g.key].no} yesLabel="Why you would hire one" noLabel="Why you might not, or when to be careful" />}
@@ -107,7 +110,7 @@ export default function FindAProPage({ section }: { section?: string }) {
         top={open || build ? <a href="#/pros">← Your deal team</a> : undefined}
         eyebrow={open || build ? undefined : <span className="eyebrow">Step 3 of 6</span>}
         title={open ? proGuideByKey(section)!.title : build ? <>Build <span className="grad">your team</span></> : <>Your <span className="grad">deal team</span></>}
-        sub={open ? proGuideByKey(section)!.summary : build ? undefined : 'Who helps with a purchase, when you need each one, and how to find them.'}
+        sub={open ? undefined : build ? undefined : 'Who helps with a purchase, when you need each one, and how to find them.'}
       />
       {build && <TeamBuilder />}
       {all && (
@@ -142,7 +145,7 @@ export default function FindAProPage({ section }: { section?: string }) {
         </section>
       )}
       {all && <h2 className="section-title">The professionals</h2>}
-      {(open || all) && <DrillDown sections={sections} active={open ? section : undefined} baseHref="#/pros" label="Professionals" />}
+      {(open || all) && <DrillDown sections={sections} active={open ? section : undefined} baseHref="#/pros" label="Professionals" titled />}
       {!open && <PathNext step="team" />}
     </main>
   );
