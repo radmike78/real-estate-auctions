@@ -34,6 +34,8 @@ export interface RoadmapStep {
   href?: string;
   /** The ways of buying it applies to; steps without it apply to all three. */
   path?: RoadmapPath[];
+  /** When the step can be marked “Doesn't apply”, and why (e.g. a rental step on a flip). */
+  skip?: string;
 }
 
 export const ROADMAP_PHASES: Record<RoadmapStep['phase'], string> = {
@@ -55,6 +57,7 @@ const AGENT: RoadmapPath[] = ['listing'];
 const AUCTION: RoadmapPath[] = ['auction'];
 const LIEN: RoadmapPath[] = ['certificate'];
 const OWNERS: RoadmapPath[] = ['listing', 'auction'];
+const PROPERTY: RoadmapPath[] = ['listing', 'auction'];
 
 /** From first idea to owning the property, in order. Phases 4 to 6 depend on how you buy. */
 export const ROADMAP: RoadmapStep[] = [
@@ -119,13 +122,13 @@ export const ROADMAP: RoadmapStep[] = [
     action: 'Compare ways to pay', href: '#/learn/financing',
   },
   {
-    id: 'lender', phase: 2, path: AGENT, title: 'Get a written loan quote and pre-approval',
-    text: 'Talk with a licensed loan officer about what you’d qualify for on the kind of property you want.',
-    outcome: 'A pre-approval letter and a written quote: rate, down payment, closing costs and the reserves the lender wants.',
-    steps: ['Ask two or three lenders for a quote on the same loan, so you can compare.', 'Check each loan officer’s license on NMLS Consumer Access.', 'Ask what conditions could still stop the loan after you’re approved.'],
+    id: 'lender', phase: 2, path: AGENT, title: 'Get pre-approved, or document your cash',
+    text: 'Sellers want to know you can pay. With a loan, that’s a pre-approval from a licensed loan officer. Paying cash, it’s proof of funds.',
+    outcome: 'A pre-approval letter and a written quote (rate, down payment, closing costs and the reserves the lender wants), or, paying cash, a current proof of funds.',
+    steps: ['Ask two or three lenders for a quote on the same loan, so you can compare.', 'Check each loan officer’s license on NMLS Consumer Access.', 'Ask what conditions could still stop the loan after you’re approved.', 'Paying cash instead: get a recent bank or brokerage statement, or a letter from your bank, showing the money is available. Keep it current, and show only the account that holds it.'],
     say: { to: 'Loan officer', script: '“I’m buying a [one-unit home] I [will / won’t] live in, around [$price], in [county]. What down payment, rate and reserves would you need? Can you give me a written quote and a pre-approval? What could stop the loan after I’m approved?”' },
     docs: ['Lenders usually ask for: photo ID, recent pay stubs, W-2s or tax returns, and bank statements', 'You get: a pre-approval letter, and a Loan Estimate after you apply when federal consumer rules cover the loan: generally a one- or two-unit home you’ll live in. A loan to buy a rental you won’t live in counts as a business loan, so the law doesn’t require one; ask for a written term sheet instead (the financing lesson explains which loans are covered)'],
-    doneWhen: 'You have a pre-approval letter and a written quote you’ve compared with at least one other.',
+    doneWhen: 'You have a pre-approval letter and a written quote you’ve compared with at least one other, or, paying cash, a proof of funds dated within the last 30 days.',
     action: 'What to ask a lender', href: '#/pros/lender',
   },
   {
@@ -140,7 +143,7 @@ export const ROADMAP: RoadmapStep[] = [
 
   // 3. Practice and line up your team
   {
-    id: 'practice', phase: 3, title: 'Finish a practice purchase',
+    id: 'practice', phase: 3, path: AGENT, title: 'Finish a practice purchase',
     text: 'Work a full purchase with fictional paperwork before you risk money: the numbers, the documents and the decisions.',
     outcome: 'A practice deal packet: budget, deadline calendar, evidence log, your questions and your decisions.',
     steps: ['Work through “Buy a rental, start to finish” in Practice.', 'Try at least three “Would you buy it?” drills.', 'Go back over any question you missed on the first try.'],
@@ -148,12 +151,46 @@ export const ROADMAP: RoadmapStep[] = [
     action: 'Start the practice purchase', href: '#/practice/case',
   },
   {
-    id: 'paper', phase: 3, title: 'Analyze real properties on paper',
+    id: 'a-practice', phase: 3, path: AUCTION, title: 'Finish a practice auction',
+    text: 'Work one auction purchase with fictional paperwork before you risk money: the notice, the title search, your maximum bid, sale day and what comes after.',
+    outcome: 'A finished practice sale, your written maximum bid with how you set it, and three drills done.',
+    steps: ['In Practice, choose the kind of sale you plan to use (a tax sale or a foreclosure sale) and work one property to the end.', 'Write your maximum bid and the costs behind it before sale day in the practice.', 'Try at least three “Would you buy it?” drills, including one with liens that survive the sale.'],
+    doneWhen: 'One practice sale is finished, with a written maximum bid, and three drills are done.',
+    action: 'Choose a practice sale', href: '#/practice',
+  },
+  {
+    id: 'c-practice', phase: 3, path: LIEN, title: 'Practice a lien purchase',
+    text: 'A lien certificate earns interest until the owner pays; you don’t get the property or any rent. Practice the parts that decide whether it pays: the price, the wait, the costs while you wait, and what happens if it’s never paid.',
+    outcome: 'A practice record: the certificate price and rate, a holding budget, three payoff scenarios, and when you’d bring in an attorney.',
+    steps: [
+      'Work the Nevada special assessment (SID) lien practice in Practice from the notice to the wait for redemption. Arizona buyers: work it anyway for the steps, then read your county’s tax lien guide.',
+      'In the lien calculator, try three payoffs: paid in 6 months, paid in 2 years, and never paid.',
+      'List the later taxes or assessments you might pay to protect your lien, and add them to your holding budget.',
+      'Write the point where you’d ask an attorney about enforcing the lien, and what that would cost.',
+    ],
+    doneWhen: 'You have the three payoff results, a holding budget with later taxes, and a written attorney trigger.',
+    action: 'Open the lien practice', href: '#/practice?sale=sid',
+  },
+  {
+    id: 'paper', phase: 3, path: PROPERTY, title: 'Analyze real properties on paper',
     text: 'Run the numbers on real properties in your buy box, with sources for every number, before you’re in a hurry.',
     outcome: 'At least three real properties analyzed, with one you’d pass on and why.',
     steps: ['Find three real properties that fit your buy box.', 'For each, write the rent or value and where it came from, every cost, and a bad-case version.', 'Write one reason you’d pass on at least one of them.'],
     doneWhen: 'Three analyses are saved in Analyze with sources, and one has a written reason to pass.',
     action: 'Open Analyze', href: '#/analyze',
+  },
+  {
+    id: 'c-paper', phase: 3, path: LIEN, title: 'Research real parcels on paper',
+    text: 'Pick parcels from your county’s published lien list and research them as if you were bidding. You’re judging the lien’s risk, not a property’s rent.',
+    outcome: 'Three parcels researched, with one you’d skip and why.',
+    steps: [
+      'Choose three parcels from the official list for your county’s next lien sale.',
+      'For each, write: the parcel number, what’s on the land and its assessed value (from the assessor), the lien amount, and the rate or bid rules.',
+      'Note anything that makes payoff or enforcement harder: other liens, a parcel too small or odd to use, or a property in bankruptcy.',
+      'Run each one in the lien calculator, and write one reason you’d skip at least one of them.',
+    ],
+    doneWhen: 'Three parcels are researched with sources, run in the lien calculator, and one has a written reason to skip.',
+    action: 'Open the lien calculator', href: '#/analyze?plan=lien',
   },
   {
     id: 'walk', phase: 3, title: 'Set your walk-away rules',
@@ -326,6 +363,7 @@ export const ROADMAP: RoadmapStep[] = [
     say: { to: 'Your agent', script: '“The appraisal came in at [$], below our [$] price. I’d like to ask the seller to reduce the price to the appraised value before my appraisal deadline on [date].”' },
     docs: ['Appraisal report (your lender gives you a copy)'],
     doneWhen: 'The appraisal is in, and any gap is settled in writing before the deadline.',
+    skip: 'You’re paying cash and chose not to get an appraisal.',
     action: 'Your team: appraiser', href: '#/pros/appraiser',
   },
   {
@@ -445,6 +483,7 @@ export const ROADMAP: RoadmapStep[] = [
     steps: ['Write your screening criteria and apply them the same way to everyone.', 'If a report leads you to deny someone, or to ask for a cosigner, a bigger deposit or higher rent, give the adverse action notice.', 'For homes built before 1978, give the lead pamphlet and disclosure.', 'Use a lease that follows your state’s law, and follow its deposit and entry rules.'],
     docs: ['Rental application', 'Screening criteria', 'Adverse action notice (when required)', 'Lead disclosure and pamphlet (homes built before 1978)', 'Lease', 'Move-in condition checklist with photos'],
     doneWhen: 'A tenant has signed a lawful lease, with the required disclosures on file.',
+    skip: 'You won’t rent it: you’re selling it after repairs, or living in it.',
     action: 'Lesson: after you close', href: '#/learn/after-closing',
   },
   {
@@ -481,11 +520,12 @@ export const roadmapFor = (path: RoadmapPath) => ROADMAP.filter((s) => !s.path |
 export const FIRST_DEAL: RoadmapStep[] = roadmapFor('listing');
 
 /** Where a step stands. "Done" is kept in the done list; the others here. */
-export type StepStatus = 'doing' | 'waiting' | 'stopped';
+export type StepStatus = 'doing' | 'waiting' | 'stopped' | 'na';
 export const STEP_STATUS_LABEL: Record<StepStatus | 'done' | 'todo', string> = {
   todo: 'Not started',
   doing: 'Working on it',
   waiting: 'Waiting on someone',
   stopped: 'Stopped: I walked away',
+  na: 'Doesn’t apply to me',
   done: 'Done',
 };

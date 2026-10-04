@@ -4,7 +4,7 @@ import PageHero from './PageHero';
 import { STATES } from '../lib/regions';
 import { getMyState } from '../lib/myState';
 import { fmtMoney } from '../lib/status';
-import { cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP, ROADMAP_PATHS, ROADMAP_PHASES, roadmapFor, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
+import { cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP, ROADMAP_PATHS, ROADMAP_PHASES, roadmapFor, LIEN_STRATEGY, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
 import { downloadText, fileName } from '../lib/download';
 import { cleanLog, logText } from '../lib/evidence';
 import { makeBackup, readBackup, restoreBackup } from '../lib/progressBackup';
@@ -31,7 +31,7 @@ function write(key: string, v: unknown) {
 const cleanIds = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string' && ROADMAP.some((s) => s.id === x)) : []);
 const cleanPath = (v: unknown): RoadmapPath => (v === 'auction' || v === 'certificate' ? v : 'listing');
 const STATUS_KEY = 'deedowl.roadmap.status.v1';
-const STATUSES: StepStatus[] = ['doing', 'waiting', 'stopped'];
+const STATUSES: StepStatus[] = ['doing', 'waiting', 'stopped', 'na'];
 const cleanStatus = (v: unknown): Record<string, StepStatus> => {
   const out: Record<string, StepStatus> = {};
   if (v && typeof v === 'object' && !Array.isArray(v))
@@ -80,8 +80,9 @@ function StepBody({ s, status, setStatus }: { s: RoadmapStep; status: StepStatus
       </div>
       {s.stop && <p className="roadmap-stop"><strong>Stop if:</strong> {s.stop}</p>}
       <p className="roadmap-done"><strong>Done when:</strong> {s.doneWhen}</p>
+      {s.skip && <p className="muted roadmap-skip"><strong>Doesn’t apply if:</strong> {s.skip}</p>}
       <div className="roadmap-status" role="group" aria-label={`Status: ${s.title}`}>
-        {(['todo', 'doing', 'waiting', 'done', 'stopped'] as const).map((k) => (
+        {(['todo', 'doing', 'waiting', 'done', 'stopped', ...(s.skip || status === 'na' ? (['na'] as const) : [])] as const).map((k) => (
           <button key={k} type="button" aria-pressed={status === k} onClick={() => setStatus(k)}>{STEP_STATUS_LABEL[k]}</button>
         ))}
         {s.href && <a className="btn" href={s.href}>{s.action ?? 'Open'} →</a>}
@@ -99,12 +100,15 @@ export function FirstDealRoadmap() {
   useEffect(() => write(STATUS_KEY, status), [status]);
   useEffect(() => write(ROADMAP_PATH_KEY, path), [path]);
   const steps = roadmapFor(path);
-  const count = steps.filter((s) => done.includes(s.id)).length;
+  // A step that doesn't apply (with its stated reason) counts as settled, so it never blocks the next one.
+  const settled = (id: string) => done.includes(id) || status[id] === 'na';
+  const count = steps.filter((s) => settled(s.id)).length;
+  const naCount = steps.filter((s) => !done.includes(s.id) && status[s.id] === 'na').length;
   const stateOf = (id: string): StepStatus | 'done' | 'todo' => (done.includes(id) ? 'done' : status[id] ?? 'todo');
   const walked = steps.find((s) => status[s.id] === 'stopped' && !done.includes(s.id));
   // After walking away, the step you stopped at stays the next step (start it again with the next property),
   // rather than the later steps of a deal you left.
-  const next = walked ?? steps.find((s) => !done.includes(s.id) && status[s.id] !== 'stopped');
+  const next = walked ?? steps.find((s) => !settled(s.id) && status[s.id] !== 'stopped');
   // The phase holding the next step starts open; after that, phases stay as the reader leaves them.
   const [openPhase] = useState(() => next?.phase ?? 1);
   const phases = ([1, 2, 3, 4, 5, 6] as const).map((n) => ({ n, title: ROADMAP_PHASES[n], steps: steps.filter((s) => s.phase === n) })).filter((ph) => ph.steps.length);
@@ -129,7 +133,7 @@ export function FirstDealRoadmap() {
         <span className="muted">{ROADMAP_PATHS[path].hint}</span>
       </div>
       <p className="decide-progress">
-        {count} of {steps.length} steps done
+        {count} of {steps.length} steps done{naCount > 0 && ` (${naCount} marked “doesn’t apply”)`}
         <span className="decide-bar" role="progressbar" aria-label="Investing roadmap" aria-valuemin={0} aria-valuemax={steps.length} aria-valuenow={count}><span style={{ width: `${Math.round((count / steps.length) * 100)}%` }} /></span>
       </p>
       {walked && (
@@ -148,7 +152,7 @@ export function FirstDealRoadmap() {
       )}
       <h3 className="roadmap-all-head">All steps</h3>
       {phases.map((ph) => {
-        const phDone = ph.steps.filter((s) => done.includes(s.id)).length;
+        const phDone = ph.steps.filter((s) => settled(s.id)).length;
         return (
           <details key={ph.n} className="roadmap-phase" open={openPhase === ph.n}>
             <summary>
@@ -230,6 +234,7 @@ function BuyBoxBuilder() {
     </label>
   );
   const state = STATES.find((s) => s.code === b.state);
+  const lien = b.strategy === LIEN_STRATEGY;
   return (
     <section id="buy-box" aria-labelledby="buybox-head">
       <h2 id="buybox-head">Your buy box</h2>
@@ -256,15 +261,25 @@ function BuyBoxBuilder() {
             {STRATEGY_OPTIONS.map((s) => <option key={s}>{s}</option>)}
           </select>
         </label>
-        <label className="field">
-          <span>Bedrooms or units</span>
-          <input type="text" maxLength={40} value={b.beds} onChange={(e) => set('beds', e.target.value)} placeholder="e.g. 3+ beds, or 2–4 units" />
-        </label>
-        {money('priceMax', 'Highest price ($)', 'Not sure? A lender’s pre-approval or your cash limit sets it.')}
-        {money('repairsMax', 'Most repairs you’ll take on ($)', 'New investors often start with cosmetic work only.')}
-        {money('cashMax', 'Cash you can put in, all in ($)', 'Down payment, closing costs, repairs and reserves.')}
-        {money('minCashFlow', 'Least cash flow per month ($)', 'For rentals, after every cost and the loan.')}
+        {lien ? (
+          <>
+            {money('priceMax', 'Most for one certificate ($)', 'The lien amount plus any premium you’d bid.')}
+            {money('cashMax', 'Cash you’ll tie up, all in ($)', 'Every certificate, plus later taxes or assessments you may pay to protect them. Money you won’t need for years.')}
+          </>
+        ) : (
+          <>
+            <label className="field">
+              <span>Bedrooms or units</span>
+              <input type="text" maxLength={40} value={b.beds} onChange={(e) => set('beds', e.target.value)} placeholder="e.g. 3+ beds, or 2–4 units" />
+            </label>
+            {money('priceMax', 'Highest price ($)', 'Not sure? A lender’s pre-approval or your cash limit sets it.')}
+            {money('repairsMax', 'Most repairs you’ll take on ($)', 'New investors often start with cosmetic work only.')}
+            {money('cashMax', 'Cash you can put in, all in ($)', 'Down payment, closing costs, repairs and reserves.')}
+            {money('minCashFlow', 'Least cash flow per month ($)', 'For rentals, after every cost and the loan.')}
+          </>
+        )}
       </div>
+      {lien && <p className="muted">A lien certificate isn’t the property: there’s no rent and nothing to repair. Your buy box is the parcels you’ll bid on, what you’ll pay, and how long your money can wait. Property types and deal breakers below describe the land behind each lien.</p>}
       <fieldset className="buybox-checks">
         <legend>Property types</legend>
         {PROPERTY_TYPE_OPTIONS.map((t) => <label key={t}><input type="checkbox" checked={b.types.includes(t)} onChange={() => toggle('types', t)} /> {t}</label>)}
@@ -280,14 +295,14 @@ function BuyBoxBuilder() {
       <div className="buybox-summary" aria-live="polite">
         <h3>My buy box</h3>
         <p>
-          {b.types.length ? b.types.join(', ') : 'Any property type'}
-          {b.beds ? ` (${b.beds})` : ''} in {b.area || 'any area'}
+          {lien ? `Lien certificates on ${b.types.length ? b.types.join(', ').toLowerCase() : 'any kind of parcel'}` : b.types.length ? b.types.join(', ') : 'Any property type'}
+          {b.beds && !lien ? ` (${b.beds})` : ''} in {b.area || 'any area'}
           {state ? `, ${state.name}` : ''}
-          {b.strategy ? `, to ${b.strategy.charAt(0).toLowerCase()}${b.strategy.slice(1)}` : ''}.
-          {b.priceMax ? ` Price up to ${fmtMoney(b.priceMax)}.` : ''}
-          {b.repairsMax ? ` Repairs up to ${fmtMoney(b.repairsMax)}.` : ''}
+          {b.strategy && !lien ? `, to ${b.strategy.charAt(0).toLowerCase()}${b.strategy.slice(1)}` : ''}.
+          {b.priceMax ? (lien ? ` Up to ${fmtMoney(b.priceMax)} for one certificate.` : ` Price up to ${fmtMoney(b.priceMax)}.`) : ''}
+          {b.repairsMax && !lien ? ` Repairs up to ${fmtMoney(b.repairsMax)}.` : ''}
           {b.cashMax ? ` No more than ${fmtMoney(b.cashMax)} of my cash in it.` : ''}
-          {b.minCashFlow ? ` At least ${fmtMoney(b.minCashFlow)} a month of cash flow.` : ''}
+          {b.minCashFlow && !lien ? ` At least ${fmtMoney(b.minCashFlow)} a month of cash flow.` : ''}
         </p>
         {b.dealBreakers.length > 0 && <p><strong>I walk away if:</strong> {b.dealBreakers.join('; ').toLowerCase()}.</p>}
         <div className="decide-nav">
@@ -312,12 +327,16 @@ function buyBoxText(b: BuyBox, stateName?: string): string {
     `State: ${stateName ?? ''}`,
     `Area: ${b.area}`,
     `Property types: ${b.types.join(', ')}`,
-    `Bedrooms or units: ${b.beds}`,
-    `Strategy: ${b.strategy}`,
-    `Highest price: ${money(b.priceMax)}`,
-    `Most repairs I’ll take on: ${money(b.repairsMax)}`,
-    `Cash I can put in, all in: ${money(b.cashMax)}`,
-    `Least cash flow per month: ${money(b.minCashFlow)}`,
+    ...(b.strategy === LIEN_STRATEGY
+      ? [`Strategy: ${b.strategy}`, `Most for one certificate: ${money(b.priceMax)}`, `Cash I’ll tie up, all in: ${money(b.cashMax)}`]
+      : [
+          `Bedrooms or units: ${b.beds}`,
+          `Strategy: ${b.strategy}`,
+          `Highest price: ${money(b.priceMax)}`,
+          `Most repairs I’ll take on: ${money(b.repairsMax)}`,
+          `Cash I can put in, all in: ${money(b.cashMax)}`,
+          `Least cash flow per month: ${money(b.minCashFlow)}`,
+        ]),
     `I walk away if: ${b.dealBreakers.join('; ')}`,
     `Notes: ${b.notes}`,
   ].join('\n');
