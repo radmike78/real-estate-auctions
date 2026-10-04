@@ -12,7 +12,6 @@ export interface SavedSearch {
 }
 
 const RE = /^search:tax\?class=(all|residential|commercial)(?:&max=([1-9]\d{0,8}))?$/;
-export const SEARCH_TARGET_RE = RE;
 
 export function searchTarget(s: SavedSearch): string {
   return `search:tax?class=${s.cls}${s.maxBid ? `&max=${Math.floor(s.maxBid)}` : ''}`;

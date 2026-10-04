@@ -52,9 +52,10 @@ export const SECTIONS: DrillSection[] = [
     key: 'sale-types',
     title: 'Types of sale',
     icon: <IconLayers />,
-    summary: `${SALE_TYPES.length} kinds of forced sale: what you receive and how each is sold`,
+    summary: `${SALE_TYPES.length} kinds of forced sale in Nevada (Clark County): what you receive and how each is sold`,
     content: () => (
       <div className="table-wrap">
+        <p className="muted">These are Nevada’s rules (Clark County). California, Arizona and Utah differ: see the <a href="#/playbooks">sale guides</a> for your state.</p>
         <table>
           <thead><tr><th>Opportunity</th><th>What you receive</th><th>How it is sold</th></tr></thead>
           <tbody>{SALE_TYPES.map(([a, b, c]) => <tr key={a}><td>{a}</td><td>{b}</td><td>{c}</td></tr>)}</tbody>

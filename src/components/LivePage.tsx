@@ -61,7 +61,7 @@ export default function LivePage() {
     <main className="page">
       <PageHero
         title={<>Live <span className="grad">tax sales</span></>}
-        sub="Treasurer tax-sale parcels and IRS sales in Clark County, re-checked against the official lists."
+        sub="Treasurer tax-sale parcels and IRS sales in Clark County, Nevada, re-checked against the official lists."
       />
       {!result && <p>Verifying listings…</p>}
 

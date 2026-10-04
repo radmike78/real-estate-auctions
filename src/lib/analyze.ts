@@ -216,7 +216,10 @@ export function cleanDeal(v: unknown): Deal | null {
 export function loadDeals(): Deal[] {
   try {
     const v = JSON.parse(localStorage.getItem(KEY) ?? '[]');
-    return Array.isArray(v) ? v.map(cleanDeal).filter((d): d is Deal => d !== null) : [];
+    if (!Array.isArray(v)) return [];
+    const seen = new Set<string>();
+    // One copy per id: a hand-edited backup can repeat one, and both copies would change together.
+    return v.map(cleanDeal).filter((d): d is Deal => d !== null && !seen.has(d.id) && !!seen.add(d.id));
   } catch {
     return [];
   }

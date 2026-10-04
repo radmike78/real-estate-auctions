@@ -40,10 +40,10 @@ export const SECTIONS: DrillSection[] = [
     summary: 'Official sellers in your state, where their sales are noticed, and nationwide sources like the IRS and GSA',
     content: () => (
       <>
-        <h3>Official sellers in your state</h3>
+        <h3 className="topic-head">Official sellers in your state</h3>
         <p>Court-appointed receivers, bankruptcy trustees and the sheriff, plus how assignments for the benefit of creditors work (a private process, not a court sale). Each line names its state.</p>
         <ByState lines={SELLERS} />
-        <h3>Where sales are noticed</h3>
+        <h3 className="topic-head">Where sales are noticed</h3>
         <ByState lines={NOTICES} />
         <SourceCards />
       </>
@@ -85,7 +85,7 @@ export const SECTIONS: DrillSection[] = [
         <li><strong>Licenses and permits.</strong> Many business, liquor, health and contractor licenses are issued to the owner and don’t simply pass to you. You may need a new license, a transfer approval or a change-of-ownership filing. Confirm with each agency that issued one before you reopen.</li>
         <li><strong>The lease and the name.</strong> The building lease usually needs the landlord’s consent. Trade names, websites and phone numbers must be included in the sale to be yours.</li>
       </ul>
-      <h3>Tax clearance, liens and bulk sales in your state</h3>
+      <h3 className="topic-head">Tax clearance, liens and bulk sales in your state</h3>
       <ByState lines={BUYING} />
       </>
     ),

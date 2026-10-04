@@ -152,7 +152,7 @@ function parseHash(): Route {
   if (h === 'deals') return { page: 'deals' };
   if (h === 'homeowner-help') return { page: 'homeowner' };
   if (h === 'guides') return { page: 'guides', q };
-  const al = h.match(/^alerts(?:\/(confirm|manage|unsubscribe)\/([A-Za-z0-9._-]{1,100}))?$/);
+  const al = h.match(/^alerts(?:\/(confirm|manage|unsubscribe)(?:\/([A-Za-z0-9._-]{1,100}))?)?$/); // no token: the page reads it from this tab
   if (al) return { page: 'alerts', mode: (al[1] as AlertsMode | undefined) ?? 'signup', token: al[2] ?? '', welcome: params.get('welcome') === '1', add: params.get('add')?.slice(0, 210) ?? undefined };
   if (h === 'practice') {
     const sale = params.get('sale') ?? undefined;

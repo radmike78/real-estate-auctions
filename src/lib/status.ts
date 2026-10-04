@@ -78,14 +78,14 @@ function deedStep(saleType: SaleType | undefined): string {
     case 'TAX_DEED':
       return 'The Treasurer records the quitclaim deed (usually within 30 days) and mails it to you.';
     case 'TRUSTEE_SALE':
-      return 'The trustee records the trustee’s deed within 30 days, or gives it to you within 20 days for you to record within 10 (NRS 107.080).';
+      return 'In Nevada, the trustee records the trustee’s deed within 30 days, or gives it to you within 20 days for you to record within 10 (NRS 107.080).';
     case 'HOA_FORECLOSURE':
-      return 'You receive a certificate of sale. The deed comes after the 60-day redemption period, if no one redeems (NRS 116.31166).';
+      return 'In Nevada, you receive a certificate of sale. The deed comes after the 60-day redemption period, if no one redeems (NRS 116.31166).';
     case 'FEDERAL_TAX_SEIZURE':
       return 'You receive a certificate of sale. The IRS deed comes after the 180-day redemption period, if no one redeems (26 U.S.C. §§ 6337–6338).';
     case 'SHERIFF_EXECUTION':
     case 'JUDICIAL_FORECLOSURE':
-      return 'You receive a certificate of sale. The deed comes after the redemption period (up to 1 year), if no one redeems (NRS 21.190–21.210).';
+      return 'In Nevada, you receive a certificate of sale. The deed comes after the redemption period (up to 1 year), if no one redeems (NRS 21.190–21.210).';
     default:
       return 'Get the deed, and make sure it is recorded with the Clark County Recorder.';
   }
@@ -139,8 +139,8 @@ export function purchaseSteps(p: Property): string[] {
     case 'LIEN_CERTIFICATE_ONLY':
       return [
         'Understand that you are buying a debt, not the property.',
-        'Review the redemption period (2 years with a building, 120 days without) and interest of 1% a month on the price (NRS 271.610).',
-        'If the owner never redeems, plan for serving notice (in person or by publication), paying the delinquent taxes and assessments, and asking for the deed before the certificate expires 3 years after redemption ends (NRS 271.595).',
+        'In Nevada, review the redemption period (2 years with a building, 120 days without) and interest of 1% a month on the price (NRS 271.610).',
+        'If the owner never redeems, plan for serving notice through your attorney or a process server (in person or by publication), paying the delinquent taxes and assessments, and asking for the deed before the certificate expires 3 years after redemption ends (NRS 271.595).',
       ];
     default:
       return [

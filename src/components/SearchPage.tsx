@@ -107,7 +107,7 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
     <div className="search-page">
       <div className="search-top">
         <h1 className="search-title">
-          {filters.statuses.length > 0 && filters.statuses.every((s) => s === 'NOT_FOR_SALE_LIEN_ONLY') ? 'Liens on record in Clark County (not for sale)' : 'Properties for sale in Clark County'}
+          {SHOW_SAMPLE_DATA ? 'Sample listings (practice data)' : filters.statuses.length > 0 && filters.statuses.every((s) => s === 'NOT_FOR_SALE_LIEN_ONLY') ? 'Liens on record in Clark County (not for sale)' : 'Properties for sale in Clark County'}
         </h1>
         <form className="searchbar" role="search" onSubmit={submit}>
           <input aria-label="Search location" placeholder="City, ZIP or address" value={locationInput} onChange={(e) => setLocationInput(e.target.value)} />
@@ -117,6 +117,11 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
         {SHOW_SAMPLE_DATA && <span className="pill">Sample data · Clark County, NV</span>}
         <a className="small" href="#/live">Verified live tax sales →</a>
       </div>
+      {SHOW_SAMPLE_DATA && (
+        <div className="caution sample-banner" role="note">
+          <strong>These are fictional sample listings</strong> for trying out the search. None of them is for sale. For real, verified parcels, see <a href="#/live">Live tax sales</a>.
+        </div>
+      )}
       <main className="search-layout">
         {/* On phones the filters fold away behind one button, so results start right under the search bar. */}
         <details className="filters-wrap" open={filtersOpen} onToggle={(e) => setFiltersOpen((e.target as HTMLDetailsElement).open)}>

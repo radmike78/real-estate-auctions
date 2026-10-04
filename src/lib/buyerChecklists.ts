@@ -144,7 +144,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     key: 'hoa',
     forSale: true,
     title: 'Buying at an HOA foreclosure',
-    intro: 'A homeowners association (HOA) sells a home to collect unpaid assessments (NRS 116).',
+    intro: 'A homeowners association (HOA) sells a home to collect unpaid assessments. These are Nevada’s rules (NRS 116); other states’ HOA sales are in their sale guides.',
     items: [
       { text: "Cashier's checks for your full bid", detail: 'Confirm the amount and payee with the HOA’s foreclosure agent.' },
       { text: 'Government-issued photo ID' },

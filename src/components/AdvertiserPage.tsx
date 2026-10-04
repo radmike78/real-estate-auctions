@@ -7,6 +7,8 @@ import { fmtDate, fmtDateTime } from '../lib/status';
 import PageHero from './PageHero';
 import DailyColumns from './DailyColumns';
 import OwlNote from './OwlNote';
+import EmptyState from './EmptyState';
+import { useSiteFeatures } from '../lib/siteFeatures';
 
 const LOGIN_KEY = 'fsf.pro-login';
 
@@ -180,6 +182,7 @@ export function ranges(): Record<string, { label: string; from: string; to: stri
 }
 
 function SignIn() {
+  const features = useSiteFeatures();
   const [email, setEmail] = useState('');
   const [msg, setMsg] = useState<string | null>(null);
   async function submit(e: FormEvent) {
@@ -191,6 +194,17 @@ function SignIn() {
     const r = await api<{ message: string }>('/api/pro/login', { body: { email } }).catch((err: Error) => ({ message: err.message }));
     setMsg(r.message);
   }
+  // Sign-in links go by email: until email is set up, the form can't work.
+  if (features && !features.email)
+    return (
+      <main className="page">
+        <PageHero compact title="Advertiser sign-in" />
+        <EmptyState soon title="Advertiser sign-in is coming soon">
+          <p>Advertisers will sign in here with a one-time link sent by email, to see their numbers and leads.</p>
+          <p>Until then, see <a href="#/advertise">how advertising will work</a>.</p>
+        </EmptyState>
+      </main>
+    );
   return (
     <main className="page">
       <PageHero compact title="Advertiser sign-in" />

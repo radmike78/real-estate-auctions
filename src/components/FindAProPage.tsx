@@ -152,7 +152,7 @@ export default function FindAProPage({ section }: { section?: string }) {
       {build && <TeamBuilder />}
       {all && (
         <section className="not-sure" aria-labelledby="not-sure-head">
-          <h2 id="not-sure-head">Don’t know who you need?</h2>
+          <h2 id="not-sure-head">Not sure where to start?</h2>
           <p>Answer five quick questions about what you want to buy and how, and we’ll narrow this down to the professionals you need, and why. If you’re not sure of an answer, we’ll suggest one.</p>
           <a className="btn" href="#/pros/build">Help me choose →</a>
         </section>

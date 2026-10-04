@@ -131,12 +131,12 @@ export function moneySummary(p: Property): MoneySummary {
 
 // "What exactly is the buyer purchasing?"
 export const WHAT_YOU_BUY: Record<SaleType, string> = {
-  TAX_DEED: "A tax deed from the County Treasurer. It is a quitclaim deed (NRS 361.595) with no warranty of title, sold as-is, and the auction exists to recover delinquent taxes rather than to act as a traditional real-estate sale.",
+  TAX_DEED: "In Nevada, a tax deed from the County Treasurer. It is a quitclaim deed (NRS 361.595) with no warranty of title, sold as-is, and the auction exists to recover delinquent taxes rather than to act as a traditional real-estate sale.",
   TAX_LIEN_CERTIFICATE: 'A lien certificate: the right to be repaid plus interest, NOT ownership. Nevada sells property-tax delinquencies as deeds; the Clark County Treasurer sells lien certificates only for unpaid special improvement district (SID) assessments (NRS 271), at 1% a month. If the owner never redeems (120 days, or 2 years if there is a building), you can request a deed, but the certificate expires 3 years after the redemption period ends.',
-  TRUSTEE_SALE: "A trustee's deed (non-judicial foreclosure under NRS 107). There is no warranty, and the property is sold as-is, often without an interior inspection.",
+  TRUSTEE_SALE: "In Nevada, a trustee's deed (non-judicial foreclosure under NRS 107). There is no warranty, and the property is sold as-is, often without an interior inspection.",
   JUDICIAL_FORECLOSURE: "A sheriff's certificate of sale followed by a deed. Nevada gives the owner a redemption right for up to 1 year after a judicial sale.",
-  HOA_FORECLOSURE: "A deed from the HOA's foreclosure agent under NRS 116. It starts as a certificate of sale with a 60-day redemption period. The first deed of trust survives if the lender paid the priority amount at least 5 days before the sale, validly offered it and was refused, or if Fannie Mae or Freddie Mac owned the loan. This is heavily litigated in Nevada.",
-  SHERIFF_EXECUTION: "A sheriff's certificate of sale on a judgment execution (NRS 21). The debtor may redeem within 1 year, and you receive only the debtor's interest.",
+  HOA_FORECLOSURE: "In Nevada, a deed from the HOA's foreclosure agent under NRS 116. It starts as a certificate of sale with a 60-day redemption period. The first deed of trust survives if the lender paid the priority amount at least 5 days before the sale, validly offered it and was refused, or if Fannie Mae or Freddie Mac owned the loan. This is heavily litigated in Nevada.",
+  SHERIFF_EXECUTION: "In Nevada, a sheriff's certificate of sale on a judgment execution (NRS 21). The debtor may redeem within 1 year, and you receive only the debtor's interest.",
   FEDERAL_TAX_SEIZURE: "A certificate of sale from the IRS, then an IRS deed after a 180-day redemption period (26 U.S.C. § 6337). You receive only the taxpayer's interest.",
   REO: 'A property the lender already owns. It is bought by offer through the lender’s broker or at an auction the lender chooses, usually with a deed that carries limited promises from the lender, and title insurance available.',
 };

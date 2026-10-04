@@ -7,8 +7,8 @@ import { rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, type RentInput
 import { cleanGoal, cleanTeamList, GOAL_KEY, investorProfile, TEAM_LIST_KEY, TEAM_ROLES } from './myPlan';
 import { proGuideByKey } from './proGuide';
 import { countyName } from './regions';
-import { ROADMAP, STEP_STATUS_LABEL, type StepStatus } from './roadmap';
-import { DEAL_STEPS_KEY } from './roadmapDeals';
+import { ROADMAP, STEP_STATUS_LABEL } from './roadmap';
+import { cleanDealSteps, DEAL_STEPS_KEY } from './roadmapDeals';
 
 const money = (n: number) => `${n < 0 ? '−' : ''}$${Math.round(Math.abs(n)).toLocaleString('en-US')}`;
 const pct = (n: number | null) => (n === null ? 'n/a' : `${(n * 100).toFixed(1)}%`);
@@ -64,7 +64,7 @@ export function propertyPacketText(d: Deal): string {
   const gate = GATES.find((g) => g.key === log.gate);
   lines.push('', `DECISION: ${gate ? gate.label : 'not decided yet'}`, '');
 
-  const per = (read(DEAL_STEPS_KEY) as Record<string, { done?: string[]; status?: Record<string, StepStatus> }> | null)?.[`analyzed:${d.id}`];
+  const per = cleanDealSteps(read(DEAL_STEPS_KEY))[`analyzed:${d.id}`];
   lines.push('WHERE YOU ARE (steps 4 to 6 for this property)');
   const steps = ROADMAP.filter((s) => s.phase >= 4);
   const seen = new Set<string>();

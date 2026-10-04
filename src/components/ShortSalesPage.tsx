@@ -102,13 +102,13 @@ export const SECTIONS: DrillSection[] = [
     summary: 'Whether the seller could still owe the lender, what the seller must disclose, and other state notes',
     content: () => (
       <>
-        <h3 className="section-title">Could the seller still owe the lender?</h3>
+        <h3 className="topic-head">Could the seller still owe the lender?</h3>
         <p>When the lender takes less than the full payoff, the unpaid rest is called a deficiency. Whether the lender can still collect it depends on the state.</p>
         <ByState lines={DEFICIENCY} missing="We don't have verified rules on this for this state yet. Sellers should ask a local attorney." />
-        <h3 className="section-title">Disclosures and contracts</h3>
+        <h3 className="topic-head">Disclosures and contracts</h3>
         <ByState lines={DISCLOSURES} missing="We don't have verified disclosure rules for this state yet. Ask your agent." />
-        <h3 className="section-title">Other things to know</h3>
-        <ByState lines={NOTES} missing="Nothing extra for this state yet. See the steps and risks above." />
+        <h3 className="topic-head">Other things to know</h3>
+        <ByState lines={NOTES} missing="Nothing extra for this state yet. See How to buy a short sale and Risks to watch out for." />
       </>
     ),
   },
@@ -125,7 +125,7 @@ export const SECTIONS: DrillSection[] = [
           agent usually lists the home on the MLS; ask your agent. To follow a property's foreclosure status without contacting anyone,
           use the <a href="#/pre-foreclosures">pre-foreclosure tracker</a>.
         </p>
-        <h3 className="section-title">The law in your state</h3>
+        <h3 className="topic-head">The law in your state</h3>
         <ByState lines={OWNERS} />
       </>
     ),

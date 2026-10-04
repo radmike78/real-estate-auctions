@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useProperties } from '../data/live';
 import type { Property } from '../types';
 import { loadDeals, onDealsChange, removeDeal, updateDeal, type SavedDeal } from '../lib/deals';
@@ -24,6 +24,13 @@ function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; lo
     const t = setTimeout(() => updateDeal(d.id, { notes: notes.slice(0, 2000) }), 600);
     return () => clearTimeout(t);
   }, [notes, d.id, d.notes]);
+  // Leaving the page within that pause still saves what was typed.
+  const latest = useRef({ notes, saved: d.notes });
+  latest.current = { notes, saved: d.notes };
+  useEffect(() => () => {
+    const { notes: n, saved } = latest.current;
+    if (n !== saved) updateDeal(d.id, { notes: n.slice(0, 2000) });
+  }, [d.id]);
   if (!p && loading) return <li className="deal-card"><p className="muted">Checking the official lists…</p></li>;
   if (!p) {
     return (

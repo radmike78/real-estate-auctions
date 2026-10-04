@@ -136,6 +136,8 @@ function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, c
       return m.cashFlow > 0 && allInCost(i, bid) <= limit(m.loanNet, m.cashFlow);
     };
     returnBid = Math.max(0, largest(ok, SEARCH_MAX));
+    // No target (or none that binds) and no loan to grow: the return sets no price limit, same as the refinance case.
+    if (returnBid >= SEARCH_MAX) returnBid = Infinity;
   }
   // Your cash covers everything you pay before any later refinance; with a purchase loan, everything but the loan.
   const cash = nz(i.cashAvailable);

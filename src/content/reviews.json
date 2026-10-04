@@ -21,7 +21,7 @@
       "src/lib/status.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "0a7c300b706b6f37",
+    "hash": "2fa3977ce915880b",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -38,7 +38,7 @@
       "src/lib/foreclosure.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "5640d9df30a7b014",
+    "hash": "f4c72d508589184a",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -49,7 +49,7 @@
       "src/lib/buyerChecklists.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "e7c65499935aaf47",
+    "hash": "d3c87d3937066745",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -61,7 +61,7 @@
       "src/components/SidCertificates.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "458af6aabb5340fd",
+    "hash": "98b996593ad905ad",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -71,7 +71,7 @@
       "src/components/PreForeclosurePage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "22741698b47532ee",
+    "hash": "e1321c38a1b32d91",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -81,7 +81,7 @@
       "src/components/ShortSalesPage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "855e9ff4eeedf5cf",
+    "hash": "c4dd700c11f49def",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -103,7 +103,7 @@
       "src/lib/businessAssets.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "c89c369eee1ff9fe",
+    "hash": "b4e95d08041c11bc",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "6d6426397b3b967e",
+    "hash": "974f5bb627c9da94",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -171,7 +171,7 @@
       "src/lib/evidence.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "94d0dd81f5a63d22",
+    "hash": "fc8c0a6d7aa458b3",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -183,7 +183,7 @@
       "src/components/SearchAlertButton.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "5490ddaa20f74bd4",
+    "hash": "6b7804e7a5c8431b",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -202,7 +202,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "e1e856b1910d286e",
+    "hash": "bdfec9a0e2bc9eba",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -255,7 +255,7 @@
       "src/components/AboutPage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "fe3fa15e3e4af859",
+    "hash": "8b84681391d5391e",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -351,7 +351,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "f0aec275da7b5477",
+    "hash": "3b915c9c0881ae34",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -375,7 +375,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "f92bb05f0ea3bb8f",
+    "hash": "c2f1f8b599a02d26",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
@@ -388,7 +388,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "03c5c0cd2a4c07ef",
+    "hash": "c39029d0a718d5f3",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {
@@ -401,7 +401,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "9b07f8ca5fd33dcf",
+    "hash": "071a3728e747671a",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

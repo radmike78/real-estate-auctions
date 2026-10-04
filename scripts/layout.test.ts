@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const ALLOWED = ['.role-dialog', '.track-dialog', '.bubble', '.hero-inner', '.hero-band .hero-inner', '.simple-hero .hero-inner', '.simple-search', '.search-top .searchbar', '.signin-card', '.browse'];
+const ALLOWED = ['.role-dialog', '.track-dialog', '.bubble', '.hero-inner', '.hero-band .hero-inner', '.simple-hero .hero-inner', '.simple-search', '.search-top .searchbar', '.browse'];
 
 describe('full-width pages', () => {
   it('caps no page content with a fixed max-width', () => {

@@ -12,7 +12,7 @@ import { loadDeals as loadAnalyzed } from '../lib/analyze';
 import { docGuide, DOC_GUIDES } from '../lib/docGuides';
 import DocGuideView from './DocGuideView';
 import { EvidenceArea } from './EvidenceLog';
-import { DEAL_ID, DEAL_KEY, DEAL_STEPS_KEY, type DealSteps } from '../lib/roadmapDeals';
+import { cleanDealSteps, DEAL_ID, DEAL_KEY, DEAL_STEPS_KEY, type DealSteps } from '../lib/roadmapDeals';
 import { cashForPrice, cleanGoal, cleanTeamList, GOAL_KEY, PLAN_EVENT, PRICE_DEFAULTS, priceForCash, TEAM_LIST_KEY, TEAM_ROLES, type PriceAssumptions, type TeamList, type TeamMember } from '../lib/myPlan';
 import { currentProgress } from '../lib/journey';
 import { DECIDE_KEY, rank, type Answers } from '../lib/decide';
@@ -53,16 +53,6 @@ const cleanStatus = (v: unknown): Record<string, StepStatus> => {
 
 // Steps 4 to 6 (find, buy, own) belong to one property. With a deal chosen, their progress is kept for that deal,
 // so two properties can be at different stages; steps 1 to 3 are the learner's own, whatever the deal.
-const cleanDealSteps = (v: unknown): DealSteps => {
-  const out: DealSteps = {};
-  if (v && typeof v === 'object' && !Array.isArray(v))
-    for (const [k, x] of Object.entries(v).slice(0, 200)) {
-      if (!DEAL_ID.test(k) || !x || typeof x !== 'object') continue;
-      const o = x as Record<string, unknown>;
-      out[k] = { done: cleanIds(o.done), status: cleanStatus(o.status) };
-    }
-  return out;
-};
 const dealScoped = (s: RoadmapStep) => s.phase >= 4;
 
 /** Ticked roadmap steps, for the homepage progress line. */
@@ -375,7 +365,7 @@ export function CashWorksheet() {
 function PriceFromCash({ cash }: { cash: number }) {
   const [a, setA] = useState<PriceAssumptions>(PRICE_DEFAULTS);
   const price = priceForCash(cash, a);
-  const c = cashForPrice(price, a);
+  const c = cashForPrice(Number.isFinite(price) ? price : 0, a);
   const num = (k: keyof PriceAssumptions, label: string, unit: string) => (
     <label className="field">
       <span>{label} ({unit})</span>
@@ -391,10 +381,14 @@ function PriceFromCash({ cash }: { cash: number }) {
   return (
     <div className="price-from-cash">
       <h3>What price your cash can support</h3>
-      <p>
-        With {a.downPct}% down, closing costs of about {a.closingPct}% and {a.reserveMonths} months of payments kept in reserve, your {fmtMoney(cash)} supports a price up to about <strong>{fmtMoney(price)}</strong>:
-        {' '}{fmtMoney(Math.round(c.down))} down, {fmtMoney(Math.round(c.closing))} closing costs and {fmtMoney(Math.round(c.reserves))} in reserve (about {fmtMoney(Math.round(c.monthly))} a month in loan, tax and insurance). Repairs come out of the same cash, so leave room for them.
-      </p>
+      {Number.isFinite(price) ? (
+        <p>
+          With {a.downPct}% down, closing costs of about {a.closingPct}% and {a.reserveMonths} months of payments kept in reserve, your {fmtMoney(cash)} supports a price up to about <strong>{fmtMoney(price)}</strong>:
+          {' '}{fmtMoney(Math.round(c.down))} down, {fmtMoney(Math.round(c.closing))} closing costs and {fmtMoney(Math.round(c.reserves))} in reserve (about {fmtMoney(Math.round(c.monthly))} a month in loan, tax and insurance). Repairs come out of the same cash, so leave room for them.
+        </p>
+      ) : (
+        <p>With no down payment, closing costs or reserves, these assumptions don’t limit the price. Enter what your lender expects below to see a price.</p>
+      )}
       <details>
         <summary>Change the assumptions</summary>
         <div className="deal-fields">
@@ -406,7 +400,7 @@ function PriceFromCash({ cash }: { cash: number }) {
         </div>
         <p className="muted small">25% down and 6 months of reserves are common for a rental you won’t live in; a home you’ll live in can need far less down. Your lender’s quote sets the real numbers.</p>
       </details>
-      <button type="button" className="btn btn-secondary" onClick={useIt}>Use {fmtMoney(price)} in my buy box</button>
+      {Number.isFinite(price) && <button type="button" className="btn btn-secondary" onClick={useIt}>Use {fmtMoney(price)} in my buy box</button>}
     </div>
   );
 }
@@ -649,6 +643,7 @@ function ProgressBackup() {
     const f = input.files?.[0];
     input.value = ''; // so choosing the same file again still works
     if (!f) return;
+    if (f.size > 4_000_000) return setMsg('That file is too large to be a DeedOwl backup.');
     let text: string;
     try {
       text = await f.text();

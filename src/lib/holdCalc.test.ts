@@ -145,3 +145,10 @@ describe('a purchase loan on a listed home', () => {
     expect(r.allIn).toBeLessThanOrEqual(100_000);
   });
 });
+
+describe('no target return on a purchase without a loan', () => {
+  it('sets no price limit instead of the search ceiling', () => {
+    expect(rentMaxBid({ ...RENT_DEFAULTS, targetCocPct: 0, loanPct: 0 }, true).maxBid).toBe(Infinity);
+    expect(rentMaxBid({ ...RENT_DEFAULTS, targetCocPct: 0, loanPct: 75 }, true).maxBid).toBeLessThan(1e9);
+  });
+});
