@@ -203,7 +203,7 @@ export const analyze: Lesson = {
     { label: 'Arizona Revised Statutes 32-2156: facts sellers needn’t disclose', url: 'https://www.azleg.gov/ars/32/02156.htm' },
     { label: 'Arizona Revised Statutes 33-1260: condominium resale disclosure', url: 'https://www.azleg.gov/ars/33/01260.htm' },
     { label: 'Arizona Revised Statutes 33-1806: planned community resale disclosure', url: 'https://www.azleg.gov/ars/33/01806.htm' },
-    { label: 'Utah Division of Real Estate: state-approved Real Estate Purchase Contract', url: 'https://commerce.utah.gov/realestate/wp-content/uploads/2023/03/purchase-contract.pdf' },
+    { label: 'Utah Division of Real Estate: state-approved Real Estate Purchase Contract', url: 'https://commerce.utah.gov/wp-content/uploads/2023/03/purchase-contract.pdf' },
     { label: 'Utah Code 57-27-201: methamphetamine contamination disclosure', url: 'https://le.utah.gov/xcode/Title57/Chapter27/57-27-S201.html' },
     { label: 'Utah Code 57-1-37: stigmatized property', url: 'https://le.utah.gov/xcode/Title57/Chapter1/57-1-S37.html' },
     { label: 'Utah Code 57-8a-105.1: HOA documents before closing', url: 'https://le.utah.gov/xcode/Title57/Chapter8A/57-8a-S105.1.html' },

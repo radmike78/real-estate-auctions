@@ -216,7 +216,10 @@ export function cleanDeal(v: unknown): Deal | null {
 export function loadDeals(): Deal[] {
   try {
     const v = JSON.parse(localStorage.getItem(KEY) ?? '[]');
-    return Array.isArray(v) ? v.map(cleanDeal).filter((d): d is Deal => d !== null) : [];
+    if (!Array.isArray(v)) return [];
+    const seen = new Set<string>();
+    // One copy per id: a hand-edited backup can repeat one, and both copies would change together.
+    return v.map(cleanDeal).filter((d): d is Deal => d !== null && !seen.has(d.id) && !!seen.add(d.id));
   } catch {
     return [];
   }
@@ -252,6 +255,19 @@ export function forgetDeal(id: string) {
 }
 
 /** When a new deal is saved, the numbers typed before saving become that deal's numbers. */
+/** Forget the unsaved calculator numbers, so a new deal starts from your plan's starting numbers. */
+export function clearDraftNumbers() {
+  try {
+    // Only Analyze's own drafts: the plain rent and commercial keys are also the Calculators page's numbers.
+    for (const k of ['fsf.calc.rent.offer.v1', 'fsf.calc.commercial.offer.v1', 'fsf.bid.analyze-draft.v1']) {
+      localStorage.removeItem(k);
+      localStorage.removeItem(`${k}.region`);
+    }
+  } catch {
+    /* storage unavailable */
+  }
+}
+
 export function carryDraftNumbers(id: string, offer: boolean) {
   try {
     const moves: [string, string][] = [
@@ -262,7 +278,10 @@ export function carryDraftNumbers(id: string, offer: boolean) {
     for (const [from, to] of moves) {
       const v = localStorage.getItem(from);
       if (v !== null) localStorage.setItem(to, v);
+      const r = localStorage.getItem(`${from}.region`);
+      if (r !== null) localStorage.setItem(`${to}.region`, r);
     }
+    clearDraftNumbers(); // the next new deal starts from your plan, not from this one's numbers
   } catch {
     /* storage unavailable */
   }

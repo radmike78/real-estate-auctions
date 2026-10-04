@@ -5,6 +5,7 @@
 import { cleanDeal } from './analyze';
 import { cleanBuyBox } from './toolkit';
 import { cleanCase } from '../practice/caseProgress';
+import { cleanDealSteps, DEAL_STEPS_KEY } from './roadmapDeals';
 
 const EXACT = [
   'deedowl.path.v1',
@@ -40,7 +41,8 @@ const EXACT = [
   'fsf.calc.strategy.v1',
   'fsf.bid.mode.v1',
 ];
-const PATTERN = /^fsf\.(dd|bid|income|checklist|calc\.rent|calc\.commercial)\.[A-Za-z0-9_-]{1,64}\.v1$/;
+// Calculator keys also have a `.region` sibling (the county defaults the inputs were last set for), kept with them.
+const PATTERN = /^fsf\.(dd|bid|income|checklist|calc\.rent|calc\.commercial)\.[A-Za-z0-9_-]{1,64}\.v1$|^fsf\.calc\.(rent|commercial)\.[A-Za-z0-9_-]{1,64}\.v1\.region$|^fsf\.calc\.(rent|commercial)\.v1\.region$/;
 
 export const backedUp = (key: string) => EXACT.includes(key) || PATTERN.test(key);
 
@@ -53,6 +55,7 @@ const CLEAN: Record<string, (v: unknown) => unknown> = {
   'deedowl.analyze.v1': (v) => (Array.isArray(v) ? v.map(cleanDeal).filter(Boolean) : []),
   'deedowl.analyze.current.v1': (v) => cleanDeal(v),
   'deedowl.case.v1': cleanCase,
+  [DEAL_STEPS_KEY]: cleanDealSteps,
 };
 
 export interface Backup {

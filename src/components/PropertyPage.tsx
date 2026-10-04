@@ -313,7 +313,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
     },
     {
       key: 'how-to-buy',
-      title: 'How to buy it',
+      title: forSale ? 'How to buy it' : 'If it goes to sale',
       icon: <IconSteps />,
       summary: `${plural(steps.length, 'step')} and ${plural(checklist.items.length + (commercial ? CHECKLISTS.commercial.items.length : 0), 'item')} to have ready`,
       content: () => (

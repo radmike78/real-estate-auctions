@@ -1006,7 +1006,7 @@ const REO: Flow = {
       note: 'Practice document. The real one comes from the title company handling your escrow.',
     },
     isHome(p)
-      ? { kind: 'read', id: 'programs', title: 'Special rules for some sellers', body: ['HUD homes: you bid through a HUD-registered broker; owner-occupants get the first bidding period.', 'Fannie Mae and Freddie Mac homes: owner-occupants get a 30-day “First Look” before investors.'] }
+      ? { kind: 'read', id: 'programs', title: 'Special rules for some sellers', body: ['HUD homes: you bid through a HUD-registered broker; owner-occupants get the first bidding period.', 'Fannie Mae and Freddie Mac homes: owner-occupants get a “First Look” period before investors (30 days for Freddie Mac; 20 days for Fannie Mae, 30 in Nevada). Check the listing.'] }
       : isLand(p) && !commercial(p)
         ? { kind: 'read', id: 'programs', title: 'Bank-owned land', body: ['HUD Home Store, HomePath and HomeSteps sell homes, not land. Bank-owned land is sold through listing brokers.', 'Before you offer, confirm zoning, access and what it takes to connect water, sewer and power.'] }
         : { kind: 'read', id: 'programs', title: 'No home-buyer programs', body: ['There’s no owner-occupant first look for commercial property. HUD Home Store, HomePath and HomeSteps sell homes with 1–4 units only.'] },

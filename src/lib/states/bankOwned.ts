@@ -5,8 +5,8 @@ import type { ByStateLines } from '../../components/ByState';
 
 export const BUYING: ByStateLines = {
   NV: [
-    { text: 'In Nevada, DeedOwl doesn’t list bank-owned homes itself yet. The cards on this page link to each official seller’s own site, and each card says how often it has Clark County homes.' },
-    { text: 'In Nevada, Fannie Mae and Freddie Mac give buyers who will live in the home a first look before investors can buy. The rules for each are on its card above.' },
+    { text: 'In Nevada, DeedOwl doesn’t list bank-owned homes itself yet. The source cards (under Fannie Mae & Freddie Mac, Government agencies, and Banks & credit unions) link to each official seller’s own site, and each card says how often it has Clark County homes.' },
+    { text: 'In Nevada, Fannie Mae and Freddie Mac give buyers who will live in the home a first look before investors can buy. The rules for each are on its card under Fannie Mae & Freddie Mac.', links: [['Fannie Mae & Freddie Mac', '#/bank-owned/fannie-freddie']] },
   ],
   CA: [
     { text: 'In California, a lender that got the home at a foreclosure sale, or by a deed in lieu of foreclosure, doesn’t have to give the Transfer Disclosure Statement when it resells (Civil Code 1102.2(c)).' },
@@ -25,7 +25,7 @@ export const BUYING: ByStateLines = {
     { text: 'In Arizona, if the home or land isn’t in a recorded subdivision and is in an unincorporated area, the seller (of up to five parcels) must give you an affidavit of disclosure at least 7 days before closing, and you can cancel within 5 days after you get it (A.R.S. 33-422). This doesn’t apply at the trustee’s sale itself, but it does apply when the bank resells (A.R.S. 33-422(G)).', links: [['A.R.S. 33-422', 'https://www.azleg.gov/ars/33/00422.htm']] },
     { text: 'In Arizona, use your inspection period. Bank sellers rarely make repairs.' },
     { text: 'In Arizona, a bona fide tenant generally gets at least 90 days’ notice under federal law, and one with a lease may be able to stay until it ends unless the home is sold to a buyer who will live in it. Anyone else has to be removed through a forcible detainer (eviction) case. Ask the seller whether the home will be vacant at closing (A.R.S. 12-1173.01).' },
-    { text: 'In Arizona, HUD, Fannie Mae (HomePath) and Freddie Mac (HomeSteps) sell their homes the same way they do nationwide, so the cards above apply. HUD homes need a HUD-registered broker to bid for you.' },
+    { text: 'In Arizona, HUD, Fannie Mae (HomePath) and Freddie Mac (HomeSteps) sell their homes the same way they do nationwide, so their source cards (under Fannie Mae & Freddie Mac, and Government agencies) apply. HUD homes need a HUD-registered broker to bid for you.' },
   ],
   UT: [
     { text: 'In Utah, the state-approved Real Estate Purchase Contract (REPC), which licensed agents must use, lists the “Seller Disclosures.” They include a written seller property condition disclosure, a title commitment, HOA documents and any known environmental or code problems (REPC section 7).', links: [['Utah REPC (Division of Real Estate)', 'https://commerce.utah.gov/wp-content/uploads/2023/03/purchase-contract.pdf'], ['State-approved forms', 'https://commerce.utah.gov/realestate/real-estate/forms/state-approved/']] },

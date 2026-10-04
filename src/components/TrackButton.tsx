@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'rea
 import { api, ApiError } from '../lib/api';
 import { forgetManageToken, storedManageToken } from '../lib/alertsLink';
 import { useSiteFeatures } from '../lib/siteFeatures';
+import { useModal } from '../lib/useModal';
 
 /** "Email me changes" for a verified listing. With a remembered alerts link it's one click; otherwise email + confirm. */
 export default function TrackButton({ target, label }: { target: string; label: string }) {
@@ -30,6 +31,8 @@ export function AlertDialog({ title, intro, target, label, extra, onClose }: { t
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState(storedManageToken);
   const first = useRef<HTMLButtonElement | HTMLInputElement | null>(null);
+  const box = useRef<HTMLDivElement | null>(null);
+  useModal(box, onClose);
   useEffect(() => first.current?.focus(), [token, done]);
 
   async function quickAdd() {
@@ -64,7 +67,7 @@ export function AlertDialog({ title, intro, target, label, extra, onClose }: { t
 
   return (
     <div className="role-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="role-dialog track-dialog" role="dialog" aria-modal="true" aria-labelledby="track-title" onKeyDown={(e) => e.key === 'Escape' && onClose()}>
+      <div ref={box} className="role-dialog track-dialog" role="dialog" aria-modal="true" aria-labelledby="track-title">
         <h2 id="track-title">{title}</h2>
         {!done && extra}
         <p className="track-label">{label}</p>

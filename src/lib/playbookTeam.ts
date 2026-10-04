@@ -21,4 +21,3 @@ export const TEAM = {
   propertyManager: { role: 'Commercial property manager', when: 'From day one if there are tenants: rent collection, estoppels, repairs', href: '#/pros/property_manager', pro: 'property_manager' },
 } satisfies Record<string, TeamEntry>;
 
-export type TeamKey = keyof typeof TEAM;

@@ -69,7 +69,7 @@ EXPOSE 8080
 USER 1001
 
 LABEL org.opencontainers.image.title="DeedOwl" \
-      org.opencontainers.image.description="Clark County, NV forced-sale real estate: web server, API and listings updater" \
+      org.opencontainers.image.description="DeedOwl: forced-sale real estate education for Nevada, California, Arizona and Utah: web server, API and listings updater" \
       org.opencontainers.image.source="https://github.com/radmike78/real-estate-auctions" \
       io.k8s.display-name="DeedOwl" \
       io.openshift.expose-services="8080:http"

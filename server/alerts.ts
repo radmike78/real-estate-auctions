@@ -280,4 +280,3 @@ export function openBroadcasts(db: DatabaseSync) {
   };
 }
 
-export type Broadcasts = ReturnType<typeof openBroadcasts>;

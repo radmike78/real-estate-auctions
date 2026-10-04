@@ -53,12 +53,12 @@ export function cashForPrice(price: number, a: PriceAssumptions) {
   return { down, closing, monthly, reserves, total: down + closing + reserves };
 }
 
-/** The highest price (to the nearest $1,000) whose down payment, closing costs and reserves fit your cash. */
+/** The highest price (to the nearest $1,000) whose down payment, closing costs and reserves fit your cash; Infinity when the assumptions set no limit. */
 export function priceForCash(cash: number, a: PriceAssumptions = PRICE_DEFAULTS): number {
   if (!(cash > 0)) return 0;
   let lo = 0;
   let hi = 20_000_000;
-  if (cashForPrice(hi, a).total <= cash) return hi;
+  if (cashForPrice(hi, a).total <= cash) return Infinity; // nothing in these assumptions limits the price (e.g. 0% down, no costs)
   while (hi - lo > 1000) {
     const mid = (lo + hi) / 2;
     if (cashForPrice(mid, a).total <= cash) lo = mid;

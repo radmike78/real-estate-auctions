@@ -80,3 +80,13 @@ describe('large items', () => {
     expect(makeBackup(storage).data['deedowl.analyze.v1']).toBe(big);
   });
 });
+
+describe('calculator region settings and per-property steps', () => {
+  it('keeps the region key with each calculator and cleans per-property steps', () => {
+    expect(backedUp('fsf.calc.rent.d1-offer.v1.region')).toBe(true);
+    expect(backedUp('fsf.calc.commercial.v1.region')).toBe(true);
+    const text = JSON.stringify({ app: 'deedowl', version: 1, saved: '2026-10-04T00:00:00Z', data: { 'deedowl.roadmap.deals.v1': JSON.stringify({ 'analyzed:dX': { done: 5 } }) } });
+    const r = readBackup(text);
+    expect(r.ok && JSON.parse(r.data['deedowl.roadmap.deals.v1'])).toEqual({ 'analyzed:dX': { done: [], status: {} } });
+  });
+});

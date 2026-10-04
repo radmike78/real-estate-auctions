@@ -1,7 +1,7 @@
 // Every outside source the site links to or relies on, and when its content was last checked.
 //
 // This file is for us, not the public: tests and `npm run content:status` use it, and the site never imports it.
-// Rules (enforced by src/content/content.test.ts):
+// Rules (enforced by scripts/content/content.test.ts):
 //   - Every https:// link on the site must be listed here (by exact URL, or by a listed `prefix`).
 //   - Listing sources (`role: 'listing'`) must be a government agency, Fannie Mae/Freddie Mac, the bank that owns
 //     the property, or the official seller the county names: never an auction marketplace or aggregator (CLAUDE.md).
@@ -109,7 +109,7 @@ const LISTED: Source[] = [
   { id: 'learn-rf-6', title: 'Federal Reserve: consumer credit (G.19), credit card interest rates', publisher: 'Federal Reserve Board', url: 'https://www.federalreserve.gov/releases/g19/current/default.htm', role: 'rules', checked: '2026-10-03' },
   { id: 'learn-rf-7', title: 'IRS: retirement plan loans', publisher: 'Internal Revenue Service', url: 'https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-loans', role: 'rules', checked: '2026-10-03' },
   { id: 'learn-rf-8', title: 'FTC: report fraud', publisher: 'Federal Trade Commission', url: 'https://reportfraud.ftc.gov/', role: 'rules', checked: '2026-10-03' },
-  { id: 'learn-rf-9', title: 'Nevada Attorney General: file a consumer complaint', publisher: 'Nevada Attorney General', url: 'https://ag.nv.gov/Complaints/File_Complaint/', role: 'rules', checked: '2026-10-03' },
+  { id: 'learn-rf-9', title: 'Nevada Attorney General: file a consumer complaint', publisher: 'Nevada Attorney General', url: 'https://ag.nv.gov/Complaints/CSU_Complaints___FAQ/', role: 'rules', checked: '2026-10-03' },
   { id: 'learn-rf-10', title: 'California Attorney General: consumer complaint against a business', publisher: 'California Attorney General', url: 'https://oag.ca.gov/contact/consumer-complaint-against-business-or-company', role: 'rules', checked: '2026-10-03' },
   { id: 'learn-rf-11', title: 'Arizona Attorney General: consumer complaint', publisher: 'Arizona Attorney General', url: 'https://www.azag.gov/complaints/consumer', role: 'rules', checked: '2026-10-03' },
   { id: 'learn-rf-12', title: 'Utah Division of Consumer Protection', publisher: 'Utah Department of Commerce', url: 'https://commerce.utah.gov/dcp/', role: 'rules', checked: '2026-10-03' },
@@ -520,7 +520,6 @@ const LISTED: Source[] = [
   { id: 'learn-ars-32-02156-htm', title: 'Arizona Revised Statutes 32-2156: facts sellers needn’t disclose', publisher: 'Arizona Legislature', url: 'https://www.azleg.gov/ars/32/02156.htm', role: 'rules', checked: '2026-09-29' },
   { id: 'learn-ars-33-01260-htm', title: 'Arizona Revised Statutes 33-1260: condominium resale disclosure', publisher: 'Arizona Legislature', url: 'https://www.azleg.gov/ars/33/01260.htm', role: 'rules', checked: '2026-09-29' },
   { id: 'learn-ars-33-01806-htm', title: 'Arizona Revised Statutes 33-1806: planned community resale disclosure', publisher: 'Arizona Legislature', url: 'https://www.azleg.gov/ars/33/01806.htm', role: 'rules', checked: '2026-09-29' },
-  { id: 'learn-nt-uploads-2023-03-purchase-contract-pdf', title: 'Utah Division of Real Estate: state-approved Real Estate Purchase Contract', publisher: 'Utah Division of Real Estate', url: 'https://commerce.utah.gov/realestate/wp-content/uploads/2023/03/purchase-contract.pdf', role: 'rules', checked: '2026-09-29' },
   { id: 'learn-xcode-title57-chapter27-57-27-s201-html', title: 'Utah Code 57-27-201: methamphetamine contamination disclosure', publisher: 'Utah Legislature', url: 'https://le.utah.gov/xcode/Title57/Chapter27/57-27-S201.html', role: 'rules', checked: '2026-09-29' },
   { id: 'learn-xcode-title57-chapter1-57-1-s37-html', title: 'Utah Code 57-1-37: stigmatized property', publisher: 'Utah Legislature', url: 'https://le.utah.gov/xcode/Title57/Chapter1/57-1-S37.html', role: 'rules', checked: '2026-09-29' },
   { id: 'learn-code-title57-chapter8a-57-8a-s105-1-html', title: 'Utah Code 57-8a-105.1: HOA documents before closing', publisher: 'Utah Legislature', url: 'https://le.utah.gov/xcode/Title57/Chapter8A/57-8a-S105.1.html', role: 'rules', checked: '2026-09-29' },

@@ -97,7 +97,7 @@ export const TOOLKIT: { group: string; items: { label: string; href: string; wha
     ],
   },
   {
-    group: 'Your team',
+    group: 'Questions to ask your team',
     items: [
       { label: 'Questions for a lender', href: '#/pros/lender', what: 'What to ask, how they’re paid and what to check before you hire.' },
       { label: 'Questions for a contractor', href: '#/pros/contractor', what: 'Licenses, bids, insurance and what went wrong for others.' },

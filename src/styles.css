@@ -472,6 +472,7 @@ a.btn { display: inline-block; }
 /* Disclaimers */
 .disclaimer { border: 1px solid var(--border); border-left: 4px solid var(--muted); background: var(--surface); border-radius: 8px; padding: 12px 14px; margin: 16px 0; font-size: 0.95rem; color: var(--text); }
 .disclaimer.compact { font-size: 0.95rem; padding: 8px 12px; margin: 10px 0; }
+.disclaimer.fine { border: 0; background: none; padding: 0; margin: 8px 0; font-size: 0.875rem; color: var(--muted); }
 .role-backdrop { position: fixed; inset: 0; background: rgb(5 10 20 / 0.55); backdrop-filter: blur(3px); display: grid; place-items: center; z-index: 2000; padding: 16px; }
 .role-dialog { background: var(--surface); color: var(--text); border-radius: 18px; padding: 24px; max-width: 520px; width: 100%; box-shadow: 0 24px 60px rgb(0 0 0 / 0.35); }
 .role-dialog h2 { margin-top: 0; font-size: 1.4rem; }
@@ -694,7 +695,7 @@ a.btn { display: inline-block; }
 .apply-submit { width: 100%; font-size: 1.15rem; padding: 16px; background: linear-gradient(135deg, #2563eb, #7c3aed); }
 @media (max-width: 1000px) { .apply-layout { grid-template-columns: 1fr; } .apply-nav { position: static; } .apply-nav ol { grid-auto-flow: column; overflow-x: auto; } .apply-nav button { white-space: nowrap; } .apply-next { display: none; } .page section.apply-card { padding: 22px 20px; } }
 /* Sign-in pages: a two-panel card instead of a small form on an empty page */
-.signin-card { max-width: 980px; margin: 24px auto; display: grid; grid-template-columns: 1fr 1fr; border-radius: 22px; overflow: hidden; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 30px 60px -30px rgb(15 23 42 / 0.45); }
+.signin-card { margin: 24px 0; display: grid; grid-template-columns: 1fr 1fr; border-radius: 22px; overflow: hidden; background: var(--surface); border: 1px solid var(--border); box-shadow: 0 30px 60px -30px rgb(15 23 42 / 0.45); }
 .signin-info { padding: 40px; color: #e2e8f0; background: radial-gradient(500px 300px at 0% 0%, rgb(59 130 246 / 0.5), transparent 70%), radial-gradient(500px 300px at 100% 100%, rgb(139 92 246 / 0.45), transparent 70%), #0b1220; }
 .signin-info h2 { color: #f8fafc; font-size: 1.6rem; margin-top: 0; }
 .signin-info ul { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 14px; }
@@ -1406,8 +1407,8 @@ html { scroll-padding-top: 88px; }
 .page table th:last-child, .page table td:last-child { padding-right: 0; }
 /* Pre-foreclosure cards: status and Track button on one row, then the address across the full width. Rows are shared,
    so the steps, auction date and links line up across cards. */
-.track-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; }
-.track-badges { min-width: 0; }
+.track-top { display: flex; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 10px; }
+.track-badges { flex: 1; min-width: 0; }
 .track-badges { display: flex; flex-wrap: wrap; gap: 6px; }
 .track-top button { white-space: nowrap; }
 .track-id h3 { margin: 4px 0 2px; }
@@ -1951,7 +1952,7 @@ h1, h2 { letter-spacing: -0.03em; }
 /* Learn: recommended reading */
 .book-group { margin-bottom: 24px; }
 .book-group h2 { font-size: 1.45rem; margin: 0 0 10px; }
-.book-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); }
+.book-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); }
 .book-card { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; }
 .book-info { display: grid; gap: 6px; align-content: start; min-width: 0; }
 .book-cover { display: block; width: 96px; }
@@ -2015,8 +2016,11 @@ h1, h2 { letter-spacing: -0.03em; }
 .state-picker button:hover { border-color: var(--accent); }
 .state-picker button.on { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
 .path .state-picker { justify-content: center; }
-.by-state + .by-state { margin-top: 18px; }
-.by-state-head { margin: 18px 0 8px; padding: 6px 14px; font-size: 1.1rem; border-left: 4px solid var(--accent-strong); background: var(--surface-2); border-radius: 8px; }
+.by-state-head { margin: 10px 0 6px; padding: 8px 12px; font-size: 1rem; font-weight: 700; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; }
+details.by-state[open] > .by-state-head { margin-bottom: 8px; }
+.by-state + .by-state { margin-top: 6px; }
+/* A topic inside a section (e.g. "Disclosures and contracts"): a heading bar, stronger than the state names under it. */
+h3.topic-head { margin: 24px 0 10px; padding: 8px 14px; font-size: 1.2rem; border-left: 4px solid var(--accent-strong); background: var(--surface-2); border-radius: 8px; }
 
 /* Analyze a deal: setup and checklist */
 .deal-setup, .deal-checklist { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 22px; margin-bottom: 22px; }

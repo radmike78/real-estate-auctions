@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { navigate } from '../lib/nav';
+import { navigate, replaceAddress } from '../lib/nav';
 import { api, ApiError, unreachable } from '../lib/api';
 import PageHero from './PageHero';
 import EmptyState from './EmptyState';
@@ -26,8 +26,28 @@ interface ManageView {
 const KIND_LABEL: Record<string, string> = { property: 'Tracked property', search: 'Saved search' };
 
 /** Email alerts: sign up (double opt-in), confirm, manage from the emailed link, and unsubscribe. No accounts. */
-export default function AlertsPage({ mode, token, welcome, add }: { mode: AlertsMode; token: string; welcome?: boolean; add?: string }) {
+export default function AlertsPage({ mode, token: fromLink, welcome, add }: { mode: AlertsMode; token: string; welcome?: boolean; add?: string }) {
   const features = useSiteFeatures();
+  // The emailed link's token works like a password, so it's taken out of the address bar (and so out of history,
+  // referrers and server logs) and kept for this tab only, so refreshing the page still works.
+  const tabKey = `deedowl.alerts.${mode}.tab`;
+  const [token] = useState(() => {
+    if (fromLink) return fromLink;
+    try {
+      return sessionStorage.getItem(tabKey) ?? '';
+    } catch {
+      return '';
+    }
+  });
+  useEffect(() => {
+    if (!fromLink || mode === 'signup') return;
+    try {
+      sessionStorage.setItem(tabKey, fromLink);
+    } catch {
+      /* storage unavailable: the page still works until it's reloaded */
+    }
+    replaceAddress(`/alerts/${mode}${add ? `?add=${encodeURIComponent(add)}` : ''}`);
+  }, [fromLink, mode, add, tabKey]);
   return (
     <main className="page alerts-page">
       <PageHero

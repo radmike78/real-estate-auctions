@@ -116,7 +116,7 @@ export const GUIDE: DrillSection[] = [
               <li>The property: address, parcel number and legal description.</li>
               <li>Many notices also list an estimate of the unpaid debt and the form of payment. That isn’t required, so ask the trustee. The debt estimate and the opening bid can differ, and neither is the property’s value.</li>
             </ul>
-            <h3>What the law requires in the notice</h3>
+            <h3 className="topic-head">What the law requires in the notice</h3>
             <ByState lines={READ_NOTICE} />
           </div>
           <ScriptBox to={SALE_SCRIPTS.trustee[0].to} script={SALE_SCRIPTS.trustee[0].script} note="Ask the trustee only. Never contact the owner or anyone living in the home." />

@@ -67,7 +67,7 @@ export const redFlags: Lesson = {
         'Before you pay anyone, search the company’s name along with the word “complaint,” “lawsuit” or “FTC.” Ask for the refund policy in writing and read it before the event ends.',
         { links: [
           { label: 'FTC: report fraud', url: 'https://reportfraud.ftc.gov/', what: 'Report a seminar, coaching program or investment scam to the Federal Trade Commission.' },
-          { label: 'Nevada Attorney General: file a consumer complaint', url: 'https://ag.nv.gov/Complaints/File_Complaint/', what: 'Nevada’s Bureau of Consumer Protection takes complaints about businesses.' },
+          { label: 'Nevada Attorney General: file a consumer complaint', url: 'https://ag.nv.gov/Complaints/CSU_Complaints___FAQ/', what: 'Nevada’s Bureau of Consumer Protection takes complaints about businesses.' },
           { label: 'California Attorney General: consumer complaint against a business', url: 'https://oag.ca.gov/contact/consumer-complaint-against-business-or-company', what: 'File a complaint about a business in California.' },
           { label: 'Arizona Attorney General: consumer complaint', url: 'https://www.azag.gov/complaints/consumer', what: 'File a consumer fraud complaint in Arizona.' },
           { label: 'Utah Division of Consumer Protection', url: 'https://commerce.utah.gov/dcp/', what: 'Utah’s agency that brought the seminar cases with the FTC. It takes complaints from Utah residents and about Utah businesses.' },

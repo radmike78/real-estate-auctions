@@ -166,7 +166,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.eldoradocounty.ca.gov/Public-Safety-Justice/Safety-Justice/sheriff/support_services/civil", checked: "2026-09-29" },
   },
   "CA/Fresno": {
-    taxSale: { url: "https://www.fresnocountyca.gov/Departments/Auditor-Controller-Treasurer-Tax-Collector/Property-Tax-Information/Tax-Sale-Excess-Proceeds", checked: "2026-09-29", note: "Recent sales ran online through RealAuction; start from the county’s page for the current sale." },
+    taxSale: { url: "https://www.fresnocountyca.gov/Departments/Auditor-Controller-Treasurer-Tax-Collector", checked: "2026-10-04", note: "No tax-sale page of its own: the Auditor-Controller/Treasurer-Tax Collector announces each sale. Recent sales ran online through RealAuction." },
     treasurer: { url: "https://www.fresnocountyca.gov/Departments/Auditor-Controller-Treasurer-Tax-Collector", checked: "2026-09-29" },
     assessor: { url: "https://www.fresnocountyca.gov/Departments/Assessor", checked: "2026-09-29" },
     recorder: { url: "https://www.fresnocountyca.gov/Departments/Recorder", checked: "2026-09-29" },
@@ -295,7 +295,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   "CA/Nevada": {
     taxSale: { url: "https://www.nevadacountyca.gov/957/Auction-Property-Tax-Sale", checked: "2026-09-29", note: "Recent sales ran online through GovEase; start from the county’s page for the current sale." },
     treasurer: { url: "https://www.nevadacountyca.gov/348/Treasurer-Tax-Collector", checked: "2026-09-29" },
-    assessor: { url: "https://www.nevadacountyca.gov/207/Operations-Division", checked: "2026-09-29" },
+    assessor: { url: "https://www.nevadacountyca.gov/163/Assessor", checked: "2026-09-29" },
     recorder: { url: "https://www.nevadacountyca.gov/235/Clerk-Recorder", checked: "2026-09-29" },
     sheriff: { url: "https://www.nevadacountyca.gov/3891/Civil-Services", checked: "2026-09-29" },
   },

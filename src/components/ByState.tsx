@@ -14,7 +14,7 @@ export interface StateLine {
 export type ByStateLines = Partial<Record<StateCode, StateLine[]>>;
 
 /**
- * The lines for the visitor's state, or every state under its own heading when they haven't picked one.
+ * The lines for the visitor's state, or every state folded under its name when they haven't picked one.
  * Pair with <StatePicker /> near the top of the page.
  */
 export default function ByState({ lines, missing, ordered }: { lines: ByStateLines; missing?: string; ordered?: boolean }) {
@@ -25,24 +25,28 @@ export default function ByState({ lines, missing, ordered }: { lines: ByStateLin
     <>
       {show.map((s) => {
         const xs = lines[s.code as StateCode];
-        return (
-          <div key={s.code} className="by-state">
-            {show.length > 1 && <h3 className="by-state-head">{s.name}</h3>}
-            {xs && xs.length ? (
-              <List className={ordered ? 'steps-rich' : undefined}>
-                {xs.map((x) => (
-                  <li key={x.text}>
-                    <Cited text={x.text} />
-                    {x.links?.map(([label, url]) => (
-                      <span key={url}> <a href={url} {...ext}>{label} ↗</a></span>
-                    ))}
-                  </li>
+        const body = xs && xs.length ? (
+          <List className={ordered ? 'steps-rich' : undefined}>
+            {xs.map((x) => (
+              <li key={x.text}>
+                <Cited text={x.text} />
+                {x.links?.map(([label, url]) => (
+                  <span key={url}> {url.startsWith('#/') ? <a href={url}>{label} →</a> : <a href={url} {...ext}>{label} ↗</a>}</span>
                 ))}
-              </List>
-            ) : (
-              <OwlNote>{missing ?? `Nothing specific to ${s.name} here yet.`}</OwlNote>
-            )}
-          </div>
+              </li>
+            ))}
+          </List>
+        ) : (
+          <OwlNote>{missing ?? `Nothing specific to ${s.name} here yet.`}</OwlNote>
+        );
+        // One state picked: just its lines. No state picked: each state folded, so the page isn't a wall of text.
+        return show.length > 1 ? (
+          <details key={s.code} className="by-state">
+            <summary className="by-state-head">{s.name}</summary>
+            {body}
+          </details>
+        ) : (
+          <div key={s.code} className="by-state">{body}</div>
         );
       })}
     </>

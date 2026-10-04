@@ -13,6 +13,7 @@ import { useMarkStep } from '../lib/path';
 import PathNext from './PathNext';
 import { CORE_TEAM, PRO_GUIDES, proGuideByKey, type ProGuide, type ProKey } from '../lib/proGuide';
 import WhyBlock from './WhyBlock';
+import OwlNote from './OwlNote';
 import { PRO_WHY } from '../lib/proWhy';
 import { PRO_DEEP } from '../lib/deep/proDeep';
 import StoryList from './StoryList';
@@ -109,7 +110,10 @@ function GuideBody({ g }: { g: ProGuide }) {
           <StoryList stories={PRO_DEEP[g.key]!.stories} />
         </div>
       )}
-      {g.directory && (
+      {g.directory && st && st !== 'NV' && (
+        <OwlNote>Listed professionals are Nevada only for now. In {stateByCode(st)?.name}, use the license lookup above to check anyone you find.</OwlNote>
+      )}
+      {g.directory && (!st || st === 'NV') && (
         <ProDirectory
           categories={g.directory}
           initialCategory={g.directory.length === 1 ? g.directory[0] : 'any'}
@@ -152,7 +156,7 @@ export default function FindAProPage({ section }: { section?: string }) {
       {build && <TeamBuilder />}
       {all && (
         <section className="not-sure" aria-labelledby="not-sure-head">
-          <h2 id="not-sure-head">Don’t know who you need?</h2>
+          <h2 id="not-sure-head">Not sure where to start?</h2>
           <p>Answer five quick questions about what you want to buy and how, and we’ll narrow this down to the professionals you need, and why. If you’re not sure of an answer, we’ll suggest one.</p>
           <a className="btn" href="#/pros/build">Help me choose →</a>
         </section>

@@ -47,7 +47,7 @@ export default function HomePage() {
             <div className="start-choice" role="group" aria-label="How do you want to start?">
               <button type="button" className="start-card" onClick={() => setMode('guided')}>
                 <strong>I’m new: guide me →</strong>
-                <span>One step at a time: a short introduction, a worked example, then your first practice exercise.</span>
+                <span>One step at a time: a worked example, your first practice exercise, then a short introduction.</span>
               </button>
               <button type="button" className="start-card" onClick={() => setMode('explore')}>
                 <strong>I know the basics: let me explore →</strong>
