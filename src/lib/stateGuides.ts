@@ -574,11 +574,11 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Send the required notice first",
-      detail: "The law requires a notice at least 30 days before filing. It goes by certified mail to the property owner and the county treasurer, at the addresses the statute lists (ARS 42-18202). The notice tells the owner they may ask for an excess proceeds sale. Your attorney handles this. Never contact the owner in any other way."
+      detail: "The law requires a notice at least 30 days, and no more than 180 days, before filing. It goes by certified mail to the property owner and the county treasurer, at the addresses the statute lists (ARS 42-18202). The notice tells the owner they may ask for an excess proceeds sale. Your attorney handles this. Never contact the owner in any other way."
     },
     {
       title: "Get the judgment, then the deed",
-      detail: "If the court rules for you, it directs the treasurer to deliver a treasurer’s deed. The owner or holder can ask for an excess proceeds sale instead. If the property is likely worth more than $2,500 above the costs, the court may order one, and the owner keeps the surplus (ARS 42-18204). Buy title insurance before you spend money on the property."
+      detail: "If the court rules for you, it directs the treasurer to deliver a treasurer’s deed. The owner or holder can ask for an excess proceeds sale instead. If the property is likely to sell for more than $2,500 above what is owed, the court must order that sale. You are then paid from the sale instead of getting the deed, and the owner gets the surplus (ARS 42-18204). Bidders at that sale pay a nonrefundable deposit. Buy title insurance before you spend money on the property."
     }
   ],
   survives: {
@@ -701,7 +701,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Redemption",
-      value: "None. The sale is absolute (ARS 33-811)"
+      value: "None for the owner. The sale is absolute (ARS 33-811). But if a federal tax lien is on title, the United States may have 120 days to buy it back (26 USC 7425(d))"
     },
     {
       label: "Deed",
@@ -750,7 +750,7 @@ export const STATE_GUIDES: Playbook[] = [
     wipedOut: [
       "The deed of trust being foreclosed",
       "Liens and interests junior to that deed of trust (ARS 33-811)",
-      "The former owner’s right to get the property back. There is no redemption (ARS 33-811)"
+      "The former owner’s right to get the property back. There is no redemption (ARS 33-811), except that the United States may redeem within 120 days if a federal tax lien was on title (26 USC 7425(d))"
     ],
     mayStay: [
       "Liens senior to the foreclosed deed of trust, such as an earlier mortgage (ARS 33-811)",
@@ -869,7 +869,7 @@ export const STATE_GUIDES: Playbook[] = [
   steps: [
     {
       title: "Know which kind of sale it is",
-      detail: "A judicial foreclosure sale sells the property to pay a mortgage or other lien the court foreclosed. An execution sale sells a debtor’s property to pay a money judgment. In both, you buy only the debtor’s rights in the property (right, title and interest) (ARS 12-1626)."
+      detail: "A judicial foreclosure sale sells the property to pay a mortgage or other lien the court foreclosed. An execution sale sells a debtor’s property to pay a money judgment. In both, you buy only the debtor’s rights in the property (right, title and interest) (ARS 12-1626). When a judgment creditor sells someone’s home to pay a money judgment, no bid can be accepted unless it is more than the homestead exemption (at least $400,000, adjusted each year) plus earlier mortgages and costs (ARS 33-1101, 33-1105)."
     },
     {
       title: "Find the notice of sale",
@@ -901,7 +901,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Receive the sheriff’s deed",
-      detail: "When all redemption periods end, the sheriff signs the deed to you (or to the last redemptioner). The sheriff records it within 30 days (ARS 12-1286). If occupants stay after a written demand, file a forcible detainer (eviction) case (ARS 12-1173.01)."
+      detail: "When all redemption periods end, the sheriff signs the deed to you (or to the last redemptioner). The sheriff records it within 30 days (ARS 12-1286). If occupants stay after a written demand, file a forcible detainer (eviction) case (ARS 12-1173.01). If the sale forecloses a mortgage on a rented home, federal law usually lets a genuine tenant stay until the lease ends, or 90 days after a notice to vacate if that is later. A buyer who will live there can end the lease with 90 days’ notice (Protecting Tenants at Foreclosure Act)."
     }
   ],
   survives: {
@@ -1158,7 +1158,7 @@ export const STATE_GUIDES: Playbook[] = [
   title: "Utah trustee sales",
   short: "Trustee sales",
   oneLine: "Most Utah home loans use a trust deed. That lets the trustee sell the home at a public auction without a court case.",
-  youGet: "A trustee’s deed with no right of redemption. It carries the owner’s interest and wipes out interests that came after the loan being foreclosed.",
+  youGet: "A trustee’s deed with no right of redemption for the owner. It carries the owner’s interest and wipes out interests that came after the loan being foreclosed. A federal tax lien is the exception: the United States may redeem within 120 days (26 USC 7425(d)).",
   plain: 'The house, with no buy-back period. The sale clears debts recorded after the loan being foreclosed.',
   forSale: true,
   glance: [
@@ -1192,7 +1192,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Redemption",
-      value: "None. The trustee’s deed conveys without right of redemption."
+      value: "None for the owner. The trustee’s deed conveys without right of redemption. If a federal tax lien is on title, the United States may redeem within 120 days (26 USC 7425(d))."
     }
   ],
   steps: [
@@ -1226,7 +1226,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Handle occupants through the court",
-      detail: "On residential rental property, the posted notice tells tenants about their federal rights. Federal law may let them stay until the lease ends or 90 days after a notice to vacate, whichever is later. If anyone refuses to leave, hire an attorney for an unlawful detainer (eviction) case. Never use self-help."
+      detail: "On residential rental property, the posted notice tells tenants about their federal rights. Federal law may let them stay until the lease ends or 90 days after a notice to vacate, whichever is later. A buyer who will live in the home can end the lease with 90 days’ notice. If anyone refuses to leave, hire an attorney for an unlawful detainer (eviction) case. Never use self-help."
     }
   ],
   survives: {
@@ -1392,7 +1392,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Take possession lawfully",
-      detail: "If occupants remain, work with an attorney and use the court process. Do not use self-help."
+      detail: "If occupants remain, work with an attorney and use the court process. Do not use self-help. If the sale forecloses a mortgage on a rented home, federal law usually lets a genuine tenant stay until the lease ends, or 90 days after a notice to vacate if that is later. A buyer who will live there can end the lease with 90 days’ notice (Protecting Tenants at Foreclosure Act)."
     }
   ],
   survives: {
@@ -2261,7 +2261,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "When the HOA can foreclose",
-      value: "Only if the owner has been behind for 18 months, or owes $10,000 or more, whichever comes first. This is measured on the day the case is filed (A.R.S. 33-1807)"
+      value: "Only if the owner has been behind for 18 months, or owes $10,000 or more, whichever comes first. This is measured on the day the case is filed. For a special assessment that started at $10,000 or more, only the 18-month rule applies (A.R.S. 33-1807)"
     },
     {
       label: "How",
@@ -2771,7 +2771,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Foreclosure risk",
-      value: "A trustee’s sale can still happen. In Arizona it is final, with no redemption (A.R.S. 33-811)"
+      value: "A trustee’s sale can still happen. In Arizona it is final for the owner, with no redemption (A.R.S. 33-811); only a federal tax lien on title gives the United States 120 days to redeem"
     },
     {
       label: "Financing and inspection",
@@ -3070,7 +3070,7 @@ export const STATE_GUIDES: Playbook[] = [
   title: "Utah HOA foreclosures",
   short: "HOA foreclosures",
   oneLine: "A Utah homeowners or condo association can sell a home to collect unpaid assessments (dues). It can use a trustee sale or a court case.",
-  youGet: "The owner’s interest, usually still subject to the first mortgage. A trustee sale has no redemption; a court (sheriff) sale has a 180-day redemption period.",
+  youGet: "The owner’s interest, usually still subject to the first mortgage. A trustee sale has no redemption for the owner (a federal tax lien on title gives the United States 120 days); a court (sheriff) sale has a 180-day redemption period.",
   plain: 'The owner’s interest, usually with the first mortgage still on it. No buy-back after a trustee sale. After a court sale, 180 days.',
   forSale: true,
   glance: [
@@ -3096,7 +3096,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Redemption",
-      value: "Trustee sale: none (57-1-28). Court foreclosure: 180 days after the sheriff’s sale (78B-6-906, URCP 69C)."
+      value: "Trustee sale: none for the owner (57-1-28), but the United States may redeem within 120 days if a federal tax lien is on title. Court foreclosure: 180 days after the sheriff’s sale (78B-6-906, URCP 69C)."
     },
     {
       label: "Registration",
@@ -3482,7 +3482,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Review the title commitment",
-      detail: "Look for liens the seller hasn’t cleared, HOA dues, easements and water rights. A home a lender took back at a Utah trustee sale came with no redemption right (57-1-28). But older liens can still be on title."
+      detail: "Look for liens the seller hasn’t cleared, HOA dues, easements and water rights. A home a lender took back at a Utah trustee sale came with no redemption right (57-1-28). But older liens can still be on title, and a federal tax lien can give the United States 120 days to redeem after the sale (26 USC 7425(d))."
     },
     {
       title: "Close through the title company",
