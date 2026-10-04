@@ -1833,16 +1833,16 @@ export const STATE_GUIDES: Playbook[] = [
   title: "California bank-owned (REO) homes",
   short: "Bank-owned (REO)",
   oneLine: "These are California homes a lender, Fannie Mae, Freddie Mac or HUD took back through foreclosure. They are sold through a listing agent with a normal escrow.",
-  youGet: "The property through a purchase contract plus the seller’s addendum, closed through escrow with title insurance, usually as is.",
+  youGet: "The home itself, bought with a regular purchase contract plus the seller’s addendum. You close through escrow with title insurance, and you usually buy it as is.",
   forSale: true,
   glance: [
     {
       label: "How it’s sold",
-      value: "Listed by the owner’s listing agent. Your agent submits the offer with the seller’s own forms and addenda."
+      value: "Listed by the owner’s listing agent. Your agent submits the offer with the seller’s own forms and addenda (add-on pages)."
     },
     {
       label: "Seller disclosures",
-      value: "A lender selling a home it took back through foreclosure doesn’t have to give the California Transfer Disclosure Statement (Civ 1102.2). It also doesn’t have to give the Natural Hazard Disclosure under Civ 1103 (Civ 1103.1). Other required disclosures may still be given separately."
+      value: "A lender selling a home it took back through foreclosure doesn’t have to give the California Transfer Disclosure Statement (Civ 1102.2). It also doesn’t have to give the Natural Hazard Disclosure (Civ 1103, 1103.1). You may still get other required disclosures separately."
     },
     {
       label: "Condition",
@@ -1862,7 +1862,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Property taxes",
-      value: "Your purchase is a change in ownership. So the assessor reassesses to market value as of that date (BOE; R&T 110.1)."
+      value: "Buying the home counts as a change in ownership, so the assessor resets its taxable value to market value as of that date (BOE; R&T 110.1)."
     }
   ],
   steps: [
@@ -1880,11 +1880,11 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Read every addendum",
-      detail: "The seller’s addendum usually overrides parts of the standard California contract. This includes repairs, deadlines and earnest money. HomePath, for example, wants the deposit within two calendar days of a fully signed contract. HomeSteps wants it in certified funds."
+      detail: "The seller’s addendum usually overrides parts of the standard California contract, such as repairs, deadlines and earnest money. HomePath, for example, wants the deposit within two calendar days of a fully signed contract. HomeSteps wants it in certified funds."
     },
     {
       title: "Inspect and appraise",
-      detail: "A foreclosing lender is exempt from the Transfer Disclosure Statement (Civ 1102.2). So you learn about the home mostly from your own inspections. Hire a licensed inspector. Check permits with the city or county."
+      detail: "A lender selling after foreclosure doesn’t have to give you a Transfer Disclosure Statement, so most of what you learn about the home comes from your own inspections (Civ 1102.2). Hire a licensed inspector. Check permits with the city or county."
     },
     {
       title: "Check title and occupancy",
@@ -1901,7 +1901,7 @@ export const STATE_GUIDES: Playbook[] = [
   ],
   survives: {
     wipedOut: [
-      "Most liens are cleared by the seller before or at closing (confirm on the title report)"
+      "The seller pays off most liens before or at closing (confirm on the title report)"
     ],
     mayStay: [
       "Anything listed as an exception in your title policy",
@@ -1914,7 +1914,7 @@ export const STATE_GUIDES: Playbook[] = [
   mistakes: [
     {
       mistake: "Expecting the usual seller disclosures",
-      prevent: "A lender selling after foreclosure is exempt from the Transfer Disclosure Statement (Civ 1102.2). Get full inspections."
+      prevent: "A lender selling after foreclosure doesn’t have to give you a Transfer Disclosure Statement (Civ 1102.2). Get full inspections."
     },
     {
       mistake: "Investors offering during an owner-occupant period",
@@ -1922,7 +1922,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Falsely claiming you’ll live there",
-      prevent: "HUD, Fannie Mae and Freddie Mac require occupancy certifications. A false one can bring civil or criminal liability."
+      prevent: "HUD, Fannie Mae and Freddie Mac make you sign a statement that you’ll live there. A false one can lead to a lawsuit or criminal charges."
     },
     {
       mistake: "Skipping the addendum",
@@ -2002,7 +2002,7 @@ export const STATE_GUIDES: Playbook[] = [
   title: "California short sales",
   short: "Short sales",
   oneLine: "A California owner sells for less than the loan balance, with the lender’s written approval. The sale goes through a listing agent and normal escrow.",
-  youGet: "The property by grant deed through escrow, once every lienholder that needs to approves the price.",
+  youGet: "The home, by grant deed through escrow, once every lienholder whose approval is needed agrees to the price.",
   forSale: true,
   glance: [
     {
@@ -2015,7 +2015,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Owner’s protection",
-      value: "After an approved short sale of a dwelling of 1 to 4 units, the lender can’t collect the rest of the loan from the owner. There are some exceptions (CCP 580e). That is why lenders insist on written approval of the exact deal."
+      value: "After an approved short sale of a 1 to 4 unit home, the lender can’t collect the rest of the loan from the owner. There are some exceptions (CCP 580e). That is why lenders insist on written approval of the exact deal."
     },
     {
       label: "No side payments",
@@ -2049,7 +2049,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Check whether California’s equity purchaser law applies",
-      detail: "A special rule applies if the owner lives there, a notice of default is recorded, and you aren’t buying to live there. Then the contract must meet Civ 1695.2. The owner can cancel until midnight of the fifth business day after signing, or 8 a.m. on the sale day if sooner (Civ 1695.4). Until then you can’t record documents or pay the owner (Civ 1695.6). Saturdays count as business days (Civ 1695.1). If the deal takes unfair advantage of the owner, the owner can undo it for up to 2 years after your deed is recorded, and you must give the house back (Civ 1695.14). Have an attorney review it."
+      detail: "A special rule applies if the owner lives there, a notice of default is recorded, and you aren’t buying to live there. Then the contract has to meet strict written requirements (Civ 1695.2). The owner can cancel until midnight of the fifth business day after signing, or 8 a.m. on the sale day if sooner (Civ 1695.4). Until then you can’t record documents or pay the owner (Civ 1695.6). Saturdays count as business days (Civ 1695.1). If the deal takes unfair advantage of the owner, the owner can undo it for up to 2 years after your deed is recorded, and you must give the house back (Civ 1695.14). Have an attorney review it."
     },
     {
       title: "Inspect and review disclosures",
@@ -2057,7 +2057,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Watch the foreclosure date",
-      detail: "Ask the listing agent whether a trustee sale is scheduled. Ask whether the lender has agreed to postpone it. A foreclosure can cancel a short sale."
+      detail: "Ask the listing agent whether a trustee sale is scheduled, and whether the lender has agreed to postpone it. A foreclosure can cancel a short sale."
     },
     {
       title: "Close through escrow",
@@ -2149,7 +2149,7 @@ export const STATE_GUIDES: Playbook[] = [
   title: "California commercial property",
   short: "Commercial property",
   oneLine: "Stores, offices, industrial buildings, apartments with 5+ units and commercial land in California. Banks, trustees, sheriffs, receivers and tax collectors sell them.",
-  youGet: "The same deed as a home bought the same way, but without California’s home seller disclosures, and often with tenants, leases and environmental history.",
+  youGet: "The same kind of deed you’d get buying a home the same way. But you don’t get California’s home seller disclosures, and the property often comes with tenants, leases and environmental history.",
   forSale: true,
   glance: [
     {
@@ -2162,15 +2162,15 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Property tax (Prop 13)",
-      value: "A purchase is a change in ownership. The assessor reassesses the property to market value as of that date. That becomes the new base year value (BOE; R&T 60, 110.1). A supplemental tax bill can follow (R&T 75.10)."
+      value: "Buying it counts as a change in ownership. The assessor resets the property’s value to market value as of that date, and that becomes its new base year value (BOE; R&T 60, 110.1). A supplemental tax bill can follow (R&T 75.10)."
     },
     {
       label: "Transfer tax",
-      value: "Counties can tax deeds at $0.55 per $500 of value. Cities can add their own (R&T 11911). Confirm the total rate with the county recorder."
+      value: "Counties can charge a transfer tax of $0.55 per $500 of value, and cities can add their own (R&T 11911). Confirm the total rate with the county recorder."
     },
     {
       label: "Environmental",
-      value: "A Phase I environmental site assessment can protect you from federal cleanup liability. It must be done within one year before you buy, with key parts updated within 180 days (EPA All Appropriate Inquiries)."
+      value: "A Phase I environmental site assessment can protect you from having to pay for a federal cleanup. It has to be done within one year before you buy, with key parts updated within 180 days (EPA All Appropriate Inquiries)."
     },
     {
       label: "Accessibility",
@@ -2188,7 +2188,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Get the rent roll and leases",
-      detail: "A receiver, bank or listing broker can usually provide them. At an auction you often can’t get them. So assume the building is empty until proven otherwise."
+      detail: "A receiver, bank or listing broker can usually provide them. At an auction you often can’t get them. So assume the building is empty until you can confirm otherwise."
     },
     {
       title: "Value it by income",
@@ -2196,7 +2196,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Order a title report",
-      detail: "Commercial parcels often carry easements, reciprocal easement agreements, CC&Rs, mechanic’s liens and recorded leases. Ask which ones survive the kind of sale you’re buying at."
+      detail: "Commercial parcels often carry easements, reciprocal easement agreements, CC&Rs, mechanic’s liens and recorded leases. Ask which ones stay after the kind of sale you’re buying at."
     },
     {
       title: "Screen for contamination",
@@ -2212,7 +2212,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Take over well",
-      detail: "Insure it the day you own it. File the change in ownership statement with your deed (R&T 480). Tell tenants in writing where to pay rent. Ask each tenant for an estoppel certificate confirming their lease. Follow CCP 1161b for any residential tenants."
+      detail: "Insure it the day you own it. File the change in ownership statement with your deed (R&T 480). Tell tenants in writing where to pay rent. Ask each tenant to sign an estoppel certificate, a signed statement confirming their lease terms. Follow CCP 1161b for any residential tenants."
     }
   ],
   survives: {
@@ -2224,20 +2224,20 @@ export const STATE_GUIDES: Playbook[] = [
     mayStay: [
       "Property taxes and special assessments",
       "Liens recorded ahead of the lien being foreclosed",
-      "Environmental cleanup liability. It follows the owner, not the lien",
+      "Responsibility for environmental cleanup. It follows whoever owns the property, not the lien",
       "Easements, reciprocal easement agreements and CC&Rs",
-      "Leases with priority or a non-disturbance agreement, and residential tenant rights under CCP 1161b",
+      "Leases that rank ahead of the lien or have a non-disturbance agreement, and residential tenant rights under CCP 1161b",
       "Anything listed as an exception in your title policy"
     ]
   },
   mistakes: [
     {
       mistake: "Using the seller’s property tax bill",
-      prevent: "Your purchase triggers reassessment to market value (BOE; R&T 110.1). Underwrite with the tax on your price."
+      prevent: "Your purchase resets the property’s taxable value to market value (BOE; R&T 110.1). Run your numbers with the tax based on your price."
     },
     {
       mistake: "Skipping the environmental check",
-      prevent: "Past uses can mean cleanup costs bigger than the price. Get a Phase I assessment on time to keep the federal defense (EPA)."
+      prevent: "Past uses can mean cleanup costs bigger than the price. Get a Phase I assessment on time so you keep the federal legal protection (EPA)."
     },
     {
       mistake: "Expecting a seller disclosure statement",
@@ -2251,7 +2251,7 @@ export const STATE_GUIDES: Playbook[] = [
   example: {
     title: "Fictional example: the tax bill that ate the cap rate",
     story: "Dana, a new investor, buys a fictional bank-owned strip center for $2,000,000. The seller’s tax bill was based on a Prop 13 value set decades ago. After the sale, the assessor reassesses the center to about $2,000,000. A supplemental tax bill arrives. It cuts Dana’s net operating income by tens of thousands of dollars a year. Dana had also skipped estoppels. Later Dana learned one tenant had a rent reduction not shown in the rent roll.",
-    lesson: "In California, underwrite with property tax based on your price. Confirm every lease with an estoppel certificate before closing."
+    lesson: "In California, run your numbers with property tax based on your price. Confirm every lease with an estoppel certificate before closing."
   },
   sources: [
     {
@@ -2308,7 +2308,7 @@ export const STATE_GUIDES: Playbook[] = [
   title: "Arizona HOA foreclosures",
   short: "HOA foreclosures",
   oneLine: "An Arizona homeowners association can foreclose its lien for unpaid assessments (dues). But it can do this only through a court case, like a mortgage, and only after a large or long delinquency. The home is then sold at a sheriff’s sale, usually subject to the first mortgage.",
-  youGet: "A certificate of sale first, and a sheriff’s deed only after the redemption period ends. You get the owner’s interest, which in most cases is still subject to the recorded first mortgage or deed of trust and to property taxes.",
+  youGet: "A certificate of sale first, and a sheriff’s deed only after the redemption period ends. You get the owner’s interest. In most cases the recorded first mortgage or deed of trust, and property taxes, still stay with the home.",
   plain: 'A certificate first, and the deed only after the buy-back period ends. The first mortgage and property taxes usually stay with the house.',
   forSale: true,
   glance: [
@@ -2342,7 +2342,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Deed",
-      value: "Sheriff’s deed after every redemption period ends. The sheriff records it within 30 days (A.R.S. 12-1286)"
+      value: "A sheriff’s deed, once every redemption period ends. The sheriff records it within 30 days (A.R.S. 12-1286)"
     }
   ],
   steps: [
@@ -2352,15 +2352,15 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Read the judgment",
-      detail: "Get the judgment from the court file. It says what is being sold and the amount owed. It also says whether the court found the home abandoned. That sets the redemption period at 30 days instead of 6 months (A.R.S. 12-1282). For a condominium, A.R.S. 33-1256 governs the HOA’s lien instead. Have an attorney confirm how it applies."
+      detail: "Get the judgment from the court file. It says what is being sold and the amount owed. It also says whether the court found the home abandoned. That sets the redemption period at 30 days instead of 6 months (A.R.S. 12-1282). For a condominium, a different law covers the HOA’s lien (A.R.S. 33-1256). Have an attorney confirm how it applies."
     },
     {
       title: "Order a title report and find the first mortgage",
-      detail: "The HOA lien ranks behind a recorded first mortgage or first deed of trust. It also ranks behind property taxes, government assessments and liens recorded before the HOA’s declaration (A.R.S. 33-1807). Those generally stay on the home after an HOA sale. Ask the title company for the first loan’s recorded amount. Ask whether a trustee’s sale on it is already scheduled."
+      detail: "The HOA lien ranks behind a recorded first mortgage or first deed of trust. It also ranks behind property taxes, government assessments and liens recorded before the HOA’s declaration (A.R.S. 33-1807). Those generally stay on the home after an HOA sale. Ask the title company for the first loan’s recorded amount, and whether a trustee’s sale on it is already scheduled."
     },
     {
       title: "Set your maximum bid",
-      detail: "Add these to your price: the surviving first mortgage, unpaid property taxes, any mechanic’s liens and repairs. (The HOA lien doesn’t change mechanic’s lien priority, A.R.S. 33-1807.) If the total is near the home’s value, walk away. Use the max bid calculator."
+      detail: "Add these to your price: the surviving first mortgage, unpaid property taxes, any mechanic’s liens and repairs. Mechanic’s liens keep their place in line, since the HOA lien doesn’t change their priority (A.R.S. 33-1807). If the total is near the home’s value, walk away. Use the max bid calculator."
     },
     {
       title: "Confirm the sale is still on",
@@ -2368,7 +2368,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Bid and pay within 5 working days",
-      detail: "The sheriff sells at public auction. You must pay within five working days. If you don’t, the sheriff offers the home to the second-highest bidder. You can also owe others’ losses and attorney fees (A.R.S. 12-1624)."
+      detail: "The sheriff sells at public auction. You must pay within five working days. If you don’t, the sheriff offers the home to the second-highest bidder. You can also owe for other people’s losses and attorney fees (A.R.S. 12-1624)."
     },
     {
       title: "Get your certificate of sale",
@@ -2386,7 +2386,7 @@ export const STATE_GUIDES: Playbook[] = [
   survives: {
     wipedOut: [
       "The HOA lien that was foreclosed",
-      "The former owner’s interest, once the sheriff’s deed issues (A.R.S. 12-1626, 12-1286)",
+      "The former owner’s interest, once the sheriff’s deed is issued (A.R.S. 12-1626, 12-1286)",
       "Liens junior to the HOA lien, only if the judgment cut them off. Ask your title company"
     ],
     mayStay: [
@@ -2409,7 +2409,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Renovating during the redemption period",
-      prevent: "A redeemer repays your price plus 8% and taxes or assessments you paid. Upgrades are not repaid (A.R.S. 12-1285). Wait for the deed."
+      prevent: "If someone redeems, they repay your price plus 8% and taxes or assessments you paid. Upgrades are not repaid (A.R.S. 12-1285). Wait for the deed."
     },
     {
       mistake: "Ignoring a trustee’s sale on the first loan",
@@ -2479,8 +2479,8 @@ export const STATE_GUIDES: Playbook[] = [
   key: "azirs",
   title: "Arizona IRS sales",
   short: "IRS sales",
-  oneLine: "The IRS takes and sells real property in Arizona to collect unpaid federal taxes. It sells by public auction or sealed bid. Federal law sets the rules, and the owner has 180 days to redeem.",
-  youGet: "A certificate of sale when you pay in full, and a deed (usually a quitclaim deed) only if no one redeems within 180 days. You get only the taxpayer’s interest, “as is” and “where is,” subject to liens senior to the IRS.",
+  oneLine: "The IRS takes and sells real property in Arizona to collect unpaid federal taxes. It sells by public auction or sealed bid. Federal law sets the rules, and the owner has 180 days to buy it back (redeem).",
+  youGet: "A certificate of sale when you pay in full, and a deed (usually a quitclaim deed) only if no one redeems within 180 days. You get only the taxpayer’s interest, “as is” and “where is.” Liens ahead of the IRS stay with the property.",
   plain: 'A certificate when you pay. A deed only if no one buys it back within 180 days. You buy it as is, and debts ahead of the IRS stay with it.',
   forSale: true,
   glance: [
@@ -2502,15 +2502,15 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Payment",
-      value: "Cash, or a certified, cashier’s or treasurer’s check, or a money order, per the notice. Full payment, or the rest within up to 1 month if the notice allows (26 U.S.C. 6335; IRM 5.10.5.14)"
+      value: "Cash, a certified, cashier’s or treasurer’s check, or a money order, as the notice says. Pay in full, or pay the rest within up to 1 month if the notice allows (26 U.S.C. 6335; IRM 5.10.5.14)"
     },
     {
       label: "Redemption",
-      value: "180 days. The owner, heirs, or anyone with an interest or lien can redeem. They pay your price plus 20% a year, compounded daily (26 U.S.C. 6337; IRM 5.10.6.8)"
+      value: "180 days. The owner, their heirs, or anyone with an interest or lien can buy the property back (redeem). They pay you your price plus 20% a year, compounded daily (26 U.S.C. 6337; IRM 5.10.6.8)"
     },
     {
       label: "What you get",
-      value: "A certificate of sale. A deed after 180 days without redemption (26 U.S.C. 6338)"
+      value: "A certificate of sale. Then a deed, if no one redeems within 180 days (26 U.S.C. 6338)"
     },
     {
       label: "Arizona recording",
@@ -2540,21 +2540,21 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Plan for 180 days",
-      detail: "The owner, heirs, or anyone with an interest or lien can redeem within 180 days. They pay you your price plus 20% a year, compounded daily (26 U.S.C. 6337; IRM 5.10.6.8). The IRS and the purchaser both must keep the property from wasting during this time (IRM 5.10.5.19). State law decides whether you can collect rent, move in or remove occupants. Ask an Arizona attorney before you bid."
+      detail: "The owner, their heirs, or anyone with an interest or lien can buy the property back within 180 days. They pay you your price plus 20% a year, compounded daily (26 U.S.C. 6337; IRM 5.10.6.8). During this time, both the IRS and you have to keep the property from being damaged or run down (IRM 5.10.5.19). State law decides whether you can collect rent, move in or remove occupants. Ask an Arizona attorney before you bid."
     },
     {
       title: "Get the deed",
-      detail: "If no one redeems, turn in the certificate. The IRS then gives you a deed, usually a quitclaim deed (26 U.S.C. 6338). It is prepared under the laws of the state where the property is (IRM 5.10.6.9). It conveys the taxpayer’s interest as of when the federal tax lien attached. It also clears liens the federal tax lien had priority over (26 U.S.C. 6339)."
+      detail: "If no one redeems, turn in the certificate. The IRS then gives you a deed, usually a quitclaim deed (26 U.S.C. 6338). It is prepared under the laws of the state where the property is (IRM 5.10.6.9). The deed gives you the taxpayer’s interest as it stood when the federal tax lien attached. It also clears liens that ranked behind the federal tax lien (26 U.S.C. 6339)."
     },
     {
       title: "Record the deed in Arizona",
-      detail: "Record the deed with the county recorder. Arizona requires an affidavit of property value with most deeds. The recorder can refuse a deed without one unless it’s exempt (A.R.S. 11-1133). A deed where a U.S. agency is the named grantor is listed as exempt (A.R.S. 11-1134, code A3). Confirm with your county recorder. Then buy title insurance before you spend money on the property."
+      detail: "Record the deed with the county recorder. Arizona requires an affidavit of property value with most deeds. The recorder can refuse a deed without one unless it’s exempt (A.R.S. 11-1133). A deed where a U.S. agency is the named seller (grantor) is listed as exempt (A.R.S. 11-1134, code A3). Confirm with your county recorder. Then buy title insurance before you spend money on the property."
     }
   ],
   survives: {
     wipedOut: [
       "The federal tax lien being enforced",
-      "Liens and interests the federal tax lien had priority over, once the deed issues (26 U.S.C. 6339)",
+      "Liens and interests that ranked behind the federal tax lien, once the deed is issued (26 U.S.C. 6339)",
       "The taxpayer’s interest, if no one redeems within 180 days"
     ],
     mayStay: [
@@ -2996,7 +2996,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Get the rent roll and leases, if you can",
-      detail: "A receiver or listing broker can usually provide them. At an auction you often can’t get them. So assume the building is empty until proven otherwise. Leases may stay if they were recorded or signed before the deed of trust, or have a non-disturbance agreement. Ask an attorney."
+      detail: "A receiver or listing broker can usually provide them. At an auction you often can’t get them. So assume the building is empty until you can confirm otherwise. Leases may stay if they were recorded or signed before the deed of trust, or have a non-disturbance agreement. Ask an attorney."
     },
     {
       title: "Value it the right way",
@@ -3031,7 +3031,7 @@ export const STATE_GUIDES: Playbook[] = [
     mayStay: [
       "Property taxes and special assessments (A.R.S. 42-17153)",
       "Liens recorded before the lien being foreclosed",
-      "Environmental cleanup liability. It follows the owner, not the lien",
+      "Responsibility for environmental cleanup. It follows whoever owns the property, not the lien",
       "Easements, reciprocal easement agreements and CC&Rs",
       "Leases that have priority or a non-disturbance agreement",
       "Residential tenants’ federal 90-day notice rights in apartment buildings (PTFA)"
@@ -3813,7 +3813,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Get the rent roll and leases, if you can",
-      detail: "A receiver or listing broker can usually provide them. At a tax, trustee or sheriff’s sale you often can’t get them. So assume the building is empty until proven otherwise."
+      detail: "A receiver or listing broker can usually provide them. At a tax, trustee or sheriff’s sale you often can’t get them. So assume the building is empty until you can confirm otherwise."
     },
     {
       title: "Value it the right way",
@@ -3853,7 +3853,7 @@ export const STATE_GUIDES: Playbook[] = [
     mayStay: [
       "Property taxes (they attach every January 1)",
       "Liens recorded before the lien being foreclosed",
-      "Environmental cleanup liability. It follows the owner, not the lien",
+      "Responsibility for environmental cleanup. It follows whoever owns the property, not the lien",
       "Easements, reciprocal easement agreements and CC&Rs",
       "Leases that have priority or a non-disturbance agreement",
       "A 180-day redemption right after a sheriff’s sale or IRS sale"
