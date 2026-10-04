@@ -2507,3 +2507,18 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .script-box h3 { margin: 0 0 8px; }
 .pro-next { margin: 20px 0; display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
 .analyze-next { margin-top: 24px; }
+
+/* Home hero, tightened: one line under the headline, one row of actions, one footer line. */
+.simple-hero { padding-top: 56px; padding-bottom: 20px; }
+.simple-hero h1 { margin: 16px 0 14px; }
+.simple-hero .hero-sub { margin: 0 auto 22px; font-size: clamp(1.1rem, 1.8vw, 1.3rem); max-width: none; }
+.guided-next { gap: 8px; }
+.guided-next .hero-ctas { margin-top: 0; }
+.guided-next p { font-size: 1rem; }
+.btn .guided-count { display: inline-block; margin-right: 8px; padding: 2px 8px; border-radius: 999px; background: rgb(255 255 255 / 0.2); font-size: 0.85em; font-weight: 700; }
+.hero-foot { margin: 18px 0 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px 22px; color: var(--muted); font-size: 0.98rem; }
+.hero-trust { display: inline-flex; align-items: center; gap: 6px; }
+.hero-trust svg { width: 18px; height: 18px; color: var(--accent); }
+.hero-foot-links { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+@media (max-width: 700px) { .simple-hero { padding-top: 32px; } .hero-foot { gap: 6px 14px; font-size: 0.95rem; } }
+.page-summary { margin: 4px 0 20px; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); }

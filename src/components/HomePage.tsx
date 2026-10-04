@@ -37,8 +37,7 @@ export default function HomePage() {
           <h1>
             Become a real estate investor, <span className="grad">step by step.</span>
           </h1>
-          <p className="hero-tagline">Learn it, practice it, then find and analyze real deals.</p>
-          <p className="hero-sub">Lessons, practice purchases and deal tools for foreclosures, tax sales, bank-owned homes and regular listings. We teach the process; you buy directly from the official seller.</p>
+          <p className="hero-sub">Learn it, practice it, then find and analyze real deals, from foreclosures and tax sales to bank-owned homes. You always buy from the official seller.</p>
 
           {!mode && (
             <div className="start-choice" role="group" aria-label="How do you want to start?">
@@ -56,20 +55,16 @@ export default function HomePage() {
 
           {mode === 'guided' && (
             <div className="guided-next">
-              {next ? (
-                <>
-                  <span className="guided-count">Getting started · {next.n} of {GUIDED.length}</span>
-                  <a className="btn big" href={next.step.href}>{next.step.label} →</a>
-                  <p>{next.step.why}</p>
-                </>
-              ) : (
-                <>
-                  <span className="guided-count">You finished the starter path</span>
-                  <a className="btn big" href="#/practice">Try a full practice purchase →</a>
-                  <p>Next, buy a fictional property step by step, from research to the day after the sale.</p>
-                </>
-              )}
-              {continueLink && last?.href !== next?.step.href && <div className="hero-ctas">{continueLink}</div>}
+              {/* One row of actions, one short line of why: no stack of separate lines before the six steps. */}
+              <div className="hero-ctas">
+                {next ? (
+                  <a className="btn big" href={next.step.href}><span className="guided-count">{next.n} of {GUIDED.length}</span> {next.step.label} →</a>
+                ) : (
+                  <a className="btn big" href="#/practice/case">Try the full practice purchase →</a>
+                )}
+                {continueLink && last?.href !== next?.step.href && continueLink}
+              </div>
+              <p>{next ? <><strong>Getting started:</strong> {next.step.why}</> : 'You finished the starter path. Next, buy a fictional rental from budget to keys.'}</p>
             </div>
           )}
 
@@ -90,15 +85,13 @@ export default function HomePage() {
             </>
           )}
 
-          <ul className="browse-trust" aria-label="Why trust it">
-            <li><IconStar /> Free to use, no sign-up</li>
-            <li><IconShield /> Official sources first</li>
-            <li><IconCheckList /> We never take bids or money</li>
-          </ul>
-          <p className="start-switch">
+          <p className="hero-foot">
+            <span className="hero-trust"><IconStar /> Free, no sign-up</span>
+            <span className="hero-trust"><IconShield /> Official sources first</span>
+            <span className="hero-trust"><IconCheckList /> We never take bids or money</span>
+            <span className="hero-foot-links">
             {mode && (
               <>
-                {mode === 'guided' ? 'Prefer to find your own way? ' : 'New to this? '}
                 <button type="button" className="linkish" onClick={() => setMode(mode === 'guided' ? 'explore' : 'guided')}>
                   {mode === 'guided' ? 'Explore on your own' : 'Get guided step by step'}
                 </button>
@@ -107,6 +100,7 @@ export default function HomePage() {
             )}
             {/* A button, not an #anchor: the site's routes live in the URL hash. */}
             <button type="button" className="linkish" onClick={() => document.getElementById('everything')?.scrollIntoView({ behavior: 'smooth' })}>Browse everything ↓</button>
+            </span>
           </p>
         </div>
       </section>
