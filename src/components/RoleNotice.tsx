@@ -53,7 +53,7 @@ export default function RoleNotice() {
     return (
       <div className="role-note" role="note">
         <span><strong>Welcome to DeedOwl.</strong> Free guides, checklists and calculators. Each deal is yours to research: verify with the official source and your own advisors.</span>
-        <a href="#/disclaimer" onClick={close}>How we help</a>
+        <a href="#/about" onClick={close}>How DeedOwl works</a>
         <button type="button" className="btn btn-secondary" onClick={close}>Got it</button>
       </div>
     );
@@ -70,7 +70,7 @@ export default function RoleNotice() {
         </ul>
         <div className="row">
           <button ref={btn} className="btn big" onClick={close}>Get started</button>
-          <a href="#/disclaimer" onClick={close}>How we help &amp; the details</a>
+          <a href="#/about" onClick={close}>How DeedOwl works &amp; the details</a>
         </div>
       </div>
     </div>

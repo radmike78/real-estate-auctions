@@ -21,7 +21,7 @@ const MORE: { group: string; links: (readonly [string, string])[] }[] = [
   { group: 'Learn', links: [['#/playbooks', 'Sale guides'], ['#/guides', 'Search the guides']] },
   { group: 'Nevada deals (Clark County)', links: [['#/live', 'Live tax sales'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures'], ['#/pre-foreclosures', 'Pre-foreclosures (not for sale)']] },
   { group: 'Get help', links: [['#/financing', 'Financing'], ['#/homeowner-help', 'Homeowners: free help']] },
-  { group: 'About', links: [['#/about', 'How it works'], ['#/disclaimer', 'How we help']] },
+  { group: 'About', links: [['#/about', 'How DeedOwl works']] },
 ];
 
 export default function SiteHeader({ current, nav: navCount = 0 }: { current: string; nav?: number }) {

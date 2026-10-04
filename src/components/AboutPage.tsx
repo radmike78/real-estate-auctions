@@ -5,6 +5,8 @@ import StatusBadge from './StatusBadge';
 import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
 import { IconDatabase, IconFlag, IconHelp, IconLayers, IconStop } from './Icons';
+import { SECTIONS as HELP } from './DisclaimerPage';
+import { ROLE_SHORT } from '../lib/disclaimers';
 
 const SALE_TYPES: [string, string, string][] = [
   ['Tax-deed sale', 'The property (quitclaim deed); anyone claiming the land can sue to recover it for 2 years after the deed (NRS 361.600)', 'In-person Treasurer auction, certified funds the same day'],
@@ -104,14 +106,21 @@ export const SECTIONS: DrillSection[] = [
   },
 ];
 
+/** "How DeedOwl works": what we offer and the steps to invest, how sales work and where our data comes from, then
+ * the details. One page, so there's one place to look (it replaced "How it works" and "How we help"). */
+export const ALL_SECTIONS: DrillSection[] = (() => {
+  const help = (k: string) => HELP.find((x) => x.key === k)!;
+  return [help('what-we-offer'), help('steps'), help('learn'), help('sources-and-advice'), help('checklist'), ...SECTIONS, help('not-in-scope'), help('accuracy')];
+})();
+
 export default function AboutPage({ section }: { section?: string }) {
-  const open = section === 'all' || SECTIONS.some((x) => x.key === section);
+  const open = section === 'all' || ALL_SECTIONS.some((x) => x.key === section);
   return (
     <main className="page prose">
       <PageHero
         compact={open}
-        title={open ? <a className="title-link" href="#/about">How it works</a> : <>How it <span className="grad">works</span></>}
-        sub={open ? undefined : 'Each kind of sale, when a property is really for sale, and where our data comes from.'}
+        title={open ? <a className="title-link" href="#/about">How DeedOwl works</a> : <>How DeedOwl <span className="grad">works</span></>}
+        sub={open ? undefined : ROLE_SHORT}
       />
       {!open && (
         <p className="notice" role="note">
@@ -120,7 +129,7 @@ export default function AboutPage({ section }: { section?: string }) {
           lender or agency is selling a home it already owns.
         </p>
       )}
-      <DrillDown sections={SECTIONS} active={section} baseHref="#/about" label="How it works" showAll />
+      <DrillDown sections={ALL_SECTIONS} active={section} baseHref="#/about" label="How DeedOwl works" showAll />
     </main>
   );
 }

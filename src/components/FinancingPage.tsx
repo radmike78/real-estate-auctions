@@ -21,7 +21,6 @@ export default function FinancingPage({ initialLocation = '' }: { initialLocatio
         sub="Loan officers, mortgage companies, banks, credit unions, and hard-money and private lenders."
       />
 
-      <Disclaimer kind="financing" />
 
       <section className="options-grid" aria-label="Financing options">
         {OPTIONS.map(([t, d]) => (
@@ -46,6 +45,7 @@ export default function FinancingPage({ initialLocation = '' }: { initialLocatio
         Credit situations are what each lender says it works with. They are not an offer or a guarantee of credit. Every lender's license or
         registration is checked on NMLS Consumer Access, FDIC BankFind or the NCUA locator.
       </p>
+      <Disclaimer kind="financing" compact />
       <ProDirectory initialLocation={initialLocation} categories={FINANCING_CATEGORIES} />
     </main>
   );

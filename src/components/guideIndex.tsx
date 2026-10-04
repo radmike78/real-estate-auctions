@@ -3,9 +3,8 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { ReactNode } from 'react';
 import type { DrillSection } from './DrillDown';
-import { SECTIONS as ABOUT } from './AboutPage';
+import { ALL_SECTIONS as ABOUT } from './AboutPage';
 import { SECTIONS as BUSINESS } from './BusinessAssetsPage';
-import { SECTIONS as HOW_WE_HELP } from './DisclaimerPage';
 import { SECTIONS as PRIVACY } from './PrivacyPage';
 import { SECTIONS as SHORT_SALES } from './ShortSalesPage';
 import { SECTIONS as TERMS } from './TermsPage';
@@ -60,8 +59,7 @@ export function guideDocs(): GuideDoc[] {
     ...fromSections('Pre-foreclosure guide', '#/pre-foreclosures', PRE_FORECLOSURE),
     ...fromSections('Business assets & closures', '#/business-assets', BUSINESS),
     ...homeownerDocs(),
-    ...fromSections('How it works', '#/about', ABOUT),
-    ...fromSections('How we help you invest', '#/disclaimer', HOW_WE_HELP),
+    ...fromSections('How DeedOwl works', '#/about', ABOUT),
     ...fromSections('Privacy policy', '#/privacy', PRIVACY, 0.5),
     ...fromSections('Terms of use', '#/terms', TERMS, 0.5),
   );

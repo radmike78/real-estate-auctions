@@ -212,7 +212,7 @@
       "src/components/FinancingPage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "34a0398e25691b79",
+    "hash": "aeea61d5d871c809",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -234,8 +234,8 @@
       "src/components/PaidAdNotice.tsx",
       "src/components/LeadForm.tsx"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "26fe8d8d9ee4b03d",
+    "reviewed": "2026-10-04",
+    "hash": "2cab0fae69d8a73c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -255,7 +255,7 @@
       "src/components/AboutPage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "6bac2cced639d9f0",
+    "hash": "2997b80161466fd4",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -280,7 +280,7 @@
       "src/components/RoleNotice.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "257ee3ea14d6e168",
+    "hash": "9dfa67e758a32f12",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -299,8 +299,8 @@
     "files": [
       "src/components/TermsPage.tsx"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "7ac17a65e3361b45",
+    "reviewed": "2026-10-04",
+    "hash": "d574213e6c5b54a7",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -351,7 +351,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "eee55d72390573d0",
+    "hash": "e6951fba94b1092f",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {

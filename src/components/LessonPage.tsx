@@ -140,18 +140,23 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
           <a className="btn" href="#/decide">Help me choose →</a>
         </section>
       )}
-      <section className="lesson-takeaways" aria-labelledby="takeaways">
-        <h2 id="takeaways">What you’ll learn</h2>
-        <ul>{l.takeaways.map((t) => <li key={t}>{t}</li>)}</ul>
-      </section>
-      <article className="lesson-body-text">
-        {sections.map((s) => (
-          <section key={s.heading}>
-            <h2>{s.heading}</h2>
-            {s.blocks.map((b, i) => <Block key={i} b={b} marked={marked.get(b)} />)}
-          </section>
-        ))}
-      </article>
+      {/* Wide screens: the lesson on the left, "What you'll learn" beside it and in view as you read. The page stays
+          full width; the side column keeps the reading lines shorter. Phones get one column, summary first. */}
+      <div className="lesson-layout">
+        <section className="lesson-takeaways" aria-labelledby="takeaways">
+          <h2 id="takeaways">What you’ll learn</h2>
+          <ul>{l.takeaways.map((t) => <li key={t}>{t}</li>)}</ul>
+          {l.tryIt && <p className="lesson-side-try"><a href={l.tryIt.href}>{l.tryIt.label} →</a></p>}
+        </section>
+        <article className="lesson-body-text">
+          {sections.map((s) => (
+            <section key={s.heading}>
+              <h2>{s.heading}</h2>
+              {s.blocks.map((b, i) => <Block key={i} b={b} marked={marked.get(b)} />)}
+            </section>
+          ))}
+        </article>
+      </div>
       <section className="lesson-terms" aria-labelledby="terms" ref={endRef}>
         <h2 id="terms">Key terms</h2>
         <dl>{terms.map((t) => <div key={t.term}><dt>{t.term}</dt><dd>{t.meaning}</dd></div>)}</dl>

@@ -2528,3 +2528,12 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 /* Learn: lesson cards in columns on wide screens, so each card's text and arrow sit together (still full width). */
 @media (min-width: 1100px) { .learn-path .lesson-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1600px) { .learn-path .lesson-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.footer-note { font-size: 0.95rem; color: var(--muted); }
+/* Lessons on wide screens: the reading on the left, "What you'll learn" beside it and in view while you read. */
+.lesson-layout { display: grid; gap: 0 32px; }
+.lesson-side-try { margin: 14px 0 0; font-weight: 600; }
+@media (min-width: 1280px) {
+  .lesson-layout { grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); align-items: start; }
+  .lesson-layout > .lesson-takeaways { grid-column: 2; grid-row: 1; position: sticky !important; top: 84px; margin-top: 0; }
+  .lesson-layout > .lesson-body-text { grid-column: 1; grid-row: 1; min-width: 0; }
+}

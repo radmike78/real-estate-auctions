@@ -19,7 +19,6 @@ import ApplicationConfirmPage from './components/ApplicationConfirmPage';
 import FinancingPage from './components/FinancingPage';
 import ProProfilePage from './components/ProProfilePage';
 import AdvertiserPage from './components/AdvertiserPage';
-import DisclaimerPage from './components/DisclaimerPage';
 import PrivacyPage from './components/PrivacyPage';
 import TermsPage from './components/TermsPage';
 import LessonPage from './components/LessonPage';
@@ -43,7 +42,7 @@ import HomeownerHelpPage from './components/HomeownerHelpPage';
 import GuidesPage from './components/GuidesPage';
 import AlertsPage, { type AlertsMode } from './components/AlertsPage';
 import RoleNotice from './components/RoleNotice';
-import { ROLE_SHORT, SOURCES_AND_ADVICE } from './lib/disclaimers';
+import { ROLE_SHORT } from './lib/disclaimers';
 import { CATEGORIES, type Category } from './lib/pros';
 import { SALE_TYPE_LABEL } from './lib/rules';
 import { STATUS } from './lib/status';
@@ -71,7 +70,6 @@ type Route =
   | { page: 'applicationConfirm'; token: string }
   | { page: 'admin' }
   | { page: 'advertiser'; token: string | null }
-  | { page: 'disclaimer'; section?: string }
   | { page: 'privacy'; section?: string }
   | { page: 'terms'; section?: string }
   | { page: 'analyze'; plan?: Plan; prefill?: Prefill }
@@ -171,7 +169,7 @@ function parseHash(): Route {
   if (pr) return { page: 'practiceRun', id: pr[1], stage: pr[2] };
   const pb = h.match(/^playbooks(?:\/([a-z]+)(?:\/([a-z-]+))?)?$/);
   if (pb) return { page: 'playbook', key: pb[1], section: pb[2] };
-  if (sub?.[1] === 'disclaimer') return { page: 'disclaimer', section: sub[2] };
+  if (sub?.[1] === 'disclaimer') return { page: 'about', section: sub[2] }; // merged into How DeedOwl works
   if (sub?.[1] === 'privacy') return { page: 'privacy', section: sub[2] };
   if (sub?.[1] === 'terms') return { page: 'terms', section: sub[2] };
   const adv = h.match(/^advertiser(?:\/login\/([A-Za-z0-9_-]+))?$/);
@@ -289,7 +287,6 @@ export default function App() {
       {route.page === 'apply' && <AdvertiseApplyPage key={route.category ?? ''} initialCategory={route.category} />}
       {route.page === 'applicationConfirm' && <ApplicationConfirmPage token={route.token} />}
       {route.page === 'admin' && <AdminPage />}
-      {route.page === 'disclaimer' && <DisclaimerPage section={route.section} />}
       {route.page === 'privacy' && <PrivacyPage section={route.section} />}
       {route.page === 'terms' && <TermsPage section={route.section} />}
       {route.page === 'analyze' && <AnalyzePage plan={route.plan} prefill={route.prefill} />}
@@ -312,13 +309,11 @@ export default function App() {
       {route.page === 'advertiser' && <AdvertiserPage key={route.token ?? ''} token={route.token} />}
       {route.page === 'findpro' && <FindAProPage key={route.section ?? ''} section={route.section} />}
       <footer className="footer">
-        <span>{ROLE_SHORT}</span>
-        <span>{SOURCES_AND_ADVICE}</span>
+        <span className="footer-note">{ROLE_SHORT} Our guides are general education, not legal, tax or financial advice.</span>
         <nav aria-label="Footer">
           {features?.email && <a href="#/alerts">Email alerts</a>}
           <a href="#/homeowner-help">Homeowners: free help</a>
-          <a href="#/disclaimer">How we help</a>
-          <a href="#/about">How it works</a>
+          <a href="#/about">How DeedOwl works</a>
           <a href="#/advertise">Advertise</a>
           <a href="#/advertiser">Advertiser sign-in</a>
           <a href="#/privacy">Privacy</a>
