@@ -3,7 +3,8 @@
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import type { Billing, LicenseVerification, ProProfile } from '../src/lib/proApplication';
+import { isAdTier, type AdTier } from '../src/lib/adPlans';
+import { withProfileDefaults, type Billing, type LicenseVerification, type ProProfile } from '../src/lib/proApplication';
 
 export type ApplicationStatus = 'EMAIL_UNCONFIRMED' | 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
 
@@ -22,6 +23,8 @@ export interface ApplicationRow {
   createdAt: string;
   updatedAt: string;
   emailConfirmedAt: string | null;
+  /** Founding advertiser (set by an admin): checkout applies the plan's founding coupon. */
+  founding: boolean;
 }
 
 export interface AuditEntry {
@@ -32,8 +35,9 @@ export interface AuditEntry {
   detail: string | null;
 }
 
-export type MetricKind = 'impression' | 'profile_view' | 'phone_click' | 'email_click' | 'website_click' | 'lead';
-export const METRIC_KINDS: MetricKind[] = ['impression', 'profile_view', 'phone_click', 'email_click', 'website_click', 'lead'];
+// ad_impression / ad_click: the advertiser's Featured ad or topic ad box was shown / its contact button was used.
+export type MetricKind = 'impression' | 'profile_view' | 'phone_click' | 'email_click' | 'website_click' | 'lead' | 'ad_impression' | 'ad_click';
+export const METRIC_KINDS: MetricKind[] = ['impression', 'profile_view', 'phone_click', 'email_click', 'website_click', 'lead', 'ad_impression', 'ad_click'];
 
 export interface LeadRow {
   id: string;
@@ -175,17 +179,27 @@ export function openDb(path: string) {
       received_at TEXT NOT NULL
     );
   `);
+  // Columns added after the first release. SQLite has no ADD COLUMN IF NOT EXISTS, so check first; existing rows get the default.
+  const addColumn = (table: string, column: string, definition: string) => {
+    const cols = db.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
+    if (!cols.some((c) => c.name === column)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+  };
+  addColumn('applications', 'founding', 'INTEGER NOT NULL DEFAULT 0');
+  // The plan and topic chosen at checkout, used if a payment's price can't be matched to a plan (and for the topic).
+  addColumn('stripe_accounts', 'pending_tier', 'TEXT');
+  addColumn('stripe_accounts', 'pending_topic', 'TEXT');
 
   const toRow = (r: Record<string, unknown>): ApplicationRow => ({
     id: r.id as string,
     status: r.status as ApplicationStatus,
-    profile: JSON.parse(r.profile as string),
+    profile: withProfileDefaults(JSON.parse(r.profile as string)),
     verification: r.verification ? JSON.parse(r.verification as string) : null,
     billing: r.billing ? JSON.parse(r.billing as string) : null,
     decisionReason: (r.decision_reason as string) ?? null,
     createdAt: r.created_at as string,
     updatedAt: r.updated_at as string,
     emailConfirmedAt: (r.email_confirmed_at as string) ?? null,
+    founding: r.founding === 1,
   });
 
   const api = {
@@ -230,19 +244,25 @@ export function openDb(path: string) {
     },
     update(
       id: string,
-      fields: { status?: ApplicationStatus; verification?: StoredVerification | null; billing?: Billing | null; decisionReason?: string | null },
+      fields: { status?: ApplicationStatus; verification?: StoredVerification | null; billing?: Billing | null; decisionReason?: string | null; profile?: ProProfile },
       now: string,
     ) {
       const cur = api.get(id);
       if (!cur) return;
-      db.prepare('UPDATE applications SET status = ?, verification = ?, billing = ?, decision_reason = ?, updated_at = ? WHERE id = ?').run(
+      // The category, license and email never change after applying (their indexed columns stay as they are).
+      const profile = fields.profile ? { ...fields.profile, category: cur.profile.category, licenseId: cur.profile.licenseId, email: cur.profile.email } : cur.profile;
+      db.prepare('UPDATE applications SET status = ?, verification = ?, billing = ?, decision_reason = ?, profile = ?, updated_at = ? WHERE id = ?').run(
         fields.status ?? cur.status,
         JSON.stringify(fields.verification === undefined ? cur.verification : fields.verification),
         JSON.stringify(fields.billing === undefined ? cur.billing : fields.billing),
         fields.decisionReason === undefined ? cur.decisionReason : fields.decisionReason,
+        JSON.stringify(profile),
         now,
         id,
       );
+    },
+    setFounding(id: string, founding: boolean, now: string) {
+      db.prepare('UPDATE applications SET founding = ?, updated_at = ? WHERE id = ?').run(founding ? 1 : 0, now, id);
     },
     /**
      * Housekeeping so spam can't fill the disk: applications whose email was never confirmed (the link
@@ -428,10 +448,14 @@ export function openDb(path: string) {
     },
     stripe: {
       forPro(proId: string) {
-        return db.prepare('SELECT pro_id AS proId, customer_id AS customerId, subscription_id AS subscriptionId, status, cancel_at_period_end AS cancelAtPeriodEnd FROM stripe_accounts WHERE pro_id = ?').get(proId) as StripeAccount | undefined;
+        return toAccount(db.prepare(`SELECT ${STRIPE_COLS} FROM stripe_accounts WHERE pro_id = ?`).get(proId));
       },
       byCustomer(customerId: string) {
-        return db.prepare('SELECT pro_id AS proId, customer_id AS customerId, subscription_id AS subscriptionId, status, cancel_at_period_end AS cancelAtPeriodEnd FROM stripe_accounts WHERE customer_id = ?').get(customerId) as StripeAccount | undefined;
+        return toAccount(db.prepare(`SELECT ${STRIPE_COLS} FROM stripe_accounts WHERE customer_id = ?`).get(customerId));
+      },
+      /** Remembers the plan and topic chosen at checkout (null clears them). */
+      setPending(proId: string, tier: AdTier | null, topic: string | null, at: string) {
+        db.prepare('UPDATE stripe_accounts SET pending_tier = ?, pending_topic = ?, updated_at = ? WHERE pro_id = ?').run(tier, topic, at, proId);
       },
       link(proId: string, customerId: string, at: string) {
         db.prepare('INSERT INTO stripe_accounts (pro_id, customer_id, updated_at) VALUES (?, ?, ?) ON CONFLICT (pro_id) DO NOTHING').run(proId, customerId, at);
@@ -478,4 +502,14 @@ export interface StripeAccount {
   subscriptionId: string | null;
   status: string | null;
   cancelAtPeriodEnd: number;
+  pendingTier: AdTier | null;
+  pendingTopic: string | null;
+}
+
+const STRIPE_COLS = 'pro_id AS proId, customer_id AS customerId, subscription_id AS subscriptionId, status, cancel_at_period_end AS cancelAtPeriodEnd, pending_tier AS pendingTier, pending_topic AS pendingTopic';
+
+function toAccount(r: unknown): StripeAccount | undefined {
+  if (!r) return undefined;
+  const a = r as StripeAccount;
+  return { ...a, pendingTier: isAdTier(a.pendingTier) ? a.pendingTier : null, pendingTopic: typeof a.pendingTopic === 'string' ? a.pendingTopic : null };
 }

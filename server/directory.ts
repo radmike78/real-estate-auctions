@@ -3,6 +3,8 @@
 import { mkdirSync, renameSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { KeyObject } from 'node:crypto';
+import { topicAllowed, type AdTier, type Placement } from '../src/lib/adPlans';
+import { billingTier } from '../src/lib/proApplication';
 import { isListable, type Pro } from '../src/lib/pros';
 import type { ProsFeed } from '../src/feed/prosFeed';
 import { signBytes } from '../ingest/lib/sign';
@@ -15,6 +17,7 @@ export function toPro(row: ApplicationRow, photo: string | null = null): Pro | n
   const v = row.verification;
   if (row.status !== 'APPROVED' || !v || !row.billing || !v.contentReviewed) return null;
   const p = row.profile;
+  const tier: AdTier = billingTier(row.billing);
   return {
     id: row.id,
     category: p.category,
@@ -37,8 +40,19 @@ export function toPro(row: ApplicationRow, photo: string | null = null): Pro | n
     email: p.email,
     website: p.website,
     photo,
+    tier,
+    adLine: p.adLine || null,
+    adTopic: tier === 'premium_plus' && topicAllowed(p.category, p.adTopic) ? p.adTopic : null,
     isSample: false,
   };
+}
+
+/** Every currently listed advertiser's plan and topic: what counts toward the caps (src/lib/adPlans.ts). */
+export function placements(rows: ApplicationRow[], now: Date): Placement[] {
+  return rows.flatMap((r) => {
+    const p = toPro(r);
+    return p && isListable(p, now) ? [{ id: p.id, category: p.category, tier: p.tier, topic: p.adTopic }] : [];
+  });
 }
 
 export function buildProsFeed(rows: ApplicationRow[], now: Date, photos: Map<string, string> = new Map()): ProsFeed {
