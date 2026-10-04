@@ -36,6 +36,7 @@ export interface RentInputs extends BuyInputs, LoanInputs {
   capexPct: number; // reserves for big items (roof, HVAC), % of rent collected
   targetCocPct: number; // cash-on-cash return you require
   minDscr: number; // lenders often want 1.2 to 1.25
+  reserveCash: number; // savings left after closing and repairs, to carry the property with no rent
 }
 
 export interface CommercialInputs extends BuyInputs, LoanInputs {
@@ -139,6 +140,16 @@ export function rentMaxBid(i: RentInputs): HoldResult {
   const t = nz(i.targetCocPct) / 100;
   const n = rentNoi(i);
   return hold(i, n.noi, (loanNet, cf) => (t > 0 ? loanNet + cf / t : Infinity), i.minDscr, n.reserves);
+}
+
+/**
+ * How long your savings carry the property with no rent coming in: the loan payment, taxes, insurance and HOA dues
+ * keep coming either way. `months` is null until you enter the cash you'll have left.
+ */
+export function rentEmptyMonths(i: RentInputs): { monthly: number; months: number | null } {
+  const loan = (nz(i.value) * Math.min(nz(i.loanPct), 100)) / 100;
+  const monthly = annualDebtService(loan, i.ratePct, i.years) / 12 + (nz(i.propertyTaxYear) + nz(i.insuranceYear)) / 12 + nz(i.hoaMonthly);
+  return { monthly: r2(monthly), months: nz(i.reserveCash) > 0 && monthly > 0 ? Math.floor((nz(i.reserveCash) / monthly) * 10) / 10 : null };
 }
 
 /** Monthly cash flow after the loan payment. The loan is sized on the value after repairs, so it doesn't depend on the price. */
@@ -253,7 +264,7 @@ export function lienYield(i: LienInputs): { interest: number; payoff: number; pr
 export const RENT_DEFAULTS: RentInputs = {
   cashAvailable: 0, buyerPremiumPct: 0, transferTaxPer500: 2.55, survivingLiens: 0, titleLegal: 500, possession: 300, repairs: 25_000, contingencyPct: 15,
   monthlyRent: 2_200, vacancyPct: 6, propertyTaxYear: 2_400, insuranceYear: 1_400, hoaMonthly: 0, managementPct: 8, maintenancePct: 5, capexPct: 5,
-  value: 350_000, loanPct: 0, ratePct: 7.5, years: 30, loanCostPct: 2, targetCocPct: 8, minDscr: 1.25,
+  value: 350_000, loanPct: 0, ratePct: 7.5, years: 30, loanCostPct: 2, targetCocPct: 8, minDscr: 1.25, reserveCash: 0,
 };
 
 export const COMMERCIAL_DEFAULTS: CommercialInputs = {
