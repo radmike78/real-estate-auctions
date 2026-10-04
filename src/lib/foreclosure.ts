@@ -88,8 +88,8 @@ export function foreclosureTrack(p: Property, now = new Date()): ForeclosureTrac
     DEFAULT_RECORDED:
       now.toISOString().slice(0, 10) < earliest
         ? `A notice of sale can't be recorded before ${fmtDate(earliest)} (${hoa ? '90 days' : '3 months'} after the notice of default was recorded).`
-        : 'A notice of sale may be recorded at any time. The sale would follow at least ~3 weeks later.',
-    SALE_SCHEDULED: 'The auction is scheduled. Owners often reinstate, modify or sell before the date.',
+        : 'A notice of sale may be recorded at any time, or never. If it is, the law requires at least about 3 weeks before the sale. That is a minimum, not a promised date.',
+    SALE_SCHEDULED: 'A sale date is set in the notice, but it is not a promise. Owners often reinstate, modify or sell before the date, and sales are often postponed.',
     POSTPONED: 'Watch for a new sale date. Postponements are common and may repeat.',
     BANKRUPTCY_STAY: 'The sale is on hold until the bankruptcy court lifts the stay or the case is dismissed.',
     AWAITING_RESULT: `The sale date has passed. Check for a recorded ${hoa ? 'certificate of sale' : "trustee's deed"}, postponement or cancellation.`,

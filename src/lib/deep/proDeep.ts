@@ -7,7 +7,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   agent: {
     overview: [
       "A real estate agent helps you find a property, write and negotiate the offer, and get to closing. A buyer’s agent is supposed to work for you, not the seller. How much an agent helps depends on the person. A careful agent checks facts, spots red flags, and pushes you to compare lenders and get inspections. A careless one passes along whatever the seller’s side says.",
-      "Watch who the agent really works for. Sometimes one brokerage, or one person, represents both buyer and seller. This is called “dual agency.” Both sides must be told and must agree in writing. In Nevada, a licensee must give a duties-owed form and get each party’s written consent before acting for more than one party. In California, a brokerage may act as a dual agent only with both parties’ consent after full disclosure. Since August 17, 2024, agents who belong to a Realtor-run MLS must sign a written agreement with a buyer before touring a home. That agreement sets the agent’s pay.",
+      "Watch who the agent really works for. Sometimes one brokerage, or one person, represents both buyer and seller. This is called “dual agency.” Both sides must be told and must agree in writing. In Nevada, a licensee must give a duties-owed form and get each party’s written consent before acting for more than one party. In California, a brokerage may act as a dual agent only with both parties’ consent after full disclosure. In Utah, an agent for both sides (a “limited agent”) must first get both parties’ informed consent in writing. Since August 17, 2024, agents who belong to a Realtor-run MLS must sign a written agreement with a buyer before touring a home, even a virtual tour. That agreement sets the agent’s pay. In California, state law also requires a written buyer agreement no later than your offer. In California, that agreement with an individual buyer can last at most three months and can’t renew automatically.",
       "A note for auction buyers: many forced-sale purchases happen without an agent at all. Examples are county tax sales and trustee’s sales at the courthouse. Agents matter most for bank-owned (REO) and Fannie Mae/Freddie Mac homes listed on the MLS. There, offers usually go through a licensed agent."
     ],
     bestFor: [
@@ -183,7 +183,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Interest rate: shopping five lenders cut the average rate by about 0.166 percentage points in Freddie Mac’s 1995–2017 data.",
       "Points: one point equals 1% of the loan amount paid up front, in exchange for a lower rate (Freddie Mac).",
       "Origination charges are upfront lender fees. Compare them line by line on each Loan Estimate (CFPB).",
-      "Watch for prepayment penalties and balloon payments listed on the Loan Estimate (CFPB)."
+      "Watch for prepayment penalties and balloon payments listed on the Loan Estimate (CFPB). A loan for a rental or flip you won’t live in usually comes without a Loan Estimate, so get these terms in writing."
     ],
     money: [
       "Lenders earn money from interest, points and origination charges shown on the Loan Estimate (CFPB).",
@@ -191,7 +191,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     checklist: [
       "Check the loan officer and company in NMLS Consumer Access (nmlsconsumeraccess.org).",
-      "Get Loan Estimates from at least three lenders (bank, credit union, mortgage company) on the same day. Compare rate, points and origination charges.",
+      "Get Loan Estimates from at least three lenders (bank, credit union, mortgage company) on the same day. Compare rate, points and origination charges. For a rental or flip you won’t live in, there’s usually no Loan Estimate, so ask for written terms instead.",
+      "Treat a pre-approval as conditional. The appraisal and final underwriting still have to pass.",
       "Ask whether the rate is locked, for how long, and what it costs to extend.",
       "Look for a prepayment penalty or balloon payment and ask about other options if you see one.",
       "If a builder or agent pushes a ‘preferred lender’, get an outside quote too. Compare total cost, not just the incentive.",
@@ -316,7 +317,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   },
   private_lender: {
     overview: [
-      "A hard-money or private lender makes short-term loans backed mainly by the property, not your income. Investors use them to buy and repair a house fast, then sell or refinance. The trade-off is price. Rates around 10% plus fees are common, and terms are short. Many loans end in a large balloon payment.",
+      "A hard-money or private lender makes short-term loans backed mainly by the property, not your income. Investors use them to buy and repair a house fast, then sell or refinance. The trade-off is price. Rates are usually well above bank mortgage rates, plus points and fees, and terms are short. Get today’s quotes in writing. Many loans end in a large balloon payment.",
       "These lenders lend on the property’s value, so they may lend to people who can’t actually repay. NPR reported on a Florida homeowner whose hard-money refinance started at 10% and rose to 12%. It carried a heavy prepayment penalty, and the home headed toward foreclosure. Fake ‘private lenders’ also collect upfront fees and never fund the loan. California’s DFPI has ordered several to stop.",
       "If you are the one lending, or investing in a hard-money fund, the risks flip. Borrowers default, projects stall, and dishonest brokers can misuse money. In California, a hard-money broker’s collapse cost hundreds of people more than $20 million. Las Vegas hard-money fund investors also lost heavily in the recession."
     ],
@@ -333,7 +334,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     costs: [
       "Interest: one Los Angeles private lender said he charged about 10% a year and lent up to 75% of purchase-and-repair costs (Reuters, 2013).",
       "Upfront fees: a California hard-money broker was entitled to a 3% fee per loan (CA Attorney General, 2009). Fees can be negotiated and should be in writing.",
-      "Prepayment penalties and balloon payments can make refinancing out of the loan hard (NPR, 2008; CFPB).",
+      "Prepayment penalties and balloon payments can make refinancing out of the loan hard (NPR, 2008). Investor loans usually come without a Loan Estimate, so get every term in writing.",
       "Carrying costs during repairs: interest, insurance, taxes and utilities add up every month the project runs late."
     ],
     money: [
@@ -342,7 +343,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     checklist: [
       "Check the lender’s license. In California, finance lenders and brokers need a license under the California Financing Law (DFPI). Check NMLS too.",
-      "Never pay a ‘deposit’, ‘insurance’ or ‘tax’ to release a loan. Real lenders take fees at closing through escrow.",
+      "Some fees before closing are normal: a credit report, and an appraisal or application fee once you decide to go ahead, listed in writing. A demand for ‘deposits’, ‘insurance’ or ‘taxes’ before a loan will be released is the classic scam. Stop and check the lender’s license.",
       "Get the full terms in writing: rate, points, term, balloon date, extension fees, default rate and prepayment penalty.",
       "Make sure loan money and repair draws go through a licensed escrow or title company, not a personal account.",
       "Plan two exits (sale and refinance) and price the deal with a few extra months of interest.",
@@ -390,9 +391,9 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         tone: "good",
         who: "A Los Angeles real estate agent and investor flipping a Hollywood Hills house",
         year: "2013",
-        title: "Private loan funded a $1.5 million purchase and $600,000 remodel",
-        happened: "Reuters reported that an investor bought a four-bedroom house in December 2012 for $1.5 million. The money came from a private lender, and the investor put another $600,000 into it. The plan was to list it at $3.295 million. The lender said flippers come to him because banks won’t make short-term, quick loans. He lends about 75% of costs at about 10%.",
-        lesson: "Private money can make a fast purchase and renovation possible. But it works only for investors with enough equity and a realistic resale plan.",
+        title: "Private loan funded a $1.5 million purchase and $600,000 remodel (sale not reported)",
+        happened: "Reuters reported that an investor bought a four-bedroom house in December 2012 for $1.5 million. The money came from a private lender, and the investor put another $600,000 into it. The plan was to list it at $3.295 million. The lender said flippers come to him because banks won’t make short-term, quick loans. He lends about 75% of costs at about 10%. The article reported only the planned asking price, not a sale, so whether the flip made money isn’t known.",
+        lesson: "Private money can make a fast purchase and renovation possible. Whether it pays off depends on the sale, so it works only for investors with enough equity and a realistic resale plan.",
         source: {
           label: "Reuters (via Gulf Times): Buy it, flip it, sell it for a cool profit (Aug 2013)",
           url: "https://www.gulf-times.com/story/362691/buy-it-flip-it-sell-it-for-a-cool-profit"
@@ -489,7 +490,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     checklist: [
       "Check that the title or escrow company is licensed with your state’s regulator and has been in business a while.",
-      "Ask for the preliminary title report early and read every lien and exception.",
+      "Ask for the preliminary title report early and read every lien and exception. It’s an offer to insure, not a guarantee that title is clean.",
       "Ask about an owner’s policy. If you will own vacant land or a rental, also ask about post-closing forgery coverage (ALTA 49 endorsements).",
       "At the start, get the escrow officer’s phone number in person or from the company’s official website. Check all wire instructions by calling that number.",
       "If you wired money and something seems wrong, call your bank right away and file at ic3.gov. Speed matters.",
@@ -1086,7 +1087,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     overview: [
       "An insurance agent or broker helps you buy property and liability coverage. For investors the key decision is the type of policy. A standard homeowners policy is written for a home you live in. A rental (dwelling or landlord) policy is written for a home you rent out. Tell your agent how the home will actually be used.",
       "Vacant homes are a special risk. Many property policies limit coverage for some losses, such as water damage, once a building has been vacant for more than 60 straight days. A California appeals court ruled in 2020 that this count can include days before you owned the home. That matters for anyone buying an empty foreclosure or bank-owned house.",
-      "In California’s wildfire areas, many owners can’t find private coverage. They end up on the California FAIR Plan, the state’s insurer of last resort. It costs more, covers less and often needs a separate ‘wrap-around’ policy. Homeowners and renters policies anywhere in the U.S. do not cover flood damage. You need a separate flood policy."
+      "In California’s wildfire areas, many owners can’t find private coverage. In California, they end up on the FAIR Plan, the state’s insurer of last resort. California’s FAIR Plan mainly covers fire, so most owners add a separate ‘wrap-around’ policy for theft, water damage and liability. In California, compare the total of both quotes with any private offer before you bid. Most homeowners and renters policies don’t cover flood damage, so you usually need a separate flood policy."
     ],
     bestFor: [
       "Anyone buying an empty foreclosure or REO home who needs coverage that fits a vacant property from day one.",
@@ -1102,7 +1103,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     costs: [
       "Premiums vary widely. In one Altadena, California example, a private policy cost $1,264 a year for up to $1.5 million of coverage. A neighbor paid $2,000 a year on the FAIR Plan for a $686,000 maximum. The neighbor also paid $1,500 a year for wrap-around coverage (AP, 2025).",
       "A Los Angeles agent told CNN that in high-fire California areas, FAIR Plan or non-admitted coverage can cost $20,000 to $30,000 a year (2025).",
-      "Flood insurance is a separate cost. One New Jersey family let a flood policy lapse that cost about $650 a year. Then they faced about $100,000 in damage (AP, 2021).",
+      "Flood insurance is usually a separate cost. One New Jersey family let a flood policy lapse that cost about $650 a year. Then they faced about $100,000 in damage (AP, 2021).",
       "Vacancy: a policy may stop covering some losses after 60 days of vacancy. So budget for a vacant-property policy or endorsement while you renovate."
     ],
     money: [
@@ -1126,10 +1127,10 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         }
       },
       {
-        text: "Flood damage is not covered by homeowners or renters policies.",
+        text: "Most homeowners and renters policies don’t cover flood damage.",
         source: {
-          label: "AP via Fox Business: After Northeast flooding, insurance woes swamp residents (Sept. 23, 2021)",
-          url: "https://www.foxbusiness.com/lifestyle/after-northeast-flooding-insurance-woes-swamp-residents"
+          label: "FEMA / FloodSmart, Most homeowners insurance does not cover flood damage (2025)",
+          url: "https://agents.floodsmart.gov/sites/default/files/media/document/2025-08/fema_nfip-most-homeowners-insurance-does-not-cover-flood-damage_postcard_08-2025.pdf"
         }
       },
       {
@@ -1202,7 +1203,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         year: "2021",
         title: "Let flood policy lapse, then $100,000 in damage",
         happened: "When his mother owned the home, it carried flood insurance that cost about $650 a year. The couple let it lapse after being told the area wasn’t a flood zone. Then came Tropical Storm Henri and the remnants of Hurricane Ida. They estimated $100,000 to make the house livable and replace their car. Their homeowners policy paid nothing for the flood.",
-        lesson: "Homeowners policies don’t cover floods, so price flood coverage even outside a mapped flood zone.",
+        lesson: "Most homeowners policies don’t cover floods, so price flood coverage even outside a mapped flood zone.",
         source: {
           label: "AP via Fox Business: After Northeast flooding, insurance woes swamp residents (Sept. 23, 2021)",
           url: "https://www.foxbusiness.com/lifestyle/after-northeast-flooding-insurance-woes-swamp-residents"
@@ -1234,8 +1235,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   },
   cpa: {
     overview: [
-      "A CPA or enrolled agent helps you keep rental and flipping taxes legal and organized. The hardest rental rules are the ‘passive activity’ rules. Rental losses usually can’t offset wage income, except for a special allowance of up to $25,000 for owners who actively take part. That allowance shrinks once modified adjusted gross income passes $100,000. It is gone at $150,000.",
-      "The bigger exception is ‘real estate professional’ status. To qualify, you must spend more than 750 hours a year in real estate businesses. That must also be more than half of all your working hours. The Tax Court regularly rejects claims backed only by estimates or by calendars rebuilt from memory during an audit. It also adds a 20% penalty. Taxpayers who win usually kept detailed logs at the time.",
+      "A CPA or enrolled agent helps you keep rental and flipping taxes legal and organized. The hardest rental rules are the ‘passive activity’ rules. Rental losses usually can’t offset wage income, except for a special allowance of up to $25,000 for owners who actively take part. That allowance shrinks once modified adjusted gross income passes $100,000. It is gone at $150,000, and it is smaller, or zero, if you’re married filing separately. Flips and sales are taxed differently: a flip is often taxed as ordinary income, not as a lower-taxed capital gain, and a 1031 exchange can’t be used for it. When you sell a rental, the depreciation you took is partly taxed back.",
+      "The bigger exception is ‘real estate professional’ status. You must work more than 750 hours a year in real estate businesses, and that must be more than half of all your working hours. You must also do real, regular work on the rentals themselves. The IRS counts each rental separately unless you file an election to treat them as one. The Tax Court regularly rejects claims backed only by estimates or by calendars rebuilt from memory during an audit. If the shortfall is large, it can add a 20% penalty unless you show reasonable cause. Owners who win usually have good records.",
       "Anyone with a PTIN can charge to prepare returns. But only CPAs, enrolled agents and attorneys have unlimited rights to represent you before the IRS. A CPA can only protect you if you give them full, accurate information."
     ],
     bestFor: [
@@ -1246,7 +1247,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     notFor: [
       "Owners who want a preparer to ‘find’ a bigger refund. The IRS warns against preparers who promise larger refunds or charge a percentage of the refund.",
-      "Taxpayers who won’t keep records. Even a CPA can’t defend real estate professional hours you didn’t track.",
+      "Taxpayers who won’t keep records. Even a CPA can’t defend real estate professional hours you can’t back up.",
       "People hoping a professional’s signature alone will shield them from penalties. That defense requires giving the professional all relevant facts."
     ],
     costs: [
@@ -1276,10 +1277,10 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         }
       },
       {
-        text: "Real estate professional tests: more than 750 hours and more than half of working time in real estate businesses.",
+        text: "Real estate professional tests: more than 750 hours and more than half of working time in real estate businesses, plus material participation in the rentals.",
         source: {
-          label: "Journal of Accountancy (AICPA): Taxpayer off the clock for real estate loss, on Moss v. Commissioner, 135 T.C. No. 18 (Dec. 1, 2010)",
-          url: "https://www.journalofaccountancy.com/issues/2010/dec/realestate/"
+          label: "IRS Publication 925: Passive Activity and At-Risk Rules",
+          url: "https://www.irs.gov/publications/p925"
         }
       },
       {
@@ -1311,7 +1312,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         year: "2018",
         title: "Detailed spreadsheets won real estate professional status",
         happened: "The IRS disallowed the couple’s rental loss. The wife was the only person running the day-to-day work. That included cleaning, repairs, tenant contact, rent collection and hiring contractors. She backed it up with detailed spreadsheets, time-keeping entries and receipts. The Tax Court found she met the real estate professional test and allowed the loss.",
-        lesson: "Good records kept as you go are what win a real estate professional claim.",
+        lesson: "Good records kept as you go are the strongest proof for a real estate professional claim.",
         source: {
           label: "RSM US tax alert on Birdsong v. Commissioner (U.S. Tax Court, 2018)",
           url: "https://rsmus.com/insights/tax-alerts/2018/recent-case-shows-benefit-of-record-keeping-when-claiming-rental-loss.html"
@@ -1335,7 +1336,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         year: "2018",
         title: "Calendars rebuilt from memory fell apart",
         happened: "The couple claimed real estate professional status without keeping any log. During the audit they rebuilt calendars from memory. Bank records showed them in London and Dallas on days the calendars said they were working on the properties. The court rejected the claim and applied a 20% penalty.",
-        lesson: "Never claim real estate professional status unless you can prove the hours with records made at the time.",
+        lesson: "Don’t claim real estate professional status unless you can back up the hours. A log kept as you go is the strongest proof. A calendar or appointment book can work, but numbers rebuilt from memory during an audit usually fail.",
         source: {
           label: "Current Federal Tax Developments (Ed Zollars, CPA), quoting Pourmirzaie v. Commissioner, T.C. Memo 2018-26 (Mar. 9, 2018)",
           url: "https://www.currentfederaltaxdevelopments.com/blog/2018/3/9/tax-court-rejects-taxpayers-reconstruction-of-real-estate-hours"
@@ -1410,7 +1411,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     bestFor: [
       "Out-of-state investors who can’t handle showings, repairs and rent collection themselves.",
       "Owners with several units who need consistent screening, accounting and legal compliance.",
-      "Landlords who want a licensee whose conduct is overseen by a state real estate regulator, with recovery-fund protection in California and Arizona."
+      "Landlords who want a licensee whose conduct is overseen by a state real estate regulator, with recovery-fund protection in California and Arizona. A license isn’t proof they follow the rules, so still check statements."
     ],
     notFor: [
       "Owners who won’t read monthly statements or check that deposits match bank records.",
@@ -1470,9 +1471,9 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         tone: "good",
         who: "Rental owners who used a property management company in Carlsbad, California",
         year: "2019",
-        title: "Licensed manager stole; owners repaid from state fund",
+        title: "Manager stole; licensing let owners recover part of it",
         happened: "Owners hired Carousel Properties, a Carlsbad management company, to pay fees on their rentals. The company’s owner was accused of taking about $200,000. She faced 29 felony embezzlement counts and took a plea deal for a year in custody. With the district attorney’s help, 23 victims were paid back $172,084.68 from the Department of Real Estate’s Consumer Recovery Account. More payments were pending.",
-        lesson: "Using a licensed real estate manager gave these owners access to a state recovery fund when things went wrong.",
+        lesson: "A recovery fund is a safety net after a loss, and it needs a court judgment or restitution order first. It doesn’t prevent the loss, so check statements and the trust account yourself.",
         source: {
           label: "ABC 10News San Diego (KGTV): Victims get refunds in Carlsbad embezzlement case (Feb. 19, 2019)",
           url: "https://www.10news.com/news/team-10/team-10-victims-get-refunds-in-carlsbad-embezzlement-case"
@@ -1541,8 +1542,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   eviction: {
     overview: [
       "Eviction is a court process. A landlord cannot legally remove a tenant by changing the locks, shutting off utilities or taking the tenant’s belongings. In California only a sheriff or marshal, with a court order, may carry out an eviction. In Arizona and Nevada, tenants locked out or cut off from essential services can sue for damages set by statute.",
-      "Each state runs its own process. Nevada has one of the fastest processes for unpaid rent. After 2019 reforms the minimum was about 15 days, with a 7-business-day notice. A constable carries out the lockout. California’s ‘unlawful detainer’ case requires the landlord to file and serve a lawsuit. Arizona requires written notice before filing, such as 10 days for many lease violations. An eviction attorney helps you serve the right notice, file correctly and avoid defenses that restart the clock.",
-      "Investors who buy occupied homes at foreclosure auctions or as REOs must also go through the courts to remove occupants. Self-help, like changing the locks yourself, can turn a rent dispute into a damages award against you."
+      "Each state runs its own process. In Nevada, an eviction for unpaid rent starts with a 7-court-day notice to pay or quit (weekends and court holidays don’t count). In Nevada, Clark County says evictions take anywhere from 10 to 180 days depending on the case, so budget for the long end. In Nevada, Clark County says its fast ‘summary eviction’ can’t be used to remove a former owner, or the former owner’s tenant, after a foreclosure. California’s ‘unlawful detainer’ case requires the landlord to file and serve a lawsuit. Arizona requires written notice before filing, such as 10 days for many lease violations. An eviction attorney helps you serve the right notice, file correctly and avoid defenses that restart the clock.",
+      "Investors who buy occupied homes at foreclosure auctions or as REOs must also go through the courts to remove occupants. After a foreclosure, tenants who rented from the former owner usually get at least 90 days’ notice under federal law, and a real lease signed before the foreclosure notice may run to its end unless the buyer will live there. Self-help, like changing the locks yourself, can turn a rent dispute into a damages award against you."
     ],
     bestFor: [
       "Landlords facing a nonpaying or lease-violating tenant who want possession back quickly and lawfully.",
@@ -1557,7 +1558,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     costs: [
       "Court filing fees, notice service and constable or sheriff fees. In 2019 the Review-Journal reported Nevada tenants paid a $71 filing fee to contest an eviction in the two largest counties.",
-      "Lost rent during the process. Even Nevada’s fast track takes at least about 15 days after rent is late (2019 law). Contested cases take longer.",
+      "Lost rent during the process. In Nevada, Clark County says evictions take anywhere from 10 to 180 days. Contested cases take longer.",
       "Self-help penalties: California Civil Code 789.3 penalties are up to $100 a day and at least $250 per violation. One landlord was ordered to pay $36,000 in penalties plus damages and fees (1980). In Nevada a court can award up to $2,500 plus actual damages. In Arizona it can award two months’ rent or twice actual damages.",
       "Attorney fees: California’s utility shutoff statute awards fees to the prevailing party."
     ],
@@ -1570,7 +1571,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Ask about local rent control or ‘just cause’ rules (common in California cities).",
       "Ask how long an uncontested and a contested case usually take in that court.",
       "Agree never to use self-help (lockouts, utility shutoffs, removing belongings) while the case runs.",
-      "For auction or REO purchases, ask how to remove a former owner or occupant who isn’t on a lease."
+      "For auction or REO purchases, ask how to remove a former owner or occupant who isn’t on a lease, and whether a tenant gets 90 days’ notice or can stay to the end of a lease under federal law."
     ],
     facts: [
       {
@@ -1602,6 +1603,13 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         }
       },
       {
+        text: "Nevada: Clark County says evictions may take anywhere from 10 to 180 days, and its fast summary eviction can’t be used against a former owner or the former owner’s tenant.",
+        source: {
+          label: "Clark County (NV): Las Vegas Township eviction process",
+          url: "https://www.clarkcountynv.gov/government/departments/constable/constable_las_vegas_township/services/eviction-process"
+        }
+      },
+      {
         text: "Nevada: from 2014 through 2018, Las Vegas Valley constables received eviction orders for more than 99,000 homes, apartments and hotel rooms.",
         source: {
           label: "Las Vegas Review-Journal: Despite changes, Nevada eviction law still favors landlords (June 2019)",
@@ -1621,9 +1629,9 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         tone: "good",
         who: "A landlord renting a home in Summerlin (Las Vegas), Nevada",
         year: "2018",
-        title: "The court process took about three weeks",
+        title: "In 2018, the court process took about three weeks",
         happened: "A tenant’s $1,450 rent was not paid on July 6, 2018. An eviction notice was posted that day. The landlord used Nevada’s summary eviction process. The court entered a default judgment. Constable deputies removed the occupants on July 27, without the landlord touching the locks.",
-        lesson: "The lawful court process runs on a set timeline and avoids self-help penalties. It’s hard on everyone, though. That’s why many landlords first try a payment plan or a negotiated move-out.",
+        lesson: "The lawful court process avoids self-help penalties. This case was fast; Clark County now says evictions take 10 to 180 days. It’s hard on everyone, though. That’s why many landlords first try a payment plan or a negotiated move-out.",
         source: {
           label: "Las Vegas Review-Journal: Despite changes, Nevada eviction law still favors landlords (June 2019)",
           url: "https://www.reviewjournal.com/local/local-nevada/despite-changes-nevada-eviction-law-still-favors-landlords-1697301/"
@@ -1666,6 +1674,10 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       {
         label: "Nevada Revised Statutes chapter 118A (NRS 118A.390)",
         url: "https://www.leg.state.nv.us/NRS/NRS-118A.html"
+      },
+      {
+        label: "Clark County (NV): Las Vegas Township eviction process",
+        url: "https://www.clarkcountynv.gov/government/departments/constable/constable_las_vegas_township/services/eviction-process"
       },
       {
         label: "Las Vegas Review-Journal: Despite changes, Nevada eviction law still favors landlords (June 2019)",
@@ -1763,7 +1775,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   environmental: {
     overview: [
       "An environmental consultant checks whether a property may be contaminated, usually through a Phase I Environmental Site Assessment. That means a records review, interviews and a site visit. If the Phase I finds warning signs, a Phase II tests soil, groundwater or tanks. Old gas stations, dry cleaners, auto shops and industrial lots are the classic risks.",
-      "Under the federal Superfund law (CERCLA), a current owner can be liable for cleanup even if it did not cause the pollution. Buyers can qualify as ‘bona fide prospective purchasers’ only if they meet several conditions. One key condition is completing ‘all appropriate inquiries’. That generally means a Phase I under ASTM E1527-21, done by a qualified environmental professional. It must be done within one year before buying, with some parts updated within 180 days. Another key condition is taking ‘reasonable steps’ after buying to stop releases and limit exposure.",
+      "Under the federal Superfund law (CERCLA), a current owner can be liable for cleanup even if it did not cause the pollution. Buyers can qualify as ‘bona fide prospective purchasers’ only if they meet several conditions. One key condition is completing ‘all appropriate inquiries’. That generally means a Phase I under ASTM E1527-21, done by a qualified environmental professional. It must be done within one year before buying. The interviews, records review, site visit, lien search and the environmental professional’s signed declaration must be done or updated within 180 days. After buying, you must keep meeting ‘continuing obligations’: take ‘reasonable steps’ to stop releases and limit exposure, follow any land-use limits, cooperate and give access to cleanup agencies, answer their information requests and give required notices. A clean Phase I isn’t a guarantee the site is clean.",
       "Courts have denied this protection to buyers who knew of contamination but didn’t act. One example is a Las Vegas shopping-center owner that demolished a former dry cleaner without removing contaminated soil. When the work is done right, EPA Brownfields grants have paid for Phase I and II assessments. These let abandoned sites be sold and reused."
     ],
     bestFor: [
@@ -1790,11 +1802,11 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     checklist: [
       "Confirm the consultant meets EPA’s definition of an ‘environmental professional’ and will follow ASTM E1527-21 (or E2247-23 for rural/forest land).",
-      "Time it right: complete the Phase I within one year before closing, with key parts within 180 days.",
+      "Time it right: complete the Phase I within one year before closing. The interviews, records review, site visit, lien search and the environmental professional’s declaration must be within 180 days.",
       "Make sure the report is in your name (the buyer) and signed by the environmental professional.",
       "Ask what historical uses they’ll research (gas stations, dry cleaners, tanks) and whether they’ll search for environmental cleanup liens.",
       "Ask about data gaps and when they’d recommend a Phase II.",
-      "Plan the ‘reasonable steps’ you’ll take after buying, such as capping sumps or limiting exposure, and document them."
+      "Plan the ‘reasonable steps’ you’ll take after buying, such as capping sumps or limiting exposure, and document them. Also follow any land-use limits, cooperate with cleanup agencies, answer their information requests and give required notices."
     ],
     facts: [
       {

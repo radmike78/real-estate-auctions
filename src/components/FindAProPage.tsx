@@ -7,7 +7,8 @@ import ProDirectory from './ProDirectory';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
 import { guidesFor } from '../lib/playbooks';
-import { STATES, stateByCode } from '../lib/regions';
+import { STATES, stateByCode, type StateCode } from '../lib/regions';
+import { LICENSE_LOOKUPS, type Lookup } from '../lib/licenseLookups';
 import { useMyState, forStateText } from '../lib/myState';
 import { useMarkStep } from '../lib/path';
 import PathNext from './PathNext';
@@ -23,6 +24,20 @@ const ICONS: Record<ProKey, ReactElement> = {
   contractor: <IconTools />, insurance: <IconShield />, cpa: <IconCalc />, property_manager: <IconLayers />, eviction: <IconLock />, environmental: <IconPulse />, appraiser: <IconCalc />,
 };
 
+/** Where to check a license: the visitor's own state, or all four when they haven't picked one. */
+function LicenseCheck({ lookups, state }: { lookups: Record<StateCode, Lookup>; state: StateCode | null }) {
+  const show = (state ? [state] : STATES.map((x) => x.code)).map((c) => [c, lookups[c]] as const);
+  const line = (l: Lookup) => ('note' in l ? l.note : <>Look them up with the {l.who}. <a href={l.url} target="_blank" rel="noopener noreferrer">Open the official lookup ↗</a></>);
+  return (
+    <div className="pro-guide-tip">
+      <strong>Before you hire:</strong>{' '}
+      {show.length === 1 ? line(show[0][1]) : (
+        <ul>{show.map(([c, l]) => <li key={c}><strong>{stateByCode(c)?.name}:</strong> {line(l)}</li>)}</ul>
+      )}
+    </div>
+  );
+}
+
 function GuideBody({ g }: { g: ProGuide }) {
   const [st] = useMyState();
   const ref = useRef<HTMLDivElement>(null);
@@ -31,21 +46,21 @@ function GuideBody({ g }: { g: ProGuide }) {
     <div className="pro-guide" ref={ref}>
       {/* One short role summary, then the practical part (when, how to find, what to ask, how they're paid); background,
           the case for and against, and the stories after. */}
-      <p className="pro-guide-does">{g.does}</p>
+      <p className="pro-guide-does">{forStateText(st, g.does)}</p>
       <OnThisPage root={ref} selector="h3.part-head" />
       <h3 className="part-head">Hiring one</h3>
       <div className="pro-guide-cols">
         <section>
           <h3>When you need one</h3>
-          <ul>{g.when.map((x) => <li key={x}>{x}</li>)}</ul>
+          <ul>{fit(g.when).map((x) => <li key={x}>{x}</li>)}</ul>
         </section>
         <section>
           <h3>How to find one</h3>
-          <ul>{g.find.map((x) => <li key={x}>{x}</li>)}</ul>
+          <ul>{fit(g.find).map((x) => <li key={x}>{x}</li>)}</ul>
         </section>
         <section>
           <h3>Questions to ask</h3>
-          <ul>{g.ask.map((x) => <li key={x}>{x}</li>)}</ul>
+          <ul>{fit(g.ask).map((x) => <li key={x}>{x}</li>)}</ul>
         </section>
       </div>
       {PRO_DEEP[g.key] && (PRO_DEEP[g.key]!.money.length > 0 || PRO_DEEP[g.key]!.checklist.length > 0) && (
@@ -54,12 +69,7 @@ function GuideBody({ g }: { g: ProGuide }) {
           {PRO_DEEP[g.key]!.checklist.length > 0 && <div><h3>Check before you hire</h3><ul className="deep-list">{fit(PRO_DEEP[g.key]!.checklist).map((x) => <li key={x}>{x}</li>)}</ul></div>}
         </div>
       )}
-      {g.license && (
-        <p className="pro-guide-tip">
-          <strong>Before you hire:</strong> look them up with the {g.license.who.replace(/ \(via NMLS Consumer Access\)$/, '')}.{' '}
-          <a href={g.license.url} target="_blank" rel="noopener noreferrer">Open the official lookup ↗</a>
-        </p>
-      )}
+      {LICENSE_LOOKUPS[g.key] && <LicenseCheck lookups={LICENSE_LOOKUPS[g.key]!} state={st} />}
       {PRO_DEEP[g.key] && PRO_DEEP[g.key]!.overview.length > 0 && (
         <>
           <h3 className="part-head">Working with one</h3>

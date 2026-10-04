@@ -37,7 +37,7 @@ export const financing: Lesson = {
         { list: [
           'Savings in reserve: generally six months of payments for an investment property or a two-to-four-unit home you live in.',
           'A limit of 10 financed properties when the new loan is for a second home or investment property.',
-          'Rent to help you qualify: usually 75% of the gross rent counts. Positive rental income counts only if you have at least 12 months of experience managing property.',
+          'Rent to help you qualify: usually 75% of the gross rent counts. Positive rental income counts only if you have at least 12 months of experience managing property. The 25% cut is the lender’s cushion for vacancy and upkeep, not a forecast of your profit.',
         ] },
         'Rules change, and lenders can add their own. Ask a licensed loan officer for current requirements.',
       ],
@@ -82,10 +82,10 @@ export const financing: Lesson = {
               ['All cash', '$300,000', 'None', 'Ties up all your money in one property. No help from a loan if repairs run over.'],
               ['Conventional investment loan: 20% down, 7% for 30 years', '$60,000', 'About $1,600', 'You qualify on your own income and credit, and need savings in reserve.'],
               ['DSCR loan: 25% down, 7.75% for 30 years', '$75,000', 'About $1,610', 'Qualifies on the property’s rent rather than your income, usually at a higher rate and down payment.'],
-              ['FHA: 3.5% down, 6.5% for 30 years', '$10,500', 'About $2,000', 'You must live there (1–4 units). Includes FHA’s 1.75% upfront and 0.55% yearly mortgage insurance.'],
-              ['VA: no down payment, 6.5% for 30 years', '$0', 'About $1,940', 'For eligible veterans who live there. Includes the 2.15% funding fee added to the loan, unless you’re exempt.'],
+              ['FHA: 3.5% down, 6.5% for 30 years', '$10,500', 'About $2,000', 'You must live there (1–4 units). Includes FHA’s 1.75% upfront and 0.55% yearly mortgage insurance. With less than 10% down, the yearly premium lasts as long as the loan.'],
+              ['VA: no down payment, 6.5% for 30 years', '$0', 'About $1,940', 'For eligible veterans who live there. Includes the 2.15% funding fee added to the loan, unless you’re exempt. You still need cash for closing costs unless the seller pays them.'],
               ['Hard money: 90% of the price, 11% interest-only, 2 points', '$35,400', 'About $2,480', 'Short-term, often due in about a year. You must sell or refinance in time, or face default.'],
-              ['Seller financing: 10% down, 6%, balloon after 5 years', '$30,000', 'About $1,620', 'About $251,000 is still owed at year five. If you can’t refinance then, you could lose the property.'],
+              ['Seller financing: 10% down, 6%, balloon after 5 years', '$30,000', 'About $1,620', 'About $251,000 is still owed at year five. If you can’t refinance then, you could lose the property. On a home the buyer will live in, a seller who doesn’t use a licensed loan originator can include a balloon only if they finance just one property in 12 months.'],
             ],
           },
         },
@@ -96,8 +96,8 @@ export const financing: Lesson = {
       heading: 'Before you sign',
       blocks: [
         { list: [
-          'Compare lenders. On home loans, a lender must give you a Loan Estimate within three business days of your application. That lets you compare offers side by side.',
-          'Check the final numbers. You get the Closing Disclosure at least three business days before closing. Compare it with your Loan Estimate.',
+          'Compare lenders. On a loan for a home you’ll live in, the lender must give you a Loan Estimate within three business days of your application. Loans for rentals you won’t live in are business loans and don’t come with this form: ask for a written term sheet, and compare rate, points, fees, balloon and prepayment terms side by side.',
+          'Check the final numbers. On a loan for a home you’ll live in, you must receive the Closing Disclosure at least three business days before you sign the loan. Compare it with your Loan Estimate. A pre-approval is conditional: it isn’t a promise to fund.',
           'Check licenses on NMLS Consumer Access.',
           'Plan for the worst case: higher repairs, a slow sale, or a vacancy while payments are due.',
         ] },

@@ -112,8 +112,8 @@ const NEVADA: Playbook[] = [
       { label: 'When', value: 'Usually 4 times a year (late January, March, July and September). Generally at 11:00 a.m. at the Government Center' },
       { label: 'Register', value: 'In person on sale day, about an hour before. Bring government photo ID showing your current mailing address. The certificate is issued in that name. One registration per person. No deposit or registration fee at present. You must be 18 or older. Late arrivals can’t take part.' },
       { label: 'Payment', value: "By 10:00 a.m. the next business day, in cash, cashier's check or money order" },
-      { label: 'Interest', value: '1% a month simple interest on the certificate price, paid when the owner redeems' },
-      { label: 'Redemption', value: '120 days, or 2 years if there is a home or significant improvement on the land' },
+      { label: 'Interest', value: '1% a month simple interest on the certificate price, paid when the owner redeems. State law sets 1% as the most allowed, not a promise (NRS 271.595). Confirm the rate in the sale notice' },
+      { label: 'Redemption', value: '120 days, or 2 years if there was a home or significant improvement on the land at the time of the sale, as the county or city decides (NRS 271.595)' },
       { label: 'Deed', value: 'After the redemption period, serve the owner notice in person. Also post it on the property if the public can reach it. If they don’t live in Nevada, or can’t be found here after a diligent search of Assessor, Recorder and Secretary of State records, publish it. Then mail it to every address the search turns up. They have 60 more days to redeem. The District Attorney reviews the notice before a deed is issued. You must pay delinquent taxes and assessments first. The certificate expires 3 years after redemption ends if you never ask for a deed (NRS 271.595).' },
       { label: 'Taxes', value: 'You file a W-9; interest over $10 is reported on a 1099-INT' },
     ],
@@ -159,7 +159,7 @@ const NEVADA: Playbook[] = [
     forSale: true,
     glance: [
       { label: 'Law', value: 'NRS 107 (deeds of trust)' },
-      { label: 'Timeline', value: 'Notice of default, then at least 3 months, then a notice of sale, then the auction' },
+      { label: 'Timeline', value: 'Notice of default, then at least 3 months, then a notice of sale, then the auction. These are legal minimums; many foreclosures take longer or never reach a sale' },
       { label: 'Notice of sale', value: 'Posted for 20 days and published once a week for 3 weeks' },
       { label: 'Mediation', value: 'Owner-occupants can petition the court for foreclosure mediation within 30 days after the notice of default is served. A sale of an owner-occupied home needs a recorded mediation certificate' },
       { label: 'Payment', value: "Usually cashier's checks for the full bid at the sale. Each trustee sets its terms" },
@@ -172,7 +172,7 @@ const NEVADA: Playbook[] = [
       { title: 'Follow the notices', detail: 'Track the notice of default and notice of sale. The pre-foreclosure tracker shows where each one is. The notice of sale gives the date, place and trustee.' },
       { title: 'Identify which loan is foreclosing', detail: 'If it’s a second mortgage or a junior lien, the first mortgage stays. It becomes your problem. Get a title search.' },
       { title: 'Check for senior debts', detail: 'Property taxes, HOA dues (including up to 9 months of super-priority), IRS liens and city liens may survive.' },
-      { title: 'Look at the property', detail: 'From the outside only. Assume it may be occupied and need major repairs.' },
+      { title: 'Look at the property', detail: 'From the outside only. Assume it may be occupied and need major repairs. There is no seller disclosure form at a trustee sale. But the trustee and the lender must give you written notice of defects they know about, at the latest when the property is conveyed or when you ask (NRS 113.130). Ask for it.' },
       { title: 'Set your maximum bid', detail: 'Include surviving debts, repairs, eviction and holding costs. Use the max bid calculator.' },
       { title: 'Confirm the sale is on', detail: 'Call the trustee the day before. Sales are often postponed or cancelled when owners reinstate, sell or file bankruptcy.' },
       { title: 'Bid with certified funds', detail: "Bring cashier's checks in amounts that let you pay exactly your bid. Follow the trustee's terms." },
@@ -196,6 +196,7 @@ const NEVADA: Playbook[] = [
     sources: [
       { label: 'NRS 107 (deeds of trust, trustee sales)', url: NRS('107') },
       { label: 'NRS 40 (possession after foreclosure, NRS 40.255)', url: NRS('040') },
+      { label: 'NRS 113 (NRS 113.130: trustee’s notice of known defects)', url: NRS('113') },
       { label: 'Protecting Tenants at Foreclosure Act (made permanent in 2018; see the note to 12 U.S.C. 5220)', url: 'https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title12-section5220&num=0&edition=prelim' },
       { label: 'Foreclosure mediation (Eighth Judicial District Court)', url: 'https://www.clarkcountycourts.us/departments/adr/foreclosure-mediation/' },
       { label: 'Clark County Recorder: search records', url: RECORDER },
@@ -216,7 +217,7 @@ const NEVADA: Playbook[] = [
       { label: 'Lender payoff', value: 'The first deed of trust (the main home loan) survives if the lender paid the priority amount at least 5 days before the sale. It also survives if the lender offered to pay it and the HOA refused (Bank of America v. SFR, 2018)' },
       { label: 'Fannie Mae / Freddie Mac loans', value: 'If one of them owned the loan, the mortgage survives an HOA sale unless the FHFA consented (federal Foreclosure Bar)' },
       { label: 'Redemption', value: '60 days after the sale. The redeemer pays your price plus 1% a month, plus taxes, assessments and upkeep you paid' },
-      { label: 'What you get first', value: 'A certificate of sale; a deed after the redemption period' },
+      { label: 'What you get first', value: 'A certificate of sale; a deed without warranty after the redemption period (NRS 116.31166). If a federal tax lien was on the home, the U.S. can buy it back for 120 days (26 U.S.C. 7425). Ask a title company before bidding whether it will insure without a quiet title lawsuit' },
       { label: 'Payment', value: 'Certified funds; confirm the terms with the HOA’s foreclosure agent' },
     ],
     steps: [
@@ -229,10 +230,10 @@ const NEVADA: Playbook[] = [
     ],
     survives: {
       wipedOut: ['The HOA lien being foreclosed', 'The first mortgage, only if three things are true. The lender did not pay the priority amount. The loan wasn’t owned by Fannie Mae or Freddie Mac. And the sale was proper'],
-      mayStay: ['The first mortgage, if the lender paid the priority amount at least 5 days before the sale, or validly offered it and was refused. Also if Fannie Mae or Freddie Mac owned the loan (while they are under federal conservatorship)', 'Property taxes', 'Federal tax liens', 'The 60-day redemption right'],
+      mayStay: ['The first mortgage, if the lender paid the priority amount at least 5 days before the sale, or validly offered it and was refused. Also if Fannie Mae or Freddie Mac owned the loan (while they are under federal conservatorship)', 'Property taxes', 'Federal tax liens. Even when wiped out, the U.S. can buy the home back within 120 days, longer than the owner’s 60 days (26 U.S.C. 7425)', 'The 60-day redemption right'],
     },
     mistakes: [
-      { mistake: 'Assuming every HOA sale wipes out the mortgage', prevent: 'Check the Recorder for the lender’s payment before bidding.' },
+      { mistake: 'Assuming every HOA sale wipes out the mortgage', prevent: 'Check the Recorder for the lender’s payment before bidding. No recorded payment doesn’t prove the mortgage is gone. An offer to pay that the HOA refused, or Fannie Mae or Freddie Mac owning the loan, can keep it. Have an attorney check.' },
       { mistake: 'Renovating right away', prevent: 'Only spend what’s needed to maintain and repair the unit to the HOA’s standards. A redeemer repays that. Save upgrades until the 60-day redemption period ends.' },
     ],
     example: {
@@ -243,6 +244,7 @@ const NEVADA: Playbook[] = [
     team: [T.attorney, T.title, T.lender, T.insurance, T.eviction, T.contractor, T.agent],
     sources: [
       { label: 'NRS 116 (NRS 116.3116 priority, 116.31166 redemption)', url: NRS('116') },
+      { label: '26 U.S.C. 7425: federal tax liens and the 120-day redemption (Cornell LII)', url: 'https://www.law.cornell.edu/uscode/text/26/7425' },
       { label: 'Clark County Recorder: search records', url: RECORDER },
     ],
     lastReviewed: REVIEWED,
@@ -328,9 +330,10 @@ const NEVADA: Playbook[] = [
     glance: [
       { label: 'How it’s sold', value: 'Listed by the lender’s broker, or at an auction the lender chooses' },
       { label: 'Financing', value: 'Allowed; get pre-approved first' },
-      { label: 'Inspection', value: 'Usually allowed within your contingency period' },
+      { label: 'Inspection', value: 'Usually allowed within your contingency period. Bank-owned doesn’t mean good condition, empty or clear title. Inspect, ask whether it will be delivered vacant, and read the title report' },
+      { label: 'Disclosures', value: 'Nevada’s exemption from the seller disclosure form covers the foreclosure sale itself, not a later resale by the bank (NRS 113.130). Ask for the form, but expect the bank to know little about the home. Your inspection is your main protection' },
       { label: 'Title', value: 'Normal title insurance and escrow' },
-      { label: 'HUD homes', value: 'Bid through a HUD-registered broker; owner-occupants get a first bidding period' },
+      { label: 'HUD homes', value: 'Bid through a HUD-registered broker. For homes listed since May 30, 2025, owner-occupants, government entities and HUD-approved nonprofits get the first 15 days (5 days for homes marked “uninsured”) (HUD Mortgagee Letter 2025-13)' },
       { label: 'Fannie Mae & Freddie Mac', value: 'Owner-occupants get a 30-day “First Look” period before investors' },
       { label: 'Lender-run auctions', value: 'Check the buyer’s premium and whether the lender must approve the winning bid. Make sure the lender is the owner of record' },
     ],
@@ -354,6 +357,8 @@ const NEVADA: Playbook[] = [
       { label: 'Fannie Mae HomePath', url: 'https://homepath.fanniemae.com/property-finder' },
       { label: 'Freddie Mac HomeSteps', url: 'https://www.homesteps.com/' },
       { label: 'VA-acquired homes', url: 'https://www.benefits.va.gov/homeloans/realtors_property_mgmt.asp' },
+      { label: 'HUD Mortgagee Letter 2025-13: 15-day exclusive listing period', url: 'https://hud.gov/sites/dfiles/OCHCO/documents/2025-13hsgml.pdf' },
+      { label: 'NRS 113 (seller disclosures; NRS 113.130 exemptions)', url: NRS('113') },
       { label: 'Every direct bank and government source for Clark County', url: '#/bank-owned' },
     ],
     lastReviewed: REVIEWED,
@@ -434,7 +439,8 @@ const NEVADA: Playbook[] = [
       { label: 'Timeline', value: 'Lender approval often takes weeks to months' },
       { label: 'Financing', value: 'Allowed' },
       { label: 'Inspection', value: 'Usually allowed' },
-      { label: 'Risk', value: 'The lender can reject or counter; foreclosure can happen first' },
+      { label: 'Risk', value: 'The lender can reject or counter; foreclosure can happen first. One lender’s approval doesn’t clear other liens. Every lienholder must agree, and the title report must show it' },
+      { label: 'Investors and homes in foreclosure', value: 'If a notice of default is recorded on a home with 1–4 units, Nevada’s foreclosure-purchaser law covers investors who buy from the owner. A deal that misleads the owner is a crime, and the owner can undo it for 2 years (NRS 645F.430, 645F.440). Have an attorney review the contract Make offers only through the listing agent.' },
     ],
     steps: [
       { title: 'Get pre-approved', detail: 'Lenders want proof you can close.' },
@@ -451,7 +457,10 @@ const NEVADA: Playbook[] = [
       lesson: 'Ask up front how many liens there are, and expect each to negotiate.',
     },
     team: [T.agent, T.mortgage, T.title, T.contractor],
-    sources: [{ label: 'Our short-sale guide', url: '#/short-sales' }],
+    sources: [
+      { label: 'Our short-sale guide', url: '#/short-sales' },
+      { label: 'NRS 645F (foreclosure purchasers, NRS 645F.300–645F.450)', url: NRS('645F') },
+    ],
     lastReviewed: REVIEWED,
   },
 ];

@@ -45,7 +45,7 @@ export const markets: Lesson = {
     {
       heading: 'How loans differ',
       blocks: [
-        'Loans on one to four homes follow the rules of Fannie Mae, Freddie Mac and the FHA. If you’ll live in the property, an FHA loan can cover about 96.5% of the price on a home with up to four units. Buying three or four units with FHA has one more rule. You must show three months of payments in savings after closing. For one or two units, it’s one month.',
+        'Loans on one to four homes follow the rules of Fannie Mae, Freddie Mac and the FHA. If you’ll live in the property, an FHA loan can cover about 96.5% of the price on a home with up to four units. Three or four units with FHA have two more rules. First, the rent has to carry the loan: 75% of the appraiser’s market rent for all units, including yours, must cover the full monthly payment with taxes and insurance. Second, you need three months of payments in savings after closing. Ask the lender to run the rent test before you pay for an appraisal or inspection.',
         'Commercial loans are sized on the property’s income. Lenders look at the loan-to-value ratio (LTV) and the debt service coverage ratio (DSCR). DSCR is how many times the NOI covers the loan payments. A federal banking example describes an office loan at 75% LTV and 1.30x DSCR. It’s paid as if over 20 years, but the rest is due as a balloon after five. Lenders also look at who guarantees the loan.',
       ],
     },

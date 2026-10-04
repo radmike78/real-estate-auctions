@@ -168,7 +168,7 @@ function commercialResearch(p: PracticeProperty, sale: SaleKey): Task[] {
       title: 'A motel is a building and a business',
       body: [
         'Confirm exactly what the sale includes. The real property may be sold without the furniture, the business name or the booking accounts.',
-        'Business, health and other licenses don’t transfer with the property. Apply in your own name before you reopen.',
+        'Many business, health and other licenses don’t simply pass with the property. You may need a new license or a change-of-ownership filing. Confirm with each agency before you reopen.',
         'Guests and a live-in manager may be there on sale day. Short-stay guests and a manager who lives there for the job usually aren’t tenants, but anyone who has stayed 30 days or more may have tenant rights (NRS 118A.180). Have an attorney plan how you take possession.',
       ],
     });

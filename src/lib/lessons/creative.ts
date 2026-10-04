@@ -16,7 +16,7 @@ export const creative: Lesson = {
       heading: 'Seller financing',
       blocks: [
         'The seller acts as the lender. You pay the seller over time instead of a bank. It can help when a bank won’t lend on the property. It can also help when the seller wants steady income instead of a lump sum.',
-        'Federal rules limit who can offer it without being treated as a loan originator. Take a seller who finances one property in 12 months (a person, estate or trust). That seller must use a fixed rate, or one that adjusts only after five or more years with reasonable limits. The loan also can’t grow over time. A seller who finances up to three properties in 12 months has two more rules. The loan must fully pay off over its term. And the seller must determine in good faith that the buyer can repay. Neither exemption covers sellers who built the home.',
+        'Federal rules limit who can offer it without being treated as a loan originator. Take a seller who finances one property in 12 months (a person, estate or trust). That seller must use a fixed rate, or one that adjusts only after five or more years with reasonable limits. The loan also can’t grow over time. A seller who finances up to three properties in 12 months has two more rules. The loan must fully pay off over its term. And the seller must determine in good faith that the buyer can repay. Neither exemption covers sellers who built the home. These rules cover homes the buyer will live in. They only keep a seller from being treated as a loan originator; other federal and state lending rules can still apply. A seller who makes more than five home loans in a year is treated as a lender under federal law, with its disclosure and ability-to-repay rules.',
         {
           table: {
             head: ['State', 'What to know'],
@@ -33,21 +33,21 @@ export const creative: Lesson = {
     {
       heading: 'Taking over a loan: “subject-to” and wraparounds',
       blocks: [
-        'In a “subject-to” deal, the buyer takes title while the seller’s loan stays in place. In a wraparound, the seller keeps their loan and gives the buyer a larger loan that “wraps” it. Federal rules treat both as transfers of the property.',
-        'Most mortgages have a due-on-sale clause, and federal law lets the lender enforce it. When the property is sold or transferred, the lender can demand the whole balance. The law protects some transfers of homes with fewer than five units. Examples are transfers to a spouse or child, after a death, in a divorce, or into the owner’s living trust. A sale to an investor isn’t one of them.',
+        'In a “subject-to” deal, the buyer takes title while the seller’s loan stays in place. In a wraparound, the seller keeps their loan and gives the buyer a larger loan that “wraps” it. Federal rules treat both as transfers of the property. This is different from a formal assumption, where the lender approves the buyer and releases the seller.',
+        'Most mortgages have a due-on-sale clause, and federal law lets the lender enforce it. When the property is sold or transferred, the lender can demand the whole balance. The law protects some transfers of homes with fewer than five units. Examples are transfers to a spouse or child, after a death, in a divorce, or into the owner’s living trust. A sale to an investor isn’t one of them. Keeping every payment current doesn’t take away the lender’s right to call the loan.',
         'The seller stays responsible for a loan they no longer control. The buyer can lose the property if the lender calls the loan or payments aren’t made. Use a real estate attorney and a title company for any deal like this.',
       ],
     },
     {
       heading: 'Rent-to-own and lease options',
       blocks: [
-        'The buyer rents with an option to buy later, often paying an upfront fee. The FTC warns of these red flags. The “seller” doesn’t really own the property. The house is being foreclosed on. One missed payment ends the deal. Or the buyer can’t qualify for a mortgage to finish buying it. Check the owner in county records and get a title search first.',
+        'The buyer rents with an option to buy later, often paying an upfront fee. The FTC warns of these red flags. The “seller” doesn’t really own the property. The house is being foreclosed on. One missed payment ends the deal. Or the buyer can’t qualify for a mortgage to finish buying it. Check the owner in county records and get a title search first. If the owner still has a mortgage, a lease with an option to buy, or any lease over three years, can let their lender demand the whole loan.',
       ],
     },
     {
       heading: 'Home equity contracts',
       blocks: [
-        'Some companies pay homeowners cash now. In exchange, the owner makes a single payment later, based partly on the home’s future value. The CFPB has warned that owners who can’t pay at the end can face a forced sale or foreclosure. Read every term and compare it with a regular loan.',
+        'Some companies pay homeowners cash now. In exchange, the owner makes a single payment later, based partly on the home’s future value. The CFPB has warned that owners who can’t pay at the end can face a forced sale or foreclosure. In a CFPB example, an owner who took $50,000 against a $500,000 home could owe about $94,000 to $216,000 after 10 years, depending on how much the home’s value rose. Read every term and compare it with a regular loan.',
       ],
     },
     {

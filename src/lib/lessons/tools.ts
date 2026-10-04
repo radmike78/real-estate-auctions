@@ -76,7 +76,7 @@ export const tools: Lesson = {
     {
       heading: 'Court records and bankruptcy',
       blocks: [
-        'When an owner files for bankruptcy, federal law automatically stops any act to enforce a lien against their property. That can halt a foreclosure or tax sale. Federal court records, including bankruptcy cases, are on PACER. Searches cost 10 cents a page, capped at $3 a document. Fees are waived if you spend $30 or less in a quarter. State court cases are on each state’s or county’s court website.',
+        'When an owner files for bankruptcy, federal law usually stops any act to enforce a lien against their property. That can halt a foreclosure or tax sale. There are exceptions, especially for repeat filers, so ask the trustee or your title company whether a sale is on hold. Federal court records, including bankruptcy cases, are on PACER. Documents cost 10 cents a page, capped at $3 each; search results and transcripts have no cap. Fees are waived if you spend $30 or less in a quarter. State court cases are on each state’s or county’s court website.',
         { links: [
           { label: 'PACER', url: 'https://pacer.uscourts.gov/', what: 'Federal court and bankruptcy records.' },
           { label: 'PACER Case Locator', url: 'https://pcl.uscourts.gov/', what: 'Search for a person’s or company’s federal cases nationwide.' },
@@ -92,7 +92,7 @@ export const tools: Lesson = {
           'Check the tax bill and any unpaid taxes with the treasurer.',
           'Check flood, hazard and environmental records.',
           'Look at the street and neighborhood, in person if you can.',
-          'Estimate rent and value from sold prices and HUD’s Fair Market Rents.',
+          'Estimate value from sold prices, and rent from homes like this one that actually rented nearby. HUD’s Fair Market Rent is a rough area benchmark that includes utilities, not proof of what this unit will rent for.',
           'Check for a bankruptcy if a sale is coming up.',
           'Order a title search from a title company before you commit money.',
         ] },
