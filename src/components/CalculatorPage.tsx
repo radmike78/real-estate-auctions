@@ -47,7 +47,6 @@ export default function CalculatorPage() {
   return (
     <main className="page">
       <PageHero
-        eyebrow={<span className="eyebrow">Set your limit before the sale</span>}
         title={<>Your maximum <span className="grad">bid</span></>}
         sub="Count every cost, and know when to stop bidding."
       />

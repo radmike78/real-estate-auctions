@@ -21,7 +21,7 @@ const MORE: { group: string; links: (readonly [string, string])[] }[] = [
   { group: 'Learn', links: [['#/playbooks', 'Sale guides'], ['#/guides', 'Search the guides']] },
   { group: 'Nevada deals (Clark County)', links: [['#/live', 'Live tax sales'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures'], ['#/pre-foreclosures', 'Pre-foreclosures (not for sale)']] },
   { group: 'Get help', links: [['#/financing', 'Financing'], ['#/homeowner-help', 'Homeowners: free help']] },
-  { group: 'About', links: [['#/about', 'How it works'], ['#/disclaimer', 'How we help'], ['#/advertise', 'Advertise on DeedOwl'], ['#/advertiser', 'Advertiser sign-in']] },
+  { group: 'About', links: [['#/about', 'How it works'], ['#/disclaimer', 'How we help']] },
 ];
 
 export default function SiteHeader({ current, nav: navCount = 0 }: { current: string; nav?: number }) {
@@ -125,8 +125,9 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
             {groups.map((g) => (
               <div key={g.group} className="more-group" role="group" aria-label={g.group}>
                 <span className="more-group-title" aria-hidden>{g.group}</span>
-                {g.links.map(([href, label]) => (
-                  <a key={href} href={href}>{label}{href === '#/alerts' && features && !features.email && <span className="soon"> · soon</span>}{href === '#/deals' && deals > 0 && <span className="nav-count">{deals}</span>}</a>
+                {/* Email alerts appear only once email is set up: a menu link to a "coming soon" page has no purpose. */}
+                {g.links.filter(([href]) => href !== '#/alerts' || !!features?.email).map(([href, label]) => (
+                  <a key={href} href={href}>{label}{href === '#/deals' && deals > 0 && <span className="nav-count">{deals}</span>}</a>
                 ))}
               </div>
             ))}
@@ -137,9 +138,7 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
           <a href="#/alerts" className={`nav-cta${active('#/alerts') ? ' active' : ''}`}>Get alerts</a>
         ) : nextStep ? (
           <a href={nextStep.step.href} className="nav-cta" title={`Getting started, step ${nextStep.n}: ${nextStep.step.label}`}>Getting started: {nextStep.n} of {GUIDED.length}</a>
-        ) : current.split('?')[0] && !inTask ? ( // the home page is where "Start here" leads, so it isn't shown there
-          <a href="#/" className="nav-cta">Start here</a>
-        ) : null}
+        ) : null /* No "Start here" button: it only led back to the home page, which the logo already does. */}
       </nav>
       <ThemeButton />
       <button ref={menuBtn} className="menu-btn" aria-expanded={open} aria-controls="site-nav" aria-label="Menu" onClick={() => setOpen(!open)}>

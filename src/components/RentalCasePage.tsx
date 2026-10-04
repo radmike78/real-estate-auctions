@@ -21,12 +21,14 @@ export default function RentalCasePage({ stageKey }: { stageKey?: string }) {
   const packet = stageKey === 'packet';
   useLastActivity(`#/practice/case${stageKey ? `/${stageKey}` : ''}`, `Practice: ${CASE_TITLE}${stage ? ` · ${stage.title}` : ''}`);
   // Moving between steps brings the step list into view and focuses the step's heading; the first load stays at the top.
-  const firstLoad = useRef(true);
+  const lastStage = useRef(stageKey);
   useEffect(() => {
-    if (firstLoad.current) {
-      firstLoad.current = false;
-      return;
-    }
+    // The step strip shows the current step on phones (it scrolls sideways).
+    const chip = document.querySelector<HTMLElement>('.practice-stages a.active');
+    const row = chip?.parentElement;
+    if (chip && row) row.scrollLeft = chip.offsetLeft - row.offsetLeft - (row.clientWidth - chip.clientWidth) / 2;
+    if (lastStage.current === stageKey) return;
+    lastStage.current = stageKey;
     document.getElementById('case-top')?.scrollIntoView({ block: 'start' });
     document.getElementById('stage-head')?.focus({ preventScroll: true });
   }, [stageKey]);

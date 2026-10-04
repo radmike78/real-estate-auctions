@@ -9,6 +9,7 @@ import { useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
 import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, cleanDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
 import CheckFold from './CheckFold';
+import { linkLabel } from '../lib/linkLabel';
 
 const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake' };
 const CURRENT = CURRENT_KEY;
@@ -204,7 +205,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
                     <input type="checkbox" checked={deal.done.includes(c.id)} onChange={() => toggle(c.id)} />
                     <span>{c.text}</span>
                   </label>
-                  {c.href && (c.href.startsWith('https://') ? <a href={c.href} target="_blank" rel="noopener noreferrer">Open ↗</a> : <a href={c.href}>Go →</a>)}
+                  {c.href && (c.href.startsWith('https://') ? <a href={c.href} target="_blank" rel="noopener noreferrer">Open ↗</a> : <a href={c.href}>{linkLabel(c.href)} →</a>)}
                 </li>
               ))}
             </ul>
@@ -228,7 +229,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         <p><strong>When to walk away:</strong> when the numbers say you’d lose money: the monthly cash flow is negative after reserves, you wouldn’t make a profit when you sell, or the long-term return misses your goal. Write down why in the notes, and move on to the next one. <a href="#/learn/walk-away">When to walk away</a></p>
         <div className="row">
           {!deal.id ? <button type="button" className="btn" onClick={saveNew}>Save this deal</button> : <a className="btn" href="#/deals">Open My deals</a>}
-          <a className="btn btn-secondary" href="#/toolkit">Your buying steps in My plan →</a>
+          <a href="#/toolkit">Your buying steps in My plan →</a>
         </div>
       </section>
     </main>

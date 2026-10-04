@@ -115,12 +115,6 @@ export default function DrillDown(props: { sections: DrillSection[]; active?: st
         {prev ? <a href={`${baseHref}/${prev.key}`}>← {prev.title}</a> : <a href={baseHref}>← Overview</a>}
         {next ? <a href={`${baseHref}/${next.key}`}>{next.title} →</a> : <a href={baseHref}>Back to overview</a>}
       </div>
-      {titled && (
-        <>
-          <h2 className="page-section-title drill-others">{`Other ${label.toLowerCase()}`}</h2>
-          {all}
-        </>
-      )}
     </div>
   );
 }

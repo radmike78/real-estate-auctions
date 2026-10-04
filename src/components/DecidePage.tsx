@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
-import PathNext from './PathNext';
 import OwlNote from './OwlNote';
 import { useMarkStep } from '../lib/path';
+import { linkLabel } from '../lib/linkLabel';
 import { DECIDE_KEY, QUESTIONS, rank, stateNote, type Answers } from '../lib/decide';
 import { stateByCode, type StateCode } from '../lib/regions';
 import { getMyState, setMyState } from '../lib/myState';
@@ -80,7 +80,7 @@ export default function DecidePage() {
       <PageHero
         eyebrow={<span className="eyebrow">Step 2 of 6</span>}
         title={<>Decide <span className="grad">your focus</span></>}
-        sub="Answer nine quick questions about your money, time and goals. You’ll get the strategies that fit best and a checklist for each."
+        sub={q ? "Answer nine quick questions about your money, time and goals. You’ll get the strategies that fit best and a checklist for each." : undefined}
       />
 
       {q ? (
@@ -165,7 +165,7 @@ export default function DecidePage() {
                           <input type="checkbox" checked={saved.done.includes(c.id)} onChange={() => toggle(c.id)} />
                           <span>{c.text}</span>
                         </label>
-                        {c.href && <a href={c.href}>Go →</a>}
+                        {c.href && <a href={c.href}>{linkLabel(c.href)} →</a>}
                       </li>
                     ))}
                   </ul>
@@ -191,7 +191,6 @@ export default function DecidePage() {
           <p className="muted">Your answers and checked items are saved only in this browser.</p>
         </section>
       )}
-      <PathNext step="decide" />
     </main>
   );
 }

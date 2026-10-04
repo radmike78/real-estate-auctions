@@ -110,7 +110,6 @@ export default function AboutPage({ section }: { section?: string }) {
     <main className="page prose">
       <PageHero
         compact={open}
-        eyebrow={<span className="eyebrow">The basics</span>}
         title={open ? <a className="title-link" href="#/about">How it works</a> : <>How it <span className="grad">works</span></>}
         sub={open ? undefined : 'Each kind of sale, when a property is really for sale, and where our data comes from.'}
       />

@@ -2517,3 +2517,9 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .hero-foot-links { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
 @media (max-width: 700px) { .simple-hero { padding-top: 32px; } .hero-foot { gap: 6px 14px; font-size: 0.95rem; } }
 .page-summary { margin: 4px 0 20px; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); }
+/* On phones the PRACTICE corner ribbon would cover the document's title: show it as a small badge instead. */
+@media (max-width: 700px) {
+  .practice-stamp { position: static; transform: none; display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.8rem; margin-bottom: 8px; }
+}
+/* No decorative owl in page headers: it crowded titles on phones and doubled up with the empty-state owl. */
+.hero::after, .page-hero::after { display: none !important; }

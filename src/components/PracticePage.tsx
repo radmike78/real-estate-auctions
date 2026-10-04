@@ -43,7 +43,6 @@ export default function PracticePage({ sale }: { sale?: string }) {
     return (
       <main className="page practice">
         <PageHero
-          eyebrow={<span className="practice-tag">Hands-on practice</span>}
           title={<>Practice <span className="grad">buying</span></>}
           sub="Buy a fictional property step by step, from research to the day after the sale."
         />
@@ -92,7 +91,6 @@ export default function PracticePage({ sale }: { sale?: string }) {
   return (
     <main className="page practice">
       <PageHero
-        eyebrow={<span className="practice-tag">Hands-on practice</span>}
         title={<>Practice: <span className="grad">{titleOf(chosen)}</span></>}
         sub={playbookByKey(chosen)?.oneLine}
       />

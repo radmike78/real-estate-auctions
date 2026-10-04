@@ -60,7 +60,6 @@ export default function LivePage() {
   return (
     <main className="page">
       <PageHero
-        eyebrow={<span className="eyebrow"><span className="live-dot" aria-hidden /> From official lists, checked by us</span>}
         title={<>Live <span className="grad">tax sales</span></>}
         sub="Treasurer tax-sale parcels and IRS sales in Clark County, re-checked against the official lists."
       />

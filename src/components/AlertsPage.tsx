@@ -32,9 +32,9 @@ export default function AlertsPage({ mode, token, welcome, add }: { mode: Alerts
     <main className="page alerts-page">
       <PageHero
         compact={mode !== 'signup'}
-        eyebrow={<span className="eyebrow">Free · No account needed</span>}
+        eyebrow={features?.email ? <span className="eyebrow">Free · No account needed</span> : undefined}
         title={mode === 'signup' ? <>Email <span className="grad">alerts</span></> : 'Email alerts'}
-        sub={mode === 'signup' ? 'Updates from DeedOwl in your inbox. Confirm once, then change or stop them any time from the link in every email.' : undefined}
+        sub={mode === 'signup' && features?.email ? 'Updates from DeedOwl in your inbox. Confirm once, then change or stop them any time from the link in every email.' : undefined}
       />
       {mode === 'signup' && features && (features.email ? <SignUp /> : <AlertsSoon />)}
       {mode === 'confirm' && <Confirm token={token} />}

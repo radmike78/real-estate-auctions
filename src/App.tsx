@@ -315,7 +315,7 @@ export default function App() {
         <span>{ROLE_SHORT}</span>
         <span>{SOURCES_AND_ADVICE}</span>
         <nav aria-label="Footer">
-          <a href="#/alerts">Email alerts{features && !features.email && ' (coming soon)'}</a>
+          {features?.email && <a href="#/alerts">Email alerts</a>}
           <a href="#/homeowner-help">Homeowners: free help</a>
           <a href="#/disclaimer">How we help</a>
           <a href="#/about">How it works</a>

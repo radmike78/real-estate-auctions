@@ -17,7 +17,6 @@ export default function FinancingPage({ initialLocation = '' }: { initialLocatio
   return (
     <main className="page">
       <PageHero
-        eyebrow={<span className="eyebrow">We don't lend · compare lenders</span>}
         title={<>Find <span className="grad">financing</span></>}
         sub="Loan officers, mortgage companies, banks, credit unions, and hard-money and private lenders."
       />
