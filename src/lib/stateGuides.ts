@@ -208,7 +208,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Price floor at the first sale",
-      value: "For a first loan on a 1 to 4 unit home, the trustee can’t sell at the first sale for less than 67% of the home’s fair market value. If it doesn’t sell, the sale must be postponed at least 7 days (Civ 2924f(f), in effect until January 1, 2031)."
+      value: "For a first loan on a 1 to 4 unit home, the trustee can’t sell at the first sale for less than 67% of the home’s fair market value. If it doesn’t sell, the sale must be postponed at least 7 days (Civ 2924f(f)). The value is the one the lender gives the trustee (an appraisal, broker’s opinion or automated valuation)."
     },
     {
       label: "Payment",

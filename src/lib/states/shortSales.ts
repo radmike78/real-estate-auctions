@@ -42,7 +42,7 @@ export const DISCLOSURES: ByStateLines = {
 export const NOTES: ByStateLines = {
   CA: [
     { text: 'In California, every lienholder, including a second loan or an HOA, has to agree to release its lien for the sale to close. A second lender that consents can’t later collect the shortfall either (Code of Civil Procedure 580e). Your title report shows every lien that needs a release.' },
-    { text: 'In California, the trustee sale can go ahead while a short sale is pending, unless the servicer agrees to postpone it. Ask the listing agent for the sale date and whether it has been postponed.' },
+    { text: 'In California, the trustee sale can still go ahead while a short sale is pending. For a 1 to 4 unit home, the law requires one 45-day postponement if the owner sends the trustee a listing agreement at least 5 business days before the sale, and another if they send a qualifying purchase agreement (Civil Code 2924f(e)). Ask the listing agent for the sale date and whether it has been postponed.' },
   ],
   UT: [
     { text: 'In Utah, the lender’s approval can come with a firm closing deadline. Keep your financing ready.' },
@@ -55,7 +55,7 @@ export const OWNERS: ByStateLines = {
     { text: 'In Nevada, foreclosure consultants must be licensed, and a buyer who uses fraud or deceit on an owner in foreclosure faces criminal penalties and can have the purchase undone (NRS Chapter 645F).', links: [['NRS Chapter 645F', 'https://www.leg.state.nv.us/NRS/NRS-645F.html']] },
   ],
   CA: [
-    { text: 'In California, buying from an owner who lives in the home after a notice of default is recorded is covered by the Home Equity Sales Contract Act. It requires a written contract and gives the owner a right to cancel, and breaking it carries fines and jail (Civil Code 1695 and following).', links: [['Civil Code 1695.1', 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1695.1']] },
+    { text: 'In California, an investor (any buyer who won’t live in it) buying a 1 to 4 unit home from an owner who lives there after a notice of default is recorded is covered by the Home Equity Sales Contract Act. It requires a written contract and gives the owner a right to cancel, and breaking it carries fines and jail (Civil Code 1695 and following).', links: [['Civil Code 1695.1', 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1695.1']] },
   ],
   AZ: [
     { text: 'In Arizona, most people who offer paid help to stop an owner’s foreclosure are foreclosure consultants (attorneys and the lender or servicer are among the exceptions). A consultant can’t take payment up front or take an interest in the home, and fraud or deceit against the owner is a class 1 misdemeanor (A.R.S. 44-1378.02, 44-1378.06).', links: [['A.R.S. 44-1378.02', 'https://www.azleg.gov/ars/44/01378-02.htm']] },

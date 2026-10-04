@@ -17,7 +17,7 @@ export const TIMELINE: ByStateLines = {
     { text: 'In California, 3+ months: at least 3 months must pass after the notice of default before a notice of sale (Civil Code 2924).' },
     { text: 'In California, notice of sale: it is recorded with the county recorder, posted on the property and in a public place at least 20 days before the sale, and published once a week for 3 weeks (Civil Code 2924f). The owner can reinstate until 5 business days before the sale (Civil Code 2924c).' },
     { text: 'In California, auction: it is held, postponed or cancelled. For a first loan on a 1 to 4 unit home, the trustee can’t sell at the first sale for less than 67% of the home’s fair market value. If it doesn’t sell, the sale must be postponed at least 7 days (Civil Code 2924f(f)).' },
-    { text: 'In California, 15 to 45 days (1 to 4 units): the sale isn’t final right away. Eligible tenants, owner-occupants, nonprofits and public agencies can step in (Civil Code 2924m, until January 1, 2031).' },
+    { text: 'In California, 15 to 45 days (1 to 4 units): the sale isn’t final right away. Eligible tenants, owner-occupants, nonprofits and public agencies can step in, unless an owner-occupant buyer wins at the auction (Civil Code 2924m, until January 1, 2031).' },
   ],
   AZ: [
     { text: 'In Arizona, missed payments: the loan servicer sends its own letters. Nothing is recorded yet.' },
@@ -70,7 +70,7 @@ export const BUY: ByStateLines = {
   ],
   CA: [
     { text: 'In California, at the trustee sale: bid at the auction run by the trustee named on the notice of sale. Read the California trustee sales guide for funds, bidding and the 15 to 45 day wait for 1 to 4 unit homes.' },
-    { text: 'In California, after the sale (bank-owned): if no one outbids the lender, the home becomes bank-owned (REO). You buy it through the lender’s listing agent, like a normal home.' },
+    { text: 'In California, after the sale (bank-owned): if no one outbids the lender, the home becomes bank-owned (REO), for 1 to 4 units after the 15 to 45 day window. You buy it through the lender’s listing agent, like a normal home.' },
     { text: 'In California, from a listing: if an owner decides to sell (including a short sale), a licensed agent lists the home on the MLS. Make your offer through your own agent.' },
   ],
   AZ: [
@@ -109,8 +109,8 @@ export const NO_CONTACT: ByStateLines = {
     { text: 'In Nevada, foreclosure consultants must be licensed, and a buyer who uses fraud or deceit on an owner in foreclosure faces criminal penalties. The owner can also cancel such a purchase for up to 2 years (NRS Chapter 645F). Owners may be in the state’s Foreclosure Mediation Program, too.' },
   ],
   CA: [
-    { text: 'In California, anyone buying a home from an owner who lives there after a notice of default is recorded must follow the Home Equity Sales Contract Act. The contract must be in writing, with set terms and a cancellation notice. The owner can cancel until midnight of the 5th business day after signing, or until 8 a.m. on the sale day, whichever comes first. Until then the buyer can’t take a deed, record anything or pay the owner (Civil Code 1695.3, 1695.4, 1695.6).' },
-    { text: 'In California, breaking these rules can bring a fine of up to $25,000, up to a year in county jail, or both (Civil Code 1695.8). If the buyer took unconscionable advantage, the owner can undo the sale for 2 years (Civil Code 1695.13, 1695.14).' },
+    { text: 'In California, an investor (any buyer who won’t live in it) buying a 1 to 4 unit home from an owner who lives there after a notice of default is recorded must follow the Home Equity Sales Contract Act. The contract must be in writing, with set terms and a cancellation notice. The owner can cancel until midnight of the 5th business day after signing, or until 8 a.m. on the sale day, whichever comes first. Until then the buyer can’t take a deed, record anything or pay the owner (Civil Code 1695.3, 1695.4, 1695.6).' },
+    { text: 'In California, breaking these rules can bring a fine of up to $25,000, jail time (up to a year in county jail, or longer under Penal Code 1170(h)), or both, for each violation (Civil Code 1695.8). If the buyer took unconscionable advantage, the owner can undo the sale for 2 years (Civil Code 1695.13, 1695.14).' },
   ],
   AZ: [
     { text: 'In Arizona, most people who offer an owner in foreclosure paid help to stop or delay the sale are “foreclosure consultants” (attorneys and the lender or servicer are among the exceptions). The law bars that person from taking payment before the work is done, and from taking the owner’s deed or any interest in the home (A.R.S. 44-1378, 44-1378.02).' },
