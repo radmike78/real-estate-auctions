@@ -74,3 +74,34 @@ describe('the deal packet', () => {
     expect(() => packetSections({ done: [], answers: { 'cash/stretch': 99, 'listing/screen': 1.5 }, first: {} })).not.toThrow();
   });
 });
+
+describe('the counteroffer path', () => {
+  it('asks about the counter only after a lower offer, and logs the opening offer and the counter', async () => {
+    const { tasksFor } = await import('./rentalCase');
+    const { packetSections } = await import('../components/RentalCasePage');
+    const offer = RENTAL_CASE.find((s) => s.key === 'offer')!;
+    expect(tasksFor(offer, { 'offer/price': 0 }).some((t) => t.id === 'countered')).toBe(false);
+    expect(tasksFor(offer, { 'offer/price': 1 }).some((t) => t.id === 'countered')).toBe(true);
+    const done = RENTAL_CASE.slice(0, RENTAL_CASE.indexOf(offer) + 1).flatMap((s) => s.tasks.map((t) => `${s.key}/${t.id}`));
+    const packet = packetSections({ done, answers: { 'offer/price': 1, 'offer/countered': 0 }, first: {} });
+    const log = packet.find((s) => s.title === 'Evidence log')!.rows.join(' ');
+    expect(log).toMatch(/Opened at \$275,000/);
+    expect(log).toMatch(/countered at \$289,000\. You accepted/);
+  });
+
+  it('a walk-away before the contract is signed claims no contract, deposit or deadlines', async () => {
+    const { packetSections } = await import('../components/RentalCasePage');
+    const offer = RENTAL_CASE.find((s) => s.key === 'offer')!;
+    const done = RENTAL_CASE.slice(0, RENTAL_CASE.indexOf(offer)).flatMap((s) => s.tasks.map((t) => `${s.key}/${t.id}`)).concat(['offer/price', 'offer/signed', 'offer/countered']);
+    const packet = packetSections({ done, answers: { 'offer/price': 1, 'offer/countered': 2 }, first: {}, walked: 'offer' });
+    const all = packet.map((s) => s.rows.join(' ')).join(' ');
+    expect(all).toMatch(/No contract was signed/);
+    expect(all).not.toMatch(/Signed at|earnest money\./i);
+    expect(packet.find((s) => s.title === 'Deadline calendar')!.rows[0]).toMatch(/^Not yet/);
+  });
+
+  it('the loan sheet never says the down payment is 25% of the lower value', () => {
+    const loan = RENTAL_CASE.find((s) => s.key === 'loan')!;
+    expect(JSON.stringify(loan)).not.toMatch(/25% of the price or the appraised value/);
+  });
+});

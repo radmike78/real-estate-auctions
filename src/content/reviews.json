@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "c99b3149fda61aa2",
+    "hash": "18cac86ca0c08c40",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -289,8 +289,8 @@
     "files": [
       "src/components/PrivacyPage.tsx"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "721893016e9ef6ec",
+    "reviewed": "2026-10-04",
+    "hash": "78dc2e5decd2f103",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -351,7 +351,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "e6951fba94b1092f",
+    "hash": "afd707d809bc634f",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -401,7 +401,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "6ba761b48679de0d",
+    "hash": "33d49a5d73d6b791",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

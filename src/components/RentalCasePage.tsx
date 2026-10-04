@@ -3,7 +3,7 @@ import { downloadText } from '../lib/download';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import { PracticeRibbon } from './PracticePage';
-import { CASE_PROPERTY, CASE_TITLE, N, RENTAL_CASE, type CaseDoc, type CaseStage, type CaseTask, type Verdict } from '../practice/rentalCase';
+import { CASE_PROPERTY, CASE_TITLE, N, RENTAL_CASE, tasksFor, type CaseDoc, type CaseStage, type CaseTask, type Verdict } from '../practice/rentalCase';
 import { emptyCase, loadCase, saveCase, type CaseProgress } from '../practice/caseProgress';
 
 const key = (st: CaseStage, t: CaseTask) => `${st.key}/${t.id}`;
@@ -39,7 +39,7 @@ export default function RentalCasePage({ stageKey }: { stageKey?: string }) {
       saveCase(next);
       return next;
     });
-  const stageDone = (st: CaseStage) => st.tasks.every((t) => p.done.includes(key(st, t)));
+  const stageDone = (st: CaseStage) => tasksFor(st, p.answers).every((t) => p.done.includes(key(st, t)));
   const doneStages = RENTAL_CASE.filter(stageDone).length;
 
   return (
@@ -73,7 +73,7 @@ export default function RentalCasePage({ stageKey }: { stageKey?: string }) {
 }
 
 function Start({ p, doneStages, onReset }: { p: CaseProgress; doneStages: number; onReset: () => void }) {
-  const next = RENTAL_CASE.find((st) => !st.tasks.every((t) => p.done.includes(key(st, t))));
+  const next = RENTAL_CASE.find((st) => !tasksFor(st, p.answers).every((t) => p.done.includes(key(st, t))));
   const started = p.done.length > 0;
   return (
     <section aria-labelledby="case-start">
@@ -106,9 +106,10 @@ function StageView({ stage, n, p, update, done }: { stage: CaseStage; n: number;
   const prev = RENTAL_CASE[i - 1];
   const nextSt = RENTAL_CASE[i + 1];
   const walkedHere = p.walked === stage.key;
-  const firstOpen = stage.tasks.findIndex((t) => !p.done.includes(key(stage, t)));
+  const tasks = tasksFor(stage, p.answers);
+  const firstOpen = tasks.findIndex((t) => !p.done.includes(key(stage, t)));
   // After walking away here, the rest of the step's questions stay hidden: they describe a deal you left.
-  const shown = walkedHere ? Math.max(0, firstOpen < 0 ? stage.tasks.length : firstOpen) : firstOpen < 0 ? stage.tasks.length : firstOpen + 1;
+  const shown = walkedHere ? Math.max(0, firstOpen < 0 ? tasks.length : firstOpen) : firstOpen < 0 ? tasks.length : firstOpen + 1;
   return (
     <section aria-labelledby="stage-head">
       <h2 id="stage-head" tabIndex={-1}>{n}. {stage.title}</h2>
@@ -123,16 +124,16 @@ function StageView({ stage, n, p, update, done }: { stage: CaseStage; n: number;
           {stage.brief.map((b) => <p key={b}>{b}</p>)}
           {/* One question at a time: the next appears once this one is answered, so later questions never give
               away what happens next (the seller's reply comes after you've made your request). */}
-          {stage.tasks.slice(0, shown).map((t, ti) => (
+          {tasks.slice(0, shown).map((t, ti) => (
             <Task key={t.id} n={ti + 1} t={t} k={key(stage, t)} p={p} update={update} stageKey={stage.key} />
           ))}
-          {shown < stage.tasks.length && <p className="muted">{stage.tasks.length - shown} more {stage.tasks.length - shown === 1 ? 'question appears' : 'questions appear'} as you answer.</p>}
+          {shown < tasks.length && <p className="muted">{tasks.length - shown} more {tasks.length - shown === 1 ? 'question appears' : 'questions appear'} as you answer.</p>}
         </div>
       </div>
       {walkedHere && (
         <div className="case-walked" role="status">
           <h3>You walked away. That’s a good result.</h3>
-          <p>You left inside a contract deadline, so you keep your earnest money. Many good investors walk away from far more deals than they buy. Your deal packet shows what you found and why you left.</p>
+          <p>{walkNote(stage.key)} Many good investors walk away from far more deals than they buy. Your deal packet shows what you found and why you left.</p>
           <div className="row">
             <a className="btn" href="#/practice/case/packet">See your deal packet →</a>
             <button type="button" className="btn btn-secondary" onClick={() => update((x) => ({ ...x, walked: undefined }))}>Keep going to see the rest</button>
@@ -142,7 +143,10 @@ function StageView({ stage, n, p, update, done }: { stage: CaseStage; n: number;
       {done && (
         <div className="case-added">
           <h3>Added to your deal packet</h3>
-          <ul>{stage.log.map((l) => <li key={l.area}><strong>{l.area}:</strong> {l.finding}{l.open && <> <span className="muted">Still open: {l.open}.</span></>}</li>)}</ul>
+          <ul>
+            {choiceLogs(stage, p).map((x) => <li key={x}><strong>Your decision:</strong> {x}</li>)}
+            {stage.log.map((l) => <li key={l.area}><strong>{l.area}:</strong> {l.finding}{l.open && <> <span className="muted">Still open: {l.open}.</span></>}</li>)}
+          </ul>
           {stage.dates && <ul>{stage.dates.map((d) => <li key={d.when}><strong>{d.when}:</strong> {d.what}</li>)}</ul>}
         </div>
       )}
@@ -178,6 +182,22 @@ function Doc({ d }: { d: CaseDoc }) {
 }
 
 type Update = (fn: (x: CaseProgress) => CaseProgress) => void;
+
+/** Before the offer is signed there's no contract, so nothing is at stake; after, a contract deadline protects the deposit. */
+function walkNote(stageKey: string): string {
+  const i = RENTAL_CASE.findIndex((s) => s.key === stageKey);
+  const offer = RENTAL_CASE.findIndex((s) => s.key === 'offer');
+  return i <= offer ? 'No contract was signed, so nothing was at risk.' : 'You left inside a contract deadline, so you keep your earnest money.';
+}
+
+/** Evidence lines from the choices you made in a step (an opening offer, a counteroffer you accepted). */
+function choiceLogs(st: CaseStage, p: CaseProgress): string[] {
+  return tasksFor(st, p.answers).flatMap((t) => {
+    const a = p.answers[key(st, t)];
+    if (t.kind !== 'choice' || typeof a !== 'number' || !t.choices[a]?.log || !p.done.includes(key(st, t))) return [];
+    return [t.choices[a].log!];
+  });
+}
 
 function Task({ n, t, k, p, update, stageKey }: { n: number; t: CaseTask; k: string; p: CaseProgress; update: Update; stageKey: string }) {
   const finished = p.done.includes(k);
@@ -331,12 +351,12 @@ export function packetText(p: CaseProgress): string {
 }
 
 export function packetSections(p: CaseProgress): { title: string; rows: string[] }[] {
-  const finished = (st: CaseStage) => st.tasks.every((t) => p.done.includes(key(st, t)));
+  const finished = (st: CaseStage) => tasksFor(st, p.answers).every((t) => p.done.includes(key(st, t)));
   // A step you walked away in counts as reached, so the packet shows what you found there; its price and value
   // rows are left out because they describe a deal that didn't happen.
   const walkIdx = RENTAL_CASE.findIndex((st) => st.key === p.walked);
   const reached = RENTAL_CASE.filter((st, i) => (walkIdx < 0 || i <= walkIdx) && (finished(st) || i === walkIdx));
-  const logOf = (st: CaseStage) => (st.key === p.walked ? st.log.filter((l) => l.area !== 'Price' && l.area !== 'Value') : st.log);
+  const logOf = (st: CaseStage) => (st.key === p.walked ? st.log.filter((l) => l.area !== 'Price' && l.area !== 'Value' && l.area !== 'Contract') : st.log);
   const bought = !p.walked && (finished(RENTAL_CASE[RENTAL_CASE.length - 1]) || reached.some((s) => s.key === 'closing'));
   const budget = [
     `Most you can invest: ${$(N.investable)} (after a ${$(N.cushion)} emergency fund and ${$(N.otherGoals)} for other goals)`,
@@ -347,7 +367,7 @@ export function packetSections(p: CaseProgress): { title: string; rows: string[]
   const decisions: string[] = [];
   const questions: string[] = [];
   for (const st of RENTAL_CASE)
-    for (const t of st.tasks) {
+    for (const t of tasksFor(st, p.answers)) {
       const a = p.answers[key(st, t)];
       if (t.kind === 'choice' && typeof a === 'number' && t.choices[a]) decisions.push(`${st.title}: ${t.choices[a].label} (${VERDICT[t.choices[a].verdict].toLowerCase()})`);
       if (t.kind === 'write' && typeof a === 'string' && a) questions.push(`To the ${t.to.toLowerCase()}: ${a}`);
@@ -356,10 +376,10 @@ export function packetSections(p: CaseProgress): { title: string; rows: string[]
   const strong = firsts.filter((v) => v === 'best' || v === 'ok' || v === 'right').length;
   const walkedAt = RENTAL_CASE.find((s) => s.key === p.walked);
   return [
-    { title: 'Result', rows: [walkedAt ? `You walked away at “${walkedAt.title}”, inside a contract deadline. A good result when the deal stops fitting.` : bought ? 'You bought it. In this case the seller agreed to the appraised value, and you kept your reserves.' : `${reached.length} of ${RENTAL_CASE.length} steps done so far.`, `${strong} of ${firsts.length} questions right or reasonable on the first try.`] },
+    { title: 'Result', rows: [walkedAt ? `You walked away at “${walkedAt.title}”. ${walkNote(walkedAt.key)} A good result when the deal stops fitting.` : bought ? 'You bought it. In this case the seller agreed to the appraised value, and you kept your reserves.' : `${reached.length} of ${RENTAL_CASE.length} steps done so far.`, `${strong} of ${firsts.length} questions right or reasonable on the first try.`] },
     { title: 'Your budget', rows: budget },
-    { title: 'Deadline calendar', rows: reached.some((s) => s.dates) ? reached.flatMap((s) => s.dates ?? []).map((d) => `${d.when}: ${d.what}`) : ['Not yet: the dates come from your contract, once your offer is accepted.'] },
-    { title: 'Evidence log', rows: reached.flatMap((s) => logOf(s).map((l) => `${l.area}: ${l.finding}${l.open ? ` Still open: ${l.open}.` : ''}`)) },
+    { title: 'Deadline calendar', rows: reached.some((s) => s.dates) && !(walkedAt && walkedAt.key === 'offer') ? [...reached.flatMap((s) => s.dates ?? []).map((d) => `${d.when}: ${d.what}`), 'Practice contract terms. A real contract sets its own periods and how days are counted: build your calendar from it.'] : ['Not yet: the dates come from your contract, once your offer is accepted.'] },
+    { title: 'Evidence log', rows: reached.flatMap((s) => [...choiceLogs(s, p).map((x) => `Your decision: ${x}`), ...logOf(s).map((l) => `${l.area}: ${l.finding}${l.open ? ` Still open: ${l.open}.` : ''}`)]) },
     { title: 'Your questions for the professionals', rows: questions.length ? questions : ['None saved yet.'] },
     { title: 'Your decisions', rows: decisions.length ? decisions : ['None yet.'] },
   ];
