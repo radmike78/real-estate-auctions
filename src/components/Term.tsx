@@ -1,5 +1,6 @@
 import { useId, useState, type ReactNode } from 'react';
 import type { KeyTerm, Piece } from '../lib/terms';
+import { Cited } from './Cited';
 
 /** A term readers can tap to see what it means, right where they meet it. */
 export function Term({ term, children }: { term: KeyTerm; children: ReactNode }) {
@@ -19,5 +20,5 @@ export function Term({ term, children }: { term: KeyTerm; children: ReactNode })
 
 /** Text split by markTerms, with the marked terms tappable. */
 export function Pieces({ pieces }: { pieces: Piece[] }) {
-  return <>{pieces.map((p, i) => (typeof p === 'string' ? p : <Term key={i} term={p.term}>{p.text}</Term>))}</>;
+  return <>{pieces.map((p, i) => (typeof p === 'string' ? <Cited key={i} text={p} /> : <Term key={i} term={p.term}>{p.text}</Term>))}</>;
 }

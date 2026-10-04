@@ -23,13 +23,13 @@ export const negotiate: Lesson = {
           'Deadlines: how many days you have for inspections, loan approval and closing. Missing one can waive your right to cancel.',
           'Who pays which costs, and what stays with the property.',
         ] },
-        'The seller can accept, reject or counter. Each counteroffer replaces the last one. So read every change before you sign.',
+        'The seller can accept, reject or counter. Each counteroffer replaces the last one, so read every change before you sign.',
       ],
     },
     {
       heading: 'Negotiating after the inspection',
       blocks: [
-        'If your contract depends on a satisfactory inspection, you can cancel without penalty if you’re not satisfied with the results. If repairs are needed, you can negotiate who makes or pays for them. You can ask the seller to fix items, lower the price, or give a credit at closing.',
+        'If your contract depends on a satisfactory inspection and you’re not happy with what it finds, you can cancel without penalty. If repairs are needed, you can negotiate who makes or pays for them: ask the seller to fix items, lower the price, or give you a credit at closing.',
         'Lenders limit how much a seller can put toward a buyer’s costs. On Fannie Mae loans, the cap on an investment property is 2% of the price or appraised value, whichever is lower. For a home you’ll live in, it’s 3% to 9% depending on your down payment.',
       ],
     },
@@ -42,7 +42,7 @@ export const negotiate: Lesson = {
             rows: [
               ['Auctions', 'Usually as-is, with no inspection or financing contingency. Expect a deposit, often by cashier’s check, and full payment in cash on a short deadline. Bidding sets the price, so decide your maximum bid before the sale. Each guide lists the rules for that kind of sale.'],
               ['Bank-owned (REO)', 'The bank’s own contract and addenda usually replace the standard forms. Fannie Mae’s contract, for example, sells the home as-is and gives you 10 days to inspect. It doesn’t require the seller to make repairs. If the seller won’t repair, you can cancel and get your earnest money back.'],
-              ['Short sales', 'The owner sells for less than the loan balance, and the lender has to agree. Expect a long wait for that approval. The lender, not only the owner, must accept the price.'],
+              ['Short sales', 'The owner sells for less than the loan balance, and the lender has to agree. Expect a long wait for that approval, because the lender, not only the owner, must accept the price.'],
             ],
           },
         },
@@ -51,7 +51,7 @@ export const negotiate: Lesson = {
     {
       heading: 'Ways to hold title',
       blocks: [
-        'How you take title decides who owns what and what happens when an owner dies. As tenants in common, each owner has a share they can leave to their heirs. As joint tenants, owners have a right of survivorship: when one dies, the others own it. Investors also buy through companies such as LLCs or partnerships. The right choice depends on liability, taxes, financing and estate plans. So ask a real estate attorney and a tax advisor.',
+        'How you take title decides who owns what and what happens when an owner dies. As tenants in common, each owner has a share they can leave to their heirs. As joint tenants, owners have a right of survivorship: when one dies, the others own it. Investors also buy through companies such as LLCs or partnerships. The right choice depends on liability, taxes, financing and estate plans, so ask a real estate attorney and a tax advisor.',
       ],
     },
     {
@@ -61,7 +61,7 @@ export const negotiate: Lesson = {
         { list: [
           'If you sign a personal guarantee on a loan, you owe that debt yourself, LLC or not. Many lenders ask investors for one.',
           'Keep the LLC’s money in its own bank account. Mixing personal and business money can weaken the protection.',
-          'Moving a home that has a mortgage into an LLC can let the lender call the whole loan due. The federal law that limits due-on-sale clauses protects some transfers, such as into a living trust where you stay a beneficiary. It doesn’t list transfers to an LLC (12 U.S.C. 1701j-3). Fannie Mae lets its servicers allow the transfer if Fannie Mae bought or securitized the loan on or after June 1, 2016 and you control or own most of the LLC. To refinance later, the home must go back into your own name. For any loan, ask your loan servicer in writing before you sign a deed.',
+          'Moving a home that has a mortgage into an LLC can let the lender call the whole loan due. Federal law protects some transfers from that, like moving the home into a living trust where you stay a beneficiary, but it doesn’t list transfers to an LLC (12 U.S.C. 1701j-3). Fannie Mae lets its servicers allow the transfer if Fannie Mae bought or securitized the loan on or after June 1, 2016 and you control or own most of the LLC. To refinance later, the home must go back into your own name. For any loan, ask your loan servicer in writing before you sign a deed.',
         ] },
         {
           table: {
@@ -85,8 +85,8 @@ export const negotiate: Lesson = {
       heading: 'Structuring tools',
       blocks: [
         { list: [
-          '1031 exchange: sell a business or investment property and buy another, and defer tax on the gain. You must identify the replacement within 45 days of selling. You must receive it within 180 days, or by your tax return’s due date including extensions, if that’s earlier. Only real estate qualifies, and any cash you take out is taxed. Property held mainly for resale, like a flip, doesn’t qualify. A qualified intermediary holds the money. It can’t be your agent or a relative.',
-          'Installment sale: a seller receives at least one payment after the year of the sale, as with seller financing. The seller may spread the tax on the gain over the payments. Interest received is ordinary income.',
+          '1031 exchange: sell a business or investment property and buy another, and defer tax on the gain. You have 45 days after selling to identify the replacement, and you must receive it within 180 days, or by your tax return’s due date including extensions, if that’s earlier. Only real estate qualifies, and any cash you take out is taxed. Property held mainly for resale, like a flip, doesn’t qualify. A qualified intermediary holds the money in between, and it can’t be your agent or a relative.',
+          'Installment sale: the seller gets at least one payment after the year of the sale, as with seller financing. The seller may then spread the tax on the gain across the payments. Interest received is ordinary income.',
           'Seller credits: instead of a lower price, the seller pays part of your closing costs, within the lender’s limits above.',
         ] },
         'Creative financing gets its own lesson later.',
@@ -95,18 +95,18 @@ export const negotiate: Lesson = {
     {
       heading: 'Agents: who they work for',
       blocks: [
-        'In Nevada, a licensee must disclose certain things to every party (NRS 645.252). These include what they know about the property’s condition, where their pay comes from, and any interest they have in the deal. A Nevada licensee must also say whether they’re acting for more than one party. That needs everyone’s written consent. Unless agreed in writing, the agent doesn’t have to inspect the property for you.',
+        'In Nevada, an agent must tell every party certain things, including what they know about the property’s condition, where their pay comes from, and any interest they have in the deal (NRS 645.252). A Nevada agent must also say whether they’re acting for more than one party, which takes everyone’s written consent. Unless you agree otherwise in writing, the agent doesn’t have to inspect the property for you.',
         'In California, agents give a written agency disclosure before a listing or buyer agreement is signed and before your offer (Civil Code 2079.14). A seller’s agent works for the seller only. One agent can act for both sides only if both agree (Civil Code 2079.16).',
         'In Arizona, an agent owes a fiduciary duty to their client. The agent must also tell all parties in writing about anything they know that materially affects the price, like defects or liens. An agent buying or selling for themselves must say in writing that they’re licensed. An agent can represent both sides only with everyone’s prior written consent (A.A.C. R4-28-1101).',
-        'In Utah, an agent can act as a limited agent for both sides only after two steps. First, the agent must explain in writing what will be kept confidential. Second, the agent must get both parties’ written consent. An agent buying or selling for themselves must say they’re licensed at the first contact. The purchase contract confirms who represents whom (Utah Admin. Code R162-2f-401a).',
+        'In Utah, an agent can act as a limited agent for both sides only after explaining in writing what will be kept confidential and getting both parties’ written consent. An agent buying or selling for themselves must say they’re licensed at the first contact. The purchase contract confirms who represents whom (Utah Admin. Code R162-2f-401a).',
         'Wherever you buy, ask any agent which side they represent, and get it in writing.',
       ],
     },
     {
       heading: 'Protect your money at closing',
       blocks: [
-        'Criminals send fake emails with new wiring instructions. The emails look like they come from your agent, title company or lender. Never follow payment instructions sent by email. Call your title or escrow officer at a number you already know to confirm the account before you wire. If you think you’ve been scammed, call your bank right away to try to recall the wire. Also report it at ic3.gov.',
-        'If the seller is a foreign person, federal law makes you, the buyer, withhold 15% of the price and send it to the IRS within 20 days (Form 8288). If you don’t, you can be held liable for the tax. Less or no withholding applies only if you’ll live in the home and the price is $1 million or less: 10% up to $1 million, and none at $300,000 or less. An investor buying a rental doesn’t qualify for that exception. Ask your title or escrow company to confirm early whether the seller is a foreign person.',
+        'Criminals send fake emails with new wiring instructions that look like they come from your agent, title company or lender. Never follow payment instructions sent by email. Call your title or escrow officer at a number you already know to confirm the account before you wire. If you think you’ve been scammed, call your bank right away to try to recall the wire, and report it at ic3.gov.',
+        'If the seller is a foreign person, federal law makes you, the buyer, withhold 15% of the price and send it to the IRS within 20 days (Form 8288). If you don’t, you can end up owing the tax yourself. You withhold less, or nothing, only if you’ll live in the home and the price is $1 million or less: 10% up to $1 million, and none at $300,000 or less. An investor buying a rental doesn’t qualify for that exception. Ask your title or escrow company to confirm early whether the seller is a foreign person.',
       ],
     },
   ],

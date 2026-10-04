@@ -15,6 +15,7 @@ import CheckYourself from './CheckYourself';
 import { LESSON_CHECKS } from '../lib/lessons/checks';
 import { Pieces } from './Term';
 import { markTerms, type Piece } from '../lib/terms';
+import { Cited } from './Cited';
 
 const STATE_NAMES = new Set(STATES.map((s) => s.name));
 
@@ -48,8 +49,8 @@ function forState(b: LessonBlock, st: StateCode | null): LessonBlock | null {
 
 /** Paragraphs and list items come with their key terms already marked (`marked`), in reading order. */
 function Block({ b, marked }: { b: LessonBlock; marked?: Piece[][] }) {
-  if (typeof b === 'string') return <p>{marked ? <Pieces pieces={marked[0]} /> : b}</p>;
-  if ('list' in b) return <ul>{b.list.map((x, i) => <li key={x}>{marked ? <Pieces pieces={marked[i]} /> : x}</li>)}</ul>;
+  if (typeof b === 'string') return <p>{marked ? <Pieces pieces={marked[0]} /> : <Cited text={b} />}</p>;
+  if ('list' in b) return <ul>{b.list.map((x, i) => <li key={x}>{marked ? <Pieces pieces={marked[i]} /> : <Cited text={x} />}</li>)}</ul>;
   // Folded: the table above gives the short answer; each type's case for and against opens on a tap.
   if ('why' in b)
     return (
@@ -75,7 +76,7 @@ function Block({ b, marked }: { b: LessonBlock; marked?: Piece[][] }) {
         <thead><tr>{b.table.head.map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
         <tbody>
           {b.table.rows.map((r) => (
-            <tr key={r[0]}>{r.map((c, i) => (i === 0 ? <th key={i} scope="row">{c}</th> : <td key={i} data-label={b.table.head[i]}>{c}</td>))}</tr>
+            <tr key={r[0]}>{r.map((c, i) => (i === 0 ? <th key={i} scope="row">{c}</th> : <td key={i} data-label={b.table.head[i]}><Cited text={c} /></td>))}</tr>
           ))}
         </tbody>
       </table>
@@ -144,7 +145,7 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         <h2 id="takeaways">What you’ll learn</h2>
         <ul>{l.takeaways.map((t) => <li key={t}>{t}</li>)}</ul>
       </section>
-      <OnThisPage root={bodyRef} selector=".lesson-body-text > section > h2, .lesson-terms h2, .check-yourself h2, .lesson-sources h2" />
+      <OnThisPage root={bodyRef} selector=".lesson-body-text > section > h2, .lesson-terms h2, .check-yourself h2" />
       <article className="lesson-body-text">
         {sections.map((s) => (
           <section key={s.heading}>
@@ -167,10 +168,13 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
       )}
       {!l.practice && l.tryIt && <p className="lesson-try"><a className="btn btn-secondary" href={l.tryIt.href}>{l.tryIt.label} →</a></p>}
       <section className="lesson-sources" aria-labelledby="sources">
-        <h2 id="sources">Sources</h2>
-        <ul className="source-links">
-          {sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a></li>)}
-        </ul>
+        <h2 id="sources">Where this comes from</h2>
+        <details className="sources-more">
+          <summary>See the {sources.length} sources we checked</summary>
+          <ul className="source-links">
+            {sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a></li>)}
+          </ul>
+        </details>
         <p className="muted">Checked {fmtDate(l.reviewed)}. General education, not legal, tax or financial advice.</p>
       </section>
       <nav className="path-next" aria-label="Next lesson">

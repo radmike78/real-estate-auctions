@@ -275,8 +275,8 @@ export default function ToolkitPage({ section }: { section?: string }) {
     <main className="page toolkit">
       <PageHero
         eyebrow={<span className="eyebrow">Free, no sign-up</span>}
-        title={<>Investor <span className="grad">toolkit</span></>}
-        sub="A step-by-step roadmap, a buy box to keep you focused, and every calculator and checklist on DeedOwl."
+        title={<>My <span className="grad">plan</span></>}
+        sub="Your investor toolkit: a step-by-step roadmap, a buy box to keep you focused, and every calculator and checklist on DeedOwl."
       />
       <section className="toolkit-start" aria-labelledby="start-head">
         <h2 id="start-head">Start your investing plan</h2>

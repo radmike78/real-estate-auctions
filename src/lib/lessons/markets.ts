@@ -3,7 +3,7 @@ import type { Lesson } from './types';
 export const markets: Lesson = {
   key: 'markets',
   minutes: 7,
-  intro: 'Real estate splits into two markets with different buyers, prices, loans and rules. Knowing which one a property is in tells you how it’s valued and how you can pay for it.',
+  intro: 'Real estate splits into two markets, each with its own buyers, prices, loans and rules. Once you know which one a property belongs to, you know how it’s valued and how you can pay for it.',
   takeaways: [
     'Where the line between residential and commercial falls.',
     'Why a house is priced by comparable sales and an income property by its income.',
@@ -14,7 +14,7 @@ export const markets: Lesson = {
     {
       heading: 'Where the line is',
       blocks: [
-        'For home loans, a building with one to four homes in it is residential. That means a house, a condo, a duplex, a triplex or a fourplex. Federal housing rules call it single-family housing. Fannie Mae buys loans on it as residential property.',
+        'For home loans, a building with one to four homes in it is residential. That covers a house, a condo, a duplex, a triplex or a fourplex. Federal housing rules call all of these single-family housing, and Fannie Mae buys loans on them as residential property.',
         'A building with five or more homes is multifamily. It’s bought, valued and financed like a business, with commercial-style loans. Offices, stores, warehouses, hotels and self-storage are commercial too.',
       ],
     },
@@ -37,24 +37,24 @@ export const markets: Lesson = {
     {
       heading: 'How each is valued',
       blocks: [
-        'Homes that people live in are usually valued by comparing recent sales of similar homes. That works because there are plenty of them. Federal bank examiners call this the usual approach for owner-occupied homes.',
-        'Commercial property often doesn’t have enough similar sales to compare. So it’s valued by its income. Start with net operating income (NOI). That’s the rent it collects in a normal year, minus operating costs like taxes, insurance, repairs and management. NOI comes before any loan payment. Then divide by a capitalization (cap) rate. That’s the return buyers in that market expect.',
+        'Homes that people live in are usually valued by comparing recent sales of similar homes. That works because there are plenty of them to compare. Federal bank examiners call it the usual approach for owner-occupied homes.',
+        'Commercial property often doesn’t have enough similar sales to compare, so it’s valued by its income instead. Start with net operating income (NOI). That’s the rent it collects in a normal year, minus operating costs like taxes, insurance, repairs and management. NOI comes before any loan payment. Then divide by a capitalization (cap) rate, which is the return buyers in that market expect.',
         { list: ['Example: a building earns $120,000 of NOI a year. If buyers expect a 6% cap rate, it’s worth about $120,000 ÷ 0.06 = $2,000,000.', 'Raise the NOI by $10,000 and, at the same cap rate, the value goes up about $167,000. That’s why commercial investors focus on raising rent and cutting costs.'] },
       ],
     },
     {
       heading: 'How loans differ',
       blocks: [
-        'Loans on one to four homes follow the rules of Fannie Mae, Freddie Mac and the FHA. If you’ll live in the property, an FHA loan can cover about 96.5% of the price on a home with up to four units. Three or four units with FHA have two more rules. First, the rent has to carry the loan: 75% of the appraiser’s market rent for all units, including yours, must cover the full monthly payment with taxes and insurance. Second, you need three months of payments in savings after closing. Ask the lender to run the rent test before you pay for an appraisal or inspection.',
-        'Commercial loans are sized on the property’s income. Lenders look at the loan-to-value ratio (LTV) and the debt service coverage ratio (DSCR). DSCR is how many times the NOI covers the loan payments. A federal banking example describes an office loan at 75% LTV and 1.30x DSCR. It’s paid as if over 20 years, but the rest is due as a balloon after five. Lenders also look at who guarantees the loan.',
+        'Loans on one to four homes follow the rules of Fannie Mae, Freddie Mac and the FHA. If you’ll live in the property, an FHA loan can cover about 96.5% of the price on a home with up to four units. With FHA, three or four units come with two extra rules. First, the rent has to carry the loan: 75% of the appraiser’s market rent for all units, including yours, must cover the full monthly payment with taxes and insurance. Second, you need three months of payments in savings after closing. Ask the lender to run the rent test before you pay for an appraisal or inspection.',
+        'Commercial loans are sized on the property’s income. Lenders look at the loan-to-value ratio (LTV) and the debt service coverage ratio (DSCR), which is how many times the NOI covers the loan payments. Federal bank regulators give an example: an office loan at 75% LTV and 1.30x DSCR, paid as if over 20 years, with the rest due as a balloon after five. Lenders also look at who guarantees the loan.',
       ],
     },
     {
       heading: 'How leases differ',
       blocks: [
         'Residential tenants have strong protections, and each state sets its own landlord-tenant law. Read yours before you rent out a home.',
-        'In California, most rentals fall under the Tenant Protection Act. Under that act, rent can’t go up more than 10%, or 5% plus inflation, whichever is lower, in 12 months. The act also has rules on when a landlord can end a tenancy.',
-        'Businesses negotiate commercial leases with each other, and these leases are often much longer. In a triple-net (NNN) lease, the tenant pays rent plus the property’s taxes, insurance and maintenance. These leases commonly run 10 or 15 years.',
+        'In California, most rentals fall under the Tenant Protection Act. It says rent can’t go up more than 10%, or 5% plus inflation, whichever is lower, in 12 months. It also limits when a landlord can end a tenancy.',
+        'Commercial leases are worked out between businesses, and they often run much longer. In a triple-net (NNN) lease, the tenant pays rent plus the property’s taxes, insurance and maintenance. These leases commonly run 10 or 15 years.',
       ],
     },
     {
@@ -66,7 +66,7 @@ export const markets: Lesson = {
     {
       heading: 'Where the risk is',
       blocks: [
-        'A rental home depends on one household at a time, with short leases. So problems show up fast and are usually small. A commercial building can depend on a few large tenants with long leases. Income is steady while they stay. But a single vacancy or a lease that doesn’t renew can cut income sharply. Bank examiners watch vacancy rates and lease renewals for that reason. Office buildings lost income when many businesses moved to hybrid work.',
+        'A rental home depends on one household at a time, on short leases, so problems show up fast and are usually small. A commercial building can depend on a few large tenants with long leases. Income is steady while they stay, but a single vacancy or a lease that doesn’t renew can cut income sharply. Bank examiners watch vacancy rates and lease renewals for that reason. Office buildings lost income when many businesses moved to hybrid work.',
       ],
     },
   ],

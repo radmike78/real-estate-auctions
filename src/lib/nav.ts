@@ -49,7 +49,7 @@ export function isAppLink(a: HTMLAnchorElement): boolean {
   if (raw.startsWith('#/')) return true;
   if (!raw.startsWith('/') || raw.startsWith('//')) return false;
   // Files and the server's own paths load normally.
-  return !/^\/(api|data|assets)\//.test(raw) && !/\.[a-z0-9]{2,5}($|\?)/i.test(raw.split('#')[0]);
+  return !/^\/(api|data|assets)\//.test(raw) && !/\.[a-z0-9]{2,5}$/i.test(raw.split('#')[0].split('?')[0]);
 }
 
 /**

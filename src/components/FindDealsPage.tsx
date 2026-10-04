@@ -10,6 +10,7 @@ import { COUNTY_PAGES, nationalOfficialFor, OFFICE_LABELS, OTHER_SITES, STATE_SA
 import { COUNTY_OFFICES } from '../lib/countyOffices';
 import { useMarkStep } from '../lib/path';
 import { getMyState, setMyState, useMyState } from '../lib/myState';
+import { useLastActivity } from '../lib/journey';
 
 const AREA_KEY = 'deedowl.area.v1';
 
@@ -60,6 +61,7 @@ function Band({ tone, icon, title, sub, children, id }: { tone: 'county' | 'site
 
 export default function FindDealsPage() {
   useMarkStep('deals');
+  useLastActivity('#/find-deals', 'Find Deals');
   const [area, setArea] = useState(loadArea);
   const [mine] = useMyState();
   // Choosing a state anywhere else on the site moves Find Deals to it.

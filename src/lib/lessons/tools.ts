@@ -3,7 +3,7 @@ import type { Lesson } from './types';
 export const tools: Lesson = {
   key: 'tools',
   minutes: 8,
-  intro: 'Most of what you need to research a property is public and free. That includes county records, federal maps and data, and state license lookups. Here are the tools investors use, and a routine for checking any property.',
+  intro: 'Most of what you need to research a property is public and free: county records, federal maps and data, and state license lookups. Here are the tools investors use, and a routine for checking any property.',
   takeaways: [
     'Which county offices hold ownership, tax and recorded-document records.',
     'Free federal tools for rents, flood risk, neighborhood data and environmental records.',
@@ -20,7 +20,7 @@ export const tools: Lesson = {
           'Recorder: recorded documents such as deeds, deeds of trust, liens, notices of default and releases. This is where a title search starts.',
           'Treasurer or tax collector: the tax bill, whether taxes are unpaid, and the county’s tax sale.',
         ] },
-        'Start with the parcel number from the assessor. The other offices use it too. The largest counties in our four states:',
+        'Start with the parcel number from the assessor, since the other offices use it too. Here are the largest counties in our four states:',
         { links: [
           { label: 'Clark County (NV) Assessor', url: 'https://www.clarkcountynv.gov/assessor', what: 'Property record search.' },
           { label: 'Clark County (NV) Recorder', url: 'https://www.clarkcountynv.gov/recorder', what: 'Recorded documents online and the GIS map.' },
@@ -76,7 +76,7 @@ export const tools: Lesson = {
     {
       heading: 'Court records and bankruptcy',
       blocks: [
-        'When an owner files for bankruptcy, federal law usually stops any act to enforce a lien against their property. That can halt a foreclosure or tax sale. There are exceptions, especially for repeat filers, so ask the trustee or your title company whether a sale is on hold. Federal court records, including bankruptcy cases, are on PACER. Documents cost 10 cents a page, capped at $3 each; search results and transcripts have no cap. Fees are waived if you spend $30 or less in a quarter. State court cases are on each state’s or county’s court website.',
+        'When an owner files for bankruptcy, federal law usually stops anyone from enforcing a lien against their property, which can halt a foreclosure or tax sale. There are exceptions, especially for repeat filers, so ask the trustee or your title company whether a sale is on hold. Federal court records, including bankruptcy cases, are on PACER. Documents cost 10 cents a page, capped at $3 each; search results and transcripts have no cap. Fees are waived if you spend $30 or less in a quarter. State court cases are on each state’s or county’s court website.',
         { links: [
           { label: 'PACER', url: 'https://pacer.uscourts.gov/', what: 'Federal court and bankruptcy records.' },
           { label: 'PACER Case Locator', url: 'https://pcl.uscourts.gov/', what: 'Search for a person’s or company’s federal cases nationwide.' },

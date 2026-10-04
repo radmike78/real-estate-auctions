@@ -18,7 +18,8 @@ describe('crawlable pages', () => {
     for (const p of all)
       for (const [, href] of p.body.matchAll(/href="(\/[^"]*)"/g)) {
         expect(href, `${p.path} → ${href}`).not.toContain('#');
-        expect(paths.has(href) || APP_ONLY.has(href), `${p.path} → ${href}`).toBe(true);
+        const bare = href.replace(/&amp;/g, '&').split('?')[0];
+        expect(paths.has(bare) || APP_ONLY.has(bare), `${p.path} → ${href}`).toBe(true);
       }
   });
 

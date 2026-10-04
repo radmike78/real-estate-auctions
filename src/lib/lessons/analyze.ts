@@ -3,7 +3,7 @@ import type { Lesson } from './types';
 export const analyze: Lesson = {
   key: 'analyze',
   minutes: 9,
-  intro: 'A deal is made or lost on the numbers and the paperwork. This lesson shows you what a property is worth and what it will cost you. It also covers what it can earn and what to check before you commit.',
+  intro: 'A deal is made or lost on the numbers and the paperwork. This lesson shows you how to work out what a property is worth, what it will cost you and what it can earn, plus what to check before you commit.',
   takeaways: [
     'How value is set: comparable sales, appraisals and income.',
     'The costs buyers forget: closing, holding, repairs and selling.',
@@ -14,11 +14,11 @@ export const analyze: Lesson = {
     {
       heading: 'Start with value',
       blocks: [
-        'An appraisal is a written opinion of what a property is worth. For a home, appraisers compare it with similar homes that sold nearby. Fannie Mae requires at least three closed comparable sales, usually from the last 12 months. You can do a rough version yourself with recent sold prices. It only works if the homes really are similar in size, age, condition and location.',
+        'An appraisal is a written opinion of what a property is worth. For a home, appraisers compare it with similar homes that sold nearby. Fannie Mae requires at least three closed comparable sales, usually from the last 12 months. You can do a rough version yourself with recent sold prices, but only if the homes really are similar in size, age, condition and location.',
         'Your own estimate is only a starting point. Value depends on the neighborhood, recent comparable sales, the property’s condition and the market. The best way to determine what a property is worth is a professional appraisal by a state-licensed or certified appraiser. Until you have one, your real estate agent can estimate the value from recent comparable sales.',
-        'Upgrades don’t add their cost to the value. A remodel can make a home more appealing. But appraisers value a feature by what buyers in that market pay for it, not by what it cost. Fannie Mae says adjustments must reflect how the market reacts, not the cost of equipment and installation dollar for dollar. Some improvements are bigger or cost more than is typical for the neighborhood, like a pool where pools are rare. Those count only for what they add. Real estate agents estimated in 2025 that a complete kitchen renovation gets back about 60% of its cost at resale. For a bathroom renovation, they estimated about 50%.',
+        'Upgrades don’t add their cost to the value. A remodel can make a home more appealing, but appraisers value a feature by what buyers in that market pay for it, not by what it cost. Fannie Mae’s rule is that adjustments have to reflect how the market reacts, not the dollar-for-dollar cost of equipment and installation. If an improvement is bigger or pricier than is typical for the neighborhood, like a pool where pools are rare, it counts only for what it adds. In 2025, real estate agents estimated that a complete kitchen renovation gets back about 60% of its cost at resale, and a bathroom renovation about 50%.',
         { links: [{ label: 'Appraisers', url: '#/pros/appraiser', what: 'What they do, when to hire one and how to check a license.' }, { label: 'Real estate agents', url: '#/pros/agent', what: 'How an agent helps you estimate value and make an offer.' }] },
-        'Investors who plan to fix a property estimate its value after the work is done. This is often called the after-repair value (ARV). That number is only as good as the comparable sales behind it. So use sold prices of homes already in that finished condition, not asking prices.',
+        'If you plan to fix a property, you’ll estimate what it’s worth once the work is done. That’s often called the after-repair value (ARV), and it’s only as good as the comparable sales behind it. So use sold prices of homes already in that finished condition, not asking prices.',
         'For income property, value comes from the income, as in lesson 1: net operating income divided by the cap rate buyers expect.',
       ],
     },
@@ -85,7 +85,7 @@ export const analyze: Lesson = {
     {
       heading: 'Rules of thumb, and their limits',
       blocks: [
-        'Flippers often quote a “70% rule”: offer no more than 70% of the after-repair value, minus repairs. It’s an informal shortcut, not a standard. It doesn’t fit every market or price range. Use it to screen deals, then run your own numbers with real costs. For auctions, set your top bid before the sale and don’t go past it.',
+        'Flippers often quote a “70% rule”: offer no more than 70% of the after-repair value, minus repairs. It’s an informal shortcut, not a standard, and it doesn’t fit every market or price range. Use it to screen deals, then run your own numbers with real costs. For auctions, set your top bid before the sale and don’t go past it.',
         'Watch for “gross profit” in flipping reports. ATTOM reported that the typical U.S. flip in 2025 made $65,981 in gross profit, a 25.5% return, the lowest since 2008, and took 163 days to resell. Gross profit is only the sale price minus the purchase price. It leaves out repairs, holding and selling costs.',
         { table: { head: ['A typical 2025 flip', 'Amount'], rows: [
           ['Bought for about $259,000, sold for about $325,000 (gross profit)', '$66,000'],
@@ -104,7 +104,7 @@ export const analyze: Lesson = {
         { list: [
           'Title: a title search shows who owns the property and what liens are recorded. Owner’s title insurance protects you if someone later claims an interest from before you bought it. Lenders usually require their own policy.',
           'Condition: a home inspection is not the same as an appraisal, and you usually need both. At an auction you often can’t go inside, so look from the street and budget for surprises.',
-          'Lead paint: for homes built before 1978, sellers must give buyers a lead hazard pamphlet. Sellers must also give buyers a 10-day chance to test for lead-based paint. Buyers can waive that chance.',
+          'Lead paint: for homes built before 1978, sellers must give buyers a lead hazard pamphlet and a 10-day chance to test for lead-based paint. Buyers can choose to skip (waive) that chance.',
           'Flood risk: check the property on FEMA’s Flood Map Service Center, the official source for flood zones.',
           'Taxes: look up the property tax bill and any unpaid taxes with the county assessor and treasurer.',
         ] },
@@ -119,9 +119,9 @@ export const analyze: Lesson = {
             rows: [
               [
                 'Seller’s disclosure',
-                'At least 10 days before a home is conveyed, the seller must complete and deliver a disclosure form (NRS 113.130). Sellers don’t have to disclose defects they don’t know about. If it comes late, the buyer can cancel before closing without penalty.',
-                'The seller delivers a Transfer Disclosure Statement as soon as practicable before title transfers (Civil Code 1102.3). It may arrive after the offer is signed. Then the buyer has 3 days to cancel after hand delivery, or 5 days if it came by mail or electronically.',
-                'State law requires certain disclosures. One example is soil remediation the owner knows about (A.R.S. 33-434.01). State law also requires an affidavit of disclosure for unsubdivided land outside cities. It’s due at least 7 days before transfer, with 5 days to cancel (A.R.S. 33-422). Ask your agent which disclosure form your contract uses.',
+                'The seller must fill out a disclosure form and give it to the buyer at least 10 days before the home changes hands (NRS 113.130). Sellers don’t have to disclose defects they don’t know about. If it comes late, the buyer can cancel before closing without penalty.',
+                'The seller gives the buyer a Transfer Disclosure Statement as soon as practicable before title transfers (Civil Code 1102.3). If it arrives after the offer is signed, the buyer has 3 days to cancel after hand delivery, or 5 days if it came by mail or electronically.',
+                'State law requires certain disclosures, such as soil cleanup (remediation) the owner knows about (A.R.S. 33-434.01). Unsubdivided land outside cities also needs an affidavit of disclosure, due at least 7 days before transfer, with 5 days to cancel (A.R.S. 33-422). Ask your agent which disclosure form your contract uses.',
                 'The state-approved purchase contract has the seller give a written property condition disclosure by the Seller Disclosure Deadline. The buyer can cancel by the Due Diligence Deadline. Sellers must disclose methamphetamine contamination they know about (Utah Code 57-27-201).',
               ],
               [
@@ -129,7 +129,7 @@ export const analyze: Lesson = {
                 'The owner gives a resale package (governing documents, dues, budget, reserves, lawsuits, fees). The buyer can cancel in writing until midnight of the fifth day after receiving it (NRS 116.4109).',
                 'The owner gives governing documents, financial and reserve disclosures, assessments, violation notices and rental limits before transfer (Civil Code 4525).',
                 'The association delivers its documents (rules, budget, reserves, insurance, lawsuits) within 10 days. The 10 days start after notice of a pending offer. In smaller communities, they start after the offer is accepted. Its fee can’t be more than $400, plus up to $100 for a rush (A.R.S. 33-1260 and 33-1806).',
-                'Before closing, the seller gives the buyer the association’s recorded governing documents (Utah Code 57-8a-105.1 and 57-8-6.1). A payoff fee can’t exceed $50.',
+                'Before closing, the seller gives the buyer the association’s recorded governing documents (Utah Code 57-8a-105.1 and 57-8-6.1). A payoff fee can’t be more than $50.',
               ],
               [
                 'Forced sales',
@@ -141,8 +141,8 @@ export const analyze: Lesson = {
             ],
           },
         },
-        'In Arizona, sellers and agents can’t be sued for not disclosing certain facts (A.R.S. 32-2156). These facts are that a home was the site of a death or felony, or was lived in by someone with HIV. They also include that a home is near a sex offender.',
-        'In Utah, sellers and their agents aren’t liable for not disclosing certain facts (Utah Code 57-1-37). These facts are that a home was the site of a homicide, suicide or other felony. They also include that a home was lived in by someone with HIV.',
+        'In Arizona, sellers and agents can’t be sued for not telling you that a home was the site of a death or felony, that someone with HIV lived there, or that it’s near a sex offender (A.R.S. 32-2156).',
+        'In Utah, sellers and their agents aren’t liable for not telling you that a home was the site of a homicide, suicide or other felony, or that someone with HIV lived there (Utah Code 57-1-37).',
       ],
     },
   ],

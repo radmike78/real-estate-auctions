@@ -76,8 +76,8 @@ export const SECTIONS: DrillSection[] = [
       <>
         <p>{SOURCES_AND_ADVICE}</p>
         <p>
-          Records change and mistakes happen, so checking the law, the title, the taxes and the numbers for your deal is part of your due diligence. Our guides and checklists
-          explain how each kind of sale generally works so you know what to ask; they don't replace an attorney, tax advisor, agent or
+          Records change and mistakes happen, so part of your due diligence is checking the law, the title, the taxes and the numbers for your own deal. Our guides and checklists
+          explain how each kind of sale generally works, so you know what to ask. They don't replace an attorney, tax advisor, agent or
           financial advisor who looks at your situation.
         </p>
       </>
@@ -131,8 +131,8 @@ export const SECTIONS: DrillSection[] = [
     summary: 'Information is provided "as is." Always rely on the official source',
     content: () => (
       <p>
-        We make every effort to show only current information from government and official sources, but sources change and errors happen. Information is provided "as is,"
-        without warranties. Always rely on the official source. If you find something wrong, tell us so we can fix it.
+        We work hard to show only current information from government and official sources, but sources change and mistakes happen. Everything here is provided "as is,"
+        without warranties, so always rely on the official source.
       </p>
     ),
   },

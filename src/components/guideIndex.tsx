@@ -13,18 +13,19 @@ import { GUIDE as PRE_FORECLOSURE } from './PreForeclosurePage';
 import { sectionsFor as bankOwned } from './BankOwnedPage';
 import { sections as playbookSections } from './PlaybookPage';
 import HomeownerHelpPage from './HomeownerHelpPage';
-import { PLAYBOOKS } from '../lib/playbooks';
+import { PLAYBOOKS, stateOf } from '../lib/playbooks';
+import { stateByCode } from '../lib/regions';
 import { buildIndex, fromHtml, type GuideDoc, type GuideIndex } from '../lib/guideSearch';
 
 const html = (node: ReactNode) => renderToStaticMarkup(<>{node}</>);
 
-function fromSections(page: string, base: string, sections: DrillSection[], weight?: number): GuideDoc[] {
+function fromSections(page: string, base: string, sections: DrillSection[], weight?: number, state?: string): GuideDoc[] {
   return sections.map((s) => {
     const summary = typeof s.summary === 'string' ? s.summary : fromHtml(html(s.summary)).text;
     const { text, sources } = fromHtml(html(s.content()));
     // Tile summaries that are only counts ("8 steps, from…") add nothing to search.
     const lead = /^\d/.test(summary) ? '' : `${summary.replace(/\.$/, '')}. `;
-    return { href: `${base}/${s.key}`, page, title: s.title, text: `${lead}${text}`, sources, weight };
+    return { href: `${base}/${s.key}`, page, title: s.title, text: `${lead}${text}`, sources, weight, state };
   });
 }
 
@@ -40,15 +41,18 @@ function homeownerDocs(): GuideDoc[] {
 export function guideDocs(): GuideDoc[] {
   const docs: GuideDoc[] = [];
   for (const p of PLAYBOOKS) {
-    const page = `${p.short} guide`;
+    const st = stateOf(p);
+    // "California tax sales guide", so results from different states are easy to tell apart.
+    const page = `${stateByCode(st)?.name ?? ''}${st === 'NV' ? ' (Clark County)' : ''} ${p.short.replace(/^[A-Z](?=[a-z])/, (c) => c.toLowerCase())} guide`.trim();
     docs.push({
       href: `#/playbooks/${p.key}`,
       page,
       title: p.title,
       text: [p.oneLine, `What you get: ${p.youGet.replace(/\.$/, '')}.`, ...p.glance.map((g) => `${g.label}: ${g.value.replace(/\.$/, '')}.`)].join(' '),
       sources: p.sources.filter((s) => s.url.startsWith('https://')),
+      state: st,
     });
-    docs.push(...fromSections(page, `#/playbooks/${p.key}`, playbookSections(p)));
+    docs.push(...fromSections(page, `#/playbooks/${p.key}`, playbookSections(p), undefined, st));
   }
   docs.push(
     ...fromSections('Short sales', '#/short-sales', SHORT_SALES),

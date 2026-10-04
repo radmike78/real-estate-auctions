@@ -55,9 +55,9 @@ export const GUIDE: DrillSection[] = [
     content: () => (
       <>
         <ol className="timeline-steps">
-          <li><strong>Notice of default</strong><span>Recorded by the trustee or HOA. The owner can still cure the default.</span></li>
-          <li><strong>3+ months</strong><span>Minimum wait before a notice of sale can be recorded: 3 months for a mortgage (NRS 107.080), 90 days for an HOA (NRS 116.31162).</span></li>
-          <li><strong>Notice of sale</strong><span>Posted 20 days and published 3 weeks. Sets the auction date.</span></li>
+          <li><strong>Notice of default</strong><span>The trustee or HOA records it. The owner can still catch up and fix the default (called curing it).</span></li>
+          <li><strong>3+ months</strong><span>The shortest wait before a notice of sale can be recorded: 3 months for a mortgage (NRS 107.080) and 90 days for an HOA (NRS 116.31162).</span></li>
+          <li><strong>Notice of sale</strong><span>Posted for 20 days and published for 3 weeks. It sets the auction date.</span></li>
           <li><strong>Auction</strong><span>Held, postponed or cancelled. A sale becomes an auction listing on this site.</span></li>
         </ol>
         <p className="muted">
@@ -128,8 +128,8 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
 
       <div className="caution" role="alert">
         <strong>Do not contact these homeowners.</strong> A notice of default means an owner is behind on payments. It does not mean the home
-        is for sale. Nevada licenses foreclosure consultants, and a buyer who uses fraud or deceit on an owner in foreclosure faces criminal penalties
-        (NRS Chapter 645F). The owner can rescind such a purchase for up to 2 years. Owners may also be in the state's Foreclosure Mediation Program. For that reason this tracker shows no
+        is for sale. Nevada licenses foreclosure consultants, and a buyer who uses fraud or deceit on an owner in foreclosure faces criminal penalties.
+        The owner can also cancel such a purchase for up to 2 years (NRS Chapter 645F). Owners may be in the state's Foreclosure Mediation Program, too. That's why this tracker shows no
         owner names or contact details. Use it only to follow a property toward auction, or to recognize it if the owner lists it for sale
         through an agent. Homeowners can find free help on our <a href="#/homeowner-help">homeowner help page</a>.
       </div>

@@ -2395,3 +2395,11 @@ h1, h2 { letter-spacing: -0.03em; }
 .before-commit h3 { margin: 0 0 10px; }
 .before-commit ul { margin: 0 0 10px; padding-left: 20px; display: grid; gap: 6px; }
 .before-commit p { margin: 0; }
+
+/* Statute citations: kept for readers who want to check, but quieter than the sentence. */
+cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-space: normal; }
+.sources-more > summary { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; color: var(--accent); font-weight: 600; }
+.sources-more[open] > summary { margin-bottom: 8px; }
+.guide-hit-sources > summary { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; color: var(--muted); font-size: 0.95rem; }
+/* Reading pages: section bars stay clear but smaller, so they don't compete with the page title. */
+.page.lesson section > h2:first-child { font-size: clamp(1.35rem, 1.7vw, 1.6rem); }

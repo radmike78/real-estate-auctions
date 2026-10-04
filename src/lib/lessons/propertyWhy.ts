@@ -9,7 +9,7 @@ export const PROPERTY_WHY = {
     yes: [
       {
         who: "First-time investors with little cash",
-        text: "It is the easiest kind of property to finance and understand. If you will really live in it, an owner-occupant loan can need a small down payment. FHA expects you to move in within 60 days and stay at least a year, so rent it out only after that. Never take a home loan on a place you don’t plan to live in.",
+        text: "It’s the easiest kind of property to understand and to finance. If you’ll really live in it, an owner-occupant loan can mean a small down payment. FHA expects you to move in within 60 days and stay at least a year, so only rent it out after that. And never take a home loan on a place you don’t plan to live in.",
         example: "HUD says FHA loans allow a down payment as low as 3.5% of the price on 1–4 unit homes. This is for buyers who will live there.",
         source: {
           label: "HUD: Loans (FHA)",
@@ -18,7 +18,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Long-term rental owners",
-        text: "If the home is rented, tax rules let you deduct the building’s wear and tear over time (not the land). That can shield part of the rent from income tax. How much it helps depends on your own taxes, so check with a tax professional.",
+        text: "Once the home is rented, tax rules let you deduct the building’s wear and tear over time (not the land), which can shield part of the rent from income tax. How much that helps depends on your own taxes, so check with a tax professional.",
         example: "IRS Publication 527 says a residential rental building is depreciated over 27.5 years (the land part is not).",
         source: {
           label: "IRS Publication 527, Residential Rental Property",
@@ -27,7 +27,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Flippers and anyone who may need to sell",
-        text: "Houses can be sold to families who want a home, not just to other investors. That gives you the most buyers when it is time to sell, if the house is priced for what local buyers can borrow. When mortgage rates rise, that pool shrinks."
+        text: "You can sell a house to families who want a home, not just to other investors, so you’ll have the most buyers when it’s time to sell, as long as it’s priced for what local buyers can borrow. That pool shrinks when mortgage rates rise."
       },
       {
         who: "Small landlords in California",
@@ -42,7 +42,7 @@ export const PROPERTY_WHY = {
     no: [
       {
         who: "Investors buying government-owned homes",
-        text: "Many government-owned homes go first to people who will live in them. Investors often only get a turn after that window closes, when the best homes may be gone. Check each listing’s investor bid date on the official site.",
+        text: "Many government-owned homes go first to people who will live in them, and investors often only get a turn after that window closes, when the best homes may be gone. Check each listing’s investor bid date on the official site.",
         example: "For HUD homes listed since May 30, 2025, owner-occupants, government buyers and HUD-approved nonprofits get the first 15 days (5 days for homes marked “uninsured”). Investors can bid only after that (HUD Mortgagee Letter 2025-13).",
         source: {
           label: "HUD Mortgagee Letter 2025-13: 15-day exclusive listing period",
@@ -51,15 +51,15 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Investors who want steady income",
-        text: "There is only one tenant. When the house is empty, your rent drops to zero, but the mortgage, taxes and insurance do not. Walk away if the numbers only work with no empty months at all."
+        text: "With only one tenant, an empty house means your rent drops to zero, but the mortgage, taxes and insurance do not. If the numbers only work with no empty months at all, walk away."
       },
       {
         who: "Buyers with thin savings",
-        text: "Every repair is yours alone. A new roof or air conditioner can wipe out several years of profit on one house. Check the age of the roof and air conditioner before you buy. If you couldn’t pay for one big repair from savings, wait."
+        text: "Every repair is yours alone, and a new roof or air conditioner can wipe out several years of profit on one house. Before you buy, find out how old the roof and air conditioner are. If you couldn’t pay for one big repair from savings, wait."
       },
       {
         who: "Cash-flow investors in high-price areas",
-        text: "In expensive markets the rent may not cover the mortgage, taxes and insurance. Then you pay each month and bet on the price going up. Compare real local rents with your full monthly cost first."
+        text: "In expensive markets the rent may not cover the mortgage, taxes and insurance, so you end up paying in each month and betting on the price going up. Compare real local rents with your full monthly cost first."
       }
     ]
   },
@@ -71,7 +71,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Hands-off owners and retirees",
-        text: "The HOA usually handles the roof, outside walls and grounds, so you have fewer repairs to manage. That only holds if the HOA has saved enough. Read the reserve study and budget before you buy."
+        text: "The HOA usually handles the roof, outside walls and grounds, so you have fewer repairs to manage, but only if it has saved enough to pay for them. Read the reserve study and budget before you buy."
       },
       {
         who: "Long-term landlords in California",
@@ -86,7 +86,7 @@ export const PROPERTY_WHY = {
     no: [
       {
         who: "Anyone on a tight budget",
-        text: "Say the building needs big repairs and the HOA has not saved enough. Owners can then be billed a large special assessment on short notice. Ask in writing about planned assessments, and walk away if reserves are low and big repairs are near.",
+        text: "If the building needs big repairs and the HOA has not saved enough, owners can be billed a large special assessment on short notice. Ask in writing about planned assessments, and walk away if reserves are low and big repairs are near.",
         example: "In 2021, Champlain Towers South collapsed in Surfside, Florida, killing 98 people. Afterward Florida required inspections and reserve studies. Some associations hit owners with very large assessments.",
         source: {
           label: "News Service of Florida via WKMG ClickOrlando (Feb. 11, 2025)",
@@ -95,7 +95,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Flippers and auction buyers",
-        text: "If the building needs major repairs, many buyers cannot get a normal loan there. That makes the unit harder to sell and can lower its price. Ask a lender whether the project qualifies before you buy.",
+        text: "If the building needs major repairs, many buyers cannot get a normal loan there, which makes the unit harder to sell and can lower its price. Before you buy, ask a lender whether the project qualifies.",
         example: "Fannie Mae’s Selling Guide lists condo projects needing critical repairs as ineligible for its loans.",
         source: {
           label: "Fannie Mae Selling Guide B4-2.1-03, Ineligible Projects",
@@ -104,11 +104,11 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Investors who want control",
-        text: "HOA fees and rules can change by board or member vote. You are one vote among many, and rising fees cut directly into your rent. Read recent board minutes to see where fees are heading."
+        text: "HOA fees and rules can change by board or member vote. You’re just one vote among many, and rising fees cut directly into your rent. Read recent board minutes to see where fees are heading."
       },
       {
         who: "Short-term rental investors in California",
-        text: "In California, an HOA can still ban rentals of 30 days or less. So a vacation-rental plan may not be allowed. Read the CC&Rs before you buy.",
+        text: "In California, an HOA can still ban rentals of 30 days or less, so a vacation-rental plan may not be allowed. Read the CC&Rs before you buy.",
         example: "California Civil Code 4741(c) lets an HOA prohibit rentals of 30 days or less.",
         source: {
           label: "California Civil Code § 4741",
@@ -117,7 +117,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Investors buying several units in one building",
-        text: "If one owner holds too many units, buyers may not be able to get a normal loan in that building. That can make every unit harder to sell. Ask how many units each owner holds before you buy more than one.",
+        text: "If one owner holds too many units, buyers may not be able to get a normal loan in that building, which can make every unit harder to sell. Before you buy more than one, ask how many units each owner already holds.",
         example: "Fannie Mae won’t buy loans in projects where one owner holds more than 2 units (in 5–20 unit projects) or more than 20% of the units (in projects of 21 or more).",
         source: {
           label: "Fannie Mae Selling Guide B4-2.1-03, Ineligible Projects",
@@ -139,7 +139,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Investors who want steadier income",
-        text: "With two to four units, one empty unit does not cut your rent to zero. With a single house, it does. The cushion is small: in a duplex, one empty unit still cuts the rent in half."
+        text: "With two to four units, one empty unit does not cut your rent to zero the way it would with a single house. The cushion is small, though: in a duplex, one empty unit still cuts the rent in half."
       },
       {
         who: "Owner-occupants in California",
@@ -154,7 +154,7 @@ export const PROPERTY_WHY = {
     no: [
       {
         who: "FHA buyers of 3–4 units",
-        text: "Lenders want proof you have cash left over after closing. So the low down payment does not mean you can buy with almost nothing. Count closing costs and these savings before you make an offer.",
+        text: "Lenders want proof you’ll have cash left over after closing, so the low down payment does not mean you can buy with almost nothing. Count closing costs and those savings before you make an offer.",
         example: "HUD Mortgagee Letter 2023-17 (Oct. 16, 2023) covers 3–4 unit FHA loans. It requires lenders to document reserves of three months’ mortgage payments after closing.",
         source: {
           label: "HUD Mortgagee Letter 2023-17",
@@ -163,7 +163,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Owner-occupants",
-        text: "You live next to your tenants. Late-night repair calls, noise and rent talks become part of your home life. If you want privacy from tenants, this may not fit you."
+        text: "You live next to your tenants, so late-night repair calls, noise and rent talks become part of your home life. If you want privacy from tenants, this may not be for you."
       },
       {
         who: "Investors (not living there) in California",
@@ -176,7 +176,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Flippers",
-        text: "Fewer people shop for a duplex or fourplex than for a house, so resale can take longer. Buyers often price it on rent rather than looks. Price your plan on the rent from the start."
+        text: "Fewer people shop for a duplex or fourplex than for a house, so resale can take longer, and buyers often price it on rent rather than looks. Base your plan on the rent from the start."
       }
     ]
   },
@@ -203,7 +203,7 @@ export const PROPERTY_WHY = {
     no: [
       {
         who: "Buyers who need a loan",
-        text: "Loans on manufactured homes are often ‘chattel’ loans on the home only. These usually cost more and protect the borrower less than a mortgage. Get loan quotes before you shop, and compare them with a regular mortgage.",
+        text: "Loans on manufactured homes are often ‘chattel’ loans on the home only, which usually cost more and protect you less than a mortgage. Get loan quotes before you shop, and compare them with a regular mortgage.",
         example: "A May 2021 CFPB report found about 42% of manufactured home purchase loans were chattel loans. These generally have higher interest rates.",
         source: {
           label: "CFPB press release (May 27, 2021)",
@@ -212,7 +212,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Buyers of a home on rented land",
-        text: "If the home sits in a park, the park owner sets the lot rent. Moving the home is costly or impossible, so you may have to accept increases. Ask who owns the park and for its history of rent increases. A recent sale to an investor is a warning sign.",
+        text: "If the home sits in a park, the park owner sets the lot rent, and since moving the home is costly or impossible, you may have to accept increases. Ask who owns the park and for its history of rent increases; a recent sale to an investor is a warning sign.",
         example: "AP reported in 2022 on an Iowa park bought by an investor. A resident said his rent and fees had almost doubled since 2019.",
         source: {
           label: "Associated Press via PBS NewsHour (July 25, 2022)",
@@ -233,7 +233,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Value-add investors",
-        text: "Larger apartment buildings are priced mainly on the income they bring in. So raising rents to market or cutting waste can raise the value. It works in reverse too: higher costs, empty units or interest rates can lower it. Check local rent rules before you plan rent increases."
+        text: "Larger apartment buildings are priced mainly on the income they bring in, so raising rents to market or cutting waste can raise the value. It works in reverse too: higher costs, empty units or interest rates can lower it. Check local rent rules before you plan rent increases."
       },
       {
         who: "Investors who worry about vacancy",
@@ -243,7 +243,7 @@ export const PROPERTY_WHY = {
     no: [
       {
         who: "Buyers who use a lot of borrowed money",
-        text: "Payments rise on floating-rate loans, or when you refinance, if rates go up. Even with a fixed-rate loan, higher rates can mean buyers pay less for the same rent, so values can fall even if the building is full. Check that the building could still pay its loan at refinance if rates rose 2–3 points.",
+        text: "If rates go up, your payments rise on a floating-rate loan or when you refinance. Even with a fixed-rate loan, higher rates can mean buyers pay less for the same rent, so values can fall even if the building is full. Make sure the building could still pay its loan at refinance if rates rose 2–3 points.",
         example: "The Federal Reserve raised its key rate to 5.25%–5.5% in July 2023.",
         source: {
           label: "Federal Reserve FOMC statement (July 26, 2023)",
@@ -252,7 +252,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Anyone who bought near a peak",
-        text: "Apartment prices can drop sharply when rates rise. Owners who must sell or refinance in a down market can lose all the money they put in. Check when the loan comes due, and avoid deals that need a refinance soon.",
+        text: "Apartment prices can drop sharply when rates rise, and owners who have to sell or refinance in a down market can lose all the money they put in. Check when the loan comes due, and avoid deals that need a refinance soon.",
         example: "Freddie Mac reported in mid-2024 that U.S. apartment property prices had fallen nearly 19% from their highs in 2022.",
         source: {
           label: "Freddie Mac 2024 Midyear Multifamily Outlook",
@@ -261,7 +261,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "First-time investors",
-        text: "Buildings with 5+ units use commercial loans. These usually need bigger down payments, more cash reserves and proof of experience. Without a landlord track record, you may need a partner or more cash."
+        text: "Buildings with 5+ units use commercial loans, which usually need bigger down payments, more cash reserves and proof of experience. Without a landlord track record, you may need a partner or more cash."
       }
     ]
   },
@@ -269,11 +269,11 @@ export const PROPERTY_WHY = {
     yes: [
       {
         who: "Investors who want hands-off income",
-        text: "Store tenants often sign multi-year leases and may pay a share of taxes, insurance and upkeep. That only helps while the space is leased. If a store leaves, you pay those costs yourself, so check when each lease ends."
+        text: "Store tenants often sign multi-year leases and may pay a share of taxes, insurance and upkeep. That only helps while the space is leased, though: if a store leaves, you pay those costs yourself. Check when each lease ends."
       },
       {
         who: "Cautious investors",
-        text: "Centers with a grocery store tend to keep shoppers coming, because people buy food every week. That depends on the grocer staying. Check its lease length and whether other tenants may leave if it closes.",
+        text: "Centers with a grocery store tend to keep shoppers coming, because people buy food every week. That depends on the grocer staying, so check its lease length and whether other tenants may leave if it closes.",
         example: "JLL reported that vacancy in U.S. grocery-anchored shopping centers was 3.5% in the fourth quarter of 2024.",
         source: {
           label: "JLL Grocery Report 2025",
@@ -288,7 +288,7 @@ export const PROPERTY_WHY = {
     no: [
       {
         who: "Owners who depend on one big tenant",
-        text: "If a large chain goes bankrupt, it can leave a huge empty space. Filling it again can take a long time and a lot of money. Ask who else could use the space and what it would cost to re-lease.",
+        text: "If a large chain goes bankrupt, it can leave a huge empty space that can take a long time and a lot of money to fill again. Ask who else could use the space and what it would cost to re-lease.",
         example: "In April 2023, Bed Bath & Beyond filed for bankruptcy. It said it would close all 475 of its remaining stores.",
         source: {
           label: "CBS News / Associated Press (April 2023)",
@@ -306,7 +306,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "First-time investors",
-        text: "When a store leaves, the next tenant often wants months of free rent and money to rebuild the space. So a vacancy can cost far more than lost rent. Budget for it for every space before you buy."
+        text: "When a store leaves, the next tenant often wants months of free rent and money to rebuild the space, so a vacancy can cost far more than the lost rent. Budget for that on every space before you buy."
       }
     ]
   },
@@ -314,7 +314,7 @@ export const PROPERTY_WHY = {
     yes: [
       {
         who: "Bargain hunters and forced-sale buyers",
-        text: "Office prices have fallen hard in some cities. A low price may fit you if you have cash to fill empty space and can wait many years. A big drop from an old price doesn’t mean the building is worth more than you pay.",
+        text: "Office prices have fallen hard in some cities. A low price may suit you if you have cash to fill empty space and can wait many years. Just remember that a big drop from an old price doesn’t mean the building is worth more than you pay.",
         example: "In 2023, a mostly empty tower at 350 California St. in San Francisco sold for about $61 million, roughly 75% below its 2020 asking price. The buyers planned to hold it for 10 years or more and pay to lease it up.",
         source: {
           label: "The San Francisco Standard (Sept. 26, 2023)",
@@ -323,7 +323,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Investors who want long leases",
-        text: "Business tenants often sign leases of several years, so a well-leased building can give steady income for a while. That ends when the leases do. Check how much space expires in the next 2–3 years."
+        text: "Business tenants often sign leases of several years, so a well-leased building can give steady income for a while, until those leases end. Check how much space expires in the next 2–3 years."
       },
       {
         who: "Local small-office buyers",
@@ -351,7 +351,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Small investors",
-        text: "New office tenants usually expect the owner to pay to rebuild the space and to pay broker fees. So filling an empty suite can be very costly. Price these costs before you make an offer."
+        text: "New office tenants usually expect the owner to pay to rebuild the space and to cover broker fees, so filling an empty suite can be very costly. Price these costs in before you make an offer."
       }
     ]
   },
@@ -359,7 +359,7 @@ export const PROPERTY_WHY = {
     yes: [
       {
         who: "Long-term investors",
-        text: "Online shopping needs warehouses to store and ship goods, and online sales keep taking a bigger share of retail. That helps only where companies want space. New buildings nearby can still leave yours empty.",
+        text: "Online shopping needs warehouses to store and ship goods, and online sales keep taking a bigger share of retail. That only helps where companies want space, and new buildings nearby can still leave yours empty.",
         example: "The Census Bureau reported that e-commerce made up 17.1% of total U.S. retail sales in the second quarter of 2026.",
         source: {
           label: "U.S. Census Bureau, Quarterly Retail E-Commerce Sales",
@@ -383,7 +383,7 @@ export const PROPERTY_WHY = {
     no: [
       {
         who: "Investors buying after a boom",
-        text: "When demand is strong, builders rush to add space. When the new buildings open at once, vacancy rises and rents soften. Check how much new space is being built nearby.",
+        text: "When demand is strong, builders rush to add space, and when the new buildings all open at once, vacancy rises and rents soften. Check how much new space is being built nearby.",
         example: "Cushman & Wakefield reported a record 609.6 million square feet of new U.S. industrial space delivered in 2023. Vacancy rose at the same time.",
         source: {
           label: "Cushman & Wakefield news release (Jan. 11, 2024)",
@@ -392,7 +392,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Small investors",
-        text: "Most warehouses are large and expensive. There are few small, affordable options for a beginner. Smaller ‘flex’ buildings or real estate funds may fit better."
+        text: "Most warehouses are large and expensive, with few small, affordable options for a beginner. Smaller ‘flex’ buildings or real estate funds may fit better."
       },
       {
         who: "Owners of single-tenant buildings",
@@ -404,7 +404,7 @@ export const PROPERTY_WHY = {
     yes: [
       {
         who: "Redevelopers in California",
-        text: "California lets some sites zoned for shops, offices or parking skip parts of the usual approvals to build housing. That only works if the project meets set rules, such as affordable units and wage standards. Check whether your lot qualifies before you count on it.",
+        text: "California lets some sites zoned for shops, offices or parking skip parts of the usual approvals to build housing, but only if the project meets set rules, such as affordable units and wage standards. Check whether your lot qualifies before you count on it.",
         example: "In September 2022, California enacted AB 2011 and SB 6. These allow housing on some commercial sites zoned for retail, office and parking, if the project meets the laws’ conditions.",
         source: {
           label: "Office of Governor Gavin Newsom (Sept. 28, 2022)",
@@ -413,7 +413,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Investors who want more than one income stream",
-        text: "Rent from apartments and from shops comes from different tenants, so a weak spell in one can be softened by the other. That only works if both are leased. Check how long the storefront has been empty."
+        text: "Rent from apartments and from shops comes from different tenants, so a weak spell in one can be softened by the other. That only works if both are actually leased, so check how long the storefront has been empty."
       },
       {
         who: "Owner-operators",
@@ -423,7 +423,7 @@ export const PROPERTY_WHY = {
     no: [
       {
         who: "Condo investors and anyone who needs to resell",
-        text: "Common home loans limit how much of a building can be commercial. So fewer buyers may be able to finance a unit. Ask a lender whether the building qualifies before you buy.",
+        text: "Common home loans limit how much of a building can be commercial, so fewer buyers may be able to finance a unit. Ask a lender whether the building qualifies before you buy.",
         example: "Fannie Mae generally won’t buy loans in condo projects where more than 35% of the project or building is commercial or mixed-use space.",
         source: {
           label: "Fannie Mae Selling Guide B4-2.1-03, Ineligible Projects",
@@ -432,7 +432,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "First-time investors",
-        text: "Financing is often a commercial loan with bigger down payments. You must also understand both home rentals and store leases. Talk to a commercial lender early."
+        text: "Financing is often a commercial loan with a bigger down payment, and you need to understand both home rentals and store leases. Talk to a commercial lender early."
       },
       {
         who: "Hands-off investors",
@@ -463,7 +463,7 @@ export const PROPERTY_WHY = {
     no: [
       {
         who: "Anyone who needs steady income",
-        text: "Hotel income can disappear almost overnight. There are no leases, so guests can simply stop coming. Know how many months you could pay the loan with no guests.",
+        text: "Hotel income can disappear almost overnight: there are no leases, so guests can simply stop coming. Know how many months you could pay the loan with no guests at all.",
         example: "On March 17, 2020, the Nevada Gaming Control Board ordered all gaming in Nevada shut down by 11:59 p.m. that day. This was under the governor’s COVID-19 order.",
         source: {
           label: "Nevada Gaming Control Board, Notice to Licensees #2020-19",
@@ -481,7 +481,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Investors who want predictable income",
-        text: "Travel demand swings even in normal years. With no long leases, hotel income is harder to predict than rent. Get at least three years of real occupancy and room rates.",
+        text: "Travel demand swings even in normal years, and with no long leases, hotel income is harder to predict than rent. Get at least three years of real occupancy and room rates.",
         example: "Even outside a crisis, demand swings. Las Vegas visitor volume fell 7.5% in 2025 compared with 2024 (Las Vegas, Nevada).",
         source: {
           label: "LVCVA Summary of Monthly Tourism Indicators, Calendar Year 2025 (Nevada State Library archive)",
@@ -498,7 +498,7 @@ export const PROPERTY_WHY = {
     yes: [
       {
         who: "Investors who want hands-off income",
-        text: "Storage usually has fewer repair calls than housing, so it often needs fewer staff. Gates, security, roofs and flooding can still need urgent attention. Someone still has to rent units, collect payments and keep the site secure."
+        text: "Storage usually has fewer repair calls than housing, so it often needs fewer staff. But gates, security, roofs and flooding can still need urgent attention, and someone still has to rent units, collect payments and keep the site secure."
       },
       {
         who: "Investors worried about inflation",
@@ -526,7 +526,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Investors counting on steady growth",
-        text: "Storage demand rises and falls with home sales and moves. When people stop moving, fewer rent units. Compare what current tenants pay with what new tenants are offered.",
+        text: "Storage demand rises and falls with home sales and moves, so when people stop moving, fewer rent units. Compare what current tenants pay with what new tenants are offered.",
         example: "In Cushman & Wakefield’s investor survey, 39% named the slowing housing market as their top concern for self-storage.",
         source: {
           label: "Cushman & Wakefield: U.S. Self Storage Market Trends & Sector Outlook",
@@ -567,7 +567,7 @@ export const PROPERTY_WHY = {
     no: [
       {
         who: "Investors who need income",
-        text: "Raw land usually earns nothing, but you still pay property taxes and any loan. And you cannot deduct depreciation on land. Make sure you can pay the taxes for years.",
+        text: "Raw land usually earns nothing, but you still pay property taxes and any loan, and you cannot deduct depreciation on land. Make sure you can keep paying the taxes for years.",
         example: "The IRS says land is never depreciable, unlike rental buildings.",
         source: {
           label: "IRS Tax Topic 704, Depreciation",

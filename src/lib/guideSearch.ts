@@ -19,6 +19,8 @@ export interface GuideDoc {
   sources: GuideSource[];
   /** Lower for pages people rarely mean to search (privacy, terms). */
   weight?: number;
+  /** The state a sale guide covers, so the reader's own state ranks first. */
+  state?: string;
 }
 
 export interface GuideHit {
@@ -146,7 +148,10 @@ export function snippetFor(text: string, terms: string[]): string {
   return out;
 }
 
-export function searchGuides(ix: GuideIndex, q: string, limit = 20): GuideResults {
+// A query that names a law or code is looking for the sources lists; otherwise those rank last.
+const LEGAL = /\b(nrs|ars|a\.r\.s|code|statute|law|r&t|usc|u\.s\.c|cfr|ccp|civ)\b/i;
+
+export function searchGuides(ix: GuideIndex, q: string, limit = 20, state?: string | null): GuideResults {
   const terms = queryTerms(q);
   if (!terms.length) return { hits: [], partial: false, terms };
   const variants = terms.map((t) => [t, ...(SYNONYMS[t] ?? []).map(stem)]);
@@ -166,7 +171,10 @@ export function searchGuides(ix: GuideIndex, q: string, limit = 20): GuideResult
       score += s;
     }
     if (matched > 1 && phrase.length > 5 && d.lower.includes(phrase)) score *= 1.5;
-    return { d, score: score * (d.doc.weight ?? 1), matched };
+    let w = d.doc.weight ?? 1;
+    if (state && d.doc.state) w *= d.doc.state === state ? 1.6 : 0.6;
+    if (d.doc.title === 'Official sources' && !LEGAL.test(q)) w *= 0.4;
+    return { d, score: score * w, matched };
   });
   const all = scored.filter((s) => s.matched === terms.length);
   const partial = all.length === 0;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { currentRoute, isAppLink, navigate, onNavigate, rewriteAppLinks, toPath } from './lib/nav';
+import { currentRoute, isAppLink, navigate, onNavigate, rewriteAppLinks, toPath, upgradeLegacyHash } from './lib/nav';
 import SearchPage from './components/SearchPage';
 import HomePage from './components/HomePage';
 import SiteHeader from './components/SiteHeader';
@@ -185,6 +185,7 @@ export default function App() {
 
   useEffect(() => {
     const onNav = () => {
+      upgradeLegacyHash(); // an old "#/x" address set by anything still writing hashes
       setRoute(parseHash());
       setPath(hashPath());
       setNav((n) => n + 1);
@@ -216,8 +217,20 @@ export default function App() {
   useEffect(() => {
     const link = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     // Same form as the sitemap and the crawlable copies: a trailing slash ("/learn/red-flags/").
-    if (link) link.href = `${window.location.origin}${window.location.pathname.replace(/\/?$/, '/')}`;
-  }, [path]);
+    // The old /calculator address shows Analyze, so it points there.
+    const pathname = window.location.pathname.replace(/^\/calculator\/?$/, '/analyze/');
+    if (link) link.href = `${window.location.origin}${pathname.replace(/\/?$/, '/')}`;
+    // A page that doesn't exist shouldn't be indexed.
+    let robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+    if (route.page === 'notFound') {
+      if (!robots) {
+        robots = document.createElement('meta');
+        robots.name = 'robots';
+        document.head.appendChild(robots);
+      }
+      robots.content = 'noindex';
+    } else robots?.remove();
+  }, [path, route.page]);
 
   // Anonymous site stats: one page view per navigation (section name only), and which kinds of
   // outside sources people go on to check.

@@ -246,7 +246,7 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
       } catch {
         /* storage unavailable */
       }
-      history.replaceState(null, '', '#/advertiser'); // drop the token from the address bar and history
+      replaceAddress('/advertiser'); // drop the token from the address bar and history
     } else if (!pending) loadMe();
   }, [token, loadMe]); // eslint-disable-line react-hooks/exhaustive-deps
   function redeemLink(t: string) {

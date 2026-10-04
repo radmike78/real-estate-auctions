@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { replaceAddress } from '../lib/nav';
 import PageHero from './PageHero';
 import { api, unreachable } from '../lib/api';
 
@@ -18,13 +19,13 @@ export default function ApplicationConfirmPage({ token }: { token: string }) {
       return;
     }
     let alive = true;
-    history.replaceState(null, '', '#/advertise/confirm'); // drop the token from the address bar and history
+    replaceAddress('/advertise/confirm'); // drop the token from the address bar and history
     confirmOnce(token)
       .then((r) => alive && setState({ ok: true, message: r.message }))
       .catch((e: Error) => {
         if (!alive) return;
         // Server trouble, not a bad link: put the link back so "Try again" (or a reload) can retry it.
-        if (unreachable(e.message)) history.replaceState(null, '', `#/advertise/confirm/${token}`);
+        if (unreachable(e.message)) replaceAddress(`/advertise/confirm/${token}`);
         setState({ ok: false, message: e.message });
       });
     return () => {

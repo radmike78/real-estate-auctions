@@ -7,8 +7,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   agent: {
     overview: [
       "A real estate agent helps you find a property, write and negotiate the offer, and get to closing. A buyer’s agent is supposed to work for you, not the seller. How much an agent helps depends on the person. A careful agent checks facts, spots red flags, and pushes you to compare lenders and get inspections. A careless one passes along whatever the seller’s side says.",
-      "Watch who the agent really works for. Sometimes one brokerage, or one person, represents both buyer and seller. This is called “dual agency.” Both sides must be told and must agree in writing. In Nevada, a licensee must give a duties-owed form and get each party’s written consent before acting for more than one party. In California, a brokerage may act as a dual agent only with both parties’ consent after full disclosure. In Utah, an agent for both sides (a “limited agent”) must first get both parties’ informed consent in writing. Since August 17, 2024, agents who belong to a Realtor-run MLS must sign a written agreement with a buyer before touring a home, even a virtual tour. That agreement sets the agent’s pay. In California, state law also requires a written buyer agreement no later than your offer. In California, that agreement with an individual buyer can last at most three months and can’t renew automatically.",
-      "A note for auction buyers: many forced-sale purchases happen without an agent at all. Examples are county tax sales and trustee’s sales at the courthouse. Agents matter most for bank-owned (REO) and Fannie Mae/Freddie Mac homes listed on the MLS. There, offers usually go through a licensed agent."
+      "Watch who the agent really works for. Sometimes one brokerage, or even one person, represents both the buyer and the seller. That’s called “dual agency,” and both sides have to be told and agree in writing. In Nevada, the agent has to give each party a duties-owed form and get their written consent before acting for more than one party. In California, a brokerage may act as a dual agent only with both parties’ consent after full disclosure. In Utah, an agent for both sides (a “limited agent”) must first get both parties’ informed consent in writing. Since August 17, 2024, agents who belong to a Realtor-run MLS must sign a written agreement with a buyer before touring a home, even a virtual tour. That agreement sets the agent’s pay. In California, state law also requires a written buyer agreement no later than your offer. In California, that agreement with an individual buyer can last at most three months and can’t renew automatically.",
+      "A note for auction buyers: many forced-sale purchases, like county tax sales and trustee’s sales at the courthouse, happen without an agent at all. Agents matter most for bank-owned (REO) and Fannie Mae/Freddie Mac homes listed on the MLS. There, offers usually go through a licensed agent."
     ],
     bestFor: [
       "First-time buyers who need someone to walk them through offers, deadlines and disclosures.",
@@ -22,7 +22,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Anyone who isn’t comfortable with dual agency and hasn’t asked whether the agent or brokerage also represents the seller."
     ],
     costs: [
-      "Agent pay is negotiable and must be written into the buyer agreement. The agent may not take more from any source than that agreement allows (NAR settlement rules, Aug 2024).",
+      "Agent pay is negotiable and must be written into the buyer agreement. The agent can’t take more than that agreement allows, from any source (NAR settlement rules, Aug 2024).",
       "A seller may still offer to pay part or all of the buyer agent’s fee. But that is a term you negotiate in the deal, not a set rate.",
       "A bad agent can cost far more than the fee. Wrong square footage or a botched dual-agency deal can lead to a lawsuit (see stories)."
     ],
@@ -475,8 +475,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Investors buying at forced sales who later want to resell or refinance and need insurable title."
     ],
     notFor: [
-      "Do not assume you can get a title policy right after a tax-deed or trustee’s sale. Insurers may require extra steps first, such as a court quiet-title action. Ask before you bid.",
-      "Do not treat an escrow company’s insurance as wire-fraud protection. Its errors-and-omissions policy may not cover it."
+      "Don’t assume you can get a title policy right after a tax-deed or trustee’s sale. Insurers may require extra steps first, such as a court quiet-title action. Ask before you bid.",
+      "Don’t count on an escrow company’s insurance to protect you from wire fraud. Its errors-and-omissions policy may not cover it."
     ],
     costs: [
       "Lender’s title policy: usually required by the lender (CFPB).",
@@ -666,8 +666,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   },
   attorney: {
     overview: [
-      "A real estate attorney gives legal advice, reviews contracts and title problems, and goes to court when needed. One example is a suit to quiet title after a tax-deed or foreclosure purchase. That means asking a court to declare who owns a property. In Nevada, California, Arizona and Utah, title and escrow companies run most home closings. So an attorney is optional for a simple purchase but valuable when something is unusual.",
-      "Forced-sale purchases are where a lawyer earns their fee. A tax-sale buyer’s title can be challenged if the government didn’t give the owner proper notice. In Jones v. Flowers (2006), the U.S. Supreme Court ruled Arkansas’s notice was not enough after its letters came back unclaimed. Rules also change. In Tyler v. Hennepin County (2023), the Court held a county could not keep the surplus from a tax sale.",
+      "A real estate attorney gives legal advice, reviews contracts and title problems, and goes to court when needed. One example is a quiet title suit after a tax-deed or foreclosure purchase, which asks a court to declare who owns the property. In Nevada, California, Arizona and Utah, title and escrow companies run most home closings. So an attorney is optional for a simple purchase but valuable when something is unusual.",
+      "Forced-sale purchases are where a lawyer earns their fee. A tax-sale buyer’s title can be challenged if the government didn’t give the owner proper notice. When Arkansas’s letters came back unclaimed, the U.S. Supreme Court ruled its notice was not enough (Jones v. Flowers, 2006). The rules also change: the Court later held that a county could not keep the surplus from a tax sale (Tyler v. Hennepin County, 2023).",
       "Lawyers are also targets. Criminals fake attorneys’ emails to steal closing funds. Impostor ‘sellers’ have also fooled realtors and real estate attorneys into closing sales of land the impostors didn’t own."
     ],
     bestFor: [
@@ -677,12 +677,12 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     notFor: [
       "Routine purchases with clean title, where a title company and escrow already handle closing. In NV, CA, AZ and UT, attorneys are not usually part of closing.",
-      "Buyers expecting an attorney to also check every wire instruction. You still must call to confirm."
+      "Buyers expecting an attorney to also check every wire instruction. You still have to call to confirm."
     ],
     costs: [
       "Attorney fees vary widely by task, such as contract review, a quiet-title lawsuit or litigation. Get a written fee agreement before work starts.",
       "Court costs, service and publication of notice add to a quiet-title action.",
-      "Skipping legal review on a forced-sale purchase can cost you the property itself. That can happen if the sale is later found defective (see Jones v. Flowers)."
+      "Skipping legal review on a forced-sale purchase can cost you the property itself if the sale is later found defective (see Jones v. Flowers)."
     ],
     money: [],
     checklist: [
@@ -810,7 +810,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   },
   inspector: {
     overview: [
-      "A home inspector walks the property and writes a report on its systems and structure. That covers the roof, foundation, plumbing, electrical, heating and cooling. The report tells you about expensive problems before you are locked in. You use it to ask the seller to repair, give a credit, or let you cancel under an inspection contingency.",
+      "A home inspector walks the property and writes a report on its systems and structure. That covers the roof, foundation, plumbing, electrical, heating and cooling. The report warns you about expensive problems before you’re locked in. You can use it to ask the seller for repairs or a credit, or to cancel under an inspection contingency.",
       "Rules differ by state. Nevada certifies ‘inspectors of structures’. A residential inspector there needs at least 40 hours of pre-licensing education and a state exam. They also need proof of $100,000 errors-and-omissions and $100,000 general liability insurance. Other states’ rules differ, so check your state’s requirements before hiring.",
       "Forced-sale caution: at many tax-deed and trustee’s sales you can’t get inside before bidding. So no inspection is possible, and you buy ‘as is’. Bank-owned homes usually allow an inspection period. In 2021’s hot market, many buyers waived inspections to win bids. Some paid for it after moving in."
     ],
@@ -1235,8 +1235,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   },
   cpa: {
     overview: [
-      "A CPA or enrolled agent helps you keep rental and flipping taxes legal and organized. The hardest rental rules are the ‘passive activity’ rules. Rental losses usually can’t offset wage income, except for a special allowance of up to $25,000 for owners who actively take part. That allowance shrinks once modified adjusted gross income passes $100,000. It is gone at $150,000, and it is smaller, or zero, if you’re married filing separately. Flips and sales are taxed differently: a flip is often taxed as ordinary income, not as a lower-taxed capital gain, and a 1031 exchange can’t be used for it. When you sell a rental, the depreciation you took is partly taxed back.",
-      "The bigger exception is ‘real estate professional’ status. You must work more than 750 hours a year in real estate businesses, and that must be more than half of all your working hours. You must also “materially participate” in the rentals themselves: real, regular and continuous work, measured by tests listed in IRS Publication 925. The IRS counts each rental separately unless you file an election to treat them as one. The Tax Court regularly rejects claims backed only by estimates or by calendars rebuilt from memory during an audit. If the shortfall is large, it can add a 20% penalty unless you show reasonable cause. Owners who win usually have good records.",
+      "A CPA or enrolled agent helps you keep rental and flipping taxes legal and organized. The hardest rental rules are the ‘passive activity’ rules. Rental losses usually can’t offset wage income, except for a special allowance of up to $25,000 for owners who actively take part. That allowance shrinks once your modified adjusted gross income passes $100,000 and is gone at $150,000. It’s also smaller, or zero, if you’re married filing separately. Flips and sales are taxed differently: a flip is often taxed as ordinary income, not as a lower-taxed capital gain, and a 1031 exchange can’t be used for it. When you sell a rental, the depreciation you took is partly taxed back.",
+      "The bigger exception is ‘real estate professional’ status. You must work more than 750 hours a year in real estate businesses, and that must be more than half of all your working hours. You must also “materially participate” in the rentals themselves: real, regular and continuous work, measured by tests listed in IRS Publication 925. The IRS counts each rental separately unless you file an election to treat them as one. The Tax Court regularly rejects claims backed only by estimates or by calendars rebuilt from memory during an audit. If the tax you underpaid is large, the court can add a 20% penalty unless you show reasonable cause. Owners who win usually have good records.",
       "Anyone with a PTIN can charge to prepare returns. But only CPAs, enrolled agents and attorneys have unlimited rights to represent you before the IRS. A CPA can only protect you if you give them full, accurate information."
     ],
     bestFor: [
@@ -1248,13 +1248,13 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     notFor: [
       "Owners who want a preparer to ‘find’ a bigger refund. The IRS warns against preparers who promise larger refunds or charge a percentage of the refund.",
       "Taxpayers who won’t keep records. Even a CPA can’t defend real estate professional hours you can’t back up.",
-      "People hoping a professional’s signature alone will shield them from penalties. That defense requires giving the professional all relevant facts."
+      "People hoping a professional’s signature alone will shield them from penalties. That defense works only if you gave the professional all the relevant facts."
     ],
     costs: [
       "Preparation fees: ask up front. The IRS tells taxpayers to find out about service fees before hiring.",
       "Penalties for getting it wrong: the Tax Court applied a 20% substantial understatement penalty when a California couple’s real estate professional claim failed (2018).",
       "Lost deductions: in one case the IRS disallowed $31,318 of a $40,490 rental loss after the owner failed the 750-hour test (Tax Court, 2010).",
-      "Time cost of record keeping: a contemporaneous log of hours, receipts and mileage."
+      "Time for record keeping: a log of hours, receipts and mileage that you keep as you go."
     ],
     money: [
       "Fee structure: the IRS says to avoid preparers who base their fee on a percentage of your refund.",
@@ -1322,7 +1322,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         tone: "good",
         who: "A two-dentist couple who also ran a real estate brokerage and four rentals (U.S. Tax Court case)",
         year: "2017",
-        title: "Contemporaneous logs saved $200,000-plus yearly losses",
+        title: "Logs kept at the time saved $200,000-plus yearly losses",
         happened: "The IRS disallowed real estate losses of about $220,000 to $242,000 a year for 2010 to 2012. It argued the husband’s dental work came first. He produced logs showing more than 1,000 real estate hours a year. He testified credibly that the logs were kept at the time, and witnesses backed him up. The Tax Court found he was a real estate professional.",
         lesson: "Logs written at the time, not rebuilt later, made the difference in court.",
         source: {
@@ -1541,7 +1541,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   },
   eviction: {
     overview: [
-      "Eviction is a court process. A landlord cannot legally remove a tenant by changing the locks, shutting off utilities or taking the tenant’s belongings. In California only a sheriff or marshal, with a court order, may carry out an eviction. In Arizona and Nevada, tenants locked out or cut off from essential services can sue for damages set by statute.",
+      "Eviction is a court process. A landlord cannot legally remove a tenant by changing the locks, shutting off utilities or taking the tenant’s belongings. In California only a sheriff or marshal, with a court order, may carry out an eviction. In Arizona and Nevada, tenants locked out or cut off from essential services can sue for damages set by law.",
       "Each state runs its own process. In Nevada, an eviction for unpaid rent starts with a 7-court-day notice to pay or quit (weekends and court holidays don’t count). In Nevada, Clark County says evictions take anywhere from 10 to 180 days depending on the case, so budget for the long end. In Nevada, Clark County says its fast ‘summary eviction’ can’t be used to remove a former owner, or the former owner’s tenant, after a foreclosure. California’s ‘unlawful detainer’ case requires the landlord to file and serve a lawsuit. Arizona requires written notice before filing, such as 10 days for many lease violations. An eviction attorney helps you serve the right notice, file correctly and avoid defenses that restart the clock.",
       "Investors who buy occupied homes at foreclosure auctions or as REOs must also go through the courts to remove occupants. After a foreclosure, tenants who rented from the former owner usually get at least 90 days’ notice under federal law, and a real lease signed before the foreclosure notice may run to its end unless the buyer will live there. Self-help, like changing the locks yourself, can turn a rent dispute into a damages award against you."
     ],
@@ -1552,14 +1552,14 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Owners of rent-controlled or ‘just cause’ units in California, where notices are technical."
     ],
     notFor: [
-      "Landlords tempted to change locks, cut utilities or remove belongings. That exposes you to statutory damages in California, Arizona and Nevada.",
+      "Landlords tempted to change locks, cut utilities or remove belongings. That can leave you owing damages set by law in California, Arizona and Nevada.",
       "Disputes that a payment plan or mediation could settle cheaper and faster.",
       "Owners hoping to evict to retaliate for a tenant’s complaint. Courts have awarded damages for retaliatory eviction."
     ],
     costs: [
       "Court filing fees, notice service and constable or sheriff fees. In 2019 the Review-Journal reported Nevada tenants paid a $71 filing fee to contest an eviction in the two largest counties.",
       "Lost rent during the process. In Nevada, Clark County says evictions take anywhere from 10 to 180 days. Contested cases take longer.",
-      "Self-help penalties: California Civil Code 789.3 penalties are up to $100 a day and at least $250 per violation. One landlord was ordered to pay $36,000 in penalties plus damages and fees (1980). In Nevada a court can award up to $2,500 plus actual damages. In Arizona it can award two months’ rent or twice actual damages.",
+      "Self-help penalties: in California, they run up to $100 a day and at least $250 per violation (Civil Code 789.3). One landlord was ordered to pay $36,000 in penalties plus damages and fees (1980). In Nevada a court can award up to $2,500 plus actual damages. In Arizona it can award two months’ rent or twice actual damages.",
       "Attorney fees: California’s utility shutoff statute awards fees to the prevailing party."
     ],
     money: [
@@ -1617,7 +1617,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         }
       },
       {
-        text: "California Civil Code 789.3 (as revised in 1979) also bars changing locks, removing doors or windows, and removing a tenant’s property to evict. The minimum penalty is $250 per violation.",
+        text: "California: a landlord also can’t change locks, remove doors or windows, or take a tenant’s property to evict. The minimum penalty is $250 per violation (Civil Code 789.3, as revised in 1979).",
         source: {
           label: "Supreme Court of California: Kinney v. Vaccari, 27 Cal. 3d 348 (1980), Caselaw Access Project",
           url: "https://static.case.law/cal-3d/27/html/0348-01.html"
@@ -1700,7 +1700,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   appraiser: {
     overview: [
       "An appraisal is a written report that gives an opinion of how much a property is worth. The appraiser usually compares the home with similar nearby homes that sold recently. These are called comparable sales, or “comps”. The appraiser then adjusts for differences like size and condition.",
-      "Appraisers hold state credentials at different levels. In California, a Licensed Residential appraiser may do non-complex 1–4 unit homes up to $1 million. There, a Certified Residential appraiser may do any 1–4 unit home, and a Certified General appraiser may do any type of property. A report can be “as is”, meaning the value today. Or it can be “subject to” repairs being finished.",
+      "Appraisers hold state credentials at different levels. In California, a Licensed Residential appraiser may do non-complex 1–4 unit homes up to $1 million. In California, a Certified Residential appraiser may do any 1–4 unit home, and a Certified General appraiser may do any type of property. A report can be “as is”, meaning the value today. Or it can be “subject to” repairs being finished.",
       "A professional appraisal is the best way to determine a property’s value. A real estate agent can estimate it from comparable sales in the meantime. When the appraiser can’t go inside, as at many auctions, the value rests on outside views and records. Hidden problems can be missed.",
       "Upgrades don’t add their cost to the value. Appraisers value a feature by what buyers in that market pay for it, not what it cost. Say an improvement is bigger or costlier than is typical for the neighborhood, like a pool where pools are rare. It counts only for what it adds. So $70,000 of upgrades doesn’t necessarily make a home worth $70,000 more.",
     ],
@@ -1722,7 +1722,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     money: [
       "Whoever orders the appraisal pays the appraiser’s fee. When your lender orders it, the lender may pass a reasonable fee for the appraisal on to you.",
-      "Federal rules say lenders must pay independent fee appraisers a fee that is “customary and reasonable”. That is judged for that kind of work in that local market.",
+      "Federal rules say lenders must pay independent fee appraisers a “customary and reasonable” fee for that kind of work in that local market.",
       "An appraiser’s pay must not depend on the value they report or on whether the loan closes. Federal rules ban tying payment to a target value.",
     ],
     checklist: [
@@ -1775,8 +1775,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   environmental: {
     overview: [
       "An environmental consultant checks whether a property may be contaminated, usually through a Phase I Environmental Site Assessment. That means a records review, interviews and a site visit. If the Phase I finds warning signs, a Phase II tests soil, groundwater or tanks. Old gas stations, dry cleaners, auto shops and industrial lots are the classic risks.",
-      "Under the federal Superfund law (CERCLA), a current owner can be liable for cleanup even if it did not cause the pollution. Buyers can qualify as ‘bona fide prospective purchasers’ only if they meet several conditions. One key condition is completing ‘all appropriate inquiries’. That generally means a Phase I under ASTM E1527-21, done by a qualified environmental professional. It must be done within one year before buying. The interviews, records review, site visit, lien search and the environmental professional’s signed declaration must be done or updated within 180 days. After buying, you must keep meeting ‘continuing obligations’: take ‘reasonable steps’ to stop releases and limit exposure, follow any land-use limits, cooperate and give access to cleanup agencies, answer their information requests and give required notices. A clean Phase I isn’t a guarantee the site is clean.",
-      "Courts have denied this protection to buyers who knew of contamination but didn’t act. One example is a Las Vegas shopping-center owner that demolished a former dry cleaner without removing contaminated soil. When the work is done right, EPA Brownfields grants have paid for Phase I and II assessments. These let abandoned sites be sold and reused."
+      "A current owner can be liable for cleanup even if it did not cause the pollution (the federal Superfund law, CERCLA). Buyers can qualify as ‘bona fide prospective purchasers’ only if they meet several conditions. One key condition is completing ‘all appropriate inquiries’. That generally means a Phase I under ASTM E1527-21, done by a qualified environmental professional. It must be done within one year before buying. The interviews, records review, site visit, lien search and the environmental professional’s signed declaration must be done or updated within 180 days. After buying, you must keep meeting ‘continuing obligations’: take ‘reasonable steps’ to stop releases and limit exposure, follow any land-use limits, cooperate and give access to cleanup agencies, answer their information requests and give required notices. A clean Phase I isn’t a guarantee the site is clean.",
+      "Courts have denied this protection to buyers who knew of contamination but didn’t act. One example is a Las Vegas shopping-center owner that demolished a former dry cleaner without removing contaminated soil. On the good side, EPA Brownfields grants have paid for Phase I and II assessments that let abandoned sites be sold and reused."
     ],
     bestFor: [
       "Buyers of commercial, industrial or mixed-use land, especially former gas stations, dry cleaners and auto shops.",
@@ -1792,7 +1792,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     costs: [
       "Phase I fee: get written quotes. (No sourced typical fee was found.)",
       "Phase II testing, if the Phase I flags concerns. In one Pennsylvania gas station case, Phase II work uncovered seven underground tanks where records showed two.",
-      "Cleanup liability: a South Carolina buyer failed to qualify as a bona fide prospective purchaser. It shared liability for response costs at a site where it had already spent at least $194,000.",
+      "Cleanup liability: a South Carolina buyer that failed to qualify as a bona fide prospective purchaser had to share the cleanup costs at a site where it had already spent at least $194,000.",
       "State cleanup claims: Nevada’s environmental agency had spent about $160,000 by 2008 at a Las Vegas dry-cleaner site and sought repayment from owners.",
       "Grants can offset costs for public and nonprofit redevelopers. Silver City, New Mexico used a $168,393 EPA assessment grant for Phase I and II work."
     ],
@@ -1880,7 +1880,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         who: "A developer that bought a former fertilizer plant site in Charleston, South Carolina",
         year: "2013",
         title: "Delayed filling sumps, lost buyer protection",
-        happened: "In 2003 the developer bought 27.62 acres for $2.7 million. It knew the soil was contaminated and meant to clean it up. Courts found it failed to promptly clean out and fill sumps and to manage a debris pile. So it did not take the required ‘reasonable steps.’ It lost bona fide prospective purchaser protection. It was held to share cleanup liability, after spending at least $194,000.",
+        happened: "In 2003 the developer bought 27.62 acres for $2.7 million. It knew the soil was contaminated and meant to clean it up. Courts found it was too slow to clean out and fill sumps and failed to manage a debris pile, so it did not take the required ‘reasonable steps.’ It lost its bona fide prospective purchaser protection and had to share cleanup liability, even after spending at least $194,000.",
         lesson: "Buyer protection under CERCLA depends on what you do after closing, not just the Phase I.",
         source: {
           label: "U.S. Court of Appeals, 4th Circuit: PCS Nitrogen Inc. v. Ashley II of Charleston LLC, 714 F.3d 161 (2013), Caselaw Access Project",

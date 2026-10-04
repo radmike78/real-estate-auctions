@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
 export interface Strategy {
   key: string;
@@ -30,6 +30,10 @@ export default function StrategyTabs({ strategies, initial, onChange }: { strate
       /* storage unavailable */
     }
   };
+  // Follow `initial` when the page changes it (the deal's plan was changed elsewhere).
+  useEffect(() => {
+    if (initial && strategies.some((s) => s.key === initial)) setActiveState(initial);
+  }, [initial]); // eslint-disable-line react-hooks/exhaustive-deps
   const current = strategies.find((s) => s.key === active) ?? strategies[0];
   return (
     <div className="strategy">

@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { navigate } from '../lib/nav';
+import { navigate, replaceAddress } from '../lib/nav';
 import PageHero from './PageHero';
 import { IconSearch } from './Icons';
 import { highlight, searchGuides, type GuideIndex } from '../lib/guideSearch';
 import OwlNote from './OwlNote';
+import StatePicker from './StatePicker';
+import { useMyState } from '../lib/myState';
 
 const TRY = ['Deposit', 'Redemption period', 'What survives an HOA foreclosure?', 'Cashier’s check', 'Occupied home', 'Title insurance'];
 
@@ -55,10 +57,11 @@ export default function GuidesPage({ initialQuery }: { initialQuery: string }) {
     setQ(next);
     const t = next.trim();
     // Keep the address shareable without adding a history entry for every letter typed.
-    history.replaceState(null, '', t ? `#/guides?q=${encodeURIComponent(t)}` : '#/guides');
+    replaceAddress(t ? `/guides?q=${encodeURIComponent(t)}` : '/guides');
   };
 
-  const results = useMemo(() => (index ? searchGuides(index, q) : null), [index, q]);
+  const [mine] = useMyState();
+  const results = useMemo(() => (index ? searchGuides(index, q, 20, mine) : null), [index, q, mine]);
   const searched = q.trim() !== '';
 
   return (
@@ -71,6 +74,7 @@ export default function GuidesPage({ initialQuery }: { initialQuery: string }) {
         <GuideSearchForm initial={q} onSearch={search} />
       </PageHero>
 
+      <StatePicker label="Show my state’s guides first" />
       {failed && <p className="notice" role="alert">Search didn’t load. Refresh the page to try again.</p>}
       {!failed && !index && searched && <p className="muted" role="status">Loading the guides…</p>}
 
@@ -106,15 +110,15 @@ export default function GuidesPage({ initialQuery }: { initialQuery: string }) {
                     {highlight(h.snippet, results.terms).map((p, i) => (p.hit ? <mark key={i}>{p.text}</mark> : <span key={i}>{p.text}</span>))}
                   </p>
                   {h.doc.sources.length > 0 && (
-                    <p className="guide-hit-sources">
-                      <span>Sources cited:</span>{' '}
+                    <details className="guide-hit-sources">
+                      <summary>Sources ({Math.min(h.doc.sources.length, 3)})</summary>
                       {h.doc.sources.slice(0, 3).map((s, i) => (
                         <span key={s.url}>
                           {i > 0 && ' · '}
                           <a href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a>
                         </span>
                       ))}
-                    </p>
+                    </details>
                   )}
                 </li>
               ))}

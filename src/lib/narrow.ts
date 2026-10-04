@@ -130,7 +130,8 @@ export function practiceConfig(myState: string | null): NarrowConfig {
         const why = (k: string) => salesFor(buy, property).find((x) => x.kind === k)?.why ?? '';
         if (buy === 'agent') {
           if (property === 'commercial') return [run('reo', prop, why('reo')), drill('retail-strip', 'Then a quick decision on a small retail building’s leases and income.')];
-          return [run('reo', prop, why('reo')), drill('rental-265', 'Then a quick one: is a rental worth it at this price?'), run('short', prop, why('short'))];
+          // Short-sale practice uses homes only (no land).
+          return [run('reo', prop, why('reo')), drill('rental-265', 'Then a quick one: is a rental worth it at this price?'), ...(prop === 'house' ? [run('short', prop, why('short'))] : [])];
         }
         if (property === 'land') return [run('tax', prop, why('tax')), drill('land-access', 'Then a quick one on access, utilities and holding costs.')];
         return [run('foreclosure', prop, why('foreclosure') || 'Foreclosure auctions happen most weeks.'), run('tax', prop, 'Tax sales come once or twice a year in most counties, with their own rules.')];

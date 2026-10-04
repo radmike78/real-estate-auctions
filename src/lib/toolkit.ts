@@ -231,14 +231,14 @@ export const WORKSHEETS: { key: string; title: string; intro: string; items: str
     title: 'After you buy',
     intro: 'The first weeks of owning a rental. See the lesson “After you buy” for your state’s rules.',
     items: [
-      'Landlord insurance in place from the day you take ownership.',
-      'Locks changed or rekeyed once you have legal possession; utilities in your name.',
-      'A separate bank account for the property; every receipt kept.',
+      'Landlord insurance in place from the day you own it.',
+      'Locks changed or rekeyed once you legally have possession, and utilities in your name.',
+      'A separate bank account for the property, and every receipt kept.',
       'Safety repairs done before you advertise.',
       'Written screening criteria and a lease that follows your state’s law.',
       'A cash reserve for repairs and vacancies.',
       'A plan for emergencies: who answers calls, and which vendors to use.',
-      'Actual income and costs compared with your numbers each year.',
+      'Once a year, your actual income and costs compared with your plan.',
     ],
   },
 ];

@@ -3,7 +3,7 @@ import type { Lesson } from './types';
 export const creative: Lesson = {
   key: 'creative',
   minutes: 9,
-  intro: 'Creative financing means buying without a standard bank loan. The seller may finance the sale, you may take over an existing loan, or partners may put in money. These deals can work. But each one comes with legal rules and real risks for both sides. Learn them before you try one.',
+  intro: 'Creative financing means buying without a standard bank loan. The seller may finance the sale, you may take over an existing loan, or partners may put in money. These deals can work, but each one comes with legal rules and real risks for both sides, so learn them before you try one.',
   takeaways: [
     'How seller financing works, and the federal and state rules sellers must follow.',
     'Why “subject-to” deals and wraparound loans run into the due-on-sale clause.',
@@ -15,15 +15,15 @@ export const creative: Lesson = {
     {
       heading: 'Seller financing',
       blocks: [
-        'The seller acts as the lender. You pay the seller over time instead of a bank. It can help when a bank won’t lend on the property. It can also help when the seller wants steady income instead of a lump sum.',
-        'Federal rules limit who can offer it without being treated as a loan originator. Take a seller who finances one property in 12 months (a person, estate or trust). That seller must use a fixed rate, or one that adjusts only after five or more years with reasonable limits. The loan also can’t grow over time. A seller who finances up to three properties in 12 months has two more rules. The loan must fully pay off over its term. And the seller must determine in good faith that the buyer can repay. Neither exemption covers sellers who built the home. These rules cover homes the buyer will live in. They only keep a seller from being treated as a loan originator; other federal and state lending rules can still apply. A seller who makes more than five home loans in a year is treated as a lender under federal law, with its disclosure and ability-to-repay rules.',
+        'The seller acts as the lender: you pay the seller over time instead of a bank. It can help when a bank won’t lend on the property, or when the seller would rather have steady income than a lump sum.',
+        'Federal rules limit who can offer it without being treated as a loan originator, on homes the buyer will live in. A seller who finances one property in 12 months (a person, estate or trust) must use a fixed rate, or one that adjusts only after five or more years with reasonable limits, and the loan can’t grow over time. A seller who finances up to three properties in 12 months has two more rules: the loan must fully pay off over its term, and the seller must decide in good faith that the buyer can repay. Neither exemption covers sellers who built the home. And meeting these rules only keeps a seller from being treated as a loan originator; other federal and state lending rules can still apply. A seller who makes more than five home loans in a year is treated as a lender under federal law, with its disclosure and ability-to-repay rules.',
         {
           table: {
             head: ['State', 'What to know'],
             rows: [
               ['Nevada', 'A seller who offers credit secured by the property they sold is exempt from Nevada’s mortgage company licensing (NRS 645B.015).'],
-              ['California', 'Some sales are of homes of up to four units where someone, such as an agent, arranges the credit. In these sales, the buyer and seller get a seller financing disclosure (Civil Code 2956–2963). It covers the note, other liens, balloon payments and the buyer’s credit. The holder must send a notice 90 to 150 days before a balloon payment is due (Civil Code 2966).'],
-              ['Arizona', 'An “agreement for sale” is a sale where the seller keeps title until paid. If the buyer misses a payment, the seller can end the contract only after a grace period. Its length depends on how much has been paid: 30 days if under 20%, up to nine months if 50% or more (A.R.S. 33-742).'],
+              ['California', 'When someone, such as an agent, arranges seller financing on a home of up to four units, the buyer and seller get a seller financing disclosure covering the note, other liens, balloon payments and the buyer’s credit (Civil Code 2956–2963). The holder of the note must send a notice 90 to 150 days before a balloon payment is due (Civil Code 2966).'],
+              ['Arizona', 'An “agreement for sale” is a sale where the seller keeps title until the buyer finishes paying. If the buyer misses a payment, the seller can end the contract only after a grace period. Its length depends on how much has been paid: 30 days if under 20%, up to nine months if 50% or more (A.R.S. 33-742).'],
               ['Utah', 'Seller financing is used, but we haven’t reviewed Utah’s rules yet. Ask a Utah real estate attorney.'],
             ],
           },
@@ -34,29 +34,29 @@ export const creative: Lesson = {
       heading: 'Taking over a loan: “subject-to” and wraparounds',
       blocks: [
         'In a “subject-to” deal, the buyer takes title while the seller’s loan stays in place. In a wraparound, the seller keeps their loan and gives the buyer a larger loan that “wraps” it. Federal rules treat both as transfers of the property. This is different from a formal assumption, where the lender approves the buyer and releases the seller.',
-        'Most mortgages have a due-on-sale clause, and federal law lets the lender enforce it. When the property is sold or transferred, the lender can demand the whole balance. The law protects some transfers of homes with fewer than five units. Examples are transfers to a spouse or child, after a death, in a divorce, or into the owner’s living trust. A sale to an investor isn’t one of them. Keeping every payment current doesn’t take away the lender’s right to call the loan.',
+        'Most mortgages have a due-on-sale clause, and federal law lets the lender enforce it: when the property is sold or transferred, the lender can demand the whole balance. The law protects some transfers of homes with fewer than five units, such as transfers to a spouse or child, after a death, in a divorce, or into the owner’s living trust. A sale to an investor isn’t one of them. Keeping every payment current doesn’t take away the lender’s right to call the loan.',
         'The seller stays responsible for a loan they no longer control. The buyer can lose the property if the lender calls the loan or payments aren’t made. Use a real estate attorney and a title company for any deal like this.',
       ],
     },
     {
       heading: 'Rent-to-own and lease options',
       blocks: [
-        'The buyer rents with an option to buy later, often paying an upfront fee. The FTC warns of these red flags. The “seller” doesn’t really own the property. The house is being foreclosed on. One missed payment ends the deal. Or the buyer can’t qualify for a mortgage to finish buying it. Check the owner in county records and get a title search first. If the owner still has a mortgage, a lease with an option to buy, or any lease over three years, can let their lender demand the whole loan.',
+        'The buyer rents with an option to buy later, often paying an upfront fee. The FTC’s red flags: the “seller” doesn’t really own the property, the house is being foreclosed on, one missed payment ends the deal, or the buyer can’t qualify for a mortgage to finish buying it. Check the owner in county records and get a title search first. If the owner still has a mortgage, a lease with an option to buy, or any lease over three years, can let their lender demand the whole loan.',
       ],
     },
     {
       heading: 'Home equity contracts',
       blocks: [
-        'Some companies pay homeowners cash now. In exchange, the owner makes a single payment later, based partly on the home’s future value. The CFPB has warned that owners who can’t pay at the end can face a forced sale or foreclosure. In a CFPB example, an owner who took $50,000 against a $500,000 home could owe about $94,000 to $216,000 after 10 years, depending on how much the home’s value rose. Read every term and compare it with a regular loan.',
+        'Some companies pay homeowners cash now in exchange for a single payment later, based partly on the home’s future value. The CFPB has warned that owners who can’t pay at the end can face a forced sale or foreclosure. In one CFPB example, an owner who took $50,000 against a $500,000 home could owe about $94,000 to $216,000 after 10 years, depending on how much the home’s value rose. Read every term and compare it with a regular loan.',
       ],
     },
     {
       heading: 'Partners and investors',
       blocks: [
-        'Pooling money with partners is common. But sometimes people invest in a common venture and expect profits from someone else’s efforts. Then the investment can be a security. The Supreme Court set this test in a case about citrus-grove land. Selling securities requires registration or an exemption.',
+        'Pooling money with partners is common. But when people invest in a common venture and expect profits from someone else’s efforts, the investment can be a security. That’s the test the Supreme Court set in a case about citrus-grove land. Selling securities requires registration or an exemption.',
         { list: [
-          'Rule 506(b): no public advertising. The offering can raise unlimited money from accredited investors. It can also include up to 35 non-accredited but sophisticated investors in any 90 days.',
-          'Rule 506(c): advertising is allowed, but every buyer must be accredited. The sponsor must take reasonable steps to verify it.',
+          'Rule 506(b): no public advertising. The offering can raise unlimited money from accredited investors, plus up to 35 non-accredited but sophisticated investors in any 90 days.',
+          'Rule 506(c): advertising is allowed, but every buyer must be accredited, and the sponsor must take reasonable steps to verify it.',
           'Both require a Form D filed with the SEC within 15 days of the first sale. States may also require notice filings.',
         ] },
         'If you’re raising money or investing in someone else’s deal, talk with a securities attorney.',
@@ -65,7 +65,7 @@ export const creative: Lesson = {
     {
       heading: 'Warning signs',
       blocks: [
-        'Be wary of seminars that promise big profits with “no money down.” The FTC brought a case with the Utah Division of Consumer Protection. In that case, more than 95% of surveyed seminar customers paid the company more than they made from real estate. If someone says you can earn a lot with little or no risk, that’s probably a scam. Never borrow on credit cards, home equity or retirement savings to pay for training.',
+        'Be wary of seminars that promise big profits with “no money down.” In a case the FTC brought with the Utah Division of Consumer Protection, more than 95% of surveyed seminar customers paid the company more than they made from real estate. If someone says you can earn a lot with little or no risk, that’s probably a scam. Never borrow on credit cards, home equity or retirement savings to pay for training.',
         { links: [{ label: 'Seminar red flags', url: '#/learn/red-flags', what: 'How seminar and coaching schemes work, and the warning signs.' }] },
         'Never pressure a homeowner facing foreclosure into signing over their deed. The FTC warns that in foreclosure-rescue scams the owner loses the home and still owes the mortgage. DeedOwl doesn’t help anyone approach homeowners in foreclosure. Buy from the official seller.',
       ],

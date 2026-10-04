@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { BidInputs } from '../lib/bidCalc';
 import { COMMERCIAL_DEFAULTS, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs } from '../lib/holdCalc';
 import { fmtMoney } from '../lib/status';
@@ -22,13 +22,26 @@ const pctText = (x: number | null) => (x === null ? '—' : `${(Math.round(x * 1
 
 /** Inputs kept in this browser (per property when there is one); rebuilt safely from storage. */
 function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> = {}): [T, (k: keyof T & string, v: number) => void] {
+  // `force` holds the region's values (its transfer tax). They replace saved numbers only when the region changes,
+  // so a number the user typed survives switching tabs and reloading.
+  const sig = JSON.stringify(force);
   const [v, setV] = useState<T>(() => {
     try {
-      return { ...sanitizeNumbers(JSON.parse(localStorage.getItem(key) ?? 'null'), defaults), ...force };
+      const saved = sanitizeNumbers(JSON.parse(localStorage.getItem(key) ?? 'null'), defaults);
+      return localStorage.getItem(`${key}.region`) === sig ? saved : { ...saved, ...force };
     } catch {
-      return defaults;
+      return { ...defaults, ...force };
     }
   });
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(`${key}.region`) === sig) return;
+      localStorage.setItem(`${key}.region`, sig);
+    } catch {
+      return;
+    }
+    setV((cur) => ({ ...cur, ...force }));
+  }, [key, sig]); // eslint-disable-line react-hooks/exhaustive-deps
   const set = (k: keyof T & string, n: number) => {
     trackAction('calculator_used', true);
     setV((cur) => {
@@ -160,10 +173,11 @@ const RENT_GROUPS: CalcGroup<RentInputs>[] = [
 /** How long savings carry the rental with no rent: the payments don't stop when a unit is empty. */
 function CashCushion({ v }: { v: RentInputs }) {
   const e = rentEmptyMonths(v);
+  if (e.monthly <= 0) return null;
   if (e.months === null) return <p className="calc-note small">Enter the cash you’ll still have after buying to see how many months you could pay {fmtMoney(Math.round(e.monthly))} a month in loan, tax, insurance and HOA costs with no rent coming in.</p>;
   const short = e.months < 6;
   return (
-    <p className={`calc-note small${short ? ' warn' : ''}`} role="status">
+    <p className={`calc-note small${short ? ' warn' : ''}`}>
       <strong>With no rent, your cash lasts about {e.months.toLocaleString()} months.</strong> That pays {fmtMoney(Math.round(e.monthly))} a month in loan, tax, insurance and HOA costs.
       {short && ' Less than 6 months is thin: Fannie Mae asks for 6 months of payments in reserve on most rental purchases, and an eviction or a big repair can take that long.'}
     </p>
