@@ -48,6 +48,7 @@ export const redFlags: Lesson = {
           'Being asked to list a higher income than you earn on a credit application.',
           'Ads with famous people and photos of a rich lifestyle instead of details on how deals really work.',
           'A refund that comes with a promise not to post reviews or complain to regulators.',
+          'Courses that sell wholesaling, “driving for dollars” or surplus-funds recovery as a business you can start with no money. These depend on contacting owners in distress, or former owners after a tax or foreclosure sale. DeedOwl doesn’t help with that. If you want a property, buy from the official seller: the county, the trustee, the court or the bank that owns it.',
         ] },
         'If someone says you can earn a lot with little or no risk, the FTC says that’s probably a scam.',
       ],
@@ -91,5 +92,5 @@ export const redFlags: Lesson = {
     { label: 'IRS: retirement plan loans', url: 'https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-loans' },
   ],
   practice: 'Before you pay for any course, search the company’s name with “FTC” and “complaint”. Then read the refund policy in writing.',
-  reviewed: '2026-10-03',
+  reviewed: '2026-10-04',
 };

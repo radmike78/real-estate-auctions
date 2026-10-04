@@ -2,13 +2,14 @@ import type { Lesson } from './types';
 
 export const negotiate: Lesson = {
   key: 'negotiate',
-  minutes: 9,
+  minutes: 11,
   intro: 'Price is only one part of a deal. Deposits, deadlines, conditions, who pays what and how you hold title can matter as much. Here’s how offers work, how forced sales differ, and a few ways to structure a purchase.',
   takeaways: [
     'What goes into an offer: earnest money, contingencies and deadlines.',
     'How to negotiate after an inspection: repairs or a credit.',
     'Why auctions, bank-owned homes and short sales work differently.',
     'Structuring tools: seller credits, ways to hold title, 1031 exchanges and installment sales.',
+    'What an LLC does and doesn’t protect, and what it costs each year in your state.',
     'How to protect your money at closing.',
   ],
   sections: [
@@ -54,6 +55,33 @@ export const negotiate: Lesson = {
       ],
     },
     {
+      heading: 'Owning through an LLC',
+      blocks: [
+        'A limited liability company (LLC) can keep claims against the property’s business separate from your personal savings. It doesn’t replace insurance, and it has limits:',
+        { list: [
+          'If you sign a personal guarantee on a loan, you owe that debt yourself, LLC or not. Many lenders ask investors for one.',
+          'Keep the LLC’s money in its own bank account. Mixing personal and business money can weaken the protection.',
+          'Moving a home that has a mortgage into an LLC can let the lender call the whole loan due. The federal law that limits due-on-sale clauses protects some transfers, such as into a living trust where you stay a beneficiary. It doesn’t list transfers to an LLC (12 U.S.C. 1701j-3). Fannie Mae lets its servicers allow the transfer if Fannie Mae bought or securitized the loan on or after June 1, 2016 and you control or own most of the LLC. To refinance later, the home must go back into your own name. For any loan, ask your loan servicer in writing before you sign a deed.',
+        ] },
+        {
+          table: {
+            head: ['State', 'Yearly state cost of an LLC'],
+            rows: [
+              ['Nevada', '$350 a year in Nevada: a $150 annual list plus a $200 state business license. Filing the articles costs $75 (NRS 86.561, 86.263 and 76.130).'],
+              ['California', 'At least $800 a year in California tax, even if the LLC earns nothing or loses money, until you cancel it. The first payment is due by the 15th day of the 4th month after you form it. A fee is added once total income reaches $250,000 (Franchise Tax Board).'],
+              ['Arizona', 'Arizona LLCs file no annual report. Filing the articles costs $50 (Arizona Corporation Commission).'],
+              ['Utah', 'An $18 renewal each year in Utah. Filing the certificate of organization costs $59 (Utah Division of Corporations, 2026 fee schedule).'],
+            ],
+          },
+        },
+        'An LLC’s fees and taxes go in your numbers like any other cost. Ask a real estate attorney and a tax advisor before you form one, and before you move a financed home into it.',
+        { links: [
+          { label: 'Real estate attorneys', url: '#/pros/attorney', what: 'Forming an entity and deeding property into it.' },
+          { label: 'CPAs and tax advisors', url: '#/pros/cpa', what: 'How an LLC is taxed and what it costs each year.' },
+        ] },
+      ],
+    },
+    {
       heading: 'Structuring tools',
       blocks: [
         { list: [
@@ -78,6 +106,7 @@ export const negotiate: Lesson = {
       heading: 'Protect your money at closing',
       blocks: [
         'Criminals send fake emails with new wiring instructions. The emails look like they come from your agent, title company or lender. Never follow payment instructions sent by email. Call your title or escrow officer at a number you already know to confirm the account before you wire. If you think you’ve been scammed, call your bank right away to try to recall the wire. Also report it at ic3.gov.',
+        'If the seller is a foreign person, federal law makes you, the buyer, withhold 15% of the price and send it to the IRS within 20 days (Form 8288). If you don’t, you can be held liable for the tax. Less or no withholding applies only if you’ll live in the home and the price is $1 million or less: 10% up to $1 million, and none at $300,000 or less. An investor buying a rental doesn’t qualify for that exception. Ask your title or escrow company to confirm early whether the seller is a foreign person.',
       ],
     },
   ],
@@ -88,6 +117,9 @@ export const negotiate: Lesson = {
     { term: 'As-is', meaning: 'Sold in its current condition, with no repairs by the seller.' },
     { term: '1031 exchange', meaning: 'A swap of one investment property for another that defers tax on the gain.' },
     { term: 'Installment sale', meaning: 'A sale where the seller receives at least one payment after the year of the sale.' },
+    { term: 'LLC (limited liability company)', meaning: 'A company that can own property and keep the business’s debts and claims separate from its owners’ personal assets, within limits.' },
+    { term: 'Personal guarantee', meaning: 'A promise to repay a loan yourself if the borrower, such as your LLC, doesn’t.' },
+    { term: 'FIRPTA', meaning: 'A federal law that makes a buyer withhold tax when buying U.S. real estate from a foreign seller.' },
   ],
   tryIt: { label: 'Practice making an offer and closing a purchase', href: '#/practice' },
   sources: [
@@ -108,7 +140,19 @@ export const negotiate: Lesson = {
     { label: 'Utah Administrative Code R162-2f-401a: agency and limited agency', url: 'https://www.law.cornell.edu/regulations/utah/Utah-Admin-Code-R162-2f-401a' },
     { label: 'CFPB: mortgage closing scams', url: 'https://www.consumerfinance.gov/archive/blog/mortgage-closing-scams-how-protect-yourself-and-your-closing-funds/' },
     { label: 'FBI Internet Crime Complaint Center: real estate wire fraud warning', url: 'https://www.ic3.gov/PSA/2018/PSA180712' },
+    { label: 'Garn–St Germain Act: due-on-sale clauses (12 U.S.C. 1701j-3)', url: 'https://www.law.cornell.edu/uscode/text/12/1701j-3' },
+    { label: 'Fannie Mae Servicing Guide D1-4.1-02: allowable exemptions due to the type of transfer', url: 'https://servicing-guide.fanniemae.com/svc/d1-4.1-02/allowable-exemptions-due-type-transfer' },
+    { label: 'Nevada: NRS 86 (LLC filing and annual list fees)', url: 'https://www.leg.state.nv.us/nrs/nrs-086.html' },
+    { label: 'Nevada: NRS 76 (state business license)', url: 'https://www.leg.state.nv.us/nrs/nrs-076.html' },
+    { label: 'California FTB: limited liability company ($800 annual tax)', url: 'https://www.ftb.ca.gov/file/business/types/limited-liability-company/index.html' },
+    { label: 'California FTB Publication 3556: LLC filing information', url: 'https://www.ftb.ca.gov/forms/misc/3556.html' },
+    { label: 'Arizona Corporation Commission: business services FAQs (LLC annual reports)', url: 'https://www.azcc.gov/faqs/BusinessServicesFAQs' },
+    { label: 'Arizona Corporation Commission: LLC fee schedule', url: 'https://azcc.gov/docs/default-source/corps-files/fee-schedules/fee-schedule-llcs.pdf' },
+    { label: 'Utah Division of Corporations: fee schedule', url: 'https://commerce.utah.gov/wp-content/uploads/2023/04/currentfees.pdf' },
+    { label: 'IRS: FIRPTA withholding', url: 'https://www.irs.gov/individuals/international-taxpayers/firpta-withholding' },
+    { label: 'IRS: exceptions from FIRPTA withholding', url: 'https://www.irs.gov/individuals/international-taxpayers/exceptions-from-firpta-withholding' },
+    { label: 'IRS: instructions for Form 8288 (FIRPTA withholding)', url: 'https://www.irs.gov/instructions/i8288' },
   ],
   practice: 'Before your next offer, write your walk-away price and two terms you could trade instead of price.',
-  reviewed: '2026-09-29',
+  reviewed: '2026-10-04',
 };
