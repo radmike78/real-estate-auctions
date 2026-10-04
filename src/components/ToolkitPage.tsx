@@ -12,6 +12,7 @@ import { loadDeals as loadAnalyzed } from '../lib/analyze';
 import { docGuide, DOC_GUIDES } from '../lib/docGuides';
 import DocGuideView from './DocGuideView';
 import { EvidenceArea } from './EvidenceLog';
+import { DEAL_ID, DEAL_KEY, DEAL_STEPS_KEY, type DealSteps } from '../lib/roadmapDeals';
 
 const ROADMAP_KEY = 'deedowl.roadmap.v1';
 const ROADMAP_PATH_KEY = 'deedowl.roadmap.path.v1';
@@ -45,10 +46,6 @@ const cleanStatus = (v: unknown): Record<string, StepStatus> => {
 
 // Steps 4 to 6 (find, buy, own) belong to one property. With a deal chosen, their progress is kept for that deal,
 // so two properties can be at different stages; steps 1 to 3 are the learner's own, whatever the deal.
-const DEAL_KEY = 'deedowl.roadmap.deal.v1';
-const DEAL_STEPS_KEY = 'deedowl.roadmap.deals.v1';
-type DealSteps = Record<string, { done: string[]; status: Record<string, StepStatus> }>;
-const DEAL_ID = /^analyzed:[A-Za-z0-9_-]{1,64}$/;
 const cleanDealSteps = (v: unknown): DealSteps => {
   const out: DealSteps = {};
   if (v && typeof v === 'object' && !Array.isArray(v))
@@ -69,7 +66,13 @@ export const roadmapPath = () => read(ROADMAP_PATH_KEY, 'listing' as RoadmapPath
 export function roadmapProgress() {
   const steps = roadmapFor(roadmapPath());
   const done = roadmapDone();
-  return { done: steps.filter((s) => done.includes(s.id)).length, total: steps.length };
+  const status = read(STATUS_KEY, {}, cleanStatus);
+  // The same count My plan shows: "doesn't apply" counts as settled, and steps 4 to 6 count for the chosen property.
+  const chosen = read(DEAL_KEY, '', (v) => (typeof v === 'string' && DEAL_ID.test(v) ? v : ''));
+  const active = chosen && loadAnalyzed().some((d) => `analyzed:${d.id}` === chosen) ? chosen : '';
+  const per = active ? read(DEAL_STEPS_KEY, {}, cleanDealSteps)[active] ?? { done: [], status: {} } : null;
+  const settled = (s: RoadmapStep) => (per && dealScoped(s) ? per.done.includes(s.id) || per.status[s.id] === 'na' : done.includes(s.id) || status[s.id] === 'na');
+  return { done: steps.filter(settled).length, total: steps.length };
 }
 
 /** One roadmap step, opened: what you'll have, what to do, what to say, the documents, when to stop, and when it's done. */
@@ -180,7 +183,15 @@ export function FirstDealRoadmap() {
       <div className="roadmap-deal">
         <label className="field">
           <span>Which property are you working on?</span>
-          <select value={deal ? deal.id : ''} onChange={(e) => setDealId(e.target.value)}>
+          <select
+            value={deal ? deal.id : ''}
+            onChange={(e) => {
+              setDealId(e.target.value);
+              // The route follows the property's kind of sale, so its steps fit it.
+              const d = deals.find((x) => `analyzed:${x.id}` === e.target.value);
+              if (d) setPath(d.kind === 'lien' ? 'certificate' : d.kind === 'listing' || d.kind === 'reo' ? 'listing' : 'auction');
+            }}
+          >
             <option value="">None yet: I’m learning and getting ready</option>
             {deals.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}</option>)}
           </select>
@@ -365,7 +376,7 @@ function BuyBoxBuilder() {
           {b.cashMax ? ` No more than ${fmtMoney(b.cashMax)} of my cash in it.` : ''}
           {b.minCashFlow && !lien ? ` At least ${fmtMoney(b.minCashFlow)} a month of cash flow.` : ''}
         </p>
-        {b.dealBreakers.length > 0 && <p><strong>I walk away if:</strong> {b.dealBreakers.join('; ').toLowerCase()}.</p>}
+        {b.dealBreakers.length > 0 && <p><strong>I walk away if:</strong> {b.dealBreakers.map((d) => (/^[A-Z][a-z]/.test(d) ? d.charAt(0).toLowerCase() + d.slice(1) : d)).join('; ')}.</p>}
         <div className="decide-nav">
           <button type="button" className="btn btn-secondary" onClick={() => window.print()}>Print</button>
           <button type="button" className="btn btn-secondary" onClick={() => downloadText('my-buy-box.txt', buyBoxText(b, state?.name))}>Download</button>

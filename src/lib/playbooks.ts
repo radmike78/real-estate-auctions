@@ -339,7 +339,7 @@ const NEVADA: Playbook[] = [
       { label: 'Disclosures', value: 'Nevada’s exemption from the seller disclosure form covers the foreclosure sale itself, not a later resale by the bank (NRS 113.130). Ask for the form, but expect the bank to know little about the home. Your inspection is your main protection' },
       { label: 'Title', value: 'Normal title insurance and escrow' },
       { label: 'HUD homes', value: 'Bid through a HUD-registered broker. For homes listed since May 30, 2025, owner-occupants, government entities and HUD-approved nonprofits get the first 15 days (5 days for homes marked “uninsured”) (HUD Mortgagee Letter 2025-13)' },
-      { label: 'Fannie Mae & Freddie Mac', value: 'Owner-occupants get a 30-day “First Look” period before investors' },
+      { label: 'Fannie Mae & Freddie Mac', value: 'Owner-occupants get a “First Look” period before investors, usually 30 days (confirm on the listing)' },
       { label: 'Lender-run auctions', value: 'Check the buyer’s premium and whether the lender must approve the winning bid. Make sure the lender is the owner of record' },
     ],
     steps: [

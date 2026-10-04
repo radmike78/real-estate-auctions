@@ -70,3 +70,13 @@ describe('restored data is cleaned before it reaches a page', () => {
     expect(r.saved).toBe('2026-10-03T00:00:00Z');
   });
 });
+
+describe('large items', () => {
+  it('keeps an item of several hundred kilobytes', async () => {
+    const { makeBackup } = await import('./progressBackup');
+    const big = JSON.stringify([{ id: 'x', notes: 'n'.repeat(300_000) }]);
+    const store = new Map<string, string>([['deedowl.analyze.v1', big]]);
+    const storage = { get length() { return store.size; }, key: (i: number) => [...store.keys()][i] ?? null, getItem: (k: string) => store.get(k) ?? null } as unknown as Storage;
+    expect(makeBackup(storage).data['deedowl.analyze.v1']).toBe(big);
+  });
+});

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { lastList } from '../lib/lastList';
 import { flushSync } from 'react-dom';
 import { useProperties } from '../data/live';
 import { IRS_ID_PREFIX, LIVE_ID_PREFIX } from '../feed/toProperty';
@@ -375,7 +376,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
           <div><dt>Assessed value <span className="prov official">County Assessor</span></dt><dd>{notChecked(p.assessedValue, 'See the Assessor record')}</dd></div>
           <div><dt>Estimated market value <span className="prov estimate">Estimate, not verified</span></dt><dd>{notChecked(p.estimatedMarketValue, 'Not estimated: pull recent sales of similar properties')}</dd></div>
           <div><dt>Last sale <span className="prov official">County Recorder</span></dt><dd>{p.lastSale ? `${fmtMoney(p.lastSale.price)} on ${fmtDate(p.lastSale.date)}` : verified ? <span className="muted">See the Recorder</span> : 'None on record'}</dd></div>
-          <div><dt>Occupancy <span className="prov estimate">Drive by to confirm</span></dt><dd>{p.occupancy}</dd></div>
+          {forSale ? <div><dt>Occupancy <span className="prov estimate">Confirm from the street or the listing</span></dt><dd>{p.occupancy}</dd></div> : <div><dt>Occupancy</dt><dd className="muted">Not shown: this home isn’t for sale. Don’t visit or contact the owner.</dd></div>}
           <div><dt>Record updated</dt><dd>{fmtDateTime(p.lastUpdated)}</dd></div>
         </dl>
       ),
@@ -390,7 +391,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
         compact={open}
         top={
           <>
-            <a href={open ? baseHref : '#/search'}>{open ? '← Property overview' : '← Back to results'}</a>
+            <a href={open ? baseHref : lastList().href}>{open ? '← Property overview' : `← ${lastList().label}`}</a>
             <span className="hero-actions">
               {forSale && <SaveDealButton p={p} />}
               {forSale && analyzeLink && <a className="hero-btn" href={analyzeLink}>Analyze this property</a>}

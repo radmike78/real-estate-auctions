@@ -105,3 +105,22 @@ describe('the counteroffer path', () => {
     expect(JSON.stringify(loan)).not.toMatch(/25% of the price or the appraised value/);
   });
 });
+
+describe('walk-aways follow the answers', () => {
+  it('finds the step whose showing answer walks away, and ignores hidden ones', async () => {
+    const { walkedFrom } = await import('./rentalCase');
+    expect(walkedFrom({ 'offer/price': 1, 'offer/countered': 2 })).toBe('offer');
+    // Back to $289,000: the counteroffer (and its walk-away) is no longer showing.
+    expect(walkedFrom({ 'offer/price': 0, 'offer/countered': 2 })).toBeUndefined();
+  });
+
+  it('asking for repairs leads to the seller’s price offer, not the price-cut reply', async () => {
+    const { tasksFor } = await import('./rentalCase');
+    const insp = RENTAL_CASE.find((s) => s.key === 'inspection')!;
+    const ids = (a: number) => tasksFor(insp, { 'inspection/respond': a }).map((t) => t.id);
+    expect(ids(0)).toContain('counter');
+    expect(ids(0)).not.toContain('repairs-reply');
+    expect(ids(2)).toContain('repairs-reply');
+    expect(ids(2)).not.toContain('counter');
+  });
+});

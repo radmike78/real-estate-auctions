@@ -40,8 +40,8 @@ const PATTERN = /^fsf\.(dd|bid|income|checklist|calc\.rent|calc\.commercial)\.[A
 
 export const backedUp = (key: string) => EXACT.includes(key) || PATTERN.test(key);
 
-const MAX_VALUE = 200_000;
-const MAX_FILE = 2_000_000;
+const MAX_VALUE = 1_000_000; // one item, e.g. 50 analyzed deals with long notes
+const MAX_FILE = 4_000_000;
 
 /** Pages clean what they read from storage; these keys are also checked here because their pages render them directly. */
 const CLEAN: Record<string, (v: unknown) => unknown> = {

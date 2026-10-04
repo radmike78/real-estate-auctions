@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { rememberList } from '../lib/lastList';
 import { replaceAddress, toPath } from '../lib/nav';
 import { SHOW_SAMPLE_DATA } from '../data';
 import { useProperties } from '../data/live';
@@ -68,6 +69,7 @@ function restoreFilters(fromLink: Filters): Filters {
 }
 
 export default function SearchPage({ initialLocation = '', initialSaleTypes = [], initialStatuses = [], initialClass = 'all' }: Props) {
+  rememberList('#/search', 'Back to results');
   const [filters, setFilters] = useState<Filters>(() => restoreFilters({ ...DEFAULT_FILTERS, location: initialLocation, saleTypes: initialSaleTypes, statuses: initialStatuses, propertyClass: initialClass }));
   const [locationInput, setLocationInput] = useState(initialLocation);
   const [view, setView] = useState<'list' | 'map'>('list');

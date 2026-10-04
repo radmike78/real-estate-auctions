@@ -42,7 +42,7 @@ export default function ProProfilePage({ id }: { id: string }) {
           <h1>{p.name}</h1>
           <p className="lede">{p.headline}</p>
           <div className="contact">
-            {tel && <a className="btn" href={tel} onClick={() => track('phone_click', p.id)}>Call {fmtPhone(p.phone!)}</a>}
+            {!p.isSample && tel && <a className="btn" href={tel} onClick={() => track('phone_click', p.id)}>Call {fmtPhone(p.phone!)}</a>}
             {mail && <a className="btn btn-secondary" href={mail} onClick={() => track('email_click', p.id)}>Email</a>}
             {web && <a className="btn btn-secondary" href={web} target="_blank" rel="noreferrer noopener nofollow" onClick={() => track('website_click', p.id)}>Website ↗</a>}
           </div>
@@ -75,6 +75,13 @@ export default function ProProfilePage({ id }: { id: string }) {
 
         <div className="side-col">
         <LeadForm pro={p} />
+        {p.isSample ? (
+          <aside className="verify-card">
+            <h2>Sample profile</h2>
+            <p className="small">This is a fictional example of how a listing will look. There’s no real person or license behind it. Real profiles show a license a person checked on {info.regulator}.</p>
+            <a className="btn btn-secondary" href={info.lookupUrl} target="_blank" rel="noreferrer noopener">Look up a real license on {info.regulator} ↗</a>
+          </aside>
+        ) : (
         <aside className="verify-card">
           <h2>✓ Verified</h2>
           <dl className="mini">
@@ -88,6 +95,7 @@ export default function ProProfilePage({ id }: { id: string }) {
           </p>
           <a className="btn btn-secondary" href={info.lookupUrl} target="_blank" rel="noreferrer noopener">Check it yourself on {info.regulator} ↗</a>
         </aside>
+        )}
         </div>
       </div>
     </main>

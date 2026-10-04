@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { currentRoute, isAppLink, navigate, onNavigate, rewriteAppLinks, toPath, upgradeLegacyHash } from './lib/nav';
+import { currentRoute, isAppLink, navigate, onNavigate, replaceAddress, rewriteAppLinks, toPath, upgradeLegacyHash } from './lib/nav';
 import SearchPage from './components/SearchPage';
 import HomePage from './components/HomePage';
 import SiteHeader from './components/SiteHeader';
@@ -169,7 +169,11 @@ function parseHash(): Route {
   if (pr) return { page: 'practiceRun', id: pr[1], stage: pr[2] };
   const pb = h.match(/^playbooks(?:\/([a-z]+)(?:\/([a-z-]+))?)?$/);
   if (pb) return { page: 'playbook', key: pb[1], section: pb[2] };
-  if (sub?.[1] === 'disclaimer') return { page: 'about', section: sub[2] }; // merged into How DeedOwl works
+  if (sub?.[1] === 'disclaimer') {
+    // Merged into How DeedOwl works: show it at its own address, so there's one page for search engines.
+    if (typeof window !== 'undefined') replaceAddress(`/about${sub[2] ? `/${sub[2]}` : ''}`);
+    return { page: 'about', section: sub[2] };
+  }
   if (sub?.[1] === 'privacy') return { page: 'privacy', section: sub[2] };
   if (sub?.[1] === 'terms') return { page: 'terms', section: sub[2] };
   const adv = h.match(/^advertiser(?:\/login\/([A-Za-z0-9_-]+))?$/);
@@ -200,7 +204,11 @@ export default function App() {
       if (!a || !isAppLink(a)) return;
       e.preventDefault();
       const to = toPath(a.getAttribute('href')!);
-      if (to === `${window.location.pathname}${window.location.search}`) return window.scrollTo(0, 0);
+      if (to === `${window.location.pathname}${window.location.search}`) {
+        // Already here: a link to a section of this page (e.g. /toolkit/buy-box) scrolls to it; others go to the top.
+        const sec = document.getElementById(to.split('?')[0].split('/').pop() ?? '');
+        return sec ? sec.scrollIntoView() : window.scrollTo(0, 0);
+      }
       navigate(to);
     };
     // Show every "#/x" link as a real "/x" address, now and whenever the page changes.

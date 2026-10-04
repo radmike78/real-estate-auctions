@@ -27,10 +27,12 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
   const moved = useRef(false);
   const progress = useRef<HTMLParagraphElement>(null);
   useEffect(() => () => window.clearTimeout(timer.current), []);
+  const resultHead = useRef<HTMLParagraphElement>(null);
   useEffect(() => {
-    if (moved.current) progress.current?.focus();
+    // The last answer opens the suggestions: focus moves there, since the question it answered is gone.
+    if (moved.current) (step >= qs.length ? resultHead.current : progress.current)?.focus();
     moved.current = false;
-  }, [step]);
+  }, [step, qs.length]);
   const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   return (
@@ -72,7 +74,7 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
         </>
       ) : (
         <>
-          <p><strong>Start with the first one.</strong> The others are good next steps, and everything else is still on the page below.{' '}
+          <p ref={resultHead} tabIndex={-1}><strong>Start with the first one.</strong> The others are good next steps, and everything else is still on the page below.{' '}
             <button type="button" className="linkish" onClick={() => { setStep(0); setAnswers({}); }}>Start over</button>
           </p>
           <ol className="team-result">
