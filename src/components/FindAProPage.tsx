@@ -21,6 +21,9 @@ import { Cited } from './Cited';
 import { useLastActivity } from '../lib/journey';
 import { PRO_SCRIPTS } from '../lib/proScripts';
 
+/** Buying a listed home: the agent, the lender, the inspector, then title, insurance and someone to manage it. */
+const LISTING_TEAM: ProKey[] = ['agent', 'lender', 'inspector', 'title', 'insurance', 'property_manager'];
+
 const ICONS: Record<ProKey, ReactElement> = {
   agent: <IconHome />, lender: <IconBank />, private_lender: <IconClock />, title: <IconFile />, attorney: <IconBadge />, inspector: <IconSearch />,
   contractor: <IconTools />, insurance: <IconShield />, cpa: <IconCalc />, property_manager: <IconLayers />, eviction: <IconLock />, environmental: <IconPulse />, appraiser: <IconCalc />,
@@ -133,7 +136,9 @@ export default function FindAProPage({ section }: { section?: string }) {
   const book = guidesFor(mine).find((p) => p.key === sale);
   const team = book
     ? book.team
-    : CORE_TEAM.map((k) => proGuideByKey(k)!).map((g) => ({ role: g.title, when: g.summary, href: `#/pros/${g.key}` }));
+    : sale === 'listing'
+      ? LISTING_TEAM.map((k) => proGuideByKey(k)!).map((g) => ({ role: g.title, when: g.summary, href: `#/pros/${g.key}` }))
+      : CORE_TEAM.map((k) => proGuideByKey(k)!).map((g) => ({ role: g.title, when: g.summary, href: `#/pros/${g.key}` }));
 
   return (
     <main className="page">
@@ -158,6 +163,7 @@ export default function FindAProPage({ section }: { section?: string }) {
           {mine ? (
             <div className="chip-tabs" role="group" aria-label="Kind of sale">
               <button aria-pressed={sale === 'start'} onClick={() => setSale('start')}>Not sure yet</button>
+              <button aria-pressed={sale === 'listing'} onClick={() => setSale('listing')}>A listed home (through an agent)</button>
               {guidesFor(mine).map((p) => (
                 <button key={p.key} aria-pressed={sale === p.key} onClick={() => setSale(p.key)}>{p.short}</button>
               ))}
@@ -170,8 +176,8 @@ export default function FindAProPage({ section }: { section?: string }) {
           )}
           {mine && <p className="muted">Sales in {stateByCode(mine)?.name}. <button type="button" className="linkish" onClick={() => { setMine(null); setSale('start'); }}>Change state</button></p>}
           <p className="muted">
-            {book ? <>For {book.short.toLowerCase()}, in the order you’ll usually need them.</> : <>Most first-time buyers need these six, whatever the kind of sale (paying cash, you can skip the lender).</>}{' '}
-            <a href={book ? `#/playbooks/${book.key}` : '#/playbooks'}>{book ? `How ${book.short.toLowerCase()} work →` : 'Sale guides →'}</a>
+            {book ? <>For {book.short.toLowerCase()}, in the order you’ll usually need them.</> : sale === 'listing' ? <>For a home listed for sale, the way most first rentals are bought, in the order you’ll usually need them.</> : <>Most first-time buyers need these six, whatever the kind of sale (paying cash, you can skip the lender).</>}{' '}
+            {sale === 'listing' ? <a href="#/practice/case">Practice a listed purchase, start to finish →</a> : <a href={book ? `#/playbooks/${book.key}` : '#/playbooks'}>{book ? `How ${book.short.toLowerCase()} work →` : 'Sale guides →'}</a>}
           </p>
           <TeamList team={team} />
         </section>

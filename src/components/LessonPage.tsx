@@ -129,7 +129,7 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
     <main className="page lesson" ref={bodyRef}>
       <PageHero
         top={<a href="#/learn">← All lessons</a>}
-        eyebrow={<span className="eyebrow">Lesson {n} of {LEARN_MODULES.length} · {l.minutes} min read</span>}
+        eyebrow={<span className="eyebrow">Lesson library · {n} of {LEARN_MODULES.length} · {l.minutes} min read</span>}
         title={m.title}
         sub={l.intro}
       />

@@ -1,4 +1,5 @@
 import type { StateCode } from '../lib/regions';
+import { investorProfile, profileStart } from '../lib/myPlan';
 import BidCalculator from './BidCalculator';
 import { CommercialCalculator, LienCalculator, RentCalculator } from './HoldCalculators';
 import PageHero from './PageHero';
@@ -16,7 +17,7 @@ export function Calculators({ initial, onTab, state, offer = false, dealId, onAn
         onChange={onTab}
         strategies={[
           { key: 'flip', label: 'Fix and sell', about: `The most you can ${bid} and still make your profit when you fix it up and sell it.`, render: () => <BidCalculator headingLevel={2} offer={offer} saveAs={dealId ? `analyzed-${dealId}` : onAnalyze ? 'analyze-draft' : undefined} /> },
-          { key: 'rent', label: 'Keep and rent', about: `The most you can ${bid} and still get your return on the cash you leave in, with or without a loan afterward.`, render: () => <RentCalculator regional={!!state} offer={offer} storageKey={k('rent')} exactKey={!!dealId} /> },
+          { key: 'rent', label: 'Keep and rent', about: `The most you can ${bid} and still get your return on the cash you leave in, with or without a loan afterward.`, render: () => <RentCalculator regional={!!state} offer={offer} storageKey={k('rent')} exactKey={!!dealId} start={onAnalyze ? profileStart(investorProfile(), offer) : undefined} /> },
           { key: 'commercial', label: 'Commercial income', about: `The most you can ${bid} for a building’s income, counting the months it takes to lease it up.`, render: () => <CommercialCalculator regional={!!state} offer={offer} storageKey={k('commercial')} exactKey={!!dealId} /> },
           { key: 'lien', label: 'Lien certificate', about: 'What a special assessment (SID) lien certificate earns per year, counting the wait to be paid.', render: () => <LienCalculator /> },
         ].filter((s) => s.key !== 'lien' || !state || state === 'NV' || state === 'AZ').map((s) => (s.key === 'lien' && state === 'AZ' ? { ...s, label: 'Tax lien', about: 'What an Arizona tax lien certificate earns per year at the rate you win, counting the wait to be paid.' } : s))}

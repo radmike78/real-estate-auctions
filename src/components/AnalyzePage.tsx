@@ -10,6 +10,8 @@ import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions'
 import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, carryDraftNumbers, cleanDeal, forgetDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
 import CheckFold from './CheckFold';
 import { linkLabel } from '../lib/linkLabel';
+import { investorProfile } from '../lib/myPlan';
+import { fmtMoney } from '../lib/status';
 
 const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake' };
 const CURRENT = CURRENT_KEY;
@@ -220,6 +222,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       </section>
 
       <h2 className="section-title" id="numbers" ref={numbersRef}>3. Run the numbers</h2>
+      <ProfileNote />
       <CalcRegion.Provider value={{ state: deal.state, county: deal.county }}>
         <Calculators key={`${deal.id}-${deal.state}-${deal.county}-${deal.kind}`} dealId={deal.id || undefined} onAnalyze initial={calcTabFor(deal.plan)} onTab={(k) => { const p = PLANS.find((x) => calcTabFor(x.key) === k)?.key; if (p && p !== deal.plan && plans.some((x) => x.key === p)) set({ plan: p }); }} state={deal.state} offer={deal.kind === 'listing' || deal.kind === 'reo'} />
       </CalcRegion.Provider>
@@ -236,4 +239,17 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       </section>
     </main>
   );
+}
+
+/** What a new deal's starting numbers take from your plan, said once, so nothing changes silently. */
+function ProfileNote() {
+  const p = investorProfile();
+  const parts: string[] = [];
+  if (p.investable > 0) parts.push(`${fmtMoney(p.investable)} of investable cash (your limit for a listed home)`);
+  if (p.loan === 'cash') parts.push('paying cash');
+  else if (p.loan === 'yes') parts.push('a loan (a common 75% of the price for a listed rental, until your lender quotes)');
+  if (p.manager === true) parts.push('a property manager (8% of rent)');
+  else if (p.manager === false) parts.push('managing it yourself');
+  if (!parts.length) return null;
+  return <p className="muted analyze-profile">From your plan: {parts.join('; ')}. These fill in a new deal’s starting numbers. Change any of them below; they aren’t loan terms anyone approved. <a href="#/toolkit">Edit your plan</a></p>;
 }

@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "f91164b109b28933",
+    "hash": "6d6426397b3b967e",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -171,7 +171,7 @@
       "src/lib/evidence.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "60cddf0b2e74463b",
+    "hash": "94d0dd81f5a63d22",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -202,7 +202,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "b56b70ebf43ab468",
+    "hash": "f3f50209f46ed6f7",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -280,7 +280,7 @@
       "src/components/RoleNotice.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "9dfa67e758a32f12",
+    "hash": "77abed50a1218dc5",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -351,7 +351,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "5857d400dc7cb0b4",
+    "hash": "f0aec275da7b5477",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -388,7 +388,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "1ab14926313bba6d",
+    "hash": "03c5c0cd2a4c07ef",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {

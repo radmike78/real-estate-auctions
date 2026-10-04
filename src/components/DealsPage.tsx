@@ -13,6 +13,8 @@ import { removeLog } from '../lib/evidence';
 import { kindLabel, loadDeals as loadAnalyzed, openDeal, SALE_KINDS, checklistFor } from '../lib/analyze';
 import { countyName } from '../lib/regions';
 import StatusBadge from './StatusBadge';
+import { downloadText, fileName } from '../lib/download';
+import { propertyPacketText } from '../lib/propertyPacket';
 
 function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; loading: boolean }) {
   const [notes, setNotes] = useState(d.notes);
@@ -127,7 +129,10 @@ export default function DealsPage() {
                       <h3><button type="button" className="linkish" onClick={() => openDeal(d)}>{d.name}</button></h3>
                       <p className="muted">{kindLabel(k, d.state)} · {countyName(d.county)}, {d.state} · checklist {done} of {all.length} done</p>
                     </div>
-                    <button type="button" className="btn btn-secondary" onClick={() => openDeal(d)}>Open →</button>
+                    <div className="deal-actions">
+                      <button type="button" className="btn btn-secondary" onClick={() => downloadText(fileName(`property packet ${d.name}`, 'txt'), propertyPacketText(d))}>Download property packet</button>
+                      <button type="button" className="btn btn-secondary" onClick={() => openDeal(d)}>Open →</button>
+                    </div>
                   </div>
                   <EvidenceLog dealId={`analyzed:${d.id}`} name={d.name} />
                 </li>
