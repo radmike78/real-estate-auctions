@@ -26,7 +26,8 @@ export const SECTIONS: DrillSection[] = [
         <li>You can use the whole site without an account or sign-up.</li>
         <li>Your saved deals, bid calculations and checklists stay in your own browser. They aren't sent to us.</li>
         <li>We collect personal information only when you choose to contact a professional, sign up for email alerts, or apply to advertise.</li>
-        <li>We don't sell personal information, and we don't use advertising networks, analytics trackers or tracking cookies.</li>
+        <li>We don't sell personal information, and we don't use advertising networks, third-party analytics services or tracking cookies.</li>
+        <li>Our own server counts visits, page views and clicks on advertiser profiles, as daily totals. It doesn't follow you across other websites or build a profile of you. “Information we collect” explains how.</li>
       </ul>
     ),
   },
@@ -142,7 +143,7 @@ export const SECTIONS: DrillSection[] = [
         <h3>Tracking across websites</h3>
         <p>
           We don't allow any third party to collect information about your activity over time and across different websites through our site.
-          We use no advertising or analytics trackers.
+          We use no advertising or third-party analytics trackers. The visit counts described above are made by our own server, as daily totals.
         </p>
         <h3>Other services you may reach from our pages</h3>
         <ul>

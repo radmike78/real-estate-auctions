@@ -124,7 +124,7 @@ export const ROADMAP: RoadmapStep[] = [
     outcome: 'A pre-approval letter and a written quote: rate, down payment, closing costs and the reserves the lender wants.',
     steps: ['Ask two or three lenders for a quote on the same loan, so you can compare.', 'Check each loan officer’s license on NMLS Consumer Access.', 'Ask what conditions could still stop the loan after you’re approved.'],
     say: { to: 'Loan officer', script: '“I’m buying a [one-unit home] I [will / won’t] live in, around [$price], in [county]. What down payment, rate and reserves would you need? Can you give me a written quote and a pre-approval? What could stop the loan after I’m approved?”' },
-    docs: ['Lenders usually ask for: photo ID, recent pay stubs, W-2s or tax returns, and bank statements', 'You get: a pre-approval letter, and a Loan Estimate after you apply if you’ll live in the home. For a rental, the law doesn’t require one; many lenders give one anyway, and if yours doesn’t, ask for a written quote'],
+    docs: ['Lenders usually ask for: photo ID, recent pay stubs, W-2s or tax returns, and bank statements', 'You get: a pre-approval letter, and a Loan Estimate after you apply when federal consumer rules cover the loan: generally a one- or two-unit home you’ll live in. A loan to buy a rental you won’t live in counts as a business loan, so the law doesn’t require one; ask for a written term sheet instead (the financing lesson explains which loans are covered)'],
     doneWhen: 'You have a pre-approval letter and a written quote you’ve compared with at least one other.',
     action: 'What to ask a lender', href: '#/pros/lender',
   },
@@ -423,9 +423,9 @@ export const ROADMAP: RoadmapStep[] = [
   {
     id: 'first-week', phase: 6, path: OWNERS, title: 'Your first week',
     text: 'Make the property safe, secure and insured, and set up clean records from day one.',
-    outcome: 'Locks changed (once you lawfully have possession), utilities in your name, condition photos, insurance confirmed, and a separate bank account.',
-    steps: ['Change or rekey the locks once you lawfully have possession.', 'Move the utilities into your name.', 'Take dated photos and video of every room.', 'Confirm your insurance is in force for how you’re using it.', 'Give the HOA, if any, your mailing address and contact details.', 'Open a separate bank account for the property.'],
-    doneWhen: 'Each item on the list is done.',
+    outcome: 'Locks changed (once you lawfully have possession of a vacant home), utilities in your name, condition photos, insurance confirmed, and a separate bank account.',
+    steps: ['If the home is vacant and you lawfully have possession: change or rekey the locks.', 'If a tenant stays on: don’t change their locks or touch their utilities. Get the lease and deposit records from the seller or escrow, tell the tenant in writing who you are and where to pay rent, and follow your state’s rules for entry.', 'Move the utilities you’re responsible for into your name, without any gap in service.', 'Take dated photos and video of every room.', 'Confirm your insurance is in force for how you’re using it.', 'Give the HOA, if any, your mailing address and contact details.', 'Open a separate bank account for the property.'],
+    doneWhen: 'Each item that applies to your home (vacant or with a tenant) is done.',
     action: 'Lesson: after you close', href: '#/learn/after-closing',
   },
   {
@@ -450,10 +450,10 @@ export const ROADMAP: RoadmapStep[] = [
   {
     id: 'operate', phase: 6, path: OWNERS, title: 'Keep the books and the reserves',
     text: 'Track every dollar in and out each month, and set money aside for vacancies, repairs and big replacements.',
-    outcome: 'Monthly records and a reserve that grows.',
+    outcome: 'Monthly records that match your bank account, and a reserve that meets your plan.',
     steps: ['Record rent and every cost each month.', 'Move a set amount into your reserve each month, even when nothing breaks.', 'Keep receipts for your tax advisor.'],
     say: { to: 'Tax advisor', script: '“I own a rental at [address] since [date]. What records do you need from me each year, and is there anything I should set up now?”' },
-    doneWhen: 'You have three months of records and a reserve that has grown each month.',
+    doneWhen: 'Three months are reconciled with your bank statements; every reserve deposit and withdrawal is recorded; and the reserve meets your plan, or you’ve written down how and when you’ll rebuild it after a repair or a vacancy.',
     action: 'Your team: tax advisor', href: '#/pros/cpa',
   },
   {

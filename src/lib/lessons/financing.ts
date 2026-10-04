@@ -21,7 +21,7 @@ export const financing: Lesson = {
             head: ['Loan', 'Down payment', 'What to know'],
             rows: [
               ['FHA', 'As low as 3.5% with a credit score of 580 or higher. With a score of 500 to 579, it’s 10%.', 'Your main home, one to four units. Mortgage insurance has an upfront cost at closing and a monthly cost.'],
-              ['VA', 'None, as long as the price isn’t above the appraised value.', 'For eligible veterans and service members who will live in the home. Can buy up to four units.'],
+              ['VA', 'Often none, with full VA entitlement and the lender’s approval, as long as the price isn’t above the appraised value. With less entitlement left (for example, a VA loan you haven’t paid off), the lender may require a down payment.', 'For eligible veterans and service members who will live in the home. Can buy up to four units.'],
               ['Conventional', 'Varies by lender and program.', 'If you put down less than 20%, you’ll usually pay private mortgage insurance (PMI). It protects the lender, not you.'],
               ['FHA 203(k)', 'FHA terms.', 'Adds repair costs to the loan: up to $75,000 for smaller jobs (Limited 203(k)), or larger projects of at least $5,000 (Standard 203(k)).'],
             ],
@@ -96,7 +96,7 @@ export const financing: Lesson = {
       heading: 'Before you sign',
       blocks: [
         { list: [
-          'Compare lenders. On most consumer home loans, such as a loan to buy a one- or two-unit home you’ll live in, the lender must give you a Loan Estimate within three business days of your application. Home equity lines of credit (HELOCs) and reverse mortgages use different disclosures. Business loans, including loans for rentals you won’t live in and loans to buy three or more units, don’t require this form: ask for a written term sheet, and compare rate, points, fees, balloon and prepayment terms side by side.',
+          'Compare lenders. On most consumer home loans, such as a loan to buy a one- or two-unit home you’ll live in, the lender must give you a Loan Estimate within three business days of your application. Home equity lines of credit (HELOCs) and reverse mortgages use different disclosures. Business loans don’t require this form. Federal rules treat a loan to buy a rental you won’t live in as a business loan, whatever its size, and so is a loan to buy a building of three or more units even if you’ll live in one of them (“live in” means more than 14 days in the coming year). For those, ask for a written term sheet, and compare rate, points, fees, balloon and prepayment terms side by side.',
           'Check the final numbers. On most consumer home loans (not HELOCs or reverse mortgages), you must receive the Closing Disclosure at least three business days before you sign the loan. Compare it with your Loan Estimate. A pre-approval is conditional: it isn’t a promise to fund.',
           'Check each lender’s license with its regulator; NMLS Consumer Access covers many of them.',
           'Plan for the worst case: higher repairs, a slow sale, or a vacancy while payments are due.',

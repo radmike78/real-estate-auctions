@@ -95,6 +95,8 @@ export interface CaseChoice {
   why: string;
   /** Choosing it ends the purchase: a walk-away, which can be the right call. */
   walk?: boolean;
+  /** A line for the evidence log when this choice is made (for choices that change what happened). */
+  log?: string;
 }
 
 export interface CaseDoc {
@@ -107,11 +109,18 @@ export interface CaseDoc {
   notes?: string[];
 }
 
-export type CaseTask =
-  | { kind: 'choice'; id: string; prompt: string; choices: CaseChoice[]; /** How a different fact would change the answer. */ ifDifferent?: string }
-  | { kind: 'multi'; id: string; prompt: string; options: { label: string; right: boolean; why: string }[] }
-  | { kind: 'number'; id: string; prompt: string; answer: number; tolerance: number; worked: string[]; hint?: string }
-  | { kind: 'write'; id: string; prompt: string; to: string; model: string };
+/** Asked only when an earlier question in the same step got one of these answers (choice numbers, from 0). */
+export interface TaskIf {
+  if?: { task: string; is: number[] };
+}
+
+export type CaseTask = TaskIf &
+  (
+    | { kind: 'choice'; id: string; prompt: string; choices: CaseChoice[]; /** How a different fact would change the answer. */ ifDifferent?: string }
+    | { kind: 'multi'; id: string; prompt: string; options: { label: string; right: boolean; why: string }[] }
+    | { kind: 'number'; id: string; prompt: string; answer: number; tolerance: number; worked: string[]; hint?: string }
+    | { kind: 'write'; id: string; prompt: string; to: string; model: string }
+  );
 
 export interface CaseStage {
   key: string;
@@ -127,6 +136,14 @@ export interface CaseStage {
   dates?: { when: string; what: string }[];
   learnMore?: { label: string; href: string }[];
 }
+
+/** The questions a step asks, given your answers so far: a question with `if` appears only after the answer it follows. */
+export function tasksFor(st: CaseStage, answers: Record<string, unknown>): CaseTask[] {
+  return st.tasks.filter((t) => !t.if || t.if.is.includes(answers[`${st.key}/${t.if.task}`] as number));
+}
+
+/** Steps before this one have no contract yet: walking away there costs nothing. */
+export const CONTRACT_FROM = 'offer';
 
 export const CASE_TITLE = 'Buy a rental, start to finish';
 export const CASE_PROPERTY = '1418 Example Ridge Court, Henderson, Nevada (fictional)';
@@ -335,14 +352,18 @@ export const RENTAL_CASE: CaseStage[] = [
         rows: [
           ['Loan type', '30-year fixed, investment property (you won’t live there)'],
           ['Practice rate', `${(N.rate * 100).toFixed(2)}%`],
-          ['Down payment', '25% of the price or the appraised value, whichever is lower'],
+          ['Maximum loan', '75% of the purchase price or the appraised value, whichever is lower'],
+          ['Your share of the price', 'The price minus the loan. If the appraisal comes in below the price, you pay that gap too.'],
           ['Payment at a $289,000 price', `${$(N.piOffer)} a month principal and interest, on a ${$(N.loanOffer)} loan`],
           ['Estimated closing costs', `${$(closingCosts)} (lender, title, escrow and prepaid items)`],
           ['Reserves after closing', '6 months of the full monthly payment (principal, interest, taxes, insurance and HOA) still in your account'],
-          ['Seller credits', 'Up to 2% of the price or appraised value, whichever is lower'],
+          ['Seller credits', 'Up to 2% of the price or appraised value, whichever is lower, and only toward closing costs'],
           ['Rate lock', '45 days'],
         ],
-        notes: ['Fannie Mae limits seller credits on investment properties to 2%. Anything above that has to come off the price instead (Fannie Mae Selling Guide B3-4.1-02).'],
+        notes: [
+          'On top of the price, you pay closing costs and must still have the reserves after closing.',
+          'For a Fannie Mae investment-property loan like this one, seller credits (the guide calls them financing concessions) are capped at 2% of the lower of the price or the appraised value, and can only pay closing costs, never your down payment. The lender treats any excess as a price reduction when it works out the loan, which can raise the cash you need (Fannie Mae Selling Guide B3-4.1-02). Changing the price itself is a separate change to the contract that you and the seller sign.',
+        ],
       },
       {
         kind: 'Insurance quote',
@@ -374,7 +395,8 @@ export const RENTAL_CASE: CaseStage[] = [
         answer: N.cashOffer,
         tolerance: 50,
         worked: [
-          `Down payment: 25% of $289,000 = ${$(offer - N.loanOffer)}`,
+          `Loan: 75% of $289,000 = ${$(N.loanOffer)}`,
+          `Your share of the price: $289,000 − ${$(N.loanOffer)} = ${$(offer - N.loanOffer)}`,
           `Closing costs: ${$(closingCosts)}`,
           `Reserves: 6 × ${$(N.pitiaOffer)} = ${$(6 * N.pitiaOffer)}`,
           `Total: ${$(N.cashOffer)}. That leaves ${$(N.investable - N.cashOffer)} of your ${$(N.investable)} for repairs and surprises.`,
@@ -414,17 +436,20 @@ export const RENTAL_CASE: CaseStage[] = [
     docs: [
       {
         kind: 'Purchase contract (summary)',
-        title: 'Accepted on Day 0',
+        title: 'The contract, once both of you have signed',
         from: 'Signed by you and the seller (fictional)',
         rows: [
           ['Price', $(offer)],
-          ['Earnest money', `${$(earnest)}, to escrow within 3 business days`],
+          ['Day 0', 'The day the signed acceptance is delivered to you. The other deadlines count from it.'],
+          ['Earnest money', `${$(earnest)}, to escrow within 3 business days of Day 0`],
           ['Inspection period', 'Ends Day 10. You can cancel for any reason before then.'],
           ['Appraisal contingency', 'Ends Day 17'],
           ['Loan contingency', 'Ends Day 21'],
-          ['HOA documents', '5 days to review after you receive them'],
+          ['HOA documents', '5 days to review, counted from the day you receive them'],
           ['Closing', 'Day 30'],
+          ['Counting days', 'Calendar days unless it says business days. A deadline on a weekend or holiday moves to the next business day.'],
         ],
+        notes: ['If you offered less, this is the contract you’d have after accepting the seller’s counteroffer.'],
       },
     ],
     tasks: [
@@ -434,7 +459,7 @@ export const RENTAL_CASE: CaseStage[] = [
         prompt: `The list price is ${$(N.list)}. What do you offer?`,
         choices: [
           { label: '$289,000, with inspection, appraisal and loan contingencies', verdict: 'best', why: 'It matches the value your sales comparables support, and fits your cash with room for repairs.' },
-          { label: '$275,000, with the same contingencies', verdict: 'ok', why: 'A defensible opening offer after 41 days on the market. The seller may counter, or may say no.' },
+          { label: '$275,000, with the same contingencies', verdict: 'ok', why: 'A defensible opening offer after 41 days on the market. The seller may counter, or may say no.', log: 'Opened at $275,000 with inspection, appraisal and loan contingencies.' },
           { label: `${$(N.list)} with no contingencies, to win it`, verdict: 'poor', why: 'You’d pay about $11,000 over the value, and give up your way out if the inspection or appraisal goes badly.' },
         ],
       },
@@ -449,6 +474,18 @@ export const RENTAL_CASE: CaseStage[] = [
       },
       {
         kind: 'choice',
+        id: 'countered',
+        if: { task: 'price', is: [1] },
+        prompt: `The seller counters in writing at ${$(offer)}, pointing to the same three closed sales you found, with the same contingencies. The counteroffer expires tomorrow at 5 p.m. What do you do?`,
+        choices: [
+          { label: `Accept the ${$(offer)} counter in writing before it expires.`, verdict: 'best', why: 'It’s the value the closed sales support, and your cash plan already works at this price. Opening lower cost you nothing.', log: `The seller countered at ${$(offer)}. You accepted in writing: it matches the value from the closed sales and fits your cash.` },
+          { label: 'Counter back at $282,000.', verdict: 'ok', why: 'Fair to try, but the seller already moved to the value you calculated yourself. In this practice case they hold at their counter, so the contract below is at that price.', log: `The seller countered at ${$(offer)}. You countered at $282,000; the seller held, and you accepted ${$(offer)} in writing.` },
+          { label: 'Walk away: you’d only pay $275,000.', verdict: 'ok', walk: true, why: `Allowed, and nothing is lost: no contract was signed. But ${$(offer)} matches the value and fits your plan, so here you’d be passing on a deal that works. Know why your limit is your limit.`, log: `The seller countered at ${$(offer)}. You declined: your limit was $275,000.` },
+          { label: 'Let it expire and wait for the seller to come back lower.', verdict: 'poor', why: 'Once a counteroffer expires, there’s nothing to accept. The seller is free to sell to someone else.' },
+        ],
+      },
+      {
+        kind: 'choice',
         id: 'wire',
         prompt: 'The seller accepts. An email that looks like it’s from escrow arrives with wiring instructions for your earnest money. What do you do?',
         choices: [
@@ -458,13 +495,15 @@ export const RENTAL_CASE: CaseStage[] = [
         ],
       },
     ],
-    log: [{ area: 'Contract', finding: `Accepted at ${$(offer)}. Earnest money ${$(earnest)}, confirmed by phone before wiring.` }],
+    log: [{ area: 'Contract', finding: `Signed at ${$(offer)}. Earnest money ${$(earnest)}, confirmed by phone before wiring.` }],
     dates: [
-      { when: 'Day 3', what: 'Earnest money to escrow (confirm the instructions by phone first)' },
-      { when: 'Day 10', what: 'Inspection period ends: cancel, ask for changes, or go ahead' },
-      { when: 'Day 17', what: 'Appraisal contingency ends' },
-      { when: 'Day 21', what: 'Loan contingency ends' },
-      { when: 'Day 30', what: 'Closing' },
+      { when: 'Day 0', what: 'The signed acceptance is delivered to you. Every deadline below counts from here.' },
+      { when: 'Within 3 business days of Day 0', what: 'Earnest money to escrow (confirm the instructions by phone first). You: the buyer.' },
+      { when: 'Day 10', what: 'Inspection period ends: cancel, ask for changes, or go ahead in writing. You, with your agent.' },
+      { when: '5 days after you receive the HOA documents', what: 'HOA review ends: cancel in writing if the rules block your plan. Write down the day they arrive.' },
+      { when: 'Day 17', what: 'Appraisal contingency ends. You, with your lender’s appraisal.' },
+      { when: 'Day 21', what: 'Loan contingency ends. Your lender confirms the loan is approved.' },
+      { when: 'Day 30', what: 'Closing. Escrow and the title company.' },
     ],
     learnMore: [{ label: 'Lesson: negotiating', href: '#/learn/negotiate' }],
   },
@@ -521,7 +560,7 @@ export const RENTAL_CASE: CaseStage[] = [
         prompt: 'It’s Day 7. What do you ask the seller for?',
         choices: [
           { label: `Lower the price by ${$(N.urgent)} to cover the sewer and the panel.`, verdict: 'best', why: 'The findings are documented, with bids. A price cut also lowers your down payment and loan.' },
-          { label: `A ${$(N.urgent)} seller credit at closing.`, verdict: 'poor', why: `This lender allows seller credits of up to 2% (${$(offer * 0.02)}). The rest would have to come off the price anyway, so ask for a price cut.` },
+          { label: `A ${$(N.urgent)} seller credit at closing.`, verdict: 'poor', why: `This lender caps seller credits at 2% (${$(offer * 0.02)}), and they can only pay closing costs. Your closing costs are ${$(closingCosts)}, so most of a ${$(N.urgent)} credit couldn’t be used, and the lender would count the excess against the price. Ask for a lower price instead: you and the seller sign that change to the contract.` },
           { label: 'Ask the seller to make the repairs before closing.', verdict: 'ok', why: 'It can work, but you don’t control who does the work or how well. Ask for permits and receipts, and re-inspect.' },
           { label: 'Cancel before Day 10 and get the earnest money back.', verdict: 'ok', walk: true, why: 'A good result when a deal no longer fits. Your contract’s inspection period lets you leave with your deposit.' },
           { label: 'Say nothing and go ahead.', verdict: 'poor', why: `You’d have about ${$(N.investable - N.cashOffer - N.urgent)} left for everything that goes wrong. That’s too thin.` },
@@ -677,7 +716,7 @@ export const RENTAL_CASE: CaseStage[] = [
         id: 'error',
         prompt: 'Something is missing. What is it?',
         choices: [
-          { label: `Your ${$(earnest)} earnest money isn’t credited.`, verdict: 'best', why: 'You already paid it into escrow on Day 3. It should reduce the cash you bring.' },
+          { label: `Your ${$(earnest)} earnest money isn’t credited.`, verdict: 'best', why: 'You already paid it into escrow within 3 business days of acceptance. It should reduce the cash you bring.' },
           { label: 'The seller’s credit for repairs.', verdict: 'poor', why: 'There isn’t one: you negotiated a lower price instead.' },
           { label: 'Nothing. It looks right.', verdict: 'poor', why: 'Check each payment you’ve already made. Your earnest money is missing.' },
         ],
