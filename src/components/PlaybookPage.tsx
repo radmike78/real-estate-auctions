@@ -36,6 +36,8 @@ import { useMyState } from '../lib/myState';
 import { STATES, stateByCode } from '../lib/regions';
 import { fmtDate } from '../lib/status';
 import { Cited } from './Cited';
+import { saleDocsFor } from '../lib/saleDocs';
+import SaleDocsPanel from './SaleDocsPanel';
 import { useEffect } from 'react';
 import { replaceAddress } from '../lib/nav';
 
@@ -53,6 +55,13 @@ export function sections(p: Playbook): DrillSection[] {
           {p.steps.map((s) => <li key={s.title}><strong>{s.title}</strong><span><Cited text={s.detail} plain={boldNumbers} /></span></li>)}
         </ol>
       ),
+    },
+    {
+      key: 'documents',
+      title: 'Documents and what to say',
+      icon: <IconCheckList />,
+      summary: `${saleDocsFor(p.key, stateOf(p)).length} documents to have, check or sign, and what to ask`,
+      content: () => <SaleDocsPanel guideKey={p.key} state={stateOf(p)} />,
     },
     {
       key: 'what-survives',

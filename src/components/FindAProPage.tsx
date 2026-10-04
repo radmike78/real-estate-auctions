@@ -20,6 +20,7 @@ import StoryList from './StoryList';
 import TeamBuilder from './TeamBuilder';
 import { Cited } from './Cited';
 import { useLastActivity } from '../lib/journey';
+import { PRO_SCRIPTS } from '../lib/proScripts';
 
 const ICONS: Record<ProKey, ReactElement> = {
   agent: <IconHome />, lender: <IconBank />, private_lender: <IconClock />, title: <IconFile />, attorney: <IconBadge />, inspector: <IconSearch />,
@@ -65,6 +66,26 @@ function GuideBody({ g }: { g: ProGuide }) {
           <ul>{fit(g.ask).map((x) => <li key={x}><Cited text={x} /></li>)}</ul>
         </section>
       </div>
+      {PRO_SCRIPTS[g.key] && (
+        <div className="roadmap-cols pro-script">
+          <div>
+            <h3>What to say</h3>
+            <blockquote className="roadmap-script">{PRO_SCRIPTS[g.key].say}</blockquote>
+            {PRO_SCRIPTS[g.key].bring && (
+              <>
+                <h4>Have ready</h4>
+                <ul>{PRO_SCRIPTS[g.key].bring!.map((x) => <li key={x}>{x}</li>)}</ul>
+              </>
+            )}
+          </div>
+          {PRO_SCRIPTS[g.key].read && (
+            <div>
+              <h3>{PRO_SCRIPTS[g.key].read!.title}</h3>
+              <ul>{PRO_SCRIPTS[g.key].read!.items.map((x) => <li key={x}>{x}</li>)}</ul>
+            </div>
+          )}
+        </div>
+      )}
       {PRO_DEEP[g.key] && (PRO_DEEP[g.key]!.money.length > 0 || PRO_DEEP[g.key]!.checklist.length > 0) && (
         <div className="deep-two pro-guide-deep">
           {PRO_DEEP[g.key]!.money.length > 0 && <div><h3>How they’re paid</h3><ul className="deep-list">{fit(PRO_DEEP[g.key]!.money).map((x) => <li key={x}><Cited text={x} /></li>)}</ul></div>}
@@ -72,6 +93,7 @@ function GuideBody({ g }: { g: ProGuide }) {
         </div>
       )}
       {LICENSE_LOOKUPS[g.key] && <LicenseCheck lookups={LICENSE_LOOKUPS[g.key]!} state={st} />}
+      <p className="pro-next"><a className="btn" href="#/toolkit">Add them to your team in My plan →</a></p>
       {PRO_DEEP[g.key] && PRO_DEEP[g.key]!.overview.length > 0 && (
         <>
           <h3 className="part-head">Working with one</h3>

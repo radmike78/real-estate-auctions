@@ -2500,3 +2500,10 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .roadmap-status .btn { margin-left: auto; }
 .roadmap-walked { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--go); background: var(--surface); }
 .cash-result { font-size: 1.15rem; margin-top: 14px; }
+.sale-doc-list { list-style: none; padding: 0; display: grid; gap: 10px; }
+.sale-doc-list li { padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+.sale-doc-list strong { display: block; }
+.sale-docs h4 { margin: 12px 0 6px; }
+.script-box h3 { margin: 0 0 8px; }
+.pro-next { margin: 20px 0; display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+.analyze-next { margin-top: 24px; }

@@ -61,7 +61,7 @@
       "src/components/SidCertificates.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "60202b2313271818",
+    "hash": "2d887afb7e762aaf",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -71,7 +71,7 @@
       "src/components/PreForeclosurePage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "c366df5d67b138f3",
+    "hash": "c775daca6947c83e",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -81,7 +81,7 @@
       "src/components/ShortSalesPage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "fc69e2af9b7c9b50",
+    "hash": "37388bea3dfd99a5",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -92,7 +92,7 @@
       "src/lib/reoSources.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "b8b87e7fce32b2ea",
+    "hash": "ffef40ec8d2a927f",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -103,7 +103,7 @@
       "src/lib/businessAssets.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "2e66f8e658e59aab",
+    "hash": "1ff3e45c1007f9fd",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -112,10 +112,11 @@
     "files": [
       "src/components/PlaybookPage.tsx",
       "src/components/TeamList.tsx",
-      "src/lib/playbooks.ts"
+      "src/lib/playbooks.ts",
+      "src/lib/saleDocs.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "101d0395e3c16d70",
+    "hash": "83902f17ec97d410",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -141,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "6b95a4de96e1be8e",
+    "hash": "23584014db6e21f1",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -190,6 +191,7 @@
     "title": "Find a pro",
     "files": [
       "src/components/FindAProPage.tsx",
+      "src/lib/proScripts.ts",
       "src/lib/proGuide.ts",
       "src/components/AgentsPage.tsx",
       "src/lib/licenseLookup.ts",
@@ -200,7 +202,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "03a801a0475ec3dd",
+    "hash": "f4c58da571110659",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -209,8 +211,8 @@
     "files": [
       "src/components/FinancingPage.tsx"
     ],
-    "reviewed": "2026-09-27",
-    "hash": "9a34daf85d6a47ba",
+    "reviewed": "2026-10-04",
+    "hash": "9637a6b04d8ccd8b",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -243,7 +245,7 @@
       "src/components/HomeownerHelpPage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "c7de1093946bb869",
+    "hash": "5acf133600deaf9d",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -349,7 +351,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "76ce5cb53ba6165b",
+    "hash": "939de66e31562dce",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -360,7 +362,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "6cd8b7062ca3c650",
+    "hash": "55d57fb131f3c957",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -373,7 +375,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "459fc8ada90ec80c",
+    "hash": "a5e1f0453c710e9e",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
@@ -386,7 +388,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "27ee524d26829da2",
+    "hash": "b1c7e91339b9fcba",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {

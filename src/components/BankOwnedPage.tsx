@@ -8,6 +8,7 @@ import Disclaimer from './Disclaimer';
 import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
 import { IconBank, IconCheckList, IconHome, IconShield, IconSteps } from './Icons';
+import SaleDocsPanel from './SaleDocsPanel';
 
 function SourceCard({ s }: { s: ReoSource }) {
   // The ↗ stays on the same line as the name's last word.
@@ -87,7 +88,13 @@ export const sectionsFor = (cls: ClassFilter): DrillSection[] => [
     icon: <IconCheckList />,
     summary: `${CHECKLISTS.reo.items.length} things to have ready before you make an offer`,
     bare: true,
-    content: () => <BuyerChecklistBox list={CHECKLISTS.reo} />,
+    content: () => (
+      <>
+        <BuyerChecklistBox list={CHECKLISTS.reo} />
+        <h3 className="section-title">Documents and what to say</h3>
+        <SaleDocsPanel guideKey="reo" state="NV" />
+      </>
+    ),
   },
 ];
 

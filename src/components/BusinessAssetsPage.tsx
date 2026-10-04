@@ -5,6 +5,7 @@ import Disclaimer from './Disclaimer';
 import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
 import { IconCheckList, IconLayers, IconSearch, IconStop, IconTools } from './Icons';
+import ScriptBox from './ScriptBox';
 
 export const SECTIONS: DrillSection[] = [
   {
@@ -68,7 +69,23 @@ export const SECTIONS: DrillSection[] = [
     icon: <IconCheckList />,
     summary: `${CHECKLISTS.business.items.length} things to have ready before you bid or offer`,
     bare: true,
-    content: () => <BuyerChecklistBox list={CHECKLISTS.business} />,
+    content: () => (
+      <>
+        <BuyerChecklistBox list={CHECKLISTS.business} />
+        <div className="roadmap-cols">
+          <div>
+            <h3>The papers you’ll sign or get</h3>
+            <ul className="sale-doc-list">
+              <li><strong>Bill of sale</strong> <span>For equipment, inventory or other assets. Check it lists exactly what you’re buying, says whether it’s sold free of liens or “as-is”, and is signed by the official seller.</span></li>
+              <li><strong>Asset purchase agreement</strong> <span>For a whole business or a large group of assets. Check what’s included and excluded, which debts or contracts come with it, and any court approval it needs. Have an attorney review it.</span></li>
+              <li><strong>The court order or sale notice</strong> <span>Shows who has the authority to sell, and on what terms.</span></li>
+              <li><strong>A lien search</strong> <span>A UCC search shows loans secured by the assets. Ask whether the sale clears them.</span></li>
+            </ul>
+          </div>
+          <ScriptBox to="The trustee, receiver or agency named on the notice" script="“I’m interested in [the assets] in [case or sale]. Are they sold free and clear of liens, or as-is? Does the sale need court approval? What deposit do you need, how do I submit a bid, and what’s the deadline to remove the assets?”" note="Ask only the official seller. Never approach the owners, employees or customers." />
+        </div>
+      </>
+    ),
   },
   {
     key: 'respect',

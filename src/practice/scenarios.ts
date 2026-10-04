@@ -1214,7 +1214,9 @@ export const COMMERCIAL_STEPS: Record<string, Record<string, { title: string; de
   reo: {
     'Get pre-approved': { title: 'Line up financing', detail: 'A commercial or bridge lender’s term sheet, or proof of funds for a cash offer.' },
     'Choose a buyer’s agent': { title: 'Work with a commercial broker', detail: 'Bank-owned commercial property is sold through listing brokers. HUD Home Store, HomePath and HomeSteps sell homes only.' },
-    'Inspect and appraise': { title: 'Do your due diligence', detail: 'Inspection, environmental review, leases and estoppels during your due-diligence period. Commercial property is usually sold as-is.' },
+    'Inspect within your contingency period': { title: 'Do your due diligence', detail: 'Inspection, environmental review, leases and estoppels during your due-diligence period. Commercial property is usually sold as-is.' },
+    'Appraise and check the title': { title: 'Value it and check the title', detail: 'A commercial lender orders its own valuation. Read the title commitment: its requirements must be cleared before closing, and its exceptions aren’t covered.' },
+    'Ask whether it will be vacant': { title: 'Ask about tenants', detail: 'Ask the listing broker for the leases and a rent roll, and which spaces will be vacant at closing. Confirm what tenants say they owe and are owed with estoppel letters.' },
   },
 };
 
@@ -1231,7 +1233,9 @@ export const LAND_STEPS: Record<string, Record<string, { title: string; detail: 
   reo: {
     'Get pre-approved': { title: 'Have proof of funds', detail: 'Land loans are harder to get than home loans. Most land buyers pay cash or line up a land or construction lender.' },
     'Choose a buyer’s agent': { title: 'Work with an agent who knows land', detail: 'Bank-owned land is sold through listing brokers. HUD Home Store, HomePath and HomeSteps sell homes, not land.' },
-    'Inspect and appraise': { title: 'Do your due diligence', detail: 'Zoning, legal access, a survey, soils and utility connection costs, within your contingency period.' },
+    'Inspect within your contingency period': { title: 'Do your due diligence', detail: 'Zoning, legal access, a survey, soils and utility connection costs, within your contingency period.' },
+    'Appraise and check the title': { title: 'Check the title', detail: 'Read the title commitment: its requirements must be cleared before closing, and its exceptions (such as easements) aren’t covered. Ask the title officer how each requirement will be cleared.' },
+    'Ask whether it will be vacant': { title: 'Check the lot is clear', detail: 'Ask the listing agent whether anything is stored on the lot or anyone is using it, and drive by before closing.' },
   },
 };
 

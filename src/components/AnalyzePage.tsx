@@ -204,6 +204,16 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       <CalcRegion.Provider value={{ state: deal.state, county: deal.county }}>
         <Calculators key={`${deal.state}-${deal.county}-${deal.kind}`} initial={calcTabFor(deal.plan)} onTab={(k) => { const p = PLANS.find((x) => calcTabFor(x.key) === k)?.key; if (p && p !== deal.plan && plans.some((x) => x.key === p)) set({ plan: p }); }} state={deal.state} offer={deal.kind === 'listing' || deal.kind === 'reo'} />
       </CalcRegion.Provider>
+
+      {/* One clear next step once the numbers are in: keep the deal, then follow the buying steps for this kind of sale. */}
+      <section className="analyze-next" aria-labelledby="analyze-next-head">
+        <h2 id="analyze-next-head">4. What’s next</h2>
+        <p>Numbers work, and every checklist item above has an answer? Save the deal so you can come back to it, then follow the “Buy it” steps for this kind of sale in My plan. Numbers don’t work? Walking away is a good result: write down why in the notes.</p>
+        <div className="row">
+          {!deal.id ? <button type="button" className="btn" onClick={saveNew}>Save this deal</button> : <a className="btn" href="#/deals">Open My deals</a>}
+          <a className="btn btn-secondary" href="#/toolkit">Your buying steps in My plan →</a>
+        </div>
+      </section>
     </main>
   );
 }

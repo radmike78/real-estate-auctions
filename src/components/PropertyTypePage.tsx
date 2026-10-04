@@ -86,6 +86,7 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
           <p className="muted">General education, not legal, tax or financial advice. Stories describe what happened to others; your results depend on your own deal.</p>
         </section>
       )}
+      <p className="pro-next"><a className="btn" href="#/toolkit/buy-box">Fits you? Add it to your buy box →</a> <a href="#/find-deals">See where these are sold</a></p>
       <nav className="path-next" aria-label="Next">
         {next ? <><span className="muted">Next property type</span><a className="btn" href={topicHref(next.key)}>{next.title} →</a></> : <a className="btn" href="#/learn/types">Back to Types of property →</a>}
       </nav>
