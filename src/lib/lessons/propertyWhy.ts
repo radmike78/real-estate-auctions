@@ -43,10 +43,10 @@ export const PROPERTY_WHY = {
       {
         who: "Investors buying government-owned homes",
         text: "Many government-owned homes go first to people who will live in them. Investors often only get a turn after that window closes, when the best homes may be gone. Check each listing’s investor bid date on the official site.",
-        example: "Starting March 1, 2022, HUD made its owner-occupant-only listing period longer for many HUD homes. It went from 15 to 30 days nationwide.",
+        example: "For HUD homes listed since May 30, 2025, owner-occupants, government buyers and HUD-approved nonprofits get the first 15 days (5 days for homes marked “uninsured”). Investors can bid only after that (HUD Mortgagee Letter 2025-13).",
         source: {
-          label: "HUD press release 22-007 (January 13, 2022)",
-          url: "https://archives.hud.gov/news/2022/pr22-007.cfm"
+          label: "HUD Mortgagee Letter 2025-13: 15-day exclusive listing period",
+          url: "https://hud.gov/sites/dfiles/OCHCO/documents/2025-13hsgml.pdf"
         }
       },
       {
@@ -75,7 +75,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Long-term landlords in California",
-        text: "California law stops HOAs from banning long-term rentals. But an HOA may cap rentals at 25% or more of the units, and it can ban stays of 30 days or less. Before buying, ask whether the rental limit is already full.",
+        text: "California law stops HOAs from banning or unreasonably restricting long-term rentals. An HOA may still cap rentals, but not below 25% of the units, and it can ban stays of 30 days or less. Before buying, ask whether the rental limit is already full.",
         example: "California Civil Code 4741 bars HOA rules that limit renting to fewer than 25% of the units. It allows bans on rentals of 30 days or less.",
         source: {
           label: "California Civil Code § 4741",
@@ -184,7 +184,7 @@ export const PROPERTY_WHY = {
     yes: [
       {
         who: "Investors with little cash",
-        text: "A manufactured home costs about half as much per square foot to build as a site-built house. That can make it a low-cost way to start, if you also have land or a lot rent you can afford.",
+        text: "A manufactured home costs about half as much per square foot to buy (not counting land) as a site-built house. That can make it a low-cost way to start, if you also have land or a lot rent you can afford.",
         example: "Census data for 2024: new manufactured homes averaged about $84 per square foot, and new site-built houses about $169 per square foot, not counting land. The manufactured-home price doesn’t include land or lot rent (national figures).",
         source: {
           label: "U.S. Census Bureau, Manufactured Housing Survey: Cost & Size Comparisons 2014–2024 (spreadsheet)",

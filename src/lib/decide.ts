@@ -243,7 +243,7 @@ export const STRATEGIES: Strategy[] = [
     risk: {
       worst: 'Repairs run over, the market slows, and you sell for less than you put in while paying loan interest every month.',
       atRisk: 'The purchase cash or down payment, the whole repair budget, and months of holding costs.',
-      ongoing: 'You owe every loan payment, tax and insurance bill even when a unit is empty or repairs run over. If you can’t pay, you can lose the property and the equity in it, so you can lose more than the cash you start with.',
+      ongoing: 'You owe every loan payment, tax and insurance bill until it sells, even if repairs or the sale run late. If you can’t pay, you can lose the property and the cash you put in.',
       time: 'Months to find a deal, then months of work before you can sell.',
     },
     checklist: [
@@ -367,7 +367,7 @@ export const STRATEGIES: Strategy[] = [
     },
     checklist: [
       { id: 'ps-lesson', text: 'Read the lesson on who invests where, including how REITs work.', href: '#/learn/who' },
-      { id: 'ps-reit', text: 'Know the difference: listed REIT shares sell any market day; listed share prices can drop sharply; non-traded REITs are hard to sell and usually charge about 9–10% in upfront fees.' },
+      { id: 'ps-reit', text: 'Know the difference: listed REIT shares sell any market day; listed share prices can drop sharply; non-traded REITs are hard to sell and upfront fees can reach about 9–10%.' },
       { id: 'ps-private', text: 'Private deals are often limited to accredited investors. Check the sponsor and read every document.', href: '#/learn/creative' },
       { id: 'ps-advisor', text: 'Talk with a licensed financial advisor about how it fits your plan.' },
       { id: 'ps-later', text: 'Keep learning: you can move to owning property directly later.', href: '#/learn' },

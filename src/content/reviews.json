@@ -37,8 +37,8 @@
       "src/lib/propertyViews.ts",
       "src/lib/foreclosure.ts"
     ],
-    "reviewed": "2026-10-03",
-    "hash": "72bc13e265c35dd6",
+    "reviewed": "2026-10-04",
+    "hash": "9aa0b0adcef14be4",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -48,8 +48,8 @@
       "src/components/BuyerChecklistBox.tsx",
       "src/lib/buyerChecklists.ts"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "4fa331dead366405",
+    "reviewed": "2026-10-04",
+    "hash": "99399c27c42b7171",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -91,8 +91,8 @@
       "src/components/BankOwnedPage.tsx",
       "src/lib/reoSources.ts"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "7d0a2150f0d27e7c",
+    "reviewed": "2026-10-04",
+    "hash": "24c02173dac0b735",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -102,8 +102,8 @@
       "src/components/BusinessAssetsPage.tsx",
       "src/lib/businessAssets.ts"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "8d18a96bdfef81e9",
+    "reviewed": "2026-10-04",
+    "hash": "6001ee8e7b6f43b9",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -115,7 +115,7 @@
       "src/lib/playbooks.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "65b874cd4d1dbe7c",
+    "hash": "807070a04f67deea",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -139,7 +139,7 @@
       "src/practice/scenarios.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "7e8da1168fdd67d9",
+    "hash": "87a4f7c362f28b32",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -156,7 +156,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "80ab9e921767fe97",
+    "hash": "e0ad5bebab8a6478",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -198,7 +198,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "95098f28ca7f5181",
+    "hash": "2d73488b24a99eeb",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -347,7 +347,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "98e36366fd01f775",
+    "hash": "57d518c69c365021",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -358,7 +358,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "90700deac3d94302",
+    "hash": "b58a071bfdd188e4",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {

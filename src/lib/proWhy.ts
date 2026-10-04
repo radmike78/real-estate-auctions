@@ -399,7 +399,7 @@ export const PRO_WHY = {
       {
         who: "Landlord with a full-time job",
         text: "Worth it if your rental may show a loss and you have a job. Passive activity rules limit those losses, and a CPA can tell you how much you can deduct.",
-        example: "IRS Publication 925 lets active participants deduct up to $25,000 of rental losses against other income. This phases out between $100,000 and $150,000 of modified AGI, and is smaller if you’re married filing separately.",
+        example: "IRS Publication 925 lets active participants deduct up to $25,000 of rental losses against other income. This phases out between $100,000 and $150,000 of modified AGI, and is smaller, or zero, if you’re married filing separately.",
         source: {
           label: "IRS Publication 925, Passive Activity and At-Risk Rules",
           url: "https://www.irs.gov/publications/p925"

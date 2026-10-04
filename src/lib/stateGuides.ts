@@ -22,7 +22,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "When a property can be sold",
-      value: "After 5 years of unpaid taxes, or 3 years for nonresidential commercial property (R&T 3691). A county may choose to use 5 years for commercial property too. A home or lot can also be sold after 3 years if a city, county, nonprofit or nuisance-abatement lienholder asks (R&T 3691(b))."
+      value: "After 5 years of unpaid taxes, or 3 years for nonresidential commercial property (R&T 3691). A county may choose to use 5 years for commercial property too. A property can also be sold after 3 years if a city, county, nonprofit or nuisance-abatement lienholder asks (R&T 3691(b))."
     },
     {
       label: "Notice",
@@ -123,7 +123,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Spending heavily on improvements in the first year",
-      prevent: "The sale can be challenged for at least a year. If it is rescinded, you get your price back but lose what you spent on repairs (R&T 3731). Many buyers wait until then and until title insurance is available."
+      prevent: "The sale can be challenged for at least a year. If it is rescinded, the refund is only your price plus county interest, not what you spent on repairs (R&T 3731). Many buyers wait until then and until title insurance is available."
     }
   ],
   example: {
@@ -614,7 +614,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Get the judgment, then the deed",
-      detail: "If the court rules for you, it directs the treasurer to deliver a treasurer’s deed. The owner or holder can ask for an excess proceeds sale instead. If the property is likely to sell for more than $2,500 above what is owed, the court must order that sale. You are then paid from the sale instead of getting the deed, and the owner gets the surplus (ARS 42-18204). Bidders at that sale pay a nonrefundable deposit. Buy title insurance before you spend money on the property."
+      detail: "If the court rules for you, it directs the treasurer to deliver a treasurer’s deed. The owner or holder can ask for an excess proceeds sale instead. If the property is likely to sell for more than $2,500 above what is owed, the court must order that sale. You are then paid from the sale instead of getting the deed, and the owner gets the surplus (ARS 42-18204). Other bidders at that sale must pay a nonrefundable deposit (10% of the opening bid or $2,500, whichever is more). Buy title insurance before you spend money on the property."
     }
   ],
   survives: {

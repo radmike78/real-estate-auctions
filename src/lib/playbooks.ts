@@ -440,7 +440,7 @@ const NEVADA: Playbook[] = [
       { label: 'Financing', value: 'Allowed' },
       { label: 'Inspection', value: 'Usually allowed' },
       { label: 'Risk', value: 'The lender can reject or counter; foreclosure can happen first. One lender’s approval doesn’t clear other liens. Every lienholder must agree, and the title report must show it' },
-      { label: 'Investors and homes in foreclosure', value: 'If a notice of default is recorded on a home with 1–4 units, Nevada’s foreclosure-purchaser law covers investors who buy from the owner. A deal that misleads the owner is a crime, and the owner can undo it for 2 years (NRS 645F.430, 645F.440). Have an attorney review the contract' },
+      { label: 'Investors and homes in foreclosure', value: 'If a notice of default is recorded on a home with 1–4 units, Nevada’s foreclosure-purchaser law covers investors who buy from the owner. A deal that misleads the owner is a crime, and the owner can undo it for 2 years (NRS 645F.430, 645F.440). Have an attorney review the contract Make offers only through the listing agent.' },
     ],
     steps: [
       { title: 'Get pre-approved', detail: 'Lenders want proof you can close.' },

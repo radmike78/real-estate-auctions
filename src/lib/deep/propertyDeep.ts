@@ -1970,7 +1970,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
   land: {
     overview: [
       "Raw land is property with no house or building on it. It is cheap to hold (no tenants, few repairs). But it usually earns nothing until it is built on, farmed, leased or sold. Its value depends on access, water, utilities, zoning and growth nearby.",
-      "Many cheap lots are cheap for a reason, including lots sold at county tax sales. Reasons include no legal road access, no water or power, steep or flood-prone ground, or rules that prevent building. In Arizona, a 1980 law requires subdivisions of six or more lots inside the state’s groundwater Active Management Areas (such as the Phoenix area) to prove a 100-year water supply; outside those areas there is no such rule, and lot splits of five or fewer avoided it. Arizona passed an ‘Ag-to-Urban’ law in 2025 that lets some builders in the Phoenix and Pinal areas use water credits from retired farmland. In Arizona, homes in Rio Verde Foothills lost their hauled water supply from Scottsdale in 2023.",
+      "Many cheap lots are cheap for a reason, including lots sold at county tax sales. Reasons include no legal road access, no water or power, steep or flood-prone ground, or rules that prevent building. In Arizona, a 1980 law requires subdivisions of six or more lots inside the state’s groundwater Active Management Areas (such as the Phoenix area) to prove a 100-year water supply. In Arizona, outside those areas, lots can usually be sold even when the water supply is inadequate, as long as that is disclosed, and lot splits of five or fewer avoided the rule. Arizona passed an ‘Ag-to-Urban’ law in 2025 that lets some builders in the Phoenix and Pinal areas use water credits from retired farmland. In Arizona, homes in Rio Verde Foothills lost their hauled water supply from Scottsdale in 2023.",
       "Land also attracts scams. For decades, promoters sold desert lots in California City sight unseen, with promises of future growth. Today the FBI warns of impostors who pose as the owners of vacant land. They sell it to buyers who never meet them. Land can pay off well for patient owners when a town grows toward it. But that can take decades."
     ],
     bestFor: [
@@ -2000,7 +2000,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     checklist: [
       "Visit the land and verify the seller. Meet in person or confirm identity through a title company. Be wary of rushed, below-market sales by email or text only (FBI warning signs).",
       "Confirm legal access: a recorded road or easement, not just a dirt track.",
-      "Confirm water. In Arizona, check the state water department rules for the area; outside its Active Management Areas, lots carry no 100-year water requirement. Ask whether a well is allowed and how deep nearby wells go.",
+      "Confirm water. In Arizona, check the state water department rules for the area; outside its Active Management Areas, lots can often be sold even when water is inadequate, so read the water disclosure. Ask whether a well is allowed and how deep nearby wells go.",
       "Check zoning, minimum lot size and whether a building permit is possible.",
       "Look up the flood zone on FEMA flood maps and check for wetlands, steep slopes or other limits.",
       "Buy title insurance and get a survey. At tax sales, read the county’s terms about what the deed does and doesn’t guarantee."

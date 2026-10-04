@@ -270,7 +270,7 @@ export const PRACTICE_PROPERTIES: PracticeProperty[] = [
     hasBuilding: true,
     hoaMonthly: null,
     occupancy: 'Unknown', // guests and possibly a live-in manager: an attorney decides how to take possession
-    watchOut: 'A motel is a building and a business. Licenses don’t transfer, and furniture and the business may not be part of the sale.',
+    watchOut: 'A motel is a building and a business. Many licenses don’t simply pass to you, and furniture and the business may not be part of the sale.',
   },
   {
     id: 'commercial-lot',
