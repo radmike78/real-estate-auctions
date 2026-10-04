@@ -2019,7 +2019,10 @@ h1, h2 { letter-spacing: -0.03em; }
 /* Analyze a deal: setup and checklist */
 .deal-setup, .deal-checklist { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 22px; margin-bottom: 22px; }
 .deal-setup h2, .deal-checklist h2 { font-size: 1.4rem; margin: 0 0 12px; }
-.deal-fields { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+.deal-fields { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+/* Fixed column counts: the full-width address field stops auto-fit from widening the selects, which cut off their text. */
+@media (min-width: 640px) { .deal-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .deal-fields { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .deal-fields .field.wide { grid-column: 1 / -1; }
 .deal-fields input, .deal-fields select, .deal-notes textarea { width: 100%; box-sizing: border-box; }
 .deal-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
@@ -2415,3 +2418,53 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .check-fold.complete .check-fold-count { color: var(--text); font-weight: 600; }
 .check-fold-body { padding: 0 16px 12px; }
 .check-fold-body .decide-checklist { margin: 0; }
+
+/* "Buy a rental, start to finish": documents beside the questions on wide screens, stacked on phones. */
+.case-outcome { background: color-mix(in srgb, var(--accent) 8%, var(--surface)); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; }
+.case-grid { display: grid; gap: 24px; align-items: start; }
+@media (min-width: 1100px) { .case-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); } .case-docs { position: sticky; top: 84px; max-height: calc(100vh - 100px); overflow: auto; } }
+.case-docs { display: grid; gap: 16px; }
+.case-doc-kind { margin: 0; font-size: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.case-doc h3 { margin: 4px 0 2px; }
+.case-doc-from { margin: 0 0 10px; }
+.case-doc-note { font-style: italic; color: var(--muted); }
+.case-task { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 14px 16px; margin: 14px 0; }
+.case-task.finished { border-color: color-mix(in srgb, var(--go) 50%, var(--border)); }
+.case-task-q { font-weight: 700; margin: 0 0 10px; display: flex; gap: 10px; }
+.case-task-n { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); font-size: 0.95rem; }
+.case-task.finished .case-task-n { background: var(--go); color: var(--surface); }
+.case-choices { display: grid; gap: 8px; }
+.case-choices button { text-align: left; min-height: 48px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; cursor: pointer; }
+.case-choices button:hover { border-color: var(--accent); }
+.case-choices button.picked { box-shadow: 0 0 0 2px var(--accent) inset; }
+.case-feedback { margin: 10px 0 0; padding: 10px 14px; border-radius: 10px; border-left: 5px solid var(--accent); background: var(--surface-2); }
+.case-feedback.best { border-left-color: var(--go); }
+.case-feedback.ok { border-left-color: var(--accent); }
+.case-feedback.poor { border-left-color: var(--stop); }
+.case-if { margin: 8px 0 0; }
+.case-multi { list-style: none; padding: 0; margin: 0 0 10px; display: grid; gap: 6px; }
+.case-multi label { display: flex; gap: 10px; align-items: center; min-height: 44px; }
+.case-multi input { width: 20px; height: 20px; flex: none; }
+.case-why { display: block; margin: 0 0 6px 30px; color: var(--muted); }
+.case-multi li.should .case-why::first-letter, .case-multi li.shouldnt .case-why::first-letter { font-weight: 700; }
+.case-number { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.case-number label { display: inline-flex; align-items: center; gap: 6px; }
+.case-number input { width: 12ch; min-height: 44px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font: inherit; }
+.case-worked { margin-top: 10px; padding: 10px 14px; border-radius: 10px; background: var(--surface-2); }
+.case-worked ul { margin: 6px 0 0; padding-left: 20px; }
+.case-walked { margin: 20px 0; padding: 16px 18px; border-radius: 14px; border: 2px solid var(--go); background: color-mix(in srgb, var(--go) 8%, var(--surface)); }
+.case-added { margin: 20px 0; padding: 14px 18px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); }
+.case-added h3, .case-walked h3 { margin-top: 0; }
+.case-gets { padding: 14px 18px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); margin: 14px 0; }
+.case-packet-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); margin: 16px 0; }
+.case-packet-sec { padding: 14px 18px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); }
+.case-packet-sec h3 { margin-top: 0; }
+@media print { .site-header, .practice-stages, .practice-ribbon, .row, footer { display: none !important; } }
+.case-feature { padding: 22px 24px; border-radius: 16px; border: 2px solid var(--accent); background: color-mix(in srgb, var(--accent) 7%, var(--surface)); margin: 16px 0 28px; }
+.case-feature h2 { margin: 10px 0 8px; }
+/* The narrowest phones (320px): logo, theme and menu buttons fit on one row without sideways scrolling. */
+@media (max-width: 360px) {
+  .site-header { gap: 8px; padding: 10px 12px; }
+  .logo { gap: 8px; font-size: 1.25rem; }
+  .logo-mark { width: 34px; height: 34px; }
+}

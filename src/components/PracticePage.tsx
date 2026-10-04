@@ -15,6 +15,8 @@ import { completion } from '../practice/progress';
 import type { SaleKey } from '../practice/types';
 import OwlNote from './OwlNote';
 import { useLastActivity } from '../lib/journey';
+import { loadCase } from '../practice/caseProgress';
+import { RENTAL_CASE } from '../practice/rentalCase';
 
 /** One plain line, not a banner: readers skip anything styled like a notice. */
 export function PracticeRibbon() {
@@ -34,6 +36,9 @@ export default function PracticePage({ sale }: { sale?: string }) {
   const titleOf = (s: SaleKey) => playbookByKey(s)?.title ?? s;
   useLastActivity(chosen ? `#/practice?sale=${chosen}` : '#/practice', chosen ? `Practice: ${titleOf(chosen)}` : 'Practice');
 
+  const caseP = loadCase();
+  const caseStarted = caseP.done.length > 0;
+  const caseNext = (RENTAL_CASE.find((st) => !st.tasks.every((t) => caseP.done.includes(`${st.key}/${t.id}`))) ?? RENTAL_CASE[0]).key;
   if (!chosen) {
     return (
       <main className="page practice">
@@ -43,11 +48,16 @@ export default function PracticePage({ sale }: { sale?: string }) {
           sub="Buy a fictional property step by step, from research to the day after the sale."
         />
         <PracticeRibbon />
-        <p className="page-starter">
-          <strong>New to this?</strong> Start with <a href="#/practice/reo-house">the practice house, bought bank-owned</a>: a normal purchase
-          through an agent, with time to inspect. Practice purchases follow Nevada rules (Clark County); other states’ rules are in the{' '}
-          <a href="#/playbooks">sale guides</a>.
-        </p>
+        {/* One clear first action: the full worked purchase. The catalog stays below for anyone who wants more. */}
+        <section className="case-feature" aria-labelledby="case-feature-head">
+          <span className="practice-tag">Start here</span>
+          <h2 id="case-feature-head">Buy a rental, start to finish</h2>
+          <p>Work one fictional purchase from your budget to the first months of renting it out. Read the real paperwork (comparables, a loan quote, an inspection report, a title commitment, a closing statement) and make the calls when things go wrong. You finish with your own deal packet: a budget, a deadline calendar, an evidence log and your questions for each professional.</p>
+          <a className="btn big" href={`#/practice/case${caseStarted ? `/${caseNext}` : ''}`}>{caseStarted ? 'Continue the purchase →' : 'Start the purchase →'}</a>
+          <span className="muted"> About 45 minutes · a house in Henderson, Nevada (fictional) · Nevada rules</span>
+        </section>
+        <h2 className="section-title">More practice</h2>
+        <p>Practice purchases follow Nevada rules (Clark County); other states’ rules are in the <a href="#/playbooks">sale guides</a>. The quick “Would you buy it?” drills are further down.</p>
         <NarrowDown config={practiceConfig(getMyState())} intro="Answer a few quick questions and we’ll suggest a practice purchase or drills to start with. Everything is still listed below." />
         <h2 className="practice-step"><span aria-hidden>1</span> Choose a kind of sale</h2>
         <div className="practice-sales">

@@ -226,3 +226,42 @@ export function saveDeals(list: Deal[]) {
     /* private mode: kept for this visit only */
   }
 }
+
+/** A property the visitor found on DeedOwl, sent to Analyze so they don't retype it. */
+export interface Prefill {
+  name: string;
+  state: StateCode;
+  county: string;
+  kind: SaleKind;
+}
+
+const SALE_KIND_OF: Record<string, SaleKind> = {
+  TAX_DEED: 'taxSale',
+  TAX_LIEN_CERTIFICATE: 'lien',
+  TRUSTEE_SALE: 'trustee',
+  JUDICIAL_FORECLOSURE: 'court',
+  HOA_FORECLOSURE: 'hoa',
+  SHERIFF_EXECUTION: 'court',
+  FEDERAL_TAX_SEIZURE: 'irs',
+  REO: 'reo',
+};
+
+/** "#/analyze?name=…&state=NV&county=Clark&kind=taxSale" for a listing, or null if its state or county isn't covered. */
+export function analyzeHref(p: { address: string; city?: string; state: string; county: string; saleType?: string }): string | null {
+  const st = stateByCode(p.state);
+  const county = p.county.replace(/\s+County$/i, '');
+  const kind = SALE_KIND_OF[p.saleType ?? ''] ?? 'listing';
+  if (!st || !st.counties.includes(county)) return null;
+  const q = new URLSearchParams({ name: [p.address, p.city].filter(Boolean).join(', ').slice(0, 80), state: st.code, county, kind });
+  return `#/analyze?${q.toString()}`;
+}
+
+/** Reads a prefill from the address, keeping only values the page can show. */
+export function prefillParam(params: URLSearchParams): Prefill | undefined {
+  const st = stateByCode(params.get('state') ?? '');
+  const county = params.get('county') ?? '';
+  const kind = params.get('kind') as SaleKind | null;
+  const kinds: SaleKind[] = ['listing', 'reo', 'trustee', 'taxSale', 'lien', 'court', 'hoa', 'irs'];
+  if (!st || !st.counties.includes(county) || !kind || !kinds.includes(kind)) return undefined;
+  return { name: (params.get('name') ?? '').slice(0, 80), state: st.code, county, kind };
+}

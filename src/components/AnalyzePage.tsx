@@ -7,7 +7,7 @@ import { CalcRegion } from './calcRegion';
 import { useMarkStep } from '../lib/path';
 import { useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, cleanDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type SaleKind } from '../lib/analyze';
+import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, cleanDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
 import CheckFold from './CheckFold';
 
 const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake' };
@@ -27,6 +27,12 @@ function loadCurrent(st: StateCode): Deal {
   return blank(st);
 }
 
+/** A property sent from a listing page: a new, unsaved deal with its address, state, county and kind of sale. */
+function fromListing(f: Prefill): Deal {
+  const kind = kindsFor(f.state).some((k) => k.key === f.kind) ? f.kind : 'listing';
+  return { ...blank(f.state), name: f.name, county: f.county, kind, plan: plansFor(kind)[0] };
+}
+
 /** A link that names a calculator ("#/analyze?plan=commercial") opens that one. A saved deal is left as it was. */
 function forLink(d: Deal, plan?: Plan): Deal {
   if (!plan) return d;
@@ -37,11 +43,18 @@ function forLink(d: Deal, plan?: Plan): Deal {
  * Step 6 of the path: describe a real deal, get the checklist for that sale in that state, and run the numbers.
  * `plan` comes from a link that promises a particular calculator.
  */
-export default function AnalyzePage({ plan }: { plan?: Plan } = {}) {
+export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: Prefill } = {}) {
   useMarkStep('analyze');
   useLastActivity('#/analyze', 'Analyze a deal');
   const [mine] = useMyState();
-  const [deal, setDeal] = useState<Deal>(() => forLink(loadCurrent(mine ?? 'NV'), plan));
+  const [deal, setDeal] = useState<Deal>(() => (prefill ? fromListing(prefill) : forLink(loadCurrent(mine ?? 'NV'), plan)));
+  // A property opened from a DeedOwl listing arrives filled in; the address then goes back to plain /analyze.
+  useEffect(() => {
+    if (!prefill) return;
+    setDeal(fromListing(prefill));
+    setMyState(prefill.state);
+    replaceAddress('/analyze');
+  }, [prefill]);
   const numbersRef = useRef<HTMLHeadingElement>(null);
   // A link to a named calculator goes straight to it, set up for that plan.
   useEffect(() => {
@@ -105,7 +118,8 @@ export default function AnalyzePage({ plan }: { plan?: Plan } = {}) {
       />
 
       <section className="deal-setup" aria-labelledby="setup-head">
-        <h2 id="setup-head">1. About the deal</h2>
+        <h2 id="setup-head">1. Tell us about the property you found</h2>
+        <p className="muted">Found a property on an official list, a listing site or from your agent? Enter it here. You’ll get the checklist for that kind of sale in that county, and the calculator for your plan. Save it to come back to it in My deals.</p>
         <div className="deal-fields">
           <label className="field wide">
             <span>Address or nickname</span>

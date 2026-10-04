@@ -38,7 +38,7 @@
       "src/lib/foreclosure.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "9aa0b0adcef14be4",
+    "hash": "fed0a15752972661",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -136,10 +136,12 @@
       "src/components/PracticeScenarioPage.tsx",
       "src/components/DrillPage.tsx",
       "src/practice/drills.ts",
-      "src/practice/scenarios.ts"
+      "src/practice/scenarios.ts",
+      "src/components/RentalCasePage.tsx",
+      "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "bee2d2938ae52fa9",
+    "hash": "6b95a4de96e1be8e",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -198,7 +200,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "97cab4d55c1fa582",
+    "hash": "03a801a0475ec3dd",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -276,7 +278,7 @@
       "src/components/RoleNotice.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "fcb2f0f37b800c64",
+    "hash": "d95c2053846e1a4c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -347,7 +349,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "4627da234a1bee67",
+    "hash": "76ce5cb53ba6165b",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -358,7 +360,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "ecbac659397129d6",
+    "hash": "6cd8b7062ca3c650",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -384,7 +386,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "c3bd8b8e7344d342",
+    "hash": "27ee524d26829da2",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {
@@ -396,7 +398,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "fa99119eb5a691f8",
+    "hash": "af4fa0d6d81d486f",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]
