@@ -332,9 +332,9 @@ export const PROPERTY_WHY = {
     ],
     no: [
       {
-        who: "Anyone buying offices today",
+        who: "Office buyers",
         text: "Remote and hybrid work cut how much space companies need, and national vacancy hit record highs in 2024. Check vacancy in the building’s own area before you buy.",
-        example: "Moody’s data showed U.S. office vacancy reached 20.1% in the second quarter of 2024. It was the first time above 20%.",
+        example: "Moody’s data showed U.S. office vacancy reached 20.1% in the second quarter of 2024. It was the first time above 20%. That was a 2024 figure; check current vacancy for the building’s area.",
         source: {
           label: "Facilities Dive, citing Moody’s (July 9, 2024)",
           url: "https://www.facilitiesdive.com/news/us-office-vacancy-rates-moodys-analysis/720862/"
@@ -543,7 +543,7 @@ export const PROPERTY_WHY = {
     yes: [
       {
         who: "Patient long-term investors",
-        text: "Land has no tenants, toilets or roofs to fix, so there is very little to manage while you wait. You still pay taxes every year with no income, so you need cash to hold it."
+        text: "Land has no tenants or roofs to fix. It still takes some work: yearly taxes with no income, weed and fire rules, dumping, trespassers, and keeping access open. Check on it, and keep cash to hold it."
       },
       {
         who: "Investors in Nevada",

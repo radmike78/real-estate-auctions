@@ -29,7 +29,9 @@ const INSURANCE: Record<StateCode, Lookup> = {
 export const LICENSE_LOOKUPS: Partial<Record<ProKey, Record<StateCode, Lookup>>> = {
   agent: REAL_ESTATE,
   lender: { NV: NMLS, CA: NMLS, AZ: NMLS, UT: NMLS },
-  private_lender: { NV: NMLS, CA: NMLS, AZ: NMLS, UT: NMLS },
+  // A California private lender may hold a finance lender license (DFPI, often on NMLS) or a broker license (DRE),
+  // or be exempt: ask which, then check with that regulator.
+  private_lender: { NV: NMLS, CA: { note: 'Ask which license the lender holds. A finance lender’s is on the DFPI licensee search or NMLS Consumer Access; a real estate broker’s is on the DRE license lookup. Some lenders are exempt.' }, AZ: NMLS, UT: NMLS },
   title: INSURANCE,
   attorney: BAR,
   eviction: BAR,
@@ -37,7 +39,7 @@ export const LICENSE_LOOKUPS: Partial<Record<ProKey, Record<StateCode, Lookup>>>
     NV: { who: 'Nevada Real Estate Division (inspectors of structures)', url: 'https://red.prod.secure.nv.gov/Lookup/LicenseLookup.aspx' },
     CA: { note: 'California doesn’t license home inspectors. Ask for proof of insurance and training, and a sample report.' },
     AZ: { who: 'Arizona Board of Technical Registration', url: 'https://btr.az.gov/' },
-    UT: { note: 'Utah doesn’t license home inspectors. Ask for proof of insurance and training, and a sample report.' },
+    UT: { who: 'Utah Division of Professional Licensing (Private Home Inspector license)', url: 'https://secure.utah.gov/llv/search/index.html' },
   },
   appraiser: { NV: ASC, CA: ASC, AZ: ASC, UT: ASC },
   contractor: {

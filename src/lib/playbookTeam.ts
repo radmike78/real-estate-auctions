@@ -11,7 +11,7 @@ export const TEAM = {
   attorney: { role: 'Real estate attorney', when: 'Reviewing surviving liens, sale validity and quiet title', href: '#/pros/attorney', pro: 'attorney' },
   eviction: { role: 'Eviction attorney or process server', when: 'Right after the sale if anyone lives there', href: '#/pros/eviction', pro: 'eviction' },
   insurance: { role: 'Insurance agent', when: 'Vacant-property coverage starting the day you own it', href: '#/pros/insurance', pro: 'insurance' },
-  contractor: { role: 'Licensed contractor and inspector', when: 'An exterior look before the sale; a full scope once you have the keys', href: '#/pros/contractor', pro: 'contractor' },
+  contractor: { role: 'Licensed contractor and qualified inspector', when: 'An exterior look before the sale; a full scope once you have the keys', href: '#/pros/contractor', pro: 'contractor' },
   cpa: { role: 'CPA', when: 'Before you buy: flips and rentals are taxed differently', href: '#/pros/cpa', pro: 'cpa' },
   commercialBroker: { role: 'Commercial real estate broker', when: 'Current rents and cap rates for this property type, and leasing it up after', href: '#/pros/agent', pro: 'agent' },
   environmental: { role: 'Environmental consultant', when: 'A Phase I environmental site assessment within one year before you take title (site visit, interviews and record searches within 180 days)', href: '#/pros/environmental', pro: 'environmental' },

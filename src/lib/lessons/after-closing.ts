@@ -31,6 +31,7 @@ export const afterClosing: Lesson = {
       blocks: [
         'Use the same written criteria for every applicant, such as income, rental history and credit, and apply them the same way. The federal Fair Housing Act bans discrimination because of race, color, national origin, religion, sex, familial status or disability. State and local laws can add more protected groups.',
         'For housing built before 1978, landlords must do two things before the lease is signed: tell tenants about any lead-based paint and hazards they know of, and give them the EPA’s lead pamphlet. The lease needs the federal Lead Warning Statement, a list of any lead records or reports, and the tenant’s signed acknowledgment. Keep a copy for three years.',
+        'If you turn someone down, or ask for a cosigner, a bigger deposit or higher rent, because of a credit or screening report, federal law says you must tell them. Give the screening company’s name, address and phone number. Say that the company didn’t make the decision and can’t explain it. Tell them they can get a free copy of their report within 60 days and dispute anything wrong. If you used a credit score, more is required, including the score itself. Written notice is best, so you have a record (FTC: Using Consumer Reports: What Landlords Need to Know).',
         'Use a written lease that follows your state’s landlord-tenant law. A local property manager or real estate attorney can help with both.',
         { links: [
           { label: 'Property managers', url: '#/pros/property_manager', what: 'What they do, how they’re paid and what to check before you hire one.' },
@@ -47,7 +48,7 @@ export const afterClosing: Lesson = {
             rows: [
               ['Nevada', '3 months’ rent (NRS 118A.242)', '30 days after the tenancy ends, with an itemized list of deductions'],
               ['California', '1 month’s rent for deposits collected from July 1, 2024. Some small landlords may collect up to 2 months: a landlord who is a person, or an LLC of people, with no more than two rental properties and four units. Even they can’t collect the higher amount from a service member (Civil Code 1950.5).', '21 days after the tenant moves out, with an itemized statement. Since April 1, 2025, landlords must photograph the unit before and after repairs or cleaning they deduct for. For tenancies starting on or after July 1, 2025, they must also photograph it at move-in.'],
-              ['Arizona', '1½ months’ rent (A.R.S. 33-1321)', '14 days, not counting weekends and holidays, after the tenancy ends and the tenant asks'],
+              ['Arizona', '1½ months’ rent (A.R.S. 33-1321)', '14 days, not counting weekends and holidays, after the tenancy ends, the tenant moves out and the tenant asks. Mail an itemized list of deductions with any refund'],
               ['Utah', 'We couldn’t confirm a limit in Utah law. Check Utah Code Title 57, Chapter 17, or the Utah courts’ self-help center.', '30 days after the tenant moves out (Utah courts)'],
             ],
           },
@@ -61,7 +62,7 @@ export const afterClosing: Lesson = {
           'In Nevada, give at least 24 hours’ notice before entering, and enter only at reasonable times during normal business hours, except in an emergency (NRS 118A.330). There’s no statewide rent control.',
           'In California, give reasonable written notice before entering. The law assumes 24 hours is reasonable (Civil Code 1954). The Tenant Protection Act limits most rent increases in 12 months to 5% plus inflation, never more than 10%. It also says that after a tenant has lived there 12 months, you need a just cause to end the tenancy (if another adult joined the lease within the first 24 months, once all tenants reach 12 months or any tenant reaches 24). Some properties are exempt. Both rules run until January 1, 2030 (Civil Code 1947.12 and 1946.2). Some cities have stricter rules.',
           'In Arizona, give at least two days’ notice before entering, except in an emergency (A.R.S. 33-1343). State law doesn’t let cities or towns control rents (A.R.S. 33-1329).',
-          'In Utah, follow the entry notice in your lease and Utah’s landlord-tenant laws. The Utah courts’ self-help center explains them.',
+          'In Utah, give at least 24 hours’ notice before you enter, unless your rental agreement sets a different rule (Utah Code 57-22-4). The Utah courts’ self-help center explains the rest of Utah’s landlord-tenant law.',
         ] },
       ],
     },

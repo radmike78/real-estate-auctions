@@ -342,7 +342,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Brokers who arrange the loan may take a separate fee. In the California case it was 3% of each loan (CA Attorney General)."
     ],
     checklist: [
-      "Check the lender’s license. In California, finance lenders and brokers need a license under the California Financing Law (DFPI). Check NMLS too.",
+      "Check the lender’s license. In California, a private lender may hold a California Financing Law license (DFPI) or a real estate broker license (DRE), or may be exempt. Ask which one applies, then check it with that regulator: the DFPI licensee search or NMLS for a finance lender, the DRE lookup for a broker (Fin. Code 22057).",
       "Some fees before closing are normal: a credit report, and an appraisal or application fee once you decide to go ahead, listed in writing. A demand for ‘deposits’, ‘insurance’ or ‘taxes’ before a loan will be released is the classic scam. Stop and check the lender’s license.",
       "Get the full terms in writing: rate, points, term, balloon date, extension fees, default rate and prepayment penalty.",
       "Make sure loan money and repair draws go through a licensed escrow or title company, not a personal account.",

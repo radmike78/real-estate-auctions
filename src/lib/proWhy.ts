@@ -386,7 +386,7 @@ export const PRO_WHY = {
       },
       {
         who: "Auction buyer",
-        text: "Some insurers hesitate to cover homes they can’t inspect or that need major repairs. Line up options before you bid. At most trustee and sheriff sales the risk is yours once your bid is accepted."
+        text: "Some insurers hesitate to cover homes they can’t inspect or that need major repairs. Line up options before you bid. Ask the trustee or sheriff, and your insurance agent, when the risk becomes yours under this sale, and have coverage ready by then."
       },
       {
         who: "Anyone on a tight budget",

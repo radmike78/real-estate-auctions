@@ -178,7 +178,7 @@ export const WORKSHEETS: { key: string; title: string; intro: string; items: str
       'If you offer DSCR loans, how do you calculate DSCR, and what minimum do you require?',
       'What conditions must be met before closing, and how long will it take to close?',
       'Is there a prepayment penalty, a balloon payment, or a limit on refinancing?',
-      'What is your NMLS license number?',
+      'Which license do you hold, which regulator issued it, and what is the number?',
     ],
   },
   {

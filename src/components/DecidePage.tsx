@@ -58,6 +58,9 @@ export default function DecidePage() {
     setSaved((s) => ({ ...s, answers: { ...s.answers, [key]: value } }));
     if (key === 'state') setMyState(value as StateCode);
   };
+  // Tapping or clicking an answer moves on by itself; Back changes it. Arrow keys only select (they move between
+  // radio buttons), so keyboard users go on with Next. Going to a fixed step means a double click can't skip one.
+  const advanceFrom = (from: number) => window.setTimeout(() => setStep((s) => (s === from ? from + 1 : s)), 250);
   const toggle = (id: string) => setSaved((s) => ({ ...s, done: s.done.includes(id) ? s.done.filter((x) => x !== id) : [...s.done, id] }));
 
   const q = QUESTIONS[step];
@@ -85,7 +88,7 @@ export default function DecidePage() {
             {q.help && <p className="muted">{q.help}</p>}
             <div className="decide-options">
               {q.options.map((o) => (
-                <label key={o.value} className={`decide-option${saved.answers[q.key] === o.value ? ' on' : ''}`}>
+                <label key={o.value} className={`decide-option${saved.answers[q.key] === o.value ? ' on' : ''}`} onPointerUp={() => advanceFrom(step)}>
                   <input
                     type="radio"
                     name={q.key}
