@@ -8,6 +8,7 @@ import { useMarkStep } from '../lib/path';
 import { useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
 import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, cleanDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type SaleKind } from '../lib/analyze';
+import CheckFold from './CheckFold';
 
 const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake' };
 const CURRENT = CURRENT_KEY;
@@ -165,8 +166,7 @@ export default function AnalyzePage({ plan }: { plan?: Plan } = {}) {
         <h2 id="check-head">2. Your checklist <span className="muted">({doneCount} of {all.length} done)</span></h2>
         <p className="muted">For a {kindLabel(kinds.find((k) => k.key === deal.kind) ?? kinds[0], deal.state).toLowerCase()} in {countyName(deal.county)}, {st.name}.</p>
         {groups.map((g) => (
-          <div key={g.title} className="check-group">
-            <h3>{g.title}</h3>
+          <CheckFold key={g.title} title={g.title} done={g.items.filter((c) => deal.done.includes(c.id)).length} total={g.items.length}>
             <ul className="decide-checklist">
               {g.items.map((c) => (
                 <li key={c.id}>
@@ -178,7 +178,7 @@ export default function AnalyzePage({ plan }: { plan?: Plan } = {}) {
                 </li>
               ))}
             </ul>
-          </div>
+          </CheckFold>
         ))}
         <label className="field deal-notes">
           <span>Notes</span>

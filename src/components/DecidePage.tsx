@@ -7,6 +7,7 @@ import { useMarkStep } from '../lib/path';
 import { DECIDE_KEY, QUESTIONS, rank, stateNote, type Answers } from '../lib/decide';
 import { stateByCode, type StateCode } from '../lib/regions';
 import { getMyState, setMyState } from '../lib/myState';
+import CheckFold from './CheckFold';
 
 interface Saved {
   answers: Answers;
@@ -144,7 +145,7 @@ export default function DecidePage() {
                     {m.strategy.risk.ongoing && <div><dt>What you keep owing</dt><dd>{m.strategy.risk.ongoing}</dd></div>}
                     <div><dt>Time to a first deal</dt><dd>{m.strategy.risk.time}</dd></div>
                   </dl>
-                  <h4>Your checklist <span className="muted">({doneCount} of {m.strategy.checklist.length} done)</span></h4>
+                  <CheckFold title="Your checklist" done={doneCount} total={m.strategy.checklist.length} open={i === 0}>
                   <ul className="decide-checklist">
                     {m.strategy.checklist.map((c) => (
                       <li key={c.id}>
@@ -156,6 +157,7 @@ export default function DecidePage() {
                       </li>
                     ))}
                   </ul>
+                  </CheckFold>
                 </li>
               );
             })}

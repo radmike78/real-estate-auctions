@@ -4,6 +4,7 @@
 // Sign-in links and email-alert tokens are never included.
 import { cleanDeal } from './analyze';
 import { cleanBuyBox } from './toolkit';
+import { cleanCase } from '../practice/caseProgress';
 
 const EXACT = [
   'deedowl.path.v1',
@@ -22,6 +23,7 @@ const EXACT = [
   'deedowl.read.v1',
   'deedowl.last.v1',
   'fsf.practice.v1',
+  'deedowl.case.v1',
   'fsf.deals.v1',
   'fsf.calc.rent.v1',
   'fsf.calc.commercial.v1',
@@ -42,6 +44,7 @@ const CLEAN: Record<string, (v: unknown) => unknown> = {
   'deedowl.buybox.v1': cleanBuyBox,
   'deedowl.analyze.v1': (v) => (Array.isArray(v) ? v.map(cleanDeal).filter(Boolean) : []),
   'deedowl.analyze.current.v1': (v) => cleanDeal(v),
+  'deedowl.case.v1': cleanCase,
 };
 
 export interface Backup {

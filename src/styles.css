@@ -2403,3 +2403,15 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .guide-hit-sources > summary { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; color: var(--muted); font-size: 0.95rem; }
 /* Reading pages: section bars stay clear but smaller, so they don't compete with the page title. */
 .page.lesson section > h2:first-child { font-size: clamp(1.35rem, 1.7vw, 1.6rem); }
+
+/* A long checklist folded by topic: the topic and its count, opening to the items. */
+.check-fold { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); margin: 10px 0; }
+.check-fold > summary { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 10px 16px; cursor: pointer; list-style: none; }
+.check-fold > summary::-webkit-details-marker { display: none; }
+.check-fold > summary::before { content: '▸'; color: var(--accent); font-size: 1.1em; transition: transform 0.15s; }
+.check-fold[open] > summary::before { transform: rotate(90deg); }
+.check-fold-title { font-weight: 700; font-size: 1.1rem; }
+.check-fold-count { margin-left: auto; color: var(--muted); font-size: 0.95rem; white-space: nowrap; }
+.check-fold.complete .check-fold-count { color: var(--text); font-weight: 600; }
+.check-fold-body { padding: 0 16px 12px; }
+.check-fold-body .decide-checklist { margin: 0; }
