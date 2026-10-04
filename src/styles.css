@@ -2537,3 +2537,16 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
   .lesson-layout > .lesson-takeaways { grid-column: 2; grid-row: 1; position: sticky !important; top: 84px; margin-top: 0; }
   .lesson-layout > .lesson-body-text { grid-column: 1; grid-row: 1; min-width: 0; }
 }
+/* "How to read a real one": an annotated document guide, folded under a practice document or a roadmap step. */
+.doc-guide { border: 1px solid var(--border); border-left: 4px solid var(--accent-strong); border-radius: 12px; background: var(--surface); margin: 12px 0; }
+.doc-guide > summary { cursor: pointer; padding: 12px 16px; font-weight: 700; list-style-position: inside; }
+.doc-guide[open] > summary { border-bottom: 1px solid var(--border); }
+.doc-guide > :not(summary) { margin-left: 16px; margin-right: 16px; }
+.doc-guide > :last-child { margin-bottom: 14px; }
+.doc-guide-table th[scope="row"] { min-width: 150px; }
+.roadmap-deal { display: grid; grid-template-columns: minmax(260px, 1fr) 2fr; gap: 6px 20px; align-items: end; margin: 0 0 16px; }
+.roadmap-deal p { margin: 0 0 8px; }
+@media (max-width: 760px) { .roadmap-deal { grid-template-columns: 1fr; } }
+.evidence-step { border: 1px solid var(--border); border-left: 4px solid var(--accent-strong); border-radius: 12px; background: var(--surface-2); padding: 12px 16px; margin: 12px 0; }
+.evidence-step h4 { margin: 0 0 4px; }
+.evidence-step .evidence-done { margin-top: 10px; }

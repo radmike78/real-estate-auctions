@@ -36,6 +36,10 @@ export interface RoadmapStep {
   path?: RoadmapPath[];
   /** When the step can be marked “Doesn't apply”, and why (e.g. a rental step on a flip). */
   skip?: string;
+  /** Annotated guides to the documents this step turns on (docGuides.ts). */
+  guides?: string[];
+  /** The evidence-log area this step fills in for the deal you're working on (evidence.ts). */
+  evidence?: string;
 }
 
 export const ROADMAP_PHASES: Record<RoadmapStep['phase'], string> = {
@@ -123,6 +127,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'lender', phase: 2, path: AGENT, title: 'Get pre-approved, or document your cash',
+    guides: ['loan-estimate'], evidence: 'terms',
     text: 'Sellers want to know you can pay. With a loan, that’s a pre-approval from a licensed loan officer. Paying cash, it’s proof of funds.',
     outcome: 'A pre-approval letter and a written quote (rate, down payment, closing costs and the reserves the lender wants), or, paying cash, a current proof of funds.',
     steps: ['Ask two or three lenders for a quote on the same loan, so you can compare.', 'Check each loan officer’s license on NMLS Consumer Access.', 'Ask what conditions could still stop the loan after you’re approved.', 'Paying cash instead: get a recent bank or brokerage statement, or a letter from your bank, showing the money is available. Keep it current, and show only the account that holds it.'],
@@ -213,6 +218,7 @@ export const ROADMAP: RoadmapStep[] = [
   // 4. Find and check a deal: through an agent
   {
     id: 'find', phase: 4, path: AGENT, title: 'Find a property and screen it',
+    evidence: 'sale',
     text: 'Find a real listing that fits your buy box, then decide quickly whether it deserves more work.',
     outcome: 'One property that passes your buy box, and a list of facts you still need.',
     steps: ['Search listings, bank-owned homes or short sales in your area.', 'Compare it to your buy box. If it fails, move on.', 'Write what you still need: real rents or sales nearby, condition, HOA rules, insurance and taxes.', 'Enter it in Analyze to get its checklist.'],
@@ -222,6 +228,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'evidence', phase: 4, path: AGENT, title: 'Check the rent and the value',
+    evidence: 'income',
     text: 'Base your numbers on what similar homes actually rented and sold for, not on the listing.',
     outcome: 'A rent and a value, each backed by comparables you chose and can explain.',
     steps: ['Ask your agent for homes that leased and sold nearby in the last 6 months.', 'Keep the ones that match on size, age and condition. Leave out asking prices.', 'Write your rent and value with the comparables you used.'],
@@ -231,6 +238,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'quotes', phase: 4, path: AGENT, title: 'Get the property’s real costs',
+    evidence: 'insurance',
     text: 'Price the costs that sink deals: insurance, property taxes after you buy, HOA dues and rules, and repairs.',
     outcome: 'An insurance quote, the tax after you buy, the HOA’s dues and rental rules, and a loan quote for this property.',
     steps: ['Ask an insurance agent for a quote for how you’ll use it (a rental needs a landlord policy).', 'Ask the county what the property tax will be after you buy.', 'Get the HOA’s dues and rules on renting.', 'Run the numbers in Analyze with these real costs.'],
@@ -254,6 +262,7 @@ export const ROADMAP: RoadmapStep[] = [
   // 4. Find and check a deal: at an auction
   {
     id: 'a-find', phase: 4, path: AUCTION, title: 'Find a sale and a property on the official list',
+    evidence: 'sale',
     text: 'Work only from the official seller’s list: the county, the trustee, the sheriff or the IRS.',
     outcome: 'The official notice for one property: sale date, place or website, opening bid, deposit and payment rules.',
     steps: ['Get the list from the official seller (Find Deals links them by county).', 'Save the notice for the property, with the date you saved it.', 'Write down the sale’s rules: registration, deposit, form of payment and deadline.'],
@@ -264,6 +273,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'a-research', phase: 4, path: AUCTION, title: 'Research title and condition before the sale',
+    evidence: 'title',
     text: 'At most auctions you can’t go inside and can’t back out after you win, so the research happens now.',
     outcome: 'What you’d own, which liens could stay with it, whether it looks occupied, and its access and zoning.',
     steps: ['Order a title search, or pay a title company to review the records.', 'List the liens that could survive this kind of sale (your sale guide explains which).', 'Look from the street and on the county map: condition, access, and whether it looks lived in. Don’t contact the owner or anyone living there.', 'Check zoning and code violations with the city or county.'],
@@ -275,6 +285,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'a-value', phase: 4, path: AUCTION, title: 'Value it from the outside',
+    evidence: 'condition',
     text: 'Estimate value and repairs without seeing inside, and add a cushion for what you can’t see.',
     outcome: 'A value from sold comparables and a repair budget with a cushion for surprises.',
     steps: ['Find recent sales of similar homes in similar condition.', 'Estimate repairs from the outside, then add a cushion for the inside.', 'Ask whether an exterior-only appraisal is possible.'],
@@ -284,6 +295,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'a-insure', phase: 4, path: AUCTION, title: 'Line up insurance before you bid',
+    evidence: 'insurance',
     text: 'Some insurers won’t cover homes they can’t inspect. Find out now, and find out when the risk becomes yours under this sale.',
     outcome: 'An insurer willing to cover it, and the moment the risk becomes yours under this sale.',
     steps: ['Ask an insurance agent about covering a home bought at auction, sight unseen.', 'Ask the trustee, sheriff or county when the property becomes your risk under their sale.'],
@@ -296,6 +308,7 @@ export const ROADMAP: RoadmapStep[] = [
   // 4. Find and check a deal: lien certificates
   {
     id: 'c-sale', phase: 4, path: LIEN, title: 'Learn your county’s lien sale',
+    evidence: 'sale',
     text: 'Each county runs its own sale with its own dates, vendor and rules.',
     outcome: 'The sale date, how to register, what you bid, how you pay, and the deadlines.',
     steps: ['Read the sale guide for your state’s lien sale.', 'Read the county treasurer’s own rules page.', 'Register by the county’s deadline.'],
@@ -306,6 +319,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'c-research', phase: 4, path: LIEN, title: 'Research every parcel',
+    evidence: 'title',
     text: 'Owners usually pay off the lien, but bid only on parcels you’d actually want to own if one isn’t.',
     outcome: 'A short list of parcels you’d be willing to own, with notes on each.',
     steps: ['Check each parcel on the county map: access, size, zoning and use.', 'Leave out slivers, drainage strips and land with no access.', 'Check for other liens and special assessments.'],
@@ -315,6 +329,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'c-budget', phase: 4, path: LIEN, title: 'Budget for the whole holding period',
+    evidence: 'exit',
     text: 'Plan for more than the purchase: later years’ taxes you may pay, fees, and an attorney if you ever foreclose.',
     outcome: 'A budget for the purchase, later taxes, fees, and a possible attorney.',
     steps: ['Total what you’ll pay at the sale, with fees.', 'Estimate later years’ taxes you may choose to pay.', 'Get an attorney’s rough cost for a foreclosure case, in case you need one.'],
@@ -325,6 +340,7 @@ export const ROADMAP: RoadmapStep[] = [
   // 5. Buy it: through an agent
   {
     id: 'offer', phase: 5, path: AGENT, title: 'Make your offer',
+    guides: ['contract'], evidence: 'terms',
     text: 'Offer at or below your maximum, with conditions (contingencies) that let you cancel and keep your deposit if something goes wrong.',
     outcome: 'An accepted contract, and every deadline in it on your calendar.',
     steps: ['Set your maximum price from your analysis before you write the offer.', 'Ask your agent to include inspection, appraisal and loan contingencies, with deadlines you can meet.', 'Remember: it’s a contract only once the seller accepts in writing.', 'Put every deadline on your calendar the day it’s accepted.'],
@@ -336,6 +352,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'deposit', phase: 5, path: AGENT, title: 'Send your earnest money safely',
+    evidence: 'terms',
     text: 'Wiring fraud is common in real estate. Confirm instructions by phone before you send anything.',
     outcome: 'Your deposit received by escrow, confirmed in writing.',
     steps: ['Get the escrow company’s phone number from your agent or the company’s website, not from an email.', 'Call to confirm the instructions before you wire.', 'Get a receipt.'],
@@ -346,6 +363,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'inspect', phase: 5, path: AGENT, title: 'Inspect, then decide before the deadline',
+    guides: ['repair-bid'], evidence: 'condition',
     text: 'Hire a qualified inspector (check the license or certificate your state requires), get the report, and settle what it found before your inspection period ends.',
     outcome: 'The inspection report, repair bids for the big items, and your written answer to the seller before the deadline.',
     steps: ['Book the inspection right away. Add specialists the inspector suggests (a sewer camera, a roofer, an electrician).', 'Sort the findings: fix now, budget for later.', 'Get written bids for the big items.', 'Before the deadline, ask for a lower price or repairs, go ahead, or cancel, in writing.'],
@@ -357,6 +375,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'appraise', phase: 5, path: AGENT, title: 'Handle the appraisal',
+    evidence: 'terms',
     text: 'The lender orders an appraisal. If it comes in low, you can ask for a lower price, bring more cash, or cancel within your appraisal contingency.',
     outcome: 'The appraisal, and your decision before the appraisal deadline if it’s low.',
     steps: ['Ask your lender when the appraisal will be done.', 'If it’s low, work out the new down payment (the loan is based on the lower of price and appraisal).', 'Decide before the deadline: ask for a lower price, pay the difference, or cancel.'],
@@ -368,6 +387,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'title', phase: 5, path: AGENT, title: 'Review the title and HOA documents',
+    guides: ['title'], evidence: 'title',
     text: 'The title commitment lists what must be cleared before closing and what the title policy won’t cover. HOA documents have the rules and finances.',
     outcome: 'Every requirement in the title commitment has a plan to clear it, and the HOA rules fit your plan.',
     steps: ['Read the title commitment’s requirements (to clear before closing) and exceptions (not covered).', 'Ask the title officer how each unusual item will be cleared.', 'Read the HOA rules, budget and any special assessments within your review period.'],
@@ -379,6 +399,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'close', phase: 5, path: AGENT, title: 'Close',
+    guides: ['settlement'], evidence: 'terms',
     text: 'Check the final numbers, confirm wiring by phone, have insurance start at closing, and keep every document.',
     outcome: 'The deed recorded in your name, insurance in force, and a copy of every document.',
     steps: ['Get final loan approval and give the lender proof of insurance.', 'Compare the closing statement with your contract and loan quote, line by line, including your deposit credit.', 'Confirm the wiring instructions by phone with a number you trust.', 'Sign, and get a copy of the recorded deed.'],
@@ -391,6 +412,7 @@ export const ROADMAP: RoadmapStep[] = [
   // 5. Buy it: at an auction
   {
     id: 'a-max', phase: 5, path: AUCTION, title: 'Set your maximum bid',
+    evidence: 'exit',
     text: 'Work out the most you’ll bid with every cost counted, and write it down before the sale.',
     outcome: 'A written maximum bid, with every cost behind it.',
     steps: ['Use the maximum bid calculator with your value, repairs, liens that stay, holding costs and selling costs.', 'Write the number down, and take it to the sale.'],
@@ -399,6 +421,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'a-bid', phase: 5, path: AUCTION, title: 'Register and bid',
+    evidence: 'sale',
     text: 'Register by the deadline, bid only up to your maximum, and stop.',
     outcome: 'You bid within your maximum, or walked away.',
     steps: ['Register and pay any deposit by the deadline.', 'Check for postponements or cancellations on the day.', 'Bid up to your maximum. If it goes higher, stop.'],
@@ -409,6 +432,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'a-pay', phase: 5, path: AUCTION, title: 'Pay, and get the right paperwork',
+    evidence: 'sale',
     text: 'Pay the balance by the deadline and get the document this sale gives you. Some sales aren’t final right away, and some give the former owner time to redeem.',
     outcome: 'Payment made on time, and the deed or certificate this sale gives, recorded where it should be.',
     steps: ['Pay the balance in the required form by the deadline.', 'Get the receipt and the document the sale gives (a deed, or a certificate of sale).', 'Check your sale guide for any waiting or redemption period before the sale is final.', 'Make sure the deed is recorded.'],
@@ -419,6 +443,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'a-possess', phase: 5, path: AUCTION, title: 'Insure it and get possession lawfully',
+    evidence: 'occupancy',
     text: 'Insure it from the moment it’s your risk. If anyone lives there, possession goes through the legal process, never changing locks or removing belongings yourself.',
     outcome: 'Insurance in force and lawful possession.',
     steps: ['Start insurance from the moment the risk is yours.', 'If it’s occupied, hire an attorney for the lawful process in your state. Don’t contact or pressure the occupants yourself.', 'Consider title insurance before you spend money on repairs.'],
@@ -431,6 +456,7 @@ export const ROADMAP: RoadmapStep[] = [
   // 5. Buy it: lien certificates
   {
     id: 'c-bid', phase: 5, path: LIEN, title: 'Bid and pay',
+    evidence: 'sale',
     text: 'Bid only on parcels on your list, and pay in full by the county’s deadline.',
     outcome: 'Your certificates paid for and listed with the county.',
     steps: ['Bid on your researched parcels only.', 'Pay in full, in the form the county requires, by its deadline.', 'Save each certificate and receipt.'],
@@ -440,6 +466,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'c-hold', phase: 5, path: LIEN, title: 'Track payoffs, interest and later taxes',
+    evidence: 'exit',
     text: 'Keep a simple record of each certificate: what you paid, the interest rate, and what you’ve been paid back.',
     outcome: 'A record of every certificate, matched to the county’s payments to you.',
     steps: ['Record each certificate: parcel, amount, rate, date.', 'Match each payoff the county sends you to your record.', 'Decide each year whether to pay later years’ taxes on the parcels you still hold.'],
@@ -448,6 +475,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'c-decide', phase: 5, path: LIEN, title: 'Decide what to do with unpaid liens',
+    evidence: 'exit',
     text: 'If a lien is still unpaid when the law allows, decide with an attorney whether to start the legal process. Notices go through your attorney, never through contacting the owner yourself.',
     outcome: 'A decision, made with an attorney, for each lien still unpaid at the earliest date the law allows.',
     steps: ['Note the earliest date you may act and the last date before the lien expires.', 'Talk with an attorney about cost, timing and whether a court-ordered sale could pay you instead of giving you the deed.', 'Decide: start the process, or keep holding.'],
@@ -468,6 +496,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'repairs', phase: 6, path: OWNERS, title: 'Repairs, the right way',
+    guides: ['repair-bid'], evidence: 'condition',
     text: 'Fix safety items first, with licensed contractors and permits where required.',
     outcome: 'Written bids, permits where needed, and the work done and checked.',
     steps: ['Get two or three written bids for the same scope.', 'Check each contractor’s license and insurance.', 'Pull permits where required, and pay as work is done, not all up front.', 'Keep receipts and lien releases.'],
@@ -478,6 +507,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'rent', phase: 6, path: OWNERS, title: 'Rent it lawfully (if renting)',
+    guides: ['lease', 'adverse-action'], evidence: 'occupancy',
     text: 'Screen every applicant with the same written criteria, give the required disclosures, and use a lease that follows your state’s law.',
     outcome: 'Written screening criteria, a lawful lease, the required disclosures, and a tenant moved in.',
     steps: ['Write your screening criteria and apply them the same way to everyone.', 'If a report leads you to deny someone, or to ask for a cosigner, a bigger deposit or higher rent, give the adverse action notice.', 'For homes built before 1978, give the lead pamphlet and disclosure.', 'Use a lease that follows your state’s law, and follow its deposit and entry rules.'],
@@ -488,6 +518,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'operate', phase: 6, path: OWNERS, title: 'Keep the books and the reserves',
+    evidence: 'income',
     text: 'Track every dollar in and out each month, and set money aside for vacancies, repairs and big replacements.',
     outcome: 'Monthly records that match your bank account, and a reserve that meets your plan.',
     steps: ['Record rent and every cost each month.', 'Move a set amount into your reserve each month, even when nothing breaks.', 'Keep receipts for your tax advisor.'],

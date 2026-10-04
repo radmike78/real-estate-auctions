@@ -11,6 +11,8 @@ const EXACT = [
   'deedowl.roadmap.v1',
   'deedowl.roadmap.path.v1',
   'deedowl.roadmap.status.v1',
+  'deedowl.roadmap.deal.v1',
+  'deedowl.roadmap.deals.v1',
   'deedowl.cash.v1',
   'deedowl.team.v1',
   'deedowl.buybox.v1',
