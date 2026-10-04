@@ -132,7 +132,7 @@ export default function BankOwnedPage({ section }: { section?: string }) {
     <main className="page prose">
       <PageHero
         compact={open}
-        eyebrow={<span className="eyebrow">Buying rules for Nevada, California, Arizona and Utah · Source notes for Clark County, Nevada</span>}
+        eyebrow={<span className="eyebrow">Bank-owned · NV, CA, AZ, UT</span>}
         title={
           open ? (
             <a className="title-link" href="#/bank-owned">Bank-owned &amp; government {cls === 'commercial' ? 'properties' : 'homes'}</a>

@@ -2575,3 +2575,11 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 /* Long link lists in columns on wide screens. */
 .lesson-links.link-columns { columns: 2 520px; column-gap: 40px; }
 .lesson-links.link-columns > li { break-inside: avoid; }
+
+/* Touch screens: standalone links (not links inside a sentence) get a 44px-tall tap area. */
+@media (pointer: coarse) {
+  .drill-pager a, .team-list a, .book-info a, .lesson-links a, .decide-checklist a, .analyze-next .row a,
+  .pro-next a:not(.btn), .band-link, .search-top a.small, .track-card a.small {
+    display: inline-flex; align-items: center; min-height: 44px;
+  }
+}
