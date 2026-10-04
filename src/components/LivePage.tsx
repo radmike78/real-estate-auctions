@@ -31,7 +31,7 @@ const HEALTH_LABEL = {
   stale: 'Stale, listings hidden',
   quarantined: 'Suspicious update, listings hidden pending review',
   error: 'Source unreachable, listings hidden',
-  terms_not_reviewed: 'Not enabled',
+  terms_not_reviewed: 'Not shown here',
 } as const;
 
 export default function LivePage() {
@@ -123,11 +123,12 @@ export default function LivePage() {
                 </div>
                 {/* What a buyer needs: where we checked and when. Fetch timing and site-certificate details stay out of the way. */}
                 <div className="small muted">
-                  {s.health === 'terms_not_reviewed' && !s.lastCheckedAt ? 'Not collected' : <>Checked against {s.publishedBy ? `${s.publishedBy}'s official notice` : 'the official site'} {s.lastCheckedAt ? ago(s.lastCheckedAt, now) : 'never'}</>}
+                  {s.health === 'terms_not_reviewed' && !s.lastCheckedAt ? 'Not currently available here: check the official source' : <>Checked against {s.publishedBy ? `${s.publishedBy}'s official notice` : 'the official site'} {s.lastCheckedAt ? ago(s.lastCheckedAt, now) : 'never'}</>}
                   {s.lastChangedAt && <> · list last changed {ago(s.lastChangedAt, now)}</>}
                 </div>
                 {s.publishedBy && <div className="small muted">Published by {s.publishedBy} for the county and the cities</div>}
-                {s.message && <div className="small">{s.message}</div>}
+                {/* How a source is collected (terms, permissions) is for the operator, not the buyer. */}
+                {s.message && s.health !== 'terms_not_reviewed' && <div className="small">{s.message}</div>}
                 {(s.publishedBy ? isCertificateSourceUrl(s.officialUrl) : isOfficialUrl(s.officialUrl) || s.officialUrl === 'https://www.irsauctions.gov/') && (
                   <a className="small" href={s.officialUrl} target="_blank" rel="noreferrer noopener">{s.publishedBy ? 'Official notice of sale ↗' : 'Official auction page ↗'}</a>
                 )}

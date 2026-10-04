@@ -6,8 +6,8 @@
       "src/components/HomePage.tsx",
       "src/lib/journey.ts"
     ],
-    "reviewed": "2026-10-03",
-    "hash": "cece69ca4fc6167f",
+    "reviewed": "2026-10-04",
+    "hash": "8ef2ea87e897f663",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -60,8 +60,8 @@
       "src/components/IrsSales.tsx",
       "src/components/SidCertificates.tsx"
     ],
-    "reviewed": "2026-10-03",
-    "hash": "be365138e1b15936",
+    "reviewed": "2026-10-04",
+    "hash": "60202b2313271818",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -114,8 +114,8 @@
       "src/components/TeamList.tsx",
       "src/lib/playbooks.ts"
     ],
-    "reviewed": "2026-10-03",
-    "hash": "edf79e599cccef70",
+    "reviewed": "2026-10-04",
+    "hash": "65b874cd4d1dbe7c",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -138,8 +138,8 @@
       "src/practice/drills.ts",
       "src/practice/scenarios.ts"
     ],
-    "reviewed": "2026-10-03",
-    "hash": "97c2b0b8a91da12d",
+    "reviewed": "2026-10-04",
+    "hash": "7e8da1168fdd67d9",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -155,8 +155,8 @@
       "src/components/StrategyTabs.tsx",
       "src/lib/holdCalc.ts"
     ],
-    "reviewed": "2026-10-03",
-    "hash": "6752af10176aba71",
+    "reviewed": "2026-10-04",
+    "hash": "80ab9e921767fe97",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -197,8 +197,8 @@
       "src/components/TeamBuilder.tsx",
       "src/lib/teamBuilder.ts"
     ],
-    "reviewed": "2026-10-03",
-    "hash": "926996cd1c84602a",
+    "reviewed": "2026-10-04",
+    "hash": "95098f28ca7f5181",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -240,8 +240,8 @@
     "files": [
       "src/components/HomeownerHelpPage.tsx"
     ],
-    "reviewed": "2026-10-03",
-    "hash": "ae31d84c48b1b3b9",
+    "reviewed": "2026-10-04",
+    "hash": "d96a13f24079f1d5",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -275,8 +275,8 @@
       "src/components/Disclaimer.tsx",
       "src/components/RoleNotice.tsx"
     ],
-    "reviewed": "2026-10-03",
-    "hash": "e5b54475391cd372",
+    "reviewed": "2026-10-04",
+    "hash": "067b95f246157c4d",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -346,8 +346,8 @@
       "src/components/Term.tsx",
       "src/lib/terms.ts"
     ],
-    "reviewed": "2026-10-03",
-    "hash": "387361705c31d044",
+    "reviewed": "2026-10-04",
+    "hash": "98e36366fd01f775",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -357,8 +357,8 @@
       "src/components/DecidePage.tsx",
       "src/lib/decide.ts"
     ],
-    "reviewed": "2026-10-03",
-    "hash": "d1c1f2fe2f3fa047",
+    "reviewed": "2026-10-04",
+    "hash": "90700deac3d94302",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -383,8 +383,8 @@
       "src/lib/analyze.ts",
       "src/lib/path.ts"
     ],
-    "reviewed": "2026-10-03",
-    "hash": "f2b6fb90e1802088",
+    "reviewed": "2026-10-04",
+    "hash": "0226b8190b879d3c",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {
@@ -395,8 +395,8 @@
       "src/lib/toolkit.ts",
       "src/lib/progressBackup.ts"
     ],
-    "reviewed": "2026-10-03",
-    "hash": "df48298947f204ac",
+    "reviewed": "2026-10-04",
+    "hash": "d3e745749172226b",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

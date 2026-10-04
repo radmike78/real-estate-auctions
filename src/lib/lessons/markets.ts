@@ -78,7 +78,7 @@ export const markets: Lesson = {
     { term: 'Balloon payment', meaning: 'A large final payment of the loan’s remaining balance, due before it would otherwise be paid off.' },
     { term: 'Triple-net (NNN) lease', meaning: 'A commercial lease where the tenant also pays the property’s taxes, insurance and maintenance.' },
   ],
-  tryIt: { label: 'Try the commercial income calculator', href: '#/analyze' },
+  tryIt: { label: 'Try the commercial income calculator', href: '#/analyze?plan=commercial' },
   sources: [
     { label: 'Housing goals definitions: single-family and multifamily (12 CFR 1282.1)', url: 'https://www.law.cornell.edu/cfr/text/12/1282.1' },
     { label: 'Fannie Mae Selling Guide: general property eligibility (B2-3-01)', url: 'https://selling-guide.fanniemae.com/sel/b2-3-01/general-property-eligibility' },

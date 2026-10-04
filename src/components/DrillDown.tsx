@@ -31,11 +31,12 @@ export function Tile(props: { href: string; title: string; summary: ReactNode; i
   );
 }
 
-function Body({ s }: { s: DrillSection }) {
+function Body({ s, titled = false }: { s: DrillSection; titled?: boolean }) {
   if (s.bare) return <div className="drill-bare">{s.content()}</div>;
   return (
     <section className="drill-section">
-      <h2>{s.title}</h2>
+      {/* When the page title already names the open section, don't show the name a second time. */}
+      <h2 className={titled ? 'sr-only' : undefined}>{s.title}</h2>
       {s.content()}
     </section>
   );
@@ -45,8 +46,8 @@ function Body({ s }: { s: DrillSection }) {
  * Shows each section as a tile; clicking one opens just that section at `${baseHref}/${key}`.
  * With `printAll` (or the "all" section, offered when `showAll` is set), every section is rendered in order.
  */
-export default function DrillDown(props: { sections: DrillSection[]; active?: string; baseHref: string; label: string; printAll?: boolean; showAll?: boolean }) {
-  const { sections, active, baseHref, label, printAll, showAll } = props;
+export default function DrillDown(props: { sections: DrillSection[]; active?: string; baseHref: string; label: string; printAll?: boolean; showAll?: boolean; titled?: boolean }) {
+  const { sections, active, baseHref, label, printAll, showAll, titled } = props;
   const nav = useRef<HTMLElement>(null);
   // On narrow screens the section bar scrolls sideways: bring the open section's button into view.
   useEffect(() => {
@@ -95,21 +96,31 @@ export default function DrillDown(props: { sections: DrillSection[]; active?: st
   const cur = sections[i];
   const prev = sections[i - 1];
   const next = sections[i + 1];
+  const all = (
+    <nav ref={nav} className="drill-nav no-print" aria-label={label}>
+      {!titled && <a href={baseHref} className="drill-back">← Overview</a>}
+      {sections.map((s) => (
+        <a key={s.key} href={`${baseHref}/${s.key}`} aria-current={s.key === cur.key ? 'page' : undefined}>
+          {s.title}
+        </a>
+      ))}
+    </nav>
+  );
+  // A titled page goes straight to its content; the list of the other sections waits at the bottom.
   return (
     <div className="drill-view">
-      <nav ref={nav} className="drill-nav no-print" aria-label={label}>
-        <a href={baseHref} className="drill-back">← Overview</a>
-        {sections.map((s) => (
-          <a key={s.key} href={`${baseHref}/${s.key}`} aria-current={s.key === cur.key ? 'page' : undefined}>
-            {s.title}
-          </a>
-        ))}
-      </nav>
-      <Body s={cur} />
+      {!titled && all}
+      <Body s={cur} titled={titled} />
       <div className="drill-pager no-print">
         {prev ? <a href={`${baseHref}/${prev.key}`}>← {prev.title}</a> : <a href={baseHref}>← Overview</a>}
         {next ? <a href={`${baseHref}/${next.key}`}>{next.title} →</a> : <a href={baseHref}>Back to overview</a>}
       </div>
+      {titled && (
+        <>
+          <h2 className="page-section-title drill-others">{`Other ${label.toLowerCase()}`}</h2>
+          {all}
+        </>
+      )}
     </div>
   );
 }

@@ -101,7 +101,7 @@ export const veterans: Lesson = {
     { term: 'SCRA', meaning: 'The Servicemembers Civil Relief Act: protections for people on active duty, including on mortgages, leases and evictions.' },
     { term: 'Assessed value', meaning: 'The value the county taxes. Many exemptions take a set amount off it.' },
   ],
-  tryIt: { label: 'Run the numbers on a house hack in the deal calculator', href: '#/analyze' },
+  tryIt: { label: 'Run the numbers on a house hack in the deal calculator', href: '#/analyze?plan=rent' },
   sources: [
     { label: 'VA: eligibility for a VA home loan', url: 'https://www.va.gov/housing-assistance/home-loans/eligibility/' },
     { label: 'VA: purchase loans', url: 'https://www.va.gov/housing-assistance/home-loans/loan-types/purchase-loan/' },

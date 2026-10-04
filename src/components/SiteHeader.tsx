@@ -119,7 +119,7 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
               <div key={g.group} className="more-group" role="group" aria-label={g.group}>
                 <span className="more-group-title" aria-hidden>{g.group}</span>
                 {g.links.map(([href, label]) => (
-                  <a key={href} href={href}>{label}{href === '#/deals' && deals > 0 && <span className="nav-count">{deals}</span>}</a>
+                  <a key={href} href={href}>{label}{href === '#/alerts' && features && !features.email && <span className="soon"> (coming soon)</span>}{href === '#/deals' && deals > 0 && <span className="nav-count">{deals}</span>}</a>
                 ))}
               </div>
             ))}

@@ -80,6 +80,7 @@ const OFFER_FIELDS: Partial<Record<keyof BidInputs, Partial<Field>>> = {
   possession: { hint: 'Only if a tenant or the owner stays after closing.' },
   repairs: { hint: 'Get a contractor’s bid after your inspection.' },
   financedPct: { label: 'Share of the price financed', hint: 'The part of the price your loan covers.' },
+  holdingMonths: { hint: 'From closing until the resale closes.', more: 'Repairs, time on the market and the buyer’s escrow. Count every month you pay the loan, taxes, insurance and utilities.' },
 };
 const OFFER_HIDDEN = new Set<keyof BidInputs>(['buyerPremiumPct', 'cashAvailable', 'redemptionMonths', 'redemptionRatePct']);
 

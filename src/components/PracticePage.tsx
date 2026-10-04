@@ -41,6 +41,11 @@ export default function PracticePage({ sale }: { sale?: string }) {
           sub="Buy a fictional property step by step, from research to the day after the sale."
         />
         <PracticeRibbon />
+        <p className="page-starter">
+          <strong>New to this?</strong> Start with <a href="#/practice/reo-house">the practice house, bought bank-owned</a>: a normal purchase
+          through an agent, with time to inspect. Practice purchases follow Nevada rules (Clark County); other states’ rules are in the{' '}
+          <a href="#/playbooks">sale guides</a>.
+        </p>
         <NarrowDown config={practiceConfig(getMyState())} intro="Answer a few quick questions and we’ll suggest a practice purchase or drills to start with. Everything is still listed below." />
         <h2 className="practice-step"><span aria-hidden>1</span> Choose a kind of sale</h2>
         <div className="practice-sales">

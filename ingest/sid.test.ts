@@ -101,7 +101,7 @@ describe('SID reconcile and feed', () => {
     const s = applySidSnapshot(emptyState(SID.id), snap.parsed, { ...meta, confirmedApns: new Set([...all].slice(0, 3)) });
     expect(buildFeed([SID], { [SID.id]: s }, NOW).certificates).toBeUndefined(); // off: terms and list not checked
     expect(buildFeed([SID], { [SID.id]: s }, NOW).sources[0]).toMatchObject({ health: 'terms_not_reviewed', publishedBy: 'Assessment Management Group' });
-    expect(buildFeed([{ ...SID, termsReviewedAt: '2026-10-06' }], { [SID.id]: s }, NOW).sources[0].message).toMatch(/first posted list/);
+    expect(buildFeed([{ ...SID, termsReviewedAt: '2026-10-06' }], { [SID.id]: s }, NOW).sources[0].message).toMatch(/Not shown here yet/);
     const feed = buildFeed([ON], { [SID.id]: s }, NOW);
     expect(feed.certificates).toHaveLength(3);
     expect(feed.certificates![0]).toMatchObject({ jurisdiction: 'City of Henderson', saleDate: '2026-10-27', state: 'AVAILABLE' });

@@ -143,7 +143,7 @@ function Results({ s, progress }: { s: Scenario; progress: ScenarioProgress }) {
       <p>When you’re ready for a real one:</p>
       <ul>
         <li><a href={`#/playbooks/${s.playbookKey}`}>Read the full guide for this sale</a></li>
-        <li><a href="#/calculator">Run your own numbers in the maximum bid calculator</a></li>
+        <li><a href="#/analyze?plan=flip">Run your own numbers in the maximum bid calculator</a></li>
         <li><a href="#/pros">Learn who you need and how to find them</a></li>
         <li><a href="#/practice">Practice another kind of sale or property</a></li>
       </ul>
@@ -417,7 +417,7 @@ function NumbersTask({ task, k, done, head, markDone }: { task: Extract<Task, { 
       </div>
       {two && <p>Selling as-is means less work, less cash tied up and a quicker exit, for a smaller profit. Fixing it up can earn more, but your money is tied up longer, and you carry the risk of repairs running over, a slow sale or a lower price. {fix.maxBid ? `This practice buyer plans to fix and sell, so the maximum is ${fmtMoney(fix.maxBid)}.` : 'Here, no price leaves the target profit either way.'}</p>}
       <p>{task.lesson}</p>
-      <p className="small muted">Practice numbers, not market data. <a href="#/calculator">Try your own in the maximum bid calculator</a>.</p>
+      <p className="small muted">Practice numbers, not market data. <a href="#/analyze?plan=flip">Try your own in the maximum bid calculator</a>.</p>
       {!done && <button className="btn btn-secondary" onClick={() => markDone(k)}>I understand my maximum</button>}
     </article>
   );

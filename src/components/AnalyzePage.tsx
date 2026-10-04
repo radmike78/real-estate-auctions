@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import { Calculators } from './CalculatorPage';
@@ -6,7 +6,7 @@ import { CalcRegion } from './calcRegion';
 import { useMarkStep } from '../lib/path';
 import { useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, cleanDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, type Deal, type Plan, type SaleKind } from '../lib/analyze';
+import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, cleanDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type SaleKind } from '../lib/analyze';
 
 const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake' };
 const CURRENT = CURRENT_KEY;
@@ -25,12 +25,28 @@ function loadCurrent(st: StateCode): Deal {
   return blank(st);
 }
 
-/** Step 6 of the path: describe a real deal, get the checklist for that sale in that state, and run the numbers. */
-export default function AnalyzePage() {
+/** A link that names a calculator ("#/analyze?plan=commercial") opens that one. A saved deal is left as it was. */
+function forLink(d: Deal, plan?: Plan): Deal {
+  if (!plan) return d;
+  return withPlan(d.id ? blank(d.state) : d, plan);
+}
+
+/**
+ * Step 6 of the path: describe a real deal, get the checklist for that sale in that state, and run the numbers.
+ * `plan` comes from a link that promises a particular calculator.
+ */
+export default function AnalyzePage({ plan }: { plan?: Plan } = {}) {
   useMarkStep('analyze');
   useLastActivity('#/analyze', 'Analyze a deal');
   const [mine] = useMyState();
-  const [deal, setDeal] = useState<Deal>(() => loadCurrent(mine ?? 'NV'));
+  const [deal, setDeal] = useState<Deal>(() => forLink(loadCurrent(mine ?? 'NV'), plan));
+  const numbersRef = useRef<HTMLHeadingElement>(null);
+  // A link to a named calculator goes straight to it, set up for that plan.
+  useEffect(() => {
+    if (!plan) return;
+    setDeal((d) => (d.plan === plan && (plan !== 'lien' || d.kind === 'lien') ? d : forLink(d, plan)));
+    numbersRef.current?.scrollIntoView({ block: 'start' });
+  }, [plan]);
   const [saved, setSaved] = useState<Deal[]>(loadDeals);
 
   // Keep the working deal between visits, and in the saved list once it has been saved.
@@ -167,9 +183,9 @@ export default function AnalyzePage() {
         </label>
       </section>
 
-      <h2 className="section-title">3. Run the numbers</h2>
+      <h2 className="section-title" id="numbers" ref={numbersRef}>3. Run the numbers</h2>
       <CalcRegion.Provider value={{ state: deal.state, county: deal.county }}>
-        <Calculators key={`${deal.plan}-${deal.state}-${deal.county}-${deal.kind}`} initial={calcTabFor(deal.plan)} state={deal.state} offer={deal.kind === 'listing' || deal.kind === 'reo'} />
+        <Calculators key={`${deal.plan}-${deal.state}-${deal.county}-${deal.kind}`} initial={calcTabFor(deal.plan)} onTab={(k) => { const p = PLANS.find((x) => calcTabFor(x.key) === k)?.key; if (p && p !== deal.plan && plans.some((x) => x.key === p)) set({ plan: p }); }} state={deal.state} offer={deal.kind === 'listing' || deal.kind === 'reo'} />
       </CalcRegion.Provider>
     </main>
   );

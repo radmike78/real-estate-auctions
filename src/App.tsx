@@ -27,6 +27,7 @@ import ReadingPage from './components/ReadingPage';
 import PropertyTypePage from './components/PropertyTypePage';
 import { lessonByKey } from './lib/lessons';
 import { topicBySlug } from './lib/deep/propertyTopics';
+import { planParam, type Plan } from './lib/analyze';
 import LearnPage from './components/LearnPage';
 import DecidePage from './components/DecidePage';
 import FindDealsPage from './components/FindDealsPage';
@@ -49,6 +50,7 @@ import type { AcquisitionStatus, SaleType } from './types';
 import { outboundAction, sitePageFor } from './lib/siteStats';
 import { parseClass, type ClassFilter } from './lib/propertyClass';
 import { trackAction, trackPage } from './lib/track';
+import { useSiteFeatures } from './lib/siteFeatures';
 
 type Route =
   | { page: 'home' }
@@ -71,7 +73,7 @@ type Route =
   | { page: 'disclaimer'; section?: string }
   | { page: 'privacy'; section?: string }
   | { page: 'terms'; section?: string }
-  | { page: 'analyze' }
+  | { page: 'analyze'; plan?: Plan }
   | { page: 'learn' }
   | { page: 'lesson'; key: string }
   | { page: 'reading' }
@@ -138,7 +140,7 @@ function parseHash(): Route {
   const confirm = h.match(/^advertise\/confirm(?:\/([A-Za-z0-9_-]+))?$/);
   if (confirm) return { page: 'applicationConfirm', token: confirm[1] ?? '' };
   if (h === 'admin') return { page: 'admin' };
-  if (h === 'calculator' || h === 'analyze') return { page: 'analyze' };
+  if (h === 'calculator' || h === 'analyze') return { page: 'analyze', plan: planParam(params.get('plan')) };
   if (h === 'learn') return { page: 'learn' };
   const lesson = h.match(/^learn\/([a-z-]{1,30})$/);
   if (h === 'learn/reading') return { page: 'reading' };
@@ -174,6 +176,7 @@ function parseHash(): Route {
 }
 
 export default function App() {
+  const features = useSiteFeatures();
   const [route, setRoute] = useState<Route>(parseHash);
   const [path, setPath] = useState(hashPath);
   // Counts real navigations. Search rewrites its own URL (replaceState) as filters change, so the route
@@ -272,7 +275,7 @@ export default function App() {
       {route.page === 'disclaimer' && <DisclaimerPage section={route.section} />}
       {route.page === 'privacy' && <PrivacyPage section={route.section} />}
       {route.page === 'terms' && <TermsPage section={route.section} />}
-      {route.page === 'analyze' && <AnalyzePage />}
+      {route.page === 'analyze' && <AnalyzePage plan={route.plan} />}
       {route.page === 'learn' && <LearnPage />}
       {route.page === 'reading' && <ReadingPage />}
       {route.page === 'propertyType' && <PropertyTypePage slug={route.slug} />}
@@ -294,7 +297,7 @@ export default function App() {
         <span>{ROLE_SHORT}</span>
         <span>{SOURCES_AND_ADVICE}</span>
         <nav aria-label="Footer">
-          <a href="#/alerts">Email alerts</a>
+          <a href="#/alerts">Email alerts{features && !features.email && ' (coming soon)'}</a>
           <a href="#/homeowner-help">Homeowners: free help</a>
           <a href="#/disclaimer">How we help</a>
           <a href="#/about">How it works</a>

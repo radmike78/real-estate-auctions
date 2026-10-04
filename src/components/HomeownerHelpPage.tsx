@@ -26,22 +26,24 @@ export default function HomeownerHelpPage() {
         sub="If you’re behind on your mortgage, HOA dues or property taxes, you likely have more options than scammers want you to think. Some deadlines are short, so act now."
       />
 
+      <p className="page-starter"><strong>Outside Nevada?</strong> The programs and deadlines on this page are Nevada’s. HUD-approved housing counselors (below) work in every state, usually at no cost, and know your state’s deadlines.</p>
+
       <section>
-        <h2>First: act early, while you have the most options</h2>
+        <h2>Free, trustworthy help: start here</h2>
+        <ul className="help-links">
+          <li><strong>Foreclosure Mediation Program (Nevada courts).</strong> If you live in the home, you can petition the district court for mediation with your lender within 30 days after the notice of default is served (NRS 107.086). There is a $25 filing fee plus your half of the mediation fee; the law caps the total mediation fee at $500. In Clark County it is run by the Eighth Judicial District Court. <a href="https://www.clarkcountycourts.us/departments/adr/foreclosure-mediation/" {...ext}>Foreclosure mediation (Clark County courts) ↗</a></li>
+          <li><strong>HUD-approved housing counselors.</strong> Free advice on your options. <a href="https://answers.hud.gov/housingcounseling/" {...ext}>Find a counselor (HUD) ↗</a> · <a href="https://www.consumerfinance.gov/find-a-housing-counselor/" {...ext}>CFPB counselor search ↗</a></li>
+          <li><strong>Free legal help.</strong> <a href="https://www.lacsn.org/" {...ext}>Legal Aid Center of Southern Nevada ↗</a> · <a href="https://nevadalegalservices.org/" {...ext}>Nevada Legal Services ↗</a> · <a href="https://www.civillawselfhelpcenter.org/" {...ext}>Civil Law Self-Help Center ↗</a></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Nevada deadlines: act early, while you have the most options</h2>
         <ul>
           <li>In Nevada, at least 3 months must pass after a notice of default is recorded before a notice of sale can follow, and the sale notice must be published for 3 weeks.</li>
           <li>If you live in the home, you can generally catch up (reinstate) until 5 days before the sale (NRS 107.0805), work out a modification or repayment plan, sell (including a short sale), or get legal help to review your case.</li>
           <li>Some deadlines are short: in Nevada, the request for foreclosure mediation is due within 30 days after the notice of default is served (NRS 107.086).</li>
           <li>Call your lender or servicer early and keep notes of every call.</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>Free, trustworthy help</h2>
-        <ul className="help-links">
-          <li><strong>Foreclosure Mediation Program (Nevada courts).</strong> If you live in the home, you can petition the district court for mediation with your lender within 30 days after the notice of default is served (NRS 107.086). There is a $25 filing fee plus your half of the mediation fee; the law caps the total mediation fee at $500. In Clark County it is run by the Eighth Judicial District Court. <a href="https://www.clarkcountycourts.us/departments/adr/foreclosure-mediation/" {...ext}>Foreclosure mediation (Clark County courts) ↗</a></li>
-          <li><strong>HUD-approved housing counselors.</strong> Free advice on your options. <a href="https://answers.hud.gov/housingcounseling/" {...ext}>Find a counselor (HUD) ↗</a> · <a href="https://www.consumerfinance.gov/find-a-housing-counselor/" {...ext}>CFPB counselor search ↗</a></li>
-          <li><strong>Free legal help.</strong> <a href="https://www.lacsn.org/" {...ext}>Legal Aid Center of Southern Nevada ↗</a> · <a href="https://nevadalegalservices.org/" {...ext}>Nevada Legal Services ↗</a> · <a href="https://www.civillawselfhelpcenter.org/" {...ext}>Civil Law Self-Help Center ↗</a></li>
         </ul>
       </section>
 

@@ -56,17 +56,18 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
         </>
       ) : (
         <>
-          <p><strong>Start here.</strong> Everything else is still on the page below.{' '}
+          <p><strong>Start with the first one.</strong> The others are good next steps, and everything else is still on the page below.{' '}
             <button type="button" className="linkish" onClick={() => { setStep(0); setAnswers({}); }}>Start over</button>
           </p>
           <ol className="team-result">
             {config.result(resolveAnswers(config, answers)).map((r, i) => (
-              <li key={r.label}>
+              <li key={r.label} className={i === 0 ? 'top' : undefined}>
                 <span className="team-n" aria-hidden>{i + 1}</span>
                 <span className="team-body">
+                  {i === 0 && <span className="team-top">Start with this one</span>}
                   <strong>{r.label}</strong>
                   <span>{r.why}</span>
-                  {r.href ? <a href={r.href}>Go there →</a> : r.scrollTo ? <button type="button" className="linkish" onClick={() => jump(r.scrollTo!)}>Show me on this page ↓</button> : null}
+                  {r.href ? <a href={r.href} className={i === 0 ? 'btn' : undefined}>{i === 0 ? 'Start →' : 'Go there →'}</a> : r.scrollTo ? <button type="button" className="linkish" onClick={() => jump(r.scrollTo!)}>Show me on this page ↓</button> : null}
                 </span>
               </li>
             ))}
