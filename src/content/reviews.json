@@ -116,7 +116,7 @@
       "src/lib/saleDocs.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "6d84aa1b00cfa864",
+    "hash": "d787be44ee795aad",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "a007eaf90578a240",
+    "hash": "f91164b109b28933",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -388,7 +388,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "53745ce10ba762a2",
+    "hash": "1ab14926313bba6d",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {

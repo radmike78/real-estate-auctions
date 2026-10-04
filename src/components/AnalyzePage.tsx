@@ -7,7 +7,7 @@ import { CalcRegion } from './calcRegion';
 import { useMarkStep } from '../lib/path';
 import { useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, cleanDeal, forgetDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
+import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, carryDraftNumbers, cleanDeal, forgetDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
 import CheckFold from './CheckFold';
 import { linkLabel } from '../lib/linkLabel';
 
@@ -114,6 +114,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
 
   const saveNew = () => {
     const d = { ...deal, id: `d${Date.now().toString(36)}`, name: deal.name.trim() || `${countyName(deal.county)} deal` };
+    carryDraftNumbers(d.id, d.kind === 'listing' || d.kind === 'reo');
     const next = [d, ...saved];
     saveDeals(next);
     setSaved(next);
@@ -220,7 +221,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
 
       <h2 className="section-title" id="numbers" ref={numbersRef}>3. Run the numbers</h2>
       <CalcRegion.Provider value={{ state: deal.state, county: deal.county }}>
-        <Calculators key={`${deal.state}-${deal.county}-${deal.kind}`} initial={calcTabFor(deal.plan)} onTab={(k) => { const p = PLANS.find((x) => calcTabFor(x.key) === k)?.key; if (p && p !== deal.plan && plans.some((x) => x.key === p)) set({ plan: p }); }} state={deal.state} offer={deal.kind === 'listing' || deal.kind === 'reo'} />
+        <Calculators key={`${deal.id}-${deal.state}-${deal.county}-${deal.kind}`} dealId={deal.id || undefined} onAnalyze initial={calcTabFor(deal.plan)} onTab={(k) => { const p = PLANS.find((x) => calcTabFor(x.key) === k)?.key; if (p && p !== deal.plan && plans.some((x) => x.key === p)) set({ plan: p }); }} state={deal.state} offer={deal.kind === 'listing' || deal.kind === 'reo'} />
       </CalcRegion.Provider>
 
       {/* One clear next step once the numbers are in: keep the deal, then follow the buying steps for this kind of sale. */}

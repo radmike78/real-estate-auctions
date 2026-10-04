@@ -234,10 +234,38 @@ export function saveDeals(list: Deal[]) {
 
 const MAX_DEALS = 50;
 
-/** Forget everything kept for an analyzed deal besides the deal itself: its evidence log and roadmap progress. */
+/** The calculator numbers kept for an analyzed deal (rent, commercial and flip; offer and auction versions). */
+const dealCalcKeys = (id: string) => [
+  ...['rent', 'commercial'].flatMap((k) => [`fsf.calc.${k}.${id}.v1`, `fsf.calc.${k}.${id}-offer.v1`, `fsf.calc.${k}.${id}.v1.region`, `fsf.calc.${k}.${id}-offer.v1.region`]),
+  `fsf.bid.analyzed-${id}.v1`,
+];
+
+/** Forget everything kept for an analyzed deal besides the deal itself: its numbers, evidence log and roadmap progress. */
 export function forgetDeal(id: string) {
   removeLog(`analyzed:${id}`);
   forgetRoadmapDeal(`analyzed:${id}`);
+  try {
+    for (const k of dealCalcKeys(id)) localStorage.removeItem(k);
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+/** When a new deal is saved, the numbers typed before saving become that deal's numbers. */
+export function carryDraftNumbers(id: string, offer: boolean) {
+  try {
+    const moves: [string, string][] = [
+      [offer ? 'fsf.calc.rent.offer.v1' : 'fsf.calc.rent.v1', `fsf.calc.rent.${id}${offer ? '-offer' : ''}.v1`],
+      [offer ? 'fsf.calc.commercial.offer.v1' : 'fsf.calc.commercial.v1', `fsf.calc.commercial.${id}${offer ? '-offer' : ''}.v1`],
+      ['fsf.bid.analyze-draft.v1', `fsf.bid.analyzed-${id}.v1`],
+    ];
+    for (const [from, to] of moves) {
+      const v = localStorage.getItem(from);
+      if (v !== null) localStorage.setItem(to, v);
+    }
+  } catch {
+    /* storage unavailable */
+  }
 }
 
 /** A property the visitor found on DeedOwl, sent to Analyze so they don't retype it. */

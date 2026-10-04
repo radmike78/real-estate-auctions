@@ -135,7 +135,8 @@ const toNum = (v: string) => {
 const yr = (x: number | null) => (x === null ? '—' : `${Math.round(x * 100)}% a year`);
 const unitText = (u: Field['unit']) => (u === '$/500' ? 'per $500' : u === 'mo' ? 'months' : u === '%/yr' ? '% a year' : '%');
 
-export default function BidCalculator({ propertyId, defaults = START_INPUTS, openingBid, headingLevel = 3, commercial = false, offer = false }: { propertyId?: string; defaults?: BidInputs; openingBid?: number | null; headingLevel?: 2 | 3; commercial?: boolean; offer?: boolean }) {
+export default function BidCalculator({ propertyId, saveAs, defaults = START_INPUTS, openingBid, headingLevel = 3, commercial = false, offer = false }: { propertyId?: string; /** Keep the numbers under this id (a deal saved in Analyze) when there's no listing. */ saveAs?: string; defaults?: BidInputs; openingBid?: number | null; headingLevel?: 2 | 3; commercial?: boolean; offer?: boolean }) {
+  const storeId = propertyId ?? saveAs;
   // Words for an auction bid, or an offer on a listed home.
   const w = offer
     ? { bid: 'offer', Bid: 'Offer', opening: 'asking price', Opening: 'Asking price', max: 'Your maximum offer', day: 'at closing' }
@@ -157,7 +158,7 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
   }, [uid]);
   // The listing's opening bid is the starting point (older saved inputs didn't have it).
   const [i, setI] = useState<BidInputs>(() => {
-    const v0 = load(propertyId, propertyId ? defaults : { ...defaults, transferTaxPer500: tax.per500 });
+    const v0 = load(storeId, propertyId ? defaults : { ...defaults, transferTaxPer500: tax.per500 });
     // An offer has no auction cash limit, buyer's premium or redemption wait.
     const v = offer ? { ...v0, cashAvailable: 0, buyerPremiumPct: 0, redemptionMonths: 0, redemptionRatePct: 0, redemptionDaily: 0 } : v0;
     return !v.minimumBid && openingBid ? { ...v, minimumBid: openingBid } : v;
@@ -177,9 +178,9 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
   const bid = Math.min(toNum(bidText), 1e10);
   const H = headingLevel === 2 ? 'h2' : 'h3';
   const save = (next: BidInputs) => {
-    if (!propertyId) return;
+    if (!storeId) return;
     try {
-      localStorage.setItem(KEY(propertyId), JSON.stringify(next));
+      localStorage.setItem(KEY(storeId), JSON.stringify(next));
     } catch {
       /* storage unavailable */
     }
