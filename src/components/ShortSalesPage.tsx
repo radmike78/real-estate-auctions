@@ -138,7 +138,7 @@ export default function ShortSalesPage({ section }: { section?: string }) {
     <main className="page prose">
       <PageHero
         compact={open}
-        eyebrow={<span className="eyebrow">Voluntary sales · Nevada, California, Arizona and Utah</span>}
+        eyebrow={<span className="eyebrow">Voluntary sales · NV, CA, AZ, UT</span>}
         title={open ? <a className="title-link" href="#/short-sales">Short sales</a> : <>Short <span className="grad">sales</span></>}
         sub={
           open ? undefined : (

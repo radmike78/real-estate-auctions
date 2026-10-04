@@ -27,7 +27,7 @@ export default function HomeownerHelpPage() {
   return (
     <main className="page prose">
       <PageHero
-        eyebrow={<span className="eyebrow">Free help · Nevada, California, Arizona and Utah</span>}
+        eyebrow={<span className="eyebrow">Free help · NV, CA, AZ, UT</span>}
         title={<>Facing foreclosure? <span className="grad">Get free help.</span></>}
         sub="If you’re behind on your mortgage, HOA dues or property taxes, you likely have more options than scammers want you to think. Some deadlines are short, so act now."
       />

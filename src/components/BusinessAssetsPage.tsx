@@ -138,7 +138,7 @@ export default function BusinessAssetsPage({ section }: { section?: string }) {
     <main className="page prose">
       <PageHero
         compact={open}
-        eyebrow={<span className="eyebrow">Business assets &amp; closures · Nevada, California, Arizona and Utah</span>}
+        eyebrow={<span className="eyebrow">Business closures · NV, CA, AZ, UT</span>}
         title={open ? <a className="title-link" href="#/business-assets">Business assets &amp; closures</a> : <>Business assets <span className="grad">&amp; closures</span></>}
         sub={
           open ? undefined : (

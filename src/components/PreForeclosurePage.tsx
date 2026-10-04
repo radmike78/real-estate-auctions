@@ -172,7 +172,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
     <main className="page">
       <PageHero
         compact={guideOpen}
-        eyebrow={<span className="eyebrow">Not for sale yet · Tracker: Clark County, NV (feed coming soon) · Guide: NV, CA, AZ, UT</span>}
+        eyebrow={<span className="eyebrow">Not for sale yet · Guide: NV, CA, AZ, UT</span>}
         title={guideOpen ? <a className="title-link" href="#/pre-foreclosures">Pre-foreclosure tracker</a> : <>Pre-foreclosure <span className="grad">tracker</span></>}
         sub={guideOpen ? undefined : 'Follow homes from notice of default to auction, without contacting anyone.'}
       />
