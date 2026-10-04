@@ -164,7 +164,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
     <main className="page">
       <PageHero
         compact={open}
-        top={<a href={open ? base : '#/playbooks'}>{open ? `← ${stateByCode(stateOf(p))?.name ?? ''} ${p.short.toLowerCase()}` : '← All sale guides'}</a>}
+        top={<a href={open ? base : '#/playbooks'}>{open ? `← ${stateByCode(stateOf(p))?.name ?? ''} ${p.short.replace(/^[A-Z](?=[a-z])/, (c) => c.toLowerCase())}` : '← All sale guides'}</a>}
         eyebrow={<span className="eyebrow">{stateByCode(stateOf(p))?.name} guide{stateOf(p) === 'NV' ? ' · Clark County' : ''} · reviewed {fmtDate(p.lastReviewed)}</span>}
         title={open ? <a className="title-link" href={base}>{p.title}</a> : p.title}
         sub={open ? undefined : p.oneLine}
@@ -186,7 +186,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
         <section aria-labelledby="glance-head">
           <h2 id="glance-head" className="section-title">The key facts</h2>
           <dl className="glance-facts">
-            {p.glance.map((g) => <div key={g.label}><dt>{g.label}</dt><dd><Cited text={g.value} plain={boldNumbers} /></dd></div>)}
+            {p.glance.filter((g) => g.label !== 'What you get').map((g) => <div key={g.label}><dt>{g.label}</dt><dd><Cited text={g.value} plain={boldNumbers} /></dd></div>)}
           </dl>
         </section>
       )}

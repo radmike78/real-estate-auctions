@@ -43,7 +43,7 @@ export function guideDocs(): GuideDoc[] {
   for (const p of PLAYBOOKS) {
     const st = stateOf(p);
     // "California tax sales guide", so results from different states are easy to tell apart.
-    const page = `${stateByCode(st)?.name ?? ''}${st === 'NV' ? ' (Clark County)' : ''} ${p.short.toLowerCase()} guide`.trim();
+    const page = `${stateByCode(st)?.name ?? ''}${st === 'NV' ? ' (Clark County)' : ''} ${p.short.replace(/^[A-Z](?=[a-z])/, (c) => c.toLowerCase())} guide`.trim();
     docs.push({
       href: `#/playbooks/${p.key}`,
       page,

@@ -1,13 +1,14 @@
 import type { WhyPoint } from '../lib/lessons/types';
+import { Cited } from './Cited';
 
 function Point({ p }: { p: WhyPoint }) {
   return (
     <li>
       <span className="why-who">{p.who}</span>
-      <span className="why-text">{p.text}</span>
+      <span className="why-text"><Cited text={p.text} /></span>
       {p.example && (
         <span className="why-example">
-          <strong>Fact:</strong> {p.example}
+          <strong>Fact:</strong> <Cited text={p.example} />
           {p.source && <> <a href={p.source.url} target="_blank" rel="noopener noreferrer">{p.source.label} ↗</a></>}
         </span>
       )}
