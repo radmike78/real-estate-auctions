@@ -46,21 +46,21 @@ function GuideBody({ g }: { g: ProGuide }) {
     <div className="pro-guide" ref={ref}>
       {/* One short role summary, then the practical part (when, how to find, what to ask, how they're paid); background,
           the case for and against, and the stories after. */}
-      <p className="pro-guide-does">{g.does}</p>
+      <p className="pro-guide-does">{forStateText(st, g.does)}</p>
       <OnThisPage root={ref} selector="h3.part-head" />
       <h3 className="part-head">Hiring one</h3>
       <div className="pro-guide-cols">
         <section>
           <h3>When you need one</h3>
-          <ul>{g.when.map((x) => <li key={x}>{x}</li>)}</ul>
+          <ul>{fit(g.when).map((x) => <li key={x}>{x}</li>)}</ul>
         </section>
         <section>
           <h3>How to find one</h3>
-          <ul>{g.find.map((x) => <li key={x}>{x}</li>)}</ul>
+          <ul>{fit(g.find).map((x) => <li key={x}>{x}</li>)}</ul>
         </section>
         <section>
           <h3>Questions to ask</h3>
-          <ul>{g.ask.map((x) => <li key={x}>{x}</li>)}</ul>
+          <ul>{fit(g.ask).map((x) => <li key={x}>{x}</li>)}</ul>
         </section>
       </div>
       {PRO_DEEP[g.key] && (PRO_DEEP[g.key]!.money.length > 0 || PRO_DEEP[g.key]!.checklist.length > 0) && (

@@ -22,7 +22,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "When a property can be sold",
-      value: "After 5 years of unpaid taxes, or 3 years for nonresidential commercial property (R&T 3691). A county may choose to use 5 years for commercial property too."
+      value: "After 5 years of unpaid taxes, or 3 years for nonresidential commercial property (R&T 3691). A county may choose to use 5 years for commercial property too. A home or lot can also be sold after 3 years if a city, county, nonprofit or nuisance-abatement lienholder asks (R&T 3691(b))."
     },
     {
       label: "Notice",
@@ -46,7 +46,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Challenge window",
-      value: "About 1 year. A challenge must start with a petition to the board of supervisors within 1 year of the deed (R&T 3725)."
+      value: "At least 1 year, sometimes longer. A challenger must first petition the board of supervisors within 1 year of the deed. If the board says no, they have another year to sue (R&T 3725). The board can also cancel (rescind) the sale if the property should not have been sold. You get back only your price plus county interest, not repair money (R&T 3731)."
     }
   ],
   steps: [
@@ -80,7 +80,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Plan for the 1-year challenge period",
-      detail: "Anyone who claims the sale was invalid has 1 year from the deed to act. They must first petition the board of supervisors (R&T 3725). Los Angeles and San Diego counties both advise waiting about a year before making improvements. Many title companies will not insure until then."
+      detail: "Anyone who claims the sale was invalid has 1 year from the deed to petition the board of supervisors. If the board refuses, they have 1 more year to sue (R&T 3725). The board can also rescind the sale and refund only your price plus interest (R&T 3731). Los Angeles and San Diego counties both advise waiting about a year before making improvements. Many title companies will not insure until then."
     },
     {
       title: "Take possession the legal way",
@@ -100,7 +100,7 @@ export const STATE_GUIDES: Playbook[] = [
       "Unpaid 1915 Act bond assessments and Mello-Roos special taxes not paid from the sale proceeds",
       "Easements, separately held water rights and recorded restrictions",
       "Recorded public offers of dedication and public-agency purchase options",
-      "Some federal IRS liens",
+      "Some federal IRS liens. Even when the IRS lien is wiped out, the U.S. can buy the property back within 120 days of the sale (26 U.S.C. 7425(d))",
       "Public liens such as PACE, weed abatement or demolition liens (Los Angeles County example)"
     ]
   },
@@ -123,7 +123,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Spending heavily on improvements in the first year",
-      prevent: "The sale can be challenged for about a year. Many buyers wait until then and until title insurance is available."
+      prevent: "The sale can be challenged for at least a year. If it is rescinded, you get your price back but lose what you spent on repairs (R&T 3731). Many buyers wait until then and until title insurance is available."
     }
   ],
   example: {
@@ -155,6 +155,14 @@ export const STATE_GUIDES: Playbook[] = [
     {
       label: "California R&T Code 3725 (time to challenge a sale)",
       url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=3725"
+    },
+    {
+      label: "California R&T Code 3731 (board may rescind a tax sale)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=3731"
+    },
+    {
+      label: "26 U.S.C. 7425: federal tax liens and the 120-day redemption (Cornell LII)",
+      url: "https://www.law.cornell.edu/uscode/text/26/7425"
     },
     {
       label: "California R&T Code 4675 (excess proceeds claims)",
@@ -246,11 +254,11 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Get and record the trustee’s deed",
-      detail: "The trustee gives you a trustee’s deed after the sale is final and funds clear. A standard trustee sale has no redemption period afterward."
+      detail: "The trustee gives you a trustee’s deed after the sale is final and funds clear. The owner has no redemption period afterward. But if a federal tax lien was on the property, the U.S. can buy it back within 120 days (26 U.S.C. 7425(d))."
     },
     {
       title: "Handle occupants lawfully",
-      detail: "A former owner who stays can be served a 3-day notice to quit once title is perfected (CCP 1161a). Tenants generally get at least 90 days’ written notice. In many cases, a fixed-term lease can continue to its end (CCP 1161b). Local just-cause and relocation rules also apply (Civ 2924n). Use an eviction attorney."
+      detail: "A former owner who stays can be served a 3-day notice to quit once title is perfected (CCP 1161a). Tenants generally get at least 90 days’ written notice. In many cases, a fixed-term lease can continue to its end (CCP 1161b). Statewide and local just-cause rules also apply (Civ 1946.2, 2924n). In many rentals you need a legal reason to end the tenancy and may owe a month’s rent in relocation help. A notice that breaks these rules is void. Use an eviction attorney."
     }
   ],
   survives: {
@@ -262,7 +270,7 @@ export const STATE_GUIDES: Playbook[] = [
       "Senior loans and liens recorded ahead of the one being foreclosed",
       "Unpaid property taxes and government assessments",
       "Easements and recorded restrictions",
-      "Federal tax liens can have special rules. Ask a title company",
+      "Federal tax liens. Even when wiped out, the U.S. can buy the property back within 120 days (26 U.S.C. 7425(d)). Ask a title company",
       "Tenants’ rights under CCP 1161b, the federal Protecting Tenants at Foreclosure Act and local ordinances"
     ]
   },
@@ -282,6 +290,10 @@ export const STATE_GUIDES: Playbook[] = [
     {
       mistake: "Trying to remove occupants yourself",
       prevent: "Give the legally required notices and use the court process through an eviction attorney."
+    },
+    {
+      mistake: "Leaving a vacant house alone after you win",
+      prevent: "Once the sale is final, you must keep a vacant home’s outside cared for and keep out squatters and standing water. After a warning and time to fix it, the city or county can fine you up to $2,000 a day for 30 days, then up to $5,000 a day (Civ 2929.3). Budget to secure and check on it from day one."
     },
     {
       mistake: "Making deals with other bidders",
@@ -329,6 +341,22 @@ export const STATE_GUIDES: Playbook[] = [
     {
       label: "FDIC: Protecting Tenants at Foreclosure Act",
       url: "https://www.fdic.gov/consumer-compliance-examination-manual/v-16-protecting-tenants-foreclosure-act-2009"
+    },
+    {
+      label: "California Civil Code 2929.3 (fines for not maintaining a vacant foreclosed home)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2929.3"
+    },
+    {
+      label: "California Civil Code 1946.2 (statewide just-cause rules)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1946.2"
+    },
+    {
+      label: "California Civil Code 2924n (new owner must follow tenant laws)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2924n"
+    },
+    {
+      label: "26 U.S.C. 7425: federal tax liens and the 120-day redemption (Cornell LII)",
+      url: "https://www.law.cornell.edu/uscode/text/26/7425"
     }
   ],
   team: [TEAM.title, TEAM.attorney, TEAM.eviction, TEAM.insurance, TEAM.contractor, TEAM.lender],
@@ -362,7 +390,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Redemption",
-      value: "Only in some judicial foreclosures: 3 months if the sale covers the debt, 1 year if it does not (CCP 729.030)."
+      value: "Only in some judicial foreclosures: 3 months if the sale covers the debt, 1 year if it does not (CCP 729.030). Separately, if a federal lien was on the property, the U.S. can redeem for 1 year (120 days for IRS liens, or the state period if longer) (28 U.S.C. 2410(c))."
     },
     {
       label: "Redemption price",
@@ -412,7 +440,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Take possession lawfully",
-      detail: "After title is perfected, the former owner can be served a 3-day notice to quit (CCP 1161a). Tenants may have longer notice rights after a foreclosure (CCP 1161b). Use an eviction attorney."
+      detail: "After title is perfected, the former owner can be served a 3-day notice to quit (CCP 1161a). Tenants may have longer notice rights after a foreclosure (CCP 1161b). Use an eviction attorney. If you bought a vacant home in a foreclosure, keep its outside cared for and secured. The city or county can fine you up to $2,000 a day, then $5,000 a day (Civ 2929.3)."
     }
   ],
   survives: {
@@ -488,6 +516,14 @@ export const STATE_GUIDES: Playbook[] = [
     {
       label: "California Code of Civil Procedure 726 (judicial foreclosure)",
       url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=726"
+    },
+    {
+      label: "28 U.S.C. 2410(c): U.S. right to redeem (Cornell LII)",
+      url: "https://www.law.cornell.edu/uscode/text/28/2410"
+    },
+    {
+      label: "California Civil Code 2929.3 (fines for not maintaining a vacant foreclosed home)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2929.3"
     },
     {
       label: "Riverside County Sheriff: Sheriff’s Court Services and sales (example)",
@@ -1546,7 +1582,8 @@ export const STATE_GUIDES: Playbook[] = [
       "Liens the CC&Rs put ahead of the HOA lien",
       "Unpaid property taxes and government assessments",
       "HOA dues from the day you buy",
-      "The 90-day right of redemption after a nonjudicial sale (Civ 5715)"
+      "The 90-day right of redemption after a nonjudicial sale (Civ 5715)",
+      "Federal tax liens. Even when wiped out, the U.S. can buy the home back within 120 days of the sale (26 U.S.C. 7425(d))"
     ]
   },
   mistakes: [
@@ -1557,6 +1594,10 @@ export const STATE_GUIDES: Playbook[] = [
     {
       mistake: "Fixing up the home during the 90 days",
       prevent: "The sale can still be undone by redemption (Civ 5715). Limit spending to securing and insuring the property until the period ends."
+    },
+    {
+      mistake: "Leaving a vacant home alone after you win",
+      prevent: "You must keep a vacant home bought at a foreclosure sale cared for outside and free of squatters. After a warning, the city or county can fine you up to $2,000 a day, then $5,000 a day (Civ 2929.3)."
     },
     {
       mistake: "Bidding on a sale the HOA may not have been allowed to hold",
@@ -1608,6 +1649,14 @@ export const STATE_GUIDES: Playbook[] = [
     {
       label: "California Code of Civil Procedure 729.035 (redemption after an HOA sale)",
       url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=729.035"
+    },
+    {
+      label: "California Civil Code 2929.3 (fines for not maintaining a vacant foreclosed home)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2929.3"
+    },
+    {
+      label: "26 U.S.C. 7425: federal tax liens and the 120-day redemption (Cornell LII)",
+      url: "https://www.law.cornell.edu/uscode/text/26/7425"
     }
   ],
   team: [TEAM.attorney, TEAM.title, TEAM.lender, TEAM.insurance, TEAM.eviction, TEAM.contractor, TEAM.agent],
@@ -1801,7 +1850,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "HUD homes",
-      value: "Offers go through a HUD-registered broker. Since March 1, 2022, homes eligible for FHA 203(b) financing have a 30-day exclusive listing period. It is for owner-occupants, government entities and HUD-approved nonprofits (FHA INFO 2022-03). Investors can bid only after it ends."
+      value: "Offers go through a HUD-registered broker. For homes listed since May 30, 2025, owner-occupants, government entities and HUD-approved nonprofits get the first 15 days (5 days for homes marked “uninsured”). Investors can bid only after that (HUD Mortgagee Letter 2025-13)."
     },
     {
       label: "Freddie Mac (HomeSteps)",
@@ -1886,7 +1935,7 @@ export const STATE_GUIDES: Playbook[] = [
     lesson: "Owner-occupants can get an early shot at REO homes. But inspections replace the seller disclosures you’d normally get."
   },
   sources: [
-    { label: "HUD FHA INFO 2022-03: 30-day exclusive listing period", url: "https://www.hud.gov/sites/dfiles/SFH/documents/SFH_FHA_INFO_2022-03.pdf" },
+    { label: "HUD Mortgagee Letter 2025-13: 15-day exclusive listing period", url: "https://hud.gov/sites/dfiles/OCHCO/documents/2025-13hsgml.pdf" },
     {
       label: "HUD Home Store",
       url: "https://www.hudhomestore.gov/"
@@ -2000,7 +2049,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Check whether California’s equity purchaser law applies",
-      detail: "A special rule applies if the owner lives there, a notice of default is recorded, and you aren’t buying to live there. Then the contract must meet Civ 1695.2. The owner can cancel until midnight of the fifth business day after signing, or 8 a.m. on the sale day if sooner (Civ 1695.4). Until then you can’t record documents or pay the owner (Civ 1695.6). Have an attorney review it."
+      detail: "A special rule applies if the owner lives there, a notice of default is recorded, and you aren’t buying to live there. Then the contract must meet Civ 1695.2. The owner can cancel until midnight of the fifth business day after signing, or 8 a.m. on the sale day if sooner (Civ 1695.4). Until then you can’t record documents or pay the owner (Civ 1695.6). Saturdays count as business days (Civ 1695.1). If the deal takes unfair advantage of the owner, the owner can undo it for up to 2 years after your deed is recorded, and you must give the house back (Civ 1695.14). Have an attorney review it."
     },
     {
       title: "Inspect and review disclosures",
@@ -2037,7 +2086,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Ignoring the equity purchaser law as an investor",
-      prevent: "This applies if you won’t live there and a notice of default is recorded on an owner-occupied home. Have an attorney prepare a contract that follows the law (Civ 1695.1–1695.6)."
+      prevent: "This applies if you won’t live there and a notice of default is recorded on an owner-occupied home. A deal that takes unfair advantage of the owner can be undone for 2 years (Civ 1695.14). Have an attorney prepare a contract that follows the law (Civ 1695.1–1695.6)."
     },
     {
       mistake: "Assuming one approval is enough",
@@ -2069,6 +2118,10 @@ export const STATE_GUIDES: Playbook[] = [
     {
       label: "California Civil Code 1695.6 (equity purchaser limits)",
       url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1695.6"
+    },
+    {
+      label: "California Civil Code 1695.14 (owner’s 2-year right to rescind)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1695.14"
     },
     {
       label: "California Civil Code 2945.1 (foreclosure consultant definition)",
@@ -2105,7 +2158,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Seller disclosures",
-      value: "California’s Transfer Disclosure Statement doesn’t apply to property that isn’t single-family residential (Civ 1102.2). Your own research (due diligence) is the main protection."
+      value: "California’s Transfer Disclosure Statement doesn’t apply to property that isn’t single-family residential (Civ 1102(a)). Your own research (due diligence) is the main protection."
     },
     {
       label: "Property tax (Prop 13)",
@@ -2125,7 +2178,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Residential tenants",
-      value: "In apartment buildings bought after foreclosure, month-to-month tenants get 90 days’ written notice. Many fixed-term leases continue (CCP 1161b). Local just-cause rules can also apply."
+      value: "In apartment buildings bought after foreclosure, month-to-month tenants get 90 days’ written notice. Many fixed-term leases continue (CCP 1161b). Statewide just-cause rules (Civ 1946.2) and local rules can also apply, including relocation pay."
     }
   ],
   steps: [
@@ -2188,7 +2241,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Expecting a seller disclosure statement",
-      prevent: "The Transfer Disclosure Statement doesn’t cover commercial property (Civ 1102.2). Ask for reports and do your own inspections."
+      prevent: "The Transfer Disclosure Statement doesn’t cover commercial property (Civ 1102(a)). Ask for reports and do your own inspections."
     },
     {
       mistake: "Assuming tenants will keep paying",
@@ -2226,8 +2279,12 @@ export const STATE_GUIDES: Playbook[] = [
       url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=11911"
     },
     {
-      label: "California Civil Code 1102.2 (disclosure exemptions)",
-      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1102.2"
+      label: "California Civil Code 1102 (which sales need the Transfer Disclosure Statement)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1102"
+    },
+    {
+      label: "California Civil Code 1946.2 (statewide just-cause rules)",
+      url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1946.2"
     },
     {
       label: "California Civil Code 1938 (CASp statement in commercial leases)",
@@ -2598,7 +2655,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "HUD homes",
-      value: "Bids go through a HUD-registered broker. Since March 1, 2022, homes eligible for FHA 203(b) financing have a 30-day exclusive listing period. It is for owner-occupants, government entities and HUD-approved nonprofits (FHA INFO 2022-03). Investors can bid only after it ends"
+      value: "Bids go through a HUD-registered broker. For homes listed since May 30, 2025, owner-occupants, government entities and HUD-approved nonprofits get the first 15 days (5 days for homes marked “uninsured”). Investors can bid only after that (HUD Mortgagee Letter 2025-13)"
     },
     {
       label: "Fannie Mae (HomePath)",
@@ -2632,7 +2689,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Know the owner-occupant priority periods",
-      detail: "HUD: owner-occupants, government entities and HUD-approved nonprofits bid first, for 30 days, on homes eligible for FHA 203(b) financing (FHA INFO 2022-03). Ask the HUD-registered broker about other homes. Freddie Mac: First Look for the first 30 days in the MLS. Fannie Mae: a First Look period. Confirm the length on the listing. Fannie Mae’s owner-occupant buyers promise they’ll move in within 60 days of closing and live there at least a year. A false promise carries $10,000 in damages."
+      detail: "HUD: owner-occupants, government entities and HUD-approved nonprofits bid first, for 15 days (5 days for homes marked “uninsured”) (HUD Mortgagee Letter 2025-13). Freddie Mac: First Look for the first 30 days in the MLS. Fannie Mae: a First Look period. Confirm the length on the listing. Fannie Mae’s owner-occupant buyers promise they’ll move in within 60 days of closing and live there at least a year. A false promise carries $10,000 in damages."
     },
     {
       title: "Read the seller’s addendum before you sign",
@@ -2695,7 +2752,7 @@ export const STATE_GUIDES: Playbook[] = [
     lesson: "Bank-owned homes are sold as is. But your inspection period still gives you room to renegotiate or walk away. Use it fully."
   },
   sources: [
-    { label: "HUD FHA INFO 2022-03: 30-day exclusive listing period", url: "https://www.hud.gov/sites/dfiles/SFH/documents/SFH_FHA_INFO_2022-03.pdf" },
+    { label: "HUD Mortgagee Letter 2025-13: 15-day exclusive listing period", url: "https://hud.gov/sites/dfiles/OCHCO/documents/2025-13hsgml.pdf" },
     {
       label: "HUD Home Store",
       url: "https://www.hudhomestore.gov/"
@@ -3436,7 +3493,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "HUD homes",
-      value: "Bids go through a HUD-registered broker. Since March 1, 2022, homes eligible for FHA 203(b) financing have a 30-day exclusive listing period. It is for owner-occupants, government entities and HUD-approved non-profits."
+      value: "Bids go through a HUD-registered broker. For homes listed since May 30, 2025, owner-occupants, government entities and HUD-approved non-profits get the first 15 days (5 days for homes marked “uninsured”) (HUD Mortgagee Letter 2025-13)."
     },
     {
       label: "Condition",
@@ -3558,8 +3615,8 @@ export const STATE_GUIDES: Playbook[] = [
       url: "https://www.hudhomestore.gov/"
     },
     {
-      label: "HUD FHA INFO 2022-03: 30-day exclusive listing period",
-      url: "https://www.hud.gov/sites/dfiles/SFH/documents/SFH_FHA_INFO_2022-03.pdf"
+      label: "HUD Mortgagee Letter 2025-13: 15-day exclusive listing period",
+      url: "https://hud.gov/sites/dfiles/OCHCO/documents/2025-13hsgml.pdf"
     },
     {
       label: "Utah Code 57-1-28 (trustee’s deed, no redemption)",

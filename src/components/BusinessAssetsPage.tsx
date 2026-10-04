@@ -57,7 +57,7 @@ export const SECTIONS: DrillSection[] = [
         <li><strong>Buying the company takes its history.</strong> Buying the shares or membership interests brings its debts, lawsuits and tax bills with it. Get an attorney and a CPA.</li>
         <li><strong>Nevada tax clearance.</strong> If you buy all or part of a business or its stock of goods outside normal sales, hold back enough of the price until the seller gives you a receipt or certificate from the Department of Taxation. If you don’t, you can owe their unpaid state taxes, up to what you paid (NRS 360.525).</li>
         <li><strong>Liens on equipment.</strong> Lenders record UCC financing statements with the Nevada Secretary of State. A bankruptcy sale order can clear them; a sheriff or tax sale may not.</li>
-        <li><strong>Licenses don’t transfer.</strong> Business, liquor, health and contractor licenses are issued to the owner. Apply in your own name before you reopen.</li>
+        <li><strong>Licenses and permits.</strong> Many business, liquor, health and contractor licenses are issued to the owner and don’t simply pass to you. You may need a new license, a transfer approval or a change-of-ownership filing. Confirm with each agency that issued one before you reopen.</li>
         <li><strong>The lease and the name.</strong> The building lease usually needs the landlord’s consent. Trade names, websites and phone numbers must be included in the sale to be yours.</li>
       </ul>
     ),
@@ -78,9 +78,10 @@ export const SECTIONS: DrillSection[] = [
     summary: 'Why you go through the trustee, receiver or agency, not the owner or employees',
     content: () => (
       <p>
-        When a business is in bankruptcy, receivership or a tax seizure, the owner usually can’t sell its property anymore: the trustee, receiver or
-        agency controls it. Deal only with them, using the contact in the official notice. Don’t approach owners, employees or customers of a
-        struggling business with offers. It won’t get you a valid sale, and it adds pressure to people already having a hard time.
+        When a business is in receivership, a tax seizure or Chapter 7 bankruptcy, a receiver, agency or trustee controls its property. In Chapter 11 the
+        business itself may stay in charge as the “debtor in possession” and can sell with court approval (11 U.S.C. 1107, 363). Either way, the
+        seller and contact are named in the official notice or court papers. DeedOwl’s policy: deal only with that seller and contact. Don’t approach
+        owners, employees or customers of a struggling business with offers. It adds pressure to people already having a hard time.
       </p>
     ),
   },

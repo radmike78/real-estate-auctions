@@ -119,7 +119,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: 'A state tax clearance when you buy all or part of a business or its stock of goods', detail: 'Outside normal sales, hold back enough of the price until the seller gives you a receipt or certificate from the Department of Taxation. Otherwise you can owe their unpaid state taxes, up to what you paid (NRS 360.525). For a trustee or sheriff sale, ask the Department how this applies.' },
       { text: 'An inspection, and a plan for removal', detail: 'Items are sold as-is. Budget for rigging, transport and storage, and meet the pickup deadline.' },
       { text: 'Certified funds, and a deposit if required' },
-      { text: 'Your own licenses and permits', detail: 'Business licenses, liquor, health and contractor licenses don’t transfer with the assets. Apply in your own name.' },
+      { text: 'Your own licenses and permits', detail: 'Many business, liquor, health and contractor licenses don’t simply pass with the assets. You may need a new license, a transfer approval or a change-of-ownership filing. Confirm with each agency that issued one.' },
       { text: 'Leases, customer data and titles', detail: 'The building lease needs the landlord’s consent. Customer data may carry privacy limits. Vehicles need titles.' },
       { text: 'An attorney and a CPA for a whole business', detail: 'Buying assets and buying the company are very different for debts, taxes and liability.' },
     ],
