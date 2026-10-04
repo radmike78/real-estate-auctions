@@ -5,7 +5,7 @@ import { topicHref } from '../deep/propertyTopics';
 export const typesOfProperty: Lesson = {
   key: 'types',
   minutes: 15,
-  intro: 'Each kind of property has its own buyers, loans, costs and risks. Here’s what each one is and what an investor should know before buying one.',
+  intro: 'Each kind of property has its own buyers, loans, costs and risks. Here’s what each one is, and what you should know before you buy one.',
   takeaways: [
     'The main kinds of residential and commercial property.',
     'Which ones qualify for home loans, and which need commercial or cash financing.',
@@ -24,7 +24,7 @@ export const typesOfProperty: Lesson = {
               ['Single-family house', 'One home on its own lot.', 'The easiest to finance, rent and resell. Valued by comparable sales.'],
               ['Condo or townhouse', 'A home that shares walls or grounds with others, under an association (HOA). “Condo” is a way of owning: your unit plus a share of the common areas. A townhouse is a building style that may be a condo or come with its own lot.', 'HOA dues are paid on top of the mortgage. They can run from a few hundred to more than a thousand dollars a month. Read the HOA’s rules on renting.'],
               ['Duplex, triplex, fourplex (2–4 units)', 'One building or lot with two to four homes.', 'Still residential for lending. If you live in one unit, you can use a home loan, including FHA. With FHA, three or four units need more savings after closing, and the rents must cover the payment (FHA’s self-sufficiency test).'],
-              ['Manufactured home', 'A factory-built home made to the federal HUD Code.', 'Any built after June 15, 1976 must carry a HUD certification label. Whether the land is owned or rented changes the financing.'],
+              ['Manufactured home', 'A factory-built home made to the federal HUD Code.', 'Every one built after June 15, 1976 must carry a HUD certification label. Financing depends on whether you own the land under it or rent it.'],
             ],
           },
         },
@@ -65,7 +65,7 @@ export const typesOfProperty: Lesson = {
     {
       heading: 'Land',
       blocks: [
-        'Land can be the cheapest way in, but it’s the hardest to finance. Federal guidelines suggest banks lend no more than 65% of the value of raw land. That compares with 75% for land being developed and 85% for improved property. So expect a big down payment or to pay cash. Land earns no income until it’s used, and it can’t be depreciated for taxes.',
+        'Land can be the cheapest way in, but it’s the hardest to finance. Federal guidelines suggest banks lend no more than 65% of the value of raw land, compared with 75% for land being developed and 85% for improved property. So expect a big down payment, or plan to pay cash. Land earns no income until it’s used, and it can’t be depreciated for taxes.',
         'Before buying land, check the zoning, access, water, sewer or septic, and utilities with the county. Our guides point to each county’s records.',
         { why: { title: 'Raw land', ...W.land, more: { href: topicHref('land'), label: 'Learn more about raw land' } } },
       ],

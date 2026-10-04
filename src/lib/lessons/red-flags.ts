@@ -3,7 +3,7 @@ import type { Lesson } from './types';
 export const redFlags: Lesson = {
   key: 'red-flags',
   minutes: 7,
-  intro: 'Free real estate seminars are often the first step of a sales funnel. The funnel ends with coaching packages that cost tens of thousands of dollars. Federal and Utah regulators have shut several of them down. This lesson uses the court cases to show how those schemes worked. Then you can spot the pattern and keep your money for actual deals.',
+  intro: 'Free real estate seminars are often the first step of a sales funnel that ends with coaching packages costing tens of thousands of dollars. Federal and Utah regulators have shut several of them down. This lesson walks through those court cases so you can see how the schemes worked, spot the pattern and keep your money for actual deals.',
   takeaways: [
     'How the free event, paid workshop and coaching upsell funnel works.',
     'The warning signs regulators found again and again.',
@@ -19,7 +19,7 @@ export const redFlags: Lesson = {
           'A free event, often advertised with a TV personality from a house-flipping show.',
           'A three-day workshop for about $1,000 to $2,000, sold as a “beginner” course.',
           'At the workshop, a pitch for “advanced training,” coaching or a mentorship costing up to $30,000 to $41,000 more.',
-          'Promises that you can do deals with “other people’s money” or through a private funding network. This makes the price of the coaching seem small.',
+          'Promises that you can do deals with “other people’s money” or through a private funding network, which makes the price of the coaching seem small.',
         ] },
         'Most of the time in these events was spent selling the next step, not teaching how to buy property.',
       ],
@@ -30,7 +30,7 @@ export const redFlags: Lesson = {
         { table: {
           head: ['Case', 'What regulators found', 'Outcome'],
           rows: [
-            ['Nudge and Response Marketing (FTC and the Utah Division of Consumer Protection, filed 2019)', 'Free events led to workshops of about $1,000 and coaching of up to $30,000. More than 95% of surveyed seminar customers paid the company more than they made from real estate deals.', 'In 2023, the people who ran the companies agreed to pay $15 million. They were also banned from selling money-making opportunities. The celebrities who promoted it paid $1.7 million.'],
+            ['Nudge and Response Marketing (FTC and the Utah Division of Consumer Protection, filed 2019)', 'Free events led to workshops of about $1,000 and coaching of up to $30,000. More than 95% of surveyed seminar customers paid the company more than they made from real estate deals.', 'In 2023, the people who ran the companies agreed to pay $15 million and were banned from selling money-making opportunities. The celebrities who promoted it paid $1.7 million.'],
             ['Zurixx (FTC and the Utah Division of Consumer Protection, filed 2019)', 'Workshops cost $1,997 and add-ons up to $41,297. Presenters told people to open new credit cards or raise their limits, and to list a higher income than they earned. To get some refunds, people had to promise not to post bad reviews or contact regulators.', 'Settled in 2022. In 2024 the FTC mailed more than $12 million in refunds to 25,563 people.'],
           ],
         } },
@@ -56,7 +56,7 @@ export const redFlags: Lesson = {
     {
       heading: 'Don’t borrow to learn or to bid',
       blocks: [
-        'Never use borrowed money for training, coaching or an auction deposit. That means no credit card, no home equity line of credit and no loan from your 401(k). Card interest has averaged over 20% a year (Federal Reserve). You owe it whether or not a deal ever happens. A home equity line puts the home you live in at risk. A 401(k) loan that isn’t repaid on schedule is treated as a withdrawal. Then you owe income tax on it. You may also owe a 10% early-withdrawal tax if you’re under 59½ (IRS).',
+        'Never use borrowed money for training, coaching or an auction deposit. That means no credit card, no home equity line of credit and no loan from your 401(k). Card interest has averaged over 20% a year (Federal Reserve). You owe it whether or not a deal ever happens. A home equity line puts the home you live in at risk. If a 401(k) loan isn’t repaid on schedule, it’s treated as a withdrawal: you owe income tax on it, and you may also owe a 10% early-withdrawal tax if you’re under 59½ (IRS).',
         'Most forced sales, including tax sales and trustee’s sales, require cash or certified funds soon after the auction. Most also don’t refund your money if the property has problems. Only bid money you can afford to lose.',
         'Everything you need to start is free: county sale rules, public records, the lessons on this site, and your library.',
       ],
@@ -64,7 +64,7 @@ export const redFlags: Lesson = {
     {
       heading: 'Check a company and report it',
       blocks: [
-        'Before you pay anyone, search the company’s name. Add the words “complaint,” “lawsuit” or “FTC” to the search. Ask for the refund policy in writing and read it before the event ends.',
+        'Before you pay anyone, search the company’s name along with the word “complaint,” “lawsuit” or “FTC.” Ask for the refund policy in writing and read it before the event ends.',
         { links: [
           { label: 'FTC: report fraud', url: 'https://reportfraud.ftc.gov/', what: 'Report a seminar, coaching program or investment scam to the Federal Trade Commission.' },
           { label: 'Nevada Attorney General: file a consumer complaint', url: 'https://ag.nv.gov/Complaints/File_Complaint/', what: 'Nevada’s Bureau of Consumer Protection takes complaints about businesses.' },

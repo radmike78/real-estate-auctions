@@ -140,7 +140,7 @@ export const STRATEGIES: Strategy[] = [
   {
     key: 'househack',
     title: 'Live in one unit, rent the others',
-    what: 'Buy a 2–4 unit home, live in one unit and rent the rest. Home-loan terms, with rent helping pay the mortgage.',
+    what: 'Buy a 2–4 unit home, live in one unit and rent out the rest. You get home-loan terms, and the rent helps pay the mortgage.',
     weights: {
       goal: { income: 2, growth: 2, quick: 0, handsoff: -1, learn: 2 },
       cash: { under10: -2, '10to50': 3, '50to150': 2, over150: 1 },
@@ -160,7 +160,7 @@ export const STRATEGIES: Strategy[] = [
     checklist: [
       { id: 'hh-lesson', text: 'Read the traditional financing lesson: FHA and VA loans for a home you’ll live in.', href: '#/learn/financing' },
       { id: 'hh-lender', text: 'Talk to a licensed loan officer about pre-approval for a 2–4 unit home you’ll live in.', href: '#/pros/lender' },
-      { id: 'hh-reserves', text: 'Save for closing costs and reserves: FHA loans on 3–4 units need three months of payments in savings after closing, and the rents must pass FHA’s self-sufficiency test.' },
+      { id: 'hh-reserves', text: 'Save for closing costs and reserves. An FHA loan on 3–4 units needs three months of payments left in savings after closing, and the rents must pass FHA’s self-sufficiency test.' },
       { id: 'hh-rules', text: 'Learn your state’s landlord-tenant rules and any local rent rules.' },
       { id: 'hh-agent', text: 'Find a buyer’s agent who knows small multi-unit homes.', href: '#/pros/agent' },
       { id: 'hh-numbers', text: 'Run the numbers with the rent from the other units, including vacancy and repairs.', href: '#/analyze?plan=rent' },
@@ -320,7 +320,7 @@ export const STRATEGIES: Strategy[] = [
   {
     key: 'apartments',
     title: 'Apartments and commercial property',
-    what: 'Buy income property valued by its income: apartment buildings, retail, office or industrial, alone or with partners.',
+    what: 'Buy property that’s valued by the income it brings in: apartment buildings, retail, office or industrial, on your own or with partners.',
     weights: {
       goal: { income: 3, growth: 2, quick: 0, handsoff: 1, learn: -1 },
       cash: { under10: -4, '10to50': -2, '50to150': 0, over150: 3 },
@@ -332,7 +332,7 @@ export const STRATEGIES: Strategy[] = [
       market: { res: -2, com: 5, unsure: 0 },
     },
     risk: {
-      worst: 'Income falls short of the loan payment. Commercial loans can have balloon payments and personal guarantees.',
+      worst: 'The income doesn’t cover the loan payment. Commercial loans can come with balloon payments and personal guarantees.',
       atRisk: 'A larger down payment than on a home loan, plus reserves and the cost of inspections and reports.',
       ongoing: 'Every loan payment, tax bill and repair, even when units are empty. A personal guarantee can make you owe more than the property is worth, and a balloon payment can force a sale or refinance at a bad time.',
       time: 'Months: commercial due diligence and loans take longer than for a house.',
@@ -367,7 +367,7 @@ export const STRATEGIES: Strategy[] = [
     },
     checklist: [
       { id: 'ps-lesson', text: 'Read the lesson on who invests where, including how REITs work.', href: '#/learn/who' },
-      { id: 'ps-reit', text: 'Know the difference: listed REIT shares sell any market day; listed share prices can drop sharply; non-traded REITs are hard to sell and upfront fees can reach about 9–10%.' },
+      { id: 'ps-reit', text: 'Know the difference. Listed REIT shares can be sold any market day, but their prices can drop sharply. Non-traded REITs are hard to sell, and their upfront fees can reach about 9–10%.' },
       { id: 'ps-private', text: 'Private deals are often limited to accredited investors. Check the sponsor and read every document.', href: '#/learn/creative' },
       { id: 'ps-advisor', text: 'Talk with a licensed financial advisor about how it fits your plan.' },
       { id: 'ps-later', text: 'Keep learning: you can move to owning property directly later.', href: '#/learn' },
@@ -446,7 +446,7 @@ export function stateNote(key: StrategyKey, state?: string): string | null {
   if (key === 'auction' && st === 'CA') return 'In California, winning bids on homes of one to four units aren’t final until tenants and other eligible buyers have had 15 to 45 days to match them.';
   if (key === 'auction' && st === 'NV') return 'Our step-by-step guides cover each kind of sale in Clark County, Nevada.';
   if (key === 'auction' && st === 'UT') return 'Utah counties hold their tax sale each May or June, after four years of unpaid taxes.';
-  if ((key === 'househack' || key === 'rental') && st === 'CA') return 'California limits most rent increases to 10%, or 5% plus inflation if lower, in 12 months, with exemptions. Check the rules for your property.';
+  if ((key === 'househack' || key === 'rental') && st === 'CA') return 'California limits most rent increases in a 12-month period to 5% plus inflation or 10%, whichever is lower. There are exemptions, so check the rules for your property.';
   return null;
 }
 

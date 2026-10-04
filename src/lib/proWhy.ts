@@ -41,7 +41,7 @@ export const PRO_WHY = {
       {
         who: "Tax-sale and courthouse-auction buyer",
         text: "Skip one for county tax sales and trustee auctions. The county or trustee runs the sale, so a buyer’s agent has no deal to manage. You may still want an agent’s price estimate before you bid.",
-        example: "In Sonoma County, California, the treasurer-tax collector says legal title to a tax-defaulted parcel comes only from winning the county’s auction.",
+        example: "In Sonoma County, California, the treasurer-tax collector says the only way to get legal title to a tax-defaulted parcel is to win the county’s auction.",
         source: {
           label: "Sonoma County (CA) Treasurer-Tax Collector, Tax-defaulted property auctions FAQs",
           url: "https://sonomacounty.gov/administrative-support-and-fiscal-services/auditor-controller-treasurer-tax-collector/divisions/revenue-accounting/tax-defaulted-property-auctions/tax-defaulted-property-auctions-faqs"
@@ -85,7 +85,7 @@ export const PRO_WHY = {
       {
         who: "Trustee-sale (foreclosure auction) buyer",
         text: "Courthouse and trustee auctions expect cash or cashier’s checks. A normal mortgage can’t close in time.",
-        example: "California Civil Code 2924h lets the trustee require every bidder to show they can pay the full final bid. Payment can be cash, a cashier’s check or a designated cash equivalent.",
+        example: "In California, the trustee can require every bidder to show they can pay the full final bid in cash, a cashier’s check or a designated cash equivalent (Civil Code 2924h).",
         source: {
           label: "California Civil Code section 2924h (trustee’s sale bidding)",
           url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2924h"
@@ -93,8 +93,8 @@ export const PRO_WHY = {
       },
       {
         who: "Buyer of a fixer-upper",
-        text: "Defer a standard mortgage if the home needs major repairs. Many loans require the home to meet property standards, so a renovation loan or cash may fit better.",
-        example: "The CFPB notes a lender may require major repairs, like a new roof, before closing. This can be a condition of the loan.",
+        text: "Hold off on a standard mortgage if the home needs major repairs. Many loans require the home to meet property standards, so a renovation loan or cash may be a better fit.",
+        example: "The CFPB notes a lender may make major repairs, like a new roof, a condition of the loan that has to be done before closing.",
         source: {
           label: "CFPB, Schedule a home inspection",
           url: "https://www.consumerfinance.gov/owning-a-home/close/schedule-a-home-inspection/"
@@ -122,7 +122,7 @@ export const PRO_WHY = {
       },
       {
         who: "Experienced investor with a clear exit",
-        text: "Say you have a solid, tested plan to sell or refinance within months. If so, the speed can be worth the higher cost."
+        text: "If you have a solid, tested plan to sell or refinance within months, the speed can be worth the higher cost."
       }
     ],
     no: [
@@ -148,7 +148,7 @@ export const PRO_WHY = {
     yes: [
       {
         who: "Every buyer",
-        text: "A neutral title and escrow company holds the money and papers. It only releases them when every condition is met. That protects both sides."
+        text: "A neutral title and escrow company holds the money and papers and releases them only when every condition is met. That protects both sides."
       },
       {
         who: "Anyone wiring closing funds",
@@ -176,7 +176,7 @@ export const PRO_WHY = {
     no: [
       {
         who: "Tax-sale buyer",
-        text: "Defer the policy, not the search: title insurers often won’t insure a tax deed right away. You may need to wait or file a quiet title action first.",
+        text: "Put off the policy, not the search: title insurers often won’t insure a tax deed right away. You may need to wait or file a quiet title action first.",
         example: "Sonoma County, California tells tax-sale buyers that most title companies won’t insure title for one year after the tax deed is recorded.",
         source: {
           label: "Sonoma County (CA) Treasurer-Tax Collector, Tax-defaulted property auctions FAQs",
@@ -229,7 +229,7 @@ export const PRO_WHY = {
       {
         who: "Anyone on a tight budget",
         text: "Hourly fees add up. Ask for a written fee agreement and an estimate before work starts.",
-        example: "In California, an attorney must put the fee contract in writing when the total expected cost to the client will exceed $1,000 (with some exceptions).",
+        example: "In California, an attorney has to put the fee agreement in writing when you’re expected to pay more than $1,000 in total (with some exceptions).",
         source: {
           label: "California Business and Professions Code section 6148 (attorney fee agreements)",
           url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=BPC&sectionNum=6148"
@@ -305,7 +305,7 @@ export const PRO_WHY = {
       },
       {
         who: "Anyone hiring out work in California",
-        text: "In California, a license is required for any job of $1,000 or more, and for a smaller job that needs a permit or uses helpers. Hiring licensed also gives you the state’s complaint process.",
+        text: "In California, you need a licensed contractor for any job of $1,000 or more, and for a smaller job that needs a permit or uses helpers. Hiring someone licensed also gives you the state’s complaint process.",
         example: "In a May 2024 sting in Merced, CSLB referred 11 people for misdemeanor charges for contracting without a license.",
         source: {
           label: "California Contractors State License Board press release, Merced sting (May 21, 2024)",
@@ -321,7 +321,7 @@ export const PRO_WHY = {
       {
         who: "Anyone on a tight budget",
         text: "An unlicensed ‘handyman’ may be cheaper but often has no insurance. You could be liable for injuries or bad work.",
-        example: "In Nevada, contracting without a license is a misdemeanor on the first offense. On the third, it is a Class E felony (NRS 624.700).",
+        example: "In Nevada, contracting without a license is a misdemeanor on the first offense. On a third offense, it’s a Class E felony (NRS 624.700).",
         source: {
           label: "Nevada State Contractors Board, Unlicensed contracting: penalties and law",
           url: "https://www.nvcontractorsboard.com/investigations/unlicensed-contracting-penalties-law/"
@@ -355,7 +355,7 @@ export const PRO_WHY = {
       {
         who: "Buyer of a vacant foreclosure or flip",
         text: "Standard policies can stop covering certain losses when a building sits empty. You may need a vacant-property policy.",
-        example: "California’s standard fire policy form says the insurer isn’t liable for loss while a building is vacant or unoccupied beyond 60 days in a row. That holds unless the policy says otherwise.",
+        example: "In California, the standard fire policy form says the insurer isn’t required to pay for a loss once a building has been vacant or unoccupied for more than 60 days in a row, unless the policy says otherwise.",
         source: {
           label: "California Insurance Code section 2071 (standard form fire policy)",
           url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=INS&sectionNum=2071"
@@ -399,7 +399,7 @@ export const PRO_WHY = {
       {
         who: "Landlord with a full-time job",
         text: "Worth it if your rental may show a loss and you have a job. Passive activity rules limit those losses, and a CPA can tell you how much you can deduct.",
-        example: "IRS Publication 925 lets active participants deduct up to $25,000 of rental losses against other income. This phases out between $100,000 and $150,000 of modified AGI, and is smaller, or zero, if you’re married filing separately.",
+        example: "If you actively take part in running the rental, you can deduct up to $25,000 of rental losses against other income. This phases out between $100,000 and $150,000 of modified AGI, and is smaller, or zero, if you’re married filing separately (IRS Publication 925).",
         source: {
           label: "IRS Publication 925, Passive Activity and At-Risk Rules",
           url: "https://www.irs.gov/publications/p925"
@@ -408,7 +408,7 @@ export const PRO_WHY = {
       {
         who: "New landlord",
         text: "Depreciation is a major rental deduction, and part of it is taxed back when you sell. A CPA can set it up correctly from the start.",
-        example: "IRS Publication 527 says residential rental buildings are depreciated over 27.5 years under the general system.",
+        example: "Residential rental buildings are depreciated over 27.5 years under the general system (IRS Publication 527).",
         source: {
           label: "IRS Publication 527, Residential Rental Property",
           url: "https://www.irs.gov/publications/p527"
@@ -479,7 +479,7 @@ export const PRO_WHY = {
       {
         who: "Everyone",
         text: "Check that the manager is properly licensed in the state where the property is.",
-        example: "Nevada law makes it unlawful to act as a property manager without a real estate license and a property management permit (NRS 645.230).",
+        example: "In Nevada, it’s against the law to work as a property manager without a real estate license and a property management permit (NRS 645.230).",
         source: {
           label: "Nevada Revised Statutes chapter 645, NRS 645.230 and 645.6052",
           url: "https://www.leg.state.nv.us/NRS/NRS-645.html"
@@ -500,7 +500,7 @@ export const PRO_WHY = {
       {
         who: "Landlord",
         text: "Evictions must go through the courts. An eviction attorney helps you get the notices and filings right the first time.",
-        example: "In 2022, California’s Attorney General said the only lawful way to evict a tenant is to file a lawsuit. Then you wait for the court to order the sheriff or marshal to carry it out.",
+        example: "In 2022, California’s Attorney General said the only legal way to evict a tenant is to file a lawsuit and wait for the court to order the sheriff or marshal to carry it out.",
         source: {
           label: "California Attorney General press release on unlawful lockouts (July 13, 2022)",
           url: "https://oag.ca.gov/node/555214"
@@ -532,7 +532,7 @@ export const PRO_WHY = {
       {
         who: "Auction buyer",
         text: "Count eviction time and cost in your bid. The county or trustee generally won’t do it for you.",
-        example: "Sonoma County, California tells tax-sale buyers it does not handle foreclosure or eviction processes.",
+        example: "Sonoma County, California tells tax-sale buyers it doesn’t handle foreclosures or evictions.",
         source: {
           label: "Sonoma County (CA) Treasurer-Tax Collector, Tax-defaulted property auctions FAQs",
           url: "https://sonomacounty.gov/administrative-support-and-fiscal-services/auditor-controller-treasurer-tax-collector/divisions/revenue-accounting/tax-defaulted-property-auctions/tax-defaulted-property-auctions-faqs"
@@ -540,7 +540,7 @@ export const PRO_WHY = {
       },
       {
         who: "Everyone",
-        text: "Never change locks, shut off utilities or remove belongings to force someone out. That holds even with help from a ‘process server’."
+        text: "Never change locks, shut off utilities or remove belongings to force someone out, even if a ‘process server’ offers to help."
       },
       {
         who: "Landlord with a simple case",
@@ -553,25 +553,25 @@ export const PRO_WHY = {
       { who: "Investor setting a maximum bid", text: "An appraiser gives a written opinion of value. Ask for two numbers: the value as it stands today (\"as is\") and the value after repairs. Then set your top bid so the deal still works after repair costs." },
       { who: "Cash buyer with no lender", text: "If you pay cash, no lender checks the price for you. Hire your own state-licensed or certified appraiser. You get an independent second look before you commit your money.", example: "In a scheme run from Utah, beginner investors bought West Virginia homes using false appraisals that about doubled their value. One home appraised at $645,000 had been under contract for $355,000. It later sold in a short sale (a sale for less than the loan balance) for $282,500.", source: { label: "U.S. Attorney, S.D. West Virginia (2012)", url: "https://www.justice.gov/archive/usao/wvs/press_releases/Nov2012/attachments/110512Morris-sentencing.html" } },
       { who: "Investor planning to refinance", text: "When you refinance, your lender may order a new appraisal and may charge you a fair fee for it. That value helps decide how much you can borrow. So plan your numbers around a realistic value.", source: { label: "CFPB: What are appraisals?", url: "https://www.consumerfinance.gov/ask-cfpb/what-are-appraisals-and-why-do-i-need-to-look-at-them-en-167/" } },
-      { who: "Any buyer using a first mortgage on a home", text: "Federal law (the Equal Credit Opportunity Act, Regulation B) says your lender must give you a free copy of every appraisal. You get it right after it’s finished or at least three business days before closing, whichever comes first.", source: { label: "CFPB: Regulation B § 1002.14", url: "https://www.consumerfinance.gov/rules-policy/regulations/1002/14/" } },
+      { who: "Any buyer using a first mortgage on a home", text: "Your lender has to give you a free copy of every appraisal. You get it right after it’s finished or at least three business days before closing, whichever comes first (federal Equal Credit Opportunity Act, Regulation B).", source: { label: "CFPB: Regulation B § 1002.14", url: "https://www.consumerfinance.gov/rules-policy/regulations/1002/14/" } },
     ],
     no: [
       { who: "Auction buyer who can’t go inside", text: "At many foreclosure and tax sales you can’t get inside before you bid. Then an appraiser has to work from the outside and public records. Hidden damage won’t show up in the value. Treat that number as rough and keep a big repair cushion." },
       { who: "Buyer getting a Fannie Mae-backed mortgage", text: "Don’t pay for your own appraisal expecting the lender to use it. Fannie Mae says lenders choose the appraiser. They may not use appraisals ordered by borrowers or others with an interest in the deal. Yours can still help you decide what to offer.", source: { label: "Fannie Mae Selling Guide B4-1.1-03", url: "https://selling-guide.fanniemae.com/sel/b4-1.1-03/appraiser-selection-criteria" } },
       { who: "Anyone treating the number as a fact", text: "An appraisal is an opinion of value on a certain date. It can be wrong or even biased. You can ask the lender to reconsider the value. Point out errors or better comparable sales. But each lender’s process is different.", example: "A Baltimore couple said their home appraised at $472,000 while family photos were up. A second appraisal, after they took the photos down, came in at $750,000.", source: { label: "CFPB blog (Mar. 13, 2023)", url: "https://www.consumerfinance.gov/about-us/blog/protecting-homeowners-from-discriminatory-home-appraisals/" } },
-      { who: "Flipper selling within six months", text: "Say you bought the home less than six months ago, and your buyer gets a higher-priced mortgage. The buyer’s lender may need a second appraisal with an inside inspection. That applies when the price is more than 10% higher within 90 days. It also applies when it is more than 20% higher within 91 to 180 days.", source: { label: "CFPB: Flipped homes and second appraisals", url: "https://www.consumerfinance.gov/ask-cfpb/i-was-told-im-buying-a-home-that-was-flipped-and-that-i-have-to-get-a-second-appraisal-how-does-that-work-en-1799/" } },
+      { who: "Flipper selling within six months", text: "If you bought the home less than six months ago and your buyer gets a higher-priced mortgage, the buyer’s lender may need a second appraisal with an inside inspection. That applies when your resale price is more than 10% above what you paid within 90 days, or more than 20% above it within 91 to 180 days.", source: { label: "CFPB: Flipped homes and second appraisals", url: "https://www.consumerfinance.gov/ask-cfpb/i-was-told-im-buying-a-home-that-was-flipped-and-that-i-have-to-get-a-second-appraisal-how-does-that-work-en-1799/" } },
     ],
   },
   environmental: {
     yes: [
       {
         who: "Buyer of commercial, industrial or vacant land",
-        text: "A Phase I environmental site assessment looks for signs of past pollution before you buy. Think old gas stations or dry cleaners."
+        text: "A Phase I environmental site assessment looks for signs of past pollution, like from an old gas station or dry cleaner, before you buy."
       },
       {
         who: "Anyone buying former industrial property",
-        text: "Do All Appropriate Inquiries before you buy. It can protect you from federal cleanup liability under CERCLA (Superfund).",
-        example: "EPA says AAI done to the ASTM E1527-21 standard can support protection in three roles. These are innocent landowner, contiguous property owner or bona fide prospective purchaser.",
+        text: "Do “All Appropriate Inquiries” (AAI) before you buy. Doing them can protect you from federal cleanup liability under CERCLA (Superfund).",
+        example: "EPA says AAI done to the ASTM E1527-21 standard can help protect you as an innocent landowner, a contiguous property owner or a bona fide prospective purchaser.",
         source: {
           label: "U.S. EPA, Brownfields All Appropriate Inquiries",
           url: "https://www.epa.gov/brownfields/brownfields-all-appropriate-inquiries"
@@ -603,7 +603,7 @@ export const PRO_WHY = {
       {
         who: "Everyone",
         text: "A Phase I is mostly a records review, interviews and a site visit. Testing soil or water is a separate Phase II. So a ‘clean’ Phase I isn’t a guarantee.",
-        example: "EPA lists Phase II sampling and analysis as beyond the scope of the AAI rule. The same goes for lead paint, mold, radon and asbestos.",
+        example: "EPA says Phase II sampling and analysis fall outside the AAI rule, and so do lead paint, mold, radon and asbestos.",
         source: {
           label: "U.S. EPA, Brownfields All Appropriate Inquiries",
           url: "https://www.epa.gov/brownfields/brownfields-all-appropriate-inquiries"
