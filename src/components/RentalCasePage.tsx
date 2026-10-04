@@ -3,7 +3,7 @@ import { downloadText } from '../lib/download';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import { PracticeRibbon } from './PracticePage';
-import { CASE_PROPERTY, CASE_TITLE, N, RENTAL_CASE, tasksFor, type CaseDoc, type CaseStage, type CaseTask, type Verdict } from '../practice/rentalCase';
+import { CASE_PROPERTY, CASE_TITLE, N, RENTAL_CASE, tasksFor, walkedFrom, type CaseDoc, type CaseStage, type CaseTask, type Verdict } from '../practice/rentalCase';
 import { docGuide } from '../lib/docGuides';
 import DocGuideView from './DocGuideView';
 import { emptyCase, loadCase, saveCase, type CaseProgress } from '../practice/caseProgress';
@@ -68,7 +68,7 @@ export default function RentalCasePage({ stageKey }: { stageKey?: string }) {
       ) : stage ? (
         <StageView stage={stage} n={idx + 1} p={p} update={update} done={stageDone(stage)} />
       ) : (
-        <Start p={p} doneStages={doneStages} onReset={() => { saveCase(emptyCase()); setP(emptyCase()); }} />
+        <Start p={p} doneStages={doneStages} onReset={() => { if (!window.confirm('Start over? This clears your answers and your deal packet.')) return; saveCase(emptyCase()); setP(emptyCase()); }} />
       )}
     </main>
   );
@@ -227,9 +227,14 @@ function Choice({ t, k, p, update, finish, stageKey }: { t: Extract<CaseTask, { 
       const ch = t.choices[i];
       let next: CaseProgress = { ...x, answers: { ...x.answers, [k]: i }, first: x.first[k] ? x.first : { ...x.first, [k]: ch.verdict } };
       if (ch.verdict !== 'poor') next = finish(next);
-      // Choosing to walk away marks the step; changing your mind to another answer clears it.
+      // The walk-away follows your answers: choosing it marks the step, changing it clears it, and an answer that
+      // brings a walk-away answer back into view brings the walk-away back. "Keep going" (walked cleared while a walk
+      // answer is still showing) holds until one of those happens.
+      const before = walkedFrom(x.answers);
+      const after = walkedFrom(next.answers);
       if (ch.walk && ch.verdict !== 'poor') next = { ...next, walked: stageKey };
-      else if (next.walked === stageKey) next = { ...next, walked: undefined };
+      else if (!after) next = { ...next, walked: undefined };
+      else if (after !== before) next = { ...next, walked: after };
       return next;
     });
   return (
@@ -375,7 +380,9 @@ export function packetSections(p: CaseProgress): { title: string; rows: string[]
       if (t.kind === 'choice' && typeof a === 'number' && t.choices[a]) decisions.push(`${st.title}: ${t.choices[a].label} (${VERDICT[t.choices[a].verdict].toLowerCase()})`);
       if (t.kind === 'write' && typeof a === 'string' && a) questions.push(`To the ${t.to.toLowerCase()}: ${a}`);
     }
-  const firsts = Object.values(p.first);
+  // First tries count only for questions you can see now (a counteroffer you no longer face doesn't count).
+  const visible = new Set(RENTAL_CASE.flatMap((st) => tasksFor(st, p.answers).map((t) => key(st, t))));
+  const firsts = Object.entries(p.first).filter(([k]) => visible.has(k)).map(([, v]) => v);
   const strong = firsts.filter((v) => v === 'best' || v === 'ok' || v === 'right').length;
   const walkedAt = RENTAL_CASE.find((s) => s.key === p.walked);
   return [

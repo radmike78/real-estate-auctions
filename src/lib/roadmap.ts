@@ -127,7 +127,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'lender', phase: 2, path: AGENT, title: 'Get pre-approved, or document your cash',
-    guides: ['loan-estimate'], evidence: 'terms',
+    guides: ['loan-estimate'],
     text: 'Sellers want to know you can pay. With a loan, that’s a pre-approval from a licensed loan officer. Paying cash, it’s proof of funds.',
     outcome: 'A pre-approval letter and a written quote (rate, down payment, closing costs and the reserves the lender wants), or, paying cash, a current proof of funds.',
     steps: ['Ask two or three lenders for a quote on the same loan, so you can compare.', 'Check each loan officer’s license on NMLS Consumer Access.', 'Ask what conditions could still stop the loan after you’re approved.', 'Paying cash instead: get a recent bank or brokerage statement, or a letter from your bank, showing the money is available. Keep it current, and show only the account that holds it.'],

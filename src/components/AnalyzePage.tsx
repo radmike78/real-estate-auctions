@@ -7,7 +7,7 @@ import { CalcRegion } from './calcRegion';
 import { useMarkStep } from '../lib/path';
 import { useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, cleanDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
+import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, cleanDeal, forgetDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
 import CheckFold from './CheckFold';
 import { linkLabel } from '../lib/linkLabel';
 
@@ -122,6 +122,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const remove = (id: string) => {
     const next = saved.filter((d) => d.id !== id);
     saveDeals(next);
+    forgetDeal(id);
     setSaved(next);
     if (deal.id === id) setDeal(blank(deal.state));
   };

@@ -144,6 +144,16 @@ export function tasksFor(st: CaseStage, answers: Record<string, unknown>): CaseT
   return st.tasks.filter((t) => !t.if || t.if.is.includes(answers[`${st.key}/${t.if.task}`] as number));
 }
 
+/** The step where your answers say you walked away, if any: the first one with a walk-away answer showing. */
+export function walkedFrom(answers: Record<string, unknown>): string | undefined {
+  for (const st of RENTAL_CASE)
+    for (const t of tasksFor(st, answers)) {
+      const a = answers[`${st.key}/${t.id}`];
+      if (t.kind === 'choice' && typeof a === 'number' && t.choices[a]?.walk && t.choices[a].verdict !== 'poor') return st.key;
+    }
+  return undefined;
+}
+
 /** Steps before this one have no contract yet: walking away there costs nothing. */
 export const CONTRACT_FROM = 'offer';
 
@@ -575,6 +585,7 @@ export const RENTAL_CASE: CaseStage[] = [
       {
         kind: 'choice',
         id: 'counter',
+        if: { task: 'respond', is: [0] },
         prompt: `The seller agrees to take ${$(offer - renegotiated)} off: a new price of ${$(renegotiated)}. With the repairs paid by you, you’d need ${$(N.cashRenegotiated)} of your ${$(N.investable)}. Do you accept before Day 10?`,
         choices: [
           { label: 'Accept in writing before Day 10.', verdict: 'ok', why: `You’d keep ${$(N.investable - N.cashRenegotiated)} beyond the lender’s reserves. Tight, but inside your plan, and the reserves are there for a bad month.` },
@@ -582,6 +593,17 @@ export const RENTAL_CASE: CaseStage[] = [
           { label: 'Wait until Day 12 to decide.', verdict: 'poor', why: 'After Day 10, this contract’s inspection period is over. You’d lose the right to cancel for the inspection, and maybe your deposit.' },
         ],
         ifDifferent: 'Both accepting and walking away are defensible here. What matters is that you decide on the numbers, in writing, before the deadline.',
+      },
+      {
+        kind: 'choice',
+        id: 'repairs-reply',
+        if: { task: 'respond', is: [2] },
+        prompt: `The seller won’t manage contractors from out of state. Instead they offer ${$(offer - renegotiated)} off the price: a new price of ${$(renegotiated)}, and you handle the repairs. With the repairs paid by you, you’d need ${$(N.cashRenegotiated)} of your ${$(N.investable)}. Do you accept before Day 10?`,
+        choices: [
+          { label: 'Accept in writing before Day 10.', verdict: 'ok', why: `You’d keep ${$(N.investable - N.cashRenegotiated)} beyond the lender’s reserves, and you choose the contractors and check the permits yourself.`, log: `Asked the seller to make the repairs. They offered ${$(offer - renegotiated)} off instead, and you accepted in writing.` },
+          { label: 'Cancel before Day 10.', verdict: 'ok', walk: true, why: 'Also reasonable: the roof and water heater are coming, and your cushion is thin. Walking away with your deposit is a fine result.' },
+          { label: 'Wait until Day 12 to decide.', verdict: 'poor', why: 'After Day 10, this contract’s inspection period is over. You’d lose the right to cancel for the inspection, and maybe your deposit.' },
+        ],
       },
       {
         kind: 'write',
@@ -654,15 +676,15 @@ export const RENTAL_CASE: CaseStage[] = [
         id: 'low-appraisal',
         prompt: 'It’s Day 15. What do you do about the low appraisal?',
         choices: [
-          { label: `Ask the seller to lower the price to ${$(appraised)}, using your appraisal contingency.`, verdict: 'best', why: 'The appraisal is independent evidence. Most sellers know another buyer’s lender would see the same value.' },
-          { label: 'Pay the difference from your cushion.', verdict: 'ok', why: `It works, but it shrinks a thin cushion further. Ask first; paying is your fallback.` },
+          { label: `Ask the seller to lower the price to ${$(appraised)}, using your appraisal contingency.`, verdict: 'best', why: `The appraisal is independent evidence. Most sellers know another buyer’s lender would see the same value. Here the seller agrees: the new price is ${$(finalPrice)}.` },
+          { label: 'Pay the difference from your cushion.', verdict: 'ok', why: `It works, but it shrinks a thin cushion further. Ask first; paying is your fallback. In this case your agent asks anyway and the seller agrees to ${$(finalPrice)}, so the rest of the purchase uses that price.` },
           { label: 'Cancel before Day 17 and get the deposit back.', verdict: 'ok', walk: true, why: 'Reasonable if your cushion can’t take it. Your appraisal contingency protects your deposit until Day 17.' },
         ],
       },
       {
         kind: 'choice',
         id: 'title-stop',
-        prompt: `The seller agrees to ${$(finalPrice)}. In the title commitment, which item could stop your closing if nobody deals with it?`,
+        prompt: `The price is now ${$(finalPrice)}. In the title commitment, which item could stop your closing if nobody deals with it?`,
         choices: [
           { label: '#2: the roofer’s mechanic’s lien', verdict: 'best', why: 'It’s a recorded claim against the house. In Nevada, a mechanic’s lien lapses after 6 months unless the contractor sues to enforce it, but the title company still wants it released or cleared on the record before closing. Ask the title officer how, and whether a lawsuit was filed.' },
           { label: '#1: the old deed of trust', verdict: 'ok', why: 'It must be cleared too, but paying off the seller’s loan at closing is routine. The roofer’s lien is the unusual one.' },

@@ -1,32 +1,17 @@
-import { useEffect, useRef, useState } from 'react';
-import { emptyRow, EVIDENCE_AREAS, GATES, loadLog, logText, saveLog, type EvidenceLog as Log, type EvidenceRow } from '../lib/evidence';
+import { useEffect, useState } from 'react';
+import { emptyRow, EVIDENCE_AREAS, EVIDENCE_EVENT, GATES, loadLog, logText, saveLog, type EvidenceLog as Log, type EvidenceRow } from '../lib/evidence';
 import { downloadText, fileName } from '../lib/download';
 
 /** For one deal: what you verified, where it came from and what's still open, then the decision it supports. */
 export default function EvidenceLog({ dealId, name }: { dealId: string; name: string }) {
   const [log, setLog] = useState<Log>(() => loadLog(dealId));
-  // Save shortly after typing stops, and right away if the page changes before then.
-  const pending = useRef<Log | null>(null);
-  useEffect(() => {
-    if (pending.current === null) return; // nothing typed yet: don't write on first view
-    const t = setTimeout(() => {
-      if (pending.current) saveLog(dealId, pending.current);
-      pending.current = null;
-    }, 400);
-    return () => clearTimeout(t);
-  }, [dealId, log]);
-  useEffect(
-    () => () => {
-      if (pending.current) saveLog(dealId, pending.current);
-    },
-    [dealId],
-  );
-  const update = (f: (l: Log) => Log) =>
-    setLog((l) => {
-      const next = f(l);
-      pending.current = next;
-      return next;
-    });
+  useReloadOnSave(dealId, setLog);
+  // Saved on every change, so another editor of the same deal (a roadmap step) never works from an old copy.
+  const update = (f: (l: Log) => Log) => {
+    const next = f(loadLog(dealId));
+    saveLog(dealId, next);
+    setLog(next);
+  };
   const done = EVIDENCE_AREAS.filter((a) => log.rows[a.key]?.done).length;
   const openCount = EVIDENCE_AREAS.filter((a) => (log.rows[a.key]?.open ?? '').trim()).length;
   const set = (key: string, patch: Partial<EvidenceRow>) => update((l) => ({ ...l, rows: { ...l.rows, [key]: { ...(l.rows[key] ?? emptyRow()), ...patch } } }));
@@ -77,14 +62,16 @@ export default function EvidenceLog({ dealId, name }: { dealId: string; name: st
 export function EvidenceArea({ dealId, dealName, area, askFinding }: { dealId: string; dealName: string; area: string; askFinding?: boolean }) {
   const a = EVIDENCE_AREAS.find((x) => x.key === area);
   const [log, setLog] = useState<Log>(() => loadLog(dealId));
+  useReloadOnSave(dealId, setLog);
   if (!a) return null;
   const r = log.rows[a.key] ?? emptyRow();
-  const set = (patch: Partial<EvidenceRow>) =>
-    setLog((l) => {
-      const next = { ...l, rows: { ...l.rows, [a.key]: { ...(l.rows[a.key] ?? emptyRow()), ...patch } } };
-      saveLog(dealId, next);
-      return next;
-    });
+  // Built from what's stored now, so edits made in another editor of this deal are kept.
+  const set = (patch: Partial<EvidenceRow>) => {
+    const l = loadLog(dealId);
+    const next = { ...l, rows: { ...l.rows, [a.key]: { ...(l.rows[a.key] ?? emptyRow()), ...patch } } };
+    saveLog(dealId, next);
+    setLog(next);
+  };
   return (
     <div className="evidence-step">
       <h4>For {dealName}: {a.title}</h4>
@@ -100,4 +87,15 @@ export function EvidenceArea({ dealId, dealName, area, askFinding }: { dealId: s
       {askFinding && !r.finding.trim() && <p className="caution" role="status">You marked this step done. Write what you found above, so this deal’s evidence log shows it.</p>}
     </div>
   );
+}
+
+/** Reload this deal's log when another editor saves it. */
+function useReloadOnSave(dealId: string, setLog: (l: Log) => void) {
+  useEffect(() => {
+    const on = (e: Event) => {
+      if ((e as CustomEvent<string>).detail === dealId) setLog(loadLog(dealId));
+    };
+    window.addEventListener(EVIDENCE_EVENT, on);
+    return () => window.removeEventListener(EVIDENCE_EVENT, on);
+  }, [dealId, setLog]);
 }

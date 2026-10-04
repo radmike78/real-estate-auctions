@@ -1,4 +1,6 @@
 import type { SaleType } from '../types';
+import { removeLog } from './evidence';
+import { forgetRoadmapDeal } from './roadmapDeals';
 // Analyze a Deal (step 6): the visitor describes a deal (state, county, kind of sale, plan) and gets the checklist for
 // that sale in that state. Every rule here comes from the Learn lessons and their sources. Deals are kept in this browser.
 import { COUNTY_OFFICES } from './countyOffices';
@@ -222,10 +224,20 @@ export function loadDeals(): Deal[] {
 
 export function saveDeals(list: Deal[]) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(list.slice(0, 50)));
+    localStorage.setItem(KEY, JSON.stringify(list.slice(0, MAX_DEALS)));
   } catch {
     /* private mode: kept for this visit only */
   }
+  // Deals past the limit are dropped: forget their evidence and roadmap progress too.
+  for (const d of list.slice(MAX_DEALS)) forgetDeal(d.id);
+}
+
+const MAX_DEALS = 50;
+
+/** Forget everything kept for an analyzed deal besides the deal itself: its evidence log and roadmap progress. */
+export function forgetDeal(id: string) {
+  removeLog(`analyzed:${id}`);
+  forgetRoadmapDeal(`analyzed:${id}`);
 }
 
 /** A property the visitor found on DeedOwl, sent to Analyze so they don't retype it. */

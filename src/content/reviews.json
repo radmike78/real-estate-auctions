@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "06c1a5e8b489ad95",
+    "hash": "4124212f71dfec26",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -171,7 +171,7 @@
       "src/lib/evidence.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "a50d86f09314a176",
+    "hash": "f57db2bf1d61b73d",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -351,7 +351,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "afd707d809bc634f",
+    "hash": "4f14d1c7755b4b76",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -388,7 +388,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "3f854aa7869150e8",
+    "hash": "53745ce10ba762a2",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {
@@ -401,7 +401,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "4e61860bf2953474",
+    "hash": "eb386927983d2afd",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

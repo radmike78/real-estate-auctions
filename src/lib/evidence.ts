@@ -95,7 +95,12 @@ export function saveLog(dealId: string, log: EvidenceLog) {
   } catch {
     /* storage unavailable: the log lasts for this visit */
   }
+  // Several editors can show the same deal (My deals, and each roadmap step): tell the others to reload.
+  if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent(EVIDENCE_EVENT, { detail: dealId }));
 }
+
+/** Fired after a deal's log is saved; `detail` is the deal id. */
+export const EVIDENCE_EVENT = 'deedowl:evidence';
 
 export const emptyRow = (): EvidenceRow => ({ ...EMPTY_ROW });
 
