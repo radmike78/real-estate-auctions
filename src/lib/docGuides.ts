@@ -91,7 +91,7 @@ export const DOC_GUIDES: DocGuide[] = [
     parts: [
       { part: 'License and insurance', look: 'The contractor’s license number and proof of insurance. Check the number with your state’s contractor board (Nevada: NSCB; California: CSLB; Arizona: Registrar of Contractors; Utah: DOPL).', who: 'The contractor provides them; you check.' },
       { part: 'Scope', look: 'Each item of work, the materials, what’s excluded, and who gets permits.', who: 'You write the scope; the contractor prices it.', example: 'Replace 30 ft of sewer line from the cleanout to the street connection, including permit, digging and restoring the yard.' },
-      { part: 'Price and payment schedule', look: 'The total, and payments tied to finished work, not mostly up front.', who: 'The contractor proposes; you negotiate.', example: '10% to start, 40% when the line is in and inspected, 50% when the yard is restored and the permit is signed off.' },
+      { part: 'Price and payment schedule', look: 'The total, and payments tied to finished work, not mostly up front. Some states cap the down payment: in California, a home improvement down payment can’t be more than $1,000 or 10% of the price, whichever is less (Business and Professions Code 7159). Ask your state’s contractor board for its rules.', who: 'The contractor proposes; you negotiate.', example: 'On a $7,500 sewer job: $750 to start (in California, $750 is under both limits), then payments when the line is in and inspected, and the rest when the yard is restored and the permit is signed off.' },
       { part: 'Lien releases', look: 'A release from the contractor and major suppliers each time you pay, so nobody can lien your property for work you already paid for.', who: 'The contractor provides them; you ask for each one before the next payment.' },
     ],
     changes: 'Any change in the work, the price or the timeline goes in a written change order signed by both of you before the extra work starts.',
@@ -118,10 +118,11 @@ export const DOC_GUIDES: DocGuide[] = [
       { part: 'Who made the report', look: 'The name, address and phone number of the consumer reporting company.', who: 'You fill it in from the report.' },
       { part: 'Who decided', look: 'A statement that the reporting company didn’t make the decision and can’t explain why it was made.', who: 'Standard wording you include.' },
       { part: 'The applicant’s rights', look: 'Their right to a free copy of the report if they ask within 60 days, and to dispute anything inaccurate or incomplete with the reporting company.', who: 'Standard wording you include.' },
-      { part: 'Credit score', look: 'If you used a credit score, the score and the key factors that affected it.', who: 'You fill it in from the report.' },
+      { part: 'Screening report vs. credit score', look: 'A screening or credit report is the file of records. A credit score is a number a model calculates from it. If you used only the report, the parts above are enough. If you used a score, the score parts below are required too.', who: 'You, from what the reporting company sent you.' },
+      { part: 'Credit score (when you used one)', look: 'In writing or electronically, not just by phone: the score, who provided it, the date it was created, the range of possible scores under that model, and the key factors that hurt it, in order of importance.', who: 'You fill it in from the score disclosure the reporting company gives you.', example: 'Score 588 (range 300–850), provided by Example Credit Bureau, created May 2. Key factors: 1. Collections on file. 2. High balances compared with limits. 3. Recent late payments.' },
     ],
     changes: 'Apply the same written screening criteria to every applicant, and follow fair housing law. If the reason came from someone other than a reporting company, such as a former landlord you called, tell the applicant, when you give the decision, that they can ask in writing within 60 days for the nature of that information (FCRA section 615(b)). Ask an attorney whether this applies to your rental.',
-    corrected: 'Keep a copy of the notice, the criteria you applied, and the date you gave it.',
+    corrected: 'Keep a copy of the notice, the criteria you applied, and the date you gave it. Your state or city may add screening rules (for example, limits on fees or on what you can consider); ask a local landlord attorney. Source: FTC, “Using Consumer Reports: What Landlords Need to Know.”',
   },
 ];
 

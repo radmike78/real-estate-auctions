@@ -1994,7 +1994,7 @@ export const STATE_GUIDES: Playbook[] = [
       url: "https://www.boe.ca.gov/proptaxes/faqs/changeinownership.htm"
     }
   ],
-  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.contractor, TEAM.insurance],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.offerInspector, TEAM.insurance],
   lastReviewed: "2026-10-03",
   state: 'CA'
 },
@@ -2141,7 +2141,7 @@ export const STATE_GUIDES: Playbook[] = [
       url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1102.2"
     }
   ],
-  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.attorney, TEAM.contractor],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.attorney, TEAM.offerInspector],
   lastReviewed: "2026-10-03",
   state: 'CA'
 },
@@ -2803,7 +2803,7 @@ export const STATE_GUIDES: Playbook[] = [
       url: "https://azdor.gov/sites/default/files/2023-03/PROPERTY_PropertyClassification.pdf"
     }
   ],
-  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.contractor, TEAM.insurance],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.offerInspector, TEAM.insurance],
   lastReviewed: "2026-10-03",
   state: 'AZ'
 },
@@ -2945,7 +2945,7 @@ export const STATE_GUIDES: Playbook[] = [
       url: "#/short-sales"
     }
   ],
-  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.contractor, TEAM.attorney],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.offerInspector, TEAM.attorney],
   lastReviewed: "2026-10-03",
   state: 'AZ'
 },
@@ -3628,7 +3628,7 @@ export const STATE_GUIDES: Playbook[] = [
       url: "#/bank-owned"
     }
   ],
-  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.contractor, TEAM.insurance],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.offerInspector, TEAM.insurance],
   lastReviewed: "2026-10-03",
   state: 'UT'
 },
@@ -3766,7 +3766,7 @@ export const STATE_GUIDES: Playbook[] = [
       url: "#/short-sales"
     }
   ],
-  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.contractor, TEAM.attorney],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.offerInspector, TEAM.attorney],
   lastReviewed: "2026-10-03",
   state: 'UT'
 },

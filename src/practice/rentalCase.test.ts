@@ -124,3 +124,10 @@ describe('walk-aways follow the answers', () => {
     expect(ids(2)).not.toContain('counter');
   });
 });
+
+describe('known replacements', () => {
+  it('budgets the roof and water heater, and the cash flow reflects it', () => {
+    expect(N.replaceMonthly).toBe(325);
+    expect(N.cashFlowWithReplacements).toBe(N.cashFlow - (N.replaceMonthly - N.setAside));
+  });
+});

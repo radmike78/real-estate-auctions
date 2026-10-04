@@ -61,7 +61,7 @@
       "src/components/SidCertificates.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "afc2ad672c8ba444",
+    "hash": "458af6aabb5340fd",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -71,7 +71,7 @@
       "src/components/PreForeclosurePage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "f1e5503a015b2f54",
+    "hash": "3ebbefb27d28de82",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -116,7 +116,7 @@
       "src/lib/saleDocs.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "d787be44ee795aad",
+    "hash": "7a050a07779d7726",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "76fed330273b3d9a",
+    "hash": "052f1c830b441f08",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -351,7 +351,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "8dfac8257e2f784c",
+    "hash": "5857d400dc7cb0b4",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {

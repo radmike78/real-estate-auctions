@@ -165,7 +165,9 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
       {!guideOpen && rows.length === 0 && (
         <EmptyState title="No notices to track yet">
           <p>Notices of default and sale will appear here once our feed of Clark County Recorder filings is connected.</p>
-          <p>Until then, read how the process works in the guide below.</p>
+          <p>Until then, read how the process works in the guide below. Homes in foreclosure aren’t for sale until the trustee’s auction or later, when a bank owns them.</p>
+          <p className="empty-next"><strong>Buying your first rental?</strong> You don’t have to wait for an auction. Most first rentals are bought from a listing: <a href="#/toolkit/buy-box">write your buy box</a>, ask a buyer’s agent for listings that match it, look at <a href="#/bank-owned">bank-owned homes</a>, or <a href="#/practice/case">practice a purchase</a> first.</p>
+
         </EmptyState>
       )}
 
