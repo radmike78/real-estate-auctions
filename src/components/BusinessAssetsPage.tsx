@@ -57,7 +57,7 @@ export const SECTIONS: DrillSection[] = [
         <li><strong>Assets are simpler.</strong> Buying equipment or inventory usually leaves the old company’s debts behind, as long as liens are cleared and state taxes are settled, unless the deal is really a merger or continuation of the old business. Ask an attorney.</li>
         <li><strong>Buying the company takes its history.</strong> Buying the shares or membership interests brings its debts, lawsuits and tax bills with it. Get an attorney and a CPA.</li>
         <li><strong>Nevada tax clearance.</strong> If you buy all or part of a business or its stock of goods, other than in the seller’s normal sales, hold back enough of the price until the seller gives you a receipt or certificate from the Department of Taxation. If you don’t, you can owe their unpaid state taxes, up to what you paid (NRS 360.525).</li>
-        <li><strong>Liens on equipment.</strong> Lenders record UCC financing statements with the Nevada Secretary of State. A bankruptcy sale order can clear them; a sheriff or tax sale may not.</li>
+        <li><strong>Liens on equipment.</strong> Lenders file UCC financing statements in the state where the business is organized: for a Nevada LLC or corporation, with the Nevada Secretary of State; for an out-of-state company, in that state (NRS 104.9307). For vehicles, the lien shows on the title. A bankruptcy sale order can clear these liens; a sheriff or tax sale may not.</li>
         <li><strong>Licenses and permits.</strong> Many business, liquor, health and contractor licenses are issued to the owner and don’t simply pass to you. You may need a new license, a transfer approval or a change-of-ownership filing. Confirm with each agency that issued one before you reopen.</li>
         <li><strong>The lease and the name.</strong> The building lease usually needs the landlord’s consent. Trade names, websites and phone numbers must be included in the sale to be yours.</li>
       </ul>
@@ -79,7 +79,7 @@ export const SECTIONS: DrillSection[] = [
               <li><strong>Bill of sale</strong> <span>For equipment, inventory or other assets. Check it lists exactly what you’re buying, says whether it’s sold free of liens or “as-is”, and is signed by the official seller.</span></li>
               <li><strong>Asset purchase agreement</strong> <span>For a whole business or a large group of assets. Check what’s included and excluded, which debts or contracts come with it, and any court approval it needs. Have an attorney review it.</span></li>
               <li><strong>The court order or sale notice</strong> <span>Shows who has the authority to sell, and on what terms.</span></li>
-              <li><strong>A lien search</strong> <span>A UCC search shows loans secured by the assets. Ask whether the sale clears them.</span></li>
+              <li><strong>A lien search</strong> <span>A UCC search in the state where the seller is organized shows loans secured by the assets. Ask whether the sale clears them.</span></li>
             </ul>
           </div>
           <ScriptBox to="The trustee, receiver or agency named on the notice" script="“I’m interested in [the assets] in [case or sale]. Are they sold free and clear of liens, or as-is? Does the sale need court approval? What deposit do you need, how do I submit a bid, and what’s the deadline to remove the assets?”" note="Ask only the official seller. Never approach the owners, employees or customers." />

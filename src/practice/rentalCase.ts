@@ -354,7 +354,7 @@ export const RENTAL_CASE: CaseStage[] = [
           ['Dwelling coverage', '$260,000'],
           ['Liability', '$300,000'],
           ['Not covered', 'Flood. Earthquake.'],
-          ['Vacancy limit', 'Theft and vandalism aren’t covered if the home is empty more than 60 days in a row'],
+          ['Vacancy limit', 'Vandalism and glass breakage aren’t covered if the home is empty more than 60 days in a row'],
         ],
       },
     ],
@@ -386,7 +386,7 @@ export const RENTAL_CASE: CaseStage[] = [
         prompt: 'What does the insurance policy’s 60-day vacancy limit mean for you?',
         choices: [
           { label: 'Plan to rent it within 60 days of closing, or ask the agent about vacancy coverage while repairs run long.', verdict: 'best', why: 'Repairs plus finding a tenant can easily take 2 months. Know what’s covered before the home sits empty.' },
-          { label: 'Nothing. Insurance covers everything once you have a policy.', verdict: 'poor', why: 'Policies have limits and exclusions. This one already excludes flood, earthquake, and theft after 60 empty days.' },
+          { label: 'Nothing. Insurance covers everything once you have a policy.', verdict: 'poor', why: 'Policies have limits and exclusions. This one already excludes flood, earthquake, and vandalism after 60 empty days.' },
         ],
       },
       {
@@ -619,7 +619,7 @@ export const RENTAL_CASE: CaseStage[] = [
         id: 'title-stop',
         prompt: `The seller agrees to ${$(finalPrice)}. In the title commitment, which item could stop your closing if nobody deals with it?`,
         choices: [
-          { label: '#2: the roofer’s mechanic’s lien', verdict: 'best', why: 'Unless it’s paid or released, the lien could follow the house to you. Ask the title officer how the seller will clear it before closing.' },
+          { label: '#2: the roofer’s mechanic’s lien', verdict: 'best', why: 'It’s a recorded claim against the house. In Nevada, a mechanic’s lien lapses after 6 months unless the contractor sues to enforce it, but the title company still wants it released or cleared on the record before closing. Ask the title officer how, and whether a lawsuit was filed.' },
           { label: '#1: the old deed of trust', verdict: 'ok', why: 'It must be cleared too, but paying off the seller’s loan at closing is routine. The roofer’s lien is the unusual one.' },
           { label: '#5: the utility easement', verdict: 'poor', why: 'A rear utility easement is common and usually harmless. It stays, but it rarely affects a rental.' },
         ],
@@ -735,7 +735,7 @@ export const RENTAL_CASE: CaseStage[] = [
         options: [
           { label: 'Give the EPA pamphlet “Protect Your Family From Lead in Your Home”', right: true, why: 'Required for most housing built before 1978.' },
           { label: 'Tell the tenant about any lead paint or hazards you know of, and share any reports', right: true, why: 'Required, even if you know of none (then you say so).' },
-          { label: 'Include the lead warning statement in the lease, signed', right: true, why: 'Required, and keep a copy for at least 3 years.' },
+          { label: 'Include the lead warning statement in the lease, signed', right: true, why: 'Required, and keep a copy for at least 3 years from the start of the lease.' },
           { label: 'Test the home for lead before you can rent it', right: false, why: 'Federal disclosure rules don’t require a test. Some local rules or programs might, so check yours.' },
         ],
       },
@@ -764,7 +764,7 @@ export const RENTAL_CASE: CaseStage[] = [
         id: 'nv-entry',
         prompt: 'In Nevada, your tenant’s faucet leaks and you want to fix it. What notice do you give before going in?',
         choices: [
-          { label: 'At least 24 hours’ notice, and enter at reasonable times, unless it’s an emergency or the tenant agrees to sooner.', verdict: 'best', why: 'That’s Nevada’s rule (NRS 118A.330).' },
+          { label: 'At least 24 hours’ notice, and enter only during normal business hours, unless it’s an emergency or the tenant agrees otherwise.', verdict: 'best', why: 'That’s Nevada’s rule (NRS 118A.330).' },
           { label: 'None. You own the house.', verdict: 'poor', why: 'Once it’s rented, the tenant has the right to possession. In Nevada, give 24 hours’ notice except in an emergency.' },
         ],
       },

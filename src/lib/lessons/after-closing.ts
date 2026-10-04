@@ -30,7 +30,7 @@ export const afterClosing: Lesson = {
       heading: 'Finding and screening tenants',
       blocks: [
         'Use the same written criteria for every applicant, such as income, rental history and credit, and apply them the same way. The federal Fair Housing Act bans discrimination because of race, color, national origin, religion, sex, familial status or disability. State and local laws can add more protected groups.',
-        'For housing built before 1978, landlords must do two things before the lease is signed: tell tenants about any lead-based paint and hazards they know of, and give them the EPA’s lead pamphlet. The lease needs the federal Lead Warning Statement, a list of any lead records or reports, and the tenant’s signed acknowledgment. Keep a copy for three years.',
+        'For most housing built before 1978, landlords must do two things before the lease is signed: tell tenants about any lead-based paint and hazards they know of, and give them the EPA’s lead pamphlet. The lease needs the federal Lead Warning Statement, a list of any lead records or reports, and the tenant’s signed acknowledgment. Keep a copy for three years.',
         'If you turn someone down, or ask for a cosigner, a bigger deposit or higher rent, because of a credit or screening report, federal law says you must tell them. Give the screening company’s name, address and phone number. Say that the company didn’t make the decision and can’t explain it. Tell them they can get a free copy of their report within 60 days and dispute anything wrong. If you used a credit score, more is required, including the score itself. Written notice is best, so you have a record (FTC: Using Consumer Reports: What Landlords Need to Know).',
         'Use a written lease that follows your state’s landlord-tenant law. A local property manager or real estate attorney can help with both.',
         'The papers to have ready before you rent:',
@@ -69,10 +69,10 @@ export const afterClosing: Lesson = {
       heading: 'Entering the unit and raising the rent',
       blocks: [
         { list: [
-          'In Nevada, give at least 24 hours’ notice before entering, and enter only at reasonable times during normal business hours, except in an emergency (NRS 118A.330). There’s no statewide rent control.',
+          'In Nevada, give at least 24 hours’ notice before entering, and enter only at reasonable times during normal business hours, except in an emergency or when the tenant clearly agrees to shorter notice or other hours (NRS 118A.330). There’s no statewide rent control.',
           'In California, give reasonable written notice before entering. The law assumes 24 hours is reasonable (Civil Code 1954). The Tenant Protection Act limits most rent increases in 12 months to 5% plus inflation, never more than 10%. It also says that after a tenant has lived there 12 months, you need a just cause to end the tenancy (if another adult joined the lease within the first 24 months, once all tenants reach 12 months or any tenant reaches 24). Some properties are exempt. Both rules run until January 1, 2030 (Civil Code 1947.12 and 1946.2). Some cities have stricter rules.',
           'In Arizona, give at least two days’ notice before entering, except in an emergency (A.R.S. 33-1343). State law doesn’t let cities or towns control rents (A.R.S. 33-1329).',
-          'In Utah, give at least 24 hours’ notice before you enter, unless your rental agreement sets a different rule (Utah Code 57-22-4). The Utah courts’ self-help center explains the rest of Utah’s landlord-tenant law.',
+          'In Utah, give at least 24 hours’ notice before you enter (Utah Code 57-22-4). The exceptions changed for leases signed since May 2022, so check the current law before you rely on your lease. The Utah courts’ self-help center explains the rest of Utah’s landlord-tenant law.',
         ] },
       ],
     },

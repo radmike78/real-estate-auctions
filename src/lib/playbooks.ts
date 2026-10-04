@@ -306,7 +306,7 @@ const NEVADA: Playbook[] = [
     ],
     steps: [
       { title: 'Watch irsauctions.gov', detail: 'Sales are few and scattered. Read each notice of sale for the minimum bid, deposit and payment deadline. It also says whether bids are taken at public auction or by sealed bid.' },
-      { title: 'Ask for the list of known liens', detail: 'The IRS will give bidders Form 2434-B, which lists the liens and interests it found. It doesn’t promise the list is complete, so check it yourself (IRM 5.10.5.13).' },
+      { title: 'Ask for the list of known liens', detail: 'The IRS will give bidders Form 2434-B, which lists the liens and interests it found. It doesn’t promise the list is complete, so check it yourself (IRM 5.10.5.7).' },
       { title: 'Research the title', detail: 'You get only the taxpayer’s interest, as is, where is, with no warranty (IRM 5.10.5.7). Mortgages and other liens ahead of the federal tax lien stay. Order a title report before you bid.' },
       { title: 'Look from the street only', detail: 'You usually can’t go inside. Assume repairs are needed. Don’t contact or approach the owner or occupants. Send every question to the IRS contact on the notice.' },
       { title: 'Bid and pay on time', detail: 'Pay in the forms the notice allows. If you agreed to pay the rest later (deferred payment) and don’t pay it, the IRS can sue you for it with 6% interest, or cancel the sale and keep what you paid (26 U.S.C. 6335(e)(3)).' },
