@@ -122,7 +122,7 @@ export const SECTIONS: DrillSection[] = [
       <>
         <p>
           Don't go looking for short sales by contacting homeowners who are behind on payments. If an owner decides to sell, a licensed
-          agent will list the home, and you'll find it on the MLS. To follow a property's foreclosure status without contacting anyone,
+          agent usually lists the home on the MLS; ask your agent. To follow a property's foreclosure status without contacting anyone,
           use the <a href="#/pre-foreclosures">pre-foreclosure tracker</a>.
         </p>
         <h3 className="section-title">The law in your state</h3>

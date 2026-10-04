@@ -71,7 +71,7 @@
       "src/components/PreForeclosurePage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "8234d01f684b8286",
+    "hash": "745b2c77e8c8dc71",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -81,7 +81,7 @@
       "src/components/ShortSalesPage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "007662a13f8305a4",
+    "hash": "5c4707acbf4c9902",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -92,7 +92,7 @@
       "src/lib/reoSources.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "121e31018a2234e9",
+    "hash": "a606ed33fc86ea34",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -103,7 +103,7 @@
       "src/lib/businessAssets.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "4ed59af76201a532",
+    "hash": "df2b5306caa1f2b9",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -245,7 +245,7 @@
       "src/components/HomeownerHelpPage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "659aa6e32d8f25c7",
+    "hash": "72871d3ef97193da",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

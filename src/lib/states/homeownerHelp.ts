@@ -5,7 +5,7 @@ import type { ByStateLines } from '../../components/ByState';
 export const HELP: ByStateLines = {
   NV: [
     { text: 'In Nevada, if you live in the home, you can ask the district court for foreclosure mediation, a meeting with your lender and a neutral mediator. File your petition within 30 days after the notice of default is served (NRS 107.086). It costs a $25 filing fee plus your half of the mediation fee, and the law caps the total mediation fee at $500. In Clark County, the Eighth Judicial District Court runs it.', links: [['Foreclosure mediation (Clark County courts)', 'https://www.clarkcountycourts.us/departments/adr/foreclosure-mediation/']] },
-    { text: 'In Nevada, free legal help comes from legal aid offices and the court’s self-help center.', links: [['Legal Aid Center of Southern Nevada', 'https://www.lacsn.org/'], ['Nevada Legal Services', 'https://nevadalegalservices.org/'], ['Civil Law Self-Help Center', 'https://www.civillawselfhelpcenter.org/']] },
+    { text: 'In Nevada, Nevada Legal Services offers free legal help statewide. In Clark County, also try the Legal Aid Center of Southern Nevada and the Civil Law Self-Help Center at the court.', links: [['Nevada Legal Services', 'https://nevadalegalservices.org/'], ['Legal Aid Center of Southern Nevada', 'https://www.lacsn.org/'], ['Civil Law Self-Help Center', 'https://www.civillawselfhelpcenter.org/']] },
   ],
   CA: [
     { text: 'In California, before your servicer can record a notice of default on the home you live in, it has to give you HUD’s toll-free number for finding a housing counselor, (800) 569-4287 (Civil Code 2923.5 and 2923.55).' },

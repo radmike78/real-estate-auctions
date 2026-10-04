@@ -9,7 +9,7 @@ export const TIMELINE: ByStateLines = {
     { text: 'In Nevada, notice of default: the trustee or HOA records it. The owner can still catch up and fix the default (called curing it).' },
     { text: 'In Nevada, 3+ months: the shortest wait before a notice of sale can be recorded is 3 months for a mortgage (NRS 107.080) and 90 days for an HOA (NRS 116.31162).' },
     { text: 'In Nevada, notice of sale: it is posted for 20 days and published for 3 weeks. It sets the auction date.' },
-    { text: 'In Nevada, auction: it is held, postponed or cancelled. A sale becomes an auction listing on this site.' },
+    { text: 'In Nevada, auction: it is held, postponed or cancelled. Follow the date on the trustee’s notice of sale.' },
   ],
   CA: [
     { text: 'In California, contact comes first: for an owner-occupied 1 to 4 unit home with a first mortgage, the servicer must contact the owner, or try hard to, at least 30 days before recording a notice of default. The notice of default must include a statement that it did (Civil Code 2923.5, 2923.55).' },
@@ -25,14 +25,14 @@ export const TIMELINE: ByStateLines = {
     { text: 'In Arizona, posting and publishing: the notice is posted on the property at least 20 days before the sale, and at the superior court. It is published once a week for 4 weeks in a newspaper in the county (A.R.S. 33-808).' },
     { text: 'In Arizona, earliest sale, day 91: the sale can’t be held until the 91st day after the notice is recorded (A.R.S. 33-807, 33-808).' },
     { text: 'In Arizona, reinstatement or postponement: the owner or a junior lienholder can reinstate until 5 p.m. on the last business day before the sale. If they do, the trustee records a cancellation of the notice of sale (A.R.S. 33-813). The trustee can also postpone the sale to a new date within 90 days by announcing it at the sale (A.R.S. 33-810).' },
-    { text: 'In Arizona, auction: the sale is held on a weekday from 9 a.m. to 5 p.m., at the property, at a superior court building or at the trustee’s office (A.R.S. 33-808). A sale becomes an auction listing on this site.' },
+    { text: 'In Arizona, auction: the sale is held on a weekday from 9 a.m. to 5 p.m., at the property, at a superior court building or at the trustee’s office (A.R.S. 33-808). Follow the date on the trustee’s notice of sale.' },
   ],
   UT: [
     { text: 'In Utah, lender’s notice: if the home is the owner’s main home and the lender is a bank, credit union or similar, the lender first sends the owner a notice with the amount to catch up, and at least 30 days to pay (Utah Code 57-1-24.3).' },
     { text: 'In Utah, notice of default: the trustee records it with the county recorder. Within 3 months after that, the owner or a junior lienholder can catch up and cure the default (Utah Code 57-1-24, 57-1-31).' },
     { text: 'In Utah, 3+ months: this is the shortest wait before notice of sale can be given (Utah Code 57-1-24). A community association (HOA) uses the same steps, but first sends the owner a 30-day notice (Utah Code 57-8a-303).' },
     { text: 'In Utah, notice of sale: it is published in a newspaper once a week for 3 weeks, on the state’s public legal notice website for 30 days, and posted on the property and at the county recorder at least 20 days before the sale (Utah Code 57-1-25).' },
-    { text: 'In Utah, auction: it is held at a courthouse in the county, between 8 a.m. and 5 p.m. It can be postponed. A postponement of more than 45 days needs a new notice (Utah Code 57-1-25, 57-1-27). A sale becomes an auction listing on this site.' },
+    { text: 'In Utah, auction: it is held at a courthouse in the county, between 8 a.m. and 5 p.m. It can be postponed. A postponement of more than 45 days needs a new notice (Utah Code 57-1-25, 57-1-27). Follow the date on the trustee’s notice of sale.' },
   ],
 };
 
@@ -45,7 +45,7 @@ export const TIMELINE_NOTES: ByStateLines = {
 /** Where to find recorded and posted notices. */
 export const WHERE: ByStateLines = {
   NV: [
-    { text: 'In Nevada, this tracker follows notices of default and sale recorded with the Clark County Recorder. Elsewhere in Nevada, check the recorder in the county where the property is.' },
+    { text: 'In Nevada, this tracker will follow notices of default and sale recorded with the Clark County Recorder once that feed is connected. Until then, check the recorder in the county where the property is.' },
   ],
   CA: [
     { text: 'In California, notices of default and notices of sale are recorded with the county recorder where the property is (Civil Code 2924, 2924f). Search that county’s recorder index by document type.', links: [['Civil Code 2924', 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2924']] },
@@ -65,8 +65,8 @@ export const WHERE: ByStateLines = {
 /** How an investor can buy without ever contacting the owner. */
 export const BUY: ByStateLines = {
   NV: [
-    { text: 'In Nevada, a trustee’s or HOA sale becomes an auction listing on this site. Ask only the trustee named on the notice of sale about it.' },
-    { text: 'In Nevada, if the owner lists the home (often as a short sale), or the lender takes it back as bank-owned (REO), it sells through agents.' },
+    { text: 'In Nevada, a trustee’s or HOA sale is a public auction. Ask only the trustee (or the HOA’s agent) named on the notice of sale about it.' },
+    { text: 'In Nevada, if the owner lists the home (often as a short sale), or the lender takes it back as bank-owned (REO), it usually sells through agents.' },
   ],
   CA: [
     { text: 'In California, at the trustee sale: bid at the auction run by the trustee named on the notice of sale. Read the California trustee sales guide for funds, bidding and the 15 to 45 day wait for 1 to 4 unit homes.' },

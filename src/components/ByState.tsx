@@ -1,6 +1,7 @@
 import { STATES, type StateCode } from '../lib/regions';
 import { useMyState } from '../lib/myState';
 import { Cited } from './Cited';
+import OwlNote from './OwlNote';
 
 const ext = { target: '_blank', rel: 'noopener noreferrer' } as const;
 
@@ -39,7 +40,7 @@ export default function ByState({ lines, missing, ordered }: { lines: ByStateLin
                 ))}
               </List>
             ) : (
-              <p className="muted">{missing ?? `Nothing specific to ${s.name} here yet.`}</p>
+              <OwlNote>{missing ?? `Nothing specific to ${s.name} here yet.`}</OwlNote>
             )}
           </div>
         );

@@ -88,7 +88,7 @@ export const GUIDE: DrillSection[] = [
     summary: 'At the trustee’s sale, from the lender after it, or from an agent’s listing',
     content: () => (
       <>
-        <p>A home in pre-foreclosure isn’t for sale. You can buy it in three ways, none of which involves the owner: at the trustee’s sale, from the lender afterward (bank-owned), or from a listing if the owner decides to sell through an agent.</p>
+        <p>A home in pre-foreclosure isn’t for sale. You can buy it in three ways, none of which involves contacting the owner: at the trustee’s sale, from the lender afterward (bank-owned), or from a listing if the owner decides to sell through an agent.</p>
         <ByState lines={BUY} />
         <h3>Step-by-step guides</h3>
         <ul>
@@ -172,7 +172,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
     <main className="page">
       <PageHero
         compact={guideOpen}
-        eyebrow={<span className="eyebrow">Not for sale yet · Tracker data: Clark County, NV · Guide: NV, CA, AZ, UT</span>}
+        eyebrow={<span className="eyebrow">Not for sale yet · Tracker: Clark County, NV (feed coming soon) · Guide: NV, CA, AZ, UT</span>}
         title={guideOpen ? <a className="title-link" href="#/pre-foreclosures">Pre-foreclosure tracker</a> : <>Pre-foreclosure <span className="grad">tracker</span></>}
         sub={guideOpen ? undefined : 'Follow homes from notice of default to auction, without contacting anyone.'}
       />

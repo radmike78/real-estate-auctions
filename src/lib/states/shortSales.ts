@@ -22,6 +22,9 @@ export const DEFICIENCY: ByStateLines = {
 
 /** What the seller must tell you, and what you get. */
 export const DISCLOSURES: ByStateLines = {
+  NV: [
+    { text: 'In Nevada, the seller (the homeowner, in a short sale) must complete the Seller’s Real Property Disclosure form and give it to you at least 10 days before the home is conveyed, and you can’t be made to waive it. Only foreclosure sales and a few other sales are exempt (NRS 113.130).', links: [['NRS chapter 113', 'https://www.leg.state.nv.us/NRS/NRS-113.html']] },
+  ],
   CA: [
     { text: 'In California, a short sale is a normal sale by the owner, so it isn’t exempt from the Transfer Disclosure Statement or the Natural Hazard Disclosure Statement. Those exemptions cover sales by a lender after foreclosure, not short sales (Civil Code 1102.2, 1103.1).', links: [['Civil Code 1102.2', 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1102.2']] },
     { text: 'In California, the listing agent must also do a visual inspection of a home of 1 to 4 units and disclose what it finds (Civil Code 2079).' },

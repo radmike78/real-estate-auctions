@@ -41,7 +41,7 @@ export const SECTIONS: DrillSection[] = [
     content: () => (
       <>
         <h3>Official sellers in your state</h3>
-        <p>Receivers, assignees, bankruptcy trustees and the sheriff. Each line names its state.</p>
+        <p>Court-appointed receivers, bankruptcy trustees and the sheriff, plus how assignments for the benefit of creditors work (a private process, not a court sale). Each line names its state.</p>
         <ByState lines={SELLERS} />
         <h3>Where sales are noticed</h3>
         <ByState lines={NOTICES} />
@@ -150,7 +150,7 @@ export default function BusinessAssetsPage({ section }: { section?: string }) {
       />
       {!open && (
         <div className="notice" role="note">
-          <strong>Official sellers only.</strong> Every seller here is a court, a court-appointed trustee or receiver, an assignee for the benefit of creditors, the sheriff, or a government agency. No
+          <strong>Official sellers only.</strong> Every seller we link is a court, a court-appointed trustee or receiver, the sheriff, or a government agency. No
           private liquidators or business-for-sale marketplaces. Looking for the building instead? See{' '}
           <a href="#/search?class=commercial">commercial property</a> and the <a href="#/playbooks/commercial">commercial property guide</a>.
         </div>

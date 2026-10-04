@@ -158,7 +158,7 @@ export default function BankOwnedPage({ section }: { section?: string }) {
       )}
       {!open && (
         <p className="page-starter">
-          The direct sources below list homes nationwide, and the notes on each card are for Clark County, Nevada. Buying rules for
+          Most sources below list homes nationwide (the HUD link opens a Clark County search; change the location on HUD’s site), and the notes on each card are for Clark County, Nevada. Buying rules for
           Nevada, California, Arizona and Utah are under “Buying one in your state.” Pick your state to see only its rules.
         </p>
       )}

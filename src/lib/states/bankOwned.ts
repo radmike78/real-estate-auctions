@@ -5,7 +5,7 @@ import type { ByStateLines } from '../../components/ByState';
 
 export const BUYING: ByStateLines = {
   NV: [
-    { text: 'In Nevada, the sources on this page are where DeedOwl’s bank-owned listings come from today, and each card says how often it has Clark County homes.' },
+    { text: 'In Nevada, DeedOwl doesn’t list bank-owned homes itself yet. The cards on this page link to each official seller’s own site, and each card says how often it has Clark County homes.' },
     { text: 'In Nevada, Fannie Mae and Freddie Mac give buyers who will live in the home a first look before investors can buy. The rules for each are on its card above.' },
   ],
   CA: [
