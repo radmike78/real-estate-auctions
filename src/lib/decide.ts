@@ -131,7 +131,8 @@ export interface Strategy {
   /** Points for each answer; missing answers score 0. */
   weights: Partial<Record<Exclude<QuestionKey, 'state'>, Record<string, number>>>;
   /** The honest downside: the worst realistic outcome, the money at stake, and how long a first deal takes. */
-  risk: { worst: string; atRisk: string; time: string };
+  /** atRisk is the cash needed to start, not a loss limit; ongoing says what you keep owing and how you could lose more. */
+  risk: { worst: string; atRisk: string; ongoing?: string; time: string };
   checklist: ChecklistItem[];
 }
 
@@ -153,12 +154,13 @@ export const STRATEGIES: Strategy[] = [
     risk: {
       worst: 'A unit sits empty or a tenant stops paying, and you still owe the whole mortgage on the home you live in.',
       atRisk: 'Your down payment, closing costs and the reserves your lender requires.',
+      ongoing: 'You owe every loan payment, tax and insurance bill even when a unit is empty or repairs run over. If you can’t pay, you can lose the property and the equity in it, so you can lose more than the cash you start with.',
       time: 'Months: pre-approval, a search, then a closing like any home purchase.',
     },
     checklist: [
       { id: 'hh-lesson', text: 'Read the traditional financing lesson: FHA and VA loans for a home you’ll live in.', href: '#/learn/financing' },
       { id: 'hh-lender', text: 'Talk to a licensed loan officer about pre-approval for a 2–4 unit home you’ll live in.', href: '#/pros/lender' },
-      { id: 'hh-reserves', text: 'Save for closing costs and reserves: FHA loans on 3–4 units need three months of payments in savings after closing.' },
+      { id: 'hh-reserves', text: 'Save for closing costs and reserves: FHA loans on 3–4 units need three months of payments in savings after closing, and the rents must pass FHA’s self-sufficiency test.' },
       { id: 'hh-rules', text: 'Learn your state’s landlord-tenant rules and any local rent rules.' },
       { id: 'hh-agent', text: 'Find a buyer’s agent who knows small multi-unit homes.', href: '#/pros/agent' },
       { id: 'hh-numbers', text: 'Run the numbers with the rent from the other units, including vacancy and repairs.', href: '#/analyze?plan=rent' },
@@ -181,12 +183,13 @@ export const STRATEGIES: Strategy[] = [
     },
     risk: {
       worst: 'Vacancy, a tenant who stops paying or a big repair leaves you paying the mortgage yourself. Evictions take a court case.',
-      atRisk: 'The down payment, which Fannie Mae sets at 15% to 25% for investment property, plus closing costs and reserves.',
+      atRisk: 'The down payment: at least 15% (one unit) to 25% (two to four units) on Fannie Mae investment loans, plus closing costs and reserves.',
+      ongoing: 'You owe every loan payment, tax and insurance bill even when a unit is empty or repairs run over. If you can’t pay, you can lose the property and the equity in it, so you can lose more than the cash you start with.',
       time: 'Months: pre-approval, a search and a closing, then finding a tenant.',
     },
     checklist: [
       { id: 'rt-lessons', text: 'Read the lessons on analyzing a deal and traditional financing.', href: '#/learn/analyze' },
-      { id: 'rt-market', text: 'Pick an area: check rents (HUD Fair Market Rents), taxes and flood risk.', href: '#/learn/tools' },
+      { id: 'rt-market', text: 'Pick an area: check rents from homes like these that actually rented nearby, taxes and flood risk. HUD’s Fair Market Rent is only a rough area benchmark.', href: '#/learn/tools' },
       { id: 'rt-loan', text: 'Get pre-approved for an investment property loan; lenders often want six months of payments in reserve.', href: '#/pros/lender' },
       { id: 'rt-manage', text: 'Decide whether you’ll manage it yourself or hire a property manager, and get quotes.', href: '#/pros/property_manager' },
       { id: 'rt-numbers', text: 'Run the numbers with vacancy, repairs and management, and know your cash flow.', href: '#/analyze?plan=rent' },
@@ -211,6 +214,7 @@ export const STRATEGIES: Strategy[] = [
     risk: {
       worst: 'Repairs cost far more than you planned. These homes are sold as-is, and the seller won’t fix what an inspection finds.',
       atRisk: 'Your down payment or the cash price, the earnest money deposit, and the repairs.',
+      ongoing: 'You owe every loan payment, tax and insurance bill even when a unit is empty or repairs run over. If you can’t pay, you can lose the property and the equity in it, so you can lose more than the cash you start with.',
       time: 'Weeks to months, often competing with other buyers’ offers.',
     },
     checklist: [
@@ -239,6 +243,7 @@ export const STRATEGIES: Strategy[] = [
     risk: {
       worst: 'Repairs run over, the market slows, and you sell for less than you put in while paying loan interest every month.',
       atRisk: 'The purchase cash or down payment, the whole repair budget, and months of holding costs.',
+      ongoing: 'You owe every loan payment, tax and insurance bill even when a unit is empty or repairs run over. If you can’t pay, you can lose the property and the equity in it, so you can lose more than the cash you start with.',
       time: 'Months to find a deal, then months of work before you can sell.',
     },
     checklist: [
@@ -268,7 +273,8 @@ export const STRATEGIES: Strategy[] = [
     },
     risk: {
       worst: 'Repairs run over or the appraisal comes in low, so the refinance returns less of your cash and it stays stuck in the property.',
-      atRisk: 'The purchase price and the whole repair budget until you refinance. Fannie Mae generally requires six months of ownership before a cash-out refinance, with an exception for homes bought with cash.',
+      atRisk: 'The purchase price and the whole repair budget until you refinance. Fannie Mae generally needs you on title for 6 months before a cash-out refinance. If you’re paying off a loan you used to buy, such as a hard-money loan, that loan must be at least 12 months old. If you paid all cash, you may refinance sooner, but the new loan can only give back what you paid for the property plus closing costs, not your repair money. Plan to have cash tied up for a year or more.',
+      ongoing: 'You owe every loan payment, tax and insurance bill even when a unit is empty or repairs run over. If you can’t pay, you can lose the property and the equity in it, so you can lose more than the cash you start with.',
       time: 'Months to buy and renovate, then months more before you can refinance.',
     },
     checklist: [
@@ -328,6 +334,7 @@ export const STRATEGIES: Strategy[] = [
     risk: {
       worst: 'Income falls short of the loan payment. Commercial loans can have balloon payments and personal guarantees.',
       atRisk: 'A larger down payment than on a home loan, plus reserves and the cost of inspections and reports.',
+      ongoing: 'Every loan payment, tax bill and repair, even when units are empty. A personal guarantee can make you owe more than the property is worth, and a balloon payment can force a sale or refinance at a bad time.',
       time: 'Months: commercial due diligence and loans take longer than for a house.',
     },
     checklist: [
@@ -355,12 +362,12 @@ export const STRATEGIES: Strategy[] = [
     },
     risk: {
       worst: 'Share prices fall, and non-traded REITs and private funds can be hard to sell for years.',
-      atRisk: 'Only what you choose to invest; you can start small.',
+      atRisk: 'Only what you choose to invest; you can start small. You can lose much of it if prices fall.',
       time: 'Days, with listed REIT shares bought through a brokerage account.',
     },
     checklist: [
       { id: 'ps-lesson', text: 'Read the lesson on who invests where, including how REITs work.', href: '#/learn/who' },
-      { id: 'ps-reit', text: 'Know the difference: listed REIT shares sell any market day; non-traded REITs are hard to sell and fees can reach 9–10%.' },
+      { id: 'ps-reit', text: 'Know the difference: listed REIT shares sell any market day; listed share prices can drop sharply; non-traded REITs are hard to sell and usually charge about 9–10% in upfront fees.' },
       { id: 'ps-private', text: 'Private deals are often limited to accredited investors. Check the sponsor and read every document.', href: '#/learn/creative' },
       { id: 'ps-advisor', text: 'Talk with a licensed financial advisor about how it fits your plan.' },
       { id: 'ps-later', text: 'Keep learning: you can move to owning property directly later.', href: '#/learn' },

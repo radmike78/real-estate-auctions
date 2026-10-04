@@ -32,8 +32,8 @@ export const whoInvests: Lesson = {
       heading: 'Owning a building vs. owning shares',
       blocks: [
         'Congress created real estate investment trusts (REITs) in 1960. They let individuals invest in large income-producing property: offices, shopping centers, apartments, hotels, self-storage and warehouses. A REIT must pay out at least 90% of its taxable income as dividends each year and have at least 100 shareholders.',
-        'Shares of a REIT listed on a stock exchange can be sold any day the market is open. Non-traded REITs are different. Selling your shares back is typically very limited, and upfront fees can reach 9 to 10% of what you invest. Read the offering documents and fees before investing.',
-        'Private group deals (syndications) are often sold under SEC Rule 506(b). This rule lets a sponsor raise unlimited money from accredited investors, but it bars advertising the offering to the public. If someone advertises a private real estate deal to you, ask how it complies.',
+        'Shares of a REIT listed on a stock exchange can be sold any day the market is open. Non-traded REITs are different. Selling your shares back is typically very limited, and upfront fees are usually about 9 to 10% of what you invest. Listed shares are easy to sell, but their price can drop sharply. Read the offering documents and fees before investing.',
+        'Private group deals (syndications) are often sold under SEC Rule 506(b). This rule lets a sponsor raise unlimited money from accredited investors, but it bars advertising the offering to the public. Rule 506(c) does allow advertising, but only to accredited investors whose status is verified. If someone advertises a private real estate deal to you, ask which rule it uses and how they’ll verify you.',
       ],
     },
     {

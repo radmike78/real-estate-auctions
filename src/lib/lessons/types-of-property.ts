@@ -23,7 +23,7 @@ export const typesOfProperty: Lesson = {
             rows: [
               ['Single-family house', 'One home on its own lot.', 'The easiest to finance, rent and resell. Valued by comparable sales.'],
               ['Condo or townhouse', 'A home in a building or community with shared areas run by an association (HOA).', 'HOA dues are paid on top of the mortgage. They can run from a few hundred to more than a thousand dollars a month. Read the HOA’s rules on renting.'],
-              ['Duplex, triplex, fourplex (2–4 units)', 'One building or lot with two to four homes.', 'Still residential for lending. If you live in one unit, you can use a home loan, including FHA. Three or four units need more savings after closing.'],
+              ['Duplex, triplex, fourplex (2–4 units)', 'One building or lot with two to four homes.', 'Still residential for lending. If you live in one unit, you can use a home loan, including FHA. With FHA, three or four units need more savings after closing, and the rents must cover the payment (FHA’s self-sufficiency test).'],
               ['Manufactured home', 'A factory-built home made to the federal HUD Code.', 'Any built after June 15, 1976 must carry a HUD certification label. Whether the land is owned or rented changes the financing.'],
             ],
           },

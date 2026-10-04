@@ -316,7 +316,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   },
   private_lender: {
     overview: [
-      "A hard-money or private lender makes short-term loans backed mainly by the property, not your income. Investors use them to buy and repair a house fast, then sell or refinance. The trade-off is price. Rates around 10% plus fees are common, and terms are short. Many loans end in a large balloon payment.",
+      "A hard-money or private lender makes short-term loans backed mainly by the property, not your income. Investors use them to buy and repair a house fast, then sell or refinance. The trade-off is price. Rates are usually well above bank mortgage rates, plus points and fees, and terms are short. Get today’s quotes in writing. Many loans end in a large balloon payment.",
       "These lenders lend on the property’s value, so they may lend to people who can’t actually repay. NPR reported on a Florida homeowner whose hard-money refinance started at 10% and rose to 12%. It carried a heavy prepayment penalty, and the home headed toward foreclosure. Fake ‘private lenders’ also collect upfront fees and never fund the loan. California’s DFPI has ordered several to stop.",
       "If you are the one lending, or investing in a hard-money fund, the risks flip. Borrowers default, projects stall, and dishonest brokers can misuse money. In California, a hard-money broker’s collapse cost hundreds of people more than $20 million. Las Vegas hard-money fund investors also lost heavily in the recession."
     ],

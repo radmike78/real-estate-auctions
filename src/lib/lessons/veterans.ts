@@ -16,9 +16,9 @@ export const veterans: Lesson = {
       blocks: [
         'A VA home loan is made by a private lender. The Department of Veterans Affairs guarantees part of it. To use one, you need a Certificate of Eligibility, which shows you meet the service requirements.',
         { list: [
-          'No down payment, as long as the price isn’t above the appraised value.',
+          'No down payment, as long as the price isn’t above the appraised value. You still need cash for closing costs unless the seller pays them.',
           'No private mortgage insurance (PMI), and no prepayment penalty.',
-          'No loan limit if you have full entitlement. Your county’s limit can matter if part of your entitlement is still tied up in another VA loan. It affects how much you can borrow with no down payment.',
+          'No loan limit if you have full entitlement. Your county’s limit can matter if part of your entitlement is still tied up in another VA loan. It affects how much you can borrow with no down payment. Lenders still need you to qualify on income and credit.',
           'A one-time VA funding fee, unless you’re exempt.',
         ] },
         {
@@ -69,7 +69,7 @@ export const veterans: Lesson = {
     {
       heading: 'Housing grants for veterans with disabilities',
       blocks: [
-        'VA’s housing grants help veterans with certain service-connected disabilities buy, build or change a home they’ll live in. For fiscal year 2026, a Specially Adapted Housing (SAH) grant was up to $126,526. A Special Housing Adaptation (SHA) grant was up to $25,350. VA updates the amounts each October. They’re for your own home, not rental property.',
+        'VA’s housing grants help veterans with certain service-connected disabilities buy, build or change a home they’ll live in. For fiscal year 2026, a Specially Adapted Housing (SAH) grant was up to $126,526. A Special Housing Adaptation (SHA) grant was up to $25,350. VA updates the amounts each October (fiscal year 2026 ended September 30, 2026), so check VA for the current amounts. They’re for your own home, not rental property.',
       ],
     },
     {

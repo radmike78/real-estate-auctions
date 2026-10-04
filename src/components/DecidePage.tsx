@@ -135,8 +135,9 @@ export default function DecidePage() {
                   {m.cautions.length > 0 && <p className="decide-why caution"><strong>Watch</strong> {m.cautions.join('; ')}.</p>}
                   {note && <p className="decide-note">{note}</p>}
                   <dl className="decide-risk" aria-label="Risk check">
-                    <div><dt>Worst realistic outcome</dt><dd>{m.strategy.risk.worst}</dd></div>
-                    <div><dt>Money at risk</dt><dd>{m.strategy.risk.atRisk}</dd></div>
+                    <div><dt>What could go seriously wrong</dt><dd>{m.strategy.risk.worst}</dd></div>
+                    <div><dt>Cash needed to start</dt><dd>{m.strategy.risk.atRisk}</dd></div>
+                    {m.strategy.risk.ongoing && <div><dt>What you keep owing</dt><dd>{m.strategy.risk.ongoing}</dd></div>}
                     <div><dt>Time to a first deal</dt><dd>{m.strategy.risk.time}</dd></div>
                   </dl>
                   <h4>Your checklist <span className="muted">({doneCount} of {m.strategy.checklist.length} done)</span></h4>
