@@ -380,7 +380,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
   },
   smallMultifamily: {
     overview: [
-      "A small multifamily property is a duplex, triplex or fourplex: one building (or lot) with two to four homes. Lenders treat it as a home, not a commercial building, so if you live in one unit you can use owner-occupant loans such as FHA (often 3.5% down) or a VA loan (no down payment if you qualify). Living in one unit and renting out the others to cut your housing cost is called “house hacking.”",
+      "A small multifamily property is a duplex, triplex or fourplex: one building (or lot) with two to four homes. Lenders treat it as a home, not a commercial building, so if you live in one unit you can use owner-occupant loans such as FHA (often 3.5% down) or a VA loan (no down payment with full entitlement and the lender’s approval). Living in one unit and renting out the others to cut your housing cost is called “house hacking.”",
       "The upside is real: tenants’ rent can cover a big share of the mortgage, and you build landlord skills while living on site. The downside is that you’re now a landlord to your neighbors, handling repairs, late rent and evictions. Lenders and underwriters often count only about 75% of expected rent to allow for vacancies. During the pandemic eviction bans, many small landlords had tenants stop paying and ended up selling.",
       "Rules depend on the state and county. In California, buildings with three or more units must have balconies, decks and stairs inspected (Health and Safety Code 17973, SB 721). Local rent control there may also limit increases. Check local rules before you buy."
     ],
@@ -406,7 +406,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     ],
     money: [
       "FHA: as little as 3.5% down for 2-4 units if you live in one unit. Purchases of 3 and 4 units must also pass a ‘self-sufficiency’ rent test (WFTV/Lower feature).",
-      "VA: eligible veterans can buy a home of up to 4 units with no down payment if the price isn’t above appraised value. They must live there (VA.gov).",
+      "VA: eligible veterans can buy a home of up to 4 units with no down payment if they have full entitlement, the lender approves them, and the price isn’t above appraised value. They must live there (VA.gov).",
       "Conventional: in late 2023, Fannie Mae cut the minimum down payment on owner-occupied 2-4 unit homes to 5%, down from at least 15% (as described to National Mortgage News).",
       "Lenders may count part of the expected rent to help you qualify. Underwriters generally reduce it to allow for vacancies."
     ],
@@ -428,7 +428,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         }
       },
       {
-        text: "VA loans need no down payment as long as the sales price isn’t above appraised value.",
+        text: "VA loans need no down payment with full entitlement and the lender’s approval, as long as the sales price isn’t above appraised value. With less entitlement, the lender may ask for a down payment.",
         source: {
           label: "U.S. Department of Veterans Affairs: VA-backed purchase loan",
           url: "https://www.va.gov/housing-assistance/home-loans/loan-types/purchase-loan/"
@@ -1074,7 +1074,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     ],
     bestFor: [
       "Professionals (dentists, doctors, accountants) who will use the building themselves, want stable occupancy costs, and would rather build equity than pay rent.",
-      "Well-funded buyers with cash and patience, who buy at today’s lower prices and plan to hold 10 years or more.",
+      "Well-funded buyers with cash and patience, who buy well below past prices and plan to hold 10 years or more.",
       "Experienced developers converting suitable older buildings to housing, especially where cities offer incentives.",
       "Public agencies or users who need space and can buy a building for less than the cost of fixing their own (Los Angeles County)."
     ],

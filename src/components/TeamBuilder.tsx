@@ -33,8 +33,13 @@ export default function TeamBuilder() {
   const q = done ? null : TEAM_QUESTIONS[step];
   const picked = q ? answers[q.key] : undefined;
   const suggestion = q && picked === UNSURE ? q.suggest(resolved(answers)) : null;
-  const choose = (v: string) => setAnswers((a) => ({ ...a, [q!.key]: v }));
   const next = () => setStep((s) => (s + 1 >= TEAM_QUESTIONS.length ? -1 : s + 1));
+  // Choosing an answer moves on by itself (Back changes it); "I'm not sure" waits so the suggestion can be read.
+  const choose = (v: string) => {
+    setAnswers((a) => ({ ...a, [q!.key]: v }));
+    const from = step;
+    if (v !== UNSURE) window.setTimeout(() => setStep((s) => (s !== from ? s : from + 1 >= TEAM_QUESTIONS.length ? -1 : from + 1)), 250);
+  };
   const final = resolved(answers);
   const labelOf = (key: keyof TeamAnswers) => TEAM_QUESTIONS.find((x) => x.key === key)!.options.find((o) => o.value === final[key])?.label ?? '';
 

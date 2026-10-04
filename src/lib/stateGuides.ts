@@ -625,6 +625,7 @@ export const STATE_GUIDES: Playbook[] = [
     mayStay: [
       "Easements on or benefiting the property (ARS 42-18204)",
       "Certain special assessment liens, such as improvement district liens (ARS 42-18204)",
+      "In Arizona, county cleanup (abatement) liens for things like weeds, debris or unsafe buildings, through September 30, 2028 (ARS 42-18204, 11-268)",
       "Liens held by the state (ARS 42-17153)",
       "Other liens and title problems the court case did not clear. Get a title report and ask your attorney"
     ]
@@ -1884,7 +1885,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Inspect and appraise",
-      detail: "A lender selling after foreclosure doesn’t have to give you a Transfer Disclosure Statement, so most of what you learn about the home comes from your own inspections (Civ 1102.2). Hire a licensed inspector. Check permits with the city or county."
+      detail: "A lender selling after foreclosure doesn’t have to give you a Transfer Disclosure Statement, so most of what you learn about the home comes from your own inspections (Civ 1102.2). California doesn’t license home inspectors, so ask for proof of training and insurance, and a sample report. Check permits with the city or county."
     },
     {
       title: "Check title and occupancy",
@@ -3531,7 +3532,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Inspect during due diligence",
-      detail: "The REPC gives you a due diligence period to inspect, test and review documents. By the deadline, you must cancel or resolve objections. Miss it and your earnest money can become non-refundable. A bank never lived in the home, so it may tell you little or nothing about its condition. Hire a licensed inspector."
+      detail: "The REPC gives you a due diligence period to inspect, test and review documents. By the deadline, you must cancel or resolve objections. Miss it and your earnest money can become non-refundable. A bank never lived in the home, so it may tell you little or nothing about its condition. In Utah, hire an inspector with a state Private Home Inspector license (Utah DOPL)."
     },
     {
       title: "Get the appraisal and loan approved",

@@ -31,6 +31,7 @@ import { defaultsFor } from '../lib/bidCalc';
 import { playbookByKey, playbookForSale } from '../lib/playbooks';
 import { ago } from '../lib/time';
 import OwlNote from './OwlNote';
+import { analyzeHref } from '../lib/analyze';
 
 const LIEN_LABEL: Record<LienType, string> = {
   PROPERTY_TAX: 'Delinquent property tax',
@@ -97,6 +98,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   const irs = p.origin === 'irs-feed';
   const notChecked = (v: number | null, text: string) => (v === null ? <span className="muted">{text}</span> : fmtMoney(v));
   const s = p.sale;
+  const analyzeLink = analyzeHref({ address: p.address, city: p.city, state: p.state, county: p.county, saleType: s?.saleType });
   const status = STATUS[p.status];
   const money = moneySummary(p);
   const liens = assessLiens(p);
@@ -387,6 +389,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             <a href={open ? baseHref : '#/search'}>{open ? '← Property overview' : '← Back to results'}</a>
             <span className="hero-actions">
               <SaveDealButton p={p} />
+              {analyzeLink && <a className="hero-btn" href={analyzeLink}>Analyze this property</a>}
               {verified && <TrackButton target={irs ? `irs:${p.id.slice(IRS_ID_PREFIX.length)}` : `tax:${p.apn}`} label={`${p.address} (parcel ${p.apn})`} />}
               <button className="hero-btn" onClick={() => window.print()}>Print full report</button>
             </span>

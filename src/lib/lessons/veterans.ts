@@ -16,7 +16,7 @@ export const veterans: Lesson = {
       blocks: [
         'A VA home loan comes from a private lender, and the Department of Veterans Affairs guarantees part of it. To use one, you need a Certificate of Eligibility, which shows you meet the service requirements.',
         { list: [
-          'No down payment, as long as the price isn’t above the appraised value. You still need cash for closing costs unless the seller pays them.',
+          'No down payment if you have full entitlement and the price isn’t above the appraised value. If part of your entitlement is still tied up in another VA loan, the lender may ask for a down payment. You still need the lender’s approval, and cash for closing costs unless the seller pays them.',
           'No private mortgage insurance (PMI), and no prepayment penalty.',
           'No loan limit if you have full entitlement. If part of your entitlement is still tied up in another VA loan, your county’s limit affects how much you can borrow with no down payment. Lenders still need you to qualify on income and credit.',
           'A one-time VA funding fee, unless you’re exempt.',

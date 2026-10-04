@@ -1,0 +1,827 @@
+// "Buy a rental, start to finish": one fictional purchase through an agent, worked from your budget to the first
+// months of renting it out. Each step hands you real documents to read (a listing, comparable rents and sales, a loan
+// term sheet, an insurance quote, a contract, an inspection report, an appraisal, a title commitment, a closing
+// statement) and asks you to decide. Things go wrong on purpose: the sewer line, the appraisal, a missing credit, a
+// fake wiring email. Walking away at the right moment counts as a good result.
+//
+// Accuracy rules for this file:
+// - Everything about the property, the people and the companies is fictional and labeled that way.
+// - Contract terms (deadlines, deposit) are this practice contract's terms, not a state's law. Real contracts differ.
+// - The rate, quote and costs are practice numbers, not current quotes.
+// - State rules used here are Nevada's and say so: deposits and entry (NRS 118A.242, 118A.330).
+// - Federal rules: FCRA adverse-action notices (FTC guidance for landlords), lead disclosure for homes built before
+//   1978 (40 CFR 745 subpart F), Fannie Mae's 2% limit on seller credits for investment properties (B3-4.1-02).
+// - Every money figure comes from N below, so the steps always agree; rentalCase.test.ts checks the arithmetic.
+
+/** Monthly principal and interest on a fixed-rate loan. */
+export function payment(loan: number, rate = N0.rate, years = 30): number {
+  const i = rate / 12;
+  return Math.round((loan * i) / (1 - Math.pow(1 + i, -years * 12)));
+}
+
+const N0 = { rate: 0.0675 };
+
+const savings = 142_000;
+const spending = 5_200;
+const cushionMonths = 6;
+const otherGoals = 8_000;
+const offer = 289_000;
+const renegotiated = 282_000;
+const appraised = 280_000;
+const finalPrice = 280_000;
+const closingCosts = 8_400;
+const tax = 142; // $1,704 a year
+const insurance = 90; // $1,080 a year
+const hoa = 45;
+const rent = 2_150;
+const reserveMonths = 6;
+const sewer = 7_500;
+const panel = 3_200;
+const earnest = 3_000;
+
+const loanAt = (price: number, value = price) => Math.round(Math.min(price, value) * 0.75);
+const pitia = (loan: number) => payment(loan) + tax + insurance + hoa;
+const cashNeeded = (price: number, value = price, repairs = 0) => price - loanAt(price, value) + closingCosts + repairs + reserveMonths * pitia(loanAt(price, value));
+
+/** Every number the case uses, worked out once. */
+export const N = {
+  rate: N0.rate,
+  savings,
+  spending,
+  cushionMonths,
+  cushion: spending * cushionMonths,
+  otherGoals,
+  investable: savings - spending * cushionMonths - otherGoals,
+  list: 299_900,
+  offer,
+  renegotiated,
+  appraised,
+  finalPrice,
+  closingCosts,
+  tax,
+  insurance,
+  hoa,
+  rent,
+  reserveMonths,
+  sewer,
+  panel,
+  urgent: sewer + panel,
+  earnest,
+  loanOffer: loanAt(offer),
+  piOffer: payment(loanAt(offer)),
+  pitiaOffer: pitia(loanAt(offer)),
+  cashOffer: cashNeeded(offer),
+  cashRenegotiated: cashNeeded(renegotiated, renegotiated, sewer + panel),
+  loanFinal: loanAt(finalPrice, appraised),
+  piFinal: payment(loanAt(finalPrice, appraised)),
+  pitiaFinal: pitia(loanAt(finalPrice, appraised)),
+  cashFinal: cashNeeded(finalPrice, appraised, sewer + panel),
+  downIfGapPaid: renegotiated - loanAt(renegotiated, appraised),
+  cashToClose: finalPrice - loanAt(finalPrice, appraised) + closingCosts - earnest,
+  wrongCashToClose: finalPrice - loanAt(finalPrice, appraised) + closingCosts,
+  setAside: Math.round(rent * 0.05),
+  cashFlow: rent - 3 * Math.round(rent * 0.05) - tax - insurance - hoa - payment(loanAt(finalPrice, appraised)),
+  maxDeposit: rent * 3,
+};
+
+const $ = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
+
+export type Verdict = 'best' | 'ok' | 'poor';
+
+export interface CaseChoice {
+  label: string;
+  verdict: Verdict;
+  /** Why this works or doesn't, with the evidence. */
+  why: string;
+  /** Choosing it ends the purchase: a walk-away, which can be the right call. */
+  walk?: boolean;
+}
+
+export interface CaseDoc {
+  /** e.g. "Listing sheet", "Inspection report (extract)". */
+  kind: string;
+  title: string;
+  from: string;
+  rows?: [string, string][];
+  table?: { head: string[]; rows: string[][] };
+  notes?: string[];
+}
+
+export type CaseTask =
+  | { kind: 'choice'; id: string; prompt: string; choices: CaseChoice[]; /** How a different fact would change the answer. */ ifDifferent?: string }
+  | { kind: 'multi'; id: string; prompt: string; options: { label: string; right: boolean; why: string }[] }
+  | { kind: 'number'; id: string; prompt: string; answer: number; tolerance: number; worked: string[]; hint?: string }
+  | { kind: 'write'; id: string; prompt: string; to: string; model: string };
+
+export interface CaseStage {
+  key: string;
+  title: string;
+  /** What you'll have when this step is finished. */
+  outcome: string;
+  brief: string[];
+  docs: CaseDoc[];
+  tasks: CaseTask[];
+  /** Rows for your evidence log once the step is done. */
+  log: { area: string; finding: string; open?: string }[];
+  /** Deadlines this step adds to your calendar. */
+  dates?: { when: string; what: string }[];
+  learnMore?: { label: string; href: string }[];
+}
+
+export const CASE_TITLE = 'Buy a rental, start to finish';
+export const CASE_PROPERTY = '1418 Example Ridge Court, Henderson, Nevada (fictional)';
+
+export const RENTAL_CASE: CaseStage[] = [
+  {
+    key: 'cash',
+    title: 'Your goal and your cash',
+    outcome: 'Your goal in one sentence, and the most cash you can put into a deal without touching your safety net.',
+    brief: [
+      'Before you look at a single house, work out how much you can safely invest. In this practice case, you want a rental you’ll hold for at least 10 years. You’re fine with little or no monthly profit at first, as long as the rent covers the costs.',
+      `Your emergency fund stays out of the deal. Here you keep ${cushionMonths} months of household spending. That’s a planning choice, not a rule: some people keep more.`,
+    ],
+    docs: [
+      {
+        kind: 'Your money snapshot',
+        title: 'What you have and what you need',
+        from: 'You (practice numbers)',
+        rows: [
+          ['Savings and investments you could sell', $(savings)],
+          ['Household spending each month', $(spending)],
+          ['Emergency fund you’ll keep', `${cushionMonths} months of spending`],
+          ['Money already promised to other goals in the next 12 months', $(otherGoals)],
+          ['High-interest debt', 'None'],
+        ],
+      },
+    ],
+    tasks: [
+      {
+        kind: 'number',
+        id: 'investable',
+        prompt: 'How much cash can you put into a deal, all in, without touching your emergency fund or your other goals?',
+        answer: N.investable,
+        tolerance: 100,
+        worked: [`Emergency fund: ${cushionMonths} × ${$(spending)} = ${$(N.cushion)}`, `${$(savings)} − ${$(N.cushion)} − ${$(otherGoals)} = ${$(N.investable)}`],
+        hint: 'Start with your savings, then take out the emergency fund and the money already promised elsewhere.',
+      },
+      {
+        kind: 'choice',
+        id: 'stretch',
+        prompt: 'A friend says, “Use your emergency fund for the down payment. You can rebuild it from the rent.” What do you do?',
+        choices: [
+          { label: 'Keep the emergency fund separate. The deal has to fit inside your investable cash.', verdict: 'best', why: 'A rental adds risk: a vacancy, a repair or a job loss can all hit at once. Your emergency fund is what keeps a bad month from forcing a sale.' },
+          { label: 'Use half of it. Rentals usually work out.', verdict: 'poor', why: 'Most of what goes wrong with a rental costs money right away. Plan for the bad month, not the usual one.' },
+          { label: 'Use all of it, then rebuild it from the rent.', verdict: 'poor', why: 'Many rentals bring in little cash in the first years, so it could take a very long time to rebuild. Keep the safety net.' },
+        ],
+        ifDifferent: 'If you had high-interest debt, paying it off would usually come before investing. That’s why Decide puts Practice first for people with no emergency fund or high-interest debt.',
+      },
+    ],
+    log: [{ area: 'Your plan', finding: `Goal: a long-term rental with rent that covers costs. Most you can put in: ${$(N.investable)}.` }],
+    learnMore: [{ label: 'Choose a strategy', href: '#/decide' }],
+  },
+  {
+    key: 'listing',
+    title: 'The listing',
+    outcome: 'A quick yes-or-no screen against your buy box, and a list of facts you still need.',
+    brief: [
+      'Your agent sends a listing that fits your buy box: a single-family home in Henderson, priced under $300,000, that needs no major work you can see from the photos.',
+      'A listing is the seller’s marketing. Treat every number in it as a claim to check, not a fact.',
+    ],
+    docs: [
+      {
+        kind: 'Listing sheet',
+        title: '1418 Example Ridge Court, Henderson, NV',
+        from: 'Seller’s listing agent (fictional)',
+        rows: [
+          ['List price', $(N.list)],
+          ['Beds / baths / size', '3 bed · 2 bath · 1,460 sq ft'],
+          ['Built', '1972'],
+          ['Lot', '0.15 acre'],
+          ['HOA', `Example Ridge HOA, ${$(hoa)} a month`],
+          ['Property taxes last year', '$1,704'],
+          ['Occupancy', 'Vacant'],
+          ['Days on market', '41'],
+          ['Remarks', '“Great rental! Could rent for $2,400+. Roof and plumbing in good shape. Sold as-is, inspections welcome.”'],
+        ],
+      },
+    ],
+    tasks: [
+      {
+        kind: 'multi',
+        id: 'missing',
+        prompt: 'Which of these do you still need before you can decide on a price? Choose all that apply.',
+        options: [
+          { label: 'What similar homes actually rent for', right: true, why: '“Could rent for $2,400+” is the seller’s guess. Leased comparables are evidence.' },
+          { label: 'What similar homes actually sold for', right: true, why: 'Your price should come from recent sales, not the list price.' },
+          { label: 'The HOA’s rules on renting', right: true, why: 'Some HOAs limit or ban rentals, or set a minimum lease length. That could end your plan.' },
+          { label: 'An insurance quote for a rental', right: true, why: 'A landlord policy costs differently from a homeowner’s policy, and some homes are hard to insure.' },
+          { label: 'The home’s real condition', right: true, why: '“In good shape” is a claim. A 1972 home can have old sewer lines, wiring and roofs. The inspection will tell you.' },
+          { label: 'Why the seller is moving', right: false, why: 'Nice to know, and your agent may learn it, but it doesn’t change what the house is worth or costs to own.' },
+        ],
+      },
+      {
+        kind: 'choice',
+        id: 'screen',
+        prompt: 'Does it pass your first screen?',
+        choices: [
+          { label: 'Yes, worth a closer look: it fits the buy box on paper. Gather the missing facts next.', verdict: 'best', why: 'A first screen only decides whether it deserves your time. The real decision comes after the evidence.' },
+          { label: 'Yes, make a full-price offer today before someone else does.', verdict: 'poor', why: 'After 41 days on the market, there’s no rush. And you don’t yet know the rent, the value or the condition.' },
+          { label: 'No, a 1972 home is too old for a rental.', verdict: 'ok', why: 'Older homes need more checking, but age alone isn’t a reason to pass. If your buy box excludes older homes, though, passing is fine.' },
+        ],
+      },
+    ],
+    log: [{ area: 'The listing', finding: 'Fits the buy box on paper. The rent claim and the condition claim are unverified.', open: 'Rent, value, HOA rental rules, insurance, condition' }],
+  },
+  {
+    key: 'evidence',
+    title: 'Rent and value',
+    outcome: 'A rent estimate and an as-is value, each backed by comparables you chose and can explain.',
+    brief: [
+      'Your agent pulls homes that leased and sold nearby in the last 6 months. Your job is to pick the ones that are really like this house, and leave out the rest.',
+      'Good comparables match on size, age, condition and features, and are actual leases or closed sales, not asking prices.',
+    ],
+    docs: [
+      {
+        kind: 'Comparable rents',
+        title: 'Homes leased within 1 mile, last 6 months',
+        from: 'Your agent (fictional data)',
+        table: {
+          head: ['Home', 'Size', 'Built', 'Notes', 'Rent'],
+          rows: [
+            ['A', '3/2 · 1,410 sq ft', '1975', 'Leased', '$2,100'],
+            ['B', '3/2 · 1,520 sq ft', '1979', 'Leased', '$2,200'],
+            ['C', '3/2 · 1,480 sq ft', '1971', 'Leased', '$2,150'],
+            ['D', '4/3 · 2,050 sq ft', '2004', 'Leased, has a pool', '$2,750'],
+            ['E', '3/2 · 1,440 sq ft', '1974', 'Still for rent after 58 days', '$2,395 asking'],
+          ],
+        },
+      },
+      {
+        kind: 'Comparable sales',
+        title: 'Homes sold within 1 mile, last 6 months',
+        from: 'Your agent (fictional data)',
+        table: {
+          head: ['Home', 'Size', 'Built', 'Condition', 'Price'],
+          rows: [
+            ['F', '3/2 · 1,450 sq ft', '1973', 'Dated, like this one', '$286,000 sold'],
+            ['G', '3/2 · 1,500 sq ft', '1978', 'Dated, like this one', '$293,000 sold'],
+            ['H', '3/2 · 1,430 sq ft', '1970', 'Dated, like this one', '$288,000 sold'],
+            ['J', '3/2 · 1,470 sq ft', '1974', 'Fully remodeled', '$334,000 sold'],
+            ['K', '3/2 · 1,460 sq ft', '1972', 'Pending sale', '$309,000 list price'],
+          ],
+        },
+      },
+    ],
+    tasks: [
+      {
+        kind: 'multi',
+        id: 'rent-comps',
+        prompt: 'Which rentals are good comparables for this house? Choose all that apply.',
+        options: [
+          { label: 'A', right: true, why: 'Same size, age and layout, and actually leased.' },
+          { label: 'B', right: true, why: 'A little bigger, but close, and actually leased.' },
+          { label: 'C', right: true, why: 'The closest match, and actually leased.' },
+          { label: 'D', right: false, why: 'Much bigger, much newer, with a pool. It rents to a different tenant.' },
+          { label: 'E', right: false, why: 'An asking price that hasn’t rented in 58 days is evidence the rent is too high, not what the market pays.' },
+        ],
+      },
+      {
+        kind: 'number',
+        id: 'rent',
+        prompt: 'Using your comparables, what monthly rent will you plan on?',
+        answer: rent,
+        tolerance: 50,
+        worked: ['Average of A, B and C: ($2,100 + $2,200 + $2,150) ÷ 3 = $2,150', 'The listing’s “$2,400+” is about $250 a month too high: $3,000 a year of income that probably isn’t there.'],
+      },
+      {
+        kind: 'number',
+        id: 'value',
+        prompt: 'What is the house worth as it is today, based on the sales?',
+        answer: 289_000,
+        tolerance: 3_000,
+        worked: ['Use F, G and H: dated homes like this one that actually sold.', '($286,000 + $293,000 + $288,000) ÷ 3 ≈ $289,000', 'Leave out J (remodeled) and K (not sold yet).'],
+      },
+    ],
+    log: [
+      { area: 'Rent', finding: `Plan on ${$(rent)} a month (leased comparables A, B and C).` },
+      { area: 'Value', finding: 'About $289,000 as-is (closed sales F, G and H). The list price is about $11,000 above it.' },
+    ],
+    learnMore: [{ label: 'Lesson: analyzing a deal', href: '#/learn/analyze' }],
+  },
+  {
+    key: 'loan',
+    title: 'Loan and insurance',
+    outcome: 'Your monthly payment, the cash you need at your target price, and the conditions that could stop the loan.',
+    brief: [
+      'You ask a lender for a written quote for an investment property, and an insurance agent for a landlord policy quote. Read the conditions, not just the rate.',
+      `The rate here is a practice number (${(N.rate * 100).toFixed(2)}%), not a current quote.`,
+    ],
+    docs: [
+      {
+        kind: 'Loan term sheet',
+        title: 'Investment property loan: 1-unit home',
+        from: 'Example Mortgage Co. (fictional)',
+        rows: [
+          ['Loan type', '30-year fixed, investment property (you won’t live there)'],
+          ['Practice rate', `${(N.rate * 100).toFixed(2)}%`],
+          ['Down payment', '25% of the price or the appraised value, whichever is lower'],
+          ['Payment at a $289,000 price', `${$(N.piOffer)} a month principal and interest, on a ${$(N.loanOffer)} loan`],
+          ['Estimated closing costs', `${$(closingCosts)} (lender, title, escrow and prepaid items)`],
+          ['Reserves after closing', '6 months of the full monthly payment (principal, interest, taxes, insurance and HOA) still in your account'],
+          ['Seller credits', 'Up to 2% of the price or appraised value, whichever is lower'],
+          ['Rate lock', '45 days'],
+        ],
+        notes: ['Fannie Mae limits seller credits on investment properties to 2%. Anything above that has to come off the price instead (Fannie Mae Selling Guide B3-4.1-02).'],
+      },
+      {
+        kind: 'Insurance quote',
+        title: 'Landlord (dwelling) policy',
+        from: 'Example Insurance Agency (fictional)',
+        rows: [
+          ['Yearly premium', `$1,080 (${$(insurance)} a month)`],
+          ['Deductible', '$2,500'],
+          ['Dwelling coverage', '$260,000'],
+          ['Liability', '$300,000'],
+          ['Not covered', 'Flood. Earthquake.'],
+          ['Vacancy limit', 'Theft and vandalism aren’t covered if the home is empty more than 60 days in a row'],
+        ],
+      },
+    ],
+    tasks: [
+      {
+        kind: 'number',
+        id: 'pitia',
+        prompt: 'What is the full monthly payment at a $289,000 price: principal and interest, taxes, insurance and HOA?',
+        answer: N.pitiaOffer,
+        tolerance: 5,
+        worked: [`${$(N.piOffer)} + ${$(tax)} taxes ($1,704 ÷ 12) + ${$(insurance)} insurance + ${$(hoa)} HOA = ${$(N.pitiaOffer)}`],
+      },
+      {
+        kind: 'number',
+        id: 'cash-offer',
+        prompt: 'How much cash do you need at a $289,000 price: down payment, closing costs and the 6 months of reserves the lender wants?',
+        answer: N.cashOffer,
+        tolerance: 50,
+        worked: [
+          `Down payment: 25% of $289,000 = ${$(offer - N.loanOffer)}`,
+          `Closing costs: ${$(closingCosts)}`,
+          `Reserves: 6 × ${$(N.pitiaOffer)} = ${$(6 * N.pitiaOffer)}`,
+          `Total: ${$(N.cashOffer)}. That leaves ${$(N.investable - N.cashOffer)} of your ${$(N.investable)} for repairs and surprises.`,
+        ],
+      },
+      {
+        kind: 'choice',
+        id: 'vacancy',
+        prompt: 'What does the insurance policy’s 60-day vacancy limit mean for you?',
+        choices: [
+          { label: 'Plan to rent it within 60 days of closing, or ask the agent about vacancy coverage while repairs run long.', verdict: 'best', why: 'Repairs plus finding a tenant can easily take 2 months. Know what’s covered before the home sits empty.' },
+          { label: 'Nothing. Insurance covers everything once you have a policy.', verdict: 'poor', why: 'Policies have limits and exclusions. This one already excludes flood, earthquake, and theft after 60 empty days.' },
+        ],
+      },
+      {
+        kind: 'write',
+        id: 'ask-lender',
+        prompt: 'Write one question you’d ask the lender before you make an offer.',
+        to: 'Lender',
+        model: 'Examples: “If the appraisal comes in low, how does that change my down payment?” · “Which conditions could still stop the loan after I’m approved?” · “Will rent from this property count toward qualifying, and what documents do you need for that?”',
+      },
+    ],
+    log: [
+      { area: 'Loan', finding: `Payment ${$(N.pitiaOffer)} a month at $289,000. Cash needed ${$(N.cashOffer)}.`, open: 'Low appraisal raises the cash you need' },
+      { area: 'Insurance', finding: 'Landlord policy quoted at $1,080 a year. No flood or earthquake. 60-day vacancy limit.' },
+    ],
+    learnMore: [{ label: 'Your team: lender', href: '#/pros/lender' }, { label: 'Your team: insurance agent', href: '#/pros/insurance' }],
+  },
+  {
+    key: 'offer',
+    title: 'Your offer',
+    outcome: 'A signed contract, its deadlines on your calendar, and your deposit sent safely.',
+    brief: [
+      'Your agent writes the offer. You choose the price and the conditions (contingencies) that let you cancel and get your deposit back if something goes wrong.',
+      'The deadlines below are this practice contract’s terms. Real contracts set their own, and missing one can cost you your deposit.',
+    ],
+    docs: [
+      {
+        kind: 'Purchase contract (summary)',
+        title: 'Accepted on Day 0',
+        from: 'Signed by you and the seller (fictional)',
+        rows: [
+          ['Price', $(offer)],
+          ['Earnest money', `${$(earnest)}, to escrow within 3 business days`],
+          ['Inspection period', 'Ends Day 10. You can cancel for any reason before then.'],
+          ['Appraisal contingency', 'Ends Day 17'],
+          ['Loan contingency', 'Ends Day 21'],
+          ['HOA documents', '5 days to review after you receive them'],
+          ['Closing', 'Day 30'],
+        ],
+      },
+    ],
+    tasks: [
+      {
+        kind: 'choice',
+        id: 'price',
+        prompt: `The list price is ${$(N.list)}. What do you offer?`,
+        choices: [
+          { label: '$289,000, with inspection, appraisal and loan contingencies', verdict: 'best', why: 'It matches the value your sales comparables support, and fits your cash with room for repairs.' },
+          { label: '$275,000, with the same contingencies', verdict: 'ok', why: 'A defensible opening offer after 41 days on the market. The seller may counter, or may say no.' },
+          { label: `${$(N.list)} with no contingencies, to win it`, verdict: 'poor', why: 'You’d pay about $11,000 over the value, and give up your way out if the inspection or appraisal goes badly.' },
+        ],
+      },
+      {
+        kind: 'choice',
+        id: 'signed',
+        prompt: 'You’ve signed your offer. Do you have a contract?',
+        choices: [
+          { label: 'Not yet. It’s a contract once the seller accepts it in writing and you’re told.', verdict: 'best', why: 'Until then, the seller can accept another offer, and your deadlines haven’t started.' },
+          { label: 'Yes. Signing it makes it binding.', verdict: 'poor', why: 'Your signature is an offer. The seller has to accept it before it binds anyone.' },
+        ],
+      },
+      {
+        kind: 'choice',
+        id: 'wire',
+        prompt: 'The seller accepts. An email that looks like it’s from escrow arrives with wiring instructions for your earnest money. What do you do?',
+        choices: [
+          { label: 'Call the escrow officer at a phone number you already trust (from your agent or the escrow company’s website) to confirm the instructions before sending anything.', verdict: 'best', why: 'Fake wiring emails are a common scam in real estate, and wired money is very hard to get back. Always confirm by phone with a number you found yourself.' },
+          { label: 'Reply to the email to confirm it’s real.', verdict: 'poor', why: 'If the email is fake, the scammer answers. Use a number you found yourself.' },
+          { label: 'Wire it right away so you don’t miss the 3-day deadline.', verdict: 'poor', why: 'A quick call takes minutes. A wire sent to a scammer is usually gone for good.' },
+        ],
+      },
+    ],
+    log: [{ area: 'Contract', finding: `Accepted at ${$(offer)}. Earnest money ${$(earnest)}, confirmed by phone before wiring.` }],
+    dates: [
+      { when: 'Day 3', what: 'Earnest money to escrow (confirm the instructions by phone first)' },
+      { when: 'Day 10', what: 'Inspection period ends: cancel, ask for changes, or go ahead' },
+      { when: 'Day 17', what: 'Appraisal contingency ends' },
+      { when: 'Day 21', what: 'Loan contingency ends' },
+      { when: 'Day 30', what: 'Closing' },
+    ],
+    learnMore: [{ label: 'Lesson: negotiating', href: '#/learn/negotiate' }],
+  },
+  {
+    key: 'inspection',
+    title: 'The inspection',
+    outcome: 'The inspection report, the repairs sorted into “now” and “later”, and your answer to the seller before Day 10.',
+    brief: [
+      'You hire a home inspector, and on their advice a plumber to run a camera through the sewer line. Both reports come back on Day 6.',
+      'Sort each problem: fix now (safety, or anything that could stop the home from renting), or budget for later.',
+    ],
+    docs: [
+      {
+        kind: 'Inspection report (extract)',
+        title: 'Findings that need attention',
+        from: 'Example Home Inspections and Example Plumbing (fictional)',
+        table: {
+          head: ['Item', 'Finding', 'Estimate'],
+          rows: [
+            ['Sewer line', 'Camera shows roots and a sagging section 30 ft from the house. Backups likely.', `${$(sewer)} to repair (plumber’s bid)`],
+            ['Electrical panel', 'A panel brand electricians associate with breakers that may fail to trip. Recommend replacement.', `${$(panel)} (electrician’s bid)`],
+            ['Roof', 'Tile is fine. The underlayment beneath it has about 4–6 years left.', 'About $14,000 when it’s due'],
+            ['Water heater', '14 years old, working', 'About $1,600 when it fails'],
+            ['Kitchen outlets', 'Two outlets near the sink lack shock protection (GFCI)', 'About $250'],
+          ],
+        },
+        notes: ['The listing said “roof and plumbing in good shape.” This is why you inspect.'],
+      },
+    ],
+    tasks: [
+      {
+        kind: 'multi',
+        id: 'now',
+        prompt: 'Which items need fixing before a tenant moves in? Choose all that apply.',
+        options: [
+          { label: 'Sewer line', right: true, why: 'A backup makes the home unlivable and is expensive to clean up.' },
+          { label: 'Electrical panel', right: true, why: 'A safety risk for your tenant, and some insurers ask about this kind of panel.' },
+          { label: 'Kitchen outlets', right: true, why: 'Small and cheap, but a safety item. Fix it with the electrical work.' },
+          { label: 'Roof underlayment', right: false, why: 'Budget for it now (a reserve each month), but it has years left.' },
+          { label: 'Water heater', right: false, why: 'Budget for it. Replace it when it fails or before it leaks.' },
+        ],
+      },
+      {
+        kind: 'number',
+        id: 'left',
+        prompt: `At $289,000, you needed ${$(N.cashOffer)} and had ${$(N.investable)}. If you pay for the sewer and the panel yourself, how much is left for everything else?`,
+        answer: N.investable - N.cashOffer - N.urgent,
+        tolerance: 50,
+        worked: [`${$(N.investable)} − ${$(N.cashOffer)} = ${$(N.investable - N.cashOffer)}`, `${$(N.investable - N.cashOffer)} − ${$(N.urgent)} (sewer + panel) = ${$(N.investable - N.cashOffer - N.urgent)}`, 'That isn’t enough for a water heater, let alone a vacancy. Something has to change.'],
+      },
+      {
+        kind: 'choice',
+        id: 'respond',
+        prompt: 'It’s Day 7. What do you ask the seller for?',
+        choices: [
+          { label: `Lower the price by ${$(N.urgent)} to cover the sewer and the panel.`, verdict: 'best', why: 'The findings are documented, with bids. A price cut also lowers your down payment and loan.' },
+          { label: `A ${$(N.urgent)} seller credit at closing.`, verdict: 'poor', why: `This lender allows seller credits of up to 2% (${$(offer * 0.02)}). The rest would have to come off the price anyway, so ask for a price cut.` },
+          { label: 'Ask the seller to make the repairs before closing.', verdict: 'ok', why: 'It can work, but you don’t control who does the work or how well. Ask for permits and receipts, and re-inspect.' },
+          { label: 'Cancel before Day 10 and get the earnest money back.', verdict: 'ok', walk: true, why: 'A good result when a deal no longer fits. Your contract’s inspection period lets you leave with your deposit.' },
+          { label: 'Say nothing and go ahead.', verdict: 'poor', why: `You’d have about ${$(N.investable - N.cashOffer - N.urgent)} left for everything that goes wrong. That’s too thin.` },
+        ],
+        ifDifferent: 'If you had $20,000 more in savings, going ahead and fixing it yourself could be reasonable. The right answer depends on your cash, not just the house.',
+      },
+      {
+        kind: 'choice',
+        id: 'counter',
+        prompt: `The seller agrees to take ${$(offer - renegotiated)} off: a new price of ${$(renegotiated)}. With the repairs paid by you, you’d need ${$(N.cashRenegotiated)} of your ${$(N.investable)}. Do you accept before Day 10?`,
+        choices: [
+          { label: 'Accept in writing before Day 10.', verdict: 'ok', why: `You’d keep ${$(N.investable - N.cashRenegotiated)} beyond the lender’s reserves. Tight, but inside your plan, and the reserves are there for a bad month.` },
+          { label: 'Cancel before Day 10.', verdict: 'ok', walk: true, why: 'Also reasonable: the roof and water heater are coming, and your cushion is thin. Walking away with your deposit is a fine result.' },
+          { label: 'Wait until Day 12 to decide.', verdict: 'poor', why: 'After Day 10, this contract’s inspection period is over. You’d lose the right to cancel for the inspection, and maybe your deposit.' },
+        ],
+        ifDifferent: 'Both accepting and walking away are defensible here. What matters is that you decide on the numbers, in writing, before the deadline.',
+      },
+      {
+        kind: 'write',
+        id: 'ask-contractor',
+        prompt: 'Write one question you’d ask the plumber before you rely on the bid.',
+        to: 'Plumber',
+        model: 'Examples: “Does the bid include the permit, digging, and repairing the yard?” · “Are you licensed for this work in Nevada, and can I see your license number?” · “What could make the price go up once you open the line?”',
+      },
+    ],
+    log: [
+      { area: 'Condition', finding: `Sewer (${$(sewer)}) and panel (${$(panel)}) to fix now. Roof (4–6 years) and water heater to budget.`, open: 'Licensed contractors and permits for the repairs' },
+      { area: 'Price', finding: `Renegotiated to ${$(renegotiated)} before the inspection deadline.` },
+    ],
+    learnMore: [{ label: 'Your team: inspector', href: '#/pros/inspector' }, { label: 'Your team: contractor', href: '#/pros/contractor' }],
+  },
+  {
+    key: 'appraisal',
+    title: 'Appraisal and title',
+    outcome: 'Your answer to a low appraisal, and a title commitment with every item that could stop closing marked.',
+    brief: [
+      `The lender’s appraisal comes back at ${$(appraised)}, below your ${$(renegotiated)} price. The title company also sends its title commitment: what it needs before closing, and what its policy won’t cover.`,
+    ],
+    docs: [
+      {
+        kind: 'Appraisal (summary)',
+        title: `Appraised value: ${$(appraised)}`,
+        from: 'Licensed appraiser, ordered by the lender (fictional)',
+        notes: ['The appraiser weighed the dated sales most and adjusted for the sewer and panel findings.'],
+      },
+      {
+        kind: 'Title commitment (extract)',
+        title: 'Requirements and exceptions',
+        from: 'Example Title Co. (fictional)',
+        table: {
+          head: ['#', 'Item', 'Type'],
+          rows: [
+            ['1', 'Pay off and record a release of the 2016 deed of trust to First Example Bank', 'Requirement'],
+            ['2', 'Release of a mechanic’s lien recorded in 2023 by Desert Example Roofing for $4,800', 'Requirement'],
+            ['3', 'HOA statement showing dues paid to date', 'Requirement'],
+            ['4', 'Example Ridge CC&Rs, recorded 1971, including leasing rules', 'Exception'],
+            ['5', 'Public utility easement, 5 ft along the rear lot line', 'Exception'],
+            ['6', 'Property taxes for the current year, not yet due', 'Exception'],
+          ],
+        },
+        notes: ['Requirements must be met before the title company will close. Exceptions are things the title policy won’t cover.'],
+      },
+      {
+        kind: 'HOA rules (extract)',
+        title: 'Leasing',
+        from: 'Example Ridge HOA (fictional)',
+        rows: [
+          ['Minimum lease', '12 months'],
+          ['Short-term rentals', 'Not allowed (under 30 days)'],
+          ['Owner must give the HOA', 'A copy of each lease and the tenant’s contact information'],
+        ],
+      },
+    ],
+    tasks: [
+      {
+        kind: 'number',
+        id: 'gap',
+        prompt: `The lender lends 75% of the lower of the price and the appraisal. At ${$(renegotiated)} with a ${$(appraised)} appraisal, what is your new down payment?`,
+        answer: N.downIfGapPaid,
+        tolerance: 50,
+        worked: [`Loan: 75% × ${$(appraised)} = ${$(N.loanFinal)}`, `Down payment: ${$(renegotiated)} − ${$(N.loanFinal)} = ${$(N.downIfGapPaid)}`, `That’s ${$(N.downIfGapPaid - (renegotiated - Math.round(renegotiated * 0.75)))} more than you planned.`],
+      },
+      {
+        kind: 'choice',
+        id: 'low-appraisal',
+        prompt: 'It’s Day 15. What do you do about the low appraisal?',
+        choices: [
+          { label: `Ask the seller to lower the price to ${$(appraised)}, using your appraisal contingency.`, verdict: 'best', why: 'The appraisal is independent evidence. Most sellers know another buyer’s lender would see the same value.' },
+          { label: 'Pay the difference from your cushion.', verdict: 'ok', why: `It works, but it shrinks a thin cushion further. Ask first; paying is your fallback.` },
+          { label: 'Cancel before Day 17 and get the deposit back.', verdict: 'ok', walk: true, why: 'Reasonable if your cushion can’t take it. Your appraisal contingency protects your deposit until Day 17.' },
+        ],
+      },
+      {
+        kind: 'choice',
+        id: 'title-stop',
+        prompt: `The seller agrees to ${$(finalPrice)}. In the title commitment, which item could stop your closing if nobody deals with it?`,
+        choices: [
+          { label: '#2: the roofer’s mechanic’s lien', verdict: 'best', why: 'Unless it’s paid or released, the lien could follow the house to you. Ask the title officer how the seller will clear it before closing.' },
+          { label: '#1: the old deed of trust', verdict: 'ok', why: 'It must be cleared too, but paying off the seller’s loan at closing is routine. The roofer’s lien is the unusual one.' },
+          { label: '#5: the utility easement', verdict: 'poor', why: 'A rear utility easement is common and usually harmless. It stays, but it rarely affects a rental.' },
+        ],
+      },
+      {
+        kind: 'choice',
+        id: 'hoa-fit',
+        prompt: 'Do the HOA’s leasing rules fit your plan?',
+        choices: [
+          { label: 'Yes: a 12-month lease fits. Send the HOA each lease and the tenant’s contact information.', verdict: 'best', why: 'Your plan was a long-term rental. A short-term rental plan would have died here.' },
+          { label: 'No: HOAs can’t limit rentals, so ignore them.', verdict: 'poor', why: 'Many HOAs can and do limit rentals. Read the rules before your HOA review period ends.' },
+        ],
+      },
+      {
+        kind: 'write',
+        id: 'ask-title',
+        prompt: 'Write the question you’d send the title officer about item #2.',
+        to: 'Title officer',
+        model: 'Example: “How will the 2023 mechanic’s lien be cleared before closing, and will I get a recorded release? If it can’t be cleared in time, what are my options?”',
+      },
+    ],
+    log: [
+      { area: 'Value', finding: `Appraised at ${$(appraised)}. Price lowered to ${$(finalPrice)} under the appraisal contingency.` },
+      { area: 'Title', finding: 'Old deed of trust and a $4,800 mechanic’s lien to be cleared before closing. Utility easement stays.', open: 'Recorded release of the mechanic’s lien' },
+      { area: 'HOA', finding: '12-month minimum lease; no short-term rentals; send the HOA each lease.' },
+    ],
+    learnMore: [{ label: 'Your team: title company', href: '#/pros/title' }, { label: 'Your team: appraiser', href: '#/pros/appraiser' }],
+  },
+  {
+    key: 'closing',
+    title: 'Closing',
+    outcome: 'A checked closing statement, your money sent safely, insurance in force, and the deed recorded in your name.',
+    brief: [
+      'Three days before closing, escrow sends the closing statement. Check every line against your contract and your loan. Mistakes happen, and they’re easiest to fix before you sign.',
+    ],
+    docs: [
+      {
+        kind: 'Closing statement (extract)',
+        title: 'Buyer’s side',
+        from: 'Example Title Co. (fictional)',
+        table: {
+          head: ['Line', 'Amount'],
+          rows: [
+            ['Purchase price', $(finalPrice)],
+            ['New loan', `−${$(N.loanFinal)}`],
+            ['Closing costs (lender, title, escrow, prepaid)', $(closingCosts)],
+            ['Cash due from you at closing', $(N.wrongCashToClose)],
+          ],
+        },
+      },
+    ],
+    tasks: [
+      {
+        kind: 'choice',
+        id: 'error',
+        prompt: 'Something is missing. What is it?',
+        choices: [
+          { label: `Your ${$(earnest)} earnest money isn’t credited.`, verdict: 'best', why: 'You already paid it into escrow on Day 3. It should reduce the cash you bring.' },
+          { label: 'The seller’s credit for repairs.', verdict: 'poor', why: 'There isn’t one: you negotiated a lower price instead.' },
+          { label: 'Nothing. It looks right.', verdict: 'poor', why: 'Check each payment you’ve already made. Your earnest money is missing.' },
+        ],
+      },
+      {
+        kind: 'number',
+        id: 'cash-to-close',
+        prompt: 'What should the cash due from you at closing be?',
+        answer: N.cashToClose,
+        tolerance: 10,
+        worked: [`${$(finalPrice)} − ${$(N.loanFinal)} + ${$(closingCosts)} − ${$(earnest)} earnest money = ${$(N.cashToClose)}`],
+      },
+      {
+        kind: 'choice',
+        id: 'insure',
+        prompt: 'When should your landlord policy start?',
+        choices: [
+          { label: 'On the day you close, when the house becomes yours. The lender will usually want proof first.', verdict: 'best', why: 'From closing, a fire or a burst pipe is your loss. Don’t leave a gap.' },
+          { label: 'When the tenant moves in.', verdict: 'poor', why: 'The house is yours, and at risk, from closing on.' },
+        ],
+      },
+    ],
+    log: [
+      { area: 'Closing', finding: `Earnest money credit added. Cash to close ${$(N.cashToClose)}. Wire confirmed by phone. Landlord policy starts at closing.`, open: 'Copy of the recorded deed and the lien release' },
+    ],
+  },
+  {
+    key: 'after',
+    title: 'Your first weeks',
+    outcome: 'A first-week checklist done, repairs started the right way, and a lawful screening and lease plan.',
+    brief: [
+      'The deed is recorded in your name. The house is vacant, so you can go in. Now get it safe, fixed and rented.',
+      'Rules on deposits and entry are state law. The ones below are Nevada’s, because this practice house is in Nevada.',
+    ],
+    docs: [],
+    tasks: [
+      {
+        kind: 'multi',
+        id: 'first-week',
+        prompt: 'What belongs on your first-week list? Choose all that apply.',
+        options: [
+          { label: 'Change or rekey the locks', right: true, why: 'You don’t know who else has keys.' },
+          { label: 'Put the utilities in your name', right: true, why: 'Avoid a shutoff, and keep the home heated or cooled so pipes and finishes stay safe.' },
+          { label: 'Take dated photos and video of every room', right: true, why: 'Your record of condition before repairs and before a tenant.' },
+          { label: 'Give the HOA your mailing address and how to reach you', right: true, why: 'So notices and dues statements reach you.' },
+          { label: 'Open a separate bank account for the rental', right: true, why: 'Clean records make taxes and decisions much easier.' },
+          { label: 'Hire licensed contractors, with permits, for the sewer and panel work', right: true, why: 'Permits and licenses protect you, your tenant and your insurance coverage.' },
+          { label: 'List it for rent before the sewer is fixed', right: false, why: 'Fix safety and habitability items first. A backup with a tenant in the home is worse.' },
+        ],
+      },
+      {
+        kind: 'multi',
+        id: 'lead',
+        prompt: 'The house was built in 1972. Under federal law, what must you do before a tenant signs? Choose all that apply.',
+        options: [
+          { label: 'Give the EPA pamphlet “Protect Your Family From Lead in Your Home”', right: true, why: 'Required for most housing built before 1978.' },
+          { label: 'Tell the tenant about any lead paint or hazards you know of, and share any reports', right: true, why: 'Required, even if you know of none (then you say so).' },
+          { label: 'Include the lead warning statement in the lease, signed', right: true, why: 'Required, and keep a copy for at least 3 years.' },
+          { label: 'Test the home for lead before you can rent it', right: false, why: 'Federal disclosure rules don’t require a test. Some local rules or programs might, so check yours.' },
+        ],
+      },
+      {
+        kind: 'choice',
+        id: 'adverse',
+        prompt: 'An applicant’s credit report shows unpaid collections, so you decide to deny them. What must you do?',
+        choices: [
+          { label: 'Give an adverse action notice: the credit bureau’s name, address and phone, that the bureau didn’t make the decision, and their right to a free report within 60 days and to dispute it.', verdict: 'best', why: 'Federal law (the Fair Credit Reporting Act) requires this whenever a report leads to a denial, a cosigner, a bigger deposit or higher rent. If you used a credit score, more is required. Written is best for your records.' },
+          { label: 'Nothing. Landlords don’t have to explain denials.', verdict: 'poor', why: 'When a consumer report played a part, the notice is required.' },
+          { label: 'Approve them, but quietly charge a bigger deposit.', verdict: 'poor', why: 'A bigger deposit because of the report also requires the notice. And apply the same written criteria to every applicant.' },
+        ],
+      },
+      {
+        kind: 'choice',
+        id: 'nv-deposit',
+        prompt: `In Nevada, what is the most you can take as a security deposit at ${$(rent)} a month rent?`,
+        choices: [
+          { label: `${$(N.maxDeposit)}: 3 months’ rent, counting any last month’s rent you collect`, verdict: 'best', why: 'In Nevada, the deposit plus any last month’s rent can’t exceed 3 months’ rent. You must return it, with an itemized list of deductions, within 30 days after the tenancy ends (NRS 118A.242).' },
+          { label: 'Whatever the tenant agrees to', verdict: 'poor', why: 'In Nevada, the law caps it at 3 months’ rent (NRS 118A.242).' },
+          { label: `${$(rent)}: 1 month’s rent`, verdict: 'ok', why: 'A common choice, and lawful. But it’s your choice, not the limit.' },
+        ],
+      },
+      {
+        kind: 'choice',
+        id: 'nv-entry',
+        prompt: 'In Nevada, your tenant’s faucet leaks and you want to fix it. What notice do you give before going in?',
+        choices: [
+          { label: 'At least 24 hours’ notice, and enter at reasonable times, unless it’s an emergency or the tenant agrees to sooner.', verdict: 'best', why: 'That’s Nevada’s rule (NRS 118A.330).' },
+          { label: 'None. You own the house.', verdict: 'poor', why: 'Once it’s rented, the tenant has the right to possession. In Nevada, give 24 hours’ notice except in an emergency.' },
+        ],
+      },
+    ],
+    log: [
+      { area: 'First week', finding: 'Locks changed, utilities moved, condition photos taken, HOA told, rental bank account open.' },
+      { area: 'Renting', finding: `Lead pamphlet and disclosure ready. Written screening criteria with adverse action notices. Deposit at or under ${$(N.maxDeposit)}; returned within 30 days (Nevada).` },
+    ],
+    learnMore: [{ label: 'Lesson: after you close', href: '#/learn/after-closing' }],
+  },
+  {
+    key: 'run',
+    title: 'Run it and review',
+    outcome: 'Your real monthly cash flow, a reserve plan, and what you’ll review in 6 months.',
+    brief: [
+      `A tenant signs a 12-month lease at ${$(rent)}. Each month you set money aside for the slow months, the repairs and the big replacements (the roof, the water heater), even when nothing breaks.`,
+    ],
+    docs: [
+      {
+        kind: 'Your monthly numbers',
+        title: 'Self-managed',
+        from: 'You (practice numbers)',
+        table: {
+          head: ['Item', 'Monthly'],
+          rows: [
+            ['Rent', $(rent)],
+            ['Set aside for vacancy (5%)', $(N.setAside)],
+            ['Set aside for repairs (5%)', $(N.setAside)],
+            ['Set aside for big replacements (5%)', $(N.setAside)],
+            ['Property taxes', $(tax)],
+            ['Insurance', $(insurance)],
+            ['HOA', $(hoa)],
+            ['Loan payment (principal and interest)', $(N.piFinal)],
+          ],
+        },
+        notes: ['The 5% set-asides are a planning choice for this practice house, not a rule. Older homes often need more.'],
+      },
+    ],
+    tasks: [
+      {
+        kind: 'number',
+        id: 'cash-flow',
+        prompt: 'What is your monthly cash flow after the set-asides?',
+        answer: N.cashFlow,
+        tolerance: 5,
+        worked: [`${$(rent)} − 3 × ${$(N.setAside)} − ${$(tax)} − ${$(insurance)} − ${$(hoa)} − ${$(N.piFinal)} = ${$(N.cashFlow)}`, 'With a property manager at about 8% of rent, it would be close to zero. That fits your goal (rent covers costs) but leaves no room for a worse year.'],
+      },
+      {
+        kind: 'choice',
+        id: 'good-deal',
+        prompt: 'Was this a good purchase?',
+        choices: [
+          { label: 'It fits the plan: the rent covers the costs with reserves set aside, and you bought at the appraised value. Time and rent growth do the rest, and nothing is guaranteed.', verdict: 'best', why: 'An honest answer: it works for a long-term goal, not for monthly income.' },
+          { label: `Yes, it makes ${$(N.cashFlow)} a month, so it’s a great investment.`, verdict: 'poor', why: 'That’s before any big repair or a vacant month. One water heater takes most of a year’s profit.' },
+          { label: 'No. Any rental that doesn’t make $500 a month is a bad deal.', verdict: 'ok', why: 'A fine rule if your goal is income. This plan’s goal was long-term growth with rent covering costs.' },
+        ],
+      },
+      {
+        kind: 'write',
+        id: 'review',
+        prompt: 'What will you check when you review this rental in 6 months?',
+        to: 'You',
+        model: 'Examples: actual costs against these numbers · whether the set-asides covered what broke · the rent compared with new leases nearby · the roof and water heater · whether to keep self-managing · what you’d change in your buy box before the next one.',
+      },
+    ],
+    log: [{ area: 'Operating', finding: `Cash flow about ${$(N.cashFlow)} a month self-managed, after 15% set-asides. Review in 6 months.` }],
+    learnMore: [{ label: 'Lesson: after you close', href: '#/learn/after-closing' }, { label: 'My plan', href: '#/toolkit' }],
+  },
+];
+
+export const caseStageByKey = (k: string) => RENTAL_CASE.find((s) => s.key === k);

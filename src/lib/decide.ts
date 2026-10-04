@@ -250,7 +250,7 @@ export const STRATEGIES: Strategy[] = [
       { id: 'fl-lessons', text: 'Read the lessons on analyzing a deal and tools of the trade.', href: '#/learn/analyze' },
       { id: 'fl-arv', text: 'Estimate the after-repair value from sold homes already in finished condition; use the 70% rule only as a first screen.' },
       { id: 'fl-rehab', text: 'Learn to estimate repairs, and add a cushion for what you can’t see.', href: '#/learn/reading' },
-      { id: 'fl-team', text: 'Line up a licensed contractor, an inspector and an agent before you buy.', href: '#/pros/contractor' },
+      { id: 'fl-team', text: 'Line up a licensed contractor, a qualified inspector and an agent before you buy.', href: '#/pros/contractor' },
       { id: 'fl-money', text: 'Arrange financing before you offer, and compare every term of a hard-money loan.', href: '#/learn/financing' },
       { id: 'fl-costs', text: 'Budget buying, holding and selling costs, not just the repairs.', href: '#/analyze?plan=flip' },
       { id: 'fl-permits', text: 'Check permit rules with the city or county building department.' },

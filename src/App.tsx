@@ -27,13 +27,14 @@ import ReadingPage from './components/ReadingPage';
 import PropertyTypePage from './components/PropertyTypePage';
 import { lessonByKey } from './lib/lessons';
 import { topicBySlug } from './lib/deep/propertyTopics';
-import { planParam, type Plan } from './lib/analyze';
+import { planParam, prefillParam, type Plan, type Prefill } from './lib/analyze';
 import LearnPage from './components/LearnPage';
 import DecidePage from './components/DecidePage';
 import FindDealsPage from './components/FindDealsPage';
 import AnalyzePage from './components/AnalyzePage';
 import PracticePage from './components/PracticePage';
 import PracticeScenarioPage from './components/PracticeScenarioPage';
+import RentalCasePage from './components/RentalCasePage';
 import DrillPage from './components/DrillPage';
 import ToolkitPage from './components/ToolkitPage';
 import PlaybookPage from './components/PlaybookPage';
@@ -73,7 +74,7 @@ type Route =
   | { page: 'disclaimer'; section?: string }
   | { page: 'privacy'; section?: string }
   | { page: 'terms'; section?: string }
-  | { page: 'analyze'; plan?: Plan }
+  | { page: 'analyze'; plan?: Plan; prefill?: Prefill }
   | { page: 'learn' }
   | { page: 'lesson'; key: string }
   | { page: 'reading' }
@@ -87,6 +88,7 @@ type Route =
   | { page: 'playbook'; key?: string; section?: string }
   | { page: 'practice'; sale?: string }
   | { page: 'practiceRun'; id: string; stage?: string }
+  | { page: 'practiceCase'; stage?: string }
   | { page: 'drill'; id: string }
   | { page: 'toolkit'; section?: string }
   | { page: 'notFound' };
@@ -140,7 +142,7 @@ function parseHash(): Route {
   const confirm = h.match(/^advertise\/confirm(?:\/([A-Za-z0-9_-]+))?$/);
   if (confirm) return { page: 'applicationConfirm', token: confirm[1] ?? '' };
   if (h === 'admin') return { page: 'admin' };
-  if (h === 'calculator' || h === 'analyze') return { page: 'analyze', plan: planParam(params.get('plan')) };
+  if (h === 'calculator' || h === 'analyze') return { page: 'analyze', plan: planParam(params.get('plan')), prefill: prefillParam(params) };
   if (h === 'learn') return { page: 'learn' };
   const lesson = h.match(/^learn\/([a-z-]{1,30})$/);
   if (h === 'learn/reading') return { page: 'reading' };
@@ -163,6 +165,8 @@ function parseHash(): Route {
   const drill = h.match(/^practice\/drills\/([a-z0-9-]{2,40})$/);
   if (drill) return { page: 'drill', id: drill[1] };
   if (h === 'practice/drills') return { page: 'practice' };
+  const pc = h.match(/^practice\/case(?:\/([a-z-]{2,20}))?$/);
+  if (pc) return { page: 'practiceCase', stage: pc[1] };
   const pr = h.match(/^practice\/([a-z]{2,12}-[a-z-]{2,30})(?:\/([a-z]{2,20}))?$/);
   if (pr) return { page: 'practiceRun', id: pr[1], stage: pr[2] };
   const pb = h.match(/^playbooks(?:\/([a-z]+)(?:\/([a-z-]+))?)?$/);
@@ -288,7 +292,7 @@ export default function App() {
       {route.page === 'disclaimer' && <DisclaimerPage section={route.section} />}
       {route.page === 'privacy' && <PrivacyPage section={route.section} />}
       {route.page === 'terms' && <TermsPage section={route.section} />}
-      {route.page === 'analyze' && <AnalyzePage plan={route.plan} />}
+      {route.page === 'analyze' && <AnalyzePage plan={route.plan} prefill={route.prefill} />}
       {route.page === 'learn' && <LearnPage />}
       {route.page === 'reading' && <ReadingPage />}
       {route.page === 'propertyType' && <PropertyTypePage slug={route.slug} />}
@@ -303,6 +307,7 @@ export default function App() {
       {route.page === 'toolkit' && <ToolkitPage section={route.section} />}
       {route.page === 'drill' && <DrillPage key={route.id} id={route.id} />}
       {route.page === 'practiceRun' && <PracticeScenarioPage key={route.id} id={route.id} stageKey={route.stage} />}
+      {route.page === 'practiceCase' && <RentalCasePage stageKey={route.stage} />}
       {route.page === 'playbook' && <PlaybookPage key={route.key ?? ''} playbook={route.key} section={route.section} />}
       {route.page === 'advertiser' && <AdvertiserPage key={route.token ?? ''} token={route.token} />}
       {route.page === 'findpro' && <FindAProPage key={route.section ?? ''} section={route.section} />}

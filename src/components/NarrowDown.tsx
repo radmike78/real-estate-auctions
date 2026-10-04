@@ -14,7 +14,12 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
   const q = done ? null : qs[step];
   const picked = q ? answers[q.key] : undefined;
   const suggestion = q && picked === NOT_SURE ? q.suggest(resolveAnswers(config, answers)) : null;
-  const choose = (v: string) => setAnswers((a) => ({ ...a, [q!.key]: v }));
+  // Choosing an answer moves on by itself (Back changes it); "I'm not sure" waits so the suggestion can be read.
+  const choose = (v: string) => {
+    setAnswers((a) => ({ ...a, [q!.key]: v }));
+    const from = step;
+    if (v !== NOT_SURE) window.setTimeout(() => setStep((s) => (s === from ? from + 1 : s)), 250);
+  };
   const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   return (
