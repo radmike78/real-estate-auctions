@@ -82,7 +82,7 @@ export default function LeadForm({ pro }: { pro: Pro }) {
           <input type="checkbox" checked={f.acknowledge} onChange={(e) => set('acknowledge', e.target.checked)} />
           <span>
             I understand DeedOwl only helps me find options. It isn't a party to any agreement I make, and I'm responsible for my own
-            due diligence. <a href="#/disclaimer" target="_blank" rel="noreferrer">Read more</a>
+            due diligence. <a href="#/about" target="_blank" rel="noreferrer">Read more</a>
             {errors.acknowledge && <span className="field-error"> {errors.acknowledge}</span>}
           </span>
         </label>
