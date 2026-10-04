@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { navigate } from '../lib/nav';
+import { navigate, replaceAddress } from '../lib/nav';
 import PageHero from './PageHero';
 import { IconSearch } from './Icons';
 import { highlight, searchGuides, type GuideIndex } from '../lib/guideSearch';
@@ -55,7 +55,7 @@ export default function GuidesPage({ initialQuery }: { initialQuery: string }) {
     setQ(next);
     const t = next.trim();
     // Keep the address shareable without adding a history entry for every letter typed.
-    history.replaceState(null, '', t ? `#/guides?q=${encodeURIComponent(t)}` : '#/guides');
+    replaceAddress(t ? `/guides?q=${encodeURIComponent(t)}` : '/guides');
   };
 
   const results = useMemo(() => (index ? searchGuides(index, q) : null), [index, q]);

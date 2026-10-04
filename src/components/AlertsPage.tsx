@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import { navigate } from '../lib/nav';
 import { api, ApiError, unreachable } from '../lib/api';
 import PageHero from './PageHero';
 import EmptyState from './EmptyState';
@@ -135,7 +136,7 @@ function Confirm({ token }: { token: string }) {
   useEffect(() => {
     let alive = true;
     api<{ manageToken: string }>('/api/alerts/confirm', { body: { token } })
-      .then((r) => alive && window.location.replace(`#/alerts/manage/${r.manageToken}?welcome=1`))
+      .then((r) => alive && navigate(`/alerts/manage/${r.manageToken}?welcome=1`, { replace: true }))
       .catch((e: Error) => alive && setError(e.message));
     return () => {
       alive = false;

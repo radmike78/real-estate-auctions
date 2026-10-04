@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLastActivity } from '../lib/journey';
+import { replaceAddress } from '../lib/nav';
 import PageHero from './PageHero';
 import { Calculators } from './CalculatorPage';
 import { CalcRegion } from './calcRegion';
@@ -46,6 +47,8 @@ export default function AnalyzePage({ plan }: { plan?: Plan } = {}) {
     if (!plan) return;
     setDeal((d) => (d.plan === plan && (plan !== 'lien' || d.kind === 'lien') ? d : forLink(d, plan)));
     numbersRef.current?.scrollIntoView({ block: 'start' });
+    // Done with the link's request: a reload then reopens the deal as it is now, not a fresh one.
+    replaceAddress('/analyze');
   }, [plan]);
   const [saved, setSaved] = useState<Deal[]>(loadDeals);
 
@@ -185,7 +188,7 @@ export default function AnalyzePage({ plan }: { plan?: Plan } = {}) {
 
       <h2 className="section-title" id="numbers" ref={numbersRef}>3. Run the numbers</h2>
       <CalcRegion.Provider value={{ state: deal.state, county: deal.county }}>
-        <Calculators key={`${deal.plan}-${deal.state}-${deal.county}-${deal.kind}`} initial={calcTabFor(deal.plan)} onTab={(k) => { const p = PLANS.find((x) => calcTabFor(x.key) === k)?.key; if (p && p !== deal.plan && plans.some((x) => x.key === p)) set({ plan: p }); }} state={deal.state} offer={deal.kind === 'listing' || deal.kind === 'reo'} />
+        <Calculators key={`${deal.state}-${deal.county}-${deal.kind}`} initial={calcTabFor(deal.plan)} onTab={(k) => { const p = PLANS.find((x) => calcTabFor(x.key) === k)?.key; if (p && p !== deal.plan && plans.some((x) => x.key === p)) set({ plan: p }); }} state={deal.state} offer={deal.kind === 'listing' || deal.kind === 'reo'} />
       </CalcRegion.Provider>
     </main>
   );
