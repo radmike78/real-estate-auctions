@@ -268,6 +268,7 @@ export default function App() {
 
   return (
     <div className={`app${route.page === 'home' ? ' app-home' : ''}`}>
+      <a className="skip-link" href="#content" onClick={(e) => { e.preventDefault(); const m = document.querySelector('main'); if (m) { m.setAttribute('tabindex', '-1'); m.focus(); } }}>Skip to content</a>
       <SiteHeader current={path} nav={nav} />
       <RoleNotice />
       {route.page === 'home' && <HomePage />}
@@ -322,8 +323,7 @@ export default function App() {
           {features?.email && <a href="#/alerts">Email alerts</a>}
           <a href="#/homeowner-help">Homeowners: free help</a>
           <a href="#/about">How DeedOwl works</a>
-          <a href="#/advertise">Advertise</a>
-          <a href="#/advertiser">Advertiser sign-in</a>
+          <a href="#/advertise">For professionals</a>
           <a href="#/privacy">Privacy</a>
           <a href="#/terms">Terms</a>
         </nav>

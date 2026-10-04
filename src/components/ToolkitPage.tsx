@@ -266,7 +266,7 @@ export function FirstDealRoadmap() {
               if (d) setPath(d.kind === 'lien' ? 'certificate' : d.kind === 'listing' || d.kind === 'reo' ? 'listing' : 'auction');
             }}
           >
-            <option value="">None yet: I’m learning and getting ready</option>
+            <option value="">None yet (learning)</option>
             {deals.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}</option>)}
           </select>
         </label>
@@ -723,7 +723,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
       {TOOLKIT.map((g) => (
         <section key={g.group} id={`tools-${g.group.toLowerCase().replace(/[^a-z]+/g, '-')}`}>
           <h2>{g.group}</h2>
-          <ul className="lesson-links">
+          <ul className="lesson-links link-columns">
             {g.items.map((x) => (
               <li key={x.label}>
                 <a href={x.href}>{x.label} →</a>

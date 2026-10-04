@@ -50,7 +50,7 @@ export default function RentalCasePage({ stageKey }: { stageKey?: string }) {
         compact
         eyebrow={<span className="practice-tag">Practice · fictional property</span>}
         title={CASE_TITLE}
-        sub={`${CASE_PROPERTY}. You’ll read teaching versions of a purchase’s paperwork (fictional extracts, each with a guide to the real form), make the calls, and finish with your own deal packet.`}
+        sub={stage || packet ? CASE_PROPERTY : `${CASE_PROPERTY}. You’ll read teaching versions of a purchase’s paperwork (fictional extracts, each with a guide to the real form), make the calls, and finish with your own deal packet.`}
       />
       <PracticeRibbon />
       <nav className="practice-stages" aria-label="Steps in this practice purchase" id="case-top">
@@ -413,7 +413,7 @@ function Packet({ p }: { p: CaseProgress }) {
       </div>
       <div className="case-packet-grid">
         {secs.map((s) => (
-          <div key={s.title} className="case-packet-sec">
+          <div key={s.title} className={`case-packet-sec${s.rows.length > 6 ? ' wide' : ''}`}>
             <h3>{s.title}</h3>
             <ul>{s.rows.map((r) => <li key={r}>{r}</li>)}</ul>
           </div>

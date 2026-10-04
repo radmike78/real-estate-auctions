@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { lastList } from '../lib/lastList';
+import { SHOW_SAMPLE_DATA } from '../data';
 import { flushSync } from 'react-dom';
 import { useProperties } from '../data/live';
 import { IRS_ID_PREFIX, LIVE_ID_PREFIX } from '../feed/toProperty';
@@ -441,6 +442,12 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
           </dl>
         )}
       </PageHero>
+
+      {!verified && SHOW_SAMPLE_DATA && (
+        <div className="caution sample-banner" role="note">
+          <strong>Sample property: fictional, for practice.</strong> The address, dates and numbers are made up to show how a listing reads. At a real auction the opening bid isn’t the price: bidding usually rises toward what buyers think the property is worth after its liens, repairs and risks, and many sales are postponed or cancelled.
+        </div>
+      )}
 
       <div className="verify" role="alert">
         {verified && !irs && <>On the Clark County Treasurer’s official list, re-checked {ago(p.lastUpdated)}. The list shows the minimum bid and auction details only: value, liens and condition are for you to research. </>}
