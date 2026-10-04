@@ -1,12 +1,24 @@
 import PageHero from './PageHero';
 import { advertisingOpen, useSiteFeatures } from '../lib/siteFeatures';
 import { CATEGORIES, REVERIFY_DAYS, type Category } from '../lib/pros';
+import { AD_TOPICS } from '../lib/adTopics';
+import { CAPS, type AdTier } from '../lib/adPlans';
+import { PlanCards, useAdPlans, type AdPlansInfo } from './PlanCards';
+
+/** A plan's price line: the same price everywhere, or a note that it depends on the category. */
+function priceLine(info: AdPlansInfo | null | 'loading', t: AdTier): string {
+  if (info === 'loading') return '…';
+  const labels = info?.available ? [...new Set(Object.values(info.categories).map((c) => c[t]).filter((p) => p.available).map((p) => p.amountLabel))] : [];
+  if (!labels.length) return 'Pricing is shown when advertising opens';
+  return labels.length === 1 ? labels[0]! : 'Price depends on your category: see it on your dashboard';
+}
 
 const GROUPS = ['Real estate', 'Financing', 'Closing & protection', 'Inspection & repairs', 'Legal & tax', 'Ownership'] as const;
 
 export default function AdvertisePage() {
   const features = useSiteFeatures();
   const open = advertisingOpen(features);
+  const plans = useAdPlans();
   return (
     <main className="page">
       <PageHero
@@ -47,18 +59,28 @@ export default function AdvertisePage() {
         ))}
       </div>
 
+      <h2>Plans</h2>
+      <p>Monthly, per category. Cancel any time. Your plan only adds labeled ad boxes: it never changes your place in the directory list.</p>
+      <PlanCards price={(t) => priceLine(plans, t)} />
+      <p className="small muted">
+        Spots are limited so ads stay useful: up to {CAPS.listing} advertisers per category and {CAPS.featured} Featured ad spots per category.
+        Topic ads appear beside {AD_TOPICS.map((t) => t.label.toLowerCase()).join(', ')} topics. Agents, lenders, title and escrow companies
+        and attorneys share up to {CAPS.topicSettlement} spots per topic, which take turns. Other kinds of professionals get {CAPS.topicOther} spot per topic.
+      </p>
+
       <h2>How listing works</h2>
       <ol className="steps-rich">
         <li><strong>Apply and confirm your email.</strong><span>Takes about five minutes.</span></li>
         <li><strong>We verify you.</strong><span>We check your license on the official regulator lookup, and confirm your identity through contact details we find independently.</span></li>
-        <li><strong>Pay by card and go live.</strong><span>A flat monthly fee, the same for everyone in your category, paid securely through Stripe. Cancel any time.</span></li>
+        <li><strong>Choose a plan, pay by card and go live.</strong><span>A monthly fee for the plan you choose, paid securely through Stripe. Cancel any time.</span></li>
         <li><strong>Track your results.</strong><span>Sign in any time with a one-time email link to see your numbers and leads.</span></li>
       </ol>
 
       <div className="notice small" role="note">
-        <strong>Fair placement.</strong> Results are filtered by what the buyer needs and shown in a rotating order. No one can pay for a higher
-        position. Your profile is labeled as an advertisement. Every advertiser in a category pays the same flat monthly fee. We don't charge per lead or per closing, or take a share of any transaction, and we aren't
-        a party to any agreement between you and a buyer.
+        <strong>How placement works.</strong> Every listed professional appears in the directory list in a fair rotating order, whatever plan
+        they pay for. Premium adds a separate, labeled Featured ad box on your category’s pages (up to {CAPS.featured} per category). Premium Plus
+        also adds a labeled ad beside one Learn or Practice topic. Every ad is labeled as paid. We don’t rank professionals, charge per lead or per
+        closing, or take a share of any transaction, and we aren’t a party to any agreement between you and a buyer.
       </div>
       <p className="small muted">Already listed? <a href="#/advertiser">Sign in to your dashboard →</a></p>
     </main>

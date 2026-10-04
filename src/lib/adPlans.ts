@@ -37,8 +37,9 @@ export const CAPS = {
   listing: 5,
   /** Featured ad spots per category (Premium and Premium Plus). */
   featured: 2,
-  /** Topic ad spots per category and topic, for real estate settlement services (they rotate). */
-  topicSettlement: 3,
+  /** Topic ad spots per category and topic, for real estate settlement services (they rotate). Premium Plus also takes
+   * a Featured spot, so this can't usefully be more than `featured`. */
+  topicSettlement: 2,
   /** Topic ad spots per category and topic for every other category (exclusive). */
   topicOther: 1,
 } as const;

@@ -90,7 +90,7 @@ describe('application validation', () => {
     expect(approvalBlockers('agent', { ...VERIFIED, licenseExpires: null } as never, '2026-09-25')).toHaveLength(1);
     expect(approvalBlockers('bank', { ...VERIFIED, licenseExpires: null } as never, '2026-09-25')).toEqual([]);
     expect(approvalBlockers('agent', { ...VERIFIED, identityConfirmed: false, identityMethod: 'ok' } as never, '2026-09-25')).toHaveLength(2);
-    expect(approvalBlockers('agent', { ...VERIFIED, contentReviewed: false } as never, '2026-09-25')).toEqual(['Check the headline and bio against the content rules.']);
+    expect(approvalBlockers('agent', { ...VERIFIED, contentReviewed: false } as never, '2026-09-25')).toEqual(['Check the headline, bio and ad line against the content rules.']);
   });
 
   it('accepts the new categories with their own license formats', () => {
@@ -112,7 +112,9 @@ describe('application validation', () => {
   });
 
   it('validates billing', () => {
-    expect(validateBilling(PAID)).toEqual(PAID);
+    expect(validateBilling(PAID)).toEqual({ ...PAID, tier: 'standard' });
+    expect(validateBilling({ ...PAID, tier: 'premium_plus' })?.tier).toBe('premium_plus');
+    expect(validateBilling({ ...PAID, tier: 'gold' })).toBeNull();
     expect(validateBilling({ plan: 'x', paidThrough: 'soon' })).toBeNull();
   });
 });
@@ -241,6 +243,19 @@ describe('advertiser flow (running server)', () => {
       ['private_lender', 'Example Bridge Capital', 'DeedOwl staff'],
     ]);
     expect(readFileSync(join(dir, 'data', 'pros.json'), 'utf8')).not.toMatch(/"admin"/);
+    // Manual billing takes a plan (and a Premium Plus topic), audit-logged; founding is a logged toggle.
+    expect((await admin(`/api/admin/applications/${agentId}/billing`, { billing: { ...PAID, tier: 'premium_plus', topic: 'financing' } })).status).toBe(422);
+    expect((await admin(`/api/admin/applications/${agentId}/billing`, { billing: { ...PAID, tier: 'premium_plus', topic: 'offer' } })).status).toBe(200);
+    feed = await readFeed();
+    expect(feed.ok && feed.feed.pros.find((p) => p.category === 'agent')).toMatchObject({ tier: 'premium_plus', adTopic: 'offer' });
+    expect((await admin(`/api/admin/applications/${agentId}/founding`, { founding: true })).status).toBe(200);
+    const detail = await (await admin(`/api/admin/applications/${agentId}`)).json();
+    expect(detail.application.founding).toBe(true);
+    expect(detail.audit.map((e: { action: string }) => e.action)).toEqual(expect.arrayContaining(['BILLING', 'FOUNDING_SET']));
+    expect((await admin(`/api/admin/applications/${agentId}/founding`, { founding: 'yes' })).status).toBe(400);
+    expect((await admin(`/api/admin/applications/${agentId}/billing`, { billing: PAID })).status).toBe(200); // back to Standard: the topic is cleared
+    feed = await readFeed();
+    expect(feed.ok && feed.feed.pros.find((p) => p.category === 'agent')).toMatchObject({ tier: 'standard', adTopic: null });
   });
 
   it('counts views and contact clicks privately: unique visitors, bots ignored, unlisted ids ignored', async () => {
@@ -253,8 +268,12 @@ describe('advertiser flow (running server)', () => {
     await ev({ kind: 'phone_click', proId: agentId });
     await ev({ kind: 'profile_view', proId: agentId }, { 'user-agent': 'Googlebot/2.1' }); // bot
     expect((await ev({ kind: 'lead', proId: agentId })).status).toBe(400); // leads only via the form
+    await ev({ kind: 'ad_impression', proIds: [agentId, 'f'.repeat(24)] });
+    await ev({ kind: 'ad_click', proId: agentId });
     const m = await (await admin(`/api/admin/applications/${agentId}/metrics`)).json();
     expect(m.totals.impression.total).toBe(1);
+    expect(m.totals.ad_impression.total).toBe(1);
+    expect(m.totals.ad_click.uniques).toBe(1);
     expect(m.totals.profile_view).toEqual({ total: 4, uniques: 2 });
     expect(m.totals.phone_click.uniques).toBe(1);
     expect(m.contactRate).toBe(0.5);
@@ -321,7 +340,7 @@ describe('advertiser flow (running server)', () => {
     const feed = await readFeed();
     expect(feed.ok && feed.feed.pros.map((p) => p.category)).toEqual(['private_lender']);
     const detail = await (await admin(`/api/admin/applications/${agentId}`)).json();
-    expect(detail.audit.map((e: { action: string }) => e.action)).toEqual(['SUBMITTED', 'EMAIL_CONFIRMED', 'APPROVED', 'BILLING', 'ADVERTISER_LOGIN', 'LEADS_EXPORTED', 'SUSPENDED']);
+    expect(detail.audit.map((e: { action: string }) => e.action)).toEqual(['SUBMITTED', 'EMAIL_CONFIRMED', 'APPROVED', 'BILLING', 'BILLING', 'FOUNDING_SET', 'BILLING', 'ADVERTISER_LOGIN', 'LEADS_EXPORTED', 'SUSPENDED']);
     expect((await post(`/api/pros/${agentId}/leads`, { name: 'x' })).status).toBe(404); // no longer listed
     // A suspended advertiser is signed out everywhere and can't use an old sign-in link.
     expect((await fetch(base + '/api/pro/me', { headers: { cookie: proCookie } })).status).toBe(401);

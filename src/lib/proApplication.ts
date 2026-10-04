@@ -257,25 +257,20 @@ export function approvalBlockers(category: Category, v: Partial<LicenseVerificat
 }
 
 export interface Billing {
-  plan: string; // e.g. "Card · Premium · $199 / month", or "Complimentary"
+  plan: string; // e.g. "Card · Premium · $199 / month", or an admin's label for a payment received another way
   paidThrough: string; // YYYY-MM-DD
   /** Advertising plan. Rows stored before plans existed have none: treat as 'standard'. */
   tier?: AdTier;
-  /** Recorded by an admin with no fee (a "Complimentary" plan label). */
-  complimentary?: boolean;
 }
 
-/** The admin's plan label means no fee was charged. */
-export const isComplimentaryLabel = (plan: string) => /^complimentary\b/i.test(plan.trim());
-
-/** An admin's manual billing entry. The plan label defaults to "Complimentary" in the form; any label works. */
+/** An admin's manual billing entry (a payment received another way). */
 export function validateBilling(b: Partial<Record<keyof Billing, unknown>>): Billing | null {
   const plan = plain(b.plan, 60);
   const paidThrough = plain(b.paidThrough, 10);
   const tier = b.tier === undefined || b.tier === null || b.tier === '' ? 'standard' : b.tier;
   if (!isAdTier(tier)) return null;
   return plan.length >= 3 && /^\d{4}-\d{2}-\d{2}$/.test(paidThrough) && !Number.isNaN(Date.parse(paidThrough))
-    ? { plan, paidThrough, tier, complimentary: isComplimentaryLabel(plan) }
+    ? { plan, paidThrough, tier }
     : null;
 }
 

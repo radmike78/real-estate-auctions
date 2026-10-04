@@ -6,6 +6,7 @@ import { PracticeRibbon } from './PracticePage';
 import { DRILLS, drillById, type Drill, type Mission } from '../practice/drills';
 import { fmtMoney } from '../lib/status';
 import { useMyState } from '../lib/myState';
+import TopicAd from './TopicAd';
 
 const KEY = 'deedowl.drills.v1';
 
@@ -263,6 +264,8 @@ export default function DrillPage({ id }: { id: string }) {
           )}
         </section>
       )}
+      {/* Only once the verdict and the expert's view are shown, outside the missions and their feedback. */}
+      {allDone && verdict && <TopicAd drill={d.id} />}
       <div className="decide-nav">
         <a className="btn btn-secondary" href="#/practice">← All practice</a>
         <button type="button" className="btn btn-secondary" onClick={() => setSaved((s) => ({ ...s, [d.id]: { answers: {} } }))}>Start this drill over</button>

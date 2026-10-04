@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
-import { approvalBlockers, type Billing, type LicenseVerification, type ProProfile } from '../lib/proApplication';
+import { approvalBlockers, billingTier, type Billing, type LicenseVerification, type ProProfile } from '../lib/proApplication';
+import { AD_TIERS, TIER_INFO, topicsFor, type AdTier } from '../lib/adPlans';
+import { adTopicByKey } from '../lib/adTopics';
 import { CATEGORIES, REVERIFY_DAYS } from '../lib/pros';
 import { api, ApiError } from '../lib/api';
 import PageHero from './PageHero';
@@ -14,7 +16,8 @@ interface App {
   profile: ProProfile;
   verification: (LicenseVerification & { verifiedAt: string; verifiedBy: string }) | null;
   billing: Billing | null;
-  payments?: { available: boolean; amountLabel: string | null; status: string | null; active: boolean; cancelAtPeriodEnd: boolean; hasCard: boolean };
+  payments?: { available: boolean; amountLabel: string | null; tier: AdTier; topic: string | null; status: string | null; active: boolean; cancelAtPeriodEnd: boolean; hasCard: boolean };
+  founding: boolean;
   listed: boolean;
   decisionReason: string | null;
   createdAt: string;
@@ -33,6 +36,7 @@ interface Audit {
 const TABS: { key: string; label: string; match: (a: App) => boolean }[] = [
   { key: 'review', label: 'Needs review', match: (a) => a.status === 'PENDING_REVIEW' },
   { key: 'photos', label: 'Photos to review', match: (a) => !!a.photo?.pendingAt },
+  { key: 'adlines', label: 'Ad lines to review', match: (a) => !!a.profile.adLinePending },
   { key: 'due', label: 'Re-verification due', match: (a) => a.status === 'APPROVED' && (a.reverifyDueInDays ?? 0) <= 14 },
   { key: 'approved', label: 'Approved', match: (a) => a.status === 'APPROVED' },
   { key: 'unpaid', label: 'Needs a plan', match: (a) => a.status === 'APPROVED' && !a.listed },
@@ -152,7 +156,7 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
       {box('typeMatches', app.profile.licenseType ? `License type is ${app.profile.licenseType}` : `License type or classification fits "${info.label}"`)}
       {box('companyMatches', `${info.regulator} shows them with "${app.profile.company}"`)}
       {box('identityConfirmed', 'I confirmed the applicant is this licensee, using contact details that did not come from this application')}
-      {box('contentReviewed', 'I checked the headline and bio against the content rules, and searched a sentence online to make sure it isn\u2019t copied')}
+      {box('contentReviewed', 'I checked the headline, bio and ad line against the content rules, and searched a sentence online to make sure it isn\u2019t copied')}
       <label className="field">
         <span>How identity was confirmed</span>
         <textarea rows={2} value={v.identityMethod} onChange={(e) => set('identityMethod', e.target.value)} placeholder="e.g. Called the brokerage number listed on NRED; spoke with the office manager, who confirmed…" />
@@ -171,32 +175,102 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
 function BillingForm({ app, onSaved }: { app: App; onSaved: () => void }) {
   const [plan, setPlan] = useState(app.billing?.plan ?? 'Monthly listing');
   const [paidThrough, setPaidThrough] = useState(app.billing?.paidThrough ?? '');
+  const [tier, setTier] = useState<AdTier>(billingTier(app.billing));
+  const [topic, setTopic] = useState(app.profile.adTopic ?? '');
   const [err, setErr] = useState<string | null>(null);
+  const topics = topicsFor(app.profile.category);
   return (
     <section className="verify-panel">
       <h3>Advertising plan</h3>
       {app.payments?.hasCard ? (
         <p className="small">
           <strong>Card payments:</strong> {app.payments.status ?? 'started, not completed'}
-          {app.payments.cancelAtPeriodEnd && ' · ends after the current period'}. The paid-through date updates automatically when Stripe confirms each payment.
+          {app.payments.cancelAtPeriodEnd && ' · ends after the current period'}. The paid-through date and plan update automatically when Stripe confirms each payment.
         </p>
       ) : app.payments?.available ? (
-        <p className="small">The advertiser can pay online ({app.payments.amountLabel}) from their dashboard once approved.</p>
+        <p className="small">The advertiser can choose a plan and pay online from their dashboard once approved.</p>
       ) : null}
-      <p className="small muted">For payments received another way (check, invoice), record them here. The profile is live only while it's verified and paid through today or later.</p>
+      <p className="small muted">
+        For payments received another way (check, invoice), record them here. Free or discounted advertising works through Stripe promotion
+        codes instead (see README). The profile is live only while it's verified and paid through today or later, and counts toward the caps.
+      </p>
       <div className="form-grid">
-        <label className="field"><span>Plan</span><input value={plan} onChange={(e) => setPlan(e.target.value)} /></label>
+        <label className="field"><span>Plan name</span><input value={plan} onChange={(e) => setPlan(e.target.value)} /></label>
+        <label className="field">
+          <span>Plan</span>
+          <select value={tier} onChange={(e) => setTier(e.target.value as AdTier)}>{AD_TIERS.map((t) => <option key={t} value={t}>{TIER_INFO[t].label}</option>)}</select>
+        </label>
+        {tier === 'premium_plus' && (
+          <label className="field">
+            <span>Topic</span>
+            <select value={topic} onChange={(e) => setTopic(e.target.value)}>
+              <option value="">None yet</option>
+              {topics.map((t) => <option key={t.key} value={t.key}>{t.label}</option>)}
+            </select>
+          </label>
+        )}
         <label className="field"><span>Paid through</span><input type="date" value={paidThrough} onChange={(e) => setPaidThrough(e.target.value)} /></label>
       </div>
       {err && <div className="caution small">{err}</div>}
       <button className="btn" onClick={async () => {
         try {
-          await api(`/api/admin/applications/${app.id}/billing`, { body: { billing: { plan, paidThrough } }, auth: true });
+          await api(`/api/admin/applications/${app.id}/billing`, { body: { billing: { plan, paidThrough, tier, ...(tier === 'premium_plus' && topic ? { topic } : {}) } }, auth: true });
           onSaved();
         } catch (e) {
           setErr((e as Error).message);
         }
       }}>Save plan</button>
+    </section>
+  );
+}
+
+/** Founding advertisers get the plan's founding coupon at checkout (set in STRIPE_PLANS). */
+function FoundingToggle({ app, onSaved }: { app: App; onSaved: () => void }) {
+  const [err, setErr] = useState<string | null>(null);
+  return (
+    <section className="verify-panel">
+      <h3>Founding advertiser</h3>
+      <label className="check attest">
+        <input type="checkbox" checked={app.founding} onChange={async (e) => {
+          setErr(null);
+          try {
+            await api(`/api/admin/applications/${app.id}/founding`, { body: { founding: e.target.checked }, auth: true });
+            onSaved();
+          } catch (x) {
+            setErr((x as Error).message);
+          }
+        }} />
+        <span>Founding advertiser: checkout applies the founding coupon of the plan they choose (logged in the audit trail).</span>
+      </label>
+      {err && <div className="caution small">{err}</div>}
+    </section>
+  );
+}
+
+/** An ad line sent from the dashboard: approve it (it replaces the live one) or reject it. */
+function AdLineReview({ app, onDone }: { app: App; onDone: () => void }) {
+  const [err, setErr] = useState<string | null>(null);
+  const pending = app.profile.adLinePending;
+  if (!pending) return null;
+  const decide = async (d: 'approve' | 'reject') => {
+    setErr(null);
+    try {
+      await api(`/api/admin/applications/${app.id}/ad-line/${d}`, { body: { adLine: pending }, auth: true });
+      onDone();
+    } catch (e) {
+      setErr((e as Error).message);
+    }
+  };
+  return (
+    <section className="verify-panel">
+      <h3>Ad line waiting for review</h3>
+      <p>“{pending}”</p>
+      <p className="small muted">Check it against the content rules: the advertiser’s own words, no claims to be the best or trusted, no contact details, and for lenders no rates, payments or dollar amounts.</p>
+      {err && <div className="caution small" role="alert">{err}</div>}
+      <div className="row">
+        <button className="btn" onClick={() => decide('approve')}>Approve ad line</button>
+        <button className="btn btn-secondary" onClick={() => decide('reject')}>Reject</button>
+      </div>
     </section>
   );
 }
@@ -323,16 +397,20 @@ function Detail({ id, onChange }: { id: string; onChange: () => void }) {
         <div><dt>{CATEGORIES[p.category].financing ? 'Loan types' : 'Services'}</dt><dd>{p.services.join(', ')}</dd></div>
         {p.creditProfiles.length > 0 && <div><dt>Credit situations</dt><dd>{p.creditProfiles.join(', ')}</dd></div>}
         <div><dt>Languages</dt><dd>{p.languages.join(', ')}</dd></div>
-        <div><dt>Plan</dt><dd>{a.billing ? `${a.billing.plan}, paid through ${fmtDate(a.billing.paidThrough)}` : 'None'}</dd></div>
+        <div><dt>Plan</dt><dd>{a.billing ? `${TIER_INFO[billingTier(a.billing)].label} · ${a.billing.plan}, paid through ${fmtDate(a.billing.paidThrough)}` : 'None'}{a.founding ? ' · founding advertiser' : ''}</dd></div>
+        {billingTier(a.billing) === 'premium_plus' && <div><dt>Topic ad</dt><dd>{adTopicByKey(a.profile.adTopic)?.label ?? 'None chosen yet'}</dd></div>}
+        <div><dt>Ad line</dt><dd>{a.profile.adLine || '—'}</dd></div>
         <div><dt>Applied</dt><dd>{fmtDateTime(a.createdAt)}</dd></div>
         {a.reverifyDueInDays !== null && <div><dt>Re-verification</dt><dd>{a.reverifyDueInDays >= 0 ? `due in ${a.reverifyDueInDays} days` : `overdue by ${-a.reverifyDueInDays} days (hidden from directory)`}</dd></div>}
       </dl>
       <p className="small">{p.bio}</p>
 
       <PhotoReview app={a} onDone={refresh} />
+      <AdLineReview app={a} onDone={refresh} />
       {a.status === 'EMAIL_UNCONFIRMED' && <p className="notice small">Waiting for the applicant to confirm their email. Approval is disabled until then.</p>}
       {['PENDING_REVIEW', 'APPROVED', 'SUSPENDED'].includes(a.status) && <VerifyForm key={a.status + (a.verification?.verifiedAt ?? '')} app={a} onSaved={refresh} />}
-      {['PENDING_REVIEW', 'APPROVED', 'SUSPENDED'].includes(a.status) && <BillingForm app={a} onSaved={refresh} />}
+      {['PENDING_REVIEW', 'APPROVED', 'SUSPENDED'].includes(a.status) && <BillingForm key={JSON.stringify(a.billing)} app={a} onSaved={refresh} />}
+      {['PENDING_REVIEW', 'APPROVED', 'SUSPENDED'].includes(a.status) && <FoundingToggle app={a} onSaved={refresh} />}
       {a.status === 'APPROVED' && <MetricsPanel id={a.id} />}
       <div className="row">
         {['PENDING_REVIEW', 'EMAIL_UNCONFIRMED'].includes(a.status) && <ReasonAction label="Reject" path={`/api/admin/applications/${a.id}/reject`} onDone={refresh} danger />}
@@ -426,6 +504,8 @@ export default function AdminPage() {
                 <span className="small muted">{CATEGORIES[a.profile.category].label} · {a.profile.licenseId} · {fmtDate(a.createdAt)}</span>
                 {a.duplicates.length > 0 && <span className="small neg">⚠ duplicate license/email</span>}
                 {a.photo?.pendingAt && <span className="badge tone-wait">photo to review</span>}
+                {a.profile.adLinePending && <span className="badge tone-wait">ad line to review</span>}
+                {a.listed && <span className="small muted">{TIER_INFO[billingTier(a.billing)].label}{a.founding ? ' · founding' : ''}</span>}
                 {a.reverifyDueInDays !== null && a.reverifyDueInDays <= 14 && <span className="small warn">Re-verify {a.reverifyDueInDays < 0 ? 'overdue' : `in ${a.reverifyDueInDays}d`}</span>}
               </button>
             </li>

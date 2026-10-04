@@ -483,7 +483,6 @@ export function createApp(config: AppConfig) {
       tier,
       topic: tier === 'premium_plus' && topicAllowed(cat, a.profile.adTopic) ? a.profile.adTopic : null,
       founding: a.founding,
-      complimentary: !!a.billing?.complimentary,
       status: acct?.status ?? null,
       active: ACTIVE_SUB.has(acct?.status ?? ''),
       cancelAtPeriodEnd: !!acct?.cancelAtPeriodEnd,
@@ -491,6 +490,8 @@ export function createApp(config: AppConfig) {
       /** Plans (and Premium Plus topics) that are full for this advertiser right now. */
       full: Object.fromEntries(AD_TIERS.map((t) => [t, full(t)])) as Record<AdTier, boolean>,
       topicsFull: topicsFor(cat).filter((t) => full('premium_plus', t.key)).map((t) => t.key),
+      /** Plans whose founding coupon checkout would apply to this advertiser (no promotion code box then). */
+      foundingDiscount: Object.fromEntries(AD_TIERS.map((t) => [t, a.founding && !!planFor(cat, t)?.foundingCoupon])) as Record<AdTier, boolean>,
     };
   }
 
@@ -516,21 +517,24 @@ export function createApp(config: AppConfig) {
         const end = invoicePeriodEnd(o);
         if (!end) return;
         const paidThrough = pacificDay(new Date((end + PAYMENT_GRACE_DAYS * 86_400) * 1000));
-        // The later of the two dates: a card payment never shortens time already paid or given free.
+        // The later of the two dates: a card payment never shortens time already paid for. An invoice a promotion code
+        // covered in full (amount_paid 0) is still a paid period.
         const current = row.billing?.paidThrough ?? '';
         // The plan comes from the price Stripe charged; the plan chosen at checkout only if the price isn't one of ours.
         const tier: AdTier = invoicePriceIds(o).map(tierOf).find((t): t is AdTier => !!t) ?? acct.pendingTier ?? billingTier(row.billing);
         const meta = invoiceSubscriptionMetadata(o);
         const topic = [meta.topic, acct.pendingTopic].find((t) => topicAllowed(cat, t)) ?? null;
         const discount = invoiceDiscount(o);
-        const billing: Billing = { plan: cardPlanLabel(cat, tier, discount.applied && row.founding), paidThrough: paidThrough > current ? paidThrough : current, tier, complimentary: false };
+        const billing: Billing = { plan: cardPlanLabel(cat, tier, discount.applied && row.founding), paidThrough: paidThrough > current ? paidThrough : current, tier };
         const profile = tier === 'premium_plus' && topic ? { ...row.profile, adTopic: topic } : tier !== 'premium_plus' ? { ...row.profile, adTopic: '' } : row.profile;
         db.update(row.id, { billing, profile }, at);
         db.stripe.setSubscription(row.id, { subscriptionId: invoiceSubscriptionId(o) ?? undefined, status: 'active' }, at);
         db.stripe.setPending(row.id, null, null, at);
         const money = (cents: number) => `${(cents / 100).toFixed(2)} ${String(o.currency ?? '').toUpperCase()}`.trim();
         const amount = typeof o.amount_paid === 'number' ? money(o.amount_paid) : '';
-        const off = discount.applied ? ` · discount applied${discount.cents > 0 ? ` (${money(discount.cents)} off)` : ''}` : '';
+        const off = discount.applied
+          ? o.amount_paid === 0 ? ' · the discount covered this period in full' : ` · discount applied${discount.cents > 0 ? ` (${money(discount.cents)} off)` : ''}`
+          : '';
         log('PAYMENT_RECEIVED', `${amount} · ${TIER_INFO[tier].label}${profile.adTopic && tier === 'premium_plus' ? ` (${profile.adTopic})` : ''}${off} · listed through ${billing.paidThrough}`.replace(/^ · /, ''));
         publish();
         return;
@@ -555,7 +559,7 @@ export function createApp(config: AppConfig) {
         const was = billingTier(row.billing);
         if (tier === was) return;
         const profile = tier === 'premium_plus' ? row.profile : { ...row.profile, adTopic: '' };
-        db.update(row.id, { billing: { ...row.billing, tier, plan: cardPlanLabel(cat, tier), complimentary: false }, profile }, at);
+        db.update(row.id, { billing: { ...row.billing, tier, plan: cardPlanLabel(cat, tier) }, profile }, at);
         log('PLAN_CHANGED', `${TIER_INFO[was].label} → ${TIER_INFO[tier].label}`);
         publish();
         return;
@@ -974,8 +978,8 @@ export function createApp(config: AppConfig) {
         if (!isAdTier(tier)) throw new HttpError(400, 'Choose a plan.');
         const plan = stripe.client.planFor(row.profile.category, tier);
         if (!plan) throw new HttpError(409, `The ${TIER_INFO[tier].label} plan isn’t available for your category yet.`);
-        const topic = tier === 'premium_plus' ? body.topic : null;
-        if (tier === 'premium_plus' && !topicAllowed(row.profile.category, topic)) throw new HttpError(422, 'Choose the Learn or Practice topic for your Premium Plus ad.');
+        const topic = tier === 'premium_plus' && topicAllowed(row.profile.category, body.topic) ? body.topic : null;
+        if (tier === 'premium_plus' && !topic) throw new HttpError(422, 'Choose the Learn or Practice topic for your Premium Plus ad.');
         if (!row.verification) throw new HttpError(409, 'Your license must be verified before you can start advertising.');
         if (!limiters.checkout.hit(row.id)) throw new HttpError(429, 'Too many attempts. Try again later.');
         let acct = db.stripe.forPro(row.id);
@@ -1224,19 +1228,19 @@ export function createApp(config: AppConfig) {
 
     if (action === 'billing') {
       if (!['PENDING_REVIEW', 'APPROVED', 'SUSPENDED'].includes(app.status)) throw new HttpError(409, `Can't bill an application that is ${app.status}.`);
-      // Payments received another way, or a complimentary (fee-waived) listing: plan label "Complimentary".
+      // Payments received another way (check, invoice). Free or discounted advertising goes through Stripe promotion codes.
       const billing = validateBilling((body.billing ?? {}) as Record<string, unknown>);
       if (!billing) throw new HttpError(422, 'Enter a plan name, a plan and a listed-through date.');
       const tier = billingTier(billing);
       const rawTopic = (body.billing as { topic?: unknown } | undefined)?.topic;
       const topic = tier === 'premium_plus' ? (topicAllowed(app.profile.category, rawTopic) ? rawTopic : null) : null;
       if (tier === 'premium_plus' && rawTopic && !topic) throw new HttpError(422, 'Choose one of the topics for this category.');
-      // Comped and manually billed advertisers count toward the caps like card-paying ones.
+      // Manually billed advertisers count toward the caps like card-paying ones.
       const full = capFor(app, tier, topic);
       if (full) throw new HttpError(409, capMessage(full, app.profile.category, topic));
       const profile = { ...app.profile, adTopic: topic ?? (tier === 'premium_plus' ? app.profile.adTopic : '') };
       db.update(app.id, { billing, profile }, now().toISOString());
-      audit(app.id, billing.complimentary ? 'COMPLIMENTARY' : 'BILLING', `${billing.plan} · ${TIER_INFO[tier].label}${topic ? ` (${topic})` : ''}, listed through ${billing.paidThrough}`);
+      audit(app.id, 'BILLING', `${billing.plan} · ${TIER_INFO[tier].label}${topic ? ` (${topic})` : ''}, listed through ${billing.paidThrough}`);
       publish();
       return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });
     }

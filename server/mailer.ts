@@ -245,7 +245,7 @@ export function approvedEmail(to: string, name: string, dashboardUrl: string, pa
     text:
       `Hi ${name},\n\nWe verified your license and identity, and your advertiser profile is approved.\n\n` +
       (payOnline
-        ? `To go live, sign in to your dashboard and choose "Start advertising". You pay by card on Stripe's secure page, and your profile goes live as soon as the payment clears:\n\n${dashboardUrl}\n`
+        ? `To go live, sign in to your dashboard, choose a plan and select "Start advertising". You pay by card on Stripe's secure page, and your profile goes live as soon as the payment clears:\n\n${dashboardUrl}\n`
         : `We will contact you to set up your advertising plan. Your profile goes live once your plan is active. Your dashboard:\n\n${dashboardUrl}\n`) +
       FOOTER,
   };

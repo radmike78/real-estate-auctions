@@ -198,6 +198,9 @@ export function createStripeClient(cfg: StripeConfig) {
           line_items: { 0: { price: p.priceId, quantity: 1 } },
           // Stripe takes either a coupon applied here or a code the advertiser types, never both.
           ...(p.coupon ? { discounts: { 0: { coupon: p.coupon } } } : { allow_promotion_codes: true }),
+          // A code that covers the whole price (e.g. 100% off for 6 months) needs no card until it runs out; Stripe
+          // then asks for one, and an unpaid invoice stops the listing from being extended.
+          payment_method_collection: 'if_required',
           subscription_data: { metadata: { proId: p.proId, tier: p.tier, ...(p.topic ? { topic: p.topic } : {}) } },
           success_url: p.successUrl,
           cancel_url: p.cancelUrl,

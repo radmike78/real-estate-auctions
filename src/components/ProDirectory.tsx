@@ -7,6 +7,7 @@ import { track } from '../lib/track';
 import { advertisingOpen, useSiteFeatures } from '../lib/siteFeatures';
 import OwlNote from './OwlNote';
 import ProAvatar from './ProAvatar';
+import { FeaturedAds } from './AdBoxes';
 
 /** Loads the signed directory; falls back to fictional samples only when no directory exists yet. */
 export function useDirectory(): { pros: Pro[]; usingSamples: boolean; error: string | null; loading: boolean } {
@@ -104,6 +105,8 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
         </div>
       )}
       {!none && notice}
+      {/* Paid Featured ads sit apart from the list below, which keeps the same rotation for every advertiser. */}
+      {!loading && !error && <FeaturedAds pros={pros} categories={active} />}
       {!none && showCategoryFilter && categories.length > 1 && (
         <div className="chip-tabs" role="group" aria-label="Type">
           <button aria-pressed={cat === 'any'} onClick={() => setCat('any')}>All</button>
@@ -133,8 +136,8 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
       {usingSamples && <p className="small muted">Showing fictional sample profiles until real advertisers are approved.</p>}
       {!loading && pros.length > 0 && !usingSamples && (
         <p className="small muted">
-          {results.length} verified {results.length === 1 ? 'professional' : 'professionals'} · shown in a daily rotating order. Advertisers can't pay
-          for a higher position.
+          {results.length} verified {results.length === 1 ? 'professional' : 'professionals'} · every listed professional appears here in the
+          same daily rotating order, whatever plan they pay for.
         </p>
       )}
       {!loading && results.length === 0 && pros.length > 0 && !error && <div className="empty"><OwlNote>No advertisers match yet. Try another city or filter.</OwlNote></div>}

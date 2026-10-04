@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { replaceAddress } from '../lib/nav';
-import { api } from '../lib/api';
+import { api, ApiError } from '../lib/api';
 import { CATEGORIES } from '../lib/pros';
-import type { ProProfile, Billing } from '../lib/proApplication';
+import { AD_LINE_RULES, validateAdLine, type ProProfile, type Billing } from '../lib/proApplication';
+import { TIER_INFO, topicsFor, type AdTier } from '../lib/adPlans';
+import { PlanCards, useAdPlans } from './PlanCards';
 import { fmtDate, fmtDateTime } from '../lib/status';
 import PageHero from './PageHero';
 import DailyColumns from './DailyColumns';
@@ -12,6 +14,21 @@ import { useSiteFeatures } from '../lib/siteFeatures';
 
 const LOGIN_KEY = 'fsf.pro-login';
 
+interface Payments {
+  available: boolean;
+  amountLabel: string | null;
+  tier: AdTier;
+  topic: string | null;
+  founding: boolean;
+  status: string | null;
+  active: boolean;
+  cancelAtPeriodEnd: boolean;
+  hasCard: boolean;
+  full: Record<AdTier, boolean>;
+  topicsFull: string[];
+  foundingDiscount: Record<AdTier, boolean>;
+}
+
 interface Me {
   id: string;
   status: string;
@@ -20,14 +37,34 @@ interface Me {
   verifiedAt: string | null;
   reverifyDueInDays: number | null;
   listed: boolean;
-  payments: { available: boolean; amountLabel: string | null; status: string | null; active: boolean; cancelAtPeriodEnd: boolean; hasCard: boolean };
+  payments: Payments;
   photo: { live: string | null; pendingAt: string | null };
 }
 
 // Only ever send the browser to Stripe's own pages.
 const STRIPE_PAGES = ['https://checkout.stripe.com/', 'https://billing.stripe.com/'];
+// Stripe couldn't collect the latest payment (or a free period from a discount code ended with no card on file).
+const NEEDS_CARD = new Set(['past_due', 'unpaid', 'incomplete']);
 
-function PlanCard({ me }: { me: Me }) {
+/** Premium Plus: which Learn or Practice topic the ad appears beside. Full topics can't be picked. */
+function TopicPicker({ me, value, onChange }: { me: Me; value: string; onChange: (v: string) => void }) {
+  const topics = topicsFor(me.profile.category);
+  return (
+    <label className="field">
+      <span>Topic for your Premium Plus ad</span>
+      <select value={value} onChange={(e) => onChange(e.target.value)}>
+        <option value="">Choose a topic…</option>
+        {topics.map((t) => {
+          const taken = me.payments.topicsFull.includes(t.key) && me.payments.topic !== t.key;
+          return <option key={t.key} value={t.key} disabled={taken}>{t.label}{taken ? ' (taken right now)' : ''}</option>;
+        })}
+      </select>
+      <small className="muted">Your ad appears, labeled as an ad, after the explanation on these lessons and practice pages, never inside a question.</small>
+    </label>
+  );
+}
+
+function PlanCard({ me, onChange }: { me: Me; onChange: () => void }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [notice] = useState(() => {
@@ -36,11 +73,16 @@ function PlanCard({ me }: { me: Me }) {
     return m?.[1] ?? null;
   });
   const p = me.payments;
-  async function open(path: string) {
+  const plans = useAdPlans();
+  const labels = plans && plans !== 'loading' ? plans.categories[me.profile.category] : null;
+  const [tier, setTier] = useState<AdTier>(p.full[p.tier] ? 'standard' : p.tier);
+  const [topic, setTopic] = useState(p.topic ?? '');
+  const [topicMsg, setTopicMsg] = useState<string | null>(null);
+  async function open(path: string, body: Record<string, unknown> = {}) {
     setBusy(true);
     setErr(null);
     try {
-      const r = await api<{ url: string }>(path, { body: {}, auth: true });
+      const r = await api<{ url: string }>(path, { body, auth: true });
       if (!STRIPE_PAGES.some((pre) => r.url.startsWith(pre))) throw new Error('Unexpected payment page address.');
       window.location.assign(r.url);
     } catch (e) {
@@ -48,6 +90,23 @@ function PlanCard({ me }: { me: Me }) {
       setBusy(false);
     }
   }
+  async function saveTopic() {
+    setTopicMsg(null);
+    try {
+      await api('/api/pro/ad-topic', { body: { topic }, auth: true });
+      setTopicMsg('Saved. Your ad appears beside this topic within a few minutes.');
+      onChange();
+    } catch (e) {
+      setTopicMsg((e as Error).message);
+    }
+  }
+  const price = (t: AdTier) => {
+    const l = labels?.[t];
+    if (!l?.available) return 'Not available for your category yet';
+    return p.founding && l.foundingLabel ? <>{l.foundingLabel} <span className="small muted">founding price, then {l.amountLabel}</span></> : l.amountLabel;
+  };
+  const canBuy = (t: AdTier) => !!labels?.[t]?.available && !p.full[t];
+  const ready = canBuy(tier) && (tier !== 'premium_plus' || (!!topic && !p.topicsFull.includes(topic)));
   return (
     <section className="plan-card" aria-labelledby="plan-h">
       <h2 id="plan-h">Your plan</h2>
@@ -60,26 +119,91 @@ function PlanCard({ me }: { me: Me }) {
       {p.active ? (
         <>
           <p className="plan-line">
-            <strong>{p.amountLabel ?? me.billing?.plan}</strong>
+            <strong>{TIER_INFO[p.tier].label}</strong>{p.amountLabel && <> · {p.amountLabel}</>}
             {me.billing && <> · paid through <strong>{fmtDate(me.billing.paidThrough)}</strong></>}
           </p>
-          {p.status === 'past_due' && <div className="caution">Your last payment didn't go through. Update your card to keep your profile live.</div>}
+          {NEEDS_CARD.has(p.status ?? '') && (
+            <div className="caution">
+              <strong>Add a card to keep advertising.</strong> Stripe couldn’t collect your latest payment, or a discount’s free period has ended.
+              Add or update your card on the billing page; your profile stays up only through the period already paid.
+            </div>
+          )}
           {p.cancelAtPeriodEnd && <p className="muted">Your plan is set to end after the current paid period.</p>}
-          <button className="btn" disabled={busy} onClick={() => open('/api/pro/billing-portal')}>{busy ? 'Opening…' : 'Manage billing'}</button>
-          <p className="muted">Change your card, download receipts or cancel on Stripe's secure page.</p>
+          {p.tier === 'premium_plus' && (
+            <div className="form">
+              {!p.topic && <div className="notice">Choose the topic for your Premium Plus ad. It appears once you save a topic.</div>}
+              <TopicPicker me={me} value={topic} onChange={setTopic} />
+              <button className="btn btn-secondary" disabled={!topic || topic === p.topic} onClick={saveTopic}>Save topic</button>
+              {topicMsg && <p className="small" role="status">{topicMsg}</p>}
+            </div>
+          )}
+          <button className="btn" disabled={busy} onClick={() => open('/api/pro/billing-portal')}>{busy ? 'Opening…' : NEEDS_CARD.has(p.status ?? '') ? 'Add a card' : 'Manage billing'}</button>
+          <p className="muted">Change your card or plan, download receipts or cancel on Stripe's secure page.</p>
         </>
       ) : p.available ? (
         <>
-          <p className="plan-line"><strong>{p.amountLabel}</strong> · the same flat price for everyone in your category. Cancel any time.</p>
+          <p className="plan-line">Choose a plan. Monthly, cancel any time. Every plan keeps the same fair rotating place in the directory list.</p>
           {me.billing && <p className="muted">Currently paid through {fmtDate(me.billing.paidThrough)}.</p>}
-          <button className="btn big plan-cta" disabled={busy} onClick={() => open('/api/pro/checkout')}>{busy ? 'Opening secure payment…' : 'Start advertising'}</button>
+          <PlanCards
+            selected={tier}
+            price={price}
+            extra={(t) => (
+              <>
+                <label><input type="radio" name="plan" checked={tier === t} disabled={!canBuy(t)} onChange={() => setTier(t)} /> Choose {TIER_INFO[t].label}</label>
+                {p.full[t] && <span className="small warn">Full right now: every spot in your category is taken. Try again later.</span>}
+              </>
+            )}
+          />
+          {tier === 'premium_plus' && <TopicPicker me={me} value={topic} onChange={setTopic} />}
+          <button className="btn big plan-cta" disabled={busy || !ready} onClick={() => open('/api/pro/checkout', { tier, ...(tier === 'premium_plus' ? { topic } : {}) })}>{busy ? 'Opening secure payment…' : 'Start advertising'}</button>
+          {!p.foundingDiscount[tier] && <p className="small">Have a discount code? Enter it on the payment page.</p>}
+          {p.foundingDiscount[tier] && <p className="small">Your founding-advertiser discount is applied on the payment page.</p>}
           <p className="muted">You'll pay on Stripe's secure page. We never see or store your card details. Your profile goes live as soon as the payment clears.</p>
           {p.hasCard && <button className="linkish" disabled={busy} onClick={() => open('/api/pro/billing-portal')}>Manage billing</button>}
         </>
       ) : (
-        <p>{me.billing ? <>Paid through <strong>{fmtDate(me.billing.paidThrough)}</strong>. </> : null}We'll contact you to set up or renew your advertising plan.</p>
+        <p>{me.billing ? <>{TIER_INFO[p.tier].label} plan, paid through <strong>{fmtDate(me.billing.paidThrough)}</strong>. </> : null}We'll contact you to set up or renew your advertising plan.</p>
       )}
       {err && <div className="caution" role="alert">{err}</div>}
+    </section>
+  );
+}
+
+/** The optional one-line ad shown in Featured and topic ad boxes. Changes are reviewed before they appear. */
+function AdLineCard({ me, onChange }: { me: Me; onChange: () => void }) {
+  const [line, setLine] = useState(me.profile.adLinePending || me.profile.adLine);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const local = validateAdLine(line, me.profile.category);
+  async function save(value: string) {
+    setMsg(null);
+    try {
+      const r = await api<{ message: string }>('/api/pro/ad-line', { body: { adLine: value }, auth: true });
+      setMsg({ ok: true, text: r.message });
+      onChange();
+    } catch (e) {
+      const body = e instanceof ApiError ? (e.body.errors as { adLine?: string } | undefined) : undefined;
+      setMsg({ ok: false, text: body?.adLine ?? (e as Error).message });
+    }
+  }
+  return (
+    <section className="plan-card" aria-labelledby="adline-h">
+      <h2 id="adline-h">Your ad line</h2>
+      <p className="small">
+        {me.profile.adLine ? <>Live: “{me.profile.adLine}”</> : 'No ad line yet: your ad boxes show your headline.'}
+        {me.profile.adLinePending && <> · Waiting for review: “{me.profile.adLinePending}”</>}
+      </p>
+      <label className="field">
+        <span>Ad line (optional)</span>
+        <textarea rows={2} maxLength={180} value={line} onChange={(e) => setLine(e.target.value)} aria-invalid={!!local} />
+        <small className="muted">{line.trim().length}/180 · plain text</small>
+        {local && <span className="field-error">{local}</span>}
+      </label>
+      <ul className="small">{AD_LINE_RULES.map((r) => <li key={r}>{r}</li>)}</ul>
+      <div className="row">
+        <button className="btn btn-secondary" disabled={!!local || !line.trim() || line.trim() === me.profile.adLine} onClick={() => save(line)}>Send for review</button>
+        {(me.profile.adLine || me.profile.adLinePending) && <button className="linkish" onClick={() => { setLine(''); void save(''); }}>Remove my ad line</button>}
+      </div>
+      {msg && <p className={msg.ok ? 'notice' : 'caution'} role="status">{msg.text}</p>}
     </section>
   );
 }
@@ -87,7 +211,7 @@ function PlanCard({ me }: { me: Me }) {
 interface Summary {
   from: string;
   to: string;
-  totals: Record<'impression' | 'profile_view' | 'phone_click' | 'email_click' | 'website_click' | 'lead', { total: number; uniques: number }>;
+  totals: Record<'impression' | 'profile_view' | 'phone_click' | 'email_click' | 'website_click' | 'lead' | 'ad_impression' | 'ad_click', { total: number; uniques: number }>;
   contactRate: number | null;
   daily: { day: string; views: number; contacts: number; leads: number }[];
 }
@@ -325,7 +449,8 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
         </div>
       </div>
 
-      <PlanCard me={me} />
+      <PlanCard me={me} onChange={loadMe} />
+      <AdLineCard me={me} onChange={loadMe} />
       <PhotoCard me={me} onChange={loadMe} />
 
       <div className="toolbar" role="group" aria-label="Date range">
@@ -348,6 +473,9 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
             <div className="kpi"><span className="kpi-label">Appeared in results</span><strong>{t.impression.total.toLocaleString()}</strong></div>
             <div className="kpi"><span className="kpi-label">Profile views</span><strong>{t.profile_view.uniques.toLocaleString()}</strong><span className="kpi-sub">unique visitors</span></div>
             <div className="kpi"><span className="kpi-label">Contact clicks</span><strong>{contacts.toLocaleString()}</strong><span className="kpi-sub">{t.phone_click.uniques} call · {t.email_click.uniques} email · {t.website_click.uniques} website</span></div>
+            {(me.payments.tier !== 'standard' || t.ad_impression.total > 0) && (
+              <div className="kpi"><span className="kpi-label">Shown in ad boxes</span><strong>{t.ad_impression.total.toLocaleString()}</strong><span className="kpi-sub">{t.ad_click.uniques} clicked your ad’s button</span></div>
+            )}
             <div className="kpi"><span className="kpi-label">Visitors who reached out</span><strong>{summary.contactRate === null ? '—' : `${Math.round(summary.contactRate * 100)}%`}</strong><span className="kpi-sub">contact clicks ÷ profile views</span></div>
           </section>
 

@@ -608,11 +608,26 @@ The advertiser landing page is `#/advertise`, the application form is `#/adverti
    | CPAs | Nevada State Board of Accountancy |
 
    The admin then **confirms identity through the company, using contact details from the regulator or the company, never from the application**. Approval is blocked until status, expiration (where licenses expire), name, type, company and identity are all recorded.
-4. **Pay.** Once approved, the advertiser gets an email and pays **by card from their dashboard** (Stripe; see below). Each confirmed monthly payment extends their paid-through date automatically. For payments received another way, the admin records the plan and paid-through date by hand. A profile is live only while it is verified within the last 90 days **and** paid through today.
+4. **Choose a plan and pay.** Once approved, the advertiser gets an email, chooses a plan (Standard, Premium or Premium Plus; see **Plans and caps** below) and pays **by card from their dashboard** (Stripe; see below). Each confirmed monthly payment extends their paid-through date automatically. For payments received another way, the admin records the plan (with its tier, and the topic for Premium Plus) and paid-through date by hand. A profile is live only while it is verified within the last 90 days **and** paid through today.
 5. **Publish.** Live profiles go into `public/data/pros.json`, an Ed25519-signed file that expires after 24 hours and is republished hourly. The browser verifies it and re-checks every listing rule.
 6. **Profile photos (optional).** Advertisers upload a headshot or logo from their dashboard (JPG, PNG or WebP, up to 5 MB, 10 uploads an hour). The server accepts only those formats, decodes each with a size limit and re-encodes it as a 400×400 WebP, which drops hidden data such as GPS location; the original is never kept. A new photo waits under **Admin → the advertiser → Photo waiting for review** and goes live only when approved (the previous photo stays up until then). Approved photos are stored in the database (so the daily backups and the off-site copy include them), served from `/api/pro-photos/<sha256>.webp`, and their SHA-256 is part of the signed directory: the browser checks the hash before showing a photo.
 
-**Fair placement.** Results are filtered by what the user needs, then shown in a daily rotating order that is the same for everyone. Payment never buys a higher position. The CFPB's 2023 RESPA advisory opinion says steering consumers based on payments violates RESPA section 8 for real estate and mortgage services. Every profile is labeled "Advertisement."
+**Fair placement.** Directory results are filtered by what the user needs, then shown in a daily rotating order that is the same for everyone, whatever plan an advertiser pays for: no plan moves anyone up the list. The CFPB's 2023 RESPA advisory opinion says steering consumers based on payments violates RESPA section 8 for real estate and mortgage services. Every profile is labeled "Advertisement."
+
+**Plans and caps** (`src/lib/adPlans.ts`, `src/lib/adTopics.ts`):
+
+| Plan | What it adds |
+| --- | --- |
+| Standard | A profile page and a place in the category's directory list, in the fair rotating order. |
+| Premium | Standard, plus a separate box labeled **Featured ad** on the category's directory pages, above the list (never inside it). Up to 2 advertisers are shown, picked at random on each page view. |
+| Premium Plus ("Best value") | Premium, plus one box labeled **Advertisement** beside one Learn or Practice topic the advertiser chooses. |
+
+- **Two voices.** Next to each topic, DeedOwl's own short editorial block (questions to ask that kind of professional, the official license lookup, the directory link) never names or points to an advertiser. The advertiser's box is in their own voice, labeled at the top, with the fine print "Paid ad. DeedOwl checks that advertisers hold an active license but doesn't recommend, rank or review them. Compare more than one." Ad boxes show only to visitors who chose Nevada or no state yet (the directory is Nevada-only); the editorial block shows to everyone.
+- **Where topic ads appear:** after a lesson's explanation, after a drill's verdict and expert view, or at the end of a finished practice-case step; never inside a question, its answers or its feedback, and never on forced-sale, foreclosure, tax-sale, lien, HOA, sheriff, IRS-sale, short-sale, homeowner-help or surplus-money pages. The mapping is in `src/lib/adTopics.ts` and its rules are tested.
+- **Caps** (the `CAPS` constants, enforced at checkout, on topic changes and in admin billing, with a clear message when full): 5 listed advertisers per category (every plan counts, including manually billed ones); 2 Featured spots per category (Premium and Premium Plus); per category and topic, 3 topic spots for real estate settlement services (agents, lenders, banks, credit unions, title and escrow, attorneys), which take turns at random, and 1 (exclusive) for other categories. The Featured cap also limits Premium Plus to 2 per category.
+- **Ad line.** An optional one-line ad (20 to 180 characters, plain text, no web addresses, emails or phone numbers, no "best", "#1", "trusted", "guaranteed" and similar; lenders also no rates, APRs, payments or dollar amounts, which trigger Truth in Lending disclosures). It's checked on the form, by the server and by the browser (`validateAdLine`). Entered on the application (reviewed with the profile) or later from the dashboard, where it waits under **Admin → Ad lines to review**. Without one, ad boxes show the headline.
+- **Founding advertisers.** In **Admin → the advertiser → Founding advertiser**, tick the box (logged as `FOUNDING_SET` / `FOUNDING_REMOVED`). Their checkout then applies the plan's `foundingCoupon` (below).
+- **Results.** The dashboard and monthly report also count how often an advertiser's ad box was shown and its button clicked.
 
 **Proving the value of an advertising fee:**
 - **Every profile page has a contact form.** The buyer explicitly agrees to share their details with that one professional only. The lead is emailed to the professional right away, and the buyer gets a receipt with due-diligence reminders.
@@ -632,21 +647,35 @@ The advertiser landing page is `#/advertise`, the application form is `#/adverti
   - No visitor is tracked across days, and nothing identifying is stored.
 
 **Online payments (Stripe):**
-- **How it works.** An approved advertiser clicks **Start advertising** on their dashboard and pays on Stripe's hosted Checkout page. They manage their card, receipts and cancellation on Stripe's billing portal (**Manage billing**). Card details never reach this server.
-- **Pricing.** One flat monthly price per category, the same for everyone in it (no per-lead fees and no paid placement). You set the prices; the server picks the price from the advertiser's category.
-- **Going live.** A listing is extended only when Stripe sends a signed `invoice.paid` webhook, through the end of the billing period plus 3 days' grace. Coming back from Checkout grants nothing by itself. Cancelling stops renewals; time already paid for stays live. A failed payment emails the advertiser.
+- **How it works.** An approved advertiser chooses a plan (and a topic for Premium Plus) on their dashboard, clicks **Start advertising** and pays on Stripe's hosted Checkout page. They manage their card, receipts, plan and cancellation on Stripe's billing portal (**Manage billing**). Card details never reach this server.
+- **Pricing.** Three monthly plans, priced by you in Stripe and named in `STRIPE_PLANS`, with one default for every category (`"*"`) and optional per-category prices. The browser only names a plan; the server picks the price (and any founding coupon) from the advertiser's category and record. No per-lead fees, and no plan changes anyone's place in the directory list. `GET /api/ad-plans` gives the Advertise page and the dashboard the price labels (never Stripe IDs).
+- **Going live.** A listing is extended only when Stripe sends a signed `invoice.paid` webhook, through the end of the billing period plus 3 days' grace. The plan is read from the price on the invoice (falling back to the plan chosen at checkout), and the Premium Plus topic from the subscription's metadata. Coming back from Checkout grants nothing by itself. Cancelling stops renewals; time already paid for stays live. A failed payment emails the advertiser, and their dashboard asks them to add a card.
 - **Setup:**
-  1. In the Stripe dashboard (start in **test mode**), create a product for each category you'll sell, each with a **monthly recurring price**. Copy each price ID (`price_...`).
+  1. In the Stripe dashboard (start in **test mode**), create three products, **Standard**, **Premium** and **Premium Plus**, each with a **monthly recurring price** (for example $99, $199 and $249). For a category with different prices, add more prices. Copy each price ID (`price_...`).
   2. Add a webhook endpoint `https://YOUR-SITE/api/stripe/webhook` for these events: `checkout.session.completed`, `invoice.paid`, `invoice.payment_failed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`. Copy its signing secret (`whsec_...`).
-  3. Turn on the **customer portal** (Settings → Billing → Customer portal), allowing card updates, invoice history and cancellation.
+  3. Turn on the **customer portal** (Settings → Billing → Customer portal), allowing card updates, invoice history and cancellation. To let advertisers switch plans themselves, also allow customers to **switch plans** and add the three products, with the same prices as in `STRIPE_PLANS`. The server follows the new price from `customer.subscription.updated`. Switches made there aren't checked against the caps: the Featured box still shows at most 2 per page view, and an advertiser who switches to Premium Plus picks their topic on the dashboard, where the topic cap is checked.
   4. Set three environment variables (all three, or none to keep billing manual):
      ```bash
      export STRIPE_SECRET_KEY=sk_test_...        # a restricted key (rk_...) works too
      export STRIPE_WEBHOOK_SECRET=whsec_...
-     export STRIPE_PLANS='{"agent":{"priceId":"price_...","amountLabel":"$199 / month"},"loan_officer":{"priceId":"price_...","amountLabel":"$199 / month"}}'
+     export STRIPE_PLANS='{
+       "*": {
+         "standard":     {"priceId": "price_...", "amountLabel": "$99 / month",  "foundingCoupon": "FOUNDING_STANDARD", "foundingLabel": "$69 / month for 12 months"},
+         "premium":      {"priceId": "price_...", "amountLabel": "$199 / month", "foundingCoupon": "FOUNDING_PREMIUM",  "foundingLabel": "$139 / month for 12 months"},
+         "premium_plus": {"priceId": "price_...", "amountLabel": "$249 / month", "foundingCoupon": "FOUNDING_PLUS",     "foundingLabel": "$179 / month for 12 months"}
+       }
+     }'
      ```
-     Categories left out of `STRIPE_PLANS` are billed by hand.
-  5. Test with Stripe's test card `4242 4242 4242 4242`, then switch to live keys.
+     `"*"` covers every category not listed by name. Add an entry such as `"attorney": {"standard": {...}, "premium": {...}, "premium_plus": {...}}` to price a category differently; it then replaces `"*"` for that category. A plan left out isn't offered online. The older flat shape (`{"agent": {"priceId": "...", "amountLabel": "..."}}`) still works and means Standard only. `foundingCoupon` and `foundingLabel` are optional; a `foundingLabel` needs a `foundingCoupon`, and one price can't stand for two plans. The server refuses to start if the JSON is wrong.
+  5. **Founding prices.** For each plan, create a coupon in Stripe (Product catalog → Coupons → New): **Amount off** the regular price minus the founding price (for example $30, $60 and $70 for $69, $139 and $179), currency USD, **Duration: multiple months, 12**, and set its **ID** to the name in `foundingCoupon` (letters, digits, `_` and `-`). Mark founding advertisers in admin; their checkout applies the coupon automatically, and their dashboard shows the founding price. After 12 months Stripe charges the regular price.
+  6. Test with Stripe's test card `4242 4242 4242 4242`, then switch to live keys (create the products, prices and coupons again in live mode, and update `STRIPE_PLANS`).
+- **Free or discounted advertising (promotion codes).** To give an advertiser free months or a discount on any plan, use Stripe promotion codes; nothing changes on the server.
+  1. In Stripe (test mode first), create a **Coupon** (Product catalog → Coupons → New): **Percentage off** (for example 100% for free, or 25%) and a **Duration**: once, multiple months (for example 6) or forever.
+  2. On the coupon, add a **Promotion code**: the code advertisers type (for example `WELCOME6`). Optionally limit it to first-time customers or to one customer, set an expiry date, or cap the number of redemptions.
+  3. Give the advertiser the code. On Stripe's payment page they choose **Add promotion code** (their dashboard reminds them). While a code covers the whole price they don't need to enter a card; Stripe asks for one before the free period ends. If none is added, the next invoice isn't paid, the listing isn't extended past the paid period, the advertiser is emailed, and their dashboard says **Add a card to keep advertising**.
+  4. Each discounted payment is noted in the audit trail, and an invoice the code covered in full still extends the listing. Founding advertisers whose coupon is applied at checkout can't also enter a code (Stripe allows one or the other).
+  5. Create the same coupon and code in live mode before you use them for real.
+- **Payments received another way** (check, bank transfer): in admin, record the plan name, the plan (Standard, Premium or Premium Plus, with the topic for Premium Plus) and the paid-through date. These advertisers count toward the caps like card-paying ones.
 
 **Run it:**
 ```bash
