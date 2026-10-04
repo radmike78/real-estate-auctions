@@ -35,6 +35,9 @@ import StatePicker from './StatePicker';
 import { useMyState } from '../lib/myState';
 import { STATES, stateByCode } from '../lib/regions';
 import { fmtDate } from '../lib/status';
+import { Cited } from './Cited';
+import { useEffect } from 'react';
+import { replaceAddress } from '../lib/nav';
 
 const isExternal = (u: string) => /^https:\/\//.test(u);
 
@@ -47,7 +50,7 @@ export function sections(p: Playbook): DrillSection[] {
       summary: `${p.steps.length} steps, from finding it to taking possession`,
       content: () => (
         <ol className="steps-rich">
-          {p.steps.map((s) => <li key={s.title}><strong>{s.title}</strong><span>{s.detail}</span></li>)}
+          {p.steps.map((s) => <li key={s.title}><strong>{s.title}</strong><span><Cited text={s.detail} plain={boldNumbers} /></span></li>)}
         </ol>
       ),
     },
@@ -59,8 +62,8 @@ export function sections(p: Playbook): DrillSection[] {
       summary: `${p.survives.mayStay.length} things that can stay with the property`,
       content: () => (
         <div className="survive-grid">
-          <div className="survive-col good"><h3>Usually wiped out</h3><ul>{p.survives.wipedOut.map((x) => <li key={x}>{x}</li>)}</ul></div>
-          <div className="survive-col bad"><h3>Can stay with the property</h3><ul>{p.survives.mayStay.map((x) => <li key={x}>{x}</li>)}</ul></div>
+          <div className="survive-col good"><h3>Usually wiped out</h3><ul>{p.survives.wipedOut.map((x) => <li key={x}><Cited text={x} /></li>)}</ul></div>
+          <div className="survive-col bad"><h3>Can stay with the property</h3><ul>{p.survives.mayStay.map((x) => <li key={x}><Cited text={x} /></li>)}</ul></div>
           <p className="muted survive-note">Lien priority is a legal question. Confirm with a title company or real estate attorney before you bid.</p>
         </div>
       ),
@@ -74,12 +77,12 @@ export function sections(p: Playbook): DrillSection[] {
       content: () => (
         <>
           <ul className="risk-list">
-            {p.mistakes.map((m) => <li key={m.mistake}><strong>{m.mistake}</strong> {m.prevent}</li>)}
+            {p.mistakes.map((m) => <li key={m.mistake}><strong>{m.mistake}</strong> <Cited text={m.prevent} /></li>)}
           </ul>
           <aside className="example-card">
             <span className="example-tag">Illustrative example, not a real property</span>
             <h3>{p.example.title}</h3>
-            <p>{p.example.story}</p>
+            <p><Cited text={p.example.story} /></p>
             <p className="example-lesson"><strong>Lesson:</strong> {p.example.lesson}</p>
           </aside>
         </>
@@ -114,7 +117,17 @@ export function sections(p: Playbook): DrillSection[] {
 export default function PlaybookPage({ playbook, section }: { playbook?: string; section?: string }) {
   const p = playbook ? playbookByKey(playbook) : null;
   useLastActivity(`#/playbooks/${playbook ?? ''}`, p ? `Guide: ${p.title}` : undefined);
-  const [mine] = useMyState();
+  const [mine, setMine] = useMyState();
+  // Links like /playbooks?state=CA (from the lessons) open that state's guides.
+  useEffect(() => {
+    if (p) return;
+    const want = new URLSearchParams(window.location.search).get('state');
+    const st = want ? stateByCode(want) : null;
+    if (st) {
+      setMine(st.code);
+      replaceAddress('/playbooks');
+    }
+  }, [p, setMine]);
 
   if (!p) {
     const st = mine ? stateByCode(mine) : null;
@@ -123,8 +136,8 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
       <main className="page">
         <PageHero
           eyebrow={<span className="eyebrow">{st ? `${st.name} law` : 'Nevada, California, Arizona and Utah'}</span>}
-          title={<>How each sale <span className="grad">works</span></>}
-          sub={st ? `Every kind of forced sale in ${st.name}, step by step, and the mistakes that cost money.` : 'Every kind of forced sale, step by step, and the mistakes that cost money. Choose your state to see only its guides.'}
+          title={<>Sale <span className="grad">guides</span></>}
+          sub={st ? `How each kind of forced sale works in ${st.name}, step by step, and the mistakes that cost money.` : 'How each kind of forced sale works, step by step, and the mistakes that cost money. Choose your state to see only its guides.'}
         >
           <GuideSearchForm />
         </PageHero>
@@ -151,7 +164,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
     <main className="page">
       <PageHero
         compact={open}
-        top={<a href={open ? base : '#/playbooks'}>{open ? `← ${p.short} playbook` : '← All guides'}</a>}
+        top={<a href={open ? base : '#/playbooks'}>{open ? `← ${stateByCode(stateOf(p))?.name ?? ''} ${p.short.toLowerCase()}` : '← All sale guides'}</a>}
         eyebrow={<span className="eyebrow">{stateByCode(stateOf(p))?.name} guide{stateOf(p) === 'NV' ? ' · Clark County' : ''} · reviewed {fmtDate(p.lastReviewed)}</span>}
         title={open ? <a className="title-link" href={base}>{p.title}</a> : p.title}
         sub={open ? undefined : p.oneLine}
@@ -159,18 +172,24 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
       {!open && (
         <>
           <div className="you-get"><span>What you get</span><strong>{p.plain ?? p.youGet}</strong>{p.plain && <small>In legal terms: {p.youGet}</small>}</div>
-          <dl className="glance-facts">
-            {p.glance.map((g) => <div key={g.label}><dt>{g.label}</dt><dd>{boldNumbers(g.value)}</dd></div>)}
-          </dl>
           {/* The most costly mistake goes on the first screen, not one click deep: risks stay visible for everyone. */}
           {p.mistakes[0] && (
             <p className="top-mistake" role="note">
-              <strong>Mistake to avoid: {p.mistakes[0].mistake.replace(/^[A-Z](?=[a-z])/, (c) => c.toLowerCase())}.</strong> {p.mistakes[0].prevent}
+              <strong>Mistake to avoid: {p.mistakes[0].mistake.replace(/^[A-Z](?=[a-z])/, (c) => c.toLowerCase())}.</strong> <Cited text={p.mistakes[0].prevent} />
             </p>
           )}
         </>
       )}
+      {/* The step-by-step tiles come before the fact cards, so beginners see the way in first. */}
       <DrillDown sections={s} active={section} baseHref={base} label={`${p.short} guide`} />
+      {!open && (
+        <section aria-labelledby="glance-head">
+          <h2 id="glance-head" className="section-title">The key facts</h2>
+          <dl className="glance-facts">
+            {p.glance.map((g) => <div key={g.label}><dt>{g.label}</dt><dd><Cited text={g.value} plain={boldNumbers} /></dd></div>)}
+          </dl>
+        </section>
+      )}
       {!open && <p className="muted playbook-note">Set your limit before the sale with the <a href="#/analyze?plan=flip">maximum bid calculator</a>.</p>}
       {!open && PRACTICE_SALES.has(p.key) && <p className="playbook-note"><a className="btn" href={`#/practice?sale=${p.key}`}>Practice this kind of sale, hands-on →</a></p>}
       {!open && p.key === 'commercial' && <p className="playbook-note"><a className="btn btn-secondary" href="#/practice">Practice buying commercial property, hands-on →</a></p>}

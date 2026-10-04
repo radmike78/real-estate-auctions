@@ -10,8 +10,9 @@ import { forStateText, showFor, useMyState } from '../lib/myState';
 import { PROPERTY_TOPICS, topicBySlug, topicHref } from '../lib/deep/propertyTopics';
 import { PROPERTY_DEEP } from '../lib/deep/propertyDeep';
 import { PROPERTY_WHY } from '../lib/lessons/propertyWhy';
+import { Cited } from './Cited';
 
-const List = ({ items }: { items: string[] }) => <ul className="deep-list">{items.map((x) => <li key={x}>{x}</li>)}</ul>;
+const List = ({ items }: { items: string[] }) => <ul className="deep-list">{items.map((x) => <li key={x}><Cited text={x} /></li>)}</ul>;
 
 /** A property type in depth: what owning it is like, who it suits, real stories, costs, financing and what to check. */
 export default function PropertyTypePage({ slug }: { slug: string }) {
@@ -58,7 +59,7 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
         <WhyBlock yes={why.yes.filter((p) => keep(p.text))} no={why.no.filter((p) => keep(p.text))} />
       </section>
       {d && d.overview.length > 1 && (
-        <section><h2>What owning it is really like</h2>{fit(d.overview.slice(1)).map((p) => <p key={p}>{p}</p>)}</section>
+        <section><h2>What owning it is really like</h2>{fit(d.overview.slice(1)).map((p) => <p key={p}><Cited text={p} /></p>)}</section>
       )}
       {d && d.facts.length > 0 && (
         <section>
@@ -77,8 +78,11 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
       )}
       {d && (
         <section className="lesson-sources">
-          <h2>Sources</h2>
-          <ul className="source-links">{d.sources.filter((s) => keep(s.label)).map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a></li>)}</ul>
+          <h2>Where this comes from</h2>
+          <details className="sources-more">
+            <summary>See the {d.sources.filter((s) => keep(s.label)).length} sources we checked</summary>
+            <ul className="source-links">{d.sources.filter((s) => keep(s.label)).map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a></li>)}</ul>
+          </details>
           <p className="muted">General education, not legal, tax or financial advice. Stories describe what happened to others; your results depend on your own deal.</p>
         </section>
       )}

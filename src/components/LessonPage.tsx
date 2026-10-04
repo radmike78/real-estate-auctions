@@ -144,7 +144,7 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         <h2 id="takeaways">What you’ll learn</h2>
         <ul>{l.takeaways.map((t) => <li key={t}>{t}</li>)}</ul>
       </section>
-      <OnThisPage root={bodyRef} selector=".lesson-body-text > section > h2, .lesson-terms h2, .check-yourself h2, .lesson-sources h2" />
+      <OnThisPage root={bodyRef} selector=".lesson-body-text > section > h2, .lesson-terms h2, .check-yourself h2" />
       <article className="lesson-body-text">
         {sections.map((s) => (
           <section key={s.heading}>
@@ -167,10 +167,13 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
       )}
       {!l.practice && l.tryIt && <p className="lesson-try"><a className="btn btn-secondary" href={l.tryIt.href}>{l.tryIt.label} →</a></p>}
       <section className="lesson-sources" aria-labelledby="sources">
-        <h2 id="sources">Sources</h2>
-        <ul className="source-links">
-          {sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a></li>)}
-        </ul>
+        <h2 id="sources">Where this comes from</h2>
+        <details className="sources-more">
+          <summary>See the {sources.length} sources we checked</summary>
+          <ul className="source-links">
+            {sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a></li>)}
+          </ul>
+        </details>
         <p className="muted">Checked {fmtDate(l.reviewed)}. General education, not legal, tax or financial advice.</p>
       </section>
       <nav className="path-next" aria-label="Next lesson">

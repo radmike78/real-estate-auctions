@@ -14,6 +14,7 @@ import { buildScenario, SALE_ORDER, whyUnavailable } from '../practice/scenarios
 import { completion } from '../practice/progress';
 import type { SaleKey } from '../practice/types';
 import OwlNote from './OwlNote';
+import { useLastActivity } from '../lib/journey';
 
 /** One plain line, not a banner: readers skip anything styled like a notice. */
 export function PracticeRibbon() {
@@ -31,6 +32,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
   const [cls, setCls] = useState<ClassFilter>('all');
   const chosen = sale && (SALE_ORDER as string[]).includes(sale) ? (sale as SaleKey) : null;
   const titleOf = (s: SaleKey) => playbookByKey(s)?.title ?? s;
+  useLastActivity(chosen ? `#/practice?sale=${chosen}` : '#/practice', chosen ? `Practice: ${titleOf(chosen)}` : 'Practice');
 
   if (!chosen) {
     return (

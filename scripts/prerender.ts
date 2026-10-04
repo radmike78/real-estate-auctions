@@ -26,7 +26,10 @@ export const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
 const list = (items: readonly string[]) => (items.length ? `<ul>${items.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : '');
 const link = (href: string, text: string) => `<a href="${esc(href)}">${esc(text)}</a>`;
 /** An in-app #/ link as its crawlable address. */
-const pathOf = (hash: string) => '/' + hash.replace(/^#\/?/, '').replace(/\/?$/, '/').replace(/^\/$/, '');
+const pathOf = (hash: string) => {
+  const [path, query] = hash.split('?');
+  return '/' + path.replace(/^#\/?/, '').replace(/\/?$/, '/').replace(/^\/$/, '') + (query ? `?${query}` : '');
+};
 
 function block(b: LessonBlock): string {
   if (typeof b === 'string') return `<p>${esc(b)}</p>`;
@@ -110,7 +113,7 @@ export function pages(): Page[] {
     path: '/toolkit/',
     title: 'Free real estate investor toolkit · DeedOwl',
     description: 'A first-deal roadmap from first idea to closing, a buy box builder, worksheets to download, and free calculators and checklists.',
-    body: `<h1>Investor toolkit</h1><h2>Your first deal, step by step</h2><ol>${FIRST_DEAL.map((x) => `<li>${esc(x.text)}</li>`).join('')}</ol><h2>Worksheets</h2>${WORKSHEETS.map((w) => `<h3>${esc(w.title)}</h3><p>${esc(w.intro)}</p>${list(w.items)}`).join('')}`,
+    body: `<h1>My plan: investor toolkit</h1><h2>Your first deal, step by step</h2><ol>${FIRST_DEAL.map((x) => `<li>${esc(x.text)}</li>`).join('')}</ol><h2>Worksheets</h2>${WORKSHEETS.map((w) => `<h3>${esc(w.title)}</h3><p>${esc(w.intro)}</p>${list(w.items)}`).join('')}`,
   });
 
   const simple: [string, string, string][] = [

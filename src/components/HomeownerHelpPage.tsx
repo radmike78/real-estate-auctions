@@ -1,4 +1,7 @@
+import { useRef } from 'react';
 import PageHero from './PageHero';
+import OnThisPage from './OnThisPage';
+import { useLastActivity } from '../lib/journey';
 import { showFor, useMyState } from '../lib/myState';
 
 const ext = { target: '_blank', rel: 'noopener noreferrer' } as const;
@@ -18,8 +21,10 @@ const SURPLUS: { text: string; link?: { label: string; url: string } }[] = [
 /** For owners and tenants facing foreclosure. The site never shares their details or helps anyone contact them. */
 export default function HomeownerHelpPage() {
   const [state] = useMyState();
+  const page = useRef<HTMLElement>(null);
+  useLastActivity('#/homeowner-help', 'Facing foreclosure? Free help');
   return (
-    <main className="page prose">
+    <main className="page prose" ref={page}>
       <PageHero
         eyebrow={<span className="eyebrow">Free help · Nevada</span>}
         title={<>Facing foreclosure? <span className="grad">Get free help.</span></>}
@@ -27,6 +32,7 @@ export default function HomeownerHelpPage() {
       />
 
       <p className="page-starter"><strong>Outside Nevada?</strong> The programs and deadlines on this page are Nevada’s. HUD-approved housing counselors (below) work in every state, usually at no cost, and know your state’s deadlines.</p>
+      <OnThisPage root={page} selector="section > h2" />
 
       <section>
         <h2>Free, trustworthy help: start here</h2>
@@ -75,7 +81,7 @@ export default function HomeownerHelpPage() {
 
       <section>
         <h2>How this site treats homeowners</h2>
-        <p>DeedOwl never contacts homeowners, before or after a sale, and never helps anyone else contact them, including about surplus money. We don’t show owner names for homes that aren’t for sale, and we tell every visitor not to contact homeowners in foreclosure. If someone contacts you and mentions this site, please tell us.</p>
+        <p>DeedOwl never contacts homeowners, before or after a sale, and never helps anyone else contact them, including about surplus money. We don’t show owner names for homes that aren’t for sale, and we tell every visitor not to contact homeowners in foreclosure. If someone contacts you and says they’re from DeedOwl, it isn’t us.</p>
       </section>
     </main>
   );

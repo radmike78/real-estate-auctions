@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { loadDeals, onDealsChange } from '../lib/deals';
 import { useSiteFeatures } from '../lib/siteFeatures';
 import { currentProgress, guidedNext, setMode, useJourney } from '../lib/journey';
+import { useMyState } from '../lib/myState';
 
 // The tasks people come for, one click away. Everything else is under More, grouped.
 // The logo is the link home.
@@ -17,8 +18,8 @@ const PRIMARY = [
 
 const MORE: { group: string; links: (readonly [string, string])[] }[] = [
   { group: 'Tools', links: [['#/deals', 'My deals'], ['#/alerts', 'Email alerts']] },
-  { group: 'Learn', links: [['#/playbooks', 'How each sale works'], ['#/guides', 'Search the guides']] },
-  { group: 'Nevada deals', links: [['#/live', 'Live tax sales'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures'], ['#/pre-foreclosures', 'Pre-foreclosures (not for sale)']] },
+  { group: 'Learn', links: [['#/playbooks', 'Sale guides'], ['#/guides', 'Search the guides']] },
+  { group: 'Nevada deals (Clark County)', links: [['#/live', 'Live tax sales'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures'], ['#/pre-foreclosures', 'Pre-foreclosures (not for sale)']] },
   { group: 'Get help', links: [['#/financing', 'Financing'], ['#/homeowner-help', 'Homeowners: free help']] },
   { group: 'About', links: [['#/about', 'How it works'], ['#/disclaimer', 'How we help'], ['#/advertise', 'Advertise on DeedOwl'], ['#/advertiser', 'Advertiser sign-in']] },
 ];
@@ -29,6 +30,9 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
   const features = useSiteFeatures();
   const { mode } = useJourney();
   const nextStep = mode === 'guided' ? guidedNext(currentProgress()) : null;
+  const [mine] = useMyState();
+  // The Nevada listing pages cover Clark County only, so other states' visitors don't see them in the menu.
+  const groups = MORE.filter((g) => !g.group.startsWith('Nevada') || !mine || mine === 'NV');
   const [open, setOpen] = useState(false);
   const nav = useRef<HTMLElement>(null);
   const menuBtn = useRef<HTMLButtonElement>(null);
@@ -111,15 +115,15 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
           </summary>
           <div className="more-menu">
             <div className="more-group" role="group" aria-label="How you use DeedOwl">
-              <span className="more-group-title" aria-hidden>Your view</span>
-              <button type="button" className="more-mode" aria-pressed={mode === 'guided'} onClick={() => setMode('guided')}>Guide me</button>
-              <button type="button" className="more-mode" aria-pressed={mode === 'explore'} onClick={() => setMode('explore')}>Let me explore</button>
+              <span className="more-group-title" aria-hidden>How DeedOwl guides you</span>
+              <button type="button" className="more-mode" aria-pressed={mode === 'guided'} onClick={() => setMode('guided')}>Step by step</button>
+              <button type="button" className="more-mode" aria-pressed={mode === 'explore'} onClick={() => setMode('explore')}>I’ll explore</button>
             </div>
-            {MORE.map((g) => (
+            {groups.map((g) => (
               <div key={g.group} className="more-group" role="group" aria-label={g.group}>
                 <span className="more-group-title" aria-hidden>{g.group}</span>
                 {g.links.map(([href, label]) => (
-                  <a key={href} href={href}>{label}{href === '#/alerts' && features && !features.email && <span className="soon"> (coming soon)</span>}{href === '#/deals' && deals > 0 && <span className="nav-count">{deals}</span>}</a>
+                  <a key={href} href={href}>{label}{href === '#/alerts' && features && !features.email && <span className="soon"> · soon</span>}{href === '#/deals' && deals > 0 && <span className="nav-count">{deals}</span>}</a>
                 ))}
               </div>
             ))}
@@ -130,9 +134,9 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
           <a href="#/alerts" className={`nav-cta${active('#/alerts') ? ' active' : ''}`}>Get alerts</a>
         ) : nextStep ? (
           <a href={nextStep.step.href} className="nav-cta" title={nextStep.step.label}>Next step</a>
-        ) : (
+        ) : current.split('?')[0] ? ( // the home page is where "Start here" leads, so it isn't shown there
           <a href="#/" className="nav-cta">Start here</a>
-        )}
+        ) : null}
       </nav>
       <ThemeButton />
       <button ref={menuBtn} className="menu-btn" aria-expanded={open} aria-controls="site-nav" aria-label="Menu" onClick={() => setOpen(!open)}>
