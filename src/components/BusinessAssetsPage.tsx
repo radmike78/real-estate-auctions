@@ -99,7 +99,6 @@ export const SECTIONS: DrillSection[] = [
     content: () => (
       <>
         <BuyerChecklistBox list={CHECKLISTS.business} />
-        <p className="muted">The lien and tax clearance items in this checklist follow Nevada law. For California, Arizona or Utah, see <a href="#/business-assets/whole-business">Buying assets vs. a whole business</a>.</p>
         <div className="roadmap-cols">
           <div>
             <h3>The papers you’ll sign or get</h3>
