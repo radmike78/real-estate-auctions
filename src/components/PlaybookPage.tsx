@@ -41,6 +41,14 @@ import SaleDocsPanel from './SaleDocsPanel';
 import { useEffect } from 'react';
 import { replaceAddress } from '../lib/nav';
 
+/** The right calculator for the kind of sale: a lien's yield, an offer on a listed home, or an auction bid. */
+function calcNote(p: { key: string }) {
+  const kind = p.key.replace(/^(ca|az|ut)(?=[a-z]{3})/, '');
+  if (kind === 'sid' || kind === 'taxlien') return <>Work out what a certificate earns, counting the wait to be paid, with the <a href="#/analyze?plan=lien">lien calculator</a>.</>;
+  if (kind === 'reo' || kind === 'short') return <>Set your maximum offer before you make one: <a href="#/analyze?plan=rent">to keep and rent it</a>, or <a href="#/analyze?plan=flip">to fix and sell it</a>.</>;
+  return <>Set your limit before the sale: <a href="#/analyze?plan=rent">to keep and rent it</a>, or <a href="#/analyze?plan=flip">to fix and sell it</a>.</>;
+}
+
 const isExternal = (u: string) => /^https:\/\//.test(u);
 
 export function sections(p: Playbook): DrillSection[] {
@@ -199,7 +207,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
           </dl>
         </section>
       )}
-      {!open && <p className="muted playbook-note">Set your limit before the sale with the <a href="#/analyze?plan=flip">maximum bid calculator</a>.</p>}
+      {!open && <p className="muted playbook-note">{calcNote(p)}</p>}
       {!open && PRACTICE_SALES.has(p.key) && <p className="playbook-note"><a className="btn" href={`#/practice?sale=${p.key}`}>Practice this kind of sale, hands-on →</a></p>}
       {!open && p.key === 'commercial' && <p className="playbook-note"><a className="btn btn-secondary" href="#/practice">Practice buying commercial property, hands-on →</a></p>}
     </main>

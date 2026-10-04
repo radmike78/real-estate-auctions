@@ -6,7 +6,8 @@ import StrategyTabs from './StrategyTabs';
 
 /** The four calculators, one per strategy (also used on Analyze a deal). */
 /** The calculators. `initial` opens a tab; `state` hides tools that don’t apply there (liens: Nevada SID and Arizona tax liens). */
-export function Calculators({ initial, onTab, state, offer = false }: { initial?: string; onTab?: (key: string) => void; state?: StateCode; offer?: boolean } = {}) {
+export function Calculators({ initial, onTab, state, offer = false, dealId, onAnalyze = false }: { initial?: string; onTab?: (key: string) => void; state?: StateCode; offer?: boolean; /** A deal saved in Analyze: its numbers are kept with it. */ dealId?: string; /** On Analyze before the deal is saved: numbers are kept as a draft and move to the deal when it's saved. */ onAnalyze?: boolean } = {}) {
+  const k = (kind: string) => (dealId ? `fsf.calc.${kind}.${dealId}${offer ? '-offer' : ''}.v1` : undefined);
   const bid = offer ? 'offer' : 'bid';
   return (
     <>
@@ -14,9 +15,9 @@ export function Calculators({ initial, onTab, state, offer = false }: { initial?
         initial={initial}
         onChange={onTab}
         strategies={[
-          { key: 'flip', label: 'Fix and sell', about: `The most you can ${bid} and still make your profit when you fix it up and sell it.`, render: () => <BidCalculator headingLevel={2} offer={offer} /> },
-          { key: 'rent', label: 'Keep and rent', about: `The most you can ${bid} and still get your return on the cash you leave in, with or without a loan afterward.`, render: () => <RentCalculator regional={!!state} offer={offer} /> },
-          { key: 'commercial', label: 'Commercial income', about: `The most you can ${bid} for a building’s income, counting the months it takes to lease it up.`, render: () => <CommercialCalculator regional={!!state} offer={offer} /> },
+          { key: 'flip', label: 'Fix and sell', about: `The most you can ${bid} and still make your profit when you fix it up and sell it.`, render: () => <BidCalculator headingLevel={2} offer={offer} saveAs={dealId ? `analyzed-${dealId}` : onAnalyze ? 'analyze-draft' : undefined} /> },
+          { key: 'rent', label: 'Keep and rent', about: `The most you can ${bid} and still get your return on the cash you leave in, with or without a loan afterward.`, render: () => <RentCalculator regional={!!state} offer={offer} storageKey={k('rent')} exactKey={!!dealId} /> },
+          { key: 'commercial', label: 'Commercial income', about: `The most you can ${bid} for a building’s income, counting the months it takes to lease it up.`, render: () => <CommercialCalculator regional={!!state} offer={offer} storageKey={k('commercial')} exactKey={!!dealId} /> },
           { key: 'lien', label: 'Lien certificate', about: 'What a special assessment (SID) lien certificate earns per year, counting the wait to be paid.', render: () => <LienCalculator /> },
         ].filter((s) => s.key !== 'lien' || !state || state === 'NV' || state === 'AZ').map((s) => (s.key === 'lien' && state === 'AZ' ? { ...s, label: 'Tax lien', about: 'What an Arizona tax lien certificate earns per year at the rate you win, counting the wait to be paid.' } : s))}
       />

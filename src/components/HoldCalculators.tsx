@@ -132,6 +132,11 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false }: { r:
         <strong>{r.noBidWorks ? (offer ? 'No offer works' : 'No bid works') : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'}</strong>
         <small>{r.noBidWorks ? 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.' : !Number.isFinite(r.maxBid) ? 'Enter the return you want, or the cash you can bring, to get a walk-away price.' : r.limitedBy === 'cash' ? (offer ? 'Set by the cash you can put in: the down payment, closing costs and repairs.' : 'Set by the cash you can bring: the bid and every cost until it’s ready to rent.') : target}</small>
       </div>
+      {!offer && r.debtService > 0 && !r.noBidWorks && Number.isFinite(r.maxBid) && (
+        <p className="calc-note small warn">
+          <strong>The loan here is a refinance after you buy, not money you have at the sale.</strong> Until it closes, all {fmtMoney(Math.round(r.allIn))} is your cash. Lenders often wait months after a purchase, may lend less than the value you expect, or may say no; have a plan for keeping the property on your own cash if that happens.
+        </p>
+      )}
       {!r.noBidWorks && Number.isFinite(r.maxBid) && (
         <dl className="calc-kv">
           {!offer && <div><dt>Cash needed on auction day</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
@@ -211,19 +216,33 @@ const OFTEN_FORGOTTEN = [
 
 /** Stress tests, the deal in plain words, and a checklist of easy-to-forget costs. */
 /** The rental at a price you type: every step from rent to cash flow, with its assumptions. */
-function AtThisPrice({ v, start, onPrice }: { v: RentInputs; start: number; onPrice: boolean }) {
+function AtThisPrice({ v, start, onPrice, setPrice }: { v: RentInputs; start: number; onPrice: boolean; setPrice: (n: number) => void }) {
   const walkAway = Number.isFinite(start) && start > 0 ? Math.round(start) : 0;
-  const [price, setPrice] = useState(walkAway);
+  // The price you'd actually pay is saved with the deal; the walk-away price is only used when you choose it.
+  const price = v.atPrice;
   const a = rentAtPrice(v, price, onPrice);
+  const coc = a.cashOnCash;
+  const target = v.targetCocPct / 100;
   const mo = (n: number) => fmtMoney(Math.round(n / 12));
   const neg = (n: number) => (n > 0 ? `−${mo(n)}` : mo(0));
   return (
     <section className="at-price" aria-labelledby="at-price-head">
-      <h4 id="at-price-head">At this price</h4>
+      <h4 id="at-price-head">At your price</h4>
       <label className="field">
         <span>Price you’d pay ($)</span>
         <input type="number" inputMode="numeric" min={0} max={1e9} step={1000} value={price || ''} onChange={(e) => { const n = Number(e.target.value); setPrice(Number.isFinite(n) ? Math.min(1e9, Math.max(0, n)) : 0); }} />
       </label>
+      {price > 0 && (
+        <p className={`calc-verdict ${a.cashFlow > 0 && coc !== null && coc >= target ? 'good' : 'bad'}`} role="status">
+          <strong>Estimated return: {coc === null ? 'all your cash comes back' : pctText(coc)} a year on your cash; your target: {v.targetCocPct}%.</strong>{' '}
+          {a.cashFlow <= 0
+            ? `It loses about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month after every cost. Investigate whether the price, the costs or your plan should change, or walk away.`
+            : coc !== null && coc < target
+              ? `Cash flow is positive (about ${fmtMoney(Math.round(a.cashFlow / 12))} a month), but it misses your goal. Investigate whether the price, the costs or the goal should change.`
+              : `It meets your target at this price, based on your numbers. Check each number against evidence before you rely on it.`}
+        </p>
+      )}
+      {price === 0 && <p className="muted small">Enter the price you’d pay (the asking price, or your offer) to see your numbers at that price.</p>}
       {walkAway > 0 && price !== walkAway && <button type="button" className="linkish" onClick={() => setPrice(walkAway)}>Use the walk-away price ({fmtMoney(walkAway)})</button>}
       <table className="deal-stress waterfall">
         <caption className="sr-only">Monthly income and costs at this price</caption>
@@ -252,13 +271,12 @@ function AtThisPrice({ v, start, onPrice }: { v: RentInputs; start: number; onPr
 }
 
 function RentDealLab({ v, start, onPrice }: { v: RentInputs; start: number; onPrice: boolean }) {
-  const at = Number.isFinite(start) && start > 0 ? start : v.value;
+  const at = v.atPrice > 0 ? v.atPrice : Number.isFinite(start) && start > 0 ? start : v.value;
   const rows = rentStress(v, at, onPrice);
   const [ticked, setTicked] = useState<string[]>([]);
   return (
     <div className="deal-lab">
-      <AtThisPrice v={v} start={start} onPrice={onPrice} />
-      <h4>Explain this deal</h4>
+      <h4>Explain this deal{v.atPrice > 0 ? ` at ${fmtMoney(v.atPrice)}` : ''}</h4>
       <ul className="deal-explain">{explainRent(v, at, onPrice).map((x) => <li key={x}>{x}</li>)}</ul>
       <h4>Stress test: cash flow per month</h4>
       <table className="deal-stress">
@@ -288,9 +306,9 @@ function RentDealLab({ v, start, onPrice }: { v: RentInputs; start: number; onPr
   );
 }
 
-export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', start = {}, regional = false, offer = false }: { storageKey?: string; start?: Partial<RentInputs>; regional?: boolean; offer?: boolean }) {
+export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = false, start = {}, regional = false, offer = false }: { storageKey?: string; /** The key already names the deal and kind of purchase. */ exactKey?: boolean; start?: Partial<RentInputs>; regional?: boolean; offer?: boolean }) {
   const rt = useRegionTax(RENT_GROUPS);
-  const [saved, set] = useSaved<RentInputs>(offer ? offerKey(storageKey) : storageKey, { ...RENT_DEFAULTS, ...(offer ? OFFER_START : {}), ...start }, regional ? { transferTaxPer500: rt.per500 } : {});
+  const [saved, set] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...RENT_DEFAULTS, ...(offer ? OFFER_START : {}), ...start }, regional ? { transferTaxPer500: rt.per500 } : {});
   const v = offer ? { ...saved, buyerPremiumPct: 0 } : saved;
   const r = rentMaxBid(v, offer);
   const n = rentNoi(v);
@@ -298,8 +316,10 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', start = {}, re
     <div className="calc">
       <div className="calc-inputs"><CalcFields groups={offer ? forOffer(rt.groups) : rt.groups} values={v} onChange={set} /></div>
       <div className="calc-results">
-        <HoldResults r={r} title="Walk-away price to keep and rent it" target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} />
-        <CashCushion v={v} price={r.maxBid} onPrice={offer} />
+        {/* Your actual deal first; the price that would meet your goal second. */}
+        <AtThisPrice v={v} start={r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} />
+        <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} />
+        <CashCushion v={v} price={v.atPrice > 0 ? v.atPrice : r.maxBid} onPrice={offer} />
         <RentDealLab v={v} start={r.maxBid} onPrice={offer} />
       </div>
     </div>
@@ -331,9 +351,9 @@ const COMMERCIAL_GROUPS: CalcGroup<CommercialInputs>[] = [
   },
 ];
 
-export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', start = {}, regional = false, offer = false }: { storageKey?: string; start?: Partial<CommercialInputs>; regional?: boolean; offer?: boolean }) {
+export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', exactKey = false, start = {}, regional = false, offer = false }: { storageKey?: string; exactKey?: boolean; start?: Partial<CommercialInputs>; regional?: boolean; offer?: boolean }) {
   const ct = useRegionTax(COMMERCIAL_GROUPS);
-  const [saved, set] = useSaved<CommercialInputs>(offer ? offerKey(storageKey) : storageKey, { ...COMMERCIAL_DEFAULTS, ...start }, regional ? { transferTaxPer500: ct.per500 } : {});
+  const [saved, set] = useSaved<CommercialInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...COMMERCIAL_DEFAULTS, ...start }, regional ? { transferTaxPer500: ct.per500 } : {});
   const v = offer ? { ...saved, buyerPremiumPct: 0 } : saved;
   const r = commercialMaxBid(v, offer);
   const n = commercialNoi(v);

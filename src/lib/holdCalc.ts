@@ -41,6 +41,7 @@ export interface RentInputs extends BuyInputs, LoanInputs {
   targetCocPct: number; // cash-on-cash return you require
   minDscr: number; // lenders often want 1.2 to 1.25
   reserveCash: number; // savings left after closing and repairs, to carry the property with no rent
+  atPrice: number; // the price you'd actually pay (0 until entered), saved with the deal
 }
 
 export interface CommercialInputs extends BuyInputs, LoanInputs {
@@ -307,7 +308,7 @@ export function lienYield(i: LienInputs): { interest: number; payoff: number; pr
 export const RENT_DEFAULTS: RentInputs = {
   cashAvailable: 0, buyerPremiumPct: 0, transferTaxPer500: 2.55, survivingLiens: 0, titleLegal: 500, possession: 300, repairs: 25_000, contingencyPct: 15,
   monthlyRent: 2_200, vacancyPct: 6, propertyTaxYear: 2_400, insuranceYear: 1_400, hoaMonthly: 0, managementPct: 8, maintenancePct: 5, capexPct: 5,
-  value: 350_000, loanPct: 0, ratePct: 7.5, years: 30, loanCostPct: 2, targetCocPct: 8, minDscr: 1.25, reserveCash: 0,
+  value: 350_000, loanPct: 0, ratePct: 7.5, years: 30, loanCostPct: 2, targetCocPct: 8, minDscr: 1.25, reserveCash: 0, atPrice: 0,
 };
 
 export const COMMERCIAL_DEFAULTS: CommercialInputs = {
