@@ -2551,3 +2551,11 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .evidence-step h4 { margin: 0 0 4px; }
 .evidence-step .evidence-done { margin-top: 10px; }
 .case-task.retried .case-task-n { background: var(--info-bg); color: var(--info); outline: 2px solid currentColor; }
+/* My plan: suggestions to mark a step done, the cash-to-price helper and the team list. */
+.roadmap-has { background: var(--go-bg); color: var(--go); border-radius: 10px; padding: 8px 12px; margin: 8px 0; }
+.roadmap-goal textarea { width: 100%; }
+.price-from-cash { border: 1px solid var(--border); border-left: 4px solid var(--accent-strong); border-radius: 12px; padding: 12px 16px; margin-top: 12px; background: var(--surface); }
+.price-from-cash h3 { margin: 0 0 6px; }
+.team-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr)); gap: 12px; }
+.team-member { border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; background: var(--surface); }
+.team-member h3 { margin: 0 0 6px; }

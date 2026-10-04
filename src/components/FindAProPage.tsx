@@ -90,7 +90,7 @@ function GuideBody({ g }: { g: ProGuide }) {
         </div>
       )}
       {LICENSE_LOOKUPS[g.key] && <LicenseCheck lookups={LICENSE_LOOKUPS[g.key]!} state={st} />}
-      <p className="pro-next"><a className="btn" href="#/toolkit">Add them to your team in My plan →</a></p>
+      <p className="pro-next"><a className="btn" href="#/toolkit/team">Add them to your team in My plan →</a></p>
       {PRO_DEEP[g.key] && PRO_DEEP[g.key]!.overview.length > 0 && (
         <>
           <h3 className="part-head">Working with one</h3>
@@ -170,7 +170,7 @@ export default function FindAProPage({ section }: { section?: string }) {
           )}
           {mine && <p className="muted">Sales in {stateByCode(mine)?.name}. <button type="button" className="linkish" onClick={() => { setMine(null); setSale('start'); }}>Change state</button></p>}
           <p className="muted">
-            {book ? <>For {book.short.toLowerCase()}, in the order you’ll usually need them.</> : <>Most first-time buyers of a forced-sale property need these five.</>}{' '}
+            {book ? <>For {book.short.toLowerCase()}, in the order you’ll usually need them.</> : <>Most first-time buyers need these six, whatever the kind of sale (paying cash, you can skip the lender).</>}{' '}
             <a href={book ? `#/playbooks/${book.key}` : '#/playbooks'}>{book ? `How ${book.short.toLowerCase()} work →` : 'Sale guides →'}</a>
           </p>
           <TeamList team={team} />

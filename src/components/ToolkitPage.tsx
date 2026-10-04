@@ -13,6 +13,13 @@ import { docGuide, DOC_GUIDES } from '../lib/docGuides';
 import DocGuideView from './DocGuideView';
 import { EvidenceArea } from './EvidenceLog';
 import { DEAL_ID, DEAL_KEY, DEAL_STEPS_KEY, type DealSteps } from '../lib/roadmapDeals';
+import { cashForPrice, cleanGoal, cleanTeamList, GOAL_KEY, PLAN_EVENT, PRICE_DEFAULTS, priceForCash, TEAM_LIST_KEY, TEAM_ROLES, type PriceAssumptions, type TeamList, type TeamMember } from '../lib/myPlan';
+import { currentProgress } from '../lib/journey';
+import { DECIDE_KEY, rank, type Answers } from '../lib/decide';
+import { loadCase } from '../practice/caseProgress';
+import { RENTAL_CASE, tasksFor } from '../practice/rentalCase';
+import { proGuideByKey } from '../lib/proGuide';
+import { PRO_SCRIPTS } from '../lib/proScripts';
 
 const ROADMAP_KEY = 'deedowl.roadmap.v1';
 const ROADMAP_PATH_KEY = 'deedowl.roadmap.path.v1';
@@ -75,6 +82,58 @@ export function roadmapProgress() {
   return { done: steps.filter(settled).length, total: steps.length };
 }
 
+/** Fired when the cash, buy box or team changes, so the roadmap can offer to mark their steps done. */
+const PLAN_CHANGED = 'deedowl:plan-changed';
+const planChanged = () => window.dispatchEvent(new CustomEvent(PLAN_CHANGED));
+
+/** The investable cash from the worksheet, or 0. */
+const investableCash = () => {
+  const c = read(CASH_KEY, cleanCash(null), cleanCash);
+  return Math.max(0, c.savings - c.spending * c.months - c.promised - c.debt);
+};
+
+/** What you've already made that a step asks for, so you can mark it done (a step is never ticked for you). */
+function stepEvidence(id: string): string | null {
+  if (id === 'goal') return read(GOAL_KEY, '', cleanGoal).trim() ? 'Your goal is written below.' : null;
+  if (id === 'money') return investableCash() > 0 ? `Your cash worksheet shows ${fmtMoney(investableCash())} of investable cash.` : null;
+  if (id === 'buybox') {
+    const b = read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox);
+    return b.area && b.types.length && b.priceMax && b.dealBreakers.length ? 'Your buy box has an area, property types, a price limit and deal breakers.' : null;
+  }
+  if (id === 'practice') {
+    const p = loadCase();
+    const finished = RENTAL_CASE.every((st) => tasksFor(st, p.answers).every((t) => p.done.includes(`${st.key}/${t.id}`)));
+    return finished || p.walked ? 'You finished the practice purchase and have its deal packet.' : null;
+  }
+  if (id === 'team') {
+    const t = read(TEAM_LIST_KEY, {}, cleanTeamList);
+    const named = Object.values(t).filter((m) => m && m.name.trim());
+    return named.length >= 3 ? `Your team list has ${named.length} people${named.every((m) => m!.licenseChecked) ? ', each with a checked license' : ''}.` : null;
+  }
+  return null;
+}
+
+/** The goal shows in "Your next step" and again in its phase: both copies stay in step. */
+function GoalField() {
+  const [g, setG] = useState(() => read(GOAL_KEY, '', cleanGoal));
+  useEffect(() => {
+    const on = () => setG(read(GOAL_KEY, '', cleanGoal));
+    window.addEventListener(PLAN_EVENT, on);
+    return () => window.removeEventListener(PLAN_EVENT, on);
+  }, []);
+  const change = (v: string) => {
+    setG(v);
+    write(GOAL_KEY, v);
+    window.dispatchEvent(new CustomEvent(PLAN_EVENT));
+  };
+  return (
+    <label className="field roadmap-goal">
+      <span>Your goal, in one sentence</span>
+      <textarea rows={2} maxLength={400} value={g} onChange={(e) => change(e.target.value)} placeholder="e.g. A rental I’ll hold 10 years, where the rent covers the costs. About 6 hours a week." />
+    </label>
+  );
+}
+
 /** One roadmap step, opened: what you'll have, what to do, what to say, the documents, when to stop, and when it's done. */
 function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: StepStatus | 'done' | 'todo'; setStatus: (v: StepStatus | 'done' | 'todo') => void; deal?: { id: string; name: string } }) {
   return (
@@ -106,14 +165,18 @@ function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: Step
       {s.guides?.map((k) => docGuide(k)).filter((g) => g !== undefined).map((g) => <DocGuideView key={g.key} g={g} label={`How to read it: ${g.title}`} />)}
       {deal && s.evidence && dealScoped(s) && <EvidenceArea key={`${deal.id}|${s.evidence}`} dealId={deal.id} dealName={deal.name} area={s.evidence} askFinding={status === 'done'} />}
       {!deal && s.evidence && dealScoped(s) && <p className="muted">Working on a real property? Save it in <a href="#/analyze">Analyze</a>, then choose it above to record what you find here.</p>}
+      {s.id === 'goal' && <GoalField />}
       {s.stop && <p className="roadmap-stop"><strong>Stop if:</strong> {s.stop}</p>}
       <p className="roadmap-done"><strong>Done when:</strong> {s.doneWhen}</p>
+      {status !== 'done' && stepEvidence(s.id) && (
+        <p className="roadmap-has" role="status">✓ {stepEvidence(s.id)} <button type="button" className="linkish" onClick={() => setStatus('done')}>Mark it done</button></p>
+      )}
       {s.skip && <p className="muted roadmap-skip"><strong>Doesn’t apply if:</strong> {s.skip}</p>}
       <div className="roadmap-status" role="group" aria-label={`Status: ${s.title}`}>
         {(['todo', 'doing', 'waiting', 'done', 'stopped', ...(s.skip || status === 'na' ? (['na'] as const) : [])] as const).map((k) => (
           <button key={k} type="button" aria-pressed={status === k} onClick={() => setStatus(k)}>{STEP_STATUS_LABEL[k]}</button>
         ))}
-        {s.href && <a className="btn" href={s.href}>{s.action ?? 'Open'} →</a>}
+        {s.href && <a className="btn" href={s.href}>{s.id === 'goal' && currentProgress().decided ? 'Review your Decide results' : s.action ?? 'Open'} →</a>}
       </div>
     </div>
   );
@@ -132,6 +195,17 @@ export function FirstDealRoadmap() {
   useEffect(() => write(ROADMAP_PATH_KEY, path), [path]);
   useEffect(() => write(DEAL_KEY, dealId), [dealId]);
   useEffect(() => write(DEAL_STEPS_KEY, perDeal), [perDeal]);
+  // Redraw when your goal, cash, buy box or team changes elsewhere on the page.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const on = () => setTick((n) => n + 1);
+    window.addEventListener(PLAN_CHANGED, on);
+    window.addEventListener(PLAN_EVENT, on);
+    return () => {
+      window.removeEventListener(PLAN_CHANGED, on);
+      window.removeEventListener(PLAN_EVENT, on);
+    };
+  }, []);
   const active = deals.find((d) => `analyzed:${d.id}` === dealId);
   const deal = active ? { id: `analyzed:${active.id}`, name: active.name } : undefined;
   const scoped = (s: RoadmapStep) => !!deal && dealScoped(s);
@@ -264,7 +338,10 @@ export function CashWorksheet() {
   const [c, setC] = useState<Cash>(() => read(CASH_KEY, cleanCash(null), cleanCash));
   // What's typed is kept as text (so "4." or "5,200.5" can be finished); the number behind it drives the result.
   const [draft, setDraft] = useState<Partial<Record<keyof Cash, string>>>({});
-  useEffect(() => write(CASH_KEY, c), [c]);
+  useEffect(() => {
+    write(CASH_KEY, c);
+    planChanged();
+  }, [c]);
   const fund = c.spending * c.months;
   const investable = Math.max(0, c.savings - fund - c.promised - c.debt);
   const field = (k: keyof Cash, label: string, hint?: string) => (
@@ -289,13 +366,75 @@ export function CashWorksheet() {
         Emergency fund: <strong>{fmtMoney(fund)}</strong> · Your investable cash: <strong>{fmtMoney(investable)}</strong>
       </p>
       {c.savings > 0 && investable === 0 && <p className="roadmap-stop"><strong>Not yet.</strong> Build your emergency fund and pay off high-interest debt first. Keep learning and practicing in the meantime.</p>}
+      {investable > 0 && <PriceFromCash cash={investable} />}
     </section>
   );
 }
 
+/** What price your investable cash can support with a loan: down payment, closing costs and the lender's reserves. */
+function PriceFromCash({ cash }: { cash: number }) {
+  const [a, setA] = useState<PriceAssumptions>(PRICE_DEFAULTS);
+  const price = priceForCash(cash, a);
+  const c = cashForPrice(price, a);
+  const num = (k: keyof PriceAssumptions, label: string, unit: string) => (
+    <label className="field">
+      <span>{label} ({unit})</span>
+      <input type="number" inputMode="decimal" min={0} max={100} step="any" value={a[k]} onChange={(e) => { const n = Number(e.target.value); setA((x) => ({ ...x, [k]: Number.isFinite(n) && n >= 0 ? Math.min(n, 100) : 0 })); }} />
+    </label>
+  );
+  const useIt = () => {
+    const b = read(BUYBOX_KEY, { ...EMPTY_BUY_BOX, state: getMyState() ?? '' }, cleanBuyBox);
+    write(BUYBOX_KEY, { ...b, priceMax: price, cashMax: Math.round(cash) });
+    window.dispatchEvent(new CustomEvent(PLAN_EVENT));
+    document.getElementById('buy-box')?.scrollIntoView();
+  };
+  return (
+    <div className="price-from-cash">
+      <h3>What price your cash can support</h3>
+      <p>
+        With {a.downPct}% down, closing costs of about {a.closingPct}% and {a.reserveMonths} months of payments kept in reserve, your {fmtMoney(cash)} supports a price up to about <strong>{fmtMoney(price)}</strong>:
+        {' '}{fmtMoney(Math.round(c.down))} down, {fmtMoney(Math.round(c.closing))} closing costs and {fmtMoney(Math.round(c.reserves))} in reserve (about {fmtMoney(Math.round(c.monthly))} a month in loan, tax and insurance). Repairs come out of the same cash, so leave room for them.
+      </p>
+      <details>
+        <summary>Change the assumptions</summary>
+        <div className="deal-fields">
+          {num('downPct', 'Down payment', '% of price')}
+          {num('closingPct', 'Closing costs', '% of price')}
+          {num('reserveMonths', 'Reserves', 'months of payments')}
+          {num('ratePct', 'Loan rate', '% a year')}
+          {num('taxInsPct', 'Property tax and insurance', '% of price a year')}
+        </div>
+        <p className="muted small">25% down and 6 months of reserves are common for a rental you won’t live in; a home you’ll live in can need far less down. Your lender’s quote sets the real numbers.</p>
+      </details>
+      <button type="button" className="btn btn-secondary" onClick={useIt}>Use {fmtMoney(price)} in my buy box</button>
+    </div>
+  );
+}
+
+/** The top strategy from Decide, as a buy-box strategy, if Decide has been answered. */
+const DECIDE_STRATEGY: Record<string, string> = {
+  rental: 'Buy and hold a rental', househack: 'Live in one unit, rent the others', brrrr: 'Buy, fix, rent and refinance (BRRRR)', flip: 'Fix and flip', reo: 'Bank-owned and government homes', auction: 'Tax and foreclosure auctions',
+};
+function decideStrategy(): string | null {
+  const d = read<{ answers?: Answers } | null>(DECIDE_KEY, null, (v) => (v && typeof v === 'object' ? (v as { answers?: Answers }) : null));
+  if (!d?.answers || !currentProgress().decided) return null;
+  const top = rank(d.answers)[0]?.strategy.key;
+  return top ? DECIDE_STRATEGY[top] ?? null : null;
+}
+
 function BuyBoxBuilder() {
   const [b, setB] = useState<BuyBox>(() => read(BUYBOX_KEY, { ...EMPTY_BUY_BOX, state: getMyState() ?? '' }, cleanBuyBox));
-  useEffect(() => write(BUYBOX_KEY, b), [b]);
+  useEffect(() => {
+    write(BUYBOX_KEY, b);
+    planChanged();
+  }, [b]);
+  // The cash helper can fill in the price and cash: pick that up.
+  useEffect(() => {
+    const on = () => setB(read(BUYBOX_KEY, { ...EMPTY_BUY_BOX, state: getMyState() ?? '' }, cleanBuyBox));
+    window.addEventListener(PLAN_EVENT, on);
+    return () => window.removeEventListener(PLAN_EVENT, on);
+  }, []);
+  const suggested = decideStrategy();
   const set = <K extends keyof BuyBox>(k: K, v: BuyBox[K]) => setB((x) => ({ ...x, [k]: v }));
   const toggle = (k: 'types' | 'dealBreakers', v: string) => set(k, b[k].includes(v) ? b[k].filter((x) => x !== v) : [...b[k], v]);
   const money = (k: 'priceMax' | 'repairsMax' | 'cashMax' | 'minCashFlow', label: string, hint?: string) => (
@@ -352,6 +491,12 @@ function BuyBoxBuilder() {
         )}
       </div>
       {lien && <p className="muted">A lien certificate isn’t the property: there’s no rent and nothing to repair. Your buy box is the parcels you’ll bid on, what you’ll pay, and how long your money can wait. Property types and deal breakers below describe the land behind each lien.</p>}
+      {!b.strategy && suggested && <p className="roadmap-has">Decide suggested: <strong>{suggested}</strong>. <button type="button" className="linkish" onClick={() => set('strategy', suggested)}>Use it</button></p>}
+      {!lien && b.priceMax > 0 && b.cashMax > 0 && cashForPrice(b.priceMax, PRICE_DEFAULTS).total > b.cashMax && (
+        <p className="caution" role="status">
+          <strong>Your price limit needs more cash than you have.</strong> At {fmtMoney(b.priceMax)}, 25% down, about 3% closing costs and 6 months of reserves take about {fmtMoney(Math.round(cashForPrice(b.priceMax, PRICE_DEFAULTS).total))}, more than your {fmtMoney(b.cashMax)}. Lower the price, or check a lower down payment with your lender.
+        </p>
+      )}
       <fieldset className="buybox-checks">
         <legend>Property types</legend>
         {PROPERTY_TYPE_OPTIONS.map((t) => <label key={t}><input type="checkbox" checked={b.types.includes(t)} onChange={() => toggle('types', t)} /> {t}</label>)}
@@ -412,6 +557,69 @@ function buyBoxText(b: BuyBox, stateName?: string): string {
     `I walk away if: ${b.dealBreakers.join('; ')}`,
     `Notes: ${b.notes}`,
   ].join('\n');
+}
+
+/** The people you'll call, with what to say to each: kept, printed and downloaded with your plan. */
+function TeamListSection() {
+  const [t, setT] = useState<TeamList>(() => read(TEAM_LIST_KEY, {}, cleanTeamList));
+  useEffect(() => {
+    write(TEAM_LIST_KEY, t);
+    planChanged();
+  }, [t]);
+  const set = (k: keyof TeamList, patch: Partial<TeamMember>) => setT((x) => ({ ...x, [k]: { name: '', contact: '', licenseChecked: false, fees: '', ...x[k], ...patch } }));
+  return (
+    <section id="team" aria-labelledby="team-head">
+      <h2 id="team-head">Your team</h2>
+      <p>The people a first purchase usually needs, in the order you’ll call them. Write down who you chose, check their license, and note what they charge. Each role links to what they do and how to find one.</p>
+      <ol className="team-list">
+        {TEAM_ROLES.map((k) => {
+          const g = proGuideByKey(k);
+          const m = t[k];
+          if (!g) return null;
+          return (
+            <li key={k} className="team-member">
+              <h3><a href={`#/pros/${k}`}>{g.title}</a></h3>
+              <div className="deal-fields">
+                <label className="field"><span>Name and company</span><input type="text" maxLength={120} value={m?.name ?? ''} onChange={(e) => set(k, { name: e.target.value })} /></label>
+                <label className="field"><span>Phone or email</span><input type="text" maxLength={160} value={m?.contact ?? ''} onChange={(e) => set(k, { contact: e.target.value })} /></label>
+                <label className="field"><span>Fees</span><input type="text" maxLength={200} value={m?.fees ?? ''} onChange={(e) => set(k, { fees: e.target.value })} placeholder="What they charge, and when" /></label>
+              </div>
+              <label className="check"><input type="checkbox" checked={!!m?.licenseChecked} onChange={(e) => set(k, { licenseChecked: e.target.checked })} /> I checked their license with the state</label>
+              {PRO_SCRIPTS[k] && (
+                <details>
+                  <summary>What to say</summary>
+                  <blockquote className="roadmap-script">{PRO_SCRIPTS[k].say}</blockquote>
+                </details>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  );
+}
+
+/** Everything in My plan as one text file: goal, cash, buy box, roadmap and team. */
+function planText(): string {
+  const path = roadmapPath();
+  const steps = roadmapFor(path);
+  const done = roadmapDone();
+  const status = read(STATUS_KEY, {}, cleanStatus);
+  const b = read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox);
+  const team = read(TEAM_LIST_KEY, {}, cleanTeamList);
+  const cash = investableCash();
+  const lines = ['MY INVESTING PLAN', 'DeedOwl educational worksheet.', '', 'GOAL', read(GOAL_KEY, '', cleanGoal) || '(not written yet)', '', 'CASH'];
+  lines.push(cash > 0 ? `Investable cash: ${fmtMoney(cash)}. With 25% down, 3% closing costs and 6 months of reserves, it supports a price up to about ${fmtMoney(priceForCash(cash))}.` : '(not worked out yet)');
+  lines.push('', buyBoxText(b, STATES.find((x) => x.code === b.state)?.name), '', `ROADMAP: ${ROADMAP_PATHS[path].label}`);
+  for (const s of steps) lines.push(`[${done.includes(s.id) ? 'x' : status[s.id] === 'na' ? '-' : ' '}] ${ROADMAP_PHASES[s.phase]}: ${s.title}${status[s.id] && !done.includes(s.id) ? ` (${STEP_STATUS_LABEL[status[s.id]]})` : ''}`);
+  lines.push('', 'TEAM');
+  for (const k of TEAM_ROLES) {
+    const m = team[k];
+    const g = proGuideByKey(k);
+    lines.push(`${g?.title ?? k}: ${m?.name || '(not chosen yet)'}${m?.contact ? `, ${m.contact}` : ''}${m?.licenseChecked ? ', license checked' : ''}${m?.fees ? `. Fees: ${m.fees}` : ''}`);
+    if (PRO_SCRIPTS[k]) lines.push(`  What to say: ${PRO_SCRIPTS[k].say}`);
+  }
+  return lines.join('\n');
 }
 
 function Worksheets() {
@@ -478,7 +686,7 @@ const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behav
 export default function ToolkitPage({ section }: { section?: string }) {
   useLastActivity('#/toolkit', 'My plan');
   useEffect(() => {
-    if (section === 'buy-box' || section === 'cash') document.getElementById(section)?.scrollIntoView();
+    if (section === 'buy-box' || section === 'cash' || section === 'team') document.getElementById(section)?.scrollIntoView();
   }, [section]);
   return (
     <main className="page toolkit">
@@ -486,17 +694,26 @@ export default function ToolkitPage({ section }: { section?: string }) {
         title={<>My <span className="grad">plan</span></>}
         sub="Your investor toolkit: a step-by-step roadmap, a buy box to keep you focused, and every calculator and checklist on DeedOwl."
       />
-      <section className="toolkit-start" aria-labelledby="start-head">
+      {!currentProgress().decided && <section className="toolkit-start" aria-labelledby="start-head">
         <h2 id="start-head">Start your investing plan</h2>
         <p>First, choose what you want from investing. You can change your answer later.</p>
         <div className="decide-nav">
           <a className="btn" href="#/decide">Choose my goal</a>
           <button type="button" className="btn btn-secondary" onClick={() => jump('roadmap')}>See the full roadmap</button>
         </div>
-      </section>
+      </section>}
       <FirstDealRoadmap />
       <CashWorksheet />
       <BuyBoxBuilder />
+      <TeamListSection />
+      <section className="plan-download" aria-labelledby="plan-dl-head">
+        <h2 id="plan-dl-head">Take your plan with you</h2>
+        <p>Your goal, your cash and what price it supports, your buy box, where you are on the roadmap, and your team with what to say to each, in one file.</p>
+        <div className="decide-nav">
+          <button type="button" className="btn" onClick={() => downloadText('my-investing-plan.txt', planText())}>Download my plan</button>
+          <button type="button" className="btn btn-secondary" onClick={() => window.print()}>Print this page</button>
+        </div>
+      </section>
       <Worksheets />
       <section id="paperwork" aria-labelledby="paperwork-head">
         <h2 id="paperwork-head">Read the paperwork</h2>
