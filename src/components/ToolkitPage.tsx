@@ -381,7 +381,6 @@ function ProgressBackup() {
   );
 }
 
-const JUMPS: [string, string][] = [['roadmap', 'Roadmap'], ['cash', 'Investable cash'], ['buy-box', 'Buy box'], ['worksheets', 'Worksheets'], ['tools-calculators', 'Calculators'], ['tools-checklists', 'Checklists'], ['backup', 'Keep your progress']];
 const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
 /** Everything free in one place: the first-deal roadmap, a buy box, and the calculators and checklists. */
@@ -404,9 +403,6 @@ export default function ToolkitPage({ section }: { section?: string }) {
           <button type="button" className="btn btn-secondary" onClick={() => jump('roadmap')}>See the full roadmap</button>
         </div>
       </section>
-      <nav className="toolkit-jump" aria-label="On this page">
-        {JUMPS.map(([id, label]) => <button key={id} type="button" className="linkish" onClick={() => jump(id)}>{label}</button>)}
-      </nav>
       <FirstDealRoadmap />
       <CashWorksheet />
       <BuyBoxBuilder />

@@ -99,7 +99,6 @@ export default function HomePage() {
 
       <section className="path" id="everything" aria-labelledby="path-head">
         <h2 id="path-head">Everything, in six steps</h2>
-        <p className="path-intro">How the site is laid out, in the order most people use it. A ✓ means you’ve opened that part, not finished it.</p>
         <ol className="path-steps">
           {PATH.map((s) => {
             const opened = seen.includes(s.key);

@@ -2523,3 +2523,8 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 }
 /* No decorative owl in page headers: it crowded titles on phones and doubled up with the empty-state owl. */
 .hero::after, .page-hero::after { display: none !important; }
+/* Subtitles inside tinted heading bars use the body text color: muted grey on the tint fell below 4.5:1. */
+.deal-band .band-head p { color: var(--text); opacity: 0.85; }
+/* Learn: lesson cards in columns on wide screens, so each card's text and arrow sit together (still full width). */
+@media (min-width: 1100px) { .learn-path .lesson-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1600px) { .learn-path .lesson-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

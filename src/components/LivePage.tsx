@@ -75,7 +75,7 @@ export default function LivePage() {
                 : 'No parcels are verified as for sale in Clark County right now. We re-check the official lists automatically, and parcels appear here as soon as a sale is scheduled and they pass our checks.'}
           </p>
           <p>
-            Meanwhile, {SHOW_SAMPLE_DATA && <><a href="#/search?type=TAX_DEED">browse sample tax-sale listings</a> or </>}check the{' '}
+            Meanwhile, check the{' '}
             <a href="https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList" target="_blank" rel="noreferrer noopener">
               Treasurer’s official auction list ↗
             </a>
@@ -107,7 +107,7 @@ export default function LivePage() {
           <div className="drill-tiles">
             {SHOW_SAMPLE_DATA && <Tile href="#/search?type=TAX_DEED" icon={<IconSearch />} title="Sample tax-sale listings" summary="See how a tax-sale listing looks, with liens and equity worked out" />}
             <Tile href="#/about/sale-types" icon={<IconLayers />} title="How tax sales work" summary="What you receive at a tax sale compared with other forced sales" />
-            <Tile href="#/financing" icon={<IconBank />} title="Line up your money" tone="go" summary="Tax sales need certified funds fast. Compare lenders now" />
+            <Tile href="#/learn/financing" icon={<IconBank />} title="Know how you’ll pay" tone="go" summary="Tax sales need certified funds on a short deadline. Plan where the money will come from" />
           </div>
         </section>
       )}
