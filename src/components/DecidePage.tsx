@@ -9,6 +9,9 @@ import { stateByCode, type StateCode } from '../lib/regions';
 import { getMyState, setMyState } from '../lib/myState';
 import CheckFold from './CheckFold';
 
+/** Auctions aren't automatically cheaper: said wherever the strategy appears. */
+const AUCTION_REALITY = 'Are auctions cheaper? Sometimes, but not by default. Most auctions want full payment in certified funds the same day or within a day, with no loan, and you buy as-is, often without seeing inside. Bidding usually rises toward what buyers think the property is worth after its liens, repairs and risks, and many sales are postponed or cancelled. The opening bid isn’t the price.';
+
 interface Saved {
   answers: Answers;
   done: string[];
@@ -51,8 +54,14 @@ export default function DecidePage() {
   const headRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => save(saved), [saved]);
+  // Every move between questions, forward or back, puts focus on the question (not on the first load).
+  const firstRender = useRef(true);
   useEffect(() => {
-    if (step > 0) headRef.current?.focus();
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    headRef.current?.focus();
   }, [step]);
 
   const answer = (key: string, value: string) => {
@@ -151,6 +160,7 @@ export default function DecidePage() {
                   {m.fits.length > 0 && <p className="decide-why"><strong>Fits</strong> {m.fits.join('; ')}.</p>}
                   {m.cautions.length > 0 && <p className="decide-why caution"><strong>Watch</strong> {m.cautions.join('; ')}.</p>}
                   {note && <p className="decide-note">{note}</p>}
+                  {m.strategy.key === 'auction' && <p className="decide-note">{AUCTION_REALITY}</p>}
                   <dl className="decide-risk" aria-label="Risk check">
                     <div><dt>What could go seriously wrong</dt><dd>{m.strategy.risk.worst}</dd></div>
                     <div><dt>Cash needed to start</dt><dd>{m.strategy.risk.atRisk}</dd></div>
@@ -174,6 +184,17 @@ export default function DecidePage() {
               );
             })}
           </ol>
+          <details className="decide-others">
+            <summary>Other strategies, and why they rank lower for you</summary>
+            <ul>
+              {rank(saved.answers).slice(3).map((m) => (
+                <li key={m.strategy.key}>
+                  <strong>{m.strategy.title}.</strong> {m.cautions.length ? `Watch: ${m.cautions.join('; ')}.` : 'It fits your answers less well than the three above.'}
+                  {m.strategy.key === 'auction' && <> {AUCTION_REALITY}</>}
+                </li>
+              ))}
+            </ul>
+          </details>
           <div className="decide-nav">
             <a className="btn" href="#/toolkit/buy-box">Next: write your buy box →</a>
             <button type="button" className="btn btn-secondary" onClick={() => setStep(0)}>Change my answers</button>

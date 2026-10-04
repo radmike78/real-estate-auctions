@@ -32,7 +32,7 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
     // The last answer opens the suggestions: focus moves there, since the question it answered is gone.
     if (moved.current) (step >= qs.length ? resultHead.current : progress.current)?.focus();
     moved.current = false;
-  }, [step, qs.length]);
+  }, [step, qs.length, open]);
   const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   return (
@@ -41,7 +41,7 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
       {!open ? (
         <>
           <p>{intro}</p>
-          <button type="button" className="btn" onClick={() => setOpen(true)}>Help me choose →</button>
+          <button type="button" className="btn" onClick={() => { moved.current = true; setOpen(true); }}>Help me choose →</button>
         </>
       ) : q ? (
         <>

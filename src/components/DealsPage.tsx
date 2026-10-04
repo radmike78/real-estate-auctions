@@ -109,7 +109,6 @@ export default function DealsPage() {
   return (
     <main className="page">
       <PageHero
-        eyebrow={<span className="eyebrow">Saved in this browser</span>}
         title={<>My <span className="grad">deals</span></>}
         sub="Your saved properties: what changed, what’s due, and whether your bid still fits."
       />

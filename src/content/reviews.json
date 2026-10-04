@@ -38,7 +38,7 @@
       "src/lib/foreclosure.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "8836e04d0cfc1330",
+    "hash": "5640d9df30a7b014",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "2aaabc617e07dcb7",
+    "hash": "76fed330273b3d9a",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -171,7 +171,7 @@
       "src/lib/evidence.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "f57db2bf1d61b73d",
+    "hash": "60cddf0b2e74463b",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -202,7 +202,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "6c0331700942dcd5",
+    "hash": "b56b70ebf43ab468",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -351,7 +351,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "727fc179fdc477c1",
+    "hash": "8dfac8257e2f784c",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -362,7 +362,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "2bd6f94d5bff7115",
+    "hash": "d1dcffb7299de0a7",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -401,7 +401,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "2fac75a3684353fa",
+    "hash": "9b07f8ca5fd33dcf",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]
