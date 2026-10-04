@@ -202,7 +202,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "f4c58da571110659",
+    "hash": "405117f3216b4e7f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -245,7 +245,7 @@
       "src/components/HomeownerHelpPage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "5acf133600deaf9d",
+    "hash": "1d29135433f3063e",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -351,7 +351,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "777640cc49781922",
+    "hash": "034e9fa4dff8433f",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
