@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
-import PathNext from './PathNext';
 import OwlNote from './OwlNote';
 import { useMarkStep } from '../lib/path';
+import { linkLabel } from '../lib/linkLabel';
 import { DECIDE_KEY, QUESTIONS, rank, stateNote, type Answers } from '../lib/decide';
 import { stateByCode, type StateCode } from '../lib/regions';
 import { getMyState, setMyState } from '../lib/myState';
@@ -61,7 +61,14 @@ export default function DecidePage() {
   };
   // Tapping or clicking an answer moves on by itself; Back changes it. Arrow keys only select (they move between
   // radio buttons), so keyboard users go on with Next. Going to a fixed step means a double click can't skip one.
-  const advanceFrom = (from: number) => window.setTimeout(() => setStep((s) => (s === from ? from + 1 : s)), 250);
+  const advanceFrom = (from: number) => {
+    window.clearTimeout(advanceTimer.current);
+    advanceTimer.current = window.setTimeout(() => setStep((s) => (s === from ? from + 1 : s)), 250);
+  };
+  // Only a primary click or tap that selects an answer moves on (not a right-click, not arrow keys).
+  const pointerPick = useRef(false);
+  const advanceTimer = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(advanceTimer.current), []);
   const toggle = (id: string) => setSaved((s) => ({ ...s, done: s.done.includes(id) ? s.done.filter((x) => x !== id) : [...s.done, id] }));
 
   const q = QUESTIONS[step];
@@ -73,7 +80,7 @@ export default function DecidePage() {
       <PageHero
         eyebrow={<span className="eyebrow">Step 2 of 6</span>}
         title={<>Decide <span className="grad">your focus</span></>}
-        sub="Answer nine quick questions about your money, time and goals. You’ll get the strategies that fit best and a checklist for each."
+        sub={q ? "Answer nine quick questions about your money, time and goals. You’ll get the strategies that fit best and a checklist for each." : undefined}
       />
 
       {q ? (
@@ -89,13 +96,18 @@ export default function DecidePage() {
             {q.help && <p className="muted">{q.help}</p>}
             <div className="decide-options">
               {q.options.map((o) => (
-                <label key={o.value} className={`decide-option${saved.answers[q.key] === o.value ? ' on' : ''}`} onPointerUp={() => advanceFrom(step)}>
+                <label key={o.value} className={`decide-option${saved.answers[q.key] === o.value ? ' on' : ''}`} onPointerDown={(e) => { pointerPick.current = e.button === 0; }}>
                   <input
                     type="radio"
                     name={q.key}
                     value={o.value}
                     checked={saved.answers[q.key] === o.value}
                     onChange={() => answer(q.key, o.value)}
+                    onClick={() => {
+                      if (!pointerPick.current) return;
+                      pointerPick.current = false;
+                      advanceFrom(step);
+                    }}
                   />
                   <span>{o.text}</span>
                 </label>
@@ -153,7 +165,7 @@ export default function DecidePage() {
                           <input type="checkbox" checked={saved.done.includes(c.id)} onChange={() => toggle(c.id)} />
                           <span>{c.text}</span>
                         </label>
-                        {c.href && <a href={c.href}>Go →</a>}
+                        {c.href && <a href={c.href}>{linkLabel(c.href)} →</a>}
                       </li>
                     ))}
                   </ul>
@@ -179,7 +191,6 @@ export default function DecidePage() {
           <p className="muted">Your answers and checked items are saved only in this browser.</p>
         </section>
       )}
-      <PathNext step="decide" />
     </main>
   );
 }

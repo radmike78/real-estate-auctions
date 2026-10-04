@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { NOT_SURE, resolveAnswers, type NarrowConfig } from '../lib/narrow';
 
 /**
@@ -18,8 +18,19 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
   const choose = (v: string) => {
     setAnswers((a) => ({ ...a, [q!.key]: v }));
     const from = step;
-    if (v !== NOT_SURE) window.setTimeout(() => setStep((s) => (s === from ? from + 1 : s)), 250);
+    window.clearTimeout(timer.current);
+    if (v !== NOT_SURE) timer.current = window.setTimeout(() => { moved.current = true; setStep((s) => (s === from ? from + 1 : s)); }, 250);
   };
+  // After moving on, focus goes to the new question (not a button that now means a different answer); a pending move
+  // is cancelled by Back, Close or leaving the page.
+  const timer = useRef<number | undefined>(undefined);
+  const moved = useRef(false);
+  const progress = useRef<HTMLParagraphElement>(null);
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+  useEffect(() => {
+    if (moved.current) progress.current?.focus();
+    moved.current = false;
+  }, [step]);
   const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   return (
@@ -32,8 +43,8 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
         </>
       ) : q ? (
         <>
-          <p className="team-progress">Question {step + 1} of {qs.length}</p>
-          <fieldset className="team-q">
+          <p className="team-progress" ref={progress} tabIndex={-1}>Question {step + 1} of {qs.length}</p>
+          <fieldset className="team-q" key={q.key}>
             <legend>{q.question}</legend>
             <div className="team-options">
               {q.options.map((o) => (
@@ -55,7 +66,7 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
             </p>
           )}
           <div className="decide-nav">
-            <button type="button" className="btn btn-secondary" onClick={() => (step ? setStep((s) => s - 1) : setOpen(false))}>{step ? 'Back' : 'Close'}</button>
+            <button type="button" className="btn btn-secondary" onClick={() => { window.clearTimeout(timer.current); if (step) setStep((s) => s - 1); else setOpen(false); }}>{step ? 'Back' : 'Close'}</button>
             <button type="button" className="btn" disabled={!picked} onClick={() => setStep((s) => s + 1)}>{step + 1 === qs.length ? 'Show me where to start' : 'Next'}</button>
           </div>
         </>

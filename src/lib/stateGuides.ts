@@ -633,7 +633,7 @@ export const STATE_GUIDES: Playbook[] = [
   mistakes: [
     {
       mistake: "Treating the certificate as a way to get cheap property",
-      prevent: "Most liens are redeemed. Plan for interest income. Bid only on parcels you would actually want to own."
+      prevent: "Owners usually pay off these liens. Plan for interest income. Bid only on parcels you would actually want to own."
     },
     {
       mistake: "Bidding on a parcel you never researched",
@@ -1713,7 +1713,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Ask for the list of known liens",
-      detail: "The IRS will give bidders Form 2434-B, which lists the liens and interests it found. It doesn’t promise the list is complete, so check it yourself (IRM 5.10.5.13)."
+      detail: "The IRS will give bidders Form 2434-B, which lists the liens and interests it found. It doesn’t promise the list is complete, so check it yourself (IRM 5.10.5.7)."
     },
     {
       title: "Order a title report",

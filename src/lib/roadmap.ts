@@ -48,7 +48,7 @@ export const ROADMAP_PHASES: Record<RoadmapStep['phase'], string> = {
 export const ROADMAP_PATHS: Record<RoadmapPath, { label: string; hint: string }> = {
   listing: { label: 'Through an agent', hint: 'A home listed for sale, bank-owned homes and short sales: you make an offer with conditions, then inspect before you’re committed.' },
   auction: { label: 'At an auction', hint: 'Tax, foreclosure, sheriff and IRS sales of the property itself: you research first, then bid, usually with no inside look and no way out after you win.' },
-  certificate: { label: 'Lien certificates', hint: 'Arizona tax liens and Nevada SID liens: you buy a lien that earns interest, not the property. Most are paid off; you own the property only if a court or the law later gives it to you.' },
+  certificate: { label: 'Lien certificates', hint: 'Arizona tax liens and Nevada SID liens: you buy a lien that earns interest, not the property. Owners usually pay them off; you own the property only if a court or the law later gives it to you.' },
 };
 
 const AGENT: RoadmapPath[] = ['listing'];
@@ -124,7 +124,7 @@ export const ROADMAP: RoadmapStep[] = [
     outcome: 'A pre-approval letter and a written quote: rate, down payment, closing costs and the reserves the lender wants.',
     steps: ['Ask two or three lenders for a quote on the same loan, so you can compare.', 'Check each loan officer’s license on NMLS Consumer Access.', 'Ask what conditions could still stop the loan after you’re approved.'],
     say: { to: 'Loan officer', script: '“I’m buying a [one-unit home] I [will / won’t] live in, around [$price], in [county]. What down payment, rate and reserves would you need? Can you give me a written quote and a pre-approval? What could stop the loan after I’m approved?”' },
-    docs: ['Lenders usually ask for: photo ID, recent pay stubs, W-2s or tax returns, and bank statements', 'You get: a pre-approval letter, and a Loan Estimate once you apply on most home loans you’ll live in (rental loans use a written term sheet)'],
+    docs: ['Lenders usually ask for: photo ID, recent pay stubs, W-2s or tax returns, and bank statements', 'You get: a pre-approval letter, and a Loan Estimate after you apply if you’ll live in the home. For a rental, the law doesn’t require one; many lenders give one anyway, and if yours doesn’t, ask for a written quote'],
     doneWhen: 'You have a pre-approval letter and a written quote you’ve compared with at least one other.',
     action: 'What to ask a lender', href: '#/pros/lender',
   },
@@ -157,7 +157,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'walk', phase: 3, title: 'Set your walk-away rules',
-    text: 'Decide in advance what makes you stop, including your maximum price.',
+    text: 'Decide in advance what makes you stop, including your maximum price. An investment is bought on the numbers, not on how much you like it.',
     outcome: 'Your walk-away rules, written next to your buy box.',
     steps: ['Read the walk-away lesson.', 'Write how you’ll set a maximum price for any property, and three things that end a deal.'],
     doneWhen: 'Your walk-away rules are written down.',
@@ -269,7 +269,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'c-research', phase: 4, path: LIEN, title: 'Research every parcel',
-    text: 'Most liens are paid off, but bid only on parcels you’d actually want to own if one isn’t.',
+    text: 'Owners usually pay off the lien, but bid only on parcels you’d actually want to own if one isn’t.',
     outcome: 'A short list of parcels you’d be willing to own, with notes on each.',
     steps: ['Check each parcel on the county map: access, size, zoning and use.', 'Leave out slivers, drainage strips and land with no access.', 'Check for other liens and special assessments.'],
     stop: 'If you wouldn’t want to own the parcel, don’t bid on it.',
@@ -466,7 +466,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'c-own', phase: 6, path: LIEN, title: 'If you end up owning the property',
-    text: 'Most liens end with a payoff. If you ever get the deed, you’re an owner: switch to the auction route’s “Own it” steps.',
+    text: 'Owners usually pay off the lien. If you ever get the deed, you’re an owner: switch to the auction route’s “Own it” steps.',
     outcome: 'A plan for ownership, or a clean record of liens paid off.',
     steps: ['If a lien ends with you getting the deed, get title insurance before spending money on the property.', 'Then follow the “Own it” steps on the auction route.'],
     doneWhen: 'Every lien is paid off and recorded, or you’ve switched to the owner steps.',

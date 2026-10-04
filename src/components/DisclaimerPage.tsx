@@ -154,7 +154,6 @@ export default function DisclaimerPage({ section }: { section?: string }) {
     <main className="page prose">
       <PageHero
         compact={open}
-        eyebrow={<span className="eyebrow">Find · Learn · Invest</span>}
         title={
           open ? (
             <a className="title-link" href="#/disclaimer">How we help you invest</a>

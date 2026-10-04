@@ -102,7 +102,11 @@ export function FirstDealRoadmap() {
   const count = steps.filter((s) => done.includes(s.id)).length;
   const stateOf = (id: string): StepStatus | 'done' | 'todo' => (done.includes(id) ? 'done' : status[id] ?? 'todo');
   const walked = steps.find((s) => status[s.id] === 'stopped' && !done.includes(s.id));
-  const next = steps.find((s) => !done.includes(s.id) && status[s.id] !== 'stopped');
+  // After walking away, the step you stopped at stays the next step (start it again with the next property),
+  // rather than the later steps of a deal you left.
+  const next = walked ?? steps.find((s) => !done.includes(s.id) && status[s.id] !== 'stopped');
+  // The phase holding the next step starts open; after that, phases stay as the reader leaves them.
+  const [openPhase] = useState(() => next?.phase ?? 1);
   const phases = ([1, 2, 3, 4, 5, 6] as const).map((n) => ({ n, title: ROADMAP_PHASES[n], steps: steps.filter((s) => s.phase === n) })).filter((ph) => ph.steps.length);
   const setStatus = (id: string, v: StepStatus | 'done' | 'todo') => {
     setDone((d) => (v === 'done' ? (d.includes(id) ? d : [...d, id]) : d.filter((x) => x !== id)));
@@ -146,7 +150,7 @@ export function FirstDealRoadmap() {
       {phases.map((ph) => {
         const phDone = ph.steps.filter((s) => done.includes(s.id)).length;
         return (
-          <details key={ph.n} className="roadmap-phase" open={next ? next.phase === ph.n : false}>
+          <details key={ph.n} className="roadmap-phase" open={openPhase === ph.n}>
             <summary>
               <span className="roadmap-phase-title">{ph.n}. {ph.title}</span>
               <span className="muted">{phDone === ph.steps.length ? '✓ All done' : `${phDone} of ${ph.steps.length} done`}</span>
@@ -182,13 +186,15 @@ const cleanCash = (v: unknown): Cash => {
 };
 export function CashWorksheet() {
   const [c, setC] = useState<Cash>(() => read(CASH_KEY, cleanCash(null), cleanCash));
+  // What's typed is kept as text (so "4." or "5,200.5" can be finished); the number behind it drives the result.
+  const [draft, setDraft] = useState<Partial<Record<keyof Cash, string>>>({});
   useEffect(() => write(CASH_KEY, c), [c]);
   const fund = c.spending * c.months;
   const investable = Math.max(0, c.savings - fund - c.promised - c.debt);
   const field = (k: keyof Cash, label: string, hint?: string) => (
     <label className="field">
       <span>{label}</span>
-      <input inputMode="decimal" value={c[k] || ''} placeholder="0" onChange={(e) => { const v = Number(e.target.value.replace(/[$,\s]/g, '')); setC((x) => ({ ...x, [k]: Number.isFinite(v) && v >= 0 ? v : 0 })); }} />
+      <input inputMode="decimal" value={draft[k] ?? (c[k] ? String(c[k]) : '')} placeholder="0" onChange={(e) => { const t = e.target.value; setDraft((d) => ({ ...d, [k]: t })); const v = Number(t.replace(/[$,\s]/g, '')); setC((x) => ({ ...x, [k]: Number.isFinite(v) && v >= 0 ? v : 0 })); }} />
       {hint && <small className="muted">{hint}</small>}
     </label>
   );
@@ -375,7 +381,6 @@ function ProgressBackup() {
   );
 }
 
-const JUMPS: [string, string][] = [['roadmap', 'Roadmap'], ['cash', 'Investable cash'], ['buy-box', 'Buy box'], ['worksheets', 'Worksheets'], ['tools-calculators', 'Calculators'], ['tools-checklists', 'Checklists'], ['backup', 'Keep your progress']];
 const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
 /** Everything free in one place: the first-deal roadmap, a buy box, and the calculators and checklists. */
@@ -387,7 +392,6 @@ export default function ToolkitPage({ section }: { section?: string }) {
   return (
     <main className="page toolkit">
       <PageHero
-        eyebrow={<span className="eyebrow">Free, no sign-up</span>}
         title={<>My <span className="grad">plan</span></>}
         sub="Your investor toolkit: a step-by-step roadmap, a buy box to keep you focused, and every calculator and checklist on DeedOwl."
       />
@@ -399,9 +403,6 @@ export default function ToolkitPage({ section }: { section?: string }) {
           <button type="button" className="btn btn-secondary" onClick={() => jump('roadmap')}>See the full roadmap</button>
         </div>
       </section>
-      <nav className="toolkit-jump" aria-label="On this page">
-        {JUMPS.map(([id, label]) => <button key={id} type="button" className="linkish" onClick={() => jump(id)}>{label}</button>)}
-      </nav>
       <FirstDealRoadmap />
       <CashWorksheet />
       <BuyBoxBuilder />

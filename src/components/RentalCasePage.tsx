@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { downloadText } from '../lib/download';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import { PracticeRibbon } from './PracticePage';
@@ -19,8 +20,17 @@ export default function RentalCasePage({ stageKey }: { stageKey?: string }) {
   const stage = idx >= 0 ? RENTAL_CASE[idx] : null;
   const packet = stageKey === 'packet';
   useLastActivity(`#/practice/case${stageKey ? `/${stageKey}` : ''}`, `Practice: ${CASE_TITLE}${stage ? ` · ${stage.title}` : ''}`);
+  // Moving between steps brings the step list into view and focuses the step's heading; the first load stays at the top.
+  const lastStage = useRef(stageKey);
   useEffect(() => {
+    // The step strip shows the current step on phones (it scrolls sideways).
+    const chip = document.querySelector<HTMLElement>('.practice-stages a.active');
+    const row = chip?.parentElement;
+    if (chip && row) row.scrollLeft = chip.offsetLeft - row.offsetLeft - (row.clientWidth - chip.clientWidth) / 2;
+    if (lastStage.current === stageKey) return;
+    lastStage.current = stageKey;
     document.getElementById('case-top')?.scrollIntoView({ block: 'start' });
+    document.getElementById('stage-head')?.focus({ preventScroll: true });
   }, [stageKey]);
 
   const update = (fn: (x: CaseProgress) => CaseProgress) =>
@@ -97,10 +107,11 @@ function StageView({ stage, n, p, update, done }: { stage: CaseStage; n: number;
   const nextSt = RENTAL_CASE[i + 1];
   const walkedHere = p.walked === stage.key;
   const firstOpen = stage.tasks.findIndex((t) => !p.done.includes(key(stage, t)));
-  const shown = firstOpen < 0 ? stage.tasks.length : firstOpen + 1;
+  // After walking away here, the rest of the step's questions stay hidden: they describe a deal you left.
+  const shown = walkedHere ? Math.max(0, firstOpen < 0 ? stage.tasks.length : firstOpen) : firstOpen < 0 ? stage.tasks.length : firstOpen + 1;
   return (
     <section aria-labelledby="stage-head">
-      <h2 id="stage-head">{n}. {stage.title}</h2>
+      <h2 id="stage-head" tabIndex={-1}>{n}. {stage.title}</h2>
       <p className="case-outcome"><strong>When you finish this step, you’ll have:</strong> {stage.outcome}</p>
       <div className={stage.docs.length ? 'case-grid' : undefined}>
         {stage.docs.length > 0 && (
@@ -185,14 +196,17 @@ function Task({ n, t, k, p, update, stageKey }: { n: number; t: CaseTask; k: str
 type Finish = (x: CaseProgress) => CaseProgress;
 
 function Choice({ t, k, p, update, finish, stageKey }: { t: Extract<CaseTask, { kind: 'choice' }>; k: string; p: CaseProgress; update: Update; finish: Finish; stageKey: string }) {
-  const picked = typeof p.answers[k] === 'number' ? (p.answers[k] as number) : null;
+  const a = p.answers[k];
+  const picked = typeof a === 'number' && Number.isInteger(a) && t.choices[a] ? a : null;
   const c = picked != null ? t.choices[picked] : null;
   const pick = (i: number) =>
     update((x) => {
       const ch = t.choices[i];
       let next: CaseProgress = { ...x, answers: { ...x.answers, [k]: i }, first: x.first[k] ? x.first : { ...x.first, [k]: ch.verdict } };
       if (ch.verdict !== 'poor') next = finish(next);
+      // Choosing to walk away marks the step; changing your mind to another answer clears it.
       if (ch.walk && ch.verdict !== 'poor') next = { ...next, walked: stageKey };
+      else if (next.walked === stageKey) next = { ...next, walked: undefined };
       return next;
     });
   return (
@@ -254,6 +268,7 @@ function NumberTask({ t, k, p, update, finish }: { t: Extract<CaseTask, { kind: 
   const ok = val.trim() !== '' && Number.isFinite(num) && Math.abs(num - t.answer) <= t.tolerance;
   const [checked, setChecked] = useState(p.done.includes(k));
   const check = () => {
+    if (!val.trim()) return;
     setChecked(true);
     setTries((n) => n + 1);
     if (ok) {
@@ -315,13 +330,17 @@ export function packetText(p: CaseProgress): string {
   return lines.join('\n');
 }
 
-function packetSections(p: CaseProgress): { title: string; rows: string[] }[] {
+export function packetSections(p: CaseProgress): { title: string; rows: string[] }[] {
   const finished = (st: CaseStage) => st.tasks.every((t) => p.done.includes(key(st, t)));
-  const reached = RENTAL_CASE.filter(finished);
-  const bought = finished(RENTAL_CASE[RENTAL_CASE.length - 1]) || reached.some((s) => s.key === 'closing');
+  // A step you walked away in counts as reached, so the packet shows what you found there; its price and value
+  // rows are left out because they describe a deal that didn't happen.
+  const walkIdx = RENTAL_CASE.findIndex((st) => st.key === p.walked);
+  const reached = RENTAL_CASE.filter((st, i) => (walkIdx < 0 || i <= walkIdx) && (finished(st) || i === walkIdx));
+  const logOf = (st: CaseStage) => (st.key === p.walked ? st.log.filter((l) => l.area !== 'Price' && l.area !== 'Value') : st.log);
+  const bought = !p.walked && (finished(RENTAL_CASE[RENTAL_CASE.length - 1]) || reached.some((s) => s.key === 'closing'));
   const budget = [
     `Most you can invest: ${$(N.investable)} (after a ${$(N.cushion)} emergency fund and ${$(N.otherGoals)} for other goals)`,
-    bought ? `Cash the deal took: ${$(N.cashFinal)}, including ${$(N.urgent)} of repairs and ${N.reserveMonths} months of reserves` : `Cash needed at the first offer: ${$(N.cashOffer)}, before repairs`,
+    bought ? `Cash the deal took in this case: ${$(N.cashFinal)}, including ${$(N.urgent)} of repairs and ${N.reserveMonths} months of reserves` : `Cash needed at the first offer: ${$(N.cashOffer)}, before repairs`,
     bought ? `Left beyond the reserves: ${$(N.investable - N.cashFinal)}` : `Left at the first offer: ${$(N.investable - N.cashOffer)}`,
   ];
   if (bought) budget.push(`Monthly cash flow after set-asides, self-managed: about ${$(N.cashFlow)}`);
@@ -330,17 +349,17 @@ function packetSections(p: CaseProgress): { title: string; rows: string[] }[] {
   for (const st of RENTAL_CASE)
     for (const t of st.tasks) {
       const a = p.answers[key(st, t)];
-      if (t.kind === 'choice' && typeof a === 'number') decisions.push(`${st.title}: ${t.choices[a].label} (${VERDICT[t.choices[a].verdict].toLowerCase()})`);
+      if (t.kind === 'choice' && typeof a === 'number' && t.choices[a]) decisions.push(`${st.title}: ${t.choices[a].label} (${VERDICT[t.choices[a].verdict].toLowerCase()})`);
       if (t.kind === 'write' && typeof a === 'string' && a) questions.push(`To the ${t.to.toLowerCase()}: ${a}`);
     }
   const firsts = Object.values(p.first);
   const strong = firsts.filter((v) => v === 'best' || v === 'ok' || v === 'right').length;
   const walkedAt = RENTAL_CASE.find((s) => s.key === p.walked);
   return [
-    { title: 'Result', rows: [walkedAt ? `You walked away at “${walkedAt.title}”, inside a contract deadline. A good result when the deal stops fitting.` : bought ? 'You bought it, at the appraised value, with reserves set aside.' : `${reached.length} of ${RENTAL_CASE.length} steps done so far.`, `${strong} of ${firsts.length} questions right or reasonable on the first try.`] },
+    { title: 'Result', rows: [walkedAt ? `You walked away at “${walkedAt.title}”, inside a contract deadline. A good result when the deal stops fitting.` : bought ? 'You bought it. In this case the seller agreed to the appraised value, and you kept your reserves.' : `${reached.length} of ${RENTAL_CASE.length} steps done so far.`, `${strong} of ${firsts.length} questions right or reasonable on the first try.`] },
     { title: 'Your budget', rows: budget },
     { title: 'Deadline calendar', rows: reached.some((s) => s.dates) ? reached.flatMap((s) => s.dates ?? []).map((d) => `${d.when}: ${d.what}`) : ['Not yet: the dates come from your contract, once your offer is accepted.'] },
-    { title: 'Evidence log', rows: reached.flatMap((s) => s.log.map((l) => `${l.area}: ${l.finding}${l.open ? ` Still open: ${l.open}.` : ''}`)) },
+    { title: 'Evidence log', rows: reached.flatMap((s) => logOf(s).map((l) => `${l.area}: ${l.finding}${l.open ? ` Still open: ${l.open}.` : ''}`)) },
     { title: 'Your questions for the professionals', rows: questions.length ? questions : ['None saved yet.'] },
     { title: 'Your decisions', rows: decisions.length ? decisions : ['None yet.'] },
   ];
@@ -348,14 +367,7 @@ function packetSections(p: CaseProgress): { title: string; rows: string[] }[] {
 
 function Packet({ p }: { p: CaseProgress }) {
   const secs = packetSections(p);
-  const download = () => {
-    const url = URL.createObjectURL(new Blob([packetText(p)], { type: 'text/plain' }));
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'deedowl-practice-deal-packet.txt';
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  const download = () => downloadText('deedowl-practice-deal-packet.txt', packetText(p));
   return (
     <section aria-labelledby="packet-head" className="case-packet">
       <h2 id="packet-head">Your deal packet</h2>

@@ -174,7 +174,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
       <PageHero
         compact={open}
         top={<a href={open ? base : '#/playbooks'}>{open ? `← ${stateByCode(stateOf(p))?.name ?? ''} ${p.short.replace(/^[A-Z](?=[a-z])/, (c) => c.toLowerCase())}` : '← All sale guides'}</a>}
-        eyebrow={<span className="eyebrow">{stateByCode(stateOf(p))?.name} guide{stateOf(p) === 'NV' ? ' · Clark County' : ''} · reviewed {fmtDate(p.lastReviewed)}</span>}
+        eyebrow={<span className="eyebrow">{stateOf(p) === 'NV' ? 'Nevada · Clark County · ' : ''}Reviewed {fmtDate(p.lastReviewed)}</span>}
         title={open ? <a className="title-link" href={base}>{p.title}</a> : p.title}
         sub={open ? undefined : p.oneLine}
       />

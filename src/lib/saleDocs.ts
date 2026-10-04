@@ -73,7 +73,7 @@ export const SALE_DOCS: Record<SaleKindKey, SaleDoc[]> = {
     TITLE_SEARCH,
     { name: 'Any recorded payment of the super-priority amount', check: 'In Nevada, search the Recorder for it before the sale: it changes whether the first mortgage survives.' },
     FUNDS,
-    { name: 'The deed from the HOA’s foreclosure agent', check: 'Confirm it’s recorded in your name, and note the end of any redemption period before you renovate.' },
+    { name: 'Certificate of sale, then the deed', check: 'In Nevada, you get a certificate of sale first. The owner or a junior lender can redeem for 60 days. If no one does, you get a deed without warranty. Don’t renovate before then. In other states, read your guide for when the deed comes.' },
   ],
   sheriff: [
     NOTICE,

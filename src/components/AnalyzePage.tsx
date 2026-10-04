@@ -9,6 +9,7 @@ import { useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
 import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, cleanDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
 import CheckFold from './CheckFold';
+import { linkLabel } from '../lib/linkLabel';
 
 const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake' };
 const CURRENT = CURRENT_KEY;
@@ -29,7 +30,9 @@ function loadCurrent(st: StateCode): Deal {
 
 /** A property sent from a listing page: a new, unsaved deal with its address, state, county and kind of sale. */
 function fromListing(f: Prefill): Deal {
-  const kind = kindsFor(f.state).some((k) => k.key === f.kind) ? f.kind : 'listing';
+  // A kind of sale this state doesn't have falls back to an auction (court sale), never to a regular listing.
+  const kinds = kindsFor(f.state);
+  const kind = kinds.some((k) => k.key === f.kind) ? f.kind : (kinds.find((k) => k.key === 'court') ?? kinds[0]).key;
   return { ...blank(f.state), name: f.name, county: f.county, kind, plan: plansFor(kind)[0] };
 }
 
@@ -47,10 +50,24 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   useMarkStep('analyze');
   useLastActivity('#/analyze', 'Analyze a deal');
   const [mine] = useMyState();
-  const [deal, setDeal] = useState<Deal>(() => (prefill ? fromListing(prefill) : forLink(loadCurrent(mine ?? 'NV'), plan)));
+  // A property opened from a listing never wipes unsaved work: a started, unsaved deal is saved to My deals first.
+  const keepUnsaved = () => {
+    const cur = loadCurrent(mine ?? 'NV');
+    if (cur.id || (!cur.name.trim() && !cur.notes.trim() && cur.done.length === 0)) return;
+    const all = loadDeals();
+    if (all.some((x) => x.updatedAt === cur.updatedAt && x.name.trim() === (cur.name.trim() || `${countyName(cur.county)} deal`))) return;
+    const d = { ...cur, id: `d${Date.now().toString(36)}`, name: cur.name.trim() || `${countyName(cur.county)} deal` };
+    saveDeals([d, ...all]);
+  };
+  const [deal, setDeal] = useState<Deal>(() => {
+    if (!prefill) return forLink(loadCurrent(mine ?? 'NV'), plan);
+    keepUnsaved();
+    return fromListing(prefill);
+  });
   // A property opened from a DeedOwl listing arrives filled in; the address then goes back to plain /analyze.
   useEffect(() => {
     if (!prefill) return;
+    setSaved(loadDeals());
     setDeal(fromListing(prefill));
     setMyState(prefill.state);
     replaceAddress('/analyze');
@@ -188,7 +205,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
                     <input type="checkbox" checked={deal.done.includes(c.id)} onChange={() => toggle(c.id)} />
                     <span>{c.text}</span>
                   </label>
-                  {c.href && (c.href.startsWith('https://') ? <a href={c.href} target="_blank" rel="noopener noreferrer">Open ↗</a> : <a href={c.href}>Go →</a>)}
+                  {c.href && (c.href.startsWith('https://') ? <a href={c.href} target="_blank" rel="noopener noreferrer">Open ↗</a> : <a href={c.href}>{linkLabel(c.href)} →</a>)}
                 </li>
               ))}
             </ul>
@@ -208,10 +225,11 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       {/* One clear next step once the numbers are in: keep the deal, then follow the buying steps for this kind of sale. */}
       <section className="analyze-next" aria-labelledby="analyze-next-head">
         <h2 id="analyze-next-head">4. What’s next</h2>
-        <p>Numbers work, and every checklist item above has an answer? Save the deal so you can come back to it, then follow the “Buy it” steps for this kind of sale in My plan. Numbers don’t work? Walking away is a good result: write down why in the notes.</p>
+        <p>Numbers work, and every checklist item above has an answer? Save the deal so you can come back to it, then follow the “Buy it” steps for this kind of sale in My plan.</p>
+        <p><strong>When to walk away:</strong> when the numbers say you’d lose money: the monthly cash flow is negative after reserves, you wouldn’t make a profit when you sell, or the long-term return misses your goal. Write down why in the notes, and move on to the next one. <a href="#/learn/walk-away">When to walk away</a></p>
         <div className="row">
           {!deal.id ? <button type="button" className="btn" onClick={saveNew}>Save this deal</button> : <a className="btn" href="#/deals">Open My deals</a>}
-          <a className="btn btn-secondary" href="#/toolkit">Your buying steps in My plan →</a>
+          <a href="#/toolkit">Your buying steps in My plan →</a>
         </div>
       </section>
     </main>

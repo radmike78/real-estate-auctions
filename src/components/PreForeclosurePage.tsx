@@ -84,8 +84,8 @@ export const GUIDE: DrillSection[] = [
               <li>The date, time and place of the sale (or the website, for an online sale).</li>
               <li>The trustee’s name and phone number: the only person to ask about the sale.</li>
               <li>The property: address, parcel number and legal description.</li>
-              <li>An estimate of the unpaid debt. The opening bid can be different, so ask the trustee. Neither is the property’s value.</li>
-              <li>The form of payment the trustee accepts.</li>
+              <li>In Nevada, the law requires the date, time and place, a description of the property and its address, and the trustee’s contact details.</li>
+              <li>Many notices also list an estimate of the unpaid debt and the form of payment. That isn’t required, so ask the trustee. The debt estimate and the opening bid can differ, and neither is the property’s value.</li>
             </ul>
           </div>
           <ScriptBox to={SALE_SCRIPTS.trustee[0].to} script={SALE_SCRIPTS.trustee[0].script} note="Ask the trustee only. Never contact the owner or anyone living in the home." />

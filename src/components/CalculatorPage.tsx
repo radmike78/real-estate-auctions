@@ -38,7 +38,7 @@ function BeforeYouCommit() {
         <li><strong>The rules for renting it:</strong> HOA limits, short-term rental rules and local rent rules.</li>
         <li><strong>Wire instructions confirmed by phone</strong> with your title or escrow company, using a number you looked up yourself. <a href="#/learn/negotiate">Why</a></li>
       </ul>
-      <p className="muted small">If you can’t check one of these yet, pause. It’s fine to walk away. <a href="#/learn/walk-away">When to walk away</a></p>
+      <p className="muted small">Can’t check one yet? Get the answer before you sign or bid: the link beside each item shows who to ask.</p>
     </section>
   );
 }
@@ -47,7 +47,6 @@ export default function CalculatorPage() {
   return (
     <main className="page">
       <PageHero
-        eyebrow={<span className="eyebrow">Set your limit before the sale</span>}
         title={<>Your maximum <span className="grad">bid</span></>}
         sub="Count every cost, and know when to stop bidding."
       />

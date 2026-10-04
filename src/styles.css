@@ -2406,7 +2406,7 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .check-fold { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); margin: 10px 0; }
 .check-fold > summary { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 10px 16px; cursor: pointer; list-style: none; }
 .check-fold > summary::-webkit-details-marker { display: none; }
-.check-fold > summary::before { content: '▸'; color: var(--accent); font-size: 1.1em; transition: transform 0.15s; }
+.check-fold > summary::before { content: '▸'; display: inline-block; color: var(--accent); font-size: 1.1em; transition: transform 0.15s; }
 .check-fold[open] > summary::before { transform: rotate(90deg); }
 .check-fold-title { font-weight: 700; font-size: 1.1rem; }
 .check-fold-count { margin-left: auto; color: var(--muted); font-size: 0.95rem; white-space: nowrap; }
@@ -2473,7 +2473,7 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .roadmap-step { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
 .roadmap-step > summary { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 8px 14px; cursor: pointer; list-style: none; }
 .roadmap-step > summary::-webkit-details-marker { display: none; }
-.roadmap-step > summary::before { content: '▸'; color: var(--accent); }
+.roadmap-step > summary::before { content: '▸'; display: inline-block; color: var(--accent); }
 .roadmap-step[open] > summary::before { transform: rotate(90deg); }
 .roadmap-step-title { font-weight: 600; }
 .roadmap-step .roadmap-step-body { padding: 0 14px 14px; }
@@ -2517,3 +2517,14 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .hero-foot-links { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
 @media (max-width: 700px) { .simple-hero { padding-top: 32px; } .hero-foot { gap: 6px 14px; font-size: 0.95rem; } }
 .page-summary { margin: 4px 0 20px; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); }
+/* On phones the PRACTICE corner ribbon would cover the document's title: show it as a small badge instead. */
+@media (max-width: 700px) {
+  .practice-stamp { position: static; transform: none; display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.8rem; margin-bottom: 8px; }
+}
+/* No decorative owl in page headers: it crowded titles on phones and doubled up with the empty-state owl. */
+.hero::after, .page-hero::after { display: none !important; }
+/* Subtitles inside tinted heading bars use the body text color: muted grey on the tint fell below 4.5:1. */
+.deal-band .band-head p { color: var(--text); opacity: 0.85; }
+/* Learn: lesson cards in columns on wide screens, so each card's text and arrow sit together (still full width). */
+@media (min-width: 1100px) { .learn-path .lesson-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1600px) { .learn-path .lesson-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

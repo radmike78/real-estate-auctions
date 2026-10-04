@@ -67,7 +67,6 @@ export default function GuidesPage({ initialQuery }: { initialQuery: string }) {
   return (
     <main className="page">
       <PageHero
-        eyebrow={<span className="eyebrow">From our guides · Official sources</span>}
         title={<>Search the <span className="grad">guides</span></>}
         sub="Answers from our guides, which are written from official sources and link to them."
       >

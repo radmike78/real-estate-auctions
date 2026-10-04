@@ -100,6 +100,9 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   const s = p.sale;
   const analyzeLink = analyzeHref({ address: p.address, city: p.city, state: p.state, county: p.county, saleType: s?.saleType });
   const status = STATUS[p.status];
+  // A home that isn't for sale (in pre-foreclosure, or the sale ended) gets no bid, spread, calculator or save tools:
+  // it isn't a deal, and the owner may still keep it. Only its timeline and the official notice are shown.
+  const forSale = status.purchasable && !!s;
   const money = moneySummary(p);
   const liens = assessLiens(p);
   const steps = purchaseSteps(p);
@@ -378,7 +381,8 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       ),
     },
   ];
-  const open = !printAll && sections.some((x) => x.key === section);
+  const shownSections = forSale ? sections : sections.filter((x) => x.key !== 'max-bid');
+  const open = !printAll && shownSections.some((x) => x.key === section);
 
   return (
     <main className="page">
@@ -388,8 +392,8 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
           <>
             <a href={open ? baseHref : '#/search'}>{open ? '← Property overview' : '← Back to results'}</a>
             <span className="hero-actions">
-              <SaveDealButton p={p} />
-              {analyzeLink && <a className="hero-btn" href={analyzeLink}>Analyze this property</a>}
+              {forSale && <SaveDealButton p={p} />}
+              {forSale && analyzeLink && <a className="hero-btn" href={analyzeLink}>Analyze this property</a>}
               {verified && <TrackButton target={irs ? `irs:${p.id.slice(IRS_ID_PREFIX.length)}` : `tax:${p.apn}`} label={`${p.address} (parcel ${p.apn})`} />}
               <button className="hero-btn" onClick={() => window.print()}>Print full report</button>
             </span>
@@ -427,7 +431,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
           ) : undefined
         }
       >
-        {!open && (
+        {!open && forSale && (
           <dl className="glance" aria-label="At a glance">
             <div className="key"><dt>{priceLabel}</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
             <div><dt>Est. market value</dt><dd>{notChecked(p.estimatedMarketValue, 'Your comps')}</dd></div>
@@ -445,7 +449,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
         not mean title is clear.
       </div>
 
-      <DrillDown sections={sections} active={section} baseHref={baseHref} label="Property sections" printAll={printAll} />
+      <DrillDown sections={shownSections} active={section} baseHref={baseHref} label="Property sections" printAll={printAll} />
     </main>
   );
 }
