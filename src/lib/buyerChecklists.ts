@@ -115,8 +115,8 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     intro: 'Equipment, inventory, vehicles or a whole business sold by a court trustee, receiver, the sheriff or a tax agency.',
     items: [
       { text: 'The sale notice and any court order', detail: 'They say exactly what is sold, the deadline, the deposit, and whether it’s free of liens.' },
-      { text: 'A lien search on the equipment', detail: 'Lenders record UCC financing statements with the Nevada Secretary of State. A sheriff or tax sale may not clear them.' },
-      { text: 'A state tax clearance when you buy all or part of a business or its stock of goods', detail: 'Outside normal sales, hold back enough of the price until the seller gives you a receipt or certificate from the Department of Taxation. Otherwise you can owe their unpaid state taxes, up to what you paid (NRS 360.525). For a trustee or sheriff sale, ask the Department how this applies.' },
+      { text: 'A lien search on the equipment', detail: 'Lenders record UCC financing statements with the state (in Nevada, the Secretary of State). Search the state where the company is organized. A sheriff or tax sale may not clear them.' },
+      { text: 'A state tax clearance when you buy all or part of a business or its stock of goods', detail: 'Outside normal sales, hold back enough of the price until the seller shows the state tax agency’s clearance. Otherwise you can owe their unpaid taxes. In Nevada, the receipt comes from the Department of Taxation, and the liability is up to what you paid (NRS 360.525). The rules in California, Arizona and Utah are under Buying assets vs. a whole business.' },
       { text: 'An inspection, and a plan for removal', detail: 'Items are sold as-is. Budget for rigging, transport and storage, and meet the pickup deadline.' },
       { text: 'Certified funds, and a deposit if required' },
       { text: 'Your own licenses and permits', detail: 'Many business, liquor, health and contractor licenses don’t simply pass with the assets. You may need a new license, a transfer approval or a change-of-ownership filing. Confirm with each agency that issued one.' },
@@ -190,8 +190,8 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     title: 'Not for sale yet: how to get ready',
     intro: 'The owner is behind on payments, but nothing is for sale. Prepare now in case it goes to auction or is listed.',
     items: [
-      { text: 'Do not contact the homeowner', detail: 'Nevada licenses foreclosure consultants, and buyers who use fraud or deceit on owners in foreclosure face criminal penalties and can have the sale undone (NRS 645F). Our rule is simple: no contact.' },
-      { text: 'Track the property', detail: 'A notice of sale can come 3 months after the notice of default is recorded (90 days for an HOA). The auction is about 3+ weeks after that.' },
+      { text: 'Do not contact the homeowner', detail: 'Every state we cover regulates deals with owners in foreclosure. In Nevada, buyers who use fraud or deceit on owners in foreclosure face criminal penalties and can have the sale undone (NRS 645F). Our rule is simple: no contact.' },
+      { text: 'Track the property', detail: 'Watch the official notices. In Nevada, a notice of sale can come 3 months after the notice of default is recorded (90 days for an HOA), and the auction is about 3+ weeks after that. Other states’ timelines are in the guide below.' },
       { text: 'Line up your money now', detail: "Cash, or a hard-money or bridge loan for an auction. A pre-approval for a short-sale or bank-owned purchase." },
       { text: "Practice with cashier's checks and ID", detail: 'Trustee sales usually need certified funds for the full bid.' },
       { text: 'Order a title search once a notice of sale is recorded' },

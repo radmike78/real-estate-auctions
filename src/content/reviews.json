@@ -49,7 +49,7 @@
       "src/lib/buyerChecklists.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "56dded68ff159aa8",
+    "hash": "e7c65499935aaf47",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -71,7 +71,7 @@
       "src/components/PreForeclosurePage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "3ebbefb27d28de82",
+    "hash": "745b2c77e8c8dc71",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -81,7 +81,7 @@
       "src/components/ShortSalesPage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "37388bea3dfd99a5",
+    "hash": "5c4707acbf4c9902",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -92,7 +92,7 @@
       "src/lib/reoSources.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "b6001dfbca4c6210",
+    "hash": "a606ed33fc86ea34",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -103,7 +103,7 @@
       "src/lib/businessAssets.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "b838901e2a39be72",
+    "hash": "df2b5306caa1f2b9",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -202,7 +202,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "f3f50209f46ed6f7",
+    "hash": "e1e856b1910d286e",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -223,7 +223,7 @@
       "src/lib/pros.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "a8209b780c69b8a6",
+    "hash": "8baf533a6c65f0ec",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -245,7 +245,7 @@
       "src/components/HomeownerHelpPage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "1d29135433f3063e",
+    "hash": "72871d3ef97193da",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -266,8 +266,8 @@
       "src/components/AdvertiseApplyPage.tsx",
       "src/lib/proApplication.ts"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "1c3450d2a541a4c6",
+    "reviewed": "2026-10-04",
+    "hash": "f36355c84b63f1aa",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

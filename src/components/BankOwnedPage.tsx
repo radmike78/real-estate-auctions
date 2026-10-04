@@ -7,8 +7,13 @@ import BuyerChecklistBox from './BuyerChecklistBox';
 import Disclaimer from './Disclaimer';
 import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
-import { IconBank, IconCheckList, IconHome, IconShield, IconSteps } from './Icons';
+import { IconBank, IconCheckList, IconFile, IconHome, IconShield, IconSteps } from './Icons';
 import SaleDocsPanel from './SaleDocsPanel';
+import StatePicker from './StatePicker';
+import ByState from './ByState';
+import { getMyState, useMyState } from '../lib/myState';
+import { STATES } from '../lib/regions';
+import { BUYING, REO_GUIDE } from '../lib/states/bankOwned';
 
 function SourceCard({ s }: { s: ReoSource }) {
   // The ↗ stays on the same line as the name's last word.
@@ -83,6 +88,22 @@ export const sectionsFor = (cls: ClassFilter): DrillSection[] => [
     ),
   },
   {
+    key: 'by-state',
+    title: 'Buying one in your state',
+    icon: <IconFile />,
+    summary: 'Disclosures, as-is terms and contract deadlines in Nevada, California, Arizona and Utah',
+    content: () => (
+      <>
+        <p>
+          The rules for what a bank must tell you, what “as-is” means and which deadlines matter are different in each state. Pick your state
+          at the top of the page to see only its rules.
+        </p>
+        <ByState lines={BUYING} />
+        <p>In every state, the seller’s addendum and your contract have the exact terms and deadlines. Talk only with the listing agent and your own team.</p>
+      </>
+    ),
+  },
+  {
     key: 'checklist',
     title: 'What you’ll need',
     icon: <IconCheckList />,
@@ -92,7 +113,7 @@ export const sectionsFor = (cls: ClassFilter): DrillSection[] => [
       <>
         <BuyerChecklistBox list={CHECKLISTS.reo} />
         <h3 className="section-title">Documents and what to say</h3>
-        <SaleDocsPanel guideKey="reo" state="NV" />
+        <SaleDocsPanel guideKey="reo" state={getMyState() ?? 'NV'} />
       </>
     ),
   },
@@ -104,13 +125,14 @@ export default function BankOwnedPage({ section }: { section?: string }) {
     lastClass = c;
     setClsState(c);
   };
+  const [state] = useMyState();
   const SECTIONS = sectionsFor(cls);
   const open = SECTIONS.some((x) => x.key === section);
   return (
     <main className="page prose">
       <PageHero
         compact={open}
-        eyebrow={<span className="eyebrow">Nevada and nationwide</span>}
+        eyebrow={<span className="eyebrow">Buying rules for Nevada, California, Arizona and Utah · Source notes for Clark County, Nevada</span>}
         title={
           open ? (
             <a className="title-link" href="#/bank-owned">Bank-owned &amp; government {cls === 'commercial' ? 'properties' : 'homes'}</a>
@@ -134,6 +156,13 @@ export default function BankOwnedPage({ section }: { section?: string }) {
           that owns the homes. No third-party auction or listing sites.
         </div>
       )}
+      {!open && (
+        <p className="page-starter">
+          Most sources below list homes nationwide (the HUD link opens a Clark County search; change the location on HUD’s site), and the notes on each card are for Clark County, Nevada. Buying rules for
+          Nevada, California, Arizona and Utah are under “Buying one in your state.” Pick your state to see only its rules.
+        </p>
+      )}
+      <StatePicker label="Where is the home?" />
       <div className="row" style={{ margin: '0 0 16px' }}>
         <ClassSwitch value={cls} onChange={setCls} />
         {cls === 'commercial' && (
@@ -145,7 +174,13 @@ export default function BankOwnedPage({ section }: { section?: string }) {
 
       {!open && (
         <p className="small muted playbook-note">
-          How this sale works in Nevada, step by step: <a href="#/playbooks/reo">bank-owned (REO) guide →</a>
+          How this sale works, step by step:{' '}
+          {STATES.filter((s) => !state || s.code === state).map((s, i) => (
+            <span key={s.code}>
+              {i > 0 && ' · '}
+              <a href={REO_GUIDE[s.code]}>{s.name} bank-owned (REO) guide →</a>
+            </span>
+          ))}
         </p>
       )}
       <Disclaimer kind="sales" compact />

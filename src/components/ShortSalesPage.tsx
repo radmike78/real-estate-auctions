@@ -3,8 +3,18 @@ import BuyerChecklistBox from './BuyerChecklistBox';
 import { CHECKLISTS } from '../lib/buyerChecklists';
 import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
-import { IconCheckList, IconFlag, IconLayers, IconSteps, IconStop } from './Icons';
+import { IconCheckList, IconFlag, IconGavel, IconLayers, IconSteps, IconStop } from './Icons';
 import SaleDocsPanel from './SaleDocsPanel';
+import ByState from './ByState';
+import StatePicker from './StatePicker';
+import { useMyState } from '../lib/myState';
+import { DEFICIENCY, DISCLOSURES, NOTES, OWNERS } from '../lib/states/shortSales';
+
+/** Sale documents for the visitor's state; Nevada until they pick one. */
+function MySaleDocs() {
+  const [mine] = useMyState();
+  return <SaleDocsPanel guideKey="short" state={mine ?? 'NV'} />;
+}
 
 const STEPS: [string, string][] = [
   ['Get pre-approved or show proof of funds', 'The lender reviewing a short sale wants to know you can close. Send a pre-approval letter or bank statement in with your offer.'],
@@ -69,7 +79,7 @@ export const SECTIONS: DrillSection[] = [
       <>
         <BuyerChecklistBox list={CHECKLISTS.short} />
         <h3 className="section-title">Documents and what to say</h3>
-        <SaleDocsPanel guideKey="short" state="NV" />
+        <MySaleDocs />
       </>
     ),
   },
@@ -86,18 +96,38 @@ export const SECTIONS: DrillSection[] = [
     ),
   },
   {
+    key: 'state-rules',
+    title: 'Rules in your state',
+    icon: <IconGavel />,
+    summary: 'Whether the seller could still owe the lender, what the seller must disclose, and other state notes',
+    content: () => (
+      <>
+        <h3 className="section-title">Could the seller still owe the lender?</h3>
+        <p>When the lender takes less than the full payoff, the unpaid rest is called a deficiency. Whether the lender can still collect it depends on the state.</p>
+        <ByState lines={DEFICIENCY} missing="We don't have verified rules on this for this state yet. Sellers should ask a local attorney." />
+        <h3 className="section-title">Disclosures and contracts</h3>
+        <ByState lines={DISCLOSURES} missing="We don't have verified disclosure rules for this state yet. Ask your agent." />
+        <h3 className="section-title">Other things to know</h3>
+        <ByState lines={NOTES} missing="Nothing extra for this state yet. See the steps and risks above." />
+      </>
+    ),
+  },
+  {
     key: 'owners',
     title: "Don't contact homeowners",
     icon: <IconStop />,
     tone: 'stop',
     summary: 'Why you should find short sales through an agent, never by approaching owners',
     content: () => (
-      <p>
-        Don't go looking for short sales by contacting homeowners who are behind on payments. Nevada licenses foreclosure
-        consultants, and a buyer who uses fraud or deceit on an owner in foreclosure faces criminal penalties and can have the purchase undone (NRS Chapter 645F). If an owner decides to sell, an agent will
-        list the home. To follow a property's foreclosure status without contacting anyone, use the{' '}
-        <a href="#/pre-foreclosures">pre-foreclosure tracker</a>.
-      </p>
+      <>
+        <p>
+          Don't go looking for short sales by contacting homeowners who are behind on payments. If an owner decides to sell, a licensed
+          agent usually lists the home on the MLS; ask your agent. To follow a property's foreclosure status without contacting anyone,
+          use the <a href="#/pre-foreclosures">pre-foreclosure tracker</a>.
+        </p>
+        <h3 className="section-title">The law in your state</h3>
+        <ByState lines={OWNERS} />
+      </>
     ),
   },
 ];
@@ -108,7 +138,7 @@ export default function ShortSalesPage({ section }: { section?: string }) {
     <main className="page prose">
       <PageHero
         compact={open}
-        eyebrow={<span className="eyebrow">Voluntary sales · Clark County, NV</span>}
+        eyebrow={<span className="eyebrow">Voluntary sales · Nevada, California, Arizona and Utah</span>}
         title={open ? <a className="title-link" href="#/short-sales">Short sales</a> : <>Short <span className="grad">sales</span></>}
         sub={
           open ? undefined : (
@@ -125,6 +155,9 @@ export default function ShortSalesPage({ section }: { section?: string }) {
           "Short Sale." Work with a licensed buyer's agent. <a href="#/pros/agent">How to find a short-sale agent →</a>
         </div>
       )}
+
+      {!open && <p className="page-starter">How short sales work, how to buy one step by step, the risks, and the rules in Nevada, California, Arizona and Utah. Pick your state to see only its rules.</p>}
+      <StatePicker label="Where is the home?" />
 
       <DrillDown sections={SECTIONS} active={section} baseHref="#/short-sales" label="Short sale guide" />
 

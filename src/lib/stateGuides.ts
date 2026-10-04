@@ -207,6 +207,10 @@ export const STATE_GUIDES: Playbook[] = [
       value: "Common. A sale can be postponed up to 365 days in total before a new notice of sale is needed (Civ 2924g)."
     },
     {
+      label: "Price floor at the first sale",
+      value: "For a first loan on a 1 to 4 unit home, the trustee can’t sell at the first sale for less than 67% of the home’s fair market value. If it doesn’t sell, the sale must be postponed at least 7 days (Civ 2924f(f)). The value is the one the lender gives the trustee (an appraisal, broker’s opinion or automated valuation)."
+    },
+    {
       label: "Payment",
       value: "Cash, a cashier’s check from a bank, or a check from a credit union or savings bank. The trustee can ask for proof that you have the full amount before accepting your bid (Civ 2924h)."
     },
@@ -1235,7 +1239,7 @@ export const STATE_GUIDES: Playbook[] = [
   steps: [
     {
       title: "Learn the timeline",
-      detail: "After a default (missed payments), the trustee records a notice of default with the county recorder. The owner, or anyone holding a later (junior) lien, can catch up and fix the default within three months of that recording. After at least three months, the trustee may give notice of sale."
+      detail: "If the home is the owner’s main home and the lender is a bank, credit union or similar, the lender first sends the owner a notice giving at least 30 days to catch up (Utah Code 57-1-24.3). After a default (missed payments), the trustee records a notice of default with the county recorder. The owner, or anyone holding a later (junior) lien, can catch up and fix the default within three months of that recording. After at least three months, the trustee may give notice of sale."
     },
     {
       title: "Find sales through official notices",
@@ -1318,6 +1322,10 @@ export const STATE_GUIDES: Playbook[] = [
     {
       label: "Utah Code 57-1-24 (notice of default, three months)",
       url: "https://le.utah.gov/xcode/Title57/Chapter1/57-1-S24.html"
+    },
+    {
+      label: "Utah Code 57-1-24.3 (lender's 30-day notice before default, owner-occupied homes)",
+      url: "https://le.utah.gov/xcode/Title57/Chapter1/57-1-S24.3.html"
     },
     {
       label: "Utah Code 57-1-25 (notice of sale, tenant notice)",

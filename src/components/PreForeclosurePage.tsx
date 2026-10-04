@@ -13,6 +13,9 @@ import EmptyState from './EmptyState';
 import { rememberList } from '../lib/lastList';
 import ScriptBox from './ScriptBox';
 import { SALE_SCRIPTS } from '../lib/saleDocs';
+import StatePicker from './StatePicker';
+import ByState from './ByState';
+import { BUY, NO_CONTACT, READ_NOTICE, TIMELINE, TIMELINE_NOTES, WHERE } from '../lib/states/preForeclosure';
 
 const WATCH_KEY = 'fsf.preforeclosure.watch.v1';
 
@@ -52,20 +55,46 @@ function Pipeline({ t }: { t: ForeclosureTrack }) {
 export const GUIDE: DrillSection[] = [
   {
     key: 'how-it-works',
-    title: 'How a Nevada foreclosure progresses',
+    title: 'How a foreclosure progresses, state by state',
     icon: <IconClock />,
-    summary: 'Notice of default, a 3-month wait, notice of sale, then auction',
+    summary: 'Notices, the waiting periods, then the trustee’s auction, in Nevada, California, Arizona and Utah',
     content: () => (
       <>
-        <ol className="timeline-steps">
-          <li><strong>Notice of default</strong><span>The trustee or HOA records it. The owner can still catch up and fix the default (called curing it).</span></li>
-          <li><strong>3+ months</strong><span>The shortest wait before a notice of sale can be recorded: 3 months for a mortgage (NRS 107.080) and 90 days for an HOA (NRS 116.31162).</span></li>
-          <li><strong>Notice of sale</strong><span>Posted for 20 days and published for 3 weeks. It sets the auction date.</span></li>
-          <li><strong>Auction</strong><span>Held, postponed or cancelled. A sale becomes an auction listing on this site.</span></li>
-        </ol>
+        <p>Each state has its own steps and waiting periods. Pick your state above to see only its steps.</p>
+        <ByState lines={TIMELINE} ordered />
         <p className="muted">
-          Many never reach auction, because owners catch up, modify the loan, sell (often as a short sale) or file bankruptcy.
+          In every state, many foreclosures never reach auction, because owners catch up, modify the loan, sell (often as a short sale) or file bankruptcy.
         </p>
+        <ByState lines={TIMELINE_NOTES} missing="Nothing more to add for this state." />
+      </>
+    ),
+  },
+  {
+    key: 'where-notices',
+    title: 'Where to find notices',
+    icon: <IconCheckList />,
+    summary: 'Which county office records them, and where they are posted and published',
+    content: () => (
+      <>
+        <p>Notices are public records. Follow the property through the county recorder and the trustee named on the notice, never through the owner.</p>
+        <ByState lines={WHERE} />
+      </>
+    ),
+  },
+  {
+    key: 'how-to-buy',
+    title: 'How investors buy, without contacting owners',
+    icon: <IconCheckList />,
+    summary: 'At the trustee’s sale, from the lender after it, or from an agent’s listing',
+    content: () => (
+      <>
+        <p>A home in pre-foreclosure isn’t for sale. You can buy it in three ways, none of which involves contacting the owner: at the trustee’s sale, from the lender afterward (bank-owned), or from a listing if the owner decides to sell through an agent.</p>
+        <ByState lines={BUY} />
+        <h3>Step-by-step guides</h3>
+        <ul>
+          <li>Trustee sales: <a href="#/playbooks/foreclosure">Nevada</a> · <a href="#/playbooks/caforeclosure">California</a> · <a href="#/playbooks/azforeclosure">Arizona</a> · <a href="#/playbooks/utforeclosure">Utah</a></li>
+          <li>After the sale: <a href="#/bank-owned">bank-owned homes</a></li>
+        </ul>
       </>
     ),
   },
@@ -73,7 +102,7 @@ export const GUIDE: DrillSection[] = [
     key: 'prepare',
     title: 'How to get ready',
     icon: <IconCheckList />,
-    summary: `${CHECKLISTS.pre.items.length} things to prepare in case a tracked home goes to sale`,
+    summary: `${CHECKLISTS.pre.items.length} things to prepare in case a tracked home goes to sale, and how to read a notice of sale`,
     bare: true,
     content: () => (
       <>
@@ -85,9 +114,10 @@ export const GUIDE: DrillSection[] = [
               <li>The date, time and place of the sale (or the website, for an online sale).</li>
               <li>The trustee’s name and phone number: the only person to ask about the sale.</li>
               <li>The property: address, parcel number and legal description.</li>
-              <li>In Nevada, the law requires the date, time and place, a description of the property and its address, and the trustee’s contact details.</li>
               <li>Many notices also list an estimate of the unpaid debt and the form of payment. That isn’t required, so ask the trustee. The debt estimate and the opening bid can differ, and neither is the property’s value.</li>
             </ul>
+            <h3>What the law requires in the notice</h3>
+            <ByState lines={READ_NOTICE} />
           </div>
           <ScriptBox to={SALE_SCRIPTS.trustee[0].to} script={SALE_SCRIPTS.trustee[0].script} note="Ask the trustee only. Never contact the owner or anyone living in the home." />
         </div>
@@ -142,17 +172,20 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
     <main className="page">
       <PageHero
         compact={guideOpen}
-        eyebrow={<span className="eyebrow">Not for sale yet · Nevada</span>}
+        eyebrow={<span className="eyebrow">Not for sale yet · Tracker: Clark County, NV (feed coming soon) · Guide: NV, CA, AZ, UT</span>}
         title={guideOpen ? <a className="title-link" href="#/pre-foreclosures">Pre-foreclosure tracker</a> : <>Pre-foreclosure <span className="grad">tracker</span></>}
         sub={guideOpen ? undefined : 'Follow homes from notice of default to auction, without contacting anyone.'}
       />
 
+      <StatePicker label="Where is the home?" />
+
       <div className="caution" role="alert">
         <strong>Do not contact these homeowners.</strong> A notice of default means an owner is behind on payments. It does not mean the home
-        is for sale. Nevada licenses foreclosure consultants, and a buyer who uses fraud or deceit on an owner in foreclosure faces criminal penalties.
-        The owner can also cancel such a purchase for up to 2 years (NRS Chapter 645F). Owners may be in the state's Foreclosure Mediation Program, too. That's why this tracker shows no
-        owner names or contact details. Use it only to follow a property toward auction, or to recognize it if the owner lists it for sale
-        through an agent. Homeowners can find free help on our <a href="#/homeowner-help">homeowner help page</a>.
+        is for sale. Every state we cover restricts deals with owners in foreclosure, and DeedOwl goes further: we never show owner names or
+        contact details, and never help anyone reach owners. Use this tracker only to follow a property toward auction, or to recognize it if
+        the owner lists it for sale through an agent. Ask only the trustee named on the notice, or the county recorder. Homeowners can find free
+        help on our <a href="#/homeowner-help">homeowner help page</a>.
+        <ByState lines={NO_CONTACT} />
       </div>
 
       {SHOW_SAMPLE_DATA && (

@@ -2015,6 +2015,8 @@ h1, h2 { letter-spacing: -0.03em; }
 .state-picker button:hover { border-color: var(--accent); }
 .state-picker button.on { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
 .path .state-picker { justify-content: center; }
+.by-state + .by-state { margin-top: 18px; }
+.by-state-head { margin: 18px 0 8px; padding: 6px 14px; font-size: 1.1rem; border-left: 4px solid var(--accent-strong); background: var(--surface-2); border-radius: 8px; }
 
 /* Analyze a deal: setup and checklist */
 .deal-setup, .deal-checklist { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 22px; margin-bottom: 22px; }

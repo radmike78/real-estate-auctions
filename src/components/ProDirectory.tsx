@@ -96,7 +96,7 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
       {header}
       {none && (
         <div className="empty">
-          <OwlNote><strong>No professionals advertise here yet.</strong> Every listing will be license-checked before it appears.</OwlNote>
+          <OwlNote><strong>No professionals advertise here yet.</strong> The directory is for Nevada professionals for now, and every listing will be license-checked before it appears.</OwlNote>
           <p>
             Looking for someone now? <a href="#/pros">Find a pro</a> explains who you need and how to find them.{' '}
             {adsOpen ? <>Licensed and want to be listed? <a href="#/advertise">Apply to advertise</a>.</> : 'Advertising for licensed professionals opens soon.'}
