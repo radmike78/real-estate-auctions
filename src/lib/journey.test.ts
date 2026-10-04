@@ -6,10 +6,10 @@ import { lessonByKey } from './lessons';
 const none: Progress = { read: [], drillsDone: [], decided: false, roadmapDone: 0 };
 
 describe('guided starter path', () => {
-  it('starts with the introduction and moves on only when real work is done', () => {
-    expect(guidedNext(none)?.step.key).toBe('intro');
-    expect(guidedNext({ ...none, read: ['markets'] })?.step.key).toBe('example');
-    expect(guidedNext({ ...none, read: ['markets', 'analyze'] })?.step.key).toBe('exercise');
+  it('starts with a worked example and moves on only when real work is done', () => {
+    expect(guidedNext(none)?.step.key).toBe('example');
+    expect(guidedNext({ ...none, read: ['analyze'] })?.step.key).toBe('exercise');
+    expect(guidedNext({ ...none, read: ['analyze'], drillsDone: ['rental-265'] })?.step.key).toBe('intro');
     expect(guidedNext({ ...none, read: ['markets', 'analyze'], drillsDone: ['rental-265'] })?.n).toBe(4);
     expect(guidedNext({ read: ['markets', 'analyze'], drillsDone: ['rental-265'], decided: true, roadmapDone: 0 })?.step.key).toBe('plan');
     expect(guidedNext({ read: ['markets', 'analyze'], drillsDone: ['rental-265'], decided: true, roadmapDone: 1 })).toBeNull();

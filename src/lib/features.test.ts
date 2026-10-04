@@ -525,18 +525,26 @@ describe('learning paths', () => {
 });
 
 describe('investing roadmap', () => {
-  it('has four phases on both paths, a "done when" and a named action for every step', async () => {
+  it('covers all six phases on every route, with an outcome, actions, a "done when" and a named action for every step', async () => {
     const { ROADMAP, roadmapFor } = await import('./toolkit');
     expect(new Set(ROADMAP.map((s) => s.id)).size).toBe(ROADMAP.length);
-    for (const path of ['listing', 'auction'] as const) {
+    for (const path of ['listing', 'auction', 'certificate'] as const) {
       const steps = roadmapFor(path);
-      expect(new Set(steps.map((s) => s.phase))).toEqual(new Set([1, 2, 3, 4]));
+      expect(new Set(steps.map((s) => s.phase))).toEqual(new Set([1, 2, 3, 4, 5, 6]));
       for (const s of steps) {
         expect(s.doneWhen.length, s.id).toBeGreaterThan(10);
+        expect(s.outcome.length, s.id).toBeGreaterThan(10);
+        expect(s.steps.length, s.id).toBeGreaterThan(0);
         if (s.href) expect(s.action, s.id).toBeTruthy();
+        // Never a script to the owner or occupant: scripts go to officials and your own team.
+        if (s.say) expect(s.say.to, s.id).not.toMatch(/owner|occupant|tenant/i);
       }
     }
     expect(roadmapFor('auction').some((s) => s.id === 'offer')).toBe(false);
+    // A lien certificate isn't ownership: no owner steps on that route.
+    expect(roadmapFor('certificate').some((s) => s.id === 'first-week' || s.id === 'offer')).toBe(false);
+    // An inspection is done when the report is in and answered, not when it's merely in the offer.
+    expect(ROADMAP.find((s) => s.id === 'inspect')!.doneWhen).toMatch(/report/);
   });
 });
 

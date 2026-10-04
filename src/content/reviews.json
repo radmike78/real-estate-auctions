@@ -7,7 +7,7 @@
       "src/lib/journey.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "8ef2ea87e897f663",
+    "hash": "eb8d1414b08532c1",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -395,10 +395,11 @@
     "files": [
       "src/components/ToolkitPage.tsx",
       "src/lib/toolkit.ts",
+      "src/lib/roadmap.ts",
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "af4fa0d6d81d486f",
+    "hash": "5c06bd277053d514",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

@@ -4,7 +4,7 @@ import PageHero from './PageHero';
 import { STATES } from '../lib/regions';
 import { getMyState } from '../lib/myState';
 import { fmtMoney } from '../lib/status';
-import { cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP, ROADMAP_PATHS, ROADMAP_PHASES, roadmapFor, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath } from '../lib/toolkit';
+import { cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP, ROADMAP_PATHS, ROADMAP_PHASES, roadmapFor, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
 import { downloadText, fileName } from '../lib/download';
 import { cleanLog, logText } from '../lib/evidence';
 import { makeBackup, readBackup, restoreBackup } from '../lib/progressBackup';
@@ -29,11 +29,19 @@ function write(key: string, v: unknown) {
   }
 }
 const cleanIds = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string' && ROADMAP.some((s) => s.id === x)) : []);
-const cleanPath = (v: unknown): RoadmapPath => (v === 'auction' ? 'auction' : 'listing');
+const cleanPath = (v: unknown): RoadmapPath => (v === 'auction' || v === 'certificate' ? v : 'listing');
+const STATUS_KEY = 'deedowl.roadmap.status.v1';
+const STATUSES: StepStatus[] = ['doing', 'waiting', 'stopped'];
+const cleanStatus = (v: unknown): Record<string, StepStatus> => {
+  const out: Record<string, StepStatus> = {};
+  if (v && typeof v === 'object' && !Array.isArray(v))
+    for (const [k, x] of Object.entries(v)) if (ROADMAP.some((s) => s.id === k) && STATUSES.includes(x as StepStatus)) out[k] = x as StepStatus;
+  return out;
+};
 
 /** Ticked roadmap steps, for the homepage progress line. */
 export const roadmapDone = () => read(ROADMAP_KEY, [] as string[], cleanIds);
-/** How the visitor plans to buy: through an agent or at an auction. */
+/** How the visitor plans to buy: through an agent, at an auction, or lien certificates. */
 export const roadmapPath = () => read(ROADMAP_PATH_KEY, 'listing' as RoadmapPath, cleanPath);
 /** Steps done out of the steps on the visitor's path. */
 export function roadmapProgress() {
@@ -42,21 +50,73 @@ export function roadmapProgress() {
   return { done: steps.filter((s) => done.includes(s.id)).length, total: steps.length };
 }
 
-/** The investing roadmap in four phases, with the current phase open. */
+/** One roadmap step, opened: what you'll have, what to do, what to say, the documents, when to stop, and when it's done. */
+function StepBody({ s, status, setStatus }: { s: RoadmapStep; status: StepStatus | 'done' | 'todo'; setStatus: (v: StepStatus | 'done' | 'todo') => void }) {
+  return (
+    <div className="roadmap-step-body">
+      <p>{s.text}</p>
+      <p className="roadmap-outcome"><strong>You’ll have:</strong> {s.outcome}</p>
+      <div className="roadmap-cols">
+        <div>
+          <h4>Do this</h4>
+          <ol>{s.steps.map((x) => <li key={x}>{x}</li>)}</ol>
+        </div>
+        {(s.say || s.docs) && (
+          <div>
+            {s.say && (
+              <>
+                <h4>What to say: {s.say.to}</h4>
+                <blockquote className="roadmap-script">{s.say.script}</blockquote>
+              </>
+            )}
+            {s.docs && (
+              <>
+                <h4>Documents</h4>
+                <ul>{s.docs.map((d) => <li key={d}>{d}</li>)}</ul>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+      {s.stop && <p className="roadmap-stop"><strong>Stop if:</strong> {s.stop}</p>}
+      <p className="roadmap-done"><strong>Done when:</strong> {s.doneWhen}</p>
+      <div className="roadmap-status" role="group" aria-label={`Status: ${s.title}`}>
+        {(['todo', 'doing', 'waiting', 'done', 'stopped'] as const).map((k) => (
+          <button key={k} type="button" aria-pressed={status === k} onClick={() => setStatus(k)}>{STEP_STATUS_LABEL[k]}</button>
+        ))}
+        {s.href && <a className="btn" href={s.href}>{s.action ?? 'Open'} →</a>}
+      </div>
+    </div>
+  );
+}
+
+/** The investing roadmap in six phases and three routes, with the next step open. */
 export function FirstDealRoadmap() {
   const [done, setDone] = useState<string[]>(roadmapDone);
+  const [status, setStatusMap] = useState<Record<string, StepStatus>>(() => read(STATUS_KEY, {}, cleanStatus));
   const [path, setPath] = useState<RoadmapPath>(roadmapPath);
   useEffect(() => write(ROADMAP_KEY, done), [done]);
+  useEffect(() => write(STATUS_KEY, status), [status]);
   useEffect(() => write(ROADMAP_PATH_KEY, path), [path]);
   const steps = roadmapFor(path);
   const count = steps.filter((s) => done.includes(s.id)).length;
-  const next = steps.find((s) => !done.includes(s.id));
-  const phases = ([1, 2, 3, 4] as const).map((n) => ({ n, title: ROADMAP_PHASES[n], steps: steps.filter((s) => s.phase === n) }));
-  const toggle = (id: string) => setDone((d) => (d.includes(id) ? d.filter((x) => x !== id) : [...d, id]));
+  const stateOf = (id: string): StepStatus | 'done' | 'todo' => (done.includes(id) ? 'done' : status[id] ?? 'todo');
+  const walked = steps.find((s) => status[s.id] === 'stopped' && !done.includes(s.id));
+  const next = steps.find((s) => !done.includes(s.id) && status[s.id] !== 'stopped');
+  const phases = ([1, 2, 3, 4, 5, 6] as const).map((n) => ({ n, title: ROADMAP_PHASES[n], steps: steps.filter((s) => s.phase === n) })).filter((ph) => ph.steps.length);
+  const setStatus = (id: string, v: StepStatus | 'done' | 'todo') => {
+    setDone((d) => (v === 'done' ? (d.includes(id) ? d : [...d, id]) : d.filter((x) => x !== id)));
+    setStatusMap((m) => {
+      const n = { ...m };
+      if (v === 'done' || v === 'todo') delete n[id];
+      else n[id] = v;
+      return n;
+    });
+  };
   return (
     <section id="roadmap" aria-labelledby="roadmap-head">
       <h2 id="roadmap-head">Your investing roadmap</h2>
-      <p>The real tasks of buying, in four phases. You don’t need to do it all at once: tick a step when its “Done when” is true. This is separate from Getting started, which only introduces the site.</p>
+      <p>Every real task of buying, from your first goal to owning it. Each step tells you what you’ll have when it’s done, exactly what to do, what to say and to whom, the documents involved, and when to stop. Mark a step done only when its “Done when” is true.</p>
       <div className="roadmap-path" role="group" aria-label="How you’ll buy">
         <span className="roadmap-path-label">How you’ll buy:</span>
         {(Object.keys(ROADMAP_PATHS) as RoadmapPath[]).map((k) => (
@@ -68,32 +128,85 @@ export function FirstDealRoadmap() {
         {count} of {steps.length} steps done
         <span className="decide-bar" role="progressbar" aria-label="Investing roadmap" aria-valuemin={0} aria-valuemax={steps.length} aria-valuenow={count}><span style={{ width: `${Math.round((count / steps.length) * 100)}%` }} /></span>
       </p>
-      <div className="next-step" role="status">
-        <strong>Your next step:</strong>{' '}
-        {next ? <>{next.text} {next.href && <a href={next.href}>{next.action ?? 'Open'} →</a>}</> : 'Every step is ticked. Revisit your numbers on each new deal, and try another practice drill.'}
-      </div>
+      {walked && (
+        <p className="roadmap-walked" role="status">
+          You stopped at “{walked.title}”. Walking away from a deal that doesn’t fit is a good result. When you find the next one, set that step back to “Working on it”.
+        </p>
+      )}
+      {next ? (
+        <div className="roadmap-next">
+          <p className="roadmap-next-label">Your next step · {ROADMAP_PHASES[next.phase]}</p>
+          <h3>{next.title}</h3>
+          <StepBody s={next} status={stateOf(next.id)} setStatus={(v) => setStatus(next.id, v)} />
+        </div>
+      ) : (
+        <p className="next-step" role="status">Every step on this route is done. Review your plan before your next deal, and keep practicing.</p>
+      )}
+      <h3 className="roadmap-all-head">All steps</h3>
       {phases.map((ph) => {
         const phDone = ph.steps.filter((s) => done.includes(s.id)).length;
         return (
-          <details key={ph.n} className="roadmap-phase" open={next ? next.phase === ph.n : ph.n === 1}>
+          <details key={ph.n} className="roadmap-phase" open={next ? next.phase === ph.n : false}>
             <summary>
               <span className="roadmap-phase-title">{ph.n}. {ph.title}</span>
-              <span className="muted">{phDone} of {ph.steps.length} done</span>
+              <span className="muted">{phDone === ph.steps.length ? '✓ All done' : `${phDone} of ${ph.steps.length} done`}</span>
             </summary>
-            <ol className="decide-checklist roadmap">
-              {ph.steps.map((s) => (
-                <li key={s.id}>
-                  <label>
-                    <input type="checkbox" checked={done.includes(s.id)} onChange={() => toggle(s.id)} />
-                    <span>{s.text}<small className="roadmap-done-when">Done when: {s.doneWhen}</small></span>
-                  </label>
-                  {s.href && <a href={s.href}>{s.action ?? 'Open'} →</a>}
-                </li>
-              ))}
-            </ol>
+            <div className="roadmap-steps">
+              {ph.steps.map((s) => {
+                const st = stateOf(s.id);
+                return (
+                  <details key={s.id} className={`roadmap-step ${st}`}>
+                    <summary>
+                      <span className="roadmap-step-title">{s.title}</span>
+                      <span className={`roadmap-chip ${st}`}>{STEP_STATUS_LABEL[st]}</span>
+                    </summary>
+                    <StepBody s={s} status={st} setStatus={(v) => setStatus(s.id, v)} />
+                  </details>
+                );
+              })}
+            </div>
           </details>
         );
       })}
+    </section>
+  );
+}
+
+/** Investable cash: savings minus the emergency fund and money promised elsewhere. Kept in this browser. */
+const CASH_KEY = 'deedowl.cash.v1';
+interface Cash { savings: number; spending: number; months: number; promised: number; debt: number }
+const cleanCash = (v: unknown): Cash => {
+  const o = (v && typeof v === 'object' ? v : {}) as Record<string, unknown>;
+  const n = (x: unknown, d: number) => (typeof x === 'number' && Number.isFinite(x) && x >= 0 && x < 1e9 ? x : d);
+  return { savings: n(o.savings, 0), spending: n(o.spending, 0), months: n(o.months, 6), promised: n(o.promised, 0), debt: n(o.debt, 0) };
+};
+export function CashWorksheet() {
+  const [c, setC] = useState<Cash>(() => read(CASH_KEY, cleanCash(null), cleanCash));
+  useEffect(() => write(CASH_KEY, c), [c]);
+  const fund = c.spending * c.months;
+  const investable = Math.max(0, c.savings - fund - c.promised - c.debt);
+  const field = (k: keyof Cash, label: string, hint?: string) => (
+    <label className="field">
+      <span>{label}</span>
+      <input inputMode="decimal" value={c[k] || ''} placeholder="0" onChange={(e) => { const v = Number(e.target.value.replace(/[$,\s]/g, '')); setC((x) => ({ ...x, [k]: Number.isFinite(v) && v >= 0 ? v : 0 })); }} />
+      {hint && <small className="muted">{hint}</small>}
+    </label>
+  );
+  return (
+    <section id="cash" aria-labelledby="cash-head">
+      <h2 id="cash-head">Your investable cash</h2>
+      <p>The most you could put into a deal without touching your safety net. Numbers stay in this browser.</p>
+      <div className="deal-fields">
+        {field('savings', 'Savings and investments you could sell')}
+        {field('spending', 'Household spending each month')}
+        {field('months', 'Months of spending to keep as an emergency fund', 'A planning choice: many people keep 3 to 6 months or more.')}
+        {field('promised', 'Money promised to other goals in the next year')}
+        {field('debt', 'High-interest debt to pay off first', 'Credit cards and similar debt usually cost more than a deal earns.')}
+      </div>
+      <p className="cash-result">
+        Emergency fund: <strong>{fmtMoney(fund)}</strong> · Your investable cash: <strong>{fmtMoney(investable)}</strong>
+      </p>
+      {c.savings > 0 && investable === 0 && <p className="roadmap-stop"><strong>Not yet.</strong> Build your emergency fund and pay off high-interest debt first. Keep learning and practicing in the meantime.</p>}
     </section>
   );
 }
@@ -262,14 +375,14 @@ function ProgressBackup() {
   );
 }
 
-const JUMPS: [string, string][] = [['roadmap', 'Roadmap'], ['buy-box', 'Buy box'], ['worksheets', 'Worksheets'], ['tools-calculators', 'Calculators'], ['tools-checklists', 'Checklists'], ['backup', 'Keep your progress']];
+const JUMPS: [string, string][] = [['roadmap', 'Roadmap'], ['cash', 'Investable cash'], ['buy-box', 'Buy box'], ['worksheets', 'Worksheets'], ['tools-calculators', 'Calculators'], ['tools-checklists', 'Checklists'], ['backup', 'Keep your progress']];
 const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
 /** Everything free in one place: the first-deal roadmap, a buy box, and the calculators and checklists. */
 export default function ToolkitPage({ section }: { section?: string }) {
   useLastActivity('#/toolkit', 'My plan');
   useEffect(() => {
-    if (section === 'buy-box') document.getElementById('buy-box')?.scrollIntoView();
+    if (section === 'buy-box' || section === 'cash') document.getElementById(section)?.scrollIntoView();
   }, [section]);
   return (
     <main className="page toolkit">
@@ -290,6 +403,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
         {JUMPS.map(([id, label]) => <button key={id} type="button" className="linkish" onClick={() => jump(id)}>{label}</button>)}
       </nav>
       <FirstDealRoadmap />
+      <CashWorksheet />
       <BuyBoxBuilder />
       <Worksheets />
       {TOOLKIT.map((g) => (
