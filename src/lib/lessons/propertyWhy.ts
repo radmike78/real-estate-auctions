@@ -243,7 +243,7 @@ export const PROPERTY_WHY = {
     no: [
       {
         who: "Buyers who use a lot of borrowed money",
-        text: "When interest rates jump, loan payments rise and buyers will pay less for the same rent. So values can fall even if the building is full. Check that the building could still pay its loan if rates rose 2–3 points.",
+        text: "Payments rise on floating-rate loans, or when you refinance, if rates go up. Even with a fixed-rate loan, higher rates can mean buyers pay less for the same rent, so values can fall even if the building is full. Check that the building could still pay its loan at refinance if rates rose 2–3 points.",
         example: "The Federal Reserve raised its key rate to 5.25%–5.5% in July 2023.",
         source: {
           label: "Federal Reserve FOMC statement (July 26, 2023)",
@@ -498,7 +498,7 @@ export const PROPERTY_WHY = {
     yes: [
       {
         who: "Investors who want hands-off income",
-        text: "There are no kitchens, bathrooms or late-night tenant emergencies, so storage usually needs fewer staff and simpler upkeep than housing. Someone still has to rent units, collect payments and keep the site secure."
+        text: "Storage usually has fewer repair calls than housing, so it often needs fewer staff. Gates, security, roofs and flooding can still need urgent attention. Someone still has to rent units, collect payments and keep the site secure."
       },
       {
         who: "Investors worried about inflation",

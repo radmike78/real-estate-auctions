@@ -79,7 +79,7 @@ export const SECTIONS: DrillSection[] = [
     content: () => (
       <p>
         When a business is in receivership, a tax seizure or Chapter 7 bankruptcy, a receiver, agency or trustee controls its property. In Chapter 11 the
-        business itself often stays in charge and can sell only with the court’s approval (11 U.S.C. 1107, 363). Either way, the
+        business itself often stays in charge. Sales outside its ordinary business generally need the bankruptcy court’s approval, so confirm the seller’s authority and the court order for the sale you’re considering (11 U.S.C. 1107, 363). Either way, the
         seller and contact are named in the official notice or court papers. DeedOwl’s policy: deal only with that seller and contact. Don’t approach
         owners, employees or customers of a struggling business with offers. It adds pressure to people already having a hard time.
       </p>

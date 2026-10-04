@@ -727,7 +727,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Sponsor fees, if you invest in a syndication. These include acquisition fees tied to the purchase price plus ongoing fees from rent. They are paid even if investors lose money (American Prospect, describing a lawsuit by 123 investors)."
     ],
     money: [
-      "Agency loans (Fannie Mae and Freddie Mac) are the main long-term, often fixed-rate source for apartment buildings. They lend based on the building’s income. The American Prospect reported that their standard requires rent income of at least 1.25 times the loan payment.",
+      "Agency loans (Fannie Mae and Freddie Mac) are the main long-term, often fixed-rate source for apartment buildings. They lend based on the building’s income. They compare the building’s net income, after operating costs, with the loan payments. The required coverage depends on the program and the deal, and gross rent alone is not the test.",
       "Short-term ‘bridge’ or floating-rate loans let buyers borrow more and renovate first, but the payment can jump. Many 2021–2022 buyers who used them lost buildings in 2023–2024.",
       "Syndications raise money from investors. The Wall Street Journal found syndicators reported raising at least $115 billion from 2020 through 2022.",
       "Nonprofit buyers can combine private, charity and state money. Utah set aside about $30 million for the Utah Housing Preservation Fund."
@@ -735,7 +735,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     checklist: [
       "Get the rent roll and at least 2 years of income and expense statements. Compare them with bank deposits and tax returns.",
       "Read the loan terms: fixed or floating rate, interest-rate cap and when it expires, maturity date, prepayment penalty.",
-      "Stress-test: can the building still pay its loan if interest rates rise 2–3 points or occupancy drops 10%?",
+      "Stress-test: can the building still pay its loan if occupancy drops 10%, and, on a floating-rate loan or at refinance, if rates rise 2–3 points?",
       "Inspect every unit and the major systems. Check with the city or county for open code cases and tenant complaints.",
       "For a syndication, check the sponsor’s past deals, lawsuits and record with securities regulators. Read how fees are paid and what happens if a capital call is needed.",
       "Confirm the real purchase price (county recorder records) and get an independent appraisal. Fraud cases have used fake, inflated contracts.",
@@ -1969,7 +1969,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
   },
   land: {
     overview: [
-      "Raw land is property with no house or building on it. It is cheap to hold (no tenants, few repairs). But it usually earns nothing until it is built on, farmed, leased or sold. Its value depends on access, water, utilities, zoning and growth nearby.",
+      "Raw land is property with no house or building on it. It may cost less to keep up than a building (no tenants, few repairs), but taxes, loan interest, weed and fire rules, access and security still cost money. But it usually earns nothing until it is built on, farmed, leased or sold. Its value depends on access, water, utilities, zoning and growth nearby.",
       "Many cheap lots are cheap for a reason, including lots sold at county tax sales. Reasons include no legal road access, no water or power, steep or flood-prone ground, or rules that prevent building. In Arizona, a 1980 law requires subdivisions of six or more lots inside the state’s groundwater Active Management Areas (such as the Phoenix area) to prove a 100-year water supply. In Arizona, outside those areas, lots can usually be sold even when the water supply is inadequate, as long as that is disclosed, and lot splits of five or fewer avoided the rule. Arizona passed an ‘Ag-to-Urban’ law in 2025 that lets some builders in the Phoenix and Pinal areas use water credits from retired farmland. In Arizona, homes in Rio Verde Foothills lost their hauled water supply from Scottsdale in 2023.",
       "Land also attracts scams. For decades, promoters sold desert lots in California City sight unseen, with promises of future growth. Today the FBI warns of impostors who pose as the owners of vacant land. They sell it to buyers who never meet them. Land can pay off well for patient owners when a town grows toward it. But that can take decades."
     ],

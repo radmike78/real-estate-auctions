@@ -60,7 +60,7 @@ export const markets: Lesson = {
     {
       heading: 'Protections follow the use, not just the building',
       blocks: [
-        'Federal truth-in-lending rules protect consumers, not businesses. A loan to buy a rental you won’t live in counts as a business loan, even if it’s a single house. So some consumer protections don’t apply. If you’ll live in the property, a loan for up to two units stays a consumer loan. For three or more units, it counts as business.',
+        'Federal truth-in-lending rules protect consumers, not businesses. A loan to buy a rental you won’t live in counts as a business loan, even if it’s a single house. So some consumer protections don’t apply. If you’ll live in the property, a loan to buy one or two units is usually a consumer loan; a loan to buy three or more units counts as business. Ask the lender which rules apply to your loan, and get every cost and term in writing either way.',
       ],
     },
     {

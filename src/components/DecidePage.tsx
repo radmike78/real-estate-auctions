@@ -128,6 +128,7 @@ export default function DecidePage() {
                     <span className="path-n" aria-hidden>{i + 1}</span>
                     <div>
                       <h3>{m.strategy.title}</h3>
+                      {i > 0 && m.cautions.length > 0 && <p className="decide-later">Possible later, once the gaps under “Watch” are resolved</p>}
                       <p>{m.strategy.what}</p>
                     </div>
                   </div>
