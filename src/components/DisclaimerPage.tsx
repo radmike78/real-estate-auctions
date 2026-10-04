@@ -4,6 +4,7 @@ import { DISCLAIMERS, ROLE_SHORT, SOURCES_AND_ADVICE, type DisclaimerKind } from
 import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
 import { IconBadge, IconBank, IconCheckList, IconFile, IconHome, IconLayers, IconSearch, IconSteps, IconStop, IconTools } from './Icons';
+import { hasPlaceholders, SITE_INFO } from '../lib/siteInfo';
 
 const KIND_ICON: Record<DisclaimerKind, ReactNode> = { sales: <IconHome />, professionals: <IconBadge />, financing: <IconBank />, services: <IconTools /> };
 const KIND_SUMMARY: Record<DisclaimerKind, string> = {
@@ -130,13 +131,25 @@ export const SECTIONS: DrillSection[] = [
     icon: <IconFile />,
     summary: 'Information is provided "as is." Always rely on the official source',
     content: () => (
-      <p>
-        We work hard to show only current information from government and official sources, but sources change and mistakes happen. Everything here is provided "as is,"
-        without warranties, so always rely on the official source.
-      </p>
+      <>
+        <p>
+          We work hard to show only current information from government and official sources, but sources change and mistakes happen. Everything here is provided "as is,"
+          without warranties, so always rely on the official source.
+        </p>
+        <p>
+          <strong>How we check and correct.</strong> Each guide and lesson shows when it was last checked and lists the sources we checked it against. When a law,
+          program or rule changes, or someone shows us an error, we check it against the official source, fix it, and update the date.{' '}
+          <CorrectionsContact />
+        </p>
+      </>
     ),
   },
 ];
+
+/** Where to send a correction: the site's contact address once it's set (never a placeholder). */
+function CorrectionsContact() {
+  return hasPlaceholders() ? <>A corrections email is being set up; until then, the official source on each page is the one to rely on.</> : <>Found something wrong? Email <a href={`mailto:${SITE_INFO.contactEmail}`}>{SITE_INFO.contactEmail}</a> with the page and what the official source says.</>;
+}
 
 /** Says "coming soon" until the email service is set up. */
 function AlertsItem() {

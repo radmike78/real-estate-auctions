@@ -66,3 +66,44 @@ export function priceForCash(cash: number, a: PriceAssumptions = PRICE_DEFAULTS)
   }
   return Math.floor(lo / 1000) * 1000;
 }
+
+/** What you told DeedOwl about yourself (Decide and the cash worksheet), as starting numbers for a new deal. */
+export interface InvestorProfile {
+  loan: 'yes' | 'cash' | 'unsure' | null;
+  manager: boolean | null;
+  investable: number;
+}
+
+export function investorProfile(): InvestorProfile {
+  let answers: Record<string, string> = {};
+  let investable = 0;
+  try {
+    const d = JSON.parse(localStorage.getItem('deedowl.decide.v1') ?? 'null') as { answers?: Record<string, string> } | null;
+    if (d?.answers && typeof d.answers === 'object') answers = d.answers;
+    const c = JSON.parse(localStorage.getItem('deedowl.cash.v1') ?? 'null') as Record<string, number> | null;
+    if (c && typeof c === 'object') {
+      const n = (x: unknown) => (typeof x === 'number' && Number.isFinite(x) && x > 0 ? x : 0);
+      investable = Math.max(0, n(c.savings) - n(c.spending) * n(c.months) - n(c.promised) - n(c.debt));
+    }
+  } catch {
+    /* storage unavailable */
+  }
+  const b = answers.borrow;
+  const h = answers.hands;
+  return {
+    loan: b === 'cash' ? 'cash' : b === 'live' || b === 'invest' ? 'yes' : b === 'unsure' ? 'unsure' : null,
+    manager: h === 'diy' ? false : h === 'hire' || h === 'none' ? true : null,
+    investable,
+  };
+}
+
+/** Starting numbers for a new rental analysis from your profile; nothing here is an approved loan term. */
+export function profileStart(p: InvestorProfile, offer: boolean): Record<string, number> {
+  const out: Record<string, number> = {};
+  if (p.loan === 'cash') out.loanPct = 0;
+  else if (p.loan === 'yes' && offer) out.loanPct = 75;
+  if (p.manager === true) out.managementPct = 8;
+  else if (p.manager === false) out.managementPct = 0;
+  if (offer && p.investable > 0) out.cashAvailable = Math.round(p.investable);
+  return out;
+}
