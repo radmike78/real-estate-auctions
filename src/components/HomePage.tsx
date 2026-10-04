@@ -1,4 +1,3 @@
-import StatePicker from './StatePicker';
 import { IconBank, IconBadge, IconCalc, IconCheckList, IconFile, IconLayers, IconShield, IconStar } from './Icons';
 import { PATH, useStepsSeen } from '../lib/path';
 import { currentProgress, GUIDED, guidedNext, setMode, unfinished, useJourney } from '../lib/journey';
@@ -106,7 +105,6 @@ export default function HomePage() {
       </section>
 
       <section className="path" id="everything" aria-labelledby="path-head">
-        <StatePicker label="Where do you invest?" />
         <h2 id="path-head">Everything, in six steps</h2>
         <p className="path-intro">How the site is laid out, in the order most people use it. A ✓ means you’ve opened that part, not finished it.</p>
         <ol className="path-steps">
