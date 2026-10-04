@@ -117,9 +117,9 @@ function StageView({ stage, n, p, update, done }: { stage: CaseStage; n: number;
       <h2 id="stage-head" tabIndex={-1}>{n}. {stage.title}</h2>
       <p className="case-outcome"><strong>When you finish this step, you’ll have:</strong> {stage.outcome}</p>
       <div className={stage.docs.length ? 'case-grid' : undefined}>
-        {stage.docs.length > 0 && (
+        {stage.docs.some((d) => !d.after || p.done.includes(`${stage.key}/${d.after}`)) && (
           <div className="case-docs">
-            {stage.docs.map((d) => <Doc key={d.title} d={d} />)}
+            {stage.docs.filter((d) => !d.after || p.done.includes(`${stage.key}/${d.after}`)).map((d) => <Doc key={d.title} d={d} />)}
           </div>
         )}
         <div className="case-work">
@@ -204,10 +204,15 @@ function choiceLogs(st: CaseStage, p: CaseProgress): string[] {
 
 function Task({ n, t, k, p, update, stageKey }: { n: number; t: CaseTask; k: string; p: CaseProgress; update: Update; stageKey: string }) {
   const finished = p.done.includes(k);
+  // Finished on a later try, or after "Show me how": marked apart from a first-try answer, so a miss doesn't look like a win.
+  const retried = finished && (p.first[k] === 'wrong' || p.first[k] === 'poor');
   const finish = (x: CaseProgress) => (x.done.includes(k) ? x : { ...x, done: [...x.done, k] });
   return (
-    <div className={`case-task${finished ? ' finished' : ''}`}>
-      <p className="case-task-q"><span className="case-task-n" aria-hidden>{finished ? '✓' : n}</span> {t.prompt}</p>
+    <div className={`case-task${finished ? (retried ? ' finished retried' : ' finished') : ''}`}>
+      <p className="case-task-q">
+        <span className="case-task-n" aria-hidden>{finished ? (retried ? '↺' : '✓') : n}</span> {t.prompt}
+        {retried && <span className="sr-only"> (finished after a miss)</span>}
+      </p>
       {t.kind === 'choice' && <Choice t={t} k={k} p={p} update={update} finish={finish} stageKey={stageKey} />}
       {t.kind === 'multi' && <Multi t={t} k={k} p={p} update={update} finish={finish} />}
       {t.kind === 'number' && <NumberTask t={t} k={k} p={p} update={update} finish={finish} />}
@@ -281,7 +286,7 @@ function Multi({ t, k, p, update, finish }: { t: Extract<CaseTask, { kind: 'mult
       {!checked ? (
         <button type="button" className="btn" onClick={check}>Check my answers</button>
       ) : (
-        <button type="button" className="linkish" onClick={() => { setSel([]); update((x) => ({ ...x, done: x.done.filter((d) => d !== k) })); }}>Try again</button>
+        !t.options.every((o, i) => o.right === saved.includes(i)) && <button type="button" className="linkish" onClick={() => { setSel([]); update((x) => ({ ...x, done: x.done.filter((d) => d !== k) })); }}>Try again</button>
       )}
     </>
   );
@@ -313,7 +318,7 @@ function NumberTask({ t, k, p, update, finish }: { t: Extract<CaseTask, { kind: 
           <input inputMode="decimal" value={val} onChange={(e) => { setVal(e.target.value); setChecked(false); }} onKeyDown={(e) => e.key === 'Enter' && check()} placeholder="Your answer" />
         </label>
         <button type="button" className="btn" onClick={check} disabled={!val.trim()}>Check</button>
-        {!show && <button type="button" className="linkish" onClick={() => { setShow(true); update((x) => finish({ ...x, first: x.first[k] ? x.first : { ...x.first, [k]: 'wrong' } })); }}>Show me how</button>}
+        {!show && p.first[k] !== undefined && <button type="button" className="linkish" onClick={() => { setShow(true); update((x) => finish({ ...x, first: x.first[k] ? x.first : { ...x.first, [k]: 'wrong' } })); }}>Show me how</button>}
       </div>
       {checked && val.trim() !== '' && (
         <p className={`case-feedback ${ok ? 'best' : 'poor'}`} role="status">
@@ -378,7 +383,7 @@ export function packetSections(p: CaseProgress): { title: string; rows: string[]
     for (const t of tasksFor(st, p.answers)) {
       const a = p.answers[key(st, t)];
       if (t.kind === 'choice' && typeof a === 'number' && t.choices[a]) decisions.push(`${st.title}: ${t.choices[a].label} (${VERDICT[t.choices[a].verdict].toLowerCase()})`);
-      if (t.kind === 'write' && typeof a === 'string' && a) questions.push(`To the ${t.to.toLowerCase()}: ${a}`);
+      if (t.kind === 'write' && typeof a === 'string' && a) questions.push(t.to === 'You' ? `For yourself: ${a}` : `To the ${t.to.toLowerCase()}: ${a}`);
     }
   // First tries count only for questions you can see now (a counteroffer you no longer face doesn't count).
   const visible = new Set(RENTAL_CASE.flatMap((st) => tasksFor(st, p.answers).map((t) => key(st, t))));

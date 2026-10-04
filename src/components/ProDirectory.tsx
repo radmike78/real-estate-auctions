@@ -50,11 +50,11 @@ export function ProCard({ p }: { p: Pro }) {
         {p.services.slice(0, 4).map((s) => <span key={s} className="chip">{s}</span>)}
         {p.services.length > 4 && <span className="chip">+{p.services.length - 4}</span>}
       </div>
-      <div className="verified small">✓ Verified with {info.regulator}</div>
+      {p.isSample ? <div className="small muted">Sample profile: fictional, not a license check</div> : <div className="verified small">✓ Verified with {info.regulator}</div>}
       <div className="contact">
         <a className="btn" href={`#/pros/${p.id}`}>View profile</a>
-        {tel && <a className="btn btn-secondary" href={tel} onClick={() => track('phone_click', p.id)}>Call</a>}
-        {!tel && mail && <a className="btn btn-secondary" href={mail} onClick={() => track('email_click', p.id)}>Email</a>}
+        {!p.isSample && tel && <a className="btn btn-secondary" href={tel} onClick={() => track('phone_click', p.id)}>Call</a>}
+        {!p.isSample && !tel && mail && <a className="btn btn-secondary" href={mail} onClick={() => track('email_click', p.id)}>Email</a>}
       </div>
     </li>
   );
@@ -131,7 +131,7 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
       </div>}
       {error && <div className="caution small" role="alert"><strong>The directory couldn't be verified, so no profiles are shown.</strong> {error}</div>}
       {usingSamples && <p className="small muted">Showing fictional sample profiles until real advertisers are approved.</p>}
-      {!loading && pros.length > 0 && (
+      {!loading && pros.length > 0 && !usingSamples && (
         <p className="small muted">
           {results.length} verified {results.length === 1 ? 'professional' : 'professionals'} · shown in a daily rotating order. Advertisers can't pay
           for a higher position.

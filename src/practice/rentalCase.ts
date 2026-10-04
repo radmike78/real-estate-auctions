@@ -109,6 +109,8 @@ export interface CaseDoc {
   notes?: string[];
   /** The annotated guide to the real document this teaching extract stands for (docGuides.ts). */
   guide?: string;
+  /** Shown only once this question in the step is answered (a contract appears after you make the offer). */
+  after?: string;
 }
 
 /** Asked only when an earlier question in the same step got one of these answers (choice numbers, from 0). */
@@ -449,6 +451,7 @@ export const RENTAL_CASE: CaseStage[] = [
     docs: [
       {
         kind: 'Purchase contract (summary)',
+        after: 'price',
         guide: 'contract',
         title: 'The contract, once both of you have signed',
         from: 'Signed by you and the seller (fictional)',

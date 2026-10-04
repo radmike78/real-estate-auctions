@@ -20,8 +20,8 @@
       "src/lib/saleSearch.ts",
       "src/lib/status.ts"
     ],
-    "reviewed": "2026-10-03",
-    "hash": "b38cc163772a691a",
+    "reviewed": "2026-10-04",
+    "hash": "0a7c300b706b6f37",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -38,7 +38,7 @@
       "src/lib/foreclosure.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "50bd66ee2b46852c",
+    "hash": "8836e04d0cfc1330",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -71,7 +71,7 @@
       "src/components/PreForeclosurePage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "5d9fc523203d0955",
+    "hash": "f1e5503a015b2f54",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "13d99b1f4356f113",
+    "hash": "2aaabc617e07dcb7",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -222,8 +222,8 @@
       "src/components/ProDirectory.tsx",
       "src/lib/pros.ts"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "79725b75f8fb91ba",
+    "reviewed": "2026-10-04",
+    "hash": "a8209b780c69b8a6",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -235,7 +235,7 @@
       "src/components/LeadForm.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "2cab0fae69d8a73c",
+    "hash": "7ab7d195cc6f4eb1",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -401,7 +401,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "a63135016477eea7",
+    "hash": "991550c2363d94b3",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

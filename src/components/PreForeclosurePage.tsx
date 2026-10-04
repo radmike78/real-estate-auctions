@@ -10,6 +10,7 @@ import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
 import { IconCheckList, IconClock } from './Icons';
 import EmptyState from './EmptyState';
+import { rememberList } from '../lib/lastList';
 import ScriptBox from './ScriptBox';
 import { SALE_SCRIPTS } from '../lib/saleDocs';
 
@@ -96,6 +97,7 @@ export const GUIDE: DrillSection[] = [
 ];
 
 export default function PreForeclosurePage({ initialQuery = '', section }: { initialQuery?: string; section?: string }) {
+  rememberList('#/pre-foreclosures', 'Back to the pre-foreclosure tracker');
   const now = useMemo(() => new Date(), []);
   const rows: Row[] = useMemo(
     () =>
@@ -198,6 +200,11 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
             </label>
           </div>
 
+          {shown.length === 0 && (
+            <EmptyState title={trackedOnly ? 'You’re not tracking any notices yet' : 'No notices match'}>
+              <p>{trackedOnly ? 'Choose “Track” on any notice below to follow it here. Clear “Tracked only” to see them all.' : 'Try another address, parcel number or stage, or choose “All stages”.'}</p>
+            </EmptyState>
+          )}
           <p className="small muted">{shown.length} of {rows.length} properties</p>
           <ul className="track-list">
             {shown.map((r) => {

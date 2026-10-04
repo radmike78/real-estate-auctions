@@ -183,7 +183,15 @@ export function FirstDealRoadmap() {
       <div className="roadmap-deal">
         <label className="field">
           <span>Which property are you working on?</span>
-          <select value={deal ? deal.id : ''} onChange={(e) => setDealId(e.target.value)}>
+          <select
+            value={deal ? deal.id : ''}
+            onChange={(e) => {
+              setDealId(e.target.value);
+              // The route follows the property's kind of sale, so its steps fit it.
+              const d = deals.find((x) => `analyzed:${x.id}` === e.target.value);
+              if (d) setPath(d.kind === 'lien' ? 'certificate' : d.kind === 'listing' || d.kind === 'reo' ? 'listing' : 'auction');
+            }}
+          >
             <option value="">None yet: I’m learning and getting ready</option>
             {deals.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}</option>)}
           </select>
@@ -368,7 +376,7 @@ function BuyBoxBuilder() {
           {b.cashMax ? ` No more than ${fmtMoney(b.cashMax)} of my cash in it.` : ''}
           {b.minCashFlow && !lien ? ` At least ${fmtMoney(b.minCashFlow)} a month of cash flow.` : ''}
         </p>
-        {b.dealBreakers.length > 0 && <p><strong>I walk away if:</strong> {b.dealBreakers.join('; ').toLowerCase()}.</p>}
+        {b.dealBreakers.length > 0 && <p><strong>I walk away if:</strong> {b.dealBreakers.map((d) => (/^[A-Z][a-z]/.test(d) ? d.charAt(0).toLowerCase() + d.slice(1) : d)).join('; ')}.</p>}
         <div className="decide-nav">
           <button type="button" className="btn btn-secondary" onClick={() => window.print()}>Print</button>
           <button type="button" className="btn btn-secondary" onClick={() => downloadText('my-buy-box.txt', buyBoxText(b, state?.name))}>Download</button>
