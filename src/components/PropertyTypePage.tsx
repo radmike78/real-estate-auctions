@@ -1,6 +1,5 @@
 import { useRef } from 'react';
 import { useLastActivity } from '../lib/journey';
-import OnThisPage from './OnThisPage';
 import PageHero from './PageHero';
 import WhyBlock from './WhyBlock';
 import StoryList from './StoryList';
@@ -36,7 +35,7 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
         sub={d ? forStateText(st, d.overview[0]) : undefined}
       />
       <StatePicker label="Show rules for" />
-      <OnThisPage root={mainRef} selector="main > section > h2, main > * > section > h2" />
+      {d && <p className="page-summary"><strong>What you’ll learn:</strong> who it suits, what it costs, how people pay for it, what to check before you buy, and what owning it is really like, with real stories from other buyers.</p>}
       {/* Answer first: who it fits, what it costs, how it's paid for and what to check. Background and stories after. */}
       {d && (
         <section>

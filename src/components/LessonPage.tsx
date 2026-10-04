@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { currentProgress, GUIDED, guidedNext, markLessonRead, useJourney, useLastActivity } from '../lib/journey';
-import OnThisPage from './OnThisPage';
 import PageHero from './PageHero';
 import { LEARN_MODULES } from '../lib/learn';
 import { lessonByKey } from '../lib/lessons';
@@ -145,7 +144,6 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         <h2 id="takeaways">What you’ll learn</h2>
         <ul>{l.takeaways.map((t) => <li key={t}>{t}</li>)}</ul>
       </section>
-      <OnThisPage root={bodyRef} selector=".lesson-body-text > section > h2, .lesson-terms h2, .check-yourself h2" />
       <article className="lesson-body-text">
         {sections.map((s) => (
           <section key={s.heading}>
