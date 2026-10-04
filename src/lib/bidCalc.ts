@@ -93,9 +93,28 @@ function solve(i: BidInputs, profit: number): number {
   return available / perBid;
 }
 
-/** Highest bid whose auction-day cash (bid + buyer's premium) fits the cash you can bring; Infinity with no limit. */
+/** Cash a bid takes from you: the bid and premium on the day, and every cost until you sell, less any loan. */
+export function cashNeededAtBid(i: BidInputs, bid: number): number {
+  const c = costsAtBid(i, bid);
+  return Math.max(bid + c.premium, c.total - c.selling - c.loan);
+}
+
+/**
+ * Highest bid whose cash, on auction day and through repairs and holding until you sell, fits the cash you can
+ * bring; Infinity with no limit. A bid you can pay but can't afford to fix and carry isn't a safe bid.
+ */
 export function cashLimitedBid(i: BidInputs): number {
-  return nz(i.cashAvailable) > 0 ? Math.floor(nz(i.cashAvailable) / (1 + nz(i.buyerPremiumPct) / 100)) : Infinity;
+  const cash = nz(i.cashAvailable);
+  if (!(cash > 0)) return Infinity;
+  if (cashNeededAtBid(i, 0) > cash) return 0;
+  let lo = 0;
+  let hi = Math.ceil(cash) + 1; // the bid alone can't exceed the cash
+  while (hi - lo > 1) {
+    const mid = Math.floor((lo + hi) / 2);
+    if (cashNeededAtBid(i, mid) <= cash) lo = mid;
+    else hi = mid;
+  }
+  return lo;
 }
 
 export function maxSafeBid(i: BidInputs): BidResult {

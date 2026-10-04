@@ -16,10 +16,14 @@ export interface BuyInputs {
   contingencyPct: number;
 }
 
-/** Loan after the purchase (auctions need cash on the day): a refinance or a new loan against the finished value. */
+/**
+ * The loan. At an auction it comes after the purchase (cash on the day): a refinance against the finished value.
+ * Buying a listed home (`onPrice`), it's a purchase loan: a % of the price or the appraised value, whichever is
+ * lower, so a lower price means a smaller loan and payment.
+ */
 export interface LoanInputs {
-  value: number; // value after repairs (or by income, for commercial)
-  loanPct: number; // loan as % of that value (0 = no loan)
+  value: number; // value after repairs (or by income, for commercial); the appraised value for a purchase loan
+  loanPct: number; // loan as % of that value, or of the lower of price and value (0 = no loan)
   ratePct: number; // yearly
   years: number; // amortization
   loanCostPct: number; // points and closing costs, % of the loan
@@ -71,7 +75,27 @@ function bidForAllIn(i: BuyInputs, limit: number): number {
   return Math.max(0, Math.floor((limit - fixed) / perBid));
 }
 
-const cashBid = (i: BuyInputs) => (nz(i.cashAvailable) > 0 ? Math.floor(nz(i.cashAvailable) / (1 + nz(i.buyerPremiumPct) / 100)) : Infinity);
+/** The loan at a price: on the lower of price and value for a purchase loan, on the value for a later refinance. */
+export function loanAt(i: LoanInputs, price: number, onPrice = false): number {
+  const pct = Math.min(nz(i.loanPct), 100) / 100;
+  if (!onPrice) return nz(i.value) * pct;
+  const base = nz(i.value) > 0 ? Math.min(nz(price), nz(i.value)) : nz(price);
+  return base * pct;
+}
+
+/** Largest whole bid in [0, hi] where `ok` holds, for a condition that only gets harder as the bid rises. */
+function largest(ok: (bid: number) => boolean, hi: number): number {
+  if (!ok(0)) return -1;
+  if (ok(hi)) return hi;
+  let lo = 0;
+  while (hi - lo > 1) {
+    const mid = Math.floor((lo + hi) / 2);
+    if (ok(mid)) lo = mid;
+    else hi = mid;
+  }
+  return lo;
+}
+const SEARCH_MAX = 1e9;
 
 export interface HoldResult {
   maxBid: number;
@@ -89,17 +113,35 @@ export interface HoldResult {
   cashLeft: number; // your cash still in the deal after the loan (negative = you took money out)
   cashOnCash: number | null; // yearly cash flow / cash left; null when no cash is left in
   capOnCost: number | null; // NOI / all-in cost
+  cashLimit: number | null; // the cash you said you can bring, if any
 }
 
-function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, cashFlow: number) => number, minDscr: number, reserves = 0): HoldResult {
-  const loan = (nz(i.value) * Math.min(nz(i.loanPct), 100)) / 100;
-  const debtService = annualDebtService(loan, i.ratePct, i.years);
-  const loanNet = loan * (1 - nz(i.loanCostPct) / 100);
-  const cashFlow = noi - reserves - debtService;
-  const dscr = debtService > 0 ? noi / debtService : null;
-  const returnBid = cashFlow > 0 ? bidForAllIn(i, limit(loanNet, cashFlow)) : 0;
-  const cb = cashBid(i);
+function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, cashFlow: number) => number, minDscr: number, reserves = 0, onPrice = false): HoldResult {
+  const at = (bid: number) => {
+    const loan = loanAt(i, bid, onPrice);
+    const debtService = annualDebtService(loan, i.ratePct, i.years);
+    const loanNet = loan * (1 - nz(i.loanCostPct) / 100);
+    return { debtService, loanNet, cashFlow: noi - reserves - debtService };
+  };
+  let returnBid: number;
+  if (!onPrice) {
+    // A later refinance doesn't change with the price: the limit is a straight line.
+    const m = at(0);
+    returnBid = m.cashFlow > 0 ? bidForAllIn(i, limit(m.loanNet, m.cashFlow)) : 0;
+  } else {
+    // A purchase loan grows with the price, and so does the payment: search for the highest price that still works.
+    const ok = (bid: number) => {
+      const m = at(bid);
+      return m.cashFlow > 0 && allInCost(i, bid) <= limit(m.loanNet, m.cashFlow);
+    };
+    returnBid = Math.max(0, largest(ok, SEARCH_MAX));
+  }
+  // Your cash covers everything you pay before any later refinance; with a purchase loan, everything but the loan.
+  const cash = nz(i.cashAvailable);
+  const cb = cash > 0 ? Math.max(0, largest((bid) => (onPrice || bid * (1 + nz(i.buyerPremiumPct) / 100) <= cash) && allInCost(i, bid) - (onPrice ? at(bid).loanNet : 0) <= cash, Math.ceil(cash / Math.max(1 - (onPrice ? Math.min(nz(i.loanPct), 100) / 100 : 0), 0.01)) + 1)) : Infinity;
   const maxBid = Math.min(returnBid, cb);
+  const { debtService, loanNet, cashFlow } = at(maxBid);
+  const dscr = debtService > 0 ? noi / debtService : null;
   const allIn = allInCost(i, maxBid);
   const cashLeft = allIn - loanNet;
   return {
@@ -114,6 +156,7 @@ function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, c
     loanOk: dscr === null || dscr >= nz(minDscr),
     loanNet: r2(loanNet),
     cashAtAuction: r2(maxBid * (1 + nz(i.buyerPremiumPct) / 100)),
+    cashLimit: cash > 0 ? r2(cash) : null,
     allIn: r2(allIn),
     cashLeft: r2(cashLeft),
     cashOnCash: cashLeft > 0 ? cashFlow / cashLeft : null,
@@ -136,33 +179,33 @@ export function rentNoi(i: RentInputs): { collected: number; expenses: number; n
  * Rent / hold: the highest bid that still gives your cash-on-cash return on the cash left in the deal after the loan.
  * With no loan, that's the cash flow divided by everything you put in.
  */
-export function rentMaxBid(i: RentInputs): HoldResult {
+export function rentMaxBid(i: RentInputs, onPrice = false): HoldResult {
   const t = nz(i.targetCocPct) / 100;
   const n = rentNoi(i);
-  return hold(i, n.noi, (loanNet, cf) => (t > 0 ? loanNet + cf / t : Infinity), i.minDscr, n.reserves);
+  return hold(i, n.noi, (loanNet, cf) => (t > 0 ? loanNet + cf / t : Infinity), i.minDscr, n.reserves, onPrice);
 }
 
 /**
  * How long your savings carry the property with no rent coming in: the loan payment, taxes, insurance and HOA dues
  * keep coming either way. `months` is null until you enter the cash you'll have left.
  */
-export function rentEmptyMonths(i: RentInputs): { monthly: number; months: number | null } {
-  const loan = (nz(i.value) * Math.min(nz(i.loanPct), 100)) / 100;
+export function rentEmptyMonths(i: RentInputs, price = nz(i.value), onPrice = false): { monthly: number; months: number | null } {
+  const loan = loanAt(i, price, onPrice);
   const monthly = annualDebtService(loan, i.ratePct, i.years) / 12 + (nz(i.propertyTaxYear) + nz(i.insuranceYear)) / 12 + nz(i.hoaMonthly);
   return { monthly: r2(monthly), months: nz(i.reserveCash) > 0 && monthly > 0 ? Math.floor((nz(i.reserveCash) / monthly) * 10) / 10 : null };
 }
 
-/** Monthly cash flow after the loan payment. The loan is sized on the value after repairs, so it doesn't depend on the price. */
-export function rentMonthlyCashFlow(i: RentInputs): number {
-  const loan = (nz(i.value) * Math.min(nz(i.loanPct), 100)) / 100;
+/** Monthly cash flow after the loan payment, at a price (a purchase loan depends on it; a later refinance doesn't). */
+export function rentMonthlyCashFlow(i: RentInputs, price = nz(i.value), onPrice = false): number {
+  const loan = loanAt(i, price, onPrice);
   const n = rentNoi(i);
   return r2((n.noi - n.reserves - annualDebtService(loan, i.ratePct, i.years)) / 12);
 }
 
 /** The rental at a price you choose: every step from rent to cash flow, and the cash it takes. Yearly amounts. */
-export function rentAtPrice(i: RentInputs, price: number) {
+export function rentAtPrice(i: RentInputs, price: number, onPrice = false) {
   const n = rentNoi(i);
-  const loan = (nz(i.value) * Math.min(nz(i.loanPct), 100)) / 100;
+  const loan = loanAt(i, nz(price), onPrice);
   const debtService = annualDebtService(loan, i.ratePct, i.years);
   const loanNet = loan * (1 - nz(i.loanCostPct) / 100);
   const allIn = allInCost(i, nz(price));
@@ -188,8 +231,8 @@ export function rentAtPrice(i: RentInputs, price: number) {
 }
 
 /** What the monthly cash flow becomes when common surprises happen. */
-export function rentStress(i: RentInputs): { key: string; label: string; monthly: number }[] {
-  const at = (patch: Partial<RentInputs>, oneOff = 0) => r2(rentMonthlyCashFlow({ ...i, ...patch }) - oneOff / 12);
+export function rentStress(i: RentInputs, price = nz(i.value), onPrice = false): { key: string; label: string; monthly: number }[] {
+  const at = (patch: Partial<RentInputs>, oneOff = 0) => r2(rentMonthlyCashFlow({ ...i, ...patch }, price, onPrice) - oneOff / 12);
   const rows = [
     { key: 'base', label: 'As entered', monthly: at({}) },
     { key: 'rent', label: 'Rent 10% lower', monthly: at({ monthlyRent: nz(i.monthlyRent) * 0.9 }) },
@@ -203,9 +246,9 @@ export function rentStress(i: RentInputs): { key: string; label: string; monthly
 }
 
 /** The deal in plain words: what it earns, what could break it, and what to check before going further. */
-export function explainRent(i: RentInputs): string[] {
+export function explainRent(i: RentInputs, price = nz(i.value), onPrice = false): string[] {
   const money = (n: number) => `$${Math.round(Math.abs(n)).toLocaleString('en-US')}`;
-  const stress = rentStress(i);
+  const stress = rentStress(i, price, onPrice);
   const base = stress[0].monthly;
   const out: string[] = [];
   if (base <= 0) {
@@ -235,12 +278,12 @@ export function commercialNoi(i: CommercialInputs): { collected: number; expense
  * Commercial income: the highest bid whose all-in cost, plus carrying costs while you lease it up, still yields your
  * required cap rate on cost (NOI / everything you paid).
  */
-export function commercialMaxBid(i: CommercialInputs): HoldResult & { leaseUpCost: number } {
+export function commercialMaxBid(i: CommercialInputs, onPrice = false): HoldResult & { leaseUpCost: number } {
   const leaseUpCost = nz(i.leaseUpMonths) * nz(i.monthlyCarry);
   const cap = nz(i.targetCapPct) / 100;
   const noi = commercialNoi(i).noi;
   const withLeaseUp = { ...i, possession: nz(i.possession) + leaseUpCost };
-  return { ...hold(withLeaseUp, noi, () => (cap > 0 ? noi / cap : Infinity), i.minDscr), leaseUpCost: r2(leaseUpCost) };
+  return { ...hold(withLeaseUp, noi, () => (cap > 0 ? noi / cap : Infinity), i.minDscr, 0, onPrice), leaseUpCost: r2(leaseUpCost) };
 }
 
 // ---------------- Lien certificates (special assessment / SID) ----------------

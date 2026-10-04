@@ -31,6 +31,8 @@ const EXACT = [
   'fsf.deals.v1',
   'fsf.calc.rent.v1',
   'fsf.calc.commercial.v1',
+  'fsf.calc.rent.offer.v1',
+  'fsf.calc.commercial.offer.v1',
   'fsf.calc.lien.v1',
   'fsf.calc.lien.az.v1',
   'fsf.calc.strategy.v1',

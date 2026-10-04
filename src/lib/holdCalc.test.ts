@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice } from './holdCalc';
+import { allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice, loanAt } from './holdCalc';
 
 describe('rent / hold', () => {
   it('works out net operating income from rent, vacancy and costs', () => {
@@ -113,5 +113,35 @@ describe('rentEmptyMonths', () => {
     const v = { ...RENT_DEFAULTS, loanPct: 0, propertyTaxYear: 2_400, insuranceYear: 1_200, hoaMonthly: 100 };
     expect(rentEmptyMonths(v)).toEqual({ monthly: 400, months: null });
     expect(rentEmptyMonths({ ...v, reserveCash: 2_000 }).months).toBe(5);
+  });
+});
+
+describe('a purchase loan on a listed home', () => {
+  const i = { ...RENT_DEFAULTS, cashAvailable: 0, buyerPremiumPct: 0, transferTaxPer500: 2.55, survivingLiens: 0, titleLegal: 500, possession: 0, repairs: 0, contingencyPct: 0,
+    monthlyRent: 2150, vacancyPct: 6, propertyTaxYear: 1700, insuranceYear: 1100, hoaMonthly: 45, managementPct: 8, maintenancePct: 5, capexPct: 5,
+    value: 300_000, loanPct: 75, ratePct: 6.75, years: 30, loanCostPct: 2, targetCocPct: 8, minDscr: 1.25, reserveCash: 0 };
+
+  it('sizes the loan on the lower of the price and the value, so a lower price can work', () => {
+    expect(loanAt(i, 250_000, true)).toBe(187_500);
+    expect(loanAt(i, 320_000, true)).toBe(225_000);
+    expect(loanAt(i, 250_000, false)).toBe(225_000); // a later refinance doesn't change with the price
+    const r = rentMaxBid(i, true);
+    // Checked by hand: about $206,000 gives an 8% cash-on-cash return; $300,000 loses money.
+    expect(r.maxBid).toBeGreaterThan(205_000);
+    expect(r.maxBid).toBeLessThan(208_000);
+    expect(r.cashOnCash!).toBeGreaterThanOrEqual(0.08);
+    expect(rentAtPrice(i, 300_000, true).cashFlow).toBeLessThan(0);
+  });
+
+  it('caps the price by the cash you can put in, not by the full price', () => {
+    const r = rentMaxBid({ ...i, cashAvailable: 50_000 }, true);
+    expect(r.limitedBy).toBe('cash');
+    expect(r.allIn - r.loanNet).toBeLessThanOrEqual(50_000);
+    expect(r.maxBid).toBeGreaterThan(150_000);
+  });
+
+  it('at an auction, the cash covers the bid and the repairs before any refinance', () => {
+    const r = rentMaxBid({ ...i, repairs: 30_000, cashAvailable: 100_000 });
+    expect(r.allIn).toBeLessThanOrEqual(100_000);
   });
 });

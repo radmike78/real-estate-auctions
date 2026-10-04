@@ -32,7 +32,7 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
       { k: 'exitValue', label: 'Resale value after repairs', unit: '$', hint: 'Conservative sold comps, not list prices.', quick: true, more: 'This is your estimate. Value depends on the neighborhood, recent comparable sales, condition and the market, and the best way to determine it is a professional appraisal by a licensed appraiser. Until you have one, your real estate agent can estimate it from recent comparable sales. Don’t add the cost of upgrades to the value: appraisers count what buyers in that market pay for a feature, which is often less than it cost.' },
       { k: 'targetProfitPct', label: 'Profit you want', unit: '%', hint: 'Of the resale value. Your choice: big enough to absorb surprises.', quick: true, profitSwitch: true },
       { k: 'targetProfitMin', label: 'And at least', unit: '$', hint: 'A dollar minimum. Leave 0 for none.', when: (i) => !i.profitInDollars },
-      { k: 'cashAvailable', label: 'Cash you can bring', unit: '$', hint: 'For auction day. Leave 0 for no limit.', quick: true, more: 'Most auctions want the full price in certified funds the same day or within a day. Your walk-away price never goes above what this cash covers, including any buyer’s premium.' },
+      { k: 'cashAvailable', label: 'Cash you can bring', unit: '$', hint: 'All the cash you can put in. Leave 0 for no limit.', quick: true, more: 'Most auctions want the full price in certified funds the same day or within a day, and repairs and holding costs come out of your pocket too. Your walk-away price never needs more cash than this, counting the bid, any buyer’s premium, repairs and every cost until you sell.' },
     ],
   },
   {
@@ -234,7 +234,7 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
               <legend>{g.title}</legend>
               {g.redemption && mode === 'detailed' && !offer && (
                 <label className="calc-rule">
-                  <span className="calc-label">Kind of sale</span>
+                  <span className="calc-label">Redemption period</span>
                   <select value={ruleOf(i, rules)} onChange={(e) => e.target.value !== 'custom' && pickRule(e.target.value)}>
                     {Object.entries(rules).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
                     {ruleOf(i, rules) === 'custom' && <option value="custom">Your own numbers</option>}
@@ -317,7 +317,7 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
               {r.noBidWorks
                 ? 'Even at $0, costs leave less than your profit target. Walk away or change your plan.'
                 : r.limitedBy === 'cash'
-                  ? `Set by the cash you can bring. Your profit target alone would allow ${fmtMoney(r.profitBid)}.`
+                  ? `Set by the cash you can bring: the ${w.bid} plus every cost until you sell (repairs, holding, fees). Your profit target alone would allow ${fmtMoney(r.profitBid)}.`
                   : `Leaves your ${fmtMoney(Math.round(target))} profit target after every cost, based on your numbers. Not a guarantee.`}
             </small>
           </div>
@@ -349,7 +349,7 @@ export default function BidCalculator({ propertyId, defaults = START_INPUTS, ope
             {!offer && <div><dt>Cash needed on auction day</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
             <div><dt>Total cash in the deal</dt><dd>{fmtMoney(r.cashToStabilize)}</dd></div>
             <div><dt>Profit at this price</dt><dd>{fmtMoney(Math.round(r.profit))}</dd></div>
-            <div><dt>Return on your cash, per year</dt><dd>{yr(r.yearlyReturn)}</dd></div>
+            <div><dt>Return on your cash, per year, if it sells on schedule</dt><dd>{yr(r.yearlyReturn)}</dd></div>
             <div><dt>Break-even {w.bid} (zero profit)</dt><dd>{fmtMoney(r.breakEvenBid)}</dd></div>
           </dl>
         )}
