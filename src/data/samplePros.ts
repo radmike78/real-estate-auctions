@@ -1,4 +1,5 @@
-// SAMPLE PROFILES ONLY. Fictional people, companies and license numbers. Phone numbers use the
+// SAMPLE PROFILES ONLY. One sample is on the Premium plan and one on Premium Plus, so demo mode shows the ad boxes.
+// Fictional people, companies and license numbers. Phone numbers use the
 // reserved 555-01xx range and emails the reserved example.com domain. Shown only when no real
 // signed directory has been published.
 
@@ -8,13 +9,16 @@ const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString
 const inDays = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString().slice(0, 10);
 
 let n = 0;
-const pro = (p: Omit<Pro, 'id' | 'licenseStatus' | 'licenseVerifiedBy' | 'isSample' | 'paidThrough' | 'phone' | 'email'> & Partial<Pro>): Pro => {
+const pro = (p: Omit<Pro, 'id' | 'licenseStatus' | 'licenseVerifiedBy' | 'isSample' | 'paidThrough' | 'phone' | 'email' | 'tier' | 'adLine' | 'adTopic'> & Partial<Pro>): Pro => {
   n++;
   return {
     id: `sample${String(n).padStart(2, '0')}`,
     licenseStatus: 'Active',
     licenseVerifiedBy: 'Site operator (sample)',
     isSample: true,
+    tier: 'standard',
+    adLine: null,
+    adTopic: null,
     paidThrough: inDays(20),
     phone: `+17025550${String(100 + n).slice(-3)}`,
     email: `${p.name.split(' ')[0].toLowerCase()}@example.com`,
@@ -25,7 +29,7 @@ const pro = (p: Omit<Pro, 'id' | 'licenseStatus' | 'licenseVerifiedBy' | 'isSamp
 const LV = ['Las Vegas', 'North Las Vegas', 'Henderson'];
 
 export const SAMPLE_PROS: Pro[] = [
-  pro({ category: 'agent', name: 'Avery Example', company: 'Sample Desert Realty', licenseId: 'S.0000101', licenseExpires: inDays(365), licenseVerifiedAt: daysAgo(12), serviceCities: ['Las Vegas', 'North Las Vegas'], serviceZips: ['89101', '89108', '89030', '89031', '89032'], services: ['Short sales', 'First-time buyers'], creditProfiles: [], languages: ['English', 'Spanish'], headline: 'Short-sale buyer specialist in the north valley', bio: 'Represents buyers on lender-approval sales and sets clear expectations about timelines and lender counteroffers.', website: 'https://example.com/avery' }),
+  pro({ category: 'agent', name: 'Avery Example', company: 'Sample Desert Realty', licenseId: 'S.0000101', licenseExpires: inDays(365), licenseVerifiedAt: daysAgo(12), serviceCities: ['Las Vegas', 'North Las Vegas'], serviceZips: ['89101', '89108', '89030', '89031', '89032'], services: ['Short sales', 'First-time buyers'], creditProfiles: [], languages: ['English', 'Spanish'], headline: 'Short-sale buyer specialist in the north valley', bio: 'Represents buyers on lender-approval sales and sets clear expectations about timelines and lender counteroffers.', website: 'https://example.com/avery', tier: 'premium', adLine: 'Sample ad: we walk first-time buyers through every step, from the first showing to the keys. Ask us how it works.' }),
   pro({ category: 'agent', name: 'Jordan Sample', company: 'Placeholder Properties Group', licenseId: 'BS.0000102', licenseExpires: inDays(700), licenseVerifiedAt: daysAgo(40), serviceCities: ['Henderson', 'Boulder City', 'Las Vegas'], serviceZips: ['89014', '89015', '89052', '89005', '89123'], services: ['Short sales', 'Bank-owned (REO)', 'Investors'], creditProfiles: [], languages: ['English'], headline: 'Investor-friendly agent for REO and short sales', bio: 'Works with investors and owner-occupants on short sales and bank-owned homes across the east valley.', website: null }),
   pro({ category: 'agent', name: 'Morgan Placeholder', company: 'Demo Auction Advisors', licenseId: 'B.0000103', licenseExpires: inDays(365), licenseVerifiedAt: daysAgo(5), serviceCities: ['Las Vegas', 'Mesquite'], serviceZips: ['89117', '89147', '89121', '89027'], services: ['Auction & tax-sale properties', 'Investors', 'Probate & estate sales'], creditProfiles: [], languages: ['English', 'Tagalog'], headline: 'Auction prep: due diligence, title questions, financing', bio: 'Helps buyers prepare for Treasurer and trustee auctions, from research through closing.', website: 'https://example.com/morgan' }),
   pro({ category: 'agent', name: 'Riley Fixture', company: 'Sample Desert Realty', licenseId: 'S.0000104', licenseExpires: inDays(365), licenseVerifiedAt: daysAgo(70), serviceCities: ['Henderson', 'Las Vegas'], serviceZips: ['89014', '89052', '89123', '89121'], services: ['Short sales', 'First-time buyers'], creditProfiles: [], languages: ['English', 'Spanish', 'Korean'], headline: 'First-time buyers, patient short-sale guidance', bio: 'Guides first-time buyers through short sales, including backup offers and lender-approval deadlines.', website: null }),
@@ -34,7 +38,7 @@ export const SAMPLE_PROS: Pro[] = [
   // Hidden: advertising not paid.
   pro({ category: 'agent', name: 'Drew Unpaid-Example', company: 'Demo Auction Advisors', licenseId: 'S.0000106', licenseExpires: inDays(365), licenseVerifiedAt: daysAgo(10), paidThrough: daysAgo(2), serviceCities: ['Las Vegas'], serviceZips: ['89108'], services: ['Bank-owned (REO)'], creditProfiles: [], languages: ['English'], headline: 'Hidden until advertising is renewed', bio: 'Sample profile hidden because the advertising period ended.', website: null }),
 
-  pro({ category: 'loan_officer', name: 'Sam Lendwell-Example', company: 'Sample Home Loans', licenseId: '1000107', licenseExpires: inDays(97), licenseVerifiedAt: daysAgo(15), serviceCities: LV, serviceZips: [], services: ['Conventional', 'FHA', 'VA', 'Renovation (FHA 203k / HomeStyle)'], creditProfiles: ['Excellent (740+)', 'Good (680–739)', 'Fair (620–679)', 'Rebuilding (below 620)'], languages: ['English', 'Spanish'], headline: 'FHA, VA and renovation loans for fixer-uppers', bio: 'Helps buyers finance homes that need work, including FHA 203k and HomeStyle renovation loans.', website: 'https://example.com/sam' }),
+  pro({ category: 'loan_officer', name: 'Sam Lendwell-Example', company: 'Sample Home Loans', licenseId: '1000107', licenseExpires: inDays(97), licenseVerifiedAt: daysAgo(15), serviceCities: LV, serviceZips: [], services: ['Conventional', 'FHA', 'VA', 'Renovation (FHA 203k / HomeStyle)'], creditProfiles: ['Excellent (740+)', 'Good (680–739)', 'Fair (620–679)', 'Rebuilding (below 620)'], languages: ['English', 'Spanish'], headline: 'FHA, VA and renovation loans for fixer-uppers', bio: 'Helps buyers finance homes that need work, including FHA 203k and HomeStyle renovation loans.', website: 'https://example.com/sam', tier: 'premium_plus', adTopic: 'financing', adLine: 'Sample ad: ask us how renovation loans work for a home that needs repairs before you move in.' }),
   pro({ category: 'loan_officer', name: 'Pat Mortgage-Sample', company: 'Example Capital Mortgage', licenseId: '1000108', licenseExpires: inDays(97), licenseVerifiedAt: daysAgo(30), serviceCities: ['Las Vegas', 'Henderson', 'Summerlin'], serviceZips: [], services: ['Non-QM / bank statement', 'DSCR (rental investor)', 'Conventional'], creditProfiles: ['Good (680–739)', 'Fair (620–679)', 'No or limited credit / ITIN', 'Recent bankruptcy or foreclosure'], languages: ['English', 'Vietnamese'], headline: 'Self-employed, ITIN and investor loans', bio: 'Works with self-employed borrowers, ITIN borrowers and rental investors using bank-statement and DSCR programs.', website: null }),
   pro({ category: 'mortgage_company', name: 'Demo Valley Mortgage', company: 'Demo Valley Mortgage, LLC', licenseId: '2000109', licenseExpires: inDays(97), licenseVerifiedAt: daysAgo(20), serviceCities: ['Las Vegas', 'Henderson', 'North Las Vegas', 'Boulder City'], serviceZips: [], services: ['Conventional', 'FHA', 'VA', 'USDA', 'Jumbo', 'Cash-out / HELOC'], creditProfiles: ['Excellent (740+)', 'Good (680–739)', 'Fair (620–679)'], languages: ['English'], headline: 'Local mortgage broker shopping many lenders', bio: 'A Las Vegas mortgage broker comparing rates across wholesale lenders for purchases and refinances.', website: 'https://example.com/dvm' }),
   pro({ category: 'bank', name: 'Example Community Bank', company: 'Example Community Bank', licenseId: '99101', licenseExpires: null, licenseVerifiedAt: daysAgo(25), serviceCities: ['Las Vegas', 'Henderson'], serviceZips: [], services: ['Conventional', 'Jumbo', 'Construction', 'Commercial', 'Cash-out / HELOC'], creditProfiles: ['Excellent (740+)', 'Good (680–739)'], languages: ['English', 'Spanish'], headline: 'Portfolio, construction and commercial lending', bio: 'A community bank offering portfolio mortgages, construction loans and commercial real estate lending.', website: 'https://example.com/ecb' }),

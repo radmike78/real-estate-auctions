@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "e744db4deb74f354",
+    "hash": "e62e9a11e25004ae",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -223,7 +223,7 @@
       "src/lib/pros.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "8baf533a6c65f0ec",
+    "hash": "6c5f114b27432414",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -267,7 +267,7 @@
       "src/lib/proApplication.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "f36355c84b63f1aa",
+    "hash": "97bc2a38df95f71a",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -300,7 +300,7 @@
       "src/components/TermsPage.tsx"
     ],
     "reviewed": "2026-10-04",
-    "hash": "d574213e6c5b54a7",
+    "hash": "5ab32befd8e89c78",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -309,8 +309,8 @@
     "files": [
       "server/mailer.ts"
     ],
-    "reviewed": "2026-09-28",
-    "hash": "005741d77db801cd",
+    "reviewed": "2026-10-04",
+    "hash": "e873ff64ed279098",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -351,7 +351,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-04",
-    "hash": "9c09c9681c63a113",
+    "hash": "69f2ce6ee85ffed9",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {

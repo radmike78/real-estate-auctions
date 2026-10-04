@@ -44,7 +44,7 @@ export interface MetricsSummary {
 export function summarize(db: Db, proId: string, from: string, to: string): MetricsSummary {
   const rows = db.metrics.series(proId, from, to);
   const blank = () => ({ total: 0, uniques: 0 });
-  const totals = { impression: blank(), profile_view: blank(), phone_click: blank(), email_click: blank(), website_click: blank(), lead: blank() };
+  const totals = { impression: blank(), profile_view: blank(), phone_click: blank(), email_click: blank(), website_click: blank(), lead: blank(), ad_impression: blank(), ad_click: blank() };
   const byDay = new Map<string, { views: number; contacts: number; leads: number }>();
   for (const r of rows) {
     totals[r.kind].total += r.total;
@@ -158,7 +158,11 @@ export function monthlyReportText(name: string, month: string, s: MetricsSummary
     `  Email clicks:                                    ${s.totals.email_click.uniques}\n` +
     `  Website visits:                                  ${s.totals.website_click.uniques}\n` +
     `  Contact requests (leads) sent to you:            ${leadCount}\n` +
-    `  Visitors who contacted you:                      ${pct}\n\n` +
+    `  Visitors who contacted you:                      ${pct}\n` +
+    (s.totals.ad_impression.total || s.totals.ad_click.total
+      ? `  Times your ad box was shown (Featured or topic):  ${s.totals.ad_impression.total}\n` + `  Clicks on your ad box:                           ${s.totals.ad_click.uniques}\n`
+      : '') +
+    `\n` +
     `See daily details and download your leads: ${dashboardUrl}\n\n` +
     `Counts exclude known bots and repeat clicks from the same visitor on the same day.\n`
   );

@@ -3,6 +3,8 @@
 // signature and expiry before showing any profile, and re-applies every listing rule, so a
 // tampered or stale file can't add a fake professional or swap in a scammer's phone number.
 
+import { isAdTier, topicAllowed } from '../lib/adPlans';
+import { validateAdLine } from '../lib/proApplication';
 import { CATEGORIES, isListable, safeMailto, safeTel, safeWebsite, type Pro } from '../lib/pros';
 import { checkSignature, isFeedResponse, MAX_FEED_LIFETIME_MS } from './verify';
 
@@ -48,6 +50,17 @@ export function validPro(p: Pro, now = new Date()): boolean {
   );
 }
 
+/**
+ * The advertising fields, re-checked here like everything else: an unknown plan counts as Standard, an ad line must
+ * pass the same rules as on the form (or it's dropped), and a topic must be one this category may use on Premium Plus.
+ */
+export function sanitizePro(p: Pro): Pro {
+  const tier = isAdTier(p.tier) ? p.tier : 'standard';
+  const adLine = typeof p.adLine === 'string' && p.adLine.trim() && validateAdLine(p.adLine, p.category) === null ? p.adLine.trim() : null;
+  const adTopic = tier === 'premium_plus' && topicAllowed(p.category, p.adTopic) ? p.adTopic : null;
+  return { ...p, tier, adLine, adTopic };
+}
+
 export async function verifyProsFeed(
   data: ArrayBuffer,
   signatureB64: string,
@@ -70,7 +83,7 @@ export async function verifyProsFeed(
   if (!(Date.parse(feed.expiresAt) > now.getTime())) return { ok: false, reason: 'EXPIRED', detail: 'The directory has expired and is being refreshed.' };
   // Same cap as the listings: a copy that claims to stay valid for days is refused.
   if (!(Date.parse(feed.expiresAt) - generated <= MAX_FEED_LIFETIME_MS)) return { ok: false, reason: 'MALFORMED', detail: 'The directory claims too long a lifetime.' };
-  return { ok: true, feed: { ...feed, pros: feed.pros.filter((p) => validPro(p, now)) } };
+  return { ok: true, feed: { ...feed, pros: feed.pros.filter((p) => validPro(p, now)).map(sanitizePro) } };
 }
 
 let cached: { at: number; result: Promise<ProsFeedResult> } | null = null;

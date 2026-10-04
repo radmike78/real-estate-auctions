@@ -1,19 +1,23 @@
 // Advertising professionals: real estate agents, lenders, title/escrow, insurance, contractors, home inspectors,
 // property managers, real estate attorneys and CPAs. Every category needs an official Nevada lookup to verify against.
 //
-// Every profile is a paid advertisement, but ranking is NEUTRAL: filters decide who matches,
-// and matches are shown in a daily rotating order that is the same for everyone. Paying more
-// never buys better placement. (RESPA section 8; CFPB Advisory Opinion 88 FR 9162, Feb 13, 2023,
-// still in effect in 2026: a platform that steers consumers to settlement-service providers based
-// on payments violates the anti-kickback rule. It warns that equal-fee random rotation can still be
-// steering if presented as tailored, and that disclosures don't cure it. So: never label anyone
-// "best", "top" or "recommended", and never push an advertiser to a user after a search.)
-//
+// Every profile is a paid advertisement, but the directory LIST is NEUTRAL: filters decide who matches, and
+// matches are shown in a daily rotating order that is the same for everyone, whatever plan an advertiser pays for.
+// Paying more never moves anyone up the list. (RESPA section 8; CFPB Advisory Opinion 88 FR 9162, Feb 13, 2023,
+// still in effect in 2026: a platform that steers consumers to settlement-service providers based on payments
+// violates the anti-kickback rule. It warns that equal-fee random rotation can still be steering if presented as
+// tailored, and that disclosures don't cure it. So: never label anyone "best", "top" or "recommended", and never
+// push an advertiser to a user after a search.)
+// Premium plans (adPlans.ts) buy a SEPARATE box labeled "Featured ad" or "Advertisement", in the advertiser's own
+// voice, apart from the list and from our editorial text, the same for every visitor and never tied to a search.
+
 // A profile is shown only while ALL of these hold:
 //   - its license/registration was confirmed by a person on the official regulator lookup
 //     within the last 90 days, shows active, and (if it expires) hasn't expired;
 //   - its advertising is paid through today;
 //   - every contact link is safe (tel:, mailto:, https:).
+
+import type { AdTier } from './adPlans';
 
 export const REVERIFY_DAYS = 90;
 
@@ -267,6 +271,12 @@ export interface Pro {
   website: string | null;
   /** SHA-256 of the approved profile photo, served at /api/pro-photos/<hash>.webp. Absent or null: initials. */
   photo?: string | null;
+  /** Advertising plan (adPlans.ts). Anything unknown is treated as 'standard'. */
+  tier: AdTier;
+  /** The advertiser's reviewed ad line, shown in ad boxes. */
+  adLine: string | null;
+  /** Premium Plus: the Learn/Practice topic its ad appears beside. */
+  adTopic: string | null;
   isSample: boolean;
 }
 

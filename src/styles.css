@@ -2587,3 +2587,33 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
     display: inline-flex; align-items: center; min-height: 44px;
   }
 }
+
+/* Paid ad boxes (AdBoxes.tsx, TopicAd.tsx): the advertiser's voice, set apart from our own text by a dashed frame
+   and an "Advertisement" / "Featured ad" label at the top. Full width like everything else. */
+.ad-box { border: 2px dashed var(--border); border-radius: 14px; background: var(--surface); padding: 12px 18px 14px; margin: 16px 0; display: grid; gap: 12px; }
+.ad-box-label { font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+.ad-box-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; }
+.ad-card { display: flex; gap: 14px; align-items: flex-start; }
+.ad-card-body { display: grid; gap: 4px; justify-items: start; min-width: 0; }
+.ad-card-name { font-size: 1.15rem; }
+.ad-card-line { margin: 4px 0 6px; }
+.ad-fine-print { margin: 0; font-size: 0.95rem; color: var(--muted); }
+/* Our editorial block beside a topic: a heading bar, the questions, then the ad box (side by side on wide screens). */
+.topic-help { margin: 24px 0; }
+.topic-help > h2 { margin: 0 0 12px; padding: 10px 16px; font-size: 1.35rem; border-left: 4px solid var(--accent-strong); background: var(--surface-2); border-radius: 10px; }
+.topic-help-cols { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 24px; align-items: start; }
+.topic-help-cols > :only-child { grid-column: 1 / -1; }
+.topic-help-text p { margin: 0 0 8px; }
+.topic-help-check { margin: 10px 0; }
+.topic-help-check ul { margin: 4px 0 0; }
+.topic-help .topic-ad { margin: 0; }
+@media (max-width: 900px) { .topic-help-cols { grid-template-columns: 1fr; } }
+/* Plan chooser (Advertise page and dashboard). */
+.plan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; margin: 12px 0; }
+.plan-option { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px; display: grid; gap: 8px; align-content: start; }
+.plan-option.on { border-color: var(--accent-strong); box-shadow: 0 0 0 2px var(--accent-strong) inset; }
+.plan-option h3 { margin: 0; font-size: 1.25rem; }
+.plan-option ul { margin: 0; padding-left: 20px; }
+.plan-option .plan-price { font-weight: 800; font-size: 1.15rem; }
+.plan-option h3 .badge { vertical-align: middle; font-size: 0.85rem; }
+.plan-option label { display: flex; gap: 8px; align-items: center; cursor: pointer; font-weight: 700; }

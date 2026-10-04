@@ -62,7 +62,7 @@ The gap: nobody combines **accurate, current, local data** with **an honest expl
 
 **Decision (owner, 2026-09-25): everything for buyers and investors is free.** The site exists to help people invest and make money, so there is no paid investor plan for now. That includes listings and status, playbooks, checklists, the max safe bid calculator, due diligence, My deals and homeowner help.
 
-**How the site is funded:** licensed professionals (agents, lenders, title, insurance, contractors) pay a flat monthly fee to be listed in the directories. The fee is the same for everyone in a category, with fair rotating placement and a clear "Advertisement" label. No referral fees and no pay-for-position.
+**How the site is funded:** licensed professionals (agents, lenders, title, insurance, contractors) pay a monthly fee to be listed in the directories, on one of three plans (Standard, Premium with a labeled Featured ad box, Premium Plus with a labeled ad beside one Learn or Practice topic). Everyone listed keeps the same fair rotating place in the directory list, and every ad is labeled. No referral fees and no pay-for-position in the list.
 
 **Features to build later, free:**
 

@@ -3,8 +3,11 @@
 // Design:
 //  - Card details never touch this server: advertisers pay on Stripe-hosted Checkout and manage
 //    their card or cancel on Stripe's billing portal.
-//  - One flat monthly price per category, set by the operator (STRIPE_PLANS). The price is chosen
-//    server-side from the advertiser's category; nothing about price comes from the browser.
+//  - Three monthly plans (Standard, Premium, Premium Plus: src/lib/adPlans.ts), priced by the operator per category
+//    or with one default for all ("*") in STRIPE_PLANS. The browser only names the plan; the price (and any
+//    founding-advertiser coupon) is chosen server-side from the advertiser's category and record.
+//  - Advertisers can type a promotion code the operator created in Stripe on the Checkout page, unless a founding
+//    coupon is already applied (Stripe allows one or the other in a session).
 //  - A listing is paid only when Stripe says so, in a signed webhook (invoice.paid). The
 //    "success" redirect back from Checkout grants nothing.
 //  - Webhooks are verified with the endpoint secret (HMAC-SHA256 over the exact raw body,
@@ -12,17 +15,26 @@
 //  - API calls go only to https://api.stripe.com, with idempotency keys on creates.
 
 import { createHmac, timingSafeEqual } from 'node:crypto';
+import { AD_TIERS, isAdTier, type AdTier } from '../src/lib/adPlans';
 import { CATEGORIES, type Category } from '../src/lib/pros';
 
 export interface StripePlan {
   priceId: string; // Stripe Price ID (price_...), a recurring monthly price
   amountLabel: string; // shown to advertisers, e.g. "$199 / month"
+  /** Stripe coupon applied at checkout for founding advertisers (marked by an admin). */
+  foundingCoupon?: string;
+  /** The founding price shown to founding advertisers, e.g. "$139 / month for 12 months". */
+  foundingLabel?: string;
 }
+
+export type CategoryPlans = Partial<Record<AdTier, StripePlan>>;
+/** Plans per category; "*" is the default for categories not listed. */
+export type StripePlans = Partial<Record<Category | '*', CategoryPlans>>;
 
 export interface StripeConfig {
   secretKey: string;
   webhookSecret: string;
-  plans: Partial<Record<Category, StripePlan>>;
+  plans: StripePlans;
   fetchImpl?: typeof fetch;
 }
 
@@ -31,18 +43,72 @@ export const CHECKOUT_URL_PREFIX = 'https://checkout.stripe.com/';
 export const PORTAL_URL_PREFIX = 'https://billing.stripe.com/';
 const TOLERANCE_SEC = 300;
 
-/** Parses STRIPE_PLANS: {"agent": {"priceId": "price_...", "amountLabel": "$199 / month"}, ...}. Throws on anything unexpected. */
-export function parsePlans(json: string): Partial<Record<Category, StripePlan>> {
-  const raw = JSON.parse(json) as Record<string, unknown>;
-  const out: Partial<Record<Category, StripePlan>> = {};
-  for (const [k, v] of Object.entries(raw)) {
-    if (!(k in CATEGORIES)) throw new Error(`STRIPE_PLANS: unknown category "${k}"`);
-    const p = v as Partial<StripePlan>;
-    if (typeof p?.priceId !== 'string' || !/^price_[A-Za-z0-9]{6,}$/.test(p.priceId)) throw new Error(`STRIPE_PLANS.${k}.priceId must be a Stripe price ID (price_...)`);
-    if (typeof p.amountLabel !== 'string' || !p.amountLabel.trim() || p.amountLabel.length > 40) throw new Error(`STRIPE_PLANS.${k}.amountLabel must be short text like "$199 / month"`);
-    out[k as Category] = { priceId: p.priceId, amountLabel: p.amountLabel.trim() };
+const PRICE_RE = /^price_[A-Za-z0-9]{6,}$/;
+const COUPON_RE = /^[A-Za-z0-9_-]{1,64}$/;
+
+function parsePlan(where: string, v: unknown): StripePlan {
+  const p = (v ?? {}) as Record<string, unknown>;
+  if (typeof p.priceId !== 'string' || !PRICE_RE.test(p.priceId)) throw new Error(`STRIPE_PLANS.${where}.priceId must be a Stripe price ID (price_...)`);
+  if (typeof p.amountLabel !== 'string' || !p.amountLabel.trim() || p.amountLabel.length > 40) throw new Error(`STRIPE_PLANS.${where}.amountLabel must be short text like "$199 / month"`);
+  for (const k of Object.keys(p)) if (!['priceId', 'amountLabel', 'foundingCoupon', 'foundingLabel'].includes(k)) throw new Error(`STRIPE_PLANS.${where}: unknown field "${k}"`);
+  const out: StripePlan = { priceId: p.priceId, amountLabel: p.amountLabel.trim() };
+  if (p.foundingCoupon !== undefined) {
+    if (typeof p.foundingCoupon !== 'string' || !COUPON_RE.test(p.foundingCoupon)) throw new Error(`STRIPE_PLANS.${where}.foundingCoupon must be a Stripe coupon ID (letters, digits, _ and -)`);
+    out.foundingCoupon = p.foundingCoupon;
+  }
+  if (p.foundingLabel !== undefined) {
+    if (typeof p.foundingLabel !== 'string' || !p.foundingLabel.trim() || p.foundingLabel.length > 60) throw new Error(`STRIPE_PLANS.${where}.foundingLabel must be short text like "$139 / month for 12 months"`);
+    if (!out.foundingCoupon) throw new Error(`STRIPE_PLANS.${where}.foundingLabel needs a foundingCoupon (the price shown must be the price charged)`);
+    out.foundingLabel = p.foundingLabel.trim();
   }
   return out;
+}
+
+/**
+ * Parses STRIPE_PLANS. Two shapes:
+ *  - plans: {"*": {"standard": {"priceId": "price_...", "amountLabel": "$99 / month", "foundingCoupon": "FOUNDING_STD",
+ *    "foundingLabel": "$69 / month for 12 months"}, "premium": {...}, "premium_plus": {...}}, "agent": {...}}
+ *    where "*" covers every category not listed by name;
+ *  - the older flat shape {"agent": {"priceId": "price_...", "amountLabel": "$199 / month"}}: Standard only.
+ * Throws on anything unexpected.
+ */
+export function parsePlans(json: string): StripePlans {
+  const raw = JSON.parse(json) as unknown;
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('STRIPE_PLANS must be a JSON object');
+  const out: StripePlans = {};
+  const tierOfPrice = new Map<string, AdTier>();
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (k !== '*' && !(k in CATEGORIES)) throw new Error(`STRIPE_PLANS: unknown category "${k}"`);
+    if (!v || typeof v !== 'object' || Array.isArray(v)) throw new Error(`STRIPE_PLANS.${k} must be an object`);
+    const entry = v as Record<string, unknown>;
+    const plans: CategoryPlans = {};
+    if ('priceId' in entry) plans.standard = parsePlan(k, entry);
+    else {
+      for (const [t, plan] of Object.entries(entry)) {
+        if (!isAdTier(t)) throw new Error(`STRIPE_PLANS.${k}: unknown plan "${t}" (use ${AD_TIERS.join(', ')})`);
+        plans[t] = parsePlan(`${k}.${t}`, plan);
+      }
+    }
+    for (const [t, plan] of Object.entries(plans) as [AdTier, StripePlan][]) {
+      // Payments are matched back to a plan by price, so one price can't stand for two plans.
+      if ((tierOfPrice.get(plan.priceId) ?? t) !== t) throw new Error(`STRIPE_PLANS: ${plan.priceId} is used for two different plans`);
+      tierOfPrice.set(plan.priceId, t);
+    }
+    out[k as Category | '*'] = plans;
+  }
+  return out;
+}
+
+/** The plan for a category and tier: the category's own entry if it has one, otherwise the "*" default. */
+export function planFor(plans: StripePlans, c: Category, tier: AdTier = 'standard'): StripePlan | null {
+  const entry = plans[c] ?? plans['*'];
+  return entry?.[tier] ?? null;
+}
+
+/** Which plan a Stripe price belongs to (for payments and plan switches made on Stripe's pages). */
+export function tierForPrice(plans: StripePlans, priceId: string): AdTier | null {
+  for (const entry of Object.values(plans)) for (const t of AD_TIERS) if (entry?.[t]?.priceId === priceId) return t;
+  return null;
 }
 
 /**
@@ -116,12 +182,13 @@ export function createStripeClient(cfg: StripeConfig) {
 
   return {
     plans: cfg.plans,
-    planFor: (c: Category) => cfg.plans[c] ?? null,
+    planFor: (c: Category, tier: AdTier = 'standard') => planFor(cfg.plans, c, tier),
+    tierForPrice: (priceId: string) => tierForPrice(cfg.plans, priceId),
 
     createCustomer: (p: { proId: string; email: string; name: string }) =>
       post<{ id: string }>('customers', { email: p.email, name: p.name, metadata: { proId: p.proId } }, `customer-${p.proId}`),
 
-    createCheckoutSession: (p: { proId: string; customerId: string; priceId: string; successUrl: string; cancelUrl: string; attempt: string }) =>
+    createCheckoutSession: (p: { proId: string; customerId: string; priceId: string; tier: AdTier; topic: string | null; coupon: string | null; successUrl: string; cancelUrl: string; attempt: string }) =>
       post<{ id: string; url: string }>(
         'checkout/sessions',
         {
@@ -129,7 +196,12 @@ export function createStripeClient(cfg: StripeConfig) {
           customer: p.customerId,
           client_reference_id: p.proId,
           line_items: { 0: { price: p.priceId, quantity: 1 } },
-          subscription_data: { metadata: { proId: p.proId } },
+          // Stripe takes either a coupon applied here or a code the advertiser types, never both.
+          ...(p.coupon ? { discounts: { 0: { coupon: p.coupon } } } : { allow_promotion_codes: true }),
+          // A code that covers the whole price (e.g. 100% off for 6 months) needs no card until it runs out; Stripe
+          // then asks for one, and an unpaid invoice stops the listing from being extended.
+          payment_method_collection: 'if_required',
+          subscription_data: { metadata: { proId: p.proId, tier: p.tier, ...(p.topic ? { topic: p.topic } : {}) } },
           success_url: p.successUrl,
           cancel_url: p.cancelUrl,
         },
@@ -147,6 +219,46 @@ export function invoicePeriodEnd(invoice: Record<string, unknown>): number | nul
   const lines = ((invoice.lines as { data?: { period?: { end?: number } }[] } | undefined)?.data ?? []).map((l) => l.period?.end ?? 0);
   const end = Math.max(0, ...lines, Number(invoice.period_end) || 0);
   return end > 0 ? end : null;
+}
+
+/** The price IDs on an invoice's lines, across Stripe API versions (line.price, or line.pricing.price_details.price). */
+export function invoicePriceIds(invoice: Record<string, unknown>): string[] {
+  const lines = ((invoice.lines as { data?: unknown[] } | undefined)?.data ?? []) as Record<string, unknown>[];
+  const ids: string[] = [];
+  for (const l of lines) {
+    const price = l?.price as unknown;
+    const details = (l?.pricing as { price_details?: { price?: unknown } } | undefined)?.price_details?.price;
+    for (const v of [price, details]) {
+      const id = typeof v === 'string' ? v : v && typeof v === 'object' ? (v as { id?: unknown }).id : null;
+      if (typeof id === 'string' && !ids.includes(id)) ids.push(id);
+    }
+  }
+  return ids;
+}
+
+/** The subscription's metadata as copied onto an invoice, across Stripe API versions. */
+export function invoiceSubscriptionMetadata(invoice: Record<string, unknown>): Record<string, string> {
+  const fromParent = (invoice.parent as { subscription_details?: { metadata?: unknown } } | undefined)?.subscription_details?.metadata;
+  const legacy = (invoice.subscription_details as { metadata?: unknown } | undefined)?.metadata;
+  const m = (fromParent ?? legacy ?? {}) as Record<string, unknown>;
+  return Object.fromEntries(Object.entries(m).filter((e): e is [string, string] => typeof e[1] === 'string'));
+}
+
+/** Whether a discount (coupon or promotion code) applied to an invoice, and its total in cents when Stripe says. */
+export function invoiceDiscount(invoice: Record<string, unknown>): { applied: boolean; cents: number } {
+  const totals = Array.isArray(invoice.total_discount_amounts) ? (invoice.total_discount_amounts as { amount?: unknown }[]) : [];
+  const cents = totals.reduce((n, d) => n + (typeof d?.amount === 'number' ? d.amount : 0), 0);
+  // Some API versions and trimmed payloads list the discounts without amounts.
+  const listed = (Array.isArray(invoice.discounts) && invoice.discounts.length > 0) || (!!invoice.discount && typeof invoice.discount === 'object');
+  return { applied: cents > 0 || listed, cents };
+}
+
+/** The price of a subscription's first item (subscription events), or null. */
+export function subscriptionPriceId(sub: Record<string, unknown>): string | null {
+  const item = ((sub.items as { data?: { price?: unknown }[] } | undefined)?.data ?? [])[0];
+  const price = item?.price;
+  const id = typeof price === 'string' ? price : price && typeof price === 'object' ? (price as { id?: unknown }).id : null;
+  return typeof id === 'string' ? id : null;
 }
 
 /** The subscription ID an invoice belongs to, across Stripe API versions. */

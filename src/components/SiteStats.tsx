@@ -138,7 +138,7 @@ export default function SiteStats() {
             <p className="small muted">
               Who visits: buyers and investors researching Clark County tax sales, foreclosure auctions and bank-owned homes. Counted by our own
               server: known bots and repeat views are excluded, and a visit is one visitor on one day. No cookies or ad trackers, and no one is
-              tracked across days. Advertisers never pay for a higher position.
+              tracked across days. Every listed professional appears in the directory list in the same rotating order; paid ad boxes are labeled.
             </p>
           </section>
           <p className="small muted">

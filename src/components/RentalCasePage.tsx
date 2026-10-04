@@ -7,6 +7,7 @@ import { CASE_PROPERTY, CASE_TITLE, N, RENTAL_CASE, tasksFor, walkedFrom, type C
 import { docGuide } from '../lib/docGuides';
 import DocGuideView from './DocGuideView';
 import { emptyCase, loadCase, saveCase, type CaseProgress } from '../practice/caseProgress';
+import TopicAd from './TopicAd';
 
 const key = (st: CaseStage, t: CaseTask) => `${st.key}/${t.id}`;
 const $ = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
@@ -152,6 +153,8 @@ function StageView({ stage, n, p, update, done }: { stage: CaseStage; n: number;
           {stage.dates && <ul>{stage.dates.map((d) => <li key={d.when}><strong>{d.when}:</strong> {d.what}</li>)}</ul>}
         </div>
       )}
+      {/* At the end of a finished step, after its questions and feedback. */}
+      {done && <TopicAd caseStage={stage.key} />}
       {stage.learnMore && <p className="muted case-more">Go deeper: {stage.learnMore.map((l, j) => <span key={l.href}>{j > 0 && ' · '}<a href={l.href}>{l.label}</a></span>)}</p>}
       <div className="row practice-next">
         {prev && <a className="btn btn-secondary" href={`#/practice/case/${prev.key}`}>← {prev.title}</a>}

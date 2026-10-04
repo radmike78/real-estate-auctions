@@ -16,10 +16,12 @@
 // Advertiser (fsf_pro cookie; writes need x-fsf-request: 1 and same origin)
 //   GET  /api/pro/me | /api/pro/metrics | /api/pro/leads | /api/pro/leads.csv ; POST /api/pro/logout
 //   POST /api/pro/photo (raw image body) | /api/pro/photo/remove ; GET /api/pro/photo/(pending|live)
+//   POST /api/pro/checkout {tier, topic?} | /api/pro/billing-portal | /api/pro/ad-line {adLine} | /api/pro/ad-topic {topic}
+// Public: GET /api/ad-plans                  price labels per category and plan (no Stripe IDs)
 // Public: GET /api/pro-photos/<sha256>.webp   approved profile photos only, by the hash in the signed directory
 // Admin (fsf_admin cookie; writes need x-fsf-request: 1 and same origin)
 //   POST /api/admin/login | /logout ; GET /api/admin/me | /api/admin/applications[/:id[/metrics]]
-//   POST /api/admin/applications/:id/(approve|billing|reject|suspend) ; POST /api/admin/publish | /api/admin/reports
+//   POST /api/admin/applications/:id/(approve|billing|reject|suspend|founding|ad-line/approve|ad-line/reject) ; POST /api/admin/publish | /api/admin/reports
 //   GET  /api/admin/applications/:id/photo (pending photo) ; POST /api/admin/applications/:id/photo/(approve|reject)
 //   GET  /api/admin/email | /api/admin/email/list.csv ; POST /api/admin/email/test | /api/admin/email/send   (general email list)
 
@@ -29,11 +31,13 @@ import { pipeline } from 'node:stream';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { extname, join, normalize, resolve, sep } from 'node:path';
 import type { KeyObject } from 'node:crypto';
-import { approvalBlockers, normalizePhone, plain, validateApplication, validateBilling, type ApplicationInput, type LicenseVerification } from '../src/lib/proApplication';
+import { approvalBlockers, billingTier, normalizePhone, plain, validateAdLine, validateApplication, validateBilling, type ApplicationInput, type Billing, type LicenseVerification } from '../src/lib/proApplication';
+import { AD_TIERS, capMessage, capProblem, CAPS, isAdTier, TIER_INFO, topicAllowed, topicsFor, type AdTier } from '../src/lib/adPlans';
+import type { Category } from '../src/lib/pros';
 import { CATEGORIES, isListable, REVERIFY_DAYS } from '../src/lib/pros';
 import { clientKey, newToken, parseCookies, RateLimiter, SESSION_IDLE_MS, SESSION_MAX_MS, safeEqualStrings, sessionCookie, sha256, verifyPasswordAsync } from './auth';
 import { METRIC_KINDS, openDb, type ApplicationRow, type Db, type MetricKind } from './db';
-import { buildProsFeed, toPro, writeSignedJson } from './directory';
+import { buildProsFeed, placements, toPro, writeSignedJson } from './directory';
 import { PHOTO_MAX_BYTES, PhotoError, processPhoto } from './photos';
 import { isSiteAction, isSitePage } from '../src/lib/siteStats';
 import { visitorIp } from './cloudflare';
@@ -43,7 +47,7 @@ import { SITE_INFO, TERMS_EFFECTIVE } from '../src/lib/siteInfo';
 import { parseSearchTarget, searchLabel } from '../src/lib/savedSearch';
 import { collectChanges, collectDigests, feedReader, labelOf, openTracker, TARGET_RE, trackableListings, type ListingSnapshot } from './tracker';
 import { cleanQuery, createLicenseSearch } from './licenses';
-import { CHECKOUT_URL_PREFIX, invoicePeriodEnd, invoiceSubscriptionId, PORTAL_URL_PREFIX, verifyWebhook, type StripeClient, type StripeEvent } from './stripe';
+import { CHECKOUT_URL_PREFIX, invoiceDiscount, invoicePeriodEnd, invoicePriceIds, invoiceSubscriptionId, invoiceSubscriptionMetadata, PORTAL_URL_PREFIX, subscriptionPriceId, verifyWebhook, type StripeClient, type StripeEvent } from './stripe';
 import { BOT_UA, leadsToCsv, monthlyReportText, monthRange, pacificDay, pacificDaysToUtc, siteSummary, summarize, VisitorHasher } from './metrics';
 
 export interface AppConfig {
@@ -442,17 +446,52 @@ export function createApp(config: AppConfig) {
     res.end(image);
   }
 
-  /** What an advertiser (or admin) sees about online payment for a listing. */
+  const planFor = (c: Category, tier: AdTier) => config.stripe?.client.planFor(c, tier) ?? null;
+  /** Card payments are possible for this category (at least one plan is configured). */
+  const payable = (c: Category) => AD_TIERS.some((t) => !!planFor(c, t));
+  /** The label stored with a card payment, e.g. "Card · Premium · $199 / month". */
+  const cardPlanLabel = (c: Category, tier: AdTier, founding = false) => {
+    const plan = planFor(c, tier);
+    return `Card · ${TIER_INFO[tier].label} · ${(founding && plan?.foundingLabel) || plan?.amountLabel || 'monthly'}`;
+  };
+
+  /** Price labels for each plan in a category. Never includes Stripe price or coupon IDs. */
+  function planLabels(c: Category) {
+    return Object.fromEntries(
+      AD_TIERS.map((t) => {
+        const plan = planFor(c, t);
+        return [t, { available: !!plan, amountLabel: plan?.amountLabel ?? null, foundingLabel: plan?.foundingLabel ?? null }];
+      }),
+    ) as Record<AdTier, { available: boolean; amountLabel: string | null; foundingLabel: string | null }>;
+  }
+
+  /** The cap problem (if any) for this advertiser taking `tier` (and `topic`), counting everyone listed now except them. */
+  function capFor(row: ApplicationRow, tier: AdTier, topic: string | null) {
+    return capProblem(placements(db.listByStatus('APPROVED'), now()), { id: row.id, category: row.profile.category, tier, topic });
+  }
+
+  /** What an advertiser (or admin) sees about their plan and online payment. */
   function paymentsView(a: ApplicationRow) {
-    const plan = config.stripe?.client.planFor(a.profile.category) ?? null;
+    const tier = billingTier(a.billing);
     const acct = db.stripe.forPro(a.id);
+    const cat = a.profile.category;
+    const current = placements(db.listByStatus('APPROVED'), now());
+    const full = (t: AdTier, topic: string | null = null) => !!capProblem(current, { id: a.id, category: cat, tier: t, topic });
     return {
-      available: !!plan,
-      amountLabel: plan?.amountLabel ?? null,
+      available: payable(cat),
+      amountLabel: planFor(cat, tier)?.amountLabel ?? null,
+      tier,
+      topic: tier === 'premium_plus' && topicAllowed(cat, a.profile.adTopic) ? a.profile.adTopic : null,
+      founding: a.founding,
       status: acct?.status ?? null,
       active: ACTIVE_SUB.has(acct?.status ?? ''),
       cancelAtPeriodEnd: !!acct?.cancelAtPeriodEnd,
       hasCard: !!acct,
+      /** Plans (and Premium Plus topics) that are full for this advertiser right now. */
+      full: Object.fromEntries(AD_TIERS.map((t) => [t, full(t)])) as Record<AdTier, boolean>,
+      topicsFull: topicsFor(cat).filter((t) => full('premium_plus', t.key)).map((t) => t.key),
+      /** Plans whose founding coupon checkout would apply to this advertiser (no promotion code box then). */
+      foundingDiscount: Object.fromEntries(AD_TIERS.map((t) => [t, a.founding && !!planFor(cat, t)?.foundingCoupon])) as Record<AdTier, boolean>,
     };
   }
 
@@ -466,6 +505,8 @@ export function createApp(config: AppConfig) {
     const row = db.get(acct.proId);
     if (!row) return;
     const log = (action: string, detail: string | null) => db.audit({ at, actor: 'stripe', applicationId: row.id, action, detail });
+    const cat = row.profile.category;
+    const tierOf = (priceId: string | null) => (priceId && config.stripe?.client.tierForPrice(priceId)) || null;
 
     switch (event.type) {
       case 'checkout.session.completed':
@@ -476,13 +517,25 @@ export function createApp(config: AppConfig) {
         const end = invoicePeriodEnd(o);
         if (!end) return;
         const paidThrough = pacificDay(new Date((end + PAYMENT_GRACE_DAYS * 86_400) * 1000));
+        // The later of the two dates: a card payment never shortens time already paid for. An invoice a promotion code
+        // covered in full (amount_paid 0) is still a paid period.
         const current = row.billing?.paidThrough ?? '';
-        const plan = config.stripe?.client.planFor(row.profile.category);
-        const billing = { plan: `Card · ${plan?.amountLabel ?? 'monthly'}`, paidThrough: paidThrough > current ? paidThrough : current };
-        db.update(row.id, { billing }, at);
+        // The plan comes from the price Stripe charged; the plan chosen at checkout only if the price isn't one of ours.
+        const tier: AdTier = invoicePriceIds(o).map(tierOf).find((t): t is AdTier => !!t) ?? acct.pendingTier ?? billingTier(row.billing);
+        const meta = invoiceSubscriptionMetadata(o);
+        const topic = [meta.topic, acct.pendingTopic].find((t) => topicAllowed(cat, t)) ?? null;
+        const discount = invoiceDiscount(o);
+        const billing: Billing = { plan: cardPlanLabel(cat, tier, discount.applied && row.founding), paidThrough: paidThrough > current ? paidThrough : current, tier };
+        const profile = tier === 'premium_plus' && topic ? { ...row.profile, adTopic: topic } : tier !== 'premium_plus' ? { ...row.profile, adTopic: '' } : row.profile;
+        db.update(row.id, { billing, profile }, at);
         db.stripe.setSubscription(row.id, { subscriptionId: invoiceSubscriptionId(o) ?? undefined, status: 'active' }, at);
-        const amount = typeof o.amount_paid === 'number' ? `${(o.amount_paid / 100).toFixed(2)} ${String(o.currency ?? '').toUpperCase()}` : '';
-        log('PAYMENT_RECEIVED', `${amount} · listed through ${billing.paidThrough}`.trim());
+        db.stripe.setPending(row.id, null, null, at);
+        const money = (cents: number) => `${(cents / 100).toFixed(2)} ${String(o.currency ?? '').toUpperCase()}`.trim();
+        const amount = typeof o.amount_paid === 'number' ? money(o.amount_paid) : '';
+        const off = discount.applied
+          ? o.amount_paid === 0 ? ' · the discount covered this period in full' : ` · discount applied${discount.cents > 0 ? ` (${money(discount.cents)} off)` : ''}`
+          : '';
+        log('PAYMENT_RECEIVED', `${amount} · ${TIER_INFO[tier].label}${profile.adTopic && tier === 'premium_plus' ? ` (${profile.adTopic})` : ''}${off} · listed through ${billing.paidThrough}`.replace(/^ · /, ''));
         publish();
         return;
       }
@@ -492,10 +545,25 @@ export function createApp(config: AppConfig) {
         await deliver(paymentFailedEmail(row.profile.email, row.profile.name, `${base}/#/advertiser`));
         return;
       case 'customer.subscription.created':
-      case 'customer.subscription.updated':
+      case 'customer.subscription.updated': {
         db.stripe.setSubscription(row.id, { subscriptionId: typeof o.id === 'string' ? o.id : undefined, status: typeof o.status === 'string' ? o.status : null, cancelAtPeriodEnd: o.cancel_at_period_end === true }, at);
         if (event.type === 'customer.subscription.updated' && o.cancel_at_period_end === true) log('CANCEL_SCHEDULED', 'Plan ends at the end of the paid period');
+        // A plan switch made on Stripe's billing portal: follow the price. Leaving Premium Plus frees its topic spot;
+        // coming back to it, the advertiser picks a topic again on their dashboard (checked against the caps).
+        const tier = tierOf(subscriptionPriceId(o));
+        if (!tier) return;
+        if (!row.billing) {
+          db.stripe.setPending(row.id, tier, acct.pendingTopic, at);
+          return;
+        }
+        const was = billingTier(row.billing);
+        if (tier === was) return;
+        const profile = tier === 'premium_plus' ? row.profile : { ...row.profile, adTopic: '' };
+        db.update(row.id, { billing: { ...row.billing, tier, plan: cardPlanLabel(cat, tier) }, profile }, at);
+        log('PLAN_CHANGED', `${TIER_INFO[was].label} → ${TIER_INFO[tier].label}`);
+        publish();
         return;
+      }
       case 'customer.subscription.deleted':
         // Already-paid time stays listed; it simply isn't extended.
         db.stripe.setSubscription(row.id, { status: 'canceled', cancelAtPeriodEnd: false }, at);
@@ -560,6 +628,12 @@ export function createApp(config: AppConfig) {
 
     // What this server has set up, so pages say "coming soon" instead of offering sign-ups that can't work yet.
     if (method === 'GET' && path === '/api/features') return send(res, 200, { email: mailer !== consoleMailer, payments: !!config.stripe });
+
+    // Price labels for the Advertise page and the plan chooser: per category, with "*" already resolved. No Stripe IDs.
+    if (method === 'GET' && path === '/api/ad-plans') {
+      const categories = Object.fromEntries((Object.keys(CATEGORIES) as Category[]).map((c) => [c, planLabels(c)]));
+      return send(res, 200, { available: !!config.stripe, caps: CAPS, categories }, { 'cache-control': 'no-cache' });
+    }
 
     // ---------------- payments (called by Stripe's servers, authenticated by signature) ----------------
     if (method === 'POST' && path === '/api/stripe/webhook') {
@@ -639,7 +713,7 @@ export function createApp(config: AppConfig) {
       }
       const kind = body.kind as MetricKind;
       if (!METRIC_KINDS.includes(kind) || kind === 'lead') throw new HttpError(400, 'Unknown event');
-      const ids = (kind === 'impression' ? (Array.isArray(body.proIds) ? body.proIds : []) : [body.proId]).slice(0, 50);
+      const ids = (kind === 'impression' || kind === 'ad_impression' ? (Array.isArray(body.proIds) ? body.proIds : []) : [body.proId]).slice(0, 50);
       const live = listed();
       for (const id of new Set(ids)) if (typeof id === 'string' && live.has(id)) db.metrics.record(id, day, kind, visitor);
       return send(res, 204, {});
@@ -897,28 +971,71 @@ export function createApp(config: AppConfig) {
       }
       if (method === 'POST' && path === '/api/pro/checkout') {
         const stripe = config.stripe;
-        const plan = stripe?.client.planFor(row.profile.category);
-        if (!stripe || !plan) throw new HttpError(409, 'Online payment is not available for your category yet. We will contact you about your plan.');
+        if (!stripe || !payable(row.profile.category)) throw new HttpError(409, 'Online payment is not available for your category yet. We will contact you about your plan.');
+        // The browser only names a plan (and a topic); the price and any discount are chosen here.
+        const body = await readJson(req);
+        const tier = body.tier === undefined ? 'standard' : body.tier;
+        if (!isAdTier(tier)) throw new HttpError(400, 'Choose a plan.');
+        const plan = stripe.client.planFor(row.profile.category, tier);
+        if (!plan) throw new HttpError(409, `The ${TIER_INFO[tier].label} plan isn’t available for your category yet.`);
+        const topic = tier === 'premium_plus' && topicAllowed(row.profile.category, body.topic) ? body.topic : null;
+        if (tier === 'premium_plus' && !topic) throw new HttpError(422, 'Choose the Learn or Practice topic for your Premium Plus ad.');
         if (!row.verification) throw new HttpError(409, 'Your license must be verified before you can start advertising.');
         if (!limiters.checkout.hit(row.id)) throw new HttpError(429, 'Too many attempts. Try again later.');
         let acct = db.stripe.forPro(row.id);
         if (acct && ACTIVE_SUB.has(acct.status ?? '')) throw new HttpError(409, 'You already have an active plan. Use "Manage billing" to change your card or cancel.');
+        const full = capFor(row, tier, topic);
+        if (full) throw new HttpError(409, capMessage(full, row.profile.category, topic));
         if (!acct) {
           const customer = await stripe.client.createCustomer({ proId: row.id, email: row.profile.email, name: row.profile.company || row.profile.name });
           db.stripe.link(row.id, customer.id, now().toISOString());
           acct = db.stripe.forPro(row.id)!;
         }
+        const coupon = row.founding && plan.foundingCoupon ? plan.foundingCoupon : null;
         const session = await stripe.client.createCheckoutSession({
           proId: row.id,
           customerId: acct.customerId,
           priceId: plan.priceId,
+          tier,
+          topic,
+          coupon,
           successUrl: `${base}/#/advertiser?payment=done`,
           cancelUrl: `${base}/#/advertiser?payment=cancelled`,
           attempt: newToken().slice(0, 16),
         });
         if (typeof session.url !== 'string' || !session.url.startsWith(CHECKOUT_URL_PREFIX)) throw new HttpError(502, 'The payment page could not be opened. Try again.');
-        db.audit({ at: now().toISOString(), actor: 'advertiser', applicationId: row.id, action: 'CHECKOUT_STARTED', detail: plan.amountLabel });
+        db.stripe.setPending(row.id, tier, topic, now().toISOString());
+        db.audit({ at: now().toISOString(), actor: 'advertiser', applicationId: row.id, action: 'CHECKOUT_STARTED', detail: `${TIER_INFO[tier].label} · ${plan.amountLabel}${topic ? ` · topic ${topic}` : ''}${coupon ? ' · founding coupon' : ''}` });
         return send(res, 200, { url: session.url });
+      }
+      if (method === 'POST' && path === '/api/pro/ad-line') {
+        assertAppRequest(req);
+        const raw = (await readJson(req)).adLine;
+        const error = validateAdLine(raw, row.profile.category);
+        if (error) throw new HttpError(422, 'Please fix the highlighted fields.', { errors: { adLine: error } });
+        const line = typeof raw === 'string' ? raw.trim() : '';
+        if (!line) {
+          // Taking an ad line down needs no review.
+          db.update(row.id, { profile: { ...row.profile, adLine: '', adLinePending: '' } }, now().toISOString());
+          db.audit({ at: now().toISOString(), actor: 'advertiser', applicationId: row.id, action: 'AD_LINE_REMOVED', detail: null });
+          publish();
+          return send(res, 200, { ok: true, message: 'Your ad line was removed.' });
+        }
+        db.update(row.id, { profile: { ...row.profile, adLinePending: line } }, now().toISOString());
+        db.audit({ at: now().toISOString(), actor: 'advertiser', applicationId: row.id, action: 'AD_LINE_SUBMITTED', detail: line });
+        return send(res, 200, { ok: true, message: 'Ad line received. It appears once we review it, usually within a business day.' });
+      }
+      if (method === 'POST' && path === '/api/pro/ad-topic') {
+        assertAppRequest(req);
+        const topic = (await readJson(req)).topic;
+        if (billingTier(row.billing) !== 'premium_plus') throw new HttpError(409, 'Topic ads are part of the Premium Plus plan.');
+        if (!topicAllowed(row.profile.category, topic)) throw new HttpError(422, 'Choose one of the topics for your category.');
+        const full = capFor(row, 'premium_plus', topic);
+        if (full) throw new HttpError(409, capMessage(full, row.profile.category, topic));
+        db.update(row.id, { profile: { ...row.profile, adTopic: topic } }, now().toISOString());
+        db.audit({ at: now().toISOString(), actor: 'advertiser', applicationId: row.id, action: 'AD_TOPIC_SET', detail: topic });
+        publish();
+        return send(res, 200, { ok: true });
       }
       if (method === 'POST' && path === '/api/pro/billing-portal') {
         const acct = config.stripe && db.stripe.forPro(row.id);
@@ -1049,7 +1166,7 @@ export function createApp(config: AppConfig) {
       return send(res, 200, { ok: true, sent: n });
     }
 
-    const m = path.match(/^\/api\/admin\/applications\/([^/]+)(?:\/(approve|billing|reject|suspend|metrics|photo|photo\/approve|photo\/reject))?$/);
+    const m = path.match(/^\/api\/admin\/applications\/([^/]+)(?:\/(approve|billing|reject|suspend|metrics|photo|photo\/approve|photo\/reject|founding|ad-line\/approve|ad-line\/reject))?$/);
     if (!m) throw new HttpError(404, 'Not found');
     const app = loadApp(m[1]);
     const action = m[2];
@@ -1105,17 +1222,50 @@ export function createApp(config: AppConfig) {
       db.update(app.id, { status: 'APPROVED', verification: { ...verification, verifiedAt: today(), verifiedBy: admin.subject }, decisionReason: null }, now().toISOString());
       audit(app.id, wasApproved ? 'REVERIFIED' : 'APPROVED', `${info.regulator}: ${verification.licenseStatus}${verification.licenseExpires ? `, expires ${verification.licenseExpires}` : ''}. Identity: ${verification.identityMethod}`);
       publish();
-      if (!wasApproved) await deliver(approvedEmail(app.profile.email, app.profile.name, `${base}/#/advertiser`, !!config.stripe?.client.planFor(app.profile.category)));
+      if (!wasApproved) await deliver(approvedEmail(app.profile.email, app.profile.name, `${base}/#/advertiser`, payable(app.profile.category)));
       return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });
     }
 
     if (action === 'billing') {
       if (!['PENDING_REVIEW', 'APPROVED', 'SUSPENDED'].includes(app.status)) throw new HttpError(409, `Can't bill an application that is ${app.status}.`);
-      const billing = validateBilling((body.billing ?? {}) as Record<string, string>);
-      if (!billing) throw new HttpError(422, 'Enter a plan name and a paid-through date.');
-      db.update(app.id, { billing }, now().toISOString());
-      audit(app.id, 'BILLING', `${billing.plan}, paid through ${billing.paidThrough}`);
+      // Payments received another way (check, invoice). Free or discounted advertising goes through Stripe promotion codes.
+      const billing = validateBilling((body.billing ?? {}) as Record<string, unknown>);
+      if (!billing) throw new HttpError(422, 'Enter a plan name, a plan and a listed-through date.');
+      const tier = billingTier(billing);
+      const rawTopic = (body.billing as { topic?: unknown } | undefined)?.topic;
+      const topic = tier === 'premium_plus' ? (topicAllowed(app.profile.category, rawTopic) ? rawTopic : null) : null;
+      if (tier === 'premium_plus' && rawTopic && !topic) throw new HttpError(422, 'Choose one of the topics for this category.');
+      // Manually billed advertisers count toward the caps like card-paying ones.
+      const full = capFor(app, tier, topic);
+      if (full) throw new HttpError(409, capMessage(full, app.profile.category, topic));
+      const profile = { ...app.profile, adTopic: topic ?? (tier === 'premium_plus' ? app.profile.adTopic : '') };
+      db.update(app.id, { billing, profile }, now().toISOString());
+      audit(app.id, 'BILLING', `${billing.plan} · ${TIER_INFO[tier].label}${topic ? ` (${topic})` : ''}, listed through ${billing.paidThrough}`);
       publish();
+      return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });
+    }
+
+    if (action === 'founding') {
+      if (typeof body.founding !== 'boolean') throw new HttpError(400, 'Say whether this is a founding advertiser.');
+      db.setFounding(app.id, body.founding, now().toISOString());
+      audit(app.id, body.founding ? 'FOUNDING_SET' : 'FOUNDING_REMOVED', null);
+      return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });
+    }
+
+    if (action === 'ad-line/approve' || action === 'ad-line/reject') {
+      // The decision names the exact text reviewed, so a newer submission is never approved unseen.
+      if (!app.profile.adLinePending) throw new HttpError(409, 'No ad line is waiting for review.');
+      if (body.adLine !== app.profile.adLinePending) throw new HttpError(409, 'The ad line changed since you opened it. Review the new one.');
+      if (action === 'ad-line/approve') {
+        const error = validateAdLine(app.profile.adLinePending, app.profile.category);
+        if (error) throw new HttpError(422, error);
+        db.update(app.id, { profile: { ...app.profile, adLine: app.profile.adLinePending, adLinePending: '' } }, now().toISOString());
+        audit(app.id, 'AD_LINE_APPROVED', app.profile.adLinePending);
+        publish();
+      } else {
+        db.update(app.id, { profile: { ...app.profile, adLinePending: '' } }, now().toISOString());
+        audit(app.id, 'AD_LINE_REJECTED', app.profile.adLinePending);
+      }
       return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });
     }
 

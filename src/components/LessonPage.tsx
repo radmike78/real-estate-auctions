@@ -15,6 +15,7 @@ import { LESSON_CHECKS } from '../lib/lessons/checks';
 import { Pieces } from './Term';
 import { markTerms, type Piece } from '../lib/terms';
 import { Cited } from './Cited';
+import TopicAd from './TopicAd';
 
 const STATE_NAMES = new Set(STATES.map((s) => s.name));
 
@@ -172,6 +173,8 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         </section>
       )}
       {!l.practice && l.tryIt && <p className="lesson-try"><a className="btn btn-secondary" href={l.tryIt.href}>{l.tryIt.label} →</a></p>}
+      {/* After the lesson and its questions, never inside them. */}
+      <TopicAd lesson={lessonKey} />
       <section className="lesson-sources" aria-labelledby="sources">
         <h2 id="sources">Where this comes from</h2>
         <details className="sources-more">

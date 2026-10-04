@@ -97,9 +97,9 @@ export const SECTIONS: DrillSection[] = [
     content: () => (
       <>
         <p>
-          Professionals listed here pay to advertise. A listing isn't a recommendation or endorsement, and placement is equal and rotating, so no
-          one can pay for a higher spot. We check each license with the state or federal regulator, but you should confirm it yourself before
-          hiring anyone.
+          Professionals listed here pay to advertise. A listing isn't a recommendation or endorsement. Everyone listed appears in the directory
+          list in the same rotating order, whatever plan they pay for; some plans add separate boxes labeled "Featured ad" or "Advertisement".
+          We check each license with the state or federal regulator, but you should confirm it yourself before hiring anyone.
         </p>
         <p>
           When you use a contact form, your details go only to the professional you chose. Any agreement, fee, loan or service is strictly between
@@ -143,7 +143,17 @@ export const SECTIONS: DrillSection[] = [
         <ul>{CONTENT_RULES.map((r) => <li key={r}>{r}</li>)}</ul>
         <h3>Fees and billing</h3>
         <ul>
-          <li>Listings are a flat monthly fee, the same for everyone in a category. The current fee is shown before you pay.</li>
+          <li>
+            There are three monthly plans. Standard is a profile and a place in your category's directory list. Premium adds a separate, labeled
+            Featured ad box on your category's directory pages. Premium Plus also adds a labeled ad beside one Learn or Practice topic you choose.
+            Every plan has the same place in the directory list, in a fair rotating order; no plan changes it. The current fee for each plan is
+            shown before you pay, and discounts (such as founding-advertiser prices or promotion codes) apply only as stated when you pay.
+          </li>
+          <li>
+            Spots are limited per category, as shown on the Advertise page and your dashboard. When a spot is taken, that plan or topic isn't
+            available until one opens. We choose which advertiser appears in a shared ad box at random on each page view.
+          </li>
+          <li>Ad boxes show your name, company and license number, and your ad line if you have one. We review ad lines before they appear and may remove one that breaks these rules.</li>
           <li>
             Card payments are handled by our payment processor, Stripe. Plans renew monthly until you cancel. You can cancel at any time from your
             dashboard; your listing stays live through the period you've paid for.
