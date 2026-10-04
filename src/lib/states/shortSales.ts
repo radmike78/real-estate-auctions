@@ -3,13 +3,10 @@
 // Sources: each line's citation, read on the state's official code site (checked 2026-10-04).
 import type { ByStateLines } from '../../components/ByState';
 
-const CA_CODE = (law: string, section: string) =>
-  `https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=${law}&sectionNum=${section}`;
-
 /** Could the seller still owe the lender afterward (a deficiency)? */
 export const DEFICIENCY: ByStateLines = {
   CA: [
-    { text: 'In California, after a lender gives written consent to a short sale of a home of up to 4 units, it can’t collect the rest of the loan (a deficiency). The deed must be recorded and the sale money paid to the lender as agreed. This covers first loans, and second loans whose holders consent. It doesn’t apply when the borrower is a corporation, LLC or limited partnership, or when there was fraud or waste (Code of Civil Procedure 580e).', links: [['Code of Civil Procedure 580e', CA_CODE('CCP', '580e')]] },
+    { text: 'In California, after a lender gives written consent to a short sale of a home of up to 4 units, it can’t collect the rest of the loan (a deficiency). The deed must be recorded and the sale money paid to the lender as agreed. This covers first loans, and second loans whose holders consent. It doesn’t apply when the borrower is a corporation, LLC or limited partnership, or when there was fraud or waste (Code of Civil Procedure 580e).', links: [['Code of Civil Procedure 580e', 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=580e']] },
     { text: 'In California, a lender can’t ask the seller for more money as a condition of approving the short sale (Code of Civil Procedure 580e).' },
   ],
   AZ: [
@@ -26,7 +23,7 @@ export const DEFICIENCY: ByStateLines = {
 /** What the seller must tell you, and what you get. */
 export const DISCLOSURES: ByStateLines = {
   CA: [
-    { text: 'In California, a short sale is a normal sale by the owner, so it isn’t exempt from the Transfer Disclosure Statement or the Natural Hazard Disclosure Statement. Those exemptions cover sales by a lender after foreclosure, not short sales (Civil Code 1102.2, 1103.1).', links: [['Civil Code 1102.2', CA_CODE('CIV', '1102.2')]] },
+    { text: 'In California, a short sale is a normal sale by the owner, so it isn’t exempt from the Transfer Disclosure Statement or the Natural Hazard Disclosure Statement. Those exemptions cover sales by a lender after foreclosure, not short sales (Civil Code 1102.2, 1103.1).', links: [['Civil Code 1102.2', 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1102.2']] },
     { text: 'In California, the listing agent must also do a visual inspection of a home of 1 to 4 units and disclose what it finds (Civil Code 2079).' },
   ],
   AZ: [
@@ -55,7 +52,7 @@ export const OWNERS: ByStateLines = {
     { text: 'In Nevada, foreclosure consultants must be licensed, and a buyer who uses fraud or deceit on an owner in foreclosure faces criminal penalties and can have the purchase undone (NRS Chapter 645F).', links: [['NRS Chapter 645F', 'https://www.leg.state.nv.us/NRS/NRS-645F.html']] },
   ],
   CA: [
-    { text: 'In California, buying from an owner who lives in the home after a notice of default is recorded is covered by the Home Equity Sales Contract Act. It requires a written contract and gives the owner a right to cancel, and breaking it carries fines and jail (Civil Code 1695 and following).', links: [['Civil Code 1695.1', CA_CODE('CIV', '1695.1')]] },
+    { text: 'In California, buying from an owner who lives in the home after a notice of default is recorded is covered by the Home Equity Sales Contract Act. It requires a written contract and gives the owner a right to cancel, and breaking it carries fines and jail (Civil Code 1695 and following).', links: [['Civil Code 1695.1', 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1695.1']] },
   ],
   AZ: [
     { text: 'In Arizona, a person who offers paid help to stop an owner’s foreclosure is a foreclosure consultant. That person can’t take payment up front or take an interest in the home, and fraud or deceit against the owner is a crime (A.R.S. 44-1378.02, 44-1378.06).', links: [['A.R.S. 44-1378.02', 'https://www.azleg.gov/ars/44/01378-02.htm']] },
