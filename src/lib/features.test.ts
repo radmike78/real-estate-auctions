@@ -75,6 +75,7 @@ describe('professional directory', () => {
     expect(listingProblems(good)).toEqual([]);
     expect(listingProblems(at({ licenseStatus: 'Revoked' }))).toContain('LICENSE_NOT_ACTIVE');
     expect(listingProblems(at({ licenseExpires: '2020-01-01' }))).toContain('LICENSE_EXPIRED');
+    expect(listingProblems(at({ licenseExpires: null }))).not.toContain('LICENSE_EXPIRED'); // no date recorded
     expect(listingProblems(at({ licenseVerifiedAt: '2020-01-01' }))).toContain('VERIFICATION_STALE');
     expect(listingProblems(at({ licenseVerifiedAt: '2999-01-01' }))).toContain('VERIFICATION_STALE');
     expect(listingProblems(at({ paidThrough: '2020-01-01' }))).toContain('NOT_PAID');

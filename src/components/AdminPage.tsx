@@ -146,7 +146,7 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
         </label>
         {info.licenseExpires && (
           <label className="field">
-            <span>Expiration shown</span>
+            <span>Expiration shown (optional)</span>
             <input type="date" value={v.licenseExpires ?? ''} onChange={(e) => set('licenseExpires', e.target.value)} />
           </label>
         )}

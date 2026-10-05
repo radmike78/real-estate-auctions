@@ -245,8 +245,9 @@ export function approvalBlockers(category: Category, v: Partial<LicenseVerificat
   const out: string[] = [];
   if (!info) return ['Unknown category.'];
   if (v.licenseStatus !== 'Active') out.push(`${info.regulator} must show the license or registration as Active.`);
-  if (info.licenseExpires && (!v.licenseExpires || !/^\d{4}-\d{2}-\d{2}$/.test(v.licenseExpires) || v.licenseExpires <= today)) {
-    out.push(`Enter a future expiration date, as shown on ${info.regulator}.`);
+  // The expiration date is optional (the 90-day re-check catches lapses); a date that is entered must be in the future.
+  if (info.licenseExpires && v.licenseExpires && (!/^\d{4}-\d{2}-\d{2}$/.test(v.licenseExpires) || v.licenseExpires <= today)) {
+    out.push(`The expiration date must be in the future, as shown on ${info.regulator}, or left blank.`);
   }
   if (!v.nameMatches) out.push(`Confirm the name on ${info.regulator} matches.`);
   if (!v.typeMatches) out.push(`Confirm the license type or classification fits "${info.label}".`);

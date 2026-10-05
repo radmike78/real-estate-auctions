@@ -298,7 +298,7 @@ export function listingProblems(p: Pro, now = new Date()): ListingProblem[] {
   const today = now.toISOString().slice(0, 10);
   const out: ListingProblem[] = [];
   if (p.licenseStatus !== 'Active') out.push('LICENSE_NOT_ACTIVE');
-  if (CATEGORIES[p.category]?.licenseExpires && (!p.licenseExpires || p.licenseExpires < today)) out.push('LICENSE_EXPIRED');
+  if (CATEGORIES[p.category]?.licenseExpires && p.licenseExpires && p.licenseExpires < today) out.push('LICENSE_EXPIRED'); // no date recorded: the 90-day re-check covers it
   const age = (now.getTime() - Date.parse(`${p.licenseVerifiedAt}T00:00:00Z`)) / 86_400_000;
   if (!(age >= 0 && age <= REVERIFY_DAYS)) out.push('VERIFICATION_STALE');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(p.paidThrough) || p.paidThrough < today) out.push('NOT_PAID');

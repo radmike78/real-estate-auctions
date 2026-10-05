@@ -1206,7 +1206,7 @@ export function createApp(config: AppConfig) {
       const info = CATEGORIES[app.profile.category];
       const verification: LicenseVerification = {
         licenseStatus: raw.licenseStatus as LicenseVerification['licenseStatus'],
-        licenseExpires: info.licenseExpires ? plain(raw.licenseExpires, 10) : null,
+        licenseExpires: info.licenseExpires ? plain(raw.licenseExpires, 10) || null : null,
         nameMatches: raw.nameMatches === true,
         typeMatches: raw.typeMatches === true,
         companyMatches: raw.companyMatches === true,

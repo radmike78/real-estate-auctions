@@ -85,9 +85,10 @@ describe('application validation', () => {
     expect(plain('a<b>c\u0000d', 20)).toBe('a b c d');
   });
 
-  it('requires every verification step, with expiry only where licenses expire', () => {
+  it('requires every verification step; an expiration date is optional but must be in the future', () => {
     expect(approvalBlockers('agent', VERIFIED as never, '2026-09-25')).toEqual([]);
-    expect(approvalBlockers('agent', { ...VERIFIED, licenseExpires: null } as never, '2026-09-25')).toHaveLength(1);
+    expect(approvalBlockers('agent', { ...VERIFIED, licenseExpires: null } as never, '2026-09-25')).toEqual([]);
+    expect(approvalBlockers('agent', { ...VERIFIED, licenseExpires: '2026-09-25' } as never, '2026-09-25')).toHaveLength(1);
     expect(approvalBlockers('bank', { ...VERIFIED, licenseExpires: null } as never, '2026-09-25')).toEqual([]);
     expect(approvalBlockers('agent', { ...VERIFIED, identityConfirmed: false } as never, '2026-09-25')).toHaveLength(1);
     expect(approvalBlockers('agent', { ...VERIFIED, contentReviewed: false } as never, '2026-09-25')).toEqual(['Check the headline, bio and ad line against the content rules.']);
