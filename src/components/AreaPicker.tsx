@@ -1,10 +1,11 @@
 // "Where are you buying?": the visitor's state, then (optionally) their city. A city in more than one county asks
 // which county. Saves to the visitor's area (myArea.ts), which the rest of the site follows.
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
-import { areaLabel, useMyArea, type Area } from '../lib/myArea';
+import { areaLabel, areaLong, useMyArea, type Area } from '../lib/myArea';
 import { loadPlaces, matchPlaces, type Place } from '../lib/places';
 import { STATES, countyName, type StateCode } from '../lib/regions';
 import { useModal } from '../lib/useModal';
+import PlaceCombobox from './PlaceCombobox';
 
 export function AreaPicker({ onDone, doneLabel = 'Done', extra }: { onDone?: () => void; doneLabel?: string; extra?: ReactNode }) {
   const [area, setArea] = useMyArea();
@@ -144,5 +145,62 @@ export function AreaDialog({ onClose }: { onClose: () => void }) {
         <AreaPicker onDone={onClose} />
       </div>
     </div>
+  );
+}
+
+/**
+ * The homepage's state pill: each state is a button. Choosing one shows an optional city search and a county list, so
+ * the visitor can say where they're buying once; every other page then starts from it (and can still change it).
+ */
+export function HomeArea() {
+  const [area, setArea] = useMyArea();
+  const st = area ? STATES.find((s) => s.code === area.state) : undefined;
+  const pickState = (code: StateCode) => { if (area?.state !== code) setArea({ state: code, city: null, county: null }); };
+  return (
+    <div className="home-area">
+      <div className="eyebrow home-states" role="group" aria-label="Where are you buying? Choose a state">
+        <span className="live-dot" aria-hidden />
+        {STATES.map((s, i) => (
+          <span key={s.code}>
+            {i > 0 && <span aria-hidden className="home-states-sep">·</span>}
+            <button type="button" aria-pressed={area?.state === s.code} className={area?.state === s.code ? 'on' : ''} onClick={() => pickState(s.code as StateCode)}>{s.name}</button>
+          </span>
+        ))}
+      </div>
+      {area && st && (
+        <div className="home-area-row">
+          <PlaceCombobox
+            key={`${area.state}-${area.city ?? ''}`}
+            state={area.state}
+            label={area.city ? <>City: <strong>{area.city}</strong></> : 'Your city or town (optional)'}
+            onPick={(p) => setArea({ state: area.state, city: p.name, county: area.county && p.counties.includes(area.county) ? area.county : p.counties[0] })}
+          />
+          <label className="field">
+            <span>Or a county</span>
+            <select value={area.county ?? ''} onChange={(e) => setArea({ state: area.state, city: null, county: e.target.value || null })}>
+              <option value="">All of {st.name}</option>
+              {st.counties.map((c) => <option key={c} value={c}>{countyName(c)}</option>)}
+            </select>
+          </label>
+          <p className="home-area-now">
+            Showing <strong>{areaLong(area)}</strong> across the site. You can change it on any page.{' '}
+            <button type="button" className="linkish" onClick={() => setArea(null)}>Clear</button>
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** "Your area: Henderson (Clark County) · Change": the saved area, on pages that use it, with a way to switch. */
+export function AreaLine({ what }: { what: string }) {
+  const [area] = useMyArea();
+  const [open, setOpen] = useState(false);
+  return (
+    <p className="area-line">
+      {area ? <>Your area: <strong>{areaLong(area)}</strong>. {what}</> : <>Choose your city or county to see {what.replace(/^Showing /, '').replace(/\.$/, '')}.</>}{' '}
+      <button type="button" className="linkish" onClick={() => setOpen(true)}>{area ? 'Change' : 'Choose your area'}</button>
+      {open && <AreaDialog onClose={() => setOpen(false)} />}
+    </p>
   );
 }

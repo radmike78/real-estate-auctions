@@ -12,11 +12,14 @@ import CheckFold from './CheckFold';
 import { linkLabel } from '../lib/linkLabel';
 import { investorProfile } from '../lib/myPlan';
 import { fmtMoney } from '../lib/status';
+import { getMyArea } from '../lib/myArea';
 import { analyzeAdCategories } from '../lib/contextAds';
 import { RotatingAd } from './AdBoxes';
 import { useDirectory } from './ProDirectory';
 
 const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake' };
+/** A new deal's county: the visitor's chosen county in that state (myArea.ts), else the state's largest. */
+const startCounty = (st: StateCode) => { const a = getMyArea(); return a?.state === st && a.county ? a.county : DEFAULT_COUNTY[st]; };
 const CURRENT = CURRENT_KEY;
 
 /** The plan a new deal starts on: from the strategy in your buy box (rentals open Keep and rent). */
@@ -31,7 +34,7 @@ function planFromBuyBox(): Plan {
 }
 
 function blank(st: StateCode): Deal {
-  return { id: '', name: '', state: st, county: DEFAULT_COUNTY[st], kind: 'listing', plan: planFromBuyBox(), notes: '', done: [], updatedAt: new Date().toISOString() };
+  return { id: '', name: '', state: st, county: startCounty(st), kind: 'listing', plan: planFromBuyBox(), notes: '', done: [], updatedAt: new Date().toISOString() };
 }
 
 function loadCurrent(st: StateCode): Deal {
@@ -166,7 +169,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           </label>
           <label className="field">
             <span>State</span>
-            <select value={deal.state} onChange={(e) => { const s = e.target.value as StateCode; const k = kindsFor(s).some((x) => x.key === deal.kind) ? deal.kind : 'listing'; set({ state: s, county: DEFAULT_COUNTY[s], kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); setMyState(s); }}>
+            <select value={deal.state} onChange={(e) => { const s = e.target.value as StateCode; const k = kindsFor(s).some((x) => x.key === deal.kind) ? deal.kind : 'listing'; set({ state: s, county: startCounty(s), kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); setMyState(s); }}>
               {STATES.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}
             </select>
           </label>

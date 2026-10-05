@@ -10,6 +10,7 @@ import { COUNTY_PAGES, nationalOfficialFor, OFFICE_LABELS, OTHER_SITES, STATE_SA
 import { COUNTY_OFFICES } from '../lib/countyOffices';
 import { useMarkStep } from '../lib/path';
 import { useMyArea } from '../lib/myArea';
+import PlaceCombobox from './PlaceCombobox';
 import { useLastActivity } from '../lib/journey';
 
 const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake' };
@@ -85,6 +86,16 @@ export default function FindDealsPage() {
               {st.counties.map((c) => <option key={c} value={c}>{countyName(c)}</option>)}
             </select>
           </label>
+          {/* Optional: the city narrows Your Team and the ads to it; the sources below are the county's. */}
+          <PlaceCombobox
+            key={`${area.state}-${area.county}-${mine?.city ?? ''}`}
+            state={area.state}
+            label={mine?.city ? <>City: <strong>{mine.city}</strong></> : 'City or town (optional)'}
+            hint={mine?.city ? undefined : `Cities and towns in ${countyName(area.county)}.`}
+            keep={(p) => p.counties.includes(area.county)}
+            onPick={(p) => setMine({ state: area.state, county: area.county, city: p.name })}
+          />
+          {mine?.city && <button type="button" className="linkish area-clear" onClick={() => setMine({ state: area.state, county: area.county, city: null })}>Clear city</button>}
         </div>
       </PageHero>
 

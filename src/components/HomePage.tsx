@@ -4,6 +4,7 @@ import { loadCase } from '../practice/caseProgress';
 import { PATH, useStepsSeen } from '../lib/path';
 import { currentProgress, GUIDED, guidedNext, setMode, unfinished, useJourney } from '../lib/journey';
 import { roadmapProgress } from './ToolkitPage';
+import { HomeArea } from './AreaPicker';
 
 /** Once the practice purchase is under way, the next place to go is your own plan. */
 const caseStarted = () => loadCase().done.length > 0;
@@ -37,7 +38,7 @@ export default function HomePage() {
         <div className="hero-grid" aria-hidden />
         <div className="hero-glow" aria-hidden />
         <div className="hero-inner">
-          <span className="eyebrow"><span className="live-dot" aria-hidden /> Nevada · California · Arizona · Utah</span>
+          <HomeArea />
           <h1>
             Become a real estate investor, <span className="grad">step by step.</span>
           </h1>
