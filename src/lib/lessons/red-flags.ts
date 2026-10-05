@@ -71,6 +71,7 @@ export const redFlags: Lesson = {
           { label: 'California Attorney General: consumer complaint against a business', url: 'https://oag.ca.gov/contact/consumer-complaint-against-business-or-company', what: 'File a complaint about a business in California.' },
           { label: 'Arizona Attorney General: consumer complaint', url: 'https://www.azag.gov/complaints/consumer', what: 'File a consumer fraud complaint in Arizona.' },
           { label: 'Utah Division of Consumer Protection', url: 'https://commerce.utah.gov/dcp/', what: 'Utah’s agency that brought the seminar cases with the FTC. It takes complaints from Utah residents and about Utah businesses.' },
+          { label: 'Texas Attorney General: file a consumer complaint', url: 'https://www.texasattorneygeneral.gov/consumer-protection/file-consumer-complaint', what: 'File a consumer complaint about a business in Texas.' },
         ] },
       ],
     },
@@ -92,5 +93,5 @@ export const redFlags: Lesson = {
     { label: 'IRS: retirement plan loans', url: 'https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-loans' },
   ],
   practice: 'Before you pay for any course, search the company’s name with “FTC” and “complaint”. Then read the refund policy in writing.',
-  reviewed: '2026-10-04',
+  reviewed: '2026-10-05',
 };

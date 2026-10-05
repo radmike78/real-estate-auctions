@@ -3,7 +3,7 @@ import type { Lesson } from './types';
 export const veterans: Lesson = {
   key: 'veterans',
   minutes: 10,
-  intro: 'Military service brings real estate benefits that can lower what you pay to buy, borrow and own. This lesson starts with the federal benefits that apply in every state, then covers the property tax and home-buying programs in Nevada, California, Arizona and Utah. Amounts change every year, so check with the agency before you count on one.',
+  intro: 'Military service brings real estate benefits that can lower what you pay to buy, borrow and own. This lesson starts with the federal benefits that apply in every state, then covers the property tax and home-buying programs in Nevada, California, Arizona, Utah and Texas. Amounts change every year, so check with the agency before you count on one.',
   takeaways: [
     'What a VA home loan offers, and why it’s for a home you live in, not a pure rental.',
     'How veterans who receive VA disability compensation skip the VA funding fee.',
@@ -89,6 +89,9 @@ export const veterans: Lesson = {
           'In Utah, a veteran with a service-connected disability of at least 10% can exempt part of their primary residence’s taxable value. The amount is in proportion to their rating. At 100%, the maximum was $521,620 of taxable value in 2025, and it’s raised every year. Apply with your county by September 1.',
           'In Utah, an active or reserve duty member can exempt the full taxable value of their primary residence. To qualify, they must have served at least 200 days in a continuous 365-day period outside the state. Apply by September 1 of the year after that service.',
           'In Utah, the Department of Veterans and Military Affairs offers a $2,500 grant for buying a first home in Utah. It’s open to veterans who separated in the last 5 years, and to current service members. You must live in the home. The Legislature sets the funding, and it can run out, so check before you count on it.',
+          'In Texas, a veteran who gets 100% disability compensation from VA, with a 100% disability rating or a rating of individual unemployability, pays no property tax on their homestead: its whole appraised value is exempt. A surviving spouse who hasn’t remarried can keep the exemption (Tax Code 11.131). Apply with your county appraisal district.',
+          'In Texas, other veterans rated at least 10% disabled can take $5,000 to $12,000 off the assessed value of one property they choose: $5,000 at 10 to 29%, $7,500 at 30 to 49%, $10,000 at 50 to 69% and $12,000 at 70% or more (Tax Code 11.22). Once allowed, it carries over each year until the owner or the veteran’s eligibility changes (Tax Code 11.43).',
+          'In Texas, the Veterans Land Board’s home loan program lends eligible Texas veterans and military members up to $832,750 at a fixed rate, with little or no down payment. Veterans rated 30% or more disabled get a lower rate. You must move in within 60 days and keep it as your main home for at least 3 years, so it can’t be used for a rental (Texas Veterans Land Board).',
         ] },
       ],
     },
@@ -133,7 +136,11 @@ export const veterans: Lesson = {
     { label: 'Arizona: Mohave County Assessor, 2026 exemption amounts', url: 'https://www.mohave.gov/departments/assessor/program-enrollment/exemptions/' },
     { label: 'Utah: State Tax Commission, property tax relief table', url: 'https://files.tax.utah.gov/propertytax/media/tax-relief.pdf' },
     { label: 'Utah: Utah Housing, veteran homebuyer grant FAQ', url: 'https://utahhousingcorp.org/pdf/Veteran_Grant_FAQ.pdf' },
+    { label: 'Texas: Tax Code 11.131 (100% disabled veteran homestead)', url: 'https://statutes.capitol.texas.gov/Docs/TX/htm/TX.11.htm#11.131' },
+    { label: 'Texas: Tax Code 11.22 (disabled veteran exemption)', url: 'https://statutes.capitol.texas.gov/Docs/TX/htm/TX.11.htm#11.22' },
+    { label: 'Texas: Tax Code 11.43 (applying for an exemption)', url: 'https://statutes.capitol.texas.gov/Docs/TX/htm/TX.11.htm#11.43' },
+    { label: 'Texas: Veterans Land Board, home loans', url: 'https://www.glo.texas.gov/veterans/home-loans' },
   ],
   practice: 'Ask your county assessor’s or treasurer’s office which exemptions you qualify for, and the deadline to apply.',
-  reviewed: '2026-10-02',
+  reviewed: '2026-10-05',
 };

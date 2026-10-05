@@ -61,6 +61,7 @@ export const analyze: Lesson = {
               ['California', 'Buying resets the taxable value to what you paid (Proposition 13). The county also sends a separate “supplemental” bill for the rest of the tax year. It goes to you, and your lender’s impound account doesn’t pay it.', 'A seller who bought 20 years ago may pay $3,500 a year; at today’s price you might pay $7,500, plus a supplemental bill a few months after closing.'],
               ['Arizona', 'Owner-occupied homes get a rebate on part of the school tax, up to $600 a year (A.R.S. 15-972). A rental doesn’t. You must also register a rental with the county assessor; skipping it can cost $1,000 plus $100 a month (A.R.S. 33-1902).', 'Expect up to about $600 a year more than an owner-occupant paid.'],
               ['Utah', 'A main home is taxed on 55% of its value (a 45% exemption). A long-term rental counts when it’s the tenant’s main home. A second home or short-term rental doesn’t, so its bill is about 80% higher.', 'A home that pays $1,500 a year as a long-term rental pays about $2,700 as a short-term rental.'],
+              ['Texas', 'A home you live in can get the homestead exemption, including $140,000 off the school district value (Tax Code 11.13). A rental or second home can’t, so its bill can be much higher than the seller’s. You can protest the value by May 15, or 30 days after the notice was mailed if that’s later (Tax Code 41.44).', 'At an example school tax rate of $1 per $100 of value, the $140,000 exemption saves an owner who lives there $1,400 a year. A rental pays it.'],
             ],
           },
         },
@@ -130,7 +131,7 @@ export const analyze: Lesson = {
       blocks: [
         {
           table: {
-            head: ['', 'Nevada', 'California', 'Arizona', 'Utah'],
+            head: ['', 'Nevada', 'California', 'Arizona', 'Utah', 'Texas'],
             rows: [
               [
                 'Seller’s disclosure',
@@ -138,6 +139,7 @@ export const analyze: Lesson = {
                 'The seller gives the buyer a Transfer Disclosure Statement as soon as practicable before title transfers (Civil Code 1102.3). If it arrives after the offer is signed, the buyer has 3 days to cancel after hand delivery, or 5 days if it came by mail or electronically.',
                 'State law requires certain disclosures, such as soil cleanup (remediation) the owner knows about (A.R.S. 33-434.01). Unsubdivided land outside cities also needs an affidavit of disclosure, due at least 7 days before transfer, with 5 days to cancel (A.R.S. 33-422). Ask your agent which disclosure form your contract uses.',
                 'The state-approved purchase contract has the seller give a written property condition disclosure by the Seller Disclosure Deadline. The buyer can cancel by the Due Diligence Deadline. Sellers must disclose methamphetamine contamination they know about (Utah Code 57-27-201).',
+                'Most sellers of a single home must give the Seller’s Disclosure Notice by the time the contract is signed. If it comes later, the buyer can end the contract for any reason within 7 days after getting it. Sellers fill it out to the best of what they know (Property Code 5.008).',
               ],
               [
                 'HOA documents',
@@ -145,6 +147,7 @@ export const analyze: Lesson = {
                 'The owner gives governing documents, financial and reserve disclosures, assessments, violation notices and rental limits before transfer (Civil Code 4525).',
                 'The association delivers its documents (rules, budget, reserves, insurance, lawsuits) within 10 days. The 10 days start after notice of a pending offer. In smaller communities, they start after the offer is accepted. Its fee can’t be more than $400, plus up to $100 for a rush (A.R.S. 33-1260 and 33-1806).',
                 'Before closing, the seller gives the buyer the association’s recorded governing documents (Utah Code 57-8a-105.1 and 57-8-6.1). A payoff fee can’t be more than $50.',
+                'Within 10 business days of a written request, the association delivers its restrictions, bylaws, rules and a resale certificate. The certificate lists dues, approved special assessments, unpaid amounts, reserves, the budget and pending lawsuits (Property Code 207.003).',
               ],
               [
                 'Forced sales',
@@ -152,12 +155,14 @@ export const analyze: Lesson = {
                 'Foreclosure sales, court-ordered sales and many resales by the foreclosing lender are exempt from the Transfer Disclosure Statement (Civil Code 1102.2).',
                 'Auctions and bank sales usually come as-is. Read the sale’s terms.',
                 'Auctions and bank sales usually come as-is. Read the sale’s terms.',
+                'Foreclosure sales, court-ordered sales, lenders reselling homes they took back, and government sellers are exempt from the Seller’s Disclosure Notice (Property Code 5.008(e)).',
               ],
             ],
           },
         },
         'In Arizona, sellers and agents can’t be sued for not telling you that a home was the site of a death or felony, that someone with HIV lived there, or that it’s near a sex offender (A.R.S. 32-2156).',
         'In Utah, sellers and their agents aren’t liable for not telling you that a home was the site of a homicide, suicide or other felony, or that someone with HIV lived there (Utah Code 57-1-37).',
+        'In Texas, sellers and their agents don’t have to tell you about a death on the property from natural causes, suicide or an accident unrelated to its condition, or that someone who lived there had HIV or AIDS (Property Code 5.008(c)).',
       ],
     },
   ],
@@ -208,7 +213,11 @@ export const analyze: Lesson = {
     { label: 'Utah Code 57-1-37: stigmatized property', url: 'https://le.utah.gov/xcode/Title57/Chapter1/57-1-S37.html' },
     { label: 'Utah Code 57-8a-105.1: HOA documents before closing', url: 'https://le.utah.gov/xcode/Title57/Chapter8A/57-8a-S105.1.html' },
     { label: 'Utah Code 57-8a-106: HOA payoff fee', url: 'https://le.utah.gov/xcode/Title57/Chapter8A/57-8a-S106.html' },
+    { label: 'Texas Tax Code 11.13: homestead exemption', url: 'https://statutes.capitol.texas.gov/Docs/TX/htm/TX.11.htm#11.13' },
+    { label: 'Texas Tax Code 41.44: deadline to protest', url: 'https://statutes.capitol.texas.gov/Docs/TX/htm/TX.41.htm#41.44' },
+    { label: 'Texas Property Code 5.008: Seller’s Disclosure Notice', url: 'https://statutes.capitol.texas.gov/Docs/PR/htm/PR.5.htm#5.008' },
+    { label: 'Texas Property Code 207.003: HOA resale certificate', url: 'https://statutes.capitol.texas.gov/Docs/PR/htm/PR.207.htm#207.003' },
   ],
   practice: 'Take one real listing and write down where each number comes from: rented comparables, the county’s tax bill, an insurance quote. Mark every number you guessed.',
-  reviewed: '2026-09-29',
+  reviewed: '2026-10-05',
 };

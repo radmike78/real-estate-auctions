@@ -7,6 +7,8 @@ describe('statesOf', () => {
     expect(statesOf('Arizona and Utah have their own disclosure rules')).toEqual(['AZ', 'UT']);
     expect(statesOf('California: 3 months after a judicial foreclosure sale')).toEqual(['CA']);
     expect(statesOf('Clark County (NV) Assessor')).toEqual(['NV']);
+    expect(statesOf('In Texas, the seller must give the disclosure notice')).toEqual(['TX']);
+    expect(statesOf('Harris County (TX) Appraisal District')).toEqual(['TX']);
     expect(statesOf('NRS 107: deeds of trust')).toEqual(['NV']);
     expect(statesOf('Washoe County Treasurer: tax sales FAQ')).toEqual(['NV']);
     expect(statesOf('California Civil Code 2924')).toEqual(['CA']);

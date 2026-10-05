@@ -1,5 +1,5 @@
-// The visitor's state (NV, CA, AZ or UT), chosen once and used across the site so people see only the rules
-// that apply where they invest. Kept only in this browser; null means "show all four states".
+// The visitor's state (NV, CA, AZ, UT or TX), chosen once and used across the site so people see only the rules
+// that apply where they invest. Kept only in this browser; null means "show all states".
 import { useEffect, useState } from 'react';
 import { STATES, type StateCode } from './regions';
 
@@ -51,10 +51,10 @@ const NAMES: [RegExp, StateCode][] = [
  * have…", "Clark County (NV) Assessor", "NRS 107: …". Empty when the text applies everywhere.
  */
 export function statesOf(text: string): StateCode[] {
-  const lead = text.match(/^(?:In |For )?((?:(?:Nevada|California|Arizona|Utah)(?:,\s*|\s+and\s+|\s+or\s+)?)+)/);
+  const lead = text.match(/^(?:In |For )?((?:(?:Nevada|California|Arizona|Utah|Texas)(?:,\s*|\s+and\s+|\s+or\s+)?)+)/);
   if (lead) return NAMES.filter(([re]) => re.test(lead[1])).map(([, c]) => c);
   const head = text.slice(0, 60);
-  const tagged = NAMES.filter(([re]) => re.test(head) && /^(?:[A-Z][\w.’' ]*\((?:NV|CA|AZ|UT)\)|NRS\b|Washoe|San Diego County|Los Angeles County)/.test(text)).map(([, c]) => c);
+  const tagged = NAMES.filter(([re]) => re.test(head) && /^(?:[A-Z][\w.’' ]*\((?:NV|CA|AZ|UT|TX)\)|NRS\b|Washoe|San Diego County|Los Angeles County)/.test(text)).map(([, c]) => c);
   return tagged;
 }
 
