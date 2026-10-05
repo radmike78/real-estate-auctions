@@ -91,7 +91,7 @@ export default function AdvertisePage() {
 
       <div className="notice small" role="note">
         <strong>How placement works.</strong> Every listed professional appears in the directory list in a fair rotating order, whatever plan
-        they pay for. Spotlight adds a separate, labeled Featured ad box on your category’s pages (up to {CAPS.featured} per category in each city) and a turn in the rotating ad at the top of the Your Team page. Mentor Connect
+        they pay for. Spotlight adds a separate, labeled Featured ad box on your category’s pages (up to {CAPS.featured} per category in each city) a turn in the rotating ad at the top of the Your Team page, and a turn in the ad beside the matching step on My plan and Analyze a deal. Mentor Connect
         also adds a labeled ad beside one Learn or Practice topic. Every ad is labeled as paid. We don’t rank professionals, charge per lead or per
         closing, or take a share of any transaction, and we aren’t a party to any agreement between you and a buyer.
       </div>

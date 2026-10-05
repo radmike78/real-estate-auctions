@@ -20,6 +20,9 @@ import { loadCase } from '../practice/caseProgress';
 import { RENTAL_CASE, tasksFor } from '../practice/rentalCase';
 import { proGuideByKey } from '../lib/proGuide';
 import { PRO_SCRIPTS } from '../lib/proScripts';
+import { stepAdCategories } from '../lib/contextAds';
+import { RotatingAd } from './AdBoxes';
+import { useDirectory } from './ProDirectory';
 
 const ROADMAP_KEY = 'deedowl.roadmap.v1';
 const ROADMAP_PATH_KEY = 'deedowl.roadmap.path.v1';
@@ -180,6 +183,7 @@ export function FirstDealRoadmap() {
   const [deals] = useState(loadAnalyzed);
   const [dealId, setDealId] = useState(() => read(DEAL_KEY, '', (v) => (typeof v === 'string' && DEAL_ID.test(v) ? v : '')));
   const [perDeal, setPerDeal] = useState<DealSteps>(() => read(DEAL_STEPS_KEY, {}, cleanDealSteps));
+  const { pros } = useDirectory();
   useEffect(() => write(ROADMAP_KEY, done), [done]);
   useEffect(() => write(STATUS_KEY, status), [status]);
   useEffect(() => write(ROADMAP_PATH_KEY, path), [path]);
@@ -278,10 +282,15 @@ export function FirstDealRoadmap() {
         </p>
       )}
       {next ? (
-        <div className="roadmap-next">
-          <p className="roadmap-next-label">Your next step · {ROADMAP_PHASES[next.phase]}{scoped(next) ? ` · ${deal!.name}` : ''}</p>
-          <h3>{next.title}</h3>
-          <StepBody s={next} status={stateOf(next)} setStatus={(v) => setStatus(next, v)} deal={deal} />
+        // Beside the next step, one labeled ad from whoever the step says to call (contextAds.ts): buying through an
+        // agent only, never on auction or lien-certificate steps.
+        <div className={stepAdCategories(next, path).length ? 'next-with-ad' : undefined}>
+          <div className="roadmap-next">
+            <p className="roadmap-next-label">Your next step · {ROADMAP_PHASES[next.phase]}{scoped(next) ? ` · ${deal!.name}` : ''}</p>
+            <h3>{next.title}</h3>
+            <StepBody s={next} status={stateOf(next)} setStatus={(v) => setStatus(next, v)} deal={deal} />
+          </div>
+          {stepAdCategories(next, path).length > 0 && <RotatingAd key={next.id} pros={pros} categories={stepAdCategories(next, path)} placeholder />}
         </div>
       ) : (
         <p className="next-step" role="status">Every step on this route is done. Review your plan before your next deal, and keep practicing.</p>

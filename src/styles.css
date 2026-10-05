@@ -2475,6 +2475,11 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 /* Roadmap steps: the next step open in full, every step folded by phase with its status. */
 .roadmap-next { margin: 12px 0 20px; padding: 18px 20px; border-radius: 14px; border: 2px solid var(--accent); background: var(--surface); }
 .roadmap-next h3 { margin: 4px 0 8px; }
+/* The next step (My plan, Analyze a deal) with one labeled ad beside it on wide screens, under it on narrow ones. */
+.next-with-ad { display: grid; gap: 16px 20px; align-items: start; }
+@media (min-width: 900px) { .next-with-ad { grid-template-columns: minmax(0, 1fr) minmax(280px, 340px); } }
+.next-with-ad > .roadmap-next { margin: 12px 0 20px; }
+.next-with-ad > .ad-box { margin: 12px 0 0; }
 .roadmap-next-label { margin: 0; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.9rem; }
 .roadmap-all-head { margin: 24px 0 4px; }
 .roadmap-steps { padding: 0 12px 12px; display: grid; gap: 8px; }
