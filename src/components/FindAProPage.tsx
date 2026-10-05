@@ -4,6 +4,7 @@ import DrillDown, { type DrillSection } from './DrillDown';
 import TeamList from './TeamList';
 import ProDirectory, { useDirectory } from './ProDirectory';
 import { FeaturedAds, RotatingAd } from './AdBoxes';
+import { AreaLine } from './AreaPicker';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
 import { guidesFor } from '../lib/playbooks';
@@ -171,6 +172,7 @@ export default function FindAProPage({ section }: { section?: string }) {
         title={open ? proGuideByKey(section)!.title : build ? <>Build <span className="grad">your team</span></> : <>Your <span className="grad">team</span></>}
         sub={open ? undefined : build ? undefined : 'Who helps with a purchase, when you need each one, and how to find them.'}
       />
+      {all && <AreaLine what="Showing professionals advertising there." />}
       {build && <TeamBuilder />}
       {all && (
         // "Not sure where to start?" beside the rotating ad spot (an advertiser in the visitor's state, when picked), held by a

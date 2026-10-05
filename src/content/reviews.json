@@ -6,8 +6,8 @@
       "src/components/HomePage.tsx",
       "src/lib/journey.ts"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "705fe88f92f77c63",
+    "reviewed": "2026-10-05",
+    "hash": "8095d8bd50fbc4ce",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -202,7 +202,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-05",
-    "hash": "7b6ce21cd9231e3d",
+    "hash": "017411019ae5da82",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -375,7 +375,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-05",
-    "hash": "35f920957039827a",
+    "hash": "dacc29a3f9ffea8c",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
@@ -388,7 +388,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-05",
-    "hash": "3479012abef16300",
+    "hash": "017b0b18b1235c93",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {
