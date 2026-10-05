@@ -101,7 +101,6 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
     companyMatches: false,
     identityConfirmed: false,
     contentReviewed: false,
-    identityMethod: '',
   });
   const [err, setErr] = useState<string | null>(null);
   const info = CATEGORIES[app.profile.category];
@@ -147,7 +146,7 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
         </label>
         {info.licenseExpires && (
           <label className="field">
-            <span>Expiration shown</span>
+            <span>Expiration shown (optional)</span>
             <input type="date" value={v.licenseExpires ?? ''} onChange={(e) => set('licenseExpires', e.target.value)} />
           </label>
         )}
@@ -157,10 +156,6 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
       {box('companyMatches', `${info.regulator} shows them with "${app.profile.company}"`)}
       {box('identityConfirmed', 'I confirmed the applicant is this licensee, using contact details that did not come from this application')}
       {box('contentReviewed', 'I checked the headline, bio and ad line against the content rules, and searched a sentence online to make sure it isn\u2019t copied')}
-      <label className="field">
-        <span>How identity was confirmed</span>
-        <textarea rows={2} value={v.identityMethod} onChange={(e) => set('identityMethod', e.target.value)} placeholder="e.g. Called the brokerage number listed on NRED; spoke with the office manager, who confirmed…" />
-      </label>
       {blockers.length > 0 && (
         <ul className="blockers small">{blockers.map((b) => <li key={b}>{b}</li>)}</ul>
       )}

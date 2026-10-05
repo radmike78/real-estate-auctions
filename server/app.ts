@@ -1206,13 +1206,12 @@ export function createApp(config: AppConfig) {
       const info = CATEGORIES[app.profile.category];
       const verification: LicenseVerification = {
         licenseStatus: raw.licenseStatus as LicenseVerification['licenseStatus'],
-        licenseExpires: info.licenseExpires ? plain(raw.licenseExpires, 10) : null,
+        licenseExpires: info.licenseExpires ? plain(raw.licenseExpires, 10) || null : null,
         nameMatches: raw.nameMatches === true,
         typeMatches: raw.typeMatches === true,
         companyMatches: raw.companyMatches === true,
         identityConfirmed: raw.identityConfirmed === true,
         contentReviewed: raw.contentReviewed === true,
-        identityMethod: plain(raw.identityMethod, 300),
       };
       const blockers = approvalBlockers(app.profile.category, verification, today());
       if (blockers.length) throw new HttpError(422, 'Verification incomplete.', { blockers });
@@ -1220,7 +1219,7 @@ export function createApp(config: AppConfig) {
       if (clash) throw new HttpError(409, `This ${info.licenseLabel} is already listed under another approved profile (${clash.id}). Resolve that first.`);
       const wasApproved = app.status === 'APPROVED';
       db.update(app.id, { status: 'APPROVED', verification: { ...verification, verifiedAt: today(), verifiedBy: admin.subject }, decisionReason: null }, now().toISOString());
-      audit(app.id, wasApproved ? 'REVERIFIED' : 'APPROVED', `${info.regulator}: ${verification.licenseStatus}${verification.licenseExpires ? `, expires ${verification.licenseExpires}` : ''}. Identity: ${verification.identityMethod}`);
+      audit(app.id, wasApproved ? 'REVERIFIED' : 'APPROVED', `${info.regulator}: ${verification.licenseStatus}${verification.licenseExpires ? `, expires ${verification.licenseExpires}` : ''}. Identity confirmed by the admin.`);
       publish();
       if (!wasApproved) await deliver(approvedEmail(app.profile.email, app.profile.name, `${base}/#/advertiser`, payable(app.profile.category)));
       return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });

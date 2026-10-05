@@ -236,7 +236,8 @@ export interface LicenseVerification {
   companyMatches: boolean; // regulator shows them with this company / brokerage
   identityConfirmed: boolean; // confirmed the applicant IS this licensee
   contentReviewed: boolean; // headline, bio and ad line checked against CONTENT_RULES
-  identityMethod: string; // how, using contact details NOT taken from the application
+  /** Older approvals recorded how identity was confirmed; the admin's checkbox is enough now. */
+  identityMethod?: string;
 }
 
 export function approvalBlockers(category: Category, v: Partial<LicenseVerification>, today = new Date().toISOString().slice(0, 10)): string[] {
@@ -244,15 +245,15 @@ export function approvalBlockers(category: Category, v: Partial<LicenseVerificat
   const out: string[] = [];
   if (!info) return ['Unknown category.'];
   if (v.licenseStatus !== 'Active') out.push(`${info.regulator} must show the license or registration as Active.`);
-  if (info.licenseExpires && (!v.licenseExpires || !/^\d{4}-\d{2}-\d{2}$/.test(v.licenseExpires) || v.licenseExpires <= today)) {
-    out.push(`Enter a future expiration date, as shown on ${info.regulator}.`);
+  // The expiration date is optional (the 90-day re-check catches lapses); a date that is entered must be in the future.
+  if (info.licenseExpires && v.licenseExpires && (!/^\d{4}-\d{2}-\d{2}$/.test(v.licenseExpires) || v.licenseExpires <= today)) {
+    out.push(`The expiration date must be in the future, as shown on ${info.regulator}, or left blank.`);
   }
   if (!v.nameMatches) out.push(`Confirm the name on ${info.regulator} matches.`);
   if (!v.typeMatches) out.push(`Confirm the license type or classification fits "${info.label}".`);
   if (!v.companyMatches) out.push(`Confirm ${info.regulator} shows them with this company.`);
   if (!v.identityConfirmed) out.push('Confirm the applicant is the licensee, using contact details that did not come from the application.');
   if (!v.contentReviewed) out.push('Check the headline, bio and ad line against the content rules.');
-  if (plain(v.identityMethod, 300).length < 15) out.push('Describe how identity was confirmed (at least 15 characters).');
   return out;
 }
 

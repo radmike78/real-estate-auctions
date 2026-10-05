@@ -222,8 +222,8 @@
       "src/components/ProDirectory.tsx",
       "src/lib/pros.ts"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "6c5f114b27432414",
+    "reviewed": "2026-10-05",
+    "hash": "bac4f8c1f1346733",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -266,8 +266,8 @@
       "src/components/AdvertiseApplyPage.tsx",
       "src/lib/proApplication.ts"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "97bc2a38df95f71a",
+    "reviewed": "2026-10-05",
+    "hash": "6841488068cfb5fd",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
