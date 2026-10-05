@@ -51,7 +51,7 @@ function TopicPicker({ me, value, onChange }: { me: Me; value: string; onChange:
   const topics = topicsFor(me.profile.category);
   return (
     <label className="field">
-      <span>Topic for your Premium Plus ad</span>
+      <span>Topic for your Mentor Connect ad</span>
       <select value={value} onChange={(e) => onChange(e.target.value)}>
         <option value="">Choose a topic…</option>
         {topics.map((t) => {
@@ -131,7 +131,7 @@ function PlanCard({ me, onChange }: { me: Me; onChange: () => void }) {
           {p.cancelAtPeriodEnd && <p className="muted">Your plan is set to end after the current paid period.</p>}
           {p.tier === 'premium_plus' && (
             <div className="form">
-              {!p.topic && <div className="notice">Choose the topic for your Premium Plus ad. It appears once you save a topic.</div>}
+              {!p.topic && <div className="notice">Choose the topic for your Mentor Connect ad. It appears once you save a topic.</div>}
               <TopicPicker me={me} value={topic} onChange={setTopic} />
               <button className="btn btn-secondary" disabled={!topic || topic === p.topic} onClick={saveTopic}>Save topic</button>
               {topicMsg && <p className="small" role="status">{topicMsg}</p>}

@@ -176,7 +176,7 @@ describe('advertiser card payments (running server, simulated Stripe)', () => {
     expect((await hook(invoicePaid('evt_paid_1'))).status).toBe(200);
     const m = await me();
     expect(m.billing.paidThrough).toBe(pacificDay(new Date((periodEnd + 3 * 86_400) * 1000)));
-    expect(m.billing.plan).toBe('Card · Standard · $199 / month');
+    expect(m.billing.plan).toBe('Card · Rotating · $199 / month');
     expect(m.billing.tier).toBe('standard');
     expect(m.payments.active).toBe(true);
     expect(m.listed).toBe(true);
@@ -355,7 +355,7 @@ describe('advertising plans: checkout, caps and webhooks (running server, simula
     // The plan comes from the price Stripe charged; the topic from the subscription's metadata.
     await hook({ id: 'evt_pp_1', type: 'invoice.paid', data: { object: { customer: 'cus_1', subscription: 'sub_pp', amount_paid: 24900, currency: 'usd', lines: { data: [{ period: { end: periodEnd }, pricing: { price_details: { price: 'price_PLS001' } } }] }, parent: { subscription_details: { metadata: { tier: 'premium_plus', topic: 'offer' } } } } } });
     const m = await meOf(a.cookie);
-    expect(m.billing).toMatchObject({ tier: 'premium_plus', plan: 'Card · Premium Plus · $249 / month' });
+    expect(m.billing).toMatchObject({ tier: 'premium_plus', plan: 'Card · Mentor Connect · $249 / month' });
     expect(m.payments).toMatchObject({ tier: 'premium_plus', topic: 'offer', active: true });
     const feed = JSON.parse(readFileSync(join(dir, 'data', 'pros.json'), 'utf8'));
     expect(feed.pros.find((p: { id: string }) => p.id === a.id)).toMatchObject({ tier: 'premium_plus', adTopic: 'offer' });
@@ -418,8 +418,8 @@ describe('advertising plans: checkout, caps and webhooks (running server, simula
     // Switched to Standard on Stripe's billing portal.
     await hook({ id: 'evt_sw_1', type: 'customer.subscription.updated', data: { object: { id: 'sub_fb', customer: cus, status: 'active', items: { data: [{ price: { id: 'price_STD001' } }] } } } });
     m = await meOf(a.cookie);
-    expect(m.billing).toMatchObject({ tier: 'standard', plan: 'Card · Standard · $99 / month' });
-    expect(app.db.auditFor(a.id).some((e) => e.action === 'PLAN_CHANGED' && e.detail === 'Premium → Standard')).toBe(true);
+    expect(m.billing).toMatchObject({ tier: 'standard', plan: 'Card · Rotating · $99 / month' });
+    expect(app.db.auditFor(a.id).some((e) => e.action === 'PLAN_CHANGED' && e.detail === 'Spotlight → Rotating')).toBe(true);
     // A partial discount is noted with its amount.
     await hook({ id: 'evt_fb_2', type: 'invoice.paid', data: { object: { customer: cus, subscription: 'sub_fb', amount_paid: 6900, currency: 'usd', total_discount_amounts: [{ amount: 3000 }], lines: { data: [{ period: { end: periodEnd }, price: { id: 'price_STD001' } }] } } } });
     expect(app.db.auditFor(a.id).filter((e) => e.action === 'PAYMENT_RECEIVED').at(-1)!.detail).toMatch(/discount applied \(30\.00 USD off\)/);
