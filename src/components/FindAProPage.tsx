@@ -3,7 +3,7 @@ import PageHero from './PageHero';
 import DrillDown, { type DrillSection } from './DrillDown';
 import TeamList from './TeamList';
 import ProDirectory, { useDirectory } from './ProDirectory';
-import { RotatingAd } from './AdBoxes';
+import { FeaturedAds, RotatingAd } from './AdBoxes';
 import { hasFeaturedBox } from '../lib/adPlans';
 import { isListable } from '../lib/pros';
 import Disclaimer from './Disclaimer';
@@ -50,28 +50,15 @@ function LicenseCheck({ lookups, state }: { lookups: Record<StateCode, Lookup>; 
 function GuideBody({ g }: { g: ProGuide }) {
   const [st] = useMyState();
   const fit = (xs: string[]) => xs.map((x) => forStateText(st, x)).filter(Boolean);
+  const { pros } = useDirectory();
+  // A Featured ad to show beside "What to say": Nevada (or no state picked), a script to sit beside, and a Spotlight or
+  // Mentor Connect advertiser in this role's categories.
+  const sideAd = !!g.directory && (!st || st === 'NV') && !!PRO_SCRIPTS[g.key] && pros.some((p) => g.directory!.includes(p.category) && hasFeaturedBox(p.tier) && isListable(p));
   return (
     <div className="pro-guide">
-      {/* One short role summary, the Nevada listings, then the practical part (when, how to find, what to ask, how they're
-          paid); background, the case for and against, and the stories after. */}
+      {/* One short role summary, then the practical part (when, how to find, what to ask, with the Featured ad box beside
+          "What to say", how they're paid); background, the case for and against, the stories and the Nevada list after. */}
       <p className="pro-guide-does">{forStateText(st, g.does)}</p>
-      {/* Nevada listings (and their labeled Featured ad box) right after the summary, so they're seen without scrolling
-          past the whole guide; hidden while no one is listed. Other states get the note at the end instead. */}
-      {g.directory && (!st || st === 'NV') && (
-        <ProDirectory
-          categories={g.directory}
-          initialCategory={g.directory.length === 1 ? g.directory[0] : 'any'}
-          showCategoryFilter={g.directory.length > 1}
-          hideWhenEmpty
-          header={
-            <>
-              <h3 className="part-head">Listed on DeedOwl (Nevada)</h3>
-              <p className="small muted pro-guide-ads">Listed professionals are paid advertisements, for Nevada only for now. Check any license yourself before you hire.</p>
-            </>
-          }
-          notice={<Disclaimer kind={g.key === 'lender' || g.key === 'private_lender' ? 'financing' : 'professionals'} compact />}
-        />
-      )}
       <h3 className="part-head">Hiring one</h3>
       <div className="pro-guide-cols">
         <section>
@@ -88,6 +75,8 @@ function GuideBody({ g }: { g: ProGuide }) {
         </section>
       </div>
       {PRO_SCRIPTS[g.key] && (
+        // The labeled Featured ad box (Nevada or no state picked) sits beside "What to say", so it's seen early without
+        // coming before any of the guide. With an ad, the reading notes stack under the script on the left.
         <div className="roadmap-cols pro-script">
           <div>
             <h3>What to say</h3>
@@ -98,8 +87,16 @@ function GuideBody({ g }: { g: ProGuide }) {
                 <ul>{PRO_SCRIPTS[g.key].bring!.map((x) => <li key={x}>{x}</li>)}</ul>
               </>
             )}
+            {sideAd && PRO_SCRIPTS[g.key].read && (
+              <>
+                <h3>{PRO_SCRIPTS[g.key].read!.title}</h3>
+                <ul>{PRO_SCRIPTS[g.key].read!.items.map((x) => <li key={x}>{x}</li>)}</ul>
+              </>
+            )}
           </div>
-          {PRO_SCRIPTS[g.key].read && (
+          {sideAd ? (
+            <FeaturedAds pros={pros} categories={g.directory!} />
+          ) : PRO_SCRIPTS[g.key].read && (
             <div>
               <h3>{PRO_SCRIPTS[g.key].read!.title}</h3>
               <ul>{PRO_SCRIPTS[g.key].read!.items.map((x) => <li key={x}>{x}</li>)}</ul>
@@ -129,6 +126,22 @@ function GuideBody({ g }: { g: ProGuide }) {
           <p className="muted">True accounts from news reports, court cases and government agencies. Private people aren’t named.</p>
           <StoryList stories={PRO_DEEP[g.key]!.stories} />
         </div>
+      )}
+      {g.directory && (!st || st === 'NV') && (
+        <ProDirectory
+          categories={g.directory}
+          initialCategory={g.directory.length === 1 ? g.directory[0] : 'any'}
+          showCategoryFilter={g.directory.length > 1}
+          hideWhenEmpty
+          featured={!sideAd}
+          header={
+            <>
+              <h3 className="part-head">Listed on DeedOwl (Nevada)</h3>
+              <p className="small muted pro-guide-ads">Listed professionals are paid advertisements, for Nevada only for now. Check any license yourself before you hire.</p>
+            </>
+          }
+          notice={<Disclaimer kind={g.key === 'lender' || g.key === 'private_lender' ? 'financing' : 'professionals'} compact />}
+        />
       )}
       {g.directory && st && st !== 'NV' && (
         <OwlNote>Listed professionals are Nevada only for now. In {stateByCode(st)?.name}, use the license lookup above to check anyone you find.</OwlNote>

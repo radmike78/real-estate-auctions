@@ -69,9 +69,10 @@ interface Props {
   notice?: ReactNode; // the advertising notice, shown only when there are listings to go with it
   header?: ReactNode; // a heading for the section, shown with the listings
   hideWhenEmpty?: boolean; // for a directory that's a side section of another page: nothing at all until someone is listed
+  featured?: boolean; // show the Featured ad box above the list (off where the page shows it elsewhere)
 }
 
-export default function ProDirectory({ categories, initialCategory = 'any', showCategoryFilter = true, initialLocation = '', notice, header, hideWhenEmpty = false }: Props) {
+export default function ProDirectory({ categories, initialCategory = 'any', showCategoryFilter = true, initialLocation = '', notice, header, hideWhenEmpty = false, featured = true }: Props) {
   const { pros, usingSamples, error, loading } = useDirectory();
   const none = !loading && !error && pros.length === 0;
   const [cat, setCat] = useState<Category | 'any'>(initialCategory);
@@ -106,7 +107,7 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
       )}
       {!none && notice}
       {/* Paid Featured ads sit apart from the list below, which keeps the same rotation for every advertiser. */}
-      {!loading && !error && <FeaturedAds pros={pros} categories={active} />}
+      {featured && !loading && !error && <FeaturedAds pros={pros} categories={active} />}
       {!none && showCategoryFilter && categories.length > 1 && (
         <div className="chip-tabs" role="group" aria-label="Type">
           <button aria-pressed={cat === 'any'} onClick={() => setCat('any')}>All</button>
