@@ -56,7 +56,14 @@ export function placements(rows: ApplicationRow[], now: Date): Placement[] {
 }
 
 export function buildProsFeed(rows: ApplicationRow[], now: Date, photos: Map<string, string> = new Map()): ProsFeed {
-  const pros = rows.map((r) => toPro(r, photos.get(r.id) ?? null)).filter((p): p is Pro => !!p && isListable(p, now));
+  const pros = rows
+    .map((r) => {
+      const p = toPro(r, photos.get(r.id) ?? null);
+      // Ads turned off by an admin: published as a plain listing (no Featured, rotating or topic ad), while the plan
+      // they pay for still holds its spot in the caps (placements() reads the real plan).
+      return p && r.adsHidden ? { ...p, tier: 'standard' as AdTier, adLine: null, adTopic: null } : p;
+    })
+    .filter((p): p is Pro => !!p && isListable(p, now));
   return {
     version: 1,
     type: 'pros',

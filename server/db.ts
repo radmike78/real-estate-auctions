@@ -25,6 +25,8 @@ export interface ApplicationRow {
   emailConfirmedAt: string | null;
   /** Founding advertiser (set by an admin): checkout applies the plan's founding coupon. */
   founding: boolean;
+  /** Ads turned off by an admin: the profile and directory listing stay, the ad boxes don't show. */
+  adsHidden: boolean;
 }
 
 export interface AuditEntry {
@@ -185,6 +187,7 @@ export function openDb(path: string) {
     if (!cols.some((c) => c.name === column)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
   };
   addColumn('applications', 'founding', 'INTEGER NOT NULL DEFAULT 0');
+  addColumn('applications', 'ads_hidden', 'INTEGER NOT NULL DEFAULT 0');
   // The plan and topic chosen at checkout, used if a payment's price can't be matched to a plan (and for the topic).
   addColumn('stripe_accounts', 'pending_tier', 'TEXT');
   addColumn('stripe_accounts', 'pending_topic', 'TEXT');
@@ -200,6 +203,7 @@ export function openDb(path: string) {
     updatedAt: r.updated_at as string,
     emailConfirmedAt: (r.email_confirmed_at as string) ?? null,
     founding: r.founding === 1,
+    adsHidden: r.ads_hidden === 1,
   });
 
   const api = {
@@ -263,6 +267,9 @@ export function openDb(path: string) {
     },
     setFounding(id: string, founding: boolean, now: string) {
       db.prepare('UPDATE applications SET founding = ?, updated_at = ? WHERE id = ?').run(founding ? 1 : 0, now, id);
+    },
+    setAdsHidden(id: string, hidden: boolean, now: string) {
+      db.prepare('UPDATE applications SET ads_hidden = ?, updated_at = ? WHERE id = ?').run(hidden ? 1 : 0, now, id);
     },
     /**
      * Housekeeping so spam can't fill the disk: applications whose email was never confirmed (the link

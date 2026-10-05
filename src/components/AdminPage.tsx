@@ -18,6 +18,7 @@ interface App {
   billing: Billing | null;
   payments?: { available: boolean; amountLabel: string | null; tier: AdTier; topic: string | null; status: string | null; active: boolean; cancelAtPeriodEnd: boolean; hasCard: boolean };
   founding: boolean;
+  adsHidden: boolean;
   listed: boolean;
   decisionReason: string | null;
   createdAt: string;
@@ -242,6 +243,32 @@ function FoundingToggle({ app, onSaved }: { app: App; onSaved: () => void }) {
   );
 }
 
+/** Removing only the ads: the profile page and directory listing stay live. (Suspending removes everything.) */
+function AdsToggle({ app, onSaved }: { app: App; onSaved: () => void }) {
+  const [err, setErr] = useState<string | null>(null);
+  async function set(hidden: boolean) {
+    setErr(null);
+    try {
+      await api(`/api/admin/applications/${app.id}/ads`, { body: { hidden }, auth: true });
+      onSaved();
+    } catch (x) {
+      setErr((x as Error).message);
+    }
+  }
+  return (
+    <section className="verify-panel">
+      <h3>Ads</h3>
+      {app.adsHidden ? (
+        <p className="small"><strong>Ads are off.</strong> Their profile page and directory listing stay live, but none of their ad boxes show (Featured ad, the rotating ad, or a topic ad).</p>
+      ) : (
+        <p className="small">Turn off only this advertiser's ad boxes (Featured ad, the rotating ad, and any topic ad). Their profile page and directory listing stay live, and their plan keeps its spot. To take everything down, use <strong>Suspend listing</strong> below.</p>
+      )}
+      <button className={app.adsHidden ? 'btn' : 'btn btn-danger'} onClick={() => set(!app.adsHidden)}>{app.adsHidden ? 'Turn ads back on' : 'Remove ads only'}</button>
+      {err && <div className="caution small">{err}</div>}
+    </section>
+  );
+}
+
 /** An ad line sent from the dashboard: approve it (it replaces the live one) or reject it. */
 function AdLineReview({ app, onDone }: { app: App; onDone: () => void }) {
   const [err, setErr] = useState<string | null>(null);
@@ -406,10 +433,11 @@ function Detail({ id, onChange }: { id: string; onChange: () => void }) {
       {['PENDING_REVIEW', 'APPROVED', 'SUSPENDED'].includes(a.status) && <VerifyForm key={a.status + (a.verification?.verifiedAt ?? '')} app={a} onSaved={refresh} />}
       {['PENDING_REVIEW', 'APPROVED', 'SUSPENDED'].includes(a.status) && <BillingForm key={JSON.stringify(a.billing)} app={a} onSaved={refresh} />}
       {['PENDING_REVIEW', 'APPROVED', 'SUSPENDED'].includes(a.status) && <FoundingToggle app={a} onSaved={refresh} />}
+      {a.status === 'APPROVED' && <AdsToggle app={a} onSaved={refresh} />}
       {a.status === 'APPROVED' && <MetricsPanel id={a.id} />}
       <div className="row">
         {['PENDING_REVIEW', 'EMAIL_UNCONFIRMED'].includes(a.status) && <ReasonAction label="Reject" path={`/api/admin/applications/${a.id}/reject`} onDone={refresh} danger />}
-        {a.status === 'APPROVED' && <ReasonAction label="Suspend listing" path={`/api/admin/applications/${a.id}/suspend`} onDone={refresh} danger />}
+        {a.status === 'APPROVED' && <ReasonAction label="Suspend listing (removes everything)" path={`/api/admin/applications/${a.id}/suspend`} onDone={refresh} danger />}
       </div>
 
       <h3>Audit trail</h3>
