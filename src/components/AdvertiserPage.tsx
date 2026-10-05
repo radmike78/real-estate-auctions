@@ -20,6 +20,7 @@ interface Payments {
   tier: AdTier;
   topic: string | null;
   founding: boolean;
+  adsHidden: boolean;
   status: string | null;
   active: boolean;
   cancelAtPeriodEnd: boolean;
@@ -122,6 +123,11 @@ function PlanCard({ me, onChange }: { me: Me; onChange: () => void }) {
             <strong>{TIER_INFO[p.tier].label}</strong>{p.amountLabel && <> · {p.amountLabel}</>}
             {me.billing && <> · paid through <strong>{fmtDate(me.billing.paidThrough)}</strong></>}
           </p>
+          {p.adsHidden && (
+            <div className="caution">
+              <strong>Your ads are paused by DeedOwl.</strong> Your profile page and directory listing are still live, but your ad boxes aren’t showing.
+            </div>
+          )}
           {NEEDS_CARD.has(p.status ?? '') && (
             <div className="caution">
               <strong>Add a card to keep advertising.</strong> Stripe couldn’t collect your latest payment, or a discount’s free period has ended.

@@ -254,6 +254,14 @@ describe('advertiser flow (running server)', () => {
     expect(detail.application.founding).toBe(true);
     expect(detail.audit.map((e: { action: string }) => e.action)).toEqual(expect.arrayContaining(['BILLING', 'FOUNDING_SET']));
     expect((await admin(`/api/admin/applications/${agentId}/founding`, { founding: 'yes' })).status).toBe(400);
+    // Removing only the ads: still listed, published as a plain listing; turning them back on restores the plan.
+    expect((await admin(`/api/admin/applications/${agentId}/ads`, { hidden: true })).status).toBe(200);
+    feed = await readFeed();
+    expect(feed.ok && feed.feed.pros.find((p) => p.category === 'agent')).toMatchObject({ tier: 'standard', adLine: null, adTopic: null });
+    expect((await admin(`/api/admin/applications/${agentId}/ads`, { hidden: 'yes' })).status).toBe(400);
+    expect((await admin(`/api/admin/applications/${agentId}/ads`, { hidden: false })).status).toBe(200);
+    feed = await readFeed();
+    expect(feed.ok && feed.feed.pros.find((p) => p.category === 'agent')).toMatchObject({ tier: 'premium_plus', adTopic: 'offer' });
     expect((await admin(`/api/admin/applications/${agentId}/billing`, { billing: PAID })).status).toBe(200); // back to Standard: the topic is cleared
     feed = await readFeed();
     expect(feed.ok && feed.feed.pros.find((p) => p.category === 'agent')).toMatchObject({ tier: 'standard', adTopic: null });
@@ -341,7 +349,7 @@ describe('advertiser flow (running server)', () => {
     const feed = await readFeed();
     expect(feed.ok && feed.feed.pros.map((p) => p.category)).toEqual(['private_lender']);
     const detail = await (await admin(`/api/admin/applications/${agentId}`)).json();
-    expect(detail.audit.map((e: { action: string }) => e.action)).toEqual(['SUBMITTED', 'EMAIL_CONFIRMED', 'APPROVED', 'BILLING', 'BILLING', 'FOUNDING_SET', 'BILLING', 'ADVERTISER_LOGIN', 'LEADS_EXPORTED', 'SUSPENDED']);
+    expect(detail.audit.map((e: { action: string }) => e.action)).toEqual(['SUBMITTED', 'EMAIL_CONFIRMED', 'APPROVED', 'BILLING', 'BILLING', 'FOUNDING_SET', 'ADS_HIDDEN', 'ADS_SHOWN', 'BILLING', 'ADVERTISER_LOGIN', 'LEADS_EXPORTED', 'SUSPENDED']);
     expect((await post(`/api/pros/${agentId}/leads`, { name: 'x' })).status).toBe(404); // no longer listed
     // A suspended advertiser is signed out everywhere and can't use an old sign-in link.
     expect((await fetch(base + '/api/pro/me', { headers: { cookie: proCookie } })).status).toBe(401);

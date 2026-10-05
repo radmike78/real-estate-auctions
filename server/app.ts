@@ -21,7 +21,7 @@
 // Public: GET /api/pro-photos/<sha256>.webp   approved profile photos only, by the hash in the signed directory
 // Admin (fsf_admin cookie; writes need x-fsf-request: 1 and same origin)
 //   POST /api/admin/login | /logout ; GET /api/admin/me | /api/admin/applications[/:id[/metrics]]
-//   POST /api/admin/applications/:id/(approve|billing|reject|suspend|founding|ad-line/approve|ad-line/reject) ; POST /api/admin/publish | /api/admin/reports
+//   POST /api/admin/applications/:id/(approve|billing|reject|suspend|founding|ads|ad-line/approve|ad-line/reject) ; POST /api/admin/publish | /api/admin/reports
 //   GET  /api/admin/applications/:id/photo (pending photo) ; POST /api/admin/applications/:id/photo/(approve|reject)
 //   GET  /api/admin/email | /api/admin/email/list.csv ; POST /api/admin/email/test | /api/admin/email/send   (general email list)
 
@@ -483,6 +483,7 @@ export function createApp(config: AppConfig) {
       tier,
       topic: tier === 'premium_plus' && topicAllowed(cat, a.profile.adTopic) ? a.profile.adTopic : null,
       founding: a.founding,
+      adsHidden: a.adsHidden,
       status: acct?.status ?? null,
       active: ACTIVE_SUB.has(acct?.status ?? ''),
       cancelAtPeriodEnd: !!acct?.cancelAtPeriodEnd,
@@ -1166,7 +1167,7 @@ export function createApp(config: AppConfig) {
       return send(res, 200, { ok: true, sent: n });
     }
 
-    const m = path.match(/^\/api\/admin\/applications\/([^/]+)(?:\/(approve|billing|reject|suspend|metrics|photo|photo\/approve|photo\/reject|founding|ad-line\/approve|ad-line\/reject))?$/);
+    const m = path.match(/^\/api\/admin\/applications\/([^/]+)(?:\/(approve|billing|reject|suspend|metrics|photo|photo\/approve|photo\/reject|founding|ads|ad-line\/approve|ad-line\/reject))?$/);
     if (!m) throw new HttpError(404, 'Not found');
     const app = loadApp(m[1]);
     const action = m[2];
@@ -1252,6 +1253,16 @@ export function createApp(config: AppConfig) {
       }
       db.setFounding(app.id, body.founding, now().toISOString());
       audit(app.id, body.founding ? 'FOUNDING_SET' : 'FOUNDING_REMOVED', null);
+      return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });
+    }
+
+    if (action === 'ads') {
+      // Removes only the ads (Featured, rotating and topic ad boxes); the profile and directory listing stay live.
+      // To remove everything, suspend the listing instead.
+      if (typeof body.hidden !== 'boolean') throw new HttpError(400, 'Say whether to hide this advertiser\'s ads.');
+      db.setAdsHidden(app.id, body.hidden, now().toISOString());
+      audit(app.id, body.hidden ? 'ADS_HIDDEN' : 'ADS_SHOWN', plain(body.reason, 300) || null);
+      publish();
       return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });
     }
 
