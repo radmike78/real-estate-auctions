@@ -55,7 +55,7 @@ describe('rate limits behind Cloudflare (running server)', () => {
         headers: { 'content-type': 'application/json', 'user-agent': 'Mozilla/5.0 (test)', 'x-forwarded-for': `${visitor}, ${peer}`, 'cf-connecting-ip': visitor },
         body: JSON.stringify({
           category: 'agent', name: 'Taylor Q. Applicant', company: 'Example Brokerage LLC', licenseId: 's.0123456',
-          serviceCities: ['Las Vegas'], serviceZips: '89123', services: ['Short sales'], creditProfiles: [], languages: ['English'],
+          state: 'NV', serviceCounties: ['Clark'], serviceCities: ['Las Vegas'], serviceZips: '89123', services: ['Short sales'], creditProfiles: [], languages: ['English'],
           headline: 'Short-sale specialist in the valley', phone: '(702) 555-0199', email: `agent${n++}@example.com`, website: '',
           bio: 'I help buyers navigate short sales and lender approval in the Las Vegas valley.',
           attestLicensed: true, attestAccurate: true, consentVerification: true, attestAdvertising: true, attestOriginal: true,

@@ -5,12 +5,12 @@
 
 import { isAdTier, type AdTier } from './adPlans';
 import { CATEGORIES, CREDIT_PROFILES, servicesFor, type Category } from './pros';
+import { regulatorFor } from './regulators';
+import { STATES, stateByCode, type StateCode } from './regions';
 
-export const CLARK_COUNTY_CITIES = [
-  'Las Vegas', 'Henderson', 'North Las Vegas', 'Boulder City', 'Mesquite', 'Laughlin', 'Moapa', 'Overton', 'Logandale',
-  'Indian Springs', 'Searchlight', 'Sandy Valley', 'Blue Diamond', 'Enterprise', 'Paradise', 'Spring Valley', 'Summerlin',
-  'Sunrise Manor', 'Whitney', 'Winchester',
-] as const;
+/** Most counties, and most cities, one application can list as its service area. */
+export const MAX_SERVICE_COUNTIES = 20;
+export const MAX_SERVICE_CITIES = 30;
 
 /** What an advertiser's profile must never contain. Shown on the application and in the Advertiser terms. */
 export const CONTENT_RULES = [
@@ -61,7 +61,10 @@ export function validateAdLine(raw: unknown, category: Category): string | null 
 
 /** Fills in fields added after a profile was stored, so older rows keep working. */
 export function withProfileDefaults(p: ProProfile): ProProfile {
-  return { ...p, adLine: typeof p.adLine === 'string' ? p.adLine : '', adTopic: typeof p.adTopic === 'string' ? p.adTopic : '', adLinePending: typeof p.adLinePending === 'string' ? p.adLinePending : '' };
+  // Profiles from before advertising opened to other states are Nevada, Clark County.
+  const state: StateCode = stateByCode(String(p.state)) ? p.state : 'NV';
+  const serviceCounties = Array.isArray(p.serviceCounties) && p.serviceCounties.length ? p.serviceCounties : state === 'NV' ? ['Clark'] : [];
+  return { ...p, state, serviceCounties, adLine: typeof p.adLine === 'string' ? p.adLine : '', adTopic: typeof p.adTopic === 'string' ? p.adTopic : '', adLinePending: typeof p.adLinePending === 'string' ? p.adLinePending : '' };
 }
 
 export const LANGUAGES = [
@@ -72,10 +75,15 @@ export const LANGUAGES = [
 const AGENT_PREFIX_TYPE: Record<string, string> = { S: 'Salesperson', BS: 'Broker-Salesperson', B: 'Broker' };
 
 export interface ApplicationInput {
+  /** The state they're licensed in and advertise to (NV, CA, AZ or UT). */
+  state: string;
   category: string;
   name: string;
   company: string;
   licenseId: string;
+  /** Counties they serve, in their state. */
+  serviceCounties: string[];
+  /** Optional cities or towns they serve, by their Census names (src/data/places). */
   serviceCities: string[];
   serviceZips: string; // comma or space separated
   services: string[];
@@ -99,11 +107,13 @@ export interface ApplicationInput {
 }
 
 export interface ProProfile {
+  state: StateCode;
   category: Category;
   name: string;
   company: string;
   licenseId: string;
-  licenseType: string | null; // agents only, derived from the license prefix
+  licenseType: string | null; // Nevada agents only, derived from the license prefix
+  serviceCounties: string[];
   serviceCities: string[];
   serviceZips: string[];
   services: string[];
@@ -143,9 +153,17 @@ export function normalizePhone(v: string): string | null {
 
 const strings = (v: unknown) => [...new Set(Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [])];
 
-export function validateApplication(raw: Partial<ApplicationInput>): ValidationResult {
+/**
+ * `isCity` (the server passes the Census place lists) checks each city name against the state's places; the form
+ * only offers names from that list, so in the browser it can be left out.
+ */
+export function validateApplication(raw: Partial<ApplicationInput>, isCity?: (state: StateCode, name: string) => boolean): ValidationResult {
   const errors: Partial<Record<Field, string>> = {};
   if (raw.company_url) errors.form = 'Submission rejected.';
+
+  const st = STATES.find((s) => s.code === raw.state);
+  if (!st) errors.state = 'Choose the state you’re licensed in.';
+  const state = (st?.code ?? 'NV') as StateCode;
 
   const category = raw.category as Category;
   const info = CATEGORIES[category];
@@ -157,18 +175,23 @@ export function validateApplication(raw: Partial<ApplicationInput>): ValidationR
   const company = plain(raw.company, 120);
   if (company.length < 2) errors.company = category === 'agent' ? 'Enter the brokerage you are licensed under.' : 'Enter your company or employer.';
 
-  const licenseId = plain(raw.licenseId, 20).toUpperCase().replace(/\s/g, '');
+  // Any format: the admin checks the number on the state's official lookup before approving.
+  const licenseId = plain(raw.licenseId, 30).toUpperCase();
   let licenseType: string | null = null;
-  if (!info.licensePattern.test(licenseId)) errors.licenseId = `Enter your ${info.licenseLabel} (${info.licenseHint}).`;
-  else if (category === 'agent') licenseType = AGENT_PREFIX_TYPE[licenseId.split('.')[0]];
+  if (licenseId.length < 2) errors.licenseId = 'Enter your license, registration or ID number.';
+  else if (category === 'agent' && state === 'NV') licenseType = AGENT_PREFIX_TYPE[licenseId.split('.')[0]] ?? null;
 
-  const serviceCities = strings(raw.serviceCities);
-  if (!serviceCities.length || serviceCities.length > 10 || !serviceCities.every((c) => (CLARK_COUNTY_CITIES as readonly string[]).includes(c))) {
-    errors.serviceCities = 'Choose 1 to 10 Clark County cities or areas you serve.';
+  const serviceCounties = strings(raw.serviceCounties);
+  if (!serviceCounties.length || serviceCounties.length > MAX_SERVICE_COUNTIES || (st && !serviceCounties.every((c) => st.counties.includes(c)))) {
+    errors.serviceCounties = `Choose 1 to ${MAX_SERVICE_COUNTIES} counties you serve${st ? ` in ${st.name}` : ''}.`;
+  }
+  const serviceCities = strings(raw.serviceCities).map((c) => plain(c, 60)).filter(Boolean);
+  if (serviceCities.length > MAX_SERVICE_CITIES || (isCity && st && !serviceCities.every((c) => isCity(state, c)))) {
+    errors.serviceCities = `Choose up to ${MAX_SERVICE_CITIES} cities or towns from the list.`;
   }
   const serviceZips = [...new Set(plain(raw.serviceZips, 400).split(/[\s,;]+/).filter(Boolean))];
-  if (serviceZips.length > 40 || !serviceZips.every((z) => /^89[01]\d{2}$/.test(z))) {
-    errors.serviceZips = 'List Clark County ZIP codes (5 digits starting 890 or 891), separated by commas. Up to 40.';
+  if (serviceZips.length > 40 || !serviceZips.every((z) => /^\d{5}$/.test(z))) {
+    errors.serviceZips = 'List 5-digit ZIP codes, separated by commas. Up to 40.';
   }
 
   const allowed = servicesFor(category);
@@ -222,7 +245,7 @@ export function validateApplication(raw: Partial<ApplicationInput>): ValidationR
   if (Object.keys(errors).length || !phone) return { ok: false, errors };
   return {
     ok: true,
-    profile: { category, name, company, licenseId, licenseType, serviceCities, serviceZips, services, creditProfiles: info.financing ? creditProfiles : [], languages, headline, phone, email, website, bio, adLine, adTopic: '', adLinePending: '' },
+    profile: { state, category, name, company, licenseId, licenseType, serviceCounties, serviceCities, serviceZips, services, creditProfiles: info.financing ? creditProfiles : [], languages, headline, phone, email, website, bio, adLine, adTopic: '', adLinePending: '' },
   };
 }
 
@@ -240,18 +263,19 @@ export interface LicenseVerification {
   identityMethod?: string;
 }
 
-export function approvalBlockers(category: Category, v: Partial<LicenseVerification>, today = new Date().toISOString().slice(0, 10)): string[] {
+export function approvalBlockers(category: Category, v: Partial<LicenseVerification>, today = new Date().toISOString().slice(0, 10), state: StateCode = 'NV'): string[] {
   const info = CATEGORIES[category];
   const out: string[] = [];
   if (!info) return ['Unknown category.'];
-  if (v.licenseStatus !== 'Active') out.push(`${info.regulator} must show the license or registration as Active.`);
+  const reg = regulatorFor(category, state).name;
+  if (v.licenseStatus !== 'Active') out.push(`${reg} must show the license or registration as Active.`);
   // The expiration date is optional (the 90-day re-check catches lapses); a date that is entered must be in the future.
   if (info.licenseExpires && v.licenseExpires && (!/^\d{4}-\d{2}-\d{2}$/.test(v.licenseExpires) || v.licenseExpires <= today)) {
-    out.push(`The expiration date must be in the future, as shown on ${info.regulator}, or left blank.`);
+    out.push(`The expiration date must be in the future, as shown on ${reg}, or left blank.`);
   }
-  if (!v.nameMatches) out.push(`Confirm the name on ${info.regulator} matches.`);
+  if (!v.nameMatches) out.push(`Confirm the name on ${reg} matches.`);
   if (!v.typeMatches) out.push(`Confirm the license type or classification fits "${info.label}".`);
-  if (!v.companyMatches) out.push(`Confirm ${info.regulator} shows them with this company.`);
+  if (!v.companyMatches) out.push(`Confirm ${reg} shows them with this company.`);
   if (!v.identityConfirmed) out.push('Confirm the applicant is the licensee, using contact details that did not come from the application.');
   if (!v.contentReviewed) out.push('Check the headline, bio and ad line against the content rules.');
   return out;

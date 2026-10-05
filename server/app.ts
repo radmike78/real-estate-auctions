@@ -25,6 +25,8 @@
 //   GET  /api/admin/applications/:id/photo (pending photo) ; POST /api/admin/applications/:id/photo/(approve|reject)
 //   GET  /api/admin/email | /api/admin/email/list.csv ; POST /api/admin/email/test | /api/admin/email/send   (general email list)
 
+import { isKnownCity } from './places';
+import { regulatorFor } from '../src/lib/regulators';
 import { randomBytes } from 'node:crypto';
 import { createReadStream, statSync } from 'node:fs';
 import { pipeline } from 'node:stream';
@@ -467,7 +469,7 @@ export function createApp(config: AppConfig) {
 
   /** The cap problem (if any) for this advertiser taking `tier` (and `topic`), counting everyone listed now except them. */
   function capFor(row: ApplicationRow, tier: AdTier, topic: string | null) {
-    return capProblem(placements(db.listByStatus('APPROVED'), now()), { id: row.id, category: row.profile.category, tier, topic });
+    return capProblem(placements(db.listByStatus('APPROVED'), now()), { id: row.id, state: row.profile.state, category: row.profile.category, tier, topic });
   }
 
   /** What an advertiser (or admin) sees about their plan and online payment. */
@@ -476,7 +478,7 @@ export function createApp(config: AppConfig) {
     const acct = db.stripe.forPro(a.id);
     const cat = a.profile.category;
     const current = placements(db.listByStatus('APPROVED'), now());
-    const full = (t: AdTier, topic: string | null = null) => !!capProblem(current, { id: a.id, category: cat, tier: t, topic });
+    const full = (t: AdTier, topic: string | null = null) => !!capProblem(current, { id: a.id, state: a.profile.state, category: cat, tier: t, topic });
     return {
       available: payable(cat),
       amountLabel: planFor(cat, tier)?.amountLabel ?? null,
@@ -663,7 +665,7 @@ export function createApp(config: AppConfig) {
       const input = (await readJson(req)) as Partial<ApplicationInput>;
       const accepted = { ok: true, message: 'Application received. Check your email to confirm your address.' };
       if (input.company_url) return send(res, 202, accepted); // honeypot: pretend success, store nothing
-      const v = validateApplication(input);
+      const v = validateApplication(input, isKnownCity);
       if (!v.ok) throw new HttpError(422, 'Please fix the highlighted fields.', { errors: v.errors });
       // Per-recipient cap: nobody can use this form to flood one inbox with confirmation emails.
       if (!limiters.applyEmail.hit(v.profile.email)) return send(res, 202, accepted);
@@ -672,7 +674,7 @@ export function createApp(config: AppConfig) {
       const t = now();
       db.insertApplication({ id, profile: v.profile, tokenHash: sha256(token), tokenExpires: new Date(t.getTime() + EMAIL_TOKEN_TTL_MS).toISOString(), now: t.toISOString() });
       db.audit({ at: t.toISOString(), actor: 'applicant', applicationId: id, action: 'SUBMITTED', detail: `${CATEGORIES[v.profile.category].label}. Confirmed: licensed, accurate, verification consent, original content, Terms of ${TERMS_EFFECTIVE}` });
-      if (!(await deliverFromForm(confirmationEmail(v.profile.email, `${base}/#/advertise/confirm/${token}`, CATEGORIES[v.profile.category].regulator)))) {
+      if (!(await deliverFromForm(confirmationEmail(v.profile.email, `${base}/#/advertise/confirm/${token}`, regulatorFor(v.profile.category, v.profile.state).name)))) {
         throw new HttpError(503, 'We couldn\'t send your confirmation email just now. Please try again in a few minutes.');
       }
       return send(res, 202, accepted);
@@ -1214,13 +1216,13 @@ export function createApp(config: AppConfig) {
         identityConfirmed: raw.identityConfirmed === true,
         contentReviewed: raw.contentReviewed === true,
       };
-      const blockers = approvalBlockers(app.profile.category, verification, today());
+      const blockers = approvalBlockers(app.profile.category, verification, today(), app.profile.state);
       if (blockers.length) throw new HttpError(422, 'Verification incomplete.', { blockers });
       const clash = db.duplicates(app).find((d) => d.field === 'license' && d.status === 'APPROVED');
-      if (clash) throw new HttpError(409, `This ${info.licenseLabel} is already listed under another approved profile (${clash.id}). Resolve that first.`);
+      if (clash) throw new HttpError(409, `This license number is already listed under another approved profile (${clash.id}). Resolve that first.`);
       const wasApproved = app.status === 'APPROVED';
       db.update(app.id, { status: 'APPROVED', verification: { ...verification, verifiedAt: today(), verifiedBy: admin.subject }, decisionReason: null }, now().toISOString());
-      audit(app.id, wasApproved ? 'REVERIFIED' : 'APPROVED', `${info.regulator}: ${verification.licenseStatus}${verification.licenseExpires ? `, expires ${verification.licenseExpires}` : ''}. Identity confirmed by the admin.`);
+      audit(app.id, wasApproved ? 'REVERIFIED' : 'APPROVED', `${regulatorFor(app.profile.category, app.profile.state).name}: ${verification.licenseStatus}${verification.licenseExpires ? `, expires ${verification.licenseExpires}` : ''}. Identity confirmed by the admin.`);
       publish();
       if (!wasApproved) await deliver(approvedEmail(app.profile.email, app.profile.name, `${base}/#/advertiser`, payable(app.profile.category)));
       return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });
@@ -1248,7 +1250,7 @@ export function createApp(config: AppConfig) {
     if (action === 'founding') {
       if (typeof body.founding !== 'boolean') throw new HttpError(400, 'Say whether this is a founding advertiser.');
       const cat = app.profile.category;
-      if (body.founding && !app.founding && foundingFull(db.list().map((r) => ({ id: r.id, category: r.profile.category, founding: r.founding, status: r.status })), app.id, cat)) {
+      if (body.founding && !app.founding && foundingFull(db.list().map((r) => ({ id: r.id, category: r.profile.category, founding: r.founding, status: r.status, state: r.profile.state })), app.id, cat, app.profile.state)) {
         throw new HttpError(409, `There are already ${CAPS.founding} founding advertisers among ${CATEGORIES[cat].plural}. Untick one first to free the spot.`);
       }
       db.setFounding(app.id, body.founding, now().toISOString());

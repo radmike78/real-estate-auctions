@@ -44,6 +44,8 @@ const AGENT: ApplicationInput = {
   name: 'Robin Payer',
   company: 'Example Brokerage LLC',
   licenseId: 'S.0012345',
+  state: 'NV',
+  serviceCounties: ['Clark'],
   serviceCities: ['Las Vegas'],
   serviceZips: '',
   services: ['Short sales'],

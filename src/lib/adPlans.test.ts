@@ -43,7 +43,7 @@ describe('ad line rules', () => {
     expect(validateAdLine('We take payments in stages as the work is finished.', 'contractor')).toBeNull();
   });
   it('is checked on the application, and older stored profiles get empty ad fields', () => {
-    const base = { category: 'agent', name: 'Robin Payer', company: 'Example Brokerage LLC', licenseId: 'S.0012345', serviceCities: ['Las Vegas'], serviceZips: '', services: ['Short sales'], creditProfiles: [], languages: ['English'], headline: 'Short-sale specialist', phone: '702-555-0100', email: 'robin@example.com', website: '', bio: 'I help buyers navigate short sales and lender approval in the valley.', attestLicensed: true, attestAccurate: true, consentVerification: true, attestAdvertising: true, attestOriginal: true };
+    const base = { category: 'agent', name: 'Robin Payer', company: 'Example Brokerage LLC', licenseId: 'S.0012345', state: 'NV', serviceCounties: ['Clark'], serviceCities: ['Las Vegas'], serviceZips: '', services: ['Short sales'], creditProfiles: [], languages: ['English'], headline: 'Short-sale specialist', phone: '702-555-0100', email: 'robin@example.com', website: '', bio: 'I help buyers navigate short sales and lender approval in the valley.', attestLicensed: true, attestAccurate: true, consentVerification: true, attestAdvertising: true, attestOriginal: true };
     const good = validateApplication({ ...base, adLine: ` ${ok} ` });
     expect(good.ok && good.profile.adLine).toBe(ok);
     const bad = validateApplication({ ...base, adLine: 'The best agent in Las Vegas, guaranteed.' });
@@ -60,6 +60,8 @@ describe('caps', () => {
     expect(capProblem(five, p('new', 'standard'))).toEqual({ kind: 'listing', cap: CAPS.listing });
     expect(capProblem(five, p('a', 'standard'))).toBeNull(); // renewing
     expect(capProblem(five, p('new', 'standard', 'cpa'))).toBeNull(); // another category
+    expect(capProblem(five, { ...p('new', 'standard'), state: 'AZ' })).toBeNull(); // another state has its own spots
+    expect(capProblem(five.map((x) => ({ ...x, state: 'NV' as const })), p('new', 'standard'))).toEqual({ kind: 'listing', cap: CAPS.listing }); // no state = Nevada
   });
   it('caps Featured spots (Premium and Premium Plus) per category', () => {
     const two = [p('a', 'premium'), p('b', 'premium_plus', 'agent', 'offer')];
@@ -126,12 +128,12 @@ describe('Learn and Practice topics for ads', () => {
       for (const c of t.categories) expect(CATEGORIES[c], `${t.key}: ${c}`).toBeTruthy();
       for (const k of t.editorial.lookups) {
         expect(proGuideByKey(k), k).toBeTruthy();
-        expect(LICENSE_LOOKUPS[k]?.NV, `${k} has a Nevada lookup`).toBeTruthy();
+        for (const s of ['NV', 'CA', 'AZ', 'UT'] as const) expect(LICENSE_LOOKUPS[k]?.[s], `${k} has a ${s} lookup`).toBeTruthy();
       }
       expect(t.editorial.directories.length).toBeGreaterThan(0);
       for (const d of t.editorial.directories) {
         expect(d.href).toMatch(/^#\//);
-        expect(d.label, 'the directory is Nevada-only: say so').toMatch(/Nevada/);
+        expect(d.label).toMatch(/listed on DeedOwl$/);
       }
     }
     expect(topicsFor('loan_officer').map((t) => t.key)).toEqual(['financing']);
@@ -179,6 +181,7 @@ describe('founding cap', () => {
     expect(CAPS.founding).toBe(2);
     expect(foundingFull([r('a')], 'new', 'agent')).toBe(false);
     expect(foundingFull([r('a'), r('b')], 'new', 'agent')).toBe(true);
+    expect(foundingFull([r('a'), r('b')], 'new', 'agent', 'CA')).toBe(false); // each state has its own founding spots
     expect(foundingFull([r('a'), r('b')], 'a', 'agent')).toBe(false); // already one of them
     expect(foundingFull([r('a'), r('b', true, 'REJECTED')], 'new', 'agent')).toBe(false);
     expect(foundingFull([r('a'), r('b', false)], 'new', 'agent')).toBe(false);

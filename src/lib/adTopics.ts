@@ -6,7 +6,7 @@
 //    advertiser: it gives neutral questions to ask that kind of professional, says to check the license (with the
 //    official lookup), and links the category's directory page. It shows for every visitor.
 //  - The advertiser box is the advertiser speaking, labeled "Advertisement" (components/TopicAd.tsx). It shows only
-//    to visitors who chose Nevada or no state yet, because the directory is Nevada-only for now.
+//    a licensed advertiser in the visitor's state when they've picked one (any state otherwise).
 //
 // Each lesson, drill and rental-case stage belongs to at most one topic (checked by adPlans.test.ts). Never mapped:
 // the forced-sales lesson, any foreclosure, pre-foreclosure, tax-sale, lien, HOA, sheriff, IRS-sale, receiver or
@@ -32,7 +32,7 @@ export interface AdTopic {
     questions: string[];
     /** Whose license lookups to show (src/lib/licenseLookups.ts). */
     lookups: ProKey[];
-    /** The category directory pages (Nevada only for now). */
+    /** The category directory pages. */
     directories: { href: string; label: string }[];
   };
 }
@@ -55,7 +55,7 @@ export const AD_TOPICS: AdTopic[] = [
         'What happens if the appraisal comes in lower than the price?',
       ],
       lookups: ['lender'],
-      directories: [{ href: '#/financing', label: 'Nevada lenders listed on DeedOwl' }],
+      directories: [{ href: '#/financing', label: 'Lenders listed on DeedOwl' }],
     },
   },
   {
@@ -76,8 +76,8 @@ export const AD_TOPICS: AdTopic[] = [
       ],
       lookups: ['inspector', 'contractor'],
       directories: [
-        { href: '#/pros/inspector', label: 'Nevada home inspectors listed on DeedOwl' },
-        { href: '#/pros/contractor', label: 'Nevada contractors listed on DeedOwl' },
+        { href: '#/pros/inspector', label: 'Home inspectors listed on DeedOwl' },
+        { href: '#/pros/contractor', label: 'Contractors listed on DeedOwl' },
       ],
     },
   },
@@ -98,7 +98,7 @@ export const AD_TOPICS: AdTopic[] = [
         'How many purchases like this one have you handled?',
       ],
       lookups: ['agent'],
-      directories: [{ href: '#/pros/agent', label: 'Nevada agents listed on DeedOwl' }],
+      directories: [{ href: '#/pros/agent', label: 'Agents listed on DeedOwl' }],
     },
   },
   {
@@ -119,8 +119,8 @@ export const AD_TOPICS: AdTopic[] = [
       ],
       lookups: ['title', 'attorney'],
       directories: [
-        { href: '#/pros/title', label: 'Nevada title and escrow companies listed on DeedOwl' },
-        { href: '#/pros/attorney', label: 'Nevada real estate attorneys listed on DeedOwl' },
+        { href: '#/pros/title', label: 'Title and escrow companies listed on DeedOwl' },
+        { href: '#/pros/attorney', label: 'Real estate attorneys listed on DeedOwl' },
       ],
     },
   },
@@ -142,8 +142,8 @@ export const AD_TOPICS: AdTopic[] = [
       ],
       lookups: ['property_manager', 'insurance'],
       directories: [
-        { href: '#/pros/property_manager', label: 'Nevada property managers listed on DeedOwl' },
-        { href: '#/pros/insurance', label: 'Nevada insurance agents listed on DeedOwl' },
+        { href: '#/pros/property_manager', label: 'Property managers listed on DeedOwl' },
+        { href: '#/pros/insurance', label: 'Insurance agents listed on DeedOwl' },
       ],
     },
   },
@@ -163,7 +163,7 @@ export const AD_TOPICS: AdTopic[] = [
         'Do I need to send estimated taxes during the year?',
       ],
       lookups: ['cpa'],
-      directories: [{ href: '#/pros/cpa', label: 'Nevada CPAs listed on DeedOwl' }],
+      directories: [{ href: '#/pros/cpa', label: 'CPAs listed on DeedOwl' }],
     },
   },
 ];

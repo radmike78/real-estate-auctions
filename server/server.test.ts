@@ -18,6 +18,8 @@ const AGENT: ApplicationInput = {
   name: 'Taylor Q. Applicant',
   company: 'Example Brokerage LLC',
   licenseId: 's.0123456',
+  state: 'NV',
+  serviceCounties: ['Clark'],
   serviceCities: ['Las Vegas', 'Henderson'],
   serviceZips: '89123, 89052 89014',
   services: ['Short sales'],
@@ -69,11 +71,13 @@ describe('application validation', () => {
   });
 
   it('rejects bad or dangerous input, with category-specific rules', () => {
-    const bad = validateApplication({ ...AGENT, name: 'X', licenseId: '12345', serviceZips: '10001', phone: '555-1234', email: 'nope', website: 'javascript:alert(1)', serviceCities: ['Reno'], services: ['Hard money'], creditProfiles: ['Good (680–739)'], attestAdvertising: false });
+    const bad = validateApplication({ ...AGENT, name: 'X', licenseId: 'X', serviceZips: '8912', phone: '555-1234', email: 'nope', website: 'javascript:alert(1)', serviceCounties: ['Maricopa'], serviceCities: ['Springfield'], services: ['Hard money'], creditProfiles: ['Good (680–739)'], attestAdvertising: false }, () => false);
     expect(bad.ok).toBe(false);
     if (!bad.ok) {
-      expect(Object.keys(bad.errors).sort()).toEqual(['attestAdvertising', 'creditProfiles', 'email', 'licenseId', 'name', 'phone', 'serviceCities', 'serviceZips', 'services', 'website'].sort());
+      expect(Object.keys(bad.errors).sort()).toEqual(['attestAdvertising', 'creditProfiles', 'email', 'licenseId', 'name', 'phone', 'serviceCounties', 'serviceCities', 'serviceZips', 'services', 'website'].sort());
     }
+    const noState = validateApplication({ ...AGENT, state: 'TX' });
+    expect(!noState.ok && Object.keys(noState.errors)).toEqual(['state']);
     expect(validateApplication({ ...LENDER, creditProfiles: [] }).ok).toBe(false); // lenders must list credit situations
     expect(validateApplication({ ...AGENT, category: 'astrologer' }).ok).toBe(false);
   });
@@ -94,16 +98,24 @@ describe('application validation', () => {
     expect(approvalBlockers('agent', { ...VERIFIED, contentReviewed: false } as never, '2026-09-25')).toEqual(['Check the headline, bio and ad line against the content rules.']);
   });
 
-  it('accepts the new categories with their own license formats', () => {
-    const lawyer = { ...AGENT, category: 'attorney', licenseId: '12345', services: ['Quiet title'] };
-    expect(validateApplication(lawyer).ok).toBe(true);
-    const bad = validateApplication({ ...lawyer, licenseId: 'S.0012345' });
-    expect(bad.ok).toBe(false);
-    if (!bad.ok) expect(Object.keys(bad.errors)).toEqual(['licenseId']);
-    for (const [category, services] of [['home_inspector', ['Sewer scope']], ['property_manager', ['Tenant placement']], ['cpa', ['Bookkeeping for rentals']]] as const) {
-      expect(validateApplication({ ...AGENT, category, licenseId: 'IOS.0012345', services: [...services] }).ok, category).toBe(category !== 'cpa');
+  it('takes any license number format (the admin checks it on the official lookup)', () => {
+    for (const [category, licenseId, services] of [['attorney', 'S.0012345', ['Quiet title']], ['home_inspector', 'IOS.0012345', ['Sewer scope']], ['cpa', 'CPA-1234', ['Bookkeeping for rentals']], ['agent', '01234567', ['Investors']]] as const) {
+      expect(validateApplication({ ...AGENT, category, licenseId, services: [...services] }).ok, category).toBe(true);
     }
-    expect(validateApplication({ ...AGENT, category: 'cpa', licenseId: 'CPA-1234', services: ['Bookkeeping for rentals'] }).ok).toBe(true);
+    const v = validateApplication({ ...AGENT, licenseId: ' b.0001234 ' });
+    expect(v.ok && v.profile).toMatchObject({ licenseId: 'B.0001234', licenseType: 'Broker' });
+  });
+
+  it('takes advertisers from all four states, with counties and optional cities from that state', () => {
+    const ca = { ...AGENT, state: 'CA', licenseId: '01234567', serviceCounties: ['Los Angeles', 'Orange'], serviceCities: ['Long Beach'], serviceZips: '90802' };
+    const v = validateApplication(ca, (st, name) => st === 'CA' && name === 'Long Beach');
+    expect(v.ok && v.profile).toMatchObject({ state: 'CA', licenseType: null, serviceCounties: ['Los Angeles', 'Orange'], serviceCities: ['Long Beach'] });
+    expect(validateApplication({ ...ca, serviceCities: [] }).ok).toBe(true); // cities are optional
+    const wrong = validateApplication({ ...ca, serviceCounties: ['Clark'] });
+    expect(!wrong.ok && Object.keys(wrong.errors)).toEqual(['serviceCounties']);
+    expect(validateApplication({ ...ca, serviceCounties: [] }).ok).toBe(false);
+    // Approval names the state's own lookup.
+    expect(approvalBlockers('agent', { ...VERIFIED, nameMatches: false } as never, '2026-09-25', 'CA')[0]).toMatch(/California Department of Real Estate|DRE/);
   });
 
   it('requires the applicant to confirm their content is original', () => {
@@ -200,9 +212,9 @@ describe('advertiser flow (running server)', () => {
   it('drops honeypot submissions, rejects invalid and cross-origin ones', async () => {
     expect((await post('/api/applications', { ...AGENT, company_url: 'http://spam' })).status).toBe(202);
     expect(mails).toHaveLength(2);
-    const bad = await post('/api/applications', { ...AGENT, licenseId: 'nope' });
+    const bad = await post('/api/applications', { ...AGENT, licenseId: 'n' });
     expect(bad.status).toBe(422);
-    expect((await bad.json()).errors.licenseId).toMatch(/Nevada real estate license/);
+    expect((await bad.json()).errors.licenseId).toMatch(/license, registration or ID number/);
     expect((await post('/api/applications', AGENT, { origin: 'https://evil.example' })).status).toBe(403);
   });
 

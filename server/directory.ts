@@ -20,6 +20,7 @@ export function toPro(row: ApplicationRow, photo: string | null = null): Pro | n
   const tier: AdTier = billingTier(row.billing);
   return {
     id: row.id,
+    state: p.state,
     category: p.category,
     name: p.name,
     company: p.company,
@@ -29,6 +30,7 @@ export function toPro(row: ApplicationRow, photo: string | null = null): Pro | n
     licenseVerifiedAt: v.verifiedAt,
     licenseVerifiedBy: 'DeedOwl staff', // the individual admin is never published
     paidThrough: row.billing.paidThrough,
+    serviceCounties: p.serviceCounties,
     serviceCities: p.serviceCities,
     serviceZips: p.serviceZips,
     services: p.services,
@@ -51,7 +53,7 @@ export function toPro(row: ApplicationRow, photo: string | null = null): Pro | n
 export function placements(rows: ApplicationRow[], now: Date): Placement[] {
   return rows.flatMap((r) => {
     const p = toPro(r);
-    return p && isListable(p, now) ? [{ id: p.id, category: p.category, tier: p.tier, topic: p.adTopic }] : [];
+    return p && isListable(p, now) ? [{ id: p.id, state: p.state, category: p.category, tier: p.tier, topic: p.adTopic }] : [];
   });
 }
 

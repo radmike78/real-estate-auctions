@@ -202,7 +202,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-05",
-    "hash": "ce93eaab93e1f378",
+    "hash": "1fb472927dbe2554",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -223,7 +223,7 @@
       "src/lib/pros.ts"
     ],
     "reviewed": "2026-10-05",
-    "hash": "21d9d1e1df233d10",
+    "hash": "791bacfd4c0b13de",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -234,8 +234,8 @@
       "src/components/PaidAdNotice.tsx",
       "src/components/LeadForm.tsx"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "7ab7d195cc6f4eb1",
+    "reviewed": "2026-10-05",
+    "hash": "e5b4a3f28ead8288",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -267,7 +267,7 @@
       "src/lib/proApplication.ts"
     ],
     "reviewed": "2026-10-05",
-    "hash": "d39d3e9d07c8b8bb",
+    "hash": "e9efb61555d50a36",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

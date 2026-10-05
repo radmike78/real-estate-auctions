@@ -7,7 +7,10 @@ import { track } from '../lib/track';
 import { advertisingOpen, useSiteFeatures } from '../lib/siteFeatures';
 import OwlNote from './OwlNote';
 import ProAvatar from './ProAvatar';
-import { FeaturedAds } from './AdBoxes';
+import { FeaturedAds, inState } from './AdBoxes';
+import { useMyState } from '../lib/myState';
+import { stateByCode } from '../lib/regions';
+import { regulatorFor } from '../lib/regulators';
 
 /** Loads the signed directory; falls back to fictional samples only when no directory exists yet. */
 export function useDirectory(): { pros: Pro[]; usingSamples: boolean; error: string | null; loading: boolean } {
@@ -51,7 +54,7 @@ export function ProCard({ p }: { p: Pro }) {
         {p.services.slice(0, 4).map((s) => <span key={s} className="chip">{s}</span>)}
         {p.services.length > 4 && <span className="chip">+{p.services.length - 4}</span>}
       </div>
-      {p.isSample ? <div className="small muted">Sample profile: fictional, not a license check</div> : <div className="verified small">✓ Verified with {info.regulator}</div>}
+      {p.isSample ? <div className="small muted">Sample profile: fictional, not a license check</div> : <div className="verified small">✓ Verified with {regulatorFor(p.category, p.state).name}</div>}
       <div className="contact">
         <a className="btn" href={`#/pros/${p.id}`}>View profile</a>
         {!p.isSample && tel && <a className="btn btn-secondary" href={tel} onClick={() => track('phone_click', p.id)}>Call</a>}
@@ -73,7 +76,11 @@ interface Props {
 }
 
 export default function ProDirectory({ categories, initialCategory = 'any', showCategoryFilter = true, initialLocation = '', notice, header, hideWhenEmpty = false, featured = true }: Props) {
-  const { pros, usingSamples, error, loading } = useDirectory();
+  const { pros: all, usingSamples, error, loading } = useDirectory();
+  // Advertisers in the visitor's state (every state until they pick one).
+  const [st] = useMyState();
+  const pros = inState(all, st);
+  const stName = st ? stateByCode(st)?.name : null;
   const none = !loading && !error && pros.length === 0;
   const [cat, setCat] = useState<Category | 'any'>(initialCategory);
   const adsOpen = advertisingOpen(useSiteFeatures());
@@ -98,7 +105,7 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
       {header}
       {none && (
         <div className="empty">
-          <OwlNote><strong>No professionals advertise here yet.</strong> The directory is for Nevada professionals for now, and every listing will be license-checked before it appears.</OwlNote>
+          <OwlNote><strong>No professionals advertise here{stName ? ` in ${stName}` : ''} yet.</strong> Every listing is license-checked before it appears.</OwlNote>
           <p>
             Looking for someone now? <a href="#/pros">Find a pro</a> explains who you need and how to find them.{' '}
             {adsOpen ? <>Licensed and want to be listed? <a href="#/advertise">Apply to advertise</a>.</> : 'Advertising for licensed professionals opens soon.'}

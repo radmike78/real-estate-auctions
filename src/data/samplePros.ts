@@ -9,13 +9,15 @@ const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString
 const inDays = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString().slice(0, 10);
 
 let n = 0;
-const pro = (p: Omit<Pro, 'id' | 'licenseStatus' | 'licenseVerifiedBy' | 'isSample' | 'paidThrough' | 'phone' | 'email' | 'tier' | 'adLine' | 'adTopic'> & Partial<Pro>): Pro => {
+const pro = (p: Omit<Pro, 'id' | 'licenseStatus' | 'licenseVerifiedBy' | 'isSample' | 'paidThrough' | 'phone' | 'email' | 'tier' | 'adLine' | 'adTopic' | 'state' | 'serviceCounties'> & Partial<Pro>): Pro => {
   n++;
   return {
     id: `sample${String(n).padStart(2, '0')}`,
     licenseStatus: 'Active',
     licenseVerifiedBy: 'Site operator (sample)',
     isSample: true,
+    state: 'NV',
+    serviceCounties: ['Clark'],
     tier: 'standard',
     adLine: null,
     adTopic: null,

@@ -3,7 +3,7 @@ import PageHero from './PageHero';
 import DrillDown, { type DrillSection } from './DrillDown';
 import TeamList from './TeamList';
 import ProDirectory, { useDirectory } from './ProDirectory';
-import { AdSpace, FeaturedAds, RotatingAd } from './AdBoxes';
+import { FeaturedAds, RotatingAd } from './AdBoxes';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
 import { guidesFor } from '../lib/playbooks';
@@ -14,7 +14,6 @@ import { useMarkStep } from '../lib/path';
 import PathNext from './PathNext';
 import { CORE_TEAM, PRO_GUIDES, proGuideByKey, type ProGuide, type ProKey } from '../lib/proGuide';
 import WhyBlock from './WhyBlock';
-import OwlNote from './OwlNote';
 import { PRO_WHY } from '../lib/proWhy';
 import { PRO_DEEP } from '../lib/deep/proDeep';
 import StoryList from './StoryList';
@@ -49,12 +48,9 @@ function GuideBody({ g }: { g: ProGuide }) {
   const [st] = useMyState();
   const fit = (xs: string[]) => xs.map((x) => forStateText(st, x)).filter(Boolean);
   const { pros } = useDirectory();
-  // A Featured ad to show beside "What to say": Nevada (or no state picked), a script to sit beside, and a Spotlight or
-  // Mentor Connect advertiser in this role's categories.
-  // The Featured ad spot beside "What to say" (Nevada or no state picked): an advertiser when there is one, otherwise a
-  // placeholder that keeps the spot.
+  // The Featured ad spot beside "What to say": a Spotlight or Mentor Connect advertiser in this role's categories (in the
+  // visitor's state, when picked), otherwise a placeholder that keeps the spot.
   const sideAd = !!g.directory && !!PRO_SCRIPTS[g.key];
-  const nevada = !st || st === 'NV'; // advertisers are Nevada-only for now; other states get a held spot
   return (
     <div className="pro-guide">
       {/* One short role summary, then the practical part (when, how to find, what to ask, with the Featured ad box beside
@@ -76,7 +72,7 @@ function GuideBody({ g }: { g: ProGuide }) {
         </section>
       </div>
       {PRO_SCRIPTS[g.key] && (
-        // The labeled Featured ad box (Nevada or no state picked) sits beside "What to say", so it's seen early without
+        // The labeled Featured ad box sits beside "What to say", so it's seen early without
         // coming before any of the guide. With an ad, the reading notes stack under the script on the left.
         <div className="roadmap-cols pro-script">
           <div>
@@ -96,7 +92,7 @@ function GuideBody({ g }: { g: ProGuide }) {
             )}
           </div>
           {sideAd ? (
-            nevada ? <FeaturedAds pros={pros} categories={g.directory!} placeholder /> : <AdSpace kind="Featured ad" state={st} />
+            <FeaturedAds pros={pros} categories={g.directory!} state={st} placeholder />
           ) : PRO_SCRIPTS[g.key].read && (
             <div>
               <h3>{PRO_SCRIPTS[g.key].read!.title}</h3>
@@ -128,7 +124,7 @@ function GuideBody({ g }: { g: ProGuide }) {
           <StoryList stories={PRO_DEEP[g.key]!.stories} />
         </div>
       )}
-      {g.directory && (!st || st === 'NV') && (
+      {g.directory && (
         <ProDirectory
           categories={g.directory}
           initialCategory={g.directory.length === 1 ? g.directory[0] : 'any'}
@@ -137,15 +133,12 @@ function GuideBody({ g }: { g: ProGuide }) {
           featured={!sideAd}
           header={
             <>
-              <h3 className="part-head">Listed on DeedOwl (Nevada)</h3>
-              <p className="small muted pro-guide-ads">Listed professionals are paid advertisements, for Nevada only for now. Check any license yourself before you hire.</p>
+              <h3 className="part-head">Listed on DeedOwl{st ? ` (${stateByCode(st)?.name})` : ''}</h3>
+              <p className="small muted pro-guide-ads">Listed professionals are paid advertisements. Check any license yourself before you hire.</p>
             </>
           }
           notice={<Disclaimer kind={g.key === 'lender' || g.key === 'private_lender' ? 'financing' : 'professionals'} compact />}
         />
-      )}
-      {g.directory && st && st !== 'NV' && (
-        <OwlNote>Listed professionals are Nevada only for now. In {stateByCode(st)?.name}, use the license lookup above to check anyone you find.</OwlNote>
       )}
     </div>
   );
@@ -162,7 +155,6 @@ export default function FindAProPage({ section }: { section?: string }) {
   const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
   const [mine, setMine] = useMyState();
   const { pros } = useDirectory();
-  const nevada = !mine || mine === 'NV'; // advertisers are Nevada-only for now; other states get a held spot
   const book = guidesFor(mine).find((p) => p.key === sale);
   const team = book
     ? book.team
@@ -181,16 +173,15 @@ export default function FindAProPage({ section }: { section?: string }) {
       />
       {build && <TeamBuilder />}
       {all && (
-        // "Not sure where to start?" beside the rotating ad spot (Nevada or no state picked: the directory is Nevada-only),
-        // held by a placeholder while no advertiser fills it. On narrow screens it drops below. Other states see the spot marked
-        // "Coming soon" (advertisers are Nevada-only for now).
+        // "Not sure where to start?" beside the rotating ad spot (an advertiser in the visitor's state, when picked), held by a
+        // placeholder while no advertiser fills it. On narrow screens it drops below.
         <div className="hub-top with-ad">
           <section className="not-sure" aria-labelledby="not-sure-head">
             <h2 id="not-sure-head">Not sure where to start?</h2>
             <p>Answer five quick questions about what you want to buy and how, and we’ll narrow this down to the professionals you need, and why. If you’re not sure of an answer, we’ll suggest one.</p>
             <a className="btn" href="#/pros/build">Help me choose →</a>
           </section>
-          {nevada ? <RotatingAd pros={pros} placeholder /> : <AdSpace kind="Advertisement" state={mine} />}
+          <RotatingAd pros={pros} state={mine} placeholder />
         </div>
       )}
       {all && (

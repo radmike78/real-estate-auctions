@@ -18,6 +18,7 @@
 //   - every contact link is safe (tel:, mailto:, https:).
 
 import type { AdTier } from './adPlans';
+import type { StateCode } from './regions';
 
 export const REVERIFY_DAYS = 90;
 
@@ -250,6 +251,8 @@ export const FINANCING_CATEGORIES = (Object.keys(CATEGORIES) as Category[]).filt
 
 export interface Pro {
   id: string;
+  /** The state they're licensed in and advertise to. */
+  state: StateCode;
   category: Category;
   name: string; // person or company name shown
   company: string; // brokerage / employer / company
@@ -259,6 +262,8 @@ export interface Pro {
   licenseVerifiedAt: string; // YYYY-MM-DD, date a person confirmed it on the regulator lookup
   licenseVerifiedBy: string;
   paidThrough: string; // YYYY-MM-DD advertising paid through
+  /** Counties they serve, in their state. */
+  serviceCounties: string[];
   serviceCities: string[];
   serviceZips: string[];
   services: string[]; // category services or loan products
@@ -311,7 +316,9 @@ export const isListable = (p: Pro, now = new Date()) => !!CATEGORIES[p.category]
 
 export interface ProQuery {
   categories: Category[]; // empty = any
-  location: string; // city or ZIP
+  /** Only advertisers in this state (null = any state). */
+  state?: StateCode | null;
+  location: string; // city, county or ZIP
   service: string | 'any';
   creditProfile: string | 'any';
   language: string | 'any';
@@ -325,12 +332,13 @@ export function rotationKey(id: string, day: string): number {
 }
 
 export function searchPros(all: Pro[], q: ProQuery, now = new Date()): Pro[] {
-  const loc = q.location.trim().toLowerCase().replace(/,?\s*nv$/, '');
+  const loc = q.location.trim().toLowerCase().replace(/,?\s*(nv|ca|az|ut)$/, '').replace(/\s+county$/, '');
   const day = now.toISOString().slice(0, 10);
   return all
     .filter((p) => isListable(p, now))
     .filter((p) => !q.categories.length || q.categories.includes(p.category))
-    .filter((p) => !loc || p.serviceZips.includes(loc) || p.serviceCities.some((c) => c.toLowerCase() === loc) || p.name.toLowerCase().includes(loc) || p.company.toLowerCase().includes(loc))
+    .filter((p) => !q.state || p.state === q.state)
+    .filter((p) => !loc || p.serviceZips.includes(loc) || p.serviceCities.some((c) => c.toLowerCase() === loc) || p.serviceCounties.some((c) => c.toLowerCase() === loc) || p.name.toLowerCase().includes(loc) || p.company.toLowerCase().includes(loc))
     .filter((p) => q.service === 'any' || p.services.includes(q.service))
     .filter((p) => q.creditProfile === 'any' || p.creditProfiles.includes(q.creditProfile))
     .filter((p) => q.language === 'any' || p.languages.includes(q.language))

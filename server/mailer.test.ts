@@ -207,7 +207,7 @@ describe('when email cannot be sent', () => {
     try {
       const r = await post('/api/applications', {
         category: 'agent', name: 'Taylor Q. Applicant', company: 'Example Brokerage LLC', licenseId: 's.0123456',
-        serviceCities: ['Las Vegas'], serviceZips: '89123', services: ['Short sales'], creditProfiles: [], languages: ['English'],
+        state: 'NV', serviceCounties: ['Clark'], serviceCities: ['Las Vegas'], serviceZips: '89123', services: ['Short sales'], creditProfiles: [], languages: ['English'],
         headline: 'Short-sale specialist in the valley', phone: '(702) 555-0199', email: 'taylor@example.com', website: '',
         bio: 'I help buyers navigate short sales and lender approval in the Las Vegas valley.',
         attestLicensed: true, attestAccurate: true, consentVerification: true, attestAdvertising: true, attestOriginal: true,
