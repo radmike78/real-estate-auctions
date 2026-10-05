@@ -2623,3 +2623,7 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .hub-top > section.not-sure, .hub-top > .ad-box { margin: 0; }
 .hub-top > section.not-sure { align-content: start; }
 @media (min-width: 900px) { .hub-top.with-ad { grid-template-columns: 1fr 1fr; align-items: stretch; } }
+
+/* An empty ad spot, kept open with a plain placeholder. */
+.ad-space { align-content: start; align-self: start; }
+.ad-space .btn { justify-self: start; }

@@ -4,8 +4,6 @@ import DrillDown, { type DrillSection } from './DrillDown';
 import TeamList from './TeamList';
 import ProDirectory, { useDirectory } from './ProDirectory';
 import { FeaturedAds, RotatingAd } from './AdBoxes';
-import { hasFeaturedBox } from '../lib/adPlans';
-import { isListable } from '../lib/pros';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
 import { guidesFor } from '../lib/playbooks';
@@ -53,7 +51,9 @@ function GuideBody({ g }: { g: ProGuide }) {
   const { pros } = useDirectory();
   // A Featured ad to show beside "What to say": Nevada (or no state picked), a script to sit beside, and a Spotlight or
   // Mentor Connect advertiser in this role's categories.
-  const sideAd = !!g.directory && (!st || st === 'NV') && !!PRO_SCRIPTS[g.key] && pros.some((p) => g.directory!.includes(p.category) && hasFeaturedBox(p.tier) && isListable(p));
+  // The Featured ad spot beside "What to say" (Nevada or no state picked): an advertiser when there is one, otherwise a
+  // placeholder that keeps the spot.
+  const sideAd = !!g.directory && (!st || st === 'NV') && !!PRO_SCRIPTS[g.key];
   return (
     <div className="pro-guide">
       {/* One short role summary, then the practical part (when, how to find, what to ask, with the Featured ad box beside
@@ -95,7 +95,7 @@ function GuideBody({ g }: { g: ProGuide }) {
             )}
           </div>
           {sideAd ? (
-            <FeaturedAds pros={pros} categories={g.directory!} />
+            <FeaturedAds pros={pros} categories={g.directory!} placeholder />
           ) : PRO_SCRIPTS[g.key].read && (
             <div>
               <h3>{PRO_SCRIPTS[g.key].read!.title}</h3>
@@ -180,15 +180,15 @@ export default function FindAProPage({ section }: { section?: string }) {
       />
       {build && <TeamBuilder />}
       {all && (
-        // "Not sure where to start?" beside a rotating ad (Nevada or no state picked: the directory is Nevada-only).
-        // On narrow screens the ad drops below; with no ad to show, the box takes the full width.
-        <div className={`hub-top${showAd && pros.some((p) => hasFeaturedBox(p.tier) && isListable(p)) ? ' with-ad' : ''}`}>
+        // "Not sure where to start?" beside the rotating ad spot (Nevada or no state picked: the directory is Nevada-only),
+        // held by a placeholder while no advertiser fills it. On narrow screens it drops below; other states get the full width.
+        <div className={`hub-top${showAd ? ' with-ad' : ''}`}>
           <section className="not-sure" aria-labelledby="not-sure-head">
             <h2 id="not-sure-head">Not sure where to start?</h2>
             <p>Answer five quick questions about what you want to buy and how, and we’ll narrow this down to the professionals you need, and why. If you’re not sure of an answer, we’ll suggest one.</p>
             <a className="btn" href="#/pros/build">Help me choose →</a>
           </section>
-          {showAd && <RotatingAd pros={pros} />}
+          {showAd && <RotatingAd pros={pros} placeholder />}
         </div>
       )}
       {all && (
