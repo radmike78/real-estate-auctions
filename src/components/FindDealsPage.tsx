@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import NarrowDown from './NarrowDown';
 import { findDealsConfig } from '../lib/narrow';
 import PageHero from './PageHero';
@@ -9,26 +9,10 @@ import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions'
 import { COUNTY_PAGES, nationalOfficialFor, OFFICE_LABELS, OTHER_SITES, STATE_SALES, WHERE_TO_LOOK, countyKey, type DealSource } from '../lib/findDeals';
 import { COUNTY_OFFICES } from '../lib/countyOffices';
 import { useMarkStep } from '../lib/path';
-import { getMyState, setMyState, useMyState } from '../lib/myState';
+import { useMyArea } from '../lib/myArea';
 import { useLastActivity } from '../lib/journey';
 
-const AREA_KEY = 'deedowl.area.v1';
-
 const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake' };
-
-/** The saved county, in the visitor's chosen state when they have one. */
-function loadArea(): { state: StateCode; county: string } {
-  const mine = getMyState();
-  try {
-    const v = JSON.parse(localStorage.getItem(AREA_KEY) ?? 'null');
-    const st = v && stateByCode(v.state);
-    if (st && st.counties.includes(v.county) && (!mine || mine === st.code)) return { state: st.code, county: v.county };
-  } catch {
-    /* fall through to the default */
-  }
-  const state = mine ?? 'NV';
-  return { state, county: DEFAULT_COUNTY[state] };
-}
 
 function SourceCard({ s }: { s: DealSource }) {
   const ext = s.url.startsWith('https://');
@@ -62,19 +46,12 @@ function Band({ tone, icon, title, sub, children, id }: { tone: 'county' | 'site
 export default function FindDealsPage() {
   useMarkStep('deals');
   useLastActivity('#/find-deals', 'Find Deals');
-  const [area, setArea] = useState(loadArea);
-  const [mine] = useMyState();
-  // Choosing a state anywhere else on the site moves Find Deals to it.
-  useEffect(() => {
-    if (mine && mine !== area.state) setArea({ state: mine, county: DEFAULT_COUNTY[mine] });
-  }, [mine]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    try {
-      localStorage.setItem(AREA_KEY, JSON.stringify(area));
-    } catch {
-      /* private mode: the choice isn't kept */
-    }
-  }, [area]);
+  // The visitor's area (myArea.ts): their state and county, from the city they chose or picked here.
+  const [mine, setMine] = useMyArea();
+  const state: StateCode = mine?.state ?? 'NV';
+  const area = { state, county: mine?.county ?? DEFAULT_COUNTY[state] };
+  const setArea = (a: { state: StateCode; county: string }) =>
+    setMine({ state: a.state, county: a.county, city: mine && mine.state === a.state && mine.county === a.county ? mine.city : null });
   const st = stateByCode(area.state)!;
   const local = COUNTY_PAGES[countyKey(area.state, area.county)];
   const offices = COUNTY_OFFICES[countyKey(area.state, area.county)];
@@ -98,7 +75,7 @@ export default function FindDealsPage() {
         <div className="area-picker">
           <label className="field">
             <span>State</span>
-            <select value={area.state} onChange={(e) => { const s = stateByCode(e.target.value)!; setArea({ state: s.code, county: DEFAULT_COUNTY[s.code] }); setMyState(s.code); }}>
+            <select value={area.state} onChange={(e) => { const s = stateByCode(e.target.value)!; setArea({ state: s.code, county: DEFAULT_COUNTY[s.code] }); }}>
               {STATES.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}
             </select>
           </label>

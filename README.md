@@ -714,6 +714,8 @@ Every fact the guides teach has to trace back to an official source, and the rep
 
 ## Features
 
+**Your area.** The first-visit welcome asks "Where are you buying?": a state, then (optionally) a city or town, from every Census 2020 place in Nevada, California, Arizona and Utah (`src/data/places/`, sources in its README). A city in two counties asks which part. The choice is kept only in the browser (`src/lib/myArea.ts`), shown in the header as **Your area** (where it can be changed), and sets the state and county the site uses, for example the county on Find Deals.
+
 **Sections**
 
 | Page | What it does |
