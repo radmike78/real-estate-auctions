@@ -556,6 +556,13 @@ The first real connector reads the **Clark County Treasurer's delinquent-propert
    ```
    This long-running service checks each source when it is due and writes the signed feed to `public/data/`. Deploy that folder alongside the built site.
 
+### Upcoming county tax sales (links only)
+
+Many counties post their tax sale's property list on their own site, and some don't allow automated access to it. DeedOwl doesn't copy these lists. `src/lib/countySales.ts` holds each upcoming sale's dates (sale window, registration deadline, last day owners can pay) and links to the county's sale page and its list. Live tax sales and Find Deals (for that county) show a card for each sale until it ends.
+
+- Every entry is copied by hand from the county treasurer's own page (never an auction company's) and has a `checkedOn` date. Links must be HTTPS on the county's .gov site (`src/lib/countySales.test.ts`), and each one is listed in `src/content/sources.ts`.
+- Now listed: Los Angeles County's 2026B auction (October 17 to 20, 2026) and its December follow-up; Mohave and Cochise County (Arizona) over-the-counter tax deed land offers; Davis, Utah and Salt Lake County (Utah) May 2027 tax sales.
+
 ### IRS sales (enabled)
 
 A third connector reads **IRS seizure and court-ordered sales** from the Treasury Department's own site, <https://www.irsauctions.gov/>. It reads the site's JSON index of every ad (`/index.json`, the same data its cards show) and keeps an ad only when it is real estate in Nevada, California, Arizona or Utah: a location in one of those states, a county we can name (from the city, using the Census place lists in `src/data/places`, or the county the ad names when the city spans several), and at least one parcel number in the notice.
