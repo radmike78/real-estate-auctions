@@ -59,7 +59,7 @@ A page that parses cleanly can still be wrong: a defaced page, a partial respons
 | Mass addition | New parcels exceed 25% of the list |
 | Bid shift | More than 10% of parcels change minimum bid by over 3x |
 
-SID certificates have their own mass removal and addition rules (`detectSidAnomalies`). IRS sales (`detectIrsAnomalies`) are quarantined when a sale's minimum bid changes by more than 3x, a sale moves to a different location, or more than 5 new Clark County sales (or double the current count) appear at once. Postponements and cancellations withdraw a sale without review.
+SID certificates have their own mass removal and addition rules (`detectSidAnomalies`). IRS sales (`detectIrsAnomalies`) are quarantined when a sale's minimum bid changes by more than 3x, a sale moves to a different location, or more than 5 new upcoming sales (or double the current count) appear at once; past and canceled ads don't count. Postponements and cancellations withdraw a sale without review.
 
 While a source is quarantined, **it publishes no listings**. An operator checks the official site, then accepts the snapshot by its SHA-256 hash: `npm run ingest -- --approve-snapshot <sha256>`.
 

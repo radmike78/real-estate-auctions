@@ -11,7 +11,7 @@ import { webcrypto } from 'node:crypto';
 import { readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import type { DatabaseSync } from 'node:sqlite';
-import { verifyFeed } from '../src/feed/verify';
+import { isClarkSale, verifyFeed } from '../src/feed/verify';
 import type { Feed, FeedFederalSale, FeedListing } from '../src/feed/types';
 import { matchesSearch, parseSearchTarget } from '../src/lib/savedSearch';
 import { pacificDay } from './metrics';
@@ -68,11 +68,12 @@ export const federalSnapshotOf = (f: FeedFederalSale): ListingSnapshot => ({
   landUseCode: f.landUse?.code ?? null,
 });
 
-/** Every verified listing in the feed that can be tracked, by subscription target. */
+/** Every verified listing in the feed that can be tracked, by subscription target. IRS sales outside Clark County (shown
+ * only in a list, as the IRS lists them, without a property page) can't be. */
 export function trackableListings(feed: Feed): Map<string, ListingSnapshot> {
   return new Map([
     ...feed.listings.map((l) => [taxTarget(l.apn), snapshotOf(l)] as const),
-    ...(feed.federalSales ?? []).map((f) => [irsTarget(f.id), federalSnapshotOf(f)] as const),
+    ...(feed.federalSales ?? []).filter(isClarkSale).map((f) => [irsTarget(f.id), federalSnapshotOf(f)] as const),
   ]);
 }
 

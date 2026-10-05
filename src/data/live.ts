@@ -2,6 +2,7 @@
 // pages, My deals). The browser verifies the signed feed before anything is shown, re-checks it every
 // 5 minutes, and drops it the moment it expires, so a stalled update can never leave old parcels up.
 
+import { isClarkSale } from '../feed/verify';
 import { useSyncExternalStore } from 'react';
 import { FEED_PUBLIC_KEY_SPKI_B64 } from '../feed/publicKey';
 import { loadVerifiedFeed, type VerifyResult } from '../feed/verify';
@@ -29,7 +30,7 @@ function set(next: LiveState) {
 async function load() {
   const result = await loadVerifiedFeed(FEED_PUBLIC_KEY_SPKI_B64).catch((e: Error): VerifyResult => ({ ok: false, reason: 'MISSING', detail: e.message }));
   const agency = result.ok ? (result.feed.sources.find((s) => s.sourceId === 'nv-clark-treasurer-tax-sale')?.agency ?? 'Clark County Treasurer') : '';
-  const properties = result.ok ? [...result.feed.listings.map((l) => listingToProperty(l, agency)), ...(result.feed.federalSales ?? []).map(federalSaleToProperty)] : [];
+  const properties = result.ok ? [...result.feed.listings.map((l) => listingToProperty(l, agency)), ...(result.feed.federalSales ?? []).filter(isClarkSale).map(federalSaleToProperty)] : [];
   set({ result, properties, checkedAt: Date.now() });
 }
 

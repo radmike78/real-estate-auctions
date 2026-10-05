@@ -11,7 +11,7 @@ import type { Anomaly, SourceState } from './reconcile';
  * place, or a burst of new Clark County sales at once. Postponements and cancellations are normal and
  * withdraw a sale without review.
  */
-export function detectIrsAnomalies(prev: SourceState, next: IrsParseResult): Anomaly[] {
+export function detectIrsAnomalies(prev: SourceState, next: IrsParseResult, now: Date = new Date()): Anomaly[] {
   const known = prev.federalSales ?? {};
   const avail = Object.values(known).filter((x) => x.state === 'AVAILABLE');
   const out: Anomaly[] = [];
@@ -25,8 +25,10 @@ export function detectIrsAnomalies(prev: SourceState, next: IrsParseResult): Ano
   }
   if (bidShifts) out.push({ code: 'BID_SHIFT', detail: `${bidShifts} IRS sale(s) changed minimum bid by more than 3x.` });
   if (moved) out.push({ code: 'LOCATION_CHANGE', detail: `${moved} IRS sale(s) changed sale location.` });
-  const added = next.rows.filter((r) => !known[r.id]).length;
-  if (added > Math.max(5, avail.length * 2)) out.push({ code: 'MASS_ADDITION', detail: `${added} new Clark County IRS sales appeared in one update.` });
+  // Only sales that would show count: the index also keeps past and canceled ads, which appear all at once the first
+  // time a state is added and are never published.
+  const added = next.rows.filter((r) => !known[r.id] && !r.canceled && r.saleStartsAt && Date.parse(r.saleStartsAt) > now.getTime()).length;
+  if (added > Math.max(5, avail.length * 2)) out.push({ code: 'MASS_ADDITION', detail: `${added} new upcoming IRS sales appeared in one update.` });
   return out;
 }
 
@@ -41,13 +43,16 @@ export function applyIrsSnapshot(
   for (const r of parsed.rows) {
     seen.add(r.id);
     const old = prev.federalSales?.[r.id];
-    // Every parcel in the sale must be a real Clark County parcel.
-    const confirmed = r.apns.length > 0 && r.apns.every((a) => meta.confirmedApns.has(a));
+    // In Clark County every parcel in the sale must be a real parcel in the Assessor's records. Elsewhere the sale is
+    // shown as the IRS lists it (the site says so and links the county assessor).
+    const confirmed = !r.assessorChecked || (r.apns.length > 0 && r.apns.every((a) => meta.confirmedApns.has(a)));
     const open = !r.canceled && !!r.saleStartsAt;
     sales[r.id] = {
       sourceId: prev.sourceId,
       id: r.id,
       title: r.title,
+      usState: r.usState,
+      county: r.county,
       apns: r.apns,
       address: r.address,
       city: r.city,
@@ -58,7 +63,7 @@ export function applyIrsSnapshot(
       saleStartsAt: r.saleStartsAt ?? old?.saleStartsAt ?? '',
       saleLocation: r.saleLocation,
       state: !open ? 'WITHDRAWN' : confirmed ? 'AVAILABLE' : 'UNCONFIRMED',
-      corroboratedAt: confirmed ? nowIso : (old?.corroboratedAt ?? null),
+      corroboratedAt: !r.assessorChecked ? null : confirmed ? nowIso : (old?.corroboratedAt ?? null),
       firstSeenAt: old?.firstSeenAt ?? nowIso,
       lastVerifiedAt: nowIso,
       sourceUrl: r.sourceUrl,
@@ -72,8 +77,8 @@ export function applyIrsSnapshot(
   const unconfirmed = Object.values(sales).filter((x) => x.state === 'UNCONFIRMED').length;
   const changed = meta.sha256 !== prev.lastSha256;
   const notes = [
-    `${parsed.totalAds} ads nationwide; ${parsed.rows.length} in Clark County`,
-    parsed.skipped.length ? `${parsed.skipped.length} Clark County ad(s) not shown: ${[...new Set(parsed.skipped.map((s) => s.reason))].join(', ')}` : null,
+    `${parsed.totalAds} ads nationwide; ${parsed.rows.length} in NV, CA, AZ and UT (${parsed.rows.filter((r) => r.assessorChecked).length} in Clark County)`,
+    parsed.skipped.length ? `${parsed.skipped.length} ad(s) in those states not shown: ${[...new Set(parsed.skipped.map((s) => s.reason))].join(', ')}` : null,
     unconfirmed ? `${unconfirmed} sale(s) hidden: parcel not found in Assessor records` : null,
   ].filter(Boolean);
   return {

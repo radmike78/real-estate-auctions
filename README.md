@@ -556,10 +556,12 @@ The first real connector reads the **Clark County Treasurer's delinquent-propert
 
 ### IRS sales (enabled)
 
-A third connector reads **IRS seizure and court-ordered sales** from the Treasury Department's own site, <https://www.irsauctions.gov/>. It reads the site's JSON index of every ad (`/index.json`, the same data its cards show) and keeps an ad only when it is Clark County real estate: a Nevada location with a Clark County ZIP, and at least one Clark County parcel number in the notice. The County Assessor must confirm every parcel in the sale.
+A third connector reads **IRS seizure and court-ordered sales** from the Treasury Department's own site, <https://www.irsauctions.gov/>. It reads the site's JSON index of every ad (`/index.json`, the same data its cards show) and keeps an ad only when it is real estate in Nevada, California, Arizona or Utah: a location in one of those states, a county we can name (from the city, using the Census place lists in `src/data/places`, or the county the ad names when the city spans several), and at least one parcel number in the notice.
 
-- Checked against the live index on 2026-09-26: 139 ads nationwide, none in Nevada, so nothing shows today. `robots.txt` allows all automated access.
-- IRS sales appear on Live tax sales, in search (badge "IRS sale") and on their own property pages. Seizure sales show the 180-day redemption period; court-ordered sales point to the court's order for the terms.
+- **Clark County:** a Clark County ZIP and a Clark County parcel number; the County Assessor must confirm every parcel in the sale. These sales appear on Live tax sales, in search (badge "IRS sale") and on their own property pages.
+- **Everywhere else in the four states:** only parcel numbers the notice labels as such (APN, AIN, Parcel Number) are read, so a phone number or price is never taken for one. These sales are listed in their own table on Live tax sales, as the IRS lists them, marked "parcel not checked by DeedOwl", with links to the IRS notice and the county assessor. They get no property page. Sale times are read in each state's time zone (Arizona has no daylight saving time).
+- Checked against the live index on 2026-09-26 (139 ads nationwide, none in Nevada) and 2026-10-05 (142 ads; those in California and Arizona were past, undated or canceled), so nothing shows today. `robots.txt` allows all automated access.
+- Seizure sales show the 180-day redemption period; court-ordered sales point to the court's order for the terms. Seizure sales show the 180-day redemption period; court-ordered sales point to the court's order for the terms.
 - The notice text names the taxpayer, so it is never stored or published; we keep the title, place, date, minimum bid, parcels and sale terms, and link to the IRS ad.
 - **Terms: reviewed and accepted on 2026-09-26** (robots.txt allows all, no terms of use, and U.S. Government works aren't copyrighted; see [docs/source-terms-review.md](docs/source-terms-review.md)). Test it with `npm run ingest -- --dry-run --source us-irs-auctions`, or offline with `--from-dir ingest/fixtures/irs-2026-09`.
 
