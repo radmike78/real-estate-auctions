@@ -49,9 +49,26 @@ function GuideBody({ g }: { g: ProGuide }) {
   const fit = (xs: string[]) => xs.map((x) => forStateText(st, x)).filter(Boolean);
   return (
     <div className="pro-guide">
-      {/* One short role summary, then the practical part (when, how to find, what to ask, how they're paid); background,
-          the case for and against, and the stories after. */}
+      {/* One short role summary, the Nevada listings, then the practical part (when, how to find, what to ask, how they're
+          paid); background, the case for and against, and the stories after. */}
       <p className="pro-guide-does">{forStateText(st, g.does)}</p>
+      {/* Nevada listings (and their labeled Featured ad box) right after the summary, so they're seen without scrolling
+          past the whole guide; hidden while no one is listed. Other states get the note at the end instead. */}
+      {g.directory && (!st || st === 'NV') && (
+        <ProDirectory
+          categories={g.directory}
+          initialCategory={g.directory.length === 1 ? g.directory[0] : 'any'}
+          showCategoryFilter={g.directory.length > 1}
+          hideWhenEmpty
+          header={
+            <>
+              <h3 className="part-head">Listed on DeedOwl (Nevada)</h3>
+              <p className="small muted pro-guide-ads">Listed professionals are paid advertisements, for Nevada only for now. Check any license yourself before you hire.</p>
+            </>
+          }
+          notice={<Disclaimer kind={g.key === 'lender' || g.key === 'private_lender' ? 'financing' : 'professionals'} compact />}
+        />
+      )}
       <h3 className="part-head">Hiring one</h3>
       <div className="pro-guide-cols">
         <section>
@@ -112,16 +129,6 @@ function GuideBody({ g }: { g: ProGuide }) {
       )}
       {g.directory && st && st !== 'NV' && (
         <OwlNote>Listed professionals are Nevada only for now. In {stateByCode(st)?.name}, use the license lookup above to check anyone you find.</OwlNote>
-      )}
-      {g.directory && (!st || st === 'NV') && (
-        <ProDirectory
-          categories={g.directory}
-          initialCategory={g.directory.length === 1 ? g.directory[0] : 'any'}
-          showCategoryFilter={g.directory.length > 1}
-          hideWhenEmpty
-          header={<p className="small muted pro-guide-ads">Listed professionals are paid advertisements, for Nevada only for now. Check any license yourself before you hire.</p>}
-          notice={<Disclaimer kind={g.key === 'lender' || g.key === 'private_lender' ? 'financing' : 'professionals'} compact />}
-        />
       )}
     </div>
   );
