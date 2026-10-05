@@ -48,7 +48,7 @@ export function drillProgress(d: Drill, s: Saved = load()): { done: number; tota
 }
 
 /** The drills on the Practice page. */
-const STATE_NAMES: Record<string, string> = { NV: 'Nevada', CA: 'California', AZ: 'Arizona', UT: 'Utah' };
+const STATE_NAMES: Record<string, string> = { NV: 'Nevada', CA: 'California', AZ: 'Arizona', UT: 'Utah', TX: 'Texas' };
 
 /** The state a drill's rules come from, or null when they apply anywhere. */
 export function drillState(d: Drill): string | null {
@@ -57,7 +57,7 @@ export function drillState(d: Drill): string | null {
 }
 
 /** Under a state's heading, "A Nevada foreclosure auction: …" reads "Foreclosure auction: …": cards differ in their first words. */
-const cardTitle = (t: string) => t.replace(/^An? (Nevada|California|Arizona|Utah) /, '').replace(/^./, (c) => c.toUpperCase());
+const cardTitle = (t: string) => t.replace(/^An? (Nevada|California|Arizona|Utah|Texas) /, '').replace(/^./, (c) => c.toUpperCase());
 
 /** The drills on the Practice page, grouped by state, with the visitor's state first. */
 export function DrillList() {
