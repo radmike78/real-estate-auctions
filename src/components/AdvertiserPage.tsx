@@ -575,7 +575,7 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
             </div>
             <div className="kpi"><span className="kpi-label">Appeared in results</span><strong>{t.impression.total.toLocaleString()}</strong></div>
             <div className="kpi"><span className="kpi-label">Profile views</span><strong>{t.profile_view.uniques.toLocaleString()}</strong><span className="kpi-sub">unique visitors</span></div>
-            <div className="kpi"><span className="kpi-label">Contact clicks</span><strong>{contacts.toLocaleString()}</strong><span className="kpi-sub">{t.phone_click.uniques} call · {t.email_click.uniques} email · {t.website_click.uniques} website</span></div>
+            <div className="kpi"><span className="kpi-label">Contact clicks</span><strong>{contacts.toLocaleString()}</strong><span className="kpi-sub">{t.phone_click.uniques} phone {t.phone_click.uniques === 1 ? 'tap' : 'taps'} · {t.email_click.uniques} email · {t.website_click.uniques} website</span></div>
             {(me.payments.tier !== 'standard' || t.ad_impression.total > 0) && (
               <div className="kpi"><span className="kpi-label">Shown in ad boxes</span><strong>{t.ad_impression.total.toLocaleString()}</strong><span className="kpi-sub">{t.ad_click.uniques} clicked your ad’s button</span></div>
             )}

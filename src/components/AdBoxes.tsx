@@ -7,7 +7,7 @@ import { shortLicenseLabel } from '../lib/regulators';
 import { CATEGORIES, isListable, type Category, type Pro } from '../lib/pros';
 import { track } from '../lib/track';
 import ProAvatar from './ProAvatar';
-import { areasCover } from '../lib/adAreas';
+import { prosInArea } from '../lib/adAreas';
 import { areaLabel, useMyArea, type Area } from '../lib/myArea';
 
 /**
@@ -30,8 +30,7 @@ export function AdSpace({ kind }: { kind: string }) {
  * Advertisers whose ads show in the visitor's area: their state, and when the visitor chose a city (or county), an ad
  * area covering it. Every advertiser when no area is picked.
  */
-export const inArea = (pros: Pro[], area: Area | null) =>
-  !area ? pros : pros.filter((p) => p.state === area.state && (!area.county || areasCover(p.adAreas ?? [], area.county, area.city)));
+export const inArea = (pros: Pro[], area: Area | null) => prosInArea(pros, area);
 
 /** One advertiser inside an ad box. The contact button opens their profile, where the contact form is. */
 export function AdCard({ p }: { p: Pro }) {
