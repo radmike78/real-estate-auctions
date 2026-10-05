@@ -7,8 +7,8 @@ import { track } from '../lib/track';
 import { advertisingOpen, useSiteFeatures } from '../lib/siteFeatures';
 import OwlNote from './OwlNote';
 import ProAvatar from './ProAvatar';
-import { FeaturedAds, inState } from './AdBoxes';
-import { useMyState } from '../lib/myState';
+import { FeaturedAds, inArea } from './AdBoxes';
+import { areaLabel, useMyArea } from '../lib/myArea';
 import { stateByCode } from '../lib/regions';
 import { regulatorFor } from '../lib/regulators';
 
@@ -77,11 +77,15 @@ interface Props {
 
 export default function ProDirectory({ categories, initialCategory = 'any', showCategoryFilter = true, initialLocation = '', notice, header, hideWhenEmpty = false, featured = true }: Props) {
   const { pros: all, usingSamples, error, loading } = useDirectory();
-  // Advertisers in the visitor's state (every state until they pick one).
-  const [st] = useMyState();
-  const pros = inState(all, st);
-  const stName = st ? stateByCode(st)?.name : null;
-  const none = !loading && !error && pros.length === 0;
+  // Advertisers in the visitor's state (every state until they pick one), and of those, the ones advertising in the
+  // visitor's city or county when they chose one, unless they ask to see the whole state.
+  const [area] = useMyArea();
+  const [wide, setWide] = useState(false);
+  const stateWide = area ? all.filter((p) => p.state === area.state) : all;
+  const local = area?.county && !wide;
+  const pros = local ? inArea(all, area) : stateWide;
+  const stName = area ? stateByCode(area.state)?.name : null;
+  const none = !loading && !error && stateWide.length === 0;
   const [cat, setCat] = useState<Category | 'any'>(initialCategory);
   const adsOpen = advertisingOpen(useSiteFeatures());
   const [q, setQ] = useState<Omit<ProQuery, 'categories'>>({ location: initialLocation, service: 'any', creditProfile: 'any', language: 'any' });
@@ -113,6 +117,12 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
         </div>
       )}
       {!none && notice}
+      {!none && area?.county && (
+        <p className="area-scope">
+          {local ? <>Showing professionals advertising in <strong>{areaLabel(area)}</strong>.</> : <>Showing everyone in <strong>{stName}</strong>.</>}{' '}
+          <button type="button" className="linkish" onClick={() => setWide(!wide)}>{local ? `Show all of ${stName}` : `Only ${areaLabel(area)}`}</button>
+        </p>
+      )}
       {/* Paid Featured ads sit apart from the list below, which keeps the same rotation for every advertiser. */}
       {featured && !loading && !error && <FeaturedAds pros={pros} categories={active} />}
       {!none && showCategoryFilter && categories.length > 1 && (
@@ -147,6 +157,14 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
           {results.length} verified {results.length === 1 ? 'professional' : 'professionals'} · every listed professional appears here in the
           same daily rotating order, whatever plan they pay for.
         </p>
+      )}
+      {!loading && !none && pros.length === 0 && !error && (
+        <div className="empty">
+          <OwlNote>
+            <strong>No one advertises in {area ? areaLabel(area) : 'your area'} yet.</strong>{' '}
+            <button type="button" className="linkish" onClick={() => setWide(true)}>Show all of {stName}</button>
+          </OwlNote>
+        </div>
       )}
       {!loading && results.length === 0 && pros.length > 0 && !error && <div className="empty"><OwlNote>No advertisers match yet. Try another city or filter.</OwlNote></div>}
       <ul className="pro-grid">{results.map((p) => <ProCard key={p.id} p={p} />)}</ul>

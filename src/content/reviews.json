@@ -202,7 +202,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-05",
-    "hash": "1fb472927dbe2554",
+    "hash": "7b6ce21cd9231e3d",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -223,7 +223,7 @@
       "src/lib/pros.ts"
     ],
     "reviewed": "2026-10-05",
-    "hash": "3df9cb4cd5ec579c",
+    "hash": "6370ec0fd078c88e",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -267,7 +267,7 @@
       "src/lib/proApplication.ts"
     ],
     "reviewed": "2026-10-05",
-    "hash": "168cc1402f95c38d",
+    "hash": "fcd2b42cc61dd5b9",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -300,7 +300,7 @@
       "src/components/TermsPage.tsx"
     ],
     "reviewed": "2026-10-05",
-    "hash": "7443bbb7bd383f1c",
+    "hash": "009e1572f4b76bdc",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

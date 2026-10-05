@@ -4,7 +4,7 @@ import { mkdirSync, renameSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { KeyObject } from 'node:crypto';
 import { topicAllowed, type AdTier, type Placement } from '../src/lib/adPlans';
-import { billingTier } from '../src/lib/proApplication';
+import { billingTier, paidAreas } from '../src/lib/proApplication';
 import { isListable, type Pro } from '../src/lib/pros';
 import type { ProsFeed } from '../src/feed/prosFeed';
 import { signBytes } from '../ingest/lib/sign';
@@ -31,6 +31,7 @@ export function toPro(row: ApplicationRow, photo: string | null = null): Pro | n
     licenseVerifiedBy: 'DeedOwl staff', // the individual admin is never published
     paidThrough: row.billing.paidThrough,
     serviceCounties: p.serviceCounties,
+    adAreas: paidAreas(p, row.billing),
     serviceCities: p.serviceCities,
     serviceZips: p.serviceZips,
     services: p.services,
@@ -53,7 +54,7 @@ export function toPro(row: ApplicationRow, photo: string | null = null): Pro | n
 export function placements(rows: ApplicationRow[], now: Date): Placement[] {
   return rows.flatMap((r) => {
     const p = toPro(r);
-    return p && isListable(p, now) ? [{ id: p.id, state: p.state, category: p.category, tier: p.tier, topic: p.adTopic }] : [];
+    return p && isListable(p, now) ? [{ id: p.id, state: p.state, category: p.category, tier: p.tier, topic: p.adTopic, areas: p.adAreas }] : [];
   });
 }
 

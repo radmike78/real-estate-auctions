@@ -7,26 +7,31 @@ import { shortLicenseLabel } from '../lib/regulators';
 import { CATEGORIES, isListable, type Category, type Pro } from '../lib/pros';
 import { track } from '../lib/track';
 import ProAvatar from './ProAvatar';
-import { stateByCode, type StateCode } from '../lib/regions';
+import { areasCover } from '../lib/adAreas';
+import { areaLabel, useMyArea, type Area } from '../lib/myArea';
 
 /**
  * Holds an ad spot open while no advertiser fills it, so the page keeps its layout: a plain, labeled box that points
- * licensed professionals (in the visitor's state, when one is picked) to the Advertise page. It shows no one and
+ * licensed professionals (in the visitor's area, when one is picked) to the Advertise page. It shows no one and
  * recommends no one.
  */
-export function AdSpace({ kind, state }: { kind: string; state?: StateCode | null }) {
-  const where = state ? stateByCode(state)?.name ?? state : null;
+export function AdSpace({ kind }: { kind: string }) {
+  const [area] = useMyArea();
   return (
     <aside className="ad-box ad-space" aria-label={`${kind} space`}>
       <div className="ad-box-label">{kind} space</div>
-      <p>This spot is for a licensed {where ? `${where} ` : ''}professional.</p>
+      <p>This spot is for a licensed professional{area ? ` advertising in ${areaLabel(area)}` : ''}.</p>
       <a className="btn btn-secondary" href="#/advertise">Advertise on DeedOwl →</a>
     </aside>
   );
 }
 
-/** Advertisers who serve this state (every state when none is picked). */
-export const inState = (pros: Pro[], state?: StateCode | null) => (state ? pros.filter((p) => p.state === state) : pros);
+/**
+ * Advertisers whose ads show in the visitor's area: their state, and when the visitor chose a city (or county), an ad
+ * area covering it. Every advertiser when no area is picked.
+ */
+export const inArea = (pros: Pro[], area: Area | null) =>
+  !area ? pros : pros.filter((p) => p.state === area.state && (!area.county || areasCover(p.adAreas ?? [], area.county, area.city)));
 
 /** One advertiser inside an ad box. The contact button opens their profile, where the contact form is. */
 export function AdCard({ p }: { p: Pro }) {
@@ -63,14 +68,15 @@ export function useAdImpressions(shown: Pro[]) {
  * up to the featured cap, in a fresh random order on each page view. It sits apart from (above) the directory list,
  * isn't tied to the visitor's search, and never changes anyone's place in the list.
  */
-export function FeaturedAds({ pros: all, categories, placeholder = false, state }: { pros: Pro[]; categories: Category[]; placeholder?: boolean; state?: StateCode | null }) {
-  const pros = inState(all, state);
+export function FeaturedAds({ pros: all, categories, placeholder = false }: { pros: Pro[]; categories: Category[]; placeholder?: boolean }) {
+  const [area] = useMyArea();
+  const pros = inArea(all, area);
   const key = categories.join();
   const pool = pros.filter((p) => categories.includes(p.category) && hasFeaturedBox(p.tier) && isListable(p)).map((p) => p.id).join();
   // Chosen once per page view (and when the categories shown change), not on every keystroke in the filters.
   const shown = useMemo(() => pickRandom(pros.filter((p) => pool.split(',').includes(p.id)), CAPS.featured), [key, pool]); // eslint-disable-line react-hooks/exhaustive-deps
   useAdImpressions(shown);
-  if (!shown.length) return placeholder ? <AdSpace kind="Featured ad" state={state} /> : null;
+  if (!shown.length) return placeholder ? <AdSpace kind="Featured ad" /> : null;
   return (
     <aside className="ad-box featured-ads" aria-label="Featured ad">
       <div className="ad-box-label">Featured ad</div>
@@ -84,12 +90,13 @@ export function FeaturedAds({ pros: all, categories, placeholder = false, state 
  * The rotating ad at the top of the Your Team page: one Spotlight or Mentor Connect advertiser from any category,
  * picked at random on each page view. Labeled "Advertisement" with the same fine print; nothing when no one qualifies.
  */
-export function RotatingAd({ pros: all, placeholder = false, state }: { pros: Pro[]; placeholder?: boolean; state?: StateCode | null }) {
-  const pros = inState(all, state);
+export function RotatingAd({ pros: all, placeholder = false }: { pros: Pro[]; placeholder?: boolean }) {
+  const [area] = useMyArea();
+  const pros = inArea(all, area);
   const pool = pros.filter((p) => hasFeaturedBox(p.tier) && isListable(p)).map((p) => p.id).join();
   const shown = useMemo(() => pickRandom(pros.filter((p) => pool.split(',').includes(p.id)), 1), [pool]); // eslint-disable-line react-hooks/exhaustive-deps
   useAdImpressions(shown);
-  if (!shown.length) return placeholder ? <AdSpace kind="Advertisement" state={state} /> : null;
+  if (!shown.length) return placeholder ? <AdSpace kind="Advertisement" /> : null;
   return (
     <aside className="ad-box rotating-ad" aria-label="Advertisement">
       <div className="ad-box-label">Advertisement</div>

@@ -17,6 +17,7 @@
 //   - its advertising is paid through today;
 //   - every contact link is safe (tel:, mailto:, https:).
 
+import type { AdArea } from './adAreas';
 import type { AdTier } from './adPlans';
 import type { StateCode } from './regions';
 
@@ -267,6 +268,8 @@ export interface Pro {
   paidThrough: string; // YYYY-MM-DD advertising paid through
   /** Counties they serve, in their state. */
   serviceCounties: string[];
+  /** Where their ads and listing show (adAreas.ts): paid cities and whole counties. */
+  adAreas: AdArea[];
   serviceCities: string[];
   serviceZips: string[];
   services: string[]; // category services or loan products

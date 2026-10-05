@@ -6,6 +6,7 @@
 import { isAdTier, type AdTier } from './adPlans';
 import { CATEGORIES, CREDIT_PROFILES, isCategory, servicesFor, type Category } from './pros';
 import { regulatorFor } from './regulators';
+import { MAX_AD_AREAS, type AdArea } from './adAreas';
 import { STATES, stateByCode, type StateCode } from './regions';
 
 /** Most counties, and most cities, one application can list as its service area. */
@@ -64,7 +65,9 @@ export function withProfileDefaults(p: ProProfile): ProProfile {
   // Profiles from before advertising opened to other states are Nevada, Clark County.
   const state: StateCode = stateByCode(String(p.state)) ? p.state : 'NV';
   const serviceCounties = Array.isArray(p.serviceCounties) && p.serviceCounties.length ? p.serviceCounties : state === 'NV' ? ['Clark'] : [];
-  return { ...p, state, serviceCounties, adLine: typeof p.adLine === 'string' ? p.adLine : '', adTopic: typeof p.adTopic === 'string' ? p.adTopic : '', adLinePending: typeof p.adLinePending === 'string' ? p.adLinePending : '' };
+  // Profiles from before ad areas: their ads showed across their counties, so each county becomes a county bundle.
+  const adAreas = Array.isArray(p.adAreas) ? p.adAreas : serviceCounties.map((county) => ({ county, city: null }));
+  return { ...p, state, serviceCounties, adAreas, adLine: typeof p.adLine === 'string' ? p.adLine : '', adTopic: typeof p.adTopic === 'string' ? p.adTopic : '', adLinePending: typeof p.adLinePending === 'string' ? p.adLinePending : '' };
 }
 
 export const LANGUAGES = [
@@ -114,6 +117,8 @@ export interface ProProfile {
   licenseId: string;
   licenseType: string | null; // Nevada agents only, derived from the license prefix
   serviceCounties: string[];
+  /** Where their ads show (adAreas.ts), chosen on their dashboard after approval; each is billed at the plan price. */
+  adAreas: AdArea[];
   serviceCities: string[];
   serviceZips: string[];
   services: string[];
@@ -247,7 +252,7 @@ export function validateApplication(raw: Partial<ApplicationInput>, isCity?: (st
   if (Object.keys(errors).length || !phone) return { ok: false, errors };
   return {
     ok: true,
-    profile: { state, category, name, company, licenseId, licenseType, serviceCounties, serviceCities, serviceZips, services, creditProfiles: info.financing ? creditProfiles : [], languages, headline, phone, email, website, bio, adLine, adTopic: '', adLinePending: '' },
+    profile: { state, category, name, company, licenseId, licenseType, serviceCounties, adAreas: [], serviceCities, serviceZips, services, creditProfiles: info.financing ? creditProfiles : [], languages, headline, phone, email, website, bio, adLine, adTopic: '', adLinePending: '' },
   };
 }
 
@@ -288,6 +293,14 @@ export interface Billing {
   paidThrough: string; // YYYY-MM-DD
   /** Advertising plan. Rows stored before plans existed have none: treat as 'standard'. */
   tier?: AdTier;
+  /** How many ad areas are paid for (the Stripe quantity, or an admin's entry). Missing: all of them (older rows). */
+  areas?: number;
+}
+
+/** The ad areas that are paid for: the first `billing.areas` of the advertiser's list (all of them on older rows). */
+export function paidAreas(profile: Pick<ProProfile, 'adAreas'>, billing: Billing | null | undefined): AdArea[] {
+  const n = billing?.areas;
+  return typeof n === 'number' ? profile.adAreas.slice(0, Math.max(0, n)) : profile.adAreas;
 }
 
 /** An admin's manual billing entry (a payment received another way). */
@@ -296,8 +309,10 @@ export function validateBilling(b: Partial<Record<keyof Billing, unknown>>): Bil
   const paidThrough = plain(b.paidThrough, 10);
   const tier = b.tier === undefined || b.tier === null || b.tier === '' ? 'standard' : b.tier;
   if (!isAdTier(tier)) return null;
+  const areas = b.areas === undefined || b.areas === null || b.areas === '' ? undefined : Number(b.areas);
+  if (areas !== undefined && !(Number.isInteger(areas) && areas >= 1 && areas <= MAX_AD_AREAS)) return null;
   return plan.length >= 3 && /^\d{4}-\d{2}-\d{2}$/.test(paidThrough) && !Number.isNaN(Date.parse(paidThrough))
-    ? { plan, paidThrough, tier }
+    ? { plan, paidThrough, tier, ...(areas !== undefined ? { areas } : {}) }
     : null;
 }
 

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
-import { approvalBlockers, billingTier, type Billing, type LicenseVerification, type ProProfile } from '../lib/proApplication';
+import { adAreaLabel } from '../lib/adAreas';
+import { approvalBlockers, billingTier, paidAreas, type Billing, type LicenseVerification, type ProProfile } from '../lib/proApplication';
 import { AD_TIERS, CAPS, TIER_INFO, topicsFor, type AdTier } from '../lib/adPlans';
 import { adTopicByKey } from '../lib/adTopics';
 import { CATEGORIES, REVERIFY_DAYS } from '../lib/pros';
@@ -174,6 +175,7 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
 function BillingForm({ app, onSaved }: { app: App; onSaved: () => void }) {
   const [plan, setPlan] = useState(app.billing?.plan ?? 'Monthly listing');
   const [paidThrough, setPaidThrough] = useState(app.billing?.paidThrough ?? '');
+  const [areas, setAreas] = useState(String(app.billing?.areas ?? app.profile.adAreas.length ?? ''));
   const [tier, setTier] = useState<AdTier>(billingTier(app.billing));
   const [topic, setTopic] = useState(app.profile.adTopic ?? '');
   const [err, setErr] = useState<string | null>(null);
@@ -209,11 +211,16 @@ function BillingForm({ app, onSaved }: { app: App; onSaved: () => void }) {
           </label>
         )}
         <label className="field"><span>Paid through</span><input type="date" value={paidThrough} onChange={(e) => setPaidThrough(e.target.value)} /></label>
+        <label className="field">
+          <span>Ad areas paid for</span>
+          <input type="number" min={1} max={25} value={areas} onChange={(e) => setAreas(e.target.value)} />
+          <small className="muted">They have {app.profile.adAreas.length} chosen; the first this many show.</small>
+        </label>
       </div>
       {err && <div className="caution small">{err}</div>}
       <button className="btn" onClick={async () => {
         try {
-          await api(`/api/admin/applications/${app.id}/billing`, { body: { billing: { plan, paidThrough, tier, ...(tier === 'premium_plus' && topic ? { topic } : {}) } }, auth: true });
+          await api(`/api/admin/applications/${app.id}/billing`, { body: { billing: { plan, paidThrough, tier, ...(areas ? { areas: Number(areas) } : {}), ...(tier === 'premium_plus' && topic ? { topic } : {}) } }, auth: true });
           onSaved();
         } catch (e) {
           setErr((e as Error).message);
@@ -417,6 +424,7 @@ function Detail({ id, onChange }: { id: string; onChange: () => void }) {
         <div><dt>Phone</dt><dd>{p.phone}</dd></div>
         <div><dt>Email</dt><dd>{p.email} {a.emailConfirmedAt ? '(confirmed)' : '(not confirmed)'}</dd></div>
         <div><dt>Website</dt><dd>{p.website ?? '—'}</dd></div>
+        <div><dt>Ad areas</dt><dd>{p.adAreas.length ? p.adAreas.map((x, i) => `${adAreaLabel(x)}${a.billing && i >= paidAreas(p, a.billing).length ? ' (not paid)' : ''}`).join('; ') : 'None chosen yet'}</dd></div>
         <div><dt>Serves</dt><dd>{stateByCode(p.state)?.name}: {p.serviceCounties.map(countyName).join(', ')}{p.serviceCities.length ? ` · ${p.serviceCities.join(', ')}` : ''}{p.serviceZips.length ? ` · ${p.serviceZips.join(', ')}` : ''}</dd></div>
         <div><dt>Headline</dt><dd>{p.headline}</dd></div>
         <div><dt>{CATEGORIES[p.category].financing ? 'Loan types' : 'Services'}</dt><dd>{p.services.join(', ')}</dd></div>

@@ -4,10 +4,11 @@ import { join } from 'node:path';
 import { createServer, type Server } from 'node:http';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApp } from './app';
+import { toPro } from './directory';
 import { hashPassword, newToken, sha256 } from './auth';
 import type { Mail } from './mailer';
 import { pacificDay } from './metrics';
-import { createStripeClient, invoiceDiscount, invoicePriceIds, invoiceSubscriptionMetadata, parsePlans, planFor, signWebhook, subscriptionPriceId, tierForPrice, verifyWebhook } from './stripe';
+import { createStripeClient, invoiceDiscount, invoicePriceIds, invoiceQuantity, invoiceSubscriptionMetadata, parsePlans, planFor, signWebhook, subscriptionPriceId, tierForPrice, verifyWebhook } from './stripe';
 import { generateSigningKeys, loadPrivateKey } from '../ingest/lib/sign';
 import { validateApplication, type ApplicationInput } from '../src/lib/proApplication';
 
@@ -125,7 +126,7 @@ describe('advertiser card payments (running server, simulated Stripe)', () => {
     if (!v.ok) throw new Error('fixture invalid');
     proId = 'a'.repeat(24);
     const t = new Date().toISOString();
-    app.db.insertApplication({ id: proId, profile: v.profile, tokenHash: sha256('x'), tokenExpires: t, now: t });
+    app.db.insertApplication({ id: proId, profile: { ...v.profile, adAreas: [{ county: 'Clark', city: null }] }, tokenHash: sha256('x'), tokenExpires: t, now: t });
     app.db.update(proId, {
       status: 'APPROVED',
       verification: { licenseStatus: 'Active', licenseExpires: '2099-01-01', nameMatches: true, typeMatches: true, companyMatches: true, identityConfirmed: true, contentReviewed: true, identityMethod: 'Called the brokerage main line from the regulator record.', verifiedAt: pacificDay(new Date()), verifiedBy: 'admin' },
@@ -275,6 +276,8 @@ describe('advertising plans: checkout, caps and webhooks (running server, simula
     const json = (b: unknown) => new Response(JSON.stringify(b), { status: 200, headers: { 'content-type': 'application/json' } });
     if (path === 'customers') return json({ id: `cus_${++customers}` });
     if (path === 'checkout/sessions') return json({ id: 'cs_1', url: 'https://checkout.stripe.com/c/pay/cs_1' });
+    const sub = path.match(/^subscriptions\/(sub_\w+)$/);
+    if (sub) return json({ id: sub[1], items: { data: [{ id: 'si_AREA01', quantity: 2 }] } });
     return new Response('{}', { status: 404 });
   }) as typeof fetch;
   const PLANS = '{"*":{"standard":{"priceId":"price_STD001","amountLabel":"$99 / month","foundingCoupon":"FOUND_STD","foundingLabel":"$69 / month for 12 months"},"premium":{"priceId":"price_PRM001","amountLabel":"$199 / month","foundingCoupon":"FOUND_PRM","foundingLabel":"$139 / month for 12 months"},"premium_plus":{"priceId":"price_PLS001","amountLabel":"$249 / month","foundingCoupon":"FOUND_PLS","foundingLabel":"$179 / month for 12 months"}}}';
@@ -305,12 +308,12 @@ describe('advertising plans: checkout, caps and webhooks (running server, simula
     if (!v.ok) throw new Error(`fixture invalid: ${JSON.stringify(v.errors)}`);
     const id = n.toString(16).padStart(24, '0');
     const t = new Date().toISOString();
-    app.db.insertApplication({ id, profile: v.profile, tokenHash: sha256(`x${n}`), tokenExpires: t, now: t });
+    app.db.insertApplication({ id, profile: { ...v.profile, adAreas: [{ county: 'Clark', city: null }] }, tokenHash: sha256(`x${n}`), tokenExpires: t, now: t });
     app.db.update(id, {
       status: 'APPROVED',
       verification: { licenseStatus: 'Active', licenseExpires: '2099-01-01', nameMatches: true, typeMatches: true, companyMatches: true, identityConfirmed: true, contentReviewed: true, identityMethod: 'Called the main line from the regulator record.', verifiedAt: today, verifiedBy: 'admin' },
       billing: billing ? { plan: 'Manual', paidThrough: '2099-01-01', ...billing } as never : null,
-      profile: { ...v.profile, adTopic },
+      profile: { ...v.profile, adTopic, adAreas: [{ county: 'Clark', city: null }] },
     }, t);
     const token = newToken();
     app.db.sessions.create(sha256(token), 'pro', id, Date.now());
@@ -394,7 +397,7 @@ describe('advertising plans: checkout, caps and webhooks (running server, simula
     advertiser('home_inspector', { tier: 'standard' });
     const full = await post(c.cookie, '/api/pro/checkout', { tier: 'standard' });
     expect(full.status).toBe(409);
-    expect((await full.json()).error).toMatch(/directory is full/);
+    expect((await full.json()).error).toMatch(/directory in All of Clark County is full/);
     expect((await meOf(holder.cookie)).payments.full.standard).toBe(false);
   });
 
@@ -449,4 +452,48 @@ describe('advertising plans: checkout, caps and webhooks (running server, simula
     expect((await post(a.cookie, '/api/pro/ad-line', { adLine: '' })).status).toBe(200);
     expect(app.db.get(a.id)!.profile).toMatchObject({ adLine: '', adLinePending: '' });
   });
+
+  it('sells ad areas: one unit each at checkout; changing areas changes the Stripe quantity; only paid areas show', async () => {
+    const a = advertiser('agent');
+    app.db.update(a.id, { profile: { ...app.db.get(a.id)!.profile, adAreas: [] } }, new Date().toISOString());
+    expect((await post(a.cookie, '/api/pro/checkout', { tier: 'standard' })).status).toBe(409); // no areas yet
+    const bad: unknown[] = [
+      [], 'Clark', [{ county: 'Clark', city: 'Reno' }], [{ county: 'Maricopa', city: null }], [{ county: '__proto__', city: null }],
+      [{ county: 'Clark', city: '<img src=x onerror=alert(1)>' }], [{ county: 'Clark', city: "Henderson' OR '1'='1" }],
+      [{ county: 'Clark', city: null }, { county: 'Clark', city: 'Henderson' }], [{ county: 'Clark', city: 'Henderson' }, { county: 'Clark', city: 'Henderson' }],
+      Array.from({ length: 26 }, (_, i) => ({ county: 'Clark', city: `City ${i}` })),
+    ];
+    for (const areas of bad) expect((await post(a.cookie, '/api/pro/areas', { areas })).status, JSON.stringify(areas).slice(0, 80)).toBe(422);
+    const two = [{ county: 'Clark', city: 'Henderson' }, { county: 'Washoe', city: null }];
+    expect((await post(a.cookie, '/api/pro/areas', { areas: two })).status).toBe(200);
+    expect(app.db.get(a.id)!.profile.adAreas).toEqual(two);
+    expect((await post(a.cookie, '/api/pro/checkout', { tier: 'standard' })).status).toBe(200);
+    expect(lastSession().get('line_items[0][quantity]')).toBe('2');
+
+    const customer = app.db.stripe.forPro(a.id)!.customerId;
+    const line = (quantity: number, amount = 9900) => ({ quantity, amount, price: { id: 'price_STD001' }, period: { end: periodEnd } });
+    await hook({ id: `evt_areas_${a.id}_1`, type: 'invoice.paid', data: { object: { customer, subscription: 'sub_AREA01', amount_paid: 19800, currency: 'usd', lines: { data: [line(2, 19800)] } } } });
+    expect(app.db.get(a.id)!.billing).toMatchObject({ areas: 2, tier: 'standard' });
+
+    // Adding a third area asks Stripe for quantity 3 (charged right away), and it shows once Stripe confirms.
+    const three = [...two, { county: 'Clark', city: 'Boulder City' }];
+    expect((await post(a.cookie, '/api/pro/areas', { areas: three })).status).toBe(200);
+    const update = calls.filter((c) => c.path === 'subscriptions/sub_AREA01' && c.params.has('items[0][quantity]')).at(-1)!.params;
+    expect([update.get('items[0][id]'), update.get('items[0][quantity]'), update.get('proration_behavior')]).toEqual(['si_AREA01', '3', 'always_invoice']);
+    expect((await meOf(a.cookie)).payments.paidAreaCount).toBe(2);
+    expect(toPro(app.db.get(a.id)!)!.adAreas).toEqual(two); // the new area isn't published until Stripe confirms it
+    await hook({ id: `evt_areas_${a.id}_2`, type: 'customer.subscription.updated', data: { object: { id: 'sub_AREA01', customer, status: 'active', items: { data: [{ price: { id: 'price_STD001' }, quantity: 3 }] } } } });
+    expect((await meOf(a.cookie)).payments.paidAreaCount).toBe(3);
+    expect(app.db.get(a.id)!.billing?.areas).toBe(3);
+
+    // Swapping one area for another keeps the count: no Stripe call.
+    const before = calls.length;
+    expect((await post(a.cookie, '/api/pro/areas', { areas: [...two, { county: 'Clark', city: 'Mesquite' }] })).status).toBe(200);
+    expect(calls.length).toBe(before);
+
+    // A proration invoice after dropping an area: the credit line (old quantity) doesn't count.
+    expect(invoiceQuantity({ lines: { data: [line(3, -3300), line(2, 2200)] } }, (id) => id === 'price_STD001')).toBe(2);
+    expect(invoiceQuantity({ lines: { data: [{ quantity: 9, amount: 100, price: { id: 'price_OTHER' } }] } }, (id) => id === 'price_STD001')).toBeNull();
+  });
 });
+

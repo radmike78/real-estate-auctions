@@ -1,11 +1,11 @@
-import { useEffect, useId, useState, type FormEvent, type ReactNode } from 'react';
+import { useState, type FormEvent, type ReactNode } from 'react';
 import { AD_LINE_RULES, CONTENT_RULES, LANGUAGES, MAX_SERVICE_CITIES, validateApplication, type ApplicationInput } from '../lib/proApplication';
 import { CATEGORIES, CREDIT_PROFILES, REVERIFY_DAYS, servicesFor, type Category } from '../lib/pros';
 import { getMyState } from '../lib/myState';
-import { loadPlaces, matchPlaces, type Place } from '../lib/places';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
 import { regulatorFor } from '../lib/regulators';
 import PageHero from './PageHero';
+import PlaceCombobox from './PlaceCombobox';
 import { api, ApiError } from '../lib/api';
 import EmptyState from './EmptyState';
 import { advertisingOpen, useSiteFeatures } from '../lib/siteFeatures';
@@ -57,29 +57,8 @@ function CheckGroup({ legend, options, value, onChange, error, className = '' }:
 
 /** Optional cities or towns, picked from the Census list for the state (src/data/places). */
 function CityPicker({ state, counties, value, onChange, error }: { state: StateCode; counties: string[]; value: string[]; onChange: (v: string[]) => void; error?: string }) {
-  const [places, setPlaces] = useState<Place[] | null>(null);
-  const [typed, setTyped] = useState('');
-  const [active, setActive] = useState(0);
-  const listId = useId();
-  useEffect(() => {
-    let alive = true;
-    setPlaces(null);
-    loadPlaces(state).then((p) => alive && setPlaces(p));
-    return () => {
-      alive = false;
-    };
-  }, [state]);
-  // Places in the counties they chose (all of the state's until they choose any), not already picked.
-  const pool = (places ?? []).filter((p) => !value.includes(p.name) && (!counties.length || p.counties.some((c) => counties.includes(c))));
-  const matches = matchPlaces(pool, typed);
-  const add = (p: Place) => {
-    if (value.length < MAX_SERVICE_CITIES) onChange([...value, p.name]);
-    setTyped('');
-    setActive(0);
-  };
   return (
     <div className="field city-picker">
-      <label htmlFor={`${listId}-in`}>Cities or towns you serve <span className="muted">(optional, up to {MAX_SERVICE_CITIES})</span></label>
       {value.length > 0 && (
         <ul className="chips" aria-label="Cities you chose">
           {value.map((c) => (
@@ -87,37 +66,15 @@ function CityPicker({ state, counties, value, onChange, error }: { state: StateC
           ))}
         </ul>
       )}
-      <input
-        id={`${listId}-in`}
-        role="combobox"
-        aria-expanded={matches.length > 0}
-        aria-controls={listId}
-        aria-autocomplete="list"
-        aria-activedescendant={matches.length ? `${listId}-${active}` : undefined}
-        autoComplete="off"
-        disabled={!places || value.length >= MAX_SERVICE_CITIES}
-        placeholder={places ? 'Start typing a city or town' : 'Loading cities…'}
-        value={typed}
-        onChange={(e) => { setTyped(e.target.value); setActive(0); }}
-        onKeyDown={(e) => {
-          if (!matches.length) return;
-          if (e.key === 'ArrowDown') { e.preventDefault(); setActive((i) => Math.min(i + 1, matches.length - 1)); }
-          else if (e.key === 'ArrowUp') { e.preventDefault(); setActive((i) => Math.max(i - 1, 0)); }
-          else if (e.key === 'Enter') { e.preventDefault(); add(matches[active]); }
-          else if (e.key === 'Escape') { e.stopPropagation(); setTyped(''); }
-        }}
+      <PlaceCombobox
+        state={state}
+        label={<>Cities or towns you serve <span className="muted">(optional, up to {MAX_SERVICE_CITIES})</span></>}
+        hint="Leave this empty if you serve whole counties."
+        disabled={value.length >= MAX_SERVICE_CITIES}
+        // Places in the counties they chose (all of the state's until they choose any), not already picked.
+        keep={(p) => !value.includes(p.name) && (!counties.length || p.counties.some((c) => counties.includes(c)))}
+        onPick={(p) => value.length < MAX_SERVICE_CITIES && onChange([...value, p.name])}
       />
-      {matches.length > 0 && (
-        <ul id={listId} role="listbox" className="area-options">
-          {matches.map((p, i) => (
-            <li key={`${p.name}-${p.counties.join()}`} id={`${listId}-${i}`} role="option" aria-selected={i === active}
-              className={i === active ? 'on' : ''} onMouseDown={(e) => { e.preventDefault(); add(p); }}>
-              <strong>{p.name}</strong> <span className="muted">{p.counties.map(countyName).join(' and ')}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-      <small className="muted">Leave this empty if you serve whole counties.</small>
       {error && <span className="field-error">{error}</span>}
     </div>
   );

@@ -180,6 +180,16 @@ export function createStripeClient(cfg: StripeConfig) {
     return body as T;
   }
 
+  async function get<T>(path: string): Promise<T> {
+    const res = await doFetch(API + path, { headers: { authorization: `Bearer ${cfg.secretKey}` }, redirect: 'error', signal: AbortSignal.timeout(20_000) });
+    const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+    if (!res.ok) {
+      const err = body.error as { type?: string; code?: string } | undefined;
+      throw new Error(`Stripe GET ${path.split('/')[0]} failed (${res.status} ${err?.type ?? ''} ${err?.code ?? ''})`.trim());
+    }
+    return body as T;
+  }
+
   return {
     plans: cfg.plans,
     planFor: (c: Category, tier: AdTier = 'standard') => planFor(cfg.plans, c, tier),
@@ -188,14 +198,15 @@ export function createStripeClient(cfg: StripeConfig) {
     createCustomer: (p: { proId: string; email: string; name: string }) =>
       post<{ id: string }>('customers', { email: p.email, name: p.name, metadata: { proId: p.proId } }, `customer-${p.proId}`),
 
-    createCheckoutSession: (p: { proId: string; customerId: string; priceId: string; tier: AdTier; topic: string | null; coupon: string | null; successUrl: string; cancelUrl: string; attempt: string }) =>
+    createCheckoutSession: (p: { proId: string; customerId: string; priceId: string; quantity: number; tier: AdTier; topic: string | null; coupon: string | null; successUrl: string; cancelUrl: string; attempt: string }) =>
       post<{ id: string; url: string }>(
         'checkout/sessions',
         {
           mode: 'subscription',
           customer: p.customerId,
           client_reference_id: p.proId,
-          line_items: { 0: { price: p.priceId, quantity: 1 } },
+          // One unit per ad area (a city or a whole county), at the plan's price.
+          line_items: { 0: { price: p.priceId, quantity: p.quantity } },
           // Stripe takes either a coupon applied here or a code the advertiser types, never both.
           ...(p.coupon ? { discounts: { 0: { coupon: p.coupon } } } : { allow_promotion_codes: true }),
           // A code that covers the whole price (e.g. 100% off for 6 months) needs no card until it runs out; Stripe
@@ -210,6 +221,18 @@ export function createStripeClient(cfg: StripeConfig) {
 
     createPortalSession: (p: { customerId: string; returnUrl: string }) =>
       post<{ url: string }>('billing_portal/sessions', { customer: p.customerId, return_url: p.returnUrl }),
+
+    /**
+     * Changes how many ad areas a subscription pays for. Stripe charges (or credits) the difference for the rest of the
+     * period right away (proration_behavior always_invoice); the new quantity comes back in customer.subscription.updated.
+     */
+    async setQuantity(subscriptionId: string, quantity: number, idempotencyKey: string) {
+      if (!/^sub_[A-Za-z0-9]{6,}$/.test(subscriptionId)) throw new Error('Unexpected subscription ID');
+      const sub = await get<Record<string, unknown>>(`subscriptions/${subscriptionId}`);
+      const item = ((sub.items as { data?: { id?: unknown }[] } | undefined)?.data ?? [])[0];
+      if (typeof item?.id !== 'string' || !/^si_[A-Za-z0-9]{6,}$/.test(item.id)) throw new Error('Subscription has no item');
+      return post<Record<string, unknown>>(`subscriptions/${subscriptionId}`, { items: { 0: { id: item.id, quantity } }, proration_behavior: 'always_invoice' }, idempotencyKey);
+    },
   };
 }
 export type StripeClient = ReturnType<typeof createStripeClient>;
@@ -259,6 +282,28 @@ export function subscriptionPriceId(sub: Record<string, unknown>): string | null
   const price = item?.price;
   const id = typeof price === 'string' ? price : price && typeof price === 'object' ? (price as { id?: unknown }).id : null;
   return typeof id === 'string' ? id : null;
+}
+
+/** How many units (ad areas) a subscription's first item is for, or null. */
+export function subscriptionQuantity(sub: Record<string, unknown>): number | null {
+  const q = ((sub.items as { data?: { quantity?: unknown }[] } | undefined)?.data ?? [])[0]?.quantity;
+  return typeof q === 'number' && Number.isInteger(q) && q > 0 ? q : null;
+}
+
+/**
+ * The most units on an invoice's charge lines for these prices, or null. Credit lines (negative amounts, e.g. "unused
+ * time" on the old quantity after an advertiser drops an area) are skipped, so a proration invoice gives the new quantity.
+ */
+export function invoiceQuantity(invoice: Record<string, unknown>, isOurPrice: (priceId: string) => boolean): number | null {
+  const lines = ((invoice.lines as { data?: unknown[] } | undefined)?.data ?? []) as Record<string, unknown>[];
+  let best: number | null = null;
+  for (const l of lines) {
+    const ids = invoicePriceIds({ lines: { data: [l] } });
+    const q = l?.quantity;
+    if (typeof l?.amount === 'number' && l.amount < 0) continue;
+    if (ids.some(isOurPrice) && typeof q === 'number' && Number.isInteger(q) && q > 0) best = Math.max(best ?? 0, q);
+  }
+  return best;
 }
 
 /** The subscription ID an invoice belongs to, across Stripe API versions. */

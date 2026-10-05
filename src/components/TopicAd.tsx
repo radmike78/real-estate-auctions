@@ -11,7 +11,8 @@ import { useMyState } from '../lib/myState';
 import { proGuideByKey } from '../lib/proGuide';
 import { isListable, type Pro } from '../lib/pros';
 import { stateByCode, type StateCode } from '../lib/regions';
-import { AdCard, inState, useAdImpressions } from './AdBoxes';
+import { AdCard, inArea, useAdImpressions } from './AdBoxes';
+import { useMyArea } from '../lib/myArea';
 import { useDirectory } from './ProDirectory';
 
 function LicenseLinks({ topic, state }: { topic: AdTopic; state: StateCode }) {
@@ -57,6 +58,7 @@ export default function TopicAd({ lesson, drill, caseStage }: { lesson?: string;
 
 function TopicHelp({ topic }: { topic: AdTopic }) {
   const [st] = useMyState();
+  const [area] = useMyArea();
   const { pros } = useDirectory();
   const e = topic.editorial;
   return (
@@ -72,7 +74,7 @@ function TopicHelp({ topic }: { topic: AdTopic }) {
             {e.directories.map((d, i) => <span key={d.href}>{i > 0 && ' · '}<a href={d.href}>{d.label} →</a></span>)}
           </p>
         </div>
-        <TopicAdBox topic={topic} pros={inState(pros, st)} />
+        <TopicAdBox topic={topic} pros={inArea(pros, area)} />
       </div>
     </section>
   );

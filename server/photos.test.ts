@@ -97,7 +97,7 @@ describe('profile photos (running server)', () => {
     const v = validateApplication(PRO);
     if (!v.ok) throw new Error('fixture invalid');
     const t = new Date().toISOString();
-    app.db.insertApplication({ id: proId, profile: v.profile, tokenHash: sha256('x'), tokenExpires: t, now: t });
+    app.db.insertApplication({ id: proId, profile: { ...v.profile, adAreas: [{ county: 'Clark', city: null }] }, tokenHash: sha256('x'), tokenExpires: t, now: t });
     app.db.update(proId, {
       status: 'APPROVED',
       verification: { licenseStatus: 'Active', licenseExpires: '2099-01-01', nameMatches: true, typeMatches: true, companyMatches: true, identityConfirmed: true, contentReviewed: true, identityMethod: 'Called the company line from the regulator record.', verifiedAt: pacificDay(new Date()), verifiedBy: 'admin' },
