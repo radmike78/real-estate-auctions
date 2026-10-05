@@ -150,7 +150,12 @@ export const SECTIONS: DrillSection[] = [
             shown before you pay, and discounts (such as founding-advertiser prices or promotion codes) apply only as stated when you pay.
           </li>
           <li>
-            Spots are limited per category, as shown on the Advertise page and your dashboard. When a spot is taken, that plan or topic isn't
+            You choose your ad areas: cities or towns, or whole counties, in the state you're licensed in. Your listing and ads show to buyers in
+            those areas, and each area is billed at your plan's monthly fee. On a card plan, adding or removing an area changes your charge right
+            away, prorated for the rest of the billing period.
+          </li>
+          <li>
+            Spots are limited per category in each city (a whole county takes a spot in each of its cities), as shown on the Advertise page and your dashboard. When a spot is taken, that plan or topic isn't
             available until one opens. We choose which advertiser appears in a shared ad box at random on each page view.
           </li>
           <li>Ad boxes show your name, company and license number, and your ad line if you have one. We review ad lines before they appear and may remove one that breaks these rules.</li>

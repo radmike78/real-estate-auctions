@@ -2647,10 +2647,16 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .area-options li.on, .area-options li:hover { background: var(--surface-2); }
 .area-county { display: grid; gap: 6px; }
 .apply-form .area-states { border: 0; padding: 0; margin: 0 0 14px; }
-.city-picker { display: grid; gap: 8px; }
-.city-picker .chips { list-style: none; margin: 0; padding: 0; }
-.city-picker .chip { border: 1px solid var(--border); min-height: 36px; padding: 4px 12px; font: inherit; color: var(--text); cursor: pointer; }
-.city-picker .chip:hover { border-color: var(--accent-strong); }
+.city-picker, .areas-card { display: grid; gap: 8px; }
+.city-picker .chips, .area-chips { list-style: none; margin: 0; padding: 0; }
+.city-picker .chip, .area-chips .chip { border: 1px solid var(--border); min-height: 36px; padding: 4px 12px; font: inherit; color: var(--text); cursor: pointer; }
+.place-combo { position: relative; display: grid; gap: 6px; }
+.areas-card .row select { flex: 1; min-width: 0; }
+.area-scope { margin: 6px 0; }
+.areas-add { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; align-items: start; justify-self: stretch; }
+.areas-add input, .areas-add .row { width: 100%; }
+@media (max-width: 720px) { .areas-add { grid-template-columns: 1fr; } }
+.city-picker .chip:hover, .area-chips .chip:hover { border-color: var(--accent-strong); }
 .area-dialog-head { margin: 4px 0 10px; font-size: 1.15rem; }
 @media (max-width: 640px) { .area-btn { max-width: 34vw; padding: 6px 10px; } }
 /* Narrow phones: just the pin (its label says the area), so the menu button keeps its place. */

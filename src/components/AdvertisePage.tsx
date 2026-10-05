@@ -68,10 +68,15 @@ export default function AdvertisePage() {
       </div>
 
       <h2>Plans</h2>
-      <p>Monthly, per category. Cancel any time. Your plan only adds labeled ad boxes: it never changes your place in the directory list.</p>
-      <PlanCards price={(t) => priceLine(plans, t)} />
+      <p>
+        Monthly, per ad area. Cancel any time. You choose where buyers see your listing and ads: cities or towns, or a whole county (every city
+        and community in it). Each area is billed at your plan’s monthly price, and you can add or drop areas from your dashboard. Your plan only
+        adds labeled ad boxes: it never changes your place in the directory list.
+      </p>
+      <PlanCards price={(t) => { const l = priceLine(plans, t); return /\$/.test(l) ? <>{l}<span className="small muted"> per area</span></> : l; }} />
       <p className="small muted">
-        Spots are limited so ads stay useful: up to {CAPS.listing} advertisers per category and {CAPS.featured} Featured ad spots per category.
+        Spots are limited in each city so ads stay useful: up to {CAPS.listing} advertisers per category and {CAPS.featured} Featured ad spots per
+        category, taking turns. A whole county takes one spot in each of its cities.
         Topic ads appear beside {AD_TOPICS.map((t) => t.label.toLowerCase()).join(', ')} topics. Agents, lenders, title and escrow companies
         and attorneys share up to {CAPS.topicSettlement} spots per topic, which take turns. Other kinds of professionals get {CAPS.topicOther} spot per topic.
       </p>
@@ -80,13 +85,13 @@ export default function AdvertisePage() {
       <ol className="steps-rich">
         <li><strong>Apply and confirm your email.</strong><span>Takes about five minutes.</span></li>
         <li><strong>We verify you.</strong><span>We check your license on the official regulator lookup, and confirm your identity through contact details we find independently.</span></li>
-        <li><strong>Choose a plan, pay by card and go live.</strong><span>A monthly fee for the plan you choose, paid securely through Stripe. Cancel any time.</span></li>
+        <li><strong>Choose your areas and plan, pay by card and go live.</strong><span>A monthly fee for each area, at the plan you choose, paid securely through Stripe. Cancel any time.</span></li>
         <li><strong>Track your results.</strong><span>Sign in any time with a one-time email link to see your numbers and leads.</span></li>
       </ol>
 
       <div className="notice small" role="note">
         <strong>How placement works.</strong> Every listed professional appears in the directory list in a fair rotating order, whatever plan
-        they pay for. Spotlight adds a separate, labeled Featured ad box on your category’s pages (up to {CAPS.featured} per category) and a turn in the rotating ad at the top of the Your Team page. Mentor Connect
+        they pay for. Spotlight adds a separate, labeled Featured ad box on your category’s pages (up to {CAPS.featured} per category in each city) and a turn in the rotating ad at the top of the Your Team page. Mentor Connect
         also adds a labeled ad beside one Learn or Practice topic. Every ad is labeled as paid. We don’t rank professionals, charge per lead or per
         closing, or take a share of any transaction, and we aren’t a party to any agreement between you and a buyer.
       </div>

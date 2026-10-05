@@ -12,6 +12,7 @@
 // Prices are never set here: they come from the operator's Stripe configuration (STRIPE_PLANS, server/stripe.ts).
 
 import type { StateCode } from './regions';
+import { adAreaLabel, peakIn, type AdArea } from './adAreas';
 import { AD_TOPICS, adTopicByKey, type AdTopic } from './adTopics';
 import { CATEGORIES, type Category } from './pros';
 
@@ -35,7 +36,10 @@ export const TIER_INFO: Record<AdTier, { label: string; includes: string[]; badg
   },
 };
 
-/** How many advertisers each category holds at once. Change them here; checkout and admin billing enforce them. */
+/**
+ * How many advertisers each category holds at once, in each city (a county bundle counts in every city of its county).
+ * Founding spots are per state. Change them here; checkout, area changes and admin billing enforce them.
+ */
 export const CAPS = {
   /** Listed advertisers per category, all plans counted. */
   listing: 5,
@@ -91,9 +95,12 @@ export interface Placement {
   category: Category;
   tier: AdTier;
   topic: string | null;
+  /** Where their ads show (adAreas.ts). Missing or empty: the whole state (rows from before ad areas existed). */
+  areas?: AdArea[] | null;
 }
 
-export type CapProblem = { kind: 'listing' | 'featured' | 'topic'; cap: number };
+/** A full cap, and the ad area it's full in (none when counted across the whole state). */
+export type CapProblem = { kind: 'listing' | 'featured' | 'topic'; cap: number; area?: AdArea };
 
 /**
  * Whether `want` fits next to the advertisers already listed (`current`, which may include `want` itself: it's left
@@ -101,11 +108,17 @@ export type CapProblem = { kind: 'listing' | 'featured' | 'topic'; cap: number }
  */
 export function capProblem(current: Placement[], want: Placement): CapProblem | null {
   const others = current.filter((p) => p.id !== want.id && p.category === want.category && (p.state ?? 'NV') === (want.state ?? 'NV'));
-  if (others.length >= CAPS.listing) return { kind: 'listing', cap: CAPS.listing };
-  if (hasFeaturedBox(want.tier) && others.filter((p) => hasFeaturedBox(p.tier)).length >= CAPS.featured) return { kind: 'featured', cap: CAPS.featured };
-  if (want.tier === 'premium_plus' && want.topic) {
-    const cap = topicCap(want.category);
-    if (others.filter((p) => p.tier === 'premium_plus' && p.topic === want.topic).length >= cap) return { kind: 'topic', cap };
+  // Counted per city (a county bundle counts in each of its cities); without areas, across the whole state.
+  const checks: (AdArea | undefined)[] = want.areas?.length ? want.areas : [undefined];
+  for (const area of checks) {
+    const count = (ps: Placement[]) => (area ? peakIn(ps.map((p) => (p.areas?.length ? p.areas : null)), area) : ps.length);
+    const where = area ? { area } : {};
+    if (count(others) >= CAPS.listing) return { kind: 'listing', cap: CAPS.listing, ...where };
+    if (hasFeaturedBox(want.tier) && count(others.filter((p) => hasFeaturedBox(p.tier))) >= CAPS.featured) return { kind: 'featured', cap: CAPS.featured, ...where };
+    if (want.tier === 'premium_plus' && want.topic) {
+      const cap = topicCap(want.category);
+      if (count(others.filter((p) => p.tier === 'premium_plus' && p.topic === want.topic)) >= cap) return { kind: 'topic', cap, ...where };
+    }
   }
   return null;
 }
@@ -121,12 +134,14 @@ export function foundingFull(rows: { id: string; category: Category; founding: b
 /** What to tell an advertiser when a spot is full. */
 export function capMessage(problem: CapProblem, category: Category, topic: string | null = null): string {
   const plural = CATEGORIES[category].plural;
-  if (problem.kind === 'listing') return `The ${plural} directory is full right now: it lists up to ${problem.cap} advertisers at a time. Try again later.`;
-  if (problem.kind === 'featured') return `All ${problem.cap} Featured ad spots for ${plural} are taken right now. Choose Rotating, or try again later.`;
+  const inArea = problem.area ? ` in ${adAreaLabel(problem.area)}` : '';
+  const other = problem.area ? 'Choose another area, ' : '';
+  if (problem.kind === 'listing') return `The ${plural} directory${inArea} is full right now: it lists up to ${problem.cap} advertisers at a time. ${other ? `${other}or try again later.` : 'Try again later.'}`;
+  if (problem.kind === 'featured') return `All ${problem.cap} Featured ad spots for ${plural}${inArea} are taken right now. ${other}Choose Rotating, or try again later.`;
   const label = adTopicByKey(topic)?.label ?? 'this topic';
   return problem.cap === 1
-    ? `The ${label} ad spot for ${plural} is taken right now. Choose another topic or plan, or try again later.`
-    : `All ${problem.cap} ${label} ad spots for ${plural} are taken right now. Choose another topic or plan, or try again later.`;
+    ? `The ${label} ad spot for ${plural}${inArea} is taken right now. ${other}Choose another topic or plan, or try again later.`
+    : `All ${problem.cap} ${label} ad spots for ${plural}${inArea} are taken right now. ${other}Choose another topic or plan, or try again later.`;
 }
 
 /** Picks up to `n` items in a random order (a fresh shuffle per page view). */

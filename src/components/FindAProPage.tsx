@@ -92,7 +92,7 @@ function GuideBody({ g }: { g: ProGuide }) {
             )}
           </div>
           {sideAd ? (
-            <FeaturedAds pros={pros} categories={g.directory!} state={st} placeholder />
+            <FeaturedAds pros={pros} categories={g.directory!} placeholder />
           ) : PRO_SCRIPTS[g.key].read && (
             <div>
               <h3>{PRO_SCRIPTS[g.key].read!.title}</h3>
@@ -181,7 +181,7 @@ export default function FindAProPage({ section }: { section?: string }) {
             <p>Answer five quick questions about what you want to buy and how, and we’ll narrow this down to the professionals you need, and why. If you’re not sure of an answer, we’ll suggest one.</p>
             <a className="btn" href="#/pros/build">Help me choose →</a>
           </section>
-          <RotatingAd pros={pros} state={mine} placeholder />
+          <RotatingAd pros={pros} placeholder />
         </div>
       )}
       {all && (

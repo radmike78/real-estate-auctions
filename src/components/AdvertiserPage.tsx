@@ -11,6 +11,9 @@ import DailyColumns from './DailyColumns';
 import OwlNote from './OwlNote';
 import EmptyState from './EmptyState';
 import { useSiteFeatures } from '../lib/siteFeatures';
+import { adAreaLabel, MAX_AD_AREAS, validateAdAreas, type AdArea } from '../lib/adAreas';
+import { countyName, stateByCode } from '../lib/regions';
+import PlaceCombobox from './PlaceCombobox';
 
 const LOGIN_KEY = 'fsf.pro-login';
 
@@ -25,6 +28,7 @@ interface Payments {
   active: boolean;
   cancelAtPeriodEnd: boolean;
   hasCard: boolean;
+  paidAreaCount: number;
   full: Record<AdTier, boolean>;
   topicsFull: string[];
   foundingDiscount: Record<AdTier, boolean>;
@@ -107,7 +111,8 @@ function PlanCard({ me, onChange }: { me: Me; onChange: () => void }) {
     return p.founding && l.foundingLabel ? <>{l.foundingLabel} <span className="small muted">founding price, then {l.amountLabel}</span></> : l.amountLabel;
   };
   const canBuy = (t: AdTier) => !!labels?.[t]?.available && !p.full[t];
-  const ready = canBuy(tier) && (tier !== 'premium_plus' || (!!topic && !p.topicsFull.includes(topic)));
+  const areaCount = me.profile.adAreas.length;
+  const ready = areaCount > 0 && canBuy(tier) && (tier !== 'premium_plus' || (!!topic && !p.topicsFull.includes(topic)));
   return (
     <section className="plan-card" aria-labelledby="plan-h">
       <h2 id="plan-h">Your plan</h2>
@@ -120,7 +125,7 @@ function PlanCard({ me, onChange }: { me: Me; onChange: () => void }) {
       {p.active ? (
         <>
           <p className="plan-line">
-            <strong>{TIER_INFO[p.tier].label}</strong>{p.amountLabel && <> · {p.amountLabel}</>}
+            <strong>{TIER_INFO[p.tier].label}</strong>{p.amountLabel && <> · {p.amountLabel} per area</>} · {p.paidAreaCount} {p.paidAreaCount === 1 ? 'area' : 'areas'}
             {me.billing && <> · paid through <strong>{fmtDate(me.billing.paidThrough)}</strong></>}
           </p>
           {p.adsHidden && (
@@ -148,7 +153,8 @@ function PlanCard({ me, onChange }: { me: Me; onChange: () => void }) {
         </>
       ) : p.available ? (
         <>
-          <p className="plan-line">Choose a plan. Monthly, cancel any time. Every plan keeps the same fair rotating place in the directory list.</p>
+          <p className="plan-line">Choose a plan. Monthly, cancel any time. Every plan keeps the same fair rotating place in the directory list. Prices are per ad area each month.</p>
+          {areaCount === 0 && <div className="notice">Choose where your ads show (above) first.</div>}
           {me.billing && <p className="muted">Currently paid through {fmtDate(me.billing.paidThrough)}.</p>}
           <PlanCards
             selected={tier}
@@ -156,12 +162,12 @@ function PlanCard({ me, onChange }: { me: Me; onChange: () => void }) {
             extra={(t) => (
               <>
                 <label><input type="radio" name="plan" checked={tier === t} disabled={!canBuy(t)} onChange={() => setTier(t)} /> Choose {TIER_INFO[t].label}</label>
-                {p.full[t] && <span className="small warn">Full right now: every spot in your category is taken. Try again later.</span>}
+                {p.full[t] && <span className="small warn">Full right now in one of your areas. Try other areas, or try again later.</span>}
               </>
             )}
           />
           {tier === 'premium_plus' && <TopicPicker me={me} value={topic} onChange={setTopic} />}
-          <button className="btn big plan-cta" disabled={busy || !ready} onClick={() => open('/api/pro/checkout', { tier, ...(tier === 'premium_plus' ? { topic } : {}) })}>{busy ? 'Opening secure payment…' : 'Start advertising'}</button>
+          <button className="btn big plan-cta" disabled={busy || !ready} onClick={() => open('/api/pro/checkout', { tier, ...(tier === 'premium_plus' ? { topic } : {}) })}>{busy ? 'Opening secure payment…' : areaCount > 1 ? `Start advertising in ${areaCount} areas` : 'Start advertising'}</button>
           {!p.foundingDiscount[tier] && <p className="small">Have a discount code? Enter it on the payment page.</p>}
           {p.foundingDiscount[tier] && <p className="small">Your founding-advertiser discount is applied on the payment page.</p>}
           <p className="muted">You'll pay on Stripe's secure page. We never see or store your card details. Your profile goes live as soon as the payment clears.</p>
@@ -171,6 +177,96 @@ function PlanCard({ me, onChange }: { me: Me; onChange: () => void }) {
         <p>{me.billing ? <>{TIER_INFO[p.tier].label} plan, paid through <strong>{fmtDate(me.billing.paidThrough)}</strong>. </> : null}We'll contact you to set up or renew your advertising plan.</p>
       )}
       {err && <div className="caution" role="alert">{err}</div>}
+    </section>
+  );
+}
+
+/**
+ * Where their ads show: cities or towns, or whole counties, in their state. Each area is one unit of the plan's monthly
+ * price; with a card plan, saving a different number of areas changes the charge (Stripe prorates it).
+ */
+function AreasCard({ me, onChange }: { me: Me; onChange: () => void }) {
+  const p = me.payments;
+  const st = stateByCode(me.profile.state);
+  const [areas, setAreas] = useState<AdArea[]>(me.profile.adAreas);
+  const [county, setCounty] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const saved = me.profile.adAreas;
+  const changed = JSON.stringify(areas) !== JSON.stringify(saved);
+  const check = validateAdAreas(areas, me.profile.state);
+  const has = (a: AdArea) => areas.some((x) => x.county === a.county && x.city === a.city);
+  const wholeCounty = (c: string) => areas.some((x) => x.county === c && x.city === null);
+  const add = (a: AdArea) => {
+    setMsg(null);
+    if (has(a) || areas.length >= MAX_AD_AREAS) return;
+    // A whole county replaces the single cities already chosen in it.
+    setAreas(a.city === null ? [...areas.filter((x) => x.county !== a.county), a] : [...areas, a]);
+  };
+  async function save() {
+    setBusy(true);
+    setMsg(null);
+    try {
+      const r = await api<{ message: string }>('/api/pro/areas', { body: { areas }, auth: true });
+      setMsg({ ok: true, text: r.message });
+      onChange();
+    } catch (e) {
+      setMsg({ ok: false, text: (e as Error).message });
+    } finally {
+      setBusy(false);
+    }
+  }
+  if (!st) return null;
+  const billed = !!me.billing;
+  return (
+    <section className="plan-card areas-card" aria-labelledby="areas-h">
+      <h2 id="areas-h">Where your ads show</h2>
+      <p>
+        Choose the cities and towns, or whole counties, in {st.name} where buyers see your listing and ads. Each area is billed at your
+        plan’s monthly price{p.amountLabel ? ` (${p.amountLabel} each)` : ''}. A whole county covers every city and community in it.
+      </p>
+      {areas.length === 0 ? (
+        <OwlNote><strong>No ad areas yet.</strong> Add at least one city or county to start advertising.</OwlNote>
+      ) : (
+        <ul className="chips area-chips" aria-label="Your ad areas">
+          {areas.map((a, i) => {
+            const waiting = billed && !changed && i >= p.paidAreaCount;
+            return (
+              <li key={`${a.county}|${a.city ?? '*'}`}>
+                <button type="button" className="chip on" onClick={() => { setMsg(null); setAreas(areas.filter((x) => x !== a)); }} aria-label={`Remove ${adAreaLabel(a)}`}>
+                  {adAreaLabel(a)}{waiting ? ' · not paid yet' : ''} ✕
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <div className="areas-add">
+        <PlaceCombobox
+          state={me.profile.state}
+          label="Add a city or town"
+          disabled={areas.length >= MAX_AD_AREAS}
+          keep={(pl) => !areas.some((x) => x.city === pl.name) && !pl.counties.every(wholeCounty)}
+          onPick={(pl) => add({ county: pl.counties.find((c) => !wholeCounty(c)) ?? pl.counties[0], city: pl.name })}
+        />
+        <div className="field">
+          <label htmlFor="area-county">Or a whole county</label>
+          <div className="row">
+            <select id="area-county" value={county} onChange={(e) => setCounty(e.target.value)}>
+              <option value="">Choose a county…</option>
+              {st.counties.filter((c) => !wholeCounty(c)).map((c) => <option key={c} value={c}>{countyName(c)}</option>)}
+            </select>
+            <button type="button" className="btn btn-secondary" disabled={!county || areas.length >= MAX_AD_AREAS} onClick={() => { add({ county, city: null }); setCounty(''); }}>Add county</button>
+          </div>
+        </div>
+      </div>
+      <p className="small muted">
+        {areas.length} of up to {MAX_AD_AREAS} areas.
+        {p.active && changed && areas.length !== saved.length && ' Saving changes your monthly charge: Stripe charges or credits the difference for the rest of this billing period right away.'}
+      </p>
+      {!check.ok && areas.length > 0 && <p className="field-error">{check.error}</p>}
+      <button className="btn" disabled={busy || !changed || !check.ok} onClick={save}>{busy ? 'Saving…' : 'Save ad areas'}</button>
+      {msg && <div className={msg.ok ? 'notice' : 'caution'} role={msg.ok ? 'status' : 'alert'}>{msg.text}</div>}
     </section>
   );
 }
@@ -455,6 +551,7 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
         </div>
       </div>
 
+      <AreasCard key={JSON.stringify(me.profile.adAreas)} me={me} onChange={loadMe} />
       <PlanCard me={me} onChange={loadMe} />
       <AdLineCard me={me} onChange={loadMe} />
       <PhotoCard me={me} onChange={loadMe} />

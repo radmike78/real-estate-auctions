@@ -3,6 +3,7 @@
 // signature and expiry before showing any profile, and re-applies every listing rule, so a
 // tampered or stale file can't add a fake professional or swap in a scammer's phone number.
 
+import { MAX_AD_AREAS } from '../lib/adAreas';
 import { stateByCode } from '../lib/regions';
 import { isAdTier, topicAllowed } from '../lib/adPlans';
 import { validateAdLine } from '../lib/proApplication';
@@ -37,6 +38,7 @@ export function validPro(p: Pro, now = new Date()): boolean {
     str(p.licenseId, 30) &&
     (p.state === undefined || !!stateByCode(p.state)) &&
     (p.serviceCounties === undefined || strArr(p.serviceCounties, 40, 20)) &&
+    (p.adAreas === undefined || (Array.isArray(p.adAreas) && p.adAreas.length <= MAX_AD_AREAS && p.adAreas.every((a) => str(a?.county, 40) && (a.city === null || str(a.city, 80))))) &&
     strArr(p.serviceCities, 60, 30) &&
     strArr(p.serviceZips, 5, 40) &&
     strArr(p.services, 60, 20) &&
@@ -64,7 +66,9 @@ export function sanitizePro(p: Pro): Pro {
   // Listings published before advertising opened to other states are Nevada, Clark County.
   const state = p.state && stateByCode(p.state) ? p.state : 'NV';
   const serviceCounties = Array.isArray(p.serviceCounties) && p.serviceCounties.length ? p.serviceCounties : state === 'NV' ? ['Clark'] : [];
-  return { ...p, state, serviceCounties, tier, adLine, adTopic };
+  // Listings published before ad areas showed across their counties.
+  const adAreas = Array.isArray(p.adAreas) ? p.adAreas.map((a) => ({ county: a.county, city: a.city ?? null })) : serviceCounties.map((county) => ({ county, city: null }));
+  return { ...p, state, serviceCounties, adAreas, tier, adLine, adTopic };
 }
 
 export async function verifyProsFeed(

@@ -187,9 +187,15 @@ describe('advertiser flow (running server)', () => {
   let base = '';
   let cookie = '';
   let proCookie = '';
+  let app: ReturnType<typeof createApp>;
+  // What the advertiser does on their dashboard before paying: choose where their ads show.
+  const chooseAreas = (id: string, adAreas: { county: string; city: string | null }[] = [{ county: 'Clark', city: null }]) => {
+    const row = app.db.get(id)!;
+    app.db.update(id, { profile: { ...row.profile, adAreas } }, new Date().toISOString());
+  };
 
   beforeAll(async () => {
-    const app = createApp({
+    app = createApp({
       dbPath: join(dir, 'app.db'),
       dataDir: join(dir, 'data'),
       distDir: null,
@@ -269,6 +275,9 @@ describe('advertiser flow (running server)', () => {
     expect((await admin(`/api/admin/applications/${agentId}/approve`, { verification: VERIFIED })).status).toBe(200);
     let feed = await readFeed();
     expect(feed.ok && feed.feed.pros).toEqual([]); // approved but not paid
+    expect((await admin(`/api/admin/applications/${agentId}/billing`, { billing: PAID })).status).toBe(409); // no ad areas chosen yet
+    chooseAreas(agentId);
+    chooseAreas(lenderId, [{ county: 'Clark', city: 'Henderson' }, { county: 'Washoe', city: null }]);
     expect((await admin(`/api/admin/applications/${agentId}/billing`, { billing: PAID })).status).toBe(200);
     expect((await admin(`/api/admin/applications/${lenderId}/approve`, { verification: VERIFIED })).status).toBe(200);
     expect((await admin(`/api/admin/applications/${lenderId}/billing`, { billing: PAID })).status).toBe(200);

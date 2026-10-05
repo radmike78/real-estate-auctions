@@ -25,7 +25,7 @@
 //   GET  /api/admin/applications/:id/photo (pending photo) ; POST /api/admin/applications/:id/photo/(approve|reject)
 //   GET  /api/admin/email | /api/admin/email/list.csv ; POST /api/admin/email/test | /api/admin/email/send   (general email list)
 
-import { isKnownCity } from './places';
+import { isKnownCity, placeCounties } from './places';
 import { regulatorFor } from '../src/lib/regulators';
 import { randomBytes } from 'node:crypto';
 import { createReadStream, statSync } from 'node:fs';
@@ -33,8 +33,9 @@ import { pipeline } from 'node:stream';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { extname, join, normalize, resolve, sep } from 'node:path';
 import type { KeyObject } from 'node:crypto';
-import { approvalBlockers, billingTier, normalizePhone, plain, validateAdLine, validateApplication, validateBilling, type ApplicationInput, type Billing, type LicenseVerification } from '../src/lib/proApplication';
+import { approvalBlockers, billingTier, normalizePhone, paidAreas, plain, validateAdLine, validateApplication, validateBilling, type ApplicationInput, type Billing, type LicenseVerification } from '../src/lib/proApplication';
 import { AD_TIERS, capMessage, capProblem, CAPS, foundingFull, isAdTier, TIER_INFO, topicAllowed, topicsFor, type AdTier } from '../src/lib/adPlans';
+import { adAreaLabel, validateAdAreas, type AdArea } from '../src/lib/adAreas';
 import type { Category } from '../src/lib/pros';
 import { CATEGORIES, isListable, REVERIFY_DAYS } from '../src/lib/pros';
 import { clientKey, newToken, parseCookies, RateLimiter, SESSION_IDLE_MS, SESSION_MAX_MS, safeEqualStrings, sessionCookie, sha256, verifyPasswordAsync } from './auth';
@@ -49,7 +50,7 @@ import { SITE_INFO, TERMS_EFFECTIVE } from '../src/lib/siteInfo';
 import { parseSearchTarget, searchLabel } from '../src/lib/savedSearch';
 import { collectChanges, collectDigests, feedReader, labelOf, openTracker, TARGET_RE, trackableListings, type ListingSnapshot } from './tracker';
 import { cleanQuery, createLicenseSearch } from './licenses';
-import { CHECKOUT_URL_PREFIX, invoiceDiscount, invoicePeriodEnd, invoicePriceIds, invoiceSubscriptionId, invoiceSubscriptionMetadata, PORTAL_URL_PREFIX, subscriptionPriceId, verifyWebhook, type StripeClient, type StripeEvent } from './stripe';
+import { CHECKOUT_URL_PREFIX, invoiceDiscount, invoicePeriodEnd, invoicePriceIds, invoiceQuantity, invoiceSubscriptionId, invoiceSubscriptionMetadata, PORTAL_URL_PREFIX, subscriptionPriceId, subscriptionQuantity, verifyWebhook, type StripeClient, type StripeEvent } from './stripe';
 import { BOT_UA, leadsToCsv, monthlyReportText, monthRange, pacificDay, pacificDaysToUtc, siteSummary, summarize, VisitorHasher } from './metrics';
 
 export interface AppConfig {
@@ -467,9 +468,12 @@ export function createApp(config: AppConfig) {
     ) as Record<AdTier, { available: boolean; amountLabel: string | null; foundingLabel: string | null }>;
   }
 
-  /** The cap problem (if any) for this advertiser taking `tier` (and `topic`), counting everyone listed now except them. */
-  function capFor(row: ApplicationRow, tier: AdTier, topic: string | null) {
-    return capProblem(placements(db.listByStatus('APPROVED'), now()), { id: row.id, state: row.profile.state, category: row.profile.category, tier, topic });
+  /**
+   * The cap problem (if any) for this advertiser taking `tier` (and `topic`) in `areas` (by default the areas they pay
+   * for), counting everyone listed now except them.
+   */
+  function capFor(row: ApplicationRow, tier: AdTier, topic: string | null, areas: AdArea[] = paidAreas(row.profile, row.billing)) {
+    return capProblem(placements(db.listByStatus('APPROVED'), now()), { id: row.id, state: row.profile.state, category: row.profile.category, tier, topic, areas });
   }
 
   /** What an advertiser (or admin) sees about their plan and online payment. */
@@ -478,7 +482,8 @@ export function createApp(config: AppConfig) {
     const acct = db.stripe.forPro(a.id);
     const cat = a.profile.category;
     const current = placements(db.listByStatus('APPROVED'), now());
-    const full = (t: AdTier, topic: string | null = null) => !!capProblem(current, { id: a.id, state: a.profile.state, category: cat, tier: t, topic });
+    // Checked against the areas they've chosen (all of them, paid or not yet).
+    const full = (t: AdTier, topic: string | null = null) => !!capProblem(current, { id: a.id, state: a.profile.state, category: cat, tier: t, topic, areas: a.profile.adAreas });
     return {
       available: payable(cat),
       amountLabel: planFor(cat, tier)?.amountLabel ?? null,
@@ -490,6 +495,8 @@ export function createApp(config: AppConfig) {
       active: ACTIVE_SUB.has(acct?.status ?? ''),
       cancelAtPeriodEnd: !!acct?.cancelAtPeriodEnd,
       hasCard: !!acct,
+      /** How many of their ad areas are paid for (the rest show once the next payment covers them). */
+      paidAreaCount: paidAreas(a.profile, a.billing).length,
       /** Plans (and Premium Plus topics) that are full for this advertiser right now. */
       full: Object.fromEntries(AD_TIERS.map((t) => [t, full(t)])) as Record<AdTier, boolean>,
       topicsFull: topicsFor(cat).filter((t) => full('premium_plus', t.key)).map((t) => t.key),
@@ -528,7 +535,9 @@ export function createApp(config: AppConfig) {
         const meta = invoiceSubscriptionMetadata(o);
         const topic = [meta.topic, acct.pendingTopic].find((t) => topicAllowed(cat, t)) ?? null;
         const discount = invoiceDiscount(o);
-        const billing: Billing = { plan: cardPlanLabel(cat, tier, discount.applied && row.founding), paidThrough: paidThrough > current ? paidThrough : current, tier };
+        // How many ad areas this pays for: the quantity Stripe charged (one unit per area).
+        const quantity = invoiceQuantity(o, (id) => !!tierOf(id)) ?? row.billing?.areas ?? row.profile.adAreas.length;
+        const billing: Billing = { plan: cardPlanLabel(cat, tier, discount.applied && row.founding), paidThrough: paidThrough > current ? paidThrough : current, tier, areas: quantity };
         const profile = tier === 'premium_plus' && topic ? { ...row.profile, adTopic: topic } : tier !== 'premium_plus' ? { ...row.profile, adTopic: '' } : row.profile;
         db.update(row.id, { billing, profile }, at);
         db.stripe.setSubscription(row.id, { subscriptionId: invoiceSubscriptionId(o) ?? undefined, status: 'active' }, at);
@@ -538,7 +547,7 @@ export function createApp(config: AppConfig) {
         const off = discount.applied
           ? o.amount_paid === 0 ? ' · the discount covered this period in full' : ` · discount applied${discount.cents > 0 ? ` (${money(discount.cents)} off)` : ''}`
           : '';
-        log('PAYMENT_RECEIVED', `${amount} · ${TIER_INFO[tier].label}${profile.adTopic && tier === 'premium_plus' ? ` (${profile.adTopic})` : ''}${off} · listed through ${billing.paidThrough}`.replace(/^ · /, ''));
+        log('PAYMENT_RECEIVED', `${amount} · ${TIER_INFO[tier].label} × ${quantity} ${quantity === 1 ? 'area' : 'areas'}${profile.adTopic && tier === 'premium_plus' ? ` (${profile.adTopic})` : ''}${off} · listed through ${billing.paidThrough}`.replace(/^ · /, ''));
         publish();
         return;
       }
@@ -560,10 +569,13 @@ export function createApp(config: AppConfig) {
           return;
         }
         const was = billingTier(row.billing);
-        if (tier === was) return;
+        // The number of ad areas paid for follows the subscription's quantity (changed from the dashboard).
+        const quantity = subscriptionQuantity(o) ?? row.billing.areas;
+        if (tier === was && quantity === row.billing.areas) return;
         const profile = tier === 'premium_plus' ? row.profile : { ...row.profile, adTopic: '' };
-        db.update(row.id, { billing: { ...row.billing, tier, plan: cardPlanLabel(cat, tier) }, profile }, at);
-        log('PLAN_CHANGED', `${TIER_INFO[was].label} → ${TIER_INFO[tier].label}`);
+        db.update(row.id, { billing: { ...row.billing, tier, plan: cardPlanLabel(cat, tier), ...(quantity !== undefined ? { areas: quantity } : {}) }, profile }, at);
+        if (tier !== was) log('PLAN_CHANGED', `${TIER_INFO[was].label} → ${TIER_INFO[tier].label}`);
+        if (quantity !== row.billing.areas) log('AREAS_PAID', `${row.billing.areas ?? 'all'} → ${quantity} ${quantity === 1 ? 'area' : 'areas'}`);
         publish();
         return;
       }
@@ -984,10 +996,12 @@ export function createApp(config: AppConfig) {
         const topic = tier === 'premium_plus' && topicAllowed(row.profile.category, body.topic) ? body.topic : null;
         if (tier === 'premium_plus' && !topic) throw new HttpError(422, 'Choose the Learn or Practice topic for your Mentor Connect ad.');
         if (!row.verification) throw new HttpError(409, 'Your license must be verified before you can start advertising.');
+        const areas = row.profile.adAreas;
+        if (!areas.length) throw new HttpError(409, 'Choose where your ads show (your ad areas) first.');
         if (!limiters.checkout.hit(row.id)) throw new HttpError(429, 'Too many attempts. Try again later.');
         let acct = db.stripe.forPro(row.id);
         if (acct && ACTIVE_SUB.has(acct.status ?? '')) throw new HttpError(409, 'You already have an active plan. Use "Manage billing" to change your card or cancel.');
-        const full = capFor(row, tier, topic);
+        const full = capFor(row, tier, topic, areas);
         if (full) throw new HttpError(409, capMessage(full, row.profile.category, topic));
         if (!acct) {
           const customer = await stripe.client.createCustomer({ proId: row.id, email: row.profile.email, name: row.profile.company || row.profile.name });
@@ -999,6 +1013,7 @@ export function createApp(config: AppConfig) {
           proId: row.id,
           customerId: acct.customerId,
           priceId: plan.priceId,
+          quantity: areas.length,
           tier,
           topic,
           coupon,
@@ -1008,8 +1023,39 @@ export function createApp(config: AppConfig) {
         });
         if (typeof session.url !== 'string' || !session.url.startsWith(CHECKOUT_URL_PREFIX)) throw new HttpError(502, 'The payment page could not be opened. Try again.');
         db.stripe.setPending(row.id, tier, topic, now().toISOString());
-        db.audit({ at: now().toISOString(), actor: 'advertiser', applicationId: row.id, action: 'CHECKOUT_STARTED', detail: `${TIER_INFO[tier].label} · ${plan.amountLabel}${topic ? ` · topic ${topic}` : ''}${coupon ? ' · founding coupon' : ''}` });
+        db.audit({ at: now().toISOString(), actor: 'advertiser', applicationId: row.id, action: 'CHECKOUT_STARTED', detail: `${TIER_INFO[tier].label} · ${plan.amountLabel} × ${areas.length} ${areas.length === 1 ? 'area' : 'areas'}${topic ? ` · topic ${topic}` : ''}${coupon ? ' · founding coupon' : ''}` });
         return send(res, 200, { url: session.url });
+      }
+      if (method === 'POST' && path === '/api/pro/areas') {
+        assertAppRequest(req);
+        // Where their ads show. Each area is one unit of the plan's price; with a card plan, Stripe charges or credits
+        // the difference right away, and the new count takes effect when Stripe confirms it (subscription.updated).
+        const v = validateAdAreas((await readJson(req)).areas, row.profile.state, placeCounties);
+        if (!v.ok) throw new HttpError(422, v.error);
+        const areas = v.areas;
+        if (!limiters.checkout.hit(row.id)) throw new HttpError(429, 'Too many changes. Try again later.');
+        const acct = db.stripe.forPro(row.id);
+        const subscribed = !!acct?.subscriptionId && ACTIVE_SUB.has(acct.status ?? '');
+        if (row.billing) {
+          const full = capFor(row, billingTier(row.billing), row.profile.adTopic || null, areas);
+          if (full) throw new HttpError(409, capMessage(full, row.profile.category, row.profile.adTopic || null));
+        }
+        const before = row.profile.adAreas.map(adAreaLabel).join('; ');
+        if (subscribed && config.stripe && areas.length !== (row.billing?.areas ?? row.profile.adAreas.length)) {
+          await config.stripe.client.setQuantity(acct!.subscriptionId!, areas.length, `areas-${row.id}-${newToken().slice(0, 16)}`);
+        }
+        db.update(row.id, { profile: { ...row.profile, adAreas: areas } }, now().toISOString());
+        db.audit({ at: now().toISOString(), actor: 'advertiser', applicationId: row.id, action: 'AD_AREAS_SET', detail: `${before || 'none'} → ${areas.map(adAreaLabel).join('; ')}` });
+        publish();
+        const paid = row.billing ? (subscribed ? areas.length : paidAreas({ adAreas: areas }, row.billing).length) : 0;
+        const message = !row.billing
+          ? 'Saved. Choose a plan below to start advertising in these areas.'
+          : subscribed
+            ? 'Saved. Your card is charged or credited for the change, and your ads update within a few minutes.'
+            : paid < areas.length
+              ? `Saved. ${areas.length - paid} new ${areas.length - paid === 1 ? 'area shows' : 'areas show'} once your plan covers ${areas.length - paid === 1 ? 'it' : 'them'}. We’ll contact you.`
+              : 'Saved. Your ads update within a few minutes.';
+        return send(res, 200, { ok: true, message });
       }
       if (method === 'POST' && path === '/api/pro/ad-line') {
         assertAppRequest(req);
@@ -1232,17 +1278,20 @@ export function createApp(config: AppConfig) {
       if (!['PENDING_REVIEW', 'APPROVED', 'SUSPENDED'].includes(app.status)) throw new HttpError(409, `Can't bill an application that is ${app.status}.`);
       // Payments received another way (check, invoice). Free or discounted advertising goes through Stripe promotion codes.
       const billing = validateBilling((body.billing ?? {}) as Record<string, unknown>);
-      if (!billing) throw new HttpError(422, 'Enter a plan name, a plan and a listed-through date.');
+      if (!billing) throw new HttpError(422, 'Enter a plan name, a plan, a listed-through date and (optionally) how many ad areas are paid for (1 to 25).');
+      if (!app.profile.adAreas.length) throw new HttpError(409, 'This advertiser hasn’t chosen their ad areas yet. They choose them on their dashboard.');
+      // Blank: every area they've chosen is paid for.
+      if (billing.areas === undefined) billing.areas = app.profile.adAreas.length;
       const tier = billingTier(billing);
       const rawTopic = (body.billing as { topic?: unknown } | undefined)?.topic;
       const topic = tier === 'premium_plus' ? (topicAllowed(app.profile.category, rawTopic) ? rawTopic : null) : null;
       if (tier === 'premium_plus' && rawTopic && !topic) throw new HttpError(422, 'Choose one of the topics for this category.');
       // Manually billed advertisers count toward the caps like card-paying ones.
-      const full = capFor(app, tier, topic);
+      const full = capFor(app, tier, topic, paidAreas(app.profile, billing));
       if (full) throw new HttpError(409, capMessage(full, app.profile.category, topic));
       const profile = { ...app.profile, adTopic: topic ?? (tier === 'premium_plus' ? app.profile.adTopic : '') };
       db.update(app.id, { billing, profile }, now().toISOString());
-      audit(app.id, 'BILLING', `${billing.plan} · ${TIER_INFO[tier].label}${topic ? ` (${topic})` : ''}, listed through ${billing.paidThrough}`);
+      audit(app.id, 'BILLING', `${billing.plan} · ${TIER_INFO[tier].label}${topic ? ` (${topic})` : ''} · ${billing.areas} ${billing.areas === 1 ? 'area' : 'areas'}, listed through ${billing.paidThrough}`);
       publish();
       return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });
     }
