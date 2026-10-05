@@ -145,7 +145,7 @@ export const SECTIONS: DrillSection[] = [
         <ul>
           <li>
             There are three monthly plans. Rotating is a profile and a place in your category's directory list. Spotlight adds a separate, labeled
-            Featured ad box on your category's directory pages. Mentor Connect also adds a labeled ad beside one Learn or Practice topic you choose.
+            Featured ad box on your category's directory pages and a turn in the rotating ad at the top of the Your Team page. Mentor Connect also adds a labeled ad beside one Learn or Practice topic you choose.
             Every plan has the same place in the directory list, in a fair rotating order; no plan changes it. The current fee for each plan is
             shown before you pay, and discounts (such as founding-advertiser prices or promotion codes) apply only as stated when you pay.
           </li>

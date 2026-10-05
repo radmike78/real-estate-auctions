@@ -2617,3 +2617,9 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .plan-option .plan-price { font-weight: 800; font-size: 1.15rem; }
 .plan-option h3 .badge { vertical-align: middle; font-size: 0.85rem; }
 .plan-option label { display: flex; gap: 8px; align-items: center; cursor: pointer; font-weight: 700; }
+
+/* Your Team: "Not sure where to start?" beside the rotating ad on wide screens; the ad goes under it on phones. */
+.hub-top { display: grid; gap: 24px; margin-bottom: 24px; }
+.hub-top > section.not-sure, .hub-top > .ad-box { margin: 0; }
+.hub-top > section.not-sure { align-content: start; }
+@media (min-width: 900px) { .hub-top.with-ad { grid-template-columns: 1fr 1fr; align-items: stretch; } }

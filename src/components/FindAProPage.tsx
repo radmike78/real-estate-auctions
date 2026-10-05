@@ -2,7 +2,10 @@ import { useState, type ReactElement } from 'react';
 import PageHero from './PageHero';
 import DrillDown, { type DrillSection } from './DrillDown';
 import TeamList from './TeamList';
-import ProDirectory from './ProDirectory';
+import ProDirectory, { useDirectory } from './ProDirectory';
+import { RotatingAd } from './AdBoxes';
+import { hasFeaturedBox } from '../lib/adPlans';
+import { isListable } from '../lib/pros';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
 import { guidesFor } from '../lib/playbooks';
@@ -144,6 +147,8 @@ export default function FindAProPage({ section }: { section?: string }) {
   const all = !open && !build; // the full page: #/pros (and the old #/pros/all)
   const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
   const [mine, setMine] = useMyState();
+  const { pros } = useDirectory();
+  const showAd = !mine || mine === 'NV';
   const book = guidesFor(mine).find((p) => p.key === sale);
   const team = book
     ? book.team
@@ -162,11 +167,16 @@ export default function FindAProPage({ section }: { section?: string }) {
       />
       {build && <TeamBuilder />}
       {all && (
-        <section className="not-sure" aria-labelledby="not-sure-head">
-          <h2 id="not-sure-head">Not sure where to start?</h2>
-          <p>Answer five quick questions about what you want to buy and how, and we’ll narrow this down to the professionals you need, and why. If you’re not sure of an answer, we’ll suggest one.</p>
-          <a className="btn" href="#/pros/build">Help me choose →</a>
-        </section>
+        // "Not sure where to start?" beside a rotating ad (Nevada or no state picked: the directory is Nevada-only).
+        // On narrow screens the ad drops below; with no ad to show, the box takes the full width.
+        <div className={`hub-top${showAd && pros.some((p) => hasFeaturedBox(p.tier) && isListable(p)) ? ' with-ad' : ''}`}>
+          <section className="not-sure" aria-labelledby="not-sure-head">
+            <h2 id="not-sure-head">Not sure where to start?</h2>
+            <p>Answer five quick questions about what you want to buy and how, and we’ll narrow this down to the professionals you need, and why. If you’re not sure of an answer, we’ll suggest one.</p>
+            <a className="btn" href="#/pros/build">Help me choose →</a>
+          </section>
+          {showAd && <RotatingAd pros={pros} />}
+        </div>
       )}
       {all && (
         <section className="pro-chooser" aria-labelledby="pro-chooser-head">

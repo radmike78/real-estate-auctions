@@ -619,7 +619,7 @@ The advertiser landing page is `#/advertise`, the application form is `#/adverti
 | Plan | What it adds |
 | --- | --- |
 | Rotating | A profile page and a place in the category's directory list, in the fair rotating order. |
-| Spotlight | Rotating, plus a separate box labeled **Featured ad** on the category's directory pages, above the list (never inside it). Up to 2 advertisers are shown, picked at random on each page view. |
+| Spotlight | Rotating, plus a separate box labeled **Featured ad** on the category's directory pages, above the list (never inside it). Up to 2 advertisers are shown, picked at random on each page view. Also takes turns in the single **Advertisement** box at the top of the Your Team page (one Spotlight or Mentor Connect advertiser from any category, picked at random on each page view; Nevada visitors and visitors with no state chosen). |
 | Mentor Connect ("Best value") | Spotlight, plus one box labeled **Advertisement** beside one Learn or Practice topic the advertiser chooses. |
 
 - **Two voices.** Next to each topic, DeedOwl's own short editorial block (questions to ask that kind of professional, the official license lookup, the directory link) never names or points to an advertiser. The advertiser's box is in their own voice, labeled at the top, with the fine print "Paid ad. DeedOwl checks that advertisers hold an active license but doesn't recommend, rank or review them. Compare more than one." Ad boxes show only to visitors who chose Nevada or no state yet (the directory is Nevada-only); the editorial block shows to everyone.

@@ -57,3 +57,21 @@ export function FeaturedAds({ pros, categories }: { pros: Pro[]; categories: Cat
     </aside>
   );
 }
+
+/**
+ * The rotating ad at the top of the Your Team page: one Spotlight or Mentor Connect advertiser from any category,
+ * picked at random on each page view. Labeled "Advertisement" with the same fine print; nothing when no one qualifies.
+ */
+export function RotatingAd({ pros }: { pros: Pro[] }) {
+  const pool = pros.filter((p) => hasFeaturedBox(p.tier) && isListable(p)).map((p) => p.id).join();
+  const shown = useMemo(() => pickRandom(pros.filter((p) => pool.split(',').includes(p.id)), 1), [pool]); // eslint-disable-line react-hooks/exhaustive-deps
+  useAdImpressions(shown);
+  if (!shown.length) return null;
+  return (
+    <aside className="ad-box rotating-ad" aria-label="Advertisement">
+      <div className="ad-box-label">Advertisement</div>
+      <AdCard p={shown[0]} />
+      <p className="ad-fine-print">{AD_FINE_PRINT}</p>
+    </aside>
+  );
+}
