@@ -37,6 +37,7 @@ const STATE_Q: NarrowQuestion = {
     { value: 'CA', label: 'California' },
     { value: 'AZ', label: 'Arizona' },
     { value: 'UT', label: 'Utah' },
+    { value: 'TX', label: 'Texas' },
   ],
   suggest: () => ({ value: 'NV', why: 'Start with the state you live in or know best. Nevada has the most live sale data on DeedOwl today.' }),
 };
@@ -78,6 +79,7 @@ const GUIDE: Record<StateCode, Record<string, string>> = {
   CA: { tax: 'catax', foreclosure: 'caforeclosure', sheriff: 'casheriff', hoa: 'cahoa', reo: 'careo', short: 'cashort', commercial: 'cacommercial', irs: 'cairs' },
   AZ: { tax: 'aztaxlien', foreclosure: 'azforeclosure', sheriff: 'azsheriff', hoa: 'azhoa', reo: 'azreo', short: 'azshort', commercial: 'azcommercial', irs: 'azirs' },
   UT: { tax: 'uttax', foreclosure: 'utforeclosure', sheriff: 'utsheriff', hoa: 'uthoa', reo: 'utreo', short: 'utshort', commercial: 'utcommercial', irs: 'utirs' },
+  TX: { tax: 'txtax', foreclosure: 'txforeclosure', sheriff: 'txsheriff', hoa: 'txhoa', reo: 'txreo', short: 'txshort', commercial: 'txcommercial', irs: 'txirs' },
 };
 export const guideKey = (st: string, kind: string) => GUIDE[(st as StateCode) in GUIDE ? (st as StateCode) : 'NV'][kind];
 
@@ -138,7 +140,10 @@ export function practiceConfig(myState: string | null): NarrowConfig {
       }
       const drills: Record<string, [string, string][]> = {
         'agent-home': [['bank-owned', 'A bank-owned home: inspection, repairs and the as-is contract.'], ['rental-265', 'Is a rental worth it at this price? Comps, rent, repairs and cash flow.']],
-        'auction-home': [[`trustee-sale-${st}`, 'A foreclosure auction in your state: liens, occupants and the numbers.'], [st === 'az' ? 'tax-lien-az' : st === 'ut' ? 'tax-sale-ut' : `tax-deed-${st}`, 'A tax sale in your state: what you get and what survives.']],
+        // Texas has no drills of its own yet: general auction drills until it does.
+        'auction-home': st === 'tx'
+          ? [['irs-sale', 'An IRS sale: what you get, and the owner’s 180-day buy-back.'], ['flip-numbers', 'Is there really a profit after every cost?']]
+          : [[`trustee-sale-${st}`, 'A foreclosure auction in your state: liens, occupants and the numbers.'], [st === 'az' ? 'tax-lien-az' : st === 'ut' ? 'tax-sale-ut' : `tax-deed-${st}`, 'A tax sale in your state: what you get and what survives.']],
         'agent-commercial': [['retail-strip', 'A small retail building: leases, income and value.'], ['apartments-12', 'A 12-unit building: rent roll, expenses and the loan.']],
         'auction-commercial': [['commercial-tax-sale', 'A vacant building at a tax sale: research and your maximum bid.'], ['commercial-bank-auction', 'A bank auction with a buyer’s premium: your real last bid.']],
         land: [['land-access', 'Rural land: access, utilities and holding costs.'], ['manufactured-own-land', 'A manufactured home on its own land: title, comps and repairs.']],

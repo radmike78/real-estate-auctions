@@ -110,6 +110,7 @@ export const QUESTIONS: Question[] = [
       { value: 'CA', text: 'California' },
       { value: 'AZ', text: 'Arizona' },
       { value: 'UT', text: 'Utah' },
+      { value: 'TX', text: 'Texas' },
     ],
   },
 ];
@@ -446,6 +447,8 @@ export function stateNote(key: StrategyKey, state?: string): string | null {
   if (key === 'auction' && st === 'CA') return 'In California, winning bids on homes of one to four units aren’t final until tenants and other eligible buyers have had 15 to 45 days to match them.';
   if (key === 'auction' && st === 'NV') return 'Our step-by-step guides cover each kind of sale in Clark County, Nevada.';
   if (key === 'auction' && st === 'UT') return 'Utah counties hold their tax sale each May or June, after four years of unpaid taxes.';
+  if (key === 'auction' && st === 'TX') return 'Texas counties don’t sell tax liens. A sheriff or constable sells the property itself, usually on the first Tuesday of the month, and the owner can still redeem it for 180 days, or 2 years for a homestead or farm land, by paying your price plus 25% or 50%. Trustee foreclosure auctions have no redemption.';
+  if (key === 'rental' && st === 'TX') return 'In Texas, a rental gets no homestead exemption, so its property tax bill is often much higher than an owner-occupant’s. Check the full tax rate for the address before you run the numbers.';
   if ((key === 'househack' || key === 'rental') && st === 'CA') return 'California limits most rent increases in a 12-month period to 5% plus inflation or 10%, whichever is lower. There are exemptions, so check the rules for your property.';
   return null;
 }

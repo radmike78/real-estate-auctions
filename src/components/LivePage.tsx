@@ -65,7 +65,7 @@ export default function LivePage() {
     <main className="page">
       <PageHero
         title={<>Live <span className="grad">tax sales</span></>}
-        sub="Treasurer tax-sale parcels in Clark County, Nevada, and IRS sales in Nevada, California, Arizona and Utah, re-checked against the official lists."
+        sub="Treasurer tax-sale parcels in Clark County, Nevada, and IRS sales in Nevada, California, Arizona, Utah and Texas, re-checked against the official lists."
       />
       {!result && <p>Verifying listings…</p>}
 
@@ -76,7 +76,7 @@ export default function LivePage() {
               ? "The latest data didn't pass our security checks, so for your safety nothing is shown until verified data is published."
               : expired
                 ? 'The last verification has expired, so listings are hidden until fresh data is published.'
-                : 'Nothing is verified as for sale right now: no Clark County tax-sale parcels and no IRS sales in Nevada, California, Arizona or Utah. We re-check the official lists automatically, and parcels appear here as soon as a sale is scheduled and they pass our checks.'}
+                : 'Nothing is verified as for sale right now: no Clark County tax-sale parcels and no IRS sales in Nevada, California, Arizona, Utah or Texas. We re-check the official lists automatically, and parcels appear here as soon as a sale is scheduled and they pass our checks.'}
           </p>
           <p>
             Meanwhile, check the{' '}

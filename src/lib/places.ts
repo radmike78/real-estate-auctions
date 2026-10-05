@@ -17,6 +17,7 @@ const LOADERS: Record<StateCode, () => Promise<{ default: Place[] }>> = {
   CA: () => import('../data/places/ca.json'),
   AZ: () => import('../data/places/az.json'),
   UT: () => import('../data/places/ut.json'),
+  TX: () => import('../data/places/tx.json'),
 };
 
 const cache = new Map<StateCode, Promise<Place[]>>();

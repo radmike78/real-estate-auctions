@@ -76,7 +76,7 @@ describe('application validation', () => {
     if (!bad.ok) {
       expect(Object.keys(bad.errors).sort()).toEqual(['attestAdvertising', 'creditProfiles', 'email', 'licenseId', 'name', 'phone', 'serviceCounties', 'serviceCities', 'serviceZips', 'services', 'website'].sort());
     }
-    const noState = validateApplication({ ...AGENT, state: 'TX' });
+    const noState = validateApplication({ ...AGENT, state: 'WA' });
     expect(!noState.ok && Object.keys(noState.errors)).toEqual(['state']);
     expect(validateApplication({ ...LENDER, creditProfiles: [] }).ok).toBe(false); // lenders must list credit situations
     expect(validateApplication({ ...AGENT, category: 'astrologer' }).ok).toBe(false);

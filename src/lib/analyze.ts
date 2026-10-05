@@ -23,10 +23,10 @@ export const SALE_KINDS: SaleKindInfo[] = [
   { key: 'listing', label: 'Regular listing (agent or owner)' },
   { key: 'reo', label: 'Bank-owned or government home (REO, HUD)' },
   { key: 'trustee', label: 'Foreclosure auction (trustee sale)' },
-  { key: 'taxSale', label: 'County tax sale (the property)', states: ['NV', 'CA', 'UT'] },
+  { key: 'taxSale', label: 'County tax sale (the property)', states: ['NV', 'CA', 'UT', 'TX'] },
   { key: 'lien', label: 'Tax lien sale', states: ['AZ', 'NV'], labelIn: { NV: 'SID lien certificate', AZ: 'Tax lien sale (lien certificate)' } },
   { key: 'court', label: 'Sheriff’s or court sale' },
-  { key: 'hoa', label: 'HOA foreclosure', states: ['NV'] },
+  { key: 'hoa', label: 'HOA foreclosure', states: ['NV', 'TX'] },
   { key: 'irs', label: 'IRS sale' },
 ];
 
@@ -84,12 +84,14 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     if (st === 'NV') sale.push({ id: 'nv-disclosure', text: 'Nevada: the seller must give you the disclosure form at least 10 days before the home is conveyed (NRS 113.130). If it’s late, you can cancel before closing.' });
     if (st === 'CA') sale.push({ id: 'ca-tds', text: 'California: get the Transfer Disclosure Statement. If it arrives after you sign the offer, you have 3 days (5 by mail or electronically) to cancel.' });
     if (st === 'AZ') sale.push({ id: 'az-disclosure', text: 'Arizona: sellers must disclose specific items, such as soil remediation they know about; for unsubdivided land outside cities you get an affidavit of disclosure at least 7 days before transfer, with 5 days to cancel. Ask your agent which disclosure form your contract uses.' });
+    if (st === 'TX') sale.push({ id: 'tx-disclosure', text: 'Texas: most sellers must give you the Seller’s Disclosure Notice (Property Code 5.008). If it comes after you sign, the TREC contract lets you end it within 7 days. For a fee, the contract’s option period lets you end it for any reason; the deadline is strict.' });
     if (st === 'UT') sale.push({ id: 'ut-disclosure', text: 'Utah: under the state purchase contract, the seller gives a property condition disclosure by the Seller Disclosure Deadline, and you can cancel by the Due Diligence Deadline. Sellers must disclose methamphetamine contamination they know about.' });
     const hoa: Record<StateCode, string> = {
       NV: 'Condo or HOA home: read the resale package; you can cancel in writing until midnight of the fifth day after you get it (NRS 116.4109).',
       CA: 'Condo or HOA home: get the governing documents, budget, reserves and rental limits before you commit (Civil Code 4525).',
       AZ: 'Condo or HOA home: the association must deliver its rules, budget, reserves and any lawsuits within 10 days; its fee is capped at $400.',
       UT: 'Condo or HOA home: the seller must give you the association’s recorded governing documents before closing.',
+      TX: 'Condo or HOA home: get the resale certificate and the association’s rules, budget and fees before the deadline in the HOA addendum (Property Code 207.003). Ask your agent which TREC addendum your contract uses.',
     };
     sale.push({ id: 'hoa-docs', text: hoa[st] });
     sale.push({ id: 'lead', text: 'Built before 1978: you get a lead-paint pamphlet and 10 days to test for lead-based paint, unless you waive it.' });
@@ -104,11 +106,13 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     if (st === 'NV') sale.push({ id: 'nv-trustee', text: 'Nevada: the sale comes at least 3 months after the notice of default; the notice of sale is posted 20 days before. Ask the trustee how and when you must pay.' });
     if (st === 'CA') sale.push({ id: 'ca-trustee', text: 'California: bring proof you can pay the full bid in cash or cashier’s checks. On homes of one to four units, tenants and some buyers have 15 to 45 days after the sale to match the winning bid, so it isn’t final right away.' });
     if (st === 'AZ') sale.push({ id: 'az-trustee', text: 'Arizona: if you win, you pay the full bid by 5 p.m. the next business day.' });
+    if (st === 'TX') sale.push({ id: 'tx-trustee', text: 'Texas: trustee sales happen on the first Tuesday of the month, between 10 a.m. and 4 p.m., with at least 21 days’ notice (Property Code 51.002). You pay when the bid is accepted, as the trustee directs, and the owner can’t buy it back after the sale.' });
     if (st === 'UT') sale.push({ id: 'ut-trustee', text: 'Utah: your bid can’t be withdrawn, you pay as the trustee directs, and the trustee’s deed has no right of redemption.' });
   }
   if (d.kind === 'taxSale') {
     if (st === 'NV') sale.push({ id: 'nv-tax', text: 'Nevada: the treasurer sells by quitclaim deed, and owners and lenders can pay off until the third business day before the sale. Some liens can survive, and title insurance may be hard to get at first.' });
     if (st === 'CA') sale.push({ id: 'ca-tax', text: 'California: tax-defaulted property is sold as-is; the county isn’t responsible for other liens or easements. Read the tax collector’s terms for deposits and payment.' });
+    if (st === 'TX') sale.push({ id: 'tx-tax', text: 'Texas: a sheriff or constable sells the property after a court judgment, on the first Tuesday of the month. In large counties you need the tax office’s statement that you owe no delinquent taxes (Tax Code 34.015). The owner can redeem for 180 days, or 2 years for a homestead or farm land (34.21).' });
     if (st === 'UT') sale.push({ id: 'ut-tax', text: 'Utah: the county auditor holds the sale in May or June; a bid must cover the taxes, penalties, interest and costs.' });
   }
   if (d.kind === 'lien') {
@@ -121,6 +125,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
       CA: 'California: after a judicial foreclosure sale, the owner can redeem for 3 months if the sale paid the debt, or 1 year if it didn’t.',
       AZ: 'Arizona: after a judicial foreclosure sale, the owner can redeem for 30 days if the court found it abandoned, otherwise 6 months.',
       UT: 'Utah: after a sheriff’s sale, the owner can redeem for 180 days.',
+      TX: 'Texas: after a sheriff’s or constable’s execution sale, the owner has no right to redeem, but you get only what the debtor owned, so liens ahead of the judgment stay.',
     };
     sale.push({ id: 'court-redeem', text: `${r[st]} You own it subject to that right; hold off on repairs until it ends.` });
   }

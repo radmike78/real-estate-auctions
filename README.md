@@ -556,6 +556,16 @@ The first real connector reads the **Clark County Treasurer's delinquent-propert
    ```
    This long-running service checks each source when it is due and writes the signed feed to `public/data/`. Deploy that folder alongside the built site.
 
+### Texas
+
+Texas is the fifth state (added 2026-10-05). It has the same features as the others:
+
+- Its 254 counties and 1,860 Census places (`src/lib/regions.ts`, `src/data/places/tx.json`), in the area picker, Find Deals and advertisers' areas.
+- Eight step-by-step sale guides (`src/lib/stateGuidesTx1.ts`, `stateGuidesTx2.ts`): tax sales (sheriff or constable, first Tuesday, 180-day or 2-year redemption), trustee foreclosures, sheriff's and constable's execution sales, HOA foreclosures, IRS sales, bank-owned homes, short sales and commercial property, each citing the Texas statutes and rules.
+- Texas sections on homeowner help, pre-foreclosures, short sales, bank-owned homes and business closures (`src/lib/states/texas.ts`); Texas license lookups (TREC, TALCB, TDI, State Bar, TSBPA; no general contractor license); costs (no transfer tax, homestead exemption, protest deadline, redemption presets); Analyze, Decide and Find Deals rules; and county offices for the 40 largest counties (the rest show the general guide until researched).
+- IRS sales in Texas, read in Central time (Mountain time for El Paso and Hudspeth counties).
+- Not yet: Texas practice drills and the Texas lines in the lessons. Until then, Texas practice picks use the general auction drills.
+
 ### Upcoming county tax sales (links only)
 
 Many counties post their tax sale's property list on their own site, and some don't allow automated access to it. DeedOwl doesn't copy these lists. `src/lib/countySales.ts` holds each upcoming sale's dates (sale window, registration deadline, last day owners can pay) and links to the county's sale page and its list. Live tax sales and Find Deals (for that county) show a card for each sale until it ends.
@@ -565,10 +575,10 @@ Many counties post their tax sale's property list on their own site, and some do
 
 ### IRS sales (enabled)
 
-A third connector reads **IRS seizure and court-ordered sales** from the Treasury Department's own site, <https://www.irsauctions.gov/>. It reads the site's JSON index of every ad (`/index.json`, the same data its cards show) and keeps an ad only when it is real estate in Nevada, California, Arizona or Utah: a location in one of those states, a county we can name (from the city, using the Census place lists in `src/data/places`, or the county the ad names when the city spans several), and at least one parcel number in the notice.
+A third connector reads **IRS seizure and court-ordered sales** from the Treasury Department's own site, <https://www.irsauctions.gov/>. It reads the site's JSON index of every ad (`/index.json`, the same data its cards show) and keeps an ad only when it is real estate in Nevada, California, Arizona, Utah or Texas: a location in one of those states, a county we can name (from the city, using the Census place lists in `src/data/places`, or the county the ad names when the city spans several), and at least one parcel number in the notice.
 
 - **Clark County:** a Clark County ZIP and a Clark County parcel number; the County Assessor must confirm every parcel in the sale. These sales appear on Live tax sales, in search (badge "IRS sale") and on their own property pages.
-- **Everywhere else in the four states:** only parcel numbers the notice labels as such (APN, AIN, Parcel Number) are read, so a phone number or price is never taken for one. These sales are listed in their own table on Live tax sales, as the IRS lists them, marked "parcel not checked by DeedOwl", with links to the IRS notice and the county assessor. They get no property page. Sale times are read in each state's time zone (Arizona has no daylight saving time).
+- **Everywhere else in the five states:** only parcel numbers the notice labels as such (APN, AIN, Parcel Number) are read, so a phone number or price is never taken for one. These sales are listed in their own table on Live tax sales, as the IRS lists them, marked "parcel not checked by DeedOwl", with links to the IRS notice and the county assessor. They get no property page. Sale times are read in each state's time zone (Arizona has no daylight saving time).
 - Checked against the live index on 2026-09-26 (139 ads nationwide, none in Nevada) and 2026-10-05 (142 ads; those in California and Arizona were past, undated or canceled), so nothing shows today. `robots.txt` allows all automated access.
 - Seizure sales show the 180-day redemption period; court-ordered sales point to the court's order for the terms. Seizure sales show the 180-day redemption period; court-ordered sales point to the court's order for the terms.
 - The notice text names the taxpayer, so it is never stored or published; we keep the title, place, date, minimum bid, parcels and sale terms, and link to the IRS ad.
@@ -602,7 +612,7 @@ Real estate agents, loan officers, mortgage companies, banks, credit unions, har
 The advertiser landing page is `#/advertise`, the application form is `#/advertise/apply`, and the admin review is at `#/admin`.
 
 **How a profile goes live** (the server enforces every step):
-1. **Apply.** One form for every category and all four states (Nevada, California, Arizona, Utah). The advertiser picks their state, their category, the counties they serve (1 to 20, from that state) and, optionally, up to 30 cities or towns from the Census list for that state (`src/data/places`; the server checks each name). The license, registration or ID number is a plain text box with no format check: the admin checks it on the official lookup. Category-specific rules cover the services or loan types offered and credit situations (lenders only). All text is plain text only. Anti-spam: a hidden honeypot field and 5 applications per network per hour.
+1. **Apply.** One form for every category and all five states (Nevada, California, Arizona, Utah, Texas). The advertiser picks their state, their category, the counties they serve (1 to 20, from that state) and, optionally, up to 30 cities or towns from the Census list for that state (`src/data/places`; the server checks each name). The license, registration or ID number is a plain text box with no format check: the admin checks it on the official lookup. Category-specific rules cover the services or loan types offered and credit situations (lenders only). All text is plain text only. Anti-spam: a hidden honeypot field and 5 applications per network per hour.
 2. **Confirm email.** A single-use link, valid for 48 hours.
 3. **Verify.** An admin checks the license on the official lookup for that category and state (`regulatorFor` in `src/lib/regulators.ts`; the admin page links it). Nevada's:
 
@@ -618,7 +628,7 @@ The advertiser landing page is `#/advertise`, the application form is `#/adverti
    | Real estate attorneys | State Bar of Nevada (they must also file their ads with the Bar under RPC 7.2A) |
    | CPAs | Nevada State Board of Accountancy |
 
-   California, Arizona and Utah use the same lookups as the Your Team pages (`src/lib/licenseLookups.ts`); banks and credit unions use FDIC and NCUA in every state. Where a state has no single lookup (California home inspectors aren't licensed; California private lenders may hold a DFPI or DRE license), the admin page says what to check instead.
+   California, Arizona, Utah and Texas use the same lookups as the Your Team pages (`src/lib/licenseLookups.ts`); banks and credit unions use FDIC and NCUA in every state. Where a state has no single lookup (California home inspectors aren't licensed; California private lenders may hold a DFPI or DRE license; Texas has no general contractor license, so contractors are checked by trade license), the admin page says what to check instead.
 
    The admin then **confirms identity through the company, using contact details from the regulator or the company, never from the application**. Approval is blocked until status, name, type, company, identity and the content check are all ticked; an expiration date is optional.
 4. **Choose ad areas, a plan, and pay.** Once approved, the advertiser gets an email, chooses where their ads show (see **Ad areas** below), chooses a plan (Rotating, Spotlight or Mentor Connect; see **Plans and caps** below) and pays **by card from their dashboard** (Stripe; see below). Each confirmed monthly payment extends their paid-through date automatically. For payments received another way, the admin records the plan (with its tier, and the topic for Mentor Connect), the paid-through date and how many ad areas are paid for by hand. A profile is live only while it is verified within the last 90 days **and** paid through today.
@@ -733,7 +743,7 @@ Every fact the guides teach has to trace back to an official source, and the rep
 
 ## Features
 
-**Your area.** The first-visit welcome asks "Where are you buying?": a state, then (optionally) a city or town, from every Census 2020 place in Nevada, California, Arizona and Utah (`src/data/places/`, sources in its README). A city in two counties asks which part. The choice is kept only in the browser (`src/lib/myArea.ts`), shown in the header as **Your area** (where it can be changed), and sets the state and county the site uses, for example the county on Find Deals.
+**Your area.** The first-visit welcome asks "Where are you buying?": a state, then (optionally) a city or town, from every Census 2020 place in Nevada, California, Arizona, Utah and Texas (`src/data/places/`, sources in its README). A city in two counties asks which part. The choice is kept only in the browser (`src/lib/myArea.ts`), shown in the header as **Your area** (where it can be changed), and sets the state and county the site uses, for example the county on Find Deals.
 
 **Sections**
 

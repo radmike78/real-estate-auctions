@@ -5,12 +5,13 @@ import nv from '../data/places/nv.json';
 import ca from '../data/places/ca.json';
 import az from '../data/places/az.json';
 import ut from '../data/places/ut.json';
+import tx from '../data/places/tx.json';
 
-const ALL: Record<string, Place[]> = { NV: nv, CA: ca, AZ: az, UT: ut };
+const ALL: Record<string, Place[]> = { NV: nv, CA: ca, AZ: az, UT: ut, TX: tx };
 
 describe('places (Census 2020)', () => {
   it('covers each state, every county is one of the state’s counties, and every place has one', () => {
-    expect([nv.length, ca.length, az.length, ut.length]).toEqual([133, 1611, 467, 333]);
+    expect([nv.length, ca.length, az.length, ut.length, tx.length]).toEqual([133, 1611, 467, 333, 1860]);
     for (const s of STATES) {
       for (const p of ALL[s.code]) {
         expect(p.counties.length).toBeGreaterThan(0);
@@ -26,6 +27,8 @@ describe('places (Census 2020)', () => {
     expect(find('AZ', 'Peoria')[0].counties).toEqual(['Maricopa', 'Yavapai']);
     expect(find('UT', 'Draper')[0].counties.sort()).toEqual(['Salt Lake', 'Utah']);
     expect(find('CA', 'Paradise').map((p) => p.counties[0]).sort()).toEqual(['Butte', 'Mono']); // same name, two counties
+    expect(find('TX', 'Houston')[0].counties.sort()).toEqual(['Fort Bend', 'Harris', 'Montgomery', 'Waller']);
+    expect(find('TX', 'El Paso')[0]).toEqual(expect.objectContaining({ counties: ['El Paso'], population: 678815 }));
   });
 
   it('matches what someone types: names starting with it first, bigger and incorporated places first', () => {

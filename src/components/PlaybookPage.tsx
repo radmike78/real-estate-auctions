@@ -152,7 +152,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
     return (
       <main className="page">
         <PageHero
-          eyebrow={<span className="eyebrow">{st ? `${st.name} law` : 'Nevada, California, Arizona and Utah'}</span>}
+          eyebrow={<span className="eyebrow">{st ? `${st.name} law` : 'Nevada, California, Arizona, Utah and Texas'}</span>}
           title={<>Sale <span className="grad">guides</span></>}
           sub={st ? `How each kind of forced sale works in ${st.name}, step by step, and the mistakes that cost money.` : 'How each kind of forced sale works, step by step, and the mistakes that cost money. Choose your state to see only its guides.'}
         >

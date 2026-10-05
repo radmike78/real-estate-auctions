@@ -48,8 +48,8 @@
       "src/components/BuyerChecklistBox.tsx",
       "src/lib/buyerChecklists.ts"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "d3c87d3937066745",
+    "reviewed": "2026-10-05",
+    "hash": "6b4147b6e82ab483",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -61,7 +61,7 @@
       "src/components/SidCertificates.tsx"
     ],
     "reviewed": "2026-10-05",
-    "hash": "e57f82a15b545e5e",
+    "hash": "31aab20994f6ad0d",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -70,8 +70,8 @@
     "files": [
       "src/components/PreForeclosurePage.tsx"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "e1321c38a1b32d91",
+    "reviewed": "2026-10-05",
+    "hash": "f1a8cec85183626f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -80,8 +80,8 @@
     "files": [
       "src/components/ShortSalesPage.tsx"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "c4dd700c11f49def",
+    "reviewed": "2026-10-05",
+    "hash": "5bc93e497f1efa6e",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -91,8 +91,8 @@
       "src/components/BankOwnedPage.tsx",
       "src/lib/reoSources.ts"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "63aff8132d14620a",
+    "reviewed": "2026-10-05",
+    "hash": "4987b57cba98b6ba",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -102,8 +102,8 @@
       "src/components/BusinessAssetsPage.tsx",
       "src/lib/businessAssets.ts"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "b4e95d08041c11bc",
+    "reviewed": "2026-10-05",
+    "hash": "a35a40efeb2d172d",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -115,8 +115,8 @@
       "src/lib/playbooks.ts",
       "src/lib/saleDocs.ts"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "9ec13721000a6663",
+    "reviewed": "2026-10-05",
+    "hash": "679a4bd0ca8c368a",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -244,8 +244,8 @@
     "files": [
       "src/components/HomeownerHelpPage.tsx"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "a427fa9f95249642",
+    "reviewed": "2026-10-05",
+    "hash": "3f1d4c3911519622",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -254,8 +254,8 @@
     "files": [
       "src/components/AboutPage.tsx"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "8b84681391d5391e",
+    "reviewed": "2026-10-05",
+    "hash": "94c56e08fe831197",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -350,8 +350,8 @@
       "src/components/Term.tsx",
       "src/lib/terms.ts"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "69f2ce6ee85ffed9",
+    "reviewed": "2026-10-05",
+    "hash": "3dcb139f0e611b0c",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -361,8 +361,8 @@
       "src/components/DecidePage.tsx",
       "src/lib/decide.ts"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "78a29f435ee096ee",
+    "reviewed": "2026-10-05",
+    "hash": "5e3023de175947d5",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -375,7 +375,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-05",
-    "hash": "4d2745f2d385dd01",
+    "hash": "2a61559af024b230",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
@@ -388,7 +388,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-05",
-    "hash": "017b0b18b1235c93",
+    "hash": "541671714a1bed57",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {

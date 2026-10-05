@@ -279,9 +279,9 @@ describe('Find Deals', () => {
     for (const s of SOURCES.filter((x) => x.role === 'other')) expect(other, s.url).toContain(s.url);
   });
 
-  it('covers every county in the four states', async () => {
+  it('covers every county in the five states', async () => {
     const { STATES } = await import('./regions');
-    expect(STATES.map((s) => [s.code, s.counties.length])).toEqual([['NV', 17], ['CA', 58], ['AZ', 15], ['UT', 29]]);
+    expect(STATES.map((s) => [s.code, s.counties.length])).toEqual([['NV', 17], ['CA', 58], ['AZ', 15], ['UT', 29], ['TX', 254]]);
   });
 });
 

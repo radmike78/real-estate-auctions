@@ -1,5 +1,5 @@
 import json,collections,re
-states=[("NV","32","st32_nv","nv"),("CA","06","st06_ca","ca"),("AZ","04","st04_az","az"),("UT","49","st49_ut","ut")]
+states=[("NV","32","st32_nv","nv"),("CA","06","st06_ca","ca"),("AZ","04","st04_az","az"),("UT","49","st49_ut","ut"),("TX","48","st48_tx","tx")]
 out=[];report={}
 for ab,fp,f,lo in states:
     pop={};lsad={}

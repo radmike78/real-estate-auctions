@@ -1,5 +1,5 @@
-import { countyName, stateByCode } from '../lib/regions';
-import { SALE_TIME_ZONE, type CountySale } from '../lib/countySales';
+import { countyName, stateByCode, timeZoneFor } from '../lib/regions';
+import type { CountySale } from '../lib/countySales';
 import { fmtDateTime } from '../lib/status';
 
 const day = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
@@ -7,7 +7,7 @@ const date = (iso: string, timeZone: string) => new Date(iso).toLocaleDateString
 
 /** When the sale runs, in the county's own local time and only as precisely as the county announced it. */
 function when(s: CountySale): string {
-  const tz = SALE_TIME_ZONE[s.state];
+  const tz = timeZoneFor(s.state, s.county);
   if (s.datesOnly) return `${date(s.startsAt, tz)} to ${date(s.endsAt, tz)}`;
   if (s.startOnly) return fmtDateTime(s.startsAt, tz);
   return `${fmtDateTime(s.startsAt, tz)} to ${fmtDateTime(s.endsAt, tz)}`;
@@ -18,7 +18,7 @@ export default function CountySales({ sales }: { sales: CountySale[] }) {
   return (
     <ul className="county-sales">
       {sales.map((s) => {
-        const tz = SALE_TIME_ZONE[s.state];
+        const tz = timeZoneFor(s.state, s.county);
         return (
           <li key={s.id} className="county-sale">
             <h3>

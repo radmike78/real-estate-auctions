@@ -2,6 +2,7 @@
 // how to read a notice of sale, and why the site never helps anyone contact owners. Every line names its state.
 // Sources: each line's citation, read on the state's official code site (checked 2026-10-04).
 import type { ByStateLines } from '../../components/ByState';
+import { TX_PRE_TIMELINE, TX_PRE_TIMELINE_NOTES, TX_PRE_WHERE, TX_PRE_BUY, TX_PRE_READ_NOTICE, TX_PRE_NO_CONTACT } from './texas';
 
 /** From missed payments to auction. Rendered as an ordered list. */
 export const TIMELINE: ByStateLines = {
@@ -34,12 +35,14 @@ export const TIMELINE: ByStateLines = {
     { text: 'In Utah, notice of sale: it is published in a newspaper once a week for 3 weeks, on the state’s public legal notice website for 30 days, and posted on the property and at the county recorder at least 20 days before the sale (Utah Code 57-1-25).' },
     { text: 'In Utah, auction: it is held at a courthouse in the county, between 8 a.m. and 5 p.m. It can be postponed. A postponement of more than 45 days needs a new notice (Utah Code 57-1-25, 57-1-27). Follow the date on the trustee’s notice of sale.' },
   ],
+  TX: TX_PRE_TIMELINE,
 };
 
 /** State-specific notes under the timeline (why many never reach auction is said once on the page for every state). */
 export const TIMELINE_NOTES: ByStateLines = {
   CA: [{ text: 'In California, a complete loan modification application can also pause the process (Civil Code 2923.6, 2924.18).' }],
   UT: [{ text: 'In Utah, some lenders foreclose in court instead. That ends in a sheriff’s sale with a 180-day redemption period (URCP 69C).' }],
+  TX: TX_PRE_TIMELINE_NOTES,
 };
 
 /** Where to find recorded and posted notices. */
@@ -60,6 +63,7 @@ export const WHERE: ByStateLines = {
     { text: 'In Utah, the notice of default is recorded with the county recorder’s office (Utah Code 57-1-24).' },
     { text: 'In Utah, the notice of sale is in a local newspaper, on the state’s public legal notice website run by Utah’s newspapers, and posted at the county recorder and on the property (Utah Code 57-1-25, 45-1-101).' },
   ],
+  TX: TX_PRE_WHERE,
 };
 
 /** How an investor can buy without ever contacting the owner. */
@@ -84,6 +88,7 @@ export const BUY: ByStateLines = {
     { text: 'In Utah, after the sale (bank-owned): if no one outbids the lender, the lender owns the home and usually lists it with an agent.' },
     { text: 'In Utah, before the sale, only if the owner lists it: if an owner decides to sell, a licensed agent lists the home, often as a short sale. Find it on the listings, not by reaching out.' },
   ],
+  TX: TX_PRE_BUY,
 };
 
 /** What a notice of sale must say, by state (the "How to read a notice of sale" list). */
@@ -101,6 +106,7 @@ export const READ_NOTICE: ByStateLines = {
   UT: [
     { text: 'In Utah, the notice gives the date, time and courthouse of the sale, the property’s address and legal description, the current beneficiary (lender), the record owners when the default was recorded, and the trustee (Utah Code 57-1-25). It may set a deposit the winning bidder must pay (Utah Code 57-1-27).', links: [['Utah Code 57-1-25', 'https://le.utah.gov/xcode/Title57/Chapter1/57-1-S25.html']] },
   ],
+  TX: TX_PRE_READ_NOTICE,
 };
 
 /** The caution box: why the site never helps anyone contact owners in foreclosure. */
@@ -119,4 +125,5 @@ export const NO_CONTACT: ByStateLines = {
   UT: [
     { text: 'In Utah, a person paid to offer an owner a deal involving the home’s title that they say will stop a foreclosure is doing “foreclosure rescue.” That needs a Utah real estate license and a written agreement. A licensee can’t require the owner to sign the home over to the licensee or to someone they have a business tie with, pay someone other than their servicer, or stop talking to their lender or counselor (Utah Code 61-2f-102, 61-2f-401).' },
   ],
+  TX: TX_PRE_NO_CONTACT,
 };

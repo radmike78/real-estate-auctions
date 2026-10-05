@@ -24,6 +24,8 @@ const LOOKUP_KEY: Partial<Record<Category, ProKey>> = {
 const NO_LOOKUP: Record<string, string> = {
   'private_lender:CA': 'the DFPI or DRE license lookup (whichever license the lender holds)',
   'home_inspector:CA': 'proof of insurance and training (California doesn’t license home inspectors)',
+  'private_lender:TX': 'NMLS Consumer Access (Texas Department of Savings and Mortgage Lending licenses), if the lender needs a license',
+  'contractor:TX': 'their trade license (TDLR or the plumbing board) and proof of insurance (Texas has no general contractor license)',
 };
 
 export interface Regulator {

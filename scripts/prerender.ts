@@ -20,7 +20,7 @@ import { FIRST_DEAL, WORKSHEETS } from '../src/lib/toolkit';
 
 const DIST = process.argv[2] ?? 'dist';
 const SITE = (process.env.SITE_URL ?? 'https://deedowl.com').replace(/\/$/, '');
-const STATES = 'Nevada, California, Arizona and Utah';
+const STATES = 'Nevada, California, Arizona, Utah and Texas';
 
 export const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const list = (items: readonly string[]) => (items.length ? `<ul>${items.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : '');

@@ -23,7 +23,7 @@ export function isFederalSaleUrl(raw: string): boolean {
   }
 }
 
-/** The four states we cover, and their counties (src/lib/regions.ts). */
+/** The states we cover, and their counties (src/lib/regions.ts). */
 const IRS_COUNTIES: Record<string, string[]> = Object.fromEntries(STATES.map((s) => [s.code, s.counties]));
 // Any county's parcel number, as the IRS notice labels it ("020-120-110", "10767006C", "0310-672-35-0000").
 const ANY_PARCEL = /^\d[0-9A-Z.-]{4,23}$/;

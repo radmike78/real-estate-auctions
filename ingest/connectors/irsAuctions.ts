@@ -6,7 +6,7 @@
 // robots.txt allows all automated access. None of the 139 ads that day were in Nevada.
 //
 // The site covers the whole country and includes vehicles and personal property. We keep an ad only
-// when it is real estate in one of the four states we cover (NV, CA, AZ, UT): a location in that state, a
+// when it is real estate in one of the states we cover (NV, CA, AZ, UT, TX): a location in that state, a
 // county we can name, and at least one parcel number in the notice. In Clark County the County Assessor
 // must also confirm every parcel (and the property gets its own page); elsewhere the sale is shown as the
 // IRS lists it, with a link to that county's assessor so the buyer can check the parcel.
@@ -24,10 +24,11 @@ import type { SourceConfig } from '../sources/registry';
 import { secureFetch, type FetchOptions } from '../lib/secureFetch';
 import { SchemaDriftError } from './clarkTaxSale';
 import { countyOf } from '../lib/countyOf';
+import { timeZoneFor } from '../../src/lib/regions';
 
 export { SchemaDriftError };
 
-export type IrsState = 'NV' | 'CA' | 'AZ' | 'UT';
+export type IrsState = 'NV' | 'CA' | 'AZ' | 'UT' | 'TX';
 
 export interface IrsAd {
   id: string; // slug from /ad/<slug>/
@@ -51,7 +52,7 @@ export interface IrsAd {
 
 export interface IrsParseResult {
   totalAds: number; // every ad on the site, all states
-  rows: IrsAd[]; // real-estate candidates in NV, CA, AZ and UT
+  rows: IrsAd[]; // real-estate candidates in NV, CA, AZ, UT and TX
   skipped: { id: string; reason: string }[]; // ads in those states we can't show
 }
 
@@ -60,8 +61,8 @@ const APN_PLAIN = /\b(?:APN|parcel)[^0-9]{0,20}(\d{11})\b/gi;
 // Clark County ZIPs are 890xx-891xx, less these in Esmeralda, Lincoln and Nye counties.
 const NOT_CLARK = new Set(['89001', '89008', '89010', '89013', '89017', '89020', '89022', '89023', '89041', '89042', '89043', '89045', '89047', '89048', '89049', '89060', '89061']);
 const isClarkZip = (zip: string) => /^89[01]\d\d$/.test(zip) && !NOT_CLARK.has(zip);
-/** Sale times on the site are local to the sale. Arizona doesn't observe daylight saving time. */
-export const TIME_ZONE: Record<IrsState, string> = { NV: 'America/Los_Angeles', CA: 'America/Los_Angeles', AZ: 'America/Phoenix', UT: 'America/Denver' };
+/** Sale times on the site are local to the sale (by state; see timeZoneFor for Texas's Mountain-time counties). */
+export const TIME_ZONE: Record<IrsState, string> = { NV: 'America/Los_Angeles', CA: 'America/Los_Angeles', AZ: 'America/Phoenix', UT: 'America/Denver', TX: 'America/Chicago' };
 // Parcel numbers outside Clark County, which every county formats its own way ("020-120-110", "10767006C",
 // "0310-672-35-0000"): read only where the notice labels them, so a price or phone number is never taken for one.
 const PARCEL_LABELED = /\b(?:A\.?P\.?N\.?|A\.?I\.?N\.?|Assessor'?s?\s+Parcel\s+(?:Number|No\.?|#)|Parcel\s+(?:Number|No\.?|ID|#))\s*(?:\(s\)|s)?\s*[:#.]?\s*(\d[\dA-Za-z]*(?:[-.]\d[\dA-Za-z]*){0,5})/gi;
@@ -143,7 +144,7 @@ export function parseIndex(body: string): IrsParseResult {
   const skipped: IrsParseResult['skipped'] = [];
   for (const a of ads) {
     const loc = clean(a.location, 120);
-    const lm = /^(.{2,60}?),? (NV|CA|AZ|UT),? ?(\d{5})?(?:-\d{4})?$/i.exec(loc);
+    const lm = /^(.{2,60}?),? (NV|CA|AZ|UT|TX),? ?(\d{5})?(?:-\d{4})?$/i.exec(loc);
     if (!lm) continue; // not in a state we cover
     const usState = lm[2].toUpperCase() as IrsState;
     const id = (a.url as string).replace(/^\/ad\//, '').replace(/\/$/, '');
@@ -184,7 +185,7 @@ export function parseIndex(body: string): IrsParseResult {
       saleKind: /judicial sale|court order|district court/i.test(`${title} ${content.slice(0, 1500)}`) ? 'JUDICIAL' : 'ADMINISTRATIVE',
       saleFormat: /sealed bid/i.test(`${title} ${content}`) ? 'Sealed bid' : 'Public auction',
       minimumBid,
-      saleStartsAt: parseSaleDate(clean(a.date, 60), TIME_ZONE[usState]),
+      saleStartsAt: parseSaleDate(clean(a.date, 60), timeZoneFor(usState, county)),
       saleLocation: place ? clean(place, 200) : null,
       canceled: /cancel+ed|postponed/i.test(title),
       sourceUrl: `https://www.irsauctions.gov/ad/${id}/`,

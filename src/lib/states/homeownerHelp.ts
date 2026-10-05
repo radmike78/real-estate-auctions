@@ -1,6 +1,7 @@
 // Facing foreclosure? State by state: free help, deadlines, scams and tenants' rights. Every line names its state.
 // Sources: each line's citation, read on the state's official code site (checked 2026-10-04).
 import type { ByStateLines } from '../../components/ByState';
+import { TX_HOMEOWNER_HELP, TX_HOMEOWNER_DEADLINES, TX_HOMEOWNER_SCAMS, TX_HOMEOWNER_TENANTS } from './texas';
 
 export const HELP: ByStateLines = {
   NV: [
@@ -21,6 +22,7 @@ export const HELP: ByStateLines = {
     { text: 'In Utah, the courts’ Self-Help Center gives free help from staff attorneys to people without a lawyer: forms, the court process and your options. They can’t represent you. Call 888-683-0009 or text 801-742-1898.', links: [['Utah Courts Self-Help Center', 'https://www.utcourts.gov/en/self-help/services/contact.html']] },
     { text: 'In Utah, if Utah Housing Corporation services your loan, call its mortgage servicing line at 801-902-8250 or 800-344-0452.', links: [['Utah Housing Corporation', 'https://utahhousingcorp.org/homeowner/']] },
   ],
+  TX: TX_HOMEOWNER_HELP,
 };
 
 export const DEADLINES: ByStateLines = {
@@ -59,6 +61,7 @@ export const DEADLINES: ByStateLines = {
     { text: 'In Utah, property taxes are due November 30 (Utah Code 59-2-1331). If they stay unpaid, you can still pay them, with penalties and interest, at any time before the county’s tax sale, held in May or June after 4 years (Utah Code 59-2-1343, 59-2-1346, 59-2-1351). The county treasurer accepts partial payments of $10 or more (Utah Code 59-2-1346).' },
     { text: 'In Utah, before a community association (HOA) starts a trustee’s sale for unpaid assessments, it must send you a notice by certified mail at least 30 days ahead, and you then have 30 days to demand in writing that it go to court instead. It can’t use a trustee’s sale for fines, or unless an assessment is more than 180 days past due (Utah Code 57-8a-302, 57-8a-303). Condominiums are under a separate law (Utah Code 57-8).' },
   ],
+  TX: TX_HOMEOWNER_DEADLINES,
 };
 
 export const SCAMS: ByStateLines = {
@@ -80,6 +83,7 @@ export const SCAMS: ByStateLines = {
     { text: 'In Utah, someone paid to “rescue” you from foreclosure through a deal involving your home’s title needs a Utah real estate license and a written agreement, and can’t require you to sign your home over to them or to someone they have a business tie with, pay them instead of your servicer, or stop talking to your lender or counselor (Utah Code 61-2f-102, 61-2f-401).' },
     { text: 'In Utah, report scams to the Division of Consumer Protection, and report a real estate agent or broker to the Division of Real Estate.', links: [['Utah Division of Consumer Protection', 'https://commerce.utah.gov/dcp/'], ['Utah Division of Real Estate', 'https://commerce.utah.gov/realestate/']] },
   ],
+  TX: TX_HOMEOWNER_SCAMS,
 };
 
 export const TENANTS: ByStateLines = {
@@ -87,4 +91,5 @@ export const TENANTS: ByStateLines = {
   CA: [{ text: 'In California, the lender or trustee generally must post a notice on the home and mail it to residents explaining their rights (Civil Code 2924.8). After the sale, a month-to-month tenant gets at least 90 days’ written notice, and a tenant with a fixed-term lease can generally stay until it ends (Code of Civil Procedure 1161b). Some California cities give tenants even more protection.' }],
   AZ: [{ text: 'In Arizona, your landlord must tell you in writing about a foreclosure: within 5 business days of getting a notice of trustee’s sale, or in the lease if it was signed after the foreclosure started. This doesn’t cover buildings of 4 or more connected units (A.R.S. 33-1331).' }],
   UT: [{ text: 'In Utah, when a home bought with a rental-property loan goes to a trustee’s sale, the trustee must post a “Notice to Tenant” on the property or mail it to each unit, explaining that federal law may let you stay until your lease ends or 90 days after a notice to vacate, whichever is later (Utah Code 57-1-25).' }],
+  TX: TX_HOMEOWNER_TENANTS,
 };

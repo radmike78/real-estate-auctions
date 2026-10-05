@@ -43,6 +43,7 @@ const NAMES: [RegExp, StateCode][] = [
   [/California|\(CA\)|San Diego|Los Angeles/, 'CA'],
   [/Arizona|\(AZ\)|Maricopa|Pima/, 'AZ'],
   [/Utah|\(UT\)|Salt Lake/, 'UT'],
+  [/Texas|\(TX\)|Harris County|Bexar|Travis County/, 'TX'],
 ];
 
 /**

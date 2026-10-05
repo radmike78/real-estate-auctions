@@ -105,12 +105,12 @@ export const SOURCES: SourceConfig[] = [
     id: 'us-irs-auctions',
     kind: 'irs-auction',
     agency: 'Internal Revenue Service',
-    jurisdiction: 'NV, CA, AZ, UT',
+    jurisdiction: 'NV, CA, AZ, UT, TX',
     officialUrl: 'https://www.irsauctions.gov/',
     // The site's own index of every ad (the same data its cards show).
     fetchUrl: 'https://www.irsauctions.gov/index.json',
     allowedHosts: ['www.irsauctions.gov'],
-    // Clark County ads are shown only when the Assessor confirms every parcel. Ads elsewhere in NV, CA, AZ and UT are
+    // Clark County ads are shown only when the Assessor confirms every parcel. Ads elsewhere in NV, CA, AZ, UT and TX are
     // shown as the IRS lists them, marked as not checked by DeedOwl, with a link to that county's assessor.
     corroborationHosts: ['maps.clarkcountynv.gov'],
     // Ads are posted a few weeks before each sale and updated when sales are canceled.

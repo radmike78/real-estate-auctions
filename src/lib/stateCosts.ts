@@ -17,6 +17,7 @@ export function transferTaxFor(state: StateCode, county: string): TransferTax {
       more: 'California counties charge $0.55 for each $500 of value (Revenue and Taxation Code 11911), not counting liens that stay with the property. Cities can add their own tax, and some charter cities such as Los Angeles, San Francisco and Oakland charge much more; ask your title company for the total.',
     };
   if (state === 'AZ') return { per500: 0, hint: 'Arizona has no transfer tax; a $2 recording fee applies.', more: 'Arizona’s constitution bars new taxes on transferring real property; the recorder charges a $2 fee with the affidavit of property value (A.R.S. 11-1132).' };
+  if (state === 'TX') return { per500: 0, hint: 'Texas has no transfer tax; recording fees apply.', more: 'Texas doesn’t tax real property transfers, and its constitution bars new transfer taxes (article VIII, section 29). You’ll still pay the county clerk’s recording fees and the title insurance premium, which the state sets (Texas Department of Insurance).' };
   if (state === 'UT') return { per500: 0, hint: 'Utah has no transfer tax; recording fees apply.', more: 'Utah doesn’t tax real property transfers. You’ll still pay the county recorder’s recording fees.' };
   const per500 = county === 'Clark' ? 2.55 : county === 'Washoe' || county === 'Churchill' ? 2.05 : 1.95;
   const name = county === 'Carson City' ? 'Carson City' : `${county} County`;
@@ -38,6 +39,11 @@ export function propertyTaxHint(state: StateCode): { hint: string; more: string 
     return {
       hint: 'Rentals lose the homeowner rebate (up to $600 a year).',
       more: 'In Arizona, owner-occupied homes get a rebate on part of the school tax, up to $600 a year (A.R.S. 15-972). A rental doesn’t, so expect a higher bill than an owner-occupant paid. You must also register a rental with the county assessor (A.R.S. 33-1902).',
+    };
+  if (state === 'TX')
+    return {
+      hint: 'A rental gets no homestead exemption, so expect a higher bill.',
+      more: 'In Texas, the appraisal district values the property and each local taxing unit (county, city, school district and special districts like MUDs) sets its own rate. A home you live in can get the homestead exemption, including $140,000 off the school district value (Tax Code 11.13). A rental or second home can’t, so its bill can be much higher than the seller’s. You can protest the value by May 15, or 30 days after the notice was mailed if that’s later (Tax Code 41.44).',
     };
   if (state === 'UT')
     return {
@@ -78,6 +84,15 @@ export function redemptionPresetsFor(state: StateCode): Record<string, Redemptio
       azJudicial: { label: 'Judicial foreclosure: 6 months, +8% of the price', months: 6, ratePct: 16, daily: 0 },
       irs: IRS,
     };
+  if (state === 'TX')
+    return {
+      none: NONE,
+      // Tax Code 34.21: the price and costs plus a flat 25% (first year) or 50% (second year); shown as the yearly rate
+      // that repays the flat premium at the end of the wait.
+      txTaxHomestead: { label: 'Tax sale, homestead or farm land: 2 years, +25% (first year) or +50%', months: 24, ratePct: 25, daily: 0 },
+      txTaxOther: { label: 'Tax sale, other property: 180 days, up to +25% of the price', months: 6, ratePct: 50, daily: 0 },
+      irs: IRS,
+    };
   if (state === 'UT')
     return {
       none: NONE,
@@ -97,5 +112,6 @@ export function redemptionPresetsFor(state: StateCode): Record<string, Redemptio
 export function taxSaleWait(state: StateCode): string {
   if (state === 'NV') return 'After a tax sale, resale may wait for a quiet title action or the 2-year window after the Treasurer’s deed (NRS 361.600).';
   if (state === 'CA') return 'After a tax sale, the former owner has a year to ask the county to rescind the deed, so title insurance and resale may wait.';
+  if (state === 'TX') return 'After a Texas tax sale, the owner can redeem for 180 days, or 2 years for a homestead or farm land (Tax Code 34.21), so resale may wait until that ends and a title company will insure the title.';
   return 'After a forced sale, resale may wait until a title company will insure the title; ask one before you plan your timeline.';
 }

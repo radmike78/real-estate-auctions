@@ -2,6 +2,7 @@
 // homeowners" rule. Every line names its state.
 // Sources: each line's citation, read on the state's official code site (checked 2026-10-04).
 import type { ByStateLines } from '../../components/ByState';
+import { TX_SHORT_DEFICIENCY, TX_SHORT_DISCLOSURES, TX_SHORT_NOTES, TX_SHORT_OWNERS } from './texas';
 
 /** Could the seller still owe the lender afterward (a deficiency)? */
 export const DEFICIENCY: ByStateLines = {
@@ -18,6 +19,7 @@ export const DEFICIENCY: ByStateLines = {
     { text: 'In Utah, the 3-month deadline and fair-market-value limit on suing for the rest of the loan apply only after a trustee’s sale (Utah Code 57-1-32). We found no Utah statute that does the same for a short sale. So unless the lender agrees in writing to waive it, the seller may still owe the difference. Sellers should ask an attorney.', links: [['Utah Code 57-1-32', 'https://le.utah.gov/xcode/Title57/Chapter1/57-1-S32.html']] },
     { text: 'In Utah, a lender generally has 6 years to sue on a written contract such as a promissory note (Utah Code 78B-2-309). This is the seller’s risk, but it’s why short-sale approvals can be slow and full of conditions. As a buyer, read the approval letter’s terms and deadlines with your agent.', links: [['Utah Code 78B-2-309', 'https://le.utah.gov/xcode/Title78B/Chapter2/78B-2-S309.html']] },
   ],
+  TX: TX_SHORT_DEFICIENCY,
 };
 
 /** What the seller must tell you, and what you get. */
@@ -36,6 +38,7 @@ export const DISCLOSURES: ByStateLines = {
   UT: [
     { text: 'In Utah, licensed agents use the state-approved Real Estate Purchase Contract (REPC). Short-sale terms go in an addendum.', links: [['Real Estate Purchase Contract (Utah Division of Real Estate)', 'https://commerce.utah.gov/wp-content/uploads/2023/03/purchase-contract.pdf']] },
   ],
+  TX: TX_SHORT_DISCLOSURES,
 };
 
 /** Other things that differ by state: other liens, foreclosure timing, closing deadlines. */
@@ -47,6 +50,7 @@ export const NOTES: ByStateLines = {
   UT: [
     { text: 'In Utah, the lender’s approval can come with a firm closing deadline. Keep your financing ready.' },
   ],
+  TX: TX_SHORT_NOTES,
 };
 
 /** Don't contact homeowners: the state law that applies. Each ends by pointing buyers to agents and the tracker (on the page). */
@@ -63,4 +67,5 @@ export const OWNERS: ByStateLines = {
   UT: [
     { text: 'In Utah, offering a paid deal on an owner’s title to “stop” their foreclosure is regulated foreclosure rescue. It needs a real estate license and a written agreement, and certain deals are banned (Utah Code 61-2f-102, 61-2f-401).', links: [['Utah Code 61-2f-401', 'https://le.utah.gov/xcode/Title61/Chapter2F/61-2f-S401.html']] },
   ],
+  TX: TX_SHORT_OWNERS,
 };

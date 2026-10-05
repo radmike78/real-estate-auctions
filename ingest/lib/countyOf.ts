@@ -4,12 +4,13 @@ import az from '../../src/data/places/az.json';
 import ca from '../../src/data/places/ca.json';
 import nv from '../../src/data/places/nv.json';
 import ut from '../../src/data/places/ut.json';
+import tx from '../../src/data/places/tx.json';
 import { STATES } from '../../src/lib/regions';
 
-type Code = 'NV' | 'CA' | 'AZ' | 'UT';
+type Code = 'NV' | 'CA' | 'AZ' | 'UT' | 'TX';
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
 
-const PLACES: Record<Code, Map<string, string[]>> = { NV: index(nv), CA: index(ca), AZ: index(az), UT: index(ut) };
+const PLACES: Record<Code, Map<string, string[]>> = { NV: index(nv), CA: index(ca), AZ: index(az), UT: index(ut), TX: index(tx) };
 function index(places: { name: string; counties: string[] }[]): Map<string, string[]> {
   const m = new Map<string, string[]>();
   for (const p of places) m.set(norm(p.name), [...new Set([...(m.get(norm(p.name)) ?? []), ...p.counties])]);
