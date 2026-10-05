@@ -267,7 +267,7 @@
       "src/lib/proApplication.ts"
     ],
     "reviewed": "2026-10-05",
-    "hash": "6841488068cfb5fd",
+    "hash": "abc3102798d3f627",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -299,8 +299,8 @@
     "files": [
       "src/components/TermsPage.tsx"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "5ab32befd8e89c78",
+    "reviewed": "2026-10-05",
+    "hash": "74c3fb95b74580c9",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

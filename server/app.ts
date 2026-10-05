@@ -979,7 +979,7 @@ export function createApp(config: AppConfig) {
         const plan = stripe.client.planFor(row.profile.category, tier);
         if (!plan) throw new HttpError(409, `The ${TIER_INFO[tier].label} plan isn’t available for your category yet.`);
         const topic = tier === 'premium_plus' && topicAllowed(row.profile.category, body.topic) ? body.topic : null;
-        if (tier === 'premium_plus' && !topic) throw new HttpError(422, 'Choose the Learn or Practice topic for your Premium Plus ad.');
+        if (tier === 'premium_plus' && !topic) throw new HttpError(422, 'Choose the Learn or Practice topic for your Mentor Connect ad.');
         if (!row.verification) throw new HttpError(409, 'Your license must be verified before you can start advertising.');
         if (!limiters.checkout.hit(row.id)) throw new HttpError(429, 'Too many attempts. Try again later.');
         let acct = db.stripe.forPro(row.id);
@@ -1028,7 +1028,7 @@ export function createApp(config: AppConfig) {
       if (method === 'POST' && path === '/api/pro/ad-topic') {
         assertAppRequest(req);
         const topic = (await readJson(req)).topic;
-        if (billingTier(row.billing) !== 'premium_plus') throw new HttpError(409, 'Topic ads are part of the Premium Plus plan.');
+        if (billingTier(row.billing) !== 'premium_plus') throw new HttpError(409, 'Topic ads are part of the Mentor Connect plan.');
         if (!topicAllowed(row.profile.category, topic)) throw new HttpError(422, 'Choose one of the topics for your category.');
         const full = capFor(row, 'premium_plus', topic);
         if (full) throw new HttpError(409, capMessage(full, row.profile.category, topic));

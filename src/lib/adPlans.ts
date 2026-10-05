@@ -1,6 +1,9 @@
 // Advertising plans, and how many advertisers each category can hold. Shared by the server (checkout, webhooks,
 // admin billing) and the browser (plan chooser, directory, topic ads).
 //
+// Plan names shown to people (TIER_INFO): Rotating (standard), Spotlight (premium), Mentor Connect (premium_plus),
+// matching the operator's Stripe products. The internal keys stay standard/premium/premium_plus.
+//
 //  - Standard: a profile page and a place in the category's directory list, shown in fair rotating order.
 //  - Premium: Standard, plus a separate box labeled "Featured ad" on the category's directory pages, shown above the
 //    list. It never moves anyone up in the list itself: the list keeps the same rotation for everyone (pros.ts).
@@ -17,16 +20,16 @@ export const isAdTier = (v: unknown): v is AdTier => typeof v === 'string' && (A
 
 export const TIER_INFO: Record<AdTier, { label: string; includes: string[]; badge?: string }> = {
   standard: {
-    label: 'Standard',
+    label: 'Rotating',
     includes: ['Your own profile page with a contact form', 'A place in your category’s directory list, in fair rotating order', 'A results dashboard and a monthly report'],
   },
   premium: {
-    label: 'Premium',
-    includes: ['Everything in Standard', 'A separate box labeled “Featured ad” on your category’s directory pages, above the list'],
+    label: 'Spotlight',
+    includes: ['Everything in Rotating', 'A separate box labeled “Featured ad” on your category’s directory pages, above the list'],
   },
   premium_plus: {
-    label: 'Premium Plus',
-    includes: ['Everything in Premium', 'A labeled ad beside one Learn or Practice topic you choose'],
+    label: 'Mentor Connect',
+    includes: ['Everything in Spotlight', 'A labeled ad beside one Learn or Practice topic you choose'],
     badge: 'Best value',
   },
 };
@@ -116,7 +119,7 @@ export function foundingFull(rows: { id: string; category: Category; founding: b
 export function capMessage(problem: CapProblem, category: Category, topic: string | null = null): string {
   const plural = CATEGORIES[category].plural;
   if (problem.kind === 'listing') return `The ${plural} directory is full right now: it lists up to ${problem.cap} advertisers at a time. Try again later.`;
-  if (problem.kind === 'featured') return `All ${problem.cap} Featured ad spots for ${plural} are taken right now. Choose Standard, or try again later.`;
+  if (problem.kind === 'featured') return `All ${problem.cap} Featured ad spots for ${plural} are taken right now. Choose Rotating, or try again later.`;
   const label = adTopicByKey(topic)?.label ?? 'this topic';
   return problem.cap === 1
     ? `The ${label} ad spot for ${plural} is taken right now. Choose another topic or plan, or try again later.`
