@@ -5,6 +5,7 @@
 // Each area is one unit of the plan's monthly price (one price for every area for now; size-based prices may come
 // later). The caps in adPlans.ts are counted per city: a county bundle takes a spot in every city of its county.
 import { countyName, stateByCode, type StateCode } from './regions';
+import type { Pro } from './pros';
 
 export interface AdArea {
   county: string;
@@ -60,6 +61,13 @@ export function validateAdAreas(
  */
 export const areasCover = (areas: AdArea[], county: string, city: string | null) =>
   areas.some((a) => a.county === county && (a.city === null || city === null || a.city === city));
+
+/**
+ * Advertisers whose listing and ads show to a visitor in this area: same state, and when the visitor chose a city (or
+ * county), an ad area covering it. Everyone when the visitor hasn't chosen an area.
+ */
+export const prosInArea = <P extends Pick<Pro, 'state' | 'adAreas'>>(pros: P[], area: { state: StateCode; county: string | null; city: string | null } | null): P[] =>
+  !area ? pros : pros.filter((p) => p.state === area.state && (!area.county || areasCover(p.adAreas ?? [], area.county, area.city)));
 
 /**
  * The most of `others` that show in any one city of `area`. `null` stands for an advertiser who holds the whole state

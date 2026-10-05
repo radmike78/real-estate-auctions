@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { adAreaLabel, areasCover, MAX_AD_AREAS, peakIn, validateAdAreas, type AdArea } from './adAreas';
+import { adAreaLabel, areasCover, MAX_AD_AREAS, peakIn, prosInArea, validateAdAreas, type AdArea } from './adAreas';
 import { capMessage, capProblem, CAPS, type Placement } from './adPlans';
 
 const city = (county: string, c: string): AdArea => ({ county, city: c });
@@ -73,5 +73,29 @@ describe('caps per city', () => {
 
   it('counts rows from before ad areas everywhere in their state', () => {
     expect(capProblem([p('a', 'premium', null), p('b', 'premium', [])], p('new', 'premium', [city('Clark', 'Henderson')]))).toMatchObject({ kind: 'featured' });
+  });
+});
+
+describe('who a visitor sees', () => {
+  // Advertisers in two counties (and one in another state): each must show only where they paid to show.
+  const pros = [
+    { id: 'reno-agent', state: 'NV' as const, adAreas: [city('Washoe', 'Reno')] },
+    { id: 'washoe-lender', state: 'NV' as const, adAreas: [all('Washoe')] },
+    { id: 'henderson-agent', state: 'NV' as const, adAreas: [city('Clark', 'Henderson')] },
+    { id: 'clark-title', state: 'NV' as const, adAreas: [all('Clark')] },
+    { id: 'phoenix-agent', state: 'AZ' as const, adAreas: [city('Maricopa', 'Phoenix')] },
+  ];
+  const ids = (area: Parameters<typeof prosInArea>[1]) => prosInArea(pros, area).map((p) => p.id);
+  it('shows a city visitor the advertisers covering that city, and no one else', () => {
+    expect(ids({ state: 'NV', county: 'Washoe', city: 'Reno' })).toEqual(['reno-agent', 'washoe-lender']);
+    expect(ids({ state: 'NV', county: 'Washoe', city: 'Sparks' })).toEqual(['washoe-lender']);
+    expect(ids({ state: 'NV', county: 'Clark', city: 'Henderson' })).toEqual(['henderson-agent', 'clark-title']);
+    expect(ids({ state: 'NV', county: 'Clark', city: 'Las Vegas' })).toEqual(['clark-title']);
+  });
+  it('shows a county visitor everyone in that county, a state visitor the whole state, and no area everyone', () => {
+    expect(ids({ state: 'NV', county: 'Washoe', city: null })).toEqual(['reno-agent', 'washoe-lender']);
+    expect(ids({ state: 'NV', county: null, city: null })).toEqual(['reno-agent', 'washoe-lender', 'henderson-agent', 'clark-title']);
+    expect(ids({ state: 'AZ', county: 'Pima', city: 'Tucson' })).toEqual([]);
+    expect(ids(null)).toHaveLength(5);
   });
 });

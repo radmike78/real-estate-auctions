@@ -4,7 +4,7 @@
 // another state.
 import { useEffect, useState } from 'react';
 import { getMyState, setMyState } from './myState';
-import { stateByCode, type StateCode } from './regions';
+import { countyName, stateByCode, type StateCode } from './regions';
 
 export interface Area {
   state: StateCode;
@@ -62,6 +62,14 @@ export function useMyArea(): [Area | null, (a: Area | null) => void] {
     };
   }, []);
   return [v, setMyArea];
+}
+
+/** "Reno (Washoe County)", "Washoe County, Nevada" or "Nevada": for saying which area a list covers. */
+export function areaLong(a: Area): string {
+  const state = stateByCode(a.state)?.name ?? a.state;
+  if (a.city && a.county) return `${a.city} (${countyName(a.county)})`;
+  if (a.county) return `${countyName(a.county)}, ${state}`;
+  return state;
 }
 
 /** "Henderson, NV", "Clark County, NV" or "Nevada". */

@@ -8,7 +8,8 @@ import { advertisingOpen, useSiteFeatures } from '../lib/siteFeatures';
 import OwlNote from './OwlNote';
 import ProAvatar from './ProAvatar';
 import { FeaturedAds, inArea } from './AdBoxes';
-import { areaLabel, useMyArea } from '../lib/myArea';
+import { areaLong, useMyArea } from '../lib/myArea';
+import { AreaDialog } from './AreaPicker';
 import { stateByCode } from '../lib/regions';
 import { regulatorFor } from '../lib/regulators';
 
@@ -81,6 +82,7 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
   // visitor's city or county when they chose one, unless they ask to see the whole state.
   const [area] = useMyArea();
   const [wide, setWide] = useState(false);
+  const [picking, setPicking] = useState(false);
   const stateWide = area ? all.filter((p) => p.state === area.state) : all;
   const local = area?.county && !wide;
   const pros = local ? inArea(all, area) : stateWide;
@@ -90,6 +92,8 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
   const adsOpen = advertisingOpen(useSiteFeatures());
   const [q, setQ] = useState<Omit<ProQuery, 'categories'>>({ location: initialLocation, service: 'any', creditProfile: 'any', language: 'any' });
   const active = cat === 'any' ? categories : [cat];
+  // "real estate agents", or "professionals" when the list mixes categories.
+  const who = active.length === 1 ? CATEGORIES[active[0]].plural.toLowerCase() : 'professionals';
   const financing = active.some((c) => CATEGORIES[c].financing);
   const serviceOptions = useMemo(() => [...new Set(active.flatMap((c) => servicesFor(c)))], [active.join()]); // eslint-disable-line react-hooks/exhaustive-deps
   const languages = useMemo(() => [...new Set(pros.flatMap((p) => p.languages))].sort(), [pros]);
@@ -117,12 +121,14 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
         </div>
       )}
       {!none && notice}
-      {!none && area?.county && (
+      {!none && (
         <p className="area-scope">
-          {local ? <>Showing professionals advertising in <strong>{areaLabel(area)}</strong>.</> : <>Showing everyone in <strong>{stName}</strong>.</>}{' '}
-          <button type="button" className="linkish" onClick={() => setWide(!wide)}>{local ? `Show all of ${stName}` : `Only ${areaLabel(area)}`}</button>
+          {area?.county && local ? <>Showing {who} advertising in <strong>{areaLong(area)}</strong>.</> : area ? <>Showing {who} in <strong>{stName}</strong>.</> : <>Showing {who} in every state.</>}{' '}
+          {area?.county && <><button type="button" className="linkish" onClick={() => setWide(!wide)}>{local ? `Show all of ${stName}` : `Only ${areaLong(area)}`}</button> · </>}
+          <button type="button" className="linkish" onClick={() => setPicking(true)}>{area ? 'Change area' : 'Choose your area'}</button>
         </p>
       )}
+      {picking && <AreaDialog onClose={() => { setPicking(false); setWide(false); }} />}
       {/* Paid Featured ads sit apart from the list below, which keeps the same rotation for every advertiser. */}
       {featured && !loading && !error && <FeaturedAds pros={pros} categories={active} />}
       {!none && showCategoryFilter && categories.length > 1 && (
@@ -134,7 +140,7 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
         </div>
       )}
       {!none && <div className="toolbar">
-        <input aria-label="City or ZIP" placeholder="City or ZIP" value={q.location} onChange={(e) => setQ({ ...q, location: e.target.value })} />
+        <input aria-label="Narrow by a city or ZIP they serve" placeholder="Narrow by a city or ZIP they serve" value={q.location} onChange={(e) => setQ({ ...q, location: e.target.value })} />
         <select aria-label={financing ? 'Loan type' : 'Service'} value={q.service} onChange={(e) => setQ({ ...q, service: e.target.value })}>
           <option value="any">{financing ? 'Any loan type' : 'Any service'}</option>
           {(financing ? LOAN_PRODUCTS.filter((l) => serviceOptions.includes(l)) : serviceOptions).map((s) => <option key={s}>{s}</option>)}
@@ -161,7 +167,7 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
       {!loading && !none && pros.length === 0 && !error && (
         <div className="empty">
           <OwlNote>
-            <strong>No one advertises in {area ? areaLabel(area) : 'your area'} yet.</strong>{' '}
+            <strong>No {who} advertise in {area ? areaLong(area) : 'your area'} yet.</strong>{' '}
             <button type="button" className="linkish" onClick={() => setWide(true)}>Show all of {stName}</button>
           </OwlNote>
         </div>

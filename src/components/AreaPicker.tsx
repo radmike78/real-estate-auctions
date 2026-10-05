@@ -130,7 +130,7 @@ export function AreaButton() {
   );
 }
 
-function AreaDialog({ onClose }: { onClose: () => void }) {
+export function AreaDialog({ onClose }: { onClose: () => void }) {
   const box = useRef<HTMLDivElement>(null);
   useModal(box, onClose);
   useEffect(() => {
