@@ -155,7 +155,12 @@ export function AreaDialog({ onClose }: { onClose: () => void }) {
 export function HomeArea() {
   const [area, setArea] = useMyArea();
   const st = area ? STATES.find((s) => s.code === area.state) : undefined;
-  const pickState = (code: StateCode) => { if (area?.state !== code) setArea({ state: code, city: null, county: null }); };
+  // Once a city is chosen, only the states show; clicking a state (the current one too) opens the choices again.
+  const [open, setOpen] = useState(() => !area?.city);
+  const pickState = (code: StateCode) => {
+    if (area?.state !== code) setArea({ state: code, city: null, county: null });
+    setOpen(true);
+  };
   return (
     <div className="home-area">
       <div className="eyebrow home-states" role="group" aria-label="Where are you buying? Choose a state">
@@ -163,17 +168,18 @@ export function HomeArea() {
         {STATES.map((s, i) => (
           <span key={s.code}>
             {i > 0 && <span aria-hidden className="home-states-sep">·</span>}
-            <button type="button" aria-pressed={area?.state === s.code} className={area?.state === s.code ? 'on' : ''} onClick={() => pickState(s.code as StateCode)}>{s.name}</button>
+            <button type="button" aria-pressed={area?.state === s.code} className={area?.state === s.code ? 'on' : ''} onClick={() => pickState(s.code as StateCode)}
+              title={area?.state === s.code && area.city && !open ? `${areaLong(area)}: click to change` : undefined}>{s.name}</button>
           </span>
         ))}
       </div>
-      {area && st && (
+      {area && st && open && (
         <div className="home-area-row">
           <PlaceCombobox
             key={`${area.state}-${area.city ?? ''}`}
             state={area.state}
             label={area.city ? <>City: <strong>{area.city}</strong></> : 'Your city or town (optional)'}
-            onPick={(p) => setArea({ state: area.state, city: p.name, county: area.county && p.counties.includes(area.county) ? area.county : p.counties[0] })}
+            onPick={(p) => { setArea({ state: area.state, city: p.name, county: area.county && p.counties.includes(area.county) ? area.county : p.counties[0] }); setOpen(false); }}
           />
           <label className="field">
             <span>Or a county</span>
