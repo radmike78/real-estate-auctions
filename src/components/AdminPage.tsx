@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 import { approvalBlockers, billingTier, type Billing, type LicenseVerification, type ProProfile } from '../lib/proApplication';
-import { AD_TIERS, TIER_INFO, topicsFor, type AdTier } from '../lib/adPlans';
+import { AD_TIERS, CAPS, TIER_INFO, topicsFor, type AdTier } from '../lib/adPlans';
 import { adTopicByKey } from '../lib/adTopics';
 import { CATEGORIES, REVERIFY_DAYS } from '../lib/pros';
 import { api, ApiError } from '../lib/api';
@@ -240,7 +240,7 @@ function FoundingToggle({ app, onSaved }: { app: App; onSaved: () => void }) {
             setErr((x as Error).message);
           }
         }} />
-        <span>Founding advertiser: checkout applies the founding coupon of the plan they choose (logged in the audit trail).</span>
+        <span>Founding advertiser: checkout applies the founding coupon of the plan they choose (logged in the audit trail). Up to {CAPS.founding} per category.</span>
       </label>
       {err && <div className="caution small">{err}</div>}
     </section>

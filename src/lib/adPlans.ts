@@ -42,6 +42,8 @@ export const CAPS = {
   topicSettlement: 2,
   /** Topic ad spots per category and topic for every other category (exclusive). */
   topicOther: 1,
+  /** Founding advertisers per category (marked by an admin; they get the founding coupon at checkout). */
+  founding: 2,
 } as const;
 
 /**
@@ -100,6 +102,14 @@ export function capProblem(current: Placement[], want: Placement): CapProblem | 
     if (others.filter((p) => p.tier === 'premium_plus' && p.topic === want.topic).length >= cap) return { kind: 'topic', cap };
   }
   return null;
+}
+
+/**
+ * Whether marking advertiser `id` as founding would go over the founding cap for its category. Rejected applications
+ * don't count; any other one still marked founding does (untick it to free the spot).
+ */
+export function foundingFull(rows: { id: string; category: Category; founding: boolean; status: string }[], id: string, category: Category): boolean {
+  return rows.filter((r) => r.id !== id && r.category === category && r.founding && r.status !== 'REJECTED').length >= CAPS.founding;
 }
 
 /** What to tell an advertiser when a spot is full. */
