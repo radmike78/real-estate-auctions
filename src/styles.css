@@ -2681,3 +2681,12 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 /* Narrow phones: just the pin (its label says the area), so the menu button keeps its place. */
 @media (max-width: 480px) { .area-btn span { display: none; } .area-btn { padding: 6px; width: 44px; min-height: 44px; justify-content: center; } .site-header { gap: 10px; padding-left: 16px; padding-right: 12px; } }
 .role-dialog { max-height: calc(100dvh - 32px); overflow-y: auto; }
+
+/* Upcoming county tax sales (Live tax sales, Find Deals): one card per sale, links to the county's own list. */
+.county-sales { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); }
+.county-sale { border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; background: var(--surface); display: grid; gap: 8px; align-content: start; }
+.county-sale h3 { margin: 0; }
+.county-sale p { margin: 0; }
+.county-sale-dates { margin: 0; padding-left: 20px; }
+.county-sale .row { display: flex; flex-wrap: wrap; gap: 10px; }
+.county-sale .row > * { flex: 0 0 auto; width: auto; margin: 0; }

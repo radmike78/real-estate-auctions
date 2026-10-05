@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import { isCertificateSourceUrl, isOfficialUrl } from '../feed/verify';
 import SidCertificates from './SidCertificates';
 import IrsSales from './IrsSales';
+import CountySales from './CountySales';
+import { upcomingCountySales } from '../lib/countySales';
+import { useMyState } from '../lib/myState';
 import { useLiveFeed } from '../data/live';
 import { liveId } from '../feed/toProperty';
 import { fmtDateTime, fmtMoney } from '../lib/status';
@@ -41,6 +44,7 @@ export default function LivePage() {
   const { result } = useLiveFeed();
   const [now, setNow] = useState(Date.now());
   const [cls, setCls] = useState<ClassFilter>('all');
+  const [myState] = useMyState();
 
   // Keep "x min ago" and the expiry check current in an open tab.
   useEffect(() => {
@@ -212,6 +216,16 @@ export default function LivePage() {
         </section>
       )}
       <IrsSales sales={federalSales} ago={(iso) => ago(iso, now)} />
+      {upcomingCountySales(new Date(now), { state: myState }).length > 0 && (
+        <section aria-labelledby="county-sales-head">
+          <h2 id="county-sales-head">Upcoming county tax sales</h2>
+          <p>
+            Counties post their own property lists for these sales. Open the list on the county’s site to see every property, its parcel number
+            and minimum bid. Properties come off the list right up to the sale as owners pay, so check the county’s latest list before you bid.
+          </p>
+          <CountySales sales={upcomingCountySales(new Date(now), { state: myState })} />
+        </section>
+      )}
       <SidCertificates certificates={certificates} ago={(iso) => ago(iso, now)} />
       <Disclaimer kind="sales" />
     </main>

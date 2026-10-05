@@ -10,6 +10,8 @@ import { COUNTY_PAGES, nationalOfficialFor, OFFICE_LABELS, OTHER_SITES, STATE_SA
 import { COUNTY_OFFICES } from '../lib/countyOffices';
 import { useMarkStep } from '../lib/path';
 import { useMyArea } from '../lib/myArea';
+import CountySales from './CountySales';
+import { upcomingCountySales } from '../lib/countySales';
 import PlaceCombobox from './PlaceCombobox';
 import { useLastActivity } from '../lib/journey';
 
@@ -116,6 +118,11 @@ export default function FindDealsPage() {
           </>
         )}
       </Band>
+      {upcomingCountySales(new Date(), { state: area.state, county: area.county }).length > 0 && (
+        <Band tone="county" icon={<IconFile />} title={`Upcoming tax sales: ${place}`} sub="Dates and the county’s own property list, from the county’s site.">
+          <CountySales sales={upcomingCountySales(new Date(), { state: area.state, county: area.county })} />
+        </Band>
+      )}
       {local && (
         <Band tone="site" icon={<IconLayers />} title={`On DeedOwl for ${countyName(area.county)}`} sub="Live sale lists and step-by-step guides on this site.">
           <ul className="deal-sources">{local.map((s) => <SourceCard key={s.name} s={s} />)}</ul>

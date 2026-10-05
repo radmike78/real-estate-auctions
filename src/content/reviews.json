@@ -61,7 +61,7 @@
       "src/components/SidCertificates.tsx"
     ],
     "reviewed": "2026-10-05",
-    "hash": "8cfda289e9c0fa80",
+    "hash": "7fcd0eaccbb0f438",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -375,7 +375,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-05",
-    "hash": "dacc29a3f9ffea8c",
+    "hash": "4d2745f2d385dd01",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
