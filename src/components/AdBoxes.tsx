@@ -6,17 +6,26 @@ import { AD_FINE_PRINT, CAPS, hasFeaturedBox, pickRandom, SHORT_LICENSE_LABEL } 
 import { CATEGORIES, isListable, type Category, type Pro } from '../lib/pros';
 import { track } from '../lib/track';
 import ProAvatar from './ProAvatar';
+import { stateByCode, type StateCode } from '../lib/regions';
 
 /**
  * Holds an ad spot open while no advertiser fills it, so the page keeps its layout: a plain, labeled box that points
  * licensed Nevada professionals to the Advertise page. It shows no one and recommends no one.
  */
-export function AdSpace({ kind }: { kind: string }) {
+export function AdSpace({ kind, state }: { kind: string; state?: StateCode | null }) {
+  // Advertising is open to Nevada professionals only for now; other states' spots say so.
+  const other = state && state !== 'NV' ? stateByCode(state)?.name ?? state : null;
   return (
     <aside className="ad-box ad-space" aria-label={`${kind} space`}>
       <div className="ad-box-label">{kind} space</div>
-      <p>This spot is for a licensed Nevada professional.</p>
-      <a className="btn btn-secondary" href="#/advertise">Advertise on DeedOwl →</a>
+      {other ? (
+        <p><span className="badge tone-info">Coming soon</span> This spot is for a licensed {other} professional. Advertising for {other} professionals isn’t open yet.</p>
+      ) : (
+        <>
+          <p>This spot is for a licensed Nevada professional.</p>
+          <a className="btn btn-secondary" href="#/advertise">Advertise on DeedOwl →</a>
+        </>
+      )}
     </aside>
   );
 }
