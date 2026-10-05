@@ -221,6 +221,9 @@ export const CATEGORIES: Record<Category, CategoryInfo> = {
   },
 };
 
+/** Whether `v` is one of our categories (own keys only, so names like "constructor" or "__proto__" never match). */
+export const isCategory = (v: unknown): v is Category => typeof v === 'string' && Object.prototype.hasOwnProperty.call(CATEGORIES, v);
+
 export const LOAN_PRODUCTS = [
   'Conventional',
   'FHA',

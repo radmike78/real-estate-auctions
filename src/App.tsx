@@ -43,7 +43,7 @@ import GuidesPage from './components/GuidesPage';
 import AlertsPage, { type AlertsMode } from './components/AlertsPage';
 import RoleNotice from './components/RoleNotice';
 import { ROLE_SHORT } from './lib/disclaimers';
-import { CATEGORIES, type Category } from './lib/pros';
+import { isCategory, type Category } from './lib/pros';
 import { SALE_TYPE_LABEL } from './lib/rules';
 import { STATUS } from './lib/status';
 import type { AcquisitionStatus, SaleType } from './types';
@@ -136,7 +136,7 @@ function parseHash(): Route {
   if (pro) return { page: 'pro', id: pro[1] };
   if (h === 'advertise') return { page: 'advertise' };
   const apply = h.match(/^(?:advertise\/apply(?:\/([a-z_]+))?|agents\/join)$/);
-  if (apply) return { page: 'apply', category: h === 'agents/join' ? 'agent' : apply[1] && apply[1] in CATEGORIES ? (apply[1] as Category) : null };
+  if (apply) return { page: 'apply', category: h === 'agents/join' ? 'agent' : isCategory(apply[1]) ? apply[1] : null };
   const confirm = h.match(/^advertise\/confirm(?:\/([A-Za-z0-9_-]+))?$/);
   if (confirm) return { page: 'applicationConfirm', token: confirm[1] ?? '' };
   if (h === 'admin') return { page: 'admin' };

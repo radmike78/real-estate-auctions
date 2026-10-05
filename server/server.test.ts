@@ -106,6 +106,28 @@ describe('application validation', () => {
     expect(v.ok && v.profile).toMatchObject({ licenseId: 'B.0001234', licenseType: 'Broker' });
   });
 
+  it('refuses injection and prototype tricks in every new field (state, category, counties, cities, license number)', () => {
+    const isCity = (st: string, name: string) => st === 'NV' && ['Las Vegas', 'Henderson'].includes(name);
+    const errs = (over: Record<string, unknown>) => {
+      const v = validateApplication({ ...AGENT, ...over } as never, isCity);
+      return v.ok ? [] : Object.keys(v.errors);
+    };
+    for (const category of ['constructor', '__proto__', 'toString', 'hasOwnProperty', "agent' OR '1'='1"]) expect(errs({ category }), category).toEqual(['category']);
+    for (const state of ['__proto__', 'constructor', "NV' --", 'nv', '<NV>']) expect(errs({ state }), state).toContain('state');
+    for (const licenseId of ['=HYPERLINK("http://evil")', '+1+1', '@SUM(A1)', '-2+3', "1' OR '1'='1", '<script>alert(1)</script>', 'S.123; DROP TABLE applications', 'javascript:alert(1)', '"quoted"', '${7*7}', '{{7*7}}', '../../etc/passwd'.replace(/\//g, '\\')]) {
+      expect(errs({ licenseId }), licenseId).toEqual(['licenseId']);
+    }
+    for (const serviceCounties of [['__proto__'], ['Clark', "Clark' OR 1=1"], ['<b>Clark</b>'], 'Clark', [{ toString: () => 'Clark' }]]) {
+      expect(errs({ serviceCounties }), JSON.stringify(serviceCounties)).toEqual(['serviceCounties']);
+    }
+    for (const serviceCities of [['<img src=x onerror=alert(1)>'], ["Las Vegas'; DROP TABLE applications;--"], ['__proto__'], Array.from({ length: 31 }, (_, i) => `City ${i}`)]) {
+      expect(errs({ serviceCities }), JSON.stringify(serviceCities).slice(0, 60)).toEqual(['serviceCities']);
+    }
+    expect(errs({ serviceZips: "89123' OR 1=1" })).toEqual(['serviceZips']);
+    // Safe license numbers in any format still go through.
+    for (const licenseId of ['S.0012345', '01234567', 'ROC 123456', 'CPA-1234', '123/45 #2']) expect(errs({ licenseId }), licenseId).toEqual([]);
+  });
+
   it('takes advertisers from all four states, with counties and optional cities from that state', () => {
     const ca = { ...AGENT, state: 'CA', licenseId: '01234567', serviceCounties: ['Los Angeles', 'Orange'], serviceCities: ['Long Beach'], serviceZips: '90802' };
     const v = validateApplication(ca, (st, name) => st === 'CA' && name === 'Long Beach');

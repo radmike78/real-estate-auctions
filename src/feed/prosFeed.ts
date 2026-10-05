@@ -6,7 +6,7 @@
 import { stateByCode } from '../lib/regions';
 import { isAdTier, topicAllowed } from '../lib/adPlans';
 import { validateAdLine } from '../lib/proApplication';
-import { CATEGORIES, isListable, safeMailto, safeTel, safeWebsite, type Pro } from '../lib/pros';
+import { isCategory, isListable, safeMailto, safeTel, safeWebsite, type Pro } from '../lib/pros';
 import { checkSignature, isFeedResponse, MAX_FEED_LIFETIME_MS } from './verify';
 
 export interface ProsFeed {
@@ -31,7 +31,7 @@ const strArr = (v: unknown, maxLen: number, maxItems: number) => Array.isArray(v
 export function validPro(p: Pro, now = new Date()): boolean {
   return (
     str(p.id, 64) &&
-    !!CATEGORIES[p.category] &&
+    isCategory(p.category) &&
     str(p.name, 100) &&
     str(p.company, 120) &&
     str(p.licenseId, 30) &&

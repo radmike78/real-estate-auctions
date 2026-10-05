@@ -4,7 +4,7 @@
 // passing these checks.
 
 import { isAdTier, type AdTier } from './adPlans';
-import { CATEGORIES, CREDIT_PROFILES, servicesFor, type Category } from './pros';
+import { CATEGORIES, CREDIT_PROFILES, isCategory, servicesFor, type Category } from './pros';
 import { regulatorFor } from './regulators';
 import { STATES, stateByCode, type StateCode } from './regions';
 
@@ -165,9 +165,9 @@ export function validateApplication(raw: Partial<ApplicationInput>, isCity?: (st
   if (!st) errors.state = 'Choose the state you’re licensed in.';
   const state = (st?.code ?? 'NV') as StateCode;
 
-  const category = raw.category as Category;
+  if (!isCategory(raw.category)) return { ok: false, errors: { ...errors, category: 'Choose what kind of business you are.' } };
+  const category = raw.category;
   const info = CATEGORIES[category];
-  if (!info) return { ok: false, errors: { ...errors, category: 'Choose what kind of business you are.' } };
 
   const name = plain(raw.name, 100);
   if (!/^[\p{L}\p{N}][\p{L}\p{N}&',. ()/-]{1,98}[\p{L}\p{N}.)]$/u.test(name)) errors.name = 'Enter the name to show (person or business), as licensed.';
@@ -175,10 +175,12 @@ export function validateApplication(raw: Partial<ApplicationInput>, isCity?: (st
   const company = plain(raw.company, 120);
   if (company.length < 2) errors.company = category === 'agent' ? 'Enter the brokerage you are licensed under.' : 'Enter your company or employer.';
 
-  // Any format: the admin checks the number on the state's official lookup before approving.
+  // Any format (the admin checks the number on the state's official lookup before approving), but only safe
+  // characters, starting with a letter or digit: nothing a spreadsheet, link or page could read as code.
   const licenseId = plain(raw.licenseId, 30).toUpperCase();
   let licenseType: string | null = null;
   if (licenseId.length < 2) errors.licenseId = 'Enter your license, registration or ID number.';
+  else if (!/^[A-Z0-9][A-Z0-9 .\/#-]*$/.test(licenseId)) errors.licenseId = 'Use only letters, numbers, spaces and . - / # in the license number.';
   else if (category === 'agent' && state === 'NV') licenseType = AGENT_PREFIX_TYPE[licenseId.split('.')[0]] ?? null;
 
   const serviceCounties = strings(raw.serviceCounties);
@@ -264,9 +266,9 @@ export interface LicenseVerification {
 }
 
 export function approvalBlockers(category: Category, v: Partial<LicenseVerification>, today = new Date().toISOString().slice(0, 10), state: StateCode = 'NV'): string[] {
-  const info = CATEGORIES[category];
   const out: string[] = [];
-  if (!info) return ['Unknown category.'];
+  if (!isCategory(category)) return ['Unknown category.'];
+  const info = CATEGORIES[category];
   const reg = regulatorFor(category, state).name;
   if (v.licenseStatus !== 'Active') out.push(`${reg} must show the license or registration as Active.`);
   // The expiration date is optional (the 90-day re-check catches lapses); a date that is entered must be in the future.
