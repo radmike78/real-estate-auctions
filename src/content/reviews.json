@@ -20,8 +20,8 @@
       "src/lib/saleSearch.ts",
       "src/lib/status.ts"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "2fa3977ce915880b",
+    "reviewed": "2026-10-05",
+    "hash": "8fa6698c7baf38c4",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -60,8 +60,8 @@
       "src/components/IrsSales.tsx",
       "src/components/SidCertificates.tsx"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "98b996593ad905ad",
+    "reviewed": "2026-10-05",
+    "hash": "8cfda289e9c0fa80",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

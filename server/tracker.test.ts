@@ -242,7 +242,7 @@ describe('tracking an IRS sale (running server)', () => {
   const last = () => mails[mails.length - 1];
 
   beforeAll(async () => {
-    publish([sale()]);
+    publish([sale(), sale({ id: 'made-up-mesa-land', usState: 'AZ', county: 'Maricopa', apns: ['999-07-701A'], address: null, city: 'Mesa', zip: '85201', corroboratedAt: null, sourceUrl: 'https://www.irsauctions.gov/ad/made-up-mesa-land/' })]);
     app = createApp({
       dbPath: join(dir, 'app.db'),
       dataDir,
@@ -266,6 +266,8 @@ describe('tracking an IRS sale (running server)', () => {
   it('tracks a verified IRS sale and emails IRS wording when it changes or is canceled', async () => {
     expect(await app.checkTracked()).toBe(0); // baseline
     expect((await post('/api/alerts/track', { email: 'irs@example.com', target: 'irs:not-listed' })).status).toBe(404);
+    // Sales outside Clark County are only listed, as the IRS lists them, so they can't be tracked.
+    expect((await post('/api/alerts/track', { email: 'irs@example.com', target: 'irs:made-up-mesa-land' })).status).toBe(404);
     expect((await post('/api/alerts/track', { email: 'irs@example.com', target: 'irs:made-up-las-vegas-home' })).status).toBe(202);
     expect(last().text).toMatch(/updates on 1234 Example Ave \(APN 999-01-101-001\)/);
     await post('/api/alerts/confirm', { token: last().text.match(/#\/alerts\/confirm\/([A-Za-z0-9._-]+)/)![1] });

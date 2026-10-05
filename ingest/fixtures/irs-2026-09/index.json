@@ -193,5 +193,31 @@
   "title": "MADE UP: Pahrump land",
   "url": "/ad/made-up-pahrump-land/",
   "weight": 1
+ },
+ {
+  "cardType": "",
+  "content": "MADE UP. Assessor's Parcel Number: 999-07-701A. Questions: 602-555-0100. Minimum bid 50000.",
+  "date": "Nov 18, 2026 10:00 AM",
+  "image": "",
+  "imageAlt": "MADE UP: Mesa land",
+  "location": "Mesa AZ, 85201",
+  "minimumBid": "50000.00",
+  "section": "ad",
+  "title": "MADE UP: Mesa land",
+  "url": "/ad/made-up-mesa-land/",
+  "weight": 1
+ },
+ {
+  "cardType": "",
+  "content": "MADE UP. APN 999-08-801-009",
+  "date": "Nov 18, 2026 10:00 AM",
+  "image": "",
+  "imageAlt": "MADE UP: home in a town we cannot place",
+  "location": "Nowhereville CA, 90000",
+  "minimumBid": "75000.00",
+  "section": "ad",
+  "title": "MADE UP: home in a town we cannot place",
+  "url": "/ad/made-up-unknown-town/",
+  "weight": 1
  }
 ]

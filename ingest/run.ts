@@ -180,7 +180,7 @@ async function checkSidSource(source: SourceConfig, prev: SourceState, now: Date
   }
 }
 
-/** IRS sales: the site's own index, kept to Clark County parcels the County Assessor confirms. */
+/** IRS sales: the site's own index, kept to real estate in NV, CA, AZ and UT; Clark County parcels the Assessor confirms. */
 async function checkIrsSource(source: SourceConfig, prev: SourceState, now: Date, opts: { dryRun: boolean; fromDir?: string }): Promise<SourceState> {
   try {
     const state: SourceState = { ...prev, tlsBaselines: { ...prev.tlsBaselines } };
@@ -188,16 +188,17 @@ async function checkIrsSource(source: SourceConfig, prev: SourceState, now: Date
     const verifyCertificate = makeCertificateVerifier(state.tlsBaselines, observed, { now, approvedFingerprint: opt('--approve-cert') });
     const body = opts.fromDir ? readFileSync(join(opts.fromDir, 'index.json'), 'utf8') : await fetchIrsIndex(source, { verifyCertificate });
     const { parsed, sha256 } = parseIrsSnapshot(body);
-    log(`[${source.id}] ${parsed.totalAds} ads nationwide; ${parsed.rows.length} in Clark County; ${parsed.skipped.length} Clark County ad(s) skipped`);
+    log(`[${source.id}] ${parsed.totalAds} ads nationwide; ${parsed.rows.length} in NV, CA, AZ and UT; ${parsed.skipped.length} skipped`);
     for (const s of parsed.skipped.slice(0, 10)) log(`  skipped ${s.id}: ${s.reason}`);
-    const anomalies = detectIrsAnomalies(state, parsed);
+    const anomalies = detectIrsAnomalies(state, parsed, now);
     if (anomalies.length && opt('--approve-snapshot') !== sha256) {
       for (const a of anomalies) log(`  ANOMALY ${a.code}: ${a.detail}`);
       log(`[${source.id}] QUARANTINED snapshot ${sha256}. Review it on irsauctions.gov, then re-run with --approve-snapshot ${sha256}`);
       return { ...state, lastCheckedAt: now.toISOString(), health: 'quarantined', quarantinedSha256: sha256, message: anomalies.map((a) => a.detail).join(' ') };
     }
     const open = parsed.rows.filter((r) => !r.canceled && r.saleStartsAt && auctionStillOpen(r.saleStartsAt, now));
-    const candidates = [...new Set(open.flatMap((r) => r.apns))];
+    // Only Clark County parcels go to the Clark County Assessor.
+    const candidates = [...new Set(open.filter((r) => r.assessorChecked).flatMap((r) => r.apns))];
     const confirmed = candidates.length ? await confirmParcelsExist(candidates, source.corroborationHosts, { verifyCertificate }) : new Set<string>();
     if (candidates.length) log(`[${source.id}] Assessor confirmed ${confirmed.size} of ${candidates.length} parcels`);
     const firstApns = open.map((r) => r.apns[0]).filter((a) => confirmed.has(a) && !prev.federalSales?.[a]?.landUse);

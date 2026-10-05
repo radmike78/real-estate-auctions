@@ -61,7 +61,7 @@ export default function LivePage() {
     <main className="page">
       <PageHero
         title={<>Live <span className="grad">tax sales</span></>}
-        sub="Treasurer tax-sale parcels and IRS sales in Clark County, Nevada, re-checked against the official lists."
+        sub="Treasurer tax-sale parcels in Clark County, Nevada, and IRS sales in Nevada, California, Arizona and Utah, re-checked against the official lists."
       />
       {!result && <p>Verifying listings…</p>}
 
@@ -72,12 +72,16 @@ export default function LivePage() {
               ? "The latest data didn't pass our security checks, so for your safety nothing is shown until verified data is published."
               : expired
                 ? 'The last verification has expired, so listings are hidden until fresh data is published.'
-                : 'No parcels are verified as for sale in Clark County right now. We re-check the official lists automatically, and parcels appear here as soon as a sale is scheduled and they pass our checks.'}
+                : 'Nothing is verified as for sale right now: no Clark County tax-sale parcels and no IRS sales in Nevada, California, Arizona or Utah. We re-check the official lists automatically, and parcels appear here as soon as a sale is scheduled and they pass our checks.'}
           </p>
           <p>
             Meanwhile, check the{' '}
             <a href="https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList" target="_blank" rel="noreferrer noopener">
               Treasurer’s official auction list ↗
+            </a>{' '}
+            and the{' '}
+            <a href="https://www.irsauctions.gov/" target="_blank" rel="noreferrer noopener">
+              IRS auction site ↗
             </a>
             .
           </p>

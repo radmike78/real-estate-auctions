@@ -4,6 +4,7 @@
 //  3. every listing passes shape checks and links only to allowlisted official hosts.
 
 import type { Feed, FeedCertificate, FeedFederalSale, FeedListing } from './types';
+import { STATES } from '../lib/regions';
 
 // Official hosts a listing may link to. Mirrors ingest/sources/registry.ts (exact .gov names only).
 export const OFFICIAL_HOSTS = new Set(['treasurer.clarkcountynv.gov']);
@@ -22,9 +23,19 @@ export function isFederalSaleUrl(raw: string): boolean {
   }
 }
 
+/** The four states we cover, and their counties (src/lib/regions.ts). */
+const IRS_COUNTIES: Record<string, string[]> = Object.fromEntries(STATES.map((s) => [s.code, s.counties]));
+// Any county's parcel number, as the IRS notice labels it ("020-120-110", "10767006C", "0310-672-35-0000").
+const ANY_PARCEL = /^\d[0-9A-Z.-]{4,23}$/;
+
+/** Clark County (and older feeds without a place): the Assessor-confirmed rules. Elsewhere: as the IRS lists it. */
+export const isClarkSale = (f: FeedFederalSale) => (f.usState ?? 'NV') === 'NV' && (f.county ?? 'Clark') === 'Clark';
+
 function validFederalSale(f: FeedFederalSale): boolean {
+  if (!f || typeof f !== 'object') return false;
+  const clark = isClarkSale(f);
   return (
-    !!f &&
+    (clark || (typeof f.usState === 'string' && typeof f.county === 'string' && !!IRS_COUNTIES[f.usState]?.includes(f.county))) &&
     f.state === 'AVAILABLE' &&
     typeof f.id === 'string' &&
     /^[a-z0-9-]{3,200}$/.test(f.id) &&
@@ -32,17 +43,18 @@ function validFederalSale(f: FeedFederalSale): boolean {
     Array.isArray(f.apns) &&
     f.apns.length > 0 &&
     f.apns.length <= 20 &&
-    f.apns.every((a) => typeof a === 'string' && APN.test(a)) &&
+    f.apns.every((a) => typeof a === 'string' && (clark ? APN : ANY_PARCEL).test(a)) &&
     shortText(f.address, 120) &&
     shortName(f.city, 60) &&
     typeof f.zip === 'string' &&
-    /^89[01]\d\d$/.test(f.zip) &&
+    (clark ? /^89[01]\d\d$/ : /^(\d{5})?$/).test(f.zip) &&
     (f.saleKind === 'ADMINISTRATIVE' || f.saleKind === 'JUDICIAL') &&
     (f.saleFormat === 'Public auction' || f.saleFormat === 'Sealed bid') &&
     (f.minimumBid === null || (typeof f.minimumBid === 'number' && Number.isFinite(f.minimumBid) && f.minimumBid > 0)) &&
     isDate(f.saleStartsAt) &&
     shortText(f.saleLocation, 200) &&
-    isDate(f.corroboratedAt) &&
+    // Clark County parcels must be confirmed by the Assessor; elsewhere nothing claims they were.
+    (clark ? isDate(f.corroboratedAt) : f.corroboratedAt === null) &&
     isDate(f.lastVerifiedAt) &&
     isDate(f.firstSeenAt) &&
     isFederalSaleUrl(f.sourceUrl) &&

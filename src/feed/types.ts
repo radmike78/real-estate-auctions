@@ -54,7 +54,10 @@ export interface FeedFederalSale {
   sourceId: string;
   id: string; // the ad's slug on irsauctions.gov
   title: string;
-  apns: string[]; // Clark County parcels in the sale, each confirmed by the Assessor
+  /** Where it is. Missing on older feeds: Nevada, Clark County. */
+  usState?: 'NV' | 'CA' | 'AZ' | 'UT';
+  county?: string;
+  apns: string[]; // parcels in the sale; in Clark County each confirmed by the Assessor (corroboratedAt), elsewhere as the IRS lists them
   address: string | null;
   city: string;
   zip: string;
