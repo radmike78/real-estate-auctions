@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AD_TOPICS, topicForPage } from './adTopics';
-import { CAPS, capMessage, capProblem, pickRandom, RESPA_CATEGORIES, topicAllowed, topicCap, topicsFor, type Placement } from './adPlans';
+import { CAPS, capMessage, capProblem, foundingFull, pickRandom, RESPA_CATEGORIES, topicAllowed, topicCap, topicsFor, type Placement } from './adPlans';
 import { LESSONS } from './lessons';
 import { DRILLS } from '../practice/drills';
 import { RENTAL_CASE } from '../practice/rentalCase';
@@ -170,5 +170,18 @@ describe('advertising fields in the directory', () => {
     const nobodyPremium = SAMPLE_PROS.map((p) => ({ ...p, tier: 'standard' as const }));
     expect(searchPros(everyonePremium, Q, at).map((p) => p.id)).toEqual(order);
     expect(searchPros(nobodyPremium, Q, at).map((p) => p.id)).toEqual(order);
+  });
+});
+
+describe('founding cap', () => {
+  const r = (id: string, founding = true, status = 'APPROVED', category: 'agent' | 'cpa' = 'agent') => ({ id, category, founding, status });
+  it('allows up to CAPS.founding per category, counting neither rejected applications nor other categories', () => {
+    expect(CAPS.founding).toBe(2);
+    expect(foundingFull([r('a')], 'new', 'agent')).toBe(false);
+    expect(foundingFull([r('a'), r('b')], 'new', 'agent')).toBe(true);
+    expect(foundingFull([r('a'), r('b')], 'a', 'agent')).toBe(false); // already one of them
+    expect(foundingFull([r('a'), r('b', true, 'REJECTED')], 'new', 'agent')).toBe(false);
+    expect(foundingFull([r('a'), r('b', false)], 'new', 'agent')).toBe(false);
+    expect(foundingFull([r('a', true, 'APPROVED', 'cpa'), r('b', true, 'APPROVED', 'cpa')], 'new', 'agent')).toBe(false);
   });
 });

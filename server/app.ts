@@ -32,7 +32,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { extname, join, normalize, resolve, sep } from 'node:path';
 import type { KeyObject } from 'node:crypto';
 import { approvalBlockers, billingTier, normalizePhone, plain, validateAdLine, validateApplication, validateBilling, type ApplicationInput, type Billing, type LicenseVerification } from '../src/lib/proApplication';
-import { AD_TIERS, capMessage, capProblem, CAPS, isAdTier, TIER_INFO, topicAllowed, topicsFor, type AdTier } from '../src/lib/adPlans';
+import { AD_TIERS, capMessage, capProblem, CAPS, foundingFull, isAdTier, TIER_INFO, topicAllowed, topicsFor, type AdTier } from '../src/lib/adPlans';
 import type { Category } from '../src/lib/pros';
 import { CATEGORIES, isListable, REVERIFY_DAYS } from '../src/lib/pros';
 import { clientKey, newToken, parseCookies, RateLimiter, SESSION_IDLE_MS, SESSION_MAX_MS, safeEqualStrings, sessionCookie, sha256, verifyPasswordAsync } from './auth';
@@ -1247,6 +1247,10 @@ export function createApp(config: AppConfig) {
 
     if (action === 'founding') {
       if (typeof body.founding !== 'boolean') throw new HttpError(400, 'Say whether this is a founding advertiser.');
+      const cat = app.profile.category;
+      if (body.founding && !app.founding && foundingFull(db.list().map((r) => ({ id: r.id, category: r.profile.category, founding: r.founding, status: r.status })), app.id, cat)) {
+        throw new HttpError(409, `There are already ${CAPS.founding} founding advertisers among ${CATEGORIES[cat].plural}. Untick one first to free the spot.`);
+      }
       db.setFounding(app.id, body.founding, now().toISOString());
       audit(app.id, body.founding ? 'FOUNDING_SET' : 'FOUNDING_REMOVED', null);
       return send(res, 200, { ok: true, application: adminView(db.get(app.id)!) });
