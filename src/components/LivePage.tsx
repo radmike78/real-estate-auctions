@@ -221,7 +221,7 @@ export default function LivePage() {
           <h2 id="county-sales-head">Upcoming county tax sales</h2>
           <p>
             Counties post their own property lists for these sales. Open the list on the county’s site to see every property, its parcel number
-            and minimum bid. Properties come off the list right up to the sale as owners pay, so check the county’s latest list before you bid.
+            and minimum bid. Lists change up to the sale as owners pay their taxes, so check the county’s latest list before you bid.
           </p>
           <CountySales sales={upcomingCountySales(new Date(now), { state: myState })} />
         </section>

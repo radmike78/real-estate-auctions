@@ -561,7 +561,7 @@ The first real connector reads the **Clark County Treasurer's delinquent-propert
 Many counties post their tax sale's property list on their own site, and some don't allow automated access to it. DeedOwl doesn't copy these lists. `src/lib/countySales.ts` holds each upcoming sale's dates (sale window, registration deadline, last day owners can pay) and links to the county's sale page and its list. Live tax sales and Find Deals (for that county) show a card for each sale until it ends.
 
 - Every entry is copied by hand from the county treasurer's own page (never an auction company's) and has a `checkedOn` date. Links must be HTTPS on the county's .gov site (`src/lib/countySales.test.ts`), and each one is listed in `src/content/sources.ts`.
-- Now listed: Los Angeles County's 2026B auction (October 17 to 20, 2026) and its December follow-up.
+- Now listed: Los Angeles County's 2026B auction (October 17 to 20, 2026) and its December follow-up; Mohave and Cochise County (Arizona) over-the-counter tax deed land offers; Davis, Utah and Salt Lake County (Utah) May 2027 tax sales.
 
 ### IRS sales (enabled)
 
