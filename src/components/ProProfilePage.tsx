@@ -9,6 +9,8 @@ import PaidAdNotice from './PaidAdNotice';
 import ProAvatar from './ProAvatar';
 import PageHero from './PageHero';
 import EmptyState from './EmptyState';
+import { regulatorFor, shortLicenseLabel } from '../lib/regulators';
+import { countyName, stateByCode } from '../lib/regions';
 
 export default function ProProfilePage({ id }: { id: string }) {
   const { pros, loading } = useDirectory();
@@ -29,6 +31,7 @@ export default function ProProfilePage({ id }: { id: string }) {
     );
   }
   const info = CATEGORIES[p.category];
+  const reg = regulatorFor(p.category, p.state);
   const tel = safeTel(p.phone);
   const mail = safeMailto(p.email);
   const web = safeWebsite(p.website);
@@ -66,7 +69,7 @@ export default function ProProfilePage({ id }: { id: string }) {
             </>
           )}
           <h3>Serves</h3>
-          <p>{p.serviceCities.join(', ')}{p.serviceZips.length ? ` · ZIPs ${p.serviceZips.join(', ')}` : ''}</p>
+          <p>{stateByCode(p.state)?.name}: {p.serviceCounties.map(countyName).join(', ')}{p.serviceCities.length ? ` · ${p.serviceCities.join(', ')}` : ''}{p.serviceZips.length ? ` · ZIPs ${p.serviceZips.join(', ')}` : ''}</p>
           <h3>Languages</h3>
           <p>{p.languages.join(', ')}</p>
         </section>
@@ -78,22 +81,22 @@ export default function ProProfilePage({ id }: { id: string }) {
         {p.isSample ? (
           <aside className="verify-card">
             <h2>Sample profile</h2>
-            <p className="small">This is a fictional example of how a listing will look. There’s no real person or license behind it. Real profiles show a license a person checked on {info.regulator}.</p>
-            <a className="btn btn-secondary" href={info.lookupUrl} target="_blank" rel="noreferrer noopener">Look up a real license on {info.regulator} ↗</a>
+            <p className="small">This is a fictional example of how a listing will look. There’s no real person or license behind it. Real profiles show a license a person checked with {reg.name}.</p>
+            {reg.url && <a className="btn btn-secondary" href={reg.url} target="_blank" rel="noreferrer noopener">Look up a real license on {reg.name} ↗</a>}
           </aside>
         ) : (
         <aside className="verify-card">
           <h2>✓ Verified</h2>
           <dl className="mini">
-            <div><dt>{info.licenseLabel}</dt><dd>{p.licenseId}</dd></div>
+            <div><dt>{p.state === 'NV' ? info.licenseLabel : shortLicenseLabel(p.category, p.state)}</dt><dd>{p.licenseId}</dd></div>
             <div><dt>Status</dt><dd>{p.licenseStatus}</dd></div>
             {p.licenseExpires && <div><dt>Expires</dt><dd>{fmtDate(p.licenseExpires)}</dd></div>}
             <div><dt>Last checked</dt><dd>{fmtDate(p.licenseVerifiedAt)}</dd></div>
           </dl>
           <p className="small">
-            A person checked this on {info.regulator} and confirmed their identity independently. We re-check at least every {REVERIFY_DAYS} days.
+            A person checked this with {reg.name} and confirmed their identity independently. We re-check at least every {REVERIFY_DAYS} days.
           </p>
-          <a className="btn btn-secondary" href={info.lookupUrl} target="_blank" rel="noreferrer noopener">Check it yourself on {info.regulator} ↗</a>
+          {reg.url && <a className="btn btn-secondary" href={reg.url} target="_blank" rel="noreferrer noopener">Check it yourself on {reg.name} ↗</a>}
         </aside>
         )}
         </div>

@@ -11,6 +11,7 @@
 //
 // Prices are never set here: they come from the operator's Stripe configuration (STRIPE_PLANS, server/stripe.ts).
 
+import type { StateCode } from './regions';
 import { AD_TOPICS, adTopicByKey, type AdTopic } from './adTopics';
 import { CATEGORIES, type Category } from './pros';
 
@@ -85,6 +86,8 @@ export const AD_FINE_PRINT = 'Paid ad. DeedOwl checks that advertisers hold an a
 /** One advertiser's current spot: what counts toward the caps. */
 export interface Placement {
   id: string;
+  /** Spots are counted per state (each state has its own advertisers); missing means Nevada. */
+  state?: StateCode;
   category: Category;
   tier: AdTier;
   topic: string | null;
@@ -97,7 +100,7 @@ export type CapProblem = { kind: 'listing' | 'featured' | 'topic'; cap: number }
  * out of the count). Null when it fits.
  */
 export function capProblem(current: Placement[], want: Placement): CapProblem | null {
-  const others = current.filter((p) => p.id !== want.id && p.category === want.category);
+  const others = current.filter((p) => p.id !== want.id && p.category === want.category && (p.state ?? 'NV') === (want.state ?? 'NV'));
   if (others.length >= CAPS.listing) return { kind: 'listing', cap: CAPS.listing };
   if (hasFeaturedBox(want.tier) && others.filter((p) => hasFeaturedBox(p.tier)).length >= CAPS.featured) return { kind: 'featured', cap: CAPS.featured };
   if (want.tier === 'premium_plus' && want.topic) {
@@ -111,8 +114,8 @@ export function capProblem(current: Placement[], want: Placement): CapProblem | 
  * Whether marking advertiser `id` as founding would go over the founding cap for its category. Rejected applications
  * don't count; any other one still marked founding does (untick it to free the spot).
  */
-export function foundingFull(rows: { id: string; category: Category; founding: boolean; status: string }[], id: string, category: Category): boolean {
-  return rows.filter((r) => r.id !== id && r.category === category && r.founding && r.status !== 'REJECTED').length >= CAPS.founding;
+export function foundingFull(rows: { id: string; category: Category; founding: boolean; status: string; state?: StateCode }[], id: string, category: Category, state: StateCode = 'NV'): boolean {
+  return rows.filter((r) => r.id !== id && r.category === category && (r.state ?? 'NV') === state && r.founding && r.status !== 'REJECTED').length >= CAPS.founding;
 }
 
 /** What to tell an advertiser when a spot is full. */

@@ -373,6 +373,8 @@ a.btn { display: inline-block; }
 .field [aria-invalid='true'] { border-color: var(--stop); }
 .field-error { color: var(--stop); font-size: 0.95rem; }
 .check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(210px, 100%), 1fr)); gap: 6px 16px; }
+/* Counties: two columns even on phones (California has 58). */
+.check-grid.county-grid { grid-template-columns: repeat(auto-fill, minmax(min(150px, 45%), 1fr)); }
 .check.attest { align-items: flex-start; }
 .check.attest input { margin-top: 4px; }
 .hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
@@ -2644,6 +2646,11 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .area-options li { padding: 10px 12px; border-radius: 8px; cursor: pointer; }
 .area-options li.on, .area-options li:hover { background: var(--surface-2); }
 .area-county { display: grid; gap: 6px; }
+.apply-form .area-states { border: 0; padding: 0; margin: 0 0 14px; }
+.city-picker { display: grid; gap: 8px; }
+.city-picker .chips { list-style: none; margin: 0; padding: 0; }
+.city-picker .chip { border: 1px solid var(--border); min-height: 36px; padding: 4px 12px; font: inherit; color: var(--text); cursor: pointer; }
+.city-picker .chip:hover { border-color: var(--accent-strong); }
 .area-dialog-head { margin: 4px 0 10px; font-size: 1.15rem; }
 @media (max-width: 640px) { .area-btn { max-width: 34vw; padding: 6px 10px; } }
 /* Narrow phones: just the pin (its label says the area), so the menu button keeps its place. */

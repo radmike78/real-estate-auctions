@@ -47,6 +47,8 @@ const PRO: ApplicationInput = {
   name: 'Robin Photo',
   company: 'Example Inspections',
   licenseId: 'IOS.0012345',
+  state: 'NV',
+  serviceCounties: ['Clark'],
   serviceCities: ['Las Vegas'],
   serviceZips: '',
   services: ['Sewer scope'],

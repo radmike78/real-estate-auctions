@@ -3,9 +3,10 @@
 // signature and expiry before showing any profile, and re-applies every listing rule, so a
 // tampered or stale file can't add a fake professional or swap in a scammer's phone number.
 
+import { stateByCode } from '../lib/regions';
 import { isAdTier, topicAllowed } from '../lib/adPlans';
 import { validateAdLine } from '../lib/proApplication';
-import { CATEGORIES, isListable, safeMailto, safeTel, safeWebsite, type Pro } from '../lib/pros';
+import { isCategory, isListable, safeMailto, safeTel, safeWebsite, type Pro } from '../lib/pros';
 import { checkSignature, isFeedResponse, MAX_FEED_LIFETIME_MS } from './verify';
 
 export interface ProsFeed {
@@ -30,11 +31,13 @@ const strArr = (v: unknown, maxLen: number, maxItems: number) => Array.isArray(v
 export function validPro(p: Pro, now = new Date()): boolean {
   return (
     str(p.id, 64) &&
-    !!CATEGORIES[p.category] &&
+    isCategory(p.category) &&
     str(p.name, 100) &&
     str(p.company, 120) &&
-    str(p.licenseId, 20) &&
-    strArr(p.serviceCities, 40, 10) &&
+    str(p.licenseId, 30) &&
+    (p.state === undefined || !!stateByCode(p.state)) &&
+    (p.serviceCounties === undefined || strArr(p.serviceCounties, 40, 20)) &&
+    strArr(p.serviceCities, 60, 30) &&
     strArr(p.serviceZips, 5, 40) &&
     strArr(p.services, 60, 20) &&
     strArr(p.creditProfiles, 60, 10) &&
@@ -58,7 +61,10 @@ export function sanitizePro(p: Pro): Pro {
   const tier = isAdTier(p.tier) ? p.tier : 'standard';
   const adLine = typeof p.adLine === 'string' && p.adLine.trim() && validateAdLine(p.adLine, p.category) === null ? p.adLine.trim() : null;
   const adTopic = tier === 'premium_plus' && topicAllowed(p.category, p.adTopic) ? p.adTopic : null;
-  return { ...p, tier, adLine, adTopic };
+  // Listings published before advertising opened to other states are Nevada, Clark County.
+  const state = p.state && stateByCode(p.state) ? p.state : 'NV';
+  const serviceCounties = Array.isArray(p.serviceCounties) && p.serviceCounties.length ? p.serviceCounties : state === 'NV' ? ['Clark'] : [];
+  return { ...p, state, serviceCounties, tier, adLine, adTopic };
 }
 
 export async function verifyProsFeed(

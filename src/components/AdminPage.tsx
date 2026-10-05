@@ -3,6 +3,8 @@ import { approvalBlockers, billingTier, type Billing, type LicenseVerification, 
 import { AD_TIERS, CAPS, TIER_INFO, topicsFor, type AdTier } from '../lib/adPlans';
 import { adTopicByKey } from '../lib/adTopics';
 import { CATEGORIES, REVERIFY_DAYS } from '../lib/pros';
+import { regulatorFor } from '../lib/regulators';
+import { countyName, stateByCode } from '../lib/regions';
 import { api, ApiError } from '../lib/api';
 import PageHero from './PageHero';
 import SiteStats from './SiteStats';
@@ -105,7 +107,8 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
   });
   const [err, setErr] = useState<string | null>(null);
   const info = CATEGORIES[app.profile.category];
-  const blockers = approvalBlockers(app.profile.category, v);
+  const reg = regulatorFor(app.profile.category, app.profile.state);
+  const blockers = approvalBlockers(app.profile.category, v, undefined, app.profile.state);
   const set = <K extends keyof LicenseVerification>(k: K, val: LicenseVerification[K]) => setV((x) => ({ ...x, [k]: val }));
   const relisting = app.status === 'APPROVED' || app.status === 'SUSPENDED';
 
@@ -130,17 +133,17 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
       {prev && <p className="small muted">Last verified {fmtDate(prev.verifiedAt)} by {prev.verifiedBy}: {prev.licenseStatus}{prev.licenseExpires ? `, expires ${fmtDate(prev.licenseExpires)}` : ''}.</p>}
       <ol className="small verify-steps">
         <li>
-          Open <a href={info.lookupUrl} target="_blank" rel="noreferrer noopener">{info.regulator} ↗</a> and search for {info.licenseLabel}{' '}
-          <strong>{app.profile.licenseId}</strong>. Record exactly what it shows.
+          {reg.url ? <>Open <a href={reg.url} target="_blank" rel="noreferrer noopener">{reg.name} ↗</a></> : <>Check {reg.name}</>} ({stateByCode(app.profile.state)?.name}) and
+          search for <strong>{app.profile.licenseId}</strong> or the name. Record what it shows.{reg.note && <> {reg.note}</>}
         </li>
         <li>
-          Confirm identity by contacting the <strong>company</strong> using a phone number or email from {info.regulator} or the company's own
+          Confirm identity by contacting the <strong>company</strong> using a phone number or email from {reg.name} or the company's own
           website. <strong>Never use the contact details on this application</strong>, because an impostor would control those.
         </li>
       </ol>
       <div className="form-grid">
         <label className="field">
-          <span>Status on {info.regulator}</span>
+          <span>Status on {reg.name}</span>
           <select value={v.licenseStatus} onChange={(e) => set('licenseStatus', e.target.value as LicenseVerification['licenseStatus'])}>
             {['Active', 'Inactive', 'Expired', 'Revoked', 'Not found'].map((s) => <option key={s}>{s}</option>)}
           </select>
@@ -152,9 +155,9 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
           </label>
         )}
       </div>
-      {box('nameMatches', `Name on ${info.regulator} matches "${app.profile.name}"`)}
+      {box('nameMatches', `Name on ${reg.name} matches "${app.profile.name}"`)}
       {box('typeMatches', app.profile.licenseType ? `License type is ${app.profile.licenseType}` : `License type or classification fits "${info.label}"`)}
-      {box('companyMatches', `${info.regulator} shows them with "${app.profile.company}"`)}
+      {box('companyMatches', `${reg.name} shows them with "${app.profile.company}"`)}
       {box('identityConfirmed', 'I confirmed the applicant is this licensee, using contact details that did not come from this application')}
       {box('contentReviewed', 'I checked the headline, bio and ad line against the content rules, and searched a sentence online to make sure it isn\u2019t copied')}
       {blockers.length > 0 && (
@@ -414,7 +417,7 @@ function Detail({ id, onChange }: { id: string; onChange: () => void }) {
         <div><dt>Phone</dt><dd>{p.phone}</dd></div>
         <div><dt>Email</dt><dd>{p.email} {a.emailConfirmedAt ? '(confirmed)' : '(not confirmed)'}</dd></div>
         <div><dt>Website</dt><dd>{p.website ?? '—'}</dd></div>
-        <div><dt>Serves</dt><dd>{p.serviceCities.join(', ')}{p.serviceZips.length ? ` · ${p.serviceZips.join(', ')}` : ''}</dd></div>
+        <div><dt>Serves</dt><dd>{stateByCode(p.state)?.name}: {p.serviceCounties.map(countyName).join(', ')}{p.serviceCities.length ? ` · ${p.serviceCities.join(', ')}` : ''}{p.serviceZips.length ? ` · ${p.serviceZips.join(', ')}` : ''}</dd></div>
         <div><dt>Headline</dt><dd>{p.headline}</dd></div>
         <div><dt>{CATEGORIES[p.category].financing ? 'Loan types' : 'Services'}</dt><dd>{p.services.join(', ')}</dd></div>
         {p.creditProfiles.length > 0 && <div><dt>Credit situations</dt><dd>{p.creditProfiles.join(', ')}</dd></div>}

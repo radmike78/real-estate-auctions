@@ -1,6 +1,10 @@
-import { useState, type FormEvent, type ReactNode } from 'react';
-import { AD_LINE_RULES, CLARK_COUNTY_CITIES, CONTENT_RULES, LANGUAGES, validateApplication, type ApplicationInput } from '../lib/proApplication';
+import { useEffect, useId, useState, type FormEvent, type ReactNode } from 'react';
+import { AD_LINE_RULES, CONTENT_RULES, LANGUAGES, MAX_SERVICE_CITIES, validateApplication, type ApplicationInput } from '../lib/proApplication';
 import { CATEGORIES, CREDIT_PROFILES, REVERIFY_DAYS, servicesFor, type Category } from '../lib/pros';
+import { getMyState } from '../lib/myState';
+import { loadPlaces, matchPlaces, type Place } from '../lib/places';
+import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
+import { regulatorFor } from '../lib/regulators';
 import PageHero from './PageHero';
 import { api, ApiError } from '../lib/api';
 import EmptyState from './EmptyState';
@@ -8,11 +12,13 @@ import { advertisingOpen, useSiteFeatures } from '../lib/siteFeatures';
 
 type Errors = Partial<Record<keyof ApplicationInput | 'form', string>>;
 
-const blank = (category: string): ApplicationInput => ({
+const blank = (category: string, state: string = getMyState() ?? ''): ApplicationInput => ({
+  state,
   category,
   name: '',
   company: '',
   licenseId: '',
+  serviceCounties: [],
   serviceCities: [],
   serviceZips: '',
   services: [],
@@ -32,11 +38,11 @@ const blank = (category: string): ApplicationInput => ({
   company_url: '',
 });
 
-function CheckGroup({ legend, options, value, onChange, error }: { legend: string; options: readonly string[]; value: string[]; onChange: (v: string[]) => void; error?: string }) {
+function CheckGroup({ legend, options, value, onChange, error, className = '' }: { legend: string; options: readonly string[]; value: string[]; onChange: (v: string[]) => void; error?: string; className?: string }) {
   return (
     <fieldset className="field">
       <legend>{legend}</legend>
-      <div className="check-grid">
+      <div className={`check-grid ${className}`.trim()}>
         {options.map((o) => (
           <label key={o} className="check">
             <input type="checkbox" checked={value.includes(o)} onChange={() => onChange(value.includes(o) ? value.filter((x) => x !== o) : [...value, o])} />
@@ -46,6 +52,74 @@ function CheckGroup({ legend, options, value, onChange, error }: { legend: strin
       </div>
       {error && <div className="field-error">{error}</div>}
     </fieldset>
+  );
+}
+
+/** Optional cities or towns, picked from the Census list for the state (src/data/places). */
+function CityPicker({ state, counties, value, onChange, error }: { state: StateCode; counties: string[]; value: string[]; onChange: (v: string[]) => void; error?: string }) {
+  const [places, setPlaces] = useState<Place[] | null>(null);
+  const [typed, setTyped] = useState('');
+  const [active, setActive] = useState(0);
+  const listId = useId();
+  useEffect(() => {
+    let alive = true;
+    setPlaces(null);
+    loadPlaces(state).then((p) => alive && setPlaces(p));
+    return () => {
+      alive = false;
+    };
+  }, [state]);
+  // Places in the counties they chose (all of the state's until they choose any), not already picked.
+  const pool = (places ?? []).filter((p) => !value.includes(p.name) && (!counties.length || p.counties.some((c) => counties.includes(c))));
+  const matches = matchPlaces(pool, typed);
+  const add = (p: Place) => {
+    if (value.length < MAX_SERVICE_CITIES) onChange([...value, p.name]);
+    setTyped('');
+    setActive(0);
+  };
+  return (
+    <div className="field city-picker">
+      <label htmlFor={`${listId}-in`}>Cities or towns you serve <span className="muted">(optional, up to {MAX_SERVICE_CITIES})</span></label>
+      {value.length > 0 && (
+        <ul className="chips" aria-label="Cities you chose">
+          {value.map((c) => (
+            <li key={c}><button type="button" className="chip on" onClick={() => onChange(value.filter((x) => x !== c))} aria-label={`Remove ${c}`}>{c} ✕</button></li>
+          ))}
+        </ul>
+      )}
+      <input
+        id={`${listId}-in`}
+        role="combobox"
+        aria-expanded={matches.length > 0}
+        aria-controls={listId}
+        aria-autocomplete="list"
+        aria-activedescendant={matches.length ? `${listId}-${active}` : undefined}
+        autoComplete="off"
+        disabled={!places || value.length >= MAX_SERVICE_CITIES}
+        placeholder={places ? 'Start typing a city or town' : 'Loading cities…'}
+        value={typed}
+        onChange={(e) => { setTyped(e.target.value); setActive(0); }}
+        onKeyDown={(e) => {
+          if (!matches.length) return;
+          if (e.key === 'ArrowDown') { e.preventDefault(); setActive((i) => Math.min(i + 1, matches.length - 1)); }
+          else if (e.key === 'ArrowUp') { e.preventDefault(); setActive((i) => Math.max(i - 1, 0)); }
+          else if (e.key === 'Enter') { e.preventDefault(); add(matches[active]); }
+          else if (e.key === 'Escape') { e.stopPropagation(); setTyped(''); }
+        }}
+      />
+      {matches.length > 0 && (
+        <ul id={listId} role="listbox" className="area-options">
+          {matches.map((p, i) => (
+            <li key={`${p.name}-${p.counties.join()}`} id={`${listId}-${i}`} role="option" aria-selected={i === active}
+              className={i === active ? 'on' : ''} onMouseDown={(e) => { e.preventDefault(); add(p); }}>
+              <strong>{p.name}</strong> <span className="muted">{p.counties.map(countyName).join(' and ')}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <small className="muted">Leave this empty if you serve whole counties.</small>
+      {error && <span className="field-error">{error}</span>}
+    </div>
   );
 }
 
@@ -70,6 +144,9 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
   const [done, setDone] = useState<string | null>(null);
   const set = <K extends keyof ApplicationInput>(k: K, v: ApplicationInput[K]) => setF((x) => ({ ...x, [k]: v }));
   const info = CATEGORIES[f.category as Category];
+  const st = stateByCode(f.state);
+  const state = (st?.code ?? 'NV') as StateCode;
+  const reg = info ? regulatorFor(f.category as Category, state) : null;
   const isAgent = f.category === 'agent';
   const features = useSiteFeatures();
 
@@ -123,7 +200,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
         <PageHero compact title="Check your email" />
         <p>{done}</p>
         <p className="muted">
-          After you confirm, we check your license on {info?.regulator ?? 'the regulator lookup'} and confirm your identity. Then we set up your
+          After you confirm, we check your license on {reg?.name ?? 'the regulator lookup'} and confirm your identity. Then we set up your
           advertising plan. Your profile goes live when both steps are complete.
         </p>
         <a href="#/advertise">Back to advertising</a>
@@ -131,14 +208,16 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
     );
   }
 
-  const pick = (c: string) => setF({ ...blank(c), name: f.name, company: f.company, phone: f.phone, email: f.email, website: f.website });
+  const pick = (c: string) => setF({ ...blank(c, f.state), name: f.name, company: f.company, phone: f.phone, email: f.email, website: f.website, serviceCounties: f.serviceCounties, serviceCities: f.serviceCities });
+  // A new state clears the counties and cities picked in the old one.
+  const pickState = (code: string) => { if (code !== f.state) setF((x) => ({ ...x, state: code, serviceCounties: [], serviceCities: [] })); };
   const has = (k: keyof ApplicationInput) => !!errors[k];
   // Each section: whether it's filled in, and whether it has an error, for the progress menu.
   const sections: { id: string; label: string; done: boolean; bad: boolean }[] = [
-    { id: 'apply-type', label: 'Type of business', done: !!info, bad: has('category') },
+    { id: 'apply-type', label: 'State & business', done: !!info && !!st, bad: has('category') || has('state') },
     { id: 'apply-license', label: 'License', done: !!(f.name && f.company && f.licenseId), bad: has('name') || has('company') || has('licenseId') },
     { id: 'apply-offer', label: 'What you offer', done: !!f.headline && f.services.length > 0 && (!info?.financing || f.creditProfiles.length > 0), bad: has('headline') || has('services') || has('creditProfiles') },
-    { id: 'apply-areas', label: 'Areas & languages', done: f.serviceCities.length > 0 && f.languages.length > 0, bad: has('serviceCities') || has('serviceZips') || has('languages') },
+    { id: 'apply-areas', label: 'Areas & languages', done: f.serviceCounties.length > 0 && f.languages.length > 0, bad: has('serviceCounties') || has('serviceCities') || has('serviceZips') || has('languages') },
     { id: 'apply-contact', label: 'Contact details', done: !!(f.phone && f.email) && f.bio.length >= 30, bad: has('phone') || has('email') || has('website') || has('bio') || has('adLine') },
     { id: 'apply-confirm', label: 'Confirm & submit', done: f.attestLicensed && f.attestAccurate && f.consentVerification && f.attestOriginal && f.attestAdvertising, bad: has('attestLicensed') || has('attestAccurate') || has('consentVerification') || has('attestOriginal') || has('attestAdvertising') },
   ];
@@ -155,7 +234,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
           <ol>
             {sections.map((x, i) => (
               <li key={x.id}>
-                <button type="button" className={`${x.done ? 'done' : ''}${x.bad ? ' bad' : ''}`} onClick={() => go(x.id)} disabled={i > 0 && !info}>
+                <button type="button" className={`${x.done ? 'done' : ''}${x.bad ? ' bad' : ''}`} onClick={() => go(x.id)} disabled={i > 0 && !(info && st)}>
                   <span className="apply-nav-num" aria-hidden>{x.bad ? '!' : x.done ? '✓' : i + 1}</span>
                   {x.label}
                 </button>
@@ -173,36 +252,44 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
             <label>Company URL <input tabIndex={-1} autoComplete="off" value={f.company_url} onChange={(e) => set('company_url', e.target.value)} /></label>
           </div>
 
-          <Card n={1} id="apply-type" title="What kind of business are you?" sub="Pick one. The rest of the form adjusts to your license type.">
+          <Card n={1} id="apply-type" title="Where you work and what you do" sub="Pick your state, then your kind of business. The rest of the form adjusts.">
+            <fieldset className="field area-states" aria-invalid={has('state')}>
+              <legend>State you’re licensed in and advertise to</legend>
+              {STATES.map((s) => (
+                <button key={s.code} type="button" aria-pressed={f.state === s.code} className={f.state === s.code ? 'on' : ''} onClick={() => pickState(s.code)}>
+                  {s.name}
+                </button>
+              ))}
+            </fieldset>
+            {errors.state && <span className="field-error">{errors.state}</span>}
             <div className="type-grid" role="radiogroup" aria-label="Type of business" aria-invalid={has('category')}>
               {(Object.keys(CATEGORIES) as Category[]).map((c) => (
                 <label key={c} className={`type-option${f.category === c ? ' on' : ''}`}>
                   <input type="radio" name="category" value={c} checked={f.category === c} onChange={() => pick(c)} />
                   <strong>{CATEGORIES[c].label}</strong>
-                  <span>Verified on {CATEGORIES[c].regulator}</span>
+                  {st && <span>{regulatorFor(c, state).url ? 'Verified on' : 'Verified with'} {regulatorFor(c, state).name}</span>}
                 </label>
               ))}
             </div>
             {errors.category && <span className="field-error">{errors.category}</span>}
-            {info && (
+            {info && reg && st && (
               <div className="notice" role="note">
-                We verify your {info.licenseLabel.replace(/^(Individual|Company) /, (w) => w.toLowerCase())} on{' '}
-                <a href={info.lookupUrl} target="_blank" rel="noreferrer noopener">{info.regulator} ↗</a>, and confirm your identity using contact
-                details we find independently. We re-check every {REVERIFY_DAYS} days.
+                {reg.url ? <>We check your license or registration on <a href={reg.url} target="_blank" rel="noreferrer noopener">{reg.name} ↗</a></> : <>We check {reg.name}</>}, and confirm your identity using
+                contact details we find independently. We re-check every {REVERIFY_DAYS} days.
               </div>
             )}
-            {info?.advertisingNote && (
+            {state === 'NV' && info?.advertisingNote && (
               <div className="caution" role="note"><strong>Advertising rule:</strong> {info.advertisingNote}</div>
             )}
           </Card>
 
-          {info && (
+          {info && st && (
             <>
               <Card n={2} id="apply-license" title="License" sub="Exactly as it appears on your license.">
                 <div className="form-grid">
                   {text('name', isAgent || f.category === 'loan_officer' || f.category === 'insurance' || info.individual ? 'Your full name (as licensed)' : 'Business name (as licensed)', { autoComplete: 'name' })}
                   {text('company', isAgent ? 'Brokerage' : 'Company or employer', { autoComplete: 'organization' })}
-                  {text('licenseId', info.licenseLabel, { placeholder: info.licenseHint, autoCapitalize: 'characters' })}
+                  {text('licenseId', 'License, registration or ID number', { placeholder: state === 'NV' ? info.licenseHint : 'As the regulator shows it', autoCapitalize: 'characters', maxLength: 30 })}
                 </div>
               </Card>
 
@@ -215,8 +302,10 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
               </Card>
 
               <Card n={4} id="apply-areas" title="Areas & languages" sub="Where you work, and the languages you can help buyers in.">
-                <CheckGroup legend="Cities and areas you serve" options={CLARK_COUNTY_CITIES} value={f.serviceCities} onChange={(v) => set('serviceCities', v)} error={errors.serviceCities} />
-                {text('serviceZips', 'ZIP codes (optional)', { placeholder: '89123, 89052', inputMode: 'numeric' })}
+                <CheckGroup legend={`Counties you serve in ${st.name}`} options={st.counties.map(countyName)} value={f.serviceCounties.map(countyName)}
+                  onChange={(v) => set('serviceCounties', st.counties.filter((c) => v.includes(countyName(c))))} error={errors.serviceCounties} className="county-grid" />
+                <CityPicker state={state} counties={f.serviceCounties} value={f.serviceCities} onChange={(v) => set('serviceCities', v)} error={errors.serviceCities} />
+                {text('serviceZips', 'ZIP codes (optional)', { placeholder: 'e.g. 85004, 85251', inputMode: 'numeric' })}
                 <CheckGroup legend="Languages" options={LANGUAGES} value={f.languages} onChange={(v) => set('languages', v)} error={errors.languages} />
               </Card>
 
@@ -251,9 +340,9 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
               <Card n={6} id="apply-confirm" title="Confirm & submit" sub="Tick each box to confirm.">
                 {(
                   [
-                    ['attestLicensed', `I hold an active ${info.licenseLabel.replace(/ number| ID/i, '')} and I'm authorized to advertise for the company named above.`],
+                    ['attestLicensed', `I hold an active license or registration for this work in ${st.name}, and I'm authorized to advertise for the company named above.`],
                     ['attestAccurate', "The information above is accurate, and I'll tell you if my license, company or contact details change."],
-                    ['consentVerification', `I consent to verification with ${info.regulator} and to you contacting my company to confirm my identity.`],
+                    ['consentVerification', `I consent to verification with ${reg?.name ?? 'the regulator'} and to you contacting my company to confirm my identity.`],
                     ['attestOriginal', "Everything I submit, now or later, is my own original work or material I have written permission to use. I haven't copied text, images or logos from anyone else without permission, and my profile follows the content rules above. I'm responsible for my content and will cover DeedOwl's costs if someone makes a claim because of it. DeedOwl may edit or remove any content."],
                     ['attestAdvertising', "I understand this is paid advertising. Every listed professional appears in the directory list in the same fair rotating order, whatever plan they choose; paid plans add separate boxes labeled as ads. DeedOwl isn't a party to any transaction and receives no referral fees. I'll follow all laws that apply to my services and to contacting consumers. I agree to the Terms of Use, including the Advertiser terms, and the Privacy Policy."],
                   ] as const

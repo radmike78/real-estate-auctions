@@ -1,6 +1,6 @@
 // Beside a Learn or Practice topic: our own short, unpaid editorial block about hiring that kind of professional,
-// then (for Nevada visitors, or visitors who haven't picked a state) one labeled advertiser box in the advertiser's
-// own voice. The two are kept visually apart, and the editorial never names or points to the advertiser.
+// then one labeled advertiser box in the advertiser's own voice (an advertiser in the visitor's state, when they've
+// picked one). The two are kept visually apart, and the editorial never names or points to the advertiser.
 // Placed after a lesson's explanation, a drill's verdict or a finished practice-case step: never inside a question,
 // its answer choices or its feedback.
 import { useMemo } from 'react';
@@ -11,7 +11,7 @@ import { useMyState } from '../lib/myState';
 import { proGuideByKey } from '../lib/proGuide';
 import { isListable, type Pro } from '../lib/pros';
 import { stateByCode, type StateCode } from '../lib/regions';
-import { AdCard, useAdImpressions } from './AdBoxes';
+import { AdCard, inState, useAdImpressions } from './AdBoxes';
 import { useDirectory } from './ProDirectory';
 
 function LicenseLinks({ topic, state }: { topic: AdTopic; state: StateCode }) {
@@ -59,8 +59,6 @@ function TopicHelp({ topic }: { topic: AdTopic }) {
   const [st] = useMyState();
   const { pros } = useDirectory();
   const e = topic.editorial;
-  // The directory is Nevada-only for now: other states' visitors get the editorial block only.
-  const showAd = !st || st === 'NV';
   return (
     <section className="topic-help" aria-labelledby={`topic-help-${topic.key}`}>
       <h2 id={`topic-help-${topic.key}`}>{e.heading}</h2>
@@ -70,13 +68,11 @@ function TopicHelp({ topic }: { topic: AdTopic }) {
           <ul>{e.questions.map((q) => <li key={q}>{q}</li>)}</ul>
           <LicenseLinks topic={topic} state={st ?? 'NV'} />
           {!st && <p className="small muted">Investing in California, Arizona or Utah? <a href="#/pros">Your team</a> lists each state’s license lookups.</p>}
-          {showAd && (
-            <p className="topic-help-dir">
-              {e.directories.map((d, i) => <span key={d.href}>{i > 0 && ' · '}<a href={d.href}>{d.label} →</a></span>)}
-            </p>
-          )}
+          <p className="topic-help-dir">
+            {e.directories.map((d, i) => <span key={d.href}>{i > 0 && ' · '}<a href={d.href}>{d.label} →</a></span>)}
+          </p>
         </div>
-        {showAd && <TopicAdBox topic={topic} pros={pros} />}
+        <TopicAdBox topic={topic} pros={inState(pros, st)} />
       </div>
     </section>
   );
