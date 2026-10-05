@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { AreaButton } from './AreaPicker';
 import { loadDeals, onDealsChange } from '../lib/deals';
 import { useSiteFeatures } from '../lib/siteFeatures';
 import { currentProgress, GUIDED, guidedNext, setMode, useJourney } from '../lib/journey';
@@ -140,6 +141,7 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
           <a href={nextStep.step.href} className="nav-cta" title={`Getting started, step ${nextStep.n}: ${nextStep.step.label}`}>Getting started: {nextStep.n} of {GUIDED.length}</a>
         ) : null /* No "Start here" button: it only led back to the home page, which the logo already does. */}
       </nav>
+      <AreaButton />
       <ThemeButton />
       <button ref={menuBtn} className="menu-btn" aria-expanded={open} aria-controls="site-nav" aria-label="Menu" onClick={() => setOpen(!open)}>
         <span /><span /><span />

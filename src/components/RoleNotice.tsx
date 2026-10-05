@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { AreaPicker } from './AreaPicker';
 
 const KEY = 'fsf.role-ack.v1';
 
@@ -19,7 +20,8 @@ export default function RoleNotice() {
   const [home] = useState(() => window.location.pathname === '/' && !window.location.hash.startsWith('#/'));
   useEffect(() => {
     if (!open || !home) return;
-    btn.current?.focus();
+    // Start on "Where are you buying?": the first state button.
+    (dialog.current?.querySelector<HTMLElement>(".area-states button") ?? btn.current)?.focus();
     // A modal keeps the keyboard inside it: Tab cycles through its own links and buttons, Escape closes it.
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') return close();
@@ -68,10 +70,10 @@ export default function RoleNotice() {
           <li><strong>Follow the steps</strong> with guides, checklists and a free bid calculator.</li>
           <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney, tax advisor, agent and financial advisor before you bid, buy or borrow.</li>
         </ul>
-        <div className="row">
-          <button ref={btn} className="btn big" onClick={close}>Get started</button>
-          <a href="#/about" onClick={close}>How DeedOwl works &amp; the details</a>
-        </div>
+        {/* Where they're buying, so the rules, official sources and professionals they see are local. */}
+        <h3 className="area-dialog-head">Where are you buying?</h3>
+        <AreaPicker onDone={close} doneLabel="Get started" extra={<button ref={btn} type="button" className="btn btn-secondary" onClick={close}>Skip for now</button>} />
+        <p className="small"><a href="#/about" onClick={close}>How DeedOwl works &amp; the details</a></p>
       </div>
     </div>
   );
