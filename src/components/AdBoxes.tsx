@@ -86,13 +86,15 @@ export function FeaturedAds({ pros: all, categories, placeholder = false }: { pr
 }
 
 /**
- * The rotating ad at the top of the Your Team page: one Spotlight or Mentor Connect advertiser from any category,
+ * The rotating ad at the top of the Your Team page, and (with `categories`) beside a matching step on My plan and
+ * Analyze a deal (contextAds.ts): one Spotlight or Mentor Connect advertiser from any category (or those categories),
  * picked at random on each page view. Labeled "Advertisement" with the same fine print; nothing when no one qualifies.
  */
-export function RotatingAd({ pros: all, placeholder = false }: { pros: Pro[]; placeholder?: boolean }) {
+export function RotatingAd({ pros: all, placeholder = false, categories }: { pros: Pro[]; placeholder?: boolean; categories?: Category[] }) {
   const [area] = useMyArea();
   const pros = inArea(all, area);
-  const pool = pros.filter((p) => hasFeaturedBox(p.tier) && isListable(p)).map((p) => p.id).join();
+  // `categories`: only these kinds of professionals (the "at the moment you need one" spots, contextAds.ts).
+  const pool = pros.filter((p) => hasFeaturedBox(p.tier) && isListable(p) && (!categories || categories.includes(p.category))).map((p) => p.id).join();
   const shown = useMemo(() => pickRandom(pros.filter((p) => pool.split(',').includes(p.id)), 1), [pool]); // eslint-disable-line react-hooks/exhaustive-deps
   useAdImpressions(shown);
   if (!shown.length) return placeholder ? <AdSpace kind="Advertisement" /> : null;

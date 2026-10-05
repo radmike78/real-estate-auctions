@@ -12,6 +12,9 @@ import CheckFold from './CheckFold';
 import { linkLabel } from '../lib/linkLabel';
 import { investorProfile } from '../lib/myPlan';
 import { fmtMoney } from '../lib/status';
+import { analyzeAdCategories } from '../lib/contextAds';
+import { RotatingAd } from './AdBoxes';
+import { useDirectory } from './ProDirectory';
 
 const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake' };
 const CURRENT = CURRENT_KEY;
@@ -141,6 +144,10 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     if (deal.id === id) setDeal(blank(deal.state));
   };
 
+  // The "at the moment you need one" ad beside What's next (contextAds.ts).
+  const { pros } = useDirectory();
+  const adCats = analyzeAdCategories(deal.kind, deal.plan);
+
   return (
     <main className="page analyze">
       <PageHero
@@ -239,6 +246,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       </CalcRegion.Provider>
 
       {/* One clear next step once the numbers are in: keep the deal, then follow the buying steps for this kind of sale. */}
+      <div className={adCats.length ? 'next-with-ad' : undefined}>
       <section className="analyze-next" aria-labelledby="analyze-next-head">
         <h2 id="analyze-next-head">4. What’s next</h2>
         <p>Numbers work, and every checklist item above has an answer? Save the deal so you can come back to it, then follow the “Buy it” steps for this kind of sale in My plan.</p>
@@ -248,6 +256,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           <a href="#/toolkit">Your buying steps in My plan →</a>
         </div>
       </section>
+      {/* One labeled ad from the kind of professional this plan needs (listings and bank-owned homes only). */}
+      {adCats.length > 0 && <RotatingAd pros={pros} categories={adCats} placeholder />}
+      </div>
     </main>
   );
 }
