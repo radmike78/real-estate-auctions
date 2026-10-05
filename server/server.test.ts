@@ -89,7 +89,7 @@ describe('application validation', () => {
     expect(approvalBlockers('agent', VERIFIED as never, '2026-09-25')).toEqual([]);
     expect(approvalBlockers('agent', { ...VERIFIED, licenseExpires: null } as never, '2026-09-25')).toHaveLength(1);
     expect(approvalBlockers('bank', { ...VERIFIED, licenseExpires: null } as never, '2026-09-25')).toEqual([]);
-    expect(approvalBlockers('agent', { ...VERIFIED, identityConfirmed: false, identityMethod: 'ok' } as never, '2026-09-25')).toHaveLength(2);
+    expect(approvalBlockers('agent', { ...VERIFIED, identityConfirmed: false } as never, '2026-09-25')).toHaveLength(1);
     expect(approvalBlockers('agent', { ...VERIFIED, contentReviewed: false } as never, '2026-09-25')).toEqual(['Check the headline, bio and ad line against the content rules.']);
   });
 

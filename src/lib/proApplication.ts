@@ -236,7 +236,8 @@ export interface LicenseVerification {
   companyMatches: boolean; // regulator shows them with this company / brokerage
   identityConfirmed: boolean; // confirmed the applicant IS this licensee
   contentReviewed: boolean; // headline, bio and ad line checked against CONTENT_RULES
-  identityMethod: string; // how, using contact details NOT taken from the application
+  /** Older approvals recorded how identity was confirmed; the admin's checkbox is enough now. */
+  identityMethod?: string;
 }
 
 export function approvalBlockers(category: Category, v: Partial<LicenseVerification>, today = new Date().toISOString().slice(0, 10)): string[] {
@@ -252,7 +253,6 @@ export function approvalBlockers(category: Category, v: Partial<LicenseVerificat
   if (!v.companyMatches) out.push(`Confirm ${info.regulator} shows them with this company.`);
   if (!v.identityConfirmed) out.push('Confirm the applicant is the licensee, using contact details that did not come from the application.');
   if (!v.contentReviewed) out.push('Check the headline, bio and ad line against the content rules.');
-  if (plain(v.identityMethod, 300).length < 15) out.push('Describe how identity was confirmed (at least 15 characters).');
   return out;
 }
 
