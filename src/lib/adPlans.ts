@@ -25,7 +25,7 @@ export const TIER_INFO: Record<AdTier, { label: string; includes: string[]; badg
   },
   premium: {
     label: 'Spotlight',
-    includes: ['Everything in Rotating', 'A separate box labeled “Featured ad” on your category’s directory pages, above the list'],
+    includes: ['Everything in Rotating', 'A separate box labeled “Featured ad” on your category’s directory pages, above the list', 'A turn in the rotating ad at the top of the Your Team page'],
   },
   premium_plus: {
     label: 'Mentor Connect',
