@@ -5,7 +5,7 @@
 export const SITE_INFO = {
   siteName: 'DeedOwl',
   /** The legal name of the business that runs the site (LLC, corporation or sole proprietor). */
-  operatorName: '[Legal business name]',
+  operatorName: 'MRAD Software Solutions LLC',
   /** Where people send privacy requests, including requests not to sell their information (NRS 603A.345). */
   privacyEmail: '[privacy@your-domain]',
   /** General contact for questions about the Terms. */
@@ -25,5 +25,5 @@ export const LEGAL_REVIEWED = false;
 /** True while any placeholder above is still in brackets. */
 export const hasPlaceholders = () => Object.values(SITE_INFO).some((v) => /^\[.*\]$/.test(v));
 
-/** The name emails sign off with: the business name once it's set, otherwise the site's name (never a placeholder). */
-export const senderName = () => (/^\[.*\]$/.test(SITE_INFO.operatorName) ? SITE_INFO.siteName : SITE_INFO.operatorName);
+/** The name emails sign off with: the brand, with the business behind it once that's set (never a placeholder). */
+export const senderName = () => (/^\[.*\]$/.test(SITE_INFO.operatorName) ? SITE_INFO.siteName : `${SITE_INFO.siteName} (${SITE_INFO.operatorName})`);
