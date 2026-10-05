@@ -24,3 +24,6 @@ export const LEGAL_REVIEWED = false;
 
 /** True while any placeholder above is still in brackets. */
 export const hasPlaceholders = () => Object.values(SITE_INFO).some((v) => /^\[.*\]$/.test(v));
+
+/** The name emails sign off with: the business name once it's set, otherwise the site's name (never a placeholder). */
+export const senderName = () => (/^\[.*\]$/.test(SITE_INFO.operatorName) ? SITE_INFO.siteName : SITE_INFO.operatorName);

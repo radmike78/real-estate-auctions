@@ -37,7 +37,6 @@ import { loadPrivateKey } from '../ingest/lib/sign';
 import { createApp } from './app';
 import { consoleMailer, postmarkMailer, resendMailer, type Mailer } from './mailer';
 import { createStripeClient, parsePlans } from './stripe';
-import { SITE_INFO } from '../src/lib/siteInfo';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const env = process.env;
@@ -125,10 +124,8 @@ if (resendKey || postmarkToken || env.MAIL_FROM) {
   console.log('Email off: messages are written to this log (set RESEND_API_KEY or POSTMARK_SERVER_TOKEN, and MAIL_FROM, to send them).');
 }
 
-// Every email names the business that sent it.
-if (/^\[.*\]$/.test(SITE_INFO.operatorName)) {
-  console.warn('WARNING: set operatorName in src/lib/siteInfo.ts. Every email shows your business name.');
-}
+// Emails sign off with the business name once it's set, and with the site's name until then. Only updates to the
+// general email list need the legal name (with a postal address); the admin page says so before they can be sent.
 
 const dbPath = env.DB_PATH ?? join(ROOT, 'server', 'data', 'app.db');
 if (env.BROADCAST_DAILY_MAX !== undefined && env.BROADCAST_DAILY_MAX.trim() !== '') {

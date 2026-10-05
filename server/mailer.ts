@@ -6,7 +6,7 @@ import { randomUUID } from 'node:crypto';
 import type { LeadRow } from './db';
 import type { Change, ListingSnapshot } from './tracker';
 import { labelOf } from './tracker';
-import { SITE_INFO } from '../src/lib/siteInfo';
+import { senderName, SITE_INFO } from '../src/lib/siteInfo';
 
 export interface Mail {
   to: string;
@@ -291,7 +291,7 @@ export function leadReceiptEmail(to: string, proName: string): Mail {
 // ---------------- email alerts ----------------
 
 /** Who sent it: the business name. Alerts and confirmations carry no postal address. */
-const senderLine = () => `${SITE_INFO.operatorName}\n`;
+const senderLine = () => `${senderName()}\n`;
 
 /** Every alert email ends with how to manage or stop them, and who sent it. */
 function alertsFooter(manageUrl: string, unsubscribeUrl: string): string {
