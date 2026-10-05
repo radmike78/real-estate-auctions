@@ -524,8 +524,10 @@ For GitOps, point [Argo CD / OpenShift GitOps](https://argo-cd.readthedocs.io/) 
 ## Live data
 
 **Other sources, not connected yet** (details and ready-to-send requests in [docs/data-access-requests.md](docs/data-access-requests.md)):
-- **HUD Home Store** (HUD-owned homes). Its robots.txt disallows all automated access and it has no public feed, so the Bank-owned checklist links to HUD's own Nevada search instead. A connector will be built only with HUD's written permission or an approved feed.
+- **HUD Home Store** (HUD-owned homes). Its robots.txt disallows all automated access and it has no public feed, so the Bank-owned page and checklist link to HUD's own search instead. A connector will be built only with HUD's written permission or an approved feed.
 - **Clark County Recorder** (notices of default and sale, and trustee's deeds that show a home became bank-owned). Available as the Recorder's official Official Record Indexes (FTP) subscription. Needed for real pre-foreclosure and bank-owned data.
+- **Los Angeles County Treasurer and Tax Collector** (tax-defaulted property auctions). The auction list is a public PDF, but the site's reuse terms are unclear, so a connector stays off until the terms are reviewed or the county confirms in writing.
+- **Salt Lake County Auditor** (May tax sale). The county's copyright page requires written permission to republish, so nothing is collected until it's granted.
 
 
 The first real connector reads the **Clark County Treasurer's delinquent-property (trustee) auction** at <https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList>. It uses the county's own data endpoints for auction sessions and parcels. Each parcel is cross-checked against the Assessor's parcel records on a separate county server. See [SECURITY.md](SECURITY.md) for how sources are authenticated, kept current and protected against spoofing.
