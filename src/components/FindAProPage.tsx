@@ -3,7 +3,7 @@ import PageHero from './PageHero';
 import DrillDown, { type DrillSection } from './DrillDown';
 import TeamList from './TeamList';
 import ProDirectory, { useDirectory } from './ProDirectory';
-import { FeaturedAds, RotatingAd } from './AdBoxes';
+import { AdSpace, FeaturedAds, RotatingAd } from './AdBoxes';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
 import { guidesFor } from '../lib/playbooks';
@@ -53,7 +53,8 @@ function GuideBody({ g }: { g: ProGuide }) {
   // Mentor Connect advertiser in this role's categories.
   // The Featured ad spot beside "What to say" (Nevada or no state picked): an advertiser when there is one, otherwise a
   // placeholder that keeps the spot.
-  const sideAd = !!g.directory && (!st || st === 'NV') && !!PRO_SCRIPTS[g.key];
+  const sideAd = !!g.directory && !!PRO_SCRIPTS[g.key];
+  const nevada = !st || st === 'NV'; // advertisers are Nevada-only for now; other states get a held spot
   return (
     <div className="pro-guide">
       {/* One short role summary, then the practical part (when, how to find, what to ask, with the Featured ad box beside
@@ -95,7 +96,7 @@ function GuideBody({ g }: { g: ProGuide }) {
             )}
           </div>
           {sideAd ? (
-            <FeaturedAds pros={pros} categories={g.directory!} placeholder />
+            nevada ? <FeaturedAds pros={pros} categories={g.directory!} placeholder /> : <AdSpace kind="Featured ad" state={st} />
           ) : PRO_SCRIPTS[g.key].read && (
             <div>
               <h3>{PRO_SCRIPTS[g.key].read!.title}</h3>
@@ -161,7 +162,7 @@ export default function FindAProPage({ section }: { section?: string }) {
   const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
   const [mine, setMine] = useMyState();
   const { pros } = useDirectory();
-  const showAd = !mine || mine === 'NV';
+  const nevada = !mine || mine === 'NV'; // advertisers are Nevada-only for now; other states get a held spot
   const book = guidesFor(mine).find((p) => p.key === sale);
   const team = book
     ? book.team
@@ -181,14 +182,15 @@ export default function FindAProPage({ section }: { section?: string }) {
       {build && <TeamBuilder />}
       {all && (
         // "Not sure where to start?" beside the rotating ad spot (Nevada or no state picked: the directory is Nevada-only),
-        // held by a placeholder while no advertiser fills it. On narrow screens it drops below; other states get the full width.
-        <div className={`hub-top${showAd ? ' with-ad' : ''}`}>
+        // held by a placeholder while no advertiser fills it. On narrow screens it drops below. Other states see the spot marked
+        // "Coming soon" (advertisers are Nevada-only for now).
+        <div className="hub-top with-ad">
           <section className="not-sure" aria-labelledby="not-sure-head">
             <h2 id="not-sure-head">Not sure where to start?</h2>
             <p>Answer five quick questions about what you want to buy and how, and we’ll narrow this down to the professionals you need, and why. If you’re not sure of an answer, we’ll suggest one.</p>
             <a className="btn" href="#/pros/build">Help me choose →</a>
           </section>
-          {showAd && <RotatingAd pros={pros} placeholder />}
+          {nevada ? <RotatingAd pros={pros} placeholder /> : <AdSpace kind="Advertisement" state={mine} />}
         </div>
       )}
       {all && (
