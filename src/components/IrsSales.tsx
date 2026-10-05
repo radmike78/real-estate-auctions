@@ -3,16 +3,13 @@ import { isClarkSale, isFederalSaleUrl } from '../feed/verify';
 import { COUNTY_OFFICES } from '../lib/countyOffices';
 import { countyKey } from '../lib/findDeals';
 import { useMyState } from '../lib/myState';
-import { countyName, stateByCode, type StateCode } from '../lib/regions';
+import { countyName, stateByCode, timeZoneFor, type StateCode } from '../lib/regions';
 import { irsId } from '../feed/toProperty';
 import { fmtDateTime, fmtMoney } from '../lib/status';
 import TrackButton from './TrackButton';
 
-/** Sale times show in the sale's own local time. Arizona doesn't observe daylight saving time. */
-const SALE_TIME_ZONE: Record<StateCode, string> = { NV: 'America/Los_Angeles', CA: 'America/Los_Angeles', AZ: 'America/Phoenix', UT: 'America/Denver' };
-
 /**
- * Property the IRS is selling in the four states, as listed on irsauctions.gov. Clark County sales are confirmed by the
+ * Property the IRS is selling in the states we cover, as listed on irsauctions.gov. Clark County sales are confirmed by the
  * County Assessor and get their own page; sales elsewhere are shown as the IRS lists them, with the county assessor's
  * link so the buyer can check the parcel.
  */
@@ -34,7 +31,7 @@ function OtherIrsSales({ sales, ago }: { sales: FeedFederalSale[]; ago: (iso: st
   const sorted = [...sales].sort((a, b) => Number(b.usState === mine) - Number(a.usState === mine) || a.saleStartsAt.localeCompare(b.saleStartsAt));
   return (
     <section aria-labelledby="irs-other-head">
-      <h2 id="irs-other-head">IRS sales elsewhere in Nevada, California, Arizona and Utah</h2>
+      <h2 id="irs-other-head">IRS sales elsewhere in Nevada, California, Arizona, Utah and Texas</h2>
       <p>
         Outside Clark County these are shown as the IRS lists them: DeedOwl hasn’t matched the parcel to county records. Check the parcel
         number with the county assessor and read the IRS notice of sale before you bid. You get only the taxpayer’s interest, and senior
@@ -60,7 +57,7 @@ function OtherIrsSales({ sales, ago }: { sales: FeedFederalSale[]; ago: (iso: st
                   <td data-label="County">{f.county ? `${countyName(f.county)}, ${stateByCode(st)?.name ?? st}` : st}</td>
                   <td data-label="Parcel">{f.apns.join(', ')}</td>
                   <td data-label="Minimum bid" className="num">{f.minimumBid === null ? <span className="muted">See notice</span> : fmtMoney(f.minimumBid)}</td>
-                  <td data-label="Sale"><span>{fmtDateTime(f.saleStartsAt, SALE_TIME_ZONE[st])}<span className="small muted"> · {f.saleFormat}</span></span></td>
+                  <td data-label="Sale"><span>{fmtDateTime(f.saleStartsAt, timeZoneFor(st, f.county))}<span className="small muted"> · {f.saleFormat}</span></span></td>
                   <td data-label="Checked" className="small" title={`Snapshot SHA-256 ${f.snapshotSha256}`}>
                     <span>{ago(f.lastVerifiedAt)}<span className="muted"> · parcel not checked by DeedOwl</span></span>
                   </td>

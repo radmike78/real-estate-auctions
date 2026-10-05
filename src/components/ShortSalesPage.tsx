@@ -138,7 +138,7 @@ export default function ShortSalesPage({ section }: { section?: string }) {
     <main className="page prose">
       <PageHero
         compact={open}
-        eyebrow={<span className="eyebrow">Voluntary sales · NV, CA, AZ, UT</span>}
+        eyebrow={<span className="eyebrow">Voluntary sales · NV, CA, AZ, UT, TX</span>}
         title={open ? <a className="title-link" href="#/short-sales">Short sales</a> : <>Short <span className="grad">sales</span></>}
         sub={
           open ? undefined : (
@@ -156,7 +156,7 @@ export default function ShortSalesPage({ section }: { section?: string }) {
         </div>
       )}
 
-      {!open && <p className="page-starter">How short sales work, how to buy one step by step, the risks, and the rules in Nevada, California, Arizona and Utah. Pick your state to see only its rules.</p>}
+      {!open && <p className="page-starter">How short sales work, how to buy one step by step, the risks, and the rules in Nevada, California, Arizona, Utah and Texas. Pick your state to see only its rules.</p>}
       <StatePicker label="Where is the home?" />
 
       <DrillDown sections={SECTIONS} active={section} baseHref="#/short-sales" label="Short sale guide" />

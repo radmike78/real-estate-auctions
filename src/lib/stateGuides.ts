@@ -1,9 +1,11 @@
-// Step-by-step guides for California, Arizona and Utah, in the same shape as Nevada’s (see playbooks.ts).
+// Step-by-step guides for California, Arizona, Utah and Texas (Texas in stateGuidesTx1.ts and stateGuidesTx2.ts), in the same shape as Nevada’s (see playbooks.ts).
 // Every rule cites the state’s statutes or court rules; county details are labeled as examples to confirm locally.
 // Examples are illustrative, not real properties or transactions.
 
 import type { Playbook } from './playbooks';
 import { TEAM } from './playbookTeam';
+import { TX_GUIDES_1 } from './stateGuidesTx1';
+import { TX_GUIDES_2 } from './stateGuidesTx2';
 
 const REVIEWED = '2026-09-29';
 
@@ -3952,5 +3954,7 @@ export const STATE_GUIDES: Playbook[] = [
   team: [TEAM.commercialBroker, TEAM.title, TEAM.attorney, TEAM.environmental, TEAM.commercialLender, TEAM.insurance, TEAM.contractor, TEAM.propertyManager, TEAM.cpa],
   lastReviewed: "2026-10-03",
   state: 'UT'
-}
+},
+  ...TX_GUIDES_1,
+  ...TX_GUIDES_2,
 ];

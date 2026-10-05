@@ -65,7 +65,7 @@ export const BOOK_GROUPS: { topic: string; books: Book[] }[] = [
     topic: 'Being a landlord',
     books: [
       { title: 'The Book on Managing Rental Properties', author: 'Brandon and Heather Turner', edition: '2015', isbn10: '0990711757', about: 'Screening tenants, leases, collecting rent and running rentals as a business.' },
-      { title: 'Every Landlord’s Legal Guide', author: 'Ann O’Connell and Janet Portman (Nolo)', edition: '18th edition, 2026', isbn10: '1413333583', about: 'Landlord-tenant law: screening, leases, deposits, repairs, fair housing and ending a tenancy.', note: 'Covers every state; check Nevada, California, Arizona or Utah law and local rules for your property.' },
+      { title: 'Every Landlord’s Legal Guide', author: 'Ann O’Connell and Janet Portman (Nolo)', edition: '18th edition, 2026', isbn10: '1413333583', about: 'Landlord-tenant law: screening, leases, deposits, repairs, fair housing and ending a tenancy.', note: 'Covers every state; check Nevada, California, Arizona, Utah or Texas law and local rules for your property.' },
     ],
   },
   {

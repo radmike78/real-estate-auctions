@@ -39,7 +39,7 @@ export const COUNTY_PAGES: Record<string, DealSource[]> = {
     { name: 'Short sales', url: '#/short-sales', what: 'How short sales work in Nevada and how to find them through an agent.' },
     { name: 'Business assets & closures', url: '#/business-assets', what: 'Court, receiver and government sales of business property and equipment.' },
     { name: 'Pre-foreclosures (not for sale)', url: '#/pre-foreclosures', what: 'Notices recorded before a foreclosure auction, to follow toward the sale date.' },
-    { name: 'Sale guides', url: '#/playbooks', what: 'Rules for tax, trustee, HOA, sheriff and IRS sales in Nevada, California, Arizona and Utah, step by step.' },
+    { name: 'Sale guides', url: '#/playbooks', what: 'Rules for tax, trustee, HOA, sheriff and IRS sales in Nevada, California, Arizona, Utah and Texas, step by step.' },
   ],
 };
 
@@ -91,6 +91,10 @@ export const STATE_SALES: Record<StateCode, string[]> = {
     'Tax sales: the county auditor sells property in May or June after four years of unpaid taxes.',
     'Foreclosures: trustee auctions at least 3 months after the notice of default; bids can’t be withdrawn.',
   ],
+  TX: [
+    'Tax sales: after a court judgment, a sheriff or constable auctions the property on the first Tuesday of the month; the owner can redeem for 180 days, or 2 years for a homestead or farm land.',
+    'Foreclosures: trustee auctions on the first Tuesday of the month, between 10 a.m. and 4 p.m., with at least 21 days’ notice; there is no right to redeem afterward.',
+  ],
 };
 
 /** The offices Find Deals lists for a county, in order. */
@@ -101,3 +105,15 @@ export const OFFICE_LABELS = [
   { key: 'recorder', name: 'Recorder', what: 'Deeds, loans, liens and foreclosure notices on record.' },
   { key: 'sheriff', name: 'Sheriff’s civil unit', what: 'Sheriff’s sales of property to pay court judgments.' },
 ] as const;
+
+/** Texas names its offices differently: the tax assessor-collector, the appraisal district, the county clerk. */
+const OFFICE_LABELS_TX = [
+  { key: 'taxSale', name: 'Tax sale', what: 'Where the county lists sheriff’s and constables’ tax sales: dates, rules and how to register.' },
+  { key: 'treasurer', name: 'Tax assessor-collector', what: 'Tax bills, unpaid taxes and the statement you need before you bid.' },
+  { key: 'assessor', name: 'Appraisal district', what: 'Parcel (account) numbers, owners of record, values and maps.' },
+  { key: 'recorder', name: 'County clerk', what: 'Deeds, loans, liens and foreclosure notices on record.' },
+  { key: 'sheriff', name: 'Sheriff or constable', what: 'Sheriff’s and constables’ sales of property to pay taxes or court judgments.' },
+] as const;
+
+/** The office labels for a state. */
+export const officeLabelsFor = (state: StateCode) => (state === 'TX' ? OFFICE_LABELS_TX : OFFICE_LABELS);

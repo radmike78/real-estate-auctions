@@ -180,7 +180,7 @@ async function checkSidSource(source: SourceConfig, prev: SourceState, now: Date
   }
 }
 
-/** IRS sales: the site's own index, kept to real estate in NV, CA, AZ and UT; Clark County parcels the Assessor confirms. */
+/** IRS sales: the site's own index, kept to real estate in NV, CA, AZ, UT and TX; Clark County parcels the Assessor confirms. */
 async function checkIrsSource(source: SourceConfig, prev: SourceState, now: Date, opts: { dryRun: boolean; fromDir?: string }): Promise<SourceState> {
   try {
     const state: SourceState = { ...prev, tlsBaselines: { ...prev.tlsBaselines } };
@@ -188,7 +188,7 @@ async function checkIrsSource(source: SourceConfig, prev: SourceState, now: Date
     const verifyCertificate = makeCertificateVerifier(state.tlsBaselines, observed, { now, approvedFingerprint: opt('--approve-cert') });
     const body = opts.fromDir ? readFileSync(join(opts.fromDir, 'index.json'), 'utf8') : await fetchIrsIndex(source, { verifyCertificate });
     const { parsed, sha256 } = parseIrsSnapshot(body);
-    log(`[${source.id}] ${parsed.totalAds} ads nationwide; ${parsed.rows.length} in NV, CA, AZ and UT; ${parsed.skipped.length} skipped`);
+    log(`[${source.id}] ${parsed.totalAds} ads nationwide; ${parsed.rows.length} in NV, CA, AZ, UT and TX; ${parsed.skipped.length} skipped`);
     for (const s of parsed.skipped.slice(0, 10)) log(`  skipped ${s.id}: ${s.reason}`);
     const anomalies = detectIrsAnomalies(state, parsed, now);
     if (anomalies.length && opt('--approve-snapshot') !== sha256) {

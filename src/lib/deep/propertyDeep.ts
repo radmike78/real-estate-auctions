@@ -195,7 +195,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Buyers stretching to afford the mortgage with no savings left for a special assessment.",
       "Investors who plan short-term or nightly rentals without confirming the HOA allows them.",
       "Anyone buying in an older building without seeing the reserve study, inspections and minutes.",
-      "People who fall behind on dues. In Nevada and many other states, the HOA can foreclose."
+      "People who fall behind on dues. In Nevada, Texas and many other states, the HOA can foreclose. In Texas, it generally must get a court order first and can’t foreclose for fines alone (Property Code 209.009 and 209.0092)."
     ],
     costs: [
       "Monthly HOA dues. In Las Vegas, the Review-Journal reported condo dues of about 50 cents to a dollar per square foot (c. 2016).",
@@ -340,6 +340,10 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       }
     ],
     sources: [
+      {
+        label: "Texas Property Code chapter 209 (209.009 no foreclosure for fines; 209.0092 court order first)",
+        url: "https://statutes.capitol.texas.gov/Docs/PR/htm/PR.209.htm#209.009"
+      },
       {
         label: "NPR: Florida lawmakers try to balance condo safety with cost (May 3, 2025)",
         url: "https://www.npr.org/2025/05/03/nx-s1-5385870/florida-condo-safety-law-surfside"

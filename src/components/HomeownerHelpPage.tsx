@@ -27,12 +27,12 @@ export default function HomeownerHelpPage() {
   return (
     <main className="page prose">
       <PageHero
-        eyebrow={<span className="eyebrow">Free help · NV, CA, AZ, UT</span>}
+        eyebrow={<span className="eyebrow">Free help · NV, CA, AZ, UT, TX</span>}
         title={<>Facing foreclosure? <span className="grad">Get free help.</span></>}
         sub="If you’re behind on your mortgage, HOA dues or property taxes, you likely have more options than scammers want you to think. Some deadlines are short, so act now."
       />
 
-      <p className="page-starter">This page covers Nevada, California, Arizona and Utah: free help, the deadlines in your state, scams to watch for, tenants’ rights, and how to claim money left over after a sale. Pick your state to see only its rules.</p>
+      <p className="page-starter">This page covers Nevada, California, Arizona, Utah and Texas: free help, the deadlines in your state, scams to watch for, tenants’ rights, and how to claim money left over after a sale. Pick your state to see only its rules.</p>
       <p className="page-starter"><a className="btn" href="https://answers.hud.gov/housingcounseling/" {...ext}>Find a free HUD-approved housing counselor ↗</a> <span className="muted">The best first call, in any state.</span></p>
       <StatePicker label="Where is the home?" />
 

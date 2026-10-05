@@ -25,6 +25,7 @@ export const creative: Lesson = {
               ['California', 'When someone, such as an agent, arranges seller financing on a home of up to four units, the buyer and seller get a seller financing disclosure covering the note, other liens, balloon payments and the buyer’s credit (Civil Code 2956–2963). The holder of the note must send a notice 90 to 150 days before a balloon payment is due (Civil Code 2966).'],
               ['Arizona', 'An “agreement for sale” is a sale where the seller keeps title until the buyer finishes paying. If the buyer misses a payment, the seller can end the contract only after a grace period. Its length depends on how much has been paid: 30 days if under 20%, up to nine months if 50% or more (A.R.S. 33-742).'],
               ['Utah', 'Seller financing is used, but we haven’t reviewed Utah’s rules yet. Ask a Utah real estate attorney.'],
+              ['Texas', 'An “executory contract” (contract for deed) is a sale where the seller keeps title and the deed comes more than 180 days later. On a home the buyer will live in, strict rules apply. The seller must own the home free of most liens, give a survey and a written disclosure before the buyer signs, and record the contract within 30 days. The buyer can cancel for any reason within 14 days. Before ending the contract for a missed payment, the seller must give notice and 30 days to catch up (Property Code 5.062, 5.064, 5.065, 5.069, 5.074, 5.076 and 5.085).'],
             ],
           },
         },
@@ -35,6 +36,7 @@ export const creative: Lesson = {
       blocks: [
         'In a “subject-to” deal, the buyer takes title while the seller’s loan stays in place. In a wraparound, the seller keeps their loan and gives the buyer a larger loan that “wraps” it. Federal rules treat both as transfers of the property. This is different from a formal assumption, where the lender approves the buyer and releases the seller.',
         'Most mortgages have a due-on-sale clause, and federal law lets the lender enforce it: when the property is sold or transferred, the lender can demand the whole balance. The law protects some transfers of homes with fewer than five units, such as transfers to a spouse or child, after a death, in a divorce, or into the owner’s living trust. A sale to an investor isn’t one of them. Keeping every payment current doesn’t take away the lender’s right to call the loan.',
+        'In Texas, anyone selling a home that will still have a recorded lien on it must give the buyer and each lender a written disclosure at least 7 days before the contract is signed or the sale closes, whichever comes first. It lists each loan and warns that the lender could demand full payment. If it isn’t given, the buyer can end the contract. Some sales are exempt, such as when the buyer gets title insurance (Property Code 5.016).',
         'The seller stays responsible for a loan they no longer control. The buyer can lose the property if the lender calls the loan or payments aren’t made. Use a real estate attorney and a title company for any deal like this.',
       ],
     },
@@ -42,6 +44,7 @@ export const creative: Lesson = {
       heading: 'Rent-to-own and lease options',
       blocks: [
         'The buyer rents with an option to buy later, often paying an upfront fee. The FTC’s red flags: the “seller” doesn’t really own the property, the house is being foreclosed on, one missed payment ends the deal, or the buyer can’t qualify for a mortgage to finish buying it. Check the owner in county records and get a title search first. If the owner still has a mortgage, a lease with an option to buy, or any lease over three years, can let their lender demand the whole loan.',
+        'In Texas, a lease with an option to buy a home the tenant will live in counts as an executory contract. Even when it runs three years or less, the seller must own the home free of most liens, and must give notice and 30 days to catch up before ending it for a missed payment (Property Code 5.062, 5.064, 5.065 and 5.085).',
       ],
     },
     {
@@ -77,6 +80,7 @@ export const creative: Lesson = {
     { term: '“Subject-to”', meaning: 'Buying a property while the seller’s existing loan stays in place.' },
     { term: 'Wraparound loan', meaning: 'A seller-financed loan that includes, and pays, the seller’s existing loan.' },
     { term: 'Agreement for sale', meaning: 'Arizona’s term for a sale where the seller keeps title until the buyer finishes paying.' },
+    { term: 'Executory contract', meaning: 'Texas’s term for a contract for deed: the seller keeps title until the buyer finishes paying, usually years later.' },
     { term: 'Security', meaning: 'An investment regulated by securities law, such as a share in a deal others manage for you.' },
   ],
   tryIt: { label: 'Read: the books we recommend on financing', href: '#/learn/reading' },
@@ -88,6 +92,8 @@ export const creative: Lesson = {
     { label: 'California Civil Code 2966: balloon payment notice', url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2966' },
     { label: 'Arizona Revised Statutes 33-741: agreements for sale', url: 'https://www.azleg.gov/ars/33/00741.htm' },
     { label: 'Arizona Revised Statutes 33-742: forfeiture after a missed payment', url: 'https://www.azleg.gov/ars/33/00742.htm' },
+    { label: 'Texas Property Code chapter 5, subchapter D: executory contracts (5.061 to 5.085)', url: 'https://statutes.capitol.texas.gov/Docs/PR/htm/PR.5.htm#5.062' },
+    { label: 'Texas Property Code 5.016: selling a home with a lien still on it', url: 'https://statutes.capitol.texas.gov/Docs/PR/htm/PR.5.htm#5.016' },
     { label: 'Garn–St Germain Act: due-on-sale clauses (12 U.S.C. 1701j-3)', url: 'https://www.law.cornell.edu/uscode/text/12/1701j-3' },
     { label: 'Due-on-sale definitions: wraparound loans and transfers (12 CFR 191.2)', url: 'https://www.law.cornell.edu/cfr/text/12/191.2' },
     { label: 'FTC: what you need to know about rent-to-own home deals', url: 'https://consumer.ftc.gov/consumer-alerts/2016/11/what-you-need-know-about-rent-own-home-deals' },
@@ -99,5 +105,5 @@ export const creative: Lesson = {
     { label: 'FTC: mortgage relief scams', url: 'https://consumer.ftc.gov/articles/mortgage-relief-scams' },
   ],
   practice: 'For any seller-financed or “subject-to” idea, write what happens if the loan is called or the balloon comes due. Also write who will review the papers.',
-  reviewed: '2026-09-29',
+  reviewed: '2026-10-05',
 };

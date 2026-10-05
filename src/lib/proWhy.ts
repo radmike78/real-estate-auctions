@@ -342,7 +342,7 @@ export const PRO_WHY = {
       },
       {
         who: "Everyone",
-        text: "Check the license on the state board’s website before signing anything: NSCB in Nevada, CSLB in California, ROC in Arizona, DOPL in Utah."
+        text: "Check the license on the state board’s website before signing anything: NSCB in Nevada, CSLB in California, ROC in Arizona, DOPL in Utah. Texas has no statewide license for general contractors, so check trade licenses: TDLR for electricians and air conditioning, the State Board of Plumbing Examiners for plumbers."
       }
     ]
   },

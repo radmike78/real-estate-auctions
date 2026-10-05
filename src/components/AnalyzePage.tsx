@@ -17,7 +17,7 @@ import { analyzeAdCategories } from '../lib/contextAds';
 import { RotatingAd } from './AdBoxes';
 import { useDirectory } from './ProDirectory';
 
-const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake' };
+const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake', TX: 'Harris' };
 /** A new deal's county: the visitor's chosen county in that state (myArea.ts), else the state's largest. */
 const startCounty = (st: StateCode) => { const a = getMyArea(); return a?.state === st && a.county ? a.county : DEFAULT_COUNTY[st]; };
 const CURRENT = CURRENT_KEY;

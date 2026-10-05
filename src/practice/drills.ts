@@ -2,6 +2,7 @@
 // then a decision. Feedback scores the process, not whether the visitor picks the same answer. The properties and
 // prices are made up for practice; repair ranges are examples, so real bids come from licensed contractors.
 
+import { TX_DRILLS } from './drillsTx';
 export interface PickOption {
   label: string;
   detail?: string;
@@ -2421,6 +2422,8 @@ export const DRILLS: Drill[] = [
       expert: 'Investigate with a fixed-price bid and written fees. Building to sell needs a cushion for cost overruns and a slower market; at these numbers there isn’t much of one.',
     },
   },
+  // Texas: trustee, tax, HOA and sheriff's sales (drillsTx.ts).
+  ...TX_DRILLS,
 ];
 
 export const drillById = (id: string) => DRILLS.find((d) => d.id === id);

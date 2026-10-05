@@ -77,7 +77,7 @@ export function applyIrsSnapshot(
   const unconfirmed = Object.values(sales).filter((x) => x.state === 'UNCONFIRMED').length;
   const changed = meta.sha256 !== prev.lastSha256;
   const notes = [
-    `${parsed.totalAds} ads nationwide; ${parsed.rows.length} in NV, CA, AZ and UT (${parsed.rows.filter((r) => r.assessorChecked).length} in Clark County)`,
+    `${parsed.totalAds} ads nationwide; ${parsed.rows.length} in NV, CA, AZ, UT and TX (${parsed.rows.filter((r) => r.assessorChecked).length} in Clark County)`,
     parsed.skipped.length ? `${parsed.skipped.length} ad(s) in those states not shown: ${[...new Set(parsed.skipped.map((s) => s.reason))].join(', ')}` : null,
     unconfirmed ? `${unconfirmed} sale(s) hidden: parcel not found in Assessor records` : null,
   ].filter(Boolean);

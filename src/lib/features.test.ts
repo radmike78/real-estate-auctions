@@ -279,9 +279,9 @@ describe('Find Deals', () => {
     for (const s of SOURCES.filter((x) => x.role === 'other')) expect(other, s.url).toContain(s.url);
   });
 
-  it('covers every county in the four states', async () => {
+  it('covers every county in the five states', async () => {
     const { STATES } = await import('./regions');
-    expect(STATES.map((s) => [s.code, s.counties.length])).toEqual([['NV', 17], ['CA', 58], ['AZ', 15], ['UT', 29]]);
+    expect(STATES.map((s) => [s.code, s.counties.length])).toEqual([['NV', 17], ['CA', 58], ['AZ', 15], ['UT', 29], ['TX', 254]]);
   });
 });
 
@@ -430,9 +430,10 @@ describe('veterans lesson', () => {
       CA: /California|Revenue and Taxation Code|BOE-|CalVet|Military and Veterans Code/,
       AZ: /Arizona|A\.R\.S\.|Mohave|Maricopa/,
       UT: /Utah/,
+      TX: /Texas|Tax Code 11\.|Veterans Land Board/,
     };
     const items = veterans.sections.flatMap((s) => s.blocks).flatMap((b) => (typeof b === 'string' ? [b] : 'list' in b ? b.list : []));
-    for (const st of ['NV', 'CA', 'AZ', 'UT'] as const) {
+    for (const st of ['NV', 'CA', 'AZ', 'UT', 'TX'] as const) {
       const mine = items.filter((t) => statesOf(t).includes(st));
       expect(mine.length, st).toBeGreaterThanOrEqual(3);
       for (const t of mine) {
@@ -511,7 +512,7 @@ describe('walk-away and after-closing lessons', () => {
     for (const key of ['walk-away', 'after-closing']) {
       const l = lessonByKey(key)!;
       const items = l.sections.flatMap((s) => s.blocks).flatMap((b) => (typeof b === 'string' ? [b] : 'list' in b ? b.list : 'table' in b ? b.table.rows.map((r) => r[0]) : []));
-      for (const t of items.filter((x) => /^(In )?(Nevada|California|Arizona|Utah)\b/.test(x))) expect(statesOf(t).length, t.slice(0, 60)).toBe(1);
+      for (const t of items.filter((x) => /^(In )?(Nevada|California|Arizona|Utah|Texas)\b/.test(x))) expect(statesOf(t).length, t.slice(0, 60)).toBe(1);
     }
   });
 });

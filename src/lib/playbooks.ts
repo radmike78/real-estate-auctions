@@ -475,7 +475,7 @@ const NEVADA: Playbook[] = [
   },
 ];
 
-/** Every guide: Nevada’s (Clark County), then California, Arizona and Utah. */
+/** Every guide: Nevada’s (Clark County), then California, Arizona, Utah and Texas. */
 export const PLAYBOOKS: Playbook[] = [...NEVADA, ...STATE_GUIDES];
 
 /** The guides for one state, or all of them. */

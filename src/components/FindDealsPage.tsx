@@ -6,7 +6,7 @@ import OwlNote from './OwlNote';
 import PathNext from './PathNext';
 import { IconBank, IconHome, IconLayers, IconSearch, IconSteps, IconFile } from './Icons';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { COUNTY_PAGES, nationalOfficialFor, OFFICE_LABELS, OTHER_SITES, STATE_SALES, WHERE_TO_LOOK, countyKey, type DealSource } from '../lib/findDeals';
+import { COUNTY_PAGES, nationalOfficialFor, officeLabelsFor, OTHER_SITES, STATE_SALES, WHERE_TO_LOOK, countyKey, type DealSource } from '../lib/findDeals';
 import { COUNTY_OFFICES } from '../lib/countyOffices';
 import { useMarkStep } from '../lib/path';
 import { useMyArea } from '../lib/myArea';
@@ -15,7 +15,7 @@ import { upcomingCountySales } from '../lib/countySales';
 import PlaceCombobox from './PlaceCombobox';
 import { useLastActivity } from '../lib/journey';
 
-const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake' };
+const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake', TX: 'Harris' };
 
 function SourceCard({ s }: { s: DealSource }) {
   const ext = s.url.startsWith('https://');
@@ -59,7 +59,7 @@ export default function FindDealsPage() {
   const local = COUNTY_PAGES[countyKey(area.state, area.county)];
   const offices = COUNTY_OFFICES[countyKey(area.state, area.county)];
   const officeCards: DealSource[] = offices
-    ? OFFICE_LABELS.flatMap((o) => {
+    ? officeLabelsFor(area.state).flatMap((o) => {
         const x = offices[o.key];
         if (!x) return [];
         // Two offices can share a page (a combined assessor-recorder); list it once.

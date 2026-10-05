@@ -94,7 +94,7 @@ export const sectionsFor = (cls: ClassFilter): DrillSection[] => [
     key: 'by-state',
     title: 'Buying one in your state',
     icon: <IconFile />,
-    summary: 'Disclosures, as-is terms and contract deadlines in Nevada, California, Arizona and Utah',
+    summary: 'Disclosures, as-is terms and contract deadlines in Nevada, California, Arizona, Utah and Texas',
     content: () => (
       <>
         <p>
@@ -135,7 +135,7 @@ export default function BankOwnedPage({ section }: { section?: string }) {
     <main className="page prose">
       <PageHero
         compact={open}
-        eyebrow={<span className="eyebrow">Bank-owned · NV, CA, AZ, UT</span>}
+        eyebrow={<span className="eyebrow">Bank-owned · NV, CA, AZ, UT, TX</span>}
         title={
           open ? (
             <a className="title-link" href="#/bank-owned">Bank-owned &amp; government {cls === 'commercial' ? 'properties' : 'homes'}</a>
@@ -162,7 +162,7 @@ export default function BankOwnedPage({ section }: { section?: string }) {
       {!open && (
         <p className="page-starter">
           Most sources below list homes nationwide (the HUD link opens a Clark County search; change the location on HUD’s site), and the notes on each card are for Clark County, Nevada. Buying rules for
-          Nevada, California, Arizona and Utah are under “Buying one in your state.” Pick your state to see only its rules.
+          Nevada, California, Arizona, Utah and Texas are under “Buying one in your state.” Pick your state to see only its rules.
         </p>
       )}
       <StatePicker label="Where is the home?" />

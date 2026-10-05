@@ -7,7 +7,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   agent: {
     overview: [
       "A real estate agent helps you find a property, write and negotiate the offer, and get to closing. A buyer’s agent is supposed to work for you, not the seller. How much an agent helps depends on the person. A careful agent checks facts, spots red flags, and pushes you to compare lenders and get inspections. A careless one passes along whatever the seller’s side says.",
-      "Watch who the agent really works for. Sometimes one brokerage, or even one person, represents both the buyer and the seller. That’s called “dual agency,” and both sides have to be told and agree in writing. In Nevada, the agent has to give each party a duties-owed form and get their written consent before acting for more than one party. In California, a brokerage may act as a dual agent only with both parties’ consent after full disclosure. In Utah, an agent for both sides (a “limited agent”) must first get both parties’ informed consent in writing. Since August 17, 2024, agents who belong to a Realtor-run MLS must sign a written agreement with a buyer before touring a home, even a virtual tour. That agreement sets the agent’s pay. In California, state law also requires a written buyer agreement no later than your offer. In California, that agreement with an individual buyer can last at most three months and can’t renew automatically.",
+      "Watch who the agent really works for. Sometimes one brokerage, or even one person, represents both the buyer and the seller. That’s called “dual agency,” and both sides have to be told and agree in writing. In Nevada, the agent has to give each party a duties-owed form and get their written consent before acting for more than one party. In California, a brokerage may act as a dual agent only with both parties’ consent after full disclosure. In Utah, an agent for both sides (a “limited agent”) must first get both parties’ informed consent in writing. In Texas, a broker can work for both sides only as an “intermediary,” with each party’s written consent that says who pays the broker (Occupations Code 1101.559). Since August 17, 2024, agents who belong to a Realtor-run MLS must sign a written agreement with a buyer before touring a home, even a virtual tour. That agreement sets the agent’s pay. In California, state law also requires a written buyer agreement no later than your offer. In California, that agreement with an individual buyer can last at most three months and can’t renew automatically. In Texas, state law requires a written agreement before an agent shows you a home of one to four units, or presents your offer if there’s no showing. It must state the agent’s pay and say that pay is negotiable (Occupations Code 1101.563).",
       "A note for auction buyers: many forced-sale purchases, like county tax sales and trustee’s sales at the courthouse, happen without an agent at all. Agents matter most for bank-owned (REO) and Fannie Mae/Freddie Mac homes listed on the MLS. There, offers usually go through a licensed agent."
     ],
     bestFor: [
@@ -31,7 +31,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Since Aug 17, 2024, offers of buyer-agent pay can’t be posted on Realtor-run MLSs. So ask up front who will pay your agent and how much (NAR Settlement FAQs)."
     ],
     checklist: [
-      "Look up the agent’s license with the state regulator and check for discipline. The regulators are the Nevada Real Estate Division, California DRE, Arizona Department of Real Estate and Utah Division of Real Estate.",
+      "Look up the agent’s license with the state regulator and check for discipline. The regulators are the Nevada Real Estate Division, California DRE, Arizona Department of Real Estate, Utah Division of Real Estate and Texas Real Estate Commission (TREC).",
       "Make sure the agent is licensed in the state where the property is. Nevada has disciplined California brokers acting on Nevada deals without a Nevada license.",
       "Ask in writing whether the agent or brokerage also represents the seller (dual agency) and what that changes.",
       "Read the buyer agreement: pay amount, who pays, how long it lasts, and how to end it.",
@@ -133,6 +133,10 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       }
     ],
     sources: [
+      {
+        label: "Texas Occupations Code chapter 1101 (1101.559 intermediary; 1101.563 written buyer agreement)",
+        url: "https://statutes.capitol.texas.gov/Docs/OC/htm/OC.1101.htm#1101.559"
+      },
       {
         label: "Nevada Real Estate Commission: Findings of Fact, Conclusions of Law and Order, Case 2017-64 (Jun 2019)",
         url: "https://red.nv.gov/uploadedFiles/rednvgov/Content/Meetings/REC/2019/Orders/LeBeau-Witty_Patricia_2017-64.pdf"
@@ -465,7 +469,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   },
   title: {
     overview: [
-      "A title company searches public records to confirm the seller really owns the property. It also looks for liens, then insures the result. An escrow (settlement) officer holds the money and documents and pays everyone at closing. In California, Nevada, Arizona and Utah, title or escrow companies usually handle closings rather than attorneys.",
+      "A title company searches public records to confirm the seller really owns the property. It also looks for liens, then insures the result. An escrow (settlement) officer holds the money and documents and pays everyone at closing. In California, Nevada, Arizona and Utah, title or escrow companies usually handle closings rather than attorneys. In Texas, the Texas Department of Insurance sets title insurance rates, so every title company charges the same premium. You can choose any title company (TDI).",
       "There are two policies. The lender’s policy protects the lender and is usually required. The owner’s policy protects you if someone later claims the property. That could happen because of a forged deed or an old unpaid bill. The CFPB says the owner’s policy is optional but can protect your investment. Fraud is rising. In ALTA’s 2024 study, 28% of title companies saw a seller-impersonation attempt in 2023. Vacant land, all-cash deals and unknown notaries were top red flags.",
       "The biggest single risk at closing is wire fraud. Criminals send fake wiring instructions that look like they came from your escrow officer, agent or lawyer. FBI teams can sometimes freeze the money if you report it within hours. But many victims never get it back."
     ],
@@ -623,6 +627,10 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     sources: [
       {
+        label: "Texas Department of Insurance: title insurance tips",
+        url: "https://www.tdi.texas.gov/tips/title-insurance.html"
+      },
+      {
         label: "CFPB: What is owner’s title insurance?",
         url: "https://www.consumerfinance.gov/ask-cfpb/what-is-owners-title-insurance-en-164/"
       },
@@ -686,7 +694,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     money: [],
     checklist: [
-      "Check the lawyer’s license and discipline record with the State Bar of Nevada, California, Arizona or Utah.",
+      "Check the lawyer’s license and discipline record with the State Bar of Nevada, California, Arizona, Utah or Texas.",
       "Ask how many quiet-title or tax-deed cases they have handled in that county.",
       "Get a written engagement letter: scope, hourly rate or flat fee, and estimated court costs.",
       "Before bidding at a tax or trustee’s sale, ask the lawyer to review the notice steps. Also ask what a title insurer will require afterward.",
@@ -925,7 +933,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   },
   contractor: {
     overview: [
-      "A licensed contractor is a builder or tradesperson the state has tested and licensed for a type of work. In Nevada the license comes from the Nevada State Contractors Board (NSCB). In California it comes from the Contractors State License Board (CSLB). In Arizona it comes from the Registrar of Contractors (ROC). In Utah it comes from the Division of Professional Licensing (DOPL). Investors who buy at auction or buy bank-owned homes usually need repairs. So picking the contractor is often the biggest money decision after the purchase itself.",
+      "A licensed contractor is a builder or tradesperson the state has tested and licensed for a type of work. In Nevada the license comes from the Nevada State Contractors Board (NSCB). In California it comes from the Contractors State License Board (CSLB). In Arizona it comes from the Registrar of Contractors (ROC). In Utah it comes from the Division of Professional Licensing (DOPL). Texas has no statewide license for general contractors or remodelers. There, electricians and air conditioning contractors are licensed by the Texas Department of Licensing and Regulation (TDLR), and plumbers by the State Board of Plumbing Examiners. Investors who buy at auction or buy bank-owned homes usually need repairs. So picking the contractor is often the biggest money decision after the purchase itself.",
       "The license matters most when something goes wrong. Nevada and Arizona run recovery funds that can repay homeowners hurt by a licensed contractor. Utah gives homeowners a way to clear a supplier’s lien if they paid a licensed contractor under a written contract. People who hire an unlicensed worker usually lose those protections. The NSCB warns that unlicensed workers often skip workers’ compensation insurance and trade exams.",
       "Read the fine print on those funds before counting on them. Nevada’s Residential Recovery Fund covers owners who own and live in a single-family home. Arizona’s fund covers work on the homeowner’s primary residence. A rental or flip you don’t live in may not qualify. And Arizona’s fund has paid only part of some losses when many victims claim against the same contractor."
     ],
@@ -945,7 +953,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Deposit: in California, never more than 10% of the price or $1,000, whichever is less. This is state law, per CSLB guidance reported by NBC Los Angeles.",
       "Bids: the NSCB recommends getting at least three bids. It takes time but helps you spot overpricing.",
       "Permits and inspections, which licensed contractors normally pull. Ask who pays.",
-      "Lien risk: if your contractor doesn’t pay a supplier, the supplier can file a lien on your home. In Utah, a homeowner can get a Certificate of Compliance to have it removed. That works if they hired a licensed contractor under a written contract and paid in full.",
+      "Lien risk: if your contractor doesn’t pay a supplier, the supplier can file a lien on your home. In Utah, a homeowner can get a Certificate of Compliance to have it removed. That works if they hired a licensed contractor under a written contract and paid in full. In Texas, the owner must hold back 10% of the contract price until 30 days after the work is done. That money covers unpaid workers and suppliers, and if you don’t hold it back, they can claim a lien for that amount (Property Code 53.101 and 53.105).",
       "Recovery fund limits: Arizona caps payouts at $30,000 per homeowner and $200,000 per contractor license. It has prorated (shared out) awards when many people claim against one license."
     ],
     money: [
@@ -954,12 +962,12 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Keep receipts, contracts and photos. Arizona’s ROC asks for these documents when a homeowner files a recovery fund claim."
     ],
     checklist: [
-      "Look up the license number on the state board site and confirm it covers the type of work. The boards are NSCB in Nevada, CSLB in California, ROC in Arizona and DOPL in Utah.",
+      "Look up the license number on the state board site and confirm it covers the type of work. The boards are NSCB in Nevada, CSLB in California, ROC in Arizona and DOPL in Utah. In Texas, check the trade license instead: TDLR for electricians and air conditioning, and the State Board of Plumbing Examiners for plumbers.",
       "Get at least three written bids and call references.",
       "Sign a detailed written contract listing materials, scope, timeline and payment schedule.",
       "Don’t pay cash, and don’t pay a deposit above the legal limit (10% or $1,000 in California).",
       "Ask about workers’ compensation and liability insurance and permits before work starts.",
-      "Keep proof of every payment. In Utah, proof of a written contract and full payment is what lets you clear a supplier’s lien.",
+      "Keep proof of every payment. In Utah, proof of a written contract and full payment is what lets you clear a supplier’s lien. In Texas, you can ask for a sworn statement that the contractor has paid its subcontractors and suppliers before you pay (Property Code 53.085).",
       "Check whether your property qualifies for the state recovery fund before relying on it (owner-occupied homes in Nevada and Arizona)."
     ],
     facts: [
@@ -1057,6 +1065,10 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       }
     ],
     sources: [
+      {
+        label: "Texas Property Code chapter 53 (53.085 payment affidavit; 53.101 and 53.105 retainage)",
+        url: "https://statutes.capitol.texas.gov/Docs/PR/htm/PR.53.htm#53.101"
+      },
       {
         label: "KTNV Las Vegas: Homeowners harmed by contractors awarded almost $400K through recovery fund (Jan. 23, 2024)",
         url: "https://www.ktnv.com/news/homeowners-harmed-by-contractors-awarded-almost-400k-through-recovery-fund"
@@ -1404,14 +1416,14 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   },
   property_manager: {
     overview: [
-      "A property manager finds and screens tenants, collects rent, handles repairs and keeps owners’ and tenants’ money in trust accounts. In Nevada, managing rentals for others requires a real estate license plus a property management permit. Check your state’s real estate regulator for the licensing rules that apply to managers there.",
+      "A property manager finds and screens tenants, collects rent, handles repairs and keeps owners’ and tenants’ money in trust accounts. In Nevada, managing rentals for others requires a real estate license plus a property management permit. In Texas, collecting rent for someone else from a tenant in a single-family home counts as real estate brokerage, which needs a TREC license (Occupations Code 1101.002). Check your state’s real estate regulator for the licensing rules that apply to managers there.",
       "The biggest risk is the trust account. If a manager mixes or spends owner rents and tenant deposits, owners can lose months of rent. They can still owe tenants their deposits back. Nevada regulators found one Las Vegas broker’s security deposit account held $15 when his records said $185,343.",
-      "Licensing also gives you a backstop. California’s Department of Real Estate Consumer Recovery Account and Arizona’s Real Estate Recovery Fund can repay some losses caused by licensees. They pay after a court judgment, up to set limits."
+      "Licensing also gives you a backstop. California’s Department of Real Estate Consumer Recovery Account, Arizona’s Real Estate Recovery Fund and Texas’s Real Estate Recovery Trust Account can repay some losses caused by licensees. They pay after a court judgment, up to set limits."
     ],
     bestFor: [
       "Out-of-state investors who can’t handle showings, repairs and rent collection themselves.",
       "Owners with several units who need consistent screening, accounting and legal compliance.",
-      "Landlords who want a licensee whose conduct is overseen by a state real estate regulator, with recovery-fund protection in California and Arizona. A license isn’t proof they follow the rules, so still check statements."
+      "Landlords who want a licensee whose conduct is overseen by a state real estate regulator, with recovery-fund protection in California, Arizona and Texas. A license isn’t proof they follow the rules, so still check statements."
     ],
     notFor: [
       "Owners who won’t read monthly statements or check that deposits match bank records.",
@@ -1421,8 +1433,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     costs: [
       "Management fees: ask for every fee in writing, such as monthly management, leasing, renewal and maintenance markups. (No sourced typical percentage was found.)",
       "Loss risk: in one Nevada case a broker failed to pay owners their rents and deposits. That included more than $23,000 for one owner’s four units (2025 order).",
-      "Recovery fund limits: California pays up to $50,000 per transaction and $250,000 per licensee. Arizona pays up to $30,000 per transaction and $90,000 per licensee.",
-      "Legal and court costs to get a judgment, which both California’s and Arizona’s funds require before they pay."
+      "Recovery fund limits: California pays up to $50,000 per transaction and $250,000 per licensee. Arizona pays up to $30,000 per transaction and $90,000 per licensee. Texas pays up to $125,000 per transaction and $250,000 per license holder (Occupations Code 1101.610).",
+      "Legal and court costs to get a judgment, which California’s, Arizona’s and Texas’s funds require before they pay."
     ],
     money: [
       "Ask how the manager is paid: flat fee or share of rent, leasing fees, repair markups. Get it in the management agreement. No reliable sourced typical-fee data was found for these states.",
@@ -1518,6 +1530,10 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     sources: [
       {
+        label: "Texas Occupations Code chapter 1101 (1101.002 brokerage includes collecting rent; 1101.610 recovery trust account limits)",
+        url: "https://statutes.capitol.texas.gov/Docs/OC/htm/OC.1101.htm#1101.610"
+      },
+      {
         label: "California Department of Real Estate: Consumer Recovery Account",
         url: "https://www.dre.ca.gov/consumers/ConsumerRecoveryAccount.html"
       },
@@ -1541,8 +1557,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   },
   eviction: {
     overview: [
-      "Eviction is a court process. A landlord cannot legally remove a tenant by changing the locks, shutting off utilities or taking the tenant’s belongings. In California only a sheriff or marshal, with a court order, may carry out an eviction. In Arizona and Nevada, tenants locked out or cut off from essential services can sue for damages set by law.",
-      "Each state runs its own process. In Nevada, an eviction for unpaid rent starts with a 7-court-day notice to pay or quit (weekends and court holidays don’t count). In Nevada, Clark County says evictions take anywhere from 10 to 180 days depending on the case, so budget for the long end. In Nevada, Clark County says its fast ‘summary eviction’ can’t be used to remove a former owner, or the former owner’s tenant, after a foreclosure. California’s ‘unlawful detainer’ case requires the landlord to file and serve a lawsuit. Arizona requires written notice before filing, such as 10 days for many lease violations. An eviction attorney helps you serve the right notice, file correctly and avoid defenses that restart the clock.",
+      "Eviction is a court process. A landlord cannot legally remove a tenant by changing the locks, shutting off utilities or taking the tenant’s belongings. In California only a sheriff or marshal, with a court order, may carry out an eviction. In Arizona and Nevada, tenants locked out or cut off from essential services can sue for damages set by law. In Texas, a landlord may change the locks for unpaid rent only under strict rules, and must give the tenant a new key at any hour, even if they don’t pay (Property Code 92.0081).",
+      "Each state runs its own process. In Nevada, an eviction for unpaid rent starts with a 7-court-day notice to pay or quit (weekends and court holidays don’t count). In Nevada, Clark County says evictions take anywhere from 10 to 180 days depending on the case, so budget for the long end. In Nevada, Clark County says its fast ‘summary eviction’ can’t be used to remove a former owner, or the former owner’s tenant, after a foreclosure. California’s ‘unlawful detainer’ case requires the landlord to file and serve a lawsuit. Arizona requires written notice before filing, such as 10 days for many lease violations. In Texas, the landlord gives at least 3 days’ written notice to vacate, unless a written lease sets a different time, then files in justice court. The trial is set 10 to 21 days after filing (Property Code 24.005 and 24.0051). An eviction attorney helps you serve the right notice, file correctly and avoid defenses that restart the clock.",
       "Investors who buy occupied homes at foreclosure auctions or as REOs must also go through the courts to remove occupants. After a foreclosure, tenants who rented from the former owner usually get at least 90 days’ notice under federal law, and a real lease signed before the foreclosure notice may run to its end unless the buyer will live there. Self-help, like changing the locks yourself, can turn a rent dispute into a damages award against you."
     ],
     bestFor: [
@@ -1552,14 +1568,14 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Owners of rent-controlled or ‘just cause’ units in California, where notices are technical."
     ],
     notFor: [
-      "Landlords tempted to change locks, cut utilities or remove belongings. That can leave you owing damages set by law in California, Arizona and Nevada.",
+      "Landlords tempted to change locks, cut utilities or remove belongings. That can leave you owing damages set by law in California, Arizona, Nevada and Texas.",
       "Disputes that a payment plan or mediation could settle cheaper and faster.",
       "Owners hoping to evict to retaliate for a tenant’s complaint. Courts have awarded damages for retaliatory eviction."
     ],
     costs: [
       "Court filing fees, notice service and constable or sheriff fees. In 2019 the Review-Journal reported Nevada tenants paid a $71 filing fee to contest an eviction in the two largest counties.",
       "Lost rent during the process. In Nevada, Clark County says evictions take anywhere from 10 to 180 days. Contested cases take longer.",
-      "Self-help penalties: in California, they run up to $100 a day and at least $250 per violation (Civil Code 789.3). One landlord was ordered to pay $36,000 in penalties plus damages and fees (1980). In Nevada a court can award up to $2,500 plus actual damages. In Arizona it can award two months’ rent or twice actual damages.",
+      "Self-help penalties: in California, they run up to $100 a day and at least $250 per violation (Civil Code 789.3). One landlord was ordered to pay $36,000 in penalties plus damages and fees (1980). In Nevada a court can award up to $2,500 plus actual damages. In Arizona it can award two months’ rent or twice actual damages. In Texas, the tenant can recover one month’s rent plus $1,000, actual damages and attorney’s fees (Property Code 92.008 and 92.0081).",
       "Attorney fees: California’s utility shutoff statute awards fees to the prevailing party."
     ],
     money: [
@@ -1663,6 +1679,14 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       }
     ],
     sources: [
+      {
+        label: "Texas Property Code 92.008 and 92.0081 (utility cutoffs and lockouts)",
+        url: "https://statutes.capitol.texas.gov/Docs/PR/htm/PR.92.htm#92.0081"
+      },
+      {
+        label: "Texas Property Code 24.005 and 24.0051 (notice to vacate and eviction trial timing)",
+        url: "https://statutes.capitol.texas.gov/Docs/PR/htm/PR.24.htm#24.005"
+      },
       {
         label: "California Attorney General: Know Your Rights, The Eviction Process",
         url: "https://oag.ca.gov/system/files/media/Know-Your-Rights-Eviction-Process-English.pdf"

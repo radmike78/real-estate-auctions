@@ -37,6 +37,7 @@ const STATE_Q: NarrowQuestion = {
     { value: 'CA', label: 'California' },
     { value: 'AZ', label: 'Arizona' },
     { value: 'UT', label: 'Utah' },
+    { value: 'TX', label: 'Texas' },
   ],
   suggest: () => ({ value: 'NV', why: 'Start with the state you live in or know best. Nevada has the most live sale data on DeedOwl today.' }),
 };
@@ -78,6 +79,7 @@ const GUIDE: Record<StateCode, Record<string, string>> = {
   CA: { tax: 'catax', foreclosure: 'caforeclosure', sheriff: 'casheriff', hoa: 'cahoa', reo: 'careo', short: 'cashort', commercial: 'cacommercial', irs: 'cairs' },
   AZ: { tax: 'aztaxlien', foreclosure: 'azforeclosure', sheriff: 'azsheriff', hoa: 'azhoa', reo: 'azreo', short: 'azshort', commercial: 'azcommercial', irs: 'azirs' },
   UT: { tax: 'uttax', foreclosure: 'utforeclosure', sheriff: 'utsheriff', hoa: 'uthoa', reo: 'utreo', short: 'utshort', commercial: 'utcommercial', irs: 'utirs' },
+  TX: { tax: 'txtax', foreclosure: 'txforeclosure', sheriff: 'txsheriff', hoa: 'txhoa', reo: 'txreo', short: 'txshort', commercial: 'txcommercial', irs: 'txirs' },
 };
 export const guideKey = (st: string, kind: string) => GUIDE[(st as StateCode) in GUIDE ? (st as StateCode) : 'NV'][kind];
 

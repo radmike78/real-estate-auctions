@@ -3,6 +3,7 @@
 // Links go only to official sellers and government sites (courts, the U.S. Trustee, Secretaries of State); see CLAUDE.md.
 // Sources: each line's citation, read on the state's official code or court-rules site (checked 2026-10-04).
 import type { ByStateLines } from '../../components/ByState';
+import { TX_BIZ_SELLERS, TX_BIZ_BUYING, TX_BIZ_NOTICES } from './texas';
 
 /** Who sells a struggling or closed business's property, by state. */
 export const SELLERS: ByStateLines = {
@@ -31,6 +32,7 @@ export const SELLERS: ByStateLines = {
     { text: 'In Utah, a struggling business can sign its assets over to an assignee, who sells them and pays creditors. Utah’s Uniform Assignment for Benefit of Creditors law took effect May 6, 2026. The assignee can sell assets, even ones subject to liens, but senior liens, such as a lender’s recorded deed of trust or perfected security interest, can stay with the asset, so check before you buy (Utah Code 6-2-113). It must notify known creditors within 30 days and record the assignment for any real estate (Utah Code 6-2-105, 6-2-106, 6-2-109). Buy from the assignee, not the former owners.' },
     { text: 'In Utah, for a sheriff’s sale of personal property, notice is posted at the courthouse and in 3 other public places for at least 7 days. It is also published once in a local newspaper, if there is one. Every bid is final (Utah Rule of Civil Procedure 69B).' },
   ],
+  TX: TX_BIZ_SELLERS,
 };
 
 /** Taxes, liens and bulk-sale rules that matter when you buy assets or a whole business, by state. */
@@ -57,6 +59,7 @@ export const BUYING: ByStateLines = {
     { text: 'In Utah, lenders file UCC financing statements with the Division of Corporations and Commercial Code, and fixture filings go to the county recorder (Utah Code 70A-9a-501). For an out-of-state company, search the state where it is organized.' },
     { text: 'In Utah, the current Uniform Commercial Code (Title 70A) has no bulk sales chapter. Creditors won’t get a bulk-sale notice, so do your own lien and tax searches.' },
   ],
+  TX: TX_BIZ_BUYING,
 };
 
 /** Where each kind of official sale is noticed, by state. */
@@ -82,6 +85,7 @@ export const NOTICES: ByStateLines = {
     { text: 'In Utah, sheriff’s sales are posted at the courthouse and in public places, and published in a local newspaper (Utah Rule of Civil Procedure 69B). Many sheriff’s offices list sales online.' },
     { text: 'In Utah, bankruptcy sales are on the bankruptcy court docket (PACER).' },
   ],
+  TX: TX_BIZ_NOTICES,
 };
 
 /** Source cards in src/lib/businessAssets.ts that are Nevada-only; the rest (PACER, IRS, GSA) work in every state. */

@@ -169,5 +169,3 @@ export function upcomingCountySales(now: Date, opts: { state?: StateCode | null;
     .sort((a, b) => Number(b.state === opts.state) - Number(a.state === opts.state) || a.startsAt.localeCompare(b.startsAt));
 }
 
-/** Sale times show in the sale's own local time. Arizona doesn't observe daylight saving time. */
-export const SALE_TIME_ZONE: Record<StateCode, string> = { NV: 'America/Los_Angeles', CA: 'America/Los_Angeles', AZ: 'America/Phoenix', UT: 'America/Denver' };

@@ -2,6 +2,8 @@
 // Sources: each line's citation, read on the state's official code site or the state-approved form (checked 2026-10-04).
 // Listing sources stay in src/lib/reoSources.ts (official sellers only); nothing here is a listing source.
 import type { ByStateLines } from '../../components/ByState';
+import type { StateCode } from '../regions';
+import { TX_REO_BUYING } from './texas';
 
 export const BUYING: ByStateLines = {
   NV: [
@@ -36,12 +38,14 @@ export const BUYING: ByStateLines = {
     { text: 'In Utah, homes built before 1978 come with the federal lead-based paint disclosure (REPC section 7(b)).' },
     { text: 'In Utah, HUD homes (a HUD-registered broker bids for you) and Fannie Mae HomePath and Freddie Mac HomeSteps listings work the same as nationwide, through a listing agent.' },
   ],
+  TX: TX_REO_BUYING,
 };
 
 /** The step-by-step bank-owned guide for each state. */
-export const REO_GUIDE: Record<'NV' | 'CA' | 'AZ' | 'UT', string> = {
+export const REO_GUIDE: Record<StateCode, string> = {
   NV: '#/playbooks/reo',
   CA: '#/playbooks/careo',
   AZ: '#/playbooks/azreo',
   UT: '#/playbooks/utreo',
+  TX: '#/playbooks/txreo',
 };

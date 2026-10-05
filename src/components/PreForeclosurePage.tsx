@@ -57,7 +57,7 @@ export const GUIDE: DrillSection[] = [
     key: 'how-it-works',
     title: 'How a foreclosure progresses, state by state',
     icon: <IconClock />,
-    summary: 'Notices, the waiting periods, then the trustee’s auction, in Nevada, California, Arizona and Utah',
+    summary: 'Notices, the waiting periods, then the trustee’s auction, in Nevada, California, Arizona, Utah and Texas',
     content: () => (
       <>
         <p>Each state has its own steps and waiting periods. Pick your state above to see only its steps.</p>
@@ -172,7 +172,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
     <main className="page">
       <PageHero
         compact={guideOpen}
-        eyebrow={<span className="eyebrow">Not for sale yet · Guide: NV, CA, AZ, UT</span>}
+        eyebrow={<span className="eyebrow">Not for sale yet · Guide: NV, CA, AZ, UT, TX</span>}
         title={guideOpen ? <a className="title-link" href="#/pre-foreclosures">Pre-foreclosure tracker</a> : <>Pre-foreclosure <span className="grad">tracker</span></>}
         sub={guideOpen ? undefined : 'Follow homes from notice of default to auction, without contacting anyone.'}
       />

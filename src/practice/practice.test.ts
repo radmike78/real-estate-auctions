@@ -210,8 +210,8 @@ describe('drills by state', () => {
     const { DRILLS } = await import('./drills');
     const { drillState } = await import('../components/DrillPage');
     const states = new Set(DRILLS.map(drillState));
-    for (const st of ['NV', 'CA', 'AZ', 'UT']) expect(states.has(st), st).toBe(true);
-    const names = ['Nevada', 'California', 'Arizona', 'Utah'];
+    for (const st of ['NV', 'CA', 'AZ', 'UT', 'TX']) expect(states.has(st), st).toBe(true);
+    const names = ['Nevada', 'California', 'Arizona', 'Utah', 'Texas'];
     for (const d of DRILLS) {
       const named = names.filter((n) => `${d.title} ${d.where}`.includes(n));
       expect(named.length, d.id).toBeLessThanOrEqual(1);

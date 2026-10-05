@@ -3,6 +3,7 @@ import { webcrypto } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { labeledParcels, parseIndex, parseIrsSnapshot, parseMinimumBid, parseSaleDate, SchemaDriftError, TIME_ZONE } from './connectors/irsAuctions';
 import { countyOf } from './lib/countyOf';
+import { timeZoneFor } from '../src/lib/regions';
 import { applyIrsSnapshot, detectIrsAnomalies } from './lib/irsReconcile';
 import { emptyState } from './lib/reconcile';
 import { buildFeed } from './lib/publish';
@@ -40,6 +41,9 @@ describe('IRS auctions index', () => {
     expect(parseSaleDate('Jul 15, 2027 10:00 AM', TIME_ZONE.UT)).toBe('2027-07-15T16:00:00.000Z');
     expect(parseSaleDate('Jan 15, 2027 10:00 AM', TIME_ZONE.UT)).toBe('2027-01-15T17:00:00.000Z');
     expect(parseSaleDate('Jul 15, 2027 10:00 AM', TIME_ZONE.CA)).toBe('2027-07-15T17:00:00.000Z');
+    expect(parseSaleDate('Jul 15, 2027 10:00 AM', TIME_ZONE.TX)).toBe('2027-07-15T15:00:00.000Z');
+    // El Paso and Hudspeth counties are on Mountain time.
+    expect(parseSaleDate('Jul 15, 2027 10:00 AM', timeZoneFor('TX', 'El Paso'))).toBe('2027-07-15T16:00:00.000Z');
   });
 
   it('reads parcel numbers outside Clark County only where the notice labels them', () => {
@@ -59,6 +63,10 @@ describe('IRS auctions index', () => {
     expect(countyOf('CA', 'Nowhereville', 'property in Santa Cruz County')).toBe('Santa Cruz');
     expect(countyOf('CA', 'Nowhereville', 'Riverside County or San Diego County')).toBeNull();
     expect(countyOf('UT', 'Nowhereville', '')).toBeNull();
+    // Texas: Austin spans three counties, so it needs the county named in the ad.
+    expect(countyOf('TX', 'El Paso', '')).toBe('El Paso');
+    expect(countyOf('TX', 'Austin', '')).toBeNull();
+    expect(countyOf('TX', 'Austin', 'located in Travis County, Texas')).toBe('Travis');
   });
 
   it('reads the minimum bid in the formats the site uses', () => {
@@ -131,7 +139,7 @@ describe('IRS sales in the feed', () => {
     expect(buildFeed([{ ...IRS, termsReviewedAt: null }], { [IRS.id]: state() }, NOW).federalSales).toBeUndefined();
     const feed = buildFeed([ON], { [IRS.id]: state() }, NOW);
     expect(feed.federalSales!.map((f) => f.id)).toEqual(['made-up-mesa-land', 'made-up-las-vegas-home', 'made-up-pahrump-land', 'made-up-reno-home', 'made-up-judicial-sale-henderson']);
-    expect(feed.sources[0].message).toMatch(/17 ads nationwide; 7 in NV, CA, AZ and UT \(4 in Clark County\); 2 ad\(s\) in those states not shown: no Clark County parcel number in the notice, county not identified/);
+    expect(feed.sources[0].message).toMatch(/17 ads nationwide; 7 in NV, CA, AZ, UT and TX \(4 in Clark County\); 2 ad\(s\) in those states not shown: no Clark County parcel number in the notice, county not identified/);
     // Outside Clark County nothing is claimed as checked by DeedOwl.
     for (const f of feed.federalSales!.filter((x) => x.county !== 'Clark')) expect(f.corroboratedAt).toBeNull();
   });
