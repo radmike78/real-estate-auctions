@@ -10,9 +10,9 @@ import { useMyState } from '../lib/myState';
 const PRIMARY = [
   ['#/learn', 'Learn'],
   ['#/decide', 'Decide'],
-  ['#/pros', 'Your Team'],
+  ['#/pros', 'Your team'],
   ['#/practice', 'Practice'],
-  ['#/find-deals', 'Find Deals'],
+  ['#/find-deals', 'Find deals'],
   ['#/analyze', 'Analyze'],
   ['#/toolkit', 'My plan'],
 ] as const;
@@ -114,7 +114,7 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
           <a key={href} href={href} className={active(href) ? 'active' : ''} aria-current={active(href) ? 'page' : undefined}>{label}</a>
         ))}
         <details className="more">
-          <summary className={MORE.some((g) => g.links.some(([h]) => h !== '#/pros' && h !== '#/financing' && active(h))) ? 'active' : ''}>
+          <summary className={!PRIMARY.some(([h]) => active(h)) && MORE.some((g) => g.links.some(([h]) => h !== '#/pros' && h !== '#/financing' && active(h))) ? 'active' : ''}>
             More{deals > 0 && <><span className="nav-count" aria-hidden>{deals}</span><span className="sr-only">, {deals} saved deals</span></>}
           </summary>
           <div className="more-menu">

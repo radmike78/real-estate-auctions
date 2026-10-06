@@ -31,6 +31,10 @@ export interface Lesson {
   tryIt?: { label: string; href: string };
   /** One concrete thing to do with the lesson before moving on. */
   practice?: string;
+  /** The button under "Put it into practice" when it isn't `tryIt`; null when the task needs no link here. */
+  practiceLink?: { label: string; href: string } | null;
+  /** Books from Recommended reading that fit this lesson (ISBN-10s), shown with their covers after the practice. */
+  books?: string[];
   sources: { label: string; url: string }[];
   /** When the text was last checked against its sources (YYYY-MM-DD). */
   reviewed: string;

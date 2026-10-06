@@ -30,7 +30,8 @@ function SourceCard({ s }: { s: ReoSource }) {
       <dl>
         <div className="reo-how"><dt>How to buy</dt><dd>{s.howToBuy}</dd></div>
         {s.firstLook && <div className="reo-first"><dt>Buyers first</dt><dd>{s.firstLook}</dd></div>}
-        <div className="reo-clark"><dt>In Clark County</dt><dd>{s.clarkCounty}</dd></div>
+        {/* A Clark County, Nevada note: shown with Nevada or every state, not to visitors from elsewhere. */}
+        {(!mine || mine === 'NV') && <div className="reo-clark"><dt>In Clark County</dt><dd>{s.clarkCounty}</dd></div>}
       </dl>
     </li>
   );
@@ -54,6 +55,23 @@ const group = (g: ReoGroup, cls: ClassFilter, icon: ReactNode, note?: ReactNode)
     },
   ];
 };
+
+/** State rules for buying a bank-owned home: the visitor's state only, once chosen. */
+function BuyingInState() {
+  const [mine] = useMyState();
+  return (
+    <>
+      {!mine && (
+        <p>
+          The rules for what a bank must tell you, what “as-is” means and which deadlines matter are different in each state. Pick your state
+          at the top of the page to see only its rules.
+        </p>
+      )}
+      <ByState lines={BUYING} />
+      <p>{mine ? 'The' : 'In every state, the'} seller’s addendum and your contract have the exact terms and deadlines. Talk only with the listing agent and your own team.</p>
+    </>
+  );
+}
 
 const STEPS: [string, string][] = [
   ['Get pre-approved or show proof of funds', 'Banks and agencies selling these homes want proof you can close. If you’re paying cash, you’ll need a recent bank statement.'],
@@ -96,16 +114,7 @@ export const sectionsFor = (cls: ClassFilter): DrillSection[] => [
     title: 'Buying one in your state',
     icon: <IconFile />,
     summary: 'Disclosures, as-is terms and contract deadlines in Nevada, California, Arizona, Utah and Texas',
-    content: () => (
-      <>
-        <p>
-          The rules for what a bank must tell you, what “as-is” means and which deadlines matter are different in each state. Pick your state
-          at the top of the page to see only its rules.
-        </p>
-        <ByState lines={BUYING} />
-        <p>In every state, the seller’s addendum and your contract have the exact terms and deadlines. Talk only with the listing agent and your own team.</p>
-      </>
-    ),
+    content: () => <BuyingInState />,
   },
   {
     key: 'checklist',
@@ -130,13 +139,17 @@ export default function BankOwnedPage({ section }: { section?: string }) {
     setClsState(c);
   };
   const [state] = useMyState();
-  const SECTIONS = sectionsFor(cls);
+  const stateName = state ? STATES.find((x) => x.code === state)?.name : null;
+  // Once a state is chosen, the state section names only that state.
+  const SECTIONS = sectionsFor(cls).map((x) =>
+    x.key === 'by-state' && stateName ? { ...x, title: `Buying one in ${stateName}`, summary: 'Disclosures, as-is terms and contract deadlines' } : x,
+  );
   const open = SECTIONS.some((x) => x.key === section);
   return (
     <main className="page prose">
       <PageHero
         compact={open}
-        eyebrow={<span className="eyebrow">Bank-owned · NV, CA, AZ, UT, TX</span>}
+        eyebrow={<span className="eyebrow">Bank-owned · {stateName ?? 'NV, CA, AZ, UT, TX'}</span>}
         title={
           open ? (
             <a className="title-link" href="#/bank-owned">Bank-owned &amp; government {cls === 'commercial' ? 'properties' : 'homes'}</a>
@@ -164,11 +177,12 @@ export default function BankOwnedPage({ section }: { section?: string }) {
         <p className="page-starter">
           {!state || state === 'NV'
             ? <>Most sources below list homes nationwide (the HUD link opens a Clark County search; change the location on HUD’s site), and the notes on each card are for Clark County, Nevada. Buying rules for Nevada, California, Arizona, Utah and Texas are under “Buying one in your state.” Pick your state to see only its rules.</>
-            : <>Most sources below list homes nationwide: search each one for {STATES.find((x) => x.code === state)?.name}. Some card notes mention Clark County, Nevada, where DeedOwl started; the rules for buying in {STATES.find((x) => x.code === state)?.name} are under “Buying one in your state.”</>}
+            : <>Most sources below list homes nationwide: search each one for {stateName}. The rules for buying in {stateName} are under “Buying one in {stateName}.”</>}
         </p>
       )}
       <StatePicker label="Where is the home?" />
-      <div className="row" style={{ margin: '0 0 16px' }}>
+      <div className="row bo-class" style={{ margin: '0 0 16px' }}>
+        <span className="state-picker-label">Property type</span>
         <ClassSwitch value={cls} onChange={setCls} />
         {cls === 'commercial' && (
           <span className="small muted">HUD, VA, USDA, Fannie Mae and Freddie Mac sell mainly homes, not commercial property, so they aren’t listed here.</span>
@@ -178,15 +192,14 @@ export default function BankOwnedPage({ section }: { section?: string }) {
       <DrillDown sections={SECTIONS} active={section} baseHref="#/bank-owned" label="Bank-owned homes guide" />
 
       {!open && (
-        <p className="small muted playbook-note">
-          How this sale works, step by step:{' '}
-          {STATES.filter((s) => !state || s.code === state).map((s, i) => (
-            <span key={s.code}>
-              {i > 0 && ' · '}
-              <a href={REO_GUIDE[s.code]}>{s.name} bank-owned (REO) guide →</a>
-            </span>
-          ))}
-        </p>
+        <div className="bo-guides">
+          <p className="bo-guides-label"><strong>How this sale works, step by step</strong></p>
+          <div className="bo-guides-links">
+            {STATES.filter((s) => !state || s.code === state).map((s) => (
+              <a key={s.code} className="btn btn-secondary" href={REO_GUIDE[s.code]}>{s.name} bank-owned (REO) guide →</a>
+            ))}
+          </div>
+        </div>
       )}
       <AdSpot spot="bankowned" />
       <Disclaimer kind="sales" compact />

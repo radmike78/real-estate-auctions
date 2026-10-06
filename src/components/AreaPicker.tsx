@@ -130,7 +130,8 @@ export function AreaButton() {
     <>
       <button type="button" className="area-btn" onClick={() => setOpen(true)} aria-label={area ? `Your area: ${areaLabel(area)}. Change` : 'Choose your area'}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z" /><circle cx="12" cy="9.5" r="2.5" /></svg>
-        <span>{area ? areaLabel(area) : 'Your area'}</span>
+        <span className="area-long">{area ? areaLabel(area) : 'Your area'}</span>
+        {area && <span className="area-code" aria-hidden>{area.state}</span>}
       </button>
       {open && <AreaDialog onClose={() => setOpen(false)} />}
     </>
@@ -172,10 +173,8 @@ export function HomeArea() {
   return (
     <div className="home-area">
       <div className="eyebrow home-states" role="group" aria-label="Where are you buying? Choose a state">
-        <span className="live-dot" aria-hidden />
-        {STATES.map((s, i) => (
+        {STATES.map((s) => (
           <span key={s.code}>
-            {i > 0 && <span aria-hidden className="home-states-sep">·</span>}
             <button type="button" aria-pressed={area?.state === s.code} className={area?.state === s.code ? 'on' : ''} onClick={() => pickState(s.code as StateCode)}
               title={area?.state === s.code && area.city && !open ? `${areaLong(area)}: click to change` : undefined}>{s.name}</button>
           </span>

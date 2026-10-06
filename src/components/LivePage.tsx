@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { stateByCode } from '../lib/regions';
 import { isCertificateSourceUrl, isOfficialUrl } from '../feed/verify';
 import SidCertificates from './SidCertificates';
 import IrsSales from './IrsSales';
@@ -44,6 +45,8 @@ export default function LivePage() {
   const { result } = useLiveFeed();
   const [now, setNow] = useState(Date.now());
   const [cls, setCls] = useState<ClassFilter>('all');
+  // County sales: the visitor's state only, until they ask for every state.
+  const [allCountySales, setAllCountySales] = useState(false);
   const [myState] = useMyState();
 
   // Keep "x min ago" and the expiry check current in an open tab.
@@ -61,27 +64,50 @@ export default function LivePage() {
   const features = useSiteFeatures();
   const shown = cls === 'all' ? listings : listings.filter((l) => classOfLandUse(l.landUse?.code) === cls);
 
+  const allUpcoming = upcomingCountySales(new Date(now), { state: myState });
+  const countySales = myState && !allCountySales ? allUpcoming.filter((s) => s.state === myState) : allUpcoming;
+  // The live feed covers Clark County, Nevada and IRS sales. A visitor from another state sees their own county sales first.
+  const stateName = myState ? stateByCode(myState)?.name : null;
+  const otherState = !!myState && myState !== 'NV';
+  const countySection = allUpcoming.length > 0 && (
+    <section aria-labelledby="county-sales-head">
+      <h2 id="county-sales-head">{otherState ? `Upcoming ${stateName} county tax sales` : 'Upcoming county tax sales'}</h2>
+      <p>
+        Counties post their own property lists for these sales. Open the list on the county’s site to see every property, its parcel number
+        and minimum bid. Lists change up to the sale as owners pay their taxes, so check the county’s latest list before you bid.
+      </p>
+      {countySales.length > 0 ? <CountySales sales={countySales} /> : <OwlNote>No upcoming county tax sales listed for {stateName} yet.</OwlNote>}
+      {myState && (
+        <p className="county-sales-switch"><button type="button" className="btn btn-secondary" onClick={() => setAllCountySales(!allCountySales)}>
+          {allCountySales ? `Show only ${stateName} sales` : 'Show sales in other states'}
+        </button></p>
+      )}
+    </section>
+  );
   return (
     <main className="page">
       <PageHero
         title={<>Live <span className="grad">tax sales</span></>}
-        sub="Treasurer tax-sale parcels in Clark County, Nevada, and IRS sales in Nevada, California, Arizona, Utah and Texas, re-checked against the official lists."
+        sub={otherState
+          ? `Upcoming ${stateName} county tax sales from each county’s own page, plus our live feed: Clark County, Nevada tax-sale parcels and IRS sales in the five states, re-checked against the official lists.`
+          : 'Treasurer tax-sale parcels in Clark County, Nevada, and IRS sales in Nevada, California, Arizona, Utah and Texas, re-checked against the official lists.'}
       />
+      {otherState && countySection}
       {!result && <p>Verifying listings…</p>}
 
       {result && nothingLive && (
-        <EmptyState title={blocked ? 'No live listings shown' : expired ? 'Listings are being re-verified' : 'No Clark County or IRS sales verified right now'}>
+        <EmptyState title={blocked ? 'No live listings shown' : expired ? 'Listings are being re-verified' : otherState ? 'Live feed: no Clark County, Nevada or IRS sales verified right now' : 'No Clark County or IRS sales verified right now'}>
           <p>
             {blocked
               ? "The latest data didn't pass our security checks, so for your safety nothing is shown until verified data is published."
               : expired
                 ? 'The last verification has expired, so listings are hidden until fresh data is published.'
-                : 'Nothing is verified as for sale right now: no Clark County tax-sale parcels and no IRS sales in Nevada, California, Arizona, Utah or Texas. We re-check the official lists automatically, and parcels appear here as soon as a sale is scheduled and they pass our checks. Other counties\' official sale lists are below.'}
+                : `Nothing is verified as for sale right now: no Clark County, Nevada tax-sale parcels and no IRS sales in Nevada, California, Arizona, Utah or Texas. We re-check the official lists automatically, and parcels appear here as soon as a sale is scheduled and they pass our checks.${otherState ? '' : ' Other counties’ official sale lists are below.'}`}
           </p>
           <p>
             Meanwhile, check the{' '}
             <a href="https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList" target="_blank" rel="noreferrer noopener">
-              Treasurer’s official auction list ↗
+              Clark County Treasurer’s official auction list ↗
             </a>{' '}
             and the{' '}
             <a href="https://www.irsauctions.gov/" target="_blank" rel="noreferrer noopener">
@@ -110,8 +136,10 @@ export default function LivePage() {
         </div>
       )}
 
+      {!otherState && nothingLive && countySection}
+
       {result && nothingLive && (
-        <section className="while-you-wait" aria-labelledby="wait-head">
+        <section className="live-wait" aria-labelledby="wait-head">
           <h2 id="wait-head">While you wait</h2>
           <div className="drill-tiles">
             {SHOW_SAMPLE_DATA && <Tile href="#/search?type=TAX_DEED" icon={<IconSearch />} title="Sample tax-sale listings" summary="See how a tax-sale listing looks, with liens and equity worked out" />}
@@ -121,36 +149,17 @@ export default function LivePage() {
         </section>
       )}
 
-      <section aria-labelledby="treasurer-head">
-        <h2 id="treasurer-head">Before you register: ask the Treasurer</h2>
-        <ScriptBox to={SALE_SCRIPTS.deed[0].to} script={SALE_SCRIPTS.deed[0].script} note="Call or email the Clark County Treasurer’s tax sale office using the contact on the official notice. Then read the full checklist in the tax sale guide." />
-        <p><a className="btn" href="#/playbooks/tax/documents">Documents for a tax sale →</a></p>
-      </section>
-
-      {result?.ok && (
-        <section>
-          <h2>Sources</h2>
-          <ul className="sources">
-            {result.feed.sources.map((s) => (
-              <li key={s.sourceId}>
-                <div>
-                  <strong>{s.agency}</strong>{' '}
-                  <span className={`badge tone-${s.health === 'ok' ? 'go' : s.health === 'terms_not_reviewed' ? 'info' : 'stop'}`}>{HEALTH_LABEL[s.health]}</span>
-                </div>
-                {/* What a buyer needs: where we checked and when. Fetch timing and site-certificate details stay out of the way. */}
-                <div className="small muted">
-                  {s.health === 'terms_not_reviewed' && !s.lastCheckedAt ? 'Not currently available here: check the official source' : <>Checked against {s.publishedBy ? `${s.publishedBy}'s official notice` : 'the official site'} {s.lastCheckedAt ? ago(s.lastCheckedAt, now) : 'never'}</>}
-                  {s.lastChangedAt && <> · list last changed {ago(s.lastChangedAt, now)}</>}
-                </div>
-                {s.publishedBy && <div className="small muted">Published by {s.publishedBy} for the county and the cities</div>}
-                {/* How a source is collected (terms, permissions) is for the operator, not the buyer. */}
-                {s.message && s.health !== 'terms_not_reviewed' && <div className="small">{s.message}</div>}
-                {(s.publishedBy ? isCertificateSourceUrl(s.officialUrl) : isOfficialUrl(s.officialUrl) || s.officialUrl === 'https://www.irsauctions.gov/') && (
-                  <a className="small" href={s.officialUrl} target="_blank" rel="noreferrer noopener">{s.publishedBy ? 'Official notice of sale ↗' : 'Official auction page ↗'}</a>
-                )}
-              </li>
-            ))}
-          </ul>
+      {otherState ? (
+        <section aria-labelledby="treasurer-head">
+          <h2 id="treasurer-head">Before you register: ask the county</h2>
+          <ScriptBox to="the county’s tax sale office" heading="What to say to the county’s tax sale office" script={SALE_SCRIPTS.deed[0].script} note={`Call or email the office named on the county’s sale page${myState === 'TX' ? ' (in Texas, often the county tax office, or the sheriff or constable holding the sale)' : ''}. Then read the full checklist in the tax sale guide.`} />
+          <p><a className="btn" href="#/playbooks/tax/documents">Documents for a tax sale →</a></p>
+        </section>
+      ) : (
+        <section aria-labelledby="treasurer-head">
+          <h2 id="treasurer-head">Before you register: ask the Treasurer</h2>
+          <ScriptBox to={SALE_SCRIPTS.deed[0].to} script={SALE_SCRIPTS.deed[0].script} note="Call or email the Clark County Treasurer’s tax sale office using the contact on the official notice. Then read the full checklist in the tax sale guide." />
+          <p><a className="btn" href="#/playbooks/tax/documents">Documents for a tax sale →</a></p>
         </section>
       )}
 
@@ -216,17 +225,35 @@ export default function LivePage() {
         </section>
       )}
       <IrsSales sales={federalSales} ago={(iso) => ago(iso, now)} />
-      {upcomingCountySales(new Date(now), { state: myState }).length > 0 && (
-        <section aria-labelledby="county-sales-head">
-          <h2 id="county-sales-head">Upcoming county tax sales</h2>
-          <p>
-            Counties post their own property lists for these sales. Open the list on the county’s site to see every property, its parcel number
-            and minimum bid. Lists change up to the sale as owners pay their taxes, so check the county’s latest list before you bid.
-          </p>
-          <CountySales sales={upcomingCountySales(new Date(now), { state: myState })} />
+      {!otherState && !nothingLive && countySection}
+      <SidCertificates certificates={certificates} ago={(iso) => ago(iso, now)} />
+      {result?.ok && (
+        <section>
+          <h2>Sources</h2>
+          <ul className="sources">
+            {result.feed.sources.map((s) => (
+              <li key={s.sourceId}>
+                <div>
+                  <strong>{s.agency}</strong>{' '}
+                  <span className={`badge tone-${s.health === 'ok' ? 'go' : s.health === 'terms_not_reviewed' ? 'info' : 'stop'}`}>{HEALTH_LABEL[s.health]}</span>
+                </div>
+                {/* What a buyer needs: where we checked and when. Fetch timing and site-certificate details stay out of the way. */}
+                <div className="small muted">
+                  {s.health === 'terms_not_reviewed' && !s.lastCheckedAt ? 'Not currently available here: check the official source' : <>Checked against {s.publishedBy ? `${s.publishedBy}'s official notice` : 'the official site'} {s.lastCheckedAt ? ago(s.lastCheckedAt, now) : 'never'}</>}
+                  {s.lastChangedAt && <> · list last changed {ago(s.lastChangedAt, now)}</>}
+                </div>
+                {s.publishedBy && <div className="small muted">Published by {s.publishedBy} for the county and the cities</div>}
+                {/* How a source is collected (terms, permissions) is for the operator, not the buyer. */}
+                {s.message && s.health !== 'terms_not_reviewed' && <div className="small">{s.message}</div>}
+                {(s.publishedBy ? isCertificateSourceUrl(s.officialUrl) : isOfficialUrl(s.officialUrl) || s.officialUrl === 'https://www.irsauctions.gov/') && (
+                  <a className="small" href={s.officialUrl} target="_blank" rel="noreferrer noopener">{s.publishedBy ? 'Official notice of sale ↗' : 'Official auction page ↗'}</a>
+                )}
+              </li>
+            ))}
+          </ul>
         </section>
       )}
-      <SidCertificates certificates={certificates} ago={(iso) => ago(iso, now)} />
+
       <Disclaimer kind="sales" />
     </main>
   );

@@ -234,7 +234,7 @@ export const TX_GUIDES_1: Playbook[] = [
   short: "Trustee sales",
   oneLine: "Most Texas home loans use a deed of trust. That lets a trustee sell the home at a courthouse auction on the first Tuesday of the month, without a court case.",
   youGet: "A trustee’s deed, “as is,” with no promises except about title. After a mortgage foreclosure, the owner can’t buy it back. There are two exceptions. First, if the lien being foreclosed is a property tax loan (a transferred tax lien), the owner or the servicer of an earlier mortgage can buy it back within 2 years if it was the owner’s homestead, farm or ranch land or a mineral interest (180 days for anything else). They pay you 125% of your price in the first year or 150% in the second, plus your allowed costs with interest (Tax Code 32.06(k), (k-1)). Second, if a junior IRS lien was on title, the United States has 120 days to buy it back (26 USC 7425(d)). If the IRS lien was filed more than 30 days before the sale and the IRS didn’t get written notice at least 25 days before it, the lien isn’t cleared and stays on the title (26 USC 7425(b)).",
-  plain: "The house as is. After a mortgage foreclosure there’s no buy-back period (a property tax loan foreclosure has one). You take it with any loans that were ahead of the one being foreclosed.",
+  plain: "The house as is, with any loans that were ahead of the one being foreclosed. After a mortgage foreclosure, the owner can’t buy it back.",
   forSale: true,
   glance: [
     {
@@ -579,6 +579,7 @@ export const TX_GUIDES_1: Playbook[] = [
   key: "txhoa",
   title: "Texas HOA foreclosures",
   short: "HOA foreclosures",
+  teaser: "A Texas association can sell a home for unpaid dues. A subdivision HOA needs a court order; a condominium association doesn’t. Either way, the owner can buy it back for a time.",
   oneLine: "A Texas association can sell a home for unpaid dues, under one of two laws. Read the recorded declaration first: a subdivision HOA (Property Code 209) needs a court order, and the owner can buy the home back until 180 days after the HOA mails notice of the sale. A condominium association (Property Code 82) can sell without a court, and the owner has 90 days after the sale.",
   youGet: "The owner’s interest, subject to a buy-back right: for a subdivision HOA, until 180 days after the post-sale notice is mailed (owner and lienholders); for a condominium, until 90 days after the sale (the owner). Either way, you can’t sell it to anyone but the redeeming owner until that ends. Any mortgage that ranks ahead of the association’s lien stays on the home.",
   plain: "The owner’s interest, usually with the mortgage still on it. The owner can buy it back: 180 days after the HOA’s notice for a subdivision, 90 days after the sale for a condo. You can’t resell until then.",

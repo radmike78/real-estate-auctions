@@ -255,7 +255,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       <section className="analyze-next" aria-labelledby="analyze-next-head">
         <h2 id="analyze-next-head">4. What’s next</h2>
         <p>Numbers work, and every checklist item above has an answer? Save the deal so you can come back to it, then follow the “Buy it” steps for this kind of sale in My plan.</p>
-        <p><strong>When to walk away:</strong> when the numbers say you’d lose money: the monthly cash flow is negative after reserves, you wouldn’t make a profit when you sell, or the long-term return misses your goal. Write down why in the notes, and move on to the next one. <a href="#/learn/walk-away">When to walk away</a></p>
+        <p><strong>When to walk away:</strong> when the numbers say you’d lose money: {calcTabFor(deal.plan) === 'flip' ? 'the price you’d have to pay leaves no profit after repairs, holding and selling costs, or the profit is smaller than your goal' : calcTabFor(deal.plan) === 'lien' ? 'the interest you’d earn, after the wait to be paid, misses your goal' : 'the monthly cash flow is negative after reserves, or the long-term return misses your goal'}. Write down why in the notes, and move on to the next one. <a href="#/learn/walk-away">When to walk away</a></p>
         <div className="row">
           {!deal.id ? <button type="button" className="btn" onClick={saveNew}>Save this deal</button> : <a className="btn" href="#/deals">Open My deals</a>}
           <a href="#/toolkit">Your buying steps in My plan →</a>

@@ -4,12 +4,12 @@ import { STATUS } from '../lib/status';
 import StatusBadge from './StatusBadge';
 import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
-import { IconDatabase, IconFlag, IconHelp, IconLayers, IconStop } from './Icons';
+import { IconDatabase, IconFlag, IconGavel, IconHelp, IconShield, IconStop } from './Icons';
 import { SECTIONS as HELP } from './DisclaimerPage';
 import { ROLE_SHORT } from '../lib/disclaimers';
 
 const SALE_TYPES: [string, string, string][] = [
-  ['Tax-deed sale', 'The property (quitclaim deed); anyone claiming the land can sue to recover it for 2 years after the deed (NRS 361.600)', 'In-person Treasurer auction, certified funds the same day'],
+  ['Tax-deed sale', 'The property (quitclaim deed); anyone claiming the land can sue to recover it for 2 years after the deed (NRS 361.600)', 'In-person county treasurer auction, certified funds the same day'],
   ['Special assessment lien certificate', 'The right to be repaid the assessment plus 1% a month, not ownership. A deed only if not redeemed in 120 days (2 years if the land has a building), and only after formal notice to the owner and 60 more days; the certificate expires 3 years after redemption ends', 'Clark County Treasurer (SID) sale; winners picked by random drawing'],
   ['Mortgage foreclosure', 'The property, after the lender forecloses', 'Trustee, sheriff or judicial auction'],
   ['HOA foreclosure', 'The owner’s title after a 60-day redemption period; the first mortgage may survive', 'HOA agent / trustee auction'],
@@ -51,8 +51,8 @@ export const SECTIONS: DrillSection[] = [
   {
     key: 'sale-types',
     title: 'Types of sale',
-    icon: <IconLayers />,
-    summary: `${SALE_TYPES.length} kinds of forced sale in Nevada (Clark County): what you receive and how each is sold`,
+    icon: <IconGavel />,
+    summary: `${SALE_TYPES.length} kinds of forced sale: what you receive and how each is sold`,
     content: () => (
       <div className="table-wrap">
         <p className="muted">These are Nevada’s rules (Clark County). California, Arizona, Utah and Texas differ: see the <a href="#/playbooks">sale guides</a> for your state.</p>
@@ -67,7 +67,7 @@ export const SECTIONS: DrillSection[] = [
     key: 'sources',
     title: 'Where the data comes from',
     icon: <IconDatabase />,
-    summary: 'County, court and Treasurer records, each with its source shown',
+    summary: 'County, court and treasurer records, each with its source shown',
     content: () => (
       <>
         <p>
@@ -97,13 +97,13 @@ export const SECTIONS: DrillSection[] = [
     key: 'limits',
     title: 'What this site will not do',
     icon: <IconStop />,
-    tone: 'wait',
+    tone: 'stop',
     summary: "No fees, no bids, no promises that title is clear",
     content: () => (
       <ul>
         <li>Take bids or hold money. It always links to the official sale instead.</li>
         <li>Say title is "clear." Only a title company or real-estate attorney can make that call.</li>
-        <li>Guarantee a sale is still on. Always confirm with the trustee, Treasurer or sheriff before bidding.</li>
+        <li>Guarantee a sale is still on. Always confirm with the trustee, treasurer or sheriff before bidding.</li>
         <li>Charge you. The site is free for buyers and investors, with no sign-up.</li>
       </ul>
     ),
@@ -114,13 +114,39 @@ export const SECTIONS: DrillSection[] = [
  * the details. One page, so there's one place to look (it replaced "How it works" and "How we help"). */
 export const ALL_SECTIONS: DrillSection[] = (() => {
   const help = (k: string) => HELP.find((x) => x.key === k)!;
-  return [help('what-we-offer'), help('steps'), help('learn'), help('sources-and-advice'), help('checklist'), ...SECTIONS, help('not-in-scope'), help('accuracy')];
+  const scope = help('not-in-scope');
+  const limits = SECTIONS.find((x) => x.key === 'limits')!;
+  // "What this site will not do" and "The details: what's not in scope" said much the same: one section, at the
+  // details' address (the disclaimers link to it), with the two points only the first had.
+  const notDo: DrillSection = {
+    ...scope,
+    title: limits.title,
+    icon: limits.icon,
+    tone: 'stop',
+    summary: 'No selling, bids, loans or advice, and no promise that title is clear',
+    content: () => (
+      <>
+        {scope.content()}
+        <ul>
+          <li>We don’t guarantee a sale is still on. Always confirm with the trustee, treasurer or sheriff before bidding.</li>
+          <li>We don’t charge you. The site is free for buyers and investors, with no sign-up.</li>
+        </ul>
+      </>
+    ),
+  };
+  return [
+    { ...help('what-we-offer'), summary: 'Properties from official sources, free research tools and a guide to the professionals you may need, all free' },
+    help('steps'), help('learn'), help('sources-and-advice'), help('checklist'),
+    ...SECTIONS.filter((x) => x.key !== 'limits'),
+    notDo,
+    { ...help('accuracy'), icon: <IconShield /> },
+  ];
 })();
 
 export default function AboutPage({ section }: { section?: string }) {
   const open = section === 'all' || ALL_SECTIONS.some((x) => x.key === section);
   return (
-    <main className="page prose">
+    <main className="page prose about-page">
       <PageHero
         compact={open}
         title={open ? <a className="title-link" href="#/about">How DeedOwl works</a> : <>How DeedOwl <span className="grad">works</span></>}

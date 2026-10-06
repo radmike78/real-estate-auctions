@@ -165,12 +165,17 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   }
   // The pinned walk-away bar (phones) steps aside once the full results are on screen, so it never covers them.
   const [resultsVisible, setResultsVisible] = useState(false);
+  // It also waits until the calculator itself is on screen, so it never covers the fields above it.
+  const [calcInView, setCalcInView] = useState(false);
   useEffect(() => {
     const el = document.getElementById(`${uid}-results`);
+    const calc = document.getElementById(`${uid}-calc`);
     if (!el || typeof IntersectionObserver === 'undefined') return;
     const io = new IntersectionObserver(([e]) => setResultsVisible(e.isIntersecting), { threshold: 0.15 });
     io.observe(el);
-    return () => io.disconnect();
+    const ioCalc = calc ? new IntersectionObserver(([e]) => setCalcInView(e.isIntersecting), { threshold: 0 }) : null;
+    if (calc) ioCalc?.observe(calc);
+    return () => { io.disconnect(); ioCalc?.disconnect(); };
   }, [uid]);
   // The listing's opening bid is the starting point (older saved inputs didn't have it).
   const [i, setI] = useState<BidInputs>(() => {
@@ -241,10 +246,12 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   // Cash for the opening bid counts everything until you sell (repairs, holding, fees), the same way the cash limit does.
   const openingCash = i.minimumBid > 0 ? cashNeededAtBid(i, i.minimumBid) : 0;
   const cashShort = !dealFails && i.minimumBid > 0 && i.cashAvailable > 0 && r.limitedBy === 'cash' && r.maxBid < i.minimumBid;
-  const shown = (f: Field) => (mode === 'detailed' || f.quick) && (!f.when || f.when(i)) && !(offer && OFFER_HIDDEN.has(f.k));
+  // Where the state has no transfer tax (and none was entered), the field is left out instead of sitting at $0.
+  const noTransferTax = tax.per500 === 0 && !i.transferTaxPer500;
+  const shown = (f: Field) => (mode === 'detailed' || f.quick) && (!f.when || f.when(i)) && !(offer && OFFER_HIDDEN.has(f.k)) && !(noTransferTax && f.k === 'transferTaxPer500');
 
   return (
-    <div className="calc">
+    <div className="calc" id={`${uid}-calc`}>
       <div className="calc-inputs">
         <div className="calc-mode" role="group" aria-label="How many numbers to enter">
           <button type="button" aria-pressed={mode === 'quick'} className={mode === 'quick' ? 'on' : ''} onClick={() => setMode('quick')}>Quick</button>
@@ -481,8 +488,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       </div>
 
       {/* On phones the results sit below every input, so keep the answer in view while typing. */}
-      <button type="button" hidden={resultsVisible} className={`calc-sticky${r.noBidWorks && !needsValue ? ' bad' : ''}`} onClick={() => document.getElementById(`${uid}-results`)?.scrollIntoView({ behavior: 'smooth' })}>
-        <span>Walk away at</span>
+      <button type="button" hidden={resultsVisible || !calcInView} className={`calc-sticky${r.noBidWorks && !needsValue ? ' bad' : ''}`} onClick={() => document.getElementById(`${uid}-results`)?.scrollIntoView({ behavior: 'smooth' })}>
+        <span>Walk-away price</span>
         <strong>{needsValue ? 'Enter a resale value' : cashShort ? 'Not enough cash' : r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
         <span className="calc-sticky-go">See details ↓</span>
       </button>

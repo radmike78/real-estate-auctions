@@ -6,6 +6,8 @@ import EmptyState from './EmptyState';
 import OwlNote from './OwlNote';
 import { useSiteFeatures } from '../lib/siteFeatures';
 import { forgetManageToken, rememberManageToken, storedManageToken } from '../lib/alertsLink';
+import { useMyState } from '../lib/myState';
+import { stateByCode } from '../lib/regions';
 
 export type AlertsMode = 'signup' | 'confirm' | 'manage' | 'unsubscribe';
 
@@ -85,6 +87,8 @@ function SignUp() {
   const [errors, setErrors] = useState<Partial<Record<'email' | 'list' | 'form', string>>>({});
   const [done, setDone] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [mine] = useMyState();
+  const elsewhere = mine && mine !== 'NV' ? stateByCode(mine)?.name : null;
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -101,6 +105,13 @@ function SignUp() {
   }
 
   return (
+    <>
+    {elsewhere && (
+      <div className="notice alerts-state-soon" role="note">
+        <strong>Alerts for {elsewhere} are coming soon.</strong> For now, email alerts cover Clark County, Nevada auction lists and site news. To
+        follow sales in {elsewhere}, watch your county’s page in <a href="#/find-deals">Find deals</a>.
+      </div>
+    )}
     <div className="alerts-grid">
       <section className="lead-card">
         {done ? (
@@ -129,9 +140,11 @@ function SignUp() {
                 </span>
               </label>
               {errors.form && !errors.email && !errors.list && <div className="caution" role="alert">{errors.form}</div>}
-              <button className="btn big" disabled={busy}>{busy ? 'Sending…' : f.list ? 'Sign up' : 'Email me my manage link'}</button>
-              {!f.list && <p className="small muted">To sign up, tick General updates above.</p>}
-              <p className="muted">Already signed up? Enter your email and we’ll send you your link to manage your alerts.</p>
+              <button className="btn big" disabled={busy}>{busy ? 'Sending…' : 'Sign up or manage alerts'}</button>
+              <p className="muted">
+                <strong>New here?</strong> Tick General updates above, then press the button. <strong>Already signed up?</strong> Just enter your
+                email: we’ll send you the link to manage your alerts.
+              </p>
             </form>
           </>
         )}
@@ -148,6 +161,7 @@ function SignUp() {
         </p>
       </section>
     </div>
+    </>
   );
 }
 
@@ -250,7 +264,7 @@ function Manage({ token, welcome, add }: { token: string; welcome: boolean; add?
         </label>
         <h3>Tracked properties and saved searches</h3>
         {view.subscriptions.length === 0 ? (
-          <OwlNote>None yet. On <a href="#/live">Live tax sales</a>, choose ✉ Email me changes on any parcel, or ✉ Email me new matches to save a search.</OwlNote>
+          <OwlNote>None yet. On <a href="#/live">Live tax sales</a>, choose ✉ Email me changes on any parcel, or Email me new matches to save a search.</OwlNote>
         ) : (
           <ul className="alerts-subs">
             {view.subscriptions.map((s) => (

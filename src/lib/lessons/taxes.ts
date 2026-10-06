@@ -5,13 +5,13 @@ import type { Lesson } from './types';
 export const taxes: Lesson = {
   key: 'taxes',
   minutes: 12,
-  intro: 'Taxes can turn a good-looking deal into a poor one, and the rules for a rental and a flip are very different. This lesson follows a property from the day you buy it to the day you sell it. It covers the taxes at closing, property tax while you own it, how rental income and depreciation work, how a flip is taxed, what happens when you sell or trade a rental, and what each of our five states adds. It’s general education, not tax advice: plan the tax with a CPA or tax advisor before you buy.',
+  intro: 'Taxes can turn a good-looking deal into a poor one, and the rules for a rental and a flip are very different. This lesson follows a property from the day you buy it to the day you sell it. It covers the taxes at closing, property tax while you own it, how rental income and depreciation work, how a flip is taxed, what happens when you sell or trade a rental, and what your state adds. It’s general education, not tax advice: plan the tax with a CPA or tax advisor before you buy.',
   takeaways: [
     'The taxes you pay when you buy, while you own, and when you sell.',
     'Why a rental and a flip are taxed so differently.',
     'How depreciation lowers your tax now and comes back when you sell.',
     'When a 1031 exchange or the home-sale exclusion can put off or remove the tax.',
-    'What Nevada, California, Arizona, Utah and Texas add on top of federal tax.',
+    'What your state adds on top of federal tax.',
   ],
   sections: [
     {
@@ -91,7 +91,7 @@ export const taxes: Lesson = {
           'You have 45 days after the sale to identify the replacement in writing, and 180 days to close on it, or until your tax return for the year of the sale is due, including extensions, if that’s sooner. Sell late in the year and you may need to file an extension to keep the full 180 days.',
           'You can’t touch the money in between. A qualified intermediary holds the sale money and uses it to buy the replacement; if you receive or control the sale money before the exchange is done, the exchange fails.',
           'Cash you receive, or a drop in your debt, can be taxed (“boot”). New borrowing or your own added cash can offset a drop in debt. Have your intermediary and CPA check the numbers before closing.',
-          'Report it on Form 8824 (Form 8824 instructions).',
+          'Report the exchange on Form 8824 with your tax return for the year you trade (IRS instructions).',
         ] },
         'Example: you sell a rental for $400,000 with a $150,000 gain and buy a $500,000 replacement within the deadlines, through an intermediary. No tax is due now; the new property’s tax basis is lowered by the $150,000 you didn’t pay tax on.',
         'California keeps track of exchanges out of state: if you trade a California property for one in another state, you file FTB Form 3840 every year until you sell, and California taxes the deferred gain then.',
@@ -127,7 +127,7 @@ export const taxes: Lesson = {
       heading: 'Owning through an LLC',
       blocks: [
         'A single-member LLC doesn’t change your federal income tax by default: the rental still goes on your own return. It can limit liability, but it adds yearly state fees and filings, can complicate loans, and doesn’t protect you from your own mistakes. Decide with an attorney and a CPA.',
-        { links: [{ label: 'Owning through an LLC', url: '#/learn/negotiate', what: 'Liability, loans, insurance and each state’s fees, in the negotiating lesson.' }] },
+        { links: [{ label: 'Owning through an LLC', url: '#/learn/negotiate', what: 'Liability, loans and each state’s yearly LLC costs, in the lesson on negotiating and structuring deals.' }] },
       ],
     },
     {

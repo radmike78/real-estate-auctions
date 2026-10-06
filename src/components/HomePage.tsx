@@ -132,10 +132,11 @@ export default function HomePage() {
           <span>The real work of buying, from first idea to closing, plus a buy box to keep you focused. This is the progress that counts.</span>
           <span className="decide-bar" aria-hidden><span style={{ width: `${Math.round((done / total) * 100)}%` }} /></span>
         </a>
-        {/* Four ways DeedOwl counts progress, each with one job, so a reader never mistakes reading for being ready. */}
+        {/* The other ways DeedOwl counts progress (the six steps are explained above), each with one job, so a reader
+            never mistakes reading for being ready. */}
+        <h3 className="progress-kinds-head">How DeedOwl counts your progress</h3>
         <ul className="progress-kinds" aria-label="How DeedOwl counts progress">
           <li><strong>Getting started ({GUIDED.length} steps)</strong> A short first tour: what to read and try first.</li>
-          <li><strong>Six steps</strong> Your learning path through the site. “Visited” means opened, not finished.</li>
           <li><strong>My plan roadmap ({total} tasks)</strong> The real work of an actual purchase. This is the progress that counts.</li>
           <li><strong>Practice missions</strong> Rehearsal on made-up deals. Finishing them builds skill; it doesn’t mean you’re ready to buy.</li>
         </ul>

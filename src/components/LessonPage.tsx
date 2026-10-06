@@ -3,10 +3,10 @@ import { currentProgress, GUIDED, guidedNext, markLessonRead, useJourney, useLas
 import PageHero from './PageHero';
 import { LEARN_MODULES } from '../lib/learn';
 import { lessonByKey } from '../lib/lessons';
-import type { LessonBlock } from '../lib/lessons/types';
+import type { Lesson, LessonBlock } from '../lib/lessons/types';
 import { useMarkStep } from '../lib/path';
 import { fmtDate } from '../lib/status';
-import { dropStateLead, showFor, useMyState } from '../lib/myState';
+import { dropStateLead, forStateText, showFor, statesOf, useMyState } from '../lib/myState';
 import { STATES, type StateCode } from '../lib/regions';
 import StatePicker from './StatePicker';
 import WhyBlock from './WhyBlock';
@@ -17,20 +17,52 @@ import { markTerms, type Piece } from '../lib/terms';
 import { Cited } from './Cited';
 import TopicAd from './TopicAd';
 import AdSpot from './AdSpot';
+import { AMAZON_TAG, BOOK_GROUPS, type Book } from '../lib/books';
+import { BookGrid } from './BookCards';
+import '../styles/review-lessons.css';
 
 const STATE_NAMES = new Set(STATES.map((s) => s.name));
+const nameOf = (st: StateCode) => STATES.find((s) => s.code === st)!.name;
 
-/** The block as it applies to one state: other states' rows, columns, items and paragraphs removed. */
+/**
+ * Text that speaks to all five states, once the reader has chosen one: "in all five states" becomes "in Texas", and
+ * "Choose your state above to see only its …" goes, since they already have.
+ */
+export function oneState(text: string, st: StateCode | null): string {
+  if (!st) return text;
+  return text
+    .replace(/\s*Choose your state (?:above|below) to see only its [^.]*\./g, '')
+    .replace(/\b(in|across) (?:all five states|Nevada, California, Arizona, Utah and Texas)\b/g, `$1 ${nameOf(st)}`)
+    .trim();
+}
+
+/** "Texas execution sales: none after…" reads "Execution sales: none after…" once Texas is chosen. */
+const dropStateKeyword = (text: string, st: StateCode | null) =>
+  st ? text.replace(new RegExp(`^${nameOf(st)}(?:’s)? ([^:.]{2,48}):\\s`), (_m, k: string) => `${k[0].toUpperCase()}${k.slice(1)}: `) : text;
+
+/** A list item's topic keyword ("Buying:", "Inspector:") and the rest, so the keyword can stand out in bold. */
+export function splitLead(text: string): [string | null, string] {
+  const m = text.match(/^([^:.]{2,60}):\s+(?=\S)/);
+  // A short label, not a sentence that happens to end in a colon ("Have insurance in place from the day you…:").
+  const label = m && m[1].split(/\s+/).length <= 7 && !/\byou(?:r|’ll|’re)?\b/i.test(m[1]);
+  return m && label ? [m[1], text.slice(m[0].length)] : [null, text];
+}
+
+/** The block as it applies to one state: other states' rows, columns, items, sentences and paragraphs removed. */
 function forState(b: LessonBlock, st: StateCode | null): LessonBlock | null {
   if (!st) return b;
-  const plain = (x: string) => dropStateLead(x, st);
-  if (typeof b === 'string') return showFor(st, b) ? plain(b) : null;
+  const plain = (x: string) => oneState(dropStateKeyword(dropStateLead(forStateText(st, x), st), st), st);
+  if (typeof b === 'string') {
+    const t = showFor(st, b) ? plain(b) : '';
+    return t || null;
+  }
   if ('list' in b) {
-    const list = b.list.filter((x) => showFor(st, x)).map(plain);
+    const list = b.list.filter((x) => showFor(st, x)).map(plain).filter(Boolean);
     return list.length ? { list } : null;
   }
   if ('links' in b) {
-    const links = b.links.filter((x) => showFor(st, x.label));
+    // Once a state is chosen, "Harris County (TX) Clerk" needn't say (TX) on every line.
+    const links = b.links.filter((x) => showFor(st, x.label)).map((x) => ({ ...x, label: x.label.replace(` (${st})`, '') }));
     return links.length ? { links } : null;
   }
   if ('why' in b) {
@@ -40,7 +72,7 @@ function forState(b: LessonBlock, st: StateCode | null): LessonBlock | null {
   }
   const { head, rows } = b.table;
   if (head.slice(1).some((h) => STATE_NAMES.has(h))) {
-    const name = STATES.find((s) => s.code === st)!.name;
+    const name = nameOf(st);
     const keep = head.map((h, i) => i === 0 || !STATE_NAMES.has(h) || h === name);
     if (!head.some((h) => h === name)) return null;
     return { table: { head: head.filter((_, i) => keep[i]), rows: rows.map((r) => r.filter((_, i) => keep[i])) } };
@@ -49,32 +81,73 @@ function forState(b: LessonBlock, st: StateCode | null): LessonBlock | null {
   return kept.length ? { table: { head, rows: kept } } : null;
 }
 
+const sentences = (t: string) => t.split(/(?<=[.!?])\s+/);
+
+/** Whether anything in the lesson changes with the chosen state; if not, the "Show rules for" switch is left off. */
+function variesByState(l: Lesson, checks: { q: string }[]): boolean {
+  const texts: string[] = [];
+  for (const s of l.sections) {
+    texts.push(s.heading);
+    for (const b of s.blocks) {
+      if (typeof b === 'string') texts.push(...sentences(b));
+      else if ('list' in b) texts.push(...b.list.flatMap(sentences));
+      else if ('links' in b) texts.push(...b.links.map((x) => x.label));
+      else if ('why' in b) texts.push(...b.why.yes.map((p) => p.text), ...b.why.no.map((p) => p.text));
+      else if (b.table.head.slice(1).some((h) => STATE_NAMES.has(h))) return true;
+      else texts.push(...b.table.rows.map((r) => r[0]));
+    }
+  }
+  texts.push(...l.terms.flatMap((t) => sentences(t.meaning)), ...checks.map((c) => c.q));
+  return texts.some((t) => statesOf(t).length > 0);
+}
+
 /** Paragraphs and list items come with their key terms already marked (`marked`), in reading order. */
 function Block({ b, marked }: { b: LessonBlock; marked?: Piece[][] }) {
   if (typeof b === 'string') return <p>{marked ? <Pieces pieces={marked[0]} /> : <Cited text={b} />}</p>;
-  if ('list' in b) return <ul>{b.list.map((x, i) => <li key={x}>{marked ? <Pieces pieces={marked[i]} /> : <Cited text={x} />}</li>)}</ul>;
+  if ('list' in b)
+    return (
+      <ul>
+        {b.list.map((x, i) => {
+          const [lead, rest] = splitLead(x);
+          return (
+            <li key={x}>
+              {lead && <><strong className="li-lead">{lead}:</strong>{' '}</>}
+              {marked ? <Pieces pieces={marked[i]} /> : <Cited text={rest} />}
+            </li>
+          );
+        })}
+      </ul>
+    );
   // Folded: the table above gives the short answer; each type's case for and against opens on a tap.
   if ('why' in b)
     return (
       <details className="why-fold">
-        <summary>{b.why.title ? `${b.why.title}: why you would, or wouldn’t` : 'Why you would, or wouldn’t'}</summary>
+        <summary>{b.why.title ? `${b.why.title}: pros and cons` : 'Pros and cons'}</summary>
         <WhyBlock yes={b.why.yes} no={b.why.no} more={b.why.more} />
       </details>
     );
   if ('links' in b)
     return (
       <ul className="lesson-links">
-        {b.links.map((x) => (
-          <li key={x.label}>
-            {x.url.startsWith('#/') ? <a href={x.url}>{x.label} →</a> : <a href={x.url} target="_blank" rel="noopener noreferrer">{x.label} ↗</a>}
-            <span className="muted">{x.what}</span>
-          </li>
-        ))}
+        {b.links.map((x) => {
+          const words = x.label.split(' ');
+          const last = words.pop();
+          const ext = !x.url.startsWith('#/');
+          // The arrow stays with the last word, so it never wraps onto a line of its own.
+          return (
+            <li key={x.label}>
+              <a href={x.url} {...(ext ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+                {words.join(' ')}{words.length ? ' ' : ''}<span className="nowrap">{last}&nbsp;{ext ? '↗' : '→'}</span>
+              </a>
+              <span className="muted">{x.what}</span>
+            </li>
+          );
+        })}
       </ul>
     );
   return (
     <div className="table-wrap">
-      <table className="lesson-table">
+      <table className={`lesson-table cols-${b.table.head.length}${b.table.rows.some((r) => r[0].length > 30) ? ' long-first' : ''}`}>
         <thead><tr>{b.table.head.map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
         <tbody>
           {b.table.rows.map((r) => (
@@ -83,6 +156,21 @@ function Block({ b, marked }: { b: LessonBlock; marked?: Piece[][] }) {
         </tbody>
       </table>
     </div>
+  );
+}
+
+/** The books from Recommended reading that go with this lesson, with their covers. */
+function LessonBooks({ isbns }: { isbns: string[] }) {
+  const all = BOOK_GROUPS.flatMap((g) => g.books);
+  const books = isbns.map((i) => all.find((b) => b.isbn10 === i)).filter((b): b is Book => !!b);
+  if (!books.length) return null;
+  return (
+    <section className="lesson-books" aria-labelledby="lesson-books">
+      <h2 id="lesson-books">Recommended books for this lesson</h2>
+      <BookGrid books={books} />
+      <p className="lesson-books-more"><a href="#/learn/reading">All our recommended books →</a></p>
+      {AMAZON_TAG && <p className="fine-print">As an Amazon Associate, DeedOwl earns from qualifying purchases.</p>}
+    </section>
   );
 }
 
@@ -114,29 +202,48 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
   const next = ready[ready.indexOf(m) + 1];
   const nextHref = next && (lessonByKey(next.key) ? `#/learn/${next.key}` : next.href!);
   const [st] = useMyState();
+  // A section about one state ("Texas: getting a rental ready…") shows only for that state; its heading drops the
+  // state name once that state is chosen, and "…, state by state" goes when only one state is shown.
   const sections = l.sections
-    .map((s) => ({ heading: s.heading, blocks: s.blocks.map((b) => forState(b, st)).filter((b): b is LessonBlock => b !== null) }))
+    .filter((s) => showFor(st, s.heading))
+    .map((s) => ({
+      heading: st ? dropStateLead(s.heading, st).replace(/, state by state$/, '') : s.heading,
+      blocks: s.blocks.map((b) => forState(b, st)).filter((b): b is LessonBlock => b !== null),
+    }))
     .filter((s) => s.blocks.length > 0);
   const sources = l.sources.filter((s) => showFor(st, s.label));
-  const checks = (LESSON_CHECKS[lessonKey] ?? []).filter((c) => showFor(st, `${c.q} ${c.options.join(' ')} ${c.why}`));
-  const terms = l.terms.filter((t) => showFor(st, t.meaning));
+  const allChecks = LESSON_CHECKS[lessonKey] ?? [];
+  const checks = allChecks.filter((c) => showFor(st, `${c.q} ${c.options.join(' ')} ${c.why}`));
+  const terms = l.terms
+    .filter((t) => showFor(st, t.meaning))
+    .map((t) => ({ ...t, meaning: forStateText(st, t.meaning) }))
+    .filter((t) => t.meaning);
+  const varies = variesByState(l, allChecks);
   // Each key term is explained where it first appears, in reading order (worked out once, before rendering).
   const used = new Set<string>();
   const marked = new Map<LessonBlock, Piece[][]>();
   for (const sec of sections)
     for (const b of sec.blocks) {
       if (typeof b === 'string') marked.set(b, [markTerms(b, terms, used)]);
-      else if ('list' in b) marked.set(b, b.list.map((x) => markTerms(x, terms, used)));
+      else if ('list' in b) marked.set(b, b.list.map((x) => markTerms(splitLead(x)[1], terms, used)));
     }
+  // The practice button matches the practice task; the lesson's other link sits beside it only when it differs.
+  const practiceLink = l.practiceLink === undefined ? l.tryIt : l.practiceLink;
+  const extraTry = l.tryIt && l.tryIt !== practiceLink ? l.tryIt : null;
   return (
     <main className="page lesson" ref={bodyRef}>
       <PageHero
         top={<a href="#/learn">← All lessons</a>}
-        eyebrow={<span className="eyebrow">Lesson library · {n} of {LEARN_MODULES.length} · {l.minutes} min read</span>}
+        eyebrow={<span className="eyebrow">Lesson {n} of {LEARN_MODULES.length} · {l.minutes} min</span>}
         title={m.title}
-        sub={l.intro}
+        sub={oneState(l.intro, st)}
       />
-      <StatePicker label="Show rules for" />
+      {varies && <StatePicker label="Show rules for" />}
+      {/* Summary first, full width: what the reader will learn, then (on Types) help choosing, then the lesson. */}
+      <section className="lesson-takeaways" aria-labelledby="takeaways">
+        <h2 id="takeaways">What you’ll learn</h2>
+        <ul>{l.takeaways.map((t) => <li key={t}>{oneState(t, st)}</li>)}</ul>
+      </section>
       {lessonKey === 'types' && (
         <section className="not-sure" aria-labelledby="types-not-sure">
           <h2 id="types-not-sure">Not sure which kind of property fits you?</h2>
@@ -144,23 +251,16 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
           <a className="btn" href="#/decide">Help me choose →</a>
         </section>
       )}
-      {/* Wide screens: the lesson on the left, "What you'll learn" beside it and in view as you read. The page stays
-          full width; the side column keeps the reading lines shorter. Phones get one column, summary first. */}
-      <div className="lesson-layout">
-        <section className="lesson-takeaways" aria-labelledby="takeaways">
-          <h2 id="takeaways">What you’ll learn</h2>
-          <ul>{l.takeaways.map((t) => <li key={t}>{t}</li>)}</ul>
-          {l.tryIt && <p className="lesson-side-try"><a href={l.tryIt.href}>{l.tryIt.label} →</a></p>}
-        </section>
-        <article className="lesson-body-text">
-          {sections.map((s) => (
-            <section key={s.heading}>
-              <h2>{s.heading}</h2>
-              {s.blocks.map((b, i) => <Block key={i} b={b} marked={marked.get(b)} />)}
-            </section>
-          ))}
-        </article>
-      </div>
+      <article className="lesson-body-text">
+        {sections.map((s) => (
+          <section key={s.heading}>
+            <h2>{s.heading}</h2>
+            {s.blocks.map((b, i) => <Block key={i} b={b} marked={marked.get(b)} />)}
+          </section>
+        ))}
+      </article>
+      {/* Hiring help for this topic goes with the reading, before the terms and questions that wrap the lesson up. */}
+      <TopicAd lesson={lessonKey} />
       <section className="lesson-terms" aria-labelledby="terms" ref={endRef}>
         <h2 id="terms">Key terms</h2>
         <dl>{terms.map((t) => <div key={t.term}><dt>{t.term}</dt><dd>{t.meaning}</dd></div>)}</dl>
@@ -170,13 +270,14 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
       {l.practice && (
         <section className="lesson-practice" aria-labelledby="practice-head">
           <h2 id="practice-head">Put it into practice</h2>
-          <p>{l.practice}</p>
-          {l.tryIt && <a className="btn" href={l.tryIt.href}>{l.tryIt.label} →</a>}
+          <p>{oneState(l.practice, st)}</p>
+          {practiceLink && <a className="btn" href={practiceLink.href}>{practiceLink.label} →</a>}
+          {/* The lesson's other link, when the task doesn't use it: set apart, so it isn't mistaken for the task. */}
+          {extraTry && <p className="lesson-also"><span className="muted">Also useful:</span> <a className="btn btn-secondary" href={extraTry.href}>{extraTry.label} →</a></p>}
         </section>
       )}
       {!l.practice && l.tryIt && <p className="lesson-try"><a className="btn btn-secondary" href={l.tryIt.href}>{l.tryIt.label} →</a></p>}
-      {/* After the lesson and its questions, never inside them. */}
-      <TopicAd lesson={lessonKey} />
+      {l.books && <LessonBooks isbns={l.books} />}
       <section className="lesson-sources" aria-labelledby="sources">
         <h2 id="sources">Where this comes from</h2>
         <details className="sources-more">
@@ -209,4 +310,3 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
     </main>
   );
 }
-

@@ -1,0 +1,73 @@
+/* Review round 7: pros page fixes (Your team hub, every professional page, /agents). Scoped to .pros-page. */
+
+/* ---- Hub (/pros): one way in, the ad in its own row, matching heading bars ---- */
+.pros-page section.pros-start .btn { justify-self: start; }
+.pros-sale-pick { margin-top: 6px; padding-top: 16px; border-top: 1px solid var(--border); }
+.pros-sale-pick label { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; font-weight: 600; }
+.pros-sale-pick select { width: auto; max-width: 100%; min-height: 44px; font-weight: 600; }
+.pros-start .team-list { margin-top: 4px; }
+.pros-ad-row { margin: 0 0 28px; }
+.pros-ad-row:empty { display: none; }
+.pros-ad-row > .ad-box { margin: 0; }
+.pros-page section.pros-all > .muted { margin: -6px 0 18px; }
+
+/* "Next: step 4 of 6": readable, not small grey text */
+.pros-page .path-next .muted { color: var(--text); font-size: 1.1rem; font-weight: 700; }
+
+/* ---- A professional's page ---- */
+.pro-state-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 0 0 12px; font-size: 1rem; }
+.pro-state-line label { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+.pro-state-line select { width: auto; min-height: 44px; padding: 8px 12px; }
+
+.pro-learn { margin: 14px 0 6px; padding: 14px 18px; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--info) 30%, var(--border)); background: var(--info-bg); }
+.pro-learn > strong { display: block; font-size: 1.1rem; margin-bottom: 6px; }
+.pro-learn ul { margin: 0; padding-left: 22px; display: grid; gap: 4px; }
+
+/* One heading style per level: part bars (Hiring one, What to say, Paying them…), then box headings inside. */
+.pro-guide .pro-guide-cols section > h3 { margin: 0 0 10px; padding-bottom: 8px; font-size: 1.15rem; font-weight: 800; border-bottom: 1px solid var(--border); }
+.pro-guide .pro-guide-cols { align-items: start; }
+.pro-guide .pro-script-cols { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
+@media (min-width: 1100px) {
+  .pro-guide .pro-script-cols:has(> section:nth-child(3)) { grid-template-columns: 2fr 1fr 1fr; }
+  .pro-guide .pro-script-cols:has(> section:nth-child(2)):not(:has(> section:nth-child(3))) { grid-template-columns: 2fr 1fr; }
+}
+.pro-guide .pro-pay-cols { grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); }
+.pro-guide .pro-pay-cols ul { gap: 8px; }
+.pro-script-quote { font-size: 1.05rem; line-height: 1.7; }
+.pro-ad-row { margin: 8px 0 4px; }
+.pro-ad-row:empty { display: none; }
+.pro-ad-row > .ad-box { margin: 0; }
+
+/* Fill-in blanks in "What to say" */
+.fill-note { margin: 0 0 10px; color: var(--text); font-size: 0.98rem; }
+.fill-blank { padding: 0 3px; border-bottom: 2px dashed var(--accent); color: var(--accent); font-weight: 600; background: color-mix(in srgb, var(--accent) 8%, transparent); border-radius: 3px 3px 0 0; }
+.fill-blank.filled { border-bottom-style: solid; border-bottom-color: var(--go); color: var(--go); background: var(--go-bg); }
+
+/* "Working with one" as keyword-led bullets */
+.pro-overview-list { margin: 0; padding-left: 22px; display: grid; gap: 12px; }
+.pro-overview-list li { line-height: 1.65; max-width: none; }
+
+/* Readable labels: who a reason is for, "Fact:", and story eyebrows */
+.pro-guide .why-who { font-size: 0.95rem; color: var(--text); letter-spacing: 0.02em; }
+.pro-guide .why-example { color: var(--text); }
+.pro-guide .why-example strong { color: var(--info); }
+
+/* Real stories: one balanced grid, each card tagged */
+.story-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 16px; align-items: start; }
+.story-grid .story-card-good { border-left: 5px solid var(--go); }
+.story-grid .story-card-caution { border-left: 5px solid var(--stop); }
+.story-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.story-tag { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.88rem; font-weight: 700; }
+.story-tag.tag-good { background: var(--go-bg); color: var(--go); }
+.story-tag.tag-caution { background: var(--stop-bg); color: var(--stop); }
+.story-tag.tag-scope { background: var(--info-bg); color: var(--info); }
+.pro-guide .story-who { font-size: 0.98rem; font-weight: 700; text-transform: none; letter-spacing: 0; color: var(--text); }
+.pro-guide .story-lesson { color: var(--text); }
+.story-other-head { margin: 4px 0 6px; font-size: 1.15rem; font-weight: 800; }
+.story-other { margin-top: 16px; }
+.story-other > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 700; font-size: 1.05rem; color: var(--accent); }
+.story-other > .muted { margin: 4px 0 12px; }
+
+/* State line: the label and drop-down sit beside the text, and wrap as a unit on phones. */
+.pro-state-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+.pro-state-line label { display: inline-flex; align-items: center; gap: 8px; }

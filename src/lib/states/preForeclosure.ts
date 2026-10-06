@@ -112,18 +112,18 @@ export const READ_NOTICE: ByStateLines = {
 /** The caution box: why the site never helps anyone contact owners in foreclosure. */
 export const NO_CONTACT: ByStateLines = {
   NV: [
-    { text: 'In Nevada, foreclosure consultants must be licensed, and a buyer who uses fraud or deceit on an owner in foreclosure faces criminal penalties. The owner can also cancel such a purchase for up to 2 years (NRS Chapter 645F). Owners may be in the state’s Foreclosure Mediation Program, too.' },
+    { topic: 'Foreclosure consultants', text: 'In Nevada, they need a license, and a buyer who uses fraud or deceit on an owner in foreclosure faces criminal penalties. The owner can also cancel such a purchase for up to 2 years (NRS Chapter 645F). Owners may be in the state’s Foreclosure Mediation Program, too.' },
   ],
   CA: [
-    { text: 'In California, an investor (any buyer who won’t live in it) buying a 1 to 4 unit home from an owner who lives there after a notice of default is recorded must follow the Home Equity Sales Contract Act. The contract must be in writing, with set terms and a cancellation notice. The owner can cancel until midnight of the 5th business day after signing, or until 8 a.m. on the sale day, whichever comes first. Until then the buyer can’t take a deed, record anything or pay the owner (Civil Code 1695.3, 1695.4, 1695.6).' },
-    { text: 'In California, breaking these rules can bring a fine of up to $25,000, jail time (up to a year in county jail, or longer under Penal Code 1170(h)), or both, for each violation (Civil Code 1695.8). If the buyer took unconscionable advantage, the owner can undo the sale for 2 years (Civil Code 1695.13, 1695.14).' },
+    { topic: 'Investor purchases', text: 'In California, an investor (any buyer who won’t live in it) buying a 1 to 4 unit home from an owner who lives there after a notice of default is recorded must follow the Home Equity Sales Contract Act. The contract must be in writing, with set terms and a cancellation notice. The owner can cancel until midnight of the 5th business day after signing, or until 8 a.m. on the sale day, whichever comes first. Until then the buyer can’t take a deed, record anything or pay the owner (Civil Code 1695.3, 1695.4, 1695.6).' },
+    { topic: 'Penalties', text: 'In California, breaking these rules can bring a fine of up to $25,000, jail time (up to a year in county jail, or longer under Penal Code 1170(h)), or both, for each violation (Civil Code 1695.8). If the buyer took unconscionable advantage, the owner can undo the sale for 2 years (Civil Code 1695.13, 1695.14).' },
   ],
   AZ: [
-    { text: 'In Arizona, most people who offer an owner in foreclosure paid help to stop or delay the sale are “foreclosure consultants” (attorneys and the lender or servicer are among the exceptions). The law bars that person from taking payment before the work is done, and from taking the owner’s deed or any interest in the home (A.R.S. 44-1378, 44-1378.02).' },
-    { text: 'In Arizona, a foreclosure consultant who commits fraud or deceit against a homeowner, including in a “sell me your house and rent it back” deal, commits a class 1 misdemeanor (A.R.S. 44-1378.06).' },
+    { topic: 'Foreclosure consultants', text: 'In Arizona, most people who offer an owner in foreclosure paid help to stop or delay the sale are “foreclosure consultants” (attorneys and the lender or servicer are among the exceptions). The law bars that person from taking payment before the work is done, and from taking the owner’s deed or any interest in the home (A.R.S. 44-1378, 44-1378.02).' },
+    { topic: 'Penalties', text: 'In Arizona, a foreclosure consultant who commits fraud or deceit against a homeowner, including in a “sell me your house and rent it back” deal, commits a class 1 misdemeanor (A.R.S. 44-1378.06).' },
   ],
   UT: [
-    { text: 'In Utah, a person paid to offer an owner a deal involving the home’s title that they say will stop a foreclosure is doing “foreclosure rescue.” That needs a Utah real estate license and a written agreement. A licensee can’t require the owner to sign the home over to the licensee or to someone they have a business tie with, pay someone other than their servicer, or stop talking to their lender or counselor (Utah Code 61-2f-102, 61-2f-401).' },
+    { topic: 'Foreclosure rescue', text: 'In Utah, a person paid to offer an owner a deal involving the home’s title that they say will stop a foreclosure is doing “foreclosure rescue.” That needs a Utah real estate license and a written agreement. A licensee can’t require the owner to sign the home over to the licensee or to someone they have a business tie with, pay someone other than their servicer, or stop talking to their lender or counselor (Utah Code 61-2f-102, 61-2f-401).' },
   ],
   TX: TX_PRE_NO_CONTACT,
 };

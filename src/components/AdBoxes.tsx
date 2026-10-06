@@ -23,8 +23,9 @@ export function AdSpace({ kind }: { kind: string }) {
   if (!advertisingOpen(features)) return null;
   return (
     <aside className="ad-box ad-space" aria-label={`${kind} space`}>
-      <div className="ad-box-label">{kind} space</div>
-      <p>This spot is for a licensed professional{area ? ` advertising in ${areaLabel(area)}` : ''}.</p>
+      {/* One label for every empty spot, so it reads as an invitation rather than an unfinished box. */}
+      <div className="ad-box-label">Advertise here</div>
+      <p>Are you a licensed professional{area ? ` in ${areaLabel(area)}` : ''}? Reach buyers and investors on this page.</p>
       <a className="btn btn-secondary" href="#/advertise">Advertise on DeedOwl →</a>
     </aside>
   );

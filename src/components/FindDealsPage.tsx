@@ -4,7 +4,7 @@ import { findDealsConfig } from '../lib/narrow';
 import PageHero from './PageHero';
 import OwlNote from './OwlNote';
 import PathNext from './PathNext';
-import { IconBank, IconHome, IconLayers, IconSearch, IconSteps, IconFile } from './Icons';
+import { IconBank, IconBuilding, IconGavel, IconHome, IconLayers, IconSteps, IconFile } from './Icons';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
 import { COUNTY_PAGES, nationalOfficialFor, officeLabelsFor, OTHER_SITES, STATE_SALES, WHERE_TO_LOOK, countyKey, type DealSource } from '../lib/findDeals';
 import { COUNTY_OFFICES } from '../lib/countyOffices';
@@ -17,6 +17,12 @@ import { useLastActivity } from '../lib/journey';
 import { RotatingAd } from './AdBoxes';
 import { useDirectory } from './ProDirectory';
 import { useSpotCategories } from './AdSpot';
+
+const NATIONAL_GROUPS: [NonNullable<DealSource['group']>, string][] = [
+  ['government', 'Federal agencies'],
+  ['gse', 'Fannie Mae and Freddie Mac'],
+  ['bank', 'Banks'],
+];
 
 const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake', TX: 'Harris' };
 
@@ -34,9 +40,9 @@ function SourceCard({ s }: { s: DealSource }) {
 
 /** Step 5 of the path: where to look for deals in a state and county. */
 /** One group of sources: its own panel, with a colored header bar, an icon and a large title, so groups are easy to tell apart. */
-function Band({ tone, icon, title, sub, children, id }: { tone: 'county' | 'site' | 'rules' | 'national' | 'other'; icon: ReactNode; title: ReactNode; sub?: ReactNode; children: ReactNode; id?: string }) {
+function Band({ tone, icon, title, sub, children, id, other }: { tone: 'county' | 'site' | 'rules' | 'national' | 'other'; icon: ReactNode; title: ReactNode; sub?: ReactNode; children: ReactNode; id?: string; other?: number }) {
   return (
-    <section id={id} className={`deal-band tone-${tone}`}>
+    <section id={id} className={`deal-band tone-${tone}${other !== undefined ? ` other-${other}` : ''}`}>
       <header className="band-head">
         <span className="band-icon" aria-hidden>{icon}</span>
         <div>
@@ -51,7 +57,7 @@ function Band({ tone, icon, title, sub, children, id }: { tone: 'county' | 'site
 
 export default function FindDealsPage() {
   useMarkStep('deals');
-  useLastActivity('#/find-deals', 'Find Deals');
+  useLastActivity('#/find-deals', 'Find deals');
   // The visitor's area (myArea.ts): their state and county, from the city they chose or picked here.
   const [mine, setMine] = useMyArea();
   const { pros } = useDirectory();
@@ -109,7 +115,7 @@ export default function FindDealsPage() {
 
       <NarrowDown config={findDealsConfig()} intro="Answer two quick questions and we’ll point you to the best places to look first. Every source is still listed below." />
       {/* The Mentor Connect spot (Admin → Ad spots) beside the "found a property" help, above and apart from the official sources. */}
-      <div className={adCats.length ? 'next-with-ad' : undefined}>
+      <div className={adCats.length ? 'next-with-ad fd-next' : undefined}>
         <p className="page-starter"><strong>Buying a home listed for sale?</strong> Ask a licensed agent to set up a search of homes on the local listing service (MLS) that match your buy box (your written limits: area, property type, price and condition). <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p>
         {adCats.length > 0 && <RotatingAd pros={pros} categories={adCats} placeholder />}
       </div>
@@ -139,11 +145,23 @@ export default function FindDealsPage() {
         </Band>
       )}
       <Band id="deals-rules" tone="rules" icon={<IconSteps />} title={`How sales work in ${st.name}`}>
-        <ul className="state-sales-list">{STATE_SALES[area.state].map((t) => <li key={t}>{t}</li>)}</ul>
+        <ul className="state-sales-list">{STATE_SALES[area.state].map((t) => {
+          // "Tax sales: …" → the topic in bold, so readers can scan.
+          const m = t.match(/^([A-Z][^:.]{1,40}):\s(.*)$/s);
+          return <li key={t}>{m ? <><strong>{m[1]}:</strong> {m[2]}</> : t}</li>;
+        })}</ul>
         <a className="band-link" href="#/learn/forced-sales">Read the lesson on forced sales →</a>
       </Band>
       <Band id="deals-national" tone="national" icon={<IconBank />} title={`Across ${st.name} and nationwide`} sub="Federal agencies, Fannie Mae and Freddie Mac, and banks selling homes they own.">
-        <ul className="deal-sources">{nationalOfficialFor(st.name).map((s) => <SourceCard key={s.name} s={s} />)}</ul>
+        {NATIONAL_GROUPS.map(([g, label]) => {
+          const xs = nationalOfficialFor(st.name).filter((s) => s.group === g);
+          return xs.length ? (
+            <div key={g} className="deal-group">
+              <h4 className="deal-group-head">{label}</h4>
+              <ul className="deal-sources">{xs.map((s) => <SourceCard key={s.name} s={s} />)}</ul>
+            </div>
+          ) : null;
+        })}
       </Band>
 
       <h2 className="section-title">Other sites</h2>
@@ -152,7 +170,7 @@ export default function FindDealsPage() {
         out of date or already sold, and auction companies add their own fees. Confirm every property with the seller, and read each site’s terms.
       </p>
       {OTHER_SITES.map((g, i) => (
-        <Band key={g.group} tone="other" icon={[<IconHome key="h" />, <IconSearch key="s" />, <IconBank key="b" />][i % 3]} title={g.group}>
+        <Band key={g.group} tone="other" icon={[<IconHome key="h" />, <IconGavel key="g" />, <IconBuilding key="b" />][i % 3]} title={g.group} other={i % 3}>
           <ul className="deal-sources other">{g.sites.map((s) => <SourceCard key={s.name} s={s} />)}</ul>
         </Band>
       ))}

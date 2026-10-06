@@ -10,7 +10,7 @@ export interface LearnModule {
 
 /** Learning paths: the lessons in order, grouped under the question each group answers. */
 export const LEARN_PATHS: { title: string; what: string; keys: string[] }[] = [
-  { title: 'Start here', what: 'The markets, the kinds of property, and who you’d compete with.', keys: ['markets', 'types', 'who'] },
+  { title: 'The basics', what: 'The markets, the kinds of property, and who you’d compete with.', keys: ['markets', 'types', 'who'] },
   { title: 'Is it a deal?', what: 'Running the numbers, knowing when to walk away, and making offers.', keys: ['analyze', 'walk-away', 'negotiate'] },
   { title: 'Paying for it', what: 'Loans, creative financing, and the seminar pitches to avoid.', keys: ['financing', 'creative', 'red-flags'] },
   { title: 'Finding and verifying', what: 'Research tools and how each kind of forced sale works in your state.', keys: ['tools', 'forced-sales'] },
@@ -30,7 +30,7 @@ export const LEARN_MODULES: LearnModule[] = [
   { key: 'red-flags', title: 'Seminar red flags', summary: 'How seminar and coaching scams work, the warning signs regulators found, and why you should never borrow to learn or to bid.' },
   { key: 'tools', title: 'Tools and tricks of the trade', summary: 'Records, maps, comps and checklists investors use to research a property.' },
   { key: 'forced-sales', title: 'Buying at forced sales', summary: 'Tax, foreclosure, sheriff and IRS sales across Nevada, California, Arizona, Utah and Texas, with step-by-step guides.' },
-  { key: 'after-closing', title: 'After you buy: running a rental', summary: 'The first weeks, tenant screening and fair housing, deposits, entry and rent rules in your state, and records for taxes.' },
+  { key: 'after-closing', title: 'Running a rental', summary: 'The first weeks, tenant screening and fair housing, deposits, entry and rent rules in your state, and records for taxes.' },
   { key: 'taxes', title: 'Taxes from purchase to sale', summary: 'Transfer and property tax, rental income and depreciation, how flips are taxed, selling, 1031 exchanges and each state’s income tax.' },
   { key: 'veterans', title: 'Benefits for veterans', summary: 'VA loans, the funding fee exemption, servicemember protections, and veteran property tax breaks in your state.' },
   { key: 'reading', title: 'Recommended reading', summary: 'Books worth reading, picked for new investors.', href: '#/learn/reading' },

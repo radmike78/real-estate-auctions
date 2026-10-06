@@ -16,10 +16,10 @@ export interface PathStep {
 export const PATH: PathStep[] = [
   { key: 'learn', n: 1, label: 'Learn', href: '#/learn', blurb: 'How real estate investing works: markets, property types, deals and financing.' },
   { key: 'decide', n: 2, label: 'Decide', href: '#/decide', blurb: 'Choose the kind of property and market that fits your money, time and goals.' },
-  { key: 'team', n: 3, label: 'Your Team', href: '#/pros', blurb: 'Who helps with a purchase, when you need them, and how to find them.' },
+  { key: 'team', n: 3, label: 'Your team', href: '#/pros', blurb: 'Who helps with a purchase, when you need them, and how to find them.' },
   { key: 'practice', n: 4, label: 'Practice', href: '#/practice', blurb: 'Buy a fictional property step by step before you risk real money.' },
-  { key: 'deals', n: 5, label: 'Find Deals', href: '#/find-deals', blurb: 'Where to look in your state and county, starting with official sources.' },
-  { key: 'analyze', n: 6, label: 'Analyze a Deal', href: '#/analyze', blurb: 'Run the numbers on a real deal and work through buying it.' },
+  { key: 'deals', n: 5, label: 'Find deals', href: '#/find-deals', blurb: 'Where to look in your state and county, starting with official sources.' },
+  { key: 'analyze', n: 6, label: 'Analyze a deal', href: '#/analyze', blurb: 'Run the numbers on a real deal and work through buying it.' },
 ];
 
 const KEY = 'deedowl.path.v1';

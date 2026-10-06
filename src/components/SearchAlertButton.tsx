@@ -28,7 +28,7 @@ export default function SearchAlertButton({ cls }: { cls: ClassFilter }) {
   if (!features?.email) return null; // email alerts aren't set up on this server yet
   return (
     <>
-      <button className="btn btn-secondary" onClick={openIt}>✉ Email me new matches</button>
+      <button className="btn btn-secondary" onClick={openIt}>Email me new matches</button>
       {open && (
         <AlertDialog
           title="Email me new matches"

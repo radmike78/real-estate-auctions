@@ -4,15 +4,52 @@ import PageHero from './PageHero';
 import { IconSearch } from './Icons';
 import { highlight, searchGuides, type GuideIndex } from '../lib/guideSearch';
 import OwlNote from './OwlNote';
-import StatePicker from './StatePicker';
 import { useMyState } from '../lib/myState';
+import { STATES, stateByCode, type StateCode } from '../lib/regions';
 import AdSpot from './AdSpot';
 
 const TRY = ['Deposit', 'Redemption period', 'What survives an HOA foreclosure?', 'Cashier’s check', 'Occupied home', 'Title insurance'];
 
+/** True on a phone-width screen, where a long placeholder gets cut off. */
+function useNarrow(px = 560) {
+  const q = `(max-width: ${px}px)`;
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const m = window.matchMedia?.(q);
+    if (!m) return;
+    const on = () => setNarrow(m.matches);
+    on();
+    m.addEventListener?.('change', on);
+    return () => m.removeEventListener?.('change', on);
+  }, [q]);
+  return narrow;
+}
+
+/**
+ * The chosen state (from the header) is the default; other states sit in one compact drop-down instead of a second
+ * row of state buttons.
+ */
+export function StateSelect({ label, noun = 'guides' }: { label: string; noun?: string }) {
+  const [mine, setMine] = useMyState();
+  const st = mine ? stateByCode(mine) : null;
+  return (
+    <div className="state-select" role="group" aria-label={label}>
+      <span className="state-select-now">{st ? <>Showing <strong>{st.name}</strong> {noun}</> : label}</span>
+      <label>
+        <span>{st ? 'Other states:' : 'Choose:'}</span>
+        <select value={mine ?? ''} onChange={(e) => setMine((e.target.value || null) as StateCode | null)}>
+          {STATES.map((x) => <option key={x.code} value={x.code}>{x.name}</option>)}
+          <option value="">All states</option>
+        </select>
+      </label>
+    </div>
+  );
+}
+
 /** The search box on its own, for other pages (the Learn page) to send people here. */
 export function GuideSearchForm({ initial = '', onSearch }: { initial?: string; onSearch?: (q: string) => void }) {
   const [q, setQ] = useState(initial);
+  const narrow = useNarrow();
   useEffect(() => setQ(initial), [initial]);
   const go = (e: FormEvent) => {
     e.preventDefault();
@@ -25,7 +62,7 @@ export function GuideSearchForm({ initial = '', onSearch }: { initial?: string; 
       <input
         type="search"
         aria-label="Search the guides"
-        placeholder="Ask about deposits, liens, redemption…"
+        placeholder={narrow ? 'Deposits, liens…' : 'Ask about deposits, liens, redemption…'}
         value={q}
         maxLength={200}
         onChange={(e) => {
@@ -74,7 +111,7 @@ export default function GuidesPage({ initialQuery }: { initialQuery: string }) {
         <GuideSearchForm initial={q} onSearch={search} />
       </PageHero>
 
-      <StatePicker label="Show my state’s guides first" />
+      <StateSelect label="Show my state’s guides first" noun="guides first" />
       {failed && <p className="notice" role="alert">Search didn’t load. Refresh the page to try again.</p>}
       {!failed && !index && searched && <p className="muted" role="status">Loading the guides…</p>}
 

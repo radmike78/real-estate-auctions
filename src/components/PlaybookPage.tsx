@@ -5,8 +5,49 @@ import DrillDown, { Tile, type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
 import { GuideSearchForm } from './GuidesPage';
 import { SALE_ORDER } from '../practice/scenarios';
+import { drillById } from '../practice/drills';
+import { guideKey } from '../lib/narrow';
 
 const PRACTICE_SALES = new Set<string>(SALE_ORDER);
+
+/** The kind of sale a guide covers, the same across states ("txforeclosure" and "foreclosure" are both "foreclosure"). */
+const kindOf = (key: string) => key.replace(/^(ca|az|ut|tx)(?=[a-z]{3})/, '').replace(/^taxlien$/, 'tax');
+
+/** A hands-on drill for another state's guide, where one exists (trustee-sale-tx, tax-lien-az, hoa-sale-ca…). */
+function stateDrill(p: Playbook): string | null {
+  const st = stateOf(p);
+  if (st === 'NV') return null;
+  const s = st.toLowerCase();
+  const kind = kindOf(p.key);
+  const ids: Record<string, string[]> = {
+    foreclosure: [`trustee-sale-${s}`],
+    tax: [`tax-deed-${s}`, `tax-lien-${s}`, `tax-sale-${s}`],
+    hoa: [`hoa-sale-${s}`],
+    sheriff: [`sheriff-sale-${s}`],
+  };
+  return (ids[kind] ?? []).find((id) => drillById(id)) ?? null;
+}
+
+/** Key facts end with a period, like the sentences around them. */
+const withPeriod = (t: string) => (/[.!?*]["”’]?$/.test(t.trim()) ? t : `${t.trim()}.`);
+
+/** "Illustrative example: a postponed trustee sale" under an "Illustrative example" badge says it twice: keep the story's name. */
+function exampleHeading(title: string) {
+  const t = title.replace(/^(?:illustrative|fictional) example(?: \(fictional\))?:?\s*/i, '');
+  return t ? t.charAt(0).toUpperCase() + t.slice(1) : 'How it could play out';
+}
+
+/** Placeholders like "[date]" in a script, shown as blanks to fill in. */
+export const hasBlanks = (t: string) => /\[[^\]]+\]/.test(t);
+
+/** On the hub the page already names the chosen state, so the cards don't repeat it ("Most Texas home loans" → "Most home loans"). */
+function withoutState(text: string, name: string) {
+  return text
+    .replace(new RegExp(`\\b([Aa]) ${name} (?=[AEIOUaeiou])`, 'g'), (_m, a: string) => `${a}n `)
+    .replace(new RegExp(`\\b([Aa]n?) ${name} `, 'g'), '$1 ')
+    .replace(new RegExp(` in ${name}\\b`, 'g'), '')
+    .replace(new RegExp(`\\b${name} `, 'g'), '');
+}
 import TeamList from './TeamList';
 import { IconBadge, IconBank, IconBuilding, IconCheckList, IconFile, IconFlag, IconGavel, IconHomeDown, IconHouses, IconLayers, IconPercent, IconReceipt, IconSteps } from './Icons';
 
@@ -31,7 +72,7 @@ function saleIcon(key: string) {
   return <IconCheckList />;
 }
 import { guidesFor, playbookByKey, stateOf, type Playbook } from '../lib/playbooks';
-import StatePicker from './StatePicker';
+import { StateSelect } from './GuidesPage';
 import { useMyState } from '../lib/myState';
 import { STATES, stateByCode } from '../lib/regions';
 import { fmtDate } from '../lib/status';
@@ -81,8 +122,8 @@ export function sections(p: Playbook): DrillSection[] {
       summary: `${p.survives.mayStay.length} things that can stay with the property`,
       content: () => (
         <div className="survive-grid">
-          <div className="survive-col good"><h3>Usually wiped out</h3><ul>{p.survives.wipedOut.map((x) => <li key={x}><Cited text={x} /></li>)}</ul></div>
-          <div className="survive-col bad"><h3>Can stay with the property</h3><ul>{p.survives.mayStay.map((x) => <li key={x}><Cited text={x} /></li>)}</ul></div>
+          <div className="survive-col good"><h3 className="guide-sub">Usually wiped out</h3><ul>{p.survives.wipedOut.map((x) => <li key={x}><Cited text={x} /></li>)}</ul></div>
+          <div className="survive-col bad"><h3 className="guide-sub">Can stay with the property</h3><ul>{p.survives.mayStay.map((x) => <li key={x}><Cited text={x} /></li>)}</ul></div>
           <p className="muted survive-note">Lien priority is a legal question. Confirm with a title company or real estate attorney before you bid.</p>
         </div>
       ),
@@ -100,7 +141,7 @@ export function sections(p: Playbook): DrillSection[] {
           </ul>
           <aside className="example-card">
             <span className="example-tag">Illustrative example, not a real property</span>
-            <h3>{p.example.title}</h3>
+            <h3>{exampleHeading(p.example.title)}</h3>
             <p><Cited text={p.example.story} /></p>
             <p className="example-lesson"><strong>Lesson:</strong> {p.example.lesson}</p>
           </aside>
@@ -160,24 +201,28 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
         >
           <GuideSearchForm />
         </PageHero>
-        <StatePicker label="Show guides for" />
+        <StateSelect label="Show guides for" />
         <NarrowDown config={guidesConfig(mine)} intro="Tell us how and what you want to buy, and we’ll point you to the guides to read first. Every guide is still listed below." />
         {playbook && <p className="notice" role="status">We couldn’t find that guide. Choose one below.</p>}
         {groups.map((g) => (
-          <section key={g.code} aria-label={`${g.name} guides`}>
+          <section key={g.code} className="guide-group" aria-label={`${g.name} guides`}>
             {!st && <h2 className="section-title">{g.name}{g.code === 'NV' ? ' (Clark County)' : ''}</h2>}
             <div className="drill-tiles">
-              {guidesFor(g.code).map((x) => <Tile key={x.key} href={`#/playbooks/${x.key}`} icon={saleIcon(x.key)} title={x.short} summary={x.oneLine} />)}
+              {guidesFor(g.code).map((x) => <Tile key={x.key} href={`#/playbooks/${x.key}`} icon={saleIcon(x.key)} title={x.short} summary={st ? withoutState(x.teaser ?? x.oneLine, st.name) : x.teaser ?? x.oneLine} />)}
             </div>
           </section>
         ))}
-        <p className="muted playbook-note">No hype, no income promises. Many good decisions are the deals you walk away from.</p>
+        <p className="walk-away-callout" role="note"><strong>No hype, no income promises.</strong> Many good decisions are the deals you walk away from.</p>
         <AdSpot spot="playbook" />
       </main>
     );
   }
 
   const base = `#/playbooks/${p.key}`;
+  // A visitor who chose another state (e.g. Texas) and landed on a Nevada guide gets a link to their own state's guide.
+  const mineName = mine && mine !== stateOf(p) ? stateByCode(mine)?.name : null;
+  const mineGuide = mineName ? playbookByKey(guideKey(mine!, kindOf(p.key)) ?? '') : null;
+  const drill = stateDrill(p);
   const s = sections(p);
   const open = s.some((x) => x.key === section);
   return (
@@ -189,9 +234,23 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
         title={open ? <a className="title-link" href={base}>{p.title}</a> : p.title}
         sub={open ? undefined : p.oneLine}
       />
+      {mineGuide && mineGuide.key !== p.key && (
+        <p className="other-state-guide" role="note">
+          This guide follows {stateByCode(stateOf(p))?.name ?? ''} law. You chose {mineName}: <a href={`#/playbooks/${mineGuide.key}`}>see {mineGuide.title} →</a>
+        </p>
+      )}
       {!open && (
         <>
-          <div className="you-get"><span>What you get</span><strong>{p.plain ?? p.youGet}</strong>{p.plain && <small>In legal terms: {p.youGet}</small>}</div>
+          <div className="you-get">
+            <span>What you get</span>
+            <strong>{p.plain ?? p.youGet}</strong>
+            {p.plain && (
+              <details className="you-get-legal">
+                <summary>In legal terms</summary>
+                <p><Cited text={p.youGet} /></p>
+              </details>
+            )}
+          </div>
           {/* The most costly mistake goes on the first screen, not one click deep: risks stay visible for everyone. */}
           {p.mistakes[0] && (
             <p className="top-mistake" role="note">
@@ -203,15 +262,16 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
       {/* The step-by-step tiles come before the fact cards, so beginners see the way in first. */}
       <DrillDown sections={s} active={section} baseHref={base} label={`${p.short} guide`} />
       {!open && (
-        <section aria-labelledby="glance-head">
+        <section className="guide-group" aria-labelledby="glance-head">
           <h2 id="glance-head" className="section-title">The key facts</h2>
-          <dl className="glance-facts">
-            {p.glance.filter((g) => g.label !== 'What you get').map((g) => <div key={g.label}><dt>{g.label}</dt><dd><Cited text={g.value} plain={boldNumbers} /></dd></div>)}
+          <dl className="glance-facts guide-facts">
+            {p.glance.filter((g) => g.label !== 'What you get').map((g) => <div key={g.label}><dt>{g.label}</dt><dd><Cited text={withPeriod(g.value)} plain={boldNumbers} /></dd></div>)}
           </dl>
         </section>
       )}
       {!open && <p className="muted playbook-note">{calcNote(p)}</p>}
-      {!open && PRACTICE_SALES.has(p.key) && <p className="playbook-note"><a className="btn" href={`#/practice?sale=${p.key}`}>Practice this kind of sale, hands-on →</a></p>}
+      {!open && PRACTICE_SALES.has(p.key) && <p className="playbook-note"><a className="btn" href={`#/practice?sale=${p.key}`}>Practice this kind of sale (Nevada rules), hands-on →</a></p>}
+      {!open && drill && <p className="playbook-note"><a className="btn" href={`#/practice/drills/${drill}`}>Practice this kind of sale with the {stateByCode(stateOf(p))?.name ?? ''} drill, hands-on →</a></p>}
       {!open && p.key === 'commercial' && <p className="playbook-note"><a className="btn btn-secondary" href="#/practice">Practice buying commercial property, hands-on →</a></p>}
       <AdSpot spot="playbook" />
     </main>
