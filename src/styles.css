@@ -2758,9 +2758,10 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
   .topic-land { --tc: #c3cddb; }
   [class*='topic-'] { --tc-on: #0b1220; }
 }
-.drill-group-block { margin-bottom: 26px; }
+.drill-group-block { margin-bottom: 56px; }
+.drill-group-block .drill-group { margin-bottom: 18px; }
 /* Its own full-width grid, not the centred flex rows used elsewhere: cards line up in columns and fill the page. */
-.practice-grid.drill-grid { display: grid; gap: 18px; grid-template-columns: repeat(var(--dc, 4), minmax(0, 1fr)); justify-content: stretch; }
+.practice-grid.drill-grid { display: grid; gap: 30px; grid-template-columns: repeat(var(--dc, 4), minmax(0, 1fr)); justify-content: stretch; }
 .practice-grid.drill-grid > * { max-width: none; }
 @media (max-width: 1400px) { .practice-grid.drill-grid { --dc: 3; } }
 @media (max-width: 1080px) { .practice-grid.drill-grid { --dc: 2; } }
