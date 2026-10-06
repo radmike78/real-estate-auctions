@@ -535,7 +535,9 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Check state and local protections (rent control, notice rules, right of residents to buy the park). In Nevada, ask for the list of rent increases for the last 5 years.",
       "Compare chattel loan offers with mortgage options if land is included.",
       "Inspect the home (roof, floors, plumbing, ties/anchoring) and check its age and HUD label.",
-      "Estimate the cost of moving the home, or whether it can be moved at all."
+      "Estimate the cost of moving the home, or whether it can be moved at all.",
+      "In Texas, look the home up in TDHCA’s ownership records by its HUD label or serial number: they show the owner, whether the home is treated as personal or real property, and recorded liens. Check TDHCA’s tax lien records too.",
+      "In Texas, a deed to the land alone doesn’t prove the home goes with it. The home counts as real property only after the owner’s election is filed in the county’s real property records and TDHCA and the appraisal district are told (Occupations Code 1201.2055). If that wasn’t done, ask your title company and lender how the home will transfer and whether they’ll insure and lend on it before you commit."
     ],
     facts: [
       {
@@ -550,6 +552,20 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         source: {
           label: "CFPB: Manufactured Housing Loan Borrowers Face Higher Interest Rates, Risks, and Barriers to Credit (2021)",
           url: "https://www.consumerfinance.gov/about-us/newsroom/manufactured-housing-loan-borrowers-face-higher-interest-rates-risks-and-barriers-to-credit/"
+        }
+      },
+      {
+        text: "In Texas, a manufactured home is real property only once the owner’s election is recorded in the county records and TDHCA and the appraisal district are notified, within 60 days of TDHCA issuing the statement of ownership.",
+        source: {
+          label: "Texas Occupations Code 1201.2055 (election to treat a manufactured home as real property)",
+          url: "https://tcss.legis.texas.gov/resources/OC/htm/OC.1201.htm#1201.2055"
+        }
+      },
+      {
+        text: "TDHCA’s public records show each Texas manufactured home’s ownership and the tax liens recorded against it.",
+        source: {
+          label: "TDHCA Manufactured Housing: view ownership records",
+          url: "https://mhweb.tdhca.state.tx.us/mhweb/title_view.jsp"
         }
       },
       {

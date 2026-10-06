@@ -554,7 +554,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       title: "Get the rent roll and leases, if you can",
-      detail: "A receiver or listing broker can usually provide them. At a tax, trustee or sheriff’s sale you often can’t get them. So assume the building is empty until you can confirm otherwise."
+      detail: "A receiver or listing broker can usually provide them. At a tax, trustee or sheriff’s sale you often can’t get them. Until you can confirm the leases, count the rent as zero, but don’t assume the building is legally empty or that you can move in right away: tenants may have rights."
     },
     {
       title: "Value it the right way",
@@ -570,7 +570,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       title: "Screen for contamination",
-      detail: "Check EPA records for the address. Ask what the property was used for. Gas stations, dry cleaners and auto shops are high risk. Order a Phase I assessment if time allows. Ask your consultant to check TCEQ records too."
+      detail: "Check EPA records for the address. Ask what the property was used for. Gas stations, dry cleaners and auto shops are high risk. Order a Phase I assessment before you’re committed: during the contract’s feasibility period in a negotiated purchase, or before you bid at an auction. Without it you can lose the federal protection from cleanup costs, so if you can’t get one in time, count that risk in whether to buy at all. Ask your consultant to check TCEQ records too."
     },
     {
       title: "If a business comes with it, clear the seller’s taxes",
@@ -578,11 +578,11 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       title: "Line up your money and your contract",
-      detail: "Auctions need cash on the trustee’s or sheriff’s terms. Line up a commercial or bridge lender to refinance after. For a negotiated purchase, have a Texas attorney prepare or review the contract."
+      detail: "Auctions need cash on the trustee’s or sheriff’s terms; a later refinance is a plan, not a promise, because the building must appraise and lease up first. For a negotiated purchase, have a Texas attorney prepare or review the contract, and schedule the inspections, Phase I and lease review inside its feasibility period, before your earnest money becomes non-refundable."
     },
     {
       title: "Take over well",
-      detail: "Insure it the day you own it, and secure the building. Tell tenants in writing where to pay rent. Ask each tenant to sign an estoppel certificate confirming their lease. If you disagree with the appraisal district’s value, protest on time (41.44)."
+      detail: "Insure it from the day it’s your risk, for how it’s actually used and occupied (a vacant building needs different coverage than a leased one), and secure the building. Tell tenants in writing where to pay rent. Ask each tenant to sign an estoppel certificate confirming their lease. If you disagree with the appraisal district’s value, protest on time (41.44)."
     }
   ],
   survives: {
