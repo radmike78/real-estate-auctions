@@ -1,14 +1,20 @@
 import type { WhyPoint } from '../lib/lessons/types';
 import { Cited } from './Cited';
+import { forStateText, showFor, useMyState } from '../lib/myState';
 
+/** One reason. With a state picked, sentences and facts about other states are left out (see forStateText). */
 function Point({ p }: { p: WhyPoint }) {
+  const [st] = useMyState();
+  const text = forStateText(st, p.text);
+  if (!text) return null;
+  const example = p.example && showFor(st, p.example) ? forStateText(st, p.example) : '';
   return (
     <li>
       <span className="why-who">{p.who}</span>
-      <span className="why-text"><Cited text={p.text} /></span>
-      {p.example && (
+      <span className="why-text"><Cited text={text} /></span>
+      {example && (
         <span className="why-example">
-          <strong>Fact:</strong> <Cited text={p.example} />
+          <strong>Fact:</strong> <Cited text={example} />
           {p.source && <> <a href={p.source.url} target="_blank" rel="noopener noreferrer">{p.source.label} ↗</a></>}
         </span>
       )}

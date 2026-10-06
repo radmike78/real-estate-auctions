@@ -224,7 +224,7 @@ export const PRO_WHY = {
     no: [
       {
         who: "Simple, standard purchase",
-        text: "In Nevada, California, Arizona and Utah, escrow and title companies commonly handle closings. So many routine purchases close without an attorney."
+        text: "In every state DeedOwl covers, escrow or title companies commonly handle closings. So many routine purchases close without an attorney."
       },
       {
         who: "Anyone on a tight budget",

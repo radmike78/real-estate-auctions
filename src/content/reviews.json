@@ -61,7 +61,7 @@
       "src/components/SidCertificates.tsx"
     ],
     "reviewed": "2026-10-06",
-    "hash": "145ec1c7e8db5eae",
+    "hash": "ea66276d320f96a6",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -204,7 +204,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "ba8fd1f4eb076c80",
+    "hash": "46189ec3ff3f8125",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -355,7 +355,7 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "55175b2ca754d93f",
+    "hash": "be5a70f2dca8c6d6",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -366,7 +366,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "ea1933ab9f694bd9",
+    "hash": "ab34e64caba75ca4",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {

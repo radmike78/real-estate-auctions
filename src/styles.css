@@ -542,7 +542,7 @@ a.btn { display: inline-block; }
 /* Homepage: the states are buttons; choosing one shows an optional city search and county list. */
 .home-area { display: grid; justify-items: center; gap: 12px; }
 .home-states { flex-wrap: wrap; justify-content: center; }
-.home-states button { background: none; border: 0; padding: 4px 6px; border-radius: 8px; color: inherit; font: inherit; cursor: pointer; min-height: 32px; }
+.home-states button { background: none; border: 0; padding: 4px 6px; border-radius: 8px; color: inherit; font: inherit; cursor: pointer; min-height: 44px; padding: 6px 10px; }
 .home-states button:hover { text-decoration: underline; }
 .home-states button.on { background: var(--accent-strong, #2f5bd3); color: #fff; }
 .home-states-sep { opacity: 0.6; }
@@ -877,7 +877,7 @@ small { font-size: 0.95rem; }
 @media (max-width: 800px) { .survive-grid { grid-template-columns: 1fr; } }
 .example-card { margin-top: 24px; padding: 22px 24px; border-radius: 16px; border: 2px dashed #93c5fd; background: var(--surface); }
 .example-card h3 { margin: 10px 0 8px; }
-.example-tag { display: inline-block; padding: 4px 10px; border-radius: 999px; background: var(--wait-bg); color: var(--wait); font-weight: 700; font-family: var(--font-label); text-transform: uppercase; letter-spacing: 0.04em; }
+.example-tag { display: inline-block; padding: 4px 10px; border-radius: 999px; background: var(--info-bg); color: var(--info); font-weight: 700; font-family: var(--font-label); text-transform: uppercase; letter-spacing: 0.04em; }
 .example-lesson { margin-bottom: 0; }
 .team-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 14px; }
 .team-list li { display: grid; gap: 6px; align-content: start; margin: 0; padding: 18px 20px; border-radius: 14px; background: var(--surface-2); }
@@ -2254,7 +2254,7 @@ h2.part-bar { margin: 36px 0 16px; padding: 10px 16px; font-size: 1.5rem; border
 .numbers-note { margin: 0.5rem 0 0; }
 .calc-label-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .calc-unit-switch { display: inline-flex; flex: 0 0 auto; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
-.calc-unit-switch button { min-width: 40px; min-height: 32px; padding: 2px 12px; border: 0; background: transparent; color: var(--text); font-weight: 700; cursor: pointer; }
+.calc-unit-switch button { min-width: 44px; min-height: 40px; padding: 2px 12px; border: 0; background: transparent; color: var(--text); font-weight: 700; cursor: pointer; }
 .calc-unit-switch button[aria-pressed="true"] { background: var(--accent-strong); color: #fff; }
 
 /* Toolkit: start card, jump links, roadmap phases */
@@ -2438,7 +2438,7 @@ h2.part-bar { margin: 36px 0 16px; padding: 10px 16px; font-size: 1.5rem; border
 .before-commit p { margin: 0; }
 
 /* Statute citations: kept for readers who want to check, but quieter than the sentence. */
-cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-space: normal; }
+cite.cite { font-style: normal; font-size: max(0.82em, 15px); color: var(--muted); white-space: normal; }
 .sources-more > summary { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; color: var(--accent); font-weight: 600; }
 .sources-more[open] > summary { margin-bottom: 8px; }
 .guide-hit-sources > summary { display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; color: var(--muted); font-size: 0.95rem; }

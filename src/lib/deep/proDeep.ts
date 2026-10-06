@@ -227,7 +227,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       {
         text: "Loan officers can’t legally be paid based on your interest rate.",
         source: {
-          label: "CFPB: CFPB Takes Action Against Franklin Loan Corporation for Steering Consumers into Costlier Mortgages (Nov 13, 2014)",
+          label: "CFPB: action against Franklin Loan Corporation for steering consumers into costlier mortgages (Nov 13, 2014)",
           url: "https://www.consumerfinance.gov/about-us/newsroom/cfpb-takes-action-against-franklin-loan-corporation-for-steering-consumers-into-costlier-mortgages/"
         }
       },
@@ -279,7 +279,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         happened: "From 2011 to 2013, Franklin Loan Corporation paid at least $730,000 in quarterly bonuses to 32 loan officers. The bonuses were based partly on the interest rates of the loans they closed. The CFPB ordered it to stop and pay $730,000 to affected consumers.",
         lesson: "Your loan officer may have reasons to quote you a higher rate. Outside quotes protect you.",
         source: {
-          label: "CFPB: CFPB Takes Action Against Franklin Loan Corporation for Steering Consumers into Costlier Mortgages (Nov 13, 2014)",
+          label: "CFPB: action against Franklin Loan Corporation for steering consumers into costlier mortgages (Nov 13, 2014)",
           url: "https://www.consumerfinance.gov/about-us/newsroom/cfpb-takes-action-against-franklin-loan-corporation-for-steering-consumers-into-costlier-mortgages/"
         }
       },
@@ -302,7 +302,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         url: "https://www.freddiemac.com/fmac-resources/research/pdf/201804-Insight.pdf"
       },
       {
-        label: "CFPB: CFPB Takes Action Against Franklin Loan Corporation for Steering Consumers into Costlier Mortgages (Nov 13, 2014)",
+        label: "CFPB: action against Franklin Loan Corporation for steering consumers into costlier mortgages (Nov 13, 2014)",
         url: "https://www.consumerfinance.gov/about-us/newsroom/cfpb-takes-action-against-franklin-loan-corporation-for-steering-consumers-into-costlier-mortgages/"
       },
       {

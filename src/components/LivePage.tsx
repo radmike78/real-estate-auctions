@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { stateByCode } from '../lib/regions';
 import { isCertificateSourceUrl, isOfficialUrl } from '../feed/verify';
 import SidCertificates from './SidCertificates';
 import IrsSales from './IrsSales';
@@ -44,6 +45,8 @@ export default function LivePage() {
   const { result } = useLiveFeed();
   const [now, setNow] = useState(Date.now());
   const [cls, setCls] = useState<ClassFilter>('all');
+  // County sales: the visitor's state only, until they ask for every state.
+  const [allCountySales, setAllCountySales] = useState(false);
   const [myState] = useMyState();
 
   // Keep "x min ago" and the expiry check current in an open tab.
@@ -61,6 +64,8 @@ export default function LivePage() {
   const features = useSiteFeatures();
   const shown = cls === 'all' ? listings : listings.filter((l) => classOfLandUse(l.landUse?.code) === cls);
 
+  const allUpcoming = upcomingCountySales(new Date(now), { state: myState });
+  const countySales = myState && !allCountySales ? allUpcoming.filter((s) => s.state === myState) : allUpcoming;
   return (
     <main className="page">
       <PageHero
@@ -216,14 +221,19 @@ export default function LivePage() {
         </section>
       )}
       <IrsSales sales={federalSales} ago={(iso) => ago(iso, now)} />
-      {upcomingCountySales(new Date(now), { state: myState }).length > 0 && (
+      {allUpcoming.length > 0 && (
         <section aria-labelledby="county-sales-head">
           <h2 id="county-sales-head">Upcoming county tax sales</h2>
           <p>
             Counties post their own property lists for these sales. Open the list on the county’s site to see every property, its parcel number
             and minimum bid. Lists change up to the sale as owners pay their taxes, so check the county’s latest list before you bid.
           </p>
-          <CountySales sales={upcomingCountySales(new Date(now), { state: myState })} />
+          {countySales.length > 0 ? <CountySales sales={countySales} /> : <OwlNote>No upcoming county tax sales listed for {stateByCode(myState ?? '')?.name} yet.</OwlNote>}
+          {myState && (
+            <p><button type="button" className="btn btn-secondary" onClick={() => setAllCountySales(!allCountySales)}>
+              {allCountySales ? `Show only ${stateByCode(myState)?.name} sales` : 'Show sales in other states'}
+            </button></p>
+          )}
         </section>
       )}
       <SidCertificates certificates={certificates} ago={(iso) => ago(iso, now)} />
