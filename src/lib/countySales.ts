@@ -39,6 +39,49 @@ export interface CountySale {
 
 export const COUNTY_SALES: CountySale[] = [
   {
+    // https://jeffcotax.com/property-tax/delinquent-tax-sale/ (Jefferson County Tax Office), checked 2026-10-06: "2026 SHERIFF
+    // SALE DATES *Subject to change* ... December 1, 2026 – Original Sheriff Sale"; "Once the sale begins at 10:00 am, no one
+    // will be allowed to obtain a bidder number." The place isn't on the page.
+    id: 'tx-jefferson-2026-12',
+    state: 'TX',
+    county: 'Jefferson',
+    agency: 'Jefferson County Tax Office',
+    name: 'December 1, 2026 sheriff’s tax sale',
+    format: 'In-person auction',
+    startOnly: true,
+    startsAt: '2026-12-01T10:00:00-06:00',
+    endsAt: '2026-12-01T23:59:00-06:00',
+    redeemBy: null,
+    registerBy: null,
+    saleUrl: 'https://jeffcotax.com/property-tax/delinquent-tax-sale/',
+    listUrl: null,
+    checkedOn: '2026-10-06',
+  },
+  {
+    // https://www.randallcounty.gov/293/Sheriff-Sale and its sale flyer (DocumentCenter/View/2583), checked 2026-10-06:
+    // "NEXT SALE April 6, 2027 11:00 A.M. RANDALL COUNTY ANNEX BUILDING (NORTH ENTRANCE, ELECTIONS OFFICE) 4320 S. WESTERN
+    // ST., AMARILLO"; "Registrations must be in our office by April 2, 2027 before 5pm to be able to bid." The flyer lists
+    // the properties once there are any; it has none yet.
+    id: 'tx-randall-2027-04',
+    state: 'TX',
+    county: 'Randall',
+    agency: 'Randall County Tax Assessor-Collector',
+    name: 'April 6, 2027 sheriff’s tax sale',
+    format: 'In-person auction',
+    startOnly: true,
+    place: 'Randall County Annex Building (north entrance, Elections Office), 4320 S. Western St., Amarillo',
+    startsAt: '2027-04-06T11:00:00-05:00',
+    endsAt: '2027-04-06T23:59:00-05:00',
+    redeemBy: null,
+    registerBy: null,
+    registerDay: '2027-04-02',
+    registerWhat: 'Get your bidder registration to the tax office before 5 p.m.',
+    saleUrl: 'https://www.randallcounty.gov/293/Sheriff-Sale',
+    listUrl: null,
+    listExpected: 'in the sale flyer on its page (it has the date but no properties yet)',
+    checkedOn: '2026-10-06',
+  },
+  {
     // https://www.tarrantcountytx.gov/en/constables/constable-3/delinquent-tax-sales/monthly-tax-sales-listings.html, checked
     // 2026-10-06: a "NOVEMBER 3, 2026" listing. The Constable 3 page: register before 10 a.m.; cashier's checks and money
     // orders only. The place isn't on these pages, so it isn't shown.

@@ -187,6 +187,8 @@ const LISTED: Source[] = [
   { id: 'tx-fort-bend-2026-11', title: 'Fort Bend County: November tax sales (Constable, Precinct 1)', publisher: 'Fort Bend County', url: 'https://www.fortbendcountytx.gov/your-county/county-calendar/november-tax-sales', role: 'listing', checked: '2026-10-06', watch: true, note: 'November 3, 2026, 10 a.m. to 4 p.m. (src/lib/countySales.ts).' },
   { id: 'tx-fort-bend-2026-11-list', title: 'Fort Bend County Constable, Precinct 1: November tax sale list (PDF)', publisher: 'Fort Bend County', url: 'https://www.fortbendcountytx.gov/sites/default/files/document-central/document-central/constable-pct-1-documents/November-Tax-Sales-Pct-1-Revised.pdf', role: 'listing', checked: '2026-10-06', note: 'Linked only.' },
   { id: 'tx-live-oak-2026-11-notice', title: 'Live Oak County: notice of tax sale, November 3, 2026 (PDF)', publisher: 'Live Oak County Appraisal District', url: 'https://www.liveoakappraisal.com/Forms/GetDocument?fileName=MiscellaneousFiles%5C1790618721_Notice+of+Tax+Sale+-+11-3-26.pdf', role: 'listing', checked: '2026-10-06', note: 'Linked only; the appraisal district collects taxes and posts the sale notice.' },
+  { id: 'tx-jefferson-tax-sale', title: 'Jefferson County Tax Office: delinquent tax sale', publisher: 'Jefferson County Tax Office', url: 'https://jeffcotax.com/property-tax/delinquent-tax-sale/', role: 'listing', checked: '2026-10-06', watch: true, note: 'December 1, 2026 sale (src/lib/countySales.ts); dates marked subject to change.' },
+  { id: 'tx-randall-sheriff-sale', title: 'Randall County: sheriff sale (tax office)', publisher: 'Randall County Tax Assessor-Collector', url: 'https://www.randallcounty.gov/293/Sheriff-Sale', role: 'listing', checked: '2026-10-06', watch: true, note: 'April 6, 2027 sale and April 2 registration deadline, from the flyer (src/lib/countySales.ts).' },
   { id: 'mohave-otc-tax-deed', title: 'Mohave County: over-the-counter tax deed sales', publisher: 'Mohave County Clerk of the Board', url: 'https://www.mohave.gov/departments/clerk-of-the-board/over-the-counter-tax-deed-sales/', role: 'listing', checked: '2026-10-05', watch: true, note: 'Offers April 15 to November 30, 2026 (src/lib/countySales.ts).' },
   { id: 'mohave-otc-list', title: 'Mohave County over-the-counter tax deed list (PDF)', publisher: 'Mohave County Clerk of the Board', url: 'https://www.mohave.gov/media/usylp0qc/otc_td_list_1026.pdf', role: 'listing', checked: '2026-10-05', note: 'Linked only; updated monthly, so the link changes.' },
   { id: 'cochise-otc-2026', title: 'Cochise County: 2026 over-the-counter tax deed land sale', publisher: 'Cochise County', url: 'https://www.cochise.az.gov/903/2026-Over-the-Counter-Tax-Deed-Land-Sale', role: 'listing', checked: '2026-10-05', watch: true, note: 'Offers October 19 to December 18, 2026.' },
@@ -650,6 +652,8 @@ export const LISTING_HOSTS = [
   /^www\.dallascounty\.org$/,
   // Texas appraisal districts that collect taxes and post the county's tax sale notices.
   /^www\.liveoakappraisal\.com$/,
+  // Jefferson County Tax Office's own site.
+  /^jeffcotax\.com$/,
 ];
 
 export const sourceById = (id: string) => SOURCES.find((s) => s.id === id);
