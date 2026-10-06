@@ -11,7 +11,7 @@ export type RoadmapPath = 'listing' | 'auction' | 'certificate';
 
 export interface RoadmapStep {
   id: string;
-  /** Which of the six phases it belongs to. */
+  /** Which of the seven phases it belongs to. */
   phase: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   /** A short name for the step. */
   title: string;

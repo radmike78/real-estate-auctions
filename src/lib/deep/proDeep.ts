@@ -568,9 +568,9 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       },
       {
         tone: "good",
-        who: "Home buyers in the Denver, Colorado, area",
+        who: "Home buyers whose case went to FBI Denver",
         year: "2024",
-        title: "FBI froze a $955,060 closing wire",
+        title: "FBI stopped $955,060 of a $956,342 closing wire",
         happened: "The buyers got a fake email that seemed to come from their real estate agents. It told them to wire $956,342 to close. Two days later they realized it was fake and reported it. The FBI’s Recovery Asset Team froze the receiving account, and the money was returned.",
         lesson: "If you suspect wire fraud, report it to your bank and the FBI (ic3.gov) at once. Fast reports are the ones that get money back.",
         source: {
@@ -956,7 +956,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Bids: the NSCB recommends getting at least three bids. It takes time but helps you spot overpricing.",
       "Permits and inspections, which licensed contractors normally pull. Ask who pays.",
       "Lien risk: if your contractor doesn’t pay a supplier, the supplier can file a lien on your home. In Utah, a homeowner can get a Certificate of Compliance to have it removed. That works if they hired a licensed contractor under a written contract and paid in full. In Texas, the owner must hold back 10% of the contract price until 30 days after the work is done. That money covers unpaid workers and suppliers, and if you don’t hold it back, they can claim a lien for that amount (Property Code 53.101 and 53.105).",
-      "Recovery fund limits: Arizona caps payouts at $30,000 per homeowner and $200,000 per contractor license. It has prorated (shared out) awards when many people claim against one license."
+      "Recovery fund limits: Arizona’s fund pays at most $30,000 per claim and $200,000 per contractor license (ARS 32-1139). It has prorated (shared out) awards when many people claim against one license."
     ],
     money: [
       "Pay in stages tied to finished work, not up front. The NSCB tells homeowners to put payment schedules in a detailed contract and never pay in cash.",
@@ -974,7 +974,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     facts: [
       {
-        text: "Nevada’s Residential Recovery Fund (created 1999) has paid about $15 million to harmed homeowners. It covers owners who occupy a single-family home and file within four years of the contract.",
+        text: "Nevada’s Residential Recovery Fund (created 1999) has paid about $15 million to harmed homeowners. It covers owners who live in the single-family home where the work was done. You must file a complaint within four years after the work was finished, and the fund pays at most $40,000 per claim.",
         source: {
           label: "KTNV Las Vegas: Homeowners harmed by contractors awarded almost $400K through recovery fund (Jan. 23, 2024)",
           url: "https://www.ktnv.com/news/homeowners-harmed-by-contractors-awarded-almost-400k-through-recovery-fund"
@@ -1002,7 +1002,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         }
       },
       {
-        text: "Arizona’s recovery fund pays up to $30,000 per homeowner and $200,000 per contractor license.",
+        text: "Arizona’s recovery fund pays at most $30,000 per claim and $200,000 per contractor license (ARS 32-1139).",
         source: {
           label: "AZFamily (KTVK/KPHO): Some Phoenix-area victims of Unity Pools get partial reimbursement from Arizona’s Recovery Fund (Apr. 3, 2025)",
           url: "https://www.azfamily.com/2025/04/03/some-phoenix-area-victims-unity-pools-get-partial-reimbursement-arizonas-recovery-fund/"
@@ -1249,7 +1249,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   },
   cpa: {
     overview: [
-      "A CPA or enrolled agent helps you keep rental and flipping taxes legal and organized. The hardest rental rules are the ‘passive activity’ rules. Rental losses usually can’t offset wage income, except for a special allowance of up to $25,000 for owners who actively take part. That allowance shrinks once your modified adjusted gross income passes $100,000 and is gone at $150,000. It’s also smaller, or zero, if you’re married filing separately. Flips and sales are taxed differently: a flip is often taxed as ordinary income, not as a lower-taxed capital gain, can owe self-employment tax (about 15.3%) if flipping is your business, and a 1031 exchange can’t be used for it. When you sell a rental, the depreciation you took is partly taxed back.",
+      "A CPA or enrolled agent helps you keep rental and flipping taxes legal and organized. The hardest rental rules are the ‘passive activity’ rules. Rental losses usually can’t offset wage income, except for a special allowance of up to $25,000 for owners who actively take part. That allowance shrinks once your modified adjusted gross income passes $100,000 and is gone at $150,000. It’s also smaller, or zero, if you’re married filing separately. Flips and long-term sales are taxed differently. Profit from a flip is often taxed as ordinary income, not as a lower-taxed capital gain. If flipping is your business, you may also owe self-employment tax of about 15.3%.* And you can’t use a 1031 exchange for a flip. When you sell a rental, the depreciation you took is partly taxed back.",
       "The bigger exception is ‘real estate professional’ status. You must work more than 750 hours a year in real estate businesses, and that must be more than half of all your working hours. You must also “materially participate” in the rentals themselves: real, regular and continuous work, measured by tests listed in IRS Publication 925. The IRS counts each rental separately unless you file an election to treat them as one. The Tax Court regularly rejects claims backed only by estimates or by calendars rebuilt from memory during an audit. If the tax you underpaid is large, the court can add a 20% penalty unless you show reasonable cause. Owners who win usually have good records.",
       "Anyone with a PTIN can charge to prepare returns. But only CPAs, enrolled agents and attorneys have unlimited rights to represent you before the IRS. A CPA can only protect you if you give them full, accurate information."
     ],
@@ -1420,12 +1420,12 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     overview: [
       "A property manager finds and screens tenants, collects rent, handles repairs and keeps owners’ and tenants’ money in trust accounts. In Nevada, managing rentals for others requires a real estate license plus a property management permit. In Texas, collecting rent for someone else from a tenant in a single-family home counts as real estate brokerage, which needs a TREC license (Occupations Code 1101.002). Check your state’s real estate regulator for the licensing rules that apply to managers there.",
       "The biggest risk is the trust account. If a manager mixes or spends owner rents and tenant deposits, owners can lose months of rent. They can still owe tenants their deposits back. Nevada regulators found one Las Vegas broker’s security deposit account held $15 when his records said $185,343.",
-      "A license lets you check that the manager is allowed to do the work, see any discipline, and file a complaint with the state regulator. Separately, California’s Department of Real Estate Consumer Recovery Account, Arizona’s Real Estate Recovery Fund and Texas’s Real Estate Recovery Trust Account can repay some losses caused by licensees, but only certain claimants and claims qualify, usually after a court judgment, and only up to set limits. They don’t insure your investment or cover every rental problem."
+      "A license lets you check that the manager is allowed to do the work, see any discipline, and file a complaint with the state regulator. Separately, California’s Department of Real Estate Consumer Recovery Account, Nevada’s Real Estate Education, Research and Recovery Fund, Arizona’s Real Estate Recovery Fund and Texas’s Real Estate Recovery Trust Account can repay some losses caused by licensees, but only certain claimants and claims qualify, usually after a court judgment, and only up to set limits. They don’t insure your investment or cover every rental problem."
     ],
     bestFor: [
       "Out-of-state investors who can’t handle showings, repairs and rent collection themselves.",
       "Owners with several units who need consistent screening, accounting and legal compliance.",
-      "Landlords who want a licensee whose conduct is overseen by a state real estate regulator, with recovery-fund protection in California, Arizona and Texas. A license isn’t proof they follow the rules, so still check statements."
+      "Landlords who want a licensee whose conduct is overseen by a state real estate regulator, with recovery-fund protection in California, Nevada, Arizona and Texas. A license isn’t proof they follow the rules, so still check statements."
     ],
     notFor: [
       "Owners who won’t read monthly statements or check that deposits match bank records.",
@@ -1435,7 +1435,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     costs: [
       "Management fees: ask for every fee in writing, such as monthly management, leasing, renewal and maintenance markups. (No sourced typical percentage was found.)",
       "Loss risk: in one Nevada case a broker failed to pay owners their rents and deposits. That included more than $23,000 for one owner’s four units (2025 order).",
-      "Recovery fund limits: California pays up to $50,000 per transaction and $250,000 per licensee. Arizona pays up to $30,000 per transaction and $90,000 per licensee. Texas pays up to $125,000 per transaction and $250,000 per license holder (Occupations Code 1101.610).",
+      "Recovery fund limits: California pays up to $50,000 per transaction and $250,000 per licensee. Nevada pays up to $25,000 per judgment and $100,000 per licensee (NRS 645.844). Arizona pays up to $30,000 per transaction and $90,000 per licensee. Texas pays up to $125,000 per transaction and $250,000 per license holder (Occupations Code 1101.610).",
       "Legal and court costs to get a judgment, which California’s, Arizona’s and Texas’s funds require before they pay."
     ],
     money: [
@@ -1577,7 +1577,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     costs: [
       "Court filing fees, notice service and constable or sheriff fees. In 2019 the Review-Journal reported Nevada tenants paid a $71 filing fee to contest an eviction in the two largest counties.",
       "Lost rent during the process. In Nevada, Clark County says evictions take anywhere from 10 to 180 days. Contested cases take longer.",
-      "Self-help penalties: in California, they run up to $100 a day and at least $250 per violation (Civil Code 789.3). One landlord was ordered to pay $36,000 in penalties plus damages and fees (1980). In Nevada a court can award up to $2,500 plus actual damages. In Arizona it can award two months’ rent or twice actual damages. In Texas, the tenant can recover one month’s rent plus $1,000, actual damages and attorney’s fees (Property Code 92.008 and 92.0081).",
+      "Self-help penalties: in California, they run up to $100 a day and at least $250 per violation (Civil Code 789.3). One landlord was ordered to pay $36,000 in penalties plus damages and fees (1980). In Nevada a court can award up to $2,500 plus actual damages. In Arizona it can award up to two months’ rent or twice actual damages, whichever is greater. In Texas, the tenant can recover one month’s rent plus $1,000, actual damages and attorney’s fees (Property Code 92.008 and 92.0081).",
       "Attorney fees: California’s utility shutoff statute awards fees to the prevailing party."
     ],
     money: [
@@ -1607,7 +1607,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         }
       },
       {
-        text: "Arizona: a tenant unlawfully ousted, or whose utilities are cut, can recover two months’ rent or twice actual damages, whichever is greater.",
+        text: "Arizona: a tenant unlawfully ousted, or whose utilities are cut, can recover up to two months’ rent or twice their actual damages, whichever is greater.",
         source: {
           label: "Arizona Revised Statutes 33-1367: Tenant’s remedies for landlord’s unlawful ouster",
           url: "https://www.azleg.gov/ars/33/01367.htm"

@@ -326,7 +326,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.riversidesheriff.org/621/Sheriff-Sales---Real-Property", checked: "2026-09-29" },
   },
   "CA/Sacramento": {
-    taxSale: { url: "https://finance.saccounty.gov/us/en/tax/tax/tax-sales.html", checked: "2026-09-29", note: "Recent sales ran online through RealAuction; start from the county’s page for the current sale." },
+    taxSale: { url: "https://finance.saccounty.gov/us/en/tax/tax/tax-sales.html", checked: "2026-10-06", note: "Recent sales ran online through Grant Street Group (MyTaxSale); start from the county’s page for the current sale." },
     treasurer: { url: "https://finance.saccounty.gov/", checked: "2026-09-29" },
     assessor: { url: "https://assessor.saccounty.gov/", checked: "2026-09-29" },
     recorder: { url: "https://ccr.saccounty.gov/", checked: "2026-09-29" },
@@ -353,7 +353,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.sdsheriff.gov/bureaus/court-services-bureau/property-sales", checked: null },
   },
   "CA/San Francisco": {
-    taxSale: { url: "https://sftreasurer.org/property/auction", checked: "2026-09-29", note: "Recent sales ran online through RealAuction; start from the county’s page for the current sale." },
+    taxSale: { url: "https://sftreasurer.org/property/auction", checked: "2026-10-06", note: "Recent sales ran online through an outside auction site named on the county’s page; start from the county’s page for the current sale." },
     treasurer: { url: "https://sftreasurer.org/", checked: "2026-09-29" },
     assessor: { url: "https://www.sf.gov/departments--assessor-recorder", checked: "2026-09-29" },
     recorder: { url: "https://www.sf.gov/departments--assessor-recorder", checked: "2026-09-29" },
@@ -582,7 +582,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     treasurer: { url: "https://www.washoecounty.gov/treas/", checked: "2026-09-29" },
     assessor: { url: "https://www.washoecounty.gov/assessor/index.php", checked: "2026-09-29" },
     recorder: { url: "https://www.washoecounty.gov/recorder/index.php", checked: "2026-09-29" },
-    sheriff: { url: "https://www.washoesheriff.com/administrative_bureau/administrative-services-division/civil/service-procedures.php", checked: "2026-09-29" },
+    sheriff: { url: "https://www.washoesheriff.com/administrative_bureau/administrative-services-division/civil/civil-section.php", checked: null },
   },
   "NV/White Pine": {
     taxSale: { url: "https://www.whitepinecounty.net/331/Tax-Sale", checked: "2026-09-29" },

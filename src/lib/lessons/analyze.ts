@@ -76,7 +76,7 @@ export const analyze: Lesson = {
           'Many policies limit coverage once a home has been empty for a while, often 60 days in a row. That’s a typical repair period, so read the vacancy clause and ask about a vacant-home or builder’s risk policy.',
           'In California’s wildfire areas, private insurers often say no. The California FAIR Plan mainly covers fire, so most owners add a separate policy for theft, water damage and liability. Get both quotes before you commit.',
           'In Texas, many policies have a separate wind and hail deductible set as a percentage of the dwelling coverage, often 1% or 2%. On $250,000 of coverage, 2% means you pay the first $5,000 of a hail claim. Put it in your reserves.',
-          'On the Texas coast, private insurers often won’t cover wind and hail. The Texas Windstorm Insurance Association (TWIA) covers them in its designated coastal area, but only if the building or repairs were certified to the windstorm building code. Ask the seller for the certificate (WPI-8) before you commit.',
+          'On the Texas coast, private insurers often won’t cover wind and hail. The Texas Windstorm Insurance Association (TWIA) covers them in its designated coastal area. For a building built or repaired since 1988, TWIA usually wants a windstorm Certificate of Compliance (WPI-8). Ask the seller for it before you commit.',
           'Most homeowner policies don’t cover flood. Check the flood zone and price a flood policy if you need one.',
           'Get a written quote, or a binder for an auction, before your inspection period ends or before you bid. If no one will insure it at a price that works, walk away.',
         ] },
@@ -97,7 +97,7 @@ export const analyze: Lesson = {
             ],
           },
         },
-        'Example: a rental costs $300,000 and rents for $2,400 a month ($28,800 a year). Vacancy is 5% ($1,440), and yearly expenses are $9,000. That makes NOI $18,360, a 6.1% cap rate. Say you set aside $1,400 a year for big replacements, and the loan payments are $14,000 a year. Then cash flow is $2,960. If you put in $80,000 in cash, the cash-on-cash return is about 3.7%. The GRM is about 10.4.',
+        'Example: a rental costs $300,000 and rents for $2,400 a month ($28,800 a year). Vacancy is 5% ($1,440), and yearly expenses are $9,000. That makes NOI $18,360, a 6.1% cap rate. Say you set aside $1,400 a year for big replacements, and you borrow $240,000 at 7% for 30 years: about $19,160 a year in loan payments. Then cash flow is about −$2,200 a year. If you put in $80,000 in cash (the down payment, closing costs and repairs), the cash-on-cash return is about −2.8%. A 6.1% cap rate can’t carry a 7% loan: the property loses money until the price drops, the rent rises or you borrow less. The GRM is about 10.4.',
       ],
     },
     {

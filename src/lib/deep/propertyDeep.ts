@@ -9,7 +9,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     overview: [
       "A single-family rental is one house on its own lot. You can rent it to one household, or buy it, fix it up and resell it (a “flip”). It’s the easiest kind of rental to understand and to get a loan for, and tenants often stay longer than they do in apartments. The catch is that all your income comes from one tenant. If that tenant stops paying or moves out, or the house just sits empty, your income drops to zero while the mortgage, taxes, insurance and repairs keep coming.",
       "Flipping is a short, high-stakes bet on three things: the price you pay, the repair budget, and the market while you hold the house. In 2021 and early 2022, Phoenix and Las Vegas were among the hottest markets for investors. Then mortgage rates jumped in 2022, and even the big buyers that set prices by computer (Zillow, Opendoor) lost money on many homes. Local flippers who had bought distressed homes cheaply did better.",
-      "You’re also up against large buyers with deep pockets. In late 2021, investors bought about a quarter of U.S. single-family homes sold, and Phoenix and Las Vegas were among the hot spots. Cash offers often win. Small investors do best when they buy below market (for example, from banks, government agencies or public auctions), budget carefully, and can hold the house for years if the market turns."
+      "You’re also up against large buyers with deep pockets. In late 2021, investors bought about a quarter of U.S. single-family homes sold (CoreLogic), and Phoenix and Las Vegas were among the hot spots. Cash offers often win. Small investors do best when they buy below market (for example, from banks, government agencies or public auctions), budget carefully, and can hold the house for years if the market turns."
     ],
     bestFor: [
       "People with steady income and cash reserves who can pay the mortgage for several months with no rent coming in.",
@@ -64,12 +64,12 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       {
         text: "Typical flip returns fell from 35.7% in 2021 to 25.5% in 2025, the lowest since 2008 (ATTOM).",
         source: {
-          label: "FOX 11 Los Angeles: House flipping down nearly 30% as profits drop, data reveals (2024, citing ATTOM)",
-          url: "https://www.foxla.com/news/house-flipping-down-profits-drop-real-estate"
+          label: "ATTOM: 2025 Year-End U.S. Home Flipping Report",
+          url: "https://www.attomdata.com/news/market-trends/flipping/2025-year-end-home-flipping-report/"
         }
       },
       {
-        text: "Salt Lake City had among the worst flip profit margins in 2023. Phoenix, Las Vegas, Sacramento and Tucson saw big drops in flipping.",
+        text: "In 2023, Austin, Dallas, San Antonio and Houston (Texas) and Salt Lake City (Utah) had some of the worst flip profit margins. Phoenix, Las Vegas, Sacramento and Tucson saw big drops in flipping.",
         source: {
           label: "FOX 11 Los Angeles: House flipping down nearly 30% as profits drop, data reveals (2024, citing ATTOM)",
           url: "https://www.foxla.com/news/house-flipping-down-profits-drop-real-estate"
@@ -195,7 +195,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Buyers stretching to afford the mortgage with no savings left for a special assessment.",
       "Investors who plan short-term or nightly rentals without confirming the HOA allows them.",
       "Anyone buying in an older building without seeing the reserve study, inspections and minutes.",
-      "People who fall behind on dues. In Nevada, Texas and many other states, the HOA can foreclose. In Texas, a subdivision HOA generally must get a court order first and can’t foreclose for fines alone (Property Code 209.009 and 209.0092). A Texas condominium association follows chapter 82 instead: it can’t foreclose for fines alone either, but it may sell without a court under its statutory power of sale, using the Property Code 51.002 trustee-sale procedure unless the declaration sets another procedure, and the owner has 90 days after the sale to buy it back (82.113). The recorded declaration says which law applies; a townhome can be either."
+      "People who fall behind on dues. In Nevada, Texas and many other states, the HOA can foreclose. Texas has two sets of rules. A neighborhood (subdivision) HOA usually needs a court order first (Property Code 209.0092). A condo association can sell without going to court, using the usual trustee-sale steps unless its declaration says otherwise, and the owner then has 90 days to buy the home back (82.113). Neither can foreclose for unpaid fines alone. The recorded declaration tells you which rules apply; a townhome can fall under either."
     ],
     costs: [
       "Monthly HOA dues. In Las Vegas, the Review-Journal reported condo dues of about 50 cents to a dollar per square foot (c. 2016).",
@@ -221,7 +221,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     ],
     facts: [
       {
-        text: "Florida’s post-Surfside law covers condo buildings older than 30 years. Their associations must do regular structural inspections and fully fund repair reserves.",
+        text: "Florida’s post-Surfside law covers condo buildings three or more stories tall. They need a structural “milestone” inspection once the building reaches about 30 years old, then every 10 years, and every such building needs a reserve study and must fully fund reserves for major structural repairs.",
         source: {
           label: "NPR: Florida lawmakers try to balance condo safety with cost (May 3, 2025)",
           url: "https://www.npr.org/2025/05/03/nx-s1-5385870/florida-condo-safety-law-surfside"
@@ -402,7 +402,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     ],
     costs: [
       "Mortgage, taxes and insurance on a building that usually costs more than a single-family home in the same area.",
-      "FHA mortgage insurance: an upfront premium of 1.75% of the loan plus an ongoing premium (WFTV/Lower feature, 2026).",
+      "FHA mortgage insurance: an upfront premium of 1.75% of the loan plus an ongoing premium (HUD).",
       "Closing costs of about 2% to 6% of the price (WFTV/Lower feature, 2026).",
       "Vacancy and non-payment. Plan for at least a 25% cushion on projected rent, as underwriters do (National Mortgage News).",
       "Repairs and upkeep for several kitchens, baths and systems. In California, 3+ unit buildings need balcony/stair inspections and repairs.",
@@ -411,7 +411,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     money: [
       "FHA: as little as 3.5% down for 2-4 units if you live in one unit. Purchases of 3 and 4 units must also pass a ‘self-sufficiency’ rent test (WFTV/Lower feature).",
       "VA: eligible veterans can buy a home of up to 4 units with no down payment if they have full entitlement, the lender approves them, and the price isn’t above appraised value. They must live there (VA.gov).",
-      "Conventional: in late 2023, Fannie Mae cut the minimum down payment on owner-occupied 2-4 unit homes to 5%, down from at least 15% (as described to National Mortgage News).",
+      "Conventional: in November 2023, Fannie Mae lowered the minimum down payment on 2-4 unit homes you’ll live in to 5% (it had been 15% for two units and 25% for three or four). Your lender’s automated approval and other limits still apply.*",
       "Lenders may count part of the expected rent to help you qualify. Underwriters generally reduce it to allow for vacancies."
     ],
     checklist: [
@@ -590,7 +590,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         }
       },
       {
-        text: "Average mobile home price rose from $71,900 (2017) to $127,300 (2022).",
+        text: "The average price of a new manufactured home (not counting land) rose from $71,900 in 2017 to $127,300 in 2022 (Census).",
         source: {
           label: "New York Times (via Boston.com): Maine mobile home park renters buy their community (Oct 13, 2024)",
           url: "https://www.boston.com/real-estate/renting/2024/10/13/maine-mobile-home-park-renters-buy-community/"
@@ -1630,7 +1630,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Owning a hotel or motel means owning a business that resells the same rooms every night. Income can rise fast when travel is strong and collapse when it stops. During the 78-day shutdown in 2020, Nevada’s 219 major casinos lost an estimated $6.2 billion. Some Las Vegas properties never reopened.",
       "Small motels are often run by owner-operator families who live on site and do much of the work themselves: the front desk, laundry, cleaning and repairs. Indian immigrants and their children own roughly half of U.S. motels, and many were started by families living behind the lobby (NPR).",
       "Hotels are financed and valued as businesses, not homes, so lenders look at occupancy and room revenue. Franchise brands require upgrades, and old motels can hide huge repair bills. In California, cities bought many motels during the pandemic through Project Homekey; some became housing quickly, while others needed millions in repairs or ended in foreclosure.",
-      "Short-term rentals (renting a house or apartment by the night) are a related, small-scale version. Their income depends heavily on local rules. New York City’s 2023 registration law in effect ended most whole-apartment stays under 30 days. Arizona law, by contrast, says a city or town may not ban short-term rentals but may require permits. Arizona HOAs can still ban or limit rentals in their recorded rules (CC&Rs)."
+      "Short-term rentals (renting a house or apartment by the night) are a related, small-scale version. Their income depends heavily on local rules. New York City’s 2023 registration law in effect ended most whole-apartment stays under 30 days. Arizona law, by contrast, says a city or town may not ban short-term rentals but may require permits. Arizona HOAs may be able to limit rentals through their recorded declaration (CC&Rs), so read it before you buy.*"
     ],
     bestFor: [
       "Owner-operator families willing to live on site and work long hours at the desk, laundry and maintenance.",
@@ -1990,7 +1990,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
   land: {
     overview: [
       "Raw land is property with no house or building on it. It may cost less to keep up than a building (no tenants, few repairs), but taxes, loan interest, weed and fire rules, access and security still cost money. And it usually earns nothing until it is built on, farmed, leased or sold. Its value depends on access, water, utilities, zoning and growth nearby.",
-      "Many cheap lots, including lots sold at county tax sales, are cheap for a reason: no legal road access, no water or power, steep or flood-prone ground, or rules that prevent building. In Arizona, a 1980 law requires subdivisions of six or more lots inside the state’s groundwater Active Management Areas (such as the Phoenix area) to prove a 100-year water supply. In Arizona, outside those areas, lots can usually be sold even when the water supply is inadequate, as long as that is disclosed, and lot splits of five or fewer avoided the rule. Arizona passed an ‘Ag-to-Urban’ law in 2025 that lets some builders in the Phoenix and Pinal areas use water credits from retired farmland. In Arizona, homes in Rio Verde Foothills lost their hauled water supply from Scottsdale in 2023.",
+      "Many cheap lots, including lots sold at county tax sales, are cheap for a reason: no legal road access, no water or power, steep or flood-prone ground, or rules that prevent building. In Arizona, a 1980 law requires subdivisions of six or more lots inside the state’s groundwater Active Management Areas (such as the Phoenix area) to prove a 100-year water supply. In Arizona, outside those areas, lots can usually be sold even when the water supply is inadequate, as long as that is disclosed (unless the county or town has adopted Arizona’s mandatory water-adequacy rule*), and lot splits of five or fewer avoided the rule. Arizona passed an ‘Ag-to-Urban’ law in 2025 that lets some builders in the Phoenix and Pinal areas use water credits from retired farmland. In Arizona, homes in Rio Verde Foothills lost their hauled water supply from Scottsdale in 2023.",
       "Land also attracts scams. For decades, promoters sold desert lots in California City sight unseen, with promises of future growth. Today the FBI warns of impostors who pose as the owners of vacant land and sell it to buyers who never meet them. Land can pay off well for patient owners when a town grows toward it, but that can take decades."
     ],
     bestFor: [

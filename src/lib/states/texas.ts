@@ -30,7 +30,7 @@ export const TX_HOMEOWNER_DEADLINES: StateLine[] = [
   { text: 'In Texas, property taxes become late if not paid before February 1 (Tax Code 31.02). If you have a homestead exemption, the tax office must give you a monthly payment plan of 12 to 36 months if you ask and haven’t had one in the last 24 months. While you keep to it, the home can’t be sold or sued on for those taxes (Tax Code 33.02). Tell your servicer at least 10 days before you sign, so it can’t treat the late taxes as a default on your mortgage (Property Code 51.0011).' },
   { text: 'In Texas, if your home is sold at a tax sale, you can buy it back (redeem) within 2 years after the buyer’s deed is recorded if it was your homestead or land designated for agricultural use (or the sale was of a mineral interest), or within 180 days otherwise. You pay what the buyer paid, plus costs and a premium: for a homestead, agricultural land or mineral interest, 25% in the first year or 50% in the second; for other property, no more than 25% (Tax Code 34.21).' },
   { text: 'In Texas, if a tax sale brings more than was owed, the extra money (excess proceeds) goes to the court clerk. You have 2 years from the sale to file a claim in that court case (Tax Code 34.03, 34.04). After a mortgage foreclosure, ask the trustee named on the notice of sale about any money left over.', links: [['Tax Code 34.04', TX('TX', '34', '34.04')]] },
-  { text: 'In Texas, a subdivision HOA can’t foreclose for fines alone, and it must get a court order first (Property Code 209.009, 209.0092). One with more than 14 lots must offer a payment plan of at least 3 months (Property Code 209.0062). After its foreclosure sale, you can buy the home back within 180 days after the HOA mails you notice of the sale (Property Code 209.011). If your home is a condominium, chapter 82 applies instead: the association can’t foreclose for fines alone, and you can buy the unit back within 90 days after the sale (Property Code 82.113). Your recorded declaration says which applies.' },
+  { text: 'In Texas, a subdivision HOA can’t foreclose for fines alone, and it must get a court order first (Property Code 209.009, 209.0092). One with more than 14 lots must usually offer a payment plan of at least 3 months, with some exceptions, such as if you broke a plan in the last 2 years (Property Code 209.0062). After its foreclosure sale, you can buy the home back within 180 days after the HOA mails you notice of the sale (Property Code 209.011). If your home is a condominium, chapter 82 applies instead: the association can’t foreclose for fines alone, and you can buy the unit back within 90 days after the sale (Property Code 82.113). Your recorded declaration says which applies.' },
 ];
 
 /** homeownerHelp.ts → SCAMS, key TX */
@@ -42,7 +42,7 @@ export const TX_HOMEOWNER_SCAMS: StateLine[] = [
 
 /** homeownerHelp.ts → TENANTS, key TX */
 export const TX_HOMEOWNER_TENANTS: StateLine[] = [
-  { text: 'In Texas, if the building you rent is sold at a trustee’s or tax foreclosure sale and you are paid up and not otherwise in default, the buyer must give you at least 30 days’ written notice to move if it won’t keep your lease (Property Code 24.005(b)). Federal law may give you longer, and the buyer can’t have you removed until that time has run (Property Code 24.005(c-1)).' },
+  { text: 'In Texas, if the building you rent is sold at a foreclosure sale under a loan or lien that came before your lease (a property tax lien always does) and you are paid up and not otherwise in default, the buyer must give you at least 30 days’ written notice to move if it won’t keep your lease (Property Code 24.005(b)). Federal law may give you longer, and the buyer can’t have you removed until that time has run (Property Code 24.005(c-1)).' },
 ];
 
 // ───────────────────────────────────────────────────────────────────────────────────────────────
@@ -103,7 +103,7 @@ export const TX_SHORT_DISCLOSURES: StateLine[] = [
 
 /** shortSales.ts → NOTES, key TX */
 export const TX_SHORT_NOTES: StateLine[] = [
-  { text: 'In Texas, the trustee’s sale can still go ahead on the first Tuesday while a short sale waits for approval. Ask the listing agent for any sale date. Under the addendum, the contract’s deadlines restart from the day the seller tells you the lender approved (TREC No. 45-2).' },
+  { text: 'In Texas, the trustee’s sale can still go ahead on the first Tuesday while a short sale waits for approval. Ask the listing agent for any sale date. Under the addendum, most deadlines restart from the day the seller tells you the lender approved. Your option period doesn’t restart; it runs from the original contract date (TREC No. 45-2, D and F).' },
   { text: 'In Texas, there is no state income tax, but the federal tax break for forgiven debt on a main home (qualified principal residence indebtedness) ended for debt forgiven after 2025, unless it was agreed in writing before January 1, 2026 (IRS Publication 4681). This is the seller’s issue; sellers should ask a tax professional.', links: [['IRS Publication 4681', 'https://www.irs.gov/publications/p4681']] },
 ];
 

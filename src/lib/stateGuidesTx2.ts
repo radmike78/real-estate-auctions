@@ -217,7 +217,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       label: "Seller’s disclosure",
-      value: "Texas requires a Seller’s Disclosure Notice for most home sales. But a lender selling a home it took back in foreclosure, and a government seller like HUD, don’t have to give one (Property Code 5.008(e)). Expect little or no information about condition."
+      value: "Texas requires a Seller’s Disclosure Notice when a single-family home is sold (Property Code 5.008(a)). But a lender selling a home it took back in foreclosure, and a government seller like HUD, don’t have to give one (Property Code 5.008(e)). Expect little or no information about condition."
     },
     {
       label: "Condition and option period",
@@ -390,7 +390,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       label: "Option period",
-      value: "If you paid for an option period, it begins on the original effective date, continues after the Amended Effective Date and ends when it expires under paragraph 5 of your contract (45-2, F). Have your agent write out the exact dates; an amendment can change them."
+      value: "If you paid for an option period, it starts when you both sign and keeps running while you wait for the lender. It doesn’t start over when the lender approves (45-2, F). Have your agent write out the exact dates; an amendment can change them."
     },
     {
       label: "Foreclosure clock",
@@ -398,7 +398,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       label: "Seller’s disclosure",
-      value: "The owner is usually still the seller, so the Seller’s Disclosure Notice is required (Property Code 5.008). If you get it after signing, you can end the contract within 7 days (5.008(f))."
+      value: "For a single-family home, the owner is usually still the seller, so the Seller’s Disclosure Notice is required (Property Code 5.008). For a duplex to fourplex the law doesn’t require it, but ask for it. If you get it after signing, you can end the contract within 7 days (5.008(f))."
     },
     {
       label: "Deficiency",

@@ -305,7 +305,7 @@ export const PRO_WHY = {
       },
       {
         who: "Anyone hiring out work in California",
-        text: "In California, you need a licensed contractor for any job of $1,000 or more, and for a smaller job that needs a permit or uses helpers. Hiring someone licensed also gives you the state’s complaint process.",
+        text: "In California, you need a licensed contractor for any job of $1,000 or more, and for a smaller job that needs a permit, uses helpers, or is done by someone who advertises as a contractor. Hiring someone licensed also gives you the state’s complaint process.",
         example: "In a May 2024 sting in Merced, CSLB referred 11 people for misdemeanor charges for contracting without a license.",
         source: {
           label: "California Contractors State License Board press release, Merced sting (May 21, 2024)",
@@ -321,7 +321,7 @@ export const PRO_WHY = {
       {
         who: "Anyone on a tight budget",
         text: "An unlicensed ‘handyman’ may be cheaper but often has no insurance. You could be liable for injuries or bad work.",
-        example: "In Nevada, contracting without a license is a misdemeanor on the first offense. On a third offense, it’s a Class E felony (NRS 624.700).",
+        example: "In Nevada, contracting without a license is a misdemeanor on the first offense. On a third offense, it’s a category E felony (NRS 624.700 and 624.750).",
         source: {
           label: "Nevada State Contractors Board, Unlicensed contracting: penalties and law",
           url: "https://www.nvcontractorsboard.com/investigations/unlicensed-contracting-penalties-law/"
@@ -338,7 +338,7 @@ export const PRO_WHY = {
       },
       {
         who: "Experienced investor",
-        text: "Small cosmetic jobs like paint may not need a general contractor. Managing trades yourself saves markup but costs your time. Jobs that need a permit still need one, and electrical, plumbing and air-conditioning work needs a licensed tradesperson in every state DeedOwl covers."
+        text: "Small cosmetic jobs like paint may not need a general contractor. Managing trades yourself saves markup but costs your time. Jobs that need a permit still need one. Most electrical, plumbing and heating or air-conditioning work needs a permit, and so a licensed contractor. In Nevada and Utah, the small-job exemption never covers these trades. In Texas, electricians, plumbers and air-conditioning contractors must hold a state license."
       },
       {
         who: "Everyone",
@@ -416,7 +416,7 @@ export const PRO_WHY = {
       },
       {
         who: "Fix-and-flip investor",
-        text: "A flip is often taxed as ordinary income, not as a lower-taxed capital gain, can also owe self-employment tax (about 15.3%) if flipping is your business,* and a 1031 exchange can’t be used for it. Talk to a CPA before you buy, not after you sell."
+        text: "Profit from a flip is often taxed as ordinary income, not as a lower-taxed capital gain. If flipping is your business, you may also owe self-employment tax of about 15.3%.* And you can’t use a 1031 exchange for a flip. Talk to a CPA before you buy, not after you sell."
       },
       {
         who: "Anyone starting an LLC or partnership",
