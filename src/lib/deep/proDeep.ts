@@ -6,9 +6,10 @@ import type { TopicDeep } from './types';
 export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   agent: {
     overview: [
-      "A real estate agent helps you find a property, write and negotiate the offer, and get to closing. A buyer’s agent is supposed to work for you, not the seller. How much an agent helps depends on the person. A careful agent checks facts, spots red flags, and pushes you to compare lenders and get inspections. A careless one passes along whatever the seller’s side says.",
-      "Watch who the agent really works for. Sometimes one brokerage, or even one person, represents both the buyer and the seller. That’s called “dual agency,” and both sides have to be told and agree in writing. In Nevada, the agent has to give each party a duties-owed form and get their written consent before acting for more than one party. In California, a brokerage may act as a dual agent only with both parties’ consent after full disclosure. In Utah, an agent for both sides (a “limited agent”) must first get both parties’ informed consent in writing. In Texas, a broker can work for both sides only as an “intermediary,” with each party’s written consent that says who pays the broker (Occupations Code 1101.559). Since August 17, 2024, agents who belong to a Realtor-run MLS must sign a written agreement with a buyer before touring a home, even a virtual tour. That agreement sets the agent’s pay. In California, state law also requires a written buyer agreement no later than your offer. In California, that agreement with an individual buyer can last at most three months and can’t renew automatically. In Texas, state law requires a written agreement before an agent shows you a home of one to four units, or presents your offer if there’s no showing. It must state the agent’s pay and say that pay is negotiable (Occupations Code 1101.563).",
-      "A note for auction buyers: many forced-sale purchases, like county tax sales and trustee’s sales at the courthouse, happen without an agent at all. Agents matter most for bank-owned (REO) and Fannie Mae/Freddie Mac homes listed on the MLS. There, offers usually go through a licensed agent."
+      "What an agent does: A real estate agent helps you find a property, write and negotiate the offer, and get to closing. A buyer’s agent is supposed to work for you, not the seller. How much an agent helps depends on the person. A careful agent checks facts, spots red flags, and pushes you to compare lenders and get inspections. A careless one passes along whatever the seller’s side says.",
+      "Dual agency: Watch who the agent really works for. Sometimes one brokerage, or even one person, represents both the buyer and the seller. That’s called “dual agency,” and both sides have to be told and agree in writing. In Nevada, the agent has to give each party a duties-owed form and get their written consent before acting for more than one party. In California, a brokerage may act as a dual agent only with both parties’ consent after full disclosure. In Utah, an agent for both sides (a “limited agent”) must first get both parties’ informed consent in writing. In Texas, a broker can work for both sides only as an “intermediary,” with each party’s written consent that says who pays the broker (Occupations Code 1101.559).",
+      "Written agreement: Since August 17, 2024, agents who belong to a Realtor-run MLS must sign a written agreement with a buyer before touring a home, even a virtual tour. That agreement sets the agent’s pay. In California, state law also requires a written buyer agreement no later than your offer. In California, that agreement with an individual buyer can last at most three months and can’t renew automatically. In Texas, state law requires a written agreement before an agent shows you a home of one to four units, or presents your offer if there’s no showing. It must state the agent’s pay and say that pay is negotiable (Occupations Code 1101.563).",
+      "Auction buyers: Many forced-sale purchases, like county tax sales and trustee’s sales at the courthouse, happen without an agent at all. Agents matter most for bank-owned (REO) and Fannie Mae/Freddie Mac homes listed on the MLS. There, offers usually go through a licensed agent."
     ],
     bestFor: [
       "First-time buyers who need someone to walk them through offers, deadlines and disclosures.",
@@ -22,16 +23,16 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Anyone who isn’t comfortable with dual agency and hasn’t asked whether the agent or brokerage also represents the seller."
     ],
     costs: [
-      "Agent pay is negotiable and must be written into the buyer agreement. The agent can’t take more than that agreement allows, from any source (NAR settlement rules, Aug 2024).",
+      "Agent pay is negotiable and must be written into the buyer agreement. The agent can’t take more than that agreement allows, from any source (NAR settlement rules, August 2024).",
       "A seller may still offer to pay part or all of the buyer agent’s fee. But that is a term you negotiate in the deal, not a set rate.",
       "A bad agent can cost far more than the fee. Wrong square footage or a botched dual-agency deal can lead to a lawsuit (see stories)."
     ],
     money: [
       "Agents are usually paid a commission when the deal closes. The amount is set in the written buyer agreement, and you can negotiate it (NAR Settlement FAQs).",
-      "Since Aug 17, 2024, offers of buyer-agent pay can’t be posted on Realtor-run MLSs. So ask up front who will pay your agent and how much (NAR Settlement FAQs)."
+      "Sellers can no longer post offers of buyer-agent pay on Realtor-run MLSs. So ask up front who will pay your agent and how much (NAR Settlement FAQs)."
     ],
     checklist: [
-      "Look up the agent’s license with the state regulator and check for discipline. The regulators are the Nevada Real Estate Division, California DRE, Arizona Department of Real Estate, Utah Division of Real Estate and Texas Real Estate Commission (TREC).",
+      "Look up the agent’s license with the state regulator (the official lookup is below) and check for discipline.",
       "Make sure the agent is licensed in the state where the property is. Nevada has disciplined California brokers acting on Nevada deals without a Nevada license.",
       "Ask in writing whether the agent or brokerage also represents the seller (dual agency) and what that changes.",
       "Read the buyer agreement: pay amount, who pays, how long it lasts, and how to end it.",
@@ -61,7 +62,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         }
       },
       {
-        text: "Since Aug 2024, Realtor MLS members need a written agreement with a buyer before touring a home.",
+        text: "Since August 2024, Realtor MLS members need a written agreement with a buyer before touring a home.",
         source: {
           label: "National Association of Realtors: NAR Settlement FAQs",
           url: "https://www.nar.realtor/the-facts/nar-settlement-faqs"
@@ -88,7 +89,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         who: "A couple buying a vacant lot near Helotes (San Antonio), Texas",
         year: "2023",
         title: "Listing agent’s phone call stopped a fake land sale",
-        happened: "A couple’s $250,000 cash offer on a one-acre vacant lot was accepted. But the ‘seller’, who had hired the listing agent online, was an impostor. The agent found a different phone number for the real owner and called it. A different voice was on the voicemail, so the agent stopped the sale. The station reported the buyers would have lost about $200,000.",
+        happened: "A couple’s $250,000 cash offer on a one-acre vacant lot was accepted. But the “seller”, who had hired the listing agent online, was an impostor. The agent found a different phone number for the real owner and called it. A different voice was on the voicemail, so the agent stopped the sale. The station reported the buyers would have lost about $200,000.",
         lesson: "A careful agent who checks for themselves who really owns the property can save a buyer from wiring money to a thief.",
         source: {
           label: "KSAT 12 (San Antonio): Dirty deals: Imposters try to sell vacant land in Helotes they don’t own (Mar 30, 2023)",
@@ -113,7 +114,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         year: "2016",
         title: "Agent sold her own home, acted for both sides, then tried to change the deal",
         happened: "A licensee wrote a contract to sell her own home. She listed herself as agent for both seller and buyer, without the required duties-owed form or written consent. She then tried to remove the buyer’s 3% closing-cost credit and threatened to relist the home. The buyer cancelled when HOA resale packages never arrived. In 2019 the Nevada Real Estate Commission downgraded her license and fined her $11,616.64 including costs.",
-        lesson: "Be careful when the ‘agent’ is also the seller or represents both sides. Insist on the written disclosures your state requires.",
+        lesson: "Be careful when the “agent” is also the seller or represents both sides. Insist on the written disclosures your state requires.",
         source: {
           label: "Nevada Real Estate Commission: Findings of Fact, Conclusions of Law and Order, Case 2017-64 (Jun 2019)",
           url: "https://red.nv.gov/uploadedFiles/rednvgov/Content/Meetings/REC/2019/Orders/LeBeau-Witty_Patricia_2017-64.pdf"
@@ -199,7 +200,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Treat a pre-approval as conditional. The appraisal and final underwriting still have to pass.",
       "Ask whether the rate is locked, for how long, and what it costs to extend.",
       "Look for a prepayment penalty or balloon payment and ask about other options if you see one.",
-      "If a builder or agent pushes a ‘preferred lender’, get an outside quote too. Compare total cost, not just the incentive.",
+      "If a builder or agent pushes a “preferred lender”, get an outside quote too. Compare total cost, not just the incentive.",
       "Never wire closing money based on an email. Call a known number first."
     ],
     facts: [
@@ -322,7 +323,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   private_lender: {
     overview: [
       "A hard-money or private lender makes short-term loans backed mainly by the property, not your income. Investors use them to buy and repair a house fast, then sell or refinance. The trade-off is price. Rates are usually well above bank mortgage rates, plus points and fees, and terms are short. Get today’s quotes in writing. Many loans end in a large balloon payment.",
-      "These lenders lend on the property’s value, so they may lend to people who can’t actually repay. NPR reported on a Florida homeowner whose hard-money refinance started at 10% and rose to 12%. It carried a heavy prepayment penalty, and the home headed toward foreclosure. Fake ‘private lenders’ also collect upfront fees and never fund the loan. California’s DFPI has ordered several to stop.",
+      "These lenders lend on the property’s value, so they may lend to people who can’t actually repay. NPR reported on a Florida homeowner whose hard-money refinance started at 10% and rose to 12%. It carried a heavy prepayment penalty, and the home headed toward foreclosure. Fake “private lenders” also collect upfront fees and never fund the loan. California’s DFPI has ordered several to stop.",
       "If you are the one lending, or investing in a hard-money fund, the risks flip. Borrowers default, projects stall, and dishonest brokers can misuse money. In California, a hard-money broker’s collapse cost hundreds of people more than $20 million. Las Vegas hard-money fund investors also lost heavily in the recession."
     ],
     bestFor: [
@@ -333,7 +334,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     notFor: [
       "Homeowners trying to borrow their way out of trouble. High rates and balloon payments can lead to losing the home.",
       "First-time flippers without cash reserves for delays, overruns or a slow sale.",
-      "Anyone asked to pay ‘deposits’ or ‘fees’ before a loan is funded, especially to an unlicensed lender."
+      "Anyone asked to pay “deposits” or “fees” before a loan is funded, especially to an unlicensed lender."
     ],
     costs: [
       "Interest: one Los Angeles private lender said he charged about 10% a year and lent up to 75% of purchase-and-repair costs (Reuters, 2013).",
@@ -343,13 +344,13 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     money: [
       "Private lenders earn interest (often around 10% in the Reuters example) plus points or origination fees, and sometimes prepayment penalties.",
-      "Brokers who arrange the loan may take a separate fee. In the California case it was 3% of each loan (CA Attorney General)."
+      "Brokers who arrange the loan may take a separate fee. California: in one case it was 3% of each loan (CA Attorney General)."
     ],
     checklist: [
       "Ask the lender, in writing, which license it holds or which exemption it relies on for your kind of loan, and check it with that regulator. Many lenders show an NMLS number you can look up on NMLS Consumer Access.",
       "In California, a private lender may hold a California Financing Law license (DFPI) or a real estate broker license (DRE), or may be exempt. Check it with that regulator: the DFPI licensee search or NMLS for a finance lender, the DRE lookup for a broker (Fin. Code 22057).",
       "In Texas, companies making home loans for personal, family or household use need a license from the Department of Savings and Mortgage Lending, or an exemption such as being a bank (Finance Code 156.201, 156.202 and 180.002). A loan for a flip or rental is usually a business loan that can fall outside those rules, so ask the lender which license or exemption applies and have your attorney check the terms.",
-      "Some fees before closing are normal: a credit report, and an appraisal or application fee once you decide to go ahead, listed in writing. A demand for ‘deposits’, ‘insurance’ or ‘taxes’ before a loan will be released is the classic scam. Stop and check the lender’s license.",
+      "Some fees before closing are normal: a credit report, and an appraisal or application fee once you decide to go ahead, listed in writing. A demand for “deposits”, “insurance” or “taxes” before a loan will be released is the classic scam. Stop and check the lender’s license.",
       "Get the full terms in writing: rate, points, term, balloon date, extension fees, default rate and prepayment penalty.",
       "Make sure loan money and repair draws go through a licensed escrow or title company, not a personal account.",
       "Plan two exits (sale and refinance) and price the deal with a few extra months of interest.",
@@ -419,7 +420,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       },
       {
         tone: "caution",
-        who: "A California borrower answering a ‘real estate’ loan offer",
+        who: "A California borrower answering a “real estate” loan offer",
         year: "2023",
         title: "Paid about $70,000 in fees for a loan that never came",
         happened: "An unlicensed outfit offered a $200,000 loan. It kept demanding payments before it would release the money. After about $70,000 in fees over a month and no loan, the borrower asked for a refund and was told it was too late. In June 2025, California’s DFPI ordered the company and its agents to stop lending without a license.",
@@ -582,8 +583,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         tone: "good",
         who: "The owner of a vacant lot in Florida",
         year: "2024",
-        title: "Title company spotted an AI ‘seller’ on a looping video",
-        happened: "A title company president found red flags in a vacant-lot sale. There was an out-of-state ID, tax bills going to the Bahamas since 1978, and excuses that the owner was hard of hearing. On a video call, the ‘seller’ turned out to be a looped video. The sale was stopped.",
+        title: "Title company spotted an AI “seller” on a looping video",
+        happened: "A title company president found red flags in a vacant-lot sale. There was an out-of-state ID, tax bills going to the Bahamas since 1978, and excuses that the owner was hard of hearing. On a video call, the “seller” turned out to be a looped video. The sale was stopped.",
         lesson: "A careful title company verifying the seller protects both the true owner and the buyer.",
         source: {
           label: "NBC Washington / NBC6: Title company owner stops fraudulent vacant-lot sale that used an AI video (Sep 20, 2024)",
@@ -678,7 +679,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     overview: [
       "A real estate attorney gives legal advice, reviews contracts and title problems, and goes to court when needed. One example is a quiet title suit after a tax-deed or foreclosure purchase, which asks a court to declare who owns the property. In Nevada, California, Arizona and Utah, title and escrow companies run most home closings. So an attorney is optional for a simple purchase but valuable when something is unusual.",
       "Forced-sale purchases are where a lawyer earns their fee. A tax-sale buyer’s title can be challenged if the government didn’t give the owner proper notice. When Arkansas’s letters came back unclaimed, the U.S. Supreme Court ruled its notice was not enough (Jones v. Flowers, 2006). The rules also change: the Court later held that a county could not keep the surplus from a tax sale (Tyler v. Hennepin County, 2023).",
-      "Lawyers are also targets. Criminals fake attorneys’ emails to steal closing funds. Impostor ‘sellers’ have also fooled realtors and real estate attorneys into closing sales of land the impostors didn’t own."
+      "Lawyers are also targets. Criminals fake attorneys’ emails to steal closing funds. Impostor “sellers” have also fooled realtors and real estate attorneys into closing sales of land the impostors didn’t own."
     ],
     bestFor: [
       "Tax-deed and trustee’s-sale buyers who need a quiet-title action before they can insure, sell or refinance.",
@@ -821,8 +822,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   inspector: {
     overview: [
       "A home inspector walks the property and writes a report on its systems and structure. That covers the roof, foundation, plumbing, electrical, heating and cooling. The report warns you about expensive problems before you’re locked in. You can use it to ask the seller for repairs or a credit, or to cancel under an inspection contingency.",
-      "Rules differ by state. Look the inspector up on your state’s official license lookup, confirm the license level and the insurance they carry, and ask in writing what the inspection leaves out. In Nevada, the state certifies ‘inspectors of structures’: a residential inspector needs at least 40 hours of pre-licensing education, a state exam, and proof of $100,000 errors-and-omissions and $100,000 general liability insurance. In Texas, TREC licenses three levels (apprentice inspector, real estate inspector and professional inspector), each with its own education, experience and exam requirements, and every inspector must show financial responsibility, such as liability insurance of at least $100,000 per occurrence (Occupations Code 1102.101-.103, 1102.1141).",
-      "Forced-sale caution: at many tax-deed and trustee’s sales you can’t get inside before bidding. So no inspection is possible, and you buy ‘as is’. Bank-owned homes usually allow an inspection period. In 2021’s hot market, many buyers waived inspections to win bids. Some paid for it after moving in."
+      "Rules differ by state. Look the inspector up on your state’s official license lookup, confirm the license level and the insurance they carry, and ask in writing what the inspection leaves out. In Nevada, the state certifies “inspectors of structures”: a residential inspector needs at least 40 hours of pre-licensing education, a state exam, and proof of $100,000 errors-and-omissions and $100,000 general liability insurance. In Texas, TREC licenses three levels (apprentice inspector, real estate inspector and professional inspector), each with its own education, experience and exam requirements, and every inspector must show financial responsibility, such as liability insurance of at least $100,000 per occurrence (Occupations Code 1102.101-.103, 1102.1141).",
+      "Forced-sale caution: at many tax-deed and trustee’s sales you can’t get inside before bidding. So no inspection is possible, and you buy “as is”. Bank-owned homes usually allow an inspection period. In 2021’s hot market, many buyers waived inspections to win bids. Some paid for it after moving in."
     ],
     bestFor: [
       "Every buyer who can get access before committing, especially for older homes, vacant homes and bank-owned (REO) homes.",
@@ -935,9 +936,9 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   },
   contractor: {
     overview: [
-      "A licensed contractor is a builder or tradesperson the state has tested and licensed for a type of work. In Nevada the license comes from the Nevada State Contractors Board (NSCB). In California it comes from the Contractors State License Board (CSLB). In Arizona it comes from the Registrar of Contractors (ROC). In Utah it comes from the Division of Professional Licensing (DOPL). Texas has no statewide license for general contractors or remodelers. There, electricians and air conditioning contractors are licensed by the Texas Department of Licensing and Regulation (TDLR), and plumbers by the State Board of Plumbing Examiners. Investors who buy at auction or buy bank-owned homes usually need repairs. So picking the contractor is often the biggest money decision after the purchase itself.",
-      "The license matters most when something goes wrong. Nevada and Arizona run recovery funds that can repay homeowners hurt by a licensed contractor. Utah gives homeowners a way to clear a supplier’s lien if they paid a licensed contractor under a written contract. People who hire an unlicensed worker usually lose those protections. The NSCB warns that unlicensed workers often skip workers’ compensation insurance and trade exams.",
-      "Read the fine print on those funds before counting on them. Nevada’s Residential Recovery Fund covers owners who own and live in a single-family home. Arizona’s fund covers work on the homeowner’s primary residence. A rental or flip you don’t live in may not qualify. And Arizona’s fund has paid only part of some losses when many victims claim against the same contractor."
+      "A licensed contractor is a builder or tradesperson the state has tested and licensed for a type of work. Investors who buy at auction or buy bank-owned homes usually need repairs, so picking the contractor is often the biggest money decision after the purchase itself. In Nevada the license comes from the Nevada State Contractors Board (NSCB). In California it comes from the Contractors State License Board (CSLB). In Arizona it comes from the Registrar of Contractors (ROC). In Utah it comes from the Division of Professional Licensing (DOPL).",
+      "In Nevada, Arizona and Utah, the license matters most when something goes wrong. Nevada and Arizona run recovery funds that can repay homeowners hurt by a licensed contractor. Utah gives homeowners a way to clear a supplier’s lien if they paid a licensed contractor under a written contract. People who hire an unlicensed worker usually lose those protections. The NSCB warns that unlicensed workers often skip workers’ compensation insurance and trade exams.",
+      "In Nevada and Arizona, read the fine print on those recovery funds before counting on them. Nevada’s Residential Recovery Fund covers owners who own and live in a single-family home. Arizona’s fund covers work on the homeowner’s primary residence. A rental or flip you don’t live in may not qualify. And Arizona’s fund has paid only part of some losses when many victims claim against the same contractor."
     ],
     bestFor: [
       "Buyers of foreclosure or bank-owned homes that need roof, plumbing, electrical or structural repair. Permits and licensed trades protect resale and insurance.",
@@ -964,13 +965,13 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Keep receipts, contracts and photos. Arizona’s ROC asks for these documents when a homeowner files a recovery fund claim."
     ],
     checklist: [
-      "Look up the license number on the state board site and confirm it covers the type of work. The boards are NSCB in Nevada, CSLB in California, ROC in Arizona and DOPL in Utah. In Texas, check the trade license instead: TDLR for electricians and air conditioning, and the State Board of Plumbing Examiners for plumbers.",
+      "Look up the license number with the state’s official lookup (below) and confirm it covers the type of work.",
       "Get at least three written bids and call references.",
       "Sign a detailed written contract listing materials, scope, timeline and payment schedule.",
-      "Don’t pay cash, and don’t pay a deposit above the legal limit (10% or $1,000 in California).",
+      "Don’t pay cash, and keep any deposit small.",
       "Ask about workers’ compensation and liability insurance and permits before work starts.",
       "Keep proof of every payment. In Utah, proof of a written contract and full payment is what lets you clear a supplier’s lien. In Texas, you can ask for a sworn statement that the contractor has paid its subcontractors and suppliers before you pay (Property Code 53.085).",
-      "Check whether your property qualifies for the state recovery fund before relying on it (owner-occupied homes in Nevada and Arizona)."
+      "In Nevada and Arizona, check whether your property qualifies for the state recovery fund before relying on it (the funds cover owner-occupied homes)."
     ],
     facts: [
       {
@@ -1045,7 +1046,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         tone: "caution",
         who: "At least 14 homeowners, mostly seniors, in the Reno area, Nevada",
         year: "2024",
-        title: "Unlicensed ‘Re-Bath Reno’ took $160,000",
+        title: "Unlicensed “Re-Bath Reno” took $160,000",
         happened: "The owner of Re-Bath Reno, an unlicensed contractor, had been convicted of unlicensed contracting in 2015. The owner took about $160,000 from at least 14 homeowners. Most victims were seniors who paid and never saw any work done. The owner pleaded guilty to two felony counts of obtaining money under false pretenses and faced more than $133,000 in restitution.",
         lesson: "Unlicensed contractors leave you with no recovery fund, so check the license before you pay a dollar.",
         source: {
@@ -1058,7 +1059,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         who: "A homeowner in the Phoenix area, Arizona",
         year: "2025",
         title: "Licensed pool builder vanished; fund paid one-third",
-        happened: "A Phoenix-area homeowner was one of more than a dozen who paid Unity Pools. Its owner abandoned jobs and left ‘concrete holes.’ The ROC revoked the licenses and tapped its Recovery Fund. But payouts are capped at $200,000 per license, so eight homeowners were cut to $25,000 each. He was out about $75,000 and got a $25,000 check.",
+        happened: "A Phoenix-area homeowner was one of more than a dozen who paid Unity Pools. Its owner abandoned jobs and left “concrete holes.” The ROC revoked the licenses and tapped its Recovery Fund. But payouts are capped at $200,000 per license, so eight homeowners were cut to $25,000 each. He was out about $75,000 and got a $25,000 check.",
         lesson: "Even with a licensed contractor, recovery funds have caps, so don’t prepay large sums ahead of the work.",
         source: {
           label: "AZFamily (KTVK/KPHO): Some Phoenix-area victims of Unity Pools get partial reimbursement from Arizona’s Recovery Fund (Apr. 3, 2025)",
@@ -1101,7 +1102,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     overview: [
       "An insurance agent or broker helps you buy property and liability coverage. For investors the key decision is the type of policy. A standard homeowners policy is written for a home you live in. A rental (dwelling or landlord) policy is written for a home you rent out. Tell your agent how the home will actually be used.",
       "Vacant homes are a special risk. Many property policies limit coverage for some losses, such as water damage, once a building has been vacant for more than 60 straight days. A California appeals court ruled in 2020 that this count can include days before you owned the home. That matters for anyone buying an empty foreclosure or bank-owned house.",
-      "In California’s wildfire areas, many owners can’t find private coverage. In California, they end up on the FAIR Plan, the state’s insurer of last resort. California’s FAIR Plan mainly covers fire, so most owners add a separate ‘wrap-around’ policy for theft, water damage and liability. In California, compare the total of both quotes with any private offer before you bid. Most homeowners and renters policies don’t cover flood damage, so you usually need a separate flood policy."
+      "In California’s wildfire areas, many owners can’t find private coverage. In California, they end up on the FAIR Plan, the state’s insurer of last resort. California’s FAIR Plan mainly covers fire, so most owners add a separate “wrap-around” policy for theft, water damage and liability. In California, compare the total of both quotes with any private offer before you bid. Most homeowners and renters policies don’t cover flood damage, so you usually need a separate flood policy."
     ],
     bestFor: [
       "Anyone buying an empty foreclosure or REO home who needs coverage that fits a vacant property from day one.",
@@ -1111,8 +1112,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     notFor: [
       "Buyers who assume their old homeowners policy will cover a home they now rent out or leave vacant.",
-      "Owners who only shop on price. A cheaper policy may pay ‘actual cash value’ (depreciated) rather than replacement cost.",
-      "Anyone who would let a flood policy lapse because the area ‘isn’t a flood zone.’"
+      "Owners who only shop on price. A cheaper policy may pay “actual cash value” (depreciated) rather than replacement cost.",
+      "Anyone who would let a flood policy lapse because the area “isn’t a flood zone.”"
     ],
     costs: [
       "Premiums vary widely. In one Altadena, California example, a private policy cost $1,264 a year for up to $1.5 million of coverage. A neighbor paid $2,000 a year on the FAIR Plan for a $686,000 maximum. The neighbor also paid $1,500 a year for wrap-around coverage (AP, 2025).",
@@ -1192,7 +1193,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         who: "A homeowner and his pregnant wife in Altadena, California",
         year: "2025",
         title: "Non-renewed, moved to the FAIR Plan, underinsured",
-        happened: "His private insurer declined to renew in 2024, so he moved to the California FAIR Plan. He paid $2,000 a year for a $686,000 maximum payout and $1,500 a year for wrap-around coverage. Because his roof was too old, he could only get ‘actual cash value’ coverage. After the Eaton Fire, he expected to need loans to rebuild.",
+        happened: "His private insurer declined to renew in 2024, so he moved to the California FAIR Plan. He paid $2,000 a year for a $686,000 maximum payout and $1,500 a year for wrap-around coverage. Because his roof was too old, he could only get “actual cash value” coverage. After the Eaton Fire, he expected to need loans to rebuild.",
         lesson: "Before you buy in a California fire zone, check what the FAIR Plan really pays: replacement cost or actual cash value. Also check what the property will cost to insure.",
         source: {
           label: "AP via KPBS: LA neighbors have vastly different post-wildfire rebuilding options due to insurance crisis (Feb. 5, 2025)",
@@ -1249,9 +1250,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   },
   cpa: {
     overview: [
-      "A CPA or enrolled agent helps you keep rental and flipping taxes legal and organized. The hardest rental rules are the ‘passive activity’ rules. Rental losses usually can’t offset wage income, except for a special allowance of up to $25,000 for owners who actively take part. That allowance shrinks once your modified adjusted gross income passes $100,000 and is gone at $150,000. It’s also smaller, or zero, if you’re married filing separately. Flips and long-term sales are taxed differently. Profit from a flip is often taxed as ordinary income, not as a lower-taxed capital gain. If flipping is your business, you may also owe self-employment tax of about 15.3%.* And you can’t use a 1031 exchange for a flip. When you sell a rental, the depreciation you took is partly taxed back.",
-      "The bigger exception is ‘real estate professional’ status. You must work more than 750 hours a year in real estate businesses, and that must be more than half of all your working hours. You must also “materially participate” in the rentals themselves: real, regular and continuous work, measured by tests listed in IRS Publication 925. The IRS counts each rental separately unless you file an election to treat them as one. The Tax Court regularly rejects claims backed only by estimates or by calendars rebuilt from memory during an audit. If the tax you underpaid is large, the court can add a 20% penalty unless you show reasonable cause. Owners who win usually have good records.",
-      "Anyone with a PTIN can charge to prepare returns. But only CPAs, enrolled agents and attorneys have unlimited rights to represent you before the IRS. A CPA can only protect you if you give them full, accurate information."
+      "A CPA or enrolled agent helps you keep rental and flipping taxes legal and organized. The hardest rental rules are the “passive activity” rules. Rental losses usually can’t offset wage income, except for a special allowance of up to $25,000 for owners who actively take part. That allowance shrinks once your modified adjusted gross income passes $100,000 and is gone at $150,000. It’s also smaller, or zero, if you’re married filing separately. Flips are taxed differently (see “Fix-and-flip investor” under “Should you hire one?”). When you sell a rental, the depreciation you took is partly taxed back.",
+      "The bigger exception is “real estate professional” status. You must work more than 750 hours a year in real estate businesses, and that must be more than half of all your working hours. You must also “materially participate” in the rentals themselves: real, regular and continuous work, measured by tests listed in IRS Publication 925. The IRS counts each rental separately unless you file an election to treat them as one. The Tax Court regularly rejects claims backed only by estimates or by calendars rebuilt from memory during an audit. If the tax you underpaid is large, the court can add a 20% penalty unless you show reasonable cause. Owners who win usually have good records."
     ],
     bestFor: [
       "Landlords with losses who need to know whether the $25,000 allowance or real estate professional status applies.",
@@ -1260,7 +1260,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Anyone who has received an IRS audit letter about rental losses."
     ],
     notFor: [
-      "Owners who want a preparer to ‘find’ a bigger refund. The IRS warns against preparers who promise larger refunds or charge a percentage of the refund.",
+      "Owners who want a preparer to “find” a bigger refund. The IRS warns against preparers who promise larger refunds or charge a percentage of the refund.",
       "Taxpayers who won’t keep records. Even a CPA can’t defend real estate professional hours you can’t back up.",
       "People hoping a professional’s signature alone will shield them from penalties. That defense works only if you gave the professional all the relevant facts."
     ],
@@ -1271,12 +1271,11 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Time for record keeping: a log of hours, receipts and mileage that you keep as you go."
     ],
     money: [
-      "Fee structure: the IRS says to avoid preparers who base their fee on a percentage of your refund.",
-      "Credentials affect what you get for the fee. Enrolled agents, CPAs and attorneys have unlimited representation rights before the IRS. A PTIN lets a paid preparer prepare returns, but it doesn’t by itself let that person represent you before the IRS. Ask who will help if your return is questioned."
+      "Fee structure: the IRS says to avoid preparers who base their fee on a percentage of your refund."
     ],
     checklist: [
       "Confirm the preparer has a PTIN and signs the return. Check credentials in the IRS directory of preparers.",
-      "Prefer a CPA, enrolled agent or tax attorney if you might face an audit (unlimited representation rights).",
+      "Credentials: enrolled agents, CPAs and attorneys have unlimited representation rights before the IRS. A PTIN lets a paid preparer prepare returns, but it doesn’t by itself let that person represent you. If you might face an audit, prefer a CPA, enrolled agent or tax attorney, and ask who will help if your return is questioned.",
       "Ask about fees up front, and walk away from percentage-of-refund pricing.",
       "Ask how they will document the $25,000 allowance or real estate professional status, and what logs they need from you.",
       "Give them complete facts, including your hours and other jobs. Relying on a professional only helps if you gave them all relevant information.",
@@ -1360,8 +1359,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         tone: "caution",
         who: "A nuclear plant technician who owned seven rentals (U.S. Tax Court case)",
         year: "2010",
-        title: "‘On-call’ time didn’t count; most of loss disallowed",
-        happened: "The owner worked about 1,900 hours at his plant job. He estimated 645 hours on his rentals, with no detailed log. He argued his ‘on-call’ time should count. The Tax Court disagreed, so he could deduct only $9,172 of a $40,490 loss. He also got a negligence penalty because he hadn’t given his CPA his hours.",
+        title: "“On-call” time didn’t count; most of loss disallowed",
+        happened: "The owner worked about 1,900 hours at his plant job. He estimated 645 hours on his rentals, with no detailed log. He argued his “on-call” time should count. The Tax Court disagreed, so he could deduct only $9,172 of a $40,490 loss. He also got a negligence penalty because he hadn’t given his CPA his hours.",
         lesson: "A CPA can’t protect you if you don’t give them the facts, and estimates aren’t records.",
         source: {
           label: "Journal of Accountancy (AICPA): Taxpayer off the clock for real estate loss, on Moss v. Commissioner, 135 T.C. No. 18 (Dec. 1, 2010)",
@@ -1429,7 +1428,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     notFor: [
       "Owners who won’t read monthly statements or check that deposits match bank records.",
-      "Owners choosing an unlicensed ‘manager’ to save fees, which gives up regulator oversight and recovery funds.",
+      "Owners choosing an unlicensed “manager” to save fees, which gives up regulator oversight and recovery funds.",
       "Very small, nearby rentals where the owner has time to self-manage and knows landlord-tenant law."
     ],
     costs: [
@@ -1445,7 +1444,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     checklist: [
       "Check the license with the state real estate regulator, and look at its discipline history. In Nevada, also check the property management permit.",
       "Ask where rent and security deposits are held and ask for trust account reconciliations.",
-      "Get a written management agreement covering fees, repair spending limits, and any ‘deferment’ or offset arrangements. In the Nevada case, a broker’s unwritten rent deferment deal led to missing rent.",
+      "Get a written management agreement covering fees, repair spending limits, and any “deferment” or offset arrangements. Nevada: in one case, a broker’s unwritten rent deferment deal led to missing rent.",
       "Compare monthly owner statements to your own bank deposits. Missing deposits are an early warning.",
       "Confirm the security deposit will be transferred to you or the next manager if you change managers.",
       "Ask for references from current owner-clients."
@@ -1560,14 +1559,14 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   eviction: {
     overview: [
       "Eviction is a court process. A landlord cannot legally remove a tenant by changing the locks, shutting off utilities or taking the tenant’s belongings. In California only a sheriff or marshal, with a court order, may carry out an eviction. In Arizona and Nevada, tenants locked out or cut off from essential services can sue for damages set by law. In Texas, a landlord may change the locks for unpaid rent only under strict rules, and must give the tenant a new key at any hour, even if they don’t pay (Property Code 92.0081).",
-      "Each state runs its own process. In Nevada, an eviction for unpaid rent starts with a 7-court-day notice to pay or quit (weekends and court holidays don’t count). In Nevada, Clark County says evictions take anywhere from 10 to 180 days depending on the case, so budget for the long end. In Nevada, Clark County says its fast ‘summary eviction’ can’t be used to remove a former owner, or the former owner’s tenant, after a foreclosure. California’s ‘unlawful detainer’ case requires the landlord to file and serve a lawsuit. Arizona requires written notice before filing, such as 10 days for many lease violations. In Texas, the landlord gives at least 3 days’ written notice to vacate, unless a written lease sets a different time, then files in justice court. If the only reason is unpaid rent and the tenant had never been late before that month, the notice must be a notice to pay rent or vacate (since January 1, 2026). The trial is set 10 to 21 days after filing (Property Code 24.005 and 24.005106; Tex. R. Civ. P. 510). An eviction attorney helps you serve the right notice, file correctly and avoid defenses that restart the clock.",
+      "Each state runs its own process. In Nevada, an eviction for unpaid rent starts with a 7-court-day notice to pay or quit (weekends and court holidays don’t count). In Nevada, Clark County says evictions take anywhere from 10 to 180 days depending on the case, so budget for the long end. In Nevada, Clark County says its fast “summary eviction” can’t be used to remove a former owner, or the former owner’s tenant, after a foreclosure. California’s “unlawful detainer” case requires the landlord to file and serve a lawsuit. Arizona requires written notice before filing, such as 10 days for many lease violations. In Texas, the landlord gives at least 3 days’ written notice to vacate, unless a written lease sets a different time, then files in justice court. If the only reason is unpaid rent and the tenant had never been late before that month, the notice must be a notice to pay rent or vacate (since January 1, 2026). The trial is set 10 to 21 days after filing (Property Code 24.005 and 24.005106; Tex. R. Civ. P. 510). An eviction attorney helps you serve the right notice, file correctly and avoid defenses that restart the clock.",
       "Investors who buy occupied homes at foreclosure auctions or as REOs must also go through the courts to remove occupants. After a foreclosure, tenants who rented from the former owner usually get at least 90 days’ notice under federal law, and a real lease signed before the foreclosure sale transferred title may run to its end unless the buyer will live there. Self-help, like changing the locks yourself, can turn a rent dispute into a damages award against you."
     ],
     bestFor: [
       "Landlords facing a nonpaying or lease-violating tenant who want possession back quickly and lawfully.",
       "Auction or REO buyers who take title to an occupied property.",
       "Out-of-state owners unfamiliar with local notice rules and court procedures.",
-      "Owners of rent-controlled or ‘just cause’ units in California, where notices are technical."
+      "Owners of rent-controlled or “just cause” units in California, where notices are technical."
     ],
     notFor: [
       "Landlords tempted to change locks, cut utilities or remove belongings. That can leave you owing damages set by law in California, Arizona, Nevada and Texas.",
@@ -1586,7 +1585,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     checklist: [
       "Confirm the attorney regularly handles landlord evictions in the county where the property is.",
       "Ask which notice your situation requires (nonpayment, lease violation, no-cause) and the deadline in that state.",
-      "Ask about local rent control or ‘just cause’ rules (common in California cities).",
+      "Ask about local rent control or “just cause” rules. In California, many cities have them.",
       "Ask how long an uncontested and a contested case usually take in that court.",
       "Agree never to use self-help (lockouts, utility shutoffs, removing belongings) while the case runs.",
       "For auction or REO purchases, ask how to remove a former owner or occupant who isn’t on a lease, and whether a tenant gets 90 days’ notice or can stay to the end of a lease under federal law."
@@ -1671,7 +1670,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         tone: "caution",
         who: "An apartment-house landlord in California",
         year: "1961",
-        title: "Lease ‘re-entry’ clause no defense to a lockout",
+        title: "Lease “re-entry” clause no defense to a lockout",
         happened: "A tenant fell two months behind on $132.50 rent. While she was away, the landlord unlocked her apartment and moved her furniture to a warehouse. He refused to let her back in. He relied on a lease clause giving him a right of re-entry. A jury awarded her $6,500 plus $3,000 in punitive damages. The California Supreme Court held that the lockout was a forcible entry even without violence. It also held that a lease cannot authorize one. But it upheld a new trial on other grounds.",
         lesson: "A lease clause doesn’t let you skip the court process.",
         source: {
@@ -1726,7 +1725,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   appraiser: {
     overview: [
       "An appraisal is a written report that gives an opinion of how much a property is worth. The appraiser usually compares the home with similar nearby homes that sold recently. These are called comparable sales, or “comps”. The appraiser then adjusts for differences like size and condition.",
-      "Appraisers hold state credentials at different levels. In California, a Licensed Residential appraiser may do non-complex 1–4 unit homes up to $1 million. In California, a Certified Residential appraiser may do any 1–4 unit home, and a Certified General appraiser may do any type of property. A report can be “as is”, meaning the value today. Or it can be “subject to” repairs being finished.",
+      "A report can be “as is”, meaning the value today. Or it can be “subject to” repairs being finished. Appraisers hold state credentials at different levels. In California, a Licensed Residential appraiser may do non-complex 1–4 unit homes up to $1 million. In California, a Certified Residential appraiser may do any 1–4 unit home, and a Certified General appraiser may do any type of property.",
       "A professional appraisal is the best way to determine a property’s value. A real estate agent can estimate it from comparable sales in the meantime. When the appraiser can’t go inside, as at many auctions, the value rests on outside views and records. Hidden problems can be missed.",
       "Upgrades don’t add their cost to the value. Appraisers value a feature by what buyers in that market pay for it, not what it cost. Say an improvement is bigger or costlier than is typical for the neighborhood, like a pool where pools are rare. It counts only for what it adds. So $70,000 of upgrades doesn’t necessarily make a home worth $70,000 more.",
     ],
@@ -1801,7 +1800,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   environmental: {
     overview: [
       "An environmental consultant checks whether a property may be contaminated, usually through a Phase I Environmental Site Assessment. That means a records review, interviews and a site visit. If the Phase I finds warning signs, a Phase II tests soil, groundwater or tanks. Old gas stations, dry cleaners, auto shops and industrial lots are the classic risks.",
-      "A current owner can be liable for cleanup even if it did not cause the pollution (the federal Superfund law, CERCLA). Buyers can qualify as ‘bona fide prospective purchasers’ only if they meet several conditions. One key condition is completing ‘all appropriate inquiries’. That generally means a Phase I under ASTM E1527-21, done by a qualified environmental professional. It must be done within one year before buying. The interviews, records review, site visit, lien search and the environmental professional’s signed declaration must be done or updated within 180 days. After buying, you must keep meeting ‘continuing obligations’: take ‘reasonable steps’ to stop releases and limit exposure, follow any land-use limits, cooperate and give access to cleanup agencies, answer their information requests and give required notices. A clean Phase I isn’t a guarantee the site is clean.",
+      "A current owner can be liable for cleanup even if it did not cause the pollution (the federal Superfund law, CERCLA). Buyers can qualify as “bona fide prospective purchasers” only if they meet several conditions. One key condition is completing “all appropriate inquiries”. That generally means a Phase I under ASTM E1527-21, done by a qualified environmental professional. It must be done within one year before buying. The interviews, records review, site visit, lien search and the environmental professional’s signed declaration must be done or updated within 180 days. After buying, you must keep meeting “continuing obligations”: take “reasonable steps” to stop releases and limit exposure, follow any land-use limits, cooperate and give access to cleanup agencies, answer their information requests and give required notices. A clean Phase I isn’t a guarantee the site is clean.",
       "Courts have denied this protection to buyers who knew of contamination but didn’t act. One example is a Las Vegas shopping-center owner that demolished a former dry cleaner without removing contaminated soil. On the good side, EPA Brownfields grants have paid for Phase I and II assessments that let abandoned sites be sold and reused."
     ],
     bestFor: [
@@ -1812,7 +1811,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     notFor: [
       "Buyers who plan to rely on an old report. Parts of the inquiry must be done or updated within 180 days, and the whole within one year, before you buy.",
-      "Buyers who learn of contamination and then do nothing. Courts require ‘reasonable steps’ after purchase.",
+      "Buyers who learn of contamination and then do nothing. Courts require “reasonable steps” after purchase.",
       "Standard single-family home purchases with no commercial history, where a Phase I is usually not part of the deal (confirm with your lender)."
     ],
     costs: [
@@ -1827,12 +1826,12 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Cities, counties and other eligible entities can apply for EPA Brownfields Assessment grants. Phase I work paid for by those grants must follow the AAI rule (40 CFR Part 312)."
     ],
     checklist: [
-      "Confirm the consultant meets EPA’s definition of an ‘environmental professional’ and will follow ASTM E1527-21 (or E2247-23 for rural/forest land).",
+      "Confirm the consultant meets EPA’s definition of an “environmental professional” and will follow ASTM E1527-21 (or E2247-23 for rural/forest land).",
       "Time it right: complete the Phase I within one year before closing. The interviews, records review, site visit, lien search and the environmental professional’s declaration must be within 180 days.",
       "Make sure the report is in your name (the buyer) and signed by the environmental professional.",
       "Ask what historical uses they’ll research (gas stations, dry cleaners, tanks) and whether they’ll search for environmental cleanup liens.",
       "Ask about data gaps and when they’d recommend a Phase II.",
-      "Plan the ‘reasonable steps’ you’ll take after buying, such as capping sumps or limiting exposure, and document them. Also follow any land-use limits, cooperate with cleanup agencies, answer their information requests and give required notices."
+      "Plan the “reasonable steps” you’ll take after buying, such as capping sumps or limiting exposure, and document them. Also follow any land-use limits, cooperate with cleanup agencies, answer their information requests and give required notices."
     ],
     facts: [
       {
@@ -1894,7 +1893,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         who: "Owners of the Maryland Square Shopping Center in Las Vegas, Nevada",
         year: "2013",
         title: "Bought a dry-cleaner site, then spread the contamination",
-        happened: "A former dry cleaner had leaked the solvent PCE under a Las Vegas shopping center. It reached groundwater beneath nearby homes. A buyer bought the site in 2005, knowing about the contamination. It tore down the building in 2006 and did not remove contaminated soil, so the state had to. The Ninth Circuit called the buyer’s evidence for bona fide prospective purchaser status ‘woefully insufficient’. It held the buyer liable to the state under Nevada law.",
+        happened: "A former dry cleaner had leaked the solvent PCE under a Las Vegas shopping center. It reached groundwater beneath nearby homes. A buyer bought the site in 2005, knowing about the contamination. It tore down the building in 2006 and did not remove contaminated soil, so the state had to. The Ninth Circuit called the buyer’s evidence for bona fide prospective purchaser status “woefully insufficient”. It held the buyer liable to the state under Nevada law.",
         lesson: "Knowing about contamination isn’t enough. You must do proper inquiries and take reasonable steps after buying.",
         source: {
           label: "U.S. Court of Appeals, 9th Circuit: Voggenthaler v. Maryland Square Shopping Center LLC, 724 F.3d 1050 (2013), Caselaw Access Project",
@@ -1906,7 +1905,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         who: "A developer that bought a former fertilizer plant site in Charleston, South Carolina",
         year: "2013",
         title: "Delayed filling sumps, lost buyer protection",
-        happened: "In 2003 the developer bought 27.62 acres for $2.7 million. It knew the soil was contaminated and meant to clean it up. Courts found it was too slow to clean out and fill sumps and failed to manage a debris pile, so it did not take the required ‘reasonable steps.’ It lost its bona fide prospective purchaser protection and had to share cleanup liability, even after spending at least $194,000.",
+        happened: "In 2003 the developer bought 27.62 acres for $2.7 million. It knew the soil was contaminated and meant to clean it up. Courts found it was too slow to clean out and fill sumps and failed to manage a debris pile, so it did not take the required “reasonable steps.” It lost its bona fide prospective purchaser protection and had to share cleanup liability, even after spending at least $194,000.",
         lesson: "Buyer protection under CERCLA depends on what you do after closing, not just the Phase I.",
         source: {
           label: "U.S. Court of Appeals, 4th Circuit: PCS Nitrogen Inc. v. Ashley II of Charleston LLC, 714 F.3d 161 (2013), Caselaw Access Project",

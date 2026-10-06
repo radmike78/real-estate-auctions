@@ -56,7 +56,7 @@ export const LICENSE_LOOKUPS: Partial<Record<ProKey, Record<StateCode, Lookup>>>
     CA: { who: 'California Contractors State License Board', url: 'https://www.cslb.ca.gov/OnlineServices/CheckLicenseII/CheckLicense.aspx' },
     AZ: { who: 'Arizona Registrar of Contractors', url: 'https://roc.az.gov/contractor-search' },
     UT: { who: 'Utah Division of Professional Licensing', url: 'https://secure.utah.gov/llv/search/index.html' },
-    TX: { note: 'Texas has no statewide license for general contractors or remodelers. Check the trades instead: electricians and air conditioning contractors on the TDLR license search, and plumbers on the Texas State Board of Plumbing Examiners’ license search. Ask your city whether it registers contractors, and ask for proof of insurance.' },
+    TX: { note: 'Texas has no statewide license for general contractors or remodelers. Check the trades: electricians and air-conditioning contractors on the TDLR license search, and plumbers on the Texas State Board of Plumbing Examiners’ license search. Ask your city whether it registers contractors, and ask for proof of insurance.' },
   },
   insurance: INSURANCE,
   cpa: {
