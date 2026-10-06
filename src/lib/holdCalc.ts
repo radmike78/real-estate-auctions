@@ -341,3 +341,64 @@ export function sanitizeNumbers<T extends object>(saved: unknown, defaults: T, m
   }
   return out;
 }
+
+/** Loan balance left after `months` payments on a fully amortizing loan (the full amount for an interest-free one). */
+export function loanBalance(loan: number, ratePct: number, years: number, months: number): number {
+  const L = nz(loan);
+  const n = Math.round((nz(years) || 30) * 12);
+  const p = Math.min(Math.max(0, Math.round(months)), n);
+  const r = nz(ratePct) / 100 / 12;
+  if (!L) return 0;
+  if (!r) return r2(L * (1 - p / n));
+  return r2((L * ((1 + r) ** n - (1 + r) ** p)) / ((1 + r) ** n - 1));
+}
+
+/** The yearly rate that makes the cash flows' present value zero (first flow at time 0); null if there's none. */
+export function irr(flows: number[]): number | null {
+  const npv = (rate: number) => flows.reduce((s, f, t) => s + f / (1 + rate) ** t, 0);
+  let lo = -0.99;
+  let hi = 10;
+  if (npv(lo) * npv(hi) > 0) return null;
+  for (let k = 0; k < 200; k++) {
+    const mid = (lo + hi) / 2;
+    if (npv(lo) * npv(mid) <= 0) hi = mid;
+    else lo = mid;
+  }
+  return (lo + hi) / 2;
+}
+
+export interface HoldSellInputs {
+  years: number;
+  appreciationPct: number;
+  rentGrowthPct: number;
+  sellingCostPct: number;
+}
+export const HOLD_SELL_DEFAULTS: HoldSellInputs = { years: 5, appreciationPct: 3, rentGrowthPct: 3, sellingCostPct: 7 };
+
+/**
+ * Keep it for some years, then sell: the yearly cash flows (rent and costs growing together), the sale after selling
+ * costs and the loan payoff, and the return on the cash you put in. Before income tax.
+ */
+export function holdAndSell(i: RentInputs, price: number, h: HoldSellInputs, onPrice = false) {
+  const base = rentAtPrice(i, price, onPrice);
+  const years = Math.min(30, Math.max(1, Math.round(nz(h.years) || 1)));
+  const grow = 1 + nz(h.rentGrowthPct) / 100;
+  const flows = Array.from({ length: years }, (_, t) => r2((base.noi - base.reserves) * grow ** t - base.debtService));
+  const value = nz(i.value) || nz(price);
+  const saleValue = r2(value * (1 + nz(h.appreciationPct) / 100) ** years);
+  const payoff = loanBalance(base.loan, i.ratePct, i.years, years * 12);
+  const saleNet = r2(saleValue * (1 - nz(h.sellingCostPct) / 100) - payoff);
+  const cashIn = base.cashIn;
+  const totalBack = r2(flows.reduce((a, b) => a + b, 0) + saleNet);
+  return {
+    years,
+    cashIn,
+    flows,
+    saleValue,
+    payoff,
+    saleNet,
+    profit: r2(totalBack - cashIn),
+    equityMultiple: cashIn > 0 ? totalBack / cashIn : null,
+    irr: cashIn > 0 ? irr([-cashIn, ...flows.slice(0, -1), flows[years - 1] + saleNet]) : null,
+  };
+}

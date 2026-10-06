@@ -30,6 +30,17 @@ export function transferTaxFor(state: StateCode, county: string): TransferTax {
 }
 
 /** What a buyer's property tax will be, which is often not the seller's bill. */
+/**
+ * Starting property tax and insurance for a rental in each state, before the user enters a quote: rough effective
+ * rates for a rental (no owner-occupant exemption) applied to the calculator's example value. They only replace the
+ * flat example numbers; anything the user types is kept.
+ */
+const RENTAL_TAX_RATE: Record<StateCode, number> = { NV: 0.006, CA: 0.0115, AZ: 0.0065, UT: 0.0055, TX: 0.02 };
+const RENTAL_INSURANCE: Record<StateCode, number> = { NV: 1_300, CA: 1_600, AZ: 1_500, UT: 1_100, TX: 2_700 };
+export function rentalStartFor(state: StateCode, value: number): { propertyTaxYear: number; insuranceYear: number } {
+  return { propertyTaxYear: Math.round((value * RENTAL_TAX_RATE[state]) / 50) * 50, insuranceYear: RENTAL_INSURANCE[state] };
+}
+
 export function propertyTaxHint(state: StateCode): { hint: string; more: string } {
   if (state === 'CA')
     return {
@@ -43,7 +54,7 @@ export function propertyTaxHint(state: StateCode): { hint: string; more: string 
     };
   if (state === 'TX')
     return {
-      hint: 'A rental gets no homestead exemption, so expect a higher bill.',
+      hint: 'A rental gets no homestead exemption, so expect a higher bill. The example uses about 2% of value: replace it with the appraisal district’s numbers.',
       more: 'In Texas, the appraisal district values the property and each local taxing unit (county, city, school district and special districts like MUDs) sets its own rate. A home you live in can get the homestead exemption, including $140,000 off the school district value (Tax Code 11.13). A rental or second home can’t, so its bill can be much higher than the seller’s. You can protest the value by May 15, or 30 days after the notice was mailed if that’s later (Tax Code 41.44).',
     };
   if (state === 'UT')

@@ -163,7 +163,7 @@ function parseHash(): Route {
     const sale = params.get('sale') ?? undefined;
     return { page: 'practice', sale: sale && /^[a-z]{2,12}$/.test(sale) ? sale : undefined };
   }
-  const tk = h.match(/^toolkit(?:\/(buy-box|cash|team))?$/);
+  const tk = h.match(/^toolkit(?:\/(buy-box|cash|team|paperwork))?$/);
   if (tk) return { page: 'toolkit', section: tk[1] };
   const drill = h.match(/^practice\/drills\/([a-z0-9-]{2,40})$/);
   if (drill) return { page: 'drill', id: drill[1] };

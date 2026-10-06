@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import type { BidInputs } from '../lib/bidCalc';
-import { COMMERCIAL_DEFAULTS, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs } from '../lib/holdCalc';
+import { COMMERCIAL_DEFAULTS, HOLD_SELL_DEFAULTS, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs } from '../lib/holdCalc';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 import CalcFields, { type CalcGroup } from './CalcFields';
 import { useCalcRegion } from './calcRegion';
-import { propertyTaxHint, transferTaxFor } from '../lib/stateCosts';
+import { propertyTaxHint, rentalStartFor, transferTaxFor } from '../lib/stateCosts';
 
 /** The purchase-cost fields worded for the deal's state and county, starting at its transfer tax. */
 function useRegionTax<T extends BuyInputs>(groups: CalcGroup<T>[]): { groups: CalcGroup<T>[]; per500: number } {
@@ -287,6 +287,41 @@ function AtThisPrice({ v, start, onPrice, setPrice }: { v: RentInputs; start: nu
   );
 }
 
+/** For longer holds: keep it some years, then sell. The yearly return on your cash (IRR) and the equity multiple. */
+function HoldAndSell({ v, onPrice }: { v: RentInputs; onPrice: boolean }) {
+  const [h, setH] = useState<HoldSellInputs>(HOLD_SELL_DEFAULTS);
+  // The price you'd actually pay; without one, the property's value (not the walk-away price, which would count buying
+  // below value as a gain you haven't made).
+  const at = v.atPrice > 0 ? v.atPrice : v.value;
+  const r = holdAndSell(v, at, h, onPrice);
+  const field = (k: keyof HoldSellInputs, label: string, unit: string) => (
+    <label className="field">
+      <span>{label} ({unit})</span>
+      <input type="number" inputMode="decimal" min={0} step="any" value={h[k]} onChange={(e) => setH({ ...h, [k]: Math.max(0, Number(e.target.value) || 0) })} />
+    </label>
+  );
+  return (
+    <details className="deal-lab hold-sell">
+      <summary><h4>If you keep it and sell later</h4></summary>
+      <p className="small muted">At {v.atPrice > 0 ? 'your price' : 'the property’s value'}, {fmtMoney(at)}. Rent and costs grow together; the loan payment stays the same. Before income tax: depreciation you took is taxed when you sell (see <a href="#/learn/taxes">Taxes from purchase to sale</a>).</p>
+      <div className="row">{field('years', 'Years you keep it', 'years')}{field('appreciationPct', 'Value growth a year', '%')}{field('rentGrowthPct', 'Rent growth a year', '%')}{field('sellingCostPct', 'Selling costs', '% of price')}</div>
+      {r.cashIn > 0 ? (
+        <dl className="calc-kv">
+          <div><dt>Your cash in</dt><dd>{fmtMoney(Math.round(r.cashIn))}</dd></div>
+          <div><dt>Cash flow over {r.years} {r.years === 1 ? 'year' : 'years'}</dt><dd>{fmtMoney(Math.round(r.flows.reduce((a, b) => a + b, 0)))}</dd></div>
+          <div><dt>Sale price in year {r.years}</dt><dd>{fmtMoney(Math.round(r.saleValue))}</dd></div>
+          <div><dt>After selling costs and the loan payoff ({fmtMoney(Math.round(r.payoff))})</dt><dd>{fmtMoney(Math.round(r.saleNet))}</dd></div>
+          <div><dt>Profit before tax</dt><dd>{fmtMoney(Math.round(r.profit))}</dd></div>
+          <div><dt>Equity multiple (all cash back ÷ cash in)</dt><dd>{r.equityMultiple === null ? '—' : `${r.equityMultiple.toFixed(2)}×`}</dd></div>
+          <div><dt>Yearly return on your cash (IRR)</dt><dd>{pctText(r.irr)}</dd></div>
+        </dl>
+      ) : (
+        <p>None of your own cash stays in at this price, so a return on cash can’t be figured. Look at the cash flow and the sale instead.</p>
+      )}
+    </details>
+  );
+}
+
 function RentDealLab({ v, start, onPrice }: { v: RentInputs; start: number; onPrice: boolean }) {
   const at = v.atPrice > 0 ? v.atPrice : Number.isFinite(start) && start > 0 ? start : v.value;
   const rows = rentStress(v, at, onPrice);
@@ -325,7 +360,11 @@ function RentDealLab({ v, start, onPrice }: { v: RentInputs; start: number; onPr
 
 export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = false, start = {}, regional = false, offer = false }: { storageKey?: string; /** The key already names the deal and kind of purchase. */ exactKey?: boolean; start?: Partial<RentInputs>; regional?: boolean; offer?: boolean }) {
   const rt = useRegionTax(RENT_GROUPS);
-  const [saved, set, typed] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...RENT_DEFAULTS, ...(offer ? OFFER_START : {}), ...start }, regional ? { transferTaxPer500: rt.per500 } : {});
+  const region = useCalcRegion();
+  // In a deal with a state, the example tax and insurance follow that state (a Texas rental's tax is about three
+  // times a Nevada one's); they're starting numbers only and give way to anything typed or prefilled.
+  const stateStart = regional ? rentalStartFor(region.state, start.value ?? RENT_DEFAULTS.value) : {};
+  const [saved, set, typed] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...RENT_DEFAULTS, ...stateStart, ...(offer ? OFFER_START : {}), ...start }, regional ? { transferTaxPer500: rt.per500 } : {});
   const v = offer ? { ...saved, buyerPremiumPct: 0 } : saved;
   const r = rentMaxBid(v, offer);
   const n = rentNoi(v);
@@ -338,6 +377,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} example={!typed && Object.keys(start).length === 0} />
         <CashCushion v={v} price={v.atPrice > 0 ? v.atPrice : r.maxBid} onPrice={offer} />
         <RentDealLab v={v} start={r.maxBid} onPrice={offer} />
+        <HoldAndSell v={v} onPrice={offer} />
       </div>
     </div>
   );

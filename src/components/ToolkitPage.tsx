@@ -706,7 +706,7 @@ const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behav
 export default function ToolkitPage({ section }: { section?: string }) {
   useLastActivity('#/toolkit', 'My plan');
   useEffect(() => {
-    if (section === 'buy-box' || section === 'cash' || section === 'team') document.getElementById(section)?.scrollIntoView();
+    if (section === 'buy-box' || section === 'cash' || section === 'team' || section === 'paperwork') document.getElementById(section)?.scrollIntoView();
   }, [section]);
   return (
     <main className="page toolkit">

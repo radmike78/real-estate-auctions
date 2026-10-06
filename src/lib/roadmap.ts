@@ -364,7 +364,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'inspect', phase: 5, path: AGENT, title: 'Inspect, then decide before the deadline',
-    guides: ['repair-bid'], evidence: 'condition',
+    guides: ['repair-bid', 'disclosure'], evidence: 'condition',
     text: 'Hire a qualified inspector (check the license or certificate your state requires), get the report, and settle what it found before your inspection period ends.',
     outcome: 'The inspection report, repair bids for the big items, and your written answer to the seller before the deadline.',
     steps: ['Book the inspection right away. Add specialists the inspector suggests (a sewer camera, a roofer, an electrician).', 'Sort the findings: fix now, budget for later.', 'Get written bids for the big items.', 'Before the deadline, ask for a lower price or repairs, go ahead, or cancel, in writing.'],
@@ -376,7 +376,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'appraise', phase: 5, path: AGENT, title: 'Handle the appraisal',
-    evidence: 'terms',
+    guides: ['appraisal'], evidence: 'terms',
     text: 'The lender orders an appraisal. If it comes in low, you can ask for a lower price, bring more cash, or cancel within your appraisal contingency.',
     outcome: 'The appraisal, and your decision before the appraisal deadline if it’s low.',
     steps: ['Ask your lender when the appraisal will be done.', 'If it’s low, work out the new down payment (the loan is based on the lower of price and appraisal).', 'Decide before the deadline: ask for a lower price, pay the difference, or cancel.'],
@@ -388,7 +388,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'title', phase: 5, path: AGENT, title: 'Review the title and HOA documents',
-    guides: ['title'], evidence: 'title',
+    guides: ['title', 'hoa-resale'], evidence: 'title',
     text: 'The title commitment lists what must be cleared before closing and what the title policy won’t cover. HOA documents have the rules and finances.',
     outcome: 'Every requirement in the title commitment has a plan to clear it, and the HOA rules fit your plan.',
     steps: ['Read the title commitment’s requirements (to clear before closing) and exceptions (not covered).', 'Ask the title officer how each unusual item will be cleared.', 'Read the HOA rules, budget and any special assessments within your review period.'],
@@ -400,7 +400,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'close', phase: 5, path: AGENT, title: 'Close',
-    guides: ['settlement'], evidence: 'terms',
+    guides: ['settlement', 'note', 'deed'], evidence: 'terms',
     text: 'Check the final numbers, confirm wiring by phone, have insurance start at closing, and keep every document.',
     outcome: 'The deed recorded in your name, insurance in force, and a copy of every document.',
     steps: ['Get final loan approval and give the lender proof of insurance.', 'Compare the closing statement with your contract and loan quote, line by line, including your deposit credit.', 'Confirm the wiring instructions by phone with a number you trust.', 'Sign, and get a copy of the recorded deed.'],
