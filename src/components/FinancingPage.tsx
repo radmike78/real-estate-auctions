@@ -37,6 +37,8 @@ export default function FinancingPage({ initialLocation = '' }: { initialLocatio
         <div>
           <h3>Have ready</h3>
           <ul>{PRO_SCRIPTS.lender.bring!.map((x) => <li key={x}>{x}</li>)}</ul>
+          <p><strong>For a DSCR loan</strong> (approved on the rent): the lease or the appraiser’s rent estimate, your LLC papers if it borrows, and statements showing the down payment and reserves.</p>
+          <p><strong>For a hard-money loan</strong> (a flip or a repair): the purchase contract, a scope of work with contractor bids, the after-repair value with comparable sales, your experience, and how you’ll repay it.</p>
           <p><a className="btn btn-secondary" href="#/learn/financing">Compare ways to pay →</a></p>
         </div>
       </section>

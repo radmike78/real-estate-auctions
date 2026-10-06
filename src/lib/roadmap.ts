@@ -12,7 +12,7 @@ export type RoadmapPath = 'listing' | 'auction' | 'certificate';
 export interface RoadmapStep {
   id: string;
   /** Which of the six phases it belongs to. */
-  phase: 1 | 2 | 3 | 4 | 5 | 6;
+  phase: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   /** A short name for the step. */
   title: string;
   /** What to do and why, in a sentence or two. */
@@ -49,6 +49,7 @@ export const ROADMAP_PHASES: Record<RoadmapStep['phase'], string> = {
   4: 'Find and check a deal',
   5: 'Buy it',
   6: 'Own it',
+  7: 'Sell, refinance or trade',
 };
 
 export const ROADMAP_PATHS: Record<RoadmapPath, { label: string; hint: string }> = {
@@ -544,6 +545,50 @@ export const ROADMAP: RoadmapStep[] = [
     steps: ['After 6 to 12 months, compare actual income and costs with your plan.', 'Talk with your tax advisor and lender before any refinance or sale.', 'Update your buy box and walk-away rules.'],
     doneWhen: 'Your review is written and your buy box is updated.',
     action: 'Update your buy box', href: '#/toolkit/buy-box',
+  },
+  {
+    id: 'exit-refi', phase: 7, path: OWNERS, title: 'Refinance to take your cash back out (if holding)',
+    text: 'If you bought with cash or a short-term loan, a refinance can return part of your money. It depends on the appraisal, the rent and the lender’s waiting period.',
+    outcome: 'A refinance closed, or a written reason to wait: the appraised value, the new payment, the cash you got back and what stays in the property.',
+    steps: [
+      'Ask two or three lenders their waiting period before a cash-out refinance, and whether the “delayed financing” exception fits a cash purchase.',
+      'Before you apply, run the numbers at a conservative value: the new payment must still leave positive cash flow and your reserves.',
+      'Gather the lease, rent history, repair receipts and your closing statement. Compare Loan Estimates the same day.',
+    ],
+    say: { to: 'Lender', script: '“I own a rental at [address], bought on [date] for [price], rented at [rent]. What’s your waiting period for a cash-out refinance, what loan-to-value can you do, and what will you need from me?”' },
+    stop: 'If the appraisal comes in low or the new payment turns the cash flow negative, keep the cash in and wait. A refinance that leaves no cushion isn’t worth it.',
+    doneWhen: 'The refinance has closed, or you’ve written down why you’re waiting and when you’ll check again.',
+    skip: 'A flip you’re selling, or a rental you’ll keep with its current loan.',
+    action: 'Refinancing after a cash or hard-money buy', href: '#/learn/financing',
+  },
+  {
+    id: 'exit-sell', phase: 7, path: OWNERS, title: 'Sell it, knowing the tax first',
+    text: 'For a flip, this is the payday; for a rental, it’s a choice. Know the selling costs and the tax before you list, so the net matches your plan.',
+    outcome: 'A net-sheet before listing (price, commission, title and escrow, transfer tax, loan payoff, estimated tax) and a closed sale.',
+    steps: [
+      'Get a broker’s opinion of value from comparable sales and ask the title company for a seller’s net sheet.',
+      'Ask your tax advisor what you’ll owe: a flip is usually ordinary income; a rental held over a year gets capital gains rates, with depreciation taxed at up to 25%. In California, escrow may hold back 3⅓% of the price.',
+      'Decide the listing price and your lowest acceptable offer before the first showing.',
+    ],
+    say: { to: 'Tax advisor', script: '“I’m selling [address], bought [date] for [price], with [improvements] and [depreciation] taken. What will I owe, and is there anything I should do before I list?”' },
+    doneWhen: 'The sale has closed, and the closing statement and tax estimate are in your records.',
+    skip: 'A rental you’re keeping, or one you’re trading in a 1031 exchange.',
+    action: 'Taxes from purchase to sale', href: '#/learn/taxes',
+  },
+  {
+    id: 'exit-1031', phase: 7, path: OWNERS, title: 'Trade up with a 1031 exchange (rentals only)',
+    text: 'Selling a rental to buy a bigger one? A 1031 exchange puts off the tax, but only if it’s set up before the sale closes and you meet the 45-day and 180-day deadlines.',
+    outcome: 'A qualified intermediary in place before closing, the replacement identified in writing within 45 days, and the purchase closed within 180 days.',
+    steps: [
+      'Before you accept an offer, choose a qualified intermediary and sign the exchange agreement.',
+      'Start looking for the replacement before you sell: 45 days goes fast.',
+      'Buy a replacement of equal or greater value and debt, or expect tax on the difference.',
+    ],
+    say: { to: 'Qualified intermediary', script: '“I’m selling a rental at [address], closing around [date]. I want a 1031 exchange. What do you need from me, how is my money held, and are you bonded and insured?”' },
+    stop: 'If you can’t find a replacement that works on its own numbers, don’t buy a bad property to save tax. Pay the tax and keep your options.',
+    doneWhen: 'The replacement has closed within 180 days, and Form 8824 is on your list for tax time.',
+    skip: 'A flip (it can’t use a 1031), or a rental you’re keeping or selling outright.',
+    action: 'Trading up: the 1031 exchange', href: '#/learn/taxes',
   },
   {
     id: 'c-own', phase: 6, path: LIEN, title: 'If you end up owning the property',
