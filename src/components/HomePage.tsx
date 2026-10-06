@@ -110,13 +110,15 @@ export default function HomePage() {
             const opened = seen.includes(s.key);
             return (
               <li key={s.key}>
-                <a className={`path-step${opened ? ' done' : ''}`} href={s.href}>
-                  <span className="path-n" aria-hidden>{opened ? '✓' : s.n}</span>
+                {/* Opening a step isn't finishing it: a visited step keeps its number and says "Visited", and only the
+                    roadmap below counts real progress. */}
+                <a className={`path-step${opened ? ' visited' : ''}`} href={s.href}>
+                  <span className="path-n" aria-hidden>{s.n}</span>
                   <span className="path-body">
                     <strong>{s.label}</strong>
                     <span>{s.blurb}</span>
+                    {opened && <span className="path-visited">Visited</span>}
                   </span>
-                  {opened && <span className="sr-only"> (opened)</span>}
                   <span className="path-go" aria-hidden>→</span>
                 </a>
               </li>

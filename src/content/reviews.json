@@ -6,8 +6,8 @@
       "src/components/HomePage.tsx",
       "src/lib/journey.ts"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "8095d8bd50fbc4ce",
+    "reviewed": "2026-10-06",
+    "hash": "66d4a74caa6d0444",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "50b28c4ddcb6e78f",
+    "hash": "5c3f4f37dc3b089e",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "7879c90a86021607",
+    "hash": "70c1c8f4abd7cd4f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

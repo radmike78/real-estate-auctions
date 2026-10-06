@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { BidInputs } from '../lib/bidCalc';
-import { COMMERCIAL_DEFAULTS, HOLD_SELL_DEFAULTS, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs } from '../lib/holdCalc';
+import { COMMERCIAL_DEFAULTS, commercialLines, HOLD_SELL_DEFAULTS, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs } from '../lib/holdCalc';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 import CalcFields, { type CalcGroup } from './CalcFields';
@@ -393,9 +393,20 @@ const COMMERCIAL_GROUPS: CalcGroup<CommercialInputs>[] = [
       { k: 'monthlyRent', label: 'Monthly rent, all spaces leased', unit: '$', hint: 'Market rent for each space.' },
       { k: 'otherMonthly', label: 'Other income, per month', unit: '$', hint: 'Parking, signs, reimbursements.' },
       { k: 'vacancyPct', label: 'Vacancy and unpaid rent', unit: '%' },
-      { k: 'expensePct', label: 'Operating costs', unit: '%', hint: 'Of rent collected.', more: 'Taxes, insurance, repairs, management and utilities you pay. It depends on the leases: under triple-net leases tenants pay most of these.' },
+      { k: 'expensePct', label: 'Operating costs', unit: '%', hint: 'Of rent collected. Or enter them line by line below.', more: 'Taxes, insurance, repairs, management and utilities you pay. It depends on the leases: under triple-net leases tenants pay most of these.', when: (v) => commercialLines(v, 1) === 0 },
       { k: 'leaseUpMonths', label: 'Months to lease it up', unit: 'mo', hint: 'Foreclosed buildings are often empty.' },
       { k: 'monthlyCarry', label: 'Costs while empty, per month', unit: '$' },
+    ],
+  },
+  {
+    title: 'Operating costs, line by line (optional)',
+    fields: [
+      { k: 'opTaxYear', label: 'Property tax you pay, per year', unit: '$', hint: 'After what tenants reimburse under their leases.', more: 'Read each lease: under a triple-net (NNN) lease the tenant pays its share of taxes, insurance and common-area costs, so your cost is only the vacant spaces’ share. Under a gross lease you pay them. Any line here replaces the percentage above.' },
+      { k: 'opInsuranceYear', label: 'Insurance you pay, per year', unit: '$' },
+      { k: 'opRepairsYear', label: 'Repairs and upkeep, per year', unit: '$', hint: 'Including common areas you aren’t reimbursed for.' },
+      { k: 'opUtilitiesYear', label: 'Utilities you pay, per year', unit: '$' },
+      { k: 'opManagementPct', label: 'Management', unit: '%', hint: 'Of rent collected.' },
+      { k: 'opOtherYear', label: 'Everything else, per year', unit: '$', hint: 'Legal, accounting, leasing fees, licenses.' },
     ],
   },
   loanGroup<CommercialInputs>('Value once leased', 'From the value-by-income helper.'),
@@ -418,7 +429,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
     <div className="calc">
       <div className="calc-inputs"><CalcFields groups={offer ? forOffer(ct.groups) : ct.groups} values={v} onChange={set} /></div>
       <div className="calc-results">
-        <HoldResults r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}.`} minDscr={v.minDscr} offer={offer} example={!typed && Object.keys(start).length === 0} />
+        <HoldResults r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} example={!typed && Object.keys(start).length === 0} />
       </div>
     </div>
   );

@@ -394,6 +394,9 @@ function buildCase(c: CaseConfig) {
     maxDeposit: rent * 3,
     /** Saving for the known roof ($14,000) and water heater ($1,600) over 4 years, the short end of the roof's estimate. */
     replaceMonthly: Math.round((14_000 + 1_600) / 48),
+    /** At the offer price, before any renegotiation: what the inspection decision is made on. */
+    cashFlowAtOffer: rent - 3 * Math.round(rent * 0.05) - tax - insurance - hoa - payment(loanAt(offer)),
+    cashFlowAtOfferWithReplacements: rent - 3 * Math.round(rent * 0.05) - tax - insurance - hoa - payment(loanAt(offer)) - (Math.round((14_000 + 1_600) / 48) - Math.round(rent * 0.05)),
     cashFlowWithReplacements: rent - 3 * Math.round(rent * 0.05) - tax - insurance - hoa - payment(loanAt(finalPrice, appraised)) - (Math.round((14_000 + 1_600) / 48) - Math.round(rent * 0.05)),
   };
 
@@ -787,6 +790,27 @@ function buildCase(c: CaseConfig) {
         },
         {
           kind: 'number',
+          id: 'replace-now',
+          prompt: `The ${c.roofPart} has 4–6 years left (about $14,000) and the water heater is 14 years old (about $1,600). To have both saved in 4 years, the short end of the estimate, how much do you set aside each month?`,
+          answer: N.replaceMonthly,
+          tolerance: 5,
+          worked: [`$14,000 + $1,600 = $15,600`, `$15,600 ÷ 48 months = ${$(N.replaceMonthly)} a month`, `Your plan’s 5% set-aside for big replacements is ${$(N.setAside)}, about ${$(N.replaceMonthly - N.setAside)} a month short.`],
+          hint: 'Add the two costs, then divide by the months until the sooner one is due.',
+        },
+        {
+          kind: 'choice',
+          id: 'replace-fit',
+          prompt: `Your goal is a long-term rental where the rent covers the costs. At ${$(offer)}, the rent leaves about ${N.cashFlowAtOffer < 0 ? '−' : ''}${$(Math.abs(N.cashFlowAtOffer))} a month with the usual 5% set-aside, but about ${N.cashFlowAtOfferWithReplacements < 0 ? '−' : ''}${$(Math.abs(N.cashFlowAtOfferWithReplacements))} once the roof and water heater are budgeted. What does that mean for this offer?`,
+          choices: [
+            { label: 'The known replacements are part of the price: use the inspection report to ask for a lower price, and walk away if the numbers still don’t fit.', verdict: 'best', why: 'This is the moment you can still change the deal. After the inspection deadline, the roof is your problem at the price you agreed.', log: `Replacement budget at inspection: about ${$(N.replaceMonthly)} a month for the roof and water heater; cash flow at ${$(offer)} about ${N.cashFlowAtOfferWithReplacements < 0 ? '−' : ''}${$(Math.abs(N.cashFlowAtOfferWithReplacements))} a month.` },
+            { label: 'Keep going, as a long-term hold: write down that the rent won’t fully cover the costs for a few years, and how much of your reserve covers the gap.', verdict: 'ok', why: 'Defensible for a long-term plan, if your reserves can carry the shortfall. It isn’t a monthly-income deal, and you should still ask for the repairs that make it rentable.' },
+            { label: c.cancelInspection, verdict: 'ok', walk: true, why: `A good result when the deal doesn’t meet your goal. ${c.leaveInspection}` },
+            { label: `Go ahead: it makes about ${$(N.cashFlowAtOffer)} a month.`, verdict: 'poor', why: `That number assumes the ${c.roofPart} and water heater are covered by a 5% set-aside. They aren’t: in 4 years 5% saves about ${$(N.setAside * 48)}, against $15,600.` },
+          ],
+          ifDifferent: 'If your goal were monthly income, this house wouldn’t fit at any price the seller is likely to take. Walking away would be the answer, not a bigger rent guess.',
+        },
+        {
+          kind: 'number',
           id: 'left',
           prompt: `At $289,000, you needed ${$(N.cashOffer)} and had ${$(N.investable)}. If you pay for the sewer and the panel yourself, how much is left for everything else?`,
           answer: N.investable - N.cashOffer - N.urgent,
@@ -838,7 +862,7 @@ function buildCase(c: CaseConfig) {
         },
       ],
       log: [
-        { area: 'Condition', finding: `Sewer (${$(sewer)}) and panel (${$(panel)}) to fix now. Roof (4–6 years) and water heater to budget.`, open: 'Licensed contractors and permits for the repairs' },
+        { area: 'Condition', finding: `Sewer (${$(sewer)}) and panel (${$(panel)}) to fix now. Roof (4–6 years) and water heater to budget: about ${$(N.replaceMonthly)} a month, decided before the inspection deadline.`, open: 'Licensed contractors and permits for the repairs' },
         { area: 'Price', finding: `Renegotiated to ${$(renegotiated)} before the ${c.periodName}.` },
       ],
       learnMore: [{ label: 'Your team: inspector', href: '#/pros/inspector' }, { label: 'Your team: contractor', href: '#/pros/contractor' }],
@@ -1089,7 +1113,7 @@ function buildCase(c: CaseConfig) {
         {
           kind: 'number',
           id: 'replacements',
-          prompt: `The inspection found the ${c.roofPart} has 4–6 years left (about $14,000) and the 14-year-old water heater (about $1,600). To have both saved in 4 years, how much do you set aside each month?`,
+          prompt: `You first budgeted this at the inspection: the ${c.roofPart} has 4–6 years left (about $14,000) and the water heater is 14 years old (about $1,600). Now that you own it, how much goes into the replacement account each month?`,
           answer: N.replaceMonthly,
           tolerance: 5,
           worked: [`$14,000 + $1,600 = $15,600`, `$15,600 ÷ 48 months = ${$(N.replaceMonthly)} a month`, `Your 5% set-aside is ${$(N.setAside)}: about ${$(N.replaceMonthly - N.setAside)} a month short, before any other big replacement.`],
