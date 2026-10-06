@@ -20,6 +20,8 @@ import { pacificDay } from './metrics';
 export interface ListingSnapshot {
   /** Which official list it's on; absent = the Clark County Treasurer's tax-sale list. */
   source?: 'irs';
+  /** The feed source it came from (absent on snapshots recorded before this was kept). */
+  sourceId?: string;
   apn: string;
   address: string | null;
   minimumBid: number | null; // null: not published (some IRS sales)
@@ -46,6 +48,7 @@ export const irsTarget = (adId: string) => `irs:${adId}`;
 export const TARGET_RE = /^(tax:\d{3}-\d{2}-\d{3}-\d{3}|irs:[a-z0-9-]{3,200})$/;
 
 export const snapshotOf = (l: FeedListing): ListingSnapshot => ({
+  sourceId: l.sourceId,
   apn: l.apn,
   address: l.address,
   minimumBid: l.minimumBid,
@@ -58,6 +61,7 @@ export const snapshotOf = (l: FeedListing): ListingSnapshot => ({
 
 export const federalSnapshotOf = (f: FeedFederalSale): ListingSnapshot => ({
   source: 'irs',
+  sourceId: f.sourceId,
   apn: f.apns[0],
   address: f.address ?? f.title,
   minimumBid: f.minimumBid,
@@ -271,9 +275,15 @@ export function collectChanges(tracker: Tracker, feed: Feed, now: Date): Map<str
     out.set(subscriberId, list);
   };
 
+  // A source that failed, went stale or was quarantined drops its listings from the feed without them having left the
+  // official list. Its parcels are left as they were: no "removed" email now, and no "back" email when it recovers.
+  const unhealthy = new Set(feed.sources.filter((s) => s.health !== 'ok').map((s) => s.sourceId));
+  const sourceDown = (snap: ListingSnapshot) => (snap.sourceId ? unhealthy.has(snap.sourceId) : unhealthy.size > 0);
+
   for (const target of new Set([...known.keys(), ...current.keys()])) {
     const prev = known.get(target) ?? null;
     const cur = current.get(target) ?? null;
+    if (!cur && prev?.present && sourceDown(prev.snapshot)) continue;
     const changes = first ? [] : diffSnapshots(prev?.snapshot ?? null, prev?.present ?? false, cur);
     // Newly on the list (or back on it): remember when, for saved-search digests. The first check is only a baseline.
     const appeared = cur && !prev?.present ? (first ? '' : at) : undefined;

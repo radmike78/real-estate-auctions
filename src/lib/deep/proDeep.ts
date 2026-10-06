@@ -1560,7 +1560,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   eviction: {
     overview: [
       "Eviction is a court process. A landlord cannot legally remove a tenant by changing the locks, shutting off utilities or taking the tenant’s belongings. In California only a sheriff or marshal, with a court order, may carry out an eviction. In Arizona and Nevada, tenants locked out or cut off from essential services can sue for damages set by law. In Texas, a landlord may change the locks for unpaid rent only under strict rules, and must give the tenant a new key at any hour, even if they don’t pay (Property Code 92.0081).",
-      "Each state runs its own process. In Nevada, an eviction for unpaid rent starts with a 7-court-day notice to pay or quit (weekends and court holidays don’t count). In Nevada, Clark County says evictions take anywhere from 10 to 180 days depending on the case, so budget for the long end. In Nevada, Clark County says its fast ‘summary eviction’ can’t be used to remove a former owner, or the former owner’s tenant, after a foreclosure. California’s ‘unlawful detainer’ case requires the landlord to file and serve a lawsuit. Arizona requires written notice before filing, such as 10 days for many lease violations. In Texas, the landlord gives at least 3 days’ written notice to vacate, unless a written lease sets a different time, then files in justice court. The trial is set 10 to 21 days after filing (Property Code 24.005 and 24.005106; Tex. R. Civ. P. 510). An eviction attorney helps you serve the right notice, file correctly and avoid defenses that restart the clock.",
+      "Each state runs its own process. In Nevada, an eviction for unpaid rent starts with a 7-court-day notice to pay or quit (weekends and court holidays don’t count). In Nevada, Clark County says evictions take anywhere from 10 to 180 days* depending on the case, so budget for the long end. In Nevada, Clark County says its fast ‘summary eviction’ can’t be used to remove a former owner, or the former owner’s tenant, after a foreclosure. California’s ‘unlawful detainer’ case requires the landlord to file and serve a lawsuit. Arizona requires written notice before filing, such as 10 days for many lease violations. In Texas, the landlord gives at least 3 days’ written notice to vacate, unless a written lease sets a different time, then files in justice court. If the only reason is unpaid rent and the tenant had never been late before that month, the notice must be a notice to pay rent or vacate (since January 1, 2026). The trial is set 10 to 21 days after filing (Property Code 24.005 and 24.005106; Tex. R. Civ. P. 510). An eviction attorney helps you serve the right notice, file correctly and avoid defenses that restart the clock.",
       "Investors who buy occupied homes at foreclosure auctions or as REOs must also go through the courts to remove occupants. After a foreclosure, tenants who rented from the former owner usually get at least 90 days’ notice under federal law, and a real lease signed before the foreclosure notice may run to its end unless the buyer will live there. Self-help, like changing the locks yourself, can turn a rent dispute into a damages award against you."
     ],
     bestFor: [
@@ -1576,7 +1576,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     costs: [
       "Court filing fees, notice service and constable or sheriff fees. In 2019 the Review-Journal reported Nevada tenants paid a $71 filing fee to contest an eviction in the two largest counties.",
-      "Lost rent during the process. In Nevada, Clark County says evictions take anywhere from 10 to 180 days. Contested cases take longer.",
+      "Lost rent during the process. In Nevada, Clark County says evictions take anywhere from 10 to 180 days*. Contested cases take longer.",
       "Self-help penalties: in California, they run up to $100 a day and at least $250 per violation (Civil Code 789.3). One landlord was ordered to pay $36,000 in penalties plus damages and fees (1980). In Nevada a court can award up to $2,500 plus actual damages. In Arizona it can award two months’ rent or twice actual damages. In Texas, the tenant can recover one month’s rent plus $1,000, actual damages and attorney’s fees (Property Code 92.008 and 92.0081).",
       "Attorney fees: California’s utility shutoff statute awards fees to the prevailing party."
     ],
@@ -1621,7 +1621,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         }
       },
       {
-        text: "Nevada: Clark County says evictions may take anywhere from 10 to 180 days, and its fast summary eviction can’t be used against a former owner or the former owner’s tenant.",
+        text: "Nevada: Clark County says evictions may take anywhere from 10 to 180 days,* and its fast summary eviction can’t be used against a former owner or the former owner’s tenant.",
         source: {
           label: "Clark County (NV): Las Vegas Township eviction process",
           url: "https://www.clarkcountynv.gov/government/departments/constable/constable_las_vegas_township/services/eviction-process"
@@ -1649,7 +1649,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         year: "2018",
         title: "In 2018, the court process took about three weeks",
         happened: "A tenant’s $1,450 rent was not paid on July 6, 2018. An eviction notice was posted that day. The landlord used Nevada’s summary eviction process. The court entered a default judgment. Constable deputies removed the occupants on July 27, without the landlord touching the locks.",
-        lesson: "The lawful court process avoids self-help penalties. This case was fast; Clark County now says evictions take 10 to 180 days. It’s hard on everyone, though. That’s why many landlords first try a payment plan or a negotiated move-out.",
+        lesson: "The lawful court process avoids self-help penalties. This case was fast; Clark County now says evictions take 10 to 180 days*. It’s hard on everyone, though. That’s why many landlords first try a payment plan or a negotiated move-out.",
         source: {
           label: "Las Vegas Review-Journal: Despite changes, Nevada eviction law still favors landlords (June 2019)",
           url: "https://www.reviewjournal.com/local/local-nevada/despite-changes-nevada-eviction-law-still-favors-landlords-1697301/"
@@ -1686,7 +1686,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         url: "https://tcss.legis.texas.gov/resources/PR/htm/PR.92.htm#92.0081"
       },
       {
-        label: "Texas Property Code 24.005 and 24.0051 (notice to vacate and eviction trial timing)",
+        label: "Texas Property Code 24.005 and 24.005106 (notice to vacate and eviction trial timing)",
         url: "https://tcss.legis.texas.gov/resources/PR/htm/PR.24.htm#24.005"
       },
       {

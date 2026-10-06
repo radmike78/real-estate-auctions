@@ -892,7 +892,9 @@ small { font-size: 0.95rem; }
 .dd-progress { display: grid; gap: 8px; margin-bottom: 20px; }
 .dd-bar { height: 12px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
 .dd-bar span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #22d3ee, #3b82f6, #8b5cf6); transition: width 0.3s; }
-.dd-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.dd-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); }
+.dd-step, .dd-step .checks li > div { min-width: 0; overflow-wrap: anywhere; }
+.dd-title { min-width: 0; }
 .dd-step { margin: 0; padding: 18px 20px; border-radius: 16px; border: 1px solid var(--border); background: var(--surface); border-left: 5px solid var(--border); }
 .dd-step.worst-flag { border-left-color: var(--stop); }
 .dd-step.worst-review { border-left-color: var(--wait); }
@@ -2695,7 +2697,7 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 
 /* Upcoming county tax sales (Live tax sales, Find Deals): one card per sale, links to the county's own list. */
 .county-sales { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); }
-.county-sale { border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; background: var(--surface); display: grid; gap: 8px; align-content: start; }
+.county-sale { border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; background: var(--surface); display: grid; gap: 8px; align-content: start; min-width: 0; grid-template-columns: minmax(0, 1fr); }
 .county-sale h3 { margin: 0; }
 .county-sale p { margin: 0; }
 .county-sale-rules { background: var(--surface-2); border-left: 3px solid var(--accent); padding: 6px 0 6px 12px; }
@@ -2728,3 +2730,6 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .ad-spot-cats fieldset { border: 0; padding: 0; margin: 0; }
 .ad-spot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 4px 16px; margin: 6px 0; }
 .ad-spot { margin-top: 32px; }
+
+/* Live tax sales: the note about when the county posts its list wraps instead of running past the card. */
+.county-sale .county-sale-actions > span { flex: 1 1 260px; min-width: 0; white-space: normal; overflow-wrap: anywhere; }

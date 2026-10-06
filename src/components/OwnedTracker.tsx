@@ -62,6 +62,9 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     setRent('');
     setCosts('');
     setNote('');
+    // Move on to the month after the one just added, so the next entry doesn't replace it.
+    const [y, mo] = month.split('-').map(Number);
+    setMonth(mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, '0')}`);
   };
   return (
     <div>
@@ -72,7 +75,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         <label className="field"><span>Rent collected ($)</span><input type="number" inputMode="decimal" min={0} value={rent} onChange={(e) => setRent(e.target.value)} /></label>
         <label className="field"><span>Everything you paid ($)</span><input type="number" inputMode="decimal" min={0} value={costs} onChange={(e) => setCosts(e.target.value)} /></label>
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>
-        <button type="button" className="btn" disabled={rent === '' || costs === ''} onClick={add}>Add month</button>
+        <button type="button" className="btn" disabled={rent === '' || costs === ''} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
       </div>
       <p className="small muted">Count everything you paid that month: the loan, taxes, insurance, HOA, repairs, management and utilities, and any money you moved into your repair savings.</p>
       {s.months > 0 ? (

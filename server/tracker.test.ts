@@ -182,6 +182,30 @@ describe('tracking a verified listing (running server)', () => {
     expect(mails).toHaveLength(before + 1); // not twice
   });
 
+  it('sends no "removed" or "back" email while the source is down, stale or quarantined', async () => {
+    clock = new Date(clock.getTime() + 3_600_000);
+    const both = [listing('100-00-000-001', { auctionStartsAt: '2027-05-13T15:00:00.000Z', minimumBid: 12000 }), listing('100-00-000-002')];
+    publishFeed(both);
+    await app.checkTracked();
+    const before = mails.length;
+    for (const health of ['error', 'stale', 'quarantined'] as const) {
+      clock = new Date(clock.getTime() + 3_600_000);
+      const feed: Feed = {
+        version: 1,
+        generatedAt: clock.toISOString(),
+        expiresAt: new Date(clock.getTime() + 86_400_000).toISOString(),
+        sources: [{ sourceId: 'clark-county-treasurer', agency: 'Clark County Treasurer', officialUrl: 'https://treasurer.clarkcountynv.gov/', lastCheckedAt: null, lastChangedAt: null, observedChangeIntervalHours: null, nextCheckAt: null, health, message: null, certificateIssuer: null }],
+        listings: [],
+      };
+      writeSignedJson(dataDir, 'listings.json', feed, key);
+      await app.checkTracked();
+    }
+    clock = new Date(clock.getTime() + 3_600_000);
+    publishFeed(both);
+    await app.checkTracked();
+    expect(mails.slice(before).filter((m) => /No longer on the Treasurer's auction list|On the Treasurer's auction list for/.test(m.text))).toHaveLength(0);
+  });
+
   it('sends nothing while the feed is expired or tampered with', async () => {
     clock = new Date(clock.getTime() + 3_600_000);
     const before = mails.length;

@@ -7,7 +7,7 @@ A distressed-property and forced-sale discovery platform. It finds properties th
 3. **What liens and risks may remain?** The Nevada rules engine estimates which liens likely survive the sale.
 4. **What must I do next?** The site shows online bidding details or step-by-step in-person instructions, and always links to the official sale.
 
-> **Status:** development builds add fictional sample data for Clark County, NV; production builds show only verified listings. The **Live tax sales** page shows only verified listings from the Clark County Treasurer connector (see [Live data](#live-data)).
+> **Status:** development builds add fictional sample data for Clark County, NV; production builds show only verified listings. The **Live tax sales** page shows only verified listings from the Clark County Treasurer and IRS auctions connectors (see [Live data](#live-data)). Deploy with the container image, which hides sample data by default; a plain `npm run build` keeps it unless you set `VITE_SHOW_SAMPLE_DATA=0`.
 > Nothing here is legal advice or a title determination. The site never claims title is "clear" and never takes bids or money.
 
 ## Run it

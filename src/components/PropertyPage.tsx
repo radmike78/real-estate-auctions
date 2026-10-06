@@ -3,6 +3,7 @@ import { lastList } from '../lib/lastList';
 import { SHOW_SAMPLE_DATA } from '../data';
 import { flushSync } from 'react-dom';
 import { useProperties } from '../data/live';
+import { useNoIndex } from '../lib/noindex';
 import { IRS_ID_PREFIX, LIVE_ID_PREFIX } from '../feed/toProperty';
 import TrackButton from './TrackButton';
 import type { LienType } from '../types';
@@ -59,7 +60,7 @@ const OUTCOME_LABEL: Record<SurvivalOutcome, string> = {
 
 
 export default function PropertyPage({ id, section }: { id: string; section?: string }) {
-  const { properties, loading } = useProperties();
+  const { properties, loading, known } = useProperties();
   const [printAll, setPrintAll] = useState(false);
   const [calcVersion, setCalcVersion] = useState(0); // remounts the bid calculator when the income value is applied
   // Printing (button or Ctrl+P) always prints the full report, whichever section is open.
@@ -75,8 +76,18 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   }, []);
 
   const p = properties.find((x) => x.id === id);
+  useNoIndex(!p && !loading);
   if (!p) {
     if (loading) return <main className="page"><p>Checking the official lists…</p></main>;
+    if (!known(id) && (id.startsWith(LIVE_ID_PREFIX) || id.startsWith(IRS_ID_PREFIX))) {
+      return (
+        <main className="page empty-page">
+          <OwlNote big>This list is being re-verified</OwlNote>
+          <h1 className="sr-only">Listing being re-verified</h1>
+          <p>We only show listings we’ve just verified against the official source, and that check is running late. This doesn’t mean the property was sold or removed. Check back shortly, or <a href="#/live">see the official sources</a>.</p>
+        </main>
+      );
+    }
     return (
       <main className="page empty-page">
         <OwlNote big>This property isn’t available</OwlNote>
@@ -336,7 +347,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       icon: <IconShield />,
       tone: flags ? 'stop' : reviews ? 'wait' : 'go',
       summary: `${DD_STEPS.length} steps · ${[flags && plural(flags, 'flag'), reviews && `${reviews} to review`, `${count('manual')} to check yourself`].filter(Boolean).join(' · ')}`,
-      content: () => <DueDiligenceFunnel p={p} maxBidHref={`${baseHref}/max-bid`} />,
+      content: () => <DueDiligenceFunnel p={p} maxBidHref={forSale ? `${baseHref}/max-bid` : null} />,
     },
     ...(playbook
       ? [
@@ -361,12 +372,12 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       summary: [p.propertyType, p.beds !== null && `${p.beds} bd / ${p.baths} ba`, p.sqft && `${p.sqft.toLocaleString()} sq ft`, p.occupancy].filter(Boolean).join(' · '),
       content: () => (
         <dl className="facts">
-          {/* Owners of homes that aren't for sale (pre-foreclosure, cancelled, lien-only) are not shown, to discourage solicitation.
-              Nor before a trustee or HOA foreclosure sale: until the sale, the owner is still a homeowner in foreclosure. */}
-          {status.purchasable && s?.saleType !== 'TRUSTEE_SALE' && s?.saleType !== 'HOA_FORECLOSURE' && s?.saleType !== 'JUDICIAL_FORECLOSURE' ? (
-            p.ownerOfRecord && <div><dt>Owner of record</dt><dd>{p.ownerOfRecord}</dd></div>
+          {/* Owner names aren't needed to research or bid, so homeowners' names are never shown: the parcel number and the
+              county's own records are enough. Only a bank or agency selling a home it owns is named, as the seller. */}
+          {p.status === 'BROKER_OFFER' && p.ownerOfRecord ? (
+            <div><dt>Seller (owner of record)</dt><dd>{p.ownerOfRecord}</dd></div>
           ) : (
-            <div><dt>Owner of record</dt><dd className="muted">{status.purchasable ? 'Withheld: the owner is a homeowner in foreclosure' : 'Withheld: not for sale'}</dd></div>
+            <div><dt>Owner of record</dt><dd className="muted">Not shown: you don’t need it to research or bid. The county’s records are linked on this page.</dd></div>
           )}
           {p.legalDescription && <div><dt>Legal description</dt><dd className="small">{p.legalDescription}</dd></div>}
           <div><dt>Type</dt><dd>{p.propertyType}</dd></div>

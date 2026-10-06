@@ -473,7 +473,7 @@ const COMMERCIAL_GROUPS: CalcGroup<CommercialInputs>[] = [
     ],
   },
   {
-    title: 'Operating costs, line by line (optional)',
+    title: 'Operating costs, line by line (optional: replaces the % above, so fill in every line)',
     fields: [
       { k: 'opTaxYear', label: 'Property tax you pay, per year', unit: '$', hint: 'After what tenants reimburse under their leases.', more: 'Read each lease: under a triple-net (NNN) lease the tenant pays its share of taxes, insurance and common-area costs, so your cost is only the vacant spaces’ share. Under a gross lease you pay them. Any line here replaces the percentage above.' },
       { k: 'opInsuranceYear', label: 'Insurance you pay, per year', unit: '$' },
@@ -503,7 +503,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
     <div className="calc">
       <div className="calc-inputs"><CalcFields groups={offer ? forOffer(ct.groups) : ct.groups} values={v} onChange={set} /></div>
       <div className="calc-results">
-        <HoldResults r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} example={!typed && Object.keys(start).length === 0} />
+        <HoldResults r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} example={!typed && Object.keys(start).length === 0} />
       </div>
     </div>
   );

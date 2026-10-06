@@ -51,7 +51,7 @@ export default function CalcFields<T extends object>({ groups, values, onChange 
                       aria-describedby={f.hint ? `${uid}-${f.k}-hint` : undefined}
                       onChange={(e) => {
                         setDraft((d) => ({ ...d, [f.k]: e.target.value }));
-                        onChange(f.k, Math.min(toNum(e.target.value), 1e10));
+                        onChange(f.k, Math.min(toNum(e.target.value), f.unit === '%' ? 100 : 1e10));
                       }}
                       onBlur={() => setDraft((d) => ({ ...d, [f.k]: undefined }))}
                     />

@@ -71,7 +71,7 @@ export default function StrategyPage({ slug }: { slug?: string }) {
       </section>
       <section>
         <h2>The honest risk</h2>
-        <dl className="calc-kv">
+        <dl className="decide-risk">
           <div><dt>Cash you need to start</dt><dd>{s.risk.atRisk}</dd></div>
           <div><dt>Worst realistic outcome</dt><dd>{s.risk.worst}</dd></div>
           {s.risk.ongoing && <div><dt>What you keep owing</dt><dd>{s.risk.ongoing}</dd></div>}

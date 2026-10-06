@@ -151,7 +151,7 @@ export const STRATEGY_GUIDES: StrategyGuide[] = [
     watchFor: [
       'Prices of traded REITs rise and fall with the stock market.',
       'Non-traded REITs and private funds can be hard to sell and carry high fees; read the offering documents.',
-      'REIT dividends are usually taxed as ordinary income.',
+      'REIT dividends are usually taxed as ordinary income, though most qualify for a 20% deduction (Section 199A).',
     ],
     practice: [],
     lessons: ['who', 'red-flags'],

@@ -74,7 +74,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Bid, then pay on time",
-      detail: "Bids start at the minimum bid. Pay the rest by your county’s deadline, in the form it requires, plus transfer taxes and fees. Example: San Diego County requires full payment within 5 business days of the auction close. If you miss the deadline, you can lose your deposit. The owner’s right to redeem also comes back (R&T 3693.1)."
+      detail: "Bids start at the minimum bid. Pay the rest by your county’s deadline, in the form it requires, plus transfer taxes and fees. Example: San Diego County requires full payment within 5 business days of the auction close. If you miss the deadline, you can lose your deposit. The owner’s right to redeem also comes back (R&T 3707)."
     },
     {
       title: "Wait for the recorded tax deed",
@@ -632,7 +632,7 @@ export const STATE_GUIDES: Playbook[] = [
       "Easements on or benefiting the property (ARS 42-18204)",
       "Certain special assessment liens, such as improvement district liens (ARS 42-18204)",
       "In Arizona, county cleanup (abatement) liens for things like weeds, debris or unsafe buildings, through September 30, 2028 (ARS 42-18204, 11-268)",
-      "Liens held by the state (ARS 42-17153)",
+      "Liens held by the state (ARS 42-17153)*",
       "Other liens and title problems the court case did not clear. Get a title report and ask your attorney"
     ]
   },
@@ -2686,7 +2686,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Recording",
-      value: "Buyer and seller sign an affidavit of property value, filed with a $2 fee (A.R.S. 11-1133, 11-1134)"
+      value: "Buyer and seller sign an affidavit of property value, filed with the deed; the recording fee includes a $2 affidavit fee (A.R.S. 11-1132, 11-1133)"
     }
   ],
   steps: [
@@ -2704,7 +2704,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Read the seller’s addendum before you sign",
-      detail: "Bank and government sellers use their own addendum. It usually overrides parts of the Arizona purchase contract, such as repairs, deadlines and per-day fees for late closing. Ask what disclosures the seller will give. Most sellers give an SPDS, but a lender that never lived in the home may know little. The seller still has to disclose what it knows, even without an SPDS (ADRE Buyer Advisory)."
+      detail: "Bank and government sellers use their own addendum. It usually overrides parts of the Arizona purchase contract, such as repairs, deadlines and per-day fees for late closing. Ask what disclosures the seller will give. Bank sellers usually don’t fill out the SPDS, since a lender that never lived in the home may know little. The seller still has to disclose what it knows, even without an SPDS (ADRE Buyer Advisory)."
     },
     {
       title: "Inspect everything you can",
@@ -2720,7 +2720,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Close through escrow and record",
-      detail: "Buyer and seller each sign the Arizona affidavit of property value. It is filed with the deed for a $2 fee unless exempt (A.R.S. 11-1133, 11-1134). A sale where a U.S. agency such as HUD is the named seller is listed as exempt (code A3)."
+      detail: "Buyer and seller each sign the Arizona affidavit of property value. It is filed with the deed unless exempt; the recording fee includes a $2 affidavit fee (A.R.S. 11-1132, 11-1133). A sale where a U.S. agency such as HUD is the named seller is listed as exempt (code A3)."
     },
     {
       title: "Fix your property tax class",
@@ -2981,7 +2981,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Transfer tax",
-      value: "None. Arizona’s constitution bars new taxes or fees on transferring real property (Ariz. Const. art. 9, § 24). You file an affidavit of property value with a $2 fee (A.R.S. 11-1133, 11-1134)"
+      value: "None. Arizona’s constitution bars new taxes or fees on transferring real property (Ariz. Const. art. 9, § 24). You file an affidavit of property value with the deed; the recording fee includes a $2 affidavit fee (A.R.S. 11-1132, 11-1133)"
     },
     {
       label: "Property tax class",

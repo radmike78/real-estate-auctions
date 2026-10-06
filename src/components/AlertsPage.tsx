@@ -166,7 +166,7 @@ function Confirm({ token }: { token: string }) {
     <section className="lead-card alerts-narrow">
       {error ? (
         <>
-          <h2>{unreachable(error) ? 'We couldn’t confirm your email just now' : 'That link didn’t work'}</h2>
+          <OwlNote><strong>{unreachable(error) ? 'We couldn’t confirm your email just now' : 'That link didn’t work'}</strong></OwlNote>
           <p>{error}</p>
           {unreachable(error) ? <button className="btn" onClick={() => window.location.reload()}>Try again</button> : <a className="btn" href="#/alerts">Sign up again</a>}
         </>
@@ -314,7 +314,7 @@ function Unsubscribe({ token }: { token: string }) {
 function Done({ title, text, again }: { title: string; text: string; again?: boolean }) {
   return (
     <section className="lead-card alerts-narrow" role="status">
-      <h2>{title}</h2>
+      <OwlNote><strong>{title}</strong></OwlNote>
       <p>{text}</p>
       {again ? <a className="btn" href="#/alerts">Sign up again</a> : <a href="#/">Back to the home page</a>}
     </section>

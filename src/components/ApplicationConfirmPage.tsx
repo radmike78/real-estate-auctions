@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { replaceAddress } from '../lib/nav';
 import PageHero from './PageHero';
+import OwlNote from './OwlNote';
 import { api, unreachable } from '../lib/api';
 
 // Tokens are single-use: share one request per token even if React runs the effect twice.
@@ -37,7 +38,7 @@ export default function ApplicationConfirmPage({ token }: { token: string }) {
     <main className="page prose">
       <PageHero compact title="Confirm your email" />
       {!state && <p>Confirming…</p>}
-      {state && <div className={state.ok ? 'notice' : 'caution'} role="status">{state.message}</div>}
+      {state && (state.ok ? <div className="notice" role="status">{state.message}</div> : <div role="status"><OwlNote>{state.message}</OwlNote></div>)}
       {state && !state.ok && unreachable(state.message) && <p><button className="btn" onClick={() => window.location.reload()}>Try again</button></p>}
       <a href="#/advertise">Back to advertising</a>
     </main>

@@ -164,7 +164,7 @@ const NEVADA: Playbook[] = [
       { label: 'Mediation', value: 'Owner-occupants can petition the court for foreclosure mediation within 30 days after the notice of default is served. A sale of an owner-occupied home needs a recorded mediation certificate' },
       { label: 'Payment', value: "Usually cashier's checks for the full bid at the sale. Each trustee sets its terms" },
       { label: 'Redemption', value: 'None for the owner. If a federal tax lien was on the property, the U.S. can redeem within 120 days (26 U.S.C. § 7425)' },
-      { label: 'Challenges', value: 'A lawsuit filed within 30 days after the trustee’s deed is recorded can void the sale. Someone who didn’t get proper notice has 90 days from the sale date (NRS 107.080)' },
+      { label: 'Challenges', value: 'If the trustee didn’t substantially follow the law, a lawsuit filed within 30 days after the trustee’s deed is recorded, with a lis pendens recorded within 5 days, can void the sale. Someone who didn’t get proper notice has 90 days from the sale date (NRS 107.080)' },
       { label: 'Postponements', value: 'Common. Confirm with the trustee the day before' },
       { label: 'Where listed', value: 'Recorded notices of sale (County Recorder), the trustee named in the notice, and legal newspapers' },
     ],

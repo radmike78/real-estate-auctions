@@ -103,7 +103,7 @@ export const DOC_GUIDES: DocGuide[] = [
     from: 'You (or your property manager) provide them before the tenant signs. Use a lease written for your state, ideally reviewed by a local attorney.',
     parts: [
       { part: 'Names, term and rent', look: 'Every adult on the lease, the start and end dates, the rent, the due date, and any late fee your state allows.', who: 'You fill these in.', example: '12-month lease from June 1; rent $2,150 due on the 1st. Check your state’s rules before setting a late fee.' },
-      { part: 'Deposit', look: 'The amount (Nevada caps it at 3 months’ rent; California at 1 month for most landlords; Arizona at 1½ months; Utah: we couldn’t confirm a cap in Utah law, and the refund is due within 30 days after move-out (Utah courts); Texas sets no cap; it requires the refund within 30 days after the tenant surrenders the home, but not until the tenant gives a written forwarding address, under Property Code 92.103 and 92.107), where it’s held, and how and when it’s returned.', who: 'You, within your state’s limits.' },
+      { part: 'Deposit', look: 'The amount (Nevada caps it at 3 months’ rent; California at 1 month for most landlords; Arizona at 1½ months; Utah sets no cap, and the refund is due within 30 days after the tenant moves out (Utah Code 57-17-3); Texas sets no cap; it requires the refund within 30 days after the tenant surrenders the home, but not until the tenant gives a written forwarding address, under Property Code 92.103 and 92.107), where it’s held, and how and when it’s returned.', who: 'You, within your state’s limits.' },
       { part: 'Entry, repairs and HOA rules', look: 'How much notice you give before entering (Nevada: 24 hours; California: 24 hours in writing; Arizona: 2 days; Utah: 24 hours unless the lease says otherwise; Texas: no notice rule in Property Code chapter 92, so put one in the lease), how repairs are requested, who pays which utilities, and the HOA rules the tenant must follow.', who: 'You, following your state’s law and your HOA’s rules.' },
       { part: 'Lead disclosure (homes built before 1978)', look: 'Before the lease is signed: give the EPA pamphlet, disclose any known lead-based paint and any reports, and include the lead warning statement. Both of you sign the disclosure.', who: 'You provide it; the tenant signs to acknowledge it.' },
     ],
@@ -127,7 +127,7 @@ export const DOC_GUIDES: DocGuide[] = [
   {
     key: 'appraisal',
     title: 'Appraisal report',
-    from: 'The lender orders it after your loan application, from an appraiser it chooses. For a home loan, the lender must give you a copy promptly, and at least 3 business days before closing (Regulation B). For a cash purchase, you can hire a licensed or certified appraiser yourself.',
+    from: 'The lender orders it after your loan application, from an appraiser it chooses. For a home loan, the lender must give you a copy promptly when it’s done, or 3 business days before closing, whichever is earlier, unless you agree to get it at closing (Regulation B). For a cash purchase, you can hire a licensed or certified appraiser yourself.',
     parts: [
       { part: 'Subject and assignment', look: 'The address, the legal description, who ordered it, and whether the appraiser went inside or only looked from outside.', who: 'The appraiser.', example: 'An exterior-only appraisal can miss hidden damage: ask whether the value assumes the inside is in average condition.' },
       { part: 'Condition and quality ratings', look: 'How the appraiser rated the condition and the building quality, and any repairs listed as required.', who: 'The appraiser.', example: '“Subject to” repairs means the loan won’t close until they’re done and checked.' },
@@ -155,7 +155,7 @@ export const DOC_GUIDES: DocGuide[] = [
   {
     key: 'disclosure',
     title: 'Seller’s disclosure of the property’s condition',
-    from: 'In a regular sale, the seller fills it in and gives it to you before or soon after your offer is accepted. Nevada (NRS 113.130), California (the Transfer Disclosure Statement, Civil Code 1102) and Texas (Property Code 5.008) require one for most home sales. Bank-owned homes, estates and forced sales are often exempt.',
+    from: 'In a regular sale, the seller fills it in and gives it to you before or soon after your offer is accepted. Nevada (NRS 113.130), California (the Transfer Disclosure Statement, Civil Code 1102) and Texas (Property Code 5.008) require one for most home sales. The exemptions differ by state. In Nevada, the foreclosure sale itself and a few listed transfers (such as between relatives, or by an executor or trustee) are exempt, but a bank reselling a home it took back is not. Ask your agent which applies to your sale.',
     parts: [
       { part: 'Systems and known defects', look: 'What the seller says about the roof, plumbing, electrical, heating and cooling, water heater, and any known leaks or defects.', who: 'The seller, from what they know. It isn’t an inspection.', example: '“Roof: leak repaired 2023.” Ask for the invoice and have the inspector look at that spot.' },
       { part: 'Water, mold and the ground', look: 'Flooding, drainage, mold, soil movement and foundation repairs.', who: 'The seller.' },

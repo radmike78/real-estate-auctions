@@ -249,3 +249,12 @@ describe('maximum bid as a subtraction', () => {
     if (p) expect(defaultsFor(p).minimumBid).toBe(p.sale!.minimumBid);
   });
 });
+
+describe('cash before a loan funds', () => {
+  it('counts transfer tax, title, possession and carrying through the redemption wait, not just the bid', () => {
+    const i: BidInputs = { ...base, financedPct: 90, redemptionMonths: 12, titleLegal: 1_500, possession: 3_500, monthlyCarry: 600, exitValue: 400_000, cashAvailable: 150_000 };
+    const c = costsAtBid(i, 150_000);
+    const before = 150_000 + c.premium + c.transferTax + c.survivingLiens + 1_500 + 3_500 + 12 * 600;
+    expect(cashNeededAtBid(i, 150_000)).toBeGreaterThanOrEqual(before);
+  });
+});

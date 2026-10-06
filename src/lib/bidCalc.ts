@@ -62,7 +62,8 @@ export interface BidResult {
   cashAtAuction: number;
   /** Total cash in the deal at the max bid, through repairs and holding, net of any loan (once the loan funds). */
   cashToStabilize: number;
-  /** The most cash you'll have in at once: the bid and premium on the day, or every cost until you sell less the loan,
+  /** The most cash you'll have in at once: everything paid before a loan can fund (the bid, premium, transfer tax,
+   * liens, title, possession and carrying through any redemption wait), or every cost until you sell less the loan,
    * whichever is more. A loan that funds later (often not until a redemption period ends) doesn't lower it. */
   cashPeak: number;
   noBidWorks: boolean;
@@ -105,10 +106,15 @@ function solve(i: BidInputs, profit: number): number {
   return available / perBid;
 }
 
-/** Cash a bid takes from you: the bid and premium on the day, and every cost until you sell, less any loan. */
+/**
+ * Cash a bid takes from you: everything you pay before a loan can fund (the bid and premium, transfer tax, surviving
+ * liens, title and legal work, possession, and carrying costs through any redemption wait), or every cost until you
+ * sell less the loan, whichever is more.
+ */
 export function cashNeededAtBid(i: BidInputs, bid: number): number {
   const c = costsAtBid(i, bid);
-  return Math.max(bid + c.premium, c.total - c.selling - c.loan);
+  const beforeLoan = bid + c.premium + c.transferTax + c.survivingLiens + c.titleLegal + c.possession + nz(i.redemptionMonths) * nz(i.monthlyCarry);
+  return Math.max(beforeLoan, c.total - c.selling - c.loan);
 }
 
 /**

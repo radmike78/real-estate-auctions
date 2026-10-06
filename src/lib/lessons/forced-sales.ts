@@ -48,7 +48,7 @@ export const forcedSales: Lesson = {
             ],
           },
         },
-        'California adds a step for homes of one to four units: after the auction, eligible tenant buyers have 15 days to match the winning bid and other eligible bidders have 45 days, so the winning bid isn’t final until that period ends (Civil Code 2924m, in effect until 2031).',
+        'California adds a step for homes of one to four units: after the auction, tenants and other eligible bidders have 15 days to send a bid or a written notice that they intend to bid. If anyone does, a tenant can match the winning bid, and other eligible bidders can beat it, until day 45. So the winning bid isn’t final for 15 days, and can be for up to 45. The step doesn’t apply when an owner-occupant wins at the auction (Civil Code 2924m, in effect until 2031).',
       ],
     },
     {

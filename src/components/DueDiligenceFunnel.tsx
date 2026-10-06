@@ -5,7 +5,7 @@ import { ddSteps, loadDdDone, saveDdDone } from '../lib/ddFunnel';
 const TAG: Record<string, string> = { ok: 'OK', flag: 'Flag', review: 'Review', manual: 'Check yourself' };
 
 /** The 12-step due-diligence workflow for one property, with ticks remembered in this browser. */
-export default function DueDiligenceFunnel({ p, maxBidHref }: { p: Property; maxBidHref: string }) {
+export default function DueDiligenceFunnel({ p, maxBidHref }: { p: Property; maxBidHref: string | null }) {
   const steps = ddSteps(p);
   const [done, setDone] = useState<string[]>(() => loadDdDone(p.id));
   const toggle = (k: string) =>
@@ -47,7 +47,7 @@ export default function DueDiligenceFunnel({ p, maxBidHref }: { p: Property; max
               )}
               <p className="dd-how"><strong>How to check:</strong> {s.how}</p>
               {s.who && <p className="dd-how"><strong>Who helps:</strong> {s.who}</p>}
-              {s.key === 'max-bid' && <a href={maxBidHref}>Open the maximum bid calculator for this property →</a>}
+              {s.key === 'max-bid' && maxBidHref && <a href={maxBidHref}>Open the maximum bid calculator for this property →</a>}
             </li>
           );
         })}

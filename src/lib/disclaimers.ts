@@ -3,6 +3,13 @@
 export const ROLE_SHORT =
   'DeedOwl teaches the steps to invest in real estate, then points you to deals from official sources. Each deal is yours to research and decide.';
 
+/**
+ * What an asterisk (*) after a statement means. Shown on every page. Use it on anything we couldn't confirm with an
+ * official source, and on rules whose answer depends on a legal judgment about the reader's own situation.
+ */
+export const ASTERISK_NOTE =
+  '* An asterisk marks information we couldn’t confirm with an official source, or that depends on a legal judgment about your situation. Consult an attorney or other qualified professional before you rely on it.';
+
 /** Where our information comes from, and that professional advice is the buyer's job. Shown on every page. */
 export const SOURCES_AND_ADVICE =
   'We make every effort to pull information from government and other official sources. Our guides are general education; for advice ' +

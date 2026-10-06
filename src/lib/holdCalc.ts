@@ -171,7 +171,8 @@ function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, c
     debtService: r2(debtService),
     cashFlow: r2(cashFlow),
     dscr: dscr === null ? null : Math.round(dscr * 100) / 100,
-    loanOk: dscr === null || dscr >= nz(minDscr),
+    // Judged on the coverage as shown (rounded), so the pass/fail note never disagrees with the number beside it.
+    loanOk: dscr === null || Math.round(dscr * 100) / 100 >= nz(minDscr),
     loanNet: r2(loanNet),
     loanFees: r2(loanAt(i, maxBid, onPrice) - loanNet),
     cashAtAuction: r2(maxBid * (1 + nz(i.buyerPremiumPct) / 100)),
@@ -522,7 +523,7 @@ export function strCompare(i: RentInputs, s: StrInputs) {
     longTermNoi: r2(ltNoi),
     difference: r2(noi - ltNoi),
     /** Occupancy at which renting by the night earns the same as the long-term rental; null if it never does. */
-    breakEvenOccupancyPct: breakEvenNights === null ? null : Math.round((breakEvenNights / 365) * 1000) / 10,
+    breakEvenOccupancyPct: breakEvenNights === null || breakEvenNights > 365 ? null : Math.round((breakEvenNights / 365) * 1000) / 10,
     /** Years for the extra income to pay back the furniture; null if it never does. */
     furnishingPaybackYears: noi - ltNoi > 0 ? Math.round((nz(s.furnishing) / (noi - ltNoi)) * 10) / 10 : null,
   };

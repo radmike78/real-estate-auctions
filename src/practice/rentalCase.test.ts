@@ -176,7 +176,7 @@ describe('the replacement decision comes at the inspection', () => {
       const fit = insp.tasks.find((t) => t.id === 'replace-fit')!;
       if (fit.kind !== 'choice') throw new Error('expected a choice');
       expect(fit.choices.some((ch) => ch.walk && ch.verdict !== 'poor'), st).toBe(true);
-      expect(fit.choices.find((ch) => /makes about/.test(ch.label))!.verdict, st).toBe('poor');
+      expect(fit.choices.find((ch) => /^Go ahead: it (makes|only loses) about/.test(ch.label))!.verdict, st).toBe('poor');
     }
   });
 });

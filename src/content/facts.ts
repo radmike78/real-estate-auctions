@@ -157,7 +157,7 @@ export const FACTS: Fact[] = [
   },
   {
     id: 'trustee-challenge',
-    claim: 'A lawsuit filed within 30 days after the trustee’s deed is recorded can void the sale; without proper notice, 90 days from the sale.',
+    claim: 'If the trustee didn’t substantially follow the law, a lawsuit filed within 30 days after the trustee’s deed is recorded (with a lis pendens recorded within 5 days of filing) can void the sale; without proper notice, 90 days from the sale.',
     sources: ['nrs-107'],
     checked: '2026-09-27',
     where: [

@@ -22,9 +22,9 @@ export const taxes: Lesson = {
           table: {
             head: ['State', 'Transfer tax'],
             rows: [
-              ['Nevada', '$1.95 for each $500 of value, $2.05 in Washoe and Churchill counties, and $2.55 in Clark County (NRS 375.020 and 375.023).'],
+              ['Nevada', '$1.95 for each $500 of value, $2.05 in Washoe and Churchill counties, and $2.55 in Clark County (NRS 375.020 and 375.023, plus a local tax in Washoe and Churchill; confirm with the county recorder).'],
               ['California', '$0.55 for each $500 of value, charged by the county (Revenue and Taxation Code 11911). Some cities add much more, such as Los Angeles, San Francisco and Oakland.'],
-              ['Arizona', 'None. The recorder charges a $2 fee with the affidavit of property value (A.R.S. 11-1132).'],
+              ['Arizona', 'None. You pay the recorder’s recording fee (about $30 a document), which includes a $2 fee for the affidavit of property value (A.R.S. 11-475 and 11-1132).'],
               ['Utah', 'None. You pay the county recorder’s recording fees.'],
               ['Texas', 'None, and the state constitution bars new transfer taxes (article VIII, section 29). You pay recording fees and the title insurance premium the state sets.'],
             ],
@@ -51,7 +51,7 @@ export const taxes: Lesson = {
           'A residential rental over 27.5 years; a commercial building over 39 years (IRS Publication 946).',
           'Example: a $300,000 rental where the land is worth $60,000 has $240,000 of building to depreciate. That’s about $8,700 a year, a deduction with no money leaving your account.',
           'A repair that keeps the property in working order is deducted the year you pay it. An improvement that makes it better, longer-lasting or fit for a new use (a new roof, an addition) is depreciated over years.',
-          'A cost segregation study splits the price into parts with shorter lives (appliances, carpet, landscaping, paving). Property acquired after January 19, 2025 can take 100% bonus depreciation on those shorter-lived parts in the first year; the building itself can’t (26 U.S.C. 168(k), as amended in 2025). Studies cost money and make the most sense on larger properties; ask a CPA.',
+          'A cost segregation study splits the price into parts with shorter lives (appliances, carpet, landscaping, paving). Property acquired and placed in service after January 19, 2025 (not under a binding contract signed earlier) can take 100% bonus depreciation on those shorter-lived parts in the first year; the building itself can’t (26 U.S.C. 168(k), as amended in 2025). Studies cost money and make the most sense on larger properties; ask a CPA.',
         ] },
         'Rental losses usually can’t offset your wages. A rental is a passive activity, so losses mostly offset passive income. If you actively manage it, you can deduct up to $25,000 of losses against other income, and that shrinks to zero as your modified income goes from $100,000 to $150,000. Losses you can’t use carry forward to later years and to the year you sell (IRS Publication 925).',
         'A real estate professional (more than half of your working time, and more than 750 hours a year, in real property businesses where you materially participate) isn’t limited this way. The test is strict and the IRS checks time logs (26 U.S.C. 469(c)(7)).',
@@ -88,7 +88,7 @@ export const taxes: Lesson = {
         'A 1031 exchange puts off the tax when you sell a rental or investment property and buy another one. The tax isn’t forgiven; it carries into the new property.',
         { list: [
           'Both properties must be held for investment or business use. Flips and your own home don’t qualify.',
-          'You have 45 days after the sale to identify the replacement in writing, and 180 days to close on it (or until your tax return is due, if that’s sooner).',
+          'You have 45 days after the sale to identify the replacement in writing, and 180 days to close on it, or until your tax return for the year of the sale is due, including extensions, if that’s sooner. Sell late in the year and you may need to file an extension to keep the full 180 days.',
           'You can’t touch the money in between. A qualified intermediary holds the sale money and uses it to buy the replacement; if it reaches you, the exchange fails.',
           'Cash you take out, or debt you don’t replace, is taxed (“boot”).',
           'Report it on Form 8824 (Form 8824 instructions).',
@@ -150,7 +150,7 @@ export const taxes: Lesson = {
     { term: 'Depreciation recapture', meaning: 'Tax on the part of a gain that comes from depreciation. For a rental building it’s taxed at up to 25%.' },
     { term: 'Passive activity', meaning: 'A business you don’t materially participate in, including most rentals. Its losses mostly offset only passive income.' },
     { term: 'Ordinary income', meaning: 'Income taxed at the regular rates, like wages. Flip profits usually are.' },
-    { term: '1031 exchange', meaning: 'Trading one investment property for another while putting off the tax, through a qualified intermediary and within 45 and 180 days.' },
+    { term: '1031 exchange', meaning: 'Trading one investment property for another while putting off the tax, through a qualified intermediary and within 45 days to identify and 180 days (or the tax return’s due date with extensions, if sooner) to close.' },
     { term: 'Qualified intermediary', meaning: 'The company that holds your sale money in a 1031 exchange so you never receive it.' },
     { term: 'Cost segregation', meaning: 'A study that splits a building’s price into parts with shorter depreciation lives.' },
   ],
