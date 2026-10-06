@@ -15,6 +15,7 @@ import { countyName } from '../lib/regions';
 import StatusBadge from './StatusBadge';
 import { dealNumbers } from '../lib/propertyPacket';
 import { nextAction } from '../lib/dealPacket';
+import AdSpot from './AdSpot';
 
 function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; loading: boolean }) {
   const [notes, setNotes] = useState(d.notes);
@@ -168,6 +169,7 @@ export default function DealsPage() {
       ) : (
         <ul className="deal-list">{sorted.map((d) => <DealCard key={d.id} d={d} p={properties.find((x) => x.id === d.id)} loading={loading} />)}</ul>
       )}
+      <AdSpot spot="deals" />
       <p className="muted">Saved only in this browser. Clearing your browser data removes it.</p>
     </main>
   );

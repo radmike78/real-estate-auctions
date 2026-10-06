@@ -16,7 +16,7 @@ import PlaceCombobox from './PlaceCombobox';
 import { useLastActivity } from '../lib/journey';
 import { RotatingAd } from './AdBoxes';
 import { useDirectory } from './ProDirectory';
-import { FIND_DEALS_AD_CATEGORIES } from '../lib/contextAds';
+import { useSpotCategories } from './AdSpot';
 
 const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake', TX: 'Harris' };
 
@@ -55,6 +55,7 @@ export default function FindDealsPage() {
   // The visitor's area (myArea.ts): their state and county, from the city they chose or picked here.
   const [mine, setMine] = useMyArea();
   const { pros } = useDirectory();
+  const adCats = useSpotCategories('finddeals');
   const state: StateCode = mine?.state ?? 'NV';
   const area = { state, county: mine?.county ?? DEFAULT_COUNTY[state] };
   const setArea = (a: { state: StateCode; county: string }) =>
@@ -106,10 +107,10 @@ export default function FindDealsPage() {
       </PageHero>
 
       <NarrowDown config={findDealsConfig()} intro="Answer two quick questions and we’ll point you to the best places to look first. Every source is still listed below." />
-      {/* One labeled Mentor Connect ad beside the "found a property" help, kept above and apart from the official sources. */}
-      <div className="next-with-ad">
+      {/* The Mentor Connect spot (Admin → Ad spots) beside the "found a property" help, above and apart from the official sources. */}
+      <div className={adCats.length ? 'next-with-ad' : undefined}>
         <p className="page-starter"><strong>Buying a home listed for sale?</strong> Ask a licensed agent to set up a search of homes on the local listing service (MLS) that match your buy box. <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p>
-        <RotatingAd pros={pros} categories={FIND_DEALS_AD_CATEGORIES} placeholder />
+        {adCats.length > 0 && <RotatingAd pros={pros} categories={adCats} placeholder />}
       </div>
       <h2 className="section-title">Official sources</h2>
       <p className="muted">Government agencies, Fannie Mae and Freddie Mac, and the banks that own the homes: the sellers themselves.</p>

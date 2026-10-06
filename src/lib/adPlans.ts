@@ -11,8 +11,8 @@
 //    advertiser in the visitor's city is shown on every page view (it doesn't rotate). It never moves anyone up in
 //    the list itself: the list keeps the same rotation for everyone (pros.ts).
 //  - Premium Plus (Mentor Connect): Premium, plus labeled ads where people may want more help: beside one Learn or
-//    Practice topic they choose (adTopics.ts), on Find Deals, and beside the matching step on Analyze a deal and
-//    My plan (contextAds.ts).
+//    Practice topic they choose (adTopics.ts), and in the Mentor Connect ad spots the site owner turns on in
+//    Admin → Ad spots (adSpots.ts).
 //
 // Prices are never set here: they come from the operator's Stripe configuration (STRIPE_PLANS, server/stripe.ts).
 
@@ -36,7 +36,7 @@ export const TIER_INFO: Record<AdTier, { label: string; includes: string[]; badg
   },
   premium_plus: {
     label: 'Mentor Connect',
-    includes: ['Everything in Spotlight', 'A labeled ad beside one Learn or Practice topic you choose', 'Turns in the ad on Find Deals', 'Turns in the ad beside the matching step on Analyze a deal and My plan'],
+    includes: ['Everything in Spotlight', 'A labeled ad beside one Learn or Practice topic you choose', 'Turns in the Mentor Connect ad spots across the site, such as Find Deals, Analyze a deal and My plan'],
     badge: 'Best value',
   },
 };
@@ -69,8 +69,7 @@ export const hasFeaturedBox = (t: AdTier) => t === 'premium' || t === 'premium_p
 
 /**
  * Who takes turns in a one-advertiser "Advertisement" box. The rotating ad at the top of the Your Team page (no
- * categories): every plan. The "at the moment you need one" spots on Find Deals, Analyze a deal and My plan (with
- * categories, contextAds.ts): Mentor Connect only. Advertisers whose ads an admin turned off never appear.
+ * categories): every plan. The Mentor Connect ad spots (with categories, adSpots.ts): Mentor Connect only. Advertisers whose ads an admin turned off never appear.
  */
 export function rotatingPool<P extends { category: Category; tier: AdTier; adsOff?: boolean }>(pros: P[], categories?: Category[]): P[] {
   return pros.filter((p) => !p.adsOff && (categories ? p.tier === 'premium_plus' && categories.includes(p.category) : true));

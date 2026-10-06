@@ -9,6 +9,7 @@ import ByState from './ByState';
 import StatePicker from './StatePicker';
 import { useMyState } from '../lib/myState';
 import { DEFICIENCY, DISCLOSURES, NOTES, OWNERS } from '../lib/states/shortSales';
+import AdSpot from './AdSpot';
 
 /** Sale documents for the visitor's state; Nevada until they pick one. */
 function MySaleDocs() {
@@ -163,6 +164,7 @@ export default function ShortSalesPage({ section }: { section?: string }) {
 
       <p className="muted small">General information only, not legal, tax or financial advice. If you're the seller, ask a tax professional and an attorney whether you could still owe the lender afterward (a deficiency) and what the tax consequences are.</p>
       <Disclaimer kind="sales" compact />
+      <AdSpot spot="shortsales" />
     </main>
   );
 }

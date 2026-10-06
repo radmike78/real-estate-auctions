@@ -10,6 +10,7 @@ import { api, ApiError } from '../lib/api';
 import PageHero from './PageHero';
 import SiteStats from './SiteStats';
 import EmailListAdmin from './EmailListAdmin';
+import AdSpotsAdmin from './AdSpotsAdmin';
 import { fmtDate, fmtDateTime } from '../lib/status';
 
 type Status = 'EMAIL_UNCONFIRMED' | 'PENDING_REVIEW' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
@@ -467,7 +468,7 @@ export default function AdminPage() {
   const [tab, setTab] = useState('review');
   const [selected, setSelected] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
-  const [view, setView] = useState<'apps' | 'stats' | 'email'>('apps');
+  const [view, setView] = useState<'apps' | 'stats' | 'email' | 'spots'>('apps');
 
   const loadApps = useCallback(() => {
     api<{ applications: App[] }>('/api/admin/applications').then((r) => setApps(r.applications)).catch((e: ApiError) => e.status === 401 && setMe(null));
@@ -488,19 +489,22 @@ export default function AdminPage() {
     <main className="page wide">
       <div className="track-head admin-head">
         <div>
-          <h1>{view === 'apps' ? 'Advertiser applications' : view === 'stats' ? 'Site stats' : 'Email list'}</h1>
+          <h1>{view === 'apps' ? 'Advertiser applications' : view === 'stats' ? 'Site stats' : view === 'spots' ? 'Ad spots' : 'Email list'}</h1>
           <p className="small muted">
             Signed in as {me.username}.{' '}
             {view === 'apps'
               ? `Listings need an active license, identity confirmed through the company, re-checks every ${REVERIFY_DAYS} days, and a paid plan.`
               : view === 'stats'
                 ? 'Anonymous, bot-filtered counts from our own server. Use the advertiser summary when pitching to prospects.'
-                : 'Everyone here confirmed their address. Updates go to the general list only; property and search alerts are sent automatically.'}
+                : view === 'spots'
+                  ? 'Where Mentor Connect ads show across the site.'
+                  : 'Everyone here confirmed their address. Updates go to the general list only; property and search alerts are sent automatically.'}
           </p>
           <div className="seg" role="tablist" aria-label="Admin section">
             <button role="tab" aria-selected={view === 'apps'} onClick={() => setView('apps')}>Applications</button>
             <button role="tab" aria-selected={view === 'stats'} onClick={() => setView('stats')}>Site stats</button>
             <button role="tab" aria-selected={view === 'email'} onClick={() => setView('email')}>Email list</button>
+            <button role="tab" aria-selected={view === 'spots'} onClick={() => setView('spots')}>Ad spots</button>
           </div>
         </div>
         <div className="row">
@@ -516,6 +520,7 @@ export default function AdminPage() {
       </div>
       {view === 'stats' && <SiteStats />}
       {view === 'email' && <EmailListAdmin />}
+      {view === 'spots' && <AdSpotsAdmin />}
       {view === 'apps' && !me.signingConfigured && <div className="caution small">No signing key is configured, so approvals are saved but the public directory isn't published. Run <code>npm run keys:generate</code>.</div>}
       {view === 'apps' && msg && <div className="notice small" role="status">{msg}</div>}
 

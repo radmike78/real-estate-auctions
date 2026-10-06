@@ -8,6 +8,7 @@ import { TEAM_ROLES } from '../lib/myPlan';
 import { proGuideByKey } from '../lib/proGuide';
 import { downloadText, fileName } from '../lib/download';
 import { EVIDENCE_EVENT } from '../lib/evidence';
+import AdSpot from './AdSpot';
 
 const STATUS_LABEL: Record<SectionStatus, string> = { done: 'Complete', started: 'In progress', missing: 'Missing' };
 
@@ -183,6 +184,7 @@ export default function DealPacketPage({ dealId }: { dealId: string }) {
         </label>
         <Lines k="decision" />
       </section>
+      <AdSpot spot="dealPacket" />
       <p className="muted">Saved only in this browser. Back it up from My plan. This packet records your own review; it doesn’t clear title or certify a deal.</p>
     </main>
   );

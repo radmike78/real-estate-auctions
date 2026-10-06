@@ -9,6 +9,7 @@ import { docGuide } from '../lib/docGuides';
 import DocGuideView from './DocGuideView';
 import { emptyCase, loadCase, saveCase, type CaseProgress } from '../practice/caseProgress';
 import TopicAd from './TopicAd';
+import AdSpot from './AdSpot';
 
 const key = (st: CaseStage, t: CaseTask) => `${st.key}/${t.id}`;
 const $ = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
@@ -81,6 +82,7 @@ function CasePage({ stageKey }: { stageKey?: string }) {
       ) : (
         <Start p={p} doneStages={doneStages} onReset={() => { if (!window.confirm('Start over? This clears your answers and your deal packet.')) return; saveCase(emptyCase(), C.state); setP(emptyCase()); }} />
       )}
+      <AdSpot spot="practiceCase" />
     </main>
   );
 }

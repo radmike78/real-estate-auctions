@@ -6,6 +6,7 @@ import { highlight, searchGuides, type GuideIndex } from '../lib/guideSearch';
 import OwlNote from './OwlNote';
 import StatePicker from './StatePicker';
 import { useMyState } from '../lib/myState';
+import AdSpot from './AdSpot';
 
 const TRY = ['Deposit', 'Redemption period', 'What survives an HOA foreclosure?', 'Cashier’s check', 'Occupied home', 'Title insurance'];
 
@@ -129,6 +130,7 @@ export default function GuidesPage({ initialQuery }: { initialQuery: string }) {
       <p className="muted guide-note">
         Results are passages from DeedOwl’s own guides, matched to your words. Nothing is pulled from other websites or generated when you search, and we don’t keep what you search for. Rules, fees and dates change: always confirm in the current official notice.
       </p>
+      <AdSpot spot="guides" />
     </main>
   );
 }

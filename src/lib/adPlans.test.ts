@@ -197,7 +197,7 @@ describe('who takes turns in the one-advertiser ad boxes', () => {
     expect(rotatingPool(pros).map((p) => p.id)).toEqual(['r', 's', 'm', 'm2']);
   });
 
-  it('the Find Deals, Analyze and My plan spots take only Mentor Connect, in the matching categories', () => {
+  it('the Mentor Connect ad spots take only Mentor Connect, in the spot’s categories', () => {
     expect(rotatingPool(pros, ['agent']).map((p) => p.id)).toEqual(['m']);
     expect(rotatingPool(pros, ['agent', 'insurance']).map((p) => p.id)).toEqual(['m', 'm2']);
   });
@@ -205,6 +205,6 @@ describe('who takes turns in the one-advertiser ad boxes', () => {
   it('describes the plans the way they work', () => {
     expect(TIER_INFO.standard.includes.join(' ')).toMatch(/rotating ad at the top of the Your Team page/);
     expect(TIER_INFO.premium.includes.join(' ')).toMatch(/doesn’t rotate/);
-    expect(TIER_INFO.premium_plus.includes.join(' ')).toMatch(/Find Deals/);
+    expect(TIER_INFO.premium_plus.includes.join(' ')).toMatch(/Mentor Connect ad spots/);
   });
 });

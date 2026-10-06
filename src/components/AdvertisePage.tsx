@@ -7,6 +7,8 @@ import { PlanCards, useAdPlans, type AdPlansInfo } from './PlanCards';
 import { useMyState } from '../lib/myState';
 import { STATES, stateByCode } from '../lib/regions';
 import { regulatorFor } from '../lib/regulators';
+import { spotsOn } from '../lib/adSpots';
+import { useAdSpots } from './AdSpot';
 
 /** A plan's price line: the same price everywhere, or a note that it depends on the category. */
 function priceLine(info: AdPlansInfo | null | 'loading', t: AdTier): string {
@@ -19,6 +21,7 @@ function priceLine(info: AdPlansInfo | null | 'loading', t: AdTier): string {
 const GROUPS = ['Real estate', 'Financing', 'Closing & protection', 'Inspection & repairs', 'Legal & tax', 'Ownership'] as const;
 
 export default function AdvertisePage() {
+  const mentorSpots = spotsOn(useAdSpots());
   const features = useSiteFeatures();
   const open = advertisingOpen(features);
   const plans = useAdPlans();
@@ -93,7 +96,8 @@ export default function AdvertisePage() {
         <strong>How placement works.</strong> Every listed professional appears in the directory list in a fair rotating order, whatever plan
         they pay for, and every plan takes turns in the rotating ad at the top of the Your Team page. Spotlight adds a separate, labeled Featured ad on your
         category’s page for your city or county, above the list. It holds up to {CAPS.featured} per category in each city, so it doesn’t rotate. Mentor Connect also adds labeled
-        ads where people may want more help: beside one Learn or Practice topic you choose, on Find Deals, and beside the matching step on Analyze a deal and My plan. Every ad is labeled as paid. We don’t rank professionals, charge per lead or per
+        ads where people may want more help: beside one Learn or Practice topic you choose, and in the Mentor Connect ad spots
+        {mentorSpots.length ? <> (now: {mentorSpots.map((s) => s.label).join(', ')})</> : null}. Every ad is labeled as paid. We don’t rank professionals, charge per lead or per
         closing, or take a share of any transaction, and we aren’t a party to any agreement between you and a buyer.
       </div>
       <p className="small muted">Already listed? <a href="#/advertiser">Sign in to your dashboard →</a></p>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { analyzeAdCategories, FIND_DEALS_AD_CATEGORIES, stepAdCategories } from './contextAds';
+import { analyzeAdCategories, stepAdCategories } from './contextAds';
 import { ROADMAP, type RoadmapPath } from './roadmap';
 import { CATEGORIES } from './pros';
 import type { SaleKind } from './analyze';
@@ -37,9 +37,3 @@ describe('"at the moment you need one" ads', () => {
   });
 });
 
-describe('the Find Deals ad', () => {
-  it('only takes professionals who help a buyer act on a deal, never an official seller', () => {
-    expect(FIND_DEALS_AD_CATEGORIES).toEqual(expect.arrayContaining(['agent', 'loan_officer', 'title_escrow', 'attorney', 'home_inspector']));
-    for (const c of FIND_DEALS_AD_CATEGORIES) expect(CATEGORIES[c], c).toBeTruthy();
-  });
-});

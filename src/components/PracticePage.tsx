@@ -17,6 +17,7 @@ import OwlNote from './OwlNote';
 import { useLastActivity } from '../lib/journey';
 import { loadCase } from '../practice/caseProgress';
 import { caseFor } from '../practice/rentalCase';
+import AdSpot from './AdSpot';
 
 /** One plain line, not a banner: readers skip anything styled like a notice. */
 export function PracticeRibbon() {
@@ -84,6 +85,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
         <p className="muted">Short drills: value a property from comps, check the rent, price the repairs, find the liens and run the numbers, then make the call.</p>
         <DrillList />
         <PathNext step="practice" />
+        <AdSpot spot="practice" />
       </main>
     );
   }
@@ -123,6 +125,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
         Each practice run follows the rules for this kind of sale in Clark County, from our <a href="#/playbooks">guides</a>. The people you
         contact are fictional and their replies are simulated, so nothing is sent anywhere.
       </p>
+      <AdSpot spot="practice" />
     </main>
   );
 }

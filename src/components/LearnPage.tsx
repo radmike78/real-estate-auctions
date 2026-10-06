@@ -9,6 +9,7 @@ import { useJourney } from '../lib/journey';
 import { useMyState } from '../lib/myState';
 import { guidesFor } from '../lib/playbooks';
 import { STATES, stateByCode } from '../lib/regions';
+import AdSpot from './AdSpot';
 
 /** The step-by-step sale guides, for the chosen state (or a way into each state's guides). */
 function SaleGuides() {
@@ -100,6 +101,7 @@ export default function LearnPage() {
           <button type="button" className="btn btn-secondary" onClick={() => setShowAll(true)}>Show all {LEARN_MODULES.length} lessons</button>
         </p>
       )}
+      <AdSpot spot="learn" />
       <PathNext step="learn" />
     </main>
   );

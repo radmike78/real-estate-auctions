@@ -34,6 +34,7 @@ import { playbookByKey, playbookForSale } from '../lib/playbooks';
 import { ago } from '../lib/time';
 import OwlNote from './OwlNote';
 import { analyzeHref } from '../lib/analyze';
+import AdSpot from './AdSpot';
 
 const LIEN_LABEL: Record<LienType, string> = {
   PROPERTY_TAX: 'Delinquent property tax',
@@ -458,6 +459,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       </div>
 
       <DrillDown sections={shownSections} active={section} baseHref={baseHref} label="Property sections" printAll={printAll} />
+      <AdSpot spot="property" />
     </main>
   );
 }
