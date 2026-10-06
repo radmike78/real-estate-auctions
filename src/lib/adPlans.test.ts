@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AD_TOPICS, topicForPage } from './adTopics';
-import { CAPS, capMessage, capProblem, foundingFull, pickRandom, RESPA_CATEGORIES, topicAllowed, topicCap, topicsFor, type Placement } from './adPlans';
+import { CAPS, capMessage, capProblem, foundingFull, pickRandom, RESPA_CATEGORIES, rotatingPool, TIER_INFO, topicAllowed, topicCap, topicsFor, type AdTier, type Placement } from './adPlans';
 import { LESSONS } from './lessons';
 import { DRILLS } from '../practice/drills';
 import { RENTAL_CASE } from '../practice/rentalCase';
@@ -186,5 +186,25 @@ describe('founding cap', () => {
     expect(foundingFull([r('a'), r('b', true, 'REJECTED')], 'new', 'agent')).toBe(false);
     expect(foundingFull([r('a'), r('b', false)], 'new', 'agent')).toBe(false);
     expect(foundingFull([r('a', true, 'APPROVED', 'cpa'), r('b', true, 'APPROVED', 'cpa')], 'new', 'agent')).toBe(false);
+  });
+});
+
+describe('who takes turns in the one-advertiser ad boxes', () => {
+  const pro = (id: string, tier: AdTier, category: Category = 'agent', adsOff = false) => ({ id, tier, category, adsOff });
+  const pros = [pro('r', 'standard'), pro('s', 'premium'), pro('m', 'premium_plus'), pro('m2', 'premium_plus', 'insurance'), pro('off', 'standard', 'agent', true)];
+
+  it('the Your Team rotating ad takes every plan, but never an advertiser whose ads are off', () => {
+    expect(rotatingPool(pros).map((p) => p.id)).toEqual(['r', 's', 'm', 'm2']);
+  });
+
+  it('the Find Deals, Analyze and My plan spots take only Mentor Connect, in the matching categories', () => {
+    expect(rotatingPool(pros, ['agent']).map((p) => p.id)).toEqual(['m']);
+    expect(rotatingPool(pros, ['agent', 'insurance']).map((p) => p.id)).toEqual(['m', 'm2']);
+  });
+
+  it('describes the plans the way they work', () => {
+    expect(TIER_INFO.standard.includes.join(' ')).toMatch(/rotating ad at the top of the Your Team page/);
+    expect(TIER_INFO.premium.includes.join(' ')).toMatch(/doesn’t rotate/);
+    expect(TIER_INFO.premium_plus.includes.join(' ')).toMatch(/Find Deals/);
   });
 });

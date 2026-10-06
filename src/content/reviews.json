@@ -225,7 +225,7 @@
       "src/lib/pros.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "6adf545d857e945f",
+    "hash": "90cee1f76565986a",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -268,8 +268,8 @@
       "src/components/AdvertiseApplyPage.tsx",
       "src/lib/proApplication.ts"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "3012ee73563152f6",
+    "reviewed": "2026-10-06",
+    "hash": "cb6d35ad5518cdc0",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -377,7 +377,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "4603422c8d03b19b",
+    "hash": "4b524a7b414e9d03",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
