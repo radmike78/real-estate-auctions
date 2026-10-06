@@ -86,7 +86,7 @@ export const PRO_GUIDES: ProGuide[] = [
   {
     key: 'appraiser',
     title: 'Appraiser',
-    summary: 'The best way to determine what a property is worth.',
+    summary: 'A professional appraisal is the best way to determine value.',
     does: 'A state-licensed or certified appraiser studies the property and recent sales of similar properties nearby. Then they write an appraisal: a professional opinion of its value. Value depends on the neighborhood, comparable sales, condition and the market. A professional appraisal is the best way to determine it. Your own numbers, and your agent’s, are estimates until then. Appraisers value upgrades by what buyers in that market pay for them, not by what they cost. So $70,000 of upgrades doesn’t necessarily make a home worth $70,000 more.',
     when: ['Before you set your maximum bid or offer: the value as it stands and after the repairs you plan.', 'Before you count on a refinance, since the lender’s appraisal sets the loan.', 'At an auction you often can’t go inside. Ask whether an exterior-only appraisal is possible, and allow for what it can’t see.'],
     find: ['Look up appraisers licensed in your state on the national registry of state-licensed and certified appraisers.', 'Ask your real estate agent or lender for appraisers they trust. Your agent can estimate the value from recent comparable sales while you wait.'],

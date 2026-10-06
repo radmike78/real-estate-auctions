@@ -15,7 +15,26 @@ import { AdCard, inArea, useAdImpressions } from './AdBoxes';
 import { useMyArea } from '../lib/myArea';
 import { useDirectory } from './ProDirectory';
 
-function LicenseLinks({ topic, state }: { topic: AdTopic; state: StateCode }) {
+/** "Inspector: …", "Inspector: …", "Contractor: …" become one bold label per role with its questions under it. */
+function Questions({ questions }: { questions: string[] }) {
+  const groups: { lead: string | null; items: string[] }[] = [];
+  for (const q of questions) {
+    const m = q.match(/^([A-Z][\w ]{1,30}): (.+)$/);
+    const lead = m ? m[1] : null;
+    const text = m ? m[2][0].toUpperCase() + m[2].slice(1) : q;
+    const last = groups[groups.length - 1];
+    if (last && lead && last.lead === lead) last.items.push(text);
+    else groups.push({ lead, items: [lead ? text : q] });
+  }
+  if (groups.every((g) => !g.lead || g.items.length === 1)) return <ul>{questions.map((q) => <li key={q}>{q}</li>)}</ul>;
+  return (
+    <ul>
+      {groups.map((g) => (g.lead ? <li key={g.lead}><strong>{g.lead}:</strong><ul>{g.items.map((x) => <li key={x}>{x}</li>)}</ul></li> : <li key={g.items[0]}>{g.items[0]}</li>))}
+    </ul>
+  );
+}
+
+function LicenseLinks({ topic, state, chosen }: { topic: AdTopic; state: StateCode; chosen: boolean }) {
   const name = stateByCode(state)?.name ?? state;
   const rows = topic.editorial.lookups.flatMap((k) => {
     const l = LICENSE_LOOKUPS[k]?.[state];
@@ -24,7 +43,8 @@ function LicenseLinks({ topic, state }: { topic: AdTopic; state: StateCode }) {
   if (!rows.length) return null;
   return (
     <div className="topic-help-check">
-      <strong>Check the license before you hire.</strong> In {name}:
+      {/* Once the reader has chosen a state, the page already says which one; without one, these are Nevada's. */}
+      <strong>Check the license before you hire{chosen ? ':' : '.'}</strong>{!chosen && <> In {name}:</>}
       <ul>
         {rows.map(({ k, role, l }) => (
           <li key={k}>
@@ -67,8 +87,8 @@ function TopicHelp({ topic }: { topic: AdTopic }) {
       <div className="topic-help-cols">
         <div className="topic-help-text">
           <p>{e.body}</p>
-          <ul>{e.questions.map((q) => <li key={q}>{q}</li>)}</ul>
-          <LicenseLinks topic={topic} state={st ?? 'NV'} />
+          <Questions questions={e.questions} />
+          <LicenseLinks topic={topic} state={st ?? 'NV'} chosen={!!st} />
           {!st && <p className="small muted">Investing in California, Arizona, Utah or Texas? <a href="#/pros">Your team</a> lists each state’s license lookups.</p>}
           <p className="topic-help-dir">
             {e.directories.map((d, i) => <span key={d.href}>{i > 0 && ' · '}<a href={d.href}>{d.label} →</a></span>)}

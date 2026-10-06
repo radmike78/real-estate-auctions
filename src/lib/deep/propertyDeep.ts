@@ -20,7 +20,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     ],
     notFor: [
       "Anyone who needs the rent to pay their own bills. One non-paying tenant can wipe out a year of profit.",
-      "First-time flippers counting on prices to keep rising. When rates rose in 2022-2023, flip returns fell sharply; by 2025 the typical flip’s gross return was 25.5%, the lowest since 2008 (ATTOM).",
+      "First-time flippers counting on prices to keep rising. When rates rose in 2022-2023, flip returns fell sharply.",
       "Investors who cannot visit or check on the property. Empty homes attract squatters and damage.",
       "People who are uncomfortable with eviction, court deadlines, or state rules on deposits and fees."
     ],
@@ -28,12 +28,12 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Mortgage, property tax and insurance every month, rented or not.",
       "Vacancy and non-payment. During the pandemic, as many as 58% of small landlords (under four units) had tenants behind on rent (National Association of Realtors, via AP).",
       "Repairs and cleaning between tenants. One Las Vegas owner spent $2,000 cleaning up an empty house for sale after squatters, then faced paying for it again when they broke back in.",
-      "Flip holding costs (loan interest, utilities, taxes) and selling costs. In 2023 the typical flip sold for $66,000 more than it was bought for, and the return had fallen well below 2021’s 35.7% (ATTOM via FOX 11); by 2025 it was 25.5%, the lowest since 2008 (ATTOM). That ‘gross profit’ is before repair, holding and selling costs, so the real profit is much smaller and can be close to zero.",
+      "Flip holding and selling costs: loan interest, utilities and taxes while you hold it, then commission and closing costs when you sell. The flip profits in the news are ‘gross profit’, before repair, holding and selling costs, so the real profit is much smaller and can be close to zero.",
       "Property management (often a percentage of rent) if you don’t manage it yourself.",
-      "Legal rules: fees and deposit deductions have to be disclosed and fair. The largest single-family landlord agreed to pay $48 million to settle FTC claims over hidden fees and deposit practices (without admitting wrongdoing)."
+      "Legal rules: fees and deposit deductions have to be disclosed and fair. Regulators do act on this; By the numbers below has one settlement."
     ],
     money: [
-      "Owner-occupied loans (FHA, VA, conventional) have the lowest down payments, but you have to really live in the home. FHA expects you to move in within 60 days and stay at least a year, and its 3.5% minimum needs a credit score of 580 or more (500–579 needs 10% down). Investment-property loans usually need larger down payments and higher rates.",
+      "Owner-occupied loans (FHA, VA, conventional) have the lowest down payments, but you have to really live in the home, and FHA’s 3.5% minimum needs a credit score of 580 or more (500–579 needs 10% down). Investment-property loans usually need larger down payments and higher rates.",
       "Cash buyers often win in competitive markets. Investors ‘chase the same affordable properties that first-time buyers dependent on mortgages are also competing for’ (Bloomberg, 2022).",
       "Flips are often paid for with short-term, higher-cost loans, so every extra month you hold the house eats into your profit. Your exit plan (sell or rent) has to work at today’s rates."
     ],
@@ -76,7 +76,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         }
       },
       {
-        text: "Invitation Homes, the largest single-family landlord, agreed to pay $48 million to settle FTC claims. It had about 9,200 rentals in Phoenix.",
+        text: "Invitation Homes, the largest single-family landlord, agreed to pay $48 million to settle FTC claims over hidden fees and deposit practices, without admitting wrongdoing. It had about 9,200 rentals in Phoenix.",
         source: {
           label: "AZFamily (KTVK/KPHO Phoenix): FTC reaches $48M settlement with corporate landlord over undisclosed fees, security deposits (Sep 24, 2024)",
           url: "https://www.azfamily.com/2024/09/24/ftc-reaches-48m-settlement-with-leasing-company-practices-that-allegedly-harmed-renters/"
@@ -727,7 +727,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Many beginners invest through a “syndication,” where a sponsor pools money from passive investors to buy a large complex. You own a share but have no control, and the sponsor collects fees whether or not you profit. If the deal fails, you can lose all of your money."
     ],
     bestFor: [
-      "Patient, long-term owners who want steady income and can hold through slow years. (The Utah Housing Preservation Fund buys older complexes and plans to hold them indefinitely.)",
+      "Patient, long-term owners who want steady income and can hold through slow years. Utah’s Housing Preservation Fund, for example, buys older complexes and plans to hold them indefinitely.",
       "Buyers with enough cash reserves to cover vacancies, big repairs and higher interest costs without missing a loan payment.",
       "People who will manage hands-on, or who pay a professional property manager and check the books monthly.",
       "Mission-driven buyers (nonprofits, land trusts) who want to keep rents stable for current tenants and can use public or charity money."
@@ -740,7 +740,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     ],
     costs: [
       "Debt service: with a floating-rate loan, the payment rises with interest rates. After the Federal Reserve began raising rates in 2022, one Houston owner’s floating-rate payments roughly doubled and then tripled (American Prospect).",
-      "Property taxes: in California, a purchase normally triggers reassessment to current market value under Proposition 13, so the new owner’s tax bill can be much higher than the seller’s (California Board of Equalization).",
+      "California property taxes: a purchase normally triggers reassessment to current market value under Proposition 13, so the new owner’s tax bill can be much higher than the seller’s (California Board of Equalization).",
       "Repairs and capital items (big one-time costs): roofs, plumbing, air conditioning, parking lots and unit turnovers. Older ‘value-add’ complexes often need more than the seller’s numbers show.",
       "Vacancy and unpaid rent. Plan for some units empty and some tenants behind. Evictions take time and money.",
       "Management, insurance, utilities paid by the owner, trash, pest control and security.",
@@ -759,7 +759,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Inspect every unit and the major systems. Check with the city or county for open code cases and tenant complaints.",
       "For a syndication, check the sponsor’s past deals, lawsuits and record with securities regulators. Read how fees are paid and what happens if a capital call is needed.",
       "Confirm the real purchase price (county recorder records) and get an independent appraisal. Fraud cases have used fake, inflated contracts.",
-      "Know the tenant rules in that state and city, such as rent control in parts of California, Nevada protections when a building changes hands, and the federal 90-day notice for tenants after a foreclosure."
+      "Know the tenant rules in that state and city, and the federal 90-day notice for tenants after a foreclosure. In California, parts of the state have rent control. In Nevada, check the tenant protections that apply when a building changes hands."
     ],
     facts: [
       {

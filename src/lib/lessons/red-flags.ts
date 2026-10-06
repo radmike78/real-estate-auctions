@@ -81,7 +81,7 @@ export const redFlags: Lesson = {
     { term: 'Earnings claim', meaning: 'A statement about how much money you can make. The law requires it to be truthful and backed by evidence.' },
     { term: 'Gag clause', meaning: 'A contract term that stops you from posting reviews or complaining.' },
   ],
-  tryIt: { label: 'Read: the books we recommend, all free of seminar sales pitches', href: '#/learn/reading' },
+  books: ['1394289707', '099071179X', '0071446370'],
   sources: [
     { label: 'FTC: FTC acts to shut down companies operating a real estate seminar scheme (2019)', url: 'https://www.ftc.gov/news-events/news/press-releases/2019/11/ftc-acts-shut-down-companies-operating-real-estate-seminar-scheme' },
     { label: 'FTC: suit leads to $16.7 million judgment against principals and celebrity endorsers (2023)', url: 'https://www.ftc.gov/news-events/news/press-releases/2023/05/ftc-suit-leads-167-million-judgment-against-principals-celebrity-endorsers-real-estate-investment' },

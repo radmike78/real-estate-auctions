@@ -79,7 +79,7 @@ export const tools: Lesson = {
           { label: 'Arizona Corporation Commission: entity search', url: 'https://arizonabusinesscenter.azcc.gov/EntitySearch/Index', what: 'Who is behind an Arizona company or LLC.' },
           { label: 'Texas Secretary of State: SOSPortal business search', url: 'https://www.sos.state.tx.us/corp/sosda/index.shtml', what: 'Who is behind a Texas company or LLC, for $1 per search.' },
         ] },
-        'See Your Team for what each professional does and how to find one.',
+        { links: [{ label: 'Your Team', url: '#/pros', what: 'What each professional does and how to find one.' }] },
       ],
     },
     {
@@ -105,7 +105,8 @@ export const tools: Lesson = {
           'Check for a bankruptcy if a sale is coming up.',
           'Order a title search from a title company before you commit money.',
         ] },
-        'Keep notes and copies in one place. My deals can track them.',
+        'Keep notes and copies in one place.',
+        { links: [{ label: 'My deals', url: '#/deals', what: 'Track your notes, copies and sources for each property.' }] },
       ],
     },
   ],

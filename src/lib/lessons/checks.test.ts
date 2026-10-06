@@ -2,10 +2,21 @@ import { describe, expect, it } from 'vitest';
 import { LESSON_CHECKS } from './checks';
 import { LEARN_MODULES } from '../learn';
 import { lessonByKey } from './index';
+import { showFor } from '../myState';
+import { STATES } from '../regions';
 
 describe('Check yourself', () => {
-  it('every written lesson ends with three questions', () => {
-    for (const m of LEARN_MODULES) if (lessonByKey(m.key)) expect(LESSON_CHECKS[m.key]?.length, m.key).toBe(3);
+  it('every written lesson ends with at least three questions, and two or three for any one state', () => {
+    for (const m of LEARN_MODULES) {
+      if (!lessonByKey(m.key)) continue;
+      const all = LESSON_CHECKS[m.key] ?? [];
+      expect(all.length, m.key).toBeGreaterThanOrEqual(3);
+      for (const st of STATES) {
+        const n = all.filter((c) => showFor(st.code, `${c.q} ${c.options.join(' ')} ${c.why}`)).length;
+        expect(n, `${m.key} ${st.code}`).toBeGreaterThanOrEqual(2);
+        expect(n, `${m.key} ${st.code}`).toBeLessThanOrEqual(3);
+      }
+    }
   });
 
   it('each question has three different options and one right answer', () => {

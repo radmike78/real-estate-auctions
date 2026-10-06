@@ -14,7 +14,7 @@ describe('crawlable pages', () => {
   it('links only to real pages, so crawlers never hit a dead end', () => {
     // A pre-built copy, or a page the app serves at that path (the server sends the app for it).
     const paths = new Set(all.map((p) => p.path));
-    const APP_ONLY = new Set(['/playbooks/', '/toolkit/buy-box/']);
+    const APP_ONLY = new Set(['/playbooks/', '/toolkit/buy-box/', '/deals/']);
     for (const p of all)
       for (const [, href] of p.body.matchAll(/href="(\/[^"]*)"/g)) {
         expect(href, `${p.path} → ${href}`).not.toContain('#');

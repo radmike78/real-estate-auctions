@@ -9,6 +9,8 @@ export interface StrategyGuide {
   slug: string;
   /** How the money is actually made, in order of how much it usually counts. */
   makesMoney: string[];
+  /** The short answer for the strategy's card: "Makes money from: ...". */
+  earns: string;
   /** What usually goes wrong for a first deal of this kind. */
   watchFor: string[];
   calc?: { label: string; href: string };
@@ -21,6 +23,7 @@ export const STRATEGY_GUIDES: StrategyGuide[] = [
   {
     key: 'househack',
     slug: 'house-hack',
+    earns: 'the other units’ rent, which pays part of your mortgage',
     makesMoney: [
       'The other units’ rent pays part of your mortgage, so you live for less than you would renting or owning a single home.',
       'Each payment pays down the loan, and the property can gain value over time.',
@@ -39,6 +42,7 @@ export const STRATEGY_GUIDES: StrategyGuide[] = [
   {
     key: 'rental',
     slug: 'buy-and-hold',
+    earns: 'monthly rent left after every cost, loan paydown and long-term growth',
     makesMoney: [
       'Monthly cash flow: the rent left after the loan, taxes, insurance, repairs, vacancy and savings for big replacements.',
       'Loan paydown: the tenant’s rent pays your loan balance down every month.',
@@ -58,6 +62,7 @@ export const STRATEGY_GUIDES: StrategyGuide[] = [
   {
     key: 'reo',
     slug: 'bank-owned',
+    earns: 'buying below what similar homes sell for, then renting it out or fixing and reselling it',
     makesMoney: [
       'Bank-owned is a way to buy, not a way to earn. The money comes from what you do next: rent it or fix and sell it.',
       'Banks and agencies sell as-is, and many homes need repairs, so the price can be lower than for similar homes. Whether it’s a good deal depends on your price after repairs, holding and closing costs, not on who owns it.',
@@ -75,6 +80,7 @@ export const STRATEGY_GUIDES: StrategyGuide[] = [
   {
     key: 'flip',
     slug: 'fix-and-flip',
+    earns: 'the sale price, minus the purchase, repairs and every holding and selling cost',
     makesMoney: [
       'The sale price minus everything: the purchase, repairs, loan and holding costs while you work, and the commission and closing costs when you sell.',
       'Profit comes from buying low enough and finishing on budget and on time, not from the market rising.',
@@ -92,6 +98,7 @@ export const STRATEGY_GUIDES: StrategyGuide[] = [
   {
     key: 'brrrr',
     slug: 'brrrr',
+    earns: 'rent left after every cost, plus a refinance that returns some of your cash (as a new loan) for the next property',
     makesMoney: [
       'It earns like a rental: rent left after every cost, the loan being paid down, and any value your repairs add.',
       'The refinance doesn’t earn anything. It lets you borrow against the higher value to get some of your cash back for the next property, but that cash is a new, bigger loan you repay, with its own fees. The appraisal, the lender’s approval and the new rate aren’t certain.',
@@ -109,6 +116,7 @@ export const STRATEGY_GUIDES: StrategyGuide[] = [
   {
     key: 'auction',
     slug: 'auctions',
+    earns: 'buying below market value, then reselling or renting once title is clear',
     makesMoney: [
       'Buying below market value when the price leaves enough room for the extra risk: cash on the day, no inspection inside, and title or occupancy problems.',
       'Then reselling or renting once title is insurable and any redemption period has ended.',
@@ -126,6 +134,7 @@ export const STRATEGY_GUIDES: StrategyGuide[] = [
   {
     key: 'apartments',
     slug: 'apartments-and-commercial',
+    earns: 'net operating income from many tenants, which also sets the building’s value',
     makesMoney: [
       'Net operating income: rent from many tenants after operating costs.',
       'Value follows the income (value = NOI ÷ cap rate), so raising rents or cutting costs raises the value: $10,000 more NOI at a 7% cap rate is about $143,000 of value.',
@@ -144,6 +153,7 @@ export const STRATEGY_GUIDES: StrategyGuide[] = [
   {
     key: 'passive',
     slug: 'reits-and-funds',
+    earns: 'dividends from rental income, and changes in the share price',
     makesMoney: [
       'Dividends from the company’s or fund’s rental income, and changes in the share price.',
       'No property to manage, and you can usually start with little money.',

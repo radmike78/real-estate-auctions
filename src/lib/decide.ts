@@ -305,7 +305,7 @@ export const STRATEGIES: Strategy[] = [
     risk: {
       worst: 'You pay cash for a property with liens that survive, damage you couldn’t see, or occupants, and there’s usually no refund.',
       atRisk: 'The full price, often due in cash within a day or two, plus any deposit.',
-      time: 'Learning a county’s process takes several sales; some tax sales happen only once a year.',
+      time: 'Learning a county’s process takes several sales. Some sales are held every month; some tax sales happen only once a year.',
     },
     checklist: [
       { id: 'au-lesson', text: 'Read the lesson on buying at forced sales in your state.', href: '#/learn/forced-sales' },
