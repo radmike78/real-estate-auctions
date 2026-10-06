@@ -27,6 +27,26 @@ export const negotiate: Lesson = {
       ],
     },
     {
+      heading: 'Buying a home listed for sale, state by state',
+      blocks: [
+        'Most first rentals are bought from a listing, through an agent, on your state’s standard contract. The steps are the same everywhere (offer, deposit, inspection, appraisal, title, closing); the form, the default deadlines and who runs the closing differ.',
+        {
+          table: {
+            head: ['State', 'Contract and deadlines', 'Who closes'],
+            rows: [
+              ['Nevada', 'The Realtors’ residential purchase agreement. You set the due diligence period (your window to inspect and cancel) in the contract; write the end date on your calendar.', 'A title company acts as escrow.'],
+              ['California', 'The C.A.R. Residential Purchase Agreement. Investigation, loan, appraisal and document-review contingencies default to 17 days after acceptance; after that the seller can give you a notice to remove them within 2 days or risk cancellation.', 'An escrow company (or a title company’s escrow), with the agent’s instructions.'],
+              ['Arizona', 'The Arizona REALTORS® Residential Resale Purchase Contract, with a 10-day inspection period by default. Disapprove items or cancel in writing before it ends.', 'A title company acts as escrow.'],
+              ['Utah', 'The state-approved Real Estate Purchase Contract (REPC). You and the seller set the due diligence, financing and appraisal, and settlement deadlines; missing the due diligence deadline can cost your earnest money.', 'A title company handles settlement.'],
+              ['Texas', 'TREC’s One to Four Family Residential Contract (Resale). You buy an option period (your right to end the contract for any reason) with an option fee paid to the seller, for the number of days you negotiate.', 'A title company closes and issues the title policy.'],
+            ],
+          },
+        },
+        'Whatever the state, ask your agent for the blank form before you make an offer, and read the deadlines and how notices must be delivered.',
+        { links: [{ label: 'Purchase contract, annotated', url: '#/toolkit', what: 'Price, deposit, contingencies and notices, part by part.' }] },
+      ],
+    },
+    {
       heading: 'Negotiating after the inspection',
       blocks: [
         'If your contract depends on a satisfactory inspection and you’re not happy with what it finds, you can cancel without penalty. If repairs are needed, you can negotiate who makes or pays for them: ask the seller to fix items, lower the price, or give you a credit at closing.',
@@ -125,6 +145,8 @@ export const negotiate: Lesson = {
   ],
   tryIt: { label: 'Practice making an offer and closing a purchase', href: '#/practice' },
   sources: [
+    { label: 'C.A.R. Quick Guide: navigating contingencies in the contract', url: 'https://www.car.org/-/media/CAR/Documents/Transaction-Center/PDF/QUICK-GUIDES/Quick-Guide---Navigating-Contingencies-in-the-Contract.pdf' },
+    { label: 'Arizona REALTORS®: residential resale purchase contract series', url: 'https://www.aaronline.com/?p=78755' },
     { label: 'CFPB: find the right home (contingencies)', url: 'https://www.consumerfinance.gov/owning-a-home/explore/find-the-right-home/' },
     { label: 'CFPB: schedule a home inspection', url: 'https://www.consumerfinance.gov/owning-a-home/close/schedule-a-home-inspection/' },
     { label: 'Fannie Mae Selling Guide: interested party contributions (B3-4.1-02)', url: 'https://selling-guide.fanniemae.com/sel/b3-4.1-02/interested-party-contributions-ipcs' },

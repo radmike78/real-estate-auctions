@@ -2150,6 +2150,11 @@ h3.topic-head { margin: 24px 0 10px; padding: 8px 14px; font-size: 1.2rem; borde
 /* Deal Lab (rent calculator): plain-words explanation, stress tests, often-forgotten costs. */
 .deal-lab { margin-top: 18px; display: grid; gap: 10px; }
 .deal-lab h4 { margin: 6px 0 0; }
+.hold-sell summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; min-height: 44px; }
+.hold-sell summary::before { content: "▸"; color: var(--accent); }
+.hold-sell[open] summary::before { content: "▾"; }
+.hold-sell summary h4 { display: inline; margin: 0; }
+.hold-sell .row .field { flex: 1 1 160px; }
 .deal-explain { margin: 0; padding: 12px 14px 12px 32px; background: var(--info-bg); border-radius: 8px; display: grid; gap: 6px; }
 .deal-stress { width: 100%; border-collapse: collapse; }
 .deal-stress th, .deal-stress td { padding: 7px 8px; border-bottom: 1px solid var(--border); text-align: left; font-weight: 400; }
