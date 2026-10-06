@@ -43,7 +43,7 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
     return (
       <div className="empty">
         <OwlNote big>No properties match. Try a nearby ZIP code or remove some filters.</OwlNote>
-        <p className="muted">This site covers Clark County, NV only: Las Vegas, Henderson, North Las Vegas, Boulder City, Mesquite and the county’s unincorporated towns.</p>
+        <p className="muted">Property listings come only from official sellers we can verify, so most are in Clark County, Nevada for now. For any county in Nevada, California, Arizona, Utah or Texas, <a href="#/find-deals">Find Deals</a> lists that county’s official sale lists.</p>
       </div>
     );
   }

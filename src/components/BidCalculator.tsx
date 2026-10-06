@@ -59,7 +59,7 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
       { k: 'redemptionMonths', label: 'Redemption wait', unit: 'mo', hint: 'Secure and maintain it; hold off on remodeling until it ends.', more: 'After some sales the former owner (and sometimes lenders) can buy the property back by repaying your price plus what the law adds. Optional remodeling usually isn’t repaid (some rules repay repairs a building code, an ordinance or an existing lease requires), so most buyers only secure, insure and maintain the property while they wait. Ask an attorney what you may do and what is repaid. This is the legal wait; your own plan can be longer. A shorter number here is only a what-if: the owner can still redeem until the legal deadline.' },
       { k: 'redemptionRatePct', label: 'Interest a redemption pays you', unit: '%/yr', hint: 'Set by the kind of sale.', when: (i) => i.redemptionMonths > 0 },
       { k: 'holdingMonths', label: 'Months to fix and sell', unit: 'mo', hint: 'After any redemption wait.', more: 'After a tax sale, resale may wait for a quiet title action. In Nevada, that’s the 2-year window after the Treasurer’s deed (NRS 361.600); other states’ waits are in their sale guides.' },
-      { k: 'monthlyCarry', label: 'Monthly holding costs', unit: '$', hint: 'Taxes, insurance, utilities. The estimate leaves out HOA dues: add them if the home has an HOA.' },
+      { k: 'monthlyCarry', label: 'Monthly holding costs', unit: '$', hint: 'Taxes, insurance, utilities and any HOA dues, each month you own it. A listed property’s estimate leaves out HOA dues: add them.' },
       { k: 'financedPct', label: 'Share financed after purchase', unit: '%', hint: 'Auctions need cash on the day.' },
       { k: 'interestRatePct', label: 'Interest rate (yearly)', unit: '%', when: (i) => i.financedPct > 0 },
       { k: 'pointsPct', label: 'Lender points', unit: '%', when: (i) => i.financedPct > 0 },
@@ -249,7 +249,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         <div className="calc-mode" role="group" aria-label="How many numbers to enter">
           <button type="button" aria-pressed={mode === 'quick'} className={mode === 'quick' ? 'on' : ''} onClick={() => setMode('quick')}>Quick</button>
           <button type="button" aria-pressed={mode === 'detailed'} className={mode === 'detailed' ? 'on' : ''} onClick={() => setMode('detailed')}>Detailed</button>
-          <span className="small muted">{mode === 'quick' ? 'The deal, repairs and liens. Everything else uses the starting estimates.' : 'The deal first, then every cost in the order you’d meet it.'}</span>
+          <span className="small muted">{mode === 'quick' ? 'The deal, repairs and liens. Costs you don’t see here use the starting estimates, and any left at $0 (holding, title, possession) count as $0: switch to Detailed to add them.' : 'The deal first, then every cost in the order you’d meet it.'}</span>
         </div>
         {GROUPS.map((g) => {
           const fields = g.fields.filter(shown).map((f) => (offer && OFFER_FIELDS[f.k] ? { ...f, ...OFFER_FIELDS[f.k] } : f)).map((f) =>
@@ -356,7 +356,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           </div>
           ) : (
           <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
-            <span>Walk-away price: stop bidding here</span>
+            <span>{offer ? 'Walk-away price: your highest offer' : 'Walk-away price: stop bidding here'}</span>
             <strong>{r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
             <small>
               {r.noBidWorks
@@ -366,6 +366,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                 : r.limitedBy === 'cash'
                   ? `Set by the cash you can bring: the ${w.bid} plus every cost until you sell (repairs, holding, fees). Your profit target alone would allow ${fmtMoney(r.profitBid)}.`
                   : `Leaves your ${fmtMoney(Math.round(target))} profit target after every cost, based on your numbers. Not a guarantee.`}
+              {!r.noBidWorks && !(i.repairs > 0) && !(i.monthlyCarry > 0) && <><br /><strong>Repairs and holding costs are $0 here.</strong> Enter them (and switch to Detailed for title and selling costs) before you trust this number.</>}
             </small>
           </div>
           )
@@ -373,17 +374,25 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {!needsValue && i.minimumBid > 0 && (
           <div className={`calc-verdict ${dealFails || cashShort ? 'bad' : 'good'}`} role="status">
             {dealFails ? (
-              <><strong>Doesn’t work at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below your {fmtMoney(Math.round(target))} target. Skip this one or change your plan.</>
+              offer ? (
+                <><strong>Misses your target at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below your {fmtMoney(Math.round(target))} target. {r.maxBid > 0 ? <>Offer no more than {fmtMoney(r.maxBid)}, or pass.</> : 'Pass, or change your plan.'}</>
+              ) : (
+                <><strong>Doesn’t work at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below your {fmtMoney(Math.round(target))} target. Skip this one or change your plan.</>
+              )
             ) : cashShort ? (
               <><strong>Your cash doesn’t cover the {w.opening}.</strong> The deal works (about {fmtMoney(Math.round(atOpening))} profit at {fmtMoney(i.minimumBid)}), but with repairs and every cost until you sell you’d need about {fmtMoney(Math.ceil(openingCash))}, and you entered {fmtMoney(i.cashAvailable)}.</>
             ) : (
-              <><strong>{fmtMoney(r.maxBid - i.minimumBid)} of room above the {w.opening}.</strong> The listing starts at {fmtMoney(i.minimumBid)}; stop at {fmtMoney(r.maxBid)}. At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}.</>
+              offer ? (
+                <><strong>Works at the {w.opening}.</strong> Your most is {fmtMoney(r.maxBid)}, but you don’t have to offer more than {fmtMoney(i.minimumBid)}: start lower if the market allows, and never go past {fmtMoney(r.maxBid)}. At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}.</>
+              ) : (
+                <><strong>{fmtMoney(r.maxBid - i.minimumBid)} of room above the {w.opening}.</strong> Bidding starts at {fmtMoney(i.minimumBid)}; stop at {fmtMoney(r.maxBid)}. At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}.</>
+              )
             )}
           </div>
         )}
         {!r.noBidWorks && !needsValue && (
           <div className="calc-steps">
-            <strong>How we got your maximum</strong>
+            <strong>How we got your walk-away price</strong>
             <dl className="calc-kv">
               {steps.map((st, n) => <div key={st.label} className={n === 0 ? 'first' : ''}><dt>{st.label}</dt><dd>{n === 0 ? fmtMoney(st.amount) : `− ${fmtMoney(-st.amount)}`}</dd></div>)}
               <div className="total"><dt>{r.limitedBy === 'cash' ? 'Most the deal allows' : w.max}</dt><dd>{fmtMoney(r.profitBid)}</dd></div>

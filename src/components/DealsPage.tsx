@@ -39,8 +39,13 @@ function DealCard({ d, p, loading, known }: { d: SavedDeal; p: Property | undefi
   if (!p && !known) {
     return (
       <li className="deal-card">
-        <h2>Being re-verified</h2>
-        <p className="muted">A property you saved on {fmtDate(d.savedAt)} isn’t shown while its official list is being re-verified. Your notes and evidence are kept. Check back shortly, or check the official source.</p>
+        <div className="deal-head">
+          <div>
+            <h2>Being re-verified</h2>
+            <p className="muted">A property you saved on {fmtDate(d.savedAt)} isn’t shown while its official list is being re-verified. Your notes and evidence are kept. Check back shortly, or check the official source.</p>
+          </div>
+          <button className="linkish" aria-label="Remove this saved property and its notes" onClick={() => { if (window.confirm('Remove this saved property, with its notes and evidence?')) { removeDeal(d.id); removeLog(`listing:${d.id}`); } }}>Remove</button>
+        </div>
       </li>
     );
   }
@@ -95,7 +100,7 @@ function DealCard({ d, p, loading, known }: { d: SavedDeal; p: Property | undefi
         <div><dt>Register by</dt><dd>{s?.registrationDeadline ? <>{fmtDateTime(s.registrationDeadline)}{regClosed ? <span className="deal-urgent"> · closed</span> : regDays !== null && regDays <= 7 && <span className="deal-urgent"> · {regDays === 0 ? 'closes today' : regDays === 1 ? 'closes tomorrow' : `${regDays} days left`}</span>}</> : '—'}</dd></div>
         <div><dt>Opening / minimum bid</dt><dd>{fmtMoney(minBid)}</dd></div>
         <div>
-          <dt>Your max bid</dt>
+          <dt>Your walk-away price</dt>
           <dd>{maxBid === null ? <a href={`${base}/max-bid`}>Set it →</a> : <>{fmtMoney(maxBid)}{minBid !== null && <span className={minBid > maxBid ? 'deal-urgent' : 'deal-ok'}> · {minBid > maxBid ? 'opening bid is above your max' : 'room to bid'}</span>}</>}</dd>
         </div>
         <div>

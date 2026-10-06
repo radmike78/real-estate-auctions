@@ -54,7 +54,7 @@ export const taxes: Lesson = {
           'A cost segregation study splits the price into parts with shorter lives (appliances, carpet, landscaping, paving). Property acquired and placed in service after January 19, 2025 (not under a binding contract signed earlier) can take 100% bonus depreciation on those shorter-lived parts in the first year; the building itself can’t (26 U.S.C. 168(k), as amended in 2025). Studies cost money and make the most sense on larger properties; ask a CPA.',
         ] },
         'Rental losses usually can’t offset your wages. A rental is a passive activity, so losses mostly offset passive income. If you actively manage it, you can deduct up to $25,000 of losses against other income, and that shrinks to zero as your modified income goes from $100,000 to $150,000. Losses you can’t use carry forward to later years and to the year you sell (IRS Publication 925).',
-        'A real estate professional (more than half of your working time, and more than 750 hours a year, in real property businesses where you materially participate) isn’t limited this way. The test is strict and the IRS checks time logs (26 U.S.C. 469(c)(7)).',
+        'A real estate professional (more than half of your working time, and more than 750 hours a year, in real property businesses where you materially participate) isn’t limited this way for the rentals you also materially participate in; the IRS looks at each rental separately unless you elect to group them. The test is strict and the IRS checks time logs (26 U.S.C. 469(c)(7)).*',
         'Higher earners can also owe the 3.8% net investment income tax on rent and gains, above $200,000 of modified income ($250,000 married filing jointly) (26 U.S.C. 1411).',
       ],
     },
@@ -63,8 +63,8 @@ export const taxes: Lesson = {
       blocks: [
         'A flip is usually taxed very differently from a rental, and many first flippers find out after the sale.',
         { list: [
-          'Property you hold mainly to sell to customers isn’t a capital asset. The profit is ordinary income, taxed at the same rates as wages, and a gain on anything held one year or less is short-term anyway (IRS Publication 544 and Topic 409).',
-          'If flipping is your business, the profit can also owe self-employment tax (Social Security and Medicare, about 15.3% on most of it), which rental income doesn’t (26 U.S.C. 1402).',
+          'Property you hold mainly to sell to customers isn’t a capital asset.* The profit is ordinary income, taxed at the same rates as wages, and a gain on anything held one year or less is short-term anyway (IRS Publication 544 and Topic 409).',
+          'If flipping is your business,* the profit can also owe self-employment tax (Social Security and Medicare, about 15.3% on most of it), which rental income doesn’t (26 U.S.C. 1402).',
           'A flip can’t be traded tax-free in a 1031 exchange, and a dealer can’t spread the gain over years with an installment sale (26 U.S.C. 453(b)(2)).',
           'You don’t depreciate a flip. Its repairs, holding costs and selling costs add to your cost and come off the profit when you sell.',
         ] },
@@ -148,7 +148,7 @@ export const taxes: Lesson = {
     { term: 'Basis', meaning: 'What you paid plus improvements, minus depreciation: the number your gain is measured from.' },
     { term: 'Depreciation', meaning: 'A yearly deduction for the wear on a building: 27.5 years for residential rentals, 39 for commercial buildings.' },
     { term: 'Depreciation recapture', meaning: 'Tax on the part of a gain that comes from depreciation. For a rental building it’s taxed at up to 25%.' },
-    { term: 'Passive activity', meaning: 'A business you don’t materially participate in, including most rentals. Its losses mostly offset only passive income.' },
+    { term: 'Passive activity', meaning: 'A business you don’t materially participate in. Rentals count as passive even if you do participate, unless you qualify as a real estate professional. Its losses mostly offset only passive income.' },
     { term: 'Ordinary income', meaning: 'Income taxed at the regular rates, like wages. Flip profits usually are.' },
     { term: '1031 exchange', meaning: 'Trading one investment property for another while putting off the tax, through a qualified intermediary and within 45 days to identify and 180 days (or the tax return’s due date with extensions, if sooner) to close.' },
     { term: 'Qualified intermediary', meaning: 'The company that holds your sale money in a 1031 exchange so you never receive it.' },

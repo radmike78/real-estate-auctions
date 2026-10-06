@@ -28,7 +28,7 @@ export const WHERE_TO_LOOK: { title: string; what: string }[] = [
   { title: 'Tax sales', what: 'The county treasurer or tax collector sells properties (or tax liens) with unpaid property taxes. Look for the county’s tax sale or auction page.' },
   { title: 'Foreclosure auctions', what: 'Lenders’ trustees sell homes at public auction after a notice of sale is recorded with the county recorder and published.' },
   { title: 'Sheriff and court sales', what: 'The sheriff or constable sells property to pay court judgments, including court-ordered foreclosures.' },
-  { title: 'Bank-owned and government homes', what: 'Homes that didn’t sell at auction, sold by the lender or a government agency, usually through a listing agent.' },
+  { title: 'Bank-owned and government homes', what: 'Homes a lender or government agency already owns, most often after a foreclosure, sold usually through a listing agent.' },
 ];
 
 /** What we've already built for a county, on this site. Other counties show the general guide until researched. */
@@ -76,7 +76,7 @@ export const OTHER_SITES: { group: string; sites: DealSource[] }[] = [
 /** How forced sales work in each state, in one line each (from the forced-sales lesson). */
 export const STATE_SALES: Record<StateCode, string[]> = {
   NV: [
-    'Tax sales: the county treasurer holds the property 2 years (1 if abandoned), then auctions it by quitclaim deed.',
+    'Tax sales: after taxes go unpaid, the county treasurer takes title in trust and holds it 2 years (1 if abandoned) so the owner can pay, then auctions it with a quitclaim deed (a deed with no promise about title). In all, about 3 years of unpaid taxes (2 if abandoned).',
     'Foreclosures: trustee auctions at least 3 months after the notice of default, with 20 days’ posted notice.',
   ],
   CA: [

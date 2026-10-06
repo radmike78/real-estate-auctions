@@ -49,7 +49,7 @@ export const negotiate: Lesson = {
     {
       heading: 'Negotiating after the inspection',
       blocks: [
-        'If your contract depends on a satisfactory inspection and you’re not happy with what it finds, you can cancel without penalty. If repairs are needed, you can negotiate who makes or pays for them: ask the seller to fix items, lower the price, or give you a credit at closing.',
+        'If your signed contract gives you an inspection or due diligence period and you’re not happy with what the inspection finds, you can usually cancel before that period ends, by following the contract’s notice steps. Your earnest money comes back, but the inspection fees and any separate nonrefundable payment (such as a Texas option fee) don’t. Miss the deadline or the notice steps, and your deposit can be at risk. A seller saying no to repairs doesn’t by itself give you a right to cancel; your contract does. Your agent or attorney can confirm which rights are still open. If repairs are needed, you can negotiate who makes or pays for them: ask the seller to fix items, lower the price, or give you a credit at closing.',
         'Lenders limit how much a seller can put toward a buyer’s costs. On Fannie Mae loans, the cap on an investment property is 2% of the price or appraised value, whichever is lower. For a home you’ll live in, it’s 3% to 9% depending on your down payment.',
       ],
     },
@@ -61,7 +61,7 @@ export const negotiate: Lesson = {
             head: ['', 'How it differs'],
             rows: [
               ['Auctions', 'Usually as-is, with no inspection or financing contingency. Expect a deposit, often by cashier’s check, and full payment in cash on a short deadline. Bidding sets the price, so decide your maximum bid before the sale. Each guide lists the rules for that kind of sale.'],
-              ['Bank-owned (REO)', 'The bank’s own contract and addenda usually replace the standard forms. Fannie Mae’s contract, for example, sells the home as-is and sets a short inspection period; check the contract for the deadline. It doesn’t require the seller to make repairs. If the seller won’t repair, you can cancel and get your earnest money back.'],
+              ['Bank-owned (REO)', 'The bank’s own contract and addenda usually replace the standard forms. Fannie Mae’s contract, for example, sells the home as-is and sets a short inspection period; check the contract for the deadline. It doesn’t require the seller to make repairs. If you don’t like the inspection results, you can usually cancel and get your earnest money back only within that inspection period and by the notice the addendum requires*. Once the period ends, the seller refusing repairs doesn’t let you cancel.'],
               ['Short sales', 'The owner sells for less than the loan balance, and the lender has to agree. Expect a long wait for that approval, because the lender, not only the owner, must accept the price.'],
             ],
           },
@@ -81,7 +81,7 @@ export const negotiate: Lesson = {
         { list: [
           'If you sign a personal guarantee on a loan, you owe that debt yourself, LLC or not. Many lenders ask investors for one.',
           'Keep the LLC’s money in its own bank account. Mixing personal and business money can weaken the protection.',
-          'Moving a home that has a mortgage into an LLC can let the lender call the whole loan due. Federal law protects some transfers from that, like moving the home into a living trust where you stay a beneficiary, but it doesn’t list transfers to an LLC (12 U.S.C. 1701j-3). Fannie Mae lets its servicers allow the transfer if Fannie Mae bought or securitized the loan on or after June 1, 2016 and you control or own most of the LLC. To refinance later, the home must go back into your own name. For any loan, ask your loan servicer in writing before you sign a deed.',
+          'Moving a home that has a mortgage into an LLC can let the lender call the whole loan due. Federal law protects some transfers from that, like moving the home into a living trust where you stay a beneficiary, but it doesn’t list transfers to an LLC (12 U.S.C. 1701j-3). Fannie Mae’s servicers must allow the transfer if Fannie Mae bought or securitized the loan on or after June 1, 2016 and you control or own most of the LLC. To refinance later, the home must go back into your own name. For any loan, ask your loan servicer in writing before you sign a deed.',
         ] },
         {
           table: {

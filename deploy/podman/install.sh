@@ -54,7 +54,7 @@ DIRECTORY_PUBLIC_KEY=$(cat "$KEY_DIR/directory-public-key.txt")
 # ---------- build ----------
 say "Building the image (installs packages, runs the tests, builds the site; takes a few minutes)"
 # shellcheck disable=SC2086
-podman build ${PODMAN_BUILD_ARGS:-} -t "$IMAGE" --build-arg FEED_PUBLIC_KEY="$PUBLIC_KEY" --build-arg DIRECTORY_PUBLIC_KEY="$DIRECTORY_PUBLIC_KEY" -f "$REPO/Containerfile" "$REPO"
+podman build ${PODMAN_BUILD_ARGS:-} -t "$IMAGE" --build-arg FEED_PUBLIC_KEY="$PUBLIC_KEY" --build-arg DIRECTORY_PUBLIC_KEY="$DIRECTORY_PUBLIC_KEY" --build-arg SITE_URL="${SITE_URL:-https://deedowl.com}" -f "$REPO/Containerfile" "$REPO"
 
 if [ "$MODE" = update ]; then
   say "Restarting with the new image"

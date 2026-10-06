@@ -9,12 +9,14 @@ import PaidAdNotice from './PaidAdNotice';
 import ProAvatar from './ProAvatar';
 import PageHero from './PageHero';
 import EmptyState from './EmptyState';
+import { useNoIndex } from '../lib/noindex';
 import { regulatorFor, shortLicenseLabel } from '../lib/regulators';
 import { countyName, stateByCode } from '../lib/regions';
 
 export default function ProProfilePage({ id }: { id: string }) {
   const { pros, loading } = useDirectory();
   const found = pros.some((x) => x.id === id);
+  useNoIndex(!loading && !found);
   useEffect(() => {
     if (found) track('profile_view', id);
   }, [found, id]);

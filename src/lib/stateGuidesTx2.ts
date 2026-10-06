@@ -74,7 +74,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       title: "Set your maximum bid",
-      detail: "Add any senior mortgage, unpaid Texas property taxes, repairs, and 180 days of holding costs. Use the max bid calculator."
+      detail: "Add any senior mortgage, unpaid Texas property taxes, repairs, and 180 days of holding costs. Use the walk-away price calculator."
     },
     {
       title: "Bid and pay as the notice requires",
@@ -243,7 +243,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       title: "Make your offer on the right paperwork",
-      detail: "Your agent starts from TREC 20-19 or the seller’s own contract. If you’re getting a loan, add the Third Party Financing Addendum (TREC 40-11). Fannie Mae uses its own contract. It won’t accept an offer that depends on you selling another home or completing a 1031 exchange. HomeSteps requires its own addenda. Owner-occupant buyers sign an occupancy certification."
+      detail: "Your agent starts from TREC 20-19 or the seller’s own contract. If you’re getting a loan, add the Third Party Financing Addendum (TREC 40-11). Fannie Mae uses its own contract. It won’t accept an offer that depends on you selling another home or completing a 1031 exchange. HomeSteps requires its own addenda. Owner-occupant buyers sign an occupancy certification.*"
     },
     {
       title: "Read every page of the addendum",
@@ -544,7 +544,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       label: "Environmental",
-      value: "A Phase I environmental site assessment (ASTM E1527-21) can protect you from having to pay for a federal cleanup. Do it within one year before you take title, with key parts updated within 180 days."
+      value: "A Phase I environmental site assessment (ASTM E1527-21) can protect you from having to pay for a federal cleanup, if you also meet the law’s other conditions.* Do it within one year before you take title, with key parts updated within 180 days."
     }
   ],
   steps: [
@@ -588,7 +588,7 @@ export const TX_GUIDES_2: Playbook[] = [
   survives: {
     wipedOut: [
       "At a trustee or sheriff’s sale: liens recorded after the lien being foreclosed, if the sale was valid",
-      "Leases signed after that lien, unless the lender agreed to keep them (non-disturbance agreement). Confirm with an attorney",
+      "Leases signed after that lien, unless the lender agreed to keep them (non-disturbance agreement).* Confirm with an attorney",
       "In a negotiated purchase: liens the seller pays off at closing (confirm on the title commitment)"
     ],
     mayStay: [
@@ -596,7 +596,7 @@ export const TX_GUIDES_2: Playbook[] = [
       "Liens recorded before the lien being foreclosed",
       "Extra tax for past years if ag-valued land changes use (Tax Code 23.55)",
       "The seller’s unpaid state taxes, if you bought the business without a Certificate of No Tax Due (Tax Code 111.020)",
-      "Responsibility for environmental cleanup. It follows whoever owns the property, not the lien",
+      "Responsibility for environmental cleanup. It can follow whoever owns the property, not the lien*",
       "Easements, deed restrictions and recorded leases ahead of the foreclosed lien",
       "A redemption right after a Texas tax sale (Tax Code 34.21) or an IRS sale (180 days)"
     ]

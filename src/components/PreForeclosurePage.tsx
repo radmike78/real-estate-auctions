@@ -92,7 +92,7 @@ export const GUIDE: DrillSection[] = [
         <ByState lines={BUY} />
         <h3>Step-by-step guides</h3>
         <ul>
-          <li>Trustee sales: <a href="#/playbooks/foreclosure">Nevada</a> · <a href="#/playbooks/caforeclosure">California</a> · <a href="#/playbooks/azforeclosure">Arizona</a> · <a href="#/playbooks/utforeclosure">Utah</a></li>
+          <li>Trustee sales: <a href="#/playbooks/foreclosure">Nevada</a> · <a href="#/playbooks/caforeclosure">California</a> · <a href="#/playbooks/azforeclosure">Arizona</a> · <a href="#/playbooks/utforeclosure">Utah</a> · <a href="#/playbooks/txforeclosure">Texas</a></li>
           <li>After the sale: <a href="#/bank-owned">bank-owned homes</a></li>
         </ul>
       </>

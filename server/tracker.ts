@@ -277,16 +277,20 @@ export function collectChanges(tracker: Tracker, feed: Feed, now: Date): Map<str
 
   // A source that failed, went stale or was quarantined drops its listings from the feed without them having left the
   // official list. Its parcels are left as they were: no "removed" email now, and no "back" email when it recovers.
-  const unhealthy = new Set(feed.sources.filter((s) => s.health !== 'ok').map((s) => s.sourceId));
-  const sourceDown = (snap: ListingSnapshot) => (snap.sourceId ? unhealthy.has(snap.sourceId) : unhealthy.size > 0);
+  // A source missing from the feed altogether (not loaded, renamed or removed) counts as down too.
+  const healthy = new Set(feed.sources.filter((s) => s.health === 'ok').map((s) => s.sourceId));
+  const unhealthy = feed.sources.some((s) => s.health !== 'ok');
+  const sourceDown = (snap: ListingSnapshot) => (snap.sourceId ? !healthy.has(snap.sourceId) : unhealthy);
 
+  const seenSources = new Set([...known.values()].map((k) => k.snapshot.sourceId ?? 'nv-clark-treasurer-tax-sale'));
   for (const target of new Set([...known.keys(), ...current.keys()])) {
     const prev = known.get(target) ?? null;
     const cur = current.get(target) ?? null;
     if (!cur && prev?.present && sourceDown(prev.snapshot)) continue;
     const changes = first ? [] : diffSnapshots(prev?.snapshot ?? null, prev?.present ?? false, cur);
     // Newly on the list (or back on it): remember when, for saved-search digests. The first check is only a baseline.
-    const appeared = cur && !prev?.present ? (first ? '' : at) : undefined;
+    // A source's first appearance is its own baseline too, so turning on a new source doesn't send its whole list as new.
+    const appeared = cur && !prev?.present ? (first || (cur.sourceId && !seenSources.has(cur.sourceId)) ? '' : at) : undefined;
     if (cur) tracker.save(target, cur, true, at, appeared);
     else if (prev?.present) tracker.save(target, prev.snapshot, false, at);
     const watchers = tracker.watchers(target);

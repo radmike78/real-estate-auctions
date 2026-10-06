@@ -55,7 +55,7 @@ export function propertyTaxHint(state: StateCode): { hint: string; more: string 
   if (state === 'TX')
     return {
       hint: 'A rental gets no homestead exemption, so expect a higher bill. The example uses about 2% of value: replace it with the appraisal district’s numbers.',
-      more: 'In Texas, the appraisal district values the property and each local taxing unit (county, city, school district and special districts like MUDs) sets its own rate. A home you live in can get the homestead exemption, including $140,000 off the school district value (Tax Code 11.13). A rental or second home can’t, so its bill can be much higher than the seller’s. You can protest the value by May 15, or 30 days after the notice was mailed if that’s later (Tax Code 41.44).',
+      more: 'In Texas, the appraisal district values the property and each local taxing unit (county, city, school district and special districts like MUDs) sets its own rate. A home you live in can get the homestead exemption, including $140,000 off the school district value (Tax Code 11.13). A rental or second home can’t, so its bill can be much higher than the seller’s. You can protest the value by May 15, or 30 days after the notice was delivered if that’s later (Tax Code 41.44).',
     };
   if (state === 'UT')
     return {
@@ -177,7 +177,7 @@ export function redemptionChoicesFor(state: StateCode, kind: string): { keys: st
 /** After a tax sale, why resale can wait (for the "months to fix and sell" help). */
 export function taxSaleWait(state: StateCode): string {
   if (state === 'NV') return 'After a tax sale, resale may wait for a quiet title action or the 2-year window after the Treasurer’s deed (NRS 361.600).';
-  if (state === 'CA') return 'After a tax sale, the former owner has a year to ask the county to rescind the deed, so title insurance and resale may wait.';
+  if (state === 'CA') return 'After a tax sale, anyone challenging it has a year to petition the board of supervisors, and another year to sue if it refuses (R&T 3725), so title insurance and resale may wait.';
   if (state === 'TX') return 'After a Texas tax sale, the owner can redeem for 180 days, or 2 years for a homestead, land designated for agricultural use or a mineral interest, counted from the day the deed is filed (Tax Code 34.21). Resale may wait until that ends and a title company will insure the title.';
   return 'After a forced sale, resale may wait until a title company will insure the title; ask one before you plan your timeline.';
 }

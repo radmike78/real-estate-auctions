@@ -2,6 +2,7 @@ import type { SaleType } from '../types';
 import { removeLog } from './evidence';
 import { forgetRoadmapDeal } from './roadmapDeals';
 import { removePacket } from './dealPacket';
+import { loadOwned, saveOwned } from './owned';
 // Analyze a Deal (step 6): the visitor describes a deal (state, county, kind of sale, plan) and gets the checklist for
 // that sale in that state. Every rule here comes from the Learn lessons and their sources. Deals are kept in this browser.
 import { COUNTY_OFFICES } from './countyOffices';
@@ -91,8 +92,8 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     const hoa: Record<StateCode, string> = {
       NV: 'Condo or HOA home: read the resale package; you can cancel in writing until midnight of the fifth day after you get it (NRS 116.4109).',
       CA: 'Condo or HOA home: get the governing documents, budget, reserves and rental limits before you commit (Civil Code 4525).',
-      AZ: 'Condo or HOA home: the association must deliver its rules, budget, reserves and any lawsuits within 10 days; its fee is capped at $400.',
-      UT: 'Condo or HOA home: the seller must give you the association’s recorded governing documents before closing.',
+      AZ: 'Condo or HOA home: the association (or, in a planned community with fewer than 50 homes, the seller) must provide its rules, budget, reserves and any lawsuits within 10 days; the association’s fee is capped at $400 (A.R.S. 33-1806; condos 33-1260).',
+      UT: 'Condo or HOA home: the seller must give you the association’s recorded governing documents before closing (Utah Code 57-8a-105.1, 57-8-6.1).',
       TX: 'Condo or HOA home: get the resale certificate and the association’s rules, budget and fees before the deadline in the HOA addendum (Property Code 207.003). Ask your agent which TREC addendum your contract uses.',
     };
     sale.push({ id: 'hoa-docs', text: hoa[st] });
@@ -115,7 +116,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     if (st === 'NV') sale.push({ id: 'nv-trustee', text: 'Nevada: the sale comes at least 3 months after the notice of default; the notice of sale is posted 20 days before. Ask the trustee how and when you must pay.' });
     if (st === 'CA') sale.push({ id: 'ca-trustee', text: 'California: bring proof you can pay the full bid in cash or cashier’s checks. On homes of one to four units, tenants and some buyers have 15 to 45 days after the sale to match the winning bid, so it isn’t final right away.' });
     if (st === 'AZ') sale.push({ id: 'az-trustee', text: 'Arizona: if you win, you pay the full bid by 5 p.m. the next business day.' });
-    if (st === 'TX') sale.push({ id: 'tx-trustee', text: 'Texas: trustee sales happen on the first Tuesday of the month, between 10 a.m. and 4 p.m., with at least 21 days’ notice (Property Code 51.002). You pay when the bid is accepted, as the trustee directs, and the owner can’t buy it back after the sale.' });
+    if (st === 'TX') sale.push({ id: 'tx-trustee', text: 'Texas: trustee sales happen on the first Tuesday of the month, between 10 a.m. and 4 p.m., with at least 21 days’ notice (Property Code 51.002). You pay when the bid is accepted, as the trustee directs, and after a mortgage foreclosure the owner can’t buy it back (a property tax loan foreclosure has a buy-back: Tax Code 32.06(k)) after the sale.' });
     if (st === 'UT') sale.push({ id: 'ut-trustee', text: 'Utah: your bid can’t be withdrawn, you pay as the trustee directs, and the trustee’s deed has no right of redemption.' });
   }
   if (d.kind === 'taxSale') {
@@ -131,7 +132,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
   if (d.kind === 'court') {
     const r: Record<StateCode, string> = {
       NV: 'Nevada: after a sheriff’s execution sale, the owner can redeem for up to 1 year.',
-      CA: 'California: after a judicial foreclosure sale, the owner can redeem for 3 months if the sale paid the debt, or 1 year if it didn’t.',
+      CA: 'California: after a judicial foreclosure sale, only when the court’s judgment allows the lender to seek a deficiency (the notice of sale says whether the sale is subject to redemption), the owner can redeem for 3 months if the sale paid the debt, or 1 year if it didn’t (CCP 729.010, 729.030).',
       AZ: 'Arizona: after a judicial foreclosure sale, the owner can redeem for 30 days if the court found it abandoned, otherwise 6 months.',
       UT: 'Utah: after a sheriff’s sale, the owner can redeem for 180 days.',
       TX: 'Texas: after a sheriff’s or constable’s execution sale, the owner has no right to redeem, but you get only what the debtor owned, so liens ahead of the judgment stay.',
@@ -246,13 +247,18 @@ export function loadDeals(): Deal[] {
 }
 
 export function saveDeals(list: Deal[]) {
+  // Properties you own are never dropped for space; the oldest of the rest go first.
+  const owned = loadOwned();
+  const room = Math.max(0, MAX_DEALS - list.filter((d) => owned[d.id]).length);
+  let others = 0;
+  const kept = list.filter((d) => owned[d.id] || others++ < room);
   try {
-    localStorage.setItem(KEY, JSON.stringify(list.slice(0, MAX_DEALS)));
+    localStorage.setItem(KEY, JSON.stringify(kept));
   } catch {
     /* private mode: kept for this visit only */
   }
   // Deals past the limit are dropped: forget their evidence and roadmap progress too.
-  for (const d of list.slice(MAX_DEALS)) forgetDeal(d.id);
+  for (const d of list) if (!kept.includes(d)) forgetDeal(d.id);
 }
 
 const MAX_DEALS = 50;
@@ -268,6 +274,11 @@ export function forgetDeal(id: string) {
   removeLog(`analyzed:${id}`);
   forgetRoadmapDeal(`analyzed:${id}`);
   removePacket(`analyzed:${id}`);
+  const owned = loadOwned();
+  if (owned[id]) {
+    delete owned[id];
+    saveOwned(owned);
+  }
   try {
     for (const k of dealCalcKeys(id)) localStorage.removeItem(k);
   } catch {

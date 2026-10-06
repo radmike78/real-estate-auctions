@@ -104,12 +104,13 @@ export default function FindDealsPage() {
           />
           {mine?.city && <button type="button" className="linkish area-clear" onClick={() => setMine({ state: area.state, county: area.county, city: null })}>Clear city</button>}
         </div>
+        {!mine && <p className="muted">Showing Clark County, Nevada. Pick your state and county above to see the official sources where you want to buy.</p>}
       </PageHero>
 
       <NarrowDown config={findDealsConfig()} intro="Answer two quick questions and we’ll point you to the best places to look first. Every source is still listed below." />
       {/* The Mentor Connect spot (Admin → Ad spots) beside the "found a property" help, above and apart from the official sources. */}
       <div className={adCats.length ? 'next-with-ad' : undefined}>
-        <p className="page-starter"><strong>Buying a home listed for sale?</strong> Ask a licensed agent to set up a search of homes on the local listing service (MLS) that match your buy box. <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p>
+        <p className="page-starter"><strong>Buying a home listed for sale?</strong> Ask a licensed agent to set up a search of homes on the local listing service (MLS) that match your buy box (your written limits: area, property type, price and condition). <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p>
         {adCats.length > 0 && <RotatingAd pros={pros} categories={adCats} placeholder />}
       </div>
       <h2 className="section-title">Official sources</h2>

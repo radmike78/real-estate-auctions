@@ -132,7 +132,7 @@ export const STRATEGY_LABEL: Record<Deal['plan'], string> = { rent: 'Keep and re
 export function savedNumbers(d: Deal) {
   const offer = isOffer(d);
   let rent: { price: number; monthly: number; cashIn: number; allIn: number; refi: boolean; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
-  let bid: { maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number } | null = null;
+  let bid: { maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number; none: boolean } | null = null;
   let commercial: { maxBid: number; noi: number; capPct: number; cashLeft: number; allIn: number; refi: boolean } | null = null;
   if (d.plan === 'rent') {
     const rentRaw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
@@ -150,7 +150,7 @@ export function savedNumbers(d: Deal) {
       const i = offer ? offerInputs(saved) : saved;
       if (i.exitValue > 0) {
         const r = maxSafeBid(i);
-        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue };
+        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks };
       }
     }
   } else if (d.plan === 'commercial') {
@@ -245,6 +245,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       need = rent.cashIn;
       cash.push(`${offer ? 'At closing' : 'From sale day until it’s rented'}, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: down payment or bid, closing costs and repairs you entered)`);
     }
+  } else if (bid?.none) {
+    cash.push(`No price works with the numbers you entered in ${strategy}: the costs and your profit target take up the whole ${money(bid.exitValue)} resale value.`);
   } else if (bid) {
     need = bid.cashPeak;
     if (!offer) cash.push(`On sale day, at your walk-away price: ${money(bid.cashOnDay)} (bid plus any buyer’s premium, in the form the sale requires)`);
@@ -270,7 +272,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     nums.push(`Monthly cash flow at ${money(rent.price)}: ${money(rent.monthly)}; ${rent.cashOnCash === null ? 'all your cash back' : `${(rent.cashOnCash * 100).toFixed(1)}% a year on your cash`} (target ${rent.target}%)`);
     for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase()}: ${money(s.monthly)} a month`);
   }
-  if (bid) nums.push(`Walk-away price: ${money(bid.maxBid)}, based on a ${money(bid.exitValue)} resale value`);
+  if (bid) nums.push(bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and your profit target` : `Walk-away price: ${money(bid.maxBid)}, based on a ${money(bid.exitValue)} resale value`);
   if (commercial) nums.push(`Highest price for a ${commercial.capPct}% return on cost: ${money(commercial.maxBid)}, on ${money(commercial.noi)} a year of net operating income`);
   if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');
   out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: (rent && rent.stress.length > 1) || bid || commercial ? 'done' : 'missing', lines: nums, fix: { label: 'Open in Analyze', href: '#/analyze' } });

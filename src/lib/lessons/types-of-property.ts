@@ -74,7 +74,7 @@ export const typesOfProperty: Lesson = {
       heading: 'Choosing a type',
       blocks: [
         { list: [
-          'Starting out with little money: a one-to-four-unit home you live in, with a home loan.',
+          'Starting out with little money: often a one-to-four-unit home you live in, with a home loan, if you’re willing to live there, can qualify for the loan and have the down payment, closing costs and the savings the lender wants left over. A low down payment doesn’t mean low total cash or low risk. If you can’t meet those yet, build savings and credit first (the “Learn first” strategy in Decide).',
           'Wanting steady rent with less hands-on work: larger buildings with a property manager, or real estate funds (see the next lesson).',
           'Wanting to buy at forced sales: most tax and foreclosure auctions sell houses, condos and land, usually for cash.',
         ] },

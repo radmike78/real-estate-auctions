@@ -12,7 +12,7 @@ export const TX_DRILLS: Drill[] = [
     facts: [
       { label: 'Sale', value: 'Trustee’s sale on the first Tuesday, at the Bluebonnet County courthouse, Texas' },
       { label: 'Loan being foreclosed', value: 'The first deed of trust (not a home equity loan)' },
-      { label: 'Title report', value: 'A federal tax lien recorded against the owner' },
+      { label: 'Title report', value: 'A federal tax lien recorded against the owner after the deed of trust, more than 30 days before the sale' },
       { label: 'Value as-is', value: 'About $300,000; someone appears to live there' },
     ],
     missions: [
@@ -38,14 +38,14 @@ export const TX_DRILLS: Drill[] = [
         options: [
           { label: 'For 15 days, the trustee or lender can rescind the sale for reasons the law lists, and I’d get back only what I paid', good: true, why: 'Right (51.016). Examples: the owner caught up before the sale, or a bankruptcy stay was in effect. The money comes back within 5 days, with no interest.' },
           { label: 'Because of the federal tax lien, the United States may buy the house back within 120 days', good: true, why: 'Right (26 USC 7425(d)), if the IRS got written notice at least 25 days before the sale. Without that notice the lien isn’t cleared at all and stays on the title (26 USC 7425(b)), so ask the trustee for proof of the notice. Texas law itself gives the owner no buy-back after a trustee’s sale.' },
-          { label: 'The owner has 180 days to buy it back', good: false, why: 'No. Texas trustee’s sales have no redemption period. The 180 days apply to HOA sales and some tax sales.' },
+          { label: 'The owner has 180 days to buy it back', good: false, why: 'No. After a mortgage foreclosure, Texas trustee’s sales have no redemption period. Buy-back periods apply to HOA sales (180 days, 90 for condos), tax sales, and foreclosures of property tax loans.' },
           { label: 'I can change the locks once my deed is recorded', good: false, why: 'Never. Give a written notice to vacate, then use an eviction (forcible detainer) case in court, with an attorney (Property Code 24.005).' },
         ],
-        lesson: 'Record your deed right away, but hold off on repairs and new contracts until the 15 days pass, and plan for the 120-day federal window. Confirm the IRS got 25 days’ notice; if not, its lien stays on the title.',
+        lesson: 'Record your deed right away, but hold off on repairs and new contracts until the 15 days pass, and plan for the 120-day federal window. Confirm the IRS got 25 days’ notice; if not, its lien (filed more than 30 days before the sale) stays on the title. If someone living there is a tenant with a genuine lease, federal law generally gives them at least 90 days’ notice to move.',
       },
     ],
     verdict: {
-      question: 'Was bidding $210,000 a good idea?',
+      question: 'Knowing what you know now, would you bid $210,000 on this one? Buy means bid, Investigate means learn more first, Pass means skip it.',
       choices: [
         { label: 'Buy', feedback: 'Fine if your numbers worked, as long as you waited out the 15 days and planned for the federal 120-day window and the eviction case.' },
         { label: 'Investigate', feedback: 'Good: before the next sale, confirm the loan, the liens and the trustee’s payment terms, and price in the time to get possession.' },
@@ -75,7 +75,7 @@ export const TX_DRILLS: Drill[] = [
         options: [
           { label: 'The minimum bid is $14,500: the lesser of the judgment or the value in it', good: true, why: 'Right (Tax Code 34.01(j)). If no one bids enough, the property goes to the taxing unit.' },
           { label: 'I need a county statement that I owe no back taxes, or a bidder registration, to get the deed', good: true, why: 'Right. Counties of 250,000 or more require one, and smaller counties can adopt the rule (34.015, 34.011). Statements expire after 90 days.' },
-          { label: 'I’ll owe the $3,800 of taxes that came due after the judgment', good: true, why: 'Right (33.52(d)). Add them to your price.' },
+          { label: 'I’ll owe the $3,800 of taxes that came due after the judgment', good: true, why: 'Right: the sale clears only the taxes in the judgment (Tax Code 34.01(q), 33.52(d)). Add them to your price.' },
           { label: 'I’m buying a tax lien certificate that earns interest', good: false, why: 'No. Texas sells the property, not the lien.' },
         ],
         lesson: 'Get the bidder paperwork early, ask the tax office for post-judgment taxes, and confirm how your county takes payment. There’s no financing.',
@@ -153,7 +153,7 @@ export const TX_DRILLS: Drill[] = [
           { label: 'The house free of the mortgage, mine outright', good: false, why: 'The mortgage ranked ahead of the HOA lien stays. If it isn’t paid, its lender can still foreclose and wipe you out.' },
           { label: 'The house subject to the mortgage, with a 90-day buy-back period', good: false, why: '90 days is the condo rule (82.113). This is a subdivision HOA under chapter 209, so it’s 180 days.' },
         ],
-        lesson: 'Your real price is the bid plus the $230,000 loan, plus taxes, dues and six months of holding costs.',
+        lesson: 'Your real price is the bid plus the $230,000 loan, plus taxes, dues and about 7 months of holding costs (the 180-day buy-back starts when the HOA mails its notice, up to 30 days after the sale).',
       },
       {
         kind: 'pick',
@@ -173,7 +173,7 @@ export const TX_DRILLS: Drill[] = [
     verdict: {
       question: 'Would you bid?',
       choices: [
-        { label: 'Buy', feedback: 'Only after an attorney confirms the sale is valid, and only if the bid plus the $230,000 loan, taxes, dues and 180 days of holding still leaves a margin.' },
+        { label: 'Buy', feedback: 'Only after an attorney confirms the sale is valid, and only if the bid plus the $230,000 loan, taxes, dues and about 7 months of holding still leaves a margin.' },
         { label: 'Investigate', feedback: 'Good: get the court order, a title report and the declaration, then run the numbers with the loan included.' },
         { label: 'Pass', feedback: 'Reasonable. With the loan, the real cost is close to the value, and the owner may buy it back.' },
       ],
@@ -216,7 +216,7 @@ export const TX_DRILLS: Drill[] = [
           { label: 'I pay as the sheriff’s civil office directs and get a deed to the debtor’s interest. If I don’t pay, I can owe 20% of the value plus costs', good: true, why: 'Right (34.045, Rules 652, 653). Record your deed right away.' },
           { label: 'I get the deed now and can pay within a few months', good: false, why: 'Each office sets its terms, and a bidder who doesn’t pay can owe 20% of the property’s value.' },
         ],
-        lesson: 'A sheriff’s execution sale isn’t a trustee’s or tax foreclosure sale, so the 30-day notice rule in Property Code 24.005(b) doesn’t apply to it. Whether the tenant’s lease survives depends on whether it was in place before the judgment lien attached. Have an attorney review the lease before you give any notice, and remember that only an eviction case in court can remove anyone.',
+        lesson: 'A sheriff’s execution sale isn’t a trustee’s or tax foreclosure sale, so the 30-day notice rule in Property Code 24.005(b) doesn’t apply to it. Whether the tenant’s lease survives depends on whether it was in place before the judgment lien attached.* Have an attorney review the lease before you give any notice, and remember that only an eviction case in court can remove anyone.',
       },
     ],
     verdict: {

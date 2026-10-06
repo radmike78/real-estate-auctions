@@ -1,3 +1,4 @@
+import { shuffled } from '../lib/shuffle';
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
@@ -9,6 +10,7 @@ import { fmtMoney } from '../lib/status';
 import { scenarioById } from '../practice/scenarios';
 import { loadProgress, resetProgress, saveProgress, type ScenarioProgress } from '../practice/progress';
 import type { Scenario, Stage, Task } from '../practice/types';
+import { useNoIndex } from '../lib/noindex';
 
 const taskKey = (stage: Stage, t: Task) => `${stage.key}/${t.id}`;
 
@@ -18,6 +20,7 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
   useLastActivity(`#/practice/${id}${stageKey ? `/${stageKey}` : ''}`, scenario ? `Practice purchase: ${scenario.headline}` : undefined);
   const [progress, setProgress] = useState<ScenarioProgress>(() => loadProgress(id));
   useEffect(() => setProgress(loadProgress(id)), [id]);
+  useNoIndex(!scenario);
   // On phones the step buttons are one swipeable row: bring the current step into view.
   useEffect(() => {
     const el = document.querySelector<HTMLElement>('.practice-stages a.active');
@@ -145,7 +148,7 @@ function Results({ s, progress }: { s: Scenario; progress: ScenarioProgress }) {
       <p>When you’re ready for a real one:</p>
       <ul>
         <li><a href={`#/playbooks/${s.playbookKey}`}>Read the full guide for this sale</a></li>
-        <li><a href="#/analyze?plan=flip">Run your own numbers in the maximum bid calculator</a></li>
+        <li><a href="#/analyze?plan=flip">Run your own numbers in the walk-away price calculator</a></li>
         <li><a href="#/pros">Learn who you need and how to find them</a></li>
         <li><a href="#/practice">Practice another kind of sale or property</a></li>
       </ul>
@@ -204,7 +207,7 @@ function TaskCard({ task, k, progress, update, markDone, showKind }: { task: Tas
           {head('Decide', task.title)}
           <p>{task.question}</p>
           <div className="choices" role="group" aria-label={task.question}>
-            {task.choices.map((c, i) => (
+            {shuffled(task.choices.length, task.question).map((i) => [task.choices[i], i] as const).map(([c, i]) => (
               <button
                 key={i}
                 className={`choice${chosen === i ? (c.correct ? ' right' : ' wrong') : ''}`}
@@ -419,7 +422,7 @@ function NumbersTask({ task, k, done, head, markDone }: { task: Extract<Task, { 
       </div>
       {two && <p>Selling as-is means less work, less cash tied up and a quicker exit, for a smaller profit. Fixing it up can earn more, but your money is tied up longer, and you carry the risk of repairs running over, a slow sale or a lower price. {fix.maxBid ? `This practice buyer plans to fix and sell, so the maximum is ${fmtMoney(fix.maxBid)}.` : 'Here, no price leaves the target profit either way.'}</p>}
       <p>{task.lesson}</p>
-      <p className="small muted">Practice numbers, not market data. <a href="#/analyze?plan=flip">Try your own in the maximum bid calculator</a>.</p>
+      <p className="small muted">Practice numbers, not market data. <a href="#/analyze?plan=flip">Try your own in the walk-away price calculator</a>.</p>
       {!done && <button className="btn btn-secondary" onClick={() => markDone(k)}>I understand my maximum</button>}
     </article>
   );

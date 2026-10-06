@@ -25,7 +25,7 @@ export const SECTIONS: DrillSection[] = [
       <ul>
         <li><strong>Properties heading to a forced sale</strong>: live Clark County tax-sale parcels and IRS sales, checked against official sources, plus links to the official special assessment (SID) certificate sale notices and direct links to the official sellers of bank-owned and government homes and business assets.</li>
         <li><strong>Research tools</strong>: Street View and aerial views, county maps and records, and guides to which liens survive each kind of sale.</li>
-        <li><strong>Free calculators</strong>: a maximum bid calculator that counts every cost, and an income-value calculator for rental property.</li>
+        <li><strong>Free calculators</strong>: a walk-away price calculator that counts every cost, and an income-value calculator for rental property.</li>
         <li><strong>My deals</strong>: save properties, track sale dates and deadlines, and keep your notes in one place.</li>
         <AlertsItem />
         <li><strong><a href="#/pros">Find a pro</a></strong>: who helps with each kind of sale (agents, lenders, title companies, attorneys, inspectors and more), when you need them and how to find one.</li>
@@ -60,7 +60,7 @@ export const SECTIONS: DrillSection[] = [
         <li>Choose the kind of sale that fits your money and timeline, and read its <a href="#/playbooks">playbook</a>.</li>
         <li>Find properties in <a href="#/search">search</a> or the official lists we link to.</li>
         <li>Research each one: records, liens, occupancy and condition from the outside.</li>
-        <li>Set your limit with the <a href="#/analyze?plan=flip">maximum bid calculator</a>.</li>
+        <li>Set your limit with the <a href="#/analyze?plan=flip">walk-away price calculator</a>.</li>
         <li>Line up your money: certified funds for auctions, or a lender for after.</li>
         <li>Build your team: attorney, title company, tax advisor, agent and financial advisor.</li>
         <li>Confirm every detail with the official source, then bid or make your offer.</li>

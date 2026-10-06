@@ -10,6 +10,7 @@ import { downloadText, fileName } from '../lib/download';
 import { EVIDENCE_EVENT } from '../lib/evidence';
 import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
+import { useNoIndex } from '../lib/noindex';
 
 const STATUS_LABEL: Record<SectionStatus, string> = { done: 'Complete', started: 'In progress', missing: 'Missing' };
 
@@ -23,6 +24,7 @@ export default function DealPacketPage({ dealId }: { dealId: string }) {
   const [p, setP] = useState<PacketData>(() => loadPacket(key));
   // The evidence log below saves on its own; re-render so the status and next action follow it.
   const [, bump] = useState(0);
+  useNoIndex(!deal);
   useEffect(() => {
     const on = () => bump((n) => n + 1);
     window.addEventListener(EVIDENCE_EVENT, on);
@@ -174,7 +176,7 @@ export default function DealPacketPage({ dealId }: { dealId: string }) {
 
       <section className="deal-setup packet-section" aria-labelledby="packet-decision">
         <Head k="decision" />
-        <p className="muted">Choose Investigate, Pass or Proceed at the bottom of the evidence log above. Write down why, and anything that must be true before you sign or bid.</p>
+        <p className="muted">Choose Investigate, Pass or Proceed under “Decision” at the end of the evidence log in the section above (open the log if it’s closed). Write down why, and anything that must be true before you sign or bid.</p>
         <label className="field wide">
           <span>Why</span>
           <textarea rows={2} maxLength={1000} value={p.decisionWhy} onChange={(e) => update({ decisionWhy: e.target.value })} />

@@ -70,7 +70,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Register and post your deposit",
-      detail: "Deposits and deadlines differ by county. Example, Los Angeles County 2026A auction: a $5,000 deposit or 10% of your spending limit, whichever is greater. Example, San Diego County 2026 auction: a $1,000 deposit plus a $35 non-refundable fee. Confirm in your county’s notice."
+      detail: "Deposits and deadlines differ by county. Example, Los Angeles County: a $5,000 deposit or 10% of your spending limit, whichever is greater. Example, San Diego County 2026 auction: a $1,000 deposit plus a $35 non-refundable fee. Confirm in your county’s notice."
     },
     {
       title: "Bid, then pay on time",
@@ -82,7 +82,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Plan for the 1-year challenge period",
-      detail: "Anyone who claims the sale was invalid has 1 year from the deed to file a petition with the board of supervisors. If the board refuses, they have 1 more year to sue (R&T 3725). The board can also cancel (rescind) the sale. If it does, you get back only your price plus interest (R&T 3731). Los Angeles and San Diego counties both advise waiting about a year before making improvements. Many title companies will not insure until then."
+      detail: "Anyone who claims the sale was invalid has 1 year from the deed to file a petition with the board of supervisors. If the board refuses, they have 1 more year to sue (R&T 3725). The board can also cancel (rescind) the sale. If it does, you get back only your price plus interest (R&T 3731). Los Angeles and San Diego counties both advise waiting about a year before making improvements. Many title companies will not insure until then.*"
     },
     {
       title: "Take possession the legal way",
@@ -548,7 +548,7 @@ export const STATE_GUIDES: Playbook[] = [
   key: "aztaxlien",
   title: "Arizona tax lien sales",
   short: "Tax lien sales",
-  oneLine: "Each February, Arizona county treasurers sell liens for unpaid property taxes. You bid the interest rate down from 16%. The owner can pay you back with interest at any time before a deed is delivered.",
+  oneLine: "Each February, Arizona county treasurers sell liens for unpaid property taxes. You bid the interest rate down from 16%. The owner can pay you back with interest until a treasurer’s deed is delivered or, if you sue to foreclose, until the court enters judgment. Separately, land the state already holds by tax deed is sold by the county board of supervisors at auction or over the counter (ARS 42-18301 to 42-18303).",
   youGet: "A certificate of purchase (a lien), not the property. You can ask a court for a treasurer’s deed only after 3 years, and only if the lien is still unpaid.",
   forSale: true,
   glance: [
@@ -570,7 +570,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Owner can redeem",
-      value: "Any time until a treasurer’s deed is delivered (ARS 42-18152)"
+      value: "Any time until a treasurer’s deed is delivered or, if the holder sues to foreclose, until the court enters judgment (ARS 42-18152, 42-18206)"
     },
     {
       label: "Earliest foreclosure",
@@ -632,7 +632,7 @@ export const STATE_GUIDES: Playbook[] = [
       "Easements on or benefiting the property (ARS 42-18204)",
       "Certain special assessment liens, such as improvement district liens (ARS 42-18204)",
       "In Arizona, county cleanup (abatement) liens for things like weeds, debris or unsafe buildings, through September 30, 2028 (ARS 42-18204, 11-268)",
-      "Liens held by the state (ARS 42-17153)*",
+      "Liens held by the state (ARS 42-17153)*. If the court orders an excess proceeds sale, it clears them, except assessments and property tax liens (ARS 42-18234)",
       "Other liens and title problems the court case did not clear. Get a title report and ask your attorney"
     ]
   },
@@ -1519,7 +1519,7 @@ export const STATE_GUIDES: Playbook[] = [
   key: "cahoa",
   title: "California HOA foreclosures",
   short: "HOA foreclosures",
-  oneLine: "A California homeowners association can sell a home to collect unpaid assessments (dues). It does this under the Davis-Stirling Act (Civil Code 5700–5740), usually through a trustee.",
+  oneLine: "A California homeowners association can sell a home to collect unpaid assessments (dues). It does this under the Davis-Stirling Act (Civil Code 5650–5740), usually through a trustee.",
   youGet: "The owner’s interest in the home. After a nonjudicial sale, the home can be bought back (redeemed) for 90 days. The first deed of trust, and any other lien recorded before the HOA’s lien, usually stays with the property.",
   plain: 'The owner’s interest. The owner can buy it back within 90 days after a nonjudicial sale. The first loan and earlier liens usually stay with it.',
   forSale: true,
@@ -1568,7 +1568,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Set your maximum bid",
-      detail: "Add up any surviving loan balance and unpaid property taxes. Add the dues that keep coming after you buy, and repairs. If a first deed of trust stays on the home, its lender can foreclose on you if the loan isn’t paid. Use the max bid calculator."
+      detail: "Add up any surviving loan balance and unpaid property taxes. Add the dues that keep coming after you buy, and repairs. If a first deed of trust stays on the home, its lender can foreclose on you if the loan isn’t paid. Use the walk-away price calculator."
     },
     {
       title: "Bid and pay",
@@ -2229,13 +2229,13 @@ export const STATE_GUIDES: Playbook[] = [
   survives: {
     wipedOut: [
       "At a trustee or sheriff sale: liens recorded after the lien being foreclosed",
-      "Leases signed after that lien, or put behind it, unless the lender agreed to keep them. Confirm with an attorney",
+      "Leases signed after that lien, or put behind it, unless the lender agreed to keep them.* Confirm with an attorney",
       "In a bank or receiver sale: liens the seller pays off at closing (confirm on the title report)"
     ],
     mayStay: [
       "Property taxes and special assessments",
       "Liens recorded ahead of the lien being foreclosed",
-      "Responsibility for environmental cleanup. It follows whoever owns the property, not the lien",
+      "Responsibility for environmental cleanup. It can follow whoever owns the property, not the lien*",
       "Easements, reciprocal easement agreements and CC&Rs",
       "Leases that rank ahead of the lien or have a non-disturbance agreement, and residential tenant rights under CCP 1161b",
       "Anything listed as an exception in your title policy"
@@ -2371,7 +2371,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Set your maximum bid",
-      detail: "Add these to your price: the surviving first mortgage, unpaid property taxes, any mechanic’s liens and repairs. Mechanic’s liens keep their place in line, since the HOA lien doesn’t change their priority (A.R.S. 33-1807). If the total is near the home’s value, walk away. Use the max bid calculator."
+      detail: "Add these to your price: the surviving first mortgage, unpaid property taxes, any mechanic’s liens and repairs. Mechanic’s liens keep their place in line, since the HOA lien doesn’t change their priority (A.R.S. 33-1807). If the total is near the home’s value, walk away. Use the walk-away price calculator."
     },
     {
       title: "Confirm the sale is still on",
@@ -3037,12 +3037,12 @@ export const STATE_GUIDES: Playbook[] = [
   survives: {
     wipedOut: [
       "Liens and interests junior to the deed of trust foreclosed at a trustee’s sale (A.R.S. 33-811)",
-      "Leases junior to that deed of trust, unless the lender agreed to keep them (non-disturbance agreement). A tenant whose lease is wiped out can also leave. Confirm with an attorney"
+      "Leases junior to that deed of trust, unless the lender agreed to keep them (non-disturbance agreement).* A tenant whose lease is wiped out can also leave. Confirm with an attorney"
     ],
     mayStay: [
       "Property taxes and special assessments (A.R.S. 42-17153)",
       "Liens recorded before the lien being foreclosed",
-      "Responsibility for environmental cleanup. It follows whoever owns the property, not the lien",
+      "Responsibility for environmental cleanup. It can follow whoever owns the property, not the lien*",
       "Easements, reciprocal easement agreements and CC&Rs",
       "Leases that rank ahead of the deed of trust or have a non-disturbance agreement",
       "Residential tenants’ federal 90-day notice rights in apartment buildings (PTFA)"
@@ -3194,7 +3194,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Set your maximum bid",
-      detail: "Add up the surviving mortgage balance, unpaid property taxes, future dues, repairs and your holding costs. Use the max bid calculator. A cheap opening bid can be very expensive once the first mortgage is added."
+      detail: "Add up the surviving mortgage balance, unpaid property taxes, future dues, repairs and your holding costs. Use the walk-away price calculator. A cheap opening bid can be very expensive once the first mortgage is added."
     },
     {
       title: "Bid and pay as directed",
@@ -3230,7 +3230,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Ignoring how the sale was started",
-      prevent: "A trustee sale is invalid in three cases: the owner didn’t get the 30-day notice, the owner demanded a court case, or the lien included fines. Have an attorney or title company review the trustee’s file."
+      prevent: "Utah law bars a trustee sale in four cases: the owner didn’t get the 30-day notice, the owner demanded a court case, the lien included fines, or no assessment was more than 180 days overdue (57-8a-303). A sale held anyway may be open to challenge.* Have an attorney or title company review the trustee’s file."
     },
     {
       mistake: "Fixing up during a sheriff’s sale redemption period",
@@ -3369,7 +3369,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Set your maximum bid",
-      detail: "Add any senior mortgage, unpaid Utah property taxes, repairs, and 180 days of holding costs. Use the max bid calculator."
+      detail: "Add any senior mortgage, unpaid Utah property taxes, repairs, and 180 days of holding costs. Use the walk-away price calculator."
     },
     {
       title: "Bid and pay as the notice requires",
@@ -3858,13 +3858,13 @@ export const STATE_GUIDES: Playbook[] = [
   survives: {
     wipedOut: [
       "At a trustee or sheriff’s sale: liens recorded after the lien being foreclosed, if the sale was valid",
-      "Leases signed after that lien, or put behind it, unless the lender agreed to keep them (non-disturbance agreement). A tenant whose lease is wiped out can also leave. Confirm with an attorney",
+      "Leases signed after that lien, or put behind it, unless the lender agreed to keep them (non-disturbance agreement).* A tenant whose lease is wiped out can also leave. Confirm with an attorney",
       "In a negotiated purchase: liens the seller pays off at closing (confirm on the title commitment)"
     ],
     mayStay: [
       "Property taxes (they attach every January 1)",
       "Liens recorded before the lien being foreclosed",
-      "Responsibility for environmental cleanup. It follows whoever owns the property, not the lien",
+      "Responsibility for environmental cleanup. It can follow whoever owns the property, not the lien*",
       "Easements, reciprocal easement agreements and CC&Rs",
       "Leases that rank ahead of the lien being foreclosed or have a non-disturbance agreement",
       "A 180-day redemption right after a sheriff’s sale or IRS sale"

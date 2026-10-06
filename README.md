@@ -73,6 +73,8 @@ The site ships as **one container image**, built with **Podman** (Docker isn't u
 | `DIRECTORY_PUBLIC_KEY` | empty | Public directory key, built into the site. Without it, the advertiser directory stays off. |
 | `SHOW_SAMPLE_DATA` | `0` | `1` shows the fictional sample properties and professionals, for a demo site. Leave it at `0` for a real site. |
 | `RUN_TESTS` | `1` | `0` skips the test suite during the build (not recommended). |
+| `SITE_URL` | `https://deedowl.com` | The site's public address, used in canonical links and `sitemap.xml`. Set it to your domain. `install.sh` reads it from the environment: `SITE_URL=https://example.com ./deploy/podman/install.sh`. |
+| `BUILDER_IMAGE`, `RUNTIME_IMAGE` | Red Hat UBI 9 Node.js 22 | The base images for building and running. Change only if you mirror them. |
 
 > **Emails:** without `RESEND_API_KEY` (or `POSTMARK_SERVER_TOKEN`) and `MAIL_FROM`, confirmation links, sign-in links, leads and reports are only written to the web container's log, and the log says `WARNING: email is OFF`. Set up [Email](#email-resend-or-postmark) before real visitors arrive.
 
@@ -224,7 +226,7 @@ cat admin-password-hash.txt   # should start with scrypt$
   - `registry.access.redhat.com` and `registry.npmjs.org` while building;
   - `docker.io`, only for the optional Caddy HTTPS and Litestream backup images, which Podman pulls from Docker Hub's registry;
   - `*.r2.cloudflarestorage.com` (or your S3-compatible storage), only if you turn on the off-site Litestream backup;
-  - the county sites, `api.resend.com` or `api.postmarkapp.com` (email) and Stripe while running.
+  - the county sites, `www.irsauctions.gov` (IRS sales), `api.resend.com` or `api.postmarkapp.com` (email) and Stripe while running.
 - **Mac or Windows** (for trying it out): install [Podman Desktop](https://podman-desktop.io) or run `podman machine init && podman machine start`, then use `--no-systemd` below.
 
 **Install (one command)**

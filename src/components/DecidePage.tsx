@@ -58,6 +58,9 @@ export default function DecidePage() {
   const skips = (i: number) => QUESTIONS[i]?.key === 'state' && !!getMyState() && !!saved.answers.state;
   const nextFrom = (i: number) => (skips(i + 1) ? i + 2 : i + 1);
   const prevFrom = (i: number) => (skips(i - 1) ? i - 2 : i - 1);
+  // How many questions this visitor is actually asked, for the counter and the intro.
+  const total = QUESTIONS.filter((_, i) => !skips(i)).length;
+  const asked = QUESTIONS.slice(0, step + 1).filter((_, i) => !skips(i)).length;
 
   useEffect(() => save(saved), [saved]);
   // Every move between questions, forward or back, puts focus on the question (not on the first load).
@@ -95,14 +98,14 @@ export default function DecidePage() {
       <PageHero
         eyebrow={<span className="eyebrow">Step 2 of 6</span>}
         title={<>Decide <span className="grad">your focus</span></>}
-        sub={q ? "Answer nine quick questions about your money, time and goals. You’ll get the strategies that fit best and a checklist for each." : undefined}
+        sub={q ? `Answer ${total === 9 ? 'nine' : total === 8 ? 'eight' : total} quick questions about your money, time and goals. You’ll get the strategies that fit best and a checklist for each.` : undefined}
       />
 
       {q ? (
         <section className="decide-card" aria-labelledby="decide-q">
           <p className="decide-progress">
-            Question {step + 1} of {QUESTIONS.length}
-            <span className="decide-bar" aria-hidden><span style={{ width: `${((step + 1) / QUESTIONS.length) * 100}%` }} /></span>
+            Question {asked} of {total}
+            <span className="decide-bar" aria-hidden><span style={{ width: `${(asked / total) * 100}%` }} /></span>
           </p>
           <fieldset>
             <legend>

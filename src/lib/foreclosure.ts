@@ -9,6 +9,7 @@
 //      payoff, short sale, or a bankruptcy stay).
 // Many notices of default never reach auction.
 
+import { pacificDay } from './time';
 import type { Property } from '../types';
 import { fmtDate } from './status';
 
@@ -93,7 +94,7 @@ export function foreclosureTrack(p: Property, now = new Date()): ForeclosureTrac
   const earliest = hoa ? addDays(nod.date, 90) : addMonths(nod.date, 3);
   const nextByStage: Record<ForeclosureStage, string> = {
     DEFAULT_RECORDED:
-      now.toISOString().slice(0, 10) < earliest
+      pacificDay(now) < earliest
         ? `A notice of sale can't be recorded before ${fmtDate(earliest)} (${hoa ? '90 days' : '3 months'} after the notice of default was recorded).`
         : 'A notice of sale may be recorded at any time, or never. If it is, the law requires at least about 3 weeks before the sale. That is a minimum, not a promised date.',
     SALE_SCHEDULED: 'A sale date is set in the notice, but it is not a promise. Owners often reinstate, modify or sell before the date, and sales are often postponed.',

@@ -22,6 +22,11 @@ export function useOwned(): Record<string, Owned> {
 }
 
 const signed = (n: number) => `${n < 0 ? '−' : ''}${fmtMoney(Math.abs(Math.round(n)))}`;
+// Today in this browser's own time zone (toISOString would give the UTC date, a day ahead in the evening).
+const today = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
 const thisMonth = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -49,15 +54,16 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     return (
       <div>
         <p>Did you buy it? Mark it as yours to track the real rent and costs each month against the cash flow you planned.</p>
-        <button type="button" className="btn btn-secondary" onClick={() => put({ boughtOn: new Date().toISOString().slice(0, 10), months: [] })}>I bought this property</button>
+        <button type="button" className="btn btn-secondary" onClick={() => put({ boughtOn: today(), months: [] })}>I bought this property</button>
       </div>
     );
   }
   const s = ownedSummary(o, projected);
+  const negative = Number(rent) < 0 || Number(costs) < 0;
   const add = () => {
     const r = Number(rent);
     const c = Number(costs);
-    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || !Number.isFinite(r) || !Number.isFinite(c)) return;
+    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || !Number.isFinite(r) || !Number.isFinite(c) || r < 0 || c < 0) return;
     put({ ...o, months: [{ month, rent: Math.max(0, r), costs: Math.max(0, c), note: note.slice(0, 200) }, ...o.months.filter((m) => m.month !== month)].sort((a, b) => b.month.localeCompare(a.month)) });
     setRent('');
     setCosts('');
@@ -68,15 +74,16 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   };
   return (
     <div>
-      <p className="muted">{projected === null ? 'Save this deal’s numbers in Keep and rent to compare each month with your plan.' : `You planned on ${signed(projected)} a month of cash flow.`}</p>
+      <p className="muted">{projected === null ? 'Renting it out? Save this deal’s numbers in Keep and rent to compare each month with your plan. Fixing it to sell? Record what you pay each month, with $0 rent.' : `You planned on ${signed(projected)} a month of cash flow.`}</p>
       <div className="row owned-add">
-        <label className="field"><span>Bought on</span><input type="date" value={o.boughtOn} onChange={(e) => e.target.value && put({ ...o, boughtOn: e.target.value })} /></label>
+        <label className="field"><span>Bought on</span><input type="date" value={o.boughtOn} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
         <label className="field"><span>Month</span><input type="month" value={month} onChange={(e) => setMonth(e.target.value)} /></label>
         <label className="field"><span>Rent collected ($)</span><input type="number" inputMode="decimal" min={0} value={rent} onChange={(e) => setRent(e.target.value)} /></label>
         <label className="field"><span>Everything you paid ($)</span><input type="number" inputMode="decimal" min={0} value={costs} onChange={(e) => setCosts(e.target.value)} /></label>
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>
-        <button type="button" className="btn" disabled={rent === '' || costs === ''} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
+        <button type="button" className="btn" disabled={rent === '' || costs === '' || negative} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
       </div>
+      {negative && <p className="caution small" role="alert">Enter rent and costs as $0 or more. Record a refund to a tenant as a cost.</p>}
       <p className="small muted">Count everything you paid that month: the loan, taxes, insurance, HOA, repairs, management and utilities, and any money you moved into your repair savings.</p>
       {s.months > 0 ? (
         <>
@@ -93,7 +100,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
               {o.months.map((m) => (
                 <tr key={m.month}>
                   <td>{m.month}</td><td>{fmtMoney(m.rent)}</td><td>{fmtMoney(m.costs)}</td><td>{signed(m.rent - m.costs)}</td><td>{m.note}</td>
-                  <td><button type="button" className="linkish" onClick={() => put({ ...o, months: o.months.filter((x) => x.month !== m.month) })}>Remove</button></td>
+                  <td><button type="button" className="linkish" aria-label={`Remove ${m.month}`} onClick={() => put({ ...o, months: o.months.filter((x) => x.month !== m.month) })}>Remove</button></td>
                 </tr>
               ))}
             </tbody>

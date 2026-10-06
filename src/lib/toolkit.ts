@@ -75,7 +75,7 @@ export const TOOLKIT: { group: string; items: { label: string; href: string; wha
   {
     group: 'Calculators',
     items: [
-      { label: 'Maximum bid and flip calculator', href: '#/analyze?plan=flip', what: 'Your walk-away price: the most you can pay and still make your profit, with what-ifs for a lower value or higher repairs.' },
+      { label: 'Walk-away price calculator (fix and sell)', href: '#/analyze?plan=flip', what: 'Your walk-away price: the most you can pay and still make your profit, with what-ifs for a lower value or higher repairs.' },
       { label: 'Rental calculator and Deal Lab', href: '#/analyze?plan=rent', what: 'Monthly cash flow, your yearly return on the cash you put in (cash-on-cash), whether the rent covers the loan, and the deal explained in plain words.' },
       { label: 'Commercial income and value', href: '#/analyze?plan=commercial', what: 'Net operating income (rent after operating costs), cap rate (that income as a % of the price) and what the income says the building is worth.' },
     ],

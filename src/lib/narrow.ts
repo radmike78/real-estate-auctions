@@ -93,7 +93,7 @@ function salesFor(buy: string, property: string): { kind: string; why: string }[
       { kind: 'short', why: 'Short sales: the owner sells with the lender’s approval. Slower, but you can inspect.' },
     ];
   }
-  if (property === 'land') return [{ kind: 'tax', why: 'Most land at auction is sold at county tax sales.' }];
+  if (property === 'land') return [{ kind: 'tax', why: 'Most land at auction is sold at county tax sales.' }, { kind: 'foreclosure', why: 'Land with a loan against it can also sell at a foreclosure auction, under the same rules as a house.' }];
   if (property === 'commercial') return [{ kind: 'commercial', why: 'What to check before buying commercial property at any sale.' }, { kind: 'foreclosure', why: 'Commercial buildings often sell at foreclosure auctions.' }];
   return [
     { kind: 'foreclosure', why: 'Foreclosure auctions are the most common, and they happen most weeks.' },
