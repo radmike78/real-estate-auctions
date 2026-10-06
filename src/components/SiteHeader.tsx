@@ -19,7 +19,7 @@ const PRIMARY = [
 
 const MORE: { group: string; links: (readonly [string, string])[] }[] = [
   { group: 'Tools', links: [['#/deals', 'My deals'], ['#/alerts', 'Email alerts']] },
-  { group: 'Learn', links: [['#/playbooks', 'Sale guides'], ['#/guides', 'Search the guides']] },
+  { group: 'Learn', links: [['#/learn/reading', 'Recommended reading'], ['#/playbooks', 'Sale guides'], ['#/guides', 'Search the guides']] },
   { group: 'Deal sources', links: [['#/live', 'Live sales (Clark County tax + IRS)'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures'], ['#/pre-foreclosures', 'Pre-foreclosures (not for sale)']] },
   { group: 'Get help', links: [['#/financing', 'Financing'], ['#/homeowner-help', 'Homeowners: free help']] },
   { group: 'About', links: [['#/about', 'How DeedOwl works']] },

@@ -1,9 +1,7 @@
 // "Not sure where to start?": a few plain questions at the top of a crowded page that narrow it to two or three
 // places to begin, each with the reason. Every page still shows all of its options below. "Not sure" answers get a
 // suggestion the visitor can accept.
-import { stateByCode, type StateCode } from './regions';
-import { drillById } from '../practice/drills';
-import { PRACTICE_PROPERTIES } from '../practice/properties';
+import type { StateCode } from './regions';
 import { playbookByKey } from './playbooks';
 import { LEARN_MODULES } from './learn';
 
@@ -99,67 +97,6 @@ function salesFor(buy: string, property: string): { kind: string; why: string }[
     { kind: 'foreclosure', why: 'Foreclosure auctions are the most common, and they happen most weeks.' },
     { kind: 'tax', why: 'Tax sales come once or twice a year in most counties, with their own rules.' },
   ];
-}
-
-/** Practice: a whole purchase or quick drills, for the way and the property they want. */
-export function practiceConfig(myState: string | null): NarrowConfig {
-  return {
-    questions: [
-      ...(myState ? [] : [STATE_Q]),
-      {
-        key: 'what',
-        question: 'What would help most right now?',
-        options: [
-          { value: 'full', label: 'Walk through a whole purchase', hint: 'Step by step, from research to the day after the sale' },
-          { value: 'quick', label: 'Practice quick decisions', hint: 'Value, rent, repairs and liens on one property' },
-        ],
-        suggest: () => ({ value: 'full', why: 'Walking through one whole purchase shows every step once. Then the drills sharpen your judgment.' }),
-      },
-      BUY_Q,
-      { ...PROPERTY_Q, options: [...PROPERTY_Q.options, { value: 'flip', label: 'A fix-and-flip or BRRRR' }] },
-    ],
-    result: (raw) => {
-      const st = (raw.state || myState || 'NV').toLowerCase();
-      const { what, buy, property } = raw;
-      if (what === 'full') {
-        // One named practice property to start with, then other ways in. Practice follows Nevada (Clark County) rules.
-        const names: Record<string, string> = { reo: 'bank-owned', short: 'short sale', foreclosure: 'foreclosure auction', tax: 'tax sale' };
-        const run = (sale: string, prop: string, why: string): NarrowPick => {
-          const label = PRACTICE_PROPERTIES.find((p) => p.id === prop)?.label.toLowerCase() ?? prop;
-          return { label: `Buy the practice ${label}: ${names[sale]}`, href: `#/practice/${sale}-${prop}`, why: `${why} A fictional Nevada property, step by step.` };
-        };
-        const drill = (id: string, why: string): NarrowPick => ({ label: drillById(id)?.title ?? id, href: `#/practice/drills/${id}`, why });
-        const prop = property === 'commercial' ? 'retail' : property === 'land' ? 'lot' : 'house';
-        const why = (k: string) => salesFor(buy, property).find((x) => x.kind === k)?.why ?? '';
-        if (buy === 'agent') {
-          if (property === 'commercial') return [run('reo', prop, why('reo')), drill('retail-strip', 'Then a quick decision on a small retail building’s leases and income.')];
-          // A home from a listing: the full rental purchase comes first (the page's "Start here"), in the rules of the
-          // visitor's state (each covered state has its own practice house).
-          if (prop === 'house') {
-            const caseState = stateByCode(st.toUpperCase())?.name ?? 'Nevada';
-            return [
-              { label: 'Buy a rental, start to finish', href: '#/practice/case', why: `The most common first deal: a listed home with a loan, from the offer to the first tenant. It follows ${caseState} rules.` },
-              drill('rental-265', 'Then a quick one: is a rental worth it at this price?'),
-              run('reo', prop, why('reo')),
-            ];
-          }
-          return [run('reo', prop, why('reo')), drill('land-access', 'Then a quick one on access, utilities and holding costs.')];
-        }
-        if (property === 'land') return [run('tax', prop, why('tax')), drill('land-access', 'Then a quick one on access, utilities and holding costs.')];
-        return [run('foreclosure', prop, why('foreclosure') || 'Foreclosure auctions happen most weeks.'), run('tax', prop, 'Tax sales come once or twice a year in most counties, with their own rules.')];
-      }
-      const drills: Record<string, [string, string][]> = {
-        'agent-home': [['bank-owned', 'A bank-owned home: inspection, repairs and the as-is contract.'], ['rental-265', 'Is a rental worth it at this price? Comps, rent, repairs and cash flow.']],
-        'auction-home': [[`trustee-sale-${st}`, 'A foreclosure auction in your state: liens, occupants and the numbers.'], [st === 'az' ? 'tax-lien-az' : st === 'ut' ? 'tax-sale-ut' : `tax-deed-${st}`, 'A tax sale in your state: what you get and what survives.']],
-        'agent-commercial': [['retail-strip', 'A small retail building: leases, income and value.'], ['apartments-12', 'A 12-unit building: rent roll, expenses and the loan.']],
-        'auction-commercial': [['commercial-tax-sale', 'A vacant building at a tax sale: research and your maximum bid.'], ['commercial-bank-auction', 'A bank auction with a buyer’s premium: your real last bid.']],
-        land: [['land-access', 'Rural land: access, utilities and holding costs.'], ['manufactured-own-land', 'A manufactured home on its own land: title, comps and repairs.']],
-        flip: [['flip-numbers', 'A fix-and-flip: is there really a profit after every cost?'], ['brrrr-appraisal', 'A BRRRR where the appraisal comes in low.']],
-      };
-      const key = property === 'flip' ? 'flip' : property === 'land' ? 'land' : `${buy}-${property}`;
-      return (drills[key] ?? drills['agent-home']).map(([id, why]) => ({ label: drillById(id)?.title ?? id, href: `#/practice/drills/${id}`, why }));
-    },
-  };
 }
 
 /** Find Deals: where to look first, for the way and the property they want. */
