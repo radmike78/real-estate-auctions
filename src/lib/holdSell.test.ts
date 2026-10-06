@@ -41,3 +41,48 @@ describe('commercial operating costs', () => {
     expect(lines.noi).toBe(108_000 - 27_400);
   });
 });
+
+describe('seller financing', () => {
+  it('figures the payment, the balloon and the bank comparison', async () => {
+    const { sellerFinance, SELLER_FINANCE_DEFAULTS, loanBalance } = await import('./holdCalc');
+    const r = sellerFinance(SELLER_FINANCE_DEFAULTS);
+    expect(r.down).toBe(30_000);
+    expect(r.loan).toBe(270_000);
+    expect(r.monthly).toBeCloseTo(1796.32, 0); // $270,000 at 7% over 30 years
+    expect(r.balloon).toBe(loanBalance(270_000, 7, 30, 60));
+    expect(r.balloonPctOfPrice).toBeGreaterThan(0.8);
+    expect(r.bankDown).toBe(75_000);
+    expect(r.cashSaved).toBe(45_000);
+    // No balloon: it pays off over the term.
+    const full = sellerFinance({ ...SELLER_FINANCE_DEFAULTS, balloonYears: 0 });
+    expect(full.balloon).toBe(0);
+    expect(full.balloonYears).toBe(0);
+  });
+});
+
+describe('lender view and short-term rental', () => {
+  it('shows what a conventional and a DSCR lender see', async () => {
+    const { lenderView, RENT_DEFAULTS, annualDebtService } = await import('./holdCalc');
+    const v = { ...RENT_DEFAULTS, monthlyRent: 2_000, propertyTaxYear: 2_400, insuranceYear: 1_200, hoaMonthly: 0, loanPct: 75, ratePct: 7, years: 30, value: 300_000 };
+    const r = lenderView(v, 300_000, true);
+    const pi = annualDebtService(225_000, 7, 30) / 12;
+    expect(r.pitia).toBeCloseTo(pi + 200 + 100, 1);
+    expect(r.conventionalNet).toBeCloseTo(1_500 - r.pitia, 1);
+    expect(r.dscr).toBeCloseTo(2_000 / r.pitia, 2);
+  });
+
+  it('compares renting by the night with renting by the year, and finds the break-even occupancy', async () => {
+    const { strCompare, STR_DEFAULTS, RENT_DEFAULTS } = await import('./holdCalc');
+    const v = { ...RENT_DEFAULTS, monthlyRent: 2_200, vacancyPct: 6, propertyTaxYear: 2_400, insuranceYear: 1_400, hoaMonthly: 0 };
+    const r = strCompare(v, STR_DEFAULTS);
+    expect(r.nights).toBe(219);
+    expect(r.gross).toBeCloseTo(219 * (180 + 100 / 3), -1);
+    expect(r.noi).toBeCloseTo(r.gross - r.costs, 2);
+    expect(r.difference).toBeCloseTo(r.noi - r.longTermNoi, 2);
+    // At the break-even occupancy the two earn the same.
+    const even = strCompare(v, { ...STR_DEFAULTS, occupancyPct: r.breakEvenOccupancyPct! });
+    expect(Math.abs(even.difference)).toBeLessThan(300);
+    // Empty all year, renting by the night loses money.
+    expect(strCompare(v, { ...STR_DEFAULTS, occupancyPct: 0 }).noi).toBeLessThan(0);
+  });
+});

@@ -418,3 +418,112 @@ export function holdAndSell(i: RentInputs, price: number, h: HoldSellInputs, onP
     irr: cashIn > 0 ? irr([-cashIn, ...flows.slice(0, -1), flows[years - 1] + saleNet]) : null,
   };
 }
+
+export interface SellerFinanceInputs {
+  price: number;
+  downPct: number;
+  ratePct: number;
+  amortYears: number; // the payment is figured over this many years
+  balloonYears: number; // the rest is due after this many years (0: none, it pays off)
+  bankDownPct: number;
+  bankRatePct: number;
+}
+export const SELLER_FINANCE_DEFAULTS: SellerFinanceInputs = { price: 300_000, downPct: 10, ratePct: 7, amortYears: 30, balloonYears: 5, bankDownPct: 25, bankRatePct: 7.5 };
+
+/**
+ * A seller-financed purchase next to a bank loan: the down payment, the monthly payment, the balloon still owed when
+ * it comes due (which you'll need cash or a new loan for), and what the bank route would take instead.
+ */
+export function sellerFinance(i: SellerFinanceInputs) {
+  const price = nz(i.price);
+  const down = r2((price * Math.min(nz(i.downPct), 100)) / 100);
+  const loan = r2(price - down);
+  const amort = nz(i.amortYears) || 30;
+  const monthly = r2(annualDebtService(loan, i.ratePct, amort) / 12);
+  const balloonYears = Math.min(nz(i.balloonYears), amort);
+  const balloon = balloonYears > 0 && balloonYears < amort ? loanBalance(loan, i.ratePct, amort, balloonYears * 12) : 0;
+  const months = balloonYears > 0 && balloonYears < amort ? balloonYears * 12 : amort * 12;
+  const interestPaid = r2(monthly * months - (loan - balloon));
+  const bankDown = r2((price * Math.min(nz(i.bankDownPct), 100)) / 100);
+  const bankMonthly = r2(annualDebtService(price - bankDown, i.bankRatePct, 30) / 12);
+  return {
+    down,
+    loan,
+    monthly,
+    balloon,
+    balloonYears: balloon > 0 ? balloonYears : 0,
+    /** Share of the price still owed at the balloon: what a refinance would need to cover. */
+    balloonPctOfPrice: price > 0 ? balloon / price : 0,
+    interestPaid,
+    bankDown,
+    bankMonthly,
+    cashSaved: r2(bankDown - down),
+  };
+}
+
+/**
+ * How a lender sees the rent, at a price. A conventional (Fannie Mae-style) lender usually counts 75% of the rent and
+ * subtracts the full payment with taxes, insurance and HOA dues (PITIA); a shortfall counts against your income. A DSCR
+ * lender divides the rent by PITIA.
+ */
+export function lenderView(i: RentInputs, price: number, onPrice = false) {
+  const base = rentAtPrice(i, price, onPrice);
+  const pitia = r2(base.debtService / 12 + nz(i.propertyTaxYear) / 12 + nz(i.insuranceYear) / 12 + nz(i.hoaMonthly));
+  const rent = nz(i.monthlyRent);
+  return {
+    pitia,
+    /** 75% of the rent minus PITIA: what a conventional lender adds to (or takes from) your monthly income. */
+    conventionalNet: r2(rent * 0.75 - pitia),
+    /** Rent ÷ PITIA; null with no payment. */
+    dscr: pitia > 0 ? Math.round((rent / pitia) * 100) / 100 : null,
+    loan: base.loan,
+  };
+}
+
+export interface StrInputs {
+  nightlyRate: number;
+  occupancyPct: number;
+  avgStayNights: number;
+  cleaningFeeCharged: number; // per stay, paid by the guest
+  cleaningCost: number; // per stay, paid by you
+  platformFeePct: number; // of what guests pay you
+  strManagementPct: number;
+  monthlyUtilities: number; // utilities, internet, streaming, supplies
+  furnishing: number; // one-time
+  licenseYear: number; // permits, inspections, registration
+}
+export const STR_DEFAULTS: StrInputs = { nightlyRate: 180, occupancyPct: 60, avgStayNights: 3, cleaningFeeCharged: 100, cleaningCost: 90, platformFeePct: 3, strManagementPct: 20, monthlyUtilities: 450, furnishing: 20_000, licenseYear: 500 };
+
+/**
+ * The same property rented by the night instead of by the year: income, costs and NOI, against the long-term rental's
+ * NOI, and the occupancy at which the two are even. Lodging taxes are left out: guests pay them, usually collected by the
+ * platform.
+ */
+export function strCompare(i: RentInputs, s: StrInputs) {
+  const nights = 365 * Math.min(nz(s.occupancyPct), 100) / 100;
+  const stays = nz(s.avgStayNights) > 0 ? nights / nz(s.avgStayNights) : 0;
+  const perNight = nz(s.nightlyRate) + (nz(s.avgStayNights) > 0 ? nz(s.cleaningFeeCharged) / nz(s.avgStayNights) : 0);
+  const gross = nights * perNight;
+  const variablePct = (nz(s.platformFeePct) + nz(s.strManagementPct)) / 100;
+  // Costs that rise with each night or stay, and costs you pay whether or not it's booked.
+  const perNightCost = perNight * variablePct + (nz(s.avgStayNights) > 0 ? nz(s.cleaningCost) / nz(s.avgStayNights) : 0) + perNight * (nz(i.maintenancePct) + nz(i.capexPct)) / 100;
+  const fixed = nz(i.propertyTaxYear) + nz(i.insuranceYear) + nz(i.hoaMonthly) * 12 + nz(s.monthlyUtilities) * 12 + nz(s.licenseYear);
+  const noi = gross - nights * perNightCost - fixed;
+  const lt = rentNoi(i);
+  const ltNoi = lt.noi - lt.reserves;
+  const marginPerNight = perNight - perNightCost;
+  const breakEvenNights = marginPerNight > 0 ? (ltNoi + fixed) / marginPerNight : null;
+  return {
+    nights: Math.round(nights),
+    stays: Math.round(stays),
+    gross: r2(gross),
+    costs: r2(gross - noi),
+    noi: r2(noi),
+    longTermNoi: r2(ltNoi),
+    difference: r2(noi - ltNoi),
+    /** Occupancy at which renting by the night earns the same as the long-term rental; null if it never does. */
+    breakEvenOccupancyPct: breakEvenNights === null ? null : Math.round((breakEvenNights / 365) * 1000) / 10,
+    /** Years for the extra income to pay back the furniture; null if it never does. */
+    furnishingPaybackYears: noi - ltNoi > 0 ? Math.round((nz(s.furnishing) / (noi - ltNoi)) * 10) / 10 : null,
+  };
+}
