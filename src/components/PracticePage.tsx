@@ -73,8 +73,8 @@ export default function PracticePage({ sale }: { sale?: string }) {
             ))}
           </div>
         </section>
-        <section id="practice-case" className="case-feature" aria-labelledby="case-feature-head">
-          <h2 id="case-feature-head" className="practice-step"><span aria-hidden>1</span> Buy a rental, start to finish</h2>
+        <h2 id="practice-case" className="practice-step"><span aria-hidden>1</span> Buy a rental, start to finish</h2>
+        <section className="case-feature" aria-labelledby="practice-case">
           <p>Work one fictional purchase from your budget to the first months of renting it out. Read teaching versions of the paperwork (comparables, a loan quote, an inspection report, a title commitment, a closing statement), each with a guide to reading the real form, and make the calls when things go wrong. You finish with your own deal packet: a budget, a deadline calendar, an evidence log and your questions for each professional.</p>
           <a className="btn big" href={`#/practice/case${caseStarted ? `/${caseNext}` : ''}`}>{caseStarted ? 'Continue the purchase →' : 'Start the purchase →'}</a>
           <span className="muted"> About 45 minutes · {practiceCase.property} · {practiceCase.stateName} rules{practiceCase.state === 'TX' ? ', with the TREC contract' : ''}</span>

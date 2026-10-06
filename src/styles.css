@@ -2828,5 +2828,4 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 /* Practice: the three ways to practice, each with how long it takes. */
 .practice-ways { margin-bottom: 40px; }
 .practice-way-time { font-weight: 700; font-size: 1.05rem; color: var(--text); }
-.case-feature .practice-step { margin-top: 0; }
 .drill-state-switch { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 14px 0 22px; font-size: 1.05rem; }
