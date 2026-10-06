@@ -34,6 +34,8 @@ export interface BidInputs {
   holdingMonths: number; // months to fix and sell, after any redemption wait
   monthlyCarry: number; // taxes, insurance, utilities, HOA dues
   financedPct: number; // share of purchase + repairs borrowed (after the sale; auctions need cash)
+  /** 1 for an offer on a listed home: the purchase loan funds at closing, so you never pay the whole price yourself. */
+  loanAtClosing?: number;
   interestRatePct: number; // annual
   pointsPct: number; // lender fees, % of the loan
   sellingCostPct: number; // agent commission + closing costs when you sell
@@ -113,7 +115,10 @@ function solve(i: BidInputs, profit: number): number {
  */
 export function cashNeededAtBid(i: BidInputs, bid: number): number {
   const c = costsAtBid(i, bid);
-  const beforeLoan = bid + c.premium + c.transferTax + c.survivingLiens + c.titleLegal + c.possession + nz(i.redemptionMonths) * nz(i.monthlyCarry);
+  // At an auction you pay the whole price before any loan can fund; on a listed home the purchase loan pays its share
+  // of the price at closing.
+  const priceYouPay = i.loanAtClosing ? bid * (1 - Math.min(nz(i.financedPct), 100) / 100) : bid;
+  const beforeLoan = priceYouPay + c.premium + c.transferTax + c.survivingLiens + c.titleLegal + c.possession + nz(i.redemptionMonths) * nz(i.monthlyCarry);
   return Math.max(beforeLoan, c.total - c.selling - c.loan);
 }
 
@@ -137,7 +142,7 @@ export function cashLimitedBid(i: BidInputs): number {
 
 /** An offer on a listed home has no auction cash limit, buyer's premium or redemption wait: the calculator and every
  * saved result (the deal packet) drop them the same way. */
-export const offerInputs = (v: BidInputs): BidInputs => ({ ...v, cashAvailable: 0, buyerPremiumPct: 0, redemptionMonths: 0, redemptionRatePct: 0, redemptionDaily: 0, redemptionFlat: 0, redemptionFlat2Pct: 0 });
+export const offerInputs = (v: BidInputs): BidInputs => ({ ...v, cashAvailable: 0, buyerPremiumPct: 0, redemptionMonths: 0, redemptionRatePct: 0, redemptionDaily: 0, redemptionFlat: 0, redemptionFlat2Pct: 0, loanAtClosing: 1 });
 
 export function maxSafeBid(i: BidInputs): BidResult {
   const profitBid = Math.max(0, Math.floor(solve(i, requiredProfit(i))));
@@ -346,7 +351,7 @@ export const INPUT_MAX: Record<keyof BidInputs, number> = {
   minimumBid: 1e10, exitValue: 1e10, repairs: 1e10, contingencyPct: 100, buyerPremiumPct: 100, transferTaxPer500: 100, survivingLiens: 1e10,
   titleLegal: 1e10, possession: 1e10, redemptionMonths: 120, redemptionRatePct: 100, redemptionDaily: 1, redemptionFlat: 1, redemptionFlat2Pct: 100, redemptionChecked: 1, holdingMonths: 600,
   monthlyCarry: 1e10, financedPct: 100, interestRatePct: 100, pointsPct: 100, sellingCostPct: 100, targetProfitPct: 100,
-  targetProfitMin: 1e10, profitInDollars: 1, cashAvailable: 1e10,
+  targetProfitMin: 1e10, profitInDollars: 1, cashAvailable: 1e10, loanAtClosing: 1,
 };
 /** A typed or saved value made safe: 0 for invalid or negative, capped at the input's maximum. */
 export const clampInput = (k: keyof BidInputs, v: number) => (Number.isFinite(v) && v > 0 ? Math.min(v, INPUT_MAX[k]) : 0);

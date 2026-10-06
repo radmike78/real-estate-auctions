@@ -143,7 +143,7 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false, exampl
       <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
         <span>{title}</span>
         <strong>{r.noBidWorks ? (offer ? 'No offer works' : 'No bid works') : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'}</strong>
-        <small>{r.noBidWorks ? (r.loanTooBig ? 'The refinance you entered costs more a year than the property earns, so no price works with that loan. Try a smaller loan, or run it all cash.' : 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.') : !Number.isFinite(r.maxBid) ? 'Enter the return you want, or the cash you can bring, to get a walk-away price.' : r.limitedBy === 'cash' ? (offer ? 'Set by the cash you can put in: the down payment, closing costs and repairs.' : 'Set by the cash you can bring: the bid and every cost until it’s ready to rent.') : target}</small>
+        <small>{r.noBidWorks ? (r.loanTooBig ? 'The refinance you entered costs more a year than the property earns, so no price works with that loan. Try a smaller loan, or run it all cash.' : 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.') : !Number.isFinite(r.maxBid) ? 'Enter the return you want, or the cash you can bring, to get a walk-away price.' : r.limitedBy === 'cash' ? (offer ? 'Set by the cash you can put in: the down payment, closing costs and repairs.' : 'Set by the cash you can bring: the bid and every cost until it’s ready to rent.') : r.limitedBy === 'dscr' ? 'Set by the lender’s minimum coverage (income ÷ loan payment), not your return target: above this price the loan is too big for the income.' : target}</small>
       </div>
       {!offer && r.debtService > 0 && !r.noBidWorks && Number.isFinite(r.maxBid) && (
         <p className="calc-note small warn">
@@ -162,7 +162,7 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false, exampl
           <div><dt>Cash flow, per month: NOI minus {r.reserves > 0 ? 'reserves and ' : ''}loan payments</dt><dd>{fmtMoney(Math.round(r.cashFlow / 12))}</dd></div>
           {r.debtService > 0 && <div><dt>Your cash left in the deal</dt><dd>{r.cashLeft > 0 ? fmtMoney(Math.round(r.cashLeft)) : 'None: the loan repays it'}</dd></div>}
           <div><dt>Cash-on-cash return</dt><dd>{r.cashOnCash === null ? 'All your cash is back' : pctText(r.cashOnCash)}</dd></div>
-          {r.dscr !== null && <div><dt>Loan coverage (DSCR): NOI ÷ loan payments. Lenders define it differently.</dt><dd>{r.dscr.toFixed(2)}×</dd></div>}
+          {r.dscr !== null && <div><dt>Income coverage: NOI ÷ loan payments (the stricter test; a DSCR-loan lender uses rent ÷ the full payment, shown under “What the lenders will see”)</dt><dd>{r.dscr.toFixed(2)}×</dd></div>}
         </dl>
       )}
       {r.dscr !== null && !r.loanOk && (
@@ -195,7 +195,7 @@ const RENT_GROUPS: CalcGroup<RentInputs>[] = [
     title: 'Your target',
     fields: [
       { k: 'targetCocPct', label: 'Cash-on-cash return you want', unit: '%', hint: 'Yearly cash flow ÷ your cash in the deal.' },
-      { k: 'minDscr', label: 'Lender’s minimum coverage', unit: 'x', hint: 'Income ÷ loan payment. Often 1.2–1.25.', when: (v) => v.loanPct > 0 },
+      { k: 'minDscr', label: 'Lender’s minimum coverage', unit: 'x', hint: 'NOI (income after operating costs) ÷ loan payments. Often 1.2–1.25.', when: (v) => v.loanPct > 0 },
       { k: 'reserveCash', label: 'Cash you’ll still have after buying', unit: '$', hint: 'Savings left after closing and repairs.', more: 'Beginners run out of cash before they run out of deals. This shows how many months you could keep paying with no rent coming in.' },
     ],
   },
@@ -279,7 +279,7 @@ function AtThisPrice({ v, start, onPrice, setPrice }: { v: RentInputs; start: nu
         <div><dt>Cash-on-cash return: yearly cash flow ÷ your cash in</dt><dd>{a.cashOnCash === null ? 'All your cash is back' : pctText(a.cashOnCash)}</dd></div>
         <div><dt>Cap rate on the price: NOI ÷ price</dt><dd>{pctText(a.capOnPrice)}</dd></div>
         <div><dt>Cap rate on everything you pay</dt><dd>{pctText(a.capOnCost)}</dd></div>
-        {a.dscr !== null && <div><dt>Loan coverage (DSCR): NOI ÷ loan payments</dt><dd>{a.dscr.toFixed(2)}×{a.dscr < v.minDscr && <span className="deal-urgent"> · below the {v.minDscr}× lenders usually want; the loan may not be approved at this price</span>}</dd></div>}
+        {a.dscr !== null && <div><dt>Income coverage: NOI ÷ loan payments</dt><dd>{a.dscr.toFixed(2)}×{a.dscr < v.minDscr && <span className="deal-urgent"> · below the {v.minDscr}× lenders usually want; the loan may not be approved at this price</span>}</dd></div>}
       </dl>
       </>)}
       <p className="muted small">Uses the rent, costs and loan you entered above; taxes and insurance are counted in operating costs, not in the loan payment. Your cash in doesn’t include reserves you keep in the bank. An estimate, not advice.</p>
@@ -299,7 +299,7 @@ function LenderView({ v, onPrice }: { v: RentInputs; onPrice: boolean }) {
       <dl className="calc-kv">
         <div><dt>Full monthly payment with taxes, insurance and HOA (PITIA)</dt><dd>{fmtMoney(Math.round(r.pitia))}</dd></div>
         <div><dt>Conventional loan: 75% of the rent minus that payment, a month</dt><dd>{r.conventionalNet < 0 ? '−' : ''}{fmtMoney(Math.abs(Math.round(r.conventionalNet)))}</dd></div>
-        <div><dt>DSCR loan: rent ÷ that payment</dt><dd>{r.dscr === null ? '—' : r.dscr.toFixed(2)}</dd></div>
+        <div><dt>DSCR-loan ratio: rent ÷ that full payment (looser than income coverage above, because it doesn’t subtract operating costs)</dt><dd>{r.dscr === null ? '—' : r.dscr.toFixed(2)}</dd></div>
       </dl>
       <p className="small">
         {r.conventionalNet < 0 ? 'For a conventional loan, the shortfall counts against your income when the lender figures what you can afford.' : 'For a conventional loan, this can add to your income when the lender figures what you can afford.'}{' '}
@@ -331,7 +331,8 @@ const STR_FIELDS: { k: keyof StrInputs; label: string; unit: string }[] = [
 function StrComparison({ v }: { v: RentInputs }) {
   const [s, setS] = useState<StrInputs>(STR_DEFAULTS);
   const ut = useCalcRegion().state === 'UT';
-  const r = strCompare(v, s);
+  // In Utah a short-term rental is taxed on its full value instead of 55% of it (Utah Code 59-2-103).
+  const r = strCompare(v, s, ut ? 1 / 0.55 : 1);
   return (
     <details className="deal-lab hold-sell">
       <summary><h4>Rent it by the night instead?</h4></summary>
@@ -348,13 +349,13 @@ function StrComparison({ v }: { v: RentInputs }) {
         <div><dt>Nights booked a year</dt><dd>{r.nights} ({r.stays} stays)</dd></div>
         <div><dt>What guests pay you, a year</dt><dd>{fmtMoney(Math.round(r.gross))}</dd></div>
         <div><dt>Costs, a year</dt><dd>{fmtMoney(Math.round(r.costs))}</dd></div>
-        <div><dt>Net operating income by the night</dt><dd>{fmtMoney(Math.round(r.noi))}</dd></div>
-        <div><dt>Same home rented by the year</dt><dd>{fmtMoney(Math.round(r.longTermNoi))}</dd></div>
+        <div><dt>Net operating income by the night, after reserves</dt><dd>{fmtMoney(Math.round(r.noi))}</dd></div>
+        <div><dt>Same home rented by the year, after reserves</dt><dd>{fmtMoney(Math.round(r.longTermNoi))}</dd></div>
         <div><dt>Difference a year</dt><dd>{r.difference < 0 ? '−' : '+'}{fmtMoney(Math.abs(Math.round(r.difference)))}</dd></div>
         <div><dt>Nights booked to break even with the long-term rent</dt><dd>{r.breakEvenOccupancyPct === null ? 'Never, at these prices' : `${r.breakEvenOccupancyPct}%`}</dd></div>
         <div><dt>Years to earn back the furniture</dt><dd>{r.furnishingPaybackYears === null ? '—' : r.furnishingPaybackYears}</dd></div>
       </dl>
-      <p className="small muted">Before income tax and lodging taxes (guests pay those, usually collected by the platform). Short-term income swings with seasons, reviews and new rules; plan for the slow months.{ut && ' In Utah, a short-term rental also loses the 45% residential property-tax exemption, so raise the property tax above.'}</p>
+      <p className="small muted">Before income tax and lodging taxes (guests pay those, usually collected by the platform). Short-term income swings with seasons, reviews and new rules; plan for the slow months.{ut && ' In Utah, a short-term rental loses the 45% residential property-tax exemption: this comparison already counts its property tax on the full value (about 82% more than the long-term rental’s).'}</p>
     </details>
   );
 }
@@ -630,7 +631,7 @@ export function SellerFinanceCalculator() {
           <div><dt>Interest paid {r.balloon > 0 ? 'before the balloon' : 'over the loan'}</dt><dd>{fmtMoney(Math.round(r.interestPaid))}</dd></div>
           <div><dt>Bank route: down payment</dt><dd>{fmtMoney(Math.round(r.bankDown))}</dd></div>
           <div><dt>Bank route: monthly payment (30 years)</dt><dd>{fmtMoney(Math.round(r.bankMonthly))}</dd></div>
-          <div><dt>Cash you keep now with the seller’s terms</dt><dd>{fmtMoney(Math.round(r.cashSaved))}</dd></div>
+          <div><dt>{r.cashSaved >= 0 ? 'Cash you keep now with the seller’s terms' : 'Extra cash the seller’s terms need up front'}</dt><dd>{fmtMoney(Math.abs(Math.round(r.cashSaved)))}</dd></div>
         </dl>
         <p className="calc-note small">
           Add property taxes and insurance to the payment, and check whether the seller still has a mortgage: a due-on-sale clause can let their lender call the

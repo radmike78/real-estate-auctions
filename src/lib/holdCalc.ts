@@ -107,7 +107,8 @@ const SEARCH_MAX = 1e9;
 
 export interface HoldResult {
   maxBid: number;
-  limitedBy: 'return' | 'cash';
+  /** What sets the walk-away price: your return target, your cash, or the lender's minimum coverage (DSCR). */
+  limitedBy: 'return' | 'cash' | 'dscr';
   noBidWorks: boolean;
   noi: number; // yearly net operating income: income after operating costs, before reserves and the loan
   reserves: number; // yearly money set aside for big replacements (roof, HVAC), counted after NOI
@@ -139,6 +140,7 @@ function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, c
   // The lender's minimum coverage (DSCR) caps a purchase loan's price too, not just the return you want.
   const dscrOk = (m: { debtService: number }) => !(nz(minDscr) > 0 && m.debtService > 0) || noi / m.debtService >= nz(minDscr);
   let returnBid: number;
+  let dscrBinds = false;
   if (!onPrice) {
     // A later refinance doesn't change with the price: the limit is a straight line.
     const m = at(0);
@@ -150,6 +152,9 @@ function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, c
       return m.cashFlow > 0 && dscrOk(m) && allInAt(bid) <= limit(m.loanNet, m.cashFlow);
     };
     returnBid = Math.max(0, largest(ok, SEARCH_MAX));
+    // Would one dollar more still meet the return, and fail only the lender's coverage? Then coverage sets the price.
+    const next = at(returnBid + 1);
+    dscrBinds = returnBid < SEARCH_MAX && next.cashFlow > 0 && !dscrOk(next) && allInAt(returnBid + 1) <= limit(next.loanNet, next.cashFlow);
     // No target (or none that binds) and no loan to grow: the return sets no price limit, same as the refinance case.
     if (returnBid >= SEARCH_MAX) returnBid = Infinity;
   }
@@ -164,7 +169,7 @@ function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, c
   const refi = at(0);
   return {
     maxBid,
-    limitedBy: cb < returnBid ? 'cash' : 'return',
+    limitedBy: cb < returnBid ? 'cash' : dscrBinds ? 'dscr' : 'return',
     noBidWorks: maxBid <= 0,
     noi: r2(noi),
     reserves: r2(reserves),
@@ -500,7 +505,8 @@ export const STR_DEFAULTS: StrInputs = { nightlyRate: 180, occupancyPct: 60, avg
  * NOI, and the occupancy at which the two are even. Lodging taxes are left out: guests pay them, usually collected by the
  * platform.
  */
-export function strCompare(i: RentInputs, s: StrInputs) {
+/** strTaxFactor: how much more property tax the short-term rental pays (Utah: it loses the 45% exemption, so 1 ÷ 0.55). */
+export function strCompare(i: RentInputs, s: StrInputs, strTaxFactor = 1) {
   const nights = 365 * Math.min(nz(s.occupancyPct), 100) / 100;
   const stays = nz(s.avgStayNights) > 0 ? nights / nz(s.avgStayNights) : 0;
   const perNight = nz(s.nightlyRate) + (nz(s.avgStayNights) > 0 ? nz(s.cleaningFeeCharged) / nz(s.avgStayNights) : 0);
@@ -508,7 +514,7 @@ export function strCompare(i: RentInputs, s: StrInputs) {
   const variablePct = (nz(s.platformFeePct) + nz(s.strManagementPct)) / 100;
   // Costs that rise with each night or stay, and costs you pay whether or not it's booked.
   const perNightCost = perNight * variablePct + (nz(s.avgStayNights) > 0 ? nz(s.cleaningCost) / nz(s.avgStayNights) : 0) + perNight * (nz(i.maintenancePct) + nz(i.capexPct)) / 100;
-  const fixed = nz(i.propertyTaxYear) + nz(i.insuranceYear) + nz(i.hoaMonthly) * 12 + nz(s.monthlyUtilities) * 12 + nz(s.licenseYear);
+  const fixed = nz(i.propertyTaxYear) * (strTaxFactor > 0 ? strTaxFactor : 1) + nz(i.insuranceYear) + nz(i.hoaMonthly) * 12 + nz(s.monthlyUtilities) * 12 + nz(s.licenseYear);
   const noi = gross - nights * perNightCost - fixed;
   const lt = rentNoi(i);
   const ltNoi = lt.noi - lt.reserves;

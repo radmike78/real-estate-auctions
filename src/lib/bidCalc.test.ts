@@ -258,3 +258,14 @@ describe('cash before a loan funds', () => {
     expect(cashNeededAtBid(i, 150_000)).toBeGreaterThanOrEqual(before);
   });
 });
+
+describe('an offer on a listed home', () => {
+  it('needs only the down payment and costs at closing, not the whole price', async () => {
+    const { offerInputs } = await import('./bidCalc');
+    const i: BidInputs = offerInputs({ ...base, exitValue: 400_000, repairs: 40_000, financedPct: 80, titleLegal: 3_000 });
+    const c = costsAtBid(i, 250_000);
+    const need = cashNeededAtBid(i, 250_000);
+    expect(need).toBeLessThan(250_000 * 0.5);
+    expect(need).toBeCloseTo(Math.max(250_000 * 0.2 + c.transferTax + 3_000, c.total - c.selling - c.loan), 2);
+  });
+});
