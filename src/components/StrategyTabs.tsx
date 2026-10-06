@@ -11,7 +11,7 @@ export interface Strategy {
 const KEY = 'fsf.calc.strategy.v1';
 
 /** Tabs for the ways to use a property: flip it, keep and rent it, lend against it, or run it for income. */
-export default function StrategyTabs({ strategies, initial, onChange }: { strategies: Strategy[]; initial?: string; onChange?: (key: string) => void }) {
+export default function StrategyTabs({ strategies, initial, onChange, hideTabs = false }: { strategies: Strategy[]; initial?: string; onChange?: (key: string) => void; /** The page already has its own plan picker (Analyze): show only the chosen calculator. */ hideTabs?: boolean }) {
   const [active, setActiveState] = useState(() => {
     if (initial && strategies.some((s) => s.key === initial)) return initial;
     try {
@@ -37,15 +37,15 @@ export default function StrategyTabs({ strategies, initial, onChange }: { strate
   const current = strategies.find((s) => s.key === active) ?? strategies[0];
   return (
     <div className="strategy">
-      <div className="strategy-tabs" role="tablist" aria-label="What you plan to do">
+      {hideTabs ? null : <div className="strategy-tabs" role="tablist" aria-label="What you plan to do">
         {strategies.map((s) => (
           <button key={s.key} type="button" role="tab" id={`tab-${s.key}`} aria-selected={s.key === current.key} aria-controls={`panel-${s.key}`} className={s.key === current.key ? 'on' : ''} onClick={() => setActive(s.key)}>
             {s.label}
           </button>
         ))}
-      </div>
+      </div>}
       <p className="strategy-about">{current.about}</p>
-      <div role="tabpanel" id={`panel-${current.key}`} aria-labelledby={`tab-${current.key}`}>{current.render()}</div>
+      {hideTabs ? <div>{current.render()}</div> : <div role="tabpanel" id={`panel-${current.key}`} aria-labelledby={`tab-${current.key}`}>{current.render()}</div>}
     </div>
   );
 }

@@ -370,16 +370,17 @@ export function CashWorksheet() {
     <section id="cash" aria-labelledby="cash-head">
       <h2 id="cash-head">Your investable cash</h2>
       <p>The most you could put into a deal without touching your safety net. Numbers stay in this browser.</p>
-      <div className="deal-fields">
+      <div className="deal-fields cash-fields">
         {field('savings', 'Savings and investments you could sell')}
         {field('spending', 'Household spending each month')}
-        {field('months', 'Months of spending to keep as an emergency fund', 'A planning choice: many people keep 3 to 6 months or more.')}
-        {field('promised', 'Money promised to other goals in the next year')}
-        {field('debt', 'High-interest debt to pay off first', 'Credit cards and similar debt usually cost more than a deal earns.')}
+        {field('months', 'Emergency fund (months of spending)', 'A planning choice: many people keep 3 to 6 months or more.')}
+        {field('promised', 'Set aside for other goals this year')}
+        {field('debt', 'High-interest debt to pay off', 'Credit cards and similar debt usually cost more than a deal earns.')}
       </div>
-      <p className="cash-result">
-        Emergency fund: <strong>{fmtMoney(fund)}</strong> · Your investable cash: <strong>{fmtMoney(investable)}</strong>
-      </p>
+      <dl className="cash-result">
+        <div><dt>Emergency fund</dt><dd>{fmtMoney(fund)}</dd></div>
+        <div className="cash-main"><dt>Your investable cash</dt><dd>{fmtMoney(investable)}</dd></div>
+      </dl>
       {c.savings > 0 && investable === 0 && <p className="roadmap-stop"><strong>Not yet.</strong> Build your emergency fund and pay off high-interest debt first. Keep learning and practicing in the meantime.</p>}
       {investable > 0 && <PriceFromCash cash={investable} />}
     </section>
@@ -532,8 +533,8 @@ function BuyBoxBuilder() {
         <h3>My buy box</h3>
         <p>
           {lien ? `Lien certificates on ${b.types.length ? b.types.join(', ').toLowerCase() : 'any kind of parcel'}` : b.types.length ? b.types.join(', ') : 'Any property type'}
-          {b.beds && !lien ? ` (${b.beds})` : ''} in {b.area || 'any area'}
-          {state ? `, ${state.name}` : ''}
+          {b.beds && !lien ? ` (${b.beds})` : ''}
+          {b.area ? ` in ${b.area}${state ? `, ${state.name}` : ''}` : state ? `, anywhere in ${state.name}` : ' in any area'}
           {b.strategy && !lien ? `, to ${b.strategy.charAt(0).toLowerCase()}${b.strategy.slice(1)}` : ''}.
           {b.priceMax ? (lien ? ` Up to ${fmtMoney(b.priceMax)} for one certificate.` : ` Price up to ${fmtMoney(b.priceMax)}.`) : ''}
           {b.repairsMax && !lien ? ` Repairs up to ${fmtMoney(b.repairsMax)}.` : ''}
@@ -686,8 +687,8 @@ function ProgressBackup() {
   };
   return (
     <section id="backup" aria-labelledby="backup-head">
-      <h2 id="backup-head">Keep your progress</h2>
-      <p>DeedOwl has no accounts, so your roadmap, drills, practice runs, buy box, saved deals and evidence logs are kept only in this browser. Download a backup to keep them safe or move them to another device. Sign-in links and email-alert links are never included.</p>
+      <h2 id="backup-head">Back up or move your progress</h2>
+      <p>You don’t need an account on DeedOwl: your roadmap, drills, practice runs, buy box, saved deals and evidence logs stay only in this browser. Download a backup file to keep them safe, or to restore them on another device. The backup never includes the links in your email alerts or advertiser emails.</p>
       <div className="decide-nav">
         <button type="button" className="btn" onClick={() => downloadText(`deedowl-progress-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(makeBackup()), 'application/json')}>Download my progress</button>
         <label className="btn btn-secondary file-btn">
@@ -737,14 +738,15 @@ export default function ToolkitPage({ section }: { section?: string }) {
           <button type="button" className="btn btn-secondary" onClick={() => jump('roadmap')}>See the full roadmap</button>
         </div>
       </section>}
-      <NarrowDown config={toolkitConfig()} intro="This page holds your whole plan and a lot of reference material. Tell us where you are and we’ll point you to the part to use first. Everything stays below." />
+      {/* One way in at a time: choosing a goal comes first; after that, help finding the right part of the page. */}
+      {currentProgress().decided && <NarrowDown config={toolkitConfig()} intro="This page holds your whole plan and a lot of reference material. Tell us where you are and we’ll point you to the part to use first. Everything stays below." />}
       <FirstDealRoadmap />
       <CashWorksheet />
       <BuyBoxBuilder />
       <TeamListSection />
       <section className="plan-download" aria-labelledby="plan-dl-head">
-        <h2 id="plan-dl-head">Take your plan with you</h2>
-        <p>Your goal, your cash and what price it supports, your buy box, where you are on the roadmap, and your team with what to say to each, in one file.</p>
+        <h2 id="plan-dl-head">Print or share your plan</h2>
+        <p>A readable summary to keep or show your agent or lender (to move your progress to another device, use the backup below): your goal, your cash and what price it supports, your buy box, where you are on the roadmap, and your team with what to say to each, in one file.</p>
         <div className="decide-nav">
           <button type="button" className="btn" onClick={() => downloadText('my-investing-plan.txt', planText())}>Download my plan</button>
           <button type="button" className="btn btn-secondary" onClick={() => window.print()}>Print this page</button>

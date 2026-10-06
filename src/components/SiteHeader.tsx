@@ -10,9 +10,9 @@ import { useMyState } from '../lib/myState';
 const PRIMARY = [
   ['#/learn', 'Learn'],
   ['#/decide', 'Decide'],
-  ['#/pros', 'Your Team'],
+  ['#/pros', 'Your team'],
   ['#/practice', 'Practice'],
-  ['#/find-deals', 'Find Deals'],
+  ['#/find-deals', 'Find deals'],
   ['#/analyze', 'Analyze'],
   ['#/toolkit', 'My plan'],
 ] as const;

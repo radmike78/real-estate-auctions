@@ -51,7 +51,7 @@ function Band({ tone, icon, title, sub, children, id }: { tone: 'county' | 'site
 
 export default function FindDealsPage() {
   useMarkStep('deals');
-  useLastActivity('#/find-deals', 'Find Deals');
+  useLastActivity('#/find-deals', 'Find deals');
   // The visitor's area (myArea.ts): their state and county, from the city they chose or picked here.
   const [mine, setMine] = useMyArea();
   const { pros } = useDirectory();
