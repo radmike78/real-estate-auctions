@@ -698,7 +698,7 @@ export const TX_GUIDES_1: Playbook[] = [
   example: {
     title: "Illustrative example: the $5,000 townhome",
     story: "Morgan, a made-up investor, saw a notice of sale for a townhome in a fictional Texas HOA. The association was owed about $5,000. Morgan’s title report showed a $210,000 first deed of trust. The declaration showed a subdivision under chapter 209, not a condominium, and ranked the HOA lien behind the loan. The home was worth about $270,000. Morgan also learned the owner could buy it back for 180 days. And Morgan couldn’t resell during that time.",
-    lesson: "The first mortgage would survive. So the real cost was about $215,000 plus taxes, dues and about 7 months of holding costs, with a buy-back risk on top. Morgan passed. In Texas, price an HOA sale with the mortgage and the 180 days in mind."
+    lesson: "The first mortgage would survive. So the real cost was about $215,000 plus taxes, dues and about 7 months of holding costs, with a buy-back risk on top. Morgan passed. Price an HOA sale with the mortgage and the 180 days in mind."
   },
   sources: [
     {

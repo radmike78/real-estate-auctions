@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { showFor, statesOf } from './myState';
+import { dropStateLead, showFor, statesOf } from './myState';
 
 describe('statesOf', () => {
   it('reads which states a line is about', () => {
@@ -30,7 +30,7 @@ describe('forStateText', () => {
   it('drops sentences about other states and keeps general ones', async () => {
     const { forStateText } = await import('./myState');
     const t = 'Condos share costs. California has its own balcony law. In Nevada, an HOA lien can come first.';
-    expect(forStateText('NV', t)).toBe('Condos share costs. In Nevada, an HOA lien can come first.');
+    expect(forStateText('NV', t)).toBe('Condos share costs. An HOA lien can come first.');
     expect(forStateText('CA', t)).toBe('Condos share costs. California has its own balcony law.');
     expect(forStateText(null, t)).toBe(t);
   });
@@ -40,8 +40,19 @@ describe('forStateText', () => {
     const lender = 'In California, a private lender may hold a DFPI license. Check it with that regulator. Get every term in writing.';
     expect(forStateText('TX', lender)).toBe('');
     const inspector = 'Rules differ by state. Look the inspector up on your state’s lookup. In Nevada, the state certifies inspectors. A residential inspector there needs 40 hours. In Texas, TREC licenses three levels.';
-    expect(forStateText('TX', inspector)).toBe('Rules differ by state. Look the inspector up on your state’s lookup. In Texas, TREC licenses three levels.');
-    expect(forStateText('NV', inspector)).toBe('Rules differ by state. Look the inspector up on your state’s lookup. In Nevada, the state certifies inspectors. A residential inspector there needs 40 hours.');
+    expect(forStateText('TX', inspector)).toBe('Rules differ by state. Look the inspector up on your state’s lookup. TREC licenses three levels.');
+    expect(forStateText('NV', inspector)).toBe('Rules differ by state. Look the inspector up on your state’s lookup. The state certifies inspectors. A residential inspector there needs 40 hours.');
     expect(forStateText('NV', 'In Texas, notice is posted 21 days ahead. The sale is held on the first Tuesday. Other states differ, so read the guide.')).toBe('Other states differ, so read the guide.');
+  });
+});
+
+describe('dropStateLead', () => {
+  it('drops the chosen state’s lead-in from each sentence', () => {
+    expect(dropStateLead('In California, the county sells it. In California, you can pay.', 'CA')).toBe('The county sells it. You can pay.');
+    expect(dropStateLead('Texas: trustee sales are on the first Tuesday.', 'TX')).toBe('Trustee sales are on the first Tuesday.');
+  });
+  it('keeps other states’ lead-ins and leaves text alone with no state chosen', () => {
+    expect(dropStateLead('In Nevada, the HOA can foreclose.', 'CA')).toBe('In Nevada, the HOA can foreclose.');
+    expect(dropStateLead('In California, the county sells it.', null)).toBe('In California, the county sells it.');
   });
 });

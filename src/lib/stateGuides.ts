@@ -631,7 +631,7 @@ export const STATE_GUIDES: Playbook[] = [
     mayStay: [
       "Easements on or benefiting the property (ARS 42-18204)",
       "Certain special assessment liens, such as improvement district liens (ARS 42-18204)",
-      "In Arizona, county cleanup (abatement) liens for things like weeds, debris or unsafe buildings, through September 30, 2028 (ARS 42-18204, 11-268)",
+      "County cleanup (abatement) liens for things like weeds, debris or unsafe buildings, through September 30, 2028 (ARS 42-18204, 11-268)",
       "Liens held by the state (ARS 42-17153)*. If the court orders an excess proceeds sale, it clears them, except assessments and property tax liens (ARS 42-18234)",
       "Other liens and title problems the court case did not clear. Get a title report and ask your attorney"
     ]
@@ -2262,7 +2262,7 @@ export const STATE_GUIDES: Playbook[] = [
   example: {
     title: "Fictional example: the tax bill that ate the cap rate",
     story: "Dana, a new investor, buys a fictional bank-owned strip center for $2,000,000. The seller’s tax bill was based on a Prop 13 value set decades ago. After the sale, the assessor reassesses the center to about $2,000,000. A supplemental tax bill arrives. It cuts Dana’s net operating income by tens of thousands of dollars a year. Dana had also skipped estoppels. Later Dana learned one tenant had a rent reduction not shown in the rent roll.",
-    lesson: "In California, run your numbers with property tax based on your price. Confirm every lease with an estoppel certificate before closing."
+    lesson: "Run your numbers with property tax based on your price. Confirm every lease with an estoppel certificate before closing."
   },
   sources: [
     {
@@ -2359,7 +2359,7 @@ export const STATE_GUIDES: Playbook[] = [
   steps: [
     {
       title: "Confirm it really is an HOA foreclosure sale",
-      detail: "In Arizona, an HOA can’t use a quick trustee’s sale for unpaid assessments. It must file a lawsuit and win a judgment. Then the county sheriff sells the home (A.R.S. 33-1807). Find the sheriff’s notice of sale, which gives the court case number. Work only with the sheriff’s civil unit and the court file. Never contact the homeowner."
+      detail: "An HOA can’t use a quick trustee’s sale for unpaid assessments. It must file a lawsuit and win a judgment. Then the county sheriff sells the home (A.R.S. 33-1807). Find the sheriff’s notice of sale, which gives the court case number. Work only with the sheriff’s civil unit and the court file. Never contact the homeowner."
     },
     {
       title: "Read the judgment",
@@ -2430,7 +2430,7 @@ export const STATE_GUIDES: Playbook[] = [
   example: {
     title: "Illustrative example (fictional)",
     story: "Riley, a fictional buyer, sees a sheriff’s sale of a townhome worth about $320,000 after an HOA judgment. Bidding opens near $14,000. Riley’s title report shows a recorded first deed of trust of about $255,000. It also shows $3,000 in unpaid property taxes. Both would stay. The court didn’t find the home abandoned, so the owner would have 6 months to redeem.",
-    lesson: "The real cost is the bid plus about $258,000 in surviving liens, plus repairs. And Riley might wait 6 months only to be paid back with 8%. In Arizona, an HOA sale is rarely the bargain the opening bid suggests."
+    lesson: "The real cost is the bid plus about $258,000 in surviving liens, plus repairs. And Riley might wait 6 months only to be paid back with 8%. An HOA sale is rarely the bargain the opening bid suggests."
   },
   sources: [
     {
@@ -2708,7 +2708,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Inspect everything you can",
-      detail: "The ADRE Buyer Advisory calls a professional inspection “absolutely essential.” In Arizona, also check the roof age, pool barriers and sewer connection (a plumber can verify it). Check any septic or other on-site system. The ADRE Buyer Advisory says a qualified inspector must inspect it within six months before a transfer. Also check for soil problems such as expansive soil or earth fissures, termites, and a five-year insurance claims history. Homes built before 1978 need a lead-based paint disclosure."
+      detail: "The ADRE Buyer Advisory calls a professional inspection “absolutely essential.” Also check the roof age, pool barriers and sewer connection (a plumber can verify it). Check any septic or other on-site system. The ADRE Buyer Advisory says a qualified inspector must inspect it within six months before a transfer. Also check for soil problems such as expansive soil or earth fissures, termites, and a five-year insurance claims history. Homes built before 1978 need a lead-based paint disclosure."
     },
     {
       title: "Check rural and HOA disclosures",
@@ -3182,7 +3182,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Find every loan ahead of the association",
-      detail: "Order a title report. In Utah, a first or second mortgage recorded before the association’s notice of lien stays ahead of the association’s lien. So do property taxes. Your purchase usually leaves that mortgage on the home. If it isn’t paid, its lender can still foreclose and wipe you out."
+      detail: "Order a title report. A first or second mortgage recorded before the association’s notice of lien stays ahead of the association’s lien. So do property taxes. Your purchase usually leaves that mortgage on the home. If it isn’t paid, its lender can still foreclose and wipe you out."
     },
     {
       title: "Check that the sale was set up correctly",
@@ -3244,7 +3244,7 @@ export const STATE_GUIDES: Playbook[] = [
   example: {
     title: "Illustrative example: the $6,000 townhome",
     story: "Morgan, a made-up investor, saw a notice of trustee’s sale for a townhome in a fictional Utah HOA. The association was owed about $6,000. Morgan’s title report showed a $240,000 first trust deed. It was recorded years before the association recorded its notice of lien. The home was worth about $300,000. Morgan also learned the first loan was already in default.",
-    lesson: "The first trust deed would survive. So the real cost was about $246,000 plus taxes, dues and repairs, with a foreclosure risk on top. Morgan passed. In Utah, price an HOA sale as if the first mortgage stays."
+    lesson: "The first trust deed would survive. So the real cost was about $246,000 plus taxes, dues and repairs, with a foreclosure risk on top. Morgan passed. Price an HOA sale as if the first mortgage stays."
   },
   sources: [
     {
@@ -3416,7 +3416,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Not recording the deed",
-      prevent: "Record it with the county recorder as soon as you get it. In Utah, an unrecorded document can lose out to a later good-faith buyer who records first."
+      prevent: "Record it with the county recorder as soon as you get it. An unrecorded document can lose out to a later good-faith buyer who records first."
     }
   ],
   example: {
@@ -3516,7 +3516,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Water",
-      value: "In Utah, water rights and water shares can be part of the sale. The REPC includes those that serve the home unless the contract leaves them out. Check the seller’s addendum."
+      value: "Water rights and water shares can be part of the sale. The REPC includes those that serve the home unless the contract leaves them out. Check the seller’s addendum."
     }
   ],
   steps: [
@@ -3542,7 +3542,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Inspect during due diligence",
-      detail: "The REPC gives you a due diligence period to inspect, test and review documents. By the deadline, you must cancel or resolve objections. Miss it and your earnest money can become non-refundable. A bank never lived in the home, so it may tell you little or nothing about its condition. In Utah, hire an inspector with a state Private Home Inspector license (Utah DOPL)."
+      detail: "The REPC gives you a due diligence period to inspect, test and review documents. By the deadline, you must cancel or resolve objections. Miss it and your earnest money can become non-refundable. A bank never lived in the home, so it may tell you little or nothing about its condition. Hire an inspector with a state Private Home Inspector license (Utah DOPL)."
     },
     {
       title: "Get the appraisal and loan approved",
@@ -3885,7 +3885,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Assuming the water comes with the land",
-      prevent: "In Utah, water rights can be sold separately. Confirm in writing what transfers. Record it properly."
+      prevent: "Water rights can be sold separately. Confirm in writing what transfers. Record it properly."
     },
     {
       mistake: "Assuming the tenants will keep paying",

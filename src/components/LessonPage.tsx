@@ -6,7 +6,7 @@ import { lessonByKey } from '../lib/lessons';
 import type { LessonBlock } from '../lib/lessons/types';
 import { useMarkStep } from '../lib/path';
 import { fmtDate } from '../lib/status';
-import { showFor, useMyState } from '../lib/myState';
+import { dropStateLead, showFor, useMyState } from '../lib/myState';
 import { STATES, type StateCode } from '../lib/regions';
 import StatePicker from './StatePicker';
 import WhyBlock from './WhyBlock';
@@ -23,9 +23,10 @@ const STATE_NAMES = new Set(STATES.map((s) => s.name));
 /** The block as it applies to one state: other states' rows, columns, items and paragraphs removed. */
 function forState(b: LessonBlock, st: StateCode | null): LessonBlock | null {
   if (!st) return b;
-  if (typeof b === 'string') return showFor(st, b) ? b : null;
+  const plain = (x: string) => dropStateLead(x, st);
+  if (typeof b === 'string') return showFor(st, b) ? plain(b) : null;
   if ('list' in b) {
-    const list = b.list.filter((x) => showFor(st, x));
+    const list = b.list.filter((x) => showFor(st, x)).map(plain);
     return list.length ? { list } : null;
   }
   if ('links' in b) {
@@ -33,8 +34,8 @@ function forState(b: LessonBlock, st: StateCode | null): LessonBlock | null {
     return links.length ? { links } : null;
   }
   if ('why' in b) {
-    const yes = b.why.yes.filter((p) => showFor(st, p.text));
-    const no = b.why.no.filter((p) => showFor(st, p.text));
+    const yes = b.why.yes.filter((p) => showFor(st, p.text)).map((p) => ({ ...p, text: plain(p.text) }));
+    const no = b.why.no.filter((p) => showFor(st, p.text)).map((p) => ({ ...p, text: plain(p.text) }));
     return yes.length || no.length ? { why: { ...b.why, yes, no } } : null;
   }
   const { head, rows } = b.table;
