@@ -577,8 +577,8 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'exit-1031', phase: 7, path: OWNERS, title: 'Trade up with a 1031 exchange (rentals only)',
-    text: 'Selling a rental to buy a bigger one? A 1031 exchange puts off the tax, but only if it’s set up before the sale closes and you meet the 45-day and 180-day deadlines.',
-    outcome: 'A qualified intermediary in place before closing, the replacement identified in writing within 45 days, and the purchase closed within 180 days.',
+    text: 'Selling a rental to buy a bigger one? A 1031 exchange puts off the tax, but only if it’s set up before the sale closes and you meet the deadlines: 45 days to identify the replacement, and 180 days to close, or by your tax return’s due date with extensions, if that’s sooner.',
+    outcome: 'A qualified intermediary in place before closing, the replacement identified in writing within 45 days, and the purchase closed within 180 days (file a tax extension if your return would be due sooner).',
     steps: [
       'Before you accept an offer, choose a qualified intermediary and sign the exchange agreement.',
       'Start looking for the replacement before you sell: 45 days goes fast.',

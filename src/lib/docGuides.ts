@@ -127,7 +127,7 @@ export const DOC_GUIDES: DocGuide[] = [
   {
     key: 'appraisal',
     title: 'Appraisal report',
-    from: 'The lender orders it after your loan application, from an appraiser it chooses. For a home loan, the lender must give you a copy promptly, and at least 3 business days before closing (Regulation B). For a cash purchase, you can hire a licensed or certified appraiser yourself.',
+    from: 'The lender orders it after your loan application, from an appraiser it chooses. For a home loan, the lender must give you a copy promptly when it’s done, or 3 business days before closing, whichever is earlier, unless you agree to get it at closing (Regulation B). For a cash purchase, you can hire a licensed or certified appraiser yourself.',
     parts: [
       { part: 'Subject and assignment', look: 'The address, the legal description, who ordered it, and whether the appraiser went inside or only looked from outside.', who: 'The appraiser.', example: 'An exterior-only appraisal can miss hidden damage: ask whether the value assumes the inside is in average condition.' },
       { part: 'Condition and quality ratings', look: 'How the appraiser rated the condition and the building quality, and any repairs listed as required.', who: 'The appraiser.', example: '“Subject to” repairs means the loan won’t close until they’re done and checked.' },

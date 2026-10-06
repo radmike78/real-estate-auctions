@@ -74,7 +74,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Bid, then pay on time",
-      detail: "Bids start at the minimum bid. Pay the rest by your county’s deadline, in the form it requires, plus transfer taxes and fees. Example: San Diego County requires full payment within 5 business days of the auction close. If you miss the deadline, you can lose your deposit. The owner’s right to redeem also comes back (R&T 3693.1)."
+      detail: "Bids start at the minimum bid. Pay the rest by your county’s deadline, in the form it requires, plus transfer taxes and fees. Example: San Diego County requires full payment within 5 business days of the auction close. If you miss the deadline, you can lose your deposit. The owner’s right to redeem also comes back (R&T 3707)."
     },
     {
       title: "Wait for the recorded tax deed",
