@@ -22,6 +22,15 @@ export interface BidInputs {
   redemptionRatePct: number;
   /** 1 when that interest compounds daily (IRS seizure sales), 0 for simple interest. */
   redemptionDaily: number;
+  /**
+   * 1 when the law adds a flat percentage of your price instead of yearly interest (Texas tax sales, Arizona and Utah
+   * judicial sales): redemptionRatePct is then that flat %, the same whenever in the wait the owner redeems.
+   */
+  redemptionFlat: number;
+  /** With a flat premium, the % if the owner redeems after the first 12 months (Texas: 50%); 0 when there's no step. */
+  redemptionFlat2Pct: number;
+  /** 1 once the buyer has confirmed in the official records which redemption rule applies to this property. */
+  redemptionChecked: number;
   holdingMonths: number; // months to fix and sell, after any redemption wait
   monthlyCarry: number; // taxes, insurance, utilities, HOA dues
   financedPct: number; // share of purchase + repairs borrowed (after the sale; auctions need cash)
@@ -151,10 +160,20 @@ export function redemptionOutcome(i: BidInputs, bid: number): { repaid: number; 
   const months = nz(i.redemptionMonths);
   if (!(months > 0) || !(bid > 0)) return null;
   const rate = nz(i.redemptionRatePct) / 100;
-  const repaid = i.redemptionDaily ? bid * (1 + rate / 365) ** Math.round((months * 365) / 12) : bid * (1 + (rate * months) / 12);
+  const repaid = i.redemptionFlat ? bid * (1 + redemptionPremiumPct(i, months) / 100)
+    : i.redemptionDaily ? bid * (1 + rate / 365) ** Math.round((months * 365) / 12)
+    : bid * (1 + (rate * months) / 12);
   const c = costsAtBid(i, bid);
   const spent = bid + c.premium + c.transferTax + c.titleLegal + months * nz(i.monthlyCarry);
   return { repaid: r2(repaid), spent: r2(spent), net: r2(repaid - spent) };
+}
+
+/**
+ * A flat redemption premium, as a % of your price, for a redemption after this many months: the law sets it, so it
+ * doesn't shrink when the owner redeems early (Texas Tax Code 34.21: 25% in the first year, 50% in the second).
+ */
+export function redemptionPremiumPct(i: BidInputs, months: number): number {
+  return months > 12 && nz(i.redemptionFlat2Pct) > 0 ? nz(i.redemptionFlat2Pct) : nz(i.redemptionRatePct);
 }
 
 /** How the walk-away price moves if the deal goes worse (or better) than planned. */
@@ -192,6 +211,9 @@ export const BLANK_INPUTS: BidInputs = {
   redemptionMonths: 0,
   redemptionRatePct: 0,
   redemptionDaily: 0,
+  redemptionFlat: 0,
+  redemptionFlat2Pct: 0,
+  redemptionChecked: 0,
   holdingMonths: 6,
   monthlyCarry: 450,
   financedPct: 0,
@@ -247,13 +269,15 @@ export function maxBidSteps(i: BidInputs): { label: string; amount: number }[] {
  * Months are the longest wait; interest is what a redemption adds to your price.
  */
 export const REDEMPTION_RULES = {
-  none: { label: 'No redemption', months: 0, ratePct: 0, daily: 0 },
-  hoa: { label: 'HOA foreclosure: 60 days, +1% a month', months: 2, ratePct: 12, daily: 0 },
-  sheriff: { label: 'Sheriff’s sale: 1 year, +1% a month', months: 12, ratePct: 12, daily: 0 },
-  irs: { label: 'IRS seizure sale: 180 days, +20% a year', months: 6, ratePct: 20, daily: 1 },
+  none: { label: 'No redemption', months: 0, ratePct: 0, daily: 0, flat: 0, flat2Pct: 0 },
+  hoa: { label: 'HOA foreclosure: 60 days, +1% a month', months: 2, ratePct: 12, daily: 0, flat: 0, flat2Pct: 0 },
+  sheriff: { label: 'Sheriff’s sale: 1 year, +1% a month', months: 12, ratePct: 12, daily: 0, flat: 0, flat2Pct: 0 },
+  irs: { label: 'IRS seizure sale: 180 days, +20% a year', months: 6, ratePct: 20, daily: 1, flat: 0, flat2Pct: 0 },
 } as const;
-export const ruleOf = (i: BidInputs, rules: Record<string, { months: number; ratePct: number; daily: number }> = REDEMPTION_RULES): string => {
-  for (const [k, r] of Object.entries(rules)) if (nz(i.redemptionMonths) === r.months && nz(i.redemptionRatePct) === r.ratePct && nz(i.redemptionDaily) === r.daily) return k;
+type RuleShape = { months: number; ratePct: number; daily: number; flat?: number; flat2Pct?: number };
+export const ruleOf = (i: BidInputs, rules: Record<string, RuleShape> = REDEMPTION_RULES): string => {
+  for (const [k, r] of Object.entries(rules))
+    if (nz(i.redemptionMonths) === r.months && nz(i.redemptionRatePct) === r.ratePct && nz(i.redemptionDaily) === r.daily && nz(i.redemptionFlat) === (r.flat ?? 0) && nz(i.redemptionFlat2Pct) === (r.flat2Pct ?? 0)) return k;
   return 'custom';
 };
 
@@ -291,6 +315,8 @@ export function defaultsFor(p: Property): BidInputs {
     redemptionMonths: rule.months,
     redemptionRatePct: rule.ratePct,
     redemptionDaily: rule.daily,
+    redemptionFlat: rule.flat,
+    redemptionFlat2Pct: rule.flat2Pct,
     holdingMonths,
     // Clark County tax rates are about 2.9–3.3% of assessed value a year depending on district (before abatements);
     // 3.3% is the conservative end. Plus about $300/month insurance and utilities.
@@ -301,7 +327,7 @@ export function defaultsFor(p: Property): BidInputs {
 /** Largest sensible value for each input: percentages stop at 100, money at $10 billion. */
 export const INPUT_MAX: Record<keyof BidInputs, number> = {
   minimumBid: 1e10, exitValue: 1e10, repairs: 1e10, contingencyPct: 100, buyerPremiumPct: 100, transferTaxPer500: 100, survivingLiens: 1e10,
-  titleLegal: 1e10, possession: 1e10, redemptionMonths: 120, redemptionRatePct: 100, redemptionDaily: 1, holdingMonths: 600,
+  titleLegal: 1e10, possession: 1e10, redemptionMonths: 120, redemptionRatePct: 100, redemptionDaily: 1, redemptionFlat: 1, redemptionFlat2Pct: 100, redemptionChecked: 1, holdingMonths: 600,
   monthlyCarry: 1e10, financedPct: 100, interestRatePct: 100, pointsPct: 100, sellingCostPct: 100, targetProfitPct: 100,
   targetProfitMin: 1e10, profitInDollars: 1, cashAvailable: 1e10,
 };

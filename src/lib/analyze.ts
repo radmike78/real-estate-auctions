@@ -7,7 +7,7 @@ import { COUNTY_OFFICES } from './countyOffices';
 import { navigate } from './nav';
 import { countyName, stateByCode, type StateCode } from './regions';
 
-export type SaleKind = 'listing' | 'reo' | 'trustee' | 'taxSale' | 'lien' | 'court' | 'hoa' | 'irs';
+export type SaleKind = 'listing' | 'reo' | 'short' | 'trustee' | 'taxSale' | 'lien' | 'court' | 'hoa' | 'irs';
 export type Plan = 'flip' | 'rent' | 'commercial' | 'lien';
 
 export interface SaleKindInfo {
@@ -22,6 +22,7 @@ export interface SaleKindInfo {
 export const SALE_KINDS: SaleKindInfo[] = [
   { key: 'listing', label: 'Regular listing (agent or owner)' },
   { key: 'reo', label: 'Bank-owned or government home (REO, HUD)' },
+  { key: 'short', label: 'Short sale (the seller’s lender must approve)' },
   { key: 'trustee', label: 'Foreclosure auction (trustee sale)' },
   { key: 'taxSale', label: 'County tax sale (the property)', states: ['NV', 'CA', 'UT', 'TX'] },
   { key: 'lien', label: 'Tax lien sale', states: ['AZ', 'NV'], labelIn: { NV: 'SID lien certificate', AZ: 'Tax lien sale (lien certificate)' } },
@@ -101,6 +102,13 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     sale.push({ id: 'reo-hud', text: 'HUD homes: bid through a HUD-registered broker, and check whether owner-occupants get the first bidding period.' });
     if (st === 'NV') sale.push({ id: 'reo-firstlook', text: 'Nevada Fannie Mae homes: for the first 30 days, only buyers who will live there, public entities and some nonprofits can make offers.' });
   }
+  if (d.kind === 'short') {
+    sale.push({ id: 'short-approval', text: 'Every lienholder must approve the sale in writing before closing. Until then the price isn’t settled, and approval can take months. Ask your agent how long the file has been open and how many liens there are.', href: '#/short-sales' });
+    sale.push({ id: 'short-foreclosure', text: 'Ask whether a foreclosure sale is posted. A lender’s approval doesn’t stop it by itself: get written word from the lender or its attorney that the sale is postponed or called off, and keep it.' });
+    sale.push({ id: 'short-dates', text: 'Put every date on one calendar: the approval deadline, your option or inspection period, your loan approval and the lender’s closing deadline. Ask your agent when you can end the contract while you wait, and get your earnest money back.' });
+    if (st === 'TX') sale.push({ id: 'tx-short', text: 'Texas: with the TREC Short Sale Addendum (form 45-2), most contract dates count from the day the seller tells you every lienholder approved (the Amended Effective Date). Your option period starts when you sign, runs through the wait and ends that many days after the approval notice. If approval doesn’t come by the addendum’s date, the contract ends and your earnest money is refunded.' });
+    sale.push({ id: 'short-team', text: 'Your agent tracks the lender’s answer. Ask the title company to confirm every lien is in the approval, and a real estate attorney if a foreclosure sale is posted or the approval letter has conditions you don’t understand.', href: '#/pros/attorney' });
+  }
   if (auction) sale.push({ id: 'confirm-sale', text: 'Confirm the sale with the official seller the day before: sales are often postponed, paid off or cancelled.' });
   if (d.kind === 'trustee') {
     if (st === 'NV') sale.push({ id: 'nv-trustee', text: 'Nevada: the sale comes at least 3 months after the notice of default; the notice of sale is posted 20 days before. Ask the trustee how and when you must pay.' });
@@ -112,7 +120,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
   if (d.kind === 'taxSale') {
     if (st === 'NV') sale.push({ id: 'nv-tax', text: 'Nevada: the treasurer sells by quitclaim deed, and owners and lenders can pay off until the third business day before the sale. Some liens can survive, and title insurance may be hard to get at first.' });
     if (st === 'CA') sale.push({ id: 'ca-tax', text: 'California: tax-defaulted property is sold as-is; the county isn’t responsible for other liens or easements. Read the tax collector’s terms for deposits and payment.' });
-    if (st === 'TX') sale.push({ id: 'tx-tax', text: 'Texas: a sheriff or constable sells the property after a court judgment, on the first Tuesday of the month. In large counties you need the tax office’s statement that you owe no delinquent taxes (Tax Code 34.015). The owner can redeem for 180 days, or 2 years for a homestead or farm land (34.21).' });
+    if (st === 'TX') sale.push({ id: 'tx-tax', text: 'Texas: a sheriff or constable sells the property after a court judgment, on the first Tuesday of the month. In large counties you need the tax office’s statement that you owe no delinquent taxes (Tax Code 34.015). The owner can redeem for 180 days, or 2 years if it was a homestead, land designated for agricultural use or a mineral interest, counted from the day the deed is filed (34.21). Check which applies in the judgment and the appraisal district record before you bid.' });
     if (st === 'UT') sale.push({ id: 'ut-tax', text: 'Utah: the county auditor holds the sale in May or June; a bid must cover the taxes, penalties, interest and costs.' });
   }
   if (d.kind === 'lien') {
@@ -127,9 +135,13 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
       UT: 'Utah: after a sheriff’s sale, the owner can redeem for 180 days.',
       TX: 'Texas: after a sheriff’s or constable’s execution sale, the owner has no right to redeem, but you get only what the debtor owned, so liens ahead of the judgment stay.',
     };
-    sale.push({ id: 'court-redeem', text: `${r[st]} You own it subject to that right; hold off on repairs until it ends.` });
+    sale.push({ id: 'court-redeem', text: st === 'TX' ? r[st] : `${r[st]} You own it subject to that right; secure and maintain it, and hold off on remodeling until it ends.` });
   }
-  if (d.kind === 'hoa') sale.push({ id: 'nv-hoa', text: 'Nevada HOA foreclosures: the owner can redeem for 60 days. Check with a title company whether the first loan survives.', href: '#/playbooks/hoa' });
+  if (d.kind === 'hoa' && st === 'NV') sale.push({ id: 'nv-hoa', text: 'Nevada HOA foreclosures: the owner can redeem for 60 days. Check with a title company whether the first loan survives.', href: '#/playbooks/hoa' });
+  if (d.kind === 'hoa' && st === 'TX') {
+    sale.push({ id: 'tx-hoa-type', text: 'Texas: read the recorded declaration first. It decides whether this is a subdivision HOA (Property Code 209) or a condominium association (82); a townhome can be either.', href: '#/playbooks/txhoa' });
+    sale.push({ id: 'tx-hoa-redeem', text: 'Subdivision: the owner, or a lender after 90 days, can redeem until 180 days after the HOA mails notice of the sale, and you can’t sell to anyone else until then (209.011). Condominium: the owner can redeem until 90 days after the sale and repays your bid plus 6% a year (82.113). Ask a title company whether the first loan survives.' });
+  }
   if (d.kind === 'irs') sale.push({ id: 'irs-redeem', text: 'IRS sales: for 180 days the owner can buy it back by paying your price plus 20% a year, so you can’t count on keeping it until then.', href: '#/learn/forced-sales' });
   if (offices?.taxSale && (d.kind === 'taxSale' || d.kind === 'lien')) sale.push({ id: 'county-sale-page', text: `Read ${place}’s tax sale page: dates, deposit, payment deadline and what the deed promises.`, href: offices.taxSale.url });
   if (sale.length) groups.push({ title: 'The sale', items: sale });
@@ -141,8 +153,10 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     research.push({ id: 'condition', text: auction ? 'Look at the condition from the street, since you usually can’t go inside, and budget for surprises.' : 'Get an inspection and a repair estimate.', href: '#/pros/inspector' });
     research.push({ id: 'flood', text: 'Check flood, hazard and environmental records.', href: '#/learn/tools' });
   }
-  research.push({ id: 'taxes', text: `Check the tax bill and any unpaid taxes${offices?.treasurer ? ` with ${place}’s treasurer` : ' with the county treasurer'}.`, href: offices?.treasurer?.url ?? '#/find-deals' });
-  if (offices?.recorder) research.push({ id: 'recorded', text: `Read the recorded documents (deeds, loans, liens, notices) at ${place}’s recorder.`, href: offices.recorder.url });
+  const taxOffice = st === 'TX' ? 'tax assessor-collector' : 'treasurer';
+  const records = st === 'TX' ? 'county clerk' : 'recorder';
+  research.push({ id: 'taxes', text: `Check the tax bill and any unpaid taxes${offices?.treasurer ? ` with ${place}’s ${taxOffice}` : ` with the county ${taxOffice}`}.`, href: offices?.treasurer?.url ?? '#/find-deals' });
+  if (offices?.recorder) research.push({ id: 'recorded', text: `Read the recorded documents (deeds, loans, liens, notices) at ${place}’s ${records}.`, href: offices.recorder.url });
   if (auction) research.push({ id: 'bankruptcy', text: 'Check whether the owner has filed for bankruptcy, which can stop a sale.', href: '#/learn/tools' });
   groups.push({ title: 'Research the property', items: research });
 
@@ -152,7 +166,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
   money.push({ id: 'funds', text: auction ? 'Have the money ready: most auctions want cash or cashier’s checks on a tight deadline.' : 'Get pre-approved, or have proof of funds, before you offer.', href: '#/pros/lender' });
   if (d.plan === 'flip') {
     money.push({ id: 'arv', text: 'Base your resale value on sold homes already in finished condition, not asking prices.' });
-    money.push({ id: 'contractor', text: `Get a bid from a contractor licensed in ${state}, and check permits with the building department.`, href: '#/learn/tools' });
+    money.push({ id: 'contractor', text: st === 'TX' ? 'Get written bids with a scope and payment schedule. Texas has no state license for general contractors or remodelers: check the trade licenses (electrician, plumber, air conditioning) for that work, the city’s registration and permits, insurance and references.' : `Get a bid from a contractor licensed in ${state}, and check permits with the building department.`, href: '#/pros/contractor' });
   }
   if (d.plan === 'rent') {
     money.push({ id: 'rent', text: 'Check the rent against HUD’s Fair Market Rents and nearby rentals, and count vacancy, repairs and management.', href: '#/learn/tools' });
@@ -160,7 +174,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     money.push({ id: 'insurance', text: 'Get landlord insurance quotes before you commit.', href: '#/pros/insurance' });
   }
   if (d.plan === 'commercial') money.push({ id: 'noi', text: 'Get the rent roll and operating statements, and check NOI, cap rate and debt coverage with a commercial lender.', href: '#/learn/analyze' });
-  if (d.kind !== 'lien' && (auction || d.kind === 'reo')) money.push({ id: 'occupants', text: 'Plan for occupants: removing anyone takes a court process, and tenants after a foreclosure get at least 90 days’ notice.' });
+  if (d.kind !== 'lien' && (auction || d.kind === 'reo')) money.push({ id: 'occupants', text: `Plan for occupants: find out whether they’re the former owner or tenants, and get any lease. Removing anyone takes a court process. After a foreclosure, federal law gives tenants with a genuine lease or rental at least 90 days’ notice, or the rest of their lease unless you’ll live there yourself${st === 'TX' ? '; Texas’s shorter notice doesn’t cut that' : ''}. Ask an attorney how this applies to your sale before you give any notice.` });
   groups.push({ title: 'Money and plan', items: money });
 
   // 4. Before you commit

@@ -31,7 +31,8 @@ export const DISCLAIMERS: Record<DisclaimerKind, { title: string; text: string }
     text:
       'Lenders listed here pay to advertise. Being listed is not an endorsement. ' +
       "We help you find lenders to contact. We don't make, arrange, broker or negotiate loans, recommend a lender, or guarantee credit. " +
-      "Any terms are between you and the lender, and we aren't responsible for them. Compare several Loan Estimates, read every " +
+      "Any terms are between you and the lender, and we aren't responsible for them. Compare several offers in writing: a Loan Estimate " +
+      "for a home loan, or the lender's term sheet and disclosures for a business loan like a flip or rental, which often doesn't get one. Read every " +
       "disclosure, check the lender's license with its regulator (often on NMLS), and never pay fees or wire money before you have verified the lender.",
   },
   services: {

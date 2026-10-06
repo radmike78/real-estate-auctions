@@ -115,8 +115,8 @@
       "src/lib/playbooks.ts",
       "src/lib/saleDocs.ts"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "679a4bd0ca8c368a",
+    "reviewed": "2026-10-06",
+    "hash": "023a2275045ff562",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -158,8 +158,8 @@
       "src/components/StrategyTabs.tsx",
       "src/lib/holdCalc.ts"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "0dbcc5ac8728f9fc",
+    "reviewed": "2026-10-06",
+    "hash": "32c022dd1109c706",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -182,8 +182,8 @@
       "src/components/TrackButton.tsx",
       "src/components/SearchAlertButton.tsx"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "6b7804e7a5c8431b",
+    "reviewed": "2026-10-06",
+    "hash": "c97382ba7529c5a8",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -201,8 +201,8 @@
       "src/components/TeamBuilder.tsx",
       "src/lib/teamBuilder.ts"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "b23896e343eecc01",
+    "reviewed": "2026-10-06",
+    "hash": "9e1d91f71f5d03b4",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -222,8 +222,8 @@
       "src/components/ProDirectory.tsx",
       "src/lib/pros.ts"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "748fc764f749ea4e",
+    "reviewed": "2026-10-06",
+    "hash": "6adf545d857e945f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -254,8 +254,8 @@
     "files": [
       "src/components/AboutPage.tsx"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "94c56e08fe831197",
+    "reviewed": "2026-10-06",
+    "hash": "b7b1c33a13be7a72",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -279,8 +279,8 @@
       "src/components/Disclaimer.tsx",
       "src/components/RoleNotice.tsx"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "46e9b7586adbce30",
+    "reviewed": "2026-10-06",
+    "hash": "fdff859d93d61999",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -350,8 +350,8 @@
       "src/components/Term.tsx",
       "src/lib/terms.ts"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "c6f18b0b0bd97917",
+    "reviewed": "2026-10-06",
+    "hash": "0c0591f4b78d2808",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -361,8 +361,8 @@
       "src/components/DecidePage.tsx",
       "src/lib/decide.ts"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "5e3023de175947d5",
+    "reviewed": "2026-10-06",
+    "hash": "1d0104b7c48be7eb",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -374,8 +374,8 @@
       "src/lib/findDeals.ts",
       "src/lib/regions.ts"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "03da19f2a82ee283",
+    "reviewed": "2026-10-06",
+    "hash": "4603422c8d03b19b",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
@@ -387,8 +387,8 @@
       "src/lib/analyze.ts",
       "src/lib/path.ts"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "541671714a1bed57",
+    "reviewed": "2026-10-06",
+    "hash": "6d7185d15dd07fc7",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {
@@ -400,8 +400,8 @@
       "src/lib/roadmap.ts",
       "src/lib/progressBackup.ts"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "f05cb7eec778c471",
+    "reviewed": "2026-10-06",
+    "hash": "ca8a28852167268c",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

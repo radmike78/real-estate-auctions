@@ -195,7 +195,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Buyers stretching to afford the mortgage with no savings left for a special assessment.",
       "Investors who plan short-term or nightly rentals without confirming the HOA allows them.",
       "Anyone buying in an older building without seeing the reserve study, inspections and minutes.",
-      "People who fall behind on dues. In Nevada, Texas and many other states, the HOA can foreclose. In Texas, it generally must get a court order first and can’t foreclose for fines alone (Property Code 209.009 and 209.0092)."
+      "People who fall behind on dues. In Nevada, Texas and many other states, the HOA can foreclose. In Texas, a subdivision HOA generally must get a court order first and can’t foreclose for fines alone (Property Code 209.009 and 209.0092). A Texas condominium association follows chapter 82 instead: it can’t foreclose for fines alone either, but it may sell without a court unless its declaration says otherwise, and the owner has 90 days after the sale to buy it back (82.113). The recorded declaration says which law applies; a townhome can be either."
     ],
     costs: [
       "Monthly HOA dues. In Las Vegas, the Review-Journal reported condo dues of about 50 cents to a dollar per square foot (c. 2016).",
@@ -342,7 +342,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     sources: [
       {
         label: "Texas Property Code chapter 209 (209.009 no foreclosure for fines; 209.0092 court order first)",
-        url: "https://statutes.capitol.texas.gov/Docs/PR/htm/PR.209.htm#209.009"
+        url: "https://tcss.legis.texas.gov/resources/PR/htm/PR.209.htm#209.009"
       },
       {
         label: "NPR: Florida lawmakers try to balance condo safety with cost (May 3, 2025)",

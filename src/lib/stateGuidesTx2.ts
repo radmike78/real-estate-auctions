@@ -6,7 +6,7 @@
 import type { Playbook } from './playbooks';
 import { TEAM } from './playbookTeam';
 
-const TX = (code: string, ch: string) => `https://statutes.capitol.texas.gov/Docs/${code}/htm/${code}.${ch}.htm`;
+const TX = (code: string, ch: string) => `https://tcss.legis.texas.gov/resources/${code}/htm/${code}.${ch}.htm`;
 
 export const TX_GUIDES_2: Playbook[] = [
 {
@@ -663,7 +663,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       label: "Texas Constitution art. 8, sec. 24-a (no personal income tax)",
-      url: "https://statutes.capitol.texas.gov/Docs/CN/htm/CN.8.htm"
+      url: "https://tcss.legis.texas.gov/resources/CN/htm/CN.8.htm"
     },
     {
       label: "Texas Comptroller: franchise tax rates and thresholds",

@@ -87,7 +87,7 @@ export const TX_DRILLS: Drill[] = [
         question: 'The house was the owner’s homestead. What should you plan for?',
         multi: false,
         options: [
-          { label: 'The owner can buy it back for 2 years after my deed is recorded, paying my price and allowed costs plus 25% in year one or 50% in year two', good: true, why: 'Right (34.21). For property that wasn’t a homestead or farm land, it would be 180 days, with a premium of no more than 25%.' },
+          { label: 'The owner can buy it back for 2 years after my deed is recorded, paying my price and allowed costs plus 25% in year one or 50% in year two', good: true, why: 'Right (34.21). For property that wasn’t a homestead, land designated for agricultural use or a mineral interest, it would be 180 days, with a premium of no more than 25%.' },
           { label: 'It’s mine outright the day I pay', good: false, why: 'Your deed is still subject to the owner’s buy-back right (34.01(n)).' },
           { label: 'Renovate now, so the owner pays back the work if they redeem', good: false, why: 'Only itemized costs like insurance, required repairs and HOA dues count (34.21(g), (i)). A remodel is a gamble on a house you may give back.' },
         ],
@@ -216,7 +216,7 @@ export const TX_DRILLS: Drill[] = [
           { label: 'I pay as the sheriff’s civil office directs and get a deed to the debtor’s interest. If I don’t pay, I can owe 20% of the value plus costs', good: true, why: 'Right (34.045, Rules 652, 653). Record your deed right away.' },
           { label: 'I get the deed now and can pay within a few months', good: false, why: 'Each office sets its terms, and a bidder who doesn’t pay can owe 20% of the property’s value.' },
         ],
-        lesson: 'The tenant keeps the right to notice. If you won’t keep the lease, a tenant who pays on time gets at least 30 days’ written notice (Property Code 24.005(b)), and only an eviction case in court can remove anyone.',
+        lesson: 'The tenant keeps the right to notice. If you won’t keep the lease, a tenant who pays on time gets at least 30 days’ written notice (Property Code 24.005(b)). After a foreclosure, federal law can require at least 90 days, or the rest of a genuine lease unless you’ll live there, and only an eviction case in court can remove anyone.',
       },
     ],
     verdict: {

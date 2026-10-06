@@ -69,7 +69,7 @@ function TopicHelp({ topic }: { topic: AdTopic }) {
           <p>{e.body}</p>
           <ul>{e.questions.map((q) => <li key={q}>{q}</li>)}</ul>
           <LicenseLinks topic={topic} state={st ?? 'NV'} />
-          {!st && <p className="small muted">Investing in California, Arizona or Utah? <a href="#/pros">Your team</a> lists each state’s license lookups.</p>}
+          {!st && <p className="small muted">Investing in California, Arizona, Utah or Texas? <a href="#/pros">Your team</a> lists each state’s license lookups.</p>}
           <p className="topic-help-dir">
             {e.directories.map((d, i) => <span key={d.href}>{i > 0 && ' · '}<a href={d.href}>{d.label} →</a></span>)}
           </p>

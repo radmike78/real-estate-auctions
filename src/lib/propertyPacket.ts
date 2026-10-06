@@ -23,7 +23,7 @@ function read(key: string): unknown {
 
 /** The rental numbers saved for a deal at the price you'd pay, or null until a price is entered in Keep and rent. */
 export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCash: number | null; target: number; cashIn: number } | null {
-  const offer = d.kind === 'listing' || d.kind === 'reo';
+  const offer = d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short';
   const raw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
   if (!raw) return null;
   const v = sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs;
@@ -33,7 +33,7 @@ export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCa
 }
 
 export function propertyPacketText(d: Deal): string {
-  const offer = d.kind === 'listing' || d.kind === 'reo';
+  const offer = d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short';
   const kind = SALE_KINDS.find((k) => k.key === d.kind);
   const lines: string[] = [`PROPERTY REVIEW PACKET: ${d.name}`, 'DeedOwl educational worksheet. Estimates are labeled; verify every number against its source.', ''];
   lines.push(`${kind ? kindLabel(kind, d.state) : d.kind} · ${countyName(d.county)}, ${d.state}`, '');

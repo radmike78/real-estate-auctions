@@ -12,7 +12,7 @@ import { TEAM } from './playbookTeam';
 const REVIEWED = '2026-10-05';
 
 const TXS = (code: string, ch: string, sec: string) =>
-  `https://statutes.capitol.texas.gov/Docs/${code}/htm/${code}.${ch}.htm#${sec}`;
+  `https://tcss.legis.texas.gov/resources/${code}/htm/${code}.${ch}.htm#${sec}`;
 const TRCP = 'https://www.txcourts.gov/media/1463426/texas-rules-of-civil-procedure.pdf';
 
 export const TX_GUIDES_1: Playbook[] = [
@@ -21,7 +21,7 @@ export const TX_GUIDES_1: Playbook[] = [
   title: "Texas tax sales",
   short: "Tax sales",
   oneLine: "When property taxes go unpaid, the taxing units sue. After the court orders a sale, a sheriff or constable auctions the property on the first Tuesday of the month.",
-  youGet: "A sheriff’s or constable’s deed to the interest the defendants owned. The owner can still buy it back: for two years if it was a homestead or farm land, or 180 days otherwise.",
+  youGet: "A sheriff’s or constable’s deed to the interest the defendants owned. The owner can still buy it back: for two years if it was a homestead, land designated for agricultural use or a mineral interest, or 180 days otherwise. Check which in the judgment and the appraisal district record: vacant or rural land isn’t automatically one or the other.",
   plain: "The house, by a deed from the sheriff or constable. But the owner may buy it back for up to two years, so it isn’t fully yours yet.",
   forSale: true,
   glance: [
@@ -43,7 +43,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       label: "Owner’s buy-back",
-      value: "Homestead or farm land: two years after your deed is recorded, plus a 25% premium in year one or 50% in year two. Other property: 180 days, with a premium of no more than 25% (34.21)."
+      value: "Homestead, land designated for agricultural use, or a mineral interest: two years after your deed is recorded, plus a 25% premium in year one or 50% in year two. Other property: 180 days, with a premium of no more than 25% (34.21)."
     },
     {
       label: "What you get",
@@ -100,10 +100,10 @@ export const TX_GUIDES_1: Playbook[] = [
     wipedOut: [
       "The tax liens included in the judgment (34.01(q))",
       "The defendants’ ownership, once the buy-back period ends without a redemption",
-      "Most court challenges to the sale, after one year from recording, or two years for a homestead or farm land (33.54)"
+      "Most court challenges to the sale, after one year from recording, or two years for a homestead or land appraised (or eligible to be) as agricultural or open-space land (33.54)"
     ],
     mayStay: [
-      "The owner’s right to buy it back: two years for a homestead or farm land, 180 days for other property (34.21)",
+      "The owner’s right to buy it back: two years for a homestead, land designated for agricultural use or a mineral interest, 180 days for other property (34.21)",
       "Taxes that came due after the judgment. The buyer pays them (33.52(d)).",
       "Recorded deed restrictions and easements recorded before January 1 of the year the tax lien arose. Also an HOA lien under those restrictions, if the judgment didn’t wipe it out (34.01(n)).",
       "Liens of anyone who wasn’t named in the tax lawsuit. The deed passes only what the defendants owned (34.01(n)).",
@@ -305,7 +305,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       title: "Handle occupants through the court",
-      detail: "Give a written notice to vacate before you file an eviction (forcible detainer) case. A former owner who stays usually gets at least three days. A residential tenant who pays on time gets at least 30 days if you don’t keep the lease (Property Code 24.005(b)). Federal law may give tenants more time (24.005(c-1)). Hire an attorney. Never change locks or remove belongings on your own."
+      detail: "Give a written notice to vacate before you file an eviction (forcible detainer) case. A former owner who stays usually gets at least three days. A residential tenant who pays on time gets at least 30 days if you don’t keep the lease (Property Code 24.005(b)). Federal law can require at least 90 days, or the rest of a genuine lease unless you’ll live there yourself, and Texas law makes you wait for it (24.005(c-1)). Hire an attorney. Never change locks or remove belongings on your own."
     }
   ],
   survives: {
@@ -693,7 +693,7 @@ export const TX_GUIDES_1: Playbook[] = [
   ],
   example: {
     title: "Illustrative example: the $5,000 townhome",
-    story: "Morgan, a made-up investor, saw a notice of sale for a townhome in a fictional Texas HOA. The association was owed about $5,000. Morgan’s title report showed a $210,000 first deed of trust. The declaration ranked the HOA lien behind it. The home was worth about $270,000. Morgan also learned the owner could buy it back for 180 days. And Morgan couldn’t resell during that time.",
+    story: "Morgan, a made-up investor, saw a notice of sale for a townhome in a fictional Texas HOA. The association was owed about $5,000. Morgan’s title report showed a $210,000 first deed of trust. The declaration showed a subdivision under chapter 209, not a condominium, and ranked the HOA lien behind the loan. The home was worth about $270,000. Morgan also learned the owner could buy it back for 180 days. And Morgan couldn’t resell during that time.",
     lesson: "The first mortgage would survive. So the real cost was about $215,000 plus taxes, dues and six months of holding costs, with a buy-back risk on top. Morgan passed. In Texas, price an HOA sale with the mortgage and the 180 days in mind."
   },
   sources: [

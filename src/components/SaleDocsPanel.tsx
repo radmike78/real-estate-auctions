@@ -1,4 +1,4 @@
-import { SALE_SCRIPTS, saleDocsFor, saleKindOf } from '../lib/saleDocs';
+import { saleDocsFor, saleScriptsFor } from '../lib/saleDocs';
 
 /** Documents to have, check or sign for a kind of sale, and words to use with the official seller or your own team. */
 export default function SaleDocsPanel({ guideKey, state }: { guideKey: string; state: string }) {
@@ -13,7 +13,7 @@ export default function SaleDocsPanel({ guideKey, state }: { guideKey: string; s
       </div>
       <div>
         <h3>What to say</h3>
-        {SALE_SCRIPTS[saleKindOf(guideKey)].map((x) => (
+        {saleScriptsFor(guideKey, state).map((x) => (
           <div key={x.to}>
             <h4>{x.to}</h4>
             <blockquote className="roadmap-script">{x.script}</blockquote>

@@ -18,7 +18,7 @@ export type SaleKindKey = 'deed' | 'taxlien' | 'sid' | 'trustee' | 'hoa' | 'sher
 
 /** The kind of sale a guide covers, from its key ("catax" and "tax" are both tax deed sales). */
 export function saleKindOf(guideKey: string): SaleKindKey {
-  const k = guideKey.replace(/^(ca|az|ut)(?=[a-z]{3})/, '');
+  const k = guideKey.replace(/^(ca|az|ut|tx)(?=[a-z]{3})/, '');
   if (k === 'tax') return 'deed';
   if (k === 'foreclosure') return 'trustee';
   return (['taxlien', 'sid', 'hoa', 'sheriff', 'irs', 'reo', 'short', 'commercial'] as const).find((x) => x === k) ?? 'deed';
@@ -126,7 +126,89 @@ export const SALE_SCRIPTS: Record<SaleKindKey, SaleScript[]> = {
   commercial: [{ to: 'The listing broker', script: '“Could you send the rent roll, current leases, the last 12 months of operating statements and any environmental reports? What’s the seller’s timeline, and will tenants sign estoppel letters?”' }],
 };
 
+// Texas runs some sales differently: a sheriff or constable sells tax-foreclosed property, an HOA's rules depend on
+// whether it's a subdivision or a condominium, and the TREC forms set the contract dates. These replace the general
+// lists for Texas guides (Tax Code 34.01, 34.015, 34.21; Property Code 82.113, 209.0092, 209.011; TREC 20-19, 45-2).
+const TX_TAX_NOTICE: SaleDoc = { name: 'The notice of sale and the county’s sale page', check: 'The sheriff or constable posts it before the first-Tuesday sale. Save it with the date you saved it. The county’s page sets how you register, whether the sale is in person or online, the funds it takes and when payment is due; those override any general summary. Check again the day before: properties are often pulled when the taxes are paid.' };
+const TX_DOCS: Partial<Record<SaleKindKey, SaleDoc[]>> = {
+  deed: [
+    TX_TAX_NOTICE,
+    { name: 'The tax office’s statement that you owe no delinquent taxes', check: 'In counties of 250,000 people or more, and smaller ones that adopt the rule, the officer can’t give you a deed without it (Tax Code 34.015). Ask the county tax assessor-collector for it before the sale, in the exact name you’ll bid in. It expires 90 days after it’s issued, and the fee is $10 or less.' },
+    { name: 'The court judgment and order of sale', check: 'From the district clerk. It shows the amount owed, the market value the court set and who was sued. Ask a title company or attorney which liens and interests the judgment covers and which ones stay.' },
+    { name: 'Appraisal district record and the judgment’s description', check: 'They tell you the redemption period: 2 years for a home that was the owner’s homestead, land designated for agricultural use, or a mineral interest; 180 days for other property (Tax Code 34.21). Vacant land isn’t automatically 180 days, and rural land isn’t automatically agricultural: check the record.' },
+    TITLE_SEARCH,
+    { name: 'Funds in the form the sale requires', check: 'In person, the officer says what it takes; online sales often require a wire. Ask your bank how long it takes, and never follow wiring instructions from an email without calling a number you looked up yourself.' },
+    RECEIPT,
+    { name: 'The sheriff’s or constable’s deed', check: 'It gives you the owner’s interest, including the right to use and possess the property, subject to the redemption right and certain recorded covenants, easements and liens (Tax Code 34.01(n)). It’s filed for record by the officer: the redemption clock starts on that filing date, so put it on your calendar. Ask a title company when it would insure the title.' },
+  ],
+  trustee: [
+    { name: 'The notice of trustee’s sale', check: 'Posted at the courthouse and filed with the county clerk at least 21 days before the first-Tuesday sale (Property Code 51.002). It names the trustee, the place and the time the sale starts. Save it, and check again the day before: many sales are postponed or cancelled.' },
+    { name: 'The deed of trust and any recorded assignments', check: 'From the county clerk’s records. They show which loan is being foreclosed and who holds it. Your title company can pull them with the title search.' },
+    TITLE_SEARCH,
+    FUNDS,
+    { name: 'Trustee’s deed', check: 'Confirm it’s recorded in your name. It doesn’t clear liens senior to the loan that was foreclosed. Before anyone is asked to leave, find out whether the people living there are the former owner or tenants: tenants can have more time under their lease and federal law.' },
+    { name: 'Insurance binder', check: 'Coverage starting when the property becomes your risk under this sale. Ask the trustee when that is.' },
+  ],
+  hoa: [
+    { name: 'The notice of sale and the court order', check: 'A subdivision HOA usually needs a court order before it can sell a home (Property Code 209.0092). A condominium association can foreclose in court or, unless its declaration says otherwise, through a trustee sale (Property Code 82.113). Check the notice for the trustee or attorney running the sale.' },
+    { name: 'The recorded declaration', check: 'It decides which law applies: a subdivision (Chapter 209) or a condominium (Chapter 82). A townhome can be either, and the name or look of the building doesn’t tell you.' },
+    TITLE_SEARCH,
+    FUNDS,
+    { name: 'The foreclosure deed, and the redemption deadline', check: 'Subdivision: the owner, or a lender after 90 days, can redeem until 180 days after the HOA mails notice of the sale, and you can’t sell to anyone else until then (209.011). Condominium: the owner can redeem until 90 days after the sale and repays your bid plus 6% a year (82.113). Hold off on remodeling until it ends.' },
+  ],
+  sheriff: [
+    NOTICE,
+    { name: 'The court case file', check: 'The judgment and the writ of execution behind the sale. Your attorney can tell you what the judgment covers.' },
+    TITLE_SEARCH,
+    FUNDS,
+    { name: 'The sheriff’s or constable’s deed', check: 'It conveys only what the debtor owned, so liens ahead of the judgment stay. Confirm it’s recorded in your name.' },
+  ],
+  reo: [
+    PREAPPROVAL,
+    BUYER_AGREEMENT,
+    { name: 'The TREC resale contract (form 20-19)', check: 'Price, earnest money and the option fee, the option period (your strict deadline to end the contract for any reason), the financing addendum’s deadlines and the closing date. Put every date on your calendar the day it’s signed.' },
+    { name: 'The bank’s addendum', check: '“As-is” terms, who pays which costs, deposit and closing deadlines, and any per-day fee for closing late. It usually overrides the standard contract.' },
+    INSPECTION,
+    COMMITMENT,
+    CLOSING,
+    DEED,
+  ],
+  short: [
+    PREAPPROVAL,
+    BUYER_AGREEMENT,
+    { name: 'The TREC resale contract (form 20-19)', check: 'Price, earnest money, the option fee and the closing date. With a short sale, these dates are tied to the addendum below.' },
+    { name: 'TREC Short Sale Addendum (form 45-2)', check: 'Says the contract depends on every lienholder’s written approval. Read how the dates in the contract, including the option period, are counted from the approval, and when either side can end the contract while you wait.' },
+    { name: 'Each lienholder’s approval letter', check: 'The price it accepts, the closing deadline and which costs it will and won’t pay. An approval doesn’t prove a posted foreclosure sale has been called off: have your agent or attorney confirm that in writing.' },
+    INSPECTION,
+    COMMITMENT,
+    CLOSING,
+    DEED,
+  ],
+};
+
 /** The documents for one guide, leaving out rules that belong to another state. */
 export function saleDocsFor(guideKey: string, state: string): SaleDoc[] {
-  return SALE_DOCS[saleKindOf(guideKey)].filter((d) => state === 'NV' || !/super-priority/.test(d.name));
+  const kind = saleKindOf(guideKey);
+  if (state === 'TX' && TX_DOCS[kind]) return TX_DOCS[kind];
+  return SALE_DOCS[kind].filter((d) => state === 'NV' || !/super-priority/.test(d.name));
+}
+
+const TX_SCRIPTS: Partial<Record<SaleKindKey, SaleScript[]>> = {
+  deed: [
+    { to: 'The sheriff’s or constable’s office running the sale', script: OFFICIAL_ASK },
+    { to: 'County tax assessor-collector', script: '“I plan to bid at the [month] tax sale. How do I request the statement that I owe no delinquent taxes, what does it cost, and how long does it take?”' },
+    { to: 'Title company', script: '“I’m considering bidding on the property in tax suit [cause number] at the [date] sale. Which liens and interests would survive, which redemption period applies, and when would you insure the title?”' },
+  ],
+  hoa: [
+    { to: 'The HOA’s attorney or trustee (from the notice)', script: '“I’m interested in the sale for [property] on [date]. Is it still scheduled? Is the property in a subdivision or a condominium under the declaration, what’s the opening bid, and what form of funds do you need?”' },
+    { to: 'Title company', script: '“Which loans and liens would survive this HOA sale, which redemption rule applies, and when would you insure the title?”' },
+  ],
+  sheriff: [{ to: 'The sheriff’s or constable’s civil section', script: '“I’m interested in the execution sale in case [number] on [date]. Is it still scheduled? What form of payment do you need, when is it due, and what deed will the buyer receive?”' }],
+  short: [{ to: 'Your agent (to ask the listing agent)', script: '“Has every lienholder received the seller’s package? How many liens are there, how long has the file been open, and is a foreclosure sale posted? If one is, who is confirming in writing that it will be called off?”' }],
+};
+
+/** The words to use for one guide, with Texas's offices where they differ. */
+export function saleScriptsFor(guideKey: string, state: string): SaleScript[] {
+  const kind = saleKindOf(guideKey);
+  return (state === 'TX' && TX_SCRIPTS[kind]) || SALE_SCRIPTS[kind];
 }

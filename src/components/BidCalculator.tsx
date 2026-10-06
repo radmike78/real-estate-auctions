@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from 'react';
 import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, INPUT_MAX, maxSafeBid, profitAtBid, redemptionOutcome, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs } from '../lib/bidCalc';
-import { redemptionPresetsFor, taxSaleWait, transferTaxFor } from '../lib/stateCosts';
+import { redemptionChoicesFor, redemptionPresetsFor, taxSaleWait, transferTaxFor } from '../lib/stateCosts';
 import { useCalcRegion } from './calcRegion';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
@@ -56,7 +56,7 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
     title: 'Holding and financing',
     redemption: true,
     fields: [
-      { k: 'redemptionMonths', label: 'Redemption wait', unit: 'mo', hint: 'Hold off on repairs until it ends.', more: 'After some sales the former owner (and sometimes lenders) can buy the property back by repaying your price plus interest. Repairs you make before then are not repaid.' },
+      { k: 'redemptionMonths', label: 'Redemption wait', unit: 'mo', hint: 'Secure and maintain it; hold off on remodeling until it ends.', more: 'After some sales the former owner (and sometimes lenders) can buy the property back by repaying your price plus what the law adds. Remodeling before then isn’t repaid, so most buyers only secure, insure and maintain the property while they wait. Ask an attorney what you may do and what is repaid. This is the legal wait; your own plan can be longer.' },
       { k: 'redemptionRatePct', label: 'Interest a redemption pays you', unit: '%/yr', hint: 'Set by the kind of sale.', when: (i) => i.redemptionMonths > 0 },
       { k: 'holdingMonths', label: 'Months to fix and sell', unit: 'mo', hint: 'After any redemption wait.', more: 'After a tax sale, resale may wait for a quiet title action. In Nevada, that’s the 2-year window after the Treasurer’s deed (NRS 361.600); other states’ waits are in their sale guides.' },
       { k: 'monthlyCarry', label: 'Monthly holding costs', unit: '$', hint: 'Taxes, insurance, utilities. The estimate leaves out HOA dues: add them if the home has an HOA.' },
@@ -100,6 +100,13 @@ function load(id: string | undefined, defaults: BidInputs): BidInputs {
     const out = sanitizeInputs(saved, defaults);
     // Saved before the redemption wait had its own field: its months already include the wait.
     if (saved && typeof saved === 'object' && !('redemptionMonths' in saved)) return { ...out, redemptionMonths: 0, redemptionRatePct: 0, redemptionDaily: 0 };
+    // Saved before flat premiums had their own setting: the old yearly rates that stood in for them.
+    if (saved && typeof saved === 'object' && !('redemptionFlat' in saved)) {
+      const m = out.redemptionMonths, rate = out.redemptionRatePct;
+      const old: [number, number, number, number][] = [[1, 96, 8, 0], [6, 16, 8, 0], [6, 12, 6, 0], [24, 25, 25, 50], [6, 50, 25, 0]];
+      const hit = out.redemptionDaily ? undefined : old.find(([om, or]) => om === m && or === rate);
+      if (hit) return { ...out, redemptionRatePct: hit[2], redemptionFlat: 1, redemptionFlat2Pct: hit[3] };
+    }
     return out;
   } catch {
     return defaults;
@@ -135,7 +142,7 @@ const toNum = (v: string) => {
 const yr = (x: number | null) => (x === null ? '—' : `${Math.round(x * 100)}% a year`);
 const unitText = (u: Field['unit']) => (u === '$/500' ? 'per $500' : u === 'mo' ? 'months' : u === '%/yr' ? '% a year' : '%');
 
-export default function BidCalculator({ propertyId, saveAs, defaults = START_INPUTS, openingBid, headingLevel = 3, commercial = false, offer = false }: { propertyId?: string; /** Keep the numbers under this id (a deal saved in Analyze) when there's no listing. */ saveAs?: string; defaults?: BidInputs; openingBid?: number | null; headingLevel?: 2 | 3; commercial?: boolean; offer?: boolean }) {
+export default function BidCalculator({ propertyId, saveAs, defaults = START_INPUTS, openingBid, headingLevel = 3, commercial = false, offer = false, saleKind }: { propertyId?: string; /** Keep the numbers under this id (a deal saved in Analyze) when there's no listing. */ saveAs?: string; defaults?: BidInputs; openingBid?: number | null; headingLevel?: 2 | 3; commercial?: boolean; offer?: boolean; /** The kind of sale chosen in Analyze: picks the redemption rules that fit it. */ saleKind?: string }) {
   const storeId = propertyId ?? saveAs;
   // Words for an auction bid, or an offer on a listed home.
   const w = offer
@@ -144,9 +151,18 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const region = useCalcRegion();
   const tax = transferTaxFor(region.state, region.county);
   const rules = redemptionPresetsFor(region.state);
+  const choices = saleKind ? redemptionChoicesFor(region.state, saleKind) : null;
   const hintFor = (f: Field) => (commercial && f.k === 'exitValue' ? 'Use the value by income above.' : f.k === 'transferTaxPer500' ? tax.hint : f.hint);
   const moreFor = (f: Field) => (f.k === 'transferTaxPer500' ? tax.more : f.k === 'holdingMonths' ? (offer ? undefined : taxSaleWait(region.state)) : f.more);
   const uid = useId();
+  function save(next: BidInputs) {
+    if (!storeId) return;
+    try {
+      localStorage.setItem(KEY(storeId), JSON.stringify(next));
+    } catch {
+      /* storage unavailable */
+    }
+  }
   // The pinned walk-away bar (phones) steps aside once the full results are on screen, so it never covers them.
   const [resultsVisible, setResultsVisible] = useState(false);
   useEffect(() => {
@@ -160,7 +176,17 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const [i, setI] = useState<BidInputs>(() => {
     const v0 = load(storeId, propertyId ? defaults : { ...defaults, transferTaxPer500: tax.per500 });
     // An offer has no auction cash limit, buyer's premium or redemption wait.
-    const v = offer ? { ...v0, cashAvailable: 0, buyerPremiumPct: 0, redemptionMonths: 0, redemptionRatePct: 0, redemptionDaily: 0 } : v0;
+    let v = offer ? { ...v0, cashAvailable: 0, buyerPremiumPct: 0, redemptionMonths: 0, redemptionRatePct: 0, redemptionDaily: 0, redemptionFlat: 0, redemptionFlat2Pct: 0 } : v0;
+    // A redemption rule left over from another kind of sale (IRS interest on an HOA sale, say) is replaced with the
+    // one that fits, and has to be confirmed again.
+    if (!offer && choices) {
+      const cur = ruleOf(v, rules);
+      if (!choices.keys.includes(cur)) {
+        const r0 = rules[choices.start];
+        v = { ...v, redemptionMonths: r0.months, redemptionRatePct: r0.ratePct, redemptionDaily: r0.daily, redemptionFlat: r0.flat, redemptionFlat2Pct: r0.flat2Pct, redemptionChecked: 0 };
+        save(v);
+      }
+    }
     return !v.minimumBid && openingBid ? { ...v, minimumBid: openingBid } : v;
   });
   const [mode, setModeState] = useState<'quick' | 'detailed'>(loadMode);
@@ -177,14 +203,6 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const [bidText, setBidText] = useState<string>('');
   const bid = Math.min(toNum(bidText), 1e10);
   const H = headingLevel === 2 ? 'h2' : 'h3';
-  const save = (next: BidInputs) => {
-    if (!storeId) return;
-    try {
-      localStorage.setItem(KEY(storeId), JSON.stringify(next));
-    } catch {
-      /* storage unavailable */
-    }
-  };
   const update = (patch: Partial<BidInputs>) =>
     setI((cur) => {
       const next = { ...cur, ...patch };
@@ -199,8 +217,12 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const pickRule = (rule: string) => {
     const r = rules[rule];
     setDraft((d) => ({ ...d, redemptionMonths: undefined, redemptionRatePct: undefined }));
-    update({ redemptionMonths: r.months, redemptionRatePct: r.ratePct, redemptionDaily: r.daily });
+    update({ redemptionMonths: r.months, redemptionRatePct: r.ratePct, redemptionDaily: r.daily, redemptionFlat: r.flat, redemptionFlat2Pct: r.flat2Pct, redemptionChecked: 0 });
   };
+  // Rules that fit this kind of sale (all of the state's when the kind isn't known), and whether the buyer still has
+  // to confirm in the records which one applies.
+  const ruleKeys = choices ? choices.keys : Object.keys(rules);
+  const unconfirmed = !offer && !!choices?.confirm && !i.redemptionChecked;
   const r = maxSafeBid(i);
   const grid = stressGrid(i);
   const slower = maxSafeBid({ ...i, holdingMonths: i.holdingMonths + 3 }).profitBid;
@@ -228,7 +250,10 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <span className="small muted">{mode === 'quick' ? 'The deal, repairs and liens. Everything else uses the starting estimates.' : 'The deal first, then every cost in the order you’d meet it.'}</span>
         </div>
         {GROUPS.map((g) => {
-          const fields = g.fields.filter(shown).map((f) => (offer && OFFER_FIELDS[f.k] ? { ...f, ...OFFER_FIELDS[f.k] } : f));
+          const fields = g.fields.filter(shown).map((f) => (offer && OFFER_FIELDS[f.k] ? { ...f, ...OFFER_FIELDS[f.k] } : f)).map((f) =>
+            f.k === 'redemptionRatePct' && i.redemptionFlat
+              ? { ...f, label: i.redemptionFlat2Pct ? 'Premium a redemption pays you (first year)' : 'Premium a redemption pays you', unit: '%' as const, hint: i.redemptionFlat2Pct ? `A flat % of your price set by law, not a yearly rate; ${i.redemptionFlat2Pct}% in the second year.` : 'A flat % of your price set by law, not a yearly rate. It’s the most the law allows.' }
+              : f);
           if (!fields.length) return null;
           return (
             <fieldset key={g.title} className="calc-group">
@@ -237,12 +262,13 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                 <label className="calc-rule">
                   <span className="calc-label">Redemption period</span>
                   <select value={ruleOf(i, rules)} onChange={(e) => e.target.value !== 'custom' && pickRule(e.target.value)}>
-                    {Object.entries(rules).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                    {Object.entries(rules).filter(([k]) => ruleKeys.includes(k)).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
                     {ruleOf(i, rules) === 'custom' && <option value="custom">Your own numbers</option>}
                   </select>
-                  <small className="muted">Fills in the redemption wait and interest. Confirm them in the sale’s official notice.</small>
+                  <small className="muted">Fills in the redemption wait and what a redemption pays. Confirm them in the sale’s official notice.</small>
                 </label>
               )}
+
               <div className="calc-grid">
                 {fields.map((f0) => {
                   const f: Field = f0.profitSwitch && i.profitInDollars ? { ...f0, k: 'targetProfitMin', unit: '$', hint: 'The dollar profit you want from this deal.' } : f0;
@@ -297,6 +323,18 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       </div>
 
       <div className="calc-results" id={`${uid}-results`}>
+        {unconfirmed && (
+          <div className="caution calc-unconfirmed" role="status">
+            <strong>Redemption rule not confirmed.</strong> {choices?.confirm} Your walk-away price uses that assumption. Pick the rule under Holding and financing (Detailed), then confirm it here.
+            <label className="calc-check">
+              <input type="checkbox" checked={false} onChange={() => update({ redemptionChecked: 1 })} />
+              <span>I’ve checked the records, and the redemption rule set in this calculator is the one that applies.</span>
+            </label>
+          </div>
+        )}
+        {!offer && choices?.confirm && !!i.redemptionChecked && (
+          <p className="small muted">Redemption rule confirmed by you. <button type="button" className="linkish" onClick={() => update({ redemptionChecked: 0 })}>Undo</button></p>
+        )}
         {needsValue ? (
           <div className="calc-max" role="status">
             <span>Walk-away price</span>
@@ -361,7 +399,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <div className="calc-note">
             <strong>If the owner redeems</strong>
             <p className="small">
-              At the end of the {Math.round(i.redemptionMonths)}-month wait you’d get back about {fmtMoney(Math.round(redeemed.repaid))} on a {fmtMoney(bid > 0 ? bid : r.maxBid)} bid. By then you’d have spent about {fmtMoney(Math.round(redeemed.spent))}, so you’d {redeemed.net >= 0 ? `come out about ${fmtMoney(Math.round(redeemed.net))} ahead` : `be about ${fmtMoney(Math.round(-redeemed.net))} short`}. Some rules also repay taxes and assessments you paid; repairs aren’t repaid.
+              {i.redemptionFlat ? <>If the owner redeems {i.redemptionFlat2Pct ? 'in the first year' : 'at any time in the wait'}, the law adds {i.redemptionRatePct}% of your price{i.redemptionFlat2Pct ? `, or ${i.redemptionFlat2Pct}% in the second year` : ''}, no matter how early. </> : null}At the end of the {Math.round(i.redemptionMonths)}-month wait you’d get back about {fmtMoney(Math.round(redeemed.repaid))} on a {fmtMoney(bid > 0 ? bid : r.maxBid)} bid. By then you’d have spent about {fmtMoney(Math.round(redeemed.spent))}, so you’d {redeemed.net >= 0 ? `come out about ${fmtMoney(Math.round(redeemed.net))} ahead` : `be about ${fmtMoney(Math.round(-redeemed.net))} short`}. Some rules also repay taxes and assessments you paid; repairs aren’t repaid.
             </p>
           </div>
         )}

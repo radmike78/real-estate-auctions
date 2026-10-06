@@ -71,8 +71,11 @@ export const SECTIONS: DrillSection[] = [
     content: () => (
       <>
         <p>
-          There is no single nationwide database. Today the live listings come from the Clark County Treasurer’s tax-sale list and
-          IRS sales, each confirmed against the County Assessor’s parcel records, plus links to the official sellers’ own sale pages.
+          There is no single nationwide database. Today the live listings come from the Clark County, Nevada Treasurer’s tax-sale list
+          (checked against the County Assessor’s parcel records) and IRS sales in Nevada, California, Arizona, Utah and Texas. For
+          every county in those five states, Find Deals links the county’s own offices, and some counties’ upcoming tax sales, so you
+          can read the official list on the seller’s site. Learning pages say which state’s rules they cover and link the law or
+          agency page they’re based on. How we check pages and fix errors, and how to tell us about one, is on <a href="#/disclaimer">How we help you invest</a>.
           County Recorder filings, court and sheriff records will be added one at a time, once each source’s terms allow it. Every fact
           shows its source agency, last-verified time and a confidence level. Tap or hover a source tag to see them.
         </p>

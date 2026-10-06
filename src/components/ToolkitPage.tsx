@@ -257,7 +257,7 @@ export function FirstDealRoadmap() {
               setDealId(e.target.value);
               // The route follows the property's kind of sale, so its steps fit it.
               const d = deals.find((x) => `analyzed:${x.id}` === e.target.value);
-              if (d) setPath(d.kind === 'lien' ? 'certificate' : d.kind === 'listing' || d.kind === 'reo' ? 'listing' : 'auction');
+              if (d) setPath(d.kind === 'lien' ? 'certificate' : d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short' ? 'listing' : 'auction');
             }}
           >
             <option value="">None yet (learning)</option>

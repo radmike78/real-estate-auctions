@@ -338,7 +338,7 @@ export function rotationKey(id: string, day: string): number {
 }
 
 export function searchPros(all: Pro[], q: ProQuery, now = new Date()): Pro[] {
-  const loc = q.location.trim().toLowerCase().replace(/,?\s*(nv|ca|az|ut)$/, '').replace(/\s+county$/, '');
+  const loc = q.location.trim().toLowerCase().replace(/,?\s*(nv|ca|az|ut|tx)$/, '').replace(/\s+county$/, '');
   const day = now.toISOString().slice(0, 10);
   return all
     .filter((p) => isListable(p, now))

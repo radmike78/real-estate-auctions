@@ -18,7 +18,7 @@ function boldNumbers(text: string) {
 
 /** An icon for each kind of sale ("catax" and "tax" are both tax sales), so the guide cards differ at a glance. */
 function saleIcon(key: string) {
-  const kind = key.replace(/^(ca|az|ut)(?=[a-z]{3})/, '');
+  const kind = key.replace(/^(ca|az|ut|tx)(?=[a-z]{3})/, '');
   if (kind === 'taxlien' || kind === 'sid') return <IconPercent />;
   if (kind === 'tax') return <IconReceipt />;
   if (kind === 'foreclosure') return <IconGavel />;
@@ -43,7 +43,7 @@ import { replaceAddress } from '../lib/nav';
 
 /** The right calculator for the kind of sale: a lien's yield, an offer on a listed home, or an auction bid. */
 function calcNote(p: { key: string }) {
-  const kind = p.key.replace(/^(ca|az|ut)(?=[a-z]{3})/, '');
+  const kind = p.key.replace(/^(ca|az|ut|tx)(?=[a-z]{3})/, '');
   if (kind === 'sid' || kind === 'taxlien') return <>Work out what a certificate earns, counting the wait to be paid, with the <a href="#/analyze?plan=lien">lien calculator</a>.</>;
   if (kind === 'reo' || kind === 'short') return <>Set your maximum offer before you make one: <a href="#/analyze?plan=rent">to keep and rent it</a>, or <a href="#/analyze?plan=flip">to fix and sell it</a>.</>;
   return <>Set your limit before the sale: <a href="#/analyze?plan=rent">to keep and rent it</a>, or <a href="#/analyze?plan=flip">to fix and sell it</a>.</>;

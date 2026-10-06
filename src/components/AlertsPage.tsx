@@ -124,7 +124,7 @@ function SignUp() {
               <label className="check attest">
                 <input type="checkbox" checked={f.list} onChange={(e) => setF({ ...f, list: e.target.checked })} />
                 <span>
-                  <strong>General updates:</strong> new Clark County auction lists, new guides and site news. A few emails a month at most.
+                  <strong>General updates:</strong> new Clark County, Nevada auction lists, new guides and site news. A few emails a month at most. We don’t send sale alerts for other counties yet: watch your county’s page in Find Deals.
                   {errors.list && <span className="field-error"> {errors.list}</span>}
                 </span>
               </label>
@@ -246,7 +246,7 @@ function Manage({ token, welcome, add }: { token: string; welcome: boolean; add?
             setView({ ...view, listOptIn: on }); // show the change at once; the server's answer replaces it
             void update({ list: on });
           }} />
-          <span><strong>General updates:</strong> new Clark County auction lists, new guides and site news.</span>
+          <span><strong>General updates:</strong> new Clark County, Nevada auction lists, new guides and site news. No sale alerts for other counties yet.</span>
         </label>
         <h3>Tracked properties and saved searches</h3>
         {view.subscriptions.length === 0 ? (

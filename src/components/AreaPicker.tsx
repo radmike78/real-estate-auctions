@@ -38,12 +38,16 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra }: { onDone?: () 
   const choose = (p: Place) => {
     setPicked(p);
     setTyped(p.name);
-    setCounty(p.counties[0]);
+    // A city in more than one county: the visitor says which county the property is in (deeds, courts and sales
+    // go by county), rather than us picking the first one.
+    setCounty(p.counties.length === 1 ? p.counties[0] : null);
     setOpen(false);
   };
+  const needsCounty = !!picked && picked.counties.length > 1 && !(county && picked.counties.includes(county));
   const save = () => {
     if (!state) return;
-    const a: Area = picked ? { state, city: picked.name, county: county && picked.counties.includes(county) ? county : picked.counties[0] } : { state, city: null, county: null };
+    if (needsCounty) return;
+    const a: Area = picked && county ? { state, city: picked.name, county } : { state, city: null, county: null };
     setArea(a);
     onDone?.();
   };
@@ -100,7 +104,8 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra }: { onDone?: () 
           )}
           {picked && picked.counties.length > 1 && (
             <fieldset className="area-county">
-              <legend>{picked.name} is in more than one county. Which part?</legend>
+              <legend>{picked.name} is in more than one county. Which county is the property in?</legend>
+              <p className="small muted">Deeds, tax sales and courts go by county. Not sure? The appraisal district or tax bill for the address shows it.</p>
               {picked.counties.map((c) => (
                 <label key={c} className="check"><input type="radio" name="area-county" checked={county === c} onChange={() => setCounty(c)} /> {countyName(c)}</label>
               ))}
@@ -109,7 +114,8 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra }: { onDone?: () 
         </div>
       )}
       <div className="row">
-        <button type="button" className="btn" disabled={!state} onClick={save}>{doneLabel}</button>
+        <button type="button" className="btn" disabled={!state || needsCounty} onClick={save}>{doneLabel}</button>
+        {needsCounty && <span className="small muted">Choose the county first.</span>}
         {extra ?? (area && <button type="button" className="btn btn-secondary" onClick={() => { setArea(null); onDone?.(); }}>Clear my area</button>)}
       </div>
     </div>
@@ -157,6 +163,8 @@ export function HomeArea() {
   const st = area ? STATES.find((s) => s.code === area.state) : undefined;
   // Once a city is chosen, only the states show; clicking a state (the current one too) opens the choices again.
   const [open, setOpen] = useState(() => !area?.city);
+  // A city in more than one county waits here until the visitor says which county the property is in.
+  const [multi, setMulti] = useState<Place | null>(null);
   const pickState = (code: StateCode) => {
     if (area?.state !== code) setArea({ state: code, city: null, county: null });
     setOpen(true);
@@ -179,8 +187,22 @@ export function HomeArea() {
             key={`${area.state}-${area.city ?? ''}`}
             state={area.state}
             label={area.city ? <>City: <strong>{area.city}</strong></> : 'Your city or town (optional)'}
-            onPick={(p) => { setArea({ state: area.state, city: p.name, county: area.county && p.counties.includes(area.county) ? area.county : p.counties[0] }); setOpen(false); }}
+            onPick={(p) => {
+              if (p.counties.length > 1 && !(area.county && p.counties.includes(area.county))) { setMulti(p); return; }
+              setMulti(null);
+              setArea({ state: area.state, city: p.name, county: area.county && p.counties.includes(area.county) ? area.county : p.counties[0] });
+              setOpen(false);
+            }}
           />
+          {multi && (
+            <fieldset className="area-county">
+              <legend>{multi.name} is in more than one county. Which county is the property in?</legend>
+              <p className="small muted">Deeds, tax sales and courts go by county. Not sure? The appraisal district or tax bill for the address shows it.</p>
+              {multi.counties.map((c) => (
+                <label key={c} className="check"><input type="radio" name="home-area-county" onChange={() => { setArea({ state: area.state, city: multi.name, county: c }); setMulti(null); setOpen(false); }} /> {countyName(c)}</label>
+              ))}
+            </fieldset>
+          )}
           <label className="field">
             <span>Or a county</span>
             <select value={area.county ?? ''} onChange={(e) => setArea({ state: area.state, city: null, county: e.target.value || null })}>
