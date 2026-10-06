@@ -6,7 +6,8 @@ import { useMarkStep } from '../lib/path';
 import PathNext from './PathNext';
 import { useState } from 'react';
 import PageHero from './PageHero';
-import { DrillList } from './DrillPage';
+import { DrillList, TopicIcon } from './DrillPage';
+import type { Topic } from '../practice/drillCards';
 import ClassSwitch from './ClassSwitch';
 import type { ClassFilter } from '../lib/propertyClass';
 import { playbookByKey } from '../lib/playbooks';
@@ -19,6 +20,9 @@ import { useLastActivity } from '../lib/journey';
 import { loadCase } from '../practice/caseProgress';
 import { caseFor } from '../practice/rentalCase';
 import AdSpot from './AdSpot';
+
+/** Each kind of sale keeps the same colour and icon as its drills. */
+const SALE_TOPIC: Record<SaleKey, Topic> = { tax: 'tax', foreclosure: 'trustee', reo: 'listed', short: 'listed', hoa: 'hoa', sheriff: 'sheriff', irs: 'irs', sid: 'taxlien' };
 
 /** One plain line, not a banner: readers skip anything styled like a notice. */
 export function PracticeRibbon() {
@@ -61,7 +65,8 @@ export default function PracticePage({ sale }: { sale?: string }) {
         <h2 className="section-title">More practice</h2>
         <p>The start-to-finish purchase has a practice house in each state we cover: Nevada, California, Arizona, Utah and Texas. You see the one for your state (Nevada if you haven’t chosen one). The auction practice below follows Nevada rules (Clark County), with Texas drills for Texas sales; other states’ rules are in the <a href="#/playbooks">sale guides</a>. The quick “Would you buy it?” drills are further down.</p>
         <NarrowDown config={practiceConfig(getMyState())} intro="Answer a few quick questions and we’ll suggest a practice purchase or drills to start with. Everything is still listed below." />
-        <h2 className="practice-step"><span aria-hidden>1</span> Choose a kind of sale</h2>
+        <h2 className="practice-step"><span aria-hidden>1</span> Nevada auction practice: choose a kind of sale</h2>
+        <p className="muted">These practice purchases follow Nevada rules (Clark County). Drills for every state are in step 2.</p>
         <div className="practice-sales">
           {/* SID lien certificates are a Clark County, Nevada sale only: not offered to visitors from other states. */}
           {SALE_ORDER.filter((s) => s !== 'sid' || !getMyState() || getMyState() === 'NV').map((s) => {
@@ -70,8 +75,8 @@ export default function PracticePage({ sale }: { sale?: string }) {
             const done = pct.filter((x) => x === 1).length;
             const started = pct.filter((x) => x > 0 && x < 1).length;
             return (
-              <a key={s} href={`#/practice?sale=${s}`} className="practice-sale-tile">
-                <strong>{titleOf(s)}</strong>
+              <a key={s} href={`#/practice?sale=${s}`} className={`practice-sale-tile topic-${SALE_TOPIC[s]}`}>
+                <span className="sale-tile-head"><span className="drill-card-icon"><TopicIcon topic={SALE_TOPIC[s]} /></span><strong>{titleOf(s)}</strong></span>
                 <span className="muted">{playbookByKey(s)?.oneLine}</span>
                 <span className="practice-card-foot">
                   <span className="badge tone-info">{runs.length} {runs.length === 1 ? 'property' : 'properties'}</span>
@@ -83,8 +88,8 @@ export default function PracticePage({ sale }: { sale?: string }) {
             );
           })}
         </div>
-        <h2 className="practice-step"><span aria-hidden>2</span> Or decide: would you buy it?</h2>
-        <p className="muted">Short drills: value a property from comps, check the rent, price the repairs, find the liens and run the numbers, then make the call.</p>
+        <h2 className="practice-step"><span aria-hidden>2</span> Quick drills: would you buy it?</h2>
+        <p><strong>Each drill is one short, made-up deal.</strong> Work through 2 or 3 missions (value it, check the rent, price the repairs, find the liens, run the numbers), then decide: Buy, Investigate or Pass. Missions are rehearsal: finishing them builds skill, not readiness to buy a real property.</p>
         <DrillList />
         <PathNext step="practice" />
         <AdSpot spot="practice" />

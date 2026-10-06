@@ -6,6 +6,8 @@ import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
 import { useNoIndex } from '../lib/noindex';
 import { DRILLS, drillById, type Drill, type Mission } from '../practice/drills';
+import { drillCard, TOPIC_GROUPS, type Topic, type TopicGroup } from '../practice/drillCards';
+import OwlNote from './OwlNote';
 import { fmtMoney } from '../lib/status';
 import { useMyState } from '../lib/myState';
 import TopicAd from './TopicAd';
@@ -63,52 +65,159 @@ export function drillState(d: Drill): string | null {
   return Object.keys(STATE_NAMES).find((k) => text.includes(STATE_NAMES[k])) ?? null;
 }
 
-/** Under a state's heading, "A Nevada foreclosure auction: …" reads "Foreclosure auction: …": cards differ in their first words. */
-const cardTitle = (t: string) => t.replace(/^An? (Nevada|California|Arizona|Utah|Texas) /, '').replace(/^./, (c) => c.toUpperCase());
 
-/** The drills on the Practice page, grouped by state, with the visitor's state first. */
+/** A simple line icon for each topic. Icons always sit beside the text label; they never stand alone. */
+const TOPIC_ICON: Record<Topic, string> = {
+  trustee: 'M3 11l9-7 9 7M5 10v10h14V10M10 20v-6h4v6',
+  tax: 'M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h7',
+  taxlien: 'M6 3h9l4 4v14H6zM14 3v5h5M9 13h3m-1.5-1.5v3M14 16h2',
+  hoa: 'M4 21V9l5-3v15M9 21V4l11 5v12M12 10h2M12 14h2M16 12h2M16 16h2M3 21h18',
+  sheriff: 'M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6z',
+  irs: 'M3 9l9-5 9 5M5 9v9M9.5 9v9M14.5 9v9M19 9v9M3 21h18',
+  listed: 'M4 21V4M4 5h11l-2 3.5 2 3.5H4',
+  rental: 'M15 7a4 4 0 1 1-3.5 6H9v2H7v2H4v-3l6.5-6.5A4 4 0 0 1 15 7zM16 10h.01',
+  flip: 'M14 6l4 4M4 20l9.5-9.5M14 4l6 6-3 3-6-6zM3 21h7',
+  commercial: 'M4 21V5h10v16M14 9h6v12M7 9h2M7 13h2M7 17h2M17 13h1M17 17h1M3 21h18',
+  manufactured: 'M3 18h18M5 18V9h14v9M8 18v-4h3v4M14 12h3M7 21h2M15 21h2',
+  land: 'M3 20l6-9 4 5 3-4 5 8zM15 6a2 2 0 1 0 0-.01',
+};
+
+export function TopicIcon({ topic }: { topic: Topic }) {
+  return <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d={TOPIC_ICON[topic]} /></svg>;
+}
+
+/** Where a reader is in a drill, and what the card's button says. */
+export function drillStatus(d: Drill, s: Saved = load()): { state: 'new' | 'started' | 'done'; action: string; text: string; pct: number } {
+  const p = drillProgress(d, s);
+  if (p.verdict) return { state: 'done', action: 'Review answers', text: `Completed · Your call: ${p.verdict}`, pct: 100 };
+  if (p.done > 0) return { state: 'started', action: 'Continue drill', text: `${p.done} of ${p.total} missions done`, pct: Math.round((p.done / p.total) * 100) };
+  return { state: 'new', action: 'Start drill', text: `0 of ${p.total} missions done`, pct: 0 };
+}
+
+/** One drill as a card: the kind of sale big and in its colour, then the question, one labelled fact and the missions. */
+export function DrillCardLink({ d, saved }: { d: Drill; saved: Saved }) {
+  const c = drillCard(d);
+  const st = drillState(d);
+  const p = drillStatus(d, saved);
+  return (
+    <a href={`#/practice/drills/${d.id}`} className={`drill-card topic-${c.topic}`}>
+      <span className="drill-card-band">
+        <span className="drill-card-icon"><TopicIcon topic={c.topic} /></span>
+        <span className="drill-card-head">
+          <span className="drill-card-sale">{c.sale}</span>
+          <span className="drill-card-tags">Drill · {st ? STATE_NAMES[st] : 'Any state'} · {c.property}</span>
+        </span>
+      </span>
+      <span className="drill-card-body">
+        <span className="drill-card-q">{c.question}</span>
+        {c.fact && <span className="drill-card-fact"><span>{c.fact.label}</span> <strong>{c.fact.value}</strong></span>}
+        <span className="drill-card-teaser">{d.teaser}</span>
+        <span className="drill-card-missions"><strong>Your missions:</strong> {c.missions.join(' · ')}</span>
+        <span className="drill-card-foot">
+          <span className="drill-card-progress">
+            <span>{p.text}</span>
+            <span className="drill-card-bar" aria-hidden><i style={{ width: `${p.pct}%` }} /></span>
+          </span>
+          <span className={`drill-card-go${p.state === 'done' ? ' quiet' : ''}`}>{p.action} →</span>
+        </span>
+      </span>
+    </a>
+  );
+}
+
+/** The top of a drill page: the same colour, icon and sale name as its card. */
+function DrillBand({ d }: { d: Drill }) {
+  const c = drillCard(d);
+  const st = drillState(d);
+  return (
+    <p className={`drill-card-band drill-page-band topic-${c.topic}`}>
+      <span className="drill-card-icon"><TopicIcon topic={c.topic} /></span>
+      <span className="drill-card-head">
+        <span className="drill-card-sale">{c.sale}</span>
+        <span className="drill-card-tags">Drill · {st ? STATE_NAMES[st] : 'Any state'} · {c.property}</span>
+      </span>
+    </p>
+  );
+}
+
+type Filter<T extends string> = { value: T; set: (v: T) => void; options: { key: T; label: string }[]; label: string };
+
+function FilterRow<T extends string>({ value, set, options, label }: Filter<T>) {
+  return (
+    <div className="drill-filter" role="group" aria-label={label}>
+      <span className="drill-filter-label">{label}</span>
+      {options.map((o) => (
+        <button key={o.key} type="button" className="chip-btn" aria-pressed={value === o.key} onClick={() => set(o.key)}>{o.label}</button>
+      ))}
+    </div>
+  );
+}
+
+/** The drills on the Practice page, grouped by state, with the visitor's state first, and filters to narrow them. */
 export function DrillList() {
   const saved = load();
+  const next = DRILLS.find((d) => drillStatus(d, saved).state === 'started');
   const [mine] = useMyState();
   const { mode } = useJourney();
   const [showAll, setShowAll] = useState(false);
+  const [st, setSt] = useState<string>('all');
+  const [topic, setTopic] = useState<'all' | TopicGroup>('all');
+  const [prog, setProg] = useState<'all' | 'new' | 'started' | 'done'>('all');
   const own = (d: Drill) => d.commercial || d.flipBrrrr || d.manufactured || d.land;
+  const keep = (d: Drill) =>
+    (st === 'all' || (st === 'any' ? drillState(d) === null : drillState(d) === st)) &&
+    (topic === 'all' || drillCard(d).group === topic) &&
+    (prog === 'all' || drillStatus(d, saved).state === prog);
+  const states = [...(mine ? [mine] : []), ...Object.keys(STATE_NAMES).filter((k) => k !== mine)];
   const groups: { key: string; title: string; drills: Drill[] }[] = [
-    ...[...(mine ? [mine] : []), ...Object.keys(STATE_NAMES).filter((k) => k !== mine)].map((st) => ({ key: st, title: STATE_NAMES[st], drills: DRILLS.filter((d) => !own(d) && drillState(d) === st) })),
-    { key: 'any', title: 'Any state', drills: DRILLS.filter((d) => !own(d) && drillState(d) === null) },
+    ...states.map((k) => ({ key: k, title: `${STATE_NAMES[k]} rules`, drills: DRILLS.filter((d) => !own(d) && drillState(d) === k) })),
+    { key: 'any', title: 'Any state (federal rules and listed homes)', drills: DRILLS.filter((d) => !own(d) && drillState(d) === null) },
     { key: 'flip-brrrr', title: 'Flips and BRRRR', drills: DRILLS.filter((d) => d.flipBrrrr) },
     { key: 'manufactured', title: 'Manufactured homes', drills: DRILLS.filter((d) => d.manufactured) },
     { key: 'land', title: 'Land', drills: DRILLS.filter((d) => d.land) },
     { key: 'commercial', title: 'Commercial property', drills: DRILLS.filter((d) => d.commercial) },
-  ];
+  ].map((g) => ({ ...g, drills: g.drills.filter(keep) }));
   // Guided visitors start with three drills: a rental, then a foreclosure and a tax sale in their state.
-  const st = (mine ?? 'NV').toLowerCase();
-  const starter = ['rental-265', `trustee-sale-${st}`, st === 'az' ? 'tax-lien-az' : st === 'ut' ? 'tax-sale-ut' : `tax-deed-${st}`]
+  const code = (mine ?? 'NV').toLowerCase();
+  const starter = ['rental-265', `trustee-sale-${code}`, code === 'az' ? 'tax-lien-az' : code === 'ut' ? 'tax-sale-ut' : `tax-deed-${code}`]
     .map((id) => DRILLS.find((d) => d.id === id))
     .filter((d): d is Drill => !!d);
-  const shown = mode === 'guided' && !showAll ? [{ key: 'starter', title: 'Start with these three', drills: starter }] : groups;
+  const guided = mode === 'guided' && !showAll;
+  const shown = guided ? [{ key: 'starter', title: 'Start with these three', drills: starter }] : groups;
+  const count = shown.reduce((n, g) => n + g.drills.length, 0);
+  const filtered = st !== 'all' || topic !== 'all' || prog !== 'all';
   return (
     <>
+      {next && (
+        <div className="drill-next" role="region" aria-label="Pick up where you left off">
+          <h3 className="drill-group">Pick up where you left off</h3>
+          <div className="practice-grid drill-grid"><DrillCardLink d={next} saved={saved} /></div>
+        </div>
+      )}
+      {!guided && (
+        <details className="drill-filters" open={typeof matchMedia !== 'function' || !matchMedia('(max-width: 640px)').matches}>
+          <summary>Filter drills by state, topic or progress</summary>
+          <FilterRow label="State" value={st} set={setSt} options={[{ key: 'all', label: 'All states' }, ...states.map((k) => ({ key: k, label: STATE_NAMES[k] })), { key: 'any', label: 'Any state' }]} />
+          <FilterRow label="Topic" value={topic} set={setTopic} options={[{ key: 'all', label: 'All topics' }, ...TOPIC_GROUPS]} />
+          <FilterRow label="Progress" value={prog} set={setProg} options={[{ key: 'all', label: 'All' }, { key: 'new', label: 'Not started' }, { key: 'started', label: 'In progress' }, { key: 'done', label: 'Completed' }]} />
+          <p className="drill-filter-count" role="status">
+            Showing {count} of {DRILLS.length} drills.
+            {filtered && <> <button type="button" className="linkish" onClick={() => { setSt('all'); setTopic('all'); setProg('all'); }}>Clear filters</button></>}
+          </p>
+        </details>
+      )}
+      {count === 0 && <OwlNote>No drills match these filters. Try another state or topic, or clear the filters.</OwlNote>}
       {shown.filter((g) => g.drills.length).map((g) => (
-        <section key={g.key} aria-label={`${g.title} drills`}>
+        <div key={g.key} className="drill-group-block" role="region" aria-label={`${g.title} drills`}>
           <h3 className="drill-group">{g.title}</h3>
           <div className="practice-grid drill-grid">
-            {g.drills.map((d) => {
-              const p = drillProgress(d, saved);
-              return (
-                <a key={d.id} href={`#/practice/drills/${d.id}`} className="practice-card">
-                  <strong>{g.key in STATE_NAMES ? cardTitle(d.title) : d.title}</strong>
-                  <span>{d.teaser}</span>
-                  <span className="practice-card-foot">{p.verdict ? `Your call: ${p.verdict}` : `${p.done} of ${p.total} missions done`}{p.questions > 0 ? ` · ${p.matched} of ${p.questions} ${p.questions === 1 ? 'call' : 'calls'} matched an experienced investor’s` : ''} →</span>
-                </a>
-              );
-            })}
+            {g.drills.map((d) => <DrillCardLink key={d.id} d={d} saved={saved} />)}
           </div>
-        </section>
+        </div>
       ))}
-      {shown !== groups && (
+      {guided && (
         <p className="show-all-row">
-          <button type="button" className="btn btn-secondary" onClick={() => setShowAll(true)}>Show all {DRILLS.length} drills</button>
+          <button type="button" className="btn btn-secondary" onClick={() => setShowAll(true)}>Show all {DRILLS.length} drills, with filters</button>
         </p>
       )}
     </>
@@ -254,6 +363,7 @@ export default function DrillPage({ id }: { id: string }) {
   return (
     <main className="page drill">
       <PracticeRibbon />
+      <DrillBand d={d} />
       <PageHero eyebrow={<span className="practice-tag">Simulation · Would you buy it?</span>} title={d.title} sub={d.where} />
       <section className="drill-mission">
         <h2>The deal</h2>

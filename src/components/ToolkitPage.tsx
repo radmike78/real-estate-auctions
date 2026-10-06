@@ -712,7 +712,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
     <main className="page toolkit">
       <PageHero
         title={<>My <span className="grad">plan</span></>}
-        sub="Your investor toolkit: a step-by-step roadmap, a buy box to keep you focused, and every calculator and checklist on DeedOwl."
+        sub="Your investor toolkit: the roadmap of real-world tasks for an actual purchase (the progress that counts), a buy box to keep you focused, and every calculator and checklist on DeedOwl."
       />
       {(() => {
         // Coming back: the property you worked on last, and the one thing to do next on it.
