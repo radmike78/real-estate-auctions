@@ -168,14 +168,15 @@ function DrillBand({ d }: { d: Drill }) {
 
 type Filter<T extends string> = { value: T; set: (v: T) => void; options: { key: T; label: string }[]; label: string };
 
-function FilterRow<T extends string>({ value, set, options, label }: Filter<T>) {
+/** One compact filter: a labelled drop-down, so the filters sit on one line beside the state switch. */
+function FilterSelect<T extends string>({ value, set, options, label }: Filter<T>) {
   return (
-    <div className="drill-filter" role="group" aria-label={label}>
-      <span className="drill-filter-label">{label}</span>
-      {options.map((o) => (
-        <button key={o.key} type="button" className="chip-btn" aria-pressed={value === o.key} onClick={() => set(o.key)}>{o.label}</button>
-      ))}
-    </div>
+    <label className="drill-filter-select">
+      <span>{label}</span>
+      <select value={value} onChange={(e) => set(e.target.value as T)}>
+        {options.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
+      </select>
+    </label>
   );
 }
 
@@ -227,17 +228,25 @@ export function DrillList() {
   const recommended = !guided && st === 'all' && topic === 'all' && prog === 'all' ? starter : [];
   const count = shown.reduce((n, g) => n + g.drills.length, 0);
   const filtered = st !== 'all' || topic !== 'all' || prog !== 'all';
-  const switchStates = mine && (
-    <p className="drill-state-switch">
-      {onlyMine ? <>Showing drills for {STATE_NAMES[mine]}, plus ones that apply in any state. </> : <>Showing drills for every state. </>}
-      <button type="button" className="btn btn-secondary" onClick={() => { setOthers(!others); setSt('all'); }}>
-        {onlyMine ? 'Practice scenarios from other states' : `Show only ${STATE_NAMES[mine]} drills`}
-      </button>
-    </p>
+  const switchButton = mine && (
+    <button type="button" className="btn btn-secondary" onClick={() => { setOthers(!others); setSt('all'); }}>
+      {onlyMine ? 'Practice scenarios from other states' : `Show only ${STATE_NAMES[mine]} drills`}
+    </button>
   );
   return (
     <>
-      {!guided && switchStates}
+      {!guided && (
+        <div className="drill-toolbar" role="group" aria-label="Choose which drills to show">
+          {switchButton}
+          {!onlyMine && <FilterSelect label="State" value={st} set={setSt} options={[{ key: 'all', label: 'All states' }, ...states.map((k) => ({ key: k, label: STATE_NAMES[k] })), { key: 'any', label: 'Any state' }]} />}
+          <FilterSelect label="Topic" value={topic} set={setTopic} options={[{ key: 'all', label: 'All topics' }, ...TOPIC_GROUPS]} />
+          <FilterSelect label="Progress" value={prog} set={setProg} options={[{ key: 'all', label: 'All' }, { key: 'new', label: 'Not started' }, { key: 'started', label: 'In progress' }, { key: 'done', label: 'Completed' }]} />
+          <span className="drill-filter-count" role="status">
+            {onlyMine ? `${STATE_NAMES[mine]} and any-state drills: ` : ''}{count} of {DRILLS.length}
+            {filtered && <> · <button type="button" className="linkish" onClick={() => { setSt('all'); setTopic('all'); setProg('all'); }}>Clear filters</button></>}
+          </span>
+        </div>
+      )}
       {next && (
         <div className="drill-next" role="region" aria-label="Pick up where you left off">
           <h3 className="drill-group">Pick up where you left off</h3>
@@ -250,18 +259,6 @@ export function DrillList() {
           <div className="practice-grid drill-grid">{recommended.map((d, i) => <DrillCardLink key={d.id} d={d} saved={saved} hue={i} />)}</div>
         </div>
       )}
-      {!guided && (
-        <details className="drill-filters" open={typeof matchMedia !== 'function' || !matchMedia('(max-width: 640px)').matches}>
-          <summary>Filter drills by state, topic or progress</summary>
-          <FilterRow label="State" value={st} set={setSt} options={[{ key: 'all', label: onlyMine ? 'All' : 'All states' }, ...states.map((k) => ({ key: k, label: STATE_NAMES[k] })), { key: 'any', label: 'Any state' }]} />
-          <FilterRow label="Topic" value={topic} set={setTopic} options={[{ key: 'all', label: 'All topics' }, ...TOPIC_GROUPS]} />
-          <FilterRow label="Progress" value={prog} set={setProg} options={[{ key: 'all', label: 'All' }, { key: 'new', label: 'Not started' }, { key: 'started', label: 'In progress' }, { key: 'done', label: 'Completed' }]} />
-          <p className="drill-filter-count" role="status">
-            Showing {count} of {DRILLS.length} drills.
-            {filtered && <> <button type="button" className="linkish" onClick={() => { setSt('all'); setTopic('all'); setProg('all'); }}>Clear filters</button></>}
-          </p>
-        </details>
-      )}
       {count === 0 && <OwlNote>No drills match these filters. Try another state or topic, or clear the filters.</OwlNote>}
       {shown.filter((g) => g.drills.length).map((g) => (
         <div key={g.key} className="drill-group-block" role="region" aria-label={`${g.title} drills`}>
@@ -271,7 +268,7 @@ export function DrillList() {
           </div>
         </div>
       ))}
-      {!guided && switchStates}
+      {!guided && switchButton && <p className="drill-state-switch">{switchButton}</p>}
       {guided && (
         <p className="show-all-row">
           <button type="button" className="btn btn-secondary" onClick={() => setShowAll(true)}>Show all {DRILLS.length} drills, with filters</button>
