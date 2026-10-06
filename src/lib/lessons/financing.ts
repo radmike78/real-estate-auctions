@@ -2,12 +2,15 @@ import type { Lesson } from './types';
 
 export const financing: Lesson = {
   key: 'financing',
-  minutes: 9,
+  minutes: 12,
   intro: 'Most real estate is bought with borrowed money. The loan you can get depends on a few things: whether you’ll live in the property, how many units it has, and whether it’s a home or a business property. Here are the main kinds and what each asks of you.',
   takeaways: [
     'Why living in the property opens the lowest down payments.',
     'What lenders ask of investors: larger down payments, savings in reserve and a limit on financed properties.',
     'How FHA, VA and renovation loans work.',
+    'How to get pre-approved, and what lenders check: debt-to-income, credit, down payment and savings.',
+    'How DSCR and hard-money loans work, and what to have ready for each.',
+    'The waiting periods before refinancing a cash or hard-money purchase.',
     'How commercial, SBA and short-term loans differ.',
     'How one purchase compares across seven ways to pay for it.',
     'What to check before you sign.',
@@ -43,6 +46,34 @@ export const financing: Lesson = {
       ],
     },
     {
+      heading: 'Getting approved, step by step',
+      blocks: [
+        'Get pre-approved before you make offers or bid. Sellers take your offer more seriously, and you learn your real price range before you fall for a property.',
+        { list: [
+          'Pre-qualification is an estimate from what you tell the lender. Pre-approval means the lender has pulled your credit and checked your income and savings documents. Only a pre-approval counts with a seller.',
+          'Debt-to-income (DTI) ratio: your monthly debt payments, including the new loan, divided by your gross monthly income. Fannie Mae’s limit is 36% on loans a person underwrites by hand, up to 45% with strong credit and savings, and up to 50% through its automated system (Selling Guide B3-6-02).',
+          'Credit: a higher score gets a lower rate and fees. Investment-property loans already cost more than loans on a home you live in, so small score gains matter.',
+          'Down payment: on a Fannie Mae loan for an investment property, expect at least 15% down on one unit and 25% on two to four units, plus closing costs and the reserves above.',
+          'Compare at least three Loan Estimates on the same day, for the same loan, and read the fees as well as the rate.',
+        ] },
+        'Have ready, for a regular investment-property loan: two years of tax returns and W-2s or 1099s, recent pay stubs, two months of bank and investment statements, the lease and rent history on any rentals you own, and an explanation for any large deposit.',
+      ],
+    },
+    {
+      heading: 'DSCR loans: qualifying on the rent',
+      blocks: [
+        'A DSCR loan (debt service coverage ratio) is approved mainly on the property’s rent instead of your income. The lender divides the monthly rent by the monthly payment with taxes, insurance and any HOA dues. Many want 1.0 or more; a higher ratio gets better terms.',
+        { list: [
+          'Example: rent of $2,400 and a full payment of $2,000 is a ratio of 1.2.',
+          'They’re made by private lenders, not Fannie Mae or Freddie Mac, so terms vary widely. Down payments of 20% to 25% and higher rates than a regular loan are common.',
+          'Many have a prepayment penalty for the first three to five years. Ask how it’s figured before you plan to sell or refinance early.',
+          'Many lend to an LLC, usually with your personal guarantee.',
+        ] },
+        'Have ready: the lease or the appraiser’s rent estimate, your LLC papers if the LLC borrows, bank statements showing the down payment and reserves, and your credit report.',
+        { links: [{ label: 'Run a rental’s DSCR in the Deal Lab', url: '#/analyze?plan=rent', what: 'The rent calculator shows the coverage ratio for your loan.' }] },
+      ],
+    },
+    {
       heading: 'Commercial and business loans',
       blocks: [
         'Commercial loans are sized on the property’s income. Lenders use the debt service coverage ratio (NOI divided by the year’s loan payments). Many aren’t fully paid off by the end of their term. Instead they end with a balloon payment, which you may need to refinance, and that can be hard if values fall.',
@@ -58,9 +89,28 @@ export const financing: Lesson = {
       heading: 'Private and hard-money lenders',
       blocks: [
         'Private lenders and hard-money lenders make loans secured by the property, often short-term. People use them for projects like flips when a bank loan doesn’t fit. Terms vary widely, so compare the rate, points, fees, term, and what happens if you can’t repay on time. Get every term in writing.',
+        { list: [
+          'They lend on the deal more than on you: often a share of the price and repairs (loan-to-cost), capped at a share of the value after repairs.',
+          'Expect points paid up front, interest-only payments, and a term of about 6 to 18 months, with fees to extend it.',
+          'Repair money usually comes in draws: you pay for work first, the lender inspects, then reimburses. Plan cash for the gap.',
+          'Have ready: the purchase contract, a scope of work with contractor bids, the after-repair value with comparable sales, your track record, and how you’ll repay (a sale or a refinance).',
+        ] },
         'In Nevada, a specific state law covers mortgage companies and the private investors who fund loans (NRS 645B).',
         'In California, finance lenders and brokers are licensed under the California Financing Law.',
         'You can check many lenders on NMLS Consumer Access, the free national lookup. Some private lenders hold a different license, such as a real estate broker’s license, and some are exempt. Ask which license they hold and check it with that regulator.',
+      ],
+    },
+    {
+      heading: 'Refinancing after a cash or hard-money purchase',
+      blocks: [
+        'Buying with cash or a short-term loan and then refinancing (the BRRRR plan) depends on a lender agreeing to the new loan, at the value an appraiser gives. Plan for the rules before you buy.',
+        { list: [
+          'Waiting period: lenders usually want you on title for at least six months before a cash-out refinance, and Fannie Mae requires a first mortgage being paid off to be at least 12 months old (Selling Guide B2-1.3-03).',
+          'If you paid all cash, Fannie Mae’s “delayed financing” exception can let you take cash out sooner, limited to what you can document you put in, for an arm’s-length purchase.',
+          'A hard-money loan usually can’t be paid off with a regular cash-out loan until those periods pass. Some lenders allow a rate-and-term refinance sooner; ask before you buy, and make sure the hard-money term is long enough.',
+          'The new loan is sized on the appraisal and the rent, not on what you spent. A low appraisal can leave more of your cash in the property than you planned.',
+        ] },
+        { links: [{ label: 'BRRRR in the rent calculator', url: '#/analyze?plan=rent', what: 'Shows your cash until the refinance closes, and what stays in after it.' }] },
       ],
     },
     {
@@ -126,6 +176,8 @@ export const financing: Lesson = {
     { label: 'Fannie Mae Selling Guide: minimum reserve requirements (B3-4.1-01)', url: 'https://selling-guide.fanniemae.com/sel/b3-4.1-01/minimum-reserve-requirements' },
     { label: 'Fannie Mae Selling Guide: multiple financed properties (B2-2-03)', url: 'https://selling-guide.fanniemae.com/sel/b2-2-03/multiple-financed-properties-same-borrower' },
     { label: 'Fannie Mae Selling Guide: rental income (B3-3.8-01)', url: 'https://selling-guide.fanniemae.com/sel/b3-3.8-01/rental-income' },
+    { label: 'Fannie Mae Selling Guide: debt-to-income ratios (B3-6-02)', url: 'https://selling-guide.fanniemae.com/sel/b3-6-02/debt-income-ratios' },
+    { label: 'Fannie Mae Selling Guide: cash-out refinances and delayed financing (B2-1.3-03)', url: 'https://selling-guide.fanniemae.com/sel/b2-1.3-03/cash-out-refinance-transactions' },
     { label: 'Fannie Mae Selling Guide: rental income from the subject property (B3-3.8-02)', url: 'https://selling-guide.fanniemae.com/sel/b3-3.8-02/rental-income-subject-property' },
     { label: 'OCC Comptroller’s Handbook: commercial real estate lending', url: 'https://www.occ.gov/publications-and-resources/publications/comptrollers-handbook/files/commercial-real-estate-lending/pub-ch-commercial-real-estate.pdf' },
     { label: 'SBA: 7(a) loans', url: 'https://www.sba.gov/funding-programs/loans/7a-loans' },

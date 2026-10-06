@@ -530,12 +530,12 @@ describe('learning paths', () => {
 });
 
 describe('investing roadmap', () => {
-  it('covers all six phases on every route, with an outcome, actions, a "done when" and a named action for every step', async () => {
+  it('covers every phase on every route (owners also get “Sell, refinance or trade”), with an outcome, actions, a "done when" and a named action for every step', async () => {
     const { ROADMAP, roadmapFor } = await import('./toolkit');
     expect(new Set(ROADMAP.map((s) => s.id)).size).toBe(ROADMAP.length);
     for (const path of ['listing', 'auction', 'certificate'] as const) {
       const steps = roadmapFor(path);
-      expect(new Set(steps.map((s) => s.phase))).toEqual(new Set([1, 2, 3, 4, 5, 6]));
+      expect(new Set(steps.map((s) => s.phase))).toEqual(new Set(path === 'certificate' ? [1, 2, 3, 4, 5, 6] : [1, 2, 3, 4, 5, 6, 7]));
       for (const s of steps) {
         expect(s.doneWhen.length, s.id).toBeGreaterThan(10);
         expect(s.outcome.length, s.id).toBeGreaterThan(10);

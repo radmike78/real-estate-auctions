@@ -233,7 +233,7 @@ export function FirstDealRoadmap() {
   const nextAdCats = useSpotCategories('toolkit', next ? stepAdCategories(next, path) : []);
   // The phase holding the next step starts open; after that, phases stay as the reader leaves them.
   const [openPhase] = useState(() => next?.phase ?? 1);
-  const phases = ([1, 2, 3, 4, 5, 6] as const).map((n) => ({ n, title: ROADMAP_PHASES[n], steps: steps.filter((s) => s.phase === n) })).filter((ph) => ph.steps.length);
+  const phases = ([1, 2, 3, 4, 5, 6, 7] as const).map((n) => ({ n, title: ROADMAP_PHASES[n], steps: steps.filter((s) => s.phase === n) })).filter((ph) => ph.steps.length);
   const nextDone = (d: string[], id: string, v: StepStatus | 'done' | 'todo') => (v === 'done' ? (d.includes(id) ? d : [...d, id]) : d.filter((x) => x !== id));
   const nextStatus = (m: Record<string, StepStatus>, id: string, v: StepStatus | 'done' | 'todo') => {
     const n = { ...m };

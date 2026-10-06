@@ -75,6 +75,8 @@ export const analyze: Lesson = {
           'A rental needs a landlord (dwelling) policy, not a homeowner’s policy. Ask your agent which kind fits how you’ll use it.',
           'Many policies limit coverage once a home has been empty for a while, often 60 days in a row. That’s a typical repair period, so read the vacancy clause and ask about a vacant-home or builder’s risk policy.',
           'In California’s wildfire areas, private insurers often say no. The California FAIR Plan mainly covers fire, so most owners add a separate policy for theft, water damage and liability. Get both quotes before you commit.',
+          'In Texas, many policies have a separate wind and hail deductible set as a percentage of the dwelling coverage, often 1% or 2%. On $250,000 of coverage, 2% means you pay the first $5,000 of a hail claim. Put it in your reserves.',
+          'On the Texas coast, private insurers often won’t cover wind and hail. The Texas Windstorm Insurance Association (TWIA) covers them in its designated coastal area, but only if the building or repairs were certified to the windstorm building code. Ask the seller for the certificate (WPI-8) before you commit.',
           'Most homeowner policies don’t cover flood. Check the flood zone and price a flood policy if you need one.',
           'Get a written quote, or a binder for an auction, before your inspection period ends or before you bid. If no one will insure it at a price that works, walk away.',
         ] },
@@ -176,6 +178,8 @@ export const analyze: Lesson = {
   ],
   tryIt: { label: 'Run your numbers in the deal calculator', href: '#/analyze' },
   sources: [
+    { label: 'Texas Windstorm Insurance Association (TWIA)', url: 'https://www.twia.org/' },
+    { label: 'Texas Department of Insurance: windstorm inspections and certificates', url: 'https://www.tdi.texas.gov/wind/index.html' },
     { label: 'CFPB: what are appraisals and why do I need to look at them?', url: 'https://www.consumerfinance.gov/ask-cfpb/what-are-appraisals-and-why-do-i-need-to-look-at-them-en-167/' },
     { label: 'Fannie Mae Selling Guide: comparable sales (B4-1.3-08)', url: 'https://selling-guide.fanniemae.com/sel/b4-1.3-08/comparable-sales' },
     { label: 'Fannie Mae Selling Guide: adjustments to comparable sales (B4-1.3-09)', url: 'https://selling-guide.fanniemae.com/sel/b4-1.3-09/adjustments-comparable-sales' },
