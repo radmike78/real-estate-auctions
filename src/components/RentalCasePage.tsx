@@ -66,14 +66,16 @@ function CasePage({ stageKey }: { stageKey?: string }) {
         sub={stage || packet ? C.property : `${C.property}. You’ll read teaching versions of a purchase’s paperwork (fictional extracts, each with a guide to the real form), make the calls, and finish with your own deal packet.`}
       />
       <PracticeRibbon />
-      <nav className="practice-stages" aria-label="Steps in this practice purchase" id="case-top">
-        <a href="#/practice/case" className={!stage && !packet ? 'active' : ''}>Start</a>
+      {/* An even grid of steps (two equal rows on wide screens); every chip has a marker, so Start and the packet line up with the numbered steps. */}
+      <p className="case-steps-hint" aria-hidden>Swipe for all {C.stages.length + 2} steps →</p>
+      <nav className="practice-stages case-stages" aria-label="Steps in this practice purchase" id="case-top" style={{ ['--cols2' as string]: Math.ceil((C.stages.length + 2) / 2), ['--cols3' as string]: Math.ceil((C.stages.length + 2) / 3) }}>
+        <a href="#/practice/case" className={!stage && !packet ? 'active' : ''}><span className="step-num" aria-hidden>▸</span> Start</a>
         {C.stages.map((st, i) => (
           <a key={st.key} href={`#/practice/case/${st.key}`} className={`${stage?.key === st.key ? 'active' : ''}${stageDone(st) ? ' done' : ''}`} aria-current={stage?.key === st.key ? 'step' : undefined}>
             <span className="step-num" aria-hidden>{stageDone(st) ? '✓' : i + 1}</span> {st.title}
           </a>
         ))}
-        <a href="#/practice/case/packet" className={packet ? 'active' : ''}>Your deal packet</a>
+        <a href="#/practice/case/packet" className={packet ? 'active' : ''}><span className="step-num" aria-hidden>★</span> Your deal packet</a>
       </nav>
 
       {packet ? (
@@ -108,7 +110,7 @@ function Start({ p, doneStages, onReset }: { p: CaseProgress; doneStages: number
       </div>
       <p className="muted">About 45 minutes. {C.stages.length} steps. Your progress stays in this browser; you can stop and come back.</p>
       <div className="row practice-next">
-        <a className="btn big" href={`#/practice/case/${(next ?? C.stages[0]).key}`}>{started ? `Continue: ${(next ?? C.stages[0]).title} →` : 'Start: your goal and your cash →'}</a>
+        <a className="btn big" href={`#/practice/case/${(next ?? C.stages[0]).key}`}>{started ? `Continue: ${(next ?? C.stages[0]).title}` : 'Start: your goal and your cash'}<span aria-hidden className="nowrap-arrow">&nbsp;→</span></a>
         {started && <span className="muted">{doneStages} of {C.stages.length} steps done</span>}
         {started && <a href="#/practice/case/packet">See your deal packet</a>}
         {started && <button type="button" className="linkish" onClick={onReset}>Start over</button>}

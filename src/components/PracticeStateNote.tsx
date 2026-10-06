@@ -37,7 +37,7 @@ export default function PracticeStateNote({ sale }: { sale: SaleKey }) {
   const name = STATES.find((x) => x.code === st)?.name ?? st;
   if (sale === 'sid') {
     return (
-      <div className="caution" role="note">
+      <div className="notice practice-state-note" role="note">
         <strong>This sale exists only in Nevada.</strong> Special improvement district (SID) lien certificates are a Clark County, Nevada sale. {name} doesn’t sell anything like them; see the <a href="#/playbooks">sale guides for {name}</a> instead.
       </div>
     );
@@ -45,7 +45,7 @@ export default function PracticeStateNote({ sale }: { sale: SaleKey }) {
   const guide = guideKey(st, sale);
   const drill = drillFor(st, sale);
   return (
-    <div className="caution" role="note">
+    <div className="notice practice-state-note" role="note">
       <strong>This practice uses Nevada (Clark County) rules.</strong> {DIFFERS[sale]?.[st] ?? `${name}’s deadlines, forms and who runs the sale differ.`}{' '}
       Before a real {name} deal, read the <a href={`#/playbooks/${guide}`}>{name} step-by-step guide</a>
       {drill ? <> and try the <a href={`#/practice/drills/${drill}`}>{name} drill</a></> : null}.
