@@ -17,7 +17,7 @@ import { cashForPrice, cleanGoal, cleanTeamList, GOAL_KEY, PLAN_EVENT, PRICE_DEF
 import { currentProgress } from '../lib/journey';
 import { DECIDE_KEY, rank, type Answers } from '../lib/decide';
 import { loadCase } from '../practice/caseProgress';
-import { RENTAL_CASE, tasksFor } from '../practice/rentalCase';
+import { caseFor, tasksFor } from '../practice/rentalCase';
 import { proGuideByKey } from '../lib/proGuide';
 import { PRO_SCRIPTS } from '../lib/proScripts';
 import { stepAdCategories } from '../lib/contextAds';
@@ -94,8 +94,9 @@ function stepEvidence(id: string): string | null {
     return b.area && b.types.length && b.priceMax && b.dealBreakers.length ? 'Your buy box has an area, property types, a price limit and deal breakers.' : null;
   }
   if (id === 'practice') {
-    const p = loadCase();
-    const finished = RENTAL_CASE.every((st) => tasksFor(st, p.answers).every((t) => p.done.includes(`${st.key}/${t.id}`)));
+    const c = caseFor(getMyState());
+    const p = loadCase(c.state);
+    const finished = c.stages.every((st) => tasksFor(st, p.answers).every((t) => p.done.includes(`${st.key}/${t.id}`)));
     return finished || p.walked ? 'You finished the practice purchase and have its deal packet.' : null;
   }
   if (id === 'team') {

@@ -8,7 +8,7 @@ const date = (iso: string, timeZone: string) => new Date(iso).toLocaleDateString
 /** When the sale runs, in the county's own local time and only as precisely as the county announced it. */
 function when(s: CountySale): string {
   const tz = timeZoneFor(s.state, s.county);
-  if (s.datesOnly) return `${date(s.startsAt, tz)} to ${date(s.endsAt, tz)}`;
+  if (s.datesOnly) return date(s.startsAt, tz) === date(s.endsAt, tz) ? date(s.startsAt, tz) : `${date(s.startsAt, tz)} to ${date(s.endsAt, tz)}`;
   if (s.startOnly) return fmtDateTime(s.startsAt, tz);
   return `${fmtDateTime(s.startsAt, tz)} to ${fmtDateTime(s.endsAt, tz)}`;
 }
@@ -31,9 +31,10 @@ export default function CountySales({ sales }: { sales: CountySale[] }) {
             {s.format === 'Over-the-counter offers' && (
               <p>Properties that didn’t sell at the county’s auction. Send an offer to the county during these dates, following its instructions.</p>
             )}
-            {(s.registerBy || s.redeemBy) && (
+            {(s.registerBy || s.redeemBy || s.registerDay) && (
               <ul className="county-sale-dates">
                 {s.registerBy && <li>Register and pay the deposit by {fmtDateTime(s.registerBy, tz)}</li>}
+                {s.registerDay && <li>{s.registerWhat ?? 'Register'} by {day(s.registerDay)}</li>}
                 {s.redeemBy && <li>Owners can pay the taxes until {fmtDateTime(s.redeemBy, tz)}, so properties come off the list before the sale</li>}
               </ul>
             )}
@@ -45,6 +46,9 @@ export default function CountySales({ sales }: { sales: CountySale[] }) {
               )}
               <a className={s.listUrl ? 'btn btn-secondary' : 'btn'} href={s.saleUrl} target="_blank" rel="noreferrer noopener">County sale page ↗</a>
             </div>
+            {s.state === 'TX' && (
+              <p className="small">Texas: in counties of 250,000 people or more, and smaller ones that adopt the rule, you need the county tax office’s statement that you owe no delinquent taxes before you get a deed (Tax Code 34.015). Ask for it early; it’s good for 90 days.</p>
+            )}
             <p className="small muted">
               Source: {s.agency}, checked {day(s.checkedOn)}. Dates can change: the county’s page is the official one.
             </p>

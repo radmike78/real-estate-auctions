@@ -2,6 +2,9 @@
 import type { Verdict } from './rentalCase';
 
 export const CASE_KEY = 'deedowl.case.v1';
+/** The Texas practice house keeps its own progress. */
+export const CASE_KEY_TX = 'deedowl.case.tx.v1';
+const keyFor = (state?: string | null) => (state === 'TX' ? CASE_KEY_TX : CASE_KEY);
 
 export interface CaseProgress {
   /** Task keys ("stage/task") that are finished. */
@@ -36,17 +39,17 @@ export function cleanCase(v: unknown): CaseProgress {
   return { done, answers, first, ...(walked ? { walked } : {}) };
 }
 
-export function loadCase(): CaseProgress {
+export function loadCase(state?: string | null): CaseProgress {
   try {
-    return cleanCase(JSON.parse(localStorage.getItem(CASE_KEY) ?? 'null'));
+    return cleanCase(JSON.parse(localStorage.getItem(keyFor(state)) ?? 'null'));
   } catch {
     return emptyCase();
   }
 }
 
-export function saveCase(p: CaseProgress) {
+export function saveCase(p: CaseProgress, state?: string | null) {
   try {
-    localStorage.setItem(CASE_KEY, JSON.stringify(p));
+    localStorage.setItem(keyFor(state), JSON.stringify(p));
   } catch {
     /* private mode: progress lasts for this visit */
   }

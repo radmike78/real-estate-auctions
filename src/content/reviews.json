@@ -141,8 +141,8 @@
       "src/components/RentalCasePage.tsx",
       "src/practice/rentalCase.ts"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "37b5503ce32a5925",
+    "reviewed": "2026-10-06",
+    "hash": "f3493471cf6167e3",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -401,7 +401,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "ca8a28852167268c",
+    "hash": "724c1ef0ac27d17c",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

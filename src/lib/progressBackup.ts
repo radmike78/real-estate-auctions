@@ -31,6 +31,7 @@ const EXACT = [
   'deedowl.last.v1',
   'fsf.practice.v1',
   'deedowl.case.v1',
+  'deedowl.case.tx.v1',
   'fsf.deals.v1',
   'fsf.calc.rent.v1',
   'fsf.calc.commercial.v1',
@@ -55,6 +56,7 @@ const CLEAN: Record<string, (v: unknown) => unknown> = {
   'deedowl.analyze.v1': (v) => (Array.isArray(v) ? v.map(cleanDeal).filter(Boolean) : []),
   'deedowl.analyze.current.v1': (v) => cleanDeal(v),
   'deedowl.case.v1': cleanCase,
+  'deedowl.case.tx.v1': cleanCase,
   [DEAL_STEPS_KEY]: cleanDealSteps,
 };
 
