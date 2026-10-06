@@ -122,7 +122,7 @@ export const afterClosing: Lesson = {
               ['California', '3 days, not counting Saturdays, Sundays and court holidays (Code of Civil Procedure 1161)', 'Then you file an unlawful detainer case in court. Since January 1, 2025, the tenant has 10 days, not counting weekends and court holidays, to answer it (CCP 1167).'],
               ['Arizona', '5 days after written notice (A.R.S. 33-1368)', 'Then you file a special detainer case. If the tenant pays all past-due rent and a reasonable late fee from the written lease before you file, the lease continues.'],
               ['Utah', '3 business days to pay or leave (Utah Code 78B-6-802)', 'Then you file an unlawful detainer case in court.'],
-              ['Texas', '3 days’ written notice to vacate, unless a written lease sets a shorter or longer time (Property Code 24.005)', 'Then you file an eviction (forcible detainer) case in justice court. The trial is set 10 to 21 days after you file (Property Code 24.0051).'],
+              ['Texas', '3 days’ written notice to vacate, unless a written lease sets a shorter or longer time (Property Code 24.005)', 'Then you file an eviction (forcible detainer) case in justice court. The trial is set 10 to 21 days after you file (Property Code 24.005106; Tex. R. Civ. P. 510).'],
             ],
           },
         },
@@ -144,7 +144,7 @@ export const afterClosing: Lesson = {
       blocks: [
         'How long you held a property, and why you bought it, decide how the profit is taxed.',
         { list: [
-          'A flip is usually taxed like wages, at ordinary income rates, because property you hold mainly to sell to customers in your business isn’t a capital asset. And any gain on property held one year or less is short-term, which is taxed at ordinary rates too (IRS Publication 544 and Topic 409).',
+          'A flip is usually taxed like wages, at ordinary income rates, because property you hold mainly to sell to customers in your business isn’t a capital asset. And any gain on property held one year or less is short-term, which is taxed at ordinary rates too (IRS Publication 544 and Topic 409). If flipping is your business, the profit can also owe self-employment tax (Social Security and Medicare, about 15.3%), which rental income doesn’t (26 U.S.C. 1402).',
           'A rental you held more than one year usually qualifies for the lower long-term capital gains rates (IRS Topic 409).',
           'Depreciation comes back when you sell. The part of the gain that comes from depreciation on a building (“unrecaptured section 1250 gain”) is taxed at up to 25% (IRS Topic 409).',
           'A 1031 exchange can put off the tax when you trade one rental or investment property for another. It doesn’t apply to property held mainly for sale, like a flip, and it has strict 45-day and 180-day deadlines (Form 8824 instructions).',

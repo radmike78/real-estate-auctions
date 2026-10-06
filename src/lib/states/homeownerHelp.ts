@@ -27,7 +27,7 @@ export const HELP: ByStateLines = {
 
 export const DEADLINES: ByStateLines = {
   NV: [
-    { text: 'In Nevada, a notice of sale can’t come until at least 3 months after the notice of default is recorded, and the sale notice must be published for 3 weeks.' },
+    { text: 'In Nevada, a notice of sale can’t come until at least 3 months after the notice of default is recorded, and the sale notice must be published for 3 weeks (NRS 107.080).' },
     { text: 'In Nevada, if you live in the home, you can generally catch up on what you owe (called reinstating) until 5 days before the sale (NRS 107.0805). You can also work out a modification or repayment plan, sell (including a short sale), or get legal help to review your case.' },
     { text: 'In Nevada, you have to ask for foreclosure mediation within 30 days after the notice of default is served (NRS 107.086).' },
   ],

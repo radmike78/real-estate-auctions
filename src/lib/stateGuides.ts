@@ -2169,7 +2169,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Seller disclosures",
-      value: "California’s Transfer Disclosure Statement doesn’t apply to property that isn’t single-family residential (Civ 1102(a)). Your own research (due diligence) is the main protection."
+      value: "California’s Transfer Disclosure Statement covers property with one to four dwelling units (Civ 1102(a)), so a mixed-use building with one to four apartments can be covered even if it’s sold as commercial. Buildings with no homes or five or more units aren’t, and some sales are exempt (Civ 1102.2, such as foreclosure sales). Ask your agent or attorney which apply; your own research (due diligence) is still the main protection."
     },
     {
       label: "Property tax (Prop 13)",
@@ -2199,7 +2199,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Get the rent roll and leases",
-      detail: "A receiver, bank or listing broker can usually provide them. At an auction you often can’t get them. So assume the building is empty until you can confirm otherwise."
+      detail: "A receiver, bank or listing broker can usually provide them. At an auction you often can’t get them. Until you can confirm the leases, count the rent as zero, but don’t assume the building is legally empty: tenants may have rights to stay. Plan how you’ll confirm who occupies it and gain possession lawfully, and ask an attorney before you enter, renovate or remove anyone."
     },
     {
       title: "Value it by income",
@@ -2252,7 +2252,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Expecting a seller disclosure statement",
-      prevent: "The Transfer Disclosure Statement doesn’t cover commercial property (Civ 1102(a)). Ask for reports and do your own inspections."
+      prevent: "The Transfer Disclosure Statement covers only property with one to four dwelling units, and some sales are exempt (Civ 1102(a), 1102.2). For a purely commercial building, ask for reports and do your own inspections."
     },
     {
       mistake: "Assuming tenants will keep paying",
@@ -3007,7 +3007,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Get the rent roll and leases, if you can",
-      detail: "A receiver or listing broker can usually provide them. At an auction you often can’t get them. So assume the building is empty until you can confirm otherwise. Leases may stay if they were recorded or signed before the deed of trust, or have a non-disturbance agreement. Ask an attorney."
+      detail: "A receiver or listing broker can usually provide them. At an auction you often can’t get them. Until you can confirm the leases, count the rent as zero, but don’t assume the building is legally empty: tenants may have rights to stay. Plan how you’ll confirm who occupies it and gain possession lawfully, and ask an attorney before you enter, renovate or remove anyone. Leases may stay if they were recorded or signed before the deed of trust, or have a non-disturbance agreement. Ask an attorney."
     },
     {
       title: "Value it the right way",
@@ -3059,7 +3059,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Skipping the environmental check",
-      prevent: "Past uses can mean cleanup costs bigger than the price. Check EPA and ADEQ records and get a Phase I assessment when you can."
+      prevent: "Past uses can mean cleanup costs bigger than the price. Check EPA and ADEQ records and get a Phase I assessment before you’re committed; if you can’t, count that risk in whether to buy at all."
     },
     {
       mistake: "Assuming the tenants will keep paying",
@@ -3824,7 +3824,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Get the rent roll and leases, if you can",
-      detail: "A receiver or listing broker can usually provide them. At a tax, trustee or sheriff’s sale you often can’t get them. So assume the building is empty until you can confirm otherwise."
+      detail: "A receiver or listing broker can usually provide them. At a tax, trustee or sheriff’s sale you often can’t get them. Until you can confirm the leases, count the rent as zero, but don’t assume the building is legally empty: tenants may have rights to stay. Plan how you’ll confirm who occupies it and gain possession lawfully, and ask an attorney before you enter, renovate or remove anyone."
     },
     {
       title: "Value it the right way",
@@ -3840,7 +3840,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Screen for contamination",
-      detail: "Check EPA records for the address. Ask what the property was used for. Gas stations, dry cleaners and auto shops are high risk. Order a Phase I assessment if time allows. Ask your consultant to check Utah Department of Environmental Quality records too."
+      detail: "Check EPA records for the address. Ask what the property was used for. Gas stations, dry cleaners and auto shops are high risk. Order a Phase I assessment before you’re committed: during the contract’s feasibility period in a negotiated purchase, or before you bid at an auction. Without it you can lose the federal protection from cleanup costs, so if you can’t get one in time, count that risk in whether to buy at all. Ask your consultant to check Utah Department of Environmental Quality records too."
     },
     {
       title: "Check zoning, code and permits",
@@ -3881,7 +3881,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Skipping the environmental check",
-      prevent: "Past uses can mean cleanup costs bigger than the price. Check EPA and Utah DEQ records. Get a Phase I assessment."
+      prevent: "Past uses can mean cleanup costs bigger than the price. Check EPA and Utah DEQ records, and get a Phase I assessment before you’re committed."
     },
     {
       mistake: "Assuming the water comes with the land",

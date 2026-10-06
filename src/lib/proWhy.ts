@@ -416,7 +416,7 @@ export const PRO_WHY = {
       },
       {
         who: "Fix-and-flip investor",
-        text: "A flip is often taxed as ordinary income, not as a lower-taxed capital gain, and a 1031 exchange can’t be used for it. Talk to a CPA before you buy, not after you sell."
+        text: "A flip is often taxed as ordinary income, not as a lower-taxed capital gain, can also owe self-employment tax (about 15.3%) if flipping is your business, and a 1031 exchange can’t be used for it. Talk to a CPA before you buy, not after you sell."
       },
       {
         who: "Anyone starting an LLC or partnership",

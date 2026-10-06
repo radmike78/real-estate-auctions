@@ -386,11 +386,11 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       label: "Lender’s deadline",
-      value: "The addendum has a date. If the seller hasn’t told you the lender agreed by then, the contract ends and your earnest money comes back (45-2, D). If the lender agrees, the contract’s effective date moves to the day you’re told."
+      value: "The addendum has a date. If the seller hasn’t told you the lender agreed by then, the contract ends and your earnest money comes back (45-2, D). If the lender agrees, the effective date for performance moves to the day you’re told (the Amended Effective Date)."
     },
     {
       label: "Option period",
-      value: "If you paid for an option period, it starts on the original effective date and runs until it expires under the contract (45-2, F). Check the dates with your agent."
+      value: "If you paid for an option period, it begins on the original effective date, continues after the Amended Effective Date and ends when it expires under paragraph 5 of your contract (45-2, F). Have your agent write out the exact dates; an amendment can change them."
     },
     {
       label: "Foreclosure clock",
