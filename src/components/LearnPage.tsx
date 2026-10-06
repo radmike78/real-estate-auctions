@@ -10,8 +10,22 @@ import { useState } from 'react';
 import { useJourney } from '../lib/journey';
 import { useMyState } from '../lib/myState';
 import { guidesFor } from '../lib/playbooks';
-import { STATES, stateByCode } from '../lib/regions';
+import { STATES, stateByCode, type StateCode } from '../lib/regions';
+import { oneState } from './LessonPage';
+import '../styles/review-lessons.css';
 import AdSpot from './AdSpot';
+
+/**
+ * Under a heading that already names the state, "Texas tax sales" reads "Tax sales" and "Most Texas home loans" reads
+ * "Most home loans". Only the state's name as a describing word goes; "under Texas law" and the like stay.
+ */
+function withoutState(text: string, st: StateCode): string {
+  const name = stateByCode(st)!.name;
+  return text
+    .replace(new RegExp(`^${name} (\\S)`), (_m, c: string) => c.toUpperCase())
+    .replace(new RegExp(`\\b(A|a) ${name} ([aeiou])`, 'g'), '$1n $2')
+    .replace(new RegExp(`\\b(a|A|an|An|the|The|Most|most|each|Each) ${name} (?=[a-z])`, 'g'), '$1 ');
+}
 
 /** The step-by-step sale guides, for the chosen state (or a way into each state's guides). */
 function SaleGuides() {
@@ -21,12 +35,12 @@ function SaleGuides() {
     <section className="learn-path" aria-labelledby="path-guides">
       <h2 id="path-guides">{st ? `Sale guides for ${st.name}` : 'Sale guides for your state'}</h2>
       <p className="muted">How each kind of forced sale works, step by step: who sells, what you pay and when, and what can go wrong.</p>
-      <ul className="lesson-list">
+      <ul className="lesson-list sale-guide-list">
         {st
           ? guidesFor(st.code).map((g) => (
               <li key={g.key}>
                 <a className="lesson-card ready" href={`#/playbooks/${g.key}`}>
-                  <span className="lesson-body"><strong>{g.title}</strong><span>{g.oneLine}</span></span>
+                  <span className="lesson-body"><strong>{withoutState(g.title, st.code)}</strong><span className="sale-guide-line">{withoutState(g.oneLine, st.code)}</span></span>
                   <span className="lesson-go" aria-hidden>→</span>
                 </a>
               </li>
@@ -48,6 +62,7 @@ function SaleGuides() {
 export default function LearnPage() {
   useMarkStep('learn');
   const { mode, read } = useJourney();
+  const [mine] = useMyState();
   // Guided visitors see the first two groups; everything stays one click away.
   const [showAll, setShowAll] = useState(false);
   const paths = mode === 'guided' && !showAll ? LEARN_PATHS.slice(0, 2) : LEARN_PATHS;
@@ -59,7 +74,13 @@ export default function LearnPage() {
         sub="Residential and commercial: the markets, the property types, and how deals are found, analyzed and paid for."
       />
       <StatePicker label="Show rules for" />
-      <p className="page-summary"><strong>Ways to make money:</strong> renting, flipping, BRRRR, auctions, apartments and more, each with how the money is made and what goes wrong. <a href="#/learn/strategies">Compare the strategies →</a></p>
+      <section className="learn-money" aria-labelledby="learn-money">
+        <div>
+          <h2 id="learn-money">Ways to make money</h2>
+          <p>Renting, flipping, BRRRR, auctions, apartments and more, each with how the money is made and what goes wrong.</p>
+        </div>
+        <a className="btn" href="#/learn/strategies">Compare the strategies →</a>
+      </section>
       <NarrowDown config={learnConfig()} intro="Answer two quick questions and we’ll suggest which lessons to read first. Every lesson is still listed below." />
       {paths.map((path) => (
         <section key={path.title} className="learn-path" aria-labelledby={`path-${path.keys[0]}`}>
@@ -77,7 +98,7 @@ export default function LearnPage() {
                       <span className="lesson-n" aria-hidden>{i + 1}</span>
                       <span className="lesson-body">
                         <strong>{m.title}</strong>
-                        <span>{m.summary}</span>
+                        <span>{oneState(m.summary, mine)}</span>
                         {(lessonByKey(m.key) || read.includes(m.key)) && (
                           <span className="lesson-meta">
                             {lessonByKey(m.key) && `${lessonByKey(m.key)!.minutes} min`}

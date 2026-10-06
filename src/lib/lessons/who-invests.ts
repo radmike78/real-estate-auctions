@@ -11,7 +11,7 @@ export const whoInvests: Lesson = {
   ],
   sections: [
     {
-      heading: 'Who invests where',
+      heading: 'Kinds of investors, and what they buy',
       blocks: [
         {
           table: {
@@ -44,7 +44,7 @@ export const whoInvests: Lesson = {
           'Time: a rental you manage yourself takes regular time. A property manager or a REIT takes less.',
           'Borrowing: most home loans on 1–4 units are sized on your income, though DSCR loans size them on the rent. Commercial loans are sized mainly on the property’s income. SBA 504 loans can’t be used for rental property investments.',
           'Risk: one property means one roof, one set of tenants and one neighborhood. Funds spread risk but add fees.',
-          'Taxes: buildings wear out on paper. Residential rental buildings are depreciated over 27.5 years and commercial buildings over 39. Land isn’t depreciated at all. Ask a tax advisor how this applies to you.',
+          'Taxes: buildings wear out on paper. Residential rental buildings are depreciated over 27.5 years and commercial buildings over 39 years. Land isn’t depreciated at all. Ask a tax advisor how this applies to you.',
           'Selling: a building can take months to sell. Listed REIT shares can sell the same day.',
         ] },
         'The Decide step turns these questions into a plan for you.',
@@ -58,7 +58,7 @@ export const whoInvests: Lesson = {
     { term: 'Depreciation', meaning: 'A yearly tax deduction for the wear on a building (not the land) over a set number of years.' },
     { term: 'Owner-user', meaning: 'A business that buys the building it operates from.' },
   ],
-  tryIt: { label: 'Next step: decide what fits you', href: '#/decide' },
+  tryIt: { label: 'Decide what fits you', href: '#/decide' },
   sources: [
     { label: 'HUD: FHA 203(b) mortgage insurance', url: 'https://www.hud.gov/hud-partners/single-family-sfh203b' },
     { label: 'Fannie Mae Selling Guide: occupancy types (B2-1.1-01)', url: 'https://selling-guide.fanniemae.com/sel/b2-1.1-01/occupancy-types' },

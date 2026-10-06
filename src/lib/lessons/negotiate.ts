@@ -61,7 +61,7 @@ export const negotiate: Lesson = {
             head: ['', 'How it differs'],
             rows: [
               ['Auctions', 'Usually as-is, with no inspection or financing contingency. Expect a deposit, often by cashier’s check, and full payment in cash on a short deadline. Bidding sets the price, so decide your maximum bid before the sale. Each guide lists the rules for that kind of sale.'],
-              ['Bank-owned (REO)', 'The bank’s own contract and addenda usually replace the standard forms. Fannie Mae’s contract, for example, sells the home as-is and sets a short inspection period; check the contract for the deadline. It doesn’t require the seller to make repairs. If you don’t like the inspection results, you can usually cancel and get your earnest money back only within that inspection period and by the notice the addendum requires*. Once the period ends, the seller refusing repairs doesn’t let you cancel.'],
+              ['Bank-owned (REO)', 'The bank’s own contract and addenda usually replace the standard forms. Fannie Mae’s contract, for example, sells the home as-is and sets a short inspection period; check the contract for the deadline. It doesn’t require the seller to make repairs. If you don’t like the inspection results, you can usually cancel and get your earnest money back only within that inspection period and by the notice the addendum requires.* Once the period ends, the seller refusing repairs doesn’t let you cancel.'],
               ['Short sales', 'The owner sells for less than the loan balance, and the lender has to agree. Expect a long wait for that approval, because the lender, not only the owner, must accept the price.'],
             ],
           },
@@ -144,6 +144,7 @@ export const negotiate: Lesson = {
     { term: 'FIRPTA', meaning: 'A federal law that makes a buyer withhold tax when buying U.S. real estate from a foreign seller.' },
   ],
   tryIt: { label: 'Practice making an offer and closing a purchase', href: '#/practice' },
+  books: ['0143118757', '0062407805'],
   sources: [
     { label: 'C.A.R. Quick Guide: navigating contingencies in the contract', url: 'https://www.car.org/-/media/CAR/Documents/Transaction-Center/PDF/QUICK-GUIDES/Quick-Guide---Navigating-Contingencies-in-the-Contract.pdf' },
     { label: 'Arizona REALTORS®: residential resale purchase contract series', url: 'https://www.aaronline.com/?p=78755' },

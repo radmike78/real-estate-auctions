@@ -1,1 +1,156 @@
-/* Review round 7: lessons page fixes. */
+/* Learn: the hub, lessons, property types, strategies and Recommended reading. Loads after styles.css. */
+
+:root { --rl-purple: #6d28d9; --rl-teal: #0f766e; --rl-rose: #be185d; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --rl-purple: #c4b5fd; --rl-teal: #5eead4; --rl-rose: #f9a8d4; } }
+:root[data-theme="dark"] { --rl-purple: #c4b5fd; --rl-teal: #5eead4; --rl-rose: #f9a8d4; }
+
+.nowrap { white-space: nowrap; }
+
+/* ---- Lessons: full width, summary first ---- */
+/* "What you'll learn" sits above the lesson at full width (no side column), with its points in columns. */
+.page.lesson .lesson-takeaways { position: static !important; margin: 8px 0 24px; padding: 18px 24px; }
+.page.lesson .lesson-takeaways ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 8px 36px; }
+.page.lesson .lesson-takeaways li { font-size: 1.05rem; line-height: 1.5; }
+.page section.lesson-takeaways > h2:first-child { font-size: 1.3rem; }
+.lesson-body-text { display: block; }
+.page.lesson section.not-sure { margin-bottom: 24px; }
+
+/* Topic keywords at the start of a bullet stand out. */
+.li-lead { font-weight: 700; color: var(--text); }
+
+/* Key terms: two or three columns on wide screens, a bigger term and a full-contrast meaning. */
+.lesson-terms dl { grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); gap: 12px; }
+.lesson-terms dl > div { padding: 14px 18px; }
+.lesson-terms dt { font-size: 1.12rem; }
+.lesson-terms dd { color: var(--text); opacity: 0.9; font-size: 1.02rem; line-height: 1.55; margin-top: 4px; }
+
+/* Tables: body-size, full-contrast text; the first column wraps instead of stretching across the table. */
+.lesson-table th, .lesson-table td { font-size: 1rem; color: var(--text); }
+.lesson-table tbody th { white-space: normal; width: 1%; min-width: 11rem; }
+.lesson-table.cols-2 tbody th { width: auto; }
+.lesson-table.cols-2 td { width: 12rem; white-space: nowrap; }
+@media (min-width: 1200px) { .lesson-table th, .lesson-table td { font-size: 1.05rem; } }
+
+/* Practice: the task's own button, plus a separate secondary one when the lesson has another link. */
+.lesson-practice-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 0; }
+.lesson-try { margin: 0 0 24px; }
+
+/* Link cards stack on phones (two side by side are cramped). */
+@media (max-width: 700px) {
+  .lesson-body-text ul.lesson-links,
+  .lesson-body-text ul.lesson-links:has(> :nth-child(2):last-child),
+  .lesson-body-text ul.lesson-links:has(> :nth-child(4):last-child) { --cols: 1; }
+}
+
+/* Grouped hiring questions ("Ask the inspector:"). */
+.topic-help-text ul ul { margin: 6px 0 4px; }
+
+/* ---- Recommended books (Reading page and lessons) ---- */
+.book-grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 700px) { .book-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1150px) { .book-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 2100px) { .book-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.book-grid .book-card { grid-template-columns: 120px minmax(0, 1fr); gap: 18px; padding: 18px; position: relative; }
+.book-grid .book-cover, .book-grid .book-cover img { width: 120px; }
+.book-cover img { border-radius: 6px; }
+.book-tile { display: grid; align-content: space-between; width: 120px; aspect-ratio: 2 / 3; box-sizing: border-box; padding: 12px 10px; border-radius: 6px;
+  background: linear-gradient(160deg, var(--info-bg), var(--surface-2)); border: 1px solid var(--border); border-left: 6px solid var(--info); color: var(--text); text-decoration: none; }
+.book-tile-title { font-weight: 800; font-size: 0.95rem; line-height: 1.25; }
+.book-tile-author { font-size: 0.85rem; color: var(--text); opacity: 0.85; }
+.book-grid .book-title { font-size: 1.18rem; line-height: 1.3; }
+.book-author { color: var(--muted); font-size: 0.98rem; }
+.book-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.book-info > .book-buttons a { font-weight: 700; }
+.book-audio-tag { justify-self: start; font-size: 0.92rem; font-weight: 700; color: var(--info); background: var(--info-bg); border-radius: 999px; padding: 2px 10px; }
+.book-top { border-color: var(--info); box-shadow: 0 0 0 1px var(--info) inset; }
+.book-top-label { position: absolute; top: -12px; left: 16px; background: var(--info); color: var(--surface); font-weight: 800; font-size: 0.9rem; padding: 3px 12px; border-radius: 999px; }
+.book-grid-one { grid-template-columns: minmax(0, 1fr) !important; }
+.book-grid-one .book-card { grid-template-columns: 150px minmax(0, 1fr); padding-top: 24px; }
+.book-grid-one .book-cover, .book-grid-one .book-cover img, .book-grid-one .book-tile { width: 150px; }
+.book-grid-one .book-title { font-size: 1.35rem; }
+.book-pick { margin-bottom: 28px; }
+@media (max-width: 420px) {
+  .book-grid .book-card, .book-grid-one .book-card { grid-template-columns: 90px minmax(0, 1fr); gap: 12px; }
+  .book-grid .book-cover, .book-grid .book-cover img, .book-grid .book-tile, .book-grid-one .book-cover, .book-grid-one .book-cover img, .book-grid-one .book-tile { width: 90px; }
+}
+.lesson-books { margin: 18px 0; }
+.lesson-books-more { margin: 12px 0 0; font-weight: 600; }
+
+/* ---- Learn hub ---- */
+.learn-money { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 24px; margin: 8px 0 22px; padding: 18px 24px;
+  border-radius: 14px; border: 1px solid var(--border); border-left: 6px solid var(--rl-teal); background: var(--surface); }
+.learn-money h2 { margin: 0 0 4px; font-size: 1.35rem; }
+.learn-money p { margin: 0; font-size: 1.05rem; }
+
+/* Cards in a row are the same height, and each list uses as many columns as it has cards (no empty slots). */
+.learn-path .lesson-list > li { display: flex; }
+.learn-path .lesson-list > li > .lesson-card { flex: 1; }
+@media (min-width: 1100px) {
+  .learn-path .lesson-list:has(> li:nth-child(3):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 1600px) {
+  .learn-path .lesson-list:has(> li:nth-child(2):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .learn-path .lesson-list:has(> li:nth-child(4):last-child),
+  .learn-path .lesson-list:has(> li:nth-child(7):last-child),
+  .learn-path .lesson-list:has(> li:nth-child(8):last-child) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+/* Sale guide summaries: about three lines each, so one long guide doesn't make its card twice as tall. */
+.sale-guide-line { display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Phones: the lesson number sits inline with the title instead of in a column of its own. */
+@media (max-width: 640px) {
+  .learn-path .lesson-card { display: block; position: relative; padding: 14px 44px 14px 16px; }
+  .learn-path .lesson-card .lesson-n { float: left; width: 30px; height: 30px; margin: 0 10px 0 0; font-size: 0.95rem; }
+  .learn-path .lesson-card .lesson-body { display: block; }
+  .learn-path .lesson-card .lesson-body > strong { display: block; line-height: 30px; }
+  .learn-path .lesson-card .lesson-body > span { display: block; clear: left; margin-top: 4px; }
+  .learn-path .lesson-card .lesson-body > .sale-guide-line { display: -webkit-box; }
+  .learn-path .lesson-card .lesson-go { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); }
+}
+
+/* ---- Ways to make money (strategies) ---- */
+.strategy-grid > li { display: flex; }
+.strategy-grid .lesson-card { flex: 1; align-items: start; }
+.strat-card { --strat: var(--accent); border: 1.5px solid color-mix(in srgb, var(--text) 20%, transparent); border-top: 6px solid var(--strat); }
+.strat-card.ready:hover { border-color: var(--strat); }
+.strat-card .lesson-body > strong { font-size: 1.2rem; color: var(--strat); }
+.strat-card .lesson-go { color: var(--strat); align-self: center; }
+.strat-accent-0 { --strat: var(--accent); }
+.strat-accent-1 { --strat: var(--rl-purple); }
+.strat-accent-2 { --strat: var(--rl-teal); }
+.strat-accent-3 { --strat: var(--rl-rose); }
+.strat-accent-4 { --strat: var(--go); }
+.strat-earns { display: block; margin-top: 4px; padding-top: 8px; border-top: 1px solid var(--border); }
+.strat-earns strong { color: var(--text); font-size: 1rem; }
+@media (max-width: 640px) { .strat-card { grid-template-columns: minmax(0, 1fr); } .strat-card .lesson-go { display: none; } }
+
+/* Strategy pages: risk cards in even pairs; first steps read as text with a small "Open →" link. */
+@media (min-width: 900px) { .deep-page .decide-risk { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.deep-page .decide-risk > div { padding: 14px 18px; }
+.deep-page .decide-risk dt { font-size: 1.1rem; }
+.first-steps .step-open { font-size: 0.95rem; font-weight: 700; white-space: nowrap; }
+
+/* ---- Property types: readable labels and an even grid of stories ---- */
+.deep-page .story-who, .deep-page .why-who { font-size: 1rem; text-transform: none; letter-spacing: 0; color: var(--text); font-weight: 700; opacity: 0.85; }
+.deep-page .why-example, .deep-page .story-lesson { color: var(--text); font-size: 1rem; }
+.story-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); }
+.story-grid .story-card { align-content: start; }
+.story-good-card { border-left: 5px solid var(--go); }
+.story-caution-card { border-left: 5px solid var(--rl-rose); }
+.story-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.story-tone, .story-place { font-size: 0.9rem; font-weight: 700; border-radius: 999px; padding: 2px 10px; }
+.story-tone-good { background: var(--go-bg); color: var(--go); }
+.story-tone-caution { background: color-mix(in srgb, var(--rl-rose) 16%, transparent); color: var(--rl-rose); }
+.story-place { background: var(--info-bg); color: var(--info); }
+.story-more { margin-top: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.story-more > summary { cursor: pointer; padding: 14px 18px; font-weight: 700; font-size: 1.1rem; min-height: 44px; box-sizing: border-box; }
+.story-more[open] > summary { border-bottom: 1px solid var(--border); }
+.story-more > .story-grid, .story-more > .story-switch { margin: 16px 18px; }
+.deep-page .lesson-practice { margin-top: 24px; }
+.lesson-also { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--border); }
+/* Long row labels (a loan type with its terms, a court case) get a fair share of the width; the number columns stay
+   compact and the explanation takes the rest. */
+.lesson-table.long-first thead th:first-child { width: 22%; }
+.lesson-table.long-first.cols-4 thead th:nth-child(2), .lesson-table.long-first.cols-4 thead th:nth-child(3) { width: 11%; }
+.lesson-table.long-first.cols-3 thead th:nth-child(2) { width: 45%; }
+.book-buttons .btn { white-space: nowrap; }

@@ -84,7 +84,8 @@ export const creative: Lesson = {
     { term: 'Executory contract', meaning: 'Texas’s term for a contract for deed: the seller keeps title until the buyer finishes paying, usually years later.' },
     { term: 'Security', meaning: 'An investment regulated by securities law, such as a share in a deal others manage for you.' },
   ],
-  tryIt: { label: 'Read: the books we recommend on financing', href: '#/learn/reading' },
+  tryIt: { label: 'Find a real estate attorney to review the papers', href: '#/pros/attorney' },
+  books: ['1947200976'],
   sources: [
     { label: 'Loan originator rules and seller-financing exclusions (12 CFR 1026.36)', url: 'https://www.law.cornell.edu/cfr/text/12/1026.36' },
     { label: 'NRS 645B: mortgage companies (seller exemption, 645B.015)', url: 'https://www.leg.state.nv.us/NRS/NRS-645B.html' },
