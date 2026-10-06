@@ -8,6 +8,7 @@ import SaleDocsPanel from './SaleDocsPanel';
 import ByState from './ByState';
 import StatePicker from './StatePicker';
 import { useMyState } from '../lib/myState';
+import { stateByCode } from '../lib/regions';
 import { DEFICIENCY, DISCLOSURES, NOTES, OWNERS } from '../lib/states/shortSales';
 import AdSpot from './AdSpot';
 
@@ -19,20 +20,20 @@ function MySaleDocs() {
 
 const STEPS: [string, string][] = [
   ['Get pre-approved or show proof of funds', 'The lender reviewing a short sale wants to know you can close. Send a pre-approval letter or bank statement in with your offer.'],
-  ['Hire a buyer\'s agent who has closed short sales', 'Short sales are listed on the MLS (the database agents use), marked "Short Sale" or "Subject to lender approval." An experienced agent can find them, including new listings, and knows how each lender works.'],
-  ['Make an offer "subject to lender approval"', 'The seller accepts first. Then the listing agent sends your offer, the seller\'s hardship documents and a net sheet to the lender or lenders. Your earnest money is usually held in escrow.'],
-  ['Wait for the lender\'s decision', 'Approval often takes weeks to a few months, and longer when there is a second mortgage, mortgage insurance or an HOA balance. The lender may approve, reject or counter at a higher price.'],
+  ['Hire a buyer’s agent who has closed short sales', 'Short sales are listed on the MLS (the database agents use), marked “Short Sale” or “Subject to lender approval.” An experienced agent can find them, including new listings, and knows how each lender works.'],
+  ['Make an offer “subject to lender approval”', 'The seller accepts first. Then the listing agent sends your offer, the seller’s hardship documents and a net sheet to the lender or lenders. Your earnest money is usually held in escrow.'],
+  ['Wait for the lender’s decision', 'Approval often takes weeks to a few months, and longer when there is a second mortgage, mortgage insurance or an HOA balance. The lender may approve, reject or counter at a higher price.'],
   ['Get the approval letter, then finish due diligence', 'Read the approval terms: price, closing deadline, and who pays which costs. Complete your inspection and appraisal within your contract periods.'],
   ['Close through escrow', 'You receive a regular deed through escrow, usually with title insurance, just like a standard purchase. Approval letters have hard deadlines, so be ready to close on time.'],
 ];
 
 const RISKS: [string, string][] = [
   ['It can take a long time', 'Many buyers wait months. Rates, your finances or your lease situation can change while you wait.'],
-  ['The lender can say no, or ask for more', 'The seller\'s acceptance isn\'t final. The lender can reject the sale or counter above your offer.'],
+  ['The lender can say no, or ask for more', 'The seller’s acceptance isn’t final. The lender can reject the sale or counter above your offer.'],
   ['More than one lender may need to agree', 'A second mortgage or HOA lien holder can block or delay the sale, or demand payment to release its lien.'],
   ['Foreclosure can happen first', 'If the owner is in foreclosure, the trustee sale may go ahead before approval arrives. Ask whether a sale date has been postponed for the short sale.'],
   ['Usually sold as-is', 'Sellers rarely make repairs or give credits. Budget for repairs and get a full inspection.'],
-  ['"Approved" prices aren\'t always bargains', 'Lenders approve prices close to market value, based on their own appraisal or a broker’s price opinion.'],
+  ['“Approved” prices aren’t always bargains', 'Lenders approve prices close to market value, based on their own appraisal or a broker’s price opinion.'],
   ['Watch for fraud', 'Never pay a side fee to a seller, agent or "negotiator" outside escrow. Any payment must be disclosed to the lender. Be wary of anyone asking you to wire money.'],
   ['Occupied homes', 'Confirm the home will be vacant at closing, and whether any tenant has rights under a lease.'],
 ];
@@ -72,7 +73,7 @@ export const SECTIONS: DrillSection[] = [
   },
   {
     key: 'checklist',
-    title: "What you'll need",
+    title: "What you’ll need",
     icon: <IconCheckList />,
     summary: `${CHECKLISTS.short.items.length} items to tick off before you make an offer`,
     bare: true,
@@ -105,9 +106,9 @@ export const SECTIONS: DrillSection[] = [
       <>
         <h3 className="topic-head">Could the seller still owe the lender?</h3>
         <p>When the lender takes less than the full payoff, the unpaid rest is called a deficiency. Whether the lender can still collect it depends on the state.</p>
-        <ByState lines={DEFICIENCY} missing="We don't have verified rules on this for this state yet. Sellers should ask a local attorney." />
+        <ByState lines={DEFICIENCY} missing="We don’t have verified rules on this for this state yet. Sellers should ask a local attorney." />
         <h3 className="topic-head">Disclosures and contracts</h3>
-        <ByState lines={DISCLOSURES} missing="We don't have verified disclosure rules for this state yet. Ask your agent." />
+        <ByState lines={DISCLOSURES} missing="We don’t have verified disclosure rules for this state yet. Ask your agent." />
         <h3 className="topic-head">Other things to know</h3>
         <ByState lines={NOTES} missing="Nothing extra for this state yet. See How to buy a short sale and Risks to watch out for." />
       </>
@@ -115,15 +116,15 @@ export const SECTIONS: DrillSection[] = [
   },
   {
     key: 'owners',
-    title: "Don't contact homeowners",
+    title: "Don’t contact homeowners",
     icon: <IconStop />,
     tone: 'stop',
     summary: 'Why you should find short sales through an agent, never by approaching owners',
     content: () => (
       <>
         <p>
-          Don't go looking for short sales by contacting homeowners who are behind on payments. If an owner decides to sell, a licensed
-          agent usually lists the home on the MLS; ask your agent. To follow a property's foreclosure status without contacting anyone,
+          Don’t go looking for short sales by contacting homeowners who are behind on payments. If an owner decides to sell, a licensed
+          agent usually lists the home on the MLS; ask your agent. To follow a property’s foreclosure status without contacting anyone,
           use the <a href="#/pre-foreclosures">pre-foreclosure tracker</a>.
         </p>
         <h3 className="topic-head">The law in your state</h3>
@@ -135,16 +136,18 @@ export const SECTIONS: DrillSection[] = [
 
 export default function ShortSalesPage({ section }: { section?: string }) {
   const open = SECTIONS.some((x) => x.key === section);
+  const [state] = useMyState();
+  const stateName = state ? stateByCode(state)?.name : null;
   return (
     <main className="page prose">
       <PageHero
         compact={open}
-        eyebrow={<span className="eyebrow">Voluntary sales · NV, CA, AZ, UT, TX</span>}
+        eyebrow={<span className="eyebrow">Voluntary sales · {stateName ?? 'NV, CA, AZ, UT, TX'}</span>}
         title={open ? <a className="title-link" href="#/short-sales">Short sales</a> : <>Short <span className="grad">sales</span></>}
         sub={
           open ? undefined : (
             <>
-              A homeowner sells for less than they owe, and the lender agrees to take less than the full payoff. It's a voluntary sale, not an
+              A homeowner sells for less than they owe, and the lender agrees to take less than the full payoff. It’s a voluntary sale, not an
               auction: the owner lists with a licensed agent, and the lender must approve your offer.
             </>
           )
@@ -152,17 +155,19 @@ export default function ShortSalesPage({ section }: { section?: string }) {
       />
       {!open && (
         <div className="notice" role="note">
-          <strong>How to find short sales:</strong> no government list exists. They're listed on the MLS, the database agents use, marked
-          "Short Sale." Work with a licensed buyer's agent. <a href="#/pros/agent">How to find a short-sale agent →</a>
+          <strong>How to find short sales:</strong> no government list exists. They’re listed on the MLS, the database agents use, marked
+          “Short Sale.” Work with a licensed buyer’s agent. <a href="#/pros/agent">How to find a short-sale agent →</a>
         </div>
       )}
 
-      {!open && <p className="page-starter">How short sales work, how to buy one step by step, the risks, and the rules in Nevada, California, Arizona, Utah and Texas. Pick your state to see only its rules.</p>}
+      {!open && <p className="page-starter">{stateName
+        ? `How short sales work, how to buy one step by step, the risks, and the rules in ${stateName}.`
+        : 'How short sales work, how to buy one step by step, the risks, and the rules in Nevada, California, Arizona, Utah and Texas. Pick your state to see only its rules.'}</p>}
       <StatePicker label="Where is the home?" />
 
       <DrillDown sections={SECTIONS} active={section} baseHref="#/short-sales" label="Short sale guide" />
 
-      <p className="muted small">General information only, not legal, tax or financial advice. If you're the seller, ask a tax professional and an attorney whether you could still owe the lender afterward (a deficiency) and what the tax consequences are.</p>
+      <p className="muted small ss-general">General information only, not legal, tax or financial advice. If you’re the seller, ask a tax professional and an attorney whether you could still owe the lender afterward (a deficiency) and what the tax consequences are.</p>
       <Disclaimer kind="sales" compact />
       <AdSpot spot="shortsales" />
     </main>

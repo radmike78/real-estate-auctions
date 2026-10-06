@@ -21,7 +21,7 @@
       "src/lib/status.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "b14f3a0761c5f41d",
+    "hash": "ec270fee755321d6",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -61,7 +61,7 @@
       "src/components/SidCertificates.tsx"
     ],
     "reviewed": "2026-10-06",
-    "hash": "ea66276d320f96a6",
+    "hash": "a17337e4420a2678",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -71,7 +71,7 @@
       "src/components/PreForeclosurePage.tsx"
     ],
     "reviewed": "2026-10-06",
-    "hash": "c6180c5706b32cf2",
+    "hash": "bc2a28e5ba8f1e8c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -81,7 +81,7 @@
       "src/components/ShortSalesPage.tsx"
     ],
     "reviewed": "2026-10-06",
-    "hash": "fa369b6140243bad",
+    "hash": "8aabf389ac7a62b5",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -92,7 +92,7 @@
       "src/lib/reoSources.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "e08bd53f43a18d89",
+    "hash": "b561480471f74802",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -103,7 +103,7 @@
       "src/lib/businessAssets.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "33cfea1445bc2ec3",
+    "hash": "35f78188a30d2e67",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -185,7 +185,7 @@
       "src/components/SearchAlertButton.tsx"
     ],
     "reviewed": "2026-10-06",
-    "hash": "cd7b25864354d823",
+    "hash": "4804843957f5f6b1",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -214,7 +214,7 @@
       "src/components/FinancingPage.tsx"
     ],
     "reviewed": "2026-10-06",
-    "hash": "974509efc464c3f2",
+    "hash": "94a8007adcf4f374",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -247,7 +247,7 @@
       "src/components/HomeownerHelpPage.tsx"
     ],
     "reviewed": "2026-10-06",
-    "hash": "8d08d338a23269dc",
+    "hash": "67e27430b8e900fe",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -257,7 +257,7 @@
       "src/components/AboutPage.tsx"
     ],
     "reviewed": "2026-10-06",
-    "hash": "b7b1c33a13be7a72",
+    "hash": "1503f09c4bcd6d2f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -269,7 +269,7 @@
       "src/lib/proApplication.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "2127a5c659100ee4",
+    "hash": "6241a6c750f2e8c2",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -282,7 +282,7 @@
       "src/components/RoleNotice.tsx"
     ],
     "reviewed": "2026-10-06",
-    "hash": "cc20bd5e23b896b8",
+    "hash": "5ee433860224992c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -379,7 +379,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "55ff69856c0ba3c3",
+    "hash": "dc836a9f5dfa2b5c",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {

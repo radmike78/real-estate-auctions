@@ -15,6 +15,8 @@ import ScriptBox from './ScriptBox';
 import { SALE_SCRIPTS } from '../lib/saleDocs';
 import StatePicker from './StatePicker';
 import ByState from './ByState';
+import { useMyState } from '../lib/myState';
+import { stateByCode } from '../lib/regions';
 import { BUY, NO_CONTACT, READ_NOTICE, TIMELINE, TIMELINE_NOTES, WHERE } from '../lib/states/preForeclosure';
 
 const WATCH_KEY = 'fsf.preforeclosure.watch.v1';
@@ -52,22 +54,48 @@ function Pipeline({ t }: { t: ForeclosureTrack }) {
   );
 }
 
+/** The foreclosure steps for the visitor's state (every state, folded, when none is chosen). */
+function HowItProgresses() {
+  const [mine] = useMyState();
+  return (
+    <>
+      {!mine && <p>Each state has its own steps and waiting periods. Pick your state above to see only its steps.</p>}
+      <ByState lines={TIMELINE} ordered />
+      <p className="muted">
+        {mine ? 'Many' : 'In every state, many'} foreclosures never reach auction, because owners catch up, modify the loan, sell (often as a short sale) or file bankruptcy.
+      </p>
+      <ByState lines={TIMELINE_NOTES} missing="Nothing more to add for this state." />
+    </>
+  );
+}
+
+const TRUSTEE_GUIDES: [code: string, name: string, href: string][] = [
+  ['NV', 'Nevada', '#/playbooks/foreclosure'],
+  ['CA', 'California', '#/playbooks/caforeclosure'],
+  ['AZ', 'Arizona', '#/playbooks/azforeclosure'],
+  ['UT', 'Utah', '#/playbooks/utforeclosure'],
+  ['TX', 'Texas', '#/playbooks/txforeclosure'],
+];
+
+/** Trustee-sale guides: just the visitor's state once one is chosen. */
+function TrusteeGuides() {
+  const [mine] = useMyState();
+  const shown = TRUSTEE_GUIDES.filter(([code]) => !mine || code === mine);
+  return (
+    <ul>
+      <li>Trustee sales: {shown.map(([code, name, href], i) => <span key={code}>{i > 0 && ' · '}<a href={href}>{mine ? `${name} trustee sale guide →` : name}</a></span>)}</li>
+      <li>After the sale: <a href="#/bank-owned">bank-owned homes</a></li>
+    </ul>
+  );
+}
+
 export const GUIDE: DrillSection[] = [
   {
     key: 'how-it-works',
     title: 'How a foreclosure progresses, state by state',
     icon: <IconClock />,
     summary: 'Notices, the waiting periods, then the trustee’s auction, in Nevada, California, Arizona, Utah and Texas',
-    content: () => (
-      <>
-        <p>Each state has its own steps and waiting periods. Pick your state above to see only its steps.</p>
-        <ByState lines={TIMELINE} ordered />
-        <p className="muted">
-          In every state, many foreclosures never reach auction, because owners catch up, modify the loan, sell (often as a short sale) or file bankruptcy.
-        </p>
-        <ByState lines={TIMELINE_NOTES} missing="Nothing more to add for this state." />
-      </>
-    ),
+    content: () => <HowItProgresses />,
   },
   {
     key: 'where-notices',
@@ -91,10 +119,7 @@ export const GUIDE: DrillSection[] = [
         <p>A home in pre-foreclosure isn’t for sale. You can buy it in three ways, none of which involves contacting the owner: at the trustee’s sale, from the lender afterward (bank-owned), or from a listing if the owner decides to sell through an agent.</p>
         <ByState lines={BUY} />
         <h3>Step-by-step guides</h3>
-        <ul>
-          <li>Trustee sales: <a href="#/playbooks/foreclosure">Nevada</a> · <a href="#/playbooks/caforeclosure">California</a> · <a href="#/playbooks/azforeclosure">Arizona</a> · <a href="#/playbooks/utforeclosure">Utah</a> · <a href="#/playbooks/txforeclosure">Texas</a></li>
-          <li>After the sale: <a href="#/bank-owned">bank-owned homes</a></li>
-        </ul>
+        <TrusteeGuides />
       </>
     ),
   },
@@ -167,26 +192,49 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
   });
   const guideOpen = GUIDE.some((g) => g.key === section);
   const changed = rows.filter((r) => watch[r.p.id] && watch[r.p.id] !== r.t.stage);
+  const [myState] = useMyState();
+  const stateName = myState ? stateByCode(myState)?.name : null;
+  // Once a state is chosen, the guide names only that state.
+  const sections = stateName
+    ? GUIDE.map((g) => (g.key === 'how-it-works' ? { ...g, title: `How a foreclosure progresses in ${stateName}`, summary: 'Notices, the waiting periods, then the trustee’s auction' } : g))
+    : GUIDE;
 
   return (
     <main className="page">
       <PageHero
         compact={guideOpen}
-        eyebrow={<span className="eyebrow">Not for sale yet · Guide: NV, CA, AZ, UT, TX</span>}
+        eyebrow={<span className="eyebrow">Not for sale yet · Guide: {stateName ?? 'NV, CA, AZ, UT, TX'}</span>}
         title={guideOpen ? <a className="title-link" href="#/pre-foreclosures">Pre-foreclosure tracker</a> : <>Pre-foreclosure <span className="grad">tracker</span></>}
         sub={guideOpen ? undefined : 'Follow homes from notice of default to auction, without contacting anyone.'}
       />
 
       <StatePicker label="Where is the home?" />
 
-      <div className="caution" role="alert">
-        <strong>Do not contact these homeowners.</strong> A notice of default means an owner is behind on payments. It does not mean the home
-        is for sale. Every state we cover restricts deals with owners in foreclosure, and DeedOwl goes further: we never show owner names or
-        contact details, and never help anyone reach owners. Use this tracker only to follow a property toward auction, or to recognize it if
-        the owner lists it for sale through an agent. Ask only the trustee named on the notice, or the county recorder. Homeowners can find free
-        help on our <a href="#/homeowner-help">homeowner help page</a>.
-        <ByState lines={NO_CONTACT} />
+      {!guideOpen && rows.length === 0 && (
+        <EmptyState title="No notices to track yet">
+          <p>{myState && myState !== 'NV'
+            ? `${stateName} notices aren’t connected yet. You can find them at the county clerk or recorder: “Where to find notices” below says where.`
+            : 'Notices of default and sale will appear here once our feed of Clark County Recorder filings is connected.'}</p>
+          <p>Until then, read how the process works in the guide below. Homes in foreclosure aren’t for sale until the trustee’s auction or later, when a bank owns them.</p>
+          <p className="empty-next"><strong>Buying your first rental?</strong> You don’t have to wait for an auction. Most first rentals are bought from a listing: <a href="#/toolkit/buy-box">write your buy box</a>, ask a buyer’s agent for listings that match it, look at <a href="#/bank-owned">bank-owned homes</a>, or <a href="#/practice/case">practice a purchase</a> first.</p>
+
+        </EmptyState>
+      )}
+
+      <div className="caution pre-no-contact" role="alert">
+        <p><strong>Do not contact these homeowners.</strong> A notice of default means an owner is behind on payments, not that the home is for sale.</p>
+        <p>Ask only the trustee named on the notice, or the county recorder.</p>
+        <details>
+          <summary>Why?</summary>
+          <p>
+            Every state we cover restricts deals with owners in foreclosure, and DeedOwl goes further: we never show owner names or
+            contact details, and never help anyone reach owners. Use this tracker only to follow a property toward auction, or to recognize it if
+            the owner lists it for sale through an agent. Homeowners can find free help on our <a href="#/homeowner-help">homeowner help page</a>.
+          </p>
+          <ByState lines={NO_CONTACT} />
+        </details>
       </div>
+
 
       {SHOW_SAMPLE_DATA && (
         <p className="muted">
@@ -195,16 +243,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
         </p>
       )}
 
-      {!guideOpen && rows.length === 0 && (
-        <EmptyState title="No notices to track yet">
-          <p>Notices of default and sale will appear here once our feed of Clark County Recorder filings is connected.</p>
-          <p>Until then, read how the process works in the guide below. Homes in foreclosure aren’t for sale until the trustee’s auction or later, when a bank owns them.</p>
-          <p className="empty-next"><strong>Buying your first rental?</strong> You don’t have to wait for an auction. Most first rentals are bought from a listing: <a href="#/toolkit/buy-box">write your buy box</a>, ask a buyer’s agent for listings that match it, look at <a href="#/bank-owned">bank-owned homes</a>, or <a href="#/practice/case">practice a purchase</a> first.</p>
-
-        </EmptyState>
-      )}
-
-      <DrillDown sections={GUIDE} active={section} baseHref="#/pre-foreclosures" label="Pre-foreclosure guide" />
+      <DrillDown sections={sections} active={section} baseHref="#/pre-foreclosures" label="Pre-foreclosure guide" />
 
       {!guideOpen && (
         <>

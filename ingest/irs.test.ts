@@ -139,7 +139,7 @@ describe('IRS sales in the feed', () => {
     expect(buildFeed([{ ...IRS, termsReviewedAt: null }], { [IRS.id]: state() }, NOW).federalSales).toBeUndefined();
     const feed = buildFeed([ON], { [IRS.id]: state() }, NOW);
     expect(feed.federalSales!.map((f) => f.id)).toEqual(['made-up-mesa-land', 'made-up-las-vegas-home', 'made-up-pahrump-land', 'made-up-reno-home', 'made-up-judicial-sale-henderson']);
-    expect(feed.sources[0].message).toMatch(/17 ads nationwide; 7 in NV, CA, AZ, UT and TX \(4 in Clark County\); 2 ad\(s\) in those states not shown: no Clark County parcel number in the notice, county not identified/);
+    expect(feed.sources[0].message).toBe('The IRS lists 17 sales nationwide. 7 are in Nevada, California, Arizona, Utah or Texas, 4 of them in Clark County. 2 more sales in those states aren’t shown here because the notice has no Clark County parcel number, or the notice doesn’t name the county.');
     // Outside Clark County nothing is claimed as checked by DeedOwl.
     for (const f of feed.federalSales!.filter((x) => x.county !== 'Clark')) expect(f.corroboratedAt).toBeNull();
   });

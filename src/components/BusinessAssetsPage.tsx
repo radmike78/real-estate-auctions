@@ -3,7 +3,8 @@ import { BUSINESS_SOURCES, SALE_CHANNELS } from '../lib/businessAssets';
 import BuyerChecklistBox from './BuyerChecklistBox';
 import ByState from './ByState';
 import StatePicker from './StatePicker';
-import { useMyState } from '../lib/myState';
+import { getMyState, useMyState } from '../lib/myState';
+import { stateByCode } from '../lib/regions';
 import { BUYING, NEVADA_ONLY_SOURCES, NOTICES, SELLERS } from '../lib/states/businessAssets';
 import Disclaimer from './Disclaimer';
 import DrillDown, { type DrillSection } from './DrillDown';
@@ -80,7 +81,7 @@ export const SECTIONS: DrillSection[] = [
       <ul className="risk-list">
         <li><strong>Assets are simpler.</strong> Buying equipment or inventory usually leaves the old company’s debts behind, as long as liens are cleared and state taxes are settled, unless the deal is really a merger or continuation of the old business. Ask an attorney.</li>
         <li><strong>Buying the company takes its history.</strong> Buying the shares or membership interests brings its debts, lawsuits and tax bills with it. Get an attorney and a CPA.</li>
-        <li><strong>State taxes.</strong> In Nevada, California, Arizona, Utah and Texas, if you buy a business or its stock of goods, hold back part of the price until the seller shows a tax clearance from the state. Otherwise you can owe the seller’s unpaid taxes. See your state’s rules below.</li>
+        <li><strong>State taxes.</strong> In {stateByCode(getMyState() ?? '')?.name ?? 'Nevada, California, Arizona, Utah and Texas'}, if you buy a business or its stock of goods, hold back part of the price until the seller shows a tax clearance from the state. Otherwise you can owe the seller’s unpaid taxes. See your state’s rules below.</li>
         <li><strong>Liens on equipment.</strong> Lenders file UCC financing statements, usually in the state where the business is organized. Search there before you buy. For vehicles, the lien shows on the title. A bankruptcy sale order can clear these liens; a sheriff or tax sale may not.</li>
         <li><strong>Licenses and permits.</strong> Many business, liquor, health and contractor licenses are issued to the owner and don’t simply pass to you. You may need a new license, a transfer approval or a change-of-ownership filing. Confirm with each agency that issued one before you reopen.</li>
         <li><strong>The lease and the name.</strong> The building lease usually needs the landlord’s consent. Trade names, websites and phone numbers must be included in the sale to be yours.</li>
@@ -134,16 +135,18 @@ export const SECTIONS: DrillSection[] = [
 
 export default function BusinessAssetsPage({ section }: { section?: string }) {
   const open = SECTIONS.some((x) => x.key === section);
+  const [state] = useMyState();
+  const stateName = state ? stateByCode(state)?.name : null;
   return (
-    <main className="page prose">
+    <main className="page prose ba-page">
       <PageHero
         compact={open}
-        eyebrow={<span className="eyebrow">Business closures · NV, CA, AZ, UT, TX</span>}
+        eyebrow={<span className="eyebrow">Business closures · {stateName ?? 'NV, CA, AZ, UT, TX'}</span>}
         title={open ? <a className="title-link" href="#/business-assets">Business assets &amp; closures</a> : <>Business assets <span className="grad">&amp; closures</span></>}
         sub={
           open ? undefined : (
             <>
-              Equipment, inventory and whole businesses, sold by trustees, receivers, the Sheriff and tax agencies.
+              Equipment, inventory and whole businesses, sold by trustees, receivers, the sheriff and tax agencies.
             </>
           )
         }

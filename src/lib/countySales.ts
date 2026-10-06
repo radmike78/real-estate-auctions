@@ -412,6 +412,6 @@ export const COUNTY_SALES: CountySale[] = [
 /** Sales that haven't ended, soonest first; the visitor's state first when given. */
 export function upcomingCountySales(now: Date, opts: { state?: StateCode | null; county?: string | null } = {}): CountySale[] {
   return COUNTY_SALES.filter((s) => Date.parse(s.endsAt) > now.getTime() && (!opts.county || (s.state === opts.state && s.county === opts.county)))
-    .sort((a, b) => Number(b.state === opts.state) - Number(a.state === opts.state) || a.startsAt.localeCompare(b.startsAt));
+    .sort((a, b) => Number(b.state === opts.state) - Number(a.state === opts.state) || Date.parse(a.startsAt) - Date.parse(b.startsAt));
 }
 
