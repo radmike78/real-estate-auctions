@@ -89,15 +89,16 @@ export function TopicIcon({ topic }: { topic: Topic }) {
 }
 
 /** The drill list's filters and scroll position, kept for this visit only (sessionStorage). */
-type Browse = { showAll: boolean; st: string; topic: 'all' | TopicGroup; prog: 'all' | 'new' | 'started' | 'done'; scrollY: number };
+type Browse = { showAll: boolean; others: boolean; st: string; topic: 'all' | TopicGroup; prog: 'all' | 'new' | 'started' | 'done'; scrollY: number };
 const BROWSE_KEY = 'deedowl.drillBrowse.v1';
 function readBrowse(): Browse {
-  const base: Browse = { showAll: false, st: 'all', topic: 'all', prog: 'all', scrollY: 0 };
+  const base: Browse = { showAll: false, others: false, st: 'all', topic: 'all', prog: 'all', scrollY: 0 };
   try {
     const v = JSON.parse(sessionStorage.getItem(BROWSE_KEY) ?? 'null');
     if (!v || typeof v !== 'object') return base;
     return {
       showAll: v.showAll === true,
+      others: v.others === true,
       st: typeof v.st === 'string' && /^(all|any|NV|CA|AZ|UT|TX)$/.test(v.st) ? v.st : 'all',
       topic: TOPIC_GROUPS.some((g) => g.key === v.topic) ? v.topic : 'all',
       prog: ['new', 'started', 'done'].includes(v.prog) ? v.prog : 'all',
@@ -123,7 +124,6 @@ export function drillStatus(d: Drill, s: Saved = load()): { state: 'new' | 'star
 /** One drill as a card: the kind of sale big and in its colour, then the question, one labelled fact and the missions. */
 export function DrillCardLink({ d, saved, hue = 0 }: { d: Drill; saved: Saved; /** Position in its row of cards: neighbours never share a colour. */ hue?: number }) {
   const c = drillCard(d);
-  const st = drillState(d);
   const p = drillStatus(d, saved);
   return (
     <a href={`#/practice/drills/${d.id}`} className={`drill-card hue-${hue % HUE_COUNT}`} onClick={() => writeBrowse({ ...readBrowse(), scrollY: window.scrollY })}>
@@ -131,7 +131,7 @@ export function DrillCardLink({ d, saved, hue = 0 }: { d: Drill; saved: Saved; /
         <span className="drill-card-icon"><TopicIcon topic={c.topic} /></span>
         <span className="drill-card-head">
           <span className="drill-card-sale">{c.sale}</span>
-          <span className="drill-card-tags">Drill · {st ? STATE_NAMES[st] : 'Any state'} · {c.property}</span>
+          <span className="drill-card-tags">Drill · {c.property}</span>
         </span>
       </span>
       <span className="drill-card-body">
@@ -188,22 +188,26 @@ export function DrillList() {
   // Filters and the place in the list are kept for this visit, so coming back from a drill lands where you were.
   const remembered = readBrowse();
   const [showAll, setShowAll] = useState(remembered.showAll);
-  const [st, setSt] = useState<string>(remembered.st);
+  // With a state picked, only its drills show (plus ones that apply anywhere) until the reader asks for other states.
+  const [others, setOthers] = useState(remembered.others);
+  const [stRaw, setSt] = useState<string>(remembered.st);
   const [topic, setTopic] = useState<'all' | TopicGroup>(remembered.topic);
   const [prog, setProg] = useState<'all' | 'new' | 'started' | 'done'>(remembered.prog);
-  useEffect(() => writeBrowse({ ...readBrowse(), showAll, st, topic, prog }), [showAll, st, topic, prog]);
+  useEffect(() => writeBrowse({ ...readBrowse(), showAll, others, st: stRaw, topic, prog }), [showAll, others, stRaw, topic, prog]);
   useEffect(() => {
     const y = readBrowse().scrollY;
     if (!y) return;
     const t = window.setTimeout(() => { window.scrollTo(0, y); writeBrowse({ ...readBrowse(), scrollY: 0 }); }, 60);
     return () => window.clearTimeout(t);
   }, []);
+  const onlyMine = !!mine && !others;
+  const st = onlyMine && stRaw !== 'all' && stRaw !== 'any' && stRaw !== mine ? 'all' : stRaw;
   const own = (d: Drill) => d.commercial || d.flipBrrrr || d.manufactured || d.land;
   const keep = (d: Drill) =>
     (st === 'all' || (st === 'any' ? drillState(d) === null : drillState(d) === st)) &&
     (topic === 'all' || drillCard(d).group === topic) &&
     (prog === 'all' || drillStatus(d, saved).state === prog);
-  const states = [...(mine ? [mine] : []), ...Object.keys(STATE_NAMES).filter((k) => k !== mine)];
+  const states = onlyMine ? [mine] : [...(mine ? [mine] : []), ...Object.keys(STATE_NAMES).filter((k) => k !== mine)];
   const groups: { key: string; title: string; drills: Drill[] }[] = [
     ...states.map((k) => ({ key: k, title: `${STATE_NAMES[k]} rules`, drills: DRILLS.filter((d) => !own(d) && drillState(d) === k) })),
     { key: 'any', title: 'Any state (federal rules and listed homes)', drills: DRILLS.filter((d) => !own(d) && drillState(d) === null) },
@@ -223,8 +227,17 @@ export function DrillList() {
   const recommended = !guided && st === 'all' && topic === 'all' && prog === 'all' ? starter : [];
   const count = shown.reduce((n, g) => n + g.drills.length, 0);
   const filtered = st !== 'all' || topic !== 'all' || prog !== 'all';
+  const switchStates = mine && (
+    <p className="drill-state-switch">
+      {onlyMine ? <>Showing drills for {STATE_NAMES[mine]}, plus ones that apply in any state. </> : <>Showing drills for every state. </>}
+      <button type="button" className="btn btn-secondary" onClick={() => { setOthers(!others); setSt('all'); }}>
+        {onlyMine ? 'Practice scenarios from other states' : `Show only ${STATE_NAMES[mine]} drills`}
+      </button>
+    </p>
+  );
   return (
     <>
+      {!guided && switchStates}
       {next && (
         <div className="drill-next" role="region" aria-label="Pick up where you left off">
           <h3 className="drill-group">Pick up where you left off</h3>
@@ -240,7 +253,7 @@ export function DrillList() {
       {!guided && (
         <details className="drill-filters" open={typeof matchMedia !== 'function' || !matchMedia('(max-width: 640px)').matches}>
           <summary>Filter drills by state, topic or progress</summary>
-          <FilterRow label="State" value={st} set={setSt} options={[{ key: 'all', label: 'All states' }, ...states.map((k) => ({ key: k, label: STATE_NAMES[k] })), { key: 'any', label: 'Any state' }]} />
+          <FilterRow label="State" value={st} set={setSt} options={[{ key: 'all', label: onlyMine ? 'All' : 'All states' }, ...states.map((k) => ({ key: k, label: STATE_NAMES[k] })), { key: 'any', label: 'Any state' }]} />
           <FilterRow label="Topic" value={topic} set={setTopic} options={[{ key: 'all', label: 'All topics' }, ...TOPIC_GROUPS]} />
           <FilterRow label="Progress" value={prog} set={setProg} options={[{ key: 'all', label: 'All' }, { key: 'new', label: 'Not started' }, { key: 'started', label: 'In progress' }, { key: 'done', label: 'Completed' }]} />
           <p className="drill-filter-count" role="status">
@@ -258,6 +271,7 @@ export function DrillList() {
           </div>
         </div>
       ))}
+      {!guided && switchStates}
       {guided && (
         <p className="show-all-row">
           <button type="button" className="btn btn-secondary" onClick={() => setShowAll(true)}>Show all {DRILLS.length} drills, with filters</button>
