@@ -2687,6 +2687,8 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .county-sale { border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; background: var(--surface); display: grid; gap: 8px; align-content: start; }
 .county-sale h3 { margin: 0; }
 .county-sale p { margin: 0; }
+.county-sale-rules { background: var(--surface-2); border-left: 3px solid var(--accent); padding: 6px 0 6px 12px; }
+.county-sale-rules ul { margin: 4px 0 0; padding-left: 1.2em; }
 .county-sale-dates { margin: 0; padding-left: 20px; }
 .county-sale .row { display: flex; flex-wrap: wrap; gap: 10px; }
 .county-sale .row > * { flex: 0 0 auto; width: auto; margin: 0; }

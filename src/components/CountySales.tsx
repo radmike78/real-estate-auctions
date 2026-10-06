@@ -38,11 +38,17 @@ export default function CountySales({ sales }: { sales: CountySale[] }) {
                 {s.redeemBy && <li>Owners can pay the taxes until {fmtDateTime(s.redeemBy, tz)}, so properties come off the list before the sale</li>}
               </ul>
             )}
+            {s.bidRules?.length ? (
+              <div className="county-sale-rules">
+                <strong>Before you can bid (from the county’s page)</strong>
+                <ul>{s.bidRules.map((r) => <li key={r}>{r}</li>)}</ul>
+              </div>
+            ) : null}
             <div className="row">
               {s.listUrl ? (
                 <a className="btn" href={s.listUrl} target="_blank" rel="noreferrer noopener">Property list ↗</a>
               ) : (
-                <span className="muted">{s.listExpected ? `The county plans to post the list ${s.listExpected}.` : 'The county hasn’t posted the list yet.'}</span>
+                <span className="muted">{s.listNote ?? (s.listExpected ? `The county plans to post the list ${s.listExpected}.` : 'The county hasn’t posted the list yet.')}</span>
               )}
               <a className={s.listUrl ? 'btn btn-secondary' : 'btn'} href={s.saleUrl} target="_blank" rel="noreferrer noopener">County sale page ↗</a>
             </div>
