@@ -145,7 +145,7 @@ function commercialResearch(p: PracticeProperty, sale: SaleKey): Task[] {
         `At a ${p.income.capRatePct}% cap rate (a practice rate; ask a commercial broker for current rates for this type of property): ${money(iv.noi)} ÷ ${p.income.capRatePct / 100} ≈ ${money(iv.value)}.`,
         sale === 'reo'
           ? 'That value assumes the rent roll is real. The listing broker can usually give you the rent roll and leases: check them against the tenants’ estoppel certificates before you close.'
-          : 'That value assumes the rent roll is real. At an auction you usually can’t confirm it, which is why the checklist says to value it as if empty: the value once leased, minus the lost rent, leasing commissions and tenant improvements to get there. The practice numbers below value it once leased, but count no rent while you hold it, as if it were empty. For a real bid, also budget the leasing commissions and tenant improvements it takes to fill it.',
+          : 'That value assumes the rent roll is real. At an auction you usually can’t confirm it, which is why the checklist says to value it as if empty: the value once leased, minus the lost rent, leasing commissions and tenant improvements to get there. The practice numbers below value it at today’s occupancy and count no rent while you hold it. For a real bid, also budget the leasing commissions and tenant improvements it takes to fill it.',
       ],
     });
   }
@@ -877,7 +877,7 @@ const IRS: Flow = {
       title: 'Read the notice of sale',
       body: [
         'Each IRS notice sets the deposit, payment deadline, payment forms and whether it’s a public auction or sealed bid.',
-        'In this practice notice: public auction, 20% of the bid on sale day and the rest within 30 days. One real IRS notice in 2026 used those terms; each notice sets its own.',
+        'In this practice notice: public auction, 20% of the bid on sale day and the rest within 30 days. Each IRS notice sets its own terms, so read yours.',
       ],
     },
     ...tenantsRead(p, 'irs'),
@@ -1008,7 +1008,7 @@ const REO: Flow = {
       note: 'Practice document. The real one comes from the title company handling your escrow.',
     },
     isHome(p)
-      ? { kind: 'read', id: 'programs', title: 'Special rules for some sellers', body: ['HUD homes: you bid through a HUD-registered broker; owner-occupants get the first bidding period.', 'Fannie Mae and Freddie Mac homes: owner-occupants get a “First Look” period before investors (30 days for Freddie Mac; 20 days for Fannie Mae, 30 in Nevada). Check the listing.'] }
+      ? { kind: 'read', id: 'programs', title: 'Special rules for some sellers', body: ['HUD homes: you bid through a HUD-registered broker; owner-occupants get the first bidding period.', 'Fannie Mae and Freddie Mac homes: owner-occupants get a 30-day “First Look” period before investors. Check the listing for its end date.'] }
       : isLand(p) && !commercial(p)
         ? { kind: 'read', id: 'programs', title: 'Bank-owned land', body: ['HUD Home Store, HomePath and HomeSteps sell homes, not land. Bank-owned land is sold through listing brokers.', 'Before you offer, confirm zoning, access and what it takes to connect water, sewer and power.'] }
         : { kind: 'read', id: 'programs', title: 'No home-buyer programs', body: ['There’s no owner-occupant first look for commercial property. HUD Home Store, HomePath and HomeSteps sell homes with 1–4 units only.'] },

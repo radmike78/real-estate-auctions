@@ -129,7 +129,7 @@ export const CATEGORIES: Record<Category, CategoryInfo> = {
     label: 'Title & escrow',
     plural: 'Title & escrow companies',
     group: 'Closing & protection',
-    regulator: 'Nevada Division of Insurance (title agents and title-company escrow officers)',
+    regulator: 'Nevada Division of Insurance (title agents and title-company escrow officers); Nevada Mortgage Lending Division (independent escrow agencies, NRS 645A)',
     lookupUrl: 'https://di.nv.gov/nv/r/doi/licensing/search',
     licenseLabel: 'Nevada Division of Insurance license number',
     licensePattern: /^[A-Z0-9-]{3,15}$/,

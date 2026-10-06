@@ -59,7 +59,7 @@ export const walkAway: Lesson = {
           'In California, the seller gives you the association’s documents before the sale, including any regular or special assessments the board has approved that aren’t due yet (Civil Code 4525).',
           'In Arizona, the association must send its disclosure within 10 days, including any special assessment the board approved but hasn’t charged yet and a summary of pending lawsuits (A.R.S. 33-1806 for planned communities, 33-1260 for condos).',
           'In Utah, ask the association for its governing documents, budget, reserve study and any planned special assessments or lawsuits before you close.',
-          'In Texas, the association must deliver its restrictions, bylaws, rules and a resale certificate within 10 business days of a written request. The certificate lists dues, approved special assessments, unpaid amounts, reserves, the budget and pending lawsuits (Property Code 207.003).',
+          'In a Texas subdivision HOA, the association must deliver its restrictions, bylaws, rules and a resale certificate within 10 business days of a written request. The certificate lists dues, approved special assessments, unpaid amounts, reserves, the budget and pending lawsuits (Property Code 207.003). For a condo, the seller must give you the declaration, bylaws, rules and a resale certificate no more than 3 months old (Property Code 82.157).',
         ] },
       ],
     },

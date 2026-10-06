@@ -21,7 +21,7 @@ export const creative: Lesson = {
           table: {
             head: ['State', 'What to know'],
             rows: [
-              ['Nevada', 'A seller who offers credit secured by the property they sold is exempt from Nevada’s mortgage company licensing (NRS 645B.015).'],
+              ['Nevada', 'A seller who offers credit secured by the property they sold is exempt from Nevada’s mortgage company license (NRS 645B.015). Federal lending rules can still apply to seller financing of a home, so have an attorney review the note.*'],
               ['California', 'When someone, such as an agent, arranges seller financing on a home of up to four units, the buyer and seller get a seller financing disclosure covering the note, other liens, balloon payments and the buyer’s credit (Civil Code 2956–2963). The holder of the note must send a notice 90 to 150 days before a balloon payment is due (Civil Code 2966).'],
               ['Arizona', 'An “agreement for sale” is a sale where the seller keeps title until the buyer finishes paying. If the buyer misses a payment, the seller can end the contract only after a grace period. Its length depends on how much has been paid: 30 days if under 20%, up to nine months if 50% or more (A.R.S. 33-742).'],
               ['Utah', 'Seller financing is used, but we haven’t confirmed Utah’s licensing rules for it.* Ask a Utah real estate attorney.'],
@@ -45,7 +45,7 @@ export const creative: Lesson = {
       heading: 'Rent-to-own and lease options',
       blocks: [
         'The buyer rents with an option to buy later, often paying an upfront fee. The FTC’s red flags: the “seller” doesn’t really own the property, the house is being foreclosed on, one missed payment ends the deal, or the buyer can’t qualify for a mortgage to finish buying it. Check the owner in county records and get a title search first. If the owner still has a mortgage, a lease with an option to buy, or any lease over three years, can let their lender demand the whole loan.',
-        'In Texas, a lease with an option to buy a home the tenant will live in counts as an executory contract. Even when it runs three years or less, the seller must own the home free of most liens, and must follow the same default rules: 30 days to catch up on an unrecorded contract, or 60 days’ notice and a trustee sale once it’s recorded or enough has been paid (Property Code 5.062, 5.064, 5.065, 5.066 and 5.085).',
+        'In Texas, a lease with an option to buy a home the tenant will live in counts as an executory contract (Property Code 5.062). The seller must own the home free of most liens for the whole contract (5.085). If the tenant-buyer falls behind, the seller must give written notice and 30 days to catch up before ending the deal (5.063 to 5.065). The longer 60-day notice and trustee-sale rule for recorded contracts for deed doesn’t apply to lease-options (5.062(e)). If the deal runs 3 years or less, only some of these protections apply, so have a Texas real estate attorney draft it.*',
       ],
     },
     {

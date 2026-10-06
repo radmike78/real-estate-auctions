@@ -73,7 +73,7 @@ export const TX_DRILLS: Drill[] = [
         question: 'Pick everything that’s true before you bid.',
         multi: true,
         options: [
-          { label: 'The minimum bid is $14,500: the lesser of the judgment or the value in it', good: true, why: 'Right (Tax Code 34.01(j)). If no one bids enough, the property goes to the taxing unit.' },
+          { label: 'The minimum bid is about $14,500 plus the costs of the sale: the lesser of the amount owed or the value in the judgment', good: true, why: 'Right (Tax Code 34.01(b), (j)). The officer adds sale costs and any interest since the judgment. If no one bids enough, the property goes to the taxing unit.' },
           { label: 'I need a county statement that I owe no back taxes, or a bidder registration, to get the deed', good: true, why: 'Right. Counties of 250,000 or more require one, and smaller counties can adopt the rule (34.015, 34.011). Statements expire after 90 days.' },
           { label: 'I’ll owe the $3,800 of taxes that came due after the judgment', good: true, why: 'Right: the sale clears only the taxes in the judgment (Tax Code 34.01(q), 33.52(d)). Add them to your price.' },
           { label: 'I’m buying a tax lien certificate that earns interest', good: false, why: 'No. Texas sells the property, not the lien.' },

@@ -11,14 +11,14 @@ const BAR: Record<StateCode, Lookup> = {
   NV: { who: 'State Bar of Nevada', url: 'https://nvbar.org/for-the-public/find-a-lawyer/' },
   CA: { who: 'State Bar of California', url: 'https://apps.calbar.ca.gov/attorney/LicenseeSearch/QuickSearch' },
   AZ: { who: 'State Bar of Arizona member directory', url: 'https://www.azbar.org/for-legal-professionals/practice-tools-management/member-directory/' },
-  UT: { who: 'Utah State Bar member directory', url: 'https://services.utahbar.org/Member-Directory' },
+  UT: { who: 'Utah State Bar member directory', url: 'https://services.utahbar.org/Licensee-Directory' },
   TX: { who: 'State Bar of Texas (Find a Lawyer)', url: 'https://www.texasbar.com/AM/Template.cfm?Section=Find_A_Lawyer&Template=/CustomSource/MemberDirectory/Search_Form_Client_Main.cfm' },
 };
 const REAL_ESTATE: Record<StateCode, Lookup> = {
   NV: { who: 'Nevada Real Estate Division', url: 'https://red.prod.secure.nv.gov/Lookup/LicenseLookup.aspx' },
   CA: { who: 'California Department of Real Estate', url: 'https://www2.dre.ca.gov/PublicASP/pplinfo.asp' },
   AZ: { who: 'Arizona Department of Real Estate', url: 'https://services.azre.gov/publicdatabase/' },
-  UT: { who: 'Utah Division of Real Estate', url: 'https://realestate.utah.gov/' },
+  UT: { who: 'Utah Division of Real Estate license lookup', url: 'https://secure.utah.gov/rer/relv/search.html' },
   TX: { who: 'Texas Real Estate Commission (TREC) license holder search', url: 'https://www.trec.texas.gov/license-search' },
 };
 const INSURANCE: Record<StateCode, Lookup> = {
@@ -35,7 +35,12 @@ export const LICENSE_LOOKUPS: Partial<Record<ProKey, Record<StateCode, Lookup>>>
   // A California private lender may hold a finance lender license (DFPI, often on NMLS) or a broker license (DRE),
   // or be exempt: ask which, then check with that regulator.
   private_lender: { NV: NMLS, CA: { note: 'Ask which license the lender holds. A finance lender’s is on the DFPI licensee search or NMLS Consumer Access; a real estate broker’s is on the DRE license lookup. Some lenders are exempt.' }, AZ: NMLS, UT: NMLS, TX: { note: 'Ask which license the lender holds. Residential mortgage lenders and loan originators are licensed by the Texas Department of Savings and Mortgage Lending; check them on NMLS Consumer Access. Some business-purpose lenders are exempt.' } },
-  title: INSURANCE,
+  // An independent escrow company is licensed by a different office than title companies in California and Nevada.
+  title: {
+    ...INSURANCE,
+    CA: { note: 'Title companies and title agents are licensed by the California Department of Insurance (license search at cdicloud.insurance.ca.gov). An independent escrow company is licensed by the Department of Financial Protection and Innovation (DFPI); check it on the DFPI licensee search.' },
+    NV: { note: 'Title agents and title-company escrow officers are licensed by the Nevada Division of Insurance (search at di.nv.gov). An independent escrow agency is licensed by the Nevada Mortgage Lending Division (NRS 645A).' },
+  },
   attorney: BAR,
   eviction: BAR,
   inspector: {
@@ -56,7 +61,7 @@ export const LICENSE_LOOKUPS: Partial<Record<ProKey, Record<StateCode, Lookup>>>
   insurance: INSURANCE,
   cpa: {
     NV: { who: 'NASBA licensee database (CPAverify)', url: 'https://ald.nasba.org/search/cpa' },
-    CA: { who: 'California Board of Accountancy', url: 'https://www.cba.ca.gov/' },
+    CA: { who: 'California Board of Accountancy (DCA license search)', url: 'https://search.dca.ca.gov/' },
     AZ: { who: 'NASBA licensee database (CPAverify)', url: 'https://ald.nasba.org/search/cpa' },
     UT: { who: 'Utah Division of Professional Licensing', url: 'https://secure.utah.gov/llv/search/index.html' },
     TX: { who: 'Texas State Board of Public Accountancy (license lookup)', url: 'https://www.tsbpa.texas.gov/license-lookup/' },

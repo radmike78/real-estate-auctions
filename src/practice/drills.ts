@@ -433,7 +433,7 @@ export const DRILLS: Drill[] = [
         multi: true,
         options: [
           { label: 'A certificate of sale, not a deed yet', good: true, why: 'Right. The sheriff’s deed comes after every redemption period ends (A.R.S. 12-1286).' },
-          { label: 'The owner can redeem for 6 months (30 days if the court found the home abandoned) by paying my price plus 8%, plus taxes or assessments I paid, with interest', good: true, why: 'Right (A.R.S. 12-1282, 12-1283, 12-1285).' },
+          { label: 'The owner can redeem for 6 months (30 days if the court found the home abandoned and not used for farming or grazing) by paying my price plus 8%, plus taxes or assessments I paid, with interest', good: true, why: 'Right (A.R.S. 12-1282, 12-1283, 12-1285).' },
           { label: 'The $245,000 first deed of trust stays with the property', good: true, why: 'Right. The HOA lien ranks behind the recorded first mortgage or deed of trust (A.R.S. 33-1807).' },
           { label: 'I can pay over a few months', good: false, why: 'Payment is due within 5 working days unless the sheriff agrees in writing to more time (A.R.S. 12-1624).' },
         ],
@@ -484,7 +484,7 @@ export const DRILLS: Drill[] = [
         options: [
           { label: 'The trustee is a Utah attorney or law firm, or a title insurance company or agency with a Utah office, appointed by the association', good: true, why: 'Right (Utah Code 57-8a-302). Other people can’t run an HOA trustee sale.' },
           { label: 'The association is registered with the Utah Department of Commerce', good: true, why: 'Right. An unregistered association can’t enforce its lien while it’s out of compliance (57-8a-105).' },
-          { label: 'The lien isn’t for fines', good: true, why: 'Right. A trustee sale can’t collect fines (57-8a-303).' },
+          { label: 'The lien isn’t for fines', good: true, why: 'Right. An HOA can’t use a trustee sale to collect fines (57-8a-302).' },
           { label: 'Nothing: if the notice was published, the sale is fine', good: false, why: 'A sale that breaks these rules can be challenged. Have an attorney or title professional check.' },
         ],
         lesson: 'The owner also gets 30 days’ warning and can demand a court case instead of a trustee sale.',
@@ -664,7 +664,7 @@ export const DRILLS: Drill[] = [
       { label: 'Sale', value: 'IRS sale of seized real estate' },
       { label: 'Value', value: 'About $410,000' },
       { label: 'First mortgage', value: '$185,000, recorded before the federal tax lien' },
-      { label: 'Contractor’s lien', value: '$22,000, recorded after the federal tax lien' },
+      { label: 'Contractor’s lien', value: '$22,000, recorded after the federal tax lien, for work that started after the IRS filed its lien' },
     ],
     missions: [
       {
@@ -770,7 +770,7 @@ export const DRILLS: Drill[] = [
         question: 'The house was listed yesterday. Can an investor offer now?',
         multi: false,
         options: [
-          { label: 'Not yet: during First Look (30 days for Freddie Mac; 20 days for Fannie Mae, 30 in Nevada), offers come only from people who will live there, public entities and nonprofits', good: true, why: 'Right. That’s Fannie Mae and Freddie Mac’s “First Look” period.' },
+          { label: 'Not yet: during the 30-day First Look, Fannie Mae and Freddie Mac take offers only from people who will live there, public entities and nonprofits', good: true, why: 'Right. That’s Fannie Mae and Freddie Mac’s “First Look” period.' },
           { label: 'Yes, any buyer can offer from day one', good: false, why: 'Not on Fannie Mae or Freddie Mac homes during First Look.' },
         ],
         lesson: 'Use the First Look period to run your numbers and line up financing, so your offer is ready when investors can bid.',
@@ -1002,7 +1002,7 @@ export const DRILLS: Drill[] = [
         multi: false,
         options: [
           { label: 'Wait for the recorded deed, then expect about a year before title insurance and major work', good: true, why: 'Right. A challenge must start within 1 year of the deed (R&T 3725), and counties such as Los Angeles and San Diego advise waiting about a year before improving.' },
-          { label: 'Start building the day after the auction', good: false, why: 'Title doesn’t pass until the deed is recorded, often about 60 to 70 days later in Los Angeles County.' },
+          { label: 'Start building the day after the auction', good: false, why: 'Title doesn’t pass until the deed is recorded, often about 60 to 70 days later in Los Angeles County.*' },
         ],
         lesson: 'Pay in the exact form and by the deadline your county sets; a missed deadline can cost your deposit.',
       },
@@ -1111,7 +1111,7 @@ export const DRILLS: Drill[] = [
           { label: 'No. Once the auditor closes the sale on a parcel, I can’t rescind my bid', good: true, why: 'Right (59-2-1351.1(6)). Confirm the description matches the land before you bid.' },
           { label: 'Yes, within 30 days', good: false, why: 'There’s no cooling-off period.' },
         ],
-        lesson: 'If a tax title is later found invalid, your claim is limited to the smaller of the taxes, interest and penalties or what you paid (59-2-1352). Bid only what you can afford to lose while title is uncertain.',
+        lesson: 'If a tax title is later found invalid, your claim is limited to the smaller of the taxes, interest and penalties or what you paid (59-2-1352).* Bid only what you can afford to lose while title is uncertain.',
       },
       {
         kind: 'pick',
@@ -1120,7 +1120,7 @@ export const DRILLS: Drill[] = [
         question: 'Can the owner still keep the property?',
         multi: false,
         options: [
-          { label: 'Yes, anyone can redeem for the owner until the sale begins, so check the updated list that morning', good: true, why: 'Right. There’s no redemption after the sale (59-2-1346).' },
+          { label: 'Yes, the owner can still pay off the taxes until the sale begins, so check the updated list that morning', good: true, why: 'Right. There’s no redemption after the sale (59-2-1346).' },
           { label: 'Yes, for one year after the sale', good: false, why: 'Utah tax sales have no redemption after the sale.' },
         ],
         lesson: 'Read the auditor’s notice early: deposit deadline, payment method, buyer’s premium, and whether the deposit counts toward the price.',
@@ -1168,7 +1168,7 @@ export const DRILLS: Drill[] = [
         multi: true,
         options: [
           { label: 'Every bid is an irrevocable offer, so I set my maximum before I arrive', good: true, why: 'Right.' },
-          { label: 'I pay as the trustee directs, and confirm the deposit and payment method with the trustee’s office first', good: true, why: 'Right (57-1-27).' },
+          { label: 'I pay as the trustee directs, and confirm the deposit and payment method with the trustee’s office first', good: true, why: 'Right (57-1-28).' },
           { label: 'After the sale, the owner has a year to redeem', good: false, why: 'A trustee’s deed conveys without a right of redemption.' },
         ],
         lesson: 'The trustee records your deed within five business days after you pay (57-1-28).',
@@ -1625,10 +1625,10 @@ export const DRILLS: Drill[] = [
       },
     ],
     verdict: {
-      question: 'Bidding passes $150,000 and keeps going. Buy means keep bidding (up to your maximum), Investigate means you’d have needed more homework first, Pass means stop. What do you do?',
+      question: 'Bidding passes $150,000 and keeps going. Do you keep bidding up to your $246,000 maximum (Buy), wish you’d done more homework first (Investigate), or stop now (Pass)?',
       choices: [
         { label: 'Buy', feedback: 'Fine up to about $246,000, if you have the cash for the bid and the repairs and can wait for a quiet title action.' },
-        { label: 'Investigate', feedback: 'Good, before the sale: confirm surviving liens, zoning and the cost of a quiet title action, then set your maximum.' },
+        { label: 'Investigate', feedback: 'Homework belongs before the sale: surviving liens, zoning and the cost of a quiet title action. If it’s done, keep bidding up to your maximum.' },
         { label: 'Pass', feedback: 'Reasonable if you don’t have cash for $200,000 of repairs on top of the bid.' },
       ],
       expert: 'Bid with a firm maximum near $246,000, set from the leased value and every cost, and stop there. The opening bid tells you nothing about what the building is worth.',
@@ -1876,7 +1876,7 @@ export const DRILLS: Drill[] = [
           { label: 'Buying costs (assumed 2%)', value: '$4,200' },
           { label: 'Repairs', value: '$60,000' },
           { label: 'Loan points (2% of $249,000)', value: '$4,980' },
-          { label: 'Loan interest, 6 months at 11%', value: '$13,695' },
+          { label: 'Loan interest, 6 months at 11% (assumes the full loan from day one)', value: '$13,695' },
           { label: 'Taxes, insurance and utilities while you hold it (assumed $600 a month)', value: '$3,600' },
           { label: 'Selling costs: commissions and closing (assumed 8% of ARV)', value: '$27,200' },
           { label: 'Total cost', value: '$323,675' },
@@ -2213,7 +2213,7 @@ export const DRILLS: Drill[] = [
           { label: 'Probably not a normal mortgage. Homes built before June 15, 1976 weren’t built to the HUD Code, and most mortgage programs require it', good: true, why: 'Right. Plan on cash, and expect your future buyer to need cash too.' },
           { label: 'Yes, any lender will treat it like a house because it’s on its own lot', good: false, why: 'Age and construction standard matter. Ask lenders before you buy.' },
         ],
-        lesson: 'HUD’s construction and safety standards apply to homes built after June 15, 1976. Older mobile homes are harder to finance and insure.',
+        lesson: 'HUD’s construction and safety standards apply to homes built on or after June 15, 1976. Older mobile homes are harder to finance and insure.',
       },
       {
         kind: 'pick',

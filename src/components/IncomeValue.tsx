@@ -6,9 +6,9 @@ import { trackAction } from '../lib/track';
 const KEY = (id: string) => `fsf.income.${id}.v1`;
 const FIELDS: { k: keyof IncomeInputs; label: string; unit: '$' | '%'; hint: string }[] = [
   { k: 'monthlyRent', label: 'Monthly rent, fully leased', unit: '$', hint: 'From the rent roll, or market rent per square foot × the building’s size.' },
-  { k: 'otherMonthly', label: 'Other monthly income', unit: '$', hint: 'Parking, signs, laundry, expense reimbursements.' },
+  { k: 'otherMonthly', label: 'Other monthly income', unit: '$', hint: 'Parking, signs, laundry. Leave out what tenants pay you back for taxes, insurance or upkeep, and enter your costs after those repayments instead.' },
   { k: 'vacancyPct', label: 'Vacancy and bad debt', unit: '%', hint: 'Rent you expect to lose. Higher if it’s empty now.' },
-  { k: 'expensePct', label: 'Operating costs', unit: '%', hint: 'Taxes, insurance, repairs, management, as a share of rent collected. 10% and 35% are starting examples, not market figures. With triple-net (NNN) leases, tenants pay most costs, so yours are much lower.' },
+  { k: 'expensePct', label: 'Operating costs', unit: '%', hint: 'Taxes, insurance, repairs, management, as a share of rent collected. 35% is only a starting example, not a market figure. With triple-net (NNN) leases, tenants pay most costs, so yours are much lower.' },
   { k: 'capRatePct', label: 'Cap rate', unit: '%', hint: 'Required. Get a current rate for this property type from a local commercial broker or appraiser. Rates differ widely: apartments and industrial are often lower than offices or older retail. Higher means a lower value.' },
 ];
 

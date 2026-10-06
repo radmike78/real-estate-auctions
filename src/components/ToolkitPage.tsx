@@ -58,7 +58,7 @@ const cleanStatus = (v: unknown): Record<string, StepStatus> => {
   return out;
 };
 
-// Steps 4 to 6 (find, buy, own) belong to one property. With a deal chosen, their progress is kept for that deal,
+// Steps 4 to 7 (find, buy, own, exit) belong to one property. With a deal chosen, their progress is kept for that deal,
 // so two properties can be at different stages; steps 1 to 3 are the learner's own, whatever the deal.
 const dealScoped = (s: RoadmapStep) => s.phase >= 4;
 
@@ -282,7 +282,7 @@ export function FirstDealRoadmap() {
         </label>
         <p className="muted">
           {deal
-            ? `Steps 4 to 6 (find, buy, own) are tracked for ${deal.name} only, and what you record goes into its evidence log. Steps 1 to 3 are yours, whatever the property.`
+            ? `Steps 4 to 7 (find, buy, own, then sell, refinance or trade) are tracked for ${deal.name} only, and what you record goes into its evidence log. Steps 1 to 3 are yours, whatever the property.`
             : deals.length
               ? 'Choose a property to track steps 4 to 6 for it. Each property keeps its own progress and evidence.'
               : 'To track steps 4 to 6 for a real property, save it in Analyze first. Each property keeps its own progress and evidence.'}

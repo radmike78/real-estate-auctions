@@ -16,7 +16,7 @@ export function transferTaxFor(state: StateCode, county: string): TransferTax {
       hint: 'County tax: $0.55 per $500. Some cities add their own.',
       more: 'California counties charge $0.55 for each $500 of value (Revenue and Taxation Code 11911), not counting liens that stay with the property. Cities can add their own tax, and some charter cities such as Los Angeles, San Francisco and Oakland charge much more; ask your title company for the total.',
     };
-  if (state === 'AZ') return { per500: 0, hint: 'Arizona has no transfer tax; recording fees apply.', more: 'Arizona’s constitution bars new taxes on transferring real property. You’ll still pay the county recorder’s recording fee (about $30 a document), which includes a $2 fee for the affidavit of property value (A.R.S. 11-475 and 11-1132).' };
+  if (state === 'AZ') return { per500: 0, hint: 'Arizona has no transfer tax; recording fees apply.', more: 'Arizona’s constitution bars new taxes on transferring real property. You’ll still pay the county recorder’s recording fee (about $30 a document), which includes Arizona’s $2 state transfer fee, which existed before the ban (A.R.S. 11-475 and 11-1132).' };
   if (state === 'TX') return { per500: 0, hint: 'Texas has no transfer tax; recording fees apply.', more: 'Texas doesn’t tax real property transfers, and its constitution bars new transfer taxes (article VIII, section 29). You’ll still pay the county clerk’s recording fees and the title insurance premium, which the state sets (Texas Department of Insurance).' };
   if (state === 'UT') return { per500: 0, hint: 'Utah has no transfer tax; recording fees apply.', more: 'Utah doesn’t tax real property transfers. You’ll still pay the county recorder’s recording fees.' };
   const per500 = !county || county === 'Clark' ? 2.55 : county === 'Washoe' || county === 'Churchill' ? 2.05 : 1.95;
@@ -84,7 +84,7 @@ const NONE: RedemptionPreset = { label: 'No redemption', months: 0, ratePct: 0, 
 const IRS: RedemptionPreset = { label: 'IRS seizure sale: 180 days, +20% a year', months: 6, ratePct: 20, daily: 1, flat: 0, flat2Pct: 0 };
 // 26 USC 7425(d): a nonjudicial sale (trustee or HOA) that wipes out a junior federal tax lien leaves the United States
 // 120 days to redeem, paying the price plus 6% a year and certain expenses.
-const US_FEDERAL: RedemptionPreset = { label: 'Federal tax lien was on title: the United States can redeem for 120 days, +6% a year', months: 4, ratePct: 6, daily: 0, flat: 0, flat2Pct: 0 };
+const US_FEDERAL: RedemptionPreset = { label: 'Federal tax lien was on title: the United States can redeem for 120 days (or the state’s period, if longer), +6% a year', months: 4, ratePct: 6, daily: 0, flat: 0, flat2Pct: 0 };
 
 /** Redemption rules after each kind of sale in a state, for the calculator's "Kind of sale" menu. */
 export function redemptionPresetsFor(state: StateCode): Record<string, RedemptionPreset> {
@@ -95,7 +95,7 @@ export function redemptionPresetsFor(state: StateCode): Record<string, Redemptio
       caJudicialShort: { label: 'Judicial foreclosure, debt not paid: 1 year, +10% a year', months: 12, ratePct: 10, daily: 0, flat: 0, flat2Pct: 0 },
       // Civil Code 5715 and CCP 729.035: a nonjudicial HOA foreclosure can be redeemed for 90 days, at the price plus
       // taxes and assessments with interest at the judgment rate (CCP 729.060).
-      hoa: { label: 'HOA foreclosure: 90 days, +10% a year', months: 3, ratePct: 10, daily: 0, flat: 0, flat2Pct: 0 },
+      hoa: { label: 'HOA foreclosure: 90 days, about +10% a year*', months: 3, ratePct: 10, daily: 0, flat: 0, flat2Pct: 0 },
       irs: IRS,
       usFederal: US_FEDERAL,
     };
@@ -151,7 +151,7 @@ export function redemptionChoicesFor(state: StateCode, kind: string): { keys: st
     return {
       keys: ['txTaxHomestead', 'txTaxOther'],
       start: 'txTaxHomestead',
-      confirm: 'Which Texas redemption rule applies isn’t confirmed yet. Check the court judgment and the appraisal district record: was it the owner’s homestead, land designated for agricultural use, or a mineral interest when the suit was filed? If so, the owner has 2 years; if none of them, 180 days, either way counted from the day your deed is filed (Tax Code 34.21). The calculator starts on the longer rule.',
+      confirm: 'We assumed the longer 2-year wait. Check the court judgment and the appraisal district record. If the property was the owner’s home, farm or ranch land, or a mineral interest when the suit was filed, the owner has 2 years; otherwise 180 days. Both count from the day your deed is recorded (Tax Code 34.21).',
     };
   if (kind === 'hoa' && state === 'TX')
     return {

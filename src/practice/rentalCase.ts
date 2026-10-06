@@ -515,7 +515,7 @@ const AZ: CaseConfig = {
       id: 'az-register',
       prompt: 'In Arizona, what must you file with the county assessor once you rent it out?',
       choices: [
-        { label: 'Register it as a residential rental, with the owner’s name and address and a contact for the property.', verdict: 'best', why: 'Arizona requires it (A.R.S. 33-1902). A newly bought rental that isn’t registered can be fined $1,000 plus $100 a month; registering within 10 days of a complaint avoids the penalty.' },
+        { label: 'Register it as a residential rental, with the owner’s name and address and a contact for the property.', verdict: 'best', why: 'Arizona requires it (A.R.S. 33-1902). If a newly bought rental isn’t registered, your city or town can seek a $1,000 fine plus $100 a month; registering within 10 days after the complaint avoids it.' },
         { label: 'Nothing. The deed is already recorded in your name.', verdict: 'poor', why: 'Recording the deed doesn’t register the rental. In Arizona that’s a separate filing with the county assessor.' },
       ],
     },

@@ -45,7 +45,7 @@ export const DISCLOSURES: ByStateLines = {
 export const NOTES: ByStateLines = {
   CA: [
     { text: 'In California, every lienholder, including a second loan or an HOA, has to agree to release its lien for the sale to close. A second lender that consents can’t later collect the shortfall either (Code of Civil Procedure 580e). Your title report shows every lien that needs a release.' },
-    { text: 'In California, the trustee sale can still go ahead while a short sale is pending. For a 1 to 4 unit home, the law requires one 45-day postponement if the owner sends the trustee a listing agreement at least 5 business days before the sale, (Civil Code 2924f(e)). A second postponement is only for a purchase agreement that pays off everything recorded against the home, so a short sale doesn’t qualify for it. Ask the listing agent for the sale date and whether it has been postponed.' },
+    { text: 'In California, the trustee sale can still go ahead while a short sale is pending. For a 1 to 4 unit home, the law requires one 45-day postponement if the owner sends the trustee a listing agreement at least 5 business days before the sale (Civil Code 2924f(e)). A second postponement is only for a purchase agreement that pays off everything recorded against the home, so a short sale doesn’t qualify for it. Ask the listing agent for the sale date and whether it has been postponed.' },
   ],
   UT: [
     { text: 'In Utah, the lender’s approval can come with a firm closing deadline. Keep your financing ready.' },

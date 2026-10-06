@@ -76,7 +76,7 @@ export const OTHER_SITES: { group: string; sites: DealSource[] }[] = [
 /** How forced sales work in each state, in one line each (from the forced-sales lesson). */
 export const STATE_SALES: Record<StateCode, string[]> = {
   NV: [
-    'Tax sales: after taxes go unpaid, the county treasurer takes title in trust and holds it 2 years (1 if abandoned) so the owner can pay, then auctions it with a quitclaim deed (a deed with no promise about title). In all, about 3 years of unpaid taxes (2 if abandoned).',
+    'Tax sales: about a year after taxes go unpaid, the county issues a tax certificate, and the owner has 2 years (1 if abandoned) to pay. If they don’t, the county treasurer takes title in trust and auctions it with a quitclaim deed (a deed with no promise about title). In all, about 3 years of unpaid taxes (2 if abandoned).',
     'Foreclosures: trustee auctions at least 3 months after the notice of default, with 20 days’ posted notice.',
   ],
   CA: [
@@ -93,7 +93,7 @@ export const STATE_SALES: Record<StateCode, string[]> = {
   ],
   TX: [
     'Tax sales: after a court judgment, a sheriff or constable auctions the property on the first Tuesday of the month; the owner can redeem for 180 days, or 2 years for a homestead, land designated for agricultural use or a mineral interest.',
-    'Foreclosures: trustee auctions on the first Tuesday of the month, between 10 a.m. and 4 p.m., with at least 21 days’ notice; the owner has no right to redeem afterward (the United States can, within 120 days, if a junior federal tax lien was on title).',
+    'Foreclosures: trustee auctions on the first Tuesday of the month, between 10 a.m. and 4 p.m., with at least 21 days’ notice; after a mortgage foreclosure the owner has no right to redeem. After a property tax loan foreclosure they do (Tax Code 32.06(k)). The United States can redeem within 120 days if a junior federal tax lien was on title.',
   ],
 };
 

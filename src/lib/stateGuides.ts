@@ -426,7 +426,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Check for homestead rules",
-      detail: "If the property is a person’s home, the sale needs a court order. No bid can be accepted unless it is more than the homestead exemption plus all liens. A bid under 90% of fair market value needs court approval (CCP 704.740, 704.800). The exemption is at least $300,000 and up to $600,000, adjusted for inflation (CCP 704.730)."
+      detail: "If the property is a person’s home, the sale needs a court order. No bid can be accepted unless it is more than the homestead exemption plus all liens. A bid under 90% of fair market value needs court approval (CCP 704.740, 704.800). The exemption is the county’s median home price from the year before, but never less than $370,550 or more than $731,300 (2026 amounts, adjusted each January for inflation) (CCP 704.730)."
     },
     {
       title: "Pre-qualify and bring funds",
@@ -548,7 +548,7 @@ export const STATE_GUIDES: Playbook[] = [
   key: "aztaxlien",
   title: "Arizona tax lien sales",
   short: "Tax lien sales",
-  oneLine: "Each February, Arizona county treasurers sell liens for unpaid property taxes. You bid the interest rate down from 16%. The owner can pay you back with interest until a treasurer’s deed is delivered or, if you sue to foreclose, until the court enters judgment. Separately, land the state already holds by tax deed is sold by the county board of supervisors at auction or over the counter (ARS 42-18301 to 42-18303).",
+  oneLine: "Each February, Arizona county treasurers sell liens for unpaid property taxes. You bid the interest rate down from 16%. The owner can pay you back with interest until a court rules for you or a treasurer’s deed is delivered. Land the state already owns through a tax deed is a separate program: the county board of supervisors sells it at a public auction (ARS 42-18301 to 42-18303).",
   youGet: "A certificate of purchase (a lien), not the property. You can ask a court for a treasurer’s deed only after 3 years, and only if the lien is still unpaid.",
   forSale: true,
   glance: [
@@ -1046,7 +1046,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "What gets it on the list",
-      value: "Taxes still unpaid by March 15 after four years of being past due (Utah Code 59-2-1343)."
+      value: "Property taxes that have been past due for four years and still aren’t paid by March 15 (Utah Code 59-2-1343)."
     },
     {
       label: "Minimum bid",
@@ -1080,7 +1080,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Register the way your county requires",
-      detail: "Counties differ. Salt Lake County (2026) ran its sale online only. It required advance registration and a $500 refundable deposit by wire. Utah County holds its sale on the third Thursday of May. It uses deposit tiers of $0, $500 or $2,500 for online bidding. Davis County has held an in-person sale in Farmington. Confirm in your county auditor’s notice."
+      detail: "Counties differ. Salt Lake County (2026) ran its sale online only. It required advance registration and a $500 refundable deposit by wire. Utah County holds its sale online on the third Thursday of May. Bidders register with the county’s auction vendor, which may charge fees or require a deposit, so check the vendor’s terms before you bid.* Davis County has held an in-person sale in Farmington. Confirm in your county auditor’s notice."
     },
     {
       title: "Research every parcel before you bid",
@@ -2160,7 +2160,7 @@ export const STATE_GUIDES: Playbook[] = [
   title: "California commercial property",
   short: "Commercial property",
   oneLine: "Stores, offices, industrial buildings, apartments with 5+ units and commercial land in California. Banks, trustees, sheriffs, receivers and tax collectors sell them.",
-  youGet: "The same kind of deed you’d get buying a home the same way. A purely commercial building doesn’t come with California’s home seller disclosures, but a mixed-use building with one to four homes in it may, unless the sale is exempt; confirm which disclosures apply with your agent or attorney. The property often comes with tenants, leases and environmental history.",
+  youGet: "The same kind of deed you’d get buying a home the same way. A purely commercial building doesn’t come with California’s home seller disclosures. A building that mixes shops with one to four homes might, unless the sale is exempt; ask your agent or attorney which apply. Expect tenants, leases and some environmental history.",
   forSale: true,
   glance: [
     {
@@ -2325,7 +2325,7 @@ export const STATE_GUIDES: Playbook[] = [
   glance: [
     {
       label: "Law (planned communities)",
-      value: "A.R.S. 33-1807. Condominiums fall under a separate statute (A.R.S. 33-1256). Confirm its current rules with an Arizona attorney"
+      value: "A.R.S. 33-1807 for planned communities. Condominiums use A.R.S. 33-1256, which has the same 18-month or $10,000 rule and the same priority"
     },
     {
       label: "When the HOA can foreclose",
@@ -2363,7 +2363,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Read the judgment",
-      detail: "Get the judgment from the court file. It says what is being sold and the amount owed. It also says whether the court found the home abandoned. That sets the redemption period at 30 days instead of 6 months (A.R.S. 12-1282). For a condominium, a different law covers the HOA’s lien (A.R.S. 33-1256). Have an attorney confirm how it applies."
+      detail: "Get the judgment from the court file. It says what is being sold and the amount owed. It also says whether the court found the home abandoned. That sets the redemption period at 30 days instead of 6 months (A.R.S. 12-1282). For a condominium, the HOA’s lien falls under A.R.S. 33-1256, which works the same way."
     },
     {
       title: "Order a title report and find the first mortgage",
@@ -2686,7 +2686,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Recording",
-      value: "Buyer and seller sign an affidavit of property value, filed with the deed; the recording fee includes a $2 affidavit fee (A.R.S. 11-1132, 11-1133)"
+      value: "Buyer and seller sign an affidavit of property value, filed with the deed; the recording fee already includes Arizona’s $2 transfer fee (A.R.S. 11-1132)"
     }
   ],
   steps: [
@@ -2720,7 +2720,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Close through escrow and record",
-      detail: "Buyer and seller each sign the Arizona affidavit of property value. It is filed with the deed unless exempt; the recording fee includes a $2 affidavit fee (A.R.S. 11-1132, 11-1133). A sale where a U.S. agency such as HUD is the named seller is listed as exempt (code A3)."
+      detail: "Buyer and seller each sign the Arizona affidavit of property value. It is filed with the deed unless exempt; the recording fee already includes Arizona’s $2 transfer fee (A.R.S. 11-1132). A sale where a U.S. agency such as HUD is the named seller is listed as exempt (code A3)."
     },
     {
       title: "Fix your property tax class",
@@ -2981,7 +2981,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Transfer tax",
-      value: "None. Arizona’s constitution bars new taxes or fees on transferring real property (Ariz. Const. art. 9, § 24). You file an affidavit of property value with the deed; the recording fee includes a $2 affidavit fee (A.R.S. 11-1132, 11-1133)"
+      value: "None. Arizona’s constitution bars new taxes or fees on transferring real property (Ariz. Const. art. 9, § 24). You file an affidavit of property value with the deed; the recording fee already includes Arizona’s $2 transfer fee (A.R.S. 11-1132)"
     },
     {
       label: "Property tax class",

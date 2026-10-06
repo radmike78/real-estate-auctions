@@ -59,7 +59,7 @@ export const BUSINESS_SOURCES: BusinessSource[] = [
     owner: 'State of Nevada',
     url: 'https://orion.nv.gov/portal/public/',
     what: 'Whether a company is active, revoked or dissolved, and who its officers and registered agent are.',
-    howToUse: 'Research only: confirm who can legally sell. It isn’t a list of sales. The state moved business records to its new system in September 2026, so searching may need a free account.',
+    howToUse: 'Research only: confirm who can legally sell. It isn’t a list of sales. Nevada moved its business records to a new system in 2026, and searching may ask you to create a free account.*',
   },
   {
     name: 'Nevada Department of Taxation',

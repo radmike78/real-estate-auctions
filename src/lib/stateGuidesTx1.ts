@@ -77,7 +77,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       title: "Bid at or above the minimum",
-      detail: "The minimum is the lesser of the value in the judgment or the full amount owed with costs. Harris County says the officer announces it at the sale. If no one bids enough, the property goes to the taxing unit (struck off) (34.01(j))."
+      detail: "The minimum is the lesser of the value in the judgment or the full amount owed with costs. Harris County says the officer announces it at the sale. If no one bids enough, the taxing unit can cancel the sale. Otherwise the property goes to the taxing unit (struck off) (34.01(j))."
     },
     {
       title: "Pay right away, the way your county requires",
@@ -134,7 +134,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       mistake: "Counting on a sale that gets stopped",
-      prevent: "An owner who is 65 or older, or disabled, can stop a sale of their homestead by delivering an affidavit by the fifth day before the sale (33.06). Owners can also pay the judgment before the sale (33.53(e)). Check the list the morning of the sale."
+      prevent: "An owner who is 65 or older, disabled, or a disabled veteran can stop a sale of their homestead by delivering an affidavit by the fifth day before the sale (33.06). Owners can also pay the judgment before the sale (33.53(e)). Check the list the morning of the sale."
     }
   ],
   example: {
@@ -233,7 +233,7 @@ export const TX_GUIDES_1: Playbook[] = [
   title: "Texas trustee sales",
   short: "Trustee sales",
   oneLine: "Most Texas home loans use a deed of trust. That lets a trustee sell the home at a courthouse auction on the first Tuesday of the month, without a court case.",
-  youGet: "A trustee’s deed, “as is” with no warranties except title. After a mortgage or deed-of-trust foreclosure, Texas law gives the owner no right to buy it back. The exception is a property tax loan (a transferred tax lien): if that's the lien being foreclosed, the owner or the servicer of an earlier mortgage can buy it back within 2 years for a home (180 days otherwise) by paying 125% of your price in the first year or 150% in the second, plus your costs (Tax Code 32.06(k)). A junior federal tax lien gives the United States 120 days to buy it back (26 USC 7425(d)). If the IRS lien was filed more than 30 days before the sale and the IRS didn’t get written notice at least 25 days before it, the lien isn’t cleared and stays on the title (26 USC 7425(b)).",
+  youGet: "A trustee’s deed, “as is,” with no promises except about title. After a mortgage foreclosure, the owner can’t buy it back. There are two exceptions. First, if the lien being foreclosed is a property tax loan (a transferred tax lien), the owner or the servicer of an earlier mortgage can buy it back within 2 years if it was the owner’s homestead, farm or ranch land or a mineral interest (180 days for anything else). They pay you 125% of your price in the first year or 150% in the second, plus your allowed costs with interest (Tax Code 32.06(k), (k-1)). Second, if a junior IRS lien was on title, the United States has 120 days to buy it back (26 USC 7425(d)). If the IRS lien was filed more than 30 days before the sale and the IRS didn’t get written notice at least 25 days before it, the lien isn’t cleared and stays on the title (26 USC 7425(b)).",
   plain: "The house as is. After a mortgage foreclosure there’s no buy-back period (a property tax loan foreclosure has one). You take it with any loans that were ahead of the one being foreclosed.",
   forSale: true,
   glance: [
@@ -267,7 +267,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       label: "Redemption",
-      value: "None after a mortgage or deed-of-trust foreclosure. The exception is a property tax loan (a transferred tax lien): if that's the lien being foreclosed, the owner or the servicer of an earlier mortgage can buy it back within 2 years for a home (180 days otherwise) by paying 125% of your price in the first year or 150% in the second, plus your costs (Tax Code 32.06(k)). If a junior federal tax lien is on title, the United States may buy it back within 120 days (26 USC 7425(d)). If the IRS lien was filed more than 30 days before the sale and the IRS didn’t get written notice at least 25 days before it, the lien isn’t cleared and stays on the title (26 USC 7425(b))."
+      value: "None after a mortgage or deed-of-trust foreclosure. The exception is a property tax loan (a transferred tax lien): if that's the lien being foreclosed, the owner or the servicer of an earlier mortgage can buy it back within 2 years if it was the owner’s homestead, farm or ranch land or a mineral interest (180 days for anything else). They pay you 125% of your price in the first year or 150% in the second, plus your allowed costs with interest (Tax Code 32.06(k), (k-1)). If a junior federal tax lien is on title, the United States may buy it back within 120 days (26 USC 7425(d)). If the IRS lien was filed more than 30 days before the sale and the IRS didn’t get written notice at least 25 days before it, the lien isn’t cleared and stays on the title (26 USC 7425(b))."
     }
   ],
   steps: [
@@ -598,7 +598,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       label: "Lender gets a chance",
-      value: "Before going to court, the HOA must notify lenders whose liens are inferior to the HOA’s lien. They have until the 61st day after the HOA mails that notice (60 days) to pay the debt (209.0091)."
+      value: "Before going to court, the HOA must notify lenders whose liens are inferior to the HOA’s lien. They get 60 days after the HOA mails that notice to pay the debt (209.0091)."
     },
     {
       label: "Notice after the sale (subdivision)",
