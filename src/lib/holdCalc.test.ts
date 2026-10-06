@@ -152,3 +152,24 @@ describe('no target return on a purchase without a loan', () => {
     expect(rentMaxBid({ ...RENT_DEFAULTS, targetCocPct: 0, loanPct: 75 }, true).maxBid).toBeLessThan(1e9);
   });
 });
+
+describe('commercial reserves and reimbursements', () => {
+  it('a yearly replacement reserve lowers cash flow, not NOI or the cap-rate price', () => {
+    const base = { ...COMMERCIAL_DEFAULTS, value: 900_000, loanPct: 70 };
+    const a = commercialMaxBid(base);
+    const b = commercialMaxBid({ ...base, reservesYear: 12_000 });
+    expect(b.noi).toBe(a.noi);
+    expect(b.maxBid).toBe(a.maxBid);
+    expect(Math.round((a.cashFlow - b.cashFlow) / 12)).toBe(1_000);
+  });
+
+  it('reimbursements counted once give the same NOI either way', () => {
+    const lines = { opInsuranceYear: 0, opRepairsYear: 0, opUtilitiesYear: 0, opManagementPct: 0, opOtherYear: 0, vacancyPct: 0 };
+    // $100,000 rent, $10,000 reimbursed as income, $30,000 full costs…
+    const gross = commercialNoi({ ...COMMERCIAL_DEFAULTS, ...lines, monthlyRent: 100_000 / 12, otherMonthly: 10_000 / 12, opTaxYear: 30_000 });
+    // …or $100,000 rent and $20,000 costs after reimbursement.
+    const net = commercialNoi({ ...COMMERCIAL_DEFAULTS, ...lines, monthlyRent: 100_000 / 12, otherMonthly: 0, opTaxYear: 20_000 });
+    expect(Math.round(gross.noi)).toBe(80_000);
+    expect(Math.round(net.noi)).toBe(80_000);
+  });
+});

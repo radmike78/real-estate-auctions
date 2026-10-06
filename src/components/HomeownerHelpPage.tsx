@@ -85,8 +85,8 @@ export default function HomeownerHelpPage() {
 
       <section>
         <h2>If your home was sold: claim any money left over</h2>
-        <p>If your home sold at a tax sale or a foreclosure (trustee’s) sale for more than what was owed, the extra money, called surplus or excess proceeds, goes, in most cases, to lienholders in order of priority and then to you. You can claim it yourself, for free. In 2023 the U.S. Supreme Court ruled that when a county keeps more than the tax debt, it takes property without just compensation (<a href="https://www.law.cornell.edu/supremecourt/text/22-166" {...ext}>Tyler v. Hennepin County ↗</a>).</p>
-        <p><strong>Be careful with “finders.”</strong> People who find your name in sale records may offer to get the money for a share of it. Ask the county treasurer or the trustee first: you can claim directly at no cost. Read any agreement before you sign, and never sign one you don’t understand.</p>
+        <p>If your home sold at a tax sale or a foreclosure (trustee’s) sale for more than what was owed, the extra money, called surplus or excess proceeds, goes, in most cases, to lienholders in order of priority and then to you. You can usually claim it yourself, without paying a finder; some claims go through a court and have a filing fee. In 2023 the U.S. Supreme Court ruled that when a county keeps more than the tax debt, it takes property without just compensation (<a href="https://www.law.cornell.edu/supremecourt/text/22-166" {...ext}>Tyler v. Hennepin County ↗</a>).</p>
+        <p><strong>Be careful with “finders.”</strong> People who find your name in sale records may offer to get the money for a share of it. Ask the county treasurer or the trustee first: you can usually claim directly without paying anyone a share, though some procedures, such as a court petition, have a filing fee. Read any agreement before you sign, and never sign one you don’t understand.</p>
         <ul>
           {SURPLUS.filter((x) => showFor(state, x.text)).map((x) => (
             <li key={x.text}>{x.text} {x.link && <a href={x.link.url} {...ext}>{x.link.label} ↗</a>}</li>
