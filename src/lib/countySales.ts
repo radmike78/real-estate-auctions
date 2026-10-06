@@ -3,7 +3,8 @@
 // drops off the site once its sale ends.
 //
 // To add a sale: copy the dates, times and links from the county treasurer's own page (not an auction company's), with
-// the UTC offset for that date, and set checkedOn. Links must be HTTPS on the county's .gov site (tested).
+// the UTC offset for that date, and set checkedOn. Links must be HTTPS on the county's .gov site, or on an official
+// site the county offices list already links for that county, such as a Texas appraisal district's (tested).
 import type { StateCode } from './regions';
 
 export interface CountySale {
@@ -25,6 +26,9 @@ export interface CountySale {
   redeemBy: string | null;
   /** Last moment to register and pay the deposit. */
   registerBy: string | null;
+  /** A registration deadline the county gives as a date only, and what must be in by then (Travis: the bidder form). */
+  registerDay?: string; // YYYY-MM-DD
+  registerWhat?: string;
   saleUrl: string; // the county's page for the sale
   /** The county's property list; null when it isn't posted yet. */
   listUrl: string | null;
@@ -34,6 +38,105 @@ export interface CountySale {
 }
 
 export const COUNTY_SALES: CountySale[] = [
+  {
+    // https://www.tarrantcountytx.gov/en/constables/constable-3/delinquent-tax-sales/monthly-tax-sales-listings.html, checked
+    // 2026-10-06: a "NOVEMBER 3, 2026" listing. The Constable 3 page: register before 10 a.m.; cashier's checks and money
+    // orders only. The place isn't on these pages, so it isn't shown.
+    id: 'tx-tarrant-2026-11',
+    state: 'TX',
+    county: 'Tarrant',
+    agency: 'Tarrant County Constable, Precinct 3',
+    name: 'November 3, 2026 delinquent tax sale',
+    format: 'In-person auction',
+    startOnly: true,
+    startsAt: '2026-11-03T10:00:00-06:00',
+    endsAt: '2026-11-03T23:59:00-06:00',
+    redeemBy: null,
+    registerBy: null,
+    saleUrl: 'https://www.tarrantcountytx.gov/en/constables/constable-3/delinquent-tax-sales/monthly-tax-sales-listings.html',
+    listUrl: 'https://www.tarrantcountytx.gov/en/constables/constable-3/delinquent-tax-sales/monthly-tax-sales-listings/november-3--2026.html',
+    checkedOn: '2026-10-06',
+  },
+  {
+    // https://www.fortbendcountytx.gov/your-county/county-calendar/november-tax-sales, checked 2026-10-06: "Nov. 03, 2026,
+    // 10:00 AM - 4:00 PM Location Gus George Academy-Patton Hall 1521 Eugene Heimann Cir Richmond, TX 77469", with the
+    // Constable Precinct 1 list.
+    id: 'tx-fort-bend-2026-11',
+    state: 'TX',
+    county: 'Fort Bend',
+    agency: 'Fort Bend County Constable, Precinct 1',
+    name: 'November tax sales',
+    format: 'In-person auction',
+    place: 'Gus George Academy, Patton Hall, 1521 Eugene Heimann Circle, Richmond',
+    startsAt: '2026-11-03T10:00:00-06:00',
+    endsAt: '2026-11-03T16:00:00-06:00',
+    redeemBy: null,
+    registerBy: null,
+    saleUrl: 'https://www.fortbendcountytx.gov/your-county/county-calendar/november-tax-sales',
+    listUrl: 'https://www.fortbendcountytx.gov/sites/default/files/document-central/document-central/constable-pct-1-documents/November-Tax-Sales-Pct-1-Revised.pdf',
+    checkedOn: '2026-10-06',
+  },
+  {
+    // https://tax-office.traviscountytx.gov/properties/foreclosed, checked 2026-10-06: online sales; the bidder registration
+    // and $10 fee go to the tax office at least five business days before the sale ("November 3, 2026 / October 27, 2026",
+    // "December 1, 2026 / November 24, 2026"); the list goes up on the auction site about 15 days before.
+    id: 'tx-travis-2026-11',
+    state: 'TX',
+    county: 'Travis',
+    agency: 'Travis County Tax Office',
+    name: 'November 3, 2026 tax sale',
+    format: 'Online auction',
+    datesOnly: true,
+    startsAt: '2026-11-03T00:00:00-06:00',
+    endsAt: '2026-11-03T23:59:00-06:00',
+    redeemBy: null,
+    registerBy: null,
+    registerDay: '2026-10-27',
+    registerWhat: 'Send the tax office your bidder registration and the $10 fee',
+    saleUrl: 'https://tax-office.traviscountytx.gov/properties/foreclosed',
+    listUrl: null,
+    listExpected: 'about 15 days before the sale, on the auction site its page links to',
+    checkedOn: '2026-10-06',
+  },
+  {
+    id: 'tx-travis-2026-12',
+    state: 'TX',
+    county: 'Travis',
+    agency: 'Travis County Tax Office',
+    name: 'December 1, 2026 tax sale',
+    format: 'Online auction',
+    datesOnly: true,
+    startsAt: '2026-12-01T00:00:00-06:00',
+    endsAt: '2026-12-01T23:59:00-06:00',
+    redeemBy: null,
+    registerBy: null,
+    registerDay: '2026-11-24',
+    registerWhat: 'Send the tax office your bidder registration and the $10 fee',
+    saleUrl: 'https://tax-office.traviscountytx.gov/properties/foreclosed',
+    listUrl: null,
+    listExpected: 'about 15 days before the sale, on the auction site its page links to',
+    checkedOn: '2026-10-06',
+  },
+  {
+    // https://www.liveoakappraisal.com/home/Custom?custurl=/home/taxsales (the Live Oak County Appraisal District), checked
+    // 2026-10-06: "Tax Sale List November 3, 2026"; the notice: "the first Tuesday in November, 2026 ... at the North
+    // Door, 301 Houston Street of the Courthouse ... George West, Texas, between the hours of 10 o'clock a.m. and 4
+    // o'clock p.m."
+    id: 'tx-live-oak-2026-11',
+    state: 'TX',
+    county: 'Live Oak',
+    agency: 'Live Oak County Appraisal District (notice of the sheriff’s sale)',
+    name: 'November 3, 2026 tax sale',
+    format: 'In-person auction',
+    place: 'North door of the courthouse, 301 Houston Street, George West',
+    startsAt: '2026-11-03T10:00:00-06:00',
+    endsAt: '2026-11-03T16:00:00-06:00',
+    redeemBy: null,
+    registerBy: null,
+    saleUrl: 'https://www.liveoakappraisal.com/home/Custom?custurl=/home/taxsales',
+    listUrl: 'https://www.liveoakappraisal.com/Forms/GetDocument?fileName=MiscellaneousFiles%5C1790618721_Notice+of+Tax+Sale+-+11-3-26.pdf',
+    checkedOn: '2026-10-06',
+  },
   {
     // https://ttc.lacounty.gov/schedule-of-upcoming-auctions/ and the 2026B Terms and Conditions, checked 2026-10-05.
     id: 'ca-los-angeles-2026B',
