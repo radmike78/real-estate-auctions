@@ -58,7 +58,7 @@ function StateLine() {
   if (!st) return null;
   return (
     <p className="pro-state-line">
-      Showing <strong>{stateByCode(st)?.name}</strong> rules and stories ·{' '}
+      <span>Showing <strong>{stateByCode(st)?.name}</strong> rules and stories</span>
       <label>
         Change state{' '}
         <select value={st} onChange={(e) => setSt((e.target.value || null) as StateCode | null)}>

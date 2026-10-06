@@ -67,3 +67,7 @@
 .story-other { margin-top: 16px; }
 .story-other > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 700; font-size: 1.05rem; color: var(--accent); }
 .story-other > .muted { margin: 4px 0 12px; }
+
+/* State line: the label and drop-down sit beside the text, and wrap as a unit on phones. */
+.pro-state-line { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
+.pro-state-line label { display: inline-flex; align-items: center; gap: 8px; }
