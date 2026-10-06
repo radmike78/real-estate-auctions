@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { N, payment, RENTAL_CASE } from './rentalCase';
+import { N, payment, RENTAL_CASE, TX_CASE, caseFor } from './rentalCase';
 import { cleanCase } from './caseProgress';
 
 describe('Buy a rental, start to finish', () => {
@@ -129,5 +129,34 @@ describe('known replacements', () => {
   it('budgets the roof and water heater, and the cash flow reflects it', () => {
     expect(N.replaceMonthly).toBe(325);
     expect(N.cashFlowWithReplacements).toBe(N.cashFlow - (N.replaceMonthly - N.setAside));
+  });
+});
+
+describe('the Texas practice house', () => {
+  const T = TX_CASE.N;
+  it('keeps its numbers consistent, with the full Texas tax bill and Texas rents', () => {
+    expect(T.tax).toBe(506); // $6,072 a year, no homestead exemption
+    expect(T.rent).toBe(2_500);
+    expect(T.cashOffer).toBe(72_250 + 8_400 + 6 * (1406 + 506 + 180 + 45));
+    expect(T.cashFlow).toBe(2500 - 3 * 125 - 506 - 180 - 45 - 1362);
+    expect(T.cashFinal).toBeLessThanOrEqual(T.investable);
+    expect(T.cashRenegotiated).toBeLessThanOrEqual(T.investable);
+    expect(T.investable - T.cashOffer - T.urgent).toBeGreaterThan(0);
+    expect(T.investable - T.cashOffer - T.urgent).toBeLessThan(3_000);
+  });
+
+  it('uses Texas rules and names Texas wherever it does, with no Nevada rule left in', () => {
+    const text = JSON.stringify(TX_CASE.stages);
+    expect(text).not.toMatch(/NRS |Henderson|business days|contingenc(y|ies) (ends|protects)/);
+    expect(text).toMatch(/option period/);
+    expect(text).toMatch(/homestead exemption/);
+    for (const st of TX_CASE.stages)
+      for (const t of st.tasks)
+        if (t.kind === 'choice')
+          for (const c of t.choices) if (/Property Code|Tax Code/.test(c.why)) expect(`${t.prompt} ${c.label} ${c.why}`, t.id).toMatch(/Texas/);
+    const keys = TX_CASE.stages.map((s) => s.key);
+    expect(keys).toEqual(RENTAL_CASE.map((s) => s.key));
+    expect(caseFor('TX')).toBe(TX_CASE);
+    expect(caseFor('UT').state).toBe('NV');
   });
 });

@@ -3,7 +3,8 @@ import { downloadText } from '../lib/download';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import { PracticeRibbon } from './PracticePage';
-import { CASE_PROPERTY, CASE_TITLE, N, RENTAL_CASE, tasksFor, walkedFrom, type CaseDoc, type CaseStage, type CaseTask, type Verdict } from '../practice/rentalCase';
+import { CASE_TITLE, NV_CASE, caseFor, tasksFor, walkedFrom, type CaseDoc, type CaseStage, type CaseTask, type PracticeCase, type Verdict } from '../practice/rentalCase';
+import { useMyState } from '../lib/myState';
 import { docGuide } from '../lib/docGuides';
 import DocGuideView from './DocGuideView';
 import { emptyCase, loadCase, saveCase, type CaseProgress } from '../practice/caseProgress';
@@ -11,6 +12,8 @@ import TopicAd from './TopicAd';
 
 const key = (st: CaseStage, t: CaseTask) => `${st.key}/${t.id}`;
 const $ = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
+/** The practice house being shown: the visitor's state's version (set on each render of the page). */
+let C: PracticeCase = NV_CASE;
 const VERDICT: Record<Verdict, string> = { best: 'Strong choice', ok: 'Reasonable', poor: 'Not this one' };
 
 /**
@@ -18,9 +21,16 @@ const VERDICT: Record<Verdict, string> = { best: 'Strong choice', ok: 'Reasonabl
  * Each step gives you documents to read and decisions to make, and ends with something for your deal packet.
  */
 export default function RentalCasePage({ stageKey }: { stageKey?: string }) {
-  const [p, setP] = useState<CaseProgress>(loadCase);
-  const idx = RENTAL_CASE.findIndex((s) => s.key === stageKey);
-  const stage = idx >= 0 ? RENTAL_CASE[idx] : null;
+  // Texas visitors get the Texas house (TREC contract, Texas taxes and landlord rules); everyone else the Nevada one.
+  const [st] = useMyState();
+  C = caseFor(st);
+  return <CasePage key={C.state} stageKey={stageKey} />;
+}
+
+function CasePage({ stageKey }: { stageKey?: string }) {
+  const [p, setP] = useState<CaseProgress>(() => loadCase(C.state));
+  const idx = C.stages.findIndex((s) => s.key === stageKey);
+  const stage = idx >= 0 ? C.stages[idx] : null;
   const packet = stageKey === 'packet';
   useLastActivity(`#/practice/case${stageKey ? `/${stageKey}` : ''}`, `Practice: ${CASE_TITLE}${stage ? ` · ${stage.title}` : ''}`);
   // Moving between steps brings the step list into view and focuses the step's heading; the first load stays at the top.
@@ -39,11 +49,11 @@ export default function RentalCasePage({ stageKey }: { stageKey?: string }) {
   const update = (fn: (x: CaseProgress) => CaseProgress) =>
     setP((prev) => {
       const next = fn(prev);
-      saveCase(next);
+      saveCase(next, C.state);
       return next;
     });
   const stageDone = (st: CaseStage) => tasksFor(st, p.answers).every((t) => p.done.includes(key(st, t)));
-  const doneStages = RENTAL_CASE.filter(stageDone).length;
+  const doneStages = C.stages.filter(stageDone).length;
 
   return (
     <main className="page practice case">
@@ -51,12 +61,12 @@ export default function RentalCasePage({ stageKey }: { stageKey?: string }) {
         compact
         eyebrow={<span className="practice-tag">Practice · fictional property</span>}
         title={CASE_TITLE}
-        sub={stage || packet ? CASE_PROPERTY : `${CASE_PROPERTY}. You’ll read teaching versions of a purchase’s paperwork (fictional extracts, each with a guide to the real form), make the calls, and finish with your own deal packet.`}
+        sub={stage || packet ? C.property : `${C.property}. You’ll read teaching versions of a purchase’s paperwork (fictional extracts, each with a guide to the real form), make the calls, and finish with your own deal packet.`}
       />
       <PracticeRibbon />
       <nav className="practice-stages" aria-label="Steps in this practice purchase" id="case-top">
         <a href="#/practice/case" className={!stage && !packet ? 'active' : ''}>Start</a>
-        {RENTAL_CASE.map((st, i) => (
+        {C.stages.map((st, i) => (
           <a key={st.key} href={`#/practice/case/${st.key}`} className={`${stage?.key === st.key ? 'active' : ''}${stageDone(st) ? ' done' : ''}`} aria-current={stage?.key === st.key ? 'step' : undefined}>
             <span className="step-num" aria-hidden>{stageDone(st) ? '✓' : i + 1}</span> {st.title}
           </a>
@@ -69,14 +79,14 @@ export default function RentalCasePage({ stageKey }: { stageKey?: string }) {
       ) : stage ? (
         <StageView stage={stage} n={idx + 1} p={p} update={update} done={stageDone(stage)} />
       ) : (
-        <Start p={p} doneStages={doneStages} onReset={() => { if (!window.confirm('Start over? This clears your answers and your deal packet.')) return; saveCase(emptyCase()); setP(emptyCase()); }} />
+        <Start p={p} doneStages={doneStages} onReset={() => { if (!window.confirm('Start over? This clears your answers and your deal packet.')) return; saveCase(emptyCase(), C.state); setP(emptyCase()); }} />
       )}
     </main>
   );
 }
 
 function Start({ p, doneStages, onReset }: { p: CaseProgress; doneStages: number; onReset: () => void }) {
-  const next = RENTAL_CASE.find((st) => !tasksFor(st, p.answers).every((t) => p.done.includes(key(st, t))));
+  const next = C.stages.find((st) => !tasksFor(st, p.answers).every((t) => p.done.includes(key(st, t))));
   const started = p.done.length > 0;
   return (
     <section aria-labelledby="case-start">
@@ -93,10 +103,10 @@ function Start({ p, doneStages, onReset }: { p: CaseProgress; doneStages: number
           <li><strong>Your decisions</strong> and the reasons for each</li>
         </ul>
       </div>
-      <p className="muted">About 45 minutes. {RENTAL_CASE.length} steps. Your progress stays in this browser; you can stop and come back.</p>
+      <p className="muted">About 45 minutes. {C.stages.length} steps. Your progress stays in this browser; you can stop and come back.</p>
       <div className="row practice-next">
-        <a className="btn big" href={`#/practice/case/${(next ?? RENTAL_CASE[0]).key}`}>{started ? `Continue: ${(next ?? RENTAL_CASE[0]).title} →` : 'Start: your goal and your cash →'}</a>
-        {started && <span className="muted">{doneStages} of {RENTAL_CASE.length} steps done</span>}
+        <a className="btn big" href={`#/practice/case/${(next ?? C.stages[0]).key}`}>{started ? `Continue: ${(next ?? C.stages[0]).title} →` : 'Start: your goal and your cash →'}</a>
+        {started && <span className="muted">{doneStages} of {C.stages.length} steps done</span>}
         {started && <a href="#/practice/case/packet">See your deal packet</a>}
         {started && <button type="button" className="linkish" onClick={onReset}>Start over</button>}
       </div>
@@ -105,9 +115,9 @@ function Start({ p, doneStages, onReset }: { p: CaseProgress; doneStages: number
 }
 
 function StageView({ stage, n, p, update, done }: { stage: CaseStage; n: number; p: CaseProgress; update: (fn: (x: CaseProgress) => CaseProgress) => void; done: boolean }) {
-  const i = RENTAL_CASE.indexOf(stage);
-  const prev = RENTAL_CASE[i - 1];
-  const nextSt = RENTAL_CASE[i + 1];
+  const i = C.stages.indexOf(stage);
+  const prev = C.stages[i - 1];
+  const nextSt = C.stages[i + 1];
   const walkedHere = p.walked === stage.key;
   const tasks = tasksFor(stage, p.answers);
   const firstOpen = tasks.findIndex((t) => !p.done.includes(key(stage, t)));
@@ -191,8 +201,8 @@ type Update = (fn: (x: CaseProgress) => CaseProgress) => void;
 
 /** Before the offer is signed there's no contract, so nothing is at stake; after, a contract deadline protects the deposit. */
 function walkNote(stageKey: string): string {
-  const i = RENTAL_CASE.findIndex((s) => s.key === stageKey);
-  const offer = RENTAL_CASE.findIndex((s) => s.key === 'offer');
+  const i = C.stages.findIndex((s) => s.key === stageKey);
+  const offer = C.stages.findIndex((s) => s.key === 'offer');
   return i <= offer ? 'No contract was signed, so nothing was at risk.' : 'You left inside a contract deadline, so you keep your earnest money.';
 }
 
@@ -238,8 +248,8 @@ function Choice({ t, k, p, update, finish, stageKey }: { t: Extract<CaseTask, { 
       // The walk-away follows your answers: choosing it marks the step, changing it clears it, and an answer that
       // brings a walk-away answer back into view brings the walk-away back. "Keep going" (walked cleared while a walk
       // answer is still showing) holds until one of those happens.
-      const before = walkedFrom(x.answers);
-      const after = walkedFrom(next.answers);
+      const before = walkedFrom(x.answers, C.stages);
+      const after = walkedFrom(next.answers, C.stages);
       if (ch.walk && ch.verdict !== 'poor') next = { ...next, walked: stageKey };
       else if (!after) next = { ...next, walked: undefined };
       else if (after !== before) next = { ...next, walked: after };
@@ -356,7 +366,7 @@ function Write({ t, k, p, update, finish }: { t: Extract<CaseTask, { kind: 'writ
 
 /** Everything the learner produced, in one place, to print or download. */
 export function packetText(p: CaseProgress): string {
-  const lines: string[] = [`${CASE_TITLE.toUpperCase()} — DEAL PACKET (practice, fictional)`, CASE_PROPERTY, ''];
+  const lines: string[] = [`${CASE_TITLE.toUpperCase()} — DEAL PACKET (practice, fictional)`, C.property, ''];
   for (const sec of packetSections(p)) {
     lines.push(sec.title.toUpperCase());
     for (const row of sec.rows) lines.push(`- ${row}`);
@@ -370,31 +380,31 @@ export function packetSections(p: CaseProgress): { title: string; rows: string[]
   const finished = (st: CaseStage) => tasksFor(st, p.answers).every((t) => p.done.includes(key(st, t)));
   // A step you walked away in counts as reached, so the packet shows what you found there; its price and value
   // rows are left out because they describe a deal that didn't happen.
-  const walkIdx = RENTAL_CASE.findIndex((st) => st.key === p.walked);
-  const reached = RENTAL_CASE.filter((st, i) => (walkIdx < 0 || i <= walkIdx) && (finished(st) || i === walkIdx));
+  const walkIdx = C.stages.findIndex((st) => st.key === p.walked);
+  const reached = C.stages.filter((st, i) => (walkIdx < 0 || i <= walkIdx) && (finished(st) || i === walkIdx));
   const logOf = (st: CaseStage) => (st.key === p.walked ? st.log.filter((l) => l.area !== 'Price' && l.area !== 'Value' && l.area !== 'Contract') : st.log);
-  const bought = !p.walked && (finished(RENTAL_CASE[RENTAL_CASE.length - 1]) || reached.some((s) => s.key === 'closing'));
+  const bought = !p.walked && (finished(C.stages[C.stages.length - 1]) || reached.some((s) => s.key === 'closing'));
   const budget = [
-    `Most you can invest: ${$(N.investable)} (after a ${$(N.cushion)} emergency fund and ${$(N.otherGoals)} for other goals)`,
-    bought ? `Cash the deal took in this case: ${$(N.cashFinal)}, including ${$(N.urgent)} of repairs and ${N.reserveMonths} months of reserves` : `Cash needed at the first offer: ${$(N.cashOffer)}, before repairs`,
-    bought ? `Left beyond the reserves: ${$(N.investable - N.cashFinal)}` : `Left at the first offer: ${$(N.investable - N.cashOffer)}`,
+    `Most you can invest: ${$(C.N.investable)} (after a ${$(C.N.cushion)} emergency fund and ${$(C.N.otherGoals)} for other goals)`,
+    bought ? `Cash the deal took in this case: ${$(C.N.cashFinal)}, including ${$(C.N.urgent)} of repairs and ${C.N.reserveMonths} months of reserves` : `Cash needed at the first offer: ${$(C.N.cashOffer)}, before repairs`,
+    bought ? `Left beyond the reserves: ${$(C.N.investable - C.N.cashFinal)}` : `Left at the first offer: ${$(C.N.investable - C.N.cashOffer)}`,
   ];
-  if (bought) budget.push(`Monthly cash flow after set-asides, self-managed: about ${$(N.cashFlow)}`);
+  if (bought) budget.push(`Monthly cash flow after set-asides, self-managed: about ${$(C.N.cashFlow)}`);
   const decisions: string[] = [];
   const questions: string[] = [];
-  for (const st of RENTAL_CASE)
+  for (const st of C.stages)
     for (const t of tasksFor(st, p.answers)) {
       const a = p.answers[key(st, t)];
       if (t.kind === 'choice' && typeof a === 'number' && t.choices[a]) decisions.push(`${st.title}: ${t.choices[a].label} (${VERDICT[t.choices[a].verdict].toLowerCase()})`);
       if (t.kind === 'write' && typeof a === 'string' && a) questions.push(t.to === 'You' ? `For yourself: ${a}` : `To the ${t.to.toLowerCase()}: ${a}`);
     }
   // First tries count only for questions you can see now (a counteroffer you no longer face doesn't count).
-  const visible = new Set(RENTAL_CASE.flatMap((st) => tasksFor(st, p.answers).map((t) => key(st, t))));
+  const visible = new Set(C.stages.flatMap((st) => tasksFor(st, p.answers).map((t) => key(st, t))));
   const firsts = Object.entries(p.first).filter(([k]) => visible.has(k)).map(([, v]) => v);
   const strong = firsts.filter((v) => v === 'best' || v === 'ok' || v === 'right').length;
-  const walkedAt = RENTAL_CASE.find((s) => s.key === p.walked);
+  const walkedAt = C.stages.find((s) => s.key === p.walked);
   return [
-    { title: 'Result', rows: [walkedAt ? `You walked away at “${walkedAt.title}”. ${walkNote(walkedAt.key)} A good result when the deal stops fitting.` : bought ? 'You bought it. In this case the seller agreed to the appraised value, and you kept your reserves.' : `${reached.length} of ${RENTAL_CASE.length} steps done so far.`, `${strong} of ${firsts.length} questions right or reasonable on the first try.`] },
+    { title: 'Result', rows: [walkedAt ? `You walked away at “${walkedAt.title}”. ${walkNote(walkedAt.key)} A good result when the deal stops fitting.` : bought ? 'You bought it. In this case the seller agreed to the appraised value, and you kept your reserves.' : `${reached.length} of ${C.stages.length} steps done so far.`, `${strong} of ${firsts.length} questions right or reasonable on the first try.`] },
     { title: 'Your budget', rows: budget },
     { title: 'Deadline calendar', rows: reached.some((s) => s.dates) && !(walkedAt && walkedAt.key === 'offer') ? [...reached.flatMap((s) => s.dates ?? []).map((d) => `${d.when}: ${d.what}`), 'Practice contract terms. A real contract sets its own periods and how days are counted: build your calendar from it.'] : ['Not yet: the dates come from your contract, once your offer is accepted.'] },
     { title: 'Evidence log', rows: reached.flatMap((s) => [...choiceLogs(s, p).map((x) => `Your decision: ${x}`), ...logOf(s).map((l) => `${l.area}: ${l.finding}${l.open ? ` Still open: ${l.open}.` : ''}`)]) },

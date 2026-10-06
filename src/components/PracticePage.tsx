@@ -16,7 +16,7 @@ import type { SaleKey } from '../practice/types';
 import OwlNote from './OwlNote';
 import { useLastActivity } from '../lib/journey';
 import { loadCase } from '../practice/caseProgress';
-import { RENTAL_CASE } from '../practice/rentalCase';
+import { caseFor } from '../practice/rentalCase';
 
 /** One plain line, not a banner: readers skip anything styled like a notice. */
 export function PracticeRibbon() {
@@ -36,9 +36,10 @@ export default function PracticePage({ sale }: { sale?: string }) {
   const titleOf = (s: SaleKey) => playbookByKey(s)?.title ?? s;
   useLastActivity(chosen ? `#/practice?sale=${chosen}` : '#/practice', chosen ? `Practice: ${titleOf(chosen)}` : 'Practice');
 
-  const caseP = loadCase();
+  const practiceCase = caseFor(getMyState());
+  const caseP = loadCase(practiceCase.state);
   const caseStarted = caseP.done.length > 0;
-  const caseNext = (RENTAL_CASE.find((st) => !st.tasks.every((t) => caseP.done.includes(`${st.key}/${t.id}`))) ?? RENTAL_CASE[0]).key;
+  const caseNext = (practiceCase.stages.find((st) => !st.tasks.every((t) => caseP.done.includes(`${st.key}/${t.id}`))) ?? practiceCase.stages[0]).key;
   if (!chosen) {
     return (
       <main className="page practice">
@@ -53,10 +54,10 @@ export default function PracticePage({ sale }: { sale?: string }) {
           <h2 id="case-feature-head">Buy a rental, start to finish</h2>
           <p>Work one fictional purchase from your budget to the first months of renting it out. Read teaching versions of the paperwork (comparables, a loan quote, an inspection report, a title commitment, a closing statement), each with a guide to reading the real form, and make the calls when things go wrong. You finish with your own deal packet: a budget, a deadline calendar, an evidence log and your questions for each professional.</p>
           <a className="btn big" href={`#/practice/case${caseStarted ? `/${caseNext}` : ''}`}>{caseStarted ? 'Continue the purchase →' : 'Start the purchase →'}</a>
-          <span className="muted"> About 45 minutes · a house in Henderson, Nevada (fictional) · Nevada rules</span>
+          <span className="muted"> About 45 minutes · {practiceCase.property} · {practiceCase.stateName} rules{practiceCase.state === 'TX' ? ', with the TREC contract' : ''}</span>
         </section>
         <h2 className="section-title">More practice</h2>
-        <p>Practice purchases follow Nevada rules (Clark County); other states’ rules are in the <a href="#/playbooks">sale guides</a>. The quick “Would you buy it?” drills are further down.</p>
+        <p>The start-to-finish purchase has a Nevada house and a Texas house; you see the one for your state (Nevada if you haven’t chosen one, or chose another state). The auction practice below follows Nevada rules (Clark County), with Texas drills for Texas sales; other states’ rules are in the <a href="#/playbooks">sale guides</a>. The quick “Would you buy it?” drills are further down.</p>
         <NarrowDown config={practiceConfig(getMyState())} intro="Answer a few quick questions and we’ll suggest a practice purchase or drills to start with. Everything is still listed below." />
         <h2 className="practice-step"><span aria-hidden>1</span> Choose a kind of sale</h2>
         <div className="practice-sales">
