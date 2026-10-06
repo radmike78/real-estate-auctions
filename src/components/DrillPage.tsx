@@ -6,7 +6,7 @@ import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
 import { useNoIndex } from '../lib/noindex';
 import { DRILLS, drillById, type Drill, type Mission } from '../practice/drills';
-import { drillCard, HUE_COUNT, TOPIC_GROUPS, type Topic, type TopicGroup } from '../practice/drillCards';
+import { drillCard, HUE_COUNT, TOPIC_GROUPS, withoutState, type Topic, type TopicGroup } from '../practice/drillCards';
 import OwlNote from './OwlNote';
 import { fmtMoney } from '../lib/status';
 import { useMyState } from '../lib/myState';
@@ -108,6 +108,8 @@ function readBrowse(): Browse {
     return base;
   }
 }
+/** Whether the drill list will restore a saved place on the page (coming back from a drill). */
+export const hasSavedDrillScroll = () => readBrowse().scrollY > 0;
 function writeBrowse(b: Browse) {
   try { sessionStorage.setItem(BROWSE_KEY, JSON.stringify(b)); } catch { /* private mode: not kept */ }
 }
@@ -122,9 +124,10 @@ export function drillStatus(d: Drill, s: Saved = load()): { state: 'new' | 'star
 }
 
 /** One drill as a card: the kind of sale big and in its colour, then the question, one labelled fact and the missions. */
-export function DrillCardLink({ d, saved, hue = 0 }: { d: Drill; saved: Saved; /** Position in its row of cards: neighbours never share a colour. */ hue?: number }) {
+export function DrillCardLink({ d, saved, hue = 0, mine = null }: { d: Drill; saved: Saved; /** Position in its row of cards: neighbours never share a colour. */ hue?: number; /** The visitor's state: its name is left out of its own drills' text. */ mine?: string | null }) {
   const c = drillCard(d);
   const p = drillStatus(d, saved);
+  const local = (t: string) => (mine && drillState(d) === mine ? withoutState(t, mine) : t);
   return (
     <a href={`#/practice/drills/${d.id}`} className={`drill-card hue-${hue % HUE_COUNT}`} onClick={() => writeBrowse({ ...readBrowse(), scrollY: window.scrollY })}>
       <span className="drill-card-band">
@@ -135,10 +138,14 @@ export function DrillCardLink({ d, saved, hue = 0 }: { d: Drill; saved: Saved; /
         </span>
       </span>
       <span className="drill-card-body">
-        <span className="drill-card-q">{c.question}</span>
+        <span className="drill-card-q">{local(c.question)}</span>
         {c.fact && <span className="drill-card-fact"><span>{c.fact.label}</span> <strong>{c.fact.value}</strong></span>}
-        <span className="drill-card-teaser">{d.teaser}</span>
-        <span className="drill-card-missions"><strong>Your missions:</strong> {c.missions.join(' · ')}</span>
+        <span className="drill-card-teaser">{local(d.teaser)}</span>
+        {/* Numbered, one per line: a mission title can itself hold two sentences ("You won. What’s true now?"). */}
+        <span className="drill-card-missions">
+          <strong>Your missions</strong>
+          {c.missions.map((m, i) => <span key={m} className="drill-card-mission"><span className="drill-card-mission-n" aria-hidden>{i + 1}</span><span><span className="sr-only">{`Mission ${i + 1}: `}</span>{m}</span></span>)}
+        </span>
         <span className="drill-card-foot">
           <span className="drill-card-progress">
             <span>{p.text}</span>
@@ -152,15 +159,16 @@ export function DrillCardLink({ d, saved, hue = 0 }: { d: Drill; saved: Saved; /
 }
 
 /** The top of a drill page: the same colour, icon and sale name as its card. */
-function DrillBand({ d }: { d: Drill }) {
+function DrillBand({ d, mine }: { d: Drill; mine: string | null }) {
   const c = drillCard(d);
   const st = drillState(d);
+  // With a state chosen, the state goes in one small note under the title instead (see DrillPage).
   return (
     <p className={`drill-card-band drill-page-band hue-${Math.max(0, DRILLS.indexOf(d)) % HUE_COUNT}`}>
       <span className="drill-card-icon"><TopicIcon topic={c.topic} /></span>
       <span className="drill-card-head">
         <span className="drill-card-sale">{c.sale}</span>
-        <span className="drill-card-tags">Drill · {st ? STATE_NAMES[st] : 'Any state'} · {c.property}</span>
+        <span className="drill-card-tags">Drill · {mine ? '' : `${st ? STATE_NAMES[st] : 'Any state'} · `}{c.property}</span>
       </span>
     </p>
   );
@@ -204,8 +212,10 @@ export function DrillList() {
   const onlyMine = !!mine && !others;
   const st = onlyMine && stRaw !== 'all' && stRaw !== 'any' && stRaw !== mine ? 'all' : stRaw;
   const own = (d: Drill) => d.commercial || d.flipBrrrr || d.manufactured || d.land;
+  // Every drill set in a state (a Nevada park, Arizona land) belongs to that state, whatever its group.
   const keep = (d: Drill) =>
-    (st === 'all' || (st === 'any' ? drillState(d) === null : drillState(d) === st)) &&
+    (!onlyMine || drillState(d) === null || drillState(d) === mine) &&
+    (st === 'all' ||(st === 'any' ? drillState(d) === null : drillState(d) === st)) &&
     (topic === 'all' || drillCard(d).group === topic) &&
     (prog === 'all' || drillStatus(d, saved).state === prog);
   const states = onlyMine ? [mine] : [...(mine ? [mine] : []), ...Object.keys(STATE_NAMES).filter((k) => k !== mine)];
@@ -226,6 +236,8 @@ export function DrillList() {
   const shown = guided ? [{ key: 'starter', title: 'Start with these three', drills: starter }] : groups;
   // Explorers see the same three first, above the full list, until they filter it.
   const recommended = !guided && st === 'all' && topic === 'all' && prog === 'all' ? starter : [];
+  // A recommended drill shows once, up top, not again in its group below.
+  const listed = recommended.length ? shown.map((g) => ({ ...g, drills: g.drills.filter((d) => !recommended.includes(d)) })) : shown;
   const count = shown.reduce((n, g) => n + g.drills.length, 0);
   const filtered = st !== 'all' || topic !== 'all' || prog !== 'all';
   const switchButton = mine && (
@@ -250,21 +262,21 @@ export function DrillList() {
       {next && (
         <div className="drill-next" role="region" aria-label="Pick up where you left off">
           <h3 className="drill-group">Pick up where you left off</h3>
-          <div className="practice-grid drill-grid"><DrillCardLink d={next} saved={saved} hue={DRILLS.indexOf(next)} /></div>
+          <div className="practice-grid drill-grid"><DrillCardLink d={next} saved={saved} hue={DRILLS.indexOf(next)} mine={mine} /></div>
         </div>
       )}
       {recommended.length > 0 && (
         <div className="drill-next" role="region" aria-label="Recommended to start with">
           <h3 className="drill-group">Recommended to start with</h3>
-          <div className="practice-grid drill-grid">{recommended.map((d, i) => <DrillCardLink key={d.id} d={d} saved={saved} hue={i} />)}</div>
+          <div className="practice-grid drill-grid">{recommended.map((d, i) => <DrillCardLink key={d.id} d={d} saved={saved} hue={i} mine={mine} />)}</div>
         </div>
       )}
       {count === 0 && <OwlNote>No drills match these filters. Try another state or topic, or clear the filters.</OwlNote>}
-      {shown.filter((g) => g.drills.length).map((g) => (
+      {listed.filter((g) => g.drills.length).map((g) => (
         <div key={g.key} className="drill-group-block" role="region" aria-label={`${g.title} drills`}>
           <h3 className="drill-group">{g.title}</h3>
           <div className="practice-grid drill-grid">
-            {g.drills.map((d, i) => <DrillCardLink key={d.id} d={d} saved={saved} hue={i} />)}
+            {g.drills.map((d, i) => <DrillCardLink key={d.id} d={d} saved={saved} hue={i} mine={mine} />)}
           </div>
         </div>
       ))}
@@ -290,24 +302,30 @@ function Feedback({ tone, focus, children }: { tone: string; focus: boolean; chi
 /** Three questions to keep in view while working through any deal. */
 function InvestigationNotes() {
   return (
-    <aside className="drill-notes" aria-label="Investigation notes">
-      <strong>Keep three questions in view</strong>
+    <section className="drill-mission drill-notes" aria-labelledby="drill-notes-head">
+      <h2 id="drill-notes-head">Keep three questions in view</h2>
       <ol>
         <li>What do I actually know, and from what source?</li>
         <li>What am I assuming?</li>
         <li>What would change my decision?</li>
       </ol>
-    </aside>
+    </section>
   );
 }
 
-function MissionCard({ m, a, set, fresh }: { m: Mission; a: Answers[string]; set: (v: Answers[string]) => void; fresh: boolean }) {
+/** "Mission 2: What will it rent for?" reads "Mission 2 of 4: What will it rent for?", so the reader sees how far along they are. */
+const numbered = (title: string, total: number) => title.replace(/^Mission (\d+):/, `Mission $1 of ${total}:`);
+
+/** What the typed estimate is, by mission: most are repair budgets. */
+const ESTIMATE_LABEL: Record<string, string> = { 'lease-up': 'Your lease-up cost estimate ($)', utilities: 'Your cost to make it buildable ($)' };
+
+function MissionCard({ m, a, set, fresh, total }: { m: Mission; a: Answers[string]; set: (v: Answers[string]) => void; fresh: boolean; total: number }) {
   const done = !!a?.done;
   if (m.kind === 'facts')
     return (
       <section className="drill-mission">
-        <h2>{m.title}</h2>
-        <dl className="calc-kv">{m.lines.map((l) => <div key={l.label}><dt>{l.label}</dt><dd>{l.value}</dd></div>)}</dl>
+        <h2>{numbered(m.title, total)}</h2>
+        <dl className="drill-facts">{m.lines.map((l) => <div key={l.label}><dt>{l.label}</dt><dd>{l.value}</dd></div>)}</dl>
         {done ? <p className="drill-lesson">{m.lesson}</p> : <button type="button" className="btn" onClick={() => set({ done: true })}>What does this tell you?</button>}
       </section>
     );
@@ -317,13 +335,13 @@ function MissionCard({ m, a, set, fresh }: { m: Mission; a: Answers[string]; set
     const est = a?.estimate;
     return (
       <section className="drill-mission">
-        <h2>{m.title}</h2>
+        <h2>{numbered(m.title, total)}</h2>
         <p>{m.question}</p>
         <ul>{m.items.map((i) => <li key={i.label}>{i.label}{done && <span className="muted"> · example {fmtMoney(i.low)}–{fmtMoney(i.high)}. {i.note}</span>}</li>)}</ul>
         {!done ? (
           <form className="drill-estimate" onSubmit={(e) => { e.preventDefault(); if (est !== undefined) set({ ...a, done: true }); }}>
             <label className="field">
-              <span>Your repair budget ($)</span>
+              <span>{ESTIMATE_LABEL[m.id] ?? 'Your repair budget ($)'}</span>
               <input type="number" inputMode="numeric" min={0} step={500} value={est ?? ''} onChange={(e) => set({ ...a, estimate: e.target.value === '' ? undefined : Math.max(0, Number(e.target.value)) })} />
             </label>
             <button type="submit" className="btn" disabled={est === undefined}>Compare</button>
@@ -331,7 +349,7 @@ function MissionCard({ m, a, set, fresh }: { m: Mission; a: Answers[string]; set
         ) : (
           <>
             <Feedback focus={fresh} tone={est! < low ? 'bad' : 'good'}>
-              You budgeted {fmtMoney(est!)}. The example range is {fmtMoney(low)} to {fmtMoney(high)}.{' '}
+              {ESTIMATE_LABEL[m.id] ? 'You estimated' : 'You budgeted'} {fmtMoney(est!)}. The example range is {fmtMoney(low)} to {fmtMoney(high)}.{' '}
               {est! < low ? 'That’s below even the low end: the most common way flips and rentals lose money.' : est! > high ? 'Cautious, which is safer than too low.' : 'Inside the range. Budget a cushion on top for what you can’t see.'}
             </Feedback>
             <p className="drill-lesson">{m.lesson}</p>
@@ -345,7 +363,7 @@ function MissionCard({ m, a, set, fresh }: { m: Mission; a: Answers[string]; set
   const right = m.options.filter((o) => o.good === picks.includes(o.label)).length;
   return (
     <section className="drill-mission">
-      <h2>{m.title}</h2>
+      <h2>{numbered(m.title, total)}</h2>
       <fieldset disabled={done}>
         <legend>{m.question}</legend>
         <div className="decide-options">
@@ -396,6 +414,7 @@ export const calcPlanFor = (id: string) =>
 
 export default function DrillPage({ id }: { id: string }) {
   const { mode } = useJourney();
+  const [myState] = useMyState();
   const d = drillById(id);
   useLastActivity(`#/practice/drills/${id}`, d ? `Practice: ${d.title}` : undefined);
   useNoIndex(!d);
@@ -422,18 +441,26 @@ export default function DrillPage({ id }: { id: string }) {
     setSaved((s) => ({ ...s, [d.id]: { ...mine, answers: { ...mine.answers, [mid]: v } } }));
   };
   const allDone = d.missions.every((m) => mine.answers[m.id]?.done);
+  // A drill in the visitor's own state drops the state's name from its title and description; one note says it instead.
+  const ownState = myState && drillState(d) === myState ? myState : null;
+  const local = (t: string) => (ownState ? withoutState(t, ownState) : t);
   const verdict = d.verdict.choices.find((c) => c.label === mine.verdict);
   return (
     <main className="page drill">
+      <p className="drill-back-top"><a className="btn btn-secondary" href="#/practice/drills">← All practice</a></p>
       <PracticeRibbon />
-      <DrillBand d={d} />
-      <PageHero eyebrow={<span className="practice-tag">Simulation · Would you buy it?</span>} title={d.title} sub={d.where} />
+      <DrillBand d={d} mine={myState} />
+      <PageHero
+        eyebrow={<><span className="practice-tag">Simulation · Would you buy it?</span>{ownState && <span className="drill-rules-note">{STATE_NAMES[ownState]} rules</span>}</>}
+        title={local(d.title)}
+        sub={local(d.where)}
+      />
       <section className="drill-mission">
         <h2>The deal</h2>
-        <dl className="calc-kv">{d.facts.map((f) => <div key={f.label}><dt>{f.label}</dt><dd>{f.value}</dd></div>)}</dl>
+        <dl className="drill-facts">{d.facts.map((f) => <div key={f.label}><dt>{f.label}</dt><dd>{local(f.value)}</dd></div>)}</dl>
       </section>
       <InvestigationNotes />
-      {d.missions.map((m, i) => (i === 0 || mine.answers[d.missions[i - 1].id]?.done ? <MissionCard key={m.id} m={m} a={mine.answers[m.id] ?? {}} set={(v) => setMission(m.id, v)} fresh={fresh === m.id} /> : null))}
+      {d.missions.map((m, i) => (i === 0 || mine.answers[d.missions[i - 1].id]?.done ? <MissionCard key={m.id} m={m} a={mine.answers[m.id] ?? {}} set={(v) => setMission(m.id, v)} fresh={fresh === m.id} total={d.missions.length} /> : null))}
       {allDone && (
         <section className="drill-mission">
           <h2>Your decision</h2>
@@ -456,7 +483,7 @@ export default function DrillPage({ id }: { id: string }) {
       {/* Only once the verdict and the expert's view are shown, outside the missions and their feedback. */}
       {allDone && verdict && <TopicAd drill={d.id} />}
       <div className="decide-nav">
-        <a className="btn btn-secondary" href="#/practice">← All practice</a>
+        <a className="btn btn-secondary" href="#/practice/drills">← All practice</a>
         <button type="button" className="btn btn-secondary" onClick={() => setSaved((s) => ({ ...s, [d.id]: { answers: {} } }))}>Start this drill over</button>
         <a className="btn btn-secondary" href={`#/analyze${calcPlanFor(d.id)}`}>Open the calculators</a>
       </div>
