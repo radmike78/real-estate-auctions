@@ -4,7 +4,9 @@ import type { Verdict } from './rentalCase';
 export const CASE_KEY = 'deedowl.case.v1';
 /** The Texas practice house keeps its own progress. */
 export const CASE_KEY_TX = 'deedowl.case.tx.v1';
-const keyFor = (state?: string | null) => (state === 'TX' ? CASE_KEY_TX : CASE_KEY);
+/** So do the California, Arizona and Utah houses. Nevada's (the default) keeps the original key. */
+export const CASE_KEYS = { NV: CASE_KEY, TX: CASE_KEY_TX, CA: 'deedowl.case.ca.v1', AZ: 'deedowl.case.az.v1', UT: 'deedowl.case.ut.v1' } as const;
+const keyFor = (state?: string | null) => CASE_KEYS[(state ?? 'NV') as keyof typeof CASE_KEYS] ?? CASE_KEY;
 
 export interface CaseProgress {
   /** Task keys ("stage/task") that are finished. */

@@ -9,7 +9,7 @@
 // - Contract terms (deadlines, deposit) are this practice contract's terms, not a state's law. Real contracts differ.
 // - The rate, quote and costs are practice numbers, not current quotes.
 // - Each state's version names its state wherever it uses that state's rule. Nevada: deposits and entry (NRS 118A.242,
-//   118A.330). Texas: the TREC resale contract and its addenda (20-19, 36-11, 40-11, 49-1), mechanic's liens (Property
+//   118A.330). California, Arizona and Utah: see the notes above each state's settings below. Texas: the TREC resale contract and its addenda (20-19, 36-11, 40-11, 49-1), mechanic's liens (Property
 //   Code 53.052, 53.158), rekeying (92.156), deposits (92.103, 92.104) and selection criteria (92.3515).
 // - Federal rules: FCRA adverse-action notices (FTC guidance for landlords), lead disclosure for homes built before
 //   1978 (40 CFR 745 subpart F), Fannie Mae's 2% limit on seller credits for investment properties (B3-4.1-02).
@@ -104,7 +104,7 @@ const usd = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 
 /** What changes from one state's practice house to another's: place, costs, contract terms and landlord rules. */
 interface CaseConfig {
-  state: 'NV' | 'TX';
+  state: 'NV' | 'TX' | 'CA' | 'AZ' | 'UT';
   stateName: string;
   abbr: string;
   city: string;
@@ -327,6 +327,293 @@ const TX: CaseConfig = {
     },
   ],
   rentLog: () => 'Selection criteria given with a signed acknowledgment. Deposit returned within 30 days with an itemized list (Texas).',
+};
+
+// California: same house and price. Buying resets the property tax to about 1% of the price plus local charges
+// (Proposition 13; this practice uses about 1.15%), so the seller's bill isn't yours. The contract is the C.A.R.
+// Residential Purchase Agreement, where you remove contingencies in writing. Deposits: Civil Code 1950.5. Rent cap and
+// just cause: Civil Code 1947.12 and 1946.2.
+const CA: CaseConfig = {
+  state: 'CA',
+  stateName: 'California',
+  abbr: 'CA',
+  city: 'Bakersfield',
+  savings: 143_000,
+  taxYear: 3_220,
+  listedTax: '$2,050 (the seller’s bill, on the value set when they bought in 2009)',
+  insuranceYear: 1_440,
+  deductible: '$2,500',
+  notCovered: 'Flood. Earthquake.',
+  exclusions: 'This one excludes flood and earthquake (earthquake cover is a separate policy), and drops vandalism after 60 empty days.',
+  insuranceLog: 'No flood or earthquake. 60-day vacancy limit.',
+  rents: [2_150, 2_250, 2_200, 2_850, 2_445],
+  rent: 2_200,
+  rentClaim: 2_450,
+  loanTasks: (n) => [
+    {
+      kind: 'choice',
+      id: 'ca-taxes',
+      prompt: 'The listing shows $2,050 in property taxes last year. What do you budget?',
+      choices: [
+        { label: `About ${usd(3_220)} a year (${usd(n.tax)} a month): about 1.15% of what you pay.`, verdict: 'best', why: 'In California, a sale resets the taxable value to the price you pay (Proposition 13). The seller’s bill was based on the value set when they bought in 2009, raised only a little each year, and on the homeowners’ exemption, which goes only to an owner who lives there. The county also sends a separate “supplemental” bill for the rest of the tax year; it comes to you, not your lender, so set money aside for it. This practice uses about 1.15%: in Kern County, voter-approved bonds put the rate at about 1.1% to 1.2%, and fixed charges such as sewer and refuse are added on top. Check a recent bill for the parcel.' },
+        { label: '$2,050: that’s what the listing says.', verdict: 'poor', why: 'That bill is on the seller’s old value. In California yours starts from your price, and the gap comes out of your cash flow every month.' },
+        { label: 'Ask the county assessor’s and tax collector’s offices for the rate and any special assessments, and budget from those.', verdict: 'ok', why: 'The right check before you offer. Until you have the numbers, budget about 1% of your price plus local charges, not the seller’s bill.' },
+      ],
+    },
+  ],
+  contractNote: 'The contract is the California Association of REALTORS® Residential Purchase Agreement. Its inspection, appraisal and loan contingencies each last 17 days unless you write in other numbers; this practice contract uses the ones below. In California a contingency doesn’t end by itself: you remove it in writing, and once you do, that way out is gone. Missing a step can cost you your deposit.',
+  contractRows: (n) => [
+    ['Acceptance (Day 0)', 'The day the signed acceptance is delivered to you. The other deadlines count from it.'],
+    ['Initial deposit', `${usd(n.earnest)}, to escrow within 3 business days after acceptance`],
+    ['Investigation contingency', 'Day 10 (the form’s default is 17). Inspect, then cancel or remove it in writing.'],
+    ['Appraisal contingency', 'Day 17'],
+    ['Loan contingency', 'Day 21'],
+    ['Removing contingencies', 'In writing, on a contingency removal form. If you haven’t removed or cancelled by a deadline, the seller can give you a Notice to Buyer to Perform, and cancel if you don’t act within the time it gives you, at least 2 days.'],
+    ['HOA documents', 'The seller orders them. Review them in your investigation period, and ask your agent how much time you get if they arrive late.'],
+    ['Close of escrow', 'Day 30'],
+    ['Counting days', 'Calendar days unless it says business days. Ask your agent how the contract treats a deadline on a weekend or holiday.'],
+  ],
+  dates: [
+    { when: 'Day 0', what: 'Acceptance is delivered to you. Every deadline below counts from here.' },
+    { when: 'Within 3 business days after Day 0', what: 'Initial deposit to escrow (confirm the instructions by phone first). You: the buyer.' },
+    { when: 'Day 10', what: 'Investigation contingency: cancel, ask for repairs, or remove it in writing. You, with your agent.' },
+    { when: 'When the HOA documents arrive', what: 'Read the rental rules and the budget. Write down the day they arrive.' },
+    { when: 'Day 17', what: 'Appraisal contingency: remove it in writing, or cancel. You, with your lender’s appraisal.' },
+    { when: 'Day 21', what: 'Loan contingency: remove it in writing once your lender confirms the loan.' },
+    { when: 'Day 30', what: 'Close of escrow.' },
+  ],
+  depositLog: (n) => `Initial deposit ${usd(n.earnest)}`,
+  roofFinding: 'Concrete tile is fine. The underlayment beneath it has about 4–6 years left.',
+  roofPart: 'roof underlayment',
+  cancelInspection: 'Cancel in writing before you remove the investigation contingency (Day 10), and get the deposit back.',
+  leaveInspection: 'Until you remove your investigation contingency in writing, you can cancel and get your deposit back.',
+  lateInspection: 'Your contract’s 10 days are up. The seller can give you a Notice to Buyer to Perform and cancel if you don’t act within the time it gives (at least 2 days). If you then remove the contingency late, you’ve lost your way out over the inspection.',
+  cancelShort: 'Cancel in writing before Day 10.',
+  periodName: 'investigation contingency deadline',
+  protections: 'investigation, appraisal and loan contingencies',
+  licenseQuestion: '“Are you licensed by California’s Contractors State License Board for this work, and can I see your license number?”',
+  appraisalName: 'appraisal contingency',
+  cancelAppraisal: 'Cancel in writing before you remove the appraisal contingency (Day 17), and get the deposit back.',
+  leaveAppraisal: 'Until you remove your appraisal contingency in writing, it lets you cancel and get your deposit back.',
+  roofer: 'Valley Example Roofing',
+  lienWhy: 'It’s a recorded claim against the house. In California, a contractor must record the lien within 90 days after the work is finished (60 days if the owner records a notice of completion), and sue to enforce it within 90 days after recording it, or the lien expires and can’t be enforced (Civil Code 8412 and 8460). Even an expired lien stays on the record until it’s released or a court clears it, so the title company wants that before closing. Ask the title officer how, and whether a lawsuit was filed.',
+  earnestPaid: 'into escrow within 3 business days after acceptance',
+  earnestCredit: (n) => `${usd(n.earnest)} initial deposit`,
+  earnestShort: 'deposit',
+  rentRulesNote: 'Rules on deposits, entry and rent increases are state law. The ones below are California’s, because this practice house is in California. Some cities add their own.',
+  rekeyWhy: 'You don’t know who else has keys.',
+  rentTasks: (n) => [
+    {
+      kind: 'choice',
+      id: 'ca-deposit',
+      prompt: `In California, you own this one rental in your own name. What is the most you can take as a security deposit at ${usd(n.rent)} a month rent?`,
+      choices: [
+        { label: `${usd(n.rent * 2)}: 2 months’ rent, because you’re a small landlord (unless the tenant is a service member)`, verdict: 'best', why: 'Since July 1, 2024, most California landlords may take only 1 month’s rent. A landlord who is a person, or an LLC of people, with no more than two rental properties and four units in all may take up to 2 months, but not from a service member (Civil Code 1950.5). Return it, with an itemized statement, within 21 days after the tenant moves out.' },
+        { label: `${usd(n.rent * 3)}: 3 months’ rent`, verdict: 'poor', why: 'That’s over California’s limit. 3 months is Nevada’s cap, not California’s (Civil Code 1950.5).' },
+        { label: `${usd(n.rent)}: 1 month’s rent`, verdict: 'ok', why: 'Lawful, and the limit for most California landlords. As a small landlord you could take more, but you don’t have to.' },
+      ],
+    },
+    {
+      kind: 'choice',
+      id: 'ca-rent-cap',
+      prompt: 'In California, this single-family home is more than 15 years old. Do the statewide rent cap and just-cause rules (the Tenant Protection Act) apply to your lease?',
+      choices: [
+        { label: 'They don’t have to: a single-family home owned by a person, not a corporation or REIT, can be exempt, but only if the lease gives the tenant the written exemption notice the law requires. Without the notice, they apply.', verdict: 'best', why: 'That’s California’s rule (Civil Code 1947.12 and 1946.2). The cap limits most increases in 12 months to 5% plus inflation, never more than 10%. Some cities add their own rules; check yours.' },
+        { label: 'No. Single-family homes are always exempt.', verdict: 'poor', why: 'Only with the right notice in the lease, and only when no corporation or REIT owns it. Miss the notice and the cap and just-cause rules apply.' },
+        { label: 'Yes, every rental in California is covered.', verdict: 'ok', why: 'Safe to assume if you’re unsure, but not accurate: some homes are exempt, and this one can be, with the notice.' },
+      ],
+    },
+  ],
+  rentLog: (n) => `Deposit at or under ${usd(n.rent * 2)} (small-landlord limit), returned within 21 days with an itemized statement. Tenant Protection Act exemption notice in the lease (California).`,
+};
+
+// Arizona: same house and price. Owner-occupied homes get a rebate on part of the school tax (A.R.S. 15-972), a rental
+// doesn't, and rentals must be registered with the county assessor (A.R.S. 33-1902). The contract is the Arizona
+// REALTORS® resale contract, with a 10-day inspection period. Deposits: A.R.S. 33-1321.
+const AZ: CaseConfig = {
+  state: 'AZ',
+  stateName: 'Arizona',
+  abbr: 'AZ',
+  city: 'Tucson',
+  savings: 142_000,
+  taxYear: 1_860,
+  listedTax: '$1,380 (the seller’s bill, with the owner-occupant rebate)',
+  insuranceYear: 1_320,
+  deductible: '$2,500',
+  notCovered: 'Flood. Earthquake.',
+  exclusions: 'This one already excludes flood, earthquake, and vandalism after 60 empty days.',
+  insuranceLog: 'No flood or earthquake. 60-day vacancy limit.',
+  rents: [2_000, 2_100, 2_050, 2_650, 2_295],
+  rent: 2_050,
+  rentClaim: 2_300,
+  loanTasks: (n) => [
+    {
+      kind: 'choice',
+      id: 'az-taxes',
+      prompt: 'The listing shows $1,380 in property taxes last year. What do you budget, as an owner who won’t live there?',
+      choices: [
+        { label: `About ${usd(1_860)} a year (${usd(n.tax)} a month): the bill without the owner-occupant rebate.`, verdict: 'best', why: 'In Arizona, a home its owner lives in gets a rebate on part of the school tax, up to $600 a year (A.R.S. 15-972). A rental doesn’t, so your bill will be higher than the seller’s. This practice adds about $480.' },
+        { label: '$1,380: that’s what the listing says.', verdict: 'poor', why: 'That bill had the seller’s rebate. Your bill as a landlord will be higher, and the gap comes out of your cash flow every month.' },
+        { label: 'Ask the county assessor and treasurer how the bill changes for a rental, and budget from that.', verdict: 'ok', why: 'The right check before you offer. Until you have the numbers, budget the bill without the rebate.' },
+      ],
+    },
+  ],
+  contractNote: 'The contract is the Arizona REALTORS® Residential Resale Real Estate Purchase Contract. The inspection period is 10 days unless you write in another number. The other numbers below are this practice contract’s; real contracts differ, and missing a deadline can cost you your earnest money.',
+  contractRows: (n) => [
+    ['Acceptance (Day 0)', 'The day the signed acceptance is delivered to you. The other deadlines count from it.'],
+    ['Earnest money', `${usd(n.earnest)}, deposited on acceptance with the escrow company (the contract also allows a broker’s trust account)`],
+    ['Inspection period', 'Ends Day 10. You can cancel for any reason before then, in writing on the Buyer’s Inspection Notice and Seller’s Response (BINSR), listing the items you disapprove.'],
+    ['Repair requests', 'If you ask for repairs instead, the seller has 5 days to answer (no answer counts as a no), and then you have 5 days to cancel or go ahead without the repairs the seller refused.'],
+    ['Appraisal', 'If the appraisal comes in under the price, you can cancel within 5 days after you’re told the value, and get the earnest money back.'],
+    ['Loan', 'If the loan falls through, tell the seller in writing no later than 3 days before close of escrow to keep your earnest money.'],
+    ['HOA documents', 'The seller orders them. Review them in your inspection period, and ask your agent how much time you get if they arrive late.'],
+    ['Close of escrow', 'Day 30'],
+    ['Counting days', 'Calendar days, each ending at 11:59 p.m. Ask your agent how the contract treats a deadline on a weekend or holiday.'],
+  ],
+  dates: [
+    { when: 'Day 0', what: 'Acceptance is delivered to you. Every deadline below counts from here.' },
+    { when: 'On acceptance (Day 0)', what: 'Earnest money to the escrow company, by the time your contract sets (confirm the instructions by phone first). You: the buyer.' },
+    { when: 'Day 10', what: 'Inspection period ends: cancel, ask for repairs on the BINSR, or go ahead, in writing. You, with your agent.' },
+    { when: 'When the HOA documents arrive', what: 'Read the rental rules and the budget. Write down the day they arrive.' },
+    { when: 'Within 5 days after you learn the appraised value', what: 'Cancel in writing if it’s under the price and you won’t go ahead. You, with your lender’s appraisal.' },
+    { when: 'Day 27 (3 days before close of escrow)', what: 'Last day to tell the seller in writing that you can’t get the loan, and keep your earnest money.' },
+    { when: 'Day 30', what: 'Close of escrow.' },
+  ],
+  depositLog: (n) => `Earnest money ${usd(n.earnest)}`,
+  roofFinding: 'Tile is fine. The underlayment beneath it has about 4–6 years left.',
+  roofPart: 'roof underlayment',
+  cancelInspection: 'Cancel in writing before the inspection period ends (Day 10), and get the earnest money back.',
+  leaveInspection: 'During your inspection period you can cancel for any reason, in writing on the BINSR, listing the items you disapprove, and get the earnest money back.',
+  lateInspection: 'After Day 10 the inspection period is over. You’d lose the right to cancel over the inspection, and maybe your earnest money.',
+  cancelShort: 'Cancel in writing before Day 10.',
+  periodName: 'end of the inspection period',
+  protections: 'an inspection period and the appraisal and loan contingencies',
+  licenseQuestion: '“Are you licensed by the Arizona Registrar of Contractors for this work, and can I see your license number?”',
+  appraisalName: 'appraisal contingency',
+  cancelAppraisal: 'Cancel in writing within 5 days after you learn the appraised value, and get the earnest money back.',
+  leaveAppraisal: 'Your appraisal contingency lets you cancel within 5 days after you learn the value, when it’s under the price.',
+  roofer: 'Desert Example Roofing',
+  lienWhy: 'It’s a recorded claim against the house. In Arizona, a contractor must record the lien within 120 days after the work is finished (60 days after a notice of completion is recorded), and it lapses 6 months after recording unless the contractor sues to enforce it (A.R.S. 33-993 and 33-998). Either way, the title company wants it released or cleared on the record before closing. Ask the title officer how, and whether a lawsuit was filed.',
+  earnestPaid: 'to the escrow company when the contract was accepted',
+  earnestCredit: (n) => `${usd(n.earnest)} earnest money`,
+  earnestShort: 'earnest money',
+  rentRulesNote: 'Rules on deposits, entry and rental registration are state law. The ones below are Arizona’s, because this practice house is in Arizona.',
+  rekeyWhy: 'You don’t know who else has keys.',
+  rentTasks: (n) => [
+    {
+      kind: 'choice',
+      id: 'az-deposit',
+      prompt: `In Arizona, what is the most you can take as a security deposit at ${usd(n.rent)} a month rent?`,
+      choices: [
+        { label: `${usd(n.rent * 1.5)}: 1½ months’ rent`, verdict: 'best', why: 'Arizona caps it at 1½ months’ rent, unless the tenant chooses to pay more rent in advance (A.R.S. 33-1321). Return it, with an itemized list of deductions, within 14 days, not counting weekends and holidays, after the tenancy ends, the tenant moves out and asks for it.' },
+        { label: `${usd(n.rent * 3)}: 3 months’ rent`, verdict: 'poor', why: 'That’s over Arizona’s limit. 3 months is Nevada’s cap, not Arizona’s (A.R.S. 33-1321).' },
+        { label: `${usd(n.rent)}: 1 month’s rent`, verdict: 'ok', why: 'A common choice, and lawful. But it’s your choice, not the limit.' },
+      ],
+    },
+    {
+      kind: 'choice',
+      id: 'az-register',
+      prompt: 'In Arizona, what must you file with the county assessor once you rent it out?',
+      choices: [
+        { label: 'Register it as a residential rental, with the owner’s name and address and a contact for the property.', verdict: 'best', why: 'Arizona requires it (A.R.S. 33-1902). A newly bought rental that isn’t registered can be fined $1,000 plus $100 a month; registering within 10 days of a complaint avoids the penalty.' },
+        { label: 'Nothing. The deed is already recorded in your name.', verdict: 'poor', why: 'Recording the deed doesn’t register the rental. In Arizona that’s a separate filing with the county assessor.' },
+      ],
+    },
+  ],
+  rentLog: (n) => `Deposit at or under ${usd(n.rent * 1.5)}, returned within 14 days (not counting weekends and holidays) with an itemized list. Registered with the county assessor as a rental (Arizona).`,
+};
+
+// Utah: same house and price. A long-term rental that is the tenant's main home keeps the 45% residential exemption; a
+// short-term rental loses it, and the owner files a declaration with the county assessor (Utah Code 59-2-102, 59-2-103, 59-2-103.5). The contract is the Utah REPC, where you and the seller
+// write in the Due Diligence and Financing & Appraisal deadlines. Deposits: Utah Code 57-17-3.
+const UT: CaseConfig = {
+  state: 'UT',
+  stateName: 'Utah',
+  abbr: 'UT',
+  city: 'Ogden',
+  savings: 142_000,
+  taxYear: 1_560,
+  listedTax: '$1,560 (with the 45% residential exemption)',
+  insuranceYear: 960,
+  deductible: '$2,500',
+  notCovered: 'Flood. Earthquake.',
+  exclusions: 'This one already excludes flood, earthquake, and vandalism after 60 empty days.',
+  insuranceLog: 'No flood or earthquake. 60-day vacancy limit.',
+  rents: [1_950, 2_050, 2_000, 2_600, 2_245],
+  rent: 2_000,
+  rentClaim: 2_250,
+  loanTasks: (n) => [
+    {
+      kind: 'choice',
+      id: 'ut-taxes',
+      prompt: 'The listing shows $1,560 in property taxes last year, with Utah’s 45% residential exemption. You plan a long-term rental. What do you budget?',
+      choices: [
+        { label: `About ${usd(1_560)} a year (${usd(n.tax)} a month): a long-term rental keeps the exemption when it’s the tenant’s main home. File the county’s declaration that it’s a tenant’s main home.`, verdict: 'best', why: 'In Utah, a home that is someone’s main home is taxed on 55% of its value, and a long-term rental counts when it’s the tenant’s (Utah Code 59-2-103). Before the county gives the exemption to a rental, each owner must file a written declaration with the county assessor that it will be a tenant’s main home (Utah Code 59-2-103.5). Skip it and you can be taxed on the full value.' },
+        { label: `About ${usd(1_560)}, and you can switch to nightly rentals later with no change.`, verdict: 'poor', why: 'A short-term rental (under 30 days) loses the exemption and is taxed on its full value, so the bill would be about 80% higher, around $2,840 (Utah Code 59-2-102 and 59-2-103).' },
+        { label: 'Budget the full-value bill, about $2,840, to be safe.', verdict: 'ok', why: 'Safe, but for a long-term rental in Utah it overstates the tax and could make you pass on a deal that works.' },
+      ],
+    },
+  ],
+  contractNote: 'The contract is the Utah Real Estate Purchase Contract (REPC). You and the seller write in the deadlines; the ones below are this practice contract’s. Missing one can cost you your earnest money.',
+  contractRows: (n) => [
+    ['Acceptance (Day 0)', 'The day the signed acceptance is delivered to you. The other deadlines count from it.'],
+    ['Earnest money', `${usd(n.earnest)}, to the title company within 4 calendar days after acceptance`],
+    ['Due Diligence Deadline', 'Day 10. You can cancel for any reason, in writing, before then. If you don’t, the due diligence condition is waived.'],
+    ['Financing & Appraisal Deadline', 'Day 21. You can cancel by then if the appraisal comes in under the price.'],
+    ['Seller Disclosure Deadline', 'Day 3: the seller’s disclosures, including the HOA documents'],
+    ['Settlement Deadline', 'Day 30'],
+    ['Counting days', 'Calendar days. Ask your agent what time of day each deadline ends and how a weekend or holiday is treated.'],
+  ],
+  dates: [
+    { when: 'Day 0', what: 'Acceptance is delivered to you. Every deadline below counts from here.' },
+    { when: 'Day 3', what: 'Seller Disclosure Deadline: the seller’s disclosures and the HOA documents.' },
+    { when: 'Within 4 calendar days after Day 0', what: 'Earnest money to the title company (confirm the instructions by phone first). You: the buyer.' },
+    { when: 'Day 10', what: 'Due Diligence Deadline: cancel, ask for changes, or go ahead, in writing. You, with your agent.' },
+    { when: 'Day 21', what: 'Financing & Appraisal Deadline. You, with your lender and the appraisal.' },
+    { when: 'Day 30', what: 'Settlement at the title company.' },
+  ],
+  depositLog: (n) => `Earnest money ${usd(n.earnest)}`,
+  roofFinding: 'Composition shingles with about 4–6 years left.',
+  roofPart: 'composition shingle roof',
+  cancelInspection: 'Cancel in writing before the Due Diligence Deadline (Day 10), and get the earnest money back.',
+  leaveInspection: 'Until the Due Diligence Deadline you can cancel for any reason, in writing, and get the earnest money back.',
+  lateInspection: 'After the Due Diligence Deadline (Day 10), the due diligence condition is waived. You’d lose the right to cancel over the inspection, and maybe your earnest money.',
+  cancelShort: 'Cancel in writing before Day 10.',
+  periodName: 'Due Diligence Deadline',
+  protections: 'due diligence, appraisal and financing conditions',
+  licenseQuestion: '“Are you licensed by Utah’s Division of Professional Licensing (DOPL) for this work, and can I see your license number?”',
+  appraisalName: 'appraisal condition',
+  cancelAppraisal: 'Cancel in writing by the Financing & Appraisal Deadline (Day 21), and get the earnest money back.',
+  leaveAppraisal: 'Your appraisal condition lets you cancel by the Financing & Appraisal Deadline when the appraisal is under the price.',
+  roofer: 'Wasatch Example Roofing',
+  lienWhy: 'It’s a recorded claim against the house. In Utah, a contractor must record the lien within 180 days after the work is finished (90 days after a notice of completion, if one was filed), and sue to enforce it within 180 days after recording it (Utah Code 38-1a-502 and 38-1a-701). Either way, the title company wants it released or cleared on the record before closing. Ask the title officer how, and whether a lawsuit was filed.',
+  earnestPaid: 'to the title company within 4 calendar days after acceptance',
+  earnestCredit: (n) => `${usd(n.earnest)} earnest money`,
+  earnestShort: 'earnest money',
+  rentRulesNote: 'Rules on deposits and entry are state law. The ones below are Utah’s, because this practice house is in Utah.',
+  rekeyWhy: 'You don’t know who else has keys.',
+  rentTasks: (n) => [
+    {
+      kind: 'choice',
+      id: 'ut-deposit',
+      prompt: `In Utah, what is the most you can take as a security deposit at ${usd(n.rent)} a month rent?`,
+      choices: [
+        { label: 'Utah law sets no limit. Pick an amount the market accepts, and return what’s left with a written list of deductions within 30 days after the tenant moves out.', verdict: 'best', why: 'Utah doesn’t cap deposits. Within 30 days after the tenant moves out and returns possession, send what’s left of it with a written list of deductions (Utah Code 57-17-3).' },
+        { label: `${usd(n.rent * 3)}, the legal maximum`, verdict: 'poor', why: 'Utah has no legal maximum; 3 months’ rent is Nevada’s cap. And a very high deposit can cost you good tenants.' },
+        { label: `${usd(n.rent)}: 1 month’s rent`, verdict: 'ok', why: 'A common choice, and lawful. But it’s your choice, not a limit.' },
+      ],
+    },
+    {
+      kind: 'choice',
+      id: 'ut-entry',
+      prompt: 'In Utah, your tenant’s faucet leaks and you want to fix it. What notice do you give before going in?',
+      choices: [
+        { label: 'At least 24 hours’ notice, unless the lease says otherwise or it’s an emergency.', verdict: 'best', why: 'That’s Utah’s rule (Utah Code 57-22-4). Put your entry terms in the lease.' },
+        { label: 'None. You own the house.', verdict: 'poor', why: 'Once it’s rented, the tenant has the right to possession. In Utah, give 24 hours’ notice unless the lease says otherwise or it’s an emergency.' },
+      ],
+    },
+  ],
+  rentLog: () => 'Deposit balance returned with a written list of deductions within 30 days after move-out. 24 hours’ notice before entry, unless the lease says otherwise. Exemption declaration filed with the county assessor (Utah).',
 };
 
 /** One state's version of the purchase: its numbers and its steps. */
@@ -740,7 +1027,7 @@ function buildCase(c: CaseConfig) {
           choices: [
             { label: 'Call the escrow officer at a phone number you already trust (from your agent or the escrow company’s website) to confirm the instructions before sending anything.', verdict: 'best', why: 'Fake wiring emails are a common scam in real estate, and wired money is very hard to get back. Always confirm by phone with a number you found yourself.' },
             { label: 'Reply to the email to confirm it’s real.', verdict: 'poor', why: 'If the email is fake, the scammer answers. Use a number you found yourself.' },
-            { label: 'Wire it right away so you don’t miss the 3-day deadline.', verdict: 'poor', why: 'A quick call takes minutes. A wire sent to a scammer is usually gone for good.' },
+            { label: 'Wire it right away so you don’t miss the deposit deadline.', verdict: 'poor', why: 'A quick call takes minutes. A wire sent to a scammer is usually gone for good.' },
           ],
         },
       ],
@@ -1157,8 +1444,12 @@ function buildCase(c: CaseConfig) {
 export type PracticeCase = ReturnType<typeof buildCase>;
 export const NV_CASE = buildCase(NV);
 export const TX_CASE = buildCase(TX);
-/** The practice purchase for a state: Texas has its own house; every other state uses the Nevada one. */
-export const caseFor = (state: string | null | undefined): PracticeCase => (state === 'TX' ? TX_CASE : NV_CASE);
+export const CA_CASE = buildCase(CA);
+export const AZ_CASE = buildCase(AZ);
+export const UT_CASE = buildCase(UT);
+const CASES: Record<string, PracticeCase> = { NV: NV_CASE, TX: TX_CASE, CA: CA_CASE, AZ: AZ_CASE, UT: UT_CASE };
+/** The practice purchase for a state: each covered state has its own house; with no state chosen, Nevada's. */
+export const caseFor = (state: string | null | undefined): PracticeCase => CASES[state ?? ''] ?? NV_CASE;
 
 /** The Nevada version's numbers and steps (the default). */
 export const N = NV_CASE.N;

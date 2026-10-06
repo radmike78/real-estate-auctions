@@ -59,7 +59,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
           <span className="muted"> About 45 minutes · {practiceCase.property} · {practiceCase.stateName} rules{practiceCase.state === 'TX' ? ', with the TREC contract' : ''}</span>
         </section>
         <h2 className="section-title">More practice</h2>
-        <p>The start-to-finish purchase has a Nevada house and a Texas house; you see the one for your state (Nevada if you haven’t chosen one, or chose another state). The auction practice below follows Nevada rules (Clark County), with Texas drills for Texas sales; other states’ rules are in the <a href="#/playbooks">sale guides</a>. The quick “Would you buy it?” drills are further down.</p>
+        <p>The start-to-finish purchase has a practice house in each state we cover: Nevada, California, Arizona, Utah and Texas. You see the one for your state (Nevada if you haven’t chosen one). The auction practice below follows Nevada rules (Clark County), with Texas drills for Texas sales; other states’ rules are in the <a href="#/playbooks">sale guides</a>. The quick “Would you buy it?” drills are further down.</p>
         <NarrowDown config={practiceConfig(getMyState())} intro="Answer a few quick questions and we’ll suggest a practice purchase or drills to start with. Everything is still listed below." />
         <h2 className="practice-step"><span aria-hidden>1</span> Choose a kind of sale</h2>
         <div className="practice-sales">

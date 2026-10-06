@@ -4,7 +4,7 @@ import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import { PracticeRibbon } from './PracticePage';
 import { CASE_TITLE, NV_CASE, caseFor, tasksFor, walkedFrom, type CaseDoc, type CaseStage, type CaseTask, type PracticeCase, type Verdict } from '../practice/rentalCase';
-import { getMyState, useMyState } from '../lib/myState';
+import { useMyState } from '../lib/myState';
 import { docGuide } from '../lib/docGuides';
 import DocGuideView from './DocGuideView';
 import { emptyCase, loadCase, saveCase, type CaseProgress } from '../practice/caseProgress';
@@ -21,52 +21,8 @@ const VERDICT: Record<Verdict, string> = { best: 'Strong choice', ok: 'Reasonabl
  * "Buy a rental, start to finish": one fictional purchase, worked from your budget to the first months of renting.
  * Each step gives you documents to read and decisions to make, and ends with something for your deal packet.
  */
-/** How buying a listed rental differs from the Nevada case, for visitors in states without their own case. */
-const CASE_DIFFERS: Record<string, { name: string; lines: string[]; guide: string }> = {
-  CA: {
-    name: 'California',
-    lines: [
-      'The contract is usually the C.A.R. Residential Purchase Agreement, with a 17-day default for inspections, the loan and the appraisal, and an escrow company runs the closing.',
-      'The seller owes you disclosures such as the Transfer Disclosure Statement and the Natural Hazard Disclosure.',
-      'Property tax resets to about 1% of your price plus local charges (Prop 13), so the seller’s tax bill isn’t yours.',
-      'Most rentals over 15 years old fall under the statewide rent cap (AB 1482); a single-family home owned by an individual is exempt only with the right notice to the tenant. Some cities are stricter.',
-    ],
-    guide: 'careo',
-  },
-  AZ: {
-    name: 'Arizona',
-    lines: [
-      'The contract is usually the Arizona REALTORS® Residential Resale Purchase Contract, with a 10-day inspection period by default, and a title company handles escrow.',
-      'State law doesn’t let cities control rents (A.R.S. 33-1329); the landlord-tenant act sets deposits and notices.',
-    ],
-    guide: 'azreo',
-  },
-  UT: {
-    name: 'Utah',
-    lines: [
-      'The contract is usually the Utah REPC, where you and the seller set the due-diligence, financing and appraisal deadlines, and a title company closes.',
-      'A long-term rental keeps Utah’s 45% residential property-tax exemption when it’s the tenant’s main home; a short-term rental loses it (Utah Code 59-2-103).',
-      'State law doesn’t allow local rent control.',
-    ],
-    guide: 'utreo',
-  },
-};
-
-/** For visitors outside Nevada and Texas: this case uses Nevada rules, and what's different in their state. */
-function CaseStateNote({ state }: { state: string | null }) {
-  const d = state ? CASE_DIFFERS[state] : undefined;
-  if (!d) return null;
-  return (
-    <div className="caution" role="note">
-      <strong>This house uses Nevada rules. In {d.name}, a few things differ:</strong>
-      <ul>{d.lines.map((l) => <li key={l}>{l}</li>)}</ul>
-      The steps and the judgment calls are the same. Before a real deal, read the <a href={`#/playbooks/${d.guide}`}>{d.name} bank-owned guide</a> for the state’s forms and deadlines.
-    </div>
-  );
-}
-
 export default function RentalCasePage({ stageKey }: { stageKey?: string }) {
-  // Texas visitors get the Texas house (TREC contract, Texas taxes and landlord rules); everyone else the Nevada one.
+  // Each covered state has its own house (its contract, taxes and landlord rules); with no state chosen, Nevada's.
   const [st] = useMyState();
   C = caseFor(st);
   return <CasePage key={C.state} stageKey={stageKey} />;
@@ -109,7 +65,6 @@ function CasePage({ stageKey }: { stageKey?: string }) {
         sub={stage || packet ? C.property : `${C.property}. You’ll read teaching versions of a purchase’s paperwork (fictional extracts, each with a guide to the real form), make the calls, and finish with your own deal packet.`}
       />
       <PracticeRibbon />
-      <CaseStateNote state={getMyState()} />
       <nav className="practice-stages" aria-label="Steps in this practice purchase" id="case-top">
         <a href="#/practice/case" className={!stage && !packet ? 'active' : ''}>Start</a>
         {C.stages.map((st, i) => (

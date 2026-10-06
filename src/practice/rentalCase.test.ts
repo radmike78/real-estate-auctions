@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { N, payment, RENTAL_CASE, TX_CASE, caseFor } from './rentalCase';
+import { AZ_CASE, CA_CASE, N, payment, RENTAL_CASE, TX_CASE, UT_CASE, caseFor } from './rentalCase';
 import { cleanCase } from './caseProgress';
 
 describe('Buy a rental, start to finish', () => {
@@ -157,14 +157,14 @@ describe('the Texas practice house', () => {
     const keys = TX_CASE.stages.map((s) => s.key);
     expect(keys).toEqual(RENTAL_CASE.map((s) => s.key));
     expect(caseFor('TX')).toBe(TX_CASE);
-    expect(caseFor('UT').state).toBe('NV');
+    expect(caseFor(null).state).toBe('NV');
   });
 });
 
 describe('the replacement decision comes at the inspection', () => {
   it('asks for the roof and water-heater budget before the inspection deadline, and the honest answer is not a profit', async () => {
     const { caseFor } = await import('./rentalCase');
-    for (const st of ['NV', 'TX'] as const) {
+    for (const st of ['NV', 'TX', 'CA', 'AZ', 'UT'] as const) {
       const c = caseFor(st);
       const insp = c.stages.find((s) => s.key === 'inspection')!;
       const ids = insp.tasks.map((t) => t.id);
@@ -179,4 +179,38 @@ describe('the replacement decision comes at the inspection', () => {
       expect(fit.choices.find((ch) => /makes about/.test(ch.label))!.verdict, st).toBe('poor');
     }
   });
+});
+
+describe('the California, Arizona and Utah practice houses', () => {
+  const cases = [
+    { c: CA_CASE, name: 'California', city: 'Bakersfield', law: /Civil Code|Proposition 13/, must: [/contingency removal/, /Proposition 13/, /1950\.5/, /Tenant Protection Act/] },
+    { c: AZ_CASE, name: 'Arizona', city: 'Tucson', law: /A\.R\.S\./, must: [/inspection period/, /BINSR/, /33-1321/, /33-1902/, /15-972/] },
+    { c: UT_CASE, name: 'Utah', city: 'Ogden', law: /Utah Code/, must: [/Due Diligence Deadline/, /Financing & Appraisal Deadline/, /59-2-103/, /57-17-3/] },
+  ];
+  for (const { c, name, city, law, must } of cases) {
+    it(`${name}: numbers add up, the cash fits, and the rent covers the costs before big replacements`, () => {
+      const n = c.N;
+      expect(c.state).toBe(c.state.toUpperCase());
+      expect(n.pitiaOffer).toBe(n.piOffer + n.tax + n.insurance + n.hoa);
+      expect(n.cashFlow).toBe(n.rent - 3 * n.setAside - n.tax - n.insurance - n.hoa - n.piFinal);
+      expect(n.cashFlow).toBeGreaterThan(0);
+      expect(n.cashFinal).toBeLessThanOrEqual(n.investable);
+      expect(n.cashRenegotiated).toBeLessThanOrEqual(n.investable);
+      expect(n.investable - n.cashOffer - n.urgent).toBeGreaterThan(0);
+      expect(n.investable - n.cashOffer - n.urgent).toBeLessThan(3_000);
+    });
+
+    it(`${name}: uses ${name}'s rules, names ${name} wherever it cites one, and keeps no other state's`, () => {
+      const text = JSON.stringify(c.stages);
+      expect(text).not.toMatch(/NRS |Henderson|Round Rock|option period|TREC|Texas|Property Code|homestead/);
+      expect(text).toContain(city);
+      for (const m of must) expect(text).toMatch(m);
+      for (const st of c.stages)
+        for (const t of st.tasks)
+          if (t.kind === 'choice')
+            for (const ch of t.choices) if (law.test(ch.why)) expect(`${t.prompt} ${ch.label} ${ch.why}`, t.id).toContain(name);
+      expect(c.stages.map((s) => s.key)).toEqual(RENTAL_CASE.map((s) => s.key));
+      expect(caseFor(c.state)).toBe(c);
+    });
+  }
 });

@@ -1,7 +1,7 @@
 // "Not sure where to start?": a few plain questions at the top of a crowded page that narrow it to two or three
 // places to begin, each with the reason. Every page still shows all of its options below. "Not sure" answers get a
 // suggestion the visitor can accept.
-import type { StateCode } from './regions';
+import { stateByCode, type StateCode } from './regions';
 import { drillById } from '../practice/drills';
 import { PRACTICE_PROPERTIES } from '../practice/properties';
 import { playbookByKey } from './playbooks';
@@ -133,10 +133,10 @@ export function practiceConfig(myState: string | null): NarrowConfig {
         const why = (k: string) => salesFor(buy, property).find((x) => x.kind === k)?.why ?? '';
         if (buy === 'agent') {
           if (property === 'commercial') return [run('reo', prop, why('reo')), drill('retail-strip', 'Then a quick decision on a small retail building’s leases and income.')];
-          // A home from a listing: the full rental purchase comes first (the page's "Start here"), in Texas rules for
-          // Texas and Nevada rules everywhere else.
+          // A home from a listing: the full rental purchase comes first (the page's "Start here"), in the rules of the
+          // visitor's state (each covered state has its own practice house).
           if (prop === 'house') {
-            const caseState = st === 'tx' ? 'Texas' : 'Nevada';
+            const caseState = stateByCode(st.toUpperCase())?.name ?? 'Nevada';
             return [
               { label: 'Buy a rental, start to finish', href: '#/practice/case', why: `The most common first deal: a listed home with a loan, from the offer to the first tenant. It follows ${caseState} rules.` },
               drill('rental-265', 'Then a quick one: is a rental worth it at this price?'),
