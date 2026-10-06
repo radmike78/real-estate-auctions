@@ -70,6 +70,9 @@ export interface RedemptionPreset {
 
 const NONE: RedemptionPreset = { label: 'No redemption', months: 0, ratePct: 0, daily: 0, flat: 0, flat2Pct: 0 };
 const IRS: RedemptionPreset = { label: 'IRS seizure sale: 180 days, +20% a year', months: 6, ratePct: 20, daily: 1, flat: 0, flat2Pct: 0 };
+// 26 USC 7425(d): a nonjudicial sale (trustee or HOA) that wipes out a junior federal tax lien leaves the United States
+// 120 days to redeem, paying the price plus 6% a year and certain expenses.
+const US_FEDERAL: RedemptionPreset = { label: 'Federal tax lien was on title: the United States can redeem for 120 days, +6% a year', months: 4, ratePct: 6, daily: 0, flat: 0, flat2Pct: 0 };
 
 /** Redemption rules after each kind of sale in a state, for the calculator's "Kind of sale" menu. */
 export function redemptionPresetsFor(state: StateCode): Record<string, RedemptionPreset> {
@@ -79,6 +82,7 @@ export function redemptionPresetsFor(state: StateCode): Record<string, Redemptio
       caJudicialPaid: { label: 'Judicial foreclosure, debt paid: 3 months, +10% a year', months: 3, ratePct: 10, daily: 0, flat: 0, flat2Pct: 0 },
       caJudicialShort: { label: 'Judicial foreclosure, debt not paid: 1 year, +10% a year', months: 12, ratePct: 10, daily: 0, flat: 0, flat2Pct: 0 },
       irs: IRS,
+      usFederal: US_FEDERAL,
     };
   if (state === 'AZ')
     return {
@@ -87,6 +91,7 @@ export function redemptionPresetsFor(state: StateCode): Record<string, Redemptio
       azJudicialAbandoned: { label: 'Judicial foreclosure, abandoned: 30 days, +8% of the price', months: 1, ratePct: 8, daily: 0, flat: 1, flat2Pct: 0 },
       azJudicial: { label: 'Judicial foreclosure: 6 months, +8% of the price', months: 6, ratePct: 8, daily: 0, flat: 1, flat2Pct: 0 },
       irs: IRS,
+      usFederal: US_FEDERAL,
     };
   if (state === 'TX')
     return {
@@ -101,6 +106,7 @@ export function redemptionPresetsFor(state: StateCode): Record<string, Redemptio
       // Property Code 82.113(g): 90 days after the sale; the bid plus 6% a year.
       txHoaCondo: { label: 'Condominium association sale: 90 days, +6% a year', months: 3, ratePct: 6, daily: 0, flat: 0, flat2Pct: 0 },
       irs: IRS,
+      usFederal: US_FEDERAL,
     };
   if (state === 'UT')
     return {
@@ -108,12 +114,14 @@ export function redemptionPresetsFor(state: StateCode): Record<string, Redemptio
       // Utah R. Civ. P. 69C(e): the sale price plus 6%, flat.
       utSheriff: { label: 'Sheriff’s sale: 180 days, +6% of the price', months: 6, ratePct: 6, daily: 0, flat: 1, flat2Pct: 0 },
       irs: IRS,
+      usFederal: US_FEDERAL,
     };
   return {
     none: NONE,
     hoa: { label: 'HOA foreclosure: 60 days, +1% a month', months: 2, ratePct: 12, daily: 0, flat: 0, flat2Pct: 0 },
     sheriff: { label: 'Sheriff’s sale: 1 year, +1% a month', months: 12, ratePct: 12, daily: 0, flat: 0, flat2Pct: 0 },
     irs: IRS,
+    usFederal: US_FEDERAL,
   };
 }
 
@@ -132,11 +140,13 @@ export function redemptionChoicesFor(state: StateCode, kind: string): { keys: st
     };
   if (kind === 'hoa' && state === 'TX')
     return {
-      keys: ['txHoaSubdivision', 'txHoaCondo'],
+      keys: ['txHoaSubdivision', 'txHoaCondo', 'usFederal'],
       start: 'txHoaSubdivision',
       confirm: 'Whether this is a subdivision HOA (Property Code 209: 180 days after the HOA mails notice of the sale) or a condominium association (82: 90 days after the sale) isn’t confirmed yet. The longer subdivision wait is assumed until you read the recorded declaration: a townhome can be either.',
     };
-  if (kind === 'hoa') return { keys: has('hoa') ? ['hoa'] : ['none'], start: has('hoa') ? 'hoa' : 'none' };
+  if (kind === 'hoa') return { keys: has('hoa') ? ['hoa', 'usFederal'] : ['none', 'usFederal'], start: has('hoa') ? 'hoa' : 'none' };
+  // A trustee sale has no owner redemption in these states, but a junior federal tax lien gives the United States 120 days.
+  if (kind === 'trustee') return { keys: ['none', 'usFederal'], start: 'none' };
   if (kind === 'court') {
     if (state === 'NV') return { keys: ['sheriff'], start: 'sheriff' };
     if (state === 'UT') return { keys: ['utSheriff'], start: 'utSheriff' };

@@ -133,7 +133,7 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false }: { r:
       <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
         <span>{title}</span>
         <strong>{r.noBidWorks ? (offer ? 'No offer works' : 'No bid works') : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'}</strong>
-        <small>{r.noBidWorks ? 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.' : !Number.isFinite(r.maxBid) ? 'Enter the return you want, or the cash you can bring, to get a walk-away price.' : r.limitedBy === 'cash' ? (offer ? 'Set by the cash you can put in: the down payment, closing costs and repairs.' : 'Set by the cash you can bring: the bid and every cost until it’s ready to rent.') : target}</small>
+        <small>{r.noBidWorks ? (r.loanTooBig ? 'The refinance you entered costs more a year than the property earns, so no price works with that loan. Try a smaller loan, or run it all cash.' : 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.') : !Number.isFinite(r.maxBid) ? 'Enter the return you want, or the cash you can bring, to get a walk-away price.' : r.limitedBy === 'cash' ? (offer ? 'Set by the cash you can put in: the down payment, closing costs and repairs.' : 'Set by the cash you can bring: the bid and every cost until it’s ready to rent.') : target}</small>
       </div>
       {!offer && r.debtService > 0 && !r.noBidWorks && Number.isFinite(r.maxBid) && (
         <p className="calc-note small warn">
@@ -143,10 +143,11 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false }: { r:
       {!r.noBidWorks && Number.isFinite(r.maxBid) && (
         <dl className="calc-kv">
           {!offer && <div><dt>Cash needed on auction day</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
-          <div><dt>Everything you pay, ready to rent</dt><dd>{fmtMoney(Math.round(r.allIn))}</dd></div>
+          <div><dt>Everything you pay, ready to rent, before loan fees</dt><dd>{fmtMoney(Math.round(r.allIn))}</dd></div>
+          {r.loanFees > 0 && <div><dt>Including the loan’s points and fees</dt><dd>{fmtMoney(Math.round(r.allIn + r.loanFees))}</dd></div>}
           <div><dt>Net operating income (NOI), per year: after operating costs{r.reserves > 0 ? ', before reserves' : ''} and before the loan</dt><dd>{fmtMoney(Math.round(r.noi))}</dd></div>
           {r.reserves > 0 && <div><dt>Reserves for big replacements, per year</dt><dd>{fmtMoney(Math.round(r.reserves))}</dd></div>}
-          <div><dt>Return on everything you pay (cap rate on cost)</dt><dd>{pctText(r.capOnCost)}</dd></div>
+          <div><dt>Return on everything you pay before loan fees (cap rate on cost)</dt><dd>{pctText(r.capOnCost)}</dd></div>
           {r.debtService > 0 && <div><dt>Debt service: loan payments, per year</dt><dd>{fmtMoney(Math.round(r.debtService))}</dd></div>}
           <div><dt>Cash flow, per month: NOI minus {r.reserves > 0 ? 'reserves and ' : ''}loan payments</dt><dd>{fmtMoney(Math.round(r.cashFlow / 12))}</dd></div>
           {r.debtService > 0 && <div><dt>Your cash left in the deal</dt><dd>{r.cashLeft > 0 ? fmtMoney(Math.round(r.cashLeft)) : 'None: the loan repays it'}</dd></div>}
@@ -236,8 +237,8 @@ function AtThisPrice({ v, start, onPrice, setPrice }: { v: RentInputs; start: nu
         <input type="number" inputMode="numeric" min={0} max={1e9} step={1000} value={price || ''} onChange={(e) => { const n = Number(e.target.value); setPrice(Number.isFinite(n) ? Math.min(1e9, Math.max(0, n)) : 0); }} />
       </label>
       {price > 0 && (
-        <p className={`calc-verdict ${a.cashFlow > 0 && coc !== null && coc >= target ? 'good' : 'bad'}`} role="status">
-          <strong>Estimated return: {coc === null ? 'all your cash comes back' : pctText(coc)} a year on your cash; your target: {v.targetCocPct}%.</strong>{' '}
+        <p className={`calc-verdict ${a.cashFlow > 0 && (coc === null || coc >= target) ? 'good' : 'bad'}`} role="status">
+          <strong>{coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; your target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; your target: ${v.targetCocPct}%.`}</strong>{' '}
           {a.cashFlow <= 0
             ? `It loses about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month after every cost. Investigate whether the price, the costs or your plan should change, or walk away.`
             : coc !== null && coc < target
@@ -261,9 +262,10 @@ function AtThisPrice({ v, start, onPrice, setPrice }: { v: RentInputs; start: nu
         </tbody>
       </table>
       <dl className="calc-kv">
-        <div><dt>Everything you pay, ready to rent (price, buying costs, liens, title, possession, repairs)</dt><dd>{fmtMoney(Math.round(a.allIn))}</dd></div>
+        <div><dt>Everything you pay, ready to rent (price, buying costs, liens, title, possession, repairs; not loan fees)</dt><dd>{fmtMoney(Math.round(a.allIn))}</dd></div>
         {a.loan > 0 && <div><dt>Loan ({Math.min(v.loanPct, 100)}% of {onPrice ? `${fmtMoney(v.value > 0 ? Math.min(price, v.value) : price)}, the lower of the price and the value` : `the ${fmtMoney(v.value)} value`}, after {v.loanCostPct}% loan costs)</dt><dd>{fmtMoney(Math.round(a.loan * (1 - v.loanCostPct / 100)))}</dd></div>}
-        <div><dt>Your cash in the deal</dt><dd>{a.cashIn > 0 ? fmtMoney(Math.round(a.cashIn)) : 'None: the loan covers it'}{v.cashAvailable > 0 && a.cashIn > v.cashAvailable && <span className="deal-urgent"> · more than the {fmtMoney(v.cashAvailable)} you can put in</span>}</dd></div>
+        {!onPrice && a.loan > 0 && <div><dt>Your cash until the refinance closes</dt><dd>{fmtMoney(Math.round(a.allIn))}{v.cashAvailable > 0 && a.allIn > v.cashAvailable && <span className="deal-urgent"> · more than the {fmtMoney(v.cashAvailable)} you can put in</span>}</dd></div>}
+        <div><dt>{!onPrice && a.loan > 0 ? 'Your cash left in after the refinance, if approved' : 'Your cash in the deal'}</dt><dd>{a.cashIn > 0 ? fmtMoney(Math.round(a.cashIn)) : 'None: the loan covers it'}{(onPrice || !(a.loan > 0)) && v.cashAvailable > 0 && a.cashIn > v.cashAvailable && <span className="deal-urgent"> · more than the {fmtMoney(v.cashAvailable)} you can put in</span>}</dd></div>
         <div><dt>Cash-on-cash return: yearly cash flow ÷ your cash in</dt><dd>{a.cashOnCash === null ? 'All your cash is back' : pctText(a.cashOnCash)}</dd></div>
         <div><dt>Cap rate on the price: NOI ÷ price</dt><dd>{pctText(a.capOnPrice)}</dd></div>
         <div><dt>Cap rate on everything you pay</dt><dd>{pctText(a.capOnCost)}</dd></div>
@@ -350,7 +352,7 @@ const COMMERCIAL_GROUPS: CalcGroup<CommercialInputs>[] = [
   {
     title: 'Your target',
     fields: [
-      { k: 'targetCapPct', label: 'Cap rate you require on cost', unit: '%', hint: 'Income ÷ everything you pay.', more: 'Compare with the cap rates a local commercial broker or appraiser sees for this kind of property. Buying below market cap rates leaves no room for surprises.' },
+      { k: 'targetCapPct', label: 'Cap rate you require on cost', unit: '%', hint: 'Income ÷ everything you pay (before loan fees).', more: 'Compare with the cap rates a local commercial broker or appraiser sees for this kind of property. Buying below market cap rates leaves no room for surprises.' },
       { k: 'minDscr', label: 'Lender’s minimum coverage', unit: 'x', hint: 'Often 1.25 for commercial.', when: (v) => v.loanPct > 0 },
     ],
   },
@@ -366,7 +368,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
     <div className="calc">
       <div className="calc-inputs"><CalcFields groups={offer ? forOffer(ct.groups) : ct.groups} values={v} onChange={set} /></div>
       <div className="calc-results">
-        <HoldResults r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}.`} minDscr={v.minDscr} offer={offer} />
+        <HoldResults r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}.`} minDscr={v.minDscr} offer={offer} />
       </div>
     </div>
   );
@@ -380,7 +382,7 @@ const LIEN_GROUPS: CalcGroup<LienInputs>[] = [
     fields: [
       { k: 'price', label: 'Certificate price', unit: '$', hint: 'What you pay for it.' },
       { k: 'fees', label: 'Fees you pay', unit: '$', hint: 'Anything not repaid to you.' },
-      { k: 'ratePctMonth', label: 'Interest', unit: '%/mo', hint: '1% a month in Nevada (NRS 271.610).', more: 'The buyer is entitled to 1% a month on the price (NRS 271.610). Confirm the rate and terms in the notice of sale.' },
+      { k: 'ratePctMonth', label: 'Interest', unit: '%/mo', hint: 'Up to 1% a month in Nevada; confirm it in the notice of sale.', more: 'Nevada sets the redemption interest at up to 1% a month on the price (NRS 271.595, 271.610). Confirm the rate and terms in the notice of sale.' },
     ],
   },
   {

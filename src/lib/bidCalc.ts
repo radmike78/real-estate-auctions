@@ -60,8 +60,11 @@ export interface BidResult {
   repairsWithContingency: number;
   /** Cash you must bring on auction day at the max bid (bid + premium). */
   cashAtAuction: number;
-  /** Total cash in the deal at the max bid, through repairs and holding, net of any loan. */
+  /** Total cash in the deal at the max bid, through repairs and holding, net of any loan (once the loan funds). */
   cashToStabilize: number;
+  /** The most cash you'll have in at once: the bid and premium on the day, or every cost until you sell less the loan,
+   * whichever is more. A loan that funds later (often not until a redemption period ends) doesn't lower it. */
+  cashPeak: number;
   noBidWorks: boolean;
 }
 
@@ -138,6 +141,7 @@ export function maxSafeBid(i: BidInputs): BidResult {
   const breakEvenBid = Math.max(0, Math.floor(solve(i, 0)));
   const c = costsAtBid(i, maxBid);
   const cashToStabilize = r2(c.total - c.selling - c.loan);
+  const cashPeak = r2(cashNeededAtBid(i, maxBid));
   const profit = r2(profitAtBid(i, maxBid));
   const years = totalMonths(i) / 12;
   return {
@@ -145,19 +149,20 @@ export function maxSafeBid(i: BidInputs): BidResult {
     profitBid,
     limitedBy,
     profit,
-    yearlyReturn: maxBid > 0 && years > 0 && cashToStabilize > 0 ? profit / cashToStabilize / years : null,
+    yearlyReturn: maxBid > 0 && years > 0 && cashPeak > 0 ? profit / cashPeak / years : null,
     breakEvenBid,
     fixedCosts: r2(c.repairs + c.survivingLiens + c.titleLegal + c.possession + c.holding + c.selling),
     repairsWithContingency: r2(c.repairs),
     cashAtAuction: r2(maxBid + c.premium),
     cashToStabilize,
+    cashPeak,
     noBidWorks: maxBid <= 0,
   };
 }
 
 /**
  * If the owner redeems at the end of the wait: what the redemption repays on your price, and what you'd have spent by
- * then that it doesn't (premium, transfer tax, title work and holding costs). Some rules also repay taxes and
+ * then that it doesn't (premium, transfer tax, title work, holding costs, and loan interest and points). Some rules also repay taxes and
  * assessments you paid; this leaves them out, so it's the cautious figure.
  */
 export function redemptionOutcome(i: BidInputs, bid: number): { repaid: number; spent: number; net: number } | null {
@@ -165,10 +170,12 @@ export function redemptionOutcome(i: BidInputs, bid: number): { repaid: number; 
   if (!(months > 0) || !(bid > 0)) return null;
   const rate = nz(i.redemptionRatePct) / 100;
   const repaid = i.redemptionFlat ? bid * (1 + redemptionPremiumPct(i, months) / 100)
-    : i.redemptionDaily ? bid * (1 + rate / 365) ** Math.round((months * 365) / 12)
+    : i.redemptionDaily ? bid * (1 + rate / 365) ** Math.round(months * 30) // the IRS period is 180 days, not 6 calendar months
     : bid * (1 + (rate * months) / 12);
   const c = costsAtBid(i, bid);
-  const spent = bid + c.premium + c.transferTax + c.titleLegal + months * nz(i.monthlyCarry);
+  // Loan interest for the wait and the points are spent too, if any of the price was financed.
+  const loanCost = c.loan * ((nz(i.interestRatePct) / 100) * (months / 12) + nz(i.pointsPct) / 100);
+  const spent = bid + c.premium + c.transferTax + c.titleLegal + months * nz(i.monthlyCarry) + loanCost;
   return { repaid: r2(repaid), spent: r2(spent), net: r2(repaid - spent) };
 }
 

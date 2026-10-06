@@ -131,16 +131,16 @@ export const STRATEGY_LABEL: Record<Deal['plan'], string> = { rent: 'Keep and re
  */
 export function savedNumbers(d: Deal) {
   const offer = isOffer(d);
-  let rent: { price: number; monthly: number; cashIn: number; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
-  let bid: { maxBid: number; cashOnDay: number; cashTotal: number; exitValue: number } | null = null;
-  let commercial: { maxBid: number; noi: number; capPct: number; cashLeft: number; allIn: number } | null = null;
+  let rent: { price: number; monthly: number; cashIn: number; allIn: number; refi: boolean; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
+  let bid: { maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number } | null = null;
+  let commercial: { maxBid: number; noi: number; capPct: number; cashLeft: number; allIn: number; refi: boolean } | null = null;
   if (d.plan === 'rent') {
     const rentRaw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
     if (rentRaw) {
       const v = sanitizeNumbers(rentRaw, RENT_DEFAULTS) as RentInputs;
       if (v.atPrice > 0) {
         const a = rentAtPrice(v, v.atPrice, offer);
-        rent = { price: v.atPrice, monthly: a.cashFlow / 12, cashIn: a.cashIn, cashOnCash: a.cashOnCash, target: v.targetCocPct, stress: rentStress(v, v.atPrice, offer).map((s) => ({ label: s.label, monthly: s.monthly })) };
+        rent = { price: v.atPrice, monthly: a.cashFlow / 12, cashIn: a.cashIn, allIn: a.allIn, refi: !offer && a.loan > 0, cashOnCash: a.cashOnCash, target: v.targetCocPct, stress: rentStress(v, v.atPrice, offer).map((s) => ({ label: s.label, monthly: s.monthly })) };
       }
     }
   } else if (d.plan === 'flip') {
@@ -150,7 +150,7 @@ export function savedNumbers(d: Deal) {
       const i = offer ? offerInputs(saved) : saved;
       if (i.exitValue > 0) {
         const r = maxSafeBid(i);
-        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, exitValue: i.exitValue };
+        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue };
       }
     }
   } else if (d.plan === 'commercial') {
@@ -159,7 +159,7 @@ export function savedNumbers(d: Deal) {
       const v = sanitizeNumbers(raw, COMMERCIAL_DEFAULTS) as CommercialInputs;
       if (v.monthlyRent > 0) {
         const r = commercialMaxBid(v, offer);
-        if (!r.noBidWorks) commercial = { maxBid: r.maxBid, noi: r.noi, capPct: v.targetCapPct, cashLeft: r.cashLeft, allIn: r.allIn };
+        if (!r.noBidWorks && Number.isFinite(r.maxBid)) commercial = { maxBid: r.maxBid, noi: r.noi, capPct: v.targetCapPct, cashLeft: r.cashLeft, allIn: r.allIn, refi: !offer && r.debtService > 0 };
       }
     }
   }
@@ -235,15 +235,25 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   else if (p.earnest) cash.push(`Before the sale: ${money(p.earnest)} bidder deposit`);
   let need = 0;
   if (rent) {
-    need = rent.cashIn;
-    cash.push(`${offer ? 'At closing' : 'From sale day until it’s rented'}, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: down payment or bid, closing costs and repairs you entered)`);
+    if (rent.refi) {
+      // A refinance comes later, if at all: until then every dollar of the price and costs is your cash.
+      need = rent.allIn;
+      cash.push(`From sale day until the refinance closes, all in: ${money(rent.allIn)} at a ${money(rent.price)} price (from ${strategy}: bid, buying costs and repairs you entered)`);
+      cash.push(`After a refinance, if approved: ${rent.cashIn > 0 ? `${money(rent.cashIn)} of your cash left in` : 'the loan returns all your cash'}`);
+    } else {
+      need = rent.cashIn;
+      cash.push(`${offer ? 'At closing' : 'From sale day until it’s rented'}, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: down payment or bid, closing costs and repairs you entered)`);
+    }
   } else if (bid) {
-    need = bid.cashTotal;
-    cash.push(`${offer ? 'At closing' : 'On sale day'}, at your walk-away price: ${money(bid.cashOnDay)}${offer ? '' : ' (bid plus any buyer’s premium, in the form the sale requires)'}`);
-    cash.push(`Through repairs and holding until it sells: ${money(bid.cashTotal)} in all`);
+    need = bid.cashPeak;
+    if (!offer) cash.push(`On sale day, at your walk-away price: ${money(bid.cashOnDay)} (bid plus any buyer’s premium, in the form the sale requires)`);
+    cash.push(`Most cash you’ll have in at once, through repairs and holding until it sells: ${money(bid.cashPeak)}`);
+    if (bid.cashTotal < bid.cashPeak) cash.push(`Left in once the loan funds: ${money(bid.cashTotal)}`);
   } else if (commercial) {
-    need = commercial.cashLeft;
-    cash.push(`All in at your highest price: ${money(commercial.allIn)}, with ${money(commercial.cashLeft)} of your own cash left in (from ${strategy})`);
+    need = commercial.refi ? commercial.allIn : commercial.cashLeft;
+    cash.push(commercial.refi
+      ? `All in at your highest price, until a refinance closes: ${money(commercial.allIn)}; after a refinance, if approved: ${money(commercial.cashLeft)} left in (from ${strategy})`
+      : `All in at your highest price: ${money(commercial.allIn)}, with ${money(commercial.cashLeft)} of your own cash left in (from ${strategy})`);
   } else if (d.plan === 'lien') {
     cash.push('The certificate price and fees, from the Lien certificate calculator in Analyze.');
   } else {
