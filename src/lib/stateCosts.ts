@@ -59,59 +59,100 @@ export function propertyTaxHint(state: StateCode): { hint: string; more: string 
 export interface RedemptionPreset {
   label: string;
   months: number;
-  /** Simple yearly rate that repays what the law allows at the end of the wait (flat percentages converted). */
+  /** Yearly interest, or with flat: 1 the flat % of the price the law adds. */
   ratePct: number;
   daily: 0 | 1;
+  /** 1 when the law adds a flat % of the price, whenever in the wait the owner redeems. */
+  flat: 0 | 1;
+  /** The flat % for a redemption after 12 months, when it steps up (Texas homestead tax sales); else 0. */
+  flat2Pct: number;
 }
 
-const NONE: RedemptionPreset = { label: 'No redemption', months: 0, ratePct: 0, daily: 0 };
-const IRS: RedemptionPreset = { label: 'IRS seizure sale: 180 days, +20% a year', months: 6, ratePct: 20, daily: 1 };
+const NONE: RedemptionPreset = { label: 'No redemption', months: 0, ratePct: 0, daily: 0, flat: 0, flat2Pct: 0 };
+const IRS: RedemptionPreset = { label: 'IRS seizure sale: 180 days, +20% a year', months: 6, ratePct: 20, daily: 1, flat: 0, flat2Pct: 0 };
 
 /** Redemption rules after each kind of sale in a state, for the calculator's "Kind of sale" menu. */
 export function redemptionPresetsFor(state: StateCode): Record<string, RedemptionPreset> {
   if (state === 'CA')
     return {
       none: NONE,
-      caJudicialPaid: { label: 'Judicial foreclosure, debt paid: 3 months, +10% a year', months: 3, ratePct: 10, daily: 0 },
-      caJudicialShort: { label: 'Judicial foreclosure, debt not paid: 1 year, +10% a year', months: 12, ratePct: 10, daily: 0 },
+      caJudicialPaid: { label: 'Judicial foreclosure, debt paid: 3 months, +10% a year', months: 3, ratePct: 10, daily: 0, flat: 0, flat2Pct: 0 },
+      caJudicialShort: { label: 'Judicial foreclosure, debt not paid: 1 year, +10% a year', months: 12, ratePct: 10, daily: 0, flat: 0, flat2Pct: 0 },
       irs: IRS,
     };
   if (state === 'AZ')
     return {
       none: NONE,
-      // A.R.S. 12-1285: the price plus 8%, a flat amount; shown as the yearly rate that repays it at the end of the wait.
-      azJudicialAbandoned: { label: 'Judicial foreclosure, abandoned: 30 days, +8% of the price', months: 1, ratePct: 96, daily: 0 },
-      azJudicial: { label: 'Judicial foreclosure: 6 months, +8% of the price', months: 6, ratePct: 16, daily: 0 },
+      // A.R.S. 12-1285: the price plus 8%, a flat amount.
+      azJudicialAbandoned: { label: 'Judicial foreclosure, abandoned: 30 days, +8% of the price', months: 1, ratePct: 8, daily: 0, flat: 1, flat2Pct: 0 },
+      azJudicial: { label: 'Judicial foreclosure: 6 months, +8% of the price', months: 6, ratePct: 8, daily: 0, flat: 1, flat2Pct: 0 },
       irs: IRS,
     };
   if (state === 'TX')
     return {
       none: NONE,
-      // Tax Code 34.21: the price and costs plus a flat 25% (first year) or 50% (second year); shown as the yearly rate
-      // that repays the flat premium at the end of the wait.
-      txTaxHomestead: { label: 'Tax sale, homestead or farm land: 2 years, +25% (first year) or +50%', months: 24, ratePct: 25, daily: 0 },
-      txTaxOther: { label: 'Tax sale, other property: 180 days, up to +25% of the price', months: 6, ratePct: 50, daily: 0 },
+      // Tax Code 34.21(a), (e): a flat 25% (first year) or 50% (second year) of the price and costs; 180 days and at
+      // most 25% for other property. Measured from the day the deed is filed for record.
+      txTaxHomestead: { label: 'Tax sale, homestead, agricultural land or mineral interest: 2 years, +25% (first year) or +50% (second)', months: 24, ratePct: 25, daily: 0, flat: 1, flat2Pct: 50 },
+      txTaxOther: { label: 'Tax sale, other property: 180 days, up to +25% of the price', months: 6, ratePct: 25, daily: 0, flat: 1, flat2Pct: 0 },
+      // Property Code 209.010-.011: 180 days after the HOA mails notice of the sale, which it must do within 30 days;
+      // a buyer other than the HOA is repaid the price and costs, with no interest.
+      txHoaSubdivision: { label: 'HOA sale, subdivision: about 7 months (180 days after the notice), no interest', months: 7, ratePct: 0, daily: 0, flat: 0, flat2Pct: 0 },
+      // Property Code 82.113(g): 90 days after the sale; the bid plus 6% a year.
+      txHoaCondo: { label: 'Condominium association sale: 90 days, +6% a year', months: 3, ratePct: 6, daily: 0, flat: 0, flat2Pct: 0 },
       irs: IRS,
     };
   if (state === 'UT')
     return {
       none: NONE,
       // Utah R. Civ. P. 69C(e): the sale price plus 6%, flat.
-      utSheriff: { label: 'Sheriff’s sale: 180 days, +6% of the price', months: 6, ratePct: 12, daily: 0 },
+      utSheriff: { label: 'Sheriff’s sale: 180 days, +6% of the price', months: 6, ratePct: 6, daily: 0, flat: 1, flat2Pct: 0 },
       irs: IRS,
     };
   return {
     none: NONE,
-    hoa: { label: 'HOA foreclosure: 60 days, +1% a month', months: 2, ratePct: 12, daily: 0 },
-    sheriff: { label: 'Sheriff’s sale: 1 year, +1% a month', months: 12, ratePct: 12, daily: 0 },
+    hoa: { label: 'HOA foreclosure: 60 days, +1% a month', months: 2, ratePct: 12, daily: 0, flat: 0, flat2Pct: 0 },
+    sheriff: { label: 'Sheriff’s sale: 1 year, +1% a month', months: 12, ratePct: 12, daily: 0, flat: 0, flat2Pct: 0 },
     irs: IRS,
   };
+}
+
+/**
+ * The redemption rules that fit a kind of sale in a state, the one to start with, and what the buyer must confirm in
+ * the records when more than one could apply. Switching the kind of sale replaces a rule that doesn't fit.
+ */
+export function redemptionChoicesFor(state: StateCode, kind: string): { keys: string[]; start: string; confirm?: string } {
+  const has = (k: string) => k in redemptionPresetsFor(state);
+  if (kind === 'irs') return { keys: ['irs'], start: 'irs' };
+  if (kind === 'taxSale' && state === 'TX')
+    return {
+      keys: ['txTaxHomestead', 'txTaxOther'],
+      start: 'txTaxHomestead',
+      confirm: 'Which Texas redemption rule applies isn’t confirmed yet. The longer, 2-year rule is assumed until you check the court judgment and the appraisal district record: was it the owner’s homestead, land designated for agricultural use, or a mineral interest when the suit was filed? If not, it’s 180 days (Tax Code 34.21).',
+    };
+  if (kind === 'hoa' && state === 'TX')
+    return {
+      keys: ['txHoaSubdivision', 'txHoaCondo'],
+      start: 'txHoaSubdivision',
+      confirm: 'Whether this is a subdivision HOA (Property Code 209) or a condominium association (82) isn’t confirmed yet. The longer subdivision wait is assumed until you read the recorded declaration: a townhome can be either.',
+    };
+  if (kind === 'hoa') return { keys: has('hoa') ? ['hoa'] : ['none'], start: has('hoa') ? 'hoa' : 'none' };
+  if (kind === 'court') {
+    if (state === 'NV') return { keys: ['sheriff'], start: 'sheriff' };
+    if (state === 'UT') return { keys: ['utSheriff'], start: 'utSheriff' };
+    if (state === 'CA')
+      return { keys: ['none', 'caJudicialPaid', 'caJudicialShort'], start: 'caJudicialShort', confirm: 'Whether this California court sale has a redemption period isn’t confirmed yet. The longest one is assumed until the notice of sale or your attorney tells you which applies.' };
+    if (state === 'AZ')
+      return { keys: ['none', 'azJudicial', 'azJudicialAbandoned'], start: 'azJudicial', confirm: 'Whether this Arizona court sale has a redemption period isn’t confirmed yet. The 6-month one is assumed until the notice of sale or your attorney tells you which applies.' };
+    return { keys: ['none'], start: 'none' };
+  }
+  return { keys: ['none'], start: 'none' };
 }
 
 /** After a tax sale, why resale can wait (for the "months to fix and sell" help). */
 export function taxSaleWait(state: StateCode): string {
   if (state === 'NV') return 'After a tax sale, resale may wait for a quiet title action or the 2-year window after the Treasurer’s deed (NRS 361.600).';
   if (state === 'CA') return 'After a tax sale, the former owner has a year to ask the county to rescind the deed, so title insurance and resale may wait.';
-  if (state === 'TX') return 'After a Texas tax sale, the owner can redeem for 180 days, or 2 years for a homestead or farm land (Tax Code 34.21), so resale may wait until that ends and a title company will insure the title.';
+  if (state === 'TX') return 'After a Texas tax sale, the owner can redeem for 180 days, or 2 years for a homestead, land designated for agricultural use or a mineral interest, counted from the day the deed is filed (Tax Code 34.21). Resale may wait until that ends and a title company will insure the title.';
   return 'After a forced sale, resale may wait until a title company will insure the title; ask one before you plan your timeline.';
 }

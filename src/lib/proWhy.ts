@@ -297,11 +297,11 @@ export const PRO_WHY = {
     yes: [
       {
         who: "Fix-and-flip investor",
-        text: "Worth it before you buy: a licensed contractor’s written bid makes your offer reflect real repair costs."
+        text: "Worth it before you buy: a qualified contractor’s written bid makes your offer reflect real repair costs."
       },
       {
         who: "Landlord",
-        text: "Licensed contractors pull permits. That matters for safety, insurance claims and selling later."
+        text: "Pulling permits matters for safety, insurance claims and selling later."
       },
       {
         who: "Anyone hiring out work in California",
@@ -338,7 +338,7 @@ export const PRO_WHY = {
       },
       {
         who: "Experienced investor",
-        text: "Small cosmetic jobs like paint may not need a general contractor. Managing trades yourself saves markup but costs your time. Jobs that need a permit still need licensed work."
+        text: "Small cosmetic jobs like paint may not need a general contractor. Managing trades yourself saves markup but costs your time. Jobs that need a permit still need one, and electrical, plumbing and air-conditioning work needs a licensed tradesperson in every state DeedOwl covers."
       },
       {
         who: "Everyone",

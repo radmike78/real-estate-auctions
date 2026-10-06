@@ -92,7 +92,7 @@ export const STATE_SALES: Record<StateCode, string[]> = {
     'Foreclosures: trustee auctions at least 3 months after the notice of default; bids can’t be withdrawn.',
   ],
   TX: [
-    'Tax sales: after a court judgment, a sheriff or constable auctions the property on the first Tuesday of the month; the owner can redeem for 180 days, or 2 years for a homestead or farm land.',
+    'Tax sales: after a court judgment, a sheriff or constable auctions the property on the first Tuesday of the month; the owner can redeem for 180 days, or 2 years for a homestead, land designated for agricultural use or a mineral interest.',
     'Foreclosures: trustee auctions on the first Tuesday of the month, between 10 a.m. and 4 p.m., with at least 21 days’ notice; there is no right to redeem afterward.',
   ],
 };

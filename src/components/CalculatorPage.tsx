@@ -7,7 +7,7 @@ import StrategyTabs from './StrategyTabs';
 
 /** The four calculators, one per strategy (also used on Analyze a deal). */
 /** The calculators. `initial` opens a tab; `state` hides tools that don’t apply there (liens: Nevada SID and Arizona tax liens). */
-export function Calculators({ initial, onTab, state, offer = false, dealId, onAnalyze = false, lien = true }: { initial?: string; onTab?: (key: string) => void; state?: StateCode; offer?: boolean; /** Show the lien tab (Analyze shows it only for lien sales). */ lien?: boolean; /** A deal saved in Analyze: its numbers are kept with it. */ dealId?: string; /** On Analyze before the deal is saved: numbers are kept as a draft and move to the deal when it's saved. */ onAnalyze?: boolean } = {}) {
+export function Calculators({ initial, onTab, state, offer = false, dealId, onAnalyze = false, lien = true, saleKind }: { /** The kind of sale chosen in Analyze. */ saleKind?: string; initial?: string; onTab?: (key: string) => void; state?: StateCode; offer?: boolean; /** Show the lien tab (Analyze shows it only for lien sales). */ lien?: boolean; /** A deal saved in Analyze: its numbers are kept with it. */ dealId?: string; /** On Analyze before the deal is saved: numbers are kept as a draft and move to the deal when it's saved. */ onAnalyze?: boolean } = {}) {
   const k = (kind: string) => (dealId ? `fsf.calc.${kind}.${dealId}${offer ? '-offer' : ''}.v1` : undefined);
   const bid = offer ? 'offer' : 'bid';
   return (
@@ -16,7 +16,7 @@ export function Calculators({ initial, onTab, state, offer = false, dealId, onAn
         initial={initial}
         onChange={onTab}
         strategies={[
-          { key: 'flip', label: 'Fix and sell', about: `The most you can ${bid} and still make your profit when you fix it up and sell it.`, render: () => <BidCalculator headingLevel={2} offer={offer} saveAs={dealId ? `analyzed-${dealId}` : onAnalyze ? 'analyze-draft' : undefined} /> },
+          { key: 'flip', label: 'Fix and sell', about: `The most you can ${bid} and still make your profit when you fix it up and sell it.`, render: () => <BidCalculator headingLevel={2} offer={offer} saleKind={saleKind} saveAs={dealId ? `analyzed-${dealId}` : onAnalyze ? 'analyze-draft' : undefined} /> },
           { key: 'rent', label: 'Keep and rent', about: `The most you can ${bid} and still get your return on the cash you leave in, with or without a loan afterward.`, render: () => <RentCalculator regional={!!state} offer={offer} storageKey={k('rent')} exactKey={!!dealId} start={onAnalyze ? profileStart(investorProfile(), offer) : undefined} /> },
           { key: 'commercial', label: 'Commercial income', about: `The most you can ${bid} for a building’s income, counting the months it takes to lease it up.`, render: () => <CommercialCalculator regional={!!state} offer={offer} storageKey={k('commercial')} exactKey={!!dealId} /> },
           { key: 'lien', label: 'Lien certificate', about: 'What a special assessment (SID) lien certificate earns per year, counting the wait to be paid.', render: () => <LienCalculator /> },

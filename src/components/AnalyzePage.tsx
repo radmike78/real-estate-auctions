@@ -133,7 +133,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
 
   const saveNew = () => {
     const d = { ...deal, id: `d${Date.now().toString(36)}`, name: deal.name.trim() || `${countyName(deal.county)} deal` };
-    carryDraftNumbers(d.id, d.kind === 'listing' || d.kind === 'reo');
+    carryDraftNumbers(d.id, d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short');
     const next = [d, ...saved];
     saveDeals(next);
     setSaved(next);
@@ -220,7 +220,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
 
       <section className="deal-checklist" aria-labelledby="check-head">
         <h2 id="check-head">2. Your checklist <span className="muted">({doneCount} of {all.length} done)</span></h2>
-        <p className="muted">For a {kindLabel(kinds.find((k) => k.key === deal.kind) ?? kinds[0], deal.state).toLowerCase()} in {countyName(deal.county)}, {st.name}.</p>
+        <p className="muted">For a {kindLabel(kinds.find((k) => k.key === deal.kind) ?? kinds[0], deal.state).replace(/^[A-Z][a-z]/, (m) => m.toLowerCase())} in {countyName(deal.county)}, {st.name}.</p>
         {groups.map((g) => (
           <CheckFold key={g.title} title={g.title} done={g.items.filter((c) => deal.done.includes(c.id)).length} total={g.items.length}>
             <ul className="decide-checklist">
@@ -245,7 +245,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       <h2 className="section-title" id="numbers" ref={numbersRef}>3. Run the numbers</h2>
       <ProfileNote />
       <CalcRegion.Provider value={{ state: deal.state, county: deal.county }}>
-        <Calculators key={`${deal.id}-${deal.state}-${deal.county}-${deal.kind}`} dealId={deal.id || undefined} onAnalyze initial={calcTabFor(deal.plan)} onTab={(k) => { const p = PLANS.find((x) => calcTabFor(x.key) === k)?.key; if (p && p !== deal.plan && plans.some((x) => x.key === p)) set({ plan: p }); }} state={deal.state} offer={deal.kind === 'listing' || deal.kind === 'reo'} lien={deal.kind === 'lien'} />
+        <Calculators key={`${deal.id}-${deal.state}-${deal.county}-${deal.kind}`} dealId={deal.id || undefined} onAnalyze initial={calcTabFor(deal.plan)} onTab={(k) => { const p = PLANS.find((x) => calcTabFor(x.key) === k)?.key; if (p && p !== deal.plan && plans.some((x) => x.key === p)) set({ plan: p }); }} state={deal.state} saleKind={deal.kind} offer={deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short'} lien={deal.kind === 'lien'} />
       </CalcRegion.Provider>
 
       {/* One clear next step once the numbers are in: keep the deal, then follow the buying steps for this kind of sale. */}

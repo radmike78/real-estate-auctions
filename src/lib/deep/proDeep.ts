@@ -135,7 +135,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     sources: [
       {
         label: "Texas Occupations Code chapter 1101 (1101.559 intermediary; 1101.563 written buyer agreement)",
-        url: "https://statutes.capitol.texas.gov/Docs/OC/htm/OC.1101.htm#1101.559"
+        url: "https://tcss.legis.texas.gov/resources/OC/htm/OC.1101.htm#1101.559"
       },
       {
         label: "Nevada Real Estate Commission: Findings of Fact, Conclusions of Law and Order, Case 2017-64 (Jun 2019)",
@@ -346,7 +346,9 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Brokers who arrange the loan may take a separate fee. In the California case it was 3% of each loan (CA Attorney General)."
     ],
     checklist: [
-      "Check the lender’s license. In California, a private lender may hold a California Financing Law license (DFPI) or a real estate broker license (DRE), or may be exempt. Ask which one applies, then check it with that regulator: the DFPI licensee search or NMLS for a finance lender, the DRE lookup for a broker (Fin. Code 22057).",
+      "Ask the lender, in writing, which license it holds or which exemption it relies on for your kind of loan, and check it with that regulator. Many lenders show an NMLS number you can look up on NMLS Consumer Access.",
+      "In California, a private lender may hold a California Financing Law license (DFPI) or a real estate broker license (DRE), or may be exempt. Check it with that regulator: the DFPI licensee search or NMLS for a finance lender, the DRE lookup for a broker (Fin. Code 22057).",
+      "In Texas, companies making home loans for personal, family or household use need a license from the Department of Savings and Mortgage Lending, or an exemption such as being a bank (Finance Code 156.201, 156.202 and 180.002). A loan for a flip or rental is usually a business loan that can fall outside those rules, so ask the lender which license or exemption applies and have your attorney check the terms.",
       "Some fees before closing are normal: a credit report, and an appraisal or application fee once you decide to go ahead, listed in writing. A demand for ‘deposits’, ‘insurance’ or ‘taxes’ before a loan will be released is the classic scam. Stop and check the lender’s license.",
       "Get the full terms in writing: rate, points, term, balloon date, extension fees, default rate and prepayment penalty.",
       "Make sure loan money and repair draws go through a licensed escrow or title company, not a personal account.",
@@ -1067,7 +1069,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     sources: [
       {
         label: "Texas Property Code chapter 53 (53.085 payment affidavit; 53.101 and 53.105 retainage)",
-        url: "https://statutes.capitol.texas.gov/Docs/PR/htm/PR.53.htm#53.101"
+        url: "https://tcss.legis.texas.gov/resources/PR/htm/PR.53.htm#53.101"
       },
       {
         label: "KTNV Las Vegas: Homeowners harmed by contractors awarded almost $400K through recovery fund (Jan. 23, 2024)",
@@ -1531,7 +1533,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     sources: [
       {
         label: "Texas Occupations Code chapter 1101 (1101.002 brokerage includes collecting rent; 1101.610 recovery trust account limits)",
-        url: "https://statutes.capitol.texas.gov/Docs/OC/htm/OC.1101.htm#1101.610"
+        url: "https://tcss.legis.texas.gov/resources/OC/htm/OC.1101.htm#1101.610"
       },
       {
         label: "California Department of Real Estate: Consumer Recovery Account",
@@ -1681,11 +1683,11 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     sources: [
       {
         label: "Texas Property Code 92.008 and 92.0081 (utility cutoffs and lockouts)",
-        url: "https://statutes.capitol.texas.gov/Docs/PR/htm/PR.92.htm#92.0081"
+        url: "https://tcss.legis.texas.gov/resources/PR/htm/PR.92.htm#92.0081"
       },
       {
         label: "Texas Property Code 24.005 and 24.0051 (notice to vacate and eviction trial timing)",
-        url: "https://statutes.capitol.texas.gov/Docs/PR/htm/PR.24.htm#24.005"
+        url: "https://tcss.legis.texas.gov/resources/PR/htm/PR.24.htm#24.005"
       },
       {
         label: "California Attorney General: Know Your Rights, The Eviction Process",

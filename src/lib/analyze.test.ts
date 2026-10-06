@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checklistFor, kindsFor } from './analyze';
+import { checklistFor, kindsFor, type Deal } from './analyze';
 
 const texts = (d: Parameters<typeof checklistFor>[0]) => checklistFor(d).flatMap((g) => g.items.map((i) => i.text)).join('\n');
 
@@ -24,5 +24,16 @@ describe('Analyze a deal checklist', () => {
     const items = groups.flatMap((g) => g.items);
     expect(items.find((i) => i.id === 'taxes')?.href).toMatch(/^https:\/\/.*saltlakecounty\.gov/);
     expect(items.some((i) => /official seller/.test(i.text) && /Never contact homeowners/.test(i.text))).toBe(true);
+  });
+
+  it('gives Texas short sales, HOA and court sales their own checklist lines', () => {
+    const ids = (kind: Deal['kind']) => checklistFor({ state: 'TX', county: 'Dallas', kind, plan: 'flip' }).flatMap((g) => g.items.map((x) => x.id));
+    expect(ids('short')).toEqual(expect.arrayContaining(['short-approval', 'short-foreclosure', 'tx-short']));
+    expect(ids('hoa')).toEqual(expect.arrayContaining(['tx-hoa-type', 'tx-hoa-redeem']));
+    expect(ids('hoa')).not.toContain('nv-hoa');
+    const court = checklistFor({ state: 'TX', county: 'Dallas', kind: 'court', plan: 'flip' }).flatMap((g) => g.items).find((x) => x.id === 'court-redeem')!;
+    expect(court.text).not.toMatch(/until it ends/);
+    const contractor = checklistFor({ state: 'TX', county: 'Dallas', kind: 'listing', plan: 'flip' }).flatMap((g) => g.items).find((x) => x.id === 'contractor')!;
+    expect(contractor.text).not.toMatch(/licensed in Texas/);
   });
 });

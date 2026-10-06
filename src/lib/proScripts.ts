@@ -38,7 +38,7 @@ export const PRO_SCRIPTS: Record<ProKey, ProScript> = {
   inspector: {
     say: '“I’m buying [address], built in [year], with an inspection deadline on [date]. Could you inspect by [date]? What does your inspection cover, what doesn’t it, and what license or certificate do you hold?”',
     bring: ['Your inspection deadline', 'Access details from your agent'],
-    read: { title: 'How to use the report', items: ['Sort each finding: safety, fix now, budget for later.', 'Get written bids for anything big from licensed contractors.', 'Decide and answer the seller in writing before your inspection deadline.'] },
+    read: { title: 'How to use the report', items: ['Sort each finding: safety, fix now, budget for later.', 'Get written bids for anything big from qualified contractors, licensed where your state requires it.', 'Decide and answer the seller in writing before your inspection deadline.'] },
   },
   contractor: {
     say: '“Could you bid this scope in writing: [work]? Please include permits, timeline and a payment schedule tied to finished work. What’s your license number, and can I see proof of insurance?”',

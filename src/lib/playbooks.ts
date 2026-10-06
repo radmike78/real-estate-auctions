@@ -389,13 +389,13 @@ const NEVADA: Playbook[] = [
     ],
     steps: [
       { title: 'Pin down what you’re buying', detail: 'Use the Assessor record for land use, building size, year built and sales. Use the parcel map for access and boundaries.' },
-      { title: 'Get the rent roll and leases, if you can', detail: 'A receiver or listing broker can usually provide them. At an auction you often can’t, so assume the building is empty until proven otherwise.' },
+      { title: 'Get the rent roll and leases, if you can', detail: 'A receiver or listing broker can usually provide them. At an auction you often can’t. Until you can confirm the leases, count the rent as zero, but don’t assume the building is legally empty or that you can move in right away.' },
       { title: 'Value it the right way', detail: 'For a rental building, divide net operating income (rent after vacancy and operating costs) by the cap rate. Ask a local commercial broker or appraiser for current cap rates for this type of property. For land or an owner-user building: recent sales of similar commercial property.' },
       { title: 'Order a title search', detail: 'Commercial parcels often carry easements, reciprocal easement agreements, CC&Rs, mechanic’s liens and recorded leases. Know which survive the sale.' },
-      { title: 'Screen for contamination', detail: 'Check EPA and state records for the address, and ask what the property was used for. Gas stations, dry cleaners and auto shops are high risk. Order a Phase I assessment if time allows.' },
+      { title: 'Screen for contamination', detail: 'Check EPA and state records for the address, and ask what the property was used for. Gas stations, dry cleaners and auto shops are high risk. Order a Phase I assessment before you’re committed: during the contract’s feasibility period in a negotiated purchase, or before you bid at an auction. Without it you can lose the federal protection from cleanup costs, so if you can’t get one in time, count that risk in whether to buy at all.' },
       { title: 'Check zoning, code and permits', detail: 'Make sure your planned use is allowed and there are no open code cases or expired permits.' },
-      { title: 'Line up your money', detail: 'Certified funds for the sale, plus a commercial or bridge lender ready to refinance after.' },
-      { title: 'Take over well', detail: 'Insure it the day you own it, and secure the building. Tell tenants in writing where to pay rent. Ask each tenant to sign an estoppel certificate confirming their lease (most leases require it).' },
+      { title: 'Line up your money', detail: 'Certified funds for the sale. A commercial or bridge lender can refinance after, but that’s a plan, not a promise: the building must appraise and lease up first.' },
+      { title: 'Take over well', detail: 'Insure it from the day it’s your risk, for how it’s actually used and occupied, and secure the building. Tell tenants in writing where to pay rent. Ask each tenant to sign an estoppel certificate confirming their lease (most leases require it).' },
     ],
     survives: {
       wipedOut: [

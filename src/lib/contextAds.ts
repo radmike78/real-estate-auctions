@@ -27,7 +27,7 @@ const BY_PLAN: Record<Plan, Category[]> = {
 
 /** The advertisers for Analyze a deal: by plan, and only for a listing or a bank-owned home. */
 export function analyzeAdCategories(kind: SaleKind, plan: Plan): Category[] {
-  return kind === 'listing' || kind === 'reo' ? BY_PLAN[plan] : [];
+  return kind === 'listing' || kind === 'reo' || kind === 'short' ? BY_PLAN[plan] : [];
 }
 
 /** Who a My plan step says to call, as advertiser categories ("Each professional" and officials match none). */
