@@ -3,6 +3,7 @@ import { currentProgress, GUIDED, guidedNext, useJourney, useLastActivity } from
 import PageHero from './PageHero';
 import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
+import { useNoIndex } from '../lib/noindex';
 import { DRILLS, drillById, type Drill, type Mission } from '../practice/drills';
 import { fmtMoney } from '../lib/status';
 import { useMyState } from '../lib/myState';
@@ -224,6 +225,7 @@ export default function DrillPage({ id }: { id: string }) {
   const { mode } = useJourney();
   const d = drillById(id);
   useLastActivity(`#/practice/drills/${id}`, d ? `Practice: ${d.title}` : undefined);
+  useNoIndex(!d);
   const [saved, setSaved] = useState<Saved>(load);
   // The answer just given, so only its feedback takes focus (not every finished mission on a return visit).
   const [fresh, setFresh] = useState('');
@@ -237,6 +239,7 @@ export default function DrillPage({ id }: { id: string }) {
   if (!d)
     return (
       <main className="page">
+        <h1 className="sr-only">Drill not found</h1>
         <EmptyState title="We couldn’t find that drill"><p>It may have been renamed. <a href="#/practice">Back to Practice →</a></p></EmptyState>
       </main>
     );

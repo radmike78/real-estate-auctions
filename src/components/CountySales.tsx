@@ -44,7 +44,7 @@ export default function CountySales({ sales }: { sales: CountySale[] }) {
                 <ul>{s.bidRules.map((r) => <li key={r}>{r}</li>)}</ul>
               </div>
             ) : null}
-            <div className="row">
+            <div className="row county-sale-actions">
               {s.listUrl ? (
                 <a className="btn" href={s.listUrl} target="_blank" rel="noreferrer noopener">Property list ↗</a>
               ) : (

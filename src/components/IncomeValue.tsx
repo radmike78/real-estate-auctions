@@ -45,6 +45,7 @@ export default function IncomeValue({ propertyId, onUse }: { propertyId: string;
       <div className="income-grid">
         <fieldset className="calc-group">
           <legend>Income and costs</legend>
+          <div className="calc-grid">
           {FIELDS.map((f) => (
             <label key={f.k} className="calc-field" htmlFor={`${uid}-${f.k}`}>
               <span className="calc-label">{f.label}</span>
@@ -56,6 +57,7 @@ export default function IncomeValue({ propertyId, onUse }: { propertyId: string;
               <span className="small muted">{f.hint}</span>
             </label>
           ))}
+          </div>
         </fieldset>
         <div className="income-result" aria-live="polite">
           <dl className="mini">

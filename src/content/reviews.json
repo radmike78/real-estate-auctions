@@ -38,7 +38,7 @@
       "src/lib/foreclosure.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "7ab6b4a4cbfa539c",
+    "hash": "58f2d03630f04950",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "3fa5147968e5bf5b",
+    "hash": "1dd1f0e8dfd6cbb4",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "4f62b4373b5e6c81",
+    "hash": "6bec348d65ab3c50",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -185,7 +185,7 @@
       "src/components/SearchAlertButton.tsx"
     ],
     "reviewed": "2026-10-06",
-    "hash": "c97382ba7529c5a8",
+    "hash": "cd7b25864354d823",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -355,7 +355,7 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "cabf7506f5c4f912",
+    "hash": "bc8119d12e056240",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {

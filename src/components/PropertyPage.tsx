@@ -3,6 +3,7 @@ import { lastList } from '../lib/lastList';
 import { SHOW_SAMPLE_DATA } from '../data';
 import { flushSync } from 'react-dom';
 import { useProperties } from '../data/live';
+import { useNoIndex } from '../lib/noindex';
 import { IRS_ID_PREFIX, LIVE_ID_PREFIX } from '../feed/toProperty';
 import TrackButton from './TrackButton';
 import type { LienType } from '../types';
@@ -75,6 +76,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   }, []);
 
   const p = properties.find((x) => x.id === id);
+  useNoIndex(!p && !loading);
   if (!p) {
     if (loading) return <main className="page"><p>Checking the official lists…</p></main>;
     if (!known(id) && (id.startsWith(LIVE_ID_PREFIX) || id.startsWith(IRS_ID_PREFIX))) {
@@ -345,7 +347,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       icon: <IconShield />,
       tone: flags ? 'stop' : reviews ? 'wait' : 'go',
       summary: `${DD_STEPS.length} steps · ${[flags && plural(flags, 'flag'), reviews && `${reviews} to review`, `${count('manual')} to check yourself`].filter(Boolean).join(' · ')}`,
-      content: () => <DueDiligenceFunnel p={p} maxBidHref={`${baseHref}/max-bid`} />,
+      content: () => <DueDiligenceFunnel p={p} maxBidHref={forSale ? `${baseHref}/max-bid` : null} />,
     },
     ...(playbook
       ? [
