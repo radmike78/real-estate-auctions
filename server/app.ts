@@ -49,7 +49,7 @@ import { alertsAddEmail, alertsConfirmEmail, broadcastEmail, alertsManageLinkEma
 import { ALERT_LIMITS, CONFIRM_TTL_MS, openAlerts, openBroadcasts, type Subscriber } from './alerts';
 import { SITE_INFO, TERMS_EFFECTIVE } from '../src/lib/siteInfo';
 import { parseSearchTarget, searchLabel } from '../src/lib/savedSearch';
-import { collectChanges, collectDigests, feedReader, labelOf, openTracker, TARGET_RE, trackableListings, type ListingSnapshot } from './tracker';
+import { collectChanges, collectDigests, feedReader, labelOf, mergeTracked, openTracker, TARGET_RE, trackableListings, type ListingSnapshot } from './tracker';
 import { cleanQuery, createLicenseSearch } from './licenses';
 import { CHECKOUT_URL_PREFIX, invoiceDiscount, invoicePeriodEnd, invoicePriceIds, invoiceQuantity, invoiceSubscriptionId, invoiceSubscriptionMetadata, PORTAL_URL_PREFIX, subscriptionPriceId, subscriptionQuantity, verifyWebhook, type StripeClient, type StripeEvent } from './stripe';
 import { BOT_UA, leadsToCsv, monthlyReportText, monthRange, pacificDay, pacificDaysToUtc, siteSummary, summarize, VisitorHasher } from './metrics';
@@ -153,8 +153,11 @@ export function createApp(config: AppConfig) {
   // sent by the server itself and aren't counted.
   const formMailBudget = new RateLimiter(FORM_MAIL_PER_HOUR, 3_600_000);
   let formMailWarnedAt = 0;
-  async function deliverFromForm(mail: Mail): Promise<boolean> {
-    if (!formMailBudget.hit('all')) {
+  // Sign-in links and address confirmations have a small budget of their own, so a flood of other form emails can't
+  // stop an advertiser from signing in or a new subscriber from confirming.
+  const essentialMailBudget = new RateLimiter(50, 3_600_000);
+  async function deliverFromForm(mail: Mail, essential = false): Promise<boolean> {
+    if (!formMailBudget.hit('all') && !(essential && essentialMailBudget.hit('all'))) {
       if (Date.now() - formMailWarnedAt > 3_600_000) {
         formMailWarnedAt = Date.now();
         console.warn(`WARNING: more than ${FORM_MAIL_PER_HOUR} form emails in the last hour; holding further ones. Check for a spam flood (see README, Cloudflare).`);
@@ -193,6 +196,7 @@ export function createApp(config: AppConfig) {
     licenseAll: new RateLimiter(300, 60 * 60_000),
     alertsEmail: new RateLimiter(3, 3_600_000),
     alertsManage: new RateLimiter(60, 10 * 60_000),
+    unsubscribeBad: new RateLimiter(60, 10 * 60_000),
   };
   const hasher = new VisitorHasher();
 
@@ -337,16 +341,31 @@ export function createApp(config: AppConfig) {
       const feed = await readFeed(now());
       if (!feed) return 0; // missing, invalid or expired: never guess
       let sent = 0;
-      for (const [subscriberId, items] of collectChanges(tracker, feed, now())) {
+      const at = now().toISOString();
+      // The listing state moves on as changes are collected, so changes an email didn't carry wait in the outbox
+      // and go out with the next check (dropped after a week: by then they are stale).
+      const fresh = collectChanges(tracker, feed, now());
+      const waiting = tracker.outbox();
+      for (const subscriberId of new Set([...waiting.keys(), ...fresh.keys()])) {
         const s = alerts.get(subscriberId);
-        if (s?.status !== 'ACTIVE') continue;
-        if (await deliver({ ...trackedChangesEmail(s.email, items, { ...alertLinks(s), live: `${base}/#/live` }), bulk: true })) sent++;
+        const old = waiting.get(subscriberId);
+        const earlier = old && Date.parse(old.queuedAt) > now().getTime() - 7 * 86_400_000 ? old.items : [];
+        const items = mergeTracked(earlier, fresh.get(subscriberId) ?? []);
+        if (s?.status !== 'ACTIVE' || !items.length) {
+          if (old) tracker.setOutbox(subscriberId, null, at);
+          continue;
+        }
+        if (await deliver({ ...trackedChangesEmail(s.email, items, { ...alertLinks(s), live: `${base}/#/live` }), bulk: true })) {
+          sent++;
+          if (old) tracker.setOutbox(subscriberId, null, at);
+        } else tracker.setOutbox(subscriberId, items, old && earlier.length ? old.queuedAt : at);
       }
-      // Once a day: new listings matching each saved search.
+      // Once a day: new listings matching each saved search. Marked done only once the email is accepted.
       for (const [subscriberId, groups] of collectDigests(tracker, now())) {
         const s = alerts.get(subscriberId);
-        if (s?.status !== 'ACTIVE') continue;
-        if (await deliver({ ...searchDigestEmail(s.email, groups, { ...alertLinks(s), live: `${base}/#/live` }), bulk: true })) sent++;
+        const ok = s?.status === 'ACTIVE' && (await deliver({ ...searchDigestEmail(s.email, groups, { ...alertLinks(s), live: `${base}/#/live` }), bulk: true }));
+        if (ok) sent++;
+        if (ok || s?.status !== 'ACTIVE') for (const g of groups) tracker.markDigested(g.subscriptionId, at);
       }
       return sent;
     } finally {
@@ -420,7 +439,7 @@ export function createApp(config: AppConfig) {
     return { email: s.email, listOptIn: s.listOptIn, confirmedAt: s.confirmedAt, subscriptions: alerts.subscriptions(s.id) };
   }
 
-  const today = () => now().toISOString().slice(0, 10);
+  const today = () => pacificDay(now());
   const daysSince = (d: string | undefined) => (d ? Math.floor((now().getTime() - Date.parse(`${d}T00:00:00Z`)) / 86_400_000) : null);
 
   function adminView(a: ApplicationRow) {
@@ -519,29 +538,72 @@ export function createApp(config: AppConfig) {
     const cat = row.profile.category;
     const tierOf = (priceId: string | null) => (priceId && config.stripe?.client.tierForPrice(priceId)) || null;
 
+    const subId = typeof o.id === 'string' ? o.id : null;
+    /**
+     * Whether an event about subscription `id` should be skipped: a canceled subscription never comes back to life
+     * (Stripe doesn't reopen one, so a late "active" update is an out-of-order delivery), and a second subscription
+     * while the first is still running is flagged for the admin instead of replacing it.
+     */
+    const staleOrDuplicate = (id: string | null, status: string | null) => {
+      if (!id || !acct.subscriptionId) return false;
+      if (id === acct.subscriptionId) return acct.status === 'canceled' && status !== 'canceled';
+      if (ACTIVE_SUB.has(acct.status ?? '') && ACTIVE_SUB.has(status ?? 'active')) {
+        log('DUPLICATE_SUBSCRIPTION', `A second subscription (${id}) is active alongside ${acct.subscriptionId}. Cancel and refund one of them in Stripe.`);
+        return true;
+      }
+      // An older subscription's late events don't overwrite the current one.
+      return !ACTIVE_SUB.has(status ?? '');
+    };
+    /**
+     * The placement to apply for a payment or a plan change, within the caps. Money Stripe has already taken is never
+     * refused, but it can't push someone else out of a capped spot: over a cap, a new topic is dropped (they pick
+     * another on their dashboard) or the placement they had stays, and the admin is told to refund the difference.
+     */
+    const withinCaps = (want: { tier: AdTier; topic: string | null; areas: number | undefined }) => {
+      const topic = want.tier === 'premium_plus' ? want.topic : null;
+      const over = capFor(row, want.tier, topic, paidAreas(row.profile, { plan: '', paidThrough: '', areas: want.areas }));
+      if (!over) return { ...want, topic };
+      if (topic && !capFor(row, want.tier, null, paidAreas(row.profile, { plan: '', paidThrough: '', areas: want.areas }))) {
+        log('CAP_FULL', `${capMessage(over, cat, topic)} The topic was left empty; they can choose another on their dashboard.`);
+        return { ...want, topic: null };
+      }
+      if (row.billing) {
+        const had = { tier: billingTier(row.billing), topic: row.profile.adTopic || null, areas: row.billing.areas };
+        log('CAP_FULL', `${capMessage(over, cat, topic)} Kept ${TIER_INFO[had.tier].label} × ${had.areas ?? 'all'} areas. Refund or credit the difference in Stripe.`);
+        return had;
+      }
+      log('CAP_FULL', `${capMessage(over, cat, topic)} Paid at checkout while the spot filled up. Review this advertiser and refund in Stripe if needed.`);
+      return { ...want, topic };
+    };
+
     switch (event.type) {
       case 'checkout.session.completed':
-        if (typeof o.subscription === 'string') db.stripe.setSubscription(row.id, { subscriptionId: o.subscription }, at);
+        if (typeof o.subscription === 'string' && !staleOrDuplicate(o.subscription, 'active')) db.stripe.setSubscription(row.id, { subscriptionId: o.subscription }, at);
         log('CHECKOUT_COMPLETED', null);
         return;
       case 'invoice.paid': {
         const end = invoicePeriodEnd(o);
         if (!end) return;
+        const invoiceSub = invoiceSubscriptionId(o);
+        // A payment is always recorded; only the subscription status is protected from late or duplicate events.
+        const skipStatus = staleOrDuplicate(invoiceSub, 'active');
         const paidThrough = pacificDay(new Date((end + PAYMENT_GRACE_DAYS * 86_400) * 1000));
         // The later of the two dates: a card payment never shortens time already paid for. An invoice a promotion code
         // covered in full (amount_paid 0) is still a paid period.
         const current = row.billing?.paidThrough ?? '';
         // The plan comes from the price Stripe charged; the plan chosen at checkout only if the price isn't one of ours.
-        const tier: AdTier = invoicePriceIds(o).map(tierOf).find((t): t is AdTier => !!t) ?? acct.pendingTier ?? billingTier(row.billing);
+        const charged: AdTier = invoicePriceIds(o).map(tierOf).find((t): t is AdTier => !!t) ?? acct.pendingTier ?? billingTier(row.billing);
         const meta = invoiceSubscriptionMetadata(o);
-        const topic = [meta.topic, acct.pendingTopic].find((t) => topicAllowed(cat, t)) ?? null;
+        const topicWanted = [meta.topic, acct.pendingTopic].find((t) => topicAllowed(cat, t)) ?? (charged === 'premium_plus' && row.profile.adTopic ? row.profile.adTopic : null);
         const discount = invoiceDiscount(o);
         // How many ad areas this pays for: the quantity Stripe charged (one unit per area).
-        const quantity = invoiceQuantity(o, (id) => !!tierOf(id)) ?? row.billing?.areas ?? row.profile.adAreas.length;
+        const charges = invoiceQuantity(o, (id) => !!tierOf(id)) ?? row.billing?.areas ?? row.profile.adAreas.length;
+        const { tier, topic, areas } = withinCaps({ tier: charged, topic: topicWanted, areas: charges });
+        const quantity = areas ?? charges;
         const billing: Billing = { plan: cardPlanLabel(cat, tier, discount.applied && row.founding), paidThrough: paidThrough > current ? paidThrough : current, tier, areas: quantity };
-        const profile = tier === 'premium_plus' && topic ? { ...row.profile, adTopic: topic } : tier !== 'premium_plus' ? { ...row.profile, adTopic: '' } : row.profile;
+        const profile = { ...row.profile, adTopic: tier === 'premium_plus' ? topic ?? '' : '' };
         db.update(row.id, { billing, profile }, at);
-        db.stripe.setSubscription(row.id, { subscriptionId: invoiceSubscriptionId(o) ?? undefined, status: 'active' }, at);
+        if (!skipStatus) db.stripe.setSubscription(row.id, { subscriptionId: invoiceSub ?? undefined, status: 'active' }, at);
         db.stripe.setPending(row.id, null, null, at);
         const money = (cents: number) => `${(cents / 100).toFixed(2)} ${String(o.currency ?? '').toUpperCase()}`.trim();
         const amount = typeof o.amount_paid === 'number' ? money(o.amount_paid) : '';
@@ -553,25 +615,30 @@ export function createApp(config: AppConfig) {
         return;
       }
       case 'invoice.payment_failed':
+        if (staleOrDuplicate(invoiceSubscriptionId(o), 'past_due')) return;
         db.stripe.setSubscription(row.id, { status: 'past_due' }, at);
         log('PAYMENT_FAILED', null);
         await deliver(paymentFailedEmail(row.profile.email, row.profile.name, `${base}/#/advertiser`));
         return;
       case 'customer.subscription.created':
       case 'customer.subscription.updated': {
-        db.stripe.setSubscription(row.id, { subscriptionId: typeof o.id === 'string' ? o.id : undefined, status: typeof o.status === 'string' ? o.status : null, cancelAtPeriodEnd: o.cancel_at_period_end === true }, at);
+        const status = typeof o.status === 'string' ? o.status : null;
+        if (staleOrDuplicate(subId, status)) return;
+        db.stripe.setSubscription(row.id, { subscriptionId: subId ?? undefined, status, cancelAtPeriodEnd: o.cancel_at_period_end === true }, at);
         if (event.type === 'customer.subscription.updated' && o.cancel_at_period_end === true) log('CANCEL_SCHEDULED', 'Plan ends at the end of the paid period');
         // A plan switch made on Stripe's billing portal: follow the price. Leaving Premium Plus frees its topic spot;
         // coming back to it, the advertiser picks a topic again on their dashboard (checked against the caps).
-        const tier = tierOf(subscriptionPriceId(o));
-        if (!tier) return;
+        const charged = tierOf(subscriptionPriceId(o));
+        if (!charged) return;
         if (!row.billing) {
-          db.stripe.setPending(row.id, tier, acct.pendingTopic, at);
+          db.stripe.setPending(row.id, charged, acct.pendingTopic, at);
           return;
         }
         const was = billingTier(row.billing);
         // The number of ad areas paid for follows the subscription's quantity (changed from the dashboard).
-        const quantity = subscriptionQuantity(o) ?? row.billing.areas;
+        const wanted = subscriptionQuantity(o) ?? row.billing.areas;
+        if (charged === was && wanted === row.billing.areas) return;
+        const { tier, areas: quantity } = withinCaps({ tier: charged, topic: charged === 'premium_plus' ? row.profile.adTopic || null : null, areas: wanted });
         if (tier === was && quantity === row.billing.areas) return;
         const profile = tier === 'premium_plus' ? row.profile : { ...row.profile, adTopic: '' };
         db.update(row.id, { billing: { ...row.billing, tier, plan: cardPlanLabel(cat, tier), ...(quantity !== undefined ? { areas: quantity } : {}) }, profile }, at);
@@ -581,6 +648,11 @@ export function createApp(config: AppConfig) {
         return;
       }
       case 'customer.subscription.deleted':
+        // Another (duplicate or older) subscription ending doesn't end the current one.
+        if (subId && acct.subscriptionId && subId !== acct.subscriptionId) {
+          log('SUBSCRIPTION_ENDED', `${subId} (not the current plan, ${acct.subscriptionId})`);
+          return;
+        }
         // Already-paid time stays listed; it simply isn't extended.
         db.stripe.setSubscription(row.id, { status: 'canceled', cancelAtPeriodEnd: false }, at);
         log('SUBSCRIPTION_ENDED', null);
@@ -596,10 +668,12 @@ export function createApp(config: AppConfig) {
   }
 
   function dateRange(url: URL, maxDays = 366): { from: string; to: string } {
+    // A real calendar day: Date.parse would roll 2026-02-31 over to March, so the date must read back unchanged.
+    const ok = (d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d) && !Number.isNaN(Date.parse(`${d}T12:00:00Z`)) && new Date(`${d}T12:00:00Z`).toISOString().slice(0, 10) === d;
     const to = url.searchParams.get('to') ?? pacificDay(now());
+    if (!ok(to)) throw new HttpError(400, 'Invalid date range');
     const from = url.searchParams.get('from') ?? new Date(Date.parse(`${to}T12:00:00Z`) - 29 * 86_400_000).toISOString().slice(0, 10);
-    const ok = (d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d) && !Number.isNaN(Date.parse(d));
-    if (!ok(from) || !ok(to) || from > to || Date.parse(to) - Date.parse(from) > maxDays * 86_400_000) throw new HttpError(400, 'Invalid date range');
+    if (!ok(from) || from > to || Date.parse(to) - Date.parse(from) > maxDays * 86_400_000) throw new HttpError(400, 'Invalid date range');
     return { from, to };
   }
 
@@ -690,7 +764,7 @@ export function createApp(config: AppConfig) {
       const t = now();
       db.insertApplication({ id, profile: v.profile, tokenHash: sha256(token), tokenExpires: new Date(t.getTime() + EMAIL_TOKEN_TTL_MS).toISOString(), now: t.toISOString() });
       db.audit({ at: t.toISOString(), actor: 'applicant', applicationId: id, action: 'SUBMITTED', detail: `${CATEGORIES[v.profile.category].label}. Confirmed: licensed, accurate, verification consent, original content, Terms of ${TERMS_EFFECTIVE}` });
-      if (!(await deliverFromForm(confirmationEmail(v.profile.email, `${base}/#/advertise/confirm/${token}`, regulatorFor(v.profile.category, v.profile.state).name)))) {
+      if (!(await deliverFromForm(confirmationEmail(v.profile.email, `${base}/#/advertise/confirm/${token}`, regulatorFor(v.profile.category, v.profile.state).name), true))) {
         throw new HttpError(503, 'We couldn\'t send your confirmation email just now. Please try again in a few minutes.');
       }
       return send(res, 202, accepted);
@@ -767,7 +841,7 @@ export function createApp(config: AppConfig) {
       const token = newToken();
       const t = now();
       alerts.upsertPending(email, true, sha256(token), new Date(t.getTime() + CONFIRM_TTL_MS).toISOString(), t.toISOString());
-      if (!(await deliverFromForm(alertsConfirmEmail(email, `${base}/#/alerts/confirm/${token}`)))) {
+      if (!(await deliverFromForm(alertsConfirmEmail(email, `${base}/#/alerts/confirm/${token}`), true))) {
         throw new HttpError(503, 'We couldn\'t send your confirmation email just now. Please try again in a few minutes.');
       }
       return send(res, 202, accepted);
@@ -795,7 +869,7 @@ export function createApp(config: AppConfig) {
       const t = now();
       const s = alerts.upsertPending(email, body.list === true, sha256(token), new Date(t.getTime() + CONFIRM_TTL_MS).toISOString(), t.toISOString());
       alerts.addSubscription(s.id, r.kind, r.target, r.label, t.toISOString());
-      if (!(await deliverFromForm(alertsConfirmEmail(email, `${base}/#/alerts/confirm/${token}`, r.label, r.kind, body.list === true)))) {
+      if (!(await deliverFromForm(alertsConfirmEmail(email, `${base}/#/alerts/confirm/${token}`, r.label, r.kind, body.list === true), true))) {
         throw new HttpError(503, 'We couldn\'t send your confirmation email just now. Please try again in a few minutes.');
       }
       return send(res, 202, accepted);
@@ -847,8 +921,10 @@ export function createApp(config: AppConfig) {
     // Mail apps POST here directly for one-click unsubscribe (RFC 8058), so no same-origin check:
     // the signed token is the authorization, and all it can do is delete that one address.
     if (method === 'POST' && path === '/api/alerts/unsubscribe') {
-      if (!limiters.alertsManage.hit(clientIp(req))) throw new HttpError(429, 'Too many requests. Try again later.');
+      // A correctly signed link always works, even when many mail-app unsubscribes come from one provider's network;
+      // only guesses (links that don't verify) are rate limited.
       const s = alerts.verify(url.searchParams.get('t'), 'unsubscribe');
+      if (!s && !limiters.unsubscribeBad.hit(clientIp(req))) throw new HttpError(429, 'Too many requests. Try again later.');
       if (s) alerts.delete(s.id);
       // Same answer for an unknown link: an address that was already removed is still unsubscribed.
       return send(res, 200, { ok: true, message: 'If your address was on our list, we deleted it and everything you signed up for. You won’t get any more email from us.' });
@@ -882,9 +958,15 @@ export function createApp(config: AppConfig) {
       db.leads.insert(lead);
       db.metrics.record(row.id, pacificDay(now()), 'lead', hasher.hash(clientIp(req), '', pacificDay(now())));
       // The lead is saved and shown on the advertiser's dashboard even if the email doesn't go out.
-      await deliverFromForm(leadEmail(row.profile.email, row.profile.name, lead, `${base}/#/advertiser`));
+      const emailed = await deliverFromForm(leadEmail(row.profile.email, row.profile.name, lead, `${base}/#/advertiser`));
       await deliverFromForm(leadReceiptEmail(email, row.profile.name));
-      return send(res, 202, { ok: true, message: `Your message was sent to ${row.profile.name}. They will contact you directly.` });
+      // Saved either way; only claim an email went out when it did.
+      return send(res, 202, {
+        ok: true,
+        message: emailed
+          ? `Your message was sent to ${row.profile.name}. They will contact you directly.`
+          : `Your message was saved for ${row.profile.name} and shows on their DeedOwl dashboard, but the email notice didn’t go out just now. If it’s urgent, use the contact details on their profile.`,
+      });
     }
 
     // Approved profile photos, by the hash the signed directory lists. Pending photos are never public.
@@ -905,7 +987,7 @@ export function createApp(config: AppConfig) {
       if (row) {
         const token = newToken();
         db.loginTokens.create(sha256(token), row.id, now().getTime() + LOGIN_TOKEN_TTL_MS);
-        await deliverFromForm(loginLinkEmail(email, row.profile.name, `${base}/#/advertiser/login/${token}`));
+        await deliverFromForm(loginLinkEmail(email, row.profile.name, `${base}/#/advertiser/login/${token}`), true);
       }
       return send(res, 200, generic);
     }
@@ -1123,7 +1205,9 @@ export function createApp(config: AppConfig) {
       const username = plain(body.username, 64);
       const password = typeof body.password === 'string' ? body.password.slice(0, 256) : '';
       const trusted = (trustedAdminIps.get(ip) ?? 0) > now().getTime();
-      if (passwordChecks >= MAX_PASSWORD_CHECKS) throw new HttpError(429, 'Sign-in is busy. Try again in a minute.');
+      // A network the admin signed in from recently keeps one check of its own, so a flood of guesses from elsewhere
+      // can't lock the admin out.
+      if (passwordChecks >= MAX_PASSWORD_CHECKS + (trusted ? 1 : 0)) throw new HttpError(429, 'Sign-in is busy. Try again in a minute.');
       // Count the attempt BEFORE the slow check, so parallel requests can't all slip under the limit.
       if (!limiters.loginIp.hit(ip) || (!trusted && !limiters.loginUser.hit(username))) throw new HttpError(429, 'Too many failed sign-in attempts. Wait 15 minutes.');
       // Always run the (slow) password check so response time doesn't reveal whether the username exists.
@@ -1280,6 +1364,11 @@ export function createApp(config: AppConfig) {
       const clash = db.duplicates(app).find((d) => d.field === 'license' && d.status === 'APPROVED');
       if (clash) throw new HttpError(409, `This license number is already listed under another approved profile (${clash.id}). Resolve that first.`);
       const wasApproved = app.status === 'APPROVED';
+      // Coming back from a suspension, their paid spot may have gone to someone else meanwhile.
+      if (app.status === 'SUSPENDED' && app.billing && app.billing.paidThrough >= today()) {
+        const full = capFor(app, billingTier(app.billing), app.profile.adTopic || null);
+        if (full) throw new HttpError(409, `${capMessage(full, app.profile.category, app.profile.adTopic || null)} Their paid spot was taken while they were suspended: change their plan or areas (or refund) before re-approving.`);
+      }
       db.update(app.id, { status: 'APPROVED', verification: { ...verification, verifiedAt: today(), verifiedBy: admin.subject }, decisionReason: null }, now().toISOString());
       audit(app.id, wasApproved ? 'REVERIFIED' : 'APPROVED', `${regulatorFor(app.profile.category, app.profile.state).name}: ${verification.licenseStatus}${verification.licenseExpires ? `, expires ${verification.licenseExpires}` : ''}. Identity confirmed by the admin.`);
       publish();
@@ -1418,7 +1507,9 @@ export function createApp(config: AppConfig) {
     res.setHeader('x-content-type-options', 'nosniff');
     res.setHeader('referrer-policy', 'strict-origin-when-cross-origin');
     res.setHeader('x-frame-options', 'DENY');
-    res.setHeader('content-security-policy', "frame-ancestors 'none'; object-src 'none'; base-uri 'self'");
+    // The pages also carry the full policy in a <meta> tag (vite.config.ts); the header repeats the script rule so it
+    // holds even for a page served without that tag. Only our own script files run: no inline or third-party scripts.
+    res.setHeader('content-security-policy', "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; script-src 'self'; form-action 'self'");
     res.setHeader('permissions-policy', 'geolocation=(), camera=(), microphone=()');
     if (secure) res.setHeader('strict-transport-security', 'max-age=63072000; includeSubDomains');
 

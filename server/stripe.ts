@@ -78,7 +78,7 @@ export function parsePlans(json: string): StripePlans {
   const out: StripePlans = {};
   const tierOfPrice = new Map<string, AdTier>();
   for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
-    if (k !== '*' && !(k in CATEGORIES)) throw new Error(`STRIPE_PLANS: unknown category "${k}"`);
+    if (k !== '*' && !Object.prototype.hasOwnProperty.call(CATEGORIES, k)) throw new Error(`STRIPE_PLANS: unknown category "${k}"`);
     if (!v || typeof v !== 'object' || Array.isArray(v)) throw new Error(`STRIPE_PLANS.${k} must be an object`);
     const entry = v as Record<string, unknown>;
     const plans: CategoryPlans = {};
@@ -225,13 +225,15 @@ export function createStripeClient(cfg: StripeConfig) {
     /**
      * Changes how many ad areas a subscription pays for. Stripe charges (or credits) the difference for the rest of the
      * period right away (proration_behavior always_invoice); the new quantity comes back in customer.subscription.updated.
+     * With payment_behavior pending_if_incomplete, a declined card leaves the old quantity in place instead of adding
+     * areas nobody paid for.
      */
     async setQuantity(subscriptionId: string, quantity: number, idempotencyKey: string) {
       if (!/^sub_[A-Za-z0-9]{6,}$/.test(subscriptionId)) throw new Error('Unexpected subscription ID');
       const sub = await get<Record<string, unknown>>(`subscriptions/${subscriptionId}`);
       const item = ((sub.items as { data?: { id?: unknown }[] } | undefined)?.data ?? [])[0];
       if (typeof item?.id !== 'string' || !/^si_[A-Za-z0-9]{6,}$/.test(item.id)) throw new Error('Subscription has no item');
-      return post<Record<string, unknown>>(`subscriptions/${subscriptionId}`, { items: { 0: { id: item.id, quantity } }, proration_behavior: 'always_invoice' }, idempotencyKey);
+      return post<Record<string, unknown>>(`subscriptions/${subscriptionId}`, { items: { 0: { id: item.id, quantity } }, proration_behavior: 'always_invoice', payment_behavior: 'pending_if_incomplete' }, idempotencyKey);
     },
   };
 }

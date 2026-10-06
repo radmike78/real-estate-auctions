@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { currentRoute, isAppLink, navigate, onNavigate, replaceAddress, rewriteAppLinks, toPath, upgradeLegacyHash } from './lib/nav';
+import PageErrorBoundary from './components/PageErrorBoundary';
 import SearchPage from './components/SearchPage';
 import HomePage from './components/HomePage';
 import SiteHeader from './components/SiteHeader';
@@ -113,8 +114,8 @@ function parseHash(): Route {
     return {
       page: 'search',
       q,
-      types: list('type').filter((t): t is SaleType => t in SALE_TYPE_LABEL),
-      statuses: list('status').filter((t): t is AcquisitionStatus => t in STATUS),
+      types: list('type').filter((t): t is SaleType => Object.prototype.hasOwnProperty.call(SALE_TYPE_LABEL, t)),
+      statuses: list('status').filter((t): t is AcquisitionStatus => Object.prototype.hasOwnProperty.call(STATUS, t)),
       cls: parseClass(params.get('class')),
     };
   }
@@ -275,6 +276,7 @@ export default function App() {
       <a className="skip-link" href="#content" onClick={(e) => { e.preventDefault(); const m = document.querySelector('main'); if (m) { m.setAttribute('tabindex', '-1'); m.focus(); } }}>Skip to content</a>
       <SiteHeader current={path} nav={nav} />
       <RoleNotice />
+      <PageErrorBoundary key={nav}>
       {route.page === 'home' && <HomePage />}
       {route.page === 'notFound' && (
         <main className="page empty-page">
@@ -322,6 +324,7 @@ export default function App() {
       {route.page === 'playbook' && <PlaybookPage key={route.key ?? ''} playbook={route.key} section={route.section} />}
       {route.page === 'advertiser' && <AdvertiserPage key={route.token ?? ''} token={route.token} />}
       {route.page === 'findpro' && <FindAProPage key={route.section ?? ''} section={route.section} />}
+      </PageErrorBoundary>
       <footer className="footer">
         <span className="footer-note">{ROLE_SHORT} Our guides are general education, not legal, tax or financial advice.</span>
         <nav aria-label="Footer">

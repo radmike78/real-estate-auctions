@@ -11,14 +11,12 @@
 
 import { createHash, randomBytes } from 'node:crypto';
 import type { Db, LeadRow, MetricKind } from './db';
-import { pacificToIso } from '../src/lib/time';
+import { pacificDay, pacificToIso } from '../src/lib/time';
 import { isSiteAction, isSitePage, SITE_ACTIONS, SITE_PAGES, type SiteAction, type SitePage } from '../src/lib/siteStats';
 
 export const BOT_UA = /bot|crawl|spider|slurp|preview|headless|lighthouse|monitor|curl|wget|python|scrapy|httpclient/i;
 
-export function pacificDay(d: Date): string {
-  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
-}
+export { pacificDay };
 
 export class VisitorHasher {
   private day = '';

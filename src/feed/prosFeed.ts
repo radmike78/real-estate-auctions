@@ -110,6 +110,11 @@ export function loadVerifiedPros(publicKeySpkiB64: string | null): Promise<ProsF
     return r.ok ? refuseRollback(r) : r;
   })().catch((e: Error) => ({ ok: false as const, reason: 'MISSING' as const, detail: e.message }));
   cached = { at: Date.now(), result };
+  // A failure (e.g. read while a new directory and its signature were being published) isn't kept: the next page
+  // tries again instead of showing no professionals for five minutes.
+  void result.then((r) => {
+    if (!r.ok && cached?.result === result) cached = null;
+  });
   return result;
 }
 

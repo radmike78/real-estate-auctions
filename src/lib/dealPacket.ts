@@ -178,7 +178,8 @@ export interface PacketSection {
   fix?: { label: string; href: string };
 }
 
-const daysFrom = (iso: string, now: Date) => Math.round((Date.parse(`${iso}T12:00:00Z`) - Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 12)) / 86_400_000);
+// Counted from the reader's own calendar day: in the evening (Pacific), the UTC date is already tomorrow.
+const daysFrom = (iso: string, now: Date) => Math.round((Date.parse(`${iso}T12:00:00Z`) - Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 12)) / 86_400_000);
 
 /** The next date on the deal's calendar that hasn't passed. */
 export function nextDate(p: PacketData, now = new Date()): (PacketDate & { days: number }) | null {

@@ -33,6 +33,9 @@ describe('pre-foreclosure tracker', () => {
 
     expect(foreclosureTrack(withEvents([nod, ev('2026-09-01', 'SALE_POSTPONED')]), now)!.stage).toBe('POSTPONED');
     expect(foreclosureTrack(withEvents([nod, ev('2026-09-01', 'SALE_POSTPONED'), ev('2026-09-02', 'BANKRUPTCY_FILED')]), now)!.stage).toBe('BANKRUPTCY_STAY');
+    // A new notice of sale after a postponement (or a bankruptcy) moves the track on; the newest step counts.
+    expect(foreclosureTrack(withEvents([nod, ev('2026-09-01', 'SALE_POSTPONED'), ev('2026-09-15', 'NOTICE_OF_SALE')]), now)!.stage).toBe('SALE_SCHEDULED');
+    expect(foreclosureTrack(withEvents([nod, ev('2026-09-02', 'BANKRUPTCY_FILED'), ev('2026-09-20', 'SALE_POSTPONED')]), now)!.stage).toBe('POSTPONED');
     expect(foreclosureTrack(withEvents([nod, ev('2026-09-01', 'SALE_CANCELLED')]), now)!.stage).toBe('CANCELLED');
     expect(foreclosureTrack(withEvents([nod, ev('2026-09-20', 'SOLD', 'Property reverted to the lender (REO).')]), now)!.stage).toBe('REVERTED_TO_LENDER');
     expect(foreclosureTrack(withEvents([nod, ev('2026-09-20', 'SOLD', "Trustee's deed to third-party bidder.")]), now)!.stage).toBe('SOLD_AT_AUCTION');

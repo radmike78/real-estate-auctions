@@ -104,7 +104,7 @@ export function dueReminders(s: ListingSnapshot, now: Date): { key: string; chan
 
 /** Reads and verifies the published listings feed; cached until the file changes. Null if missing, invalid or expired. */
 export function feedReader(dataDir: string, publicSpki: string | null) {
-  let cache: { stamp: string; feed: Feed | null } | null = null;
+  let cache: { stamp: string; feed: Feed | null; at: number } | null = null;
   return async (now: Date): Promise<Feed | null> => {
     if (!publicSpki) return null;
     const file = join(dataDir, 'listings.json');
@@ -112,11 +112,13 @@ export function feedReader(dataDir: string, publicSpki: string | null) {
     try {
       const a = statSync(file);
       const b = statSync(`${file}.sig`);
-      stamp = `${a.mtimeMs}:${a.size}:${b.mtimeMs}`;
+      stamp = `${a.mtimeMs}:${a.size}:${b.mtimeMs}:${b.size}`;
     } catch {
       return null;
     }
-    if (!cache || cache.stamp !== stamp) {
+    // A feed that failed to verify is re-checked after a minute even if the files look unchanged: it may have been
+    // read halfway through a publish (new listings, old signature) on a filesystem with coarse timestamps.
+    if (!cache || cache.stamp !== stamp || (!cache.feed && now.getTime() - cache.at > 60_000)) {
       let feed: Feed | null = null;
       try {
         const bytes = readFileSync(file);
@@ -126,7 +128,7 @@ export function feedReader(dataDir: string, publicSpki: string | null) {
       } catch {
         feed = null;
       }
-      cache = { stamp, feed };
+      cache = { stamp, feed, at: now.getTime() };
     }
     // Expiry is time-based, so check it on every call, not only when the file changes.
     return cache.feed && Date.parse(cache.feed.expiresAt) > now.getTime() ? cache.feed : null;
@@ -153,6 +155,12 @@ export function openTracker(db: DatabaseSync) {
     CREATE TABLE IF NOT EXISTS alert_search_state (
       subscription_id TEXT PRIMARY KEY REFERENCES subscriptions(id) ON DELETE CASCADE,
       last_digest_at TEXT NOT NULL
+    );
+    -- Change emails the email service didn't accept, kept to retry on the next check (the listing state has moved on).
+    CREATE TABLE IF NOT EXISTS alert_outbox (
+      subscriber_id TEXT PRIMARY KEY REFERENCES subscribers(id) ON DELETE CASCADE,
+      items TEXT NOT NULL,
+      queued_at TEXT NOT NULL
     );
   `);
   // When a listing (re)appeared on the list; '' for listings recorded on the very first check (the baseline).
@@ -207,6 +215,20 @@ export function openTracker(db: DatabaseSync) {
         )
         .all(target) as { subscriptionId: string; subscriberId: string }[];
     },
+    /** Change emails waiting to be retried, per subscriber, with when they were first queued. */
+    outbox(): Map<string, { items: TrackedItem[]; queuedAt: string }> {
+      const rows = db.prepare('SELECT subscriber_id AS id, items, queued_at AS queuedAt FROM alert_outbox').all() as { id: string; items: string; queuedAt: string }[];
+      return new Map(rows.map((r) => [r.id, { items: JSON.parse(r.items) as TrackedItem[], queuedAt: r.queuedAt }]));
+    },
+    /** Keeps (or, with null, clears) a subscriber's unsent changes, with when the oldest of them was first queued. */
+    setOutbox(subscriberId: string, items: TrackedItem[] | null, now: string) {
+      if (!items) db.prepare('DELETE FROM alert_outbox WHERE subscriber_id = ?').run(subscriberId);
+      else
+        db.prepare(
+          `INSERT INTO alert_outbox (subscriber_id, items, queued_at) VALUES (?, ?, ?)
+           ON CONFLICT(subscriber_id) DO UPDATE SET items = excluded.items, queued_at = excluded.queued_at`,
+        ).run(subscriberId, JSON.stringify(items), now);
+    },
     /** Records a reminder as sent; false if it already was. */
     claim(subscriptionId: string, key: string, now: string): boolean {
       return db.prepare('INSERT OR IGNORE INTO alert_sent (subscription_id, key, sent_at) VALUES (?, ?, ?)').run(subscriptionId, key, now).changes > 0;
@@ -215,6 +237,20 @@ export function openTracker(db: DatabaseSync) {
 }
 
 export type Tracker = ReturnType<typeof openTracker>;
+export type TrackedItem = { target: string; snapshot: ListingSnapshot; changes: Change[] };
+
+/** Unsent changes from earlier checks plus this check's, per target (the newest snapshot wins). */
+export function mergeTracked(earlier: TrackedItem[], fresh: TrackedItem[]): TrackedItem[] {
+  const out: TrackedItem[] = earlier.map((x) => ({ ...x, changes: [...x.changes] }));
+  for (const f of fresh) {
+    const same = out.find((x) => x.target === f.target);
+    if (same) {
+      same.snapshot = f.snapshot;
+      same.changes.push(...f.changes);
+    } else out.push(f);
+  }
+  return out;
+}
 
 /**
  * Compares the feed with the last recorded state and returns, per subscriber, the changes to email.
@@ -261,10 +297,11 @@ const vegasHour = (d: Date) => Number(new Intl.DateTimeFormat('en-US', { timeZon
 
 /**
  * Daily saved-search digests that are due: per subscriber, each search with the listings that appeared since
- * its last digest. Every due search is marked as done, even with no matches, so tomorrow starts from today.
+ * its last digest. A due search with no matches is marked as done, so tomorrow starts from today; the caller marks
+ * the others once their email goes out.
  */
-export function collectDigests(tracker: Tracker, now: Date): Map<string, { label: string; target: string; listings: ListingSnapshot[] }[]> {
-  const out = new Map<string, { label: string; target: string; listings: ListingSnapshot[] }[]>();
+export function collectDigests(tracker: Tracker, now: Date): Map<string, { subscriptionId: string; label: string; target: string; listings: ListingSnapshot[] }[]> {
+  const out = new Map<string, { subscriptionId: string; label: string; target: string; listings: ListingSnapshot[] }[]>();
   if (vegasHour(now) < DIGEST_HOUR) return out;
   const today = pacificDay(now);
   const at = now.toISOString();
@@ -273,10 +310,14 @@ export function collectDigests(tracker: Tracker, now: Date): Map<string, { label
     const search = parseSearchTarget(s.target);
     // Saved searches cover the Treasurer's tax-sale list.
     const listings = search ? tracker.appearedSince(s.since).filter((l) => !l.source && matchesSearch(search, l)) : [];
-    tracker.markDigested(s.subscriptionId, at);
-    if (!listings.length) continue;
+    // A search with nothing new is done for today. One with matches is marked once its email is accepted
+    // (the caller does that), so a failed send is retried on the next run instead of being skipped.
+    if (!listings.length) {
+      tracker.markDigested(s.subscriptionId, at);
+      continue;
+    }
     const list = out.get(s.subscriberId) ?? [];
-    list.push({ label: s.label, target: s.target, listings });
+    list.push({ subscriptionId: s.subscriptionId, label: s.label, target: s.target, listings });
     out.set(s.subscriberId, list);
   }
   return out;

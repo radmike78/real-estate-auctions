@@ -20,6 +20,7 @@
 import type { AdArea } from './adAreas';
 import type { AdTier } from './adPlans';
 import type { StateCode } from './regions';
+import { pacificDay } from './time';
 
 export const REVERIFY_DAYS = 90;
 
@@ -308,7 +309,8 @@ export function safeWebsite(v: string | null): string | null {
 }
 
 export function listingProblems(p: Pro, now = new Date()): ListingProblem[] {
-  const today = now.toISOString().slice(0, 10);
+  // Paid-through and license dates are Pacific days, so the last paid day lasts until Pacific midnight.
+  const today = pacificDay(now);
   const out: ListingProblem[] = [];
   if (p.licenseStatus !== 'Active') out.push('LICENSE_NOT_ACTIVE');
   if (CATEGORIES[p.category]?.licenseExpires && p.licenseExpires && p.licenseExpires < today) out.push('LICENSE_EXPIRED'); // no date recorded: the 90-day re-check covers it
