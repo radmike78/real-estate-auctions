@@ -25,3 +25,8 @@ export function ago(iso: string, now = Date.now()): string {
   if (s < 86_400) return unit(Math.round(s / 3600), 'hour');
   return unit(Math.round(s / 86_400), 'day');
 }
+
+/** Today's date (YYYY-MM-DD) in Nevada/California time, the day paid-through and license dates are written in. */
+export function pacificDay(d: Date): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+}

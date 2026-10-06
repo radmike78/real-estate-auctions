@@ -71,11 +71,18 @@ export function foreclosureTrack(p: Property, now = new Date()): ForeclosureTrac
   const saleAt =
     p.sale && (p.sale.saleType === 'TRUSTEE_SALE' || p.sale.saleType === 'HOA_FORECLOSURE') ? p.sale.startsAt : null;
 
+  // A postponement or bankruptcy only counts while it's the newest step: a new notice of sale after it (or a later
+  // postponement after a bankruptcy is dismissed) moves the track on.
+  const latest = after
+    .map((e, i) => ({ e, i }))
+    .filter(({ e }) => e.type === 'NOTICE_OF_SALE' || e.type === 'SALE_POSTPONED' || e.type === 'BANKRUPTCY_FILED')
+    .sort((a, b) => b.e.date.localeCompare(a.e.date) || b.i - a.i)[0]?.e.type;
+
   let stage: ForeclosureStage;
   if (sold) stage = /lender|REO/i.test(sold.description) ? 'REVERTED_TO_LENDER' : 'SOLD_AT_AUCTION';
   else if (has('SALE_CANCELLED')) stage = 'CANCELLED';
-  else if (has('BANKRUPTCY_FILED')) stage = 'BANKRUPTCY_STAY';
-  else if (has('SALE_POSTPONED')) stage = 'POSTPONED';
+  else if (latest === 'BANKRUPTCY_FILED') stage = 'BANKRUPTCY_STAY';
+  else if (latest === 'SALE_POSTPONED') stage = 'POSTPONED';
   else if (saleAt && Date.parse(saleAt) < now.getTime()) stage = 'AWAITING_RESULT';
   else if (noticeOfSale) stage = 'SALE_SCHEDULED';
   else stage = 'DEFAULT_RECORDED';

@@ -178,11 +178,11 @@ Set `TRUST_PROXY=1` only when the server sits behind your own proxy that **appen
 
 ## 6. Browser hardening
 
-The production build adds a Content-Security-Policy. It allows only same-origin scripts and data, no inline scripts, no plugins, and map tiles only from OpenStreetMap. Configure your host to also send these headers:
+The production build adds a Content-Security-Policy. It allows only same-origin scripts and data, no inline scripts, no plugins, and map tiles only from OpenStreetMap. The Node server sends the headers below itself (the CSP header repeats `script-src 'self'`, so the script rule holds even for a page served without the `<meta>` tag). If another host serves the files, configure it to send them:
 
 ```
 Strict-Transport-Security: max-age=63072000; includeSubDomains
-Content-Security-Policy: frame-ancestors 'none'
+Content-Security-Policy: frame-ancestors 'none'; object-src 'none'; base-uri 'self'; script-src 'self'; form-action 'self'
 X-Content-Type-Options: nosniff
 Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: geolocation=(), camera=(), microphone=()

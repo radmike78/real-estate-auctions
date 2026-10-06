@@ -479,7 +479,7 @@ describe('advertising plans: checkout, caps and webhooks (running server, simula
     const three = [...two, { county: 'Clark', city: 'Boulder City' }];
     expect((await post(a.cookie, '/api/pro/areas', { areas: three })).status).toBe(200);
     const update = calls.filter((c) => c.path === 'subscriptions/sub_AREA01' && c.params.has('items[0][quantity]')).at(-1)!.params;
-    expect([update.get('items[0][id]'), update.get('items[0][quantity]'), update.get('proration_behavior')]).toEqual(['si_AREA01', '3', 'always_invoice']);
+    expect([update.get('items[0][id]'), update.get('items[0][quantity]'), update.get('proration_behavior'), update.get('payment_behavior')]).toEqual(['si_AREA01', '3', 'always_invoice', 'pending_if_incomplete']);
     expect((await meOf(a.cookie)).payments.paidAreaCount).toBe(2);
     expect(toPro(app.db.get(a.id)!)!.adAreas).toEqual(two); // the new area isn't published until Stripe confirms it
     await hook({ id: `evt_areas_${a.id}_2`, type: 'customer.subscription.updated', data: { object: { id: 'sub_AREA01', customer, status: 'active', items: { data: [{ price: { id: 'price_STD001' }, quantity: 3 }] } } } });
@@ -494,6 +494,60 @@ describe('advertising plans: checkout, caps and webhooks (running server, simula
     // A proration invoice after dropping an area: the credit line (old quantity) doesn't count.
     expect(invoiceQuantity({ lines: { data: [line(3, -3300), line(2, 2200)] } }, (id) => id === 'price_STD001')).toBe(2);
     expect(invoiceQuantity({ lines: { data: [{ quantity: 9, amount: 100, price: { id: 'price_OTHER' } }] } }, (id) => id === 'price_STD001')).toBeNull();
+  });
+
+  it('keeps capped spots when a plan is switched on Stripe, and never takes a payment without recording it', async () => {
+    // Lenders in Clark County already fill the Featured spots (see above).
+    const a = advertiser('loan_officer', { tier: 'standard', areas: 1 } as never);
+    const t = new Date().toISOString();
+    app.db.stripe.link(a.id, 'cus_capx1', t);
+    app.db.stripe.setSubscription(a.id, { subscriptionId: 'sub_CAPX01', status: 'active' }, t);
+    await hook({ id: 'evt_capx_1', type: 'customer.subscription.updated', data: { object: { id: 'sub_CAPX01', customer: 'cus_capx1', status: 'active', items: { data: [{ price: { id: 'price_PRM001' }, quantity: 1 }] } } } });
+    expect(app.db.get(a.id)!.billing?.tier).toBe('standard');
+    expect(app.db.auditFor(a.id).find((e) => e.action === 'CAP_FULL')!.detail).toMatch(/Featured ad spots.*Kept Rotating.*Refund/);
+    // Stripe then charges the Spotlight price: the payment is recorded, the placement stays Rotating.
+    await hook({ id: 'evt_capx_2', type: 'invoice.paid', data: { object: { customer: 'cus_capx1', subscription: 'sub_CAPX01', amount_paid: 19900, currency: 'usd', lines: { data: [{ quantity: 1, amount: 19900, period: { end: periodEnd }, price: { id: 'price_PRM001' } }] } } } });
+    expect(app.db.get(a.id)!.billing?.tier).toBe('standard');
+    expect(app.db.auditFor(a.id).some((e) => e.action === 'PAYMENT_RECEIVED')).toBe(true);
+  });
+
+  it('ignores late events for a canceled subscription and flags a second subscription instead of replacing the first', async () => {
+    const a = advertiser('agent', { tier: 'standard' });
+    const t = new Date().toISOString();
+    app.db.stripe.link(a.id, 'cus_order1', t);
+    app.db.stripe.setSubscription(a.id, { subscriptionId: 'sub_ORDER01', status: 'active' }, t);
+    // A second subscription (two checkout tabs) is flagged, and doesn't take over.
+    await hook({ id: 'evt_dup_1', type: 'customer.subscription.created', data: { object: { id: 'sub_ORDER02', customer: 'cus_order1', status: 'active', items: { data: [{ price: { id: 'price_STD001' } }] } } } });
+    expect(app.db.stripe.forPro(a.id)).toMatchObject({ subscriptionId: 'sub_ORDER01', status: 'active' });
+    expect(app.db.auditFor(a.id).some((e) => e.action === 'DUPLICATE_SUBSCRIPTION' && /sub_ORDER02/.test(e.detail ?? ''))).toBe(true);
+    // Canceling the duplicate leaves the real plan running.
+    await hook({ id: 'evt_dup_2', type: 'customer.subscription.deleted', data: { object: { id: 'sub_ORDER02', customer: 'cus_order1', status: 'canceled' } } });
+    expect(app.db.stripe.forPro(a.id)!.status).toBe('active');
+    // Once the real plan is canceled, a late "active" update for it doesn't bring it back.
+    await hook({ id: 'evt_ord_1', type: 'customer.subscription.deleted', data: { object: { id: 'sub_ORDER01', customer: 'cus_order1', status: 'canceled' } } });
+    await hook({ id: 'evt_ord_2', type: 'customer.subscription.updated', data: { object: { id: 'sub_ORDER01', customer: 'cus_order1', status: 'active', items: { data: [{ price: { id: 'price_STD001' } }] } } } });
+    expect(app.db.stripe.forPro(a.id)!.status).toBe('canceled');
+    expect((await meOf(a.cookie)).payments.active).toBe(false);
+  });
+
+  it('won’t re-approve a suspended advertiser into a spot someone else took meanwhile', async () => {
+    const a = advertiser('loan_officer', { tier: 'premium' });
+    app.db.update(a.id, { status: 'SUSPENDED' }, new Date().toISOString());
+    const token = newToken();
+    app.db.sessions.create(sha256(token), 'admin', 'admin', Date.now());
+    const verification = { licenseStatus: 'Active', licenseExpires: '2099-01-01', nameMatches: true, typeMatches: true, companyMatches: true, identityConfirmed: true, contentReviewed: true, identityMethod: 'Called the main line from the regulator record.' };
+    const r = await fetch(`${base}/api/admin/applications/${a.id}/approve`, { method: 'POST', headers: { cookie: `fsf_admin=${token}`, 'content-type': 'application/json', 'x-fsf-request': '1' }, body: JSON.stringify({ verification }) });
+    expect(r.status).toBe(409);
+    expect((await r.json()).error).toMatch(/is full.*taken while they were suspended/);
+    expect(app.db.get(a.id)!.status).toBe('SUSPENDED');
+  });
+
+  it('refuses report dates that are not real calendar days', async () => {
+    const a = advertiser('agent', { tier: 'standard' });
+    const get = (q: string) => fetch(`${base}/api/pro/metrics?${q}`, { headers: { cookie: a.cookie } });
+    expect((await get('from=2026-02-01&to=2026-02-31')).status).toBe(400);
+    expect((await get('to=2026-13-01')).status).toBe(400);
+    expect((await get('from=2026-02-01&to=2026-02-28')).status).toBe(200);
   });
 });
 

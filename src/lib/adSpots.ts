@@ -66,7 +66,7 @@ export function cleanSpots(v: unknown): SpotSettings {
     AD_SPOTS.map((s) => {
       const x = o[s.key] && typeof o[s.key] === 'object' ? (o[s.key] as Record<string, unknown>) : null;
       if (!x) return [s.key, defaultSpot(s)];
-      const cats = x.categories === 'auto' && s.auto ? 'auto' : Array.isArray(x.categories) ? [...new Set(x.categories.filter((c): c is Category => typeof c === 'string' && c in CATEGORIES))] : defaultSpot(s).categories;
+      const cats = x.categories === 'auto' && s.auto ? 'auto' : Array.isArray(x.categories) ? [...new Set(x.categories.filter((c): c is Category => typeof c === 'string' && Object.prototype.hasOwnProperty.call(CATEGORIES, c)))] : defaultSpot(s).categories;
       return [s.key, { on: x.on === true, categories: cats }];
     }),
   );
