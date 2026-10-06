@@ -108,7 +108,7 @@ function forOffer<T>(groups: CalcGroup<T>[]): CalcGroup<T>[] {
     survivingLiens: { label: 'Liens you’d have to pay', hint: 'Usually paid off at closing. Check the title report.' },
     titleLegal: { label: 'Closing costs: title, escrow, recording', hint: 'Lender fees go in “Loan costs” below.', more: 'Your Loan Estimate or the lender’s term sheet and the escrow officer’s estimate have the real figures. Together with lender fees, closing costs often run 2–4% of the price.' },
     possession: { hint: 'Only if a tenant or the owner stays after closing.' },
-    value: { label: 'Appraised value', hint: 'From sold comps. The loan uses the lower of this and the price.' },
+    value: { label: 'Appraised value', hint: 'The value the lender’s appraisal supports. The loan uses the lower of this and the price.', more: 'Homes are appraised mainly from recent sales nearby; commercial appraisals also weigh the income and the cost to rebuild. A seller’s or agent’s estimate isn’t an appraisal. Replace this, and the loan percentage, with your lender’s numbers when you have them.' },
     loanPct: { label: 'Loan, % of the price or value (lower)', hint: '75% (25% down) is common for a rental you won’t live in. 0 for all cash.', more: 'Lenders lend a % of the price or the appraised value, whichever is lower. A lower price means a smaller loan and a lower payment. Ask your lender for their limits.' },
   };
   return groups.map((g) => ({
@@ -136,7 +136,7 @@ function loanGroup<T extends LoanInputs>(valueLabel: string, valueHint: string):
   };
 }
 
-function HoldResults({ r, title, target, noiNote, minDscr, offer = false, example = false }: { r: HoldResult; title: string; target: string; noiNote: string; minDscr: number; offer?: boolean; /** Every number is still a starting example. */ example?: boolean }) {
+function HoldResults({ r, title, target, noiNote, minDscr, offer = false, example = false, commercial = false }: { r: HoldResult; title: string; target: string; noiNote: string; minDscr: number; offer?: boolean; /** Every number is still a starting example. */ example?: boolean; /** Commercial: no residential lender panel to point to. */ commercial?: boolean }) {
   return (
     <>
       {example && <p className="notice small" role="note"><strong>Example numbers.</strong> These results come from sample inputs, not your property. Replace the price, rent and costs with yours to get your own walk-away price.</p>}
@@ -159,10 +159,10 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false, exampl
           {r.reserves > 0 && <div><dt>Reserves for big replacements, per year</dt><dd>{fmtMoney(Math.round(r.reserves))}</dd></div>}
           <div><dt>Return on everything you pay before loan fees (cap rate on cost)</dt><dd>{pctText(r.capOnCost)}</dd></div>
           {r.debtService > 0 && <div><dt>Debt service: loan payments, per year</dt><dd>{fmtMoney(Math.round(r.debtService))}</dd></div>}
-          <div><dt>Cash flow, per month: NOI minus {r.reserves > 0 ? 'reserves and ' : ''}loan payments</dt><dd>{fmtMoney(Math.round(r.cashFlow / 12))}</dd></div>
+          <div><dt>Cash flow, per month: NOI minus {r.reserves > 0 ? 'reserves and ' : ''}loan payments{r.reserves > 0 ? '' : ' (before any replacement reserves)'}</dt><dd>{fmtMoney(Math.round(r.cashFlow / 12))}</dd></div>
           {r.debtService > 0 && <div><dt>Your cash left in the deal</dt><dd>{r.cashLeft > 0 ? fmtMoney(Math.round(r.cashLeft)) : 'None: the loan repays it'}</dd></div>}
-          <div><dt>Cash-on-cash return</dt><dd>{r.cashOnCash === null ? 'All your cash is back' : pctText(r.cashOnCash)}</dd></div>
-          {r.dscr !== null && <div><dt>Income coverage: NOI ÷ loan payments (the stricter test; a DSCR-loan lender uses rent ÷ the full payment, shown under “What the lenders will see”)</dt><dd>{r.dscr.toFixed(2)}×</dd></div>}
+          <div><dt>Cash-on-cash return: that cash flow ÷ your cash left in the deal</dt><dd>{r.cashOnCash === null ? 'All your cash is back' : pctText(r.cashOnCash)}</dd></div>
+          {r.dscr !== null && <div><dt>{commercial ? 'Debt-service coverage: yearly NOI ÷ yearly loan payments. Your lender may adjust the income, costs and reserves when it underwrites; ask for its calculation and minimum.' : 'Income coverage: NOI ÷ loan payments (a DSCR-loan lender instead divides rent by the full payment; see “How a lender sees this rent”)'}</dt><dd>{r.dscr.toFixed(2)}×</dd></div>}
         </dl>
       )}
       {r.dscr !== null && !r.loanOk && (
@@ -466,11 +466,12 @@ const COMMERCIAL_GROUPS: CalcGroup<CommercialInputs>[] = [
     title: 'Leasing it',
     fields: [
       { k: 'monthlyRent', label: 'Monthly rent, all spaces leased', unit: '$', hint: 'Market rent for each space.' },
-      { k: 'otherMonthly', label: 'Other income, per month', unit: '$', hint: 'Parking, signs, reimbursements.' },
+      { k: 'otherMonthly', label: 'Other income, per month', unit: '$', hint: 'Parking, signs, storage. Not tenant reimbursements: see below.', more: 'Count each reimbursement once. The cost lines and the operating-cost percentage here are what you pay after tenants reimburse you, so leave reimbursements out of income. (If you’d rather add reimbursements as income, enter the full costs instead; the NOI comes out the same.)' },
       { k: 'vacancyPct', label: 'Vacancy and unpaid rent', unit: '%' },
       { k: 'expensePct', label: 'Operating costs', unit: '%', hint: 'Of rent collected. Or enter them line by line below.', more: 'Taxes, insurance, repairs, management and utilities you pay. It depends on the leases: under triple-net leases tenants pay most of these.', when: (v) => commercialLines(v, 1) === 0 },
       { k: 'leaseUpMonths', label: 'Months to lease it up', unit: 'mo', hint: 'Foreclosed buildings are often empty.' },
       { k: 'monthlyCarry', label: 'Costs while empty, per month', unit: '$' },
+      { k: 'reservesYear', label: 'Set aside for replacements, per year', unit: '$', hint: 'Roof, HVAC, paving, and future tenant improvements and leasing commissions.', more: 'Repairs you budget before you buy don’t pay for the next roof or the next tenant’s build-out. This comes out after NOI, so NOI and your cap rate stay the same; cash flow and cash-on-cash return drop. Ask your lender what reserve it underwrites.' },
     ],
   },
   {
@@ -478,7 +479,7 @@ const COMMERCIAL_GROUPS: CalcGroup<CommercialInputs>[] = [
     fields: [
       { k: 'opTaxYear', label: 'Property tax you pay, per year', unit: '$', hint: 'After what tenants reimburse under their leases.', more: 'Read each lease: under a triple-net (NNN) lease the tenant pays its share of taxes, insurance and common-area costs, so your cost is only the vacant spaces’ share. Under a gross lease you pay them. Any line here replaces the percentage above.' },
       { k: 'opInsuranceYear', label: 'Insurance you pay, per year', unit: '$' },
-      { k: 'opRepairsYear', label: 'Repairs and upkeep, per year', unit: '$', hint: 'Including common areas you aren’t reimbursed for.' },
+      { k: 'opRepairsYear', label: 'Repairs and upkeep, per year', unit: '$', hint: 'Including common areas, after what tenants reimburse.' },
       { k: 'opUtilitiesYear', label: 'Utilities you pay, per year', unit: '$' },
       { k: 'opManagementPct', label: 'Management', unit: '%', hint: 'Of rent collected.' },
       { k: 'opOtherYear', label: 'Everything else, per year', unit: '$', hint: 'Legal, accounting, leasing fees, licenses.' },
@@ -504,7 +505,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
     <div className="calc">
       <div className="calc-inputs"><CalcFields groups={offer ? forOffer(ct.groups) : ct.groups} values={v} onChange={set} /></div>
       <div className="calc-results">
-        <HoldResults r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} example={!typed && Object.keys(start).length === 0} />
+        <HoldResults commercial r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} example={!typed && Object.keys(start).length === 0} />
       </div>
     </div>
   );

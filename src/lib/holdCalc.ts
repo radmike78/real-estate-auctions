@@ -58,6 +58,8 @@ export interface CommercialInputs extends BuyInputs, LoanInputs {
   opOtherYear: number;
   leaseUpMonths: number; // months to find tenants before rent starts
   monthlyCarry: number; // carrying costs while empty
+  /** Yearly money set aside for big replacements and future leasing (roof, HVAC, tenant improvements), after NOI. */
+  reservesYear: number;
   targetCapPct: number; // yield on your all-in cost you require (going-in cap rate)
   minDscr: number;
 }
@@ -317,7 +319,7 @@ export function commercialMaxBid(i: CommercialInputs, onPrice = false): HoldResu
   const cap = nz(i.targetCapPct) / 100;
   const noi = commercialNoi(i).noi;
   const withLeaseUp = { ...i, possession: nz(i.possession) + leaseUpCost };
-  return { ...hold(withLeaseUp, noi, () => (cap > 0 ? noi / cap : Infinity), i.minDscr, 0, onPrice, onPrice ? i.leaseUpMonths : 0), leaseUpCost: r2(leaseUpCost) };
+  return { ...hold(withLeaseUp, noi, () => (cap > 0 ? noi / cap : Infinity), i.minDscr, nz(i.reservesYear), onPrice, onPrice ? i.leaseUpMonths : 0), leaseUpCost: r2(leaseUpCost) };
 }
 
 // ---------------- Lien certificates (special assessment / SID) ----------------
@@ -352,7 +354,7 @@ export const RENT_DEFAULTS: RentInputs = {
 export const COMMERCIAL_DEFAULTS: CommercialInputs = {
   cashAvailable: 0, buyerPremiumPct: 0, transferTaxPer500: 2.55, survivingLiens: 0, titleLegal: 2_500, possession: 500, repairs: 50_000, contingencyPct: 15,
   monthlyRent: 12_000, otherMonthly: 0, vacancyPct: 10, expensePct: 35,
-  opTaxYear: 0, opInsuranceYear: 0, opRepairsYear: 0, opUtilitiesYear: 0, opManagementPct: 0, opOtherYear: 0, leaseUpMonths: 6, monthlyCarry: 2_000, targetCapPct: 9, minDscr: 1.25,
+  opTaxYear: 0, opInsuranceYear: 0, opRepairsYear: 0, opUtilitiesYear: 0, opManagementPct: 0, opOtherYear: 0, leaseUpMonths: 6, monthlyCarry: 2_000, reservesYear: 0, targetCapPct: 9, minDscr: 1.25,
   value: 0, loanPct: 0, ratePct: 8, years: 25, loanCostPct: 2,
 };
 

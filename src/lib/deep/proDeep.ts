@@ -847,7 +847,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Ask for a sample report and what is excluded (roof walk, crawlspace, sewer line, pool, solar).",
       "Attend the inspection and ask questions on site.",
       "Order specialist inspections for anything flagged: sewer scope, roof, structure, pests, mold.",
-      "Keep an inspection contingency with enough days to get repair bids. If you must compete, offer a repair credit instead of waiving.",
+      "Keep an inspection contingency with enough days to get repair bids, even when you’re competing. After the inspection, use the bids to ask the seller for a lower price or a seller-paid credit toward your closing costs (your lender may cap the credit). If you can’t agree, check your cancellation right and its deadline with your agent.",
       "Use the report to request repairs or credits in writing before the contingency deadline."
     ],
     facts: [
@@ -887,7 +887,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         year: "2021",
         title: "Waived inspection after four lost bids, then paid for floors, electrical and plumbing",
         happened: "After losing four bids, he waived the home inspection contingency to make his offer stand out. After closing he paid to replace floors and carpet and for electricians and plumbers. His advice: “Don’t do what I did.”",
-        lesson: "Winning the house isn’t a win if hidden repairs eat your savings. Keep the inspection or offer a repair credit instead.",
+        lesson: "Winning the house isn’t a win if hidden repairs eat your savings. Keep your inspection right, then use the repair bids to negotiate the price or a seller credit.",
         source: {
           label: "FOX6 Milwaukee: Waiving home inspection: Home buyers took risk to land houses in 2021 (Nov 10, 2021)",
           url: "https://www.fox6now.com/news/home-buyers-risk-waiving-home-inspection"
@@ -1420,7 +1420,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     overview: [
       "A property manager finds and screens tenants, collects rent, handles repairs and keeps owners’ and tenants’ money in trust accounts. In Nevada, managing rentals for others requires a real estate license plus a property management permit. In Texas, collecting rent for someone else from a tenant in a single-family home counts as real estate brokerage, which needs a TREC license (Occupations Code 1101.002). Check your state’s real estate regulator for the licensing rules that apply to managers there.",
       "The biggest risk is the trust account. If a manager mixes or spends owner rents and tenant deposits, owners can lose months of rent. They can still owe tenants their deposits back. Nevada regulators found one Las Vegas broker’s security deposit account held $15 when his records said $185,343.",
-      "Licensing also gives you a backstop. California’s Department of Real Estate Consumer Recovery Account, Arizona’s Real Estate Recovery Fund and Texas’s Real Estate Recovery Trust Account can repay some losses caused by licensees. They pay after a court judgment, up to set limits."
+      "A license lets you check that the manager is allowed to do the work, see any discipline, and file a complaint with the state regulator. Separately, California’s Department of Real Estate Consumer Recovery Account, Arizona’s Real Estate Recovery Fund and Texas’s Real Estate Recovery Trust Account can repay some losses caused by licensees, but only certain claimants and claims qualify, usually after a court judgment, and only up to set limits. They don’t insure your investment or cover every rental problem."
     ],
     bestFor: [
       "Out-of-state investors who can’t handle showings, repairs and rent collection themselves.",

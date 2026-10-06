@@ -2160,7 +2160,7 @@ export const STATE_GUIDES: Playbook[] = [
   title: "California commercial property",
   short: "Commercial property",
   oneLine: "Stores, offices, industrial buildings, apartments with 5+ units and commercial land in California. Banks, trustees, sheriffs, receivers and tax collectors sell them.",
-  youGet: "The same kind of deed you’d get buying a home the same way. But you don’t get California’s home seller disclosures, and the property often comes with tenants, leases and environmental history.",
+  youGet: "The same kind of deed you’d get buying a home the same way. A purely commercial building doesn’t come with California’s home seller disclosures, but a mixed-use building with one to four homes in it may, unless the sale is exempt; confirm which disclosures apply with your agent or attorney. The property often comes with tenants, leases and environmental history.",
   forSale: true,
   glance: [
     {
