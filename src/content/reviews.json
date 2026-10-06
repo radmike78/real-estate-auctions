@@ -116,7 +116,7 @@
       "src/lib/saleDocs.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "10e369efab739b14",
+    "hash": "2483983c945bbc6d",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "9ccbc12e8df80843",
+    "hash": "8137cdf873080078",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -204,7 +204,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "cac44d5005c86b0a",
+    "hash": "ba8fd1f4eb076c80",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -355,7 +355,7 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "c9e448d6314ce686",
+    "hash": "05970561d34f548b",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -392,7 +392,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "d10eeb82e7d7c271",
+    "hash": "603b52af4938dab5",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {

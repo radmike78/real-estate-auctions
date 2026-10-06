@@ -45,7 +45,7 @@ export const walkAway: Lesson = {
           'Signs of water damage, mold or past fire damage.',
         ] },
         'Flood risk: look up the flood zone on FEMA’s Flood Map Service Center. If a home is in a high-risk flood area and has a mortgage from a government-backed lender, it must have flood insurance, and that can change your numbers.',
-        'Lead paint: for most housing built before 1978, sellers and landlords must tell you about any lead-based paint and hazards they know of. Buyers also get 10 days for a lead inspection unless they waive it.',
+        'Lead paint: for most housing built before 1978, sellers and landlords must tell you about any lead-based paint and hazards they know of. Buyers also get 10 days for a lead inspection unless they waive it. Sales at foreclosure are exempt, so at a foreclosure auction plan your own lead-safe inspection.',
         'Insurance: get a quote before you commit. If no one will insure the property at a workable price, that’s a deal breaker.',
       ],
     },
