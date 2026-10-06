@@ -136,7 +136,7 @@ export const PRO_WHY = {
       },
       {
         who: "Landlord planning to hold",
-        text: "Short-term, high-rate money rarely fits a long-term rental unless you’re sure you can refinance. Rental income seldom covers hard-money payments."
+        text: "Short-term, high-rate money rarely fits a long-term rental unless you have a lender’s written refinance requirements and a backup plan if the refinance comes late or not at all. Rental income seldom covers hard-money payments."
       },
       {
         who: "Everyone",

@@ -304,7 +304,7 @@ const TX: CaseConfig = {
   earnestCredit: (n) => `${usd(n.earnest)} in earnest money and option fee`,
   earnestShort: 'earnest money and option fee',
   rentRulesNote: 'Rules on deposits, locks and applications are state law. The ones below are Texas’s, because this practice house is in Texas.',
-  rekeyWhy: 'You don’t know who else has keys. Texas also requires rekeying within 7 days after each tenant moves out (Property Code 92.156).',
+  rekeyWhy: 'You don’t know who else has keys. Texas also requires rekeying no later than 7 days after each new tenant moves in (Property Code 92.151(15), 92.156).',
   rentTasks: (n) => [
     {
       kind: 'choice',

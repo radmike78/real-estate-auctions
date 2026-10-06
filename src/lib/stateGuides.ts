@@ -1276,7 +1276,7 @@ export const STATE_GUIDES: Playbook[] = [
     wipedOut: [
       "The trust deed being foreclosed",
       "The owner’s rights and the rights of anyone claiming through the owner. This includes later trust deeds and liens recorded after the foreclosed loan",
-      "Any right of redemption. Utah trustee sales have none."
+      "The former owner’s right to buy it back: Utah trustee sales have none (57-1-28). If a federal tax lien was on title, the United States can still redeem within 120 days"
     ],
     mayStay: [
       "Older (senior) trust deeds and liens recorded before the loan being foreclosed",
@@ -2181,7 +2181,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Environmental",
-      value: "A Phase I environmental site assessment can protect you from having to pay for a federal cleanup. It has to be done within one year before you buy, with key parts updated within 180 days (EPA All Appropriate Inquiries)."
+      value: "A Phase I environmental site assessment can protect you from having to pay for a federal cleanup. It has to be done within one year before you buy, with key parts updated within 180 days, and you have duties after you buy too (EPA All Appropriate Inquiries)."
     },
     {
       label: "Accessibility",
@@ -2195,7 +2195,7 @@ export const STATE_GUIDES: Playbook[] = [
   steps: [
     {
       title: "Pin down what you’re buying",
-      detail: "Use the county assessor’s record for land use, building size and year built. Use the parcel map for access and boundaries."
+      detail: "Use the county assessor’s record for land use, building size and year built. Use the parcel map to find the parcel and spot questions. The title company confirms legal access from recorded easements, and a survey confirms boundaries."
     },
     {
       title: "Get the rent roll and leases",
@@ -2248,7 +2248,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Skipping the environmental check",
-      prevent: "Past uses can mean cleanup costs bigger than the price. Get a Phase I assessment on time so you keep the federal legal protection (EPA)."
+      prevent: "Past uses can mean cleanup costs bigger than the price. A Phase I assessment done on time is part of keeping the federal protection, along with duties after you buy; it isn’t a promise you’ll never pay for cleanup (EPA)."
     },
     {
       mistake: "Expecting a seller disclosure statement",
@@ -2999,7 +2999,7 @@ export const STATE_GUIDES: Playbook[] = [
   steps: [
     {
       title: "Pin down what you’re buying",
-      detail: "Use the county assessor record for land use, building size, year built and property class. Use the parcel map for access and boundaries. Work only with the official seller: the trustee, sheriff, receiver, treasurer or the bank’s listing broker. Never contact the owner, its employees or its customers."
+      detail: "Use the county assessor record for land use, building size, year built and property class. Use the parcel map to find the parcel and spot questions. The title company confirms legal access from recorded easements, and a survey confirms boundaries. Work only with the official seller: the trustee, sheriff, receiver, treasurer or the bank’s listing broker. Never contact the owner, its employees or its customers."
     },
     {
       title: "Know which sale rules apply",
@@ -3213,7 +3213,7 @@ export const STATE_GUIDES: Playbook[] = [
     wipedOut: [
       "The association’s lien being foreclosed",
       "The owner’s interest and liens recorded after the association’s lien, if the sale was valid",
-      "Redemption rights, after a trustee sale (there are none)"
+      "The former owner’s right to buy it back, after a trustee sale (there is none under Utah law; the United States can still redeem within 120 days if a federal tax lien was on title)"
     ],
     mayStay: [
       "A first or second mortgage recorded before the association’s notice of lien (the usual case)",
@@ -3820,7 +3820,7 @@ export const STATE_GUIDES: Playbook[] = [
   steps: [
     {
       title: "Pin down what you’re buying",
-      detail: "Use the county assessor’s record for land use, building size and year built. Use the county recorder for the legal description, easements and recorded leases. Check access and boundaries on the parcel map."
+      detail: "Use the county assessor’s record for land use, building size and year built. Use the county recorder for the legal description, easements and recorded leases. Use the parcel map to find the parcel and spot questions. The title company confirms legal access from recorded easements, and a survey confirms boundaries."
     },
     {
       title: "Get the rent roll and leases, if you can",

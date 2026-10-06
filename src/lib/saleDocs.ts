@@ -73,7 +73,7 @@ export const SALE_DOCS: Record<SaleKindKey, SaleDoc[]> = {
     TITLE_SEARCH,
     { name: 'Any recorded payment of the super-priority amount', check: 'In Nevada, search the Recorder for it before the sale: it changes whether the first mortgage survives.' },
     FUNDS,
-    { name: 'Certificate of sale, then the deed', check: 'In Nevada, you get a certificate of sale first. The owner or a junior lender can redeem for 60 days. If no one does, you get a deed without warranty. Don’t renovate before then. In other states, read your guide for when the deed comes.' },
+    { name: 'Certificate of sale, then the deed', check: 'In Nevada, you get a certificate of sale first. The owner or a junior lender can redeem for 60 days. If no one does, you get a deed without warranty. Don’t renovate before then.' },
   ],
   sheriff: [
     NOTICE,
@@ -187,10 +187,20 @@ const TX_DOCS: Partial<Record<SaleKindKey, SaleDoc[]>> = {
 };
 
 /** The documents for one guide, leaving out rules that belong to another state. */
+// The HOA deed and buy-back period differ by state, so the Nevada certificate entry is swapped for the state's own
+// (Civ. Code 5715 and CCP 729.035; A.R.S. 12-1282, 12-1286; Utah Code 57-1-28, URCP 69C).
+const HOA_DEED: Partial<Record<string, SaleDoc>> = {
+  CA: { name: 'The trustee’s deed, and the 90-day redemption deadline', check: 'After a nonjudicial HOA sale, the home can be bought back for 90 days (Civil Code 5715, CCP 729.035). Ask the trustee when it will deliver your deed and put the 90th day on your calendar. Don’t renovate before then; spend only to protect the property.' },
+  AZ: { name: 'Certificate of sale, then the sheriff’s deed', check: 'An Arizona HOA forecloses in court. You get a certificate of sale at the sheriff’s sale, and the owner can redeem for 6 months, or 30 days if the court found the home abandoned (A.R.S. 12-1282). The sheriff’s deed comes only after every redemption period ends (12-1286). The judgment tells you which period applies. Don’t renovate before then.' },
+  UT: { name: 'The deed, or the certificate of sale', check: 'Trustee sale: the trustee sends the trustee’s deed for recording within 5 business days after you pay, and the former owner has no right to buy it back (Utah Code 57-1-28). Court foreclosure: you get a certificate of sale, and the owner or a junior creditor can redeem for 180 days (URCP 69C). Either way, if a federal tax lien was on title, the United States can redeem within 120 days. Ask your title company before you renovate.' },
+};
+
 export function saleDocsFor(guideKey: string, state: string): SaleDoc[] {
   const kind = saleKindOf(guideKey);
   if (state === 'TX' && TX_DOCS[kind]) return TX_DOCS[kind];
-  return SALE_DOCS[kind].filter((d) => state === 'NV' || !/super-priority/.test(d.name));
+  const docs = SALE_DOCS[kind].filter((d) => state === 'NV' || !/super-priority/.test(d.name));
+  const deed = kind === 'hoa' ? HOA_DEED[state] : undefined;
+  return deed ? docs.map((d) => (/^Certificate of sale, then the deed/.test(d.name) ? deed : d)) : docs;
 }
 
 const TX_SCRIPTS: Partial<Record<SaleKindKey, SaleScript[]>> = {

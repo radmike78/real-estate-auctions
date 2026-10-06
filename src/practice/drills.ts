@@ -665,6 +665,7 @@ export const DRILLS: Drill[] = [
       { label: 'Value', value: 'About $410,000' },
       { label: 'First mortgage', value: '$185,000, recorded before the federal tax lien' },
       { label: 'Contractor’s lien', value: '$22,000, recorded after the federal tax lien, for work that started after the IRS filed its lien' },
+      { label: 'Title professional’s finding', value: 'The mortgage ranks ahead of the IRS lien; the contractor’s lien ranks behind it' },
     ],
     missions: [
       {
@@ -674,7 +675,7 @@ export const DRILLS: Drill[] = [
         question: 'Pick the right answer.',
         multi: false,
         options: [
-          { label: 'The deed clears the contractor’s lien, which ranked behind the federal tax lien, but the earlier mortgage stays', good: true, why: 'Right. The deed discharges liens the federal tax lien had priority over (26 U.S.C. 6339(c)). Liens ahead of it aren’t cleared.' },
+          { label: 'The deed clears the contractor’s lien, which ranked behind the federal tax lien, but the earlier mortgage stays', good: true, why: 'Right. The deed discharges liens the federal tax lien had priority over (26 U.S.C. 6339(c)). Liens ahead of it aren’t cleared. Recording dates are where the research starts; your title professional’s ranking is what settles it.' },
           { label: 'The deed clears every lien, because the IRS sold it', good: false, why: 'Only liens junior to the federal tax lien are cleared. A mortgage recorded first usually stays.' },
           { label: 'Nothing is cleared; I take every lien', good: false, why: 'Liens junior to the federal tax lien are discharged by the deed.' },
         ],
@@ -1502,7 +1503,7 @@ export const DRILLS: Drill[] = [
           { label: 'Estoppel certificates confirming their rent and any claims', good: true, why: 'Right.' },
           { label: 'Nothing: occupied space is safe income', good: false, why: 'Check every lease. Occupied isn’t the same as secure.' },
         ],
-        lesson: 'Value the building as it is today, then subtract what it costs and how long it takes to reach full occupancy.',
+        lesson: 'Start from what the building would be worth fully leased, then subtract the lease-up costs, the rent you go without and a cushion for the time and risk. Also work out what today’s income supports, so you see how much of the price depends on leasing that hasn’t happened yet.',
       },
     ],
     verdict: {
@@ -2304,7 +2305,7 @@ export const DRILLS: Drill[] = [
           { label: 'Financing', value: 'Land loans often need a larger down payment and a shorter term than home loans' },
           { label: 'Resale', value: 'Fewer buyers can pay cash, so land can take longer to sell' },
         ],
-        lesson: 'Land pays you only when you sell or build, so plan to hold it with cash you won’t need.',
+        lesson: 'This plan earns nothing until you sell or build, so plan to cover the taxes and other costs for the whole wait with cash you won’t need.',
       },
     ],
     verdict: {

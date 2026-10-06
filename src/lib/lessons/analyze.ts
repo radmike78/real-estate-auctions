@@ -76,7 +76,7 @@ export const analyze: Lesson = {
           'Many policies limit coverage once a home has been empty for a while, often 60 days in a row. That’s a typical repair period, so read the vacancy clause and ask about a vacant-home or builder’s risk policy.',
           'In California’s wildfire areas, private insurers often say no. The California FAIR Plan mainly covers fire, so most owners add a separate policy for theft, water damage and liability. Get both quotes before you commit.',
           'In Texas, many policies have a separate wind and hail deductible set as a percentage of the dwelling coverage, often 1% or 2%. On $250,000 of coverage, 2% means you pay the first $5,000 of a hail claim. Put it in your reserves.',
-          'On the Texas coast, private insurers often won’t cover wind and hail. The Texas Windstorm Insurance Association (TWIA) covers them in its designated coastal area. For a building built or repaired since 1988, TWIA usually wants a windstorm Certificate of Compliance (WPI-8). Ask the seller for it before you commit.',
+          'On the Texas coast, private insurers often won’t cover wind and hail. The Texas Windstorm Insurance Association (TWIA) covers them in its designated coastal area. For a building built or repaired since 1988, TWIA usually wants a windstorm certificate (WPI-8, WPI-8-C or WPI-8-E), with some exceptions. Ask the seller for it, and ask an insurance agent whether the address qualifies and for a written quote before you commit. Windstorm coverage doesn’t include flood.',
           'Most homeowner policies don’t cover flood. Check the flood zone and price a flood policy if you need one.',
           'Get a written quote, or a binder for an auction, before your inspection period ends or before you bid. If no one will insure it at a price that works, walk away.',
         ] },
@@ -122,7 +122,7 @@ export const analyze: Lesson = {
         { list: [
           'Title: a title search shows who owns the property and what liens are recorded. Owner’s title insurance protects you if someone later claims an interest from before you bought it. Lenders usually require their own policy.',
           'Condition: a home inspection is not the same as an appraisal, and you usually need both. At an auction you often can’t go inside, so look from the street and budget for surprises.',
-          'Lead paint: for homes built before 1978, sellers must give buyers a lead hazard pamphlet and a 10-day chance to test for lead-based paint. Buyers can choose to skip (waive) that chance.',
+          'Lead paint: for homes built before 1978, sellers must give buyers a lead hazard pamphlet and a 10-day chance to test for lead-based paint. Buyers can choose to skip (waive) that chance. A sale at foreclosure is exempt from this federal rule, so at a foreclosure auction you get no disclosure and no testing period. That doesn’t make the home lead-free: plan for a lead-safe inspection and repairs. A bank’s later resale of the home isn’t exempt.',
           'Flood risk: check the property on FEMA’s Flood Map Service Center, the official source for flood zones.',
           'Taxes: look up the property tax bill and any unpaid taxes with the county assessor and treasurer.',
         ] },

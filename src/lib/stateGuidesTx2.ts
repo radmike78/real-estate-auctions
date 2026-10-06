@@ -550,7 +550,7 @@ export const TX_GUIDES_2: Playbook[] = [
   steps: [
     {
       title: "Pin down what you’re buying",
-      detail: "Use the appraisal district’s record for land use, building size and year built. Use the county clerk’s records for the legal description, easements, deed restrictions and recorded leases. Check access and boundaries on the plat."
+      detail: "Use the appraisal district’s record for land use, building size and year built. Use the county clerk’s records for the legal description, easements, deed restrictions and recorded leases. Use the plat to find the parcel and spot questions. The title company confirms legal access from recorded easements, and a survey confirms boundaries."
     },
     {
       title: "Get the rent roll and leases, if you can",

@@ -388,7 +388,7 @@ const NEVADA: Playbook[] = [
       { label: 'No home-buyer programs', value: 'No owner-occupant first look. HUD Home Store, HomePath and HomeSteps sell homes with 1–4 units only. HUD sells some large apartment buildings through separate multifamily foreclosure sales' },
     ],
     steps: [
-      { title: 'Pin down what you’re buying', detail: 'Use the Assessor record for land use, building size, year built and sales. Use the parcel map for access and boundaries.' },
+      { title: 'Pin down what you’re buying', detail: 'Use the Assessor record for land use, building size, year built and sales. Use the parcel map to find the parcel and spot questions. The title company confirms legal access from recorded easements, and a survey confirms boundaries.' },
       { title: 'Get the rent roll and leases, if you can', detail: 'A receiver or listing broker can usually provide them. At an auction you often can’t. Until you can confirm the leases, count the rent as zero, but don’t assume the building is legally empty or that you can move in right away.' },
       { title: 'Value it the right way', detail: 'For a rental building, divide net operating income (rent after vacancy and operating costs) by the cap rate. Ask a local commercial broker or appraiser for current cap rates for this type of property. For land or an owner-user building: recent sales of similar commercial property.' },
       { title: 'Order a title search', detail: 'Commercial parcels often carry easements, reciprocal easement agreements, CC&Rs, mechanic’s liens and recorded leases. Know which survive the sale.' },
