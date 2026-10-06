@@ -6,7 +6,7 @@ import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
 import { useNoIndex } from '../lib/noindex';
 import { DRILLS, drillById, type Drill, type Mission } from '../practice/drills';
-import { drillCard, TOPIC_GROUPS, type Topic, type TopicGroup } from '../practice/drillCards';
+import { drillCard, HUE_COUNT, TOPIC_GROUPS, type Topic, type TopicGroup } from '../practice/drillCards';
 import OwlNote from './OwlNote';
 import { fmtMoney } from '../lib/status';
 import { useMyState } from '../lib/myState';
@@ -74,7 +74,9 @@ const TOPIC_ICON: Record<Topic, string> = {
   hoa: 'M4 21V9l5-3v15M9 21V4l11 5v12M12 10h2M12 14h2M16 12h2M16 16h2M3 21h18',
   sheriff: 'M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6z',
   irs: 'M3 9l9-5 9 5M5 9v9M9.5 9v9M14.5 9v9M19 9v9M3 21h18',
-  listed: 'M4 21V4M4 5h11l-2 3.5 2 3.5H4',
+  bank: 'M8 15a4 4 0 1 1 3.5-6H21v3h-2v2h-3v-2h-4.5A4 4 0 0 1 8 15zM7 11h.01',
+  short: 'M3 12l6 6 12-12M3 6h7M14 18h7',
+  brrrr: 'M20 11a8 8 0 0 0-14.5-4.5L3 9M3 4v5h5M4 13a8 8 0 0 0 14.5 4.5L21 15M21 20v-5h-5',
   rental: 'M15 7a4 4 0 1 1-3.5 6H9v2H7v2H4v-3l6.5-6.5A4 4 0 0 1 15 7zM16 10h.01',
   flip: 'M14 6l4 4M4 20l9.5-9.5M14 4l6 6-3 3-6-6zM3 21h7',
   commercial: 'M4 21V5h10v16M14 9h6v12M7 9h2M7 13h2M7 17h2M17 13h1M17 17h1M3 21h18',
@@ -119,12 +121,12 @@ export function drillStatus(d: Drill, s: Saved = load()): { state: 'new' | 'star
 }
 
 /** One drill as a card: the kind of sale big and in its colour, then the question, one labelled fact and the missions. */
-export function DrillCardLink({ d, saved }: { d: Drill; saved: Saved }) {
+export function DrillCardLink({ d, saved, hue = 0 }: { d: Drill; saved: Saved; /** Position in its row of cards: neighbours never share a colour. */ hue?: number }) {
   const c = drillCard(d);
   const st = drillState(d);
   const p = drillStatus(d, saved);
   return (
-    <a href={`#/practice/drills/${d.id}`} className={`drill-card topic-${c.topic}`} onClick={() => writeBrowse({ ...readBrowse(), scrollY: window.scrollY })}>
+    <a href={`#/practice/drills/${d.id}`} className={`drill-card hue-${hue % HUE_COUNT}`} onClick={() => writeBrowse({ ...readBrowse(), scrollY: window.scrollY })}>
       <span className="drill-card-band">
         <span className="drill-card-icon"><TopicIcon topic={c.topic} /></span>
         <span className="drill-card-head">
@@ -154,7 +156,7 @@ function DrillBand({ d }: { d: Drill }) {
   const c = drillCard(d);
   const st = drillState(d);
   return (
-    <p className={`drill-card-band drill-page-band topic-${c.topic}`}>
+    <p className={`drill-card-band drill-page-band hue-${Math.max(0, DRILLS.indexOf(d)) % HUE_COUNT}`}>
       <span className="drill-card-icon"><TopicIcon topic={c.topic} /></span>
       <span className="drill-card-head">
         <span className="drill-card-sale">{c.sale}</span>
@@ -226,13 +228,13 @@ export function DrillList() {
       {next && (
         <div className="drill-next" role="region" aria-label="Pick up where you left off">
           <h3 className="drill-group">Pick up where you left off</h3>
-          <div className="practice-grid drill-grid"><DrillCardLink d={next} saved={saved} /></div>
+          <div className="practice-grid drill-grid"><DrillCardLink d={next} saved={saved} hue={DRILLS.indexOf(next)} /></div>
         </div>
       )}
       {recommended.length > 0 && (
         <div className="drill-next" role="region" aria-label="Recommended to start with">
           <h3 className="drill-group">Recommended to start with</h3>
-          <div className="practice-grid drill-grid">{recommended.map((d) => <DrillCardLink key={d.id} d={d} saved={saved} />)}</div>
+          <div className="practice-grid drill-grid">{recommended.map((d, i) => <DrillCardLink key={d.id} d={d} saved={saved} hue={i} />)}</div>
         </div>
       )}
       {!guided && (
@@ -252,7 +254,7 @@ export function DrillList() {
         <div key={g.key} className="drill-group-block" role="region" aria-label={`${g.title} drills`}>
           <h3 className="drill-group">{g.title}</h3>
           <div className="practice-grid drill-grid">
-            {g.drills.map((d) => <DrillCardLink key={d.id} d={d} saved={saved} />)}
+            {g.drills.map((d, i) => <DrillCardLink key={d.id} d={d} saved={saved} hue={i} />)}
           </div>
         </div>
       ))}
