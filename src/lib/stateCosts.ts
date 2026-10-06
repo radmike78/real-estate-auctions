@@ -19,11 +19,12 @@ export function transferTaxFor(state: StateCode, county: string): TransferTax {
   if (state === 'AZ') return { per500: 0, hint: 'Arizona has no transfer tax; a $2 recording fee applies.', more: 'Arizona’s constitution bars new taxes on transferring real property; the recorder charges a $2 fee with the affidavit of property value (A.R.S. 11-1132).' };
   if (state === 'TX') return { per500: 0, hint: 'Texas has no transfer tax; recording fees apply.', more: 'Texas doesn’t tax real property transfers, and its constitution bars new transfer taxes (article VIII, section 29). You’ll still pay the county clerk’s recording fees and the title insurance premium, which the state sets (Texas Department of Insurance).' };
   if (state === 'UT') return { per500: 0, hint: 'Utah has no transfer tax; recording fees apply.', more: 'Utah doesn’t tax real property transfers. You’ll still pay the county recorder’s recording fees.' };
-  const per500 = county === 'Clark' ? 2.55 : county === 'Washoe' || county === 'Churchill' ? 2.05 : 1.95;
+  const per500 = !county || county === 'Clark' ? 2.55 : county === 'Washoe' || county === 'Churchill' ? 2.05 : 1.95;
   const name = county === 'Carson City' ? 'Carson City' : `${county} County`;
   return {
     per500,
-    hint: `${name}: $${per500.toFixed(2)} per $500.`,
+    // No county picked: Clark County's rate, the highest in Nevada, so the estimate errs on the safe side.
+    hint: county ? `${name}: $${per500.toFixed(2)} per $500.` : 'No county picked: using Clark County’s $2.55 per $500, Nevada’s highest. Pick the county for its rate.',
     more: `Nevada’s real property transfer tax is charged for each $500 of value or fraction of $500 (NRS 375.020 and 375.023): $2.55 in Clark County, $2.05 in Washoe and Churchill, and $1.95 elsewhere. Some transfers are exempt; ask the county recorder or your title company.`,
   };
 }

@@ -1,3 +1,4 @@
+import PracticeStateNote from './PracticeStateNote';
 import NarrowDown from './NarrowDown';
 import { practiceConfig } from '../lib/narrow';
 import { getMyState } from '../lib/myState';
@@ -62,7 +63,8 @@ export default function PracticePage({ sale }: { sale?: string }) {
         <NarrowDown config={practiceConfig(getMyState())} intro="Answer a few quick questions and we’ll suggest a practice purchase or drills to start with. Everything is still listed below." />
         <h2 className="practice-step"><span aria-hidden>1</span> Choose a kind of sale</h2>
         <div className="practice-sales">
-          {SALE_ORDER.map((s) => {
+          {/* SID lien certificates are a Clark County, Nevada sale only: not offered to visitors from other states. */}
+          {SALE_ORDER.filter((s) => s !== 'sid' || !getMyState() || getMyState() === 'NV').map((s) => {
             const runs = PRACTICE_PROPERTIES.map((p) => buildScenario(s, p)).filter((x): x is NonNullable<typeof x> => !!x);
             const pct = runs.map((r) => completion(r.id, r.stages.reduce((n, st) => n + st.tasks.length, 0)));
             const done = pct.filter((x) => x === 1).length;
@@ -98,6 +100,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
         sub={playbookByKey(chosen)?.oneLine}
       />
       <PracticeRibbon />
+      <PracticeStateNote sale={chosen} />
       <p><a href="#/practice">← Choose a different kind of sale</a></p>
       <h2 className="practice-step"><span aria-hidden>2</span> Choose a property</h2>
       <div className="row practice-filter">

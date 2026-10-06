@@ -569,10 +569,10 @@ describe('build your team', () => {
 
 describe('"Not sure where to start?" helpers', () => {
   it('give every combination of answers two or three real places to start', async () => {
-    const { practiceConfig, findDealsConfig, guidesConfig, resolveAnswers, NOT_SURE } = await import('./narrow');
+    const { practiceConfig, findDealsConfig, guidesConfig, learnConfig, toolkitConfig, resolveAnswers, NOT_SURE } = await import('./narrow');
     const { drillById } = await import('../practice/drills');
     const { playbookByKey } = await import('./playbooks');
-    const configs = [practiceConfig(null), practiceConfig('AZ'), findDealsConfig(), guidesConfig(null), guidesConfig('UT')];
+    const configs = [practiceConfig(null), practiceConfig('AZ'), findDealsConfig(), guidesConfig(null), guidesConfig('UT'), learnConfig(), toolkitConfig()];
     for (const c of configs) {
       const combos = c.questions.reduce<Record<string, string>[]>((acc, q) => acc.flatMap((a) => [...q.options.map((o) => o.value), NOT_SURE].map((v) => ({ ...a, [q.key]: v }))), [{}]);
       for (const raw of combos) {

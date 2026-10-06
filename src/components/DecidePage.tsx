@@ -53,6 +53,10 @@ export default function DecidePage() {
   const complete = QUESTIONS.every((q) => saved.answers[q.key]);
   const [step, setStep] = useState(() => (complete ? QUESTIONS.length : QUESTIONS.findIndex((q) => !saved.answers[q.key])));
   const headRef = useRef<HTMLHeadingElement>(null);
+  // The state was already chosen when the visitor arrived (it's filled in): don't ask it again.
+  const skips = (i: number) => QUESTIONS[i]?.key === 'state' && !!getMyState() && !!saved.answers.state;
+  const nextFrom = (i: number) => (skips(i + 1) ? i + 2 : i + 1);
+  const prevFrom = (i: number) => (skips(i - 1) ? i - 2 : i - 1);
 
   useEffect(() => save(saved), [saved]);
   // Every move between questions, forward or back, puts focus on the question (not on the first load).
@@ -73,7 +77,7 @@ export default function DecidePage() {
   // radio buttons), so keyboard users go on with Next. Going to a fixed step means a double click can't skip one.
   const advanceFrom = (from: number) => {
     window.clearTimeout(advanceTimer.current);
-    advanceTimer.current = window.setTimeout(() => setStep((s) => (s === from ? from + 1 : s)), 250);
+    advanceTimer.current = window.setTimeout(() => setStep((s) => (s === from ? nextFrom(from) : s)), 250);
   };
   // Only a primary click or tap that selects an answer moves on (not a right-click, not arrow keys).
   const pointerPick = useRef(false);
@@ -125,9 +129,9 @@ export default function DecidePage() {
             </div>
           </fieldset>
           <div className="decide-nav">
-            {step > 0 && <button type="button" className="btn btn-secondary" onClick={() => setStep(step - 1)}>← Back</button>}
-            <button type="button" className="btn" disabled={!saved.answers[q.key]} onClick={() => setStep(step + 1)}>
-              {step === QUESTIONS.length - 1 ? 'See my results →' : 'Next →'}
+            {step > 0 && <button type="button" className="btn btn-secondary" onClick={() => setStep(Math.max(0, prevFrom(step)))}>← Back</button>}
+            <button type="button" className="btn" disabled={!saved.answers[q.key]} onClick={() => setStep(nextFrom(step))}>
+              {nextFrom(step) >= QUESTIONS.length ? 'See my results →' : 'Next →'}
             </button>
           </div>
         </section>

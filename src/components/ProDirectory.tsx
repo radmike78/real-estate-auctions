@@ -157,7 +157,7 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
         </select>
       </div>}
       {error && <div className="caution small" role="alert"><strong>The directory couldn't be verified, so no profiles are shown.</strong> {error}</div>}
-      {usingSamples && <p className="small muted">Showing fictional sample profiles until real advertisers are approved.</p>}
+      {usingSamples && pros.length > 0 && <p className="small muted">Showing fictional sample profiles until real advertisers are approved.</p>}
       {!loading && pros.length > 0 && !usingSamples && (
         <p className="small muted">
           {results.length} verified {results.length === 1 ? 'professional' : 'professionals'} · every listed professional appears here in the

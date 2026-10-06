@@ -21,7 +21,8 @@ export default function RoleNotice() {
   useEffect(() => {
     if (!open || !home) return;
     // Start on "Where are you buying?": the first state button.
-    (dialog.current?.querySelector<HTMLElement>(".area-states button") ?? btn.current)?.focus();
+    // Focus the heading, not the first state: a focus ring on "Nevada" looked like it was already chosen.
+    (dialog.current?.querySelector<HTMLElement>('#role-title') ?? btn.current)?.focus();
     // A modal keeps the keyboard inside it: Tab cycles through its own links and buttons, Escape closes it.
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') return close();
@@ -63,7 +64,7 @@ export default function RoleNotice() {
   return (
     <div className="role-backdrop">
       <div ref={dialog} className="role-dialog" role="dialog" aria-modal="true" aria-labelledby="role-title">
-        <h2 id="role-title">Welcome</h2>
+        <h2 id="role-title" tabIndex={-1}>Welcome</h2>
         <ul>
           <li><strong>Find properties</strong> from government and official sources.</li>
           <li><strong>Learn what’s involved</strong>: how each sale works and what it really costs.</li>

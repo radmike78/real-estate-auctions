@@ -21,10 +21,18 @@ function useRegionTax<T extends BuyInputs>(groups: CalcGroup<T>[]): { groups: Ca
 const pctText = (x: number | null) => (x === null ? '—' : `${(Math.round(x * 1000) / 10).toLocaleString()}%`);
 
 /** Inputs kept in this browser (per property when there is one); rebuilt safely from storage. */
-function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> = {}): [T, (k: keyof T & string, v: number) => void] {
+function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> = {}): [T, (k: keyof T & string, v: number) => void, boolean] {
   // `force` holds the region's values (its transfer tax). They replace saved numbers only when the region changes,
   // so a number the user typed survives switching tabs and reloading.
   const sig = JSON.stringify(force);
+  // Whether any number here is the user's own (typed now or kept from before), or all are the starting examples.
+  const [typed, setTyped] = useState(() => {
+    try {
+      return localStorage.getItem(key) !== null;
+    } catch {
+      return false;
+    }
+  });
   const [v, setV] = useState<T>(() => {
     try {
       const raw = localStorage.getItem(key);
@@ -47,6 +55,7 @@ function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> 
   }, [key, sig]); // eslint-disable-line react-hooks/exhaustive-deps
   const set = (k: keyof T & string, n: number) => {
     trackAction('calculator_used', true);
+    setTyped(true);
     setV((cur) => {
       const next = { ...cur, [k]: n };
       try {
@@ -57,7 +66,7 @@ function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> 
       return next;
     });
   };
-  return [v, set];
+  return [v, set, typed];
 }
 
 /** Starting purchase costs from the flip calculator's estimates for a property. */
@@ -127,9 +136,10 @@ function loanGroup<T extends LoanInputs>(valueLabel: string, valueHint: string):
   };
 }
 
-function HoldResults({ r, title, target, noiNote, minDscr, offer = false }: { r: HoldResult; title: string; target: string; noiNote: string; minDscr: number; offer?: boolean }) {
+function HoldResults({ r, title, target, noiNote, minDscr, offer = false, example = false }: { r: HoldResult; title: string; target: string; noiNote: string; minDscr: number; offer?: boolean; /** Every number is still a starting example. */ example?: boolean }) {
   return (
     <>
+      {example && <p className="notice small" role="note"><strong>Example numbers.</strong> These results come from sample inputs, not your property. Replace the price, rent and costs with yours to get your own walk-away price.</p>}
       <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
         <span>{title}</span>
         <strong>{r.noBidWorks ? (offer ? 'No offer works' : 'No bid works') : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'}</strong>
@@ -315,7 +325,7 @@ function RentDealLab({ v, start, onPrice }: { v: RentInputs; start: number; onPr
 
 export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = false, start = {}, regional = false, offer = false }: { storageKey?: string; /** The key already names the deal and kind of purchase. */ exactKey?: boolean; start?: Partial<RentInputs>; regional?: boolean; offer?: boolean }) {
   const rt = useRegionTax(RENT_GROUPS);
-  const [saved, set] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...RENT_DEFAULTS, ...(offer ? OFFER_START : {}), ...start }, regional ? { transferTaxPer500: rt.per500 } : {});
+  const [saved, set, typed] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...RENT_DEFAULTS, ...(offer ? OFFER_START : {}), ...start }, regional ? { transferTaxPer500: rt.per500 } : {});
   const v = offer ? { ...saved, buyerPremiumPct: 0 } : saved;
   const r = rentMaxBid(v, offer);
   const n = rentNoi(v);
@@ -325,7 +335,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
       <div className="calc-results">
         {/* Your actual deal first; the price that would meet your goal second. */}
         <AtThisPrice v={v} start={r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} />
-        <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} />
+        <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} example={!typed && Object.keys(start).length === 0} />
         <CashCushion v={v} price={v.atPrice > 0 ? v.atPrice : r.maxBid} onPrice={offer} />
         <RentDealLab v={v} start={r.maxBid} onPrice={offer} />
       </div>
@@ -360,7 +370,7 @@ const COMMERCIAL_GROUPS: CalcGroup<CommercialInputs>[] = [
 
 export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', exactKey = false, start = {}, regional = false, offer = false }: { storageKey?: string; exactKey?: boolean; start?: Partial<CommercialInputs>; regional?: boolean; offer?: boolean }) {
   const ct = useRegionTax(COMMERCIAL_GROUPS);
-  const [saved, set] = useSaved<CommercialInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...COMMERCIAL_DEFAULTS, ...start }, regional ? { transferTaxPer500: ct.per500 } : {});
+  const [saved, set, typed] = useSaved<CommercialInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...COMMERCIAL_DEFAULTS, ...start }, regional ? { transferTaxPer500: ct.per500 } : {});
   const v = offer ? { ...saved, buyerPremiumPct: 0 } : saved;
   const r = commercialMaxBid(v, offer);
   const n = commercialNoi(v);
@@ -368,7 +378,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
     <div className="calc">
       <div className="calc-inputs"><CalcFields groups={offer ? forOffer(ct.groups) : ct.groups} values={v} onChange={set} /></div>
       <div className="calc-results">
-        <HoldResults r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}.`} minDscr={v.minDscr} offer={offer} />
+        <HoldResults r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}.`} minDscr={v.minDscr} offer={offer} example={!typed && Object.keys(start).length === 0} />
       </div>
     </div>
   );
