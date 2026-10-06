@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import type { Deal } from './analyze';
 import { cleanPacket, dealPacketText, EMPTY_PACKET, loadPacket, nextAction, nextDate, packetSections, savePacket, suggestedDates } from './dealPacket';
 import { saveLog, cleanLog } from './evidence';
+import { dealNumbers } from './propertyPacket';
 
 class MemStorage {
   private m = new Map<string, string>();
@@ -70,5 +71,22 @@ describe('the deal packet', () => {
     expect(text).toMatch(/NEXT ACTION:/);
     expect(text).toMatch(/Need more evidence, because rent unproven/);
     expect(text).toMatch(/\$3,000 earnest money/);
+  });
+
+  it('shows only the numbers of the strategy the deal is saved with, never another calculator’s leftovers', () => {
+    // A Fix and sell result left over from before the deal switched to Keep and rent, plus the current rental.
+    localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ exitValue: 250000, repairs: 20000 }));
+    localStorage.setItem('fsf.calc.rent.d1-offer.v1', JSON.stringify({ value: 300000, atPrice: 300000, monthlyRent: 2200 }));
+    const rentDeal = { ...deal, plan: 'rent' as const };
+    const text = packetSections(rentDeal, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
+    expect(text).toMatch(/Strategy: Keep and rent/);
+    expect(text).toMatch(/Monthly cash flow at \$300,000/);
+    expect(text).not.toMatch(/Walk-away price|\$250,000 resale/);
+    const flip = packetSections({ ...deal, plan: 'flip' }, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
+    expect(flip).toMatch(/Strategy: Fix and sell/);
+    expect(flip).toMatch(/Walk-away price: .*\$250,000 resale value/);
+    expect(flip).not.toMatch(/Monthly cash flow/);
+    expect(dealNumbers({ ...deal, plan: 'flip' })).toBeNull();
+    expect(dealNumbers(rentDeal)?.price).toBe(300000);
   });
 });

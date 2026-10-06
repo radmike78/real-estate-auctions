@@ -79,15 +79,18 @@ export default function AdvertisePage() {
       <PlanCards price={(t) => { const l = priceLine(plans, t); return /\$/.test(l) ? <>{l}<span className="small muted"> per area</span></> : l; }} />
       <p className="small muted">
         Spots are limited in each city so ads stay useful: up to {CAPS.listing} advertisers per category and {CAPS.featured} Featured ad spots per
-        category, taking turns. A whole county takes one spot in each of its cities.
-        Topic ads appear beside {AD_TOPICS.map((t) => t.label.toLowerCase()).join(', ')} topics. Agents, lenders, title and escrow companies
-        and attorneys share up to {CAPS.topicSettlement} spots per topic, which take turns. Other kinds of professionals get {CAPS.topicOther} spot per topic.
+        category. When a visitor has chosen a city, every Featured advertiser for that city shows together on each page view; they don’t rotate,
+        only their order is shuffled. A whole county takes one spot in each of its cities, so county and city advertisers share the same spots:
+        no one gets a city to themselves. An advertiser appears once in a box, however many of its areas cover the visitor, and a spot no one has
+        bought shows an “Advertisement space” box. Topic ads appear beside {AD_TOPICS.map((t) => t.label.toLowerCase()).join(', ')} topics.
+        Agents, lenders, title and escrow companies and attorneys share up to {CAPS.topicSettlement} spots per topic, shown one at a time in turn.
+        Other kinds of professionals get {CAPS.topicOther} spot per topic, shown every time.
       </p>
 
       <h2>How listing works</h2>
       <ol className="steps-rich">
         <li><strong>Apply and confirm your email.</strong><span>Takes about five minutes.</span></li>
-        <li><strong>We verify you.</strong><span>We check your license on the official regulator lookup, and confirm your identity through contact details we find independently.</span></li>
+        <li><strong>We verify you.</strong><span>We check your license on the official regulator lookup (where your state has no license for your work, such as Texas general contractors, we check your trade licenses and insurance instead), and confirm your identity through contact details we find independently.</span></li>
         <li><strong>Choose your areas and plan, pay by card and go live.</strong><span>A monthly fee for each area, at the plan you choose, paid securely through Stripe. Cancel any time.</span></li>
         <li><strong>Track your results.</strong><span>Sign in any time with a one-time email link to see your numbers and leads.</span></li>
       </ol>

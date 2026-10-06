@@ -126,6 +126,10 @@ export function cashLimitedBid(i: BidInputs): number {
   return lo;
 }
 
+/** An offer on a listed home has no auction cash limit, buyer's premium or redemption wait: the calculator and every
+ * saved result (the deal packet) drop them the same way. */
+export const offerInputs = (v: BidInputs): BidInputs => ({ ...v, cashAvailable: 0, buyerPremiumPct: 0, redemptionMonths: 0, redemptionRatePct: 0, redemptionDaily: 0, redemptionFlat: 0, redemptionFlat2Pct: 0 });
+
 export function maxSafeBid(i: BidInputs): BidResult {
   const profitBid = Math.max(0, Math.floor(solve(i, requiredProfit(i))));
   const cashBid = cashLimitedBid(i);

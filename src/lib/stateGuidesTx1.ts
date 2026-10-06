@@ -139,7 +139,7 @@ export const TX_GUIDES_1: Playbook[] = [
   ],
   example: {
     title: "Illustrative example: a vacant lot in a fictional Texas county",
-    story: "Avery, a made-up buyer, found a vacant lot on the county’s list for the first Tuesday sale. The judgment and costs came to $6,800, and the value in the judgment was $25,000. So the minimum bid was $6,800. Avery got the county’s no-back-taxes statement two weeks before. Avery also learned that $1,100 in taxes had come due after the judgment. Avery won at $12,000 and paid the officer that day. The lot wasn’t a homestead, so the owner had 180 days from the deed’s recording to buy it back. No one did.",
+    story: "Avery, a made-up buyer, found a vacant lot on the county’s list for the first Tuesday sale. The judgment and costs came to $6,800, and the value in the judgment was $25,000. So the minimum bid was $6,800. Avery got the county’s no-back-taxes statement two weeks before. Avery also learned that $1,100 in taxes had come due after the judgment. Avery won at $12,000 and paid the officer that day. Before bidding, Avery checked the judgment and the appraisal district record, and a title attorney confirmed it: when the suit was filed, the lot wasn’t anyone’s homestead, had no agricultural-use designation and wasn’t a mineral interest. Only then did the 180-day period apply, counted from the deed’s recording. No one redeemed.",
     lesson: "Know your county’s paperwork and payment rules. Add post-judgment taxes to your price. Don’t spend on improvements until the buy-back period ends."
   },
   sources: [
@@ -579,18 +579,18 @@ export const TX_GUIDES_1: Playbook[] = [
   key: "txhoa",
   title: "Texas HOA foreclosures",
   short: "HOA foreclosures",
-  oneLine: "A Texas homeowners association can sell a home for unpaid dues, but it must get a court order first. After the sale, the owner has 180 days to buy it back.",
-  youGet: "The owner’s interest, with a 180-day buy-back right for the owner and lienholders. Any mortgage that ranks ahead of the association’s lien stays on the home. For a condo, the buy-back period is 90 days.",
-  plain: "The owner’s interest, usually with the mortgage still on it. The owner can buy it back for 180 days (90 days for a condo).",
+  oneLine: "A Texas association can sell a home for unpaid dues, under one of two laws. Read the recorded declaration first: a subdivision HOA (Property Code 209) needs a court order, and the owner can buy the home back until 180 days after the HOA mails notice of the sale. A condominium association (Property Code 82) can sell without a court, and the owner has 90 days after the sale.",
+  youGet: "The owner’s interest, subject to a buy-back right: for a subdivision HOA, until 180 days after the post-sale notice is mailed (owner and lienholders); for a condominium, until 90 days after the sale (the owner). Either way, you can’t sell it to anyone but the redeeming owner until that ends. Any mortgage that ranks ahead of the association’s lien stays on the home.",
+  plain: "The owner’s interest, usually with the mortgage still on it. The owner can buy it back: 180 days after the HOA’s notice for a subdivision, 90 days after the sale for a condo. You can’t resell until then.",
   forSale: true,
   glance: [
     {
-      label: "Law",
-      value: "Property Code chapter 209 covers HOAs in residential subdivisions. It doesn’t cover condos (209.003). Condos follow chapter 82 (82.113)."
+      label: "Which law: check first",
+      value: "Read the recorded declaration, with a title company or attorney. A subdivision HOA follows Property Code chapter 209; a condominium association follows chapter 82 (209.003, 82.113). A townhome can be either: don’t judge by how the building looks. The court order, the buy-back clock and what a redemption repays all differ."
     },
     {
-      label: "Court order first",
-      value: "An HOA must get a quick court order (Rule 736) or win a court foreclosure before any sale. The owner can waive this in writing, but only at the time of foreclosure (209.0092)."
+      label: "Court order first (subdivision)",
+      value: "A subdivision HOA must get a quick court order (Rule 736) or win a court foreclosure before any sale. The owner can waive this in writing, but only at the time of foreclosure (209.0092). A condominium association can sell without a court, under the power of sale (82.113(d), (e))."
     },
     {
       label: "Not for fines",
@@ -601,16 +601,16 @@ export const TX_GUIDES_1: Playbook[] = [
       value: "Before going to court, the HOA must notify lenders with a later-recorded deed of trust. They get 61 days to pay the debt (209.0091)."
     },
     {
-      label: "Notice after the sale",
-      value: "Within 30 days, the HOA mails the owner and lienholders a notice of their right to buy it back (209.010)."
+      label: "Notice after the sale (subdivision)",
+      value: "Within 30 days, a subdivision HOA mails the owner and lienholders a notice of their right to buy it back (209.010). The buy-back clock starts from that mailing, not the sale day."
     },
     {
       label: "Redemption",
-      value: "The owner, or a lienholder, may buy it back within 180 days after that notice is mailed. A lienholder must wait until day 90 (209.011(b))."
+      value: "Subdivision: the owner, or a lienholder, may buy it back within 180 days after the notice is mailed; a lienholder must wait until day 90 (209.011(b)). Condominium: the owner may buy it back within 90 days after the sale (82.113(g))."
     },
     {
       label: "During redemption",
-      value: "You can’t sell it to anyone but the redeeming owner. Any lease you sign is subject to the buy-back (209.011(c), (k))."
+      value: "Under both laws, you can’t sell it to anyone but the redeeming owner (209.011(c), 82.113(g)). For a subdivision, any lease you sign is subject to the buy-back (209.011(k))."
     },
     {
       label: "Priority",
@@ -619,8 +619,12 @@ export const TX_GUIDES_1: Playbook[] = [
   ],
   steps: [
     {
+      title: "Learn which law applies",
+      detail: "Get the recorded declaration and have a title company or attorney confirm whether the association is a subdivision HOA (chapter 209) or a condominium association (chapter 82). Every step below depends on it: the court order, when the buy-back clock starts, how long it runs and what a redemption repays."
+    },
+    {
       title: "Learn which kind of sale it is",
-      detail: "With a Rule 736 order, the sale follows the usual trustee sale rules: first Tuesday, with 21 days’ notice (Rule 736.9, Property Code 51.002). With a court judgment, a sheriff or constable sells it (Rules 309, 646a). The same buy-back and notice rules apply to both (209.010(d), 209.011(p))."
+      detail: "Condominium: the association may sell without a court, usually as a trustee sale (82.113(d), (e); 51.002). Subdivision HOA: with a Rule 736 order, the sale follows the usual trustee sale rules: first Tuesday, with 21 days’ notice (Rule 736.9, Property Code 51.002). With a court judgment, a sheriff or constable sells it (Rules 309, 646a). The same buy-back and notice rules apply to both (209.010(d), 209.011(p))."
     },
     {
       title: "Find every loan ahead of the association",
@@ -636,19 +640,19 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       title: "Set your maximum bid",
-      detail: "Add up any surviving mortgage, unpaid property taxes, future dues, repairs and holding costs. Remember your money is tied up for at least 180 days. Use the max bid calculator."
+      detail: "Add up any surviving mortgage, unpaid property taxes, future dues, repairs and holding costs. Remember your money is tied up for the whole buy-back period: about 7 months for a subdivision (180 days after a notice mailed up to 30 days after the sale), 90 days for a condo. Use the max bid calculator."
     },
     {
       title: "Bid and pay as directed",
       detail: "At a trustee sale, payment is due when your bid is accepted unless the trustee agrees to a short delay (51.0075(f)). At a sheriff’s or constable’s sale, ask the civil office how to pay. Look at the home only from the street. Don’t contact the owner or anyone living there."
     },
     {
-      title: "Wait out the 180-day buy-back period",
-      detail: "You can’t sell the home during this time, except back to the owner (209.011(c)). If the owner redeems, you get back four things: your price, the recording fee, HOA dues you paid after the sale, and property taxes you paid after the sale. You also get court costs from an eviction case (209.011(e)(2)). Any rent you collected is subtracted (209.011(i)). Repairs aren’t on that list, so keep spending low."
+      title: "Wait out the buy-back period",
+      detail: "Under both laws you can’t sell the home during this time, except back to the owner (209.011(c), 82.113(g)). Condominium: for 90 days after the sale; if the owner redeems, you get your bid plus 6% a year, assessments you paid, and reasonable costs as owner, including maintenance and leasing (82.113(g)). Subdivision: for 180 days after the notice; if the owner redeems, you get back four things: your price, the recording fee, HOA dues you paid after the sale, and property taxes you paid after the sale. You also get court costs from an eviction case (209.011(e)(2)). Any rent you collected is subtracted (209.011(i)). Repairs aren’t on that list, so keep spending low."
     },
     {
       title: "Close out the buy-back period",
-      detail: "If the owner or a lienholder sends a written request to redeem by the last day, the deadline stretches. It runs until 10 days after you tell them the amount (209.011(m)). When the period ends with no redemption, record an affidavit saying so (209.011(n))."
+      detail: "Subdivision: if the owner or a lienholder sends a written request to redeem by the last day, the deadline stretches. It runs until 10 days after you tell them the amount (209.011(m)). When the period ends with no redemption, record an affidavit saying so (209.011(n))."
     },
     {
       title: "Take possession through the court",
@@ -658,13 +662,13 @@ export const TX_GUIDES_1: Playbook[] = [
   survives: {
     wipedOut: [
       "The association’s lien being foreclosed",
-      "The owner’s interest, once the 180-day buy-back period ends with no redemption",
+      "The owner’s interest, once the buy-back period ends with no redemption",
       "Liens that rank below the association’s lien, if the sale was valid"
     ],
     mayStay: [
       "Property tax liens, which come before the HOA lien (Tax Code 32.05)",
       "Any mortgage the declaration ranks ahead of the HOA lien. For condos, a first deed of trust recorded before the dues went unpaid (82.113(b)).",
-      "The 180-day buy-back right of the owner and lienholders (209.011)",
+      "The buy-back right: until 180 days after the notice for a subdivision (209.011), 90 days after the sale for a condo (82.113(g))",
       "Easements, deed restrictions and other recorded encumbrances",
       "Occupants, until an eviction case is finished (209.011(a))"
     ]
@@ -680,7 +684,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       mistake: "Trying to flip the home right away",
-      prevent: "You can’t transfer it to anyone but the redeeming owner for 180 days (209.011(c)). Plan to hold it."
+      prevent: "You can’t transfer it to anyone but the redeeming owner until the buy-back period ends: 180 days after the notice for a subdivision, 90 days after the sale for a condo (209.011(c), 82.113(g)). Plan to hold it."
     },
     {
       mistake: "Ignoring how the sale was started",
@@ -688,7 +692,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       mistake: "Using condo rules for an HOA, or HOA rules for a condo",
-      prevent: "Condos follow chapter 82. They allow sales without a court and have a 90-day buy-back (82.113(d), (e), (g)). HOAs follow chapter 209, with a court order and 180 days."
+      prevent: "Read the recorded declaration first. Condos follow chapter 82: sales without a court, and a 90-day buy-back counted from the sale (82.113(d), (e), (g)). Subdivision HOAs follow chapter 209: a court order, and 180 days counted from the mailed notice. Both bar reselling until the buy-back period ends."
     }
   ],
   example: {

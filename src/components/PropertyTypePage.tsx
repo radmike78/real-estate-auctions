@@ -65,7 +65,7 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
         <section>
           <h2>By the numbers</h2>
           <ul className="deep-list">
-            {d.facts.filter((f) => keep(f.text)).map((f) => <li key={f.text}>{f.text} <a href={f.source.url} target="_blank" rel="noopener noreferrer">{f.source.label} ↗</a></li>)}
+            {d.facts.filter((f) => keep(f.text)).map((f) => <li key={f.text}>{forStateText(st, f.text)} <a href={f.source.url} target="_blank" rel="noopener noreferrer">{f.source.label} ↗</a></li>)}
           </ul>
         </section>
       )}

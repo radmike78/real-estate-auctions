@@ -20,8 +20,8 @@
       "src/lib/saleSearch.ts",
       "src/lib/status.ts"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "8fa6698c7baf38c4",
+    "reviewed": "2026-10-06",
+    "hash": "d2abf3ad11b9386e",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -48,8 +48,8 @@
       "src/components/BuyerChecklistBox.tsx",
       "src/lib/buyerChecklists.ts"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "6b4147b6e82ab483",
+    "reviewed": "2026-10-06",
+    "hash": "11f3dc0fb1b8110d",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "6656d1eaa0899c22",
+    "hash": "f8b4843c9858d702",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "32c022dd1109c706",
+    "hash": "94b9e1b1755b8709",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -173,7 +173,7 @@
       "src/lib/evidence.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "860d84a7b57586fa",
+    "hash": "d1a0234750ba1d22",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -204,7 +204,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "9e1d91f71f5d03b4",
+    "hash": "6ab78c4ba99c5a82",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -236,8 +236,8 @@
       "src/components/PaidAdNotice.tsx",
       "src/components/LeadForm.tsx"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "e5b4a3f28ead8288",
+    "reviewed": "2026-10-06",
+    "hash": "ea3f60e902497de5",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -269,7 +269,7 @@
       "src/lib/proApplication.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "f18efe5202c50972",
+    "hash": "2127a5c659100ee4",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -353,7 +353,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "1a8a9834a83b249d",
+    "hash": "9e72f973d7dcbec2",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -364,7 +364,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "e9fa7b79d977f0a4",
+    "hash": "176222879081f01b",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -390,7 +390,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "b80d6bb69ea0e5b3",
+    "hash": "589d628979ef163d",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {
@@ -403,7 +403,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "5330b6ae4879ae87",
+    "hash": "a33c4b270a293942",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

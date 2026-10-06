@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from 'react';
-import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, INPUT_MAX, maxSafeBid, profitAtBid, redemptionOutcome, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs } from '../lib/bidCalc';
+import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, INPUT_MAX, maxSafeBid, profitAtBid, redemptionOutcome, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs, offerInputs } from '../lib/bidCalc';
 import { redemptionChoicesFor, redemptionPresetsFor, taxSaleWait, transferTaxFor } from '../lib/stateCosts';
 import { useCalcRegion } from './calcRegion';
 import { fmtMoney } from '../lib/status';
@@ -56,7 +56,7 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
     title: 'Holding and financing',
     redemption: true,
     fields: [
-      { k: 'redemptionMonths', label: 'Redemption wait', unit: 'mo', hint: 'Secure and maintain it; hold off on remodeling until it ends.', more: 'After some sales the former owner (and sometimes lenders) can buy the property back by repaying your price plus what the law adds. Remodeling before then isn’t repaid, so most buyers only secure, insure and maintain the property while they wait. Ask an attorney what you may do and what is repaid. This is the legal wait; your own plan can be longer.' },
+      { k: 'redemptionMonths', label: 'Redemption wait', unit: 'mo', hint: 'Secure and maintain it; hold off on remodeling until it ends.', more: 'After some sales the former owner (and sometimes lenders) can buy the property back by repaying your price plus what the law adds. Optional remodeling usually isn’t repaid (some rules repay repairs a building code, an ordinance or an existing lease requires), so most buyers only secure, insure and maintain the property while they wait. Ask an attorney what you may do and what is repaid. This is the legal wait; your own plan can be longer. A shorter number here is only a what-if: the owner can still redeem until the legal deadline.' },
       { k: 'redemptionRatePct', label: 'Interest a redemption pays you', unit: '%/yr', hint: 'Set by the kind of sale.', when: (i) => i.redemptionMonths > 0 },
       { k: 'holdingMonths', label: 'Months to fix and sell', unit: 'mo', hint: 'After any redemption wait.', more: 'After a tax sale, resale may wait for a quiet title action. In Nevada, that’s the 2-year window after the Treasurer’s deed (NRS 361.600); other states’ waits are in their sale guides.' },
       { k: 'monthlyCarry', label: 'Monthly holding costs', unit: '$', hint: 'Taxes, insurance, utilities. The estimate leaves out HOA dues: add them if the home has an HOA.' },
@@ -176,7 +176,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const [i, setI] = useState<BidInputs>(() => {
     const v0 = load(storeId, propertyId ? defaults : { ...defaults, transferTaxPer500: tax.per500 });
     // An offer has no auction cash limit, buyer's premium or redemption wait.
-    let v = offer ? { ...v0, cashAvailable: 0, buyerPremiumPct: 0, redemptionMonths: 0, redemptionRatePct: 0, redemptionDaily: 0, redemptionFlat: 0, redemptionFlat2Pct: 0 } : v0;
+    let v = offer ? offerInputs(v0) : v0;
     // A redemption rule left over from another kind of sale (IRS interest on an HOA sale, say) is replaced with the
     // one that fits, and has to be confirmed again.
     if (!offer && choices) {
@@ -212,7 +212,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const set = (k: keyof BidInputs, text: string) => {
     trackAction('calculator_used', true);
     setDraft((d) => ({ ...d, [k]: text }));
-    update({ [k]: clampInput(k, toNum(text)) });
+    // Changing the redemption numbers by hand means the rule you confirmed may no longer be the one used.
+    update({ [k]: clampInput(k, toNum(text)), ...(k.startsWith('redemption') && k !== 'redemptionChecked' ? { redemptionChecked: 0 } : {}) });
   };
   const pickRule = (rule: string) => {
     const r = rules[rule];
@@ -325,7 +326,11 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       <div className="calc-results" id={`${uid}-results`}>
         {unconfirmed && (
           <div className="caution calc-unconfirmed" role="status">
-            <strong>Redemption rule not confirmed.</strong> {choices?.confirm} Your walk-away price uses that assumption. Pick the rule under Holding and financing (Detailed), then confirm it here.
+            <strong>Redemption rule not confirmed.</strong> {choices?.confirm} Your walk-away price now uses{' '}
+            {ruleOf(i, rules) === 'custom'
+              ? <>your own numbers: a {Math.round(i.redemptionMonths)}-month wait. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
+              : <>{rules[ruleOf(i, rules)]?.label}.</>}{' '}
+            Pick the rule under Holding and financing (Detailed), then confirm it here.
             <label className="calc-check">
               <input type="checkbox" checked={false} onChange={() => update({ redemptionChecked: 1 })} />
               <span>I’ve checked the records, and the redemption rule set in this calculator is the one that applies.</span>
@@ -333,7 +338,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           </div>
         )}
         {!offer && choices?.confirm && !!i.redemptionChecked && (
-          <p className="small muted">Redemption rule confirmed by you. <button type="button" className="linkish" onClick={() => update({ redemptionChecked: 0 })}>Undo</button></p>
+          <p className="small muted">Redemption rule confirmed by you: {ruleOf(i, rules) === 'custom' ? `your own numbers, a ${Math.round(i.redemptionMonths)}-month wait` : rules[ruleOf(i, rules)]?.label}. <button type="button" className="linkish" onClick={() => update({ redemptionChecked: 0 })}>Undo</button></p>
         )}
         {needsValue ? (
           <div className="calc-max" role="status">
@@ -397,9 +402,12 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         )}
         {redeemed && !needsValue && (
           <div className="calc-note">
-            <strong>If the owner redeems</strong>
+            <strong>If the owner redeems: an illustration of your bid and what the law adds</strong>
             <p className="small">
-              {i.redemptionFlat ? <>If the owner redeems {i.redemptionFlat2Pct ? 'in the first year' : 'at any time in the wait'}, the law adds {i.redemptionRatePct}% of your price{i.redemptionFlat2Pct ? `, or ${i.redemptionFlat2Pct}% in the second year` : ''}, no matter how early. </> : null}At the end of the {Math.round(i.redemptionMonths)}-month wait you’d get back about {fmtMoney(Math.round(redeemed.repaid))} on a {fmtMoney(bid > 0 ? bid : r.maxBid)} bid. By then you’d have spent about {fmtMoney(Math.round(redeemed.spent))}, so you’d {redeemed.net >= 0 ? `come out about ${fmtMoney(Math.round(redeemed.net))} ahead` : `be about ${fmtMoney(Math.round(-redeemed.net))} short`}. Some rules also repay taxes and assessments you paid; repairs aren’t repaid.
+              {i.redemptionFlat ? <>If the owner redeems {i.redemptionFlat2Pct ? 'in the first year' : 'at any time in the wait'}, the law adds {i.redemptionRatePct}% of your price{i.redemptionFlat2Pct ? `, or ${i.redemptionFlat2Pct}% in the second year` : ''}, no matter how early. </> : null}At the end of the {Math.round(i.redemptionMonths)}-month wait you’d get back about {fmtMoney(Math.round(redeemed.repaid))} on a {fmtMoney(bid > 0 ? bid : r.maxBid)} bid. By then you’d have spent about {fmtMoney(Math.round(redeemed.spent))}, so you’d {redeemed.net >= 0 ? `come out about ${fmtMoney(Math.round(redeemed.net))} ahead` : `be about ${fmtMoney(Math.round(-redeemed.net))} short`}.{' '}
+              {region.state === 'TX' && saleKind === 'taxSale'
+                ? 'This isn’t the full Texas payoff: it leaves out the deed recording fee, the taxes, penalties and interest you paid, and eligible costs, which the law also repays: property insurance, repairs required by a building code, an ordinance or a lease in effect at the sale, city health-and-safety liens, HOA dues and certain fees (Tax Code 34.21(a), (g)). Optional remodeling isn’t on that list. Keep every receipt and ask an attorney which of your costs qualify.'
+                : 'This leaves out other amounts some rules also repay, such as taxes, assessments or costs the law lists; optional remodeling usually isn’t repaid. Ask an attorney what your sale’s rule repays.'}
             </p>
           </div>
         )}

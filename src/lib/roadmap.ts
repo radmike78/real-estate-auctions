@@ -501,7 +501,7 @@ export const ROADMAP: RoadmapStep[] = [
     outcome: 'The redemption end date on your calendar, lawful possession, and a written answer from your title company or attorney before you remodel.',
     steps: ['Write down the date any redemption period ends, counted the way your sale guide says (in Texas, a tax sale’s is counted from the day the deed is filed for record).', 'Secure, insure and maintain the property, and make repairs needed for safety. Keep every receipt: some redemption rules repay certain costs.', 'Confirm you have lawful possession. If anyone lives there, follow your attorney’s process.', 'Ask your title company when it will insure the title, and your attorney what you may do before then.'],
     say: { to: 'Title company or attorney', script: '“I bought [address] at a [kind of sale] on [date]. When does the redemption period end, which of my costs would a redemption repay, and when would you insure the title so I can start remodeling?”' },
-    stop: 'Don’t remodel or resell before the redemption period ends and you have lawful possession: a redemption undoes your purchase. After a Texas subdivision HOA sale, you can’t sell to anyone but the owner until it ends.',
+    stop: 'Don’t remodel or resell before the redemption period ends and you have lawful possession: a redemption undoes your purchase. After a Texas HOA sale, subdivision or condominium, you can’t sell to anyone but the owner until it ends.',
     doneWhen: 'The redemption end date is on your calendar (or your sale has none), you have lawful possession, and your title company or attorney has said remodeling can start.',
     action: 'Read your sale guide', href: '#/playbooks',
   },

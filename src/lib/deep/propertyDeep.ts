@@ -2034,7 +2034,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         }
       },
       {
-        text: "Builders who split parcels into five or fewer lots avoided that requirement (Maricopa County, Arizona).",
+        text: "In Arizona, builders who split land into five or fewer lots avoided that 100-year water-supply rule, so some Maricopa County homes were built without a proven water source.",
         source: {
           label: "New York Times (via Boston Globe): An Arizona suburb’s water is cut off, leading to a worst-case scenario for homeowners (Jan. 16, 2023)",
           url: "https://www.bostonglobe.com/2023/01/16/nation/an-arizona-suburbs-water-is-cut-leading-worst-case-scenario-homeowners/"
