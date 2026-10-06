@@ -1,6 +1,7 @@
 import type { SaleType } from '../types';
 import { removeLog } from './evidence';
 import { forgetRoadmapDeal } from './roadmapDeals';
+import { removePacket } from './dealPacket';
 // Analyze a Deal (step 6): the visitor describes a deal (state, county, kind of sale, plan) and gets the checklist for
 // that sale in that state. Every rule here comes from the Learn lessons and their sources. Deals are kept in this browser.
 import { COUNTY_OFFICES } from './countyOffices';
@@ -266,6 +267,7 @@ const dealCalcKeys = (id: string) => [
 export function forgetDeal(id: string) {
   removeLog(`analyzed:${id}`);
   forgetRoadmapDeal(`analyzed:${id}`);
+  removePacket(`analyzed:${id}`);
   try {
     for (const k of dealCalcKeys(id)) localStorage.removeItem(k);
   } catch {

@@ -38,6 +38,7 @@ import DrillPage from './components/DrillPage';
 import ToolkitPage from './components/ToolkitPage';
 import PlaybookPage from './components/PlaybookPage';
 import DealsPage from './components/DealsPage';
+import DealPacketPage from './components/DealPacketPage';
 import HomeownerHelpPage from './components/HomeownerHelpPage';
 import GuidesPage from './components/GuidesPage';
 import AlertsPage, { type AlertsMode } from './components/AlertsPage';
@@ -80,6 +81,7 @@ type Route =
   | { page: 'decide' }
   | { page: 'finddeals' }
   | { page: 'deals' }
+  | { page: 'dealPacket'; id: string }
   | { page: 'homeowner' }
   | { page: 'guides'; q: string }
   | { page: 'alerts'; mode: AlertsMode; token: string; welcome: boolean; add?: string }
@@ -150,6 +152,8 @@ function parseHash(): Route {
   if (h === 'decide') return { page: 'decide' };
   if (h === 'find-deals') return { page: 'finddeals' };
   if (h === 'deals') return { page: 'deals' };
+  const packet = h.match(/^deals\/packet\/(d[a-z0-9]{1,20})$/);
+  if (packet) return { page: 'dealPacket', id: packet[1] };
   if (h === 'homeowner-help') return { page: 'homeowner' };
   if (h === 'guides') return { page: 'guides', q };
   const al = h.match(/^alerts(?:\/(confirm|manage|unsubscribe)(?:\/([A-Za-z0-9._-]{1,100}))?)?$/); // no token: the page reads it from this tab
@@ -306,6 +310,7 @@ export default function App() {
       {route.page === 'decide' && <DecidePage />}
       {route.page === 'finddeals' && <FindDealsPage />}
       {route.page === 'deals' && <DealsPage />}
+      {route.page === 'dealPacket' && <DealPacketPage key={route.id} dealId={route.id} />}
       {route.page === 'homeowner' && <HomeownerHelpPage />}
       {route.page === 'guides' && <GuidesPage key={`${nav}|${route.q}`} initialQuery={route.q} />}
       {route.page === 'alerts' && <AlertsPage key={`${route.mode}${route.token}${route.add ?? ''}`} mode={route.mode} token={route.token} welcome={route.welcome} add={route.add} />}
