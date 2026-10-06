@@ -8,12 +8,7 @@ export const PRO_WHY = {
     yes: [
       {
         who: "First-time buyer",
-        text: "Worth it when you’re buying a listed home and haven’t written an offer before. A buyer’s agent walks you through offers, contingencies and deadlines, where new buyers can make costly mistakes.",
-        example: "Since August 17, 2024, agents in Realtor-run MLSs must sign a written agreement with you before you tour a home, even virtually. It must state their pay as a set amount or rate, and say that pay is negotiable. So you know the cost up front.",
-        source: {
-          label: "National Association of Realtors: NAR Settlement FAQs",
-          url: "https://www.nar.realtor/the-facts/nar-settlement-faqs"
-        }
+        text: "Worth it when you’re buying a listed home and haven’t written an offer before. A buyer’s agent walks you through offers, contingencies and deadlines, where new buyers can make costly mistakes."
       },
       {
         who: "Buyer of bank-owned (REO) homes",
@@ -41,7 +36,7 @@ export const PRO_WHY = {
       {
         who: "Tax-sale and courthouse-auction buyer",
         text: "Skip one for county tax sales and trustee auctions. The county or trustee runs the sale, so a buyer’s agent has no deal to manage. You may still want an agent’s price estimate before you bid.",
-        example: "In Sonoma County, California, the treasurer-tax collector says the only way to get legal title to a tax-defaulted parcel is to win the county’s auction.",
+        example: "In California, the Sonoma County treasurer-tax collector says the only way to get legal title to a tax-defaulted parcel is to win the county’s auction.",
         source: {
           label: "Sonoma County (CA) Treasurer-Tax Collector, Tax-defaulted property auctions FAQs",
           url: "https://sonomacounty.gov/administrative-support-and-fiscal-services/auditor-controller-treasurer-tax-collector/divisions/revenue-accounting/tax-defaulted-property-auctions/tax-defaulted-property-auctions-faqs"
@@ -140,7 +135,7 @@ export const PRO_WHY = {
       },
       {
         who: "Everyone",
-        text: "Read the loan papers for prepayment penalties, default interest, extension fees and balloon dates. A credit report or appraisal fee before closing can be normal. A demand for ‘deposits’ or ‘taxes’ to release a loan is a scam."
+        text: "Read the loan papers for prepayment penalties, default interest, extension fees and balloon dates. A credit report or appraisal fee before closing can be normal. A demand for “deposits” or “taxes” to release a loan is a scam."
       }
     ]
   },
@@ -177,7 +172,7 @@ export const PRO_WHY = {
       {
         who: "Tax-sale buyer",
         text: "Put off the policy, not the search: title insurers often won’t insure a tax deed right away. You may need to wait or file a quiet title action first.",
-        example: "Sonoma County, California tells tax-sale buyers that most title companies won’t insure title for one year after the tax deed is recorded.",
+        example: "In California, Sonoma County tells tax-sale buyers that most title companies won’t insure title for one year after the tax deed is recorded.",
         source: {
           label: "Sonoma County (CA) Treasurer-Tax Collector, Tax-defaulted property auctions FAQs",
           url: "https://sonomacounty.gov/administrative-support-and-fiscal-services/auditor-controller-treasurer-tax-collector/divisions/revenue-accounting/tax-defaulted-property-auctions/tax-defaulted-property-auctions-faqs"
@@ -202,7 +197,7 @@ export const PRO_WHY = {
       {
         who: "Tax-sale buyer",
         text: "A real estate attorney can file a quiet title action. That is often what makes a tax-deed property insurable and sellable.",
-        example: "Sonoma County, California warns that a quiet title action may be needed before title insurance is available on tax-sale property.",
+        example: "In California, Sonoma County warns that a quiet title action may be needed before title insurance is available on tax-sale property.",
         source: {
           label: "Sonoma County (CA) Treasurer-Tax Collector, Tax-defaulted property auctions FAQs",
           url: "https://sonomacounty.gov/administrative-support-and-fiscal-services/auditor-controller-treasurer-tax-collector/divisions/revenue-accounting/tax-defaulted-property-auctions/tax-defaulted-property-auctions-faqs"
@@ -320,7 +315,7 @@ export const PRO_WHY = {
     no: [
       {
         who: "Anyone on a tight budget",
-        text: "An unlicensed ‘handyman’ may be cheaper but often has no insurance. You could be liable for injuries or bad work.",
+        text: "An unlicensed “handyman” may be cheaper but often has no insurance. You could be liable for injuries or bad work.",
         example: "In Nevada, contracting without a license is a misdemeanor on the first offense. On a third offense, it’s a category E felony (NRS 624.700 and 624.750).",
         source: {
           label: "Nevada State Contractors Board, Unlicensed contracting: penalties and law",
@@ -342,7 +337,7 @@ export const PRO_WHY = {
       },
       {
         who: "Everyone",
-        text: "Check the license on the state board’s website before signing anything: NSCB in Nevada, CSLB in California, ROC in Arizona, DOPL in Utah. Texas has no statewide license for general contractors, so check trade licenses: TDLR for electricians and air conditioning, the State Board of Plumbing Examiners for plumbers."
+        text: "Don’t sign anything until you’ve checked the license with the state’s official lookup (see “Check before you hire”)."
       }
     ]
   },
@@ -398,12 +393,7 @@ export const PRO_WHY = {
     yes: [
       {
         who: "Landlord with a full-time job",
-        text: "Worth it if your rental may show a loss and you have a job. Passive activity rules limit those losses, and a CPA can tell you how much you can deduct.",
-        example: "If you actively take part in running the rental, you can deduct up to $25,000 of rental losses against other income. This phases out between $100,000 and $150,000 of modified AGI, and is smaller, or zero, if you’re married filing separately (IRS Publication 925).",
-        source: {
-          label: "IRS Publication 925, Passive Activity and At-Risk Rules",
-          url: "https://www.irs.gov/publications/p925"
-        }
+        text: "Worth it if your rental may show a loss and you have a job. Passive activity rules limit those losses (see “Working with one”), and a CPA can tell you how much you can deduct."
       },
       {
         who: "New landlord",
@@ -434,12 +424,7 @@ export const PRO_WHY = {
       },
       {
         who: "Everyone",
-        text: "Not every tax preparer is a CPA. Check credentials before you hire.",
-        example: "The IRS notes that anyone with a Preparer Tax Identification Number can prepare returns for pay. Skill levels vary.",
-        source: {
-          label: "IRS, Choosing a tax professional",
-          url: "https://www.irs.gov/tax-professionals/choosing-a-tax-professional"
-        }
+        text: "Not every tax preparer is a CPA. Check credentials before you hire (see “Check before you hire”)."
       },
       {
         who: "Everyone",
@@ -500,7 +485,7 @@ export const PRO_WHY = {
       {
         who: "Landlord",
         text: "Evictions must go through the courts. An eviction attorney helps you get the notices and filings right the first time.",
-        example: "In 2022, California’s Attorney General said the only legal way to evict a tenant is to file a lawsuit and wait for the court to order the sheriff or marshal to carry it out.",
+        example: "In California, the Attorney General said in 2022 that the only legal way to evict a tenant is to file a lawsuit and wait for the court to order the sheriff or marshal to carry it out.",
         source: {
           label: "California Attorney General press release on unlawful lockouts (July 13, 2022)",
           url: "https://oag.ca.gov/node/555214"
@@ -532,7 +517,7 @@ export const PRO_WHY = {
       {
         who: "Auction buyer",
         text: "Count eviction time and cost in your bid. The county or trustee generally won’t do it for you.",
-        example: "Sonoma County, California tells tax-sale buyers it doesn’t handle foreclosures or evictions.",
+        example: "In California, Sonoma County tells tax-sale buyers it doesn’t handle foreclosures or evictions.",
         source: {
           label: "Sonoma County (CA) Treasurer-Tax Collector, Tax-defaulted property auctions FAQs",
           url: "https://sonomacounty.gov/administrative-support-and-fiscal-services/auditor-controller-treasurer-tax-collector/divisions/revenue-accounting/tax-defaulted-property-auctions/tax-defaulted-property-auctions-faqs"
@@ -540,7 +525,7 @@ export const PRO_WHY = {
       },
       {
         who: "Everyone",
-        text: "Never change locks, shut off utilities or remove belongings to force someone out, even if a ‘process server’ offers to help."
+        text: "Never change locks, shut off utilities or remove belongings to force someone out, even if a “process server” offers to help."
       },
       {
         who: "Landlord with a simple case",
@@ -602,7 +587,7 @@ export const PRO_WHY = {
       },
       {
         who: "Everyone",
-        text: "A Phase I is mostly a records review, interviews and a site visit. Testing soil or water is a separate Phase II. So a ‘clean’ Phase I isn’t a guarantee.",
+        text: "A Phase I is mostly a records review, interviews and a site visit. Testing soil or water is a separate Phase II. So a “clean” Phase I isn’t a guarantee.",
         example: "EPA says Phase II sampling and analysis fall outside the AAI rule, and so do lead paint, mold, radon and asbestos.",
         source: {
           label: "U.S. EPA, Brownfields All Appropriate Inquiries",

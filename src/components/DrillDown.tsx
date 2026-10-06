@@ -46,8 +46,8 @@ function Body({ s, titled = false }: { s: DrillSection; titled?: boolean }) {
  * Shows each section as a tile; clicking one opens just that section at `${baseHref}/${key}`.
  * With `printAll` (or the "all" section, offered when `showAll` is set), every section is rendered in order.
  */
-export default function DrillDown(props: { sections: DrillSection[]; active?: string; baseHref: string; label: string; printAll?: boolean; showAll?: boolean; titled?: boolean }) {
-  const { sections, active, baseHref, label, printAll, showAll, titled } = props;
+export default function DrillDown(props: { sections: DrillSection[]; active?: string; baseHref: string; label: string; printAll?: boolean; showAll?: boolean; titled?: boolean; overviewLabel?: string }) {
+  const { sections, active, baseHref, label, printAll, showAll, titled, overviewLabel } = props;
   const nav = useRef<HTMLElement>(null);
   // On narrow screens the section bar scrolls sideways: bring the open section's button into view.
   useEffect(() => {
@@ -112,8 +112,8 @@ export default function DrillDown(props: { sections: DrillSection[]; active?: st
       {!titled && all}
       <Body s={cur} titled={titled} />
       <div className="drill-pager no-print">
-        {prev ? <a href={`${baseHref}/${prev.key}`}>← {prev.title}</a> : <a href={baseHref}>← Overview</a>}
-        {next ? <a href={`${baseHref}/${next.key}`}>{next.title} →</a> : <a href={baseHref}>Back to overview</a>}
+        {prev ? <a href={`${baseHref}/${prev.key}`}>← {prev.title}</a> : <a href={baseHref}>← {overviewLabel ?? 'Overview'}</a>}
+        {next ? <a href={`${baseHref}/${next.key}`}>{next.title} →</a> : <a href={baseHref}>{overviewLabel ? `${overviewLabel} →` : 'Back to overview'}</a>}
       </div>
     </div>
   );
