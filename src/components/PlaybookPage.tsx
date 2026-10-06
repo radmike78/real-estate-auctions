@@ -46,6 +46,7 @@ import AdSpot from './AdSpot';
 function calcNote(p: { key: string }) {
   const kind = p.key.replace(/^(ca|az|ut|tx)(?=[a-z]{3})/, '');
   if (kind === 'sid' || kind === 'taxlien') return <>Work out what a certificate earns, counting the wait to be paid, with the <a href="#/analyze?plan=lien">lien calculator</a>.</>;
+  if (kind === 'commercial') return <>Set your limit from the building’s income: <a href="#/analyze?plan=commercial">analyze this building’s income</a> (rent, vacancy, operating costs and replacement reserves). For a building you’ll renovate and resell, use <a href="#/analyze?plan=flip">fix and sell</a>.</>;
   if (kind === 'reo' || kind === 'short') return <>Set your maximum offer before you make one: <a href="#/analyze?plan=rent">to keep and rent it</a>, or <a href="#/analyze?plan=flip">to fix and sell it</a>.</>;
   return <>Set your limit before the sale: <a href="#/analyze?plan=rent">to keep and rent it</a>, or <a href="#/analyze?plan=flip">to fix and sell it</a>.</>;
 }

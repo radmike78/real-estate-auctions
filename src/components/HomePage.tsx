@@ -106,6 +106,7 @@ export default function HomePage() {
 
       <section className="path" id="everything" aria-labelledby="path-head">
         <h2 id="path-head">Everything, in six steps</h2>
+        <p className="path-purpose">Your learning path: one page for each step. “Visited” only means you’ve opened it, not that you’ve finished it.</p>
         <ol className="path-steps">
           {PATH.map((s) => {
             const opened = seen.includes(s.key);
@@ -131,6 +132,13 @@ export default function HomePage() {
           <span>The real work of buying, from first idea to closing, plus a buy box to keep you focused. This is the progress that counts.</span>
           <span className="decide-bar" aria-hidden><span style={{ width: `${Math.round((done / total) * 100)}%` }} /></span>
         </a>
+        {/* Four ways DeedOwl counts progress, each with one job, so a reader never mistakes reading for being ready. */}
+        <ul className="progress-kinds" aria-label="How DeedOwl counts progress">
+          <li><strong>Getting started ({GUIDED.length} steps)</strong> A short first tour: what to read and try first.</li>
+          <li><strong>Six steps</strong> Your learning path through the site. “Visited” means opened, not finished.</li>
+          <li><strong>My plan roadmap ({total} tasks)</strong> The real work of an actual purchase. This is the progress that counts.</li>
+          <li><strong>Practice missions</strong> Rehearsal on made-up deals. Finishing them builds skill; it doesn’t mean you’re ready to buy.</li>
+        </ul>
       </section>
     </main>
   );

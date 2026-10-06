@@ -7,7 +7,7 @@
       "src/lib/journey.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "6c0d78a6d9bbf0b1",
+    "hash": "4e9e5f7bb839f6ac",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -116,7 +116,7 @@
       "src/lib/saleDocs.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "ab0c33ef1580694a",
+    "hash": "b8954d622c70a62e",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "984eca463a101350",
+    "hash": "4d4f95685a32a604",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -405,7 +405,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "a292b058c321eb43",
+    "hash": "5976fb6ddc0f7844",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]
