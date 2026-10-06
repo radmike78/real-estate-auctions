@@ -38,9 +38,9 @@ export const financing: Lesson = {
       blocks: [
         'An investment property is one you own but don’t live in. FHA and VA loans require you to live in the home, so expect to put more money down. On Fannie Mae loans, lenders also look for:',
         { list: [
-          'Savings in reserve: generally six months of payments for an investment property or a two-to-four-unit home you live in.',
-          'A limit of 10 financed properties when the new loan is for a second home or investment property.',
-          'Rent to help you qualify (Fannie Mae, long-term rental): the lender takes 75% of the market rent and subtracts the full payment with taxes, insurance and HOA dues (PITIA). Example: rent $2,400 × 75% = $1,800; payment $1,600; $200 left over. With 12 months or more of experience managing rentals, that $200 can count as income. With less, the rent still helps: it can cover the $1,600 payment, so that payment isn’t counted against you, but the $200 doesn’t count as income. If the result is negative, the shortfall counts against you either way. The 25% cut is the lender’s qualifying cushion, not a budget or a forecast of your profit. Short-term rentals use 50% of the rent, and other lenders and programs have their own rules.',
+          'Savings in reserve: generally six months of payments for an investment property or a two-to-four-unit home you live in. If you already own other mortgaged properties (not counting your own home), Fannie Mae adds more: 2% of what you still owe on them if you have 1 to 4, 4% for 5 or 6, and 6% for 7 to 10 (Selling Guide B3-4.1-01).',
+          'A limit of 10 financed properties, counting your own home, when the new loan is for a second home or investment property. That limit of 10 applies to loans approved through Fannie Mae’s automated system; loans a person underwrites by hand stop at 6 (Selling Guide B2-2-03).',
+          'Rent to help you qualify (Fannie Mae, long-term rental): the lender takes 75% of the market rent and subtracts the full payment with taxes, insurance and HOA dues (PITIA). Example: rent $2,400 × 75% = $1,800; payment $1,600; $200 left over. With 12 months or more of experience managing rentals, that $200 can count as income. With less, the rent still helps: it can cover the $1,600 payment, so that payment isn’t counted against you, but the $200 doesn’t count as income. If the result is negative, the shortfall counts against you either way. The 25% cut is the lender’s qualifying cushion, not a budget or a forecast of your profit. Short-term (nightly) rentals use 50% of the rent, but only on a one-unit investment property that’s legally allowed to operate as a short-term rental, and not from an ADU. Other lenders and programs have their own rules.',
         ] },
         'Rules change, and lenders can add their own. Ask a licensed loan officer for current requirements.',
       ],
@@ -62,7 +62,7 @@ export const financing: Lesson = {
     {
       heading: 'DSCR loans: qualifying on the rent',
       blocks: [
-        'A DSCR loan (debt service coverage ratio) is approved mainly on the property’s rent instead of your income. The lender divides the monthly rent by the monthly payment with taxes, insurance and any HOA dues. Many want 1.0 or more; a higher ratio gets better terms. This is looser than the DSCR commercial lenders use, which divides net operating income (rent after operating costs) by the year’s loan payments.',
+        'A DSCR loan (debt service coverage ratio) is approved mainly on the property’s rent instead of your income. The lender divides the monthly rent by the monthly payment with taxes, insurance and any HOA dues. Many want 1.0 or more; a higher ratio gets better terms. Commercial lenders figure DSCR differently: they first subtract operating costs from the rent (that’s net operating income), then divide by the year’s loan payments. So the same property shows a lower ratio on a commercial loan.',
         { list: [
           'Example: rent of $2,400 and a full payment of $2,000 is a ratio of 1.2.',
           'They’re made by private lenders, not Fannie Mae or Freddie Mac, so terms vary widely. Down payments of 20% to 25% and higher rates than a regular loan are common.',
@@ -105,7 +105,7 @@ export const financing: Lesson = {
       blocks: [
         'Buying with cash or a short-term loan and then refinancing (the BRRRR plan) depends on a lender agreeing to the new loan, at the value an appraiser gives. Plan for the rules before you buy.',
         { list: [
-          'Waiting period: lenders usually want you on title for at least six months before a cash-out refinance, and Fannie Mae requires a first mortgage being paid off to be at least 12 months old (Selling Guide B2-1.3-03).',
+          'Waiting period: Fannie Mae requires you to be on title for at least six months before a cash-out refinance (with exceptions such as delayed financing), and Fannie Mae requires a first mortgage being paid off to be at least 12 months old (Selling Guide B2-1.3-03).',
           'If you paid all cash, Fannie Mae’s “delayed financing” exception can let you take cash out sooner, limited to what you can document you put in, for an arm’s-length purchase.',
           'A hard-money loan usually can’t be paid off with a regular cash-out loan until those periods pass. Some lenders allow a rate-and-term refinance sooner; ask before you buy, and make sure the hard-money term is long enough.',
           'The new loan is sized on the appraisal and the rent, not on what you spent. A low appraisal can leave more of your cash in the property than you planned.',
@@ -146,7 +146,7 @@ export const financing: Lesson = {
       heading: 'Before you sign',
       blocks: [
         { list: [
-          'Compare lenders. On most consumer home loans, such as a loan to buy a one- or two-unit home you’ll live in or a second home you won’t rent out, the lender must give you a Loan Estimate within three business days of your application. Home equity lines of credit (HELOCs) and reverse mortgages use different disclosures. Business loans don’t require this form. Federal rules treat a loan to buy a rental you won’t live in as a business loan, whatever its size, and so is a loan to buy a building of three or more units even if you’ll live in one of them (“live in” means more than 14 days in the coming year). For those, ask for a written term sheet, and compare rate, points, fees, balloon and prepayment terms side by side.',
+          'Compare lenders. On most consumer home loans, such as a loan to buy a one- or two-unit home you’ll live in or a second home you won’t rent out, the lender must give you a Loan Estimate within three business days of your application. Home equity lines of credit (HELOCs) and reverse mortgages use different disclosures. Business loans don’t require this form. Federal rules count two kinds of purchase loans as business loans: a loan to buy a rental you won’t live in, however many units it has, and a loan to buy a building with three or more units, even if you’ll live in one of them (“live in” means more than 14 days in the coming year). For those, ask for a written term sheet, and compare rate, points, fees, balloon and prepayment terms side by side.',
           'Check the final numbers. On most consumer home loans (not HELOCs or reverse mortgages), you must receive the Closing Disclosure at least three business days before you sign the loan. Compare it with your Loan Estimate. A pre-approval is conditional: it isn’t a promise to fund.',
           'Check each lender’s license with its regulator; NMLS Consumer Access covers many of them.',
           'Plan for the worst case: higher repairs, a slow sale, or a vacancy while payments are due.',
