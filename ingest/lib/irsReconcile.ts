@@ -5,6 +5,14 @@ import type { FeedFederalSale } from '../../src/feed/types';
 import type { IrsParseResult } from '../connectors/irsAuctions';
 import type { Anomaly, SourceState } from './reconcile';
 
+/** Why an IRS ad in our states isn't shown, in plain words for the Sources list. */
+const SKIP_WORDS: Record<string, string> = {
+  'county not identified': 'the notice doesn’t name the county',
+  'no Clark County parcel number in the notice': 'the notice has no Clark County parcel number',
+  'no parcel number in the notice': 'the notice has no parcel number',
+  'unreadable minimum bid': 'the minimum bid couldn’t be read',
+};
+
 /**
  * Changes a defaced or spoofed index would show, held for an operator to confirm on the official site
  * (like the county sources): a sale's minimum bid moving more than 3x, a sale moved to a different
@@ -76,10 +84,15 @@ export function applyIrsSnapshot(
   }
   const unconfirmed = Object.values(sales).filter((x) => x.state === 'UNCONFIRMED').length;
   const changed = meta.sha256 !== prev.lastSha256;
+  // Shown to buyers under Sources, so it reads as plain sentences.
+  const clark = parsed.rows.filter((r) => r.assessorChecked).length;
+  const n = (k: number, one: string, many: string) => `${k} ${k === 1 ? one : many}`;
   const notes = [
-    `${parsed.totalAds} ads nationwide; ${parsed.rows.length} in NV, CA, AZ, UT and TX (${parsed.rows.filter((r) => r.assessorChecked).length} in Clark County)`,
-    parsed.skipped.length ? `${parsed.skipped.length} ad(s) in those states not shown: ${[...new Set(parsed.skipped.map((s) => s.reason))].join(', ')}` : null,
-    unconfirmed ? `${unconfirmed} sale(s) hidden: parcel not found in Assessor records` : null,
+    `The IRS lists ${n(parsed.totalAds, 'sale', 'sales')} nationwide. ${parsed.rows.length === 1 ? '1 is' : `${parsed.rows.length} are`} in Nevada, California, Arizona, Utah or Texas, ${clark === 0 ? 'none' : clark} of them in Clark County.`,
+    parsed.skipped.length
+      ? `${n(parsed.skipped.length, 'more sale', 'more sales')} in those states ${parsed.skipped.length === 1 ? 'isn’t' : 'aren’t'} shown here because ${[...new Set(parsed.skipped.map((s) => SKIP_WORDS[s.reason] ?? s.reason))].join(', or ')}.`
+      : null,
+    unconfirmed ? `${n(unconfirmed, 'sale is', 'sales are')} hidden because the parcel wasn’t found in the Assessor’s records.` : null,
   ].filter(Boolean);
   return {
     ...prev,
@@ -90,7 +103,7 @@ export function applyIrsSnapshot(
     changeTimes: changed ? [...prev.changeTimes, nowIso].slice(-30) : prev.changeTimes,
     consecutiveErrors: 0,
     health: 'ok',
-    message: notes.join('; '),
+    message: notes.join(' '),
     quarantinedSha256: null,
     federalSales: sales,
   };

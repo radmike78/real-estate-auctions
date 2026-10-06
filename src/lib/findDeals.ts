@@ -7,6 +7,8 @@ export interface DealSource {
   name: string;
   url: string; // an outside https link, or an internal #/ page
   what: string;
+  /** National sellers only: federal agencies, Fannie Mae and Freddie Mac, or banks (shown as separate groups). */
+  group?: 'government' | 'gse' | 'bank';
 }
 
 /** Official sellers that cover every state we serve: federal agencies, Fannie Mae and Freddie Mac, and banks. */
@@ -14,6 +16,7 @@ export const NATIONAL_OFFICIAL: DealSource[] = REO_SOURCES.map((s) => ({
   name: s.name,
   url: s.name === 'HUD Home Store' ? 'https://www.hudhomestore.gov/' : s.url,
   what: s.what,
+  group: s.group,
 }));
 
 /** The national sellers, worded for the visitor's state (the Clark County page's search tips don't apply elsewhere). */

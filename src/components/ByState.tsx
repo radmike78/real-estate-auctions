@@ -2,6 +2,7 @@ import { STATES, type StateCode } from '../lib/regions';
 import { dropStateLead, useMyState } from '../lib/myState';
 import { Cited } from './Cited';
 import OwlNote from './OwlNote';
+import { phoneLinks } from './PhoneLinks';
 
 const ext = { target: '_blank', rel: 'noopener noreferrer' } as const;
 
@@ -31,7 +32,7 @@ export default function ByState({ lines, missing, ordered }: { lines: ByStateLin
           <List className={ordered ? 'steps-rich' : undefined}>
             {xs.map((x) => (
               <li key={x.text}>
-                {x.topic && <strong>{x.topic}: </strong>}<Cited text={dropStateLead(x.text, s.code as StateCode)} />
+                {x.topic && <strong>{x.topic}: </strong>}<Cited text={dropStateLead(x.text, s.code as StateCode)} plain={phoneLinks} />
                 {x.links?.map(([label, url]) => (
                   <span key={url}> {url.startsWith('#/') ? <a href={url}>{label} →</a> : <a href={url} {...ext}>{label} ↗</a>}</span>
                 ))}

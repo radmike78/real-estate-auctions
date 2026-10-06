@@ -38,7 +38,7 @@ export const BUSINESS_SOURCES: BusinessSource[] = [
     owner: 'Clark County',
     url: 'https://www.clarkcountynv.gov/government/departments/sheriff_civil/',
     what: 'Sales under a writ of execution, to pay a court judgment. Business property can be seized and sold this way (NRS Chapter 21).',
-    howToUse: 'Check the Sheriff’s notices: each one sets the payment terms. Property is sold as-is.',
+    howToUse: 'Check the sheriff’s notices: each one sets the payment terms. Property is sold as-is.',
   },
   {
     name: 'IRS auctions',

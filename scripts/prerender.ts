@@ -58,7 +58,7 @@ const NAV = [
   ['/pros/', 'Your Team'],
   ['/practice/', 'Practice'],
   ['/find-deals/', 'Find Deals'],
-  ['/analyze/', 'Analyze a Deal'],
+  ['/analyze/', 'Analyze a deal'],
 ] as const;
 
 export function pages(): Page[] {

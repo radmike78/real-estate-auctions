@@ -94,7 +94,7 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
     return (
       <main className="page">
         <PageHero
-          eyebrow={<span className="eyebrow">Clark County · Official sources only</span>}
+          eyebrow={<span className="eyebrow">Clark County, Nevada · Official sources only</span>}
           title={<>Properties <span className="grad">for sale</span></>}
           sub="Forced-sale properties from official records: tax sales, foreclosures, bank-owned homes and more."
         />
