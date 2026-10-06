@@ -55,11 +55,11 @@ export interface CommercialInputs extends BuyInputs, LoanInputs {
   minDscr: number;
 }
 
-/** Yearly payment on an amortizing loan. */
+/** Yearly payment on an amortizing loan. A loan with no term entered is figured over 30 years, never as free. */
 export function annualDebtService(loan: number, ratePct: number, years: number): number {
-  if (!(loan > 0) || !(years > 0)) return 0;
+  if (!(loan > 0)) return 0;
   const r = nz(ratePct) / 100 / 12;
-  const n = years * 12;
+  const n = (years > 0 ? years : 30) * 12;
   const monthly = r > 0 ? (loan * r) / (1 - (1 + r) ** -n) : loan / n;
   return monthly * 12;
 }
@@ -109,21 +109,28 @@ export interface HoldResult {
   dscr: number | null; // NOI / debt service; null without a loan
   loanOk: boolean; // DSCR meets your minimum (true without a loan)
   loanNet: number; // loan proceeds after its costs
+  loanFees: number; // the loan's costs (points and fees), not counted in allIn
   cashAtAuction: number;
   allIn: number;
   cashLeft: number; // your cash still in the deal after the loan (negative = you took money out)
   cashOnCash: number | null; // yearly cash flow / cash left; null when no cash is left in
   capOnCost: number | null; // NOI / all-in cost
   cashLimit: number | null; // the cash you said you can bring, if any
+  /** A later refinance whose payment is more than the income: no price works with that loan, though a smaller one might. */
+  loanTooBig: boolean;
 }
 
-function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, cashFlow: number) => number, minDscr: number, reserves = 0, onPrice = false): HoldResult {
+function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, cashFlow: number) => number, minDscr: number, reserves = 0, onPrice = false, carryMonths = 0): HoldResult {
   const at = (bid: number) => {
     const loan = loanAt(i, bid, onPrice);
     const debtService = annualDebtService(loan, i.ratePct, i.years);
     const loanNet = loan * (1 - nz(i.loanCostPct) / 100);
     return { debtService, loanNet, cashFlow: noi - reserves - debtService };
   };
+  // A purchase loan's payments start at closing, so months before the rent starts (lease-up) cost loan payments too.
+  const allInAt = (bid: number) => allInCost(i, bid) + (onPrice ? (nz(carryMonths) * at(bid).debtService) / 12 : 0);
+  // The lender's minimum coverage (DSCR) caps a purchase loan's price too, not just the return you want.
+  const dscrOk = (m: { debtService: number }) => !(nz(minDscr) > 0 && m.debtService > 0) || noi / m.debtService >= nz(minDscr);
   let returnBid: number;
   if (!onPrice) {
     // A later refinance doesn't change with the price: the limit is a straight line.
@@ -133,7 +140,7 @@ function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, c
     // A purchase loan grows with the price, and so does the payment: search for the highest price that still works.
     const ok = (bid: number) => {
       const m = at(bid);
-      return m.cashFlow > 0 && allInCost(i, bid) <= limit(m.loanNet, m.cashFlow);
+      return m.cashFlow > 0 && dscrOk(m) && allInAt(bid) <= limit(m.loanNet, m.cashFlow);
     };
     returnBid = Math.max(0, largest(ok, SEARCH_MAX));
     // No target (or none that binds) and no loan to grow: the return sets no price limit, same as the refinance case.
@@ -141,12 +148,13 @@ function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, c
   }
   // Your cash covers everything you pay before any later refinance; with a purchase loan, everything but the loan.
   const cash = nz(i.cashAvailable);
-  const cb = cash > 0 ? Math.max(0, largest((bid) => (onPrice || bid * (1 + nz(i.buyerPremiumPct) / 100) <= cash) && allInCost(i, bid) - (onPrice ? at(bid).loanNet : 0) <= cash, Math.ceil(cash / Math.max(1 - (onPrice ? Math.min(nz(i.loanPct), 100) / 100 : 0), 0.01)) + 1)) : Infinity;
+  const cb = cash > 0 ? Math.max(0, largest((bid) => (onPrice || bid * (1 + nz(i.buyerPremiumPct) / 100) <= cash) && allInAt(bid) - (onPrice ? at(bid).loanNet : 0) <= cash, Math.ceil(cash / Math.max(1 - (onPrice ? Math.min(nz(i.loanPct), 100) / 100 : 0), 0.01)) + 1)) : Infinity;
   const maxBid = Math.min(returnBid, cb);
   const { debtService, loanNet, cashFlow } = at(maxBid);
   const dscr = debtService > 0 ? noi / debtService : null;
-  const allIn = allInCost(i, maxBid);
+  const allIn = allInAt(maxBid);
   const cashLeft = allIn - loanNet;
+  const refi = at(0);
   return {
     maxBid,
     limitedBy: cb < returnBid ? 'cash' : 'return',
@@ -158,12 +166,14 @@ function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, c
     dscr: dscr === null ? null : Math.round(dscr * 100) / 100,
     loanOk: dscr === null || dscr >= nz(minDscr),
     loanNet: r2(loanNet),
+    loanFees: r2(loanAt(i, maxBid, onPrice) - loanNet),
     cashAtAuction: r2(maxBid * (1 + nz(i.buyerPremiumPct) / 100)),
     cashLimit: cash > 0 ? r2(cash) : null,
     allIn: r2(allIn),
     cashLeft: r2(cashLeft),
     cashOnCash: cashLeft > 0 ? cashFlow / cashLeft : null,
     capOnCost: allIn > 0 ? noi / allIn : null,
+    loanTooBig: !onPrice && refi.debtService > 0 && refi.cashFlow <= 0 && noi - reserves > 0,
   };
 }
 
@@ -286,7 +296,7 @@ export function commercialMaxBid(i: CommercialInputs, onPrice = false): HoldResu
   const cap = nz(i.targetCapPct) / 100;
   const noi = commercialNoi(i).noi;
   const withLeaseUp = { ...i, possession: nz(i.possession) + leaseUpCost };
-  return { ...hold(withLeaseUp, noi, () => (cap > 0 ? noi / cap : Infinity), i.minDscr, 0, onPrice), leaseUpCost: r2(leaseUpCost) };
+  return { ...hold(withLeaseUp, noi, () => (cap > 0 ? noi / cap : Infinity), i.minDscr, 0, onPrice, onPrice ? i.leaseUpMonths : 0), leaseUpCost: r2(leaseUpCost) };
 }
 
 // ---------------- Lien certificates (special assessment / SID) ----------------

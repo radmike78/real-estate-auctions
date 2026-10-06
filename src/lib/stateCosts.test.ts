@@ -44,21 +44,23 @@ describe('state deal costs', () => {
   it('fits the redemption rule to the kind of sale and asks Texas buyers to confirm it', () => {
     expect(redemptionChoicesFor('TX', 'taxSale')).toMatchObject({ keys: ['txTaxHomestead', 'txTaxOther'], start: 'txTaxHomestead' });
     expect(redemptionChoicesFor('TX', 'taxSale').confirm).toMatch(/mineral interest/);
-    expect(redemptionChoicesFor('TX', 'hoa').keys).toEqual(['txHoaSubdivision', 'txHoaCondo']);
+    expect(redemptionChoicesFor('TX', 'hoa').keys).toEqual(['txHoaSubdivision', 'txHoaCondo', 'usFederal']);
     expect(redemptionChoicesFor('TX', 'hoa').confirm).toMatch(/declaration/);
-    // IRS interest can't carry into an HOA sale, and Texas execution and trustee sales have no redemption.
+    // IRS interest can't carry into an HOA sale; Texas execution sales have no redemption; trustee and HOA sales can
+    // leave the United States its 120 days when a junior federal tax lien was on title (26 USC 7425(d)).
     expect(redemptionChoicesFor('TX', 'hoa').keys).not.toContain('irs');
     expect(redemptionChoicesFor('TX', 'court').keys).toEqual(['none']);
-    expect(redemptionChoicesFor('TX', 'trustee').keys).toEqual(['none']);
-    expect(redemptionChoicesFor('NV', 'hoa').keys).toEqual(['hoa']);
+    expect(redemptionChoicesFor('TX', 'trustee')).toMatchObject({ keys: ['none', 'usFederal'], start: 'none' });
+    expect(redemptionChoicesFor('NV', 'hoa')).toMatchObject({ keys: ['hoa', 'usFederal'], start: 'hoa' });
+    expect(redemptionPresetsFor('CA').usFederal).toMatchObject({ months: 4, ratePct: 6 });
     for (const st of ['NV', 'CA', 'AZ', 'UT', 'TX'] as const)
       for (const kind of ['trustee', 'taxSale', 'court', 'hoa', 'irs'])
         for (const k of redemptionChoicesFor(st, kind).keys) expect(redemptionPresetsFor(st), `${st} ${kind} ${k}`).toHaveProperty(k);
   });
 
   it('offers only each state’s own redemption rules', () => {
-    expect(Object.keys(redemptionPresetsFor('NV'))).toEqual(['none', 'hoa', 'sheriff', 'irs']);
+    expect(Object.keys(redemptionPresetsFor('NV'))).toEqual(['none', 'hoa', 'sheriff', 'irs', 'usFederal']);
     expect(Object.keys(redemptionPresetsFor('CA'))).not.toContain('hoa');
-    expect(Object.keys(redemptionPresetsFor('UT'))).toEqual(['none', 'utSheriff', 'irs']);
+    expect(Object.keys(redemptionPresetsFor('UT'))).toEqual(['none', 'utSheriff', 'irs', 'usFederal']);
   });
 });

@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from 'react';
-import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, INPUT_MAX, maxSafeBid, profitAtBid, redemptionOutcome, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs, offerInputs } from '../lib/bidCalc';
+import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, INPUT_MAX, maxSafeBid, profitAtBid, redemptionOutcome, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs, offerInputs, cashNeededAtBid } from '../lib/bidCalc';
 import { redemptionChoicesFor, redemptionPresetsFor, taxSaleWait, transferTaxFor } from '../lib/stateCosts';
 import { useCalcRegion } from './calcRegion';
 import { fmtMoney } from '../lib/status';
@@ -79,7 +79,7 @@ const OFFER_FIELDS: Partial<Record<keyof BidInputs, Partial<Field>>> = {
   titleLegal: { label: 'Title insurance, escrow and attorney', hint: undefined },
   possession: { hint: 'Only if a tenant or the owner stays after closing.' },
   repairs: { hint: 'Get a contractor’s bid after your inspection.' },
-  financedPct: { label: 'Share of the price financed', hint: 'The part of the price your loan covers.' },
+  financedPct: { label: 'Share of the price and repairs financed', hint: 'The part of the price and repairs your loan covers. Rehab loans often pay repairs in draws after the work, so you front that cash first.' },
   holdingMonths: { hint: 'From closing until the resale closes.', more: 'Repairs, time on the market and the buyer’s escrow. Count every month you pay the loan, taxes, insurance and utilities.' },
 };
 const OFFER_HIDDEN = new Set<keyof BidInputs>(['buyerPremiumPct', 'cashAvailable', 'redemptionMonths', 'redemptionRatePct']);
@@ -238,8 +238,9 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const atOpening = i.minimumBid > 0 ? profitAtBid(i, i.minimumBid) : 0;
   // The deal itself fails at the opening bid, or only the cash you entered falls short of it.
   const dealFails = i.minimumBid > 0 && r.profitBid < i.minimumBid;
-  const openingCash = i.minimumBid * (1 + i.buyerPremiumPct / 100);
-  const cashShort = !dealFails && i.minimumBid > 0 && i.cashAvailable > 0 && i.cashAvailable < openingCash;
+  // Cash for the opening bid counts everything until you sell (repairs, holding, fees), the same way the cash limit does.
+  const openingCash = i.minimumBid > 0 ? cashNeededAtBid(i, i.minimumBid) : 0;
+  const cashShort = !dealFails && i.minimumBid > 0 && i.cashAvailable > 0 && r.limitedBy === 'cash' && r.maxBid < i.minimumBid;
   const shown = (f: Field) => (mode === 'detailed' || f.quick) && (!f.when || f.when(i)) && !(offer && OFFER_HIDDEN.has(f.k));
 
   return (
@@ -351,7 +352,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <div className="calc-max bad" role="status">
             <span>Walk-away price</span>
             <strong>Not enough cash</strong>
-            <small>You’d need at least {fmtMoney(Math.ceil(openingCash))} on auction day for the opening bid. The deal itself allows bids up to {fmtMoney(r.profitBid)}.</small>
+            <small>At the {w.opening} you’d need about {fmtMoney(Math.ceil(openingCash))}: the {w.bid} plus repairs and every cost until you sell. The deal itself allows {w.bid}s up to {fmtMoney(r.profitBid)}.</small>
           </div>
           ) : (
           <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
@@ -359,7 +360,9 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
             <strong>{r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
             <small>
               {r.noBidWorks
-                ? 'Even at $0, costs leave less than your profit target. Walk away or change your plan.'
+                ? r.limitedBy === 'cash' && r.profitBid > 0
+                  ? `Your cash doesn’t cover the repairs and costs until you sell, even before a ${w.bid}. Your profit target alone would allow ${fmtMoney(r.profitBid)}.`
+                  : 'Even at $0, costs leave less than your profit target. Walk away or change your plan.'
                 : r.limitedBy === 'cash'
                   ? `Set by the cash you can bring: the ${w.bid} plus every cost until you sell (repairs, holding, fees). Your profit target alone would allow ${fmtMoney(r.profitBid)}.`
                   : `Leaves your ${fmtMoney(Math.round(target))} profit target after every cost, based on your numbers. Not a guarantee.`}
@@ -372,7 +375,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
             {dealFails ? (
               <><strong>Doesn’t work at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below your {fmtMoney(Math.round(target))} target. Skip this one or change your plan.</>
             ) : cashShort ? (
-              <><strong>Your cash doesn’t cover the opening bid.</strong> The deal works (about {fmtMoney(Math.round(atOpening))} profit at {fmtMoney(i.minimumBid)}), but you’d need {fmtMoney(Math.ceil(openingCash))} on auction day and entered {fmtMoney(i.cashAvailable)}.</>
+              <><strong>Your cash doesn’t cover the {w.opening}.</strong> The deal works (about {fmtMoney(Math.round(atOpening))} profit at {fmtMoney(i.minimumBid)}), but with repairs and every cost until you sell you’d need about {fmtMoney(Math.ceil(openingCash))}, and you entered {fmtMoney(i.cashAvailable)}.</>
             ) : (
               <><strong>{fmtMoney(r.maxBid - i.minimumBid)} of room above the {w.opening}.</strong> The listing starts at {fmtMoney(i.minimumBid)}; stop at {fmtMoney(r.maxBid)}. At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}.</>
             )}
@@ -391,11 +394,15 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {!r.noBidWorks && !needsValue && (
           <dl className="calc-kv">
             {!offer && <div><dt>Cash needed on auction day</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
-            <div><dt>Total cash in the deal</dt><dd>{fmtMoney(r.cashToStabilize)}</dd></div>
+            <div><dt>Most cash you’ll have in at once</dt><dd>{fmtMoney(r.cashPeak)}</dd></div>
+            {i.financedPct > 0 && r.cashToStabilize < r.cashPeak && <div><dt>Cash left in after the loan funds</dt><dd>{fmtMoney(r.cashToStabilize)}</dd></div>}
             <div><dt>Profit at this price</dt><dd>{fmtMoney(Math.round(r.profit))}</dd></div>
             <div><dt>Return on your cash, per year, if it sells on schedule</dt><dd>{yr(r.yearlyReturn)}</dd></div>
             <div><dt>Break-even {w.bid} (zero profit)</dt><dd>{fmtMoney(r.breakEvenBid)}</dd></div>
           </dl>
+        )}
+        {!r.noBidWorks && !needsValue && !offer && i.financedPct > 0 && i.redemptionMonths > 0 && (
+          <p className="calc-note small">Lenders rarely lend on a property while the owner can still redeem it, so plan to pay the full {w.bid} in cash and carry it until the redemption period ends. The return above is figured on the most cash you’ll have in at once.</p>
         )}
         {!r.noBidWorks && !needsValue && r.yearlyReturn !== null && totalMonths(i) > 12 && (
           <p className="calc-note small">This deal ties up your cash for {Math.round(totalMonths(i))} months, so compare the return per year with your other options, not just the profit.</p>

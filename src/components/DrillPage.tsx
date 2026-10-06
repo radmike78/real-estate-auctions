@@ -209,6 +209,13 @@ function MissionCard({ m, a, set, fresh }: { m: Mission; a: Answers[string]; set
 const VALUE_MISSIONS = ['comps', 'arv'];
 
 /** One "Would you buy it?" drill: missions, then your decision and what an experienced investor would weigh. */
+/**
+ * The calculator a drill's numbers belong in, so it never depends on the tab used last: commercial and 5+ unit
+ * income property in Commercial income, rentals and BRRRR in Keep and rent, flips in Fix and sell.
+ */
+export const calcPlanFor = (id: string) =>
+  /^(apartments|office|retail|warehouse|commercial)/.test(id) ? '?plan=commercial' : /^(rental|brrrr)/.test(id) ? '?plan=rent' : /^flip/.test(id) ? '?plan=flip' : '';
+
 export default function DrillPage({ id }: { id: string }) {
   const { mode } = useJourney();
   const d = drillById(id);
@@ -270,7 +277,7 @@ export default function DrillPage({ id }: { id: string }) {
       <div className="decide-nav">
         <a className="btn btn-secondary" href="#/practice">← All practice</a>
         <button type="button" className="btn btn-secondary" onClick={() => setSaved((s) => ({ ...s, [d.id]: { answers: {} } }))}>Start this drill over</button>
-        <a className="btn btn-secondary" href={`#/analyze${/^(rental|brrrr|apartments|office|retail)/.test(d.id) ? '?plan=rent' : /^flip/.test(d.id) ? '?plan=flip' : ''}`}>Open the calculators</a>
+        <a className="btn btn-secondary" href={`#/analyze${calcPlanFor(d.id)}`}>Open the calculators</a>
       </div>
       {mode === 'guided' && (() => {
         const g = guidedNext(currentProgress());

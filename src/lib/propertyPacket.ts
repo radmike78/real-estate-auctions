@@ -55,7 +55,7 @@ export function propertyPacketText(d: Deal): string {
         `Price you'd pay: ${money(v.atPrice)}`,
         `Rent ${money(v.monthlyRent)} a month; vacancy ${v.vacancyPct}%; management ${v.managementPct}%; repairs ${v.maintenancePct}%; big-item reserves ${v.capexPct}%`,
         `Loan: ${a.loan > 0 ? `${money(a.loan)} at ${v.ratePct}%` : 'none (all cash)'}`,
-        `Your cash in the deal: ${money(a.cashIn)}`,
+        ...(!offer && a.loan > 0 ? [`Your cash until the refinance closes: ${money(a.allIn)}`, `Your cash left in after the refinance, if approved: ${money(a.cashIn)}`] : [`Your cash in the deal: ${money(a.cashIn)}`]),
         `Monthly cash flow: ${money(a.cashFlow / 12)}`,
         `Cash-on-cash return: ${pct(a.cashOnCash)} a year; your target ${v.targetCocPct}%${a.cashOnCash !== null && a.cashOnCash < v.targetCocPct / 100 ? ' (below target)' : ''}`,
         'Downside cases (monthly cash flow):',
