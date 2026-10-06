@@ -4,6 +4,7 @@ import PageHero from './PageHero';
 import { FINANCING_CATEGORIES } from '../lib/pros';
 import ScriptBox from './ScriptBox';
 import { PRO_SCRIPTS } from '../lib/proScripts';
+import AdSpot from './AdSpot';
 
 const OPTIONS: [string, string][] = [
   ['Buying a home to live in', 'Conventional, FHA, VA and USDA loans from loan officers, banks and credit unions. FHA 203k and HomeStyle loans cover repairs too.'],
@@ -47,6 +48,7 @@ export default function FinancingPage({ initialLocation = '' }: { initialLocatio
       </p>
       <Disclaimer kind="financing" compact />
       <ProDirectory initialLocation={initialLocation} categories={FINANCING_CATEGORIES} />
+      <AdSpot spot="financing" />
     </main>
   );
 }

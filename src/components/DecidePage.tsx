@@ -8,6 +8,7 @@ import { DECIDE_KEY, QUESTIONS, rank, stateNote, type Answers } from '../lib/dec
 import { stateByCode, type StateCode } from '../lib/regions';
 import { getMyState, setMyState } from '../lib/myState';
 import CheckFold from './CheckFold';
+import AdSpot from './AdSpot';
 
 /** Auctions aren't automatically cheaper: said wherever the strategy appears. */
 const AUCTION_REALITY = 'Are auctions cheaper? Sometimes, but not by default. Most auctions want full payment in certified funds the same day or within a day, with no loan, and you buy as-is, often without seeing inside. Bidding usually rises toward what buyers think the property is worth after its liens, repairs and risks, and many sales are postponed or cancelled. The opening bid isn’t the price.';
@@ -212,6 +213,7 @@ export default function DecidePage() {
           <p className="muted">Your answers and checked items are saved only in this browser.</p>
         </section>
       )}
+      <AdSpot spot="decide" />
     </main>
   );
 }

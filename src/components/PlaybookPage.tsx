@@ -40,6 +40,7 @@ import { saleDocsFor } from '../lib/saleDocs';
 import SaleDocsPanel from './SaleDocsPanel';
 import { useEffect } from 'react';
 import { replaceAddress } from '../lib/nav';
+import AdSpot from './AdSpot';
 
 /** The right calculator for the kind of sale: a lien's yield, an offer on a listed home, or an auction bid. */
 function calcNote(p: { key: string }) {
@@ -170,6 +171,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
           </section>
         ))}
         <p className="muted playbook-note">No hype, no income promises. Many good decisions are the deals you walk away from.</p>
+        <AdSpot spot="playbook" />
       </main>
     );
   }
@@ -210,6 +212,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
       {!open && <p className="muted playbook-note">{calcNote(p)}</p>}
       {!open && PRACTICE_SALES.has(p.key) && <p className="playbook-note"><a className="btn" href={`#/practice?sale=${p.key}`}>Practice this kind of sale, hands-on →</a></p>}
       {!open && p.key === 'commercial' && <p className="playbook-note"><a className="btn btn-secondary" href="#/practice">Practice buying commercial property, hands-on →</a></p>}
+      <AdSpot spot="playbook" />
     </main>
   );
 }

@@ -88,7 +88,7 @@ export function FeaturedAds({ pros: all, categories, placeholder = false }: { pr
 
 /**
  * The rotating ad at the top of the Your Team page: one advertiser on any plan, from any category. With `categories`,
- * the "at the moment you need one" spot on Find Deals, Analyze a deal or My plan (contextAds.ts): one Mentor Connect
+ * a Mentor Connect ad spot the site owner turned on (adSpots.ts, Admin → Ad spots): one Mentor Connect
  * advertiser of those categories. Picked at random on each page view (rotatingPool). Labeled "Advertisement" with the
  * same fine print; nothing when no one qualifies.
  */

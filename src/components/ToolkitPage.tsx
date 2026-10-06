@@ -23,6 +23,7 @@ import { proGuideByKey } from '../lib/proGuide';
 import { PRO_SCRIPTS } from '../lib/proScripts';
 import { stepAdCategories } from '../lib/contextAds';
 import { RotatingAd } from './AdBoxes';
+import { useSpotCategories } from './AdSpot';
 import { useDirectory } from './ProDirectory';
 
 const ROADMAP_KEY = 'deedowl.roadmap.v1';
@@ -217,6 +218,8 @@ export function FirstDealRoadmap() {
   // After walking away, the step you stopped at stays the next step (start it again with the next property),
   // rather than the later steps of a deal you left.
   const next = walked ?? steps.find((s) => !settled(s) && statusOf(s) !== 'stopped');
+  // The Mentor Connect spot beside the next step (Admin → Ad spots); automatic: whoever the step says to call.
+  const nextAdCats = useSpotCategories('toolkit', next ? stepAdCategories(next, path) : []);
   // The phase holding the next step starts open; after that, phases stay as the reader leaves them.
   const [openPhase] = useState(() => next?.phase ?? 1);
   const phases = ([1, 2, 3, 4, 5, 6] as const).map((n) => ({ n, title: ROADMAP_PHASES[n], steps: steps.filter((s) => s.phase === n) })).filter((ph) => ph.steps.length);
@@ -284,15 +287,15 @@ export function FirstDealRoadmap() {
         </p>
       )}
       {next ? (
-        // Beside the next step, one labeled ad from whoever the step says to call (contextAds.ts): buying through an
-        // agent only, never on auction or lien-certificate steps.
-        <div className={stepAdCategories(next, path).length ? 'next-with-ad' : undefined}>
+        // Beside the next step, one labeled Mentor Connect ad (nextAdCats). Automatic: whoever the step says to call,
+        // buying through an agent only, never on auction or lien-certificate steps (contextAds.ts).
+        <div className={nextAdCats.length ? 'next-with-ad' : undefined}>
           <div className="roadmap-next">
             <p className="roadmap-next-label">Your next step · {ROADMAP_PHASES[next.phase]}{scoped(next) ? ` · ${deal!.name}` : ''}</p>
             <h3>{next.title}</h3>
             <StepBody s={next} status={stateOf(next)} setStatus={(v) => setStatus(next, v)} deal={deal} />
           </div>
-          {stepAdCategories(next, path).length > 0 && <RotatingAd key={next.id} pros={pros} categories={stepAdCategories(next, path)} placeholder />}
+          {nextAdCats.length > 0 && <RotatingAd key={next.id} pros={pros} categories={nextAdCats} placeholder />}
         </div>
       ) : (
         <p className="next-step" role="status">Every step on this route is done. Review your plan before your next deal, and keep practicing.</p>

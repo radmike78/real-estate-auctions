@@ -1,10 +1,7 @@
-// "At the moment you need one" ads: one labeled advertiser box where the reader may want more help from a
-// professional. Mentor Connect advertisers take turns in them, in their ad areas (rotatingPool, adPlans.ts).
+// Who the automatic Mentor Connect spots show (adSpots.ts): the professionals a deal or a step needs. The site owner
+// turns these spots on or off, or gives them a fixed list, in Admin → Ad spots.
 //
-// Where they show:
-//  - Find Deals, beside "Buying a home listed for sale? / Found a property?": the professionals who help a buyer act
-//    on a deal they found (agents, lenders, title and escrow, attorneys, home inspectors). Kept apart from the
-//    official sources and the "Other sites" list, and never presented as a place to find listings.
+// Automatic picks:
 //  - Analyze a deal, beside "What's next": the professionals that plan needs (Fix and sell: contractors, inspectors
 //    and short-term lenders; Keep and rent: lenders, insurance and property managers; Commercial: lenders, insurance
 //    and property managers).
@@ -26,9 +23,6 @@ const BY_PLAN: Record<Plan, Category[]> = {
   commercial: [...LENDERS, 'insurance', 'property_manager'],
   lien: [],
 };
-
-/** The advertisers on Find Deals: who helps a buyer act on a deal they found. */
-export const FIND_DEALS_AD_CATEGORIES: Category[] = ['agent', ...LENDERS, 'title_escrow', 'attorney', 'home_inspector'];
 
 /** The advertisers for Analyze a deal: by plan, and only for a listing or a bank-owned home. */
 export function analyzeAdCategories(kind: SaleKind, plan: Plan): Category[] {

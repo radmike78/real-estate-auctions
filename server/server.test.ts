@@ -261,6 +261,21 @@ describe('advertiser flow (running server)', () => {
     expect((await post(`/api/admin/applications/${agentId}/reject`, { reason: 'x reason' }, { cookie })).status).toBe(403); // CSRF header missing
   });
 
+  it('the site owner chooses where Mentor Connect ads show (Admin → Ad spots)', async () => {
+    const read = async () => (await (await fetch(base + '/api/ad-spots')).json()).spots;
+    expect((await read()).finddeals).toEqual({ on: true, categories: expect.arrayContaining(['agent', 'title_escrow']) });
+    expect((await read()).lesson.on).toBe(false);
+    // Only a signed-in admin can change them, and only known spots and categories are kept.
+    expect((await post('/api/admin/ad-spots', { spots: { lesson: { on: true, categories: ['cpa'] } } })).status).toBe(401);
+    const r = await admin('/api/admin/ad-spots', { spots: { lesson: { on: true, categories: ['cpa', 'nope'] }, analyze: { on: true, categories: 'auto' }, homeowner: { on: true, categories: ['agent'] } } });
+    expect(r.status).toBe(200);
+    const after = await read();
+    expect(after.lesson).toEqual({ on: true, categories: ['cpa'] });
+    expect(after.analyze).toEqual({ on: true, categories: 'auto' });
+    expect(after.homeowner).toBeUndefined();
+    expect(after.finddeals.on).toBe(true); // left out of the save: keeps its default
+  });
+
   it('confirms emails (single use)', async () => {
     for (const m of mails.slice(0, 2)) {
       const token = tokenFrom(m, 'confirm');

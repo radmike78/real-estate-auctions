@@ -37,8 +37,8 @@
       "src/lib/propertyViews.ts",
       "src/lib/foreclosure.ts"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "f4c72d508589184a",
+    "reviewed": "2026-10-06",
+    "hash": "cc8b909d27de98e8",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -80,8 +80,8 @@
     "files": [
       "src/components/ShortSalesPage.tsx"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "5bc93e497f1efa6e",
+    "reviewed": "2026-10-06",
+    "hash": "fa369b6140243bad",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -91,8 +91,8 @@
       "src/components/BankOwnedPage.tsx",
       "src/lib/reoSources.ts"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "4987b57cba98b6ba",
+    "reviewed": "2026-10-06",
+    "hash": "66cbb5f2d52e3562",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -116,7 +116,7 @@
       "src/lib/saleDocs.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "eb97f5d478ab39b1",
+    "hash": "8cd3ad80bf80f5e1",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -125,8 +125,8 @@
     "files": [
       "src/components/GuidesPage.tsx"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "e38065d63f576ddc",
+    "reviewed": "2026-10-06",
+    "hash": "1ef8e2e4db12c37c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "f3493471cf6167e3",
+    "hash": "6656d1eaa0899c22",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -173,7 +173,7 @@
       "src/lib/evidence.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "efb114536fdc5735",
+    "hash": "860d84a7b57586fa",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -213,8 +213,8 @@
     "files": [
       "src/components/FinancingPage.tsx"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "aeea61d5d871c809",
+    "reviewed": "2026-10-06",
+    "hash": "916e5ae65eb3343c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -269,7 +269,7 @@
       "src/lib/proApplication.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "cb6d35ad5518cdc0",
+    "hash": "f18efe5202c50972",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -353,7 +353,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "96ef8e76ab1c04c7",
+    "hash": "1a8a9834a83b249d",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -364,7 +364,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "1d0104b7c48be7eb",
+    "hash": "e9fa7b79d977f0a4",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -377,7 +377,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "4b524a7b414e9d03",
+    "hash": "2cd7218eb5e12ebb",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
@@ -390,7 +390,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "526c0de79b2ee6b2",
+    "hash": "b80d6bb69ea0e5b3",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {
@@ -403,7 +403,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "45355d2e5e9db9e4",
+    "hash": "5330b6ae4879ae87",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

@@ -16,6 +16,7 @@ import { Pieces } from './Term';
 import { markTerms, type Piece } from '../lib/terms';
 import { Cited } from './Cited';
 import TopicAd from './TopicAd';
+import AdSpot from './AdSpot';
 
 const STATE_NAMES = new Set(STATES.map((s) => s.name));
 
@@ -203,6 +204,7 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
           </>
         )}
       </nav>
+      <AdSpot spot="lesson" />
     </main>
   );
 }

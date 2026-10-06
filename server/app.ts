@@ -36,6 +36,7 @@ import type { KeyObject } from 'node:crypto';
 import { approvalBlockers, billingTier, normalizePhone, paidAreas, plain, validateAdLine, validateApplication, validateBilling, type ApplicationInput, type Billing, type LicenseVerification } from '../src/lib/proApplication';
 import { AD_TIERS, capMessage, capProblem, CAPS, foundingFull, isAdTier, TIER_INFO, topicAllowed, topicsFor, type AdTier } from '../src/lib/adPlans';
 import { adAreaLabel, validateAdAreas, type AdArea } from '../src/lib/adAreas';
+import { AD_SPOTS, cleanSpots } from '../src/lib/adSpots';
 import type { Category } from '../src/lib/pros';
 import { CATEGORIES, isListable, REVERIFY_DAYS } from '../src/lib/pros';
 import { clientKey, newToken, parseCookies, RateLimiter, SESSION_IDLE_MS, SESSION_MAX_MS, safeEqualStrings, sessionCookie, sha256, verifyPasswordAsync } from './auth';
@@ -644,6 +645,9 @@ export function createApp(config: AppConfig) {
     // What this server has set up, so pages say "coming soon" instead of offering sign-ups that can't work yet.
     if (method === 'GET' && path === '/api/features') return send(res, 200, { email: mailer !== consoleMailer, payments: !!config.stripe });
 
+    // Which Mentor Connect ad spots are on, and who each shows (Admin → Ad spots; src/lib/adSpots.ts).
+    if (method === 'GET' && path === '/api/ad-spots') return send(res, 200, { spots: cleanSpots(db.getSetting('adSpots')) }, { 'cache-control': 'no-cache' });
+
     // Price labels for the Advertise page and the plan chooser: per category, with "*" already resolved. No Stripe IDs.
     if (method === 'GET' && path === '/api/ad-plans') {
       const categories = Object.fromEntries((Object.keys(CATEGORIES) as Category[]).map((c) => [c, planLabels(c)]));
@@ -1163,6 +1167,15 @@ export function createApp(config: AppConfig) {
       const n = publish();
       audit(null, 'PUBLISHED', `${n} listings`);
       return send(res, 200, { ok: true, published: n });
+    }
+    if (method === 'POST' && path === '/api/admin/ad-spots') {
+      const body = await readJson(req);
+      const before = cleanSpots(db.getSetting('adSpots'));
+      const spots = cleanSpots(body.spots);
+      db.setSetting('adSpots', spots);
+      const changed = AD_SPOTS.filter((s) => JSON.stringify(before[s.key]) !== JSON.stringify(spots[s.key])).map((s) => `${s.label}: ${spots[s.key].on ? 'on' : 'off'}`);
+      audit(null, 'AD_SPOTS_CHANGED', changed.join('; ').slice(0, 500) || 'no change');
+      return send(res, 200, { ok: true, spots });
     }
     // ---------------- general email list ----------------
     if (method === 'GET' && path === '/api/admin/email') {

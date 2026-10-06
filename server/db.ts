@@ -174,6 +174,9 @@ export function openDb(path: string) {
       cancel_at_period_end INTEGER NOT NULL DEFAULT 0,
       updated_at TEXT NOT NULL
     );
+    -- Small site settings, one value per key: the admin's choices (e.g. the Mentor Connect ad spots, as JSON) and
+    -- the email alerts' own keys (server/alerts.ts).
+    CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
     -- Stripe events already processed (webhooks can be delivered more than once).
     CREATE TABLE IF NOT EXISTS stripe_events (
       id TEXT PRIMARY KEY,
@@ -485,6 +488,19 @@ export function openDb(path: string) {
       releaseEvent(id: string) {
         db.prepare('DELETE FROM stripe_events WHERE id = ?').run(id);
       },
+    },
+    /** A saved setting, parsed (null when never saved or unreadable). */
+    getSetting(key: string): unknown {
+      const r = db.prepare('SELECT value FROM settings WHERE key = ?').get(key) as { value: string } | undefined;
+      if (!r) return null;
+      try {
+        return JSON.parse(r.value);
+      } catch {
+        return null;
+      }
+    },
+    setSetting(key: string, value: unknown) {
+      db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value').run(key, JSON.stringify(value));
     },
     /** Cheap query used by the health check. */
     ping(): boolean {

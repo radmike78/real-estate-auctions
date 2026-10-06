@@ -10,6 +10,7 @@ import { PROPERTY_TOPICS, topicBySlug, topicHref } from '../lib/deep/propertyTop
 import { PROPERTY_DEEP } from '../lib/deep/propertyDeep';
 import { PROPERTY_WHY } from '../lib/lessons/propertyWhy';
 import { Cited } from './Cited';
+import AdSpot from './AdSpot';
 
 const List = ({ items }: { items: string[] }) => <ul className="deep-list">{items.map((x) => <li key={x}><Cited text={x} /></li>)}</ul>;
 
@@ -89,6 +90,7 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
       <nav className="path-next" aria-label="Next">
         {next ? <><span className="muted">Next property type</span><a className="btn" href={topicHref(next.key)}>{next.title} →</a></> : <a className="btn" href="#/learn/types">Back to Types of property →</a>}
       </nav>
+      <AdSpot spot="propertyType" />
     </main>
   );
 }

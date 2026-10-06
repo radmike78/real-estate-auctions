@@ -14,6 +14,7 @@ import ByState from './ByState';
 import { getMyState, useMyState } from '../lib/myState';
 import { STATES } from '../lib/regions';
 import { BUYING, REO_GUIDE } from '../lib/states/bankOwned';
+import AdSpot from './AdSpot';
 
 function SourceCard({ s }: { s: ReoSource }) {
   // The ↗ stays on the same line as the name's last word.
@@ -186,6 +187,7 @@ export default function BankOwnedPage({ section }: { section?: string }) {
           ))}
         </p>
       )}
+      <AdSpot spot="bankowned" />
       <Disclaimer kind="sales" compact />
     </main>
   );

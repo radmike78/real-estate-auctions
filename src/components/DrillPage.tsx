@@ -7,6 +7,7 @@ import { DRILLS, drillById, type Drill, type Mission } from '../practice/drills'
 import { fmtMoney } from '../lib/status';
 import { useMyState } from '../lib/myState';
 import TopicAd from './TopicAd';
+import AdSpot from './AdSpot';
 
 const KEY = 'deedowl.drills.v1';
 
@@ -280,6 +281,7 @@ export default function DrillPage({ id }: { id: string }) {
           </nav>
         ) : null;
       })()}
+      <AdSpot spot="drill" />
     </main>
   );
 }

@@ -15,6 +15,7 @@ import { fmtMoney } from '../lib/status';
 import { getMyArea } from '../lib/myArea';
 import { analyzeAdCategories } from '../lib/contextAds';
 import { RotatingAd } from './AdBoxes';
+import { useSpotCategories } from './AdSpot';
 import { useDirectory } from './ProDirectory';
 
 const DEFAULT_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake', TX: 'Harris' };
@@ -147,9 +148,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     if (deal.id === id) setDeal(blank(deal.state));
   };
 
-  // The "at the moment you need one" ad beside What's next (contextAds.ts).
+  // The Mentor Connect spot beside What's next (Admin → Ad spots); automatic: by plan, listings and bank-owned only.
   const { pros } = useDirectory();
-  const adCats = analyzeAdCategories(deal.kind, deal.plan);
+  const adCats = useSpotCategories('analyze', analyzeAdCategories(deal.kind, deal.plan));
 
   return (
     <main className="page analyze">
