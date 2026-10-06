@@ -1877,7 +1877,8 @@ h1, h2 { letter-spacing: -0.03em; }
 .path-step { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: start; padding: 18px 20px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border); color: var(--text); text-decoration: none; height: 100%; }
 .path-step:hover { border-color: var(--accent); }
 .path-n { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--accent-strong); color: #fff; font-weight: 800; font-size: 1.2rem; }
-.path-step.done .path-n { background: var(--surface-2); color: var(--accent); border: 2px solid var(--accent); }
+.path-step.visited .path-n { background: var(--surface-2); color: var(--accent); border: 2px solid var(--accent); }
+.path-visited { font-size: 0.95rem; color: var(--muted); font-weight: 600; }
 .path-body { display: grid; gap: 4px; }
 .path-body strong { font-family: var(--font-display); font-size: 1.25rem; }
 .path-body span { color: var(--muted); }

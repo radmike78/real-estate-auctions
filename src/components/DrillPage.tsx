@@ -43,9 +43,13 @@ function load(): Saved {
 }
 
 /** How many missions are finished in a drill, for the list. */
-export function drillProgress(d: Drill, s: Saved = load()): { done: number; total: number; verdict?: string } {
+export function drillProgress(d: Drill, s: Saved = load()): { done: number; total: number; verdict?: string; questions: number; matched: number } {
   const a = s[d.id]?.answers ?? {};
-  return { done: d.missions.filter((m) => a[m.id]?.done).length, total: d.missions.length, verdict: s[d.id]?.verdict };
+  // Checked choices are counted apart from finished missions: seeing the explanation after a miss is progress, but
+  // not the same as making the call an experienced investor would.
+  const checked = d.missions.filter((m): m is Extract<Drill['missions'][number], { kind: 'pick' }> => m.kind === 'pick' && !!a[m.id]?.done);
+  const matched = checked.filter((m) => m.options.every((o) => o.good === (a[m.id]?.picks ?? []).includes(o.label))).length;
+  return { done: d.missions.filter((m) => a[m.id]?.done).length, total: d.missions.length, verdict: s[d.id]?.verdict, questions: checked.length, matched };
 }
 
 /** The drills on the Practice page. */
@@ -93,7 +97,7 @@ export function DrillList() {
                 <a key={d.id} href={`#/practice/drills/${d.id}`} className="practice-card">
                   <strong>{g.key in STATE_NAMES ? cardTitle(d.title) : d.title}</strong>
                   <span>{d.teaser}</span>
-                  <span className="practice-card-foot">{p.verdict ? `Your call: ${p.verdict}` : `${p.done} of ${p.total} missions done`} →</span>
+                  <span className="practice-card-foot">{p.verdict ? `Your call: ${p.verdict}` : `${p.done} of ${p.total} missions done`}{p.questions > 0 ? ` · ${p.matched} of ${p.questions} ${p.questions === 1 ? 'call' : 'calls'} matched an experienced investor’s` : ''} →</span>
                 </a>
               );
             })}

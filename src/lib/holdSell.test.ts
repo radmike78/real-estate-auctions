@@ -30,3 +30,14 @@ describe('hold and sell', () => {
     expect(flat.payoff).toBe(0);
   });
 });
+
+describe('commercial operating costs', () => {
+  it('uses the line items when any is entered, and the percentage otherwise', async () => {
+    const { COMMERCIAL_DEFAULTS, commercialNoi } = await import('./holdCalc');
+    const base = { ...COMMERCIAL_DEFAULTS, monthlyRent: 10_000, otherMonthly: 0, vacancyPct: 10, expensePct: 35 };
+    expect(commercialNoi(base)).toMatchObject({ collected: 108_000, expenses: 37_800, noi: 70_200, byLine: false });
+    const lines = commercialNoi({ ...base, opTaxYear: 12_000, opInsuranceYear: 4_000, opRepairsYear: 6_000, opManagementPct: 5 });
+    expect(lines).toMatchObject({ expenses: 12_000 + 4_000 + 6_000 + 5_400, byLine: true });
+    expect(lines.noi).toBe(108_000 - 27_400);
+  });
+});

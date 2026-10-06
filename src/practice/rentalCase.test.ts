@@ -160,3 +160,23 @@ describe('the Texas practice house', () => {
     expect(caseFor('UT').state).toBe('NV');
   });
 });
+
+describe('the replacement decision comes at the inspection', () => {
+  it('asks for the roof and water-heater budget before the inspection deadline, and the honest answer is not a profit', async () => {
+    const { caseFor } = await import('./rentalCase');
+    for (const st of ['NV', 'TX'] as const) {
+      const c = caseFor(st);
+      const insp = c.stages.find((s) => s.key === 'inspection')!;
+      const ids = insp.tasks.map((t) => t.id);
+      expect(ids.indexOf('replace-now'), st).toBeGreaterThanOrEqual(0);
+      expect(ids.indexOf('replace-fit'), st).toBeLessThan(ids.indexOf('respond'));
+      // Budgeting the known replacements takes the offer-price cash flow below what the 5% set-aside shows.
+      expect(c.N.cashFlowAtOfferWithReplacements, st).toBeLessThan(c.N.cashFlowAtOffer);
+      expect(c.N.cashFlowAtOfferWithReplacements, st).toBeLessThan(100);
+      const fit = insp.tasks.find((t) => t.id === 'replace-fit')!;
+      if (fit.kind !== 'choice') throw new Error('expected a choice');
+      expect(fit.choices.some((ch) => ch.walk && ch.verdict !== 'poor'), st).toBe(true);
+      expect(fit.choices.find((ch) => /makes about/.test(ch.label))!.verdict, st).toBe('poor');
+    }
+  });
+});

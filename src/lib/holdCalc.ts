@@ -49,6 +49,13 @@ export interface CommercialInputs extends BuyInputs, LoanInputs {
   otherMonthly: number;
   vacancyPct: number;
   expensePct: number; // operating costs as % of rent collected
+  /** Operating costs line by line (yearly, what the owner pays). Any line above zero replaces expensePct. */
+  opTaxYear: number;
+  opInsuranceYear: number;
+  opRepairsYear: number;
+  opUtilitiesYear: number;
+  opManagementPct: number; // % of rent collected
+  opOtherYear: number;
   leaseUpMonths: number; // months to find tenants before rent starts
   monthlyCarry: number; // carrying costs while empty
   targetCapPct: number; // yield on your all-in cost you require (going-in cap rate)
@@ -281,10 +288,18 @@ export function explainRent(i: RentInputs, price = nz(i.value), onPrice = false)
   return out;
 }
 
-export function commercialNoi(i: CommercialInputs): { collected: number; expenses: number; noi: number } {
+/** The yearly operating costs entered line by line, or 0 when none were (then the percentage is used). */
+export function commercialLines(i: CommercialInputs, collected: number): number {
+  const fixed = nz(i.opTaxYear) + nz(i.opInsuranceYear) + nz(i.opRepairsYear) + nz(i.opUtilitiesYear) + nz(i.opOtherYear);
+  const management = (collected * Math.min(nz(i.opManagementPct), 100)) / 100;
+  return fixed + management;
+}
+
+export function commercialNoi(i: CommercialInputs): { collected: number; expenses: number; noi: number; byLine: boolean } {
   const collected = (nz(i.monthlyRent) + nz(i.otherMonthly)) * 12 * (1 - Math.min(nz(i.vacancyPct), 100) / 100);
-  const expenses = (collected * Math.min(nz(i.expensePct), 100)) / 100;
-  return { collected: r2(collected), expenses: r2(expenses), noi: r2(collected - expenses) };
+  const lines = commercialLines(i, collected);
+  const expenses = lines > 0 ? lines : (collected * Math.min(nz(i.expensePct), 100)) / 100;
+  return { collected: r2(collected), expenses: r2(expenses), noi: r2(collected - expenses), byLine: lines > 0 };
 }
 
 /**
@@ -325,7 +340,8 @@ export const RENT_DEFAULTS: RentInputs = {
 
 export const COMMERCIAL_DEFAULTS: CommercialInputs = {
   cashAvailable: 0, buyerPremiumPct: 0, transferTaxPer500: 2.55, survivingLiens: 0, titleLegal: 2_500, possession: 500, repairs: 50_000, contingencyPct: 15,
-  monthlyRent: 12_000, otherMonthly: 0, vacancyPct: 10, expensePct: 35, leaseUpMonths: 6, monthlyCarry: 2_000, targetCapPct: 9, minDscr: 1.25,
+  monthlyRent: 12_000, otherMonthly: 0, vacancyPct: 10, expensePct: 35,
+  opTaxYear: 0, opInsuranceYear: 0, opRepairsYear: 0, opUtilitiesYear: 0, opManagementPct: 0, opOtherYear: 0, leaseUpMonths: 6, monthlyCarry: 2_000, targetCapPct: 9, minDscr: 1.25,
   value: 0, loanPct: 0, ratePct: 8, years: 25, loanCostPct: 2,
 };
 
