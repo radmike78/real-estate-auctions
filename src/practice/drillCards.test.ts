@@ -29,3 +29,13 @@ describe('drill cards', () => {
     expect(c.fact).toEqual({ label: 'Opening bid', value: '$9,000' });
   });
 });
+
+describe('drill answers', () => {
+  it('every single-choice mission has exactly one right answer, so the feedback can name it', () => {
+    for (const d of DRILLS) for (const m of d.missions) if (m.kind === 'pick') {
+      const good = m.options.filter((o) => o.good).length;
+      expect(good, `${d.id}/${m.id}`).toBeGreaterThan(0);
+      if (!m.multi) expect(good, `${d.id}/${m.id}`).toBe(1);
+    }
+  });
+});
