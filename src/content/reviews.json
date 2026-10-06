@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "70c1c8f4abd7cd4f",
+    "hash": "277ee52826013f2b",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -353,7 +353,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "a0df1998618bfb36",
+    "hash": "c4229ad58249657f",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {

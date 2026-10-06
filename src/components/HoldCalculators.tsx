@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { BidInputs } from '../lib/bidCalc';
-import { COMMERCIAL_DEFAULTS, commercialLines, HOLD_SELL_DEFAULTS, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs } from '../lib/holdCalc';
+import { COMMERCIAL_DEFAULTS, commercialLines, lenderView, STR_DEFAULTS, strCompare, type StrInputs, HOLD_SELL_DEFAULTS, SELLER_FINANCE_DEFAULTS, sellerFinance, type SellerFinanceInputs, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs } from '../lib/holdCalc';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 import CalcFields, { type CalcGroup } from './CalcFields';
@@ -287,6 +287,78 @@ function AtThisPrice({ v, start, onPrice, setPrice }: { v: RentInputs; start: nu
   );
 }
 
+/** What the lenders will see: the conventional 75%-of-rent test and a DSCR lender's ratio, and the refinance wait. */
+function LenderView({ v, onPrice }: { v: RentInputs; onPrice: boolean }) {
+  if (!(v.loanPct > 0)) return null;
+  const at = v.atPrice > 0 ? v.atPrice : v.value;
+  const r = lenderView(v, at, onPrice);
+  return (
+    <details className="deal-lab hold-sell">
+      <summary><h4>How a lender sees this rent</h4></summary>
+      <p className="small muted">Cash flow is your view. Lenders run their own tests on the {fmtMoney(Math.round(r.loan))} loan, at {fmtMoney(at)}.</p>
+      <dl className="calc-kv">
+        <div><dt>Full monthly payment with taxes, insurance and HOA (PITIA)</dt><dd>{fmtMoney(Math.round(r.pitia))}</dd></div>
+        <div><dt>Conventional loan: 75% of the rent minus that payment, a month</dt><dd>{r.conventionalNet < 0 ? '−' : ''}{fmtMoney(Math.abs(Math.round(r.conventionalNet)))}</dd></div>
+        <div><dt>DSCR loan: rent ÷ that payment</dt><dd>{r.dscr === null ? '—' : r.dscr.toFixed(2)}</dd></div>
+      </dl>
+      <p className="small">
+        {r.conventionalNet < 0 ? 'For a conventional loan, the shortfall counts against your income when the lender figures what you can afford.' : 'For a conventional loan, this can add to your income when the lender figures what you can afford.'}{' '}
+        {r.dscr === null ? '' : r.dscr >= 1.2 ? 'The DSCR ratio is in the range most DSCR lenders like.' : r.dscr >= 1 ? 'Some DSCR lenders accept this ratio, usually at a higher rate or with more down.' : 'This ratio is below what most DSCR lenders accept.'}
+      </p>
+      <p className="small">
+        Fannie Mae usually counts 75% of the rent, and positive rental income only after 12 months of experience managing property.
+        {!onPrice && ' Refinancing a cash or hard-money purchase usually waits 6 to 12 months; ask lenders before you buy.'}{' '}
+        <a href="#/learn/financing">Getting approved, DSCR loans and refinancing →</a>
+      </p>
+    </details>
+  );
+}
+
+const STR_FIELDS: { k: keyof StrInputs; label: string; unit: string }[] = [
+  { k: 'nightlyRate', label: 'Nightly rate', unit: '$' },
+  { k: 'occupancyPct', label: 'Nights booked', unit: '%' },
+  { k: 'avgStayNights', label: 'Average stay', unit: 'nights' },
+  { k: 'cleaningFeeCharged', label: 'Cleaning fee guests pay', unit: '$ a stay' },
+  { k: 'cleaningCost', label: 'Your cleaning cost', unit: '$ a stay' },
+  { k: 'platformFeePct', label: 'Platform fee', unit: '%' },
+  { k: 'strManagementPct', label: 'Short-term manager', unit: '%' },
+  { k: 'monthlyUtilities', label: 'Utilities, internet, supplies', unit: '$ a month' },
+  { k: 'furnishing', label: 'Furniture and setup', unit: '$ once' },
+  { k: 'licenseYear', label: 'License and permits', unit: '$ a year' },
+];
+
+/** The same home rented by the night: what it earns against the long-term rent, and the occupancy where they're even. */
+function StrComparison({ v }: { v: RentInputs }) {
+  const [s, setS] = useState<StrInputs>(STR_DEFAULTS);
+  const ut = useCalcRegion().state === 'UT';
+  const r = strCompare(v, s);
+  return (
+    <details className="deal-lab hold-sell">
+      <summary><h4>Rent it by the night instead?</h4></summary>
+      <p className="small muted">Uses this rental’s taxes, insurance, HOA and repair set-asides. First check that the city, county and HOA allow it, and get a short-term rental insurance quote. <a href="#/learn/after-closing">Can I rent it short-term? →</a></p>
+      <div className="row">
+        {STR_FIELDS.map((f) => (
+          <label key={f.k} className="field">
+            <span>{f.label} ({f.unit})</span>
+            <input type="number" inputMode="decimal" min={0} step="any" value={s[f.k]} onChange={(e) => setS({ ...s, [f.k]: Math.max(0, Number(e.target.value) || 0) })} />
+          </label>
+        ))}
+      </div>
+      <dl className="calc-kv">
+        <div><dt>Nights booked a year</dt><dd>{r.nights} ({r.stays} stays)</dd></div>
+        <div><dt>What guests pay you, a year</dt><dd>{fmtMoney(Math.round(r.gross))}</dd></div>
+        <div><dt>Costs, a year</dt><dd>{fmtMoney(Math.round(r.costs))}</dd></div>
+        <div><dt>Net operating income by the night</dt><dd>{fmtMoney(Math.round(r.noi))}</dd></div>
+        <div><dt>Same home rented by the year</dt><dd>{fmtMoney(Math.round(r.longTermNoi))}</dd></div>
+        <div><dt>Difference a year</dt><dd>{r.difference < 0 ? '−' : '+'}{fmtMoney(Math.abs(Math.round(r.difference)))}</dd></div>
+        <div><dt>Nights booked to break even with the long-term rent</dt><dd>{r.breakEvenOccupancyPct === null ? 'Never, at these prices' : `${r.breakEvenOccupancyPct}%`}</dd></div>
+        <div><dt>Years to earn back the furniture</dt><dd>{r.furnishingPaybackYears === null ? '—' : r.furnishingPaybackYears}</dd></div>
+      </dl>
+      <p className="small muted">Before income tax and lodging taxes (guests pay those, usually collected by the platform). Short-term income swings with seasons, reviews and new rules; plan for the slow months.{ut && ' In Utah, a short-term rental also loses the 45% residential property-tax exemption, so raise the property tax above.'}</p>
+    </details>
+  );
+}
+
 /** For longer holds: keep it some years, then sell. The yearly return on your cash (IRR) and the equity multiple. */
 function HoldAndSell({ v, onPrice }: { v: RentInputs; onPrice: boolean }) {
   const [h, setH] = useState<HoldSellInputs>(HOLD_SELL_DEFAULTS);
@@ -378,6 +450,8 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         <CashCushion v={v} price={v.atPrice > 0 ? v.atPrice : r.maxBid} onPrice={offer} />
         <RentDealLab v={v} start={r.maxBid} onPrice={offer} />
         <HoldAndSell v={v} onPrice={offer} />
+        <LenderView v={v} onPrice={offer} />
+        <StrComparison v={v} />
       </div>
     </div>
   );
@@ -510,6 +584,58 @@ export function LienCalculator() {
             <p className="muted small">An estimate, not advice. Later taxes you pay can be added to the certificate with interest if you give the Treasurer written notice.</p>
           </>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ---------------- Seller financing ----------------
+
+const SELLER_FINANCE_GROUPS: CalcGroup<SellerFinanceInputs>[] = [
+  {
+    title: 'The seller’s terms',
+    fields: [
+      { k: 'price', label: 'Price', unit: '$' },
+      { k: 'downPct', label: 'Down payment', unit: '%' },
+      { k: 'ratePct', label: 'Interest rate', unit: '%/yr' },
+      { k: 'amortYears', label: 'Payment figured over', unit: 'yr', hint: 'Often 30 years, even with a balloon.' },
+      { k: 'balloonYears', label: 'Balloon due after', unit: 'yr', hint: '0 if it pays off over the term.', more: 'A balloon means the rest of the loan is due at once, years before it would be paid off. Most buyers plan to refinance with a bank by then. If you can’t (rates rose, the value fell, your credit changed), you can lose the property and what you’ve paid in.' },
+    ],
+  },
+  {
+    title: 'Compared with a bank loan',
+    fields: [
+      { k: 'bankDownPct', label: 'Bank’s down payment', unit: '%', hint: 'An investment property: often 20–25%.' },
+      { k: 'bankRatePct', label: 'Bank’s rate', unit: '%/yr' },
+    ],
+  },
+];
+
+/** Seller financing next to a bank loan: the payment, the balloon and how you'd pay it, and the cash it saves now. */
+export function SellerFinanceCalculator() {
+  const [v, set] = useSaved<SellerFinanceInputs>('fsf.calc.sellerfinance.v1', SELLER_FINANCE_DEFAULTS);
+  const r = sellerFinance(v);
+  return (
+    <div className="calc">
+      <div className="calc-inputs"><CalcFields groups={SELLER_FINANCE_GROUPS} values={v} onChange={set} /></div>
+      <div className="calc-results">
+        <div className={`calc-max${r.balloon > 0 ? ' bad' : ''}`} role="status">
+          <span>{r.balloon > 0 ? `Balloon due in year ${r.balloonYears}` : 'Monthly payment to the seller'}</span>
+          <strong>{fmtMoney(Math.round(r.balloon > 0 ? r.balloon : r.monthly))}</strong>
+          <small>{r.balloon > 0 ? `About ${Math.round(r.balloonPctOfPrice * 100)}% of the price, still owed. Plan now how you’ll pay it: usually a bank refinance, which needs the value, your income and rates to cooperate.` : 'It pays off over the term, with no balloon.'}</small>
+        </div>
+        <dl className="calc-kv">
+          <div><dt>Down payment</dt><dd>{fmtMoney(Math.round(r.down))}</dd></div>
+          <div><dt>Monthly payment (principal and interest)</dt><dd>{fmtMoney(Math.round(r.monthly))}</dd></div>
+          <div><dt>Interest paid {r.balloon > 0 ? 'before the balloon' : 'over the loan'}</dt><dd>{fmtMoney(Math.round(r.interestPaid))}</dd></div>
+          <div><dt>Bank route: down payment</dt><dd>{fmtMoney(Math.round(r.bankDown))}</dd></div>
+          <div><dt>Bank route: monthly payment (30 years)</dt><dd>{fmtMoney(Math.round(r.bankMonthly))}</dd></div>
+          <div><dt>Cash you keep now with the seller’s terms</dt><dd>{fmtMoney(Math.round(r.cashSaved))}</dd></div>
+        </dl>
+        <p className="calc-note small">
+          Add property taxes and insurance to the payment, and check whether the seller still has a mortgage: a due-on-sale clause can let their lender call the
+          loan. Have an attorney or title company prepare the note and deed of trust, record them, and use escrow for payments. <a href="#/learn/creative">Seller financing rules in your state →</a>
+        </p>
       </div>
     </div>
   );

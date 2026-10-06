@@ -29,6 +29,7 @@ export const creative: Lesson = {
             ],
           },
         },
+        { links: [{ label: 'Seller financing calculator', url: '#/analyze', what: 'In Analyze, the Seller financing tab: the payment, the balloon you’ll owe, and the cash it saves against a bank loan.' }] },
       ],
     },
     {
