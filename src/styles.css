@@ -2828,5 +2828,9 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 /* Practice: the three ways to practice, each with how long it takes. */
 .practice-ways { margin-bottom: 40px; }
 .practice-way-time { font-weight: 700; font-size: 1.05rem; color: var(--text); }
-.case-feature .practice-step { margin-top: 0; }
 .drill-state-switch { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 14px 0 22px; font-size: 1.05rem; }
+/* Drill filters: one row of compact drop-downs beside the state switch. */
+.drill-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin: 14px 0 26px; }
+.drill-filter-select { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; }
+.drill-filter-select select { min-height: 44px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; font-weight: 500; }
+.drill-toolbar .drill-filter-count { margin: 0; }
