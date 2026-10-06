@@ -153,7 +153,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const rules = redemptionPresetsFor(region.state);
   const choices = saleKind ? redemptionChoicesFor(region.state, saleKind) : null;
   const hintFor = (f: Field) => (commercial && f.k === 'exitValue' ? 'Use the value by income above.' : f.k === 'transferTaxPer500' ? tax.hint : f.hint);
-  const moreFor = (f: Field) => (f.k === 'transferTaxPer500' ? tax.more : f.k === 'holdingMonths' ? (offer ? undefined : taxSaleWait(region.state)) : f.more);
+  const moreFor = (f: Field) => (f.k === 'transferTaxPer500' ? tax.more : f.k === 'holdingMonths' ? (offer ? undefined : !saleKind || saleKind === 'taxSale' ? taxSaleWait(region.state) : 'How long repairs and the resale take. If this sale has no redemption period, count from the day you get the deed; ask a title company early when it will insure the title for your buyer.') : f.more);
   const uid = useId();
   function save(next: BidInputs) {
     if (!storeId) return;

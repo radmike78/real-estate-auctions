@@ -5,6 +5,7 @@ import type { StateCode } from './regions';
 import { drillById } from '../practice/drills';
 import { PRACTICE_PROPERTIES } from '../practice/properties';
 import { playbookByKey } from './playbooks';
+import { LEARN_MODULES } from './learn';
 
 export const NOT_SURE = 'unsure';
 
@@ -132,8 +133,17 @@ export function practiceConfig(myState: string | null): NarrowConfig {
         const why = (k: string) => salesFor(buy, property).find((x) => x.kind === k)?.why ?? '';
         if (buy === 'agent') {
           if (property === 'commercial') return [run('reo', prop, why('reo')), drill('retail-strip', 'Then a quick decision on a small retail building’s leases and income.')];
-          // Short-sale practice uses homes only (no land).
-          return [run('reo', prop, why('reo')), drill('rental-265', 'Then a quick one: is a rental worth it at this price?'), ...(prop === 'house' ? [run('short', prop, why('short'))] : [])];
+          // A home from a listing: the full rental purchase comes first (the page's "Start here"), in Texas rules for
+          // Texas and Nevada rules everywhere else.
+          if (prop === 'house') {
+            const caseState = st === 'tx' ? 'Texas' : 'Nevada';
+            return [
+              { label: 'Buy a rental, start to finish', href: '#/practice/case', why: `The most common first deal: a listed home with a loan, from the offer to the first tenant. It follows ${caseState} rules.` },
+              drill('rental-265', 'Then a quick one: is a rental worth it at this price?'),
+              run('reo', prop, why('reo')),
+            ];
+          }
+          return [run('reo', prop, why('reo')), drill('land-access', 'Then a quick one on access, utilities and holding costs.')];
         }
         if (property === 'land') return [run('tax', prop, why('tax')), drill('land-access', 'Then a quick one on access, utilities and holding costs.')];
         return [run('foreclosure', prop, why('foreclosure') || 'Foreclosure auctions happen most weeks.'), run('tax', prop, 'Tax sales come once or twice a year in most counties, with their own rules.')];
@@ -181,6 +191,84 @@ export function guidesConfig(myState: string | null): NarrowConfig {
     result: (raw) => {
       const st = raw.state || myState || 'NV';
       return salesFor(raw.buy, raw.property).map((s) => ({ label: playbookByKey(guideKey(st, s.kind))?.title ?? s.kind, href: `#/playbooks/${guideKey(st, s.kind)}`, why: s.why }));
+    },
+  };
+}
+
+/** Learn: which two or three lessons to read first, for what someone wants to do and how much they know. */
+export function learnConfig(): NarrowConfig {
+  const lesson = (key: string, why: string): NarrowPick => ({ label: LEARN_MODULES.find((m) => m.key === key)?.title ?? key, href: `#/learn/${key}`, why });
+  return {
+    questions: [
+      {
+        key: 'goal',
+        question: 'What do you want to do first?',
+        options: [
+          { value: 'rental', label: 'Buy a rental' },
+          { value: 'flip', label: 'Fix and sell (a flip)' },
+          { value: 'auction', label: 'Bid at auctions' },
+          { value: 'commercial', label: 'Buy commercial property' },
+        ],
+        suggest: () => ({ value: 'rental', why: 'A rental bought through an agent is the most common first deal: you can inspect it, get a loan and learn as you go.' }),
+      },
+      {
+        key: 'know',
+        question: 'How much do you know already?',
+        options: [
+          { value: 'new', label: 'I’m new to this' },
+          { value: 'some', label: 'I know the basics' },
+        ],
+        suggest: () => ({ value: 'new', why: 'Starting with the basics takes a few minutes and makes every later lesson easier.' }),
+      },
+    ],
+    result: ({ goal, know }) => {
+      const basics = lesson('markets', 'The two markets, who buys in each, and how prices are set: the base for everything else.');
+      const numbers = lesson('analyze', 'How to run the numbers on a property and find the price that still works.');
+      if (goal === 'commercial') return [know === 'new' ? basics : lesson('types', 'What each kind of commercial property earns and where it goes wrong.'), numbers, lesson('financing', 'How commercial loans differ: bigger down payments, income-based approval and shorter terms.')];
+      if (goal === 'auction') return [...(know === 'new' ? [basics] : []), lesson('forced-sales', 'How each kind of auction works in your state, and what survives the sale.'), numbers, ...(know === 'new' ? [] : [lesson('walk-away', 'The warning signs that should stop a bid.')])];
+      if (goal === 'flip') return [...(know === 'new' ? [basics] : []), numbers, lesson('walk-away', 'When the profit isn’t there after every cost, and how to walk away in time.'), ...(know === 'new' ? [] : [lesson('financing', 'Hard money and other short-term loans for a flip.')])];
+      return [...(know === 'new' ? [basics] : []), numbers, lesson('financing', 'Loans for a rental: what lenders ask for and how much cash you need.'), ...(know === 'new' ? [] : [lesson('after-closing', 'Running the rental: tenants, deposits, records and taxes.')])];
+    },
+  };
+}
+
+/** My plan: which part of the page to use first, for where someone is right now. */
+export function toolkitConfig(): NarrowConfig {
+  return {
+    questions: [
+      {
+        key: 'stage',
+        question: 'Where are you right now?',
+        options: [
+          { value: 'start', label: 'Just starting', hint: 'No property in mind yet' },
+          { value: 'looking', label: 'Looking at a property' },
+          { value: 'offer', label: 'Making an offer or bidding soon' },
+          { value: 'bought', label: 'Just bought one' },
+        ],
+        suggest: () => ({ value: 'start', why: 'Knowing your cash and what you’re looking for first keeps you from chasing deals that don’t fit.' }),
+      },
+    ],
+    result: ({ stage }) => {
+      if (stage === 'looking') return [
+        { label: 'Analyze the property', href: '#/analyze', why: 'Run the numbers and get a walk-away price before you get attached.' },
+        { label: 'Check it against your buy box', scrollTo: 'buy-box', why: 'Does it fit the price, area and kind of property you chose?' },
+        { label: 'Your team', scrollTo: 'team', why: 'Who to call now: an agent, a lender, an inspector.' },
+      ];
+      if (stage === 'offer') return [
+        { label: 'Read the paperwork', scrollTo: 'paperwork', why: 'The contract, the loan estimate and the title commitment, part by part, with the deadlines that matter.' },
+        { label: 'Your team', scrollTo: 'team', why: 'Line up the lender, inspector, title company and insurance agent before the deadlines start.' },
+        { label: 'Where you are on the roadmap', scrollTo: 'roadmap', why: 'The steps from offer to closing, and what “done” looks like for each.' },
+      ];
+      if (stage === 'bought') return [
+        { label: 'After you close', href: '#/learn/after-closing', why: 'Insurance, the first tenant, deposits, records and taxes.' },
+        { label: 'Worksheets to download', scrollTo: 'worksheets', why: 'Records you’ll want from day one.' },
+        { label: 'Your roadmap', scrollTo: 'roadmap', why: 'The last steps: owning it, and what comes next.' },
+      ];
+      return [
+        { label: 'Your investable cash', scrollTo: 'cash', why: 'What you can put in without touching your emergency money, and the price that supports.' },
+        { label: 'Your buy box', scrollTo: 'buy-box', why: 'The price, area and kind of property you’re looking for, so you can say no fast.' },
+        { label: 'Your investing roadmap', scrollTo: 'roadmap', why: 'Every step from here to owning it, in order.' },
+      ];
     },
   };
 }

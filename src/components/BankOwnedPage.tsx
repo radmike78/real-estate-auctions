@@ -162,8 +162,9 @@ export default function BankOwnedPage({ section }: { section?: string }) {
       )}
       {!open && (
         <p className="page-starter">
-          Most sources below list homes nationwide (the HUD link opens a Clark County search; change the location on HUD’s site), and the notes on each card are for Clark County, Nevada. Buying rules for
-          Nevada, California, Arizona, Utah and Texas are under “Buying one in your state.” Pick your state to see only its rules.
+          {!state || state === 'NV'
+            ? <>Most sources below list homes nationwide (the HUD link opens a Clark County search; change the location on HUD’s site), and the notes on each card are for Clark County, Nevada. Buying rules for Nevada, California, Arizona, Utah and Texas are under “Buying one in your state.” Pick your state to see only its rules.</>
+            : <>Most sources below list homes nationwide: search each one for {STATES.find((x) => x.code === state)?.name}. Some card notes mention Clark County, Nevada, where DeedOwl started; the rules for buying in {STATES.find((x) => x.code === state)?.name} are under “Buying one in your state.”</>}
         </p>
       )}
       <StatePicker label="Where is the home?" />

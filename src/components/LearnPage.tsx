@@ -2,6 +2,8 @@ import StatePicker from './StatePicker';
 import PageHero from './PageHero';
 import PathNext from './PathNext';
 import { LEARN_MODULES, LEARN_PATHS } from '../lib/learn';
+import NarrowDown from './NarrowDown';
+import { learnConfig } from '../lib/narrow';
 import { useMarkStep } from '../lib/path';
 import { lessonByKey } from '../lib/lessons';
 import { useState } from 'react';
@@ -57,6 +59,7 @@ export default function LearnPage() {
         sub="Residential and commercial: the markets, the property types, and how deals are found, analyzed and paid for."
       />
       <StatePicker label="Show rules for" />
+      <NarrowDown config={learnConfig()} intro="Answer two quick questions and we’ll suggest which lessons to read first. Every lesson is still listed below." />
       {paths.map((path) => (
         <section key={path.title} className="learn-path" aria-labelledby={`path-${path.keys[0]}`}>
           <h2 id={`path-${path.keys[0]}`}>{path.title}</h2>
@@ -95,7 +98,7 @@ export default function LearnPage() {
             })}
           </ol>
         </section>
-      )).flatMap((el, i) => (i === 0 ? [el, <SaleGuides key="guides" />] : [el]))}
+      )).flatMap((el, i, all) => (i === Math.min(3, all.length - 1) ? [el, <SaleGuides key="guides" />] : [el]))}
       {paths.length < LEARN_PATHS.length && (
         <p className="show-all-row">
           <button type="button" className="btn btn-secondary" onClick={() => setShowAll(true)}>Show all {LEARN_MODULES.length} lessons</button>

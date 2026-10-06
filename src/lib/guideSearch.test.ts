@@ -50,7 +50,7 @@ describe('the site’s guide index', () => {
   it('covers every guide, with links that stay on this site', () => {
     expect(docs.length).toBeGreaterThan(40);
     for (const d of docs) {
-      expect(d.href).toMatch(/^#\/[a-z0-9/-]+$/);
+      expect(d.href).toMatch(/^#\/[a-z0-9/_-]+$/);
       expect(d.text).not.toMatch(/<[a-z]/i);
       for (const s of d.sources) expect(s.url).toMatch(/^https:\/\//);
     }
@@ -66,6 +66,17 @@ describe('the site’s guide index', () => {
     expect(top('short sale approval').some((h) => h.startsWith('#/short-sales') || h.includes('short'))).toBe(true);
     expect(top('mediation').some((h) => h.startsWith('#/homeowner-help') || h.startsWith('#/pre-foreclosures'))).toBe(true);
     expect(searchGuides(ix, 'tax sale').hits.length).toBeGreaterThan(3);
+  });
+
+  it('searches the lessons, property types, team and paperwork guides too', () => {
+    const ix = guideIndex();
+    const hrefs = (q: string) => searchGuides(ix, q).hits.map((h) => h.doc.href);
+    expect(hrefs('depreciation').some((h) => h.startsWith('#/learn/'))).toBe(true);
+    expect(hrefs('DSCR').some((h) => h.startsWith('#/learn/'))).toBe(true);
+    expect(hrefs('1031 exchange').some((h) => h.startsWith('#/learn/'))).toBe(true);
+    expect(hrefs('anchor tenant strip center').some((h) => h.startsWith('#/learn/types/'))).toBe(true);
+    expect(hrefs('home inspector').some((h) => h.startsWith('#/find-a-pro/'))).toBe(true);
+    expect(hrefs('closing disclosure').some((h) => h === '#/toolkit/paperwork')).toBe(true);
   });
 });
 

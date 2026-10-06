@@ -3,6 +3,7 @@ import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
+import PracticeStateNote from './PracticeStateNote';
 import { exitPlans, buyingCosts } from '../practice/exitPlans';
 import { fmtMoney } from '../lib/status';
 import { scenarioById } from '../practice/scenarios';
@@ -60,6 +61,7 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
         sub={`${s.saleTitle}. ${s.property.address}, ${s.property.city} (fictional)`}
       />
       <PracticeRibbon />
+      <PracticeStateNote sale={s.sale} />
       {unknownStage && <p className="notice" role="status">We couldn’t find that step. Start from the listing below.</p>}
 
       <nav className="practice-stages" aria-label="Practice steps">

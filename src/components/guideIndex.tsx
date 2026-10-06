@@ -15,6 +15,13 @@ import HomeownerHelpPage from './HomeownerHelpPage';
 import { PLAYBOOKS, stateOf } from '../lib/playbooks';
 import { stateByCode } from '../lib/regions';
 import { buildIndex, fromHtml, type GuideDoc, type GuideIndex } from '../lib/guideSearch';
+import { LESSONS } from '../lib/lessons';
+import type { LessonBlock } from '../lib/lessons/types';
+import { LEARN_MODULES } from '../lib/learn';
+import { DOC_GUIDES } from '../lib/docGuides';
+import { PRO_GUIDES } from '../lib/proGuide';
+import { PROPERTY_TOPICS } from '../lib/deep/propertyTopics';
+import { PROPERTY_DEEP } from '../lib/deep/propertyDeep';
 
 const html = (node: ReactNode) => renderToStaticMarkup(<>{node}</>);
 
@@ -35,6 +42,37 @@ function homeownerDocs(): GuideDoc[] {
     const { text, sources } = fromHtml(m[2]);
     return { href: '#/homeowner-help', page: 'Facing foreclosure? Free help', title: fromHtml(m[1]).text, text, sources };
   });
+}
+
+/** The words in a lesson block: paragraphs, list items, table cells, tool descriptions and reasons for and against. */
+function blockText(b: LessonBlock): string {
+  if (typeof b === 'string') return b;
+  if ('list' in b) return b.list.join(' ');
+  if ('table' in b) return [...b.table.head, ...b.table.rows.flat()].join(' ');
+  if ('links' in b) return b.links.map((l) => `${l.label}: ${l.what}`).join(' ');
+  return [b.why.title, ...[...b.why.yes, ...b.why.no].map((w) => `${w.who}: ${w.text} ${w.example ?? ''}`)].join(' ');
+}
+
+/** Each lesson section, plus the lesson's key terms, as its own result. */
+function lessonDocs(): GuideDoc[] {
+  return LESSONS.flatMap((l) => {
+    const title = LEARN_MODULES.find((m) => m.key === l.key)?.title ?? l.key;
+    const page = `Lesson: ${title}`;
+    const href = `#/learn/${l.key}`;
+    const sources = l.sources.filter((x) => x.url.startsWith('https://'));
+    return [
+      ...l.sections.map((sec) => ({ href, page, title: sec.heading, text: sec.blocks.map(blockText).join(' '), sources })),
+      { href, page, title: 'Key terms', text: l.terms.map((t) => `${t.term}: ${t.meaning}`).join(' '), sources },
+    ];
+  });
+}
+
+/** All the words in a property-type page's data (strings anywhere inside it, links left out). */
+function strings(v: unknown): string[] {
+  if (typeof v === 'string') return /^https?:\/\//.test(v) ? [] : [v];
+  if (Array.isArray(v)) return v.flatMap(strings);
+  if (v && typeof v === 'object') return Object.values(v).flatMap(strings);
+  return [];
 }
 
 export function guideDocs(): GuideDoc[] {
@@ -60,6 +98,10 @@ export function guideDocs(): GuideDoc[] {
     ...fromSections('Business assets & closures', '#/business-assets', BUSINESS),
     ...homeownerDocs(),
     ...fromSections('How DeedOwl works', '#/about', ABOUT),
+    ...lessonDocs(),
+    ...PROPERTY_TOPICS.map((t) => ({ href: `#/learn/types/${t.slug}`, page: 'Types of property', title: t.title, text: strings(PROPERTY_DEEP[t.key as keyof typeof PROPERTY_DEEP]).join(' '), sources: [] })),
+    ...PRO_GUIDES.map((g) => ({ href: `#/find-a-pro/${g.key}`, page: 'Your team', title: g.title, text: [g.summary, g.does, ...g.when, ...g.find, ...g.ask].join(' '), sources: [] })),
+    ...DOC_GUIDES.map((g) => ({ href: '#/toolkit/paperwork', page: 'Read the paperwork', title: g.title, text: [g.from, ...g.parts.map((x) => `${x.part}: ${x.look} ${x.example ?? ''}`), g.changes, g.corrected].join(' '), sources: [] })),
     ...fromSections('Privacy policy', '#/privacy', PRIVACY, 0.5),
     ...fromSections('Terms of use', '#/terms', TERMS, 0.5),
   );

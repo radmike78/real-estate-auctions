@@ -9,14 +9,18 @@ import { track } from '../lib/track';
 import ProAvatar from './ProAvatar';
 import { prosInArea } from '../lib/adAreas';
 import { areaLabel, useMyArea, type Area } from '../lib/myArea';
+import { advertisingOpen, useSiteFeatures } from '../lib/siteFeatures';
 
 /**
  * Holds an ad spot open while no advertiser fills it, so the page keeps its layout: a plain, labeled box that points
  * licensed professionals (in the visitor's area, when one is picked) to the Advertise page. It shows no one and
- * recommends no one.
+ * recommends no one. Hidden until advertising opens, so buyers don't see empty boxes pointing to a page that can't
+ * take applications yet.
  */
 export function AdSpace({ kind }: { kind: string }) {
   const [area] = useMyArea();
+  const features = useSiteFeatures();
+  if (!advertisingOpen(features)) return null;
   return (
     <aside className="ad-box ad-space" aria-label={`${kind} space`}>
       <div className="ad-box-label">{kind} space</div>

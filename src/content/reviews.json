@@ -21,7 +21,7 @@
       "src/lib/status.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "d2abf3ad11b9386e",
+    "hash": "4d3a271d039b5432",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -92,7 +92,7 @@
       "src/lib/reoSources.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "66cbb5f2d52e3562",
+    "hash": "4f8e2ec249d66d5c",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "7002417dc42e64c1",
+    "hash": "50b28c4ddcb6e78f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "24c1b457844bc29f",
+    "hash": "fad3901aa71d2828",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -225,7 +225,7 @@
       "src/lib/pros.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "5e47836fab529b7a",
+    "hash": "eba35ebdcac80e74",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -282,7 +282,7 @@
       "src/components/RoleNotice.tsx"
     ],
     "reviewed": "2026-10-06",
-    "hash": "fdff859d93d61999",
+    "hash": "6fb65d3e7cdfcafe",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -353,7 +353,7 @@
       "src/lib/terms.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "23607f9eba46f670",
+    "hash": "c1dfafd953064774",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -364,7 +364,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "176222879081f01b",
+    "hash": "5c6bffab21b91b06",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -403,7 +403,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "a33c4b270a293942",
+    "hash": "0996d74e709d38eb",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { rememberList } from '../lib/lastList';
 import { replaceAddress, toPath } from '../lib/nav';
 import { SHOW_SAMPLE_DATA } from '../data';
+import { getMyState } from '../lib/myState';
 import { useProperties } from '../data/live';
 import { applyFilters, DEFAULT_FILTERS, type Filters } from '../lib/search';
 import type { AcquisitionStatus, SaleType } from '../types';
@@ -120,6 +121,7 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
       {SHOW_SAMPLE_DATA && (
         <div className="caution sample-banner" role="note">
           <strong>These are fictional sample listings</strong> for trying out the search. None of them is for sale. For real, verified parcels, see <a href="#/live">Live tax sales</a>.
+          {getMyState() && getMyState() !== 'NV' && <> The samples are in Clark County, Nevada. For real sales in your state, start at <a href="#/find-deals">Find deals</a>, which lists your county’s official offices.</>}
         </div>
       )}
       <main className="search-layout">

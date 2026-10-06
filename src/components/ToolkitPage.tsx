@@ -11,12 +11,14 @@ import { makeBackup, readBackup, restoreBackup } from '../lib/progressBackup';
 import { loadDeals as loadAnalyzed } from '../lib/analyze';
 import { nextAction } from '../lib/dealPacket';
 import { docGuide, DOC_GUIDES } from '../lib/docGuides';
+import NarrowDown from './NarrowDown';
+import { toolkitConfig } from '../lib/narrow';
 import DocGuideView from './DocGuideView';
 import { EvidenceArea } from './EvidenceLog';
 import { cleanDealSteps, DEAL_ID, DEAL_KEY, DEAL_STEPS_KEY, type DealSteps } from '../lib/roadmapDeals';
 import { cashForPrice, cleanGoal, cleanTeamList, GOAL_KEY, PLAN_EVENT, PRICE_DEFAULTS, priceForCash, TEAM_LIST_KEY, TEAM_ROLES, type PriceAssumptions, type TeamList, type TeamMember } from '../lib/myPlan';
 import { currentProgress } from '../lib/journey';
-import { DECIDE_KEY, rank, type Answers } from '../lib/decide';
+import { DECIDE_KEY, QUESTIONS, rank, type Answers } from '../lib/decide';
 import { loadCase } from '../practice/caseProgress';
 import { caseFor, tasksFor } from '../practice/rentalCase';
 import { proGuideByKey } from '../lib/proGuide';
@@ -112,6 +114,14 @@ function stepEvidence(id: string): string | null {
 /** The goal shows in "Your next step" and again in its phase: both copies stay in step. */
 function GoalField() {
   const [g, setG] = useState(() => read(GOAL_KEY, '', cleanGoal));
+  // A first draft from the answers given in Decide (goal, budget, time), to edit rather than retype.
+  const fromDecide = (() => {
+    const a = read<{ answers?: Answers } | null>(DECIDE_KEY, null, (v) => (v && typeof v === 'object' ? (v as { answers?: Answers }) : null))?.answers ?? {};
+    const text = (k: string) => QUESTIONS.find((q) => q.key === k)?.options.find((o) => o.value === a[k as keyof Answers])?.text;
+    const goal = text('goal');
+    if (!goal || a.goal === 'learn') return '';
+    return [goal, text('cash') && `with ${text('cash')!.replace(/^[A-Z]/, (c) => c.toLowerCase())} to put in`, text('time')?.toLowerCase()].filter(Boolean).join(', ') + '.';
+  })();
   useEffect(() => {
     const on = () => setG(read(GOAL_KEY, '', cleanGoal));
     window.addEventListener(PLAN_EVENT, on);
@@ -126,6 +136,7 @@ function GoalField() {
     <label className="field roadmap-goal">
       <span>Your goal, in one sentence</span>
       <textarea rows={2} maxLength={400} value={g} onChange={(e) => change(e.target.value)} placeholder="e.g. A rental I’ll hold 10 years, where the rent covers the costs. About 6 hours a week." />
+      {!g.trim() && fromDecide && <button type="button" className="linkish" onClick={() => change(fromDecide)}>Start from my Decide answers: “{fromDecide}”</button>}
     </label>
   );
 }
@@ -726,6 +737,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
           <button type="button" className="btn btn-secondary" onClick={() => jump('roadmap')}>See the full roadmap</button>
         </div>
       </section>}
+      <NarrowDown config={toolkitConfig()} intro="This page holds your whole plan and a lot of reference material. Tell us where you are and we’ll point you to the part to use first. Everything stays below." />
       <FirstDealRoadmap />
       <CashWorksheet />
       <BuyBoxBuilder />
@@ -738,6 +750,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
           <button type="button" className="btn btn-secondary" onClick={() => window.print()}>Print this page</button>
         </div>
       </section>
+      <h2 className="part-bar" id="reference-head">Reference: worksheets, paperwork and tools</h2>
       <Worksheets />
       <section id="paperwork" aria-labelledby="paperwork-head">
         <h2 id="paperwork-head">Read the paperwork</h2>
