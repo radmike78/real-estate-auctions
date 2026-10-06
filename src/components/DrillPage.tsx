@@ -1,3 +1,4 @@
+import { shuffled } from '../lib/shuffle';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { currentProgress, GUIDED, guidedNext, useJourney, useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
@@ -185,7 +186,7 @@ function MissionCard({ m, a, set, fresh }: { m: Mission; a: Answers[string]; set
       <fieldset disabled={done}>
         <legend>{m.question}</legend>
         <div className="decide-options">
-          {m.options.map((o) => (
+          {shuffled(m.options.length, m.question).map((i) => m.options[i]).map((o) => (
             <label key={o.label} className={`decide-option${picks.includes(o.label) ? ' on' : ''}${done ? (o.good ? ' good' : picks.includes(o.label) ? ' bad' : '') : ''}`}>
               <input type={m.multi ? 'checkbox' : 'radio'} name={m.id} checked={picks.includes(o.label)} onChange={() => toggle(o.label)} />
               <span>

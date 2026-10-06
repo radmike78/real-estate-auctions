@@ -169,7 +169,7 @@ function commercialResearch(p: PracticeProperty, sale: SaleKey): Task[] {
       body: [
         'Confirm exactly what the sale includes. The real property may be sold without the furniture, the business name or the booking accounts.',
         'Many business, health and other licenses don’t simply pass with the property. You may need a new license or a change-of-ownership filing. Confirm with each agency before you reopen.',
-        'Guests and a live-in manager may be there on sale day. Short-stay guests and a manager who lives there for the job usually aren’t tenants, but anyone who has stayed 30 days or more may have tenant rights (NRS 118A.180). Have an attorney plan how you take possession.',
+        'Guests and a live-in manager may be there on sale day. Short-stay guests and a manager who lives there for the job usually aren’t tenants,* but anyone who has stayed 30 days or more may have tenant rights (NRS 118A.180). Have an attorney plan how you take possession.',
       ],
     });
   }
@@ -227,10 +227,11 @@ const mistakeQuiz = (id: string, m: { mistake: string; prevent: string }): Task 
   kind: 'decision',
   id,
   title: 'Common mistake',
-  question: `Another buyer’s plan: “${m.mistake}.” What’s the better approach?`,
+  question: `A common, costly mistake with this kind of sale: “${m.mistake}.” How do you avoid it?`,
   choices: [
     { label: m.prevent, correct: true, feedback: 'Right. This is how buyers avoid one of the most common mistakes with this kind of sale.' },
-    { label: 'Their plan is fine. Go ahead.', correct: false, feedback: `That’s one of the most common, expensive mistakes with this kind of sale. Instead: ${m.prevent}` },
+    { label: 'Skip it to save time and money: most sales go fine, and you can deal with a problem if one comes up.', correct: false, feedback: `Problems after a forced sale are expensive and slow to fix, and often can’t be fixed at all. Instead: ${m.prevent}` },
+    { label: 'Leave it to the trustee, county or seller: checking this is their job, not yours.', correct: false, feedback: `In a forced sale you buy as-is, and the seller doesn’t check this for you. Instead: ${m.prevent}` },
   ],
 });
 
@@ -946,7 +947,8 @@ function offerNumbers(p: PracticeProperty, list: number, holdingMonths: number):
 
 /** A home buyer's budget: the lower of what comparable sales and the loan support. */
 function affordFor(p: PracticeProperty, listShare: number): Afford {
-  const asIsValue = roundTo(p.value - p.repairs, 1000);
+  // The same as-is value the auction practice uses for this house, so the two flows agree.
+  const asIsValue = practiceAsIsValue(p.value, p.repairs);
   const cash = isLand(p);
   const downPct = cash ? 100 : p.id === 'fourplex' ? 20 : 10;
   const loanAmount = cash ? 0 : roundTo(asIsValue * (1 - downPct / 100) * 1.02, 1000);

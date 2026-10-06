@@ -81,7 +81,7 @@ describe('tracking a verified listing (running server)', () => {
     ...over,
   });
   const publishFeed = (listings: FeedListing[], expires = new Date(clock.getTime() + 86_400_000)) => {
-    const feed: Feed = { version: 1, generatedAt: clock.toISOString(), expiresAt: expires.toISOString(), sources: [], listings };
+    const feed: Feed = { version: 1, generatedAt: clock.toISOString(), expiresAt: expires.toISOString(), sources: [{ sourceId: 'clark-county-treasurer', agency: 'x', officialUrl: 'https://example.gov/', lastCheckedAt: null, lastChangedAt: null, observedChangeIntervalHours: null, nextCheckAt: null, health: 'ok', message: null, certificateIssuer: null }], listings };
     writeSignedJson(dataDir, 'listings.json', feed, key);
   };
 
@@ -188,13 +188,14 @@ describe('tracking a verified listing (running server)', () => {
     publishFeed(both);
     await app.checkTracked();
     const before = mails.length;
-    for (const health of ['error', 'stale', 'quarantined'] as const) {
+    for (const health of ['error', 'stale', 'quarantined', 'missing'] as const) {
       clock = new Date(clock.getTime() + 3_600_000);
       const feed: Feed = {
         version: 1,
         generatedAt: clock.toISOString(),
         expiresAt: new Date(clock.getTime() + 86_400_000).toISOString(),
-        sources: [{ sourceId: 'clark-county-treasurer', agency: 'Clark County Treasurer', officialUrl: 'https://treasurer.clarkcountynv.gov/', lastCheckedAt: null, lastChangedAt: null, observedChangeIntervalHours: null, nextCheckAt: null, health, message: null, certificateIssuer: null }],
+        // 'missing': the source isn't in the feed at all.
+        sources: health === 'missing' ? [] : [{ sourceId: 'clark-county-treasurer', agency: 'Clark County Treasurer', officialUrl: 'https://treasurer.clarkcountynv.gov/', lastCheckedAt: null, lastChangedAt: null, observedChangeIntervalHours: null, nextCheckAt: null, health, message: null, certificateIssuer: null }],
         listings: [],
       };
       writeSignedJson(dataDir, 'listings.json', feed, key);
@@ -260,7 +261,7 @@ describe('tracking an IRS sale (running server)', () => {
     ...over,
   });
   const publish = (federalSales: FeedFederalSale[]) =>
-    writeSignedJson(dataDir, 'listings.json', { version: 1, generatedAt: clock.toISOString(), expiresAt: new Date(clock.getTime() + 86_400_000).toISOString(), sources: [], listings: [], federalSales } satisfies Feed, key);
+    writeSignedJson(dataDir, 'listings.json', { version: 1, generatedAt: clock.toISOString(), expiresAt: new Date(clock.getTime() + 86_400_000).toISOString(), sources: [{ sourceId: 'us-irs-auctions', agency: 'x', officialUrl: 'https://example.gov/', lastCheckedAt: null, lastChangedAt: null, observedChangeIntervalHours: null, nextCheckAt: null, health: 'ok', message: null, certificateIssuer: null }], listings: [], federalSales } satisfies Feed, key);
   const post = (path: string, body: unknown, headers: Record<string, string> = {}) =>
     fetch(base + path, { method: 'POST', headers: { 'content-type': 'application/json', 'x-forwarded-for': '10.2.0.1', ...headers }, body: JSON.stringify(body) });
   const last = () => mails[mails.length - 1];

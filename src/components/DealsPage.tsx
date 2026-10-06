@@ -39,8 +39,13 @@ function DealCard({ d, p, loading, known }: { d: SavedDeal; p: Property | undefi
   if (!p && !known) {
     return (
       <li className="deal-card">
-        <h2>Being re-verified</h2>
-        <p className="muted">A property you saved on {fmtDate(d.savedAt)} isn’t shown while its official list is being re-verified. Your notes and evidence are kept. Check back shortly, or check the official source.</p>
+        <div className="deal-head">
+          <div>
+            <h2>Being re-verified</h2>
+            <p className="muted">A property you saved on {fmtDate(d.savedAt)} isn’t shown while its official list is being re-verified. Your notes and evidence are kept. Check back shortly, or check the official source.</p>
+          </div>
+          <button className="linkish" aria-label="Remove this saved property and its notes" onClick={() => { if (window.confirm('Remove this saved property, with its notes and evidence?')) { removeDeal(d.id); removeLog(`listing:${d.id}`); } }}>Remove</button>
+        </div>
       </li>
     );
   }

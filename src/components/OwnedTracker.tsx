@@ -22,6 +22,11 @@ export function useOwned(): Record<string, Owned> {
 }
 
 const signed = (n: number) => `${n < 0 ? '−' : ''}${fmtMoney(Math.abs(Math.round(n)))}`;
+// Today in this browser's own time zone (toISOString would give the UTC date, a day ahead in the evening).
+const today = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
 const thisMonth = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -49,7 +54,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     return (
       <div>
         <p>Did you buy it? Mark it as yours to track the real rent and costs each month against the cash flow you planned.</p>
-        <button type="button" className="btn btn-secondary" onClick={() => put({ boughtOn: new Date().toISOString().slice(0, 10), months: [] })}>I bought this property</button>
+        <button type="button" className="btn btn-secondary" onClick={() => put({ boughtOn: today(), months: [] })}>I bought this property</button>
       </div>
     );
   }
@@ -70,7 +75,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     <div>
       <p className="muted">{projected === null ? 'Save this deal’s numbers in Keep and rent to compare each month with your plan.' : `You planned on ${signed(projected)} a month of cash flow.`}</p>
       <div className="row owned-add">
-        <label className="field"><span>Bought on</span><input type="date" value={o.boughtOn} onChange={(e) => e.target.value && put({ ...o, boughtOn: e.target.value })} /></label>
+        <label className="field"><span>Bought on</span><input type="date" value={o.boughtOn} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
         <label className="field"><span>Month</span><input type="month" value={month} onChange={(e) => setMonth(e.target.value)} /></label>
         <label className="field"><span>Rent collected ($)</span><input type="number" inputMode="decimal" min={0} value={rent} onChange={(e) => setRent(e.target.value)} /></label>
         <label className="field"><span>Everything you paid ($)</span><input type="number" inputMode="decimal" min={0} value={costs} onChange={(e) => setCosts(e.target.value)} /></label>

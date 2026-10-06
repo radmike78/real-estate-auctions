@@ -1102,7 +1102,7 @@ function buildCase(c: CaseConfig) {
           prompt: `At $289,000, you needed ${$(N.cashOffer)} and had ${$(N.investable)}. If you pay for the sewer and the panel yourself, how much is left for everything else?`,
           answer: N.investable - N.cashOffer - N.urgent,
           tolerance: 50,
-          worked: [`${$(N.investable)} − ${$(N.cashOffer)} = ${$(N.investable - N.cashOffer)}`, `${$(N.investable - N.cashOffer)} − ${$(N.urgent)} (sewer + panel) = ${$(N.investable - N.cashOffer - N.urgent)}`, 'That isn’t enough for a water heater, let alone a vacancy. Something has to change.'],
+          worked: [`${$(N.investable)} − ${$(N.cashOffer)} = ${$(N.investable - N.cashOffer)}`, `${$(N.investable - N.cashOffer)} − ${$(N.urgent)} (sewer + panel) = ${$(N.investable - N.cashOffer - N.urgent)}`, N.investable - N.cashOffer - N.urgent < 1_600 ? 'That isn’t enough for a water heater, let alone a vacancy. Something has to change.' : 'That covers a water heater, but not much more: one vacancy or a second repair would use it up. Something has to change.'],
         },
         {
           kind: 'choice',
@@ -1219,7 +1219,7 @@ function buildCase(c: CaseConfig) {
         {
           kind: 'choice',
           id: 'title-stop',
-          prompt: `The price is now ${$(finalPrice)}. In the title commitment, which item could stop your closing if nobody deals with it?`,
+          prompt: `The price is now ${$(finalPrice)}. In the title commitment, which requirement is unusual and needs your follow-up before closing?`,
           choices: [
             { label: '#2: the roofer’s mechanic’s lien', verdict: 'best', why: c.lienWhy },
             { label: '#1: the old deed of trust', verdict: 'ok', why: 'It must be cleared too, but paying off the seller’s loan at closing is routine. The roofer’s lien is the unusual one.' },
@@ -1421,7 +1421,7 @@ function buildCase(c: CaseConfig) {
           prompt: 'Was this a good purchase?',
           choices: [
             { label: N.cashFlowWithReplacements > -75 ? 'It fits a long-term plan only: with the roof and water heater budgeted, the rent about covers the costs self-managed, and falls short with a manager. It doesn’t meet a monthly-income goal.' : `It fits a long-term plan only if you can add about ${$(-N.cashFlowWithReplacements)} a month: with the roof and water heater budgeted, the rent falls short even self-managed. It doesn’t meet a monthly-income goal.`, verdict: 'best', why: 'An honest answer. Appreciation and rent increases might help later, but they aren’t guaranteed, so they can’t close today’s budget gap.' },
-            { label: `Yes, it makes ${$(N.cashFlow)} a month, so it’s a great investment.`, verdict: 'poor', why: 'That’s before any big repair or a vacant month. One water heater takes most of a year’s profit.' },
+            { label: `Yes, it makes ${$(N.cashFlow)} a month, so it’s a great investment.`, verdict: 'poor', why: `That’s before any big repair or a vacant month. One $1,600 water heater takes ${N.cashFlow * 12 < 1_600 ? 'more than' : 'most of'} a year’s profit.` },
             { label: 'No. Any rental that doesn’t make $500 a month is a bad deal.', verdict: 'ok', why: 'A fine rule if your goal is income. This plan’s goal was long-term growth with rent covering costs.' },
           ],
         },

@@ -1,3 +1,4 @@
+import { shuffled } from '../lib/shuffle';
 import { useEffect, useRef, useState } from 'react';
 import { downloadText } from '../lib/download';
 import { useLastActivity } from '../lib/journey';
@@ -288,7 +289,7 @@ function Multi({ t, k, p, update, finish }: { t: Extract<CaseTask, { kind: 'mult
   return (
     <>
       <ul className="case-multi">
-        {t.options.map((o, i) => (
+        {shuffled(t.options.length, t.prompt).map((i) => [t.options[i], i] as const).map(([o, i]) => (
           <li key={o.label} className={checked ? (o.right ? 'should' : 'shouldnt') : undefined}>
             <label>
               <input type="checkbox" checked={shown.includes(i)} disabled={checked} onChange={() => toggle(i)} />
@@ -444,11 +445,3 @@ function Packet({ p }: { p: CaseProgress }) {
 }
 
 /** A fixed, scrambled order for a question's answers, so the best one isn't always first (same order on every visit). */
-function shuffled(n: number, seed: string): number[] {
-  const h = (i: number) => {
-    let x = 2166136261;
-    for (const c of `${seed}#${i}`) x = Math.imul(x ^ c.charCodeAt(0), 16777619);
-    return x >>> 0;
-  };
-  return [...Array(n).keys()].sort((a, b) => h(a) - h(b));
-}

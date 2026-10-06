@@ -62,7 +62,7 @@ export const financing: Lesson = {
     {
       heading: 'DSCR loans: qualifying on the rent',
       blocks: [
-        'A DSCR loan (debt service coverage ratio) is approved mainly on the property’s rent instead of your income. The lender divides the monthly rent by the monthly payment with taxes, insurance and any HOA dues. Many want 1.0 or more; a higher ratio gets better terms.',
+        'A DSCR loan (debt service coverage ratio) is approved mainly on the property’s rent instead of your income. The lender divides the monthly rent by the monthly payment with taxes, insurance and any HOA dues. Many want 1.0 or more; a higher ratio gets better terms. This is looser than the DSCR commercial lenders use, which divides net operating income (rent after operating costs) by the year’s loan payments.',
         { list: [
           'Example: rent of $2,400 and a full payment of $2,000 is a ratio of 1.2.',
           'They’re made by private lenders, not Fannie Mae or Freddie Mac, so terms vary widely. Down payments of 20% to 25% and higher rates than a regular loan are common.',

@@ -119,7 +119,7 @@ export const STRATEGY_GUIDES: StrategyGuide[] = [
       'Many title companies won’t insure right away; budget for a quiet title action.',
     ],
     calc: { label: 'Run it in Fix and sell (maximum bid)', href: '#/analyze?plan=flip' },
-    practice: [{ label: 'Practice: a foreclosure auction', href: '#/practice/drills/trustee-sale-nv' }, { label: 'Sale guides for your state', href: '#/playbooks' }],
+    practice: [{ label: 'Practice: a foreclosure auction (Nevada)', href: '#/practice/drills/trustee-sale-nv' }, { label: 'Sale guides for your state', href: '#/playbooks' }],
     lessons: ['forced-sales', 'walk-away', 'tools', 'taxes'],
     team: ['attorney', 'title', 'eviction', 'insurance'],
   },

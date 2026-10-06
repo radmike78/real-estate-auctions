@@ -65,7 +65,7 @@ describe('daily digests (running server)', () => {
     snapshotSha256: 'b'.repeat(64),
   });
   const publishFeed = (listings: FeedListing[]) => {
-    const feed: Feed = { version: 1, generatedAt: clock.toISOString(), expiresAt: new Date(clock.getTime() + 24 * 3_600_000).toISOString(), sources: [], listings };
+    const feed: Feed = { version: 1, generatedAt: clock.toISOString(), expiresAt: new Date(clock.getTime() + 24 * 3_600_000).toISOString(), sources: [{ sourceId: 'clark-county-treasurer', agency: 'x', officialUrl: 'https://example.gov/', lastCheckedAt: null, lastChangedAt: null, observedChangeIntervalHours: null, nextCheckAt: null, health: 'ok', message: null, certificateIssuer: null }], listings };
     writeSignedJson(dataDir, 'listings.json', feed, key);
   };
   const hours = (h: number) => (clock = new Date(clock.getTime() + h * 3_600_000));

@@ -69,7 +69,7 @@ export const creative: Lesson = {
     {
       heading: 'Warning signs',
       blocks: [
-        'Be wary of seminars that promise big profits with “no money down.” In a case the FTC brought with the Utah Division of Consumer Protection, more than 95% of surveyed seminar customers paid the company more than they made from real estate. If someone says you can earn a lot with little or no risk, that’s probably a scam. Never borrow on credit cards, home equity or retirement savings to pay for training.',
+        'Be wary of seminars that promise big profits with “no money down.” In the Nudge case, which the FTC brought with the Utah Division of Consumer Protection, more than 95% of surveyed seminar customers paid the company more than they made from real estate. If someone says you can earn a lot with little or no risk, that’s probably a scam. Never borrow on credit cards, home equity or retirement savings to pay for training.',
         { links: [{ label: 'Seminar red flags', url: '#/learn/red-flags', what: 'How seminar and coaching schemes work, and the warning signs.' }] },
         'Never pressure a homeowner facing foreclosure into signing over their deed. The FTC warns that in foreclosure-rescue scams the owner loses the home and still owes the mortgage. DeedOwl doesn’t help anyone approach homeowners in foreclosure. Buy from the official seller.',
       ],

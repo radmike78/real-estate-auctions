@@ -206,7 +206,7 @@ export const DRILLS: Drill[] = [
           { label: 'The property with a guaranteed clean title', good: false, why: 'No. A tax deed is a quitclaim with no warranty.' },
           { label: 'A certificate that earns interest until the owner pays', good: false, why: 'That’s how Arizona’s tax lien sales work, not a Nevada tax deed sale.' },
         ],
-        lesson: 'In Nevada, there’s no redemption after the tax sale, but anyone claiming the land, usually the former owner, can sue to recover it for 2 years after the deed is delivered (NRS 361.600). Many title insurers won’t insure until that window passes or a quiet title action is done.',
+        lesson: 'In Nevada, there’s no redemption after the tax sale, but anyone claiming the land, usually the former owner, can sue to recover it for 2 years after the deed is delivered (NRS 361.600). Many title insurers won’t insure until that window passes or a quiet title action is done*.',
       },
       {
         kind: 'pick',
@@ -851,7 +851,7 @@ export const DRILLS: Drill[] = [
     id: 'tax-lien-az',
     title: 'An Arizona tax lien: what will you really earn?',
     teaser: 'You can bid on a $2,400 tax lien. The rate starts at 16%, and bidders bid it down.',
-    where: 'A fictional lien at an Arizona county tax lien sale. Arizona sells liens, not property.',
+    where: 'A fictional lien at an Arizona county tax lien sale. At the February sale, Arizona sells liens, not the property. (Land the state already took by tax deed is sold separately by the county.)',
     facts: [
       { label: 'Sale', value: 'County treasurer’s tax lien sale, Arizona, in February' },
       { label: 'Lien amount', value: '$2,400 of taxes, interest and fees' },
@@ -867,7 +867,7 @@ export const DRILLS: Drill[] = [
         multi: false,
         options: [
           { label: 'A certificate of purchase: a lien that earns interest at my bid rate until the owner pays', good: true, why: 'Right. You can ask a court for a treasurer’s deed only after 3 years, if the lien is still unpaid.' },
-          { label: 'The land', good: false, why: 'Arizona sells liens, not the property.' },
+          { label: 'The land', good: false, why: 'At the February sale, Arizona sells liens, not the property.' },
         ],
         lesson: 'Most liens are redeemed: plan on interest, not on getting the land.',
       },
@@ -946,7 +946,7 @@ export const DRILLS: Drill[] = [
       },
     ],
     verdict: {
-      question: 'Was bidding a good idea?',
+      question: 'Knowing the sale may not be final for up to 45 days, would you bid on this one? Buy means bid, Investigate means learn more first, Pass means skip it.',
       choices: [
         { label: 'Buy', feedback: 'Fine if your numbers worked, as long as you planned for the window and the tenant.' },
         { label: 'Investigate', feedback: 'Wise before the next sale: know the 2924m window and tenant rights before you bid.' },
@@ -971,7 +971,7 @@ export const DRILLS: Drill[] = [
         kind: 'pick',
         id: 'research',
         title: 'Mission 1: What do you check first?',
-        question: 'The county map shows no road touching the lot. What does that mean for you?',
+        question: 'The county map shows no road touching the lot. What do you do first?',
         multi: false,
         options: [
           { label: 'Confirm legal access before bidding; a lot with no legal access may be nearly impossible to build on or sell', good: true, why: 'Right. Sales are final and as is (R&T 3692.3). Check access, zoning and whether the parcel is buildable.' },
@@ -1625,7 +1625,7 @@ export const DRILLS: Drill[] = [
       },
     ],
     verdict: {
-      question: 'Bidding passes $150,000 and keeps going. What do you do?',
+      question: 'Bidding passes $150,000 and keeps going. Buy means keep bidding (up to your maximum), Investigate means you’d have needed more homework first, Pass means stop. What do you do?',
       choices: [
         { label: 'Buy', feedback: 'Fine up to about $246,000, if you have the cash for the bid and the repairs and can wait for a quiet title action.' },
         { label: 'Investigate', feedback: 'Good, before the sale: confirm surviving liens, zoning and the cost of a quiet title action, then set your maximum.' },
@@ -1694,7 +1694,7 @@ export const DRILLS: Drill[] = [
         { label: 'Investigate', feedback: 'Good: recorded leases, non-disturbance agreements and a title report first. Then set a maximum on verified income.' },
         { label: 'Pass', feedback: 'Sensible. If the lender’s bid is above the value you can verify, let the lender keep it.' },
       ],
-      expert: 'Pass at $1.4 million unless an attorney confirms most of the income survives. Lenders often take back properties like this; you may get a better chance later as a bank-owned sale with full due diligence.',
+      expert: 'Pass at $1.4 million unless an attorney confirms most of the income survives. Lenders often take back properties like this;* you may get a better chance later as a bank-owned sale with full due diligence.',
     },
   },
   {
@@ -1805,19 +1805,19 @@ export const DRILLS: Drill[] = [
         kind: 'pick',
         id: 'last-bid',
         title: 'Mission 3: Your last bid',
-        question: 'Your all-in maximum is $735,000. What is your last bid?',
+        question: 'Your maximum, including the buyer’s premium, is $735,000 (closing costs are already set aside separately). What is your last bid?',
         multi: false,
         options: [
-          { label: '$700,000: with the 5% premium, that’s $735,000', good: true, why: 'Right. Divide your all-in maximum by 1.05.' },
+          { label: '$700,000: with the 5% premium, that’s $735,000', good: true, why: 'Right. Divide your maximum with the premium by 1.05.' },
           { label: '$735,000: the premium is small', good: false, why: 'That’s $771,750 with the premium, $36,750 over your maximum.' },
         ],
         lesson: 'Write your last bid down before the auction, premium included.',
       },
     ],
     verdict: {
-      question: 'Another bidder goes to $720,000, which is $756,000 with the premium. What do you do?',
+      question: 'Another bidder goes to $720,000, which is $756,000 with the premium. Buy means bid again, Investigate means stop to research, Pass means stop at your last bid. What do you do?',
       choices: [
-        { label: 'Buy', feedback: 'That’s $21,000 over your all-in maximum. Bidding more turns your profit into the other bidder’s problem.' },
+        { label: 'Buy', feedback: 'That’s $21,000 over your maximum with the premium. Bidding more turns your profit into the other bidder’s problem.' },
         { label: 'Investigate', feedback: 'There’s no time to investigate during the auction. Your homework had to be done before.' },
         { label: 'Pass', feedback: 'Right. Stop at your last bid. There will be other buildings.' },
       ],
@@ -2002,7 +2002,7 @@ export const DRILLS: Drill[] = [
       },
     ],
     verdict: {
-      question: 'With $30,550 left in the deal and $209 a month of cash flow, is it a success?',
+      question: 'With $30,550 left in the deal and $209 a month of cash flow, would you buy this deal again on these numbers?',
       choices: [
         { label: 'Buy', feedback: 'It can be, if you planned for some cash staying in and the rental still covers its costs and reserves.' },
         { label: 'Investigate', feedback: 'Reasonable: question the appraisal with better comps if they exist, or keep the loan smaller.' },
@@ -2050,7 +2050,7 @@ export const DRILLS: Drill[] = [
       },
     ],
     verdict: {
-      question: 'Do you take the full 8% loan?',
+      question: 'Would you refinance with the full 8% loan? Buy means take it, Investigate means compare lenders and loan sizes first, Pass means hold off on refinancing.',
       choices: [
         { label: 'Buy', feedback: 'Taking the full loan means about $95 a month out of pocket, more with any vacancy.' },
         { label: 'Investigate', feedback: 'Good: compare lenders and loan sizes, and pick the largest loan the rent comfortably covers.' },
@@ -2094,7 +2094,7 @@ export const DRILLS: Drill[] = [
         multi: true,
         options: [
           { label: 'Sale A: $176,000', detail: '2006 double-wide on 1 acre, 3 bed, 2 bath, updated, sold 3 months ago, 1 mile away', good: true, why: 'Same kind of home, on land, recent and close.' },
-          { label: 'Sale B: $168,000', detail: '2003 double-wide on 1.2 acres, 3 bed, 2 bath, sold 2 months ago', good: true, why: 'Also a good match. Together they point to about $172,000.' },
+          { label: 'Sale B: $168,000', detail: '2003 double-wide on 1.2 acres, 3 bed, 2 bath, updated, sold 2 months ago', good: true, why: 'Also a good match. Together they point to about $172,000.' },
           { label: 'Sale C: $265,000', detail: 'Site-built 3 bed, 2 bath house on 1 acre, sold last month', good: false, why: 'Site-built homes usually sell for more and to different buyers. Compare manufactured homes with manufactured homes.' },
           { label: 'Sale D: $72,000', detail: 'Single-wide in a nearby park, on a rented lot', good: false, why: 'No land comes with it, and its buyers use different loans.' },
         ],

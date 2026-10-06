@@ -576,13 +576,13 @@ export const ROADMAP: RoadmapStep[] = [
     action: 'Taxes from purchase to sale', href: '#/learn/taxes',
   },
   {
-    id: 'exit-1031', phase: 7, path: OWNERS, title: 'Trade up with a 1031 exchange (rentals only)',
+    id: 'exit-1031', phase: 7, path: OWNERS, title: 'Trade up with a 1031 exchange (investment or business property, not flips)',
     text: 'Selling a rental to buy a bigger one? A 1031 exchange puts off the tax, but only if it’s set up before the sale closes and you meet the deadlines: 45 days to identify the replacement, and 180 days to close, or by your tax return’s due date with extensions, if that’s sooner.',
     outcome: 'A qualified intermediary in place before closing, the replacement identified in writing within 45 days, and the purchase closed within 180 days (file a tax extension if your return would be due sooner).',
     steps: [
       'Before you accept an offer, choose a qualified intermediary and sign the exchange agreement.',
       'Start looking for the replacement before you sell: 45 days goes fast.',
-      'Buy a replacement of equal or greater value and debt, or expect tax on the difference.',
+      'Buy a replacement of equal or greater value and reinvest all the cash; debt you pay off must be replaced with new debt or added cash, or expect tax on the difference.',
     ],
     say: { to: 'Qualified intermediary', script: '“I’m selling a rental at [address], closing around [date]. I want a 1031 exchange. What do you need from me, how is my money held, and are you bonded and insured?”' },
     stop: 'If you can’t find a replacement that works on its own numbers, don’t buy a bad property to save tax. Pay the tax and keep your options.',

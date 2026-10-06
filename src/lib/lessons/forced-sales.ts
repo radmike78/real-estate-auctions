@@ -44,7 +44,7 @@ export const forcedSales: Lesson = {
               ['California', 'At least 3 months after the notice of default. The notice of sale is posted at least 20 days before.', 'The trustee can require bidders to show they can pay the full bid in cash or cashier’s checks. The trustee can also require the full amount from the winner.'],
               ['Arizona', 'The sale can’t happen before the 91st day after the notice of sale is recorded. Notice is posted 20 days before and published four weeks in a row.', 'The winner pays by 5 p.m. the next business day.'],
               ['Utah', 'At least 3 months after the notice of default. The notice of sale is published three times and posted at least 20 days before.', 'As the trustee directs. A bid can’t be withdrawn, and the trustee’s deed comes with no right of redemption.'],
-              ['Texas', 'For a home the owner lives in, the servicer first gives at least 20 days to catch up. The notice of sale is posted, filed and mailed at least 21 days before. Sales are on the first Tuesday of the month, between 10 a.m. and 4 p.m. (Property Code 51.002).', 'You pay when the bid is accepted, as the trustee directs. The owner can’t buy it back after the sale.'],
+              ['Texas', 'For a home the owner lives in, the servicer first gives at least 20 days to catch up. The notice of sale is posted, filed and mailed at least 21 days before. Sales are on the first Tuesday of the month, between 10 a.m. and 4 p.m. (Property Code 51.002).', 'You pay when the bid is accepted, as the trustee directs. After a mortgage foreclosure the owner can’t buy it back; after a property tax loan foreclosure they can, for up to 2 years (Tax Code 32.06(k)).'],
             ],
           },
         },
@@ -57,7 +57,7 @@ export const forcedSales: Lesson = {
         'Sometimes a foreclosure goes through court, or a sheriff sells property to pay a judgment. When that happens, the owner may be able to buy it back for a while after the sale. You own it, but the owner keeps that right until it runs out.',
         { list: [
           'Nevada: up to 1 year after a sheriff’s execution sale.',
-          'California: 3 months after a judicial foreclosure sale if the sale paid the debt in full, or 1 year if it didn’t.',
+          'California: only when the judgment allows a deficiency (the notice of sale says whether the sale is subject to redemption): 3 months after a judicial foreclosure sale if the sale paid the debt in full, or 1 year if it didn’t (CCP 729.010, 729.030).',
           'Arizona: 30 days after a judicial foreclosure sale if the court found the property abandoned, otherwise 6 months.',
           'Utah: 180 days after a sheriff’s sale.',
           'Texas: none after a sheriff’s or constable’s execution sale. The deed passes only what the debtor owned, so older liens stay (Civil Practice and Remedies Code 34.045). After an HOA foreclosure, the owner has 180 days after the association mails notice, or 90 days after the sale for a condo (Property Code 209.011 and 82.113).',

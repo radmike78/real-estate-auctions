@@ -43,7 +43,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       label: "Owner’s buy-back",
-      value: "Homestead, land designated for agricultural use, or a mineral interest: two years after your deed is recorded, plus a 25% premium in year one or 50% in year two. Other property: 180 days, with a premium of no more than 25% (34.21)."
+      value: "Homestead, land designated for agricultural use, or a mineral interest: two years after your deed is recorded, plus a premium of 25% in year one or 50% in year two (a percentage of what you paid: your bid, the deed recording fee, and taxes and costs you paid). Other property: 180 days, with a premium of no more than 25% (34.21)."
     },
     {
       label: "What you get",
@@ -104,9 +104,9 @@ export const TX_GUIDES_1: Playbook[] = [
     ],
     mayStay: [
       "The owner’s right to buy it back: two years for a homestead, land designated for agricultural use or a mineral interest, 180 days for other property (34.21)",
-      "Taxes that came due after the judgment. The buyer pays them (33.52(d)).",
+      "Taxes that came due after the judgment. The sale clears only liens in the judgment, so the buyer pays them (34.01(q), 33.52(d)).",
       "Recorded deed restrictions and easements recorded before January 1 of the year the tax lien arose. Also an HOA lien under those restrictions, if the judgment didn’t wipe it out (34.01(n)).",
-      "Liens of anyone who wasn’t named in the tax lawsuit. The deed passes only what the defendants owned (34.01(n)).",
+      "Liens of anyone who wasn’t named in the tax lawsuit. The deed passes only what the defendants owned (34.01(n)).*",
       "A federal tax lien, if it was recorded before the suit and the United States wasn’t named (26 USC 7425(a))",
       "Occupants, until you get a writ of possession or finish an eviction"
     ]
@@ -233,8 +233,8 @@ export const TX_GUIDES_1: Playbook[] = [
   title: "Texas trustee sales",
   short: "Trustee sales",
   oneLine: "Most Texas home loans use a deed of trust. That lets a trustee sell the home at a courthouse auction on the first Tuesday of the month, without a court case.",
-  youGet: "A trustee’s deed, “as is” with no warranties except title. Texas law gives the owner no right to buy it back after the sale. The one exception is a federal tax lien: the United States may buy it back within 120 days (26 USC 7425(d)). And a junior federal tax lien is cleared only if the IRS got written notice at least 25 days before the sale; otherwise it stays on the title (26 USC 7425(b)).",
-  plain: "The house as is, with no buy-back period. You take it with any loans that were ahead of the one being foreclosed.",
+  youGet: "A trustee’s deed, “as is” with no warranties except title. After a mortgage or deed-of-trust foreclosure, Texas law gives the owner no right to buy it back. The exception is a property tax loan (a transferred tax lien): if that's the lien being foreclosed, the owner or the servicer of an earlier mortgage can buy it back within 2 years for a home (180 days otherwise) by paying 125% of your price in the first year or 150% in the second, plus your costs (Tax Code 32.06(k)). A junior federal tax lien gives the United States 120 days to buy it back (26 USC 7425(d)). If the IRS lien was filed more than 30 days before the sale and the IRS didn’t get written notice at least 25 days before it, the lien isn’t cleared and stays on the title (26 USC 7425(b)).",
+  plain: "The house as is. After a mortgage foreclosure there’s no buy-back period (a property tax loan foreclosure has one). You take it with any loans that were ahead of the one being foreclosed.",
   forSale: true,
   glance: [
     {
@@ -267,7 +267,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       label: "Redemption",
-      value: "None under Texas law. If a federal tax lien is on title, the United States may buy it back within 120 days (26 USC 7425(d)). If the IRS didn’t get 25 days’ written notice of the sale, its lien stays on the title (26 USC 7425(b))."
+      value: "None after a mortgage or deed-of-trust foreclosure. The exception is a property tax loan (a transferred tax lien): if that's the lien being foreclosed, the owner or the servicer of an earlier mortgage can buy it back within 2 years for a home (180 days otherwise) by paying 125% of your price in the first year or 150% in the second, plus your costs (Tax Code 32.06(k)). If a junior federal tax lien is on title, the United States may buy it back within 120 days (26 USC 7425(d)). If the IRS lien was filed more than 30 days before the sale and the IRS didn’t get written notice at least 25 days before it, the lien isn’t cleared and stays on the title (26 USC 7425(b))."
     }
   ],
   steps: [
@@ -281,7 +281,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       title: "Check for a home equity loan",
-      detail: "A Texas home equity loan or reverse mortgage needs a court order before the trustee can sell. Lenders usually get it through a quick Rule 736 case (Rule 735.1). The order must be attached to the trustee’s deed (Rule 736.12). If the owner files a separate lawsuit by 5 p.m. on the Monday before the sale, the case stops. A sale held anyway is void. The trustee then must return your money within 10 business days (Rule 736.11)."
+      detail: "A Texas home equity loan, reverse mortgage or property tax loan needs a court order before the trustee can sell. A property tax loan also gives the owner a buy-back right after the sale (Tax Code 32.06(k)). Lenders usually get it through a quick Rule 736 case (Rule 735.1). The order must be attached to the trustee’s deed (Rule 736.12). If the owner files a separate lawsuit by 5 p.m. on the Monday before the sale, the case stops. A sale held anyway is void. The trustee then must return your money within 10 business days (Rule 736.11)."
     },
     {
       title: "Research the property and the title",
@@ -305,21 +305,21 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       title: "Handle occupants through the court",
-      detail: "Give a written notice to vacate before you file an eviction (forcible detainer) case. A former owner who stays usually gets at least three days. A residential tenant who pays on time gets at least 30 days if you don’t keep the lease (Property Code 24.005(b)). Federal law can require at least 90 days, or the rest of a genuine lease unless you’ll live there yourself, and Texas law makes you wait for it (24.005(c-1)). Hire an attorney. Never change locks or remove belongings on your own."
+      detail: "Give a written notice to vacate before you file an eviction (forcible detainer) case. A former owner who stays usually gets at least three days.* A residential tenant who pays on time, whose lease came after the foreclosed loan, gets at least 30 days if you don’t keep the lease (Property Code 24.005(b)); a lease that came before the loan survives the sale. Federal law can require at least 90 days, or the rest of a genuine lease unless you’ll live there yourself, and Texas law makes you wait for it (24.005(c-1)). Hire an attorney. Never change locks or remove belongings on your own."
     }
   ],
   survives: {
     wipedOut: [
       "The deed of trust being foreclosed",
-      "The owner’s rights. Texas trustee sales have no buy-back period.",
-      "Liens recorded after the foreclosed deed of trust, in most cases"
+      "The owner’s rights after a mortgage foreclosure. (A property tax loan foreclosure has a buy-back period: Tax Code 32.06(k).)",
+      "Liens recorded after the foreclosed deed of trust, in most cases*"
     ],
     mayStay: [
       "Older (senior) deeds of trust and liens recorded before the foreclosed loan",
       "Property tax liens, which attach every January 1 and come before almost everything else (Tax Code 32.01, 32.05)",
       "HOA or condo liens that rank ahead of the foreclosed loan",
       "Easements and other recorded encumbrances",
-      "A federal tax lien’s 120-day buy-back right (26 USC 7425(d)), or the whole lien if the IRS didn’t get 25 days’ notice of the sale (26 USC 7425(b))",
+      "A federal tax lien’s 120-day buy-back right (26 USC 7425(d)), or the whole lien if it was filed more than 30 days before the sale and the IRS didn’t get 25 days’ notice (26 USC 7425(b))",
       "Tenants with a right to notice before they move"
     ]
   },
@@ -469,7 +469,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       title: "Bid at the sale",
-      detail: "Sales are public auctions to the highest bidder. Town lots are offered one at a time unless the buildings make that impossible (34.042). The officer and the officer’s deputies can’t buy (34.048). Your bid is final."
+      detail: "Sales are public auctions to the highest bidder. Town lots are offered one at a time unless the buildings make that impossible (34.042). The officer and the officer’s deputies can’t buy (34.048). Your bid is final.*"
     },
     {
       title: "Pay and get your deed",
@@ -614,7 +614,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       label: "Priority",
-      value: "Property taxes come first (Tax Code 32.05). For an HOA, the declaration sets whether a mortgage ranks ahead. For a condo, a first deed of trust recorded before the dues went unpaid ranks ahead (82.113(b))."
+      value: "Property taxes come first (Tax Code 32.05). For an HOA, the declaration sets whether a mortgage ranks ahead.* For a condo, a first deed of trust recorded before the dues went unpaid ranks ahead (82.113(b))."
     }
   ],
   steps: [
@@ -628,7 +628,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       title: "Find every loan ahead of the association",
-      detail: "Order a title report. Property tax liens come before the HOA lien (Tax Code 32.05). Chapter 209 doesn’t rank the HOA lien against a mortgage. The recorded declaration does. Have a title company or attorney read it. If a mortgage stays and isn’t paid, its lender can still foreclose and wipe you out."
+      detail: "Order a title report. Property tax liens come before the HOA lien (Tax Code 32.05). Chapter 209 doesn’t rank the HOA lien against a mortgage. The recorded declaration does.* Have a title company or attorney read it. If a mortgage stays and isn’t paid, its lender can still foreclose and wipe you out."
     },
     {
       title: "Check that the sale was set up correctly",
@@ -667,7 +667,7 @@ export const TX_GUIDES_1: Playbook[] = [
     ],
     mayStay: [
       "Property tax liens, which come before the HOA lien (Tax Code 32.05)",
-      "Any mortgage the declaration ranks ahead of the HOA lien. For condos, a first deed of trust recorded before the dues went unpaid (82.113(b)).",
+      "Any mortgage the declaration ranks ahead of the HOA lien.* For condos, a first deed of trust recorded before the dues went unpaid (82.113(b)).",
       "The buy-back right: until 180 days after the notice for a subdivision (209.011), 90 days after the sale for a condo (82.113(g))",
       "Easements, deed restrictions and other recorded encumbrances",
       "Occupants, until an eviction case is finished (209.011(a))"
@@ -698,7 +698,7 @@ export const TX_GUIDES_1: Playbook[] = [
   example: {
     title: "Illustrative example: the $5,000 townhome",
     story: "Morgan, a made-up investor, saw a notice of sale for a townhome in a fictional Texas HOA. The association was owed about $5,000. Morgan’s title report showed a $210,000 first deed of trust. The declaration showed a subdivision under chapter 209, not a condominium, and ranked the HOA lien behind the loan. The home was worth about $270,000. Morgan also learned the owner could buy it back for 180 days. And Morgan couldn’t resell during that time.",
-    lesson: "The first mortgage would survive. So the real cost was about $215,000 plus taxes, dues and six months of holding costs, with a buy-back risk on top. Morgan passed. In Texas, price an HOA sale with the mortgage and the 180 days in mind."
+    lesson: "The first mortgage would survive. So the real cost was about $215,000 plus taxes, dues and about 7 months of holding costs, with a buy-back risk on top. Morgan passed. In Texas, price an HOA sale with the mortgage and the 180 days in mind."
   },
   sources: [
     {

@@ -20,7 +20,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     ],
     notFor: [
       "Anyone who needs the rent to pay their own bills. One non-paying tenant can wipe out a year of profit.",
-      "First-time flippers counting on prices to keep rising. When rates rose in 2022-2023, flip profits fell to the lowest return since 2007.",
+      "First-time flippers counting on prices to keep rising. When rates rose in 2022-2023, flip returns fell sharply; by 2025 the typical flip’s gross return was 25.5%, the lowest since 2008 (ATTOM).",
       "Investors who cannot visit or check on the property. Empty homes attract squatters and damage.",
       "People who are uncomfortable with eviction, court deadlines, or state rules on deposits and fees."
     ],
@@ -28,7 +28,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Mortgage, property tax and insurance every month, rented or not.",
       "Vacancy and non-payment. During the pandemic, as many as 58% of small landlords (under four units) had tenants behind on rent (National Association of Realtors, via AP).",
       "Repairs and cleaning between tenants. One Las Vegas owner spent $2,000 cleaning up an empty house for sale after squatters, then faced paying for it again when they broke back in.",
-      "Flip holding costs (loan interest, utilities, taxes) and selling costs. In 2023 the typical flip sold for $66,000 more than it was bought for, and the return fell from 35.7% (2021) to the lowest since 2007 (ATTOM via FOX 11). That ‘gross profit’ is before repair, holding and selling costs, so the real profit is much smaller and can be close to zero.",
+      "Flip holding costs (loan interest, utilities, taxes) and selling costs. In 2023 the typical flip sold for $66,000 more than it was bought for, and the return had fallen well below 2021’s 35.7% (ATTOM via FOX 11); by 2025 it was 25.5%, the lowest since 2008 (ATTOM). That ‘gross profit’ is before repair, holding and selling costs, so the real profit is much smaller and can be close to zero.",
       "Property management (often a percentage of rent) if you don’t manage it yourself.",
       "Legal rules: fees and deposit deductions have to be disclosed and fair. The largest single-family landlord agreed to pay $48 million to settle FTC claims over hidden fees and deposit practices (without admitting wrongdoing)."
     ],
@@ -62,7 +62,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         }
       },
       {
-        text: "Flip ROI in 2023 was the lowest since 2007.",
+        text: "Typical flip returns fell from 35.7% in 2021 to 25.5% in 2025, the lowest since 2008 (ATTOM).",
         source: {
           label: "FOX 11 Los Angeles: House flipping down nearly 30% as profits drop, data reveals (2024, citing ATTOM)",
           url: "https://www.foxla.com/news/house-flipping-down-profits-drop-real-estate"

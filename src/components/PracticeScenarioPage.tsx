@@ -1,3 +1,4 @@
+import { shuffled } from '../lib/shuffle';
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
@@ -204,7 +205,7 @@ function TaskCard({ task, k, progress, update, markDone, showKind }: { task: Tas
           {head('Decide', task.title)}
           <p>{task.question}</p>
           <div className="choices" role="group" aria-label={task.question}>
-            {task.choices.map((c, i) => (
+            {shuffled(task.choices.length, task.question).map((i) => [task.choices[i], i] as const).map(([c, i]) => (
               <button
                 key={i}
                 className={`choice${chosen === i ? (c.correct ? ' right' : ' wrong') : ''}`}
