@@ -59,6 +59,7 @@ export default function LearnPage() {
         sub="Residential and commercial: the markets, the property types, and how deals are found, analyzed and paid for."
       />
       <StatePicker label="Show rules for" />
+      <p className="page-summary"><strong>Ways to make money:</strong> renting, flipping, BRRRR, auctions, apartments and more, each with how the money is made and what goes wrong. <a href="#/learn/strategies">Compare the strategies →</a></p>
       <NarrowDown config={learnConfig()} intro="Answer two quick questions and we’ll suggest which lessons to read first. Every lesson is still listed below." />
       {paths.map((path) => (
         <section key={path.title} className="learn-path" aria-labelledby={`path-${path.keys[0]}`}>

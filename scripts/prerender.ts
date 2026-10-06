@@ -10,6 +10,7 @@ import { LEARN_MODULES } from '../src/lib/learn';
 import { LESSONS } from '../src/lib/lessons';
 import type { LessonBlock } from '../src/lib/lessons/types';
 import { PROPERTY_TOPICS } from '../src/lib/deep/propertyTopics';
+import { STRATEGY_GUIDES, strategyOf } from '../src/lib/strategies';
 import { PROPERTY_DEEP } from '../src/lib/deep/propertyDeep';
 import { PRO_DEEP } from '../src/lib/deep/proDeep';
 import { PRO_GUIDES } from '../src/lib/proGuide';
@@ -83,6 +84,13 @@ export function pages(): Page[] {
     if (!d) continue;
     const body = `<h1>${esc(t.title)}</h1>${d.overview.map((p) => `<p>${esc(p)}</p>`).join('')}<h2>Who it suits</h2>${list(d.bestFor)}<h2>Who it doesn’t</h2>${list(d.notFor)}<h2>Real stories</h2>${d.stories.map((s) => `<h3>${esc(s.title)} (${esc(s.year)})</h3><p>${esc(s.happened)}</p><p><strong>Lesson:</strong> ${esc(s.lesson)} ${link(s.source.url, s.source.label)}</p>`).join('')}<h2>Costs</h2>${list(d.costs)}<h2>How people pay</h2>${list(d.money)}<h2>Check before you buy</h2>${list(d.checklist)}<h2>Sources</h2><ul>${d.sources.map((s) => `<li>${link(s.url, s.label)}</li>`).join('')}</ul>`;
     out.push({ path: `/learn/types/${t.slug}/`, title: `Investing in ${t.title.toLowerCase()} · DeedOwl`, description: `${t.title}: who they suit, what they cost, how people pay for them, and real stories of what went right and wrong.`, body });
+  }
+
+  out.push({ path: '/learn/strategies/', title: 'Ways to make money with real estate · DeedOwl', description: 'Renting, house hacking, flips, BRRRR, bank-owned homes, auctions, apartments and REITs: how each makes money and what goes wrong.', body: `<h1>Ways to make money with real estate</h1><ul>${STRATEGY_GUIDES.map((g) => `<li>${link(`/learn/strategies/${g.slug}/`, strategyOf(g).title)}: ${esc(strategyOf(g).what)}</li>`).join('')}</ul>` });
+  for (const g of STRATEGY_GUIDES) {
+    const s = strategyOf(g);
+    const body = `<h1>${esc(s.title)}</h1><p>${esc(s.what)}</p><h2>How it makes money</h2>${list(g.makesMoney)}<h2>The honest risk</h2>${list([`Cash you need to start: ${s.risk.atRisk}`, `Worst realistic outcome: ${s.risk.worst}`, ...(s.risk.ongoing ? [`What you keep owing: ${s.risk.ongoing}`] : []), `How long a first deal takes: ${s.risk.time}`])}<h2>What goes wrong on a first deal</h2>${list(g.watchFor)}<h2>Your first steps</h2>${list(s.checklist.map((c) => c.text))}`;
+    out.push({ path: `/learn/strategies/${g.slug}/`, title: `${s.title} · Ways to make money · DeedOwl`, description: s.what, body });
   }
 
   out.push({ path: '/pros/', title: 'Your real estate team · DeedOwl', description: 'Who helps with an investment purchase, when you need each one, how they’re paid and what to check before you hire.', body: `<h1>Your team</h1><ul>${PRO_GUIDES.map((g) => `<li>${link(`/pros/${g.key}/`, g.title)}: ${esc(g.summary)}</li>`).join('')}</ul>` });

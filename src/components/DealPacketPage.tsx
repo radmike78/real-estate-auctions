@@ -9,6 +9,7 @@ import { proGuideByKey } from '../lib/proGuide';
 import { downloadText, fileName } from '../lib/download';
 import { EVIDENCE_EVENT } from '../lib/evidence';
 import AdSpot from './AdSpot';
+import OwnedTracker from './OwnedTracker';
 
 const STATUS_LABEL: Record<SectionStatus, string> = { done: 'Complete', started: 'In progress', missing: 'Missing' };
 
@@ -183,6 +184,10 @@ export default function DealPacketPage({ dealId }: { dealId: string }) {
           <textarea rows={2} maxLength={1000} value={p.conditions} onChange={(e) => update({ conditions: e.target.value })} placeholder="e.g. Title company confirms the 2023 lien will be released; insurance quote under $1,500." />
         </label>
         <Lines k="decision" />
+      </section>
+      <section className="deal-setup packet-section" aria-labelledby="packet-owned">
+        <h2 id="packet-owned">After you buy: actual results</h2>
+        <OwnedTracker deal={deal} />
       </section>
       <AdSpot spot="dealPacket" />
       <p className="muted">Saved only in this browser. Back it up from My plan. This packet records your own review; it doesn’t clear title or certify a deal.</p>

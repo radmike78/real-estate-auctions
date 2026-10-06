@@ -11,6 +11,8 @@ import PageHero from './PageHero';
 import EvidenceLog from './EvidenceLog';
 import { removeLog } from '../lib/evidence';
 import { kindLabel, loadDeals as loadAnalyzed, openDeal, SALE_KINDS, checklistFor } from '../lib/analyze';
+import { ownedSummary } from '../lib/owned';
+import { projectedMonthly, useOwned } from './OwnedTracker';
 import { countyName } from '../lib/regions';
 import StatusBadge from './StatusBadge';
 import { dealNumbers } from '../lib/propertyPacket';
@@ -102,6 +104,35 @@ function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; lo
   );
 }
 
+/** Properties you've marked as bought: how each is really doing against the plan, and all of them together. */
+function OwnedPortfolio({ deals }: { deals: ReturnType<typeof loadAnalyzed> }) {
+  const owned = useOwned();
+  const rows = deals.filter((d) => owned[d.id]).map((d) => ({ d, o: owned[d.id], s: ownedSummary(owned[d.id], projectedMonthly(d)) }));
+  if (!rows.length) return null;
+  const total = rows.reduce((t, r) => t + r.s.actual, 0);
+  const signed = (n: number) => `${n < 0 ? '−' : ''}${fmtMoney(Math.abs(Math.round(n)))}`;
+  return (
+    <section className="analyzed-deals" aria-labelledby="owned-head">
+      <h2 id="owned-head">Properties you own</h2>
+      <table className="lesson-table owned-table">
+        <thead><tr><th>Property</th><th>Bought</th><th>Months recorded</th><th>Average month</th><th>Against your plan</th></tr></thead>
+        <tbody>
+          {rows.map(({ d, o, s }) => (
+            <tr key={d.id}>
+              <td><a href={`#/deals/packet/${d.id}`}>{d.name}</a></td>
+              <td>{o.boughtOn}</td>
+              <td>{s.months}</td>
+              <td>{s.months ? signed(s.averageMonthly) : '—'}</td>
+              <td>{s.gapMonthly === null ? '—' : `${signed(s.gapMonthly)} a month`}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="muted">Actual cash flow across all of them so far: <strong>{signed(total)}</strong>. Add each month on the property’s deal packet.</p>
+    </section>
+  );
+}
+
 export default function DealsPage() {
   const [deals, setDeals] = useState(loadDeals);
   const { properties, loading } = useProperties();
@@ -122,6 +153,7 @@ export default function DealsPage() {
         title={<>My <span className="grad">deals</span></>}
         sub="Your saved properties: what changed, what’s due, and whether your bid still fits."
       />
+      <OwnedPortfolio deals={analyzed} />
       {analyzed.length > 0 && (
         <section className="analyzed-deals" aria-labelledby="analyzed-head">
           <h2 id="analyzed-head">Deals you’re analyzing</h2>
