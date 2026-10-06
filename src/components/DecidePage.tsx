@@ -5,6 +5,7 @@ import OwlNote from './OwlNote';
 import { useMarkStep } from '../lib/path';
 import { linkLabel } from '../lib/linkLabel';
 import { DECIDE_KEY, QUESTIONS, rank, stateNote, type Answers } from '../lib/decide';
+import { strategyHref } from '../lib/strategies';
 import { stateByCode, type StateCode } from '../lib/regions';
 import { getMyState, setMyState } from '../lib/myState';
 import CheckFold from './CheckFold';
@@ -159,7 +160,7 @@ export default function DecidePage() {
                     <div>
                       <h3>{m.strategy.title}</h3>
                       {i > 0 && m.cautions.length > 0 && <p className="decide-later">Possible later, once the gaps under “Watch” are resolved</p>}
-                      <p>{m.strategy.what}</p>
+                      <p>{m.strategy.what} {m.strategy.key !== 'practice' && <a href={strategyHref(m.strategy.key)}>How it makes money →</a>}</p>
                     </div>
                   </div>
                   {m.fits.length > 0 && <p className="decide-why"><strong>Fits</strong> {m.fits.join('; ')}.</p>}

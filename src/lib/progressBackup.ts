@@ -7,6 +7,7 @@ import { cleanPacket } from './dealPacket';
 import { cleanBuyBox } from './toolkit';
 import { cleanCase } from '../practice/caseProgress';
 import { cleanDealSteps, DEAL_STEPS_KEY } from './roadmapDeals';
+import { cleanOwned } from './owned';
 
 const EXACT = [
   'deedowl.path.v1',
@@ -24,6 +25,7 @@ const EXACT = [
   'deedowl.decide.v1',
   'deedowl.evidence.v1',
   'deedowl.dealPacket.v1',
+  'deedowl.owned.v1',
   'deedowl.analyze.v1',
   'deedowl.analyze.current.v1',
   'deedowl.area.v1',
@@ -41,6 +43,7 @@ const EXACT = [
   'fsf.calc.commercial.offer.v1',
   'fsf.calc.lien.v1',
   'fsf.calc.lien.az.v1',
+  'fsf.calc.sellerfinance.v1',
   'fsf.calc.strategy.v1',
   'fsf.bid.mode.v1',
 ];
@@ -57,6 +60,7 @@ const CLEAN: Record<string, (v: unknown) => unknown> = {
   'deedowl.buybox.v1': cleanBuyBox,
   'deedowl.analyze.v1': (v) => (Array.isArray(v) ? v.map(cleanDeal).filter(Boolean) : []),
   'deedowl.analyze.current.v1': (v) => cleanDeal(v),
+  'deedowl.owned.v1': cleanOwned,
   'deedowl.case.v1': cleanCase,
   'deedowl.case.tx.v1': cleanCase,
   [DEAL_STEPS_KEY]: cleanDealSteps,

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { currentRoute, isAppLink, navigate, onNavigate, replaceAddress, rewriteAppLinks, toPath, upgradeLegacyHash } from './lib/nav';
 import PageErrorBoundary from './components/PageErrorBoundary';
+import StrategyPage from './components/StrategyPage';
+import { strategyBySlug } from './lib/strategies';
 import SearchPage from './components/SearchPage';
 import HomePage from './components/HomePage';
 import SiteHeader from './components/SiteHeader';
@@ -79,6 +81,7 @@ type Route =
   | { page: 'lesson'; key: string }
   | { page: 'reading' }
   | { page: 'propertyType'; slug: string }
+  | { page: 'strategy'; slug?: string }
   | { page: 'decide' }
   | { page: 'finddeals' }
   | { page: 'deals' }
@@ -147,6 +150,8 @@ function parseHash(): Route {
   if (h === 'learn') return { page: 'learn' };
   const lesson = h.match(/^learn\/([a-z-]{1,30})$/);
   if (h === 'learn/reading') return { page: 'reading' };
+  const strat = h.match(/^learn\/strategies(?:\/([a-z-]{1,40}))?$/);
+  if (strat && (!strat[1] || strategyBySlug(strat[1]))) return { page: 'strategy', slug: strat[1] };
   const ptype = h.match(/^learn\/types\/([a-z-]{1,30})$/);
   if (ptype && topicBySlug(ptype[1])) return { page: 'propertyType', slug: ptype[1] };
   if (lesson && lessonByKey(lesson[1])) return { page: 'lesson', key: lesson[1] };
@@ -308,6 +313,7 @@ export default function App() {
       {route.page === 'learn' && <LearnPage />}
       {route.page === 'reading' && <ReadingPage />}
       {route.page === 'propertyType' && <PropertyTypePage slug={route.slug} />}
+      {route.page === 'strategy' && <StrategyPage key={route.slug ?? ''} slug={route.slug} />}
       {route.page === 'lesson' && <LessonPage key={route.key} lessonKey={route.key} />}
       {route.page === 'decide' && <DecidePage />}
       {route.page === 'finddeals' && <FindDealsPage />}

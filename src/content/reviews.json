@@ -173,7 +173,7 @@
       "src/lib/evidence.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "b07225467dde8c9b",
+    "hash": "174372e988bf49dc",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -350,10 +350,12 @@
       "src/lib/lessons/checks.ts",
       "src/components/CheckYourself.tsx",
       "src/components/Term.tsx",
-      "src/lib/terms.ts"
+      "src/lib/terms.ts",
+      "src/components/StrategyPage.tsx",
+      "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "c4229ad58249657f",
+    "hash": "625133aaa27df62b",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -364,7 +366,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "5c6bffab21b91b06",
+    "hash": "ab998b7197cffd00",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -403,7 +405,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "479d17f75988b4f4",
+    "hash": "5b312c58ae1a81a2",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]
