@@ -3,7 +3,7 @@
 // quarantined, erroring or not yet terms-reviewed publishes nothing (fail closed).
 
 import type { Feed, FeedCertificate, FeedFederalSale, FeedListing, FeedSourceStatus } from '../../src/feed/types';
-import { saleStillAhead } from '../connectors/sidCertificateSale';
+import { saleStillAhead, vegasTime } from '../connectors/sidCertificateSale';
 import type { SourceConfig } from '../sources/registry';
 import { auctionStillOpen, isFresh, maxAgeMinutes, observedChangeIntervalHours, pollIntervalMinutes } from './cadence';
 import type { SourceState } from './reconcile';
@@ -19,7 +19,7 @@ export function nextAuctionAt(state: SourceState, now: Date): string | null {
   }
   // SID sales are announced by date only; they are held in the morning.
   for (const c of Object.values(state.certificates ?? {})) {
-    if (c.state === 'AVAILABLE' && saleStillAhead(c.saleDate, now)) upcoming.push(new Date(`${c.saleDate}T09:00:00-08:00`).toISOString());
+    if (c.state === 'AVAILABLE' && saleStillAhead(c.saleDate, now)) upcoming.push(new Date(vegasTime(c.saleDate, '09:00:00')).toISOString());
   }
   upcoming.sort();
   return upcoming[0] ?? null;

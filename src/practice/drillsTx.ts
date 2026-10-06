@@ -37,11 +37,11 @@ export const TX_DRILLS: Drill[] = [
         multi: true,
         options: [
           { label: 'For 15 days, the trustee or lender can rescind the sale for reasons the law lists, and I’d get back only what I paid', good: true, why: 'Right (51.016). Examples: the owner caught up before the sale, or a bankruptcy stay was in effect. The money comes back within 5 days, with no interest.' },
-          { label: 'Because of the federal tax lien, the United States may buy the house back within 120 days', good: true, why: 'Right (26 USC 7425(d)). Texas law itself gives the owner no buy-back after a trustee’s sale.' },
+          { label: 'Because of the federal tax lien, the United States may buy the house back within 120 days', good: true, why: 'Right (26 USC 7425(d)), if the IRS got written notice at least 25 days before the sale. Without that notice the lien isn’t cleared at all and stays on the title (26 USC 7425(b)), so ask the trustee for proof of the notice. Texas law itself gives the owner no buy-back after a trustee’s sale.' },
           { label: 'The owner has 180 days to buy it back', good: false, why: 'No. Texas trustee’s sales have no redemption period. The 180 days apply to HOA sales and some tax sales.' },
           { label: 'I can change the locks once my deed is recorded', good: false, why: 'Never. Give a written notice to vacate, then use an eviction (forcible detainer) case in court, with an attorney (Property Code 24.005).' },
         ],
-        lesson: 'Record your deed right away, but hold off on repairs and new contracts until the 15 days pass, and plan for the 120-day federal window.',
+        lesson: 'Record your deed right away, but hold off on repairs and new contracts until the 15 days pass, and plan for the 120-day federal window. Confirm the IRS got 25 days’ notice; if not, its lien stays on the title.',
       },
     ],
     verdict: {
@@ -137,7 +137,7 @@ export const TX_DRILLS: Drill[] = [
         options: [
           { label: 'The HOA got a court order (a Rule 736 order) or won a court foreclosure before the sale', good: true, why: 'Right (Property Code 209.0092). After a Rule 736 sale, the order must be attached to the trustee’s deed.' },
           { label: 'The debt isn’t only fines', good: true, why: 'Right. An HOA can’t foreclose for fines alone (209.009).' },
-          { label: 'Lenders with a later-recorded deed of trust got 60 days after the HOA’s notice to pay', good: true, why: 'Right (209.0091).' },
+          { label: 'Lenders whose liens are inferior to the HOA’s lien got 60 days after the HOA’s notice to pay', good: true, why: 'Right (209.0091).' },
           { label: 'Nothing: if the notice was posted, the sale is fine', good: false, why: 'A sale without the court order, or one held during a Rule 736 stay, can be void. Have an attorney or title company review the file.' },
         ],
         lesson: 'If the owner files a separate lawsuit by 5 p.m. on the Monday before the sale, a Rule 736 case stops, and a sale held anyway is void (Rule 736.11).',

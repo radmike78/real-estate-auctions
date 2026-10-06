@@ -79,7 +79,7 @@ const clean = (v: unknown, max: number) =>
     : '';
 
 /** Offset of local time (Las Vegas by default) from UTC at a given moment, e.g. "-07:00". */
-function zoneOffset(utcGuess: number, timeZone: string): string {
+export function zoneOffset(utcGuess: number, timeZone: string): string {
   const part = new Intl.DateTimeFormat('en-US', { timeZone, timeZoneName: 'shortOffset' })
     .formatToParts(new Date(utcGuess))
     .find((p) => p.type === 'timeZoneName')?.value;

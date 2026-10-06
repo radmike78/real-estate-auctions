@@ -233,7 +233,7 @@ export const TX_GUIDES_1: Playbook[] = [
   title: "Texas trustee sales",
   short: "Trustee sales",
   oneLine: "Most Texas home loans use a deed of trust. That lets a trustee sell the home at a courthouse auction on the first Tuesday of the month, without a court case.",
-  youGet: "A trustee’s deed, “as is” with no warranties except title. Texas law gives the owner no right to buy it back after the sale. The one exception is a federal tax lien: the United States may buy it back within 120 days (26 USC 7425(d)).",
+  youGet: "A trustee’s deed, “as is” with no warranties except title. Texas law gives the owner no right to buy it back after the sale. The one exception is a federal tax lien: the United States may buy it back within 120 days (26 USC 7425(d)). And a junior federal tax lien is cleared only if the IRS got written notice at least 25 days before the sale; otherwise it stays on the title (26 USC 7425(b)).",
   plain: "The house as is, with no buy-back period. You take it with any loans that were ahead of the one being foreclosed.",
   forSale: true,
   glance: [
@@ -263,11 +263,11 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       label: "Can it be undone?",
-      value: "Yes, within 15 days, for reasons the law lists. Then you get only your money back (51.016)."
+      value: "For a home of 1 to 4 units or a condo, yes: within 15 days, for reasons the law lists. Then you get only your money back (51.016)."
     },
     {
       label: "Redemption",
-      value: "None under Texas law. If a federal tax lien is on title, the United States may buy it back within 120 days (26 USC 7425(d))."
+      value: "None under Texas law. If a federal tax lien is on title, the United States may buy it back within 120 days (26 USC 7425(d)). If the IRS didn’t get 25 days’ written notice of the sale, its lien stays on the title (26 USC 7425(b))."
     }
   ],
   steps: [
@@ -319,7 +319,7 @@ export const TX_GUIDES_1: Playbook[] = [
       "Property tax liens, which attach every January 1 and come before almost everything else (Tax Code 32.01, 32.05)",
       "HOA or condo liens that rank ahead of the foreclosed loan",
       "Easements and other recorded encumbrances",
-      "A federal tax lien’s 120-day buy-back right (26 USC 7425(d))",
+      "A federal tax lien’s 120-day buy-back right (26 USC 7425(d)), or the whole lien if the IRS didn’t get 25 days’ notice of the sale (26 USC 7425(b))",
       "Tenants with a right to notice before they move"
     ]
   },
@@ -598,7 +598,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       label: "Lender gets a chance",
-      value: "Before going to court, the HOA must notify lenders with a later-recorded deed of trust. They have until the 61st day after the HOA mails that notice (60 days) to pay the debt (209.0091)."
+      value: "Before going to court, the HOA must notify lenders whose liens are inferior to the HOA’s lien. They have until the 61st day after the HOA mails that notice (60 days) to pay the debt (209.0091)."
     },
     {
       label: "Notice after the sale (subdivision)",
@@ -632,7 +632,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       title: "Check that the sale was set up correctly",
-      detail: "Ask the trustee or the HOA’s attorney for the court order. After a Rule 736 sale, the order must be attached to the trustee’s deed (Rule 736.12). The debt can’t be only fines (209.009). Lenders with a later-recorded deed of trust must have had 60 days, until the 61st day after the notice, to pay (209.0091). Have an attorney or title company review the file before you bid."
+      detail: "Ask the trustee or the HOA’s attorney for the court order. After a Rule 736 sale, the order must be attached to the trustee’s deed (Rule 736.12). The debt can’t be only fines (209.009). Lenders whose liens are inferior to the HOA’s lien must have had 60 days, until the 61st day after the notice, to pay (209.0091). Have an attorney or title company review the file before you bid."
     },
     {
       title: "Know the last-minute risk",

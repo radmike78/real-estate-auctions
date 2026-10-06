@@ -643,7 +643,7 @@ const FORECLOSURE: Flow = {
                 },
           ]
         : []),
-      { label: 'Ask whether the sale can be undone', send: 'Can the sale be challenged after I buy?', reply: 'A lawsuit can void the sale if it’s filed within 30 days after the trustee’s deed is recorded. Someone who didn’t get proper notice has 90 days from the sale (NRS 107.080). I’d hold off on big repairs until that passes. (Simulated reply.)' },
+      { label: 'Ask whether the sale can be undone', send: 'Can the sale be challenged after I buy?', reply: 'If the trustee didn’t substantially follow the law, a lawsuit can void the sale when it’s filed within 30 days after the trustee’s deed is recorded and a lis pendens is recorded within 5 days. Someone who didn’t get proper notice has 90 days from the sale (NRS 107.080). I’d hold off on big repairs until that passes. (Simulated reply.)' },
     ]),
     ...(p.hasBuilding ? [contractorContact(p, true)] : []),
     insuranceContact(p),
@@ -680,7 +680,7 @@ const FORECLOSURE: Flow = {
         'Have insurance ready before the sale: ask the trustee and your insurer when the risk becomes yours under this sale’s terms, and start coverage by then.',
         'The trustee either records the trustee’s deed within 30 days, or gives it to you within 20 days, and then you must record it within 10 days. Whoever records it must post a copy on the property within 5 days after recording (NRS 107.080). Ask the trustee which it will be.',
         'There’s no redemption for the owner. If a federal tax lien was on the property, the United States can redeem within 120 days.',
-        'A lawsuit can void the sale if filed within 30 days after the deed is recorded (90 days from the sale for someone who didn’t get proper notice).',
+        'If the trustee didn’t follow the law, a lawsuit filed within 30 days after the deed is recorded can void the sale (90 days from the sale for someone who didn’t get proper notice).',
       ],
     },
     // The occupants mistake quotes residential tenant law: only for homes and apartment buildings.

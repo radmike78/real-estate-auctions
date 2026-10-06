@@ -22,9 +22,9 @@ export const taxes: Lesson = {
           table: {
             head: ['State', 'Transfer tax'],
             rows: [
-              ['Nevada', '$1.95 for each $500 of value, $2.05 in Washoe and Churchill counties, and $2.55 in Clark County (NRS 375.020 and 375.023).'],
+              ['Nevada', '$1.95 for each $500 of value, $2.05 in Washoe and Churchill counties, and $2.55 in Clark County (NRS 375.020 and 375.023, plus a local tax in Washoe and Churchill; confirm with the county recorder).'],
               ['California', '$0.55 for each $500 of value, charged by the county (Revenue and Taxation Code 11911). Some cities add much more, such as Los Angeles, San Francisco and Oakland.'],
-              ['Arizona', 'None. The recorder charges a $2 fee with the affidavit of property value (A.R.S. 11-1132).'],
+              ['Arizona', 'None. You pay the recorder’s recording fee (about $30 a document), which includes a $2 fee for the affidavit of property value (A.R.S. 11-475 and 11-1132).'],
               ['Utah', 'None. You pay the county recorder’s recording fees.'],
               ['Texas', 'None, and the state constitution bars new transfer taxes (article VIII, section 29). You pay recording fees and the title insurance premium the state sets.'],
             ],

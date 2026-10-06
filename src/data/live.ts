@@ -67,11 +67,23 @@ export function useLiveFeed(): LiveState {
   return useSyncExternalStore(subscribe, () => state);
 }
 
+/**
+ * Whether the official list a live property id comes from was checked just now: a verified, unexpired feed whose source
+ * is healthy. Only then does "not in the feed" mean "not on the official list"; otherwise it's not known.
+ */
+export function liveListKnown(id: string, live: LiveState = state): boolean {
+  const r = live.result;
+  if (!r?.ok || Date.parse(r.feed.expiresAt) <= Date.now()) return false;
+  const sourceId = id.startsWith('irs-') ? 'us-irs-auctions' : id.startsWith('tax-') ? 'nv-clark-treasurer-tax-sale' : null;
+  if (!sourceId) return true;
+  return r.feed.sources.find((s) => s.sourceId === sourceId)?.health === 'ok';
+}
+
 /** Everything searchable: sample records (development builds only) plus verified live listings. */
 let combined: { live: Property[]; all: Property[] } = { live: [], all: PROPERTIES };
-export function useProperties(): { properties: Property[]; loading: boolean } {
+export function useProperties(): { properties: Property[]; loading: boolean; known: (id: string) => boolean } {
   const live = useLiveFeed();
   // Same array until the live list changes, so pages don't redo work on every render.
   if (combined.live !== live.properties) combined = { live: live.properties, all: live.properties.length ? [...PROPERTIES, ...live.properties] : PROPERTIES };
-  return { properties: combined.all, loading: live.result === null };
+  return { properties: combined.all, loading: live.result === null, known: (id) => liveListKnown(id, live) };
 }

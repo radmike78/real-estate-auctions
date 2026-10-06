@@ -59,7 +59,7 @@ const OUTCOME_LABEL: Record<SurvivalOutcome, string> = {
 
 
 export default function PropertyPage({ id, section }: { id: string; section?: string }) {
-  const { properties, loading } = useProperties();
+  const { properties, loading, known } = useProperties();
   const [printAll, setPrintAll] = useState(false);
   const [calcVersion, setCalcVersion] = useState(0); // remounts the bid calculator when the income value is applied
   // Printing (button or Ctrl+P) always prints the full report, whichever section is open.
@@ -77,6 +77,15 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   const p = properties.find((x) => x.id === id);
   if (!p) {
     if (loading) return <main className="page"><p>Checking the official lists…</p></main>;
+    if (!known(id) && (id.startsWith(LIVE_ID_PREFIX) || id.startsWith(IRS_ID_PREFIX))) {
+      return (
+        <main className="page empty-page">
+          <OwlNote big>This list is being re-verified</OwlNote>
+          <h1 className="sr-only">Listing being re-verified</h1>
+          <p>We only show listings we’ve just verified against the official source, and that check is running late. This doesn’t mean the property was sold or removed. Check back shortly, or <a href="#/live">see the official sources</a>.</p>
+        </main>
+      );
+    }
     return (
       <main className="page empty-page">
         <OwlNote big>This property isn’t available</OwlNote>

@@ -16,7 +16,7 @@ export function transferTaxFor(state: StateCode, county: string): TransferTax {
       hint: 'County tax: $0.55 per $500. Some cities add their own.',
       more: 'California counties charge $0.55 for each $500 of value (Revenue and Taxation Code 11911), not counting liens that stay with the property. Cities can add their own tax, and some charter cities such as Los Angeles, San Francisco and Oakland charge much more; ask your title company for the total.',
     };
-  if (state === 'AZ') return { per500: 0, hint: 'Arizona has no transfer tax; a $2 recording fee applies.', more: 'Arizona’s constitution bars new taxes on transferring real property; the recorder charges a $2 fee with the affidavit of property value (A.R.S. 11-1132).' };
+  if (state === 'AZ') return { per500: 0, hint: 'Arizona has no transfer tax; recording fees apply.', more: 'Arizona’s constitution bars new taxes on transferring real property. You’ll still pay the county recorder’s recording fee (about $30 a document), which includes a $2 fee for the affidavit of property value (A.R.S. 11-475 and 11-1132).' };
   if (state === 'TX') return { per500: 0, hint: 'Texas has no transfer tax; recording fees apply.', more: 'Texas doesn’t tax real property transfers, and its constitution bars new transfer taxes (article VIII, section 29). You’ll still pay the county clerk’s recording fees and the title insurance premium, which the state sets (Texas Department of Insurance).' };
   if (state === 'UT') return { per500: 0, hint: 'Utah has no transfer tax; recording fees apply.', more: 'Utah doesn’t tax real property transfers. You’ll still pay the county recorder’s recording fees.' };
   const per500 = !county || county === 'Clark' ? 2.55 : county === 'Washoe' || county === 'Churchill' ? 2.05 : 1.95;
@@ -25,7 +25,7 @@ export function transferTaxFor(state: StateCode, county: string): TransferTax {
     per500,
     // No county picked: Clark County's rate, the highest in Nevada, so the estimate errs on the safe side.
     hint: county ? `${name}: $${per500.toFixed(2)} per $500.` : 'No county picked: using Clark County’s $2.55 per $500, Nevada’s highest. Pick the county for its rate.',
-    more: `Nevada’s real property transfer tax is charged for each $500 of value or fraction of $500 (NRS 375.020 and 375.023): $2.55 in Clark County, $2.05 in Washoe and Churchill, and $1.95 elsewhere. Some transfers are exempt; ask the county recorder or your title company.`,
+    more: `Nevada’s real property transfer tax is charged for each $500 of value or fraction of $500 (NRS 375.020 and 375.023): $2.55 in Clark County, $1.95 in most other counties, and $2.05 in Washoe and Churchill, which add a local tax (confirm with the county recorder). Some transfers are exempt; ask the county recorder or your title company.`,
   };
 }
 
@@ -93,6 +93,9 @@ export function redemptionPresetsFor(state: StateCode): Record<string, Redemptio
       none: NONE,
       caJudicialPaid: { label: 'Judicial foreclosure, debt paid: 3 months, +10% a year', months: 3, ratePct: 10, daily: 0, flat: 0, flat2Pct: 0 },
       caJudicialShort: { label: 'Judicial foreclosure, debt not paid: 1 year, +10% a year', months: 12, ratePct: 10, daily: 0, flat: 0, flat2Pct: 0 },
+      // Civil Code 5715 and CCP 729.035: a nonjudicial HOA foreclosure can be redeemed for 90 days, at the price plus
+      // taxes and assessments with interest at the judgment rate (CCP 729.060).
+      hoa: { label: 'HOA foreclosure: 90 days, +10% a year', months: 3, ratePct: 10, daily: 0, flat: 0, flat2Pct: 0 },
       irs: IRS,
       usFederal: US_FEDERAL,
     };

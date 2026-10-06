@@ -1946,7 +1946,7 @@ export const DRILLS: Drill[] = [
         { label: 'Investigate', feedback: 'Good: check permit timelines and get firm bids before offering.' },
         { label: 'Pass', feedback: 'Right at this price. A price that survives delays is the only safe one.' },
       ],
-      expert: 'Pass at $210,000. Set your maximum price so the deal still breaks even when repairs run 15% over, it takes twice as long, and it sells for 5% less.',
+      expert: 'Pass at $210,000. Set your maximum price so the deal still breaks even when repairs run 15% over, it takes 4 months longer, and it sells for 5% less.',
     },
   },
   {
@@ -2163,7 +2163,7 @@ export const DRILLS: Drill[] = [
           { label: 'Insurance and the home’s tax (assumed)', value: '−$80' },
           { label: 'Repairs and vacancy (assumed 10%)', value: '−$150' },
           { label: 'Cash flow', value: '$370 a month: $4,440 a year, 7.4% on $60,000' },
-          { label: 'If lot rent rises $100 a year for 3 years', value: 'Cash flow falls to about $70 a month' },
+          { label: 'If lot rent rises $100 a month each year for 3 years', value: 'Cash flow falls to about $70 a month' },
         ],
         lesson: 'Lot rent you don’t control can take most of the profit. Test the numbers with higher lot rent.',
       },

@@ -19,7 +19,7 @@ import { dealNumbers } from '../lib/propertyPacket';
 import { nextAction } from '../lib/dealPacket';
 import AdSpot from './AdSpot';
 
-function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; loading: boolean }) {
+function DealCard({ d, p, loading, known }: { d: SavedDeal; p: Property | undefined; loading: boolean; known: boolean }) {
   const [notes, setNotes] = useState(d.notes);
   // Save notes shortly after typing stops, so closing the tab doesn't lose them.
   useEffect(() => {
@@ -35,6 +35,15 @@ function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; lo
     if (n !== saved) updateDeal(d.id, { notes: n.slice(0, 2000) });
   }, [d.id]);
   if (!p && loading) return <li className="deal-card"><p className="muted">Checking the official lists…</p></li>;
+  // The list couldn't be verified just now (an update is late or the source is being re-checked): don't call it gone.
+  if (!p && !known) {
+    return (
+      <li className="deal-card">
+        <h2>Being re-verified</h2>
+        <p className="muted">A property you saved on {fmtDate(d.savedAt)} isn’t shown while its official list is being re-verified. Your notes and evidence are kept. Check back shortly, or check the official source.</p>
+      </li>
+    );
+  }
   if (!p) {
     return (
       <li className="deal-card">
@@ -135,7 +144,7 @@ function OwnedPortfolio({ deals }: { deals: ReturnType<typeof loadAnalyzed> }) {
 
 export default function DealsPage() {
   const [deals, setDeals] = useState(loadDeals);
-  const { properties, loading } = useProperties();
+  const { properties, loading, known } = useProperties();
   const [analyzed] = useState(loadAnalyzed);
   useEffect(() => onDealsChange(() => setDeals(loadDeals())), []);
   const sorted = [...deals].sort((a, b) => {
@@ -199,7 +208,7 @@ export default function DealsPage() {
           <a className="btn big" href="#/analyze">Analyze a deal</a>
         </section>
       ) : (
-        <ul className="deal-list">{sorted.map((d) => <DealCard key={d.id} d={d} p={properties.find((x) => x.id === d.id)} loading={loading} />)}</ul>
+        <ul className="deal-list">{sorted.map((d) => <DealCard key={d.id} d={d} p={properties.find((x) => x.id === d.id)} loading={loading} known={known(d.id)} />)}</ul>
       )}
       <AdSpot spot="deals" />
       <p className="muted">Saved only in this browser. Clearing your browser data removes it.</p>

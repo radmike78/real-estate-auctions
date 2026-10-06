@@ -60,7 +60,8 @@ describe('state deal costs', () => {
 
   it('offers only each state’s own redemption rules', () => {
     expect(Object.keys(redemptionPresetsFor('NV'))).toEqual(['none', 'hoa', 'sheriff', 'irs', 'usFederal']);
-    expect(Object.keys(redemptionPresetsFor('CA'))).not.toContain('hoa');
+    // California's HOA redemption is its own: 90 days (Civil Code 5715), not Nevada's 60.
+    expect(redemptionPresetsFor('CA').hoa).toMatchObject({ months: 3, ratePct: 10 });
     expect(Object.keys(redemptionPresetsFor('UT'))).toEqual(['none', 'utSheriff', 'irs', 'usFederal']);
   });
 });

@@ -26,6 +26,7 @@ import { createHash } from 'node:crypto';
 import type { SourceConfig } from '../sources/registry';
 import { secureFetch, type FetchOptions } from '../lib/secureFetch';
 import { SchemaDriftError, toPlainText } from './clarkTaxSale';
+import { zoneOffset } from './irsAuctions';
 
 export { SchemaDriftError };
 
@@ -73,9 +74,12 @@ export function parseSaleNotices(html: string): SaleNotice[] {
   return out;
 }
 
+/** A local time on a sale date in Las Vegas, as an ISO string with that day's offset (PST or PDT). */
+export const vegasTime = (saleDate: string, time: string) => `${saleDate}T${time}${zoneOffset(Date.parse(`${saleDate}T12:00:00Z`), 'America/Los_Angeles')}`;
+
 /** A sale is still ahead until the end of its day in Las Vegas. */
 export function saleStillAhead(saleDate: string, now: Date): boolean {
-  return now.getTime() < Date.parse(`${saleDate}T23:59:59-08:00`);
+  return now.getTime() < Date.parse(vegasTime(saleDate, '23:59:59'));
 }
 
 /** Every HTML table on the page as rows of plain-text cells. Nested tables are read separately. */

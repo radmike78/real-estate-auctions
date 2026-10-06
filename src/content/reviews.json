@@ -38,7 +38,7 @@
       "src/lib/foreclosure.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "c1df0432dd6d82d7",
+    "hash": "afc7e5f0a0f36911",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -116,7 +116,7 @@
       "src/lib/saleDocs.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "5ad2092a71057be4",
+    "hash": "079ee57e0c11562c",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "b0235d2105afcec4",
+    "hash": "3fa5147968e5bf5b",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "277ee52826013f2b",
+    "hash": "4f62b4373b5e6c81",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -173,7 +173,7 @@
       "src/lib/evidence.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "174372e988bf49dc",
+    "hash": "76058fd8c0645846",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -204,7 +204,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "25b619da0761ee5a",
+    "hash": "f229c2ff023b4fd8",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -355,7 +355,7 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "0e22f60fa3bf0bfd",
+    "hash": "76d847842929a0d5",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -405,7 +405,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "928c0aff4fec4312",
+    "hash": "c570d71d035e882f",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]
