@@ -130,11 +130,11 @@ export const ROADMAP: RoadmapStep[] = [
     id: 'lender', phase: 2, path: AGENT, title: 'Get pre-approved, or document your cash',
     guides: ['loan-estimate'],
     text: 'Sellers want to know you can pay. With a loan, that’s a pre-approval from a licensed loan officer. Paying cash, it’s proof of funds.',
-    outcome: 'A pre-approval letter and a written quote (rate, down payment, closing costs and the reserves the lender wants), or, paying cash, a current proof of funds.',
+    outcome: 'A lender’s letter (often called a pre-approval) that says what it checked and what’s still a condition, and a written quote (rate, down payment, closing costs and the reserves the lender wants), or, paying cash, a current proof of funds.',
     steps: ['Ask two or three lenders for a quote on the same loan, so you can compare.', 'Check each loan officer’s license on NMLS Consumer Access.', 'Ask what conditions could still stop the loan after you’re approved.', 'Paying cash instead: get a recent bank or brokerage statement, or a letter from your bank, showing the money is available. Keep it current, and show only the account that holds it.'],
     say: { to: 'Loan officer', script: '“I’m buying a [one-unit home] I [will / won’t] live in, around [$price], in [county]. What down payment, rate and reserves would you need? Can you give me a written quote and a pre-approval? What could stop the loan after I’m approved?”' },
     docs: ['Lenders usually ask for: photo ID, recent pay stubs, W-2s or tax returns, and bank statements', 'You get: a pre-approval letter, and a Loan Estimate after you apply when federal consumer rules cover the loan: generally a home for personal use, such as a one- or two-unit home you’ll live in or a second home you won’t rent out. A loan to buy a rental you won’t live in counts as a business loan, so the law doesn’t require one; ask for a written term sheet instead (the financing lesson explains which loans are covered)'],
-    doneWhen: 'You have a pre-approval letter and a written quote you’ve compared with at least one other, or, paying cash, a proof of funds dated within the last 30 days.',
+    doneWhen: 'You have a lender’s letter (you know what it checked and what’s still a condition) and a written quote you’ve compared with at least one other, or, paying cash, a proof of funds dated within the last 30 days.',
     action: 'What to ask a lender', href: '#/pros/lender',
   },
   {
@@ -553,7 +553,7 @@ export const ROADMAP: RoadmapStep[] = [
     steps: [
       'Ask two or three lenders their waiting period before a cash-out refinance, and whether the “delayed financing” exception fits a cash purchase.',
       'Before you apply, run the numbers at a conservative value: the new payment must still leave positive cash flow and your reserves.',
-      'Gather the lease, rent history, repair receipts and your closing statement. Compare Loan Estimates the same day.',
+      'Gather the lease, rent history, repair receipts and your closing statement. Compare the lenders’ written quotes the same day: a refinance of a rental you don’t live in is usually a business loan, so expect a term sheet rather than a Loan Estimate.',
     ],
     say: { to: 'Lender', script: '“I own a rental at [address], bought on [date] for [price], rented at [rent]. What’s your waiting period for a cash-out refinance, what loan-to-value can you do, and what will you need from me?”' },
     stop: 'If the appraisal comes in low or the new payment turns the cash flow negative, keep the cash in and wait. A refinance that leaves no cushion isn’t worth it.',

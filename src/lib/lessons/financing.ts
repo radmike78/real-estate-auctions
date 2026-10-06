@@ -40,7 +40,7 @@ export const financing: Lesson = {
         { list: [
           'Savings in reserve: generally six months of payments for an investment property or a two-to-four-unit home you live in.',
           'A limit of 10 financed properties when the new loan is for a second home or investment property.',
-          'Rent to help you qualify: usually 75% of the gross rent counts. Positive rental income counts only if you have at least 12 months of experience managing property. The 25% cut is the lender’s cushion for vacancy and upkeep, not a forecast of your profit.',
+          'Rent to help you qualify (Fannie Mae, long-term rental): the lender takes 75% of the market rent and subtracts the full payment with taxes, insurance and HOA dues (PITIA). Example: rent $2,400 × 75% = $1,800; payment $1,600; $200 left over. With 12 months or more of experience managing rentals, that $200 can count as income. With less, the rent still helps: it can cover the $1,600 payment, so that payment isn’t counted against you, but the $200 doesn’t count as income. If the result is negative, the shortfall counts against you either way. The 25% cut is the lender’s qualifying cushion, not a budget or a forecast of your profit. Short-term rentals use 50% of the rent, and other lenders and programs have their own rules.',
         ] },
         'Rules change, and lenders can add their own. Ask a licensed loan officer for current requirements.',
       ],
@@ -48,13 +48,13 @@ export const financing: Lesson = {
     {
       heading: 'Getting approved, step by step',
       blocks: [
-        'Get pre-approved before you make offers or bid. Sellers take your offer more seriously, and you learn your real price range before you fall for a property.',
+        'Talk to a lender before you make offers. A financing letter can make a seller take your offer more seriously, and you learn your real price range before you fall for a property. If you’re paying cash, get proof of funds (a recent bank or brokerage statement) instead. At an auction, what counts is having the money ready by the payment deadline, not a letter.',
         { list: [
-          'Pre-qualification is an estimate from what you tell the lender. Pre-approval means the lender has pulled your credit and checked your income and savings documents. Only a pre-approval counts with a seller.',
+          'Pre-qualification and pre-approval: lenders use these names differently, so ask what the lender actually checked (credit, income, savings documents) and what is still a condition (the appraisal, title, insurance, the property itself, final underwriting). A letter based on checked documents is stronger, but no letter guarantees the loan. Each seller decides what they’ll accept; some bank-owned sellers ask for a specific letter or their own lender’s review.',
           'Debt-to-income (DTI) ratio: your monthly debt payments, including the new loan, divided by your gross monthly income. Fannie Mae’s limit is 36% on loans a person underwrites by hand, up to 45% with strong credit and savings, and up to 50% through its automated system (Selling Guide B3-6-02).',
           'Credit: a higher score gets a lower rate and fees. Investment-property loans already cost more than loans on a home you live in, so small score gains matter.',
           'Down payment: on a Fannie Mae loan for an investment property, expect at least 15% down on one unit and 25% on two to four units, plus closing costs and the reserves above.',
-          'Compare at least three Loan Estimates on the same day, for the same loan, and read the fees as well as the rate.',
+          'Compare at least three written quotes for the same property and loan, ideally on the same day. On a home loan covered by consumer rules (for example, one you’ll live in), compare Loan Estimates. On a loan for a rental you won’t live in, which federal rules treat as a business loan, ask for a written term sheet and a full fee list instead, and ask the lender which disclosures apply. Either way, compare the rate and whether it’s locked, points, fees, required reserves, prepayment penalties, any balloon, and the conditions still left before approval.',
         ] },
         'Have ready, for a regular investment-property loan: two years of tax returns and W-2s or 1099s, recent pay stubs, two months of bank and investment statements, the lease and rent history on any rentals you own, and an explanation for any large deposit.',
       ],

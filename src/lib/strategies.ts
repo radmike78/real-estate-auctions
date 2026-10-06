@@ -59,8 +59,8 @@ export const STRATEGY_GUIDES: StrategyGuide[] = [
     key: 'reo',
     slug: 'bank-owned',
     makesMoney: [
-      'Buying below what similar homes sell for, because banks and agencies sell as-is and often need repairs.',
-      'Then the same ways as a rental or a flip, depending on your plan.',
+      'Bank-owned is a way to buy, not a way to earn. The money comes from what you do next: rent it or fix and sell it.',
+      'Banks and agencies sell as-is, and many homes need repairs, so the price can be lower than for similar homes. Whether it’s a good deal depends on your price after repairs, holding and closing costs, not on who owns it.',
     ],
     watchFor: [
       'As-is means no seller repairs: use the inspection period and walk away if the numbers break.',
@@ -93,8 +93,8 @@ export const STRATEGY_GUIDES: StrategyGuide[] = [
     key: 'brrrr',
     slug: 'brrrr',
     makesMoney: [
-      'Repairs raise the value, and a refinance at the new value returns part of your cash to use again.',
-      'After that, it earns like a rental: cash flow, loan paydown and appreciation.',
+      'It earns like a rental: rent left after every cost, the loan being paid down, and any value your repairs add.',
+      'The refinance doesn’t earn anything. It lets you borrow against the higher value to get some of your cash back for the next property, but that cash is a new, bigger loan you repay, with its own fees. The appraisal, the lender’s approval and the new rate aren’t certain.',
     ],
     watchFor: [
       'The refinance depends on the appraisal and the lender’s waiting period (often 6 to 12 months). A low appraisal leaves more cash in.',
@@ -110,7 +110,7 @@ export const STRATEGY_GUIDES: StrategyGuide[] = [
     key: 'auction',
     slug: 'auctions',
     makesMoney: [
-      'Buying well below market value, at the price of more risk: cash on the day, no inspection inside, and title or occupancy problems.',
+      'Buying below market value when the price leaves enough room for the extra risk: cash on the day, no inspection inside, and title or occupancy problems.',
       'Then reselling or renting once title is insurable and any redemption period has ended.',
     ],
     watchFor: [

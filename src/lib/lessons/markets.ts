@@ -25,13 +25,14 @@ export const markets: Lesson = {
           table: {
             head: ['', 'Residential (1–4 homes)', 'Commercial (5+ homes, stores, offices, industrial)'],
             rows: [
-              ['Value set by', 'Recent sales of similar homes nearby', 'The income it produces (net operating income and cap rate)'],
+              ['Value set mainly by', 'Recent sales of similar homes nearby', 'The income it produces (net operating income and cap rate)'],
               ['Loans', 'Home mortgages, including low-down-payment loans if you live there', 'Commercial loans, often shorter with a large final (balloon) payment'],
               ['Leases', 'Usually a year or less, with strong tenant protections', 'Often years long. The tenant may pay taxes, insurance and upkeep'],
               ['Main risk', 'Repairs, a bad tenant, a slow sale', 'Vacancies and leases that don’t renew'],
             ],
           },
         },
+        'The table shows the usual starting point, not a fixed rule. A commercial appraisal can also weigh recent sales and the cost to rebuild, and a rented house or small multi-unit can be checked against its rent. This is a first screen. A professional appraisal is the best way to determine value, and your walk-away price is your own limit, not the appraised value.',
       ],
     },
     {
@@ -45,7 +46,7 @@ export const markets: Lesson = {
     {
       heading: 'How loans differ',
       blocks: [
-        'Loans on one to four homes follow the rules of Fannie Mae, Freddie Mac and the FHA. If you’ll live in the property, an FHA loan can cover about 96.5% of the price on a home with up to four units. With FHA, three or four units come with two extra rules. First, the rent has to carry the loan. The lender starts with the appraiser’s market rent for all units, including yours, and takes off 25%, or the appraiser’s estimate for vacancy and upkeep if that’s bigger. What’s left must cover the full monthly payment with taxes and insurance (HUD Handbook 4000.1). Second, you need three months of payments in savings after closing. Ask the lender to run the rent test before you pay for an appraisal or inspection.',
+        'Most home loans on one to four units follow the rules of Fannie Mae, Freddie Mac or the FHA, though private DSCR, portfolio and hard-money loans on the same homes set their own rules (see the financing lesson). If you’ll live in the property, an FHA loan can cover about 96.5% of the price on a home with up to four units. With FHA, three or four units come with two extra rules. First, the rent has to carry the loan. The lender starts with the appraiser’s market rent for all units, including yours, and takes off 25%, or the appraiser’s estimate for vacancy and upkeep if that’s bigger. What’s left must cover the full monthly payment with taxes and insurance (HUD Handbook 4000.1). Second, you need three months of payments in savings after closing. Ask the lender to run the rent test before you pay for an appraisal or inspection.',
         'Commercial loans are sized on the property’s income. Lenders look at the loan-to-value ratio (LTV) and the debt service coverage ratio (DSCR), which is how many times the NOI covers the loan payments. Federal bank regulators give an example: an office loan at 75% LTV and 1.30x DSCR, paid as if over 20 years, with the rest due as a balloon after five. Lenders also look at who guarantees the loan.',
       ],
     },
@@ -66,7 +67,7 @@ export const markets: Lesson = {
     {
       heading: 'Where the risk is',
       blocks: [
-        'A rental home depends on one household at a time, on short leases, so problems show up fast and are usually small. A commercial building can depend on a few large tenants with long leases. Income is steady while they stay, but a single vacancy or a lease that doesn’t renew can cut income sharply. Bank examiners watch vacancy rates and lease renewals for that reason. Office buildings lost income when many businesses moved to hybrid work.',
+        'A rental home depends on one household at a time, on short leases, so problems show up fast. Many are small, but a long vacancy, a major repair (roof, foundation, plumbing), an eviction or an uninsured loss can be expensive, and with one property all of that risk sits in one building. A commercial building can depend on a few large tenants with long leases. Income is steady while they stay, but a single vacancy or a lease that doesn’t renew can cut income sharply. Bank examiners watch vacancy rates and lease renewals for that reason. Office buildings lost income when many businesses moved to hybrid work.',
       ],
     },
   ],

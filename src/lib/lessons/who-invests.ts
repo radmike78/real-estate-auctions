@@ -42,7 +42,7 @@ export const whoInvests: Lesson = {
         { list: [
           'Money: living in the property unlocks the lowest down payments. Investment homes, commercial property and land need more cash up front, and many forced sales need cash.',
           'Time: a rental you manage yourself takes regular time. A property manager or a REIT takes less.',
-          'Borrowing: home loans on 1–4 units are sized on your income. Commercial loans are sized on the property’s income. SBA 504 loans can’t be used for rental property investments.',
+          'Borrowing: most home loans on 1–4 units are sized on your income, though DSCR loans size them on the rent. Commercial loans are sized mainly on the property’s income. SBA 504 loans can’t be used for rental property investments.',
           'Risk: one property means one roof, one set of tenants and one neighborhood. Funds spread risk but add fees.',
           'Taxes: buildings wear out on paper. Residential rental buildings are depreciated over 27.5 years and commercial buildings over 39. Land isn’t depreciated at all. Ask a tax advisor how this applies to you.',
           'Selling: a building can take months to sell. Listed REIT shares can sell the same day.',

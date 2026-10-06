@@ -302,11 +302,11 @@ function LenderView({ v, onPrice }: { v: RentInputs; onPrice: boolean }) {
         <div><dt>DSCR-loan ratio: rent ÷ that full payment (looser than income coverage above, because it doesn’t subtract operating costs)</dt><dd>{r.dscr === null ? '—' : r.dscr.toFixed(2)}</dd></div>
       </dl>
       <p className="small">
-        {r.conventionalNet < 0 ? 'For a conventional loan, the shortfall counts against your income when the lender figures what you can afford.' : 'For a conventional loan, this can add to your income when the lender figures what you can afford.'}{' '}
+        {r.conventionalNet < 0 ? 'For a conventional loan, the shortfall counts against your income when the lender figures what you can afford.' : 'For a conventional loan, the rent at least covers this payment for qualifying. A surplus adds to your income only if you have 12 months or more of experience managing rental property; with less, the rent can only offset this payment.'}{' '}
         {r.dscr === null ? '' : r.dscr >= 1.2 ? 'The DSCR ratio is in the range most DSCR lenders like.' : r.dscr >= 1 ? 'Some DSCR lenders accept this ratio, usually at a higher rate or with more down.' : 'This ratio is below what most DSCR lenders accept.'}
       </p>
       <p className="small">
-        Fannie Mae usually counts 75% of the rent, and positive rental income only after 12 months of experience managing property.
+        These are Fannie Mae’s long-term rental rules (Selling Guide B3-3.8-02); other lenders and programs differ. For a short-term rental, Fannie Mae counts 50% of the rent and any surplus can only offset the payment (B3-3.8-03).
         {!onPrice && ' Refinancing a cash or hard-money purchase usually waits 6 to 12 months; ask lenders before you buy.'}{' '}
         <a href="#/learn/financing">Getting approved, DSCR loans and refinancing →</a>
       </p>

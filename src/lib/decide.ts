@@ -201,7 +201,7 @@ export const STRATEGIES: Strategy[] = [
   {
     key: 'reo',
     title: 'Bank-owned and government homes',
-    what: 'Buy homes that didn’t sell at auction, from the bank, Fannie Mae, Freddie Mac or HUD, usually through a listing agent and with time to inspect.',
+    what: 'Buy homes a lender or agency already owns (a bank, Fannie Mae, Freddie Mac or HUD), most often after a foreclosure and sometimes after the owner signed the home over (a deed in lieu). They’re usually sold through a listing agent, with time to inspect. Bank-owned is a way to buy, not a promise of a bargain.',
     weights: {
       goal: { income: 1, growth: 2, quick: 2, handsoff: -1, learn: 1 },
       cash: { under10: -1, '10to50': 2, '50to150': 3, over150: 2 },

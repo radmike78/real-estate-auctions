@@ -28,7 +28,7 @@ export const WHERE_TO_LOOK: { title: string; what: string }[] = [
   { title: 'Tax sales', what: 'The county treasurer or tax collector sells properties (or tax liens) with unpaid property taxes. Look for the county’s tax sale or auction page.' },
   { title: 'Foreclosure auctions', what: 'Lenders’ trustees sell homes at public auction after a notice of sale is recorded with the county recorder and published.' },
   { title: 'Sheriff and court sales', what: 'The sheriff or constable sells property to pay court judgments, including court-ordered foreclosures.' },
-  { title: 'Bank-owned and government homes', what: 'Homes that didn’t sell at auction, sold by the lender or a government agency, usually through a listing agent.' },
+  { title: 'Bank-owned and government homes', what: 'Homes a lender or government agency already owns, most often after a foreclosure, sold usually through a listing agent.' },
 ];
 
 /** What we've already built for a county, on this site. Other counties show the general guide until researched. */
