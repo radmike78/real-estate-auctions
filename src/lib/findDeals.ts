@@ -76,7 +76,7 @@ export const OTHER_SITES: { group: string; sites: DealSource[] }[] = [
 /** How forced sales work in each state, in one line each (from the forced-sales lesson). */
 export const STATE_SALES: Record<StateCode, string[]> = {
   NV: [
-    'Tax sales: the county treasurer holds the property 2 years (1 if abandoned), then auctions it by quitclaim deed.',
+    'Tax sales: after taxes go unpaid, the county treasurer takes title in trust and holds it 2 years (1 if abandoned) so the owner can pay, then auctions it with a quitclaim deed (a deed with no promise about title). In all, about 3 years of unpaid taxes (2 if abandoned).',
     'Foreclosures: trustee auctions at least 3 months after the notice of default, with 20 days’ posted notice.',
   ],
   CA: [

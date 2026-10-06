@@ -1226,7 +1226,7 @@ export const COMMERCIAL_STEPS: Record<string, Record<string, { title: string; de
 export const LAND_STEPS: Record<string, Record<string, { title: string; detail: string }>> = {
   foreclosure: {
     'Look at the property': { title: 'Look at the lot', detail: 'Drive by. Look for dumping, stored items or anyone camping there, and confirm legal access.' },
-    'Set your maximum bid': { title: 'Set your maximum bid', detail: 'Include surviving debts, clean-up and holding costs. Use the max bid calculator.' },
+    'Set your maximum bid': { title: 'Set your maximum bid', detail: 'Include surviving debts, clean-up and holding costs. Use the walk-away price calculator.' },
     'After you win': { title: 'After you win', detail: 'Get the trustee’s deed recorded and insure the land against liability.' },
   },
   sheriff: {

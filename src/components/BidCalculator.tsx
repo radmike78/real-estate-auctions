@@ -356,7 +356,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           </div>
           ) : (
           <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
-            <span>Walk-away price: stop bidding here</span>
+            <span>{offer ? 'Walk-away price: your highest offer' : 'Walk-away price: stop bidding here'}</span>
             <strong>{r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
             <small>
               {r.noBidWorks
@@ -366,6 +366,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                 : r.limitedBy === 'cash'
                   ? `Set by the cash you can bring: the ${w.bid} plus every cost until you sell (repairs, holding, fees). Your profit target alone would allow ${fmtMoney(r.profitBid)}.`
                   : `Leaves your ${fmtMoney(Math.round(target))} profit target after every cost, based on your numbers. Not a guarantee.`}
+              {!r.noBidWorks && !(i.repairs > 0) && !(i.monthlyCarry > 0) && <><br /><strong>Repairs and holding costs are $0 here.</strong> Enter them (and switch to Detailed for title and selling costs) before you trust this number.</>}
             </small>
           </div>
           )
@@ -391,7 +392,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         )}
         {!r.noBidWorks && !needsValue && (
           <div className="calc-steps">
-            <strong>How we got your maximum</strong>
+            <strong>How we got your walk-away price</strong>
             <dl className="calc-kv">
               {steps.map((st, n) => <div key={st.label} className={n === 0 ? 'first' : ''}><dt>{st.label}</dt><dd>{n === 0 ? fmtMoney(st.amount) : `− ${fmtMoney(-st.amount)}`}</dd></div>)}
               <div className="total"><dt>{r.limitedBy === 'cash' ? 'Most the deal allows' : w.max}</dt><dd>{fmtMoney(r.profitBid)}</dd></div>

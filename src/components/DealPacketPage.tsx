@@ -174,7 +174,7 @@ export default function DealPacketPage({ dealId }: { dealId: string }) {
 
       <section className="deal-setup packet-section" aria-labelledby="packet-decision">
         <Head k="decision" />
-        <p className="muted">Choose Investigate, Pass or Proceed at the bottom of the evidence log above. Write down why, and anything that must be true before you sign or bid.</p>
+        <p className="muted">Choose Investigate, Pass or Proceed under “Decision” at the end of the evidence log in the section above (open the log if it’s closed). Write down why, and anything that must be true before you sign or bid.</p>
         <label className="field wide">
           <span>Why</span>
           <textarea rows={2} maxLength={1000} value={p.decisionWhy} onChange={(e) => update({ decisionWhy: e.target.value })} />

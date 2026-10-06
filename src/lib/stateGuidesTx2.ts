@@ -74,7 +74,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       title: "Set your maximum bid",
-      detail: "Add any senior mortgage, unpaid Texas property taxes, repairs, and 180 days of holding costs. Use the max bid calculator."
+      detail: "Add any senior mortgage, unpaid Texas property taxes, repairs, and 180 days of holding costs. Use the walk-away price calculator."
     },
     {
       title: "Bid and pay as the notice requires",

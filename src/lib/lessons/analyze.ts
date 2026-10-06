@@ -34,7 +34,7 @@ export const analyze: Lesson = {
         'Upgrades don’t add their cost to the value. A remodel can make a home more appealing, but appraisers value a feature by what buyers in that market pay for it, not by what it cost. Fannie Mae’s rule is that adjustments have to reflect how the market reacts, not the dollar-for-dollar cost of equipment and installation. If an improvement is bigger or pricier than is typical for the neighborhood, like a pool where pools are rare, it counts only for what it adds. In 2025, real estate agents estimated that a complete kitchen renovation gets back about 60% of its cost at resale, and a bathroom renovation about 50%.',
         { links: [{ label: 'Appraisers', url: '#/pros/appraiser', what: 'What they do, when to hire one and how to check a license.' }, { label: 'Real estate agents', url: '#/pros/agent', what: 'How an agent helps you estimate value and make an offer.' }] },
         'If you plan to fix a property, you’ll estimate what it’s worth once the work is done. That’s often called the after-repair value (ARV), and it’s only as good as the comparable sales behind it. So use sold prices of homes already in that finished condition, not asking prices.',
-        'For income property, value comes from the income, as in lesson 1: net operating income divided by the cap rate buyers expect.',
+        'For income property, value also comes from the income: net operating income (NOI, the rent left after operating costs but before any mortgage payment) divided by the cap rate (the yearly return, as a percentage of price, that buyers of similar property in that market accept). “The core measures” below explains both.',
       ],
     },
     {

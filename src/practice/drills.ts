@@ -170,7 +170,7 @@ export const DRILLS: Drill[] = [
           { label: 'Real cost', value: 'About $235,000 to $265,000' },
           { label: 'Value as-is', value: 'About $290,000' },
         ],
-        lesson: 'A $110,000 “discount” shrinks to $25,000 to $55,000 once you add what survives, possession and repairs you can’t see. And bidding usually goes above the opening bid. Set your walk-away price before the sale with the maximum bid calculator.',
+        lesson: 'A $110,000 “discount” shrinks to $25,000 to $55,000 once you add what survives, possession and repairs you can’t see. And bidding usually goes above the opening bid. Set your walk-away price before the sale with the walk-away price calculator.',
       },
     ],
     verdict: {
