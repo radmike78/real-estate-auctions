@@ -196,6 +196,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           {deal.id ? (
             <>
               <span className="muted">Saved as “{deal.name}”. Changes save as you go.</span>
+              <a className="btn" href={`#/deals/packet/${deal.id}`}>Deal packet →</a>
               <button type="button" className="btn btn-secondary" onClick={() => { clearDraftNumbers(); setDeal(blank(deal.state)); }}>Start a new deal</button>
             </>
           ) : (

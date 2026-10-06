@@ -3,6 +3,7 @@
 // accounts, so this is how progress moves to another device or survives clearing the browser.
 // Sign-in links and email-alert tokens are never included.
 import { cleanDeal } from './analyze';
+import { cleanPacket } from './dealPacket';
 import { cleanBuyBox } from './toolkit';
 import { cleanCase } from '../practice/caseProgress';
 import { cleanDealSteps, DEAL_STEPS_KEY } from './roadmapDeals';
@@ -22,6 +23,7 @@ const EXACT = [
   'deedowl.drills.v1',
   'deedowl.decide.v1',
   'deedowl.evidence.v1',
+  'deedowl.dealPacket.v1',
   'deedowl.analyze.v1',
   'deedowl.analyze.current.v1',
   'deedowl.area.v1',
@@ -58,6 +60,7 @@ const CLEAN: Record<string, (v: unknown) => unknown> = {
   'deedowl.case.v1': cleanCase,
   'deedowl.case.tx.v1': cleanCase,
   [DEAL_STEPS_KEY]: cleanDealSteps,
+  'deedowl.dealPacket.v1': (v) => Object.fromEntries(Object.entries(v && typeof v === 'object' && !Array.isArray(v) ? v : {}).slice(0, 100).map(([k, x]) => [k.slice(0, 40), cleanPacket(x)])),
 };
 
 export interface Backup {

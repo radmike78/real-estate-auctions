@@ -9,6 +9,7 @@ import { downloadText, fileName } from '../lib/download';
 import { cleanLog, logText } from '../lib/evidence';
 import { makeBackup, readBackup, restoreBackup } from '../lib/progressBackup';
 import { loadDeals as loadAnalyzed } from '../lib/analyze';
+import { nextAction } from '../lib/dealPacket';
 import { docGuide, DOC_GUIDES } from '../lib/docGuides';
 import DocGuideView from './DocGuideView';
 import { EvidenceArea } from './EvidenceLog';
@@ -699,6 +700,21 @@ export default function ToolkitPage({ section }: { section?: string }) {
         title={<>My <span className="grad">plan</span></>}
         sub="Your investor toolkit: a step-by-step roadmap, a buy box to keep you focused, and every calculator and checklist on DeedOwl."
       />
+      {(() => {
+        // Coming back: the property you worked on last, and the one thing to do next on it.
+        const last = [...loadAnalyzed()].sort((x, y) => y.updatedAt.localeCompare(x.updatedAt))[0];
+        if (!last) return null;
+        return (
+          <section className="toolkit-start packet-resume" aria-labelledby="resume-head">
+            <h2 id="resume-head">Pick up where you left off: {last.name}</h2>
+            <p><strong>Next action.</strong> {nextAction(last).text}</p>
+            <div className="decide-nav">
+              <a className="btn" href={`#/deals/packet/${last.id}`}>Open its deal packet</a>
+              <a className="btn btn-secondary" href="#/deals">All my deals</a>
+            </div>
+          </section>
+        );
+      })()}
       {!currentProgress().decided && <section className="toolkit-start" aria-labelledby="start-head">
         <h2 id="start-head">Start your investing plan</h2>
         <p>First, choose what you want from investing. You can change your answer later.</p>

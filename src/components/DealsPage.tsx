@@ -13,8 +13,8 @@ import { removeLog } from '../lib/evidence';
 import { kindLabel, loadDeals as loadAnalyzed, openDeal, SALE_KINDS, checklistFor } from '../lib/analyze';
 import { countyName } from '../lib/regions';
 import StatusBadge from './StatusBadge';
-import { downloadText, fileName } from '../lib/download';
-import { dealNumbers, propertyPacketText } from '../lib/propertyPacket';
+import { dealNumbers } from '../lib/propertyPacket';
+import { nextAction } from '../lib/dealPacket';
 
 function DealCard({ d, p, loading }: { d: SavedDeal; p: Property | undefined; loading: boolean }) {
   const [notes, setNotes] = useState(d.notes);
@@ -143,9 +143,10 @@ export default function DealsPage() {
                           </p>
                         ) : d.plan === 'rent' ? <p className="muted">No numbers yet: open it and enter the price you’d pay under Keep and rent.</p> : null;
                       })()}
+                      <p><strong>Next action.</strong> {nextAction(d).text}</p>
                     </div>
                     <div className="deal-actions">
-                      <button type="button" className="btn btn-secondary" onClick={() => downloadText(fileName(`property packet ${d.name}`, 'txt'), propertyPacketText(d))}>Download property packet</button>
+                      <a className="btn" href={`#/deals/packet/${d.id}`}>Deal packet →</a>
                       <button type="button" className="btn btn-secondary" onClick={() => openDeal(d)}>Open →</button>
                     </div>
                   </div>

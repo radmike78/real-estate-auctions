@@ -2692,3 +2692,19 @@ cite.cite { font-style: normal; font-size: 0.82em; color: var(--muted); white-sp
 .county-sale-dates { margin: 0; padding-left: 20px; }
 .county-sale .row { display: flex; flex-wrap: wrap; gap: 10px; }
 .county-sale .row > * { flex: 0 0 auto; width: auto; margin: 0; }
+
+/* Deal packet: each part's status beside its heading, the next action on top. */
+.packet-status { font-size: 0.8rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; vertical-align: middle; margin-left: 8px; white-space: nowrap; }
+.packet-status.done { background: var(--go-bg); color: var(--go); }
+.packet-status.started { background: var(--info-bg); color: var(--info); }
+.packet-status.missing { background: var(--caution-bg); color: var(--caution); }
+.packet-next { border-left: 4px solid var(--accent); background: var(--surface-2); border-radius: 8px; padding: 12px 16px; margin: 0 0 16px; }
+.packet-next p { margin: 4px 0 0; }
+.packet-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+.packet-lines { margin: 8px 0; padding-left: 1.2em; }
+.packet-fit { border: 0; padding: 0; margin: 8px 0; display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.packet-dates, .packet-qa { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 8px; }
+.packet-dates li { display: grid; grid-template-columns: minmax(150px, 180px) 1fr minmax(120px, 220px) auto; gap: 8px; align-items: center; }
+.packet-qa li { display: grid; grid-template-columns: minmax(240px, 270px) 1fr 1fr minmax(150px, 180px) auto; gap: 8px; align-items: start; }
+.packet-qa textarea { font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; width: 100%; resize: vertical; }
+@media (max-width: 760px) { .packet-dates li, .packet-qa li { grid-template-columns: 1fr; } }

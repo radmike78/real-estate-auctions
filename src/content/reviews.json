@@ -168,10 +168,12 @@
     "files": [
       "src/components/DealsPage.tsx",
       "src/components/EvidenceLog.tsx",
+      "src/components/DealPacketPage.tsx",
+      "src/lib/dealPacket.ts",
       "src/lib/evidence.ts"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "ec3cb4f4c24b2941",
+    "reviewed": "2026-10-06",
+    "hash": "efb114536fdc5735",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -388,7 +390,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "6d7185d15dd07fc7",
+    "hash": "526c0de79b2ee6b2",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {
@@ -401,7 +403,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "724c1ef0ac27d17c",
+    "hash": "45355d2e5e9db9e4",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]
