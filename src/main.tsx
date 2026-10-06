@@ -5,6 +5,11 @@ import '@fontsource-variable/hanken-grotesk';
 import '@fontsource-variable/schibsted-grotesk';
 import 'leaflet/dist/leaflet.css';
 import './styles.css';
+import './styles/review-lessons.css';
+import './styles/review-pros.css';
+import './styles/review-practice.css';
+import './styles/review-sources.css';
+import './styles/review-guides.css';
 import App from './App';
 import { upgradeLegacyHash } from './lib/nav';
 
