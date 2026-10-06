@@ -37,7 +37,7 @@ export const STATUS: Record<AcquisitionStatus, StatusInfo> = {
     label: 'Redemption period applies',
     tone: 'wait',
     purchasable: true,
-    explanation: 'You can bid, but the owner can redeem for up to 1 year after this court-ordered sale, and the deed comes only after that.',
+    explanation: 'You can bid, but the former owner may be able to buy the property back (redeem) for a time after the sale. How long, when the clock starts, and whether you get a certificate or a deed in the meantime depend on the kind of sale and the state: in Nevada, after a court-ordered sale, it’s up to 1 year and the deed comes after (NRS 21.190–21.210). Read the sale guide for your state.',
   },
   LIEN_CERTIFICATE_ONLY: {
     label: 'Lien certificate only',

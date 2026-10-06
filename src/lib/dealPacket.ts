@@ -4,10 +4,10 @@
 // why, the deal's key dates, your questions to professionals and their answers, your earnest money, and the reason
 // for your decision with any conditions still open. Kept only in this browser, like the rest.
 import { kindLabel, SALE_KINDS, type Deal } from './analyze';
-import { maxSafeBid, sanitizeInputs, BLANK_INPUTS, type BidInputs } from './bidCalc';
+import { maxSafeBid, offerInputs, sanitizeInputs, BLANK_INPUTS, type BidInputs } from './bidCalc';
 import { cleanBuyBox, EMPTY_BUY_BOX, type BuyBox } from './toolkit';
 import { EVIDENCE_AREAS, GATES, loadLog } from './evidence';
-import { rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, type RentInputs } from './holdCalc';
+import { commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, type CommercialInputs, type RentInputs } from './holdCalc';
 import { cleanGoal, GOAL_KEY, investorProfile, TEAM_ROLES } from './myPlan';
 import { proGuideByKey } from './proGuide';
 import { countyName } from './regions';
@@ -121,28 +121,49 @@ function read(key: string): unknown {
 
 const money = (n: number) => `${n < 0 ? '−' : ''}$${Math.round(Math.abs(n)).toLocaleString('en-US')}`;
 
-/** The numbers saved for this deal: the rental at your price, and the auction or flip calculator. */
+/** The plan's own calculator in Analyze, by name. */
+export const STRATEGY_LABEL: Record<Deal['plan'], string> = { rent: 'Keep and rent', flip: 'Fix and sell', commercial: 'Commercial income', lien: 'Lien certificate' };
+
+/**
+ * The numbers saved for this deal, from the calculator of the strategy it's saved with (its plan) only. Numbers left
+ * in another strategy's calculator (say, a Fix and sell walk-away price from before the deal switched to Keep and
+ * rent) are never shown: they'd answer a different question.
+ */
 export function savedNumbers(d: Deal) {
   const offer = isOffer(d);
-  const rentRaw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
   let rent: { price: number; monthly: number; cashIn: number; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
-  if (rentRaw) {
-    const v = sanitizeNumbers(rentRaw, RENT_DEFAULTS) as RentInputs;
-    if (v.atPrice > 0) {
-      const a = rentAtPrice(v, v.atPrice, offer);
-      rent = { price: v.atPrice, monthly: a.cashFlow / 12, cashIn: a.cashIn, cashOnCash: a.cashOnCash, target: v.targetCocPct, stress: rentStress(v, v.atPrice, offer).map((s) => ({ label: s.label, monthly: s.monthly })) };
-    }
-  }
-  const bidRaw = read(`fsf.bid.analyzed-${d.id}.v1`);
   let bid: { maxBid: number; cashOnDay: number; cashTotal: number; exitValue: number } | null = null;
-  if (bidRaw && typeof bidRaw === 'object') {
-    const i: BidInputs = sanitizeInputs(bidRaw, BLANK_INPUTS);
-    if (i.exitValue > 0) {
-      const r = maxSafeBid(i);
-      bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, exitValue: i.exitValue };
+  let commercial: { maxBid: number; noi: number; capPct: number; cashLeft: number; allIn: number } | null = null;
+  if (d.plan === 'rent') {
+    const rentRaw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
+    if (rentRaw) {
+      const v = sanitizeNumbers(rentRaw, RENT_DEFAULTS) as RentInputs;
+      if (v.atPrice > 0) {
+        const a = rentAtPrice(v, v.atPrice, offer);
+        rent = { price: v.atPrice, monthly: a.cashFlow / 12, cashIn: a.cashIn, cashOnCash: a.cashOnCash, target: v.targetCocPct, stress: rentStress(v, v.atPrice, offer).map((s) => ({ label: s.label, monthly: s.monthly })) };
+      }
+    }
+  } else if (d.plan === 'flip') {
+    const bidRaw = read(`fsf.bid.analyzed-${d.id}.v1`);
+    if (bidRaw && typeof bidRaw === 'object') {
+      const saved: BidInputs = sanitizeInputs(bidRaw, BLANK_INPUTS);
+      const i = offer ? offerInputs(saved) : saved;
+      if (i.exitValue > 0) {
+        const r = maxSafeBid(i);
+        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, exitValue: i.exitValue };
+      }
+    }
+  } else if (d.plan === 'commercial') {
+    const raw = read(`fsf.calc.commercial.${d.id}${offer ? '-offer' : ''}.v1`);
+    if (raw) {
+      const v = sanitizeNumbers(raw, COMMERCIAL_DEFAULTS) as CommercialInputs;
+      if (v.monthlyRent > 0) {
+        const r = commercialMaxBid(v, offer);
+        if (!r.noBidWorks) commercial = { maxBid: r.maxBid, noi: r.noi, capPct: v.targetCapPct, cashLeft: r.cashLeft, allIn: r.allIn };
+      }
     }
   }
-  return { rent, bid };
+  return { rent, bid, commercial };
 }
 
 export type SectionStatus = 'done' | 'started' | 'missing';
@@ -151,6 +172,8 @@ export interface PacketSection {
   title: string;
   status: SectionStatus;
   lines: string[];
+  /** What "done" means for this part, when it isn't proof: numbers are calculated from your inputs, not verified. */
+  doneLabel?: string;
   /** Where to fill it in, when it's not on the packet page itself. */
   fix?: { label: string; href: string };
 }
@@ -172,7 +195,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const profile = investorProfile();
   const goal = cleanGoal(read(GOAL_KEY));
   const log = loadLog(`analyzed:${d.id}`);
-  const { rent, bid } = savedNumbers(d);
+  const { rent, bid, commercial } = savedNumbers(d);
   const out: PacketSection[] = [];
 
   // 1. Your plan and buy box
@@ -205,30 +228,41 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       : [`Add the dates from the ${offer ? 'contract' : 'official notice'}: ${suggestedDates(d).join('; ')}.`],
   });
 
-  // 4. Cash needed, by when
+  // 4. Cash needed, by when (from the deal's own strategy)
+  const strategy = STRATEGY_LABEL[d.plan];
   const cash: string[] = [];
-  if (offer) {
-    cash.push(p.earnest ? `When you sign: ${money(p.earnest)} earnest money` : 'When you sign: earnest money (enter it below)');
-    cash.push(rent ? `At closing, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from Keep and rent: down payment, closing costs and repairs you entered)` : 'At closing: run Keep and rent with the price you’d pay');
+  if (offer) cash.push(p.earnest ? `When you sign: ${money(p.earnest)} earnest money` : 'When you sign: earnest money (enter it below)');
+  else if (p.earnest) cash.push(`Before the sale: ${money(p.earnest)} bidder deposit`);
+  let need = 0;
+  if (rent) {
+    need = rent.cashIn;
+    cash.push(`${offer ? 'At closing' : 'From sale day until it’s rented'}, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: down payment or bid, closing costs and repairs you entered)`);
+  } else if (bid) {
+    need = bid.cashTotal;
+    cash.push(`${offer ? 'At closing' : 'On sale day'}, at your walk-away price: ${money(bid.cashOnDay)}${offer ? '' : ' (bid plus any buyer’s premium, in the form the sale requires)'}`);
+    cash.push(`Through repairs and holding until it sells: ${money(bid.cashTotal)} in all`);
+  } else if (commercial) {
+    need = commercial.cashLeft;
+    cash.push(`All in at your highest price: ${money(commercial.allIn)}, with ${money(commercial.cashLeft)} of your own cash left in (from ${strategy})`);
+  } else if (d.plan === 'lien') {
+    cash.push('The certificate price and fees, from the Lien certificate calculator in Analyze.');
   } else {
-    if (p.earnest) cash.push(`Before the sale: ${money(p.earnest)} bidder deposit`);
-    cash.push(bid ? `On sale day, at your walk-away price: ${money(bid.cashOnDay)} (bid plus any buyer’s premium, in the form the sale requires)` : 'On sale day: set your walk-away price in Fix and sell');
-    if (bid) cash.push(`Through repairs and holding until it sells: ${money(bid.cashTotal)} in all`);
+    cash.push(`Run ${strategy} in Analyze to see the cash this deal needs.`);
   }
-  if (profile.investable > 0) {
-    const need = offer ? rent?.cashIn ?? 0 : bid?.cashTotal ?? 0;
-    if (need > 0) cash.push(need > profile.investable ? `That’s ${money(need - profile.investable)} more than your investable cash: the deal doesn’t fit as entered.` : `Leaves ${money(profile.investable - need)} of your investable cash for surprises.`);
-  }
-  out.push({ key: 'cash', title: 'Cash you’ll need, and when', status: (offer ? rent && p.earnest : bid) ? 'done' : rent || bid || p.earnest ? 'started' : 'missing', lines: cash, fix: (offer ? !rent : !bid) ? { label: offer ? 'Keep and rent at your price' : 'Fix and sell: your walk-away price', href: '#/analyze' } : undefined });
+  if (profile.investable > 0 && need > 0) cash.push(need > profile.investable ? `That’s ${money(need - profile.investable)} more than your investable cash: the deal doesn’t fit as entered.` : `Leaves ${money(profile.investable - need)} of your investable cash for surprises.`);
+  const hasNums = !!(rent || bid || commercial);
+  out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && (!offer || p.earnest) ? 'done' : hasNums || p.earnest ? 'started' : 'missing', lines: cash, fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 
-  // 5. Numbers: base and downside
-  const nums: string[] = [];
+  // 5. Numbers: base and downside, for the deal's strategy only
+  const nums: string[] = [`Strategy: ${strategy}. These are the numbers you saved in its calculator; other strategies’ calculators aren’t counted.`];
   if (rent) {
     nums.push(`Monthly cash flow at ${money(rent.price)}: ${money(rent.monthly)}; ${rent.cashOnCash === null ? 'all your cash back' : `${(rent.cashOnCash * 100).toFixed(1)}% a year on your cash`} (target ${rent.target}%)`);
     for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase()}: ${money(s.monthly)} a month`);
   }
   if (bid) nums.push(`Walk-away price: ${money(bid.maxBid)}, based on a ${money(bid.exitValue)} resale value`);
-  out.push({ key: 'numbers', title: 'Numbers: base case and downside', status: rent && rent.stress.length > 1 ? 'done' : rent || bid ? 'started' : 'missing', lines: nums.length ? nums : ['No numbers yet. Every figure here is your estimate until a source backs it.'], fix: { label: 'Open in Analyze', href: '#/analyze' } });
+  if (commercial) nums.push(`Highest price for a ${commercial.capPct}% return on cost: ${money(commercial.maxBid)}, on ${money(commercial.noi)} a year of net operating income`);
+  if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');
+  out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: (rent && rent.stress.length > 1) || bid || commercial ? 'done' : 'missing', lines: nums, fix: { label: 'Open in Analyze', href: '#/analyze' } });
 
   // 6. Evidence
   const checked = EVIDENCE_AREAS.filter((a) => log.rows[a.key]?.done);
@@ -272,8 +306,8 @@ export function nextAction(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}
   if (openRow) return { text: `Get an answer to: ${openRow.r.open}${openRow.r.owner ? ` (${openRow.r.owner})` : ''}.` };
   const waiting = p.qa.find((x) => x.q && !x.a);
   if (waiting) return { text: `Get an answer from your ${(proGuideByKey(waiting.role as never)?.title ?? 'professional').toLowerCase()}: ${waiting.q}` };
-  const { rent, bid } = savedNumbers(d);
-  if (isOffer(d) ? !rent : !bid) return { text: isOffer(d) ? 'Run Keep and rent with the price you’d pay, so the packet has your numbers and downside cases.' : 'Set your walk-away price in Fix and sell before you bid.', href: '#/analyze' };
+  const n = savedNumbers(d);
+  if (d.plan !== 'lien' && !n.rent && !n.bid && !n.commercial) return { text: d.plan === 'rent' ? 'Run Keep and rent with the price you’d pay, so the packet has your numbers and downside cases.' : d.plan === 'flip' ? `Set your walk-away price in Fix and sell before you ${isOffer(d) ? 'make an offer' : 'bid'}.` : 'Run Commercial income to find the most this building’s income supports.', href: '#/analyze' };
   if (!p.dates.some((x) => x.when)) return { text: `Put the deal’s dates on its calendar: ${suggestedDates(d).slice(0, 3).join(', ')}.` };
   const unchecked = EVIDENCE_AREAS.find((a) => !log.rows[a.key]?.done);
   if (unchecked) return { text: `Check “${unchecked.title}”: ${unchecked.what}` };
@@ -287,7 +321,7 @@ export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const lines = [`DEAL PACKET: ${d.name}`, 'DeedOwl educational worksheet. Every number is your estimate until a source backs it; a checkmark records your review, not a clear title.', ''];
   lines.push(`NEXT ACTION: ${nextAction(d, p, now).text}`, '');
   for (const s of packetSections(d, p, now)) {
-    lines.push(`${s.title.toUpperCase()} [${s.status === 'done' ? 'complete' : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines, '');
+    lines.push(`${s.title.toUpperCase()} [${s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines, '');
   }
   return lines.join('\n');
 }

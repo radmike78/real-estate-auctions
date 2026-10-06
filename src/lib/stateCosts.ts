@@ -128,13 +128,13 @@ export function redemptionChoicesFor(state: StateCode, kind: string): { keys: st
     return {
       keys: ['txTaxHomestead', 'txTaxOther'],
       start: 'txTaxHomestead',
-      confirm: 'Which Texas redemption rule applies isn’t confirmed yet. The longer, 2-year rule is assumed until you check the court judgment and the appraisal district record: was it the owner’s homestead, land designated for agricultural use, or a mineral interest when the suit was filed? If not, it’s 180 days (Tax Code 34.21).',
+      confirm: 'Which Texas redemption rule applies isn’t confirmed yet. Check the court judgment and the appraisal district record: was it the owner’s homestead, land designated for agricultural use, or a mineral interest when the suit was filed? If so, the owner has 2 years; if none of them, 180 days, either way counted from the day your deed is filed (Tax Code 34.21). The calculator starts on the longer rule.',
     };
   if (kind === 'hoa' && state === 'TX')
     return {
       keys: ['txHoaSubdivision', 'txHoaCondo'],
       start: 'txHoaSubdivision',
-      confirm: 'Whether this is a subdivision HOA (Property Code 209) or a condominium association (82) isn’t confirmed yet. The longer subdivision wait is assumed until you read the recorded declaration: a townhome can be either.',
+      confirm: 'Whether this is a subdivision HOA (Property Code 209: 180 days after the HOA mails notice of the sale) or a condominium association (82: 90 days after the sale) isn’t confirmed yet. The longer subdivision wait is assumed until you read the recorded declaration: a townhome can be either.',
     };
   if (kind === 'hoa') return { keys: has('hoa') ? ['hoa'] : ['none'], start: has('hoa') ? 'hoa' : 'none' };
   if (kind === 'court') {

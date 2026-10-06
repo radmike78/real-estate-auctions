@@ -58,7 +58,7 @@ export default function DealPacketPage({ dealId }: { dealId: string }) {
     const s = sec(k);
     return (
       <h2 id={`packet-${k}`}>
-        {s.title} <span className={`packet-status ${s.status}`}>{STATUS_LABEL[s.status]}</span>
+        {s.title} <span className={`packet-status ${s.status}`}>{s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>
       </h2>
     );
   };

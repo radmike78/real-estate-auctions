@@ -94,7 +94,7 @@ export default function ProProfilePage({ id }: { id: string }) {
             <div><dt>Last checked</dt><dd>{fmtDate(p.licenseVerifiedAt)}</dd></div>
           </dl>
           <p className="small">
-            A person checked this with {reg.name} and confirmed their identity independently. We re-check at least every {REVERIFY_DAYS} days.
+            A person checked {reg.url ? <>this with {reg.name}</> : reg.name} and confirmed their identity independently. We re-check at least every {REVERIFY_DAYS} days.
           </p>
           {reg.url && <a className="btn btn-secondary" href={reg.url} target="_blank" rel="noreferrer noopener">Check it yourself on {reg.name} ↗</a>}
         </aside>

@@ -53,5 +53,8 @@ export function shortLicenseLabel(category: Category, state: StateCode): string 
   if (category === 'loan_officer' || category === 'mortgage_company' || (category === 'private_lender' && state !== 'CA')) return 'NMLS ID';
   if (category === 'bank') return 'FDIC cert.';
   if (category === 'credit_union') return 'NCUA charter';
+  // No statewide license: name what was actually checked.
+  if (category === 'contractor' && state === 'TX') return 'Texas trade license';
+  if (category === 'home_inspector' && state === 'CA') return 'Credential';
   return `${stateByCode(state)?.name ?? state} license`;
 }

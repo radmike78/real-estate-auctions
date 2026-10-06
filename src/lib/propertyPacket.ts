@@ -21,8 +21,12 @@ function read(key: string): unknown {
   }
 }
 
-/** The rental numbers saved for a deal at the price you'd pay, or null until a price is entered in Keep and rent. */
+/**
+ * The rental numbers saved for a deal at the price you'd pay, or null until a price is entered in Keep and rent. Only
+ * for a deal saved with the Keep and rent strategy: another strategy's deal never shows leftover rental numbers.
+ */
 export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCash: number | null; target: number; cashIn: number } | null {
+  if (d.plan !== 'rent') return null;
   const offer = d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short';
   const raw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
   if (!raw) return null;

@@ -84,7 +84,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: 'A title search', detail: 'Property taxes and the HOA super-priority lien survive. Check for IRS and other senior liens.' },
       { text: 'Confirmation the sale is still on', detail: 'Call the trustee the day before. Postponements and cancellations are common.' },
       { text: 'An as-is repair budget and an occupancy plan', detail: 'You won’t get to see inside. Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act), and a lease can run to its end unless the buyer will live there. For homes with up to 4 units, Nevada also requires a written notice of the change of ownership. Tenants keep their lease rights for a notice period, generally at least 60 days (NRS 40.255). You take over the landlord’s duties, including responsibility for the security deposits tenants already paid, so find out the amounts and budget for them (NRS 118A.244). Former owners get a 3-day notice (NRS 40.255). Budget for an eviction attorney.' },
-      { text: 'For court-ordered sales: time for redemption', detail: 'The owner can buy the property back (redeem) for up to 1 year, so your money may be tied up.' },
+      { text: 'For court-ordered sales: time for redemption', detail: 'In Nevada, the owner can buy the property back (redeem) for up to 1 year after a court-ordered sale, so your money may be tied up. Other states’ periods differ: see the sale guide.' },
     ],
   },
   reo: {

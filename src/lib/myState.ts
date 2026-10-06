@@ -65,6 +65,23 @@ export const showFor = (state: StateCode | null, text: string) => {
   return s.length === 0 || s.includes(state);
 };
 
-/** The text as it applies to one state: drops sentences about other states (untagged sentences stay). */
-export const forStateText = (state: StateCode | null, text: string) =>
-  state ? text.split(/(?<=[.!?])\s+(?=[A-Z“"])/).filter((x) => showFor(state, x)).join(' ') : text;
+// After a sentence about another state, the sentences that follow belong to it too ("In Texas, the notice of sale is
+// posted 21 days ahead. The sale is held on the first Tuesday."), until one names a state or is plainly general.
+export const GENERAL_AGAIN = /^(?:Other states|In other states|In every state|Every state|In all (?:five|four) states|Elsewhere|Everywhere|Rules differ|Check your state|Wherever you buy)\b/;
+
+/**
+ * The text as it applies to one state: drops sentences about other states (untagged sentences stay), and the sentences
+ * that continue them, so no orphaned "there", "that rule" or other state's detail is left behind.
+ */
+export const forStateText = (state: StateCode | null, text: string) => {
+  if (!state) return text;
+  let dropped = false;
+  return text
+    .split(/(?<=[.!?])\s+(?=[A-Z“"])/)
+    .filter((x) => {
+      const tagged = statesOf(x).length > 0;
+      dropped = tagged ? !showFor(state, x) : dropped && !GENERAL_AGAIN.test(x);
+      return !dropped;
+    })
+    .join(' ');
+};

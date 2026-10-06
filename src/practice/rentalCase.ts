@@ -128,6 +128,8 @@ interface CaseConfig {
   dates: { when: string; what: string }[];
   depositLog: (n: Nums) => string;
   roofFinding: string;
+  /** The part of the roof that's wearing out, as named in questions: the inspection's own words. */
+  roofPart: string;
   cancelInspection: string;
   leaveInspection: string;
   lateInspection: string;
@@ -189,6 +191,7 @@ const NV: CaseConfig = {
   ],
   depositLog: (n) => `Earnest money ${usd(n.earnest)}`,
   roofFinding: 'Tile is fine. The underlayment beneath it has about 4–6 years left.',
+  roofPart: 'roof underlayment',
   cancelInspection: 'Cancel before Day 10 and get the earnest money back.',
   leaveInspection: 'Your contract’s inspection period lets you leave with your deposit.',
   lateInspection: 'After Day 10, this contract’s inspection period is over. You’d lose the right to cancel for the inspection, and maybe your deposit.',
@@ -284,6 +287,7 @@ const TX: CaseConfig = {
   ],
   depositLog: (n) => `Earnest money and option fee ${usd(n.earnest)}`,
   roofFinding: 'Composition shingles with about 4–6 years left.',
+  roofPart: 'composition shingle roof',
   cancelInspection: 'End the contract before 5 p.m. on Day 10, in the option period, and get the earnest money back.',
   leaveInspection: 'Your option period lets you leave for any reason: you get the earnest money back, and the seller keeps the $200 option fee.',
   lateInspection: 'After 5 p.m. on Day 10 the option period is over. You’d lose the right to end the contract over the inspection, and maybe your earnest money.',
@@ -777,7 +781,7 @@ function buildCase(c: CaseConfig) {
             { label: 'Sewer line', right: true, why: 'A backup makes the home unlivable and is expensive to clean up.' },
             { label: 'Electrical panel', right: true, why: 'A safety risk for your tenant, and some insurers ask about this kind of panel.' },
             { label: 'Kitchen outlets', right: true, why: 'Small and cheap, but a safety item. The electrician’s panel bid includes them.' },
-            { label: 'Roof underlayment', right: false, why: 'Budget for it now (a reserve each month), but it has years left.' },
+            { label: c.roofPart[0].toUpperCase() + c.roofPart.slice(1), right: false, why: 'Budget for it now (a reserve each month), but it has years left.' },
             { label: 'Water heater', right: false, why: 'Budget for it. Replace it when it fails or before it leaks.' },
           ],
         },
@@ -1085,7 +1089,7 @@ function buildCase(c: CaseConfig) {
         {
           kind: 'number',
           id: 'replacements',
-          prompt: 'The inspection found the roof underlayment has 4–6 years left (about $14,000) and the 14-year-old water heater (about $1,600). To have both saved in 4 years, how much do you set aside each month?',
+          prompt: `The inspection found the ${c.roofPart} has 4–6 years left (about $14,000) and the 14-year-old water heater (about $1,600). To have both saved in 4 years, how much do you set aside each month?`,
           answer: N.replaceMonthly,
           tolerance: 5,
           worked: [`$14,000 + $1,600 = $15,600`, `$15,600 ÷ 48 months = ${$(N.replaceMonthly)} a month`, `Your 5% set-aside is ${$(N.setAside)}: about ${$(N.replaceMonthly - N.setAside)} a month short, before any other big replacement.`],
