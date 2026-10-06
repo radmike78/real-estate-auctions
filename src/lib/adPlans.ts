@@ -4,10 +4,15 @@
 // Plan names shown to people (TIER_INFO): Rotating (standard), Spotlight (premium), Mentor Connect (premium_plus),
 // matching the operator's Stripe products. The internal keys stay standard/premium/premium_plus.
 //
-//  - Standard: a profile page and a place in the category's directory list, shown in fair rotating order.
-//  - Premium: Standard, plus a separate box labeled "Featured ad" on the category's directory pages, shown above the
-//    list. It never moves anyone up in the list itself: the list keeps the same rotation for everyone (pros.ts).
-//  - Premium Plus: Premium, plus one labeled advertiser box beside one Learn or Practice topic (adTopics.ts).
+//  - Standard (Rotating): a profile page, a place in the category's directory list in fair rotating order, and turns
+//    in the rotating ad at the top of the Your Team page.
+//  - Premium (Spotlight): Standard, plus a separate box labeled "Featured ad" on the category's directory pages for
+//    their city or county, shown above the list. With at most CAPS.featured per category in each city, every Spotlight
+//    advertiser in the visitor's city is shown on every page view (it doesn't rotate). It never moves anyone up in
+//    the list itself: the list keeps the same rotation for everyone (pros.ts).
+//  - Premium Plus (Mentor Connect): Premium, plus labeled ads where people may want more help: beside one Learn or
+//    Practice topic they choose (adTopics.ts), on Find Deals, and beside the matching step on Analyze a deal and
+//    My plan (contextAds.ts).
 //
 // Prices are never set here: they come from the operator's Stripe configuration (STRIPE_PLANS, server/stripe.ts).
 
@@ -23,15 +28,15 @@ export const isAdTier = (v: unknown): v is AdTier => typeof v === 'string' && (A
 export const TIER_INFO: Record<AdTier, { label: string; includes: string[]; badge?: string }> = {
   standard: {
     label: 'Rotating',
-    includes: ['Your own profile page with a contact form', 'A place in your category’s directory list, in fair rotating order', 'A results dashboard and a monthly report'],
+    includes: ['Your own profile page with a contact form', 'A place in your category’s directory list, in fair rotating order', 'A turn in the rotating ad at the top of the Your Team page', 'A results dashboard and a monthly report'],
   },
   premium: {
     label: 'Spotlight',
-    includes: ['Everything in Rotating', 'A separate box labeled “Featured ad” on your category’s directory pages, above the list', 'A turn in the rotating ad at the top of the Your Team page', 'A turn in the ad beside the matching step on My plan and Analyze a deal'],
+    includes: ['Everything in Rotating', 'A Featured ad on your category’s page for your city or county, above the list, that doesn’t rotate'],
   },
   premium_plus: {
     label: 'Mentor Connect',
-    includes: ['Everything in Spotlight', 'A labeled ad beside one Learn or Practice topic you choose'],
+    includes: ['Everything in Spotlight', 'A labeled ad beside one Learn or Practice topic you choose', 'Turns in the ad on Find Deals', 'Turns in the ad beside the matching step on Analyze a deal and My plan'],
     badge: 'Best value',
   },
 };
@@ -61,6 +66,15 @@ export const CAPS = {
 export const RESPA_CATEGORIES: ReadonlySet<Category> = new Set<Category>(['agent', 'loan_officer', 'mortgage_company', 'bank', 'credit_union', 'private_lender', 'title_escrow', 'attorney']);
 
 export const hasFeaturedBox = (t: AdTier) => t === 'premium' || t === 'premium_plus';
+
+/**
+ * Who takes turns in a one-advertiser "Advertisement" box. The rotating ad at the top of the Your Team page (no
+ * categories): every plan. The "at the moment you need one" spots on Find Deals, Analyze a deal and My plan (with
+ * categories, contextAds.ts): Mentor Connect only. Advertisers whose ads an admin turned off never appear.
+ */
+export function rotatingPool<P extends { category: Category; tier: AdTier; adsOff?: boolean }>(pros: P[], categories?: Category[]): P[] {
+  return pros.filter((p) => !p.adsOff && (categories ? p.tier === 'premium_plus' && categories.includes(p.category) : true));
+}
 export const topicCap = (c: Category) => (RESPA_CATEGORIES.has(c) ? CAPS.topicSettlement : CAPS.topicOther);
 
 /** The Learn and Practice topics an advertiser in this category can choose for Premium Plus. */

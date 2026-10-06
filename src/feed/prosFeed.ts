@@ -68,7 +68,8 @@ export function sanitizePro(p: Pro): Pro {
   const serviceCounties = Array.isArray(p.serviceCounties) && p.serviceCounties.length ? p.serviceCounties : state === 'NV' ? ['Clark'] : [];
   // Listings published before ad areas showed across their counties.
   const adAreas = Array.isArray(p.adAreas) ? p.adAreas.map((a) => ({ county: a.county, city: a.city ?? null })) : serviceCounties.map((county) => ({ county, city: null }));
-  return { ...p, state, serviceCounties, adAreas, tier, adLine, adTopic };
+  const adsOff = p.adsOff === true;
+  return { ...p, state, serviceCounties, adAreas, tier, adLine, adTopic, adsOff };
 }
 
 export async function verifyProsFeed(

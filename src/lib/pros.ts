@@ -288,6 +288,8 @@ export interface Pro {
   adLine: string | null;
   /** Premium Plus: the Learn/Practice topic its ad appears beside. */
   adTopic: string | null;
+  /** An admin turned this advertiser's ads off: listed, but in no ad box (not even the rotating ad). */
+  adsOff?: boolean;
   isSample: boolean;
 }
 

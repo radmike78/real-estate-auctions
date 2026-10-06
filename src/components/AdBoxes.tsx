@@ -2,7 +2,7 @@
 // "Advertisement"), shows who is advertising and their license, and ends with the same fine print. Nothing here
 // ranks or recommends anyone; which advertiser appears is chosen at random on each page view.
 import { useEffect, useMemo } from 'react';
-import { AD_FINE_PRINT, CAPS, hasFeaturedBox, pickRandom } from '../lib/adPlans';
+import { AD_FINE_PRINT, CAPS, hasFeaturedBox, pickRandom, rotatingPool } from '../lib/adPlans';
 import { shortLicenseLabel } from '../lib/regulators';
 import { CATEGORIES, isListable, type Category, type Pro } from '../lib/pros';
 import { track } from '../lib/track';
@@ -63,15 +63,16 @@ export function useAdImpressions(shown: Pro[]) {
 }
 
 /**
- * The "Featured ad" box on a category's directory pages: Premium and Premium Plus advertisers of these categories,
- * up to the featured cap, in a fresh random order on each page view. It sits apart from (above) the directory list,
+ * The "Featured ad" box on a category's directory pages: Spotlight and Mentor Connect advertisers of these categories
+ * in the visitor's area. The cap (CAPS.featured per category in each city) means everyone eligible in a chosen city is
+ * shown on every page view, in a fresh random order; it rotates only across a whole state when no city is chosen. It sits apart from (above) the directory list,
  * isn't tied to the visitor's search, and never changes anyone's place in the list.
  */
 export function FeaturedAds({ pros: all, categories, placeholder = false }: { pros: Pro[]; categories: Category[]; placeholder?: boolean }) {
   const [area] = useMyArea();
   const pros = inArea(all, area);
   const key = categories.join();
-  const pool = pros.filter((p) => categories.includes(p.category) && hasFeaturedBox(p.tier) && isListable(p)).map((p) => p.id).join();
+  const pool = pros.filter((p) => categories.includes(p.category) && hasFeaturedBox(p.tier) && !p.adsOff && isListable(p)).map((p) => p.id).join();
   // Chosen once per page view (and when the categories shown change), not on every keystroke in the filters.
   const shown = useMemo(() => pickRandom(pros.filter((p) => pool.split(',').includes(p.id)), CAPS.featured), [key, pool]); // eslint-disable-line react-hooks/exhaustive-deps
   useAdImpressions(shown);
@@ -86,15 +87,15 @@ export function FeaturedAds({ pros: all, categories, placeholder = false }: { pr
 }
 
 /**
- * The rotating ad at the top of the Your Team page, and (with `categories`) beside a matching step on My plan and
- * Analyze a deal (contextAds.ts): one Spotlight or Mentor Connect advertiser from any category (or those categories),
- * picked at random on each page view. Labeled "Advertisement" with the same fine print; nothing when no one qualifies.
+ * The rotating ad at the top of the Your Team page: one advertiser on any plan, from any category. With `categories`,
+ * the "at the moment you need one" spot on Find Deals, Analyze a deal or My plan (contextAds.ts): one Mentor Connect
+ * advertiser of those categories. Picked at random on each page view (rotatingPool). Labeled "Advertisement" with the
+ * same fine print; nothing when no one qualifies.
  */
 export function RotatingAd({ pros: all, placeholder = false, categories }: { pros: Pro[]; placeholder?: boolean; categories?: Category[] }) {
   const [area] = useMyArea();
   const pros = inArea(all, area);
-  // `categories`: only these kinds of professionals (the "at the moment you need one" spots, contextAds.ts).
-  const pool = pros.filter((p) => hasFeaturedBox(p.tier) && isListable(p) && (!categories || categories.includes(p.category))).map((p) => p.id).join();
+  const pool = rotatingPool(pros.filter((p) => isListable(p)), categories).map((p) => p.id).join();
   const shown = useMemo(() => pickRandom(pros.filter((p) => pool.split(',').includes(p.id)), 1), [pool]); // eslint-disable-line react-hooks/exhaustive-deps
   useAdImpressions(shown);
   if (!shown.length) return placeholder ? <AdSpace kind="Advertisement" /> : null;

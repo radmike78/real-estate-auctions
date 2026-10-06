@@ -38,7 +38,7 @@ function LicenseLinks({ topic, state }: { topic: AdTopic; state: StateCode }) {
 
 /** One advertiser for this topic, picked at random on each page view among those who chose it. */
 function TopicAdBox({ topic, pros }: { topic: AdTopic; pros: Pro[] }) {
-  const ids = pros.filter((p) => p.tier === 'premium_plus' && p.adTopic === topic.key && topic.categories.includes(p.category) && isListable(p)).map((p) => p.id).join();
+  const ids = pros.filter((p) => p.tier === 'premium_plus' && !p.adsOff && p.adTopic === topic.key && topic.categories.includes(p.category) && isListable(p)).map((p) => p.id).join();
   const shown = useMemo(() => pickRandom(pros.filter((p) => ids.split(',').includes(p.id)), 1), [ids]); // eslint-disable-line react-hooks/exhaustive-deps
   useAdImpressions(shown);
   if (!shown.length) return null;
