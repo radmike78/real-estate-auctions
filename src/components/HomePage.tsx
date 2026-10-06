@@ -1,5 +1,5 @@
 import { IconBank, IconBadge, IconCalc, IconCheckList, IconFile, IconLayers, IconShield, IconStar } from './Icons';
-import { loadCase } from '../practice/caseProgress';
+import { CASE_KEYS, loadCase } from '../practice/caseProgress';
 
 import { PATH, useStepsSeen } from '../lib/path';
 import { currentProgress, GUIDED, guidedNext, setMode, unfinished, useJourney } from '../lib/journey';
@@ -7,7 +7,8 @@ import { roadmapProgress } from './ToolkitPage';
 import { HomeArea } from './AreaPicker';
 
 /** Once the practice purchase is under way, the next place to go is your own plan. */
-const caseStarted = () => loadCase().done.length > 0;
+// Any state's practice house counts: each keeps its own progress.
+const caseStarted = () => Object.keys(CASE_KEYS).some((st) => loadCase(st).done.length > 0);
 
 // Straight to the tools and references, for "I know the basics".
 const EXPLORE = [
