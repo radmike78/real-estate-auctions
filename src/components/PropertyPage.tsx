@@ -370,12 +370,12 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       summary: [p.propertyType, p.beds !== null && `${p.beds} bd / ${p.baths} ba`, p.sqft && `${p.sqft.toLocaleString()} sq ft`, p.occupancy].filter(Boolean).join(' · '),
       content: () => (
         <dl className="facts">
-          {/* Owners of homes that aren't for sale (pre-foreclosure, cancelled, lien-only) are not shown, to discourage solicitation.
-              Nor before a trustee or HOA foreclosure sale: until the sale, the owner is still a homeowner in foreclosure. */}
-          {status.purchasable && s?.saleType !== 'TRUSTEE_SALE' && s?.saleType !== 'HOA_FORECLOSURE' && s?.saleType !== 'JUDICIAL_FORECLOSURE' ? (
-            p.ownerOfRecord && <div><dt>Owner of record</dt><dd>{p.ownerOfRecord}</dd></div>
+          {/* Owner names aren't needed to research or bid, so homeowners' names are never shown: the parcel number and the
+              county's own records are enough. Only a bank or agency selling a home it owns is named, as the seller. */}
+          {p.status === 'BROKER_OFFER' && p.ownerOfRecord ? (
+            <div><dt>Seller (owner of record)</dt><dd>{p.ownerOfRecord}</dd></div>
           ) : (
-            <div><dt>Owner of record</dt><dd className="muted">{status.purchasable ? 'Withheld: the owner is a homeowner in foreclosure' : 'Withheld: not for sale'}</dd></div>
+            <div><dt>Owner of record</dt><dd className="muted">Not shown: you don’t need it to research or bid. The county’s records are linked on this page.</dd></div>
           )}
           {p.legalDescription && <div><dt>Legal description</dt><dd className="small">{p.legalDescription}</dd></div>}
           <div><dt>Type</dt><dd>{p.propertyType}</dd></div>

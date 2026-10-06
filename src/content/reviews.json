@@ -38,7 +38,7 @@
       "src/lib/foreclosure.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "afc7e5f0a0f36911",
+    "hash": "7ab6b4a4cbfa539c",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
