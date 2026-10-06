@@ -89,7 +89,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
           })}
         </div>
         <h2 className="practice-step"><span aria-hidden>2</span> Quick drills: would you buy it?</h2>
-        <p><strong>Each drill is one short, made-up deal.</strong> Work through 2 or 3 missions (value it, check the rent, price the repairs, find the liens, run the numbers), then decide: Buy, Investigate or Pass. Missions are rehearsal: finishing them builds skill, not readiness to buy a real property.</p>
+        <p><strong>Each drill is one short, made-up deal.</strong> Work through 2 to 4 missions (value it, check the rent, price the repairs, find the liens, run the numbers), then decide: Buy, Investigate or Pass. Missions are rehearsal: finishing them builds skill, not readiness to buy a real property.</p>
         <DrillList />
         <PathNext step="practice" />
         <AdSpot spot="practice" />

@@ -86,10 +86,34 @@ export function TopicIcon({ topic }: { topic: Topic }) {
   return <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d={TOPIC_ICON[topic]} /></svg>;
 }
 
+/** The drill list's filters and scroll position, kept for this visit only (sessionStorage). */
+type Browse = { showAll: boolean; st: string; topic: 'all' | TopicGroup; prog: 'all' | 'new' | 'started' | 'done'; scrollY: number };
+const BROWSE_KEY = 'deedowl.drillBrowse.v1';
+function readBrowse(): Browse {
+  const base: Browse = { showAll: false, st: 'all', topic: 'all', prog: 'all', scrollY: 0 };
+  try {
+    const v = JSON.parse(sessionStorage.getItem(BROWSE_KEY) ?? 'null');
+    if (!v || typeof v !== 'object') return base;
+    return {
+      showAll: v.showAll === true,
+      st: typeof v.st === 'string' && /^(all|any|NV|CA|AZ|UT|TX)$/.test(v.st) ? v.st : 'all',
+      topic: TOPIC_GROUPS.some((g) => g.key === v.topic) ? v.topic : 'all',
+      prog: ['new', 'started', 'done'].includes(v.prog) ? v.prog : 'all',
+      scrollY: typeof v.scrollY === 'number' && Number.isFinite(v.scrollY) && v.scrollY > 0 ? Math.min(v.scrollY, 200_000) : 0,
+    };
+  } catch {
+    return base;
+  }
+}
+function writeBrowse(b: Browse) {
+  try { sessionStorage.setItem(BROWSE_KEY, JSON.stringify(b)); } catch { /* private mode: not kept */ }
+}
+
 /** Where a reader is in a drill, and what the card's button says. */
 export function drillStatus(d: Drill, s: Saved = load()): { state: 'new' | 'started' | 'done'; action: string; text: string; pct: number } {
   const p = drillProgress(d, s);
-  if (p.verdict) return { state: 'done', action: 'Review answers', text: `Completed · Your call: ${p.verdict}`, pct: 100 };
+  const missed = p.questions - p.matched;
+  if (p.verdict) return { state: 'done', action: 'Review answers', text: `Completed · Your call: ${p.verdict}${missed > 0 ? ` · ${missed} ${missed === 1 ? 'mission' : 'missions'} to revisit` : ''}`, pct: 100 };
   if (p.done > 0) return { state: 'started', action: 'Continue drill', text: `${p.done} of ${p.total} missions done`, pct: Math.round((p.done / p.total) * 100) };
   return { state: 'new', action: 'Start drill', text: `0 of ${p.total} missions done`, pct: 0 };
 }
@@ -100,7 +124,7 @@ export function DrillCardLink({ d, saved }: { d: Drill; saved: Saved }) {
   const st = drillState(d);
   const p = drillStatus(d, saved);
   return (
-    <a href={`#/practice/drills/${d.id}`} className={`drill-card topic-${c.topic}`}>
+    <a href={`#/practice/drills/${d.id}`} className={`drill-card topic-${c.topic}`} onClick={() => writeBrowse({ ...readBrowse(), scrollY: window.scrollY })}>
       <span className="drill-card-band">
         <span className="drill-card-icon"><TopicIcon topic={c.topic} /></span>
         <span className="drill-card-head">
@@ -159,10 +183,19 @@ export function DrillList() {
   const next = DRILLS.find((d) => drillStatus(d, saved).state === 'started');
   const [mine] = useMyState();
   const { mode } = useJourney();
-  const [showAll, setShowAll] = useState(false);
-  const [st, setSt] = useState<string>('all');
-  const [topic, setTopic] = useState<'all' | TopicGroup>('all');
-  const [prog, setProg] = useState<'all' | 'new' | 'started' | 'done'>('all');
+  // Filters and the place in the list are kept for this visit, so coming back from a drill lands where you were.
+  const remembered = readBrowse();
+  const [showAll, setShowAll] = useState(remembered.showAll);
+  const [st, setSt] = useState<string>(remembered.st);
+  const [topic, setTopic] = useState<'all' | TopicGroup>(remembered.topic);
+  const [prog, setProg] = useState<'all' | 'new' | 'started' | 'done'>(remembered.prog);
+  useEffect(() => writeBrowse({ ...readBrowse(), showAll, st, topic, prog }), [showAll, st, topic, prog]);
+  useEffect(() => {
+    const y = readBrowse().scrollY;
+    if (!y) return;
+    const t = window.setTimeout(() => { window.scrollTo(0, y); writeBrowse({ ...readBrowse(), scrollY: 0 }); }, 60);
+    return () => window.clearTimeout(t);
+  }, []);
   const own = (d: Drill) => d.commercial || d.flipBrrrr || d.manufactured || d.land;
   const keep = (d: Drill) =>
     (st === 'all' || (st === 'any' ? drillState(d) === null : drillState(d) === st)) &&
@@ -184,6 +217,8 @@ export function DrillList() {
     .filter((d): d is Drill => !!d);
   const guided = mode === 'guided' && !showAll;
   const shown = guided ? [{ key: 'starter', title: 'Start with these three', drills: starter }] : groups;
+  // Explorers see the same three first, above the full list, until they filter it.
+  const recommended = !guided && st === 'all' && topic === 'all' && prog === 'all' ? starter : [];
   const count = shown.reduce((n, g) => n + g.drills.length, 0);
   const filtered = st !== 'all' || topic !== 'all' || prog !== 'all';
   return (
@@ -192,6 +227,12 @@ export function DrillList() {
         <div className="drill-next" role="region" aria-label="Pick up where you left off">
           <h3 className="drill-group">Pick up where you left off</h3>
           <div className="practice-grid drill-grid"><DrillCardLink d={next} saved={saved} /></div>
+        </div>
+      )}
+      {recommended.length > 0 && (
+        <div className="drill-next" role="region" aria-label="Recommended to start with">
+          <h3 className="drill-group">Recommended to start with</h3>
+          <div className="practice-grid drill-grid">{recommended.map((d) => <DrillCardLink key={d.id} d={d} saved={saved} />)}</div>
         </div>
       )}
       {!guided && (
@@ -311,7 +352,16 @@ function MissionCard({ m, a, set, fresh }: { m: Mission; a: Answers[string]; set
         <button type="button" className="btn" disabled={!picks.length} onClick={() => set({ ...a, done: true })}>Check my answer</button>
       ) : (
         <>
-          <Feedback focus={fresh} tone={right === m.options.length ? 'good' : 'bad'}>{right === m.options.length ? 'Exactly what an experienced investor would choose.' : `${right} of ${m.options.length} choices match what an experienced investor would do. Read why below each one.`}</Feedback>
+          {(() => {
+            // A single choice is right or wrong; counting the options you rightly left alone would sound like partial credit.
+            const ok = right === m.options.length;
+            const best = m.options.filter((o) => o.good).map((o) => `“${o.label}”`).join(' and ');
+            const text = m.multi
+              ? ok ? 'Exactly the choices an experienced investor would make. Read why below each one.' : `Not quite: you matched ${right} of ${m.options.length} choices. An experienced investor would pick ${best}. Read why below each one.`
+              : ok ? 'Correct. Read why below.' : `Not quite. An experienced investor would choose ${best}. Read why below each choice.`;
+            return <Feedback focus={fresh} tone={ok ? 'good' : 'bad'}>{text}</Feedback>;
+          })()}
+          {right !== m.options.length && <button type="button" className="btn btn-secondary" onClick={() => set({ picks: [], done: false })}>Try this mission again</button>}
           <p className="drill-lesson">{m.lesson}</p>
           {VALUE_MISSIONS.includes(m.id) && <p className="drill-lesson">On a real property, comparable sales give you an estimate. The best way to determine the value is a professional appraisal by a <a href="#/pros/appraiser">licensed appraiser</a>; until then, your <a href="#/pros/agent">real estate agent</a> can estimate it from recent sales.</p>}
         </>
