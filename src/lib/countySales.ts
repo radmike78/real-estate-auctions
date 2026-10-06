@@ -34,10 +34,97 @@ export interface CountySale {
   listUrl: string | null;
   /** When the county says it will post the list, as a phrase ("on April 22, 2027", "in April 2027"), if it isn’t posted yet. */
   listExpected?: string;
+  /** Where the list is when it isn't a file DeedOwl can link (on the sale page itself, or with the county's law firm). */
+  listNote?: string;
+  /** "Before you can bid": the county's own registration and payment rules, each from its sale page. */
+  bidRules?: string[];
   checkedOn: string; // YYYY-MM-DD
 }
 
 export const COUNTY_SALES: CountySale[] = [
+  {
+    // https://www.dallam.org/county/clerk.shtml links the sheriff's joint notice (https://www.dallam.org/county/11.3.26sale.pdf),
+    // checked 2026-10-06: "will on the 3rd day of November, 2026, at the Courthouse door of said County, in the City of
+    // Dalhart, at 2:00 PM on said day, proceed to sell for cash"; "to satisfy the judgment(s) for delinquent property taxes".
+    id: 'tx-dallam-2026-11',
+    state: 'TX',
+    county: 'Dallam',
+    agency: 'Dallam County Sheriff (notice posted by the County Clerk)',
+    name: 'November 3, 2026 tax sale',
+    format: 'In-person auction',
+    startOnly: true,
+    place: 'Courthouse door, Dalhart',
+    startsAt: '2026-11-03T14:00:00-06:00',
+    endsAt: '2026-11-03T23:59:00-06:00',
+    redeemBy: null,
+    registerBy: null,
+    saleUrl: 'https://www.dallam.org/county/clerk.shtml',
+    listUrl: 'https://www.dallam.org/county/11.3.26sale.pdf',
+    checkedOn: '2026-10-06',
+  },
+  {
+    // https://www.childresstx.us/pages/county-sheriff, checked 2026-10-06: "Upcoming Sheriff's Sale Property Tax Sale -
+    // November 3rds 2026 Location - South steps of the Court House Time - 1:00pm Listing - See attached Notice Of Sale"
+    // (posted as images on that page).
+    id: 'tx-childress-2026-11',
+    state: 'TX',
+    county: 'Childress',
+    agency: 'Childress County Sheriff’s Office',
+    name: 'November 3, 2026 property tax sale',
+    format: 'In-person auction',
+    startOnly: true,
+    place: 'South steps of the courthouse, Childress',
+    startsAt: '2026-11-03T13:00:00-06:00',
+    endsAt: '2026-11-03T23:59:00-06:00',
+    redeemBy: null,
+    registerBy: null,
+    saleUrl: 'https://www.childresstx.us/pages/county-sheriff',
+    listUrl: null,
+    listNote: 'The notice of sale, with the properties, is posted as images on the sheriff’s page.',
+    checkedOn: '2026-10-06',
+  },
+  {
+    // https://grimescad.org/ (Grimes Central Appraisal District, which collects taxes), checked 2026-10-06: "The next
+    // delinquent tax sale is scheduled for December 1, 2026 at the Grimes County Courthouse in Anderson, Texas." The page
+    // sends buyers to its delinquent-tax law firms for the list; DeedOwl doesn't link them.
+    id: 'tx-grimes-2026-12',
+    state: 'TX',
+    county: 'Grimes',
+    agency: 'Grimes Central Appraisal District',
+    name: 'December 1, 2026 delinquent tax sale',
+    format: 'In-person auction',
+    datesOnly: true,
+    place: 'Grimes County Courthouse, Anderson',
+    startsAt: '2026-12-01T00:00:00-06:00',
+    endsAt: '2026-12-01T23:59:00-06:00',
+    redeemBy: null,
+    registerBy: null,
+    saleUrl: 'https://grimescad.org/',
+    listUrl: null,
+    listNote: 'The appraisal district’s page points to its delinquent-tax law firms for the property list.',
+    checkedOn: '2026-10-06',
+  },
+  {
+    // https://hoodcad.net/property-tax-sale/ (Hood Central Appraisal District), checked 2026-10-06: sales are held in "the
+    // 2nd floor Courtroom of the Hood County Courthouse at 100 East Pearl Street, in the City of Granbury"; "The next Tax
+    // Sale for Hood County is tentatively scheduled for March 2, 2027".
+    id: 'tx-hood-2027-03',
+    state: 'TX',
+    county: 'Hood',
+    agency: 'Hood Central Appraisal District',
+    name: 'March 2, 2027 tax sale (tentative)',
+    format: 'In-person auction',
+    datesOnly: true,
+    place: '2nd floor courtroom, Hood County Courthouse, 100 East Pearl Street, Granbury',
+    startsAt: '2027-03-02T00:00:00-06:00',
+    endsAt: '2027-03-02T23:59:00-06:00',
+    redeemBy: null,
+    registerBy: null,
+    saleUrl: 'https://hoodcad.net/property-tax-sale/',
+    listUrl: null,
+    listExpected: 'as a link on its page once the sale information is available',
+    checkedOn: '2026-10-06',
+  },
   {
     // https://jeffcotax.com/property-tax/delinquent-tax-sale/ (Jefferson County Tax Office), checked 2026-10-06: "2026 SHERIFF
     // SALE DATES *Subject to change* ... December 1, 2026 – Original Sheriff Sale"; "Once the sale begins at 10:00 am, no one
@@ -55,6 +142,11 @@ export const COUNTY_SALES: CountySale[] = [
     registerBy: null,
     saleUrl: 'https://jeffcotax.com/property-tax/delinquent-tax-sale/',
     listUrl: null,
+    bidRules: [
+      'Request the tax office’s Statement of No Delinquent Taxes Owed ahead of time, and be registered before the sale starts at 10 a.m.',
+      'Buying in a company’s name: bring its assumed name certificate, or its Franchise Tax Account Status with the officers listed.',
+      'Pay in cash or by cashier’s check to the Jefferson County Sheriff’s Department by 4 p.m. on sale day.',
+    ],
     checkedOn: '2026-10-06',
   },
   {
@@ -79,6 +171,7 @@ export const COUNTY_SALES: CountySale[] = [
     saleUrl: 'https://www.randallcounty.gov/293/Sheriff-Sale',
     listUrl: null,
     listExpected: 'in the sale flyer on its page (it has the date but no properties yet)',
+    bidRules: ['Register with the tax office by the deadline; you can’t owe Randall County taxes, and registration is renewed each year.', 'Bring a government photo ID for your bidder card; no cards once the sale starts.', 'Payment is due in full at the sale. A personal check is taken but must be replaced with certified funds before 2 p.m. that day.'],
     checkedOn: '2026-10-06',
   },
   {
@@ -98,6 +191,11 @@ export const COUNTY_SALES: CountySale[] = [
     registerBy: null,
     saleUrl: 'https://www.tarrantcountytx.gov/en/constables/constable-3/delinquent-tax-sales/monthly-tax-sales-listings.html',
     listUrl: 'https://www.tarrantcountytx.gov/en/constables/constable-3/delinquent-tax-sales/monthly-tax-sales-listings/november-3--2026.html',
+    bidRules: [
+      'Register before 10 a.m.; no registrations once the sale starts.',
+      'Pay with cashier’s checks or money orders for the exact amount (bring several sizes); certified funds are due within one hour after the sale.',
+      'Get the county tax office’s statement that you owe no delinquent taxes ($10) before a constable’s deed can be issued.',
+    ],
     checkedOn: '2026-10-06',
   },
   {
@@ -139,6 +237,7 @@ export const COUNTY_SALES: CountySale[] = [
     saleUrl: 'https://tax-office.traviscountytx.gov/properties/foreclosed',
     listUrl: null,
     listExpected: 'about 15 days before the sale, on the auction site its page links to',
+    bidRules: ['Register on the auction site the tax office links, and send the tax office the bidder registration and $10 fee at least five business days before the sale; you need both.', 'Owing back taxes on any Travis County property makes you ineligible to bid.'],
     checkedOn: '2026-10-06',
   },
   {
@@ -158,6 +257,7 @@ export const COUNTY_SALES: CountySale[] = [
     saleUrl: 'https://tax-office.traviscountytx.gov/properties/foreclosed',
     listUrl: null,
     listExpected: 'about 15 days before the sale, on the auction site its page links to',
+    bidRules: ['Register on the auction site the tax office links, and send the tax office the bidder registration and $10 fee at least five business days before the sale; you need both.', 'Owing back taxes on any Travis County property makes you ineligible to bid.'],
     checkedOn: '2026-10-06',
   },
   {
