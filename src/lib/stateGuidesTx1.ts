@@ -51,7 +51,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       label: "Bidder paperwork",
-      value: "In counties of 250,000 or more, you need a county statement that you owe no back taxes, or a bidder registration if the county uses one (34.015, 34.011)."
+      value: "In counties of 250,000 or more, and in smaller counties that have adopted the rule, you need a county statement that you owe no back taxes, or a bidder registration if the county uses one (34.015, 34.011)."
     },
     {
       label: "Payment",
@@ -69,7 +69,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       title: "Get your bidder paperwork early",
-      detail: "In large counties, the officer can’t give you a deed unless you show a current county statement that you owe no back taxes. These statements expire after 90 days (34.015). Some counties use bidder registration instead (34.011). Examples: Harris County requires a bidder card, renewed every year. Travis County runs its sales online through RealAuction and wants registration and a $10 fee at least five business days before the sale. Dallas County runs its tax sales online through Real Auction. Confirm the rules in your county."
+      detail: "In counties of 250,000 or more, and in smaller counties that have adopted the rule, the officer can’t give you a deed unless you show a current county statement that you owe no back taxes. These statements expire after 90 days (34.015). Some counties use bidder registration instead (34.011). Examples: Harris County requires a bidder card, renewed every year. Travis County runs its sales online through RealAuction and wants registration and a $10 fee at least five business days before the sale. Dallas County runs its tax sales online through Real Auction. Confirm the rules in your county."
     },
     {
       title: "Research every property before you bid",
@@ -439,7 +439,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       label: "Bidder paperwork",
-      value: "In counties of 250,000 or more, you need a county no-back-taxes statement or bidder registration to get the deed (34.0445)."
+      value: "In counties of 250,000 or more, and in smaller counties that have adopted the rule, you need a county no-back-taxes statement or bidder registration to get the deed (Civil Practice and Remedies Code 34.0445)."
     },
     {
       label: "Redemption",
@@ -465,7 +465,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       title: "Get your paperwork and funds ready",
-      detail: "In large counties, bring a current county statement that you owe no back taxes, or a bidder registration (34.0445). Each office sets payment terms. Example: Dallas County wants cash or a cashier’s check made out to the Sheriff’s Office for its live writ sales. It also wants a current bidder certificate and adds a $30 deed fee. If you can’t pay right away, it resells the property on the spot."
+      detail: "In counties of 250,000 or more, and in smaller counties that have adopted the rule, bring a current county statement that you owe no back taxes, or a bidder registration (34.0445). Each office sets payment terms. Example: Dallas County wants cash or a cashier’s check made out to the Sheriff’s Office for its live writ sales. It also wants a current bidder certificate and adds a $30 deed fee. If you can’t pay right away, it resells the property on the spot."
     },
     {
       title: "Bid at the sale",
@@ -598,7 +598,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       label: "Lender gets a chance",
-      value: "Before going to court, the HOA must notify lenders with a later-recorded deed of trust. They get 61 days to pay the debt (209.0091)."
+      value: "Before going to court, the HOA must notify lenders with a later-recorded deed of trust. They have until the 61st day after the HOA mails that notice (60 days) to pay the debt (209.0091)."
     },
     {
       label: "Notice after the sale (subdivision)",
@@ -632,7 +632,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       title: "Check that the sale was set up correctly",
-      detail: "Ask the trustee or the HOA’s attorney for the court order. After a Rule 736 sale, the order must be attached to the trustee’s deed (Rule 736.12). The debt can’t be only fines (209.009). Lenders with a later-recorded deed of trust must have had 61 days to pay (209.0091). Have an attorney or title company review the file before you bid."
+      detail: "Ask the trustee or the HOA’s attorney for the court order. After a Rule 736 sale, the order must be attached to the trustee’s deed (Rule 736.12). The debt can’t be only fines (209.009). Lenders with a later-recorded deed of trust must have had 60 days, until the 61st day after the notice, to pay (209.0091). Have an attorney or title company review the file before you bid."
     },
     {
       title: "Know the last-minute risk",

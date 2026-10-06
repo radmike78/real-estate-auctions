@@ -85,7 +85,7 @@ export const financing: Lesson = {
               ['FHA: 3.5% down, 6.5% for 30 years', '$10,500', 'About $2,000', 'You must live there (1–4 units). Includes FHA’s 1.75% upfront and 0.55% yearly mortgage insurance. With less than 10% down, the yearly premium lasts as long as the loan.'],
               ['VA: no down payment, 6.5% for 30 years', '$0', 'About $1,940', 'For eligible veterans who live there, with full VA entitlement (with less, the lender may require a down payment). Includes the 2.15% funding fee added to the loan, unless you’re exempt. You still need cash for closing costs unless the seller pays them.'],
               ['Hard money: 90% of the price, 11% interest-only, 2 points', '$35,400', 'About $2,480', 'Short-term, often due in about a year. You must sell or refinance in time, or face default.'],
-              ['Seller financing: 10% down, 6%, 30-year schedule, balloon after 5 years', '$30,000', 'About $1,620', 'About $251,000 is still owed at year five. If you can’t refinance then, you could lose the property. On a home the buyer will live in, a seller who doesn’t use a licensed loan originator can include a balloon only if they finance just one property in 12 months.'],
+              ['Seller financing: 10% down, 6%, 30-year schedule, balloon after 5 years', '$30,000', 'About $1,620', 'About $251,000 is still owed at year five. If you can’t refinance then, you could lose the property. On a home the buyer will live in, a seller who doesn’t use a licensed loan originator can include a balloon only if the seller is a person, estate or trust that finances just one property in 12 months.'],
             ],
           },
         },

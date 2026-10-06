@@ -109,6 +109,6 @@ export function teamFor(answers: TeamAnswers): { pro: ProKey; why: string }[] {
   if (auction) add('eviction', 'If anyone still lives there, the law sets how you take possession. You can’t change the locks yourself.');
   add('insurance', auction ? 'Coverage from the moment the risk is yours under the sale’s terms (ask before you bid), including while it’s empty or being repaired.' : 'Coverage from the day you own it, including while it’s empty or being repaired.');
   if (a.plan === 'rent' || business) add('property_manager', 'Finds and screens tenants, collects rent and handles repairs, if you don’t want to do it yourself.');
-  if (a.plan !== 'live' || business) add('cpa', a.plan === 'flip' ? 'A flip is often taxed as ordinary income, not as a lower-taxed capital gain. Talk before you buy.' : 'Rental income, depreciation and how you hold the property all affect your taxes.');
+  if (a.plan !== 'live' || business) add('cpa', a.plan === 'flip' ? 'A flip is often taxed as ordinary income, and can owe self-employment tax too. Talk before you buy.' : 'Rental income, depreciation and how you hold the property all affect your taxes.');
   return team;
 }

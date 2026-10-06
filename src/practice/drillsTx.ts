@@ -74,7 +74,7 @@ export const TX_DRILLS: Drill[] = [
         multi: true,
         options: [
           { label: 'The minimum bid is $14,500: the lesser of the judgment or the value in it', good: true, why: 'Right (Tax Code 34.01(j)). If no one bids enough, the property goes to the taxing unit.' },
-          { label: 'I need a county statement that I owe no back taxes, or a bidder registration, to get the deed', good: true, why: 'Right. Counties of 250,000 or more require one (34.015, 34.011). Statements expire after 90 days.' },
+          { label: 'I need a county statement that I owe no back taxes, or a bidder registration, to get the deed', good: true, why: 'Right. Counties of 250,000 or more require one, and smaller counties can adopt the rule (34.015, 34.011). Statements expire after 90 days.' },
           { label: 'I’ll owe the $3,800 of taxes that came due after the judgment', good: true, why: 'Right (33.52(d)). Add them to your price.' },
           { label: 'I’m buying a tax lien certificate that earns interest', good: false, why: 'No. Texas sells the property, not the lien.' },
         ],
@@ -137,7 +137,7 @@ export const TX_DRILLS: Drill[] = [
         options: [
           { label: 'The HOA got a court order (a Rule 736 order) or won a court foreclosure before the sale', good: true, why: 'Right (Property Code 209.0092). After a Rule 736 sale, the order must be attached to the trustee’s deed.' },
           { label: 'The debt isn’t only fines', good: true, why: 'Right. An HOA can’t foreclose for fines alone (209.009).' },
-          { label: 'Lenders with a later-recorded deed of trust got 61 days to pay', good: true, why: 'Right (209.0091).' },
+          { label: 'Lenders with a later-recorded deed of trust got 60 days after the HOA’s notice to pay', good: true, why: 'Right (209.0091).' },
           { label: 'Nothing: if the notice was posted, the sale is fine', good: false, why: 'A sale without the court order, or one held during a Rule 736 stay, can be void. Have an attorney or title company review the file.' },
         ],
         lesson: 'If the owner files a separate lawsuit by 5 p.m. on the Monday before the sale, a Rule 736 case stops, and a sale held anyway is void (Rule 736.11).',
@@ -201,7 +201,7 @@ export const TX_DRILLS: Drill[] = [
         options: [
           { label: 'A homestead is protected from forced sale for most debts, so I’d have an attorney confirm this isn’t the debtor’s homestead', good: true, why: 'Right (Tex. Const. art. XVI, sec. 50; Property Code 41.001).' },
           { label: 'The sale passes only what the debtor owned, so the $120,000 mortgage stays', good: true, why: 'Right (Civ. Prac. & Rem. Code 34.045). Add every older lien, plus property taxes and HOA liens, to your price.' },
-          { label: 'In this county, I need a no-back-taxes statement or bidder registration to get the deed', good: true, why: 'Right. Counties of 250,000 or more require one (34.0445).' },
+          { label: 'In this county, I need a no-back-taxes statement or bidder registration to get the deed', good: true, why: 'Right. Counties of 250,000 or more require one, and smaller counties can adopt the rule (Civil Practice and Remedies Code 34.0445).' },
           { label: 'The debtor can buy it back for 180 days', good: false, why: 'No. Texas execution sales have no redemption period.' },
         ],
         lesson: 'Read the judgment and the writ, get a title report, and look at the property only from the street.',
@@ -216,7 +216,7 @@ export const TX_DRILLS: Drill[] = [
           { label: 'I pay as the sheriff’s civil office directs and get a deed to the debtor’s interest. If I don’t pay, I can owe 20% of the value plus costs', good: true, why: 'Right (34.045, Rules 652, 653). Record your deed right away.' },
           { label: 'I get the deed now and can pay within a few months', good: false, why: 'Each office sets its terms, and a bidder who doesn’t pay can owe 20% of the property’s value.' },
         ],
-        lesson: 'The tenant keeps the right to notice. If you won’t keep the lease, a tenant who pays on time gets at least 30 days’ written notice (Property Code 24.005(b)). After a foreclosure, federal law can require at least 90 days, or the rest of a genuine lease unless you’ll live there, and only an eviction case in court can remove anyone.',
+        lesson: 'A sheriff’s execution sale isn’t a trustee’s or tax foreclosure sale, so the 30-day notice rule in Property Code 24.005(b) doesn’t apply to it. Whether the tenant’s lease survives depends on whether it was in place before the judgment lien attached. Have an attorney review the lease before you give any notice, and remember that only an eviction case in court can remove anyone.',
       },
     ],
     verdict: {

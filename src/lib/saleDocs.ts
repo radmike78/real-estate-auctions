@@ -150,7 +150,7 @@ const TX_DOCS: Partial<Record<SaleKindKey, SaleDoc[]>> = {
     { name: 'Insurance binder', check: 'Coverage starting when the property becomes your risk under this sale. Ask the trustee when that is.' },
   ],
   hoa: [
-    { name: 'The notice of sale and the court order', check: 'A subdivision HOA usually needs a court order before it can sell a home (Property Code 209.0092). A condominium association can foreclose in court or, unless its declaration says otherwise, through a trustee sale (Property Code 82.113). Check the notice for the trustee or attorney running the sale.' },
+    { name: 'The notice of sale and the court order', check: 'A subdivision HOA usually needs a court order before it can sell a home (Property Code 209.0092). A condominium association can foreclose in court or without a court under its statutory power of sale, using the Property Code 51.002 trustee-sale procedure unless the declaration sets another procedure (Property Code 82.113(d), (e)). Check the notice for the trustee or attorney running the sale.' },
     { name: 'The recorded declaration', check: 'It decides which law applies: a subdivision (Chapter 209) or a condominium (Chapter 82). A townhome can be either, and the name or look of the building doesn’t tell you.' },
     TITLE_SEARCH,
     FUNDS,
@@ -177,7 +177,7 @@ const TX_DOCS: Partial<Record<SaleKindKey, SaleDoc[]>> = {
     PREAPPROVAL,
     BUYER_AGREEMENT,
     { name: 'The TREC resale contract (form 20-19)', check: 'Price, earnest money, the option fee and the closing date. With a short sale, these dates are tied to the addendum below.' },
-    { name: 'TREC Short Sale Addendum (form 45-2)', check: 'Says the contract depends on every lienholder’s written approval. Read how the dates in the contract, including the option period, are counted from the approval, and when either side can end the contract while you wait.' },
+    { name: 'TREC Short Sale Addendum (form 45-2)', check: 'Says the contract depends on every lienholder’s written approval (45-2, A, I). Read which dates change: for performance, the effective date becomes the day you’re told of the approval (D), while your option period begins on the original effective date and runs until it expires under paragraph 5 (F). Note the approval deadline and how to extend it, and have your agent write out every date for your contract.' },
     { name: 'Each lienholder’s approval letter', check: 'The price it accepts, the closing deadline and which costs it will and won’t pay. An approval doesn’t prove a posted foreclosure sale has been called off: have your agent or attorney confirm that in writing.' },
     INSPECTION,
     COMMITMENT,

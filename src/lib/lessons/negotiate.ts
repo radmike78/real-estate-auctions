@@ -69,7 +69,7 @@ export const negotiate: Lesson = {
             rows: [
               ['Nevada', '$350 a year in Nevada: a $150 annual list plus a $200 state business license. Filing the articles costs $75 (NRS 86.561, 86.263 and 76.130).'],
               ['California', 'At least $800 a year in California tax, even if the LLC earns nothing or loses money, until you cancel it. The first payment is due by the 15th day of the 4th month after you form it. A fee is added once total income reaches $250,000 (Franchise Tax Board).'],
-              ['Arizona', 'Arizona LLCs file no annual report. Filing the articles costs $50 (Arizona Corporation Commission).'],
+              ['Arizona', 'Arizona LLCs file no annual report. Filing the articles costs $50 (Arizona Corporation Commission). If your statutory agent is outside Maricopa and Pima counties, you must also pay to publish notice of the filing in a newspaper.'],
               ['Utah', 'An $18 renewal each year in Utah. Filing the certificate of organization costs $59 (Utah Division of Corporations, 2026 fee schedule).'],
               ['Texas', 'No Texas franchise tax is due if total revenue is $2.65 million or less (2026 and 2027 reports), but every LLC still files a Public Information Report with the Comptroller each year. Filing the certificate of formation costs $300 (Texas Comptroller; Tax Code 171.203; Business Organizations Code 4.152 and 4.154).'],
             ],
@@ -108,7 +108,7 @@ export const negotiate: Lesson = {
       heading: 'Protect your money at closing',
       blocks: [
         'Criminals send fake emails with new wiring instructions that look like they come from your agent, title company or lender. Never follow payment instructions sent by email. Call your title or escrow officer at a number you already know to confirm the account before you wire. If you think you’ve been scammed, call your bank right away to try to recall the wire, and report it at ic3.gov.',
-        'If the seller is a foreign person, federal law makes you, the buyer, withhold 15% of the price and send it to the IRS within 20 days (Form 8288). If you don’t, you can end up owing the tax yourself. You withhold less, or nothing, only if you’ll live in the home and the price is $1 million or less: 10% up to $1 million, and none at $300,000 or less. An investor buying a rental doesn’t qualify for that exception. Ask your title or escrow company to confirm early whether the seller is a foreign person.',
+        'If the seller is a foreign person, federal law makes you, the buyer, withhold 15% of the price and send it to the IRS within 20 days (Form 8288). If you don’t, you can end up owing the tax yourself. The rate is lower, or zero, if you’ll live in the home and the price is $1 million or less (10% up to $1 million, none at $300,000 or less), and withholding can also be reduced or excused by an IRS withholding certificate or a seller’s nonrecognition notice, such as in a 1031 exchange. An investor buying a rental can’t use the residence exception. Ask your title or escrow company to confirm early whether the seller is a foreign person.',
       ],
     },
   ],
