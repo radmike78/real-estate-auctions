@@ -46,7 +46,7 @@ import HomeownerHelpPage from './components/HomeownerHelpPage';
 import GuidesPage from './components/GuidesPage';
 import AlertsPage, { type AlertsMode } from './components/AlertsPage';
 import RoleNotice from './components/RoleNotice';
-import { ROLE_SHORT } from './lib/disclaimers';
+import { ASTERISK_NOTE, ROLE_SHORT } from './lib/disclaimers';
 import { isCategory, type Category } from './lib/pros';
 import { SALE_TYPE_LABEL } from './lib/rules';
 import { STATUS } from './lib/status';
@@ -333,6 +333,7 @@ export default function App() {
       </PageErrorBoundary>
       <footer className="footer">
         <span className="footer-note">{ROLE_SHORT} Our guides are general education, not legal, tax or financial advice.</span>
+        <span className="footer-note">{ASTERISK_NOTE}</span>
         <nav aria-label="Footer">
           {features?.email && <a href="#/alerts">Email alerts</a>}
           <a href="#/homeowner-help">Homeowners: free help</a>

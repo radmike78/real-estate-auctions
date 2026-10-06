@@ -632,7 +632,7 @@ export const STATE_GUIDES: Playbook[] = [
       "Easements on or benefiting the property (ARS 42-18204)",
       "Certain special assessment liens, such as improvement district liens (ARS 42-18204)",
       "In Arizona, county cleanup (abatement) liens for things like weeds, debris or unsafe buildings, through September 30, 2028 (ARS 42-18204, 11-268)",
-      "Liens held by the state (ARS 42-17153)",
+      "Liens held by the state (ARS 42-17153)*",
       "Other liens and title problems the court case did not clear. Get a title report and ask your attorney"
     ]
   },

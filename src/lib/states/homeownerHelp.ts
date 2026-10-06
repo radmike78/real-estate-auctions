@@ -5,7 +5,7 @@ import { TX_HOMEOWNER_HELP, TX_HOMEOWNER_DEADLINES, TX_HOMEOWNER_SCAMS, TX_HOMEO
 
 export const HELP: ByStateLines = {
   NV: [
-    { text: 'In Nevada, if you live in the home, you can ask the district court for foreclosure mediation, a meeting with your lender and a neutral mediator. File your petition within 30 days after the notice of default is served (NRS 107.086). It costs a $25 filing fee plus your half of the mediation fee, and the law caps the total mediation fee at $500. In Clark County, the Eighth Judicial District Court runs it.', links: [['Foreclosure mediation (Clark County courts)', 'https://www.clarkcountycourts.us/departments/adr/foreclosure-mediation/']] },
+    { text: 'In Nevada, if you live in the home, you can ask the district court for foreclosure mediation, a meeting with your lender and a neutral mediator. File your petition within 30 days after the notice of default is served (NRS 107.086). It costs a $25 filing fee plus your half of the mediation fee, and the law caps the total mediation fee at $500. In Clark County, the Eighth Judicial District Court runs it.*', links: [['Foreclosure mediation (Clark County courts)', 'https://www.clarkcountycourts.us/departments/adr/foreclosure-mediation/']] },
     { text: 'In Nevada, Nevada Legal Services offers free legal help statewide. In Clark County, also try the Legal Aid Center of Southern Nevada and the Civil Law Self-Help Center at the court.', links: [['Nevada Legal Services', 'https://nevadalegalservices.org/'], ['Legal Aid Center of Southern Nevada', 'https://www.lacsn.org/'], ['Civil Law Self-Help Center', 'https://www.civillawselfhelpcenter.org/']] },
   ],
   CA: [

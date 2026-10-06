@@ -73,7 +73,7 @@ export const afterClosing: Lesson = {
           'In Nevada, give at least 24 hours’ notice before entering, and enter only at reasonable times during normal business hours, except in an emergency or when the tenant clearly agrees to shorter notice or other hours (NRS 118A.330). There’s no statewide rent control.',
           'In California, give reasonable written notice before entering. The law assumes 24 hours is reasonable (Civil Code 1954). The Tenant Protection Act limits most rent increases in 12 months to 5% plus inflation, never more than 10%. It also says that after a tenant has lived there 12 months, you need a just cause to end the tenancy (if another adult joined the lease within the first 24 months, once all tenants reach 12 months or any tenant reaches 24). Some properties are exempt. Both rules run until January 1, 2030 (Civil Code 1947.12 and 1946.2). Some cities have stricter rules.',
           'In Arizona, give at least two days’ notice before entering, except in an emergency (A.R.S. 33-1343). State law doesn’t let cities or towns control rents (A.R.S. 33-1329).',
-          'In Utah, unless the rental agreement says otherwise, give at least 24 hours’ notice before you enter (Utah Code 57-22-4(2)). Check the current statute and your lease before you rely on it. The Utah courts’ self-help center explains the rest of Utah’s landlord-tenant law.',
+          'In Utah, unless the rental agreement says otherwise, give at least 24 hours’ notice before you enter (Utah Code 57-22-4(2)). The Utah courts’ self-help center explains the rest of Utah’s landlord-tenant law.',
           'In Texas, we found no notice rule for entering in the state’s landlord-tenant law (Property Code chapter 92), so put your entry rules in the lease. A Texas city can adopt rent control only in a disaster-related housing emergency, and only with the governor’s approval (Local Government Code 214.902).',
         ] },
       ],
@@ -118,7 +118,7 @@ export const afterClosing: Lesson = {
           table: {
             head: ['State', 'Notice for unpaid rent', 'What to know'],
             rows: [
-              ['Nevada', '7 judicial days (court days) to pay or leave (NRS 40.2512 and 40.253)', 'Clark County says an eviction can take anywhere from 10 to 180 days.'],
+              ['Nevada', '7 judicial days (court days) to pay or leave (NRS 40.2512 and 40.253)', 'Clark County says an eviction can take anywhere from 10 to 180 days.*'],
               ['California', '3 days, not counting Saturdays, Sundays and court holidays (Code of Civil Procedure 1161)', 'Then you file an unlawful detainer case in court. Since January 1, 2025, the tenant has 10 days, not counting weekends and court holidays, to answer it (CCP 1167).'],
               ['Arizona', '5 days after written notice (A.R.S. 33-1368)', 'Then you file a special detainer case. If the tenant pays all past-due rent and a reasonable late fee from the written lease before you file, the lease continues.'],
               ['Utah', '3 business days to pay or leave (Utah Code 78B-6-802)', 'Then you file an unlawful detainer case in court.'],
