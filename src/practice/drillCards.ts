@@ -6,8 +6,9 @@ import type { Drill } from './drills';
  * nothing new is claimed.
  */
 
-/** A topic is a colour and an icon. Colours name a kind of sale, never "safe" or "risky" (no green, red or amber). */
-export type Topic = 'trustee' | 'tax' | 'taxlien' | 'hoa' | 'sheriff' | 'irs' | 'listed' | 'rental' | 'flip' | 'commercial' | 'manufactured' | 'land';
+/** A topic picks the card's icon. Colours are handed out by position (see HUE_COUNT), so cards side by side never match. */
+export const HUE_COUNT = 10;
+export type Topic = 'trustee' | 'tax' | 'taxlien' | 'hoa' | 'sheriff' | 'irs' | 'bank' | 'short' | 'rental' | 'flip' | 'brrrr' | 'commercial' | 'manufactured' | 'land';
 
 /** The filter groups readers choose from. */
 export type TopicGroup = 'auctions' | 'listed' | 'flip' | 'commercial' | 'manufactured' | 'land';
@@ -22,7 +23,7 @@ export const TOPIC_GROUPS: { key: TopicGroup; label: string }[] = [
 
 const GROUP_OF: Record<Topic, TopicGroup> = {
   trustee: 'auctions', tax: 'auctions', taxlien: 'auctions', hoa: 'auctions', sheriff: 'auctions', irs: 'auctions',
-  listed: 'listed', rental: 'listed', flip: 'flip', commercial: 'commercial', manufactured: 'manufactured', land: 'land',
+  bank: 'listed', short: 'listed', rental: 'listed', flip: 'flip', brrrr: 'flip', commercial: 'commercial', manufactured: 'manufactured', land: 'land',
 };
 
 interface CardInfo {
@@ -47,8 +48,8 @@ const CARDS: Record<string, CardInfo> = {
   'irs-deferred-payment': { sale: 'IRS sale', topic: 'irs', property: 'House' },
   'irs-senior-liens': { sale: 'IRS sale', topic: 'irs', property: 'Duplex' },
   'irs-redeemed': { sale: 'IRS sale', topic: 'irs', property: 'House' },
-  'bank-owned': { sale: 'Bank-owned', topic: 'listed', property: 'House' },
-  'short-sale': { sale: 'Short sale', topic: 'listed', property: 'House' },
+  'bank-owned': { sale: 'Bank-owned', topic: 'bank', property: 'House' },
+  'short-sale': { sale: 'Short sale', topic: 'short', property: 'House' },
   'tax-lien-az': { sale: 'Tax lien', topic: 'taxlien', property: 'Vacant land' },
   'trustee-sale-ca': { sale: 'Trustee’s sale', topic: 'trustee', property: 'Duplex' },
   'tax-deed-ca': { sale: 'Tax sale', topic: 'tax', property: 'Vacant lot' },
@@ -68,8 +69,8 @@ const CARDS: Record<string, CardInfo> = {
   'commercial-bank-auction': { sale: 'Commercial auction', topic: 'commercial', property: 'Industrial building' },
   'flip-numbers': { sale: 'Fix and flip', topic: 'flip', property: 'House' },
   'flip-delays': { sale: 'Fix and flip', topic: 'flip', property: 'House' },
-  'brrrr-appraisal': { sale: 'BRRRR', topic: 'flip', property: 'House' },
-  'brrrr-rates': { sale: 'BRRRR', topic: 'flip', property: 'House' },
+  'brrrr-appraisal': { sale: 'BRRRR', topic: 'brrrr', property: 'House' },
+  'brrrr-rates': { sale: 'BRRRR', topic: 'brrrr', property: 'House' },
   'manufactured-own-land': { sale: 'Manufactured home', topic: 'manufactured', property: 'Double-wide on 1 acre' },
   'manufactured-park-nv': { sale: 'Manufactured home', topic: 'manufactured', property: 'Home in a park' },
   'mobile-home-1974': { sale: 'Mobile home', topic: 'manufactured', property: 'Home on its own lot' },

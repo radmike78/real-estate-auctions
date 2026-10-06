@@ -7,7 +7,7 @@ import PathNext from './PathNext';
 import { useState } from 'react';
 import PageHero from './PageHero';
 import { DrillList, TopicIcon } from './DrillPage';
-import type { Topic } from '../practice/drillCards';
+import { HUE_COUNT, type Topic } from '../practice/drillCards';
 import ClassSwitch from './ClassSwitch';
 import type { ClassFilter } from '../lib/propertyClass';
 import { playbookByKey } from '../lib/playbooks';
@@ -22,7 +22,7 @@ import { caseFor } from '../practice/rentalCase';
 import AdSpot from './AdSpot';
 
 /** Each kind of sale keeps the same colour and icon as its drills. */
-const SALE_TOPIC: Record<SaleKey, Topic> = { tax: 'tax', foreclosure: 'trustee', reo: 'listed', short: 'listed', hoa: 'hoa', sheriff: 'sheriff', irs: 'irs', sid: 'taxlien' };
+const SALE_TOPIC: Record<SaleKey, Topic> = { tax: 'tax', foreclosure: 'trustee', reo: 'bank', short: 'short', hoa: 'hoa', sheriff: 'sheriff', irs: 'irs', sid: 'taxlien' };
 
 /** One plain line, not a banner: readers skip anything styled like a notice. */
 export function PracticeRibbon() {
@@ -69,13 +69,13 @@ export default function PracticePage({ sale }: { sale?: string }) {
         <p className="muted">These practice purchases follow Nevada rules (Clark County). Drills for every state are in step 2.</p>
         <div className="practice-sales">
           {/* SID lien certificates are a Clark County, Nevada sale only: not offered to visitors from other states. */}
-          {SALE_ORDER.filter((s) => s !== 'sid' || !getMyState() || getMyState() === 'NV').map((s) => {
+          {SALE_ORDER.filter((s) => s !== 'sid' || !getMyState() || getMyState() === 'NV').map((s, i) => {
             const runs = PRACTICE_PROPERTIES.map((p) => buildScenario(s, p)).filter((x): x is NonNullable<typeof x> => !!x);
             const pct = runs.map((r) => completion(r.id, r.stages.reduce((n, st) => n + st.tasks.length, 0)));
             const done = pct.filter((x) => x === 1).length;
             const started = pct.filter((x) => x > 0 && x < 1).length;
             return (
-              <a key={s} href={`#/practice?sale=${s}`} className={`practice-sale-tile topic-${SALE_TOPIC[s]}`}>
+              <a key={s} href={`#/practice?sale=${s}`} className={`practice-sale-tile hue-${i % HUE_COUNT}`}>
                 <span className="sale-tile-head"><span className="drill-card-icon"><TopicIcon topic={SALE_TOPIC[s]} /></span><strong>{titleOf(s)}</strong></span>
                 <span className="muted">{playbookByKey(s)?.oneLine}</span>
                 <span className="practice-card-foot">
