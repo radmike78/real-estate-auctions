@@ -14,6 +14,8 @@ export interface Playbook {
   title: string;
   short: string; // tile label
   oneLine: string;
+  /** A shorter blurb for the guide's card on the hub, when oneLine runs long. Same facts, fewer words. */
+  teaser?: string;
   youGet: string;
   /** "What you get" in plain words, when the legal wording needs it; the legal line then shows beneath. */
   plain?: string;
@@ -43,8 +45,9 @@ const T = TEAM;
 const NEVADA: Playbook[] = [
   {
     key: 'tax',
-    title: 'Tax sales',
+    title: 'Nevada tax sales',
     short: 'Tax sales',
+    teaser: 'Homes and land with three or more years of unpaid property taxes (two if the county found it abandoned), sold by the Treasurer at an in-person auction.',
     oneLine: 'Homes and land with three or more years of unpaid property taxes, sold by the Treasurer at an in-person auction. If the county found a property abandoned, two years is enough. (About a year after the taxes go unpaid, the county issues a tax certificate. The owner then has 2 years, or 1 if the property is abandoned, to pay. If they don’t, the Treasurer takes title in trust and can auction it.)',
     youGet: 'The property, by quitclaim deed from the Treasurer, with no warranty of title.',
     plain: 'The house itself, but the county makes no promise that the title is clear.',
@@ -99,7 +102,7 @@ const NEVADA: Playbook[] = [
   },
   {
     key: 'sid',
-    title: 'Lien certificates',
+    title: 'Nevada lien certificates',
     short: 'Lien certificates',
     oneLine: 'The Clark County Treasurer sells the lien for unpaid special improvement district (SID) assessments. You buy a debt that earns interest, not the property.',
     youGet: 'A certificate of sale: the right to be repaid plus 1% a month. You can ask for a deed only if the owner never redeems, and the certificate expires if you wait too long.',
@@ -151,7 +154,7 @@ const NEVADA: Playbook[] = [
   },
   {
     key: 'foreclosure',
-    title: 'Foreclosure auctions',
+    title: 'Nevada foreclosure auctions',
     short: 'Foreclosure auctions',
     oneLine: 'Most Nevada foreclosures are non-judicial. After the owner defaults, a trustee sells the property at auction.',
     youGet: 'The owner’s interest by trustee’s deed, subject to anything senior to the loan being foreclosed.',
@@ -205,7 +208,7 @@ const NEVADA: Playbook[] = [
   },
   {
     key: 'hoa',
-    title: 'HOA foreclosures',
+    title: 'Nevada HOA foreclosures',
     short: 'HOA foreclosures',
     oneLine: 'A homeowners association (HOA) sells a home to collect unpaid dues (NRS 116).',
     youGet: 'The owner’s title, subject to a 60-day redemption period, and possibly subject to the first mortgage.',
@@ -251,7 +254,7 @@ const NEVADA: Playbook[] = [
   },
   {
     key: 'sheriff',
-    title: 'Sheriff sales',
+    title: 'Nevada sheriff sales',
     short: 'Sheriff sales',
     oneLine: 'Property sold to pay a court judgment, including judicial foreclosures.',
     youGet: 'The debtor’s interest, subject to a 1-year redemption right, and to anything senior to the judgment.',
@@ -291,7 +294,7 @@ const NEVADA: Playbook[] = [
   },
   {
     key: 'irs',
-    title: 'IRS sales',
+    title: 'Nevada IRS sales',
     short: 'IRS sales',
     oneLine: 'The IRS seizes and sells property to collect unpaid federal taxes, by public auction or sealed bid.',
     youGet: 'The taxpayer’s interest by quitclaim-type deed, after a 180-day redemption period (seizure sales; court-ordered sales differ).',
@@ -327,7 +330,7 @@ const NEVADA: Playbook[] = [
   },
   {
     key: 'reo',
-    title: 'Bank-owned (REO)',
+    title: 'Nevada bank-owned (REO) homes',
     short: 'Bank-owned (REO)',
     oneLine: 'Property a lender took back at a foreclosure auction. The lender sells it through its broker or an auction it chooses.',
     youGet: 'The property, bought with a normal purchase contract (usually with the lender’s addendum). You get a deed with limited promises from the lender, and title insurance.',
@@ -373,7 +376,7 @@ const NEVADA: Playbook[] = [
   },
   {
     key: 'commercial',
-    title: 'Commercial property',
+    title: 'Nevada commercial property',
     short: 'Commercial property',
     oneLine: 'Stores, offices, industrial buildings, apartments with 5+ units and commercial land. They are sold at tax, trustee, court and bank sales.',
     youGet: 'The same deed as a home bought the same way, but without the protections home buyers get, and often with tenants, leases and environmental history.',
@@ -437,7 +440,7 @@ const NEVADA: Playbook[] = [
   },
   {
     key: 'short',
-    title: 'Short sales',
+    title: 'Nevada short sales',
     short: 'Short sales',
     oneLine: 'The owner sells for less than they owe, with the lender’s approval.',
     youGet: 'The property by a normal sale through escrow, once the lender approves.',

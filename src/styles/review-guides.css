@@ -1,1 +1,68 @@
-/* Review round 7: guides page fixes. */
+/* Sale guides (/playbooks, /playbooks/<key>, /guides): review fixes. Loads after styles.css. */
+
+/* Bold amounts and deadlines inside a step read as part of the sentence, not as a heading on their own line. */
+.steps-rich li > span strong { display: inline; font: inherit; font-weight: 700; margin: 0; color: var(--text); }
+
+/* Step and mistake cards: a column count that divides the number of cards, so no card sits alone on the last row. */
+.steps-rich, .risk-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.steps-rich:has(> :nth-child(1):last-child), .risk-list:has(> :nth-child(1):last-child) { grid-template-columns: minmax(0, 1fr); }
+.steps-rich:has(> :nth-child(2):last-child), .risk-list:has(> :nth-child(2):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.steps-rich:has(> :nth-child(3):last-child), .risk-list:has(> :nth-child(3):last-child),
+.steps-rich:has(> :nth-child(6):last-child), .risk-list:has(> :nth-child(6):last-child),
+.steps-rich:has(> :nth-child(9):last-child), .risk-list:has(> :nth-child(9):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.steps-rich:has(> :nth-child(5):last-child), .risk-list:has(> :nth-child(5):last-child),
+.steps-rich:has(> :nth-child(10):last-child), .risk-list:has(> :nth-child(10):last-child) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+@media (max-width: 1300px) {
+  .steps-rich, .risk-list,
+  .steps-rich:has(> :nth-child(5):last-child), .risk-list:has(> :nth-child(5):last-child),
+  .steps-rich:has(> :nth-child(10):last-child), .risk-list:has(> :nth-child(10):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .steps-rich:has(> :nth-child(4):last-child), .risk-list:has(> :nth-child(4):last-child),
+  .steps-rich:has(> :nth-child(8):last-child), .risk-list:has(> :nth-child(8):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 860px) {
+  .steps-rich, .risk-list, .steps-rich:has(> li), .risk-list:has(> li) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .steps-rich:has(> :nth-child(1):last-child), .risk-list:has(> :nth-child(1):last-child) { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .steps-rich, .risk-list, .steps-rich:has(> li), .risk-list:has(> li) { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Key facts: rows line up in columns from the left, and the last row doesn't float in the middle. */
+.glance-facts.guide-facts { justify-content: flex-start; }
+.guide-facts dt { font-size: 1rem; font-weight: 700; color: var(--text); letter-spacing: 0.04em; margin-bottom: 8px; }
+.guide-facts dd { color: var(--text); }
+
+/* What you get: a short headline; the legal wording opens on request, in readable type. */
+.you-get > span { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+.you-get-legal summary { cursor: pointer; font-weight: 700; color: var(--accent); min-height: 44px; display: flex; align-items: center; width: fit-content; }
+.you-get-legal p { margin: 4px 0 0; font-size: 1.05rem; line-height: 1.55; color: var(--text); }
+
+/* Sub-headings inside a guide section get the same small heading bar everywhere. */
+h3.guide-sub { margin: 0 0 12px; padding: 8px 14px; font-size: 1.2rem; line-height: 1.3; border-left: 4px solid var(--accent-strong, var(--accent)); background: var(--surface-2); border-radius: 10px; }
+.survive-col h3.guide-sub { background: color-mix(in srgb, var(--surface) 65%, transparent); }
+.survive-col.good h3.guide-sub { border-left-color: var(--go); }
+.survive-col.bad h3.guide-sub { border-left-color: var(--stop); }
+.sale-docs h4 { font-size: 1.05rem; }
+
+/* Fill-in blanks in "What to say" scripts. */
+.fill-blank { display: inline-block; min-width: 3em; padding: 0 6px; margin: 0 1px; border-bottom: 2px dashed var(--accent); background: var(--info-bg); color: var(--text); border-radius: 4px 4px 0 0; font-weight: 600; line-height: 1.35; }
+.fill-blank-note { margin: 0 0 6px; }
+
+/* A note pointing a visitor who chose another state to that state's guide. */
+.other-state-guide { margin: 0 0 18px; padding: 12px 16px; border-left: 4px solid var(--info); background: var(--info-bg); border-radius: 10px; color: var(--text); }
+.other-state-guide a { font-weight: 700; }
+
+/* The hub's closing reminder, as a short callout instead of small print above the footer. */
+.walk-away-callout { margin: 24px 0 8px; padding: 14px 18px; border-left: 4px solid var(--go); background: var(--go-bg); border-radius: 12px; color: var(--text); font-size: 1.05rem; }
+
+/* The state, chosen in the header, with other states in one drop-down. */
+.state-select { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 4px 0 20px; }
+.state-select-now { font-size: 1.05rem; }
+.state-select label { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+.state-select select { font: inherit; min-height: 44px; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); width: auto; }
+
+/* Phones: no panel around the cards (no double borders). */
+@media (max-width: 560px) {
+  .page section.guide-group, .page section.drill-section { border: 0 !important; background: transparent !important; box-shadow: none !important; padding: 0 !important; }
+  .page section.guide-group::before { display: none !important; }
+}
