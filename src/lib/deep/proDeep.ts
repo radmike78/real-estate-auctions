@@ -947,7 +947,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Anyone financing repairs with a loan that requires licensed, permitted work."
     ],
     notFor: [
-      "Owners who want to pay cash to the lowest bidder with no contract. The NSCB tells homeowners never to pay in cash.",
+      "Owners who want to pay cash to the lowest bidder with no contract. Nevada's contractor board (NSCB) tells homeowners never to pay in cash.",
       "Rental or flip owners who assume a recovery fund will cover them. Nevada’s and Arizona’s funds focus on owner-occupied homes.",
       "Projects where a contractor asks for a large deposit up front. In California the down payment limit is 10% or $1,000, whichever is less.",
       "People who can’t take the time to check a license number against the state board’s website."
@@ -960,7 +960,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Recovery fund limits: Arizona’s fund pays at most $30,000 per claim and $200,000 per contractor license (ARS 32-1139). It has prorated (shared out) awards when many people claim against one license."
     ],
     money: [
-      "Pay in stages tied to finished work, not up front. The NSCB tells homeowners to put payment schedules in a detailed contract and never pay in cash.",
+      "Pay in stages tied to finished work, not up front. Nevada's contractor board (NSCB) tells homeowners to put payment schedules in a detailed contract and never pay in cash.",
       "In California the legal cap on a home-improvement down payment is 10% or $1,000, whichever is less.",
       "Keep receipts, contracts and photos. Arizona’s ROC asks for these documents when a homeowner files a recovery fund claim."
     ],
