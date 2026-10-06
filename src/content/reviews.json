@@ -247,7 +247,7 @@
       "src/components/HomeownerHelpPage.tsx"
     ],
     "reviewed": "2026-10-06",
-    "hash": "315c65868bd3bf32",
+    "hash": "8d08d338a23269dc",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -355,7 +355,7 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "05970561d34f548b",
+    "hash": "461df2615719e172",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -392,7 +392,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "603b52af4938dab5",
+    "hash": "7e295880ce814d54",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {

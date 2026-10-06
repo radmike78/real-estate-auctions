@@ -62,7 +62,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       title: "Check for unpaid Texas property taxes",
-      detail: "In Texas, a property tax lien attaches every January 1 (Tax Code 32.01). It ranks ahead of most other liens, even older ones (32.05). Ask the county tax office for the amount owed. Add it to your costs."
+      detail: "A property tax lien attaches every January 1 (Tax Code 32.01). It ranks ahead of most other liens, even older ones (32.05). Ask the county tax office for the amount owed. Add it to your costs."
     },
     {
       title: "Check whether it’s the taxpayer’s home",
@@ -125,7 +125,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       mistake: "Not recording the deed",
-      prevent: "Record it with the county clerk as soon as you get it. In Texas, an unrecorded deed can lose out to a later buyer who pays value without notice (Property Code 13.001)."
+      prevent: "Record it with the county clerk as soon as you get it. An unrecorded deed can lose out to a later buyer who pays value without notice (Property Code 13.001)."
     }
   ],
   example: {
@@ -251,7 +251,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       title: "Inspect during the option period",
-      detail: "Under TREC 20-19, you deliver the option fee and earnest money within 3 days after the effective date. Then you can end the contract for any reason before the option period ends. You keep your earnest money but lose the option fee (paragraph 5). Deadlines are strict. In Texas, hire an inspector licensed by TREC."
+      detail: "Under TREC 20-19, you deliver the option fee and earnest money within 3 days after the effective date. Then you can end the contract for any reason before the option period ends. You keep your earnest money but lose the option fee (paragraph 5). Deadlines are strict. Hire an inspector licensed by TREC."
     },
     {
       title: "Get the loan and appraisal approved",

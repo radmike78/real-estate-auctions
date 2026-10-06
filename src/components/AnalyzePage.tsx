@@ -5,7 +5,7 @@ import PageHero from './PageHero';
 import { Calculators } from './CalculatorPage';
 import { CalcRegion } from './calcRegion';
 import { useMarkStep } from '../lib/path';
-import { useMyState, setMyState } from '../lib/myState';
+import { dropStateLead, useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
 import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
 import CheckFold from './CheckFold';
@@ -230,7 +230,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
                 <li key={c.id}>
                   <label>
                     <input type="checkbox" checked={deal.done.includes(c.id)} onChange={() => toggle(c.id)} />
-                    <span>{c.text}</span>
+                    <span>{dropStateLead(c.text, deal.state)}</span>
                   </label>
                   {c.href && (c.href.startsWith('https://') ? <a href={c.href} target="_blank" rel="noopener noreferrer">Open ↗</a> : <a href={c.href}>{linkLabel(c.href)} →</a>)}
                 </li>

@@ -65,6 +65,20 @@ export const showFor = (state: StateCode | null, text: string) => {
   return s.length === 0 || s.includes(state);
 };
 
+const NAME_OF: Record<StateCode, string> = { NV: 'Nevada', CA: 'California', AZ: 'Arizona', UT: 'Utah', TX: 'Texas' };
+
+/**
+ * Once the reader has picked a state, "In California, the county…" says the state twice: drops that lead-in ("In
+ * California, ", "For California, ", "California: ") from each sentence about the chosen state, capitalizing what follows.
+ * Lead-ins naming other states, or more than one state, are kept.
+ */
+export function dropStateLead(text: string, state: StateCode | null): string {
+  if (!state) return text;
+  const name = NAME_OF[state];
+  const lead = new RegExp(`(^|[.!?]\\s+)(?:(?:In|For) ${name},|${name}:)\\s+(\\S)`, 'g');
+  return text.replace(lead, (_m, before: string, first: string) => before + first.toUpperCase());
+}
+
 // After a sentence about another state, the sentences that follow belong to it too ("In Texas, the notice of sale is
 // posted 21 days ahead. The sale is held on the first Tuesday."), until one names a state or is plainly general.
 export const GENERAL_AGAIN = /^(?:Other states|In other states|In every state|Every state|In all (?:five|four) states|Elsewhere|Everywhere|Rules differ|Check your state|Wherever you buy)\b/;
@@ -83,5 +97,6 @@ export const forStateText = (state: StateCode | null, text: string) => {
       dropped = tagged ? !showFor(state, x) : dropped && !GENERAL_AGAIN.test(x);
       return !dropped;
     })
+    .map((x) => dropStateLead(x, state))
     .join(' ');
 };

@@ -1,5 +1,5 @@
 import { STATES, type StateCode } from '../lib/regions';
-import { useMyState } from '../lib/myState';
+import { dropStateLead, useMyState } from '../lib/myState';
 import { Cited } from './Cited';
 import OwlNote from './OwlNote';
 
@@ -7,6 +7,8 @@ const ext = { target: '_blank', rel: 'noopener noreferrer' } as const;
 
 /** One state-specific line: text (each sentence names its state), with optional official links after it. */
 export interface StateLine {
+  /** A short label shown first in bold ("Free legal help"), so a reader can scan for what they need. */
+  topic?: string;
   text: string;
   links?: [label: string, url: string][];
 }
@@ -29,7 +31,7 @@ export default function ByState({ lines, missing, ordered }: { lines: ByStateLin
           <List className={ordered ? 'steps-rich' : undefined}>
             {xs.map((x) => (
               <li key={x.text}>
-                <Cited text={x.text} />
+                {x.topic && <strong>{x.topic}: </strong>}<Cited text={dropStateLead(x.text, s.code as StateCode)} />
                 {x.links?.map(([label, url]) => (
                   <span key={url}> {url.startsWith('#/') ? <a href={url}>{label} →</a> : <a href={url} {...ext}>{label} ↗</a>}</span>
                 ))}
