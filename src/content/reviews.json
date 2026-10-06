@@ -116,7 +116,7 @@
       "src/lib/saleDocs.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "2483983c945bbc6d",
+    "hash": "d3899c4dd83a92aa",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -126,7 +126,7 @@
       "src/components/GuidesPage.tsx"
     ],
     "reviewed": "2026-10-06",
-    "hash": "da96f4e7d5505bf8",
+    "hash": "f77374b027d1cb74",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
