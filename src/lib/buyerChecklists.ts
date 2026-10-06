@@ -163,7 +163,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     items: [
       { text: 'Certified funds', detail: 'Each sale notice (the sheriff’s or the IRS’s) sets the deposit and how to pay. Read it for each sale.' },
       { text: 'Government-issued photo ID' },
-      { text: 'Time for redemption', detail: 'Sheriff sales: depends on the state (Nevada 1 year; Arizona 6 months; Utah 180 days; California none to 1 year). Where there’s a redemption period, you get a certificate first and the deed later. IRS sales: the owner can redeem for 180 days, and you get the deed after that.' },
+      { text: 'Time for redemption', detail: 'Sheriff sales: depends on the state (Nevada 1 year; Arizona 6 months; Utah 180 days; California none to 1 year; Texas generally none, except after tax sales and HOA foreclosures*). Where there’s a redemption period, you get a certificate first and the deed later. IRS sales: the owner can redeem for 180 days, and you get the deed after that.' },
       { text: 'A title search', detail: "You receive only the debtor's or taxpayer's interest. Senior liens stay." },
       { text: 'Cash or hard-money financing arranged in advance' },
       CONFIRM,

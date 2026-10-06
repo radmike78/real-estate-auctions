@@ -21,7 +21,7 @@
       "src/lib/status.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "4d3a271d039b5432",
+    "hash": "b14f3a0761c5f41d",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -49,7 +49,7 @@
       "src/lib/buyerChecklists.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "5b078af194b711a8",
+    "hash": "21abc885b2659697",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -126,7 +126,7 @@
       "src/components/GuidesPage.tsx"
     ],
     "reviewed": "2026-10-06",
-    "hash": "1ef8e2e4db12c37c",
+    "hash": "da96f4e7d5505bf8",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "59549450361d5d22",
+    "hash": "984eca463a101350",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "374df31209ddfbf8",
+    "hash": "ed49917541ea3b4f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -173,7 +173,7 @@
       "src/lib/evidence.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "15c5f21a5e323574",
+    "hash": "2d1bd5bbee256304",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -237,7 +237,7 @@
       "src/components/LeadForm.tsx"
     ],
     "reviewed": "2026-10-06",
-    "hash": "ea3f60e902497de5",
+    "hash": "3bf58de4c8a5d1bb",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -355,7 +355,7 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-06",
-    "hash": "957400adab9a6ec9",
+    "hash": "8ff1017e14cdd31f",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {

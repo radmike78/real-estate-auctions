@@ -1267,7 +1267,7 @@ html { scroll-padding-top: 88px; }
 .page-hero .guide-search { margin: 0; max-width: none; }
 .guide-search input[type='search']::-webkit-search-cancel-button { cursor: pointer; }
 .guide-try { margin-top: 28px; }
-.guide-try h2 { font-size: 1.3rem; margin-bottom: 12px; }
+.guide-try h2.part-bar { margin-top: 0; }
 .guide-try-list { display: flex; flex-wrap: wrap; gap: 10px; }
 .guide-count { font-size: 1.3rem; margin: 28px 0 14px; }
 .guide-results { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
@@ -1458,6 +1458,15 @@ html { scroll-padding-top: 88px; }
 .dd-step.worst-flag { box-shadow: inset 5px 0 0 var(--stop); }
 .dd-step.worst-review { box-shadow: inset 5px 0 0 var(--wait); }
 .dd-step.done { box-shadow: inset 5px 0 0 var(--go); }
+/* On a phone the badge would squeeze the step title to a few letters a line: let the head wrap, title first on its own
+   line, and put each check's tag above its text. */
+@media (max-width: 600px) {
+  .dd-head { flex-wrap: wrap; }
+  .dd-title { flex: 1 1 calc(100% - 90px); overflow-wrap: normal; }
+  .dd-worst { min-width: 0; margin-left: 80px; }
+  .checks li { flex-direction: column; gap: 6px; }
+  .checks li .check-tag { min-width: 0; align-self: flex-start; }
+}
 .dd-step .dd-how { margin: 8px 0 0; }
 /* Application type options: descriptions start right under each title. */
 .type-option { align-content: start; }

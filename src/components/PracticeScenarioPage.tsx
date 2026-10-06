@@ -10,6 +10,7 @@ import { fmtMoney } from '../lib/status';
 import { scenarioById } from '../practice/scenarios';
 import { loadProgress, resetProgress, saveProgress, type ScenarioProgress } from '../practice/progress';
 import type { Scenario, Stage, Task } from '../practice/types';
+import { useNoIndex } from '../lib/noindex';
 
 const taskKey = (stage: Stage, t: Task) => `${stage.key}/${t.id}`;
 
@@ -19,6 +20,7 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
   useLastActivity(`#/practice/${id}${stageKey ? `/${stageKey}` : ''}`, scenario ? `Practice purchase: ${scenario.headline}` : undefined);
   const [progress, setProgress] = useState<ScenarioProgress>(() => loadProgress(id));
   useEffect(() => setProgress(loadProgress(id)), [id]);
+  useNoIndex(!scenario);
   // On phones the step buttons are one swipeable row: bring the current step into view.
   useEffect(() => {
     const el = document.querySelector<HTMLElement>('.practice-stages a.active');

@@ -10,6 +10,7 @@ import { downloadText, fileName } from '../lib/download';
 import { EVIDENCE_EVENT } from '../lib/evidence';
 import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
+import { useNoIndex } from '../lib/noindex';
 
 const STATUS_LABEL: Record<SectionStatus, string> = { done: 'Complete', started: 'In progress', missing: 'Missing' };
 
@@ -23,6 +24,7 @@ export default function DealPacketPage({ dealId }: { dealId: string }) {
   const [p, setP] = useState<PacketData>(() => loadPacket(key));
   // The evidence log below saves on its own; re-render so the status and next action follow it.
   const [, bump] = useState(0);
+  useNoIndex(!deal);
   useEffect(() => {
     const on = () => bump((n) => n + 1);
     window.addEventListener(EVIDENCE_EVENT, on);

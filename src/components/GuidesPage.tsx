@@ -80,7 +80,7 @@ export default function GuidesPage({ initialQuery }: { initialQuery: string }) {
 
       {!searched && (
         <div className="guide-try">
-          <h2 id="try-head">Try one of these</h2>
+          <h2 id="try-head" className="part-bar">Try one of these</h2>
           <div className="guide-try-list">
             {TRY.map((t) => (
               <button key={t} type="button" className="btn btn-secondary" onClick={() => search(t)}>{t}</button>

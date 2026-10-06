@@ -330,12 +330,17 @@ export interface LienInputs {
   payoutDelayMonths: number; // time from redemption until you're paid
 }
 
-export function lienYield(i: LienInputs): { interest: number; payoff: number; profit: number; yearlyYield: number | null } {
-  const interest = (nz(i.price) * nz(i.ratePctMonth) * nz(i.monthsToRedeem)) / 100;
-  const profit = interest - nz(i.fees);
-  const cash = nz(i.price) + nz(i.fees);
-  const years = (nz(i.monthsToRedeem) + nz(i.payoutDelayMonths)) / 12;
-  return { interest: r2(interest), payoff: r2(nz(i.price) + interest), profit: r2(profit), yearlyYield: cash > 0 && years > 0 ? profit / cash / years : null };
+/** Limits no real certificate reaches, so a mistyped field can't produce numbers too long to read. */
+export const LIEN_MAX = { price: 1e8, fees: 1e8, ratePctMonth: 10, monthsToRedeem: 120, payoutDelayMonths: 60 };
+
+export function lienYield(raw: LienInputs): { interest: number; payoff: number; profit: number; yearlyYield: number | null } {
+  const i = { ...raw };
+  for (const k of Object.keys(LIEN_MAX) as (keyof LienInputs)[]) i[k] = Math.min(nz(raw[k]), LIEN_MAX[k]);
+  const interest = (i.price * i.ratePctMonth * i.monthsToRedeem) / 100;
+  const profit = interest - i.fees;
+  const cash = i.price + i.fees;
+  const years = (i.monthsToRedeem + i.payoutDelayMonths) / 12;
+  return { interest: r2(interest), payoff: r2(i.price + interest), profit: r2(profit), yearlyYield: cash > 0 && years > 0 ? profit / cash / years : null };
 }
 
 export const RENT_DEFAULTS: RentInputs = {
