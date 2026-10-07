@@ -226,7 +226,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
           CA: 'An investor buying a 1 to 4 unit home from an owner who lives there, after a notice of default is recorded, must follow the Home Equity Sales Contract Act, and breaking it can bring fines and jail time (Civil Code 1695.3, 1695.8). Our rule is simple: no contact.',
           AZ: 'A foreclosure consultant can’t take payment before the work is done or take the owner’s deed, and one who commits fraud or deceit against a homeowner commits a crime (A.R.S. 44-1378.02, 44-1378.06). Our rule is simple: no contact.',
           UT: 'Anyone paid to offer an owner a deal involving the home’s title that they say will stop a foreclosure is doing “foreclosure rescue,” which needs a real estate license and a written agreement (Utah Code 61-2f-102, 61-2f-401). Our rule is simple: no contact.',
-          TX: 'Once a notice of sale is filed on a 1 to 4 unit home the owner lives in, anyone paid to help the owner stop the sale counts as a foreclosure consultant, and a violation is a crime (Business and Commerce Code 21.001, 21.151). Our rule is simple: no contact.',
+          TX: 'Once a notice of sale is filed, or a court foreclosure is started, on a 1 to 4 unit home the owner lives in, anyone paid to help the owner stop the sale counts as a foreclosure consultant, and a violation is a crime (Business and Commerce Code 21.001, 21.151). Our rule is simple: no contact.',
         },
       },
       {

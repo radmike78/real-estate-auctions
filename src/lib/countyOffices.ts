@@ -1417,7 +1417,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.jeffdaviscounty.texas.gov/page/jeffdavis.Sheriff", checked: "2026-10-05" },
   },
   "TX/Jefferson": {
-    taxSale: { url: "https://jeffcotax.com/", checked: "2026-10-05", note: "No separate tax sale page: watch this office for sale notices." },
+    taxSale: { url: "https://jeffcotax.com/property-tax/delinquent-tax-sale/", checked: "2026-10-07", note: "The tax office's page lists the sheriff's tax sale dates and the bidder rules." },
     treasurer: { url: "https://jeffcotax.com/", checked: "2026-10-05" },
     assessor: { url: "https://jcad.org/", checked: "2026-10-05" },
     recorder: { url: "https://jeffersoncountytx.gov/cclerk/Recording", checked: null },
@@ -1616,7 +1616,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.co.loving.tx.us/page/loving.Sheriff", checked: "2026-10-05" },
   },
   "TX/Lubbock": {
-    treasurer: { url: "https://www.lubbockcounty.gov/department/index.php?structureid=38", checked: "2026-10-05" },
+    treasurer: { url: "https://lubbockcad.org/", checked: "2026-10-07", note: "Lubbock County's tax office handles vehicles; the Lubbock Central Appraisal District bills and collects property taxes." },
     assessor: { url: "https://lubbockcad.org/", checked: null },
     recorder: { url: "https://www.lubbockcounty.gov/department/division.php?fDD=2-8", checked: "2026-10-05", note: "The County Clerk’s real property records page." },
   },
@@ -2015,7 +2015,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.shermancountytx.gov/page/Sheriff", checked: "2026-10-05" },
   },
   "TX/Smith": {
-    taxSale: { url: "https://www.smith-county.com/358/Delinquent-Tax-Sales", checked: "2026-10-05", note: "The county’s delinquent-tax law firms (Linebarger and Perdue Brandon) post the property lists." },
+    taxSale: { url: "https://www.smith-county.com/358/Delinquent-Tax-Sales", checked: "2026-10-07", note: "The tax sale list is published in the Tyler Morning Telegraph and posted at the courthouse; Linebarger Goggan Blair & Sampson represents the county (Perdue Brandon only Tyler ISD). Payment in full on sale day by cashier's check or money order. This page also links the county's official online sale site." },
     treasurer: { url: "https://www.smith-county.com/265/Tax-Assessor", checked: "2026-10-05" },
     assessor: { url: "https://www.smithcad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.smith-county.com/293/Official-Public-Records", checked: "2026-10-05" },

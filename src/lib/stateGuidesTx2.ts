@@ -390,7 +390,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       label: "Option period",
-      value: "If you paid for an option period, it starts when you both sign and keeps running while you wait for the lender. It doesn’t start over when the lender approves (45-2, F). Have your agent write out the exact dates; an amendment can change them."
+      value: "If you paid for an option period, it starts when you both sign and keeps running while you wait for the lender. When it ends depends on how paragraph 5’s days are counted after the Amended Effective Date* (45-2, F). Have your agent write out the exact dates; an amendment can change them."
     },
     {
       label: "Foreclosure clock",
@@ -528,7 +528,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       label: "Property tax",
-      value: "The appraisal district values property at market value as of January 1 (Tax Code 23.01). Protest by May 15 or 30 days after your notice, whichever is later (41.44). Ag-valued land can owe up to 3 years of extra tax when its use changes (23.55)."
+      value: "The appraisal district values property at market value as of January 1 (Tax Code 23.01). Protest by May 15 or 30 days after your notice, whichever is later (41.44). Land appraised as open-space (1-d-1) can owe up to 3 years of extra tax when its use changes (23.55); land under the 1-d agricultural designation has its own rule (23.46). Ask the appraisal district.*"
     },
     {
       label: "State taxes",
@@ -594,7 +594,7 @@ export const TX_GUIDES_2: Playbook[] = [
     mayStay: [
       "Property taxes (they attach every January 1 and outrank most liens)",
       "Liens recorded before the lien being foreclosed",
-      "Extra tax for past years if ag-valued land changes use (Tax Code 23.55)",
+      "Extra tax for past years if open-space (1-d-1) land changes use (Tax Code 23.55); land under the 1-d agricultural designation has its own rule (23.46). Ask the appraisal district.*",
       "The seller’s unpaid state taxes, if you bought the business without a Certificate of No Tax Due (Tax Code 111.020)",
       "Responsibility for environmental cleanup. It can follow whoever owns the property, not the lien*",
       "Easements, deed restrictions and recorded leases ahead of the foreclosed lien",
@@ -638,7 +638,7 @@ export const TX_GUIDES_2: Playbook[] = [
       url: "https://www.law.cornell.edu/regulations/texas/22-Tex-Admin-Code-SS-537-11"
     },
     {
-      label: "Texas Tax Code 23.01 and 23.55 (market value; change of use)",
+      label: "Texas Tax Code 23.01, 23.46 and 23.55 (market value; extra tax on ag and open-space land)",
       url: TX('TX', '23')
     },
     {
@@ -741,9 +741,9 @@ export const TX_GUIDES_2: Playbook[] = [
  *    under a lease junior to the foreclosed lien) and the federal Protecting Tenants at Foreclosure Act (90 days;
  *    revived by Pub. L. 115-174 sec. 304) were verified but are not used in these four guides. The 3-day notice to
  *    vacate (24.005) is cited. Note: SB 38 (2025) repealed parts of 24.005 (f)-(i); the text read is current.
- * 10. Texas Tax Code 23.55 (open-space) is cited for the extra tax on change of use; land under the 1-d
- *     agricultural designation (Subchapter C) uses different rules. The current 23.55(a) text does not mention
- *     interest, but Property Code 5.010's notice still says "additional tax plus interest". Have a CPA confirm.
+ * 10. Resolved (round 10): the guide now cites 23.55 (3 years of extra tax) only for open-space (1-d-1) land and
+ *     points 1-d agricultural-designation land to its own rule (23.46), both read on tcss.legis.texas.gov on
+ *     2026-10-07. Property Code 5.010's notice still says "additional tax plus interest"; the asterisk stays.
  * 11. "Rental income doesn't count as passive" (Tax Code 171.0003(b)) applies to partnerships and trusts that
  *     might otherwise qualify as passive entities; whether a given owner owes franchise tax needs a CPA.
  * 12. Title premium examples ($1,521 on $250,000; $4,732 on $900,000) are my arithmetic from the TDI chart effective
