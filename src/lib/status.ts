@@ -37,13 +37,13 @@ export const STATUS: Record<AcquisitionStatus, StatusInfo> = {
     label: 'Redemption period applies',
     tone: 'wait',
     purchasable: true,
-    explanation: 'You can bid, but the former owner may be able to buy the property back (redeem) for a time after the sale. How long, when the clock starts, and whether you get a certificate or a deed in the meantime depend on the kind of sale and the state: in Nevada, after a court-ordered sale, it’s up to 1 year and the deed comes after (NRS 21.190–21.210). Read the sale guide for your state.',
+    explanation: 'You can bid, but the former owner may be able to buy the property back (redeem) for a time after the sale. How long, when the clock starts, and whether you get a certificate or a deed in the meantime depend on the kind of sale and the state. In Nevada, after a court-ordered sale, it’s up to 1 year and the deed comes after (NRS 21.190–21.210). Check your state’s sale guide for the details.',
   },
   LIEN_CERTIFICATE_ONLY: {
     label: 'Lien certificate only',
     tone: 'info',
     purchasable: false,
-    explanation: 'Only an unpaid special assessment (SID) lien is sold. Buying it does not give you ownership of the property.',
+    explanation: 'Only a lien is sold (an Arizona tax lien certificate or a Nevada SID lien), not the property. Buying it does not give you ownership of the property.',
   },
   PRE_FORECLOSURE_NOT_YET_PURCHASABLE: {
     label: 'Pre-foreclosure',

@@ -21,7 +21,7 @@
       "src/lib/status.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "ee8d61971f2ca325",
+    "hash": "ce016a186da57fe9",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -38,7 +38,7 @@
       "src/lib/foreclosure.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "296a5e6aae6ef268",
+    "hash": "9413eeb4c8560523",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -256,8 +256,8 @@
     "files": [
       "src/components/AboutPage.tsx"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "1503f09c4bcd6d2f",
+    "reviewed": "2026-10-07",
+    "hash": "1f9dae1ba965b699",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

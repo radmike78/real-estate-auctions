@@ -7,6 +7,7 @@ import PageHero from './PageHero';
 import { IconDatabase, IconFlag, IconGavel, IconHelp, IconShield, IconStop } from './Icons';
 import { SECTIONS as HELP } from './DisclaimerPage';
 import { ROLE_SHORT } from '../lib/disclaimers';
+import { forStateText, useMyState } from '../lib/myState';
 
 const SALE_TYPES: [string, string, string][] = [
   ['Tax-deed sale', 'The property (quitclaim deed); anyone claiming the land can sue to recover it for 2 years after the deed (NRS 361.600)', 'In-person county treasurer auction, certified funds the same day'],
@@ -17,6 +18,20 @@ const SALE_TYPES: [string, string, string][] = [
   ['Federal tax seizure', "The taxpayer's interest", 'IRS public auction or sealed bid'],
   ['REO / bank-owned', 'The property from the lender', 'Offer through the lender’s broker or its auction'],
 ];
+
+/** Each status badge and what it means; Nevada-only detail shows only with Nevada (or no state) chosen. */
+function StatusList() {
+  const [state] = useMyState();
+  return (
+    <ul className="status-list">
+      {(Object.keys(STATUS) as AcquisitionStatus[]).map((s) => (
+        <li key={s}>
+          <StatusBadge status={s} /> <span>{forStateText(state, STATUS[s].explanation)}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export const SECTIONS: DrillSection[] = [
   {
@@ -39,13 +54,7 @@ export const SECTIONS: DrillSection[] = [
     icon: <IconFlag />,
     summary: `What each of the ${Object.keys(STATUS).length} status badges means`,
     content: () => (
-      <ul className="status-list">
-        {(Object.keys(STATUS) as AcquisitionStatus[]).map((s) => (
-          <li key={s}>
-            <StatusBadge status={s} /> <span>{STATUS[s].explanation}</span>
-          </li>
-        ))}
-      </ul>
+      <StatusList />
     ),
   },
   {
