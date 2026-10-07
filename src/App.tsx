@@ -132,10 +132,10 @@ function parseHash(): Route {
   if (sub?.[1] === 'short-sales') return { page: 'shortsales', section: sub[2] };
   if (sub?.[1] === 'bank-owned') return { page: 'bankowned', section: sub[2] };
   if (sub?.[1] === 'business-assets') return { page: 'businessassets', section: sub[2] };
-  // Your deal team (the Find a pro tab): #/pros, and #/pros/<kind of professional>. Other #/pros/<id> are advertiser profiles.
+  // Your deal team (the Your team tab): #/pros, and #/pros/<kind of professional>. Other #/pros/<id> are advertiser profiles.
   const fp = h.match(/^(?:pros|find-a-pro)(?:\/([a-z_]+))?$/);
   if (fp && (!fp[1] || fp[1] === 'all' || fp[1] === 'build' || proGuideByKey(fp[1]))) return { page: 'findpro', section: fp[1] };
-  // The old license-check page now lands on the agent section of Find a pro.
+  // The old license-check page now lands on the agent section of Your team.
   if (h === 'agents' || h === 'agents/short-sales') return { page: 'findpro', section: 'agent' };
   if (h === 'financing') return { page: 'financing', q };
   const pro = h.match(/^pros\/([A-Za-z0-9]{1,64})$/);

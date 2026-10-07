@@ -36,7 +36,7 @@ export function StateSelect({ label, noun = 'guides' }: { label: string; noun?: 
     <div className="state-select" role="group" aria-label={label}>
       <span className="state-select-now">{st ? <>Showing <strong>{st.name}</strong> {noun}</> : label}</span>
       <label>
-        <span>{st ? 'Other states:' : 'Choose:'}</span>
+        <span>{st ? 'Change state' : 'Choose:'}</span>
         <select value={mine ?? ''} onChange={(e) => setMine((e.target.value || null) as StateCode | null)}>
           {STATES.map((x) => <option key={x.code} value={x.code}>{x.name}</option>)}
           <option value="">All states</option>

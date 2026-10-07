@@ -13,7 +13,7 @@ const EXPLORE = [
   { href: '#/analyze', icon: <IconCalc />, title: 'Analyze a deal', what: 'Your maximum bid or offer, with every cost' },
   { href: '#/playbooks', icon: <IconFile />, title: 'Sale guides', what: 'Tax, foreclosure, sheriff, HOA, IRS and bank-owned sales, by state' },
   { href: '#/find-deals', icon: <IconBank />, title: 'Find deals', what: 'Official sellers and sale lists for your county' },
-  { href: '#/live', icon: <IconLayers />, title: 'Live tax sales', what: 'Clark County parcels, checked against the official lists' },
+  { href: '#/live', icon: <IconLayers />, title: 'Live tax sales', what: 'Upcoming county sales, plus Clark County and IRS parcels' },
   { href: '#/pros', icon: <IconBadge />, title: 'Your team', what: 'Who you need, what to ask, and how to check a license' },
   { href: '#/practice', icon: <IconCheckList />, title: 'All practice', what: 'Full practice purchases and more than 40 drills' },
 ];

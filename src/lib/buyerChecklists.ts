@@ -4,11 +4,19 @@
 // deadlines change, so every list tells buyers to confirm with the official notice.
 
 import type { AcquisitionStatus, SaleType } from '../types';
+import type { StateCode } from './regions';
 
 export interface ChecklistItem {
   text: string;
+  /** Shown with no state chosen, and for any state without its own entry in detailFor. */
   detail?: string;
+  /** The detail for a visitor who has chosen this state (the page already names the state, so it isn't repeated). */
+  detailFor?: Partial<Record<StateCode, string>>;
 }
+
+/** The detail to show for the visitor's chosen state. */
+export const detailForState = (item: ChecklistItem, state: StateCode | null): string | undefined =>
+  (state && item.detailFor?.[state]) || item.detail;
 
 export interface BuyerChecklist {
   key: string;
@@ -115,8 +123,28 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     intro: 'Equipment, inventory, vehicles or a whole business sold by a court trustee, receiver, the sheriff or a tax agency.',
     items: [
       { text: 'The sale notice and any court order', detail: 'They say exactly what is sold, the deadline, the deposit, and whether it’s free of liens.' },
-      { text: 'A lien search on the equipment', detail: 'Lenders record UCC financing statements with the state (in Nevada, the Secretary of State). Search the state where the company is organized. A sheriff or tax sale may not clear them.' },
-      { text: 'A state tax clearance when you buy all or part of a business or its stock of goods', detail: 'Outside normal sales, hold back enough of the price until the seller shows the state tax agency’s clearance. Otherwise you can owe their unpaid taxes. In Nevada, the receipt comes from the Department of Taxation, and the liability is up to what you paid (NRS 360.525). The rules in California, Arizona, Utah and Texas are under Buying assets vs. a whole business.' },
+      {
+        text: 'A lien search on the equipment',
+        detail: 'Lenders record UCC financing statements with the state (in Nevada, the Secretary of State). Search the state where the company is organized. A sheriff or tax sale may not clear them.',
+        detailFor: {
+          NV: 'Lenders record UCC financing statements with the Nevada Secretary of State for a Nevada company; for an out-of-state company, in that state (NRS 104.9307). A sheriff or tax sale may not clear them.',
+          CA: 'Lenders record UCC financing statements with the Secretary of State for a California company. For an out-of-state company, search the state where it is organized. A sheriff or tax sale may not clear them.',
+          AZ: 'Most liens on equipment and inventory are filed with the Secretary of State; liens on fixtures may be at the county recorder (A.R.S. 47-9501). For an out-of-state company, search that state too. A sheriff or tax sale may not clear them.',
+          UT: 'Lenders file UCC financing statements with the Division of Corporations and Commercial Code, and fixture filings with the county recorder (Utah Code 70A-9a-501). For an out-of-state company, search that state too. A sheriff or tax sale may not clear them.',
+          TX: 'Lenders file UCC financing statements with the Secretary of State, and fixture filings with the county (Business and Commerce Code 9.501). For an out-of-state company, search that state too. A sheriff or tax sale may not clear them.',
+        },
+      },
+      {
+        text: 'A state tax clearance when you buy all or part of a business or its stock of goods',
+        detail: 'Outside normal sales, hold back enough of the price until the seller shows the state tax agency’s clearance. Otherwise you can owe their unpaid taxes. In Nevada, the receipt comes from the Department of Taxation, and the liability is up to what you paid (NRS 360.525). The rules in California, Arizona, Utah and Texas are under Buying assets vs. a whole business.',
+        detailFor: {
+          NV: 'Outside the seller’s normal sales, hold back enough of the price until the seller gives you a receipt or certificate from the Department of Taxation. Otherwise you can owe their unpaid state taxes, up to what you paid (NRS 360.525).',
+          CA: 'Hold back enough of the price to cover the seller’s unpaid sales and use tax until the seller shows a receipt from the California Department of Tax and Fee Administration (CDTFA) or a certificate saying nothing is due (R&T Code 6811). Otherwise you can be personally liable for those taxes, up to the purchase price (R&T Code 6812). Ask early: CDTFA can take up to 60 days. More under Buying assets vs. a whole business.',
+          AZ: 'Hold back enough of the price to cover the seller’s unpaid state taxes, such as transaction privilege (sales) tax, until the seller shows a receipt or a no-tax-due certificate from the Department of Revenue. Otherwise you can be personally liable for those taxes, interest and penalties (A.R.S. 42-1110). More under Buying assets vs. a whole business.',
+          UT: 'Hold back enough of the price until the seller shows a receipt from the State Tax Commission, or a certificate that no taxes are due. Otherwise you can be personally liable for sales taxes the seller collected but didn’t pay, with no cap at what you paid (Utah Code 59-12-112). More under Buying assets vs. a whole business.',
+          TX: 'Hold back enough of the price to pay the seller’s state taxes until the seller gives you a receipt from the Comptroller or a certificate saying nothing is due. Otherwise you can owe those taxes, up to the purchase price (Tax Code 111.020). Seller and buyer request the certificate together on Form 86-114, before closing. More under Buying assets vs. a whole business.',
+        },
+      },
       { text: 'An inspection, and a plan for removal', detail: 'Items are sold as-is. Budget for rigging, transport and storage, and meet the pickup deadline.' },
       { text: 'Certified funds, and a deposit if required' },
       { text: 'Your own licenses and permits', detail: 'Many business, liquor, health and contractor licenses don’t simply pass with the assets. You may need a new license, a transfer approval or a change-of-ownership filing. Confirm with each agency that issued one.' },
@@ -190,8 +218,28 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     title: 'Not for sale yet: how to get ready',
     intro: 'The owner is behind on payments, but nothing is for sale. Prepare now in case it goes to auction or is listed.',
     items: [
-      { text: 'Do not contact the homeowner', detail: 'Every state we cover regulates deals with owners in foreclosure. In Nevada, buyers who use fraud or deceit on owners in foreclosure face criminal penalties and can have the sale undone (NRS 645F). Our rule is simple: no contact.' },
-      { text: 'Track the property', detail: 'Watch the official notices. In Nevada, a notice of sale can come 3 months after the notice of default is recorded (90 days for an HOA), and the auction is about 3+ weeks after that. Other states’ timelines are in the guide below.' },
+      {
+        text: 'Do not contact the homeowner',
+        detail: 'Every state we cover regulates deals with owners in foreclosure. In Nevada, buyers who use fraud or deceit on owners in foreclosure face criminal penalties and can have the sale undone (NRS 645F). Our rule is simple: no contact.',
+        detailFor: {
+          NV: 'Buyers who use fraud or deceit on owners in foreclosure face criminal penalties and can have the sale undone (NRS 645F). Our rule is simple: no contact.',
+          CA: 'An investor buying a 1 to 4 unit home from an owner who lives there, after a notice of default is recorded, must follow the Home Equity Sales Contract Act, and breaking it can bring fines and jail time (Civil Code 1695.3, 1695.8). Our rule is simple: no contact.',
+          AZ: 'A foreclosure consultant can’t take payment before the work is done or take the owner’s deed, and one who commits fraud or deceit against a homeowner commits a crime (A.R.S. 44-1378.02, 44-1378.06). Our rule is simple: no contact.',
+          UT: 'Anyone paid to offer an owner a deal involving the home’s title that they say will stop a foreclosure is doing “foreclosure rescue,” which needs a real estate license and a written agreement (Utah Code 61-2f-102, 61-2f-401). Our rule is simple: no contact.',
+          TX: 'Once a notice of sale is filed on a 1 to 4 unit home the owner lives in, anyone paid to help the owner stop the sale counts as a foreclosure consultant, and a violation is a crime (Business and Commerce Code 21.001, 21.151). Our rule is simple: no contact.',
+        },
+      },
+      {
+        text: 'Track the property',
+        detail: 'Watch the official notices. In Nevada, a notice of sale can come 3 months after the notice of default is recorded (90 days for an HOA), and the auction is about 3+ weeks after that. Other states’ timelines are in the guide below.',
+        detailFor: {
+          NV: 'Watch the official notices. A notice of sale can come 3 months after the notice of default is recorded (90 days for an HOA), and the auction is about 3+ weeks after that (NRS 107.080, 116.31162). The full timeline is in this guide.',
+          CA: 'Watch the official notices. At least 3 months must pass after the notice of default is recorded before a notice of sale (Civil Code 2924), and the notice of sale is recorded, posted and published at least 20 days before the auction (Civil Code 2924f). The full timeline is in this guide.',
+          AZ: 'Watch the official notices. The trustee records a notice of sale with the county recorder, and the sale can’t be held until the 91st day after that (A.R.S. 33-807, 33-808). The full timeline is in this guide.',
+          UT: 'Watch the official notices. Notice of sale can come 3 months after the notice of default is recorded (Utah Code 57-1-24), and it is posted at least 20 days before the auction (Utah Code 57-1-25). The full timeline is in this guide.',
+          TX: 'Watch the official notices. The notice of default isn’t recorded, so buyers don’t see it. The notice of sale is posted at the courthouse, filed with the county clerk and posted on the county’s website at least 21 days before the auction, which is held on the first Tuesday of the month (Property Code 51.002). The full timeline is in this guide.',
+        },
+      },
       { text: 'Line up your money now', detail: "Cash, or a hard-money or bridge loan for an auction. A pre-approval for a short-sale or bank-owned purchase." },
       { text: "Practice with cashier's checks and ID", detail: 'Trustee sales usually need certified funds for the full bid.' },
       { text: 'Order a title search once a notice of sale is recorded' },

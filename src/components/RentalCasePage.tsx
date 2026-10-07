@@ -11,6 +11,7 @@ import DocGuideView from './DocGuideView';
 import { emptyCase, loadCase, saveCase, type CaseProgress } from '../practice/caseProgress';
 import TopicAd from './TopicAd';
 import AdSpot from './AdSpot';
+import OwlNote from './OwlNote';
 import '../styles/r8-case.css';
 
 const key = (st: CaseStage, t: CaseTask) => `${st.key}/${t.id}`;
@@ -69,7 +70,7 @@ function CasePage({ stageKey }: { stageKey?: string }) {
       />
       <PracticeRibbon />
       {/* An even grid of steps (two equal rows on wide screens); every chip has a marker, so Start and the packet line up with the numbered steps. */}
-      <p className="case-steps-hint" aria-hidden>Swipe for all {C.stages.length + 2} steps →</p>
+      <p className="case-steps-hint" aria-hidden>Swipe to see every step →</p>
       <nav className="practice-stages case-stages" aria-label="Steps in this practice purchase" id="case-top" style={{ ['--cols2' as string]: Math.ceil((C.stages.length + 2) / 2), ['--cols3' as string]: Math.ceil((C.stages.length + 2) / 3) }}>
         <a href="#/practice/case" className={!stage && !packet ? 'active' : ''}><span className="step-num" aria-hidden>▸</span> Start</a>
         {C.stages.map((st, i) => (
@@ -434,6 +435,8 @@ export function packetSections(p: CaseProgress, C: PracticeCase = CURRENT()): { 
         `Cash the deal took in this case: ${$(C.N.cashFinal)}, including ${$(C.N.urgent)} of repairs and ${C.N.reserveMonths} months of reserves`,
         flow.rows[2],
       ]
+    : reached.length === 0
+    ? [`Not yet: your budget comes from step 1, “${C.stages[0].title}”.`]
     : [
         `Most you can invest: ${$(C.N.investable)} (after a ${$(C.N.cushion)} emergency fund and ${$(C.N.otherGoals)} for other goals)`,
         `Cash needed at the first offer: ${$(C.N.cashOffer)}, before repairs`,
@@ -454,10 +457,10 @@ export function packetSections(p: CaseProgress, C: PracticeCase = CURRENT()): { 
   const strong = firsts.filter((v) => v === 'best' || v === 'ok' || v === 'right').length;
   const walkedAt = C.stages.find((s) => s.key === p.walked);
   return [
-    { title: 'Result', rows: [walkedAt ? `You walked away at “${walkedAt.title}”. ${walkNote(walkedAt.key, C)} A good result when the deal stops fitting.` : bought ? boughtResult : `${reached.length} of ${C.stages.length} steps done so far.`, `${strong} of ${firsts.length} questions right or reasonable on the first try.`] },
+    { title: 'Result', rows: [walkedAt ? `You walked away at “${walkedAt.title}”. ${walkNote(walkedAt.key, C)} A good result when the deal stops fitting.` : bought ? boughtResult : `${reached.length} of ${C.stages.length} steps done so far.`, ...(firsts.length ? [`${strong} of ${firsts.length} questions right or reasonable on the first try.`] : [])] },
     { title: 'Your budget', rows: budget },
     { title: 'Deadline calendar', rows: reached.some((s) => s.dates) && !(walkedAt && walkedAt.key === 'offer') ? [...reached.flatMap((s) => s.dates ?? []).map((d) => `${d.when}: ${d.what}`), 'Practice contract terms. A real contract sets its own periods and how days are counted: build your calendar from it.'] : ['Not yet: the dates come from your contract, once your offer is accepted.'] },
-    { title: 'Evidence log', rows: reached.flatMap((s) => [...choiceLogs(s, p).map((x) => `Your decision: ${x}`), ...logOf(s).map((l) => `${l.area}: ${l.finding}${l.open ? ` Still open: ${l.open}.` : ''}`)]) },
+    { title: 'Evidence log', rows: (() => { const log = reached.flatMap((s) => [...choiceLogs(s, p).map((x) => `Your decision: ${x}`), ...logOf(s).map((l) => `${l.area}: ${l.finding}${l.open ? ` Still open: ${l.open}.` : ''}`)]); return log.length ? log : ['Nothing logged yet.']; })() },
     { title: 'Your questions for the professionals', rows: questions.length ? questions : ['None saved yet.'] },
     { title: 'Your decisions', rows: decisions.length ? decisions : ['None yet.'] },
   ];
@@ -466,9 +469,17 @@ export function packetSections(p: CaseProgress, C: PracticeCase = CURRENT()): { 
 function Packet({ p }: { p: CaseProgress }) {
   const secs = packetSections(p, C);
   const download = () => downloadText('deedowl-practice-deal-packet.txt', packetText(p, C));
+  // Nothing finished yet (and not walked away): the packet is empty, so say so first, with the way in.
+  const empty = !p.walked && !C.stages.some((st) => tasksFor(st, p.answers).every((t) => p.done.includes(key(st, t))));
   return (
     <section aria-labelledby="packet-head" className="case-packet">
       <h2 id="packet-head">Your deal packet</h2>
+      {empty && (
+        <OwlNote>
+          Your packet fills in as you work the steps. Start with step 1.{' '}
+          <a className="btn" href={`#/practice/case/${C.stages[0].key}`}>Start: {C.stages[0].title}<span aria-hidden className="nowrap-arrow">&nbsp;→</span></a>
+        </OwlNote>
+      )}
       <p>Everything you produced in this practice purchase. For a real deal, you’d build the same packet: it’s what you bring to your lender, title officer and attorney.</p>
       <div className="row">
         <button type="button" className="btn" onClick={download}>Download as text</button>

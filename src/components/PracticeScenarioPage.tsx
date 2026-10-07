@@ -139,7 +139,7 @@ function Listing({ s, progress, total, onReset }: { s: Scenario; progress: Scena
         <dl className="practice-facts">
           {s.sale_facts.map((f) => <div key={f.label}><dt>{f.label}</dt><dd>{f.value}</dd></div>)}
         </dl>
-        <p className="small muted">Rules and deadlines come from our <a href={`#/playbooks/${s.playbookKey}`}>{s.saleTitle} playbook</a>. Real sales can change them: always read the official notice.</p>
+        <p className="small muted">Rules and deadlines come from our <a href={`#/playbooks/${s.playbookKey}`}>guide to {s.saleTitle}</a>. Real sales can change them: always read the official notice.</p>
       </div>
       <div className="row practice-next">
         <a className="btn big" href={`#/practice/${s.id}/${s.stages[0].key}`}>{started ? 'Continue practicing →' : 'Start practicing →'}</a>

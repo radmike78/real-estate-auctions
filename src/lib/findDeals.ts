@@ -37,7 +37,7 @@ export const WHERE_TO_LOOK: { title: string; what: string }[] = [
 /** What we've already built for a county, on this site. Other counties show the general guide until researched. */
 export const COUNTY_PAGES: Record<string, DealSource[]> = {
   'NV/Clark': [
-    { name: 'Live tax sales', url: '#/live', what: 'Clark County Treasurer tax-sale parcels and IRS sales, re-checked against the official lists.' },
+    { name: 'Live tax sales', url: '#/live', what: 'Upcoming county tax sales, plus Clark County and IRS parcels, re-checked against the official lists.' },
     { name: 'Bank-owned & government homes', url: '#/bank-owned', what: 'Where Clark County bank-owned and government homes are listed, and how each one sells.' },
     { name: 'Short sales', url: '#/short-sales', what: 'How short sales work in Nevada and how to find them through an agent.' },
     { name: 'Business assets & closures', url: '#/business-assets', what: 'Court, receiver and government sales of business property and equipment.' },

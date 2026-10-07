@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import { STATES } from '../lib/regions';
-import { getMyState } from '../lib/myState';
+import { getMyState, useMyState } from '../lib/myState';
 import { fmtMoney } from '../lib/status';
 import { cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP_PATHS, ROADMAP_PHASES, roadmapFor, LIEN_STRATEGY, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
 import { downloadText, fileName } from '../lib/download';
@@ -167,6 +167,7 @@ export function FirstDealRoadmap() {
   const [done, setDone] = useState<string[]>(roadmapDone);
   const [status, setStatusMap] = useState<Record<string, StepStatus>>(() => read(STATUS_KEY, {}, cleanStatus));
   const [path, setPath] = useState<RoadmapPath>(() => planPath());
+  const [mine] = useMyState();
   const [deals, setDeals] = useState(loadAnalyzed);
   // The property in focus: the one chosen here or at the top of My plan, else the one you worked on last.
   const [dealId, setDealId] = useState(() => focusDealId());
@@ -258,10 +259,11 @@ export function FirstDealRoadmap() {
   return (
     <section id="roadmap" aria-labelledby="roadmap-head">
       <h2 id="roadmap-head">Your investing roadmap</h2>
-      <p>Every real task of buying, from your first goal to owning it. Each step tells you what you’ll have when it’s done, exactly what to do, what to say and to whom, the documents involved, and when to stop. Mark a step done only when its “Done when” is true.</p>
+      <p>Every real task of buying, from your first goal to owning it. Each task tells you what you’ll have when it’s done, exactly what to do, what to say and to whom, the documents involved, and when to stop. Mark a task done only when its “Done when” is true.</p>
       <div className="roadmap-path" role="group" aria-label="How you’ll buy">
         <span className="roadmap-path-label">How you’ll buy:</span>
-        {(Object.keys(ROADMAP_PATHS) as RoadmapPath[]).map((k) => (
+        {/* Lien certificates are sold only in Arizona (tax liens) and Nevada (SID liens): other states don't see the route. */}
+        {(Object.keys(ROADMAP_PATHS) as RoadmapPath[]).filter((k) => k !== 'certificate' || path === k || liensSoldIn(mine)).map((k) => (
           <button key={k} type="button" aria-pressed={path === k} onClick={() => choosePath(k)}>{ROADMAP_PATHS[k].label}</button>
         ))}
         <span className="muted">{ROADMAP_PATHS[path].hint}</span>
@@ -289,27 +291,27 @@ export function FirstDealRoadmap() {
         </label>
         <p className="muted">
           {deal
-            ? `Steps 4 to 7 (find, buy, own, then sell, refinance or trade) are tracked for ${deal.name} only, and what you record goes into its evidence log. Steps 1 to 3 are yours, whatever the property.`
+            ? `Parts 4 to 7 (find, buy, own, then sell, refinance or trade) are tracked for ${deal.name} only, and what you record goes into its evidence log. Parts 1 to 3 are yours, whatever the property.`
             : deals.length
-              ? 'Choose a property to track steps 4 to 7 for it. Each property keeps its own progress and evidence.'
-              : 'To track steps 4 to 7 for a real property, save it in Analyze first. Each property keeps its own progress and evidence.'}
+              ? 'Choose a property to track parts 4 to 7 for it. Each property keeps its own progress and evidence.'
+              : 'To track parts 4 to 7 for a real property, save it in Analyze first. Each property keeps its own progress and evidence.'}
         </p>
       </div>
       {active && stage && (
         <p className="roadmap-stage-note">
           <strong>{active.name}: {stageLabel(stage, active)}.</strong>{' '}
           {stage === 'passed'
-            ? 'You walked away from it, so none of its steps are next. Choose another property, or find the next one.'
-            : 'Its next step below follows that stage; steps for later stages are marked and wait until you get there. Change the stage at the top of My plan.'}
+            ? 'You walked away from it, so none of its tasks are next. Choose another property, or find the next one.'
+            : 'Its next task below follows that stage; tasks for later stages are marked and wait until you get there. Change the stage at the top of My plan.'}
         </p>
       )}
       <p className="decide-progress">
-        {count} of {steps.length} steps done{naCount > 0 && ` (${naCount} marked “doesn’t apply”)`}
+        {count} of {steps.length} tasks done{naCount > 0 && ` (${naCount} marked “doesn’t apply”)`}
         <span className="decide-bar" role="progressbar" aria-label="Investing roadmap" aria-valuemin={0} aria-valuemax={steps.length} aria-valuenow={count}><span style={{ width: `${Math.round((count / steps.length) * 100)}%` }} /></span>
       </p>
       {walked && (
         <p className="roadmap-walked" role="status">
-          You stopped at “{walked.title}”. Walking away from a deal that doesn’t fit is a good result. When you find the next one, set that step back to “Working on it”.
+          You stopped at “{walked.title}”. Walking away from a deal that doesn’t fit is a good result. When you find the next one, set that task back to “Working on it”.
         </p>
       )}
       {next ? (
@@ -317,16 +319,16 @@ export function FirstDealRoadmap() {
         // buying through an agent only, never on auction or lien-certificate steps (contextAds.ts).
         <div className={nextAdCats.length ? 'next-with-ad' : undefined}>
           <div className="roadmap-next" id="roadmap-next">
-            <p className="roadmap-next-label">Next roadmap step · {ROADMAP_PHASES[next.phase]}{scoped(next) ? ` · ${deal!.name}` : ''}</p>
+            <p className="roadmap-next-label">Next roadmap task · {ROADMAP_PHASES[next.phase]}{scoped(next) ? ` · ${deal!.name}` : ''}</p>
             <h3>{next.title}</h3>
             <StepBody s={next} status={stateOf(next)} setStatus={(v) => setStatus(next, v)} deal={deal} />
           </div>
           {nextAdCats.length > 0 && <RotatingAd key={next.id} pros={pros} categories={nextAdCats} placeholder />}
         </div>
       ) : (
-        <p className="next-step" role="status">Every step on this route is done. Review your plan before your next deal, and keep practicing.</p>
+        <p className="next-step" role="status">Every task on this route is done. Review your plan before your next deal, and keep practicing.</p>
       )}
-      <h3 className="roadmap-all-head">All steps</h3>
+      <h3 className="roadmap-all-head">All tasks</h3>
       {phases.map((ph) => {
         const phDone = ph.steps.filter(settled).length;
         return (
@@ -458,7 +460,11 @@ function decideStrategy(): string | null {
   return top ? DECIDE_STRATEGY[top] ?? null : null;
 }
 
+/** Whether lien certificates are sold in a state: Arizona tax liens and Nevada SID liens (and every state shows them with none chosen). */
+const liensSoldIn = (st: string | null | undefined) => !st || st === 'AZ' || st === 'NV';
+
 function BuyBoxBuilder() {
+  const [mine] = useMyState();
   const [b, setB] = useState<BuyBox>(() => read(BUYBOX_KEY, { ...EMPTY_BUY_BOX, state: getMyState() ?? '' }, cleanBuyBox));
   useEffect(() => {
     write(BUYBOX_KEY, b);
@@ -482,6 +488,8 @@ function BuyBoxBuilder() {
   );
   const state = STATES.find((s) => s.code === b.state);
   const lien = b.strategy === LIEN_STRATEGY;
+  // Lien certificates only where they're sold (Arizona and Nevada), unless already chosen.
+  const strategies = STRATEGY_OPTIONS.filter((s) => s !== LIEN_STRATEGY || lien || liensSoldIn(b.state || mine));
   return (
     <section id="buy-box" aria-labelledby="buybox-head">
       <h2 id="buybox-head">Your buy box</h2>
@@ -505,7 +513,7 @@ function BuyBoxBuilder() {
           <span>Strategy</span>
           <select value={b.strategy} onChange={(e) => set('strategy', e.target.value)}>
             <option value="">Choose</option>
-            {STRATEGY_OPTIONS.map((s) => <option key={s}>{s}</option>)}
+            {strategies.map((s) => <option key={s}>{s}</option>)}
           </select>
         </label>
         {lien ? (
@@ -750,7 +758,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
       <Worksheets />
       <section id="paperwork" aria-labelledby="paperwork-head">
         <h2 id="paperwork-head">Read the paperwork</h2>
-        <p>The documents a purchase turns on, annotated: who gives each one to you and when, the parts to find, what you fill in and what a professional prepares, and how to check a corrected version. Open one when your roadmap step reaches it.</p>
+        <p>The documents a purchase turns on, annotated: who gives each one to you and when, the parts to find, what you fill in and what a professional prepares, and how to check a corrected version. Open one when your roadmap task reaches it.</p>
         {DOC_GUIDES.map((g) => <DocGuideView key={g.key} g={g} label={g.title} />)}
       </section>
       {TOOLKIT.map((g) => (

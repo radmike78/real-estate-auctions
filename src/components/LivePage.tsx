@@ -90,7 +90,7 @@ export default function LivePage() {
         title={<>Live <span className="grad">tax sales</span></>}
         sub={otherState
           ? `Upcoming ${stateName} county tax sales from each county’s own page, plus our live feed: Clark County, Nevada tax-sale parcels and IRS sales in the five states, re-checked against the official lists.`
-          : 'Treasurer tax-sale parcels in Clark County, Nevada, and IRS sales in Nevada, California, Arizona, Utah and Texas, re-checked against the official lists.'}
+          : 'Upcoming county tax sales, plus Clark County, Nevada tax-sale parcels and IRS sales in Nevada, California, Arizona, Utah and Texas, re-checked against the official lists.'}
       />
       {otherState && countySection}
       {!result && <p>Verifying listings…</p>}

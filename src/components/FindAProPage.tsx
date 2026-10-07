@@ -300,7 +300,7 @@ function GuideBody({ g }: { g: ProGuide }) {
   );
 }
 
-/** "Your deal team" (the Find a pro tab): who helps with a forced-sale purchase, when you need each one, and how to find them. */
+/** "Your deal team" (the Your team tab): who helps with a forced-sale purchase, when you need each one, and how to find them. */
 export default function FindAProPage({ section }: { section?: string }) {
   useMarkStep('team');
   const [sale, setSale] = useState<string>('start');

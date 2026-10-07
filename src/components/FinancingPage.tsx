@@ -39,7 +39,7 @@ export default function FinancingPage({ initialLocation = '' }: { initialLocatio
         <div className="empty fin-empty">
           <OwlNote><strong>No lenders listed{stName ? ` in ${stName}` : ''} yet.</strong> Every listing is license-checked before it appears.</OwlNote>
           <p>
-            Meanwhile, see which kind of loan fits below, and call two or three lenders with the script. <a href="#/pros">Find a pro</a> explains who you need and how to find them.{' '}
+            Meanwhile, see which kind of loan fits below, and call two or three lenders with the script. <a href="#/pros">Your team</a> explains who you need and how to find them.{' '}
             {adsOpen ? <>Licensed and want to be listed? <a href="#/advertise">Apply to advertise</a>.</> : 'Advertising for licensed professionals opens soon.'}
           </p>
         </div>
