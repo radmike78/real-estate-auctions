@@ -207,7 +207,7 @@ const NV: CaseConfig = {
   cancelAppraisal: 'Cancel before Day 17 and get the deposit back.',
   leaveAppraisal: 'Your appraisal contingency protects your deposit until Day 17.',
   roofer: 'Desert Example Roofing',
-  lienWhy: 'It’s a recorded claim against the house. In Nevada, a mechanic’s lien lapses after 6 months unless the contractor sues to enforce it, but the title company still wants it released or cleared on the record before closing. Ask the title officer how, and whether a lawsuit was filed.',
+  lienWhy: 'It’s a recorded claim against the house. In Nevada, a mechanic’s lien lapses after 6 months unless the contractor sues to enforce it or a recorded extension agreement extends it (NRS 108.233). Even so, the title company wants it released or cleared on the record before closing. Ask the title officer how, and whether a lawsuit was filed.',
   earnestPaid: 'into escrow within 3 business days of acceptance',
   earnestCredit: (n) => `${usd(n.earnest)} earnest money`,
   earnestShort: 'earnest money',

@@ -26,7 +26,7 @@ export function saleKindOf(guideKey: string): SaleKindKey {
 
 const NOTICE: SaleDoc = { name: 'The official notice of sale', check: 'Save a copy with the date you saved it. Check the sale date, place or website, opening bid, deposit, form of payment and deadline. Check again the day before: sales are often postponed or cancelled.' };
 const TITLE_SEARCH: SaleDoc = { name: 'A title search or report', check: 'Lists the recorded owner, loans and liens. Ask the title company which liens would survive this kind of sale, and whether it would insure the title after you buy.' };
-const FUNDS: SaleDoc = { name: 'Certified funds (cashier’s checks or a wire)', check: 'In the exact form and amounts the notice requires. Ask your bank how long they take. Never send money from instructions in an email without calling to confirm.' };
+const FUNDS: SaleDoc = { name: 'Certified funds (in the form the notice requires)', check: 'Often a cashier’s check or a wire, in the exact amounts the notice requires. Ask your bank how long they take. Never send money from instructions in an email without calling to confirm.' };
 const RECEIPT: SaleDoc = { name: 'Your payment receipt', check: 'Keep it with the sale notice. It proves what you paid and when.' };
 const PREAPPROVAL: SaleDoc = { name: 'Pre-approval letter or proof of funds', check: 'A lender’s pre-approval for the price you’re offering, or a recent bank statement for a cash offer. Sellers usually want one with every offer.' };
 const BUYER_AGREEMENT: SaleDoc = { name: 'Buyer agreement with your agent', check: 'Read what your agent will do, how and by whom they’re paid, how long it lasts and how to end it, before you sign.' };
@@ -57,7 +57,7 @@ export const SALE_DOCS: Record<SaleKindKey, SaleDoc[]> = {
   sid: [
     NOTICE,
     { name: 'Buyer registration form', check: 'Fill it in exactly as the notice says, with the ID it asks for.' },
-    { name: 'Your parcel research notes', check: 'Map, access, zoning and other liens. Bid only on parcels you’d be willing to own.' },
+    { name: 'Your parcel research notes', check: 'Map, access, zoning and other liens. Ask for certificates only on parcels you’d be willing to own.' },
     FUNDS,
     { name: 'Certificate of sale', check: 'Parcel, amount and date. Keep it: you need it to be repaid, or to ask for a deed if the owner never redeems. It expires if you wait too long.' },
   ],
@@ -113,7 +113,7 @@ export const SALE_SCRIPTS: Record<SaleKindKey, SaleScript[]> = {
     { to: 'Title company', script: '“I’m considering bidding on parcel [number] at the county tax sale on [date]. Which liens would likely survive, and would you insure the title afterward, or would you need a quiet title case first?”' },
   ],
   taxlien: [{ to: 'County treasurer', script: '“I’d like to bid at your tax lien sale. Where are the bidder rules and the list? How do I register, what fees apply, and when and how is payment due?”' }],
-  sid: [{ to: 'The sale’s office or agent named on the notice', script: OFFICIAL_ASK }],
+  sid: [{ to: 'The sale’s office or agent named on the notice', script: '“I’m planning to take part in your [date] SID certificate sale. Where are the list and the rules, what ID do I bring to register, and what forms of payment do you take the next morning?”' }],
   trustee: [
     { to: 'The trustee (from the notice of sale)', script: '“I’m interested in the trustee’s sale for [notice number or parcel] on [date]. Is it still scheduled? What’s the opening bid, where is it held, what form of funds do you need, and when does the property become the buyer’s risk?”' },
     { to: 'Title company', script: '“Which loan is being foreclosed on parcel [number], and which liens would survive this sale? Would you insure the title afterward?”' },
@@ -195,10 +195,15 @@ const HOA_DEED: Partial<Record<string, SaleDoc>> = {
   UT: { name: 'The deed, or the certificate of sale', check: 'Trustee sale: the trustee sends the trustee’s deed for recording within 5 business days after you pay, and the former owner has no right to buy it back (Utah Code 57-1-28). Court foreclosure: you get a certificate of sale, and the owner or a junior creditor can redeem for 180 days (URCP 69C). Either way, if the sale wiped out a junior federal tax lien, the United States can still redeem: within 120 days or the state redemption period, whichever is longer, so 120 days after a trustee sale and 180 days after a court sale (26 U.S.C. 7425(d); 28 U.S.C. 2410(c)). If the sale didn’t wipe the lien out (the IRS didn’t get the required notice, or the United States wasn’t named in the court case), the lien simply stays on the home. Ask your title company before you renovate.' },
 };
 
+// Nevada's Clark County Treasurer lists cash, cashier's check or money order for tax deed and SID sale payments,
+// not wire (May 2025 auction notice; Treasurer FAQ).
+const NV_FUNDS: SaleDoc = { name: 'Cash, cashier’s check or money order', check: 'The forms the Clark County Treasurer lists for this sale; wire isn’t listed. Confirm them in the current notice, and have the exact amount ready by the payment deadline.' };
+
 export function saleDocsFor(guideKey: string, state: string): SaleDoc[] {
   const kind = saleKindOf(guideKey);
   if (state === 'TX' && TX_DOCS[kind]) return TX_DOCS[kind];
-  const docs = SALE_DOCS[kind].filter((d) => state === 'NV' || !/super-priority/.test(d.name));
+  const nvFunds = state === 'NV' && (kind === 'deed' || kind === 'sid');
+  const docs = SALE_DOCS[kind].filter((d) => state === 'NV' || !/super-priority/.test(d.name)).map((d) => (nvFunds && d === FUNDS ? NV_FUNDS : d));
   const deed = kind === 'hoa' ? HOA_DEED[state] : undefined;
   return deed ? docs.map((d) => (/^Certificate of sale, then the deed/.test(d.name) ? deed : d)) : docs;
 }

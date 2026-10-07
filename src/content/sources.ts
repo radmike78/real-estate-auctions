@@ -150,7 +150,7 @@ const LISTED: Source[] = [
   NRS('115', 'homestead exemption', '2026-09-28', '$605,000 of equity; does not apply to mortgages or deeds of trust the owner signed, taxes or mechanic’s liens (115.010); no bid under $605,000 when sold because equity is over the limit (115.050).'),
   NRS('116', 'HOA liens, super-priority, redemption', '2026-09-27', '9 months super-priority; lender payment at least 5 days before sale and recorded 2 days before (116.31164, 116.31166); 60-day redemption at 1% a month plus upkeep; 90 days notice of default to notice of sale (116.31162).'),
   NRS('271', 'special assessments (SID lien certificates)', '2026-09-27', '120 days or 2 years to redeem, 1% a month, 60-day notice, certificate expires after 3 years.'),
-  NRS('361', 'property tax and tax sales', '2026-09-27', 'Pay-off until 3 business days before sale (361.585); SID certificate paid within 20 days or sale void (361.595); 2 years to sue (361.600); quitclaim deed.'),
+  NRS('361', 'property tax and tax sales', '2026-09-27', 'Pay-off until 3 business days before sale (361.585); SID certificate paid within 20 days or sale void, Treasurer may keep up to 10% for administrative costs (361.595); 2 years to sue (361.600); quitclaim deed.'),
   { id: 'usc-12-5220', title: 'Protecting Tenants at Foreclosure Act (note to 12 U.S.C. 5220)', publisher: 'U.S. House, Office of the Law Revision Counsel', url: 'https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title12-section5220&num=0&edition=prelim', role: 'rules', checked: '2026-09-27', note: '90 days notice for bona fide tenants.' },
 
   // ---------------- Clark County ----------------

@@ -73,10 +73,10 @@ export const FACTS: Fact[] = [
   },
   {
     id: 'tax-sid-certificate',
-    claim: 'If a city or county sold an SID lien certificate on the parcel and tells the Treasurer in time, the buyer must pay it within 20 days or the tax sale is void.',
+    claim: 'If a city or county sold an SID lien certificate on the parcel and tells the Treasurer in time, the buyer must pay it within 20 days or the tax sale is void, and the Treasurer may keep up to 10% of the purchase amount for administrative costs.',
     sources: ['nrs-361'],
     checked: '2026-09-27',
-    where: [{ file: PB, text: 'within 20 days, or the tax sale is void (NRS 361.595)' }],
+    where: [{ file: PB, text: 'the tax sale is void and the Treasurer may keep up to 10% of what you paid for administrative costs (NRS 361.595)' }],
   },
   {
     id: 'tax-challenge-window',

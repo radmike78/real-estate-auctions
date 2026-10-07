@@ -163,6 +163,9 @@ export function redemptionChoicesFor(state: StateCode, kind: string): { keys: st
   // A trustee sale has no owner redemption in these states, but if it wipes out a junior federal tax lien, the United States
   // can still redeem for 120 days (26 USC 7425(d)). A lien the sale doesn't wipe out simply stays on title (7425(b)).
   if (kind === 'trustee') return { keys: ['none', 'usFederal'], start: 'none' };
+  // A Nevada tax sale has no owner redemption either (NRS 361.595), and the same federal right applies to a sale under a
+  // statutory lien such as property taxes (26 USC 7425(b), (d)(1)).
+  if (kind === 'taxSale' && state === 'NV') return { keys: ['none', 'usFederal'], start: 'none' };
   if (kind === 'court') {
     if (state === 'NV') return { keys: ['sheriff'], start: 'sheriff' };
     if (state === 'UT') return { keys: ['utSheriff'], start: 'utSheriff' };

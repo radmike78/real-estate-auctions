@@ -52,6 +52,7 @@ describe('state deal costs', () => {
     expect(redemptionChoicesFor('TX', 'court').keys).toEqual(['none']);
     expect(redemptionChoicesFor('TX', 'trustee')).toMatchObject({ keys: ['none', 'usFederal'], start: 'none' });
     expect(redemptionChoicesFor('NV', 'hoa')).toMatchObject({ keys: ['hoa', 'usFederal'], start: 'hoa' });
+    expect(redemptionChoicesFor('NV', 'taxSale')).toMatchObject({ keys: ['none', 'usFederal'], start: 'none' });
     expect(redemptionPresetsFor('CA').usFederal).toMatchObject({ months: 4, ratePct: 6 });
     for (const st of ['NV', 'CA', 'AZ', 'UT', 'TX'] as const)
       for (const kind of ['trustee', 'taxSale', 'court', 'hoa', 'irs'])

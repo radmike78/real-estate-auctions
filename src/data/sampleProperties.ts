@@ -222,12 +222,16 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
       addHoa();
       maybeExtras();
       const nodDays = int(150, 260);
-      events.push(
-        ev(nodDays, 'NOTICE_OF_DEFAULT', `Notice of Default and Election to Sell recorded by ${pick(TRUSTEES)}.`),
-        ev(int(25, 60), 'NOTICE_OF_SALE', 'Notice of Trustee’s Sale recorded and posted.'),
-      );
+      const nodBy = pick(TRUSTEES);
+      const noticeAgo = int(25, 60);
       const trustee = pick(TRUSTEES);
       const date = scenario === 'stale' ? -int(10, 30) : saleDay;
+      // The notice of sale is posted at least 20 days before the sale (NRS 107.080(4)(b)). A stale sale is already
+      // past, so its notice goes 21 to 40 days before that date (same random draws, so other samples don't change).
+      events.push(
+        ev(nodDays, 'NOTICE_OF_DEFAULT', `Notice of Default and Election to Sell recorded by ${nodBy}.`),
+        ev(scenario === 'stale' ? -date + 21 + ((noticeAgo - 25) % 20) : noticeAgo, 'NOTICE_OF_SALE', 'Notice of Trustee’s Sale recorded and posted.'),
+      );
       sale = baseSale({
         saleType: 'TRUSTEE_SALE',
         conductedBy: trustee,

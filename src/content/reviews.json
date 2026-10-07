@@ -49,7 +49,7 @@
       "src/lib/buyerChecklists.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "7db7b02a207e998b",
+    "hash": "860f14e0966e76c0",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -116,7 +116,7 @@
       "src/lib/saleDocs.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "327e05a9ec76ec5f",
+    "hash": "1e61089b05547b49",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "4edc6a6e783ac6fe",
+    "hash": "e08ad05d4aea1169",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -355,7 +355,7 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "b81c463f66da2549",
+    "hash": "a50d14dc9c47604b",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
