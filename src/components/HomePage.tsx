@@ -64,7 +64,7 @@ export default function HomePage() {
               {/* One row of actions, one short line of why: no stack of separate lines before the six steps. */}
               <div className="hero-ctas">
                 {plan.source === 'starter' && next ? (
-                  <a className="btn big" href={next.step.href}><span className="guided-count">{next.n} of {GUIDED.length}</span> {next.step.label}&nbsp;→</a>
+                  <a className="btn big" href={next.step.href}><span className="guided-count">Stop {next.n} of {GUIDED.length}</span> {next.step.label}&nbsp;→</a>
                 ) : (
                   <a className="btn big" href={plan.task.href === ROADMAP_TASK_HREF ? '#/toolkit/roadmap' : plan.task.href}>Continue: {plan.task.label}&nbsp;→</a>
                 )}
@@ -132,7 +132,7 @@ export default function HomePage() {
         <h3 className="progress-kinds-head">How DeedOwl counts your progress</h3>
         <ul className="progress-kinds" aria-label="How DeedOwl counts progress">
           <li><strong>My plan ({total} roadmap tasks)</strong> The real work of an actual purchase, and the one place your next step comes from. This is the progress that counts.</li>
-          <li><strong>Getting started ({GUIDED.length} steps)</strong> A short first tour of what to read and try first. While you’re on it, it’s your next step; after that, My plan takes over.</li>
+          <li><strong>Getting started: a {GUIDED.length}-stop first tour</strong> What to read and try first. While you’re on it, it’s your next step; after that, My plan takes over.</li>
           <li><strong>Lessons and practice missions</strong> Supporting activities: each plan task links the ones that help with it. Missions are rehearsal on made-up deals; finishing them builds skill, but doesn’t mean you’re ready to buy.</li>
         </ul>
       </section>

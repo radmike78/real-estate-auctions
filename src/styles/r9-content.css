@@ -18,6 +18,91 @@
 .plan-now-pointer { display: grid; gap: 10px; justify-items: start; margin: 0; padding: 16px 20px; border: 2px solid var(--accent); border-radius: 14px; background: var(--surface); color: var(--text); }
 .plan-now-pointer strong { font-size: 1.15rem; }
 
-/* A row of exactly three drills (e.g. "Recommended to start with") fills the width on wide screens instead of
-   leaving an empty fourth slot. */
-@media (min-width: 1401px) { .practice-grid.drill-grid:has(> :last-child:nth-child(3)) { --dc: 3; } }
+/* Drill groups: the column count follows the number of drills, so a short group fills its row and every row is full
+   where the count allows (3 → 3 across, 6 → 3 + 3, 4 and 8 → 4 across). A lone card or a pair spans the width. */
+.practice-grid.drill-grid:has(> :only-child) { --dc: 1; }
+@media (min-width: 641px) {
+  .practice-grid.drill-grid:has(> :last-child:nth-child(2)) { --dc: 2; }
+  .practice-grid.drill-grid:has(> :last-child:nth-child(3)) { --dc: 3; }
+}
+@media (min-width: 1081px) {
+  .practice-grid.drill-grid:has(> :last-child:nth-child(4n)) { --dc: 4; }
+}
+@media (min-width: 1401px) {
+  .practice-grid.drill-grid:has(> :last-child:nth-child(3n)):not(:has(> :last-child:nth-child(4n))) { --dc: 3; }
+}
+
+/* Other card grids that leave empty slots at wide widths when a group is short. */
+.roadmap-cols:has(> :only-child) { grid-template-columns: minmax(0, 1fr); }
+.reo-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); }
+.checks.dd-checks { grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr)); }
+@media (min-width: 700px) {
+  .book-grid:has(> :only-child) { grid-template-columns: minmax(0, 1fr); }
+  .book-grid:has(> :last-child:nth-child(2)) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* My plan: a phase's count ("0 of 4") stays on one line on phones. */
+.plan-now-phases li > .muted { white-space: nowrap; }
+
+/* County sale cards: the two buttons are the same width, side by side when they fit, else stacked full width, and
+   never break their labels. */
+.county-sale .county-sale-actions:has(> a.btn + a.btn) { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+.county-sale .county-sale-actions > a.btn { white-space: nowrap; }
+
+/* Practice run bar on phones: the step gets its own line, without a leading "·". */
+@media (max-width: 640px) {
+  .practice-run-state .run-state-step { flex-basis: 100%; }
+  .practice-run-state > .run-state-step::before { content: none; }
+}
+
+/* Analyze: "3. Run the numbers" sits in the same white card as steps 1, 2 and 4. */
+.deal-numbers { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 22px; margin-bottom: 22px; }
+.deal-numbers > h2 { font-size: 1.4rem; margin: 0 0 12px; }
+@media (max-width: 600px) { .deal-numbers { padding: 14px 12px; } }
+
+/* Drill toolbar: one even row on wide screens (the menus share the free width); an even two-column grid on tablets. */
+@media (min-width: 1401px) {
+  .drill-toolbar { flex-wrap: nowrap; }
+  .drill-toolbar > .btn, .drill-toolbar > .drill-filter-count { flex: 0 0 auto; white-space: nowrap; }
+  .drill-toolbar > .drill-filter-select { flex: 1 1 0; min-width: 0; }
+  .drill-toolbar > .drill-filter-select select { flex: 1 1 auto; min-width: 0; }
+}
+@media (min-width: 601px) and (max-width: 1400px) {
+  .drill-toolbar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; gap: 12px 18px; }
+  .drill-toolbar > .btn { width: 100%; }
+  .drill-toolbar > .drill-filter-select { display: grid; grid-template-columns: 5.4em minmax(0, 1fr); }
+  .drill-toolbar > .drill-filter-select select { min-width: 0; width: 100%; }
+  /* An odd count (with the State menu) leaves the count on its own row, across both columns. */
+  .drill-toolbar > .drill-filter-count:nth-child(odd) { grid-column: 1 / -1; }
+}
+
+/* Practice tiles on tablets: a group of three sits in one row instead of two plus a lone tile. */
+@media (min-width: 561px) and (max-width: 860px) {
+  .practice-sales:has(> :nth-child(3):last-child), .practice-grid:has(> :nth-child(3):last-child) { --max: 3; }
+}
+
+/* Side-by-side "how to read it" and "what to say" columns: every sub-heading gets the same bar. */
+.roadmap-cols:has(.script-box) h3 { margin: 18px 0 10px; padding: 8px 14px; font-size: 1.2rem; line-height: 1.3; border-left: 4px solid var(--accent-strong); background: var(--surface-2); border-radius: 8px; }
+.roadmap-cols:has(.script-box) > * > h3:first-child, .roadmap-cols:has(.script-box) .script-box:first-child > h3:first-child { margin-top: 0; }
+
+/* Header tour button: the full "Getting started: stop 1 of 5" where the menu has room, "Stop 1 of 5" (its title says
+   the rest) on mid-size screens so the header never runs off the side. */
+.nav-cta-short { display: none; }
+@media (min-width: 901px) and (max-width: 1500px) {
+  .nav-cta-long { display: none; }
+  .nav-cta-short { display: inline; }
+}
+@media (min-width: 901px) and (max-width: 1320px) {
+  .site-nav > a, .more summary { padding-inline: 8px; }
+}
+@media (min-width: 901px) and (max-width: 1240px) {
+  .site-nav { gap: 2px; }
+  .site-nav > a, .more summary { padding-inline: 6px; font-size: 0.9rem; }
+}
+/* With the tour button showing, the header needs a little more room on small laptops. */
+@media (min-width: 901px) and (max-width: 1150px) {
+  .site-header:has(.nav-cta) .logo > span { display: none; }
+}
+@media (min-width: 901px) and (max-width: 1010px) {
+  .site-header:has(.nav-cta) .site-nav > a, .site-header:has(.nav-cta) .more summary { padding-inline: 5px; font-size: 0.86rem; }
+}

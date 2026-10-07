@@ -7,7 +7,7 @@
       "src/lib/journey.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "33b461ac0069c110",
+    "hash": "4566bfe148b60f34",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -49,7 +49,7 @@
       "src/lib/buyerChecklists.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "5c16385fb7424fc0",
+    "hash": "a2675a6bd54a2e6f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -71,7 +71,7 @@
       "src/components/PreForeclosurePage.tsx"
     ],
     "reviewed": "2026-10-07",
-    "hash": "6719a142780ee129",
+    "hash": "3f012b7d69a62c78",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -116,7 +116,7 @@
       "src/lib/saleDocs.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "b9333bf893a5e348",
+    "hash": "551c915bfb80740b",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "6171856a31b7c5ab",
+    "hash": "a960b9da2362b5dd",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "f5dbf92b625ecde9",
+    "hash": "7988f14ab4fe60c7",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -282,7 +282,7 @@
       "src/components/RoleNotice.tsx"
     ],
     "reviewed": "2026-10-07",
-    "hash": "dd3a0533b1dd9d48",
+    "hash": "9340b2caacd30e48",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -355,7 +355,7 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "48fe8bb03110ad1e",
+    "hash": "259a4ccb8d3b7855",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -392,7 +392,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "5fa5ae44612f3937",
+    "hash": "ff73d577ead38dfd",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {
@@ -405,7 +405,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "a24f0aeb826dde1e",
+    "hash": "82abaaa5f8eaa3bd",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

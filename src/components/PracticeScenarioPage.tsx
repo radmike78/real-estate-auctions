@@ -76,7 +76,7 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
         <strong>Applies to Nevada (Clark County)</strong>
         <span className="run-state-wide">{s.saleTitle}</span>
         <span className="run-state-wide">{s.property.label} (fictional)</span>
-        <span>{stage ? `Step ${idx + 1} of ${s.stages.length}: ${stage.title}` : 'The listing'}</span>
+        <span className="run-state-step">{stage ? `Step ${idx + 1} of ${s.stages.length}: ${stage.title}` : 'The listing'}</span>
         {mine && mine !== 'NV' && <span className="run-state-wide">Not {myName} rules{myDrill ? <>: <a href={`#/practice/drills/${myDrill}`}>{myName} drill</a></> : null}</span>}
       </p>
 

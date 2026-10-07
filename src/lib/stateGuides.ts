@@ -1522,7 +1522,7 @@ export const STATE_GUIDES: Playbook[] = [
       url: "https://le.utah.gov/xcode/Title59/Chapter2/59-2-S1325.html"
     },
     {
-      label: "Utah County Sheriff: sheriff sales",
+      label: "Utah County Sheriff’s sales",
       url: "https://sheriff.utahcounty.gov/supportServices/judicial/sheriffSales"
     }
   ],

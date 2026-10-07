@@ -118,7 +118,7 @@ export const GUIDE: DrillSection[] = [
     key: 'where-notices',
     title: 'Where to find notices',
     icon: <IconCheckList />,
-    summary: 'Which county office records them, and where they are posted and published',
+    summary: 'Which county office files or records them, and where they are posted and published',
     content: () => (
       <>
         <p>Notices are public records. Follow the property through the <NoticeOffice /> and the trustee named on the notice, never through the owner.</p>
@@ -148,10 +148,10 @@ export const GUIDE: DrillSection[] = [
     bare: true,
     content: () => (
       <>
-        <BuyerChecklistBox list={CHECKLISTS.pre} />
+        <BuyerChecklistBox list={CHECKLISTS.pre} noTag />
         <div className="roadmap-cols">
           <div>
-            <h3>How to read a notice of sale</h3>
+            <h3 className="topic-head">How to read a notice of sale</h3>
             <ul>
               <li>The date, time and place of the sale (or the website, for an online sale).</li>
               <li>The trustee’s name and phone number: the only person to ask about the sale.</li>

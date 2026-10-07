@@ -68,5 +68,5 @@ export const GUIDE_SOURCES: Source[] = [
   { id: 'guide-ut-62', title: "Utah Rules of Civil Procedure, Rule 69B (sale of property)", publisher: 'Utah State Courts', url: 'https://legacy.utcourts.gov/rules/view.php?type=urcp&rule=69B', role: 'rules', checked: '2026-09-29' },
   { id: 'guide-ut-63', title: "Utah Code 78B-6-901 (mortgage foreclosure, sheriff sale)", publisher: 'Utah Legislature', url: 'https://le.utah.gov/xcode/Title78B/Chapter6/78B-6-S901.html', role: 'rules', checked: '2026-09-29' },
   { id: 'guide-ut-64', title: "Utah Code 78B-6-906 (redemption after foreclosure sale)", publisher: 'Utah Legislature', url: 'https://le.utah.gov/xcode/Title78B/Chapter6/78B-6-S906.html', role: 'rules', checked: '2026-09-29' },
-  { id: 'guide-ut-65', title: "Utah County Sheriff: sheriff sales", publisher: 'Utah County', url: 'https://sheriff.utahcounty.gov/supportServices/judicial/sheriffSales', role: 'rules', checked: '2026-09-29' },
+  { id: 'guide-ut-65', title: "Utah County Sheriff’s sales", publisher: 'Utah County', url: 'https://sheriff.utahcounty.gov/supportServices/judicial/sheriffSales', role: 'rules', checked: '2026-09-29' },
 ];
