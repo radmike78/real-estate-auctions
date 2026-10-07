@@ -16,7 +16,7 @@ export const TEAM = {
   offerInspector: { role: 'Home inspector and contractors', when: 'Inspection and written repair bids before your inspection deadline, with the access the seller allows; ask the listing agent to turn on utilities for it', href: '#/pros/inspector', pro: 'inspector' },
   cpa: { role: 'CPA', when: 'Before you buy: flips and rentals are taxed differently', href: '#/pros/cpa', pro: 'cpa' },
   commercialBroker: { role: 'Commercial real estate broker', when: 'Current rents and cap rates for this property type, and leasing it up after', href: '#/pros/agent', pro: 'agent' },
-  environmental: { role: 'Environmental consultant', when: 'A Phase I environmental site assessment within one year before you take title (site visit, interviews and record searches within 180 days)', href: '#/pros/environmental', pro: 'environmental' },
+  environmental: { role: 'Environmental consultant', when: 'A Phase I environmental site assessment completed (or updated) within one year before you take title (site visit, interviews, record and lien searches within 180 days)', href: '#/pros/environmental', pro: 'environmental' },
   commercialLender: { role: 'Commercial or bridge lender', when: 'Before the sale: auctions need cash, so the long-term loan comes after', href: '#/pros/private_lender', pro: 'private_lender' },
   propertyManager: { role: 'Commercial property manager', when: 'From day one if there are tenants: rent collection, estoppels, repairs', href: '#/pros/property_manager', pro: 'property_manager' },
 } satisfies Record<string, TeamEntry>;

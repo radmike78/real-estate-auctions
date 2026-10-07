@@ -96,7 +96,7 @@ export const STATE_SALES: Record<StateCode, string[]> = {
   ],
   TX: [
     'Tax sales: after a court judgment, a sheriff or constable auctions the property on the first Tuesday of the month; the owner can redeem for 180 days, or 2 years for a homestead, land designated for agricultural use or a mineral interest.',
-    'Foreclosures: trustee auctions on the first Tuesday of the month, between 10 a.m. and 4 p.m., with at least 21 days’ notice; after a mortgage foreclosure the owner has no right to redeem. After a property tax loan foreclosure they do (Tax Code 32.06(k)). The United States can redeem within 120 days if a junior federal tax lien was on title.',
+    'Foreclosures: trustee auctions on the first Tuesday of the month, between 10 a.m. and 4 p.m., with at least 21 days’ notice; after a mortgage foreclosure the owner has no right to redeem. After a property tax loan foreclosure they do (Tax Code 32.06(k)). If the sale wiped out a junior federal tax lien, the United States can still redeem within 120 days; a lien the sale didn’t wipe out stays on title.',
   ],
 };
 

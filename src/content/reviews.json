@@ -48,8 +48,8 @@
       "src/components/BuyerChecklistBox.tsx",
       "src/lib/buyerChecklists.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "21abc885b2659697",
+    "reviewed": "2026-10-07",
+    "hash": "7db7b02a207e998b",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -60,8 +60,8 @@
       "src/components/IrsSales.tsx",
       "src/components/SidCertificates.tsx"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "a17337e4420a2678",
+    "reviewed": "2026-10-07",
+    "hash": "711d28e2cabf056a",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -115,8 +115,8 @@
       "src/lib/playbooks.ts",
       "src/lib/saleDocs.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "d3899c4dd83a92aa",
+    "reviewed": "2026-10-07",
+    "hash": "327e05a9ec76ec5f",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -141,8 +141,8 @@
       "src/components/RentalCasePage.tsx",
       "src/practice/rentalCase.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "819890da56ab7103",
+    "reviewed": "2026-10-07",
+    "hash": "4816f48cf9a52055",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -354,8 +354,8 @@
       "src/components/StrategyPage.tsx",
       "src/lib/strategies.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "d1bd9eedb43584d1",
+    "reviewed": "2026-10-07",
+    "hash": "ecfd516ec8a0dc2e",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -378,8 +378,8 @@
       "src/lib/findDeals.ts",
       "src/lib/regions.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "dc836a9f5dfa2b5c",
+    "reviewed": "2026-10-07",
+    "hash": "8efef775fa10ed0e",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
@@ -391,8 +391,8 @@
       "src/lib/analyze.ts",
       "src/lib/path.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "a8d5c73f3525f7f8",
+    "reviewed": "2026-10-07",
+    "hash": "543912acf9119dc4",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {

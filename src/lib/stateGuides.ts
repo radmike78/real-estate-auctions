@@ -260,7 +260,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Get and record the trustee’s deed",
-      detail: "Once the sale is final and your funds clear, the trustee gives you a trustee’s deed. After that, the owner has no right to buy the property back. But if a federal tax lien was on the property, the U.S. can buy it back within 120 days (26 U.S.C. 7425(d))."
+      detail: "Once the sale is final and your funds clear, the trustee gives you a trustee’s deed. After that, the owner has no right to buy the property back. But if the sale wiped out a junior federal tax lien, the U.S. can buy it back within 120 days (26 U.S.C. 7425(d)). If the IRS didn’t get the required notice, its lien isn’t wiped out at all and stays on the property (26 U.S.C. 7425(b))."
     },
     {
       title: "Handle occupants lawfully",
@@ -745,7 +745,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Redemption",
-      value: "None. Once the sale is over, the owner can’t buy it back (ARS 33-811). But if a federal tax lien is on title, the United States may have 120 days to buy it back (26 USC 7425(d))"
+      value: "None. Once the sale is over, the owner can’t buy it back (ARS 33-811). But if the sale wiped out a junior federal tax lien, the United States may buy it back within 120 days (26 USC 7425(d)). A lien the sale didn’t wipe out (for example, the IRS didn’t get the required notice) stays on title (26 USC 7425(b))"
     },
     {
       label: "Deed",
@@ -794,7 +794,7 @@ export const STATE_GUIDES: Playbook[] = [
     wipedOut: [
       "The deed of trust being foreclosed",
       "Liens and interests junior to that deed of trust (ARS 33-811)",
-      "The former owner’s right to get the property back. There is no redemption (ARS 33-811), except that the United States may redeem within 120 days if a federal tax lien was on title (26 USC 7425(d))"
+      "The former owner’s right to get the property back. There is no redemption (ARS 33-811), except that the United States may redeem within 120 days if the sale wiped out a junior federal tax lien (26 USC 7425(d))"
     ],
     mayStay: [
       "Liens senior to the foreclosed deed of trust, such as an earlier mortgage (ARS 33-811)",
@@ -900,7 +900,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Redemption period",
-      value: "30 days if the court found the property abandoned (and not farm or grazing land). Otherwise 6 months (ARS 12-1282)"
+      value: "30 days if the judgment found the property both abandoned and not used mainly for farming or grazing. Otherwise 6 months. Then junior creditors can redeem in turn, 5 days each (ARS 12-1282)"
     },
     {
       label: "Redemption price",
@@ -922,7 +922,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Read the judgment and pull title",
-      detail: "Get the court case number from the notice and read the judgment. It says what is being sold. It also says whether the court found the property abandoned. Order a title report to see which liens come before the one being foreclosed."
+      detail: "Get the court case number from the notice and read the judgment. It says what is being sold. It also says whether the court found the property both abandoned and not used mainly for farming or grazing. Order a title report to see which liens come before the one being foreclosed."
     },
     {
       title: "Confirm the sale is still on",
@@ -942,7 +942,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Wait out the redemption period",
-      detail: "The owner can redeem within 30 days if the court found the home abandoned, or 6 months otherwise. After that, creditors with junior liens may redeem in 5-day turns (ARS 12-1282). If anyone redeems, you get your price plus 8%. You also get back taxes or assessments you paid, with interest (ARS 12-1285). Keep receipts."
+      detail: "The owner can redeem within 6 months, or within 30 days if the judgment found the home both abandoned and not used mainly for farming or grazing. After that, creditors with junior liens may redeem one after another, in order of priority, each within 5 days after the one before, so each one can add up to 5 days to your wait (ARS 12-1282). If anyone redeems, you get your price plus 8%. You also get back taxes or assessments you paid, with interest (ARS 12-1285). Keep receipts."
     },
     {
       title: "Receive the sheriff’s deed",
@@ -1203,7 +1203,7 @@ export const STATE_GUIDES: Playbook[] = [
   title: "Utah trustee sales",
   short: "Trustee sales",
   oneLine: "Most Utah home loans use a trust deed. That lets the trustee sell the home at a public auction without a court case.",
-  youGet: "A trustee’s deed. Once the sale is over, the owner can’t buy it back. You get the owner’s interest, and the sale wipes out interests that came after the loan being foreclosed. The one exception is a federal tax lien: the United States may buy it back within 120 days (26 USC 7425(d)).",
+  youGet: "A trustee’s deed. Once the sale is over, the owner can’t buy it back. You get the owner’s interest, and the sale wipes out interests that came after the loan being foreclosed. The one exception is a junior federal tax lien the sale wiped out: the United States may still buy the home back within 120 days (26 USC 7425(d)). If the IRS didn’t get the required notice, the sale doesn’t wipe its lien out, and the lien stays on title (26 USC 7425(b)).",
   plain: 'The house, with no buy-back period. The sale clears debts recorded after the loan being foreclosed.',
   forSale: true,
   glance: [
@@ -1237,7 +1237,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Redemption",
-      value: "None. Once the sale is over, the owner can’t buy it back. If a federal tax lien is on title, the United States may buy it back within 120 days (26 USC 7425(d))."
+      value: "None. Once the sale is over, the owner can’t buy it back. If the sale wiped out a junior federal tax lien, the United States may buy it back within 120 days (26 USC 7425(d)). If the IRS didn’t get the required notice, its lien isn’t wiped out and stays on title instead (26 USC 7425(b))."
     }
   ],
   steps: [
@@ -1278,7 +1278,7 @@ export const STATE_GUIDES: Playbook[] = [
     wipedOut: [
       "The trust deed being foreclosed",
       "The owner’s rights and the rights of anyone claiming through the owner. This includes later trust deeds and liens recorded after the foreclosed loan",
-      "The former owner’s right to buy it back: Utah trustee sales have none (57-1-28). If a federal tax lien was on title, the United States can still redeem within 120 days"
+      "The former owner’s right to buy it back: Utah trustee sales have none (57-1-28). If the sale wiped out a junior federal tax lien, the United States can still redeem within 120 days (26 USC 7425(d))"
     ],
     mayStay: [
       "Older (senior) trust deeds and liens recorded before the loan being foreclosed",
@@ -2182,7 +2182,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Environmental",
-      value: "A Phase I environmental site assessment can protect you from having to pay for a federal cleanup. It has to be done within one year before you buy, with key parts updated within 180 days, and you have duties after you buy too (EPA All Appropriate Inquiries)."
+      value: "A Phase I environmental site assessment can help protect you from having to pay for a federal cleanup. It has to be completed (or updated) within one year before you buy, with key parts done or updated within 180 days. The report alone isn’t enough: you also have to qualify for the protection (for example, as a bona fide prospective purchaser) and meet ongoing duties after you buy (EPA All Appropriate Inquiries)."
     },
     {
       label: "Accessibility",
@@ -2212,7 +2212,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Screen for contamination",
-      detail: "Ask what the property was used for. Gas stations, dry cleaners and auto shops are high risk. Check state cleanup databases such as DTSC EnviroStor and the Water Board’s GeoTracker. Order a Phase I assessment within one year before you buy (EPA)."
+      detail: "Ask what the property was used for. Gas stations, dry cleaners and auto shops are high risk. Check state cleanup databases such as DTSC EnviroStor and the Water Board’s GeoTracker. Get a Phase I assessment finished (not just ordered) within one year before you buy, with its interviews, records review, site visit and lien search done or updated within 180 days before you buy. A report alone doesn’t guarantee protection: you also have to qualify and keep meeting ongoing duties after you buy. The environmental consultant guide explains the details (EPA All Appropriate Inquiries)."
     },
     {
       title: "Check zoning, code and permits",
@@ -2347,7 +2347,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Redemption",
-      value: "6 months after the sale, or 30 days if the court found the home abandoned (and not farm or grazing land) (A.R.S. 12-1282, 12-1283)"
+      value: "6 months after the sale, or 30 days if the judgment found the home both abandoned and not used mainly for farming or grazing. Then junior creditors can redeem in turn, 5 days each (A.R.S. 12-1282, 12-1283)"
     },
     {
       label: "Redemption price",
@@ -2365,7 +2365,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Read the judgment",
-      detail: "Get the judgment from the court file. It says what is being sold and the amount owed. It also says whether the court found the home abandoned. That sets the redemption period at 30 days instead of 6 months (A.R.S. 12-1282). For a condominium, the HOA’s lien falls under A.R.S. 33-1256, which works the same way."
+      detail: "Get the judgment from the court file. It says what is being sold and the amount owed. It also says whether the court found the home both abandoned and not used mainly for farming or grazing. Only that finding cuts the owner’s redemption period to 30 days instead of 6 months (A.R.S. 12-1282). For a condominium, the HOA’s lien falls under A.R.S. 33-1256, which works the same way."
     },
     {
       title: "Order a title report and find the first mortgage",
@@ -2389,7 +2389,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Wait out the redemption period",
-      detail: "The owner can redeem for 6 months (30 days if the court found the home abandoned). After that, creditors with later liens can redeem in 5-day turns (A.R.S. 12-1282, 12-1283). If anyone redeems, you get your price plus 8%. You also get back taxes or assessments you paid, with interest (A.R.S. 12-1285). Repairs aren’t repaid. So keep receipts and hold off on upgrades."
+      detail: "The owner can redeem for 6 months (30 days only if the judgment found the home both abandoned and not used mainly for farming or grazing). After that, creditors with later liens can redeem one after another, in order of priority, each within 5 days after the one before. Each one can add up to 5 days to your wait, so count them on your title report (A.R.S. 12-1282, 12-1283). If anyone redeems, you get your price plus 8%. You also get back taxes or assessments you paid, with interest (A.R.S. 12-1285). Repairs aren’t repaid. So keep receipts and hold off on upgrades."
     },
     {
       title: "Receive the sheriff’s deed and take possession lawfully",
@@ -2418,7 +2418,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Thinking you own the home on sale day",
-      prevent: "You get a certificate of sale. Plan for a 6-month wait (30 days only if the court found the home abandoned). Also plan for the chance you are simply paid back with 8%."
+      prevent: "You get a certificate of sale. Plan for a 6-month wait (30 days only if the judgment found the home both abandoned and not used mainly for farming or grazing), plus 5 days for each junior creditor who could redeem after the owner. Also plan for the chance you are simply paid back with 8%."
     },
     {
       mistake: "Renovating during the redemption period",
@@ -2843,7 +2843,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Foreclosure risk",
-      value: "A trustee’s sale can still happen. In Arizona that sale is final, with no buy-back for the owner (A.R.S. 33-811). Only a federal tax lien on title gives the United States 120 days to redeem"
+      value: "A trustee’s sale can still happen. In Arizona that sale is final, with no buy-back for the owner (A.R.S. 33-811). The one exception: if the sale wipes out a junior federal tax lien, the United States can still redeem within 120 days (26 USC 7425(d))"
     },
     {
       label: "Financing and inspection",
@@ -2981,7 +2981,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Environmental",
-      value: "A Phase I environmental site assessment (ASTM E1527-21) can protect you from having to pay for a federal cleanup. Do it within one year before you take title, with key parts updated within 180 days. You also have ongoing duties after you buy"
+      value: "A Phase I environmental site assessment (ASTM E1527-21) can help protect you from having to pay for a federal cleanup. Have it completed (or updated) within one year before you take title, with key parts done or updated within 180 days. You also have to qualify for the protection and meet ongoing duties after you buy"
     },
     {
       label: "Transfer tax",
@@ -3023,7 +3023,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Screen for contamination",
-      detail: "Ask what the property was used for. Gas stations, dry cleaners and auto shops are high risk. Search EPA records and the Arizona Department of Environmental Quality (ADEQ) for nearby landfills and contamination sites. Order a Phase I assessment within one year before you take title. Its site visit, interviews and records searches must be within 180 days (EPA)."
+      detail: "Ask what the property was used for. Gas stations, dry cleaners and auto shops are high risk. Search EPA records and the Arizona Department of Environmental Quality (ADEQ) for nearby landfills and contamination sites. Get a Phase I assessment finished (not just ordered) within one year before you take title. Its interviews, records review, site visit and lien search must be done or updated within 180 days before you take title. A report alone doesn’t guarantee protection: you also have to qualify and keep meeting ongoing duties after you buy (EPA All Appropriate Inquiries)."
     },
     {
       title: "Check zoning, code and permits",
@@ -3142,7 +3142,7 @@ export const STATE_GUIDES: Playbook[] = [
   title: "Utah HOA foreclosures",
   short: "HOA foreclosures",
   oneLine: "A Utah homeowners or condo association can sell a home to collect unpaid assessments (dues). It can use a trustee sale or a court case.",
-  youGet: "The owner’s interest, usually with the first mortgage still on it. After a trustee sale, the owner has no right to buy it back (but a federal tax lien on title gives the United States 120 days). After a court (sheriff) sale, there is a 180-day redemption period.",
+  youGet: "The owner’s interest, usually with the first mortgage still on it. After a trustee sale, the owner has no right to buy it back (but if the sale wipes out a junior federal tax lien, the United States can still redeem for 120 days). After a court (sheriff) sale, there is a 180-day redemption period, and a United States lien wiped out by that sale gets the same 180 days.",
   plain: 'The owner’s interest, usually with the first mortgage still on it. No buy-back after a trustee sale. After a court sale, 180 days.',
   forSale: true,
   glance: [
@@ -3168,7 +3168,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Redemption",
-      value: "After a trustee sale, the owner has no right to buy it back (57-1-28). But if a federal tax lien is on title, the United States may redeem within 120 days. After a court foreclosure, there are 180 days to redeem after the sheriff’s sale (78B-6-906, URCP 69C)."
+      value: "After a trustee sale, the owner has no right to buy it back (57-1-28). But if the sale wiped out a junior federal tax lien, the United States may redeem within 120 days (26 USC 7425(d)). After a court foreclosure, there are 180 days to redeem after the sheriff’s sale (78B-6-906, URCP 69C). If that sale wiped out a federal tax lien, the United States also gets 120 days or the state period, whichever is longer, so 180 days (28 USC 2410(c)). A sale that didn’t wipe the lien out (the IRS didn’t get the required notice, or the United States wasn’t named in the court case) leaves the lien on the home instead."
     },
     {
       label: "Registration",
@@ -3217,7 +3217,7 @@ export const STATE_GUIDES: Playbook[] = [
     wipedOut: [
       "The association’s lien being foreclosed",
       "The owner’s interest and liens recorded after the association’s lien, if the sale was valid",
-      "The former owner’s right to buy it back, after a trustee sale (there is none under Utah law; the United States can still redeem within 120 days if a federal tax lien was on title)"
+      "The former owner’s right to buy it back, after a trustee sale (there is none under Utah law; the United States can still redeem within 120 days if the sale wiped out a junior federal tax lien)"
     ],
     mayStay: [
       "A first or second mortgage recorded before the association’s notice of lien (the usual case)",
@@ -3554,7 +3554,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Review the title commitment",
-      detail: "Look for liens the seller hasn’t cleared, HOA dues, easements and water rights. If a lender took the home back at a Utah trustee sale, the former owner has no right to buy it back (57-1-28). But older liens can still be on title, and a federal tax lien can give the United States 120 days to redeem after the sale (26 USC 7425(d))."
+      detail: "Look for liens the seller hasn’t cleared, HOA dues, easements and water rights. If a lender took the home back at a Utah trustee sale, the former owner has no right to buy it back (57-1-28). But older liens can still be on title. A junior federal tax lien that the sale wiped out still gives the United States 120 days to redeem after the sale (26 USC 7425(d)), and one the sale didn’t wipe out stays on title."
     },
     {
       title: "Close through the title company",
@@ -3810,7 +3810,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Environmental",
-      value: "A Phase I environmental site assessment (ASTM E1527-21) can protect you from having to pay for a federal cleanup. Do it within one year before you take title, with key parts updated within 180 days. You also have ongoing duties after you buy."
+      value: "A Phase I environmental site assessment (ASTM E1527-21) can help protect you from having to pay for a federal cleanup. Have it completed (or updated) within one year before you take title, with key parts done or updated within 180 days. You also have to qualify for the protection and meet ongoing duties after you buy."
     },
     {
       label: "Water",

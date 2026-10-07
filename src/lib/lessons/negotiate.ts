@@ -106,7 +106,7 @@ export const negotiate: Lesson = {
       heading: 'Structuring tools',
       blocks: [
         { list: [
-          '1031 exchange: sell a business or investment property and buy another, and defer tax on the gain. You have 45 days after selling to identify the replacement, and you must receive it within 180 days, or by your tax return’s due date including extensions, if that’s earlier. Only real estate qualifies, and any cash you take out is taxed. Property held mainly for resale, like a flip, doesn’t qualify. A qualified intermediary holds the money in between, and it can’t be your agent or a relative.',
+          '1031 exchange: sell a business or investment property and buy another, and defer tax on the gain. You have 45 days after selling to identify the replacement, and you must receive it within 180 days, or by your tax return’s due date including extensions, if that’s earlier. Only real estate qualifies. Cash or other property that isn’t like-kind (“boot”), including a drop in your debt that new borrowing or added cash doesn’t make up, is taxed, but only up to your gain; the rest of the gain can still be deferred (Form 8824 instructions). Property held mainly for resale, like a flip, doesn’t qualify. A qualified intermediary holds the money in between, and it can’t be your agent or a relative.',
           'Installment sale: the seller gets at least one payment after the year of the sale, as with seller financing. The seller may then spread the tax on the gain across the payments. Interest received is ordinary income.',
           'Seller credits: instead of a lower price, the seller pays part of your closing costs, within the lender’s limits above.',
         ] },

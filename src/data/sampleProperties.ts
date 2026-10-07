@@ -207,7 +207,7 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
         paymentMethods: ['Cash', "Cashier's check", 'Money order'],
         finalPaymentDeadline: isoAt(saleDay, 13),
         deedType: 'Quitclaim deed from the Treasurer, recorded within 30 days, in the name on the bidder’s registration form',
-        redemptionPeriod: 'None after the auction. Anyone claiming the land can sue to recover it for 2 years after the Treasurer’s deed is delivered (title insurance may be unavailable meanwhile); the IRS may redeem within 120 days if it holds a lien',
+        redemptionPeriod: 'None after the auction. Anyone claiming the land can sue to recover it for 2 years after the Treasurer’s deed is delivered (title insurance may be unavailable meanwhile); if the sale wiped out a federal tax lien, the IRS may still redeem within 120 days (a lien the sale didn’t wipe out stays on the land)',
         eligibility: 'Registered bidders only, capped at 280; deed issued to the name on the registration form',
       });
       status = 'IN_PERSON_AUCTION';
