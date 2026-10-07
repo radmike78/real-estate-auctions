@@ -36,7 +36,7 @@ const ICONS: Record<ProKey, ReactElement> = {
 const NBSP = ' ';
 const sentences = (t: string) => t.split(/(?<=[.!?])\s+(?=[A-Z“"])/).filter(Boolean);
 /** The sentences of `text` not already said in `said` (compared by their opening words), so a fact is said once. */
-const unsaid = (text: string, said: string) => sentences(text).filter((x) => !said.includes(x.slice(0, 50).replace(/[.:]$/, ''))).join(' ');
+const unsaid = (text: string, said: string) => sentences(text).filter((x) => !said.toLowerCase().includes(x.slice(0, 50).replace(/[.:]$/, '').toLowerCase())).join(' ');
 
 /** Where to check a license: the visitor's own state, or every state when they haven't picked one. */
 function LicenseCheck({ lookups, state, said }: { lookups: Record<StateCode, Lookup>; state: StateCode | null; said: string }) {
