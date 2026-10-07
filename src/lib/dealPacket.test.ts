@@ -116,13 +116,66 @@ describe('the deal packet', () => {
     expect(none.find((s) => s.key === 'cash')!.lines.join('\n')).toMatch(/No price meets your 9% return on cost/);
   });
 
+  it('counts loan interest and points in a financed flip’s budget, at your saved price', () => {
+    const flip: Deal = { ...deal, kind: 'trustee', plan: 'flip' };
+    const inputs = { minimumBid: 150000, exitValue: 300000, repairs: 40000, contingencyPct: 10, holdingMonths: 6, monthlyCarry: 500, financedPct: 70, interestRatePct: 11, pointsPct: 2 };
+    localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify(inputs));
+    const b = flipBudget(flip)!;
+    // 70% of the $150,000 opening bid plus $44,000 repairs = $135,800 loan; 11% for 6 months plus 2 points.
+    expect(b.price).toBe(150000);
+    expect(b.financing).toBeCloseTo(135800 * (0.11 * 0.5 + 0.02), 0);
+    expect(b.total).toBeCloseTo(44000 + 3000 + b.financing, 0);
+    // Your own bid replaces the opening bid.
+    localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ ...inputs, proposedPrice: 200000 }));
+    expect(flipBudget(flip)!.price).toBe(200000);
+    expect(flipBudget(flip)!.financing).toBeCloseTo((200000 + 44000) * 0.7 * 0.075, 0);
+  });
+
+  it('words a commercial walk-away price by what sets it: return, cash or the lender’s coverage', () => {
+    const auction: Deal = { ...deal, kind: 'trustee', plan: 'commercial' };
+    const numbers = () => packetSections(auction, EMPTY_PACKET, now).find((s) => s.key === 'numbers')!.lines.join('\n');
+    // Cash binds before the 9% target does.
+    localStorage.setItem('fsf.calc.commercial.d1.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 9, cashAvailable: 100000 }));
+    let t = numbers();
+    expect(t).toMatch(/Walk-away price, set by the cash you can bring: \$[\d,]+ \(return on cost at that price: [\d.]+%\)/);
+    expect(t).not.toMatch(/Highest price for a 9% return/);
+    expect(t).toMatch(/If rent 10% lower: still \$[\d,]+, set by the cash you can bring/);
+    // No target, but cash caps the price: never "a 0% return".
+    localStorage.setItem('fsf.calc.commercial.d1.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 0, cashAvailable: 300000 }));
+    t = numbers();
+    expect(t).not.toMatch(/0% return on cost:/);
+    expect(t).toMatch(/set by the cash you can bring/);
+    // A purchase loan with no target: the lender’s minimum coverage sets it.
+    const offer: Deal = { ...deal, plan: 'commercial' };
+    localStorage.setItem('fsf.calc.commercial.d1-offer.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 0, loanPct: 70, value: 900000 }));
+    t = packetSections(offer, EMPTY_PACKET, now).find((s) => s.key === 'numbers')!.lines.join('\n');
+    expect(t).toMatch(/Walk-away price, set by the lender’s minimum coverage \(DSCR\): \$[\d,]+/);
+    expect(t).toMatch(/If rent 10% lower: walk-away price, set by the lender’s minimum coverage/);
+    // The target return sets it: the usual wording.
+    localStorage.setItem('fsf.calc.commercial.d1.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 9 }));
+    expect(numbers()).toMatch(/Highest price for a 9% return on cost: \$[\d,]+/);
+  });
+
+  it('flags a commercial price over $1 billion as a likely typo, not a missing target', () => {
+    const offer: Deal = { ...deal, plan: 'commercial' };
+    localStorage.setItem('fsf.calc.commercial.d1-offer.v1', JSON.stringify({ monthlyRent: 1e9, targetCapPct: 9 }));
+    const s = packetSections(offer, EMPTY_PACKET, now);
+    for (const k of ['cash', 'numbers']) {
+      const t = s.find((x) => x.key === k)!.lines.join('\n');
+      expect(t).toMatch(/The price is over \$1 billion with the rent and costs you entered in Commercial income: check them for a typo\./);
+      expect(t).not.toMatch(/No target return entered/);
+    }
+    localStorage.setItem('fsf.calc.commercial.d1-offer.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 0 }));
+    expect(packetSections(offer, EMPTY_PACKET, now).find((x) => x.key === 'numbers')!.lines.join('\n')).toMatch(/No target return entered/);
+  });
+
   it('gives a flip its repair and holding budget from Fix and sell, for the owned tracker', () => {
     const flip: Deal = { ...deal, kind: 'trustee', plan: 'flip' };
     expect(flipBudget(flip)).toBeNull();
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ exitValue: 250000, repairs: 20000, contingencyPct: 15, holdingMonths: 4, monthlyCarry: 500 }));
-    expect(flipBudget(flip)).toEqual({ repairs: 23000, monthly: 500, months: 4, holding: 2000, total: 25000 });
+    expect(flipBudget(flip)).toEqual({ repairs: 23000, monthly: 500, months: 4, holding: 2000, financing: 0, price: 0, total: 25000 });
     expect(flipBudget({ ...flip, plan: 'rent' })).toBeNull();
-    const closed = (b: boolean) => stageTasks(flip, 'closed', EMPTY_PACKET, now).find((t) => t.key === 'owned')!.produces.includes(b ? 'against the repair and holding budget' : 'compare yourself');
+    const closed = (b: boolean) => stageTasks(flip, 'closed', EMPTY_PACKET, now).find((t) => t.key === 'owned')!.produces.includes(b ? 'against the budget in your Fix and sell numbers' : 'compare yourself');
     expect(closed(true)).toBe(true);
     localStorage.removeItem('fsf.bid.analyzed-d1.v1');
     expect(closed(false)).toBe(true);

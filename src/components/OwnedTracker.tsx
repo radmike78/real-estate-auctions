@@ -48,7 +48,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   const flip = deal.plan === 'flip';
   const budget = flipBudget(deal);
   const budgetLine = budget
-    ? `Your budget: repairs with contingency ${fmtMoney(Math.round(budget.repairs))}, holding ${fmtMoney(Math.round(budget.monthly))} a month for ${budget.months} ${budget.months === 1 ? 'month' : 'months'} (about ${fmtMoney(Math.round(budget.holding))}).`
+    ? `Your budget: repairs with contingency ${fmtMoney(Math.round(budget.repairs))}, holding ${fmtMoney(Math.round(budget.monthly))} a month for ${budget.months} ${budget.months === 1 ? 'month' : 'months'} (about ${fmtMoney(Math.round(budget.holding))})${budget.financing > 0 ? `, loan interest and points about ${fmtMoney(Math.round(budget.financing))}${budget.price > 0 ? ` at a ${fmtMoney(Math.round(budget.price))} price` : ''}` : ''}: ${fmtMoney(Math.round(budget.total))} in all.`
     : null;
   const put = (next: Owned | null) => {
     const copy = { ...all };

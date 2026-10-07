@@ -192,7 +192,16 @@ export function savedNumbers(d: Deal) {
     /** Each downside case: the walk-away price, and the profit at your own price (null when no price is entered). */
     stress: { label: string; maxBid: number; profit: number | null }[];
   } | null = null;
-  let commercial: { maxBid: number; noi: number; capPct: number; cashLeft: number; allIn: number; refi: boolean; none: boolean; noTarget: boolean; stress: { label: string; maxBid: number | null }[] } | null = null;
+  let commercial: {
+    maxBid: number; noi: number; capPct: number; cashLeft: number; allIn: number; refi: boolean; none: boolean; noTarget: boolean;
+    /** A target return is entered, but no price under $1 billion falls short of it: likely a typo in the rent or costs. */
+    overCap: boolean;
+    /** What sets the walk-away price: your target return, the cash you can bring, or the lender's minimum coverage (DSCR). */
+    limitedBy: CommercialLimit;
+    /** Return on cost at the walk-away price (NOI / all in), or null. */
+    capOnCost: number | null;
+    stress: { label: string; maxBid: number | null; limitedBy?: CommercialLimit; capOnCost?: number | null }[];
+  } | null = null;
   if (d.plan === 'rent') {
     const rentRaw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
     if (rentRaw) {
@@ -222,15 +231,16 @@ export function savedNumbers(d: Deal) {
       if (v.monthlyRent > 0) {
         const r = commercialMaxBid(v, offer);
         // No price meets the target return with these numbers: that's a result too, not a missing one.
-        if (r.noBidWorks) commercial = { maxBid: 0, noi: r.noi, capPct: v.targetCapPct, cashLeft: 0, allIn: 0, refi: false, none: true, noTarget: false, stress: [] };
+        if (r.noBidWorks) commercial = { maxBid: 0, noi: r.noi, capPct: v.targetCapPct, cashLeft: 0, allIn: 0, refi: false, none: true, noTarget: false, overCap: false, limitedBy: r.limitedBy, capOnCost: null, stress: [] };
         // No target return (and no loan or cash limit): nothing caps the price yet, so there's no walk-away price.
-        else if (!Number.isFinite(r.maxBid)) commercial = { maxBid: 0, noi: r.noi, capPct: v.targetCapPct, cashLeft: 0, allIn: 0, refi: false, none: false, noTarget: true, stress: [] };
+        // With a target entered, an endless price means the search hit its $1 billion ceiling instead (overCap).
+        else if (!Number.isFinite(r.maxBid)) commercial = { maxBid: 0, noi: r.noi, capPct: v.targetCapPct, cashLeft: 0, allIn: 0, refi: false, none: false, noTarget: true, overCap: r.overCap, limitedBy: r.limitedBy, capOnCost: null, stress: [] };
         else {
           // The downside: the same deal with rent 10% lower (null: no price meets the target then; left out when
           // nothing caps the price).
           const low = commercialMaxBid({ ...v, monthlyRent: v.monthlyRent * 0.9 }, offer);
-          const stress = low.noBidWorks ? [{ label: 'Rent 10% lower', maxBid: null }] : Number.isFinite(low.maxBid) ? [{ label: 'Rent 10% lower', maxBid: low.maxBid }] : [];
-          commercial = { maxBid: r.maxBid, noi: r.noi, capPct: v.targetCapPct, cashLeft: r.cashLeft, allIn: r.allIn, refi: !offer && r.debtService > 0, none: false, noTarget: false, stress };
+          const stress = low.noBidWorks ? [{ label: 'Rent 10% lower', maxBid: null }] : Number.isFinite(low.maxBid) ? [{ label: 'Rent 10% lower', maxBid: low.maxBid, limitedBy: low.limitedBy, capOnCost: low.capOnCost }] : [];
+          commercial = { maxBid: r.maxBid, noi: r.noi, capPct: v.targetCapPct, cashLeft: r.cashLeft, allIn: r.allIn, refi: !offer && r.debtService > 0, none: false, noTarget: false, overCap: false, limitedBy: r.limitedBy, capOnCost: r.capOnCost, stress };
         }
       }
     }
@@ -242,17 +252,20 @@ export function savedNumbers(d: Deal) {
  * The repair and holding budget saved in Fix and sell for a flip, to compare with what you actually pay once you own it
  * (null when it isn't a flip or no repairs or holding costs are saved).
  */
-export function flipBudget(d: Deal): { repairs: number; monthly: number; months: number; holding: number; total: number } | null {
+export function flipBudget(d: Deal): { repairs: number; monthly: number; months: number; holding: number; financing: number; price: number; total: number } | null {
   if (d.plan !== 'flip') return null;
   const raw = read(`fsf.bid.analyzed-${d.id}.v1`);
   if (!raw || typeof raw !== 'object') return null;
   const saved: BidInputs = sanitizeInputs(raw, BLANK_INPUTS);
   const i = isOffer(d) ? offerInputs(saved) : saved;
-  // Repairs (with the contingency) and holding don't depend on the price, so any price gives the same figures.
-  const c = costsAtBid(i, 0);
-  if (c.repairs <= 0 && c.holding <= 0) return null;
+  // Repairs (with the contingency) and holding don't depend on the price. Loan interest and points do: they're figured
+  // at your own saved price (your offer or bid, or else the asking price or opening bid), since you'll pay them each
+  // month along with everything else you record.
+  const price = proposedPriceOf(i)?.price ?? 0;
+  const c = costsAtBid(i, price);
+  if (c.repairs <= 0 && c.holding <= 0 && c.financing <= 0) return null;
   const months = totalMonths(i);
-  return { repairs: c.repairs, monthly: months > 0 ? c.holding / months : 0, months, holding: c.holding, total: c.repairs + c.holding };
+  return { repairs: c.repairs, monthly: months > 0 ? c.holding / months : 0, months, holding: c.holding, financing: c.financing, price, total: c.repairs + c.holding + c.financing };
 }
 
 /** Whether the deal's calculator has numbers to show: a commercial deal without a target return has no price yet. */
@@ -260,7 +273,19 @@ export function hasSavedNumbers(n: ReturnType<typeof savedNumbers>): boolean {
   return !!(n.rent || n.bid || (n.commercial && !n.commercial.noTarget));
 }
 
-const commercialNoTarget = (strategy: string) => `No target return entered in ${strategy}: enter the cap rate you require to get a walk-away price.`;
+const commercialNoTarget = (strategy: string, overCap = false) => overCap
+  ? `The price is over $1 billion with the rent and costs you entered in ${strategy}: check them for a typo.`
+  : `No target return entered in ${strategy}: enter the cap rate you require to get a walk-away price.`;
+
+type CommercialLimit = 'return' | 'cash' | 'dscr';
+const pct1 = (x: number | null | undefined) => (x === null || x === undefined ? null : `${(x * 100).toFixed(1)}%`);
+/** The commercial walk-away price, worded by what sets it: your target return, your cash, or the lender's coverage. */
+function commercialPriceText(capPct: number, maxBid: number, limitedBy: CommercialLimit | undefined, capOnCost: number | null | undefined, lower = false): string {
+  const roc = pct1(capOnCost);
+  if (limitedBy === 'cash') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by the cash you can bring: ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
+  if (limitedBy === 'dscr') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by the lender’s minimum coverage (DSCR): ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
+  return lower ? `highest price ${money(maxBid)}` : `Highest price for a ${capPct}% return on cost: ${money(maxBid)}`;
+}
 
 export type SectionStatus = 'done' | 'started' | 'missing';
 export interface PacketSection {
@@ -362,7 +387,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     }
     if (bid.financed) cash.push(DRAW_NOTE);
   } else if (commercial?.noTarget) {
-    cash.push(commercialNoTarget(strategy));
+    cash.push(commercialNoTarget(strategy, commercial.overCap));
   } else if (commercial?.none) {
     cash.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered in ${strategy}.`);
   } else if (commercial) {
@@ -394,11 +419,15 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       nums.push(`  If ${s.label.toLowerCase()}: ${a && s.profit !== null ? `profit ${money(s.profit)} at ${money(a.price)}; ${walk}` : walk}`);
     }
   }
-  if (commercial?.noTarget) nums.push(commercialNoTarget(strategy));
+  if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
   else if (commercial?.none) nums.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered`);
   else if (commercial) {
-    nums.push(`Highest price for a ${commercial.capPct}% return on cost: ${money(commercial.maxBid)}, on ${money(commercial.noi)} a year of net operating income`);
-    for (const s of commercial.stress) nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid !== null && s.maxBid > 0 ? `highest price ${money(s.maxBid)}` : 'no price works'}`);
+    nums.push(`${commercialPriceText(commercial.capPct, commercial.maxBid, commercial.limitedBy, commercial.capOnCost)}, on ${money(commercial.noi)} a year of net operating income`);
+    for (const s of commercial.stress) {
+      // Cash sets both prices: the lower rent doesn't move it, so say so instead of repeating the same figure as news.
+      const same = s.limitedBy === 'cash' && commercial.limitedBy === 'cash' && s.maxBid === commercial.maxBid;
+      nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid !== null && s.maxBid > 0 ? (same ? `still ${money(s.maxBid)}, set by the cash you can bring${pct1(s.capOnCost) ? ` (return on cost at that price: ${pct1(s.capOnCost)})` : ''}` : commercialPriceText(commercial.capPct, s.maxBid, s.limitedBy, s.capOnCost, true)) : 'no price works'}`);
+    }
   }
   if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');
   // Done only once there's a downside to look at, not just the base case.

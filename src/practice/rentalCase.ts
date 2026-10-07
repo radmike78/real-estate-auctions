@@ -93,6 +93,16 @@ export function walkedFrom(answers: Record<string, unknown>, stages: CaseStage[]
   return undefined;
 }
 
+/**
+ * Where "Continue the purchase" goes: the first step with a task still open (counting only the questions your answers
+ * show), or the deal packet once every step is done or you walked away.
+ */
+export function caseResume(stages: CaseStage[], p: { done: string[]; answers: Record<string, unknown>; walked?: string }): { key: string; packet: boolean } {
+  if (p.walked) return { key: 'packet', packet: true };
+  const next = stages.find((st) => !tasksFor(st, p.answers).every((t) => p.done.includes(`${st.key}/${t.id}`)));
+  return next ? { key: next.key, packet: false } : { key: 'packet', packet: true };
+}
+
 /** Steps before this one have no contract yet: walking away there costs nothing. */
 export const CONTRACT_FROM = 'offer';
 

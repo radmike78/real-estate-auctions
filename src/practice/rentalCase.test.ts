@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { AZ_CASE, CA_CASE, N, payment, RENTAL_CASE, TX_CASE, UT_CASE, caseFor } from './rentalCase';
+import { AZ_CASE, CA_CASE, N, NV_CASE, payment, RENTAL_CASE, TX_CASE, UT_CASE, caseFor, caseResume, tasksFor } from './rentalCase';
+import { firstOpenStage } from './progress';
 import { cleanCase } from './caseProgress';
 
 describe('Buy a rental, start to finish', () => {
@@ -337,5 +338,33 @@ describe('what walking away inside a contract deadline keeps', () => {
     expect(TX_CASE.N.earnest - 200).toBe(2_800);
     expect(walkNote('offer', TX_CASE)).toBe('No contract was signed, so nothing was at risk.');
     expect(walkNote('appraisal', AZ_CASE)).toBe('You left inside a contract deadline, so you keep your earnest money.');
+  });
+});
+
+describe('where "Continue the purchase" goes', () => {
+  it('counts only the questions your answers show, and ends at the deal packet', () => {
+    const stages = NV_CASE.stages;
+    expect(caseResume(stages, { done: [], answers: {} })).toEqual({ key: stages[0].key, packet: false });
+    // Every visible task done (conditional questions your answers hide don't count): the packet.
+    const answers: Record<string, unknown> = {};
+    const done = stages.flatMap((st) => tasksFor(st, answers).map((t) => `${st.key}/${t.id}`));
+    expect(stages.some((st) => st.tasks.length > tasksFor(st, answers).length)).toBe(true);
+    expect(caseResume(stages, { done, answers })).toEqual({ key: 'packet', packet: true });
+    // One step left open: that step.
+    const third = stages[2];
+    const partial = done.filter((k) => !k.startsWith(`${third.key}/`));
+    expect(caseResume(stages, { done: partial, answers })).toEqual({ key: third.key, packet: false });
+    // After walking away, the packet is the result.
+    expect(caseResume(stages, { done: partial.slice(0, 3), answers, walked: stages[1].key })).toEqual({ key: 'packet', packet: true });
+  });
+});
+
+describe('where "Continue practicing" goes', () => {
+  it('opens the first step with a card still open, or none when all are done', () => {
+    const stages = [{ key: 'a', tasks: [{ id: '1' }, { id: '2' }] }, { key: 'b', tasks: [{ id: '1' }] }];
+    expect(firstOpenStage(stages, [])?.key).toBe('a');
+    expect(firstOpenStage(stages, ['a/1', 'a/2'])?.key).toBe('b');
+    expect(firstOpenStage(stages, ['b/1'])?.key).toBe('a');
+    expect(firstOpenStage(stages, ['a/1', 'a/2', 'b/1'])).toBeNull();
   });
 });
