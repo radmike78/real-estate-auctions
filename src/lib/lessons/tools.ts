@@ -20,7 +20,7 @@ export const tools: Lesson = {
           'Recorder: recorded documents such as deeds, deeds of trust, liens, notices of default and releases. This is where a title search starts.',
           'Treasurer or tax collector: the tax bill, whether taxes are unpaid, and the county’s tax sale.',
         ] },
-        'Start with the parcel number from the assessor, since the other offices use it too. In Texas, the county appraisal district does the assessor’s job, the county clerk records documents, and the county tax assessor-collector usually collects taxes. Here are the largest counties in the states we cover:',
+        'Start with the parcel number from the assessor, since the other offices use it too. In Texas, the county appraisal district does the assessor’s job, the county clerk records documents, and the county tax assessor-collector usually collects taxes. Here are the largest counties:',
         { links: [
           { label: 'Clark County (NV) Assessor', url: 'https://www.clarkcountynv.gov/assessor', what: 'Property record search.' },
           { label: 'Clark County (NV) Recorder', url: 'https://www.clarkcountynv.gov/recorder', what: 'Recorded documents online and the GIS map.' },
@@ -45,7 +45,8 @@ export const tools: Lesson = {
           { label: 'Dallas County (TX) Clerk: recording', url: 'https://www.dallascounty.org/government/county-clerk/recording/', what: 'Recorded documents.' },
           { label: 'Dallas County (TX) Tax Office', url: 'https://www.dallascounty.org/departments/tax/', what: 'Property tax bills and payments.' },
         ] },
-        'For other counties, search for the county’s name with “assessor,” “recorder” or “treasurer” added. Make sure the site ends in .gov or is linked from the county’s official website. Find Deals will add each county as we research it.',
+        'For any other county, open Find deals: it links the official offices for every county in Nevada, California, Arizona, Utah and Texas. If you search instead, make sure the site ends in .gov or is linked from the county’s official website.',
+        { links: [{ label: 'Find deals', url: '#/find-deals', what: 'Official county offices for every county in the five states we cover.' }] },
       ],
     },
     {

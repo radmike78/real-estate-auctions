@@ -116,7 +116,7 @@
       "src/lib/saleDocs.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "551c915bfb80740b",
+    "hash": "24f8f4fb5e5479ba",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "109874384d1a3d08",
+    "hash": "5408889efad41fd8",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -355,7 +355,7 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "a1cea29bb7bf8565",
+    "hash": "5b42ec4d74a23947",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -366,7 +366,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "67a2fbd08773ab78",
+    "hash": "5370f8b869632b53",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -379,7 +379,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "15571efad3b3242d",
+    "hash": "d9f75e391295512e",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {

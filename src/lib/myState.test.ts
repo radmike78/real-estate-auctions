@@ -35,6 +35,14 @@ describe('forStateText', () => {
     expect(forStateText(null, t)).toBe(t);
   });
 
+  it('splits after a sentence that ends with an asterisk', async () => {
+    const { forStateText } = await import('./myState');
+    const t = 'In California, a joint tenancy carries survivorship.* In Nevada, a joint tenancy carries survivorship.* In Utah, it does too.*';
+    expect(forStateText('NV', t)).toBe('A joint tenancy carries survivorship.*');
+    expect(forStateText('UT', t)).toBe('It does too.*');
+    expect(forStateText('TX', t)).toBe('');
+  });
+
   it('drops the sentences that continue another state’s rule, so nothing is left dangling', async () => {
     const { forStateText } = await import('./myState');
     const lender = 'In California, a private lender may hold a DFPI license. Check it with that regulator. Get every term in writing.';

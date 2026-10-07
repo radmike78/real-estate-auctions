@@ -72,7 +72,7 @@ export const negotiate: Lesson = {
       heading: 'Ways to hold title',
       blocks: [
         'How you take title decides who owns what and what happens when an owner dies. As tenants in common, each owner has a share they can leave to their heirs. Joint ownership with a valid right of survivorship works differently: when one owner dies, the others own the property. Whether you have that right depends on your state’s rules and on how the deed or agreement is written. Investors also buy through companies such as LLCs or partnerships. The right choice depends on liability, taxes, financing and estate plans, so ask a real estate attorney and a tax advisor.',
-        'In California, Nevada, Arizona and Utah, a joint tenancy that the deed clearly creates generally carries the right of survivorship.*',
+        'In California, a joint tenancy that the deed clearly creates generally carries the right of survivorship.* In Nevada, a joint tenancy that the deed clearly creates generally carries the right of survivorship.* In Arizona, a joint tenancy that the deed clearly creates generally carries the right of survivorship.* In Utah, a joint tenancy that the deed clearly creates generally carries the right of survivorship.*',
         'In Texas, owning property together doesn’t create a right of survivorship by itself: the owners must agree to it in writing, and it can’t be inferred just from joint ownership (Estates Code 111.001). Spouses can make their community property pass to the survivor only with a written agreement signed by both (Estates Code 112.052). Have your attorney or title company confirm the deed or agreement says what you want before closing.',
       ],
     },
