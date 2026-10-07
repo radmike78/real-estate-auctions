@@ -52,7 +52,7 @@ export const PRO_SCRIPTS: Record<ProKey, ProScript> = {
     say: '“Could you bid this scope in writing: [work]? Please include permits, timeline and a payment schedule tied to finished work. What’s your license number, and can I see proof of insurance?”',
     bring: ['A written scope of work', 'Photos', 'Your budget and deadline'],
     read: { title: 'What to check in a bid', items: ['The same scope from each contractor, so bids compare', 'Permits included, and who pulls them', 'Payment tied to finished work, not mostly up front', 'Lien releases as you pay'] },
-    get: ['A written bid for your scope: permits, timeline and a payment schedule tied to finished work', 'Their license number and proof of insurance', 'Lien releases as you pay'],
+    get: ['A written bid for your scope: permits, timeline and a payment schedule tied to finished work', 'Their license number and proof of insurance', 'A lien release for each payment, from them and from the subcontractors and suppliers it covers'],
   },
   insurance: {
     say: '“I’m buying [address] as a [rental / home / flip], closing on [date]. Could you quote a policy for that use? What’s not covered, what’s the deductible, and are there limits if it’s empty for a while? When can coverage start?”',
