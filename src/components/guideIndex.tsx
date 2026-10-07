@@ -101,7 +101,7 @@ export function guideDocs(): GuideDoc[] {
     ...lessonDocs(),
     ...PROPERTY_TOPICS.map((t) => ({ href: `#/learn/types/${t.slug}`, page: 'Types of property', title: t.title, text: strings(PROPERTY_DEEP[t.key as keyof typeof PROPERTY_DEEP]).join(' '), sources: [] })),
     ...PRO_GUIDES.map((g) => ({ href: `#/find-a-pro/${g.key}`, page: 'Your team', title: g.title, text: [g.summary, g.does, ...g.when, ...g.find, ...g.ask].join(' '), sources: [] })),
-    ...DOC_GUIDES.map((g) => ({ href: '#/toolkit/paperwork', page: 'Read the paperwork', title: g.title, text: [g.from, ...g.parts.map((x) => `${x.part}: ${x.look} ${x.example ?? ''}`), g.changes, g.corrected].join(' '), sources: [] })),
+    ...DOC_GUIDES.map((g) => ({ href: '#/toolkit/paperwork', page: 'Read the paperwork', title: g.title, text: [g.from, ...g.parts.map((x) => `${x.part}: ${x.look} ${x.rules ?? ''} ${(x.steps ?? []).join(' ')} ${x.example ?? ''}`), g.changes, g.corrected].join(' '), sources: [] })),
     ...fromSections('Privacy policy', '#/privacy', PRIVACY, 0.5),
     ...fromSections('Terms of use', '#/terms', TERMS, 0.5),
   );

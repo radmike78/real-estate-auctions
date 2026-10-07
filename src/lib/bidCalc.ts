@@ -234,6 +234,9 @@ export function proposedPriceOf(i: BidInputs): { price: number; source: 'yours' 
   return null;
 }
 
+/** The calculator assumes the loan pays its share as costs come due; it doesn't model repair draws. */
+export const DRAW_NOTE = 'If your lender pays for repairs through draws after work is done, you’ll need to front that work, so keep more cash available than this.';
+
 export const GRID_VALUE_STEPS = [-10, 0, 5] as const;
 export const GRID_REPAIR_STEPS = [0, 25, 50] as const;
 /**

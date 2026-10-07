@@ -49,10 +49,10 @@ export const PRO_SCRIPTS: Record<ProKey, ProScript> = {
     get: ['A written report on the roof, structure and systems, before your inspection deadline', 'What the inspection didn’t cover, and their license or certificate'],
   },
   contractor: {
-    say: '“Could you bid this scope in writing: [work]? Please include permits, timeline and a payment schedule tied to finished work. What’s your license number, and can I see proof of insurance?”',
+    say: '“Could you bid this scope in writing: [work]? Please include permits, timeline and a payment schedule tied to finished work. Which licenses or local registrations does this work need, and what are your numbers? Can I see proof of insurance?”',
     bring: ['A written scope of work', 'Photos', 'Your budget and deadline'],
-    read: { title: 'What to check in a bid', items: ['The same scope from each contractor, so bids compare', 'Permits included, and who pulls them', 'Payment tied to finished work, not mostly up front', 'Lien releases as you pay'] },
-    get: ['A written bid for your scope: permits, timeline and a payment schedule tied to finished work', 'Their license number and proof of insurance', 'A lien release for each payment, from them and from the subcontractors and suppliers it covers'],
+    read: { title: 'What to check in a bid', items: ['The same scope from each contractor, so bids compare', 'Permits included, and who pulls them', 'Payment tied to finished work, not mostly up front', 'Lien releases as you pay', 'In Texas, there’s no statewide general contractor license, but electricians and air-conditioning contractors need a state license from TDLR, plumbers need one from the Texas State Board of Plumbing Examiners, and your city may require registration and permits.'] },
+    get: ['A written bid for your scope: permits, timeline and a payment schedule tied to finished work', 'Any license or registration the work requires (state trade licenses, city registration), and proof of insurance', 'A lien release for each payment, from them and from the subcontractors and suppliers it covers'],
   },
   insurance: {
     say: '“I’m buying [address] as a [rental / home / flip], closing on [date]. Could you quote a policy for that use? What’s not covered, what’s the deductible, and are there limits if it’s empty for a while? When can coverage start?”',

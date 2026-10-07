@@ -4,7 +4,7 @@
 // why, the deal's key dates, your questions to professionals and their answers, your earnest money, and the reason
 // for your decision with any conditions still open. Kept only in this browser, like the rest.
 import { kindLabel, SALE_KINDS, type Deal } from './analyze';
-import { costsAtBid, maxSafeBid, offerInputs, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, BLANK_INPUTS, type BidInputs } from './bidCalc';
+import { costsAtBid, maxSafeBid, offerInputs, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
 import { cleanBuyBox, EMPTY_BUY_BOX, type BuyBox } from './toolkit';
 import { EVIDENCE_AREAS, GATES, loadLog } from './evidence';
 import { commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, type CommercialInputs, type RentInputs } from './holdCalc';
@@ -102,25 +102,58 @@ export function removePacket(dealId: string) {
 
 const isOffer = (d: Pick<Deal, 'kind'>) => d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short';
 
-/** Texas financing dates: the appraisal addendum (49-1) and the financing addendum's two approvals (40-11, paragraph 2A and 2B). */
-const TX_LOAN_DATES = ['Appraisal addendum deadline, if you have one (49-1: notice plus a copy of the appraisal to the seller)', 'Buyer Approval deadline (40-11, 2A: notice plus the lender’s written statement)', 'Property Approval deadline (40-11, 2B: 3rd day before closing)'];
+/** One date to put on the calendar. Texas contract dates also say how each is counted, who acts, what to do and
+ * what happens if it's missed, with the form paragraph in `why`. */
+export interface DateGuide {
+  what: string;
+  when?: string;
+  who?: string;
+  todo?: string;
+  missed?: string;
+  why?: string;
+}
 
-/** Texas earnest money and option fee (20-19, 5A and 5D). Under a short sale addendum they're still due on time (45-2, C). */
-const TX_DEPOSIT_DATES = ['Earnest money due (within 3 days after the effective date; a last day on a weekend or legal holiday moves to the next day that isn’t one; if late, the seller can end the contract until you deliver it)', 'Option fee due (same 3 days and weekend rule; if late, you lose the right to end the contract during the option period)'];
+/** Texas earnest money and option fee (20-19, 5A, 5C and 5D). Under a short sale addendum they're still due on time (45-2, C). */
+const TX_DEPOSIT_DATES: DateGuide[] = [
+  { what: 'Earnest money due', when: 'Within 3 days after the effective date. If the last day is a Saturday, Sunday or legal holiday, the end of the next day that isn’t one.', who: 'You, to the escrow agent (usually the title company)', todo: 'Deliver the amount written in the contract and keep the receipt.', missed: 'The seller can end the contract (or use its other remedies) by notice before you deliver it.', why: 'TREC 20-19, paragraphs 5A and 5C' },
+  { what: 'Option fee due', when: 'Same 3 days and the same weekend and holiday rule.', who: 'You, to the escrow agent', todo: 'Deliver it with the earnest money or separately.', missed: 'You don’t get the option period: no right to end the contract for any reason.', why: 'TREC 20-19, paragraphs 5A and 5D' },
+];
+
+const TX_OPTION_END: DateGuide = { what: 'Option period ends (5 p.m.)', when: 'The number of days written in the contract after the effective date, by 5 p.m. local time. The weekend rule for payments doesn’t move it.', who: 'You', todo: 'If you want out, give the seller written notice of termination before then.', missed: 'You can’t end the contract for any reason anymore; only the contract’s other conditions remain.', why: 'TREC 20-19, paragraph 5B' };
 
 /** Texas water disclosure (20-19, 7I(2)): only when that box is checked. */
-const TX_WATER_DATE = 'Seller’s Water Disclosure due, if your TREC contract has paragraph 7I and box 7I(2) is checked (you can end the contract within 7 days after you receive it, or before closing if sooner)';
+const TX_WATER_DATE: DateGuide = { what: 'Seller’s Water Disclosure due (only if box 7I(2) is checked)', when: 'Within the days written in 7I(2) after the effective date. Your review deadline is 7 days after you receive it, or closing if that comes first.', who: 'The seller delivers it; you read it', todo: 'Record the day you receive it and put the 7-day deadline on the calendar.', missed: 'If it never comes, you can end the contract before closing. Once it comes, you can end it within 7 days or before closing, whichever is first, with your earnest money back. With box 1 (already received) or box 3 (not required) there’s no such window.', why: 'TREC 20-19, paragraph 7I' };
 
-/** The dates most deals of this kind need on the calendar, to start the list from. */
-export function suggestedDates(d: Pick<Deal, 'kind' | 'state'>): string[] {
-  if (d.kind === 'short') return ['Contract signed', ...(d.state === 'TX' ? TX_DEPOSIT_DATES : []), 'Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)', d.state === 'TX' ? 'Option period ends (5 p.m.)' : 'Inspection period ends', ...(d.state === 'TX' ? [TX_WATER_DATE, ...TX_LOAN_DATES.slice(1)] : ['Loan approval deadline']), 'Closing'];
-  if (isOffer(d)) return ['Offer accepted (Day 0)', ...(d.state === 'TX' ? TX_DEPOSIT_DATES : ['Earnest money due']), d.state === 'TX' ? 'Option period ends (5 p.m.)' : 'Inspection period ends', ...(d.state === 'TX' ? [TX_WATER_DATE, ...TX_LOAN_DATES] : ['Appraisal deadline', 'Loan approval deadline']), 'Closing'];
-  if (d.kind === 'lien') return ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien'];
+/** Texas financing dates: the appraisal addendum (49-1) and the financing addendum's two approvals (40-11, paragraph 2A and 2B). */
+const TX_APPRAISAL_DATE: DateGuide = { what: 'Appraisal addendum deadline (only if you have one)', when: 'The days written in box 3 of the addendum, after the effective date.', who: 'You', todo: 'If the lender’s appraisal comes in under the amount written there, give notice of termination with a copy of the appraisal.', missed: 'You lose that extra right to end the contract; the Property Approval right may still apply.', why: 'TREC 49-1, box 3' };
+const TX_LOAN_DATES: DateGuide[] = [
+  { what: 'Buyer Approval deadline', when: 'The days written in paragraph 2A after the effective date.', who: 'You and your lender', todo: 'If the lender can’t approve you, give notice of termination with the lender’s written statement of the reasons.', missed: 'The contract is no longer subject to your loan approval, so if the loan later falls through, your earnest money is at risk.*', why: 'TREC 40-11, paragraph 2A' },
+  { what: 'Property Approval deadline', when: 'The 3rd day before the closing date.', who: 'You and your lender', todo: 'If the lender says the property doesn’t meet its requirements (appraisal, insurability or required repairs), give notice of termination with the lender’s written statement.', missed: 'Property Approval is treated as obtained.', why: 'TREC 40-11, paragraph 2B' },
+];
+
+const names = (xs: string[]): DateGuide[] => xs.map((what) => ({ what }));
+
+/** The dates most deals of this kind need on the calendar, each with how it works where we have it (Texas contracts). */
+export function dateGuide(d: Pick<Deal, 'kind' | 'state'>): DateGuide[] {
+  const tx = d.state === 'TX';
+  if (d.kind === 'short') return [...names(['Contract signed']), ...(tx ? TX_DEPOSIT_DATES : []), ...names(['Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)']), ...(tx ? [TX_OPTION_END, TX_WATER_DATE, ...TX_LOAN_DATES] : names(['Inspection period ends', 'Loan approval deadline'])), ...names(['Closing'])];
+  if (isOffer(d)) return [...names(['Offer accepted (Day 0)']), ...(tx ? TX_DEPOSIT_DATES : names(['Earnest money due'])), ...(tx ? [TX_OPTION_END, TX_WATER_DATE, TX_APPRAISAL_DATE, ...TX_LOAN_DATES] : names(['Inspection period ends', 'Appraisal deadline', 'Loan approval deadline'])), ...names(['Closing'])];
+  if (d.kind === 'lien') return names(['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien']);
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
   // Texas execution sale; a Texas tax sale has its own redemption period (Tax Code 34.21).
   if ((['hoa', 'irs', 'court'].includes(d.kind) || (d.kind === 'taxSale' && d.state === 'TX')) && !(d.state === 'TX' && d.kind === 'court')) out.push('Redemption period ends');
-  return out;
+  return names(out);
+}
+
+/** The names of the dates most deals of this kind need on the calendar, to start the list from. */
+export function suggestedDates(d: Pick<Deal, 'kind' | 'state'>): string[] {
+  return dateGuide(d).map((g) => g.what);
+}
+
+/** One plain line per detailed date, for the text download. */
+export function dateGuideLines(d: Pick<Deal, 'kind' | 'state'>): string[] {
+  return dateGuide(d).filter((g) => g.when).map((g) => `${g.what}: ${g.when} Who: ${g.who}. To do: ${g.todo} If missed: ${g.missed} (${g.why})`);
 }
 
 function read(key: string): unknown {
@@ -152,6 +185,8 @@ export function savedNumbers(d: Deal) {
   let rent: { price: number; monthly: number; cashIn: number; allIn: number; refi: boolean; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
   let bid: {
     maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number; none: boolean; target: number;
+    /** A loan pays part of the price or repairs (repair draws aren't modeled, so the cash figures assume the loan pays as costs come due). */
+    financed: boolean;
     /** The result at your own price (your offer or bid, or else the asking price or opening bid); null when none is entered. */
     at: { price: number; source: 'yours' | 'listed'; profit: number; cashOnDay: number; cashPeak: number; cashLeft: number } | null;
     /** Each downside case: the walk-away price, and the profit at your own price (null when no price is entered). */
@@ -177,7 +212,7 @@ export function savedNumbers(d: Deal) {
         const pp = proposedPriceOf(i);
         const at = pp ? { ...resultAtPrice(i, pp.price), source: pp.source } : null;
         const stress = stressCases(i).map((c) => ({ label: c.label, maxBid: maxSafeBid(c.inputs).maxBid, profit: pp ? resultAtPrice(c.inputs, pp.price).profit : null }));
-        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress };
+        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0 };
       }
     }
   } else if (d.plan === 'commercial') {
@@ -315,7 +350,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       need = a.cashPeak;
       const at = `${priceName(a.source, offer)} of ${money(a.price)}`;
       if (!offer) cash.push(`On sale day, at ${at}: ${money(a.cashOnDay)} (bid plus any buyer’s premium, in the form the sale requires)`);
-      cash.push(`Most cash you’ll have in at once, at ${at}, through repairs and holding until it sells: ${money(a.cashPeak)}`);
+      cash.push(`Estimated cash you’ll put in, at ${at}, under these assumptions (through repairs and holding until it sells): ${money(a.cashPeak)}`);
       if (a.cashLeft < a.cashPeak) cash.push(`Left in once the loan funds, at ${at}: ${money(a.cashLeft)}`);
     } else {
       need = bid.cashPeak;
@@ -323,8 +358,9 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     }
     if (!bid.none) {
       const what = `What-if, at your walk-away price of ${money(bid.maxBid)} (the most you could pay, not your price)`;
-      cash.push(offer ? `${what}: most cash in at once ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} on sale day; most cash in at once ${money(bid.cashPeak)}`);
+      cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} on sale day; estimated cash you’d put in ${money(bid.cashPeak)}`);
     }
+    if (bid.financed) cash.push(DRAW_NOTE);
   } else if (commercial?.noTarget) {
     cash.push(commercialNoTarget(strategy));
   } else if (commercial?.none) {
@@ -416,7 +452,9 @@ export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const lines = [`DEAL PACKET: ${d.name}`, 'DeedOwl educational worksheet. Every number is your estimate until a source backs it; a checkmark records your review, not a clear title.', ''];
   lines.push(`STAGE: ${stageLabel(stageOf(d), d)}`, `NEXT ACTION: ${nextAction(d, p, now).text}`, '');
   for (const s of packetSections(d, p, now)) {
-    lines.push(`${s.title.toUpperCase()} [${s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines, '');
+    lines.push(`${s.title.toUpperCase()} [${s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines);
+    if (s.key === 'dates' && dateGuideLines(d).length) lines.push('How each date works (the signed contract wins):', ...dateGuideLines(d).map((l) => `- ${l}`));
+    lines.push('');
   }
   return lines.join('\n');
 }

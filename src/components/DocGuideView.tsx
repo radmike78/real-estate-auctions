@@ -18,7 +18,11 @@ export default function DocGuideView({ g, label }: { g: DocGuide; label?: string
             {g.parts.map((x) => (
               <tr key={x.part}>
                 <th scope="row">{x.part}</th>
-                <td data-label="What to check">{forStateText(state, x.look)}</td>
+                <td data-label="What to check">
+                  {forStateText(state, x.look)}
+                  {x.rules && forStateText(state, x.rules) && <p className="doc-guide-rules"><strong>Your state’s rules:</strong> {forStateText(state, x.rules)}</p>}
+                  {x.steps && <ol className="doc-guide-steps">{x.steps.map((st) => <li key={st}>{forStateText(state, st)}</li>)}</ol>}
+                </td>
                 <td data-label="Who fills it in">{x.who}</td>
                 <td data-label="Example">{x.example ? forStateText(state, x.example) : '—'}</td>
               </tr>

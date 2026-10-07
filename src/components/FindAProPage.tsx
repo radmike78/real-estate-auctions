@@ -204,9 +204,9 @@ function GuideBody({ g }: { g: ProGuide }) {
   // The decision first: four short columns that answer "do I need one, and what happens when I call?"
   const decide: { title: string; items: string[]; cited?: boolean }[] = [
     { title: 'When you need one', items: fit(g.when), cited: true },
-    { title: 'What to bring', items: script?.bring ?? [] },
+    { title: 'What to bring', items: fit(script?.bring ?? []) },
     { title: 'What to ask', items: fit(g.ask), cited: true },
-    { title: 'What you should get back', items: script?.get ?? [] },
+    { title: 'What you should get back', items: fit(script?.get ?? []) },
   ].filter((c) => c.items.length > 0);
   return (
     <div className="pro-guide">
@@ -230,7 +230,7 @@ function GuideBody({ g }: { g: ProGuide }) {
           <h3 className="part-head">Finding and checking one</h3>
           <div className="pro-guide-cols pro-find-cols">
             {find.length > 0 && <section><h3>How to find one</h3><ul>{find.map((x) => <li key={x}><Cited text={x} /></li>)}</ul></section>}
-            {script?.read && <section><h3>{script.read.title}</h3><ul>{script.read.items.map((x) => <li key={x}>{x}</li>)}</ul></section>}
+            {script?.read && <section><h3>{script.read.title}</h3><ul>{fit(script.read.items).map((x) => <li key={x}>{x}</li>)}</ul></section>}
             {checklist.length > 0 && <section><h3>Check before you hire</h3><ul>{checklist.map((x) => <li key={x}><Cited text={x} /></li>)}</ul></section>}
           </div>
           {lookups && <LicenseCheck lookups={lookups} state={st} said={does} />}

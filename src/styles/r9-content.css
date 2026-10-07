@@ -248,3 +248,11 @@
   .cash-fields > .field { display: grid; grid-row: span 3; grid-template-rows: subgrid; row-gap: 6px; align-content: start; }
   .cash-fields > .field > span:first-child { align-self: end; }
 }
+
+/* Deal packet: Texas contract dates as rows, with the form paragraph in a smaller "why" line under each date. */
+.packet-date-guide .packet-date-why { display: block; margin-top: 4px; font-weight: 500; font-size: 0.9rem; }
+
+/* Read the paperwork: a part's state rules and its numbered steps inside the table cell. */
+.doc-guide-table .doc-guide-rules { margin: 8px 0 0; }
+.doc-guide-table .doc-guide-steps { margin: 8px 0 0; padding-left: 1.4em; display: grid; gap: 4px; }
+@media (max-width: 700px) { .doc-guide-table tbody th { width: auto; min-width: 0; } }

@@ -157,16 +157,23 @@ describe('the deal packet', () => {
       const nums = section('numbers');
       expect(nums).toMatch(/The asking price \(used until you enter your own offer\): \$200,000 → estimated profit \$53,000 \(your target \$45,000\)/);
       expect(nums).toMatch(/What-if: walk-away price \$208,000, the most you could pay/);
-      expect(cash).toMatch(/Most cash you’ll have in at once, at the asking price of \$200,000, through repairs and holding until it sells: \$223,000/);
-      expect(cash).toMatch(/What-if, at your walk-away price of \$208,000 \(the most you could pay, not your price\): most cash in at once \$231,000/);
+      expect(cash).toMatch(/Estimated cash you’ll put in, at the asking price of \$200,000, under these assumptions \(through repairs and holding until it sells\): \$223,000/);
+      expect(cash).toMatch(/What-if, at your walk-away price of \$208,000 \(the most you could pay, not your price\): estimated cash you’d put in \$231,000/);
       // Your price comes first in both parts.
       expect(cash.indexOf('$223,000')).toBeLessThan(cash.indexOf('$231,000'));
       expect(nums.indexOf('$53,000')).toBeLessThan(nums.indexOf('$208,000'));
       // The download says the same.
       const text = dealPacketText(harris, EMPTY_PACKET, now);
-      expect(text).toContain('at the asking price of $200,000, through repairs and holding until it sells: $223,000');
+      expect(text).toContain('at the asking price of $200,000, under these assumptions (through repairs and holding until it sells): $223,000');
+      expect(cash).not.toMatch(/draws/);
       expect(text).toContain('$200,000 → estimated profit $53,000');
-      expect(text).toContain('walk-away price of $208,000 (the most you could pay, not your price): most cash in at once $231,000');
+      expect(text).toContain('walk-away price of $208,000 (the most you could pay, not your price): estimated cash you’d put in $231,000');
+    });
+
+    it('warns about repair draws once, when a loan pays part of the deal', () => {
+      save({ ...base, financedPct: 80 });
+      const cash = section('cash');
+      expect(cash.match(/through draws after work is done/g)).toHaveLength(1);
     });
 
     it('moves the profit and cash with your own offer, while the walk-away price stays', () => {
@@ -175,7 +182,7 @@ describe('the deal packet', () => {
       const cash = section('cash');
       expect(nums).toMatch(/Your offer \(your actual price\): \$190,000 → estimated profit \$63,000/);
       expect(nums).toMatch(/walk-away price \$208,000/);
-      expect(cash).toMatch(/at your offer of \$190,000, through repairs and holding until it sells: \$213,000/);
+      expect(cash).toMatch(/at your offer of \$190,000, under these assumptions \(through repairs and holding until it sells\): \$213,000/);
       expect(cash).toMatch(/walk-away price of \$208,000 .*\$231,000/);
       expect(dealPacketText(harris, EMPTY_PACKET, now)).toContain('$190,000 → estimated profit $63,000');
     });
@@ -203,7 +210,7 @@ describe('the deal packet', () => {
       expect(cashAt).toBeCloseTo(195000 + 23000 + 6000 + loanCost - loan, 2);
       const money = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
       expect(section('numbers')).toContain(`$195,000 → estimated profit ${money(profit)}`);
-      expect(section('cash')).toContain(`at your offer of $195,000, through repairs and holding until it sells: ${money(cashAt)}`);
+      expect(section('cash')).toContain(`at your offer of $195,000, under these assumptions (through repairs and holding until it sells): ${money(cashAt)}`);
       // Changing only your price leaves the walk-away price where it was.
       const walk = section('numbers').match(/walk-away price (\$[\d,]+), the most/)![1];
       save({ ...v, proposedPrice: 180000 });

@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from 'react';
-import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, INPUT_MAX, maxSafeBid, profitAtBid, redemptionOutcome, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs, offerInputs, cashNeededAtBid } from '../lib/bidCalc';
+import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, INPUT_MAX, maxSafeBid, profitAtBid, redemptionOutcome, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs, offerInputs, cashNeededAtBid, DRAW_NOTE } from '../lib/bidCalc';
 import { offeredRedemptionRules, redemptionChoicesFor, redemptionPresetsFor, taxSaleWait, transferTaxFor } from '../lib/stateCosts';
 import { useCalcRegion } from './calcRegion';
 import { fmtMoney } from '../lib/status';
@@ -419,7 +419,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           </div>
           )
         )}
-        {!needsValue && i.minimumBid > 0 && <PriceHead kind="listed" tag={offer ? 'From the listing' : 'From the sale notice'} label={w.Opening} price={i.minimumBid} result={atOpening} unit="profit" note={`Most cash you’d have in at once at this price, through repairs and holding until it sells: ${fmtMoney(Math.round(openingCash))}.`} />}
+        {!needsValue && i.minimumBid > 0 && <PriceHead kind="listed" tag={offer ? 'From the listing' : 'From the sale notice'} label={w.Opening} price={i.minimumBid} result={atOpening} unit="profit" note={`Estimated cash you’d put in at this price, under these assumptions (through repairs and holding until it sells): ${fmtMoney(Math.round(openingCash))}.`} />}
         {!needsValue && i.minimumBid > 0 && (
           <div className={`calc-verdict ${dealFails || cashShort ? 'bad' : 'good'}`} role="status">
             {dealFails ? (
@@ -452,15 +452,16 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {!r.noBidWorks && !needsValue && (
           <dl className="calc-kv">
             {!offer && <div><dt>Cash needed on auction day, at the walk-away price</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
-            <div><dt>Most cash you’ll have in at once, at the walk-away price</dt><dd>{fmtMoney(r.cashPeak)}</dd></div>
+            <div><dt>Estimated cash you’d put in, at the walk-away price, under these assumptions</dt><dd>{fmtMoney(r.cashPeak)}</dd></div>
             {i.financedPct > 0 && r.cashToStabilize < r.cashPeak && <div><dt>Cash left in after the loan funds, at the walk-away price</dt><dd>{fmtMoney(r.cashToStabilize)}</dd></div>}
             <div><dt>Profit at the walk-away price</dt><dd>{fmtMoney(Math.round(r.profit))}</dd></div>
             <div><dt>Return on your cash, per year, if it sells on schedule</dt><dd>{yr(r.yearlyReturn)}</dd></div>
             <div><dt>Break-even {w.bid} (zero profit)</dt><dd>{fmtMoney(r.breakEvenBid)}</dd></div>
           </dl>
         )}
+        {!r.noBidWorks && !needsValue && i.financedPct > 0 && <p className="calc-note small">{DRAW_NOTE}</p>}
         {!r.noBidWorks && !needsValue && !offer && i.financedPct > 0 && i.redemptionMonths > 0 && (
-          <p className="calc-note small">Lenders rarely lend on a property while the owner can still redeem it, so plan to pay the full {w.bid} in cash and carry it until the redemption period ends. The calculator still charges loan costs for the whole wait, as a cautious assumption. The return above is figured on the most cash you’ll have in at once.</p>
+          <p className="calc-note small">Lenders rarely lend on a property while the owner can still redeem it, so plan to pay the full {w.bid} in cash and carry it until the redemption period ends. The calculator still charges loan costs for the whole wait, as a cautious assumption. The return above is figured on the estimated cash you’d put in.</p>
         )}
         {!r.noBidWorks && !needsValue && r.yearlyReturn !== null && totalMonths(i) > 12 && (
           <p className="calc-note small">This deal ties up your cash for {Math.round(totalMonths(i))} months, so compare the return per year with your other options, not just the profit.</p>
@@ -485,7 +486,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <label className="calc-label" htmlFor={`${uid}-bid`}>Check {offer ? 'an offer' : 'a bid'}</label>
           <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="number" inputMode="decimal" min={0} step="any" value={bidText} placeholder={offer ? 'e.g. the offer you plan to make' : 'e.g. a bid you expect to beat'} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); update({ proposedPrice: clampInput('proposedPrice', toNum(e.target.value)) }); }} /></span>
         </div>
-        {atBid && profit !== null && <PriceHead kind="yours" label={yours} price={bid} result={profit} unit="profit" note={`Most cash you’d have in at once at this price, through repairs and holding until it sells: ${fmtMoney(Math.round(cashNeededAtBid(i, bid)))}.${saveAs && !propertyId ? ' Saved with this deal as your price; its deal packet uses it.' : propertyId ? ' Saved for this property in this browser.' : ''}`} />}
+        {atBid && profit !== null && <PriceHead kind="yours" label={yours} price={bid} result={profit} unit="profit" note={`Estimated cash you’d put in at this price, under these assumptions (through repairs and holding until it sells): ${fmtMoney(Math.round(cashNeededAtBid(i, bid)))}.${saveAs && !propertyId ? ' Saved with this deal as your price; its deal packet uses it.' : propertyId ? ' Saved for this property in this browser.' : ''}`} />}
         {atBid && profit !== null && !needsValue && (
           <div className={`calc-verdict ${over ? 'bad' : 'good'}`} role="status">
             {over ? (

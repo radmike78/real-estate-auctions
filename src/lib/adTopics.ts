@@ -72,7 +72,7 @@ export const AD_TOPICS: AdTopic[] = [
         'Inspector: what does your inspection cover, and what does it leave out (roof, sewer line, pool)?',
         'Inspector: when will I get the written report, and can I come along?',
         'Contractor: can you give me a written bid that lists each item, and who pulls the permits?',
-        'Contractor: can I see your license and proof of insurance before we sign?',
+        'Contractor: can I see any license or registration this work requires, and proof of insurance, before we sign?',
       ],
       lookups: ['inspector', 'contractor'],
       directories: [
