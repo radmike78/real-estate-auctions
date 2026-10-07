@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import { STATES } from '../lib/regions';
-import { dropStateLead, getMyState, showFor, useMyState } from '../lib/myState';
+import { dropStateLead, forStateText, getMyState, useMyState } from '../lib/myState';
 import { fmtMoney } from '../lib/status';
 import { cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP_PATHS, ROADMAP_PHASES, roadmapFor, LIEN_STRATEGY, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
 import { downloadText, fileName } from '../lib/download';
@@ -124,7 +124,7 @@ function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: Step
       <div className="roadmap-cols">
         <div>
           <h4>Do this</h4>
-          <ol>{s.steps.filter((x) => showFor(myState, x)).map((x) => <li key={x}>{dropStateLead(x, myState)}</li>)}</ol>
+          <ol>{s.steps.map((x) => [x, dropStateLead(forStateText(myState, x), myState)]).filter(([, t]) => t).map(([x, t]) => <li key={x}>{t}</li>)}</ol>
         </div>
         {(s.say || s.docs) && (
           <div>

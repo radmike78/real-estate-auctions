@@ -53,7 +53,8 @@ function forState(b: LessonBlock, st: StateCode | null): LessonBlock | null {
   if (!st) return b;
   const plain = (x: string) => oneState(dropStateKeyword(dropStateLead(forStateText(st, x), st), st), st);
   if (typeof b === 'string') {
-    const t = showFor(st, b) ? plain(b) : '';
+    // Sentence by sentence: a paragraph that opens with another state can still hold the reader's.
+    const t = plain(b);
     return t || null;
   }
   if ('list' in b) {

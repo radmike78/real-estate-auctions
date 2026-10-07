@@ -3563,11 +3563,11 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Get the appraisal and loan approved",
-      detail: "Under the REPC, you can cancel if the home appraises below the price or you aren’t satisfied with your loan terms, but only by the Financing & Appraisal Deadline, and only if those conditions are checked on your contract. A low appraisal returns your earnest money. Canceling over loan terms can still give the seller the amount written in section 8.3(b)(i). If your loan fails after that deadline, the seller keeps all of it (REPC section 8.3(b)(iii)). Watch the dates."
+      detail: "Under the REPC, you can cancel if the home appraises below the price (with a copy of the lender’s or appraiser’s notice of the appraised value) or you aren’t satisfied with your loan terms, but only by the Financing & Appraisal Deadline, and only if those conditions are checked on your contract. A low appraisal returns your earnest money. Canceling over loan terms can still give the seller the amount written in section 8.3(b)(i). If your loan fails after that deadline, the seller keeps all of it (REPC section 8.3(b)(iii)). Watch the dates."
     },
     {
       title: "Review the title commitment",
-      detail: "Look for liens the seller hasn’t cleared, HOA dues, easements and water rights. If a lender took the home back at a Utah trustee sale, the former owner has no right to buy it back (57-1-28). But older liens can still be on title. A junior federal tax lien that the sale wiped out still gives the United States 120 days to redeem after the sale (26 USC 7425(d)), and one the sale didn’t wipe out stays on title."
+      detail: "Under the REPC it comes with the seller’s disclosures, so raise any title problem before the Due Diligence Deadline (the bank’s addendum may change this). Look for liens the seller hasn’t cleared, HOA dues, easements and water rights. If a lender took the home back at a Utah trustee sale, the former owner has no right to buy it back (57-1-28). But older liens can still be on title. A junior federal tax lien that the sale wiped out still gives the United States 120 days to redeem after the sale (26 USC 7425(d)), and one the sale didn’t wipe out stays on title."
     },
     {
       title: "Close through the title company",
