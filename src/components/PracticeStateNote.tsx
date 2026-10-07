@@ -26,7 +26,7 @@ const DIFFERS: Partial<Record<SaleKey, Partial<Record<StateCode, string>>>> = {
     TX: 'In Texas trustee sales happen on the first Tuesday of the month at the county courthouse, after at least 21 days’ notice.',
     CA: 'In California the trustee sale comes at least three months after the notice of default and 20 days after the notice of sale, and for homes of one to four units the winning bid isn’t final at once: tenants and other eligible bidders have 15 days to bid or give notice that they intend to, and if one does, until day 45 (Civil Code 2924m).',
     AZ: 'In Arizona the trustee sale can be held 90 days after the notice of sale is recorded; the winning bidder pays by 5 p.m. the next business day.',
-    UT: 'In Utah the trustee sale can be held after three months from the notice of default, with a notice of sale published for three weeks.',
+    UT: 'In Utah the notice of sale can be given three months after the notice of default is recorded. The sale is then at least about a month later, after three weekly newspaper notices and 30 days on the state notice website (Utah Code 57-1-24, 57-1-25).',
   },
 };
 

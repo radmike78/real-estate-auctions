@@ -59,8 +59,8 @@ export function propertyTaxHint(state: StateCode): { hint: string; more: string 
     };
   if (state === 'UT')
     return {
-      hint: 'A second home or short-term rental pays about 80% more.',
-      more: 'In Utah, a home that is someone’s main home is taxed on 55% of its value. A long-term rental counts when it’s the tenant’s main home. A second home or short-term rental is taxed on its full value, so its bill is about 80% higher.',
+      hint: 'A second home or short-term rental pays about 80% more. A long-term rental gets the lower main-home rate only if you file the county assessor’s declaration that it’s a tenant’s main home.',
+      more: 'In Utah, a home that is someone’s main home is taxed on 55% of its value. A long-term rental counts when it’s the tenant’s main home, if you file the county assessor’s declaration that it’s a tenant’s main home (Utah Code 59-2-103.5). A second home or short-term rental is taxed on its full value, so its bill is about 80% higher.',
     };
   return {
     hint: 'A rental’s bill can rise up to 8% a year, not 3%.',
@@ -163,9 +163,10 @@ export function redemptionChoicesFor(state: StateCode, kind: string): { keys: st
   // A trustee sale has no owner redemption in these states, but if it wipes out a junior federal tax lien, the United States
   // can still redeem for 120 days (26 USC 7425(d)). A lien the sale doesn't wipe out simply stays on title (7425(b)).
   if (kind === 'trustee') return { keys: ['none', 'usFederal'], start: 'none' };
-  // A Nevada tax sale has no owner redemption either (NRS 361.595), and the same federal right applies to a sale under a
-  // statutory lien such as property taxes (26 USC 7425(b), (d)(1)).
-  if (kind === 'taxSale' && state === 'NV') return { keys: ['none', 'usFederal'], start: 'none' };
+  // A tax sale has no owner redemption in Nevada, Utah, California or Arizona (Texas has its own, always longer than 120
+  // days), but if it wipes out a junior federal tax lien the United States can redeem for 120 days, since a property tax
+  // sale is a sale under a statutory lien (26 USC 7425(b), (d)(1)). Utah County waits 120 days to ratify those bids.
+  if (kind === 'taxSale' && state !== 'TX') return { keys: ['none', 'usFederal'], start: 'none' };
   if (kind === 'court') {
     if (state === 'NV') return { keys: ['sheriff'], start: 'sheriff' };
     if (state === 'UT') return { keys: ['utSheriff'], start: 'utSheriff' };

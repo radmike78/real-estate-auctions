@@ -1056,7 +1056,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Owner’s last chance",
-      value: "Anyone may pay what’s owed for the owner (redeem) at any time before the sale. Once the sale is over, no one can buy it back (59-2-1346)."
+      value: "Anyone may pay what’s owed for the owner (redeem) at any time before the sale (59-2-1346). After it, the owner can’t buy it back. But if the sale wiped out a junior federal tax lien, the United States may redeem within 120 days (26 USC 7425(d)). Some counties, like Utah County, wait 120 days to ratify those bids."
     },
     {
       label: "What you get",
@@ -1090,15 +1090,15 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Bid at or above the minimum",
-      detail: "No bid below the full amount owed is accepted. The county may accept the highest bid for the whole parcel. State law also lets the county accept a bid that pays the full amount for the smallest part of the parcel. Then the rest counts as redeemed by the owner. The county may reject all bids."
+      detail: "No bid below the full amount owed is accepted. The county may accept the highest bid for the whole parcel. State law also lets the county accept a bid that pays the full amount for the smallest part of the parcel. Then the rest counts as redeemed by the owner. Some counties (Utah County) sell an undivided percentage instead: the lowest percentage wins, and you co-own the parcel with the former owner. If you buy 49% or less, a later sale pays you only your price plus 12% or your pro-rata share, whichever is greater (Utah Code 59-2-1351.7). Check the bid type on each parcel. The county may reject all bids."
     },
     {
       title: "Pay on the county’s deadline",
-      detail: "Payment rules are local. Salt Lake County takes wires only and adds a 5% buyer’s premium. It does not apply the $500 deposit to your purchase. Davis County has required cash or check in person right after the auction. Utah County says it will not finance. The county can get a court judgment against a winning bidder who does not pay."
+      detail: "Payment rules are local. Salt Lake County requires the $500 deposit by wire, adds a 5% buyer’s premium, and doesn’t credit the deposit to your purchase. Davis County has required cash or check in person right after the auction. Utah County says it will not finance. The county can get a court judgment against a winning bidder who does not pay."
     },
     {
       title: "Wait for ratification and your deed",
-      detail: "First the county’s governing body approves (ratifies) the bids. The auditor then signs a tax deed in the county’s name, and the county recorder records it. Salt Lake County says it records and mails deeds within 60 days after the council approves the sale. Utah County says 60 to 180 days after the sale."
+      detail: "First the county’s governing body approves (ratifies) the bids. The auditor then signs a tax deed in the county’s name, and the county recorder records it. Salt Lake County mails the deed after the council ratifies the sale, within 60 days after the sale. Utah County says 60 to 180 days after the sale."
     },
     {
       title: "Get title insurance and handle possession lawfully",
@@ -1118,6 +1118,7 @@ export const STATE_GUIDES: Playbook[] = [
       "Easements and other recorded claims on the property (encumbrances). Utah County warns that buyers take on the risk of liens, easements and encumbrances.",
       "Liens the county does not clear by its sale. Ask a title company which recorded liens it would still list.",
       "Occupants. The county makes no promise about possession.",
+      "A junior federal tax lien’s redemption right. If the sale wiped out a federal tax lien, the United States may redeem within 120 days (26 USC 7425(d)). Some counties, like Utah County, wait 120 days to ratify those bids.",
       "A court challenge to the tax deed for up to four years, or longer if the owner stayed in possession (Utah Code 78B-2-206)."
     ]
   },
@@ -1190,6 +1191,18 @@ export const STATE_GUIDES: Playbook[] = [
       url: "https://auditor.utahcounty.gov/may-tax-sale/policies"
     },
     {
+      label: "Utah Code 59-2-1351.7 (undivided interest buyers)",
+      url: "https://le.utah.gov/xcode/Title59/Chapter2/59-2-S1351.7.html"
+    },
+    {
+      label: "Utah County tax sale excess funds (120-day wait for federal tax liens)",
+      url: "https://auditor.utahcounty.gov/may-tax-sale/excess-funds"
+    },
+    {
+      label: "26 USC 7425 (federal tax lien redemption after a nonjudicial sale)",
+      url: "https://www.law.cornell.edu/uscode/text/26/7425"
+    },
+    {
       label: "Davis County tax sale FAQ",
       url: "https://www.daviscountyutah.gov/controller/tax-administration-group/tax-sale/tax-sale-faq"
     }
@@ -1243,7 +1256,7 @@ export const STATE_GUIDES: Playbook[] = [
   steps: [
     {
       title: "Learn the timeline",
-      detail: "If the home is the owner’s main home and the lender is a bank, credit union or similar, the lender first sends the owner a notice giving at least 30 days to catch up (Utah Code 57-1-24.3). After a default (missed payments), the trustee records a notice of default with the county recorder. The owner, or anyone holding a later (junior) lien, can catch up and fix the default within three months of that recording. After at least three months, the trustee may give notice of sale."
+      detail: "If the home is the owner’s main home, the loan was for personal or household purposes, and the lender is a bank, credit union or similar, the lender first sends the owner a notice giving at least 30 days to catch up (Utah Code 57-1-24.3). A servicer that follows the federal servicing rules is treated as complying, and a missed step doesn’t undo a sale to an outside buyer (Utah Code 57-1-24.3(12), (13)).* After a default (missed payments), the trustee records a notice of default with the county recorder. The owner, or anyone holding a later (junior) lien, can catch up and fix the default within three months of that recording. After at least three months, the trustee may give notice of sale."
     },
     {
       title: "Find sales through official notices",
@@ -3550,7 +3563,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Get the appraisal and loan approved",
-      detail: "Under the REPC, you can cancel if the home appraises below the price or your loan falls through. But you can do this only by the Financing & Appraisal Deadline, and only if those conditions are checked on your contract. Watch the dates."
+      detail: "Under the REPC, you can cancel if the home appraises below the price or you aren’t satisfied with your loan terms, but only by the Financing & Appraisal Deadline, and only if those conditions are checked on your contract. A low appraisal returns your earnest money. Canceling over loan terms can still give the seller the amount written in section 8.3(b)(i). If your loan fails after that deadline, the seller keeps all of it (REPC section 8.3(b)(iii)). Watch the dates."
     },
     {
       title: "Review the title commitment",

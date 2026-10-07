@@ -484,7 +484,7 @@ export const DRILLS: Drill[] = [
         options: [
           { label: 'The trustee is a Utah attorney or law firm, or a title insurance company or agency with a Utah office, appointed by the association', good: true, why: 'Right (Utah Code 57-8a-302). Other people can’t run an HOA trustee sale.' },
           { label: 'The association is registered with the Utah Department of Commerce', good: true, why: 'Right. An unregistered association can’t enforce its lien while it’s out of compliance (57-8a-105).' },
-          { label: 'The lien isn’t for fines', good: true, why: 'Right. An HOA can’t use a trustee sale to collect fines (57-8a-302).' },
+          { label: 'The lien isn’t for fines', good: true, why: 'Right. An HOA can’t use a trustee sale to collect fines (57-8a-303).' },
           { label: 'Nothing: if the notice was published, the sale is fine', good: false, why: 'A sale that breaks these rules can be challenged. Have an attorney or title professional check.' },
         ],
         lesson: 'The owner also gets 30 days’ warning and can demand a court case instead of a trustee sale.',
@@ -1121,8 +1121,8 @@ export const DRILLS: Drill[] = [
         question: 'Can the owner still keep the property?',
         multi: false,
         options: [
-          { label: 'Yes, the owner can still pay off the taxes until the sale begins, so check the updated list that morning', good: true, why: 'Right. There’s no redemption after the sale (59-2-1346).' },
-          { label: 'Yes, for one year after the sale', good: false, why: 'Utah tax sales have no redemption after the sale.' },
+          { label: 'Yes, the owner can still pay off the taxes until the sale begins, so check the updated list that morning', good: true, why: 'Right. The owner can’t buy it back after the sale (59-2-1346). But if the sale wiped out a junior federal tax lien, the United States may redeem within 120 days (26 USC 7425(d)). Some counties, like Utah County, wait 120 days to ratify those bids.' },
+          { label: 'Yes, for one year after the sale', good: false, why: 'Not quite. In Utah, the owner can’t buy it back after a tax sale (59-2-1346). The only later redemption is the United States’ 120 days when the sale wiped out a junior federal tax lien (26 USC 7425(d)).' },
         ],
         lesson: 'Read the auditor’s notice early: deposit deadline, payment method, buyer’s premium, and whether the deposit counts toward the price.',
       },
@@ -1169,7 +1169,7 @@ export const DRILLS: Drill[] = [
         multi: true,
         options: [
           { label: 'Every bid is an irrevocable offer, so I set my maximum before I arrive', good: true, why: 'Right.' },
-          { label: 'I pay as the trustee directs, and confirm the deposit and payment method with the trustee’s office first', good: true, why: 'Right (57-1-28).' },
+          { label: 'I pay as the trustee directs, and confirm the deposit and payment method with the trustee’s office first', good: true, why: 'Right (57-1-27, 57-1-28).' },
           { label: 'After the sale, the owner has a year to redeem', good: false, why: 'A trustee’s deed conveys without a right of redemption.' },
         ],
         lesson: 'The trustee records your deed within five business days after you pay (57-1-28).',

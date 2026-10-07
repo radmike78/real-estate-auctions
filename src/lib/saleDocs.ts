@@ -225,5 +225,8 @@ const TX_SCRIPTS: Partial<Record<SaleKindKey, SaleScript[]>> = {
 /** The words to use for one guide, with Texas's offices where they differ. */
 export function saleScriptsFor(guideKey: string, state: string): SaleScript[] {
   const kind = saleKindOf(guideKey);
+  // Utah's tax sale is run by the county auditor (Davis County: the Controller), not the treasurer (Utah Code 59-2-1351(1)).
+  if (state === 'UT' && kind === 'deed')
+    return SALE_SCRIPTS.deed.map((x, i) => (i === 0 ? { ...x, to: 'County auditor’s tax sale office (Davis County: the Controller)' } : x));
   return (state === 'TX' && TX_SCRIPTS[kind]) || SALE_SCRIPTS[kind];
 }

@@ -29,7 +29,7 @@ export const TIMELINE: ByStateLines = {
     { text: 'In Arizona, auction: the sale is held on a weekday from 9 a.m. to 5 p.m., at the property, at a superior court building or at the trustee’s office (A.R.S. 33-808). Follow the date on the trustee’s notice of sale.' },
   ],
   UT: [
-    { text: 'In Utah, lender’s notice: if the home is the owner’s main home and the lender is a bank, credit union or similar, the lender first sends the owner a notice with the amount to catch up, and at least 30 days to pay (Utah Code 57-1-24.3).' },
+    { text: 'In Utah, lender’s notice: if the home is the owner’s main home, the loan was for personal or household purposes, and the lender is a bank, credit union or similar, the lender first sends the owner a notice with the amount to catch up, and at least 30 days to pay (Utah Code 57-1-24.3). A servicer that follows the federal servicing rules is treated as complying, and a missed step doesn’t undo a sale to an outside buyer (Utah Code 57-1-24.3(12), (13)).*' },
     { text: 'In Utah, notice of default: the trustee records it with the county recorder. Within 3 months after that, the owner or a junior lienholder can catch up and cure the default (Utah Code 57-1-24, 57-1-31).' },
     { text: 'In Utah, 3+ months: this is the shortest wait before notice of sale can be given (Utah Code 57-1-24). A community association (HOA) uses the same steps, but first sends the owner a 30-day notice (Utah Code 57-8a-303).' },
     { text: 'In Utah, notice of sale: it is published in a newspaper once a week for 3 weeks, on the state’s public legal notice website for 30 days, and posted on the property and at the county recorder at least 20 days before the sale (Utah Code 57-1-25).' },
