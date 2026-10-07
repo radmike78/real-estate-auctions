@@ -471,6 +471,7 @@ const CA: CaseConfig = {
   earnestPaid: 'into escrow within 3 business days after acceptance',
   earnestCredit: (n) => `${usd(n.earnest)} initial deposit`,
   earnestShort: 'deposit',
+  walkKept: () => 'so you keep your deposit',
   rentRulesNote: 'Rules on deposits, entry and rent increases are state law. The ones below are California’s, because this practice house is in California. Some cities add their own.',
   rekeyWhy: 'You don’t know who else has keys.',
   rentTasks: (n) => [
@@ -571,7 +572,7 @@ const AZ: CaseConfig = {
     accept: 'Accept in writing by Day 13.',
     cancel: 'Cancel in writing by Day 13.',
     late: 'Wait until Day 14 to decide.',
-    why: 'Under this contract you had 5 days after the seller’s answer (Day 13) to cancel or accept. If you don’t cancel in time, you’re treated as going ahead without the repairs the seller refused, and you can no longer cancel over the inspection.',
+    why: 'Under this contract you had 5 days after the seller’s answer (Day 13) to cancel or accept. If you don’t cancel in time, you go ahead on the seller’s answer, without anything the seller didn’t agree to in writing, and you can no longer cancel over the inspection.',
     by: 'by the repair-reply deadline (5 days after the seller’s answer)',
   },
   cancelShort: 'Cancel in writing before Day 10.',
