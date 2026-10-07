@@ -164,6 +164,8 @@ interface CaseConfig {
   hoaRulesWhy?: string;
   /** The appraisal-and-title step's second sentence, when the title commitment and HOA rules came earlier (Utah). */
   titleBrief?: string;
+  /** An extra line for the inspection step's brief (Utah: the title and HOA documents to read before due diligence ends). */
+  inspectionBrief?: string;
   /** The HOA leasing-rules question, when the rules were read during due diligence. */
   hoaPrompt?: string;
   cancelShort: string;
@@ -673,13 +675,13 @@ const UT: CaseConfig = {
     ['Earnest money', `${usd(n.earnest)}, to your agent’s brokerage within 4 calendar days after Acceptance (the brokerage deposits it in its trust account), unless the contract names a title company`],
     ['Due Diligence Deadline', 'Day 10. You can cancel for any reason, in writing, before then. If you don’t, the due diligence condition is waived.'],
     ['Financing & Appraisal Deadline', 'Day 21. By then you can cancel if the appraisal comes in under the price, by written notice with a copy of the lender’s or appraiser’s notice of the appraised value, and get the earnest money back. If you cancel because you’re not satisfied with the loan terms, the seller can keep the amount written in section 8.3(b)(i). If your loan fails after this deadline, the seller keeps all the earnest money (REPC 8.3(b)(iii)).'],
-    ['Seller Disclosure Deadline', 'Day 3: the seller’s disclosures, including the HOA documents'],
+    ['Seller Disclosure Deadline', 'Day 3: the seller’s disclosures, including the title commitment and the HOA’s CC&Rs and rules'],
     ['Settlement Deadline', 'Day 30'],
     ['Counting days', 'Calendar days, starting the day after Acceptance. Each deadline ends at 5:00 p.m. Mountain Time on its date (REPC §21).'],
   ],
   dates: [
     { when: 'Day 0', what: 'Acceptance is delivered to you. Every deadline below counts from here.' },
-    { when: 'Day 3', what: 'Seller Disclosure Deadline: the seller’s disclosures and the HOA documents.' },
+    { when: 'Day 3', what: 'Seller Disclosure Deadline: the seller’s disclosures, the title commitment and the HOA documents. Review them before Day 10.' },
     { when: 'Within 4 calendar days after Day 0', what: 'Earnest money to your agent’s brokerage, which deposits it in its trust account (or to the title company, if the contract names one; confirm wire instructions by phone first). You: the buyer.' },
     { when: 'Day 10', what: 'Due Diligence Deadline: cancel, ask for changes, or go ahead, in writing. You, with your agent.' },
     { when: 'Day 21', what: 'Financing & Appraisal Deadline. You, with your lender and the appraisal.' },
@@ -691,6 +693,7 @@ const UT: CaseConfig = {
   cancelInspection: 'Cancel in writing before the Due Diligence Deadline (Day 10), and get the earnest money back.',
   leaveInspection: 'Until the Due Diligence Deadline you can cancel for any reason, in writing, and get the earnest money back.',
   lateInspection: 'After the Due Diligence Deadline (Day 10), the due diligence condition is waived. You’d lose the right to cancel over the inspection, and maybe your earnest money.',
+  inspectionBrief: 'Before Day 10, also read the title commitment and the HOA’s CC&Rs and rules that came on Day 3: after the Due Diligence Deadline you can’t cancel over them.',
   titleBrief: 'You also go back over two documents that came with the seller’s disclosures on Day 3 and that you approved before the Due Diligence Deadline: the title commitment and the HOA’s leasing rules. The title company sends its updated commitment before closing.',
   hoaPrompt: 'You read the HOA’s leasing rules before Day 10. Do they fit your plan?',
   hoaRulesWhy: 'Many HOAs can and do limit rentals. In Utah the CC&Rs and rules come with the seller’s disclosures (REPC 7(d)), so read them before the Due Diligence Deadline: that’s your last chance to cancel over them.',
@@ -1161,6 +1164,7 @@ function buildCase(c: CaseConfig) {
       brief: [
         'You hire a home inspector, and on their advice a plumber to run a camera through the sewer line. Both reports come back on Day 6.',
         'Sort each problem: fix now (safety, or anything that could stop the home from renting), or budget for later.',
+        ...(c.inspectionBrief ? [c.inspectionBrief] : []),
       ],
       docs: [
         {

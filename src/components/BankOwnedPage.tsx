@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import ClassSwitch from './ClassSwitch';
 import type { ClassFilter } from '../lib/propertyClass';
 import { CHECKLISTS } from '../lib/buyerChecklists';
-import { HUD_CLARK_SEARCH, REO_GROUPS, reoSourcesIn, type ReoGroup, type ReoSource } from '../lib/reoSources';
+import { HUD_CLARK_SEARCH, REO_GROUPS, reoSourcesIn, reoWhatFor, type ReoGroup, type ReoSource } from '../lib/reoSources';
 import BuyerChecklistBox from './BuyerChecklistBox';
 import Disclaimer from './Disclaimer';
 import DrillDown, { type DrillSection } from './DrillDown';
@@ -22,11 +22,14 @@ function SourceCard({ s }: { s: ReoSource }) {
   const [mine] = useMyState();
   // HUD's link opens a Clark County search; elsewhere it opens HUD's own search to pick your area.
   const href = s.url === HUD_CLARK_SEARCH && mine && mine !== 'NV' ? 'https://www.hudhomestore.gov/' : s.url;
+  // The Las Vegas search tips are for Nevada (or every state); elsewhere they name the visitor's own state.
+  const stateName = mine && mine !== 'NV' ? STATES.find((x) => x.code === mine)?.name : undefined;
+  const what = stateName ? reoWhatFor(s.what, stateName) : s.what;
   return (
     <li className="reo-card">
       <div className="reo-owner">{s.owner}</div>
       <h3><a href={href} target="_blank" rel="noopener noreferrer">{s.name.slice(0, cut)}<span className="nowrap">{s.name.slice(cut)}&nbsp;↗</span></a></h3>
-      <p>{s.what}</p>
+      <p>{what}</p>
       <dl>
         <div className="reo-how"><dt>How to buy</dt><dd>{s.howToBuy}</dd></div>
         {s.firstLook && <div className="reo-first"><dt>Buyers first</dt><dd>{s.firstLook}</dd></div>}

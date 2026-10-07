@@ -331,3 +331,65 @@
 @media (min-width: 520px) { .deep-page .decide-risk:has(> :nth-child(4):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1500px) { .deep-page .decide-risk:has(> :nth-child(4):last-child) { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
+/* Toolkit "How you’ll buy": the hint takes its own line, the label too once the buttons wrap, and phones stack the
+   buttons, so no row ends with one lone button. */
+.roadmap-path > .muted { flex-basis: 100%; }
+@media (max-width: 860px) { .roadmap-path-label { flex-basis: 100%; } }
+@media (max-width: 560px) { .roadmap-path button { flex: 1 1 100%; } }
+/* Tablets: the buttons share one row in equal widths (wrapping their own text), never 2 + 1. */
+@media (min-width: 561px) and (max-width: 860px) { .roadmap-path button { flex: 1 1 0; min-width: 0; align-self: stretch; } }
+
+/* Guide section tabs: an even grid, "← Overview" on its own line above it; seven or more sections use the labeled
+   "Jump to section" drop-down instead of chips. */
+@media (min-width: 561px) {
+  .drill-nav { display: grid; gap: 8px; grid-template-columns: repeat(var(--c, 2), minmax(0, 1fr)); }
+  .drill-nav > a { display: flex; align-items: center; justify-content: center; text-align: center; }
+  .drill-nav > .drill-back { grid-column: 1 / -1; justify-self: start; }
+  .drill-nav:has(> :nth-child(4):last-child) { --c: 3; }
+  .drill-select:has(+ .drill-nav > :nth-child(8)) { display: grid; gap: 6px; margin: 0 0 16px; font-weight: 700; }
+  .drill-select:has(+ .drill-nav > :nth-child(8)) select { min-height: 44px; width: 100%; font-size: 1rem; }
+  .drill-select + .drill-nav:has(> :nth-child(8)) { display: none; }
+}
+/* Five sections: 3 + 2 on a six-column grid until all five fit in one row. */
+@media (min-width: 561px) and (max-width: 1300px) {
+  .drill-nav:has(> :nth-child(6):last-child) { --c: 6; }
+  .drill-nav:has(> :nth-child(6):last-child) > :nth-child(-n+4):not(.drill-back) { grid-column: span 2; }
+  .drill-nav:has(> :nth-child(6):last-child) > :nth-child(n+5) { grid-column: span 3; }
+}
+@media (min-width: 861px) { .drill-nav:has(> :nth-child(7):last-child) { --c: 3; } }
+@media (min-width: 1101px) { .drill-nav:has(> :nth-child(5):last-child) { --c: 4; } }
+@media (min-width: 1301px) { .drill-nav:has(> :nth-child(6):last-child) { --c: 5; } }
+@media (min-width: 1501px) { .drill-nav:has(> :nth-child(7):last-child) { --c: 6; } }
+
+/* Practice stage tabs (8 = Listing + 7 steps): 2 + 2 + 2 + 2, then 4 + 4, then one row, like the practice purchase's tabs. */
+@media (min-width: 601px) and (max-width: 1549px) {
+  .practice-stages:not(.case-stages):has(> :nth-child(8):last-child) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .practice-stages:not(.case-stages):has(> :nth-child(8):last-child) > a { border-radius: 12px; white-space: normal; line-height: 1.25; min-height: 48px; }
+}
+@media (min-width: 901px) and (max-width: 1549px) {
+  .practice-stages:not(.case-stages):has(> :nth-child(8):last-child) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+/* Wide screens: the one row of eight spans the full width. */
+@media (min-width: 1550px) {
+  .practice-stages:not(.case-stages):has(> :nth-child(8):last-child) > a { flex: 1 1 auto; justify-content: center; }
+}
+
+/* Lesson link cards two across (701-1000px): an odd count ends with three sharing the last row, never one stretched card. */
+@media (min-width: 701px) and (max-width: 1000px) {
+  .lesson-body-text ul.lesson-links:has(> :last-child:nth-child(2n+5)) > :nth-last-child(-n+3) { flex-basis: calc((100% - 20px) / 3); }
+}
+
+/* Tables: the last column keeps its right padding (phone cards and desktop tables). */
+.page .lesson-table th:last-child, .page .lesson-table td:last-child { padding-right: 14px; }
+/* Read the paperwork + deal-packet dates: cards until the columns have room. */
+@media (min-width: 701px) and (max-width: 1000px) {
+  .doc-guide-table, .doc-guide-table tbody, .doc-guide-table tr, .doc-guide-table th, .doc-guide-table td { display: block; }
+  .doc-guide-table { border: 0; background: none; }
+  .doc-guide-table thead { display: none; }
+  .doc-guide-table tbody tr { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+  .doc-guide-table tbody th { background: var(--surface-2); border-bottom: 1px solid var(--border); padding: 10px 14px; width: auto; min-width: 0; white-space: normal; }
+  .doc-guide-table td { border-bottom: 0; padding-top: 6px; }
+  .doc-guide-table td[data-label]:not([data-label=""])::before { content: attr(data-label); display: block; font-weight: 700; font-size: 0.95rem; color: var(--muted); }
+}
+@media (min-width: 1001px) { .packet-date-guide tbody th { width: 16rem; } }
+

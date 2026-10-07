@@ -28,6 +28,8 @@ import PhotosAndViews from './PhotosAndViews';
 import { parcelDigits, propertyViews } from '../lib/propertyViews';
 import BidCalculator, { setSavedExitValue } from './BidCalculator';
 import { DD_STEPS } from '../lib/ddFunnel';
+import { forStateText } from '../lib/myState';
+import { STATES, type StateCode } from '../lib/regions';
 import DueDiligenceFunnel from './DueDiligenceFunnel';
 import SaveDealButton from './SaveDealButton';
 import TeamList from './TeamList';
@@ -37,6 +39,9 @@ import { ago } from '../lib/time';
 import OwlNote from './OwlNote';
 import { analyzeHref } from '../lib/analyze';
 import AdSpot from './AdSpot';
+
+/** The property's own state, so its status text drops other states' detail. */
+const isStateCode = (v: string): v is StateCode => STATES.some((x) => x.code === v);
 
 const LIEN_LABEL: Record<LienType, string> = {
   PROPERTY_TAX: 'Delinquent property tax',
@@ -160,7 +165,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       summary: `${status.purchasable ? 'For sale' : 'Not for sale now'} · ${status.label}${s && s.postponements ? ` · postponed ${plural(s.postponements, 'time')}` : ''}`,
       content: () => (
         <>
-          <p className="lead"><strong>{status.purchasable ? 'Heading to sale.' : 'Not for sale right now.'}</strong> {status.explanation}</p>
+          <p className="lead"><strong>{status.purchasable ? 'Heading to sale.' : 'Not for sale right now.'}</strong> {forStateText(isStateCode(p.state) ? p.state : null, status.explanation)}</p>
           <div className="provenance">
             <span className="prov-chip">Record last checked {ago(p.lastUpdated)}</span>
             {s && <span className="prov-chip">Sale run by {s.conductedBy}</span>}

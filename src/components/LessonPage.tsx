@@ -212,7 +212,7 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
       blocks: s.blocks.map((b) => forState(b, st)).filter((b): b is LessonBlock => b !== null),
     }))
     .filter((s) => s.blocks.length > 0);
-  const sources = l.sources.filter((s) => showFor(st, s.label));
+  const sources = l.sources.filter((s) => showFor(st, s.label)).map((s) => ({ ...s, label: s.label.replace(` (${st})`, '') }));
   const allChecks = LESSON_CHECKS[lessonKey] ?? [];
   const checks = allChecks.filter((c) => showFor(st, `${c.q} ${c.options.join(' ')} ${c.why}`));
   const terms = l.terms

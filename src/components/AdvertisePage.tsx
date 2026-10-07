@@ -58,7 +58,7 @@ export default function AdvertisePage() {
       <p>
         Professionals licensed or registered to work in {STATES.map((s) => s.name).join(', ').replace(/, (?=[^,]*$)/, ' or ')}. You choose your state and
         the counties you serve, and your ads show to buyers looking in that state.
-        {st ? ` Each line below names where we check a ${stateByCode(st)?.name} license.` : ''}
+        {st ? ` Each line below names where we check a license in ${stateByCode(st)?.name}.` : ''}
       </p>
       <div className="options-grid ad-who">
         {GROUPS.map((g) => (

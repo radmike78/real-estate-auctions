@@ -32,6 +32,15 @@ export interface BuyerChecklist {
 /** HUD's own Nevada search on HUD Home Store (the official site for HUD-owned homes). */
 export const HUD_NEVADA_SEARCH = 'https://www.hudhomestore.gov/searchresult?citystate=NV';
 
+/** HUD Home Store's search for one state. */
+export const hudSearchFor = (code: string) => `https://www.hudhomestore.gov/searchresult?citystate=${code}`;
+
+/** A checklist's official link for the visitor's state: the HUD button searches the chosen state (Nevada with none chosen). */
+export const officialFor = (list: BuyerChecklist, code: string | null, stateName?: string): BuyerChecklist['official'] =>
+  list.official && list.official.href === HUD_NEVADA_SEARCH && code && code !== 'NV' && stateName
+    ? { ...list.official, href: hudSearchFor(code), label: `See HUD-owned homes in ${stateName} on HUD Home Store` }
+    : list.official;
+
 const CONFIRM = { text: 'Confirm the details in the official notice', detail: 'Dates, deposits and payment rules change. Check again the day before.' };
 
 export const CHECKLISTS: Record<string, BuyerChecklist> = {

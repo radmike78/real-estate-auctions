@@ -195,7 +195,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Buyers stretching to afford the mortgage with no savings left for a special assessment.",
       "Investors who plan short-term or nightly rentals without confirming the HOA allows them.",
       "Anyone buying in an older building without seeing the reserve study, inspections and minutes.",
-      "People who fall behind on dues. In Nevada, Texas and many other states, the HOA can foreclose. Texas has two sets of rules. A neighborhood (subdivision) HOA usually needs a court order first (Property Code 209.0092). A condo association can sell without going to court, using the usual trustee-sale steps unless its declaration says otherwise, and the owner then has 90 days to buy the home back (82.113). Neither can foreclose for unpaid fines alone. The recorded declaration tells you which rules apply; a townhome can fall under either."
+      "People who fall behind on dues. In all five states we cover, an association can foreclose for unpaid dues, under different rules in each. Texas has two sets of rules. A neighborhood (subdivision) HOA usually needs a court order first (Property Code 209.0092). A condo association can sell without going to court, using the usual trustee-sale steps unless its declaration says otherwise, and the owner then has 90 days to buy the home back (82.113). Neither can foreclose for unpaid fines alone. The recorded declaration tells you which rules apply; a townhome can fall under either."
     ],
     costs: [
       "Monthly HOA dues. In Las Vegas, the Review-Journal reported condo dues of about 50 cents to a dollar per square foot (c. 2016).",
@@ -1107,10 +1107,10 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     costs: [
       "Leasing costs: building out space for new tenants, broker commissions and free rent, often large sums before any rent comes in.",
       "Vacancy: the Gas Company Tower in Los Angeles was only 57% leased in 2024.",
-      "Property taxes and insurance. A California purchase triggers reassessment to market value (Board of Equalization).",
+      "Property taxes and insurance. In California, a purchase triggers reassessment to market value (Board of Equalization).",
       "Transfer taxes: in the City of Los Angeles, Measure ULA can add a 5.5% tax on high-priced sales. Commercial Observer reported it would have applied to the $200 million Gas Company Tower sale, had the buyer not been a government agency.",
       "SBA 504 loans charge fees of about 3% of the debt, which can be financed (SBA).",
-      "Building systems: elevators, HVAC, roofs and seismic upgrades in older California buildings."
+      "Building systems: elevators, HVAC, roofs and, in older buildings, seismic upgrades (required in some California cities)."
     ],
     money: [
       "SBA 504 loans: long-term, fixed-rate loans for owner-occupied business real estate, with 10-, 20- or 25-year terms and a maximum loan of $5.5 million. They are not for passive or speculative investment (SBA).",
@@ -1299,7 +1299,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Beginners developing large speculative warehouses (built before tenants sign).",
       "Owners who depend on one big tenant whose needs could shrink (Amazon gave back space in 2022).",
       "Buyers who can’t pay the loan through a long vacancy. Large buildings can take a long time to re-lease.",
-      "Anyone ignoring local opposition and environmental rules for truck-heavy sites in California."
+      "Anyone ignoring local opposition and environmental rules for truck-heavy sites (strict in parts of California)."
     ],
     costs: [
       "Vacancy and re-leasing time. Inland Empire vacancy reached 5.9% in early 2024, with 11% in Redlands (CBRE, via Community Forward Redlands).",

@@ -120,15 +120,31 @@ const TX_DEPOSIT_DATES: DateGuide[] = [
 ];
 
 const TX_OPTION_END: DateGuide = { what: 'Option period ends (5 p.m.)', when: 'The number of days written in the contract after the effective date, by 5 p.m. local time. The weekend rule for payments doesn’t move it.', who: 'You', todo: 'If you want out, give the seller written notice of termination before then.', missed: 'You can’t end the contract for any reason anymore; only the contract’s other conditions remain.', why: 'TREC 20-19, paragraph 5B' };
+/** Under a short sale addendum the termination window starts at signing and runs on past the Amended Effective Date (45-2, F). */
+const TX_SHORT_OPTION_END: DateGuide = { ...TX_OPTION_END, when: 'Starts when you both sign and keeps running while you wait for the lender; when it ends depends on how paragraph 5’s days are counted after the Amended Effective Date* (45-2, F). Have your agent write the exact date into an amendment.', why: 'TREC 20-19, paragraph 5B; TREC 45-2, paragraph F' };
+
+/** "the effective date", or for a short sale the Amended Effective Date that performance counts from (45-2, D). */
+const AMENDED = 'the Amended Effective Date (the day the seller tells you of the lender’s approval, 45-2, D)';
+const after = (short: boolean) => (short ? AMENDED : 'the effective date');
+const plus45 = (why: string, short: boolean) => (short ? `${why}; TREC 45-2, paragraph D` : why);
+
+/** Texas Seller's Disclosure Notice (20-19, 7B(2)): only when that box is checked. */
+const txDisclosureDate = (short: boolean): DateGuide => ({ what: 'Seller’s Disclosure Notice due (only if box 7B(2) is checked)', when: `Within the days written in 7B(2) after ${after(short)}. Your deadline to end the contract is 7 days after you receive it, or closing if that comes first. A lender reselling a home it took back at a foreclosure sale (or by a deed in lieu) doesn’t have to give one (Property Code 5.008(e)(4)), so a bank-owned sale may check box 7B(3) instead.`, who: 'The seller delivers it; you read it', todo: 'Record the day you receive it and put the 7-day deadline on the calendar.', missed: 'If it never comes, you can end the contract any time before closing. Once it comes, you can end it for any reason within 7 days or before closing, whichever is first, with your earnest money back; after that, this right is gone.', why: plus45('TREC 20-19, paragraph 7B; Property Code 5.008(f)', short) });
+
+/** Texas HOA subdivision information (36-11, paragraph A): only with the HOA addendum. */
+const txHoaDate = (short: boolean): DateGuide => ({ what: 'HOA subdivision information due (only with the HOA addendum)', when: `Within the days written in paragraph A after ${after(short)}, if box 1 (the seller gets it) or box 2 (you get it) is checked. Your deadline to end the contract is 3 days after you receive it, or closing if that comes first.`, who: 'The seller (box 1) or you (box 2) get it from the association', todo: 'Record the day you receive the restrictions, bylaws, rules and resale certificate, read them, and put the 3-day deadline on the calendar.', missed: 'After the 3 days you can’t end the contract over the HOA documents, except if they turn out untrue or change for the worse before closing (paragraph B). Under box 1, if the seller never delivers them, you can end the contract any time before closing.', why: plus45('TREC 36-11, paragraphs A and B', short) });
+
+/** Texas title objections (20-19, 6D). */
+const TX_TITLE_DATE: DateGuide = { what: 'Title objections due', when: 'The days written in paragraph 6D after you receive the title commitment, the exception documents and the survey, or the closing date if that’s sooner.', who: 'You (with your agent or attorney)', todo: 'Read the commitment, exception documents and survey, and send the seller written objections to any problem you want fixed.', missed: 'You give up your right to object, except to the requirements in Schedule C of the commitment.', why: 'TREC 20-19, paragraph 6D' };
 
 /** Texas water disclosure (20-19, 7I(2)): only when that box is checked. */
-const TX_WATER_DATE: DateGuide = { what: 'Seller’s Water Disclosure due (only if box 7I(2) is checked)', when: 'Within the days written in 7I(2) after the effective date. Your review deadline is 7 days after you receive it, or closing if that comes first.', who: 'The seller delivers it; you read it', todo: 'Record the day you receive it and put the 7-day deadline on the calendar.', missed: 'If it never comes, you can end the contract before closing. Once it comes, you can end it within 7 days or before closing, whichever is first, with your earnest money back. With box 1 (already received) or box 3 (not required) there’s no such window.', why: 'TREC 20-19, paragraph 7I' };
+const txWaterDate = (short: boolean): DateGuide => ({ what: 'Seller’s Water Disclosure due (only if box 7I(2) is checked)', when: `Within the days written in 7I(2) after ${after(short)}. Your review deadline is 7 days after you receive it, or closing if that comes first.`, who: 'The seller delivers it; you read it', todo: 'Record the day you receive it and put the 7-day deadline on the calendar.', missed: 'If it never comes, you can end the contract before closing. Once it comes, you can end it within 7 days or before closing, whichever is first, with your earnest money back. With box 1 (already received) or box 3 (not required) there’s no such window.', why: plus45('TREC 20-19, paragraph 7I', short) });
 
 /** Texas financing dates: the appraisal addendum (49-1) and the financing addendum's two approvals (40-11, paragraph 2A and 2B). */
 const TX_APPRAISAL_DATE: DateGuide = { what: 'Appraisal addendum deadline (only if you have one)', when: 'The days written in box 3 of the addendum, after the effective date.', who: 'You', todo: 'If the lender’s appraisal comes in under the amount written there, give notice of termination with a copy of the appraisal.', missed: 'You lose that extra right to end the contract; the Property Approval right may still apply.', why: 'TREC 49-1, box 3' };
-const TX_LOAN_DATES: DateGuide[] = [
-  { what: 'Buyer Approval deadline', when: 'The days written in paragraph 2A after the effective date.', who: 'You and your lender', todo: 'If the lender can’t approve you, give notice of termination with the lender’s written statement of the reasons.', missed: 'The contract is no longer subject to your loan approval, so if the loan later falls through, your earnest money is at risk.*', why: 'TREC 40-11, paragraph 2A' },
-  { what: 'Property Approval deadline', when: 'The 3rd day before the closing date.', who: 'You and your lender', todo: 'If the lender says the property doesn’t meet its requirements (appraisal, insurability or required repairs), give notice of termination with the lender’s written statement.', missed: 'Property Approval is treated as obtained.', why: 'TREC 40-11, paragraph 2B' },
+const txLoanDates = (short: boolean): DateGuide[] => [
+  { what: 'Buyer Approval deadline (only if paragraph 2A’s “subject to Buyer Approval” box is checked)', when: `The days written in paragraph 2A after ${after(short)}.`, who: 'You and your lender', todo: 'If the lender can’t approve you, give notice of termination with the lender’s written statement of the reasons.', missed: 'The contract is no longer subject to your loan approval, so if the loan later falls through, your earnest money is at risk.*', why: plus45('TREC 40-11, paragraph 2A', short) },
+  { what: 'Property Approval deadline (only with the financing addendum)', when: 'The 3rd day before the closing date.', who: 'You and your lender', todo: 'If the lender says the property doesn’t meet its requirements (appraisal, insurability or required repairs), give notice of termination with the lender’s written statement. If your appraisal addendum (TREC 49-1) has box 1 checked, or box 2 and the appraisal is at or above the amount written there, a low appraisal alone isn’t a reason you can use.', missed: 'Property Approval is treated as obtained.', why: 'TREC 40-11, paragraph 2B; TREC 49-1, boxes 1 and 2' },
 ];
 
 const names = (xs: string[]): DateGuide[] => xs.map((what) => ({ what }));
@@ -136,8 +152,8 @@ const names = (xs: string[]): DateGuide[] => xs.map((what) => ({ what }));
 /** The dates most deals of this kind need on the calendar, each with how it works where we have it (Texas contracts). */
 export function dateGuide(d: Pick<Deal, 'kind' | 'state'>): DateGuide[] {
   const tx = d.state === 'TX';
-  if (d.kind === 'short') return [...names(['Contract signed']), ...(tx ? TX_DEPOSIT_DATES : []), ...names(['Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)']), ...(tx ? [TX_OPTION_END, TX_WATER_DATE, ...TX_LOAN_DATES] : names(['Inspection period ends', 'Loan approval deadline'])), ...names(['Closing'])];
-  if (isOffer(d)) return [...names(['Offer accepted (Day 0)']), ...(tx ? TX_DEPOSIT_DATES : names(['Earnest money due'])), ...(tx ? [TX_OPTION_END, TX_WATER_DATE, TX_APPRAISAL_DATE, ...TX_LOAN_DATES] : names(['Inspection period ends', 'Appraisal deadline', 'Loan approval deadline'])), ...names(['Closing'])];
+  if (d.kind === 'short') return [...names(['Contract signed']), ...(tx ? TX_DEPOSIT_DATES : []), ...names(['Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)']), ...(tx ? [TX_SHORT_OPTION_END, txDisclosureDate(true), txHoaDate(true), TX_TITLE_DATE, txWaterDate(true), ...txLoanDates(true)] : names(['Inspection period ends', 'Loan approval deadline'])), ...names(['Closing'])];
+  if (isOffer(d)) return [...names(['Offer accepted (Day 0)']), ...(tx ? TX_DEPOSIT_DATES : names(['Earnest money due'])), ...(tx ? [TX_OPTION_END, txDisclosureDate(false), txHoaDate(false), TX_TITLE_DATE, txWaterDate(false), TX_APPRAISAL_DATE, ...txLoanDates(false)] : names(['Inspection period ends', 'Appraisal deadline', 'Loan approval deadline'])), ...names(['Closing'])];
   if (d.kind === 'lien') return names(['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien']);
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
@@ -252,7 +268,7 @@ export function savedNumbers(d: Deal) {
  * The repair and holding budget saved in Fix and sell for a flip, to compare with what you actually pay once you own it
  * (null when it isn't a flip or no repairs or holding costs are saved).
  */
-export function flipBudget(d: Deal): { repairs: number; monthly: number; months: number; holding: number; financing: number; price: number; total: number } | null {
+export function flipBudget(d: Deal): { repairs: number; monthly: number; months: number; holding: number; financing: number; price: number; source: 'yours' | 'listed' | null; total: number } | null {
   if (d.plan !== 'flip') return null;
   const raw = read(`fsf.bid.analyzed-${d.id}.v1`);
   if (!raw || typeof raw !== 'object') return null;
@@ -261,11 +277,29 @@ export function flipBudget(d: Deal): { repairs: number; monthly: number; months:
   // Repairs (with the contingency) and holding don't depend on the price. Loan interest and points do: they're figured
   // at your own saved price (your offer or bid, or else the asking price or opening bid), since you'll pay them each
   // month along with everything else you record.
-  const price = proposedPriceOf(i)?.price ?? 0;
+  const proposed = proposedPriceOf(i);
+  const price = proposed?.price ?? 0;
   const c = costsAtBid(i, price);
   if (c.repairs <= 0 && c.holding <= 0 && c.financing <= 0) return null;
   const months = totalMonths(i);
-  return { repairs: c.repairs, monthly: months > 0 ? c.holding / months : 0, months, holding: c.holding, financing: c.financing, price, total: c.repairs + c.holding + c.financing };
+  return { repairs: c.repairs, monthly: months > 0 ? c.holding / months : 0, months, holding: c.holding, financing: c.financing, price, source: proposed?.source ?? null, total: c.repairs + c.holding + c.financing };
+}
+
+/**
+ * The flip budget in one line for the owned tracker. With no price saved, the loan cost covers the repairs only, so it
+ * says so; otherwise it names the price it was figured at (your offer or bid, or the asking price or opening bid).
+ */
+export function flipBudgetLine(d: Deal): string | null {
+  const b = flipBudget(d);
+  if (!b) return null;
+  const offer = isOffer(d);
+  const at = b.source === 'yours' ? `at your ${money(b.price)} ${offer ? 'offer' : 'bid'}` : `at the ${money(b.price)} ${offer ? 'asking price' : 'opening bid'}`;
+  const loan = b.financing > 0
+    ? b.price > 0
+      ? `, loan interest and points about ${money(b.financing)} ${at}`
+      : `, loan interest and points on the repairs only (about ${money(b.financing)}); enter your price in Fix and sell to include the purchase loan`
+    : '';
+  return `Your budget: repairs with contingency ${money(b.repairs)}, holding ${money(b.monthly)} a month for ${b.months} ${b.months === 1 ? 'month' : 'months'} (about ${money(b.holding)})${loan}: ${money(b.total)} in all.`;
 }
 
 /** Whether the deal's calculator has numbers to show: a commercial deal without a target return has no price yet. */
@@ -280,9 +314,11 @@ const commercialNoTarget = (strategy: string, overCap = false) => overCap
 type CommercialLimit = 'return' | 'cash' | 'dscr';
 const pct1 = (x: number | null | undefined) => (x === null || x === undefined ? null : `${(x * 100).toFixed(1)}%`);
 /** The commercial walk-away price, worded by what sets it: your target return, your cash, or the lender's coverage. */
-function commercialPriceText(capPct: number, maxBid: number, limitedBy: CommercialLimit | undefined, capOnCost: number | null | undefined, lower = false): string {
+/** The calculator's own words for the cash limit: "put in" for a listed property (down payment, closing costs and repairs), "bring" at an auction. */
+const cashLimit = (offer: boolean) => (offer ? 'the cash you can put in' : 'the cash you can bring');
+function commercialPriceText(capPct: number, maxBid: number, limitedBy: CommercialLimit | undefined, capOnCost: number | null | undefined, offer: boolean, lower = false): string {
   const roc = pct1(capOnCost);
-  if (limitedBy === 'cash') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by the cash you can bring: ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
+  if (limitedBy === 'cash') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by ${cashLimit(offer)}: ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
   if (limitedBy === 'dscr') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by the lender’s minimum coverage (DSCR): ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
   return lower ? `highest price ${money(maxBid)}` : `Highest price for a ${capPct}% return on cost: ${money(maxBid)}`;
 }
@@ -356,14 +392,18 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   if (offer) cash.push(p.earnest ? `When you sign: ${money(p.earnest)} earnest money` : 'When you sign: earnest money (enter it below)');
   else if (p.earnest) cash.push(`Before the sale: ${money(p.earnest)} bidder deposit`);
   let need = 0;
+  // The price `need` is figured at, so the investable-cash line after the what-if says which price it means.
+  let needAt = '';
   if (rent) {
     if (rent.refi) {
       // A refinance comes later, if at all: until then every dollar of the price and costs is your cash.
       need = rent.allIn;
+      needAt = `At a ${money(rent.price)} price`;
       cash.push(`From sale day until the refinance closes, all in: ${money(rent.allIn)} at a ${money(rent.price)} price (from ${strategy}: bid, buying costs and repairs you entered)`);
       cash.push(`After a refinance, if approved: ${rent.cashIn > 0 ? `${money(rent.cashIn)} of your cash left in` : 'the loan returns all your cash'}`);
     } else {
       need = rent.cashIn;
+      needAt = `At a ${money(rent.price)} price`;
       cash.push(`${offer ? 'At closing' : 'From sale day until it’s rented'}, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: down payment or bid, closing costs and repairs you entered)`);
     }
   } else if (bid?.none && !bid.at) {
@@ -374,11 +414,13 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     if (a) {
       need = a.cashPeak;
       const at = `${priceName(a.source, offer)} of ${money(a.price)}`;
+      needAt = `At ${at}`;
       if (!offer) cash.push(`On sale day, at ${at}: ${money(a.cashOnDay)} (bid plus any buyer’s premium, in the form the sale requires)`);
       cash.push(`Estimated cash you’ll put in, at ${at}, under these assumptions (through repairs and holding until it sells): ${money(a.cashPeak)}`);
       if (a.cashLeft < a.cashPeak) cash.push(`Left in once the loan funds, at ${at}: ${money(a.cashLeft)}`);
     } else {
       need = bid.cashPeak;
+      needAt = `At your walk-away price of ${money(bid.maxBid)}`;
       cash.push(`No ${offer ? 'offer or asking price' : 'bid or opening bid'} entered yet: add it in ${strategy} to see the cash at your own price.`);
     }
     if (!bid.none) {
@@ -392,6 +434,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     cash.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered in ${strategy}.`);
   } else if (commercial) {
     need = commercial.refi ? commercial.allIn : commercial.cashLeft;
+    needAt = `At your highest price of ${money(commercial.maxBid)}`;
     cash.push(commercial.refi
       ? `All in at your highest price, until a refinance closes: ${money(commercial.allIn)}; after a refinance, if approved: ${money(commercial.cashLeft)} left in (from ${strategy})`
       : `All in at your highest price: ${money(commercial.allIn)}, with ${money(commercial.cashLeft)} of your own cash left in (from ${strategy})`);
@@ -400,7 +443,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   } else {
     cash.push(`Run ${strategy} in Analyze to see the cash this deal needs.`);
   }
-  if (profile.investable > 0 && need > 0) cash.push(need > profile.investable ? `That’s ${money(need - profile.investable)} more than your investable cash: the deal doesn’t fit as entered.` : `Leaves ${money(profile.investable - need)} of your investable cash for surprises.`);
+  if (profile.investable > 0 && need > 0) cash.push(need > profile.investable ? `${needAt}, that’s ${money(need - profile.investable)} more than your investable cash: the deal doesn’t fit as entered.` : `${needAt}, that leaves ${money(profile.investable - need)} of your investable cash for surprises.`);
   const hasNums = hasSavedNumbers({ rent, bid, commercial });
   out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && (!offer || p.earnest) ? 'done' : hasNums || p.earnest ? 'started' : 'missing', lines: cash, fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 
@@ -422,11 +465,11 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
   else if (commercial?.none) nums.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered`);
   else if (commercial) {
-    nums.push(`${commercialPriceText(commercial.capPct, commercial.maxBid, commercial.limitedBy, commercial.capOnCost)}, on ${money(commercial.noi)} a year of net operating income`);
+    nums.push(`${commercialPriceText(commercial.capPct, commercial.maxBid, commercial.limitedBy, commercial.capOnCost, offer)}, on ${money(commercial.noi)} a year of net operating income`);
     for (const s of commercial.stress) {
       // Cash sets both prices: the lower rent doesn't move it, so say so instead of repeating the same figure as news.
       const same = s.limitedBy === 'cash' && commercial.limitedBy === 'cash' && s.maxBid === commercial.maxBid;
-      nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid !== null && s.maxBid > 0 ? (same ? `still ${money(s.maxBid)}, set by the cash you can bring${pct1(s.capOnCost) ? ` (return on cost at that price: ${pct1(s.capOnCost)})` : ''}` : commercialPriceText(commercial.capPct, s.maxBid, s.limitedBy, s.capOnCost, true)) : 'no price works'}`);
+      nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid !== null && s.maxBid > 0 ? (same ? `still ${money(s.maxBid)}, set by ${cashLimit(offer)}${pct1(s.capOnCost) ? ` (return on cost at that price: ${pct1(s.capOnCost)})` : ''}` : commercialPriceText(commercial.capPct, s.maxBid, s.limitedBy, s.capOnCost, offer, true)) : 'no price works'}`);
     }
   }
   if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');

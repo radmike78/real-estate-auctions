@@ -1,5 +1,6 @@
 import { useState, type CSSProperties } from 'react';
-import { detailForState, type BuyerChecklist } from '../lib/buyerChecklists';
+import { detailForState, officialFor, type BuyerChecklist } from '../lib/buyerChecklists';
+import { STATES } from '../lib/regions';
 import { useMyState } from '../lib/myState';
 import { guideKey } from '../lib/narrow';
 
@@ -46,6 +47,7 @@ function ChecklistInner({ list, variant = 'light', playbook: forced, guideState,
       }
       return next;
     });
+  const official = officialFor(list, state, STATES.find((x) => x.code === state)?.name);
   const count = done.filter((i) => i < list.items.length).length;
 
   return (
@@ -65,10 +67,10 @@ function ChecklistInner({ list, variant = 'light', playbook: forced, guideState,
           <span>ready</span>
         </div>
       </div>
-      {list.official && (
+      {official && (
         <div className="checklist-official">
-          <a className="btn" href={list.official.href} target="_blank" rel="noopener noreferrer">{list.official.label}&nbsp;↗</a>
-          <span>{list.official.note}</span>
+          <a className="btn" href={official.href} target="_blank" rel="noopener noreferrer">{official.label}&nbsp;↗</a>
+          <span>{official.note}</span>
         </div>
       )}
       <ul className="checklist-items">

@@ -41,7 +41,9 @@ const unsaid = (text: string, said: string) => sentences(text).filter((x) => !sa
 /** Where to check a license: the visitor's own state, or every state when they haven't picked one. */
 function LicenseCheck({ lookups, state, said }: { lookups: Record<StateCode, Lookup>; state: StateCode | null; said: string }) {
   const show = (state ? [state] : STATES.map((x) => x.code)).map((c) => [c, lookups[c]] as const);
-  const line = (l: Lookup) => ('note' in l ? unsaid(l.note, said) : <>Look them up with the {l.who}. <a href={l.url} target="_blank" rel="noopener noreferrer">Open the official lookup{NBSP}↗</a></>);
+  const line = (l: Lookup) => ('note' in l ? (
+    <>{unsaid(l.note, said)}{l.links?.map((x) => <span key={x.url}> <a href={x.url} target="_blank" rel="noopener noreferrer">{x.who}{NBSP}↗</a></span>)}</>
+  ) : <>Look them up with the {l.who}. <a href={l.url} target="_blank" rel="noopener noreferrer">Open the official lookup{NBSP}↗</a></>);
   return (
     <div className="pro-guide-tip">
       <strong>Official license lookup:</strong>{' '}
@@ -165,13 +167,18 @@ function Script({ say, fills }: { say: string; fills: Record<string, string> }) 
   );
 }
 
+// Each state's lawyer-licensing body, by its own name, for "check the lawyer's license" lines once a state is chosen.
+const ALL_BARS = 'the State Bar of Nevada, California, Arizona, Utah or Texas';
+const BAR: Record<string, string> = { NV: 'the State Bar of Nevada', CA: 'the State Bar of California', AZ: 'the State Bar of Arizona', UT: 'the Utah State Bar', TX: 'the State Bar of Texas' };
+const oneBar = (st: string | null, x: string) => (st && BAR[st] ? x.replace(ALL_BARS, BAR[st]) : x);
+
 /** Keyword-led text ("Dual agency: …") split into its label and the rest. */
 const keyword = (t: string) => t.match(/^([A-Z][A-Za-z’' -]{1,30}): (.+)$/s);
 
 function GuideBody({ g }: { g: ProGuide }) {
   const [st] = useMyState();
   const keep = (x: string) => showFor(st, x) && forStateText(st, x) !== '';
-  const fit = (xs: string[]) => xs.filter(keep).map((x) => forStateText(st, x)).filter(Boolean);
+  const fit = (xs: string[]) => xs.filter(keep).map((x) => oneBar(st, forStateText(st, x))).filter(Boolean);
   // A paragraph cut down to just its opening line (the rest was about other states) would dangle: leave it out.
   const fitPara = (xs: string[]) => xs.map((p) => {
     const kept = forStateText(st, p);
