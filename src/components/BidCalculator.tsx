@@ -432,7 +432,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           </dl>
         )}
         {!r.noBidWorks && !needsValue && !offer && i.financedPct > 0 && i.redemptionMonths > 0 && (
-          <p className="calc-note small">Lenders rarely lend on a property while the owner can still redeem it, so plan to pay the full {w.bid} in cash and carry it until the redemption period ends. The return above is figured on the most cash you’ll have in at once.</p>
+          <p className="calc-note small">Lenders rarely lend on a property while the owner can still redeem it, so plan to pay the full {w.bid} in cash and carry it until the redemption period ends. The calculator still charges loan costs for the whole wait, as a cautious assumption. The return above is figured on the most cash you’ll have in at once.</p>
         )}
         {!r.noBidWorks && !needsValue && r.yearlyReturn !== null && totalMonths(i) > 12 && (
           <p className="calc-note small">This deal ties up your cash for {Math.round(totalMonths(i))} months, so compare the return per year with your other options, not just the profit.</p>

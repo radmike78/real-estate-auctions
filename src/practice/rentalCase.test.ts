@@ -259,6 +259,16 @@ describe('the final packet follows the reserve you chose', () => {
       expect(op.indexOf('earlier generic assumption'), c.state).toBeGreaterThan(op.indexOf('With the roof'));
     }
   });
+
+  it('the final best answer names the monthly gap the packet shows, in every state', () => {
+    for (const c of [caseFor('NV'), TX_CASE, CA_CASE, AZ_CASE, UT_CASE]) {
+      const q = c.stages.flatMap((s) => s.tasks).find((t) => t.kind === 'choice' && t.id === 'good-deal');
+      const best = q && q.kind === 'choice' ? q.choices.find((x) => x.verdict === 'best')!.label : '';
+      expect(c.N.cashFlowWithReplacements, c.state).toBeLessThan(0);
+      expect(best, c.state).toContain(`add about $${-c.N.cashFlowWithReplacements} a month`);
+      expect(best, c.state).not.toMatch(/manager/);
+    }
+  });
 });
 
 describe('the Texas contract teaching (TREC 20-19 paragraph 5, 40-11 paragraph 2, 49-1 option 3)', () => {

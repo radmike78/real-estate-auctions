@@ -375,7 +375,7 @@ const TX: CaseConfig = {
 };
 
 // California: same house and price. Buying resets the property tax to about 1% of the price plus local charges
-// (Proposition 13; this practice uses about 1.15%), so the seller's bill isn't yours. The contract is the C.A.R.
+// (Proposition 13; this practice uses about 1.1%), so the seller's bill isn't yours. The contract is the C.A.R.
 // Residential Purchase Agreement, where you remove contingencies in writing. Deposits: Civil Code 1950.5. Rent cap and
 // just cause: Civil Code 1947.12 and 1946.2.
 const CA: CaseConfig = {
@@ -400,7 +400,7 @@ const CA: CaseConfig = {
       id: 'ca-taxes',
       prompt: 'The listing shows $2,050 in property taxes last year. What do you budget?',
       choices: [
-        { label: `About ${usd(3_220)} a year (${usd(n.tax)} a month): about 1.15% of what you pay.`, verdict: 'best', why: 'In California, a sale resets the taxable value to the price you pay (Proposition 13). The seller’s bill was based on the value set when they bought in 2009, raised only a little each year, and on the homeowners’ exemption, which goes only to an owner who lives there. The county also sends a separate “supplemental” bill for the rest of the tax year; it comes to you, not your lender, so set money aside for it. This practice uses about 1.15%: in Kern County, voter-approved bonds put the rate at about 1.1% to 1.2%,* and fixed charges such as sewer and refuse are added on top. Check a recent bill for the parcel.' },
+        { label: `About ${usd(3_220)} a year (${usd(n.tax)} a month): about 1.1% of what you pay.`, verdict: 'best', why: 'In California, a sale resets the taxable value to the price you pay (Proposition 13). The seller’s bill was based on the value set when they bought in 2009, raised only a little each year, and on the homeowners’ exemption, which goes only to an owner who lives there. The county also sends a separate “supplemental” bill for the rest of the tax year; it comes to you, not your lender, so set money aside for it. This practice uses about 1.1%: in Kern County, voter-approved bonds put the rate at about 1.1% to 1.2%,* and fixed charges such as sewer and refuse are added on top. Check a recent bill for the parcel.' },
         { label: '$2,050: that’s what the listing says.', verdict: 'poor', why: 'That bill is on the seller’s old value. In California yours starts from your price, and the gap comes out of your cash flow every month.' },
         { label: 'Ask the county assessor’s and tax collector’s offices for the rate and any special assessments, and budget from those.', verdict: 'ok', why: 'The right check before you offer. Until you have the numbers, budget about 1% of your price plus local charges, not the seller’s bill.' },
       ],
@@ -1467,7 +1467,7 @@ function buildCase(c: CaseConfig) {
           id: 'good-deal',
           prompt: 'Was this a good purchase?',
           choices: [
-            { label: N.cashFlowWithReplacements > -75 ? 'It fits a long-term plan only: with the roof and water heater budgeted, the rent about covers the costs self-managed, and falls short with a manager. It doesn’t meet a monthly-income goal.' : `It fits a long-term plan only if you can add about ${$(-N.cashFlowWithReplacements)} a month: with the roof and water heater budgeted, the rent falls short even self-managed. It doesn’t meet a monthly-income goal.`, verdict: 'best', why: 'An honest answer. Appreciation and rent increases might help later, but they aren’t guaranteed, so they can’t close today’s budget gap.' },
+            { label: `It fits a long-term plan only if you can add about ${$(-N.cashFlowWithReplacements)} a month: with the roof and water heater budgeted, the rent falls short even self-managed. It doesn’t meet a monthly-income goal.`, verdict: 'best', why: 'An honest answer. Appreciation and rent increases might help later, but they aren’t guaranteed, so they can’t close today’s budget gap.' },
             { label: `Yes, it makes ${$(N.cashFlow)} a month, so it’s a great investment.`, verdict: 'poor', why: `That’s before any big repair or a vacant month. One $1,600 water heater takes ${N.cashFlow * 12 < 1_600 ? 'more than' : 'most of'} a year’s profit.` },
             { label: 'No. Any rental that doesn’t make $500 a month is a bad deal.', verdict: 'ok', why: 'A fine rule if your goal is income. This plan’s goal was long-term growth with rent covering costs.' },
           ],

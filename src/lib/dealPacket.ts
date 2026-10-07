@@ -4,7 +4,7 @@
 // why, the deal's key dates, your questions to professionals and their answers, your earnest money, and the reason
 // for your decision with any conditions still open. Kept only in this browser, like the rest.
 import { kindLabel, SALE_KINDS, type Deal } from './analyze';
-import { maxSafeBid, offerInputs, sanitizeInputs, BLANK_INPUTS, type BidInputs } from './bidCalc';
+import { maxSafeBid, offerInputs, sanitizeInputs, stressTests, BLANK_INPUTS, type BidInputs } from './bidCalc';
 import { cleanBuyBox, EMPTY_BUY_BOX, type BuyBox } from './toolkit';
 import { EVIDENCE_AREAS, GATES, loadLog } from './evidence';
 import { commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, type CommercialInputs, type RentInputs } from './holdCalc';
@@ -136,8 +136,8 @@ export const STRATEGY_LABEL: Record<Deal['plan'], string> = { rent: 'Keep and re
 export function savedNumbers(d: Deal) {
   const offer = isOffer(d);
   let rent: { price: number; monthly: number; cashIn: number; allIn: number; refi: boolean; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
-  let bid: { maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number; none: boolean } | null = null;
-  let commercial: { maxBid: number; noi: number; capPct: number; cashLeft: number; allIn: number; refi: boolean } | null = null;
+  let bid: { maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number; none: boolean; stress: { label: string; maxBid: number }[] } | null = null;
+  let commercial: { maxBid: number; noi: number; capPct: number; cashLeft: number; allIn: number; refi: boolean; stress: { label: string; maxBid: number | null }[] } | null = null;
   if (d.plan === 'rent') {
     const rentRaw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
     if (rentRaw) {
@@ -154,7 +154,7 @@ export function savedNumbers(d: Deal) {
       const i = offer ? offerInputs(saved) : saved;
       if (i.exitValue > 0) {
         const r = maxSafeBid(i);
-        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks };
+        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, stress: stressTests(i) };
       }
     }
   } else if (d.plan === 'commercial') {
@@ -163,7 +163,12 @@ export function savedNumbers(d: Deal) {
       const v = sanitizeNumbers(raw, COMMERCIAL_DEFAULTS) as CommercialInputs;
       if (v.monthlyRent > 0) {
         const r = commercialMaxBid(v, offer);
-        if (!r.noBidWorks && Number.isFinite(r.maxBid)) commercial = { maxBid: r.maxBid, noi: r.noi, capPct: v.targetCapPct, cashLeft: r.cashLeft, allIn: r.allIn, refi: !offer && r.debtService > 0 };
+        if (!r.noBidWorks && Number.isFinite(r.maxBid)) {
+          // The downside: the same deal with rent 10% lower (null: no price meets the target then).
+          const low = commercialMaxBid({ ...v, monthlyRent: v.monthlyRent * 0.9 }, offer);
+          const stress = [{ label: 'Rent 10% lower', maxBid: low.noBidWorks || !Number.isFinite(low.maxBid) ? null : low.maxBid }];
+          commercial = { maxBid: r.maxBid, noi: r.noi, capPct: v.targetCapPct, cashLeft: r.cashLeft, allIn: r.allIn, refi: !offer && r.debtService > 0, stress };
+        }
       }
     }
   }
@@ -276,10 +281,18 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     nums.push(`${offer ? 'Your offer' : 'Your bid'} (your actual price): ${money(rent.price)} → monthly cash flow ${money(rent.monthly)}; ${rent.cashOnCash === null ? 'all your cash back' : `${(rent.cashOnCash * 100).toFixed(1)}% a year on your cash`} (target ${rent.target}%)`);
     for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase()}: ${money(s.monthly)} a month`);
   }
-  if (bid) nums.push(bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and your profit target` : `Walk-away price: ${money(bid.maxBid)}, the most you could pay and still meet your goal (not your actual price), based on a ${money(bid.exitValue)} resale value`);
-  if (commercial) nums.push(`Highest price for a ${commercial.capPct}% return on cost: ${money(commercial.maxBid)}, on ${money(commercial.noi)} a year of net operating income`);
+  if (bid) {
+    nums.push(bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and your profit target` : `Walk-away price: ${money(bid.maxBid)}, the most you could pay and still meet your goal (not your actual price), based on a ${money(bid.exitValue)} resale value`);
+    for (const s of bid.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid > 0 ? `walk-away price ${money(s.maxBid)}` : 'no price works'}`);
+  }
+  if (commercial) {
+    nums.push(`Highest price for a ${commercial.capPct}% return on cost: ${money(commercial.maxBid)}, on ${money(commercial.noi)} a year of net operating income`);
+    for (const s of commercial.stress) nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid !== null && s.maxBid > 0 ? `highest price ${money(s.maxBid)}` : 'no price works'}`);
+  }
   if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');
-  out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: (rent && rent.stress.length > 1) || bid || commercial ? 'done' : 'missing', lines: nums, fix: { label: 'Open in Analyze', href: '#/analyze' } });
+  // Done only once there's a downside to look at, not just the base case.
+  const downside = (rent && rent.stress.length > 1) || (bid && bid.stress.length > 1) || (commercial && commercial.stress.length > 0);
+  out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: downside ? 'done' : hasNums ? 'started' : 'missing', lines: nums, fix: { label: 'Open in Analyze', href: '#/analyze' } });
 
   // 6. Evidence
   const checked = EVIDENCE_AREAS.filter((a) => log.rows[a.key]?.done);

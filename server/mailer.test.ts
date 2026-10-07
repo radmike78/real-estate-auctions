@@ -96,15 +96,25 @@ describe('Resend mailer', () => {
 describe('Resend mailer ordering', () => {
   it('sends email someone is waiting for ahead of bulk email already queued', async () => {
     const order: string[] = [];
+    const jobs: Promise<void>[] = [];
+    let allQueued!: () => void;
+    const queued = new Promise<void>((r) => (allQueued = r));
+    // The sign-in link is asked for while the first bulk email is being sent and the other two are already queued.
+    // Queuing it from inside that request (not after a timer) keeps the test independent of how busy the machine is.
     const f = (async (_u: string, init: RequestInit) => {
-      order.push(JSON.parse(String(init.body)).subject);
+      const subject = JSON.parse(String(init.body)).subject;
+      order.push(subject);
+      if (subject === 'report 1') {
+        await queued;
+        jobs.push(m.send({ to: 'b@example.com', subject: 'sign-in link', text: 'x' }));
+      }
       return new Response('{"id":"x"}', { status: 200 });
     }) as unknown as typeof fetch;
     const m = resendMailer({ apiKey: 're_x', from: 'no-reply@fsf.example', minIntervalMs: 20, retryDelayMs: 0, fetch: f });
-    const jobs = [1, 2, 3].map((i) => m.send({ to: 'a@example.com', subject: `report ${i}`, text: 'x', bulk: true }));
-    await new Promise((r) => setTimeout(r, 5));
-    jobs.push(m.send({ to: 'b@example.com', subject: 'sign-in link', text: 'x' }));
-    await Promise.all(jobs);
+    jobs.push(...[1, 2, 3].map((i) => m.send({ to: 'a@example.com', subject: `report ${i}`, text: 'x', bulk: true })));
+    allQueued();
+    // Wait for every send, including the one queued during the first request.
+    while ((await Promise.all(jobs)).length < 4);
     expect(order).toEqual(['report 1', 'sign-in link', 'report 2', 'report 3']);
   });
 

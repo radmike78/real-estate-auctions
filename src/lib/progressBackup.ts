@@ -49,6 +49,7 @@ const EXACT = [
   'fsf.calc.sellerfinance.v1',
   'fsf.calc.strategy.v1',
   'fsf.bid.mode.v1',
+  'fsf.preforeclosure.watch.v1',
 ];
 // Calculator keys also have a `.region` sibling (the county defaults the inputs were last set for), kept with them.
 const PATTERN = /^fsf\.(dd|bid|income|checklist|calc\.rent|calc\.commercial)\.[A-Za-z0-9_-]{1,64}\.v1$|^fsf\.calc\.(rent|commercial)\.[A-Za-z0-9_-]{1,64}\.v1\.region$|^fsf\.calc\.(rent|commercial)\.v1\.region$/;
@@ -70,6 +71,8 @@ const CLEAN: Record<string, (v: unknown) => unknown> = {
   'deedowl.case.az.v1': cleanCase,
   'deedowl.case.ut.v1': cleanCase,
   [DEAL_STEPS_KEY]: cleanDealSteps,
+  // Pre-foreclosure watchlist: { listing id: stage last seen }, strings only.
+  'fsf.preforeclosure.watch.v1': (v) => Object.fromEntries(Object.entries(v && typeof v === 'object' && !Array.isArray(v) ? v : {}).filter(([, x]) => typeof x === 'string').slice(0, 500).map(([k, x]) => [k.slice(0, 80), (x as string).slice(0, 40)])),
   'deedowl.dealPacket.v1': (v) => Object.fromEntries(Object.entries(v && typeof v === 'object' && !Array.isArray(v) ? v : {}).slice(0, 100).map(([k, x]) => [k.slice(0, 40), cleanPacket(x)])),
 };
 

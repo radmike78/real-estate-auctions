@@ -94,7 +94,7 @@ function buyGroup<T extends BuyInputs>(repairsLabel = 'Repairs'): CalcGroup<T> {
   return {
     title: 'Buying it',
     fields: [
-      { k: 'cashAvailable', label: 'Cash you can bring', unit: '$', hint: 'For auction day. Leave 0 for no limit.' },
+      { k: 'cashAvailable', label: 'Cash you can bring', unit: '$', hint: 'All the cash you can put in: the bid and every cost until it’s ready to rent. Leave 0 for no limit.' },
       { k: 'buyerPremiumPct', label: "Buyer's premium", unit: '%', hint: 'Auction fee on top of your bid, if any.' },
       { k: 'transferTaxPer500', label: 'Transfer tax', unit: '$/500', hint: 'Clark County: $2.55 per $500.' },
       { k: 'survivingLiens', label: 'Liens that stay with the property', unit: '$', hint: 'Confirm with a title search.' },
@@ -153,8 +153,8 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false, exampl
       <ExampleResults count={examples} all={allExample} />
       <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
         <span>{title}</span>
-        <strong>{r.noBidWorks ? (offer ? 'No offer works' : 'No bid works') : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'}</strong>
-        <small>{r.noBidWorks ? (r.loanTooBig ? 'The refinance you entered costs more a year than the property earns, so no price works with that loan. Try a smaller loan, or run it all cash.' : 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.') : !Number.isFinite(r.maxBid) ? 'Enter the return you want, or the cash you can bring, to get a walk-away price.' : r.limitedBy === 'cash' ? (offer ? 'Set by the cash you can put in: the down payment, closing costs and repairs.' : 'Set by the cash you can bring: the bid and every cost until it’s ready to rent.') : r.limitedBy === 'dscr' ? 'Set by the lender’s minimum coverage (income ÷ loan payment), not your return target: above this price the loan is too big for the income.' : target}</small>
+        <strong>{r.noBidWorks ? (offer ? 'No offer works' : 'No bid works') : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : r.overCap ? 'More than $1 billion' : 'No limit yet'}</strong>
+        <small>{r.noBidWorks ? (r.loanTooBig ? 'The refinance you entered costs more a year than the property earns, so no price works with that loan. Try a smaller loan, or run it all cash.' : 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.') : !Number.isFinite(r.maxBid) && r.overCap ? 'Check the rent and costs you entered: a price that high is almost always a typo.' : !Number.isFinite(r.maxBid) ? 'Enter the return you want, or the cash you can bring, to get a walk-away price.' : r.limitedBy === 'cash' ? (offer ? 'Set by the cash you can put in: the down payment, closing costs and repairs.' : 'Set by the cash you can bring: the bid and every cost until it’s ready to rent.') : r.limitedBy === 'dscr' ? 'Set by the lender’s minimum coverage (income ÷ loan payment), not your return target: above this price the loan is too big for the income.' : target}</small>
       </div>
       {!offer && r.debtService > 0 && !r.noBidWorks && Number.isFinite(r.maxBid) && (
         <p className="calc-note small warn">
@@ -372,11 +372,13 @@ function StrComparison({ v }: { v: RentInputs }) {
 }
 
 /** For longer holds: keep it some years, then sell. The yearly return on your cash (IRR) and the equity multiple. */
-function HoldAndSell({ v, onPrice }: { v: RentInputs; onPrice: boolean }) {
+function HoldAndSell({ v, onPrice, target = 0 }: { v: RentInputs; onPrice: boolean; /** The target (walk-away) price, used only when there's no price and no value. */ target?: number }) {
   const [h, setH] = useState<HoldSellInputs>(HOLD_SELL_DEFAULTS);
   // The price you'd actually pay; without one, the property's value (not the walk-away price, which would count buying
-  // below value as a gain you haven't made).
-  const at = v.atPrice > 0 ? v.atPrice : v.value;
+  // below value as a gain you haven't made). With neither, the target price; with none of them, no result.
+  const tgt = Number.isFinite(target) && target > 0 ? Math.round(target) : 0;
+  const at = v.atPrice > 0 ? v.atPrice : v.value > 0 ? v.value : tgt;
+  const atWhat = v.atPrice > 0 ? 'your price' : v.value > 0 ? 'the property’s value' : 'the target price';
   const r = holdAndSell(v, at, h, onPrice);
   const field = (k: keyof HoldSellInputs, label: string, unit: string) => (
     <label className="field">
@@ -387,9 +389,11 @@ function HoldAndSell({ v, onPrice }: { v: RentInputs; onPrice: boolean }) {
   return (
     <details className="deal-lab hold-sell">
       <summary><h4>If you keep it and sell later</h4></summary>
-      <p className="small muted">At {v.atPrice > 0 ? 'your price' : 'the property’s value'}, {fmtMoney(at)}. Rent and costs grow together; the loan payment stays the same. Before income tax: depreciation you took is taxed when you sell (see <a href="#/learn/taxes">Taxes from purchase to sale</a>).</p>
+      <p className="small muted">{at > 0 && <>At {atWhat}, {fmtMoney(at)}. </>}Rent and costs grow together; the loan payment stays the same. Before income tax: depreciation you took is taxed when you sell (see <a href="#/learn/taxes">Taxes from purchase to sale</a>).</p>
       <div className="row">{field('years', 'Years you keep it', 'years')}{field('appreciationPct', 'Value growth a year', '%')}{field('rentGrowthPct', 'Rent growth a year', '%')}{field('sellingCostPct', 'Selling costs', '% of price')}</div>
-      {r.cashIn > 0 ? (
+      {!r ? (
+        <p>Enter your price or the appraised value to see a hold-and-sell result.</p>
+      ) : r.cashIn > 0 ? (
         <dl className="calc-kv">
           <div><dt>Your cash in</dt><dd>{fmtMoney(Math.round(r.cashIn))}</dd></div>
           <div><dt>Cash flow over {r.years} {r.years === 1 ? 'year' : 'years'}</dt><dd>{fmtMoney(Math.round(r.flows.reduce((a, b) => a + b, 0)))}</dd></div>
@@ -472,7 +476,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} />
         <CashCushion v={v} price={at.price} at={at.label} onPrice={offer} />
         <RentDealLab v={v} at={at} onPrice={offer} />
-        <HoldAndSell v={v} onPrice={offer} />
+        <HoldAndSell v={v} onPrice={offer} target={r.maxBid} />
         <LenderView v={v} at={at} onPrice={offer} />
         <StrComparison v={v} />
       </div>
