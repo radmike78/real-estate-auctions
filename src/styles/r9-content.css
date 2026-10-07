@@ -242,3 +242,9 @@
   .drill-group, .drill-next .drill-group, .drill-group-block .drill-group, .progress-kinds-head { font-size: 1.5rem; padding: 12px 16px; }
   .drill-next, .drill-group-block { margin-bottom: 48px; }
 }
+
+/* Toolkit cash fields: labels that wrap to two lines don't push their input lower than the ones beside it. */
+@media (min-width: 701px) {
+  .cash-fields > .field { display: grid; grid-row: span 3; grid-template-rows: subgrid; row-gap: 6px; align-content: start; }
+  .cash-fields > .field > span:first-child { align-self: end; }
+}

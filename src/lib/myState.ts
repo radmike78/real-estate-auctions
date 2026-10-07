@@ -70,14 +70,19 @@ const NAME_OF: Record<StateCode, string> = { NV: 'Nevada', CA: 'California', AZ:
 /**
  * Once the reader has picked a state, "In California, the county…" says the state twice: drops that lead-in ("In
  * California, ", "For California, ", "California: ") from each sentence about the chosen state, capitalizing what follows.
- * Lead-ins naming other states, or more than one state, are kept.
+ * A lead-in listing several states that include the chosen one ("In California, Nevada and Utah, ") is dropped whole,
+ * since the sentence holds for the reader's state. Lead-ins naming only other states are kept.
  */
 export function dropStateLead(text: string, state: StateCode | null): string {
   if (!state) return text;
   const name = NAME_OF[state];
   // Not when another state follows ("In California, Nevada and Utah, …"): that sentence covers several states.
   const lead = new RegExp(`(^|[.!?]\\*?\\s+)(?:(?:In|For) ${name},|${name}:)\\s+(?!(?:Nevada|California|Arizona|Utah|Texas)(?:,|\\s+and\\b|\\s+or\\b))(\\S)`, 'g');
-  return text.replace(lead, (_m, before: string, first: string) => before + first.toUpperCase());
+  const S = '(?:Nevada|California|Arizona|Utah|Texas)';
+  const list = new RegExp(`(^|[.!?]\\*?\\s+)(?:In|For) (${S}(?:, ${S})*,? (?:and|or) ${S}),\\s+(?!${S}(?:,|\\s+and\\b|\\s+or\\b))(\\S)`, 'g');
+  return text
+    .replace(lead, (_m, before: string, first: string) => before + first.toUpperCase())
+    .replace(list, (m, before: string, states: string, first: string) => (states.includes(name) ? before + first.toUpperCase() : m));
 }
 
 // After a sentence about another state, the sentences that follow belong to it too ("In Texas, the notice of sale is

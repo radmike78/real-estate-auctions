@@ -21,7 +21,7 @@ export const PRO_SCRIPTS: Record<ProKey, ProScript> = {
   },
   lender: {
     say: '“I’m buying a [one-unit home] I [will / won’t] live in, around [$price], in [county]. What down payment, rate and reserves would you need? Could you give me a written quote and a pre-approval? What could still stop the loan after I’m approved?”',
-    bring: ['Photo ID', 'Recent pay stubs (usually the last month)', 'W-2s or tax returns (often two years)', 'Bank statements (often the last two months)', 'For a rental you already own: leases and the property’s tax returns'],
+    bring: ['Photo ID', 'Recent pay stubs (usually the last month)', 'W-2s or tax returns (often two years)', 'Bank statements (often the last two months)', 'For a rental you already own: the leases, and the Schedule E from your tax returns'],
     read: { title: 'How to compare quotes', items: ['Compare the same loan amount and type from each lender.', 'Look at the rate, the points and the lender fees together, not the rate alone.', 'On most home loans you’ll live in, you get a Loan Estimate: compare page 2 (closing costs) side by side.', 'Ask what conditions are still open on the pre-approval.'] },
     get: ['A Loan Estimate (most home loans you’ll live in) or written terms: rate, points, fees, term, balloon date and prepayment penalty', 'A pre-approval letter, and the list of conditions still open on it'],
   },
