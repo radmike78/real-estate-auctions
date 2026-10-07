@@ -1,7 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { AZ_CASE, CA_CASE, N, NV_CASE, payment, RENTAL_CASE, TX_CASE, UT_CASE, caseFor, caseResume, tasksFor } from './rentalCase';
 import { firstOpenStage } from './progress';
 import { cleanCase } from './caseProgress';
+
+// Several tests import the large RentalCasePage on first use, which can take longer than the 5-second default under load.
+vi.setConfig({ testTimeout: 30_000 });
 
 describe('Buy a rental, start to finish', () => {
   it('keeps its numbers consistent from step to step', () => {

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { Deal } from './analyze';
-import { cleanPacket, dealPacketText, EMPTY_PACKET, flipBudget, loadPacket, nextAction, nextDate, packetSections, savePacket, suggestedDates, dateGuide } from './dealPacket';
+import { cleanPacket, dealPacketText, EMPTY_PACKET, flipBudget, flipBudgetLine, loadPacket, nextAction, nextDate, packetSections, savePacket, suggestedDates, dateGuide } from './dealPacket';
 import { saveLog, cleanLog } from './evidence';
 import { stageTasks } from './dealStage';
 import { dealNumbers } from './propertyPacket';
@@ -200,7 +200,7 @@ describe('the deal packet', () => {
     const flip: Deal = { ...deal, kind: 'trustee', plan: 'flip' };
     expect(flipBudget(flip)).toBeNull();
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ exitValue: 250000, repairs: 20000, contingencyPct: 15, holdingMonths: 4, monthlyCarry: 500 }));
-    expect(flipBudget(flip)).toEqual({ repairs: 23000, monthly: 500, months: 4, holding: 2000, financing: 0, price: 0, total: 25000 });
+    expect(flipBudget(flip)).toEqual({ repairs: 23000, monthly: 500, months: 4, holding: 2000, financing: 0, price: 0, source: null, total: 25000 });
     expect(flipBudget({ ...flip, plan: 'rent' })).toBeNull();
     const closed = (b: boolean) => stageTasks(flip, 'closed', EMPTY_PACKET, now).find((t) => t.key === 'owned')!.produces.includes(b ? 'against the budget in your Fix and sell numbers' : 'compare yourself');
     expect(closed(true)).toBe(true);
@@ -305,6 +305,76 @@ describe('the deal packet', () => {
       const cash = packetSections(auction, EMPTY_PACKET, now).find((s) => s.key === 'cash')!.lines.join('\n');
       expect(cash).toMatch(/On sale day, at the opening bid of \$150,000: \$150,000/);
       expect(cash).toMatch(/What-if, at your walk-away price of \$208,000 .*: \$208,000 on sale day/);
+    });
+
+    it('names the price when it compares the cash with your investable cash', () => {
+      const cash = (savings: number) => {
+        localStorage.setItem('deedowl.cash.v1', JSON.stringify({ savings }));
+        return section('cash');
+      };
+      save({ ...base, proposedPrice: 190000 });
+      // $213,000 at your offer, against $136,000 of investable cash.
+      let c = cash(136000);
+      expect(c).toMatch(/At your offer of \$190,000, that’s \$77,000 more than your investable cash: the deal doesn’t fit as entered\./);
+      // It comes after the what-if at the walk-away price, so it has to say which price it means.
+      expect(c.indexOf('What-if')).toBeLessThan(c.indexOf('At your offer of $190,000, that’s'));
+      c = cash(250000);
+      expect(c).toMatch(/At your offer of \$190,000, that leaves \$37,000 of your investable cash for surprises\./);
+      save(base);
+      expect(cash(200000)).toMatch(/At the asking price of \$200,000, that’s \$23,000 more than your investable cash/);
+      // With a loan, the draw note comes last before it; the price is still named.
+      save({ ...base, financedPct: 80, proposedPrice: 190000 });
+      expect(cash(1000)).toMatch(/through draws after work is done[^\n]*\nAt your offer of \$190,000, that’s/);
+    });
+  });
+
+  it('says a TREC 49-1 waiver (box 1, or box 2 at or above its amount) takes away a low appraisal as a Property Approval reason', () => {
+    for (const kind of ['listing', 'reo', 'short'] as const) {
+      const g = dateGuide({ kind, state: 'TX' }).find((x) => /^Property Approval deadline/.test(x.what))!;
+      expect(g.todo).toMatch(/appraisal, insurability or required repairs/);
+      expect(g.todo).toMatch(/appraisal addendum \(TREC 49-1\) has box 1 checked, or box 2 and the appraisal is at or above the amount written there, a low appraisal alone isn’t a reason you can use\./);
+      expect(g.why).toMatch(/TREC 49-1, boxes 1 and 2/);
+    }
+  });
+
+  it('words the commercial cash limit as the calculator does: “put in” for a listed property, “bring” at an auction', () => {
+    const offer: Deal = { ...deal, plan: 'commercial' };
+    localStorage.setItem('fsf.calc.commercial.d1-offer.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 9, cashAvailable: 100000, loanPct: 0 }));
+    const t = packetSections(offer, EMPTY_PACKET, now).find((s) => s.key === 'numbers')!.lines.join('\n');
+    expect(t).toMatch(/Walk-away price, set by the cash you can put in: \$[\d,]+/);
+    expect(t).toMatch(/If rent 10% lower: still \$[\d,]+, set by the cash you can put in/);
+    expect(t).not.toMatch(/cash you can bring/);
+  });
+
+  describe('the flip budget line for the owned tracker names the price its loan cost is figured at', () => {
+    const flip: Deal = { ...deal, kind: 'trustee', plan: 'flip' };
+    const base = { exitValue: 300000, repairs: 40000, contingencyPct: 10, holdingMonths: 6, monthlyCarry: 500, financedPct: 70, interestRatePct: 11, pointsPct: 2 };
+    const save = (v: object) => localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify(v));
+
+    it('with no price saved, says the loan cost covers the repairs only', () => {
+      save(base);
+      const b = flipBudget(flip)!;
+      expect(b.price).toBe(0);
+      expect(b.source).toBeNull();
+      expect(b.financing).toBeGreaterThan(0);
+      const line = flipBudgetLine(flip)!;
+      expect(line).toMatch(/loan interest and points on the repairs only \(about \$[\d,]+\); enter your price in Fix and sell to include the purchase loan/);
+      expect(line).not.toMatch(/ at (a|the|your) \$/);
+    });
+
+    it('names the opening bid, the asking price or your own price', () => {
+      save({ ...base, minimumBid: 150000 });
+      expect(flipBudgetLine(flip)).toMatch(/loan interest and points about \$[\d,]+ at the \$150,000 opening bid: \$[\d,]+ in all\./);
+      expect(flipBudgetLine({ ...flip, kind: 'listing' })).toMatch(/at the \$150,000 asking price:/);
+      save({ ...base, minimumBid: 150000, proposedPrice: 140000 });
+      expect(flipBudgetLine(flip)).toMatch(/at your \$140,000 bid:/);
+      expect(flipBudgetLine({ ...flip, kind: 'listing' })).toMatch(/at your \$140,000 offer:/);
+      expect(flipBudgetLine(flip)).not.toMatch(/a \$140,000 price|NaN|undefined/);
+    });
+
+    it('leaves out the loan cost when there is no loan', () => {
+      save({ exitValue: 250000, repairs: 20000, contingencyPct: 15, holdingMonths: 4, monthlyCarry: 500 });
+      expect(flipBudgetLine(flip)).toBe('Your budget: repairs with contingency $23,000, holding $500 a month for 4 months (about $2,000): $25,000 in all.');
     });
   });
 });

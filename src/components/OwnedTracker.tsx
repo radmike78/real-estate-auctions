@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Deal } from '../lib/analyze';
-import { flipBudget, savedNumbers } from '../lib/dealPacket';
+import { flipBudget, flipBudgetLine, savedNumbers } from '../lib/dealPacket';
 import { loadOwned, OWNED_EVENT, ownedSummary, saveOwned, type Owned } from '../lib/owned';
 import { fmtMoney } from '../lib/status';
 import { setDealStage, stageOf } from '../lib/dealStage';
@@ -47,9 +47,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   const projected = projectedMonthly(deal);
   const flip = deal.plan === 'flip';
   const budget = flipBudget(deal);
-  const budgetLine = budget
-    ? `Your budget: repairs with contingency ${fmtMoney(Math.round(budget.repairs))}, holding ${fmtMoney(Math.round(budget.monthly))} a month for ${budget.months} ${budget.months === 1 ? 'month' : 'months'} (about ${fmtMoney(Math.round(budget.holding))})${budget.financing > 0 ? `, loan interest and points about ${fmtMoney(Math.round(budget.financing))}${budget.price > 0 ? ` at a ${fmtMoney(Math.round(budget.price))} price` : ''}` : ''}: ${fmtMoney(Math.round(budget.total))} in all.`
-    : null;
+  const budgetLine = flipBudgetLine(deal);
   const put = (next: Owned | null) => {
     const copy = { ...all };
     if (next) copy[deal.id] = next;
@@ -59,7 +57,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   if (!o) {
     return (
       <div>
-        <p>{flip ? (budget ? `Did you buy it? Mark it as yours to record what you pay each month for repairs and holding, against your budget from Fix and sell. ${budgetLine}` : 'Did you buy it? Mark it as yours to record what you pay each month for repairs and holding, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).') : 'Did you buy it? Mark it as yours to track the real rent and costs each month against the cash flow you planned.'}</p>
+        <p>{flip ? (budgetLine ? `Did you buy it? Mark it as yours to record what you pay each month for repairs and holding, against your budget from Fix and sell. ${budgetLine}` : 'Did you buy it? Mark it as yours to record what you pay each month for repairs and holding, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).') : 'Did you buy it? Mark it as yours to track the real rent and costs each month against the cash flow you planned.'}</p>
         <button type="button" className="btn btn-secondary" onClick={() => { put({ boughtOn: today(), months: [] }); if (!['closed', 'owned'].includes(stageOf(deal))) setDealStage(deal.id, 'closed'); }}>I bought this property</button>
       </div>
     );
