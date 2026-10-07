@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "4816f48cf9a52055",
+    "hash": "5414dc7ca53de49f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -158,7 +158,7 @@
       "src/components/StrategyTabs.tsx",
       "src/lib/holdCalc.ts"
     ],
-    "reviewed": "2026-10-06",
+    "reviewed": "2026-10-07",
     "hash": "35d6707e9b9e692d",
     "note": "Full content review (review round of 2026-09-27)."
   },
@@ -172,8 +172,8 @@
       "src/lib/dealPacket.ts",
       "src/lib/evidence.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "2d1bd5bbee256304",
+    "reviewed": "2026-10-07",
+    "hash": "d2793399628f8bb7",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -203,7 +203,7 @@
       "src/components/TeamBuilder.tsx",
       "src/lib/teamBuilder.ts"
     ],
-    "reviewed": "2026-10-06",
+    "reviewed": "2026-10-07",
     "hash": "6fda43a4e6e602ac",
     "note": "Full content review (review round of 2026-09-27)."
   },
@@ -281,7 +281,7 @@
       "src/components/Disclaimer.tsx",
       "src/components/RoleNotice.tsx"
     ],
-    "reviewed": "2026-10-06",
+    "reviewed": "2026-10-07",
     "hash": "5ee433860224992c",
     "note": "Full content review (review round of 2026-09-27)."
   },
@@ -355,7 +355,7 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "ecfd516ec8a0dc2e",
+    "hash": "04286c93526d51fd",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -404,7 +404,7 @@
       "src/lib/roadmap.ts",
       "src/lib/progressBackup.ts"
     ],
-    "reviewed": "2026-10-06",
+    "reviewed": "2026-10-07",
     "hash": "b5d326ea9de5844b",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
