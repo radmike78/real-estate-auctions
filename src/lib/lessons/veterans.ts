@@ -53,7 +53,7 @@ export const veterans: Lesson = {
       blocks: [
         'The Servicemembers Civil Relief Act (SCRA) protects people on active duty. It matters whether you’re the service member or the investor on the other side.',
         { list: [
-          'Interest cap: debts taken out before active duty, including mortgages, are capped at 6% interest. For a mortgage, the cap lasts through service and 1 year after (50 U.S.C. 3937).',
+          'Interest cap: debts taken out before active duty, including mortgages, are capped at 6% interest. For a mortgage, the cap lasts through service and 1 year after. It isn’t automatic: the service member asks the lender in writing, with a copy of the orders, within 180 days after service ends (50 U.S.C. 3937).',
           'Auction buyers: if the owner took out the mortgage before their military service, a sale or foreclosure for missed payments during service, or within 1 year after, isn’t valid without a court order (50 U.S.C. 3953). The Department of Justice says this covers non-judicial foreclosures too. Trustees and lenders check military status in the Defense Department’s SCRA database. Ask your title company whether the sale complied before you bid.',
           'Landlords: a tenant who enters military service, or who gets orders for a permanent move or a deployment of 90 days or more, can end the lease early with no fee. With monthly rent, the lease ends 30 days after the next rent due date following the notice (50 U.S.C. 3955).',
           'Landlords: you can’t evict a service member or their dependents during military service without a court order. This covers homes renting below a ceiling that’s updated each year: $10,542.60 a month in 2026 (50 U.S.C. 3951).',

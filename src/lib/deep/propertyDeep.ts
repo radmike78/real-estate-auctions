@@ -62,7 +62,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         }
       },
       {
-        text: "Typical flip returns fell from 35.7% in 2021 to 25.5% in 2025, the lowest since 2008 (ATTOM).",
+        text: "Typical flip returns fell to 25.5% in 2025, down from 32.1% in 2024, the lowest since 2008 (ATTOM).",
         source: {
           label: "ATTOM: 2025 Year-End U.S. Home Flipping Report",
           url: "https://www.attomdata.com/news/market-trends/flipping/2025-year-end-home-flipping-report/"

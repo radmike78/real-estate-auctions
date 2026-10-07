@@ -53,10 +53,10 @@ export const tools: Lesson = {
       blocks: [
         { links: [
           { label: 'HUD Fair Market Rents', url: 'https://www.huduser.gov/portal/datasets/fmr.html', what: 'HUD’s yearly rent estimates by area and bedroom count: a check on what a rental might bring. Small Area FMRs go down to ZIP codes.' },
-          { label: 'Census QuickFacts', url: 'https://www.census.gov/programs-surveys/sis/resources/data-tools/quickfacts.html', what: 'Population, income, housing and business figures for states, counties, and cities over 5,000 people.' },
+          { label: 'Census QuickFacts', url: 'https://www.census.gov/quickfacts/', what: 'Population, income, housing and business figures for states, counties, and cities over 5,000 people.' },
           { label: 'Census Geocoder', url: 'https://geocoding.geo.census.gov/geocoder/', what: 'Finds the census tract and area for an address, so you can look up its data.' },
           { label: 'FEMA Flood Map Service Center', url: 'https://msc.fema.gov/portal/home', what: 'The official flood maps. Search by address.' },
-          { label: 'FEMA National Risk Index', url: 'https://www.fema.gov/emergency-managers/practitioners/resilience-analysis-and-planning-tool', what: 'Community risk for 18 natural hazards, such as wildfire, earthquake and heat.' },
+          { label: 'FEMA RAPT (National Risk Index data)', url: 'https://www.fema.gov/emergency-managers/practitioners/resilience-analysis-and-planning-tool', what: 'Community risk for 18 natural hazards, such as wildfire, earthquake and heat.' },
           { label: 'EPA Envirofacts', url: 'https://www.epa.gov/enviro/envirofacts-overview', what: 'EPA records on nearby waste, water, air and toxics sites. Search by address or ZIP code.' },
         ] },
       ],
@@ -120,7 +120,7 @@ export const tools: Lesson = {
   tryIt: { label: 'Track your research in My deals', href: '#/deals' },
   sources: [
     { label: 'HUD USER: Fair Market Rents', url: 'https://www.huduser.gov/portal/datasets/fmr.html' },
-    { label: 'Census Bureau: QuickFacts', url: 'https://www.census.gov/programs-surveys/sis/resources/data-tools/quickfacts.html' },
+    { label: 'Census Bureau: QuickFacts', url: 'https://www.census.gov/quickfacts/' },
     { label: 'Census Geocoder', url: 'https://geocoding.geo.census.gov/geocoder/' },
     { label: 'FEMA Flood Map Service Center', url: 'https://msc.fema.gov/portal/home' },
     { label: 'FEMA: Resilience Analysis and Planning Tool (National Risk Index)', url: 'https://www.fema.gov/emergency-managers/practitioners/resilience-analysis-and-planning-tool' },

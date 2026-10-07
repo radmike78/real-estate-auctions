@@ -2877,7 +2877,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Watch the foreclosure calendar",
-      detail: "Ask the listing agent whether a trustee’s sale is scheduled, and whether the lender will postpone it. Federal rules limit a foreclosure sale while the lender reviews the owner’s complete application for help (a loss-mitigation application), which can include a short sale. This applies if the lender got the application more than 37 days before the sale (12 CFR 1024.41). An Arizona trustee’s sale is final, so if it goes ahead, your deal ends (A.R.S. 33-811)."
+      detail: "Ask the listing agent whether a trustee’s sale is scheduled, and whether the lender will postpone it. Federal rules limit a foreclosure sale while the lender reviews the owner’s complete application for help (a loss-mitigation application), which can include a short sale. This applies if the lender got the application more than 37 days before the sale, and only when the home is the owner’s principal residence (12 CFR 1024.41, 1024.30(c)(2)). An Arizona trustee’s sale is final, so if it goes ahead, your deal ends (A.R.S. 33-811)."
     },
     {
       title: "Inspect during your inspection period",
