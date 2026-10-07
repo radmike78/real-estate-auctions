@@ -84,7 +84,7 @@ const NONE: RedemptionPreset = { label: 'No redemption', months: 0, ratePct: 0, 
 const IRS: RedemptionPreset = { label: 'IRS seizure sale: 180 days, +20% a year', months: 6, ratePct: 20, daily: 1, flat: 0, flat2Pct: 0 };
 // 26 USC 7425(d): a nonjudicial sale (trustee or HOA) that wipes out a junior federal tax lien leaves the United States
 // 120 days to redeem, paying the price plus 6% a year and certain expenses.
-const US_FEDERAL: RedemptionPreset = { label: 'Federal tax lien was on title: the United States can redeem for 120 days (or the state’s period, if longer), +6% a year', months: 4, ratePct: 6, daily: 0, flat: 0, flat2Pct: 0 };
+const US_FEDERAL: RedemptionPreset = { label: 'The sale wiped out a junior federal tax lien: the United States can redeem for 120 days (or the state’s period, if longer), +6% a year', months: 4, ratePct: 6, daily: 0, flat: 0, flat2Pct: 0 };
 
 /** Redemption rules after each kind of sale in a state, for the calculator's "Kind of sale" menu. */
 export function redemptionPresetsFor(state: StateCode): Record<string, RedemptionPreset> {
@@ -103,7 +103,7 @@ export function redemptionPresetsFor(state: StateCode): Record<string, Redemptio
     return {
       none: NONE,
       // A.R.S. 12-1285: the price plus 8%, a flat amount.
-      azJudicialAbandoned: { label: 'Judicial foreclosure, abandoned: 30 days, +8% of the price', months: 1, ratePct: 8, daily: 0, flat: 1, flat2Pct: 0 },
+      azJudicialAbandoned: { label: 'Judicial foreclosure, judgment found it abandoned (not farm or grazing land): 30 days, +8% of the price', months: 1, ratePct: 8, daily: 0, flat: 1, flat2Pct: 0 },
       azJudicial: { label: 'Judicial foreclosure: 6 months, +8% of the price', months: 6, ratePct: 8, daily: 0, flat: 1, flat2Pct: 0 },
       irs: IRS,
       usFederal: US_FEDERAL,
@@ -160,7 +160,8 @@ export function redemptionChoicesFor(state: StateCode, kind: string): { keys: st
       confirm: 'Whether this is a subdivision HOA (Property Code 209: 180 days after the HOA mails notice of the sale) or a condominium association (82: 90 days after the sale) isn’t confirmed yet. The longer subdivision wait is assumed until you read the recorded declaration: a townhome can be either.',
     };
   if (kind === 'hoa') return { keys: has('hoa') ? ['hoa', 'usFederal'] : ['none', 'usFederal'], start: has('hoa') ? 'hoa' : 'none' };
-  // A trustee sale has no owner redemption in these states, but a junior federal tax lien gives the United States 120 days.
+  // A trustee sale has no owner redemption in these states, but if it wipes out a junior federal tax lien, the United States
+  // can still redeem for 120 days (26 USC 7425(d)). A lien the sale doesn't wipe out simply stays on title (7425(b)).
   if (kind === 'trustee') return { keys: ['none', 'usFederal'], start: 'none' };
   if (kind === 'court') {
     if (state === 'NV') return { keys: ['sheriff'], start: 'sheriff' };

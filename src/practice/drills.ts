@@ -1311,11 +1311,11 @@ export const DRILLS: Drill[] = [
         question: 'The court did not find the property abandoned. How long can the owner redeem?',
         multi: false,
         options: [
-          { label: '6 months, then junior creditors may redeem in turns', good: true, why: 'Right (A.R.S. 12-1282). It’s 30 days only if the court found the property abandoned.' },
-          { label: '30 days', good: false, why: 'That’s only when the court found the property abandoned.' },
+          { label: '6 months, then junior creditors may redeem in turns', good: true, why: 'Right (A.R.S. 12-1282). It’s 30 days only if the judgment found the property both abandoned and not used mainly for farming or grazing. Each junior creditor then gets 5 days in turn.' },
+          { label: '30 days', good: false, why: 'That’s only when the judgment found the property both abandoned and not used mainly for farming or grazing.' },
           { label: 'None: sheriff’s sales are final', good: false, why: 'You get a certificate of sale first, and a sheriff’s deed only after every redemption period ends.' },
         ],
-        lesson: 'Read the judgment in the court case: it says what’s being sold and whether the court found the property abandoned.',
+        lesson: 'Read the judgment in the court case: it says what’s being sold and whether the court found the property both abandoned and not used mainly for farming or grazing.',
       },
       {
         kind: 'pick',
@@ -1536,7 +1536,7 @@ export const DRILLS: Drill[] = [
         question: 'What do you order, and when?',
         multi: false,
         options: [
-          { label: 'A Phase I environmental site assessment (ASTM E1527-21) completed within one year before I take title, with its site visit, interviews and record searches within 180 days', good: true, why: 'Right. That timing is what preserves the federal liability protection for a buyer who investigates first.' },
+          { label: 'A Phase I environmental site assessment (ASTM E1527-21) completed within one year before I take title, with its site visit, interviews and record searches within 180 days', good: true, why: 'Right. That timing is one part of keeping the federal liability protection. You also have to qualify for it and keep meeting ongoing duties after you buy.' },
           { label: 'Skip it: the seller says there’s never been a problem', good: false, why: 'A buyer can be held responsible for contamination they didn’t cause. The report is your protection.' },
           { label: 'Order one after closing', good: false, why: 'Too late to protect you or renegotiate.' },
         ],

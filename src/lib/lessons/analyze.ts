@@ -97,7 +97,7 @@ export const analyze: Lesson = {
             ],
           },
         },
-        'Example: a rental costs $300,000 and rents for $2,400 a month ($28,800 a year). Vacancy is 5% ($1,440), and yearly expenses are $9,000. That makes NOI $18,360, a 6.1% cap rate. Say you set aside $1,400 a year for big replacements, and you borrow $240,000 at 7% for 30 years: about $19,160 a year in loan payments. Then cash flow is about −$2,200 a year. If you put in $80,000 in cash (the down payment, closing costs and repairs), the cash-on-cash return is about −2.8%. A 6.1% cap rate can’t carry a 7% loan: the property loses money until the price drops, the rent rises or you borrow less. The GRM is about 10.4.',
+        'Example: a rental costs $300,000 and rents for $2,400 a month ($28,800 a year). Vacancy is 5% ($1,440), and yearly expenses are $9,000. That makes NOI $18,360, a 6.1% cap rate. Say you set aside $1,400 a year for big replacements, and you borrow $240,000 at 7% for 30 years: about $19,160 a year in loan payments. Then cash flow is NOI − loan payments − reserves: $18,360 − $19,160 − $1,400, about −$2,200 a year. If you put in $80,000 in cash (the down payment, closing costs and repairs), the cash-on-cash return is about −2.8%. It loses money because this loan’s payments plus the reserve are bigger than the NOI, not because of the cap rate alone. Borrow $150,000 on the same terms instead and the payments drop to about $11,975 a year, so cash flow is about +$4,985 a year (about 2.9% on the $170,000 of cash you’d then put in). So always run NOI − loan payments − reserves with your actual loan amount, rate and term, rather than comparing the cap rate with the interest rate. The GRM is about 10.4.',
       ],
     },
     {

@@ -133,7 +133,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     const r: Record<StateCode, string> = {
       NV: 'Nevada: after a sheriff’s execution sale, the owner can redeem for up to 1 year.',
       CA: 'California: after a judicial foreclosure sale, only when the court’s judgment allows the lender to seek a deficiency (the notice of sale says whether the sale is subject to redemption), the owner can redeem for 3 months if the sale paid the debt, or 1 year if it didn’t (CCP 729.010, 729.030).',
-      AZ: 'Arizona: after a judicial foreclosure sale, the owner can redeem for 30 days if the court found it abandoned, otherwise 6 months.',
+      AZ: 'Arizona: after a judicial foreclosure sale, the owner can redeem for 6 months, or 30 days if the judgment found it both abandoned and not used mainly for farming or grazing. Then junior lienholders can redeem in turn, 5 days each (A.R.S. 12-1282).',
       UT: 'Utah: after a sheriff’s sale, the owner can redeem for 180 days.',
       TX: 'Texas: after a sheriff’s or constable’s execution sale, the owner has no right to redeem, but you get only what the debtor owned, so liens ahead of the judgment stay.',
     };

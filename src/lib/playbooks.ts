@@ -166,7 +166,7 @@ const NEVADA: Playbook[] = [
       { label: 'Notice of sale', value: 'Posted for 20 days and published once a week for 3 weeks' },
       { label: 'Mediation', value: 'Owner-occupants can petition the court for foreclosure mediation within 30 days after the notice of default is served. A sale of an owner-occupied home needs a recorded mediation certificate' },
       { label: 'Payment', value: "Usually cashier's checks for the full bid at the sale. Each trustee sets its terms" },
-      { label: 'Redemption', value: 'None for the owner. If a federal tax lien was on the property, the U.S. can redeem within 120 days (26 U.S.C. § 7425)' },
+      { label: 'Redemption', value: 'None for the owner. If the sale wiped out a junior federal tax lien, the U.S. can still redeem within 120 days (26 U.S.C. § 7425)' },
       { label: 'Challenges', value: 'If the trustee didn’t substantially follow the law, a lawsuit filed within 30 days after the trustee’s deed is recorded, with a lis pendens recorded within 5 days, can void the sale. Someone who didn’t get proper notice has 90 days from the sale date (NRS 107.080)' },
       { label: 'Postponements', value: 'Common. Confirm with the trustee the day before' },
       { label: 'Where listed', value: 'Recorded notices of sale (County Recorder), the trustee named in the notice, and legal newspapers' },
@@ -220,7 +220,7 @@ const NEVADA: Playbook[] = [
       { label: 'Lender payoff', value: 'The first deed of trust (the main home loan) survives if the lender paid the priority amount at least 5 days before the sale. It also survives if the lender offered to pay it and the HOA refused (Bank of America v. SFR, 2018)' },
       { label: 'Fannie Mae / Freddie Mac loans', value: 'If one of them owned the loan, the mortgage survives an HOA sale unless the FHFA consented (federal Foreclosure Bar)' },
       { label: 'Redemption', value: '60 days after the sale. The redeemer pays your price plus 1% a month, plus taxes, assessments and upkeep you paid' },
-      { label: 'What you get first', value: 'A certificate of sale; a deed without warranty after the redemption period (NRS 116.31166). If a federal tax lien was on the home, the U.S. can buy it back for 120 days (26 U.S.C. 7425). Ask a title company before bidding whether it will insure without a quiet title lawsuit' },
+      { label: 'What you get first', value: 'A certificate of sale; a deed without warranty after the redemption period (NRS 116.31166). If the sale wiped out a junior federal tax lien, the U.S. can buy it back for 120 days, longer than the owner’s 60 days (26 U.S.C. 7425); a lien the sale didn’t wipe out stays on the home. Ask a title company before bidding whether it will insure without a quiet title lawsuit' },
       { label: 'Payment', value: 'Certified funds; confirm the terms with the HOA’s foreclosure agent' },
     ],
     steps: [
@@ -384,7 +384,7 @@ const NEVADA: Playbook[] = [
     glance: [
       { label: 'How it’s sold', value: 'The same channels as homes: Treasurer tax sales, trustee sales, court and sheriff sales, court-appointed receivers, and bank or government sellers' },
       { label: 'Value', value: 'Rental property: by income (net operating income ÷ cap rate). Land, and buildings a business will use itself: by recent sales of similar commercial property. Not by comparing it with homes' },
-      { label: 'Environmental', value: 'A Phase I environmental site assessment (ASTM E1527-21) can protect you from federal cleanup liability. To get that protection, do it within one year before you take title, and update key parts within 180 days. You also need to meet ongoing duties after you buy' },
+      { label: 'Environmental', value: 'A Phase I environmental site assessment (ASTM E1527-21) can protect you from federal cleanup liability. To get that protection, have it completed (or updated) within one year before you take title, with key parts done or updated within 180 days. You also need to qualify for the protection and meet ongoing duties after you buy' },
       { label: 'Tenants', value: 'A lease can be wiped out unless there’s a non-disturbance agreement. That applies to a lease that comes after the loan being foreclosed, or one the tenant agreed to put behind it (subordination). If the lease is wiped out, you can remove the tenant, but the tenant can also leave. The federal tenant protection law (PTFA) covers residential tenants, including in apartment buildings. It does not cover stores, offices or other commercial tenants' },
       { label: 'Financing', value: 'Auctions need cash. Afterwards: commercial, bridge or hard-money loans. SBA 504 and 7(a) loans are for a business that will use the building, not rental investment' },
       { label: 'Zoning', value: 'Confirm with the city or county planning department that the use is allowed. Check open code cases and permits too' },

@@ -58,7 +58,7 @@ export const forcedSales: Lesson = {
         { list: [
           'Nevada: up to 1 year after a sheriff’s execution sale.',
           'California: only when the judgment allows a deficiency (the notice of sale says whether the sale is subject to redemption): 3 months after a judicial foreclosure sale if the sale paid the debt in full, or 1 year if it didn’t (CCP 729.010, 729.030).',
-          'Arizona: 30 days after a judicial foreclosure sale if the court found the property abandoned, otherwise 6 months.',
+          'Arizona: 6 months after a judicial foreclosure sale, or 30 days if the judgment found the property both abandoned and not used mainly for farming or grazing. After that, junior lienholders can redeem in turn, 5 days each (A.R.S. 12-1282).',
           'Utah: 180 days after a sheriff’s sale.',
           'Texas execution sales: no right to redeem after a sheriff’s or constable’s execution sale. The deed passes only what the debtor owned, so older liens stay (Civil Practice and Remedies Code 34.045).',
           'Texas HOA foreclosures: the owner has 180 days after the association mails notice, or 90 days after the sale for a condo (Property Code 209.011 and 82.113).',

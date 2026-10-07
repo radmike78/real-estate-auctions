@@ -680,7 +680,7 @@ const FORECLOSURE: Flow = {
       body: [
         'Have insurance ready before the sale: ask the trustee and your insurer when the risk becomes yours under this sale’s terms, and start coverage by then.',
         'The trustee either records the trustee’s deed within 30 days, or gives it to you within 20 days, and then you must record it within 10 days. Whoever records it must post a copy on the property within 5 days after recording (NRS 107.080). Ask the trustee which it will be.',
-        'There’s no redemption for the owner. If a federal tax lien was on the property, the United States can redeem within 120 days.',
+        'There’s no redemption for the owner. If the sale wiped out a junior federal tax lien, the United States can still redeem within 120 days. If the IRS didn’t get the required notice, the lien isn’t wiped out and stays on the property.',
         'If the trustee didn’t follow the law, a lawsuit filed within 30 days after the deed is recorded can void the sale (90 days from the sale for someone who didn’t get proper notice).',
       ],
     },

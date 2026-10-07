@@ -87,12 +87,12 @@ export const FACTS: Fact[] = [
   },
   {
     id: 'irs-7425',
-    claim: 'When a federal tax lien was on the property, the U.S. can redeem within 120 days of the sale (or the state redemption period, if longer).',
+    claim: 'When a sale wipes out (discharges) a junior federal tax lien, the U.S. can still redeem within 120 days of the sale, or the state redemption period if longer (26 USC 7425(d); 28 USC 2410(c); IRM 5.17.2.8.2.3). A sale that does not discharge the lien leaves it on the property.',
     sources: ['usc-26-7425'],
-    checked: '2026-10-04',
+    checked: '2026-10-07',
     where: [
       { file: PB, text: 'within 120 days (26 U.S.C. 7425)' },
-      { file: PB, text: 'can buy it back for 120 days (26 U.S.C. 7425)' },
+      { file: PB, text: 'If the sale wiped out a junior federal tax lien, the U.S. can buy it back for 120 days' },
       { file: 'src/lib/stateGuides.ts', text: 'the U.S. can buy it back within 120 days (26 U.S.C. 7425(d))' },
     ],
   },
