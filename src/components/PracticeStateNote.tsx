@@ -20,7 +20,7 @@ const DIFFERS: Partial<Record<SaleKey, Partial<Record<StateCode, string>>>> = {
     TX: 'In Texas a tax sale follows a court judgment, the sheriff or a constable sells, and the owner can buy the property back for 180 days or 2 years for a homestead, land designated for agricultural use or a mineral interest, paying you a premium.',
     CA: 'In California the county tax collector sells tax-defaulted property after five years of unpaid taxes (three for nonresidential commercial property, R&T 3691), and the owner can pay off the taxes until the close of business on the last business day before the sale (R&T 3707).',
     AZ: 'In Arizona the county sells tax lien certificates, not properties: you bid the interest rate down. If the owner never pays, you can sue to foreclose after three years and within ten. The court gives you a deed or, if you or the owner ask and the property is likely to sell for more than $2,500 above what’s owed, orders an auction that pays you in cash (A.R.S. 42-18201, 42-18204).',
-    UT: 'In Utah the county auditor holds one tax sale a year, in May or June, for property four years behind on taxes (Utah Code 59-2-1343), and a bid must cover the taxes, penalties, interest and costs.',
+    UT: 'In Utah the county auditor holds one tax sale a year, in May or June, for property still unpaid four years after the taxes went delinquent (Utah Code 59-2-1343), and a bid must cover the taxes, penalties, interest and costs.',
   },
   foreclosure: {
     TX: 'In Texas trustee sales happen on the first Tuesday of the month at the county courthouse, after at least 21 days’ notice.',

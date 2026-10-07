@@ -1034,7 +1034,7 @@ export const STATE_GUIDES: Playbook[] = [
   key: "uttax",
   title: "Utah tax sales",
   short: "Tax sales",
-  oneLine: "After four years of unpaid property taxes, the county auditor auctions the property. Sales happen once a year, for at least what is owed.",
+  oneLine: "When property taxes are still unpaid four years after they first went delinquent (usually five years of taxes by sale day), the county auditor auctions the property. Sales happen once a year, for at least what is owed.",
   youGet: "A tax deed from the county. It is not a warranty deed, and the county makes no promises about title or possession.",
   forSale: true,
   glance: [

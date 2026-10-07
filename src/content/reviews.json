@@ -204,7 +204,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "eb6f173a421ea732",
+    "hash": "e99a787003fde082",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -355,7 +355,7 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "654cd27dae7d52d2",
+    "hash": "75a884af6fccfffe",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -366,7 +366,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "abd9a00a457d45f1",
+    "hash": "67a2fbd08773ab78",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -379,7 +379,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "28cca18f7a868036",
+    "hash": "645b9f365b656971",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {

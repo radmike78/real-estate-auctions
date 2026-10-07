@@ -935,7 +935,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   contractor: {
     overview: [
       "A licensed contractor is a builder or tradesperson the state has tested and licensed for a type of work. Investors who buy at auction or buy bank-owned homes usually need repairs, so picking the contractor is often the biggest money decision after the purchase itself. In Nevada the license comes from the Nevada State Contractors Board (NSCB). In California it comes from the Contractors State License Board (CSLB). In Arizona it comes from the Registrar of Contractors (ROC). In Utah it comes from the Division of Professional Licensing (DOPL).",
-      "In Nevada, Arizona and Utah, the license matters most when something goes wrong. Nevada and Arizona run recovery funds that can repay homeowners hurt by a licensed contractor. Utah gives homeowners a way to clear a supplier’s lien if they paid a licensed contractor under a written contract. People who hire an unlicensed worker usually lose those protections. The NSCB warns that unlicensed workers often skip workers’ compensation insurance and trade exams.",
+      "In Nevada, Arizona and Utah, the license matters most when something goes wrong. Nevada and Arizona run recovery funds that can repay homeowners hurt by a licensed contractor. Utah gives homeowners a way to clear a supplier’s lien on a home they or their tenant live in, if they paid a licensed contractor under a written contract. People who hire an unlicensed worker usually lose those protections. The NSCB warns that unlicensed workers often skip workers’ compensation insurance and trade exams.",
       "In Nevada and Arizona, read the fine print on those recovery funds before counting on them. Nevada’s Residential Recovery Fund covers owners who own and live in a single-family home. Arizona’s fund covers work on the homeowner’s primary residence. A rental or flip you don’t live in may not qualify. And Arizona’s fund has paid only part of some losses when many victims claim against the same contractor."
     ],
     bestFor: [
@@ -954,7 +954,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Deposit: in California, never more than 10% of the price or $1,000, whichever is less. This is state law (Business and Professions Code 7159.5).",
       "Bids: the NSCB recommends getting at least three bids. It takes time but helps you spot overpricing.",
       "Permits and inspections, which licensed contractors normally pull. Ask who pays.",
-      "Lien risk: if your contractor doesn’t pay a supplier, the supplier can file a lien on your home. In Utah, a homeowner can get a Certificate of Compliance to have it removed. That works if they hired a licensed contractor under a written contract and paid in full. In Texas, the owner must hold back 10% of the contract price until 30 days after the work is done. That money covers unpaid workers and suppliers, and if you don’t hold it back, they can claim a lien for that amount (Property Code 53.101 and 53.105).",
+      "Lien risk: if your contractor doesn’t pay a supplier, the supplier can file a lien on your home. In Utah, a homeowner can get a Certificate of Compliance to have it removed. That works if they hired a licensed contractor under a written contract and paid in full. That protection covers a home that you or your tenant lives in (as a main or second home) within 180 days after the work is done (Utah Code 38-11-102, 38-11-107). A vacant flip may not qualify.* In Texas, the owner must hold back 10% of the contract price until 30 days after the work is done. That money covers unpaid workers and suppliers, and if you don’t hold it back, they can claim a lien for that amount (Property Code 53.101 and 53.105).",
       "Recovery fund limits: Arizona’s fund pays at most $30,000 per claim and $200,000 per contractor license (ARS 32-1132.01, 32-1139). It has prorated (shared out) awards when many people claim against one license."
     ],
     money: [
@@ -968,7 +968,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Sign a detailed written contract listing materials, scope, timeline and payment schedule.",
       "Don’t pay cash, and keep any deposit small.",
       "Ask about workers’ compensation and liability insurance and permits before work starts.",
-      "Keep proof of every payment. In Utah, proof of a written contract and full payment is what lets you clear a supplier’s lien. In Texas, you can ask for a sworn statement that the contractor has paid its subcontractors and suppliers before you pay (Property Code 53.085).",
+      "Keep proof of every payment. In Utah, proof of a written contract and full payment is what lets you clear a supplier’s lien on a home you or your tenant lives in. In Texas, you can ask for a sworn statement that the contractor has paid its subcontractors and suppliers before you pay (Property Code 53.085).",
       "In Nevada and Arizona, check whether your property qualifies for the state recovery fund before relying on it (the funds cover owner-occupied homes)."
     ],
     facts: [
@@ -1008,7 +1008,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         }
       },
       {
-        text: "Utah: a homeowner who hired a licensed contractor, had a written contract and paid as agreed is still protected against a supplier’s lien. That is true even though the Residence Lien Recovery Fund has run out of money.",
+        text: "Utah: a homeowner who hired a licensed contractor, had a written contract and paid as agreed is still protected against a supplier’s lien on a home they or their tenant live in. That is true even though the Residence Lien Recovery Fund has run out of money.",
         source: {
           label: "KSL.com: Lien trap: Why a safety net for homeowners facing a construction lien despite full payment is going away (June 3, 2026)",
           url: "https://www.ksl.com/article/news/ksl-investigates/get-gephardt/lien-trap-why-a-safety-net-for-homeowners-facing-a-construction-lien-despite-full-payment-is-going-away/51592052"
