@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Deal } from '../lib/analyze';
-import { savedNumbers } from '../lib/dealPacket';
+import { flipBudget, savedNumbers } from '../lib/dealPacket';
 import { loadOwned, OWNED_EVENT, ownedSummary, saveOwned, type Owned } from '../lib/owned';
 import { fmtMoney } from '../lib/status';
 import { setDealStage, stageOf } from '../lib/dealStage';
@@ -46,6 +46,10 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   const [note, setNote] = useState('');
   const projected = projectedMonthly(deal);
   const flip = deal.plan === 'flip';
+  const budget = flipBudget(deal);
+  const budgetLine = budget
+    ? `Your budget: repairs with contingency ${fmtMoney(Math.round(budget.repairs))}, holding ${fmtMoney(Math.round(budget.monthly))} a month for ${budget.months} ${budget.months === 1 ? 'month' : 'months'} (about ${fmtMoney(Math.round(budget.holding))}).`
+    : null;
   const put = (next: Owned | null) => {
     const copy = { ...all };
     if (next) copy[deal.id] = next;
@@ -55,7 +59,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   if (!o) {
     return (
       <div>
-        <p>{flip ? 'Did you buy it? Mark it as yours to record what you pay each month for repairs and holding, to compare with the repair and holding costs in your Fix and sell numbers.' : 'Did you buy it? Mark it as yours to track the real rent and costs each month against the cash flow you planned.'}</p>
+        <p>{flip ? (budget ? `Did you buy it? Mark it as yours to record what you pay each month for repairs and holding, against your budget from Fix and sell. ${budgetLine}` : 'Did you buy it? Mark it as yours to record what you pay each month for repairs and holding, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).') : 'Did you buy it? Mark it as yours to track the real rent and costs each month against the cash flow you planned.'}</p>
         <button type="button" className="btn btn-secondary" onClick={() => { put({ boughtOn: today(), months: [] }); if (!['closed', 'owned'].includes(stageOf(deal))) setDealStage(deal.id, 'closed'); }}>I bought this property</button>
       </div>
     );
@@ -76,7 +80,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   };
   return (
     <div>
-      <p className="muted">{projected === null ? 'Renting it out? Save this deal’s numbers in Keep and rent to compare each month with your plan. Fixing it to sell? Record what you pay each month, with $0 rent.' : `You planned on ${signed(projected)} a month of cash flow.`}</p>
+      <p className="muted">{flip ? (budgetLine ?? 'Record what you pay each month, with $0 rent, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).') : projected === null ? 'Renting it out? Save this deal’s numbers in Keep and rent to compare each month with your plan. Fixing it to sell? Record what you pay each month, with $0 rent.' : `You planned on ${signed(projected)} a month of cash flow.`}</p>
       <div className="row owned-add">
         <label className="field"><span>Bought on</span><input type="date" value={o.boughtOn} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
         <label className="field"><span>Month</span><input type="month" value={month} onChange={(e) => setMonth(e.target.value)} /></label>
@@ -93,6 +97,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
             <div><dt>Months recorded</dt><dd>{s.months}</dd></div>
             <div><dt>Actual cash flow, in total</dt><dd>{signed(s.actual)}</dd></div>
             <div><dt>Average month</dt><dd>{signed(s.averageMonthly)}</dd></div>
+            {flip && budget && <div><dt>Paid so far, against your {fmtMoney(Math.round(budget.total))} budget</dt><dd>{fmtMoney(Math.round(s.costs))} {s.costs > budget.total ? `(${fmtMoney(Math.round(s.costs - budget.total))} over)` : `(${fmtMoney(Math.round(budget.total - s.costs))} left)`}</dd></div>}
             {s.gapMonthly !== null && <div><dt>Against your plan, a month</dt><dd>{signed(s.gapMonthly)} {s.gapMonthly < 0 ? '(behind)' : '(ahead)'}</dd></div>}
           </dl>
           {s.gapMonthly !== null && s.gapMonthly < -50 && <p className="caution small" role="note">It’s earning less than you planned. Look at which costs ran over, whether the rent matches new leases nearby, and whether your repair savings can carry it. Review it before you buy the next one.</p>}

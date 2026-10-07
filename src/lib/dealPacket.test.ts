@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { Deal } from './analyze';
-import { cleanPacket, dealPacketText, EMPTY_PACKET, loadPacket, nextAction, nextDate, packetSections, savePacket, suggestedDates } from './dealPacket';
+import { cleanPacket, dealPacketText, EMPTY_PACKET, flipBudget, loadPacket, nextAction, nextDate, packetSections, savePacket, suggestedDates } from './dealPacket';
 import { saveLog, cleanLog } from './evidence';
+import { stageTasks } from './dealStage';
 import { dealNumbers } from './propertyPacket';
 import { cashNeededAtBid, offerInputs, profitAtBid, sanitizeInputs, BLANK_INPUTS } from './bidCalc';
 
@@ -113,6 +114,34 @@ describe('the deal packet', () => {
     expect(noneText).toMatch(/No price meets your 9% return on cost with the income and costs you entered/);
     expect(noneText).not.toMatch(/No numbers yet/);
     expect(none.find((s) => s.key === 'cash')!.lines.join('\n')).toMatch(/No price meets your 9% return on cost/);
+  });
+
+  it('gives a flip its repair and holding budget from Fix and sell, for the owned tracker', () => {
+    const flip: Deal = { ...deal, kind: 'trustee', plan: 'flip' };
+    expect(flipBudget(flip)).toBeNull();
+    localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ exitValue: 250000, repairs: 20000, contingencyPct: 15, holdingMonths: 4, monthlyCarry: 500 }));
+    expect(flipBudget(flip)).toEqual({ repairs: 23000, monthly: 500, months: 4, holding: 2000, total: 25000 });
+    expect(flipBudget({ ...flip, plan: 'rent' })).toBeNull();
+    const closed = (b: boolean) => stageTasks(flip, 'closed', EMPTY_PACKET, now).find((t) => t.key === 'owned')!.produces.includes(b ? 'against the repair and holding budget' : 'compare yourself');
+    expect(closed(true)).toBe(true);
+    localStorage.removeItem('fsf.bid.analyzed-d1.v1');
+    expect(closed(false)).toBe(true);
+  });
+
+  it('asks for a target return when Commercial income has none, instead of saying no price works', () => {
+    localStorage.setItem('fsf.calc.commercial.d1.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 0 }));
+    const auction: Deal = { ...deal, kind: 'trustee', plan: 'commercial' };
+    const secs = packetSections(auction, EMPTY_PACKET, now);
+    const cash = secs.find((s) => s.key === 'cash')!;
+    const nums = secs.find((s) => s.key === 'numbers')!;
+    const all = [...cash.lines, ...nums.lines].join('\n');
+    expect(all).toMatch(/No target return entered in Commercial income: enter the cap rate you require to get a walk-away price\./);
+    expect(all).not.toMatch(/No price meets|0% return on cost|Rent 10% lower|rent 10% lower|Infinity|NaN/);
+    // Nothing to count yet: the numbers aren't saved and the deal still asks you to run the calculator.
+    expect(nums.status).toBe('missing');
+    expect(cash.status).toBe('missing');
+    expect(cash.fix?.href).toBe('#/analyze');
+    expect(stageTasks(auction, 'researching', EMPTY_PACKET, now).find((t) => t.key === 'numbers')?.done).toBe(false);
   });
 
   describe('Fix and sell: your own price first, the walk-away price as a what-if', () => {

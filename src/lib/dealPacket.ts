@@ -4,7 +4,7 @@
 // why, the deal's key dates, your questions to professionals and their answers, your earnest money, and the reason
 // for your decision with any conditions still open. Kept only in this browser, like the rest.
 import { kindLabel, SALE_KINDS, type Deal } from './analyze';
-import { maxSafeBid, offerInputs, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, BLANK_INPUTS, type BidInputs } from './bidCalc';
+import { costsAtBid, maxSafeBid, offerInputs, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, BLANK_INPUTS, type BidInputs } from './bidCalc';
 import { cleanBuyBox, EMPTY_BUY_BOX, type BuyBox } from './toolkit';
 import { EVIDENCE_AREAS, GATES, loadLog } from './evidence';
 import { commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, type CommercialInputs, type RentInputs } from './holdCalc';
@@ -157,7 +157,7 @@ export function savedNumbers(d: Deal) {
     /** Each downside case: the walk-away price, and the profit at your own price (null when no price is entered). */
     stress: { label: string; maxBid: number; profit: number | null }[];
   } | null = null;
-  let commercial: { maxBid: number; noi: number; capPct: number; cashLeft: number; allIn: number; refi: boolean; none: boolean; stress: { label: string; maxBid: number | null }[] } | null = null;
+  let commercial: { maxBid: number; noi: number; capPct: number; cashLeft: number; allIn: number; refi: boolean; none: boolean; noTarget: boolean; stress: { label: string; maxBid: number | null }[] } | null = null;
   if (d.plan === 'rent') {
     const rentRaw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
     if (rentRaw) {
@@ -187,18 +187,45 @@ export function savedNumbers(d: Deal) {
       if (v.monthlyRent > 0) {
         const r = commercialMaxBid(v, offer);
         // No price meets the target return with these numbers: that's a result too, not a missing one.
-        if (r.noBidWorks || !Number.isFinite(r.maxBid)) commercial = { maxBid: 0, noi: r.noi, capPct: v.targetCapPct, cashLeft: 0, allIn: 0, refi: false, none: true, stress: [] };
+        if (r.noBidWorks) commercial = { maxBid: 0, noi: r.noi, capPct: v.targetCapPct, cashLeft: 0, allIn: 0, refi: false, none: true, noTarget: false, stress: [] };
+        // No target return (and no loan or cash limit): nothing caps the price yet, so there's no walk-away price.
+        else if (!Number.isFinite(r.maxBid)) commercial = { maxBid: 0, noi: r.noi, capPct: v.targetCapPct, cashLeft: 0, allIn: 0, refi: false, none: false, noTarget: true, stress: [] };
         else {
-          // The downside: the same deal with rent 10% lower (null: no price meets the target then).
+          // The downside: the same deal with rent 10% lower (null: no price meets the target then; left out when
+          // nothing caps the price).
           const low = commercialMaxBid({ ...v, monthlyRent: v.monthlyRent * 0.9 }, offer);
-          const stress = [{ label: 'Rent 10% lower', maxBid: low.noBidWorks || !Number.isFinite(low.maxBid) ? null : low.maxBid }];
-          commercial = { maxBid: r.maxBid, noi: r.noi, capPct: v.targetCapPct, cashLeft: r.cashLeft, allIn: r.allIn, refi: !offer && r.debtService > 0, none: false, stress };
+          const stress = low.noBidWorks ? [{ label: 'Rent 10% lower', maxBid: null }] : Number.isFinite(low.maxBid) ? [{ label: 'Rent 10% lower', maxBid: low.maxBid }] : [];
+          commercial = { maxBid: r.maxBid, noi: r.noi, capPct: v.targetCapPct, cashLeft: r.cashLeft, allIn: r.allIn, refi: !offer && r.debtService > 0, none: false, noTarget: false, stress };
         }
       }
     }
   }
   return { rent, bid, commercial };
 }
+
+/**
+ * The repair and holding budget saved in Fix and sell for a flip, to compare with what you actually pay once you own it
+ * (null when it isn't a flip or no repairs or holding costs are saved).
+ */
+export function flipBudget(d: Deal): { repairs: number; monthly: number; months: number; holding: number; total: number } | null {
+  if (d.plan !== 'flip') return null;
+  const raw = read(`fsf.bid.analyzed-${d.id}.v1`);
+  if (!raw || typeof raw !== 'object') return null;
+  const saved: BidInputs = sanitizeInputs(raw, BLANK_INPUTS);
+  const i = isOffer(d) ? offerInputs(saved) : saved;
+  // Repairs (with the contingency) and holding don't depend on the price, so any price gives the same figures.
+  const c = costsAtBid(i, 0);
+  if (c.repairs <= 0 && c.holding <= 0) return null;
+  const months = totalMonths(i);
+  return { repairs: c.repairs, monthly: months > 0 ? c.holding / months : 0, months, holding: c.holding, total: c.repairs + c.holding };
+}
+
+/** Whether the deal's calculator has numbers to show: a commercial deal without a target return has no price yet. */
+export function hasSavedNumbers(n: ReturnType<typeof savedNumbers>): boolean {
+  return !!(n.rent || n.bid || (n.commercial && !n.commercial.noTarget));
+}
+
+const commercialNoTarget = (strategy: string) => `No target return entered in ${strategy}: enter the cap rate you require to get a walk-away price.`;
 
 export type SectionStatus = 'done' | 'started' | 'missing';
 export interface PacketSection {
@@ -298,6 +325,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       const what = `What-if, at your walk-away price of ${money(bid.maxBid)} (the most you could pay, not your price)`;
       cash.push(offer ? `${what}: most cash in at once ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} on sale day; most cash in at once ${money(bid.cashPeak)}`);
     }
+  } else if (commercial?.noTarget) {
+    cash.push(commercialNoTarget(strategy));
   } else if (commercial?.none) {
     cash.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered in ${strategy}.`);
   } else if (commercial) {
@@ -311,7 +340,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     cash.push(`Run ${strategy} in Analyze to see the cash this deal needs.`);
   }
   if (profile.investable > 0 && need > 0) cash.push(need > profile.investable ? `That’s ${money(need - profile.investable)} more than your investable cash: the deal doesn’t fit as entered.` : `Leaves ${money(profile.investable - need)} of your investable cash for surprises.`);
-  const hasNums = !!(rent || bid || commercial);
+  const hasNums = hasSavedNumbers({ rent, bid, commercial });
   out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && (!offer || p.earnest) ? 'done' : hasNums || p.earnest ? 'started' : 'missing', lines: cash, fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 
   // 5. Numbers: base and downside, for the deal's strategy only
@@ -329,7 +358,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       nums.push(`  If ${s.label.toLowerCase()}: ${a && s.profit !== null ? `profit ${money(s.profit)} at ${money(a.price)}; ${walk}` : walk}`);
     }
   }
-  if (commercial?.none) nums.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered`);
+  if (commercial?.noTarget) nums.push(commercialNoTarget(strategy));
+  else if (commercial?.none) nums.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered`);
   else if (commercial) {
     nums.push(`Highest price for a ${commercial.capPct}% return on cost: ${money(commercial.maxBid)}, on ${money(commercial.noi)} a year of net operating income`);
     for (const s of commercial.stress) nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid !== null && s.maxBid > 0 ? `highest price ${money(s.maxBid)}` : 'no price works'}`);

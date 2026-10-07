@@ -304,3 +304,38 @@ describe('the Texas contract teaching (TREC 20-19 paragraph 5, 40-11 paragraph 2
     expect(t.ifDifferent).toMatch(/Day 20.*Buyer Approval.*Day 21/);
   });
 });
+
+describe('Arizona: answering the seller’s reply to the BINSR', () => {
+  const insp = AZ_CASE.stages.find((s) => s.key === 'inspection')!;
+  it('gives one deadline (Day 13) for accepting and for cancelling, in both replies', async () => {
+    const { tasksFor } = await import('./rentalCase');
+    for (const [a, id] of [[0, 'counter'], [2, 'repairs-reply']] as const) {
+      const t = tasksFor(insp, { 'inspection/respond': a }).find((x) => x.id === id)!;
+      const text = JSON.stringify(t);
+      expect(text).toMatch(/by Day 13/);
+      expect(text).not.toMatch(/before Day 10/);
+      if (t.kind === 'choice') expect(t.choices.find((c) => c.walk)!.label).toBe('Cancel in writing by Day 13.');
+    }
+    expect(insp.outcome).toMatch(/by the repair-reply deadline \(5 days after the seller’s answer\)/);
+    expect(insp.log.find((l) => l.area === 'Price')!.finding).toMatch(/by the repair-reply deadline/);
+    const all = AZ_CASE.stages.flatMap((s) => s.dates ?? []).map((d) => d.when);
+    expect(all).toContain('5 days after the seller answers your BINSR');
+  });
+  it('leaves the other states’ Day 10 wording alone', () => {
+    for (const c of [caseFor('NV'), CA_CASE, UT_CASE]) {
+      const i = c.stages.find((s) => s.key === 'inspection')!;
+      expect(i.outcome).toMatch(/before Day 10/);
+      expect(i.log.find((l) => l.area === 'Price')!.finding).toMatch(/before the /);
+    }
+  });
+});
+
+describe('what walking away inside a contract deadline keeps', () => {
+  it('Texas: the earnest money comes back, the seller keeps the option fee', async () => {
+    const { walkNote } = await import('./rentalCase');
+    expect(walkNote('inspection', TX_CASE)).toBe('You left inside a contract deadline, so your $2,800 earnest money comes back; the seller keeps the $200 option fee.');
+    expect(TX_CASE.N.earnest - 200).toBe(2_800);
+    expect(walkNote('offer', TX_CASE)).toBe('No contract was signed, so nothing was at risk.');
+    expect(walkNote('appraisal', AZ_CASE)).toBe('You left inside a contract deadline, so you keep your earnest money.');
+  });
+});

@@ -105,6 +105,8 @@ const usd = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 /** What changes from one state's practice house to another's: place, costs, contract terms and landlord rules. */
 interface CaseConfig {
   state: 'NV' | 'TX' | 'CA' | 'AZ' | 'UT';
+  /** What you get back when you leave inside a contract deadline, if more than "you keep your earnest money". */
+  walkKept?: (n: Nums) => string;
   stateName: string;
   abbr: string;
   city: string;
@@ -138,7 +140,16 @@ interface CaseConfig {
   leaveInspection: string;
   lateInspection: string;
   /** When answering the seller's reply to a repair request is due, if not the end of the inspection period (Day 10). */
-  counterDue?: { ask: string; accept: string; late: string; why: string };
+  counterDue?: {
+    ask: string;
+    accept: string;
+    /** The walk-away choice at that deadline. */
+    cancel: string;
+    late: string;
+    why: string;
+    /** When the answer is due, as a phrase for the step outcome and the log ("by …"). */
+    by: string;
+  };
   /** Why ignoring the HOA's leasing rules is wrong, if this state's contract has no separate HOA review period. */
   hoaRulesWhy?: string;
   cancelShort: string;
@@ -306,6 +317,7 @@ const TX: CaseConfig = {
     { when: 'Day 30', what: 'Closing at the title company.' },
   ],
   depositLog: (n) => `Earnest money and option fee ${usd(n.earnest)}`,
+  walkKept: (n) => `so your ${usd(n.earnest - 200)} earnest money comes back; the seller keeps the $200 option fee`,
   roofFinding: 'Composition shingles with about 4–6 years left.',
   roofPart: 'composition shingle roof',
   cancelInspection: 'End the contract before 5 p.m. on Day 10, in the option period, and get the earnest money back.',
@@ -542,6 +554,7 @@ const AZ: CaseConfig = {
     { when: 'Day 0', what: 'Acceptance is delivered to you. Every deadline below counts from here.' },
     { when: 'On acceptance (Day 0)', what: 'Earnest money to the escrow company, by the time your contract sets (confirm the instructions by phone first). You: the buyer.' },
     { when: 'Day 10', what: 'Inspection period ends: cancel, ask for repairs on the BINSR, or go ahead, in writing. You, with your agent.' },
+    { when: '5 days after the seller answers your BINSR', what: 'Cancel, or go ahead without the repairs the seller refused, in writing.' },
     { when: 'When the HOA documents arrive', what: 'Read the rental rules and the budget. Write down the day they arrive.' },
     { when: 'Within 5 days after you learn the appraised value', what: 'Cancel in writing if it’s under the price and you won’t go ahead. You, with your lender’s appraisal.' },
     { when: 'Day 27 (3 days before close of escrow)', what: 'Last day to tell the seller in writing that you can’t get the loan, and keep your earnest money.' },
@@ -556,8 +569,10 @@ const AZ: CaseConfig = {
   counterDue: {
     ask: 'The seller answered on Day 8. Do you accept or cancel by Day 13 (5 days after the seller’s answer)?',
     accept: 'Accept in writing by Day 13.',
+    cancel: 'Cancel in writing by Day 13.',
     late: 'Wait until Day 14 to decide.',
     why: 'Under this contract you had 5 days after the seller’s answer (Day 13) to cancel or accept. If you don’t cancel in time, you’re treated as going ahead without the repairs the seller refused, and you can no longer cancel over the inspection.',
+    by: 'by the repair-reply deadline (5 days after the seller’s answer)',
   },
   cancelShort: 'Cancel in writing before Day 10.',
   periodName: 'end of the inspection period',
@@ -1125,7 +1140,7 @@ function buildCase(c: CaseConfig) {
     {
       key: 'inspection',
       title: 'The inspection',
-      outcome: 'The inspection report, the repairs sorted into “now” and “later”, and your answer to the seller before Day 10.',
+      outcome: `The inspection report, the repairs sorted into “now” and “later”, and your answer to the seller ${c.counterDue?.by ?? 'before Day 10'}.`,
       brief: [
         'You hire a home inspector, and on their advice a plumber to run a camera through the sewer line. Both reports come back on Day 6.',
         'Sort each problem: fix now (safety, or anything that could stop the home from renting), or budget for later.',
@@ -1211,7 +1226,7 @@ function buildCase(c: CaseConfig) {
           prompt: `The seller agrees to take ${$(offer - renegotiated)} off: a new price of ${$(renegotiated)}. With the repairs paid by you, you’d need ${$(N.cashRenegotiated)} of your ${$(N.investable)}. ${c.counterDue?.ask ?? 'Do you accept before Day 10?'}`,
           choices: [
             { label: c.counterDue?.accept ?? 'Accept in writing before Day 10.', verdict: 'ok', why: `You’d keep ${$(N.investable - N.cashRenegotiated)} beyond the lender’s reserves. Tight, but inside your plan, and the reserves are there for a bad month.` },
-            { label: c.cancelShort, verdict: 'ok', walk: true, why: 'Also reasonable: the roof and water heater are coming, and your cushion is thin. Walking away with your deposit is a fine result.' },
+            { label: c.counterDue?.cancel ?? c.cancelShort, verdict: 'ok', walk: true, why: 'Also reasonable: the roof and water heater are coming, and your cushion is thin. Walking away with your deposit is a fine result.' },
             { label: c.counterDue?.late ?? 'Wait until Day 12 to decide.', verdict: 'poor', why: c.counterDue?.why ?? c.lateInspection },
           ],
           ifDifferent: 'Both accepting and walking away are defensible here. What matters is that you decide on the numbers, in writing, before the deadline.',
@@ -1223,7 +1238,7 @@ function buildCase(c: CaseConfig) {
           prompt: `The seller won’t manage contractors from out of state. Instead they offer ${$(offer - renegotiated)} off the price: a new price of ${$(renegotiated)}, and you handle the repairs. With the repairs paid by you, you’d need ${$(N.cashRenegotiated)} of your ${$(N.investable)}. ${c.counterDue?.ask ?? 'Do you accept before Day 10?'}`,
           choices: [
             { label: c.counterDue?.accept ?? 'Accept in writing before Day 10.', verdict: 'ok', why: `You’d keep ${$(N.investable - N.cashRenegotiated)} beyond the lender’s reserves, and you choose the contractors and check the permits yourself.`, log: `Asked the seller to make the repairs. They offered ${$(offer - renegotiated)} off instead, and you accepted in writing.` },
-            { label: c.cancelShort, verdict: 'ok', walk: true, why: 'Also reasonable: the roof and water heater are coming, and your cushion is thin. Walking away with your deposit is a fine result.' },
+            { label: c.counterDue?.cancel ?? c.cancelShort, verdict: 'ok', walk: true, why: 'Also reasonable: the roof and water heater are coming, and your cushion is thin. Walking away with your deposit is a fine result.' },
             { label: c.counterDue?.late ?? 'Wait until Day 12 to decide.', verdict: 'poor', why: c.counterDue?.why ?? c.lateInspection },
           ],
         },
@@ -1237,7 +1252,7 @@ function buildCase(c: CaseConfig) {
       ],
       log: [
         { area: 'Condition', finding: `Sewer (${$(sewer)}) and panel (${$(panel)}) to fix now. Roof (4–6 years) and water heater to budget: about ${$(N.replaceMonthly)} a month, decided before the inspection deadline.`, open: 'Licensed contractors and permits for the repairs' },
-        { area: 'Price', finding: `Renegotiated to ${$(renegotiated)} before the ${c.periodName}.` },
+        { area: 'Price', finding: `Renegotiated to ${$(renegotiated)} ${c.counterDue?.by ?? `before the ${c.periodName}`}.` },
       ],
       learnMore: [{ label: 'Your team: inspector', href: '#/pros/inspector' }, { label: 'Your team: contractor', href: '#/pros/contractor' }],
     },
@@ -1526,7 +1541,7 @@ function buildCase(c: CaseConfig) {
     },
   ];
 
-  return { state: c.state, stateName: c.stateName, property: `1418 Example Ridge Court, ${c.city}, ${c.stateName} (fictional)`, N, stages };
+  return { state: c.state, stateName: c.stateName, property: `1418 Example Ridge Court, ${c.city}, ${c.stateName} (fictional)`, N, stages, walkKept: c.walkKept?.(N) ?? 'so you keep your earnest money' };
 }
 
 export type PracticeCase = ReturnType<typeof buildCase>;
@@ -1537,6 +1552,13 @@ export const AZ_CASE = buildCase(AZ);
 export const UT_CASE = buildCase(UT);
 const CASES: Record<string, PracticeCase> = { NV: NV_CASE, TX: TX_CASE, CA: CA_CASE, AZ: AZ_CASE, UT: UT_CASE };
 /** The practice purchase for a state: each covered state has its own house; with no state chosen, Nevada's. */
+/** Before the offer is signed there's no contract, so nothing is at stake; after, a contract deadline protects the deposit. */
+export function walkNote(stageKey: string, c: PracticeCase): string {
+  const i = c.stages.findIndex((s) => s.key === stageKey);
+  const offer = c.stages.findIndex((s) => s.key === 'offer');
+  return i <= offer ? 'No contract was signed, so nothing was at risk.' : `You left inside a contract deadline, ${c.walkKept}.`;
+}
+
 export const caseFor = (state: string | null | undefined): PracticeCase => CASES[state ?? ''] ?? NV_CASE;
 
 /** The Nevada version's numbers and steps (the default). */

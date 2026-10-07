@@ -4,7 +4,7 @@ import { downloadText } from '../lib/download';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import { PracticeRibbon } from './PracticePage';
-import { CASE_TITLE, NV_CASE, caseFor, tasksFor, walkedFrom, type CaseDoc, type CaseStage, type CaseTask, type PracticeCase, type Verdict } from '../practice/rentalCase';
+import { CASE_TITLE, NV_CASE, caseFor, tasksFor, walkNote, walkedFrom, type CaseDoc, type CaseStage, type CaseTask, type PracticeCase, type Verdict } from '../practice/rentalCase';
 import { useMyState } from '../lib/myState';
 import { docGuide } from '../lib/docGuides';
 import DocGuideView from './DocGuideView';
@@ -96,6 +96,8 @@ function CasePage({ stageKey }: { stageKey?: string }) {
 function Start({ p, doneStages, onReset }: { p: CaseProgress; doneStages: number; onReset: () => void }) {
   const next = C.stages.find((st) => !tasksFor(st, p.answers).every((t) => p.done.includes(key(st, t))));
   const started = p.done.length > 0;
+  // After walking away, the packet is the result; the rest of the case stays open from the step you left.
+  const walkedAt = C.stages.find((st) => st.key === p.walked);
   return (
     <section aria-labelledby="case-start">
       <h2 id="case-start">What you’ll do</h2>
@@ -112,12 +114,15 @@ function Start({ p, doneStages, onReset }: { p: CaseProgress; doneStages: number
         </ul>
       </div>
       <p className="muted">About 45 minutes. {C.stages.length} steps. Your progress stays in this browser; you can stop and come back.</p>
+      {walkedAt && <p>You walked away at “{walkedAt.title}”.</p>}
       <div className="row practice-next">
-        {started && !next
+        {walkedAt || (started && !next)
           ? <a className="btn big" href="#/practice/case/packet">See your deal packet<span aria-hidden className="nowrap-arrow">&nbsp;→</span></a>
           : <a className="btn big" href={`#/practice/case/${(next ?? C.stages[0]).key}`}>{started ? `Continue: ${(next ?? C.stages[0]).title}` : 'Start: your goal and your cash'}<span aria-hidden className="nowrap-arrow">&nbsp;→</span></a>}
-        {started && <span className="muted">{doneStages} of {C.stages.length} steps done</span>}
-        {started && next && <a href="#/practice/case/packet">See your deal packet</a>}
+        {started && !walkedAt && <span className="muted">{doneStages} of {C.stages.length} steps done</span>}
+        {walkedAt
+          ? <a href={`#/practice/case/${walkedAt.key}`}>Keep going to see the rest</a>
+          : started && next && <a href="#/practice/case/packet">See your deal packet</a>}
         {started && <button type="button" className="linkish" onClick={onReset}>Start over</button>}
       </div>
     </section>
@@ -158,7 +163,7 @@ function StageView({ stage, n, p, update, done }: { stage: CaseStage; n: number;
       {walkedHere && (
         <div className="case-walked" role="status">
           <h3>You walked away. That’s a good result.</h3>
-          <p>{walkNote(stage.key)} Many good investors walk away from far more deals than they buy. Your deal packet shows what you found and why you left.</p>
+          <p>{walkNote(stage.key, C)} Many good investors walk away from far more deals than they buy. Your deal packet shows what you found and why you left.</p>
           <div className="row">
             <a className="btn" href="#/practice/case/packet">See your deal packet&nbsp;→</a>
             <button type="button" className="btn btn-secondary" onClick={() => update((x) => ({ ...x, walked: undefined }))}>Keep going to see the rest</button>
@@ -210,13 +215,6 @@ function Doc({ d }: { d: CaseDoc }) {
 }
 
 type Update = (fn: (x: CaseProgress) => CaseProgress) => void;
-
-/** Before the offer is signed there's no contract, so nothing is at stake; after, a contract deadline protects the deposit. */
-function walkNote(stageKey: string, c: PracticeCase = C): string {
-  const i = c.stages.findIndex((s) => s.key === stageKey);
-  const offer = c.stages.findIndex((s) => s.key === 'offer');
-  return i <= offer ? 'No contract was signed, so nothing was at risk.' : 'You left inside a contract deadline, so you keep your earnest money.';
-}
 
 /** Evidence lines from the choices you made in a step (an opening offer, a counteroffer you accepted). */
 function choiceLogs(st: CaseStage, p: CaseProgress): string[] {
