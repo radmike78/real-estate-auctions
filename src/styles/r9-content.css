@@ -17,3 +17,7 @@
 /* My plan: when the next task is a roadmap task, the top card points to it (shown in full in the roadmap below). */
 .plan-now-pointer { display: grid; gap: 10px; justify-items: start; margin: 0; padding: 16px 20px; border: 2px solid var(--accent); border-radius: 14px; background: var(--surface); color: var(--text); }
 .plan-now-pointer strong { font-size: 1.15rem; }
+
+/* A row of exactly three drills (e.g. "Recommended to start with") fills the width on wide screens instead of
+   leaving an empty fourth slot. */
+@media (min-width: 1401px) { .practice-grid.drill-grid:has(> :last-child:nth-child(3)) { --dc: 3; } }
