@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from 'react';
 import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, INPUT_MAX, maxSafeBid, profitAtBid, redemptionOutcome, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs, offerInputs, cashNeededAtBid } from '../lib/bidCalc';
-import { redemptionChoicesFor, redemptionPresetsFor, taxSaleWait, transferTaxFor } from '../lib/stateCosts';
+import { offeredRedemptionRules, redemptionChoicesFor, redemptionPresetsFor, taxSaleWait, transferTaxFor } from '../lib/stateCosts';
 import { useCalcRegion } from './calcRegion';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
@@ -156,6 +156,9 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const tax = transferTaxFor(region.state, region.county);
   const rules = redemptionPresetsFor(region.state);
   const choices = saleKind ? redemptionChoicesFor(region.state, saleKind) : null;
+  // Only the rules offered for this kind of sale. Some rules share the same numbers (a Texas property tax loan
+  // foreclosure repays like a tax sale), so the rule in use is matched among these, never a rule the menu doesn't offer.
+  const offered = offeredRedemptionRules(region.state, saleKind);
   const hintFor = (f: Field) => (commercial && f.k === 'exitValue' ? 'Use the value by income above.' : f.k === 'transferTaxPer500' ? tax.hint : f.hint);
   const moreFor = (f: Field) => (f.k === 'transferTaxPer500' ? tax.more : f.k === 'holdingMonths' ? (offer ? undefined : !saleKind || saleKind === 'taxSale' ? taxSaleWait(region.state) : 'How long repairs and the resale take. If this sale has no redemption period, count from the day you get the deed; ask a title company early when it will insure the title for your buyer.') : f.more);
   // What a Texas redemption repays, for the kind of sale chosen (every Texas rule when the kind isn't known).
@@ -163,6 +166,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
     const taxSale = 'A Texas tax sale repays only repairs a code, an ordinance or an existing lease requires (Tax Code 34.21(g)(2)(A)(ii)).';
     const loan = 'A Texas mortgage foreclosure has no redemption; a Texas property tax loan foreclosure repays the same costs a tax sale does (Tax Code 32.06(k)(2), 34.21(g)).';
     const hoa = 'A Texas subdivision HOA sale repays no repairs (Property Code 209.011(e)(2)); a Texas condominium sale repays reasonable maintenance and leasing costs (Property Code 82.113(g)).';
+    // Tax Code 32.06(k)(2): after a property tax loan foreclosure, the costs are repaid with interest at the judgment rate.
+    if (taxLoanRule) return 'A Texas property tax loan foreclosure repays the same costs a tax sale does, plus interest on them at the legal judgment rate (Tax Code 32.06(k)(2), 34.21(g)).';
     if (saleKind === 'taxSale') return taxSale;
     if (saleKind === 'trustee') return loan;
     if (saleKind === 'hoa') return hoa;
@@ -201,7 +206,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
     // A redemption rule left over from another kind of sale (IRS interest on an HOA sale, say) is replaced with the
     // one that fits, and has to be confirmed again.
     if (!offer && choices) {
-      const cur = ruleOf(v, rules);
+      const cur = ruleOf(v, offered);
       if (!choices.keys.includes(cur)) {
         const r0 = rules[choices.start];
         v = { ...v, redemptionMonths: r0.months, redemptionRatePct: r0.ratePct, redemptionDaily: r0.daily, redemptionFlat: r0.flat, redemptionFlat2Pct: r0.flat2Pct, redemptionChecked: 0 };
@@ -241,12 +246,19 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   };
   const pickRule = (rule: string) => {
     const r = rules[rule];
+    setPicked(rule);
     setDraft((d) => ({ ...d, redemptionMonths: undefined, redemptionRatePct: undefined }));
     update({ redemptionMonths: r.months, redemptionRatePct: r.ratePct, redemptionDaily: r.daily, redemptionFlat: r.flat, redemptionFlat2Pct: r.flat2Pct, redemptionChecked: 0 });
   };
   // Rules that fit this kind of sale (all of the state's when the kind isn't known), and whether the buyer still has
   // to confirm in the records which one applies.
   const ruleKeys = choices ? choices.keys : Object.keys(rules);
+  // The rule picked from the menu this visit wins over another rule with the same numbers.
+  const [picked, setPicked] = useState<string | null>(null);
+  const pr = picked ? offered[picked] : undefined;
+  const same = (a: number | undefined, b: number | undefined) => (a ?? 0) === (b ?? 0);
+  const ruleNow = picked && pr && same(i.redemptionMonths, pr.months) && same(i.redemptionRatePct, pr.ratePct) && same(i.redemptionDaily, pr.daily) && same(i.redemptionFlat, pr.flat) && same(i.redemptionFlat2Pct, pr.flat2Pct) ? picked : ruleOf(i, offered);
+  const taxLoanRule = ruleNow === 'txTaxLoanLong' || ruleNow === 'txTaxLoanOther';
   const unconfirmed = !offer && !!choices?.confirm && !i.redemptionChecked;
   const r = maxSafeBid(i);
   const grid = stressGrid(i);
@@ -293,9 +305,9 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
               {g.redemption && mode === 'detailed' && !offer && (
                 <label className="calc-rule">
                   <span className="calc-label">Redemption period</span>
-                  <select value={ruleOf(i, rules)} onChange={(e) => e.target.value !== 'custom' && pickRule(e.target.value)}>
+                  <select value={ruleNow} onChange={(e) => e.target.value !== 'custom' && pickRule(e.target.value)}>
                     {Object.entries(rules).filter(([k]) => ruleKeys.includes(k)).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
-                    {ruleOf(i, rules) === 'custom' && <option value="custom">Your own numbers</option>}
+                    {ruleNow === 'custom' && <option value="custom">Your own numbers</option>}
                   </select>
                   <small className="muted">Fills in the redemption wait and what a redemption pays. Confirm them in the sale’s official notice.</small>
                 </label>
@@ -358,9 +370,9 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {unconfirmed && (
           <div className="caution calc-unconfirmed" role="status">
             <strong>Redemption rule not confirmed.</strong> {choices?.confirm} Your walk-away price now uses{' '}
-            {ruleOf(i, rules) === 'custom'
+            {ruleNow === 'custom'
               ? <>your own numbers: a {Math.round(i.redemptionMonths)}-month wait. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
-              : <>{rules[ruleOf(i, rules)]?.label}.</>}{' '}
+              : <>{offered[ruleNow]?.label}.</>}{' '}
             Pick the rule under Holding and financing (Detailed), then confirm it here.
             <label className="calc-check">
               <input type="checkbox" checked={false} onChange={() => update({ redemptionChecked: 1 })} />
@@ -369,7 +381,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           </div>
         )}
         {!offer && choices?.confirm && !!i.redemptionChecked && (
-          <p className="small muted">Redemption rule confirmed by you: {ruleOf(i, rules) === 'custom' ? `your own numbers, a ${Math.round(i.redemptionMonths)}-month wait` : rules[ruleOf(i, rules)]?.label}. <button type="button" className="linkish" onClick={() => update({ redemptionChecked: 0 })}>Undo</button></p>
+          <p className="small muted">Redemption rule confirmed by you: {ruleNow === 'custom' ? `your own numbers, a ${Math.round(i.redemptionMonths)}-month wait` : offered[ruleNow]?.label}. <button type="button" className="linkish" onClick={() => update({ redemptionChecked: 0 })}>Undo</button></p>
         )}
         <ExampleResults count={needsValue ? 0 : still.length} />
         {!needsValue && <PriceHead kind="target" label="Walk-away price" price={r.noBidWorks || cashShort ? null : r.maxBid} result={r.noBidWorks || cashShort ? null : r.profit} unit="profit" note={r.noBidWorks || cashShort ? undefined : `Not the result at ${yours.toLowerCase()}: this is the most you could pay and still meet your goal.`} />}
@@ -451,10 +463,12 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         )}
         {redeemed && !needsValue && (
           <div className="calc-note">
-            <strong>If the owner redeems: an illustration of your bid and what the law adds</strong>
+            <strong>If {ruleNow === 'usFederal' || ruleNow === 'usCourt' ? 'the United States' : 'the owner'} redeems: an illustration of your bid and what the law adds</strong>
             <p className="small">
               {i.redemptionFlat ? <>If the owner redeems {i.redemptionFlat2Pct ? 'in the first year' : 'at any time in the wait'}, the law adds {i.redemptionRatePct}% of your price{i.redemptionFlat2Pct ? `, or ${i.redemptionFlat2Pct}% in the second year` : ''}, no matter how early. </> : null}At the end of the {Math.round(i.redemptionMonths)}-month wait you’d get back about {fmtMoney(Math.round(redeemed.repaid))} on a {fmtMoney(bid > 0 ? bid : r.maxBid)} bid. By then you’d have spent about {fmtMoney(Math.round(redeemed.spent))}, so you’d {redeemed.net >= 0 ? `come out about ${fmtMoney(Math.round(redeemed.net))} ahead` : `be about ${fmtMoney(Math.round(-redeemed.net))} short`}.{' '}
-              {region.state === 'TX' && saleKind === 'taxSale'
+              {region.state === 'TX' && taxLoanRule
+                ? 'This isn’t the full Texas payoff: the law also repays the costs you reasonably spent on the property, plus interest on them at the legal judgment rate: property insurance, repairs required by a building code, an ordinance or a lease in effect at the sale, city health-and-safety liens, HOA dues and certain fees (Tax Code 32.06(k)(2), 34.21(g)). Optional remodeling isn’t on that list. Keep every receipt and ask an attorney which of your costs qualify.'
+                : region.state === 'TX' && saleKind === 'taxSale'
                 ? 'This isn’t the full Texas payoff: it leaves out the deed recording fee, the taxes, penalties and interest you paid, and eligible costs, which the law also repays: property insurance, repairs required by a building code, an ordinance or a lease in effect at the sale, city health-and-safety liens, HOA dues and certain fees (Tax Code 34.21(a), (g)). Optional remodeling isn’t on that list. Keep every receipt and ask an attorney which of your costs qualify.'
                 : 'This leaves out other amounts some rules also repay, such as taxes, assessments or costs the law lists; optional remodeling usually isn’t repaid. Ask an attorney what your sale’s rule repays.'}
             </p>

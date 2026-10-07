@@ -113,9 +113,11 @@ function Start({ p, doneStages, onReset }: { p: CaseProgress; doneStages: number
       </div>
       <p className="muted">About 45 minutes. {C.stages.length} steps. Your progress stays in this browser; you can stop and come back.</p>
       <div className="row practice-next">
-        <a className="btn big" href={`#/practice/case/${(next ?? C.stages[0]).key}`}>{started ? `Continue: ${(next ?? C.stages[0]).title}` : 'Start: your goal and your cash'}<span aria-hidden className="nowrap-arrow">&nbsp;→</span></a>
+        {started && !next
+          ? <a className="btn big" href="#/practice/case/packet">See your deal packet<span aria-hidden className="nowrap-arrow">&nbsp;→</span></a>
+          : <a className="btn big" href={`#/practice/case/${(next ?? C.stages[0]).key}`}>{started ? `Continue: ${(next ?? C.stages[0]).title}` : 'Start: your goal and your cash'}<span aria-hidden className="nowrap-arrow">&nbsp;→</span></a>}
         {started && <span className="muted">{doneStages} of {C.stages.length} steps done</span>}
-        {started && <a href="#/practice/case/packet">See your deal packet</a>}
+        {started && next && <a href="#/practice/case/packet">See your deal packet</a>}
         {started && <button type="button" className="linkish" onClick={onReset}>Start over</button>}
       </div>
     </section>

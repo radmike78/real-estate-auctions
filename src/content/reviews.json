@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "f7054d86334f0bf1",
+    "hash": "ad6a4e067adea063",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "7aa6e35c00c02ae3",
+    "hash": "56f9cf937cdaff4d",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -173,7 +173,7 @@
       "src/lib/evidence.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "1442541361e20bb2",
+    "hash": "95dc4314c2fbad27",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -405,7 +405,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "9c6b01a0217f7984",
+    "hash": "a24f0aeb826dde1e",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

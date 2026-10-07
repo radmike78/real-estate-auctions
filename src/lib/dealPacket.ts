@@ -114,7 +114,9 @@ export function suggestedDates(d: Pick<Deal, 'kind' | 'state'>): string[] {
   if (isOffer(d)) return ['Offer accepted (Day 0)', ...(d.state === 'TX' ? TX_DEPOSIT_DATES : ['Earnest money due']), d.state === 'TX' ? 'Option period ends (5 p.m.)' : 'Inspection period ends', ...(d.state === 'TX' ? TX_LOAN_DATES : ['Appraisal deadline', 'Loan approval deadline']), 'Closing'];
   if (d.kind === 'lien') return ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien'];
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
-  if (['taxSale', 'hoa', 'irs', 'court'].includes(d.kind) && !(d.state === 'TX' && d.kind === 'court')) out.push('Redemption period ends');
+  // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
+  // Texas execution sale; a Texas tax sale has its own redemption period (Tax Code 34.21).
+  if ((['hoa', 'irs', 'court'].includes(d.kind) || (d.kind === 'taxSale' && d.state === 'TX')) && !(d.state === 'TX' && d.kind === 'court')) out.push('Redemption period ends');
   return out;
 }
 
@@ -140,7 +142,7 @@ export function savedNumbers(d: Deal) {
   const offer = isOffer(d);
   let rent: { price: number; monthly: number; cashIn: number; allIn: number; refi: boolean; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
   let bid: { maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number; none: boolean; stress: { label: string; maxBid: number }[] } | null = null;
-  let commercial: { maxBid: number; noi: number; capPct: number; cashLeft: number; allIn: number; refi: boolean; stress: { label: string; maxBid: number | null }[] } | null = null;
+  let commercial: { maxBid: number; noi: number; capPct: number; cashLeft: number; allIn: number; refi: boolean; none: boolean; stress: { label: string; maxBid: number | null }[] } | null = null;
   if (d.plan === 'rent') {
     const rentRaw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
     if (rentRaw) {
@@ -166,11 +168,13 @@ export function savedNumbers(d: Deal) {
       const v = sanitizeNumbers(raw, COMMERCIAL_DEFAULTS) as CommercialInputs;
       if (v.monthlyRent > 0) {
         const r = commercialMaxBid(v, offer);
-        if (!r.noBidWorks && Number.isFinite(r.maxBid)) {
+        // No price meets the target return with these numbers: that's a result too, not a missing one.
+        if (r.noBidWorks || !Number.isFinite(r.maxBid)) commercial = { maxBid: 0, noi: r.noi, capPct: v.targetCapPct, cashLeft: 0, allIn: 0, refi: false, none: true, stress: [] };
+        else {
           // The downside: the same deal with rent 10% lower (null: no price meets the target then).
           const low = commercialMaxBid({ ...v, monthlyRent: v.monthlyRent * 0.9 }, offer);
           const stress = [{ label: 'Rent 10% lower', maxBid: low.noBidWorks || !Number.isFinite(low.maxBid) ? null : low.maxBid }];
-          commercial = { maxBid: r.maxBid, noi: r.noi, capPct: v.targetCapPct, cashLeft: r.cashLeft, allIn: r.allIn, refi: !offer && r.debtService > 0, stress };
+          commercial = { maxBid: r.maxBid, noi: r.noi, capPct: v.targetCapPct, cashLeft: r.cashLeft, allIn: r.allIn, refi: !offer && r.debtService > 0, none: false, stress };
         }
       }
     }
@@ -264,6 +268,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     if (!offer) cash.push(`On sale day, at your walk-away price: ${money(bid.cashOnDay)} (bid plus any buyer’s premium, in the form the sale requires)`);
     cash.push(`Most cash you’ll have in at once, through repairs and holding until it sells: ${money(bid.cashPeak)}`);
     if (bid.cashTotal < bid.cashPeak) cash.push(`Left in once the loan funds: ${money(bid.cashTotal)}`);
+  } else if (commercial?.none) {
+    cash.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered in ${strategy}.`);
   } else if (commercial) {
     need = commercial.refi ? commercial.allIn : commercial.cashLeft;
     cash.push(commercial.refi
@@ -288,13 +294,14 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     nums.push(bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and your profit target` : `Walk-away price: ${money(bid.maxBid)}, the most you could pay and still meet your goal (not your actual price), based on a ${money(bid.exitValue)} resale value`);
     for (const s of bid.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid > 0 ? `walk-away price ${money(s.maxBid)}` : 'no price works'}`);
   }
-  if (commercial) {
+  if (commercial?.none) nums.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered`);
+  else if (commercial) {
     nums.push(`Highest price for a ${commercial.capPct}% return on cost: ${money(commercial.maxBid)}, on ${money(commercial.noi)} a year of net operating income`);
     for (const s of commercial.stress) nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid !== null && s.maxBid > 0 ? `highest price ${money(s.maxBid)}` : 'no price works'}`);
   }
   if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');
   // Done only once there's a downside to look at, not just the base case.
-  const downside = (rent && rent.stress.length > 1) || (bid && bid.stress.length > 1) || (commercial && commercial.stress.length > 0);
+  const downside = (rent && rent.stress.length > 1) || (bid && bid.stress.length > 1) || (commercial && (commercial.none || commercial.stress.length > 0));
   out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: downside ? 'done' : hasNums ? 'started' : 'missing', lines: nums, fix: { label: 'Open in Analyze', href: '#/analyze' } });
 
   // 6. Evidence
