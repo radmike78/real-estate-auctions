@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "da0f230346416ee8",
+    "hash": "1a4931564ea8f1a0",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -355,7 +355,7 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "e0616f27674d3234",
+    "hash": "edeed7d921d1de0d",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {

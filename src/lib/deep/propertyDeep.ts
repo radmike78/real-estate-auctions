@@ -836,7 +836,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         year: "2026",
         title: "Las Vegas complex heads to foreclosure auction",
         happened: "The owner of Tides on Twain, a nearly 200-unit complex near Boulder Highway, fell behind on the loan. A notice taped to the leasing office said the owner owed nearly $43 million and the property would be sold at public auction. Residents said nobody had told them.",
-        lesson: "Heavy debt on an older complex leaves no room for error, and the tenants feel it too. In Nevada, a new owner must follow state and federal tenant protections after foreclosure, including 90 days’ notice under federal law.",
+        lesson: "Heavy debt on an older complex leaves no room for error, and the tenants feel it too. In Nevada, the 60-day notice rule after foreclosure covers only homes with up to 4 units (NRS 40.255), so tenants in a large complex rely on federal law: they can stay until the lease ends, or 90 days after a notice to vacate if that is later.",
         source: {
           label: "KTNV Channel 13 Las Vegas: Tenants’ futures uncertain after Las Vegas apartment complex foreclosure (Feb. 11, 2026)",
           url: "https://ktnv.com/news/where-are-we-gonna-go-tenants-futures-uncertain-after-las-vegas-apartment-complex-foreclosure"

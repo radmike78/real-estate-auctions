@@ -47,6 +47,12 @@ describe('forStateText', () => {
 });
 
 describe('dropStateLead', () => {
+  it('keeps a lead-in that names several states', () => {
+    const s = 'Escrow pays everyone. In California, Nevada, Arizona and Utah, title companies close.';
+    expect(dropStateLead(s, 'CA')).toBe(s);
+    expect(dropStateLead('In Nevada, Texas and many other states, the HOA can foreclose.', 'NV')).toBe('In Nevada, Texas and many other states, the HOA can foreclose.');
+    expect(dropStateLead('In Nevada, Nevada Legal Services helps.', 'NV')).toBe('Nevada Legal Services helps.');
+  });
   it('drops the chosen state’s lead-in from each sentence', () => {
     expect(dropStateLead('In California, the county sells it. In California, you can pay.', 'CA')).toBe('The county sells it. You can pay.');
     expect(dropStateLead('Texas: trustee sales are on the first Tuesday.', 'TX')).toBe('Trustee sales are on the first Tuesday.');

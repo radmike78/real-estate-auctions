@@ -137,6 +137,10 @@ interface CaseConfig {
   cancelInspection: string;
   leaveInspection: string;
   lateInspection: string;
+  /** When answering the seller's reply to a repair request is due, if not the end of the inspection period (Day 10). */
+  counterDue?: { ask: string; accept: string; late: string; why: string };
+  /** Why ignoring the HOA's leasing rules is wrong, if this state's contract has no separate HOA review period. */
+  hoaRulesWhy?: string;
   cancelShort: string;
   periodName: string;
   /** The ways out the offer keeps, in this state's words. */
@@ -549,6 +553,12 @@ const AZ: CaseConfig = {
   cancelInspection: 'Cancel in writing before the inspection period ends (Day 10), and get the earnest money back.',
   leaveInspection: 'During your inspection period you can cancel for any reason, in writing on the BINSR, listing the items you disapprove, and get the earnest money back.',
   lateInspection: 'After Day 10 the inspection period is over. You’d lose the right to cancel over the inspection, and maybe your earnest money.',
+  counterDue: {
+    ask: 'The seller answered on Day 8. Do you accept or cancel by Day 13 (5 days after the seller’s answer)?',
+    accept: 'Accept in writing by Day 13.',
+    late: 'Wait until Day 14 to decide.',
+    why: 'Under this contract you had 5 days after the seller’s answer (Day 13) to cancel or accept. If you don’t cancel in time, you’re treated as going ahead without the repairs the seller refused, and you can no longer cancel over the inspection.',
+  },
   cancelShort: 'Cancel in writing before Day 10.',
   periodName: 'end of the inspection period',
   protections: 'an inspection period and the appraisal and loan contingencies',
@@ -632,7 +642,7 @@ const UT: CaseConfig = {
     ['Acceptance (Day 0)', 'The day the signed acceptance is delivered to you. The other deadlines count from it.'],
     ['Earnest money', `${usd(n.earnest)}, to your agent’s brokerage within 4 calendar days after Acceptance (the brokerage deposits it in its trust account), unless the contract names a title company`],
     ['Due Diligence Deadline', 'Day 10. You can cancel for any reason, in writing, before then. If you don’t, the due diligence condition is waived.'],
-    ['Financing & Appraisal Deadline', 'Day 21. By then you can cancel if the appraisal comes in under the price and get the earnest money back. If you cancel because you’re not satisfied with the loan terms, the seller can keep the amount written in section 8.3(b)(i). If your loan fails after this deadline, the seller keeps all the earnest money (REPC 8.3(b)(iii)).'],
+    ['Financing & Appraisal Deadline', 'Day 21. By then you can cancel if the appraisal comes in under the price, by written notice with a copy of the lender’s or appraiser’s notice of the appraised value, and get the earnest money back. If you cancel because you’re not satisfied with the loan terms, the seller can keep the amount written in section 8.3(b)(i). If your loan fails after this deadline, the seller keeps all the earnest money (REPC 8.3(b)(iii)).'],
     ['Seller Disclosure Deadline', 'Day 3: the seller’s disclosures, including the HOA documents'],
     ['Settlement Deadline', 'Day 30'],
     ['Counting days', 'Calendar days, starting the day after Acceptance. Each deadline ends at 5:00 p.m. Mountain Time on its date (REPC §21).'],
@@ -651,13 +661,14 @@ const UT: CaseConfig = {
   cancelInspection: 'Cancel in writing before the Due Diligence Deadline (Day 10), and get the earnest money back.',
   leaveInspection: 'Until the Due Diligence Deadline you can cancel for any reason, in writing, and get the earnest money back.',
   lateInspection: 'After the Due Diligence Deadline (Day 10), the due diligence condition is waived. You’d lose the right to cancel over the inspection, and maybe your earnest money.',
+  hoaRulesWhy: 'Many HOAs can and do limit rentals. In Utah the CC&Rs and rules come with the seller’s disclosures (REPC 7(d)), so read them before the Due Diligence Deadline: that’s your last chance to cancel over them.',
   cancelShort: 'Cancel in writing before Day 10.',
   periodName: 'Due Diligence Deadline',
   protections: 'due diligence, appraisal and financing conditions',
   licenseQuestion: '“Are you licensed by Utah’s Division of Professional Licensing (DOPL) for this work, and can I see your license number?”',
   appraisalName: 'appraisal condition',
-  cancelAppraisal: 'Cancel in writing by the Financing & Appraisal Deadline (Day 21), and get the earnest money back.',
-  leaveAppraisal: 'Your appraisal condition lets you cancel by the Financing & Appraisal Deadline when the appraisal is under the price.',
+  cancelAppraisal: 'Cancel in writing, with a copy of the notice of appraised value, by the Financing & Appraisal Deadline (Day 21), and get the earnest money back.',
+  leaveAppraisal: 'Your appraisal condition lets you cancel by the Financing & Appraisal Deadline when the appraisal is under the price, if your written notice includes a copy of the notice of appraised value (REPC 8.2(a)).',
   roofer: 'Wasatch Example Roofing',
   lienWhy: 'It’s a recorded claim against the house. In Utah, a contractor must record the lien within 180 days after the work is finished (90 days after a notice of completion, if one was filed), and sue to enforce it within 180 days after recording it (Utah Code 38-1a-502 and 38-1a-701). Either way, the title company wants it released or cleared on the record before closing. Ask the title officer how, and whether a lawsuit was filed.',
   earnestPaid: 'to your agent’s brokerage within 4 calendar days after Acceptance (the brokerage deposits it in its trust account), unless the contract names a title company',
@@ -1197,11 +1208,11 @@ function buildCase(c: CaseConfig) {
           kind: 'choice',
           id: 'counter',
           if: { task: 'respond', is: [0] },
-          prompt: `The seller agrees to take ${$(offer - renegotiated)} off: a new price of ${$(renegotiated)}. With the repairs paid by you, you’d need ${$(N.cashRenegotiated)} of your ${$(N.investable)}. Do you accept before Day 10?`,
+          prompt: `The seller agrees to take ${$(offer - renegotiated)} off: a new price of ${$(renegotiated)}. With the repairs paid by you, you’d need ${$(N.cashRenegotiated)} of your ${$(N.investable)}. ${c.counterDue?.ask ?? 'Do you accept before Day 10?'}`,
           choices: [
-            { label: 'Accept in writing before Day 10.', verdict: 'ok', why: `You’d keep ${$(N.investable - N.cashRenegotiated)} beyond the lender’s reserves. Tight, but inside your plan, and the reserves are there for a bad month.` },
+            { label: c.counterDue?.accept ?? 'Accept in writing before Day 10.', verdict: 'ok', why: `You’d keep ${$(N.investable - N.cashRenegotiated)} beyond the lender’s reserves. Tight, but inside your plan, and the reserves are there for a bad month.` },
             { label: c.cancelShort, verdict: 'ok', walk: true, why: 'Also reasonable: the roof and water heater are coming, and your cushion is thin. Walking away with your deposit is a fine result.' },
-            { label: 'Wait until Day 12 to decide.', verdict: 'poor', why: c.lateInspection },
+            { label: c.counterDue?.late ?? 'Wait until Day 12 to decide.', verdict: 'poor', why: c.counterDue?.why ?? c.lateInspection },
           ],
           ifDifferent: 'Both accepting and walking away are defensible here. What matters is that you decide on the numbers, in writing, before the deadline.',
         },
@@ -1209,11 +1220,11 @@ function buildCase(c: CaseConfig) {
           kind: 'choice',
           id: 'repairs-reply',
           if: { task: 'respond', is: [2] },
-          prompt: `The seller won’t manage contractors from out of state. Instead they offer ${$(offer - renegotiated)} off the price: a new price of ${$(renegotiated)}, and you handle the repairs. With the repairs paid by you, you’d need ${$(N.cashRenegotiated)} of your ${$(N.investable)}. Do you accept before Day 10?`,
+          prompt: `The seller won’t manage contractors from out of state. Instead they offer ${$(offer - renegotiated)} off the price: a new price of ${$(renegotiated)}, and you handle the repairs. With the repairs paid by you, you’d need ${$(N.cashRenegotiated)} of your ${$(N.investable)}. ${c.counterDue?.ask ?? 'Do you accept before Day 10?'}`,
           choices: [
-            { label: 'Accept in writing before Day 10.', verdict: 'ok', why: `You’d keep ${$(N.investable - N.cashRenegotiated)} beyond the lender’s reserves, and you choose the contractors and check the permits yourself.`, log: `Asked the seller to make the repairs. They offered ${$(offer - renegotiated)} off instead, and you accepted in writing.` },
+            { label: c.counterDue?.accept ?? 'Accept in writing before Day 10.', verdict: 'ok', why: `You’d keep ${$(N.investable - N.cashRenegotiated)} beyond the lender’s reserves, and you choose the contractors and check the permits yourself.`, log: `Asked the seller to make the repairs. They offered ${$(offer - renegotiated)} off instead, and you accepted in writing.` },
             { label: c.cancelShort, verdict: 'ok', walk: true, why: 'Also reasonable: the roof and water heater are coming, and your cushion is thin. Walking away with your deposit is a fine result.' },
-            { label: 'Wait until Day 12 to decide.', verdict: 'poor', why: c.lateInspection },
+            { label: c.counterDue?.late ?? 'Wait until Day 12 to decide.', verdict: 'poor', why: c.counterDue?.why ?? c.lateInspection },
           ],
         },
         {
@@ -1309,7 +1320,7 @@ function buildCase(c: CaseConfig) {
           prompt: 'Do the HOA’s leasing rules fit your plan?',
           choices: [
             { label: 'Yes: a 12-month lease fits. Send the HOA each lease and the tenant’s contact information.', verdict: 'best', why: 'Your plan was a long-term rental. A short-term rental plan would have died here.' },
-            { label: 'No: HOAs can’t limit rentals, so ignore them.', verdict: 'poor', why: 'Many HOAs can and do limit rentals. Read the rules before your HOA review period ends.' },
+            { label: 'No: HOAs can’t limit rentals, so ignore them.', verdict: 'poor', why: c.hoaRulesWhy ?? 'Many HOAs can and do limit rentals. Read the rules before your HOA review period ends.' },
           ],
         },
         {
