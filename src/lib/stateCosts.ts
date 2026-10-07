@@ -115,6 +115,10 @@ export function redemptionPresetsFor(state: StateCode): Record<string, Redemptio
       // most 25% for other property. Measured from the day the deed is filed for record.
       txTaxHomestead: { label: 'Tax sale, homestead, agricultural land or mineral interest: 2 years, +25% (first year) or +50% (second)', months: 24, ratePct: 25, daily: 0, flat: 1, flat2Pct: 50 },
       txTaxOther: { label: 'Tax sale, other property: 180 days, up to +25% of the price', months: 6, ratePct: 25, daily: 0, flat: 1, flat2Pct: 0 },
+      // Tax Code 32.06(k), (k-1): after a trustee sale foreclosing a transferred property tax lien, the owner or an earlier
+      // mortgage's servicer can redeem by paying 125% of the price (first year) or 150% (second year), plus costs.
+      txTaxLoanLong: { label: 'Property tax loan foreclosure, homestead, agricultural land or mineral interest: 2 years, +25% (first year) or +50% (second)', months: 24, ratePct: 25, daily: 0, flat: 1, flat2Pct: 50 },
+      txTaxLoanOther: { label: 'Property tax loan foreclosure, other property: 180 days, +25% of the price', months: 6, ratePct: 25, daily: 0, flat: 1, flat2Pct: 0 },
       // Property Code 209.010-.011: 180 days after the HOA mails notice of the sale, which it must do within 30 days;
       // a buyer other than the HOA is repaid the price and costs, with no interest.
       txHoaSubdivision: { label: 'HOA sale, subdivision: about 7 months (180 days after the notice), no interest', months: 7, ratePct: 0, daily: 0, flat: 0, flat2Pct: 0 },
@@ -151,7 +155,7 @@ export function redemptionChoicesFor(state: StateCode, kind: string): { keys: st
     return {
       keys: ['txTaxHomestead', 'txTaxOther'],
       start: 'txTaxHomestead',
-      confirm: 'We assumed the longer 2-year wait. Check the court judgment and the appraisal district record. If the property was the owner’s home, farm or ranch land, or a mineral interest when the suit was filed, the owner has 2 years; otherwise 180 days. Both count from the day your deed is recorded (Tax Code 34.21).',
+      confirm: 'We assumed the longer 2-year wait. Check the court judgment and the appraisal district record. If the property was the owner’s home, land designated for agricultural use, or a mineral interest when the suit was filed, the owner has 2 years; otherwise 180 days. Both count from the day your deed is recorded (Tax Code 34.21).',
     };
   if (kind === 'hoa' && state === 'TX')
     return {
@@ -162,6 +166,12 @@ export function redemptionChoicesFor(state: StateCode, kind: string): { keys: st
   if (kind === 'hoa') return { keys: has('hoa') ? ['hoa', 'usFederal'] : ['none', 'usFederal'], start: has('hoa') ? 'hoa' : 'none' };
   // A trustee sale has no owner redemption in these states, but if it wipes out a junior federal tax lien, the United States
   // can still redeem for 120 days (26 USC 7425(d)). A lien the sale doesn't wipe out simply stays on title (7425(b)).
+  if (kind === 'trustee' && state === 'TX')
+    return {
+      keys: ['none', 'txTaxLoanLong', 'txTaxLoanOther', 'usFederal'],
+      start: 'none',
+      confirm: 'A mortgage foreclosure has no redemption, so none is assumed. The property tax loan choices apply only if the lien foreclosed is a transferred property tax lien (Tax Code 32.06).',
+    };
   if (kind === 'trustee') return { keys: ['none', 'usFederal'], start: 'none' };
   // A tax sale has no owner redemption in Nevada, Utah, California or Arizona (Texas has its own, always longer than 120
   // days), but if it wipes out a junior federal tax lien the United States can redeem for 120 days, since a property tax

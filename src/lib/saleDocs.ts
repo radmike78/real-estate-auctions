@@ -133,7 +133,7 @@ const TX_TAX_NOTICE: SaleDoc = { name: 'The notice of sale and the county’s sa
 const TX_DOCS: Partial<Record<SaleKindKey, SaleDoc[]>> = {
   deed: [
     TX_TAX_NOTICE,
-    { name: 'The tax office’s statement that you owe no delinquent taxes', check: 'In counties of 250,000 people or more, and smaller ones that adopt the rule, the officer can’t give you a deed without it (Tax Code 34.015). Ask the county tax assessor-collector for it before the sale, in the exact name you’ll bid in. It expires 90 days after it’s issued, and the fee is $10 or less.' },
+    { name: 'The tax office’s statement that you owe no delinquent taxes', check: 'In counties of 250,000 people or more, and smaller ones that adopt the rule, the officer can’t give you a deed without it (Tax Code 34.015). Ask the county tax assessor-collector for it before the sale, in the exact name you’ll bid in. It expires 90 days after it’s issued, and the fee is $10 or less. Where the county uses bidder registration instead, register with the county before the sale (Tax Code 34.011).' },
     { name: 'The court judgment and order of sale', check: 'From the district clerk. It shows the amount owed, the market value the court set and who was sued. Ask a title company or attorney which liens and interests the judgment covers and which ones stay.' },
     { name: 'Appraisal district record and the judgment’s description', check: 'They tell you the redemption period: 2 years for a home that was the owner’s homestead, land designated for agricultural use, or a mineral interest; 180 days for other property (Tax Code 34.21). Vacant land isn’t automatically 180 days, and rural land isn’t automatically agricultural: check the record.' },
     TITLE_SEARCH,
@@ -158,6 +158,7 @@ const TX_DOCS: Partial<Record<SaleKindKey, SaleDoc[]>> = {
   ],
   sheriff: [
     NOTICE,
+    { name: 'The tax office’s statement that you owe no delinquent taxes, or your county bidder registration', check: 'In counties of 250,000 people or more, and smaller ones that adopt the rule, the officer can’t give you a deed without one of them (Civ. Prac. & Rem. Code 34.0445). Ask the county tax assessor-collector for the statement before the sale, in the exact name you’ll bid in, or register as a bidder where the county uses registration.' },
     { name: 'The court case file', check: 'The judgment and the writ of execution behind the sale. Your attorney can tell you what the judgment covers.' },
     TITLE_SEARCH,
     FUNDS,

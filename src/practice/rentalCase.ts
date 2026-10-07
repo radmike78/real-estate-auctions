@@ -319,7 +319,7 @@ const TX: CaseConfig = {
       id: 'tx-deposit',
       prompt: `In Texas, what is the most you can take as a security deposit at ${usd(n.rent)} a month rent?`,
       choices: [
-        { label: 'Texas law sets no limit. Pick an amount the market accepts, and return it with an itemized list of deductions within 30 days after the tenant moves out.', verdict: 'best', why: 'Texas doesn’t cap deposits, but you must refund them, less itemized deductions for damage beyond normal wear and tear, within 30 days after the tenant leaves (Property Code 92.103, 92.104).' },
+        { label: 'Texas law sets no limit. Pick an amount the market accepts, and return it with an itemized list of deductions within 30 days after the tenant moves out.', verdict: 'best', why: 'Texas doesn’t cap deposits, but you must refund them, less itemized deductions for damage beyond normal wear and tear, within 30 days after the tenant leaves (Property Code 92.103, 92.104). The clock waits until the tenant gives you a written forwarding address (Property Code 92.107).' },
         { label: `${usd(n.rent * 3)}, the legal maximum`, verdict: 'poor', why: 'Texas has no legal maximum; 3 months’ rent is Nevada’s cap. And a very high deposit can cost you good tenants.' },
         { label: `${usd(n.rent)}: 1 month’s rent`, verdict: 'ok', why: 'A common choice, and lawful. But it’s your choice, not a limit.' },
       ],
@@ -334,7 +334,7 @@ const TX: CaseConfig = {
       ],
     },
   ],
-  rentLog: () => 'Selection criteria given with a signed acknowledgment. Deposit returned within 30 days with an itemized list (Texas).',
+  rentLog: () => 'Selection criteria given with a signed acknowledgment. Deposit returned within 30 days with an itemized list (Texas; the clock waits until the tenant gives you a written forwarding address, Property Code 92.107).',
   offerTasks: () => [
     {
       kind: 'choice',

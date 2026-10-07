@@ -50,7 +50,8 @@ describe('state deal costs', () => {
     // leave the United States its 120 days when a junior federal tax lien was on title (26 USC 7425(d)).
     expect(redemptionChoicesFor('TX', 'hoa').keys).not.toContain('irs');
     expect(redemptionChoicesFor('TX', 'court').keys).toEqual(['none']);
-    expect(redemptionChoicesFor('TX', 'trustee')).toMatchObject({ keys: ['none', 'usFederal'], start: 'none' });
+    expect(redemptionChoicesFor('TX', 'trustee')).toMatchObject({ keys: ['none', 'txTaxLoanLong', 'txTaxLoanOther', 'usFederal'], start: 'none' });
+    expect(redemptionChoicesFor('TX', 'trustee').confirm).toMatch(/32.06/);
     expect(redemptionChoicesFor('NV', 'hoa')).toMatchObject({ keys: ['hoa', 'usFederal'], start: 'hoa' });
     expect(redemptionChoicesFor('NV', 'taxSale')).toMatchObject({ keys: ['none', 'usFederal'], start: 'none' });
     expect(redemptionPresetsFor('CA').usFederal).toMatchObject({ months: 4, ratePct: 6 });
