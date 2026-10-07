@@ -2453,14 +2453,14 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     treasurer: { url: "https://www.summitcountyutah.gov/268/Treasurer", checked: "2026-09-29" },
     assessor: { url: "https://www.summitcountyutah.gov/220/Assessor", checked: "2026-09-29" },
     recorder: { url: "https://www.summitcountyutah.gov/243/Recorder-Surveyor", checked: "2026-09-29" },
-    sheriff: { url: "https://www.summitcountyutah.gov/233/Civil-Division", checked: "2026-09-29" },
+    sheriff: { url: "https://www.summitcountyutah.gov/2462/Civil-Process", checked: "2026-10-07" },
   },
   "UT/Tooele": {
     taxSale: { url: "https://tooeleco.gov/departments/administration/auditor/may_tax_sale.php", checked: "2026-09-29" },
     treasurer: { url: "https://tooeleco.gov/departments/administration/treasurer/index.php", checked: "2026-09-29" },
     assessor: { url: "https://tooeleco.gov/departments/elected_officials/assessor/index.php", checked: "2026-09-29" },
     recorder: { url: "https://tooeleco.gov/departments/administration/recorder_surveyor/index.php", checked: "2026-09-29" },
-    sheriff: { url: "https://tooelecountysheriff.org/index.php/public-services-and-information/", checked: "2026-09-29" },
+    sheriff: { url: "https://tooelecountysheriff.org/", checked: "2026-10-07", note: "No civil page: call the Sheriff’s Office about sheriff’s sales." },
   },
   "UT/Uintah": {
     taxSale: { url: "https://www.uintah.gov/departments/a_-_e_departments/clerk_auditor/index.php", checked: "2026-09-29", note: "No separate tax sale page: watch this office for sale notices. Recent sales ran online through Public Surplus; start from the county’s page for the current sale." },
@@ -2481,7 +2481,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     treasurer: { url: "https://www.wasatchcounty.gov/203/Treasurers-Office", checked: "2026-09-29" },
     assessor: { url: "https://www.wasatchcounty.gov/166/Assessors-Office", checked: "2026-09-29" },
     recorder: { url: "https://www.wasatchcounty.gov/195/Recorders-Office", checked: "2026-09-29" },
-    sheriff: { url: "https://www.wasatchcounty.gov/173/Civil-Division", checked: "2026-09-29" },
+    sheriff: { url: "https://www.wasatchsheriff.gov/", checked: "2026-10-07", note: "No civil page: call the Sheriff’s Office about sheriff’s sales." },
   },
   "UT/Washington": {
     taxSale: { url: "https://www.washco.utah.gov/departments/auditor/tax-sale/", checked: "2026-09-29" },

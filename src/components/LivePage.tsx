@@ -152,7 +152,7 @@ export default function LivePage() {
       {otherState ? (
         <section aria-labelledby="treasurer-head">
           <h2 id="treasurer-head">Before you register: ask the county</h2>
-          <ScriptBox to="the county’s tax sale office" heading="What to say to the county’s tax sale office" script={SALE_SCRIPTS.deed[0].script} note={`Call or email the office named on the county’s sale page${myState === 'TX' ? ' (in Texas, often the county tax office, or the sheriff or constable holding the sale)' : ''}. Then read the full checklist in the tax sale guide.`} />
+          <ScriptBox to="the county’s tax sale office" heading="What to say to the county’s tax sale office" script={SALE_SCRIPTS.deed[0].script} note={`Call or email the office named on the county’s sale page${myState === 'TX' ? ' (in Texas, often the county tax office, or the sheriff or constable holding the sale)' : myState === 'UT' ? ' (in Utah, the county auditor; in Davis County, the Controller)' : ''}. Then read the full checklist in the tax sale guide.`} />
           <p><a className="btn" href="#/playbooks/tax/documents">Documents for a tax sale →</a></p>
         </section>
       ) : (
