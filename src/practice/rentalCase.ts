@@ -150,6 +150,9 @@ interface CaseConfig {
   earnestPaid: string;
   earnestCredit: (n: Nums) => string;
   earnestShort: string;
+  /** Who the earnest-money wiring email pretends to be from, and who to call (defaults: escrow). */
+  wireFrom?: string;
+  wireCall?: string;
   rentRulesNote: string;
   rekeyWhy: string;
   rentTasks: (n: Nums) => CaseTask[];
@@ -604,7 +607,7 @@ const UT: CaseConfig = {
     ['Acceptance (Day 0)', 'The day the signed acceptance is delivered to you. The other deadlines count from it.'],
     ['Earnest money', `${usd(n.earnest)}, to your agent’s brokerage within 4 calendar days after Acceptance (the brokerage deposits it in its trust account), unless the contract names a title company`],
     ['Due Diligence Deadline', 'Day 10. You can cancel for any reason, in writing, before then. If you don’t, the due diligence condition is waived.'],
-    ['Financing & Appraisal Deadline', 'Day 21. You can cancel by then if the appraisal comes in under the price, and get the earnest money back. If your loan fails after this deadline, the seller keeps the earnest money (REPC section 8.3(b)(iii)).'],
+    ['Financing & Appraisal Deadline', 'Day 21. By then you can cancel if the appraisal comes in under the price and get the earnest money back. If you cancel because you’re not satisfied with the loan terms, the seller can keep the amount written in section 8.3(b)(i). If your loan fails after this deadline, the seller keeps all the earnest money (REPC 8.3(b)(iii)).'],
     ['Seller Disclosure Deadline', 'Day 3: the seller’s disclosures, including the HOA documents'],
     ['Settlement Deadline', 'Day 30'],
     ['Counting days', 'Calendar days, starting the day after Acceptance. Each deadline ends at 5:00 p.m. Mountain Time on its date (REPC §21).'],
@@ -635,6 +638,8 @@ const UT: CaseConfig = {
   earnestPaid: 'to your agent’s brokerage within 4 calendar days after Acceptance (the brokerage deposits it in its trust account), unless the contract names a title company',
   earnestCredit: (n) => `${usd(n.earnest)} earnest money`,
   earnestShort: 'earnest money',
+  wireFrom: 'your agent’s brokerage or the title company',
+  wireCall: 'Call your agent’s brokerage or the title company at a phone number you already trust (from your agent or the company’s own website) to confirm the instructions before sending anything.',
   rentRulesNote: 'Rules on deposits and entry are state law. The ones below are Utah’s, because this practice house is in Utah.',
   rekeyWhy: 'You don’t know who else has keys.',
   rentTasks: (n) => [
@@ -1068,9 +1073,9 @@ function buildCase(c: CaseConfig) {
         {
           kind: 'choice',
           id: 'wire',
-          prompt: 'The seller accepts. An email that looks like it’s from escrow arrives with wiring instructions for your earnest money. What do you do?',
+          prompt: `The seller accepts. An email that looks like it’s from ${c.wireFrom ?? 'escrow'} arrives with wiring instructions for your earnest money. What do you do?`,
           choices: [
-            { label: 'Call the escrow officer at a phone number you already trust (from your agent or the escrow company’s website) to confirm the instructions before sending anything.', verdict: 'best', why: 'Fake wiring emails are a common scam in real estate, and wired money is very hard to get back. Always confirm by phone with a number you found yourself.' },
+            { label: c.wireCall ?? 'Call the escrow officer at a phone number you already trust (from your agent or the escrow company’s website) to confirm the instructions before sending anything.', verdict: 'best', why: 'Fake wiring emails are a common scam in real estate, and wired money is very hard to get back. Always confirm by phone with a number you found yourself.' },
             { label: 'Reply to the email to confirm it’s real.', verdict: 'poor', why: 'If the email is fake, the scammer answers. Use a number you found yourself.' },
             { label: 'Wire it right away so you don’t miss the deposit deadline.', verdict: 'poor', why: 'A quick call takes minutes. A wire sent to a scammer is usually gone for good.' },
           ],

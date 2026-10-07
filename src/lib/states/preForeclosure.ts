@@ -33,7 +33,7 @@ export const TIMELINE: ByStateLines = {
     { text: 'In Utah, notice of default: the trustee records it with the county recorder. Within 3 months after that, the owner or a junior lienholder can catch up and cure the default (Utah Code 57-1-24, 57-1-31).' },
     { text: 'In Utah, 3+ months: this is the shortest wait before notice of sale can be given (Utah Code 57-1-24). A community association (HOA) uses the same steps, but first sends the owner a 30-day notice (Utah Code 57-8a-303).' },
     { text: 'In Utah, notice of sale: it is published in a newspaper once a week for 3 weeks, on the state’s public legal notice website for 30 days, and posted on the property and at the county recorder at least 20 days before the sale (Utah Code 57-1-25).' },
-    { text: 'In Utah, auction: it is held at a courthouse in the county, between 8 a.m. and 5 p.m. It can be postponed. A postponement of more than 45 days needs a new notice (Utah Code 57-1-25, 57-1-27). Follow the date on the trustee’s notice of sale.' },
+    { text: 'In Utah, auction: it is held at a courthouse in the county, between 8 a.m. and 5 p.m. It can be postponed. A new notice is needed only if the sale moves more than 45 days past the date in the original notice (Utah Code 57-1-25, 57-1-27). Follow the date on the trustee’s notice of sale.' },
   ],
   TX: TX_PRE_TIMELINE,
 };

@@ -567,7 +567,8 @@ export const ROADMAP: RoadmapStep[] = [
     outcome: 'A net-sheet before listing (price, commission, title and escrow, transfer tax, loan payoff, estimated tax) and a closed sale.',
     steps: [
       'Get a broker’s opinion of value from comparable sales and ask the title company for a seller’s net sheet.',
-      'Ask your tax advisor what you’ll owe: a flip is usually ordinary income; a rental held over a year gets capital gains rates, with depreciation taxed at up to 25%. In California, escrow may hold back 3⅓% of the price.',
+      'Ask your tax advisor what you’ll owe: a flip is usually ordinary income; a rental held over a year gets capital gains rates, with depreciation taxed at up to 25%.',
+      'In California, escrow may hold back 3⅓% of the price for state income tax.',
       'Decide the listing price and your lowest acceptable offer before the first showing.',
     ],
     say: { to: 'Tax advisor', script: '“I’m selling [address], bought [date] for [price], with [improvements] and [depreciation] taken. What will I owe, and is there anything I should do before I list?”' },

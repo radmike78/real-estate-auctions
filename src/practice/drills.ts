@@ -1112,7 +1112,7 @@ export const DRILLS: Drill[] = [
           { label: 'No. Once the auditor closes the sale on a parcel, I can’t rescind my bid', good: true, why: 'Right (59-2-1351.1(6)). Confirm the description matches the land before you bid.' },
           { label: 'Yes, within 30 days', good: false, why: 'There’s no cooling-off period.' },
         ],
-        lesson: 'If a tax title is later found invalid, your claim is limited to the smaller of the taxes, interest and penalties or what you paid (59-2-1352).* Bid only what you can afford to lose while title is uncertain.',
+        lesson: 'If a tax title is later found invalid, your claim is limited to the smaller of the taxes, interest and penalties or what you paid (59-2-1352). Bid only what you can afford to lose while title is uncertain.',
       },
       {
         kind: 'pick',
@@ -1219,7 +1219,7 @@ export const DRILLS: Drill[] = [
           { label: 'Record a notice of each amount with the county recorder, so it’s added to the redemption price', good: true, why: 'Right. Costs not recorded are waived (URCP 69C).' },
           { label: 'Keep the receipts at home', good: false, why: 'Without a recorded notice, you can’t add them to the redemption price.' },
         ],
-        lesson: 'Spend only on what protects the property. If someone asks in writing for an accounting of rents, you must give it, or the redemption period can be extended.',
+        lesson: 'Spend only on what protects the property. If someone asks in writing before the period ends, you must serve a sworn accounting of rents. The redemption period then runs until 7 days after you serve it. If you don’t serve it within 30 days, they can sue (within 60 days of asking), and the period runs until 21 days after the court’s order (URCP 69C(i)).',
       },
     ],
     verdict: {

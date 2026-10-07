@@ -205,7 +205,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       label: "Fannie Mae (HomePath)",
-      value: "Your agent must register on HomePath and submit offers online. Fannie Mae uses its own Residential Real Estate Purchase and Sale Contract. It won’t sign addenda that conflict with it."
+      value: "Your agent must register on HomePath and submit offers online. Fannie Mae uses its own Residential Real Estate Purchase and Sale Contract. It won’t sign addenda that conflict with it. First Look: for the first 30 days on HomePath, only owner-occupants, public entities and some nonprofits can offer."
     },
     {
       label: "Freddie Mac (HomeSteps)",
@@ -294,7 +294,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       mistake: "Investors offering during First Look",
-      prevent: "Ask the listing agent how many First Look days are left. HomeSteps and HUD consider investor offers only after their exclusive periods."
+      prevent: "Ask the listing agent how many First Look days are left. HomePath, HomeSteps and HUD consider investor offers only after their exclusive periods."
     },
     {
       mistake: "Signing an owner-occupant certification you won’t keep",
@@ -725,7 +725,7 @@ export const TX_GUIDES_2: Playbook[] = [
  * 3. Texas REALTORS commercial contract forms: TREC confirms it does not promulgate commercial forms and points to
  *    attorneys or trade associations, but I did not verify the Texas REALTORS forms themselves (members-only).
  * 4. Fannie Mae HomePath: the homepath.fanniemae.com home page is a JavaScript app; only the Offer Tips PDF was read.
- *    Fannie Mae's own First Look period length was not verified and is not stated.
+ *    Fannie Mae's 30-day First Look matches src/lib/reoSources.ts and the Nevada REO guide.
  * 5. homesteps.com/homebuyer/making-an-offer fetched, but its offer details render by JavaScript, so HomeSteps'
  *    addenda, earnest-money and pre-approval rules were not verified. The guide keeps only "HomeSteps requires its
  *    own addenda" (unverified) and "Owner-occupant buyers sign an occupancy certification" (unverified).

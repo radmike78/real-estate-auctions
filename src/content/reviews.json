@@ -61,7 +61,7 @@
       "src/components/SidCertificates.tsx"
     ],
     "reviewed": "2026-10-07",
-    "hash": "6c4535cc1abfcb82",
+    "hash": "53bc04744171774b",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "4388e591a2b8ec2f",
+    "hash": "f7054d86334f0bf1",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -405,7 +405,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "c0df18549400ba15",
+    "hash": "9c6b01a0217f7984",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

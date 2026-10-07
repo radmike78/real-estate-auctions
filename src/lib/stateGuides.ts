@@ -1040,7 +1040,7 @@ export const STATE_GUIDES: Playbook[] = [
   glance: [
     {
       label: "Who runs it",
-      value: "The county auditor in the county where the property sits."
+      value: "The county auditor in the county where the property sits (in Davis County, the Controller)."
     },
     {
       label: "When",
@@ -1230,7 +1230,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Notice of sale",
-      value: "Published once a week for three weeks, with the last one 10 to 30 days before the sale. Also posted on the property and at the county recorder at least 20 days before (57-1-25)."
+      value: "Published once a week for three weeks in a newspaper, with the last one 10 to 30 days before the sale, and on the state’s public notice website for 30 days before. Also posted on the property and at the county recorder at least 20 days before (57-1-25)."
     },
     {
       label: "Where and when",
@@ -1276,7 +1276,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Expect postponements",
-      detail: "The trustee may postpone for any reason by announcing it at the time and place of sale. No new notice is needed unless the sale moves more than 45 days past the original date."
+      detail: "The trustee may postpone for any reason by announcing it at the time and place of sale. No new notice is needed unless the sale moves more than 45 days past the date in the original notice (57-1-27)."
     },
     {
       title: "Pay and get your deed",
@@ -1315,7 +1315,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Assuming a postponed sale needs new notice",
-      prevent: "A new notice is needed only if the sale moves more than 45 days past the original date. Go on the announced date, or ask the trustee."
+      prevent: "A new notice is needed only if the sale moves more than 45 days past the date in the original notice. Go on the announced date, or ask the trustee."
     },
     {
       mistake: "Forcing occupants out",
@@ -1488,7 +1488,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Missing a rent accounting request",
-      prevent: "If someone asks in writing for an accounting of the rent you collected, you have to formally serve it on them. Missing that can extend the redemption period."
+      prevent: "If someone asks in writing before the period ends, you must serve a sworn accounting of rents. The redemption period then runs until 7 days after you serve it. If you don’t serve it within 30 days, they can sue (within 60 days of asking), and the period runs until 21 days after the court’s order (URCP 69C(i))."
     }
   ],
   example: {
@@ -1883,7 +1883,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Fannie Mae (HomePath)",
-      value: "Owner-occupant offers get priority. Owner-occupants promise they’ll move in within 60 days of closing and live there at least a year. Ask the listing agent whether a First Look period is running."
+      value: "Owner-occupant offers get priority. Owner-occupants promise they’ll move in within 60 days of closing and live there at least a year. First Look: for the first 30 days on HomePath, only owner-occupants, public entities and some nonprofits can offer."
     },
     {
       label: "Property taxes",
@@ -1943,7 +1943,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Investors offering during an owner-occupant period",
-      prevent: "Check the listing for HUD’s exclusive period or Freddie Mac’s 30-day First Look. Wait until investor offers are allowed."
+      prevent: "Check the listing for HUD’s exclusive period or the 30-day First Look on Fannie Mae and Freddie Mac homes. Wait until investor offers are allowed."
     },
     {
       mistake: "Falsely claiming you’ll live there",
@@ -2687,7 +2687,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Fannie Mae (HomePath)",
-      value: "Your agent must be registered in HomePath to submit offers. Owner-occupants get a First Look period before investors. Confirm its length on the listing"
+      value: "Your agent must be registered in HomePath to submit offers. First Look: for the first 30 days on HomePath, only owner-occupants, public entities and some nonprofits can offer"
     },
     {
       label: "Freddie Mac (HomeSteps)",
@@ -2717,7 +2717,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Know the owner-occupant priority periods",
-      detail: "HUD: owner-occupants, government entities and HUD-approved nonprofits bid first, for 15 days (5 days for homes marked “uninsured”) (HUD Mortgagee Letter 2025-13). Freddie Mac: First Look for the first 30 days in the MLS. Fannie Mae: a First Look period. Confirm the length on the listing. Fannie Mae’s owner-occupant buyers promise they’ll move in within 60 days of closing and live there at least a year. Making that promise falsely can cost you $10,000 in damages."
+      detail: "HUD: owner-occupants, government entities and HUD-approved nonprofits bid first, for 15 days (5 days for homes marked “uninsured”) (HUD Mortgagee Letter 2025-13). Freddie Mac: First Look for the first 30 days in the MLS. Fannie Mae: First Look for the first 30 days on HomePath. Fannie Mae’s owner-occupant buyers promise they’ll move in within 60 days of closing and live there at least a year. Making that promise falsely can cost you $10,000 in damages."
     },
     {
       title: "Read the seller’s addendum before you sign",
@@ -3155,7 +3155,7 @@ export const STATE_GUIDES: Playbook[] = [
   title: "Utah HOA foreclosures",
   short: "HOA foreclosures",
   oneLine: "A Utah homeowners or condo association can sell a home to collect unpaid assessments (dues). It can use a trustee sale or a court case.",
-  youGet: "The owner’s interest, usually with the first mortgage still on it. After a trustee sale, the owner has no right to buy it back (but if the sale wipes out a junior federal tax lien, the United States can still redeem for 120 days). After a court (sheriff) sale, there is a 180-day redemption period, and a United States lien wiped out by that sale gets the same 180 days.",
+  youGet: "The owner’s interest, usually with the first mortgage still on it. After a trustee sale, the owner has no right to buy it back (but if the sale wipes out a junior federal tax lien, the United States can still redeem for 120 days). After a court (sheriff) sale, there is a 180-day redemption period, and a federal tax lien wiped out by that sale gets the same 180 days. Any other United States lien wiped out by a court sale gets one year (28 USC 2410(c)).",
   plain: 'The owner’s interest, usually with the first mortgage still on it. No buy-back after a trustee sale. After a court sale, 180 days.',
   forSale: true,
   glance: [
@@ -3513,7 +3513,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Fannie Mae (HomePath)",
-      value: "Your agent must register on HomePath and submit offers online. Fannie Mae uses its own Residential Real Estate Purchase and Sale Contract. It won’t sign addenda that conflict with it."
+      value: "Your agent must register on HomePath and submit offers online. Fannie Mae uses its own Residential Real Estate Purchase and Sale Contract. It won’t sign addenda that conflict with it. First Look: for the first 30 days on HomePath, only owner-occupants, public entities and some nonprofits can offer."
     },
     {
       label: "Freddie Mac (HomeSteps)",
@@ -3597,7 +3597,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       mistake: "Investors offering during First Look",
-      prevent: "Ask the listing agent how many First Look days are left. HomeSteps and HUD consider investor offers only after their exclusive periods."
+      prevent: "Ask the listing agent how many First Look days are left. HomePath, HomeSteps and HUD consider investor offers only after their exclusive periods."
     },
     {
       mistake: "Signing an owner-occupant certification you won’t keep",
@@ -3681,7 +3681,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Foreclosure clock",
-      value: "The notice of sale for a Utah trustee sale can go out three months after the notice of default is recorded (57-1-24). The trustee can postpone up to 45 days without a new notice (57-1-27)."
+      value: "The notice of sale for a Utah trustee sale can go out three months after the notice of default is recorded (57-1-24). A new notice is needed only if the sale moves more than 45 days past the date in the original notice (57-1-27)."
     },
     {
       label: "Agent rules",
