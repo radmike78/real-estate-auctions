@@ -85,6 +85,10 @@ const IRS: RedemptionPreset = { label: 'IRS seizure sale: 180 days, +20% a year'
 // 26 USC 7425(d): a nonjudicial sale (trustee or HOA) that wipes out a junior federal tax lien leaves the United States
 // 120 days to redeem, paying the price plus 6% a year and certain expenses.
 const US_FEDERAL: RedemptionPreset = { label: 'The sale wiped out a junior federal tax lien: the United States can redeem for 120 days (or the state’s period, if longer), +6% a year', months: 4, ratePct: 6, daily: 0, flat: 0, flat2Pct: 0 };
+// 28 USC 2410(c), (d): a court sale that pays a lien ahead of a junior federal lien, in a case that named the United
+// States, leaves it 1 year to redeem (for a federal tax lien, 120 days or the state's period if longer), paying the
+// price plus 6% a year and certain expenses. If it wasn't named, its lien isn't wiped out.
+const US_COURT: RedemptionPreset = { label: 'The United States was named in the case for a junior lien: it can redeem for up to 1 year (a federal tax lien: 120 days, or the state’s period if longer), +6% a year*', months: 12, ratePct: 6, daily: 0, flat: 0, flat2Pct: 0 };
 
 /** Redemption rules after each kind of sale in a state, for the calculator's "Kind of sale" menu. */
 export function redemptionPresetsFor(state: StateCode): Record<string, RedemptionPreset> {
@@ -98,6 +102,7 @@ export function redemptionPresetsFor(state: StateCode): Record<string, Redemptio
       hoa: { label: 'HOA foreclosure: 90 days, about +10% a year*', months: 3, ratePct: 10, daily: 0, flat: 0, flat2Pct: 0 },
       irs: IRS,
       usFederal: US_FEDERAL,
+      usCourt: US_COURT,
     };
   if (state === 'AZ')
     return {
@@ -107,6 +112,7 @@ export function redemptionPresetsFor(state: StateCode): Record<string, Redemptio
       azJudicial: { label: 'Judicial foreclosure: 6 months, +8% of the price', months: 6, ratePct: 8, daily: 0, flat: 1, flat2Pct: 0 },
       irs: IRS,
       usFederal: US_FEDERAL,
+      usCourt: US_COURT,
     };
   if (state === 'TX')
     return {
@@ -126,6 +132,7 @@ export function redemptionPresetsFor(state: StateCode): Record<string, Redemptio
       txHoaCondo: { label: 'Condominium association sale: 90 days, +6% a year', months: 3, ratePct: 6, daily: 0, flat: 0, flat2Pct: 0 },
       irs: IRS,
       usFederal: US_FEDERAL,
+      usCourt: US_COURT,
     };
   if (state === 'UT')
     return {
@@ -134,6 +141,7 @@ export function redemptionPresetsFor(state: StateCode): Record<string, Redemptio
       utSheriff: { label: 'Sheriff’s sale: 180 days, +6% of the price', months: 6, ratePct: 6, daily: 0, flat: 1, flat2Pct: 0 },
       irs: IRS,
       usFederal: US_FEDERAL,
+      usCourt: US_COURT,
     };
   return {
     none: NONE,
@@ -141,6 +149,7 @@ export function redemptionPresetsFor(state: StateCode): Record<string, Redemptio
     sheriff: { label: 'Sheriff’s sale: 1 year, +1% a month', months: 12, ratePct: 12, daily: 0, flat: 0, flat2Pct: 0 },
     irs: IRS,
     usFederal: US_FEDERAL,
+    usCourt: US_COURT,
   };
 }
 
@@ -178,15 +187,28 @@ export function redemptionChoicesFor(state: StateCode, kind: string): { keys: st
   // sale is a sale under a statutory lien (26 USC 7425(b), (d)(1)). Utah County waits 120 days to ratify those bids.
   if (kind === 'taxSale' && state !== 'TX') return { keys: ['none', 'usFederal'], start: 'none' };
   if (kind === 'court') {
-    if (state === 'NV') return { keys: ['sheriff'], start: 'sheriff' };
-    if (state === 'UT') return { keys: ['utSheriff'], start: 'utSheriff' };
+    // Every court sale can also leave the United States its own redemption, if it was named in the case (28 USC 2410(c)).
+    if (state === 'NV') return { keys: ['sheriff', 'usCourt'], start: 'sheriff' };
+    if (state === 'UT') return { keys: ['utSheriff', 'usCourt'], start: 'utSheriff' };
     if (state === 'CA')
-      return { keys: ['none', 'caJudicialPaid', 'caJudicialShort'], start: 'caJudicialShort', confirm: 'Whether this California court sale has a redemption period isn’t confirmed yet. The longest one is assumed until the notice of sale or your attorney tells you which applies.' };
+      return { keys: ['none', 'caJudicialPaid', 'caJudicialShort', 'usCourt'], start: 'caJudicialShort', confirm: 'Whether this California court sale has a redemption period isn’t confirmed yet. The longest one is assumed until the notice of sale or your attorney tells you which applies.' };
     if (state === 'AZ')
-      return { keys: ['none', 'azJudicial', 'azJudicialAbandoned'], start: 'azJudicial', confirm: 'Whether this Arizona court sale has a redemption period isn’t confirmed yet. The 6-month one is assumed until the notice of sale or your attorney tells you which applies.' };
-    return { keys: ['none'], start: 'none' };
+      return { keys: ['none', 'azJudicial', 'azJudicialAbandoned', 'usCourt'], start: 'azJudicial', confirm: 'Whether this Arizona court sale has a redemption period isn’t confirmed yet. The 6-month one is assumed until the notice of sale or your attorney tells you which applies.' };
+    return { keys: ['none', 'usCourt'], start: 'none' };
   }
   return { keys: ['none'], start: 'none' };
+}
+
+/**
+ * The redemption rules offered for a kind of sale (all of the state's when the kind isn't known). Some rules share the
+ * same numbers (a Texas property tax loan foreclosure repays like a tax sale), so the rule in use must be matched among
+ * these, never against a rule the menu doesn't offer.
+ */
+export function offeredRedemptionRules(state: StateCode, kind?: string): Record<string, RedemptionPreset> {
+  const all = redemptionPresetsFor(state);
+  if (!kind) return all;
+  const keys = redemptionChoicesFor(state, kind).keys;
+  return Object.fromEntries(Object.entries(all).filter(([k]) => keys.includes(k)));
 }
 
 /** After a tax sale, why resale can wait (for the "months to fix and sell" help). */

@@ -36,6 +36,8 @@ describe('the deal packet', () => {
     expect(suggestedDates({ kind: 'listing', state: 'NV' }).join(' ')).toMatch(/Inspection period ends/);
     expect(suggestedDates({ kind: 'taxSale', state: 'TX' })).toContain('Redemption period ends');
     expect(suggestedDates({ kind: 'court', state: 'TX' })).not.toContain('Redemption period ends');
+    // Owners can't redeem after a tax sale in Nevada, California, Utah or Arizona.
+    for (const state of ['NV', 'CA', 'UT', 'AZ'] as const) expect(suggestedDates({ kind: 'taxSale', state })).not.toContain('Redemption period ends');
     expect(suggestedDates({ kind: 'short', state: 'TX' }).join(' ')).toMatch(/approval/i);
   });
 
@@ -103,5 +105,12 @@ describe('the deal packet', () => {
     const com = packetSections({ ...deal, plan: 'commercial' }, EMPTY_PACKET, now).find((s) => s.key === 'numbers')!;
     expect(com.lines.join('\n')).toMatch(/If rent 10% lower: (highest price \$[\d,]+|no price works)/);
     expect(com.status).toBe('done');
+    // Income too low for any price to meet the return: a result, not "No numbers yet".
+    localStorage.setItem('fsf.calc.commercial.d1-offer.v1', JSON.stringify({ monthlyRent: 500, repairs: 400000 }));
+    const none = packetSections({ ...deal, plan: 'commercial' }, EMPTY_PACKET, now);
+    const noneText = none.find((s) => s.key === 'numbers')!.lines.join('\n');
+    expect(noneText).toMatch(/No price meets your 9% return on cost with the income and costs you entered/);
+    expect(noneText).not.toMatch(/No numbers yet/);
+    expect(none.find((s) => s.key === 'cash')!.lines.join('\n')).toMatch(/No price meets your 9% return on cost/);
   });
 });

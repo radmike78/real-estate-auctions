@@ -409,7 +409,8 @@ export function CashWorksheet() {
 
 /** What price your investable cash can support with a loan: down payment, closing costs and the lender's reserves. */
 function PriceFromCash({ cash }: { cash: number }) {
-  const [a, setA] = useState<PriceAssumptions>(PRICE_DEFAULTS);
+  // Starts from the assumptions saved with the buy box, if a price was set here before.
+  const [a, setA] = useState<PriceAssumptions>(() => read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox).priceAssumptions ?? PRICE_DEFAULTS);
   const price = priceForCash(cash, a);
   const c = cashForPrice(Number.isFinite(price) ? price : 0, a);
   const num = (k: keyof PriceAssumptions, label: string, unit: string) => (
@@ -420,7 +421,8 @@ function PriceFromCash({ cash }: { cash: number }) {
   );
   const useIt = () => {
     const b = read(BUYBOX_KEY, { ...EMPTY_BUY_BOX, state: getMyState() ?? '' }, cleanBuyBox);
-    write(BUYBOX_KEY, { ...b, priceMax: price, cashMax: Math.round(cash) });
+    // The assumptions go with the price, so the buy box checks it the same way instead of with our defaults.
+    write(BUYBOX_KEY, { ...b, priceMax: price, cashMax: Math.round(cash), priceAssumptions: a });
     window.dispatchEvent(new CustomEvent(PLAN_EVENT));
     document.getElementById('buy-box')?.scrollIntoView();
   };
@@ -480,6 +482,8 @@ function BuyBoxBuilder() {
   }, []);
   const suggested = decideStrategy();
   const set = <K extends keyof BuyBox>(k: K, v: BuyBox[K]) => setB((x) => ({ ...x, [k]: v }));
+  // The cash check uses the assumptions saved with a price from the cash worksheet, else our usual ones.
+  const pa = b.priceAssumptions ?? PRICE_DEFAULTS;
   const toggle = (k: 'types' | 'dealBreakers', v: string) => set(k, b[k].includes(v) ? b[k].filter((x) => x !== v) : [...b[k], v]);
   const money = (k: 'priceMax' | 'repairsMax' | 'cashMax' | 'minCashFlow', label: string, hint?: string) => (
     <label className="field">
@@ -538,9 +542,9 @@ function BuyBoxBuilder() {
       </div>
       {lien && <p className="muted">A lien certificate isn’t the property: there’s no rent and nothing to repair. Your buy box is the parcels you’ll bid on, what you’ll pay, and how long your money can wait. Property types and deal breakers below describe the land behind each lien.</p>}
       {!b.strategy && suggested && <p className="roadmap-has">Decide suggested: <strong>{suggested}</strong>. <button type="button" className="linkish" onClick={() => set('strategy', suggested)}>Use it</button></p>}
-      {!lien && b.priceMax > 0 && b.cashMax > 0 && cashForPrice(b.priceMax, PRICE_DEFAULTS).total > b.cashMax && (
+      {!lien && b.priceMax > 0 && b.cashMax > 0 && cashForPrice(b.priceMax, pa).total > b.cashMax && (
         <p className="caution" role="status">
-          <strong>Your price limit needs more cash than you have.</strong> At {fmtMoney(b.priceMax)}, 25% down, about 3% closing costs and 6 months of reserves take about {fmtMoney(Math.round(cashForPrice(b.priceMax, PRICE_DEFAULTS).total))}, more than your {fmtMoney(b.cashMax)}. Lower the price, or check a lower down payment with your lender.
+          <strong>Your price limit needs more cash than you have.</strong> At {fmtMoney(b.priceMax)}, {pa.downPct}% down, about {pa.closingPct}% closing costs and {pa.reserveMonths} months of reserves take about {fmtMoney(Math.round(cashForPrice(b.priceMax, pa).total))}, more than your {fmtMoney(b.cashMax)}. Lower the price, or check a lower down payment with your lender.
         </p>
       )}
       <fieldset className="buybox-checks">
@@ -656,7 +660,9 @@ function planText(): string {
   const cash = investableCash();
   const now = planNow();
   const lines = ['MY INVESTING PLAN', 'DeedOwl educational worksheet.', '', 'GOAL', read(GOAL_KEY, '', cleanGoal) || '(not written yet)', '', `NEXT STEP (${now.context})`, `${now.task.label}. You’ll have ${now.task.produces}.`, '', 'CASH'];
-  lines.push(cash > 0 ? `Investable cash: ${fmtMoney(cash)}. With 25% down, 3% closing costs and 6 months of reserves, it supports a price up to about ${fmtMoney(priceForCash(cash))}.` : '(not worked out yet)');
+  const pa = b.priceAssumptions ?? PRICE_DEFAULTS;
+  const supports = priceForCash(cash, pa);
+  lines.push(cash > 0 ? `Investable cash: ${fmtMoney(cash)}. With ${pa.downPct}% down, ${pa.closingPct}% closing costs and ${pa.reserveMonths} months of reserves, it supports ${Number.isFinite(supports) ? `a price up to about ${fmtMoney(supports)}` : 'any price (these assumptions set no limit)'}.` : '(not worked out yet)');
   lines.push('', buyBoxText(b, STATES.find((x) => x.code === b.state)?.name), '', `ROADMAP: ${ROADMAP_PATHS[path].label}`);
   for (const s of steps) lines.push(`[${done.includes(s.id) ? 'x' : status[s.id] === 'na' ? '-' : ' '}] ${ROADMAP_PHASES[s.phase]}: ${s.title}${status[s.id] && !done.includes(s.id) ? ` (${STEP_STATUS_LABEL[status[s.id]]})` : ''}`);
   lines.push('', 'TEAM');
