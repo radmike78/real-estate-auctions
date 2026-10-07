@@ -19,18 +19,27 @@
 .plan-now-pointer strong { font-size: 1.15rem; }
 
 /* Drill groups: the column count follows the number of drills, so a short group fills its row and every row is full
-   where the count allows (3 → 3 across, 6 → 3 + 3, 4 and 8 → 4 across). A lone card or a pair spans the width. */
+   where the count allows. Cards stay at least about 320px wide so the footer never squeezes: one column on phones,
+   two up to 1080px (an odd last card spans the row), three up to 1400px (4 and 8 go 2 + 2), four on wide screens
+   (3 and 6 stay three across). */
 .practice-grid.drill-grid:has(> :only-child) { --dc: 1; }
 @media (min-width: 641px) {
   .practice-grid.drill-grid:has(> :last-child:nth-child(2)) { --dc: 2; }
-  .practice-grid.drill-grid:has(> :last-child:nth-child(3)) { --dc: 3; }
 }
-@media (min-width: 1081px) {
-  .practice-grid.drill-grid:has(> :last-child:nth-child(4n)) { --dc: 4; }
+@media (min-width: 641px) and (max-width: 1080px) {
+  .practice-grid.drill-grid > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+@media (min-width: 1081px) and (max-width: 1400px) {
+  .practice-grid.drill-grid:has(> :last-child:nth-child(4n)) { --dc: 2; }
 }
 @media (min-width: 1401px) {
   .practice-grid.drill-grid:has(> :last-child:nth-child(3n)):not(:has(> :last-child:nth-child(4n))) { --dc: 3; }
 }
+/* The progress line ("0 of 4 missions done") stays on one line; the button drops below it when the card is narrow. */
+.drill-card-foot { flex-wrap: wrap; }
+.drill-card-progress > span:first-child { white-space: nowrap; }
+.drill-card-progress { flex: 1 1 auto; min-width: max-content; }
+.drill-card-fact { flex-wrap: wrap; max-width: 100%; box-sizing: border-box; }
 
 /* Other card grids that leave empty slots at wide widths when a group is short. */
 .roadmap-cols:has(> :only-child) { grid-template-columns: minmax(0, 1fr); }
@@ -47,7 +56,10 @@
 /* County sale cards: the two buttons are the same width, side by side when they fit, else stacked full width, and
    never break their labels. */
 .county-sale .county-sale-actions:has(> a.btn + a.btn) { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
-.county-sale .county-sale-actions > a.btn { white-space: nowrap; }
+.county-sale .county-sale-actions > a.btn { white-space: nowrap; box-sizing: border-box; border-width: 1px; border-style: solid; }
+/* Same border width on both, so "Property list" and "County sale page" are the same height. */
+.county-sale .county-sale-actions > a.btn:not(.btn-secondary) { border-color: transparent; }
+.county-sale .county-sale-actions > a.btn-secondary { border-color: var(--border); }
 
 /* Practice run bar on phones: the step gets its own line, without a leading "·". */
 @media (max-width: 640px) {
@@ -76,9 +88,20 @@
   .drill-toolbar > .drill-filter-count:nth-child(odd) { grid-column: 1 / -1; }
 }
 
-/* Practice tiles on tablets: a group of three sits in one row instead of two plus a lone tile. */
-@media (min-width: 561px) and (max-width: 860px) {
-  .practice-sales:has(> :nth-child(3):last-child), .practice-grid:has(> :nth-child(3):last-child) { --max: 3; }
+/* Practice tiles on tablets: a group of three sits in one row instead of two plus a lone tile where the tiles have
+   room, and stacks full width below that. */
+@media (min-width: 761px) and (max-width: 860px) {
+  .practice-sales:has(> :nth-child(3):last-child) { --max: 3; }
+}
+@media (min-width: 561px) and (max-width: 760px) {
+  .practice-sales:has(> :nth-child(3):last-child) { --max: 1; }
+}
+/* Seven sale kinds: the last row is always full (the tiles in it share its width), never a lone tile or a gap. */
+@media (min-width: 561px) and (max-width: 1300px) {
+  .practice-sales:has(> :nth-child(7):last-child) > :last-child { flex-grow: 1; }
+}
+@media (min-width: 1301px) {
+  .practice-sales:has(> :nth-child(7):last-child) > :nth-child(n+5) { flex-grow: 1; }
 }
 
 /* Side-by-side "how to read it" and "what to say" columns: every sub-heading gets the same bar. */
@@ -105,4 +128,27 @@
 }
 @media (min-width: 901px) and (max-width: 1010px) {
   .site-header:has(.nav-cta) .site-nav > a, .site-header:has(.nav-cta) .more summary { padding-inline: 5px; font-size: 0.86rem; }
+  /* The area button shows just the state's two letters ("CA"), as on phones, so the header never scrolls sideways. */
+  .site-header:has(.nav-cta) .area-btn .area-long { display: none; }
+  .site-header:has(.nav-cta) .area-btn .area-code { display: inline; }
+  .site-header:has(.nav-cta) .area-btn:has(.area-code) { width: auto; padding: 6px 10px; }
 }
+
+/* Home state chips on phones: two even rows (three, then two) that line up edge to edge, not a ragged centred wrap. */
+@media (max-width: 560px) {
+  .home-states { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+  .home-states > span { grid-column: span 2; display: flex; }
+  .home-states > span:nth-child(n + 4) { grid-column: span 3; }
+  .home-states button { flex: 1; min-width: 0; }
+}
+
+/* Directory filters on tablets: an even two-column grid, so the four boxes line up (with three, the search box takes
+   the first row). */
+@media (min-width: 601px) and (max-width: 1100px) {
+  .directory > .toolbar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .directory > .toolbar > input, .directory > .toolbar > select { width: 100%; min-width: 0; }
+  .directory > .toolbar:has(> :last-child:nth-child(odd)) > :first-child { grid-column: 1 / -1; }
+}
+
+/* Link cards: the description sits right under its link in every card, however tall the row is. */
+.lesson-links > li { align-content: start; }

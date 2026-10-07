@@ -267,7 +267,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     if (d.plan === 'flip') {
       // A flip gets the work and the sale, not rental tasks.
       out.push(task({ key: 'repairs', label: `Get repair bids for ${n} and start the work`, produces: 'written bids, permits where needed, and the work under way', href: ROADMAP_HREF, support: [L.pro('contractor')], done: stepDone('repairs') }));
-      out.push(task({ key: 'owned', label: `Track ${n}’s repair and holding costs against your budget`, produces: 'a monthly record of what the repairs and holding really cost, against the budget in your walk-away price', href: packetHref(d, 'owned'), done: !!owned[d.id] }));
+      out.push(task({ key: 'owned', label: `Track ${n}’s repair and holding costs against your budget`, produces: 'a monthly record of what you pay (with $0 rent), to compare with the repair and holding costs in your Fix and sell numbers', href: packetHref(d, 'owned'), done: !!owned[d.id] }));
       out.push(task({ key: 'stage', label: `Mark ${n} as ${stageLabel('owned', d).toLowerCase()}`, produces: 'the selling tasks: list it at a price backed by sold comps, and record the sale', href: packetHref(d, 'owned'), setStage: 'owned', done: false }));
       return out;
     }

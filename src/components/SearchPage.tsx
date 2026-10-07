@@ -153,7 +153,7 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
               </div>
             </div>
           </div>
-          {(filters.saleTypes.length > 0 || filters.statuses.length > 0) && <BuyerChecklistBox list={checklistForFilters(filters.saleTypes, filters.statuses)} />}
+          {(filters.saleTypes.length > 0 || filters.statuses.length > 0) && <BuyerChecklistBox list={checklistForFilters(filters.saleTypes, filters.statuses)} guideState="NV" />}
           {view === 'map' ? <MapView properties={results} onSearchArea={(bounds) => update({ bounds })} /> : <ResultsList properties={results} />}
           <Disclaimer kind="sales" compact />
         </section>

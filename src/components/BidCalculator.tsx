@@ -361,7 +361,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           );
         })}
         {propertyId && (
-          <button type="button" className="linkish" onClick={() => { try { localStorage.removeItem(KEY(propertyId)); } catch { /* ignore */ } setI(defaults); setDraft({}); }}>
+          <button type="button" className="linkish" onClick={() => { try { localStorage.removeItem(KEY(propertyId)); } catch { /* ignore */ } setI(defaults); setDraft({}); setBidText(''); }}>
             Reset to our starting estimates
           </button>
         )}
@@ -397,7 +397,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <div className="calc-max bad" role="status">
             <span>Walk-away price</span>
             <strong>Not enough cash</strong>
-            <small>At the {w.opening} you’d need about {fmtMoney(Math.ceil(openingCash))}: the {w.bid} plus repairs and every cost until you sell. The deal itself allows {w.bid}s up to {fmtMoney(r.profitBid)}.</small>
+            <small>At the {w.opening} you’d need about {fmtMoney(Math.round(openingCash))}: the {w.bid} plus repairs and every cost until you sell. The deal itself allows {w.bid}s up to {fmtMoney(r.profitBid)}.</small>
           </div>
           ) : (
           <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
@@ -416,7 +416,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           </div>
           )
         )}
-        {!needsValue && i.minimumBid > 0 && <PriceHead kind="listed" tag={offer ? 'From the listing' : 'From the sale notice'} label={w.Opening} price={i.minimumBid} result={atOpening} unit="profit" note={`Most cash you’d have in at once at this price, through repairs and holding until it sells: ${fmtMoney(Math.ceil(openingCash))}.`} />}
+        {!needsValue && i.minimumBid > 0 && <PriceHead kind="listed" tag={offer ? 'From the listing' : 'From the sale notice'} label={w.Opening} price={i.minimumBid} result={atOpening} unit="profit" note={`Most cash you’d have in at once at this price, through repairs and holding until it sells: ${fmtMoney(Math.round(openingCash))}.`} />}
         {!needsValue && i.minimumBid > 0 && (
           <div className={`calc-verdict ${dealFails || cashShort ? 'bad' : 'good'}`} role="status">
             {dealFails ? (
@@ -426,7 +426,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                 <><strong>Doesn’t work at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below your {fmtMoney(Math.round(target))} target. Skip this one or change your plan.</>
               )
             ) : cashShort ? (
-              <><strong>Your cash doesn’t cover the {w.opening}.</strong> The deal works (about {fmtMoney(Math.round(atOpening))} profit at {fmtMoney(i.minimumBid)}), but with repairs and every cost until you sell you’d need about {fmtMoney(Math.ceil(openingCash))}, and you entered {fmtMoney(i.cashAvailable)}.</>
+              <><strong>Your cash doesn’t cover the {w.opening}.</strong> The deal works (about {fmtMoney(Math.round(atOpening))} profit at {fmtMoney(i.minimumBid)}), but with repairs and every cost until you sell you’d need about {fmtMoney(Math.round(openingCash))}, and you entered {fmtMoney(i.cashAvailable)}.</>
             ) : (
               offer ? (
                 <><strong>Works at the {w.opening}.</strong> Your most is {fmtMoney(r.maxBid)}, but you don’t have to offer more than {fmtMoney(i.minimumBid)}: start lower if the market allows, and never go past {fmtMoney(r.maxBid)}. At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}.</>
@@ -482,7 +482,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <label className="calc-label" htmlFor={`${uid}-bid`}>Check {offer ? 'an offer' : 'a bid'}</label>
           <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="number" inputMode="decimal" min={0} step="any" value={bidText} placeholder={offer ? 'e.g. the offer you plan to make' : 'e.g. a bid you expect to beat'} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); update({ proposedPrice: clampInput('proposedPrice', toNum(e.target.value)) }); }} /></span>
         </div>
-        {atBid && profit !== null && <PriceHead kind="yours" label={yours} price={bid} result={profit} unit="profit" note={`Most cash you’d have in at once at this price, through repairs and holding until it sells: ${fmtMoney(Math.ceil(cashNeededAtBid(i, bid)))}.${storeId ? ' Saved with this deal as your price; its deal packet uses it.' : ''}`} />}
+        {atBid && profit !== null && <PriceHead kind="yours" label={yours} price={bid} result={profit} unit="profit" note={`Most cash you’d have in at once at this price, through repairs and holding until it sells: ${fmtMoney(Math.round(cashNeededAtBid(i, bid)))}.${saveAs && !propertyId ? ' Saved with this deal as your price; its deal packet uses it.' : propertyId ? ' Saved for this property in this browser.' : ''}`} />}
         {atBid && profit !== null && !needsValue && (
           <div className={`calc-verdict ${over ? 'bad' : 'good'}`} role="status">
             {over ? (

@@ -287,6 +287,7 @@ const TX: CaseConfig = {
     ['Financing: Buyer Approval (addendum 40-11, paragraph 2A)', 'If the lender won’t approve you (your income, assets or credit), you can end the contract by Day 21: give the seller notice of termination and a copy of the lender’s written statement of its reasons. The earnest money comes back to you. After Day 21, the contract no longer depends on Buyer Approval.'],
     ['Financing: Property Approval (addendum 40-11, paragraph 2B)', 'If the lender decides the house doesn’t meet its requirements (the appraisal, insurability, or repairs it requires), you can end the contract on or before the 3rd day before closing, Day 27 here: notice of termination plus the lender’s written statement of its reasons. The earnest money comes back to you. If you don’t, Property Approval counts as obtained. (Options 1 and 2 of the appraisal addendum would waive this right for a low appraisal; this contract uses option 3, which adds the Day 17 right instead.)'],
     ['HOA (addendum 36-11)', 'You can end the contract within 3 days after you receive the subdivision information (the HOA’s rules and resale certificate), if that’s before closing.'],
+    ['Seller’s Water Disclosure (paragraph 7I)', 'Box 3 is checked: the seller doesn’t have to deliver it, because every statement in 7I(3) is true (no well, pond, lake or water tank the seller knows of, no surface water rights or severed groundwater rights, and water only from the city’s utility, named in 7I(3)(e)). If box 2 had been checked, you could end the contract within 7 days after receiving it, or before closing if sooner.'],
     ['Closing', 'Day 30, at the title company'],
     ['Counting days', 'Calendar days. Only the payment deadlines move past a weekend or legal holiday; the option period ends at 5 p.m. on its last day either way. Ask your agent how your contract treats any other deadline that lands on a weekend.'],
   ],
@@ -575,6 +576,15 @@ const AZ: CaseConfig = {
     },
     {
       kind: 'choice',
+      id: 'az-entry',
+      prompt: 'In Arizona, your tenant’s faucet leaks and you want to fix it. What notice do you give before going in?',
+      choices: [
+        { label: 'At least 2 days’ notice, and enter only at reasonable times, unless it’s an emergency. If the tenant asked you for the repair, that request counts as permission to enter for it.', verdict: 'best', why: 'That’s Arizona’s rule (A.R.S. 33-1343(B) and (D)).' },
+        { label: 'None. You own the house.', verdict: 'poor', why: 'Once it’s rented, enter only with at least 2 days’ notice, except in an emergency or for a repair the tenant asked for (A.R.S. 33-1343).' },
+      ],
+    },
+    {
+      kind: 'choice',
       id: 'az-register',
       prompt: 'In Arizona, what must you file with the county assessor once you rent it out?',
       choices: [
@@ -583,7 +593,7 @@ const AZ: CaseConfig = {
       ],
     },
   ],
-  rentLog: (n) => `Deposit at or under ${usd(n.rent * 1.5)}, returned within 14 days (not counting weekends and holidays) with an itemized list. Registered with the county assessor as a rental (Arizona).`,
+  rentLog: (n) => `Deposit at or under ${usd(n.rent * 1.5)}, returned within 14 days (not counting weekends and holidays) with an itemized list. 2 days’ notice before entry (A.R.S. 33-1343). Registered with the county assessor as a rental (Arizona).`,
 };
 
 // Utah: same house and price. A long-term rental that is the tenant's main home keeps the 45% residential exemption; a

@@ -45,6 +45,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   const [costs, setCosts] = useState('');
   const [note, setNote] = useState('');
   const projected = projectedMonthly(deal);
+  const flip = deal.plan === 'flip';
   const put = (next: Owned | null) => {
     const copy = { ...all };
     if (next) copy[deal.id] = next;
@@ -54,7 +55,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   if (!o) {
     return (
       <div>
-        <p>Did you buy it? Mark it as yours to track the real rent and costs each month against the cash flow you planned.</p>
+        <p>{flip ? 'Did you buy it? Mark it as yours to record what you pay each month for repairs and holding, to compare with the repair and holding costs in your Fix and sell numbers.' : 'Did you buy it? Mark it as yours to track the real rent and costs each month against the cash flow you planned.'}</p>
         <button type="button" className="btn btn-secondary" onClick={() => { put({ boughtOn: today(), months: [] }); if (!['closed', 'owned'].includes(stageOf(deal))) setDealStage(deal.id, 'closed'); }}>I bought this property</button>
       </div>
     );
@@ -108,7 +109,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
           </table>
         </>
       ) : (
-        <p>No months recorded yet. Add the first one when the rent comes in.</p>
+        <p>{flip ? 'No months recorded yet. Add the first month’s costs, with $0 rent.' : 'No months recorded yet. Add the first one when the rent comes in.'}</p>
       )}
       <p><button type="button" className="linkish" onClick={() => { if (window.confirm('Stop tracking this property and delete its monthly records?')) put(null); }}>I didn’t buy it, stop tracking</button></p>
     </div>

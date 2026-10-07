@@ -20,7 +20,7 @@ const DIFFERS: Partial<Record<SaleKey, Partial<Record<StateCode, string>>>> = {
     TX: 'In Texas a tax sale follows a court judgment, the sheriff or a constable sells, and the owner can buy the property back for 180 days or 2 years for a homestead, land designated for agricultural use or a mineral interest, paying you a premium.',
     CA: 'In California the county tax collector sells tax-defaulted property after five years of unpaid taxes (three for nonresidential commercial property, R&T 3691), and the owner can pay off the taxes until the close of business on the last business day before the sale (R&T 3707).',
     AZ: 'In Arizona the county sells tax lien certificates, not properties: you bid the interest rate down. If the owner never pays, you can sue to foreclose after three years and within ten. The court gives you a deed or, if you or the owner ask and the property is likely to sell for more than $2,500 above what’s owed, orders an auction that pays you in cash (A.R.S. 42-18201, 42-18204).',
-    UT: 'In Utah the county auditor holds one tax sale a year, in May or June, for property four years behind on taxes (Utah Code 59-2-1343), and a bid must cover the taxes, penalties, interest and costs.',
+    UT: 'In Utah the county auditor holds one tax sale a year, in May or June, for property still unpaid four years after the taxes went delinquent (Utah Code 59-2-1343), and a bid must cover the taxes, penalties, interest and costs.',
   },
   foreclosure: {
     TX: 'In Texas trustee sales happen on the first Tuesday of the month at the county courthouse, after at least 21 days’ notice.',
@@ -32,7 +32,7 @@ const DIFFERS: Partial<Record<SaleKey, Partial<Record<StateCode, string>>>> = {
 
 /** The line for a state without its own entry in DIFFERS. */
 function generalDiff(sale: SaleKey, name: string) {
-  if (sale === 'irs') return <>IRS sales follow the same federal rules in every state; what differs in {name} is the county recording and transfer steps after the sale. The <a href="#/practice/drills">IRS drills in step 3</a> work for any state.</>;
+  if (sale === 'irs') return <>IRS sales follow the same federal rules in every state; what differs in {name} is the county recording and transfer steps after the sale. The <a href="#/practice/drills">IRS drills</a> work for any state.</>;
   if (sale === 'reo' || sale === 'short') return `${name}’s contract forms and disclosure rules differ.`;
   return `${name}’s deadlines, forms and who runs the sale differ.`;
 }
@@ -48,7 +48,10 @@ export default function PracticeStateNote({ sale }: { sale: SaleKey }) {
   if (sale === 'sid') {
     return (
       <div className="notice practice-state-note" role="note">
-        <strong>This sale exists only in Nevada.</strong> Special improvement district (SID) lien certificates are a Clark County, Nevada sale. {name} doesn’t sell anything like them; see the <a href="#/playbooks">sale guides for {name}</a> instead.
+        <strong>This sale exists only in Nevada.</strong> Special improvement district (SID) lien certificates are a Clark County, Nevada sale.{' '}
+        {st === 'AZ'
+          ? <>Arizona has no SID lien sale, but its county tax lien certificates work in a similar way: you buy a lien that earns interest, not the property. See the <a href="#/playbooks/aztaxlien">Arizona tax lien guide</a>.</>
+          : <>{name} doesn’t sell anything like them; see the <a href="#/playbooks">sale guides for {name}</a> instead.</>}
       </div>
     );
   }

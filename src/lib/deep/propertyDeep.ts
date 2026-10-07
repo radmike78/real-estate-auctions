@@ -784,7 +784,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         }
       },
       {
-        text: "Nevada (Las Vegas, Clark County): local TV reported on a state law that protects tenants after a foreclosure sale. If tenants keep paying rent under their lease, new owners can’t evict them for 60 days.",
+        text: "Nevada (Las Vegas, Clark County): local TV reported on tenants’ rights after an apartment complex’s foreclosure sale. Nevada’s 60-day notice rule covers homes with up to 4 units (NRS 40.255). In larger buildings, residential tenants rely on federal law: they can stay until the lease ends, or 90 days after a notice to vacate if that is later.",
         source: {
           label: "KTNV Channel 13 Las Vegas: Tenants’ futures uncertain after Las Vegas apartment complex foreclosure (Feb. 11, 2026)",
           url: "https://ktnv.com/news/where-are-we-gonna-go-tenants-futures-uncertain-after-las-vegas-apartment-complex-foreclosure"

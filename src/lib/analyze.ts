@@ -29,7 +29,7 @@ export const SALE_KINDS: SaleKindInfo[] = [
   { key: 'taxSale', label: 'County tax sale (the property)', states: ['NV', 'CA', 'UT', 'TX'] },
   { key: 'lien', label: 'Tax lien sale', states: ['AZ', 'NV'], labelIn: { NV: 'SID lien certificate', AZ: 'Tax lien sale (lien certificate)' } },
   { key: 'court', label: 'Sheriff’s or court sale' },
-  { key: 'hoa', label: 'HOA foreclosure', states: ['NV', 'TX'] },
+  { key: 'hoa', label: 'HOA foreclosure', states: ['NV', 'CA', 'TX'] },
   { key: 'irs', label: 'IRS sale' },
 ];
 
@@ -98,7 +98,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     if (st === 'CA') sale.push({ id: 'ca-tds', text: 'California: get the Transfer Disclosure Statement. If it arrives after you sign the offer, you have 3 days (5 by mail or electronically) to cancel.' });
     if (st === 'AZ') sale.push({ id: 'az-disclosure', text: 'Arizona: sellers must disclose specific items, such as soil remediation they know about; for unsubdivided land outside cities you get an affidavit of disclosure at least 7 days before transfer, with 5 days to cancel. Ask your agent which disclosure form your contract uses.' });
     if (st === 'TX') sale.push({ id: 'tx-disclosure', text: 'Texas: for a single-family home, most sellers must give you the Seller’s Disclosure Notice (Property Code 5.008). If it comes after you sign, the TREC contract lets you end it within 7 days. For a fee, the contract’s option period lets you end it for any reason; the deadline is strict.' });
-    if (st === 'TX') sale.push({ id: 'tx-water', text: 'Texas: ask your agent which box in paragraph 7I of the TREC contract applies to the Seller’s Water Disclosure (groundwater and surface water rights). If the seller must deliver it, read it and record the delivery date: you can end the contract within 7 days after you receive it, or before closing if that comes first. If it isn’t required, record why (every statement in 7I(3) is true).', href: '#/learn/analyze' });
+    if (st === 'TX') sale.push({ id: 'tx-water', text: 'Texas (not on TREC’s condominium contract, which has no water paragraph): ask your agent which box in paragraph 7I of the TREC contract applies to the Seller’s Water Disclosure (groundwater and surface water rights). If the seller must deliver it, read it and record the delivery date: you can end the contract within 7 days after you receive it, or before closing if that comes first. If it isn’t required, record why (every statement in 7I(3) is true).', href: '#/learn/analyze' });
     if (st === 'UT') sale.push({ id: 'ut-disclosure', text: 'Utah: under the state purchase contract, the seller gives a property condition disclosure by the Seller Disclosure Deadline, and you can cancel by the Due Diligence Deadline. Sellers must disclose methamphetamine contamination they know about.' });
     const hoa: Record<StateCode, string> = {
       NV: 'Condo or HOA home: read the resale package; you can cancel in writing until midnight of the fifth day after you get it (NRS 116.4109).',
@@ -151,6 +151,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     sale.push({ id: 'court-redeem', text: st === 'TX' ? r[st] : `${r[st]} You own it subject to that right; secure and maintain it, and hold off on remodeling until it ends.` });
   }
   if (d.kind === 'hoa' && st === 'NV') sale.push({ id: 'nv-hoa', text: 'Nevada HOA foreclosures: the owner can redeem for 60 days. Check with a title company whether the first loan survives.', href: '#/playbooks/hoa' });
+  if (d.kind === 'hoa' && st === 'CA') sale.push({ id: 'ca-hoa', text: 'California HOA sales: an HOA can foreclose only when unpaid assessments reach $1,800 or are more than 12 months late (Civil Code 5720). A first deed of trust recorded before the HOA’s notice usually stays (Civil Code 5680), and after a nonjudicial HOA sale the home can be redeemed for 90 days (Civil Code 5715).', href: '#/playbooks/cahoa' });
   if (d.kind === 'hoa' && st === 'TX') {
     sale.push({ id: 'tx-hoa-type', text: 'Texas: read the recorded declaration first. It decides whether this is a subdivision HOA (Property Code 209) or a condominium association (82); a townhome can be either.', href: '#/playbooks/txhoa' });
     sale.push({ id: 'tx-hoa-redeem', text: 'Subdivision: the owner, or a lender after 90 days, can redeem until 180 days after the HOA mails notice of the sale, and you can’t sell to anyone else until then (209.011). Condominium: the owner can redeem until 90 days after the sale and repays your bid plus 6% a year, and you can’t sell to anyone else until then either (82.113(g)). Ask a title company whether the first loan survives.' });

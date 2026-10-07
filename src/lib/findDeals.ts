@@ -91,7 +91,7 @@ export const STATE_SALES: Record<StateCode, string[]> = {
     'Foreclosures: trustee auctions no sooner than the 91st day after the notice of sale; the winner pays by 5 p.m. the next business day, and the owner can’t redeem afterward (A.R.S. 33-811). One exception: if the sale wiped out a junior federal tax lien, the United States can redeem within 120 days (or the state period if longer); if the IRS wasn’t properly notified, its lien stays (26 USC 7425).',
   ],
   UT: [
-    'Tax sales: the county auditor sells property in May or June after four years of unpaid taxes.',
+    'Tax sales: the county auditor sells property in May or June, four years after the taxes went delinquent.',
     'Foreclosures: trustee auctions at least 3 months after the notice of default; bids can’t be withdrawn, and the owner can’t redeem afterward. If the sale wiped out a junior federal tax lien, the United States can still redeem within 120 days (26 USC 7425).',
   ],
   TX: [

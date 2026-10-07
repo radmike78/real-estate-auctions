@@ -118,7 +118,7 @@ export const PROPERTY_WHY = {
       {
         who: "Investors buying several units in one building",
         text: "If one owner holds too many units, buyers may not be able to get a normal loan in that building, which can make every unit harder to sell. Before you buy more than one, ask how many units each owner already holds.",
-        example: "Fannie Mae won’t buy loans in projects where one owner holds more than 2 units (in 5–20 unit projects) or more than 20% of the units (in projects of 21 or more).",
+        example: "Fannie Mae won’t buy loans in projects where one owner holds more than 2 units (in projects of 11–20 units, or 5–10 units within a master association) or more than 20% of the units (in projects of 21 or more).",
         source: {
           label: "Fannie Mae Selling Guide B4-2.1-03, Ineligible Projects",
           url: "https://selling-guide.fanniemae.com/sel/b4-2.1-03/ineligible-projects"
@@ -502,7 +502,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Investors worried about inflation",
-        text: "Most units rent month to month, so rents can be raised quickly when demand is strong. They can also fall quickly, as they have since 2023.",
+        text: "Most units rent month to month, so rents can be raised quickly when demand is strong. They can also fall when demand weakens, as they have slipped since 2023.",
         example: "Cushman & Wakefield reported U.S. self-storage rents reached an all-time high average of $134 per unit in Q3 2022. That was a peak, not today’s rate.",
         source: {
           label: "Cushman & Wakefield: U.S. Self Storage Market Trends & Sector Outlook",

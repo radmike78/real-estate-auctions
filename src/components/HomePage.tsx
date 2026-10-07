@@ -4,8 +4,8 @@ import { PATH, useStepsSeen } from '../lib/path';
 import { currentProgress, GUIDED, guidedNext, setMode, unfinished, useJourney } from '../lib/journey';
 import { roadmapProgress } from '../lib/roadmapState';
 import { HomeArea } from './AreaPicker';
-import PlanNext from './PlanNext';
-import { planNow, ROADMAP_TASK_HREF } from '../lib/planNext';
+import PlanNext, { ContinueButton } from './PlanNext';
+import { planNow } from '../lib/planNext';
 
 
 // Straight to the tools and references, for "I know the basics".
@@ -66,7 +66,7 @@ export default function HomePage() {
                 {plan.source === 'starter' && next ? (
                   <a className="btn big" href={next.step.href}><span className="guided-count">Stop {next.n} of {GUIDED.length}</span> {next.step.label}&nbsp;→</a>
                 ) : (
-                  <a className="btn big" href={plan.task.href === ROADMAP_TASK_HREF ? '#/toolkit/roadmap' : plan.task.href}>Continue: {plan.task.label}&nbsp;→</a>
+                  <ContinueButton task={plan.task} dealId={plan.deal?.id} onPlan={false} label={`Continue: ${plan.task.label}`} />
                 )}
                 {continueLink}
               </div>

@@ -22,16 +22,19 @@ function load(k: string): number[] {
 
 /** Tickable "what you'll need" box. Ticks are remembered in this browser only. */
 /** `noTag` hides the "Not for sale yet" tag on a page that already says so (the pre-foreclosure guide). */
-export default function BuyerChecklistBox(props: { list: BuyerChecklist; variant?: 'light' | 'wide'; playbook?: string; noTag?: boolean }) {
+/** `guideState` ties the "Full guide" link to a property's own state (a listing in Clark County, Nevada links the Nevada
+ *  guide whatever state the visitor chose); without it the link follows the visitor's chosen state. A forced
+ *  `playbook` is used as given. */
+export default function BuyerChecklistBox(props: { list: BuyerChecklist; variant?: 'light' | 'wide'; playbook?: string; guideState?: string; noTag?: boolean }) {
   // Remount per checklist so each one starts from its own saved ticks.
   return <ChecklistInner key={props.list.key} {...props} />;
 }
 
-function ChecklistInner({ list, variant = 'light', playbook: forced, noTag }: { list: BuyerChecklist; variant?: 'light' | 'wide'; playbook?: string; noTag?: boolean }) {
+function ChecklistInner({ list, variant = 'light', playbook: forced, guideState, noTag }: { list: BuyerChecklist; variant?: 'light' | 'wide'; playbook?: string; guideState?: string; noTag?: boolean }) {
   const [done, setDone] = useState<number[]>(() => load(list.key));
   const [state] = useMyState();
   // Commercial and land versions share their sale type's playbook (keys like "tax-commercial-land").
-  const playbook = guideFor(forced ?? PLAYBOOK_FOR[list.key.replace(/-(commercial|land)(-.*)?$/, '')], state);
+  const playbook = forced ?? guideFor(PLAYBOOK_FOR[list.key.replace(/-(commercial|land)(-.*)?$/, '')], guideState ?? state);
 
   const toggle = (i: number) =>
     setDone((cur) => {
