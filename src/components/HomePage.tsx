@@ -106,7 +106,6 @@ export default function HomePage() {
 
       <section className="path" id="everything" aria-labelledby="path-head">
         <h2 id="path-head">Everything, in six steps</h2>
-        <p className="path-purpose">Your learning path: one page for each step, there whenever you want it. “Visited” only means you’ve opened it, not that you’ve finished it. Your next real-world step is just below.</p>
         <ol className="path-steps">
           {PATH.map((s) => {
             const opened = seen.includes(s.key);
