@@ -406,6 +406,7 @@ const LISTED: Source[] = [
   { id: 'tx-bk-s', title: 'U.S. Bankruptcy Court, Southern District of Texas', publisher: 'U.S. Courts', url: 'https://www.txs.uscourts.gov/page/bankruptcy-court', role: 'lookup', checked: '2026-10-05' },
   { id: 'tx-austin-str', title: 'City of Austin: short-term rentals', publisher: 'City of Austin Development Services', url: 'https://www.austintexas.gov/development-services/short-term-rentals', role: 'rules', checked: '2026-10-05' },
   { id: 'tx-tdlr-search', title: 'TDLR license search (electricians, air conditioning and other trades)', publisher: 'Texas Department of Licensing and Regulation', url: 'https://www.tdlr.texas.gov/LicenseSearch/', role: 'lookup', checked: '2026-10-05' },
+  { id: 'tx-tsbpe-search', title: 'Texas State Board of Plumbing Examiners: license search', publisher: 'Texas State Board of Plumbing Examiners', url: 'https://tsbpe.texas.gov/find-a-licenseregistration/', role: 'lookup', checked: '2026-10-07' },
   { id: 'tx-vlb-home-loans', title: 'Texas Veterans Land Board: home loans', publisher: 'Texas General Land Office', url: 'https://www.glo.texas.gov/veterans/home-loans', role: 'help', checked: '2026-10-05', note: 'Up to $832,750, fixed rate.' },
   { id: 'tx-bk-w', title: 'U.S. Bankruptcy Court, Western District of Texas', publisher: 'U.S. Courts', url: 'https://www.txwb.uscourts.gov/', role: 'lookup', checked: '2026-10-05' },
   // ---------------- Free help ----------------
