@@ -150,7 +150,7 @@ const LISTED: Source[] = [
   NRS('115', 'homestead exemption', '2026-09-28', '$605,000 of equity; does not apply to mortgages or deeds of trust the owner signed, taxes or mechanic’s liens (115.010); no bid under $605,000 when sold because equity is over the limit (115.050).'),
   NRS('116', 'HOA liens, super-priority, redemption', '2026-09-27', '9 months super-priority; lender payment at least 5 days before sale and recorded 2 days before (116.31164, 116.31166); 60-day redemption at 1% a month plus upkeep; 90 days notice of default to notice of sale (116.31162).'),
   NRS('271', 'special assessments (SID lien certificates)', '2026-09-27', '120 days or 2 years to redeem, 1% a month, 60-day notice, certificate expires after 3 years.'),
-  NRS('361', 'property tax and tax sales', '2026-09-27', 'Pay-off until 3 business days before sale (361.585); SID certificate paid within 20 days or sale void (361.595); 2 years to sue (361.600); quitclaim deed.'),
+  NRS('361', 'property tax and tax sales', '2026-09-27', 'Pay-off until 3 business days before sale (361.585); SID certificate paid within 20 days or sale void, Treasurer may keep up to 10% for administrative costs (361.595); 2 years to sue (361.600); quitclaim deed.'),
   { id: 'usc-12-5220', title: 'Protecting Tenants at Foreclosure Act (note to 12 U.S.C. 5220)', publisher: 'U.S. House, Office of the Law Revision Counsel', url: 'https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title12-section5220&num=0&edition=prelim', role: 'rules', checked: '2026-09-27', note: '90 days notice for bona fide tenants.' },
 
   // ---------------- Clark County ----------------
@@ -284,6 +284,7 @@ const LISTED: Source[] = [
   { id: 'ut-guide-9', title: 'Utah Code 57-8-13.1: condo association registration', publisher: 'Utah State Legislature', url: 'https://le.utah.gov/xcode/Title57/Chapter8/57-8-S13.1.html', role: 'rules', checked: '2026-10-03' },
   { id: 'ut-guide-10', title: 'Utah Code 57-1-21: trustee qualifications', publisher: 'Utah State Legislature', url: 'https://le.utah.gov/xcode/Title57/Chapter1/57-1-S21.html', role: 'rules', checked: '2026-10-03' },
   { id: 'ut-guide-11', title: 'Utah Code 57-1-28: trustee’s deed, no redemption', publisher: 'Utah State Legislature', url: 'https://le.utah.gov/xcode/Title57/Chapter1/57-1-S28.html', role: 'rules', checked: '2026-10-03' },
+  { id: 'ut-guide-r9-13517', title: 'Utah Code 59-2-1351.7: undivided interest tax sale buyers', publisher: 'Utah State Legislature', url: 'https://le.utah.gov/xcode/Title59/Chapter2/59-2-S1351.7.html', role: 'rules', checked: '2026-10-07' },
   { id: 'ut-guide-12', title: 'Utah Code 78B-6-906: redemption after court foreclosure', publisher: 'Utah State Legislature', url: 'https://le.utah.gov/xcode/Title78B/Chapter6/78B-6-S906.html', role: 'rules', checked: '2026-10-03' },
   { id: 'ut-guide-14', title: 'Utah Code 59-2-1325: property tax lien', publisher: 'Utah State Legislature', url: 'https://le.utah.gov/xcode/Title59/Chapter2/59-2-S1325.html', role: 'rules', checked: '2026-10-03' },
   { id: 'ut-guide-16', title: 'IRS Form 2434-B: notice of encumbrances and sale terms (sample)', publisher: 'Internal Revenue Service', url: 'https://www.irsauctions.gov/system/files/2026-04/f2434b.pdf', role: 'rules', checked: '2026-10-03' },

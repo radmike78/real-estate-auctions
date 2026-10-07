@@ -105,10 +105,13 @@ const isOffer = (d: Pick<Deal, 'kind'>) => d.kind === 'listing' || d.kind === 'r
 /** Texas financing dates: the appraisal addendum (49-1) and the financing addendum's two approvals (40-11, paragraph 2A and 2B). */
 const TX_LOAN_DATES = ['Appraisal addendum deadline, if you have one (49-1: notice plus a copy of the appraisal to the seller)', 'Buyer Approval deadline (40-11, 2A: notice plus the lender’s written statement)', 'Property Approval deadline (40-11, 2B: 3rd day before closing)'];
 
+/** Texas earnest money and option fee (20-19, 5A and 5D). Under a short sale addendum they're still due on time (45-2, C). */
+const TX_DEPOSIT_DATES = ['Earnest money due (within 3 days after the effective date; a last day on a weekend or legal holiday moves to the next day that isn’t one; if late, the seller can end the contract until you deliver it)', 'Option fee due (same 3 days and weekend rule; if late, you lose the right to end the contract during the option period)'];
+
 /** The dates most deals of this kind need on the calendar, to start the list from. */
 export function suggestedDates(d: Pick<Deal, 'kind' | 'state'>): string[] {
-  if (d.kind === 'short') return ['Contract signed', 'Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)', d.state === 'TX' ? 'Option period ends (5 p.m.)' : 'Inspection period ends', ...(d.state === 'TX' ? TX_LOAN_DATES.slice(1) : ['Loan approval deadline']), 'Closing'];
-  if (isOffer(d)) return ['Offer accepted (Day 0)', ...(d.state === 'TX' ? ['Earnest money due (within 3 days after the effective date; a last day on a weekend or legal holiday moves to the next day that isn’t one; if late, the seller can end the contract until you deliver it)', 'Option fee due (same 3 days and weekend rule; if late, you lose the right to end the contract during the option period)'] : ['Earnest money due']), d.state === 'TX' ? 'Option period ends (5 p.m.)' : 'Inspection period ends', ...(d.state === 'TX' ? TX_LOAN_DATES : ['Appraisal deadline', 'Loan approval deadline']), 'Closing'];
+  if (d.kind === 'short') return ['Contract signed', ...(d.state === 'TX' ? TX_DEPOSIT_DATES : []), 'Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)', d.state === 'TX' ? 'Option period ends (5 p.m.)' : 'Inspection period ends', ...(d.state === 'TX' ? TX_LOAN_DATES.slice(1) : ['Loan approval deadline']), 'Closing'];
+  if (isOffer(d)) return ['Offer accepted (Day 0)', ...(d.state === 'TX' ? TX_DEPOSIT_DATES : ['Earnest money due']), d.state === 'TX' ? 'Option period ends (5 p.m.)' : 'Inspection period ends', ...(d.state === 'TX' ? TX_LOAN_DATES : ['Appraisal deadline', 'Loan approval deadline']), 'Closing'];
   if (d.kind === 'lien') return ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien'];
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
   if (['taxSale', 'hoa', 'irs', 'court'].includes(d.kind) && !(d.state === 'TX' && d.kind === 'court')) out.push('Redemption period ends');

@@ -38,7 +38,7 @@ export default function CountySales({ sales }: { sales: CountySale[] }) {
         {hasTexas && (
           <p>
             <strong>{oneState ? 'Tax statement: ' : 'Texas sales: '}</strong>
-            <Cited text="in counties of 250,000 people or more, and smaller ones that adopt the rule, you need the county tax office’s statement that you owe no delinquent taxes before you get a deed (Tax Code 34.015). Ask for it early; it’s good for 90 days." />
+            <Cited text="in counties of 250,000 people or more, and smaller ones that adopt the rule, you need the county tax office’s statement that you owe no delinquent taxes before you get a deed (Tax Code 34.015), or, where the county uses it, a bidder registration (Tax Code 34.011). Ask for it early; it’s good for 90 days." />
           </p>
         )}
       </div>

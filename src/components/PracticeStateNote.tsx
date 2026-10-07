@@ -17,7 +17,7 @@ export const drillFor = (st: StateCode, sale: SaleKey): string | null => {
 /** One line on how each state's version of a sale differs from the Nevada practice run. */
 const DIFFERS: Partial<Record<SaleKey, Partial<Record<StateCode, string>>>> = {
   tax: {
-    TX: 'In Texas a tax sale follows a court judgment, the sheriff or a constable sells, and the owner can buy the property back for 180 days or 2 years (homesteads and farm land), paying you a premium.',
+    TX: 'In Texas a tax sale follows a court judgment, the sheriff or a constable sells, and the owner can buy the property back for 180 days or 2 years for a homestead, land designated for agricultural use or a mineral interest, paying you a premium.',
     CA: 'In California the county tax collector sells tax-defaulted property after five years of unpaid taxes (three for nonresidential commercial property, R&T 3691), and the owner can pay off the taxes until the close of business on the last business day before the sale (R&T 3707).',
     AZ: 'In Arizona the county sells tax lien certificates, not properties: you bid the interest rate down, and you can only foreclose after three years if the owner never pays.',
     UT: 'In Utah the county auditor holds one tax sale a year, in May or June, for property four years behind on taxes (Utah Code 59-2-1343), and a bid must cover the taxes, penalties, interest and costs.',
@@ -26,7 +26,7 @@ const DIFFERS: Partial<Record<SaleKey, Partial<Record<StateCode, string>>>> = {
     TX: 'In Texas trustee sales happen on the first Tuesday of the month at the county courthouse, after at least 21 days’ notice.',
     CA: 'In California the trustee sale comes at least three months after the notice of default and 20 days after the notice of sale, and for homes of one to four units the winning bid isn’t final at once: tenants and other eligible bidders have 15 days to bid or give notice that they intend to, and if one does, until day 45 (Civil Code 2924m).',
     AZ: 'In Arizona the trustee sale can be held 90 days after the notice of sale is recorded; the winning bidder pays by 5 p.m. the next business day.',
-    UT: 'In Utah the trustee sale can be held after three months from the notice of default, with a notice of sale published for three weeks.',
+    UT: 'In Utah the notice of sale can be given three months after the notice of default is recorded. The sale is then at least about a month later, after three weekly newspaper notices and 30 days on the state notice website (Utah Code 57-1-24, 57-1-25).',
   },
 };
 

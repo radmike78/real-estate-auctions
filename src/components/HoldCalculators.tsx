@@ -366,7 +366,7 @@ function StrComparison({ v }: { v: RentInputs }) {
         <div><dt>Nights booked to break even with the long-term rent</dt><dd>{r.breakEvenOccupancyPct === null ? 'Never, at these prices' : `${r.breakEvenOccupancyPct}%`}</dd></div>
         <div><dt>Years to earn back the furniture</dt><dd>{r.furnishingPaybackYears === null ? '—' : r.furnishingPaybackYears}</dd></div>
       </dl>
-      <p className="small muted">Before income tax and lodging taxes (guests pay those, usually collected by the platform). Short-term income swings with seasons, reviews and new rules; plan for the slow months.{ut && ' In Utah, a short-term rental loses the 45% residential property-tax exemption: this comparison already counts its property tax on the full value (about 80% more than the long-term rental’s).'}</p>
+      <p className="small muted">Before income tax and lodging taxes (guests pay those, usually collected by the platform). Short-term income swings with seasons, reviews and new rules; plan for the slow months.{ut && ' In Utah, a short-term rental loses the 45% residential property-tax exemption: this comparison already counts its property tax on the full value (about 80% more than the long-term rental’s). The long-term rental keeps the exemption only if you file the county assessor’s declaration that it’s a tenant’s main home (Utah Code 59-2-103.5).'}</p>
     </details>
   );
 }
