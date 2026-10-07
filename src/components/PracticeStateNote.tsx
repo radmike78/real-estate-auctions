@@ -3,11 +3,14 @@ import { STATES, type StateCode } from '../lib/regions';
 import type { SaleKey } from '../practice/types';
 import { useMyState } from '../lib/myState';
 
-/** The Texas or other-state drill for this kind of sale, where one exists. */
-const drillFor = (st: StateCode, sale: SaleKey): string | null => {
+/** The other-state drill for this kind of sale, where one exists (every id here is checked in practice.test.ts). */
+export const drillFor = (st: StateCode, sale: SaleKey): string | null => {
+  if (st === 'NV') return null;
   const s = st.toLowerCase();
   if (sale === 'foreclosure') return `trustee-sale-${s}`;
   if (sale === 'tax') return st === 'AZ' ? 'tax-lien-az' : st === 'UT' ? 'tax-sale-ut' : `tax-deed-${s}`;
+  if (sale === 'hoa') return `hoa-sale-${s}`;
+  if (sale === 'sheriff') return `sheriff-sale-${s}`;
   return null;
 };
 
@@ -44,11 +47,12 @@ export default function PracticeStateNote({ sale }: { sale: SaleKey }) {
   }
   const guide = guideKey(st, sale);
   const drill = drillFor(st, sale);
+  // The visitor's own state first: its drill (where there is one) is the first thing offered.
   return (
     <div className="notice practice-state-note" role="note">
-      <strong>This practice uses Nevada (Clark County) rules.</strong> {DIFFERS[sale]?.[st] ?? `${name}’s deadlines, forms and who runs the sale differ.`}{' '}
-      Before a real {name} deal, read the <a href={`#/playbooks/${guide}`}>{name} step-by-step guide</a>
-      {drill ? <> and try the <a href={`#/practice/drills/${drill}`}>{name} drill</a></> : null}.
+      {drill && <p className="practice-state-first"><a className="btn" href={`#/practice/drills/${drill}`}>Try the {name} drill first →</a> <span>It uses {name} rules for this kind of sale.</span></p>}
+      <p><strong>This practice uses Nevada (Clark County) rules.</strong> {DIFFERS[sale]?.[st] ?? `${name}’s deadlines, forms and who runs the sale differ.`}{' '}
+      Before a real {name} deal, read the <a href={`#/playbooks/${guide}`}>{name} step-by-step guide</a>.</p>
     </div>
   );
 }

@@ -186,7 +186,7 @@ export default function DealsPage() {
                         const n = dealNumbers(d);
                         return n ? (
                           <p className={n.monthly <= 0 || (n.cashOnCash !== null && n.cashOnCash < n.target / 100) ? 'deal-urgent' : undefined}>
-                            At {fmtMoney(n.price)}: {n.monthly < 0 ? `loses ${fmtMoney(Math.round(-n.monthly))}` : `${fmtMoney(Math.round(n.monthly))} cash flow`} a month · {n.cashOnCash === null ? 'all your cash back' : `${(n.cashOnCash * 100).toFixed(1)}% a year on ${fmtMoney(Math.round(n.cashIn))} of your cash`} (target {n.target}%)
+                            At your price, {fmtMoney(n.price)}: {n.monthly < 0 ? `loses ${fmtMoney(Math.round(-n.monthly))}` : `${fmtMoney(Math.round(n.monthly))} cash flow`} a month · {n.cashOnCash === null ? 'all your cash back' : `${(n.cashOnCash * 100).toFixed(1)}% a year on ${fmtMoney(Math.round(n.cashIn))} of your cash`} (target {n.target}%)
                           </p>
                         ) : d.plan === 'rent' ? <p className="muted">No numbers yet: open it and enter the price you’d pay under Keep and rent.</p> : null;
                       })()}

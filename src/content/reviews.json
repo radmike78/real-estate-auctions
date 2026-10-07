@@ -141,8 +141,8 @@
       "src/components/RentalCasePage.tsx",
       "src/practice/rentalCase.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "819890da56ab7103",
+    "reviewed": "2026-10-07",
+    "hash": "c4038890aab2ecb7",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -158,8 +158,8 @@
       "src/components/StrategyTabs.tsx",
       "src/lib/holdCalc.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "35d6707e9b9e692d",
+    "reviewed": "2026-10-07",
+    "hash": "8ee0b3854a8061fe",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -172,8 +172,8 @@
       "src/lib/dealPacket.ts",
       "src/lib/evidence.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "2d1bd5bbee256304",
+    "reviewed": "2026-10-07",
+    "hash": "5d77dcf3920d71e4",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -203,8 +203,8 @@
       "src/components/TeamBuilder.tsx",
       "src/lib/teamBuilder.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "6fda43a4e6e602ac",
+    "reviewed": "2026-10-07",
+    "hash": "a5b1a6cede57627d",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -281,8 +281,8 @@
       "src/components/Disclaimer.tsx",
       "src/components/RoleNotice.tsx"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "5ee433860224992c",
+    "reviewed": "2026-10-07",
+    "hash": "6223bab2c8825c58",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

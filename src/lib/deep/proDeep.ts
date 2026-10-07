@@ -195,9 +195,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Federal rules ban paying loan officers based on loan terms such as the interest rate (CFPB, Franklin Loan action)."
     ],
     checklist: [
-      "Check the loan officer and company in NMLS Consumer Access (nmlsconsumeraccess.org).",
-      "Get Loan Estimates from at least three lenders (bank, credit union, mortgage company) on the same day. Compare rate, points and origination charges. For a rental or flip you won’t live in, there’s usually no Loan Estimate, so ask for written terms instead.",
-      "Treat a pre-approval as conditional. The appraisal and final underwriting still have to pass.",
+      "Check the loan officer and the company in NMLS Consumer Access (nmlsconsumeraccess.org) before you apply.",
       "Ask whether the rate is locked, for how long, and what it costs to extend.",
       "Look for a prepayment penalty or balloon payment and ask about other options if you see one.",
       "If a builder or agent pushes a “preferred lender”, get an outside quote too. Compare total cost, not just the incentive.",

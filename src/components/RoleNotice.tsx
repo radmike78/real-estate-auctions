@@ -11,7 +11,11 @@ function acknowledged(): boolean {
   }
 }
 
-/** One-time welcome on a visitor's first visit: what the site offers, and that each deal is theirs to research. */
+/**
+ * One-time welcome on a visitor's first visit: one line on what the site helps you do, an optional area, and Start learning.
+ * The cautions (verify with the official source, get your own advisors) sit where those decisions happen: the calculators'
+ * "Before you commit" list, the sale and listing disclaimers, and the footer on every page.
+ */
 export default function RoleNotice() {
   const [open, setOpen] = useState(() => !acknowledged());
   const btn = useRef<HTMLButtonElement>(null);
@@ -64,17 +68,11 @@ export default function RoleNotice() {
   return (
     <div className="role-backdrop">
       <div ref={dialog} className="role-dialog" role="dialog" aria-modal="true" aria-labelledby="role-title">
-        <h2 id="role-title" tabIndex={-1}>Welcome</h2>
-        <ul>
-          <li><strong>Find properties</strong> from government and official sources.</li>
-          <li><strong>Learn what’s involved</strong>: how each sale works and what it really costs.</li>
-          <li><strong>Follow the steps</strong> with guides, checklists and a free bid calculator.</li>
-          <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney, tax advisor, agent and financial advisor before you bid, buy or borrow.</li>
-        </ul>
-        {/* Where they're buying, so the rules, official sources and professionals they see are local. */}
-        <h3 className="area-dialog-head">Where are you buying?</h3>
-        <AreaPicker onDone={close} doneLabel="Get started" extra={<button ref={btn} type="button" className="btn btn-secondary" onClick={close}>Skip for now</button>} />
-        <p className="small"><a href="#/about" onClick={close}>How DeedOwl works &amp; the details</a></p>
+        <h2 id="role-title" tabIndex={-1}>Welcome to DeedOwl</h2>
+        <p className="role-lead">DeedOwl teaches you, step by step, how to find, check and buy real estate, from listed homes to auctions, with properties from official sources.</p>
+        {/* Optional: where they're buying, so the rules, official sources and professionals they see are local. */}
+        <h3 className="area-dialog-head">Where are you buying? <span className="muted">(optional)</span></h3>
+        <AreaPicker optional onDone={close} doneLabel="Start learning" />
       </div>
     </div>
   );

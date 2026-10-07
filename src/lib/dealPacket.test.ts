@@ -80,7 +80,7 @@ describe('the deal packet', () => {
     const rentDeal = { ...deal, plan: 'rent' as const };
     const text = packetSections(rentDeal, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
     expect(text).toMatch(/Strategy: Keep and rent/);
-    expect(text).toMatch(/Monthly cash flow at \$300,000/);
+    expect(text).toMatch(/Your offer \(your actual price\): \$300,000 → monthly cash flow/);
     expect(text).not.toMatch(/Walk-away price|\$250,000 resale/);
     const flip = packetSections({ ...deal, plan: 'flip' }, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
     expect(flip).toMatch(/Strategy: Fix and sell/);
