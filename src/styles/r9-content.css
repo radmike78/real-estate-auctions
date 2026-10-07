@@ -230,3 +230,15 @@
 @media (min-width: 561px) and (max-width: 860px) {
   .calc-group .calc-grid:has(> :nth-child(5):last-child) > :last-child { grid-column: 1 / -1; }
 }
+
+/* Section bars between groups of cards ("Recommended to start with", "Nevada rules", "How DeedOwl counts your progress"):
+   clearly bigger than the card titles inside them (1.45rem), with more room before the next section. */
+.drill-group, .drill-next .drill-group, .drill-group-block .drill-group, .progress-kinds-head {
+  font-size: 1.9rem; font-weight: 800; line-height: 1.2; padding: 14px 22px; border-left-width: 6px; margin-bottom: 22px;
+}
+.drill-next, .drill-group-block { margin-bottom: 72px; }
+.drill-next .drill-group, .drill-group-block .drill-group { margin-top: 0; }
+@media (max-width: 640px) {
+  .drill-group, .drill-next .drill-group, .drill-group-block .drill-group, .progress-kinds-head { font-size: 1.5rem; padding: 12px 16px; }
+  .drill-next, .drill-group-block { margin-bottom: 48px; }
+}
