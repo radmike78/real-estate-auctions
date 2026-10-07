@@ -14,6 +14,7 @@ import './styles/r8-case.css';
 import './styles/r8-accuracy.css';
 import './styles/r8-plan.css';
 import './styles/r8-tools.css';
+import './styles/r8-spacing.css';
 import App from './App';
 import { upgradeLegacyHash } from './lib/nav';
 
