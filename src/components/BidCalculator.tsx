@@ -226,7 +226,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   };
   // What the person typed, so a field can be cleared while editing.
   const [draft, setDraft] = useState<Partial<Record<keyof BidInputs, string>>>({});
-  const [bidText, setBidText] = useState<string>('');
+  // Your own offer or bid is kept with a saved deal, so its packet shows the result at your price.
+  const [bidText, setBidText] = useState<string>(() => (i.proposedPrice ? String(i.proposedPrice) : ''));
   const bid = Math.min(toNum(bidText), 1e10);
   const H = headingLevel === 2 ? 'h2' : 'h3';
   const update = (patch: Partial<BidInputs>) =>
@@ -415,7 +416,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           </div>
           )
         )}
-        {!needsValue && i.minimumBid > 0 && <PriceHead kind="listed" tag={offer ? 'From the listing' : 'From the sale notice'} label={w.Opening} price={i.minimumBid} result={atOpening} unit="profit" />}
+        {!needsValue && i.minimumBid > 0 && <PriceHead kind="listed" tag={offer ? 'From the listing' : 'From the sale notice'} label={w.Opening} price={i.minimumBid} result={atOpening} unit="profit" note={`Most cash you’d have in at once at this price, through repairs and holding until it sells: ${fmtMoney(Math.ceil(openingCash))}.`} />}
         {!needsValue && i.minimumBid > 0 && (
           <div className={`calc-verdict ${dealFails || cashShort ? 'bad' : 'good'}`} role="status">
             {dealFails ? (
@@ -447,9 +448,9 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         )}
         {!r.noBidWorks && !needsValue && (
           <dl className="calc-kv">
-            {!offer && <div><dt>Cash needed on auction day</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
-            <div><dt>Most cash you’ll have in at once</dt><dd>{fmtMoney(r.cashPeak)}</dd></div>
-            {i.financedPct > 0 && r.cashToStabilize < r.cashPeak && <div><dt>Cash left in after the loan funds</dt><dd>{fmtMoney(r.cashToStabilize)}</dd></div>}
+            {!offer && <div><dt>Cash needed on auction day, at the walk-away price</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
+            <div><dt>Most cash you’ll have in at once, at the walk-away price</dt><dd>{fmtMoney(r.cashPeak)}</dd></div>
+            {i.financedPct > 0 && r.cashToStabilize < r.cashPeak && <div><dt>Cash left in after the loan funds, at the walk-away price</dt><dd>{fmtMoney(r.cashToStabilize)}</dd></div>}
             <div><dt>Profit at the walk-away price</dt><dd>{fmtMoney(Math.round(r.profit))}</dd></div>
             <div><dt>Return on your cash, per year, if it sells on schedule</dt><dd>{yr(r.yearlyReturn)}</dd></div>
             <div><dt>Break-even {w.bid} (zero profit)</dt><dd>{fmtMoney(r.breakEvenBid)}</dd></div>
@@ -479,9 +480,9 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         <>
         <div className="calc-field calc-bid">
           <label className="calc-label" htmlFor={`${uid}-bid`}>Check {offer ? 'an offer' : 'a bid'}</label>
-          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="number" inputMode="decimal" min={0} step="any" value={bidText} placeholder={offer ? 'e.g. the offer you plan to make' : 'e.g. a bid you expect to beat'} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); }} /></span>
+          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="number" inputMode="decimal" min={0} step="any" value={bidText} placeholder={offer ? 'e.g. the offer you plan to make' : 'e.g. a bid you expect to beat'} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); update({ proposedPrice: clampInput('proposedPrice', toNum(e.target.value)) }); }} /></span>
         </div>
-        {atBid && profit !== null && <PriceHead kind="yours" label={yours} price={bid} result={profit} unit="profit" />}
+        {atBid && profit !== null && <PriceHead kind="yours" label={yours} price={bid} result={profit} unit="profit" note={`Most cash you’d have in at once at this price, through repairs and holding until it sells: ${fmtMoney(Math.ceil(cashNeededAtBid(i, bid)))}.${storeId ? ' Saved with this deal as your price; its deal packet uses it.' : ''}`} />}
         {atBid && profit !== null && !needsValue && (
           <div className={`calc-verdict ${over ? 'bad' : 'good'}`} role="status">
             {over ? (

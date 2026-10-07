@@ -317,7 +317,7 @@ function LenderView({ v, at: atP, onPrice }: { v: RentInputs; at: PriceAt; onPri
         {r.dscr === null ? '' : r.dscr >= 1.2 ? 'The DSCR ratio is in the range most DSCR lenders like.' : r.dscr >= 1 ? 'Some DSCR lenders accept this ratio, usually at a higher rate or with more down.' : 'This ratio is below what most DSCR lenders accept.'}
       </p>
       <p className="small">
-        These are Fannie Mae’s long-term rental rules (Selling Guide B3-3.8-02); other lenders and programs differ. For a short-term rental, Fannie Mae counts 50% of the rent and any surplus can only offset the payment (B3-3.8-03).
+        These are Fannie Mae’s long-term rental rules (Selling Guide B3-3.8-02); other lenders and programs differ. The lender must also document your current housing payment to count any of this rent. For a short-term rental on a one-unit investment property, Fannie Mae counts 50% of the rent and any surplus can only offset the payment (B3-3.8-03). Lenders must follow these 2026 rules for applications dated on and after December 1, 2026, and may adopt them sooner, so ask yours which rules it uses.
         {!onPrice && ' Refinancing a cash or hard-money purchase usually waits 6 to 12 months; ask lenders before you buy.'}{' '}
         <a href="#/learn/financing">Getting approved, DSCR loans and refinancing&nbsp;→</a>
       </p>

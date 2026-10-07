@@ -3,6 +3,7 @@ import type { Deal } from './analyze';
 import { cleanPacket, dealPacketText, EMPTY_PACKET, loadPacket, nextAction, nextDate, packetSections, savePacket, suggestedDates } from './dealPacket';
 import { saveLog, cleanLog } from './evidence';
 import { dealNumbers } from './propertyPacket';
+import { cashNeededAtBid, offerInputs, profitAtBid, sanitizeInputs, BLANK_INPUTS } from './bidCalc';
 
 class MemStorage {
   private m = new Map<string, string>();
@@ -86,7 +87,7 @@ describe('the deal packet', () => {
     expect(text).not.toMatch(/Walk-away price|\$250,000 resale/);
     const flip = packetSections({ ...deal, plan: 'flip' }, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
     expect(flip).toMatch(/Strategy: Fix and sell/);
-    expect(flip).toMatch(/Walk-away price: .*\$250,000 resale value/);
+    expect(flip).toMatch(/What-if: walk-away price .*\$250,000 resale value/);
     expect(flip).not.toMatch(/Monthly cash flow/);
     expect(dealNumbers({ ...deal, plan: 'flip' })).toBeNull();
     expect(dealNumbers(rentDeal)?.price).toBe(300000);
@@ -112,5 +113,82 @@ describe('the deal packet', () => {
     expect(noneText).toMatch(/No price meets your 9% return on cost with the income and costs you entered/);
     expect(noneText).not.toMatch(/No numbers yet/);
     expect(none.find((s) => s.key === 'cash')!.lines.join('\n')).toMatch(/No price meets your 9% return on cost/);
+  });
+
+  describe('Fix and sell: your own price first, the walk-away price as a what-if', () => {
+    // The reviewer's case: a regular listing in Harris County, Texas.
+    const harris: Deal = { ...deal, county: 'Harris', plan: 'flip' };
+    const base = { minimumBid: 200000, exitValue: 300000, repairs: 20000, contingencyPct: 15, transferTaxPer500: 0, titleLegal: 0, possession: 0, holdingMonths: 0, monthlyCarry: 0, financedPct: 0, sellingCostPct: 8, targetProfitPct: 15 };
+    const save = (v: object) => localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify(v));
+    const section = (key: string) => packetSections(harris, EMPTY_PACKET, now).find((s) => s.key === key)!.lines.join('\n');
+
+    it('shows the profit and cash at the asking price, and labels the walk-away figures as a separate what-if', () => {
+      save(base);
+      const cash = section('cash');
+      const nums = section('numbers');
+      expect(nums).toMatch(/The asking price \(used until you enter your own offer\): \$200,000 → estimated profit \$53,000 \(your target \$45,000\)/);
+      expect(nums).toMatch(/What-if: walk-away price \$208,000, the most you could pay/);
+      expect(cash).toMatch(/Most cash you’ll have in at once, at the asking price of \$200,000, through repairs and holding until it sells: \$223,000/);
+      expect(cash).toMatch(/What-if, at your walk-away price of \$208,000 \(the most you could pay, not your price\): most cash in at once \$231,000/);
+      // Your price comes first in both parts.
+      expect(cash.indexOf('$223,000')).toBeLessThan(cash.indexOf('$231,000'));
+      expect(nums.indexOf('$53,000')).toBeLessThan(nums.indexOf('$208,000'));
+      // The download says the same.
+      const text = dealPacketText(harris, EMPTY_PACKET, now);
+      expect(text).toContain('at the asking price of $200,000, through repairs and holding until it sells: $223,000');
+      expect(text).toContain('$200,000 → estimated profit $53,000');
+      expect(text).toContain('walk-away price of $208,000 (the most you could pay, not your price): most cash in at once $231,000');
+    });
+
+    it('moves the profit and cash with your own offer, while the walk-away price stays', () => {
+      save({ ...base, proposedPrice: 190000 });
+      const nums = section('numbers');
+      const cash = section('cash');
+      expect(nums).toMatch(/Your offer \(your actual price\): \$190,000 → estimated profit \$63,000/);
+      expect(nums).toMatch(/walk-away price \$208,000/);
+      expect(cash).toMatch(/at your offer of \$190,000, through repairs and holding until it sells: \$213,000/);
+      expect(cash).toMatch(/walk-away price of \$208,000 .*\$231,000/);
+      expect(dealPacketText(harris, EMPTY_PACKET, now)).toContain('$190,000 → estimated profit $63,000');
+    });
+
+    it('shows each downside case at your own price, next to its walk-away price', () => {
+      save(base);
+      const nums = section('numbers');
+      // Resale 10% lower: $270,000 − $200,000 − $23,000 repairs − $21,600 selling = $25,400.
+      expect(nums).toMatch(/If resale value 10% lower: profit \$25,400 at \$200,000; walk-away price \$184,900/);
+      // Repairs 25% higher: $28,750 with the cushion, so $300,000 − $200,000 − $28,750 − $24,000 = $47,250.
+      expect(nums).toMatch(/If repairs 25% higher: profit \$47,250 at \$200,000; walk-away price \$202,250/);
+      expect(nums).toMatch(/If all three at once: profit \$[\d,]+ at \$200,000; walk-away price \$179,150/);
+    });
+
+    it('counts financing and holding costs at your own price', () => {
+      const v = { ...base, holdingMonths: 6, monthlyCarry: 1000, financedPct: 80, interestRatePct: 10, pointsPct: 2, proposedPrice: 195000 };
+      save(v);
+      const i = offerInputs(sanitizeInputs(v, BLANK_INPUTS));
+      // A listed home: the loan pays 80% of the price at closing; you bring the rest, then repairs, holding and loan costs.
+      const loan = (195000 + 23000) * 0.8;
+      const loanCost = loan * (0.1 * 0.5 + 0.02);
+      const profit = 300000 - 195000 - 23000 - 6000 - loanCost - 24000;
+      expect(profitAtBid(i, 195000)).toBeCloseTo(profit, 2);
+      const cashAt = cashNeededAtBid(i, 195000);
+      expect(cashAt).toBeCloseTo(195000 + 23000 + 6000 + loanCost - loan, 2);
+      const money = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
+      expect(section('numbers')).toContain(`$195,000 → estimated profit ${money(profit)}`);
+      expect(section('cash')).toContain(`at your offer of $195,000, through repairs and holding until it sells: ${money(cashAt)}`);
+      // Changing only your price leaves the walk-away price where it was.
+      const walk = section('numbers').match(/walk-away price (\$[\d,]+), the most/)![1];
+      save({ ...v, proposedPrice: 180000 });
+      expect(section('numbers')).toContain(`walk-away price ${walk}, the most`);
+      expect(section('numbers')).toContain(`$180,000 → estimated profit ${money(profitAtBid(i, 180000))}`);
+      expect(section('cash')).toContain(`${money(cashNeededAtBid(i, 180000))}`);
+    });
+
+    it('at an auction, shows sale-day cash at the opening bid, not the walk-away price', () => {
+      const auction: Deal = { ...harris, kind: 'trustee' };
+      save({ ...base, minimumBid: 150000 });
+      const cash = packetSections(auction, EMPTY_PACKET, now).find((s) => s.key === 'cash')!.lines.join('\n');
+      expect(cash).toMatch(/On sale day, at the opening bid of \$150,000: \$150,000/);
+      expect(cash).toMatch(/What-if, at your walk-away price of \$208,000 .*: \$208,000 on sale day/);
+    });
   });
 });

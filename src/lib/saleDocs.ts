@@ -130,6 +130,9 @@ export const SALE_SCRIPTS: Record<SaleKindKey, SaleScript[]> = {
 // whether it's a subdivision or a condominium, and the TREC forms set the contract dates. These replace the general
 // lists for Texas guides (Tax Code 34.01, 34.015, 34.21; Property Code 82.113, 209.0092, 209.011; TREC 20-19, 45-2).
 const TX_TAX_NOTICE: SaleDoc = { name: 'The notice of sale and the county’s sale page', check: 'The sheriff or constable posts it before the first-Tuesday sale. Save it with the date you saved it. The county’s page sets how you register, whether the sale is in person or online, the funds it takes and when payment is due; those override any general summary. Check again the day before: properties are often pulled when the taxes are paid.' };
+// TREC 20-19, paragraph 7I, and TREC's FAQ on the Seller's Water Disclosure (Aug. 14, 2026): the contract, not a statute,
+// requires it, unless every statement in 7I(3) is true.
+const TX_WATER: SaleDoc = { name: 'The Seller’s Water Disclosure (groundwater and surface water rights), if the contract requires it', check: 'Ask your agent which box in paragraph 7I of the TREC contract applies. Box 1: you’ve already received it. Box 2: the seller delivers it within the days written in; if it never comes, you can end the contract before closing, and once it comes you can end it within 7 days or before closing, whichever is first, with your earnest money back. Box 3: it isn’t required because every statement listed there is true (no well, pond, lake or water tank the seller knows of, no surface water rights or severed groundwater rights, and water only from the supplier named in 3(e)). Read it when you get it, and record the delivery date and your 7-day deadline, or the reason it isn’t required.' };
 const TX_DOCS: Partial<Record<SaleKindKey, SaleDoc[]>> = {
   deed: [
     TX_TAX_NOTICE,
@@ -169,6 +172,7 @@ const TX_DOCS: Partial<Record<SaleKindKey, SaleDoc[]>> = {
     BUYER_AGREEMENT,
     { name: 'The TREC resale contract (form 20-19)', check: 'Price, earnest money and the option fee, the option period (your strict deadline to end the contract for any reason), the financing addendum’s deadlines and the closing date. Put every date on your calendar the day it’s signed.' },
     { name: 'The bank’s addendum', check: '“As-is” terms, who pays which costs, deposit and closing deadlines, and any per-day fee for closing late. It usually overrides the standard contract.' },
+    TX_WATER,
     INSPECTION,
     COMMITMENT,
     CLOSING,
@@ -178,6 +182,7 @@ const TX_DOCS: Partial<Record<SaleKindKey, SaleDoc[]>> = {
     PREAPPROVAL,
     BUYER_AGREEMENT,
     { name: 'The TREC resale contract (form 20-19)', check: 'Price, earnest money, the option fee and the closing date. With a short sale, these dates are tied to the addendum below.' },
+    TX_WATER,
     { name: 'TREC Short Sale Addendum (form 45-2)', check: 'Says the contract depends on every lienholder’s written approval (45-2, A, I). Read which dates change: for performance, the effective date becomes the day you’re told of the approval (D), while your option period begins on the original effective date and runs until it expires under paragraph 5 (F). Note the approval deadline and how to extend it, and have your agent write out every date for your contract.' },
     { name: 'Each lienholder’s approval letter', check: 'The price it accepts, the closing deadline and which costs it will and won’t pay. An approval doesn’t prove a posted foreclosure sale has been called off: have your agent or attorney confirm that in writing.' },
     INSPECTION,

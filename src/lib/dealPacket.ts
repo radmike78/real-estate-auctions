@@ -4,7 +4,7 @@
 // why, the deal's key dates, your questions to professionals and their answers, your earnest money, and the reason
 // for your decision with any conditions still open. Kept only in this browser, like the rest.
 import { kindLabel, SALE_KINDS, type Deal } from './analyze';
-import { maxSafeBid, offerInputs, sanitizeInputs, stressTests, BLANK_INPUTS, type BidInputs } from './bidCalc';
+import { maxSafeBid, offerInputs, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, BLANK_INPUTS, type BidInputs } from './bidCalc';
 import { cleanBuyBox, EMPTY_BUY_BOX, type BuyBox } from './toolkit';
 import { EVIDENCE_AREAS, GATES, loadLog } from './evidence';
 import { commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, type CommercialInputs, type RentInputs } from './holdCalc';
@@ -108,10 +108,13 @@ const TX_LOAN_DATES = ['Appraisal addendum deadline, if you have one (49-1: noti
 /** Texas earnest money and option fee (20-19, 5A and 5D). Under a short sale addendum they're still due on time (45-2, C). */
 const TX_DEPOSIT_DATES = ['Earnest money due (within 3 days after the effective date; a last day on a weekend or legal holiday moves to the next day that isn’t one; if late, the seller can end the contract until you deliver it)', 'Option fee due (same 3 days and weekend rule; if late, you lose the right to end the contract during the option period)'];
 
+/** Texas water disclosure (20-19, 7I(2)): only when that box is checked. */
+const TX_WATER_DATE = 'Seller’s Water Disclosure due, if box 7I(2) is checked (you can end the contract within 7 days after you receive it, or before closing if sooner)';
+
 /** The dates most deals of this kind need on the calendar, to start the list from. */
 export function suggestedDates(d: Pick<Deal, 'kind' | 'state'>): string[] {
-  if (d.kind === 'short') return ['Contract signed', ...(d.state === 'TX' ? TX_DEPOSIT_DATES : []), 'Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)', d.state === 'TX' ? 'Option period ends (5 p.m.)' : 'Inspection period ends', ...(d.state === 'TX' ? TX_LOAN_DATES.slice(1) : ['Loan approval deadline']), 'Closing'];
-  if (isOffer(d)) return ['Offer accepted (Day 0)', ...(d.state === 'TX' ? TX_DEPOSIT_DATES : ['Earnest money due']), d.state === 'TX' ? 'Option period ends (5 p.m.)' : 'Inspection period ends', ...(d.state === 'TX' ? TX_LOAN_DATES : ['Appraisal deadline', 'Loan approval deadline']), 'Closing'];
+  if (d.kind === 'short') return ['Contract signed', ...(d.state === 'TX' ? TX_DEPOSIT_DATES : []), 'Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)', d.state === 'TX' ? 'Option period ends (5 p.m.)' : 'Inspection period ends', ...(d.state === 'TX' ? [TX_WATER_DATE, ...TX_LOAN_DATES.slice(1)] : ['Loan approval deadline']), 'Closing'];
+  if (isOffer(d)) return ['Offer accepted (Day 0)', ...(d.state === 'TX' ? TX_DEPOSIT_DATES : ['Earnest money due']), d.state === 'TX' ? 'Option period ends (5 p.m.)' : 'Inspection period ends', ...(d.state === 'TX' ? [TX_WATER_DATE, ...TX_LOAN_DATES] : ['Appraisal deadline', 'Loan approval deadline']), 'Closing'];
   if (d.kind === 'lien') return ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien'];
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
@@ -130,6 +133,12 @@ function read(key: string): unknown {
 
 const money = (n: number) => `${n < 0 ? '−' : ''}$${Math.round(Math.abs(n)).toLocaleString('en-US')}`;
 
+/** Which price a Fix and sell result is figured at: the one you entered, or the listing's own. */
+const priceName = (source: 'yours' | 'listed', offer: boolean, cap = false) => {
+  const n = source === 'yours' ? (offer ? 'your offer' : 'your bid') : offer ? 'the asking price' : 'the opening bid';
+  return cap ? n[0].toUpperCase() + n.slice(1) : n;
+};
+
 /** The plan's own calculator in Analyze, by name. */
 export const STRATEGY_LABEL: Record<Deal['plan'], string> = { rent: 'Keep and rent', flip: 'Fix and sell', commercial: 'Commercial income', lien: 'Lien certificate' };
 
@@ -141,7 +150,13 @@ export const STRATEGY_LABEL: Record<Deal['plan'], string> = { rent: 'Keep and re
 export function savedNumbers(d: Deal) {
   const offer = isOffer(d);
   let rent: { price: number; monthly: number; cashIn: number; allIn: number; refi: boolean; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
-  let bid: { maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number; none: boolean; stress: { label: string; maxBid: number }[] } | null = null;
+  let bid: {
+    maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number; none: boolean; target: number;
+    /** The result at your own price (your offer or bid, or else the asking price or opening bid); null when none is entered. */
+    at: { price: number; source: 'yours' | 'listed'; profit: number; cashOnDay: number; cashPeak: number; cashLeft: number } | null;
+    /** Each downside case: the walk-away price, and the profit at your own price (null when no price is entered). */
+    stress: { label: string; maxBid: number; profit: number | null }[];
+  } | null = null;
   let commercial: { maxBid: number; noi: number; capPct: number; cashLeft: number; allIn: number; refi: boolean; none: boolean; stress: { label: string; maxBid: number | null }[] } | null = null;
   if (d.plan === 'rent') {
     const rentRaw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
@@ -159,7 +174,10 @@ export function savedNumbers(d: Deal) {
       const i = offer ? offerInputs(saved) : saved;
       if (i.exitValue > 0) {
         const r = maxSafeBid(i);
-        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, stress: stressTests(i) };
+        const pp = proposedPriceOf(i);
+        const at = pp ? { ...resultAtPrice(i, pp.price), source: pp.source } : null;
+        const stress = stressCases(i).map((c) => ({ label: c.label, maxBid: maxSafeBid(c.inputs).maxBid, profit: pp ? resultAtPrice(c.inputs, pp.price).profit : null }));
+        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress };
       }
     }
   } else if (d.plan === 'commercial') {
@@ -261,13 +279,25 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       need = rent.cashIn;
       cash.push(`${offer ? 'At closing' : 'From sale day until it’s rented'}, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: down payment or bid, closing costs and repairs you entered)`);
     }
-  } else if (bid?.none) {
+  } else if (bid?.none && !bid.at) {
     cash.push(`No price works with the numbers you entered in ${strategy}: the costs and your profit target take up the whole ${money(bid.exitValue)} resale value.`);
   } else if (bid) {
-    need = bid.cashPeak;
-    if (!offer) cash.push(`On sale day, at your walk-away price: ${money(bid.cashOnDay)} (bid plus any buyer’s premium, in the form the sale requires)`);
-    cash.push(`Most cash you’ll have in at once, through repairs and holding until it sells: ${money(bid.cashPeak)}`);
-    if (bid.cashTotal < bid.cashPeak) cash.push(`Left in once the loan funds: ${money(bid.cashTotal)}`);
+    // Your own price first; the walk-away price is a separate what-if (the most you'd pay), never your price.
+    const a = bid.at;
+    if (a) {
+      need = a.cashPeak;
+      const at = `${priceName(a.source, offer)} of ${money(a.price)}`;
+      if (!offer) cash.push(`On sale day, at ${at}: ${money(a.cashOnDay)} (bid plus any buyer’s premium, in the form the sale requires)`);
+      cash.push(`Most cash you’ll have in at once, at ${at}, through repairs and holding until it sells: ${money(a.cashPeak)}`);
+      if (a.cashLeft < a.cashPeak) cash.push(`Left in once the loan funds, at ${at}: ${money(a.cashLeft)}`);
+    } else {
+      need = bid.cashPeak;
+      cash.push(`No ${offer ? 'offer or asking price' : 'bid or opening bid'} entered yet: add it in ${strategy} to see the cash at your own price.`);
+    }
+    if (!bid.none) {
+      const what = `What-if, at your walk-away price of ${money(bid.maxBid)} (the most you could pay, not your price)`;
+      cash.push(offer ? `${what}: most cash in at once ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} on sale day; most cash in at once ${money(bid.cashPeak)}`);
+    }
   } else if (commercial?.none) {
     cash.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered in ${strategy}.`);
   } else if (commercial) {
@@ -291,8 +321,13 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase()}: ${money(s.monthly)} a month`);
   }
   if (bid) {
-    nums.push(bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and your profit target` : `Walk-away price: ${money(bid.maxBid)}, the most you could pay and still meet your goal (not your actual price), based on a ${money(bid.exitValue)} resale value`);
-    for (const s of bid.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid > 0 ? `walk-away price ${money(s.maxBid)}` : 'no price works'}`);
+    const a = bid.at;
+    if (a) nums.push(`${priceName(a.source, offer, true)} (${a.source === 'yours' ? 'your actual price' : offer ? 'used until you enter your own offer' : 'the lowest you could pay, used until you enter your own bid'}): ${money(a.price)} → estimated profit ${money(a.profit)} (your target ${money(bid.target)}${a.profit < bid.target ? ', so it falls short' : ''}), based on a ${money(bid.exitValue)} resale value`);
+    nums.push(bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and your profit target` : `What-if: walk-away price ${money(bid.maxBid)}, the most you could pay and still meet your goal (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}`);
+    for (const s of bid.stress.slice(1)) {
+      const walk = s.maxBid > 0 ? `walk-away price ${money(s.maxBid)}` : 'no price works';
+      nums.push(`  If ${s.label.toLowerCase()}: ${a && s.profit !== null ? `profit ${money(s.profit)} at ${money(a.price)}; ${walk}` : walk}`);
+    }
   }
   if (commercial?.none) nums.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered`);
   else if (commercial) {

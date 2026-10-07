@@ -58,10 +58,10 @@ export const DRILLS: Drill[] = [
           { label: 'Sale A: $272,000', detail: '3 bed, 2 bath, 1,480 sq ft, average condition, sold 2 months ago, 0.4 miles away', good: true, why: 'Similar size, age and condition, recent and close: a strong comparable.' },
           { label: 'Sale B: $268,000', detail: '3 bed, 2 bath, 1,550 sq ft, average condition, sold 4 months ago, 0.7 miles away', good: true, why: 'Also similar and recent. Two good comps point to about $270,000.' },
           { label: 'Sale C: $395,000', detail: '4 bed, 3 bath, 2,300 sq ft, fully remodeled, sold 1 month ago, 0.5 miles away', good: false, why: 'Much bigger and remodeled. It tells you what a different house is worth, not this one.' },
-          { label: 'Sale D: $240,000', detail: '3 bed, 2 bath, 1,500 sq ft, sold 14 months ago, 0.3 miles away', good: false, why: 'Over a year old. Prices may have moved since, so use it only if nothing recent exists.' },
+          { label: 'Sale D: $240,000', detail: '3 bed, 2 bath, 1,500 sq ft, poor condition (no working air conditioning, kitchen torn out), sold 14 months ago, 0.3 miles away', good: false, why: 'Its age alone wouldn’t rule it out: an older sale can still help if you adjust it for how prices have moved since. The problem is condition. A house with no working air conditioning and no kitchen isn’t a close match for this livable one, and Sales A and B are similar, recent and close, so they’re the better evidence.' },
           { label: 'Sale E: $205,000', detail: '3 bed, 2 bath, 1,510 sq ft, bank sale with fire damage, sold as-is 3 months ago', good: false, why: 'A distressed sale of a damaged house. It sets a floor for a wreck, not the value of a livable home.' },
         ],
-        lesson: 'Value comes from recent sales of similar homes nearby, in similar condition. Here that’s about $270,000, so at $265,000 you’d be paying nearly full price for a house that still needs work.',
+        lesson: 'Value comes from the best evidence you have: sales of similar homes nearby, in similar condition, as recent as you can find. When you must use an older sale, adjust it for how the market has moved since. Here Sales A and B point to about $270,000, so at $265,000 you’d be paying nearly full price for a house that still needs work.',
       },
       {
         kind: 'pick',
