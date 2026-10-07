@@ -109,7 +109,7 @@ export const TX_SHORT_NOTES: StateLine[] = [
 
 /** shortSales.ts → OWNERS, key TX */
 export const TX_SHORT_OWNERS: StateLine[] = [
-  { text: 'In Texas, offering paid help to stop an owner’s foreclosure on a home they live in makes you a foreclosure consultant (licensed real estate agents acting as agents and attorneys are among the exceptions, unless the deal moves the title to them). A consultant can’t take payment up front unless bonded or take an interest in the home to secure their fee, and a violation is a crime (Business and Commerce Code 21.002, 21.101, 21.102, 21.151).', links: [['Business and Commerce Code chapter 21', 'https://tcss.legis.texas.gov/resources/BC/htm/BC.21.htm']] },
+  { text: 'In Texas, once a notice of sale is filed, or a court foreclosure is started, on a 1 to 4 unit home the owner lives in, offering paid help to stop the foreclosure makes you a foreclosure consultant (licensed real estate agents acting as agents and attorneys are among the exceptions, unless the deal moves the title to them). A consultant can’t take payment up front unless bonded or take an interest in the home to secure their fee, and a violation is a crime (Business and Commerce Code 21.002, 21.101, 21.102, 21.151).', links: [['Business and Commerce Code chapter 21', 'https://tcss.legis.texas.gov/resources/BC/htm/BC.21.htm']] },
 ];
 
 // ───────────────────────────────────────────────────────────────────────────────────────────────

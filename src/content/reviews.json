@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "1a4931564ea8f1a0",
+    "hash": "3d6f747f04d25c53",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -379,7 +379,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "e2e50b3712c5eff7",
+    "hash": "15571efad3b3242d",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
