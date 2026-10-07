@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "76d65e0600f45319",
+    "hash": "4edc6a6e783ac6fe",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -204,7 +204,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "8e644eeaea121934",
+    "hash": "d8b62d751e133459",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -366,7 +366,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "c8e0608df2010f22",
+    "hash": "aa84cc1f33c1cbdb",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -379,7 +379,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "baa78061ec19eafd",
+    "hash": "95740470884a077a",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
@@ -392,7 +392,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "b3679caccd81fd05",
+    "hash": "c9dd2f9195404852",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {

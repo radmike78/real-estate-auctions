@@ -40,7 +40,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Deposit and payment",
-      value: "Each county sets its own. State law lets a county ask for a deposit of $5,000 or 10% of the minimum bid, whichever is greater. The rest is due within 90 days at most (R&T 3693.1). Confirm in your county’s terms."
+      value: "Each county sets its own. If the county lets winners pay later (a deferred-payment sale), state law lets it ask for a deposit of $5,000 or 10% of the minimum bid, whichever is greater, with the rest due within 90 days at most (R&T 3693.1). Confirm in your county’s terms."
     },
     {
       label: "What you get",
@@ -426,7 +426,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Check for homestead rules",
-      detail: "If the property is a person’s home, the sale needs a court order. No bid can be accepted unless it is more than the homestead exemption plus all liens. A bid under 90% of fair market value needs court approval (CCP 704.740, 704.800). The exemption is the county’s median home price from the year before, but never less than $370,550 or more than $731,300 (2026 amounts, adjusted each January for inflation) (CCP 704.730)."
+      detail: "If the property is a person’s home, the sale needs a court order. No bid can be accepted unless it is more than the homestead exemption plus all liens. A bid under 90% of fair market value needs court approval (CCP 704.740, 704.800). The exemption is the county’s median home price from the year before, but never less than about $370,000 or more than about $740,000 in 2026 (the $300,000 floor and $600,000 cap in the law, adjusted each January for inflation) (CCP 704.730).*"
     },
     {
       title: "Pre-qualify and bring funds",

@@ -300,7 +300,7 @@ export const PRO_WHY = {
       },
       {
         who: "Anyone hiring out work in California",
-        text: "In California, you need a licensed contractor for any job of $1,000 or more, and for a smaller job that needs a permit, uses helpers, or is done by someone who advertises as a contractor. Hiring someone licensed also gives you the state’s complaint process.",
+        text: "In California, you need a licensed contractor for any job of $1,000 or more, and for a smaller job that needs a permit, uses helpers, or is done by someone who advertises as a contractor (Business and Professions Code 7048). Hiring someone licensed also gives you the state’s complaint process.",
         example: "In a May 2024 sting in Merced, CSLB referred 11 people for misdemeanor charges for contracting without a license.",
         source: {
           label: "California Contractors State License Board press release, Merced sting (May 21, 2024)",
