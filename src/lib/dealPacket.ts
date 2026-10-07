@@ -11,6 +11,7 @@ import { commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DE
 import { cleanGoal, GOAL_KEY, investorProfile, TEAM_ROLES } from './myPlan';
 import { proGuideByKey } from './proGuide';
 import { countyName } from './regions';
+import { dealNextTask, stageLabel, stageOf } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -310,29 +311,19 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   return out;
 }
 
-/** The one thing to do next, with where to do it. */
+/**
+ * The one thing to do next, with where to do it. It follows the deal's stage (dealStage.ts): a candidate you're
+ * researching gets research tasks, and the accepted-offer deadlines only come up once it's under contract.
+ */
 export function nextAction(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}`), now = new Date()): { text: string; href?: string } {
-  const nd = nextDate(p, now);
-  if (nd && nd.days <= 7) return { text: `${nd.days === 0 ? 'Today' : nd.days === 1 ? 'Tomorrow' : `In ${nd.days} days`}: ${nd.what}.${nd.who ? ` Who: ${nd.who}.` : ''}` };
-  const log = loadLog(`analyzed:${d.id}`);
-  const openRow = EVIDENCE_AREAS.map((a) => ({ a, r: log.rows[a.key] })).find(({ r }) => r?.open && !r.done);
-  if (openRow) return { text: `Get an answer to: ${openRow.r.open}${openRow.r.owner ? ` (${openRow.r.owner})` : ''}.` };
-  const waiting = p.qa.find((x) => x.q && !x.a);
-  if (waiting) return { text: `Get an answer from your ${(proGuideByKey(waiting.role as never)?.title ?? 'professional').toLowerCase()}: ${waiting.q}` };
-  const n = savedNumbers(d);
-  if (d.plan !== 'lien' && !n.rent && !n.bid && !n.commercial) return { text: d.plan === 'rent' ? 'Run Keep and rent with the price you’d pay, so the packet has your numbers and downside cases.' : d.plan === 'flip' ? `Set your walk-away price in Fix and sell before you ${isOffer(d) ? 'make an offer' : 'bid'}.` : 'Run Commercial income to find the most this building’s income supports.', href: '#/analyze' };
-  if (!p.dates.some((x) => x.when)) return { text: `Put the deal’s dates on its calendar: ${suggestedDates(d).slice(0, 3).join(', ')}.` };
-  const unchecked = EVIDENCE_AREAS.find((a) => !log.rows[a.key]?.done);
-  if (unchecked) return { text: `Check “${unchecked.title}”: ${unchecked.what}` };
-  if (!log.gate) return { text: 'Every area is checked: record your decision and why.' };
-  if (nd) return { text: `Next date, in ${nd.days} days: ${nd.what}.` };
-  return { text: 'Review your decision with your professionals before you commit.' };
+  const t = dealNextTask(d, p, now);
+  return { text: t.urgent ? t.text : `${t.label}. You’ll have ${t.produces}.`, href: t.openDeal ? '#/analyze' : undefined };
 }
 
 /** The whole packet as plain text, to download, print or share with your professionals. */
 export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}`), now = new Date()): string {
   const lines = [`DEAL PACKET: ${d.name}`, 'DeedOwl educational worksheet. Every number is your estimate until a source backs it; a checkmark records your review, not a clear title.', ''];
-  lines.push(`NEXT ACTION: ${nextAction(d, p, now).text}`, '');
+  lines.push(`STAGE: ${stageLabel(stageOf(d), d)}`, `NEXT ACTION: ${nextAction(d, p, now).text}`, '');
   for (const s of packetSections(d, p, now)) {
     lines.push(`${s.title.toUpperCase()} [${s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines, '');
   }

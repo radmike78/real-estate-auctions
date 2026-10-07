@@ -3,6 +3,7 @@ import type { Deal } from '../lib/analyze';
 import { savedNumbers } from '../lib/dealPacket';
 import { loadOwned, OWNED_EVENT, ownedSummary, saveOwned, type Owned } from '../lib/owned';
 import { fmtMoney } from '../lib/status';
+import { setDealStage, stageOf } from '../lib/dealStage';
 
 /** The monthly cash flow the deal was bought on, from its Keep and rent numbers (null without them). */
 export function projectedMonthly(d: Deal): number | null {
@@ -54,7 +55,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     return (
       <div>
         <p>Did you buy it? Mark it as yours to track the real rent and costs each month against the cash flow you planned.</p>
-        <button type="button" className="btn btn-secondary" onClick={() => put({ boughtOn: today(), months: [] })}>I bought this property</button>
+        <button type="button" className="btn btn-secondary" onClick={() => { put({ boughtOn: today(), months: [] }); if (!['closed', 'owned'].includes(stageOf(deal))) setDealStage(deal.id, 'closed'); }}>I bought this property</button>
       </div>
     );
   }

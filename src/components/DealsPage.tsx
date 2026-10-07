@@ -17,6 +17,7 @@ import { countyName } from '../lib/regions';
 import StatusBadge from './StatusBadge';
 import { dealNumbers } from '../lib/propertyPacket';
 import { nextAction } from '../lib/dealPacket';
+import { stageLabel, stageOf } from '../lib/dealStage';
 import AdSpot from './AdSpot';
 
 function DealCard({ d, p, loading, known }: { d: SavedDeal; p: Property | undefined; loading: boolean; known: boolean }) {
@@ -181,7 +182,7 @@ export default function DealsPage() {
                   <div className="deal-head">
                     <div>
                       <h3><button type="button" className="linkish" onClick={() => openDeal(d)}>{d.name}</button></h3>
-                      <p className="muted">{kindLabel(k, d.state)} · {countyName(d.county)}, {d.state} · checklist {done} of {all.length} done</p>
+                      <p className="muted"><strong>{stageLabel(stageOf(d), d)}</strong> · {kindLabel(k, d.state)} · {countyName(d.county)}, {d.state} · checklist {done} of {all.length} done</p>
                       {(() => {
                         const n = dealNumbers(d);
                         return n ? (

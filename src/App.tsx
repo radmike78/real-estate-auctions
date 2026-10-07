@@ -85,7 +85,7 @@ type Route =
   | { page: 'decide' }
   | { page: 'finddeals' }
   | { page: 'deals' }
-  | { page: 'dealPacket'; id: string }
+  | { page: 'dealPacket'; id: string; section?: string }
   | { page: 'homeowner' }
   | { page: 'guides'; q: string }
   | { page: 'alerts'; mode: AlertsMode; token: string; welcome: boolean; add?: string }
@@ -158,8 +158,8 @@ function parseHash(): Route {
   if (h === 'decide') return { page: 'decide' };
   if (h === 'find-deals') return { page: 'finddeals' };
   if (h === 'deals') return { page: 'deals' };
-  const packet = h.match(/^deals\/packet\/(d[a-z0-9]{1,20})$/);
-  if (packet) return { page: 'dealPacket', id: packet[1] };
+  const packet = h.match(/^deals\/packet\/(d[a-z0-9]{1,20})(?:\/(plan|dates|cash|evidence|pros|decision|owned))?$/);
+  if (packet) return { page: 'dealPacket', id: packet[1], section: packet[2] };
   if (h === 'homeowner-help') return { page: 'homeowner' };
   if (h === 'guides') return { page: 'guides', q };
   const al = h.match(/^alerts(?:\/(confirm|manage|unsubscribe)(?:\/([A-Za-z0-9._-]{1,100}))?)?$/); // no token: the page reads it from this tab
@@ -168,7 +168,7 @@ function parseHash(): Route {
     const sale = params.get('sale') ?? undefined;
     return { page: 'practice', sale: sale && /^[a-z]{2,12}$/.test(sale) ? sale : undefined };
   }
-  const tk = h.match(/^toolkit(?:\/(buy-box|cash|team|paperwork))?$/);
+  const tk = h.match(/^toolkit(?:\/(buy-box|cash|team|paperwork|roadmap))?$/);
   if (tk) return { page: 'toolkit', section: tk[1] };
   const drill = h.match(/^practice\/drills\/([a-z0-9-]{2,40})$/);
   if (drill) return { page: 'drill', id: drill[1] };
@@ -318,7 +318,7 @@ export default function App() {
       {route.page === 'decide' && <DecidePage />}
       {route.page === 'finddeals' && <FindDealsPage />}
       {route.page === 'deals' && <DealsPage />}
-      {route.page === 'dealPacket' && <DealPacketPage key={route.id} dealId={route.id} />}
+      {route.page === 'dealPacket' && <DealPacketPage key={route.id} dealId={route.id} section={route.section} />}
       {route.page === 'homeowner' && <HomeownerHelpPage />}
       {route.page === 'guides' && <GuidesPage key={`${nav}|${route.q}`} initialQuery={route.q} />}
       {route.page === 'alerts' && <AlertsPage key={`${route.mode}${route.token}${route.add ?? ''}`} mode={route.mode} token={route.token} welcome={route.welcome} add={route.add} />}

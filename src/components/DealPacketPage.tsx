@@ -3,7 +3,7 @@ import PageHero from './PageHero';
 import EvidenceLog from './EvidenceLog';
 import { kindLabel, loadDeals, openDeal, SALE_KINDS } from '../lib/analyze';
 import { countyName } from '../lib/regions';
-import { dealPacketText, FIT_LABEL, loadPacket, nextAction, packetSections, savePacket, suggestedDates, type Fit, type PacketData, type SectionStatus } from '../lib/dealPacket';
+import { dealPacketText, FIT_LABEL, loadPacket, packetSections, savePacket, suggestedDates, type Fit, type PacketData, type SectionStatus } from '../lib/dealPacket';
 import { TEAM_ROLES } from '../lib/myPlan';
 import { proGuideByKey } from '../lib/proGuide';
 import { downloadText, fileName } from '../lib/download';
@@ -11,6 +11,10 @@ import { EVIDENCE_EVENT } from '../lib/evidence';
 import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
 import { useNoIndex } from '../lib/noindex';
+import { DEAL_STAGES, type DealStage } from '../lib/analyze';
+import { dealNextTask, setDealStage, stageHint, stageLabel, stageOf } from '../lib/dealStage';
+import { PROGRESS_EVENT } from '../lib/roadmapState';
+import { OWNED_EVENT } from '../lib/owned';
 
 const STATUS_LABEL: Record<SectionStatus, string> = { done: 'Complete', started: 'In progress', missing: 'Missing' };
 
@@ -18,7 +22,7 @@ const STATUS_LABEL: Record<SectionStatus, string> = { done: 'Complete', started:
  * The deal packet for a property you're analyzing: everything the decision needs on one page, each part marked
  * complete, in progress or missing, with the one next action at the top. Fill the gaps here or where each part lives.
  */
-export default function DealPacketPage({ dealId }: { dealId: string }) {
+export default function DealPacketPage({ dealId, section }: { dealId: string; section?: string }) {
   const deal = loadDeals().find((d) => d.id === dealId);
   const key = `analyzed:${dealId}`;
   const [p, setP] = useState<PacketData>(() => loadPacket(key));
@@ -27,9 +31,14 @@ export default function DealPacketPage({ dealId }: { dealId: string }) {
   useNoIndex(!deal);
   useEffect(() => {
     const on = () => bump((n) => n + 1);
-    window.addEventListener(EVIDENCE_EVENT, on);
-    return () => window.removeEventListener(EVIDENCE_EVENT, on);
+    const events = [EVIDENCE_EVENT, PROGRESS_EVENT, OWNED_EVENT];
+    events.forEach((e) => window.addEventListener(e, on));
+    return () => events.forEach((e) => window.removeEventListener(e, on));
   }, []);
+  // A link from My plan's next step opens the part of the packet the task is in.
+  useEffect(() => {
+    if (section) document.getElementById(`packet-${section}`)?.scrollIntoView({ block: 'start' });
+  }, [section]);
   const update = (patch: Partial<PacketData>) =>
     setP((cur) => {
       const next = { ...cur, ...patch };
@@ -53,7 +62,8 @@ export default function DealPacketPage({ dealId }: { dealId: string }) {
 
   const kind = SALE_KINDS.find((k) => k.key === deal.kind);
   const sections = packetSections(deal, p);
-  const next = nextAction(deal, p);
+  const stage = stageOf(deal);
+  const next = dealNextTask(deal, p, undefined, stage);
   const done = sections.filter((s) => s.status === 'done').length;
   const sec = (k: string) => sections.find((s) => s.key === k)!;
 
@@ -83,9 +93,23 @@ export default function DealPacketPage({ dealId }: { dealId: string }) {
       />
       <p>Everything this decision needs, on one page: your plan, the dates, the cash and when it’s due, your numbers with a downside case, what you’ve verified, your professionals’ answers and your decision. {done} of {sections.length} parts are complete. Every number is your estimate until a source backs it.</p>
 
+      <div className="packet-stage">
+        <label className="field">
+          <span>Where it stands</span>
+          <select value={stage} onChange={(e) => setDealStage(deal.id, e.target.value as DealStage)}>
+            {DEAL_STAGES.map((st) => <option key={st} value={st}>{stageLabel(st, deal)}</option>)}
+          </select>
+        </label>
+        <p className="muted">{stageHint(stage, deal)} The stage picks the next action here and in My plan.</p>
+      </div>
       <div className="packet-next" role="status">
         <strong>Your next action</strong>
-        <p>{next.text}{next.href && <> <a href={next.href} onClick={(e) => { e.preventDefault(); openDeal(deal); }}>Open in Analyze →</a></>}</p>
+        <p>{next.label}{next.urgent ? '' : <>. <span className="muted">You’ll have {next.produces}.</span></>}{' '}
+          {next.openDeal ? <a href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(deal); }}>Open in Analyze →</a>
+            : next.setStage ? <button type="button" className="linkish" onClick={() => setDealStage(deal.id, next.setStage!)}>Do it now →</button>
+            : !next.href.startsWith(`#/deals/packet/${deal.id}`) ? <a href={next.href}>Go there →</a> : null}
+        </p>
+        {next.advance && <button type="button" className="btn btn-secondary" onClick={() => setDealStage(deal.id, next.advance!.stage)}>{next.advance.label}</button>}
       </div>
       <div className="row packet-actions">
         <button type="button" className="btn btn-secondary" onClick={() => downloadText(fileName(`deal packet ${deal.name}`, 'txt'), dealPacketText(deal, p))}>Download the packet</button>

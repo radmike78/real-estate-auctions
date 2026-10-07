@@ -1,14 +1,12 @@
 import { IconBank, IconBadge, IconCalc, IconCheckList, IconFile, IconLayers, IconShield, IconStar } from './Icons';
-import { CASE_KEYS, loadCase } from '../practice/caseProgress';
 
 import { PATH, useStepsSeen } from '../lib/path';
 import { currentProgress, GUIDED, guidedNext, setMode, unfinished, useJourney } from '../lib/journey';
-import { roadmapProgress } from './ToolkitPage';
+import { roadmapProgress } from '../lib/roadmapState';
 import { HomeArea } from './AreaPicker';
+import PlanNext from './PlanNext';
+import { planNow, ROADMAP_TASK_HREF } from '../lib/planNext';
 
-/** Once the practice purchase is under way, the next place to go is your own plan. */
-// Any state's practice house counts: each keeps its own progress.
-const caseStarted = () => Object.keys(CASE_KEYS).some((st) => loadCase(st).done.length > 0);
 
 // Straight to the tools and references, for "I know the basics".
 const EXPLORE = [
@@ -28,9 +26,11 @@ export default function HomePage() {
   const progress = currentProgress();
   const next = guidedNext(progress);
   const last = unfinished(lastOpened, progress);
-  const { done, total } = roadmapProgress();
-  const continueLink = last && (
-    <a className="btn big btn-secondary" href={last.href}>Continue where you left off: {last.label} →</a>
+  const { total } = roadmapProgress();
+  // The one Continue on the site is My plan's next task (planNext.ts); the last page you had open is a plain "Back to".
+  const plan = planNow();
+  const continueLink = last && last.href !== plan.task.href && (
+    <a className="btn big btn-secondary" href={last.href}>Back to {last.label} →</a>
   );
 
   return (
@@ -63,14 +63,14 @@ export default function HomePage() {
             <div className="guided-next">
               {/* One row of actions, one short line of why: no stack of separate lines before the six steps. */}
               <div className="hero-ctas">
-                {next ? (
+                {plan.source === 'starter' && next ? (
                   <a className="btn big" href={next.step.href}><span className="guided-count">{next.n} of {GUIDED.length}</span> {next.step.label} →</a>
                 ) : (
-                  caseStarted() ? <a className="btn big" href="#/toolkit">Open My plan →</a> : <a className="btn big" href="#/practice/case">Try the full practice purchase →</a>
+                  <a className="btn big" href={plan.task.href === ROADMAP_TASK_HREF ? '#/toolkit/roadmap' : plan.task.href}>Continue: {plan.task.label} →</a>
                 )}
-                {continueLink && last?.href !== next?.step.href && continueLink}
+                {continueLink}
               </div>
-              <p>{next ? <><strong>Getting started:</strong> {next.step.why}</> : 'You finished the starter path. Next, buy a fictional rental from budget to keys.'}</p>
+              <p>{plan.source === 'starter' && next ? <><strong>Getting started:</strong> {next.step.why}</> : <><strong>You’ll have:</strong> {plan.task.produces}.</>}</p>
             </div>
           )}
 
@@ -106,7 +106,7 @@ export default function HomePage() {
 
       <section className="path" id="everything" aria-labelledby="path-head">
         <h2 id="path-head">Everything, in six steps</h2>
-        <p className="path-purpose">Your learning path: one page for each step. “Visited” only means you’ve opened it, not that you’ve finished it.</p>
+        <p className="path-purpose">Your learning path: one page for each step, there whenever you want it. “Visited” only means you’ve opened it, not that you’ve finished it. Your next real-world step is just below.</p>
         <ol className="path-steps">
           {PATH.map((s) => {
             const opened = seen.includes(s.key);
@@ -127,18 +127,13 @@ export default function HomePage() {
             );
           })}
         </ol>
-        <a className="roadmap-card" href="#/toolkit">
-          <strong>Your investing roadmap: {done} of {total} real-world tasks done</strong>
-          <span>The real work of buying, from first idea to closing, plus a buy box to keep you focused. This is the progress that counts.</span>
-          <span className="decide-bar" aria-hidden><span style={{ width: `${Math.round((done / total) * 100)}%` }} /></span>
-        </a>
-        {/* The other ways DeedOwl counts progress (the six steps are explained above), each with one job, so a reader
-            never mistakes reading for being ready. */}
+        {/* My plan's next step, the same one as the Continue above and in My plan: the progress that counts. */}
+        <PlanNext variant="home" />
         <h3 className="progress-kinds-head">How DeedOwl counts your progress</h3>
         <ul className="progress-kinds" aria-label="How DeedOwl counts progress">
-          <li><strong>Getting started ({GUIDED.length} steps)</strong> A short first tour: what to read and try first.</li>
-          <li><strong>My plan roadmap ({total} tasks)</strong> The real work of an actual purchase. This is the progress that counts.</li>
-          <li><strong>Practice missions</strong> Rehearsal on made-up deals. Finishing them builds skill; it doesn’t mean you’re ready to buy.</li>
+          <li><strong>My plan ({total} roadmap tasks)</strong> The real work of an actual purchase, and the one place your next step comes from. This is the progress that counts.</li>
+          <li><strong>Getting started ({GUIDED.length} steps)</strong> A short first tour of what to read and try first. While you’re on it, it’s your next step; after that, My plan takes over.</li>
+          <li><strong>Lessons and practice missions</strong> Supporting activities: each plan task links the ones that help with it. Missions are rehearsal on made-up deals; finishing them builds skill, but doesn’t mean you’re ready to buy.</li>
         </ul>
       </section>
     </main>
