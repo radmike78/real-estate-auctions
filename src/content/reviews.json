@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "c1ebafd43a4184a3",
+    "hash": "b29a03b06df9bb78",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -214,7 +214,7 @@
       "src/components/FinancingPage.tsx"
     ],
     "reviewed": "2026-10-07",
-    "hash": "ad143b79263e39e9",
+    "hash": "8b49cbad8ca72dd2",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -355,7 +355,7 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "edeed7d921d1de0d",
+    "hash": "a1cea29bb7bf8565",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {

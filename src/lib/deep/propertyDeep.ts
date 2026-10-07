@@ -208,7 +208,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Many lenders and loan programs require the condo project itself to qualify. For example, VA loans can buy a condo only in a VA-approved project.",
       "Lenders count HOA dues as part of your monthly housing cost, which can reduce how much you can borrow.",
       "Large pending assessments, low reserves, or lawsuits against the HOA can make a unit harder to finance and resell.",
-      "Fannie Mae won’t buy loans in projects where one owner holds too many units (more than 2 in a 5–20 unit project, or more than 20% in a larger one). Investors buying several units can make the whole building harder to finance."
+      "Fannie Mae won’t buy loans in projects where one owner holds too many units (more than 2 in a project of 11–20 units, or of 5–10 units within a master association, or more than 20% in a project of 21 or more). Investors buying several units can make the whole building harder to finance."
     ],
     checklist: [
       "Get the resale package: budget, reserve study, financial statements, and the last 1-2 years of board minutes. Look for talk of roofs, balconies, concrete, plumbing or insurance problems.",
