@@ -393,3 +393,9 @@
 }
 @media (min-width: 1001px) { .packet-date-guide tbody th { width: 16rem; } }
 
+
+/* Owl watermark: on computers and tablets only. Phones show no owl, so titles use the full width. */
+@media (max-width: 700px) {
+  .hero::after, .page-hero::after { display: none; }
+  .page-hero .page-hero-main > :first-child { margin-right: 0; min-height: 0; }
+}
