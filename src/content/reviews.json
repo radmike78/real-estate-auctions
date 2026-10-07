@@ -21,7 +21,7 @@
       "src/lib/status.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "46c2f458fade3f26",
+    "hash": "ee8d61971f2ca325",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -38,7 +38,7 @@
       "src/lib/foreclosure.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "602f690627280f6c",
+    "hash": "296a5e6aae6ef268",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -49,7 +49,7 @@
       "src/lib/buyerChecklists.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "a2675a6bd54a2e6f",
+    "hash": "9be4984408cc9dec",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "25deaf944be62d6e",
+    "hash": "da0f230346416ee8",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -204,7 +204,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "e99a787003fde082",
+    "hash": "592e802a043431aa",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {

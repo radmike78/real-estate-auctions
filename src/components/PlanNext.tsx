@@ -71,10 +71,13 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   const side = (
     <aside className="plan-now-side" aria-labelledby={`plan-now-where-${variant}`}>
       <h3 id={`plan-now-where-${variant}`}>Where you are</h3>
-      <p className="plan-now-count">
-        <span><strong>{prog.done} of {prog.total}</strong> roadmap tasks done</span>
-        <span className="decide-bar" role="progressbar" aria-label="Investing roadmap" aria-valuemin={0} aria-valuemax={prog.total} aria-valuenow={prog.done}><span style={{ width: `${Math.round((prog.done / Math.max(1, prog.total)) * 100)}%` }} /></span>
-      </p>
+      {/* My plan shows this count once, at the top of its roadmap. */}
+      {!onPlan && (
+        <p className="plan-now-count">
+          <span><strong>{prog.done} of {prog.total}</strong> roadmap tasks done</span>
+          <span className="decide-bar" role="progressbar" aria-label="Investing roadmap" aria-valuemin={0} aria-valuemax={prog.total} aria-valuenow={prog.done}><span style={{ width: `${Math.round((prog.done / Math.max(1, prog.total)) * 100)}%` }} /></span>
+        </p>
+      )}
       {deal && now.tasks && stage ? (
         <>
           <h4>{stageLabel(stage, deal)}: {deal.name}</h4>
@@ -123,12 +126,12 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
             {deal && stage && <p className="muted plan-now-hint">{stageHint(stage, deal)}{deal.stage ? '' : ' (We worked this out from what you’ve recorded; change it if it’s wrong.)'}</p>}
           </div>
         )}
-        {/* On My plan, a roadmap task is shown in full in the roadmap below: here, one line pointing to it. */}
+        {/* On My plan, a roadmap task is shown in full (with its label and the count) in the roadmap below: here, just a
+            button to it, so the task and the counter aren't said twice. */}
         {onPlan && task.href === ROADMAP_TASK_HREF ? (
           <p className="plan-now-pointer">
-            <span className="plan-now-k">{nextLabel}</span>
-            <span><strong>{task.label}</strong>: it’s open in your roadmap below, with what to do and what you’ll have.</span>
-            <a className="btn" href={ROADMAP_TASK_HREF}>Go to it<span aria-hidden className="nowrap-arrow">&nbsp;↓</span></a>
+            <span>Your next task is open in your roadmap below, with what to do and what you’ll have.</span>
+            <a className="btn" href={ROADMAP_TASK_HREF}>Go to your next task<span aria-hidden className="nowrap-arrow">&nbsp;↓</span></a>
           </p>
         ) : (
         <div className={`plan-now-task${task.urgent ? ' urgent' : ''}`}>

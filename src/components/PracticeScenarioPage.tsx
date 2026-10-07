@@ -4,7 +4,7 @@ import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
-import PracticeStateNote, { drillFor } from './PracticeStateNote';
+import PracticeStateNote from './PracticeStateNote';
 import { useMyState } from '../lib/myState';
 import { STATES } from '../lib/regions';
 import { exitPlans, buyingCosts } from '../practice/exitPlans';
@@ -58,7 +58,6 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
   const total = s.stages.reduce((n, st) => n + st.tasks.length, 0);
   const allDone = progress.done.length >= total;
   const myName = mine ? STATES.find((x) => x.code === mine)?.name ?? mine : null;
-  const myDrill = mine ? drillFor(mine, s.sale) : null;
 
   return (
     <main className="page practice">
@@ -77,7 +76,8 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
         <span className="run-state-wide">{s.saleTitle}</span>
         <span className="run-state-wide">{s.property.label} (fictional)</span>
         <span className="run-state-step">{stage ? `Step ${idx + 1} of ${s.stages.length}: ${stage.title}` : 'The listing'}</span>
-        {mine && mine !== 'NV' && <span className="run-state-wide">Not {myName} rules{myDrill ? <>: <a href={`#/practice/drills/${myDrill}`}>{myName} drill</a></> : null}</span>}
+        {/* The state note above already offers the visitor's own drill, so the bar just says which rules these aren't. */}
+        {mine && mine !== 'NV' && <span className="run-state-wide">Not {myName} rules</span>}
       </p>
 
       <nav className="practice-stages" aria-label="Practice steps">

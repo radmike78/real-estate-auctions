@@ -34,7 +34,7 @@ function flagChecks(flags: NonNullable<Property['flags']>): Check[] {
     {
       area: 'Building permits',
       result: flags.openPermits ? 'review' : 'ok',
-      detail: flags.openPermits ? `${flags.openPermits} open/expired permit(s).` : 'No open permits.',
+      detail: flags.openPermits ? `${flags.openPermits} open or expired ${flags.openPermits === 1 ? 'permit' : 'permits'}.` : 'No open permits.',
     },
   ];
 }

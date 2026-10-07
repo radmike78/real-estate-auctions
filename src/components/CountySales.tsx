@@ -26,12 +26,11 @@ const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 /** The full date a sale's name starts with ("November 3, 2026 tax sale"): the date line under the title already says it. */
 const LEADING_DATE = /^[A-Z][a-z]+ \d{1,2}, \d{4} /;
 
-/** "Travis County tax sale" (its date is on the line below), or "Los Angeles County, California: 2026B follow-up auction". */
+/** Always "{County}: {Sale name}" ("Travis County: Tax sale", its date on the line below), with the state added when
+ *  the list covers more than one ("Los Angeles County, California: 2026B follow-up auction"). */
 function title(s: CountySale, oneState: boolean): string {
   const state = oneState ? '' : stateByCode(s.state)?.name;
-  const name = s.name.replace(LEADING_DATE, '');
-  if (!state && name !== s.name) return `${countyName(s.county)} ${name}`;
-  return `${countyName(s.county)}${state ? `, ${state}` : ''}: ${capitalize(name)}`;
+  return `${countyName(s.county)}${state ? `, ${state}` : ''}: ${capitalize(s.name.replace(LEADING_DATE, ''))}`;
 }
 
 /**
@@ -84,7 +83,7 @@ export default function CountySales({ sales }: { sales: CountySale[] }) {
                 ) : (
                   <span className="muted">{s.listNote ?? (s.listExpected ? `The county plans to post the list ${s.listExpected}.` : 'The county hasn’t posted the list yet.')}</span>
                 )}
-                <a className={s.listUrl ? 'btn btn-secondary' : 'btn'} href={s.saleUrl} target="_blank" rel="noreferrer noopener">County sale page&nbsp;↗</a>
+                <a className="btn btn-secondary" href={s.saleUrl} target="_blank" rel="noreferrer noopener">County sale page&nbsp;↗</a>
               </div>
               <p className="small muted">Source: {s.agency}, checked {day(s.checkedOn)}.</p>
             </li>

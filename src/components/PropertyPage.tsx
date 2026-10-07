@@ -15,6 +15,7 @@ import SourceTag from './SourceTag';
 import { daysUntil, whenLabel } from './ResultsList';
 import Disclaimer from './Disclaimer';
 import BuyerChecklistBox from './BuyerChecklistBox';
+import { guideKey } from '../lib/narrow';
 import { checklistForProperty, CHECKLISTS, forCommercial, forLand } from '../lib/buyerChecklists';
 import { classOfType } from '../lib/propertyClass';
 import IncomeValue from './IncomeValue';
@@ -335,8 +336,8 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
           </ol>
           {saleBook && <p><a href={`#/playbooks/${saleBook.key}`}>Read the full guide for this sale type&nbsp;→</a></p>}
           {commercialBook && <p><a href="#/playbooks/commercial">Buying commercial? Read the commercial property guide&nbsp;→</a></p>}
-          <BuyerChecklistBox list={checklist} playbook={s?.saleType === 'FEDERAL_TAX_SEIZURE' ? 'irs' : undefined} />
-          {commercial && <BuyerChecklistBox list={p.propertyType === 'Commercial Land' ? forLand(CHECKLISTS.commercial) : CHECKLISTS.commercial} />}
+          <BuyerChecklistBox list={checklist} playbook={s?.saleType === 'FEDERAL_TAX_SEIZURE' ? guideKey(p.state, 'irs') : undefined} guideState={p.state} />
+          {commercial && <BuyerChecklistBox list={p.propertyType === 'Commercial Land' ? forLand(CHECKLISTS.commercial) : CHECKLISTS.commercial} guideState={p.state} />}
           <Disclaimer kind="sales" compact />
         </>
       ),

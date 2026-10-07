@@ -97,8 +97,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
         return (
           <a key={s} href={`#/practice?sale=${s}`} className={`practice-sale-tile hue-${i % HUE_COUNT}`}>
             <span className="sale-tile-head"><span className="drill-card-icon"><TopicIcon topic={SALE_TOPIC[s]} /></span><strong>{otherState ? cap(titleOf(s).replace(/^Nevada /, '')) : titleOf(s)}</strong></span>
-            {/* Behind "Practice with Nevada rules", the state isn't repeated on every card. */}
-            {!otherState && <span className="practice-applies">Applies to Nevada (Clark County)</span>}
+            {/* The heading above and the tile titles already say Nevada, so the state isn't repeated on every card. */}
             <span className="muted">{SALE_BLURB[s]}</span>
             <span className="practice-card-foot">
               <span className="badge tone-info">{runs.length} {runs.length === 1 ? 'property' : 'properties'}</span>
@@ -192,7 +191,6 @@ export default function PracticePage({ sale }: { sale?: string }) {
                 <span className="practice-card-type">{p.label}</span>
               </span>
               <span className="practice-prop-kind">{look.kind} · {p.city}</span>
-              <span className="practice-applies">Applies to Nevada (Clark County)</span>
               {fact && <span className="practice-prop-fact"><span>{fact.label}</span> <strong>{fact.value}</strong></span>}
               <span className="practice-card-foot">
                 {pct > 0 ? <span className="badge tone-go">{pct === 100 ? 'Completed' : `${pct}% done`}</span> : <span className="practice-prop-go">Practice this one</span>}

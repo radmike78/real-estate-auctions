@@ -32,7 +32,7 @@ const DIFFERS: Partial<Record<SaleKey, Partial<Record<StateCode, string>>>> = {
 
 /** The line for a state without its own entry in DIFFERS. */
 function generalDiff(sale: SaleKey, name: string) {
-  if (sale === 'irs') return <>IRS sales follow the same federal rules in every state; what differs in {name} is the county recording and transfer steps after the sale. The <a href="#/practice/drills">IRS drills in step 3</a> work for any state.</>;
+  if (sale === 'irs') return <>IRS sales follow the same federal rules in every state; what differs in {name} is the county recording and transfer steps after the sale. The <a href="#/practice/drills">IRS drills</a> work for any state.</>;
   if (sale === 'reo' || sale === 'short') return `${name}’s contract forms and disclosure rules differ.`;
   return `${name}’s deadlines, forms and who runs the sale differ.`;
 }
@@ -48,7 +48,10 @@ export default function PracticeStateNote({ sale }: { sale: SaleKey }) {
   if (sale === 'sid') {
     return (
       <div className="notice practice-state-note" role="note">
-        <strong>This sale exists only in Nevada.</strong> Special improvement district (SID) lien certificates are a Clark County, Nevada sale. {name} doesn’t sell anything like them; see the <a href="#/playbooks">sale guides for {name}</a> instead.
+        <strong>This sale exists only in Nevada.</strong> Special improvement district (SID) lien certificates are a Clark County, Nevada sale.{' '}
+        {st === 'AZ'
+          ? <>Arizona has no SID lien sale, but its county tax lien certificates work in a similar way: you buy a lien that earns interest, not the property. See the <a href="#/playbooks/aztaxlien">Arizona tax lien guide</a>.</>
+          : <>{name} doesn’t sell anything like them; see the <a href="#/playbooks">sale guides for {name}</a> instead.</>}
       </div>
     );
   }
