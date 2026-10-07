@@ -26,9 +26,18 @@ export function AdSpace({ kind }: { kind: string }) {
       {/* One label for every empty spot, so it reads as an invitation rather than an unfinished box. */}
       <div className="ad-box-label">Advertise here</div>
       <p>Are you a licensed professional{area ? ` in ${areaLabel(area)}` : ''}? Reach buyers and investors on this page.</p>
-      <a className="btn btn-secondary" href="#/advertise">Advertise on DeedOwl →</a>
+      <a className="btn btn-secondary" href="#/advertise">Advertise on DeedOwl&nbsp;→</a>
     </aside>
   );
+}
+
+/**
+ * Whether an ad spot with these categories shows anything: a RotatingAd with a placeholder always renders a box while
+ * advertising is open, and nothing while it isn't. Pages use it to give the ad a column only when there is one.
+ */
+export function useAdShows(categories: readonly unknown[]): boolean {
+  const features = useSiteFeatures();
+  return categories.length > 0 && advertisingOpen(features);
 }
 
 /**

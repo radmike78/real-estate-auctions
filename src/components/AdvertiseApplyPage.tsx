@@ -231,7 +231,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
             {errors.category && <span className="field-error">{errors.category}</span>}
             {info && reg && st && (
               <div className="notice" role="note">
-                {reg.url ? <>We check your license or registration on <a href={reg.url} target="_blank" rel="noreferrer noopener">{reg.name} ↗</a></> : <>We check {reg.name}</>}, and confirm your identity using
+                {reg.url ? <>We check your license or registration on <a href={reg.url} target="_blank" rel="noreferrer noopener">{reg.name}&nbsp;↗</a></> : <>We check {reg.name}</>}, and confirm your identity using
                 contact details we find independently. We re-check every {REVERIFY_DAYS} days.
               </div>
             )}

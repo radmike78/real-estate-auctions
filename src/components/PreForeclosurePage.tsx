@@ -90,7 +90,7 @@ function TrusteeGuides() {
   const shown = TRUSTEE_GUIDES.filter(([code]) => !mine || code === mine);
   return (
     <ul>
-      <li>Trustee sales: {shown.map(([code, name, href], i) => <span key={code}>{i > 0 && ' · '}<a href={href}>{mine ? `${name} trustee sale guide →` : name}</a></span>)}</li>
+      <li>Trustee sales: {shown.map(([code, name, href], i) => <span key={code}>{i > 0 && ' · '}<a href={href}>{mine ? `${name} trustee sale guide\u00a0→` : name}</a></span>)}</li>
       <li>After the sale: <a href="#/bank-owned">bank-owned homes</a></li>
     </ul>
   );
@@ -330,7 +330,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
                     </dl>
                     <p className="small">{t.next}</p>
                   </details>
-                  <a className="small" href={`#/property/${p.id}`}>Property details →</a>
+                  <a className="small" href={`#/property/${p.id}`}>Property details&nbsp;→</a>
                 </li>
               );
             })}

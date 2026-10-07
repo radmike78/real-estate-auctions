@@ -34,7 +34,7 @@ export default function ByState({ lines, missing, ordered }: { lines: ByStateLin
               <li key={x.text}>
                 {x.topic && <strong>{x.topic}: </strong>}<Cited text={dropStateLead(x.text, s.code as StateCode)} plain={phoneLinks} />
                 {x.links?.map(([label, url]) => (
-                  <span key={url}> {url.startsWith('#/') ? <a href={url}>{label} →</a> : <a href={url} {...ext}>{label} ↗</a>}</span>
+                  <span key={url}> {url.startsWith('#/') ? <a href={url}>{label}&nbsp;→</a> : <a href={url} {...ext}>{label}&nbsp;↗</a>}</span>
                 ))}
               </li>
             ))}

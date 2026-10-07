@@ -38,7 +38,7 @@ export default function ReadingPage() {
       <p className="muted book-foot">Also free: your public library, and the official sources listed in each lesson.</p>
       <nav className="path-next" aria-label="Next step">
         <span className="muted">That’s the last lesson. Next, step 2 of 6:</span>
-        <a className="btn" href="#/decide">Decide what fits you →</a>
+        <a className="btn" href="#/decide">Decide what fits you&nbsp;→</a>
       </nav>
       {AMAZON_TAG && <p className="fine-print">As an Amazon Associate, DeedOwl earns from qualifying purchases.</p>}
     </main>

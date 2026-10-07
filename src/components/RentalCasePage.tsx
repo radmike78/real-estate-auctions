@@ -70,7 +70,7 @@ function CasePage({ stageKey }: { stageKey?: string }) {
       />
       <PracticeRibbon />
       {/* An even grid of steps (two equal rows on wide screens); every chip has a marker, so Start and the packet line up with the numbered steps. */}
-      <p className="case-steps-hint" aria-hidden>Swipe to see every step →</p>
+      <p className="case-steps-hint" aria-hidden>Swipe to see every step&nbsp;→</p>
       <nav className="practice-stages case-stages" aria-label="Steps in this practice purchase" id="case-top" style={{ ['--cols2' as string]: Math.ceil((C.stages.length + 2) / 2), ['--cols3' as string]: Math.ceil((C.stages.length + 2) / 3) }}>
         <a href="#/practice/case" className={!stage && !packet ? 'active' : ''}><span className="step-num" aria-hidden>▸</span> Start</a>
         {C.stages.map((st, i) => (
@@ -131,14 +131,16 @@ function StageView({ stage, n, p, update, done }: { stage: CaseStage; n: number;
   const firstOpen = tasks.findIndex((t) => !p.done.includes(key(stage, t)));
   // After walking away here, the rest of the step's questions stay hidden: they describe a deal you left.
   const shown = walkedHere ? Math.max(0, firstOpen < 0 ? tasks.length : firstOpen) : firstOpen < 0 ? tasks.length : firstOpen + 1;
+  const docsShown = stage.docs.filter((d) => !d.after || p.done.includes(`${stage.key}/${d.after}`));
   return (
     <section aria-labelledby="stage-head">
       <h2 id="stage-head" tabIndex={-1}>{n}. {stage.title}</h2>
       <p className="case-outcome"><strong>When you finish this step, you’ll have:</strong> {stage.outcome}</p>
-      <div className={stage.docs.length ? 'case-grid' : undefined}>
-        {stage.docs.some((d) => !d.after || p.done.includes(`${stage.key}/${d.after}`)) && (
+      {/* Two columns only while a document is showing; until then the questions use the full width. */}
+      <div className={docsShown.length ? 'case-grid' : undefined}>
+        {docsShown.length > 0 && (
           <div className="case-docs">
-            {stage.docs.filter((d) => !d.after || p.done.includes(`${stage.key}/${d.after}`)).map((d) => <Doc key={d.title} d={d} />)}
+            {docsShown.map((d) => <Doc key={d.title} d={d} />)}
           </div>
         )}
         <div className="case-work">
@@ -156,7 +158,7 @@ function StageView({ stage, n, p, update, done }: { stage: CaseStage; n: number;
           <h3>You walked away. That’s a good result.</h3>
           <p>{walkNote(stage.key)} Many good investors walk away from far more deals than they buy. Your deal packet shows what you found and why you left.</p>
           <div className="row">
-            <a className="btn" href="#/practice/case/packet">See your deal packet →</a>
+            <a className="btn" href="#/practice/case/packet">See your deal packet&nbsp;→</a>
             <button type="button" className="btn btn-secondary" onClick={() => update((x) => ({ ...x, walked: undefined }))}>Keep going to see the rest</button>
           </div>
         </div>
@@ -176,7 +178,7 @@ function StageView({ stage, n, p, update, done }: { stage: CaseStage; n: number;
       {stage.learnMore && <p className="muted case-more">Go deeper: {stage.learnMore.map((l, j) => <span key={l.href}>{j > 0 && ' · '}<a href={l.href}>{l.label}</a></span>)}</p>}
       <div className="row practice-next">
         {prev && <a className="btn btn-secondary" href={`#/practice/case/${prev.key}`}>← {prev.title}</a>}
-        {nextSt ? <a className="btn big" href={`#/practice/case/${nextSt.key}`}>Next: {nextSt.title} →</a> : <a className="btn big" href="#/practice/case/packet">See your deal packet →</a>}
+        {nextSt ? <a className="btn big" href={`#/practice/case/${nextSt.key}`}>Next: {nextSt.title}&nbsp;→</a> : <a className="btn big" href="#/practice/case/packet">See your deal packet&nbsp;→</a>}
       </div>
       {!done && <p className="muted">Answer each question to finish this step. You can move on and come back.</p>}
     </section>
@@ -495,7 +497,7 @@ function Packet({ p }: { p: CaseProgress }) {
       </div>
       <p className="muted">This practice doesn’t make anyone “ready to invest.” It shows the steps, the paperwork and the decisions. Next, use the same steps on your own plan.</p>
       <div className="row practice-next">
-        <a className="btn big" href="#/toolkit">Use it in My plan →</a>
+        <a className="btn big" href="#/toolkit">Use it in My plan&nbsp;→</a>
         <a href="#/practice">More practice</a>
       </div>
     </section>

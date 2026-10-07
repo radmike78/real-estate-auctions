@@ -11,8 +11,8 @@ export default function TeamList({ team }: { team: Playbook['team'] }) {
           <strong>{t.role}</strong>
           <span>{t.when}</span>
           {t.href && (isExternal(t.href)
-            ? <a href={t.href} target="_blank" rel="noopener noreferrer">Find one ↗</a>
-            : <a href={t.href}>How to find one →</a>)}
+            ? <a href={t.href} target="_blank" rel="noopener noreferrer">Find one&nbsp;↗</a>
+            : <a href={t.href}>How to find one&nbsp;→</a>)}
         </li>
       ))}
     </ul>

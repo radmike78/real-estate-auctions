@@ -41,7 +41,7 @@ export default function MapView({ properties, onSearchArea }: Props) {
         .bindPopup(
           `<strong>${esc(p.address)}</strong><br>${esc(p.city)} ${p.zip}<br>${esc(STATUS[p.status].label)}` +
             (p.sale?.minimumBid ? `<br>Min. bid ${fmtMoney(p.sale.minimumBid)}` : '') +
-            `<br><a href="#/property/${p.id}">View details →</a>`,
+            `<br><a href="#/property/${p.id}">View details&nbsp;→</a>`,
         )
         .addTo(layer.current);
     }

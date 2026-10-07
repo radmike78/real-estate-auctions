@@ -152,7 +152,7 @@ export default function GuidesPage({ initialQuery }: { initialQuery: string }) {
                       {h.doc.sources.slice(0, 3).map((s, i) => (
                         <span key={s.url}>
                           {i > 0 && ' · '}
-                          <a href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a>
+                          <a href={s.url} target="_blank" rel="noopener noreferrer">{s.label}&nbsp;↗</a>
                         </span>
                       ))}
                     </details>

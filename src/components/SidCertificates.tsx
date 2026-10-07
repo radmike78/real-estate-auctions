@@ -20,7 +20,7 @@ export default function SidCertificates({ certificates, ago }: { certificates: F
       <p>
         You buy the right to be repaid an unpaid special improvement district assessment plus 1% a month. The owner keeps the home and
         can still pay it off. You can ask for a deed only if they don’t redeem in time (120 days, or 2 years if there’s a building).{' '}
-        <a href="#/playbooks/sid">How lien certificates work →</a>
+        <a href="#/playbooks/sid">How lien certificates work&nbsp;→</a>
       </p>
       <p className="muted">
         Published by {publisher} for Clark County and the cities. Every parcel is checked against the County Assessor’s records. Registration is
@@ -45,7 +45,7 @@ export default function SidCertificates({ certificates, ago }: { certificates: F
                       <td data-label="District">{c.district}</td>
                       <td data-label="Amount due" className="num">{cents(c.amountDue)}</td>
                       <td data-label="Verified" className="small" title={`Snapshot SHA-256 ${c.snapshotSha256}`}><span>{ago(c.lastVerifiedAt)}<span className="muted"> · Assessor confirmed</span></span></td>
-                      <td data-label="">{isCertificateSourceUrl(c.sourceUrl) && <a href={c.sourceUrl} target="_blank" rel="noreferrer noopener">Confirm ↗</a>}</td>
+                      <td data-label="">{isCertificateSourceUrl(c.sourceUrl) && <a href={c.sourceUrl} target="_blank" rel="noreferrer noopener">Confirm&nbsp;↗</a>}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -219,7 +219,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
                 <div className="official">
                   {s.officialUrl ? (
                     <a className="btn" href={s.officialUrl} target="_blank" rel="noreferrer">
-                      {online ? 'Go to official bidding site ↗' : 'View official sale notice ↗'}
+                      {online ? 'Go to official bidding site\u00a0↗' : 'View official sale notice\u00a0↗'}
                     </a>
                   ) : (
                     <button className="btn" disabled title="Sample data has no real official link">
@@ -254,7 +254,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
               <div><dt>Liens that may stay</dt><dd>Not searched</dd></div>
             </dl>
             <p className="row">
-              <a href="https://recorderecomm.clarkcountynv.gov/AcclaimWeb/" target="_blank" rel="noreferrer noopener">Search Recorder documents ↗</a>
+              <a href="https://recorderecomm.clarkcountynv.gov/AcclaimWeb/" target="_blank" rel="noreferrer noopener">Search Recorder documents&nbsp;↗</a>
               <a href="#/pros">Find a title company</a>
             </p>
           </>
@@ -333,8 +333,8 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
           <ol className="steps">
             {steps.map((st) => <li key={st}>{st}</li>)}
           </ol>
-          {saleBook && <p><a href={`#/playbooks/${saleBook.key}`}>Read the full guide for this sale type →</a></p>}
-          {commercialBook && <p><a href="#/playbooks/commercial">Buying commercial? Read the commercial property guide →</a></p>}
+          {saleBook && <p><a href={`#/playbooks/${saleBook.key}`}>Read the full guide for this sale type&nbsp;→</a></p>}
+          {commercialBook && <p><a href="#/playbooks/commercial">Buying commercial? Read the commercial property guide&nbsp;→</a></p>}
           <BuyerChecklistBox list={checklist} playbook={s?.saleType === 'FEDERAL_TAX_SEIZURE' ? 'irs' : undefined} />
           {commercial && <BuyerChecklistBox list={p.propertyType === 'Commercial Land' ? forLand(CHECKLISTS.commercial) : CHECKLISTS.commercial} />}
           <Disclaimer kind="sales" compact />

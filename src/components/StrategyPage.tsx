@@ -132,7 +132,7 @@ export default function StrategyPage({ slug }: { slug?: string }) {
         </ul>
       </section>
       <nav className="path-next" aria-label="Next">
-        {next ? <><span className="muted">Next strategy</span><a className="btn" href={`#/learn/strategies/${next.slug}`}>{strategyOf(next).title} →</a></> : <a className="btn" href="#/decide">Choose yours in Decide →</a>}
+        {next ? <><span className="muted">Next strategy</span><a className="btn" href={`#/learn/strategies/${next.slug}`}>{strategyOf(next).title}&nbsp;→</a></> : <a className="btn" href="#/decide">Choose yours in Decide&nbsp;→</a>}
       </nav>
       <AdSpot spot="learn" />
     </main>

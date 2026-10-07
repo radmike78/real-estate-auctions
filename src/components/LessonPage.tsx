@@ -168,7 +168,7 @@ function LessonBooks({ isbns }: { isbns: string[] }) {
     <section className="lesson-books" aria-labelledby="lesson-books">
       <h2 id="lesson-books">Recommended books for this lesson</h2>
       <BookGrid books={books} />
-      <p className="lesson-books-more"><a href="#/learn/reading">All our recommended books →</a></p>
+      <p className="lesson-books-more"><a href="#/learn/reading">All our recommended books&nbsp;→</a></p>
       {AMAZON_TAG && <p className="fine-print">As an Amazon Associate, DeedOwl earns from qualifying purchases.</p>}
     </section>
   );
@@ -248,7 +248,7 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         <section className="not-sure" aria-labelledby="types-not-sure">
           <h2 id="types-not-sure">Not sure which kind of property fits you?</h2>
           <p>There are a lot of choices below. Answer a few questions about your money, time and goals, and we’ll suggest the kinds of property that fit. Every type is still listed here.</p>
-          <a className="btn" href="#/decide">Help me choose →</a>
+          <a className="btn" href="#/decide">Help me choose&nbsp;→</a>
         </section>
       )}
       <article className="lesson-body-text">
@@ -271,19 +271,19 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         <section className="lesson-practice" aria-labelledby="practice-head">
           <h2 id="practice-head">Put it into practice</h2>
           <p>{oneState(l.practice, st)}</p>
-          {practiceLink && <a className="btn" href={practiceLink.href}>{practiceLink.label} →</a>}
+          {practiceLink && <a className="btn" href={practiceLink.href}>{practiceLink.label}&nbsp;→</a>}
           {/* The lesson's other link, when the task doesn't use it: set apart, so it isn't mistaken for the task. */}
-          {extraTry && <p className="lesson-also"><span className="muted">Also useful:</span> <a className="btn btn-secondary" href={extraTry.href}>{extraTry.label} →</a></p>}
+          {extraTry && <p className="lesson-also"><span className="muted">Also useful:</span> <a className="btn btn-secondary" href={extraTry.href}>{extraTry.label}&nbsp;→</a></p>}
         </section>
       )}
-      {!l.practice && l.tryIt && <p className="lesson-try"><a className="btn btn-secondary" href={l.tryIt.href}>{l.tryIt.label} →</a></p>}
+      {!l.practice && l.tryIt && <p className="lesson-try"><a className="btn btn-secondary" href={l.tryIt.href}>{l.tryIt.label}&nbsp;→</a></p>}
       {l.books && <LessonBooks isbns={l.books} />}
       <section className="lesson-sources" aria-labelledby="sources">
         <h2 id="sources">Where this comes from</h2>
         <details className="sources-more">
           <summary>See the {sources.length} sources we checked</summary>
           <ul className="source-links">
-            {sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a></li>)}
+            {sources.map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.label}&nbsp;↗</a></li>)}
           </ul>
         </details>
         <p className="muted">Checked {fmtDate(l.reviewed)}. General education, not legal, tax or financial advice.</p>
@@ -292,17 +292,17 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         {guided && guided.step.href !== `#/learn/${lessonKey}` ? (
           <>
             <span className="muted">Next in Getting started ({guided.n} of {GUIDED.length})</span>
-            <a className="btn" href={guided.step.href}>{guided.step.label} →</a>
+            <a className="btn" href={guided.step.href}>{guided.step.label}&nbsp;→</a>
           </>
         ) : next ? (
           <>
             <span className="muted">Next lesson</span>
-            <a className="btn" href={nextHref}>{next.title} →</a>
+            <a className="btn" href={nextHref}>{next.title}&nbsp;→</a>
           </>
         ) : (
           <>
             <span className="muted">Next: step 2 of 6</span>
-            <a className="btn" href="#/decide">Decide →</a>
+            <a className="btn" href="#/decide">Decide&nbsp;→</a>
           </>
         )}
       </nav>

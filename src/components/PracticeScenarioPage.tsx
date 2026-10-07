@@ -105,9 +105,9 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
           <div className="row practice-next">
             {idx > 0 && <a className="btn btn-secondary" href={`#/practice/${s.id}/${s.stages[idx - 1].key}`}>← {s.stages[idx - 1].title}</a>}
             {idx < s.stages.length - 1 ? (
-              <a className="btn big" href={`#/practice/${s.id}/${s.stages[idx + 1].key}`}>Next: {s.stages[idx + 1].title} →</a>
+              <a className="btn big" href={`#/practice/${s.id}/${s.stages[idx + 1].key}`}>Next: {s.stages[idx + 1].title}&nbsp;→</a>
             ) : (
-              <a className="btn big" href={`#/practice/${s.id}`}>Finish: see your results →</a>
+              <a className="btn big" href={`#/practice/${s.id}`}>Finish: see your results&nbsp;→</a>
             )}
           </div>
           {!stageDone(stage) && <p className="small muted">Work through every card to complete this step. You can come back any time; your progress stays in this browser.</p>}
@@ -142,7 +142,7 @@ function Listing({ s, progress, total, onReset }: { s: Scenario; progress: Scena
         <p className="small muted">Rules and deadlines come from our <a href={`#/playbooks/${s.playbookKey}`}>guide to {s.saleTitle}</a>. Real sales can change them: always read the official notice.</p>
       </div>
       <div className="row practice-next">
-        <a className="btn big" href={`#/practice/${s.id}/${s.stages[0].key}`}>{started ? 'Continue practicing →' : 'Start practicing →'}</a>
+        <a className="btn big" href={`#/practice/${s.id}/${s.stages[0].key}`}>{started ? 'Continue practicing\u00a0→' : 'Start practicing\u00a0→'}</a>
         {started && <span className="muted">{progress.done.length} of {total} done</span>}
         {started && <button className="linkish" onClick={onReset}>Start over</button>}
         <a href="#/practice">Choose another</a>
