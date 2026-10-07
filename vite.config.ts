@@ -2,15 +2,16 @@ import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import type { AtRule, Plugin as PostcssPlugin, Rule } from 'postcss';
 
-// Content-Security-Policy for production builds: only same-origin scripts and data, no plugins,
-// no inline scripts, and map tiles only from OpenStreetMap. (Dev mode skips it for HMR.)
+// Content-Security-Policy for production builds: only same-origin scripts and data (plus Cloudflare Web Analytics'
+// beacon, which Cloudflare adds to pages it serves), no plugins, no inline scripts, and map tiles only from
+// OpenStreetMap. (Dev mode skips it for HMR.)
 // frame-ancestors / HSTS must be sent as HTTP headers by the host; see SECURITY.md.
 const CSP = [
   "default-src 'self'",
-  "script-src 'self'",
+  "script-src 'self' https://static.cloudflareinsights.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://tile.openstreetmap.org https://a.tile.openstreetmap.org https://b.tile.openstreetmap.org https://c.tile.openstreetmap.org https://ws-na.amazon-adsystem.com https://m.media-amazon.com https://images-na.ssl-images-amazon.com",
-  "connect-src 'self'",
+  "connect-src 'self' https://cloudflareinsights.com",
   "font-src 'self'",
   "object-src 'none'",
   "base-uri 'self'",
