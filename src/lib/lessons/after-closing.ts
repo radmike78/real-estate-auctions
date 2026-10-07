@@ -126,7 +126,7 @@ export const afterClosing: Lesson = {
             ],
           },
         },
-        'Never change the locks, cut off utilities or remove a tenant’s belongings yourself: only a sheriff or constable carries out a court’s eviction order. Nevada, California, Arizona and Utah forbid these lockouts, and the tenant can sue you for damages (Nevada NRS 118A.390, California Civil Code 789.3, Arizona A.R.S. 33-1367, Utah Code 78B-6-814).',
+        'Never change the locks, cut off utilities or remove a tenant’s belongings yourself: only a sheriff, marshal or constable (depending on the state) carries out a court’s eviction order. Nevada, California, Arizona and Utah forbid these lockouts, and the tenant can sue you for damages (Nevada NRS 118A.390, California Civil Code 789.3, Arizona A.R.S. 33-1367, Utah Code 78B-6-814).',
         'In Texas, you generally can’t cut off utilities, and you can’t keep a tenant out without a court order, except for repairs, an emergency or an abandoned unit. The one exception for unpaid rent is changing the locks: the lease must allow it, you must give written notice first, and you must hand over a new key at any hour, even if the tenant doesn’t pay. Break these rules and the tenant can recover one month’s rent plus $1,000, damages and attorney’s fees (Property Code 92.008 and 92.0081).',
         'Plan for it before you buy. Budget for months of lost rent and legal costs, not weeks. Keep enough cash to pay the mortgage, taxes and insurance while the case runs.',
         { links: [{ label: 'Eviction attorneys', url: '#/pros/eviction', what: 'When you need one and how the process works.' }] },

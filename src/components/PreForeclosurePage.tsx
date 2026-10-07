@@ -15,7 +15,7 @@ import ScriptBox from './ScriptBox';
 import { SALE_SCRIPTS } from '../lib/saleDocs';
 import StatePicker from './StatePicker';
 import ByState from './ByState';
-import { useMyState } from '../lib/myState';
+import { dropStateLead, useMyState } from '../lib/myState';
 import { stateByCode } from '../lib/regions';
 import { BUY, NO_CONTACT, READ_NOTICE, TIMELINE, TIMELINE_NOTES, WHERE } from '../lib/states/preForeclosure';
 
@@ -96,6 +96,16 @@ function TrusteeGuides() {
   );
 }
 
+// What a notice says about the debt depends on the state: California requires it (Civil Code 2924f(b)(7)).
+function NoticeDebtLine() {
+  const [myState] = useMyState();
+  const ca = 'In California, the notice must state the total unpaid balance of the loan plus estimated costs as of its first publication (Civil Code 2924f). That isn’t the opening bid or the property’s value, and the amount can change, so ask the trustee.';
+  const other = 'Many notices also list an estimate of the unpaid debt and the form of payment. Some states require it; ask the trustee. The debt estimate and the opening bid can differ, and neither is the property’s value.';
+  if (myState === 'CA') return <li>{dropStateLead(ca, 'CA')}</li>;
+  if (myState) return <li>{other}</li>;
+  return <><li>{other}</li><li>{ca}</li></>;
+}
+
 export const GUIDE: DrillSection[] = [
   {
     key: 'how-it-works',
@@ -146,7 +156,7 @@ export const GUIDE: DrillSection[] = [
               <li>The date, time and place of the sale (or the website, for an online sale).</li>
               <li>The trustee’s name and phone number: the only person to ask about the sale.</li>
               <li>The property: address, parcel number and legal description.</li>
-              <li>Many notices also list an estimate of the unpaid debt and the form of payment. That isn’t required, so ask the trustee. The debt estimate and the opening bid can differ, and neither is the property’s value.</li>
+              <NoticeDebtLine />
             </ul>
             <h3 className="topic-head">What the law requires in the notice</h3>
             <ByState lines={READ_NOTICE} />

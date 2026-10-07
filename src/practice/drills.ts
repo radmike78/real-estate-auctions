@@ -926,9 +926,9 @@ export const DRILLS: Drill[] = [
         question: 'You’re not moving in. When is the property yours?',
         multi: false,
         options: [
-          { label: 'Not for at least 15 days. Eligible tenants and bidders can give notice, then have up to 45 days after the sale to match or beat my bid', good: true, why: 'Right (Civil Code 2924m). Title stays with the owner until the sale is final.' },
+          { label: 'Not for at least 15 days. Eligible tenants and bidders can give notice, then a tenant can match, and other eligible bidders can beat, my bid until day 45', good: true, why: 'Right (Civil Code 2924m). Until the sale is final you don’t get the trustee’s deed, so don’t take possession or start work. Once the deed is recorded on time, the sale counts as complete from 8 a.m. on the sale day (Civil Code 2924h(c)).' },
           { label: 'Immediately, when the auctioneer accepts my bid', good: false, why: 'Only a prospective owner-occupant who signs the required declaration gets a final sale right away.' },
-          { label: 'After a 1-year redemption period', good: false, why: 'California trustee’s sales have no redemption period; the 2924m window is a different rule.' },
+          { label: 'After a 1-year redemption period', good: false, why: 'A trustee’s sale under a deed of trust has no redemption period in California (an HOA’s nonjudicial sale has 90 days, Civil Code 5715(b)); the 2924m window is a different rule.' },
         ],
         lesson: 'Plan for the 15 to 45 day window: keep your funds available and don’t start work on a property that isn’t yours yet.',
       },
