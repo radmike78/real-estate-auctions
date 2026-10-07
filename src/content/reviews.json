@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "a960b9da2362b5dd",
+    "hash": "f0f90748352531bb",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -392,7 +392,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "ff73d577ead38dfd",
+    "hash": "d231504c8a2ee9c4",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {

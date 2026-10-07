@@ -16,7 +16,7 @@ describe('Analyze a deal checklist', () => {
   it('offers only the sales each state has', () => {
     expect(kindsFor('AZ').map((k) => k.key)).toContain('lien');
     expect(kindsFor('AZ').map((k) => k.key)).not.toContain('taxSale');
-    expect(kindsFor('CA').map((k) => k.key)).not.toContain('hoa');
+    expect(kindsFor('CA').map((k) => k.key)).toContain('hoa');
   });
 
   it('links the county’s own offices and reminds auction buyers to use the official seller', () => {

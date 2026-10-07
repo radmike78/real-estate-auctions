@@ -575,6 +575,15 @@ const AZ: CaseConfig = {
     },
     {
       kind: 'choice',
+      id: 'az-entry',
+      prompt: 'In Arizona, your tenant’s faucet leaks and you want to fix it. What notice do you give before going in?',
+      choices: [
+        { label: 'At least 2 days’ notice, and enter only at reasonable times, unless it’s an emergency. If the tenant asked you for the repair, that request counts as permission to enter for it.', verdict: 'best', why: 'That’s Arizona’s rule (A.R.S. 33-1343(B) and (D)).' },
+        { label: 'None. You own the house.', verdict: 'poor', why: 'Once it’s rented, enter only with at least 2 days’ notice, except in an emergency or for a repair the tenant asked for (A.R.S. 33-1343).' },
+      ],
+    },
+    {
+      kind: 'choice',
       id: 'az-register',
       prompt: 'In Arizona, what must you file with the county assessor once you rent it out?',
       choices: [
@@ -583,7 +592,7 @@ const AZ: CaseConfig = {
       ],
     },
   ],
-  rentLog: (n) => `Deposit at or under ${usd(n.rent * 1.5)}, returned within 14 days (not counting weekends and holidays) with an itemized list. Registered with the county assessor as a rental (Arizona).`,
+  rentLog: (n) => `Deposit at or under ${usd(n.rent * 1.5)}, returned within 14 days (not counting weekends and holidays) with an itemized list. 2 days’ notice before entry (A.R.S. 33-1343). Registered with the county assessor as a rental (Arizona).`,
 };
 
 // Utah: same house and price. A long-term rental that is the tenant's main home keeps the 45% residential exemption; a
