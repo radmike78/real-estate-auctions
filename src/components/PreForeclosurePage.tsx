@@ -64,7 +64,7 @@ function HowItProgresses() {
       <p className="muted">
         {mine ? 'Many' : 'In every state, many'} foreclosures never reach auction, because owners catch up, modify the loan, sell (often as a short sale) or file bankruptcy.
       </p>
-      <ByState lines={TIMELINE_NOTES} missing="Nothing more to add for this state." />
+      <ByState lines={TIMELINE_NOTES} optional />
     </>
   );
 }

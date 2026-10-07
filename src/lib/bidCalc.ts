@@ -311,16 +311,20 @@ export function defaultsFor(p: Property): BidInputs {
   const s = p.sale;
   const money = moneySummary(p);
   const type = s?.saleType;
+  // In Nevada a court-ordered (judicial) foreclosure sale is redeemable like an execution sale: up to 1 year,
+  // at the price plus 1% a month (NRS 21.190, 21.210). Every listing DeedOwl holds today is in Nevada; other
+  // states' judicial sales follow their own rules, so they keep a blank redemption for the buyer to fill in.
+  const courtSale = type === 'SHERIFF_EXECUTION' || (type === 'JUDICIAL_FORECLOSURE' && p.state === 'NV');
   const titleLegal =
     type === 'TAX_DEED' ? 3_800 // title search + an uncontested quiet title ($1,500–$5,000+)
     : type === 'HOA_FORECLOSURE' ? 2_800 // title search + attorney review of the HOA sale
-    : type === 'SHERIFF_EXECUTION' || type === 'FEDERAL_TAX_SEIZURE' ? 1_500
+    : courtSale || type === 'FEDERAL_TAX_SEIZURE' ? 1_500
     : 500; // title search / O&E report + recording
   const possession = p.occupancy === 'Vacant' ? 300 : p.occupancy === 'Unknown' ? 1_500 : 3_500;
   // The redemption wait comes first (hold off on repairs), then months to fix and sell.
-  const rule = REDEMPTION_RULES[type === 'SHERIFF_EXECUTION' ? 'sheriff' : type === 'FEDERAL_TAX_SEIZURE' ? 'irs' : type === 'HOA_FORECLOSURE' ? 'hoa' : 'none'];
+  const rule = REDEMPTION_RULES[courtSale ? 'sheriff' : type === 'FEDERAL_TAX_SEIZURE' ? 'irs' : type === 'HOA_FORECLOSURE' ? 'hoa' : 'none'];
   const holdingMonths =
-    type === 'SHERIFF_EXECUTION' || type === 'FEDERAL_TAX_SEIZURE' ? 3
+    courtSale || type === 'FEDERAL_TAX_SEIZURE' ? 3
     : type === 'HOA_FORECLOSURE' ? 5
     : type === 'TAX_DEED' ? 12 // resale usually waits for a quiet title action (or the 2-year window after the deed)
     : 6;

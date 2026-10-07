@@ -71,7 +71,7 @@
       "src/components/PreForeclosurePage.tsx"
     ],
     "reviewed": "2026-10-07",
-    "hash": "b783c3c5f4ed85d7",
+    "hash": "5fb3cb84b237d0b7",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -81,7 +81,7 @@
       "src/components/ShortSalesPage.tsx"
     ],
     "reviewed": "2026-10-07",
-    "hash": "99572cf940f6e585",
+    "hash": "beeed9ff5c54ea1f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -116,7 +116,7 @@
       "src/lib/saleDocs.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "5218e95117170e78",
+    "hash": "dc7fd11f54cc6e44",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "7aa6e35c00c02ae3",
+    "hash": "df6fbfd0f910542c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -355,7 +355,7 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "678a36abdf7e82a3",
+    "hash": "553131cfc3822016",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -379,7 +379,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "facb4b20b1927e70",
+    "hash": "c408acc4e0119ed1",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
