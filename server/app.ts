@@ -1508,8 +1508,8 @@ export function createApp(config: AppConfig) {
     res.setHeader('referrer-policy', 'strict-origin-when-cross-origin');
     res.setHeader('x-frame-options', 'DENY');
     // The pages also carry the full policy in a <meta> tag (vite.config.ts); the header repeats the script rule so it
-    // holds even for a page served without that tag. Only our own script files run: no inline or third-party scripts.
-    res.setHeader('content-security-policy', "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; script-src 'self'; form-action 'self'");
+    // holds even for a page served without that tag. Only our own script files and Cloudflare Web Analytics' beacon run: no inline scripts.
+    res.setHeader('content-security-policy', "frame-ancestors 'none'; object-src 'none'; base-uri 'self'; script-src 'self' https://static.cloudflareinsights.com; form-action 'self'");
     res.setHeader('permissions-policy', 'geolocation=(), camera=(), microphone=()');
     if (secure) res.setHeader('strict-transport-security', 'max-age=63072000; includeSubDomains');
 
