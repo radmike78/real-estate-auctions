@@ -1385,7 +1385,7 @@ export const DRILLS: Drill[] = [
         lines: [
           { label: 'Value on actual NOI, at the same 7.5% cap rate the asking price implies', value: 'About $1,493,000' },
           { label: 'Asking price', value: '$1,800,000' },
-          { label: 'Gap', value: 'About $307,000 of hoped-for income' },
+          { label: 'Gap', value: 'About $307,000 of value at the assumed 7.5% cap rate, from $23,000 a year of income that isn’t there' },
           { label: 'Tenants who could leave within months', value: 'Three of six' },
         ],
         lesson: 'With half the tenants able to leave soon, even the actual NOI isn’t secure. Price in vacancy, leasing costs and months to re-lease.',

@@ -676,6 +676,7 @@ function planText(): string {
 }
 
 function Worksheets() {
+  const [myState] = useMyState();
   return (
     <section id="worksheets" aria-labelledby="worksheets-head">
       <h2 id="worksheets-head">Worksheets to download</h2>
@@ -684,7 +685,7 @@ function Worksheets() {
         {WORKSHEETS.map((w) => (
           <li key={w.key}>
             <button type="button" className="linkish" onClick={() => downloadText(fileName(w.title, 'txt'), worksheetText(w))}>{w.title}&nbsp;↓</button>
-            <span className="muted">{w.intro}</span>
+            <span className="muted">{dropStateLead(forStateText(myState, w.intro), myState)}</span>
           </li>
         ))}
         <li>

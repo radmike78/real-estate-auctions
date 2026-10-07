@@ -511,7 +511,7 @@ export const ROADMAP: RoadmapStep[] = [
     guides: ['repair-bid'], evidence: 'condition',
     text: 'Fix safety items first, with qualified contractors and permits where required. Bought at an auction? Finish “Before you remodel” first.',
     outcome: 'Written bids, permits where needed, and the work done and checked.',
-    steps: ['Get two or three written bids for the same scope.', 'Check each contractor’s license where your state requires one, and their insurance. Texas has no state license for general contractors: check trade licenses (electrician, plumber, air conditioning) and your city’s registration.', 'Pull permits where required, and pay as work is done, not all up front.', 'Keep receipts and lien releases.'],
+    steps: ['Get at least three written bids for the same scope.', 'Check each contractor’s license where your state requires one, and their insurance. Texas has no state license for general contractors: check trade licenses (electrician, plumber, air conditioning) and your city’s registration.', 'Pull permits where required, and pay as work is done, not all up front.', 'Keep receipts and lien releases.'],
     say: { to: 'Contractor', script: '“Could you bid this scope in writing: [work]? Please include permits, timeline and a payment schedule tied to finished work. Which licenses do you and your trades hold, and can you send proof of insurance?”' },
     docs: ['Written bids', 'Contract with a payment schedule', 'Permits and final inspections', 'Lien releases or receipts'],
     doneWhen: 'The work is done, permitted where required, and paid against receipts.',

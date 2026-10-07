@@ -142,7 +142,7 @@ export const WORKSHEETS: { key: string; title: string; intro: string; items: str
   {
     key: 'contractor',
     title: 'Contractor interview',
-    intro: 'Get at least two written bids for the same scope of work from qualified contractors, and check the licenses your state requires on its official lookup. Texas has no statewide license for general contractors or remodelers: check the trade licenses (electrical, plumbing, air conditioning), insurance and references instead.',
+    intro: 'Get at least three written bids for the same scope of work from qualified contractors, and check the licenses your state requires on its official lookup. In Texas, there’s no statewide license for general contractors or remodelers: check the trade licenses (electrical, plumbing, air conditioning), insurance and references instead.',
     items: [
       'Which licenses do you and your trades hold, and does the job fit their type of work (and dollar limit, where the state sets one)? What are the numbers?',
       'Do you carry liability insurance and, if you have employees, workers’ compensation?',

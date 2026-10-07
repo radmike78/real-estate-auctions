@@ -118,7 +118,7 @@ export const PRO_GUIDES: ProGuide[] = [
     summary: 'Explains how your deal is taxed and how to hold the property.',
     does: 'A CPA explains how your flip or rental will be taxed, and whether to buy in your own name or through a company. In Arizona, that includes interest from tax lien certificates.',
     when: ['Before you buy: the plan changes the taxes.', 'At tax time, for your records and deductions.', 'Before you list a rental you want to trade in a 1031 exchange: a qualified intermediary must be in place before the sale closes, and your sale money goes to them, never to you.'],
-    find: ['Ask for a CPA who works with real estate investors.', 'For a 1031 exchange, your CPA or title company can name qualified intermediaries. Check that they’re bonded and insured and keep your money in a separate account.', 'In Nevada and California, the state regulates exchange intermediaries (NRS 645G; California Financial Code 51000 and following).'],
+    find: ['Ask for a CPA who works with real estate investors.', 'For a 1031 exchange, your CPA or title company can name qualified intermediaries. Check that they’re bonded and insured and keep your money in a separate account.', 'In Nevada, the state regulates qualified intermediaries (NRS 645G).', 'In California, the state regulates exchange facilitators (Financial Code 51000 and following).'],
     ask: ['How would a flip and a rental be taxed for me, including tax on depreciation when I sell?', 'Should I buy in my own name or an LLC?', 'What records should I keep?'],
     directory: ['cpa'],
   },

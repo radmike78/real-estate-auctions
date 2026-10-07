@@ -404,7 +404,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Owner’s home",
-      value: "If it’s the owner’s home, the sale needs a court order. A bid must be more than the homestead exemption plus all liens (CCP 704.740, 704.800)."
+      value: "If it’s the owner’s home, the sale needs a court order. A bid must be more than the homestead exemption plus all liens, and a bid under 90% of the court’s fair market value needs court approval (CCP 704.740, 704.800)."
     },
     {
       label: "Liens",
