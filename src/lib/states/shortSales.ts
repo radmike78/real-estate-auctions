@@ -6,6 +6,11 @@ import { TX_SHORT_DEFICIENCY, TX_SHORT_DISCLOSURES, TX_SHORT_NOTES, TX_SHORT_OWN
 
 /** Could the seller still owe the lender afterward (a deficiency)? */
 export const DEFICIENCY: ByStateLines = {
+  NV: [
+    { text: 'In Nevada, a bank or credit union that agrees to a short sale of a single-family home can’t get a deficiency judgment if the owner bought the home with that loan and lived in it as their main home, and the signed short-sale agreement waives the rest of the debt and states the amount waived (NRS 40.458).*', links: [['NRS chapter 40', 'https://www.leg.state.nv.us/NRS/NRS-040.html']] },
+    { text: 'In Nevada, a financial institution holding a second loan used to buy such a home, and never refinanced, can’t sue the owner for it after the short sale (NRS 40.4638). Other second-lien holders must sue within 6 months (NRS 40.4639).*' },
+    { text: 'In Nevada, this is the seller’s question, not the buyer’s. It can still slow a deal down, so read the approval letter’s terms and deadlines with your agent.' },
+  ],
   CA: [
     { text: 'In California, after a lender gives written consent to a short sale of a home of up to 4 units, it can’t collect the rest of the loan (a deficiency). The deed must be recorded and the sale money paid to the lender as agreed. This covers first loans, and second loans whose holders consent. It doesn’t apply when the borrower is a corporation, LLC or limited partnership, or when there was fraud or waste (Code of Civil Procedure 580e).', links: [['Code of Civil Procedure 580e', 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CCP&sectionNum=580e']] },
     { text: 'In California, a lender can’t ask the seller for more money as a condition of approving the short sale (Code of Civil Procedure 580e).' },

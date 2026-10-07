@@ -5,7 +5,7 @@ import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
 import { IconCheckList, IconFlag, IconGavel, IconLayers, IconSteps, IconStop } from './Icons';
 import SaleDocsPanel from './SaleDocsPanel';
-import ByState from './ByState';
+import ByState, { hasLines } from './ByState';
 import StatePicker from './StatePicker';
 import { useMyState } from '../lib/myState';
 import { stateByCode } from '../lib/regions';
@@ -13,6 +13,18 @@ import { DEFICIENCY, DISCLOSURES, NOTES, OWNERS } from '../lib/states/shortSales
 import AdSpot from './AdSpot';
 
 /** Sale documents for the visitor's state; Nevada until they pick one. */
+/** State notes beyond the rules above, under their own heading. A chosen state with none shows nothing, not a filler line. */
+function OtherNotes() {
+  const [mine] = useMyState();
+  if (mine && !hasLines(NOTES, mine)) return null;
+  return (
+    <>
+      <h3 className="topic-head">Other things to know</h3>
+      <ByState lines={NOTES} optional />
+    </>
+  );
+}
+
 function MySaleDocs() {
   const [mine] = useMyState();
   return <SaleDocsPanel guideKey="short" state={mine ?? 'NV'} />;
@@ -109,8 +121,7 @@ export const SECTIONS: DrillSection[] = [
         <ByState lines={DEFICIENCY} missing="We don’t have verified rules on this for this state yet. Sellers should ask a local attorney." />
         <h3 className="topic-head">Disclosures and contracts</h3>
         <ByState lines={DISCLOSURES} missing="We don’t have verified disclosure rules for this state yet. Ask your agent." />
-        <h3 className="topic-head">Other things to know</h3>
-        <ByState lines={NOTES} missing="Nothing extra for this state yet. See How to buy a short sale and Risks to watch out for." />
+        <OtherNotes />
       </>
     ),
   },

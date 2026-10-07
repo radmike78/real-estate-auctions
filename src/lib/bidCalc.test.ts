@@ -55,6 +55,20 @@ describe('maximum safe bid', () => {
       expect(totalMonths(ds)).toBeGreaterThanOrEqual(12);
     }
   });
+
+  it('gives a Nevada court-ordered foreclosure sale the 1-year redemption (NRS 21.190, 21.210)', () => {
+    const judicial = SAMPLE_PROPERTIES.find((p) => p.sale?.saleType === 'JUDICIAL_FORECLOSURE' && p.state === 'NV')!;
+    expect(judicial).toBeTruthy();
+    const d = defaultsFor(judicial);
+    expect(ruleOf(d)).toBe('sheriff');
+    expect(d.redemptionMonths).toBe(12);
+    expect(d.redemptionRatePct).toBe(12);
+    expect(d.holdingMonths).toBe(3);
+    expect(d.titleLegal).toBe(1_500);
+    // A trustee sale still has no owner redemption.
+    const trustee = SAMPLE_PROPERTIES.find((p) => p.sale?.saleType === 'TRUSTEE_SALE')!;
+    expect(ruleOf(defaultsFor(trustee))).toBe('none');
+  });
 });
 
 import { diligenceReport } from './diligence';

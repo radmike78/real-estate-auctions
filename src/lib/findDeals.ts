@@ -80,7 +80,7 @@ export const OTHER_SITES: { group: string; sites: DealSource[] }[] = [
 export const STATE_SALES: Record<StateCode, string[]> = {
   NV: [
     'Tax sales: about a year after taxes go unpaid, the county issues a tax certificate, and the owner has 2 years (1 if abandoned) to pay. If they don’t, the county treasurer takes title in trust and auctions it with a quitclaim deed (a deed with no promise about title). In all, about 3 years of unpaid taxes (2 if abandoned).',
-    'Foreclosures: trustee auctions at least 3 months after the notice of default, with 20 days’ posted notice.',
+    'Foreclosures: trustee auctions at least 3 months after the notice of default, with 20 days’ posted notice. The owner can’t redeem afterward, but if the sale wiped out a junior federal tax lien, the United States can redeem within 120 days (26 USC 7425).',
   ],
   CA: [
     'Tax sales: the tax collector sells tax-defaulted property after 5 years (3 for nonresidential commercial), usually online.',

@@ -196,15 +196,17 @@ const HOA_DEED: Partial<Record<string, SaleDoc>> = {
   UT: { name: 'The deed, or the certificate of sale', check: 'Trustee sale: the trustee sends the trustee’s deed for recording within 5 business days after you pay, and the former owner has no right to buy it back (Utah Code 57-1-28). Court foreclosure: you get a certificate of sale, and the owner or a junior creditor can redeem for 180 days (URCP 69C). Either way, if the sale wiped out a junior federal tax lien, the United States can still redeem: within 120 days or the state redemption period, whichever is longer, so 120 days after a trustee sale and 180 days after a court sale (26 U.S.C. 7425(d); 28 U.S.C. 2410(c)). If the sale didn’t wipe the lien out (the IRS didn’t get the required notice, or the United States wasn’t named in the court case), the lien simply stays on the home. Ask your title company before you renovate.' },
 };
 
-// Nevada's Clark County Treasurer lists cash, cashier's check or money order for tax deed and SID sale payments,
-// not wire (May 2025 auction notice; Treasurer FAQ).
-const NV_FUNDS: SaleDoc = { name: 'Cash, cashier’s check or money order', check: 'The forms the Clark County Treasurer lists for this sale; wire isn’t listed. Confirm them in the current notice, and have the exact amount ready by the payment deadline.' };
+// Clark County Treasurer payment forms. Tax deed sale: the May 2025 auction notice lists cash, cashier's check or money
+// order for the final payment, while the Treasurer's FAQ also lists wire. SID lien sale: the FAQ lists only cash,
+// cashier's check or money order.
+const NV_FUNDS_DEED: SaleDoc = { name: 'Cash, cashier’s check or money order', check: 'The May 2025 notice didn’t list wire for the final payment, though the Treasurer’s FAQ does. Confirm in the current notice, and have the exact amount ready by the payment deadline.' };
+const NV_FUNDS_SID: SaleDoc = { name: 'Cash, cashier’s check or money order', check: 'The forms the Clark County Treasurer lists for this sale; wire isn’t listed. Confirm them in the current notice, and have the exact amount ready by the payment deadline.' };
 
 export function saleDocsFor(guideKey: string, state: string): SaleDoc[] {
   const kind = saleKindOf(guideKey);
   if (state === 'TX' && TX_DOCS[kind]) return TX_DOCS[kind];
-  const nvFunds = state === 'NV' && (kind === 'deed' || kind === 'sid');
-  const docs = SALE_DOCS[kind].filter((d) => state === 'NV' || !/super-priority/.test(d.name)).map((d) => (nvFunds && d === FUNDS ? NV_FUNDS : d));
+  const nvFunds = state !== 'NV' ? undefined : kind === 'deed' ? NV_FUNDS_DEED : kind === 'sid' ? NV_FUNDS_SID : undefined;
+  const docs = SALE_DOCS[kind].filter((d) => state === 'NV' || !/super-priority/.test(d.name)).map((d) => (nvFunds && d === FUNDS ? nvFunds : d));
   const deed = kind === 'hoa' ? HOA_DEED[state] : undefined;
   return deed ? docs.map((d) => (/^Certificate of sale, then the deed/.test(d.name) ? deed : d)) : docs;
 }
