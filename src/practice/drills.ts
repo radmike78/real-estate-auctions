@@ -420,10 +420,10 @@ export const DRILLS: Drill[] = [
         question: 'Pick the right answer for a planned community.',
         multi: false,
         options: [
-          { label: 'Only after the owner is 18 months delinquent or owes $10,000 or more, whichever comes first, through a court case', good: true, why: 'Right (A.R.S. 33-1807). The foreclosure works like a mortgage foreclosure in court, followed by a sheriff’s sale.' },
+          { label: 'Only after the owner is 18 months delinquent or owes $10,000 or more, whichever comes first, through a court case', good: true, why: 'Right (A.R.S. 33-1807). The foreclosure works like a mortgage foreclosure in court, followed by a sheriff’s sale. For a special assessment that started at $10,000 or more, only the 18-month rule applies.' },
           { label: 'After 30 days, by a trustee’s sale like a mortgage', good: false, why: 'Arizona HOAs foreclose through the courts, and only past the 18-month or $10,000 mark.' },
         ],
-        lesson: 'Condominiums follow a separate statute; confirm its rules with an Arizona attorney.',
+        lesson: 'Condominiums follow a separate statute with the same 18-month or $10,000 rule and the same special assessment rule (A.R.S. 33-1256).',
       },
       {
         kind: 'pick',
@@ -484,7 +484,7 @@ export const DRILLS: Drill[] = [
         options: [
           { label: 'The trustee is a Utah attorney or law firm, or a title insurance company or agency with a Utah office, appointed by the association', good: true, why: 'Right (Utah Code 57-8a-302). Other people can’t run an HOA trustee sale.' },
           { label: 'The association is registered with the Utah Department of Commerce', good: true, why: 'Right. An unregistered association can’t enforce its lien while it’s out of compliance (57-8a-105).' },
-          { label: 'The lien isn’t for fines', good: true, why: 'Right. An HOA can’t use a trustee sale to collect fines (57-8a-302).' },
+          { label: 'The lien isn’t for fines', good: true, why: 'Right. An HOA can’t use a trustee sale to collect fines (57-8a-303).' },
           { label: 'Nothing: if the notice was published, the sale is fine', good: false, why: 'A sale that breaks these rules can be challenged. Have an attorney or title professional check.' },
         ],
         lesson: 'The owner also gets 30 days’ warning and can demand a court case instead of a trustee sale.',
@@ -867,7 +867,7 @@ export const DRILLS: Drill[] = [
         question: 'If you win, what do you get?',
         multi: false,
         options: [
-          { label: 'A certificate of purchase: a lien that earns interest at my bid rate until the owner pays', good: true, why: 'Right. You can ask a court for a treasurer’s deed only after 3 years, if the lien is still unpaid.' },
+          { label: 'A certificate of purchase: a lien that earns interest at my bid rate until the owner pays', good: true, why: 'Right. You can ask a court for a treasurer’s deed only after 3 years, if the lien is still unpaid. Or, if you or the owner ask and the property is likely to sell for more than $2,500 above what’s owed, the court must order an auction instead, and you’re paid in cash (A.R.S. 42-18204).' },
           { label: 'The land', good: false, why: 'At the February sale, Arizona sells liens, not the property.' },
         ],
         lesson: 'Most liens are redeemed: plan on interest, not on getting the land.',
@@ -1003,7 +1003,7 @@ export const DRILLS: Drill[] = [
         multi: false,
         options: [
           { label: 'Wait for the recorded deed, then expect about a year before title insurance and major work', good: true, why: 'Right. A challenge must start within 1 year of the deed (R&T 3725), and counties such as Los Angeles and San Diego advise waiting about a year before improving.' },
-          { label: 'Start building the day after the auction', good: false, why: 'Title doesn’t pass until the deed is recorded, often about 60 to 70 days later in Los Angeles County.*' },
+          { label: 'Start building the day after the auction', good: false, why: 'Title doesn’t pass until the deed is recorded, often about 60 to 70 days later in Los Angeles County.' },
         ],
         lesson: 'Pay in the exact form and by the deadline your county sets; a missed deadline can cost your deposit.',
       },
@@ -1121,8 +1121,8 @@ export const DRILLS: Drill[] = [
         question: 'Can the owner still keep the property?',
         multi: false,
         options: [
-          { label: 'Yes, the owner can still pay off the taxes until the sale begins, so check the updated list that morning', good: true, why: 'Right. There’s no redemption after the sale (59-2-1346).' },
-          { label: 'Yes, for one year after the sale', good: false, why: 'Utah tax sales have no redemption after the sale.' },
+          { label: 'Yes, the owner can still pay off the taxes until the sale begins, so check the updated list that morning', good: true, why: 'Right. The owner can’t buy it back after the sale (59-2-1346). But if the sale wiped out a junior federal tax lien, the United States may redeem within 120 days (26 USC 7425(d)). Some counties, like Utah County, wait 120 days to ratify those bids.' },
+          { label: 'Yes, for one year after the sale', good: false, why: 'Not quite. In Utah, the owner can’t buy it back after a tax sale (59-2-1346). The only later redemption is the United States’ 120 days when the sale wiped out a junior federal tax lien (26 USC 7425(d)).' },
         ],
         lesson: 'Read the auditor’s notice early: deposit deadline, payment method, buyer’s premium, and whether the deposit counts toward the price.',
       },
@@ -1169,7 +1169,7 @@ export const DRILLS: Drill[] = [
         multi: true,
         options: [
           { label: 'Every bid is an irrevocable offer, so I set my maximum before I arrive', good: true, why: 'Right.' },
-          { label: 'I pay as the trustee directs, and confirm the deposit and payment method with the trustee’s office first', good: true, why: 'Right (57-1-28).' },
+          { label: 'I pay as the trustee directs, and confirm the deposit and payment method with the trustee’s office first', good: true, why: 'Right (57-1-27, 57-1-28).' },
           { label: 'After the sale, the owner has a year to redeem', good: false, why: 'A trustee’s deed conveys without a right of redemption.' },
         ],
         lesson: 'The trustee records your deed within five business days after you pay (57-1-28).',
@@ -1263,7 +1263,7 @@ export const DRILLS: Drill[] = [
         question: 'What’s true once you’ve paid?',
         multi: true,
         options: [
-          { label: 'The sale is final: there’s no redemption', good: true, why: 'Right (A.R.S. 33-811).' },
+          { label: 'The sale is final: the owner can’t redeem', good: true, why: 'Right (A.R.S. 33-811). One exception: if the sale wiped out a junior federal tax lien, the United States can redeem within 120 days (or the state period if longer); if the IRS wasn’t properly notified, its lien stays (26 USC 7425).' },
           { label: 'Liens older than the deed of trust stay with the house', good: true, why: 'Right. The sale clears junior liens, not senior ones. Order a title report before the sale.' },
           { label: 'The trustee hands over the keys and removes any occupants', good: false, why: 'Occupants are yours to handle: a written demand, then a court eviction (forcible detainer) case if needed. Bona fide tenants generally get at least 90 days under federal law.' },
         ],
@@ -1289,7 +1289,7 @@ export const DRILLS: Drill[] = [
         { label: 'Investigate', feedback: 'Fine for researching the house, but don’t bid until your money can arrive by 5 p.m. the next business day.' },
         { label: 'Pass', feedback: 'Right for this sale. Line up cash or same-day funding before the next one.' },
       ],
-      expert: 'Pass on this sale. Arizona trustee’s sales need $10,000 to bid and the balance the next business day, and the sale is final. Bid only when the money is ready and the title report is read.',
+      expert: 'Pass on this sale. Arizona trustee’s sales need $10,000 to bid and the balance the next business day, and the sale is final. One exception: if the sale wiped out a junior federal tax lien, the United States can redeem within 120 days (or the state period if longer); if the IRS wasn’t properly notified, its lien stays (26 USC 7425). Bid only when the money is ready and the title report is read.',
     },
   },
   {

@@ -26,3 +26,110 @@ nav.drill-tiles + .guide-group, nav.drill-tiles + section { margin-top: 40px; }
   .page section { margin-bottom: 28px; }
   .home .path-steps, .home .plan-now { margin-bottom: 32px; }
 }
+
+/* ===== Round 9 layout fixes ===== */
+
+/* An ad column only when an ad box is actually in it; otherwise the content keeps the full width. */
+.next-with-ad:not(:has(> .ad-box)) { grid-template-columns: minmax(0, 1fr); }
+
+/* Dark mode: the "Try the <state> drill first" button keeps white text on blue, like every other filled button. */
+.practice-state-note .practice-state-first a.btn { color: #fff; }
+
+/* "Not sure where to start?" answers: rows fill from the left, so a short last row doesn't float in the middle. */
+.team-options { justify-content: flex-start; }
+@media (min-width: 861px) { .team-options:has(> :nth-child(6):last-child) { --cols: 3; } }
+
+/* Analyze: "3. Run the numbers" and "Before you commit" get the same heading bar as the other parts of the page. */
+.page > h2.bar-head {
+  --band: #0d9488;
+  display: block; margin: 48px 0 20px; padding: 14px 18px 14px 22px; border: 1px solid color-mix(in srgb, var(--band) 26%, var(--border)); border-radius: 14px;
+  background: color-mix(in srgb, var(--band) 10%, var(--surface)); box-shadow: inset 6px 0 0 var(--band);
+  font-size: clamp(1.6rem, 2.4vw, 2rem); font-weight: 800; line-height: 1.2; letter-spacing: -0.02em;
+}
+.page > h2.bar-head::before { display: none; }
+.page > h2.bar-head + p { margin-top: 0; }
+.page section.before-commit > h3:first-child {
+  margin: 0 0 14px; padding: 10px 14px 10px 18px; border: 1px solid color-mix(in srgb, var(--band) 26%, var(--border)); border-radius: 12px;
+  background: color-mix(in srgb, var(--band) 10%, var(--surface)); box-shadow: inset 5px 0 0 var(--band); font-size: 1.3rem; line-height: 1.25;
+}
+@media (max-width: 600px) { .page > h2.bar-head { padding: 12px 14px 12px 18px; margin-bottom: 14px; } }
+/* Calculator boxes in a row line up even when a label wraps: a grid with the same column count as before, whose
+   fields share rows (label, box, hint) through subgrid. */
+.calc-group .calc-grid { display: grid; grid-template-columns: repeat(min(var(--cols), var(--max)), minmax(0, 1fr)); column-gap: 16px; row-gap: 0; align-items: stretch; }
+.calc-group .calc-grid > .calc-field { display: grid; grid-row: span 3; grid-template-rows: subgrid; row-gap: 6px; margin-bottom: 14px; }
+.calc-group .calc-grid > .calc-field > .calc-label-row { align-self: end; }
+.analyze-next .row { gap: 12px 24px; }
+
+/* My plan → Reference: equal-height boxes in columns that divide the count, flush with the text above. */
+.lesson-links.ref-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; align-items: stretch; grid-template-columns: repeat(3, minmax(0, 1fr)); columns: auto; }
+.lesson-links.ref-grid > li { margin: 0; align-content: start; }
+@media (min-width: 1301px) {
+  .ref-grid:has(> :nth-child(1):last-child) { grid-template-columns: minmax(0, 1fr); }
+  .ref-grid:has(> :nth-child(2):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ref-grid:has(> :nth-child(4):last-child), .ref-grid:has(> :nth-child(8):last-child) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .ref-grid:has(> :nth-child(5):last-child), .ref-grid:has(> :nth-child(10):last-child) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+@media (min-width: 861px) and (max-width: 1300px) {
+  .ref-grid:has(> :nth-child(1):last-child) { grid-template-columns: minmax(0, 1fr); }
+  .ref-grid:has(> :nth-child(2):last-child), .ref-grid:has(> :nth-child(4):last-child), .ref-grid:has(> :nth-child(8):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 860px) {
+  .lesson-links.ref-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lesson-links.ref-grid:has(> :nth-child(1):last-child) { grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 561px) { .lesson-links.ref-grid:has(> :nth-child(3):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+}
+@media (max-width: 560px) { .lesson-links.ref-grid, .lesson-links.ref-grid:has(> li) { grid-template-columns: minmax(0, 1fr); } }
+
+/* Guide sub-pages on phones: one "Jump to section" drop-down instead of rows of wrapped buttons. */
+.drill-select { display: none; }
+@media (max-width: 560px) {
+  .drill-select { display: grid; gap: 6px; margin: 0 0 16px; font-weight: 700; }
+  .drill-select select { min-height: 44px; width: 100%; font-size: 1rem; }
+  .drill-select + .drill-nav { display: none; }
+}
+
+/* Card grids: boxes in a row share one height, and the column count divides the number of boxes where it can. */
+.pro-guide .pro-guide-cols { align-items: stretch; }
+@media (min-width: 1301px) {
+  .pro-guide-cols:has(> :nth-child(4):last-child) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .pro-guide-cols:has(> :nth-child(3):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 861px) and (max-width: 1300px) {
+  .pro-guide-cols:has(> :nth-child(4):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pro-guide-cols:has(> :nth-child(3):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 561px) and (max-width: 860px) {
+  .pro-guide-cols:has(> :nth-child(4):last-child), .pro-guide-cols:has(> :nth-child(2):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pro-guide-cols:has(> :nth-child(3):last-child) { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Practice listing facts: 9 facts in 3 columns, 8 in 4, and so on, instead of a stray box under a long row. */
+.practice-facts { align-items: stretch; }
+@media (min-width: 861px) {
+  .practice-facts:has(> :nth-child(3):last-child), .practice-facts:has(> :nth-child(6):last-child), .practice-facts:has(> :nth-child(9):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .practice-facts:has(> :nth-child(4):last-child), .practice-facts:has(> :nth-child(7):last-child), .practice-facts:has(> :nth-child(8):last-child) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .practice-facts:has(> :nth-child(5):last-child), .practice-facts:has(> :nth-child(10):last-child) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+@media (min-width: 561px) and (max-width: 860px) {
+  .practice-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .practice-facts:has(> :nth-child(3):last-child), .practice-facts:has(> :nth-child(6):last-child), .practice-facts:has(> :nth-child(9):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* A lesson's "What you'll learn": columns that divide the number of points (5 points: 5 columns, not 4 and 1). */
+@media (min-width: 1301px) {
+  .page.lesson .lesson-takeaways ul:has(> :nth-child(2):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .page.lesson .lesson-takeaways ul:has(> :nth-child(3):last-child),
+  .page.lesson .lesson-takeaways ul:has(> :nth-child(6):last-child),
+  .page.lesson .lesson-takeaways ul:has(> :nth-child(9):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .page.lesson .lesson-takeaways ul:has(> :nth-child(4):last-child),
+  .page.lesson .lesson-takeaways ul:has(> :nth-child(7):last-child),
+  .page.lesson .lesson-takeaways ul:has(> :nth-child(8):last-child) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .page.lesson .lesson-takeaways ul:has(> :nth-child(5):last-child),
+  .page.lesson .lesson-takeaways ul:has(> :nth-child(10):last-child) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+@media (min-width: 861px) and (max-width: 1300px) {
+  .page.lesson .lesson-takeaways ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .page.lesson .lesson-takeaways ul:has(> :nth-child(3):last-child),
+  .page.lesson .lesson-takeaways ul:has(> :nth-child(6):last-child),
+  .page.lesson .lesson-takeaways ul:has(> :nth-child(9):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

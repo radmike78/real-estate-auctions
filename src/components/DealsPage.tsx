@@ -102,7 +102,7 @@ function DealCard({ d, p, loading, known }: { d: SavedDeal; p: Property | undefi
         <div><dt>Opening / minimum bid</dt><dd>{fmtMoney(minBid)}</dd></div>
         <div>
           <dt>Your walk-away price</dt>
-          <dd>{maxBid === null ? <a href={`${base}/max-bid`}>Set it →</a> : <>{fmtMoney(maxBid)}{minBid !== null && <span className={minBid > maxBid ? 'deal-urgent' : 'deal-ok'}> · {minBid > maxBid ? 'opening bid is above your max' : 'room to bid'}</span>}</>}</dd>
+          <dd>{maxBid === null ? <a href={`${base}/max-bid`}>Set it&nbsp;→</a> : <>{fmtMoney(maxBid)}{minBid !== null && <span className={minBid > maxBid ? 'deal-urgent' : 'deal-ok'}> · {minBid > maxBid ? 'opening bid is above your max' : 'room to bid'}</span>}</>}</dd>
         </div>
         <div>
           <dt>Due diligence</dt>
@@ -194,8 +194,8 @@ export default function DealsPage() {
                       <p><strong>Next action.</strong> {nextAction(d).text}</p>
                     </div>
                     <div className="deal-actions">
-                      <a className="btn" href={`#/deals/packet/${d.id}`}>Deal packet →</a>
-                      <button type="button" className="btn btn-secondary" onClick={() => openDeal(d)}>Open →</button>
+                      <a className="btn" href={`#/deals/packet/${d.id}`}>Deal packet&nbsp;→</a>
+                      <button type="button" className="btn btn-secondary" onClick={() => openDeal(d)}>Open&nbsp;→</button>
                     </div>
                   </div>
                   <EvidenceLog dealId={`analyzed:${d.id}`} name={d.name} />

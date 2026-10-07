@@ -32,14 +32,14 @@ function usePlanTick() {
 /** The Continue button: opens where the task is done, or moves the deal on when that's the task. */
 function ContinueButton({ task, dealId, onPlan }: { task: PlanTask; dealId?: string; onPlan: boolean }) {
   if (task.setStage && dealId)
-    return <button type="button" className="btn big" onClick={() => setDealStage(dealId, task.setStage!)}>Continue: move it on →</button>;
+    return <button type="button" className="btn big" onClick={() => setDealStage(dealId, task.setStage!)}>Continue: move it on&nbsp;→</button>;
   if (task.openDeal && dealId) {
     const d = loadDeals().find((x) => x.id === dealId);
-    if (d) return <a className="btn big" href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(d); }}>Continue →</a>;
+    if (d) return <a className="btn big" href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(d); }}>Continue&nbsp;→</a>;
   }
   // On My plan, a roadmap task is further down this page: the link scrolls there.
   const href = task.href === ROADMAP_TASK_HREF && !onPlan ? '#/toolkit/roadmap' : task.href;
-  return <a className="btn big" href={href}>Continue{task.href === ROADMAP_TASK_HREF && onPlan ? ' ↓' : ' →'}</a>;
+  return <a className="btn big" href={href}>Continue{task.href === ROADMAP_TASK_HREF && onPlan ? '\u00a0↓' : '\u00a0→'}</a>;
 }
 
 /**
@@ -68,7 +68,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
     <aside className="plan-now-side" aria-labelledby={`plan-now-where-${variant}`}>
       <h3 id={`plan-now-where-${variant}`}>Where you are</h3>
       <p className="plan-now-count">
-        <span><strong>{prog.done} of {prog.total}</strong> roadmap steps done</span>
+        <span><strong>{prog.done} of {prog.total}</strong> roadmap tasks done</span>
         <span className="decide-bar" role="progressbar" aria-label="Investing roadmap" aria-valuemin={0} aria-valuemax={prog.total} aria-valuenow={prog.done}><span style={{ width: `${Math.round((prog.done / Math.max(1, prog.total)) * 100)}%` }} /></span>
       </p>
       {deal && now.tasks && stage ? (
@@ -82,12 +82,12 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
               </li>
             ))}
           </ol>
-          <p className="plan-now-evidence">Evidence: <strong>{checked} of {EVIDENCE_AREAS.length}</strong> areas checked. <a href={`#/deals/packet/${deal.id}`}>Open its deal packet →</a></p>
+          <p className="plan-now-evidence">Evidence: <strong>{checked} of {EVIDENCE_AREAS.length}</strong> areas checked. <a href={`#/deals/packet/${deal.id}`}>Open its deal packet&nbsp;→</a></p>
         </>
       ) : (
         <PhaseSummary />
       )}
-      {!onPlan && <p><a href="#/toolkit">Open My plan →</a></p>}
+      {!onPlan && <p><a href="#/toolkit">Open My plan&nbsp;→</a></p>}
     </aside>
   );
 
@@ -119,6 +119,14 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
             {deal && stage && <p className="muted plan-now-hint">{stageHint(stage, deal)}{deal.stage ? '' : ' (We worked this out from what you’ve recorded; change it if it’s wrong.)'}</p>}
           </div>
         )}
+        {/* On My plan, a roadmap task is shown in full in the roadmap below: here, one line pointing to it. */}
+        {onPlan && task.href === ROADMAP_TASK_HREF ? (
+          <p className="plan-now-pointer">
+            <span className="plan-now-k">Next task · {now.context}</span>
+            <span><strong>{task.label}</strong>: it’s open in your roadmap below, with what to do and what you’ll have.</span>
+            <a className="btn" href={ROADMAP_TASK_HREF}>Go to it<span aria-hidden className="nowrap-arrow">&nbsp;↓</span></a>
+          </p>
+        ) : (
         <div className={`plan-now-task${task.urgent ? ' urgent' : ''}`}>
           <p className="plan-now-k">Next task · {now.context}</p>
           <h3>{task.label}</h3>
@@ -134,6 +142,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
             </p>
           )}
         </div>
+        )}
       </div>
       {side}
       {helper && <div className="plan-now-help">{helper}</div>}

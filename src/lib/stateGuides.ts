@@ -40,7 +40,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Deposit and payment",
-      value: "Each county sets its own. State law lets a county ask for a deposit of $5,000 or 10% of the minimum bid, whichever is greater. The rest is due within 90 days at most (R&T 3693.1). Confirm in your county’s terms."
+      value: "Each county sets its own. If the county lets winners pay later (a deferred-payment sale), state law lets it ask for a deposit of $5,000 or 10% of the minimum bid, whichever is greater, with the rest due within 90 days at most (R&T 3693.1). Confirm in your county’s terms."
     },
     {
       label: "What you get",
@@ -426,7 +426,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Check for homestead rules",
-      detail: "If the property is a person’s home, the sale needs a court order. No bid can be accepted unless it is more than the homestead exemption plus all liens. A bid under 90% of fair market value needs court approval (CCP 704.740, 704.800). The exemption is the county’s median home price from the year before, but never less than $370,550 or more than $731,300 (2026 amounts, adjusted each January for inflation) (CCP 704.730)."
+      detail: "If the property is a person’s home, the sale needs a court order. No bid can be accepted unless it is more than the homestead exemption plus all liens. A bid under 90% of fair market value needs court approval (CCP 704.740, 704.800). The exemption is the county’s median home price from the year before, but never less than about $370,000 or more than about $740,000 in 2026 (the $300,000 floor and $600,000 cap in the law, adjusted each January for inflation) (CCP 704.730).*"
     },
     {
       title: "Pre-qualify and bring funds",
@@ -550,7 +550,7 @@ export const STATE_GUIDES: Playbook[] = [
   short: "Tax lien sales",
   teaser: "Each February, Arizona county treasurers sell liens for unpaid property taxes. You bid the interest rate down from 16%.",
   oneLine: "Each February, Arizona county treasurers sell liens for unpaid property taxes. You bid the interest rate down from 16%. The owner can pay you back with interest until a court rules for you or a treasurer’s deed is delivered. Land the state already owns through a tax deed is a separate program: the county board of supervisors sells it at a public auction (ARS 42-18301 to 42-18303).",
-  youGet: "A certificate of purchase (a lien), not the property. You can ask a court for a treasurer’s deed only after 3 years, and only if the lien is still unpaid.",
+  youGet: "A certificate of purchase (a lien), not the property. You can ask a court for a treasurer’s deed only after 3 years, and only if the lien is still unpaid. Or, if you or the owner ask and the property is likely to sell for more than $2,500 above what’s owed, the court must order an auction instead, and you’re paid in cash (A.R.S. 42-18204).",
   forSale: true,
   glance: [
     {
@@ -1056,7 +1056,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Owner’s last chance",
-      value: "Anyone may pay what’s owed for the owner (redeem) at any time before the sale. Once the sale is over, no one can buy it back (59-2-1346)."
+      value: "Anyone may pay what’s owed for the owner (redeem) at any time before the sale (59-2-1346). After it, the owner can’t buy it back. But if the sale wiped out a junior federal tax lien, the United States may redeem within 120 days (26 USC 7425(d)). Some counties, like Utah County, wait 120 days to ratify those bids."
     },
     {
       label: "What you get",
@@ -1090,15 +1090,15 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Bid at or above the minimum",
-      detail: "No bid below the full amount owed is accepted. The county may accept the highest bid for the whole parcel. State law also lets the county accept a bid that pays the full amount for the smallest part of the parcel. Then the rest counts as redeemed by the owner. The county may reject all bids."
+      detail: "No bid below the full amount owed is accepted. The county may accept the highest bid for the whole parcel. State law also lets the county accept a bid that pays the full amount for the smallest part of the parcel. Then the rest counts as redeemed by the owner. Some counties (Utah County) sell an undivided percentage instead: the lowest percentage wins, and you co-own the parcel with the former owner. If you buy 49% or less, a later sale pays you only your price plus 12% or your pro-rata share, whichever is greater (Utah Code 59-2-1351.7). Check the bid type on each parcel. The county may reject all bids."
     },
     {
       title: "Pay on the county’s deadline",
-      detail: "Payment rules are local. Salt Lake County takes wires only and adds a 5% buyer’s premium. It does not apply the $500 deposit to your purchase. Davis County has required cash or check in person right after the auction. Utah County says it will not finance. The county can get a court judgment against a winning bidder who does not pay."
+      detail: "Payment rules are local. Salt Lake County requires the $500 deposit by wire, adds a 5% buyer’s premium, and doesn’t credit the deposit to your purchase. Davis County has required cash or check in person right after the auction. Utah County says it will not finance. The county can get a court judgment against a winning bidder who does not pay."
     },
     {
       title: "Wait for ratification and your deed",
-      detail: "First the county’s governing body approves (ratifies) the bids. The auditor then signs a tax deed in the county’s name, and the county recorder records it. Salt Lake County says it records and mails deeds within 60 days after the council approves the sale. Utah County says 60 to 180 days after the sale."
+      detail: "First the county’s governing body approves (ratifies) the bids. The auditor then signs a tax deed in the county’s name, and the county recorder records it. Salt Lake County mails the deed after the council ratifies the sale, within 60 days after the sale. Utah County says 60 to 180 days after the sale."
     },
     {
       title: "Get title insurance and handle possession lawfully",
@@ -1118,6 +1118,7 @@ export const STATE_GUIDES: Playbook[] = [
       "Easements and other recorded claims on the property (encumbrances). Utah County warns that buyers take on the risk of liens, easements and encumbrances.",
       "Liens the county does not clear by its sale. Ask a title company which recorded liens it would still list.",
       "Occupants. The county makes no promise about possession.",
+      "A junior federal tax lien’s redemption right. If the sale wiped out a federal tax lien, the United States may redeem within 120 days (26 USC 7425(d)). Some counties, like Utah County, wait 120 days to ratify those bids.",
       "A court challenge to the tax deed for up to four years, or longer if the owner stayed in possession (Utah Code 78B-2-206)."
     ]
   },
@@ -1190,6 +1191,18 @@ export const STATE_GUIDES: Playbook[] = [
       url: "https://auditor.utahcounty.gov/may-tax-sale/policies"
     },
     {
+      label: "Utah Code 59-2-1351.7 (undivided interest buyers)",
+      url: "https://le.utah.gov/xcode/Title59/Chapter2/59-2-S1351.7.html"
+    },
+    {
+      label: "Utah County tax sale excess funds (120-day wait for federal tax liens)",
+      url: "https://auditor.utahcounty.gov/may-tax-sale/excess-funds"
+    },
+    {
+      label: "26 USC 7425 (federal tax lien redemption after a nonjudicial sale)",
+      url: "https://www.law.cornell.edu/uscode/text/26/7425"
+    },
+    {
       label: "Davis County tax sale FAQ",
       url: "https://www.daviscountyutah.gov/controller/tax-administration-group/tax-sale/tax-sale-faq"
     }
@@ -1243,7 +1256,7 @@ export const STATE_GUIDES: Playbook[] = [
   steps: [
     {
       title: "Learn the timeline",
-      detail: "If the home is the owner’s main home and the lender is a bank, credit union or similar, the lender first sends the owner a notice giving at least 30 days to catch up (Utah Code 57-1-24.3). After a default (missed payments), the trustee records a notice of default with the county recorder. The owner, or anyone holding a later (junior) lien, can catch up and fix the default within three months of that recording. After at least three months, the trustee may give notice of sale."
+      detail: "If the home is the owner’s main home, the loan was for personal or household purposes, and the lender is a bank, credit union or similar, the lender first sends the owner a notice giving at least 30 days to catch up (Utah Code 57-1-24.3). A servicer that follows the federal servicing rules is treated as complying, and a missed step doesn’t undo a sale to an outside buyer (Utah Code 57-1-24.3(12), (13)).* After a default (missed payments), the trustee records a notice of default with the county recorder. The owner, or anyone holding a later (junior) lien, can catch up and fix the default within three months of that recording. After at least three months, the trustee may give notice of sale."
     },
     {
       title: "Find sales through official notices",
@@ -2877,7 +2890,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Watch the foreclosure calendar",
-      detail: "Ask the listing agent whether a trustee’s sale is scheduled, and whether the lender will postpone it. Federal rules limit a foreclosure sale while the lender reviews the owner’s complete application for help (a loss-mitigation application), which can include a short sale. This applies if the lender got the application more than 37 days before the sale (12 CFR 1024.41). An Arizona trustee’s sale is final, so if it goes ahead, your deal ends (A.R.S. 33-811)."
+      detail: "Ask the listing agent whether a trustee’s sale is scheduled, and whether the lender will postpone it. Federal rules limit a foreclosure sale while the lender reviews the owner’s complete application for help (a loss-mitigation application), which can include a short sale. This applies if the lender got the application more than 37 days before the sale, and only when the home is the owner’s principal residence (12 CFR 1024.41, 1024.30(c)(2)). An Arizona trustee’s sale is final, so if it goes ahead, your deal ends (A.R.S. 33-811)."
     },
     {
       title: "Inspect during your inspection period",
@@ -2973,7 +2986,7 @@ export const STATE_GUIDES: Playbook[] = [
   glance: [
     {
       label: "How it’s sold",
-      value: "The same channels as homes: trustee’s sales, which are final with no buy-back (A.R.S. 33-811), and sheriff’s sales, which have a 6-month redemption period in most cases (A.R.S. 12-1282, 12-1283). Also tax lien sales, court receivers, and bank or government sellers"
+      value: "The same channels as homes: trustee’s sales, which are final with no buy-back by the owner (A.R.S. 33-811), and sheriff’s sales, which have a 6-month redemption period in most cases (A.R.S. 12-1282, 12-1283). Also tax lien sales, court receivers, and bank or government sellers"
     },
     {
       label: "Value",
@@ -3007,7 +3020,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Know which sale rules apply",
-      detail: "A trustee’s sale is final, with no buy-back period, and it clears liens that rank behind the deed of trust (A.R.S. 33-811). A sheriff’s sale after a court foreclosure has a 6-month redemption period in most cases (A.R.S. 12-1282, 12-1283). A tax lien sale gives a lien, not the building. Read the right DeedOwl guide for each."
+      detail: "A trustee’s sale is final, with no buy-back period for the owner, and it clears liens that rank behind the deed of trust (A.R.S. 33-811). One exception: if the sale wiped out a junior federal tax lien, the United States can redeem within 120 days (or the state period if longer); if the IRS wasn’t properly notified, its lien stays (26 USC 7425). A sheriff’s sale after a court foreclosure has a 6-month redemption period in most cases (A.R.S. 12-1282, 12-1283). A tax lien sale gives a lien, not the building. Read the right DeedOwl guide for each."
     },
     {
       title: "Get the rent roll and leases, if you can",
@@ -3027,7 +3040,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Check zoning, code and permits",
-      detail: "Ask the city or county planning department whether your planned use is allowed. Ask whether there are open code cases or expired permits. A special rule applies if the land is in an unincorporated area and the sale is 5 or fewer unsubdivided parcels. Then a non-auction seller must give you an affidavit of disclosure covering access, utilities, flood zone and zoning. You can cancel (rescind) within 5 days (A.R.S. 33-422)."
+      detail: "Ask the city or county planning department whether your planned use is allowed. Ask whether there are open code cases or expired permits. A special rule applies if the land is in an unincorporated area and the sale is 5 or fewer unsubdivided parcels. Then the seller (other than a trustee at a trustee’s sale or a sheriff at an execution sale) must give you an affidavit of disclosure covering access, utilities, flood zone and zoning. You can cancel (rescind) within 5 days (A.R.S. 33-422)."
     },
     {
       title: "Line up your money",
@@ -3550,7 +3563,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Get the appraisal and loan approved",
-      detail: "Under the REPC, you can cancel if the home appraises below the price or your loan falls through. But you can do this only by the Financing & Appraisal Deadline, and only if those conditions are checked on your contract. Watch the dates."
+      detail: "Under the REPC, you can cancel if the home appraises below the price or you aren’t satisfied with your loan terms, but only by the Financing & Appraisal Deadline, and only if those conditions are checked on your contract. A low appraisal returns your earnest money. Canceling over loan terms can still give the seller the amount written in section 8.3(b)(i). If your loan fails after that deadline, the seller keeps all of it (REPC section 8.3(b)(iii)). Watch the dates."
     },
     {
       title: "Review the title commitment",

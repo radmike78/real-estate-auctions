@@ -207,7 +207,7 @@ const NV: CaseConfig = {
   cancelAppraisal: 'Cancel before Day 17 and get the deposit back.',
   leaveAppraisal: 'Your appraisal contingency protects your deposit until Day 17.',
   roofer: 'Desert Example Roofing',
-  lienWhy: 'It’s a recorded claim against the house. In Nevada, a mechanic’s lien lapses after 6 months unless the contractor sues to enforce it, but the title company still wants it released or cleared on the record before closing. Ask the title officer how, and whether a lawsuit was filed.',
+  lienWhy: 'It’s a recorded claim against the house. In Nevada, a mechanic’s lien lapses after 6 months unless the contractor sues to enforce it or a recorded extension agreement extends it (NRS 108.233). Even so, the title company wants it released or cleared on the record before closing. Ask the title officer how, and whether a lawsuit was filed.',
   earnestPaid: 'into escrow within 3 business days of acceptance',
   earnestCredit: (n) => `${usd(n.earnest)} earnest money`,
   earnestShort: 'earnest money',
@@ -319,7 +319,7 @@ const TX: CaseConfig = {
       id: 'tx-deposit',
       prompt: `In Texas, what is the most you can take as a security deposit at ${usd(n.rent)} a month rent?`,
       choices: [
-        { label: 'Texas law sets no limit. Pick an amount the market accepts, and return it with an itemized list of deductions within 30 days after the tenant moves out.', verdict: 'best', why: 'Texas doesn’t cap deposits, but you must refund them, less itemized deductions for damage beyond normal wear and tear, within 30 days after the tenant leaves (Property Code 92.103, 92.104).' },
+        { label: 'Texas law sets no limit. Pick an amount the market accepts, and return it with an itemized list of deductions within 30 days after the tenant moves out.', verdict: 'best', why: 'Texas doesn’t cap deposits, but you must refund them, less itemized deductions for damage beyond normal wear and tear, within 30 days after the tenant leaves (Property Code 92.103, 92.104). The clock waits until the tenant gives you a written forwarding address (Property Code 92.107).' },
         { label: `${usd(n.rent * 3)}, the legal maximum`, verdict: 'poor', why: 'Texas has no legal maximum; 3 months’ rent is Nevada’s cap. And a very high deposit can cost you good tenants.' },
         { label: `${usd(n.rent)}: 1 month’s rent`, verdict: 'ok', why: 'A common choice, and lawful. But it’s your choice, not a limit.' },
       ],
@@ -334,7 +334,7 @@ const TX: CaseConfig = {
       ],
     },
   ],
-  rentLog: () => 'Selection criteria given with a signed acknowledgment. Deposit returned within 30 days with an itemized list (Texas).',
+  rentLog: () => 'Selection criteria given with a signed acknowledgment. Deposit returned within 30 days with an itemized list (Texas; the clock waits until the tenant gives you a written forwarding address, Property Code 92.107).',
   offerTasks: () => [
     {
       kind: 'choice',
@@ -375,7 +375,7 @@ const TX: CaseConfig = {
 };
 
 // California: same house and price. Buying resets the property tax to about 1% of the price plus local charges
-// (Proposition 13; this practice uses about 1.15%), so the seller's bill isn't yours. The contract is the C.A.R.
+// (Proposition 13; this practice uses about 1.1%), so the seller's bill isn't yours. The contract is the C.A.R.
 // Residential Purchase Agreement, where you remove contingencies in writing. Deposits: Civil Code 1950.5. Rent cap and
 // just cause: Civil Code 1947.12 and 1946.2.
 const CA: CaseConfig = {
@@ -400,7 +400,7 @@ const CA: CaseConfig = {
       id: 'ca-taxes',
       prompt: 'The listing shows $2,050 in property taxes last year. What do you budget?',
       choices: [
-        { label: `About ${usd(3_220)} a year (${usd(n.tax)} a month): about 1.15% of what you pay.`, verdict: 'best', why: 'In California, a sale resets the taxable value to the price you pay (Proposition 13). The seller’s bill was based on the value set when they bought in 2009, raised only a little each year, and on the homeowners’ exemption, which goes only to an owner who lives there. The county also sends a separate “supplemental” bill for the rest of the tax year; it comes to you, not your lender, so set money aside for it. This practice uses about 1.15%: in Kern County, voter-approved bonds put the rate at about 1.1% to 1.2%, and fixed charges such as sewer and refuse are added on top. Check a recent bill for the parcel.' },
+        { label: `About ${usd(3_220)} a year (${usd(n.tax)} a month): about 1.1% of what you pay.`, verdict: 'best', why: 'In California, a sale resets the taxable value to the price you pay (Proposition 13). The seller’s bill was based on the value set when they bought in 2009, raised only a little each year, and on the homeowners’ exemption, which goes only to an owner who lives there. The county also sends a separate “supplemental” bill for the rest of the tax year; it comes to you, not your lender, so set money aside for it. This practice uses about 1.1%: in Kern County, voter-approved bonds put the rate at about 1.1% to 1.2%,* and fixed charges such as sewer and refuse are added on top. Check a recent bill for the parcel.' },
         { label: '$2,050: that’s what the listing says.', verdict: 'poor', why: 'That bill is on the seller’s old value. In California yours starts from your price, and the gap comes out of your cash flow every month.' },
         { label: 'Ask the county assessor’s and tax collector’s offices for the rate and any special assessments, and budget from those.', verdict: 'ok', why: 'The right check before you offer. Until you have the numbers, budget about 1% of your price plus local charges, not the seller’s bill.' },
       ],
@@ -602,17 +602,17 @@ const UT: CaseConfig = {
   contractNote: 'The contract is the Utah Real Estate Purchase Contract (REPC). You and the seller write in the deadlines; the ones below are this practice contract’s. Missing one can cost you your earnest money.',
   contractRows: (n) => [
     ['Acceptance (Day 0)', 'The day the signed acceptance is delivered to you. The other deadlines count from it.'],
-    ['Earnest money', `${usd(n.earnest)}, to the title company within 4 calendar days after acceptance`],
+    ['Earnest money', `${usd(n.earnest)}, to your agent’s brokerage within 4 calendar days after Acceptance (the brokerage deposits it in its trust account), unless the contract names a title company`],
     ['Due Diligence Deadline', 'Day 10. You can cancel for any reason, in writing, before then. If you don’t, the due diligence condition is waived.'],
-    ['Financing & Appraisal Deadline', 'Day 21. You can cancel by then if the appraisal comes in under the price.'],
+    ['Financing & Appraisal Deadline', 'Day 21. You can cancel by then if the appraisal comes in under the price, and get the earnest money back. If your loan fails after this deadline, the seller keeps the earnest money (REPC section 8.3(b)(iii)).'],
     ['Seller Disclosure Deadline', 'Day 3: the seller’s disclosures, including the HOA documents'],
     ['Settlement Deadline', 'Day 30'],
-    ['Counting days', 'Calendar days. Ask your agent what time of day each deadline ends and how a weekend or holiday is treated.'],
+    ['Counting days', 'Calendar days, starting the day after Acceptance. Each deadline ends at 5:00 p.m. Mountain Time on its date (REPC §21).'],
   ],
   dates: [
     { when: 'Day 0', what: 'Acceptance is delivered to you. Every deadline below counts from here.' },
     { when: 'Day 3', what: 'Seller Disclosure Deadline: the seller’s disclosures and the HOA documents.' },
-    { when: 'Within 4 calendar days after Day 0', what: 'Earnest money to the title company (confirm the instructions by phone first). You: the buyer.' },
+    { when: 'Within 4 calendar days after Day 0', what: 'Earnest money to your agent’s brokerage, which deposits it in its trust account (or to the title company, if the contract names one; confirm wire instructions by phone first). You: the buyer.' },
     { when: 'Day 10', what: 'Due Diligence Deadline: cancel, ask for changes, or go ahead, in writing. You, with your agent.' },
     { when: 'Day 21', what: 'Financing & Appraisal Deadline. You, with your lender and the appraisal.' },
     { when: 'Day 30', what: 'Settlement at the title company.' },
@@ -632,7 +632,7 @@ const UT: CaseConfig = {
   leaveAppraisal: 'Your appraisal condition lets you cancel by the Financing & Appraisal Deadline when the appraisal is under the price.',
   roofer: 'Wasatch Example Roofing',
   lienWhy: 'It’s a recorded claim against the house. In Utah, a contractor must record the lien within 180 days after the work is finished (90 days after a notice of completion, if one was filed), and sue to enforce it within 180 days after recording it (Utah Code 38-1a-502 and 38-1a-701). Either way, the title company wants it released or cleared on the record before closing. Ask the title officer how, and whether a lawsuit was filed.',
-  earnestPaid: 'to the title company within 4 calendar days after acceptance',
+  earnestPaid: 'to your agent’s brokerage within 4 calendar days after Acceptance (the brokerage deposits it in its trust account), unless the contract names a title company',
   earnestCredit: (n) => `${usd(n.earnest)} earnest money`,
   earnestShort: 'earnest money',
   rentRulesNote: 'Rules on deposits and entry are state law. The ones below are Utah’s, because this practice house is in Utah.',
@@ -653,8 +653,8 @@ const UT: CaseConfig = {
       id: 'ut-entry',
       prompt: 'In Utah, your tenant’s faucet leaks and you want to fix it. What notice do you give before going in?',
       choices: [
-        { label: 'At least 24 hours’ notice, unless the lease says otherwise or it’s an emergency.', verdict: 'best', why: 'That’s Utah’s rule (Utah Code 57-22-4). Put your entry terms in the lease.' },
-        { label: 'None. You own the house.', verdict: 'poor', why: 'Once it’s rented, the tenant has the right to possession. In Utah, give 24 hours’ notice unless the lease says otherwise or it’s an emergency.' },
+        { label: 'At least 24 hours’ notice, unless the lease says otherwise.', verdict: 'best', why: 'That’s Utah’s rule (Utah Code 57-22-4(2)). Put entry terms, including emergencies, in the lease.' },
+        { label: 'None. You own the house.', verdict: 'poor', why: 'Once it’s rented, the tenant has the right to possession. In Utah, give at least 24 hours’ notice unless the lease says otherwise (Utah Code 57-22-4(2)).' },
       ],
     },
   ],
@@ -1467,7 +1467,7 @@ function buildCase(c: CaseConfig) {
           id: 'good-deal',
           prompt: 'Was this a good purchase?',
           choices: [
-            { label: N.cashFlowWithReplacements > -75 ? 'It fits a long-term plan only: with the roof and water heater budgeted, the rent about covers the costs self-managed, and falls short with a manager. It doesn’t meet a monthly-income goal.' : `It fits a long-term plan only if you can add about ${$(-N.cashFlowWithReplacements)} a month: with the roof and water heater budgeted, the rent falls short even self-managed. It doesn’t meet a monthly-income goal.`, verdict: 'best', why: 'An honest answer. Appreciation and rent increases might help later, but they aren’t guaranteed, so they can’t close today’s budget gap.' },
+            { label: `It fits a long-term plan only if you can add about ${$(-N.cashFlowWithReplacements)} a month: with the roof and water heater budgeted, the rent falls short even self-managed. It doesn’t meet a monthly-income goal.`, verdict: 'best', why: 'An honest answer. Appreciation and rent increases might help later, but they aren’t guaranteed, so they can’t close today’s budget gap.' },
             { label: `Yes, it makes ${$(N.cashFlow)} a month, so it’s a great investment.`, verdict: 'poor', why: `That’s before any big repair or a vacant month. One $1,600 water heater takes ${N.cashFlow * 12 < 1_600 ? 'more than' : 'most of'} a year’s profit.` },
             { label: 'No. Any rental that doesn’t make $500 a month is a bad deal.', verdict: 'ok', why: 'A fine rule if your goal is income. This plan’s goal was long-term growth with rent covering costs.' },
           ],

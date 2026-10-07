@@ -37,7 +37,7 @@ export const WHERE_TO_LOOK: { title: string; what: string }[] = [
 /** What we've already built for a county, on this site. Other counties show the general guide until researched. */
 export const COUNTY_PAGES: Record<string, DealSource[]> = {
   'NV/Clark': [
-    { name: 'Live tax sales', url: '#/live', what: 'Clark County Treasurer tax-sale parcels and IRS sales, re-checked against the official lists.' },
+    { name: 'Live tax sales', url: '#/live', what: 'Upcoming county tax sales, plus Clark County and IRS parcels, re-checked against the official lists.' },
     { name: 'Bank-owned & government homes', url: '#/bank-owned', what: 'Where Clark County bank-owned and government homes are listed, and how each one sells.' },
     { name: 'Short sales', url: '#/short-sales', what: 'How short sales work in Nevada and how to find them through an agent.' },
     { name: 'Business assets & closures', url: '#/business-assets', what: 'Court, receiver and government sales of business property and equipment.' },
@@ -84,11 +84,11 @@ export const STATE_SALES: Record<StateCode, string[]> = {
   ],
   CA: [
     'Tax sales: the tax collector sells tax-defaulted property after 5 years (3 for nonresidential commercial), usually online.',
-    'Foreclosures: trustee auctions at least 3 months after the notice of default; on 1–4 unit homes, tenants and some buyers get 15 to 45 days to match the winning bid.',
+    'Foreclosures: trustee auctions at least 3 months after the notice of default; on 1–4 unit homes, tenants can match, and other eligible bidders can beat, the winning bid within 15 to 45 days.',
   ],
   AZ: [
-    'Tax sales: the county treasurer sells tax liens, not property, each February; bidders bid the interest rate down from 16%.',
-    'Foreclosures: trustee auctions no sooner than the 91st day after the notice of sale; the winner pays by 5 p.m. the next business day.',
+    'Tax sales: the county treasurer sells tax liens, not property, each February; bidders bid the interest rate down from 16%. Separately, the county board of supervisors auctions land the state already took by tax deed (A.R.S. 42-18301 to 42-18303).',
+    'Foreclosures: trustee auctions no sooner than the 91st day after the notice of sale; the winner pays by 5 p.m. the next business day, and the owner can’t redeem afterward (A.R.S. 33-811). One exception: if the sale wiped out a junior federal tax lien, the United States can redeem within 120 days (or the state period if longer); if the IRS wasn’t properly notified, its lien stays (26 USC 7425).',
   ],
   UT: [
     'Tax sales: the county auditor sells property in May or June after four years of unpaid taxes.',

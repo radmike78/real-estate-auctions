@@ -60,7 +60,7 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
     title: 'Holding and financing',
     redemption: true,
     fields: [
-      { k: 'redemptionMonths', label: 'Redemption wait', unit: 'mo', hint: 'Secure and maintain it; hold off on remodeling until it ends.', more: 'After some sales the former owner (and sometimes lenders) can buy the property back by repaying your price plus what the law adds. What’s repaid depends on the rule. Some repay reasonable upkeep and repairs (California court sales, Nevada HOA sales); Texas repays only repairs a code, an ordinance or an existing lease requires. Optional remodeling usually isn’t repaid,* so most buyers only secure, insure and maintain the property while they wait. Ask an attorney what you may do and what is repaid. This is the legal wait; your own plan can be longer. A shorter number here is only a what-if: the owner can still redeem until the legal deadline.' },
+      { k: 'redemptionMonths', label: 'Redemption wait', unit: 'mo', hint: 'Secure and maintain it; hold off on remodeling until it ends.', more: 'After some sales the former owner (and sometimes lenders) can buy the property back by repaying your price plus what the law adds. What’s repaid depends on the rule. Some repay reasonable upkeep and repairs (California court sales, Nevada HOA sales). Optional remodeling usually isn’t repaid,* so most buyers only secure, insure and maintain the property while they wait. Ask an attorney what you may do and what is repaid. This is the legal wait; your own plan can be longer. A shorter number here is only a what-if: the owner can still redeem until the legal deadline.' },
       { k: 'redemptionRatePct', label: 'Interest a redemption pays you', unit: '%/yr', hint: 'Set by the kind of sale.', when: (i) => i.redemptionMonths > 0 },
       { k: 'holdingMonths', label: 'Months to fix and sell', unit: 'mo', hint: 'After any redemption wait.', more: 'After a tax sale, resale may wait for a quiet title action. In Nevada, that’s the 2-year window after the Treasurer’s deed (NRS 361.600); other states’ waits are in their sale guides.' },
       { k: 'monthlyCarry', label: 'Monthly holding costs', unit: '$', hint: 'Taxes, insurance, utilities and any HOA dues, each month you own it. A listed property’s estimate leaves out HOA dues: add them.' },
@@ -158,6 +158,18 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const choices = saleKind ? redemptionChoicesFor(region.state, saleKind) : null;
   const hintFor = (f: Field) => (commercial && f.k === 'exitValue' ? 'Use the value by income above.' : f.k === 'transferTaxPer500' ? tax.hint : f.hint);
   const moreFor = (f: Field) => (f.k === 'transferTaxPer500' ? tax.more : f.k === 'holdingMonths' ? (offer ? undefined : !saleKind || saleKind === 'taxSale' ? taxSaleWait(region.state) : 'How long repairs and the resale take. If this sale has no redemption period, count from the day you get the deed; ask a title company early when it will insure the title for your buyer.') : f.more);
+  // What a Texas redemption repays, for the kind of sale chosen (every Texas rule when the kind isn't known).
+  const txRepaid = (): string => {
+    const taxSale = 'A Texas tax sale repays only repairs a code, an ordinance or an existing lease requires (Tax Code 34.21(g)(2)(A)(ii)).';
+    const loan = 'A Texas mortgage foreclosure has no redemption; a Texas property tax loan foreclosure repays the same costs a tax sale does (Tax Code 32.06(k)(2), 34.21(g)).';
+    const hoa = 'A Texas subdivision HOA sale repays no repairs (Property Code 209.011(e)(2)); a Texas condominium sale repays reasonable maintenance and leasing costs (Property Code 82.113(g)).';
+    if (saleKind === 'taxSale') return taxSale;
+    if (saleKind === 'trustee') return loan;
+    if (saleKind === 'hoa') return hoa;
+    return `${taxSale} ${hoa}`;
+  };
+  const moreForField = (f: Field) =>
+    f.k === 'redemptionMonths' && f.more && region.state === 'TX' ? f.more.replace('Optional remodeling', `${txRepaid()} Optional remodeling`) : moreFor(f);
   const uid = useId();
   function save(next: BidInputs) {
     if (!storeId) return;
@@ -321,10 +333,10 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                     </span>
                     <span className="calc-hint">
                       {hintFor(f) && <small className="muted" id={`${uid}-${f.k}-hint`}>{hintFor(f)}</small>}
-                      {moreFor(f) && (
+                      {moreForField(f) && (
                         <details className="calc-more">
                           <summary aria-label={`More about ${f.label}`}>?</summary>
-                          <p className="small">{moreFor(f)}</p>
+                          <p className="small">{moreForField(f)}</p>
                         </details>
                       )}
                     </span>
@@ -432,7 +444,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           </dl>
         )}
         {!r.noBidWorks && !needsValue && !offer && i.financedPct > 0 && i.redemptionMonths > 0 && (
-          <p className="calc-note small">Lenders rarely lend on a property while the owner can still redeem it, so plan to pay the full {w.bid} in cash and carry it until the redemption period ends. The return above is figured on the most cash you’ll have in at once.</p>
+          <p className="calc-note small">Lenders rarely lend on a property while the owner can still redeem it, so plan to pay the full {w.bid} in cash and carry it until the redemption period ends. The calculator still charges loan costs for the whole wait, as a cautious assumption. The return above is figured on the most cash you’ll have in at once.</p>
         )}
         {!r.noBidWorks && !needsValue && r.yearlyReturn !== null && totalMonths(i) > 12 && (
           <p className="calc-note small">This deal ties up your cash for {Math.round(totalMonths(i))} months, so compare the return per year with your other options, not just the profit.</p>
@@ -506,7 +518,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       <button type="button" hidden={resultsVisible || !calcInView} className={`calc-sticky${r.noBidWorks && !needsValue ? ' bad' : ''}`} onClick={() => document.getElementById(`${uid}-results`)?.scrollIntoView({ behavior: 'smooth' })}>
         <span>Walk-away price</span>
         <strong>{needsValue ? 'Enter a resale value' : cashShort ? 'Not enough cash' : r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
-        <span className="calc-sticky-go">See details ↓</span>
+        <span className="calc-sticky-go">See details&nbsp;↓</span>
       </button>
     </div>
   );

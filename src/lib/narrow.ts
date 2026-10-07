@@ -38,7 +38,7 @@ const STATE_Q: NarrowQuestion = {
     { value: 'UT', label: 'Utah' },
     { value: 'TX', label: 'Texas' },
   ],
-  suggest: () => ({ value: 'NV', why: 'Start with the state you live in or know best. Nevada has the most live sale data on DeedOwl today.' }),
+  suggest: () => ({ value: 'NV', why: 'Start with the state you live in or know best. Each state’s guides cover its own sales.' }),
 };
 
 const BUY_Q: NarrowQuestion = {

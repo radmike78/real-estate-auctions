@@ -135,7 +135,7 @@ export default function DecidePage() {
           <div className="decide-nav">
             {step > 0 && <button type="button" className="btn btn-secondary" onClick={() => setStep(Math.max(0, prevFrom(step)))}>← Back</button>}
             <button type="button" className="btn" disabled={!saved.answers[q.key]} onClick={() => setStep(nextFrom(step))}>
-              {nextFrom(step) >= QUESTIONS.length ? 'See my results →' : 'Next →'}
+              {nextFrom(step) >= QUESTIONS.length ? 'See my results\u00a0→' : 'Next\u00a0→'}
             </button>
           </div>
         </section>
@@ -149,7 +149,7 @@ export default function DecidePage() {
               {saved.answers.ready === 'debt'
                 ? 'Pay down high-interest debt before you buy. Card interest costs more than most deals earn, and a lender will count that debt against you.'
                 : 'Save an emergency fund before you buy. Every strategy has surprises, and without savings a vacancy or a repair can force you to borrow at high rates or sell at a loss.'}{' '}
-              Meanwhile, learn and practice for free. Never borrow on credit cards, home equity or a 401(k) to pay for courses or to bid. <a href="#/learn/red-flags">Seminar red flags →</a>
+              Meanwhile, learn and practice for free. Never borrow on credit cards, home equity or a 401(k) to pay for courses or to bid. <a href="#/learn/red-flags">Seminar red flags&nbsp;→</a>
             </OwlNote>
           )}
           <ol className="decide-matches">
@@ -163,7 +163,7 @@ export default function DecidePage() {
                     <div>
                       <h3>{m.strategy.title}</h3>
                       {i > 0 && m.cautions.length > 0 && <p className="decide-later">Possible later, once the gaps under “Watch” are resolved</p>}
-                      <p>{m.strategy.what} {m.strategy.key !== 'practice' && <a href={strategyHref(m.strategy.key)}>How it makes money →</a>}</p>
+                      <p>{m.strategy.what} {m.strategy.key !== 'practice' && <a href={strategyHref(m.strategy.key)}>How it makes money&nbsp;→</a>}</p>
                     </div>
                   </div>
                   {m.fits.length > 0 && <p className="decide-why"><strong>Fits</strong> {m.fits.join('; ')}.</p>}
@@ -184,7 +184,7 @@ export default function DecidePage() {
                           <input type="checkbox" checked={saved.done.includes(c.id)} onChange={() => toggle(c.id)} />
                           <span>{c.text}</span>
                         </label>
-                        {c.href && <a href={c.href}>{linkLabel(c.href)} →</a>}
+                        {c.href && <a href={c.href}>{linkLabel(c.href)}&nbsp;→</a>}
                       </li>
                     ))}
                   </ul>
@@ -205,7 +205,7 @@ export default function DecidePage() {
             </ul>
           </details>
           <div className="decide-nav">
-            <a className="btn" href="#/toolkit/buy-box">Next: write your buy box →</a>
+            <a className="btn" href="#/toolkit/buy-box">Next: write your buy box&nbsp;→</a>
             <button type="button" className="btn btn-secondary" onClick={() => setStep(0)}>Change my answers</button>
             <button
               type="button"

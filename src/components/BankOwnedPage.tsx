@@ -25,7 +25,7 @@ function SourceCard({ s }: { s: ReoSource }) {
   return (
     <li className="reo-card">
       <div className="reo-owner">{s.owner}</div>
-      <h3><a href={href} target="_blank" rel="noopener noreferrer">{s.name.slice(0, cut)}<span className="nowrap">{s.name.slice(cut)} ↗</span></a></h3>
+      <h3><a href={href} target="_blank" rel="noopener noreferrer">{s.name.slice(0, cut)}<span className="nowrap">{s.name.slice(cut)}&nbsp;↗</span></a></h3>
       <p>{s.what}</p>
       <dl>
         <div className="reo-how"><dt>How to buy</dt><dd>{s.howToBuy}</dd></div>
@@ -95,7 +95,7 @@ export const sectionsFor = (cls: ClassFilter): DrillSection[] => [
     <p>
       Most banks don’t post their homes on their own sites. They hire a local agent who lists them on the MLS, the database agents use. Wells
       Fargo, for example, no longer runs a public list. A buyer’s agent can set up an MLS search for “bank-owned” or “REO” homes in the ZIP codes you
-      want. <a href="#/pros/agent">How to find an agent →</a>
+      want. <a href="#/pros/agent">How to find an agent&nbsp;→</a>
     </p>,
   ),
   {
@@ -196,7 +196,7 @@ export default function BankOwnedPage({ section }: { section?: string }) {
           <p className="bo-guides-label"><strong>How this sale works, step by step</strong></p>
           <div className="bo-guides-links">
             {STATES.filter((s) => !state || s.code === state).map((s) => (
-              <a key={s.code} className="btn btn-secondary" href={REO_GUIDE[s.code]}>{s.name} bank-owned (REO) guide →</a>
+              <a key={s.code} className="btn btn-secondary" href={REO_GUIDE[s.code]}>{s.name} bank-owned (REO) guide&nbsp;→</a>
             ))}
           </div>
         </div>

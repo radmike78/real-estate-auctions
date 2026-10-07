@@ -1,4 +1,4 @@
-// "Find a pro": a beginner's guide to the professionals in a forced-sale purchase — what each one does, when you
+// "Your team": a beginner's guide to the professionals in a forced-sale purchase — what each one does, when you
 // need them, how to find one and what to ask. It teaches; it doesn't vouch for anyone. Each entry names the state
 // office that licenses that kind of professional so people can look someone up themselves before hiring.
 

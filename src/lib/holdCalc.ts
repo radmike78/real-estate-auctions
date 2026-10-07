@@ -128,6 +128,8 @@ export interface HoldResult {
   cashLimit: number | null; // the cash you said you can bring, if any
   /** A later refinance whose payment is more than the income: no price works with that loan, though a smaller one might. */
   loanTooBig: boolean;
+  /** A return target is set, yet even a $1 billion price meets it: almost always a typo in the rent or costs. */
+  overCap: boolean;
 }
 
 function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, cashFlow: number) => number, minDscr: number, reserves = 0, onPrice = false, carryMonths = 0): HoldResult {
@@ -143,6 +145,7 @@ function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, c
   const dscrOk = (m: { debtService: number }) => !(nz(minDscr) > 0 && m.debtService > 0) || noi / m.debtService >= nz(minDscr);
   let returnBid: number;
   let dscrBinds = false;
+  let overCap = false;
   if (!onPrice) {
     // A later refinance doesn't change with the price: the limit is a straight line.
     const m = at(0);
@@ -158,7 +161,11 @@ function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, c
     const next = at(returnBid + 1);
     dscrBinds = returnBid < SEARCH_MAX && next.cashFlow > 0 && !dscrOk(next) && allInAt(returnBid + 1) <= limit(next.loanNet, next.cashFlow);
     // No target (or none that binds) and no loan to grow: the return sets no price limit, same as the refinance case.
-    if (returnBid >= SEARCH_MAX) returnBid = Infinity;
+    if (returnBid >= SEARCH_MAX) {
+      returnBid = Infinity;
+      // With a target that would bind, the search only stopped at its $1 billion ceiling.
+      overCap = Number.isFinite(limit(at(SEARCH_MAX).loanNet, at(SEARCH_MAX).cashFlow));
+    }
   }
   // Your cash covers everything you pay before any later refinance; with a purchase loan, everything but the loan.
   const cash = nz(i.cashAvailable);
@@ -189,6 +196,7 @@ function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, c
     cashOnCash: cashLeft > 0 ? cashFlow / cashLeft : null,
     capOnCost: allIn > 0 ? noi / allIn : null,
     loanTooBig: !onPrice && refi.debtService > 0 && refi.cashFlow <= 0 && noi - reserves > 0,
+    overCap: overCap && !Number.isFinite(maxBid),
   };
 }
 
@@ -409,6 +417,8 @@ export const HOLD_SELL_DEFAULTS: HoldSellInputs = { years: 5, appreciationPct: 3
  * costs and the loan payoff, and the return on the cash you put in. Before income tax.
  */
 export function holdAndSell(i: RentInputs, price: number, h: HoldSellInputs, onPrice = false) {
+  // With neither a price nor a value there's nothing to buy or sell: no result, rather than a "profit" on a $0 home.
+  if (!(nz(price) > 0) && !(nz(i.value) > 0)) return null;
   const base = rentAtPrice(i, price, onPrice);
   const years = Math.min(30, Math.max(1, Math.round(nz(h.years) || 1)));
   const grow = 1 + nz(h.rentGrowthPct) / 100;

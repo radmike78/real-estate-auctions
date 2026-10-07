@@ -1,5 +1,6 @@
 import { useState, type CSSProperties } from 'react';
-import type { BuyerChecklist } from '../lib/buyerChecklists';
+import { detailForState, type BuyerChecklist } from '../lib/buyerChecklists';
+import { useMyState } from '../lib/myState';
 
 // Checklist key → Nevada playbook with the full step-by-step process.
 const PLAYBOOK_FOR: Record<string, string> = { tax: 'tax', sid: 'sid', foreclosure: 'foreclosure', reo: 'reo', commercial: 'commercial', hoa: 'hoa', sheriff: 'sheriff', short: 'short', pre: 'foreclosure' };
@@ -23,6 +24,7 @@ export default function BuyerChecklistBox(props: { list: BuyerChecklist; variant
 
 function ChecklistInner({ list, variant = 'light', playbook: forced }: { list: BuyerChecklist; variant?: 'light' | 'wide'; playbook?: string }) {
   const [done, setDone] = useState<number[]>(() => load(list.key));
+  const [state] = useMyState();
   // Commercial and land versions share their sale type's playbook (keys like "tax-commercial-land").
   const playbook = forced ?? PLAYBOOK_FOR[list.key.replace(/-(commercial|land)(-.*)?$/, '')];
 
@@ -57,7 +59,7 @@ function ChecklistInner({ list, variant = 'light', playbook: forced }: { list: B
       </div>
       {list.official && (
         <div className="checklist-official">
-          <a className="btn" href={list.official.href} target="_blank" rel="noopener noreferrer">{list.official.label} ↗</a>
+          <a className="btn" href={list.official.href} target="_blank" rel="noopener noreferrer">{list.official.label}&nbsp;↗</a>
           <span>{list.official.note}</span>
         </div>
       )}
@@ -68,15 +70,15 @@ function ChecklistInner({ list, variant = 'light', playbook: forced }: { list: B
               <input type="checkbox" checked={done.includes(i)} onChange={() => toggle(i)} />
               <span>
                 <strong>{it.text}</strong>
-                {it.detail && <small>{it.detail}</small>}
+                {detailForState(it, state) && <small>{detailForState(it, state)}</small>}
               </span>
             </label>
           </li>
         ))}
       </ul>
       <div className="checklist-links">
-        {playbook && <a className="checklist-link" href={`#/playbooks/${playbook}`}>Full guide: every step, what stays, mistakes, your team →</a>}
-        {list.link && <a className="checklist-link" href={list.link.href}>{list.link.label} →</a>}
+        {playbook && <a className="checklist-link" href={`#/playbooks/${playbook}`}>Full guide: every step, what stays, mistakes, your team&nbsp;→</a>}
+        {list.link && <a className="checklist-link" href={list.link.href}>{list.link.label}&nbsp;→</a>}
       </div>
     </section>
   );

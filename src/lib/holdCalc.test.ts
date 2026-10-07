@@ -150,6 +150,14 @@ describe('no target return on a purchase without a loan', () => {
   it('sets no price limit instead of the search ceiling', () => {
     expect(rentMaxBid({ ...RENT_DEFAULTS, targetCocPct: 0, loanPct: 0 }, true).maxBid).toBe(Infinity);
     expect(rentMaxBid({ ...RENT_DEFAULTS, targetCocPct: 0, loanPct: 75 }, true).maxBid).toBeLessThan(1e9);
+    expect(rentMaxBid({ ...RENT_DEFAULTS, targetCocPct: 0, loanPct: 0, cashAvailable: 0 }, true).overCap).toBe(false);
+  });
+
+  it('with a target set, a price past the $1 billion search ceiling is flagged, not shown as "no limit"', () => {
+    const r = rentMaxBid({ ...RENT_DEFAULTS, targetCocPct: 8, loanPct: 0, cashAvailable: 0, monthlyRent: 1e9 }, true);
+    expect(r.maxBid).toBe(Infinity);
+    expect(r.overCap).toBe(true);
+    expect(rentMaxBid({ ...RENT_DEFAULTS, targetCocPct: 8, loanPct: 0, cashAvailable: 0 }, true).overCap).toBe(false);
   });
 });
 

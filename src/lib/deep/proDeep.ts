@@ -955,7 +955,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Bids: the NSCB recommends getting at least three bids. It takes time but helps you spot overpricing.",
       "Permits and inspections, which licensed contractors normally pull. Ask who pays.",
       "Lien risk: if your contractor doesn’t pay a supplier, the supplier can file a lien on your home. In Utah, a homeowner can get a Certificate of Compliance to have it removed. That works if they hired a licensed contractor under a written contract and paid in full. In Texas, the owner must hold back 10% of the contract price until 30 days after the work is done. That money covers unpaid workers and suppliers, and if you don’t hold it back, they can claim a lien for that amount (Property Code 53.101 and 53.105).",
-      "Recovery fund limits: Arizona’s fund pays at most $30,000 per claim and $200,000 per contractor license (ARS 32-1139). It has prorated (shared out) awards when many people claim against one license."
+      "Recovery fund limits: Arizona’s fund pays at most $30,000 per claim and $200,000 per contractor license (ARS 32-1132.01, 32-1139). It has prorated (shared out) awards when many people claim against one license."
     ],
     money: [
       "Pay in stages tied to finished work, not up front. Nevada's contractor board (NSCB) tells homeowners to put payment schedules in a detailed contract and never pay in cash.",
@@ -1001,7 +1001,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         }
       },
       {
-        text: "Arizona’s recovery fund pays at most $30,000 per claim and $200,000 per contractor license (ARS 32-1139).",
+        text: "Arizona’s recovery fund pays at most $30,000 per claim and $200,000 per contractor license (ARS 32-1132.01, 32-1139).",
         source: {
           label: "AZFamily (KTVK/KPHO): Some Phoenix-area victims of Unity Pools get partial reimbursement from Arizona’s Recovery Fund (Apr. 3, 2025)",
           url: "https://www.azfamily.com/2025/04/03/some-phoenix-area-victims-unity-pools-get-partial-reimbursement-arizonas-recovery-fund/"

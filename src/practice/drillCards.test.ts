@@ -40,6 +40,22 @@ describe('drill cards', () => {
     }
   });
 
+  it('never repeats one big label within a row of drills (same state, or the same group)', () => {
+    const STATE = /Nevada|California|Arizona|Utah|Texas|-(nv|ca|az|ut|tx)$/;
+    const rowOf = (d: (typeof DRILLS)[number]) => {
+      const c = drillCard(d);
+      if (['commercial', 'land', 'manufactured', 'flip'].includes(c.group)) return c.group;
+      const m = `${d.title} ${d.id}`.match(STATE);
+      return m ? (m[0].startsWith('-') ? m[1] : m[0]) : 'any';
+    };
+    const seen = new Map<string, string>();
+    for (const d of DRILLS) {
+      const k = `${rowOf(d).toLowerCase().slice(0, 2)}|${drillCard(d).sale}`;
+      expect(seen.get(k), `${d.id} repeats ${k}`).toBeUndefined();
+      seen.set(k, d.id);
+    }
+  });
+
   it('drops the chosen state from drill text, fixing the article', () => {
     expect(withoutState('A Texas sheriff is selling a rental house.', 'TX')).toBe('A sheriff is selling a rental house.');
     expect(withoutState('A Texas HOA is selling a house.', 'TX')).toBe('An HOA is selling a house.');

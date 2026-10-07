@@ -15,7 +15,7 @@ function Point({ p }: { p: WhyPoint }) {
       {example && (
         <span className="why-example">
           <strong>Fact:</strong> <Cited text={example} />
-          {p.source && <> <a href={p.source.url} target="_blank" rel="noopener noreferrer">{p.source.label} ↗</a></>}
+          {p.source && <> <a href={p.source.url} target="_blank" rel="noopener noreferrer">{p.source.label}&nbsp;↗</a></>}
         </span>
       )}
     </li>
@@ -37,7 +37,7 @@ export default function WhyBlock({ title, yes, no, yesLabel = 'Why you would', n
           <ul>{no.map((p) => <Point key={p.text} p={p} />)}</ul>
         </div>
       </div>
-      {more && <p className="why-more"><a className="btn" href={more.href}>{more.label} →</a></p>}
+      {more && <p className="why-more"><a className="btn" href={more.href}>{more.label}&nbsp;→</a></p>}
     </div>
   );
 }

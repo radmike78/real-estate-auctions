@@ -43,14 +43,14 @@ export default function HomeownerHelpPage() {
           ? <>On this page: free help, the deadlines in {stateName}, scams to watch for, tenants’ rights, and how to claim money left over after a sale.</>
           : <>This page covers Nevada, California, Arizona, Utah and Texas: free help, the deadlines in your state, scams to watch for, tenants’ rights, and how to claim money left over after a sale. Pick your state to see only its rules.</>}
       </p>
-      <p className="page-starter"><a className="btn" href="https://answers.hud.gov/housingcounseling/" {...ext}>Find a free HUD-approved housing counselor ↗</a> <span className="muted">The best first call, in any state.</span></p>
+      <p className="page-starter"><a className="btn" href="https://answers.hud.gov/housingcounseling/" {...ext}>Find a free HUD-approved housing counselor&nbsp;↗</a> <span className="muted">The best first call, in any state.</span></p>
       {stateName && <p className="hh-showing"><strong>Showing {stateName} rules.</strong> Pick another state to see its rules instead.</p>}
       <StatePicker label="Where is the home?" />
 
       <section>
         <h2>Free, trustworthy help: start here</h2>
         <ul className="hh-lead">
-          <li><strong>Housing counselor: </strong>In every state, a HUD-approved counselor can help you talk to your servicer about a repayment plan, a loan modification or a short sale, usually for free. Call HUD’s line at {phoneLinks('(800) 569-4287')}, or search by ZIP code. <span className="hh-links"><a href="https://answers.hud.gov/housingcounseling/" {...ext}>Find a counselor (HUD) ↗</a> <a href="https://www.consumerfinance.gov/find-a-housing-counselor/" {...ext}>CFPB counselor search ↗</a></span></li>
+          <li><strong>Housing counselor: </strong>In every state, a HUD-approved counselor can help you talk to your servicer about a repayment plan, a loan modification or a short sale, usually for free. Call HUD’s line at {phoneLinks('(800) 569-4287')}, or search by ZIP code. <span className="hh-links"><a href="https://answers.hud.gov/housingcounseling/" {...ext}>Find a counselor (HUD)&nbsp;↗</a> <a href="https://www.consumerfinance.gov/find-a-housing-counselor/" {...ext}>CFPB counselor search&nbsp;↗</a></span></li>
         </ul>
         <ByState lines={HELP} />
       </section>
@@ -98,11 +98,11 @@ export default function HomeownerHelpPage() {
 
       <section>
         <h2>If your home was sold: claim any money left over</h2>
-        <p>If your home sold at a tax sale or a foreclosure (trustee’s) sale for more than what was owed, the extra money, called surplus or excess proceeds, goes, in most cases, to lienholders in order of priority and then to you. You can usually claim it yourself, without paying a finder; some claims go through a court and have a filing fee. In 2023 the U.S. Supreme Court ruled that when a county keeps more than the tax debt, it takes property without just compensation (<a href="https://www.law.cornell.edu/supremecourt/text/22-166" {...ext}>Tyler v. Hennepin County ↗</a>).</p>
+        <p>If your home sold at a tax sale or a foreclosure (trustee’s) sale for more than what was owed, the extra money, called surplus or excess proceeds, goes, in most cases, to lienholders in order of priority and then to you. You can usually claim it yourself, without paying a finder; some claims go through a court and have a filing fee. In 2023 the U.S. Supreme Court ruled that when a county keeps more than the tax debt, it takes property without just compensation (<a href="https://www.law.cornell.edu/supremecourt/text/22-166" {...ext}>Tyler v. Hennepin County&nbsp;↗</a>).</p>
         <ul>
-          <li><strong>“Finders”: </strong>People who find your name in sale records may offer to get the money for a share of it. Ask the county treasurer or the trustee first: you can usually claim directly without paying anyone a share, though some procedures, such as a court petition, have a filing fee. Read any agreement before you sign, and never sign one you don’t understand.</li>
+          <li><strong>“Finders”: </strong>People who find your name in sale records may offer to get the money for a share of it. Ask {state === 'TX' ? 'the clerk of the court that ordered the sale, or the trustee,' : state ? 'the county treasurer or the trustee' : 'the county treasurer (in Texas, the clerk of the court that ordered the sale) or the trustee'} first: you can usually claim directly without paying anyone a share, though some procedures, such as a court petition, have a filing fee. Read any agreement before you sign, and never sign one you don’t understand.</li>
           {SURPLUS.filter((x) => showFor(state, x.text)).map((x) => (
-            <li key={x.text}><strong>{x.topic}: </strong><Cited text={dropStateLead(x.text, state)} plain={phoneLinks} /> {x.link && <a href={x.link.url} {...ext}>{x.link.label} ↗</a>}</li>
+            <li key={x.text}><strong>{x.topic}: </strong><Cited text={dropStateLead(x.text, state)} plain={phoneLinks} /> {x.link && <a href={x.link.url} {...ext}>{x.link.label}&nbsp;↗</a>}</li>
           ))}
         </ul>
       </section>

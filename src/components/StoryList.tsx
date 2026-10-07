@@ -14,7 +14,7 @@ function StoryCard({ s, place, repeat }: { s: Story; place?: string; repeat: boo
       <strong className="story-title">{s.title}</strong>
       <p>{s.happened}</p>
       <p className="story-lesson"><strong>Lesson:</strong> {s.lesson}</p>
-      <a href={s.source.url} target="_blank" rel="noopener noreferrer">{repeat ? `${shortLabel(s.source.label)} (same article)` : s.source.label} ↗</a>
+      <a href={s.source.url} target="_blank" rel="noopener noreferrer">{repeat ? `${shortLabel(s.source.label)} (same article)` : s.source.label}&nbsp;↗</a>
     </li>
   );
 }
@@ -50,7 +50,7 @@ export default function StoryList({ stories, grid, placeOf }: { stories: Story[]
               <strong className="story-title">{s.title}</strong>
               <p>{s.happened}</p>
               <p className="story-lesson"><strong>Lesson:</strong> {s.lesson}</p>
-              <a href={s.source.url} target="_blank" rel="noopener noreferrer">{s.source.label} ↗</a>
+              <a href={s.source.url} target="_blank" rel="noopener noreferrer">{s.source.label}&nbsp;↗</a>
             </li>
           ))}
         </ul>

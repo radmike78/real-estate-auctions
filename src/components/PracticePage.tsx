@@ -1,5 +1,4 @@
-import PracticeStateNote, { drillFor } from './PracticeStateNote';
-import { drillById } from '../practice/drills';
+import PracticeStateNote from './PracticeStateNote';
 import { getMyState, useMyState } from '../lib/myState';
 import { useMarkStep } from '../lib/path';
 import PathNext from './PathNext';
@@ -46,10 +45,6 @@ const WAYS: { id: string; icon: Topic; title: string; time: string; what: string
   { id: 'practice-drills', icon: 'tax', title: 'Quick drills', time: 'One short deal each', what: 'Work 2 to 4 missions on one made-up deal, then decide: Buy, Investigate or Pass.', go: 'See the drills' },
 ];
 
-/** "A Texas tax sale: the house you might have to give back" → "Texas tax sale" and "The house you might have to give back". */
-const drillName = (t: string) => t.split(':')[0].replace(/^An? /, '');
-const drillQuestion = (t: string) => { const q = t.split(':').slice(1).join(':').trim(); return q ? q[0].toUpperCase() + q.slice(1) : ''; };
-
 /** One plain line, not a banner: readers skip anything styled like a notice. */
 export function PracticeRibbon() {
   return (
@@ -73,6 +68,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
   const [cls, setCls] = useState<ClassFilter>('all');
   const chosen = sale && (SALE_ORDER as string[]).includes(sale) ? (sale as SaleKey) : null;
   const titleOf = (s: SaleKey) => playbookByKey(s)?.title ?? s;
+  const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
   useLastActivity(chosen ? `#/practice?sale=${chosen}` : '#/practice', chosen ? `Practice: ${titleOf(chosen)}` : 'Practice');
   // /practice/drills opens at the drills (step 3), unless the list is about to restore the reader's place in it.
   useEffect(() => {
@@ -86,11 +82,40 @@ export default function PracticePage({ sale }: { sale?: string }) {
   const caseStarted = caseP.done.length > 0;
   const caseNext = (practiceCase.stages.find((st) => !st.tasks.every((t) => caseP.done.includes(`${st.key}/${t.id}`))) ?? practiceCase.stages[0]).key;
   const myName = mine ? STATES.find((x) => x.code === mine)?.name ?? mine : null;
-  const myStateDrills = mine ? SALE_ORDER.map((s) => ({ sale: s, id: drillFor(mine, s) })).flatMap(({ sale: s, id }) => { const d = id ? drillById(id) : undefined; return d ? [{ sale: s, id: d.id, title: d.title }] : []; }) : [];
+  // A visitor from another state: these runs follow Nevada rules, so they sit behind one switch, and that state's own
+  // drills (step 3) come first.
+  const otherState = !!mine && mine !== 'NV';
+  // SID lien certificates are a Clark County, Nevada sale only: not offered to visitors from other states.
+  const auctionSales = SALE_ORDER.filter((s) => s !== 'sid' || !mine || mine === 'NV');
+  const auctionTiles = (
+    <div className="practice-sales">
+      {auctionSales.map((s, i) => {
+        const runs = PRACTICE_PROPERTIES.map((p) => buildScenario(s, p)).filter((x): x is NonNullable<typeof x> => !!x);
+        const pct = runs.map((r) => completion(r.id, r.stages.reduce((n, st) => n + st.tasks.length, 0)));
+        const done = pct.filter((x) => x === 1).length;
+        const started = pct.filter((x) => x > 0 && x < 1).length;
+        return (
+          <a key={s} href={`#/practice?sale=${s}`} className={`practice-sale-tile hue-${i % HUE_COUNT}`}>
+            <span className="sale-tile-head"><span className="drill-card-icon"><TopicIcon topic={SALE_TOPIC[s]} /></span><strong>{otherState ? cap(titleOf(s).replace(/^Nevada /, '')) : titleOf(s)}</strong></span>
+            {/* Behind "Practice with Nevada rules", the state isn't repeated on every card. */}
+            {!otherState && <span className="practice-applies">Applies to Nevada (Clark County)</span>}
+            <span className="muted">{SALE_BLURB[s]}</span>
+            <span className="practice-card-foot">
+              <span className="badge tone-info">{runs.length} {runs.length === 1 ? 'property' : 'properties'}</span>
+              {done > 0 && <span className="badge tone-go">{done} completed</span>}
+              {started > 0 && <span className="badge tone-info">{started} in progress</span>}
+              <span aria-hidden>→</span>
+            </span>
+          </a>
+        );
+      })}
+    </div>
+  );
   if (!chosen) {
     return (
       <main className="page practice">
         <PageHero
+          eyebrow={<span className="eyebrow">Step 4 of 6</span>}
           title={<>Practice <span className="grad">buying</span></>}
           sub="Buy a fictional property step by step, from research to the day after the sale."
         />
@@ -112,56 +137,22 @@ export default function PracticePage({ sale }: { sale?: string }) {
         <h2 id="practice-case" className="practice-step"><span aria-hidden>1</span> Buy a rental, start to finish</h2>
         <p className="practice-step-intro">Work one fictional purchase from your budget to the first months of renting it out. Read teaching versions of the paperwork (comparables, a loan quote, an inspection report, a title commitment, a closing statement), each with a guide to reading the real form, and make the calls when things go wrong. You finish with your own deal packet: a budget, a deadline calendar, an evidence log and your questions for each professional.</p>
         <div className="practice-case-go">
-          <a className="btn big" href={`#/practice/case${caseStarted ? `/${caseNext}` : ''}`}>{caseStarted ? 'Continue the purchase →' : 'Start the purchase →'}</a>
+          <a className="btn big" href={`#/practice/case${caseStarted ? `/${caseNext}` : ''}`}>{caseStarted ? 'Continue the purchase\u00a0→' : 'Start the purchase\u00a0→'}</a>
           <span className="practice-case-meta">About 45 minutes · {practiceCase.property} · {practiceCase.stateName} rules{practiceCase.state === 'TX' ? ', with the TREC contract' : ''}</span>
         </div>
-        <h2 id="practice-auction" className="practice-step"><span aria-hidden>2</span> Nevada auction practice: choose a kind of sale</h2>
+        <h2 id="practice-auction" className="practice-step"><span aria-hidden>2</span> {otherState ? 'Auction practice: choose a kind of sale' : 'Nevada auction practice: choose a kind of sale'}</h2>
         <p className="practice-step-intro">Buy a fictional property at one kind of sale, step by step, from research to the day after.</p>
         <p className="practice-nv-note" role="note">
-          <strong>Nevada (Clark County) practice.</strong> These sales follow Clark County, Nevada rules.{' '}
-          {myName && mine !== 'NV'
-            ? <>For {myName} rules, start with the {myName} drills just below, and read the <a href="#/playbooks">{myName} sale guides</a>.</>
-            : <>Other states’ rules are in the <a href="#/playbooks">sale guides</a>.</>}
+          {otherState
+            ? <>These step-by-step runs follow Clark County, Nevada rules. For your state, start with the <a href="#/practice" onClick={(e) => { e.preventDefault(); document.getElementById('practice-drills')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>{myName} drills in step 3</a>, and read the <a href="#/playbooks">{myName} sale guides</a>.</>
+            : <><strong>Nevada (Clark County) practice.</strong> These sales follow Clark County, Nevada rules. Other states’ rules are in the <a href="#/playbooks">sale guides</a>.</>}
         </p>
-        {/* A visitor from another state gets that state's drills for the same kinds of sale first. */}
-        {mine && mine !== 'NV' && myStateDrills.length > 0 && (
-          <div className="practice-mystate">
-            <h3 className="practice-mystate-head">{myName} rules first: drills for these kinds of sale</h3>
-            <div className="practice-sales">
-              {myStateDrills.map(({ sale: s, id, title }, i) => (
-                <a key={id} href={`#/practice/drills/${id}`} className={`practice-sale-tile hue-${(i + 3) % HUE_COUNT}`}>
-                  <span className="sale-tile-head"><span className="drill-card-icon"><TopicIcon topic={SALE_TOPIC[s]} /></span><strong>{drillName(title)}</strong></span>
-                  <span className="practice-applies practice-applies-mine">Applies to {myName}</span>
-                  <span className="muted">{drillQuestion(title)}</span>
-                  <span className="practice-card-foot"><span className="practice-way-go">Open the {myName} drill</span><span aria-hidden>→</span></span>
-                </a>
-              ))}
-            </div>
-            <h3 className="practice-mystate-head">Nevada (Clark County) practice runs</h3>
-          </div>
-        )}
-        <div className="practice-sales">
-          {/* SID lien certificates are a Clark County, Nevada sale only: not offered to visitors from other states. */}
-          {SALE_ORDER.filter((s) => s !== 'sid' || !mine || mine === 'NV').map((s, i) => {
-            const runs = PRACTICE_PROPERTIES.map((p) => buildScenario(s, p)).filter((x): x is NonNullable<typeof x> => !!x);
-            const pct = runs.map((r) => completion(r.id, r.stages.reduce((n, st) => n + st.tasks.length, 0)));
-            const done = pct.filter((x) => x === 1).length;
-            const started = pct.filter((x) => x > 0 && x < 1).length;
-            return (
-              <a key={s} href={`#/practice?sale=${s}`} className={`practice-sale-tile hue-${i % HUE_COUNT}`}>
-                <span className="sale-tile-head"><span className="drill-card-icon"><TopicIcon topic={SALE_TOPIC[s]} /></span><strong>{titleOf(s)}</strong></span>
-                <span className="practice-applies">Applies to Nevada (Clark County)</span>
-                <span className="muted">{SALE_BLURB[s]}</span>
-                <span className="practice-card-foot">
-                  <span className="badge tone-info">{runs.length} {runs.length === 1 ? 'property' : 'properties'}</span>
-                  {done > 0 && <span className="badge tone-go">{done} completed</span>}
-                  {started > 0 && <span className="badge tone-info">{started} in progress</span>}
-                  <span aria-hidden>→</span>
-                </span>
-              </a>
-            );
-          })}
-        </div>
+        {otherState ? (
+          <details className="practice-nv-runs">
+            <summary>Practice with Nevada rules <span className="muted">({auctionSales.length} kinds of sale)</span></summary>
+            {auctionTiles}
+          </details>
+        ) : auctionTiles}
         <h2 id="practice-drills" className="practice-step"><span aria-hidden>3</span> Quick drills: would you buy it?</h2>
         <p className="practice-step-intro"><strong>Each drill is one short, made-up deal.</strong> Work through 2 to 4 missions (value it, check the rent, price the repairs, find the liens, run the numbers), then decide: Buy, Investigate or Pass. Missions are rehearsal: finishing them builds skill, not readiness to buy a real property.</p>
         <DrillList />

@@ -77,13 +77,20 @@ const TRUSTEE_GUIDES: [code: string, name: string, href: string][] = [
   ['TX', 'Texas', '#/playbooks/txforeclosure'],
 ];
 
+/** The county office that holds notices: the county clerk in Texas, the county recorder elsewhere. */
+function NoticeOffice() {
+  const [mine] = useMyState();
+  if (mine === 'TX') return <>county clerk</>;
+  return <>county recorder{mine ? '' : ' (in Texas, the county clerk)'}</>;
+}
+
 /** Trustee-sale guides: just the visitor's state once one is chosen. */
 function TrusteeGuides() {
   const [mine] = useMyState();
   const shown = TRUSTEE_GUIDES.filter(([code]) => !mine || code === mine);
   return (
     <ul>
-      <li>Trustee sales: {shown.map(([code, name, href], i) => <span key={code}>{i > 0 && ' · '}<a href={href}>{mine ? `${name} trustee sale guide →` : name}</a></span>)}</li>
+      <li>Trustee sales: {shown.map(([code, name, href], i) => <span key={code}>{i > 0 && ' · '}<a href={href}>{mine ? `${name} trustee sale guide\u00a0→` : name}</a></span>)}</li>
       <li>After the sale: <a href="#/bank-owned">bank-owned homes</a></li>
     </ul>
   );
@@ -104,7 +111,7 @@ export const GUIDE: DrillSection[] = [
     summary: 'Which county office records them, and where they are posted and published',
     content: () => (
       <>
-        <p>Notices are public records. Follow the property through the county recorder and the trustee named on the notice, never through the owner.</p>
+        <p>Notices are public records. Follow the property through the <NoticeOffice /> and the trustee named on the notice, never through the owner.</p>
         <ByState lines={WHERE} />
       </>
     ),
@@ -153,18 +160,21 @@ export const GUIDE: DrillSection[] = [
 
 export default function PreForeclosurePage({ initialQuery = '', section }: { initialQuery?: string; section?: string }) {
   rememberList('#/pre-foreclosures', 'Back to the pre-foreclosure tracker');
+  const [myState] = useMyState();
   const now = useMemo(() => new Date(), []);
   const rows: Row[] = useMemo(
     () =>
       PROPERTIES.map((p) => ({ p, t: foreclosureTrack(p, now) }))
         .filter((r): r is Row => r.t !== null)
+        // We track Clark County, Nevada notices only so far: another state's visitors see no Nevada homes.
+        .filter((r) => !myState || r.p.state === myState)
         .sort(
           (a, b) =>
             Number(STAGE_INFO[a.t.stage].ended) - Number(STAGE_INFO[b.t.stage].ended) ||
             (a.t.saleAt ?? '9999').localeCompare(b.t.saleAt ?? '9999') ||
             b.t.defaultRecordedOn.localeCompare(a.t.defaultRecordedOn),
         ),
-    [now],
+    [now, myState],
   );
   const [watch, setWatch] = useState(loadWatch);
   const [q, setQ] = useState(initialQuery);
@@ -192,7 +202,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
   });
   const guideOpen = GUIDE.some((g) => g.key === section);
   const changed = rows.filter((r) => watch[r.p.id] && watch[r.p.id] !== r.t.stage);
-  const [myState] = useMyState();
+  const otherGuide = TRUSTEE_GUIDES.find(([code]) => code === myState);
   const stateName = myState ? stateByCode(myState)?.name : null;
   // Once a state is chosen, the guide names only that state.
   const sections = stateName
@@ -212,9 +222,13 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
 
       {!guideOpen && rows.length === 0 && (
         <EmptyState title="No notices to track yet">
-          <p>{myState && myState !== 'NV'
-            ? `${stateName} notices aren’t connected yet. You can find them at the county clerk or recorder: “Where to find notices” below says where.`
-            : 'Notices of default and sale will appear here once our feed of Clark County Recorder filings is connected.'}</p>
+          {myState === 'TX' ? (
+            <p>We don’t track Texas notices yet. Texas notices of sale are filed with the county clerk and posted on the county’s website at least 21 days before the first-Tuesday sale (Property Code 51.002(b), (f-1)). “Where to find notices” below says more.</p>
+          ) : myState && myState !== 'NV' ? (
+            <p>We track Clark County, Nevada notices only so far. {otherGuide ? <>Our <a href={otherGuide[2]}>{otherGuide[1]} trustee sale guide</a> and “Where to find notices” below say where {stateName} notices are filed.</> : <>“Where to find notices” below says where {stateName} notices are filed.</>}</p>
+          ) : (
+            <p>Notices of default and sale will appear here once our feed of Clark County Recorder filings is connected.</p>
+          )}
           <p>Until then, read how the process works in the guide below. Homes in foreclosure aren’t for sale until the trustee’s auction or later, when a bank owns them.</p>
           <p className="empty-next"><strong>Buying your first rental?</strong> You don’t have to wait for an auction. Most first rentals are bought from a listing: <a href="#/toolkit/buy-box">write your buy box</a>, ask a buyer’s agent for listings that match it, look at <a href="#/bank-owned">bank-owned homes</a>, or <a href="#/practice/case">practice a purchase</a> first.</p>
 
@@ -223,7 +237,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
 
       <div className="caution pre-no-contact" role="alert">
         <p><strong>Do not contact these homeowners.</strong> A notice of default means an owner is behind on payments, not that the home is for sale.</p>
-        <p>Ask only the trustee named on the notice, or the county recorder.</p>
+        <p>Ask only the trustee named on the notice, or the <NoticeOffice />.</p>
         <details>
           <summary>Why?</summary>
           <p>
@@ -236,7 +250,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
       </div>
 
 
-      {SHOW_SAMPLE_DATA && (
+      {SHOW_SAMPLE_DATA && rows.length > 0 && (
         <p className="muted">
           <strong>Sample data:</strong> a live feed of Clark County Recorder notices will be
           connected once a data-use agreement with the Recorder's office is in place.
@@ -316,7 +330,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
                     </dl>
                     <p className="small">{t.next}</p>
                   </details>
-                  <a className="small" href={`#/property/${p.id}`}>Property details →</a>
+                  <a className="small" href={`#/property/${p.id}`}>Property details&nbsp;→</a>
                 </li>
               );
             })}

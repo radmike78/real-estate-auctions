@@ -101,7 +101,7 @@ export default function TeamBuilder() {
                   <span className="team-body">
                     <strong>{g.title}</strong>
                     <span>{t.why}</span>
-                    <a href={`#/pros/${t.pro}`}>What they do and how to find one →</a>
+                    <a href={`#/pros/${t.pro}`}>What they do and how to find one&nbsp;→</a>
                   </span>
                 </li>
               );
@@ -109,7 +109,7 @@ export default function TeamBuilder() {
           </ol>
         </>
       )}
-      <p className="team-all"><a href="#/pros">See everyone who could be on your team →</a></p>
+      <p className="team-all"><a href="#/pros">See everyone who could be on your team&nbsp;→</a></p>
     </section>
   );
 }

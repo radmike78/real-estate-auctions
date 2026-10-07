@@ -28,7 +28,8 @@ const GROUP_OF: Record<Topic, TopicGroup> = {
 
 interface CardInfo {
   /** The kind of sale or deal, shown large: "HOA sale". Where the group already names the kind (commercial, land,
-   * manufactured homes), the specific property instead ("Retail strip", "10 acres"), so a row doesn't repeat one word. */
+   * manufactured homes), the specific property instead ("Retail strip", "10 acres"), so a row doesn't repeat one word.
+   * Drills that share a kind of sale and sit in the same row add a few words from their question ("IRS sale: paying later"). */
   sale: string;
   topic: Topic;
   /** The property or general type, shown small in the "Drill · …" line: "Condo", "Commercial". */
@@ -40,15 +41,15 @@ const CARDS: Record<string, CardInfo> = {
   'trustee-sale-nv': { sale: 'Trustee’s sale', topic: 'trustee', property: 'House' },
   'tax-deed-nv': { sale: 'Tax sale', topic: 'tax', property: 'House' },
   'hoa-sale-nv': { sale: 'HOA sale', topic: 'hoa', property: 'Condo' },
-  'hoa-fannie-nv': { sale: 'HOA sale', topic: 'hoa', property: 'Townhouse' },
+  'hoa-fannie-nv': { sale: 'HOA sale: a Fannie Mae loan', topic: 'hoa', property: 'Townhouse' },
   'hoa-sale-ca': { sale: 'HOA sale', topic: 'hoa', property: 'Condo' },
   'hoa-sale-az': { sale: 'HOA sale', topic: 'hoa', property: 'Home' },
   'hoa-sale-ut': { sale: 'HOA sale', topic: 'hoa', property: 'Townhome' },
   'sheriff-sale-nv': { sale: 'Sheriff’s sale', topic: 'sheriff', property: 'House' },
-  'irs-sale': { sale: 'IRS sale', topic: 'irs', property: 'House' },
-  'irs-deferred-payment': { sale: 'IRS sale', topic: 'irs', property: 'House' },
-  'irs-senior-liens': { sale: 'IRS sale', topic: 'irs', property: 'Duplex' },
-  'irs-redeemed': { sale: 'IRS sale', topic: 'irs', property: 'House' },
+  'irs-sale': { sale: 'IRS sale: the 180-day wait', topic: 'irs', property: 'House' },
+  'irs-deferred-payment': { sale: 'IRS sale: paying later', topic: 'irs', property: 'House' },
+  'irs-senior-liens': { sale: 'IRS sale: liens that stay', topic: 'irs', property: 'Duplex' },
+  'irs-redeemed': { sale: 'IRS sale: the owner buys it back', topic: 'irs', property: 'House' },
   'bank-owned': { sale: 'Bank-owned', topic: 'bank', property: 'House' },
   'short-sale': { sale: 'Short sale', topic: 'short', property: 'House' },
   'tax-lien-az': { sale: 'Tax lien', topic: 'taxlien', property: 'Vacant land' },
@@ -68,10 +69,10 @@ const CARDS: Record<string, CardInfo> = {
   'commercial-trustee-sale': { sale: 'Commercial trustee’s sale', topic: 'commercial', property: 'Retail building' },
   'commercial-receiver-sale': { sale: 'Receiver’s sale', topic: 'commercial', property: 'Office building' },
   'commercial-bank-auction': { sale: 'Commercial auction', topic: 'commercial', property: 'Industrial building' },
-  'flip-numbers': { sale: 'Fix and flip', topic: 'flip', property: 'House' },
-  'flip-delays': { sale: 'Fix and flip', topic: 'flip', property: 'House' },
-  'brrrr-appraisal': { sale: 'BRRRR', topic: 'brrrr', property: 'House' },
-  'brrrr-rates': { sale: 'BRRRR', topic: 'brrrr', property: 'House' },
+  'flip-numbers': { sale: 'Fix and flip: the profit', topic: 'flip', property: 'House' },
+  'flip-delays': { sale: 'Fix and flip: delays', topic: 'flip', property: 'House' },
+  'brrrr-appraisal': { sale: 'BRRRR: a low appraisal', topic: 'brrrr', property: 'House' },
+  'brrrr-rates': { sale: 'BRRRR: rates rise', topic: 'brrrr', property: 'House' },
   'manufactured-own-land': { sale: 'Double-wide on 1 acre', topic: 'manufactured', property: 'Manufactured home' },
   'manufactured-park-nv': { sale: 'Home in a park', topic: 'manufactured', property: 'Manufactured home' },
   'mobile-home-1974': { sale: '1974 mobile home', topic: 'manufactured', property: 'Mobile home' },

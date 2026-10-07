@@ -35,7 +35,7 @@ function OtherIrsSales({ sales, ago }: { sales: FeedFederalSale[]; ago: (iso: st
       <p>
         Outside Clark County these are shown as the IRS lists them: DeedOwl hasn’t matched the parcel to county records. Check the parcel
         number with the county assessor and read the IRS notice of sale before you bid. You get only the taxpayer’s interest, and senior
-        liens stay. <a href="#/playbooks/irs">How IRS sales work →</a>
+        liens stay. <a href="#/playbooks/irs">How IRS sales work&nbsp;→</a>
       </p>
       <div className="table-wrap">
         <table className="stack-table">
@@ -63,8 +63,8 @@ function OtherIrsSales({ sales, ago }: { sales: FeedFederalSale[]; ago: (iso: st
                   </td>
                   <td data-label="">
                     <span>
-                      {isFederalSaleUrl(f.sourceUrl) && <a href={f.sourceUrl} target="_blank" rel="noreferrer noopener">IRS notice ↗</a>}
-                      {assessor && <><br /><a href={assessor} target="_blank" rel="noreferrer noopener">County assessor ↗</a></>}
+                      {isFederalSaleUrl(f.sourceUrl) && <a href={f.sourceUrl} target="_blank" rel="noreferrer noopener">IRS notice&nbsp;↗</a>}
+                      {assessor && <><br /><a href={assessor} target="_blank" rel="noreferrer noopener">County assessor&nbsp;↗</a></>}
                     </span>
                   </td>
                 </tr>
@@ -85,7 +85,7 @@ function ClarkIrsSales({ sales, ago }: { sales: FeedFederalSale[]; ago: (iso: st
       <p>
         The IRS sells property it seized for unpaid federal taxes, and some sales are ordered by a federal court. You get only the
         taxpayer’s interest: mortgages and other senior liens stay, and after a seizure sale the owner has 180 days to buy it back.{' '}
-        <a href="#/playbooks/irs">How IRS sales work →</a>
+        <a href="#/playbooks/irs">How IRS sales work&nbsp;→</a>
       </p>
       <div className="table-wrap">
         <table className="stack-table">
@@ -111,7 +111,7 @@ function ClarkIrsSales({ sales, ago }: { sales: FeedFederalSale[]; ago: (iso: st
                 </td>
                 <td data-label="">
                   <span>
-                    {isFederalSaleUrl(f.sourceUrl) && <a href={f.sourceUrl} target="_blank" rel="noreferrer noopener">IRS notice ↗</a>}
+                    {isFederalSaleUrl(f.sourceUrl) && <a href={f.sourceUrl} target="_blank" rel="noreferrer noopener">IRS notice&nbsp;↗</a>}
                     <br />
                     <TrackButton target={`irs:${f.id}`} label={f.address ? `${f.address}, ${f.city} (parcel ${f.apns[0]})` : `${f.title} (parcel ${f.apns[0]})`} />
                   </span>

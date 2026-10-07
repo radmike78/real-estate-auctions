@@ -4,7 +4,6 @@ import { loadDeals, onDealsChange } from '../lib/deals';
 import { useSiteFeatures } from '../lib/siteFeatures';
 import { currentProgress, GUIDED, guidedNext, setMode, useJourney } from '../lib/journey';
 import { planNow } from '../lib/planNext';
-import { useMyState } from '../lib/myState';
 
 // The tasks people come for, one click away. Everything else is under More, grouped.
 // The logo is the link home.
@@ -21,7 +20,7 @@ const PRIMARY = [
 const MORE: { group: string; links: (readonly [string, string])[] }[] = [
   { group: 'Tools', links: [['#/deals', 'My deals'], ['#/alerts', 'Email alerts']] },
   { group: 'Learn', links: [['#/learn/reading', 'Recommended reading'], ['#/playbooks', 'Sale guides'], ['#/guides', 'Search the guides']] },
-  { group: 'Deal sources', links: [['#/live', 'Live sales (Clark County tax + IRS)'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures'], ['#/pre-foreclosures', 'Pre-foreclosures (not for sale)']] },
+  { group: 'Deal sources', links: [['#/live', 'Live tax sales'], ['#/bank-owned', 'Bank-owned & government homes'], ['#/short-sales', 'Short sales'], ['#/business-assets', 'Business assets & closures'], ['#/pre-foreclosures', 'Pre-foreclosures (not for sale)']] },
   { group: 'Get help', links: [['#/financing', 'Financing'], ['#/homeowner-help', 'Homeowners: free help']] },
   { group: 'About', links: [['#/about', 'How DeedOwl works']] },
 ];
@@ -37,9 +36,6 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
   // Only while the tour is My plan's next step (planNext.ts): with a real property or roadmap work under way, the one
   // Continue is in My plan, and this button would compete with it.
   const nextStep = mode === 'guided' && !inTask && planNow().source === 'starter' ? guidedNext(currentProgress()) : null;
-  const [mine] = useMyState();
-  // The Nevada listing pages cover Clark County only, so other states' visitors don't see them in the menu.
-  const groups = MORE.filter((g) => !g.group.startsWith('Nevada') || !mine || mine === 'NV');
   const [open, setOpen] = useState(false);
   const nav = useRef<HTMLElement>(null);
   const menuBtn = useRef<HTMLButtonElement>(null);
@@ -126,7 +122,7 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
               <button type="button" className="more-mode" aria-pressed={mode === 'guided'} onClick={() => setMode('guided')}>Step by step</button>
               <button type="button" className="more-mode" aria-pressed={mode === 'explore'} onClick={() => setMode('explore')}>I’ll explore</button>
             </div>
-            {groups.map((g) => (
+            {MORE.map((g) => (
               <div key={g.group} className="more-group" role="group" aria-label={g.group}>
                 <span className="more-group-title" aria-hidden>{g.group}</span>
                 {/* Email alerts appear only once email is set up: a menu link to a "coming soon" page has no purpose. */}

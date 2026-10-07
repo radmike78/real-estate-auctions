@@ -7,7 +7,7 @@
       "src/lib/journey.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "c5f2599463d71a73",
+    "hash": "33b461ac0069c110",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -20,8 +20,8 @@
       "src/lib/saleSearch.ts",
       "src/lib/status.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "ec270fee755321d6",
+    "reviewed": "2026-10-07",
+    "hash": "46c2f458fade3f26",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -37,8 +37,8 @@
       "src/lib/propertyViews.ts",
       "src/lib/foreclosure.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "a4b28f367d49faf4",
+    "reviewed": "2026-10-07",
+    "hash": "602f690627280f6c",
     "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
   },
   {
@@ -49,7 +49,7 @@
       "src/lib/buyerChecklists.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "7db7b02a207e998b",
+    "hash": "b8019b25fa9d8990",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -61,7 +61,7 @@
       "src/components/SidCertificates.tsx"
     ],
     "reviewed": "2026-10-07",
-    "hash": "711d28e2cabf056a",
+    "hash": "6c4535cc1abfcb82",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -70,8 +70,8 @@
     "files": [
       "src/components/PreForeclosurePage.tsx"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "bc2a28e5ba8f1e8c",
+    "reviewed": "2026-10-07",
+    "hash": "c50c9ab5cb58d291",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -80,8 +80,8 @@
     "files": [
       "src/components/ShortSalesPage.tsx"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "8aabf389ac7a62b5",
+    "reviewed": "2026-10-07",
+    "hash": "99572cf940f6e585",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -91,8 +91,8 @@
       "src/components/BankOwnedPage.tsx",
       "src/lib/reoSources.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "b561480471f74802",
+    "reviewed": "2026-10-07",
+    "hash": "7416047518f55520",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -102,8 +102,8 @@
       "src/components/BusinessAssetsPage.tsx",
       "src/lib/businessAssets.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "35f78188a30d2e67",
+    "reviewed": "2026-10-07",
+    "hash": "0b1d362ca40953bc",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -116,7 +116,7 @@
       "src/lib/saleDocs.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "327e05a9ec76ec5f",
+    "hash": "5218e95117170e78",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -125,8 +125,8 @@
     "files": [
       "src/components/GuidesPage.tsx"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "f77374b027d1cb74",
+    "reviewed": "2026-10-07",
+    "hash": "39faa534cd2cc51e",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "714fbcc8676864ef",
+    "hash": "4388e591a2b8ec2f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "8ee0b3854a8061fe",
+    "hash": "7aa6e35c00c02ae3",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -173,7 +173,7 @@
       "src/lib/evidence.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "bfa238f8eea4f9fe",
+    "hash": "1442541361e20bb2",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -204,7 +204,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "124acd4277d5c6bc",
+    "hash": "f801d579b7e4f17d",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -213,8 +213,8 @@
     "files": [
       "src/components/FinancingPage.tsx"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "94a8007adcf4f374",
+    "reviewed": "2026-10-07",
+    "hash": "ad143b79263e39e9",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -224,8 +224,8 @@
       "src/components/ProDirectory.tsx",
       "src/lib/pros.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "7b6d52005b57e7e6",
+    "reviewed": "2026-10-07",
+    "hash": "7796867d4d97d10a",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -236,8 +236,8 @@
       "src/components/PaidAdNotice.tsx",
       "src/components/LeadForm.tsx"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "3bf58de4c8a5d1bb",
+    "reviewed": "2026-10-07",
+    "hash": "f6b082552144e358",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -246,8 +246,8 @@
     "files": [
       "src/components/HomeownerHelpPage.tsx"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "67e27430b8e900fe",
+    "reviewed": "2026-10-07",
+    "hash": "239c133c45721cc4",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -268,8 +268,8 @@
       "src/components/AdvertiseApplyPage.tsx",
       "src/lib/proApplication.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "6241a6c750f2e8c2",
+    "reviewed": "2026-10-07",
+    "hash": "cf126c45559d7746",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -282,7 +282,7 @@
       "src/components/RoleNotice.tsx"
     ],
     "reviewed": "2026-10-07",
-    "hash": "6223bab2c8825c58",
+    "hash": "dd3a0533b1dd9d48",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -355,7 +355,7 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "04286c93526d51fd",
+    "hash": "ee6c32c184e79e80",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -365,8 +365,8 @@
       "src/components/DecidePage.tsx",
       "src/lib/decide.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "e80dc9591ef4d71b",
+    "reviewed": "2026-10-07",
+    "hash": "abd9a00a457d45f1",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -379,7 +379,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "8efef775fa10ed0e",
+    "hash": "81e84004263c5a98",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
@@ -392,7 +392,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "3cfe94223a3213fe",
+    "hash": "02b00586195932da",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {
@@ -405,7 +405,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "f3c0893761e70f38",
+    "hash": "c0df18549400ba15",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

@@ -39,7 +39,7 @@ export default function FinancingPage({ initialLocation = '' }: { initialLocatio
         <div className="empty fin-empty">
           <OwlNote><strong>No lenders listed{stName ? ` in ${stName}` : ''} yet.</strong> Every listing is license-checked before it appears.</OwlNote>
           <p>
-            Meanwhile, see which kind of loan fits below, and call two or three lenders with the script. <a href="#/pros">Find a pro</a> explains who you need and how to find them.{' '}
+            Meanwhile, see which kind of loan fits below, and call two or three lenders with the script. <a href="#/pros">Your team</a> explains who you need and how to find them.{' '}
             {adsOpen ? <>Licensed and want to be listed? <a href="#/advertise">Apply to advertise</a>.</> : 'Advertising for licensed professionals opens soon.'}
           </p>
         </div>
@@ -75,7 +75,7 @@ export default function FinancingPage({ initialLocation = '' }: { initialLocatio
               <li><strong>For a DSCR loan (approved on the rent): </strong>the lease or the appraiser’s rent estimate, your LLC papers if it borrows, and statements showing the down payment and reserves.</li>
               <li><strong>For a hard-money loan (a flip or a repair): </strong>the purchase contract, a scope of work with contractor bids, the after-repair value with comparable sales, your experience, and how you’ll repay it.</li>
             </ul>
-            <p><a className="btn btn-secondary" href="#/learn/financing">Compare ways to pay →</a></p>
+            <p><a className="btn btn-secondary" href="#/learn/financing">Compare ways to pay&nbsp;→</a></p>
           </div>
         </div>
       </section>

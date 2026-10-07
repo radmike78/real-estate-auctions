@@ -48,7 +48,7 @@ function LicenseLinks({ topic, state, chosen }: { topic: AdTopic; state: StateCo
       <ul>
         {rows.map(({ k, role, l }) => (
           <li key={k}>
-            {role}: {'note' in l ? l.note : <a href={l.url} target="_blank" rel="noopener noreferrer">{l.who} ↗</a>}
+            {role}: {'note' in l ? l.note : <a href={l.url} target="_blank" rel="noopener noreferrer">{l.who}&nbsp;↗</a>}
           </li>
         ))}
       </ul>
@@ -91,7 +91,7 @@ function TopicHelp({ topic }: { topic: AdTopic }) {
           <LicenseLinks topic={topic} state={st ?? 'NV'} chosen={!!st} />
           {!st && <p className="small muted">Investing in California, Arizona, Utah or Texas? <a href="#/pros">Your team</a> lists each state’s license lookups.</p>}
           <p className="topic-help-dir">
-            {e.directories.map((d, i) => <span key={d.href}>{i > 0 && ' · '}<a href={d.href}>{d.label} →</a></span>)}
+            {e.directories.map((d, i) => <span key={d.href}>{i > 0 && ' · '}<a href={d.href}>{d.label}&nbsp;→</a></span>)}
           </p>
         </div>
         <TopicAdBox topic={topic} pros={inArea(pros, area)} />

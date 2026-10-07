@@ -28,7 +28,7 @@ export const SECTIONS: DrillSection[] = [
         <li><strong>Free calculators</strong>: a walk-away price calculator that counts every cost, and an income-value calculator for rental property.</li>
         <li><strong>My deals</strong>: save properties, track sale dates and deadlines, and keep your notes in one place.</li>
         <AlertsItem />
-        <li><strong><a href="#/pros">Find a pro</a></strong>: who helps with each kind of sale (agents, lenders, title companies, attorneys, inspectors and more), when you need them and how to find one.</li>
+        <li><strong><a href="#/pros">Your team</a></strong>: who helps with each kind of sale (agents, lenders, title companies, attorneys, inspectors and more), when you need them and how to find one.</li>
       </ul>
     ),
   },
@@ -57,7 +57,7 @@ export const SECTIONS: DrillSection[] = [
     summary: 'From choosing a kind of sale to bidding, one step at a time',
     content: () => (
       <ol>
-        <li>Choose the kind of sale that fits your money and timeline, and read its <a href="#/playbooks">playbook</a>.</li>
+        <li>Choose the kind of sale that fits your money and timeline, and read its <a href="#/playbooks">sale guide</a>.</li>
         <li>Find properties in <a href="#/search">search</a> or the official lists we link to.</li>
         <li>Research each one: records, liens, occupancy and condition from the outside.</li>
         <li>Set your limit with the <a href="#/analyze?plan=flip">walk-away price calculator</a>.</li>

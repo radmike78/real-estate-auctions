@@ -12,7 +12,7 @@ export default function PhotosAndViews({ links, sample, maxBidHref, auction }: {
             {sample ? (
               <span className="view-title muted">{l.label} (sample)</span>
             ) : (
-              <a className="view-title" href={l.url} target="_blank" rel="noopener noreferrer">{l.label} ↗</a>
+              <a className="view-title" href={l.url} target="_blank" rel="noopener noreferrer">{l.label}&nbsp;↗</a>
             )}
             <p>{l.detail}</p>
           </li>

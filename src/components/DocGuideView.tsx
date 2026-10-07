@@ -8,7 +8,7 @@ export default function DocGuideView({ g, label }: { g: DocGuide; label?: string
   return (
     <details className="doc-guide">
       <summary>{label ?? `How to read a real one: ${g.title}`}</summary>
-      <p><strong>Who gives it to you, and when:</strong> {g.from}</p>
+      <p><strong>Who gives it to you, and when:</strong> {forStateText(state, g.from)}</p>
       <div className="table-wrap">
         <table className="lesson-table doc-guide-table">
           <thead>

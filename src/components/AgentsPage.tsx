@@ -85,7 +85,7 @@ export default function AgentsPage({ shortSales = false, initialQuery = '' }: { 
             value={query}
             onChange={(e) => { setQuery(e.target.value); setOpened(null); }}
           />
-          <button className="btn big" type="submit">{liveKind ? 'Search' : `Search on ${SHORT[cat].replace(/^the /, '')} ↗`}</button>
+          <button className="btn big" type="submit">{liveKind ? 'Search' : `Search on ${SHORT[cat].replace(/^the /, '')}\u00a0↗`}</button>
         </form>
         <p className="lookup-how small">
           {liveKind
@@ -93,7 +93,7 @@ export default function AgentsPage({ shortSales = false, initialQuery = '' }: { 
             : official.prefilled
               ? `Opens the official lookup at ${SHORT[cat]} with your search filled in.`
               : `${SHORT[cat].replace(/^the/, 'The')} doesn’t let other sites search it, so this opens its official lookup${a.normalized ? ' and copies what you typed, ready to paste' : ''}.`}
-          {cat === 'title_escrow' && <> Independent escrow companies are licensed by the <a href="https://www.mld.nv.gov/industry-info/search-licensees/" target="_blank" rel="noopener noreferrer">Division of Mortgage Lending ↗</a>.</>}
+          {cat === 'title_escrow' && <> Independent escrow companies are licensed by the <a href="https://www.mld.nv.gov/industry-info/search-licensees/" target="_blank" rel="noopener noreferrer">Division of Mortgage Lending&nbsp;↗</a>.</>}
         </p>
         {!liveKind && a.mode === 'license' && (
           <div className="lookup-result" role="status">
@@ -107,7 +107,7 @@ export default function AgentsPage({ shortSales = false, initialQuery = '' }: { 
                 ? <>We opened {SHORT[cat]}’s official lookup in a new tab with “{opened.q}” searched.</>
                 : <>We opened {SHORT[cat]}’s official lookup in a new tab. {HOW_TO[cat] ?? 'Enter the name or license number there.'}{copied && opened.q ? <> We copied “{opened.q}” so you can paste it.</> : null}</>}
             </div>
-            <div className="lookup-line small">Nothing opened? <a href={opened.url} target="_blank" rel="noopener noreferrer">Open {SHORT[cat].replace(/^the /, '')} ↗</a></div>
+            <div className="lookup-line small">Nothing opened? <a href={opened.url} target="_blank" rel="noopener noreferrer">Open {SHORT[cat].replace(/^the /, '')}&nbsp;↗</a></div>
           </div>
         )}
       </PageHero>
@@ -115,7 +115,7 @@ export default function AgentsPage({ shortSales = false, initialQuery = '' }: { 
       {liveKind && live && (
         <section className="license-results" aria-live="polite" aria-label="Official results">
           {live.loading && <p>Searching the {liveKind === 'attorney' ? 'State Bar' : 'FDIC'}…</p>}
-          {live.error && <div className="caution" role="alert">{live.error} <a href={info.lookupUrl} target="_blank" rel="noopener noreferrer">Open the official lookup ↗</a></div>}
+          {live.error && <div className="caution" role="alert">{live.error} <a href={info.lookupUrl} target="_blank" rel="noopener noreferrer">Open the official lookup&nbsp;↗</a></div>}
           {live.data && live.data.results.length === 0 && (
             <OwlNote>No match for “{live.q}” in the {live.data.source} records. Check the spelling{liveKind === 'attorney' ? ' or search by bar number' : ''}.</OwlNote>
           )}
@@ -138,10 +138,10 @@ export default function AgentsPage({ shortSales = false, initialQuery = '' }: { 
                       {r.company && <div><dt>Firm</dt><dd>{r.company}</dd></div>}
                       {r.address && <div><dt>Address</dt><dd>{r.address}</dd></div>}
                       {r.phone && <div><dt>Phone</dt><dd><a href={`tel:${r.phone.replace(/[^\d+]/g, '')}`}>{r.phone}</a></dd></div>}
-                      {r.website && <div><dt>Website</dt><dd><a href={r.website} target="_blank" rel="noopener noreferrer nofollow">{r.website.replace(/^https:\/\//, '')} ↗</a></dd></div>}
+                      {r.website && <div><dt>Website</dt><dd><a href={r.website} target="_blank" rel="noopener noreferrer nofollow">{r.website.replace(/^https:\/\//, '')}&nbsp;↗</a></dd></div>}
                       {liveKind === 'attorney' && <div><dt>Discipline</dt><dd>{r.discipline && r.discipline.length ? r.discipline.join('; ') : 'None listed'}</dd></div>}
                     </dl>
-                    <a className="small" href={r.officialUrl} target="_blank" rel="noopener noreferrer">{liveKind === 'attorney' ? 'Full listing and email on the State Bar’s site ↗' : 'Full record on FDIC BankFind ↗'}</a>
+                    <a className="small" href={r.officialUrl} target="_blank" rel="noopener noreferrer">{liveKind === 'attorney' ? 'Full listing and email on the State Bar’s site\u00a0↗' : 'Full record on FDIC BankFind\u00a0↗'}</a>
                   </li>
                 ))}
               </ul>
@@ -172,7 +172,7 @@ export default function AgentsPage({ shortSales = false, initialQuery = '' }: { 
             <h2 className="section-title">Agents who advertise on DeedOwl</h2>
             <p className="small muted">
               Paid listings. We check each agent’s license with the Real Estate Division before they appear, and again at least every {REVERIFY_DAYS} days.
-              {adsOpen && <> <a href="#/advertise/apply/agent">Agents: get listed →</a></>} Looking for lenders, title or contractors?{' '}
+              {adsOpen && <> <a href="#/advertise/apply/agent">Agents: get listed&nbsp;→</a></>} Looking for lenders, title or contractors?{' '}
               <a href="#/financing">Financing</a> · <a href="#/pros">Title, insurance &amp; repairs</a>
             </p>
           </>

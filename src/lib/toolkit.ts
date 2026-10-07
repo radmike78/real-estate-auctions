@@ -10,7 +10,7 @@ export const EXAMPLE_BUY_BOX = {
   strategy: 'Buy and hold a rental',
   priceMax: 300000,
   repairsMax: 25000,
-  cashMax: 80000,
+  cashMax: 120000,
   minCashFlow: 200,
   beds: '3+ beds, 2 baths',
   dealBreakers: ['Foundation or structural problems', 'High-risk flood zone', 'Negative cash flow with realistic rent'],

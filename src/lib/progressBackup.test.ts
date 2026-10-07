@@ -24,6 +24,13 @@ describe('progress backup', () => {
     expect(backedUp('fsf.alerts.manage.v1')).toBe(false);
   });
 
+  it('backs up the pre-foreclosure watchlist', () => {
+    const s = new MemStorage();
+    s.setItem('fsf.preforeclosure.watch.v1', '{"p1":"nod"}');
+    expect(makeBackup(s).data['fsf.preforeclosure.watch.v1']).toBe('{"p1":"nod"}');
+    expect(backedUp('fsf.preforeclosure.watch.v1')).toBe(true);
+  });
+
   it('restores only known keys from a valid file, and rejects other files', () => {
     const file = JSON.stringify({ app: 'deedowl', version: 1, saved: 'x', data: { 'deedowl.roadmap.v1': '["goal"]', 'fsf.alerts.manage.v1': '"t"', 'evil.key': '1', 'deedowl.state.v1': 'NV', 'deedowl.buybox.v1': 'not json' } });
     const r = readBackup(file);

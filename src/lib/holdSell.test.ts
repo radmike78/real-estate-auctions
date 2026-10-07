@@ -17,7 +17,7 @@ describe('hold and sell', () => {
 
   it('adds the yearly cash flow and the sale, after selling costs and the payoff', () => {
     const v = { ...RENT_DEFAULTS, value: 300_000, loanPct: 75, ratePct: 7, years: 30 };
-    const r = holdAndSell(v, 280_000, HOLD_SELL_DEFAULTS, true);
+    const r = holdAndSell(v, 280_000, HOLD_SELL_DEFAULTS, true)!;
     expect(r.flows).toHaveLength(5);
     expect(r.saleValue).toBeCloseTo(300_000 * 1.03 ** 5, 0);
     expect(r.saleNet).toBeCloseTo(r.saleValue * 0.93 - r.payoff, 0);
@@ -25,9 +25,18 @@ describe('hold and sell', () => {
     expect(r.equityMultiple).toBeGreaterThan(1);
     expect(r.irr).not.toBeNull();
     // No growth, no appreciation, no selling cost and no loan: you get back what the property earns, and the price.
-    const flat = holdAndSell({ ...v, loanPct: 0 }, 280_000, { years: 3, appreciationPct: 0, rentGrowthPct: 0, sellingCostPct: 0 }, true);
+    const flat = holdAndSell({ ...v, loanPct: 0 }, 280_000, { years: 3, appreciationPct: 0, rentGrowthPct: 0, sellingCostPct: 0 }, true)!;
     expect(flat.saleValue).toBe(300_000);
     expect(flat.payoff).toBe(0);
+  });
+
+  it('gives no result with neither a price nor a value (no "profit" on a $0 home)', () => {
+    const v = { ...RENT_DEFAULTS, value: 0 };
+    expect(holdAndSell(v, 0, HOLD_SELL_DEFAULTS, true)).toBeNull();
+    expect(holdAndSell(v, 0, HOLD_SELL_DEFAULTS, false)).toBeNull();
+    // A price alone (e.g. the target price) still works, and sells at that price.
+    const r = holdAndSell(v, 200_000, { ...HOLD_SELL_DEFAULTS, appreciationPct: 0 }, true)!;
+    expect(r.saleValue).toBe(200_000);
   });
 });
 

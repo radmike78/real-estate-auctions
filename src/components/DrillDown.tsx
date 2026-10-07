@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
+import { navigate } from '../lib/nav';
 
 export type Tone = 'go' | 'wait' | 'stop' | 'info';
 
@@ -96,15 +97,26 @@ export default function DrillDown(props: { sections: DrillSection[]; active?: st
   const cur = sections[i];
   const prev = sections[i - 1];
   const next = sections[i + 1];
+  const go = (key: string) => navigate(key ? `${baseHref}/${key}` : baseHref);
   const all = (
-    <nav ref={nav} className="drill-nav no-print" aria-label={label}>
-      {!titled && <a href={baseHref} className="drill-back">← Overview</a>}
-      {sections.map((s) => (
-        <a key={s.key} href={`${baseHref}/${s.key}`} aria-current={s.key === cur.key ? 'page' : undefined}>
-          {s.title}
-        </a>
-      ))}
-    </nav>
+    <>
+      {/* Phones: one drop-down that moves between this guide's pages, instead of rows of wrapped buttons. */}
+      <label className="drill-select no-print">
+        <span>Jump to section</span>
+        <select value={cur.key} onChange={(e) => go(e.target.value)}>
+          {!titled && <option value="">Overview</option>}
+          {sections.map((s) => <option key={s.key} value={s.key}>{s.title}</option>)}
+        </select>
+      </label>
+      <nav ref={nav} className="drill-nav no-print" aria-label={label}>
+        {!titled && <a href={baseHref} className="drill-back">← Overview</a>}
+        {sections.map((s) => (
+          <a key={s.key} href={`${baseHref}/${s.key}`} aria-current={s.key === cur.key ? 'page' : undefined}>
+            {s.title}
+          </a>
+        ))}
+      </nav>
+    </>
   );
   // A titled page goes straight to its content; the list of the other sections waits at the bottom.
   return (
@@ -113,7 +125,7 @@ export default function DrillDown(props: { sections: DrillSection[]; active?: st
       <Body s={cur} titled={titled} />
       <div className="drill-pager no-print">
         {prev ? <a href={`${baseHref}/${prev.key}`}>← {prev.title}</a> : <a href={baseHref}>← {overviewLabel ?? 'Overview'}</a>}
-        {next ? <a href={`${baseHref}/${next.key}`}>{next.title} →</a> : <a href={baseHref}>{overviewLabel ? `${overviewLabel} →` : 'Back to overview'}</a>}
+        {next ? <a href={`${baseHref}/${next.key}`}>{next.title}&nbsp;→</a> : <a href={baseHref}>{overviewLabel ? `${overviewLabel}\u00a0→` : 'Back to overview'}</a>}
       </div>
     </div>
   );
