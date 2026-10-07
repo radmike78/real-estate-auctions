@@ -1,6 +1,7 @@
 // "Where are you buying?": the visitor's state, then (optionally) their city. A city in more than one county asks
 // which county. Saves to the visitor's area (myArea.ts), which the rest of the site follows.
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { areaLabel, areaLong, useMyArea, type Area } from '../lib/myArea';
 import { loadPlaces, matchPlaces, type Place } from '../lib/places';
 import { STATES, countyName, type StateCode } from '../lib/regions';
@@ -147,14 +148,16 @@ export function AreaDialog({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     box.current?.querySelector<HTMLElement>('button')?.focus();
   }, []);
-  return (
+  // Rendered on the page body: the header's blur effect would otherwise trap the dialog inside the header bar.
+  return createPortal(
     <div className="role-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div ref={box} className="role-dialog area-dialog" role="dialog" aria-modal="true" aria-labelledby="area-title">
         <h2 id="area-title">Where are you buying?</h2>
         <p className="small muted">We’ll show the rules, official sources and local professionals for your area. It’s kept only in this browser.</p>
         <AreaPicker onDone={onClose} />
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

@@ -393,3 +393,23 @@
 }
 @media (min-width: 1001px) { .packet-date-guide tbody th { width: 16rem; } }
 
+
+/* Owl watermark: on computers and tablets only. Phones show no owl, so titles use the full width. */
+@media (max-width: 700px) {
+  .hero::after, .page-hero::after { display: none; }
+  .page-hero .page-hero-main > :first-child { margin-right: 0; min-height: 0; }
+}
+
+/* Home: the promise line under the two starting buttons is easy to read: free, official sources, no bids or money. */
+.hero-foot { gap: 12px 32px; margin-top: 26px; font-size: 1.2rem; font-weight: 700; color: var(--text); }
+.hero-trust { gap: 8px; }
+.hero-trust svg { width: 24px; height: 24px; }
+.hero-foot .linkish { font-size: 1rem; font-weight: 600; }
+@media (max-width: 700px) { .hero-foot { font-size: 1.05rem; gap: 8px 18px; } .hero-trust svg { width: 20px; height: 20px; } }
+
+/* Property search: the owl watermark at the top right, like every other page header (computers and tablets). */
+@media (min-width: 701px) {
+  .search-top { position: relative; padding-right: 150px; }
+  .search-top::after { content: ''; position: absolute; top: 8px; right: var(--gutter, 24px); width: 120px; height: 120px; background: url(/owl-watermark.svg) center / contain no-repeat; pointer-events: none; }
+}
+@media (min-width: 701px) and (prefers-color-scheme: dark) { .search-top::after { background-image: url(/owl-watermark-dark.svg); } }

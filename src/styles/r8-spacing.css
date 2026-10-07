@@ -134,10 +134,4 @@ nav.drill-tiles + .guide-group, nav.drill-tiles + section { margin-top: 40px; }
   .page.lesson .lesson-takeaways ul:has(> :nth-child(9):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
-/* The page-header owl is hidden, so no room is kept for it: titles and the practice pill use the full width. */
-@media (min-width: 701px) {
-  .page-hero:not(:has(.page-hero-aside, .hero-actions)) .page-hero-row { padding-right: 0; }
-}
-@media (max-width: 700px) {
-  .page-hero:not(:has(.page-hero-aside, .hero-actions)) .page-hero-main > :first-child { margin-right: 0; min-height: 0; }
-}
+
