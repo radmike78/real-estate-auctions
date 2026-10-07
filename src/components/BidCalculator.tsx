@@ -4,6 +4,10 @@ import { redemptionChoicesFor, redemptionPresetsFor, taxSaleWait, transferTaxFor
 import { useCalcRegion } from './calcRegion';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
+import { ExampleInputs, ExampleResults, PriceHead, exampleLabels } from './CalcLabels';
+
+/** Read from the listing or set by the county or the sale's rules: never listed as one of our examples. */
+const NOT_EXAMPLES = new Set<string>(['minimumBid', 'transferTaxPer500', 'cashAvailable', 'redemptionMonths', 'redemptionRatePct', 'targetProfitMin']);
 
 const KEY = (id: string) => `fsf.bid.${id}.v1`;
 
@@ -214,8 +218,11 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       save(next);
       return next;
     });
+  // Fields typed in this visit are yours, even when the number matches our starting estimate.
+  const [typedKeys, setTypedKeys] = useState<ReadonlySet<string>>(() => new Set());
   const set = (k: keyof BidInputs, text: string) => {
     trackAction('calculator_used', true);
+    setTypedKeys((t) => (t.has(k) ? t : new Set([...t, k])));
     setDraft((d) => ({ ...d, [k]: text }));
     // Changing the redemption numbers by hand means the rule you confirmed may no longer be the one used.
     update({ [k]: clampInput(k, toNum(text)), ...(k.startsWith('redemption') && k !== 'redemptionChecked' ? { redemptionChecked: 0 } : {}) });
@@ -249,10 +256,14 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   // Where the state has no transfer tax (and none was entered), the field is left out instead of sitting at $0.
   const noTransferTax = tax.per500 === 0 && !i.transferTaxPer500;
   const shown = (f: Field) => (mode === 'detailed' || f.quick) && (!f.when || f.when(i)) && !(offer && OFFER_HIDDEN.has(f.k)) && !(noTransferTax && f.k === 'transferTaxPer500');
+  // Which inputs on screen still hold our starting estimates (the listing's own numbers don't count).
+  const still = exampleLabels(GROUPS.flatMap((g) => g.fields.filter(shown).map((f) => (offer && OFFER_FIELDS[f.k] ? { ...f, ...OFFER_FIELDS[f.k] } : f))), i, offer ? offerInputs(defaults) : defaults, typedKeys, NOT_EXAMPLES);
+  const yours = offer ? 'Your offer' : 'Your bid';
 
   return (
     <div className="calc" id={`${uid}-calc`}>
       <div className="calc-inputs">
+        <ExampleInputs labels={still} />
         <div className="calc-mode" role="group" aria-label="How many numbers to enter">
           <button type="button" aria-pressed={mode === 'quick'} className={mode === 'quick' ? 'on' : ''} onClick={() => setMode('quick')}>Quick</button>
           <button type="button" aria-pressed={mode === 'detailed'} className={mode === 'detailed' ? 'on' : ''} onClick={() => setMode('detailed')}>Detailed</button>
@@ -348,6 +359,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {!offer && choices?.confirm && !!i.redemptionChecked && (
           <p className="small muted">Redemption rule confirmed by you: {ruleOf(i, rules) === 'custom' ? `your own numbers, a ${Math.round(i.redemptionMonths)}-month wait` : rules[ruleOf(i, rules)]?.label}. <button type="button" className="linkish" onClick={() => update({ redemptionChecked: 0 })}>Undo</button></p>
         )}
+        <ExampleResults count={needsValue ? 0 : still.length} />
+        {!needsValue && <PriceHead kind="target" label="Walk-away price" price={r.noBidWorks || cashShort ? null : r.maxBid} result={r.noBidWorks || cashShort ? null : r.profit} unit="profit" note={r.noBidWorks || cashShort ? undefined : `Not the result at ${yours.toLowerCase()}: this is the most you could pay and still meet your goal.`} />}
         {needsValue ? (
           <div className="calc-max" role="status">
             <span>Walk-away price</span>
@@ -378,6 +391,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           </div>
           )
         )}
+        {!needsValue && i.minimumBid > 0 && <PriceHead kind="listed" tag={offer ? 'From the listing' : 'From the sale notice'} label={w.Opening} price={i.minimumBid} result={atOpening} unit="profit" />}
         {!needsValue && i.minimumBid > 0 && (
           <div className={`calc-verdict ${dealFails || cashShort ? 'bad' : 'good'}`} role="status">
             {dealFails ? (
@@ -412,7 +426,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
             {!offer && <div><dt>Cash needed on auction day</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
             <div><dt>Most cash you’ll have in at once</dt><dd>{fmtMoney(r.cashPeak)}</dd></div>
             {i.financedPct > 0 && r.cashToStabilize < r.cashPeak && <div><dt>Cash left in after the loan funds</dt><dd>{fmtMoney(r.cashToStabilize)}</dd></div>}
-            <div><dt>Profit at this price</dt><dd>{fmtMoney(Math.round(r.profit))}</dd></div>
+            <div><dt>Profit at the walk-away price</dt><dd>{fmtMoney(Math.round(r.profit))}</dd></div>
             <div><dt>Return on your cash, per year, if it sells on schedule</dt><dd>{yr(r.yearlyReturn)}</dd></div>
             <div><dt>Break-even {w.bid} (zero profit)</dt><dd>{fmtMoney(r.breakEvenBid)}</dd></div>
           </dl>
@@ -441,6 +455,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <label className="calc-label" htmlFor={`${uid}-bid`}>Check {offer ? 'an offer' : 'a bid'}</label>
           <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="number" inputMode="decimal" min={0} step="any" value={bidText} placeholder={offer ? 'e.g. the offer you plan to make' : 'e.g. a bid you expect to beat'} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); }} /></span>
         </div>
+        {atBid && profit !== null && <PriceHead kind="yours" label={yours} price={bid} result={profit} unit="profit" />}
         {atBid && profit !== null && !needsValue && (
           <div className={`calc-verdict ${over ? 'bad' : 'good'}`} role="status">
             {over ? (

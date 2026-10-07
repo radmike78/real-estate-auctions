@@ -4,7 +4,9 @@ import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
-import PracticeStateNote from './PracticeStateNote';
+import PracticeStateNote, { drillFor } from './PracticeStateNote';
+import { useMyState } from '../lib/myState';
+import { STATES } from '../lib/regions';
 import { exitPlans, buyingCosts } from '../practice/exitPlans';
 import { fmtMoney } from '../lib/status';
 import { scenarioById } from '../practice/scenarios';
@@ -19,6 +21,7 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
   const scenario = useMemo(() => scenarioById(id), [id]);
   useLastActivity(`#/practice/${id}${stageKey ? `/${stageKey}` : ''}`, scenario ? `Practice purchase: ${scenario.headline}` : undefined);
   const [progress, setProgress] = useState<ScenarioProgress>(() => loadProgress(id));
+  const [mine] = useMyState();
   useEffect(() => setProgress(loadProgress(id)), [id]);
   useNoIndex(!scenario);
   // On phones the step buttons are one swipeable row: bring the current step into view.
@@ -54,6 +57,8 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
   const unknownStage = !!stageKey && found < 0;
   const total = s.stages.reduce((n, st) => n + st.tasks.length, 0);
   const allDone = progress.done.length >= total;
+  const myName = mine ? STATES.find((x) => x.code === mine)?.name ?? mine : null;
+  const myDrill = mine ? drillFor(mine, s.sale) : null;
 
   return (
     <main className="page practice">
@@ -66,6 +71,14 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
       <PracticeRibbon />
       <PracticeStateNote sale={s.sale} />
       {unknownStage && <p className="notice" role="status">We couldn’t find that step. Start from the listing below.</p>}
+      {/* Which rules this run uses stays in view on every step (pinned on wide screens). */}
+      <p className="practice-run-state" role="note">
+        <strong>Applies to Nevada (Clark County)</strong>
+        <span className="run-state-wide">{s.saleTitle}</span>
+        <span className="run-state-wide">{s.property.label} (fictional)</span>
+        <span>{stage ? `Step ${idx + 1} of ${s.stages.length}: ${stage.title}` : 'The listing'}</span>
+        {mine && mine !== 'NV' && <span className="run-state-wide">Not {myName} rules{myDrill ? <>: <a href={`#/practice/drills/${myDrill}`}>{myName} drill</a></> : null}</span>}
+      </p>
 
       <nav className="practice-stages" aria-label="Practice steps">
         <a href={`#/practice/${s.id}`} className={!stage ? 'active' : ''}>Listing</a>

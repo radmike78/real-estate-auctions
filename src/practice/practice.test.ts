@@ -217,6 +217,26 @@ describe('drills by state', () => {
       expect(named.length, d.id).toBeLessThanOrEqual(1);
     }
   });
+
+  it('offers a real drill, for the right state, wherever the auction practice points to one', async () => {
+    const { drillById } = await import('./drills');
+    const { drillState } = await import('../components/DrillPage');
+    const { drillFor } = await import('../components/PracticeStateNote');
+    const sales = ['tax', 'foreclosure', 'reo', 'short', 'hoa', 'sheriff', 'irs', 'sid'] as const;
+    let found = 0;
+    for (const st of ['CA', 'AZ', 'UT', 'TX'] as const) {
+      for (const s of sales) {
+        const id = drillFor(st, s);
+        if (!id) continue;
+        found++;
+        const d = drillById(id);
+        expect(d, `${st} ${s}: ${id}`).toBeTruthy();
+        expect(drillState(d!), id).toBe(st);
+      }
+    }
+    expect(found).toBe(16);
+    expect(drillFor('NV', 'tax')).toBeNull();
+  });
 });
 
 describe('commercial drills', () => {
