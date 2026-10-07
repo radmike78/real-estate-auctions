@@ -1003,7 +1003,7 @@ export const DRILLS: Drill[] = [
         multi: false,
         options: [
           { label: 'Wait for the recorded deed, then expect about a year before title insurance and major work', good: true, why: 'Right. A challenge must start within 1 year of the deed (R&T 3725), and counties such as Los Angeles and San Diego advise waiting about a year before improving.' },
-          { label: 'Start building the day after the auction', good: false, why: 'Title doesn’t pass until the deed is recorded, often about 60 to 70 days later in Los Angeles County.*' },
+          { label: 'Start building the day after the auction', good: false, why: 'Title doesn’t pass until the deed is recorded, often about 60 to 70 days later in Los Angeles County.' },
         ],
         lesson: 'Pay in the exact form and by the deadline your county sets; a missed deadline can cost your deposit.',
       },
