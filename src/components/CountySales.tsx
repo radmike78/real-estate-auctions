@@ -23,6 +23,17 @@ function when(s: CountySale): string {
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
+/** The full date a sale's name starts with ("November 3, 2026 tax sale"): the date line under the title already says it. */
+const LEADING_DATE = /^[A-Z][a-z]+ \d{1,2}, \d{4} /;
+
+/** "Travis County tax sale" (its date is on the line below), or "Los Angeles County, California: 2026B follow-up auction". */
+function title(s: CountySale, oneState: boolean): string {
+  const state = oneState ? '' : stateByCode(s.state)?.name;
+  const name = s.name.replace(LEADING_DATE, '');
+  if (!state && name !== s.name) return `${countyName(s.county)} ${name}`;
+  return `${countyName(s.county)}${state ? `, ${state}` : ''}: ${capitalize(name)}`;
+}
+
 /**
  * Upcoming county tax sales: the dates, and links to the county's own sale page and property list. Notes that apply to
  * every card (dates can change; Texas's no-delinquent-taxes statement) are shown once above the cards, and the state
@@ -48,9 +59,7 @@ export default function CountySales({ sales }: { sales: CountySale[] }) {
           return (
             <li key={s.id} className="county-sale">
               <span className={`badge county-sale-format fmt-${s.format.split(' ')[0].toLowerCase()}`}>{s.format}</span>
-              <h3>
-                {countyName(s.county)}{oneState ? '' : `, ${stateByCode(s.state)?.name}`}: {capitalize(s.name)}
-              </h3>
+              <h3>{title(s, oneState)}</h3>
               <p className="county-sale-when">{when(s)}</p>
               {s.place && <p className="county-sale-place">{s.place}</p>}
               {s.format === 'Over-the-counter offers' && (

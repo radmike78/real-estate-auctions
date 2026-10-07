@@ -180,7 +180,7 @@ describe('My plan’s one Continue', () => {
   it('starts a brand-new visitor on the Getting started tour, and someone who knows the basics on the roadmap', () => {
     const fresh = planNow(now);
     expect(fresh.source).toBe('starter');
-    expect(fresh.context).toMatch(/Getting started · 1 of/);
+    expect(fresh.context).toMatch(/Getting started · stop 1 of/);
     localStorage.setItem('deedowl.mode.v1', JSON.stringify('explore'));
     const explore = planNow(now);
     expect(explore.source).toBe('roadmap');

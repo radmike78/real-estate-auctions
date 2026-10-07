@@ -308,7 +308,7 @@ export function FirstDealRoadmap() {
         </p>
       )}
       <p className="decide-progress">
-        {count} of {steps.length} tasks done{naCount > 0 && ` (${naCount} marked “doesn’t apply”)`}
+        {count} of {steps.length} roadmap tasks done{naCount > 0 && ` (${naCount} marked “doesn’t apply”)`}
         <span className="decide-bar" role="progressbar" aria-label="Investing roadmap" aria-valuemin={0} aria-valuemax={steps.length} aria-valuenow={count}><span style={{ width: `${Math.round((count / steps.length) * 100)}%` }} /></span>
       </p>
       {walked && (

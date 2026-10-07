@@ -1,9 +1,13 @@
 import { useState, type CSSProperties } from 'react';
 import { detailForState, type BuyerChecklist } from '../lib/buyerChecklists';
 import { useMyState } from '../lib/myState';
+import { guideKey } from '../lib/narrow';
 
-// Checklist key → Nevada playbook with the full step-by-step process.
+// Checklist key → kind of sale whose step-by-step guide has the full process.
 const PLAYBOOK_FOR: Record<string, string> = { tax: 'tax', sid: 'sid', foreclosure: 'foreclosure', reo: 'reo', commercial: 'commercial', hoa: 'hoa', sheriff: 'sheriff', short: 'short', pre: 'foreclosure' };
+
+/** The chosen state's guide for a kind of sale (Nevada with no state chosen); Nevada-only kinds like SIDs keep their own guide. */
+const guideFor = (kind: string | undefined, state: string | null) => (kind ? guideKey(state ?? 'NV', kind) ?? kind : undefined);
 
 const KEY = (k: string) => `fsf.checklist.${k}.v1`;
 
@@ -17,16 +21,17 @@ function load(k: string): number[] {
 }
 
 /** Tickable "what you'll need" box. Ticks are remembered in this browser only. */
-export default function BuyerChecklistBox(props: { list: BuyerChecklist; variant?: 'light' | 'wide'; playbook?: string }) {
+/** `noTag` hides the "Not for sale yet" tag on a page that already says so (the pre-foreclosure guide). */
+export default function BuyerChecklistBox(props: { list: BuyerChecklist; variant?: 'light' | 'wide'; playbook?: string; noTag?: boolean }) {
   // Remount per checklist so each one starts from its own saved ticks.
   return <ChecklistInner key={props.list.key} {...props} />;
 }
 
-function ChecklistInner({ list, variant = 'light', playbook: forced }: { list: BuyerChecklist; variant?: 'light' | 'wide'; playbook?: string }) {
+function ChecklistInner({ list, variant = 'light', playbook: forced, noTag }: { list: BuyerChecklist; variant?: 'light' | 'wide'; playbook?: string; noTag?: boolean }) {
   const [done, setDone] = useState<number[]>(() => load(list.key));
   const [state] = useMyState();
   // Commercial and land versions share their sale type's playbook (keys like "tax-commercial-land").
-  const playbook = forced ?? PLAYBOOK_FOR[list.key.replace(/-(commercial|land)(-.*)?$/, '')];
+  const playbook = guideFor(forced ?? PLAYBOOK_FOR[list.key.replace(/-(commercial|land)(-.*)?$/, '')], state);
 
   const toggle = (i: number) =>
     setDone((cur) => {
@@ -44,7 +49,7 @@ function ChecklistInner({ list, variant = 'light', playbook: forced }: { list: B
     <section className={`checklist-box ${variant}${list.forSale ? '' : ' not-for-sale'}`} aria-label={list.title}>
       <div className="checklist-head">
         <div>
-          <span className={`checklist-tag${list.forSale ? '' : ' wait'}`}>{list.forSale ? 'For sale · what you need' : 'Not for sale yet · how to prepare'}</span>
+          {!noTag && <span className={`checklist-tag${list.forSale ? '' : ' wait'}`}>{list.forSale ? 'For sale · what you need' : 'Not for sale yet · how to prepare'}</span>}
           <h2>{list.title}</h2>
           <p>{list.intro}</p>
         </div>

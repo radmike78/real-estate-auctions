@@ -247,11 +247,13 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         </label>
       </section>
 
-      <h2 className="section-title bar-head" id="numbers" ref={numbersRef}>3. Run the numbers</h2>
+      <section className="deal-numbers" aria-labelledby="numbers">
+      <h2 id="numbers" ref={numbersRef}>3. Run the numbers</h2>
       <ProfileNote />
       <CalcRegion.Provider value={{ state: deal.state, county: deal.county }}>
         <Calculators key={`${deal.id}-${deal.state}-${deal.county}-${deal.kind}`} dealId={deal.id || undefined} onAnalyze initial={calcTabFor(deal.plan)} onTab={(k) => { const p = PLANS.find((x) => calcTabFor(x.key) === k)?.key; if (p && p !== deal.plan && plans.some((x) => x.key === p)) set({ plan: p }); }} state={deal.state} saleKind={deal.kind} offer={deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short'} lien={deal.kind === 'lien'} />
       </CalcRegion.Provider>
+      </section>
 
       {/* One clear next step once the numbers are in: keep the deal, then follow the buying steps for this kind of sale. */}
       <div className={adShows ? 'next-with-ad' : undefined}>

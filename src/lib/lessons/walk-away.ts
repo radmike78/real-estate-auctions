@@ -24,7 +24,7 @@ export const walkAway: Lesson = {
       heading: 'When the numbers say no',
       blocks: [
         { list: [
-          'Negative cash flow: cash flow is negative once you use realistic rent and every cost. That includes vacancy, repairs, reserves for big items and management.',
+          'Negative cash flow: once you use realistic rent and every cost, the property loses money each month. That includes vacancy, repairs, reserves for big items and management.',
           'Someone else’s rent: the rent comes from the seller or an online asking price, not from homes that actually rented nearby.',
           'Wrong comparables: the value after repairs comes from bigger, remodeled or old sales instead of similar homes sold recently.',
           'No cushion: a flip only works if every estimate is right. There’s no cushion for higher repairs or a lower sale price.',

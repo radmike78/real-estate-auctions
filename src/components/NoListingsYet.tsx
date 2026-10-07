@@ -11,7 +11,7 @@ import { IconBank, IconBadge, IconCalendar, IconClock, IconFile, IconFlag, IconH
 
 const OFFICIAL = [
   { label: 'Clark County Treasurer: tax-sale auction list', url: 'https://treasurer.clarkcountynv.gov/auction' },
-  { label: 'Clark County Sheriff: sheriff’s sales', url: 'https://www.clarkcountynv.gov/government/departments/sheriff_civil/sheriff_s_sales/' },
+  { label: 'Clark County Sheriff’s sales', url: 'https://www.clarkcountynv.gov/government/departments/sheriff_civil/sheriff_s_sales/' },
   { label: 'Clark County Recorder: notices of default and trustee sales', url: 'https://recorderecomm.clarkcountynv.gov/AcclaimWeb/' },
   { label: 'HUD Home Store: HUD-owned homes in Clark County', url: HUD_CLARK_SEARCH },
   { label: 'Fannie Mae HomePath: bank-owned homes', url: 'https://homepath.fanniemae.com/property-finder' },
