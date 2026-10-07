@@ -41,7 +41,9 @@ const unsaid = (text: string, said: string) => sentences(text).filter((x) => !sa
 /** Where to check a license: the visitor's own state, or every state when they haven't picked one. */
 function LicenseCheck({ lookups, state, said }: { lookups: Record<StateCode, Lookup>; state: StateCode | null; said: string }) {
   const show = (state ? [state] : STATES.map((x) => x.code)).map((c) => [c, lookups[c]] as const);
-  const line = (l: Lookup) => ('note' in l ? unsaid(l.note, said) : <>Look them up with the {l.who}. <a href={l.url} target="_blank" rel="noopener noreferrer">Open the official lookup{NBSP}↗</a></>);
+  const line = (l: Lookup) => ('note' in l ? (
+    <>{unsaid(l.note, said)}{l.links?.map((x) => <span key={x.url}> <a href={x.url} target="_blank" rel="noopener noreferrer">{x.who}{NBSP}↗</a></span>)}</>
+  ) : <>Look them up with the {l.who}. <a href={l.url} target="_blank" rel="noopener noreferrer">Open the official lookup{NBSP}↗</a></>);
   return (
     <div className="pro-guide-tip">
       <strong>Official license lookup:</strong>{' '}

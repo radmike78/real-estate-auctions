@@ -337,7 +337,7 @@ export const PRO_WHY = {
       },
       {
         who: "Everyone",
-        text: "Don’t sign anything until you’ve checked every license or registration the work requires, using the official lookup where one exists (see “Check before you hire”). In Texas there’s no statewide general contractor license, so check the regulated trades (electrical, plumbing, air conditioning) and your city’s rules."
+        text: "Don’t sign anything until you’ve checked every license or registration the work requires, using the official lookup where one exists (see “Check before you hire”)."
       }
     ]
   },

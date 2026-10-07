@@ -3,7 +3,8 @@
 import type { ProKey } from './proGuide';
 import type { StateCode } from './regions';
 
-export type Lookup = { who: string; url: string } | { note: string };
+/** One official lookup, or advice when there's no single one (with the official lookups that do apply, if any). */
+export type Lookup = { who: string; url: string } | { note: string; links?: { who: string; url: string }[] };
 
 const NMLS = { who: 'NMLS Consumer Access (state mortgage licenses)', url: 'https://www.nmlsconsumeraccess.org/' };
 const ASC = { who: 'Appraisal Subcommittee national registry', url: 'https://www.asc.gov/appraiser' };
@@ -56,7 +57,10 @@ export const LICENSE_LOOKUPS: Partial<Record<ProKey, Record<StateCode, Lookup>>>
     CA: { who: 'California Contractors State License Board', url: 'https://www.cslb.ca.gov/OnlineServices/CheckLicenseII/CheckLicense.aspx' },
     AZ: { who: 'Arizona Registrar of Contractors', url: 'https://roc.az.gov/contractor-search' },
     UT: { who: 'Utah Division of Professional Licensing', url: 'https://secure.utah.gov/llv/search/index.html' },
-    TX: { note: 'No statewide license for general contractors or remodelers. Check the trades: electricians and air-conditioning contractors on the TDLR license search, and plumbers on the Texas State Board of Plumbing Examiners’ license search. Ask your city whether it registers contractors, and ask for proof of insurance.' },
+    TX: { note: 'No statewide license for general contractors or remodelers. Check the trades: electricians and air-conditioning contractors on the TDLR license search, and plumbers on the Texas State Board of Plumbing Examiners’ license search. Ask your city whether it registers contractors, and ask for proof of insurance.', links: [
+      { who: 'TDLR license search', url: 'https://www.tdlr.texas.gov/LicenseSearch/' },
+      { who: 'Texas State Board of Plumbing Examiners license search', url: 'https://tsbpe.texas.gov/find-a-licenseregistration/' },
+    ] },
   },
   insurance: INSURANCE,
   cpa: {

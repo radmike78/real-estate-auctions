@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { Deal } from './analyze';
-import { cleanPacket, dealPacketText, EMPTY_PACKET, flipBudget, loadPacket, nextAction, nextDate, packetSections, savePacket, suggestedDates } from './dealPacket';
+import { cleanPacket, dealPacketText, EMPTY_PACKET, flipBudget, loadPacket, nextAction, nextDate, packetSections, savePacket, suggestedDates, dateGuide } from './dealPacket';
 import { saveLog, cleanLog } from './evidence';
 import { stageTasks } from './dealStage';
 import { dealNumbers } from './propertyPacket';
@@ -41,6 +41,33 @@ describe('the deal packet', () => {
     // Owners can't redeem after a tax sale in Nevada, California, Utah or Arizona.
     for (const state of ['NV', 'CA', 'UT', 'AZ'] as const) expect(suggestedDates({ kind: 'taxSale', state })).not.toContain('Redemption period ends');
     expect(suggestedDates({ kind: 'short', state: 'TX' }).join(' ')).toMatch(/approval/i);
+  });
+
+  it('lists the Texas contract deadlines from the TREC forms, with short sales counted from the Amended Effective Date', () => {
+    const find = (kind: Deal['kind'], re: RegExp) => dateGuide({ kind, state: 'TX' }).find((g) => re.test(g.what));
+    for (const kind of ['listing', 'reo', 'short'] as const) {
+      // Seller's Disclosure Notice (20-19, 7B(2)), HOA subdivision information (36-11, A) and title objections (20-19, 6D).
+      expect(find(kind, /Seller’s Disclosure Notice due \(only if box 7B\(2\) is checked\)/)?.why).toMatch(/7B/);
+      expect(find(kind, /HOA subdivision information due \(only with the HOA addendum\)/)?.when).toMatch(/3 days after you receive it/);
+      expect(find(kind, /^Title objections due$/)?.missed).toMatch(/Schedule C/);
+      expect(find(kind, /^Buyer Approval deadline \(only if paragraph 2A’s “subject to Buyer Approval” box is checked\)$/)).toBeTruthy();
+      expect(find(kind, /^Property Approval deadline \(only with the financing addendum\)$/)).toBeTruthy();
+    }
+    // A lender reselling a home it took back is exempt from the disclosure notice (Property Code 5.008(e)(4)).
+    expect(find('reo', /Seller’s Disclosure Notice/)?.when).toMatch(/5\.008\(e\)\(4\)/);
+    // Short sale: the option period starts at signing and its end is unsettled; performance counts from the Amended Effective Date.
+    expect(find('short', /Option period ends/)?.when).toMatch(/Starts when you both sign.*Amended Effective Date\*/);
+    for (const re of [/Water Disclosure/, /Buyer Approval/, /Seller’s Disclosure Notice/, /HOA subdivision/]) {
+      expect(find('short', re)?.when).toMatch(/after the Amended Effective Date \(the day the seller tells you of the lender’s approval, 45-2, D\)/);
+      expect(find('listing', re)?.when).toMatch(/after the effective date/);
+      expect(find('listing', re)?.when).not.toMatch(/Amended/);
+    }
+    expect(find('listing', /Option period ends/)?.when).toMatch(/after the effective date/);
+    // Earnest money and option fee stay due from signing under the short sale addendum (45-2, C).
+    expect(find('short', /Earnest money due/)?.when).toMatch(/Within 3 days after the effective date/);
+    expect(find('short', /Option fee due/)).toBeTruthy();
+    // Other states keep the plain list.
+    expect(suggestedDates({ kind: 'short', state: 'NV' })).not.toContain('Title objections due');
   });
 
   it('marks every part missing on a new deal and points to one next action', () => {

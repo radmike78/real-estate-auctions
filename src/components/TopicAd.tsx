@@ -48,7 +48,7 @@ function LicenseLinks({ topic, state, chosen }: { topic: AdTopic; state: StateCo
       <ul>
         {rows.map(({ k, role, l }) => (
           <li key={k}>
-            {role}: {'note' in l ? l.note : <a href={l.url} target="_blank" rel="noopener noreferrer">{l.who}&nbsp;↗</a>}
+            {role}: {'note' in l ? <>{l.note}{l.links?.map((x) => <span key={x.url}> <a href={x.url} target="_blank" rel="noopener noreferrer">{x.who}&nbsp;↗</a></span>)}</> : <a href={l.url} target="_blank" rel="noopener noreferrer">{l.who}&nbsp;↗</a>}
           </li>
         ))}
       </ul>
