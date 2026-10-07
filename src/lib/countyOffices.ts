@@ -2204,7 +2204,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.co.ward.tx.us/page/ward.Sheriff", checked: "2026-10-05" },
   },
   "TX/Washington": {
-    taxSale: { url: "https://washingtoncad.org/tax-sale-information/", checked: "2026-10-05", note: "The appraisal district, which collects taxes here, posts the current tax sale and resale lists (PDFs); the latest list is for the October 6, 2026 sale." },
+    taxSale: { url: "https://washingtoncad.org/tax-sale-information/", checked: "2026-10-05", note: "The appraisal district, which collects taxes here, posts the current tax sale and resale lists (PDFs)." },
     treasurer: { url: "https://washingtoncad.org/", checked: "2026-10-05", note: "The county tax office does not collect property taxes here; the appraisal district does (per the Texas Comptroller's county directory)." },
     assessor: { url: "https://washingtoncad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.co.washington.tx.us/page/washington.County.Clerk", checked: "2026-10-05" },
@@ -2269,7 +2269,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.co.winkler.tx.us/209/Sheriff", checked: "2026-10-05" },
   },
   "TX/Wise": {
-    taxSale: { url: "https://tax.co.wise.tx.us/", checked: "2026-10-05", note: "No separate tax sale page: this office announces upcoming sales (the October 6, 2026 sale is online only, through GovEase). Its delinquent-tax law firm is Linebarger Goggan Blair & Sampson." },
+    taxSale: { url: "https://tax.co.wise.tx.us/", checked: "2026-10-05", note: "No separate tax sale page: this office announces upcoming sales. Recent sales ran online through GovEase; start from the county’s page for the current sale. Its delinquent-tax law firm is Linebarger Goggan Blair & Sampson." },
     treasurer: { url: "https://tax.co.wise.tx.us/", checked: "2026-10-05" },
     assessor: { url: "https://wise-cad.com/", checked: "2026-10-05" },
     recorder: { url: "https://www.co.wise.tx.us/153/County-Clerk", checked: "2026-10-05" },

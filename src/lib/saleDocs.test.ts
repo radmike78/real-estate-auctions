@@ -24,7 +24,9 @@ describe('documents and scripts', () => {
     for (const p of tx) {
       const words = [...saleDocsFor(p.key, 'TX').map((d) => `${d.name} ${d.check}`), ...saleScriptsFor(p.key, 'TX').map((x) => `${x.to} ${x.script}`)].join(' ');
       expect(words, p.key).not.toMatch(/treasurer/i);
-      if (p.key !== 'txtax') expect(words, p.key).not.toMatch(/tax deed|bidder registration|no delinquent taxes|tax assessor/i);
+      // An execution sale needs the same no-delinquent-taxes statement or bidder registration (Civ. Prac. & Rem. Code 34.0445).
+      if (p.key === 'txsheriff') expect(words, p.key).not.toMatch(/tax deed/i);
+      else if (p.key !== 'txtax') expect(words, p.key).not.toMatch(/tax deed|bidder registration|no delinquent taxes|tax assessor/i);
     }
     expect(saleDocsFor('txshort', 'TX').map((d) => d.name).join(' ')).toMatch(/Short Sale Addendum/);
     expect(saleDocsFor('txtax', 'TX').map((d) => d.name).join(' ')).toMatch(/no delinquent taxes/);
