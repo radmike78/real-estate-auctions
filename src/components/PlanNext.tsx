@@ -30,16 +30,17 @@ function usePlanTick() {
 }
 
 /** The Continue button: opens where the task is done, or moves the deal on when that's the task. */
-function ContinueButton({ task, dealId, onPlan }: { task: PlanTask; dealId?: string; onPlan: boolean }) {
+/** The plan's one Continue: it opens the task's deal or moves its stage when the task says so. `label` replaces the plain wording (the home page names the task). */
+export function ContinueButton({ task, dealId, onPlan, label }: { task: PlanTask; dealId?: string; onPlan: boolean; label?: string }) {
   if (task.setStage && dealId)
-    return <button type="button" className="btn big" onClick={() => setDealStage(dealId, task.setStage!)}>Continue: move it on&nbsp;→</button>;
+    return <button type="button" className="btn big" onClick={() => setDealStage(dealId, task.setStage!)}>{label ?? 'Continue: move it on'}&nbsp;→</button>;
   if (task.openDeal && dealId) {
     const d = loadDeals().find((x) => x.id === dealId);
-    if (d) return <a className="btn big" href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(d); }}>Continue&nbsp;→</a>;
+    if (d) return <a className="btn big" href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(d); }}>{label ?? 'Continue'}&nbsp;→</a>;
   }
   // On My plan, a roadmap task is further down this page: the link scrolls there.
   const href = task.href === ROADMAP_TASK_HREF && !onPlan ? '#/toolkit/roadmap' : task.href;
-  return <a className="btn big" href={href}>Continue{task.href === ROADMAP_TASK_HREF && onPlan ? '\u00a0↓' : '\u00a0→'}</a>;
+  return <a className="btn big" href={href}>{label ?? 'Continue'}{task.href === ROADMAP_TASK_HREF && onPlan ? '\u00a0↓' : '\u00a0→'}</a>;
 }
 
 /**
