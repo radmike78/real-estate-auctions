@@ -38,7 +38,7 @@ const STATE_Q: NarrowQuestion = {
     { value: 'UT', label: 'Utah' },
     { value: 'TX', label: 'Texas' },
   ],
-  suggest: () => ({ value: 'NV', why: 'Start with the state you live in or know best. Each state’s guides cover its own sales.' }),
+  suggest: () => ({ value: 'NV', why: 'Nevada’s guides are the original set and cover the most kinds of sales. If you live in another of our states, its guides cover its own sales.' }),
 };
 
 const BUY_Q: NarrowQuestion = {

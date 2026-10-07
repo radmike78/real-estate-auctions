@@ -80,11 +80,11 @@ export const OTHER_SITES: { group: string; sites: DealSource[] }[] = [
 export const STATE_SALES: Record<StateCode, string[]> = {
   NV: [
     'Tax sales: about a year after taxes go unpaid, the county issues a tax certificate, and the owner has 2 years (1 if abandoned) to pay. If they don’t, the county treasurer takes title in trust and auctions it with a quitclaim deed (a deed with no promise about title). In all, about 3 years of unpaid taxes (2 if abandoned).',
-    'Foreclosures: trustee auctions at least 3 months after the notice of default, with 20 days’ posted notice.',
+    'Foreclosures: trustee auctions at least 3 months after the notice of default, with 20 days’ posted notice. The owner can’t redeem afterward, but if the sale wiped out a junior federal tax lien, the United States can redeem within 120 days (26 USC 7425).',
   ],
   CA: [
     'Tax sales: the tax collector sells tax-defaulted property after 5 years (3 for nonresidential commercial), usually online.',
-    'Foreclosures: trustee auctions at least 3 months after the notice of default; on 1–4 unit homes, tenants can match, and other eligible bidders can beat, the winning bid within 15 to 45 days.',
+    'Foreclosures: trustee auctions at least 3 months after the notice of default; on 1–4 unit homes, tenants can match, and other eligible bidders can beat, the winning bid within 15 to 45 days. The owner can’t redeem afterward. If the sale wiped out a junior federal tax lien, the United States can still redeem within 120 days (26 USC 7425).',
   ],
   AZ: [
     'Tax sales: the county treasurer sells tax liens, not property, each February; bidders bid the interest rate down from 16%. Separately, the county board of supervisors auctions land the state already took by tax deed (A.R.S. 42-18301 to 42-18303).',
@@ -92,7 +92,7 @@ export const STATE_SALES: Record<StateCode, string[]> = {
   ],
   UT: [
     'Tax sales: the county auditor sells property in May or June after four years of unpaid taxes.',
-    'Foreclosures: trustee auctions at least 3 months after the notice of default; bids can’t be withdrawn.',
+    'Foreclosures: trustee auctions at least 3 months after the notice of default; bids can’t be withdrawn, and the owner can’t redeem afterward. If the sale wiped out a junior federal tax lien, the United States can still redeem within 120 days (26 USC 7425).',
   ],
   TX: [
     'Tax sales: after a court judgment, a sheriff or constable auctions the property on the first Tuesday of the month; the owner can redeem for 180 days, or 2 years for a homestead, land designated for agricultural use or a mineral interest.',

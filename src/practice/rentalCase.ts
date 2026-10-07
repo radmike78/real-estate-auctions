@@ -145,11 +145,18 @@ interface CaseConfig {
   appraisalName: string;
   cancelAppraisal: string;
   leaveAppraisal: string;
+  /** Extra advice after the seller agrees to the lower price (e.g. Texas: put it in a signed amendment). */
+  appraisalAskNote?: string;
+  /** How the purchase log describes the price cut; defaults to "Price lowered to X under the <appraisalName>." */
+  appraisalLog?: (finalPrice: string) => string;
   roofer: string;
   lienWhy: string;
   earnestPaid: string;
   earnestCredit: (n: Nums) => string;
   earnestShort: string;
+  /** Who the earnest-money wiring email pretends to be from, and who to call (defaults: escrow). */
+  wireFrom?: string;
+  wireCall?: string;
   rentRulesNote: string;
   rekeyWhy: string;
   rentTasks: (n: Nums) => CaseTask[];
@@ -306,6 +313,8 @@ const TX: CaseConfig = {
   appraisalName: 'appraisal addendum',
   cancelAppraisal: 'By Day 17, give the seller your notice of termination and a copy of the lender’s appraisal (appraisal addendum, option 3), and get the earnest money back.',
   leaveAppraisal: 'Option 3 of your appraisal addendum (TREC 49-1) lets you end the contract when the lender’s appraisal is under $289,000, if the seller gets your notice of termination and a copy of the appraisal by Day 17.',
+  appraisalAskNote: 'Get the new price in a signed amendment before Day 17; after that, the addendum’s right to end the contract is gone.',
+  appraisalLog: (finalPrice) => `Price lowered to ${finalPrice} by a signed amendment, after you used the appraisal addendum’s right to end the contract as leverage.`,
   roofer: 'Example Roofing of Texas',
   lienWhy: 'It’s a recorded claim against the house. In Texas, a contractor on a home job must file the lien by the 15th day of the third month after the work ends, and sue to enforce it within a year after that filing deadline (Property Code 53.052, 53.158). Either way, the title company wants it released or cleared on the record before closing. Ask the title officer how, and whether a lawsuit was filed.',
   earnestPaid: 'to the title company within 3 days after the Effective Date, along with the option fee',
@@ -376,7 +385,7 @@ const TX: CaseConfig = {
 
 // California: same house and price. Buying resets the property tax to about 1% of the price plus local charges
 // (Proposition 13; this practice uses about 1.1%), so the seller's bill isn't yours. The contract is the C.A.R.
-// Residential Purchase Agreement, where you remove contingencies in writing. Deposits: Civil Code 1950.5. Rent cap and
+// Residential Purchase Agreement, where you remove contingencies in writing. Deposits: Civil Code 1950.5. Entry: 1954. Rent cap and
 // just cause: Civil Code 1947.12 and 1946.2.
 const CA: CaseConfig = {
   state: 'CA',
@@ -456,6 +465,15 @@ const CA: CaseConfig = {
         { label: `${usd(n.rent * 2)}: 2 months’ rent, because you’re a small landlord (unless the tenant is a service member)`, verdict: 'best', why: 'Since July 1, 2024, most California landlords may take only 1 month’s rent. A landlord who is a person, or an LLC of people, with no more than two rental properties and four units in all may take up to 2 months, but not from a service member (Civil Code 1950.5). Return it, with an itemized statement, within 21 days after the tenant moves out.' },
         { label: `${usd(n.rent * 3)}: 3 months’ rent`, verdict: 'poor', why: 'That’s over California’s limit. 3 months is Nevada’s cap, not California’s (Civil Code 1950.5).' },
         { label: `${usd(n.rent)}: 1 month’s rent`, verdict: 'ok', why: 'Lawful, and the limit for most California landlords. As a small landlord you could take more, but you don’t have to.' },
+      ],
+    },
+    {
+      kind: 'choice',
+      id: 'ca-entry',
+      prompt: 'In California, your tenant’s faucet leaks and you want to fix it. What notice do you give before going in?',
+      choices: [
+        { label: 'Reasonable written notice with the date, approximate time and purpose (24 hours is presumed reasonable), and enter only during normal business hours, unless it’s an emergency or the tenant is there and agrees.', verdict: 'best', why: 'That’s California’s rule (Civil Code 1954(d)(1) and (e)). Mailed notice is presumed reasonable at 6 days before entry.' },
+        { label: 'None. You own the house.', verdict: 'poor', why: 'Once it’s rented, the tenant has the right to possession. In California, give reasonable written notice (24 hours is presumed reasonable) except in an emergency (Civil Code 1954).' },
       ],
     },
     {
@@ -604,7 +622,7 @@ const UT: CaseConfig = {
     ['Acceptance (Day 0)', 'The day the signed acceptance is delivered to you. The other deadlines count from it.'],
     ['Earnest money', `${usd(n.earnest)}, to your agent’s brokerage within 4 calendar days after Acceptance (the brokerage deposits it in its trust account), unless the contract names a title company`],
     ['Due Diligence Deadline', 'Day 10. You can cancel for any reason, in writing, before then. If you don’t, the due diligence condition is waived.'],
-    ['Financing & Appraisal Deadline', 'Day 21. You can cancel by then if the appraisal comes in under the price, and get the earnest money back. If your loan fails after this deadline, the seller keeps the earnest money (REPC section 8.3(b)(iii)).'],
+    ['Financing & Appraisal Deadline', 'Day 21. By then you can cancel if the appraisal comes in under the price and get the earnest money back. If you cancel because you’re not satisfied with the loan terms, the seller can keep the amount written in section 8.3(b)(i). If your loan fails after this deadline, the seller keeps all the earnest money (REPC 8.3(b)(iii)).'],
     ['Seller Disclosure Deadline', 'Day 3: the seller’s disclosures, including the HOA documents'],
     ['Settlement Deadline', 'Day 30'],
     ['Counting days', 'Calendar days, starting the day after Acceptance. Each deadline ends at 5:00 p.m. Mountain Time on its date (REPC §21).'],
@@ -635,6 +653,8 @@ const UT: CaseConfig = {
   earnestPaid: 'to your agent’s brokerage within 4 calendar days after Acceptance (the brokerage deposits it in its trust account), unless the contract names a title company',
   earnestCredit: (n) => `${usd(n.earnest)} earnest money`,
   earnestShort: 'earnest money',
+  wireFrom: 'your agent’s brokerage or the title company',
+  wireCall: 'Call your agent’s brokerage or the title company at a phone number you already trust (from your agent or the company’s own website) to confirm the instructions before sending anything.',
   rentRulesNote: 'Rules on deposits and entry are state law. The ones below are Utah’s, because this practice house is in Utah.',
   rekeyWhy: 'You don’t know who else has keys.',
   rentTasks: (n) => [
@@ -1068,9 +1088,9 @@ function buildCase(c: CaseConfig) {
         {
           kind: 'choice',
           id: 'wire',
-          prompt: 'The seller accepts. An email that looks like it’s from escrow arrives with wiring instructions for your earnest money. What do you do?',
+          prompt: `The seller accepts. An email that looks like it’s from ${c.wireFrom ?? 'escrow'} arrives with wiring instructions for your earnest money. What do you do?`,
           choices: [
-            { label: 'Call the escrow officer at a phone number you already trust (from your agent or the escrow company’s website) to confirm the instructions before sending anything.', verdict: 'best', why: 'Fake wiring emails are a common scam in real estate, and wired money is very hard to get back. Always confirm by phone with a number you found yourself.' },
+            { label: c.wireCall ?? 'Call the escrow officer at a phone number you already trust (from your agent or the escrow company’s website) to confirm the instructions before sending anything.', verdict: 'best', why: 'Fake wiring emails are a common scam in real estate, and wired money is very hard to get back. Always confirm by phone with a number you found yourself.' },
             { label: 'Reply to the email to confirm it’s real.', verdict: 'poor', why: 'If the email is fake, the scammer answers. Use a number you found yourself.' },
             { label: 'Wire it right away so you don’t miss the deposit deadline.', verdict: 'poor', why: 'A quick call takes minutes. A wire sent to a scammer is usually gone for good.' },
           ],
@@ -1258,7 +1278,7 @@ function buildCase(c: CaseConfig) {
           id: 'low-appraisal',
           prompt: 'It’s Day 15. What do you do about the low appraisal?',
           choices: [
-            { label: `Ask the seller to lower the price to ${$(appraised)}, using your ${c.appraisalName}.`, verdict: 'best', why: `The appraisal is independent evidence. Most sellers know another buyer’s lender would see the same value. Here the seller agrees: the new price is ${$(finalPrice)}.` },
+            { label: `Ask the seller to lower the price to ${$(appraised)}, using your ${c.appraisalName}.`, verdict: 'best', why: `The appraisal is independent evidence. Most sellers know another buyer’s lender would see the same value. Here the seller agrees: the new price is ${$(finalPrice)}.${c.appraisalAskNote ? ` ${c.appraisalAskNote}` : ''}` },
             { label: 'Pay the difference from your cushion.', verdict: 'ok', why: `It works, but it shrinks a thin cushion further. Ask first; paying is your fallback. In this case your agent asks anyway and the seller agrees to ${$(finalPrice)}, so the rest of the purchase uses that price.` },
             { label: c.cancelAppraisal, verdict: 'ok', walk: true, why: `Reasonable if your cushion can’t take it. ${c.leaveAppraisal}` },
           ],
@@ -1291,7 +1311,7 @@ function buildCase(c: CaseConfig) {
         },
       ],
       log: [
-        { area: 'Value', finding: `Appraised at ${$(appraised)}. Price lowered to ${$(finalPrice)} under the ${c.appraisalName}.` },
+        { area: 'Value', finding: `Appraised at ${$(appraised)}. ${c.appraisalLog ? c.appraisalLog($(finalPrice)) : `Price lowered to ${$(finalPrice)} under the ${c.appraisalName}.`}` },
         { area: 'Title', finding: 'Old deed of trust and a $4,800 mechanic’s lien to be cleared before closing. Utility easement stays.', open: 'Recorded release of the mechanic’s lien' },
         { area: 'HOA', finding: '12-month minimum lease; no short-term rentals; send the HOA each lease.' },
       ],

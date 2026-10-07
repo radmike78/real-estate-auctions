@@ -9,6 +9,7 @@ export const BUYING: ByStateLines = {
   NV: [
     { text: 'In Nevada, DeedOwl doesn’t list bank-owned homes itself yet. The source cards (under Fannie Mae & Freddie Mac, Government agencies, and Banks & credit unions) link to each official seller’s own site, and each card says how often it has Clark County homes.' },
     { text: 'In Nevada, Fannie Mae and Freddie Mac give buyers who will live in the home a first look before investors can buy. The rules for each are on its card under Fannie Mae & Freddie Mac.', links: [['Fannie Mae & Freddie Mac', '#/bank-owned/fannie-freddie']] },
+    { text: 'In Nevada, a bank reselling a home it took back isn’t covered by the foreclosure exemption, so ask for the Seller’s Real Property Disclosure form at least 10 days before closing (NRS 113.130).* Expect the bank to know little about the home; your inspection is your main protection.', links: [['NRS chapter 113', 'https://www.leg.state.nv.us/NRS/NRS-113.html']] },
   ],
   CA: [
     { text: 'In California, a lender that got the home at a foreclosure sale, or by a deed in lieu of foreclosure, doesn’t have to give the Transfer Disclosure Statement when it resells (Civil Code 1102.2(c)).' },

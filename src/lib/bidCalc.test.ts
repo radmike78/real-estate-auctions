@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SAMPLE_PROPERTIES } from '../data/sampleProperties';
-import { BLANK_INPUTS, maxBidSteps, START_INPUTS, costsAtBid, defaultsFor, maxSafeBid, profitAtBid, redemptionOutcome, REDEMPTION_RULES, requiredProfit, ruleOf, sanitizeInputs, stressGrid, stressTests, totalMonths, type BidInputs, cashNeededAtBid } from './bidCalc';
+import { BLANK_INPUTS, maxBidSteps, START_INPUTS, costsAtBid, defaultsFor, maxSafeBid, profitAtBid, redemptionOutcome, REDEMPTION_RULES, requiredProfit, ruleOf, sanitizeInputs, stressGrid, stressTests, totalMonths, type BidInputs, cashNeededAtBid, proposedPriceOf, resultAtPrice } from './bidCalc';
 import { daysUntil, whenLabel } from '../components/ResultsList';
 
 const base: BidInputs = { ...BLANK_INPUTS, exitValue: 400_000, repairs: 40_000, buyerPremiumPct: 5, financedPct: 70 };
@@ -54,6 +54,20 @@ describe('maximum safe bid', () => {
       expect(ds.redemptionMonths).toBe(12); // the 1-year redemption comes before any work
       expect(totalMonths(ds)).toBeGreaterThanOrEqual(12);
     }
+  });
+
+  it('gives a Nevada court-ordered foreclosure sale the 1-year redemption (NRS 21.190, 21.210)', () => {
+    const judicial = SAMPLE_PROPERTIES.find((p) => p.sale?.saleType === 'JUDICIAL_FORECLOSURE' && p.state === 'NV')!;
+    expect(judicial).toBeTruthy();
+    const d = defaultsFor(judicial);
+    expect(ruleOf(d)).toBe('sheriff');
+    expect(d.redemptionMonths).toBe(12);
+    expect(d.redemptionRatePct).toBe(12);
+    expect(d.holdingMonths).toBe(3);
+    expect(d.titleLegal).toBe(1_500);
+    // A trustee sale still has no owner redemption.
+    const trustee = SAMPLE_PROPERTIES.find((p) => p.sale?.saleType === 'TRUSTEE_SALE')!;
+    expect(ruleOf(defaultsFor(trustee))).toBe('none');
   });
 });
 
@@ -267,5 +281,20 @@ describe('an offer on a listed home', () => {
     const need = cashNeededAtBid(i, 250_000);
     expect(need).toBeLessThan(250_000 * 0.5);
     expect(need).toBeCloseTo(Math.max(250_000 * 0.2 + c.transferTax + 3_000, c.total - c.selling - c.loan), 2);
+  });
+});
+
+describe('your own price', () => {
+  it('is kept with the saved numbers, and judged before the asking price', () => {
+    const v = sanitizeInputs({ ...BLANK_INPUTS, minimumBid: 200_000, proposedPrice: 190_000 }, BLANK_INPUTS);
+    expect(v.proposedPrice).toBe(190_000);
+    expect(proposedPriceOf(v)).toEqual({ price: 190_000, source: 'yours' });
+    expect(proposedPriceOf({ ...v, proposedPrice: 0 })).toEqual({ price: 200_000, source: 'listed' });
+    expect(sanitizeInputs({ proposedPrice: -5 }, BLANK_INPUTS).proposedPrice).toBeUndefined();
+    // Its result doesn't move the walk-away price.
+    const a = resultAtPrice(v, 190_000), b = resultAtPrice(v, 200_000);
+    expect(a.profit - b.profit).toBeGreaterThan(0);
+    expect(b.cashPeak - a.cashPeak).toBeGreaterThan(0);
+    expect(maxSafeBid(v).maxBid).toBe(maxSafeBid({ ...v, proposedPrice: 150_000 }).maxBid);
   });
 });

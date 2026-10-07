@@ -112,7 +112,7 @@ function buyGroup<T extends BuyInputs>(repairsLabel = 'Repairs'): CalcGroup<T> {
  */
 function forOffer<T>(groups: CalcGroup<T>[]): CalcGroup<T>[] {
   const relabel: Record<string, { label?: string; hint?: string; more?: string }> = {
-    cashAvailable: { label: 'Cash you can put in, all in', hint: 'Down payment, closing costs and repairs. 0 for no limit.', more: 'Use your investable cash from My plan, less the reserves your lender wants you to keep. Your walk-away price never needs more cash than this.' },
+    cashAvailable: { label: 'Cash you can put in, all in', hint: 'Down payment, closing costs and repairs. 0 for no limit.', more: 'Starts at your investable cash from My plan: subtract the reserves your lender wants you to keep. Your walk-away price never needs more cash than this.' },
     transferTaxPer500: { hint: 'Your contract says who pays. Enter 0 if the seller pays it.' },
     survivingLiens: { label: 'Liens you’d have to pay', hint: 'Usually paid off at closing. Check the title report.' },
     titleLegal: { label: 'Closing costs: title, escrow, recording', hint: 'Lender fees go in “Loan costs” below.', more: 'Your Loan Estimate or the lender’s term sheet and the escrow officer’s estimate have the real figures. Together with lender fees, closing costs often run 2–4% of the price.' },
@@ -154,7 +154,7 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false, exampl
       <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
         <span>{title}</span>
         <strong>{r.noBidWorks ? (offer ? 'No offer works' : 'No bid works') : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : r.overCap ? 'More than $1 billion' : 'No limit yet'}</strong>
-        <small>{r.noBidWorks ? (r.loanTooBig ? 'The refinance you entered costs more a year than the property earns, so no price works with that loan. Try a smaller loan, or run it all cash.' : 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.') : !Number.isFinite(r.maxBid) && r.overCap ? 'Check the rent and costs you entered: a price that high is almost always a typo.' : !Number.isFinite(r.maxBid) ? 'Enter the return you want, or the cash you can bring, to get a walk-away price.' : r.limitedBy === 'cash' ? (offer ? 'Set by the cash you can put in: the down payment, closing costs and repairs.' : 'Set by the cash you can bring: the bid and every cost until it’s ready to rent.') : r.limitedBy === 'dscr' ? 'Set by the lender’s minimum coverage (income ÷ loan payment), not your return target: above this price the loan is too big for the income.' : target}</small>
+        <small>{r.noBidWorks ? (r.loanTooBig ? 'The refinance you entered costs more a year than the property earns, so no price works with that loan. Try a smaller loan, or run it all cash.' : 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.') : !Number.isFinite(r.maxBid) && r.overCap ? 'Check the rent and costs you entered: a price that high is almost always a typo.' : !Number.isFinite(r.maxBid) ? (offer ? 'Enter the return you want, or the cash you can put in, to get a walk-away price.' : 'Enter the return you want, or the cash you can bring, to get a walk-away price.') : r.limitedBy === 'cash' ? (offer ? 'Set by the cash you can put in: the down payment, closing costs and repairs.' : 'Set by the cash you can bring: the bid and every cost until it’s ready to rent.') : r.limitedBy === 'dscr' ? 'Set by the lender’s minimum coverage (income ÷ loan payment), not your return target: above this price the loan is too big for the income.' : target}</small>
       </div>
       {!offer && r.debtService > 0 && !r.noBidWorks && Number.isFinite(r.maxBid) && (
         <p className="calc-note small warn">
@@ -317,7 +317,7 @@ function LenderView({ v, at: atP, onPrice }: { v: RentInputs; at: PriceAt; onPri
         {r.dscr === null ? '' : r.dscr >= 1.2 ? 'The DSCR ratio is in the range most DSCR lenders like.' : r.dscr >= 1 ? 'Some DSCR lenders accept this ratio, usually at a higher rate or with more down.' : 'This ratio is below what most DSCR lenders accept.'}
       </p>
       <p className="small">
-        These are Fannie Mae’s long-term rental rules (Selling Guide B3-3.8-02); other lenders and programs differ. For a short-term rental, Fannie Mae counts 50% of the rent and any surplus can only offset the payment (B3-3.8-03).
+        These are Fannie Mae’s long-term rental rules (Selling Guide B3-3.8-02); other lenders and programs differ. The lender must also document your current housing payment to count any of this rent. For a short-term rental on a one-unit investment property, Fannie Mae counts 50% of the rent and any surplus can only offset the payment (B3-3.8-03). Lenders must follow these 2026 rules for applications dated on and after December 1, 2026, and may adopt them sooner, so ask yours which rules it uses.
         {!onPrice && ' Refinancing a cash or hard-money purchase usually waits 6 to 12 months; ask lenders before you buy.'}{' '}
         <a href="#/learn/financing">Getting approved, DSCR loans and refinancing&nbsp;→</a>
       </p>

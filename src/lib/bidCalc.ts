@@ -44,6 +44,9 @@ export interface BidInputs {
   /** 1 to set the profit you want as a dollar amount (targetProfitMin) instead of a % of the resale value. */
   profitInDollars: number;
   cashAvailable: number; // cash you can bring on auction day (0 = no limit)
+  /** The price you plan to offer or bid ("Check an offer"), kept with a saved deal so its packet can show the
+   * result at your own price, not just at the walk-away price. 0 or missing: not entered. */
+  proposedPrice?: number;
 }
 
 export interface BidResult {
@@ -198,16 +201,37 @@ export function redemptionPremiumPct(i: BidInputs, months: number): number {
   return months > 12 && nz(i.redemptionFlat2Pct) > 0 ? nz(i.redemptionFlat2Pct) : nz(i.redemptionRatePct);
 }
 
+/** The downside cases: the same deal with a lower resale value, higher repairs, a slower sale, and all three. */
+export function stressCases(i: BidInputs): { label: string; inputs: BidInputs }[] {
+  const at = (patch: Partial<BidInputs>) => ({ ...i, ...patch });
+  return [
+    { label: 'As entered', inputs: at({}) },
+    { label: 'Resale value 10% lower', inputs: at({ exitValue: i.exitValue * 0.9 }) },
+    { label: 'Repairs 25% higher', inputs: at({ repairs: i.repairs * 1.25 }) },
+    { label: 'Takes 3 months longer', inputs: at({ holdingMonths: i.holdingMonths + 3 }) },
+    { label: 'All three at once', inputs: at({ exitValue: i.exitValue * 0.9, repairs: i.repairs * 1.25, holdingMonths: i.holdingMonths + 3 }) },
+  ];
+}
+
 /** How the walk-away price moves if the deal goes worse (or better) than planned. */
 export function stressTests(i: BidInputs): { label: string; maxBid: number }[] {
-  const at = (patch: Partial<BidInputs>) => maxSafeBid({ ...i, ...patch }).maxBid;
-  return [
-    { label: 'As entered', maxBid: at({}) },
-    { label: 'Resale value 10% lower', maxBid: at({ exitValue: i.exitValue * 0.9 }) },
-    { label: 'Repairs 25% higher', maxBid: at({ repairs: i.repairs * 1.25 }) },
-    { label: 'Takes 3 months longer', maxBid: at({ holdingMonths: i.holdingMonths + 3 }) },
-    { label: 'All three at once', maxBid: at({ exitValue: i.exitValue * 0.9, repairs: i.repairs * 1.25, holdingMonths: i.holdingMonths + 3 }) },
-  ];
+  return stressCases(i).map((c) => ({ label: c.label, maxBid: maxSafeBid(c.inputs).maxBid }));
+}
+
+/**
+ * The result at one actual price (your offer or bid, or the asking price): profit, the cash on the day (the price
+ * plus any buyer's premium) and the most cash you'll have in at once, through repairs and holding until it sells.
+ */
+export function resultAtPrice(i: BidInputs, price: number): { price: number; profit: number; cashOnDay: number; cashPeak: number; cashLeft: number } {
+  const c = costsAtBid(i, price);
+  return { price, profit: r2(profitAtBid(i, price)), cashOnDay: r2(price + c.premium), cashPeak: r2(cashNeededAtBid(i, price)), cashLeft: r2(c.total - c.selling - c.loan) };
+}
+
+/** The price to judge the deal at: the offer or bid you entered, or else the asking price or opening bid. */
+export function proposedPriceOf(i: BidInputs): { price: number; source: 'yours' | 'listed' } | null {
+  if (nz(i.proposedPrice ?? 0) > 0) return { price: nz(i.proposedPrice ?? 0), source: 'yours' };
+  if (nz(i.minimumBid) > 0) return { price: nz(i.minimumBid), source: 'listed' };
+  return null;
 }
 
 export const GRID_VALUE_STEPS = [-10, 0, 5] as const;
@@ -311,16 +335,20 @@ export function defaultsFor(p: Property): BidInputs {
   const s = p.sale;
   const money = moneySummary(p);
   const type = s?.saleType;
+  // In Nevada a court-ordered (judicial) foreclosure sale is redeemable like an execution sale: up to 1 year,
+  // at the price plus 1% a month (NRS 21.190, 21.210). Every listing DeedOwl holds today is in Nevada; other
+  // states' judicial sales follow their own rules, so they keep a blank redemption for the buyer to fill in.
+  const courtSale = type === 'SHERIFF_EXECUTION' || (type === 'JUDICIAL_FORECLOSURE' && p.state === 'NV');
   const titleLegal =
     type === 'TAX_DEED' ? 3_800 // title search + an uncontested quiet title ($1,500–$5,000+)
     : type === 'HOA_FORECLOSURE' ? 2_800 // title search + attorney review of the HOA sale
-    : type === 'SHERIFF_EXECUTION' || type === 'FEDERAL_TAX_SEIZURE' ? 1_500
+    : courtSale || type === 'FEDERAL_TAX_SEIZURE' ? 1_500
     : 500; // title search / O&E report + recording
   const possession = p.occupancy === 'Vacant' ? 300 : p.occupancy === 'Unknown' ? 1_500 : 3_500;
   // The redemption wait comes first (hold off on repairs), then months to fix and sell.
-  const rule = REDEMPTION_RULES[type === 'SHERIFF_EXECUTION' ? 'sheriff' : type === 'FEDERAL_TAX_SEIZURE' ? 'irs' : type === 'HOA_FORECLOSURE' ? 'hoa' : 'none'];
+  const rule = REDEMPTION_RULES[courtSale ? 'sheriff' : type === 'FEDERAL_TAX_SEIZURE' ? 'irs' : type === 'HOA_FORECLOSURE' ? 'hoa' : 'none'];
   const holdingMonths =
-    type === 'SHERIFF_EXECUTION' || type === 'FEDERAL_TAX_SEIZURE' ? 3
+    courtSale || type === 'FEDERAL_TAX_SEIZURE' ? 3
     : type === 'HOA_FORECLOSURE' ? 5
     : type === 'TAX_DEED' ? 12 // resale usually waits for a quiet title action (or the 2-year window after the deed)
     : 6;
@@ -351,7 +379,7 @@ export const INPUT_MAX: Record<keyof BidInputs, number> = {
   minimumBid: 1e10, exitValue: 1e10, repairs: 1e10, contingencyPct: 100, buyerPremiumPct: 100, transferTaxPer500: 100, survivingLiens: 1e10,
   titleLegal: 1e10, possession: 1e10, redemptionMonths: 120, redemptionRatePct: 100, redemptionDaily: 1, redemptionFlat: 1, redemptionFlat2Pct: 100, redemptionChecked: 1, holdingMonths: 600,
   monthlyCarry: 1e10, financedPct: 100, interestRatePct: 100, pointsPct: 100, sellingCostPct: 100, targetProfitPct: 100,
-  targetProfitMin: 1e10, profitInDollars: 1, cashAvailable: 1e10, loanAtClosing: 1,
+  targetProfitMin: 1e10, profitInDollars: 1, cashAvailable: 1e10, loanAtClosing: 1, proposedPrice: 1e10,
 };
 /** A typed or saved value made safe: 0 for invalid or negative, capped at the input's maximum. */
 export const clampInput = (k: keyof BidInputs, v: number) => (Number.isFinite(v) && v > 0 ? Math.min(v, INPUT_MAX[k]) : 0);
@@ -364,5 +392,8 @@ export function sanitizeInputs(saved: unknown, defaults: BidInputs): BidInputs {
     const v = (saved as Record<string, unknown>)[k];
     if (typeof v === 'number' && Number.isFinite(v) && v >= 0) out[k] = clampInput(k, v);
   }
+  // Your own price isn't a calculator default, so it's carried over on its own.
+  const pp = (saved as Record<string, unknown>).proposedPrice;
+  if (typeof pp === 'number' && clampInput('proposedPrice', pp) > 0) out.proposedPrice = clampInput('proposedPrice', pp);
   return out;
 }

@@ -58,10 +58,10 @@ export const DRILLS: Drill[] = [
           { label: 'Sale A: $272,000', detail: '3 bed, 2 bath, 1,480 sq ft, average condition, sold 2 months ago, 0.4 miles away', good: true, why: 'Similar size, age and condition, recent and close: a strong comparable.' },
           { label: 'Sale B: $268,000', detail: '3 bed, 2 bath, 1,550 sq ft, average condition, sold 4 months ago, 0.7 miles away', good: true, why: 'Also similar and recent. Two good comps point to about $270,000.' },
           { label: 'Sale C: $395,000', detail: '4 bed, 3 bath, 2,300 sq ft, fully remodeled, sold 1 month ago, 0.5 miles away', good: false, why: 'Much bigger and remodeled. It tells you what a different house is worth, not this one.' },
-          { label: 'Sale D: $240,000', detail: '3 bed, 2 bath, 1,500 sq ft, sold 14 months ago, 0.3 miles away', good: false, why: 'Over a year old. Prices may have moved since, so use it only if nothing recent exists.' },
+          { label: 'Sale D: $240,000', detail: '3 bed, 2 bath, 1,500 sq ft, poor condition (no working air conditioning, kitchen torn out), sold 14 months ago, 0.3 miles away', good: false, why: 'Its age alone wouldn’t rule it out: an older sale can still help if you adjust it for how prices have moved since. The problem is condition. A house with no working air conditioning and no kitchen isn’t a close match for this livable one, and Sales A and B are similar, recent and close, so they’re the better evidence.' },
           { label: 'Sale E: $205,000', detail: '3 bed, 2 bath, 1,510 sq ft, bank sale with fire damage, sold as-is 3 months ago', good: false, why: 'A distressed sale of a damaged house. It sets a floor for a wreck, not the value of a livable home.' },
         ],
-        lesson: 'Value comes from recent sales of similar homes nearby, in similar condition. Here that’s about $270,000, so at $265,000 you’d be paying nearly full price for a house that still needs work.',
+        lesson: 'Value comes from the best evidence you have: sales of similar homes nearby, in similar condition, as recent as you can find. When you must use an older sale, adjust it for how the market has moved since. Here Sales A and B point to about $270,000, so at $265,000 you’d be paying nearly full price for a house that still needs work.',
       },
       {
         kind: 'pick',
@@ -926,9 +926,9 @@ export const DRILLS: Drill[] = [
         question: 'You’re not moving in. When is the property yours?',
         multi: false,
         options: [
-          { label: 'Not for at least 15 days. Eligible tenants and bidders can give notice, then have up to 45 days after the sale to match or beat my bid', good: true, why: 'Right (Civil Code 2924m). Title stays with the owner until the sale is final.' },
+          { label: 'Not for at least 15 days. Eligible tenants and bidders can give notice, then a tenant can match, and other eligible bidders can beat, my bid until day 45', good: true, why: 'Right (Civil Code 2924m). Until the sale is final you don’t get the trustee’s deed, so don’t take possession or start work. Once the deed is recorded on time, the sale counts as complete from 8 a.m. on the sale day (Civil Code 2924h(c)).' },
           { label: 'Immediately, when the auctioneer accepts my bid', good: false, why: 'Only a prospective owner-occupant who signs the required declaration gets a final sale right away.' },
-          { label: 'After a 1-year redemption period', good: false, why: 'California trustee’s sales have no redemption period; the 2924m window is a different rule.' },
+          { label: 'After a 1-year redemption period', good: false, why: 'A trustee’s sale under a deed of trust has no redemption period in California (an HOA’s nonjudicial sale has 90 days, Civil Code 5715(b)); the 2924m window is a different rule.' },
         ],
         lesson: 'Plan for the 15 to 45 day window: keep your funds available and don’t start work on a property that isn’t yours yet.',
       },
@@ -1112,7 +1112,7 @@ export const DRILLS: Drill[] = [
           { label: 'No. Once the auditor closes the sale on a parcel, I can’t rescind my bid', good: true, why: 'Right (59-2-1351.1(6)). Confirm the description matches the land before you bid.' },
           { label: 'Yes, within 30 days', good: false, why: 'There’s no cooling-off period.' },
         ],
-        lesson: 'If a tax title is later found invalid, your claim is limited to the smaller of the taxes, interest and penalties or what you paid (59-2-1352).* Bid only what you can afford to lose while title is uncertain.',
+        lesson: 'If a tax title is later found invalid, your claim is limited to the smaller of the taxes, interest and penalties or what you paid (59-2-1352). Bid only what you can afford to lose while title is uncertain.',
       },
       {
         kind: 'pick',
@@ -1219,7 +1219,7 @@ export const DRILLS: Drill[] = [
           { label: 'Record a notice of each amount with the county recorder, so it’s added to the redemption price', good: true, why: 'Right. Costs not recorded are waived (URCP 69C).' },
           { label: 'Keep the receipts at home', good: false, why: 'Without a recorded notice, you can’t add them to the redemption price.' },
         ],
-        lesson: 'Spend only on what protects the property. If someone asks in writing for an accounting of rents, you must give it, or the redemption period can be extended.',
+        lesson: 'Spend only on what protects the property. If someone asks in writing before the period ends, you must serve a sworn accounting of rents. The redemption period then runs until 7 days after you serve it. If you don’t serve it within 30 days, they can sue (within 60 days of asking), and the period runs until 21 days after the court’s order (URCP 69C(i)).',
       },
     ],
     verdict: {

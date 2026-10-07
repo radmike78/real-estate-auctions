@@ -86,10 +86,10 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     stories: [
       {
         tone: "good",
-        who: "A couple buying a vacant lot near Helotes (San Antonio), Texas",
+        who: "A buyer of a vacant lot near Helotes (San Antonio), Texas",
         year: "2023",
         title: "Listing agent’s phone call stopped a fake land sale",
-        happened: "A couple’s $250,000 cash offer on a one-acre vacant lot was accepted. But the “seller”, who had hired the listing agent online, was an impostor. The agent found a different phone number for the real owner and called it. A different voice was on the voicemail, so the agent stopped the sale. The station reported the buyers would have lost about $200,000.",
+        happened: "A buyer’s cash offer on a vacant lot of just over an acre, listed for $250,000, was accepted. But the “seller”, who had hired the listing agent online, was an impostor. The agent found a different phone number for the real owner and called it. A different voice was on the voicemail, so the agent stopped the sale. The station reported the buyers would have lost about $200,000.",
         lesson: "A careful agent who checks for themselves who really owns the property can save a buyer from wiring money to a thief.",
         source: {
           label: "KSAT 12 (San Antonio): Dirty deals: Imposters try to sell vacant land in Helotes they don’t own (Mar 30, 2023)",
@@ -171,7 +171,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   lender: {
     overview: [
       "A loan officer at a bank, credit union or mortgage company takes your application. They quote a rate and fees and guide the loan to closing. The same borrower can get different rates and fees from different lenders on the same day. So the lender you pick changes what you pay for years.",
-      "Most buyers don’t shop around. Freddie Mac found more than three-quarters applied to only one lender. Yet one extra quote saved about $1,500 on average over the life of the loan, and five quotes saved about $3,000. Federal rules ban paying loan officers more for steering you into a higher rate. But the CFPB has caught lenders doing it.",
+      "Most buyers don’t shop around. A CFPB survey cited by Freddie Mac found more than three-quarters applied to only one lender. Yet one extra quote saved about $1,500 on average over the life of the loan, and five quotes saved about $3,000. Federal rules ban paying loan officers more for steering you into a higher rate. But the CFPB has caught lenders doing it.",
       "For forced-sale buyers: county tax sales and trustee’s sales usually require cash or certified funds at the sale. So a regular mortgage often can’t be used there. Mortgages work best for bank-owned (REO) and Fannie Mae/Freddie Mac homes bought by contract, with time to close."
     ],
     bestFor: [
@@ -594,7 +594,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         who: "A couple buying a home in West Hills (Los Angeles), California",
         year: "2024",
         title: "$160,000 down payment wired to a fake escrow officer",
-        happened: "After months of being outbid, the couple got an email with wire instructions. It looked exactly like their escrow officer’s, and they wired $160,000. It was a scammer, likely inside the escrow company’s email. The money was not recovered. They closed only by borrowing from family.",
+        happened: "After being outbid three times, the couple got an email with wire instructions. It looked exactly like their escrow officer’s, and they wired $160,000. It was a scammer, likely inside the escrow company’s email. The money was not recovered. They closed only by borrowing from family.",
         lesson: "Never wire money based on an email, even one that looks right. Call your escrow officer at a known number first.",
         source: {
           label: "NBC 7 San Diego / NBC4: California couple loses $160,000 in down payment scam (Feb 21, 2024)",
@@ -973,7 +973,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     facts: [
       {
-        text: "Nevada’s Residential Recovery Fund (created 1999) has paid about $15 million to harmed homeowners. It covers owners who live in the single-family home where the work was done. You must file a complaint within four years after the work was finished, and the fund pays at most $40,000 per claim.",
+        text: "Nevada’s Residential Recovery Fund (created 1999) has paid about $15 million to harmed homeowners. It covers owners who live in the single-family home where the work was done. You must file a complaint within four years after the work was finished, and the fund pays at most $40,000 per claim (NRS 624.480, 624.510).",
         source: {
           label: "KTNV Las Vegas: Homeowners harmed by contractors awarded almost $400K through recovery fund (Jan. 23, 2024)",
           url: "https://www.ktnv.com/news/homeowners-harmed-by-contractors-awarded-almost-400k-through-recovery-fund"
@@ -1799,7 +1799,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     overview: [
       "An environmental consultant checks whether a property may be contaminated, usually through a Phase I Environmental Site Assessment. That means a records review, interviews and a site visit. If the Phase I finds warning signs, a Phase II tests soil, groundwater or tanks. Old gas stations, dry cleaners, auto shops and industrial lots are the classic risks.",
       "A current owner can be liable for cleanup even if it did not cause the pollution (the federal Superfund law, CERCLA). Buyers can qualify as “bona fide prospective purchasers” only if they meet several conditions. One key condition is completing “all appropriate inquiries”. That generally means a Phase I under ASTM E1527-21, done by a qualified environmental professional. It must be done within one year before buying. The interviews, records review, site visit, lien search and the environmental professional’s signed declaration must be done or updated within 180 days. After buying, you must keep meeting “continuing obligations”: take “reasonable steps” to stop releases and limit exposure, follow any land-use limits, cooperate and give access to cleanup agencies, answer their information requests and give required notices. A clean Phase I isn’t a guarantee the site is clean.",
-      "Courts have denied this protection to buyers who knew of contamination but didn’t act. One example is a Las Vegas shopping-center owner that demolished a former dry cleaner without removing contaminated soil. On the good side, EPA Brownfields grants have paid for Phase I and II assessments that let abandoned sites be sold and reused."
+      "Courts have denied this protection to buyers who knew of contamination but didn’t act; a South Carolina developer lost it for being too slow to fill sumps (PCS Nitrogen, 2013). In a Las Vegas case, an owner that demolished a former dry cleaner without removing contaminated soil was held liable under Nevada law. The federal appeals court called its proof that it was a protected buyer “woefully insufficient” and sent that question back for another try. On the good side, EPA Brownfields grants have paid for Phase I and II assessments that let abandoned sites be sold and reused."
     ],
     bestFor: [
       "Buyers of commercial, industrial or mixed-use land, especially former gas stations, dry cleaners and auto shops.",
@@ -1891,7 +1891,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         who: "Owners of the Maryland Square Shopping Center in Las Vegas, Nevada",
         year: "2013",
         title: "Bought a dry-cleaner site, then spread the contamination",
-        happened: "A former dry cleaner had leaked the solvent PCE under a Las Vegas shopping center. It reached groundwater beneath nearby homes. A buyer bought the site in 2005, knowing about the contamination. It tore down the building in 2006 and did not remove contaminated soil, so the state had to. The Ninth Circuit called the buyer’s evidence for bona fide prospective purchaser status “woefully insufficient”. It held the buyer liable to the state under Nevada law.",
+        happened: "A former dry cleaner had leaked the solvent PCE under a Las Vegas shopping center. It reached groundwater beneath nearby homes. A buyer bought the site in 2005, knowing about the contamination. It tore down the building in 2006 and did not remove contaminated soil, so the state had to. The Ninth Circuit called the buyer’s evidence for bona fide prospective purchaser status “woefully insufficient”. It held the buyer liable to the state under Nevada law. On the federal (CERCLA) claim, the court sent the case back so the buyer could try to prove it qualified.",
         lesson: "Knowing about contamination isn’t enough. You must do proper inquiries and take reasonable steps after buying.",
         source: {
           label: "U.S. Court of Appeals, 9th Circuit: Voggenthaler v. Maryland Square Shopping Center LLC, 724 F.3d 1050 (2013), Caselaw Access Project",

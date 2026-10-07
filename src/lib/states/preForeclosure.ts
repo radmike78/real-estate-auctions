@@ -33,7 +33,7 @@ export const TIMELINE: ByStateLines = {
     { text: 'In Utah, notice of default: the trustee records it with the county recorder. Within 3 months after that, the owner or a junior lienholder can catch up and cure the default (Utah Code 57-1-24, 57-1-31).' },
     { text: 'In Utah, 3+ months: this is the shortest wait before notice of sale can be given (Utah Code 57-1-24). A community association (HOA) uses the same steps, but first sends the owner a 30-day notice (Utah Code 57-8a-303).' },
     { text: 'In Utah, notice of sale: it is published in a newspaper once a week for 3 weeks, on the state’s public legal notice website for 30 days, and posted on the property and at the county recorder at least 20 days before the sale (Utah Code 57-1-25).' },
-    { text: 'In Utah, auction: it is held at a courthouse in the county, between 8 a.m. and 5 p.m. It can be postponed. A postponement of more than 45 days needs a new notice (Utah Code 57-1-25, 57-1-27). Follow the date on the trustee’s notice of sale.' },
+    { text: 'In Utah, auction: it is held at a courthouse in the county, between 8 a.m. and 5 p.m. It can be postponed. A new notice is needed only if the sale moves more than 45 days past the date in the original notice (Utah Code 57-1-25, 57-1-27). Follow the date on the trustee’s notice of sale.' },
   ],
   TX: TX_PRE_TIMELINE,
 };
@@ -97,7 +97,7 @@ export const READ_NOTICE: ByStateLines = {
     { text: 'In Nevada, the law requires the date, time and place, a description of the property and its address, and the trustee’s contact details.' },
   ],
   CA: [
-    { text: 'In California, the notice of sale must give the time of sale, the street address and the exact place of the sale, and a description of the property. It must be recorded, and posted on the property, at least 20 days before the sale (Civil Code 2924f).' },
+    { text: 'In California, the notice of sale must give the time of sale, the street address and the exact place of the sale, and a description of the property. It must be recorded, and posted on the property, at least 20 days before the sale (Civil Code 2924f). It must also state the total unpaid balance and estimated costs as of the first publication (Civil Code 2924f(b)(7)).' },
   ],
   AZ: [
     { text: 'In Arizona, the law requires the date, time and place; the street address, legal description and parcel number; and the original loan amount. It also requires the lender’s and trustee’s names and addresses, the trustee’s phone number and the trustee’s regulator (A.R.S. 33-808).', links: [['A.R.S. 33-808', 'https://www.azleg.gov/ars/33/00808.htm']] },

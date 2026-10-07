@@ -18,28 +18,28 @@ type Way = 'offer' | 'auction' | 'lien';
 /** How the property is bought: an offer on a listing, a bid at an auction, or a lien certificate. */
 export const wayOf = (d: Pick<Deal, 'kind'>): Way => (d.kind === 'lien' ? 'lien' : d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short' ? 'offer' : 'auction');
 
-/** The stage's name for this kind of sale (you make an offer on a listing, but bid at an auction). */
-export function stageLabel(stage: DealStage, d: Pick<Deal, 'kind'>): string {
+/** The stage's name for this kind of sale (you make an offer on a listing, but bid at an auction) and plan. */
+export function stageLabel(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: Deal['plan'] }): string {
   const w = wayOf(d);
   switch (stage) {
     case 'researching': return 'Researching';
     case 'offer': return w === 'offer' ? 'Preparing an offer' : 'Preparing to bid';
     case 'contract': return w === 'offer' ? 'Under contract' : 'Won: paying and recording';
     case 'closed': return w === 'offer' ? 'Closed' : w === 'lien' ? 'Certificate in hand' : 'Deed recorded';
-    case 'owned': return w === 'lien' ? 'Holding the certificate' : 'Owned and operating';
+    case 'owned': return w === 'lien' ? 'Holding the certificate' : d.plan === 'flip' ? 'Fixing and selling' : 'Owned and operating';
     case 'passed': return 'Passed';
   }
 }
 
 /** One line on what the stage means, for the stage picker. */
-export function stageHint(stage: DealStage, d: Pick<Deal, 'kind'>): string {
+export function stageHint(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: Deal['plan'] }): string {
   const w = wayOf(d);
   switch (stage) {
     case 'researching': return 'Checking whether it fits, before any offer or bid. No deadlines are running yet.';
     case 'offer': return w === 'offer' ? 'It checked out: you’re setting your price, the earnest money and your questions before you offer.' : 'It checked out: you’re setting your maximum bid and getting the funds ready.';
     case 'contract': return w === 'offer' ? 'The seller accepted your offer. The contract’s deadlines are running.' : 'You won the bid. Payment and recording deadlines are running.';
     case 'closed': return w === 'offer' ? 'It’s yours: insurance, locks, utilities and repairs come first.' : w === 'lien' ? 'You hold the certificate: track it until it’s paid off.' : 'The deed is yours: check redemption, possession and title before you remodel.';
-    case 'owned': return w === 'lien' ? 'Tracking payoffs, interest and what to do with unpaid liens.' : 'Renting or holding it: recording real rent and costs each month.';
+    case 'owned': return w === 'lien' ? 'Tracking payoffs, interest and what to do with unpaid liens.' : d.plan === 'flip' ? 'Fixing it up and selling it: tracking repair and holding costs against your budget.' : 'Renting or holding it: recording real rent and costs each month.';
     case 'passed': return 'You walked away. A good result when the evidence says no.';
   }
 }
@@ -263,7 +263,14 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       return out;
     }
     if (w === 'auction') out.push(task({ key: 'before-remodel', label: `Check redemption, possession and title for ${n} before you remodel`, produces: 'a written answer on any redemption period, lawful possession and title insurance', href: ROADMAP_HREF, support: [L.guides], done: stepDone('a-before-remodel') }));
-    out.push(task({ key: 'first-week', label: `Your first week with ${n}`, produces: 'insurance in your name, locks changed, utilities on, and a dated record of its condition', href: ROADMAP_HREF, support: [L.afterClosing, L.caseStage('after', 'Your first weeks')], done: stepDone('first-week') }));
+    out.push(task({ key: 'first-week', label: `Your first week with ${n}`, produces: 'insurance in your name, locks changed, utilities on, and a dated record of its condition', href: ROADMAP_HREF, support: d.plan === 'flip' ? [L.caseStage('after', 'Your first weeks')] : [L.afterClosing, L.caseStage('after', 'Your first weeks')], done: stepDone('first-week') }));
+    if (d.plan === 'flip') {
+      // A flip gets the work and the sale, not rental tasks.
+      out.push(task({ key: 'repairs', label: `Get repair bids for ${n} and start the work`, produces: 'written bids, permits where needed, and the work under way', href: ROADMAP_HREF, support: [L.pro('contractor')], done: stepDone('repairs') }));
+      out.push(task({ key: 'owned', label: `Track ${n}’s repair and holding costs against your budget`, produces: 'a monthly record of what the repairs and holding really cost, against the budget in your walk-away price', href: packetHref(d, 'owned'), done: !!owned[d.id] }));
+      out.push(task({ key: 'stage', label: `Mark ${n} as ${stageLabel('owned', d).toLowerCase()}`, produces: 'the selling tasks: list it at a price backed by sold comps, and record the sale', href: packetHref(d, 'owned'), setStage: 'owned', done: false }));
+      return out;
+    }
     out.push(task({ key: 'owned', label: `Start tracking ${n}’s real rent and costs`, produces: 'a monthly record of actual rent and costs, against the cash flow you planned', href: packetHref(d, 'owned'), support: [L.afterClosing], done: !!owned[d.id] }));
     out.push(task({ key: 'stage', label: `Mark ${n} as owned and operating`, produces: 'the monthly tasks: record the rent and costs, and review it against your goal', href: packetHref(d, 'owned'), setStage: 'owned', done: false }));
     return out;
@@ -273,6 +280,9 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     if (w === 'lien') {
       out.push(task({ key: 'hold', label: `Track ${n}’s payoff, interest and later taxes`, produces: 'an up-to-date record of what you’re owed', href: ROADMAP_HREF, support: [L.guides], done: stepDone('c-hold') }));
       out.push(task({ key: 'decide-unpaid', label: `Decide what to do if ${n} is never paid`, produces: 'a dated plan, with your attorney, for an unpaid lien', href: ROADMAP_HREF, support: [L.pro('attorney')], done: stepDone('c-decide') }));
+    } else if (d.plan === 'flip') {
+      out.push(task({ key: 'list', label: `List ${n} for sale at a price backed by sold comps`, produces: 'recent sales of similar homes nearby and a net sheet (price, commission, closing costs, loan payoff and tax), then the listing', href: ROADMAP_HREF, support: [L.pro('agent'), L.pro('cpa')], done: stepDone('exit-sell') }));
+      out.push(task({ key: 'sold', label: `Record ${n}’s sale and your actual profit`, produces: 'the closing statement, and your real profit against the walk-away price you planned', href: ROADMAP_HREF, support: [L.pro('cpa')], done: false }));
     } else {
       const month = lastMonth(now);
       out.push(task({ key: 'month', label: `Record last month’s rent and costs for ${n}`, produces: 'its actual cash flow for the month, against what you planned', href: packetHref(d, 'owned'), support: [L.caseStage('run', 'Run it and review')], done: !!owned[d.id]?.months.some((m) => m.month >= month) }));

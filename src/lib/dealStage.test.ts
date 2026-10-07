@@ -126,6 +126,25 @@ describe('the next action follows the stage', () => {
     expect(last(owned)?.key).toBe('next');
   });
 
+  it('gives a flip repair and selling tasks after closing, not rental ones', () => {
+    const flip: Deal = { ...deal, kind: 'trustee', plan: 'flip' };
+    const closed = stageTasks(flip, 'closed', EMPTY_PACKET, now);
+    const labels = closed.map((t) => t.label).join(' | ');
+    expect(labels).toMatch(/Get repair bids for 123 Main St and start the work/);
+    expect(labels).toMatch(/repair and holding costs against your budget/);
+    expect(labels).not.toMatch(/rent/i);
+    expect(last(closed)?.label).toBe('Mark 123 Main St as fixing and selling');
+    expect(stageLabel('owned', flip)).toBe('Fixing and selling');
+    expect(stageLabel('owned', deal)).toBe('Owned and operating');
+    const owned = stageTasks(flip, 'owned', EMPTY_PACKET, now);
+    expect(owned.map((t) => t.key)).toEqual(['list', 'sold', 'next']);
+    expect(owned[0].label).toMatch(/price backed by sold comps/);
+    expect(owned[1].label).toMatch(/sale and your actual profit/);
+    expect(owned.map((t) => t.label).join(' | ')).not.toMatch(/rent/i);
+    // A rental keeps its monthly tasks.
+    expect(stageTasks(deal, 'closed', EMPTY_PACKET, now).map((t) => t.key)).toContain('owned');
+  });
+
   it('assigns each of a property’s roadmap steps to exactly one stage', () => {
     const all = Object.values(STAGE_STEPS).flat();
     expect(new Set(all).size).toBe(all.length);

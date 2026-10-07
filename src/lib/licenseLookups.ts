@@ -24,7 +24,7 @@ const REAL_ESTATE: Record<StateCode, Lookup> = {
 const INSURANCE: Record<StateCode, Lookup> = {
   NV: { who: 'Nevada Division of Insurance', url: 'https://di.nv.gov/nv/r/doi/licensing/search' },
   CA: { who: 'California Department of Insurance', url: 'https://cdicloud.insurance.ca.gov/cal/LicenseNumberSearch' },
-  AZ: { who: 'Arizona Department of Insurance and Financial Institutions', url: 'https://difi.az.gov/' },
+  AZ: { who: 'Arizona Department of Insurance and Financial Institutions (license search)', url: 'https://difi.az.gov/license-search' },
   UT: { who: 'Utah Insurance Department', url: 'https://insurance.utah.gov/' },
   TX: { who: 'Texas Department of Insurance (agent lookup)', url: 'https://www.tdi.texas.gov/agent/agent-lookup.html' },
 };

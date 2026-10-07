@@ -130,6 +130,9 @@ export const SALE_SCRIPTS: Record<SaleKindKey, SaleScript[]> = {
 // whether it's a subdivision or a condominium, and the TREC forms set the contract dates. These replace the general
 // lists for Texas guides (Tax Code 34.01, 34.015, 34.21; Property Code 82.113, 209.0092, 209.011; TREC 20-19, 45-2).
 const TX_TAX_NOTICE: SaleDoc = { name: 'The notice of sale and the county’s sale page', check: 'The sheriff or constable posts it before the first-Tuesday sale. Save it with the date you saved it. The county’s page sets how you register, whether the sale is in person or online, the funds it takes and when payment is due; those override any general summary. Check again the day before: properties are often pulled when the taxes are paid.' };
+// TREC 20-19, paragraph 7I, and TREC's FAQ on the Seller's Water Disclosure (Aug. 14, 2026): the contract, not a statute,
+// requires it, unless every statement in 7I(3) is true.
+const TX_WATER: SaleDoc = { name: 'The Seller’s Water Disclosure (groundwater and surface water rights), if the contract requires it', check: 'Ask your agent which box in paragraph 7I of the TREC contract applies. Box 1: you’ve already received it. Box 2: the seller delivers it within the days written in; if it never comes, you can end the contract before closing, and once it comes you can end it within 7 days or before closing, whichever is first, with your earnest money back. Box 3: it isn’t required because every statement listed there is true (no well, pond, lake or water tank the seller knows of, no surface water rights or severed groundwater rights, and water only from the supplier named in 3(e)). Read it when you get it, and record the delivery date and your 7-day deadline, or the reason it isn’t required.' };
 const TX_DOCS: Partial<Record<SaleKindKey, SaleDoc[]>> = {
   deed: [
     TX_TAX_NOTICE,
@@ -169,6 +172,7 @@ const TX_DOCS: Partial<Record<SaleKindKey, SaleDoc[]>> = {
     BUYER_AGREEMENT,
     { name: 'The TREC resale contract (form 20-19)', check: 'Price, earnest money and the option fee, the option period (your strict deadline to end the contract for any reason), the financing addendum’s deadlines and the closing date. Put every date on your calendar the day it’s signed.' },
     { name: 'The bank’s addendum', check: '“As-is” terms, who pays which costs, deposit and closing deadlines, and any per-day fee for closing late. It usually overrides the standard contract.' },
+    TX_WATER,
     INSPECTION,
     COMMITMENT,
     CLOSING,
@@ -178,6 +182,7 @@ const TX_DOCS: Partial<Record<SaleKindKey, SaleDoc[]>> = {
     PREAPPROVAL,
     BUYER_AGREEMENT,
     { name: 'The TREC resale contract (form 20-19)', check: 'Price, earnest money, the option fee and the closing date. With a short sale, these dates are tied to the addendum below.' },
+    TX_WATER,
     { name: 'TREC Short Sale Addendum (form 45-2)', check: 'Says the contract depends on every lienholder’s written approval (45-2, A, I). Read which dates change: for performance, the effective date becomes the day you’re told of the approval (D), while your option period begins on the original effective date and runs until it expires under paragraph 5 (F). Note the approval deadline and how to extend it, and have your agent write out every date for your contract.' },
     { name: 'Each lienholder’s approval letter', check: 'The price it accepts, the closing deadline and which costs it will and won’t pay. An approval doesn’t prove a posted foreclosure sale has been called off: have your agent or attorney confirm that in writing.' },
     INSPECTION,
@@ -196,15 +201,17 @@ const HOA_DEED: Partial<Record<string, SaleDoc>> = {
   UT: { name: 'The deed, or the certificate of sale', check: 'Trustee sale: the trustee sends the trustee’s deed for recording within 5 business days after you pay, and the former owner has no right to buy it back (Utah Code 57-1-28). Court foreclosure: you get a certificate of sale, and the owner or a junior creditor can redeem for 180 days (URCP 69C). Either way, if the sale wiped out a junior federal tax lien, the United States can still redeem: within 120 days or the state redemption period, whichever is longer, so 120 days after a trustee sale and 180 days after a court sale (26 U.S.C. 7425(d); 28 U.S.C. 2410(c)). If the sale didn’t wipe the lien out (the IRS didn’t get the required notice, or the United States wasn’t named in the court case), the lien simply stays on the home. Ask your title company before you renovate.' },
 };
 
-// Nevada's Clark County Treasurer lists cash, cashier's check or money order for tax deed and SID sale payments,
-// not wire (May 2025 auction notice; Treasurer FAQ).
-const NV_FUNDS: SaleDoc = { name: 'Cash, cashier’s check or money order', check: 'The forms the Clark County Treasurer lists for this sale; wire isn’t listed. Confirm them in the current notice, and have the exact amount ready by the payment deadline.' };
+// Clark County Treasurer payment forms. Tax deed sale: the May 2025 auction notice lists cash, cashier's check or money
+// order for the final payment, while the Treasurer's FAQ also lists wire. SID lien sale: the FAQ lists only cash,
+// cashier's check or money order.
+const NV_FUNDS_DEED: SaleDoc = { name: 'Cash, cashier’s check or money order', check: 'The May 2025 notice didn’t list wire for the final payment, though the Treasurer’s FAQ does. Confirm in the current notice, and have the exact amount ready by the payment deadline.' };
+const NV_FUNDS_SID: SaleDoc = { name: 'Cash, cashier’s check or money order', check: 'The forms the Clark County Treasurer lists for this sale; wire isn’t listed. Confirm them in the current notice, and have the exact amount ready by the payment deadline.' };
 
 export function saleDocsFor(guideKey: string, state: string): SaleDoc[] {
   const kind = saleKindOf(guideKey);
   if (state === 'TX' && TX_DOCS[kind]) return TX_DOCS[kind];
-  const nvFunds = state === 'NV' && (kind === 'deed' || kind === 'sid');
-  const docs = SALE_DOCS[kind].filter((d) => state === 'NV' || !/super-priority/.test(d.name)).map((d) => (nvFunds && d === FUNDS ? NV_FUNDS : d));
+  const nvFunds = state !== 'NV' ? undefined : kind === 'deed' ? NV_FUNDS_DEED : kind === 'sid' ? NV_FUNDS_SID : undefined;
+  const docs = SALE_DOCS[kind].filter((d) => state === 'NV' || !/super-priority/.test(d.name)).map((d) => (nvFunds && d === FUNDS ? nvFunds : d));
   const deed = kind === 'hoa' ? HOA_DEED[state] : undefined;
   return deed ? docs.map((d) => (/^Certificate of sale, then the deed/.test(d.name) ? deed : d)) : docs;
 }

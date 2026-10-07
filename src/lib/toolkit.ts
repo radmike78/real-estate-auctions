@@ -1,6 +1,8 @@
 // The investor toolkit: a first-deal roadmap to tick off, a buy box to fill in, and links to every free tool and
 // checklist on the site. Ticks and the buy box stay in this browser.
 
+import type { PriceAssumptions } from './myPlan';
+
 export * from './roadmap';
 
 /** An example buy box a beginner can start from and change. */
@@ -29,6 +31,8 @@ export interface BuyBox {
   beds: string;
   dealBreakers: string[];
   notes: string;
+  /** The loan assumptions behind a price limit set from the cash worksheet, so the buy box checks it the same way. */
+  priceAssumptions?: PriceAssumptions;
 }
 
 export const PROPERTY_TYPE_OPTIONS = ['Single-family house', 'Condo or townhouse', 'Duplex to fourplex', 'Manufactured home', 'Apartment building (5+ units)', 'Commercial property', 'Mixed-use property', 'Land'];
@@ -67,7 +71,17 @@ export function cleanBuyBox(v: unknown): BuyBox {
     beds: str(o.beds, 40),
     dealBreakers: pick(o.dealBreakers, DEAL_BREAKERS),
     notes: str(o.notes, 1000),
+    ...(cleanAssumptions(o.priceAssumptions) ? { priceAssumptions: cleanAssumptions(o.priceAssumptions) } : {}),
   };
+}
+
+/** Saved price assumptions, if they're all numbers in range (percentages and months up to 100). */
+function cleanAssumptions(v: unknown): PriceAssumptions | undefined {
+  if (!v || typeof v !== 'object') return undefined;
+  const o = v as Record<string, unknown>;
+  const keys = ['downPct', 'closingPct', 'reserveMonths', 'ratePct', 'taxInsPct'] as const;
+  if (!keys.every((k) => typeof o[k] === 'number' && Number.isFinite(o[k]) && (o[k] as number) >= 0 && (o[k] as number) <= 100)) return undefined;
+  return Object.fromEntries(keys.map((k) => [k, o[k]])) as unknown as PriceAssumptions;
 }
 
 /** The free tools and checklists on DeedOwl, grouped. */

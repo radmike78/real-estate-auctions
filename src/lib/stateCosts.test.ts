@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { redemptionOutcome, START_INPUTS } from './bidCalc';
-import { redemptionChoicesFor, redemptionPresetsFor, transferTaxFor } from './stateCosts';
+import { redemptionOutcome, ruleOf, START_INPUTS } from './bidCalc';
+import { offeredRedemptionRules, redemptionChoicesFor, redemptionPresetsFor, transferTaxFor } from './stateCosts';
 
 describe('state deal costs', () => {
   it('uses each state’s transfer tax per $500', () => {
@@ -49,7 +49,10 @@ describe('state deal costs', () => {
     // IRS interest can't carry into an HOA sale; Texas execution sales have no redemption; trustee and HOA sales can
     // leave the United States its 120 days when a junior federal tax lien was on title (26 USC 7425(d)).
     expect(redemptionChoicesFor('TX', 'hoa').keys).not.toContain('irs');
-    expect(redemptionChoicesFor('TX', 'court').keys).toEqual(['none']);
+    expect(redemptionChoicesFor('TX', 'court').keys).toEqual(['none', 'usCourt']);
+    // A court sale that named the United States leaves it up to a year to redeem (28 USC 2410(c)).
+    for (const st of ['NV', 'CA', 'AZ', 'UT', 'TX'] as const) expect(redemptionChoicesFor(st, 'court').keys).toContain('usCourt');
+    expect(redemptionPresetsFor('UT').usCourt).toMatchObject({ months: 12, ratePct: 6 });
     expect(redemptionChoicesFor('TX', 'trustee')).toMatchObject({ keys: ['none', 'txTaxLoanLong', 'txTaxLoanOther', 'usFederal'], start: 'none' });
     expect(redemptionChoicesFor('TX', 'trustee').confirm).toMatch(/32.06/);
     expect(redemptionChoicesFor('NV', 'hoa')).toMatchObject({ keys: ['hoa', 'usFederal'], start: 'hoa' });
@@ -60,10 +63,26 @@ describe('state deal costs', () => {
         for (const k of redemptionChoicesFor(st, kind).keys) expect(redemptionPresetsFor(st), `${st} ${kind} ${k}`).toHaveProperty(k);
   });
 
+  it('keeps a Texas property tax loan rule chosen after a reload, though a tax-sale rule has the same numbers', () => {
+    const offered = offeredRedemptionRules('TX', 'trustee');
+    for (const k of ['txTaxLoanLong', 'txTaxLoanOther']) {
+      const r = offered[k];
+      // What the calculator saves when the rule is picked, read back on reload.
+      const saved = JSON.parse(JSON.stringify({ ...START_INPUTS, redemptionMonths: r.months, redemptionRatePct: r.ratePct, redemptionDaily: r.daily, redemptionFlat: r.flat, redemptionFlat2Pct: r.flat2Pct, redemptionChecked: 1 }));
+      const cur = ruleOf(saved, offered);
+      expect(cur).toBe(k);
+      expect(redemptionChoicesFor('TX', 'trustee').keys).toContain(cur);
+    }
+    // A Texas tax sale still reads its own rule with the same numbers.
+    const h = redemptionPresetsFor('TX').txTaxHomestead;
+    expect(ruleOf({ ...START_INPUTS, redemptionMonths: h.months, redemptionRatePct: h.ratePct, redemptionDaily: h.daily, redemptionFlat: h.flat, redemptionFlat2Pct: h.flat2Pct }, offeredRedemptionRules('TX', 'taxSale'))).toBe('txTaxHomestead');
+    expect(Object.keys(offeredRedemptionRules('TX'))).toEqual(Object.keys(redemptionPresetsFor('TX')));
+  });
+
   it('offers only each state’s own redemption rules', () => {
-    expect(Object.keys(redemptionPresetsFor('NV'))).toEqual(['none', 'hoa', 'sheriff', 'irs', 'usFederal']);
+    expect(Object.keys(redemptionPresetsFor('NV'))).toEqual(['none', 'hoa', 'sheriff', 'irs', 'usFederal', 'usCourt']);
     // California's HOA redemption is its own: 90 days (Civil Code 5715), not Nevada's 60.
     expect(redemptionPresetsFor('CA').hoa).toMatchObject({ months: 3, ratePct: 10 });
-    expect(Object.keys(redemptionPresetsFor('UT'))).toEqual(['none', 'utSheriff', 'irs', 'usFederal']);
+    expect(Object.keys(redemptionPresetsFor('UT'))).toEqual(['none', 'utSheriff', 'irs', 'usFederal', 'usCourt']);
   });
 });

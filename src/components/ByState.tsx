@@ -13,16 +13,17 @@ export interface StateLine {
   text: string;
   links?: [label: string, url: string][];
 }
-/** A part of a page that differs by state. A state without lines is left out (say so in `missing` instead). */
+/** A part of a page that differs by state. A state without lines shows `missing` instead, or nothing when `optional`. */
 export type ByStateLines = Partial<Record<StateCode, StateLine[]>>;
 
 /**
  * The lines for the visitor's state, or every state folded under its name when they haven't picked one.
  * Pair with <StatePicker /> near the top of the page.
  */
-export default function ByState({ lines, missing, ordered }: { lines: ByStateLines; missing?: string; ordered?: boolean }) {
+export default function ByState({ lines, missing, ordered, optional }: { lines: ByStateLines; missing?: string; ordered?: boolean; optional?: boolean }) {
   const [mine] = useMyState();
-  const show = STATES.filter((s) => !mine || s.code === mine);
+  // Optional extras (more notes, other things to know): a state with none is simply left out, with no filler line.
+  const show = STATES.filter((s) => (!mine || s.code === mine) && (!optional || hasLines(lines, s.code as StateCode)));
   const List = ordered ? 'ol' : 'ul';
   return (
     <>
@@ -43,7 +44,7 @@ export default function ByState({ lines, missing, ordered }: { lines: ByStateLin
           <OwlNote>{missing ?? `Nothing specific to ${s.name} here yet.`}</OwlNote>
         );
         // One state picked: just its lines. No state picked: each state folded, so the page isn't a wall of text.
-        return show.length > 1 ? (
+        return !mine ? (
           <details key={s.code} className="by-state">
             <summary className="by-state-head">{s.name}</summary>
             {body}
@@ -55,3 +56,6 @@ export default function ByState({ lines, missing, ordered }: { lines: ByStateLin
     </>
   );
 }
+
+/** Whether a state has any lines in this part of the page. */
+export const hasLines = (lines: ByStateLines, code: StateCode) => !!lines[code]?.length;
