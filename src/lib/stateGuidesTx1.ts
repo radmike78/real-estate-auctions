@@ -305,7 +305,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       title: "Handle occupants through the court",
-      detail: "Give a written notice to vacate before you file an eviction (forcible detainer) case. A former owner who stays usually gets at least three days.* A residential tenant who pays on time, whose lease came after the foreclosed loan, gets at least 30 days if you don’t keep the lease (Property Code 24.005(b)); a lease that came before the loan survives the sale.* Federal law can require at least 90 days, or the rest of a genuine lease unless you’ll live there yourself, and Texas law makes you wait for it (24.005(c-1)). Hire an attorney. Never change locks or remove belongings on your own."
+      detail: "Give a written notice to vacate before you file an eviction (forcible detainer) case. A former owner who stays usually gets at least three days.* A residential tenant who pays on time, whose lease came after the foreclosed loan, gets at least 30 days if you don’t keep the lease (Property Code 24.005(b)); a lease that came before the loan survives the sale.* Federal law can require at least 90 days, or the rest of a genuine lease unless you’ll live there yourself, and Texas law bars serving the writ of possession until that time has run (24.005(c-1)). Hire an attorney. Never change locks or remove belongings on your own."
     }
   ],
   survives: {

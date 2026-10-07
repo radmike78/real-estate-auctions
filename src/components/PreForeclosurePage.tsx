@@ -225,7 +225,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
         compact={guideOpen}
         eyebrow={<span className="eyebrow">Not for sale yet · Guide: {stateName ?? 'NV, CA, AZ, UT, TX'}</span>}
         title={guideOpen ? <a className="title-link" href="#/pre-foreclosures">Pre-foreclosure tracker</a> : <>Pre-foreclosure <span className="grad">tracker</span></>}
-        sub={guideOpen ? undefined : 'Follow homes from notice of default to auction, without contacting anyone.'}
+        sub={guideOpen ? undefined : myState && myState !== 'NV' ? 'Learn how a foreclosure reaches the auction, without contacting anyone.' : 'Follow homes from notice of default to auction, without contacting anyone.'}
       />
 
       <StatePicker label="Where is the home?" />
@@ -246,7 +246,11 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
       )}
 
       <div className="caution pre-no-contact" role="alert">
-        <p><strong>Do not contact these homeowners.</strong> A notice of default means an owner is behind on payments, not that the home is for sale.</p>
+        {myState && myState !== 'NV' ? (
+          <p><strong>Do not contact homeowners in foreclosure.</strong> Being behind on payments doesn’t mean the home is for sale.</p>
+        ) : (
+          <p><strong>Do not contact these homeowners.</strong> A notice of default means an owner is behind on payments, not that the home is for sale.</p>
+        )}
         <p>Ask only the trustee named on the notice, or the <NoticeOffice />.</p>
         <details>
           <summary>Why?</summary>

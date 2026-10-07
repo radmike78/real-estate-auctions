@@ -49,7 +49,7 @@
       "src/lib/buyerChecklists.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "b8019b25fa9d8990",
+    "hash": "5c16385fb7424fc0",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -71,7 +71,7 @@
       "src/components/PreForeclosurePage.tsx"
     ],
     "reviewed": "2026-10-07",
-    "hash": "5fb3cb84b237d0b7",
+    "hash": "6719a142780ee129",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "5774c960cc1b494a",
+    "hash": "c5d292f098b2adba",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "df6fbfd0f910542c",
+    "hash": "d8baf9154b58dea6",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -379,7 +379,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "c408acc4e0119ed1",
+    "hash": "28cca18f7a868036",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
@@ -392,7 +392,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "02b00586195932da",
+    "hash": "1cfa3c8a4b80f97e",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {

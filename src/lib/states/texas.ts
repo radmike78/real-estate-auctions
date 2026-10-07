@@ -34,7 +34,7 @@ export const TX_HOMEOWNER_DEADLINES: StateLine[] = [
 
 /** homeownerHelp.ts → SCAMS, key TX */
 export const TX_HOMEOWNER_SCAMS: StateLine[] = [
-  { topic: 'Foreclosure consultants', text: 'In Texas, anyone paid to stop or delay your sale must give you a written, dated contract and a notice in bold type saying they can’t have you sign over any interest in your home and you can cancel at any time. They can’t charge until all the work is done (unless bonded), take a power of attorney except to look at documents, or take an interest in your property (Business and Commerce Code 21.051, 21.052, 21.101, 21.102). Breaking these rules is a crime (Business and Commerce Code 21.151).', links: [['Business and Commerce Code chapter 21', 'https://tcss.legis.texas.gov/resources/BC/htm/BC.21.htm']] },
+  { topic: 'Foreclosure consultants', text: 'In Texas, anyone paid to stop or delay your sale must give you a written, dated contract and a notice in bold type saying they can’t have you sign over any interest in your home and you can cancel at any time. They can’t charge until all the work is done (unless bonded), take a power of attorney except to look at documents, or take an interest in your home or belongings to secure their fee (Business and Commerce Code 21.051, 21.052, 21.101, 21.102). Breaking these rules is a crime (Business and Commerce Code 21.151).', links: [['Business and Commerce Code chapter 21', 'https://tcss.legis.texas.gov/resources/BC/htm/BC.21.htm']] },
   { topic: 'Money-left-over helpers', text: 'In Texas, after a tax sale, only an attorney may charge you to get your excess proceeds, and the fee can’t be more than 25% or $1,000, whichever is less. Anyone buying your claim can’t do it until 36 days after the money reaches the court, can’t find you through an in-person or phone pitch, and must pay you at least 80% of it (Tax Code 34.04(f), (i)).' },
   { topic: 'Mortgage relief companies', text: 'In Texas, as everywhere, federal law says they can’t charge you until you sign a modification or other deal with your lender. The Texas Attorney General’s Consumer Protection Division takes scam reports.', links: [['Loan and mortgage scams (Texas AG)', 'https://www.texasattorneygeneral.gov/consumer-protection/financial-and-insurance-scams/loan-and-mortgage-scams'], ['File a consumer complaint (Texas AG)', 'https://www.texasattorneygeneral.gov/consumer-protection/file-consumer-complaint']] },
 ];
@@ -82,7 +82,7 @@ export const TX_PRE_READ_NOTICE: StateLine[] = [
 
 /** preForeclosure.ts → NO_CONTACT, key TX */
 export const TX_PRE_NO_CONTACT: StateLine[] = [
-  { topic: 'Foreclosure consultants', text: 'In Texas, once a notice of sale is filed on a 1 to 4 unit home the owner lives in, anyone paid to help the owner stop the sale, catch up or get leftover sale money counts as one. They need a written contract with a bold notice, can’t charge before the work is done unless bonded, and can’t take an interest in the home. A violation is a crime (Business and Commerce Code 21.001, 21.052, 21.101, 21.102, 21.151).' },
+  { topic: 'Foreclosure consultants', text: 'In Texas, once a notice of sale is filed, or a court foreclosure is started, on a 1 to 4 unit home the owner lives in, anyone paid to help the owner stop the sale, catch up or get leftover sale money counts as one. They need a written contract with a bold notice, can’t charge before the work is done unless bonded, and can’t take an interest in the home to secure their fee. A violation is a crime (Business and Commerce Code 21.001, 21.052, 21.101, 21.102, 21.151).' },
   { topic: 'Surplus claims', text: 'In Texas, after a tax sale, buying an owner’s claim to excess proceeds through an in-person or phone pitch is not allowed (Tax Code 34.04(f)).' },
 ];
 
@@ -103,13 +103,13 @@ export const TX_SHORT_DISCLOSURES: StateLine[] = [
 
 /** shortSales.ts → NOTES, key TX */
 export const TX_SHORT_NOTES: StateLine[] = [
-  { text: 'In Texas, the trustee’s sale can still go ahead on the first Tuesday while a short sale waits for approval. Ask the listing agent for any sale date. Under the addendum, most deadlines restart from the day the seller tells you the lender approved. Your option period doesn’t restart; it runs from the original contract date (TREC No. 45-2, D and F).' },
+  { text: 'In Texas, the trustee’s sale can still go ahead on the first Tuesday while a short sale waits for approval. Ask the listing agent for any sale date. Under the addendum, most deadlines restart from the day the seller tells you the lender approved. Your option period starts when you both sign and keeps running after the lender approves (TREC No. 45-2, F). Whether its days count from the original date or from the approval date isn’t settled,* so have your agent write the exact end date into an amendment.' },
   { text: 'In Texas, there is no state income tax, but the federal tax break for forgiven debt on a main home (qualified principal residence indebtedness) ended for debt forgiven after 2025, unless it was agreed in writing before January 1, 2026 (IRS Publication 4681). This is the seller’s issue; sellers should ask a tax professional.', links: [['IRS Publication 4681', 'https://www.irs.gov/publications/p4681']] },
 ];
 
 /** shortSales.ts → OWNERS, key TX */
 export const TX_SHORT_OWNERS: StateLine[] = [
-  { text: 'In Texas, offering paid help to stop an owner’s foreclosure on a home they live in makes you a foreclosure consultant (licensed real estate agents acting as agents and attorneys are among the exceptions, unless the deal moves the title to them). A consultant can’t take payment up front unless bonded or take an interest in the home, and a violation is a crime (Business and Commerce Code 21.002, 21.101, 21.102, 21.151).', links: [['Business and Commerce Code chapter 21', 'https://tcss.legis.texas.gov/resources/BC/htm/BC.21.htm']] },
+  { text: 'In Texas, offering paid help to stop an owner’s foreclosure on a home they live in makes you a foreclosure consultant (licensed real estate agents acting as agents and attorneys are among the exceptions, unless the deal moves the title to them). A consultant can’t take payment up front unless bonded or take an interest in the home to secure their fee, and a violation is a crime (Business and Commerce Code 21.002, 21.101, 21.102, 21.151).', links: [['Business and Commerce Code chapter 21', 'https://tcss.legis.texas.gov/resources/BC/htm/BC.21.htm']] },
 ];
 
 // ───────────────────────────────────────────────────────────────────────────────────────────────

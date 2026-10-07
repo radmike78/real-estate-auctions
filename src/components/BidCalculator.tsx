@@ -161,7 +161,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   // What a Texas redemption repays, for the kind of sale chosen (every Texas rule when the kind isn't known).
   const txRepaid = (): string => {
     const taxSale = 'A Texas tax sale repays only repairs a code, an ordinance or an existing lease requires (Tax Code 34.21(g)(2)(A)(ii)).';
-    const loan = 'A Texas mortgage foreclosure has no redemption; a Texas property tax loan foreclosure repays the same costs a tax sale does (Tax Code 32.06(k)(2), 34.21(g)).';
+    const loan = 'A Texas mortgage foreclosure has no redemption; a Texas property tax loan foreclosure repays the same costs a tax sale does, plus interest on them at the legal judgment rate (Tax Code 32.06(k)(2), 34.21(g)).';
     const hoa = 'A Texas subdivision HOA sale repays no repairs (Property Code 209.011(e)(2)); a Texas condominium sale repays reasonable maintenance and leasing costs (Property Code 82.113(g)).';
     if (saleKind === 'taxSale') return taxSale;
     if (saleKind === 'trustee') return loan;

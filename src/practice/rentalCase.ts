@@ -145,6 +145,10 @@ interface CaseConfig {
   appraisalName: string;
   cancelAppraisal: string;
   leaveAppraisal: string;
+  /** Extra advice after the seller agrees to the lower price (e.g. Texas: put it in a signed amendment). */
+  appraisalAskNote?: string;
+  /** How the purchase log describes the price cut; defaults to "Price lowered to X under the <appraisalName>." */
+  appraisalLog?: (finalPrice: string) => string;
   roofer: string;
   lienWhy: string;
   earnestPaid: string;
@@ -309,6 +313,8 @@ const TX: CaseConfig = {
   appraisalName: 'appraisal addendum',
   cancelAppraisal: 'By Day 17, give the seller your notice of termination and a copy of the lender’s appraisal (appraisal addendum, option 3), and get the earnest money back.',
   leaveAppraisal: 'Option 3 of your appraisal addendum (TREC 49-1) lets you end the contract when the lender’s appraisal is under $289,000, if the seller gets your notice of termination and a copy of the appraisal by Day 17.',
+  appraisalAskNote: 'Get the new price in a signed amendment before Day 17; after that, the addendum’s right to end the contract is gone.',
+  appraisalLog: (finalPrice) => `Price lowered to ${finalPrice} by a signed amendment, after you used the appraisal addendum’s right to end the contract as leverage.`,
   roofer: 'Example Roofing of Texas',
   lienWhy: 'It’s a recorded claim against the house. In Texas, a contractor on a home job must file the lien by the 15th day of the third month after the work ends, and sue to enforce it within a year after that filing deadline (Property Code 53.052, 53.158). Either way, the title company wants it released or cleared on the record before closing. Ask the title officer how, and whether a lawsuit was filed.',
   earnestPaid: 'to the title company within 3 days after the Effective Date, along with the option fee',
@@ -1272,7 +1278,7 @@ function buildCase(c: CaseConfig) {
           id: 'low-appraisal',
           prompt: 'It’s Day 15. What do you do about the low appraisal?',
           choices: [
-            { label: `Ask the seller to lower the price to ${$(appraised)}, using your ${c.appraisalName}.`, verdict: 'best', why: `The appraisal is independent evidence. Most sellers know another buyer’s lender would see the same value. Here the seller agrees: the new price is ${$(finalPrice)}.` },
+            { label: `Ask the seller to lower the price to ${$(appraised)}, using your ${c.appraisalName}.`, verdict: 'best', why: `The appraisal is independent evidence. Most sellers know another buyer’s lender would see the same value. Here the seller agrees: the new price is ${$(finalPrice)}.${c.appraisalAskNote ? ` ${c.appraisalAskNote}` : ''}` },
             { label: 'Pay the difference from your cushion.', verdict: 'ok', why: `It works, but it shrinks a thin cushion further. Ask first; paying is your fallback. In this case your agent asks anyway and the seller agrees to ${$(finalPrice)}, so the rest of the purchase uses that price.` },
             { label: c.cancelAppraisal, verdict: 'ok', walk: true, why: `Reasonable if your cushion can’t take it. ${c.leaveAppraisal}` },
           ],
@@ -1305,7 +1311,7 @@ function buildCase(c: CaseConfig) {
         },
       ],
       log: [
-        { area: 'Value', finding: `Appraised at ${$(appraised)}. Price lowered to ${$(finalPrice)} under the ${c.appraisalName}.` },
+        { area: 'Value', finding: `Appraised at ${$(appraised)}. ${c.appraisalLog ? c.appraisalLog($(finalPrice)) : `Price lowered to ${$(finalPrice)} under the ${c.appraisalName}.`}` },
         { area: 'Title', finding: 'Old deed of trust and a $4,800 mechanic’s lien to be cleared before closing. Utility easement stays.', open: 'Recorded release of the mechanic’s lien' },
         { area: 'HOA', finding: '12-month minimum lease; no short-term rentals; send the HOA each lease.' },
       ],
