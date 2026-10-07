@@ -70,8 +70,8 @@
     "files": [
       "src/components/PreForeclosurePage.tsx"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "bc2a28e5ba8f1e8c",
+    "reviewed": "2026-10-07",
+    "hash": "14272b5d63aa495f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -116,7 +116,7 @@
       "src/lib/saleDocs.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "67eb67b2d6562f8d",
+    "hash": "446ccd87c57f0d41",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "4e83db041a8d13d8",
+    "hash": "b6c95d3841380b39",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "2412cc96f46c40c6",
+    "hash": "5b3934893a01ed9c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -173,7 +173,7 @@
       "src/lib/evidence.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "bfa238f8eea4f9fe",
+    "hash": "868a43f70d25e37f",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -246,8 +246,8 @@
     "files": [
       "src/components/HomeownerHelpPage.tsx"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "67e27430b8e900fe",
+    "reviewed": "2026-10-07",
+    "hash": "b76c7c089527a7d8",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -355,7 +355,7 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "ce7bb7ba4fe620e1",
+    "hash": "eb4936a0b8d37691",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -366,7 +366,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "aa84cc1f33c1cbdb",
+    "hash": "d831e77523c51b7a",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -379,7 +379,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "050f76da89ad2e8c",
+    "hash": "3a95fc8598bf13a8",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
@@ -392,7 +392,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "c9dd2f9195404852",
+    "hash": "2c271a483bf309eb",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {
