@@ -256,7 +256,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "For 1 to 4 unit homes, wait for finality",
-      detail: "The sale is not final for at least 15 days, unless you plan to live there and sign the required declaration. During that time, an eligible tenant buyer or eligible bidder can send a notice that they intend to bid. If one does, they have until 45 days after the sale to match or beat your bid (Civ 2924m). The owner keeps title until the sale is final."
+      detail: "The sale is not final for at least 15 days, unless you plan to live there and sign the required declaration. During that time, an eligible tenant buyer or eligible bidder can send a notice that they intend to bid. If one does, a tenant can match, and other eligible bidders can beat, your bid until 45 days after the sale (Civ 2924m). Until the sale is final you don’t get the trustee’s deed, so don’t take possession or start work. Once the deed is recorded on time, the sale counts as complete from 8 a.m. on the sale day (Civ 2924h(c))."
     },
     {
       title: "Get and record the trustee’s deed",
@@ -1586,7 +1586,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Bid and pay",
-      detail: "Bring the funds the notice of sale requires, usually cashier’s checks. The HOA trustee follows the same sale rules as a deed of trust sale (Civ 5710). See our California trustee sales guide for bidding and payment."
+      detail: "Bring the funds the notice of sale requires, usually cashier’s checks. The HOA trustee follows the notice and reinstatement rules for deed of trust sales (Civ 5710, citing Civ 2924, 2924b and 2924c); the notice of sale sets the bidding and payment terms. Ask the trustee if anything is unclear.*"
     },
     {
       title: "Wait out the 90 days",

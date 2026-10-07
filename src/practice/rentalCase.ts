@@ -376,7 +376,7 @@ const TX: CaseConfig = {
 
 // California: same house and price. Buying resets the property tax to about 1% of the price plus local charges
 // (Proposition 13; this practice uses about 1.1%), so the seller's bill isn't yours. The contract is the C.A.R.
-// Residential Purchase Agreement, where you remove contingencies in writing. Deposits: Civil Code 1950.5. Rent cap and
+// Residential Purchase Agreement, where you remove contingencies in writing. Deposits: Civil Code 1950.5. Entry: 1954. Rent cap and
 // just cause: Civil Code 1947.12 and 1946.2.
 const CA: CaseConfig = {
   state: 'CA',
@@ -456,6 +456,15 @@ const CA: CaseConfig = {
         { label: `${usd(n.rent * 2)}: 2 months’ rent, because you’re a small landlord (unless the tenant is a service member)`, verdict: 'best', why: 'Since July 1, 2024, most California landlords may take only 1 month’s rent. A landlord who is a person, or an LLC of people, with no more than two rental properties and four units in all may take up to 2 months, but not from a service member (Civil Code 1950.5). Return it, with an itemized statement, within 21 days after the tenant moves out.' },
         { label: `${usd(n.rent * 3)}: 3 months’ rent`, verdict: 'poor', why: 'That’s over California’s limit. 3 months is Nevada’s cap, not California’s (Civil Code 1950.5).' },
         { label: `${usd(n.rent)}: 1 month’s rent`, verdict: 'ok', why: 'Lawful, and the limit for most California landlords. As a small landlord you could take more, but you don’t have to.' },
+      ],
+    },
+    {
+      kind: 'choice',
+      id: 'ca-entry',
+      prompt: 'In California, your tenant’s faucet leaks and you want to fix it. What notice do you give before going in?',
+      choices: [
+        { label: 'Reasonable written notice with the date, approximate time and purpose (24 hours is presumed reasonable), and enter only during normal business hours, unless it’s an emergency or the tenant is there and agrees.', verdict: 'best', why: 'That’s California’s rule (Civil Code 1954(d)(1) and (e)). Mailed notice is presumed reasonable at 6 days before entry.' },
+        { label: 'None. You own the house.', verdict: 'poor', why: 'Once it’s rented, the tenant has the right to possession. In California, give reasonable written notice (24 hours is presumed reasonable) except in an emergency (Civil Code 1954).' },
       ],
     },
     {

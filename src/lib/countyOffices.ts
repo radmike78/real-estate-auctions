@@ -377,7 +377,6 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     treasurer: { url: "https://www.smcgov.org/tax", checked: "2026-09-29" },
     assessor: { url: "https://smcacre.gov/assessor", checked: "2026-09-29" },
     recorder: { url: "https://smcacre.gov/county-clerk-recorder", checked: "2026-09-29" },
-    sheriff: { url: "https://www.smcsheriff.com/support-services/civil-enforcement-bureau/sheriffs-sales", checked: null },
   },
   "CA/Santa Barbara": {
     taxSale: { url: "https://www.countyofsb.org/tt-defaulted-tax-sales", checked: "2026-09-29", note: "Recent sales ran online through Bid4Assets; start from the county’s page for the current sale." },

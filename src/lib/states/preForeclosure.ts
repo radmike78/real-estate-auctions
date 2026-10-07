@@ -97,7 +97,7 @@ export const READ_NOTICE: ByStateLines = {
     { text: 'In Nevada, the law requires the date, time and place, a description of the property and its address, and the trustee’s contact details.' },
   ],
   CA: [
-    { text: 'In California, the notice of sale must give the time of sale, the street address and the exact place of the sale, and a description of the property. It must be recorded, and posted on the property, at least 20 days before the sale (Civil Code 2924f).' },
+    { text: 'In California, the notice of sale must give the time of sale, the street address and the exact place of the sale, and a description of the property. It must be recorded, and posted on the property, at least 20 days before the sale (Civil Code 2924f). It must also state the total unpaid balance and estimated costs as of the first publication (Civil Code 2924f(b)(7)).' },
   ],
   AZ: [
     { text: 'In Arizona, the law requires the date, time and place; the street address, legal description and parcel number; and the original loan amount. It also requires the lender’s and trustee’s names and addresses, the trustee’s phone number and the trustee’s regulator (A.R.S. 33-808).', links: [['A.R.S. 33-808', 'https://www.azleg.gov/ars/33/00808.htm']] },
