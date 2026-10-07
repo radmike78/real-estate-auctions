@@ -116,7 +116,7 @@
       "src/lib/saleDocs.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "24f8f4fb5e5479ba",
+    "hash": "2ee92a87bb919120",
     "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
   },
   {
@@ -142,7 +142,7 @@
       "src/practice/rentalCase.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "5408889efad41fd8",
+    "hash": "04ba8ba9003cffad",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "25a33b734a9b88b9",
+    "hash": "4e2ba4767f25b38b",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -173,7 +173,7 @@
       "src/lib/evidence.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "ff3cf486e89cc3c5",
+    "hash": "d50f08e210b2beab",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -204,7 +204,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "592e802a043431aa",
+    "hash": "692d3688f042238c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -355,7 +355,7 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "5b42ec4d74a23947",
+    "hash": "5401225191f88dfb",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -379,7 +379,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "d9f75e391295512e",
+    "hash": "6ddd14581d0dfe36",
     "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
   },
   {
@@ -392,7 +392,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "a7a89798497cc94f",
+    "hash": "237db3ebfa95b7af",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {
@@ -405,7 +405,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "82abaaa5f8eaa3bd",
+    "hash": "7784b5822f40ce3d",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

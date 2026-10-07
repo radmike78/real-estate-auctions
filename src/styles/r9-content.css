@@ -165,7 +165,8 @@
   .steps-rich:has(> :nth-child(7):last-child) > li:nth-child(n+5), .risk-list:has(> :nth-child(7):last-child) > li:nth-child(n+5) { grid-column: span 4; }
 }
 @media (min-width: 861px) and (max-width: 1300px) {
-  .steps-rich > li:last-child:nth-child(3n+1), .risk-list > li:last-child:nth-child(3n+1) { grid-column: 1 / -1; }
+  /* Not four cards: those sit on a two-column grid here (2 + 2). */
+  .steps-rich > li:last-child:nth-child(3n+1):not(:nth-child(4)), .risk-list > li:last-child:nth-child(3n+1):not(:nth-child(4)) { grid-column: 1 / -1; }
   .steps-rich:has(> :nth-child(5):last-child), .risk-list:has(> :nth-child(5):last-child) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .steps-rich:has(> :nth-child(5):last-child) > li, .risk-list:has(> :nth-child(5):last-child) > li { grid-column: span 2; }
   .steps-rich:has(> :nth-child(5):last-child) > li:nth-child(n+4), .risk-list:has(> :nth-child(5):last-child) > li:nth-child(n+4) { grid-column: span 3; }
@@ -211,8 +212,10 @@
 @media (min-width: 701px) { .progress-kinds:has(> :nth-child(3):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (min-width: 561px) and (max-width: 700px) { .progress-kinds > :last-child:nth-child(odd):not(:first-child) { grid-column: 1 / -1; } }
 
-/* Analyze: a group of three number fields sits in one row on tablets instead of 2 + 1. */
-@media (min-width: 561px) and (max-width: 860px) { .calc-group .calc-grid:has(> :nth-child(3):last-child) { --max: 3; } }
+/* Analyze: a group of three number fields sits in one row on wider tablets instead of 2 + 1. */
+@media (min-width: 701px) and (max-width: 860px) { .calc-group .calc-grid:has(> :nth-child(3):last-child) { --max: 3; } }
+/* Narrower tablets: two fields, then the third across the row, so no field is cramped. */
+@media (min-width: 561px) and (max-width: 700px) { .calc-group .calc-grid:has(> :nth-child(3):last-child) > :last-child { grid-column: 1 / -1; } }
 
 /* Practice "Three ways to practice": stacked full width until three fit side by side at an even height. */
 @media (min-width: 561px) and (max-width: 1060px) { .practice-ways .practice-sales:has(> :nth-child(3):last-child) { --max: 1; } }
@@ -242,3 +245,89 @@
   .drill-group, .drill-next .drill-group, .drill-group-block .drill-group, .progress-kinds-head { font-size: 1.5rem; padding: 12px 16px; }
   .drill-next, .drill-group-block { margin-bottom: 48px; }
 }
+
+/* Toolkit cash fields: labels that wrap to two lines don't push their input lower than the ones beside it. */
+@media (min-width: 701px) {
+  .cash-fields > .field { display: grid; grid-row: span 3; grid-template-rows: subgrid; row-gap: 6px; align-content: start; }
+  .cash-fields > .field > span:first-child { align-self: end; }
+}
+
+/* Deal packet: Texas contract dates as rows, with the form paragraph in a smaller "why" line under each date. */
+.packet-date-guide .packet-date-why { display: block; margin-top: 4px; font-weight: 500; font-size: 0.9rem; }
+
+/* Read the paperwork: a part's state rules and its numbered steps inside the table cell. */
+.doc-guide-table .doc-guide-rules { margin: 8px 0 0; }
+.doc-guide-table .doc-guide-steps { margin: 8px 0 0; padding-left: 1.4em; display: grid; gap: 4px; }
+@media (max-width: 700px) { .doc-guide-table tbody th { width: auto; min-width: 0; } }
+
+/* Round 13: book cards. The text column never grows past its card, and the "View on Amazon" label may wrap, so a
+   card never runs off its side on tablets and small laptops. Three books stack full width until three fit across (1150px). */
+.book-info { grid-template-columns: minmax(0, 1fr); }
+.book-info .btn { white-space: normal; }
+@media (min-width: 700px) and (max-width: 860px) {
+  .book-grid .book-card { grid-template-columns: 90px minmax(0, 1fr); gap: 12px; }
+  .book-grid .book-cover, .book-grid .book-cover img, .book-grid .book-tile { width: 90px; }
+}
+@media (min-width: 700px) and (max-width: 1149px) {
+  .book-grid:has(> :nth-child(3):last-child) { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Status legend (/about/status, /about/all): each badge keeps its full label, the descriptions line up beside the badges
+   (14em fits the longest label), and they stack on phones. */
+.status-list .badge { flex: 0 0 auto; min-width: 14em; box-sizing: border-box; }
+@media (max-width: 560px) {
+  .status-list li { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .status-list .badge { min-width: 0; }
+}
+
+/* Pre-foreclosure cards: a long status badge wraps instead of running under the Track button. */
+.track-badges .badge { white-space: normal; }
+
+/* Lesson link cards: rows start at the left and a short last row shares the width (no centred stragglers). Three
+   links sit in one row down to 861px and stack below that, rather than 2 + 1. */
+.lesson-body-text ul.lesson-links { justify-content: flex-start; }
+.lesson-body-text ul.lesson-links > li { flex-grow: 1; }
+@media (min-width: 861px) and (max-width: 1000px) {
+  .lesson-body-text ul.lesson-links:has(> :nth-child(3):last-child) { --cols: 3; }
+}
+@media (max-width: 860px) {
+  .lesson-body-text ul.lesson-links:has(> :nth-child(3):last-child) { --cols: 1; }
+}
+/* Three across: a count that would leave one link alone (7, 10, 13, 22) ends 2 + 2. */
+@media (min-width: 1001px) {
+  .lesson-body-text ul.lesson-links:has(> :last-child:nth-child(3n+7)) > :nth-last-child(-n+4) { flex-basis: calc((100% - 10px) / 2); }
+}
+
+/* Business assets "Who sells": three cards stack until all three fit in one row, never 2 + an empty slot. */
+@media (max-width: 1199px) { .reo-grid:has(> :nth-child(3):last-child) { grid-template-columns: minmax(0, 1fr); } }
+
+/* Tile groups on laptops (three across): a count that would leave one tile alone on the last row (7, 10, 13, 16)
+   ends 2 + 2 instead, e.g. 13 pros go 3 + 3 + 3 + 2 + 2. */
+@media (min-width: 861px) and (max-width: 1300px) {
+  :is(.drill-tiles, .practice-grid:not(.drill-grid), .practice-sales, .deal-sources, .pro-grid):has(> :last-child:nth-child(3n+7)) > :nth-last-child(-n+4) { flex-basis: calc((100% - 16px) / 2); }
+}
+
+/* Even rows with no ragged gaps: lesson "Key terms", story cards (/pros/<key>, /learn/types/<type>) and "Your team"
+   lists. One card per row on phones and tablets, two from 1000px (stories from 1200px), three from 1500px. Cards in a short last row share
+   its width, and with three across a count that would leave one card alone (4, 7) ends 2 + 2. */
+.lesson-terms dl, .team-list { --g: 12px; }
+.story-grid { --g: 16px; }
+:is(.lesson-terms dl, .team-list, .story-grid) { display: flex; flex-wrap: wrap; align-items: stretch; gap: var(--g); --per: 1; }
+:is(.lesson-terms dl, .team-list, .story-grid) > * { flex: 1 1 calc((100% - (var(--per) - 1) * var(--g)) / var(--per)); min-width: 0; box-sizing: border-box; margin: 0; }
+@media (min-width: 1000px) { :is(.lesson-terms dl, .team-list):has(> :nth-child(2)) { --per: 2; } }
+@media (min-width: 1200px) { .story-grid:has(> :nth-child(2)) { --per: 2; } }
+/* Two across with an odd count: the last three share a row (3 cards go three across, 5 go 2 + 3), so no card sits alone. */
+@media (min-width: 1000px) and (max-width: 1499px) { :is(.lesson-terms dl, .team-list):has(> :last-child:nth-child(2n+3)) > :nth-last-child(-n+3) { flex-basis: calc((100% - 2 * var(--g)) / 3); } }
+@media (min-width: 1200px) and (max-width: 1499px) { .story-grid:has(> :last-child:nth-child(2n+3)) > :nth-last-child(-n+3) { flex-basis: calc((100% - 2 * var(--g)) / 3); } }
+@media (min-width: 1500px) {
+  :is(.lesson-terms dl, .team-list, .story-grid):has(> :nth-child(3)) { --per: 3; }
+  :is(.lesson-terms dl, .team-list, .story-grid):has(> :last-child:nth-child(3n+4)) > :nth-last-child(-n+4) { flex-basis: calc((100% - var(--g)) / 2); }
+}
+
+/* Strategy "The honest risk" (three or four cards): three in a row from 800px; four go 2 + 2, and four across on wide
+   screens. */
+@media (min-width: 800px) { .deep-page .decide-risk:has(> :nth-child(3):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 799px) { .deep-page .decide-risk:has(> :nth-child(3):last-child) { grid-template-columns: minmax(0, 1fr); } }
+@media (min-width: 520px) { .deep-page .decide-risk:has(> :nth-child(4):last-child) { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1500px) { .deep-page .decide-risk:has(> :nth-child(4):last-child) { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+

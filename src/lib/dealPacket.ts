@@ -4,7 +4,7 @@
 // why, the deal's key dates, your questions to professionals and their answers, your earnest money, and the reason
 // for your decision with any conditions still open. Kept only in this browser, like the rest.
 import { kindLabel, SALE_KINDS, type Deal } from './analyze';
-import { costsAtBid, maxSafeBid, offerInputs, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, BLANK_INPUTS, type BidInputs } from './bidCalc';
+import { costsAtBid, maxSafeBid, offerInputs, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
 import { cleanBuyBox, EMPTY_BUY_BOX, type BuyBox } from './toolkit';
 import { EVIDENCE_AREAS, GATES, loadLog } from './evidence';
 import { commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, type CommercialInputs, type RentInputs } from './holdCalc';
@@ -102,25 +102,58 @@ export function removePacket(dealId: string) {
 
 const isOffer = (d: Pick<Deal, 'kind'>) => d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short';
 
-/** Texas financing dates: the appraisal addendum (49-1) and the financing addendum's two approvals (40-11, paragraph 2A and 2B). */
-const TX_LOAN_DATES = ['Appraisal addendum deadline, if you have one (49-1: notice plus a copy of the appraisal to the seller)', 'Buyer Approval deadline (40-11, 2A: notice plus the lender’s written statement)', 'Property Approval deadline (40-11, 2B: 3rd day before closing)'];
+/** One date to put on the calendar. Texas contract dates also say how each is counted, who acts, what to do and
+ * what happens if it's missed, with the form paragraph in `why`. */
+export interface DateGuide {
+  what: string;
+  when?: string;
+  who?: string;
+  todo?: string;
+  missed?: string;
+  why?: string;
+}
 
-/** Texas earnest money and option fee (20-19, 5A and 5D). Under a short sale addendum they're still due on time (45-2, C). */
-const TX_DEPOSIT_DATES = ['Earnest money due (within 3 days after the effective date; a last day on a weekend or legal holiday moves to the next day that isn’t one; if late, the seller can end the contract until you deliver it)', 'Option fee due (same 3 days and weekend rule; if late, you lose the right to end the contract during the option period)'];
+/** Texas earnest money and option fee (20-19, 5A, 5C and 5D). Under a short sale addendum they're still due on time (45-2, C). */
+const TX_DEPOSIT_DATES: DateGuide[] = [
+  { what: 'Earnest money due', when: 'Within 3 days after the effective date. If the last day is a Saturday, Sunday or legal holiday, the end of the next day that isn’t one.', who: 'You, to the escrow agent (usually the title company)', todo: 'Deliver the amount written in the contract and keep the receipt.', missed: 'The seller can end the contract (or use its other remedies) by notice before you deliver it.', why: 'TREC 20-19, paragraphs 5A and 5C' },
+  { what: 'Option fee due', when: 'Same 3 days and the same weekend and holiday rule.', who: 'You, to the escrow agent', todo: 'Deliver it with the earnest money or separately.', missed: 'You don’t get the option period: no right to end the contract for any reason.', why: 'TREC 20-19, paragraphs 5A and 5D' },
+];
+
+const TX_OPTION_END: DateGuide = { what: 'Option period ends (5 p.m.)', when: 'The number of days written in the contract after the effective date, by 5 p.m. local time. The weekend rule for payments doesn’t move it.', who: 'You', todo: 'If you want out, give the seller written notice of termination before then.', missed: 'You can’t end the contract for any reason anymore; only the contract’s other conditions remain.', why: 'TREC 20-19, paragraph 5B' };
 
 /** Texas water disclosure (20-19, 7I(2)): only when that box is checked. */
-const TX_WATER_DATE = 'Seller’s Water Disclosure due, if your TREC contract has paragraph 7I and box 7I(2) is checked (you can end the contract within 7 days after you receive it, or before closing if sooner)';
+const TX_WATER_DATE: DateGuide = { what: 'Seller’s Water Disclosure due (only if box 7I(2) is checked)', when: 'Within the days written in 7I(2) after the effective date. Your review deadline is 7 days after you receive it, or closing if that comes first.', who: 'The seller delivers it; you read it', todo: 'Record the day you receive it and put the 7-day deadline on the calendar.', missed: 'If it never comes, you can end the contract before closing. Once it comes, you can end it within 7 days or before closing, whichever is first, with your earnest money back. With box 1 (already received) or box 3 (not required) there’s no such window.', why: 'TREC 20-19, paragraph 7I' };
 
-/** The dates most deals of this kind need on the calendar, to start the list from. */
-export function suggestedDates(d: Pick<Deal, 'kind' | 'state'>): string[] {
-  if (d.kind === 'short') return ['Contract signed', ...(d.state === 'TX' ? TX_DEPOSIT_DATES : []), 'Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)', d.state === 'TX' ? 'Option period ends (5 p.m.)' : 'Inspection period ends', ...(d.state === 'TX' ? [TX_WATER_DATE, ...TX_LOAN_DATES.slice(1)] : ['Loan approval deadline']), 'Closing'];
-  if (isOffer(d)) return ['Offer accepted (Day 0)', ...(d.state === 'TX' ? TX_DEPOSIT_DATES : ['Earnest money due']), d.state === 'TX' ? 'Option period ends (5 p.m.)' : 'Inspection period ends', ...(d.state === 'TX' ? [TX_WATER_DATE, ...TX_LOAN_DATES] : ['Appraisal deadline', 'Loan approval deadline']), 'Closing'];
-  if (d.kind === 'lien') return ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien'];
+/** Texas financing dates: the appraisal addendum (49-1) and the financing addendum's two approvals (40-11, paragraph 2A and 2B). */
+const TX_APPRAISAL_DATE: DateGuide = { what: 'Appraisal addendum deadline (only if you have one)', when: 'The days written in box 3 of the addendum, after the effective date.', who: 'You', todo: 'If the lender’s appraisal comes in under the amount written there, give notice of termination with a copy of the appraisal.', missed: 'You lose that extra right to end the contract; the Property Approval right may still apply.', why: 'TREC 49-1, box 3' };
+const TX_LOAN_DATES: DateGuide[] = [
+  { what: 'Buyer Approval deadline', when: 'The days written in paragraph 2A after the effective date.', who: 'You and your lender', todo: 'If the lender can’t approve you, give notice of termination with the lender’s written statement of the reasons.', missed: 'The contract is no longer subject to your loan approval, so if the loan later falls through, your earnest money is at risk.*', why: 'TREC 40-11, paragraph 2A' },
+  { what: 'Property Approval deadline', when: 'The 3rd day before the closing date.', who: 'You and your lender', todo: 'If the lender says the property doesn’t meet its requirements (appraisal, insurability or required repairs), give notice of termination with the lender’s written statement.', missed: 'Property Approval is treated as obtained.', why: 'TREC 40-11, paragraph 2B' },
+];
+
+const names = (xs: string[]): DateGuide[] => xs.map((what) => ({ what }));
+
+/** The dates most deals of this kind need on the calendar, each with how it works where we have it (Texas contracts). */
+export function dateGuide(d: Pick<Deal, 'kind' | 'state'>): DateGuide[] {
+  const tx = d.state === 'TX';
+  if (d.kind === 'short') return [...names(['Contract signed']), ...(tx ? TX_DEPOSIT_DATES : []), ...names(['Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)']), ...(tx ? [TX_OPTION_END, TX_WATER_DATE, ...TX_LOAN_DATES] : names(['Inspection period ends', 'Loan approval deadline'])), ...names(['Closing'])];
+  if (isOffer(d)) return [...names(['Offer accepted (Day 0)']), ...(tx ? TX_DEPOSIT_DATES : names(['Earnest money due'])), ...(tx ? [TX_OPTION_END, TX_WATER_DATE, TX_APPRAISAL_DATE, ...TX_LOAN_DATES] : names(['Inspection period ends', 'Appraisal deadline', 'Loan approval deadline'])), ...names(['Closing'])];
+  if (d.kind === 'lien') return names(['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien']);
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
   // Texas execution sale; a Texas tax sale has its own redemption period (Tax Code 34.21).
   if ((['hoa', 'irs', 'court'].includes(d.kind) || (d.kind === 'taxSale' && d.state === 'TX')) && !(d.state === 'TX' && d.kind === 'court')) out.push('Redemption period ends');
-  return out;
+  return names(out);
+}
+
+/** The names of the dates most deals of this kind need on the calendar, to start the list from. */
+export function suggestedDates(d: Pick<Deal, 'kind' | 'state'>): string[] {
+  return dateGuide(d).map((g) => g.what);
+}
+
+/** One plain line per detailed date, for the text download. */
+export function dateGuideLines(d: Pick<Deal, 'kind' | 'state'>): string[] {
+  return dateGuide(d).filter((g) => g.when).map((g) => `${g.what}: ${g.when} Who: ${g.who}. To do: ${g.todo} If missed: ${g.missed} (${g.why})`);
 }
 
 function read(key: string): unknown {
@@ -152,12 +185,23 @@ export function savedNumbers(d: Deal) {
   let rent: { price: number; monthly: number; cashIn: number; allIn: number; refi: boolean; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
   let bid: {
     maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number; none: boolean; target: number;
+    /** A loan pays part of the price or repairs (repair draws aren't modeled, so the cash figures assume the loan pays as costs come due). */
+    financed: boolean;
     /** The result at your own price (your offer or bid, or else the asking price or opening bid); null when none is entered. */
     at: { price: number; source: 'yours' | 'listed'; profit: number; cashOnDay: number; cashPeak: number; cashLeft: number } | null;
     /** Each downside case: the walk-away price, and the profit at your own price (null when no price is entered). */
     stress: { label: string; maxBid: number; profit: number | null }[];
   } | null = null;
-  let commercial: { maxBid: number; noi: number; capPct: number; cashLeft: number; allIn: number; refi: boolean; none: boolean; noTarget: boolean; stress: { label: string; maxBid: number | null }[] } | null = null;
+  let commercial: {
+    maxBid: number; noi: number; capPct: number; cashLeft: number; allIn: number; refi: boolean; none: boolean; noTarget: boolean;
+    /** A target return is entered, but no price under $1 billion falls short of it: likely a typo in the rent or costs. */
+    overCap: boolean;
+    /** What sets the walk-away price: your target return, the cash you can bring, or the lender's minimum coverage (DSCR). */
+    limitedBy: CommercialLimit;
+    /** Return on cost at the walk-away price (NOI / all in), or null. */
+    capOnCost: number | null;
+    stress: { label: string; maxBid: number | null; limitedBy?: CommercialLimit; capOnCost?: number | null }[];
+  } | null = null;
   if (d.plan === 'rent') {
     const rentRaw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
     if (rentRaw) {
@@ -177,7 +221,7 @@ export function savedNumbers(d: Deal) {
         const pp = proposedPriceOf(i);
         const at = pp ? { ...resultAtPrice(i, pp.price), source: pp.source } : null;
         const stress = stressCases(i).map((c) => ({ label: c.label, maxBid: maxSafeBid(c.inputs).maxBid, profit: pp ? resultAtPrice(c.inputs, pp.price).profit : null }));
-        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress };
+        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0 };
       }
     }
   } else if (d.plan === 'commercial') {
@@ -187,15 +231,16 @@ export function savedNumbers(d: Deal) {
       if (v.monthlyRent > 0) {
         const r = commercialMaxBid(v, offer);
         // No price meets the target return with these numbers: that's a result too, not a missing one.
-        if (r.noBidWorks) commercial = { maxBid: 0, noi: r.noi, capPct: v.targetCapPct, cashLeft: 0, allIn: 0, refi: false, none: true, noTarget: false, stress: [] };
+        if (r.noBidWorks) commercial = { maxBid: 0, noi: r.noi, capPct: v.targetCapPct, cashLeft: 0, allIn: 0, refi: false, none: true, noTarget: false, overCap: false, limitedBy: r.limitedBy, capOnCost: null, stress: [] };
         // No target return (and no loan or cash limit): nothing caps the price yet, so there's no walk-away price.
-        else if (!Number.isFinite(r.maxBid)) commercial = { maxBid: 0, noi: r.noi, capPct: v.targetCapPct, cashLeft: 0, allIn: 0, refi: false, none: false, noTarget: true, stress: [] };
+        // With a target entered, an endless price means the search hit its $1 billion ceiling instead (overCap).
+        else if (!Number.isFinite(r.maxBid)) commercial = { maxBid: 0, noi: r.noi, capPct: v.targetCapPct, cashLeft: 0, allIn: 0, refi: false, none: false, noTarget: true, overCap: r.overCap, limitedBy: r.limitedBy, capOnCost: null, stress: [] };
         else {
           // The downside: the same deal with rent 10% lower (null: no price meets the target then; left out when
           // nothing caps the price).
           const low = commercialMaxBid({ ...v, monthlyRent: v.monthlyRent * 0.9 }, offer);
-          const stress = low.noBidWorks ? [{ label: 'Rent 10% lower', maxBid: null }] : Number.isFinite(low.maxBid) ? [{ label: 'Rent 10% lower', maxBid: low.maxBid }] : [];
-          commercial = { maxBid: r.maxBid, noi: r.noi, capPct: v.targetCapPct, cashLeft: r.cashLeft, allIn: r.allIn, refi: !offer && r.debtService > 0, none: false, noTarget: false, stress };
+          const stress = low.noBidWorks ? [{ label: 'Rent 10% lower', maxBid: null }] : Number.isFinite(low.maxBid) ? [{ label: 'Rent 10% lower', maxBid: low.maxBid, limitedBy: low.limitedBy, capOnCost: low.capOnCost }] : [];
+          commercial = { maxBid: r.maxBid, noi: r.noi, capPct: v.targetCapPct, cashLeft: r.cashLeft, allIn: r.allIn, refi: !offer && r.debtService > 0, none: false, noTarget: false, overCap: false, limitedBy: r.limitedBy, capOnCost: r.capOnCost, stress };
         }
       }
     }
@@ -207,17 +252,20 @@ export function savedNumbers(d: Deal) {
  * The repair and holding budget saved in Fix and sell for a flip, to compare with what you actually pay once you own it
  * (null when it isn't a flip or no repairs or holding costs are saved).
  */
-export function flipBudget(d: Deal): { repairs: number; monthly: number; months: number; holding: number; total: number } | null {
+export function flipBudget(d: Deal): { repairs: number; monthly: number; months: number; holding: number; financing: number; price: number; total: number } | null {
   if (d.plan !== 'flip') return null;
   const raw = read(`fsf.bid.analyzed-${d.id}.v1`);
   if (!raw || typeof raw !== 'object') return null;
   const saved: BidInputs = sanitizeInputs(raw, BLANK_INPUTS);
   const i = isOffer(d) ? offerInputs(saved) : saved;
-  // Repairs (with the contingency) and holding don't depend on the price, so any price gives the same figures.
-  const c = costsAtBid(i, 0);
-  if (c.repairs <= 0 && c.holding <= 0) return null;
+  // Repairs (with the contingency) and holding don't depend on the price. Loan interest and points do: they're figured
+  // at your own saved price (your offer or bid, or else the asking price or opening bid), since you'll pay them each
+  // month along with everything else you record.
+  const price = proposedPriceOf(i)?.price ?? 0;
+  const c = costsAtBid(i, price);
+  if (c.repairs <= 0 && c.holding <= 0 && c.financing <= 0) return null;
   const months = totalMonths(i);
-  return { repairs: c.repairs, monthly: months > 0 ? c.holding / months : 0, months, holding: c.holding, total: c.repairs + c.holding };
+  return { repairs: c.repairs, monthly: months > 0 ? c.holding / months : 0, months, holding: c.holding, financing: c.financing, price, total: c.repairs + c.holding + c.financing };
 }
 
 /** Whether the deal's calculator has numbers to show: a commercial deal without a target return has no price yet. */
@@ -225,7 +273,19 @@ export function hasSavedNumbers(n: ReturnType<typeof savedNumbers>): boolean {
   return !!(n.rent || n.bid || (n.commercial && !n.commercial.noTarget));
 }
 
-const commercialNoTarget = (strategy: string) => `No target return entered in ${strategy}: enter the cap rate you require to get a walk-away price.`;
+const commercialNoTarget = (strategy: string, overCap = false) => overCap
+  ? `The price is over $1 billion with the rent and costs you entered in ${strategy}: check them for a typo.`
+  : `No target return entered in ${strategy}: enter the cap rate you require to get a walk-away price.`;
+
+type CommercialLimit = 'return' | 'cash' | 'dscr';
+const pct1 = (x: number | null | undefined) => (x === null || x === undefined ? null : `${(x * 100).toFixed(1)}%`);
+/** The commercial walk-away price, worded by what sets it: your target return, your cash, or the lender's coverage. */
+function commercialPriceText(capPct: number, maxBid: number, limitedBy: CommercialLimit | undefined, capOnCost: number | null | undefined, lower = false): string {
+  const roc = pct1(capOnCost);
+  if (limitedBy === 'cash') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by the cash you can bring: ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
+  if (limitedBy === 'dscr') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by the lender’s minimum coverage (DSCR): ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
+  return lower ? `highest price ${money(maxBid)}` : `Highest price for a ${capPct}% return on cost: ${money(maxBid)}`;
+}
 
 export type SectionStatus = 'done' | 'started' | 'missing';
 export interface PacketSection {
@@ -315,7 +375,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       need = a.cashPeak;
       const at = `${priceName(a.source, offer)} of ${money(a.price)}`;
       if (!offer) cash.push(`On sale day, at ${at}: ${money(a.cashOnDay)} (bid plus any buyer’s premium, in the form the sale requires)`);
-      cash.push(`Most cash you’ll have in at once, at ${at}, through repairs and holding until it sells: ${money(a.cashPeak)}`);
+      cash.push(`Estimated cash you’ll put in, at ${at}, under these assumptions (through repairs and holding until it sells): ${money(a.cashPeak)}`);
       if (a.cashLeft < a.cashPeak) cash.push(`Left in once the loan funds, at ${at}: ${money(a.cashLeft)}`);
     } else {
       need = bid.cashPeak;
@@ -323,10 +383,11 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     }
     if (!bid.none) {
       const what = `What-if, at your walk-away price of ${money(bid.maxBid)} (the most you could pay, not your price)`;
-      cash.push(offer ? `${what}: most cash in at once ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} on sale day; most cash in at once ${money(bid.cashPeak)}`);
+      cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} on sale day; estimated cash you’d put in ${money(bid.cashPeak)}`);
     }
+    if (bid.financed) cash.push(DRAW_NOTE);
   } else if (commercial?.noTarget) {
-    cash.push(commercialNoTarget(strategy));
+    cash.push(commercialNoTarget(strategy, commercial.overCap));
   } else if (commercial?.none) {
     cash.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered in ${strategy}.`);
   } else if (commercial) {
@@ -358,11 +419,15 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       nums.push(`  If ${s.label.toLowerCase()}: ${a && s.profit !== null ? `profit ${money(s.profit)} at ${money(a.price)}; ${walk}` : walk}`);
     }
   }
-  if (commercial?.noTarget) nums.push(commercialNoTarget(strategy));
+  if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
   else if (commercial?.none) nums.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered`);
   else if (commercial) {
-    nums.push(`Highest price for a ${commercial.capPct}% return on cost: ${money(commercial.maxBid)}, on ${money(commercial.noi)} a year of net operating income`);
-    for (const s of commercial.stress) nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid !== null && s.maxBid > 0 ? `highest price ${money(s.maxBid)}` : 'no price works'}`);
+    nums.push(`${commercialPriceText(commercial.capPct, commercial.maxBid, commercial.limitedBy, commercial.capOnCost)}, on ${money(commercial.noi)} a year of net operating income`);
+    for (const s of commercial.stress) {
+      // Cash sets both prices: the lower rent doesn't move it, so say so instead of repeating the same figure as news.
+      const same = s.limitedBy === 'cash' && commercial.limitedBy === 'cash' && s.maxBid === commercial.maxBid;
+      nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid !== null && s.maxBid > 0 ? (same ? `still ${money(s.maxBid)}, set by the cash you can bring${pct1(s.capOnCost) ? ` (return on cost at that price: ${pct1(s.capOnCost)})` : ''}` : commercialPriceText(commercial.capPct, s.maxBid, s.limitedBy, s.capOnCost, true)) : 'no price works'}`);
+    }
   }
   if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');
   // Done only once there's a downside to look at, not just the base case.
@@ -416,7 +481,9 @@ export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const lines = [`DEAL PACKET: ${d.name}`, 'DeedOwl educational worksheet. Every number is your estimate until a source backs it; a checkmark records your review, not a clear title.', ''];
   lines.push(`STAGE: ${stageLabel(stageOf(d), d)}`, `NEXT ACTION: ${nextAction(d, p, now).text}`, '');
   for (const s of packetSections(d, p, now)) {
-    lines.push(`${s.title.toUpperCase()} [${s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines, '');
+    lines.push(`${s.title.toUpperCase()} [${s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines);
+    if (s.key === 'dates' && dateGuideLines(d).length) lines.push('How each date works (the signed contract wins):', ...dateGuideLines(d).map((l) => `- ${l}`));
+    lines.push('');
   }
   return lines.join('\n');
 }

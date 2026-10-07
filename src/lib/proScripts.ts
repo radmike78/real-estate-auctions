@@ -21,7 +21,7 @@ export const PRO_SCRIPTS: Record<ProKey, ProScript> = {
   },
   lender: {
     say: '“I’m buying a [one-unit home] I [will / won’t] live in, around [$price], in [county]. What down payment, rate and reserves would you need? Could you give me a written quote and a pre-approval? What could still stop the loan after I’m approved?”',
-    bring: ['Photo ID', 'Recent pay stubs (usually the last month)', 'W-2s or tax returns (often two years)', 'Bank statements (often the last two months)', 'For a rental you already own: leases and the property’s tax returns'],
+    bring: ['Photo ID', 'Recent pay stubs (usually the last month)', 'W-2s or tax returns (often two years)', 'Bank statements (often the last two months)', 'For a rental you already own: the leases, and the Schedule E from your tax returns'],
     read: { title: 'How to compare quotes', items: ['Compare the same loan amount and type from each lender.', 'Look at the rate, the points and the lender fees together, not the rate alone.', 'On most home loans you’ll live in, you get a Loan Estimate: compare page 2 (closing costs) side by side.', 'Ask what conditions are still open on the pre-approval.'] },
     get: ['A Loan Estimate (most home loans you’ll live in) or written terms: rate, points, fees, term, balloon date and prepayment penalty', 'A pre-approval letter, and the list of conditions still open on it'],
   },
@@ -49,10 +49,10 @@ export const PRO_SCRIPTS: Record<ProKey, ProScript> = {
     get: ['A written report on the roof, structure and systems, before your inspection deadline', 'What the inspection didn’t cover, and their license or certificate'],
   },
   contractor: {
-    say: '“Could you bid this scope in writing: [work]? Please include permits, timeline and a payment schedule tied to finished work. What’s your license number, and can I see proof of insurance?”',
+    say: '“Could you bid this scope in writing: [work]? Please include permits, timeline and a payment schedule tied to finished work. Which licenses or local registrations does this work need, and what are your numbers? Can I see proof of insurance?”',
     bring: ['A written scope of work', 'Photos', 'Your budget and deadline'],
-    read: { title: 'What to check in a bid', items: ['The same scope from each contractor, so bids compare', 'Permits included, and who pulls them', 'Payment tied to finished work, not mostly up front', 'Lien releases as you pay'] },
-    get: ['A written bid for your scope: permits, timeline and a payment schedule tied to finished work', 'Their license number and proof of insurance', 'A lien release for each payment, from them and from the subcontractors and suppliers it covers'],
+    read: { title: 'What to check in a bid', items: ['The same scope from each contractor, so bids compare', 'Permits included, and who pulls them', 'Payment tied to finished work, not mostly up front', 'Lien releases as you pay', 'In Texas, there’s no statewide general contractor license, but electricians and air-conditioning contractors need a state license from TDLR, plumbers need one from the Texas State Board of Plumbing Examiners, and your city may require registration and permits.'] },
+    get: ['A written bid for your scope: permits, timeline and a payment schedule tied to finished work', 'Any license or registration the work requires (state trade licenses, city registration), and proof of insurance', 'A lien release for each payment, from them and from the subcontractors and suppliers it covers'],
   },
   insurance: {
     say: '“I’m buying [address] as a [rental / home / flip], closing on [date]. Could you quote a policy for that use? What’s not covered, what’s the deductible, and are there limits if it’s empty for a while? When can coverage start?”',

@@ -1390,8 +1390,8 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.co.irion.tx.us/1198/Sheriff", checked: "2026-10-05" },
   },
   "TX/Jack": {
-    taxSale: { url: "https://www.jackcounty.org/", checked: null, note: "No separate tax sale page: watch this office for sale notices." },
-    treasurer: { url: "https://www.jackcounty.org/", checked: null, note: "The county website; the tax office has no separate site listed." },
+    taxSale: { url: "https://www.jackcounty.org/", checked: null, note: "No separate tax sale page: watch this office for sale notices. The county website’s security certificate had expired when we checked; your browser may warn you." },
+    treasurer: { url: "https://www.jackcounty.org/", checked: null, note: "The county website; the tax office has no separate site listed. Its security certificate had expired when we checked; your browser may warn you." },
     assessor: { url: "https://www.jackcad.org/", checked: "2026-10-05" },
   },
   "TX/Jackson": {
@@ -1478,7 +1478,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "TX/Kent": {
     taxSale: { url: "https://www.kentcad.org/", checked: "2026-10-05", note: "No separate tax sale page: watch this office for sale notices. The appraisal district collects property taxes here; the county tax office does not." },
-    treasurer: { url: "https://www.kentcad.org/", checked: "2026-10-07", note: "The Kent County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://www.kentcad.org/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://www.kentcad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.co.kent.tx.us/page/kent.CountyClerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.co.kent.tx.us/page/kent.Sheriff", checked: "2026-10-05" },
@@ -1492,7 +1492,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "TX/Kimble": {
     taxSale: { url: "https://kimblecad.org/", checked: "2026-10-05", note: "No separate tax sale page: watch this office for sale notices. The appraisal district collects property taxes here; the county tax office does not." },
-    treasurer: { url: "https://kimblecad.org/", checked: "2026-10-07", note: "The Kimble County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://kimblecad.org/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://kimblecad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.co.kimble.tx.us/page/County.Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.co.kimble.tx.us/page/Sheriff", checked: "2026-10-05" },
@@ -1506,7 +1506,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "TX/Kinney": {
     taxSale: { url: "https://kinneycad.org/", checked: "2026-10-05", note: "No separate tax sale page: watch this office for sale notices. The appraisal district collects property taxes here; the county tax office does not." },
-    treasurer: { url: "https://kinneycad.org/", checked: "2026-10-07", note: "The Kinney County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://kinneycad.org/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://kinneycad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.co.kinney.tx.us/page/County.Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.co.kinney.tx.us/page/Sheriff", checked: "2026-10-05" },
@@ -1533,21 +1533,21 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "TX/Lamar": {
     taxSale: { url: "https://lamarcad.org/tax-sales/", checked: "2026-10-05", note: "The Lamar County Appraisal District collects property taxes and posts upcoming tax sales here, with an interested-buyer signup through its delinquent-tax law firms (Abernathy, Roeder, Boyd & Hullett and Linebarger Goggan Blair & Sampson)." },
-    treasurer: { url: "https://lamarcad.org/", checked: "2026-10-07", note: "The Lamar County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://lamarcad.org/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://lamarcad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.lamarcountytx.gov/page/County.Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.lamarcountytx.gov/page/Sheriff", checked: "2026-10-05" },
   },
   "TX/Lamb": {
     taxSale: { url: "https://lambcad.org/", checked: "2026-10-05", note: "No separate tax sale page: watch this office for sale notices. The appraisal district collects property taxes here; the county tax office does not." },
-    treasurer: { url: "https://lambcad.org/", checked: "2026-10-07", note: "The Lamb County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://lambcad.org/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://lambcad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.co.lamb.tx.us/page/County.Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.co.lamb.tx.us/page/Sheriff", checked: "2026-10-05" },
   },
   "TX/Lampasas": {
     taxSale: { url: "https://lampasascad.com/", checked: "2026-10-05", note: "No separate tax sale page: watch this office for sale notices. The appraisal district collects property taxes here; the county tax office does not." },
-    treasurer: { url: "https://lampasascad.com/", checked: "2026-10-07", note: "The Lampasas County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://lampasascad.com/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://lampasascad.com/", checked: "2026-10-05" },
     recorder: { url: "https://www.co.lampasas.tx.us/page/lampasas.County.Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.co.lampasas.tx.us/page/lampasas.Sheriff", checked: "2026-10-05" },
@@ -1595,7 +1595,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "TX/Live Oak": {
     taxSale: { url: "https://www.liveoakappraisal.com/home/Custom?custurl=/home/taxsales", checked: "2026-10-05", note: "The Live Oak County Appraisal District collects property taxes and posts the current tax sale list here." },
-    treasurer: { url: "https://www.liveoakappraisal.com/", checked: "2026-10-07", note: "The Live Oak County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://www.liveoakappraisal.com/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://www.liveoakappraisal.com/", checked: "2026-10-05" },
     recorder: { url: "https://www.co.live-oak.tx.us/page/liveoak.County.Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.co.live-oak.tx.us/page/liveoak.Sheriff", checked: "2026-10-05" },
@@ -1608,20 +1608,21 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.llanocounty.gov/page/Sheriff", checked: "2026-10-05" },
   },
   "TX/Loving": {
-    taxSale: { url: "https://www.lovingcad.org/", checked: null, note: "No separate tax sale page: watch this office for sale notices. The appraisal district collects property taxes here; the county tax office does not." },
-    treasurer: { url: "https://www.lovingcad.org/", checked: "2026-10-07", note: "The Loving County Appraisal District bills and collects property taxes; the county tax office does not." },
+    taxSale: { url: "https://www.lovingcad.org/", checked: "2026-10-07", note: "No separate tax sale page: watch this office for sale notices. The appraisal district collects property taxes here; the county tax office does not." },
+    treasurer: { url: "https://www.lovingcad.org/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://www.lovingcad.org/", checked: "2026-10-07" },
     recorder: { url: "https://www.co.loving.tx.us/page/loving.County.Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.co.loving.tx.us/page/loving.Sheriff", checked: "2026-10-05" },
   },
   "TX/Lubbock": {
+    taxSale: { url: "https://lubbockcad.org/", checked: "2026-10-07", note: "No separate tax sale page: the appraisal district collects property taxes and posts tax sale information, including the deadline to request the no-back-taxes statement (Form 50-307), on its home page." },
     treasurer: { url: "https://lubbockcad.org/", checked: "2026-10-07", note: "Lubbock County's tax office handles vehicles; the Lubbock Central Appraisal District bills and collects property taxes." },
-    assessor: { url: "https://lubbockcad.org/", checked: null },
+    assessor: { url: "https://lubbockcad.org/", checked: "2026-10-07" },
     recorder: { url: "https://www.lubbockcounty.gov/department/division.php?fDD=2-8", checked: "2026-10-05", note: "The County Clerk’s real property records page." },
   },
   "TX/Lynn": {
     taxSale: { url: "https://www.lynncad.org/", checked: "2026-10-05", note: "No separate tax sale page: watch this office for sale notices. The appraisal district collects property taxes here; the county tax office does not." },
-    treasurer: { url: "https://www.lynncad.org/", checked: "2026-10-07", note: "The Lynn County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://www.lynncad.org/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://www.lynncad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.co.lynn.tx.us/page/County.Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.co.lynn.tx.us/page/Sheriff", checked: "2026-10-05" },
@@ -1645,7 +1646,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "TX/Mason": {
     taxSale: { url: "https://masoncad.org/", checked: "2026-10-05", note: "No separate tax sale page: watch this office for sale notices. The appraisal district collects property taxes here; the county tax office does not." },
-    treasurer: { url: "https://masoncad.org/", checked: "2026-10-07", note: "The Mason County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://masoncad.org/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://masoncad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.co.mason.tx.us/page/mason.County.Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.co.mason.tx.us/page/mason.Sheriff", checked: "2026-10-05" },
@@ -1662,7 +1663,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "TX/McCulloch": {
     taxSale: { url: "https://www.co.mcculloch.tx.us/page/mcculloch.NoticeofForeclosureSales", checked: "2026-10-05", note: "County page listing posted foreclosure and sheriff's sale notices (mostly mortgage trustee sales). The appraisal district collects property taxes here." },
-    treasurer: { url: "https://www.mccullochcad.org/", checked: "2026-10-07", note: "The McCulloch County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://www.mccullochcad.org/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://www.mccullochcad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.co.mcculloch.tx.us/page/mcculloch.County.Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.co.mcculloch.tx.us/page/mcculloch.Sheriff", checked: "2026-10-05" },
@@ -1689,7 +1690,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "TX/Menard": {
     taxSale: { url: "https://www.menardcad.org/", checked: "2026-10-05", note: "No separate tax sale page: watch this office for sale notices. The appraisal district collects property taxes here; the county tax office does not." },
-    treasurer: { url: "https://www.menardcad.org/", checked: "2026-10-07", note: "The Menard County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://www.menardcad.org/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://www.menardcad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.co.menard.tx.us/page/menard.County.Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.co.menard.tx.us/page/menard.Sheriff", checked: "2026-10-05" },
@@ -1709,8 +1710,8 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.milamcountysherifftx.org/", checked: "2026-10-05" },
   },
   "TX/Mills": {
-    taxSale: { url: "https://millscad.org/", checked: "2026-10-05", note: "No separate tax sale page: watch this office for sale notices. The appraisal district collects property taxes here; the county tax office does not." },
-    treasurer: { url: "https://millscad.org/", checked: "2026-10-07", note: "The Mills County Appraisal District bills and collects property taxes; the county tax office does not." },
+    taxSale: { url: "https://millscad.org/tax-sales/", checked: "2026-10-07", note: "The appraisal district collects property taxes and posts upcoming tax sale notices here, 3 weeks before each sale." },
+    treasurer: { url: "https://millscad.org/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://millscad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.millscountytx.gov/page/County.Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.millscountytx.gov/page/Sheriff", checked: "2026-10-05" },
@@ -1742,7 +1743,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "TX/Morris": {
     taxSale: { url: "https://www.morriscad.com/", checked: "2026-10-05", note: "No separate tax sale page: the Morris County Appraisal District collects property taxes and posts tax sale lists on its home page; it also links the interested-buyer program of its delinquent-tax law firm, Linebarger Goggan Blair & Sampson." },
-    treasurer: { url: "https://www.morriscad.com/", checked: "2026-10-07", note: "The Morris County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://www.morriscad.com/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://www.morriscad.com/", checked: "2026-10-05" },
     recorder: { url: "https://www.co.morris.tx.us/page/morris.County.Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.co.morris.tx.us/page/morris.Sheriff", checked: "2026-10-05" },
@@ -1775,7 +1776,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "TX/Nolan": {
     taxSale: { url: "https://www.nolan-cad.org/home/Custom?custurl=/home/taxsaleinformation", checked: "2026-10-05", note: "The Nolan County Appraisal District collects property taxes and posts upcoming tax sale information here." },
-    treasurer: { url: "https://www.nolan-cad.org/", checked: "2026-10-07", note: "The Nolan County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://www.nolan-cad.org/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://www.nolan-cad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.co.nolan.tx.us/page/nolan.County.Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.co.nolan.tx.us/page/nolan.Sheriff", checked: "2026-10-05" },
@@ -1786,14 +1787,14 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "TX/Ochiltree": {
     taxSale: { url: "https://www.ochiltreecad.org/", checked: "2026-10-05", note: "No separate tax sale page: watch this office for sale notices. The appraisal district collects property taxes here; the county tax office does not." },
-    treasurer: { url: "https://www.ochiltreecad.org/", checked: "2026-10-07", note: "The Ochiltree County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://www.ochiltreecad.org/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://www.ochiltreecad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.co.ochiltree.tx.us/page/ochiltree.County.Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.co.ochiltree.tx.us/page/ochiltree.Sheriff", checked: "2026-10-05" },
   },
   "TX/Oldham": {
     taxSale: { url: "https://oldhamcad.org/", checked: "2026-10-05", note: "No separate tax sale page: watch this office for sale notices. The appraisal district collects property taxes here; the county tax office does not." },
-    treasurer: { url: "https://oldhamcad.org/", checked: "2026-10-07", note: "The Oldham County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://oldhamcad.org/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://oldhamcad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.co.oldham.tx.us/page/County.Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.co.oldham.tx.us/page/Sheriff", checked: "2026-10-05" },
@@ -1821,14 +1822,14 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "TX/Parker": {
     taxSale: { url: "https://www.parkercountytx.gov/517/Constable-Sale", checked: "2026-10-05" },
-    treasurer: { url: "https://www.parkercad.org/", checked: "2026-10-07", note: "The Parker County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://www.parkercad.org/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://www.parkercad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.parkercountytx.gov/105/County-Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.parkercountytx.gov/517/Constable-Sale", checked: "2026-10-05" },
   },
   "TX/Parmer": {
     taxSale: { url: "https://parmercad.org/", checked: "2026-10-05", note: "No separate tax sale page: watch this office for sale notices. The appraisal district collects property taxes here; the county tax office does not." },
-    treasurer: { url: "https://parmercad.org/", checked: "2026-10-07", note: "The Parmer County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://parmercad.org/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://parmercad.org/", checked: "2026-10-05" },
     recorder: { url: "https://parmercounty.texas.gov/?page_id=155", checked: "2026-10-05" },
     sheriff: { url: "https://parmercounty.texas.gov/?page_id=14", checked: "2026-10-05" },
@@ -1863,7 +1864,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "TX/Rains": {
     taxSale: { url: "https://rainscad.org/", checked: "2026-10-05", note: "No separate tax sale page: watch this office for sale notices. The Rains County Appraisal District collects property taxes and links its delinquent-tax law firm, Linebarger Goggan Blair & Sampson, which posts the lists." },
-    treasurer: { url: "https://rainscad.org/", checked: "2026-10-07", note: "The Rains County Appraisal District bills and collects property taxes; the county tax office does not." },
+    treasurer: { url: "https://rainscad.org/", checked: "2026-10-07", note: "The appraisal district bills and collects property taxes here; the county tax office does not." },
     assessor: { url: "https://rainscad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.co.rains.tx.us/page/rains.County.Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.co.rains.tx.us/page/rains.Sheriff", checked: "2026-10-05" },

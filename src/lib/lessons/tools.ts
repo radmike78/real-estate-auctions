@@ -20,7 +20,8 @@ export const tools: Lesson = {
           'Recorder: recorded documents such as deeds, deeds of trust, liens, notices of default and releases. This is where a title search starts.',
           'Treasurer or tax collector: the tax bill, whether taxes are unpaid, and the county’s tax sale.',
         ] },
-        'Start with the parcel number from the assessor, since the other offices use it too. In Texas, the county appraisal district does the assessor’s job, the county clerk records documents, and the county tax assessor-collector usually collects taxes. Here are the largest counties:',
+        'In Texas, the county appraisal district does the assessor’s job, the county clerk records documents, and the county tax assessor-collector or appraisal district collects taxes.',
+        'Start with the parcel number from the assessor, since the other offices use it too. Here are the largest counties:',
         { links: [
           { label: 'Clark County (NV) Assessor', url: 'https://www.clarkcountynv.gov/assessor', what: 'Property record search.' },
           { label: 'Clark County (NV) Recorder', url: 'https://www.clarkcountynv.gov/recorder', what: 'Recorded documents online and the GIS map.' },

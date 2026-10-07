@@ -3,7 +3,7 @@ import PageHero from './PageHero';
 import EvidenceLog from './EvidenceLog';
 import { kindLabel, loadDeals, openDeal, SALE_KINDS } from '../lib/analyze';
 import { countyName } from '../lib/regions';
-import { dealPacketText, FIT_LABEL, loadPacket, packetSections, savePacket, suggestedDates, type Fit, type PacketData, type SectionStatus } from '../lib/dealPacket';
+import { dateGuide, dealPacketText, FIT_LABEL, loadPacket, packetSections, savePacket, suggestedDates, type Fit, type PacketData, type SectionStatus } from '../lib/dealPacket';
 import { TEAM_ROLES } from '../lib/myPlan';
 import { proGuideByKey } from '../lib/proGuide';
 import { downloadText, fileName } from '../lib/download';
@@ -66,6 +66,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
   const next = dealNextTask(deal, p, undefined, stage);
   const done = sections.filter((s) => s.status === 'done').length;
   const sec = (k: string) => sections.find((s) => s.key === k)!;
+  const guideRows = dateGuide(deal).filter((g) => g.when);
 
   const Head = ({ k }: { k: string }) => {
     const s = sec(k);
@@ -155,6 +156,29 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           <button type="button" className="btn btn-secondary" onClick={() => update({ dates: [...p.dates, { when: '', what: '', who: '' }] })}>Add a date</button>
         </div>
         <Lines k="dates" />
+        {guideRows.length > 0 && (
+          <>
+            <h3>How each {deal.state === 'TX' ? 'Texas contract ' : ''}date works</h3>
+            <div className="table-wrap">
+              <table className="lesson-table doc-guide-table packet-date-guide">
+                <thead>
+                  <tr><th scope="col">Date</th><th scope="col">When, or how it’s counted</th><th scope="col">Who acts</th><th scope="col">What to do</th><th scope="col">If it’s missed</th></tr>
+                </thead>
+                <tbody>
+                  {guideRows.map((g) => (
+                    <tr key={g.what}>
+                      <th scope="row">{g.what}{g.why && <span className="packet-date-why small muted">Why: {g.why}</span>}</th>
+                      <td data-label="When">{g.when}</td>
+                      <td data-label="Who acts">{g.who}</td>
+                      <td data-label="What to do">{g.todo}</td>
+                      <td data-label="If it’s missed">{g.missed}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
       </section>
 
       <section className="deal-setup packet-section" aria-labelledby="packet-cash">

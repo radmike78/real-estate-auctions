@@ -247,7 +247,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       title: "Read every page of the addendum",
-      detail: "The seller’s addendum usually overrides the TREC contract on repairs, disclosures, deadlines, closing costs and penalties for late closing. Ask your agent to explain anything that shifts cost or risk to you. If you use the TREC contract, also ask which box in paragraph 7I applies to the Seller’s Water Disclosure (groundwater and surface water rights). If the seller must deliver it, read it and note the date: you can end the contract within 7 days after you receive it, or before closing if sooner. If it isn’t required, note why (every statement in 7I(3) is true). Whether a bank’s addendum changes this depends on its wording, so ask.*"
+      detail: "The seller’s addendum usually overrides the TREC contract on repairs, disclosures, deadlines, closing costs and penalties for late closing. Ask your agent to explain anything that shifts cost or risk to you. If you use the TREC contract, also ask which box in paragraph 7I applies to the Seller’s Water Disclosure (groundwater and surface water rights). If box 7I(2) is checked (you haven’t received it yet), read it when it comes and note the date: you can end the contract within 7 days after you receive it, or before closing if sooner. If box 1 (already received) or box 3 (not required, because every statement in 7I(3) is true) is checked, there’s no new termination window. Whether a bank’s addendum changes this depends on its wording, so ask.*"
     },
     {
       title: "Inspect during the option period",

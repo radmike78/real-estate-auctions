@@ -16,7 +16,7 @@ import type { SaleKey } from '../practice/types';
 import OwlNote from './OwlNote';
 import { useLastActivity } from '../lib/journey';
 import { loadCase } from '../practice/caseProgress';
-import { caseFor } from '../practice/rentalCase';
+import { caseFor, caseResume } from '../practice/rentalCase';
 import { STATES } from '../lib/regions';
 import AdSpot from './AdSpot';
 
@@ -79,8 +79,8 @@ export default function PracticePage({ sale }: { sale?: string }) {
 
   const practiceCase = caseFor(getMyState());
   const caseP = loadCase(practiceCase.state);
-  const caseStarted = caseP.done.length > 0;
-  const caseNext = (practiceCase.stages.find((st) => !st.tasks.every((t) => caseP.done.includes(`${st.key}/${t.id}`))) ?? practiceCase.stages[0]).key;
+  const caseStarted = caseP.done.length > 0 || !!caseP.walked;
+  const caseNext = caseResume(practiceCase.stages, caseP);
   const myName = mine ? STATES.find((x) => x.code === mine)?.name ?? mine : null;
   // A visitor from another state: these runs follow Nevada rules, so they sit behind one switch, and that state's own
   // drills (step 3) come first.
@@ -136,7 +136,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
         <h2 id="practice-case" className="practice-step"><span aria-hidden>1</span> Buy a rental, start to finish</h2>
         <p className="practice-step-intro">Work one fictional purchase from your budget to the first months of renting it out. Read teaching versions of the paperwork (comparables, a loan quote, an inspection report, a title commitment, a closing statement), each with a guide to reading the real form, and make the calls when things go wrong. You finish with your own deal packet: a budget, a deadline calendar, an evidence log and your questions for each professional.</p>
         <div className="practice-case-go">
-          <a className="btn big" href={`#/practice/case${caseStarted ? `/${caseNext}` : ''}`}>{caseStarted ? 'Continue the purchase\u00a0→' : 'Start the purchase\u00a0→'}</a>
+          <a className="btn big" href={`#/practice/case${caseStarted ? `/${caseNext.key}` : ''}`}>{!caseStarted ? 'Start the purchase\u00a0→' : caseNext.packet ? 'See your deal packet\u00a0→' : 'Continue the purchase\u00a0→'}</a>
           <span className="practice-case-meta">About 45 minutes · {practiceCase.property} · {practiceCase.stateName} rules{practiceCase.state === 'TX' ? ', with the TREC contract' : ''}</span>
         </div>
         <h2 id="practice-auction" className="practice-step"><span aria-hidden>2</span> {otherState ? 'Auction practice: choose a kind of sale' : 'Nevada auction practice: choose a kind of sale'}</h2>

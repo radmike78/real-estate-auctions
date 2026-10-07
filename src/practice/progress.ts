@@ -62,3 +62,8 @@ export function completion(id: string, totalTasks: number): number {
   if (!totalTasks) return 0;
   return Math.min(1, loadProgress(id).done.length / totalTasks);
 }
+
+/** The first step with a card still open, or null when every step is done (then "Continue" goes to the results). */
+export function firstOpenStage<S extends { key: string; tasks: { id: string }[] }>(stages: S[], done: string[]): S | null {
+  return stages.find((st) => !st.tasks.every((t) => done.includes(`${st.key}/${t.id}`))) ?? null;
+}

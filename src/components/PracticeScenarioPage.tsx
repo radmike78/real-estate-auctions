@@ -10,7 +10,7 @@ import { STATES } from '../lib/regions';
 import { exitPlans, buyingCosts } from '../practice/exitPlans';
 import { fmtMoney } from '../lib/status';
 import { scenarioById } from '../practice/scenarios';
-import { loadProgress, resetProgress, saveProgress, type ScenarioProgress } from '../practice/progress';
+import { firstOpenStage, loadProgress, resetProgress, saveProgress, type ScenarioProgress } from '../practice/progress';
 import type { Scenario, Stage, Task } from '../practice/types';
 import { useNoIndex } from '../lib/noindex';
 
@@ -56,7 +56,7 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
   const stage = stageKey && found >= 0 ? s.stages[idx] : null;
   const unknownStage = !!stageKey && found < 0;
   const total = s.stages.reduce((n, st) => n + st.tasks.length, 0);
-  const allDone = progress.done.length >= total;
+  const allDone = !firstOpenStage(s.stages, progress.done);
   const myName = mine ? STATES.find((x) => x.code === mine)?.name ?? mine : null;
 
   return (
@@ -121,6 +121,8 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
 function Listing({ s, progress, total, onReset }: { s: Scenario; progress: ScenarioProgress; total: number; onReset: () => void }) {
   const p = s.property;
   const started = progress.done.length > 0;
+  // Continue where you left off: the first step with a card still open.
+  const open = firstOpenStage(s.stages, progress.done);
   return (
     <section aria-labelledby="listing-head">
       <div className="practice-listing">
@@ -142,7 +144,9 @@ function Listing({ s, progress, total, onReset }: { s: Scenario; progress: Scena
         <p className="small muted">Rules and deadlines come from our <a href={`#/playbooks/${s.playbookKey}`}>guide to {s.saleTitle}</a>. Real sales can change them: always read the official notice.</p>
       </div>
       <div className="row practice-next">
-        <a className="btn big" href={`#/practice/${s.id}/${s.stages[0].key}`}>{started ? 'Continue practicing\u00a0→' : 'Start practicing\u00a0→'}</a>
+        {started && !open
+          ? <button type="button" className="btn big" onClick={() => document.getElementById('results-head')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>See your results&nbsp;→</button>
+          : <a className="btn big" href={`#/practice/${s.id}/${(open ?? s.stages[0]).key}`}>{started ? 'Continue practicing\u00a0→' : 'Start practicing\u00a0→'}</a>}
         {started && <span className="muted">{progress.done.length} of {total} done</span>}
         {started && <button className="linkish" onClick={onReset}>Start over</button>}
         <a href="#/practice">Choose another</a>

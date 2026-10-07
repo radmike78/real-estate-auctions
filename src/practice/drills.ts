@@ -55,11 +55,11 @@ export const DRILLS: Drill[] = [
         question: 'Which recent sales would you use to value this house as it is today? Pick all that fit.',
         multi: true,
         options: [
-          { label: 'Sale A: $272,000', detail: '3 bed, 2 bath, 1,480 sq ft, average condition, sold 2 months ago, 0.4 miles away', good: true, why: 'Similar size, age and condition, recent and close: a strong comparable.' },
-          { label: 'Sale B: $268,000', detail: '3 bed, 2 bath, 1,550 sq ft, average condition, sold 4 months ago, 0.7 miles away', good: true, why: 'Also similar and recent. Two good comps point to about $270,000.' },
-          { label: 'Sale C: $395,000', detail: '4 bed, 3 bath, 2,300 sq ft, fully remodeled, sold 1 month ago, 0.5 miles away', good: false, why: 'Much bigger and remodeled. It tells you what a different house is worth, not this one.' },
-          { label: 'Sale D: $240,000', detail: '3 bed, 2 bath, 1,500 sq ft, poor condition (no working air conditioning, kitchen torn out), sold 14 months ago, 0.3 miles away', good: false, why: 'Its age alone wouldn’t rule it out: an older sale can still help if you adjust it for how prices have moved since. The problem is condition. A house with no working air conditioning and no kitchen isn’t a close match for this livable one, and Sales A and B are similar, recent and close, so they’re the better evidence.' },
-          { label: 'Sale E: $205,000', detail: '3 bed, 2 bath, 1,510 sq ft, bank sale with fire damage, sold as-is 3 months ago', good: false, why: 'A distressed sale of a damaged house. It sets a floor for a wreck, not the value of a livable home.' },
+          { label: 'Sale A: $272,000', detail: '3 bed, 2 bath, 1,480 sq ft, built 1997, average condition, sold 2 months ago, 0.4 miles away', good: true, why: 'Similar size, age and condition, recent and close: a strong comparable.' },
+          { label: 'Sale B: $268,000', detail: '3 bed, 2 bath, 1,550 sq ft, built 2000, average condition, sold 4 months ago, 0.7 miles away', good: true, why: 'Also similar and recent. Two good comps point to about $270,000.' },
+          { label: 'Sale C: $395,000', detail: '4 bed, 3 bath, 2,300 sq ft, built 2006, fully remodeled, sold 1 month ago, 0.5 miles away', good: false, why: 'Much bigger and remodeled. It tells you what a different house is worth, not this one.' },
+          { label: 'Sale D: $240,000', detail: '3 bed, 2 bath, 1,500 sq ft, built 1998, poor condition (no working air conditioning, kitchen torn out), sold 14 months ago, 0.3 miles away', good: false, why: 'How long ago it sold wouldn’t rule it out alone: an older sale can still help if you adjust it for how prices have moved since. The problem is condition. A house with no working air conditioning and no kitchen isn’t a close match for this livable one, and Sales A and B are similar, recent and close, so they’re the better evidence.' },
+          { label: 'Sale E: $205,000', detail: '3 bed, 2 bath, 1,510 sq ft, built 1999, bank sale with fire damage, sold as-is 3 months ago', good: false, why: 'A distressed sale of a damaged house. It sets a floor for a wreck, not the value of a livable home.' },
         ],
         lesson: 'Value comes from the best evidence you have: sales of similar homes nearby, in similar condition, as recent as you can find. When you must use an older sale, adjust it for how the market has moved since. Here Sales A and B point to about $270,000, so at $265,000 you’d be paying nearly full price for a house that still needs work.',
       },
@@ -88,7 +88,7 @@ export const DRILLS: Drill[] = [
           { label: 'Flooring: damaged in most rooms', low: 5000, high: 9000, note: 'Needed before a tenant moves in.' },
           { label: 'Kitchen: dated but working', low: 0, high: 15000, note: 'Optional for a rental. Paint and hardware may be enough.' },
         ],
-        lesson: '“Just needs paint” was really $22,500 to $53,500 of work. Price what you can’t see too: the roof and the HVAC are the expensive surprises. These ranges are examples; get written bids from licensed contractors in your area.',
+        lesson: '“Just needs paint” was really $22,500 to $53,500 of work. Price what you can’t see too: the roof and the HVAC are the expensive surprises. These ranges are examples; get written bids from qualified contractors in your area, licensed where your state or the trade requires it.',
       },
       {
         kind: 'facts',
@@ -1363,7 +1363,7 @@ export const DRILLS: Drill[] = [
           { label: 'The actual last-12-months NOI, checked against the leases', good: true, why: 'Right. Value what the property earns now, not what the seller hopes it could earn.' },
           { label: 'The seller’s pro forma, since that’s what the broker advertises', good: false, why: 'A pro forma is a projection, often with every space leased at top rents.' },
         ],
-        lesson: 'Value = NOI ÷ cap rate. At 7.5% on the actual $112,000, it’s worth about $1,493,000, not $1,800,000.',
+        lesson: 'Value = NOI ÷ cap rate. At the same 7.5% cap rate the asking price implies, the actual $112,000 points to about $1,493,000, not $1,800,000. Next, ask a commercial broker or appraiser to support a cap rate from comparable sales and this property’s tenant, lease and condition risks.',
       },
       {
         kind: 'pick',
@@ -1383,7 +1383,7 @@ export const DRILLS: Drill[] = [
         id: 'risk',
         title: 'Mission 3: The lease risk',
         lines: [
-          { label: 'Value on actual NOI at a 7.5% cap rate', value: 'About $1,493,000' },
+          { label: 'Value on actual NOI, at the same 7.5% cap rate the asking price implies', value: 'About $1,493,000' },
           { label: 'Asking price', value: '$1,800,000' },
           { label: 'Gap', value: 'About $307,000 of hoped-for income' },
           { label: 'Tenants who could leave within months', value: 'Three of six' },
@@ -1395,10 +1395,10 @@ export const DRILLS: Drill[] = [
       question: 'At $1,800,000, what do you do?',
       choices: [
         { label: 'Buy', feedback: 'You’d pay for income the property doesn’t earn, with half the tenants able to leave.' },
-        { label: 'Investigate', feedback: 'Good, at a lower price: read the leases, get estoppels, and value on actual NOI with a cushion for turnover.' },
+        { label: 'Investigate', feedback: 'Good, at a lower price: read the leases, get estoppels, value on actual NOI with a cushion for turnover, and ask a commercial broker or appraiser to support the cap rate.' },
         { label: 'Pass', feedback: 'Reasonable if the seller won’t price on actual income.' },
       ],
-      expert: 'Investigate only at a price based on actual NOI, about $1.49 million at the same cap rate, and lower for the lease risk. Paying for a pro forma is paying the seller for work you’d still have to do.',
+      expert: 'Investigate only at a price based on actual NOI: about $1.49 million at the same 7.5% cap rate the asking price implies, and lower for the lease risk. Ask a commercial broker or appraiser to support a cap rate from comparable sales and this property’s tenant, lease and condition risks; a professional appraisal is the best way to determine value. Paying for a pro forma is paying the seller for work you’d still have to do.',
     },
   },
   {

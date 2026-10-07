@@ -45,7 +45,7 @@ export const LICENSE_LOOKUPS: Partial<Record<ProKey, Record<StateCode, Lookup>>>
   eviction: BAR,
   inspector: {
     NV: { who: 'Nevada Real Estate Division (inspectors of structures)', url: 'https://red.prod.secure.nv.gov/Lookup/LicenseLookup.aspx' },
-    CA: { note: 'California doesn’t license home inspectors. Ask for proof of insurance and training, and a sample report.' },
+    CA: { note: 'No state license for home inspectors. Ask for proof of insurance and training, and a sample report.' },
     AZ: { who: 'Arizona Board of Technical Registration', url: 'https://btr.az.gov/' },
     UT: { who: 'Utah Division of Professional Licensing (Private Home Inspector license)', url: 'https://secure.utah.gov/llv/search/index.html' },
     TX: { who: 'Texas Real Estate Commission (TREC) license holder search (choose Inspector)', url: 'https://www.trec.texas.gov/license-search' },
@@ -56,7 +56,7 @@ export const LICENSE_LOOKUPS: Partial<Record<ProKey, Record<StateCode, Lookup>>>
     CA: { who: 'California Contractors State License Board', url: 'https://www.cslb.ca.gov/OnlineServices/CheckLicenseII/CheckLicense.aspx' },
     AZ: { who: 'Arizona Registrar of Contractors', url: 'https://roc.az.gov/contractor-search' },
     UT: { who: 'Utah Division of Professional Licensing', url: 'https://secure.utah.gov/llv/search/index.html' },
-    TX: { note: 'Texas has no statewide license for general contractors or remodelers. Check the trades: electricians and air-conditioning contractors on the TDLR license search, and plumbers on the Texas State Board of Plumbing Examiners’ license search. Ask your city whether it registers contractors, and ask for proof of insurance.' },
+    TX: { note: 'No statewide license for general contractors or remodelers. Check the trades: electricians and air-conditioning contractors on the TDLR license search, and plumbers on the Texas State Board of Plumbing Examiners’ license search. Ask your city whether it registers contractors, and ask for proof of insurance.' },
   },
   insurance: INSURANCE,
   cpa: {

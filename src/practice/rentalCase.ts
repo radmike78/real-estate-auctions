@@ -93,6 +93,16 @@ export function walkedFrom(answers: Record<string, unknown>, stages: CaseStage[]
   return undefined;
 }
 
+/**
+ * Where "Continue the purchase" goes: the first step with a task still open (counting only the questions your answers
+ * show), or the deal packet once every step is done or you walked away.
+ */
+export function caseResume(stages: CaseStage[], p: { done: string[]; answers: Record<string, unknown>; walked?: string }): { key: string; packet: boolean } {
+  if (p.walked) return { key: 'packet', packet: true };
+  const next = stages.find((st) => !tasksFor(st, p.answers).every((t) => p.done.includes(`${st.key}/${t.id}`)));
+  return next ? { key: next.key, packet: false } : { key: 'packet', packet: true };
+}
+
 /** Steps before this one have no contract yet: walking away there costs nothing. */
 export const CONTRACT_FROM = 'offer';
 
@@ -152,6 +162,10 @@ interface CaseConfig {
   };
   /** Why ignoring the HOA's leasing rules is wrong, if this state's contract has no separate HOA review period. */
   hoaRulesWhy?: string;
+  /** The appraisal-and-title step's second sentence, when the title commitment and HOA rules came earlier (Utah). */
+  titleBrief?: string;
+  /** The HOA leasing-rules question, when the rules were read during due diligence. */
+  hoaPrompt?: string;
   cancelShort: string;
   periodName: string;
   /** The ways out the offer keeps, in this state's words. */
@@ -471,6 +485,7 @@ const CA: CaseConfig = {
   earnestPaid: 'into escrow within 3 business days after acceptance',
   earnestCredit: (n) => `${usd(n.earnest)} initial deposit`,
   earnestShort: 'deposit',
+  walkKept: () => 'so you keep your deposit',
   rentRulesNote: 'Rules on deposits, entry and rent increases are state law. The ones below are California’s, because this practice house is in California. Some cities add their own.',
   rekeyWhy: 'You don’t know who else has keys.',
   rentTasks: (n) => [
@@ -571,7 +586,7 @@ const AZ: CaseConfig = {
     accept: 'Accept in writing by Day 13.',
     cancel: 'Cancel in writing by Day 13.',
     late: 'Wait until Day 14 to decide.',
-    why: 'Under this contract you had 5 days after the seller’s answer (Day 13) to cancel or accept. If you don’t cancel in time, you’re treated as going ahead without the repairs the seller refused, and you can no longer cancel over the inspection.',
+    why: 'Under this contract you had 5 days after the seller’s answer (Day 13) to cancel or accept. If you don’t cancel in time, you go ahead on the seller’s answer, without anything the seller didn’t agree to in writing, and you can no longer cancel over the inspection.',
     by: 'by the repair-reply deadline (5 days after the seller’s answer)',
   },
   cancelShort: 'Cancel in writing before Day 10.',
@@ -676,6 +691,8 @@ const UT: CaseConfig = {
   cancelInspection: 'Cancel in writing before the Due Diligence Deadline (Day 10), and get the earnest money back.',
   leaveInspection: 'Until the Due Diligence Deadline you can cancel for any reason, in writing, and get the earnest money back.',
   lateInspection: 'After the Due Diligence Deadline (Day 10), the due diligence condition is waived. You’d lose the right to cancel over the inspection, and maybe your earnest money.',
+  titleBrief: 'You also go back over two documents that came with the seller’s disclosures on Day 3 and that you approved before the Due Diligence Deadline: the title commitment and the HOA’s leasing rules. The title company sends its updated commitment before closing.',
+  hoaPrompt: 'You read the HOA’s leasing rules before Day 10. Do they fit your plan?',
   hoaRulesWhy: 'Many HOAs can and do limit rentals. In Utah the CC&Rs and rules come with the seller’s disclosures (REPC 7(d)), so read them before the Due Diligence Deadline: that’s your last chance to cancel over them.',
   cancelShort: 'Cancel in writing before Day 10.',
   periodName: 'Due Diligence Deadline',
@@ -1261,7 +1278,7 @@ function buildCase(c: CaseConfig) {
       title: 'Appraisal and title',
       outcome: 'Your answer to a low appraisal, and a title commitment with every item that could stop closing marked.',
       brief: [
-        `The lender’s appraisal comes back at ${$(appraised)}, below your ${$(renegotiated)} price. The title company also sends its title commitment: what it needs before closing, and what its policy won’t cover.`,
+        `The lender’s appraisal comes back at ${$(appraised)}, below your ${$(renegotiated)} price. ${c.titleBrief ?? 'The title company also sends its title commitment: what it needs before closing, and what its policy won’t cover.'}`,
       ],
       docs: [
         {
@@ -1316,7 +1333,7 @@ function buildCase(c: CaseConfig) {
           choices: [
             { label: `Ask the seller to lower the price to ${$(appraised)}, using your ${c.appraisalName}.`, verdict: 'best', why: `The appraisal is independent evidence. Most sellers know another buyer’s lender would see the same value. Here the seller agrees: the new price is ${$(finalPrice)}.${c.appraisalAskNote ? ` ${c.appraisalAskNote}` : ''}` },
             { label: 'Pay the difference from your cushion.', verdict: 'ok', why: `It works, but it shrinks a thin cushion further. Ask first; paying is your fallback. In this case your agent asks anyway and the seller agrees to ${$(finalPrice)}, so the rest of the purchase uses that price.` },
-            { label: c.cancelAppraisal, verdict: 'ok', walk: true, why: `Reasonable if your cushion can’t take it. ${c.leaveAppraisal}` },
+            { label: c.cancelAppraisal, verdict: 'ok', walk: true, why: `It makes sense if your cushion can’t take it. ${c.leaveAppraisal}` },
           ],
         },
         {
@@ -1332,7 +1349,7 @@ function buildCase(c: CaseConfig) {
         {
           kind: 'choice',
           id: 'hoa-fit',
-          prompt: 'Do the HOA’s leasing rules fit your plan?',
+          prompt: c.hoaPrompt ?? 'Do the HOA’s leasing rules fit your plan?',
           choices: [
             { label: 'Yes: a 12-month lease fits. Send the HOA each lease and the tenant’s contact information.', verdict: 'best', why: 'Your plan was a long-term rental. A short-term rental plan would have died here.' },
             { label: 'No: HOAs can’t limit rentals, so ignore them.', verdict: 'poor', why: c.hoaRulesWhy ?? 'Many HOAs can and do limit rentals. Read the rules before your HOA review period ends.' },
