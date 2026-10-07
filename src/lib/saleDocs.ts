@@ -149,7 +149,7 @@ const TX_DOCS: Partial<Record<SaleKindKey, SaleDoc[]>> = {
     { name: 'The deed of trust and any recorded assignments', check: 'From the county clerk’s records. They show which loan is being foreclosed and who holds it. Your title company can pull them with the title search.' },
     TITLE_SEARCH,
     FUNDS,
-    { name: 'Trustee’s deed', check: 'Confirm it’s recorded in your name. It doesn’t clear liens senior to the loan that was foreclosed. Before anyone is asked to leave, find out whether the people living there are the former owner or tenants: tenants can have more time under their lease and federal law.' },
+    { name: 'Trustee’s deed', check: 'Confirm it’s recorded in your name. It doesn’t clear liens senior to the loan that was foreclosed. Before anyone is asked to leave, find out whether the people living there are the former owner or tenants. Tenants can have more time under their lease and federal law.' },
     { name: 'Insurance binder', check: 'Coverage starting when the property becomes your risk under this sale. Ask the trustee when that is.' },
   ],
   hoa: [

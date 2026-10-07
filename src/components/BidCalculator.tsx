@@ -130,7 +130,10 @@ export function setSavedExitValue(id: string, defaults: BidInputs, exitValue: nu
 export function savedMaxBid(id: string): number | null {
   try {
     const saved = JSON.parse(localStorage.getItem(KEY(id)) ?? 'null');
-    return saved && typeof saved === 'object' ? maxSafeBid(sanitizeInputs(saved, BLANK_INPUTS)).maxBid : null;
+    if (!saved || typeof saved !== 'object') return null;
+    const i = sanitizeInputs(saved, BLANK_INPUTS);
+    // Without a resale value the calculator asks for one: there's no walk-away price yet.
+    return i.exitValue > 0 ? maxSafeBid(i).maxBid : null;
   } catch {
     return null;
   }

@@ -111,7 +111,7 @@ export const OFFICE_LABELS = [
 
 /** Texas names its offices differently: the tax assessor-collector, the appraisal district, the county clerk. */
 const OFFICE_LABELS_TX = [
-  { key: 'taxSale', name: 'Tax sale', what: 'Where the county lists sheriff’s and constables’ tax sales: dates, rules and how to register.' },
+  { key: 'taxSale', name: 'Tax sale', what: 'Where the county lists its tax sales (held by the sheriff or a constable): dates, rules and how to register.' },
   { key: 'treasurer', name: 'Tax assessor-collector', what: 'Tax bills, unpaid taxes and the statement you need before you bid.' },
   { key: 'assessor', name: 'Appraisal district', what: 'Parcel (account) numbers, owners of record, values and maps.' },
   { key: 'recorder', name: 'County clerk', what: 'Deeds, loans, liens and foreclosure notices on record.' },

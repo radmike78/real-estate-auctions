@@ -6,7 +6,7 @@
 // Site rules: tasks never involve contacting a homeowner, an occupant or a former owner. Official sellers, your own
 // team, public records and the county only.
 import { CURRENT_KEY, DEAL_STAGES, isDealStage, loadDeals, saveDeals, type Deal, type DealStage } from './analyze';
-import { loadPacket, nextDate, savedNumbers, suggestedDates, type PacketData } from './dealPacket';
+import { loadPacket, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
 import { EVIDENCE_AREAS, loadLog, type EvidenceLog } from './evidence';
 import { loadOwned, type Owned } from './owned';
 import { proGuideByKey } from './proGuide';
@@ -152,7 +152,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
   const per = dealProgress(`analyzed:${d.id}`);
   const stepDone = (id: string) => per.done.includes(id) || per.status[id] === 'na';
   const nums = savedNumbers(d);
-  const hasNums = d.plan === 'lien' || !!(nums.rent || nums.bid || nums.commercial);
+  const hasNums = d.plan === 'lien' || hasSavedNumbers(nums);
   const dated = p.dates.filter((x) => x.when).length;
   const tx = d.state === 'TX';
   const out: PlanTask[] = [];
@@ -267,7 +267,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     if (d.plan === 'flip') {
       // A flip gets the work and the sale, not rental tasks.
       out.push(task({ key: 'repairs', label: `Get repair bids for ${n} and start the work`, produces: 'written bids, permits where needed, and the work under way', href: ROADMAP_HREF, support: [L.pro('contractor')], done: stepDone('repairs') }));
-      out.push(task({ key: 'owned', label: `Track ${n}’s repair and holding costs against your budget`, produces: 'a monthly record of what you pay (with $0 rent), to compare with the repair and holding costs in your Fix and sell numbers', href: packetHref(d, 'owned'), done: !!owned[d.id] }));
+      out.push(task({ key: 'owned', label: `Track ${n}’s repair and holding costs against your budget`, produces: flipBudget(d) ? 'a monthly record of what you pay (with $0 rent), shown against the repair and holding budget in your Fix and sell numbers' : 'a monthly record of what you pay (with $0 rent), to compare yourself with the repairs and holding costs in Fix and sell (Analyze)', href: packetHref(d, 'owned'), done: !!owned[d.id] }));
       out.push(task({ key: 'stage', label: `Mark ${n} as ${stageLabel('owned', d).toLowerCase()}`, produces: 'the selling tasks: list it at a price backed by sold comps, and record the sale', href: packetHref(d, 'owned'), setStage: 'owned', done: false }));
       return out;
     }

@@ -75,7 +75,8 @@ const NAME_OF: Record<StateCode, string> = { NV: 'Nevada', CA: 'California', AZ:
 export function dropStateLead(text: string, state: StateCode | null): string {
   if (!state) return text;
   const name = NAME_OF[state];
-  const lead = new RegExp(`(^|[.!?]\\s+)(?:(?:In|For) ${name},|${name}:)\\s+(\\S)`, 'g');
+  // Not when another state follows ("In California, Nevada and Utah, …"): that sentence covers several states.
+  const lead = new RegExp(`(^|[.!?]\\*?\\s+)(?:(?:In|For) ${name},|${name}:)\\s+(?!(?:Nevada|California|Arizona|Utah|Texas)(?:,|\\s+and\\b|\\s+or\\b))(\\S)`, 'g');
   return text.replace(lead, (_m, before: string, first: string) => before + first.toUpperCase());
 }
 
@@ -91,7 +92,7 @@ export const forStateText = (state: StateCode | null, text: string) => {
   if (!state) return text;
   let dropped = false;
   return text
-    .split(/(?<=[.!?])\s+(?=[A-Z“"])/)
+    .split(/(?<=[.!?]\*?)\s+(?=[A-Z“"])/)
     .filter((x) => {
       const tagged = statesOf(x).length > 0;
       dropped = tagged ? !showFor(state, x) : dropped && !GENERAL_AGAIN.test(x);

@@ -105,6 +105,8 @@ const usd = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 /** What changes from one state's practice house to another's: place, costs, contract terms and landlord rules. */
 interface CaseConfig {
   state: 'NV' | 'TX' | 'CA' | 'AZ' | 'UT';
+  /** What you get back when you leave inside a contract deadline, if more than "you keep your earnest money". */
+  walkKept?: (n: Nums) => string;
   stateName: string;
   abbr: string;
   city: string;
@@ -137,6 +139,19 @@ interface CaseConfig {
   cancelInspection: string;
   leaveInspection: string;
   lateInspection: string;
+  /** When answering the seller's reply to a repair request is due, if not the end of the inspection period (Day 10). */
+  counterDue?: {
+    ask: string;
+    accept: string;
+    /** The walk-away choice at that deadline. */
+    cancel: string;
+    late: string;
+    why: string;
+    /** When the answer is due, as a phrase for the step outcome and the log ("by …"). */
+    by: string;
+  };
+  /** Why ignoring the HOA's leasing rules is wrong, if this state's contract has no separate HOA review period. */
+  hoaRulesWhy?: string;
   cancelShort: string;
   periodName: string;
   /** The ways out the offer keeps, in this state's words. */
@@ -302,6 +317,7 @@ const TX: CaseConfig = {
     { when: 'Day 30', what: 'Closing at the title company.' },
   ],
   depositLog: (n) => `Earnest money and option fee ${usd(n.earnest)}`,
+  walkKept: (n) => `so your ${usd(n.earnest - 200)} earnest money comes back; the seller keeps the $200 option fee`,
   roofFinding: 'Composition shingles with about 4–6 years left.',
   roofPart: 'composition shingle roof',
   cancelInspection: 'End the contract before 5 p.m. on Day 10, in the option period, and get the earnest money back.',
@@ -317,8 +333,8 @@ const TX: CaseConfig = {
   appraisalAskNote: 'Get the new price in a signed amendment before Day 17; after that, the addendum’s right to end the contract is gone.',
   appraisalLog: (finalPrice) => `Price lowered to ${finalPrice} by a signed amendment, after you used the appraisal addendum’s right to end the contract as leverage.`,
   roofer: 'Example Roofing of Texas',
-  lienWhy: 'It’s a recorded claim against the house. In Texas, a contractor on a home job must file the lien by the 15th day of the third month after the work ends, and sue to enforce it within a year after that filing deadline (Property Code 53.052, 53.158). Either way, the title company wants it released or cleared on the record before closing. Ask the title officer how, and whether a lawsuit was filed.',
-  earnestPaid: 'to the title company within 3 days after the Effective Date, along with the option fee',
+  lienWhy: 'It’s a recorded claim against the house. In Texas, a contractor on a home job must file the lien by the 15th day of the third month after the work ends, and sue to enforce it within a year after that filing deadline, unless a recorded written agreement with the owner extended that to 2 years after filing (Property Code 53.052, 53.158). Either way, the title company wants it released or cleared on the record before closing. Ask the title officer how, and whether a lawsuit was filed.',
+  earnestPaid: 'to the title company within 3 days after the Effective Date',
   earnestCredit: (n) => `${usd(n.earnest)} in earnest money and option fee`,
   earnestShort: 'earnest money and option fee',
   rentRulesNote: 'Rules on deposits, locks and applications are state law. The ones below are Texas’s, because this practice house is in Texas.',
@@ -538,6 +554,7 @@ const AZ: CaseConfig = {
     { when: 'Day 0', what: 'Acceptance is delivered to you. Every deadline below counts from here.' },
     { when: 'On acceptance (Day 0)', what: 'Earnest money to the escrow company, by the time your contract sets (confirm the instructions by phone first). You: the buyer.' },
     { when: 'Day 10', what: 'Inspection period ends: cancel, ask for repairs on the BINSR, or go ahead, in writing. You, with your agent.' },
+    { when: '5 days after the seller answers your BINSR', what: 'Cancel, or go ahead without the repairs the seller refused, in writing.' },
     { when: 'When the HOA documents arrive', what: 'Read the rental rules and the budget. Write down the day they arrive.' },
     { when: 'Within 5 days after you learn the appraised value', what: 'Cancel in writing if it’s under the price and you won’t go ahead. You, with your lender’s appraisal.' },
     { when: 'Day 27 (3 days before close of escrow)', what: 'Last day to tell the seller in writing that you can’t get the loan, and keep your earnest money.' },
@@ -549,6 +566,14 @@ const AZ: CaseConfig = {
   cancelInspection: 'Cancel in writing before the inspection period ends (Day 10), and get the earnest money back.',
   leaveInspection: 'During your inspection period you can cancel for any reason, in writing on the BINSR, listing the items you disapprove, and get the earnest money back.',
   lateInspection: 'After Day 10 the inspection period is over. You’d lose the right to cancel over the inspection, and maybe your earnest money.',
+  counterDue: {
+    ask: 'The seller answered on Day 8. Do you accept or cancel by Day 13 (5 days after the seller’s answer)?',
+    accept: 'Accept in writing by Day 13.',
+    cancel: 'Cancel in writing by Day 13.',
+    late: 'Wait until Day 14 to decide.',
+    why: 'Under this contract you had 5 days after the seller’s answer (Day 13) to cancel or accept. If you don’t cancel in time, you’re treated as going ahead without the repairs the seller refused, and you can no longer cancel over the inspection.',
+    by: 'by the repair-reply deadline (5 days after the seller’s answer)',
+  },
   cancelShort: 'Cancel in writing before Day 10.',
   periodName: 'end of the inspection period',
   protections: 'an inspection period and the appraisal and loan contingencies',
@@ -632,7 +657,7 @@ const UT: CaseConfig = {
     ['Acceptance (Day 0)', 'The day the signed acceptance is delivered to you. The other deadlines count from it.'],
     ['Earnest money', `${usd(n.earnest)}, to your agent’s brokerage within 4 calendar days after Acceptance (the brokerage deposits it in its trust account), unless the contract names a title company`],
     ['Due Diligence Deadline', 'Day 10. You can cancel for any reason, in writing, before then. If you don’t, the due diligence condition is waived.'],
-    ['Financing & Appraisal Deadline', 'Day 21. By then you can cancel if the appraisal comes in under the price and get the earnest money back. If you cancel because you’re not satisfied with the loan terms, the seller can keep the amount written in section 8.3(b)(i). If your loan fails after this deadline, the seller keeps all the earnest money (REPC 8.3(b)(iii)).'],
+    ['Financing & Appraisal Deadline', 'Day 21. By then you can cancel if the appraisal comes in under the price, by written notice with a copy of the lender’s or appraiser’s notice of the appraised value, and get the earnest money back. If you cancel because you’re not satisfied with the loan terms, the seller can keep the amount written in section 8.3(b)(i). If your loan fails after this deadline, the seller keeps all the earnest money (REPC 8.3(b)(iii)).'],
     ['Seller Disclosure Deadline', 'Day 3: the seller’s disclosures, including the HOA documents'],
     ['Settlement Deadline', 'Day 30'],
     ['Counting days', 'Calendar days, starting the day after Acceptance. Each deadline ends at 5:00 p.m. Mountain Time on its date (REPC §21).'],
@@ -651,13 +676,14 @@ const UT: CaseConfig = {
   cancelInspection: 'Cancel in writing before the Due Diligence Deadline (Day 10), and get the earnest money back.',
   leaveInspection: 'Until the Due Diligence Deadline you can cancel for any reason, in writing, and get the earnest money back.',
   lateInspection: 'After the Due Diligence Deadline (Day 10), the due diligence condition is waived. You’d lose the right to cancel over the inspection, and maybe your earnest money.',
+  hoaRulesWhy: 'Many HOAs can and do limit rentals. In Utah the CC&Rs and rules come with the seller’s disclosures (REPC 7(d)), so read them before the Due Diligence Deadline: that’s your last chance to cancel over them.',
   cancelShort: 'Cancel in writing before Day 10.',
   periodName: 'Due Diligence Deadline',
   protections: 'due diligence, appraisal and financing conditions',
   licenseQuestion: '“Are you licensed by Utah’s Division of Professional Licensing (DOPL) for this work, and can I see your license number?”',
   appraisalName: 'appraisal condition',
-  cancelAppraisal: 'Cancel in writing by the Financing & Appraisal Deadline (Day 21), and get the earnest money back.',
-  leaveAppraisal: 'Your appraisal condition lets you cancel by the Financing & Appraisal Deadline when the appraisal is under the price.',
+  cancelAppraisal: 'Cancel in writing, with a copy of the notice of appraised value, by the Financing & Appraisal Deadline (Day 21), and get the earnest money back.',
+  leaveAppraisal: 'Your appraisal condition lets you cancel by the Financing & Appraisal Deadline when the appraisal is under the price, if your written notice includes a copy of the notice of appraised value (REPC 8.2(a)).',
   roofer: 'Wasatch Example Roofing',
   lienWhy: 'It’s a recorded claim against the house. In Utah, a contractor must record the lien within 180 days after the work is finished (90 days after a notice of completion, if one was filed), and sue to enforce it within 180 days after recording it (Utah Code 38-1a-502 and 38-1a-701). Either way, the title company wants it released or cleared on the record before closing. Ask the title officer how, and whether a lawsuit was filed.',
   earnestPaid: 'to your agent’s brokerage within 4 calendar days after Acceptance (the brokerage deposits it in its trust account), unless the contract names a title company',
@@ -1114,7 +1140,7 @@ function buildCase(c: CaseConfig) {
     {
       key: 'inspection',
       title: 'The inspection',
-      outcome: 'The inspection report, the repairs sorted into “now” and “later”, and your answer to the seller before Day 10.',
+      outcome: `The inspection report, the repairs sorted into “now” and “later”, and your answer to the seller ${c.counterDue?.by ?? 'before Day 10'}.`,
       brief: [
         'You hire a home inspector, and on their advice a plumber to run a camera through the sewer line. Both reports come back on Day 6.',
         'Sort each problem: fix now (safety, or anything that could stop the home from renting), or budget for later.',
@@ -1197,11 +1223,11 @@ function buildCase(c: CaseConfig) {
           kind: 'choice',
           id: 'counter',
           if: { task: 'respond', is: [0] },
-          prompt: `The seller agrees to take ${$(offer - renegotiated)} off: a new price of ${$(renegotiated)}. With the repairs paid by you, you’d need ${$(N.cashRenegotiated)} of your ${$(N.investable)}. Do you accept before Day 10?`,
+          prompt: `The seller agrees to take ${$(offer - renegotiated)} off: a new price of ${$(renegotiated)}. With the repairs paid by you, you’d need ${$(N.cashRenegotiated)} of your ${$(N.investable)}. ${c.counterDue?.ask ?? 'Do you accept before Day 10?'}`,
           choices: [
-            { label: 'Accept in writing before Day 10.', verdict: 'ok', why: `You’d keep ${$(N.investable - N.cashRenegotiated)} beyond the lender’s reserves. Tight, but inside your plan, and the reserves are there for a bad month.` },
-            { label: c.cancelShort, verdict: 'ok', walk: true, why: 'Also reasonable: the roof and water heater are coming, and your cushion is thin. Walking away with your deposit is a fine result.' },
-            { label: 'Wait until Day 12 to decide.', verdict: 'poor', why: c.lateInspection },
+            { label: c.counterDue?.accept ?? 'Accept in writing before Day 10.', verdict: 'ok', why: `You’d keep ${$(N.investable - N.cashRenegotiated)} beyond the lender’s reserves. Tight, but inside your plan, and the reserves are there for a bad month.` },
+            { label: c.counterDue?.cancel ?? c.cancelShort, verdict: 'ok', walk: true, why: 'Also reasonable: the roof and water heater are coming, and your cushion is thin. Walking away with your deposit is a fine result.' },
+            { label: c.counterDue?.late ?? 'Wait until Day 12 to decide.', verdict: 'poor', why: c.counterDue?.why ?? c.lateInspection },
           ],
           ifDifferent: 'Both accepting and walking away are defensible here. What matters is that you decide on the numbers, in writing, before the deadline.',
         },
@@ -1209,11 +1235,11 @@ function buildCase(c: CaseConfig) {
           kind: 'choice',
           id: 'repairs-reply',
           if: { task: 'respond', is: [2] },
-          prompt: `The seller won’t manage contractors from out of state. Instead they offer ${$(offer - renegotiated)} off the price: a new price of ${$(renegotiated)}, and you handle the repairs. With the repairs paid by you, you’d need ${$(N.cashRenegotiated)} of your ${$(N.investable)}. Do you accept before Day 10?`,
+          prompt: `The seller won’t manage contractors from out of state. Instead they offer ${$(offer - renegotiated)} off the price: a new price of ${$(renegotiated)}, and you handle the repairs. With the repairs paid by you, you’d need ${$(N.cashRenegotiated)} of your ${$(N.investable)}. ${c.counterDue?.ask ?? 'Do you accept before Day 10?'}`,
           choices: [
-            { label: 'Accept in writing before Day 10.', verdict: 'ok', why: `You’d keep ${$(N.investable - N.cashRenegotiated)} beyond the lender’s reserves, and you choose the contractors and check the permits yourself.`, log: `Asked the seller to make the repairs. They offered ${$(offer - renegotiated)} off instead, and you accepted in writing.` },
-            { label: c.cancelShort, verdict: 'ok', walk: true, why: 'Also reasonable: the roof and water heater are coming, and your cushion is thin. Walking away with your deposit is a fine result.' },
-            { label: 'Wait until Day 12 to decide.', verdict: 'poor', why: c.lateInspection },
+            { label: c.counterDue?.accept ?? 'Accept in writing before Day 10.', verdict: 'ok', why: `You’d keep ${$(N.investable - N.cashRenegotiated)} beyond the lender’s reserves, and you choose the contractors and check the permits yourself.`, log: `Asked the seller to make the repairs. They offered ${$(offer - renegotiated)} off instead, and you accepted in writing.` },
+            { label: c.counterDue?.cancel ?? c.cancelShort, verdict: 'ok', walk: true, why: 'Also reasonable: the roof and water heater are coming, and your cushion is thin. Walking away with your deposit is a fine result.' },
+            { label: c.counterDue?.late ?? 'Wait until Day 12 to decide.', verdict: 'poor', why: c.counterDue?.why ?? c.lateInspection },
           ],
         },
         {
@@ -1226,7 +1252,7 @@ function buildCase(c: CaseConfig) {
       ],
       log: [
         { area: 'Condition', finding: `Sewer (${$(sewer)}) and panel (${$(panel)}) to fix now. Roof (4–6 years) and water heater to budget: about ${$(N.replaceMonthly)} a month, decided before the inspection deadline.`, open: 'Licensed contractors and permits for the repairs' },
-        { area: 'Price', finding: `Renegotiated to ${$(renegotiated)} before the ${c.periodName}.` },
+        { area: 'Price', finding: `Renegotiated to ${$(renegotiated)} ${c.counterDue?.by ?? `before the ${c.periodName}`}.` },
       ],
       learnMore: [{ label: 'Your team: inspector', href: '#/pros/inspector' }, { label: 'Your team: contractor', href: '#/pros/contractor' }],
     },
@@ -1309,7 +1335,7 @@ function buildCase(c: CaseConfig) {
           prompt: 'Do the HOA’s leasing rules fit your plan?',
           choices: [
             { label: 'Yes: a 12-month lease fits. Send the HOA each lease and the tenant’s contact information.', verdict: 'best', why: 'Your plan was a long-term rental. A short-term rental plan would have died here.' },
-            { label: 'No: HOAs can’t limit rentals, so ignore them.', verdict: 'poor', why: 'Many HOAs can and do limit rentals. Read the rules before your HOA review period ends.' },
+            { label: 'No: HOAs can’t limit rentals, so ignore them.', verdict: 'poor', why: c.hoaRulesWhy ?? 'Many HOAs can and do limit rentals. Read the rules before your HOA review period ends.' },
           ],
         },
         {
@@ -1515,7 +1541,7 @@ function buildCase(c: CaseConfig) {
     },
   ];
 
-  return { state: c.state, stateName: c.stateName, property: `1418 Example Ridge Court, ${c.city}, ${c.stateName} (fictional)`, N, stages };
+  return { state: c.state, stateName: c.stateName, property: `1418 Example Ridge Court, ${c.city}, ${c.stateName} (fictional)`, N, stages, walkKept: c.walkKept?.(N) ?? 'so you keep your earnest money' };
 }
 
 export type PracticeCase = ReturnType<typeof buildCase>;
@@ -1526,6 +1552,13 @@ export const AZ_CASE = buildCase(AZ);
 export const UT_CASE = buildCase(UT);
 const CASES: Record<string, PracticeCase> = { NV: NV_CASE, TX: TX_CASE, CA: CA_CASE, AZ: AZ_CASE, UT: UT_CASE };
 /** The practice purchase for a state: each covered state has its own house; with no state chosen, Nevada's. */
+/** Before the offer is signed there's no contract, so nothing is at stake; after, a contract deadline protects the deposit. */
+export function walkNote(stageKey: string, c: PracticeCase): string {
+  const i = c.stages.findIndex((s) => s.key === stageKey);
+  const offer = c.stages.findIndex((s) => s.key === 'offer');
+  return i <= offer ? 'No contract was signed, so nothing was at risk.' : `You left inside a contract deadline, ${c.walkKept}.`;
+}
+
 export const caseFor = (state: string | null | undefined): PracticeCase => CASES[state ?? ''] ?? NV_CASE;
 
 /** The Nevada version's numbers and steps (the default). */

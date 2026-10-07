@@ -152,3 +152,81 @@
 
 /* Link cards: the description sits right under its link in every card, however tall the row is. */
 .lesson-links > li { align-content: start; }
+
+/* Round 12: tile groups with a short last row. The tiles in the last row share its width, so there's never a gap at the
+   end of a row (property cards on /practice?sale=…, /pros, Find deals offices, /business-assets, /live "While you
+   wait"). The drill grid is a CSS grid with its own rules above, so it's left alone. */
+.drill-tiles > *, .practice-grid:not(.drill-grid) > *, .practice-sales > *, .deal-sources > *, .pro-grid > * { flex-grow: 1; }
+
+/* Sale-guide "Step by step" and "Costly mistakes" cards: no lone card or empty slot on the last row. */
+@media (min-width: 1301px) {
+  .steps-rich:has(> :nth-child(7):last-child), .risk-list:has(> :nth-child(7):last-child) { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .steps-rich:has(> :nth-child(7):last-child) > li, .risk-list:has(> :nth-child(7):last-child) > li { grid-column: span 3; }
+  .steps-rich:has(> :nth-child(7):last-child) > li:nth-child(n+5), .risk-list:has(> :nth-child(7):last-child) > li:nth-child(n+5) { grid-column: span 4; }
+}
+@media (min-width: 861px) and (max-width: 1300px) {
+  .steps-rich > li:last-child:nth-child(3n+1), .risk-list > li:last-child:nth-child(3n+1) { grid-column: 1 / -1; }
+  .steps-rich:has(> :nth-child(5):last-child), .risk-list:has(> :nth-child(5):last-child) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .steps-rich:has(> :nth-child(5):last-child) > li, .risk-list:has(> :nth-child(5):last-child) > li { grid-column: span 2; }
+  .steps-rich:has(> :nth-child(5):last-child) > li:nth-child(n+4), .risk-list:has(> :nth-child(5):last-child) > li:nth-child(n+4) { grid-column: span 3; }
+}
+@media (min-width: 561px) and (max-width: 860px) {
+  .steps-rich > li:last-child:nth-child(odd), .risk-list > li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+
+/* /live county sale cards: each row is full; cards in a short last row share its width. */
+.county-sales { display: flex; flex-wrap: wrap; }
+.county-sales > .county-sale { flex: 1 1 min(100%, 420px); min-width: 0; box-sizing: border-box; }
+
+/* Financing, "Buying a home to live in" (five cards): 2 + 2 + full-width on tablets, 3 + 2 on laptops, 5 across wide. */
+@media (min-width: 521px) and (max-width: 1000px) {
+  .options-grid.fin-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .options-grid.fin-options > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+@media (min-width: 1001px) and (max-width: 1500px) {
+  .options-grid.fin-options { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .options-grid.fin-options > * { grid-column: span 2; }
+  .options-grid.fin-options > :nth-child(n+4) { grid-column: span 3; }
+}
+@media (min-width: 1501px) { .options-grid.fin-options { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+
+/* Link-card grids with five links: 3 + 2 sharing the row on laptops; an odd last link spans the row on tablets. */
+@media (min-width: 861px) and (max-width: 1300px) {
+  .lesson-links.ref-grid:has(> :nth-child(5):last-child) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .lesson-links.ref-grid:has(> :nth-child(5):last-child) > li { grid-column: span 2; }
+  .lesson-links.ref-grid:has(> :nth-child(5):last-child) > li:nth-child(n+4) { grid-column: span 3; }
+}
+@media (min-width: 561px) and (max-width: 860px) {
+  .lesson-links.ref-grid > li:last-child:nth-child(odd):not(:first-child) { grid-column: 1 / -1; }
+}
+
+/* Toolkit "Your investable cash" (five fields): 3 + 2 sharing the row on tablets and laptops. */
+@media (min-width: 701px) and (max-width: 1200px) {
+  .cash-fields { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .cash-fields > * { grid-column: span 2; }
+  .cash-fields > :nth-child(n+4) { grid-column: span 3; }
+}
+
+/* Home progress by sale kind (three cards): one row from tablets up, never 2 + 1. */
+@media (min-width: 701px) { .progress-kinds:has(> :nth-child(3):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 561px) and (max-width: 700px) { .progress-kinds > :last-child:nth-child(odd):not(:first-child) { grid-column: 1 / -1; } }
+
+/* Analyze: a group of three number fields sits in one row on tablets instead of 2 + 1. */
+@media (min-width: 561px) and (max-width: 860px) { .calc-group .calc-grid:has(> :nth-child(3):last-child) { --max: 3; } }
+
+/* Practice "Three ways to practice": stacked full width until three fit side by side at an even height. */
+@media (min-width: 561px) and (max-width: 1060px) { .practice-ways .practice-sales:has(> :nth-child(3):last-child) { --max: 1; } }
+
+/* Toolkit "Where you are": the heading sits at the top of its box, as on the home page. */
+.page .plan-now-side h3 { margin: 0; }
+
+/* Calculator groups with five fields (the property max-bid calculator): 3 + 2 sharing the row on laptops and wider;
+   on tablets, 2 + 2 and the last field across the row. */
+@media (min-width: 861px) {
+  .calc-group .calc-grid:has(> :nth-child(5):last-child) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .calc-group .calc-grid:has(> :nth-child(5):last-child) > * { grid-column: span 2; }
+  .calc-group .calc-grid:has(> :nth-child(5):last-child) > :nth-child(n+4) { grid-column: span 3; }
+}
+@media (min-width: 561px) and (max-width: 860px) {
+  .calc-group .calc-grid:has(> :nth-child(5):last-child) > :last-child { grid-column: 1 / -1; }
+}

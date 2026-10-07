@@ -208,7 +208,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Many lenders and loan programs require the condo project itself to qualify. For example, VA loans can buy a condo only in a VA-approved project.",
       "Lenders count HOA dues as part of your monthly housing cost, which can reduce how much you can borrow.",
       "Large pending assessments, low reserves, or lawsuits against the HOA can make a unit harder to finance and resell.",
-      "Fannie Mae won’t buy loans in projects where one owner holds too many units (more than 2 in a 5–20 unit project, or more than 20% in a larger one). Investors buying several units can make the whole building harder to finance."
+      "Fannie Mae won’t buy loans in projects where one owner holds too many units (more than 2 in a project of 11–20 units, or of 5–10 units within a master association, or more than 20% in a project of 21 or more). Investors buying several units can make the whole building harder to finance."
     ],
     checklist: [
       "Get the resale package: budget, reserve study, financial statements, and the last 1-2 years of board minutes. Look for talk of roofs, balconies, concrete, plumbing or insurance problems.",
@@ -836,7 +836,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         year: "2026",
         title: "Las Vegas complex heads to foreclosure auction",
         happened: "The owner of Tides on Twain, a nearly 200-unit complex near Boulder Highway, fell behind on the loan. A notice taped to the leasing office said the owner owed nearly $43 million and the property would be sold at public auction. Residents said nobody had told them.",
-        lesson: "Heavy debt on an older complex leaves no room for error, and the tenants feel it too. In Nevada, a new owner must follow state and federal tenant protections after foreclosure, including 90 days’ notice under federal law.",
+        lesson: "Heavy debt on an older complex leaves no room for error, and the tenants feel it too. In Nevada, the 60-day notice rule after foreclosure covers only homes with up to 4 units (NRS 40.255), so tenants in a large complex rely on federal law: they can stay until the lease ends, or 90 days after a notice to vacate if that is later.",
         source: {
           label: "KTNV Channel 13 Las Vegas: Tenants’ futures uncertain after Las Vegas apartment complex foreclosure (Feb. 11, 2026)",
           url: "https://ktnv.com/news/where-are-we-gonna-go-tenants-futures-uncertain-after-las-vegas-apartment-complex-foreclosure"

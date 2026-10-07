@@ -171,7 +171,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
       <PracticeRibbon />
       {/* Which state's rules this is comes first, then how the sale works there. */}
       <PracticeStateNote sale={chosen} />
-      <p className="practice-sale-about"><strong>How this sale works:</strong> {playbookByKey(chosen)?.oneLine}</p>
+      <p className="practice-sale-about"><strong>{otherState ? 'How this sale works in Nevada (Clark County):' : 'How this sale works:'}</strong> {playbookByKey(chosen)?.oneLine}</p>
       <p><a href="#/practice">← Choose a different kind of sale</a></p>
       <h2 className="practice-step practice-step-plain">Choose a property</h2>
       <div className="row practice-filter">
