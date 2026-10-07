@@ -8,7 +8,7 @@ export default function PathNext({ step }: { step: StepKey }) {
   return (
     <nav className="path-next" aria-label="Next step">
       <span className="muted">Next: step {next.n} of {PATH.length}</span>
-      <a className="btn" href={next.href}>{next.label} →</a>
+      <a className="btn" href={next.href}>{next.label}&nbsp;→</a>
     </nav>
   );
 }

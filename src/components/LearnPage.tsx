@@ -79,7 +79,7 @@ export default function LearnPage() {
           <h2 id="learn-money">Ways to make money</h2>
           <p>Renting, flipping, BRRRR, auctions, apartments and more, each with how the money is made and what goes wrong.</p>
         </div>
-        <a className="btn" href="#/learn/strategies">Compare the strategies →</a>
+        <a className="btn" href="#/learn/strategies">Compare the strategies&nbsp;→</a>
       </section>
       <NarrowDown config={learnConfig()} intro="Answer two quick questions and we’ll suggest which lessons to read first. Every lesson is still listed below." />
       {paths.map((path) => (

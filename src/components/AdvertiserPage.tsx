@@ -450,7 +450,7 @@ function SignIn() {
             <button className="btn">Email me a sign-in link</button>
           </form>
           {msg && <div className="notice small" role="status">{msg}</div>}
-          <p className="small muted">Not listed yet? <a href="#/advertise">Advertise with us →</a></p>
+          <p className="small muted">Not listed yet? <a href="#/advertise">Advertise with us&nbsp;→</a></p>
         </div>
       </div>
     </main>

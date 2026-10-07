@@ -518,7 +518,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       <button type="button" hidden={resultsVisible || !calcInView} className={`calc-sticky${r.noBidWorks && !needsValue ? ' bad' : ''}`} onClick={() => document.getElementById(`${uid}-results`)?.scrollIntoView({ behavior: 'smooth' })}>
         <span>Walk-away price</span>
         <strong>{needsValue ? 'Enter a resale value' : cashShort ? 'Not enough cash' : r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
-        <span className="calc-sticky-go">See details ↓</span>
+        <span className="calc-sticky-go">See details&nbsp;↓</span>
       </button>
     </div>
   );

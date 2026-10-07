@@ -57,7 +57,7 @@ function ChecklistInner({ list, variant = 'light', playbook: forced }: { list: B
       </div>
       {list.official && (
         <div className="checklist-official">
-          <a className="btn" href={list.official.href} target="_blank" rel="noopener noreferrer">{list.official.label} ↗</a>
+          <a className="btn" href={list.official.href} target="_blank" rel="noopener noreferrer">{list.official.label}&nbsp;↗</a>
           <span>{list.official.note}</span>
         </div>
       )}
@@ -75,8 +75,8 @@ function ChecklistInner({ list, variant = 'light', playbook: forced }: { list: B
         ))}
       </ul>
       <div className="checklist-links">
-        {playbook && <a className="checklist-link" href={`#/playbooks/${playbook}`}>Full guide: every step, what stays, mistakes, your team →</a>}
-        {list.link && <a className="checklist-link" href={list.link.href}>{list.link.label} →</a>}
+        {playbook && <a className="checklist-link" href={`#/playbooks/${playbook}`}>Full guide: every step, what stays, mistakes, your team&nbsp;→</a>}
+        {list.link && <a className="checklist-link" href={list.link.href}>{list.link.label}&nbsp;→</a>}
       </div>
     </section>
   );

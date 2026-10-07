@@ -14,7 +14,7 @@ import CountySales from './CountySales';
 import { upcomingCountySales } from '../lib/countySales';
 import PlaceCombobox from './PlaceCombobox';
 import { useLastActivity } from '../lib/journey';
-import { RotatingAd } from './AdBoxes';
+import { RotatingAd, useAdShows } from './AdBoxes';
 import { useDirectory } from './ProDirectory';
 import { useSpotCategories } from './AdSpot';
 
@@ -31,7 +31,7 @@ function SourceCard({ s }: { s: DealSource }) {
   return (
     <li>
       <a className="deal-source" href={s.url} {...(ext ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
-        <strong>{s.name}{ext ? ' ↗' : ' →'}</strong>
+        <strong>{s.name}{ext ? '\u00a0↗' : '\u00a0→'}</strong>
         <span>{s.what}</span>
       </a>
     </li>
@@ -62,6 +62,7 @@ export default function FindDealsPage() {
   const [mine, setMine] = useMyArea();
   const { pros } = useDirectory();
   const adCats = useSpotCategories('finddeals');
+  const adShows = useAdShows(adCats);
   const state: StateCode = mine?.state ?? 'NV';
   const area = { state, county: mine?.county ?? DEFAULT_COUNTY[state] };
   const setArea = (a: { state: StateCode; county: string }) =>
@@ -115,9 +116,9 @@ export default function FindDealsPage() {
 
       <NarrowDown config={findDealsConfig()} intro="Answer two quick questions and we’ll point you to the best places to look first. Every source is still listed below." />
       {/* The Mentor Connect spot (Admin → Ad spots) beside the "found a property" help, above and apart from the official sources. */}
-      <div className={adCats.length ? 'next-with-ad fd-next' : undefined}>
+      <div className={adShows ? 'next-with-ad fd-next' : undefined}>
         <p className="page-starter"><strong>Buying a home listed for sale?</strong> Ask a licensed agent to set up a search of homes on the local listing service (MLS) that match your buy box (your written limits: area, property type, price and condition). <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p>
-        {adCats.length > 0 && <RotatingAd pros={pros} categories={adCats} placeholder />}
+        {adShows && <RotatingAd pros={pros} categories={adCats} placeholder />}
       </div>
       <h2 className="section-title">Official sources</h2>
       <p className="muted">Government agencies, Fannie Mae and Freddie Mac, and the banks that own the homes: the sellers themselves.</p>
@@ -150,7 +151,7 @@ export default function FindDealsPage() {
           const m = t.match(/^([A-Z][^:.]{1,40}):\s(.*)$/s);
           return <li key={t}>{m ? <><strong>{m[1]}:</strong> {m[2]}</> : t}</li>;
         })}</ul>
-        <a className="band-link" href="#/learn/forced-sales">Read the lesson on forced sales →</a>
+        <a className="band-link" href="#/learn/forced-sales">Read the lesson on forced sales&nbsp;→</a>
       </Band>
       <Band id="deals-national" tone="national" icon={<IconBank />} title={`Across ${st.name} and nationwide`} sub="Federal agencies, Fannie Mae and Freddie Mac, and banks selling homes they own.">
         {NATIONAL_GROUPS.map(([g, label]) => {

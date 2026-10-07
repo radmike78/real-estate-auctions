@@ -151,7 +151,7 @@ export function DrillCardLink({ d, saved, hue = 0, mine = null }: { d: Drill; sa
             <span>{p.text}</span>
             <span className="drill-card-bar" aria-hidden><i style={{ width: `${p.pct}%` }} /></span>
           </span>
-          <span className={`drill-card-go${p.state === 'done' ? ' quiet' : ''}`}>{p.action} →</span>
+          <span className={`drill-card-go${p.state === 'done' ? ' quiet' : ''}`}>{p.action}&nbsp;→</span>
         </span>
       </span>
     </a>
@@ -432,7 +432,7 @@ export default function DrillPage({ id }: { id: string }) {
     return (
       <main className="page">
         <h1 className="sr-only">Drill not found</h1>
-        <EmptyState title="We couldn’t find that drill"><p>It may have been renamed. <a href="#/practice">Back to Practice →</a></p></EmptyState>
+        <EmptyState title="We couldn’t find that drill"><p>It may have been renamed. <a href="#/practice">Back to Practice&nbsp;→</a></p></EmptyState>
       </main>
     );
   const mine = saved[d.id] ?? { answers: {} };
@@ -492,7 +492,7 @@ export default function DrillPage({ id }: { id: string }) {
         return g && g.step.href !== `#/practice/drills/${d.id}` ? (
           <nav className="path-next" aria-label="Next step">
             <span className="muted">Next in Getting started ({g.n} of {GUIDED.length})</span>
-            <a className="btn" href={g.step.href}>{g.step.label} →</a>
+            <a className="btn" href={g.step.href}>{g.step.label}&nbsp;→</a>
           </nav>
         ) : null;
       })()}

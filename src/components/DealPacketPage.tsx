@@ -80,7 +80,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
     return (
       <>
         <ul className="packet-lines">{s.lines.map((l, i) => <li key={i}>{l}</li>)}</ul>
-        {s.fix && <p><a href={s.fix.href} onClick={s.fix.href === '#/analyze' ? (e) => { e.preventDefault(); openDeal(deal); } : undefined}>{s.fix.label} →</a></p>}
+        {s.fix && <p><a href={s.fix.href} onClick={s.fix.href === '#/analyze' ? (e) => { e.preventDefault(); openDeal(deal); } : undefined}>{s.fix.label}&nbsp;→</a></p>}
       </>
     );
   };
@@ -105,9 +105,9 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       <div className="packet-next" role="status">
         <strong>Your next action</strong>
         <p>{next.label}{next.urgent ? '' : <>. <span className="muted">You’ll have {next.produces}.</span></>}{' '}
-          {next.openDeal ? <a href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(deal); }}>Open in Analyze →</a>
-            : next.setStage ? <button type="button" className="linkish" onClick={() => setDealStage(deal.id, next.setStage!)}>Do it now →</button>
-            : !next.href.startsWith(`#/deals/packet/${deal.id}`) ? <a href={next.href}>Go there →</a> : null}
+          {next.openDeal ? <a href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(deal); }}>Open in Analyze&nbsp;→</a>
+            : next.setStage ? <button type="button" className="linkish" onClick={() => setDealStage(deal.id, next.setStage!)}>Do it now&nbsp;→</button>
+            : !next.href.startsWith(`#/deals/packet/${deal.id}`) ? <a href={next.href}>Go there&nbsp;→</a> : null}
         </p>
         {next.advance && <button type="button" className="btn btn-secondary" onClick={() => setDealStage(deal.id, next.advance!.stage)}>{next.advance.label}</button>}
       </div>

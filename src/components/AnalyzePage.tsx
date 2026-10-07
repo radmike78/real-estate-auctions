@@ -14,7 +14,7 @@ import { investorProfile } from '../lib/myPlan';
 import { fmtMoney } from '../lib/status';
 import { getMyArea } from '../lib/myArea';
 import { analyzeAdCategories } from '../lib/contextAds';
-import { RotatingAd } from './AdBoxes';
+import { RotatingAd, useAdShows } from './AdBoxes';
 import { useSpotCategories } from './AdSpot';
 import { useDirectory } from './ProDirectory';
 
@@ -153,6 +153,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   // The Mentor Connect spot beside What's next (Admin → Ad spots); automatic: by plan, listings and bank-owned only.
   const { pros } = useDirectory();
   const adCats = useSpotCategories('analyze', analyzeAdCategories(deal.kind, deal.plan));
+  const adShows = useAdShows(adCats);
 
   return (
     <main className="page analyze">
@@ -199,7 +200,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           {deal.id ? (
             <>
               <span className="muted">Saved as “{deal.name}”. Changes save as you go.</span>
-              <a className="btn" href={`#/deals/packet/${deal.id}`}>Deal packet →</a>
+              <a className="btn" href={`#/deals/packet/${deal.id}`}>Deal packet&nbsp;→</a>
               <button type="button" className="btn btn-secondary" onClick={() => { clearDraftNumbers(); setDeal(blank(deal.state)); }}>Start a new deal</button>
             </>
           ) : (
@@ -234,7 +235,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
                     <input type="checkbox" checked={deal.done.includes(c.id)} onChange={() => toggle(c.id)} />
                     <span>{dropStateLead(c.text, deal.state)}</span>
                   </label>
-                  {c.href && (c.href.startsWith('https://') ? <a href={c.href} target="_blank" rel="noopener noreferrer">Open ↗</a> : <a href={c.href}>{linkLabel(c.href)} →</a>)}
+                  {c.href && (c.href.startsWith('https://') ? <a href={c.href} target="_blank" rel="noopener noreferrer">Open&nbsp;↗</a> : <a href={c.href}>{linkLabel(c.href)}&nbsp;→</a>)}
                 </li>
               ))}
             </ul>
@@ -246,25 +247,25 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         </label>
       </section>
 
-      <h2 className="section-title" id="numbers" ref={numbersRef}>3. Run the numbers</h2>
+      <h2 className="section-title bar-head" id="numbers" ref={numbersRef}>3. Run the numbers</h2>
       <ProfileNote />
       <CalcRegion.Provider value={{ state: deal.state, county: deal.county }}>
         <Calculators key={`${deal.id}-${deal.state}-${deal.county}-${deal.kind}`} dealId={deal.id || undefined} onAnalyze initial={calcTabFor(deal.plan)} onTab={(k) => { const p = PLANS.find((x) => calcTabFor(x.key) === k)?.key; if (p && p !== deal.plan && plans.some((x) => x.key === p)) set({ plan: p }); }} state={deal.state} saleKind={deal.kind} offer={deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short'} lien={deal.kind === 'lien'} />
       </CalcRegion.Provider>
 
       {/* One clear next step once the numbers are in: keep the deal, then follow the buying steps for this kind of sale. */}
-      <div className={adCats.length ? 'next-with-ad' : undefined}>
+      <div className={adShows ? 'next-with-ad' : undefined}>
       <section className="analyze-next" aria-labelledby="analyze-next-head">
         <h2 id="analyze-next-head">4. What’s next</h2>
         <p>Numbers work, and every checklist item above has an answer? Save the deal so you can come back to it, then follow the “Buy it” steps for this kind of sale in My plan.</p>
         <p><strong>When to walk away:</strong> when the numbers say you’d lose money: {calcTabFor(deal.plan) === 'flip' ? 'the price you’d have to pay leaves no profit after repairs, holding and selling costs, or the profit is smaller than your goal' : calcTabFor(deal.plan) === 'lien' ? 'the interest you’d earn, after the wait to be paid, misses your goal' : 'the monthly cash flow is negative after reserves, or the long-term return misses your goal'}. Write down why in the notes, and move on to the next one. <a href="#/learn/walk-away">When to walk away</a></p>
         <div className="row">
           {!deal.id ? <button type="button" className="btn" onClick={saveNew}>Save this deal</button> : <a className="btn" href="#/deals">Open My deals</a>}
-          <a href="#/toolkit">Your buying steps in My plan →</a>
+          <a href="#/toolkit">Your buying steps in My plan&nbsp;→</a>
         </div>
       </section>
       {/* One labeled ad from the kind of professional this plan needs (listings and bank-owned homes only). */}
-      {adCats.length > 0 && <RotatingAd pros={pros} categories={adCats} placeholder />}
+      {adShows && <RotatingAd pros={pros} categories={adCats} placeholder />}
       </div>
     </main>
   );

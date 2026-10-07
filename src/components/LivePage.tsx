@@ -153,13 +153,13 @@ export default function LivePage() {
         <section aria-labelledby="treasurer-head">
           <h2 id="treasurer-head">Before you register: ask the county</h2>
           <ScriptBox to="the county’s tax sale office" heading="What to say to the county’s tax sale office" script={SALE_SCRIPTS.deed[0].script} note={`Call or email the office named on the county’s sale page${myState === 'TX' ? ' (in Texas, often the county tax office, or the sheriff or constable holding the sale)' : myState === 'UT' ? ' (in Utah, the county auditor; in Davis County, the Controller)' : ''}. Then read the full checklist in the tax sale guide.`} />
-          <p><a className="btn" href="#/playbooks/tax/documents">Documents for a tax sale →</a></p>
+          <p><a className="btn" href="#/playbooks/tax/documents">Documents for a tax sale&nbsp;→</a></p>
         </section>
       ) : (
         <section aria-labelledby="treasurer-head">
           <h2 id="treasurer-head">Before you register: ask the Treasurer</h2>
           <ScriptBox to={SALE_SCRIPTS.deed[0].to} script={SALE_SCRIPTS.deed[0].script} note="Call or email the Clark County Treasurer’s tax sale office using the contact on the official notice. Then read the full checklist in the tax sale guide." />
-          <p><a className="btn" href="#/playbooks/tax/documents">Documents for a tax sale →</a></p>
+          <p><a className="btn" href="#/playbooks/tax/documents">Documents for a tax sale&nbsp;→</a></p>
         </section>
       )}
 
@@ -208,12 +208,12 @@ export default function LivePage() {
                     </td>
                     <td>
                       {isOfficialUrl(l.sourceUrl) && (
-                        <a href={l.sourceUrl} target="_blank" rel="noreferrer noopener">Confirm ↗</a>
+                        <a href={l.sourceUrl} target="_blank" rel="noreferrer noopener">Confirm&nbsp;↗</a>
                       )}
                       <div><TrackButton target={`tax:${l.apn}`} label={l.address ? `${l.address} (parcel ${l.apn})` : `Parcel ${l.apn}`} /></div>
                       <div className="live-views small" aria-label={`Pictures and records for parcel ${l.apn}`}>
                         {propertyViews({ apn: l.apn, address: l.address, city: 'Clark County' }).map((v) => (
-                          <a key={v.key} href={v.url} target="_blank" rel="noreferrer noopener" title={v.detail}>{v.label} ↗</a>
+                          <a key={v.key} href={v.url} target="_blank" rel="noreferrer noopener" title={v.detail}>{v.label}&nbsp;↗</a>
                         ))}
                       </div>
                     </td>
@@ -246,7 +246,7 @@ export default function LivePage() {
                 {/* How a source is collected (terms, permissions) is for the operator, not the buyer. */}
                 {s.message && s.health !== 'terms_not_reviewed' && <div className="small">{s.message}</div>}
                 {(s.publishedBy ? isCertificateSourceUrl(s.officialUrl) : isOfficialUrl(s.officialUrl) || s.officialUrl === 'https://www.irsauctions.gov/') && (
-                  <a className="small" href={s.officialUrl} target="_blank" rel="noreferrer noopener">{s.publishedBy ? 'Official notice of sale ↗' : 'Official auction page ↗'}</a>
+                  <a className="small" href={s.officialUrl} target="_blank" rel="noreferrer noopener">{s.publishedBy ? 'Official notice of sale\u00a0↗' : 'Official auction page\u00a0↗'}</a>
                 )}
               </li>
             ))}

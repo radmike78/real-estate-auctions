@@ -116,7 +116,7 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
         </form>
         <ClassSwitch value={filters.propertyClass} onChange={setClass} />
         {SHOW_SAMPLE_DATA && <span className="pill">Sample data · Clark County, NV</span>}
-        <a className="small" href="#/live">Verified live tax sales →</a>
+        <a className="small" href="#/live">Verified live tax sales&nbsp;→</a>
       </div>
       {SHOW_SAMPLE_DATA && (
         <div className="caution sample-banner" role="note">

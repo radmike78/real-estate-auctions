@@ -112,7 +112,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
         <h2 id="practice-case" className="practice-step"><span aria-hidden>1</span> Buy a rental, start to finish</h2>
         <p className="practice-step-intro">Work one fictional purchase from your budget to the first months of renting it out. Read teaching versions of the paperwork (comparables, a loan quote, an inspection report, a title commitment, a closing statement), each with a guide to reading the real form, and make the calls when things go wrong. You finish with your own deal packet: a budget, a deadline calendar, an evidence log and your questions for each professional.</p>
         <div className="practice-case-go">
-          <a className="btn big" href={`#/practice/case${caseStarted ? `/${caseNext}` : ''}`}>{caseStarted ? 'Continue the purchase →' : 'Start the purchase →'}</a>
+          <a className="btn big" href={`#/practice/case${caseStarted ? `/${caseNext}` : ''}`}>{caseStarted ? 'Continue the purchase\u00a0→' : 'Start the purchase\u00a0→'}</a>
           <span className="practice-case-meta">About 45 minutes · {practiceCase.property} · {practiceCase.stateName} rules{practiceCase.state === 'TX' ? ', with the TREC contract' : ''}</span>
         </div>
         <h2 id="practice-auction" className="practice-step"><span aria-hidden>2</span> Nevada auction practice: choose a kind of sale</h2>

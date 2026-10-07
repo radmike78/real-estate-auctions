@@ -27,7 +27,7 @@ import { caseFor, tasksFor } from '../practice/rentalCase';
 import { proGuideByKey } from '../lib/proGuide';
 import { PRO_SCRIPTS } from '../lib/proScripts';
 import { stepAdCategories } from '../lib/contextAds';
-import { RotatingAd } from './AdBoxes';
+import { RotatingAd, useAdShows } from './AdBoxes';
 import { useSpotCategories } from './AdSpot';
 import { useDirectory } from './ProDirectory';
 
@@ -156,7 +156,7 @@ function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: Step
         {(['todo', 'doing', 'waiting', 'done', 'stopped', ...(s.skip || status === 'na' ? (['na'] as const) : [])] as const).map((k) => (
           <button key={k} type="button" aria-pressed={status === k} onClick={() => setStatus(k)}>{STEP_STATUS_LABEL[k]}</button>
         ))}
-        {s.href && <a className="btn" href={s.href}>{s.id === 'goal' && currentProgress().decided ? 'Review your Decide results' : s.action ?? 'Open'} →</a>}
+        {s.href && <a className="btn" href={s.href}>{s.id === 'goal' && currentProgress().decided ? 'Review your Decide results' : s.action ?? 'Open'}&nbsp;→</a>}
       </div>
     </div>
   );
@@ -225,6 +225,7 @@ export function FirstDealRoadmap() {
   };
   // The Mentor Connect spot beside the next step (Admin → Ad spots); automatic: whoever the step says to call.
   const nextAdCats = useSpotCategories('toolkit', next ? stepAdCategories(next, path) : []);
+  const nextAdShows = useAdShows(nextAdCats);
   // The phase holding the next step starts open; after that, phases stay as the reader leaves them.
   const [openPhase] = useState(() => next?.phase ?? 1);
   const phases = ([1, 2, 3, 4, 5, 6, 7] as const).map((n) => ({ n, title: ROADMAP_PHASES[n], steps: steps.filter((s) => s.phase === n) })).filter((ph) => ph.steps.length);
@@ -315,13 +316,13 @@ export function FirstDealRoadmap() {
       {next ? (
         // Beside the next step, one labeled Mentor Connect ad (nextAdCats). Automatic: whoever the step says to call,
         // buying through an agent only, never on auction or lien-certificate steps (contextAds.ts).
-        <div className={nextAdCats.length ? 'next-with-ad' : undefined}>
+        <div className={nextAdShows ? 'next-with-ad' : undefined}>
           <div className="roadmap-next" id="roadmap-next">
             <p className="roadmap-next-label">Next roadmap step · {ROADMAP_PHASES[next.phase]}{scoped(next) ? ` · ${deal!.name}` : ''}</p>
             <h3>{next.title}</h3>
             <StepBody s={next} status={stateOf(next)} setStatus={(v) => setStatus(next, v)} deal={deal} />
           </div>
-          {nextAdCats.length > 0 && <RotatingAd key={next.id} pros={pros} categories={nextAdCats} placeholder />}
+          {nextAdShows && <RotatingAd key={next.id} pros={pros} categories={nextAdCats} placeholder />}
         </div>
       ) : (
         <p className="next-step" role="status">Every step on this route is done. Review your plan before your next deal, and keep practicing.</p>
@@ -664,15 +665,15 @@ function Worksheets() {
     <section id="worksheets" aria-labelledby="worksheets-head">
       <h2 id="worksheets-head">Worksheets to download</h2>
       <p>Plain-text files you can print, fill in on paper, or keep with your deal notes.</p>
-      <ul className="lesson-links">
+      <ul className="lesson-links ref-grid">
         {WORKSHEETS.map((w) => (
           <li key={w.key}>
-            <button type="button" className="linkish" onClick={() => downloadText(fileName(w.title, 'txt'), worksheetText(w))}>{w.title} ↓</button>
+            <button type="button" className="linkish" onClick={() => downloadText(fileName(w.title, 'txt'), worksheetText(w))}>{w.title}&nbsp;↓</button>
             <span className="muted">{w.intro}</span>
           </li>
         ))}
         <li>
-          <button type="button" className="linkish" onClick={() => downloadText('evidence-log.txt', logText('(property)', cleanLog({})))}>Evidence log ↓</button>
+          <button type="button" className="linkish" onClick={() => downloadText('evidence-log.txt', logText('(property)', cleanLog({})))}>Evidence log&nbsp;↓</button>
           <span className="muted">For each thing you verify: the source, the date, what you found, what’s still open, and who handles it by when. Saved deals have one built in, under My deals.</span>
         </li>
       </ul>
@@ -756,10 +757,10 @@ export default function ToolkitPage({ section }: { section?: string }) {
       {TOOLKIT.map((g) => (
         <section key={g.group} id={`tools-${g.group.toLowerCase().replace(/[^a-z]+/g, '-')}`}>
           <h2>{g.group}</h2>
-          <ul className="lesson-links link-columns">
+          <ul className="lesson-links ref-grid">
             {g.items.map((x) => (
               <li key={x.label}>
-                <a href={x.href}>{x.label} →</a>
+                <a href={x.href}>{x.label}&nbsp;→</a>
                 <span className="muted">{x.what}</span>
               </li>
             ))}

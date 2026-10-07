@@ -135,7 +135,7 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
       {prev && <p className="small muted">Last verified {fmtDate(prev.verifiedAt)} by {prev.verifiedBy}: {prev.licenseStatus}{prev.licenseExpires ? `, expires ${fmtDate(prev.licenseExpires)}` : ''}.</p>}
       <ol className="small verify-steps">
         <li>
-          {reg.url ? <>Open <a href={reg.url} target="_blank" rel="noreferrer noopener">{reg.name} ↗</a></> : <>Check {reg.name}</>} ({stateByCode(app.profile.state)?.name}) and
+          {reg.url ? <>Open <a href={reg.url} target="_blank" rel="noreferrer noopener">{reg.name}&nbsp;↗</a></> : <>Check {reg.name}</>} ({stateByCode(app.profile.state)?.name}) and
           search for <strong>{app.profile.licenseId}</strong> or the name. Record what it shows.{reg.note && <> {reg.note}</>}
         </li>
         <li>

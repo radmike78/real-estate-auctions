@@ -23,7 +23,7 @@ function SourceCards() {
         {cards.map((s) => (
           <li key={s.url} className="reo-card">
             <div className="reo-owner">{s.owner}</div>
-            <h3><a href={s.url} target="_blank" rel="noopener noreferrer">{s.name} ↗</a></h3>
+            <h3><a href={s.url} target="_blank" rel="noopener noreferrer">{s.name}&nbsp;↗</a></h3>
             <p>{s.what}</p>
             <dl><div><dt>How to use it</dt><dd>{s.howToUse}</dd></div></dl>
           </li>

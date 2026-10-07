@@ -116,7 +116,7 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
         <section>
           <h2>By the numbers</h2>
           <ul className="deep-list">
-            {d.facts.filter((f) => keep(f.text)).map((f) => <li key={f.text}>{forStateText(st, f.text)} <a href={f.source.url} target="_blank" rel="noopener noreferrer">{f.source.label} ↗</a></li>)}
+            {d.facts.filter((f) => keep(f.text)).map((f) => <li key={f.text}>{forStateText(st, f.text)} <a href={f.source.url} target="_blank" rel="noopener noreferrer">{f.source.label}&nbsp;↗</a></li>)}
           </ul>
         </section>
       )}
@@ -143,8 +143,8 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
           <h2 id="practice-head">Put it into practice</h2>
           <p>If this kind of property fits your money, time and goals, add it to your buy box, then see where these are sold.</p>
           <p className="lesson-practice-actions">
-            <a className="btn" href="#/toolkit/buy-box">Add it to your buy box →</a>
-            <a className="btn btn-secondary" href="#/find-deals">See where these are sold →</a>
+            <a className="btn" href="#/toolkit/buy-box">Add it to your buy box&nbsp;→</a>
+            <a className="btn btn-secondary" href="#/find-deals">See where these are sold&nbsp;→</a>
           </p>
         </section>
       )}
@@ -153,14 +153,14 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
           <h2>Where this comes from</h2>
           <details className="sources-more">
             <summary>See the {d.sources.filter((s) => keep(s.label)).length} sources we checked</summary>
-            <ul className="source-links">{d.sources.filter((s) => keep(s.label)).map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a></li>)}</ul>
+            <ul className="source-links">{d.sources.filter((s) => keep(s.label)).map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.label}&nbsp;↗</a></li>)}</ul>
           </details>
           <p className="muted">General education, not legal, tax or financial advice. Stories describe what happened to others; your results depend on your own deal.</p>
         </section>
       )}
-      {!d && <p className="pro-next"><a className="btn" href="#/toolkit/buy-box">Fits you? Add it to your buy box →</a> <a href="#/find-deals">See where these are sold</a></p>}
+      {!d && <p className="pro-next"><a className="btn" href="#/toolkit/buy-box">Fits you? Add it to your buy box&nbsp;→</a> <a href="#/find-deals">See where these are sold</a></p>}
       <nav className="path-next" aria-label="Next">
-        {next ? <><span className="muted">Next property type</span><a className="btn" href={topicHref(next.key)}>{next.title} →</a></> : <a className="btn" href="#/learn/types">Back to Types of property →</a>}
+        {next ? <><span className="muted">Next property type</span><a className="btn" href={topicHref(next.key)}>{next.title}&nbsp;→</a></> : <a className="btn" href="#/learn/types">Back to Types of property&nbsp;→</a>}
       </nav>
       <AdSpot spot="propertyType" />
     </main>

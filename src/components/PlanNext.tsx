@@ -32,14 +32,14 @@ function usePlanTick() {
 /** The Continue button: opens where the task is done, or moves the deal on when that's the task. */
 function ContinueButton({ task, dealId, onPlan }: { task: PlanTask; dealId?: string; onPlan: boolean }) {
   if (task.setStage && dealId)
-    return <button type="button" className="btn big" onClick={() => setDealStage(dealId, task.setStage!)}>Continue: move it on →</button>;
+    return <button type="button" className="btn big" onClick={() => setDealStage(dealId, task.setStage!)}>Continue: move it on&nbsp;→</button>;
   if (task.openDeal && dealId) {
     const d = loadDeals().find((x) => x.id === dealId);
-    if (d) return <a className="btn big" href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(d); }}>Continue →</a>;
+    if (d) return <a className="btn big" href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(d); }}>Continue&nbsp;→</a>;
   }
   // On My plan, a roadmap task is further down this page: the link scrolls there.
   const href = task.href === ROADMAP_TASK_HREF && !onPlan ? '#/toolkit/roadmap' : task.href;
-  return <a className="btn big" href={href}>Continue{task.href === ROADMAP_TASK_HREF && onPlan ? ' ↓' : ' →'}</a>;
+  return <a className="btn big" href={href}>Continue{task.href === ROADMAP_TASK_HREF && onPlan ? '\u00a0↓' : '\u00a0→'}</a>;
 }
 
 /**
@@ -82,12 +82,12 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
               </li>
             ))}
           </ol>
-          <p className="plan-now-evidence">Evidence: <strong>{checked} of {EVIDENCE_AREAS.length}</strong> areas checked. <a href={`#/deals/packet/${deal.id}`}>Open its deal packet →</a></p>
+          <p className="plan-now-evidence">Evidence: <strong>{checked} of {EVIDENCE_AREAS.length}</strong> areas checked. <a href={`#/deals/packet/${deal.id}`}>Open its deal packet&nbsp;→</a></p>
         </>
       ) : (
         <PhaseSummary />
       )}
-      {!onPlan && <p><a href="#/toolkit">Open My plan →</a></p>}
+      {!onPlan && <p><a href="#/toolkit">Open My plan&nbsp;→</a></p>}
     </aside>
   );
 

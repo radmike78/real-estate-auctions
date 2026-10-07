@@ -71,11 +71,11 @@ export default function CountySales({ sales }: { sales: CountySale[] }) {
               ) : null}
               <div className="row county-sale-actions">
                 {s.listUrl ? (
-                  <a className="btn" href={s.listUrl} target="_blank" rel="noreferrer noopener">Property list ↗</a>
+                  <a className="btn" href={s.listUrl} target="_blank" rel="noreferrer noopener">Property list&nbsp;↗</a>
                 ) : (
                   <span className="muted">{s.listNote ?? (s.listExpected ? `The county plans to post the list ${s.listExpected}.` : 'The county hasn’t posted the list yet.')}</span>
                 )}
-                <a className={s.listUrl ? 'btn btn-secondary' : 'btn'} href={s.saleUrl} target="_blank" rel="noreferrer noopener">County sale page ↗</a>
+                <a className={s.listUrl ? 'btn btn-secondary' : 'btn'} href={s.saleUrl} target="_blank" rel="noreferrer noopener">County sale page&nbsp;↗</a>
               </div>
               <p className="small muted">Source: {s.agency}, checked {day(s.checkedOn)}.</p>
             </li>

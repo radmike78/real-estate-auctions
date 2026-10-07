@@ -164,7 +164,7 @@ export function sections(p: Playbook): DrillSection[] {
         <>
           <ul className="source-links">
             {p.sources.map((s) => (
-              <li key={s.url}>{isExternal(s.url) ? <a href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a> : <a href={s.url}>{s.label} →</a>}</li>
+              <li key={s.url}>{isExternal(s.url) ? <a href={s.url} target="_blank" rel="noopener noreferrer">{s.label}&nbsp;↗</a> : <a href={s.url}>{s.label}&nbsp;→</a>}</li>
             ))}
           </ul>
           <p className="muted">Last reviewed {fmtDate(p.lastReviewed)}. Rules, fees and dates change: always confirm in the current official notice.</p>
@@ -236,7 +236,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
       />
       {mineGuide && mineGuide.key !== p.key && (
         <p className="other-state-guide" role="note">
-          This guide follows {stateByCode(stateOf(p))?.name ?? ''} law. You chose {mineName}: <a href={`#/playbooks/${mineGuide.key}`}>see {mineGuide.title} →</a>
+          This guide follows {stateByCode(stateOf(p))?.name ?? ''} law. You chose {mineName}: <a href={`#/playbooks/${mineGuide.key}`}>see {mineGuide.title}&nbsp;→</a>
         </p>
       )}
       {!open && (
@@ -270,9 +270,9 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
         </section>
       )}
       {!open && <p className="muted playbook-note">{calcNote(p)}</p>}
-      {!open && PRACTICE_SALES.has(p.key) && <p className="playbook-note"><a className="btn" href={`#/practice?sale=${p.key}`}>Practice this kind of sale (Nevada rules), hands-on →</a></p>}
-      {!open && drill && <p className="playbook-note"><a className="btn" href={`#/practice/drills/${drill}`}>Practice this kind of sale with the {stateByCode(stateOf(p))?.name ?? ''} drill, hands-on →</a></p>}
-      {!open && p.key === 'commercial' && <p className="playbook-note"><a className="btn btn-secondary" href="#/practice">Practice buying commercial property, hands-on →</a></p>}
+      {!open && PRACTICE_SALES.has(p.key) && <p className="playbook-note"><a className="btn" href={`#/practice?sale=${p.key}`}>Practice this kind of sale (Nevada rules), hands-on&nbsp;→</a></p>}
+      {!open && drill && <p className="playbook-note"><a className="btn" href={`#/practice/drills/${drill}`}>Practice this kind of sale with the {stateByCode(stateOf(p))?.name ?? ''} drill, hands-on&nbsp;→</a></p>}
+      {!open && p.key === 'commercial' && <p className="playbook-note"><a className="btn btn-secondary" href="#/practice">Practice buying commercial property, hands-on&nbsp;→</a></p>}
       <AdSpot spot="playbook" />
     </main>
   );

@@ -57,7 +57,7 @@ export default function NoListingsYet({ what = 'Property listings' }: { what?: s
             We connect official sources one at a time, and we only call a property for sale once a sale is on the official record. For {name},
             start at Find deals: it lists your county’s official offices and upcoming sales.
           </p>
-          <p><a className="btn" href="#/find-deals">Find deals in {name} →</a></p>
+          <p><a className="btn" href="#/find-deals">Find deals in {name}&nbsp;→</a></p>
         </EmptyState>
       ) : (
         <EmptyState title={`${what} are being connected`}>
@@ -74,7 +74,7 @@ export default function NoListingsYet({ what = 'Property listings' }: { what?: s
       <h2 className="page-section-title no-listings-head">Official places to find sales now</h2>
       <ul className="source-links">
         {official.map((s) => (
-          <li key={s.url}>{s.url.startsWith('#/') ? <a href={s.url}>{s.label} →</a> : <a href={s.url} target="_blank" rel="noopener noreferrer">{s.label} ↗</a>}</li>
+          <li key={s.url}>{s.url.startsWith('#/') ? <a href={s.url}>{s.label}&nbsp;→</a> : <a href={s.url} target="_blank" rel="noopener noreferrer">{s.label}&nbsp;↗</a>}</li>
         ))}
       </ul>
     </div>

@@ -30,7 +30,7 @@ export default function HomePage() {
   // The one Continue on the site is My plan's next task (planNext.ts); the last page you had open is a plain "Back to".
   const plan = planNow();
   const continueLink = last && last.href !== plan.task.href && (
-    <a className="btn big btn-secondary" href={last.href}>Back to {last.label} →</a>
+    <a className="btn big btn-secondary" href={last.href}>Back to {last.label}&nbsp;→</a>
   );
 
   return (
@@ -48,11 +48,11 @@ export default function HomePage() {
           {!mode && (
             <div className="start-choice" role="group" aria-label="How do you want to start?">
               <button type="button" className="start-card" onClick={() => setMode('guided')}>
-                <strong>I’m new: guide me →</strong>
+                <strong>I’m new: guide me&nbsp;→</strong>
                 <span>One step at a time: a worked example, your first practice exercise, then a short introduction.</span>
               </button>
               <button type="button" className="start-card" onClick={() => setMode('explore')}>
-                <strong>I know the basics: let me explore →</strong>
+                <strong>I know the basics: let me explore&nbsp;→</strong>
                 <span>Go straight to the calculators, sale guides, deal sources and your team.</span>
               </button>
             </div>
@@ -64,9 +64,9 @@ export default function HomePage() {
               {/* One row of actions, one short line of why: no stack of separate lines before the six steps. */}
               <div className="hero-ctas">
                 {plan.source === 'starter' && next ? (
-                  <a className="btn big" href={next.step.href}><span className="guided-count">{next.n} of {GUIDED.length}</span> {next.step.label} →</a>
+                  <a className="btn big" href={next.step.href}><span className="guided-count">{next.n} of {GUIDED.length}</span> {next.step.label}&nbsp;→</a>
                 ) : (
-                  <a className="btn big" href={plan.task.href === ROADMAP_TASK_HREF ? '#/toolkit/roadmap' : plan.task.href}>Continue: {plan.task.label} →</a>
+                  <a className="btn big" href={plan.task.href === ROADMAP_TASK_HREF ? '#/toolkit/roadmap' : plan.task.href}>Continue: {plan.task.label}&nbsp;→</a>
                 )}
                 {continueLink}
               </div>

@@ -50,7 +50,7 @@ export default function PracticeStateNote({ sale }: { sale: SaleKey }) {
   // The visitor's own state first: its drill (where there is one) is the first thing offered.
   return (
     <div className="notice practice-state-note" role="note">
-      {drill && <p className="practice-state-first"><a className="btn" href={`#/practice/drills/${drill}`}>Try the {name} drill first →</a> <span>It uses {name} rules for this kind of sale.</span></p>}
+      {drill && <p className="practice-state-first"><a className="btn" href={`#/practice/drills/${drill}`}>Try the {name} drill first&nbsp;→</a> <span>It uses {name} rules for this kind of sale.</span></p>}
       <p><strong>This practice uses Nevada (Clark County) rules.</strong> {DIFFERS[sale]?.[st] ?? `${name}’s deadlines, forms and who runs the sale differ.`}{' '}
       Before a real {name} deal, read the <a href={`#/playbooks/${guide}`}>{name} step-by-step guide</a>.</p>
     </div>

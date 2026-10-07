@@ -41,7 +41,7 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
       {!open ? (
         <>
           <p>{intro}</p>
-          <button type="button" className="btn" onClick={() => { moved.current = true; setOpen(true); }}>Help me choose →</button>
+          <button type="button" className="btn" onClick={() => { moved.current = true; setOpen(true); }}>Help me choose&nbsp;→</button>
         </>
       ) : q ? (
         <>
@@ -85,7 +85,7 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
                   {i === 0 && <span className="team-top">Start with this one</span>}
                   <strong>{r.label}</strong>
                   <span>{r.why}</span>
-                  {r.href ? <a href={r.href} className={i === 0 ? 'btn' : undefined}>{i === 0 ? 'Start →' : 'Go there →'}</a> : r.scrollTo ? <button type="button" className="linkish" onClick={() => jump(r.scrollTo!)}>Show me on this page ↓</button> : null}
+                  {r.href ? <a href={r.href} className={i === 0 ? 'btn' : undefined}>{i === 0 ? 'Start\u00a0→' : 'Go there\u00a0→'}</a> : r.scrollTo ? <button type="button" className="linkish" onClick={() => jump(r.scrollTo!)}>Show me on this page&nbsp;↓</button> : null}
                 </span>
               </li>
             ))}

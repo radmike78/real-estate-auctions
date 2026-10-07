@@ -319,7 +319,7 @@ function LenderView({ v, at: atP, onPrice }: { v: RentInputs; at: PriceAt; onPri
       <p className="small">
         These are Fannie Mae’s long-term rental rules (Selling Guide B3-3.8-02); other lenders and programs differ. For a short-term rental, Fannie Mae counts 50% of the rent and any surplus can only offset the payment (B3-3.8-03).
         {!onPrice && ' Refinancing a cash or hard-money purchase usually waits 6 to 12 months; ask lenders before you buy.'}{' '}
-        <a href="#/learn/financing">Getting approved, DSCR loans and refinancing →</a>
+        <a href="#/learn/financing">Getting approved, DSCR loans and refinancing&nbsp;→</a>
       </p>
     </details>
   );
@@ -347,7 +347,7 @@ function StrComparison({ v }: { v: RentInputs }) {
   return (
     <details className="deal-lab hold-sell">
       <summary><h4>Rent it by the night instead?</h4></summary>
-      <p className="small muted">Uses this rental’s taxes, insurance, HOA and repair set-asides. First check that the city, county and HOA allow it, and get a short-term rental insurance quote. <a href="#/learn/after-closing">Can I rent it short-term? →</a></p>
+      <p className="small muted">Uses this rental’s taxes, insurance, HOA and repair set-asides. First check that the city, county and HOA allow it, and get a short-term rental insurance quote. <a href="#/learn/after-closing">Can I rent it short-term?&nbsp;→</a></p>
       <div className="row">
         {STR_FIELDS.map((f) => (
           <label key={f.k} className="field">
@@ -605,7 +605,7 @@ export function LienCalculator() {
           <>
             <p className="calc-note small">
               It’s a lien, not the property. The owner can pay it off at any time. After three years (and within ten) you can go to court to foreclose
-              the right to redeem; if you don’t act within ten years, the lien expires. <a href="#/learn/forced-sales">How Arizona tax liens work →</a>
+              the right to redeem; if you don’t act within ten years, the lien expires. <a href="#/learn/forced-sales">How Arizona tax liens work&nbsp;→</a>
             </p>
             <p className="muted small">An estimate, not advice. Confirm the terms with the county treasurer before the February sale.</p>
           </>
@@ -613,7 +613,7 @@ export function LienCalculator() {
           <>
             <p className="calc-note small">
               It’s a certificate, not the property. The owner keeps the home and can pay it off. You can ask for a deed only if they don’t redeem
-              in time (120 days, or 2 years if there’s a building). <a href="#/playbooks/sid">How lien certificates work →</a>
+              in time (120 days, or 2 years if there’s a building). <a href="#/playbooks/sid">How lien certificates work&nbsp;→</a>
             </p>
             <p className="muted small">An estimate, not advice. Later taxes you pay can be added to the certificate with interest if you give the Treasurer written notice.</p>
           </>
@@ -670,7 +670,7 @@ export function SellerFinanceCalculator() {
         </dl>
         <p className="calc-note small">
           Add property taxes and insurance to the payment, and check whether the seller still has a mortgage: a due-on-sale clause can let their lender call the
-          loan. Have an attorney or title company prepare the note and deed of trust, record them, and use escrow for payments. <a href="#/learn/creative">Seller financing rules in your state →</a>
+          loan. Have an attorney or title company prepare the note and deed of trust, record them, and use escrow for payments. <a href="#/learn/creative">Seller financing rules in your state&nbsp;→</a>
         </p>
       </div>
     </div>

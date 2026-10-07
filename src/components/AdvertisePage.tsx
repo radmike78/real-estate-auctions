@@ -103,7 +103,7 @@ export default function AdvertisePage() {
         <li><strong>Mentor Connect: </strong>on top of Spotlight, it adds labeled ads where people may want more help: beside one Learn or Practice topic you choose, and in the Mentor Connect ad spots{mentorSpots.length ? <> (now: {mentorSpots.map((s) => s.label).join(', ')})</> : null}.</li>
         <li><strong>What we don’t do: </strong>every ad is labeled as paid. We don’t rank professionals, charge per lead or per closing, or take a share of any transaction, and we aren’t a party to any agreement between you and a buyer.</li>
       </ul>
-      <p className="small muted">Already listed? <a href="#/advertiser">Sign in to your dashboard →</a></p>
+      <p className="small muted">Already listed? <a href="#/advertiser">Sign in to your dashboard&nbsp;→</a></p>
     </main>
   );
 }
