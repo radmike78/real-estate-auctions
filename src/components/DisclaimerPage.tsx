@@ -58,7 +58,7 @@ export const SECTIONS: DrillSection[] = [
     content: () => (
       <ol>
         <li>Choose the kind of sale that fits your money and timeline, and read its <a href="#/playbooks">sale guide</a>.</li>
-        <li>Find properties in <a href="#/search">search</a> or the official lists we link to.</li>
+        <li>Find properties on <a href="#/find-deals">Find deals</a> or the official lists we link to.</li>
         <li>Research each one: records, liens, occupancy and condition from the outside.</li>
         <li>Set your limit with the <a href="#/analyze?plan=flip">walk-away price calculator</a>.</li>
         <li>Line up your money: certified funds for auctions, or a lender for after.</li>

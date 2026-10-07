@@ -288,7 +288,7 @@ export default function App() {
           <img className="owl-empty" src="/logo.svg" alt="" width={128} height={128} />
           <h1>We couldn’t find that page</h1>
           <p>Even owls miss one sometimes. The link may be old or mistyped.</p>
-          <p className="row"><a className="btn" href="#/">Go to the home page</a> <a className="btn btn-secondary" href="#/search">Find properties</a></p>
+          <p className="row"><a className="btn" href="#/">Go to the home page</a> <a className="btn btn-secondary" href="#/find-deals">Find deals</a></p>
         </main>
       )}
       {route.page === 'search' && (

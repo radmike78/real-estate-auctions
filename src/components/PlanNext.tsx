@@ -64,6 +64,9 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   const log = deal ? loadLog(`analyzed:${deal.id}`) : null;
   const checked = log ? EVIDENCE_AREAS.filter((a) => log.rows[a.key]?.done).length : 0;
 
+  // The same label My plan's roadmap uses: "Next roadmap task · Get ready".
+  const nextLabel = now.context.startsWith('Roadmap · ') ? `Next roadmap task · ${now.context.slice('Roadmap · '.length)}` : `Next task · ${now.context}`;
+
   const side = (
     <aside className="plan-now-side" aria-labelledby={`plan-now-where-${variant}`}>
       <h3 id={`plan-now-where-${variant}`}>Where you are</h3>
@@ -122,13 +125,13 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
         {/* On My plan, a roadmap task is shown in full in the roadmap below: here, one line pointing to it. */}
         {onPlan && task.href === ROADMAP_TASK_HREF ? (
           <p className="plan-now-pointer">
-            <span className="plan-now-k">Next task · {now.context}</span>
+            <span className="plan-now-k">{nextLabel}</span>
             <span><strong>{task.label}</strong>: it’s open in your roadmap below, with what to do and what you’ll have.</span>
             <a className="btn" href={ROADMAP_TASK_HREF}>Go to it<span aria-hidden className="nowrap-arrow">&nbsp;↓</span></a>
           </p>
         ) : (
         <div className={`plan-now-task${task.urgent ? ' urgent' : ''}`}>
-          <p className="plan-now-k">Next task · {now.context}</p>
+          <p className="plan-now-k">{nextLabel}</p>
           <h3>{task.label}</h3>
           <p className="plan-now-produces"><strong>You’ll have:</strong> {task.produces}.</p>
           <div className="plan-now-actions">

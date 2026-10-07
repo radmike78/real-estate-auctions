@@ -39,7 +39,7 @@ function BeforeYouCommit({ plan, state }: { plan?: string; state?: StateCode }) 
     <section className="before-commit" aria-labelledby="before-commit-head">
       <h3 id="before-commit-head">Before you commit, check these</h3>
       <ul>
-        <li><strong>Your tax bill, not the seller’s.</strong> It can change when you buy or rent it out. <a href="#/learn/analyze">{name ? `See ${name}` : 'See your state'}</a></li>
+        <li><strong>Your tax bill, not the seller’s.</strong> It can change when you buy or rent it out. <a href="#/learn/analyze">{name ? `${name} property tax rules` : 'Property tax rules by state'}</a></li>
         <li><strong>A written insurance quote</strong> for how you’ll use it, including while it’s empty. <a href="#/learn/analyze">What to ask</a></li>
         <li><strong>At least 6 months of payments in savings</strong> after closing and repairs.</li>
         {renting && <li><strong>The rules for renting it:</strong> HOA limits, short-term rental rules and local rent rules.</li>}

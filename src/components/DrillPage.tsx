@@ -491,7 +491,7 @@ export default function DrillPage({ id }: { id: string }) {
         const g = guidedNext(currentProgress());
         return g && g.step.href !== `#/practice/drills/${d.id}` ? (
           <nav className="path-next" aria-label="Next step">
-            <span className="muted">Next in Getting started ({g.n} of {GUIDED.length})</span>
+            <span className="muted">Next in Getting started (stop {g.n} of {GUIDED.length})</span>
             <a className="btn" href={g.step.href}>{g.step.label}&nbsp;→</a>
           </nav>
         ) : null;

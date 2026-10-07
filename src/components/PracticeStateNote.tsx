@@ -30,6 +30,13 @@ const DIFFERS: Partial<Record<SaleKey, Partial<Record<StateCode, string>>>> = {
   },
 };
 
+/** The line for a state without its own entry in DIFFERS. */
+function generalDiff(sale: SaleKey, name: string) {
+  if (sale === 'irs') return <>IRS sales follow the same federal rules in every state; what differs in {name} is the county recording and transfer steps after the sale. The <a href="#/practice/drills">IRS drills in step 3</a> work for any state.</>;
+  if (sale === 'reo' || sale === 'short') return `${name}’s contract forms and disclosure rules differ.`;
+  return `${name}’s deadlines, forms and who runs the sale differ.`;
+}
+
 /**
  * Practice runs follow Nevada (Clark County) rules. For a visitor in another state, says so at the top and points to
  * that state's guide (and drill, where there is one), so nobody learns the wrong process for their state.
@@ -51,7 +58,7 @@ export default function PracticeStateNote({ sale }: { sale: SaleKey }) {
   return (
     <div className="notice practice-state-note" role="note">
       {drill && <p className="practice-state-first"><a className="btn" href={`#/practice/drills/${drill}`}>Try the {name} drill first&nbsp;→</a> <span>It uses {name} rules for this kind of sale.</span></p>}
-      <p><strong>This practice uses Nevada (Clark County) rules.</strong> {DIFFERS[sale]?.[st] ?? `${name}’s deadlines, forms and who runs the sale differ.`}{' '}
+      <p><strong>This practice uses Nevada (Clark County) rules.</strong> {DIFFERS[sale]?.[st] ?? generalDiff(sale, name)}{' '}
       Before a real {name} deal, read the <a href={`#/playbooks/${guide}`}>{name} step-by-step guide</a>.</p>
     </div>
   );

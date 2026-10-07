@@ -10,7 +10,7 @@ function withBlanks(script: string) {
 export default function ScriptBox({ to, script, note, heading }: { to: string; script: string; note?: string; heading?: string }) {
   return (
     <div className="script-box">
-      <h3>{heading ?? `What to say: ${to}`}</h3>
+      <h3>{heading ?? `What to say: ${to.replace(/^The /, 'the ')}`}</h3>
       <blockquote className="roadmap-script">{withBlanks(script)}</blockquote>
       {note && <p className="muted">{note}</p>}
     </div>

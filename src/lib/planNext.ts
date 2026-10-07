@@ -13,7 +13,7 @@ export interface PlanNow {
   /** Your goal in one sentence, or '' when it isn't written yet. */
   goal: string;
   source: 'deal' | 'starter' | 'roadmap';
-  /** Where the task comes from: "123 Main St · Researching", "Getting started · 2 of 5", "Roadmap · Get ready". */
+  /** Where the task comes from: "123 Main St · Researching", "Getting started · stop 2 of 5", "Roadmap · Get ready". */
   context: string;
   task: PlanTask;
   deal?: Deal;
@@ -68,7 +68,7 @@ export function planNow(now = new Date()): PlanNow {
     return {
       goal,
       source: 'starter',
-      context: `Getting started · ${starter.n} of ${GUIDED.length}`,
+      context: `Getting started · stop ${starter.n} of ${GUIDED.length}`,
       task: { key: `starter-${starter.step.key}`, label: starter.step.label, produces: STARTER_PRODUCES[starter.step.key], href: starter.step.href, support: [], done: false, text: `${starter.step.label}.` },
     };
   }
