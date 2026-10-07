@@ -7,7 +7,7 @@
       "src/lib/journey.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "f001f63bab51e0cc",
+    "hash": "c5f2599463d71a73",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -173,7 +173,7 @@
       "src/lib/evidence.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "82ac13d3becafaeb",
+    "hash": "e756eeae3bf21b0c",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -392,7 +392,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "543912acf9119dc4",
+    "hash": "3cfe94223a3213fe",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {
@@ -405,7 +405,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-07",
-    "hash": "b5d326ea9de5844b",
+    "hash": "f3c0893761e70f38",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

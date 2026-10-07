@@ -112,7 +112,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     }
     if (deal.id) {
       setSaved((list) => {
-        const next = list.map((d) => (d.id === deal.id ? deal : d));
+        // The stage is changed in My plan or the deal packet, not here: keep the one stored with the deal.
+        const stage = loadDeals().find((d) => d.id === deal.id)?.stage ?? deal.stage;
+        const next = list.map((d) => (d.id === deal.id ? { ...deal, ...(stage ? { stage } : {}) } : d));
         saveDeals(next);
         return next;
       });
@@ -133,7 +135,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const toggle = (id: string) => set({ done: deal.done.includes(id) ? deal.done.filter((x) => x !== id) : [...deal.done, id] });
 
   const saveNew = () => {
-    const d = { ...deal, id: `d${Date.now().toString(36)}`, name: deal.name.trim() || `${countyName(deal.county)} deal` };
+    const d: Deal = { ...deal, id: `d${Date.now().toString(36)}`, name: deal.name.trim() || `${countyName(deal.county)} deal`, stage: 'researching' };
     carryDraftNumbers(d.id, d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short');
     const next = [d, ...saved];
     saveDeals(next);

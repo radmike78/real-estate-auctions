@@ -46,6 +46,14 @@ export const PLANS: { key: Plan; label: string }[] = [
 /** Plans that make sense for a kind of sale (a lien can only be held for interest). */
 export const plansFor = (kind: SaleKind): Plan[] => (kind === 'lien' ? ['lien'] : ['flip', 'rent', 'commercial']);
 
+/**
+ * Where a saved deal stands in the real world. It picks the deal's next action and task list in My plan: a new
+ * candidate is researched first, and the accepted-offer deadlines only come in once it's under contract.
+ */
+export type DealStage = 'researching' | 'offer' | 'contract' | 'closed' | 'owned' | 'passed';
+export const DEAL_STAGES: DealStage[] = ['researching', 'offer', 'contract', 'closed', 'owned', 'passed'];
+export const isDealStage = (v: unknown): v is DealStage => DEAL_STAGES.includes(v as DealStage);
+
 export interface Deal {
   id: string;
   name: string;
@@ -56,6 +64,8 @@ export interface Deal {
   notes: string;
   done: string[];
   updatedAt: string;
+  /** Set by the buyer; deals saved before stages existed have none, and My plan works one out (dealStage.ts). */
+  stage?: DealStage;
 }
 
 export interface CheckItem {
@@ -231,6 +241,7 @@ export function cleanDeal(v: unknown): Deal | null {
     notes: str(d.notes, 4000),
     done: Array.isArray(d.done) ? d.done.filter((x): x is string => typeof x === 'string').slice(0, 500) : [],
     updatedAt: typeof d.updatedAt === 'string' && !Number.isNaN(Date.parse(d.updatedAt)) ? d.updatedAt : new Date().toISOString(),
+    ...(isDealStage(d.stage) ? { stage: d.stage } : {}),
   };
 }
 
