@@ -102,7 +102,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     const hoa: Record<StateCode, string> = {
       NV: 'Condo or HOA home: read the resale package; you can cancel in writing until midnight of the fifth day after you get it (NRS 116.4109).',
       CA: 'Condo or HOA home: get the governing documents, budget, reserves and rental limits before you commit (Civil Code 4525).',
-      AZ: 'Condo or HOA home: the association (or, in a planned community with fewer than 50 homes, the seller) must provide its rules, budget, reserves and any lawsuits within 10 days; the association’s fee is capped at $400 (A.R.S. 33-1806; condos 33-1260).',
+      AZ: 'Condo or HOA home: the association’s rules, budget, reserves and any lawsuits must reach you within 10 days. With 50 or more homes or units, the association sends them after the seller’s notice of the accepted offer; in a planned community with fewer than 50 homes or a condo with fewer than 50 units, the seller sends them after accepting your offer; the association’s fee is capped at $400 (A.R.S. 33-1806; condos 33-1260).',
       UT: 'Condo or HOA home: the seller must give you the association’s recorded governing documents before closing (Utah Code 57-8a-105.1, 57-8-6.1).',
       TX: 'Condo or HOA home: get the resale certificate and the association’s rules, budget and fees before the deadline in the HOA addendum (Property Code 207.003 for a subdivision HOA, 82.157 for a condo). Ask your agent which TREC addendum your contract uses.',
     };
@@ -136,7 +136,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     if (st === 'UT') sale.push({ id: 'ut-tax', text: 'Utah: the county auditor holds the sale in May or June; a bid must cover the taxes, penalties, interest and costs.' });
   }
   if (d.kind === 'lien') {
-    if (st === 'AZ') sale.push({ id: 'az-lien', text: 'Arizona: liens are sold in February. You bid the interest rate down from 16% a year; the owner can pay you off any time. After three years (and within ten) you can go to court for a deed.', href: '#/learn/forced-sales' });
+    if (st === 'AZ') sale.push({ id: 'az-lien', text: 'Arizona: liens are sold in February. You bid the interest rate down from 16% a year; the owner can pay you off any time. After three years (and within ten) you can go to court for a deed. Or, if you or the owner ask and the property is likely to sell for more than $2,500 above what’s owed, the court must order an auction instead, and you’re paid in cash (A.R.S. 42-18204).', href: '#/learn/forced-sales' });
     if (st === 'NV') sale.push({ id: 'nv-sid', text: 'Nevada SID lien certificates earn 1% a month until paid; read how they work before you buy.', href: '#/playbooks/sid' });
   }
   if (d.kind === 'court') {

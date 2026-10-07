@@ -550,7 +550,7 @@ export const STATE_GUIDES: Playbook[] = [
   short: "Tax lien sales",
   teaser: "Each February, Arizona county treasurers sell liens for unpaid property taxes. You bid the interest rate down from 16%.",
   oneLine: "Each February, Arizona county treasurers sell liens for unpaid property taxes. You bid the interest rate down from 16%. The owner can pay you back with interest until a court rules for you or a treasurer’s deed is delivered. Land the state already owns through a tax deed is a separate program: the county board of supervisors sells it at a public auction (ARS 42-18301 to 42-18303).",
-  youGet: "A certificate of purchase (a lien), not the property. You can ask a court for a treasurer’s deed only after 3 years, and only if the lien is still unpaid.",
+  youGet: "A certificate of purchase (a lien), not the property. You can ask a court for a treasurer’s deed only after 3 years, and only if the lien is still unpaid. Or, if you or the owner ask and the property is likely to sell for more than $2,500 above what’s owed, the court must order an auction instead, and you’re paid in cash (A.R.S. 42-18204).",
   forSale: true,
   glance: [
     {
@@ -2973,7 +2973,7 @@ export const STATE_GUIDES: Playbook[] = [
   glance: [
     {
       label: "How it’s sold",
-      value: "The same channels as homes: trustee’s sales, which are final with no buy-back (A.R.S. 33-811), and sheriff’s sales, which have a 6-month redemption period in most cases (A.R.S. 12-1282, 12-1283). Also tax lien sales, court receivers, and bank or government sellers"
+      value: "The same channels as homes: trustee’s sales, which are final with no buy-back by the owner (A.R.S. 33-811), and sheriff’s sales, which have a 6-month redemption period in most cases (A.R.S. 12-1282, 12-1283). Also tax lien sales, court receivers, and bank or government sellers"
     },
     {
       label: "Value",
@@ -3007,7 +3007,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Know which sale rules apply",
-      detail: "A trustee’s sale is final, with no buy-back period, and it clears liens that rank behind the deed of trust (A.R.S. 33-811). A sheriff’s sale after a court foreclosure has a 6-month redemption period in most cases (A.R.S. 12-1282, 12-1283). A tax lien sale gives a lien, not the building. Read the right DeedOwl guide for each."
+      detail: "A trustee’s sale is final, with no buy-back period for the owner, and it clears liens that rank behind the deed of trust (A.R.S. 33-811). One exception: if the sale wiped out a junior federal tax lien, the United States can redeem within 120 days (or the state period if longer); if the IRS wasn’t properly notified, its lien stays (26 USC 7425). A sheriff’s sale after a court foreclosure has a 6-month redemption period in most cases (A.R.S. 12-1282, 12-1283). A tax lien sale gives a lien, not the building. Read the right DeedOwl guide for each."
     },
     {
       title: "Get the rent roll and leases, if you can",
@@ -3027,7 +3027,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Check zoning, code and permits",
-      detail: "Ask the city or county planning department whether your planned use is allowed. Ask whether there are open code cases or expired permits. A special rule applies if the land is in an unincorporated area and the sale is 5 or fewer unsubdivided parcels. Then a non-auction seller must give you an affidavit of disclosure covering access, utilities, flood zone and zoning. You can cancel (rescind) within 5 days (A.R.S. 33-422)."
+      detail: "Ask the city or county planning department whether your planned use is allowed. Ask whether there are open code cases or expired permits. A special rule applies if the land is in an unincorporated area and the sale is 5 or fewer unsubdivided parcels. Then the seller (other than a trustee at a trustee’s sale or a sheriff at an execution sale) must give you an affidavit of disclosure covering access, utilities, flood zone and zoning. You can cancel (rescind) within 5 days (A.R.S. 33-422)."
     },
     {
       title: "Line up your money",

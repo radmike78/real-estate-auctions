@@ -87,8 +87,8 @@ export const STATE_SALES: Record<StateCode, string[]> = {
     'Foreclosures: trustee auctions at least 3 months after the notice of default; on 1–4 unit homes, tenants and some buyers get 15 to 45 days to match the winning bid.',
   ],
   AZ: [
-    'Tax sales: the county treasurer sells tax liens, not property, each February; bidders bid the interest rate down from 16%.',
-    'Foreclosures: trustee auctions no sooner than the 91st day after the notice of sale; the winner pays by 5 p.m. the next business day.',
+    'Tax sales: the county treasurer sells tax liens, not property, each February; bidders bid the interest rate down from 16%. Separately, the county board of supervisors auctions land the state already took by tax deed (A.R.S. 42-18301 to 42-18303).',
+    'Foreclosures: trustee auctions no sooner than the 91st day after the notice of sale; the winner pays by 5 p.m. the next business day, and the owner can’t redeem afterward (A.R.S. 33-811). One exception: if the sale wiped out a junior federal tax lien, the United States can redeem within 120 days (or the state period if longer); if the IRS wasn’t properly notified, its lien stays (26 USC 7425).',
   ],
   UT: [
     'Tax sales: the county auditor sells property in May or June after four years of unpaid taxes.',

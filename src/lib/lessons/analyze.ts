@@ -147,7 +147,7 @@ export const analyze: Lesson = {
                 'HOA documents',
                 'The owner gives a resale package (governing documents, dues, budget, reserves, lawsuits, fees). The buyer can cancel in writing until midnight of the fifth day after receiving it (NRS 116.4109).',
                 'The owner gives governing documents, financial and reserve disclosures, assessments, violation notices and rental limits before transfer (Civil Code 4525).',
-                'The association delivers its documents (rules, budget, reserves, insurance, lawsuits) within 10 days. The 10 days start after notice of a pending offer. In smaller communities, they start after the offer is accepted. Its fee can’t be more than $400, plus up to $100 for a rush (A.R.S. 33-1260 and 33-1806).',
+                'You get the association’s documents (rules, budget, reserves, insurance, lawsuits) within 10 days. In a planned community with fewer than 50 homes, or a condo with fewer than 50 units, the seller delivers them within 10 days after the offer is accepted. With 50 or more, the association delivers them within 10 days after the seller’s notice of the accepted offer. The association’s fee can’t be more than $400, plus up to $100 for a rush (A.R.S. 33-1260 and 33-1806).',
                 'Before closing, the seller gives the buyer the association’s recorded governing documents (Utah Code 57-8a-105.1 and 57-8-6.1). A payoff fee can’t be more than $50.',
                 'Within 10 business days of a written request, the association delivers its restrictions, bylaws, rules and a resale certificate. The certificate lists dues, approved special assessments, unpaid amounts, reserves, the budget and pending lawsuits (Property Code 207.003).',
               ],

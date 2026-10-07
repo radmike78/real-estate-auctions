@@ -420,10 +420,10 @@ export const DRILLS: Drill[] = [
         question: 'Pick the right answer for a planned community.',
         multi: false,
         options: [
-          { label: 'Only after the owner is 18 months delinquent or owes $10,000 or more, whichever comes first, through a court case', good: true, why: 'Right (A.R.S. 33-1807). The foreclosure works like a mortgage foreclosure in court, followed by a sheriff’s sale.' },
+          { label: 'Only after the owner is 18 months delinquent or owes $10,000 or more, whichever comes first, through a court case', good: true, why: 'Right (A.R.S. 33-1807). The foreclosure works like a mortgage foreclosure in court, followed by a sheriff’s sale. For a special assessment that started at $10,000 or more, only the 18-month rule applies.' },
           { label: 'After 30 days, by a trustee’s sale like a mortgage', good: false, why: 'Arizona HOAs foreclose through the courts, and only past the 18-month or $10,000 mark.' },
         ],
-        lesson: 'Condominiums follow a separate statute; confirm its rules with an Arizona attorney.',
+        lesson: 'Condominiums follow a separate statute with the same 18-month or $10,000 rule and the same special assessment rule (A.R.S. 33-1256).',
       },
       {
         kind: 'pick',
@@ -867,7 +867,7 @@ export const DRILLS: Drill[] = [
         question: 'If you win, what do you get?',
         multi: false,
         options: [
-          { label: 'A certificate of purchase: a lien that earns interest at my bid rate until the owner pays', good: true, why: 'Right. You can ask a court for a treasurer’s deed only after 3 years, if the lien is still unpaid.' },
+          { label: 'A certificate of purchase: a lien that earns interest at my bid rate until the owner pays', good: true, why: 'Right. You can ask a court for a treasurer’s deed only after 3 years, if the lien is still unpaid. Or, if you or the owner ask and the property is likely to sell for more than $2,500 above what’s owed, the court must order an auction instead, and you’re paid in cash (A.R.S. 42-18204).' },
           { label: 'The land', good: false, why: 'At the February sale, Arizona sells liens, not the property.' },
         ],
         lesson: 'Most liens are redeemed: plan on interest, not on getting the land.',
@@ -1263,7 +1263,7 @@ export const DRILLS: Drill[] = [
         question: 'What’s true once you’ve paid?',
         multi: true,
         options: [
-          { label: 'The sale is final: there’s no redemption', good: true, why: 'Right (A.R.S. 33-811).' },
+          { label: 'The sale is final: the owner can’t redeem', good: true, why: 'Right (A.R.S. 33-811). One exception: if the sale wiped out a junior federal tax lien, the United States can redeem within 120 days (or the state period if longer); if the IRS wasn’t properly notified, its lien stays (26 USC 7425).' },
           { label: 'Liens older than the deed of trust stay with the house', good: true, why: 'Right. The sale clears junior liens, not senior ones. Order a title report before the sale.' },
           { label: 'The trustee hands over the keys and removes any occupants', good: false, why: 'Occupants are yours to handle: a written demand, then a court eviction (forcible detainer) case if needed. Bona fide tenants generally get at least 90 days under federal law.' },
         ],
@@ -1289,7 +1289,7 @@ export const DRILLS: Drill[] = [
         { label: 'Investigate', feedback: 'Fine for researching the house, but don’t bid until your money can arrive by 5 p.m. the next business day.' },
         { label: 'Pass', feedback: 'Right for this sale. Line up cash or same-day funding before the next one.' },
       ],
-      expert: 'Pass on this sale. Arizona trustee’s sales need $10,000 to bid and the balance the next business day, and the sale is final. Bid only when the money is ready and the title report is read.',
+      expert: 'Pass on this sale. Arizona trustee’s sales need $10,000 to bid and the balance the next business day, and the sale is final. One exception: if the sale wiped out a junior federal tax lien, the United States can redeem within 120 days (or the state period if longer); if the IRS wasn’t properly notified, its lien stays (26 USC 7425). Bid only when the money is ready and the title report is read.',
     },
   },
   {

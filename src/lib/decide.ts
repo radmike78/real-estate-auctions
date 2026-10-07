@@ -443,7 +443,7 @@ export function rank(answers: Answers): Match[] {
 /** A state-specific note for a strategy, when the rules differ. */
 export function stateNote(key: StrategyKey, state?: string): string | null {
   const st = state as StateCode | undefined;
-  if (key === 'auction' && st === 'AZ') return 'In Arizona, counties sell tax liens, not the property: you earn interest until the owner pays, and can seek a deed only after three years. Competition often bids the rate far below the 16% cap, so expect modest interest, not a property. Trustee auctions sell the property itself.';
+  if (key === 'auction' && st === 'AZ') return 'In Arizona, counties sell tax liens, not the property: you earn interest until the owner pays, and can seek a deed only after three years. Or, if you or the owner ask and the property is likely to sell for more than $2,500 above what’s owed, the court must order an auction instead, and you’re paid in cash (A.R.S. 42-18204). Separately, the county board of supervisors auctions land the state already took by tax deed (A.R.S. 42-18301 to 42-18303). Competition often bids the rate far below the 16% cap, so expect modest interest, not a property. Trustee auctions sell the property itself.';
   if (key === 'auction' && st === 'CA') return 'In California, winning bids on homes of one to four units aren’t final until tenants and other eligible buyers have had 15 to 45 days to match them.';
   if (key === 'auction' && st === 'NV') return 'Our step-by-step guides cover each kind of sale in Clark County, Nevada.';
   if (key === 'auction' && st === 'UT') return 'Utah counties hold their tax sale each May or June, after four years of unpaid taxes.';
