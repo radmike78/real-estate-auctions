@@ -1049,7 +1049,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "TX/Ector": {
     taxSale: { url: "https://www.ectorcountytx.gov/183/Notice-of-Trustees-Sale-Sheriff-Tax-Sale", checked: "2026-10-05", note: "Sheriff’s tax sale notices are posted here, together with trustee sale notices." },
-    treasurer: { url: "https://www.ectorcountytx.gov/189/County-Tax-Assessor-Collector", checked: "2026-10-05" },
+    treasurer: { url: "https://www.ectorcad.org/", checked: "2026-10-07", note: "The Ector County Appraisal District bills and collects property taxes." },
     assessor: { url: "https://www.ectorcad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.ectorcountytx.gov/172/County-Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.ectorcountytx.gov/236/Civil-Warrants-Division", checked: "2026-10-05" },
@@ -1923,8 +1923,8 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.co.robertson.tx.us/page/robertson.Constable", checked: "2026-10-05" },
   },
   "TX/Rockwall": {
-    taxSale: { url: "https://www.rockwallcountytexas.com/205/Tax-Office", checked: "2026-10-05", note: "No separate tax sale page: watch this office for sale notices." },
-    treasurer: { url: "https://www.rockwallcountytexas.com/205/Tax-Office", checked: "2026-10-05" },
+    taxSale: { url: "https://www.rockwallcad.com/", checked: "2026-10-07", note: "No separate tax sale page: the appraisal district collects taxes here, so watch it for sale notices." },
+    treasurer: { url: "https://www.rockwallcad.com/", checked: "2026-10-07", note: "Since October 1, 2012, the Rockwall Central Appraisal District has collected all Rockwall County property taxes." },
     assessor: { url: "https://www.rockwallcad.com/", checked: "2026-10-05" },
     recorder: { url: "https://www.rockwallcountytexas.com/108/County-Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.rockwallcountytexas.com/87/Sheriffs-Office", checked: "2026-10-05" },
@@ -2078,7 +2078,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "TX/Taylor": {
     taxSale: { url: "https://taylor-cad.org/", checked: "2026-10-05", note: "The Taylor Central Appraisal District collects property taxes and posts each tax sale’s list and results on its home page." },
-    treasurer: { url: "https://www.taylorcounty.texas.gov/182/Tax-Assessor-Collector", checked: "2026-10-05" },
+    treasurer: { url: "https://taylor-cad.org/", checked: "2026-10-07", note: "The county tax office here handles vehicles; the Taylor Central Appraisal District bills and collects property taxes." },
     assessor: { url: "https://taylor-cad.org/", checked: "2026-10-05" },
     recorder: { url: "https://www.taylorcounty.texas.gov/281/Official-Public-Real-Property-Records", checked: "2026-10-05" },
     sheriff: { url: "https://www.taylorcounty.texas.gov/178/Sheriffs-Office", checked: "2026-10-05" },
@@ -2113,7 +2113,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "TX/Tom Green": {
     taxSale: { url: "https://www.tomgreencountytx.gov/page/cck.TrusteeTaxSales", checked: "2026-10-05", note: "The County Clerk lists tax properties that didn’t sell at auction and were struck off to the county; those resales are usually in March, June and October." },
-    treasurer: { url: "https://www.tomgreencountytx.gov/page/ctax.TaxAssessor", checked: "2026-10-05" },
+    treasurer: { url: "https://tomgreencad.com/", checked: "2026-10-07", note: "The Tom Green County Appraisal District bills and collects property taxes." },
     assessor: { url: "https://tomgreencad.com/", checked: "2026-10-05" },
     recorder: { url: "https://www.tomgreencountytx.gov/page/cck.CountyClerkHome", checked: "2026-10-05" },
     sheriff: { url: "https://www.tomgreencountysheriff.org/", checked: "2026-10-05" },

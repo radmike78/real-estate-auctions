@@ -109,7 +109,7 @@ const TX_LOAN_DATES = ['Appraisal addendum deadline, if you have one (49-1: noti
 const TX_DEPOSIT_DATES = ['Earnest money due (within 3 days after the effective date; a last day on a weekend or legal holiday moves to the next day that isn’t one; if late, the seller can end the contract until you deliver it)', 'Option fee due (same 3 days and weekend rule; if late, you lose the right to end the contract during the option period)'];
 
 /** Texas water disclosure (20-19, 7I(2)): only when that box is checked. */
-const TX_WATER_DATE = 'Seller’s Water Disclosure due, if box 7I(2) is checked (you can end the contract within 7 days after you receive it, or before closing if sooner)';
+const TX_WATER_DATE = 'Seller’s Water Disclosure due, if your TREC contract has paragraph 7I and box 7I(2) is checked (you can end the contract within 7 days after you receive it, or before closing if sooner)';
 
 /** The dates most deals of this kind need on the calendar, to start the list from. */
 export function suggestedDates(d: Pick<Deal, 'kind' | 'state'>): string[] {
