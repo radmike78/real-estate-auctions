@@ -1,6 +1,6 @@
 // Find Deals: where to look for properties, by state and county. Official sources first; other sites (listing
 // portals and auction marketplaces) only in their own, clearly labeled list (CLAUDE.md).
-import { REO_SOURCES } from './reoSources';
+import { REO_SOURCES, reoWhatFor } from './reoSources';
 import type { StateCode } from './regions';
 
 export interface DealSource {
@@ -23,7 +23,7 @@ export const NATIONAL_OFFICIAL: DealSource[] = REO_SOURCES.map((s) => ({
 export const nationalOfficialFor = (stateName: string): DealSource[] =>
   NATIONAL_OFFICIAL.map((s) => ({
     ...s,
-    what: s.what.replace('Search Las Vegas or a ZIP code.', 'Search your city or ZIP code.').replace('Filter for Nevada.', `Filter for ${stateName}.`),
+    what: reoWhatFor(s.what, stateName),
   }));
 
 /** The kinds of official sellers to look for in any county. */

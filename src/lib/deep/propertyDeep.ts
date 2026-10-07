@@ -195,7 +195,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Buyers stretching to afford the mortgage with no savings left for a special assessment.",
       "Investors who plan short-term or nightly rentals without confirming the HOA allows them.",
       "Anyone buying in an older building without seeing the reserve study, inspections and minutes.",
-      "People who fall behind on dues. In Nevada, Texas and many other states, the HOA can foreclose. Texas has two sets of rules. A neighborhood (subdivision) HOA usually needs a court order first (Property Code 209.0092). A condo association can sell without going to court, using the usual trustee-sale steps unless its declaration says otherwise, and the owner then has 90 days to buy the home back (82.113). Neither can foreclose for unpaid fines alone. The recorded declaration tells you which rules apply; a townhome can fall under either."
+      "People who fall behind on dues. In all five states we cover, an association can foreclose for unpaid dues, under different rules in each. Texas has two sets of rules. A neighborhood (subdivision) HOA usually needs a court order first (Property Code 209.0092). A condo association can sell without going to court, using the usual trustee-sale steps unless its declaration says otherwise, and the owner then has 90 days to buy the home back (82.113). Neither can foreclose for unpaid fines alone. The recorded declaration tells you which rules apply; a townhome can fall under either."
     ],
     costs: [
       "Monthly HOA dues. In Las Vegas, the Review-Journal reported condo dues of about 50 cents to a dollar per square foot (c. 2016).",

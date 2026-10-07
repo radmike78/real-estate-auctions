@@ -21,6 +21,10 @@ export interface ReoSource {
 
 export const HUD_CLARK_SEARCH = 'https://www.hudhomestore.gov/searchresult?citystate=Clark%20County,%20NV';
 
+/** A source's "what you'll find" line worded for a state other than Nevada (the Las Vegas search tips don't apply there). */
+export const reoWhatFor = (what: string, stateName: string) =>
+  what.replace('Search Las Vegas or a ZIP code.', 'Search your city or ZIP code.').replace('Filter for Nevada.', `Filter for ${stateName}.`);
+
 export const REO_SOURCES: ReoSource[] = [
   {
     name: 'HUD Home Store',

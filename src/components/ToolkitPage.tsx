@@ -119,7 +119,7 @@ function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: Step
   const [myState] = useMyState();
   return (
     <div className="roadmap-step-body">
-      <p>{s.text}</p>
+      <p>{dropStateLead(forStateText(myState, s.text), myState)}</p>
       <p className="roadmap-outcome"><strong>You’ll have:</strong> {s.outcome}</p>
       <div className="roadmap-cols">
         <div>
@@ -147,7 +147,7 @@ function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: Step
       {deal && s.evidence && dealScoped(s) && <EvidenceArea key={`${deal.id}|${s.evidence}`} dealId={deal.id} dealName={deal.name} area={s.evidence} askFinding={status === 'done'} />}
       {!deal && s.evidence && dealScoped(s) && <p className="muted">Working on a real property? Save it in <a href="#/analyze">Analyze</a>, then choose it above to record what you find here.</p>}
       {s.id === 'goal' && <GoalField />}
-      {s.stop && <p className="roadmap-stop"><strong>Stop if:</strong> {s.stop}</p>}
+      {s.stop && forStateText(myState, s.stop) && <p className="roadmap-stop"><strong>Stop if:</strong> {dropStateLead(forStateText(myState, s.stop), myState)}</p>}
       <p className="roadmap-done"><strong>Done when:</strong> {s.doneWhen}</p>
       {status !== 'done' && stepEvidence(s.id) && (
         <p className="roadmap-has" role="status">✓ {stepEvidence(s.id)} <button type="button" className="linkish" onClick={() => setStatus('done')}>Mark it done</button></p>
