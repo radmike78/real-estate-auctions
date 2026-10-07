@@ -3,6 +3,7 @@ import { AreaButton } from './AreaPicker';
 import { loadDeals, onDealsChange } from '../lib/deals';
 import { useSiteFeatures } from '../lib/siteFeatures';
 import { currentProgress, GUIDED, guidedNext, setMode, useJourney } from '../lib/journey';
+import { planNow } from '../lib/planNext';
 import { useMyState } from '../lib/myState';
 
 // The tasks people come for, one click away. Everything else is under More, grouped.
@@ -33,7 +34,9 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
   // The Getting started link never pulls someone out of a task they're in the middle of (a practice purchase, a
   // drill, their plan), where the page has its own next step.
   const inTask = /^(practice\/[a-z]|toolkit)/.test(current);
-  const nextStep = mode === 'guided' && !inTask ? guidedNext(currentProgress()) : null;
+  // Only while the tour is My plan's next step (planNext.ts): with a real property or roadmap work under way, the one
+  // Continue is in My plan, and this button would compete with it.
+  const nextStep = mode === 'guided' && !inTask && planNow().source === 'starter' ? guidedNext(currentProgress()) : null;
   const [mine] = useMyState();
   // The Nevada listing pages cover Clark County only, so other states' visitors don't see them in the menu.
   const groups = MORE.filter((g) => !g.group.startsWith('Nevada') || !mine || mine === 'NV');

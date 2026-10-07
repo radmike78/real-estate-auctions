@@ -1,0 +1,66 @@
+/* Review round 8 (plan): My plan's one next step (U1–U3), on My plan and the home page. Full width; the panel's parts
+   sit side by side on wide screens and stack in reading order on phones. */
+
+.plan-now { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px 28px; align-items: start; }
+.page section.plan-now { padding: 26px 28px; }
+.home .plan-now { margin: 0 0 28px; padding: 24px 28px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); color: var(--text); text-align: left; }
+@media (min-width: 900px) {
+  .plan-now { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+  .plan-now-help { grid-column: 1 / -1; }
+}
+@media (min-width: 1300px) {
+  .plan-now.with-helper { grid-template-columns: minmax(0, 5fr) minmax(0, 3fr) minmax(0, 3fr); }
+  .plan-now.with-helper .plan-now-help { grid-column: auto; }
+}
+@media (max-width: 600px) {
+  .page section.plan-now, .home .plan-now { padding: 20px 16px; }
+}
+
+.plan-now-main { display: grid; gap: 14px; min-width: 0; }
+.plan-now-main > h2 { margin: 0; padding: 10px 16px; font-size: 1.5rem; border-left: 4px solid var(--accent-strong); background: var(--surface-2); border-radius: 10px; }
+.home .plan-now h2, .home .plan-now h3, .home .plan-now p { text-align: left; }
+.plan-now-k { display: block; margin: 0; font-size: 0.85rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+
+.plan-now-goal { display: grid; gap: 4px; margin: 0; padding: 12px 16px; border-left: 4px solid var(--info, var(--accent)); background: var(--info-bg, var(--surface-2)); border-radius: 10px; font-size: 1.05rem; }
+
+.plan-now-deal { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 10px 16px; align-items: end; }
+.plan-now-deal .field { margin: 0; }
+.plan-now-deal select { min-height: 44px; }
+.plan-now-hint { grid-column: 1 / -1; margin: 0; }
+
+.plan-now-task { display: grid; gap: 10px; padding: 18px 20px; border: 2px solid var(--accent); border-radius: 14px; background: var(--surface); }
+.plan-now-task.urgent { border-color: var(--stop); }
+.plan-now-task h3 { margin: 0; font-size: 1.45rem; line-height: 1.25; }
+.plan-now-produces { margin: 0; font-size: 1.05rem; }
+.plan-now-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; }
+.plan-now-actions .btn { min-height: 44px; display: inline-flex; align-items: center; }
+.plan-now-support { margin: 0; color: var(--muted); }
+.plan-now-support > span:first-child { font-weight: 700; color: var(--text); }
+
+.plan-now-side { display: grid; align-content: start; gap: 10px; min-width: 0; padding: 16px 18px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-2); }
+.plan-now-side h3 { margin: 0; font-size: 1.2rem; }
+.plan-now-side h4 { margin: 6px 0 0; font-size: 1.02rem; }
+.plan-now-side p { margin: 0; }
+.plan-now-count { display: grid; gap: 6px; }
+.plan-now-count .decide-bar { height: 8px; background: var(--surface); }
+.plan-now-tasks, .plan-now-phases { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.plan-now-tasks li { display: grid; grid-template-columns: 1.4em minmax(0, 1fr); gap: 6px; }
+.plan-now-tasks li.done { color: var(--muted); }
+.plan-now-tasks li.done .plan-now-mark { color: var(--go); font-weight: 700; }
+.plan-now-tasks li.now { font-weight: 700; }
+.plan-now-tasks li.now .plan-now-mark { color: var(--accent); }
+.plan-now-phases li { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; border-bottom: 1px solid var(--border); }
+.plan-now-phases li:last-child { border-bottom: 0; }
+.plan-now-phases li.done span:last-child { color: var(--go); font-weight: 600; }
+
+.plan-now-help { min-width: 0; }
+.page .plan-now-help > section.not-sure { margin: 0; padding: 18px 20px; box-shadow: none; background: var(--surface-2); }
+.page .plan-now-help > section.not-sure h2 { margin: 0; font-size: 1.25rem; }
+.plan-now-help .team-options { grid-template-columns: minmax(0, 1fr); }
+
+/* The roadmap's steps for a later stage of the property in focus. */
+.roadmap-later { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+.roadmap-stage-note { margin: 0 0 12px; }
+
+/* Home: the six-step path's note points to the one next step. */
+.path-purpose a { font-weight: 600; }

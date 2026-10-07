@@ -80,7 +80,7 @@ export const BUY: ByStateLines = {
   AZ: [
     { text: 'In Arizona, at the trustee’s sale, ask the trustee only. The trustee can give the unpaid principal and a list of recorded liens, if it actually knows them. You can ask in writing starting 30 days after the notice is recorded, while the loan can still be reinstated. The trustee may charge a fee of up to $100 (A.R.S. 33-809(E)).' },
     { text: 'In Arizona, on the last business day before the sale, and on the sale day, the trustee must make available the lender’s opening bid or a good-faith estimate of it (A.R.S. 33-809(F)).' },
-    { text: 'In Arizona, bring a $10,000 deposit in a form the trustee accepts (A.R.S. 33-810). Pay the rest by 5 p.m. the next business day. The trustee must sign the deed and submit it for recording within 7 business days after you pay. The sale clears liens junior to the deed of trust, but not senior ones (A.R.S. 33-811). If a federal tax lien is recorded, the IRS may have up to 120 days after the sale to redeem (26 U.S.C. 7425).' },
+    { text: 'In Arizona, bring a $10,000 deposit in a form the trustee accepts (A.R.S. 33-810). Pay the rest by 5 p.m. the next business day. The trustee must sign the deed and submit it for recording within 7 business days after you pay. The sale clears liens junior to the deed of trust, but not senior ones (A.R.S. 33-811). If the sale wipes out a junior federal tax lien, the IRS can still redeem within 120 days after the sale; if the IRS didn’t get the required notice, its lien isn’t wiped out and stays on the home (26 U.S.C. 7425).' },
     { text: 'In Arizona, after the sale (bank-owned): if no one outbids the lender, the home becomes bank-owned (REO). You buy it later through the lender’s listing agent.' },
   ],
   UT: [

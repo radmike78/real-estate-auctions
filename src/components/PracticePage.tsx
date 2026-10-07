@@ -1,4 +1,5 @@
-import PracticeStateNote from './PracticeStateNote';
+import PracticeStateNote, { drillFor } from './PracticeStateNote';
+import { drillById } from '../practice/drills';
 import { getMyState, useMyState } from '../lib/myState';
 import { useMarkStep } from '../lib/path';
 import PathNext from './PathNext';
@@ -45,6 +46,10 @@ const WAYS: { id: string; icon: Topic; title: string; time: string; what: string
   { id: 'practice-drills', icon: 'tax', title: 'Quick drills', time: 'One short deal each', what: 'Work 2 to 4 missions on one made-up deal, then decide: Buy, Investigate or Pass.', go: 'See the drills' },
 ];
 
+/** "A Texas tax sale: the house you might have to give back" → "Texas tax sale" and "The house you might have to give back". */
+const drillName = (t: string) => t.split(':')[0].replace(/^An? /, '');
+const drillQuestion = (t: string) => { const q = t.split(':').slice(1).join(':').trim(); return q ? q[0].toUpperCase() + q.slice(1) : ''; };
+
 /** One plain line, not a banner: readers skip anything styled like a notice. */
 export function PracticeRibbon() {
   return (
@@ -81,6 +86,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
   const caseStarted = caseP.done.length > 0;
   const caseNext = (practiceCase.stages.find((st) => !st.tasks.every((t) => caseP.done.includes(`${st.key}/${t.id}`))) ?? practiceCase.stages[0]).key;
   const myName = mine ? STATES.find((x) => x.code === mine)?.name ?? mine : null;
+  const myStateDrills = mine ? SALE_ORDER.map((s) => ({ sale: s, id: drillFor(mine, s) })).flatMap(({ sale: s, id }) => { const d = id ? drillById(id) : undefined; return d ? [{ sale: s, id: d.id, title: d.title }] : []; }) : [];
   if (!chosen) {
     return (
       <main className="page practice">
@@ -114,9 +120,26 @@ export default function PracticePage({ sale }: { sale?: string }) {
         <p className="practice-nv-note" role="note">
           <strong>Nevada (Clark County) practice.</strong> These sales follow Clark County, Nevada rules.{' '}
           {myName && mine !== 'NV'
-            ? <>For {myName} rules, read the <a href="#/playbooks">{myName} sale guides</a> and try the {myName} drills in step 3.</>
+            ? <>For {myName} rules, start with the {myName} drills just below, and read the <a href="#/playbooks">{myName} sale guides</a>.</>
             : <>Other states’ rules are in the <a href="#/playbooks">sale guides</a>.</>}
         </p>
+        {/* A visitor from another state gets that state's drills for the same kinds of sale first. */}
+        {mine && mine !== 'NV' && myStateDrills.length > 0 && (
+          <div className="practice-mystate">
+            <h3 className="practice-mystate-head">{myName} rules first: drills for these kinds of sale</h3>
+            <div className="practice-sales">
+              {myStateDrills.map(({ sale: s, id, title }, i) => (
+                <a key={id} href={`#/practice/drills/${id}`} className={`practice-sale-tile hue-${(i + 3) % HUE_COUNT}`}>
+                  <span className="sale-tile-head"><span className="drill-card-icon"><TopicIcon topic={SALE_TOPIC[s]} /></span><strong>{drillName(title)}</strong></span>
+                  <span className="practice-applies practice-applies-mine">Applies to {myName}</span>
+                  <span className="muted">{drillQuestion(title)}</span>
+                  <span className="practice-card-foot"><span className="practice-way-go">Open the {myName} drill</span><span aria-hidden>→</span></span>
+                </a>
+              ))}
+            </div>
+            <h3 className="practice-mystate-head">Nevada (Clark County) practice runs</h3>
+          </div>
+        )}
         <div className="practice-sales">
           {/* SID lien certificates are a Clark County, Nevada sale only: not offered to visitors from other states. */}
           {SALE_ORDER.filter((s) => s !== 'sid' || !mine || mine === 'NV').map((s, i) => {
@@ -127,6 +150,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
             return (
               <a key={s} href={`#/practice?sale=${s}`} className={`practice-sale-tile hue-${i % HUE_COUNT}`}>
                 <span className="sale-tile-head"><span className="drill-card-icon"><TopicIcon topic={SALE_TOPIC[s]} /></span><strong>{titleOf(s)}</strong></span>
+                <span className="practice-applies">Applies to Nevada (Clark County)</span>
                 <span className="muted">{SALE_BLURB[s]}</span>
                 <span className="practice-card-foot">
                   <span className="badge tone-info">{runs.length} {runs.length === 1 ? 'property' : 'properties'}</span>
@@ -177,6 +201,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
                 <span className="practice-card-type">{p.label}</span>
               </span>
               <span className="practice-prop-kind">{look.kind} · {p.city}</span>
+              <span className="practice-applies">Applies to Nevada (Clark County)</span>
               {fact && <span className="practice-prop-fact"><span>{fact.label}</span> <strong>{fact.value}</strong></span>}
               <span className="practice-card-foot">
                 {pct > 0 ? <span className="badge tone-go">{pct === 100 ? 'Completed' : `${pct}% done`}</span> : <span className="practice-prop-go">Practice this one</span>}

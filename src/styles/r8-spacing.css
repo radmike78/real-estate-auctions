@@ -1,0 +1,28 @@
+/* Section spacing: a consistent, roomier gap between the main parts of every page. Loads last. */
+
+/* Top-level sections on a page sit 40px apart; sections nested inside a section keep a tighter 24px. */
+.page section { margin-bottom: 40px; }
+.page section section { margin-bottom: 24px; }
+.page section > :last-child { margin-bottom: 0; }
+
+/* Home: the six steps, the next-step panel and "How DeedOwl counts your progress" are separate parts. */
+.home .path-steps { margin-bottom: 44px; }
+.home .plan-now { margin: 0 0 44px; }
+.home .progress-kinds-head { margin-top: 0; }
+
+/* Guide hubs: the card row and the first group of guides no longer touch. */
+nav.drill-tiles + .guide-group, nav.drill-tiles + section { margin-top: 40px; }
+
+/* Blocks that sat almost on top of each other. */
+.you-get + .top-mistake { margin-top: 24px; }
+.pro-guide-does + .pro-learn { margin-top: 28px; }
+.story-grid + .story-more { margin-top: 24px; }
+.roadmap-script + p { margin-top: 16px; }
+.county-sales-notes { margin-bottom: 24px; }
+.page .notice + .drill-tiles, .page p.notice + nav { margin-top: 28px; }
+.page aside.disclaimer { margin-top: 36px; }
+
+@media (max-width: 640px) {
+  .page section { margin-bottom: 28px; }
+  .home .path-steps, .home .plan-now { margin-bottom: 32px; }
+}

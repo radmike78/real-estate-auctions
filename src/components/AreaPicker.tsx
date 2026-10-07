@@ -7,7 +7,7 @@ import { STATES, countyName, type StateCode } from '../lib/regions';
 import { useModal } from '../lib/useModal';
 import PlaceCombobox from './PlaceCombobox';
 
-export function AreaPicker({ onDone, doneLabel = 'Done', extra }: { onDone?: () => void; doneLabel?: string; extra?: ReactNode }) {
+export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false }: { onDone?: () => void; doneLabel?: string; extra?: ReactNode; /** The done button works with no state chosen (it just closes). */ optional?: boolean }) {
   const [area, setArea] = useMyArea();
   const [state, setState] = useState<StateCode | null>(area?.state ?? null);
   const [typed, setTyped] = useState(area?.city ?? '');
@@ -45,7 +45,10 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra }: { onDone?: () 
   };
   const needsCounty = !!picked && picked.counties.length > 1 && !(county && picked.counties.includes(county));
   const save = () => {
-    if (!state) return;
+    if (!state) {
+      if (optional) onDone?.();
+      return;
+    }
     if (needsCounty) return;
     const a: Area = picked && county ? { state, city: picked.name, county } : { state, city: null, county: null };
     setArea(a);
@@ -114,7 +117,7 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra }: { onDone?: () 
         </div>
       )}
       <div className="row">
-        <button type="button" className="btn" disabled={!state || needsCounty} onClick={save}>{doneLabel}</button>
+        <button type="button" className="btn" disabled={(!state && !optional) || needsCounty} onClick={save}>{doneLabel}</button>
         {needsCounty && <span className="small muted">Choose the county first.</span>}
         {extra ?? (area && <button type="button" className="btn btn-secondary" onClick={() => { setArea(null); onDone?.(); }}>Clear my area</button>)}
       </div>

@@ -4,18 +4,21 @@ import PageHero from './PageHero';
 import { STATES } from '../lib/regions';
 import { getMyState } from '../lib/myState';
 import { fmtMoney } from '../lib/status';
-import { cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP, ROADMAP_PATHS, ROADMAP_PHASES, roadmapFor, LIEN_STRATEGY, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
+import { cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP_PATHS, ROADMAP_PHASES, roadmapFor, LIEN_STRATEGY, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
 import { downloadText, fileName } from '../lib/download';
 import { cleanLog, logText } from '../lib/evidence';
 import { makeBackup, readBackup, restoreBackup } from '../lib/progressBackup';
 import { loadDeals as loadAnalyzed } from '../lib/analyze';
-import { nextAction } from '../lib/dealPacket';
 import { docGuide, DOC_GUIDES } from '../lib/docGuides';
 import NarrowDown from './NarrowDown';
 import { toolkitConfig } from '../lib/narrow';
 import DocGuideView from './DocGuideView';
 import { EvidenceArea } from './EvidenceLog';
-import { cleanDealSteps, DEAL_ID, DEAL_KEY, DEAL_STEPS_KEY, type DealSteps } from '../lib/roadmapDeals';
+import { cleanDealSteps, DEAL_KEY, DEAL_STEPS_KEY, type DealSteps } from '../lib/roadmapDeals';
+import { cleanStatus, dealScoped, focusDealId, NO_DEAL, pathForDeal, planPath, PROGRESS_EVENT, progressChanged, ROADMAP_KEY, ROADMAP_PATH_KEY, roadmapDone, roadmapPath, roadmapProgress, STATUS_KEY } from '../lib/roadmapState';
+import { stageLabel, stageOf, stageOfStep, STAGE_STEPS, DEAL_STAGES } from '../lib/dealStage';
+import PlanNext from './PlanNext';
+import { planNow } from '../lib/planNext';
 import { cashForPrice, cleanGoal, cleanTeamList, GOAL_KEY, PLAN_EVENT, PRICE_DEFAULTS, priceForCash, TEAM_LIST_KEY, TEAM_ROLES, type PriceAssumptions, type TeamList, type TeamMember } from '../lib/myPlan';
 import { currentProgress } from '../lib/journey';
 import { DECIDE_KEY, QUESTIONS, rank, type Answers } from '../lib/decide';
@@ -28,8 +31,6 @@ import { RotatingAd } from './AdBoxes';
 import { useSpotCategories } from './AdSpot';
 import { useDirectory } from './ProDirectory';
 
-const ROADMAP_KEY = 'deedowl.roadmap.v1';
-const ROADMAP_PATH_KEY = 'deedowl.roadmap.path.v1';
 const BUYBOX_KEY = 'deedowl.buybox.v1';
 
 function read<T>(key: string, fallback: T, clean: (v: unknown) => T): T {
@@ -47,37 +48,9 @@ function write(key: string, v: unknown) {
     /* private mode: not kept */
   }
 }
-const cleanIds = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string' && ROADMAP.some((s) => s.id === x)) : []);
-const cleanPath = (v: unknown): RoadmapPath => (v === 'auction' || v === 'certificate' ? v : 'listing');
-const STATUS_KEY = 'deedowl.roadmap.status.v1';
-const STATUSES: StepStatus[] = ['doing', 'waiting', 'stopped', 'na'];
-const cleanStatus = (v: unknown): Record<string, StepStatus> => {
-  const out: Record<string, StepStatus> = {};
-  if (v && typeof v === 'object' && !Array.isArray(v))
-    for (const [k, x] of Object.entries(v)) if (ROADMAP.some((s) => s.id === k) && STATUSES.includes(x as StepStatus)) out[k] = x as StepStatus;
-  return out;
-};
-
-// Steps 4 to 7 (find, buy, own, exit) belong to one property. With a deal chosen, their progress is kept for that deal,
-// so two properties can be at different stages; steps 1 to 3 are the learner's own, whatever the deal.
-const dealScoped = (s: RoadmapStep) => s.phase >= 4;
-
-/** Ticked roadmap steps, for the homepage progress line. */
-export const roadmapDone = () => read(ROADMAP_KEY, [] as string[], cleanIds);
-/** How the visitor plans to buy: through an agent, at an auction, or lien certificates. */
-export const roadmapPath = () => read(ROADMAP_PATH_KEY, 'listing' as RoadmapPath, cleanPath);
-/** Steps done out of the steps on the visitor's path. */
-export function roadmapProgress() {
-  const steps = roadmapFor(roadmapPath());
-  const done = roadmapDone();
-  const status = read(STATUS_KEY, {}, cleanStatus);
-  // The same count My plan shows: "doesn't apply" counts as settled, and steps 4 to 6 count for the chosen property.
-  const chosen = read(DEAL_KEY, '', (v) => (typeof v === 'string' && DEAL_ID.test(v) ? v : ''));
-  const active = chosen && loadAnalyzed().some((d) => `analyzed:${d.id}` === chosen) ? chosen : '';
-  const per = active ? read(DEAL_STEPS_KEY, {}, cleanDealSteps)[active] ?? { done: [], status: {} } : null;
-  const settled = (s: RoadmapStep) => (per && dealScoped(s) ? per.done.includes(s.id) || per.status[s.id] === 'na' : done.includes(s.id) || status[s.id] === 'na');
-  return { done: steps.filter(settled).length, total: steps.length };
-}
+// Where the roadmap's progress is kept, and how it's counted, lives in roadmapState.ts (the home page and My plan's
+// next step count the same way). Re-exported for the pages that used to read it from here.
+export { roadmapDone, roadmapPath, roadmapProgress };
 
 /** Fired when the cash, buy box or team changes, so the roadmap can offer to mark their steps done. */
 const PLAN_CHANGED = 'deedowl:plan-changed';
@@ -193,29 +166,42 @@ function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: Step
 export function FirstDealRoadmap() {
   const [done, setDone] = useState<string[]>(roadmapDone);
   const [status, setStatusMap] = useState<Record<string, StepStatus>>(() => read(STATUS_KEY, {}, cleanStatus));
-  const [path, setPath] = useState<RoadmapPath>(roadmapPath);
-  const [deals] = useState(loadAnalyzed);
-  const [dealId, setDealId] = useState(() => read(DEAL_KEY, '', (v) => (typeof v === 'string' && DEAL_ID.test(v) ? v : '')));
+  const [path, setPath] = useState<RoadmapPath>(() => planPath());
+  const [deals, setDeals] = useState(loadAnalyzed);
+  // The property in focus: the one chosen here or at the top of My plan, else the one you worked on last.
+  const [dealId, setDealId] = useState(() => focusDealId());
   const [perDeal, setPerDeal] = useState<DealSteps>(() => read(DEAL_STEPS_KEY, {}, cleanDealSteps));
   const { pros } = useDirectory();
-  useEffect(() => write(ROADMAP_KEY, done), [done]);
-  useEffect(() => write(STATUS_KEY, status), [status]);
-  useEffect(() => write(ROADMAP_PATH_KEY, path), [path]);
-  useEffect(() => write(DEAL_KEY, dealId), [dealId]);
-  useEffect(() => write(DEAL_STEPS_KEY, perDeal), [perDeal]);
-  // Redraw when your goal, cash, buy box or team changes elsewhere on the page.
+  // Saved when you change something (not on every visit), then every "next step" on the site is told.
+  const save = (key: string, v: unknown) => {
+    write(key, v);
+    progressChanged();
+  };
+  // Redraw when your goal, cash, buy box or team changes elsewhere on the page, and follow the property and its
+  // stage when they're changed at the top of My plan.
   const [, setTick] = useState(0);
   useEffect(() => {
     const on = () => setTick((n) => n + 1);
+    const reload = () => {
+      setDone(roadmapDone());
+      setStatusMap(read(STATUS_KEY, {}, cleanStatus));
+      setPath(planPath());
+      setDeals(loadAnalyzed());
+      setDealId(focusDealId());
+      setPerDeal(read(DEAL_STEPS_KEY, {}, cleanDealSteps));
+    };
     window.addEventListener(PLAN_CHANGED, on);
     window.addEventListener(PLAN_EVENT, on);
+    window.addEventListener(PROGRESS_EVENT, reload);
     return () => {
       window.removeEventListener(PLAN_CHANGED, on);
       window.removeEventListener(PLAN_EVENT, on);
+      window.removeEventListener(PROGRESS_EVENT, reload);
     };
   }, []);
   const active = deals.find((d) => `analyzed:${d.id}` === dealId);
   const deal = active ? { id: `analyzed:${active.id}`, name: active.name } : undefined;
+  const stage = active ? stageOf(active) : undefined;
   const scoped = (s: RoadmapStep) => !!deal && dealScoped(s);
   const doneOf = (s: RoadmapStep) => (scoped(s) ? (perDeal[deal!.id]?.done ?? []).includes(s.id) : done.includes(s.id));
   const statusOf = (s: RoadmapStep): StepStatus | undefined => (scoped(s) ? perDeal[deal!.id]?.status[s.id] : status[s.id]);
@@ -226,9 +212,17 @@ export function FirstDealRoadmap() {
   const naCount = steps.filter((s) => !doneOf(s) && statusOf(s) === 'na').length;
   const stateOf = (s: RoadmapStep): StepStatus | 'done' | 'todo' => (doneOf(s) ? 'done' : statusOf(s) ?? 'todo');
   const walked = steps.find((s) => statusOf(s) === 'stopped' && !doneOf(s));
+  // With a property chosen, the next step follows its stage: a candidate you're researching gets the "find and check"
+  // steps, and the offer, deposit and inspection steps only come once it's at that stage.
+  const stageNext = stage ? steps.find((s) => STAGE_STEPS[stage].includes(s.id) && !settled(s) && statusOf(s) !== 'stopped') : undefined;
   // After walking away, the step you stopped at stays the next step (start it again with the next property),
   // rather than the later steps of a deal you left.
-  const next = walked ?? steps.find((s) => !settled(s) && statusOf(s) !== 'stopped');
+  const next = walked ?? stageNext ?? steps.find((s) => !settled(s) && statusOf(s) !== 'stopped' && (!stage || !dealScoped(s) || DEAL_STAGES.indexOf(stageOfStep(s.id) ?? 'researching') <= DEAL_STAGES.indexOf(stage)));
+  // A step that belongs to a later stage of the property in focus.
+  const later = (s: RoadmapStep) => {
+    const st = stageOfStep(s.id);
+    return !!stage && stage !== 'passed' && !!st && dealScoped(s) && DEAL_STAGES.indexOf(st) > DEAL_STAGES.indexOf(stage) ? st : undefined;
+  };
   // The Mentor Connect spot beside the next step (Admin → Ad spots); automatic: whoever the step says to call.
   const nextAdCats = useSpotCategories('toolkit', next ? stepAdCategories(next, path) : []);
   // The phase holding the next step starts open; after that, phases stay as the reader leaves them.
@@ -244,14 +238,22 @@ export function FirstDealRoadmap() {
   const setStatus = (s: RoadmapStep, v: StepStatus | 'done' | 'todo') => {
     if (scoped(s)) {
       const k = deal!.id;
-      setPerDeal((all) => {
-        const cur = all[k] ?? { done: [], status: {} };
-        return { ...all, [k]: { done: nextDone(cur.done, s.id, v), status: nextStatus(cur.status, s.id, v) } };
-      });
+      const cur = perDeal[k] ?? { done: [], status: {} };
+      const all = { ...perDeal, [k]: { done: nextDone(cur.done, s.id, v), status: nextStatus(cur.status, s.id, v) } };
+      setPerDeal(all);
+      save(DEAL_STEPS_KEY, all);
       return;
     }
-    setDone((d) => nextDone(d, s.id, v));
-    setStatusMap((m) => nextStatus(m, s.id, v));
+    const d = nextDone(done, s.id, v);
+    const m = nextStatus(status, s.id, v);
+    setDone(d);
+    setStatusMap(m);
+    write(ROADMAP_KEY, d);
+    save(STATUS_KEY, m);
+  };
+  const choosePath = (k: RoadmapPath) => {
+    setPath(k);
+    save(ROADMAP_PATH_KEY, k);
   };
   return (
     <section id="roadmap" aria-labelledby="roadmap-head">
@@ -260,7 +262,7 @@ export function FirstDealRoadmap() {
       <div className="roadmap-path" role="group" aria-label="How you’ll buy">
         <span className="roadmap-path-label">How you’ll buy:</span>
         {(Object.keys(ROADMAP_PATHS) as RoadmapPath[]).map((k) => (
-          <button key={k} type="button" aria-pressed={path === k} onClick={() => setPath(k)}>{ROADMAP_PATHS[k].label}</button>
+          <button key={k} type="button" aria-pressed={path === k} onClick={() => choosePath(k)}>{ROADMAP_PATHS[k].label}</button>
         ))}
         <span className="muted">{ROADMAP_PATHS[path].hint}</span>
       </div>
@@ -271,9 +273,14 @@ export function FirstDealRoadmap() {
             value={deal ? deal.id : ''}
             onChange={(e) => {
               setDealId(e.target.value);
+              write(DEAL_KEY, e.target.value || NO_DEAL);
               // The route follows the property's kind of sale, so its steps fit it.
               const d = deals.find((x) => `analyzed:${x.id}` === e.target.value);
-              if (d) setPath(d.kind === 'lien' ? 'certificate' : d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short' ? 'listing' : 'auction');
+              if (d) {
+                setPath(pathForDeal(d));
+                write(ROADMAP_PATH_KEY, pathForDeal(d));
+              }
+              progressChanged();
             }}
           >
             <option value="">None yet (learning)</option>
@@ -284,10 +291,18 @@ export function FirstDealRoadmap() {
           {deal
             ? `Steps 4 to 7 (find, buy, own, then sell, refinance or trade) are tracked for ${deal.name} only, and what you record goes into its evidence log. Steps 1 to 3 are yours, whatever the property.`
             : deals.length
-              ? 'Choose a property to track steps 4 to 6 for it. Each property keeps its own progress and evidence.'
-              : 'To track steps 4 to 6 for a real property, save it in Analyze first. Each property keeps its own progress and evidence.'}
+              ? 'Choose a property to track steps 4 to 7 for it. Each property keeps its own progress and evidence.'
+              : 'To track steps 4 to 7 for a real property, save it in Analyze first. Each property keeps its own progress and evidence.'}
         </p>
       </div>
+      {active && stage && (
+        <p className="roadmap-stage-note">
+          <strong>{active.name}: {stageLabel(stage, active)}.</strong>{' '}
+          {stage === 'passed'
+            ? 'You walked away from it, so none of its steps are next. Choose another property, or find the next one.'
+            : 'Its next step below follows that stage; steps for later stages are marked and wait until you get there. Change the stage at the top of My plan.'}
+        </p>
+      )}
       <p className="decide-progress">
         {count} of {steps.length} steps done{naCount > 0 && ` (${naCount} marked “doesn’t apply”)`}
         <span className="decide-bar" role="progressbar" aria-label="Investing roadmap" aria-valuemin={0} aria-valuemax={steps.length} aria-valuenow={count}><span style={{ width: `${Math.round((count / steps.length) * 100)}%` }} /></span>
@@ -301,8 +316,8 @@ export function FirstDealRoadmap() {
         // Beside the next step, one labeled Mentor Connect ad (nextAdCats). Automatic: whoever the step says to call,
         // buying through an agent only, never on auction or lien-certificate steps (contextAds.ts).
         <div className={nextAdCats.length ? 'next-with-ad' : undefined}>
-          <div className="roadmap-next">
-            <p className="roadmap-next-label">Your next step · {ROADMAP_PHASES[next.phase]}{scoped(next) ? ` · ${deal!.name}` : ''}</p>
+          <div className="roadmap-next" id="roadmap-next">
+            <p className="roadmap-next-label">Next roadmap step · {ROADMAP_PHASES[next.phase]}{scoped(next) ? ` · ${deal!.name}` : ''}</p>
             <h3>{next.title}</h3>
             <StepBody s={next} status={stateOf(next)} setStatus={(v) => setStatus(next, v)} deal={deal} />
           </div>
@@ -323,10 +338,11 @@ export function FirstDealRoadmap() {
             <div className="roadmap-steps">
               {ph.steps.map((s) => {
                 const st = stateOf(s);
+                const wait = st === 'todo' ? later(s) : undefined;
                 return (
                   <details key={s.id} className={`roadmap-step ${st}`}>
                     <summary>
-                      <span className="roadmap-step-title">{s.title}</span>
+                      <span className="roadmap-step-title">{s.title}{wait && active && <span className="roadmap-later"> · Later stage: {stageLabel(wait, active)}</span>}</span>
                       <span className={`roadmap-chip ${st}`}>{STEP_STATUS_LABEL[st]}</span>
                     </summary>
                     <StepBody s={s} status={st} setStatus={(v) => setStatus(s, v)} deal={deal} />
@@ -628,7 +644,8 @@ function planText(): string {
   const b = read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox);
   const team = read(TEAM_LIST_KEY, {}, cleanTeamList);
   const cash = investableCash();
-  const lines = ['MY INVESTING PLAN', 'DeedOwl educational worksheet.', '', 'GOAL', read(GOAL_KEY, '', cleanGoal) || '(not written yet)', '', 'CASH'];
+  const now = planNow();
+  const lines = ['MY INVESTING PLAN', 'DeedOwl educational worksheet.', '', 'GOAL', read(GOAL_KEY, '', cleanGoal) || '(not written yet)', '', `NEXT STEP (${now.context})`, `${now.task.label}. You’ll have ${now.task.produces}.`, '', 'CASH'];
   lines.push(cash > 0 ? `Investable cash: ${fmtMoney(cash)}. With 25% down, 3% closing costs and 6 months of reserves, it supports a price up to about ${fmtMoney(priceForCash(cash))}.` : '(not worked out yet)');
   lines.push('', buyBoxText(b, STATES.find((x) => x.code === b.state)?.name), '', `ROADMAP: ${ROADMAP_PATHS[path].label}`);
   for (const s of steps) lines.push(`[${done.includes(s.id) ? 'x' : status[s.id] === 'na' ? '-' : ' '}] ${ROADMAP_PHASES[s.phase]}: ${s.title}${status[s.id] && !done.includes(s.id) ? ` (${STEP_STATUS_LABEL[status[s.id]]})` : ''}`);
@@ -701,45 +718,22 @@ function ProgressBackup() {
   );
 }
 
-const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
 /** Everything free in one place: the first-deal roadmap, a buy box, and the calculators and checklists. */
 export default function ToolkitPage({ section }: { section?: string }) {
   useLastActivity('#/toolkit', 'My plan');
   useEffect(() => {
-    if (section === 'buy-box' || section === 'cash' || section === 'team' || section === 'paperwork') document.getElementById(section)?.scrollIntoView();
+    if (section === 'buy-box' || section === 'cash' || section === 'team' || section === 'paperwork' || section === 'roadmap') document.getElementById(section)?.scrollIntoView();
   }, [section]);
   return (
     <main className="page toolkit">
       <PageHero
         title={<>My <span className="grad">plan</span></>}
-        sub="Your investor toolkit: the roadmap of real-world tasks for an actual purchase (the progress that counts), a buy box to keep you focused, and every calculator and checklist on DeedOwl."
+        sub="Your real-world plan, one next step at a time: the roadmap of every task for an actual purchase (the progress that counts), a buy box to keep you focused, and every calculator and checklist on DeedOwl."
       />
-      {(() => {
-        // Coming back: the property you worked on last, and the one thing to do next on it.
-        const last = [...loadAnalyzed()].sort((x, y) => y.updatedAt.localeCompare(x.updatedAt))[0];
-        if (!last) return null;
-        return (
-          <section className="toolkit-start packet-resume" aria-labelledby="resume-head">
-            <h2 id="resume-head">Pick up where you left off: {last.name}</h2>
-            <p><strong>Next action.</strong> {nextAction(last).text}</p>
-            <div className="decide-nav">
-              <a className="btn" href={`#/deals/packet/${last.id}`}>Open its deal packet</a>
-              <a className="btn btn-secondary" href="#/deals">All my deals</a>
-            </div>
-          </section>
-        );
-      })()}
-      {!currentProgress().decided && <section className="toolkit-start" aria-labelledby="start-head">
-        <h2 id="start-head">Start your investing plan</h2>
-        <p>First, choose what you want from investing. You can change your answer later.</p>
-        <div className="decide-nav">
-          <a className="btn" href="#/decide">Choose my goal</a>
-          <button type="button" className="btn btn-secondary" onClick={() => jump('roadmap')}>See the full roadmap</button>
-        </div>
-      </section>}
-      {/* One way in at a time: choosing a goal comes first; after that, help finding the right part of the page. */}
-      {currentProgress().decided && <NarrowDown config={toolkitConfig()} intro="This page holds your whole plan and a lot of reference material. Tell us where you are and we’ll point you to the part to use first. Everything stays below." />}
+      {/* One panel: your goal, the next task, what it gives you and one Continue; for a saved property, its stage
+          (which picks the task); the roadmap or evidence summary alongside; and the optional helper. */}
+      <PlanNext variant="plan" helper={<NarrowDown config={toolkitConfig()} intro="This page holds your whole plan and a lot of reference material. Tell us where you are and we’ll point you to the part to use first. Everything stays below." />} />
       <FirstDealRoadmap />
       <CashWorksheet />
       <BuyBoxBuilder />

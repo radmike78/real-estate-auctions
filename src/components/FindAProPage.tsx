@@ -80,6 +80,9 @@ function storyScope(s: Story): StateCode[] | 'nationwide' | 'outside' {
   return OTHER_PLACES.test(s.who) ? 'outside' : 'nationwide';
 }
 
+/** A story that quotes interest rates (e.g. "offered 5.25%"). */
+const RATE_STORY = /\brates?\b[^.]*\d(?:\.\d+)?%|\d(?:\.\d+)?%[^.]*\brates?\b/i;
+
 function StoryCard({ s }: { s: Story }) {
   const scope = storyScope(s);
   return (
@@ -88,6 +91,8 @@ function StoryCard({ s }: { s: Story }) {
         <span className={`story-tag tag-${s.tone}`}>{s.tone === 'good' ? 'When it worked' : 'When it went wrong'}</span>
         {scope === 'nationwide' && <span className="story-tag tag-scope">Nationwide</span>}
         {scope === 'outside' && <span className="story-tag tag-scope">Outside our states</span>}
+        {/* Dated where everyone sees it: a mortgage rate from years ago isn't today's rate. */}
+        <span className="story-tag tag-date">{RATE_STORY.test(`${s.title} ${s.happened}`) ? `Rates as of ${s.year}, not today’s` : `From ${s.year}`}</span>
       </span>
       <span className="story-who">{s.who} · {s.year}</span>
       <strong className="story-title">{s.title}</strong>
@@ -185,14 +190,24 @@ function GuideBody({ g }: { g: ProGuide }) {
   if (box?.types[0]) fills['kind of property'] = box.types[0].toLowerCase();
   if (box?.area) fills.area = box.area;
   if (box?.priceMax) fills['$price'] = `$${box.priceMax.toLocaleString('en-US')}`;
-  const pay = money.length > 0 || checklist.length > 0 || !!lookups;
+  const find = fit(g.find);
+  const stories = deep?.stories ?? [];
   const learn = [
-    'When you need one, how to find one and what to ask',
-    script && 'What to say when you first get in touch, and what to have ready',
-    pay && 'How they’re paid, and what to check before you hire',
-    PRO_WHY[g.key] && `When hiring one is worth it, and when to be careful${deep?.stories.length ? ', with real stories from other buyers' : ''}`,
+    'The short version: when you need one, what to bring, what to ask and what you should get back',
+    find.length > 0 || checklist.length > 0 ? 'How to find one and check them before you hire' : '',
+    script && 'What to say when you first get in touch',
+    money.length > 0 && 'How they’re paid',
+    PRO_WHY[g.key] && 'When hiring one is worth it, and when to be careful',
+    (overview.length > 0 || stories.length > 0) && `The details${stories.length ? ' and real stories from other buyers' : ''}, folded away until you want them`,
   ].filter(Boolean) as string[];
   const keyed = overview.length > 0 && overview.every((p) => keyword(p));
+  // The decision first: four short columns that answer "do I need one, and what happens when I call?"
+  const decide: { title: string; items: string[]; cited?: boolean }[] = [
+    { title: 'When you need one', items: fit(g.when), cited: true },
+    { title: 'What to bring', items: script?.bring ?? [] },
+    { title: 'What to ask', items: fit(g.ask), cited: true },
+    { title: 'What you should get back', items: script?.get ?? [] },
+  ].filter((c) => c.items.length > 0);
   return (
     <div className="pro-guide">
       <StateLine />
@@ -201,65 +216,51 @@ function GuideBody({ g }: { g: ProGuide }) {
         <strong>What you’ll learn</strong>
         <ul>{learn.map((x) => <li key={x}>{x}</li>)}</ul>
       </div>
-      <h3 className="part-head">Hiring one</h3>
-      <div className="pro-guide-cols">
-        <section>
-          <h3>When you need one</h3>
-          <ul>{fit(g.when).map((x) => <li key={x}><Cited text={x} /></li>)}</ul>
-        </section>
-        <section>
-          <h3>How to find one</h3>
-          <ul>{fit(g.find).map((x) => <li key={x}><Cited text={x} /></li>)}</ul>
-        </section>
-        <section>
-          <h3>Questions to ask</h3>
-          <ul>{fit(g.ask).map((x) => <li key={x}><Cited text={x} /></li>)}</ul>
-        </section>
+      <h3 className="part-head">The short version</h3>
+      <div className="pro-guide-cols pro-decide-cols">
+        {decide.map((c) => (
+          <section key={c.title}>
+            <h3>{c.title}</h3>
+            <ul>{c.items.map((x) => <li key={x}>{c.cited ? <Cited text={x} /> : x}</li>)}</ul>
+          </section>
+        ))}
       </div>
+      {(find.length > 0 || checklist.length > 0 || script?.read || lookups) && (
+        <>
+          <h3 className="part-head">Finding and checking one</h3>
+          <div className="pro-guide-cols pro-find-cols">
+            {find.length > 0 && <section><h3>How to find one</h3><ul>{find.map((x) => <li key={x}><Cited text={x} /></li>)}</ul></section>}
+            {script?.read && <section><h3>{script.read.title}</h3><ul>{script.read.items.map((x) => <li key={x}>{x}</li>)}</ul></section>}
+            {checklist.length > 0 && <section><h3>Check before you hire</h3><ul>{checklist.map((x) => <li key={x}><Cited text={x} /></li>)}</ul></section>}
+          </div>
+          {lookups && <LicenseCheck lookups={lookups} state={st} said={does} />}
+        </>
+      )}
       {script && (
         <>
           <h3 className="part-head">What to say</h3>
-          <div className="pro-guide-cols pro-script-cols">
-            <section className="pro-script-say">
-              <h3>Your opening</h3>
-              {/\[/.test(script.say) && (
-                <p className="fill-note">Fill in the blanks: the <span className="fill-blank">underlined words</span> are yours to change{Object.keys(fills).length ? ', and some are filled in from your buy box' : ''}.</p>
-              )}
-              <Script say={script.say} fills={fills} />
-            </section>
-            {script.bring && (
-              <section>
-                <h3>Have ready</h3>
-                <ul>{script.bring.map((x) => <li key={x}>{x}</li>)}</ul>
-              </section>
+          <section className="pro-script-say pro-script-wide">
+            {/\[/.test(script.say) && (
+              <p className="fill-note">Fill in the blanks: the <span className="fill-blank">underlined words</span> are yours to change{Object.keys(fills).length ? ', and some are filled in from your buy box' : ''}.</p>
             )}
-            {script.read && (
-              <section>
-                <h3>{script.read.title}</h3>
-                <ul>{script.read.items.map((x) => <li key={x}>{x}</li>)}</ul>
-              </section>
-            )}
-          </div>
+            <Script say={script.say} fills={fills} />
+          </section>
         </>
       )}
       {/* The Featured ad spot gets its own full-width row, so no box is left half empty beside it. */}
       {g.directory && script && <div className="pro-ad-row"><FeaturedAds pros={pros} categories={g.directory} placeholder /></div>}
-      {pay && (
+      {money.length > 0 && (
         <>
-          <h3 className="part-head">Paying them and checking them</h3>
-          {(money.length > 0 || checklist.length > 0) && (
-            <div className="pro-guide-cols pro-pay-cols">
-              {money.length > 0 && <section><h3>How they’re paid</h3><ul>{money.map((x) => <li key={x}><Cited text={x} /></li>)}</ul></section>}
-              {checklist.length > 0 && <section><h3>Check before you hire</h3><ul>{checklist.map((x) => <li key={x}><Cited text={x} /></li>)}</ul></section>}
-            </div>
-          )}
-          {lookups && <LicenseCheck lookups={lookups} state={st} said={does} />}
+          <h3 className="part-head">How they’re paid</h3>
+          <ul className="pro-pay-list">{money.map((x) => <li key={x}><Cited text={x} /></li>)}</ul>
         </>
       )}
       <p className="pro-next"><a className="btn" href="#/toolkit/team">Add them to your team in My{NBSP}plan{NBSP}→</a></p>
+      {PRO_WHY[g.key] && <h3 className="part-head">Should you hire one?</h3>}
+      {PRO_WHY[g.key] && <WhyBlock yes={PRO_WHY[g.key].yes} no={PRO_WHY[g.key].no} yesLabel="Why you would hire one" noLabel="Why you might not, or when to be careful" />}
       {overview.length > 0 && (
-        <>
-          <h3 className="part-head">Working with one</h3>
+        <details className="pro-fold">
+          <summary><h3 className="part-head">The details: how working with one goes, and the evidence</h3></summary>
           {keyed ? (
             <ul className="pro-guide-overview pro-overview-list">
               {overview.map((p) => {
@@ -270,16 +271,14 @@ function GuideBody({ g }: { g: ProGuide }) {
           ) : (
             <div className="pro-guide-overview">{overview.map((p) => <p key={p}><Cited text={p} /></p>)}</div>
           )}
-        </>
+        </details>
       )}
-      {PRO_WHY[g.key] && <h3 className="part-head">Should you hire one?</h3>}
-      {PRO_WHY[g.key] && <WhyBlock yes={PRO_WHY[g.key].yes} no={PRO_WHY[g.key].no} yesLabel="Why you would hire one" noLabel="Why you might not, or when to be careful" />}
-      {deep && deep.stories.length > 0 && (
-        <div className="pro-guide-stories">
-          <h3 className="part-head">Real stories: what happened to other buyers</h3>
-          <p className="muted">True accounts from news reports, court cases and government agencies. Private people aren’t named.</p>
-          <ProStories stories={deep.stories} state={st} />
-        </div>
+      {stories.length > 0 && (
+        <details className="pro-fold pro-guide-stories">
+          <summary><h3 className="part-head">Real stories: what happened to other buyers ({stories.length})</h3></summary>
+          <p className="muted">True accounts from news reports, court cases and government agencies. Private people aren’t named. Each one is dated: prices, rates and rules may have changed since.</p>
+          <ProStories stories={stories} state={st} />
+        </details>
       )}
       {g.directory && (
         <ProDirectory

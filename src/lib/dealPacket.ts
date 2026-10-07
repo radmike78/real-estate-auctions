@@ -11,6 +11,7 @@ import { commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DE
 import { cleanGoal, GOAL_KEY, investorProfile, TEAM_ROLES } from './myPlan';
 import { proGuideByKey } from './proGuide';
 import { countyName } from './regions';
+import { dealNextTask, stageLabel, stageOf } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -101,10 +102,13 @@ export function removePacket(dealId: string) {
 
 const isOffer = (d: Pick<Deal, 'kind'>) => d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short';
 
+/** Texas financing dates: the appraisal addendum (49-1) and the financing addendum's two approvals (40-11, paragraph 2A and 2B). */
+const TX_LOAN_DATES = ['Appraisal addendum deadline, if you have one (49-1: notice plus a copy of the appraisal to the seller)', 'Buyer Approval deadline (40-11, 2A: notice plus the lender’s written statement)', 'Property Approval deadline (40-11, 2B: 3rd day before closing)'];
+
 /** The dates most deals of this kind need on the calendar, to start the list from. */
 export function suggestedDates(d: Pick<Deal, 'kind' | 'state'>): string[] {
-  if (d.kind === 'short') return ['Contract signed', 'Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)', d.state === 'TX' ? 'Option period ends (5 p.m.)' : 'Inspection period ends', 'Loan approval deadline', 'Closing'];
-  if (isOffer(d)) return ['Offer accepted (Day 0)', d.state === 'TX' ? 'Earnest money and option fee due (within 3 days after the effective date)' : 'Earnest money due', d.state === 'TX' ? 'Option period ends (5 p.m.)' : 'Inspection period ends', 'Appraisal deadline', 'Loan approval deadline', 'Closing'];
+  if (d.kind === 'short') return ['Contract signed', 'Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)', d.state === 'TX' ? 'Option period ends (5 p.m.)' : 'Inspection period ends', ...(d.state === 'TX' ? TX_LOAN_DATES.slice(1) : ['Loan approval deadline']), 'Closing'];
+  if (isOffer(d)) return ['Offer accepted (Day 0)', ...(d.state === 'TX' ? ['Earnest money due (within 3 days after the effective date; a last day on a weekend or legal holiday moves to the next day that isn’t one; if late, the seller can end the contract until you deliver it)', 'Option fee due (same 3 days and weekend rule; if late, you lose the right to end the contract during the option period)'] : ['Earnest money due']), d.state === 'TX' ? 'Option period ends (5 p.m.)' : 'Inspection period ends', ...(d.state === 'TX' ? TX_LOAN_DATES : ['Appraisal deadline', 'Loan approval deadline']), 'Closing'];
   if (d.kind === 'lien') return ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien'];
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
   if (['taxSale', 'hoa', 'irs', 'court'].includes(d.kind) && !(d.state === 'TX' && d.kind === 'court')) out.push('Redemption period ends');
@@ -269,10 +273,10 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   // 5. Numbers: base and downside, for the deal's strategy only
   const nums: string[] = [`Strategy: ${strategy}. These are the numbers you saved in its calculator; other strategies’ calculators aren’t counted.`];
   if (rent) {
-    nums.push(`Monthly cash flow at ${money(rent.price)}: ${money(rent.monthly)}; ${rent.cashOnCash === null ? 'all your cash back' : `${(rent.cashOnCash * 100).toFixed(1)}% a year on your cash`} (target ${rent.target}%)`);
+    nums.push(`${offer ? 'Your offer' : 'Your bid'} (your actual price): ${money(rent.price)} → monthly cash flow ${money(rent.monthly)}; ${rent.cashOnCash === null ? 'all your cash back' : `${(rent.cashOnCash * 100).toFixed(1)}% a year on your cash`} (target ${rent.target}%)`);
     for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase()}: ${money(s.monthly)} a month`);
   }
-  if (bid) nums.push(bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and your profit target` : `Walk-away price: ${money(bid.maxBid)}, based on a ${money(bid.exitValue)} resale value`);
+  if (bid) nums.push(bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and your profit target` : `Walk-away price: ${money(bid.maxBid)}, the most you could pay and still meet your goal (not your actual price), based on a ${money(bid.exitValue)} resale value`);
   if (commercial) nums.push(`Highest price for a ${commercial.capPct}% return on cost: ${money(commercial.maxBid)}, on ${money(commercial.noi)} a year of net operating income`);
   if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');
   out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: (rent && rent.stress.length > 1) || bid || commercial ? 'done' : 'missing', lines: nums, fix: { label: 'Open in Analyze', href: '#/analyze' } });
@@ -310,29 +314,19 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   return out;
 }
 
-/** The one thing to do next, with where to do it. */
+/**
+ * The one thing to do next, with where to do it. It follows the deal's stage (dealStage.ts): a candidate you're
+ * researching gets research tasks, and the accepted-offer deadlines only come up once it's under contract.
+ */
 export function nextAction(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}`), now = new Date()): { text: string; href?: string } {
-  const nd = nextDate(p, now);
-  if (nd && nd.days <= 7) return { text: `${nd.days === 0 ? 'Today' : nd.days === 1 ? 'Tomorrow' : `In ${nd.days} days`}: ${nd.what}.${nd.who ? ` Who: ${nd.who}.` : ''}` };
-  const log = loadLog(`analyzed:${d.id}`);
-  const openRow = EVIDENCE_AREAS.map((a) => ({ a, r: log.rows[a.key] })).find(({ r }) => r?.open && !r.done);
-  if (openRow) return { text: `Get an answer to: ${openRow.r.open}${openRow.r.owner ? ` (${openRow.r.owner})` : ''}.` };
-  const waiting = p.qa.find((x) => x.q && !x.a);
-  if (waiting) return { text: `Get an answer from your ${(proGuideByKey(waiting.role as never)?.title ?? 'professional').toLowerCase()}: ${waiting.q}` };
-  const n = savedNumbers(d);
-  if (d.plan !== 'lien' && !n.rent && !n.bid && !n.commercial) return { text: d.plan === 'rent' ? 'Run Keep and rent with the price you’d pay, so the packet has your numbers and downside cases.' : d.plan === 'flip' ? `Set your walk-away price in Fix and sell before you ${isOffer(d) ? 'make an offer' : 'bid'}.` : 'Run Commercial income to find the most this building’s income supports.', href: '#/analyze' };
-  if (!p.dates.some((x) => x.when)) return { text: `Put the deal’s dates on its calendar: ${suggestedDates(d).slice(0, 3).join(', ')}.` };
-  const unchecked = EVIDENCE_AREAS.find((a) => !log.rows[a.key]?.done);
-  if (unchecked) return { text: `Check “${unchecked.title}”: ${unchecked.what}` };
-  if (!log.gate) return { text: 'Every area is checked: record your decision and why.' };
-  if (nd) return { text: `Next date, in ${nd.days} days: ${nd.what}.` };
-  return { text: 'Review your decision with your professionals before you commit.' };
+  const t = dealNextTask(d, p, now);
+  return { text: t.urgent ? t.text : `${t.label}. You’ll have ${t.produces}.`, href: t.openDeal ? '#/analyze' : undefined };
 }
 
 /** The whole packet as plain text, to download, print or share with your professionals. */
 export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}`), now = new Date()): string {
   const lines = [`DEAL PACKET: ${d.name}`, 'DeedOwl educational worksheet. Every number is your estimate until a source backs it; a checkmark records your review, not a clear title.', ''];
-  lines.push(`NEXT ACTION: ${nextAction(d, p, now).text}`, '');
+  lines.push(`STAGE: ${stageLabel(stageOf(d), d)}`, `NEXT ACTION: ${nextAction(d, p, now).text}`, '');
   for (const s of packetSections(d, p, now)) {
     lines.push(`${s.title.toUpperCase()} [${s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines, '');
   }

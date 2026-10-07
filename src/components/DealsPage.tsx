@@ -17,6 +17,7 @@ import { countyName } from '../lib/regions';
 import StatusBadge from './StatusBadge';
 import { dealNumbers } from '../lib/propertyPacket';
 import { nextAction } from '../lib/dealPacket';
+import { stageLabel, stageOf } from '../lib/dealStage';
 import AdSpot from './AdSpot';
 
 function DealCard({ d, p, loading, known }: { d: SavedDeal; p: Property | undefined; loading: boolean; known: boolean }) {
@@ -181,12 +182,12 @@ export default function DealsPage() {
                   <div className="deal-head">
                     <div>
                       <h3><button type="button" className="linkish" onClick={() => openDeal(d)}>{d.name}</button></h3>
-                      <p className="muted">{kindLabel(k, d.state)} · {countyName(d.county)}, {d.state} · checklist {done} of {all.length} done</p>
+                      <p className="muted"><strong>{stageLabel(stageOf(d), d)}</strong> · {kindLabel(k, d.state)} · {countyName(d.county)}, {d.state} · checklist {done} of {all.length} done</p>
                       {(() => {
                         const n = dealNumbers(d);
                         return n ? (
                           <p className={n.monthly <= 0 || (n.cashOnCash !== null && n.cashOnCash < n.target / 100) ? 'deal-urgent' : undefined}>
-                            At {fmtMoney(n.price)}: {n.monthly < 0 ? `loses ${fmtMoney(Math.round(-n.monthly))}` : `${fmtMoney(Math.round(n.monthly))} cash flow`} a month · {n.cashOnCash === null ? 'all your cash back' : `${(n.cashOnCash * 100).toFixed(1)}% a year on ${fmtMoney(Math.round(n.cashIn))} of your cash`} (target {n.target}%)
+                            At your price, {fmtMoney(n.price)}: {n.monthly < 0 ? `loses ${fmtMoney(Math.round(-n.monthly))}` : `${fmtMoney(Math.round(n.monthly))} cash flow`} a month · {n.cashOnCash === null ? 'all your cash back' : `${(n.cashOnCash * 100).toFixed(1)}% a year on ${fmtMoney(Math.round(n.cashIn))} of your cash`} (target {n.target}%)
                           </p>
                         ) : d.plan === 'rent' ? <p className="muted">No numbers yet: open it and enter the price you’d pay under Keep and rent.</p> : null;
                       })()}

@@ -46,6 +46,14 @@ export const PLANS: { key: Plan; label: string }[] = [
 /** Plans that make sense for a kind of sale (a lien can only be held for interest). */
 export const plansFor = (kind: SaleKind): Plan[] => (kind === 'lien' ? ['lien'] : ['flip', 'rent', 'commercial']);
 
+/**
+ * Where a saved deal stands in the real world. It picks the deal's next action and task list in My plan: a new
+ * candidate is researched first, and the accepted-offer deadlines only come in once it's under contract.
+ */
+export type DealStage = 'researching' | 'offer' | 'contract' | 'closed' | 'owned' | 'passed';
+export const DEAL_STAGES: DealStage[] = ['researching', 'offer', 'contract', 'closed', 'owned', 'passed'];
+export const isDealStage = (v: unknown): v is DealStage => DEAL_STAGES.includes(v as DealStage);
+
 export interface Deal {
   id: string;
   name: string;
@@ -56,6 +64,8 @@ export interface Deal {
   notes: string;
   done: string[];
   updatedAt: string;
+  /** Set by the buyer; deals saved before stages existed have none, and My plan works one out (dealStage.ts). */
+  stage?: DealStage;
 }
 
 export interface CheckItem {
@@ -133,7 +143,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     const r: Record<StateCode, string> = {
       NV: 'Nevada: after a sheriff’s execution sale, the owner can redeem for up to 1 year.',
       CA: 'California: after a judicial foreclosure sale, only when the court’s judgment allows the lender to seek a deficiency (the notice of sale says whether the sale is subject to redemption), the owner can redeem for 3 months if the sale paid the debt, or 1 year if it didn’t (CCP 729.010, 729.030).',
-      AZ: 'Arizona: after a judicial foreclosure sale, the owner can redeem for 30 days if the court found it abandoned, otherwise 6 months.',
+      AZ: 'Arizona: after a judicial foreclosure sale, the owner can redeem for 6 months, or 30 days if the judgment found it both abandoned and not used mainly for farming or grazing. Then junior lienholders can redeem in turn, 5 days each (A.R.S. 12-1282).',
       UT: 'Utah: after a sheriff’s sale, the owner can redeem for 180 days.',
       TX: 'Texas: after a sheriff’s or constable’s execution sale, the owner has no right to redeem, but you get only what the debtor owned, so liens ahead of the judgment stay.',
     };
@@ -231,6 +241,7 @@ export function cleanDeal(v: unknown): Deal | null {
     notes: str(d.notes, 4000),
     done: Array.isArray(d.done) ? d.done.filter((x): x is string => typeof x === 'string').slice(0, 500) : [],
     updatedAt: typeof d.updatedAt === 'string' && !Number.isNaN(Date.parse(d.updatedAt)) ? d.updatedAt : new Date().toISOString(),
+    ...(isDealStage(d.stage) ? { stage: d.stage } : {}),
   };
 }
 

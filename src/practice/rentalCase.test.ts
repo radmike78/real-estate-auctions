@@ -214,3 +214,83 @@ describe('the California, Arizona and Utah practice houses', () => {
     });
   }
 });
+
+describe('the final packet follows the reserve you chose', () => {
+  const all = (c: typeof TX_CASE) => c.stages.flatMap((s) => s.tasks.map((t) => `${s.key}/${t.id}`));
+  it('Texas, with the researched $325 reserve: leads with −$168, labels +$32 as the earlier assumption, and says the goal is missed', async () => {
+    const { packetSections, packetText } = await import('../components/RentalCasePage');
+    const p = { done: all(TX_CASE), answers: { 'run/replacement-plan': 0, 'inspection/replace-fit': 0, 'inspection/respond': 0, 'inspection/counter': 0 }, first: {} };
+    const secs = packetSections(p, TX_CASE);
+    const budget = secs.find((s) => s.title === 'Your budget')!.rows;
+    expect(TX_CASE.N.cashFlowWithReplacements).toBe(-168);
+    expect(budget[0]).toMatch(/about −\u2060?\$168\. The \$32 figure was the earlier generic assumption/);
+    expect(budget[1]).toMatch(/doesn’t meet it yet.*short by about \$168 a month.*fund that shortfall/);
+    expect(budget.join(' ')).toMatch(/not a replacement plan/);
+    expect(budget.join(' ')).not.toMatch(/Left beyond the reserves/);
+    const result = secs.find((s) => s.title === 'Result')!.rows[0];
+    expect(result).toMatch(/misses your goal/);
+    expect(result).toMatch(/−\u2060?\$168/);
+    expect(result).not.toMatch(/kept your reserves/);
+    // The text download (and print, which renders the same sections) says the same.
+    const text = packetText(p, TX_CASE);
+    expect(text).toContain(budget[0]);
+    expect(text).toContain(result);
+  });
+
+  it('keeping the 5% set-aside shows +$32 only as an assumption, next to the real −$168', async () => {
+    const { packetSections } = await import('../components/RentalCasePage');
+    const done = all(TX_CASE).filter((k) => k !== 'run/replacement-plan' && k !== 'inspection/replace-now');
+    const budget = packetSections({ done, answers: { 'run/replacement-plan': 1 }, first: {} }, TX_CASE).find((s) => s.title === 'Your budget')!.rows;
+    expect(budget[0]).toMatch(/generic 5% set-aside.*about \$32\. That’s an assumption, not a plan.*about −\u2060?\$168/);
+    expect(budget[1]).toMatch(/doesn’t meet it yet/);
+  });
+
+  it('every state’s packet leads with the cash flow after its known replacements', async () => {
+    const { cashFlowResult, packetSections } = await import('../components/RentalCasePage');
+    for (const c of [caseFor('NV'), TX_CASE, CA_CASE, AZ_CASE, UT_CASE]) {
+      const p = { done: all(c), answers: { 'run/replacement-plan': 0 }, first: {} };
+      const r = cashFlowResult(p, c);
+      expect(r.researched, c.state).toBe(true);
+      expect(r.monthly, c.state).toBe(c.N.cashFlowWithReplacements);
+      expect(r.goalMet, c.state).toBe(c.N.cashFlowWithReplacements >= 0);
+      const budget = packetSections(p, c).find((s) => s.title === 'Your budget')!.rows;
+      expect(budget[0], c.state).toContain(`about ${c.N.cashFlowWithReplacements < 0 ? '−\u2060' : ''}$${Math.abs(c.N.cashFlowWithReplacements)}.`);
+      const op = c.stages.find((s) => s.key === 'run')!.log[0].finding;
+      expect(op.indexOf('earlier generic assumption'), c.state).toBeGreaterThan(op.indexOf('With the roof'));
+    }
+  });
+});
+
+describe('the Texas contract teaching (TREC 20-19 paragraph 5, 40-11 paragraph 2, 49-1 option 3)', () => {
+  const offer = TX_CASE.stages.find((s) => s.key === 'offer')!;
+  const rows = offer.docs[0].rows!.map(([a, b]) => `${a}: ${b}`).join('\n');
+  const dates = offer.dates!.map((d) => `${d.when}: ${d.what}`).join('\n');
+  it('keeps Buyer Approval and Property Approval apart, each with notice and the lender’s statement', () => {
+    expect(rows).toMatch(/Buyer Approval \(addendum 40-11, paragraph 2A\).*Day 21.*written statement/);
+    expect(rows).toMatch(/Property Approval \(addendum 40-11, paragraph 2B\).*3rd day before closing, Day 27.*written statement/);
+    expect(dates).toMatch(/Day 21: .*Buyer Approval/);
+    expect(dates).toMatch(/Day 27 \(the 3rd day before closing\): .*Property Approval/);
+    expect(dates).not.toMatch(/won’t approve the loan/);
+  });
+  it('names the appraisal copy, the seller and Day 17 for option 3', () => {
+    expect(dates).toMatch(/Day 17: Appraisal addendum \(49-1, option 3\).*copy of the appraisal to the seller/);
+    const appr = TX_CASE.stages.find((s) => s.key === 'appraisal')!;
+    const t = appr.tasks.find((x) => x.id === 'tx-appraisal-notice')!;
+    if (t.kind !== 'multi') throw new Error('expected a multi');
+    expect(t.options.filter((o) => o.right).map((o) => o.label).join(' ')).toMatch(/notice of termination.*copy of the lender’s appraisal/);
+    expect(JSON.stringify(appr)).toMatch(/copy of the lender’s appraisal/);
+  });
+  it('gives late earnest money and a late option fee their own consequences, and the weekend extension only for payments', () => {
+    expect(rows).toMatch(/earnest money is late \(paragraph 5C\).*seller can end the contract/);
+    expect(rows).toMatch(/option fee is late \(paragraph 5D\).*no option period/);
+    expect(rows).toMatch(/Saturday, Sunday or legal holiday/);
+    expect(rows).toMatch(/extension for payments doesn’t move this deadline/);
+    expect(dates).not.toMatch(/Miss it and you lose the option period/);
+  });
+  it('asks the Day 20 vs Day 25 question', () => {
+    const t = offer.tasks.find((x) => x.id === 'tx-approval')!;
+    if (t.kind !== 'choice') throw new Error('expected a choice');
+    expect(t.choices.find((c) => c.verdict === 'best')!.label).toMatch(/Property Approval.*Day 27/);
+    expect(t.ifDifferent).toMatch(/Day 20.*Buyer Approval.*Day 21/);
+  });
+});

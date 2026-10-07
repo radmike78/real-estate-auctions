@@ -259,7 +259,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       title: "Review the title commitment",
-      detail: "Look for liens the seller hasn’t cleared, HOA dues, deed restrictions and easements. If the home went through a Texas trustee sale, a junior federal tax lien can give the IRS 120 days to redeem after the sale (26 U.S.C. 7425(d)). Ask the title company whether one was on record."
+      detail: "Look for liens the seller hasn’t cleared, HOA dues, deed restrictions and easements. If the home went through a Texas trustee sale, a junior federal tax lien that the sale wiped out still gives the IRS 120 days to redeem after the sale (26 U.S.C. 7425(d)), and one the sale didn’t wipe out stays on title. Ask the title company whether one was on record."
     },
     {
       title: "Close through the title company",
@@ -544,7 +544,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       label: "Environmental",
-      value: "A Phase I environmental site assessment (ASTM E1527-21) can protect you from having to pay for a federal cleanup, if you also meet the law’s other conditions.* Do it within one year before you take title, with key parts updated within 180 days."
+      value: "A Phase I environmental site assessment (ASTM E1527-21) can protect you from having to pay for a federal cleanup, if you also meet the law’s other conditions.* Have it completed (or updated) within one year before you take title, with key parts done or updated within 180 days."
     }
   ],
   steps: [

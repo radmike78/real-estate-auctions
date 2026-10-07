@@ -44,6 +44,7 @@ function BeforeYouCommit({ plan, state }: { plan?: string; state?: StateCode }) 
         <li><strong>At least 6 months of payments in savings</strong> after closing and repairs.</li>
         {renting && <li><strong>The rules for renting it:</strong> HOA limits, short-term rental rules and local rent rules.</li>}
         <li><strong>Wire instructions confirmed by phone</strong> with your title or escrow company, using a number you looked up yourself. <a href="#/learn/negotiate">Why</a></li>
+        <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney, tax advisor, agent and financial advisor before you bid, buy or borrow.</li>
       </ul>
       <p className="muted small">Can’t check one yet? Get the answer before you sign or bid.</p>
     </section>

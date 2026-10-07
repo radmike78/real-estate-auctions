@@ -1,0 +1,79 @@
+/* Review round 8 (tools) fixes. */
+
+/* ---------- U7: professional pages ---------- */
+/* The short version: four equal columns on wide screens, two on tablets, one on phones. */
+.pro-guide .pro-decide-cols { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1200px) { .pro-guide .pro-decide-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .pro-guide .pro-decide-cols { grid-template-columns: 1fr; } }
+.pro-guide .pro-decide-cols section { border-top: 4px solid var(--info); }
+.pro-guide .pro-decide-cols section:nth-child(2) { border-top-color: var(--go); }
+.pro-guide .pro-decide-cols section:nth-child(3) { border-top-color: var(--accent); }
+.pro-guide .pro-decide-cols section:nth-child(4) { border-top-color: var(--stop); }
+.pro-guide .pro-find-cols { grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); }
+.pro-guide .pro-script-wide { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; margin: 16px 0; }
+.pro-guide .pro-pay-list { margin: 0 0 16px; padding: 16px 18px 16px 38px; column-gap: 40px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; columns: 2 380px; }
+
+/* Folded details and stories: the heading bar is the button. */
+.pro-fold { margin: 0; }
+.pro-fold > summary { list-style: none; cursor: pointer; }
+.pro-fold > summary::-webkit-details-marker { display: none; }
+.pro-fold > summary h3.part-head { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+.pro-fold > summary h3.part-head::after { content: 'Show'; margin-left: auto; font: 700 0.95rem var(--font-body); color: var(--accent); border: 1px solid var(--border); border-radius: 999px; padding: 4px 14px; background: var(--surface); }
+.pro-fold[open] > summary h3.part-head::after { content: 'Hide'; }
+.pro-fold > summary:focus-visible { outline: none; }
+.pro-fold > summary:focus-visible h3.part-head { outline: 3px solid var(--accent); outline-offset: 2px; }
+.story-tag.tag-date { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+.pro-guide .pro-pay-list li { break-inside: avoid; margin-bottom: 8px; }
+
+/* ---------- U5: calculators ---------- */
+/* Which inputs are still our examples, where the inputs start. */
+.calc-example-note { background: var(--info-bg); border-left: 4px solid var(--info); border-radius: 10px; padding: 12px 16px; color: var(--text); }
+.calc-example-note ul { margin: 8px 0 0; padding-left: 20px; columns: 3 200px; column-gap: 28px; }
+.calc-example-note li { break-inside: avoid; margin-bottom: 2px; }
+.calc-example-results { margin: 0; }
+
+/* Each result block's heading bar names the price it evaluates. Your price: solid blue. Target: dashed green. The
+   listing's price: plain grey. */
+.price-head { display: grid; gap: 2px; margin: 0; padding: 10px 14px; border-radius: 10px; font-family: var(--font-body); font-size: 1.05rem; font-weight: 600; line-height: 1.35; letter-spacing: 0; }
+.price-head-tag { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+.price-head-line { overflow-wrap: anywhere; }
+.price-head-price, .price-head-result { font-family: var(--font-display); font-size: 1.25rem; font-weight: 800; }
+.price-head-arrow { font-weight: 800; }
+.price-head-result.neg { color: var(--stop); }
+.price-head-yours { background: var(--info-bg); border: 2px solid var(--info); color: var(--text); }
+.price-head-yours .price-head-tag { color: var(--info); }
+.price-head-target { background: var(--go-bg); border: 2px dashed var(--go); color: var(--text); }
+.price-head-target .price-head-tag { color: var(--go); }
+.price-head-listed { background: var(--surface-2); border: 2px solid var(--border); color: var(--text); }
+.price-head-listed .price-head-tag { color: var(--muted); }
+.price-head-note { margin: -8px 0 0; font-size: 0.92rem; color: var(--muted); }
+.price-block { display: grid; gap: 12px; }
+.at-price.price-block-yours { border: 2px solid var(--info); }
+.price-block-target { padding: 14px 16px; border: 2px dashed var(--go); border-radius: 12px; }
+.calc-results > .price-head-note, .calc-results > .price-head { margin-top: 0; }
+
+/* ---------- U6: which state's rules each practice entry uses ---------- */
+.practice-applies { display: inline-flex; align-self: flex-start; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 0.88rem; font-weight: 700; background: var(--info-bg); color: var(--info); border: 1px solid var(--info); }
+.practice-applies::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.practice-applies.practice-applies-mine { background: var(--go-bg); color: var(--go); border-color: var(--go); }
+.practice-mystate { margin: 0 0 4px; }
+.practice-mystate-head { margin: 18px 0 12px; padding: 8px 14px; font-size: 1.15rem; background: var(--surface-2); border-left: 4px solid var(--info); border-radius: 8px; }
+.practice-mystate .practice-sales { margin-bottom: 8px; }
+.practice-state-note p { margin: 0; }
+.practice-state-note p + p { margin-top: 10px; }
+.practice-state-first { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+/* The run's state banner: short, on every step, pinned below the header on wide screens. */
+.practice-run-state { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 0; margin: 0 0 14px; padding: 8px 14px; border-radius: 10px; background: var(--info-bg); border: 1px solid var(--info); color: var(--text); font-size: 0.98rem; }
+.practice-run-state > * + *::before { content: '·'; margin: 0 10px; color: var(--muted); }
+.practice-run-state strong { color: var(--info); }
+@media (min-width: 900px) { .practice-run-state { position: sticky; top: 70px; z-index: 5; box-shadow: 0 6px 16px -12px rgb(15 23 42 / 0.5); } }
+
+/* ---------- U8: first-visit welcome ---------- */
+.role-dialog .role-lead { font-size: 1.1rem; line-height: 1.55; margin: 0 0 18px; }
+.role-dialog .area-dialog-head .muted { font-weight: 500; font-size: 0.95rem; }
+/* A value with a warning after it ("0.71x · below the 1.25x lenders want") wraps instead of crushing its label. */
+.calc-kv dd:has(.deal-urgent) { white-space: normal; flex: 0 1 55%; text-align: right; }
+.calc-max small strong { font-size: inherit; font-family: inherit; line-height: inherit; }
+.practice-state-note .practice-state-first a.btn { color: var(--surface); }
+@media (max-width: 899px) { .practice-run-state .run-state-wide { display: none; } }
+.role-dialog #role-title:focus { outline: none; }

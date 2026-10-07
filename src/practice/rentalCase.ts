@@ -125,7 +125,11 @@ interface CaseConfig {
   loanTasks: (n: Nums) => CaseTask[];
   contractNote: string;
   contractRows: (n: Nums) => [string, string][];
-  dates: { when: string; what: string }[];
+  dates: { when: string; what: string }[] | ((n: Nums) => { when: string; what: string }[]);
+  /** Extra questions at the end of the offer step (a state's contract deadlines). */
+  offerTasks?: (n: Nums) => CaseTask[];
+  /** Extra questions before the low-appraisal decision (what the state's appraisal right requires). */
+  appraisalTasks?: (n: Nums) => CaseTask[];
   depositLog: (n: Nums) => string;
   roofFinding: string;
   /** The part of the roof that's wearing out, as named in questions: the inspection's own words. */
@@ -268,21 +272,25 @@ const TX: CaseConfig = {
   contractNote: 'The contract is the TREC resale contract (form 20-19) with its financing, appraisal and HOA addenda. The day counts below are this practice contract’s choices; real contracts fill in their own, and missing one can cost you your earnest money.',
   contractRows: (n) => [
     ['Effective Date (Day 0)', 'The day the last of you signs and the acceptance is delivered. The other deadlines count from it.'],
-    ['Earnest money and option fee', `${usd(n.earnest - 200)} earnest money and a $200 option fee, to the title company (the escrow agent) within 3 days after the Effective Date. Both are credited to you at closing.`],
-    ['Option period (20-19, paragraph 5)', 'Ends at 5 p.m. on Day 10. You can end the contract for any reason before then and get the earnest money back; the seller keeps the option fee. Miss the option fee deadline and you have no option period.'],
-    ['Appraisal (addendum 49-1)', `You can end the contract by Day 17 if the lender’s appraisal is under ${usd(n.offer)}.`],
-    ['Financing (addendum 40-11)', 'You can end the contract by Day 21 if the lender won’t approve the loan, with the lender’s written reason.'],
+    ['Earnest money and option fee (20-19, paragraph 5A)', `${usd(n.earnest - 200)} earnest money and a $200 option fee, to the title company (the escrow agent) within 3 days after the Effective Date, paid together or separately. If the 3rd day is a Saturday, Sunday or legal holiday, you have until the end of the next day that isn’t one. Both are credited to you at closing.`],
+    ['If the earnest money is late (paragraph 5C)', 'The seller can end the contract, or use its other remedies, by giving you notice before you deliver it.'],
+    ['If the option fee is late (paragraph 5D)', 'You have no option period: no right to end the contract for any reason.'],
+    ['Option period (paragraph 5B)', 'Ends at 5 p.m. on Day 10. You can end the contract for any reason before then and get the earnest money back; the seller keeps the option fee. The weekend and holiday extension for payments doesn’t move this deadline.'],
+    ['Appraisal (addendum 49-1, option 3)', `An added right to end the contract: by Day 17, if the lender’s appraisal is under ${usd(n.offer)}, give the seller your notice of termination and a copy of the appraisal. The earnest money comes back to you.`],
+    ['Financing: Buyer Approval (addendum 40-11, paragraph 2A)', 'If the lender won’t approve you (your income, assets or credit), you can end the contract by Day 21: give the seller notice of termination and a copy of the lender’s written statement of its reasons. The earnest money comes back to you. After Day 21, the contract no longer depends on Buyer Approval.'],
+    ['Financing: Property Approval (addendum 40-11, paragraph 2B)', 'If the lender decides the house doesn’t meet its requirements (the appraisal, insurability, or repairs it requires), you can end the contract on or before the 3rd day before closing, Day 27 here: notice of termination plus the lender’s written statement of its reasons. The earnest money comes back to you. If you don’t, Property Approval counts as obtained. (Options 1 and 2 of the appraisal addendum would waive this right for a low appraisal; this contract uses option 3, which adds the Day 17 right instead.)'],
     ['HOA (addendum 36-11)', 'You can end the contract within 3 days after you receive the subdivision information (the HOA’s rules and resale certificate), if that’s before closing.'],
     ['Closing', 'Day 30, at the title company'],
-    ['Counting days', 'Calendar days. Ask your agent how the contract treats a deadline on a weekend or holiday; the option period ends at 5 p.m. on its last day.'],
+    ['Counting days', 'Calendar days. Only the payment deadlines move past a weekend or legal holiday; the option period ends at 5 p.m. on its last day either way. Ask your agent how your contract treats any other deadline that lands on a weekend.'],
   ],
-  dates: [
+  dates: (n) => [
     { when: 'Day 0', what: 'The Effective Date. Every deadline below counts from here.' },
-    { when: 'Within 3 days after Day 0', what: 'Earnest money and option fee to the title company (confirm the instructions by phone first). You: the buyer. Miss it and you lose the option period.' },
-    { when: '5 p.m., Day 10', what: 'Option period ends: end the contract, ask for changes, or go ahead, in writing. You, with your agent.' },
+    { when: 'Within 3 days after Day 0', what: 'Earnest money and option fee to the title company (confirm the instructions by phone first). You: the buyer. If the 3rd day is a Saturday, Sunday or legal holiday, the deadline moves to the end of the next day that isn’t one. A late option fee means no option period (20-19, 5D); late earnest money lets the seller end the contract by notice before you deliver it (5C).' },
+    { when: '5 p.m., Day 10', what: 'Option period ends: end the contract, ask for changes, or go ahead, in writing. You, with your agent. It doesn’t move for a weekend or holiday.' },
     { when: '3 days after you receive the subdivision information', what: 'HOA addendum: end the contract in writing if the rules block your plan. Write down the day it arrives.' },
-    { when: 'Day 17', what: 'Appraisal addendum deadline. You, with your lender’s appraisal.' },
-    { when: 'Day 21', what: 'Financing addendum deadline for the loan approval. Your lender confirms the loan.' },
+    { when: 'Day 17', what: `Appraisal addendum (49-1, option 3): if the lender’s appraisal is under ${usd(n.offer)} and you want out, deliver your notice of termination and a copy of the appraisal to the seller. You, with your agent.` },
+    { when: 'Day 21', what: 'Financing addendum, Buyer Approval (40-11, 2A): if the lender won’t approve you (income, assets or credit), deliver notice of termination and a copy of the lender’s written statement of its reasons to the seller. After this day, the contract no longer depends on Buyer Approval.' },
+    { when: 'Day 27 (the 3rd day before closing)', what: 'Financing addendum, Property Approval (40-11, 2B): if the lender rejects the house (appraisal, insurability or required repairs), deliver notice of termination and the lender’s written statement to the seller by this day. After it, Property Approval counts as obtained.' },
     { when: 'Day 30', what: 'Closing at the title company.' },
   ],
   depositLog: (n) => `Earnest money and option fee ${usd(n.earnest)}`,
@@ -296,8 +304,8 @@ const TX: CaseConfig = {
   protections: 'an option period and the financing and appraisal addenda',
   licenseQuestion: '“Are you a licensed plumber (the Texas State Board of Plumbing Examiners licenses plumbers), and can I see your license number?”',
   appraisalName: 'appraisal addendum',
-  cancelAppraisal: 'End the contract by Day 17 under the appraisal addendum and get the earnest money back.',
-  leaveAppraisal: 'Your appraisal addendum lets you end the contract by Day 17 when the appraisal comes in under the price.',
+  cancelAppraisal: 'By Day 17, give the seller your notice of termination and a copy of the lender’s appraisal (appraisal addendum, option 3), and get the earnest money back.',
+  leaveAppraisal: 'Option 3 of your appraisal addendum (TREC 49-1) lets you end the contract when the lender’s appraisal is under $289,000, if the seller gets your notice of termination and a copy of the appraisal by Day 17.',
   roofer: 'Example Roofing of Texas',
   lienWhy: 'It’s a recorded claim against the house. In Texas, a contractor on a home job must file the lien by the 15th day of the third month after the work ends, and sue to enforce it within a year after that filing deadline (Property Code 53.052, 53.158). Either way, the title company wants it released or cleared on the record before closing. Ask the title officer how, and whether a lawsuit was filed.',
   earnestPaid: 'to the title company within 3 days after the Effective Date, along with the option fee',
@@ -327,6 +335,43 @@ const TX: CaseConfig = {
     },
   ],
   rentLog: () => 'Selection criteria given with a signed acknowledgment. Deposit returned within 30 days with an itemized list (Texas).',
+  offerTasks: () => [
+    {
+      kind: 'choice',
+      id: 'tx-late-fee',
+      prompt: 'Day 0 was a Thursday, so the 3rd day after it is a Sunday. Your option fee reaches the title company on Monday, and Monday isn’t a legal holiday. Is it on time, and does your option period still end on Day 10?',
+      choices: [
+        { label: 'Yes, it’s on time, and the option period still ends at 5 p.m. on Day 10.', verdict: 'best', why: 'Under the TREC resale contract, when the last day to deliver the earnest money or option fee is a Saturday, Sunday or legal holiday, you have until the end of the next day that isn’t one (20-19, paragraph 5A(2)). That extension is for the payments only: the option period still ends at 5 p.m. on its last day (5B).' },
+        { label: 'No: it was due Sunday, so you’ve lost the option period.', verdict: 'poor', why: 'The contract moves a payment deadline that lands on a weekend or legal holiday to the end of the next day that isn’t one (20-19, paragraph 5A(2)). Monday counts. Had the fee come late, you’d have no option period (5D).' },
+        { label: 'Yes, and the option period moves a day later too.', verdict: 'poor', why: 'The weekend extension in paragraph 5A(2) covers delivering the earnest money and option fee, not the end of the option period. That stays at 5 p.m. on Day 10.' },
+      ],
+      ifDifferent: 'If the option fee came late, you’d have no option period at all (20-19, 5D). If the earnest money came late, the consequence is different: the seller could end the contract, or use its other remedies, by notice before you delivered it (5C).',
+    },
+    {
+      kind: 'choice',
+      id: 'tx-approval',
+      prompt: 'Suppose it’s Day 25, after the Buyer Approval deadline (Day 21). The lender says the insurer won’t cover the house until the roof is replaced, so it won’t fund the loan. Can you still end the contract and get your earnest money back?',
+      choices: [
+        { label: 'Yes: that’s a Property Approval problem. By Day 27 (the 3rd day before closing), give the seller notice of termination and a copy of the lender’s written statement of its reasons.', verdict: 'best', why: 'The Third Party Financing Addendum keeps two rights apart (TREC 40-11, paragraph 2). Buyer Approval (2A) is about you: your income, assets and credit, with the deadline you negotiated. Property Approval (2B) is about the house: the appraisal, insurability and repairs the lender requires, up to the 3rd day before closing. Either way, you need the notice and the lender’s written statement.' },
+        { label: 'No: the financing deadline was Day 21, so the earnest money is at risk.', verdict: 'poor', why: 'Day 21 is the Buyer Approval deadline (40-11, 2A), about your income, assets and credit. A problem with the house itself falls under Property Approval (2B), which runs to the 3rd day before closing.' },
+        { label: 'Yes, any time before closing, by telling the seller.', verdict: 'poor', why: 'The deadline is the 3rd day before closing, Day 27 here, and the notice needs a copy of the lender’s written statement of its reasons (40-11, 2B). Time is of the essence in that paragraph.' },
+      ],
+      ifDifferent: 'If instead the lender had turned you down on Day 20 over your income or credit, that’s Buyer Approval (2A): deliver the notice and the lender’s statement by Day 21. After Day 21, the contract no longer depends on Buyer Approval: a later turn-down over your own finances doesn’t let you end it under 2A, and your earnest money can be at risk.',
+    },
+  ],
+  appraisalTasks: (n) => [
+    {
+      kind: 'multi',
+      id: 'tx-appraisal-notice',
+      prompt: `To end the contract under option 3 of your appraisal addendum (TREC 49-1) because the appraisal is under ${usd(n.offer)}, what must the seller get from you by Day 17? Choose all that apply.`,
+      options: [
+        { label: 'Your notice of termination, in writing', right: true, why: 'The contract’s notices must be in writing (20-19, paragraph 21), and option 3 gives you until Day 17 here.' },
+        { label: 'A copy of the lender’s appraisal', right: true, why: 'Option 3 lets you end the contract only if you deliver a copy of the appraisal to the seller (49-1, option 3(ii)).' },
+        { label: 'A written statement from the lender saying it won’t make the loan', right: false, why: 'That’s what the financing addendum asks for (40-11, paragraph 2). Option 3 of the appraisal addendum asks for the appraisal itself.' },
+        { label: 'A second appraisal you ordered yourself', right: false, why: 'Option 3 runs on the appraisal your lender obtained, not one you order.' },
+      ],
+    },
+  ],
 };
 
 // California: same house and price. Buying resets the property tax to about 1% of the price plus local charges
@@ -1030,9 +1075,10 @@ function buildCase(c: CaseConfig) {
             { label: 'Wire it right away so you don’t miss the deposit deadline.', verdict: 'poor', why: 'A quick call takes minutes. A wire sent to a scammer is usually gone for good.' },
           ],
         },
+        ...(c.offerTasks?.(N) ?? []),
       ],
       log: [{ area: 'Contract', finding: `Signed at ${$(offer)}. ${c.depositLog(N)}, confirmed by phone before wiring.` }],
-      dates: c.dates,
+      dates: typeof c.dates === 'function' ? c.dates(N) : c.dates,
       learnMore: [{ label: 'Lesson: negotiating', href: '#/learn/negotiate' }],
     },
     {
@@ -1087,9 +1133,9 @@ function buildCase(c: CaseConfig) {
         {
           kind: 'choice',
           id: 'replace-fit',
-          prompt: `Your goal is a long-term rental where the rent covers the costs. At ${$(offer)}, the rent leaves about ${N.cashFlowAtOffer < 0 ? '−' : ''}${$(Math.abs(N.cashFlowAtOffer))} a month with the usual 5% set-aside, but about ${N.cashFlowAtOfferWithReplacements < 0 ? '−' : ''}${$(Math.abs(N.cashFlowAtOfferWithReplacements))} once the roof and water heater are budgeted. What does that mean for this offer?`,
+          prompt: `Your goal is a long-term rental where the rent covers the costs. At ${$(offer)}, the rent leaves about ${N.cashFlowAtOffer < 0 ? '−\u2060' : ''}${$(Math.abs(N.cashFlowAtOffer))} a month with the usual 5% set-aside, but about ${N.cashFlowAtOfferWithReplacements < 0 ? '−\u2060' : ''}${$(Math.abs(N.cashFlowAtOfferWithReplacements))} once the roof and water heater are budgeted. What does that mean for this offer?`,
           choices: [
-            { label: 'The known replacements are part of the price: use the inspection report to ask for a lower price, and walk away if the numbers still don’t fit.', verdict: 'best', why: 'This is the moment you can still change the deal. After the inspection deadline, the roof is your problem at the price you agreed.', log: `Replacement budget at inspection: about ${$(N.replaceMonthly)} a month for the roof and water heater; cash flow at ${$(offer)} about ${N.cashFlowAtOfferWithReplacements < 0 ? '−' : ''}${$(Math.abs(N.cashFlowAtOfferWithReplacements))} a month.` },
+            { label: 'The known replacements are part of the price: use the inspection report to ask for a lower price, and walk away if the numbers still don’t fit.', verdict: 'best', why: 'This is the moment you can still change the deal. After the inspection deadline, the roof is your problem at the price you agreed.', log: `Replacement budget at inspection: about ${$(N.replaceMonthly)} a month for the roof and water heater; cash flow at ${$(offer)} about ${N.cashFlowAtOfferWithReplacements < 0 ? '−\u2060' : ''}${$(Math.abs(N.cashFlowAtOfferWithReplacements))} a month.` },
             { label: 'Keep going, as a long-term hold: write down that the rent won’t fully cover the costs for a few years, and how much of your reserve covers the gap.', verdict: 'ok', why: 'Defensible for a long-term plan, if your reserves can carry the shortfall. It isn’t a monthly-income deal, and you should still ask for the repairs that make it rentable.' },
             { label: c.cancelInspection, verdict: 'ok', walk: true, why: `A good result when the deal doesn’t meet your goal. ${c.leaveInspection}` },
             { label: N.cashFlowAtOffer >= 0 ? `Go ahead: it makes about ${$(N.cashFlowAtOffer)} a month.` : `Go ahead: it only loses about ${$(-N.cashFlowAtOffer)} a month.`, verdict: 'poor', why: `That number assumes the ${c.roofPart} and water heater are covered by a 5% set-aside. They aren’t: in 4 years 5% saves about ${$(N.setAside * 48)}, against $15,600.` },
@@ -1206,6 +1252,7 @@ function buildCase(c: CaseConfig) {
           tolerance: 50,
           worked: [`Loan: 75% × ${$(appraised)} = ${$(N.loanFinal)}`, `Down payment: ${$(renegotiated)} − ${$(N.loanFinal)} = ${$(N.downIfGapPaid)}`, `That’s ${$(N.downIfGapPaid - (renegotiated - Math.round(renegotiated * 0.75)))} more than you planned.`],
         },
+        ...(c.appraisalTasks?.(N) ?? []),
         {
           kind: 'choice',
           id: 'low-appraisal',
@@ -1410,7 +1457,7 @@ function buildCase(c: CaseConfig) {
           id: 'replacement-plan',
           prompt: `Your plan sets aside ${$(N.setAside)} a month for big replacements; the roof and water heater alone need about ${$(N.replaceMonthly)}. What do you do?`,
           choices: [
-            { label: `Budget the real number: set aside about ${$(N.replaceMonthly)} a month. Cash flow drops to about ${N.cashFlowWithReplacements < 0 ? '−' : ''}${$(Math.abs(N.cashFlowWithReplacements))} a month, and you write down how you’ll cover it.`, verdict: 'best', why: 'The roof is coming whether you budget for it or not. Known replacements belong in the numbers before you decide whether the deal fits.', log: `Replacement plan: about ${$(N.replaceMonthly)} a month for the roof and water heater; cash flow about ${N.cashFlowWithReplacements < 0 ? '−' : ''}${$(Math.abs(N.cashFlowWithReplacements))} a month self-managed.` },
+            { label: `Budget the real number: set aside about ${$(N.replaceMonthly)} a month. Cash flow drops to about ${N.cashFlowWithReplacements < 0 ? '−\u2060' : ''}${$(Math.abs(N.cashFlowWithReplacements))} a month, and you write down how you’ll cover it.`, verdict: 'best', why: 'The roof is coming whether you budget for it or not. Known replacements belong in the numbers before you decide whether the deal fits.', log: `Replacement plan: about ${$(N.replaceMonthly)} a month for the roof and water heater; cash flow about ${N.cashFlowWithReplacements < 0 ? '−\u2060' : ''}${$(Math.abs(N.cashFlowWithReplacements))} a month self-managed.` },
             { label: 'Keep the 5% and deal with the roof when it happens.', verdict: 'poor', why: `In 4 years, ${$(N.setAside)} a month saves about ${$(N.setAside * 48)}, against a $14,000 roof. The gap would come from your emergency fund or a loan.` },
             { label: 'Raise the rent enough to cover it.', verdict: 'poor', why: `Leased comparables A, B and C support about ${$(rent)}. A rent the market won’t pay means a longer vacancy, not more money.` },
           ],
@@ -1433,7 +1480,7 @@ function buildCase(c: CaseConfig) {
           model: 'Examples: actual costs against these numbers · whether the set-asides covered what broke · the rent compared with new leases nearby · the roof and water heater · whether to keep self-managing · what you’d change in your buy box before the next one.',
         },
       ],
-      log: [{ area: 'Operating', finding: `Cash flow about ${$(N.cashFlow)} a month self-managed with 5% set-asides; about ${N.cashFlowWithReplacements < 0 ? '−' : ''}${$(Math.abs(N.cashFlowWithReplacements))} with the roof and water heater budgeted. Review in 6 months.` }],
+      log: [{ area: 'Operating', finding: `With the roof and water heater budgeted (about ${$(N.replaceMonthly)} a month), cash flow is about ${N.cashFlowWithReplacements < 0 ? '−\u2060' : ''}${$(Math.abs(N.cashFlowWithReplacements))} a month self-managed${N.cashFlowWithReplacements < 0 ? ': the rent doesn’t cover the costs, so you fund the shortfall yourself' : ''}. The earlier generic assumption (5% set-asides) showed about ${$(N.cashFlow)}. Review in 6 months.` }],
       learnMore: [{ label: 'Lesson: after you close', href: '#/learn/after-closing' }, { label: 'My plan', href: '#/toolkit' }],
     },
   ];
