@@ -141,8 +141,8 @@
       "src/components/RentalCasePage.tsx",
       "src/practice/rentalCase.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "819890da56ab7103",
+    "reviewed": "2026-10-07",
+    "hash": "c1dbfe670bbbff68",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -172,8 +172,8 @@
       "src/lib/dealPacket.ts",
       "src/lib/evidence.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "2d1bd5bbee256304",
+    "reviewed": "2026-10-07",
+    "hash": "d2793399628f8bb7",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -354,8 +354,8 @@
       "src/components/StrategyPage.tsx",
       "src/lib/strategies.ts"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "d1bd9eedb43584d1",
+    "reviewed": "2026-10-07",
+    "hash": "daf18db32311d02b",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {

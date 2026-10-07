@@ -11,11 +11,13 @@ import DocGuideView from './DocGuideView';
 import { emptyCase, loadCase, saveCase, type CaseProgress } from '../practice/caseProgress';
 import TopicAd from './TopicAd';
 import AdSpot from './AdSpot';
+import '../styles/r8-case.css';
 
 const key = (st: CaseStage, t: CaseTask) => `${st.key}/${t.id}`;
 const $ = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;
 /** The practice house being shown: the visitor's state's version (set on each render of the page). */
 let C: PracticeCase = NV_CASE;
+const CURRENT = () => C;
 const VERDICT: Record<Verdict, string> = { best: 'Strong choice', ok: 'Reasonable', poor: 'Not this one' };
 
 /**
@@ -205,9 +207,9 @@ function Doc({ d }: { d: CaseDoc }) {
 type Update = (fn: (x: CaseProgress) => CaseProgress) => void;
 
 /** Before the offer is signed there's no contract, so nothing is at stake; after, a contract deadline protects the deposit. */
-function walkNote(stageKey: string): string {
-  const i = C.stages.findIndex((s) => s.key === stageKey);
-  const offer = C.stages.findIndex((s) => s.key === 'offer');
+function walkNote(stageKey: string, c: PracticeCase = C): string {
+  const i = c.stages.findIndex((s) => s.key === stageKey);
+  const offer = c.stages.findIndex((s) => s.key === 'offer');
   return i <= offer ? 'No contract was signed, so nothing was at risk.' : 'You left inside a contract deadline, so you keep your earnest money.';
 }
 
@@ -370,9 +372,9 @@ function Write({ t, k, p, update, finish }: { t: Extract<CaseTask, { kind: 'writ
 }
 
 /** Everything the learner produced, in one place, to print or download. */
-export function packetText(p: CaseProgress): string {
-  const lines: string[] = [`${CASE_TITLE.toUpperCase()} — DEAL PACKET (practice, fictional)`, C.property, ''];
-  for (const sec of packetSections(p)) {
+export function packetText(p: CaseProgress, c: PracticeCase = C): string {
+  const lines: string[] = [`${CASE_TITLE.toUpperCase()} — DEAL PACKET (practice, fictional)`, c.property, ''];
+  for (const sec of packetSections(p, c)) {
     lines.push(sec.title.toUpperCase());
     for (const row of sec.rows) lines.push(`- ${row}`);
     lines.push('');
@@ -381,7 +383,42 @@ export function packetText(p: CaseProgress): string {
   return lines.join('\n');
 }
 
-export function packetSections(p: CaseProgress): { title: string; rows: string[] }[] {
+/** A signed monthly amount: −$168, $32. */
+// A word joiner keeps the minus sign on the same line as the amount.
+const signed = (n: number) => `${n < 0 ? '−\u2060' : ''}${$(Math.abs(n))}`;
+
+/**
+ * The cash-flow result the packet leads with, following the replacement reserve you chose. The researched reserve
+ * (the roof and water heater, about $325 a month) is the house's real number once you've budgeted it; the 5%
+ * set-aside figure is the earlier generic assumption, shown as that.
+ */
+export function cashFlowResult(p: CaseProgress, c: PracticeCase = C) {
+  const N = c.N;
+  const plan = p.answers['run/replacement-plan'];
+  // "Budget the real number" is the only answer that finishes the question; the others are shown while still picked.
+  const keptGeneric = !p.done.includes('run/replacement-plan') && (plan === 1 || plan === 2);
+  const researched = !keptGeneric && ((p.done.includes('run/replacement-plan') && plan === 0) || p.done.includes('inspection/replace-now'));
+  const monthly = researched ? N.cashFlowWithReplacements : N.cashFlow;
+  const shortfall = Math.max(0, -N.cashFlowWithReplacements);
+  const beyondReserves = N.investable - N.cashFinal;
+  const lenderReserves = N.reserveMonths * N.pitiaFinal;
+  const rows: string[] = researched
+    ? [
+        `Monthly cash flow, self-managed, with your reserve for the roof and water heater (about ${$(N.replaceMonthly)} a month): about ${signed(N.cashFlowWithReplacements)}. The ${signed(N.cashFlow)} figure was the earlier generic assumption (a 5% set-aside for big replacements), which doesn’t cover this house’s known replacements.`,
+      ]
+    : [
+        `Monthly cash flow with the generic 5% set-aside for big replacements: about ${signed(N.cashFlow)}. That’s an assumption, not a plan: the roof and water heater the inspection found need about ${$(N.replaceMonthly)} a month, and with them budgeted it’s about ${signed(N.cashFlowWithReplacements)}.`,
+      ];
+  rows.push(
+    shortfall > 0
+      ? `Your goal was a rental whose rent covers its costs. This one doesn’t meet it yet: with the roof and water heater budgeted, the rent falls short by about ${$(shortfall)} a month (${$(shortfall * 12)} a year), and you fund that shortfall from your own money until the rent rises or the costs fall.`
+      : `Your goal was a rental whose rent covers its costs. With the roof and water heater budgeted, it does, by about ${$(N.cashFlowWithReplacements)} a month.`,
+    `Cash kept at closing: the lender’s ${N.reserveMonths} months of reserves (about ${$(lenderReserves)}) and ${$(beyondReserves)} beyond them. That’s savings for emergencies and vacant months, not a replacement plan: the roof and water heater still need about ${$(N.replaceMonthly)} a month set aside${shortfall > 0 ? `, and covering a ${$(shortfall)} monthly shortfall would use up the ${$(beyondReserves)} in about ${Math.floor(beyondReserves / shortfall)} months` : ''}.`,
+  );
+  return { researched, monthly, shortfall, goalMet: shortfall === 0, beyondReserves, rows };
+}
+
+export function packetSections(p: CaseProgress, C: PracticeCase = CURRENT()): { title: string; rows: string[] }[] {
   const finished = (st: CaseStage) => tasksFor(st, p.answers).every((t) => p.done.includes(key(st, t)));
   // A step you walked away in counts as reached, so the packet shows what you found there; its price and value
   // rows are left out because they describe a deal that didn't happen.
@@ -389,12 +426,20 @@ export function packetSections(p: CaseProgress): { title: string; rows: string[]
   const reached = C.stages.filter((st, i) => (walkIdx < 0 || i <= walkIdx) && (finished(st) || i === walkIdx));
   const logOf = (st: CaseStage) => (st.key === p.walked ? st.log.filter((l) => l.area !== 'Price' && l.area !== 'Value' && l.area !== 'Contract') : st.log);
   const bought = !p.walked && (finished(C.stages[C.stages.length - 1]) || reached.some((s) => s.key === 'closing'));
-  const budget = [
-    `Most you can invest: ${$(C.N.investable)} (after a ${$(C.N.cushion)} emergency fund and ${$(C.N.otherGoals)} for other goals)`,
-    bought ? `Cash the deal took in this case: ${$(C.N.cashFinal)}, including ${$(C.N.urgent)} of repairs and ${C.N.reserveMonths} months of reserves` : `Cash needed at the first offer: ${$(C.N.cashOffer)}, before repairs`,
-    bought ? `Left beyond the reserves: ${$(C.N.investable - C.N.cashFinal)}` : `Left at the first offer: ${$(C.N.investable - C.N.cashOffer)}`,
-  ];
-  if (bought) budget.push(`Monthly cash flow after set-asides, self-managed: about ${$(C.N.cashFlow)}`);
+  const flow = cashFlowResult(p, C);
+  const budget = bought
+    ? [
+        ...flow.rows.slice(0, 2),
+        `Most you can invest: ${$(C.N.investable)} (after a ${$(C.N.cushion)} emergency fund and ${$(C.N.otherGoals)} for other goals)`,
+        `Cash the deal took in this case: ${$(C.N.cashFinal)}, including ${$(C.N.urgent)} of repairs and ${C.N.reserveMonths} months of reserves`,
+        flow.rows[2],
+      ]
+    : [
+        `Most you can invest: ${$(C.N.investable)} (after a ${$(C.N.cushion)} emergency fund and ${$(C.N.otherGoals)} for other goals)`,
+        `Cash needed at the first offer: ${$(C.N.cashOffer)}, before repairs`,
+        `Left at the first offer: ${$(C.N.investable - C.N.cashOffer)}`,
+      ];
+  const boughtResult = `You bought it at ${$(C.N.finalPrice)}, after the seller agreed to the appraised value, and closed with the lender’s reserves plus ${$(flow.beyondReserves)} in savings. ${flow.goalMet ? 'With the roof and water heater budgeted, the rent covers the costs: your goal is met.' : `But it misses your goal of rent covering the costs: with the roof and water heater budgeted, it’s about ${signed(-flow.shortfall)} a month, a shortfall you fund yourself.`}`;
   const decisions: string[] = [];
   const questions: string[] = [];
   for (const st of C.stages)
@@ -409,7 +454,7 @@ export function packetSections(p: CaseProgress): { title: string; rows: string[]
   const strong = firsts.filter((v) => v === 'best' || v === 'ok' || v === 'right').length;
   const walkedAt = C.stages.find((s) => s.key === p.walked);
   return [
-    { title: 'Result', rows: [walkedAt ? `You walked away at “${walkedAt.title}”. ${walkNote(walkedAt.key)} A good result when the deal stops fitting.` : bought ? 'You bought it. In this case the seller agreed to the appraised value, and you kept your reserves.' : `${reached.length} of ${C.stages.length} steps done so far.`, `${strong} of ${firsts.length} questions right or reasonable on the first try.`] },
+    { title: 'Result', rows: [walkedAt ? `You walked away at “${walkedAt.title}”. ${walkNote(walkedAt.key, C)} A good result when the deal stops fitting.` : bought ? boughtResult : `${reached.length} of ${C.stages.length} steps done so far.`, `${strong} of ${firsts.length} questions right or reasonable on the first try.`] },
     { title: 'Your budget', rows: budget },
     { title: 'Deadline calendar', rows: reached.some((s) => s.dates) && !(walkedAt && walkedAt.key === 'offer') ? [...reached.flatMap((s) => s.dates ?? []).map((d) => `${d.when}: ${d.what}`), 'Practice contract terms. A real contract sets its own periods and how days are counted: build your calendar from it.'] : ['Not yet: the dates come from your contract, once your offer is accepted.'] },
     { title: 'Evidence log', rows: reached.flatMap((s) => [...choiceLogs(s, p).map((x) => `Your decision: ${x}`), ...logOf(s).map((l) => `${l.area}: ${l.finding}${l.open ? ` Still open: ${l.open}.` : ''}`)]) },
@@ -419,8 +464,8 @@ export function packetSections(p: CaseProgress): { title: string; rows: string[]
 }
 
 function Packet({ p }: { p: CaseProgress }) {
-  const secs = packetSections(p);
-  const download = () => downloadText('deedowl-practice-deal-packet.txt', packetText(p));
+  const secs = packetSections(p, C);
+  const download = () => downloadText('deedowl-practice-deal-packet.txt', packetText(p, C));
   return (
     <section aria-labelledby="packet-head" className="case-packet">
       <h2 id="packet-head">Your deal packet</h2>
@@ -431,7 +476,7 @@ function Packet({ p }: { p: CaseProgress }) {
       </div>
       <div className="case-packet-grid">
         {secs.map((s) => (
-          <div key={s.title} className={`case-packet-sec${s.rows.length > 6 ? ' wide' : ''}`}>
+          <div key={s.title} className={`case-packet-sec${s.title !== 'Result' && s.title !== 'Your budget' ? ' wide' : ''}`}>
             <h3>{s.title}</h3>
             <ul>{s.rows.map((r) => <li key={r}>{r}</li>)}</ul>
           </div>
