@@ -139,7 +139,7 @@ describe('IRS sales in the feed', () => {
     expect(buildFeed([{ ...IRS, termsReviewedAt: null }], { [IRS.id]: state() }, NOW).federalSales).toBeUndefined();
     const feed = buildFeed([ON], { [IRS.id]: state() }, NOW);
     expect(feed.federalSales!.map((f) => f.id)).toEqual(['made-up-mesa-land', 'made-up-las-vegas-home', 'made-up-pahrump-land', 'made-up-reno-home', 'made-up-judicial-sale-henderson']);
-    expect(feed.sources[0].message).toBe('The IRS lists 17 sales nationwide. 7 are in Nevada, California, Arizona, Utah or Texas, 4 of them in Clark County. 2 more sales in those states aren’t shown here because the notice has no Clark County parcel number, or the notice doesn’t name the county.');
+    expect(feed.sources[0].message).toBe('The IRS index contains 17 notices nationwide, including past, canceled and undated notices. These are not counts of available auctions. We parsed 7 notices in Nevada, California, Arizona, Utah or Texas, 4 of them in Clark County. 5 upcoming sales meet our publication checks as of this source check. Only eligible upcoming sales appear in the feed; stale or held sources can hide them. 2 additional notices in those states aren’t shown here because the notice has no Clark County parcel number, or the notice doesn’t name the county.');
     // Outside Clark County nothing is claimed as checked by DeedOwl.
     for (const f of feed.federalSales!.filter((x) => x.county !== 'Clark')) expect(f.corroboratedAt).toBeNull();
   });
@@ -151,6 +151,16 @@ describe('IRS sales in the feed', () => {
     const later = new Date('2026-11-19T12:00:00Z');
     const s = { ...state(), lastSuccessAt: later.toISOString(), federalSales: Object.fromEntries(Object.entries(state().federalSales!).map(([k, v]) => [k, { ...v, lastVerifiedAt: later.toISOString() }])) };
     expect(ids(s, later)).toEqual(['made-up-judicial-sale-henderson']);
+  });
+
+  it('counts only upcoming eligible sales and upcoming unconfirmed parcels in the source explanation', () => {
+    const later = new Date('2026-11-19T12:00:00Z');
+    const checked = applyIrsSnapshot(emptyState(IRS.id), snap.parsed, { sha256: snap.sha256, now: later, confirmedApns: all });
+    expect(checked.message).toContain('1 upcoming sale meets our publication checks');
+    const unconfirmed = applyIrsSnapshot(emptyState(IRS.id), snap.parsed, { sha256: snap.sha256, now: later, confirmedApns: new Set() });
+    expect(unconfirmed.message).toContain('0 upcoming sales meet our publication checks');
+    expect(unconfirmed.message).toContain('1 upcoming sale is hidden because the parcel');
+    expect(buildFeed([ON], { [IRS.id]: unconfirmed }, later).federalSales ?? []).toEqual([]);
   });
 
   it('withdraws a sale that is canceled or removed from the site', () => {

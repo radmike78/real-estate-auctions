@@ -609,15 +609,22 @@ function buyBoxText(b: BuyBox, stateName?: string): string {
   ].join('\n');
 }
 
-/**
- * What "checked" means for each role, in the chosen state: not every role is licensed by the state. California doesn't
- * license home inspectors, and a bank's loan officers are registered federally on NMLS rather than licensed by a state.
- */
+/** Required credentials depend on the service and location; qualifications do not replace a required license. */
 function licenseCheckLabel(k: keyof TeamList, state: string | null): string {
-  if (k === 'inspector') return state === 'CA' ? 'I checked their insurance, training and a sample report (California doesn’t license home inspectors)' : state ? 'I checked their license with the state' : 'I checked their license with the state (in California, where there’s none: their insurance, training and a sample report)';
+  if (k === 'inspector') return state === 'CA'
+    ? 'I checked their insurance, training and a sample report (California doesn’t license home inspectors)'
+    : 'I checked any required inspector license or registration, insurance, training and a sample report';
   if (k === 'lender') return 'I looked them up on NMLS Consumer Access (a state license, or a bank loan officer’s federal registration)';
   if (k === 'attorney') return 'I checked their license with the state bar';
-  return 'I checked their license with the state';
+  if (k === 'contractor') return state === 'TX'
+    ? 'I checked required trade licenses, local registration and insurance (Texas has no statewide general contractor license)'
+    : 'I checked required contractor or trade licenses, local registration and insurance for this work';
+  if (k === 'private_lender') return 'I checked which licenses or registrations apply to this lender and loan, and verified any claimed exemption with the regulator';
+  if (k === 'title') return 'I checked the required title or escrow license or registration with the appropriate regulator';
+  if (k === 'cpa') return 'I checked their claimed tax credentials (CPA, enrolled agent or attorney), any required registration, and experience with my tax situation';
+  if (k === 'eviction') return 'I checked the state bar license for legal advice or representation, and any required credentials for other eviction services';
+  if (k === 'environmental') return 'I checked qualifications and insurance for the assessment, plus any licenses or certifications required for the specific work';
+  return 'I checked the licenses or registrations required for their services, their qualifications and insurance';
 }
 
 /** The people you'll call, with what to say to each: kept, printed and downloaded with your plan. */
@@ -632,7 +639,7 @@ function TeamListSection() {
   return (
     <section id="team" aria-labelledby="team-head">
       <h2 id="team-head">Your team</h2>
-      <p>Your core team and the specialists your purchase may need. Fill in the roles that fit your plan. Write down who you chose, check their license or registration, and note what they charge. Each role links to what they do and how to find one.</p>
+      <p>Your core team and the specialists your purchase may need. Fill in the roles that fit your plan. Write down who you chose, check the licenses or registrations required for their services and location, and note what they charge. For services that do not require a license, check relevant qualifications, experience and insurance. Qualifications do not replace a legally required license. Each role links to what they do and how to find one.</p>
       <ol className="team-list">
         {TEAM_ROLES.map((k) => {
           const g = proGuideByKey(k);

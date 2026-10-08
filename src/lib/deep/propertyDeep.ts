@@ -569,10 +569,10 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         }
       },
       {
-        text: "More than 22 million mostly low-income Americans live in 43,000 manufactured home communities.",
+        text: "The Manufactured Housing Institute reports more than 43,000 manufactured home communities in the U.S., representing almost 4.3 million homesites. Homesites are spaces for homes, not a count of residents.",
         source: {
-          label: "Associated Press (via Times-Republican): Rents spike as big-pocketed investors buy mobile home parks (Jul 26, 2022)",
-          url: "https://www.timesrepublican.com/news/money-markets/2022/07/rents-spike-as-big-pocketed-investors-buy-mobile-home-parks/"
+          label: "Manufactured Housing Institute: Manufactured Housing Communities in the U.S.",
+          url: "https://www.manufacturedhousing.org/industry-resources/community-research/manufactured-housing-communities-in-the-u-s/"
         }
       },
       {
