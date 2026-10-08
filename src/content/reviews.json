@@ -358,11 +358,12 @@
       "src/components/Term.tsx",
       "src/lib/terms.ts",
       "src/components/StrategyPage.tsx",
-      "src/lib/strategies.ts"
+      "src/lib/strategies.ts",
+      "src/lib/lessons/taxes.ts"
     ],
     "reviewed": "2026-10-08",
-    "hash": "03d7fec30d56df09",
-    "note": "Reviewed corrected MHI statistic and county directory notices; missing categories and links without recorded verification remain explicitly identified, with no guessed URLs or verification dates."
+    "hash": "5f5f9460496b6544",
+    "note": "Reviewed California FTB exchange-reporting correction and confirmed Utah House tax-rate source; include taxes lesson in future review hashes."
   },
   {
     "id": "decide",
@@ -385,8 +386,8 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-08",
-    "hash": "ffce716c0fa0c502",
-    "note": "Reviewed corrected MHI statistic and county directory notices; missing categories and links without recorded verification remain explicitly identified, with no guessed URLs or verification dates."
+    "hash": "a76beb2d96fcfe3b",
+    "note": "Complete official county directory, preserve shared office labels, distinguish contact links from auction details and document retrieval limitations."
   },
   {
     "id": "analyze",

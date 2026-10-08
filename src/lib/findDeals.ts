@@ -2,6 +2,7 @@
 // portals and auction marketplaces) only in their own, clearly labeled list (CLAUDE.md).
 import { REO_SOURCES, reoWhatFor } from './reoSources';
 import type { StateCode } from './regions';
+import type { CountyOffices } from './countyOffices';
 
 export interface DealSource {
   name: string;
@@ -119,4 +120,28 @@ const OFFICE_LABELS_TX = [
 ] as const;
 
 /** The office labels for a state. */
-export const officeLabelsFor = (state: StateCode) => (state === 'TX' ? OFFICE_LABELS_TX : OFFICE_LABELS);
+export const officeLabelsFor = (state: StateCode) => state === 'TX' ? OFFICE_LABELS_TX : state === 'AZ'
+  ? OFFICE_LABELS.map((o) => o.key === 'sheriff' ? { ...o, name: 'Sheriff or constable' } : o)
+  : OFFICE_LABELS;
+
+/** Keep every office's purpose visible when a county uses one shared page. */
+export const countyOfficeCards = (state: StateCode, offices?: CountyOffices): DealSource[] => {
+  const cards = new Map<string, DealSource>();
+  for (const label of officeLabelsFor(state)) {
+    const office = offices?.[label.key];
+    if (!office) continue;
+    const description = office.contactOnly
+      ? 'Official office contact or directory. Ask the office about these services and where current records or sale information are published.'
+      : label.key === 'sheriff'
+        ? 'Civil services and judgment enforcement. Confirm any current property sales, notices and bidding rules with the office.'
+        : label.what;
+    const name = `${label.name}${office.contactOnly ? ' — contact / directory' : ''}`;
+    const what = `${description}${office.note ? ` ${office.note}` : ''} ${office.checked ? `Link last checked: ${office.checked}. Confirm current details with the office.` : 'No verification date recorded. Confirm this link and current details with the county before relying on it.'}`;
+    const previous = cards.get(office.url);
+    if (previous) {
+      previous.name += ` / ${name}`;
+      if (!previous.what.includes(what)) previous.what += ` ${label.name}: ${what}`;
+    } else cards.set(office.url, { name, url: office.url, what });
+  }
+  return [...cards.values()];
+};
