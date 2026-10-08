@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { backedUp, makeBackup, readBackup, restoreBackup } from './progressBackup';
+import { readConfirmed, saveConfirmed } from './calcConfirmation';
 import { cleanLog, logText } from './evidence';
 
 class MemStorage implements Storage {
@@ -96,4 +97,41 @@ describe('calculator region settings and per-property steps', () => {
     const r = readBackup(text);
     expect(r.ok && JSON.parse(r.data['deedowl.roadmap.deals.v1'])).toEqual({ 'analyzed:dX': { done: [], status: {} } });
   });
+});
+
+
+describe('calculator confirmations survive a backup', () => {
+  it('keeps an intentional zero and an example-matching value confirmed on another device', () => {
+    const source = new MemStorage();
+    const key = 'fsf.calc.rent.d1-offer.v1';
+    source.setItem(key, JSON.stringify({ repairs: 0, monthlyRent: 2000 }));
+    saveConfirmed(key, new Set(['repairs', 'monthlyRent']), source);
+    source.setItem('fsf.bid.analyzed-d1.v1.region', '2.55');
+    source.setItem(`${key}.region`, '2.55|NV');
+    const checked = readBackup(JSON.stringify(makeBackup(source)));
+    expect(checked.ok).toBe(true);
+    if (!checked.ok) return;
+    const destination = new MemStorage();
+    restoreBackup(checked.data, destination);
+    expect([...readConfirmed(key, destination)]).toEqual(['repairs', 'monthlyRent']);
+    expect(destination.getItem('fsf.bid.analyzed-d1.v1.region')).toBe('2.55');
+    expect(destination.getItem(`${key}.region`)).toBe('2.55|NV');
+  });
+  it('restoring old numbers removes confirmations from this device', () => {
+    const s = new MemStorage();
+    const key = 'fsf.calc.commercial.v1';
+    saveConfirmed(key, new Set(['monthlyRent']), s);
+    restoreBackup({ [key]: '{"monthlyRent":2000}' }, s);
+    expect([...readConfirmed(key, s)]).toEqual([]);
+  });
+});
+
+it('migrates existing flip confirmations to the new key without losing deliberate zeros', () => {
+  const s = new MemStorage();
+  const key = 'fsf.bid.analyzed-d1.v1';
+  s.setItem('fsf.bid.analyzed-d1.typed.v1', '["repairs"]');
+  expect([...readConfirmed(key, s)]).toEqual(['repairs']);
+  saveConfirmed(key, new Set(['repairs', 'exitValue']), s);
+  expect(s.getItem('fsf.bid.analyzed-d1.typed.v1')).toBeNull();
+  expect([...readConfirmed(key, s)]).toEqual(['repairs', 'exitValue']);
 });

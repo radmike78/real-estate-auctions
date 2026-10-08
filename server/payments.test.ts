@@ -345,7 +345,7 @@ describe('advertising plans: checkout, caps and webhooks (running server, simula
 
   it('checks out Premium Plus with the topic in the subscription metadata, and allows promotion codes', async () => {
     const a = advertiser('agent');
-    expect((await post(a.cookie, '/api/pro/checkout', { tier: 'premium_plus' })).status).toBe(422); // a topic is required
+    expect((await post(a.cookie, '/api/pro/checkout', { tier: 'premium_plus' })).status).toBe(200); // a topic is optional; fixed site ads are included without one
     expect((await post(a.cookie, '/api/pro/checkout', { tier: 'premium_plus', topic: 'financing' })).status).toBe(422); // not an agents' topic
     expect((await post(a.cookie, '/api/pro/checkout', { tier: 'platinum' })).status).toBe(400);
     const r = await post(a.cookie, '/api/pro/checkout', { tier: 'premium_plus', topic: 'offer', priceId: 'price_EVIL01' });

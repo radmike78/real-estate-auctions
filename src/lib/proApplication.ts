@@ -29,7 +29,7 @@ export const CONTENT_RULES = [
 /** The rules for the optional ad line, shown next to the field. Enforced by validateAdLine. */
 export const AD_LINE_RULES = [
   'Optional. 20 to 180 characters of plain text, in your own words ("We…", "Ask us about…").',
-  'It appears in your ad boxes (the rotating ad on every plan, plus the Featured ad and Mentor Connect ads), labeled as an ad. We review it before it goes live.',
+  'It appears in your ad boxes (the rotating ad on Rotating, fixed ads on Spotlight and Mentor Connect, and optional Mentor Connect topic ads), labeled as an ad. We review it before it goes live.',
   'No web addresses, emails or phone numbers: buyers contact you through the buttons.',
   'No "best", "#1", "number one", "top-rated", "trusted", "recommended", "endorsed", "guaranteed", "lowest", "cheapest" or "DeedOwl".',
   'Lenders: no rates, APRs, percentages, payment amounts, down payments or other dollar amounts. Those trigger Truth in Lending disclosures an ad line can’t hold.',

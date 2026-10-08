@@ -62,7 +62,7 @@ export function PriceHead({ kind, label, price, result, unit = 'a month', note, 
           <>
             <span className="price-head-arrow" aria-hidden> → </span>
             <span className="sr-only"> gives </span>
-            <strong className={`price-head-result${result < 0 ? ' neg' : ''}`}>{money(result)} {unit}</strong>
+            <strong className={`price-head-result${result < 0 ? ' neg' : ''}`}>{money(result)} {unit} before income tax</strong>
           </>
         )}
       </span>

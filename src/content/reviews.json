@@ -159,8 +159,8 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-08",
-    "hash": "984055df801383dc",
-    "note": "Full content review (review round of 2026-09-27)."
+    "hash": "0ae6bf4430abc1a4",
+    "note": "Reviewed audit calculator fixes and Claude integration, including migration of old input confirmations, region-stamp backup compatibility, full-precision coverage and before-income-tax labels."
   },
   {
     "id": "deals",
@@ -172,9 +172,9 @@
       "src/lib/dealPacket.ts",
       "src/lib/evidence.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "b6f1af77345523f1",
-    "note": "Full content review (review round of 2026-09-27)."
+    "reviewed": "2026-10-08",
+    "hash": "8358120b5132ec7c",
+    "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged."
   },
   {
     "id": "alerts",
@@ -185,8 +185,8 @@
       "src/components/SearchAlertButton.tsx"
     ],
     "reviewed": "2026-10-08",
-    "hash": "c4e035c5a5014144",
-    "note": "Full content review (review round of 2026-09-27)."
+    "hash": "923b1ebffb429e6b",
+    "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged."
   },
   {
     "id": "agents",
@@ -203,9 +203,9 @@
       "src/components/TeamBuilder.tsx",
       "src/lib/teamBuilder.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "2a8abb2393ef1c7a",
-    "note": "Full content review (review round of 2026-09-27)."
+    "reviewed": "2026-10-08",
+    "hash": "c319f52a65757491",
+    "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged."
   },
   {
     "id": "financing",
@@ -268,9 +268,9 @@
       "src/components/AdvertiseApplyPage.tsx",
       "src/lib/proApplication.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "c813d9d9d094a3ad",
-    "note": "Full content review (review round of 2026-09-27)."
+    "reviewed": "2026-10-08",
+    "hash": "8c063be2b67421df",
+    "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged."
   },
   {
     "id": "disclaimer",
@@ -301,9 +301,9 @@
     "files": [
       "src/components/TermsPage.tsx"
     ],
-    "reviewed": "2026-10-05",
-    "hash": "6e8a019c88c062fb",
-    "note": "Full content review (review round of 2026-09-27)."
+    "reviewed": "2026-10-08",
+    "hash": "7a6dcc5e42bb5f82",
+    "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged."
   },
   {
     "id": "emails",
@@ -354,9 +354,9 @@
       "src/components/StrategyPage.tsx",
       "src/lib/strategies.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "d5b6bb920ac54634",
-    "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
+    "reviewed": "2026-10-08",
+    "hash": "1cea41ea72d740be",
+    "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged."
   },
   {
     "id": "decide",
@@ -365,9 +365,9 @@
       "src/components/DecidePage.tsx",
       "src/lib/decide.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "5370f8b869632b53",
-    "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
+    "reviewed": "2026-10-08",
+    "hash": "5444dd00176985d2",
+    "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged."
   },
   {
     "id": "finddeals",
@@ -378,9 +378,9 @@
       "src/lib/findDeals.ts",
       "src/lib/regions.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "b566193cf207c6c1",
-    "note": "County offices for all 119 counties, from each county’s own site; state-by-state sale rules; follows the visitor’s state."
+    "reviewed": "2026-10-08",
+    "hash": "ffdbc1d5d37695fd",
+    "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged."
   },
   {
     "id": "analyze",
@@ -391,9 +391,9 @@
       "src/lib/analyze.ts",
       "src/lib/path.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "237db3ebfa95b7af",
-    "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
+    "reviewed": "2026-10-08",
+    "hash": "2fc66e7655299b74",
+    "note": "Reviewed audit calculator fixes and Claude integration, including migration of old input confirmations, region-stamp backup compatibility, full-precision coverage and before-income-tax labels."
   },
   {
     "id": "toolkit",
@@ -405,7 +405,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-08",
-    "hash": "a195132eb85cd13e",
-    "note": "New page: first-deal roadmap, buy box and tool links."
+    "hash": "2c595ebd33f79e71",
+    "note": "Reviewed specialist team storage and calculator backup compatibility, including old confirmation keys and state/county region stamps."
   }
 ]

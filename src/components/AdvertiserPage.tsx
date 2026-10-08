@@ -1,3 +1,4 @@
+import FeatureStatus from './FeatureStatus';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { replaceAddress } from '../lib/nav';
 import { api, ApiError } from '../lib/api';
@@ -56,9 +57,9 @@ function TopicPicker({ me, value, onChange }: { me: Me; value: string; onChange:
   const topics = topicsFor(me.profile.category);
   return (
     <label className="field">
-      <span>Topic for your Mentor Connect ad</span>
+      <span>Topic for your Mentor Connect ad (optional)</span>
       <select value={value} onChange={(e) => onChange(e.target.value)}>
-        <option value="">Choose a topic…</option>
+        <option value="">No topic ad</option>
         {topics.map((t) => {
           const taken = me.payments.topicsFull.includes(t.key) && me.payments.topic !== t.key;
           return <option key={t.key} value={t.key} disabled={taken}>{t.label}{taken ? ' (taken right now)' : ''}</option>;
@@ -112,7 +113,7 @@ function PlanCard({ me, onChange }: { me: Me; onChange: () => void }) {
   };
   const canBuy = (t: AdTier) => !!labels?.[t]?.available && !p.full[t];
   const areaCount = me.profile.adAreas.length;
-  const ready = areaCount > 0 && canBuy(tier) && (tier !== 'premium_plus' || (!!topic && !p.topicsFull.includes(topic)));
+  const ready = areaCount > 0 && canBuy(tier) && (tier !== 'premium_plus' || !topic || !p.topicsFull.includes(topic));
   return (
     <section className="plan-card" aria-labelledby="plan-h">
       <h2 id="plan-h">Your plan</h2>
@@ -144,7 +145,7 @@ function PlanCard({ me, onChange }: { me: Me; onChange: () => void }) {
             <div className="form">
               {!p.topic && <div className="notice">Choose the topic for your Mentor Connect ad. It appears once you save a topic.</div>}
               <TopicPicker me={me} value={topic} onChange={setTopic} />
-              <button className="btn btn-secondary" disabled={!topic || topic === p.topic} onClick={saveTopic}>Save topic</button>
+              <button className="btn btn-secondary" disabled={topic === (p.topic ?? '')} onClick={saveTopic}>Save topic</button>
               {topicMsg && <p className="small" role="status">{topicMsg}</p>}
             </div>
           )}
@@ -421,7 +422,8 @@ function SignIn() {
     setMsg(r.message);
   }
   // Sign-in links go by email: until email is set up, the form can't work.
-  if (features && !features.email)
+  if (!features || features.unavailable) return <main className="page"><PageHero title="Advertiser sign-in" /><FeatureStatus features={features} /></main>;
+  if (!features.email)
     return (
       <main className="page">
         <PageHero compact title="Advertiser sign-in" />

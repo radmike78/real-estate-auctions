@@ -14,7 +14,7 @@ import CountySales from './CountySales';
 import { upcomingCountySales } from '../lib/countySales';
 import PlaceCombobox from './PlaceCombobox';
 import { useLastActivity } from '../lib/journey';
-import { RotatingAd, useAdShows } from './AdBoxes';
+import { FixedAds, useAdShows } from './AdBoxes';
 import { useDirectory } from './ProDirectory';
 import { useSpotCategories } from './AdSpot';
 
@@ -118,7 +118,7 @@ export default function FindDealsPage() {
       {/* The Mentor Connect spot (Admin → Ad spots) beside the "found a property" help, above and apart from the official sources. */}
       <div className={adShows ? 'next-with-ad fd-next' : undefined}>
         <p className="page-starter"><strong>Buying a home listed for sale?</strong> Ask a licensed agent to set up a search of homes on the local listing service (MLS) that match your buy box (your written limits: area, property type, price and condition). <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p>
-        {adShows && <RotatingAd pros={pros} categories={adCats} placeholder />}
+        {adShows && <FixedAds pros={pros} categories={adCats} placeholder />}
       </div>
       <h2 className="section-title">Official sources</h2>
       <p className="muted">Government agencies, Fannie Mae and Freddie Mac, and the banks that own the homes: the sellers themselves.</p>

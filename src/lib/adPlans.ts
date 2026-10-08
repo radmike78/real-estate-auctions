@@ -4,15 +4,10 @@
 // Plan names shown to people (TIER_INFO): Rotating (standard), Spotlight (premium), Mentor Connect (premium_plus),
 // matching the operator's Stripe products. The internal keys stay standard/premium/premium_plus.
 //
-//  - Standard (Rotating): a profile page, a place in the category's directory list in fair rotating order, and turns
-//    in the rotating ad at the top of the Your Team page.
-//  - Premium (Spotlight): Standard, plus a separate box labeled "Featured ad" on the category's directory pages for
-//    their city or county, shown above the list. With at most CAPS.featured per category in each city, every Spotlight
-//    advertiser in the visitor's city is shown on every page view (it doesn't rotate). It never moves anyone up in
-//    the list itself: the list keeps the same rotation for everyone (pros.ts).
-//  - Premium Plus (Mentor Connect): Premium, plus labeled ads where people may want more help: beside one Learn or
-//    Practice topic they choose (adTopics.ts), and in the Mentor Connect ad spots the site owner turns on in
-//    Admin → Ad spots (adSpots.ts).
+// Rotating: profile, neutral directory listing and a rotating Your Team ad.
+// Spotlight: profile, neutral directory listing and fixed ads at enabled, applicable placements.
+// Mentor Connect: Spotlight's fixed ads, plus an optional Learn/Practice topic ad.
+// Fixed placements show every eligible advertiser; they never select a rotating subset.
 //
 // Prices are never set here: they come from the operator's Stripe configuration (STRIPE_PLANS, server/stripe.ts).
 
@@ -32,11 +27,11 @@ export const TIER_INFO: Record<AdTier, { label: string; includes: string[]; badg
   },
   premium: {
     label: 'Spotlight',
-    includes: ['Everything in Rotating', 'A Featured ad on your category’s page for your city or county, above the list, that doesn’t rotate'],
+    includes: ['Your own profile page with a contact form', 'A place in your category’s directory list', 'A fixed ad that doesn’t rotate at available, enabled placements for your category and ad areas', 'A results dashboard and a monthly report'],
   },
   premium_plus: {
     label: 'Mentor Connect',
-    includes: ['Everything in Spotlight', 'A labeled ad beside one Learn or Practice topic you choose', 'Turns in the Mentor Connect ad spots across the site, such as Find Deals, Analyze a deal and My plan'],
+    includes: ['Everything in Spotlight', 'An optional fixed ad linked to one Learn or Practice topic you choose'],
     badge: 'Best value',
   },
 };
@@ -50,7 +45,7 @@ export const CAPS = {
   listing: 5,
   /** Featured ad spots per category (Premium and Premium Plus). */
   featured: 2,
-  /** Topic ad spots per category and topic, for real estate settlement services (they rotate). Premium Plus also takes
+  /** Topic ad spots per category and topic, for real estate settlement services (shown together). Premium Plus also takes
    * a Featured spot, so this can't usefully be more than `featured`. */
   topicSettlement: 2,
   /** Topic ad spots per category and topic for every other category (exclusive). */
@@ -60,19 +55,21 @@ export const CAPS = {
 } as const;
 
 /**
- * Real estate settlement-service categories (RESPA). Several of them share a topic spot in rotation, so no single
- * one is presented as the choice; other categories hold a topic spot alone.
+ * Real estate settlement-service categories (RESPA). Their topic ads are shown together, with no single
+ * advertiser presented as the choice; other categories hold a topic spot alone.
  */
 export const RESPA_CATEGORIES: ReadonlySet<Category> = new Set<Category>(['agent', 'loan_officer', 'mortgage_company', 'bank', 'credit_union', 'private_lender', 'title_escrow', 'attorney']);
 
 export const hasFeaturedBox = (t: AdTier) => t === 'premium' || t === 'premium_plus';
 
-/**
- * Who takes turns in a one-advertiser "Advertisement" box. The rotating ad at the top of the Your Team page (no
- * categories): every plan. The Mentor Connect ad spots (with categories, adSpots.ts): Mentor Connect only. Advertisers whose ads an admin turned off never appear.
- */
-export function rotatingPool<P extends { category: Category; tier: AdTier; adsOff?: boolean }>(pros: P[], categories?: Category[]): P[] {
-  return pros.filter((p) => !p.adsOff && (categories ? p.tier === 'premium_plus' && categories.includes(p.category) : true));
+/** Only Rotating advertisers participate in the rotating Your Team ad. */
+export function rotatingPool<P extends { category: Category; tier: AdTier; adsOff?: boolean }>(pros: P[]): P[] {
+  return pros.filter((p) => !p.adsOff && p.tier === 'standard');
+}
+
+/** Fixed ads show every eligible Spotlight/Mentor Connect advertiser, in stable order. */
+export function fixedPool<P extends { id: string; category: Category; tier: AdTier; adsOff?: boolean }>(pros: P[], categories: Category[]): P[] {
+  return pros.filter((p) => !p.adsOff && hasFeaturedBox(p.tier) && categories.includes(p.category)).sort((a, b) => a.id.localeCompare(b.id));
 }
 export const topicCap = (c: Category) => (RESPA_CATEGORIES.has(c) ? CAPS.topicSettlement : CAPS.topicOther);
 
@@ -98,7 +95,7 @@ export const SHORT_LICENSE_LABEL: Record<Category, string> = {
 };
 
 /** Fine print under every ad box. */
-export const AD_FINE_PRINT = 'Paid ad. DeedOwl checks that advertisers hold an active license but doesn’t recommend, rank or review them. Compare more than one.';
+export const AD_FINE_PRINT = 'Paid ad. DeedOwl checks required licenses or registrations, and alternative qualifications where no state license applies but doesn’t recommend, rank or review them. Compare more than one.';
 
 /** One advertiser's current spot: what counts toward the caps. */
 export interface Placement {

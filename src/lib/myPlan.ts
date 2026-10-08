@@ -1,7 +1,7 @@
 // My plan's own records: your goal in a sentence, the team you've lined up, and what price your cash can support.
 // Kept in this browser like the rest of the plan, and included in progress backups.
 import { annualDebtService } from './holdCalc';
-import { CORE_TEAM, type ProKey } from './proGuide';
+import { CORE_TEAM, PRO_GUIDES, type ProKey } from './proGuide';
 
 export const GOAL_KEY = 'deedowl.goal.v1';
 export const TEAM_LIST_KEY = 'deedowl.teamlist.v1';
@@ -19,7 +19,7 @@ export interface TeamMember {
 export type TeamList = Partial<Record<ProKey, TeamMember>>;
 
 /** The roles a first purchase usually needs, in the order you'll usually call them. */
-export const TEAM_ROLES: ProKey[] = CORE_TEAM;
+export const TEAM_ROLES: ProKey[] = [...CORE_TEAM, ...PRO_GUIDES.map((g) => g.key).filter((k) => !CORE_TEAM.includes(k))];
 
 export function cleanTeamList(v: unknown): TeamList {
   const out: TeamList = {};

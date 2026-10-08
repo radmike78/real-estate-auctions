@@ -1,3 +1,4 @@
+import FeatureStatus from './FeatureStatus';
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { AD_LINE_RULES, CONTENT_RULES, LANGUAGES, MAX_SERVICE_CITIES, validateApplication, type ApplicationInput } from '../lib/proApplication';
 import { CATEGORIES, CREDIT_PROFILES, REVERIFY_DAYS, servicesFor, type Category } from '../lib/pros';
@@ -138,7 +139,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
     }
   }
 
-  if (!features) return <main className="page" />;
+  if (!features || features.unavailable) return <main className="page"><PageHero title="Apply to advertise" /><FeatureStatus features={features} /></main>;
   if (!advertisingOpen(features)) {
     return (
       <main className="page">

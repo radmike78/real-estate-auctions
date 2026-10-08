@@ -26,7 +26,7 @@ export const walkAway: Lesson = {
         { list: [
           'Negative cash flow: once you use realistic rent and every cost, the property loses money each month. That includes vacancy, repairs, reserves for big items and management.',
           'Someone else’s rent: the rent comes from the seller or an online asking price, not from homes that actually rented nearby.',
-          'Wrong comparables: the value after repairs comes from bigger, remodeled or old sales instead of similar homes sold recently.',
+          'Wrong comparables: separate the property’s value as it is today from its value after repairs. For today’s value, compare similar condition; for after-repair value, similar remodeled homes can fit if your finished work will match. Check size, location and recent sales, and support any adjustments for condition or older sale dates.',
           'No cushion: a flip only works if every estimate is right. There’s no cushion for higher repairs or a lower sale price.',
           'No reserves: you’d have no cash left for reserves after closing.',
           'Thin margin: a small change, like rent 10% lower or $1,200 more a year for insurance, wipes out the profit.',
@@ -43,7 +43,7 @@ export const walkAway: Lesson = {
           'Sewer and septic: a camera inspection of the sewer line, or a septic inspection, costs little compared with replacing one.',
           'Unpermitted work: additions or garage conversions without permits. Check the permit history with the city or county building department. You may have to permit, fix or remove them.',
           'Water, mold and fire: signs of water damage, mold or past fire damage.',
-          'Flood risk: look up the flood zone on FEMA’s Flood Map Service Center. If a home is in a high-risk flood area and has a mortgage from a government-backed lender, it must have flood insurance, and that can change your numbers.',
+          'Flood risk: look up the flood zone on FEMA’s Flood Map Service Center. If a home is in a high-risk flood area and has a mortgage from a federally regulated or insured lender (most banks and credit unions), or a loan backed by Fannie Mae, Freddie Mac, FHA or VA, it must have flood insurance for the life of the loan (42 U.S.C. 4012a), and that can change your numbers.',
           'Lead paint: homes built before 1978 come with federal lead disclosure rules, and sales at foreclosure are exempt from them. “Check before you commit” in the Analyzing a deal lesson explains what you get and what to plan for.',
           'Insurance: get a quote before you commit. If no one will insure the property at a workable price, that’s a deal breaker.',
         ] },

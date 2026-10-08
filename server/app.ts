@@ -1080,7 +1080,7 @@ export function createApp(config: AppConfig) {
         const plan = stripe.client.planFor(row.profile.category, tier);
         if (!plan) throw new HttpError(409, `The ${TIER_INFO[tier].label} plan isn’t available for your category yet.`);
         const topic = tier === 'premium_plus' && topicAllowed(row.profile.category, body.topic) ? body.topic : null;
-        if (tier === 'premium_plus' && !topic) throw new HttpError(422, 'Choose the Learn or Practice topic for your Mentor Connect ad.');
+        if (tier === 'premium_plus' && body.topic && !topic) throw new HttpError(422, 'Choose a valid Learn or Practice topic for your category, or leave it blank.');
         if (!row.verification) throw new HttpError(409, 'Your license must be verified before you can start advertising.');
         const areas = row.profile.adAreas;
         if (!areas.length) throw new HttpError(409, 'Choose where your ads show (your ad areas) first.');
@@ -1164,8 +1164,8 @@ export function createApp(config: AppConfig) {
         assertAppRequest(req);
         const topic = (await readJson(req)).topic;
         if (billingTier(row.billing) !== 'premium_plus') throw new HttpError(409, 'Topic ads are part of the Mentor Connect plan.');
-        if (!topicAllowed(row.profile.category, topic)) throw new HttpError(422, 'Choose one of the topics for your category.');
-        const full = capFor(row, 'premium_plus', topic);
+        if (topic !== '' && !topicAllowed(row.profile.category, topic)) throw new HttpError(422, 'Choose one of the topics for your category.');
+        const full = capFor(row, 'premium_plus', topic || null);
         if (full) throw new HttpError(409, capMessage(full, row.profile.category, topic));
         db.update(row.id, { profile: { ...row.profile, adTopic: topic } }, now().toISOString());
         db.audit({ at: now().toISOString(), actor: 'advertiser', applicationId: row.id, action: 'AD_TOPIC_SET', detail: topic });

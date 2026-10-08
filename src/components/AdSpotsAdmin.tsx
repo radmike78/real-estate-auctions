@@ -7,7 +7,7 @@ import { refreshAdSpots } from './AdSpot';
 const ALL = Object.keys(CATEGORIES) as Category[];
 
 /**
- * Admin: where Mentor Connect ads show. Each spot is on or off, with the kinds of professionals it shows. Saved for
+ * Admin: where fixed ads show. Each spot is on or off, with the kinds of professionals it shows. Saved for
  * the whole site; pages pick it up on their next visit.
  */
 export default function AdSpotsAdmin() {
@@ -42,10 +42,10 @@ export default function AdSpotsAdmin() {
 
   return (
     <section className="ad-spots-admin" aria-labelledby="ad-spots-head">
-      <h2 id="ad-spots-head" className="section-title">Mentor Connect ad spots</h2>
+      <h2 id="ad-spots-head" className="section-title">Fixed ad spots</h2>
       <p>
-        Turn on the places where Mentor Connect advertisers take turns in a labeled ad, and choose which kinds of professionals each one shows.
-        Only Mentor Connect advertisers in the visitor’s area appear; a spot with no advertiser yet shows an “Advertisement space” box that points
+        Turn on the places where Spotlight and Mentor Connect advertisers appear together in a labeled ad, and choose which kinds of professionals each one shows.
+        Spotlight and Mentor Connect advertisers in the visitor’s area appear; a spot with no advertiser yet shows an “Advertisement space” box that points
         professionals to the Advertise page. {on} of {AD_SPOTS.length} spots are on.
       </p>
       <p className="small muted">Pages for homeowners (homeowner help, pre-foreclosures, surplus money) and business closures have no ad spots: an ad there could reach owners in distress.</p>

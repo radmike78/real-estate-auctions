@@ -332,7 +332,7 @@ describe('the deal packet', () => {
     for (const kind of ['listing', 'reo', 'short'] as const) {
       const g = dateGuide({ kind, state: 'TX' }).find((x) => /^Property Approval deadline/.test(x.what))!;
       expect(g.todo).toMatch(/appraisal, insurability or required repairs/);
-      expect(g.todo).toMatch(/appraisal addendum \(TREC 49-1\) has box 1 checked, or box 2 and the appraisal is at or above the amount written there, a low appraisal alone isn’t a reason you can use\./);
+      expect(g.todo).toMatch(/appraisal addendum \(TREC 49-1\) has box 1 checked, or box 2 and the appraisal is at or above the amount written there, a low appraisal alone isn’t a reason you can use, and if the lender then lends less because of the appraisal, you make up the difference in cash at closing \(49-1\)\./);
       expect(g.why).toMatch(/TREC 49-1, boxes 1 and 2/);
     }
   });
@@ -377,4 +377,28 @@ describe('the deal packet', () => {
       expect(flipBudgetLine(flip)).toBe('Your budget: repairs with contingency $23,000, holding $500 a month for 4 months (about $2,000): $25,000 in all.');
     });
   });
+});
+
+describe('Texas HOA and appraisal dates', () => {
+  it('warns that box 2 deems the Subdivision Information received on the paragraph A date', () => {
+    const g = dateGuide({ kind: 'listing', state: 'TX' }).find((x) => /^HOA subdivision information/.test(x.what))!;
+    expect(g.when).toMatch(/Under box 2 you count as having received it on the day written in paragraph A/);
+    expect(g.when).toMatch(/updated resale certificate.*within 10 days after you pay/);
+  });
+  it('gives a short sale the appraisal addendum deadline, counted from the Amended Effective Date', () => {
+    const g = dateGuide({ kind: 'short', state: 'TX' }).find((x) => /^Appraisal addendum deadline/.test(x.what))!;
+    expect(g.when).toMatch(/Amended Effective Date/);
+    expect(g.why).toMatch(/TREC 49-1, box 3; TREC 45-2, paragraph D/);
+  });
+});
+
+
+it('exports the commercial actual offer separately from the walk-away price', () => {
+  localStorage.setItem('fsf.calc.commercial.d1-offer.v1', JSON.stringify({ atPrice: 100000, monthlyRent: 2000, loanPct: 0, targetCapPct: 8 }));
+  const sections = packetSections({ ...deal, plan: 'commercial' });
+  const numbers = sections.find((s) => s.key === 'numbers')!.lines.join(' ');
+  const cash = sections.find((s) => s.key === 'cash')!.lines.join(' ');
+  expect(numbers).toMatch(/Your offer \(your actual price\): \$100,000/);
+  expect(numbers).toMatch(/before income tax/);
+  expect(cash).toMatch(/At your actual price of \$100,000/);
 });

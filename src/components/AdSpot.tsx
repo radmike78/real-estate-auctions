@@ -1,9 +1,9 @@
-// Mentor Connect ad spots (adSpots.ts): which spots the site owner turned on, and the box each one shows.
+// Fixed ad spots (adSpots.ts): which spots the site owner turned on, and the box each one shows.
 import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import { cleanSpots, DEFAULT_SPOTS, spotCategories, type SpotSettings } from '../lib/adSpots';
 import type { Category } from '../lib/pros';
-import { RotatingAd } from './AdBoxes';
+import { FixedAds } from './AdBoxes';
 import { useDirectory } from './ProDirectory';
 
 // Read once per visit and shared by every spot on every page; the defaults hold until (or unless) the server answers.
@@ -47,7 +47,7 @@ export function useSpotCategories(key: string, auto?: Category[]): Category[] {
 
 /**
  * A spot at the end of a page: a heading bar, one plain line in DeedOwl's own voice (no names, no recommendation),
- * and one labeled Mentor Connect ad in the visitor's area, held by a placeholder while no advertiser fills it.
+ * and fixed, labeled ads in the visitor's area, held by a placeholder while no advertiser fills it.
  * Nothing at all while the owner has the spot off.
  */
 export default function AdSpot({ spot, auto }: { spot: string; auto?: Category[] }) {
@@ -62,7 +62,7 @@ export default function AdSpot({ spot, auto }: { spot: string; auto?: Category[]
           <p>Licensed professionals in your area advertise on DeedOwl. DeedOwl doesn’t recommend any of them: check the license, ask what they charge, and compare more than one before you hire.</p>
           <p><a href="#/pros">Who does what on your team&nbsp;→</a></p>
         </div>
-        <RotatingAd pros={pros} categories={cats} placeholder />
+        <FixedAds pros={pros} categories={cats} placeholder />
       </div>
     </section>
   );

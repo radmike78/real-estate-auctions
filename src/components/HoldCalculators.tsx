@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
+import { readConfirmed, saveConfirmed } from '../lib/calcConfirmation';
 import type { BidInputs } from '../lib/bidCalc';
-import { COMMERCIAL_DEFAULTS, commercialLines, lenderView, STR_DEFAULTS, strCompare, type StrInputs, HOLD_SELL_DEFAULTS, SELLER_FINANCE_DEFAULTS, sellerFinance, type SellerFinanceInputs, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs } from '../lib/holdCalc';
+import { COMMERCIAL_DEFAULTS, commercialAtPrice, commercialLines, lenderView, STR_DEFAULTS, strCompare, type StrInputs, HOLD_SELL_DEFAULTS, SELLER_FINANCE_DEFAULTS, sellerFinance, type SellerFinanceInputs, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs } from '../lib/holdCalc';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 import CalcFields, { type CalcGroup } from './CalcFields';
@@ -27,10 +28,9 @@ function useRegionTax<T extends BuyInputs>(groups: CalcGroup<T>[]): { groups: Ca
 const pctText = (x: number | null) => (x === null ? '—' : `${(Math.round(x * 1000) / 10).toLocaleString()}%`);
 
 /** Inputs kept in this browser (per property when there is one); rebuilt safely from storage. */
-function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> = {}): [T, (k: keyof T & string, v: number) => void, boolean, ReadonlySet<string>] {
-  // `force` holds the region's values (its transfer tax). They replace saved numbers only when the region changes,
-  // so a number the user typed survives switching tabs and reloading.
-  const sig = JSON.stringify(force);
+function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> = {}, sig = JSON.stringify(force)): [T, (k: keyof T & string, v: number) => void, boolean, ReadonlySet<string>] {
+  // `force` holds the region's values (its transfer tax, a rental's starting tax and insurance). They replace saved
+  // numbers only when the region (`sig`) changes, so a number the user typed survives switching tabs and reloading.
   // Whether any number here is the user's own (typed now or kept from before), or all are the starting examples.
   const [typed, setTyped] = useState(() => {
     try {
@@ -58,13 +58,19 @@ function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> 
       return;
     }
     setV((cur) => ({ ...cur, ...force }));
+    setTypedKeys((fields) => {
+      const next = new Set(fields);
+      Object.keys(force).forEach((field) => next.delete(field));
+      saveConfirmed(key, next);
+      return next;
+    });
   }, [key, sig]); // eslint-disable-line react-hooks/exhaustive-deps
-  // The fields typed in this visit: they're yours even when the number matches our example.
-  const [typedKeys, setTypedKeys] = useState<ReadonlySet<string>>(() => new Set());
+  // The fields confirmed for this saved calculator: they're yours even when the number matches our example.
+  const [typedKeys, setTypedKeys] = useState<ReadonlySet<string>>(() => readConfirmed(key));
   const set = (k: keyof T & string, n: number) => {
     trackAction('calculator_used', true);
     setTyped(true);
-    setTypedKeys((t) => (t.has(k) ? t : new Set([...t, k])));
+    setTypedKeys((t) => { const next = new Set([...t, k]); saveConfirmed(key, next); return next; });
     setV((cur) => {
       const next = { ...cur, [k]: n };
       try {
@@ -177,7 +183,7 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false, exampl
         </dl>
       )}
       {r.dscr !== null && !r.loanOk && (
-        <p className="calc-note small">The income covers the loan payment only {r.dscr.toFixed(2)} times. Many lenders want at least {minDscr.toFixed(2)}, so a smaller loan may be all you can get.</p>
+        <p className="calc-note small">The unrounded income coverage is below your {minDscr.toFixed(2)} minimum, even if the displayed ratio rounds to that number. A smaller loan may be needed; ask your lender for its own calculation.</p>
       )}
       <p className="muted small">{noiNote} An estimate to help you set a limit before the sale, not advice.</p>
     </section>
@@ -456,7 +462,10 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   // times a Nevada one's); they're starting numbers only and give way to anything typed or prefilled.
   const stateStart = regional ? rentalStartFor(region.state, start.value ?? RENT_DEFAULTS.value) : {};
   const examples = { ...RENT_DEFAULTS, ...stateStart, ...(offer ? OFFER_START : {}) };
-  const [saved, set, typed, typedKeys] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...examples, ...start }, regional ? { transferTaxPer500: rt.per500 } : {});
+  // On a change of state, the state's starting tax and insurance replace the old state's (a Texas tax bill is no
+  // guide to a Nevada one), except figures the property itself supplied (`start`).
+  const stateForce: Partial<RentInputs> = regional ? Object.fromEntries(Object.entries(stateStart).filter(([k]) => !(k in start))) : {};
+  const [saved, set, typed, typedKeys] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...examples, ...start }, regional ? { transferTaxPer500: rt.per500, ...stateForce } : {}, regional ? `${rt.per500}|${region.state}` : '{}');
   const v = offer ? { ...saved, buyerPremiumPct: 0 } : saved;
   const r = rentMaxBid(v, offer);
   const n = rentNoi(v);
@@ -471,6 +480,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
     <div className="calc">
       <div className="calc-inputs"><ExampleInputs labels={still} all={allExample} /><CalcFields groups={groups} values={v} onChange={set} /></div>
       <div className="calc-results">
+      <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
         {/* Your actual deal first; the price that would meet your goal second, each with its own heading bar and colour. */}
         <AtThisPrice v={v} start={r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} />
         <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} />
@@ -534,9 +544,43 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
     <div className="calc">
       <div className="calc-inputs"><ExampleInputs labels={still} all={allExample} /><CalcFields groups={groups} values={v} onChange={set} /></div>
       <div className="calc-results">
+      <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
+        <CommercialAtPrice v={v} offer={offer} setPrice={(price) => set('atPrice', price)} target={r.maxBid} />
         <HoldResults commercial r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} headLabel="Walk-away price" />
       </div>
     </div>
+  );
+}
+
+function CommercialAtPrice({ v, offer, setPrice, target }: { v: CommercialInputs; offer: boolean; setPrice: (n: number) => void; target: number }) {
+  const a = v.atPrice > 0 ? commercialAtPrice(v, v.atPrice, offer) : null;
+  const word = offer ? 'Your offer' : 'Your bid';
+  const meets = a && a.capOnCost !== null && a.capOnCost * 100 >= v.targetCapPct && a.loanOk && a.cashFlow > 0;
+  return (
+    <section className="calc-at-price" aria-label="Commercial results at your price">
+      <PriceHead kind="yours" label={word} price={a?.price ?? null} result={a ? a.cashFlow / 12 : null} note="Your actual price, using the income, costs, lease-up period and loan entered above." />
+      <label className="field"><span>{word} ($)</span><input type="number" min={0} max={1e9} step={1000} value={v.atPrice || ''} onChange={(e) => { const n = Number(e.target.value); setPrice(Number.isFinite(n) ? Math.min(1e9, Math.max(0, n)) : 0); }} /></label>
+      {Number.isFinite(target) && target > 0 && <button type="button" className="linkish" onClick={() => setPrice(target)}>Use the walk-away price ({fmtMoney(target)})</button>}
+      {!a ? <p>Enter the asking price or your proposed price to compare this property with your targets.</p> : <>
+        <p className={meets ? 'notice' : 'caution'}>{meets ? 'Meets your return-on-cost and coverage targets with these numbers.' : 'Misses your return-on-cost or coverage target, or has no positive cash flow.'} Verify the income, costs and loan terms before relying on this result.</p>
+        {v.cashAvailable > 0 && (offer ? a.cashIn : a.allIn) > v.cashAvailable && <p className="caution">Your entered cash does not cover this price and the modeled costs.</p>}
+        {!offer && a.loan > 0 && <p className="caution">The loan is a later refinance, not cash available at the auction. Until it closes, the full purchase and costs are your cash.</p>}
+        <dl className="calc-kv">
+          <div><dt>Net operating income, per year</dt><dd>{fmtMoney(Math.round(a.noi))}</dd></div>
+          <div><dt>Everything you pay, ready to lease, before loan fees</dt><dd>{fmtMoney(Math.round(a.allIn))}</dd></div>
+          <div><dt>Lease-up carrying costs</dt><dd>{fmtMoney(Math.round(a.leaseUpCost))}</dd></div>
+          {a.leaseUpDebt > 0 && <div><dt>Loan payments during lease-up (included above)</dt><dd>{fmtMoney(Math.round(a.leaseUpDebt))}</dd></div>}
+          <div><dt>Your cash in, including loan fees</dt><dd>{fmtMoney(Math.round(a.cashIn))}</dd></div>
+          <div><dt>Debt service, per year</dt><dd>{fmtMoney(Math.round(a.debtService))}</dd></div>
+          <div><dt>Replacement reserves, per year</dt><dd>{fmtMoney(Math.round(a.reserves))}</dd></div>
+          <div><dt>Cash flow per month, before income tax</dt><dd>{fmtMoney(Math.round(a.cashFlow / 12))}</dd></div>
+          <div><dt>Cap rate on purchase price</dt><dd>{pctText(a.capOnPrice)}</dd></div>
+          <div><dt>Cap rate on total cost before loan fees</dt><dd>{pctText(a.capOnCost)} (target {v.targetCapPct}%)</dd></div>
+          <div><dt>Cash-on-cash return, before income tax</dt><dd>{pctText(a.cashOnCash)}</dd></div>
+          {a.dscr !== null && <div><dt>Income coverage (minimum {v.minDscr})</dt><dd>{a.dscr.toFixed(3)}× — {a.loanOk ? 'meets' : 'below'} your minimum</dd></div>}
+        </dl>
+      </>}
+    </section>
   );
 }
 
@@ -590,6 +634,7 @@ export function LienCalculator() {
     <div className="calc">
       <div className="calc-inputs"><ExampleInputs labels={still} all={!typed} /><CalcFields groups={groups} values={v} onChange={set} /></div>
       <div className="calc-results">
+      <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
         <div className="calc-max" role="status">
           <span>Your yearly yield</span>
           <strong>{pctText(y.yearlyYield)}</strong>
@@ -654,6 +699,7 @@ export function SellerFinanceCalculator() {
     <div className="calc">
       <div className="calc-inputs"><ExampleInputs labels={still} all={!typed} /><CalcFields groups={SELLER_FINANCE_GROUPS} values={v} onChange={set} /></div>
       <div className="calc-results">
+      <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
         <div className={`calc-max${r.balloon > 0 ? ' bad' : ''}`} role="status">
           <span>{r.balloon > 0 ? `Balloon due in year ${r.balloonYears}` : 'Monthly payment to the seller'}</span>
           <strong>{fmtMoney(Math.round(r.balloon > 0 ? r.balloon : r.monthly))}</strong>

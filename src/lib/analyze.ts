@@ -96,7 +96,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     sale.push({ id: 'offer-contingent', text: 'Make your offer contingent on financing and a satisfactory inspection, with deadlines you can meet.', href: '#/learn/negotiate' });
     if (st === 'NV') sale.push({ id: 'nv-disclosure', text: 'Nevada: the seller must give you the disclosure form at least 10 days before the home is conveyed (NRS 113.130). If it’s late, you can cancel before closing.' });
     if (st === 'CA') sale.push({ id: 'ca-tds', text: 'California: get the Transfer Disclosure Statement. If it arrives after you sign the offer, you have 3 days (5 by mail or electronically) to cancel.' });
-    if (st === 'AZ') sale.push({ id: 'az-disclosure', text: 'Arizona: sellers must disclose specific items, such as soil remediation they know about; for unsubdivided land outside cities you get an affidavit of disclosure at least 7 days before transfer, with 5 days to cancel. Ask your agent which disclosure form your contract uses.' });
+    if (st === 'AZ') sale.push({ id: 'az-disclosure', text: 'Arizona: sellers must disclose specific items, such as soil remediation they know about. For a seller of five or fewer parcels of unsubdivided land in an unincorporated county area, and a subsequent seller of a qualifying parcel, A.R.S. 33-422 requires an affidavit of disclosure at least 7 days before transfer, with 5 days to cancel after receipt. The statute excludes trustees at trustee sales and sheriffs at execution sales. Ask your agent or attorney whether your transaction qualifies.' });
     if (st === 'TX') sale.push({ id: 'tx-disclosure', text: 'Texas: for a single-family home, most sellers must give you the Seller’s Disclosure Notice (Property Code 5.008). If it comes after you sign, the TREC contract lets you end it within 7 days. For a fee, the contract’s option period lets you end it for any reason; the deadline is strict.' });
     if (st === 'TX') sale.push({ id: 'tx-water', text: 'Texas (not on TREC’s condominium contract, which has no water paragraph): ask your agent which box in paragraph 7I of the TREC contract applies to the Seller’s Water Disclosure (groundwater and surface water rights). If box 7I(2) is checked (you haven’t received it yet), read it when it comes and record the delivery date: you can end the contract within 7 days after you receive it, or before closing if that comes first, and if it never comes you can end it before closing. If box 1 (already received) or box 3 (not required, because every statement in 7I(3) is true) is checked, there’s no new termination window; for box 3, record why.', href: '#/learn/analyze' });
     if (st === 'UT') sale.push({ id: 'ut-disclosure', text: 'Utah: under the state purchase contract, the seller gives a property condition disclosure by the Seller Disclosure Deadline, and you can cancel by the Due Diligence Deadline. Sellers must disclose methamphetamine contamination they know about.' });
@@ -280,6 +280,10 @@ const MAX_DEALS = 50;
 const dealCalcKeys = (id: string) => [
   ...['rent', 'commercial'].flatMap((k) => [`fsf.calc.${k}.${id}.v1`, `fsf.calc.${k}.${id}-offer.v1`, `fsf.calc.${k}.${id}.v1.region`, `fsf.calc.${k}.${id}-offer.v1.region`]),
   `fsf.bid.analyzed-${id}.v1`,
+  `fsf.bid.analyzed-${id}.v1.region`,
+  `fsf.bid.analyzed-${id}.v1.typed.v1`,
+  `fsf.bid.analyzed-${id}.typed.v1`,
+  ...['rent', 'commercial'].flatMap((k) => ['', '-offer'].flatMap((suffix) => [`fsf.calc.${k}.${id}${suffix}.v1.typed.v1`, `fsf.calc.${k}.${id}${suffix}.typed.v1`])),
 ];
 
 /** Forget everything kept for an analyzed deal besides the deal itself: its numbers, evidence log and roadmap progress. */
@@ -307,6 +311,8 @@ export function clearDraftNumbers() {
     for (const k of ['fsf.calc.rent.offer.v1', 'fsf.calc.commercial.offer.v1', 'fsf.bid.analyze-draft.v1']) {
       localStorage.removeItem(k);
       localStorage.removeItem(`${k}.region`);
+      localStorage.removeItem(`${k}.typed.v1`);
+      localStorage.removeItem(k.replace(/\.v1$/, '.typed.v1'));
     }
   } catch {
     /* storage unavailable */
@@ -323,8 +329,13 @@ export function carryDraftNumbers(id: string, offer: boolean) {
     for (const [from, to] of moves) {
       const v = localStorage.getItem(from);
       if (v !== null) localStorage.setItem(to, v);
-      const r = localStorage.getItem(`${from}.region`);
-      if (r !== null) localStorage.setItem(`${to}.region`, r);
+      // The region stamp and the list of fields you typed travel with the numbers.
+      for (const suffix of ['.region', '.typed.v1']) {
+        const x = localStorage.getItem(`${from}${suffix}`) ?? (suffix === '.typed.v1' ? localStorage.getItem(from.replace(/\.v1$/, '.typed.v1')) : null);
+        if (x !== null) localStorage.setItem(`${to}${suffix}`, x);
+        else localStorage.removeItem(`${to}${suffix}`);
+      }
+      localStorage.removeItem(to.replace(/\.v1$/, '.typed.v1'));
     }
     clearDraftNumbers(); // the next new deal starts from your plan, not from this one's numbers
   } catch {

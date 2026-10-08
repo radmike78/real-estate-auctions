@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AD_TOPICS, topicForPage } from './adTopics';
-import { CAPS, capMessage, capProblem, foundingFull, pickRandom, RESPA_CATEGORIES, rotatingPool, TIER_INFO, topicAllowed, topicCap, topicsFor, type AdTier, type Placement } from './adPlans';
+import { CAPS, capMessage, capProblem, foundingFull, pickRandom, RESPA_CATEGORIES, rotatingPool, fixedPool, TIER_INFO, topicAllowed, topicCap, topicsFor, type AdTier, type Placement } from './adPlans';
 import { LESSONS } from './lessons';
 import { DRILLS } from '../practice/drills';
 import { RENTAL_CASE } from '../practice/rentalCase';
@@ -193,18 +193,19 @@ describe('who takes turns in the one-advertiser ad boxes', () => {
   const pro = (id: string, tier: AdTier, category: Category = 'agent', adsOff = false) => ({ id, tier, category, adsOff });
   const pros = [pro('r', 'standard'), pro('s', 'premium'), pro('m', 'premium_plus'), pro('m2', 'premium_plus', 'insurance'), pro('off', 'standard', 'agent', true)];
 
-  it('the Your Team rotating ad takes every plan, but never an advertiser whose ads are off', () => {
-    expect(rotatingPool(pros).map((p) => p.id)).toEqual(['r', 's', 'm', 'm2']);
+  it('the Your Team rotating ad takes only Rotating, and excludes disabled ads', () => {
+    expect(rotatingPool(pros).map((p) => p.id)).toEqual(['r']);
   });
 
-  it('the Mentor Connect ad spots take only Mentor Connect, in the spot’s categories', () => {
-    expect(rotatingPool(pros, ['agent']).map((p) => p.id)).toEqual(['m']);
-    expect(rotatingPool(pros, ['agent', 'insurance']).map((p) => p.id)).toEqual(['m', 'm2']);
+  it('fixed spots include all eligible Spotlight and Mentor Connect ads in stable order', () => {
+    expect(fixedPool(pros, ['agent']).map((p) => p.id)).toEqual(['m', 's']);
+    expect(fixedPool([...pros].reverse(), ['agent', 'insurance']).map((p) => p.id)).toEqual(['m', 'm2', 's']);
+    expect(fixedPool([pro('disabled', 'premium', 'agent', true)], ['agent'])).toEqual([]);
   });
 
   it('describes the plans the way they work', () => {
     expect(TIER_INFO.standard.includes.join(' ')).toMatch(/rotating ad at the top of the Your Team page/);
     expect(TIER_INFO.premium.includes.join(' ')).toMatch(/doesn’t rotate/);
-    expect(TIER_INFO.premium_plus.includes.join(' ')).toMatch(/Mentor Connect ad spots/);
+    expect(TIER_INFO.premium_plus.includes.join(' ')).toMatch(/optional fixed ad linked/);
   });
 });

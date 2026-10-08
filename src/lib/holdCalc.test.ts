@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice, loanAt } from './holdCalc';
+import { allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialAtPrice, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice, loanAt } from './holdCalc';
 
 describe('rent / hold', () => {
   it('works out net operating income from rent, vacancy and costs', () => {
@@ -179,5 +179,29 @@ describe('commercial reserves and reimbursements', () => {
     const net = commercialNoi({ ...COMMERCIAL_DEFAULTS, ...lines, monthlyRent: 100_000 / 12, otherMonthly: 0, opTaxYear: 20_000 });
     expect(Math.round(gross.noi)).toBe(80_000);
     expect(Math.round(net.noi)).toBe(80_000);
+  });
+});
+
+
+describe('actual commercial price and exact coverage', () => {
+  it('fails coverage of 1.246 even when the display rounds to a 1.25 minimum', () => {
+    const i = { ...RENT_DEFAULTS, monthlyRent: 1246 / 12, vacancyPct: 0, managementPct: 0, maintenancePct: 0, capexPct: 0, propertyTaxYear: 0, insuranceYear: 0, hoaMonthly: 0, loanPct: 100, ratePct: 0, years: 1, minDscr: 1.25 };
+    const a = rentMaxBid({ ...i, value: 1000 });
+    expect(a.dscr?.toFixed(2)).toBe('1.25');
+    expect(a.loanOk).toBe(false);
+  });
+  it('calculates an actual offer separately from the maximum and includes lease-up loan payments', () => {
+    const i = { ...COMMERCIAL_DEFAULTS, monthlyRent: 2000, vacancyPct: 0, expensePct: 20, reservesYear: 1200, leaseUpMonths: 3, monthlyCarry: 500, possession: 0, repairs: 0, contingencyPct: 0, titleLegal: 0, survivingLiens: 0, buyerPremiumPct: 0, transferTaxPer500: 0, loanPct: 50, loanCostPct: 2, ratePct: 0, years: 10, targetCapPct: 8 };
+    const a = commercialAtPrice(i, 100000, true);
+    expect(a.noi).toBe(19200);
+    expect(a.loan).toBe(50000);
+    expect(a.debtService).toBe(5000);
+    expect(a.leaseUpCost).toBe(1500);
+    expect(a.leaseUpDebt).toBe(1250);
+    expect(a.cashFlow).toBe(13000);
+    expect(a.allIn).toBe(102750);
+    expect(a.cashIn).toBe(53750);
+    expect(commercialAtPrice(i, 100000, false).leaseUpDebt).toBe(0);
+    expect(commercialMaxBid(i, true).maxBid).not.toBe(a.price);
   });
 });
