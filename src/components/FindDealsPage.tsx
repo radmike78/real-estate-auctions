@@ -70,12 +70,13 @@ export default function FindDealsPage() {
   const st = stateByCode(area.state)!;
   const local = COUNTY_PAGES[countyKey(area.state, area.county)];
   const offices = COUNTY_OFFICES[countyKey(area.state, area.county)];
+  const missingOffices = officeLabelsFor(area.state).filter((o) => !offices?.[o.key]);
   const officeCards: DealSource[] = offices
     ? officeLabelsFor(area.state).flatMap((o) => {
         const x = offices[o.key];
         if (!x) return [];
         // Two offices can share a page (a combined assessor-recorder); list it once.
-        return [{ name: o.name, url: x.url, what: x.note ? `${o.what} ${x.note}` : o.what }];
+        return [{ name: o.name, url: x.url, what: `${o.what}${x.note ? ` ${x.note}` : ''} ${x.checked ? `Link last checked: ${x.checked}. Confirm current sale details with the office.` : 'No verification date recorded. Confirm this link and current details with the county before relying on it.'}` }];
       }).filter((c, i, all) => all.findIndex((d) => d.url === c.url) === i)
     : [];
   const place = `${countyName(area.county)}, ${st.name}`;
@@ -125,7 +126,10 @@ export default function FindDealsPage() {
 
       <Band id="deals-county" tone="county" icon={<IconFile />} title={`County offices: ${place}`} sub="The county’s own pages for tax sales, records and sheriff’s sales.">
         {officeCards.length > 0 ? (
-          <ul className="deal-sources">{officeCards.map((s) => <SourceCard key={s.url} s={s} />)}</ul>
+          <>
+            <ul className="deal-sources">{officeCards.map((s) => <SourceCard key={s.url} s={s} />)}</ul>
+            {missingOffices.length > 0 && <OwlNote>Not yet listed for {place}: {missingOffices.map((o) => o.name).join(', ')}. A missing entry does not mean the office or a sale does not exist. Contact the county to find the office responsible for those services.</OwlNote>}
+          </>
         ) : (
           <>
             <OwlNote>We’re still gathering {place}’s tax-sale office and records. Until then, these are the official sellers to look for there.</OwlNote>

@@ -21,7 +21,7 @@ export const CONTENT_RULES = [
   'Promises nobody can keep, such as "guaranteed approval", "guaranteed profit" or "we can stop any foreclosure".',
   "Reviews, testimonials, awards or sales numbers you can't back up.",
   "Anyone else's name, photo or personal details, including clients and homeowners.",
-  'Wording that prefers or excludes anyone based on a group protected by federal or Nevada fair housing law.',
+  'Wording that prefers or excludes anyone based on a group protected by applicable federal, state or local fair housing law.',
   'Offers aimed at homeowners in foreclosure or behind on payments (such as "we buy houses" or "sell before the auction"), or asking visitors to refer them.',
   'In your ad line: web addresses, emails or phone numbers (buyers contact you through the buttons), and words like "best", "#1", "trusted", "guaranteed" or "lowest". Lenders also leave out rates, APRs, payments and dollar amounts.',
 ] as const;

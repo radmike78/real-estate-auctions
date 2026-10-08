@@ -273,8 +273,8 @@
       "src/lib/proVerification.ts"
     ],
     "reviewed": "2026-10-08",
-    "hash": "81aed66501ed6fec",
-    "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy content is unchanged; the same verification explanation is now shared with the draft Terms."
+    "hash": "852f876405b9ba9a",
+    "note": "Reviewed service-specific credential checks, fair-housing rules across all supported states, and manufactured-community statistics against MHI; no broad draft policy revision."
   },
   {
     "id": "disclaimer",
@@ -361,8 +361,8 @@
       "src/lib/strategies.ts"
     ],
     "reviewed": "2026-10-08",
-    "hash": "4b45c96daddde06a",
-    "note": "Reviewed October 8 financing-copy changes against the owner’s individual-situation guidance and CFPB HELOC risk guidance. Removed blanket recommendations, retained repayment/home-loss and sales-pressure risks, and added relevant options, personal finances, risk tolerance, backup funding and independent professional advice."
+    "hash": "03d7fec30d56df09",
+    "note": "Reviewed corrected MHI statistic and county directory notices; missing categories and links without recorded verification remain explicitly identified, with no guessed URLs or verification dates."
   },
   {
     "id": "decide",
@@ -385,8 +385,8 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-08",
-    "hash": "ffdbc1d5d37695fd",
-    "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged."
+    "hash": "ffce716c0fa0c502",
+    "note": "Reviewed corrected MHI statistic and county directory notices; missing categories and links without recorded verification remain explicitly identified, with no guessed URLs or verification dates."
   },
   {
     "id": "analyze",
@@ -411,7 +411,7 @@
       "src/lib/progressBackup.ts"
     ],
     "reviewed": "2026-10-08",
-    "hash": "2c595ebd33f79e71",
-    "note": "Reviewed specialist team storage and calculator backup compatibility, including old confirmation keys and state/county region stamps."
+    "hash": "8ee4bcfc039931fd",
+    "note": "Reviewed service-specific credential checks, fair-housing rules across all supported states, and manufactured-community statistics against MHI; no broad draft policy revision."
   }
 ]

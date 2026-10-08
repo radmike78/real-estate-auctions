@@ -1,6 +1,7 @@
 // Merges a parsed IRS auctions index into stored state. An ad that is canceled, loses its sale
 // date or drops off the site is withdrawn at once.
 
+import { auctionStillOpen } from './cadence';
 import type { FeedFederalSale } from '../../src/feed/types';
 import type { IrsParseResult } from '../connectors/irsAuctions';
 import type { Anomaly, SourceState } from './reconcile';
@@ -82,17 +83,20 @@ export function applyIrsSnapshot(
   for (const [id, old] of Object.entries(prev.federalSales ?? {})) {
     if (!seen.has(id)) sales[id] = { ...old, state: 'WITHDRAWN' };
   }
-  const unconfirmed = Object.values(sales).filter((x) => x.state === 'UNCONFIRMED').length;
+  const upcoming = Object.values(sales).filter((x) => auctionStillOpen(x.saleStartsAt, meta.now));
+  const available = upcoming.filter((x) => x.state === 'AVAILABLE').length;
+  const unconfirmed = upcoming.filter((x) => x.state === 'UNCONFIRMED').length;
   const changed = meta.sha256 !== prev.lastSha256;
   // Shown to buyers under Sources, so it reads as plain sentences.
   const clark = parsed.rows.filter((r) => r.assessorChecked).length;
   const n = (k: number, one: string, many: string) => `${k} ${k === 1 ? one : many}`;
   const notes = [
-    `The IRS lists ${n(parsed.totalAds, 'sale', 'sales')} nationwide. ${parsed.rows.length === 1 ? '1 is' : `${parsed.rows.length} are`} in Nevada, California, Arizona, Utah or Texas, ${clark === 0 ? 'none' : clark} of them in Clark County.`,
+    `The IRS index contains ${n(parsed.totalAds, 'notice', 'notices')} nationwide, including past, canceled and undated notices. These are not counts of available auctions. We parsed ${n(parsed.rows.length, 'notice', 'notices')} in Nevada, California, Arizona, Utah or Texas, ${clark === 0 ? 'none' : clark} of them in Clark County.`,
+    `${n(available, 'upcoming sale meets', 'upcoming sales meet')} our publication checks as of this source check. Only eligible upcoming sales appear in the feed; stale or held sources can hide them.`,
     parsed.skipped.length
-      ? `${n(parsed.skipped.length, 'more sale', 'more sales')} in those states ${parsed.skipped.length === 1 ? 'isn’t' : 'aren’t'} shown here because ${[...new Set(parsed.skipped.map((s) => SKIP_WORDS[s.reason] ?? s.reason))].join(', or ')}.`
+      ? `${n(parsed.skipped.length, 'additional notice', 'additional notices')} in those states ${parsed.skipped.length === 1 ? 'isn’t' : 'aren’t'} shown here because ${[...new Set(parsed.skipped.map((s) => SKIP_WORDS[s.reason] ?? s.reason))].join(', or ')}.`
       : null,
-    unconfirmed ? `${n(unconfirmed, 'sale is', 'sales are')} hidden because the parcel wasn’t found in the Assessor’s records.` : null,
+    unconfirmed ? `${n(unconfirmed, 'upcoming sale is', 'upcoming sales are')} hidden because the parcel wasn’t found in the Assessor’s records.` : null,
   ].filter(Boolean);
   return {
     ...prev,
