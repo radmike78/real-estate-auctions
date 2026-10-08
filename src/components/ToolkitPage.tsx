@@ -79,7 +79,7 @@ function stepEvidence(id: string): string | null {
   if (id === 'team') {
     const t = read(TEAM_LIST_KEY, {}, cleanTeamList);
     const named = Object.values(t).filter((m) => m && m.name.trim());
-    return named.length >= 3 ? `Your team list has ${named.length} people${named.every((m) => m!.licenseChecked) ? ', each with a checked license' : ''}.` : null;
+    return named.length >= 3 ? `Your team list has ${named.length} people${named.every((m) => m!.licenseChecked) ? ', each one checked' : ''}.` : null;
   }
   return null;
 }
@@ -609,8 +609,20 @@ function buyBoxText(b: BuyBox, stateName?: string): string {
   ].join('\n');
 }
 
+/**
+ * What "checked" means for each role, in the chosen state: not every role is licensed by the state. California doesn't
+ * license home inspectors, and a bank's loan officers are registered federally on NMLS rather than licensed by a state.
+ */
+function licenseCheckLabel(k: keyof TeamList, state: string | null): string {
+  if (k === 'inspector') return state === 'CA' ? 'I checked their insurance, training and a sample report (California doesn’t license home inspectors)' : state ? 'I checked their license with the state' : 'I checked their license with the state (in California, where there’s none: their insurance, training and a sample report)';
+  if (k === 'lender') return 'I looked them up on NMLS Consumer Access (a state license, or a bank loan officer’s federal registration)';
+  if (k === 'attorney') return 'I checked their license with the state bar';
+  return 'I checked their license with the state';
+}
+
 /** The people you'll call, with what to say to each: kept, printed and downloaded with your plan. */
 function TeamListSection() {
+  const [myState] = useMyState();
   const [t, setT] = useState<TeamList>(() => read(TEAM_LIST_KEY, {}, cleanTeamList));
   useEffect(() => {
     write(TEAM_LIST_KEY, t);
@@ -620,7 +632,7 @@ function TeamListSection() {
   return (
     <section id="team" aria-labelledby="team-head">
       <h2 id="team-head">Your team</h2>
-      <p>The people a first purchase usually needs, in the order you’ll call them. Write down who you chose, check their license, and note what they charge. Each role links to what they do and how to find one.</p>
+      <p>The people a first purchase usually needs, in the order you’ll call them. Write down who you chose, check their license or registration, and note what they charge. Each role links to what they do and how to find one.</p>
       <ol className="team-list">
         {TEAM_ROLES.map((k) => {
           const g = proGuideByKey(k);
@@ -634,7 +646,7 @@ function TeamListSection() {
                 <label className="field"><span>Phone or email</span><input type="text" maxLength={160} value={m?.contact ?? ''} onChange={(e) => set(k, { contact: e.target.value })} /></label>
                 <label className="field"><span>Fees</span><input type="text" maxLength={200} value={m?.fees ?? ''} onChange={(e) => set(k, { fees: e.target.value })} placeholder="What they charge, and when" /></label>
               </div>
-              <label className="check"><input type="checkbox" checked={!!m?.licenseChecked} onChange={(e) => set(k, { licenseChecked: e.target.checked })} /> I checked their license with the state</label>
+              <label className="check"><input type="checkbox" checked={!!m?.licenseChecked} onChange={(e) => set(k, { licenseChecked: e.target.checked })} /> {licenseCheckLabel(k, myState)}</label>
               {PRO_SCRIPTS[k] && (
                 <details>
                   <summary>What to say</summary>
@@ -669,7 +681,7 @@ function planText(): string {
   for (const k of TEAM_ROLES) {
     const m = team[k];
     const g = proGuideByKey(k);
-    lines.push(`${g?.title ?? k}: ${m?.name || '(not chosen yet)'}${m?.contact ? `, ${m.contact}` : ''}${m?.licenseChecked ? ', license checked' : ''}${m?.fees ? `. Fees: ${m.fees}` : ''}`);
+    lines.push(`${g?.title ?? k}: ${m?.name || '(not chosen yet)'}${m?.contact ? `, ${m.contact}` : ''}${m?.licenseChecked ? ', credentials checked' : ''}${m?.fees ? `. Fees: ${m.fees}` : ''}`);
     if (PRO_SCRIPTS[k]) lines.push(`  What to say: ${PRO_SCRIPTS[k].say}`);
   }
   return lines.join('\n');

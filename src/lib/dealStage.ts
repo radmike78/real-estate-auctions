@@ -108,6 +108,8 @@ export interface PlanTask {
   /** Lessons, practice missions, guides and team pages that help with this task. */
   support: Support[];
   done: boolean;
+  /** Shown instead of "done" when done only means it was worked out, not checked: "Calculated: verify the inputs". */
+  doneLabel?: string;
   /** A deadline or open question that comes before everything else. */
   urgent?: boolean;
   /** The whole action as one sentence, for the deal packet and its text download. */
@@ -168,6 +170,8 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       openDeal: true,
       support: d.plan === 'rent' ? [L.analyze, L.rentMission] : [L.analyze],
       done: hasNums,
+      // Entered numbers give a result, not a verified one: the inputs still need checking against quotes and comps.
+      doneLabel: 'Calculated: verify the inputs',
     }));
   };
   const area = (k: string, label: string, produces: string, support: Support[] = []) => out.push(task({ key: `ev-${k}`, label, produces, href: packetHref(d, 'evidence'), support, done: ev(k) }));

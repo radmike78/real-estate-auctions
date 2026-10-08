@@ -64,3 +64,8 @@
 
 /* Home: the six-step path's note points to the one next step. */
 .path-purpose a { font-weight: 600; }
+/* Groundwork still open while a property is in progress. */
+.plan-now-foundations { display: grid; gap: 6px; padding: 14px 18px; border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 12px; background: var(--surface); }
+.plan-now-foundations p { margin: 0; }
+.plan-now-foundations ul { margin: 0; padding-left: 1.2em; columns: 2 16rem; column-gap: 24px; }
+.plan-now-done-note { color: var(--muted); font-weight: 600; }

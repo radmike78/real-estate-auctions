@@ -64,6 +64,9 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   };
   const log = deal ? loadLog(`analyzed:${deal.id}`) : null;
   const checked = log ? EVIDENCE_AREAS.filter((a) => log.rows[a.key]?.done).length : 0;
+  // Working on a property doesn't finish the groundwork: the goal, cash, buy box and payment plan still open stay in view.
+  const settledOwn = settledFor('');
+  const foundations = deal ? roadmapFor(planPath()).filter((s) => s.phase <= 2 && !settledOwn(s)) : [];
 
   // The same label My plan's roadmap uses: "Next roadmap task · Get ready".
   const nextLabel = now.context.startsWith('Roadmap · ') ? `Next roadmap task · ${now.context.slice('Roadmap · '.length)}` : `Next task · ${now.context}`;
@@ -85,7 +88,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
             {now.tasks.map((t) => (
               <li key={t.key} className={t.done ? 'done' : t.key === task.key ? 'now' : undefined}>
                 <span className="plan-now-mark" aria-hidden>{t.done ? '✓' : t.key === task.key ? '→' : '○'}</span>
-                <span>{t.label}{t.done ? <span className="sr-only"> (done)</span> : t.key === task.key ? <span className="sr-only"> (next)</span> : null}</span>
+                <span>{t.label}{t.done && t.doneLabel ? <span className="plan-now-done-note"> ({t.doneLabel})</span> : t.done ? <span className="sr-only"> (done)</span> : t.key === task.key ? <span className="sr-only"> (next)</span> : null}</span>
               </li>
             ))}
           </ol>
@@ -149,6 +152,13 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
             </p>
           )}
         </div>
+        )}
+        {deal && foundations.length > 0 && (
+          <div className="plan-now-foundations" role="note">
+            <p><strong>Still open from getting ready:</strong></p>
+            <ul>{foundations.map((s) => <li key={s.id}>{s.href ? <a href={s.href}>{s.title}</a> : s.title}</li>)}</ul>
+            <p>You can keep researching this property. Finish these before you make an offer or bid, and tick each one off in <a href="#/toolkit/roadmap">your roadmap</a>.</p>
+          </div>
         )}
       </div>
       {side}

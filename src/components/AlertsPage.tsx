@@ -157,7 +157,7 @@ function SignUp() {
           <li><strong>Stop any time.</strong> One click unsubscribes you and deletes your address.</li>
         </ol>
         <p className="muted">
-          Alerts are free. We never sell or share your email address, and advertisers never see it. <a href="#/privacy">Privacy policy</a>
+          Alerts are free. We never sell your email address or share it with advertisers. Our email delivery provider uses it only to send the emails you ask for. <a href="#/privacy">Privacy policy</a>
         </p>
       </section>
     </div>
