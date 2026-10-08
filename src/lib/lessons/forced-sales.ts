@@ -84,7 +84,7 @@ export const forcedSales: Lesson = {
           'Expect to buy as-is, usually without seeing inside.',
           'Check whether the owner has filed bankruptcy, which can stop a sale.',
           'Know your walk-away price before bidding, and include the cost of any redemption period.',
-          'Bid only cash you can afford to lose. Don’t borrow on credit cards, home equity or a 401(k) to bid. Most forced sales are final and as-is.',
+          'Evaluate how you will pay before you bid. Home equity, savings or other financing may be options depending on your situation; DeedOwl does not recommend for or against any method. Compare your current finances, repayment ability, risk tolerance and possible losses, including risks to your home or 401(k). Check alternative funding if your first plan fails, and seek independent financial, investment, tax and legal advice. Most forced sales are final and as-is.',
           'Plan for people living there. Owners and tenants have legal rights, and removing them takes a court process.',
         ] },
         'Find Deals lists each county’s tax sale page and records offices. Never contact homeowners facing foreclosure. Buy from the official seller.',

@@ -151,7 +151,7 @@ export default function DecidePage() {
                 : notYetWhy(saved.answers) === 'nofund'
                   ? 'Save an emergency fund before you buy. Every strategy has surprises, and without savings a vacancy or a repair can force you to borrow at high rates or sell at a loss.'
                   : 'With under $10,000, no purchase strategy fits yet: an auction wants the full price in cash within days, and a flip or a rental needs a down payment, closing costs and reserves. Build your investable cash first.'}{' '}
-              Meanwhile, learn and practice for free. Never borrow on credit cards, home equity or a 401(k) to pay for courses or to bid. <a href="#/learn/red-flags">Seminar red flags&nbsp;→</a>
+              Meanwhile, learn and practice for free. Home equity and other financing depend on your situation; DeedOwl does not recommend for or against a method. Compare your finances, possible losses, risk tolerance and backup funding with qualified financial, investment, tax and legal professionals. <a href="#/learn/financing">Compare financing options&nbsp;→</a>{' '}<a href="#/learn/red-flags">Seminar red flags&nbsp;→</a>
             </OwlNote>
           )}
           <ol className="decide-matches">
