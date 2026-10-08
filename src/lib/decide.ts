@@ -419,8 +419,13 @@ function answerText(q: Question, v: string) {
   return /^I[’ ]/.test(t) ? t : t[0].toLowerCase() + t.slice(1);
 }
 
-/** Without savings, or with high-interest debt, the honest answer is "not yet": learning first always ranks on top. */
-const notYet = (answers: Answers, m: { strategy: Strategy }) => (m.strategy.key === 'practice' && (answers.ready === 'debt' || answers.ready === 'nofund') ? 1 : 0);
+/**
+ * Without savings, with high-interest debt, or with under $10,000 to invest, the honest answer is "not yet": no purchase
+ * strategy fits (an auction wants the full price in cash; a flip or rental needs a down payment, closing costs and
+ * reserves), so learning first always ranks on top.
+ */
+export const notYetWhy = (answers: Answers): 'debt' | 'nofund' | 'under10' | null => (answers.ready === 'debt' ? 'debt' : answers.ready === 'nofund' ? 'nofund' : answers.cash === 'under10' ? 'under10' : null);
+const notYet = (answers: Answers, m: { strategy: Strategy }) => (m.strategy.key === 'practice' && notYetWhy(answers) ? 1 : 0);
 
 /** Strategies ranked for these answers, best first. */
 export function rank(answers: Answers): Match[] {

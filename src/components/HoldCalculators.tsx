@@ -27,10 +27,9 @@ function useRegionTax<T extends BuyInputs>(groups: CalcGroup<T>[]): { groups: Ca
 const pctText = (x: number | null) => (x === null ? '—' : `${(Math.round(x * 1000) / 10).toLocaleString()}%`);
 
 /** Inputs kept in this browser (per property when there is one); rebuilt safely from storage. */
-function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> = {}): [T, (k: keyof T & string, v: number) => void, boolean, ReadonlySet<string>] {
-  // `force` holds the region's values (its transfer tax). They replace saved numbers only when the region changes,
-  // so a number the user typed survives switching tabs and reloading.
-  const sig = JSON.stringify(force);
+function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> = {}, sig = JSON.stringify(force)): [T, (k: keyof T & string, v: number) => void, boolean, ReadonlySet<string>] {
+  // `force` holds the region's values (its transfer tax, a rental's starting tax and insurance). They replace saved
+  // numbers only when the region (`sig`) changes, so a number the user typed survives switching tabs and reloading.
   // Whether any number here is the user's own (typed now or kept from before), or all are the starting examples.
   const [typed, setTyped] = useState(() => {
     try {
@@ -456,7 +455,10 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   // times a Nevada one's); they're starting numbers only and give way to anything typed or prefilled.
   const stateStart = regional ? rentalStartFor(region.state, start.value ?? RENT_DEFAULTS.value) : {};
   const examples = { ...RENT_DEFAULTS, ...stateStart, ...(offer ? OFFER_START : {}) };
-  const [saved, set, typed, typedKeys] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...examples, ...start }, regional ? { transferTaxPer500: rt.per500 } : {});
+  // On a change of state, the state's starting tax and insurance replace the old state's (a Texas tax bill is no
+  // guide to a Nevada one), except figures the property itself supplied (`start`).
+  const stateForce: Partial<RentInputs> = regional ? Object.fromEntries(Object.entries(stateStart).filter(([k]) => !(k in start))) : {};
+  const [saved, set, typed, typedKeys] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...examples, ...start }, regional ? { transferTaxPer500: rt.per500, ...stateForce } : {}, regional ? `${rt.per500}|${region.state}` : '{}');
   const v = offer ? { ...saved, buyerPremiumPct: 0 } : saved;
   const r = rentMaxBid(v, offer);
   const n = rentNoi(v);

@@ -159,7 +159,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-08",
-    "hash": "984055df801383dc",
+    "hash": "afd70a06fc94cb65",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -172,8 +172,8 @@
       "src/lib/dealPacket.ts",
       "src/lib/evidence.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "b6f1af77345523f1",
+    "reviewed": "2026-10-08",
+    "hash": "692062bafebcc0b4",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -203,8 +203,8 @@
       "src/components/TeamBuilder.tsx",
       "src/lib/teamBuilder.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "2a8abb2393ef1c7a",
+    "reviewed": "2026-10-08",
+    "hash": "aeb2277822aadc20",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -354,8 +354,8 @@
       "src/components/StrategyPage.tsx",
       "src/lib/strategies.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "d5b6bb920ac54634",
+    "reviewed": "2026-10-08",
+    "hash": "938eb619622fc8ad",
     "note": "All 11 lessons, plus an in-depth page for each property type with real stories; state-specific passages split so each state sees only its own rules."
   },
   {
@@ -365,8 +365,8 @@
       "src/components/DecidePage.tsx",
       "src/lib/decide.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "5370f8b869632b53",
+    "reviewed": "2026-10-08",
+    "hash": "5444dd00176985d2",
     "note": "Questionnaire, strategy ranking and checklists; facts match the Learn lessons."
   },
   {
@@ -391,8 +391,8 @@
       "src/lib/analyze.ts",
       "src/lib/path.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "237db3ebfa95b7af",
+    "reviewed": "2026-10-08",
+    "hash": "79681e92b4e6d349",
     "note": "Deal setup and state/sale-type checklists, from the Learn lessons and their sources."
   },
   {

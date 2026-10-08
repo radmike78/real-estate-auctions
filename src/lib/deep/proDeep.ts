@@ -1421,7 +1421,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     overview: [
       "A property manager finds and screens tenants, collects rent, handles repairs and keeps owners’ and tenants’ money in trust accounts. In Nevada, managing rentals for others requires a real estate license plus a property management permit. In Texas, collecting rent for someone else from a tenant in a single-family home counts as real estate brokerage, which needs a TREC license (Occupations Code 1101.002). Check your state’s real estate regulator for the licensing rules that apply to managers there.",
       "The biggest risk is the trust account. If a manager mixes or spends owner rents and tenant deposits, owners can lose months of rent. They can still owe tenants their deposits back. Nevada regulators found one Las Vegas broker’s security deposit account held $15 when his records said $185,343.",
-      "A license lets you check that the manager is allowed to do the work, see any discipline, and file a complaint with the state regulator. Separately, California’s Department of Real Estate Consumer Recovery Account, Nevada’s Real Estate Education, Research and Recovery Fund, Arizona’s Real Estate Recovery Fund and Texas’s Real Estate Recovery Trust Account can repay some losses caused by licensees, but only certain claimants and claims qualify, usually after a court judgment, and only up to set limits. They don’t insure your investment or cover every rental problem."
+      "A license lets you check that the manager is allowed to do the work, see any discipline, and file a complaint with the state regulator. Separately, a state recovery fund can repay some losses caused by licensees, but only certain claimants and claims qualify, usually after a court judgment, and only up to set limits. In California, it’s the Department of Real Estate’s Consumer Recovery Account. In Nevada, the Real Estate Education, Research and Recovery Fund. In Arizona, the Real Estate Recovery Fund. In Texas, the Real Estate Recovery Trust Account. A recovery fund doesn’t insure your investment or cover every rental problem."
     ],
     bestFor: [
       "Out-of-state investors who can’t handle showings, repairs and rent collection themselves.",
@@ -1436,8 +1436,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     costs: [
       "Management fees: ask for every fee in writing, such as monthly management, leasing, renewal and maintenance markups. (No sourced typical percentage was found.)",
       "Loss risk: in one Nevada case a broker failed to pay owners their rents and deposits. That included more than $23,000 for one owner’s four units (2025 order).",
-      "Recovery fund limits: California pays up to $50,000 per transaction and $250,000 per licensee. Nevada pays up to $25,000 per judgment and $100,000 per licensee (NRS 645.844). Arizona pays up to $30,000 per transaction and $90,000 per licensee. Texas pays up to $125,000 per transaction and $250,000 per license holder (Occupations Code 1101.610).",
-      "Legal and court costs to get a judgment, which California’s, Arizona’s and Texas’s funds require before they pay."
+      "Recovery fund limits. In California, up to $50,000 per transaction and $250,000 per licensee. In Nevada, up to $25,000 per judgment and $100,000 per licensee (NRS 645.844). In Arizona, up to $30,000 per transaction and $90,000 per licensee. In Texas, up to $125,000 per transaction and $250,000 per license holder (Occupations Code 1101.610).",
+      "Legal and court costs to get a judgment. In California, Arizona and Texas, the recovery fund pays only after a court judgment."
     ],
     money: [
       "Ask how the manager is paid: flat fee or share of rent, leasing fees, repair markups. Get it in the management agreement. No reliable sourced typical-fee data was found for these states.",

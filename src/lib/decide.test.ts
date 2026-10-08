@@ -46,3 +46,10 @@ describe('Decide readiness and risk', () => {
     for (const s of STRATEGIES) for (const v of Object.values(s.risk)) expect(v.length, s.key).toBeGreaterThan(3);
   });
 });
+
+describe('not yet: under $10,000', () => {
+  it('ranks learning first when the cash can’t fund any purchase', () => {
+    const r = rank({ goal: 'quick', cash: 'under10', ready: 'ready', borrow: 'cash', time: 'parttime', hands: 'diy', risk: 'high', market: 'res' } as never);
+    expect(r[0].strategy.key).toBe('practice');
+  });
+});

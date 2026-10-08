@@ -280,6 +280,8 @@ const MAX_DEALS = 50;
 const dealCalcKeys = (id: string) => [
   ...['rent', 'commercial'].flatMap((k) => [`fsf.calc.${k}.${id}.v1`, `fsf.calc.${k}.${id}-offer.v1`, `fsf.calc.${k}.${id}.v1.region`, `fsf.calc.${k}.${id}-offer.v1.region`]),
   `fsf.bid.analyzed-${id}.v1`,
+  `fsf.bid.analyzed-${id}.v1.region`,
+  `fsf.bid.analyzed-${id}.v1.typed.v1`,
 ];
 
 /** Forget everything kept for an analyzed deal besides the deal itself: its numbers, evidence log and roadmap progress. */
@@ -307,6 +309,7 @@ export function clearDraftNumbers() {
     for (const k of ['fsf.calc.rent.offer.v1', 'fsf.calc.commercial.offer.v1', 'fsf.bid.analyze-draft.v1']) {
       localStorage.removeItem(k);
       localStorage.removeItem(`${k}.region`);
+      localStorage.removeItem(`${k}.typed.v1`);
     }
   } catch {
     /* storage unavailable */
@@ -323,8 +326,11 @@ export function carryDraftNumbers(id: string, offer: boolean) {
     for (const [from, to] of moves) {
       const v = localStorage.getItem(from);
       if (v !== null) localStorage.setItem(to, v);
-      const r = localStorage.getItem(`${from}.region`);
-      if (r !== null) localStorage.setItem(`${to}.region`, r);
+      // The region stamp and the list of fields you typed travel with the numbers.
+      for (const suffix of ['.region', '.typed.v1']) {
+        const x = localStorage.getItem(`${from}${suffix}`);
+        if (x !== null) localStorage.setItem(`${to}${suffix}`, x);
+      }
     }
     clearDraftNumbers(); // the next new deal starts from your plan, not from this one's numbers
   } catch {

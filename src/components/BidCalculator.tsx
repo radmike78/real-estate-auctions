@@ -10,7 +10,10 @@ import { ExampleInputs, ExampleResults, PriceHead, exampleLabels } from './CalcL
 const NOT_EXAMPLES = new Set<string>(['minimumBid', 'transferTaxPer500', 'cashAvailable', 'redemptionMonths', 'redemptionRatePct', 'targetProfitMin']);
 
 const KEY = (id: string) => `fsf.bid.${id}.v1`;
-const TYPED_KEY = (id: string) => `fsf.bid.${id}.typed.v1`;
+// The fields you've typed in, and the region whose transfer tax the saved numbers carry: kept beside the numbers, so
+// saving, clearing and forgetting a deal (analyze.ts) moves or removes them together.
+const TYPED_KEY = (id: string) => `${KEY(id)}.typed.v1`;
+const REGION_KEY = (id: string) => `${KEY(id)}.region`;
 
 type Field = {
   k: keyof BidInputs;
@@ -170,7 +173,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   // Only the rules offered for this kind of sale. Some rules share the same numbers (a Texas property tax loan
   // foreclosure repays like a tax sale), so the rule in use is matched among these, never a rule the menu doesn't offer.
   const offered = offeredRedemptionRules(region.state, saleKind);
-  const hintFor = (f: Field) => (commercial && f.k === 'exitValue' ? 'Use the value by income above.' : f.k === 'transferTaxPer500' ? tax.hint : f.hint);
+  const hintFor = (f: Field) => (commercial && f.k === 'exitValue' ? 'Use the value by income above.' : f.k === 'transferTaxPer500' ? (offer && tax.per500 > 0 ? `${tax.hint} Your contract says who pays: enter 0 if the seller pays it.` : tax.hint) : f.hint);
   const moreFor = (f: Field) => (f.k === 'transferTaxPer500' ? tax.more : f.k === 'holdingMonths' ? (offer ? undefined : !saleKind || saleKind === 'taxSale' ? taxSaleWait(region.state) : 'How long repairs and the resale take. If this sale has no redemption period, count from the day you get the deed; ask a title company early when it will insure the title for your buyer.') : f.more);
   // What a Texas redemption repays, for the kind of sale chosen (every Texas rule when the kind isn't known).
   const txRepaid = (): string => {
@@ -209,9 +212,41 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
     if (calc) ioCalc?.observe(calc);
     return () => { io.disconnect(); ioCalc?.disconnect(); };
   }, [uid]);
+  // Fields you've typed in are yours, even when the number matches our starting estimate or is $0. Kept with a saved
+  // deal, so a $0 you entered on purpose isn't flagged again on your next visit.
+  const [typedKeys, setTypedKeys] = useState<ReadonlySet<string>>(() => {
+    try {
+      const saved = storeId ? JSON.parse(localStorage.getItem(TYPED_KEY(storeId)) ?? '[]') : [];
+      return new Set(Array.isArray(saved) ? saved.filter((x): x is string => typeof x === 'string') : []);
+    } catch {
+      return new Set();
+    }
+  });
+  // The region (state and county) whose transfer tax the saved numbers carry. When the deal moves to another state,
+  // the rate follows it unless you typed your own.
+  const regionSig = String(tax.per500);
+  const regionOf = (): string | null => {
+    try {
+      return storeId ? localStorage.getItem(REGION_KEY(storeId)) : null;
+    } catch {
+      return null;
+    }
+  };
+  const stampRegion = () => {
+    try {
+      if (storeId) localStorage.setItem(REGION_KEY(storeId), regionSig);
+    } catch {
+      /* storage unavailable */
+    }
+  };
   // The listing's opening bid is the starting point (older saved inputs didn't have it).
   const [i, setI] = useState<BidInputs>(() => {
-    const v0 = load(storeId, propertyId ? defaults : { ...defaults, transferTaxPer500: tax.per500 });
+    let v0 = load(storeId, propertyId ? defaults : { ...defaults, transferTaxPer500: tax.per500 });
+    const stamped = regionOf();
+    if (stamped !== regionSig) {
+      if (stamped !== null && !typedKeys.has('transferTaxPer500')) v0 = { ...v0, transferTaxPer500: tax.per500 };
+      stampRegion();
+    }
     // An offer has no auction cash limit, buyer's premium or redemption wait.
     let v = offer ? offerInputs(v0) : v0;
     // A redemption rule left over from another kind of sale (IRS interest on an HOA sale, say) is replaced with the
@@ -226,6 +261,11 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
     }
     return !v.minimumBid && openingBid ? { ...v, minimumBid: openingBid } : v;
   });
+  useEffect(() => {
+    if (regionOf() === regionSig) return;
+    stampRegion();
+    if (!typedKeys.has('transferTaxPer500')) update({ transferTaxPer500: tax.per500 });
+  }, [regionSig]); // eslint-disable-line react-hooks/exhaustive-deps
   const [mode, setModeState] = useState<'quick' | 'detailed'>(loadMode);
   const setMode = (m: 'quick' | 'detailed') => {
     setModeState(m);
@@ -247,18 +287,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       save(next);
       return next;
     });
-  // Fields you've typed in are yours, even when the number matches our starting estimate or is $0. Kept with a saved
-  // deal, so a $0 you entered on purpose isn't flagged again on your next visit.
-  const [typedKeys, setTypedKeys] = useState<ReadonlySet<string>>(() => {
-    try {
-      const saved = storeId ? JSON.parse(localStorage.getItem(TYPED_KEY(storeId)) ?? '[]') : [];
-      return new Set(Array.isArray(saved) ? saved.filter((x): x is string => typeof x === 'string') : []);
-    } catch {
-      return new Set();
-    }
-  });
-  const set = (k: keyof BidInputs, text: string) => {
-    trackAction('calculator_used', true);
+  const markTyped = (k: keyof BidInputs) =>
     setTypedKeys((t) => {
       if (t.has(k)) return t;
       const next = new Set([...t, k]);
@@ -269,6 +298,9 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       }
       return next;
     });
+  const set = (k: keyof BidInputs, text: string) => {
+    trackAction('calculator_used', true);
+    markTyped(k);
     setDraft((d) => ({ ...d, [k]: text }));
     // Changing the redemption numbers by hand means the rule you confirmed may no longer be the one used.
     update({ [k]: clampInput(k, toNum(text)), ...(k.startsWith('redemption') && k !== 'redemptionChecked' ? { redemptionChecked: 0 } : {}) });
@@ -372,7 +404,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                         step="any"
                         value={draft[f.k] ?? String(i[f.k])}
                         aria-describedby={hintFor(f) ? `${uid}-${f.k}-hint` : undefined}
-                        onChange={(e) => set(f.k, e.target.value)}
+                        onChange={(e) => set(f.k, e.target.value)} onInput={() => markTyped(f.k)}
                         onBlur={() => setDraft((d) => ({ ...d, [f.k]: undefined }))}
                       />
                       {f.unit !== '$' && <i aria-hidden>{unitText(f.unit)}</i>}
@@ -394,7 +426,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           );
         })}
         {propertyId && (
-          <button type="button" className="linkish" onClick={() => { try { localStorage.removeItem(KEY(propertyId)); } catch { /* ignore */ } setI(defaults); setDraft({}); setBidText(''); }}>
+          <button type="button" className="linkish" onClick={() => { try { localStorage.removeItem(KEY(propertyId)); localStorage.removeItem(TYPED_KEY(propertyId)); } catch { /* ignore */ } setI(defaults); setDraft({}); setBidText(''); setTypedKeys(new Set()); }}>
             Reset to our starting estimates
           </button>
         )}

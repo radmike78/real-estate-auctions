@@ -4,7 +4,7 @@ import PageHero from './PageHero';
 import OwlNote from './OwlNote';
 import { useMarkStep } from '../lib/path';
 import { linkLabel } from '../lib/linkLabel';
-import { DECIDE_KEY, QUESTIONS, rank, stateNote, type Answers } from '../lib/decide';
+import { DECIDE_KEY, notYetWhy, QUESTIONS, rank, stateNote, type Answers } from '../lib/decide';
 import { strategyHref } from '../lib/strategies';
 import { stateByCode, type StateCode } from '../lib/regions';
 import { getMyState, setMyState } from '../lib/myState';
@@ -143,12 +143,14 @@ export default function DecidePage() {
         <section aria-labelledby="decide-results">
           <h2 id="decide-results" ref={headRef} tabIndex={-1} className="decide-results-title">Strategies that fit you{stateName ? ` in ${stateName}` : ''}</h2>
           <p className="muted">Ranked from your answers. This is a starting point, not advice; talk with qualified professionals before you commit money.</p>
-          {(saved.answers.ready === 'debt' || saved.answers.ready === 'nofund') && (
+          {notYetWhy(saved.answers) && (
             <OwlNote>
               <strong>Not yet: build your cushion first.</strong>{' '}
-              {saved.answers.ready === 'debt'
+              {notYetWhy(saved.answers) === 'debt'
                 ? 'Pay down high-interest debt before you buy. Card interest costs more than most deals earn, and a lender will count that debt against you.'
-                : 'Save an emergency fund before you buy. Every strategy has surprises, and without savings a vacancy or a repair can force you to borrow at high rates or sell at a loss.'}{' '}
+                : notYetWhy(saved.answers) === 'nofund'
+                  ? 'Save an emergency fund before you buy. Every strategy has surprises, and without savings a vacancy or a repair can force you to borrow at high rates or sell at a loss.'
+                  : 'With under $10,000, no purchase strategy fits yet: an auction wants the full price in cash within days, and a flip or a rental needs a down payment, closing costs and reserves. Build your investable cash first.'}{' '}
               Meanwhile, learn and practice for free. Never borrow on credit cards, home equity or a 401(k) to pay for courses or to bid. <a href="#/learn/red-flags">Seminar red flags&nbsp;→</a>
             </OwlNote>
           )}
