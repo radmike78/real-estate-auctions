@@ -1,4 +1,5 @@
 import type { Lesson } from './types';
+import { FINANCING_ADVICE, FINANCING_FACTORS, FINANCING_POSITION } from '../financingGuidance';
 
 export const redFlags: Lesson = {
   key: 'red-flags',
@@ -54,10 +55,13 @@ export const redFlags: Lesson = {
       ],
     },
     {
-      heading: 'Don’t borrow to learn or to bid',
+      heading: 'Evaluate financing without sales pressure',
       blocks: [
-        'Never use borrowed money for training, coaching or an auction deposit. That means no credit card, no home equity line of credit and no loan from your 401(k). Card interest has averaged over 20% a year (Federal Reserve). You owe it whether or not a deal ever happens. A home equity line puts the home you live in at risk. If a 401(k) loan isn’t repaid on schedule, it’s treated as a withdrawal: you owe income tax on it, and you may also owe a 10% early-withdrawal tax if you’re under 59½ (IRS).',
-        'Most forced sales, including tax sales and trustee’s sales, require cash or certified funds soon after the auction. Most also don’t refund your money if the property has problems. Only bid money you can afford to lose.',
+        FINANCING_POSITION,
+        { list: [...FINANCING_FACTORS] },
+        'Being pressured to borrow for training, coaching or an auction deposit is a warning sign about the sales pitch. It is not a reason to recommend one financing method for everyone. Card interest has averaged over 20% a year (Federal Reserve), and you owe the debt whether or not a deal happens. If a 401(k) loan isn’t repaid on schedule, it’s treated as a withdrawal: you owe income tax on it, and you may also owe a 10% early-withdrawal tax if you’re under 59½ (IRS).',
+        'Most forced sales, including tax sales and trustee’s sales, require cash or certified funds soon after the auction. Most also don’t refund your money if the property has problems. Check the payment deadline and consider how a loss would affect your finances before you bid.',
+        FINANCING_ADVICE,
         'Everything you need to start is free: county sale rules, public records, the lessons on this site, and your library.',
       ],
     },

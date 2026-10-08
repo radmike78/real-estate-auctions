@@ -11,10 +11,11 @@ import { useMyArea } from '../lib/myArea';
 import { stateByCode } from '../lib/regions';
 import { advertisingOpen, useSiteFeatures } from '../lib/siteFeatures';
 import { IconGavel, IconHome, IconHouses, IconPercent, IconTools } from './Icons';
+import { FINANCING_ADVICE, FINANCING_FACTORS, FINANCING_POSITION } from '../lib/financingGuidance';
 
 const OPTIONS: [string, string, ReactNode][] = [
   ['Buying a home to live in', 'Conventional, FHA, VA and USDA loans from loan officers, banks and credit unions. FHA 203k and HomeStyle loans cover repairs too.', <IconHome />],
-  ['Buying at auction', 'Most auctions need cash or certified funds within hours or days. Buyers often use savings, a HELOC, or a hard-money or bridge loan arranged before the sale.', <IconGavel />],
+  ['Buying at auction', 'Most auctions need cash or certified funds within hours or days. Depending on your situation, options may include savings, home equity, or a hard-money or bridge loan arranged before the sale. Compare the risks and confirm funds will be available by the seller’s deadline.', <IconGavel />],
   ['Fix and flip', 'Short-term fix-and-flip, bridge and hard-money loans lend against the property and the renovation plan. Costs are higher, and terms are short.', <IconTools />],
   ['Rental investors', 'DSCR loans qualify on the rent a property earns rather than personal income. Portfolio loans from banks are another option.', <IconHouses />],
   ['Credit challenges', 'FHA and non-QM loans can work with lower scores or recent credit problems. Some non-QM and private lenders work with ITIN borrowers, usually at higher rates. Compare several offers.', <IconPercent />],
@@ -44,6 +45,14 @@ export default function FinancingPage({ initialLocation = '' }: { initialLocatio
           </p>
         </div>
       )}
+
+      <section aria-labelledby="fin-decision-head">
+        <h2 id="fin-decision-head">Choose financing for your situation</h2>
+        <p>{FINANCING_POSITION}</p>
+        <ul>{FINANCING_FACTORS.map((factor) => <li key={factor}>{factor}</li>)}</ul>
+        <p>{FINANCING_ADVICE}</p>
+        <a href="#/learn/financing">Compare financing methods in the lesson&nbsp;→</a>
+      </section>
 
       <h2 className="section-title">Which loan fits?</h2>
       <section className="options-grid fin-options" aria-label="Financing options">

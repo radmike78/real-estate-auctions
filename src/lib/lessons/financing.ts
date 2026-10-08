@@ -1,4 +1,5 @@
 import type { Lesson } from './types';
+import { FINANCING_ADVICE, FINANCING_FACTORS, FINANCING_POSITION } from '../financingGuidance';
 
 export const financing: Lesson = {
   key: 'financing',
@@ -119,7 +120,10 @@ export const financing: Lesson = {
       heading: 'Using equity you already have',
       blocks: [
         'A home equity line of credit (HELOC) lets you borrow repeatedly against your home’s equity. A cash-out refinance replaces your mortgage with a bigger one and pays you the difference, usually with closing costs. Both put your home on the line: if you can’t repay, you could lose it.',
-        'Don’t use home equity, credit cards or a 401(k) loan to pay for courses, coaching or an auction deposit. Seminar schemes the FTC shut down told people to do exactly that.',
+        FINANCING_POSITION,
+        { list: [...FINANCING_FACTORS] },
+        FINANCING_ADVICE,
+        'Do not let a seminar or coaching sales pitch decide how you finance a purchase. FTC cases found schemes that pressured people to borrow against their homes, credit cards or retirement savings. Evaluate the offer and the financing separately, with independent advice.',
         { links: [{ label: 'Seminar red flags', url: '#/learn/red-flags', what: 'How seminar and coaching schemes work, and the warning signs.' }] },
       ],
     },
