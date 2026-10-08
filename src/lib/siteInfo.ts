@@ -7,9 +7,9 @@ export const SITE_INFO = {
   /** The legal name of the business that runs the site (LLC, corporation or sole proprietor). */
   operatorName: 'MRAD Software Solutions LLC',
   /** Where people send privacy requests, including requests not to sell their information (NRS 603A.345). */
-  privacyEmail: '[privacy@your-domain]',
+  privacyEmail: 'support@mradsoftware.com',
   /** General contact for questions about the Terms. */
-  contactEmail: '[contact@your-domain]',
+  contactEmail: 'support@mradsoftware.com',
   /** State whose law governs the Terms, and where disputes are heard. */
   governingLaw: 'Nevada',
   venue: 'Clark County, Nevada',
