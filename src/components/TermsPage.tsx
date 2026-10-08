@@ -4,6 +4,7 @@ import PageHero from './PageHero';
 import { IconBadge, IconBank, IconCheckList, IconFile, IconFlag, IconHelp, IconHome, IconLayers, IconShield, IconStop } from './Icons';
 import { SITE_INFO, TERMS_EFFECTIVE } from '../lib/siteInfo';
 import { CONTENT_RULES } from '../lib/proApplication';
+import { VERIFIED_NOTICE } from '../lib/proVerification';
 import { fmtDate } from '../lib/status';
 
 const S = SITE_INFO;
@@ -99,7 +100,14 @@ export const SECTIONS: DrillSection[] = [
         <p>
           Professionals listed here pay to advertise. A listing isn't a recommendation or endorsement. Everyone listed appears in the directory
           list in the same rotating order, whatever plan they pay for; some plans add separate boxes labeled "Featured ad" or "Advertisement".
-          We check each license with the state or federal regulator, but you should confirm it yourself before hiring anyone.
+          We check required licenses or registrations with the state or federal regulator. Where no state license applies, we check relevant
+          qualifications and insurance. You should confirm required credentials and insurance yourself before hiring anyone.
+        </p>
+        <h3>What “Verified” means</h3>
+        <p>{VERIFIED_NOTICE}</p>
+        <p>
+          Verification records the checks we completed at that time. It does not rate a professional’s skill, experience, reliability or service,
+          and it does not guarantee any advice, result or outcome. Compare professionals and get your agreement in writing before hiring one.
         </p>
         <p>
           When you use a contact form, your details go only to the professional you chose. Any agreement, fee, loan or service is strictly between
@@ -119,13 +127,14 @@ export const SECTIONS: DrillSection[] = [
         <ul>
           <li>You must hold every active license or registration required for the services you list, provide the qualifications and insurance we require where no state license applies, and be authorized to advertise for the company named.</li>
           <li>We verify required licenses or registrations (or applicable alternative qualifications) and your identity before listing you, and re-check at least every 90 days. Your listing shows only while it's verified and paid.</li>
-          <li>Keep your profile accurate. Tell us promptly if your license, company or contact details change.</li>
+          <li>Keep your profile accurate. Tell us promptly if your credentials, qualifications, insurance, company or contact details change.</li>
           <li>
             You're responsible for your listing and for following every law and rule that applies to your services and advertising, including your
             regulator's advertising rules and consumer-contact laws.
           </li>
           <li>You give us permission to display your profile content on the site and in our signed directory while you're listed.</li>
         </ul>
+        <p>{VERIFIED_NOTICE} You must not describe the badge or your listing as a DeedOwl endorsement, recommendation or guarantee.</p>
         <h3>Your content</h3>
         <ul>
           <li>
@@ -149,7 +158,7 @@ export const SECTIONS: DrillSection[] = [
             shown before you pay, and discounts (such as founding-advertiser prices or promotion codes) apply only as stated when you pay.
           </li>
           <li>
-            You choose your ad areas: cities or towns, or whole counties, in the state you're licensed in. Your listing and ads show to buyers in
+            You choose your ad areas: cities or towns, or whole counties, in the state where you're qualified and authorized to provide your advertised services. Your listing and ads show to buyers in
             those areas, and each area is billed at your plan's monthly fee. On a card plan, adding or removing an area changes your charge right
             away, prorated for the rest of the billing period.
           </li>
@@ -157,7 +166,7 @@ export const SECTIONS: DrillSection[] = [
             Spots are limited per category in each city (a whole county takes a spot in each of its cities), as shown on the Advertise page and your dashboard. When a spot is taken, that plan or topic isn't
             available until one opens. Only Rotating ads select an advertiser at random on each page view. Fixed ads show every eligible advertiser in stable order; a fixed placement is not an exclusive placement.
           </li>
-          <li>Ad boxes show your name, company and license number, and your ad line if you have one. We review ad lines before they appear and may remove one that breaks these rules.</li>
+          <li>Ad boxes show your name, company and any applicable license or credential number, and your ad line if you have one. We review ad lines before they appear and may remove one that breaks these rules.</li>
           <li>
             Card payments are handled by our payment processor, Stripe. Plans renew monthly until you cancel. You can cancel at any time from your
             dashboard; your listing stays live through the period you've paid for.
@@ -174,7 +183,7 @@ export const SECTIONS: DrillSection[] = [
         </ul>
         <h3>Removal</h3>
         <p>
-          We may decline an application, or suspend or remove a listing, if a license lapses or can't be verified, information is false, fees go
+          We may decline an application, or suspend or remove a listing, if required credentials, qualifications or insurance lapse or can't be verified, information is false, fees go
           unpaid, we receive credible complaints, or these Terms are broken. If we remove a listing because we've stopped the service, we'll
           refund the unused part of the current month.
         </p>

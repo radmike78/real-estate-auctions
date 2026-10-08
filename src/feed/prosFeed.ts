@@ -5,6 +5,7 @@
 
 import { MAX_AD_AREAS } from '../lib/adAreas';
 import { stateByCode } from '../lib/regions';
+import { allowsAlternativeQualifications } from '../lib/regulators';
 import { isAdTier, topicAllowed } from '../lib/adPlans';
 import { validateAdLine } from '../lib/proApplication';
 import { isCategory, isListable, safeMailto, safeTel, safeWebsite, type Pro } from '../lib/pros';
@@ -35,7 +36,7 @@ export function validPro(p: Pro, now = new Date()): boolean {
     isCategory(p.category) &&
     str(p.name, 100) &&
     str(p.company, 120) &&
-    str(p.licenseId, 30) &&
+    (str(p.licenseId, 30) || (p.licenseId === '' && allowsAlternativeQualifications(p.category, p.state ?? 'NV'))) &&
     (p.state === undefined || !!stateByCode(p.state)) &&
     (p.serviceCounties === undefined || strArr(p.serviceCounties, 40, 20)) &&
     (p.adAreas === undefined || (Array.isArray(p.adAreas) && p.adAreas.length <= MAX_AD_AREAS && p.adAreas.every((a) => str(a?.county, 40) && (a.city === null || str(a.city, 80))))) &&

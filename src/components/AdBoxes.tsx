@@ -25,7 +25,7 @@ export function AdSpace({ kind }: { kind: string }) {
     <aside className="ad-box ad-space" aria-label={`${kind} space`}>
       {/* One label for every empty spot, so it reads as an invitation rather than an unfinished box. */}
       <div className="ad-box-label">Advertise here</div>
-      <p>Are you a licensed professional{area ? ` in ${areaLabel(area)}` : ''}? Reach buyers and investors on this page.</p>
+      <p>Are you a professional{area ? ` in ${areaLabel(area)}` : ''}? Reach buyers and investors on this page.</p>
       <a className="btn btn-secondary" href="#/advertise">Advertise on DeedOwl&nbsp;→</a>
     </aside>
   );
@@ -57,7 +57,7 @@ export function AdCard({ p }: { p: Pro }) {
         <div className="pro-kicker">{info.label}{p.isSample && <span className="badge tone-info">Sample</span>}</div>
         <strong className="ad-card-name">{p.name}</strong>
         {company !== p.name && <span className="small">{company}</span>}
-        <span className="small muted">{shortLicenseLabel(p.category, p.state)} {p.licenseId}</span>
+        {p.licenseId && <span className="small muted">{shortLicenseLabel(p.category, p.state)} {p.licenseId}</span>}
         <p className="ad-card-line">{p.adLine ?? p.headline}</p>
         <a className="btn btn-secondary" href={`#/pros/${p.id}`} onClick={() => track('ad_click', p.id)}>Contact {company}</a>
       </div>

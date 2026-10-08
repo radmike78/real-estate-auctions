@@ -245,9 +245,9 @@ export function openDb(path: string) {
     /** Other applications with the same license (in the same category) or email: possible impersonation. */
     duplicates(a: ApplicationRow): { id: string; status: string; field: 'license' | 'email' }[] {
       const rows = db
-        .prepare('SELECT id, status, category, license_id, email FROM applications WHERE id != ? AND ((category = ? AND license_id = ?) OR email = ?)')
+        .prepare("SELECT id, status, category, license_id, email FROM applications WHERE id != ? AND ((category = ? AND license_id = ? AND license_id != '') OR email = ?)")
         .all(a.id, a.profile.category, a.profile.licenseId, a.profile.email) as { id: string; status: string; category: string; license_id: string; email: string }[];
-      return rows.map((r) => ({ id: r.id, status: r.status, field: r.category === a.profile.category && r.license_id === a.profile.licenseId ? 'license' : 'email' }));
+      return rows.map((r) => ({ id: r.id, status: r.status, field: a.profile.licenseId && r.category === a.profile.category && r.license_id === a.profile.licenseId ? 'license' : 'email' }));
     },
     update(
       id: string,

@@ -1,3 +1,4 @@
+import { VERIFIED_NOTICE } from '../lib/proVerification';
 import FeatureStatus from './FeatureStatus';
 import PageHero from './PageHero';
 import { advertisingOpen, useSiteFeatures } from '../lib/siteFeatures';
@@ -46,20 +47,22 @@ export default function AdvertisePage() {
 
       <section className="options-grid" aria-label="What you get">
         {[
-          ['Your own profile page', 'A dedicated page with your photo or logo, services, service areas, languages and a license-checked badge.'],
+          ['Your own profile page', 'A dedicated page with your photo or logo, services, service areas, languages and a Verified badge.'],
           ['Leads sent to you', 'Buyers send contact requests straight to your inbox. Each one agrees to share their details with you only.'],
           ['Proof it works', 'A dashboard and monthly report of profile views, phone taps, email and website clicks, and leads.'],
-          ['A license-checked badge', `We check every license on the official regulator or NMLS lookup and re-check it every ${REVERIFY_DAYS} days. It isn’t a recommendation.`],
+          ['Verified', `We check identity and required licenses or registrations. Where no state license applies, we check relevant qualifications and insurance. We re-check every ${REVERIFY_DAYS} days.`],
         ].map(([t, d]) => (
           <div key={t} className="option-card"><h3>{t}</h3><p>{d}</p></div>
         ))}
       </section>
 
+      <p className="small muted" role="note">{VERIFIED_NOTICE}</p>
+
       <h2>Who can advertise</h2>
       <p>
-        Professionals licensed or registered to work in {STATES.map((s) => s.name).join(', ').replace(/, (?=[^,]*$)/, ' or ')}. You choose your state and
+        Professionals qualified to provide their advertised services in {STATES.map((s) => s.name).join(', ').replace(/, (?=[^,]*$)/, ' or ')}. You choose your state and
         the counties you serve, and your ads show to buyers looking in that state.
-        {st ? ` Each line below names where we check a license in ${stateByCode(st)?.name}.` : ''}
+        {st ? ` Each line below explains the verification checks in ${stateByCode(st)?.name}.` : ''}
       </p>
       <div className="options-grid ad-who">
         {GROUPS.map((g) => (
@@ -88,7 +91,7 @@ export default function AdvertisePage() {
       <h2>How listing works</h2>
       <ol className="steps-rich ad-steps">
         <li><strong>Apply and confirm your email</strong><span>Takes about five minutes.</span></li>
-        <li><strong>We verify you</strong><span>We check your license on the official regulator lookup (where your state has no license for your work, such as Texas general contractors, we check your trade licenses and insurance instead), and confirm your identity through contact details we find independently.</span></li>
+        <li><strong>We verify you</strong><span>We check every license or registration required for your services on the official lookup. Where no state license applies, we check relevant qualifications and insurance instead. We confirm your identity through contact details we find independently before approving your ad.</span></li>
         <li><strong>Choose your areas and plan, pay by card and go live</strong><span>A monthly fee for each area, at the plan you choose, paid securely through Stripe. Cancel any time.</span></li>
         <li><strong>Track your results</strong><span>Sign in any time with a one-time email link to see your numbers and leads.</span></li>
       </ol>

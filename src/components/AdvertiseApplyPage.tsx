@@ -4,7 +4,8 @@ import { AD_LINE_RULES, CONTENT_RULES, LANGUAGES, MAX_SERVICE_CITIES, validateAp
 import { CATEGORIES, CREDIT_PROFILES, REVERIFY_DAYS, servicesFor, type Category } from '../lib/pros';
 import { getMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { regulatorFor } from '../lib/regulators';
+import { allowsAlternativeQualifications, regulatorFor } from '../lib/regulators';
+import { VERIFIED_NOTICE } from '../lib/proVerification';
 import PageHero from './PageHero';
 import PlaceCombobox from './PlaceCombobox';
 import { api, ApiError } from '../lib/api';
@@ -105,6 +106,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
   const st = stateByCode(f.state);
   const state = (st?.code ?? 'NV') as StateCode;
   const reg = info ? regulatorFor(f.category as Category, state) : null;
+  const alternative = info ? allowsAlternativeQualifications(f.category as Category, state) : false;
   const isAgent = f.category === 'agent';
   const features = useSiteFeatures();
 
@@ -145,7 +147,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
       <main className="page">
         <PageHero compact title={<>Advertise on <span className="grad">DeedOwl</span></>} />
         <EmptyState soon title="Advertising is coming soon">
-          <p>Applications for licensed professionals open soon. Every advertiser’s license is checked on the official regulator lookup before they’re listed.</p>
+          <p>Applications for professionals open soon. We check identity and required credentials before an advertiser is listed.</p>
           <p><a href="#/advertise">What advertising includes</a> · <a href="#/pros">Your team</a></p>
         </EmptyState>
       </main>
@@ -173,7 +175,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
   // Each section: whether it's filled in, and whether it has an error, for the progress menu.
   const sections: { id: string; label: string; done: boolean; bad: boolean }[] = [
     { id: 'apply-type', label: 'State & business', done: !!info && !!st, bad: has('category') || has('state') },
-    { id: 'apply-license', label: 'License', done: !!(f.name && f.company && f.licenseId), bad: has('name') || has('company') || has('licenseId') },
+    { id: 'apply-license', label: 'Credentials', done: !!(f.name && f.company && (alternative || f.licenseId)), bad: has('name') || has('company') || has('licenseId') },
     { id: 'apply-offer', label: 'What you offer', done: !!f.headline && f.services.length > 0 && (!info?.financing || f.creditProfiles.length > 0), bad: has('headline') || has('services') || has('creditProfiles') },
     { id: 'apply-areas', label: 'Areas & languages', done: f.serviceCounties.length > 0 && f.languages.length > 0, bad: has('serviceCounties') || has('serviceCities') || has('serviceZips') || has('languages') },
     { id: 'apply-contact', label: 'Contact details', done: !!(f.phone && f.email) && f.bio.length >= 30, bad: has('phone') || has('email') || has('website') || has('bio') || has('adLine') },
@@ -185,8 +187,9 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
       <PageHero
         eyebrow={<span className="eyebrow">For professionals</span>}
         title={<>Apply to <span className="grad">advertise</span></>}
-        sub="Six short sections, about five minutes. We verify every license before you're listed."
+        sub="Six short sections, about five minutes. We verify your identity and required credentials before you're listed."
       />
+      <p className="small muted" role="note">{VERIFIED_NOTICE}</p>
       <div className="apply-layout">
         <aside className="apply-nav" aria-label="Application sections">
           <ol>
@@ -201,7 +204,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
           </ol>
           <div className="apply-next">
             <h3>After you apply</h3>
-            <p>We confirm your email, verify your license and identity, then you choose a plan and go live. Your profile is always labeled as an advertisement.</p>
+            <p>We confirm your email, verify your identity and required credentials, then you choose a plan and go live. Your profile is always labeled as an advertisement.</p>
           </div>
         </aside>
 
@@ -212,7 +215,7 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
 
           <Card n={1} id="apply-type" title="Where you work and what you do" sub="Pick your state, then your kind of business. The rest of the form adjusts.">
             <fieldset className="field area-states" aria-invalid={has('state')}>
-              <legend>State you’re licensed in and advertise to</legend>
+              <legend>State where you work and advertise</legend>
               {STATES.map((s) => (
                 <button key={s.code} type="button" aria-pressed={f.state === s.code} className={f.state === s.code ? 'on' : ''} onClick={() => pickState(s.code)}>
                   {s.name}
@@ -243,11 +246,11 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
 
           {info && st && (
             <>
-              <Card n={2} id="apply-license" title="License" sub="Exactly as it appears on your license.">
+              <Card n={2} id="apply-license" title="Credentials" sub={alternative ? 'We check required licenses and alternative qualifications before approving your ad.' : 'Use the details shown on your official license or registration.'}>
                 <div className="form-grid">
-                  {text('name', isAgent || f.category === 'loan_officer' || f.category === 'insurance' || info.individual ? 'Your full name (as licensed)' : 'Business name (as licensed)', { autoComplete: 'name' })}
+                  {text('name', isAgent || f.category === 'loan_officer' || f.category === 'insurance' || info.individual ? 'Your legal name' : 'Legal business name', { autoComplete: 'name' })}
                   {text('company', isAgent ? 'Brokerage' : 'Company or employer', { autoComplete: 'organization' })}
-                  {text('licenseId', 'License, registration or ID number', { placeholder: state === 'NV' ? info.licenseHint : 'As the regulator shows it', autoCapitalize: 'characters', maxLength: 30 })}
+                  {text('licenseId', alternative ? 'License or credential number (if applicable)' : 'License, registration or ID number', { placeholder: alternative ? 'Leave blank if no number applies' : state === 'NV' ? info.licenseHint : 'As the regulator shows it', autoCapitalize: 'characters', maxLength: 30 }, alternative ? 'Enter any required trade license or relevant credential number. If no license applies, leave this blank; we will verify your qualifications and any required insurance before approval.' : undefined)}
                 </div>
               </Card>
 
@@ -298,8 +301,8 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
               <Card n={6} id="apply-confirm" title="Confirm & submit" sub="Tick each box to confirm.">
                 {(
                   [
-                    ['attestLicensed', `I hold an active license or registration for this work in ${st.name}, and I'm authorized to advertise for the company named above.`],
-                    ['attestAccurate', "The information above is accurate, and I'll tell you if my license, company or contact details change."],
+                    ['attestLicensed', `I hold every active license or registration required for the services I advertise in ${st.name}, and I'm authorized to advertise for the company named above.`],
+                    ['attestAccurate', "The information above is accurate, and I'll tell you if my credentials, company or contact details change."],
                     ['consentVerification', `I consent to verification with ${reg?.name ?? 'the regulator'} and to you contacting my company to confirm my identity.`],
                     ['attestOriginal', "Everything I submit, now or later, is my own original work or material I have written permission to use. I haven't copied text, images or logos from anyone else without permission, and my profile follows the content rules above. I'm responsible for my content and will cover DeedOwl's costs if someone makes a claim because of it. DeedOwl may edit or remove any content."],
                     ['attestAdvertising', "I understand this is paid advertising. Every listed professional appears in the directory list in the same fair rotating order, whatever plan they choose; paid plans add separate boxes labeled as ads. DeedOwl isn't a party to any transaction and receives no referral fees. I'll follow all laws that apply to my services and to contacting consumers. I agree to the Terms of Use, including the Advertiser terms, and the Privacy Policy."],
