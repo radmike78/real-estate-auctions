@@ -215,8 +215,8 @@
       "src/lib/proVerification.ts"
     ],
     "reviewed": "2026-10-08",
-    "hash": "74e98560c1169dca",
-    "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy and Terms content is unchanged."
+    "hash": "50d17a646ef108a6",
+    "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy content is unchanged; the same verification explanation is now shared with the draft Terms."
   },
   {
     "id": "pros",
@@ -227,8 +227,8 @@
       "src/lib/proVerification.ts"
     ],
     "reviewed": "2026-10-08",
-    "hash": "2ce18192434238aa",
-    "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy and Terms content is unchanged."
+    "hash": "42b5aedeace4545f",
+    "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy content is unchanged; the same verification explanation is now shared with the draft Terms."
   },
   {
     "id": "pro",
@@ -240,8 +240,8 @@
       "src/lib/proVerification.ts"
     ],
     "reviewed": "2026-10-08",
-    "hash": "f459d2f5af1ea5e0",
-    "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy and Terms content is unchanged."
+    "hash": "76ac14137cab8d4d",
+    "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy content is unchanged; the same verification explanation is now shared with the draft Terms."
   },
   {
     "id": "homeowner",
@@ -273,8 +273,8 @@
       "src/lib/proVerification.ts"
     ],
     "reviewed": "2026-10-08",
-    "hash": "beb91d4370d09053",
-    "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy and Terms content is unchanged."
+    "hash": "81aed66501ed6fec",
+    "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy content is unchanged; the same verification explanation is now shared with the draft Terms."
   },
   {
     "id": "disclaimer",
@@ -287,8 +287,8 @@
       "src/lib/proVerification.ts"
     ],
     "reviewed": "2026-10-08",
-    "hash": "f89219896d30c648",
-    "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy and Terms content is unchanged."
+    "hash": "af2f5c5f8b449787",
+    "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy content is unchanged; the same verification explanation is now shared with the draft Terms."
   },
   {
     "id": "privacy",
@@ -304,11 +304,12 @@
     "id": "terms",
     "title": "Terms of use",
     "files": [
-      "src/components/TermsPage.tsx"
+      "src/components/TermsPage.tsx",
+      "src/lib/proVerification.ts"
     ],
     "reviewed": "2026-10-08",
-    "hash": "7a6dcc5e42bb5f82",
-    "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged."
+    "hash": "7401b2ee218b07c1",
+    "note": "Updated the draft Terms with the Verified badge explanation: verification is not endorsement or a guarantee of work quality, advice or outcomes. Aligned advertiser eligibility, area and credential-display wording with alternative qualifications. Draft notice and Privacy remain unchanged."
   },
   {
     "id": "emails",
