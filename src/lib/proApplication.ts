@@ -5,7 +5,7 @@
 
 import { isAdTier, type AdTier } from './adPlans';
 import { CATEGORIES, CREDIT_PROFILES, isCategory, servicesFor, type Category } from './pros';
-import { regulatorFor } from './regulators';
+import { allowsAlternativeQualifications, regulatorFor } from './regulators';
 import { MAX_AD_AREAS, type AdArea } from './adAreas';
 import { STATES, stateByCode, type StateCode } from './regions';
 
@@ -167,7 +167,7 @@ export function validateApplication(raw: Partial<ApplicationInput>, isCity?: (st
   if (raw.company_url) errors.form = 'Submission rejected.';
 
   const st = STATES.find((s) => s.code === raw.state);
-  if (!st) errors.state = 'Choose the state you’re licensed in.';
+  if (!st) errors.state = 'Choose the state where you work and advertise.';
   const state = (st?.code ?? 'NV') as StateCode;
 
   if (!isCategory(raw.category)) return { ok: false, errors: { ...errors, category: 'Choose what kind of business you are.' } };
@@ -175,7 +175,7 @@ export function validateApplication(raw: Partial<ApplicationInput>, isCity?: (st
   const info = CATEGORIES[category];
 
   const name = plain(raw.name, 100);
-  if (!/^[\p{L}\p{N}][\p{L}\p{N}&',. ()/-]{1,98}[\p{L}\p{N}.)]$/u.test(name)) errors.name = 'Enter the name to show (person or business), as licensed.';
+  if (!/^[\p{L}\p{N}][\p{L}\p{N}&',. ()/-]{1,98}[\p{L}\p{N}.)]$/u.test(name)) errors.name = 'Enter your legal name or business name.';
 
   const company = plain(raw.company, 120);
   if (company.length < 2) errors.company = category === 'agent' ? 'Enter the brokerage you are licensed under.' : 'Enter your company or employer.';
@@ -184,9 +184,11 @@ export function validateApplication(raw: Partial<ApplicationInput>, isCity?: (st
   // characters, starting with a letter or digit: nothing a spreadsheet, link or page could read as code.
   const licenseId = plain(raw.licenseId, 30).toUpperCase();
   let licenseType: string | null = null;
-  if (licenseId.length < 2) errors.licenseId = 'Enter your license, registration or ID number.';
-  else if (!/^[A-Z0-9][A-Z0-9 .\/#-]*$/.test(licenseId)) errors.licenseId = 'Use only letters, numbers, spaces and . - / # in the license number.';
-  else if (category === 'agent' && state === 'NV') licenseType = AGENT_PREFIX_TYPE[licenseId.split('.')[0]] ?? null;
+  if (licenseId || !allowsAlternativeQualifications(category, state)) {
+    if (licenseId.length < 2) errors.licenseId = 'Enter your license, registration or ID number.';
+    else if (!/^[A-Z0-9][A-Z0-9 .\/#-]*$/.test(licenseId)) errors.licenseId = 'Use only letters, numbers, spaces and . - / # in the credential number.';
+    else if (category === 'agent' && state === 'NV') licenseType = AGENT_PREFIX_TYPE[licenseId.split('.')[0]] ?? null;
+  }
 
   const serviceCounties = strings(raw.serviceCounties);
   if (!serviceCounties.length || serviceCounties.length > MAX_SERVICE_COUNTIES || (st && !serviceCounties.every((c) => st.counties.includes(c)))) {
@@ -275,15 +277,16 @@ export function approvalBlockers(category: Category, v: Partial<LicenseVerificat
   if (!isCategory(category)) return ['Unknown category.'];
   const info = CATEGORIES[category];
   const reg = regulatorFor(category, state).name;
-  if (v.licenseStatus !== 'Active') out.push(`${reg} must show the license or registration as Active.`);
+  const alternative = allowsAlternativeQualifications(category, state);
+  if (v.licenseStatus !== 'Active') out.push(alternative ? 'Verify required licenses and alternative qualifications before approving.' : `${reg} must show the license or registration as Active.`);
   // The expiration date is optional (the 90-day re-check catches lapses); a date that is entered must be in the future.
   if (info.licenseExpires && v.licenseExpires && (!/^\d{4}-\d{2}-\d{2}$/.test(v.licenseExpires) || v.licenseExpires <= today)) {
     out.push(`The expiration date must be in the future, as shown on ${reg}, or left blank.`);
   }
   if (!v.nameMatches) out.push(`Confirm the name on ${reg} matches.`);
-  if (!v.typeMatches) out.push(`Confirm the license type or classification fits "${info.label}".`);
-  if (!v.companyMatches) out.push(`Confirm ${reg} shows them with this company.`);
-  if (!v.identityConfirmed) out.push('Confirm the applicant is the licensee, using contact details that did not come from the application.');
+  if (!v.typeMatches) out.push(alternative ? `Confirm all licenses required for the advertised services, and the alternative qualifications and insurance for "${info.label}".` : `Confirm the license type or classification fits "${info.label}".`);
+  if (!v.companyMatches) out.push(alternative ? 'Confirm the applicant is authorized to advertise for this company.' : `Confirm ${reg} shows them with this company.`);
+  if (!v.identityConfirmed) out.push('Confirm the applicant’s identity, using contact details that did not come from the application.');
   if (!v.contentReviewed) out.push('Check the headline, bio and ad line against the content rules.');
   return out;
 }

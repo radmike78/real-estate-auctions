@@ -1,4 +1,5 @@
 // Single source for the site's role and disclaimers, so every page says the same thing.
+import { VERIFIED_NOTICE } from './proVerification';
 
 export const ROLE_SHORT =
   'DeedOwl teaches the steps to invest in real estate, then points you to deals from official sources. Each deal is yours to research and decide.';
@@ -29,7 +30,7 @@ export const DISCLAIMERS: Record<DisclaimerKind, { title: string; text: string }
   professionals: {
     title: 'Advertisements, not recommendations',
     text:
-      'Professionals listed here pay to advertise. Being listed is not an endorsement. We check licenses on the official regulator lookup, ' +
+      `Professionals listed here pay to advertise. ${VERIFIED_NOTICE} We check required licenses on the official regulator lookup, ` +
       "but we don't supervise anyone's work and aren't responsible for any agreement, advice or outcome. Interview several, check the " +
       'license yourself, and get every agreement in writing.',
   },
@@ -42,7 +43,7 @@ export const DISCLAIMERS: Record<DisclaimerKind, { title: string; text: string }
   services: {
     title: 'Hire carefully',
     text:
-      'Service providers listed here pay to advertise. Being listed is not an endorsement. Check the license and insurance yourself, get ' +
+      `Service providers listed here pay to advertise. ${VERIFIED_NOTICE} Check any required license and insurance yourself, get ` +
       "written bids and contracts, and never pay large sums upfront. We aren't a party to your agreement and aren't responsible for the work.",
   },
 };

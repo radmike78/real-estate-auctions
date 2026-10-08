@@ -211,22 +211,24 @@
     "id": "financing",
     "title": "Financing",
     "files": [
-      "src/components/FinancingPage.tsx"
+      "src/components/FinancingPage.tsx",
+      "src/lib/proVerification.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "8b49cbad8ca72dd2",
-    "note": "Full content review (review round of 2026-09-27)."
+    "reviewed": "2026-10-08",
+    "hash": "74e98560c1169dca",
+    "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy and Terms content is unchanged."
   },
   {
     "id": "pros",
     "title": "Title, inspectors, attorneys & more (directory)",
     "files": [
       "src/components/ProDirectory.tsx",
-      "src/lib/pros.ts"
+      "src/lib/pros.ts",
+      "src/lib/proVerification.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "7796867d4d97d10a",
-    "note": "Full content review (review round of 2026-09-27)."
+    "reviewed": "2026-10-08",
+    "hash": "2ce18192434238aa",
+    "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy and Terms content is unchanged."
   },
   {
     "id": "pro",
@@ -234,11 +236,12 @@
     "files": [
       "src/components/ProProfilePage.tsx",
       "src/components/PaidAdNotice.tsx",
-      "src/components/LeadForm.tsx"
+      "src/components/LeadForm.tsx",
+      "src/lib/proVerification.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "f6b082552144e358",
-    "note": "Full content review (review round of 2026-09-27)."
+    "reviewed": "2026-10-08",
+    "hash": "f459d2f5af1ea5e0",
+    "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy and Terms content is unchanged."
   },
   {
     "id": "homeowner",
@@ -266,11 +269,12 @@
     "files": [
       "src/components/AdvertisePage.tsx",
       "src/components/AdvertiseApplyPage.tsx",
-      "src/lib/proApplication.ts"
+      "src/lib/proApplication.ts",
+      "src/lib/proVerification.ts"
     ],
     "reviewed": "2026-10-08",
-    "hash": "8c063be2b67421df",
-    "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged."
+    "hash": "beb91d4370d09053",
+    "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy and Terms content is unchanged."
   },
   {
     "id": "disclaimer",
@@ -279,11 +283,12 @@
       "src/components/DisclaimerPage.tsx",
       "src/lib/disclaimers.ts",
       "src/components/Disclaimer.tsx",
-      "src/components/RoleNotice.tsx"
+      "src/components/RoleNotice.tsx",
+      "src/lib/proVerification.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "9340b2caacd30e48",
-    "note": "Full content review (review round of 2026-09-27)."
+    "reviewed": "2026-10-08",
+    "hash": "f89219896d30c648",
+    "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy and Terms content is unchanged."
   },
   {
     "id": "privacy",

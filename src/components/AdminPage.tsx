@@ -4,7 +4,7 @@ import { approvalBlockers, billingTier, paidAreas, type Billing, type LicenseVer
 import { AD_TIERS, CAPS, TIER_INFO, topicsFor, type AdTier } from '../lib/adPlans';
 import { adTopicByKey } from '../lib/adTopics';
 import { CATEGORIES, REVERIFY_DAYS } from '../lib/pros';
-import { regulatorFor } from '../lib/regulators';
+import { allowsAlternativeQualifications, regulatorFor } from '../lib/regulators';
 import { countyName, stateByCode } from '../lib/regions';
 import { api, ApiError } from '../lib/api';
 import PageHero from './PageHero';
@@ -110,6 +110,7 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
   const [err, setErr] = useState<string | null>(null);
   const info = CATEGORIES[app.profile.category];
   const reg = regulatorFor(app.profile.category, app.profile.state);
+  const alternative = allowsAlternativeQualifications(app.profile.category, app.profile.state);
   const blockers = approvalBlockers(app.profile.category, v, undefined, app.profile.state);
   const set = <K extends keyof LicenseVerification>(k: K, val: LicenseVerification[K]) => setV((x) => ({ ...x, [k]: val }));
   const relisting = app.status === 'APPROVED' || app.status === 'SUSPENDED';
@@ -131,13 +132,14 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
 
   return (
     <section className="verify-panel">
-      <h3>{relisting ? 'Re-verify license' : 'Verify and approve'}</h3>
+      <h3>{relisting ? 'Re-verify professional' : 'Verify and approve'}</h3>
       {prev && <p className="small muted">Last verified {fmtDate(prev.verifiedAt)} by {prev.verifiedBy}: {prev.licenseStatus}{prev.licenseExpires ? `, expires ${fmtDate(prev.licenseExpires)}` : ''}.</p>}
       <ol className="small verify-steps">
         <li>
           {reg.url ? <>Open <a href={reg.url} target="_blank" rel="noreferrer noopener">{reg.name}&nbsp;↗</a></> : <>Check {reg.name}</>} ({stateByCode(app.profile.state)?.name}) and
-          search for <strong>{app.profile.licenseId}</strong> or the name. Record what it shows.{reg.note && <> {reg.note}</>}
+          search by {app.profile.licenseId ? <><strong>{app.profile.licenseId}</strong> or </> : null}the name. Record what it shows.{reg.note && <> {reg.note}</>}
         </li>
+        {alternative && <li>Determine which licenses the advertised services require and check each one on its official lookup. Where no license applies, check qualifications and any required insurance. Do not approve until these checks are complete.</li>}
         <li>
           Confirm identity by contacting the <strong>company</strong> using a phone number or email from {reg.name} or the company's own
           website. <strong>Never use the contact details on this application</strong>, because an impostor would control those.
@@ -145,9 +147,9 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
       </ol>
       <div className="form-grid">
         <label className="field">
-          <span>Status on {reg.name}</span>
+          <span>{alternative ? 'Required credentials and qualifications' : `Status on ${reg.name}`}</span>
           <select value={v.licenseStatus} onChange={(e) => set('licenseStatus', e.target.value as LicenseVerification['licenseStatus'])}>
-            {['Active', 'Inactive', 'Expired', 'Revoked', 'Not found'].map((s) => <option key={s}>{s}</option>)}
+            {['Active', 'Inactive', 'Expired', 'Revoked', 'Not found'].map((s) => <option key={s} value={s}>{alternative && s === 'Active' ? 'Verified' : s}</option>)}
           </select>
         </label>
         {info.licenseExpires && (
@@ -158,9 +160,9 @@ function VerifyForm({ app, onSaved }: { app: App; onSaved: () => void }) {
         )}
       </div>
       {box('nameMatches', `Name on ${reg.name} matches "${app.profile.name}"`)}
-      {box('typeMatches', app.profile.licenseType ? `License type is ${app.profile.licenseType}` : `License type or classification fits "${info.label}"`)}
-      {box('companyMatches', `${reg.name} shows them with "${app.profile.company}"`)}
-      {box('identityConfirmed', 'I confirmed the applicant is this licensee, using contact details that did not come from this application')}
+      {box('typeMatches', alternative ? 'I checked every license required for the advertised services, and alternative qualifications and required insurance where no license applies' : app.profile.licenseType ? `License type is ${app.profile.licenseType}` : `License type or classification fits "${info.label}"`)}
+      {box('companyMatches', alternative ? `I confirmed they are authorized to advertise for "${app.profile.company}"` : `${reg.name} shows them with "${app.profile.company}"`)}
+      {box('identityConfirmed', 'I confirmed the applicant’s identity, using contact details that did not come from this application')}
       {box('contentReviewed', 'I checked the headline, bio and ad line against the content rules, and searched a sentence online to make sure it isn\u2019t copied')}
       {blockers.length > 0 && (
         <ul className="blockers small">{blockers.map((b) => <li key={b}>{b}</li>)}</ul>

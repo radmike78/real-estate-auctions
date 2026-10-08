@@ -10,7 +10,8 @@ import ProAvatar from './ProAvatar';
 import PageHero from './PageHero';
 import EmptyState from './EmptyState';
 import { useNoIndex } from '../lib/noindex';
-import { regulatorFor, shortLicenseLabel } from '../lib/regulators';
+import { VERIFIED_NOTICE } from '../lib/proVerification';
+import { allowsAlternativeQualifications, regulatorFor, shortLicenseLabel } from '../lib/regulators';
 import { countyName, stateByCode } from '../lib/regions';
 
 export default function ProProfilePage({ id }: { id: string }) {
@@ -27,7 +28,7 @@ export default function ProProfilePage({ id }: { id: string }) {
       <main className="page">
         <PageHero compact title="Profile not available" />
         <EmptyState title="This professional isn’t listed right now">
-          <p>Their license check or advertising may have lapsed. <a href="#/pros">See who helps with each step</a>.</p>
+          <p>Their verification or advertising may have lapsed. <a href="#/pros">See who helps with each step</a>.</p>
         </EmptyState>
       </main>
     );
@@ -83,15 +84,16 @@ export default function ProProfilePage({ id }: { id: string }) {
         {p.isSample ? (
           <aside className="verify-card">
             <h2>Sample profile</h2>
-            <p className="small">This is a fictional example of how a listing will look. There’s no real person or license behind it. Real profiles show a license a person checked with {reg.name}.</p>
+            <p className="small">This is a fictional example of how a listing will look. There’s no real person or license behind it. Real profiles show identity and required credentials checked by a person.</p>
             {reg.url && <a className="btn btn-secondary" href={reg.url} target="_blank" rel="noreferrer noopener">Look up a real license on {reg.name}&nbsp;↗</a>}
           </aside>
         ) : (
         <aside className="verify-card">
           <h2>✓ Verified</h2>
+          <p className="small">{VERIFIED_NOTICE}</p>
           <dl className="mini">
-            <div><dt>{p.state === 'NV' ? info.licenseLabel : shortLicenseLabel(p.category, p.state)}</dt><dd>{p.licenseId}</dd></div>
-            <div><dt>Status</dt><dd>{p.licenseStatus}</dd></div>
+            {p.licenseId && <div><dt>{p.state === 'NV' ? info.licenseLabel : shortLicenseLabel(p.category, p.state)}</dt><dd>{p.licenseId}</dd></div>}
+            <div><dt>Status</dt><dd>{allowsAlternativeQualifications(p.category, p.state) ? 'Verified' : p.licenseStatus}</dd></div>
             {p.licenseExpires && <div><dt>Expires</dt><dd>{fmtDate(p.licenseExpires)}</dd></div>}
             <div><dt>Last checked</dt><dd>{fmtDate(p.licenseVerifiedAt)}</dd></div>
           </dl>

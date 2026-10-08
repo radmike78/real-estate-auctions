@@ -28,6 +28,15 @@ const NO_LOOKUP: Record<string, string> = {
   'contractor:TX': 'their trade license (TDLR or the plumbing board) and proof of insurance (Texas has no general contractor license)',
 };
 
+/** Some services have no statewide license; private lending in Texas depends on the services offered.
+ * An optional number never bypasses admin review of required trade licenses, qualifications and insurance.
+ */
+export function allowsAlternativeQualifications(category: Category, state: StateCode): boolean {
+  return (category === 'home_inspector' && state === 'CA') ||
+    (category === 'contractor' && state === 'TX') ||
+    (category === 'private_lender' && state === 'TX');
+}
+
 export interface Regulator {
   name: string;
   url: string | null;
@@ -54,7 +63,7 @@ export function shortLicenseLabel(category: Category, state: StateCode): string 
   if (category === 'bank') return 'FDIC cert.';
   if (category === 'credit_union') return 'NCUA charter';
   // No statewide license: name what was actually checked.
-  if (category === 'contractor' && state === 'TX') return 'Texas trade license';
+  if (category === 'contractor' && state === 'TX') return 'Trade license / credential';
   if (category === 'home_inspector' && state === 'CA') return 'Credential';
   return `${stateByCode(state)?.name ?? state} license`;
 }

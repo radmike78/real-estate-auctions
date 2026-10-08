@@ -11,7 +11,7 @@ import { FeaturedAds, inArea } from './AdBoxes';
 import { areaLong, useMyArea } from '../lib/myArea';
 import { AreaDialog } from './AreaPicker';
 import { stateByCode } from '../lib/regions';
-import { regulatorFor } from '../lib/regulators';
+import { VERIFIED_NOTICE } from '../lib/proVerification';
 
 /** Loads the signed directory; falls back to fictional samples only when no directory exists yet. */
 export function useDirectory(): { pros: Pro[]; usingSamples: boolean; error: string | null; loading: boolean } {
@@ -55,7 +55,7 @@ export function ProCard({ p }: { p: Pro }) {
         {p.services.slice(0, 4).map((s) => <span key={s} className="chip">{s}</span>)}
         {p.services.length > 4 && <span className="chip">+{p.services.length - 4}</span>}
       </div>
-      {p.isSample ? <div className="small muted">Sample profile: fictional, not a license check</div> : <div className="verified small">✓ Verified with {regulatorFor(p.category, p.state).name}</div>}
+      {p.isSample ? <div className="small muted">Sample profile: fictional, not a license check</div> : <div className="verified small" title={VERIFIED_NOTICE}>✓ Verified</div>}
       <div className="contact">
         <a className="btn" href={`#/pros/${p.id}`}>View profile</a>
         {!p.isSample && tel && <a className="btn btn-secondary" href={tel} onClick={() => track('phone_click', p.id)}>Call</a>}
@@ -113,10 +113,10 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
       {header}
       {none && (
         <div className="empty">
-          <OwlNote><strong>No professionals advertise here{stName ? ` in ${stName}` : ''} yet.</strong> Every listing is license-checked before it appears.</OwlNote>
+          <OwlNote><strong>No professionals advertise here{stName ? ` in ${stName}` : ''} yet.</strong> We check identity and required credentials before every listing appears.</OwlNote>
           <p>
             Looking for someone now? <a href="#/pros">Your team</a> explains who you need and how to find them.{' '}
-            {adsOpen ? <>Licensed and want to be listed? <a href="#/advertise">Apply to advertise</a>.</> : 'Advertising for licensed professionals opens soon.'}
+            {adsOpen ? <>Want to advertise your services? <a href="#/advertise">Apply to advertise</a>.</> : 'Advertising for professionals opens soon.'}
           </p>
         </div>
       )}
