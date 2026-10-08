@@ -158,8 +158,8 @@
       "src/components/StrategyTabs.tsx",
       "src/lib/holdCalc.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "4e2ba4767f25b38b",
+    "reviewed": "2026-10-08",
+    "hash": "a54a0ffc48642400",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -184,8 +184,8 @@
       "src/components/TrackButton.tsx",
       "src/components/SearchAlertButton.tsx"
     ],
-    "reviewed": "2026-10-06",
-    "hash": "4804843957f5f6b1",
+    "reviewed": "2026-10-08",
+    "hash": "c4e035c5a5014144",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -404,8 +404,8 @@
       "src/lib/roadmap.ts",
       "src/lib/progressBackup.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "9762e74636d17644",
+    "reviewed": "2026-10-08",
+    "hash": "a195132eb85cd13e",
     "note": "New page: first-deal roadmap, buy box and tool links."
   }
 ]

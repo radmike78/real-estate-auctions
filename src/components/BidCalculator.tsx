@@ -10,6 +10,7 @@ import { ExampleInputs, ExampleResults, PriceHead, exampleLabels } from './CalcL
 const NOT_EXAMPLES = new Set<string>(['minimumBid', 'transferTaxPer500', 'cashAvailable', 'redemptionMonths', 'redemptionRatePct', 'targetProfitMin']);
 
 const KEY = (id: string) => `fsf.bid.${id}.v1`;
+const TYPED_KEY = (id: string) => `fsf.bid.${id}.typed.v1`;
 
 type Field = {
   k: keyof BidInputs;
@@ -86,6 +87,13 @@ const OFFER_FIELDS: Partial<Record<keyof BidInputs, Partial<Field>>> = {
   financedPct: { label: 'Share of the price and repairs financed', hint: 'The part of the price and repairs your loan covers. Rehab loans often pay repairs in draws after the work, so you front that cash first.' },
   holdingMonths: { hint: 'From closing until the resale closes.', more: 'Repairs, time on the market and the buyer’s escrow. Count every month you pay the loan, taxes, insurance and utilities.' },
 };
+// Costs that start at $0 rather than at an estimate, so a $0 here may just mean nobody entered it yet.
+const ZERO_CHECK: [keyof BidInputs, string][] = [
+  ['repairs', 'repairs'],
+  ['titleLegal', 'title search, attorney and quiet title'],
+  ['possession', 'getting possession'],
+  ['monthlyCarry', 'monthly holding costs'],
+];
 const OFFER_HIDDEN = new Set<keyof BidInputs>(['buyerPremiumPct', 'cashAvailable', 'redemptionMonths', 'redemptionRatePct']);
 
 const MODE_KEY = 'fsf.bid.mode.v1';
@@ -239,11 +247,28 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       save(next);
       return next;
     });
-  // Fields typed in this visit are yours, even when the number matches our starting estimate.
-  const [typedKeys, setTypedKeys] = useState<ReadonlySet<string>>(() => new Set());
+  // Fields you've typed in are yours, even when the number matches our starting estimate or is $0. Kept with a saved
+  // deal, so a $0 you entered on purpose isn't flagged again on your next visit.
+  const [typedKeys, setTypedKeys] = useState<ReadonlySet<string>>(() => {
+    try {
+      const saved = storeId ? JSON.parse(localStorage.getItem(TYPED_KEY(storeId)) ?? '[]') : [];
+      return new Set(Array.isArray(saved) ? saved.filter((x): x is string => typeof x === 'string') : []);
+    } catch {
+      return new Set();
+    }
+  });
   const set = (k: keyof BidInputs, text: string) => {
     trackAction('calculator_used', true);
-    setTypedKeys((t) => (t.has(k) ? t : new Set([...t, k])));
+    setTypedKeys((t) => {
+      if (t.has(k)) return t;
+      const next = new Set([...t, k]);
+      try {
+        if (storeId) localStorage.setItem(TYPED_KEY(storeId), JSON.stringify([...next]));
+      } catch {
+        /* storage unavailable */
+      }
+      return next;
+    });
     setDraft((d) => ({ ...d, [k]: text }));
     // Changing the redemption numbers by hand means the rule you confirmed may no longer be the one used.
     update({ [k]: clampInput(k, toNum(text)), ...(k.startsWith('redemption') && k !== 'redemptionChecked' ? { redemptionChecked: 0 } : {}) });
@@ -287,6 +312,11 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   // Which inputs on screen still hold our starting estimates (the listing's own numbers don't count).
   const still = exampleLabels(GROUPS.flatMap((g) => g.fields.filter(shown).map((f) => (offer && OFFER_FIELDS[f.k] ? { ...f, ...OFFER_FIELDS[f.k] } : f))), i, offer ? offerInputs(defaults) : defaults, typedKeys, NOT_EXAMPLES);
   const yours = offer ? 'Your offer' : 'Your bid';
+  // Costs still at $0 that nobody entered: unknown, not confirmed zero. Typing 0 confirms there's none.
+  const unentered = ZERO_CHECK.filter(([k]) => !((i[k] ?? 0) > 0) && !typedKeys.has(k) && !(offer && k === 'possession')).map(([k, l]) => (offer && k === 'titleLegal' ? 'title insurance, escrow and attorney' : l));
+  const unenteredNote = unentered.length > 0 && (
+    <><br /><strong>Still at $0 because nothing was entered: {unentered.join('; ')}.</strong> Enter each cost (switch to Detailed for the ones not shown), or type 0 if there truly is none, before you rely on this.</>
+  );
 
   return (
     <div className="calc" id={`${uid}-calc`}>
@@ -414,7 +444,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                 : r.limitedBy === 'cash'
                   ? `Set by the cash you can bring: the ${w.bid} plus every cost until you sell (repairs, holding, fees). Your profit target alone would allow ${fmtMoney(r.profitBid)}.`
                   : `Leaves your ${fmtMoney(Math.round(target))} profit target after every cost, based on your numbers. Not a guarantee.`}
-              {!r.noBidWorks && !(i.repairs > 0) && !(i.monthlyCarry > 0) && <><br /><strong>Repairs and holding costs are $0 here.</strong> Enter them (and switch to Detailed for title and selling costs) before you trust this number.</>}
+              {!r.noBidWorks && !(i.minimumBid > 0) && unenteredNote}
             </small>
           </div>
           )
@@ -432,9 +462,9 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
               <><strong>Your cash doesn’t cover the {w.opening}.</strong> The deal works (about {fmtMoney(Math.round(atOpening))} profit at {fmtMoney(i.minimumBid)}), but with repairs and every cost until you sell you’d need about {fmtMoney(Math.round(openingCash))}, and you entered {fmtMoney(i.cashAvailable)}.</>
             ) : (
               offer ? (
-                <><strong>Works at the {w.opening}.</strong> Your most is {fmtMoney(r.maxBid)}, but you don’t have to offer more than {fmtMoney(i.minimumBid)}: start lower if the market allows, and never go past {fmtMoney(r.maxBid)}. At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}.</>
+                <><strong>Meets your profit target at the {w.opening}, with the numbers entered.</strong> Your most is {fmtMoney(r.maxBid)}, but you don’t have to offer more than {fmtMoney(i.minimumBid)}: start lower if the market allows, and never go past {fmtMoney(r.maxBid)}. At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}.{unenteredNote}</>
               ) : (
-                <><strong>{fmtMoney(r.maxBid - i.minimumBid)} of room above the {w.opening}.</strong> Bidding starts at {fmtMoney(i.minimumBid)}; stop at {fmtMoney(r.maxBid)}. At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}.</>
+                <><strong>{fmtMoney(r.maxBid - i.minimumBid)} of room above the {w.opening}.</strong> Bidding starts at {fmtMoney(i.minimumBid)}; stop at {fmtMoney(r.maxBid)}. At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}.{unenteredNote}</>
               )
             )}
           </div>
