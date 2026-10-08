@@ -214,7 +214,7 @@ const LISTED: Source[] = [
   { id: 'az-btr', title: 'Arizona Board of Technical Registration (home inspectors)', publisher: 'State of Arizona', url: 'https://btr.az.gov/', role: 'lookup', checked: null, note: 'Blocks automated checks; confirm the license search in a browser.' },
   { id: 'az-difi', title: 'Arizona Department of Insurance and Financial Institutions (license search)', publisher: 'State of Arizona', url: 'https://difi.az.gov/license-search', role: 'lookup', checked: null, note: 'Blocks automated checks; confirm the license search in a browser.' },
   { id: 'az-roc-search', title: 'Arizona Registrar of Contractors: contractor search', publisher: 'State of Arizona', url: 'https://roc.az.gov/contractor-search', role: 'lookup', checked: null, note: 'Blocks automated checks; confirm in a browser.' },
-  { id: 'ut-insurance', title: 'Utah Insurance Department', publisher: 'State of Utah', url: 'https://insurance.utah.gov/', role: 'lookup', checked: null, note: 'Blocks automated checks; confirm the license search in a browser.' },
+  { id: 'ut-insurance', title: 'Utah Insurance Department', publisher: 'State of Utah', url: 'https://insurance.utah.gov/', role: 'lookup', checked: '2026-10-08', note: 'Department page reviewed; confirm license status in its public licensee lookup.' },
   { id: 'ut-realestate', title: 'Utah Division of Real Estate: license lookup', publisher: 'State of Utah', url: 'https://secure.utah.gov/rer/relv/search.html', role: 'lookup', checked: '2026-10-06' },
   { id: 'asc-appraiser-registry', title: 'Appraisal Subcommittee: national registry of appraisers', publisher: 'Appraisal Subcommittee of the Federal Financial Institutions Examination Council', url: 'https://www.asc.gov/appraiser', role: 'lookup', checked: '2026-10-03' },
   { id: 'ca-guide-1', title: 'California Civil Code 5675 (notice of delinquent assessment)', publisher: 'California Legislative Information', url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=5675', role: 'rules', checked: '2026-10-03' },
@@ -479,11 +479,11 @@ const LISTED: Source[] = [
   { id: 'learn-taxes-usc-453', title: '26 U.S.C. 453: installment method', publisher: 'Legal Information Institute, Cornell Law School', url: 'https://www.law.cornell.edu/uscode/text/26/453', role: 'rules', checked: null },
   { id: 'learn-taxes-usc-1402', title: '26 U.S.C. 1402: self-employment income', publisher: 'Legal Information Institute, Cornell Law School', url: 'https://www.law.cornell.edu/uscode/text/26/1402', role: 'rules', checked: null },
   { id: 'learn-taxes-nrs-375', title: 'NRS 375: real property transfer tax', publisher: 'Nevada Legislature', url: 'https://www.leg.state.nv.us/nrs/nrs-375.html', role: 'rules', checked: null },
-  { id: 'learn-taxes-ftb-3840', title: 'California FTB Form 3840: like-kind exchanges', publisher: 'California Franchise Tax Board', url: 'https://www.ftb.ca.gov/forms/search/?query=3840', role: 'rules', checked: null },
+  { id: 'learn-taxes-ftb-3840', title: 'California FTB Form 3840: like-kind exchanges', publisher: 'California Franchise Tax Board', url: 'https://www.ftb.ca.gov/file/personal/reporting-like-kind-exchanges.html', role: 'rules', checked: '2026-10-08' },
   { id: 'learn-taxes-ars-43-1011', title: 'A.R.S. 43-1011.01: income tax rate', publisher: 'Arizona Legislature', url: 'https://www.azleg.gov/ars/43/01011.01.htm', role: 'rules', checked: '2026-10-07' },
   { id: 'learn-taxes-ars-43-1022', title: 'A.R.S. 43-1022: subtractions, including 25% of long-term capital gains', publisher: 'Arizona Legislature', url: 'https://www.azleg.gov/ars/43/01022.htm', role: 'rules', checked: '2026-10-07' },
   { id: 'learn-taxes-tx-41', title: 'Texas Tax Code chapter 41: protests (41.44 deadline)', publisher: 'Texas Legislature', url: 'https://statutes.capitol.texas.gov/Docs/TX/htm/TX.41.htm', role: 'rules', checked: '2026-10-06', note: 'May 15, or 30 days after the notice is delivered, whichever is later.' },
-  { id: 'learn-taxes-ut-sb60', title: 'Utah S.B. 60 (2026): income tax rate to 4.45%', publisher: 'Utah Legislature', url: 'https://le.utah.gov/~2026/bills/static/SB0060.html', role: 'rules', checked: null },
+  { id: 'learn-taxes-ut-sb60', title: 'Utah House: 2026 S.B. 60 income tax rate to 4.45%', publisher: 'Utah Legislature', url: 'https://house.utleg.gov/utahs-tax-cut-streak-six-years-and-1-5-billion/', role: 'rules', checked: '2026-10-08' },
   { id: 'learn-publications-p527', title: 'IRS Publication 527: residential rental property', publisher: 'Internal Revenue Service', url: 'https://www.irs.gov/publications/p527', role: 'rules', checked: '2026-09-29' },
   { id: 'learn-sel-b2-1-1-01-occupancy-types', title: 'Fannie Mae Selling Guide: occupancy types (B2-1.1-01)', publisher: 'Fannie Mae', url: 'https://selling-guide.fanniemae.com/sel/b2-1.1-01/occupancy-types', role: 'rules', checked: '2026-09-29' },
   { id: 'learn-funding-programs-loans-504-loans', title: 'SBA: 504 loans', publisher: 'U.S. Small Business Administration', url: 'https://www.sba.gov/funding-programs/loans/504-loans', role: 'rules', checked: '2026-09-29' },
@@ -649,7 +649,7 @@ const COUNTY_SOURCES: Source[] = (() => {
   const out: Source[] = [];
   for (const [key, offices] of Object.entries(COUNTY_OFFICES)) {
     const [state, county] = key.split('/');
-    for (const [kind, o] of Object.entries(offices) as [keyof typeof OFFICE_TITLE, { url: string; checked: string | null }][]) {
+    for (const [kind, o] of Object.entries(offices) as [keyof typeof OFFICE_TITLE, { url: string; checked: string | null; contactOnly?: boolean }][]) {
       if (seen.has(o.url)) continue;
       seen.add(o.url);
       out.push({
@@ -657,7 +657,7 @@ const COUNTY_SOURCES: Source[] = (() => {
         title: `${county} County, ${state}: ${OFFICE_TITLE[kind]}`,
         publisher: `${county} County`,
         url: o.url,
-        role: kind === 'taxSale' ? 'rules' : 'lookup',
+        role: kind === 'taxSale' && !o.contactOnly ? 'rules' : 'lookup',
         checked: o.checked,
       });
     }

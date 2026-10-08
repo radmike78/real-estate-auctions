@@ -6,7 +6,7 @@ import OwlNote from './OwlNote';
 import PathNext from './PathNext';
 import { IconBank, IconBuilding, IconGavel, IconHome, IconLayers, IconSteps, IconFile } from './Icons';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { COUNTY_PAGES, nationalOfficialFor, officeLabelsFor, OTHER_SITES, STATE_SALES, WHERE_TO_LOOK, countyKey, type DealSource } from '../lib/findDeals';
+import { COUNTY_PAGES, nationalOfficialFor, officeLabelsFor, countyOfficeCards, OTHER_SITES, STATE_SALES, WHERE_TO_LOOK, countyKey, type DealSource } from '../lib/findDeals';
 import { COUNTY_OFFICES } from '../lib/countyOffices';
 import { useMarkStep } from '../lib/path';
 import { useMyArea } from '../lib/myArea';
@@ -71,14 +71,7 @@ export default function FindDealsPage() {
   const local = COUNTY_PAGES[countyKey(area.state, area.county)];
   const offices = COUNTY_OFFICES[countyKey(area.state, area.county)];
   const missingOffices = officeLabelsFor(area.state).filter((o) => !offices?.[o.key]);
-  const officeCards: DealSource[] = offices
-    ? officeLabelsFor(area.state).flatMap((o) => {
-        const x = offices[o.key];
-        if (!x) return [];
-        // Two offices can share a page (a combined assessor-recorder); list it once.
-        return [{ name: o.name, url: x.url, what: `${o.what}${x.note ? ` ${x.note}` : ''} ${x.checked ? `Link last checked: ${x.checked}. Confirm current sale details with the office.` : 'No verification date recorded. Confirm this link and current details with the county before relying on it.'}` }];
-      }).filter((c, i, all) => all.findIndex((d) => d.url === c.url) === i)
-    : [];
+  const officeCards = countyOfficeCards(area.state, offices);
   const place = `${countyName(area.county)}, ${st.name}`;
 
   return (

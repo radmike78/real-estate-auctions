@@ -1,0 +1,1672 @@
+{
+  "date": "2026-10-08",
+  "method": "Public page retrieval and official-source research. Retrieved does not mean an interactive search, payment, login, bidding flow, or legal proposition was tested.",
+  "existingSources": [
+    {
+      "id": "nasba-cpa",
+      "url": "https://ald.nasba.org/search/cpa",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://ald.nasba.org/search/cpa: (403) Forbidden"
+    },
+    {
+      "id": "az-btr",
+      "url": "https://btr.az.gov/",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://btr.az.gov/: (403) Forbidden"
+    },
+    {
+      "id": "az-difi",
+      "url": "https://difi.az.gov/license-search",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://difi.az.gov/license-search: (403) Forbidden"
+    },
+    {
+      "id": "az-roc-search",
+      "url": "https://roc.az.gov/contractor-search",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://roc.az.gov/contractor-search: (403) Forbidden"
+    },
+    {
+      "id": "ut-insurance",
+      "url": "https://insurance.utah.gov/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "tx-22tac-537-11",
+      "url": "https://www.law.cornell.edu/regulations/texas/22-Tex-Admin-Code-SS-537-11",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "learn-twia",
+      "url": "https://www.twia.org/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "learn-tdi-wind",
+      "url": "https://www.tdi.texas.gov/wind/index.html",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "learn-taxes-p583",
+      "url": "https://www.irs.gov/publications/p583",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "learn-taxes-niit",
+      "url": "https://www.irs.gov/individuals/net-investment-income-tax",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "learn-taxes-usc-168",
+      "url": "https://www.law.cornell.edu/uscode/text/26/168",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "learn-taxes-usc-469",
+      "url": "https://www.law.cornell.edu/uscode/text/26/469",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "learn-taxes-usc-453",
+      "url": "https://www.law.cornell.edu/uscode/text/26/453",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "learn-taxes-usc-1402",
+      "url": "https://www.law.cornell.edu/uscode/text/26/1402",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "learn-taxes-nrs-375",
+      "url": "https://www.leg.state.nv.us/nrs/nrs-375.html",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "learn-taxes-ftb-3840",
+      "url": "https://www.ftb.ca.gov/forms/search/?query=3840",
+      "result": "unretrieved",
+      "detail": "Research tool did not return usable page content."
+    },
+    {
+      "id": "learn-taxes-ut-sb60",
+      "url": "https://le.utah.gov/~2026/bills/static/SB0060.html",
+      "result": "unretrieved",
+      "detail": "Research tool did not return usable page content."
+    },
+    {
+      "id": "hud-home",
+      "url": "https://www.hudhomestore.gov/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "zillow",
+      "url": "https://www.zillow.com/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "realtor-com",
+      "url": "https://www.realtor.com/",
+      "result": "unretrieved",
+      "detail": "Research tool did not return usable page content."
+    },
+    {
+      "id": "redfin",
+      "url": "https://www.redfin.com/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "auction-com",
+      "url": "https://www.auction.com/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "xome",
+      "url": "https://www.xome.com/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "hubzu",
+      "url": "https://www.hubzu.com/",
+      "result": "unretrieved",
+      "detail": "Research tool did not return usable page content."
+    },
+    {
+      "id": "bid4assets",
+      "url": "https://www.bid4assets.com/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "loopnet",
+      "url": "https://www.loopnet.com/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "crexi",
+      "url": "https://www.crexi.com/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-az-apache-taxsale",
+      "url": "https://www.apachecountyaz.gov/Treasurer",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-az-apache-assessor",
+      "url": "https://www.apachecountyaz.gov/Assessor",
+      "result": "unretrieved",
+      "detail": "Research tool did not return usable page content."
+    },
+    {
+      "id": "county-az-apache-recorder",
+      "url": "https://www.apachecountyaz.gov/Recorder",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.apachecountyaz.gov/Recorder: (400) Timeout fetching"
+    },
+    {
+      "id": "county-az-coconino-taxsale",
+      "url": "https://www.coconino.az.gov/376/Tax-Liens",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.coconino.az.gov/376/Tax-Liens: (403) Forbidden"
+    },
+    {
+      "id": "county-az-coconino-treasurer",
+      "url": "https://www.coconino.az.gov/372/Treasurer",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.coconino.az.gov/372/Treasurer: (403) Forbidden"
+    },
+    {
+      "id": "county-az-coconino-assessor",
+      "url": "https://www.coconino.az.gov/119/Assessor",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.coconino.az.gov/119/Assessor: (403) Forbidden"
+    },
+    {
+      "id": "county-az-coconino-recorder",
+      "url": "https://eagleassessor.coconino.az.gov:8443/recorder/web/splash.jsp",
+      "result": "unretrieved",
+      "detail": "Research tool did not return usable page content."
+    },
+    {
+      "id": "county-az-graham-taxsale",
+      "url": "https://www.graham.az.gov/360/Tax-Lien-Information",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-az-graham-treasurer",
+      "url": "https://www.graham.az.gov/300/Treasurer",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-az-graham-assessor",
+      "url": "https://www.graham.az.gov/163/Assessor",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-az-graham-recorder",
+      "url": "https://www.graham.az.gov/239/Recorder",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.graham.az.gov/239/Recorder: (403) Forbidden"
+    },
+    {
+      "id": "county-az-maricopa-recorder",
+      "url": "https://recorder.maricopa.gov/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-az-pima-recorder",
+      "url": "https://www.recorder.pima.gov/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-az-santa-cruz-taxsale",
+      "url": "https://www.santacruzcountyaz.gov/324/Delinquent-Properties",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-az-santa-cruz-treasurer",
+      "url": "https://www.santacruzcountyaz.gov/317/Treasurer",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-az-santa-cruz-assessor",
+      "url": "https://www.santacruzcountyaz.gov/180/Assessor",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-az-santa-cruz-recorder",
+      "url": "https://www.santacruzcountyaz.gov/287/Recorder",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-az-yuma-taxsale",
+      "url": "https://www.yumacountyaz.gov/government/treasurer/tax-lien-information",
+      "result": "unretrieved",
+      "detail": "Research tool did not return usable page content."
+    },
+    {
+      "id": "county-az-yuma-treasurer",
+      "url": "https://www.yumacountyaz.gov/government/treasurer",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.yumacountyaz.gov/government/treasurer: (403) Forbidden"
+    },
+    {
+      "id": "county-az-yuma-assessor",
+      "url": "https://www.yumacountyaz.gov/government/assessor",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.yumacountyaz.gov/government/assessor: (403) Forbidden"
+    },
+    {
+      "id": "county-az-yuma-recorder",
+      "url": "https://www.yumacountyaz.gov/government/recorder",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.yumacountyaz.gov/government/recorder: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-alameda-assessor",
+      "url": "https://www.acgov.org/assessor/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-alameda-sheriff",
+      "url": "https://www.alamedasheriff.gov/services/civil-section",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.alamedasheriff.gov/services/civil-section: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-amador-taxsale",
+      "url": "https://www.amadorcounty.gov/government/treasurer-tax-collector/tax-sale-information",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.amadorcounty.gov/government/treasurer-tax-collector/tax-sale-information: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-amador-treasurer",
+      "url": "https://www.amadorcounty.gov/government/treasurer-tax-collector/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-amador-assessor",
+      "url": "https://www.amadorcounty.gov/government/assessor",
+      "result": "unretrieved",
+      "detail": "Research tool did not return usable page content."
+    },
+    {
+      "id": "county-ca-contra-costa-sheriff",
+      "url": "https://www.cocosheriff.org/bureaus/field-operations/investigations-division/civil-unit",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.cocosheriff.org/bureaus/field-operations/investigations-division/civil-unit: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-glenn-taxsale",
+      "url": "https://www.countyofglenn.net/government/departments/finance/treasurertax-collector/property-tax-auctions",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.countyofglenn.net/government/departments/finance/treasurertax-collector/property-tax-auctions: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-glenn-treasurer",
+      "url": "https://www.countyofglenn.net/government/departments/finance/treasurertax-collector",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.countyofglenn.net/government/departments/finance/treasurertax-collector: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-glenn-assessor",
+      "url": "https://www.countyofglenn.net/government/departments/assessor",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.countyofglenn.net/government/departments/assessor: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-glenn-recorder",
+      "url": "https://www.countyofglenn.net/government/departments/clerk-recorder",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.countyofglenn.net/government/departments/clerk-recorder: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-glenn-sheriff",
+      "url": "https://www.countyofglenn.net/government/departments/sheriff/civil-division",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.countyofglenn.net/government/departments/sheriff/civil-division: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-kern-assessor",
+      "url": "https://www.kerncounty.com/government/departments/assessor-recorder/property/assessor-property-search",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.kerncounty.com/government/departments/assessor-recorder/property/assessor-property-search: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-kern-recorder",
+      "url": "https://www.kerncounty.com/government/departments/assessor-recorder/records/search-for-recorded-documents-or-maps",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.kerncounty.com/government/departments/assessor-recorder/records/search-for-recorded-documents-or-maps: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-kings-taxsale",
+      "url": "https://www.countyofkingsca.gov/departments/administration/finance-department/tax-collector/delinquent-taxes/tax-sale",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.countyofkingsca.gov/departments/administration/finance-department/tax-collector/delinquent-taxes/tax-sale: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-kings-treasurer",
+      "url": "https://www.countyofkingsca.gov/departments/administration/finance-department/tax-collector",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.countyofkingsca.gov/departments/administration/finance-department/tax-collector: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-kings-assessor",
+      "url": "https://www.countyofkingsca.gov/departments/general-services/assessor-clerk-recorder/assessor",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.countyofkingsca.gov/departments/general-services/assessor-clerk-recorder/assessor: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-kings-recorder",
+      "url": "https://www.countyofkingsca.gov/departments/general-services/assessor-clerk-recorder/clerk-recorder",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.countyofkingsca.gov/departments/general-services/assessor-clerk-recorder/clerk-recorder: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-madera-taxsale",
+      "url": "https://www.maderacounty.com/government/treasurer-tax-collector/property-tax/defaulted-taxes/online-tax-sale",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.maderacounty.com/government/treasurer-tax-collector/property-tax/defaulted-taxes/online-tax-sale: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-madera-treasurer",
+      "url": "https://www.maderacounty.com/government/treasurer-tax-collector",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.maderacounty.com/government/treasurer-tax-collector: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-madera-assessor",
+      "url": "https://www.maderacounty.com/government/assessor",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.maderacounty.com/government/assessor: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-madera-recorder",
+      "url": "https://www.maderacounty.com/government/county-clerk-recorder-elections/county-recorder",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.maderacounty.com/government/county-clerk-recorder-elections/county-recorder: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-madera-sheriff",
+      "url": "https://www.maderacounty.com/government/sheriff/civil-division",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.maderacounty.com/government/sheriff/civil-division: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-marin-taxsale",
+      "url": "https://www.marincounty.gov/departments/finance/property-tax/tax-defaulted-land-sales/tax-defaulted-land-sales-public-auctions",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-marin-treasurer",
+      "url": "https://www.marincounty.gov/departments/finance/property-tax/tax-defaulted-land-sales",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-marin-assessor",
+      "url": "https://www.arcc.marincounty.gov/",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.arcc.marincounty.gov/: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-marin-recorder",
+      "url": "https://apps.marincounty.gov/RecordersIndexSearch",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-mendocino-taxsale",
+      "url": "https://www.mendocinocounty.gov/government/collections/treasurer-tax-collector/tax-defaulted-property-auction",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.mendocinocounty.gov/government/collections/treasurer-tax-collector/tax-defaulted-property-auction: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-mendocino-treasurer",
+      "url": "https://www.mendocinocounty.gov/government/collections/treasurer-tax-collector",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.mendocinocounty.gov/government/collections/treasurer-tax-collector: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-mendocino-assessor",
+      "url": "https://www.mendocinocounty.gov/government/assessor-county-clerk-recorder-elections",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.mendocinocounty.gov/government/assessor-county-clerk-recorder-elections: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-mendocino-recorder",
+      "url": "https://www.mendocinocounty.gov/government/assessor-county-clerk-recorder-elections/county-recorder",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.mendocinocounty.gov/government/assessor-county-clerk-recorder-elections/county-recorder: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-mendocino-sheriff",
+      "url": "https://mendocinosheriff.org/administration/civil-division/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-monterey-taxsale",
+      "url": "https://www.countyofmonterey.gov/how-do-i-/buy/property-tax-auction",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.countyofmonterey.gov/how-do-i-/buy/property-tax-auction: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-monterey-treasurer",
+      "url": "https://www.countyofmonterey.gov/government/departments-i-z/treasurer-tax-collector",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.countyofmonterey.gov/government/departments-i-z/treasurer-tax-collector: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-monterey-assessor",
+      "url": "https://www.countyofmonterey.gov/government/departments-a-h/assessor/assessor-county-clerk-recorder",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.countyofmonterey.gov/government/departments-a-h/assessor/assessor-county-clerk-recorder: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-monterey-recorder",
+      "url": "https://www.countyofmonterey.gov/government/departments-a-h/assessor/recorder",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.countyofmonterey.gov/government/departments-a-h/assessor/recorder: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-riverside-taxsale",
+      "url": "https://countytreasurer.org/tax-collector/tax-sale-information",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-riverside-treasurer",
+      "url": "https://countytreasurer.org/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-san-benito-taxsale",
+      "url": "https://www.sanbenitocountyca.gov/departments/treasurer-tax-collector-and-public-administrator/tax-collector/internet-auction-of-tax-defaulted-property",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.sanbenitocountyca.gov/departments/treasurer-tax-collector-and-public-administrator/tax-collector/internet-auction-of-tax-defaulted-property: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-san-benito-treasurer",
+      "url": "https://www.sanbenitocountyca.gov/departments/treasurer-tax-collector-and-public-administrator/tax-collector",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.sanbenitocountyca.gov/departments/treasurer-tax-collector-and-public-administrator/tax-collector: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-san-benito-assessor",
+      "url": "https://www.sanbenitocountyca.gov/departments/assessor",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.sanbenitocountyca.gov/departments/assessor: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-san-benito-recorder",
+      "url": "https://www.sanbenitocounty-ca-cre.gov/",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.sanbenitocounty-ca-cre.gov/: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-san-diego-sheriff",
+      "url": "https://www.sdsheriff.gov/bureaus/court-services-bureau/property-sales",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.sdsheriff.gov/bureaus/court-services-bureau/property-sales: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-santa-clara-taxsale",
+      "url": "https://dtac.santaclaracounty.gov/taxes/public-auction-tax-defaulted-properties",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-santa-clara-treasurer",
+      "url": "https://dtac.santaclaracounty.gov/",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://dtac.santaclaracounty.gov/: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-santa-clara-assessor",
+      "url": "https://asr.santaclaracounty.gov/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-santa-clara-recorder",
+      "url": "https://clerkrecorder.santaclaracounty.gov/",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://clerkrecorder.santaclaracounty.gov/: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-santa-clara-sheriff",
+      "url": "https://sheriff.santaclaracounty.gov/services/civil-services/sheriff-sales",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-shasta-taxsale",
+      "url": "https://www.shastacounty.gov/tax-collector/page/tax-auction",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.shastacounty.gov/tax-collector/page/tax-auction: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-shasta-treasurer",
+      "url": "https://www.shastacounty.gov/tax-collector",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.shastacounty.gov/tax-collector: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-shasta-assessor",
+      "url": "https://www.shastacounty.gov/assessor",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.shastacounty.gov/assessor: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-sutter-taxsale",
+      "url": "https://www.sutter.gov/government/county-departments/treasurer-tax-collector/tax-sale-frequently-asked-questions",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.sutter.gov/government/county-departments/treasurer-tax-collector/tax-sale-frequently-asked-questions: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-sutter-treasurer",
+      "url": "https://www.sutter.gov/government/county-departments/treasurer-tax-collector",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.sutter.gov/government/county-departments/treasurer-tax-collector: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-sutter-assessor",
+      "url": "https://www.sutter.gov/government/county-departments/assessor",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.sutter.gov/government/county-departments/assessor: (403) Forbidden"
+    },
+    {
+      "id": "county-ca-sutter-recorder",
+      "url": "https://www.sutter.gov/doc/government/depts/cr/crhome",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-tulare-taxsale",
+      "url": "https://tularecounty.ca.gov/treasurertaxcollector/tax-collector/tax-auction/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-tulare-treasurer",
+      "url": "https://tularecounty.ca.gov/treasurertaxcollector/tax-collector",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-tulare-assessor",
+      "url": "https://tularecounty.ca.gov/assessor/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-tuolumne-taxsale",
+      "url": "https://www.tuolumnecounty.ca.gov/850/Tax-Sales",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-tuolumne-treasurer",
+      "url": "https://www.tuolumnecounty.ca.gov/217/Treasurer-Tax-Collectors-Office",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-tuolumne-assessor",
+      "url": "https://www.tuolumnecounty.ca.gov/200/Assessor",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-ca-yolo-taxsale",
+      "url": "https://www.yolocounty.gov/government/general-government-departments/financial-services/property-tax/frequently-asked-questions",
+      "result": "unretrieved",
+      "detail": "Research tool did not return usable page content."
+    },
+    {
+      "id": "county-ca-yolo-treasurer",
+      "url": "https://www.yolocounty.gov/government/general-government-departments/financial-services/property-tax",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.yolocounty.gov/government/general-government-departments/financial-services/property-tax: (403) Forbidden"
+    },
+    {
+      "id": "county-nv-carson-city-taxsale",
+      "url": "https://www.carsoncity.gov/government/departments-g-z/treasurer/tax-sale",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.carsoncity.gov/government/departments-g-z/treasurer/tax-sale: (403) Forbidden"
+    },
+    {
+      "id": "county-nv-carson-city-treasurer",
+      "url": "https://www.carsoncity.gov/government/departments-g-z/treasurer",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.carsoncity.gov/government/departments-g-z/treasurer: (403) Forbidden"
+    },
+    {
+      "id": "county-nv-carson-city-assessor",
+      "url": "https://www.carsoncity.gov/government/departments-a-f/assessor",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.carsoncity.gov/government/departments-a-f/assessor: (403) Forbidden"
+    },
+    {
+      "id": "county-nv-carson-city-recorder",
+      "url": "https://www.carsoncity.gov/government/departments-a-f/clerk-recorder/recorders-office",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.carsoncity.gov/government/departments-a-f/clerk-recorder/recorders-office: (403) Forbidden"
+    },
+    {
+      "id": "county-nv-carson-city-sheriff",
+      "url": "https://www.carsoncity.gov/government/departments-g-z/sheriff-s-office/divisions/civil-records",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.carsoncity.gov/government/departments-g-z/sheriff-s-office/divisions/civil-records: (403) Forbidden"
+    },
+    {
+      "id": "county-nv-washoe-sheriff",
+      "url": "https://www.washoesheriff.com/administrative_bureau/administrative-services-division/civil/civil-section.php",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-tx-bell-recorder",
+      "url": "https://www.bellcountytx.com/county_government/county_clerk/real_estate.php",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.bellcountytx.com/county_government/county_clerk/real_estate.php: (403) Forbidden"
+    },
+    {
+      "id": "county-tx-brazoria-recorder",
+      "url": "https://www.brazoriacountyclerktx.gov/",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.brazoriacountyclerktx.gov/: (403) Forbidden"
+    },
+    {
+      "id": "county-tx-cochran-assessor",
+      "url": "https://cochrancad.com/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-tx-crosby-taxsale",
+      "url": "https://www.crosbycentral.org/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-tx-dallas-taxsale",
+      "url": "https://taxoffice.dallascounty.org/hc/en-us/articles/52851449825691-Sheriff-s-Sales",
+      "result": "unretrieved",
+      "detail": "L0: URL https://taxoffice.dallascounty.org/hc/en-us/articles/52851449825691-Sheriff-s-Sales is not accessible via this tool."
+    },
+    {
+      "id": "county-tx-delta-taxsale",
+      "url": "https://www.deltacountytx.com/",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.deltacountytx.com/: (403) Forbidden"
+    },
+    {
+      "id": "county-tx-el-paso-assessor",
+      "url": "https://www.epcad.org/",
+      "result": "unretrieved",
+      "detail": "L0: URL https://www.epcad.org/ is not accessible via this tool."
+    },
+    {
+      "id": "county-tx-erath-taxsale",
+      "url": "https://www.co.erath.tx.us/",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.co.erath.tx.us/: (403) Forbidden"
+    },
+    {
+      "id": "county-tx-galveston-taxsale",
+      "url": "https://www.galvestoncountytx.gov/our-county/tax-assessor-collector/property-tax/sheriff-sale-information",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.galvestoncountytx.gov/our-county/tax-assessor-collector/property-tax/sheriff-sale-information: (403) Forbidden"
+    },
+    {
+      "id": "county-tx-galveston-treasurer",
+      "url": "https://www.galvestoncountytx.gov/our-county/tax-assessor-collector/property-tax",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.galvestoncountytx.gov/our-county/tax-assessor-collector/property-tax: (403) Forbidden"
+    },
+    {
+      "id": "county-tx-grayson-treasurer",
+      "url": "https://grayson.propertytaxpayments.net/landing-page-en-us",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-tx-hays-taxsale",
+      "url": "https://www.hayscountytx.gov/tax-assessor/tax-sales",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-tx-hays-treasurer",
+      "url": "https://www.hayscountytx.gov/property-tax-payments",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.hayscountytx.gov/property-tax-payments: (404) Not Found"
+    },
+    {
+      "id": "county-tx-hays-assessor",
+      "url": "https://www.hayscad.com/",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.hayscad.com/: (403) Forbidden"
+    },
+    {
+      "id": "county-tx-hays-recorder",
+      "url": "https://www.hayscountytx.gov/county-clerk",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-tx-jack-taxsale",
+      "url": "https://www.jackcounty.org/",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.jackcounty.org/: (502) Bad Gateway"
+    },
+    {
+      "id": "county-tx-jefferson-recorder",
+      "url": "https://jeffersoncountytx.gov/cclerk/Recording",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://jeffersoncountytx.gov/cclerk/Recording: (403) Forbidden"
+    },
+    {
+      "id": "county-tx-johnson-taxsale",
+      "url": "https://www.johnsoncountytx.org/public-safety/constables/constable-sale",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.johnsoncountytx.org/public-safety/constables/constable-sale: (403) Forbidden"
+    },
+    {
+      "id": "county-tx-mclennan-taxsale",
+      "url": "https://www.mclennan.gov/tax",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.mclennan.gov/tax: (403) Forbidden"
+    },
+    {
+      "id": "county-tx-mclennan-recorder",
+      "url": "https://www.mclennan.gov/166/County-Clerk",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.mclennan.gov/166/County-Clerk: (403) Forbidden"
+    },
+    {
+      "id": "county-tx-nueces-treasurer",
+      "url": "https://www.nuecesco.com/county-services/tax-assessor-collector",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.nuecesco.com/county-services/tax-assessor-collector: (403) Forbidden"
+    },
+    {
+      "id": "county-tx-reeves-taxsale",
+      "url": "https://www.reevescounty.org/",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.reevescounty.org/: (403) Forbidden"
+    },
+    {
+      "id": "county-tx-throckmorton-treasurer",
+      "url": "https://www.throckmortoncad.org/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-tx-wichita-treasurer",
+      "url": "https://www.wichitatax.com/",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-tx-williamson-taxsale",
+      "url": "https://www.wilcotx.gov/DocumentCenter/View/4207/Tax-Sales-In-Williamson-County-Information-Sheet-PDF",
+      "result": "retrieved",
+      "detail": "Page retrieved; see registry for whether purpose/content review was completed."
+    },
+    {
+      "id": "county-tx-williamson-treasurer",
+      "url": "https://www.wilcotx.gov/687/Tax-Assessor-Collector",
+      "result": "unretrieved",
+      "detail": "L0: Failed to fetch https://www.wilcotx.gov/687/Tax-Assessor-Collector: (403) Forbidden"
+    }
+  ],
+  "directoryUpdates": [
+    {
+      "county": "AZ/Apache",
+      "office": "sheriff",
+      "url": "https://www.apachecountyaz.gov/Constables",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "AZ/Coconino",
+      "office": "sheriff",
+      "url": "https://www.coconino.az.gov/702/Civil-Process",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "AZ/Graham",
+      "office": "sheriff",
+      "url": "https://graham.az.gov/224/Sheriff",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "AZ/Greenlee",
+      "office": "sheriff",
+      "url": "https://greenlee.az.gov/cat_doc/sheriff/",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "AZ/La Paz",
+      "office": "sheriff",
+      "url": "https://www.lapazsheriff.org/civilUnit",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "AZ/Navajo",
+      "office": "sheriff",
+      "url": "https://www.navajocountyaz.gov/697/Civil-Service",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "AZ/Santa Cruz",
+      "office": "sheriff",
+      "url": "https://www.santacruzcountyaz.gov/1056/Santa-Cruz-County-Sheriff",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "CA/Alpine",
+      "office": "sheriff",
+      "url": "https://www.alpinecountyca.gov/204/Sheriff",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "CA/Amador",
+      "office": "sheriff",
+      "url": "https://www.amadorsheriff.org/",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "CA/Colusa",
+      "office": "sheriff",
+      "url": "https://www.countyofcolusaca.gov/172/Civil",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "CA/Imperial",
+      "office": "sheriff",
+      "url": "https://new.icso.imperialcounty.org/support-services/civil-division/",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "CA/Kern",
+      "office": "sheriff",
+      "url": "https://www.kernsheriff.org/civil-processing-unit",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "CA/Kings",
+      "office": "sheriff",
+      "url": "https://www.countyofkingsca.gov/departments/public-safety/sheriff/civil-division",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "CA/Mariposa",
+      "office": "sheriff",
+      "url": "https://www.mariposacounty.gov/82/Sheriffs-Office",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "CA/Monterey",
+      "office": "sheriff",
+      "url": "https://www.countyofmonterey.gov/government/departments-i-z/sheriff-coroner/services/civil-services",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "CA/Orange",
+      "office": "sheriff",
+      "url": "https://www.ocsheriff.gov/civil",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "CA/Plumas",
+      "office": "sheriff",
+      "url": "https://www.plumascounty.us/587/SheriffCoroner",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "CA/San Benito",
+      "office": "sheriff",
+      "url": "https://www.sanbenitocountyca.gov/departments/sheriff-s-office/units-and-divisions/civil-unit",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "CA/San Luis Obispo",
+      "office": "sheriff",
+      "url": "https://www.slocounty.ca.gov/departments/sheriff-coroner/contact-the-sheriff-s-office",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "CA/San Mateo",
+      "office": "sheriff",
+      "url": "https://www.smcsheriff.com/corrections-division/civil-enforcement-bureau",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "CA/Santa Cruz",
+      "office": "sheriff",
+      "url": "https://shf.santacruzcountyca.gov/SheriffHome/OurAgency/Administration.aspx",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "CA/Shasta",
+      "office": "sheriff",
+      "url": "https://www.shastacounty.gov/sheriff/page/civil-unit",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "CA/Sierra",
+      "office": "sheriff",
+      "url": "https://www.sierracounty.ca.gov/298/Sheriff-Coroner",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "CA/Siskiyou",
+      "office": "sheriff",
+      "url": "https://www.siskiyoucounty.gov/civildivision",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "CA/Solano",
+      "office": "sheriff",
+      "url": "https://www.solanocounty.gov/government/sheriff-coroner/sheriff-services/civil-bureau",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "CA/Sutter",
+      "office": "sheriff",
+      "url": "https://www.suttersheriff.gov/divisions/support-services-division",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "CA/Tehama",
+      "office": "sheriff",
+      "url": "https://tehamaso.org/civil-division/",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "CA/Trinity",
+      "office": "sheriff",
+      "url": "https://www.trinitycounty.ca.gov/321/Sheriffs-Office",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "CA/Tulare",
+      "office": "sheriff",
+      "url": "https://tularecounty.ca.gov/sheriff/civil-services",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "CA/Tuolumne",
+      "office": "sheriff",
+      "url": "https://tuolumnecountysheriff.com/",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "CA/Ventura",
+      "office": "sheriff",
+      "url": "https://civil.venturasheriff.org/sheriff.portal",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "CA/Yolo",
+      "office": "sheriff",
+      "url": "https://yolocountysheriff.com/services-resources/civil-services/",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "CA/Yuba",
+      "office": "sheriff",
+      "url": "https://www.yuba.gov/departments/sheriff_coroner/divisions/civil.php",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "NV/Churchill",
+      "office": "sheriff",
+      "url": "https://www.churchillcountynv.gov/223/Civil-Division",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "NV/Elko",
+      "office": "sheriff",
+      "url": "https://www.elkosheriff.com/",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "NV/Eureka",
+      "office": "sheriff",
+      "url": "https://www.eurekacountynv.gov/departments/emergencies-sheriff-ems-fire/sheriff/",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "NV/Humboldt",
+      "office": "sheriff",
+      "url": "https://www.humboldtcountynv.gov/526/Civil-Division",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "NV/Lander",
+      "office": "sheriff",
+      "url": "https://landerso.gov/",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "NV/Lyon",
+      "office": "sheriff",
+      "url": "https://lyon-county.org/17/Sheriff",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "NV/Nye",
+      "office": "sheriff",
+      "url": "https://www.nyecountynv.gov/109/Sheriff",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "NV/Storey",
+      "office": "sheriff",
+      "url": "https://www.storeycounty.org/313/Sheriff",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "NV/White Pine",
+      "office": "sheriff",
+      "url": "https://www.whitepinecounty.net/308/Sheriff",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Aransas",
+      "office": "sheriff",
+      "url": "https://www.aransascounty.org/sheriff/",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Aransas",
+      "office": "recorder",
+      "url": "https://www.aransascountytx.gov/clerk/",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Brazos",
+      "office": "sheriff",
+      "url": "https://sheriff.brazoscountytx.gov/contact/",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Brazos",
+      "office": "recorder",
+      "url": "https://brazoscountytx.gov/county-clerk/",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Brazos",
+      "office": "taxSale",
+      "url": "https://brazoscountytx.gov/tax-assessor/",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Brazoria",
+      "office": "taxSale",
+      "url": "https://www.brazoriacountytx.gov/departments/tax-office/property-taxes/sheriff-sale-tax-resales",
+      "checked": null,
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Brazoria",
+      "office": "treasurer",
+      "url": "https://www.brazoriacountytx.gov/departments/tax-office",
+      "checked": null,
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Delta",
+      "office": "recorder",
+      "url": "https://www.deltacountytx.com/county-district-clerk/page/deed-land-records",
+      "checked": null,
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Erath",
+      "office": "sheriff",
+      "url": "https://www.co.erath.tx.us/214/Sheriffs-Office",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Erath",
+      "office": "recorder",
+      "url": "https://www.co.erath.tx.us/156/County-Clerk",
+      "checked": null,
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Galveston",
+      "office": "recorder",
+      "url": "https://www.galvestoncountytx.gov/our-county/county-clerk/records-search",
+      "checked": null,
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Grayson",
+      "office": "taxSale",
+      "url": "https://tax.co.grayson.tx.us/",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Gregg",
+      "office": "sheriff",
+      "url": "https://www.greggcountytxsheriff.org/divisions/civil-division/",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Grimes",
+      "office": "recorder",
+      "url": "https://grimescountytexas.gov/county-clerk",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Grimes",
+      "office": "sheriff",
+      "url": "https://grimescountytexas.gov/constables",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Guadalupe",
+      "office": "sheriff",
+      "url": "https://www.guadalupetx.gov/page/sosheriff.civil_process",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Hamilton",
+      "office": "recorder",
+      "url": "https://www.hamiltoncountytx.gov/page/hamilton.coclerk",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Haskell",
+      "office": "sheriff",
+      "url": "https://www.haskellcountytx.gov/page/haskell.Sheriff",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Haskell",
+      "office": "recorder",
+      "url": "https://www.haskellcountytx.gov/page/haskell.county.clerk",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Hays",
+      "office": "sheriff",
+      "url": "https://www.hayscountytx.gov/174/Hays-County-Sheriffs-Office",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Jack",
+      "office": "sheriff",
+      "url": "https://www.jackcountysheriff.com/",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Jack",
+      "office": "recorder",
+      "url": "https://www.jackcounty.texas.gov/county-clerk",
+      "checked": null,
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Jefferson",
+      "office": "sheriff",
+      "url": "https://www.sheriff.jeffersoncountytx.gov/divisionsPage",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Johnson",
+      "office": "recorder",
+      "url": "https://www.johnsoncountytx.org/government/county-clerk/land-records-vitals/real-property",
+      "checked": null,
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Kleberg",
+      "office": "assessor",
+      "url": "https://kleberg-cad.org/",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Lipscomb",
+      "office": "assessor",
+      "url": "https://comptroller.texas.gov/taxes/property-tax/county-directory/lipscomb.php",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Lubbock",
+      "office": "sheriff",
+      "url": "https://lubbocksheriff.com/divisions",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Martin",
+      "office": "sheriff",
+      "url": "https://www.martincountytx.com/164/Sheriff",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Martin",
+      "office": "treasurer",
+      "url": "https://www.martincountytx.com/165/Tax-Assessor---Collector",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Martin",
+      "office": "taxSale",
+      "url": "https://www.martincountytx.com/165/Tax-Assessor---Collector",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Martin",
+      "office": "recorder",
+      "url": "https://www.martincountytx.com/152/County-District-Clerk",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Maverick",
+      "office": "sheriff",
+      "url": "https://co.maverick.tx.us/government/tom-schmerber",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Maverick",
+      "office": "taxSale",
+      "url": "https://comptroller.texas.gov/taxes/property-tax/county-directory/maverick.php",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Maverick",
+      "office": "treasurer",
+      "url": "https://comptroller.texas.gov/taxes/property-tax/county-directory/maverick.php",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Maverick",
+      "office": "recorder",
+      "url": "https://co.maverick.tx.us/services",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/McLennan",
+      "office": "sheriff",
+      "url": "https://www.mclennan.gov/479/Offices-Divisions",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Montague",
+      "office": "sheriff",
+      "url": "https://www.co.montague.tx.us/page/montague.sheriff",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Motley",
+      "office": "assessor",
+      "url": "https://comptroller.texas.gov/taxes/property-tax/county-directory/motley.php",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Nacogdoches",
+      "office": "recorder",
+      "url": "https://www.co.nacogdoches.tx.us/countyoffices/countyclerk.asp?hl=en-US",
+      "checked": null,
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Nueces",
+      "office": "sheriff",
+      "url": "https://www.nuecesco.com/law-enforcement/sheriff/civil-process-fees",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Nueces",
+      "office": "taxSale",
+      "url": "https://www.nuecesco.com/county-services/tax-assessor-collector/external-agencies",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Nueces",
+      "office": "recorder",
+      "url": "https://www.nuecesco.com/county-services/county-clerk/filing-department",
+      "checked": null,
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Reeves",
+      "office": "sheriff",
+      "url": "https://www.reevescounty.org/departments/sheriff-s-office",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Reeves",
+      "office": "recorder",
+      "url": "https://www.reevescounty.org/departments/county-clerk",
+      "checked": null,
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Wichita",
+      "office": "sheriff",
+      "url": "https://wichitacountysheriffsoffice.org/",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Wichita",
+      "office": "taxSale",
+      "url": "https://wichitacountysheriffsoffice.org/tax-sales/",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Wichita",
+      "office": "recorder",
+      "url": "https://wichitacountytx.com/locations/county-clerk/",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Williamson",
+      "office": "sheriff",
+      "url": "https://www.wilcotx.gov/219/Civil-Division",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Williamson",
+      "office": "recorder",
+      "url": "https://www.wilcotx.gov/268/County-Clerk",
+      "checked": null,
+      "contactOnly": false
+    },
+    {
+      "county": "UT/Daggett",
+      "office": "sheriff",
+      "url": "https://www.daggettcounty.gov/25/Sheriff",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "UT/Emery",
+      "office": "sheriff",
+      "url": "https://emery.utah.gov/home/offices/sheriff/",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "UT/Garfield",
+      "office": "sheriff",
+      "url": "https://www.garfield.utah.gov/Departments/Sheriff",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "UT/Iron",
+      "office": "sheriff",
+      "url": "https://ironsheriffut.gov/civil-division",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "UT/Millard",
+      "office": "sheriff",
+      "url": "https://millardcounty.gov/your-government/elected-officials/sheriffs-office/",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "UT/Piute",
+      "office": "sheriff",
+      "url": "https://piute.gov/your-government/elected-officials/sheriff/",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "UT/San Juan",
+      "office": "sheriff",
+      "url": "https://www.sanjuancountyut.gov/477/Sheriff",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "CA/Modoc",
+      "office": "sheriff",
+      "url": "https://www.countyofmodoc.gov/710/Sheriffs-Office",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "CA/Stanislaus",
+      "office": "sheriff",
+      "url": "https://www.scsdonline.com/",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "NV/Esmeralda",
+      "office": "sheriff",
+      "url": "https://www.accessesmeralda.com/county_offices/sheriff.php",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "NV/Lincoln",
+      "office": "sheriff",
+      "url": "https://lincolncountynv.org/departments/sheriffs-office/",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Bell",
+      "office": "sheriff",
+      "url": "https://www.bellcountytx.com/county_government/sheriff/",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Brazoria",
+      "office": "sheriff",
+      "url": "https://www.brazoriacountytx.gov/departments/sheriff-s-office",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Delta",
+      "office": "sheriff",
+      "url": "https://www.deltacountytx.com/sheriffs-office",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Hale",
+      "office": "sheriff",
+      "url": "https://www.halecounty.org/county_offices/sheriff_jail.php",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Hale",
+      "office": "recorder",
+      "url": "https://www.halecounty.org/county_offices/county_clerk.php",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "TX/Hamilton",
+      "office": "sheriff",
+      "url": "https://www.hamiltoncountytx.gov/page/hamilton.sheriff",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Montgomery",
+      "office": "recorder",
+      "url": "https://www.mctx.org/departments/departments_a_-_c/county_clerk/index.php",
+      "checked": "2026-10-08",
+      "contactOnly": false
+    },
+    {
+      "county": "UT/Sevier",
+      "office": "sheriff",
+      "url": "https://www.scsoutah.com/",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "UT/Morgan",
+      "office": "sheriff",
+      "url": "https://www.morgancountyutah.gov/sheriff-dept",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "AZ/Gila",
+      "office": "sheriff",
+      "url": "https://www.gilacountyaz.gov/government/sheriff/index.php",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "NV/Mineral",
+      "office": "sheriff",
+      "url": "https://mineralcountynv.us/government/sheriff/index.php",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "NV/Pershing",
+      "office": "sheriff",
+      "url": "https://www.pershingcountynv.gov/government/sheriff_s_office/index.php",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    },
+    {
+      "county": "TX/Montgomery",
+      "office": "sheriff",
+      "url": "https://www.mctxsheriff.org/",
+      "checked": null,
+      "contactOnly": true
+    },
+    {
+      "county": "UT/Wayne",
+      "office": "sheriff",
+      "url": "https://waynecountyutah.gov/pages/emergency-services",
+      "checked": "2026-10-08",
+      "contactOnly": true
+    }
+  ]
+}
