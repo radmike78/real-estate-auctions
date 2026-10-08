@@ -36,3 +36,11 @@ describe('team list', () => {
     expect(cleanTeamList({ lender: { name: 'A', contact: 5, licenseChecked: 'yes' }, hacker: { name: 'x' } })).toEqual({ lender: { name: 'A', contact: '', licenseChecked: false, fees: '' } });
   });
 });
+
+
+it('keeps specialist contacts when the saved team is reloaded', () => {
+  const contacts = Object.fromEntries(['cpa', 'property_manager', 'eviction', 'environmental', 'private_lender'].map((role) => [role, { name: role, contact: '555-0100', fees: 'Quote requested', licenseChecked: true }]));
+  const cleaned = cleanTeamList(contacts);
+  expect(Object.keys(cleaned).sort()).toEqual(Object.keys(contacts).sort());
+  for (const role of Object.keys(contacts)) expect(TEAM_ROLES).toContain(role);
+});

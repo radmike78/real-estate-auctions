@@ -391,3 +391,14 @@ describe('Texas HOA and appraisal dates', () => {
     expect(g.why).toMatch(/TREC 49-1, box 3; TREC 45-2, paragraph D/);
   });
 });
+
+
+it('exports the commercial actual offer separately from the walk-away price', () => {
+  localStorage.setItem('fsf.calc.commercial.d1-offer.v1', JSON.stringify({ atPrice: 100000, monthlyRent: 2000, loanPct: 0, targetCapPct: 8 }));
+  const sections = packetSections({ ...deal, plan: 'commercial' });
+  const numbers = sections.find((s) => s.key === 'numbers')!.lines.join(' ');
+  const cash = sections.find((s) => s.key === 'cash')!.lines.join(' ');
+  expect(numbers).toMatch(/Your offer \(your actual price\): \$100,000/);
+  expect(numbers).toMatch(/before income tax/);
+  expect(cash).toMatch(/At your actual price of \$100,000/);
+});

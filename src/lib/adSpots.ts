@@ -1,4 +1,4 @@
-// Mentor Connect ad spots: the places across the site where a Mentor Connect advertiser can take turns in a labeled
+// Fixed ad spots: the places across the site where Spotlight and Mentor Connect advertisers appear together in a labeled
 // "Advertisement" box. The site owner turns each spot on or off, and picks which kinds of professionals it shows, in
 // Admin → Ad spots. Saved on the server (GET /api/ad-spots); without the server, the defaults below apply.
 //

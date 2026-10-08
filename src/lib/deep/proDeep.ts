@@ -7,7 +7,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   agent: {
     overview: [
       "What an agent does: A real estate agent helps you find a property, write and negotiate the offer, and get to closing. A buyer’s agent is supposed to work for you, not the seller. How much an agent helps depends on the person. A careful agent checks facts, spots red flags, and pushes you to compare lenders and get inspections. A careless one passes along whatever the seller’s side says.",
-      "Dual agency: Watch who the agent really works for. Sometimes one brokerage, or even one person, represents both the buyer and the seller. That’s called “dual agency,” and both sides have to be told and agree in writing. In Nevada, the agent has to give each party a duties-owed form and get their written consent before acting for more than one party. In California, a brokerage may act as a dual agent only with both parties’ consent after full disclosure. In Utah, an agent for both sides (a “limited agent”) must first get both parties’ informed consent in writing. In Texas, a broker can work for both sides only as an “intermediary,” with each party’s written consent that says who pays the broker (Occupations Code 1101.559).",
+      "Dual agency: Watch who the agent really works for. Sometimes one brokerage, or even one person, represents both the buyer and the seller. The permitted arrangement and duties differ by state; Texas does not permit dual agency. In Nevada, the agent has to give each party a duties-owed form and get their written consent before acting for more than one party. In California, a brokerage may act as a dual agent only with both parties’ consent after full disclosure. In Utah, an agent for both sides (a “limited agent”) must first get both parties’ informed consent in writing. In Texas, a broker can work for both sides only as an “intermediary,” with each party’s written consent that says who pays the broker (Occupations Code 1101.559).",
       "Written agreement: Since August 17, 2024, agents who belong to a Realtor-run MLS must sign a written agreement with a buyer before touring a home, even a virtual tour. That agreement sets the agent’s pay. In California, state law also requires a written buyer agreement no later than your offer. In California, that agreement with an individual buyer can last at most three months and can’t renew automatically. In Texas, state law requires a written agreement before an agent shows you a home of one to four units, or presents your offer if there’s no showing. It must state the agent’s pay and say that pay is negotiable (Occupations Code 1101.563).",
       "Auction buyers: Many forced-sale purchases, like county tax sales and trustee’s sales at the courthouse, happen without an agent at all. Agents matter most for bank-owned (REO) and Fannie Mae/Freddie Mac homes listed on the MLS. There, offers usually go through a licensed agent."
     ],
@@ -20,7 +20,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     notFor: [
       "Bidders at county tax-deed sales or trustee’s sales. There is usually no listing agent there, and agents can’t change the sale terms.",
       "Buyers who won’t read the documents themselves. An agent’s word on size, condition or title is not a substitute for checking public records.",
-      "Anyone who isn’t comfortable with dual agency and hasn’t asked whether the agent or brokerage also represents the seller."
+      "Anyone who hasn’t asked whether the agent or brokerage also represents the seller, or isn’t comfortable with the representation arrangement allowed in their state."
     ],
     costs: [
       "Agent pay is negotiable and must be written into the buyer agreement. The agent can’t take more than that agreement allows, from any source (NAR settlement rules, August 2024).",
@@ -34,7 +34,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     checklist: [
       "Look up the agent’s license with the state regulator (the official lookup is below) and check for discipline.",
       "Make sure the agent is licensed in the state where the property is. Nevada has disciplined California brokers acting on Nevada deals without a Nevada license.",
-      "Ask in writing whether the agent or brokerage also represents the seller (dual agency) and what that changes.",
+      "Ask in writing whether the agent or brokerage also represents the seller, what representation arrangement your state allows, and what advice they can give you. In Texas, ask about intermediary representation and whether separate agents will be appointed.",
       "Read the buyer agreement: pay amount, who pays, how long it lasts, and how to end it.",
       "Ask the agent for the public-record facts, such as assessor square footage, permits and HOA resale packages. Ask them to say plainly what they have not verified.",
       "Expect the agent to urge you to get several loan quotes and a home inspection. They should never send wire instructions by email."
@@ -126,7 +126,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         year: "2016",
         title: "Marketed as 15,000 sq ft; public records said about 9,400",
         happened: "The listing salesperson marketed the home as about 15,000 square feet of living area. But the assessor’s record and building permit showed far less. Another agent at the same brokerage represented the buyer. The buyer bought without checking and later found the gap. In 2016 the California Supreme Court held that the seller’s salesperson owed the buyer the same fiduciary duty as the dual-agent brokerage.",
-        lesson: "In dual agency, check size and condition in public records yourself. Know the agent’s duties to you before you rely on their numbers.",
+        lesson: "When the brokerage works with both parties, check size and condition in public records yourself. Know the agent’s duties to you before you rely on their numbers.",
         source: {
           label: "Supreme Court of California: Horiike v. Coldwell Banker Residential Brokerage Co., S218734 (Nov 21, 2016)",
           url: "https://www.courts.ca.gov/opinions/archive/S218734.PDF"
@@ -176,7 +176,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     bestFor: [
       "Buyers of owner-occupied homes, including bank-owned and Fannie Mae/Freddie Mac homes, who can wait for appraisal and underwriting.",
-      "Borrowers willing to request several Loan Estimates and compare rates, points and origination charges.",
+      "Borrowers willing to request several Loan Estimates for covered consumer mortgages, or written term sheets for business-purpose loans, and compare rates, points and origination charges.",
       "Investors refinancing after buying with cash or short-term money, once the property is repaired."
     ],
     notFor: [
@@ -187,11 +187,11 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     costs: [
       "Interest rate: shopping five lenders cut the average rate by about 0.166 percentage points in Freddie Mac’s 1995–2017 data.",
       "Points: one point equals 1% of the loan amount paid up front, in exchange for a lower rate (Freddie Mac).",
-      "Origination charges are upfront lender fees. Compare them line by line on each Loan Estimate (CFPB).",
+      "Origination charges are upfront lender fees. Compare them line by line on each Loan Estimate for a covered consumer mortgage, or each written term sheet for a business-purpose loan.",
       "Watch for prepayment penalties and balloon payments listed on the Loan Estimate (CFPB). A loan for a rental or flip you won’t live in usually comes without a Loan Estimate, so get these terms in writing."
     ],
     money: [
-      "Lenders earn money from interest, points and origination charges shown on the Loan Estimate (CFPB).",
+      "Lenders earn money from interest, points and origination charges. These appear on a Loan Estimate for a covered consumer mortgage; ask for them in a written term sheet for business-purpose financing.",
       "Federal rules ban paying loan officers based on loan terms such as the interest rate (CFPB, Franklin Loan action)."
     ],
     checklist: [

@@ -26,7 +26,7 @@ export const walkAway: Lesson = {
         { list: [
           'Negative cash flow: once you use realistic rent and every cost, the property loses money each month. That includes vacancy, repairs, reserves for big items and management.',
           'Someone else’s rent: the rent comes from the seller or an online asking price, not from homes that actually rented nearby.',
-          'Wrong comparables: the value after repairs comes from bigger, remodeled or old sales instead of similar homes sold recently.',
+          'Wrong comparables: separate the property’s value as it is today from its value after repairs. For today’s value, compare similar condition; for after-repair value, similar remodeled homes can fit if your finished work will match. Check size, location and recent sales, and support any adjustments for condition or older sale dates.',
           'No cushion: a flip only works if every estimate is right. There’s no cushion for higher repairs or a lower sale price.',
           'No reserves: you’d have no cash left for reserves after closing.',
           'Thin margin: a small change, like rent 10% lower or $1,200 more a year for insurance, wipes out the profit.',

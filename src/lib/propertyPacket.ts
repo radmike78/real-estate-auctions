@@ -56,9 +56,9 @@ export function propertyPacketText(d: Deal): string {
         `Rent ${money(v.monthlyRent)} a month; vacancy ${v.vacancyPct}%; management ${v.managementPct}%; repairs ${v.maintenancePct}%; big-item reserves ${v.capexPct}%`,
         `Loan: ${a.loan > 0 ? `${money(a.loan)} at ${v.ratePct}%` : 'none (all cash)'}`,
         ...(!offer && a.loan > 0 ? [`Your cash until the refinance closes: ${money(a.allIn)}`, `Your cash left in after the refinance, if approved: ${money(a.cashIn)}`] : [`Your cash in the deal: ${money(a.cashIn)}`]),
-        `Monthly cash flow: ${money(a.cashFlow / 12)}`,
+        `Monthly cash flow before income tax: ${money(a.cashFlow / 12)}`,
         `Cash-on-cash return: ${pct(a.cashOnCash)} a year; your target ${v.targetCocPct}%${a.cashOnCash !== null && a.cashOnCash < v.targetCocPct / 100 ? ' (below target)' : ''}`,
-        'Downside cases (monthly cash flow):',
+        'Downside cases (monthly cash flow before income tax):',
         ...rentStress(v, v.atPrice, offer).map((s) => `  ${s.label}: ${money(s.monthly)}`),
       );
     } else lines.push(`(Enter ${offer ? 'your offer' : 'your bid'} under “${offer ? 'Your offer' : 'Your bid'}” in Analyze’s Keep and rent calculator.)`);

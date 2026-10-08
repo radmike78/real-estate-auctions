@@ -1,8 +1,8 @@
 // Paid ad boxes: the advertiser speaking, never DeedOwl. Each box is labeled at the top ("Featured ad" or
 // "Advertisement"), shows who is advertising and their license, and ends with the same fine print. Nothing here
-// ranks or recommends anyone; which advertiser appears is chosen at random on each page view.
+// ranks or recommends anyone; fixed ads show all eligible advertisers; only the Rotating plan selects one at random.
 import { useEffect, useMemo } from 'react';
-import { AD_FINE_PRINT, CAPS, hasFeaturedBox, pickRandom, rotatingPool } from '../lib/adPlans';
+import { AD_FINE_PRINT, fixedPool, pickRandom, rotatingPool } from '../lib/adPlans';
 import { shortLicenseLabel } from '../lib/regulators';
 import { CATEGORIES, isListable, type Category, type Pro } from '../lib/pros';
 import { track } from '../lib/track';
@@ -76,40 +76,31 @@ export function useAdImpressions(shown: Pro[]) {
   }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
-/**
- * The "Featured ad" box on a category's directory pages: Spotlight and Mentor Connect advertisers of these categories
- * in the visitor's area. The cap (CAPS.featured per category in each city) means everyone eligible in a chosen city is
- * shown on every page view, in a fresh random order; it rotates only across a whole state when no city is chosen. It sits apart from (above) the directory list,
- * isn't tied to the visitor's search, and never changes anyone's place in the list.
- */
-export function FeaturedAds({ pros: all, categories, placeholder = false }: { pros: Pro[]; categories: Category[]; placeholder?: boolean }) {
+/** Fixed ads at enabled placements, filtered by category and the visitor's area. */
+export function FixedAds({ pros: all, categories, placeholder = false, featured = false }: { pros: Pro[]; categories: Category[]; placeholder?: boolean; featured?: boolean }) {
   const [area] = useMyArea();
-  const pros = inArea(all, area);
-  const key = categories.join();
-  const pool = pros.filter((p) => categories.includes(p.category) && hasFeaturedBox(p.tier) && !p.adsOff && isListable(p)).map((p) => p.id).join();
-  // Chosen once per page view (and when the categories shown change), not on every keystroke in the filters.
-  const shown = useMemo(() => pickRandom(pros.filter((p) => pool.split(',').includes(p.id)), CAPS.featured), [key, pool]); // eslint-disable-line react-hooks/exhaustive-deps
+  const shown = fixedPool(inArea(all, area).filter((p) => isListable(p)), categories);
   useAdImpressions(shown);
-  if (!shown.length) return placeholder ? <AdSpace kind="Featured ad" /> : null;
+  const label = featured ? 'Featured ad' : 'Advertisement';
+  if (!shown.length) return placeholder ? <AdSpace kind={label} /> : null;
   return (
-    <aside className="ad-box featured-ads" aria-label="Featured ad">
-      <div className="ad-box-label">Featured ad</div>
+    <aside className="ad-box featured-ads" aria-label={label}>
+      <div className="ad-box-label">{label}</div>
       <div className="ad-box-grid">{shown.map((p) => <AdCard key={p.id} p={p} />)}</div>
       <p className="ad-fine-print">{AD_FINE_PRINT}</p>
     </aside>
   );
 }
 
-/**
- * The rotating ad at the top of the Your Team page: one advertiser on any plan, from any category. With `categories`,
- * a Mentor Connect ad spot the site owner turned on (adSpots.ts, Admin → Ad spots): one Mentor Connect
- * advertiser of those categories. Picked at random on each page view (rotatingPool). Labeled "Advertisement" with the
- * same fine print; nothing when no one qualifies.
- */
-export function RotatingAd({ pros: all, placeholder = false, categories }: { pros: Pro[]; placeholder?: boolean; categories?: Category[] }) {
+export function FeaturedAds(props: { pros: Pro[]; categories: Category[]; placeholder?: boolean }) {
+  return <FixedAds {...props} featured />;
+}
+
+/** One Rotating-plan advertiser in the Your Team ad, selected once per page view. */
+export function RotatingAd({ pros: all, placeholder = false }: { pros: Pro[]; placeholder?: boolean }) {
   const [area] = useMyArea();
   const pros = inArea(all, area);
-  const pool = rotatingPool(pros.filter((p) => isListable(p)), categories).map((p) => p.id).join();
+  const pool = rotatingPool(pros.filter((p) => isListable(p))).map((p) => p.id).join();
   const shown = useMemo(() => pickRandom(pros.filter((p) => pool.split(',').includes(p.id)), 1), [pool]); // eslint-disable-line react-hooks/exhaustive-deps
   useAdImpressions(shown);
   if (!shown.length) return placeholder ? <AdSpace kind="Advertisement" /> : null;

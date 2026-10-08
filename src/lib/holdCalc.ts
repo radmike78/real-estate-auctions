@@ -45,6 +45,7 @@ export interface RentInputs extends BuyInputs, LoanInputs {
 }
 
 export interface CommercialInputs extends BuyInputs, LoanInputs {
+  atPrice: number; // asking price or proposed offer/bid, saved with the deal
   monthlyRent: number; // all spaces leased
   otherMonthly: number;
   vacancyPct: number;
@@ -185,8 +186,8 @@ function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, c
     debtService: r2(debtService),
     cashFlow: r2(cashFlow),
     dscr: dscr === null ? null : Math.round(dscr * 100) / 100,
-    // Judged on the coverage as shown (rounded), so the pass/fail note never disagrees with the number beside it.
-    loanOk: dscr === null || Math.round(dscr * 100) / 100 >= nz(minDscr),
+    // Eligibility uses full precision; rounding is presentation only.
+    loanOk: dscr === null || dscr >= nz(minDscr),
     loanNet: r2(loanNet),
     loanFees: r2(loanAt(i, maxBid, onPrice) - loanNet),
     cashAtAuction: r2(maxBid * (1 + nz(i.buyerPremiumPct) / 100)),
@@ -330,6 +331,29 @@ export function commercialMaxBid(i: CommercialInputs, onPrice = false): HoldResu
   return { ...hold(withLeaseUp, noi, () => (cap > 0 ? noi / cap : Infinity), i.minDscr, nz(i.reservesYear), onPrice, onPrice ? i.leaseUpMonths : 0), leaseUpCost: r2(leaseUpCost) };
 }
 
+/** Commercial results at the actual price, using the same lease-up and loan assumptions as the target. */
+export function commercialAtPrice(i: CommercialInputs, price: number, onPrice = false) {
+  const p = nz(price);
+  const n = commercialNoi(i);
+  const loan = loanAt(i, p, onPrice);
+  const debtService = annualDebtService(loan, i.ratePct, i.years);
+  const leaseUpCost = nz(i.leaseUpMonths) * nz(i.monthlyCarry);
+  const leaseUpDebt = onPrice ? nz(i.leaseUpMonths) * debtService / 12 : 0;
+  const allIn = allInCost({ ...i, possession: nz(i.possession) + leaseUpCost }, p) + leaseUpDebt;
+  const loanFees = loan * nz(i.loanCostPct) / 100;
+  const cashIn = allIn - loan + loanFees;
+  const cashFlow = n.noi - nz(i.reservesYear) - debtService;
+  const dscr = debtService > 0 ? n.noi / debtService : null;
+  return {
+    price: p, noi: n.noi, operating: n.expenses, reserves: nz(i.reservesYear),
+    allIn: r2(allIn), cashIn: r2(cashIn), loan: r2(loan), loanFees: r2(loanFees),
+    leaseUpCost: r2(leaseUpCost), leaseUpDebt: r2(leaseUpDebt), debtService: r2(debtService), cashFlow: r2(cashFlow),
+    capOnPrice: p > 0 ? n.noi / p : null, capOnCost: allIn > 0 ? n.noi / allIn : null,
+    cashOnCash: cashIn > 0 ? cashFlow / cashIn : null,
+    dscr, loanOk: dscr === null || dscr >= nz(i.minDscr),
+  };
+}
+
 // ---------------- Lien certificates (special assessment / SID) ----------------
 
 export interface LienInputs {
@@ -360,6 +384,7 @@ export const RENT_DEFAULTS: RentInputs = {
 };
 
 export const COMMERCIAL_DEFAULTS: CommercialInputs = {
+  atPrice: 0,
   cashAvailable: 0, buyerPremiumPct: 0, transferTaxPer500: 2.55, survivingLiens: 0, titleLegal: 2_500, possession: 500, repairs: 50_000, contingencyPct: 15,
   monthlyRent: 12_000, otherMonthly: 0, vacancyPct: 10, expensePct: 35,
   opTaxYear: 0, opInsuranceYear: 0, opRepairsYear: 0, opUtilitiesYear: 0, opManagementPct: 0, opOtherYear: 0, leaseUpMonths: 6, monthlyCarry: 2_000, reservesYear: 0, targetCapPct: 9, minDscr: 1.25,

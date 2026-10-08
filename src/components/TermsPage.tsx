@@ -117,8 +117,8 @@ export const SECTIONS: DrillSection[] = [
       <>
         <h3>Eligibility and your listing</h3>
         <ul>
-          <li>You must hold an active license or registration for the services you list, and be authorized to advertise for the company named.</li>
-          <li>We verify your license and identity before listing you, and re-check at least every 90 days. Your listing shows only while it's verified and paid.</li>
+          <li>You must hold every active license or registration required for the services you list, provide the qualifications and insurance we require where no state license applies, and be authorized to advertise for the company named.</li>
+          <li>We verify required licenses or registrations (or applicable alternative qualifications) and your identity before listing you, and re-check at least every 90 days. Your listing shows only while it's verified and paid.</li>
           <li>Keep your profile accurate. Tell us promptly if your license, company or contact details change.</li>
           <li>
             You're responsible for your listing and for following every law and rule that applies to your services and advertising, including your
@@ -144,8 +144,7 @@ export const SECTIONS: DrillSection[] = [
         <h3>Fees and billing</h3>
         <ul>
           <li>
-            There are three monthly plans. Rotating is a profile and a place in your category's directory list. Spotlight adds a separate, labeled
-            Featured ad box on your category's directory pages a turn in the rotating ad at the top of the Your Team page, and a turn in the ad beside the matching step on My plan and Analyze a deal (for purchases through an agent). Mentor Connect also adds a labeled ad beside one Learn or Practice topic you choose.
+            There are three monthly plans. Rotating provides a profile, directory listing and turns in the rotating ad at the top of Your Team. Spotlight provides a profile, directory listing and fixed, nonrotating ads at available, enabled placements matching your category and paid ad areas. Mentor Connect includes Spotlight’s fixed ads and an optional fixed ad linked to one Learn or Practice topic you choose. Spotlight and Mentor Connect do not participate in rotating ad placements.
             Every plan has the same place in the directory list, in a fair rotating order; no plan changes it. The current fee for each plan is
             shown before you pay, and discounts (such as founding-advertiser prices or promotion codes) apply only as stated when you pay.
           </li>
@@ -156,7 +155,7 @@ export const SECTIONS: DrillSection[] = [
           </li>
           <li>
             Spots are limited per category in each city (a whole county takes a spot in each of its cities), as shown on the Advertise page and your dashboard. When a spot is taken, that plan or topic isn't
-            available until one opens. We choose which advertiser appears in a shared ad box at random on each page view.
+            available until one opens. Only Rotating ads select an advertiser at random on each page view. Fixed ads show every eligible advertiser in stable order; a fixed placement is not an exclusive placement.
           </li>
           <li>Ad boxes show your name, company and license number, and your ad line if you have one. We review ad lines before they appear and may remove one that breaks these rules.</li>
           <li>

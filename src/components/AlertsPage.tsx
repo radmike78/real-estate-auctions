@@ -1,3 +1,4 @@
+import FeatureStatus from './FeatureStatus';
 import { useEffect, useState, type FormEvent } from 'react';
 import { navigate, replaceAddress } from '../lib/nav';
 import { api, ApiError, unreachable } from '../lib/api';
@@ -58,7 +59,7 @@ export default function AlertsPage({ mode, token: fromLink, welcome, add }: { mo
         title={mode === 'signup' ? <>Email <span className="grad">alerts</span></> : 'Email alerts'}
         sub={mode === 'signup' && features?.email ? 'Updates from DeedOwl in your inbox. Confirm once, then change or stop them any time from the link in every email.' : undefined}
       />
-      {mode === 'signup' && features && (features.email ? <SignUp /> : <AlertsSoon />)}
+      {mode === 'signup' && (!features || features.unavailable ? <FeatureStatus features={features} /> : features.email ? <SignUp /> : <AlertsSoon />)}
       {mode === 'confirm' && <Confirm token={token} />}
       {mode === 'manage' && <Manage token={token} welcome={!!welcome} add={add} />}
       {mode === 'unsubscribe' && <Unsubscribe token={token} />}

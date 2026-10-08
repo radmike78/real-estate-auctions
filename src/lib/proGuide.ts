@@ -39,7 +39,7 @@ export const PRO_GUIDES: ProGuide[] = [
     summary: 'Arranges a mortgage and gives you the loan terms to compare.',
     does: 'A loan officer at a bank, credit union or mortgage company arranges a home loan. For most consumer home loans, such as a loan to buy a one- or two-unit home you’ll live in, they must give you a Loan Estimate that lists the rate and costs (home equity lines and reverse mortgages use different forms). A pre-approval letter shows sellers that a lender is willing to lend you up to a set amount. That still depends on the appraisal, final underwriting and your finances staying the same.',
     when: ['Bank-owned homes and short sales: get pre-approved before you make an offer.', 'Auctions usually need cash on sale day, so a mortgage comes later, to refinance.'],
-    find: ['Get Loan Estimates from at least three lenders on the same day: a bank, a credit union and a mortgage company. Compare the rate, points and origination charges line by line.'],
+    find: ['Get comparable written quotes from at least three lenders on the same day. For a covered consumer mortgage, compare Loan Estimates; for business-purpose rental, flip or commercial financing, ask for written term sheets. Compare rates, points, fees, payment terms, penalties and closing requirements line by line.'],
     ask: ['What are the rate, points and closing costs?', 'Do you lend on homes that need work? (Some loans include repair money.)', 'How long will it take to close?'],
     directory: ['loan_officer', 'mortgage_company', 'bank', 'credit_union'],
   },

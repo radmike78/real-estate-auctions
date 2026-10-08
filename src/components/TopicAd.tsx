@@ -3,8 +3,7 @@
 // picked one). The two are kept visually apart, and the editorial never names or points to the advertiser.
 // Placed after a lesson's explanation, a drill's verdict or a finished practice-case step: never inside a question,
 // its answer choices or its feedback.
-import { useMemo } from 'react';
-import { AD_FINE_PRINT, pickRandom } from '../lib/adPlans';
+import { AD_FINE_PRINT } from '../lib/adPlans';
 import { topicForPage, type AdTopic } from '../lib/adTopics';
 import { LICENSE_LOOKUPS } from '../lib/licenseLookups';
 import { useMyState } from '../lib/myState';
@@ -56,16 +55,15 @@ function LicenseLinks({ topic, state, chosen }: { topic: AdTopic; state: StateCo
   );
 }
 
-/** One advertiser for this topic, picked at random on each page view among those who chose it. */
+/** Every eligible Mentor Connect advertiser linked to this topic, in stable order. */
 function TopicAdBox({ topic, pros }: { topic: AdTopic; pros: Pro[] }) {
-  const ids = pros.filter((p) => p.tier === 'premium_plus' && !p.adsOff && p.adTopic === topic.key && topic.categories.includes(p.category) && isListable(p)).map((p) => p.id).join();
-  const shown = useMemo(() => pickRandom(pros.filter((p) => ids.split(',').includes(p.id)), 1), [ids]); // eslint-disable-line react-hooks/exhaustive-deps
+  const shown = pros.filter((p) => p.tier === 'premium_plus' && !p.adsOff && p.adTopic === topic.key && topic.categories.includes(p.category) && isListable(p)).sort((a, b) => a.id.localeCompare(b.id));
   useAdImpressions(shown);
   if (!shown.length) return null;
   return (
     <aside className="ad-box topic-ad" aria-label="Advertisement">
       <div className="ad-box-label">Advertisement</div>
-      <AdCard p={shown[0]} />
+      <div className="ad-box-grid">{shown.map((p) => <AdCard key={p.id} p={p} />)}</div>
       <p className="ad-fine-print">{AD_FINE_PRINT}</p>
     </aside>
   );

@@ -52,9 +52,10 @@ const EXACT = [
   'fsf.preforeclosure.watch.v1',
 ];
 // Calculator keys also have a `.region` sibling (the county defaults the inputs were last set for), kept with them.
-const PATTERN = /^fsf\.(dd|bid|income|checklist|calc\.rent|calc\.commercial)\.[A-Za-z0-9_-]{1,64}\.v1$|^fsf\.calc\.(rent|commercial)\.[A-Za-z0-9_-]{1,64}\.v1\.region$|^fsf\.calc\.(rent|commercial)\.v1\.region$/;
+const PATTERN = /^fsf\.(dd|bid|income|checklist|calc\.rent|calc\.commercial)\.[A-Za-z0-9_-]{1,64}\.v1$|^fsf\.calc\.(rent|commercial)\.[A-Za-z0-9_-]{1,64}\.v1\.region$|^fsf\.calc\.(rent|commercial)\.v1\.region$|^fsf\.bid\.[A-Za-z0-9_-]{1,64}\.v1\.region$/;
 
-export const backedUp = (key: string) => EXACT.includes(key) || PATTERN.test(key);
+const CONFIRMED = /^fsf\.(bid|calc\.(rent|commercial|lien|sellerfinance|strategy))(\.[A-Za-z0-9_-]{1,64})?(\.v1)?\.typed\.v1$/;
+export const backedUp = (key: string) => EXACT.includes(key) || PATTERN.test(key) || CONFIRMED.test(key);
 
 const MAX_VALUE = 1_000_000; // one item, e.g. 50 analyzed deals with long notes
 const MAX_FILE = 4_000_000;
@@ -113,10 +114,11 @@ export function readBackup(text: string): { ok: true; data: Record<string, strin
     try {
       parsed = JSON.parse(val);
     } catch {
-      if (k === 'deedowl.state.v1' && /^[A-Z]{2}$/.test(val)) data[k] = val; // every saved value is JSON except the chosen state code
+      if (k === 'deedowl.state.v1' && /^[A-Z]{2}$/.test(val)) data[k] = val;
+      if (PATTERN.test(k) && k.endsWith('.region') && val.length <= 1000) data[k] = val; // every saved value is JSON except the chosen state code
       continue;
     }
-    data[k] = CLEAN[k] ? JSON.stringify(CLEAN[k](parsed)) : val;
+    data[k] = CONFIRMED.test(k) ? JSON.stringify(Array.isArray(parsed) ? parsed.filter((x) => typeof x === 'string' && /^[A-Za-z][A-Za-z0-9_]{0,63}$/.test(x)).slice(0, 100) : []) : CLEAN[k] ? JSON.stringify(CLEAN[k](parsed)) : val;
   }
   return { ok: true, data, saved: typeof o.saved === 'string' && !Number.isNaN(Date.parse(o.saved)) ? o.saved : '' };
 }
@@ -127,6 +129,12 @@ export function restoreBackup(data: Record<string, string>, storage: Storage = l
   for (const [k, v] of Object.entries(data)) {
     if (!backedUp(k)) continue;
     try {
+      // Older backups carry numbers without confirmation: never keep this device's old confirmations.
+      if (/^fsf\.(bid|calc\.)/.test(k) && k.endsWith('.v1') && !CONFIRMED.test(k)) {
+        for (const typedKey of [`${k}.typed.v1`, k.replace(/\.v1$/, '.typed.v1')]) {
+          if (CONFIRMED.test(typedKey) && !(typedKey in data)) storage.removeItem(typedKey);
+        }
+      }
       storage.setItem(k, v);
       n++;
     } catch {

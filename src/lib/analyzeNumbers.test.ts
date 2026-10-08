@@ -45,3 +45,4 @@ describe('calculator numbers follow a deal', () => {
     expect(store.keys().filter((k) => k.includes('analyzed-d1'))).toEqual([]);
   });
 });
+

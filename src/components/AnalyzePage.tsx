@@ -14,7 +14,7 @@ import { investorProfile } from '../lib/myPlan';
 import { fmtMoney } from '../lib/status';
 import { getMyArea } from '../lib/myArea';
 import { analyzeAdCategories } from '../lib/contextAds';
-import { RotatingAd, useAdShows } from './AdBoxes';
+import { FixedAds, useAdShows } from './AdBoxes';
 import { useSpotCategories } from './AdSpot';
 import { useDirectory } from './ProDirectory';
 
@@ -267,7 +267,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         </div>
       </section>
       {/* One labeled ad from the kind of professional this plan needs (listings and bank-owned homes only). */}
-      {adShows && <RotatingAd pros={pros} categories={adCats} placeholder />}
+      {adShows && <FixedAds pros={pros} categories={adCats} placeholder />}
       </div>
     </main>
   );

@@ -31,7 +31,16 @@ jobs:
         run: |
           set +e
           npm run -s content:check-sources -- --report report.md
-          echo "code=$?" >> "$GITHUB_OUTPUT"
+          code=$?
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          if [ "$code" != 0 ] && [ "$code" != 2 ]; then exit "$code"; fi
+      - name: Keep the source-check report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-source-report
+          path: report.md
+          if-no-files-found: warn
       - name: Open or update the issue
         if: steps.check.outputs.code == '2'
         env:

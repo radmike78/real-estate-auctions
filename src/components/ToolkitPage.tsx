@@ -27,7 +27,7 @@ import { caseFor, tasksFor } from '../practice/rentalCase';
 import { proGuideByKey } from '../lib/proGuide';
 import { PRO_SCRIPTS } from '../lib/proScripts';
 import { stepAdCategories } from '../lib/contextAds';
-import { RotatingAd, useAdShows } from './AdBoxes';
+import { FixedAds, useAdShows } from './AdBoxes';
 import { useSpotCategories } from './AdSpot';
 import { useDirectory } from './ProDirectory';
 
@@ -325,7 +325,7 @@ export function FirstDealRoadmap() {
             <h3>{next.title}</h3>
             <StepBody s={next} status={stateOf(next)} setStatus={(v) => setStatus(next, v)} deal={deal} />
           </div>
-          {nextAdShows && <RotatingAd key={next.id} pros={pros} categories={nextAdCats} placeholder />}
+          {nextAdShows && <FixedAds key={next.id} pros={pros} categories={nextAdCats} placeholder />}
         </div>
       ) : (
         <p className="next-step" role="status">Every task on this route is done. Review your plan before your next deal, and keep practicing.</p>
@@ -632,7 +632,7 @@ function TeamListSection() {
   return (
     <section id="team" aria-labelledby="team-head">
       <h2 id="team-head">Your team</h2>
-      <p>The people a first purchase usually needs, in the order you’ll call them. Write down who you chose, check their license or registration, and note what they charge. Each role links to what they do and how to find one.</p>
+      <p>Your core team and the specialists your purchase may need. Fill in the roles that fit your plan. Write down who you chose, check their license or registration, and note what they charge. Each role links to what they do and how to find one.</p>
       <ol className="team-list">
         {TEAM_ROLES.map((k) => {
           const g = proGuideByKey(k);

@@ -49,9 +49,10 @@ export default function CalcFields<T extends object>({ groups, values, onChange 
                       step="any"
                       value={draft[f.k] ?? String((values as Record<string, number>)[f.k])}
                       aria-describedby={f.hint ? `${uid}-${f.k}-hint` : undefined}
-                      onChange={(e) => {
-                        setDraft((d) => ({ ...d, [f.k]: e.target.value }));
-                        onChange(f.k, Math.min(toNum(e.target.value), f.unit === '%' ? 100 : 1e10));
+                      onInput={(e) => {
+                        const text = e.currentTarget.value;
+                        setDraft((d) => ({ ...d, [f.k]: text }));
+                        onChange(f.k, Math.min(toNum(text), f.unit === '%' ? 100 : 1e10));
                       }}
                       onBlur={() => setDraft((d) => ({ ...d, [f.k]: undefined }))}
                     />

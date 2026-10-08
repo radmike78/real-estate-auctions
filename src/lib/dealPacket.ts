@@ -7,7 +7,7 @@ import { kindLabel, SALE_KINDS, type Deal } from './analyze';
 import { costsAtBid, maxSafeBid, offerInputs, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
 import { cleanBuyBox, EMPTY_BUY_BOX, type BuyBox } from './toolkit';
 import { EVIDENCE_AREAS, GATES, loadLog } from './evidence';
-import { commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, type CommercialInputs, type RentInputs } from './holdCalc';
+import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, type CommercialInputs, type RentInputs } from './holdCalc';
 import { cleanGoal, GOAL_KEY, investorProfile, TEAM_ROLES } from './myPlan';
 import { proGuideByKey } from './proGuide';
 import { countyName } from './regions';
@@ -216,6 +216,7 @@ export function savedNumbers(d: Deal) {
     limitedBy: CommercialLimit;
     /** Return on cost at the walk-away price (NOI / all in), or null. */
     capOnCost: number | null;
+    at?: ReturnType<typeof commercialAtPrice> & { price: number };
     stress: { label: string; maxBid: number | null; limitedBy?: CommercialLimit; capOnCost?: number | null }[];
   } | null = null;
   if (d.plan === 'rent') {
@@ -258,6 +259,7 @@ export function savedNumbers(d: Deal) {
           const stress = low.noBidWorks ? [{ label: 'Rent 10% lower', maxBid: null }] : Number.isFinite(low.maxBid) ? [{ label: 'Rent 10% lower', maxBid: low.maxBid, limitedBy: low.limitedBy, capOnCost: low.capOnCost }] : [];
           commercial = { maxBid: r.maxBid, noi: r.noi, capPct: v.targetCapPct, cashLeft: r.cashLeft, allIn: r.allIn, refi: !offer && r.debtService > 0, none: false, noTarget: false, overCap: false, limitedBy: r.limitedBy, capOnCost: r.capOnCost, stress };
         }
+        if (commercial && v.atPrice > 0) commercial.at = commercialAtPrice(v, v.atPrice, offer);
       }
     }
   }
@@ -428,6 +430,11 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} on sale day; estimated cash you’d put in ${money(bid.cashPeak)}`);
     }
     if (bid.financed) cash.push(DRAW_NOTE);
+  } else if (commercial?.at) {
+    const a = commercial.at;
+    need = !offer && a.loan > 0 ? a.allIn : a.cashIn;
+    needAt = `At your actual price of ${money(a.price)}`;
+    cash.push(`${needAt}: ${money(need)} needed ${!offer && a.loan > 0 ? 'before a refinance closes (loan fees are paid at refinancing)' : 'from your own cash, including the loan’s points and fees'}.`);
   } else if (commercial?.noTarget) {
     cash.push(commercialNoTarget(strategy, commercial.overCap));
   } else if (commercial?.none) {
@@ -448,7 +455,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && (!offer || p.earnest) ? 'done' : hasNums || p.earnest ? 'started' : 'missing', lines: cash, fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 
   // 5. Numbers: base and downside, for the deal's strategy only
-  const nums: string[] = [`Strategy: ${strategy}. These are the numbers you saved in its calculator; other strategies’ calculators aren’t counted.`];
+  const nums: string[] = ['Returns, profit and cash flow are before income tax; personal taxes and depreciation are not included.', `Strategy: ${strategy}. These are the numbers you saved in its calculator; other strategies’ calculators aren’t counted.`];
   if (rent) {
     nums.push(`${offer ? 'Your offer' : 'Your bid'} (your actual price): ${money(rent.price)} → monthly cash flow ${money(rent.monthly)}; ${rent.cashOnCash === null ? 'all your cash back' : `${(rent.cashOnCash * 100).toFixed(1)}% a year on your cash`} (target ${rent.target}%)`);
     for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase()}: ${money(s.monthly)} a month`);
@@ -461,6 +468,10 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       const walk = s.maxBid > 0 ? `walk-away price ${money(s.maxBid)}` : 'no price works';
       nums.push(`  If ${s.label.toLowerCase()}: ${a && s.profit !== null ? `profit ${money(s.profit)} at ${money(a.price)}; ${walk}` : walk}`);
     }
+  }
+  if (commercial?.at) {
+    const a = commercial.at;
+    nums.push(`Your ${offer ? 'offer' : 'bid'} (your actual price): ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; cash left in ${money(a.cashIn)}; return on total cost ${pct1(a.capOnCost)}; ${a.dscr === null ? 'no loan' : `income coverage ${a.dscr.toFixed(3)} (${a.loanOk ? 'meets' : 'below'} your minimum)`}`);
   }
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
   else if (commercial?.none) nums.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered`);

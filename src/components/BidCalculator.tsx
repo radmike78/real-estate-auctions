@@ -1,3 +1,4 @@
+import { readConfirmed, saveConfirmed } from '../lib/calcConfirmation';
 import { useEffect, useId, useState } from 'react';
 import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, INPUT_MAX, maxSafeBid, profitAtBid, redemptionOutcome, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs, offerInputs, cashNeededAtBid, DRAW_NOTE } from '../lib/bidCalc';
 import { offeredRedemptionRules, redemptionChoicesFor, redemptionPresetsFor, taxSaleWait, transferTaxFor } from '../lib/stateCosts';
@@ -214,14 +215,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   }, [uid]);
   // Fields you've typed in are yours, even when the number matches our starting estimate or is $0. Kept with a saved
   // deal, so a $0 you entered on purpose isn't flagged again on your next visit.
-  const [typedKeys, setTypedKeys] = useState<ReadonlySet<string>>(() => {
-    try {
-      const saved = storeId ? JSON.parse(localStorage.getItem(TYPED_KEY(storeId)) ?? '[]') : [];
-      return new Set(Array.isArray(saved) ? saved.filter((x): x is string => typeof x === 'string') : []);
-    } catch {
-      return new Set();
-    }
-  });
+  const [typedKeys, setTypedKeys] = useState<ReadonlySet<string>>(() => storeId ? readConfirmed(KEY(storeId)) : new Set());
   // The region (state and county) whose transfer tax the saved numbers carry. When the deal moves to another state,
   // the rate follows it unless you typed your own.
   const regionSig = String(tax.per500);
@@ -292,7 +286,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       if (t.has(k)) return t;
       const next = new Set([...t, k]);
       try {
-        if (storeId) localStorage.setItem(TYPED_KEY(storeId), JSON.stringify([...next]));
+        if (storeId) saveConfirmed(KEY(storeId), next);
       } catch {
         /* storage unavailable */
       }
@@ -426,13 +420,14 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           );
         })}
         {propertyId && (
-          <button type="button" className="linkish" onClick={() => { try { localStorage.removeItem(KEY(propertyId)); localStorage.removeItem(TYPED_KEY(propertyId)); } catch { /* ignore */ } setI(defaults); setDraft({}); setBidText(''); setTypedKeys(new Set()); }}>
+          <button type="button" className="linkish" onClick={() => { try { localStorage.removeItem(KEY(propertyId)); localStorage.removeItem(TYPED_KEY(propertyId)); localStorage.removeItem(KEY(propertyId).replace(/\.v1$/, '.typed.v1')); } catch { /* ignore */ } setI(defaults); setTypedKeys(new Set()); setDraft({}); setBidText(''); }}>
             Reset to our starting estimates
           </button>
         )}
       </div>
 
       <div className="calc-results" id={`${uid}-results`}>
+        <p className="small muted">Profit estimates are before income tax. Review taxes on a sale with your tax adviser.</p>
         {unconfirmed && (
           <div className="caution calc-unconfirmed" role="status">
             <strong>Redemption rule not confirmed.</strong> {choices?.confirm} Your walk-away price now uses{' '}
