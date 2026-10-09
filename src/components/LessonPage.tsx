@@ -167,10 +167,10 @@ function LessonBooks({ isbns }: { isbns: string[] }) {
   if (!books.length) return null;
   return (
     <section className="lesson-books" aria-labelledby="lesson-books">
-      <h2 id="lesson-books">Recommended books for this lesson</h2>
+      <details><summary id="lesson-books">Recommended books for this lesson</summary>
       <BookGrid books={books} />
       <p className="lesson-books-more"><a href="#/learn/reading">All our recommended books&nbsp;→</a></p>
-      {AMAZON_TAG && <p className="fine-print">As an Amazon Associate, DeedOwl earns from qualifying purchases.</p>}
+      {AMAZON_TAG && <p className="fine-print">As an Amazon Associate, DeedOwl earns from qualifying purchases.</p>}</details>
     </section>
   );
 }
@@ -245,7 +245,8 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
       {/* Summary first, full width: what the reader will learn, then (on Types) help choosing, then the lesson. */}
       <section className="lesson-takeaways" aria-labelledby="takeaways">
         <h2 id="takeaways">What you’ll learn</h2>
-        <ul>{l.takeaways.map((t) => <li key={t}>{oneState(t, st)}</li>)}</ul>
+        <ul>{l.takeaways.slice(0, 3).map((t) => <li key={t}>{oneState(t, st)}</li>)}</ul>
+        {l.takeaways.length > 3 && <details><summary>More in this lesson</summary><ul>{l.takeaways.slice(3).map((t) => <li key={t}>{oneState(t, st)}</li>)}</ul></details>}
       </section>
       {lessonKey === 'types' && (
         <section className="not-sure" aria-labelledby="types-not-sure">
@@ -255,18 +256,18 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         </section>
       )}
       <article className="lesson-body-text">
-        {sections.map((s) => (
-          <section key={s.heading}>
-            <h2>{s.heading}</h2>
+        {sections.map((s, index) => (
+          <details key={s.heading} className="lesson-topic" open={index === 0}>
+            <summary><h2>{s.heading}</h2></summary>
             {s.blocks.map((b, i) => <Block key={i} b={b} marked={marked.get(b)} />)}
-          </section>
+          </details>
         ))}
       </article>
       {/* Hiring help for this topic goes with the reading, before the terms and questions that wrap the lesson up. */}
       <TopicAd lesson={lessonKey} />
       <section className="lesson-terms" aria-labelledby="terms" ref={endRef}>
-        <h2 id="terms">Key terms</h2>
-        <dl>{terms.map((t) => <div key={t.term}><dt>{t.term}</dt><dd>{t.meaning}</dd></div>)}</dl>
+        <details><summary id="terms">Terms explained ({terms.length})</summary>
+        <dl>{terms.map((t) => <div key={t.term}><dt>{t.term}</dt><dd>{t.meaning}</dd></div>)}</dl></details>
       </section>
       {/* Questions about another state's rules are left out when you've chosen a state: its text is hidden above. */}
       {checks.length > 0 && <CheckYourself key={`${lessonKey}-${st ?? 'all'}`} checks={checks} />}

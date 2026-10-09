@@ -21,6 +21,8 @@ export interface PacketDate {
   when: string;
   what: string;
   who: string;
+  /** Confirmed handled; older entries stay open until the user reviews them. */
+  resolved?: boolean;
 }
 
 export interface PacketQA {
@@ -63,7 +65,7 @@ export function cleanPacket(v: unknown): PacketData {
   const dates = (Array.isArray(o.dates) ? o.dates : []).slice(0, 30).map((d) => {
     const r = obj(d);
     const when = str(r.when, 10);
-    return { when: DATE.test(when) ? when : '', what: str(r.what, 200), who: str(r.who, 120) };
+    return { when: DATE.test(when) ? when : '', what: str(r.what, 200), who: str(r.who, 120), ...(r.resolved === true ? { resolved: true } : {}) };
   });
   const qa = (Array.isArray(o.qa) ? o.qa : []).slice(0, 40).map((d) => {
     const r = obj(d);
@@ -347,7 +349,7 @@ const daysFrom = (iso: string, now: Date) => Math.round((Date.parse(`${iso}T12:0
 
 /** The next date on the deal's calendar that hasn't passed. */
 export function nextDate(p: PacketData, now = new Date()): (PacketDate & { days: number }) | null {
-  const up = p.dates.filter((x) => x.when && daysFrom(x.when, now) >= 0).map((x) => ({ ...x, days: daysFrom(x.when, now) }));
+  const up = p.dates.filter((x) => x.when && !x.resolved).map((x) => ({ ...x, days: daysFrom(x.when, now) }));
   up.sort((a, b) => a.days - b.days);
   return up[0] ?? null;
 }
@@ -389,7 +391,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     title: 'Key dates',
     status: calendarComplete(p, stageOf(d)) ? 'done' : dated.length ? 'started' : 'missing',
     lines: dated.length
-      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${x.when}: ${x.what}${x.who ? ` (${x.who})` : ''}`), nd ? `Next: ${nd.what}, ${nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : 'Every date on the list has passed.']
+      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${x.when}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : ' — open'}`), nd ? `Next: ${nd.what}, ${nd.days < 0 ? `overdue by ${-nd.days} days` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : 'All dated items are marked handled.']
       : [`Add the dates from the ${offer ? 'contract' : 'official notice'}: ${suggestedDates(d).join('; ')}.`],
   });
 

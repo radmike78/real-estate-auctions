@@ -242,6 +242,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
   if (stage === 'contract') {
     if (w === 'offer') {
       out.push(task({ key: 'dates', label: `Put ${n}’s contract deadlines on its calendar`, produces: `every deadline from the signed contract on one calendar (${suggestedDates(d).join('; ')}), with the next one shown here`, href: packetHref(d, 'dates'), support: [L.negotiate], done: calendarComplete(p, stage) }));
+      out.push(task({ key: 'deposit-sent', label: `Send the earnest money for ${n} and confirm receipt`, produces: 'escrow confirms receipt of the deposit and any option fee required by your contract; mark the deposit roadmap task done', href: ROADMAP_HREF, support: [L.negotiate], done: stepDone('deposit') }));
       out.push(task({ key: 'inspection-complete', label: `Inspect ${n} before the ${tx ? 'option period' : 'inspection period'} ends`, produces: 'the report, repair bids and written decision before the deadline; mark the inspection roadmap task done', href: ROADMAP_HREF, support: [L.pro('inspector'), L.caseStage('inspection', 'The inspection')], done: stepDone('inspect') }));
       out.push(task({ key: 'final-financing', label: `Get the loan approved for ${n}, or confirm your cash`, produces: 'final lender approval with conditions satisfied, or verified available closing funds; mark the final financing roadmap task done', href: ROADMAP_HREF, support: [L.pro('lender')], done: stepDone('loan-approval') }));
       out.push(task({ key: 'appraisal-complete', label: `Resolve the appraisal for ${n}`, produces: 'the appraisal and any gap resolved before the deadline, or a documented cash-purchase choice not to obtain one', href: ROADMAP_HREF, support: [L.pro('appraiser')], done: stepDone('appraise') }));
@@ -276,6 +277,8 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       out.push(task({ key: 'stage', label: `Mark ${n} as ${stageLabel('owned', d).toLowerCase()}`, produces: 'the selling tasks: list it at a price backed by sold comps, and record the sale', href: packetHref(d, 'owned'), setStage: 'owned', done: false }));
       return out;
     }
+    out.push(task({ key: 'rental-repairs', label: `Finish the repairs ${n} needs before renting`, produces: 'required repairs completed and checked, with permits where needed; mark the repairs roadmap task done', href: ROADMAP_HREF, support: [L.pro('contractor')], done: stepDone('repairs') }));
+    out.push(task({ key: 'rental-lease', label: `Rent ${n} lawfully, or confirm its existing tenancy`, produces: 'screening, disclosures, a lawful lease and tenant records reviewed with your team; mark the rental roadmap task done', href: ROADMAP_HREF, support: [L.afterClosing], done: stepDone('rent') }));
     out.push(task({ key: 'owned', label: `Start tracking ${n}’s real rent and costs`, produces: 'a monthly record of actual rent and costs, against the cash flow you planned', href: packetHref(d, 'owned'), support: [L.afterClosing], done: !!owned[d.id] }));
     out.push(task({ key: 'stage', label: `Mark ${n} as owned and operating`, produces: 'the monthly tasks: record the rent and costs, and review it against your goal', href: packetHref(d, 'owned'), setStage: 'owned', done: false }));
     return out;
@@ -309,7 +312,7 @@ export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.i
   if (stage !== 'passed') {
     const nd = nextDate(p, now);
     if (nd && nd.days <= 7) {
-      const text = `${nd.days === 0 ? 'Today' : nd.days === 1 ? 'Tomorrow' : `In ${nd.days} days`}: ${nd.what}.${nd.who ? ` Who: ${nd.who}.` : ''}`;
+      const text = `${nd.days < 0 ? `Overdue by ${-nd.days} days` : nd.days === 0 ? 'Today' : nd.days === 1 ? 'Tomorrow' : `In ${nd.days} days`}: ${nd.what}.${nd.who ? ` Who: ${nd.who}.` : ''}`;
       return { key: 'date', label: text, produces: 'the deadline met, with what you did noted in its deal packet', href: `#/deals/packet/${d.id}/dates`, support: [], done: false, urgent: true, text };
     }
     const log = loadLog(`analyzed:${d.id}`);
