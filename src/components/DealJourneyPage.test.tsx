@@ -40,3 +40,12 @@ it('shows incomplete workbook output and handles an unknown chapter explicitly',
   expect(html).toContain('Download workbook');
   expect(renderToStaticMarkup(<DealJourneyPage chapterKey="unknown" />)).toContain('That chapter isn’t');
 });
+it('shows the cash gap even when the lab meets the monthly target', () => {
+  saveJourney({ ...emptyJourney(), lab: { price: 350000, rent: 3000, vacancy: 5, rate: 7 } });
+  const html = renderToStaticMarkup(<DealJourneyPage chapterKey="numbers" />);
+  expect(html).toContain('$163.58');
+  expect(html).toContain('$122,500.00');
+  expect(html).toContain('$12,500.00');
+  expect(html).toContain('over budget');
+  expect(html).toContain('Before repair/lease-up holding costs');
+});

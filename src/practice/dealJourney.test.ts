@@ -33,6 +33,12 @@ describe('fictional deal calculations', () => {
     expect(() => calculateDeal({ ...DEFAULT_LAB, rent: NaN })).toThrow();
     expect(() => calculateDeal({ ...DEFAULT_LAB, vacancy: 101 })).toThrow();
   });
+  it('separates a positive monthly result from sufficient investment cash', () => {
+    const result = calculateDeal({ ...DEFAULT_LAB, price: 350000, rent: 3000 });
+    expect(result.cash).toBeCloseTo(163.58, 2);
+    expect(result.initialCash).toBe(122500);
+    expect(result.initialCash - 110000).toBe(12500);
+  });
   it('reconciles the deposit, revised repair allocation, actual month and flip stress', () => {
     const expected = (id: string, task: string) => CHAPTERS.find((c) => c.id === id)!.tasks.find((t) => t.id === task)!.expected;
     expect(expected('evidence', 'revised-budget')).toBe(260000 * .25 + 8000 + 22000 + 15000);
