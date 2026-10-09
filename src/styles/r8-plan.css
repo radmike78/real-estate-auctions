@@ -69,3 +69,7 @@
 .plan-now-foundations p { margin: 0; }
 .plan-now-foundations ul { margin: 0; padding-left: 1.2em; columns: 2 16rem; column-gap: 24px; }
 .plan-now-done-note { color: var(--muted); font-weight: 600; }
+
+.plan-section { padding: 16px 20px; margin-block: 16px; border: 1px solid var(--border, #dce1e8); border-radius: 12px; }
+.plan-section > summary { cursor: pointer; font-weight: 650; font-size: 1.2rem; }
+@media print { details::details-content { display: block !important; content-visibility: visible !important; } }

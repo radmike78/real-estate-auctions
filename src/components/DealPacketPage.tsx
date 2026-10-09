@@ -39,9 +39,9 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
   useEffect(() => {
     if (section) document.getElementById(`packet-${section}`)?.scrollIntoView({ block: 'start' });
   }, [section]);
-  const update = (patch: Partial<PacketData>) =>
+  const update = (patch: Partial<PacketData>, reviewDates = true) =>
     setP((cur) => {
-      const next = { ...cur, ...patch, ...(patch.dates ? { calendarReviewedFor: undefined } : {}) };
+      const next = { ...cur, ...patch, ...(patch.dates && reviewDates ? { calendarReviewedFor: undefined } : {}) };
       savePacket(key, next);
       return next;
     });
@@ -144,9 +144,10 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <ul className="packet-dates">
           {p.dates.map((x, i) => (
             <li key={i}>
-              <input type="date" aria-label="Date" value={x.when} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, when: e.target.value } : y)) })} />
-              <input aria-label="What" maxLength={200} value={x.what} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, what: e.target.value } : y)) })} />
-              <input aria-label="Who handles it" placeholder="Who" maxLength={120} value={x.who} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, who: e.target.value } : y)) })} />
+              <input type="date" aria-label="Date" value={x.when} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, when: e.target.value, resolved: false } : y)) })} />
+              <input aria-label="What" maxLength={200} value={x.what} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, what: e.target.value, resolved: false } : y)) })} />
+              <input aria-label="Who handles it" placeholder="Who" maxLength={120} value={x.who} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, who: e.target.value, resolved: false } : y)) })} />
+              <label><input type="checkbox" checked={!!x.resolved} onChange={(e) => update({ dates: p.dates.map((y, j) => j === i ? { ...y, resolved: e.target.checked } : y) }, false)} /> Handled</label>
               <button type="button" className="linkish" aria-label={`Remove ${x.what || 'date'}`} onClick={() => update({ dates: p.dates.filter((_, j) => j !== i) })}>Remove</button>
             </li>
           ))}
@@ -158,11 +159,11 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <label className="field">
           <span><input type="checkbox" checked={p.calendarReviewedFor === stageOf(deal)} disabled={!p.dates.length || p.dates.some((d) => !d.when || !d.what.trim() || !d.who.trim())} onChange={(e) => update({ calendarReviewedFor: e.target.checked ? stageOf(deal) : undefined })} /> I checked every applicable deadline for this stage against the signed contract or official notice, including who acts and how notice must be delivered.</span>
         </label>
-        <p className="muted small">Fill in the date, task and responsible person for each applicable deadline; remove entries that do not apply. Ask your agent or attorney to confirm the calendar. Adding or changing a date requires another review.</p>
+        <p className="muted small">Past dates stay open until you mark them handled. Confirm completion or an agreed resolution with your team. Fill in the date, task and responsible person for each applicable deadline; remove entries that do not apply. Ask your agent or attorney to confirm the calendar. Adding or changing a date requires another review.</p>
         <Lines k="dates" />
         {guideRows.length > 0 && (
           <>
-            <h3>How each {deal.state === 'TX' ? 'Texas contract ' : ''}date works</h3>
+            <details><summary>How each {deal.state === 'TX' ? 'Texas contract ' : ''}date works</summary>
             <div className="table-wrap">
               <table className="lesson-table doc-guide-table packet-date-guide">
                 <thead>
@@ -180,7 +181,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
                   ))}
                 </tbody>
               </table>
-            </div>
+            </div></details>
           </>
         )}
       </section>

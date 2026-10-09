@@ -84,14 +84,14 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
       {deal && now.tasks && stage ? (
         <>
           <h4>{stageLabel(stage, deal)}: {deal.name}</h4>
-          <ol className="plan-now-tasks">
+          <details><summary>See all tasks in this stage</summary><ol className="plan-now-tasks">
             {now.tasks.map((t) => (
               <li key={t.key} className={t.done ? 'done' : t.key === task.key ? 'now' : undefined}>
                 <span className="plan-now-mark" aria-hidden>{t.done ? '✓' : t.key === task.key ? '→' : '○'}</span>
                 <span>{t.label}{t.done && t.doneLabel ? <span className="plan-now-done-note"> ({t.doneLabel})</span> : t.done ? <span className="sr-only"> (done)</span> : t.key === task.key ? <span className="sr-only"> (next)</span> : null}</span>
               </li>
             ))}
-          </ol>
+          </ol></details>
           <p className="plan-now-evidence">Evidence: <strong>{checked} of {EVIDENCE_AREAS.length}</strong> areas checked. <a href={`#/deals/packet/${deal.id}`}>Open its deal packet&nbsp;→</a></p>
         </>
       ) : (
@@ -138,31 +138,32 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
             {task.advance && deal && <button type="button" className="btn btn-secondary" onClick={() => setDealStage(deal.id, task.advance!.stage)}>{task.advance.label}</button>}
           </div>
           {task.support.length > 0 && (
-            <p className="plan-now-support">
+            <details className="plan-now-support"><summary>Help with this step</summary><p>
               <span>Helps with this:</span>{' '}
               {task.support.map((s, i) => <span key={s.href + s.label}>{i > 0 && ' · '}<a href={s.href}>{s.label}</a></span>)}
-            </p>
+            </p></details>
           )}
         </div>
         {onPlan && deal && stage === 'contract' && wayOf(deal) === 'offer' && (
           <section aria-labelledby="contract-workstreams">
-            <h3 id="contract-workstreams">Start these workstreams together</h3>
+            <p id="contract-workstreams"><strong>Arrange the deposit, inspection, loan and title work promptly.</strong> These tasks run together.</p><details><summary>Who does what, and when</summary>
             <p>Do not wait for one to finish before arranging the others. Your signed contract controls deadlines; ask your team to confirm them.</p>
             <div className="table-wrap"><table><caption>Who handles each part of the purchase</caption><thead><tr><th scope="col">Work</th><th scope="col">Responsible people</th><th scope="col">Checkpoint</th></tr></thead><tbody>
+              <tr><th scope="row">Earnest money and any option fee</th><td>You and escrow</td><td>Deliver by the contract deadline; confirm receipt</td></tr>
               <tr><th scope="row">Inspection and repair decision</th><td>You, inspector and agent</td><td>Before the inspection or option deadline</td></tr>
               <tr><th scope="row">Underwriting and appraisal</th><td>You and lender</td><td>Loan and appraisal deadlines; rate-lock expiration</td></tr>
               <tr><th scope="row">Title and HOA review</th><td>You, title officer and agent or attorney</td><td>Objection and document-review deadlines</td></tr>
               <tr><th scope="row">Insurance activation</th><td>You and insurer</td><td>Proof for lender; coverage coordinated with closing</td></tr>
               <tr><th scope="row">Walkthrough and closing figures</th><td>You, agent and closing officer</td><td>Resolve discrepancies before signing</td></tr>
             </tbody></table></div>
-            <p><a href={`#/deals/packet/${deal.id}/dates`}>Open this property’s deadline calendar</a>. Record the responsible person and any unresolved question in its evidence log.</p>
+            <p><a href={`#/deals/packet/${deal.id}/dates`}>Open this property’s deadline calendar</a>. Record the responsible person and any unresolved question in its evidence log.</p></details>
           </section>
         )}
         {deal && foundations.length > 0 && (
           <div className="plan-now-foundations" role="note">
-            <p><strong>Still open from getting ready:</strong></p>
+            <details><summary>Getting ready: {foundations.length} items still open</summary>
             <ul>{foundations.map((s) => <li key={s.id}>{s.href ? <a href={s.href}>{s.title}</a> : s.title}</li>)}</ul>
-            <p>You can keep researching this property. Finish these before you make an offer or bid, and tick each one off in <a href="#/toolkit/roadmap">your roadmap</a>.</p>
+            <p>{stage === 'researching' || stage === 'offer' ? 'Finish these before you offer or bid.' : 'Review these gaps with your team now; keep meeting the deadlines already running.'} Record each milestone in <a href="#/toolkit/roadmap">your roadmap</a>.</p></details>
           </div>
         )}
       </div>

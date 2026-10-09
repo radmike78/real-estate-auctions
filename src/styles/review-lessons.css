@@ -154,3 +154,15 @@
 .lesson-table.long-first.cols-4 thead th:nth-child(2), .lesson-table.long-first.cols-4 thead th:nth-child(3) { width: 11%; }
 .lesson-table.long-first.cols-3 thead th:nth-child(2) { width: 45%; }
 .book-buttons .btn { white-space: nowrap; }
+
+/* A short lesson outline, with the full explanation available on demand. */
+.lesson-topic { margin-block: 16px; padding: 16px 20px; border: 1px solid var(--border, #dce1e8); border-radius: 12px; }
+.lesson-topic > summary { cursor: pointer; }
+.lesson-topic > summary h2 { display: inline; font-size: 1.25rem; margin: 0; }
+.lesson-topic[open] > summary { margin-bottom: 16px; }
+.lesson-terms summary, .plan-now summary { cursor: pointer; font-weight: 650; padding-block: 10px; }
+@media print { .lesson-topic > summary { margin-bottom: 12px; } }
+
+.plan-section { padding: 16px 20px; margin-block: 16px; border: 1px solid var(--border, #dce1e8); border-radius: 12px; }
+.plan-section > summary { cursor: pointer; font-weight: 650; font-size: 1.2rem; }
+@media print { details::details-content { display: block !important; content-visibility: visible !important; } }

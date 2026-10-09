@@ -219,3 +219,20 @@ describe('separate contract milestones', () => {
     expect(stageTasks(deal, 'contract', { ...p, calendarReviewedFor: 'contract', dates: [...p.dates, { when: '', what: 'Inspection', who: '' }] }, now).find((t) => t.key === 'dates')?.done).toBe(false);
   });
 });
+
+it('tracks deposit delivery independently of the offer amount and final approval', () => {
+  const p = { ...EMPTY_PACKET, earnest: 3000 };
+  expect(stageTasks(deal, 'contract', p, now).find(t => t.key === 'deposit-sent')?.done).toBe(false);
+  localStorage.setItem(DEAL_STEPS_KEY, JSON.stringify({ [`analyzed:${deal.id}`]: { done: ['deposit'], status: {} } }));
+  const tasks = stageTasks(deal, 'contract', p, now);
+  expect(tasks.find(t => t.key === 'deposit-sent')?.done).toBe(true);
+  expect(tasks.find(t => t.key === 'final-financing')?.done).toBe(false);
+});
+
+it('includes preparation and lawful tenancy before a rental is operating', () => {
+  const tasks = stageTasks(deal, 'closed', EMPTY_PACKET, now);
+  const keys = tasks.map(t => t.key);
+  expect(keys.indexOf('rental-repairs')).toBeLessThan(keys.indexOf('owned'));
+  expect(keys.indexOf('rental-lease')).toBeLessThan(keys.indexOf('owned'));
+  expect(tasks.find(t => t.key === 'rental-lease')?.done).toBe(false);
+});

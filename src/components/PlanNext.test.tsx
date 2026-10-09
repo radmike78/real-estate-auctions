@@ -28,7 +28,7 @@ it('shows parallel contract work and the actual next milestone, including when i
   saveDeals([{ ...deal, stage: 'contract' }]);
   const html = renderToStaticMarkup(<PlanNext variant="plan" />);
   expect(html).toContain('contract deadlines on its calendar');
-  expect(html).toContain('Start these workstreams together');
+  expect(html).toContain('Who does what, and when');
   expect(html).toContain('Underwriting and appraisal');
   expect(html).toContain('Responsible people');
 });

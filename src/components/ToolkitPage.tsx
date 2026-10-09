@@ -229,7 +229,8 @@ export function FirstDealRoadmap() {
   const nextAdCats = useSpotCategories('toolkit', next ? stepAdCategories(next, path) : []);
   const nextAdShows = useAdShows(nextAdCats);
   // The phase holding the next step starts open; after that, phases stay as the reader leaves them.
-  const [openPhase] = useState(() => next?.phase ?? 1);
+  const [openPhase, setOpenPhase] = useState(() => next?.phase ?? 1);
+  useEffect(() => { setOpenPhase(next?.phase ?? 1); }, [deal?.id, stage]);
   const phases = ([1, 2, 3, 4, 5, 6, 7] as const).map((n) => ({ n, title: ROADMAP_PHASES[n], steps: steps.filter((s) => s.phase === n) })).filter((ph) => ph.steps.length);
   const nextDone = (d: string[], id: string, v: StepStatus | 'done' | 'todo') => (v === 'done' ? (d.includes(id) ? d : [...d, id]) : d.filter((x) => x !== id));
   const nextStatus = (m: Record<string, StepStatus>, id: string, v: StepStatus | 'done' | 'todo') => {
@@ -759,7 +760,12 @@ function ProgressBackup() {
 export default function ToolkitPage({ section }: { section?: string }) {
   useLastActivity('#/toolkit', 'My plan');
   useEffect(() => {
-    if (section === 'buy-box' || section === 'cash' || section === 'team' || section === 'paperwork' || section === 'roadmap') document.getElementById(section)?.scrollIntoView();
+    if (!section) return;
+    const target = document.getElementById(section);
+    for (let parent = target?.parentElement; parent; parent = parent.parentElement) {
+      if (parent instanceof HTMLDetailsElement) parent.open = true;
+    }
+    target?.scrollIntoView();
   }, [section]);
   return (
     <main className="page toolkit">
@@ -771,9 +777,9 @@ export default function ToolkitPage({ section }: { section?: string }) {
           (which picks the task); the roadmap or evidence summary alongside; and the optional helper. */}
       <PlanNext variant="plan" helper={<NarrowDown config={toolkitConfig()} intro="This page holds your whole plan and a lot of reference material. Tell us where you are and we’ll point you to the part to use first. Everything stays below." />} />
       <FirstDealRoadmap />
-      <CashWorksheet />
-      <BuyBoxBuilder />
-      <TeamListSection />
+      <details className="plan-section"><summary>Your cash budget</summary><CashWorksheet /></details>
+      <details className="plan-section"><summary>Your property criteria (buy box)</summary><BuyBoxBuilder /></details>
+      <details className="plan-section"><summary>Your team and contacts</summary><TeamListSection /></details>
       <section className="plan-download" aria-labelledby="plan-dl-head">
         <h2 id="plan-dl-head">Print or share your plan</h2>
         <p>A readable summary to keep or show your agent or lender (to move your progress to another device, use the backup below): your goal, your cash and what price it supports, your buy box, where you are on the roadmap, and your team with what to say to each, in one file.</p>
@@ -782,7 +788,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
           <button type="button" className="btn btn-secondary" onClick={() => window.print()}>Print this page</button>
         </div>
       </section>
-      <h2 className="part-bar" id="reference-head">Reference: worksheets, paperwork and tools</h2>
+      <details className="plan-section"><summary id="reference-head">Worksheets, paperwork and tools</summary>
       <Worksheets />
       <section id="paperwork" aria-labelledby="paperwork-head">
         <h2 id="paperwork-head">Read the paperwork</h2>
@@ -802,6 +808,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
           </ul>
         </section>
       ))}
+      </details>
       <ProgressBackup />
     </main>
   );

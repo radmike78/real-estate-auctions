@@ -78,7 +78,7 @@ describe('the deal packet', () => {
   });
 
   it('puts a deadline within a week ahead of everything else', () => {
-    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-09', what: 'Option period ends (5 p.m.)', who: 'Me and my agent' }, { when: '2026-10-01', what: 'Offer accepted', who: '' }] };
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-09', what: 'Option period ends (5 p.m.)', who: 'Me and my agent' }, { when: '2026-10-01', what: 'Offer accepted', who: '', resolved: true }] };
     expect(nextDate(p, now)?.days).toBe(3);
     expect(nextAction(deal, p, now).text).toBe('In 3 days: Option period ends (5 p.m.). Who: Me and my agent.');
     const secs = packetSections(deal, p, now);
@@ -401,4 +401,17 @@ it('exports the commercial actual offer separately from the walk-away price', ()
   expect(numbers).toMatch(/Your offer \(your actual price\): \$100,000/);
   expect(numbers).toMatch(/before income tax/);
   expect(cash).toMatch(/At your actual price of \$100,000/);
+});
+
+it('keeps unresolved overdue deadlines urgent until explicitly handled', () => {
+  const now = new Date('2026-10-09T12:00:00');
+  const p = cleanPacket({ dates: [{ when: '2026-10-08', what: 'Deposit due', who: 'Buyer' }, { when: '2026-10-10', what: 'Inspection', who: 'Inspector' }] });
+  expect(nextDate(p, now)?.what).toBe('Deposit due');
+  expect(nextDate(p, now)?.days).toBe(-1);
+  p.dates[0].resolved = true;
+  const restored = cleanPacket(p);
+  expect(restored.dates[0].resolved).toBe(true);
+  expect(nextDate(restored, now)?.what).toBe('Inspection');
+  restored.dates[1].resolved = true;
+  expect(nextDate(restored, now)).toBeNull();
 });

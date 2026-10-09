@@ -10,7 +10,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-09",
-    "hash": "edcb015047254c07",
+    "hash": "310a7960553f5e0a",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -179,7 +179,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-09",
-    "hash": "0a13518d7eb62dce",
+    "hash": "f1082d534811ef32",
     "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged."
   },
   {
@@ -368,7 +368,7 @@
       "src/lib/lessons/taxes.ts"
     ],
     "reviewed": "2026-10-09",
-    "hash": "0e2c9678d4fe9b88",
+    "hash": "ef3850fe61373630",
     "note": "Reviewed California FTB exchange-reporting correction and confirmed Utah House tax-rate source; include taxes lesson in future review hashes."
   },
   {
@@ -421,7 +421,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-09",
-    "hash": "fcd160f9163efab5",
+    "hash": "116e8849257dcbf5",
     "note": "Reviewed service-specific credential checks, fair-housing rules across all supported states, and manufactured-community statistics against MHI; no broad draft policy revision."
   }
 ]
