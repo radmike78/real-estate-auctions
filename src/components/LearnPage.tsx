@@ -63,9 +63,9 @@ export default function LearnPage() {
   useMarkStep('learn');
   const { mode, read } = useJourney();
   const [mine] = useMyState();
-  // Guided visitors see the first two groups; everything stays one click away.
+  // Guided visitors see basics, financing and deal analysis; everything stays one click away.
   const [showAll, setShowAll] = useState(false);
-  const paths = mode === 'guided' && !showAll ? LEARN_PATHS.slice(0, 2) : LEARN_PATHS;
+  const paths = mode === 'guided' && !showAll ? LEARN_PATHS.slice(0, 3) : LEARN_PATHS;
   return (
     <main className="page">
       <PageHero

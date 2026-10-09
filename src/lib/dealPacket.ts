@@ -36,6 +36,8 @@ export interface PacketData {
   fit: Fit;
   fitWhy: string;
   dates: PacketDate[];
+  /** Explicit review against the contract or notice for this deal stage. */
+  calendarReviewedFor?: string;
   qa: PacketQA[];
   /** Earnest money (or a bidder deposit) you'll put up when you commit; 0 when not known yet. */
   earnest: number;
@@ -44,6 +46,9 @@ export interface PacketData {
 }
 
 export const EMPTY_PACKET: PacketData = { fit: '', fitWhy: '', dates: [], qa: [], earnest: 0, decisionWhy: '', conditions: '' };
+
+/** A count of dates cannot establish that all applicable deadlines have been reviewed. */
+export const calendarComplete = (p: PacketData, stage: string) => p.calendarReviewedFor === stage && p.dates.length > 0 && p.dates.every((d) => !!d.when && !!d.what.trim() && !!d.who.trim());
 
 const KEY = 'deedowl.dealPacket.v1';
 export const PACKET_KEY = KEY;
@@ -66,7 +71,7 @@ export function cleanPacket(v: unknown): PacketData {
     return { role: str(r.role, 30), q: str(r.q, 500), a: str(r.a, 1000), on: DATE.test(on) ? on : '' };
   });
   const earnest = typeof o.earnest === 'number' && Number.isFinite(o.earnest) && o.earnest > 0 ? Math.min(o.earnest, 1e9) : 0;
-  return { fit, fitWhy: str(o.fitWhy, 600), dates, qa, earnest, decisionWhy: str(o.decisionWhy, 1000), conditions: str(o.conditions, 1000) };
+  return { fit, fitWhy: str(o.fitWhy, 600), dates, qa, earnest, ...(str(o.calendarReviewedFor, 30) ? { calendarReviewedFor: str(o.calendarReviewedFor, 30) } : {}), decisionWhy: str(o.decisionWhy, 1000), conditions: str(o.conditions, 1000) };
 }
 
 function loadAll(): Record<string, unknown> {
@@ -382,7 +387,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   out.push({
     key: 'dates',
     title: 'Key dates',
-    status: dated.length >= 2 ? 'done' : dated.length ? 'started' : 'missing',
+    status: calendarComplete(p, stageOf(d)) ? 'done' : dated.length ? 'started' : 'missing',
     lines: dated.length
       ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${x.when}: ${x.what}${x.who ? ` (${x.who})` : ''}`), nd ? `Next: ${nd.what}, ${nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : 'Every date on the list has passed.']
       : [`Add the dates from the ${offer ? 'contract' : 'official notice'}: ${suggestedDates(d).join('; ')}.`],

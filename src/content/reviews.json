@@ -4,10 +4,13 @@
     "title": "Home page",
     "files": [
       "src/components/HomePage.tsx",
-      "src/lib/journey.ts"
+      "src/lib/journey.ts",
+      "src/components/PlanNext.tsx",
+      "src/lib/planNext.ts",
+      "src/lib/dealStage.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "1e50c0e9bc2abc37",
+    "reviewed": "2026-10-09",
+    "hash": "edcb015047254c07",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -141,8 +144,8 @@
       "src/components/RentalCasePage.tsx",
       "src/practice/rentalCase.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "18e98d5d974eb545",
+    "reviewed": "2026-10-09",
+    "hash": "8955813a9a4ec342",
     "note": "Full content review (review round of 2026-09-27)."
   },
   {
@@ -170,10 +173,13 @@
       "src/components/EvidenceLog.tsx",
       "src/components/DealPacketPage.tsx",
       "src/lib/dealPacket.ts",
-      "src/lib/evidence.ts"
+      "src/lib/evidence.ts",
+      "src/components/PlanNext.tsx",
+      "src/lib/planNext.ts",
+      "src/lib/dealStage.ts"
     ],
-    "reviewed": "2026-10-08",
-    "hash": "8358120b5132ec7c",
+    "reviewed": "2026-10-09",
+    "hash": "0a13518d7eb62dce",
     "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged."
   },
   {
@@ -362,7 +368,7 @@
       "src/lib/lessons/taxes.ts"
     ],
     "reviewed": "2026-10-09",
-    "hash": "5e0a3b5817501f63",
+    "hash": "0e2c9678d4fe9b88",
     "note": "Reviewed California FTB exchange-reporting correction and confirmed Utah House tax-rate source; include taxes lesson in future review hashes."
   },
   {
@@ -385,8 +391,8 @@
       "src/lib/findDeals.ts",
       "src/lib/regions.ts"
     ],
-    "reviewed": "2026-10-08",
-    "hash": "a76beb2d96fcfe3b",
+    "reviewed": "2026-10-09",
+    "hash": "827b94c4b752bbf9",
     "note": "Complete official county directory, preserve shared office labels, distinguish contact links from auction details and document retrieval limitations."
   },
   {
@@ -409,10 +415,13 @@
       "src/components/ToolkitPage.tsx",
       "src/lib/toolkit.ts",
       "src/lib/roadmap.ts",
-      "src/lib/progressBackup.ts"
+      "src/lib/progressBackup.ts",
+      "src/components/PlanNext.tsx",
+      "src/lib/planNext.ts",
+      "src/lib/dealStage.ts"
     ],
-    "reviewed": "2026-10-08",
-    "hash": "8ee4bcfc039931fd",
+    "reviewed": "2026-10-09",
+    "hash": "fcd160f9163efab5",
     "note": "Reviewed service-specific credential checks, fair-housing rules across all supported states, and manufactured-community statistics against MHI; no broad draft policy revision."
   }
 ]

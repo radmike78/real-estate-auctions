@@ -114,6 +114,16 @@ export default function FindDealsPage() {
         <p className="page-starter"><strong>Buying a home listed for sale?</strong> Ask a licensed agent to set up a search of homes on the local listing service (MLS) that match your buy box (your written limits: area, property type, price and condition). <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p>
         {adShows && <FixedAds pros={pros} categories={adCats} placeholder />}
       </div>
+      <section aria-labelledby="search-routine">
+        <h2 id="search-routine">Turn a search into a candidate</h2>
+        <ol>
+          <li>Choose one area, property type and purchase route from your buy box.</li>
+          <li>Search the sources below or ask your agent for matching MLS listings. Check availability and investor eligibility with the seller or listing agent.</li>
+          <li>Record the address or parcel, source link, date checked, asking price or minimum bid, sale type and payment deadline.</li>
+          <li>Screen it against your limits. In <a href="#/analyze">Analyze</a>, enter and save a candidate that fits; put the source and missing facts in its evidence log.</li>
+          <li>Verify rent, value, repairs, title, occupancy, permitted use, insurance and financing before you decide whether to offer or bid. An initial calculation is a screen, not completed due diligence.</li>
+        </ol>
+      </section>
       <h2 className="section-title">Official sources</h2>
       <p className="muted">Government agencies, Fannie Mae and Freddie Mac, and the banks that own the homes: the sellers themselves.</p>
 

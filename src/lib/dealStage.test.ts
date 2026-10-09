@@ -6,7 +6,7 @@ import { cleanLog, saveLog } from './evidence';
 import { saveOwned } from './owned';
 import { planNow } from './planNext';
 import { ROADMAP } from './roadmap';
-import { DEAL_KEY } from './roadmapDeals';
+import { DEAL_STEPS_KEY, DEAL_KEY } from './roadmapDeals';
 import { focusDealId, NO_DEAL } from './roadmapState';
 
 class MemStorage {
@@ -192,5 +192,30 @@ describe('My plan’s one Continue', () => {
     savePacket('analyzed:d1', EMPTY_PACKET);
     const { dealPacketText } = await import('./dealPacket');
     expect(dealPacketText(loadDeals()[0], EMPTY_PACKET, now)).toMatch(/STAGE: Under contract/);
+  });
+});
+
+
+describe('separate contract milestones', () => {
+  it('does not carry pre-approval, inspection research or an insurance quote into later completion', () => {
+    const log = cleanLog({ rows: { terms: { done: true }, condition: { done: true }, insurance: { done: true }, title: { done: true } } });
+    const tasks = stageTasks(deal, 'contract', EMPTY_PACKET, now, log);
+    for (const key of ['final-financing', 'inspection-complete', 'bound-insurance', 'contract-title', 'final-walkthrough', 'appraisal-complete']) {
+      expect(tasks.find((t) => t.key === key)?.done, key).toBe(false);
+    }
+  });
+  it('completes only the specific milestone for the specific property', () => {
+    localStorage.setItem(DEAL_STEPS_KEY, JSON.stringify({ 'analyzed:d1': { done: ['loan-approval'], status: {} } }));
+    const tasks = stageTasks(deal, 'contract', EMPTY_PACKET, now);
+    expect(tasks.find((t) => t.key === 'final-financing')?.done).toBe(true);
+    expect(tasks.find((t) => t.key === 'bound-insurance')?.done).toBe(false);
+    expect(stageTasks({ ...deal, id: 'd2' }, 'contract', EMPTY_PACKET, now).find((t) => t.key === 'final-financing')?.done).toBe(false);
+  });
+  it('requires a calendar review for the current stage instead of merely counting dates', () => {
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Accepted', who: 'Agent' }, { when: '2026-11-01', what: 'Closing', who: 'Escrow' }] };
+    expect(stageTasks(deal, 'contract', p, now).find((t) => t.key === 'dates')?.done).toBe(false);
+    expect(stageTasks(deal, 'contract', { ...p, calendarReviewedFor: 'offer' }, now).find((t) => t.key === 'dates')?.done).toBe(false);
+    expect(stageTasks(deal, 'contract', { ...p, calendarReviewedFor: 'contract' }, now).find((t) => t.key === 'dates')?.done).toBe(true);
+    expect(stageTasks(deal, 'contract', { ...p, calendarReviewedFor: 'contract', dates: [...p.dates, { when: '', what: 'Inspection', who: '' }] }, now).find((t) => t.key === 'dates')?.done).toBe(false);
   });
 });

@@ -13,6 +13,10 @@ export const tools: Lesson = {
   ],
   sections: [
     {
+      heading: 'Compare two areas before choosing',
+      blocks: ['Choose two areas and the same property type and strategy in each. Make a comparison using recent sales, rents from comparable leased homes, competing inventory and time on market.', 'Use Census QuickFacts for housing and population context. Check local employment trends, rental restrictions, zoning, taxes, insurance quotes and hazards. Record the source and date for each observation; broad area data does not establish a particular property’s rent or value.', 'Ask a local agent and property manager what your comparison misses. Write your choice, reasons and unanswered questions in your buy-box notes. If the evidence is too thin, keep researching rather than treating a low price as proof of a good investment.'],
+    },
+    {
       heading: 'The three county offices',
       blocks: [
         { list: [
@@ -131,5 +135,5 @@ export const tools: Lesson = {
     { label: 'Bankruptcy automatic stay (11 U.S.C. 362)', url: 'https://www.law.cornell.edu/uscode/text/11/362' },
   ],
   practice: 'Look up one property’s parcel, tax bill, recorded documents and flood zone. Record the source and the date for each.',
-  reviewed: '2026-10-05',
+  reviewed: '2026-10-09',
 };

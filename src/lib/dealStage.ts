@@ -6,7 +6,7 @@
 // Site rules: tasks never involve contacting a homeowner, an occupant or a former owner. Official sellers, your own
 // team, public records and the county only.
 import { CURRENT_KEY, DEAL_STAGES, isDealStage, loadDeals, saveDeals, type Deal, type DealStage } from './analyze';
-import { loadPacket, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
+import { loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
 import { EVIDENCE_AREAS, loadLog, type EvidenceLog } from './evidence';
 import { loadOwned, type Owned } from './owned';
 import { proGuideByKey } from './proGuide';
@@ -48,7 +48,7 @@ export function stageHint(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: Dea
 export const STAGE_STEPS: Record<DealStage, string[]> = {
   researching: ['find', 'evidence', 'quotes', 'agree', 'a-find', 'a-research', 'a-value', 'a-insure', 'c-sale', 'c-research', 'c-budget'],
   offer: ['offer', 'a-max', 'a-bid', 'c-bid'],
-  contract: ['deposit', 'inspect', 'appraise', 'title', 'close', 'a-pay', 'a-possess'],
+  contract: ['deposit', 'inspect', 'appraise', 'title', 'loan-approval', 'bind-insurance', 'walkthrough', 'close', 'a-pay', 'a-possess'],
   closed: ['first-week', 'a-before-remodel', 'repairs', 'rent', 'c-own'],
   owned: ['operate', 'review', 'exit-refi', 'exit-sell', 'exit-1031', 'c-hold', 'c-decide'],
   passed: [],
@@ -155,7 +155,6 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
   const stepDone = (id: string) => per.done.includes(id) || per.status[id] === 'na';
   const nums = savedNumbers(d);
   const hasNums = d.plan === 'lien' || hasSavedNumbers(nums);
-  const dated = p.dates.filter((x) => x.when).length;
   const tx = d.state === 'TX';
   const out: PlanTask[] = [];
 
@@ -226,7 +225,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       }));
     } else {
       area('terms', `Have the funds the sale requires for ${n}`, 'the money ready in the form the sale requires before sale day, noted in its evidence log', [L.guides]);
-      out.push(task({ key: 'dates', label: `Put ${n}’s sale dates on its calendar`, produces: `${suggestedDates(d).slice(0, 3).join(', ').toLowerCase()} on one calendar, with the next one shown here`, href: packetHref(d, 'dates'), support: [L.guides], done: dated >= 1 }));
+      out.push(task({ key: 'dates', label: `Put ${n}’s sale dates on its calendar`, produces: `${suggestedDates(d).slice(0, 3).join(', ').toLowerCase()} on one calendar, with the next one shown here`, href: packetHref(d, 'dates'), support: [L.guides], done: calendarComplete(p, stage) }));
       out.push(task({
         key: 'bid',
         label: w === 'lien' ? `Bid on ${n} at the county’s sale` : `Register and bid on ${n}, up to your maximum`,
@@ -242,14 +241,16 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
 
   if (stage === 'contract') {
     if (w === 'offer') {
-      out.push(task({ key: 'dates', label: `Put ${n}’s contract deadlines on its calendar`, produces: `every deadline from the signed contract on one calendar (${suggestedDates(d).join('; ')}), with the next one shown here`, href: packetHref(d, 'dates'), support: [L.negotiate], done: dated >= 2 }));
-      area('condition', `Inspect ${n} before the ${tx ? 'option period' : 'inspection period'} ends`, 'the inspection report and written repair bids in its evidence log, and your decision before the deadline', [L.pro('inspector'), L.caseStage('inspection', 'The inspection')]);
-      area('terms', `Get the loan approved for ${n}, or confirm your cash`, 'the lender’s approval with its conditions met, or proof of funds, in its evidence log', [L.pro('lender'), L.caseStage('appraisal', 'Appraisal and title')]);
-      area('title', `Review the title commitment for ${n}`, 'the title company’s commitment read, with every item that could stop closing questioned, in its evidence log', [L.pro('title'), L.caseStage('appraisal', 'Appraisal and title')]);
-      if (!ev('insurance')) area('insurance', `Have insurance in place for ${n} by closing`, 'a policy that starts the day you close, in its evidence log', [L.pro('insurance')]);
+      out.push(task({ key: 'dates', label: `Put ${n}’s contract deadlines on its calendar`, produces: `every deadline from the signed contract on one calendar (${suggestedDates(d).join('; ')}), with the next one shown here`, href: packetHref(d, 'dates'), support: [L.negotiate], done: calendarComplete(p, stage) }));
+      out.push(task({ key: 'inspection-complete', label: `Inspect ${n} before the ${tx ? 'option period' : 'inspection period'} ends`, produces: 'the report, repair bids and written decision before the deadline; mark the inspection roadmap task done', href: ROADMAP_HREF, support: [L.pro('inspector'), L.caseStage('inspection', 'The inspection')], done: stepDone('inspect') }));
+      out.push(task({ key: 'final-financing', label: `Get the loan approved for ${n}, or confirm your cash`, produces: 'final lender approval with conditions satisfied, or verified available closing funds; mark the final financing roadmap task done', href: ROADMAP_HREF, support: [L.pro('lender')], done: stepDone('loan-approval') }));
+      out.push(task({ key: 'appraisal-complete', label: `Resolve the appraisal for ${n}`, produces: 'the appraisal and any gap resolved before the deadline, or a documented cash-purchase choice not to obtain one', href: ROADMAP_HREF, support: [L.pro('appraiser')], done: stepDone('appraise') }));
+      out.push(task({ key: 'contract-title', label: `Review the title commitment for ${n}`, produces: 'requirements and HOA restrictions reviewed within the contract period; mark the title roadmap task done', href: ROADMAP_HREF, support: [L.pro('title'), L.caseStage('appraisal', 'Appraisal and title')], done: stepDone('title') }));
+      out.push(task({ key: 'bound-insurance', label: `Have insurance in place for ${n} by closing`, produces: 'written coverage confirmation and its start date; mark the insurance activation roadmap task done', href: ROADMAP_HREF, support: [L.pro('insurance')], done: stepDone('bind-insurance') }));
+      out.push(task({ key: 'final-walkthrough', label: `Do the final walkthrough of ${n}`, produces: 'agreed repairs, condition and possession checked with your agent; mark the walkthrough roadmap task done', href: ROADMAP_HREF, done: stepDone('walkthrough') }));
       out.push(task({ key: 'close', label: `Close on ${n}`, produces: 'the signed closing statement and the deed. Then mark it closed and the new-owner tasks appear here', href: ROADMAP_HREF, advance: { stage: 'closed', label: 'It closed: mark it closed' }, support: [L.caseStage('closing', 'Closing')], done: false }));
     } else {
-      out.push(task({ key: 'dates', label: `Put ${n}’s payment and recording deadlines on its calendar`, produces: 'the payment deadline and when the deed or certificate should be recorded, on one calendar', href: packetHref(d, 'dates'), support: [L.guides], done: dated >= 2 }));
+      out.push(task({ key: 'dates', label: `Put ${n}’s payment and recording deadlines on its calendar`, produces: 'the payment deadline and when the deed or certificate should be recorded, on one calendar', href: packetHref(d, 'dates'), support: [L.guides], done: calendarComplete(p, stage) }));
       area('terms', `Pay for ${n} as the sale requires`, 'the receipt, and the deed or certificate you’re owed, in its evidence log', [L.guides]);
       if (w === 'auction') {
         if (!ev('insurance')) area('insurance', `Insure ${n} right away`, 'a policy in your name from the day you own it, in its evidence log', [L.pro('insurance')]);

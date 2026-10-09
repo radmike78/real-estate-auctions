@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import '../styles/r8-plan.css';
 import { DEAL_STAGES, loadDeals, openDeal, type DealStage } from '../lib/analyze';
-import { setDealStage, stageHint, stageLabel, type PlanTask } from '../lib/dealStage';
+import { setDealStage, wayOf, stageHint, stageLabel, type PlanTask } from '../lib/dealStage';
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
@@ -129,14 +129,6 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
             {deal && stage && <p className="muted plan-now-hint">{stageHint(stage, deal)}{deal.stage ? '' : ' (We worked this out from what you’ve recorded; change it if it’s wrong.)'}</p>}
           </div>
         )}
-        {/* On My plan, a roadmap task is shown in full (with its label and the count) in the roadmap below: here, just a
-            button to it, so the task and the counter aren't said twice. */}
-        {onPlan && task.href === ROADMAP_TASK_HREF ? (
-          <p className="plan-now-pointer">
-            <span>Your next task is open in your roadmap below, with what to do and what you’ll have.</span>
-            <a className="btn" href={ROADMAP_TASK_HREF}>Go to your next task<span aria-hidden className="nowrap-arrow">&nbsp;↓</span></a>
-          </p>
-        ) : (
         <div className={`plan-now-task${task.urgent ? ' urgent' : ''}`}>
           <p className="plan-now-k">{nextLabel}</p>
           <h3>{task.label}</h3>
@@ -152,6 +144,19 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
             </p>
           )}
         </div>
+        {onPlan && deal && stage === 'contract' && wayOf(deal) === 'offer' && (
+          <section aria-labelledby="contract-workstreams">
+            <h3 id="contract-workstreams">Start these workstreams together</h3>
+            <p>Do not wait for one to finish before arranging the others. Your signed contract controls deadlines; ask your team to confirm them.</p>
+            <div className="table-wrap"><table><caption>Who handles each part of the purchase</caption><thead><tr><th scope="col">Work</th><th scope="col">Responsible people</th><th scope="col">Checkpoint</th></tr></thead><tbody>
+              <tr><th scope="row">Inspection and repair decision</th><td>You, inspector and agent</td><td>Before the inspection or option deadline</td></tr>
+              <tr><th scope="row">Underwriting and appraisal</th><td>You and lender</td><td>Loan and appraisal deadlines; rate-lock expiration</td></tr>
+              <tr><th scope="row">Title and HOA review</th><td>You, title officer and agent or attorney</td><td>Objection and document-review deadlines</td></tr>
+              <tr><th scope="row">Insurance activation</th><td>You and insurer</td><td>Proof for lender; coverage coordinated with closing</td></tr>
+              <tr><th scope="row">Walkthrough and closing figures</th><td>You, agent and closing officer</td><td>Resolve discrepancies before signing</td></tr>
+            </tbody></table></div>
+            <p><a href={`#/deals/packet/${deal.id}/dates`}>Open this property’s deadline calendar</a>. Record the responsible person and any unresolved question in its evidence log.</p>
+          </section>
         )}
         {deal && foundations.length > 0 && (
           <div className="plan-now-foundations" role="note">
