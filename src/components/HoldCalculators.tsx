@@ -160,7 +160,7 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false, exampl
       <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
         <span>{title}</span>
         <strong>{r.noBidWorks ? (offer ? 'No offer works' : 'No bid works') : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : r.overCap ? 'More than $1 billion' : 'No limit yet'}</strong>
-        <small>{r.noBidWorks ? (r.loanTooBig ? 'The refinance you entered costs more a year than the property earns, so no price works with that loan. Try a smaller loan, or run it all cash.' : 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.') : !Number.isFinite(r.maxBid) && r.overCap ? 'Check the rent and costs you entered: a price that high is almost always a typo.' : !Number.isFinite(r.maxBid) ? (offer ? 'Enter the return you want, or the cash you can put in, to get a walk-away price.' : 'Enter the return you want, or the cash you can bring, to get a walk-away price.') : r.limitedBy === 'cash' ? (offer ? 'Set by the cash you can put in: the down payment, closing costs and repairs.' : 'Set by the cash you can bring: the bid and every cost until it’s ready to rent.') : r.limitedBy === 'dscr' ? 'Set by the lender’s minimum coverage (income ÷ loan payment), not your return target: above this price the loan is too big for the income.' : target}</small>
+        <small>{r.noBidWorks ? (r.loanTooBig ? 'The refinance you entered costs more a year than the property earns, so no price works with that loan. Try a smaller loan, or run it all cash.' : 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.') : !Number.isFinite(r.maxBid) && r.overCap ? 'Check the rent and costs you entered: a price that high is almost always a typo.' : !Number.isFinite(r.maxBid) ? (offer ? 'Enter the return you want, or the cash you can put in, to get a walk-away price.' : 'Enter the return you want, or the cash you can bring, to get a walk-away price.') : r.limitedBy === 'cash' ? (offer ? 'Set by the cash you can put in: the down payment, closing costs and repairs.' : 'Set by the cash you can bring: the bid and every cost until it’s ready to rent.') : r.limitedBy === 'dscr' ? (commercial ? 'Set by the minimum debt-service coverage you entered: above this price the loan is too big for the income.' : 'Set by your minimum income-coverage target: above this price the income does not cover loan payments by the margin you chose. See “How a lender sees this rent” for lender tests.') : target}</small>
       </div>
       {!offer && r.debtService > 0 && !r.noBidWorks && Number.isFinite(r.maxBid) && (
         <p className="calc-note small warn">
@@ -212,7 +212,7 @@ const RENT_GROUPS: CalcGroup<RentInputs>[] = [
     title: 'Your target',
     fields: [
       { k: 'targetCocPct', label: 'Cash-on-cash return you want', unit: '%', hint: 'Yearly cash flow ÷ your cash in the deal.' },
-      { k: 'minDscr', label: 'Lender’s minimum coverage', unit: 'x', hint: 'NOI (income after operating costs) ÷ loan payments. Often 1.2–1.25.', when: (v) => v.loanPct > 0 },
+      { k: 'minDscr', label: 'Your minimum income coverage', unit: 'x', hint: 'NOI ÷ loan payments. Your planning target, not a lender’s approval test.', when: (v) => v.loanPct > 0 },
       { k: 'reserveCash', label: 'Cash you’ll still have after buying', unit: '$', hint: 'Savings left after closing and repairs.', more: 'Beginners run out of cash before they run out of deals. This shows how many months you could keep paying with no rent coming in.' },
     ],
   },
@@ -290,13 +290,15 @@ function AtThisPrice({ v, start, onPrice, setPrice, word }: { v: RentInputs; sta
       </table>
       <dl className="calc-kv">
         <div><dt>Everything you pay, ready to rent (price, buying costs, liens, title, possession, repairs; not loan fees)</dt><dd>{fmtMoney(Math.round(a.allIn))}</dd></div>
-        {a.loan > 0 && <div><dt>Loan ({Math.min(v.loanPct, 100)}% of {onPrice ? `${fmtMoney(v.value > 0 ? Math.min(price, v.value) : price)}, the lower of the price and the value` : `the ${fmtMoney(v.value)} value`}, after {v.loanCostPct}% loan costs)</dt><dd>{fmtMoney(Math.round(a.loan * (1 - v.loanCostPct / 100)))}</dd></div>}
+        {a.loan > 0 && <div><dt>Loan principal ({Math.min(v.loanPct, 100)}% of {onPrice ? `${fmtMoney(v.value > 0 ? Math.min(price, v.value) : price)}, the lower of the price and the value` : `the ${fmtMoney(v.value)} value`})</dt><dd>{fmtMoney(Math.round(a.loan))}</dd></div>}
+        {a.loan > 0 && <div><dt>Loan fees ({v.loanCostPct}% of principal)</dt><dd>{fmtMoney(Math.round(a.loan * v.loanCostPct / 100))}</dd></div>}
+        {a.loan > 0 && <div><dt>Net loan proceeds after loan fees</dt><dd>{fmtMoney(Math.round(a.loan * (1 - v.loanCostPct / 100)))}</dd></div>}
         {!onPrice && a.loan > 0 && <div><dt>Your cash until the refinance closes</dt><dd>{fmtMoney(Math.round(a.allIn))}{v.cashAvailable > 0 && a.allIn > v.cashAvailable && <span className="deal-urgent"> · more than the {fmtMoney(v.cashAvailable)} you can put in</span>}</dd></div>}
         <div><dt>{!onPrice && a.loan > 0 ? 'Your cash left in after the refinance, if approved' : 'Your cash in the deal'}</dt><dd>{a.cashIn > 0 ? fmtMoney(Math.round(a.cashIn)) : 'None: the loan covers it'}{(onPrice || !(a.loan > 0)) && v.cashAvailable > 0 && a.cashIn > v.cashAvailable && <span className="deal-urgent"> · more than the {fmtMoney(v.cashAvailable)} you can put in</span>}</dd></div>
         <div><dt>Cash-on-cash return: yearly cash flow ÷ your cash in</dt><dd>{a.cashOnCash === null ? 'All your cash is back' : pctText(a.cashOnCash)}</dd></div>
         <div><dt>Cap rate on the price: NOI ÷ price</dt><dd>{pctText(a.capOnPrice)}</dd></div>
         <div><dt>Cap rate on everything you pay</dt><dd>{pctText(a.capOnCost)}</dd></div>
-        {a.dscr !== null && <div><dt>Income coverage: NOI ÷ loan payments</dt><dd>{a.dscr.toFixed(2)}×{a.dscr < v.minDscr && <span className="deal-urgent"> · below the {v.minDscr}× lenders usually want; the loan may not be approved at this price</span>}</dd></div>}
+        {a.dscr !== null && <div><dt>Income coverage: NOI ÷ loan payments</dt><dd>{a.dscr.toFixed(2)}×{a.dscr < v.minDscr && <span className="deal-urgent"> · below your {v.minDscr}× income-coverage target; check the lender’s separate requirements</span>}</dd></div>}
       </dl>
       </>)}
       <p className="muted small">Uses the rent, costs and loan you entered above; taxes and insurance are counted in operating costs, not in the loan payment. Your cash in doesn’t include reserves you keep in the bank. An estimate, not advice.</p>

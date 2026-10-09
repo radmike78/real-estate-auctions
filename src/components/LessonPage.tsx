@@ -196,7 +196,9 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
     io.observe(el);
     return () => io.disconnect();
   }, [lessonKey]);
-  const guided = mode === 'guided' ? guidedNext(currentProgress()) : null;
+  // At the end of this lesson, recommend the next activity even before the read observer fires.
+  const progress = currentProgress();
+  const guided = mode === 'guided' ? guidedNext({ ...progress, read: [...progress.read, lessonKey] }) : null;
   const l = lessonByKey(lessonKey)!;
   const n = LEARN_MODULES.indexOf(m) + 1;
   const ready = LEARN_MODULES.filter((x) => lessonByKey(x.key) || x.href);
