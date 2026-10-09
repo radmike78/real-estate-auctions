@@ -304,7 +304,7 @@ export function FirstDealRoadmap() {
           <strong>{active.name}: {stageLabel(stage, active)}.</strong>{' '}
           {stage === 'passed'
             ? 'You walked away from it, so none of its tasks are next. Choose another property, or find the next one.'
-            : 'Its next task below follows that stage; tasks for later stages are marked and wait until you get there. Change the stage at the top of My plan.'}
+            : 'The next task at the top of My plan follows that stage; tasks for later stages are marked and wait until you get there. Change the stage at the top of My plan.'}
         </p>
       )}
       <p className="decide-progress">
@@ -316,7 +316,7 @@ export function FirstDealRoadmap() {
           You stopped at “{walked.title}”. Walking away from a deal that doesn’t fit is a good result. When you find the next one, set that task back to “Working on it”.
         </p>
       )}
-      {next ? (
+      {!deal && planNow().source === 'roadmap' && next ? (
         // Beside the next step, one labeled Mentor Connect ad (nextAdCats). Automatic: whoever the step says to call,
         // buying through an agent only, never on auction or lien-certificate steps (contextAds.ts).
         <div className={nextAdShows ? 'next-with-ad' : undefined}>
@@ -328,7 +328,7 @@ export function FirstDealRoadmap() {
           {nextAdShows && <FixedAds key={next.id} pros={pros} categories={nextAdCats} placeholder />}
         </div>
       ) : (
-        <p className="next-step" role="status">Every task on this route is done. Review your plan before your next deal, and keep practicing.</p>
+        <p className="next-step" role="status">Follow “Your next step” above. Use the task details below to record each milestone; contract tasks may run at the same time.</p>
       )}
       <h3 className="roadmap-all-head">All tasks</h3>
       {phases.map((ph) => {

@@ -1379,7 +1379,8 @@ function buildCase(c: CaseConfig) {
       title: 'Closing',
       outcome: 'A checked closing statement, your money sent safely, insurance in force, and the deed recorded in your name.',
       brief: [
-        'Three days before closing, escrow sends the closing statement. Check every line against your contract and your loan. Mistakes happen, and they’re easiest to fix before you sign.',
+        'In this practice, escrow sends the closing statement three days before closing. For a real investment-purpose loan, confirm the delivery timetable with your closing team; do not assume consumer mortgage disclosure rules apply. Check every line against your contract and loan.',
+        'Inspection, appraisal, underwriting, title review and insurance arrangements overlap. Start them promptly and track each contract deadline and the person responsible.',
       ],
       docs: [
         {
@@ -1416,6 +1417,14 @@ function buildCase(c: CaseConfig) {
           answer: N.cashToClose,
           tolerance: 10,
           worked: [`${$(finalPrice)} − ${$(N.loanFinal)} + ${$(closingCosts)} − ${$(earnest)} ${c.earnestShort} = ${$(N.cashToClose)}`],
+        },
+        {
+          kind: 'choice', id: 'final-check',
+          prompt: 'Before signing, the lender still needs a document and the agreed repairs have not been checked. What should you do?',
+          choices: [
+            { label: 'Resolve the lender’s conditions and do a permitted final walkthrough with your agent before closing.', verdict: 'best', why: 'Pre-approval is not final approval. Check agreed repairs, included items and possession, and resolve any issue with your team before signing.' },
+            { label: 'Sign now; the pre-approval and earlier inspection are enough.', verdict: 'poor', why: 'The loan may still fail, and conditions may have changed. Confirm final approval and the property’s agreed condition.' },
+          ],
         },
         {
           kind: 'choice',

@@ -82,7 +82,7 @@ describe('the deal packet', () => {
     expect(nextDate(p, now)?.days).toBe(3);
     expect(nextAction(deal, p, now).text).toBe('In 3 days: Option period ends (5 p.m.). Who: Me and my agent.');
     const secs = packetSections(deal, p, now);
-    expect(secs.find((s) => s.key === 'dates')?.status).toBe('done');
+    expect(secs.find((s) => s.key === 'dates')?.status).toBe('started');
   });
 
   it('follows the evidence log and professionals’ answers', () => {

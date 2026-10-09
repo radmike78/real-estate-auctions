@@ -41,7 +41,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
   }, [section]);
   const update = (patch: Partial<PacketData>) =>
     setP((cur) => {
-      const next = { ...cur, ...patch };
+      const next = { ...cur, ...patch, ...(patch.dates ? { calendarReviewedFor: undefined } : {}) };
       savePacket(key, next);
       return next;
     });
@@ -155,6 +155,10 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           {p.dates.length === 0 && <button type="button" className="btn" onClick={() => update({ dates: suggestedDates(deal).map((what) => ({ when: '', what, who: '' })) })}>Start with the usual dates for this sale</button>}
           <button type="button" className="btn btn-secondary" onClick={() => update({ dates: [...p.dates, { when: '', what: '', who: '' }] })}>Add a date</button>
         </div>
+        <label className="field">
+          <span><input type="checkbox" checked={p.calendarReviewedFor === stageOf(deal)} disabled={!p.dates.length || p.dates.some((d) => !d.when || !d.what.trim() || !d.who.trim())} onChange={(e) => update({ calendarReviewedFor: e.target.checked ? stageOf(deal) : undefined })} /> I checked every applicable deadline for this stage against the signed contract or official notice, including who acts and how notice must be delivered.</span>
+        </label>
+        <p className="muted small">Fill in the date, task and responsible person for each applicable deadline; remove entries that do not apply. Ask your agent or attorney to confirm the calendar. Adding or changing a date requires another review.</p>
         <Lines k="dates" />
         {guideRows.length > 0 && (
           <>
