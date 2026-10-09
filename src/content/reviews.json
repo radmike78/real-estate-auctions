@@ -147,8 +147,8 @@
       "src/practice/dealJourney.ts"
     ],
     "reviewed": "2026-10-09",
-    "hash": "5fd89bbb28f7b125",
-    "note": "Core fictional practice journey checked against official CFPB, EPA, IRS, FEMA, HUD and Arizona sources. Teaching assumptions and local variation are labeled; numbers independently recalculated."
+    "hash": "926fa773c791b675",
+    "note": "Rechecked official CFPB, IRS, EPA, HUD, FEMA and Arizona sources; independently recalculated the case. Corrected edited-answer feedback and continuation, cash-budget visibility, reserve wording and self-review/checklist clarity."
   },
   {
     "id": "calculator",
