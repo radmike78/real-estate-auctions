@@ -1,5 +1,6 @@
+import { LESSON_CHAPTER, journeyHref } from '../practice/dealJourney';
 import { useEffect, useRef } from 'react';
-import { currentProgress, GUIDED, guidedNext, markLessonRead, useJourney, useLastActivity } from '../lib/journey';
+import { markLessonRead, useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import { LEARN_MODULES } from '../lib/learn';
 import { lessonByKey } from '../lib/lessons';
@@ -182,7 +183,6 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
   useMarkStep('learn');
   const m = LEARN_MODULES.find((x) => x.key === lessonKey)!;
   useLastActivity(`#/learn/${lessonKey}`, `Lesson: ${m.title}`);
-  const { mode } = useJourney();
   // A lesson counts as read once its key terms, the end of the reading, come on screen: opening it isn't enough.
   useEffect(() => {
     const el = endRef.current;
@@ -196,9 +196,6 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
     io.observe(el);
     return () => io.disconnect();
   }, [lessonKey]);
-  // At the end of this lesson, recommend the next activity even before the read observer fires.
-  const progress = currentProgress();
-  const guided = mode === 'guided' ? guidedNext({ ...progress, read: [...progress.read, lessonKey] }) : null;
   const l = lessonByKey(lessonKey)!;
   const n = LEARN_MODULES.indexOf(m) + 1;
   const ready = LEARN_MODULES.filter((x) => lessonByKey(x.key) || x.href);
@@ -232,6 +229,7 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
     }
   // The practice button matches the practice task; the lesson's other link sits beside it only when it differs.
   const practiceLink = l.practiceLink === undefined ? l.tryIt : l.practiceLink;
+  const dealChapter = LESSON_CHAPTER[lessonKey];
   const extraTry = l.tryIt && l.tryIt !== practiceLink ? l.tryIt : null;
   return (
     <main className="page lesson" ref={bodyRef}>
@@ -271,16 +269,25 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
       </section>
       {/* Questions about another state's rules are left out when you've chosen a state: its text is hidden above. */}
       {checks.length > 0 && <CheckYourself key={`${lessonKey}-${st ?? 'all'}`} checks={checks} />}
-      {l.practice && (
+      {(l.practice || dealChapter) && (
         <section className="lesson-practice" aria-labelledby="practice-head">
           <h2 id="practice-head">Put it into practice</h2>
-          <p>{oneState(l.practice, st)}</p>
-          {practiceLink && <a className="btn" href={practiceLink.href}>{practiceLink.label}&nbsp;→</a>}
-          {/* The lesson's other link, when the task doesn't use it: set apart, so it isn't mistaken for the task. */}
-          {extraTry && <p className="lesson-also"><span className="muted">Also useful:</span> <a className="btn btn-secondary" href={extraTry.href}>{extraTry.label}&nbsp;→</a></p>}
+          {dealChapter ? <div className="deal-lesson-link">
+            <p>Apply this lesson to Cedar House, your continuing fictional practice deal.</p>
+            <a className="btn deal-primary" href={journeyHref(dealChapter)}>Try this decision →</a>
+            <details><summary>Other ways to apply this lesson</summary>
+              {l.practice && <p>{oneState(l.practice, st)}</p>}
+              {practiceLink && <a href={practiceLink.href}>{practiceLink.label} →</a>}
+              {extraTry && <p><a href={extraTry.href}>{extraTry.label} →</a></p>}
+            </details>
+          </div> : <>
+            {l.practice && <p>{oneState(l.practice, st)}</p>}
+            {practiceLink && <a className="btn" href={practiceLink.href}>{practiceLink.label} →</a>}
+            {extraTry && <p className="lesson-also"><a className="btn btn-secondary" href={extraTry.href}>{extraTry.label} →</a></p>}
+          </>}
         </section>
       )}
-      {!l.practice && l.tryIt && <p className="lesson-try"><a className="btn btn-secondary" href={l.tryIt.href}>{l.tryIt.label}&nbsp;→</a></p>}
+      {!l.practice && !dealChapter && l.tryIt && <p className="lesson-try"><a className="btn btn-secondary" href={l.tryIt.href}>{l.tryIt.label}&nbsp;→</a></p>}
       {l.books && <LessonBooks isbns={l.books} />}
       <section className="lesson-sources" aria-labelledby="sources">
         <h2 id="sources">Where this comes from</h2>
@@ -293,12 +300,7 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         <p className="muted">Checked {fmtDate(l.reviewed)}. General education, not legal, tax or financial advice.</p>
       </section>
       <nav className="path-next" aria-label="Next lesson">
-        {guided && guided.step.href !== `#/learn/${lessonKey}` ? (
-          <>
-            <span className="muted">Next in Getting started (stop {guided.n} of {GUIDED.length})</span>
-            <a className="btn" href={guided.step.href}>{guided.step.label}&nbsp;→</a>
-          </>
-        ) : next ? (
+        {next ? (
           <>
             <span className="muted">Next lesson</span>
             <a className="btn" href={nextHref}>{next.title}&nbsp;→</a>

@@ -1,7 +1,7 @@
 import { IconBank, IconBadge, IconCalc, IconCheckList, IconFile, IconLayers, IconShield, IconStar } from './Icons';
 
 import { PATH, useStepsSeen } from '../lib/path';
-import { currentProgress, GUIDED, guidedNext, setMode, unfinished, useJourney } from '../lib/journey';
+import { currentProgress, setMode, unfinished, useJourney } from '../lib/journey';
 import { roadmapProgress } from '../lib/roadmapState';
 import { HomeArea } from './AreaPicker';
 import PlanNext, { ContinueButton } from './PlanNext';
@@ -24,7 +24,6 @@ export default function HomePage() {
   const seen = useStepsSeen();
   const { mode, last: lastOpened } = useJourney();
   const progress = currentProgress();
-  const next = guidedNext(progress);
   const last = unfinished(lastOpened, progress);
   const { total } = roadmapProgress();
   // The one Continue on the site is My plan's next task (planNext.ts); the last page you had open is a plain "Back to".
@@ -49,7 +48,7 @@ export default function HomePage() {
             <div className="start-choice" role="group" aria-label="How do you want to start?">
               <button type="button" className="start-card" onClick={() => setMode('guided')}>
                 <strong>I’m new: guide me&nbsp;→</strong>
-                <span>One step at a time: a worked example, your first practice exercise, then a short introduction.</span>
+                <span>One fictional property, short decisions, and a workbook that grows as you learn.</span>
               </button>
               <button type="button" className="start-card" onClick={() => setMode('explore')}>
                 <strong>I know the basics: let me explore&nbsp;→</strong>
@@ -63,14 +62,10 @@ export default function HomePage() {
             <div className="guided-next">
               {/* One row of actions, one short line of why: no stack of separate lines before the six steps. */}
               <div className="hero-ctas">
-                {plan.source === 'starter' && next ? (
-                  <a className="btn big" href={next.step.href}><span className="guided-count">Stop {next.n} of {GUIDED.length}</span> {next.step.label}&nbsp;→</a>
-                ) : (
-                  <ContinueButton task={plan.task} dealId={plan.deal?.id} onPlan={false} label={`Continue: ${plan.task.label}`} />
-                )}
+                <ContinueButton task={plan.task} dealId={plan.deal?.id} onPlan={false} label={`Continue: ${plan.task.label}`} />
                 {continueLink}
               </div>
-              <p>{plan.source === 'starter' && next ? <><strong>Getting started:</strong> {next.step.why}</> : <><strong>You’ll have:</strong> {plan.task.produces}.</>}</p>
+              <p>{plan.task.key === 'practice-deal' ? <><strong>Learn by doing:</strong> {plan.task.text}</> : <><strong>You’ll have:</strong> {plan.task.produces}.</>}</p>
             </div>
           )}
 
@@ -131,7 +126,7 @@ export default function HomePage() {
         <h3 className="progress-kinds-head">How DeedOwl counts your progress</h3>
         <ul className="progress-kinds" aria-label="How DeedOwl counts progress">
           <li><strong>My plan ({total} roadmap tasks)</strong> The real work of an actual purchase, and the one place your next step comes from. This is the progress that counts.</li>
-          <li><strong>Getting started: a {GUIDED.length}-stop first tour</strong> What to read and try first. While you’re on it, it’s your next step; after that, My plan takes over.</li>
+          <li><strong>Build your first deal</strong> Short decisions on one fictional property. Your workbook records skills practiced; My plan tracks the work on a real investment.</li>
           <li><strong>Lessons and practice missions</strong> Supporting activities: each plan task links the ones that help with it. Missions are rehearsal on made-up deals; finishing them builds skill, but doesn’t mean you’re ready to buy.</li>
         </ul>
       </section>

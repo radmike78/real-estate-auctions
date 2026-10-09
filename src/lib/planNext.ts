@@ -1,10 +1,11 @@
 // The one "Continue" on DeedOwl: My plan's next real-world task, shown the same way on My plan, the home page and
 // the header. With a property in progress it's that property's next task for its stage; before any real work, the
-// short Getting started tour; otherwise the next step of the investing roadmap. Lessons and practice missions are
+// core practice deal; otherwise the next step of the investing roadmap. Lessons and practice missions are
 // supporting activities, linked from the task they help with.
+import { CHAPTERS, journeyHref, loadJourney, resumeChapter } from '../practice/dealJourney';
 import { loadDeals, type Deal, type DealStage } from './analyze';
 import { dealNextTask, stageLabel, stageOf, stageTasks, type PlanTask } from './dealStage';
-import { currentProgress, getMode, GUIDED, guidedNext } from './journey';
+import { getMode } from './journey';
 import { cleanGoal, GOAL_KEY } from './myPlan';
 import { ROADMAP_PHASES, roadmapFor, type RoadmapStep } from './roadmap';
 import { cleanStatus, focusDealId, planPath, readKey, roadmapDone, settledFor, STATUS_KEY } from './roadmapState';
@@ -44,14 +45,6 @@ export const roadmapTask = (s: RoadmapStep): PlanTask => ({
   text: `${s.title}.`,
 });
 
-/** What the Getting started steps give you, so the tour's steps read like plan tasks. */
-const STARTER_PRODUCES: Record<string, string> = {
-  example: 'a worked example of what a rental costs, what it earns and what to check before you commit',
-  exercise: 'your own call on a fictional $265,000 rental, with each mission’s answer to compare',
-  intro: 'the basics of how investment property is bought, valued and paid for',
-  decide: 'the strategies that fit your money, time and goals, with their risks',
-};
-
 export function planNow(now = new Date()): PlanNow {
   const goal = readKey(GOAL_KEY, '', cleanGoal).trim();
   const deals = loadDeals();
@@ -61,16 +54,13 @@ export function planNow(now = new Date()): PlanNow {
     const stage = stageOf(deal);
     return { goal, source: 'deal', context: `${deal.name} · ${stageLabel(stage, deal)}`, task: dealNextTask(deal, undefined, now, stage), deal, stage, tasks: stageTasks(deal, stage, undefined, now) };
   }
-  // Before any real work, the short tour comes first, unless you said you know the basics.
+  // Before any real work, the practice deal comes first, unless you said you know the basics.
   const roadmapStarted = roadmapFor(planPath(deals)).some(settledFor(''));
-  const starter = guidedNext(currentProgress());
-  if (getMode() !== 'explore' && !roadmapStarted && starter && starter.step.key !== 'plan' && STARTER_PRODUCES[starter.step.key]) {
-    return {
-      goal,
-      source: 'starter',
-      context: `Getting started · stop ${starter.n} of ${GUIDED.length}`,
-      task: { key: `starter-${starter.step.key}`, label: starter.step.label, produces: STARTER_PRODUCES[starter.step.key], href: starter.step.href, support: [], done: false, text: `${starter.step.label}.` },
-    };
+  const practice = loadJourney();
+  const practiceDone = practice.completed.length === CHAPTERS.length;
+  if (getMode() !== 'explore' && !roadmapStarted && !practiceDone) {
+    const chapter = CHAPTERS.find((c) => c.id === resumeChapter(practice))!;
+    return { goal, source: 'starter', context: 'Practice · Build your first deal', task: { key: 'practice-deal', label: chapter.title, produces: 'practical experience checking a deal, recorded in your workbook', href: journeyHref(chapter.id), support: [], done: false, text: chapter.purpose } };
   }
   const step = roadmapNextStep();
   if (step) return { goal, source: 'roadmap', context: `Roadmap · ${ROADMAP_PHASES[step.phase]}`, task: roadmapTask(step) };

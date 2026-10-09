@@ -5,11 +5,13 @@
 import { cleanDeal } from './analyze';
 import { cleanPacket } from './dealPacket';
 import { cleanBuyBox } from './toolkit';
+import { cleanJourney, JOURNEY_KEY } from '../practice/dealJourney';
 import { cleanCase } from '../practice/caseProgress';
 import { cleanDealSteps, DEAL_STEPS_KEY } from './roadmapDeals';
 import { cleanOwned } from './owned';
 
 const EXACT = [
+  JOURNEY_KEY,
   'deedowl.path.v1',
   'deedowl.roadmap.v1',
   'deedowl.roadmap.path.v1',
@@ -62,6 +64,7 @@ const MAX_FILE = 4_000_000;
 
 /** Pages clean what they read from storage; these keys are also checked here because their pages render them directly. */
 const CLEAN: Record<string, (v: unknown) => unknown> = {
+  [JOURNEY_KEY]: cleanJourney,
   'deedowl.buybox.v1': cleanBuyBox,
   'deedowl.analyze.v1': (v) => (Array.isArray(v) ? v.map(cleanDeal).filter(Boolean) : []),
   'deedowl.analyze.current.v1': (v) => cleanDeal(v),

@@ -16,6 +16,7 @@ import { PRO_DEEP } from '../src/lib/deep/proDeep';
 import { PRO_GUIDES } from '../src/lib/proGuide';
 import { PATH } from '../src/lib/path';
 import { LEARN_PATHS } from '../src/lib/learn';
+import { CHAPTERS } from '../src/practice/dealJourney';
 import { DRILLS } from '../src/practice/drills';
 import { FIRST_DEAL, WORKSHEETS } from '../src/lib/toolkit';
 
@@ -133,6 +134,9 @@ export function pages(): Page[] {
     ['/homeowner-help/', 'Facing foreclosure? Free help', 'Free, trustworthy help for homeowners and renters facing foreclosure, scams to avoid, and how to claim surplus money after a sale.'],
   ];
   for (const [path, title, description] of simple) out.push({ path, title: `${title} · DeedOwl`, description, body: `<h1>${esc(title)}</h1><p>${esc(description)}</p>` });
+  out.push({ path: '/practice/deal/', title: 'Build your first deal · DeedOwl', description: 'One fictional property, short interactive decisions, and a saved workbook from budget to ownership.', body: `<h1>Build your first deal</h1><p>Practice on fictional Cedar House. Learn to check evidence, compare funding, test costs, handle surprises and decide whether to proceed or pass.</p><ul>${CHAPTERS.map((c) => `<li>${link(`/practice/deal/${c.id}/`, c.title)}: ${esc(c.purpose)}</li>`).join('')}</ul><p>Finer details vary by location, financing and contract. Check current local rules before acting.</p>` });
+  for (const c of CHAPTERS) out.push({ path: `/practice/deal/${c.id}/`, title: `${c.title} · Practice · DeedOwl`, description: `Fictional practice deal: ${c.purpose}`, body: `<h1>${esc(c.title)}</h1><p>Fictional practice: ${esc(c.purpose)}</p>${list(c.facts)}<p>${esc(c.local)}</p>${link('/practice/deal/', 'Build your first deal')}` });
+  for (const [slug, title] of [['workbook', 'Your practice deal workbook'], ['specialties', 'Specialty investing challenges']]) out.push({ path: `/practice/deal/${slug}/`, title: `${title} · DeedOwl`, description: 'Build investment skills with fictional practice, not a real purchase approval.', body: `<h1>${title}</h1>${link('/practice/deal/', 'Open the practice deal')}` });
   // Every page is a normal path now: one without a crawlable copy is served by the app itself.
   return out;
 }

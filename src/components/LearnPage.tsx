@@ -1,4 +1,5 @@
 import StatePicker from './StatePicker';
+import { DealJourneyEntry } from './DealJourneyPage';
 import PageHero from './PageHero';
 import PathNext from './PathNext';
 import { LEARN_MODULES, LEARN_PATHS } from '../lib/learn';
@@ -73,7 +74,9 @@ export default function LearnPage() {
         title={<>Learn <span className="grad">real estate investing</span></>}
         sub="Residential and commercial: the markets, the property types, and how deals are found, analyzed and paid for."
       />
+      <DealJourneyEntry />
       <StatePicker label="Show rules for" />
+      <details><summary>Help choosing a strategy or lesson</summary>
       <section className="learn-money" aria-labelledby="learn-money">
         <div>
           <h2 id="learn-money">Ways to make money</h2>
@@ -82,6 +85,7 @@ export default function LearnPage() {
         <a className="btn" href="#/learn/strategies">Compare the strategies&nbsp;→</a>
       </section>
       <NarrowDown config={learnConfig()} intro="Answer two quick questions and we’ll suggest which lessons to read first. Every lesson is still listed below." />
+      </details>
       {paths.map((path) => (
         <section key={path.title} className="learn-path" aria-labelledby={`path-${path.keys[0]}`}>
           <h2 id={`path-${path.keys[0]}`}>{path.title}</h2>

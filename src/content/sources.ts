@@ -51,6 +51,11 @@ const NRS = (ch: string, title: string, checked: string | null, note?: string): 
 });
 
 const LISTED: Source[] = [
+  {"id": "practice-deal-preapproval", "title": "CFPB: conditional preapproval", "publisher": "Consumer Financial Protection Bureau", "url": "https://www.consumerfinance.gov/owning-a-home/explore/get-a-preapproval-letter/", "role": "rules", "checked": "2026-10-09", "note": "Verified for the fictional core practice journey; applicability limits remain visible."},
+  {"id": "practice-deal-closing", "title": "CFPB: closing activities", "publisher": "Consumer Financial Protection Bureau", "url": "https://www.consumerfinance.gov/owning-a-home/close/", "role": "rules", "checked": "2026-10-09", "note": "Verified for the fictional core practice journey; applicability limits remain visible."},
+  {"id": "practice-deal-flood", "title": "FEMA official flood maps", "publisher": "Federal Emergency Management Agency", "url": "https://msc.fema.gov/", "role": "lookup", "checked": "2026-10-09", "note": "Verified for the fictional core practice journey; applicability limits remain visible."},
+  {"id": "practice-deal-fraud", "title": "CFPB: closing scams", "publisher": "Consumer Financial Protection Bureau", "url": "https://www.consumerfinance.gov/owning-a-home/beware-mortgage-closing-scams/", "role": "help", "checked": "2026-10-09", "note": "Verified for the fictional core practice journey; applicability limits remain visible."},
+  {"id": "practice-deal-lien", "title": "Arizona tax-lien purchase certificates", "publisher": "Arizona Legislature", "url": "https://www.azleg.gov/ars/42/18118.htm", "role": "rules", "checked": "2026-10-09", "note": "Verified for the fictional core practice journey; applicability limits remain visible."},
   // Learn: When to walk away and After you buy (walk-away.ts, after-closing.ts)
   { id: 'learn-ac-hud-fha', title: 'HUD: Fair Housing Act overview', publisher: 'U.S. Department of Housing and Urban Development', url: 'https://www.hud.gov/helping-americans/fair-housing-act-overview', role: 'rules', checked: '2026-10-03' },
   { id: 'learn-wa-epa-lead', title: 'EPA: lead-based paint disclosure rule', publisher: 'U.S. Environmental Protection Agency', url: 'https://www.epa.gov/lead/lead-based-paint-disclosure-rule-section-1018-title-x', role: 'rules', checked: '2026-10-03' },
