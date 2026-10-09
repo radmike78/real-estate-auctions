@@ -23,7 +23,7 @@ function usePlanTick() {
   const [, setTick] = useState(0);
   useEffect(() => {
     const on = () => setTick((n) => n + 1);
-    const events = [PROGRESS_EVENT, PLAN_EVENT, EVIDENCE_EVENT, OWNED_EVENT, 'deedowl:journey', 'storage'];
+    const events = [PROGRESS_EVENT, PLAN_EVENT, EVIDENCE_EVENT, OWNED_EVENT, 'deedowl:journey', 'deedowl:practice-deal', 'storage'];
     events.forEach((e) => window.addEventListener(e, on));
     return () => events.forEach((e) => window.removeEventListener(e, on));
   }, []);

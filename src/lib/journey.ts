@@ -153,7 +153,7 @@ export function unfinished(last: LastActivity | null, p: Progress): LastActivity
   if (!last) return null;
   // Only real work in progress is worth going back to: a lesson, a practice purchase or drill, a sale guide or a
   // professional's page. Hub pages (Practice, Find Deals, Your team, My plan) aren't "where you left off".
-  if (!/^#\/(analyze$|learn\/[a-z-]+|practice\/(case|drills\/|[a-z]+-[a-z])|playbooks\/[a-z]|pros\/[a-z])/.test(last.href)) return null;
+  if (!/^#\/(analyze$|learn\/[a-z-]+|practice\/(deal|case|drills\/|[a-z]+-[a-z])|playbooks\/[a-z]|pros\/[a-z])/.test(last.href)) return null;
   const lesson = last.href.match(/^#\/learn\/([a-z-]+)$/);
   if (lesson && p.read.includes(lesson[1])) return null;
   const drill = last.href.match(/^#\/practice\/drills\/([a-z0-9-]+)$/);

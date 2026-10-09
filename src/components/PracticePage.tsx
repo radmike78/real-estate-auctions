@@ -1,4 +1,5 @@
 import PracticeStateNote from './PracticeStateNote';
+import { DealJourneyEntry } from './DealJourneyPage';
 import { getMyState, useMyState } from '../lib/myState';
 import { useMarkStep } from '../lib/path';
 import PathNext from './PathNext';
@@ -119,6 +120,8 @@ export default function PracticePage({ sale }: { sale?: string }) {
           sub="Buy a fictional property step by step, from research to the day after the sale."
         />
         <PracticeRibbon />
+        <DealJourneyEntry />
+        <details className="practice-more" open={/practice\/drills/.test(window.location.pathname + window.location.hash)}><summary>More ways to practice: documents, auctions and quick drills</summary>
         {/* What kinds of practice there are, how long each takes, and a jump to each: pick by the time you have. */}
         <section className="practice-ways" aria-labelledby="practice-ways-head">
           <h2 id="practice-ways-head" className="section-title">Three ways to practice</h2>
@@ -155,6 +158,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
         <h2 id="practice-drills" className="practice-step"><span aria-hidden>3</span> Quick drills: would you buy it?</h2>
         <p className="practice-step-intro"><strong>Each drill is one short, made-up deal.</strong> Work through 2 to 4 missions (value it, check the rent, price the repairs, find the liens, run the numbers), then decide: Buy, Investigate or Pass. Missions are rehearsal: finishing them builds skill, not readiness to buy a real property.</p>
         <DrillList />
+        </details>
         <PathNext step="practice" />
         <AdSpot spot="practice" />
       </main>

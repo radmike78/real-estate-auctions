@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AreaButton } from './AreaPicker';
 import { loadDeals, onDealsChange } from '../lib/deals';
 import { useSiteFeatures } from '../lib/siteFeatures';
-import { currentProgress, GUIDED, guidedNext, setMode, useJourney } from '../lib/journey';
+import { setMode, useJourney } from '../lib/journey';
 import { planNow } from '../lib/planNext';
 
 // The tasks people come for, one click away. Everything else is under More, grouped.
@@ -35,7 +35,8 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
   const inTask = /^(practice\/[a-z]|toolkit)/.test(current);
   // Only while the tour is My plan's next step (planNext.ts): with a real property or roadmap work under way, the one
   // Continue is in My plan, and this button would compete with it.
-  const nextStep = mode === 'guided' && !inTask && planNow().source === 'starter' ? guidedNext(currentProgress()) : null;
+  const recommendation = planNow();
+  const nextStep = mode === 'guided' && !inTask && recommendation.source === 'starter' ? recommendation.task : null;
   const [open, setOpen] = useState(false);
   const nav = useRef<HTMLElement>(null);
   const menuBtn = useRef<HTMLButtonElement>(null);
@@ -137,7 +138,7 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
         {features?.email ? (
           <a href="#/alerts" className={`nav-cta${active('#/alerts') ? ' active' : ''}`}>Get alerts</a>
         ) : nextStep ? (
-          <a href={nextStep.step.href} className="nav-cta" title={`Getting started, stop ${nextStep.n} of ${GUIDED.length}: ${nextStep.step.label}`}><span className="nav-cta-long">Getting started: stop {nextStep.n} of {GUIDED.length}</span><span className="nav-cta-short">Stop {nextStep.n} of {GUIDED.length}</span></a>
+          <a href={nextStep.href} className="nav-cta" title={nextStep.label}><span className="nav-cta-long">Continue learning</span><span className="nav-cta-short">Continue</span></a>
         ) : null /* No "Start here" button: it only led back to the home page, which the logo already does. */}
       </nav>
       <AreaButton />

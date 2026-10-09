@@ -177,10 +177,11 @@ describe('My plan’s one Continue', () => {
     expect(focusDealId()).toBe('');
   });
 
-  it('starts a brand-new visitor on the Getting started tour, and someone who knows the basics on the roadmap', () => {
+  it('starts a brand-new visitor on the practical deal journey, and someone who knows the basics on the roadmap', () => {
     const fresh = planNow(now);
     expect(fresh.source).toBe('starter');
-    expect(fresh.context).toMatch(/Getting started · stop 1 of/);
+    expect(fresh.context).toBe('Practice · Build your first deal');
+    expect(fresh.task.href).toBe('#/practice/deal/first-decision');
     localStorage.setItem('deedowl.mode.v1', JSON.stringify('explore'));
     const explore = planNow(now);
     expect(explore.source).toBe('roadmap');

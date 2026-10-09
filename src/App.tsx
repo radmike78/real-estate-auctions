@@ -35,6 +35,7 @@ import DecidePage from './components/DecidePage';
 import FindDealsPage from './components/FindDealsPage';
 import AnalyzePage from './components/AnalyzePage';
 import PracticePage from './components/PracticePage';
+import DealJourneyPage from './components/DealJourneyPage';
 import PracticeScenarioPage from './components/PracticeScenarioPage';
 import RentalCasePage from './components/RentalCasePage';
 import DrillPage from './components/DrillPage';
@@ -93,6 +94,7 @@ type Route =
   | { page: 'practice'; sale?: string }
   | { page: 'practiceRun'; id: string; stage?: string }
   | { page: 'practiceCase'; stage?: string }
+  | { page: 'practiceDeal'; chapter?: string }
   | { page: 'drill'; id: string }
   | { page: 'toolkit'; section?: string }
   | { page: 'notFound' };
@@ -173,6 +175,8 @@ function parseHash(): Route {
   const drill = h.match(/^practice\/drills\/([a-z0-9-]{2,40})$/);
   if (drill) return { page: 'drill', id: drill[1] };
   if (h === 'practice/drills') return { page: 'practice' };
+  const pd = h.match(/^practice\/deal(?:\/([a-z-]{2,30}))?$/);
+  if (pd) return { page: 'practiceDeal', chapter: pd[1] };
   const pc = h.match(/^practice\/case(?:\/([a-z-]{2,20}))?$/);
   if (pc) return { page: 'practiceCase', stage: pc[1] };
   const pr = h.match(/^practice\/([a-z]{2,12}-[a-z-]{2,30})(?:\/([a-z]{2,20}))?$/);
@@ -327,6 +331,7 @@ export default function App() {
       {route.page === 'drill' && <DrillPage key={route.id} id={route.id} />}
       {route.page === 'practiceRun' && <PracticeScenarioPage key={route.id} id={route.id} stageKey={route.stage} />}
       {route.page === 'practiceCase' && <RentalCasePage stageKey={route.stage} />}
+      {route.page === 'practiceDeal' && <DealJourneyPage chapterKey={route.chapter} />}
       {route.page === 'playbook' && <PlaybookPage key={route.key ?? ''} playbook={route.key} section={route.section} />}
       {route.page === 'advertiser' && <AdvertiserPage key={route.token ?? ''} token={route.token} />}
       {route.page === 'findpro' && <FindAProPage key={route.section ?? ''} section={route.section} />}
