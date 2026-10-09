@@ -45,7 +45,7 @@ export function propertyTaxHint(state: StateCode): { hint: string; more: string 
   if (state === 'CA')
     return {
       hint: 'Use about 1% of your price plus local charges, not the seller’s bill.',
-      more: 'In California, buying resets the taxable value to what you paid (Proposition 13), so a long-time owner’s bill doesn’t predict yours. The county also sends a separate “supplemental” bill for the rest of the tax year. It goes to you, and your loan’s impound account usually doesn’t pay it.',
+      more: 'In California, a reassessable change in ownership generally resets the taxable value to current fair market value (Proposition 13), often the purchase price. Some transfers qualify for exclusions. A long-time owner’s bill doesn’t predict yours; confirm the assessment with the county assessor. The county also sends a separate “supplemental” bill for the rest of the tax year. It goes to you, and your loan’s impound account usually doesn’t pay it.',
     };
   if (state === 'AZ')
     return {
@@ -63,8 +63,8 @@ export function propertyTaxHint(state: StateCode): { hint: string; more: string 
       more: 'In Utah, a home that is someone’s main home is taxed on 55% of its value. A long-term rental counts when it’s the tenant’s main home, if you file the county assessor’s declaration that it’s a tenant’s main home (Utah Code 59-2-103.5). A second home or short-term rental is taxed on its full value, so its bill is about 80% higher.',
     };
   return {
-    hint: 'A rental’s bill can rise up to 8% a year, not 3%.',
-    more: 'In Nevada, the yearly increase in a tax bill is capped at 3% for an owner’s main home. For a rental it’s up to 8%, unless the rent is at or below HUD’s Fair Market Rent and you file a claim with the assessor (NRS 361.4722–361.4724). A home you buy to rent usually moves to the higher cap. Ask the assessor what next year’s bill will be.',
+    hint: 'Rentals generally have a cap of up to 8%; qualifying rentals can receive the 3% cap.',
+    more: 'In Nevada, the yearly increase in a tax bill is capped at 3% for an owner’s main home. For a rental it’s up to 8%, unless the rent is at or below HUD’s Fair Market Rent and you file a claim with the assessor (NRS 361.4722–361.4724). The applicable cap depends on eligibility, rent and the required claim. New construction and changes in use can fall outside the cap. Ask the assessor which cap applies and what next year’s bill will be.',
   };
 }
 

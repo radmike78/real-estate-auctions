@@ -158,8 +158,8 @@
       "src/components/StrategyTabs.tsx",
       "src/lib/holdCalc.ts"
     ],
-    "reviewed": "2026-10-08",
-    "hash": "0ae6bf4430abc1a4",
+    "reviewed": "2026-10-09",
+    "hash": "5fc2d7dae57ed9ba",
     "note": "Reviewed audit calculator fixes and Claude integration, including migration of old input confirmations, region-stamp backup compatibility, full-precision coverage and before-income-tax labels."
   },
   {
@@ -184,8 +184,8 @@
       "src/components/TrackButton.tsx",
       "src/components/SearchAlertButton.tsx"
     ],
-    "reviewed": "2026-10-08",
-    "hash": "923b1ebffb429e6b",
+    "reviewed": "2026-10-09",
+    "hash": "b0d3ee72f14e0512",
     "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged."
   },
   {
@@ -361,8 +361,8 @@
       "src/lib/strategies.ts",
       "src/lib/lessons/taxes.ts"
     ],
-    "reviewed": "2026-10-08",
-    "hash": "5f5f9460496b6544",
+    "reviewed": "2026-10-09",
+    "hash": "5e0a3b5817501f63",
     "note": "Reviewed California FTB exchange-reporting correction and confirmed Utah House tax-rate source; include taxes lesson in future review hashes."
   },
   {

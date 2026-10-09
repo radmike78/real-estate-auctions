@@ -4,9 +4,9 @@ import { searchLabel, searchTarget, type SavedSearch } from '../lib/savedSearch'
 import { AlertDialog } from './TrackButton';
 import { useSiteFeatures } from '../lib/siteFeatures';
 
-const INTRO = 'Once a day, we’ll email you new parcels on the Treasurer’s tax-sale list that match. No email on days with nothing new.';
+const INTRO = 'Once a day, we’ll email you new parcels on the Clark County, Nevada Treasurer’s tax-sale list that match. No email on days with nothing new.';
 
-/** "Email me new matches": save a search of the verified tax-sale list for a daily digest. */
+/** "Email me Clark County matches": save a search of the verified tax-sale list for a daily digest. */
 export default function SearchAlertButton({ cls }: { cls: ClassFilter }) {
   const [open, setOpen] = useState(false);
   const [s, setS] = useState<SavedSearch>({ source: 'tax', cls, maxBid: null });
@@ -28,10 +28,10 @@ export default function SearchAlertButton({ cls }: { cls: ClassFilter }) {
   if (!features?.email) return null; // email alerts aren't set up on this server yet
   return (
     <>
-      <button className="btn btn-secondary" onClick={openIt}>Email me new matches</button>
+      <button className="btn btn-secondary" onClick={openIt}>Email me Clark County matches</button>
       {open && (
         <AlertDialog
-          title="Email me new matches"
+          title="Email me Clark County matches"
           intro={INTRO}
           target={searchTarget(s)}
           label={searchLabel(s)}

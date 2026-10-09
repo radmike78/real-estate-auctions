@@ -18,10 +18,13 @@ export interface CalcGroup<T> {
 }
 
 const unitText = (u: Unit) => (u === '$/500' ? 'per $500' : u === 'mo' ? 'months' : u === '%/yr' ? '% a year' : u === '%/mo' ? '% a month' : u === 'yr' ? 'years' : u === 'x' ? '×' : '%');
-const toNum = (v: string) => {
-  const n = Number(v);
-  return Number.isFinite(n) && n > 0 ? n : 0;
-};
+export function calculatorInputError(text: string, unit: Unit): string | null {
+  const n = Number(text);
+  if (!text.trim() || !Number.isFinite(n)) return 'Enter a number. Results use the last valid value.';
+  const max = unit === '%' ? 100 : 1e10;
+  if (n < 0 || n > max) return `Enter a number from 0 to ${max.toLocaleString('en-US')}. Results use the last valid value.`;
+  return null;
+}
 
 /** Groups of number inputs in the calculators' shared layout: title inside the box, label / input / one-line hint. */
 export default function CalcFields<T extends object>({ groups, values, onChange }: { groups: CalcGroup<T>[]; values: T; onChange: (k: keyof T & string, v: number) => void }) {
@@ -46,18 +49,24 @@ export default function CalcFields<T extends object>({ groups, values, onChange 
                       type="number"
                       inputMode="decimal"
                       min={0}
+                      max={f.unit === '%' ? 100 : 1e10}
                       step="any"
                       value={draft[f.k] ?? String((values as Record<string, number>)[f.k])}
-                      aria-describedby={f.hint ? `${uid}-${f.k}-hint` : undefined}
+                      aria-invalid={draft[f.k] !== undefined && !!calculatorInputError(draft[f.k]!, f.unit)}
+                      aria-describedby={[f.hint ? `${uid}-${f.k}-hint` : '', draft[f.k] !== undefined && calculatorInputError(draft[f.k]!, f.unit) ? `${uid}-${f.k}-error` : ''].filter(Boolean).join(' ') || undefined}
                       onInput={(e) => {
                         const text = e.currentTarget.value;
                         setDraft((d) => ({ ...d, [f.k]: text }));
-                        onChange(f.k, Math.min(toNum(text), f.unit === '%' ? 100 : 1e10));
+                        if (!calculatorInputError(text, f.unit)) onChange(f.k, Number(text));
                       }}
-                      onBlur={() => setDraft((d) => ({ ...d, [f.k]: undefined }))}
+                      onBlur={() => {
+                        if (draft[f.k] !== undefined && calculatorInputError(draft[f.k]!, f.unit)) return;
+                        setDraft((d) => ({ ...d, [f.k]: undefined }));
+                      }}
                     />
                     {f.unit !== '$' && <i aria-hidden>{unitText(f.unit)}</i>}
                   </span>
+                  {draft[f.k] !== undefined && calculatorInputError(draft[f.k]!, f.unit) && <small className="deal-urgent" role="status" id={`${uid}-${f.k}-error`}>{calculatorInputError(draft[f.k]!, f.unit)}</small>}
                   <span className="calc-hint">
                     {f.hint && <small className="muted" id={`${uid}-${f.k}-hint`}>{f.hint}</small>}
                     {f.more && (
