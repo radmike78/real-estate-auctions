@@ -22,7 +22,7 @@ export const taxes: Lesson = {
           table: {
             head: ['State', 'Transfer tax'],
             rows: [
-              ['Nevada', '$1.95 for each $500 of value, $2.05 in Washoe and Churchill counties, and $2.55 in Clark County (NRS 375.020 and 375.023, plus a local tax in Washoe and Churchill; confirm with the county recorder).'],
+              ['Nevada', '$1.95 for each $500 of value or portion of $500, $2.05 in Washoe and Churchill counties, and $2.55 in Clark County (NRS 375.020 and 375.023, plus a local tax in Washoe and Churchill; exemptions may apply; confirm with the county recorder).'],
               ['California', '$0.55 for each $500 of value, charged by the county (Revenue and Taxation Code 11911). Some cities add much more, such as Los Angeles, San Francisco and Oakland.'],
               ['Arizona', 'None. You pay the recorder’s recording fee (about $30 a document), which includes Arizona’s $2 state transfer fee (A.R.S. 11-475 and 11-1132).'],
               ['Utah', 'None. You pay the county recorder’s recording fees.'],
@@ -37,7 +37,7 @@ export const taxes: Lesson = {
     {
       heading: 'While you own it: property tax and appeals',
       blocks: [
-        'Property tax is usually the largest cost after the loan. Put the bill for your use (a rental, not the seller’s home) in your numbers, and check each year’s notice of value.',
+        'Property tax can be one of your largest costs after the loan. Put the bill for your use (a rental, not the seller’s home) in your numbers, and check each year’s notice of value.',
         'If the county’s value is too high, you can appeal it, but only within a short window after the notice of value arrives. The notice gives the deadline and where to file. Bring sold comparables and photos of anything that lowers the value.',
         'In Texas, you protest to the appraisal review board by May 15, or 30 days after the notice was delivered if that’s later (Tax Code 41.44).',
       ],
@@ -48,14 +48,14 @@ export const taxes: Lesson = {
         'You normally report rental income and expenses on Schedule E. Rent, fees and any part of a deposit you keep are income. Mortgage interest, property tax, insurance, repairs, management, utilities you pay, travel to the property and many other costs are deductible (IRS Publication 527).',
         'Depreciation is a deduction for the building wearing out, even while the rent covers every bill. You depreciate the building and its improvements, never the land:',
         { list: [
-          'A residential rental over 27.5 years; a commercial building over 39 years (IRS Publication 946).',
-          'Example: a $300,000 rental where the land is worth $60,000 has $240,000 of building to depreciate. That’s about $8,700 a year, a deduction with no money leaving your account.',
-          'A repair that keeps the property in working order is deducted the year you pay it. An improvement that makes it better, longer-lasting or fit for a new use (a new roof, an addition) is depreciated over years.',
-          'A cost segregation study splits the price into parts with shorter lives (appliances, carpet, landscaping, paving). Property acquired and placed in service after January 19, 2025 (not under a binding contract signed earlier) can take 100% bonus depreciation on those shorter-lived parts in the first year; the building itself can’t (26 U.S.C. 168(k), as amended in 2025). Studies cost money and make the most sense on larger properties; ask a CPA.',
+          'Under the usual depreciation schedule, a residential rental building over 27.5 years and a commercial building over 39 years. Other schedules can apply (IRS Publication 946).',
+          'Example: a $300,000 rental where the land is worth $60,000 has $240,000 of building to depreciate. That’s about $8,727 for a full year. The first and last years are adjusted for when it enters or leaves rental use.',
+          'A repair that keeps the property in working order is generally a current expense. An improvement that makes it better, longer-lasting or fit for a new use (a new roof, an addition) is generally depreciated over years. Your tax advisor can check the treatment and timing.',
+          'A cost segregation study splits the price into parts with shorter lives (appliances, carpet, landscaping, paving). Eligible shorter-lived parts acquired and placed in service after January 19, 2025 can qualify for 100% bonus depreciation in the first year. Acquisition, use and other rules apply; the building itself doesn’t qualify (IRS Notice 2026-11). Studies cost money and make the most sense on larger properties; ask a CPA.',
         ] },
         'Rental losses usually can’t offset your wages. A rental is a passive activity, so losses mostly offset passive income. If you actively manage it, you can deduct up to $25,000 of losses against other income, and that shrinks to zero as your modified income goes from $100,000 to $150,000. Losses you can’t use carry forward. They’re generally freed up when you sell your whole interest in a fully taxable sale to an unrelated buyer; a 1031 exchange or installment sale changes that (IRS Publication 925).',
         'A real estate professional (more than half of your working time, and more than 750 hours a year, in real property businesses where you materially participate) isn’t limited this way for the rentals you also materially participate in; the IRS looks at each rental separately unless you elect to group them. The test is strict and the IRS checks time logs (26 U.S.C. 469(c)(7)).*',
-        'Higher earners can also owe the 3.8% net investment income tax on rent and gains, above $200,000 of modified income ($250,000 married filing jointly) (26 U.S.C. 1411).',
+        'Higher earners can also owe a 3.8% tax on the smaller of their net investment income or the amount their modified adjusted gross income exceeds the threshold: $200,000 for single or head-of-household filers, $250,000 married filing jointly, or $125,000 married filing separately. Rent and gains can count as investment income; exceptions apply (IRS guidance).',
       ],
     },
     {
@@ -64,11 +64,11 @@ export const taxes: Lesson = {
         'A flip is usually taxed very differently from a rental, and many first flippers find out after the sale.',
         { list: [
           'Property you hold mainly to sell to customers isn’t a capital asset.* The profit is ordinary income, taxed at the same rates as wages, and a gain on anything held one year or less is short-term anyway (IRS Publication 544 and Topic 409).',
-          'If flipping is your business,* the profit can also owe self-employment tax (Social Security and Medicare, about 15.3% on most of it), which rental income doesn’t (26 U.S.C. 1402).',
-          'A flip can’t be traded tax-free in a 1031 exchange, and a dealer can’t spread the gain over years with an installment sale (26 U.S.C. 453(b)(2)).',
+          'If flipping is your business,* the profit can also owe self-employment tax (Social Security and Medicare, about 15.3% on most of it), while ordinary rental income generally doesn’t. Rentals with substantial tenant services, such as regular maid service, and real estate dealer activities can be exceptions (IRS Publication 527; 26 U.S.C. 1402).',
+          'A flip can’t be traded tax-free in a 1031 exchange, and property held for sale to customers generally doesn’t qualify for the installment method. Special rules apply to certain residential lots and timeshares (IRS Publication 537).',
           'You don’t depreciate a flip. Count every buying, repair, holding and selling cost when you work out the profit. For taxes, ask your CPA which costs add to the property’s cost and which you can deduct as you go.',
         ] },
-        'Example: a flip with a $60,000 profit after every cost could owe about $8,500 in self-employment tax plus income tax at your top rate, before any state tax. Put an estimated tax line in your flip numbers before you bid.',
+        'Example: a flip with a $60,000 profit after every cost could owe about $8,500 in self-employment tax plus income tax, depending on your other income and deductions, before any state tax. Put an estimated tax line in your flip numbers before you bid.',
       ],
     },
     {
@@ -101,7 +101,7 @@ export const taxes: Lesson = {
     {
       heading: 'Living in it first: the home-sale exclusion',
       blocks: [
-        'If you owned a home and lived in it as your main home for at least 2 of the 5 years before you sell, you can exclude up to $250,000 of gain ($500,000 married filing jointly) (IRS Publication 523). That can help a house hacker who later sells.',
+        'You may qualify to exclude up to $250,000 of home-sale gain, or $500,000 married filing jointly. Usually, you need to own and use it as your main home for at least 2 of the 5 years before selling, and not have used the exclusion on another sale in the previous 2 years. For the joint $500,000 limit, both spouses generally need to meet the use test and at least one the ownership test. Check the full eligibility rules in IRS Publication 523.',
         'Two limits: depreciation you took while it was a rental is still taxed, and years it was a rental before you moved in can reduce the exclusion. Publication 523 shows the math.',
       ],
     },
@@ -140,7 +140,7 @@ export const taxes: Lesson = {
           'Mileage and time logs, especially if you’ll claim real estate professional status.',
           'The closing statement from the sale, and any exchange paperwork.',
         ] },
-        'Keep them for as long as you own the property and for at least three years after you file the return for the year you sell it (IRS Publication 583).',
+        'Keep property records until the IRS assessment deadline for the sale year has passed: often three years, but longer in some cases. After a tax-deferred exchange, keep the old and new property records until you dispose of the replacement and that deadline passes. Other recordkeeping requirements may last longer (IRS guidance).',
       ],
     },
   ],
@@ -165,6 +165,8 @@ export const taxes: Lesson = {
     { label: 'IRS Publication 537: installment sales', url: 'https://www.irs.gov/publications/p537' },
     { label: 'IRS Publication 523: selling your home', url: 'https://www.irs.gov/publications/p523' },
     { label: 'IRS Publication 583: records to keep', url: 'https://www.irs.gov/publications/p583' },
+    { label: 'IRS: how long to keep records, including exchanges', url: 'https://www.irs.gov/businesses/small-businesses-self-employed/how-long-should-i-keep-records' },
+    { label: 'IRS Notice 2026-11: bonus depreciation eligibility', url: 'https://www.irs.gov/pub/irs-drop/n-26-11.pdf' },
     { label: 'IRS: instructions for Form 8824 (like-kind exchanges)', url: 'https://www.irs.gov/instructions/i8824' },
     { label: 'IRS: net investment income tax', url: 'https://www.irs.gov/individuals/net-investment-income-tax' },
     { label: '26 U.S.C. 168: depreciation, including bonus depreciation (Cornell LII)', url: 'https://www.law.cornell.edu/uscode/text/26/168' },
@@ -180,5 +182,5 @@ export const taxes: Lesson = {
     { label: 'Texas Tax Code 41.44: deadline to protest', url: 'https://statutes.capitol.texas.gov/Docs/TX/htm/TX.41.htm' },
     { label: 'Texas Comptroller: franchise tax', url: 'https://comptroller.texas.gov/taxes/franchise/' },
   ],
-  reviewed: '2026-10-06',
+  reviewed: '2026-10-10',
 };

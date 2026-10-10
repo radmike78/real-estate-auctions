@@ -321,7 +321,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       label: "22 Tex. Admin. Code 537.11 (when agents must use TREC forms)",
-      url: "https://www.law.cornell.edu/regulations/texas/22-Tex-Admin-Code-SS-537-11"
+      url: "https://www.trec.texas.gov/node/634"
     },
     {
       label: "Texas Property Code 5.008 (seller’s disclosure and exemptions)",
@@ -524,7 +524,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       label: "Contract",
-      value: "TREC doesn’t promulgate forms for commercial property. Use a contract from your attorney or a trade association (TREC; 22 TAC 537.11)."
+      value: "TREC doesn’t promulgate forms for commercial property. Use a contract prepared by a Texas attorney or a trade association working with one. Have your agent confirm the form meets the applicable requirements (TREC; 22 TAC 537.11)."
     },
     {
       label: "Property tax",
@@ -635,7 +635,7 @@ export const TX_GUIDES_2: Playbook[] = [
     },
     {
       label: "22 Tex. Admin. Code 537.11 (use of forms)",
-      url: "https://www.law.cornell.edu/regulations/texas/22-Tex-Admin-Code-SS-537-11"
+      url: "https://www.trec.texas.gov/node/634"
     },
     {
       label: "Texas Tax Code 23.01, 23.46 and 23.55 (market value; extra tax on ag and open-space land)",

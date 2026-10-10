@@ -1,0 +1,2373 @@
+{
+  "reviewDate": "2026-10-10",
+  "baseCommit": "0d60ccff0a2fa07a69cb37afb862323e2bbce71b",
+  "scope": "The 153 previously unchecked source records, their cited claims, county-office roles, and linked portal descriptions. Amador Recorder was separately corrected because its shared URL hid a wrong office role.",
+  "limitations": [
+    "Source-content review is not a browser interaction test or uptime guarantee.",
+    "Official indexed content or official referrals were used where direct fetching was blocked, failed, redirected, or returned a JavaScript shell. A retrieval failure does not prove a dead link.",
+    "Private property portals were reviewed only for their stated purpose and separation from official listings. No bids, payments, registrations, or transactions were tested.",
+    "Cornell legal text was cross-checked with official IRS, TREC, or Nevada guidance for the material claims reviewed.",
+    "This review does not certify every website statement or production system as error-free."
+  ],
+  "summary": {
+    "reviewed": 153,
+    "correctedRecords": 28,
+    "verifiedPurposeRecords": 125,
+    "directPageContentRecords": 52,
+    "indexedOrReferralRecords": 101,
+    "unresolvedContentRecords": 0,
+    "browserInteractiveChecks": 0
+  },
+  "additionalCorrections": [
+    {
+      "county": "CA/Amador",
+      "office": "recorder",
+      "url": "https://www.amadorcounty.gov/government/recorder-clerk",
+      "evidenceUrl": "https://www.amadorcounty.gov/Home/Components/ServiceDirectory/ServiceDirectory/14/2241",
+      "decision": "Real-property recording belongs to Recorder-Clerk, not the Assessor."
+    },
+    {
+      "topic": "TWIA windstorm coverage",
+      "evidenceUrls": [
+        "https://www.twia.org/coverage-eligibility/",
+        "https://www.twia.org/windstorm-certification/"
+      ],
+      "decision": "Qualified eligible service area, insurer denial and certificate exceptions; retained separate flood coverage."
+    },
+    {
+      "topic": "Home-sale exclusion",
+      "evidenceUrl": "https://www.irs.gov/publications/p523",
+      "decision": "Qualified ownership/use tests, prior exclusion timing and joint-filer conditions."
+    }
+  ],
+  "records": [
+    {
+      "number": 1,
+      "id": "nasba-cpa",
+      "title": "NASBA licensee database (CPAverify)",
+      "originalUrl": "https://ald.nasba.org/search/cpa",
+      "reviewedUrl": "https://ald.nasba.org/search/cpa",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://ald.nasba.org/search/cpa",
+        "https://ald.nasba.org/",
+        "https://nasba.org/blog/2026/03/12/all-about-cpaverify/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 2,
+      "id": "az-btr",
+      "title": "Arizona Board of Technical Registration (home inspectors)",
+      "originalUrl": "https://btr.az.gov/",
+      "reviewedUrl": "https://btr.az.gov/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://btr.az.gov/",
+        "https://btr.az.gov/public/registered-professional-search?field_city_value=&field_discipline_target_id=All&field_discipline_tid=All&field_first_name___=&field_first_name_value=&field_last_name_value=&field_license_status_target_id=All&field_license_status_tid=All&field_state_value=&field_zip_value=&order=title&page=2700&sort=asc&title=",
+        "https://btr.az.gov/public/registered-professional-search?field_city_value=&field_discipline_target_id=All&field_first_name_value=&field_last_name_value=&field_license_status_target_id=All&field_state_value=&field_zip_value=&order=title&page=3666&sort=asc&title=",
+        "https://btr.az.gov/public/disciplinary-actions?combine=&combine_1=&field_case_number_value=&field_date_opened_value%5Bvalue%5D=&field_discipline_tid=&field_firm_services_value=&field_first_name1_value=&field_last_name1_value=&order=field_licensee&page=6&sort=asc&title="
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 3,
+      "id": "az-difi",
+      "title": "Arizona Department of Insurance and Financial Institutions (license search)",
+      "originalUrl": "https://difi.az.gov/license-search",
+      "reviewedUrl": "https://difi.az.gov/license-search",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://difi.az.gov/license-search"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 4,
+      "id": "az-roc-search",
+      "title": "Arizona Registrar of Contractors: contractor search",
+      "originalUrl": "https://roc.az.gov/contractor-search",
+      "reviewedUrl": "https://roc.az.gov/contractor-search",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://roc.az.gov/contractor-search",
+        "https://roc.az.gov/news/homeowners-will-be-learning-leaky-roofs-rain-and-snow-settles-over-arizona",
+        "https://roc.az.gov/news/dont-get-tricked-check-license",
+        "https://roc.az.gov/administrative-team"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 5,
+      "id": "tx-22tac-537-11",
+      "title": "22 Tex. Admin. Code 537.11 (use of TREC forms)",
+      "originalUrl": "https://www.law.cornell.edu/regulations/texas/22-Tex-Admin-Code-SS-537-11",
+      "reviewedUrl": "https://www.trec.texas.gov/node/634",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.trec.texas.gov/node/634",
+        "https://www.trec.texas.gov/node/634"
+      ],
+      "decision": "Replaced secondary-law link with TREC rules; qualified commercial contract preparation and form requirements.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 6,
+      "id": "learn-twia",
+      "title": "Texas Windstorm Insurance Association",
+      "originalUrl": "https://www.twia.org/",
+      "reviewedUrl": "https://www.twia.org/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.twia.org/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 7,
+      "id": "learn-tdi-wind",
+      "title": "Texas Department of Insurance: windstorm inspections (WPI-8)",
+      "originalUrl": "https://www.tdi.texas.gov/wind/index.html",
+      "reviewedUrl": "https://www.tdi.texas.gov/wind/index.html",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.tdi.texas.gov/wind/index.html"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 8,
+      "id": "learn-taxes-p583",
+      "title": "IRS Publication 583: records to keep",
+      "originalUrl": "https://www.irs.gov/publications/p583",
+      "reviewedUrl": "https://www.irs.gov/publications/p583",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.irs.gov/publications/p583",
+        "https://www.irs.gov/businesses/small-businesses-self-employed/how-long-should-i-keep-records"
+      ],
+      "decision": "Corrected retention guidance for longer assessment periods and tax-deferred exchanges.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 9,
+      "id": "learn-taxes-niit",
+      "title": "IRS: net investment income tax",
+      "originalUrl": "https://www.irs.gov/individuals/net-investment-income-tax",
+      "reviewedUrl": "https://www.irs.gov/individuals/net-investment-income-tax",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.irs.gov/individuals/net-investment-income-tax"
+      ],
+      "decision": "Corrected the lesser-of formula and filing-status thresholds; retained exceptions.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 10,
+      "id": "learn-taxes-usc-168",
+      "title": "26 U.S.C. 168: depreciation and bonus depreciation",
+      "originalUrl": "https://www.law.cornell.edu/uscode/text/26/168",
+      "reviewedUrl": "https://www.law.cornell.edu/uscode/text/26/168",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content; official-primary-cross-check",
+      "evidenceUrls": [
+        "https://www.law.cornell.edu/uscode/text/26/168",
+        "https://www.irs.gov/pub/irs-drop/n-26-11.pdf",
+        "https://www.irs.gov/publications/p946"
+      ],
+      "decision": "Qualified bonus-depreciation eligibility and full-year versus partial-year building depreciation.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 11,
+      "id": "learn-taxes-usc-469",
+      "title": "26 U.S.C. 469: passive activity losses",
+      "originalUrl": "https://www.law.cornell.edu/uscode/text/26/469",
+      "reviewedUrl": "https://www.law.cornell.edu/uscode/text/26/469",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content; official-primary-cross-check",
+      "evidenceUrls": [
+        "https://www.law.cornell.edu/uscode/text/26/469",
+        "https://www.irs.gov/publications/p925"
+      ],
+      "decision": "Cross-checked professional-status tests and participation rules against IRS Publication 925.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 12,
+      "id": "learn-taxes-usc-453",
+      "title": "26 U.S.C. 453: installment method",
+      "originalUrl": "https://www.law.cornell.edu/uscode/text/26/453",
+      "reviewedUrl": "https://www.law.cornell.edu/uscode/text/26/453",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content; official-primary-cross-check",
+      "evidenceUrls": [
+        "https://www.law.cornell.edu/uscode/text/26/453",
+        "https://www.irs.gov/publications/p537"
+      ],
+      "decision": "Qualified dealer installment-sale exclusion for statutory exceptions.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 13,
+      "id": "learn-taxes-usc-1402",
+      "title": "26 U.S.C. 1402: self-employment income",
+      "originalUrl": "https://www.law.cornell.edu/uscode/text/26/1402",
+      "reviewedUrl": "https://www.law.cornell.edu/uscode/text/26/1402",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content; official-primary-cross-check",
+      "evidenceUrls": [
+        "https://www.law.cornell.edu/uscode/text/26/1402",
+        "https://www.irs.gov/publications/p527"
+      ],
+      "decision": "Removed blanket rental self-employment-tax exemption; explained substantial-service and dealer exceptions.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 14,
+      "id": "learn-taxes-nrs-375",
+      "title": "NRS 375: real property transfer tax",
+      "originalUrl": "https://www.leg.state.nv.us/nrs/nrs-375.html",
+      "reviewedUrl": "https://www.leg.state.nv.us/nrs/nrs-375.html",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content; official-primary-cross-check",
+      "evidenceUrls": [
+        "https://www.leg.state.nv.us/nrs/nrs-375.html",
+        "https://tax.nv.gov/tax-types/real-property-transfer-tax/"
+      ],
+      "decision": "Added rounding to each $500 or portion and noted exemptions.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 15,
+      "id": "hud-home",
+      "title": "HUD Home Store",
+      "originalUrl": "https://www.hudhomestore.gov/",
+      "reviewedUrl": "https://www.hudhomestore.gov/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.hudhomestore.gov/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 16,
+      "id": "zillow",
+      "title": "Zillow",
+      "originalUrl": "https://www.zillow.com/",
+      "reviewedUrl": "https://www.zillow.com/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.zillow.com/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. Shown only under Other sites; not an official listing source.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 17,
+      "id": "realtor-com",
+      "title": "Realtor.com",
+      "originalUrl": "https://www.realtor.com/",
+      "reviewedUrl": "https://www.realtor.com/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.realtor.com/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. Shown only under Other sites; not an official listing source.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 18,
+      "id": "redfin",
+      "title": "Redfin",
+      "originalUrl": "https://www.redfin.com/",
+      "reviewedUrl": "https://www.redfin.com/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.redfin.com/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. Shown only under Other sites; not an official listing source.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 19,
+      "id": "auction-com",
+      "title": "Auction.com",
+      "originalUrl": "https://www.auction.com/",
+      "reviewedUrl": "https://www.auction.com/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.auction.com/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. Shown only under Other sites; not an official listing source.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 20,
+      "id": "xome",
+      "title": "Xome",
+      "originalUrl": "https://www.xome.com/",
+      "reviewedUrl": "https://www.xome.com/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.xome.com/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. Shown only under Other sites; not an official listing source.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 21,
+      "id": "hubzu",
+      "title": "Hubzu",
+      "originalUrl": "https://www.hubzu.com/",
+      "reviewedUrl": "https://www.hubzu.com/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.hubzu.com/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. Shown only under Other sites; not an official listing source.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 22,
+      "id": "bid4assets",
+      "title": "Bid4Assets",
+      "originalUrl": "https://www.bid4assets.com/",
+      "reviewedUrl": "https://www.bid4assets.com/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.bid4assets.com/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. Shown only under Other sites; not an official listing source.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 23,
+      "id": "loopnet",
+      "title": "LoopNet",
+      "originalUrl": "https://www.loopnet.com/",
+      "reviewedUrl": "https://www.loopnet.com/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.loopnet.com/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. Shown only under Other sites; not an official listing source.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 24,
+      "id": "crexi",
+      "title": "Crexi",
+      "originalUrl": "https://www.crexi.com/",
+      "reviewedUrl": "https://www.crexi.com/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.crexi.com/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. Shown only under Other sites; not an official listing source.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 25,
+      "id": "county-az-apache-assessor",
+      "title": "Apache County, AZ: assessor",
+      "originalUrl": "https://www.apachecountyaz.gov/Assessor",
+      "reviewedUrl": "https://www.apachecountyaz.gov/Assessor",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.apachecountyaz.gov/Assessor",
+        "https://www.apachecountyaz.gov/assessor"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 26,
+      "id": "county-az-apache-recorder",
+      "title": "Apache County, AZ: recorder",
+      "originalUrl": "https://www.apachecountyaz.gov/Recorder",
+      "reviewedUrl": "https://www.apachecountyaz.gov/Recorder",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.apachecountyaz.gov/Recorder"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 27,
+      "id": "county-az-coconino-taxsale",
+      "title": "Coconino County, AZ: tax sale",
+      "originalUrl": "https://www.coconino.az.gov/376/Tax-Liens",
+      "reviewedUrl": "https://www.coconino.az.gov/376/Tax-Liens",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.coconino.az.gov/376/Tax-Liens"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 28,
+      "id": "county-az-coconino-treasurer",
+      "title": "Coconino County, AZ: treasurer / tax collector",
+      "originalUrl": "https://www.coconino.az.gov/372/Treasurer",
+      "reviewedUrl": "https://www.coconino.az.gov/372/Treasurer",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.coconino.az.gov/372/Treasurer"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 29,
+      "id": "county-az-coconino-assessor",
+      "title": "Coconino County, AZ: assessor",
+      "originalUrl": "https://www.coconino.az.gov/119/Assessor",
+      "reviewedUrl": "https://www.coconino.az.gov/119/Assessor",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.coconino.az.gov/119/Assessor"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 30,
+      "id": "county-az-coconino-recorder",
+      "title": "Coconino County, AZ: recorder",
+      "originalUrl": "https://eagleassessor.coconino.az.gov:8443/recorder/web/splash.jsp",
+      "reviewedUrl": "https://www.coconino.az.gov/319/Recorder",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.coconino.az.gov/319/Recorder"
+      ],
+      "decision": "Replaced backend port-8443 search entry with official Recorder page.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 31,
+      "id": "county-az-coconino-sheriff",
+      "title": "Coconino County, AZ: sheriff civil unit",
+      "originalUrl": "https://www.coconino.az.gov/702/Civil-Process",
+      "reviewedUrl": "https://www.coconino.az.gov/702/Civil-Process",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.coconino.az.gov/702/Civil-Process"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 32,
+      "id": "county-az-gila-sheriff",
+      "title": "Gila County, AZ: sheriff civil unit",
+      "originalUrl": "https://www.gilacountyaz.gov/government/sheriff/index.php",
+      "reviewedUrl": "https://www.gilacountyaz.gov/government/sheriff/index.php",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.gilacountyaz.gov/government/sheriff/index.php"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 33,
+      "id": "county-az-graham-recorder",
+      "title": "Graham County, AZ: recorder",
+      "originalUrl": "https://www.graham.az.gov/239/Recorder",
+      "reviewedUrl": "https://www.graham.az.gov/239/Recorder",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.graham.az.gov/239/Recorder",
+        "https://graham.az.gov/239/Recorder"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 34,
+      "id": "county-az-la-paz-sheriff",
+      "title": "La Paz County, AZ: sheriff civil unit",
+      "originalUrl": "https://www.lapazsheriff.org/civilUnit",
+      "reviewedUrl": "https://www.lapazsheriff.org/civilUnit",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.lapazsheriff.org/civilUnit"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 35,
+      "id": "county-az-navajo-sheriff",
+      "title": "Navajo County, AZ: sheriff civil unit",
+      "originalUrl": "https://www.navajocountyaz.gov/697/Civil-Service",
+      "reviewedUrl": "https://www.navajocountyaz.gov/697/Civil-Service",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.navajocountyaz.gov/697/Civil-Service"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 36,
+      "id": "county-az-santa-cruz-recorder",
+      "title": "Santa Cruz County, AZ: recorder",
+      "originalUrl": "https://www.santacruzcountyaz.gov/287/Recorder",
+      "reviewedUrl": "https://www.santacruzcountyaz.gov/287/Recorder",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.santacruzcountyaz.gov/287/Recorder",
+        "https://santacruzcountyaz.gov/287/Recorder"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 37,
+      "id": "county-az-yuma-taxsale",
+      "title": "Yuma County, AZ: tax sale",
+      "originalUrl": "https://www.yumacountyaz.gov/government/treasurer/tax-lien-information",
+      "reviewedUrl": "https://www.yumacountyaz.gov/government/treasurer/tax-lien-information",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.yumacountyaz.gov/government/treasurer/tax-lien-information"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 38,
+      "id": "county-az-yuma-treasurer",
+      "title": "Yuma County, AZ: treasurer / tax collector",
+      "originalUrl": "https://www.yumacountyaz.gov/government/treasurer",
+      "reviewedUrl": "https://www.yumacountyaz.gov/government/treasurer",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.yumacountyaz.gov/government/treasurer",
+        "https://www.yumacountyaz.gov/government/treasurer/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 39,
+      "id": "county-az-yuma-assessor",
+      "title": "Yuma County, AZ: assessor",
+      "originalUrl": "https://www.yumacountyaz.gov/government/assessor",
+      "reviewedUrl": "https://www.yumacountyaz.gov/government/assessor",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.yumacountyaz.gov/government/assessor"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 40,
+      "id": "county-az-yuma-recorder",
+      "title": "Yuma County, AZ: recorder",
+      "originalUrl": "https://www.yumacountyaz.gov/government/recorder",
+      "reviewedUrl": "https://www.yumacountyaz.gov/government/recorder",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.yumacountyaz.gov/government/recorder"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 41,
+      "id": "county-ca-alameda-sheriff",
+      "title": "Alameda County, CA: sheriff civil unit",
+      "originalUrl": "https://www.alamedasheriff.gov/services/civil-section",
+      "reviewedUrl": "https://www.alamedasheriff.gov/services/civil-section",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.alamedasheriff.gov/services/civil-section"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 42,
+      "id": "county-ca-amador-taxsale",
+      "title": "Amador County, CA: tax sale",
+      "originalUrl": "https://www.amadorcounty.gov/government/treasurer-tax-collector/tax-sale-information",
+      "reviewedUrl": "https://www.amadorcounty.gov/government/treasurer-tax-collector/tax-sale-information",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.amadorcounty.gov/government/treasurer-tax-collector/tax-sale-information"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 43,
+      "id": "county-ca-amador-treasurer",
+      "title": "Amador County, CA: treasurer / tax collector",
+      "originalUrl": "https://www.amadorcounty.gov/government/treasurer-tax-collector/",
+      "reviewedUrl": "https://www.amadorcounty.gov/government/treasurer-tax-collector/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.amadorcounty.gov/government/treasurer-tax-collector/",
+        "https://www.amadorcounty.gov/government/treasurer-tax-collector"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 44,
+      "id": "county-ca-amador-assessor",
+      "title": "Amador County, CA: assessor",
+      "originalUrl": "https://www.amadorcounty.gov/government/assessor",
+      "reviewedUrl": "https://www.amadorcounty.gov/government/assessor",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.amadorcounty.gov/government/assessor"
+      ],
+      "decision": "Assessor purpose verified; separated Amador Recorder from the assessor destination.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 45,
+      "id": "county-ca-contra-costa-sheriff",
+      "title": "Contra Costa County, CA: sheriff civil unit",
+      "originalUrl": "https://www.cocosheriff.org/bureaus/field-operations/investigations-division/civil-unit",
+      "reviewedUrl": "https://www.cocosheriff.org/bureaus/field-operations/investigations-division/civil-unit",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.cocosheriff.org/bureaus/field-operations/investigations-division/civil-unit"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 46,
+      "id": "county-ca-glenn-taxsale",
+      "title": "Glenn County, CA: tax sale",
+      "originalUrl": "https://www.countyofglenn.net/government/departments/finance/treasurertax-collector/property-tax-auctions",
+      "reviewedUrl": "https://www.countyofglenn.net/government/departments/finance/treasurertax-collector/property-tax-auctions",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.countyofglenn.net/government/departments/finance/treasurertax-collector/property-tax-auctions"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 47,
+      "id": "county-ca-glenn-treasurer",
+      "title": "Glenn County, CA: treasurer / tax collector",
+      "originalUrl": "https://www.countyofglenn.net/government/departments/finance/treasurertax-collector",
+      "reviewedUrl": "https://www.countyofglenn.net/government/departments/finance/treasurertax-collector",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.countyofglenn.net/government/departments/finance/treasurertax-collector"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 48,
+      "id": "county-ca-glenn-assessor",
+      "title": "Glenn County, CA: assessor",
+      "originalUrl": "https://www.countyofglenn.net/government/departments/assessor",
+      "reviewedUrl": "https://www.countyofglenn.net/government/departments/assessor",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.countyofglenn.net/government/departments/assessor"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 49,
+      "id": "county-ca-glenn-recorder",
+      "title": "Glenn County, CA: recorder",
+      "originalUrl": "https://www.countyofglenn.net/government/departments/clerk-recorder",
+      "reviewedUrl": "https://www.countyofglenn.net/government/departments/clerk-recorder",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.countyofglenn.net/government/departments/clerk-recorder"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 50,
+      "id": "county-ca-glenn-sheriff",
+      "title": "Glenn County, CA: sheriff civil unit",
+      "originalUrl": "https://www.countyofglenn.net/government/departments/sheriff/civil-division",
+      "reviewedUrl": "https://www.countyofglenn.net/government/departments/sheriff/civil-division",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.countyofglenn.net/government/departments/sheriff/civil-division"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 51,
+      "id": "county-ca-kern-assessor",
+      "title": "Kern County, CA: assessor",
+      "originalUrl": "https://www.kerncounty.com/government/departments/assessor-recorder/property/assessor-property-search",
+      "reviewedUrl": "https://www.kerncounty.com/government/departments/assessor-recorder/property/assessor-property-search",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.kerncounty.com/government/departments/assessor-recorder/property/assessor-property-search"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 52,
+      "id": "county-ca-kern-recorder",
+      "title": "Kern County, CA: recorder",
+      "originalUrl": "https://www.kerncounty.com/government/departments/assessor-recorder/records/search-for-recorded-documents-or-maps",
+      "reviewedUrl": "https://www.kerncounty.com/government/departments/assessor-recorder/records/search-for-recorded-documents-or-maps",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.kerncounty.com/government/departments/assessor-recorder/records/search-for-recorded-documents-or-maps"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 53,
+      "id": "county-ca-kings-taxsale",
+      "title": "Kings County, CA: tax sale",
+      "originalUrl": "https://www.countyofkingsca.gov/departments/administration/finance-department/tax-collector/delinquent-taxes/tax-sale",
+      "reviewedUrl": "https://www.countyofkingsca.gov/departments/administration/finance-department/tax-collector/delinquent-taxes/tax-sale",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.countyofkingsca.gov/departments/administration/finance-department/tax-collector/delinquent-taxes/tax-sale"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 54,
+      "id": "county-ca-kings-treasurer",
+      "title": "Kings County, CA: treasurer / tax collector",
+      "originalUrl": "https://www.countyofkingsca.gov/departments/administration/finance-department/tax-collector",
+      "reviewedUrl": "https://www.countyofkingsca.gov/departments/administration/finance-department/tax-collector",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.countyofkingsca.gov/departments/administration/finance-department/tax-collector"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 55,
+      "id": "county-ca-kings-assessor",
+      "title": "Kings County, CA: assessor",
+      "originalUrl": "https://www.countyofkingsca.gov/departments/general-services/assessor-clerk-recorder/assessor",
+      "reviewedUrl": "https://www.countyofkingsca.gov/departments/general-services/assessor-clerk-recorder/assessor",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.countyofkingsca.gov/departments/general-services/assessor-clerk-recorder/assessor"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 56,
+      "id": "county-ca-kings-recorder",
+      "title": "Kings County, CA: recorder",
+      "originalUrl": "https://www.countyofkingsca.gov/departments/general-services/assessor-clerk-recorder/clerk-recorder",
+      "reviewedUrl": "https://www.countyofkingsca.gov/departments/general-services/assessor-clerk-recorder/clerk-recorder",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.countyofkingsca.gov/departments/general-services/assessor-clerk-recorder/clerk-recorder"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 57,
+      "id": "county-ca-kings-sheriff",
+      "title": "Kings County, CA: sheriff civil unit",
+      "originalUrl": "https://www.countyofkingsca.gov/departments/public-safety/sheriff/civil-division",
+      "reviewedUrl": "https://www.countyofkingsca.gov/departments/public-safety/sheriff/civil-division",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.countyofkingsca.gov/departments/public-safety/sheriff/civil-division"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 58,
+      "id": "county-ca-madera-taxsale",
+      "title": "Madera County, CA: tax sale",
+      "originalUrl": "https://www.maderacounty.com/government/treasurer-tax-collector/property-tax/defaulted-taxes/online-tax-sale",
+      "reviewedUrl": "https://www.maderacounty.com/government/treasurer-tax-collector/property-tax/defaulted-taxes/online-tax-sale",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.maderacounty.com/government/treasurer-tax-collector/property-tax/defaulted-taxes/online-tax-sale"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 59,
+      "id": "county-ca-madera-treasurer",
+      "title": "Madera County, CA: treasurer / tax collector",
+      "originalUrl": "https://www.maderacounty.com/government/treasurer-tax-collector",
+      "reviewedUrl": "https://www.maderacounty.com/government/treasurer-tax-collector",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.maderacounty.com/government/treasurer-tax-collector",
+        "https://www.maderacounty.com/government/assessor",
+        "https://www.maderacounty.com/government/treasurer-tax-collector/property-tax/defaulted-taxes/online-tax-sale",
+        "https://www.maderacounty.com/home/showpublisheddocument/47070/639063227900900000"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 60,
+      "id": "county-ca-madera-assessor",
+      "title": "Madera County, CA: assessor",
+      "originalUrl": "https://www.maderacounty.com/government/assessor",
+      "reviewedUrl": "https://www.maderacounty.com/government/assessor",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.maderacounty.com/government/assessor"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 61,
+      "id": "county-ca-madera-recorder",
+      "title": "Madera County, CA: recorder",
+      "originalUrl": "https://www.maderacounty.com/government/county-clerk-recorder-elections/county-recorder",
+      "reviewedUrl": "https://www.maderacounty.com/government/county-clerk-recorder-elections/county-recorder",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.maderacounty.com/government/county-clerk-recorder-elections/county-recorder"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 62,
+      "id": "county-ca-madera-sheriff",
+      "title": "Madera County, CA: sheriff civil unit",
+      "originalUrl": "https://www.maderacounty.com/government/sheriff/civil-division",
+      "reviewedUrl": "https://www.maderacounty.com/government/sheriff/civil-division",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.maderacounty.com/government/sheriff/civil-division"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 63,
+      "id": "county-ca-marin-treasurer",
+      "title": "Marin County, CA: treasurer / tax collector",
+      "originalUrl": "https://www.marincounty.gov/departments/finance/property-tax/tax-defaulted-land-sales",
+      "reviewedUrl": "https://www.marincounty.gov/departments/finance/property-tax/tax-collector",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.marincounty.gov/departments/finance/property-tax/tax-collector"
+      ],
+      "decision": "Replaced tax-sale-only destination with Tax Collector page for tax-account services.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 64,
+      "id": "county-ca-marin-assessor",
+      "title": "Marin County, CA: assessor",
+      "originalUrl": "https://www.arcc.marincounty.gov/",
+      "reviewedUrl": "https://www.arcc.marincounty.gov/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.arcc.marincounty.gov/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 65,
+      "id": "county-ca-mendocino-taxsale",
+      "title": "Mendocino County, CA: tax sale",
+      "originalUrl": "https://www.mendocinocounty.gov/government/collections/treasurer-tax-collector/tax-defaulted-property-auction",
+      "reviewedUrl": "https://www.mendocinocounty.gov/government/collections/treasurer-tax-collector/tax-defaulted-property-auction",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.mendocinocounty.gov/government/collections/treasurer-tax-collector/tax-defaulted-property-auction"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 66,
+      "id": "county-ca-mendocino-treasurer",
+      "title": "Mendocino County, CA: treasurer / tax collector",
+      "originalUrl": "https://www.mendocinocounty.gov/government/collections/treasurer-tax-collector",
+      "reviewedUrl": "https://www.mendocinocounty.gov/government/collections/treasurer-tax-collector",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.mendocinocounty.gov/government/collections/treasurer-tax-collector"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 67,
+      "id": "county-ca-mendocino-assessor",
+      "title": "Mendocino County, CA: assessor",
+      "originalUrl": "https://www.mendocinocounty.gov/government/assessor-county-clerk-recorder-elections",
+      "reviewedUrl": "https://www.mendocinocounty.gov/government/assessor-county-clerk-recorder-elections",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.mendocinocounty.gov/government/assessor-county-clerk-recorder-elections"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 68,
+      "id": "county-ca-mendocino-recorder",
+      "title": "Mendocino County, CA: recorder",
+      "originalUrl": "https://www.mendocinocounty.gov/government/assessor-county-clerk-recorder-elections/county-recorder",
+      "reviewedUrl": "https://www.mendocinocounty.gov/government/assessor-county-clerk-recorder-elections/county-recorder",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.mendocinocounty.gov/government/assessor-county-clerk-recorder-elections/county-recorder"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 69,
+      "id": "county-ca-monterey-taxsale",
+      "title": "Monterey County, CA: tax sale",
+      "originalUrl": "https://www.countyofmonterey.gov/how-do-i-/buy/property-tax-auction",
+      "reviewedUrl": "https://www.countyofmonterey.gov/how-do-i-/buy/property-tax-auction",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.countyofmonterey.gov/how-do-i-/buy/property-tax-auction"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 70,
+      "id": "county-ca-monterey-treasurer",
+      "title": "Monterey County, CA: treasurer / tax collector",
+      "originalUrl": "https://www.countyofmonterey.gov/government/departments-i-z/treasurer-tax-collector",
+      "reviewedUrl": "https://www.countyofmonterey.gov/government/departments-i-z/treasurer-tax-collector/tax-collection/secured-property-tax",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.countyofmonterey.gov/government/departments-i-z/treasurer-tax-collector/tax-collection/secured-property-tax"
+      ],
+      "decision": "Used official secured-property-tax page for collection services.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 71,
+      "id": "county-ca-monterey-assessor",
+      "title": "Monterey County, CA: assessor",
+      "originalUrl": "https://www.countyofmonterey.gov/government/departments-a-h/assessor/assessor-county-clerk-recorder",
+      "reviewedUrl": "https://www.countyofmonterey.gov/government/departments-a-h/assessor/assessor-county-clerk-recorder",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.countyofmonterey.gov/government/departments-a-h/assessor/assessor-county-clerk-recorder"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 72,
+      "id": "county-ca-monterey-recorder",
+      "title": "Monterey County, CA: recorder",
+      "originalUrl": "https://www.countyofmonterey.gov/government/departments-a-h/assessor/recorder",
+      "reviewedUrl": "https://www.countyofmonterey.gov/government/departments-a-h/assessor/recorder",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.countyofmonterey.gov/government/departments-a-h/assessor/recorder"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 73,
+      "id": "county-ca-monterey-sheriff",
+      "title": "Monterey County, CA: sheriff civil unit",
+      "originalUrl": "https://www.countyofmonterey.gov/government/departments-i-z/sheriff-coroner/services/civil-services",
+      "reviewedUrl": "https://www.countyofmonterey.gov/government/departments-i-z/sheriff-coroner/services/civil-services",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.countyofmonterey.gov/government/departments-i-z/sheriff-coroner/services/civil-services"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 74,
+      "id": "county-ca-san-benito-taxsale",
+      "title": "San Benito County, CA: tax sale",
+      "originalUrl": "https://www.sanbenitocountyca.gov/departments/treasurer-tax-collector-and-public-administrator/tax-collector/internet-auction-of-tax-defaulted-property",
+      "reviewedUrl": "https://www.sanbenitocountyca.gov/departments/treasurer-tax-collector-and-public-administrator/tax-collector/internet-auction-of-tax-defaulted-property",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.sanbenitocountyca.gov/departments/treasurer-tax-collector-and-public-administrator/tax-collector/internet-auction-of-tax-defaulted-property"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 75,
+      "id": "county-ca-san-benito-treasurer",
+      "title": "San Benito County, CA: treasurer / tax collector",
+      "originalUrl": "https://www.sanbenitocountyca.gov/departments/treasurer-tax-collector-and-public-administrator/tax-collector",
+      "reviewedUrl": "https://www.sanbenitocountyca.gov/departments/treasurer-tax-collector-and-public-administrator/tax-collector",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.sanbenitocountyca.gov/departments/treasurer-tax-collector-and-public-administrator/tax-collector"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 76,
+      "id": "county-ca-san-benito-assessor",
+      "title": "San Benito County, CA: assessor",
+      "originalUrl": "https://www.sanbenitocountyca.gov/departments/assessor",
+      "reviewedUrl": "https://www.sanbenitocountyca.gov/departments/assessor",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.sanbenitocountyca.gov/departments/assessor"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 77,
+      "id": "county-ca-san-benito-recorder",
+      "title": "San Benito County, CA: recorder",
+      "originalUrl": "https://www.sanbenitocounty-ca-cre.gov/",
+      "reviewedUrl": "https://www.sanbenitocounty-ca-cre.gov/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.sanbenitocounty-ca-cre.gov/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 78,
+      "id": "county-ca-san-benito-sheriff",
+      "title": "San Benito County, CA: sheriff civil unit",
+      "originalUrl": "https://www.sanbenitocountyca.gov/departments/sheriff-s-office/units-and-divisions/civil-unit",
+      "reviewedUrl": "https://www.sanbenitocountyca.gov/departments/sheriff-s-office/units-and-divisions/civil-unit",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.sanbenitocountyca.gov/departments/sheriff-s-office/units-and-divisions/civil-unit"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 79,
+      "id": "county-ca-san-diego-sheriff",
+      "title": "San Diego County, CA: sheriff civil unit",
+      "originalUrl": "https://www.sdsheriff.gov/bureaus/court-services-bureau/property-sales",
+      "reviewedUrl": "https://www.sdsheriff.gov/bureaus/court-services-bureau/property-sales",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.sdsheriff.gov/bureaus/court-services-bureau/property-sales"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 80,
+      "id": "county-ca-san-mateo-sheriff",
+      "title": "San Mateo County, CA: sheriff civil unit",
+      "originalUrl": "https://www.smcsheriff.com/corrections-division/civil-enforcement-bureau",
+      "reviewedUrl": "https://www.smcsheriff.com/corrections-division/civil-enforcement-bureau",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.smcsheriff.com/corrections-division/civil-enforcement-bureau"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 81,
+      "id": "county-ca-santa-clara-treasurer",
+      "title": "Santa Clara County, CA: treasurer / tax collector",
+      "originalUrl": "https://dtac.santaclaracounty.gov/",
+      "reviewedUrl": "https://dtac.santaclaracounty.gov/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://dtac.santaclaracounty.gov/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 82,
+      "id": "county-ca-santa-clara-recorder",
+      "title": "Santa Clara County, CA: recorder",
+      "originalUrl": "https://clerkrecorder.santaclaracounty.gov/",
+      "reviewedUrl": "https://clerkrecorder.santaclaracounty.gov/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://clerkrecorder.santaclaracounty.gov/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 83,
+      "id": "county-ca-shasta-taxsale",
+      "title": "Shasta County, CA: tax sale",
+      "originalUrl": "https://www.shastacounty.gov/tax-collector/page/tax-auction",
+      "reviewedUrl": "https://www.shastacounty.gov/tax-collector/page/tax-auction",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.shastacounty.gov/tax-collector/page/tax-auction"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 84,
+      "id": "county-ca-shasta-treasurer",
+      "title": "Shasta County, CA: treasurer / tax collector",
+      "originalUrl": "https://www.shastacounty.gov/tax-collector",
+      "reviewedUrl": "https://www.shastacounty.gov/tax-collector",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.shastacounty.gov/tax-collector"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 85,
+      "id": "county-ca-shasta-assessor",
+      "title": "Shasta County, CA: assessor",
+      "originalUrl": "https://www.shastacounty.gov/assessor",
+      "reviewedUrl": "https://www.shastacounty.gov/assessor",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.shastacounty.gov/assessor"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 86,
+      "id": "county-ca-shasta-sheriff",
+      "title": "Shasta County, CA: sheriff civil unit",
+      "originalUrl": "https://www.shastacounty.gov/sheriff/page/civil-unit",
+      "reviewedUrl": "https://www.shastacounty.gov/sheriff/page/civil-unit",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.shastacounty.gov/sheriff/page/civil-unit"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 87,
+      "id": "county-ca-siskiyou-sheriff",
+      "title": "Siskiyou County, CA: sheriff civil unit",
+      "originalUrl": "https://www.siskiyoucounty.gov/civildivision",
+      "reviewedUrl": "https://www.siskiyoucounty.gov/civildivision",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.siskiyoucounty.gov/civildivision"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 88,
+      "id": "county-ca-stanislaus-sheriff",
+      "title": "Stanislaus County, CA: sheriff civil unit",
+      "originalUrl": "https://www.scsdonline.com/",
+      "reviewedUrl": "https://www.scsdonline.com/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.scsdonline.com/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 89,
+      "id": "county-ca-sutter-taxsale",
+      "title": "Sutter County, CA: tax sale",
+      "originalUrl": "https://www.sutter.gov/government/county-departments/treasurer-tax-collector/tax-sale-frequently-asked-questions",
+      "reviewedUrl": "https://www.sutter.gov/government/county-departments/treasurer-tax-collector/tax-sale-frequently-asked-questions",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.sutter.gov/government/county-departments/treasurer-tax-collector/tax-sale-frequently-asked-questions"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 90,
+      "id": "county-ca-sutter-treasurer",
+      "title": "Sutter County, CA: treasurer / tax collector",
+      "originalUrl": "https://www.sutter.gov/government/county-departments/treasurer-tax-collector",
+      "reviewedUrl": "https://www.sutter.gov/government/county-departments/treasurer-tax-collector",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.sutter.gov/government/county-departments/treasurer-tax-collector"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 91,
+      "id": "county-ca-sutter-assessor",
+      "title": "Sutter County, CA: assessor",
+      "originalUrl": "https://www.sutter.gov/government/county-departments/assessor",
+      "reviewedUrl": "https://www.sutter.gov/government/county-departments/assessor",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.sutter.gov/government/county-departments/assessor"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 92,
+      "id": "county-ca-sutter-recorder",
+      "title": "Sutter County, CA: recorder",
+      "originalUrl": "https://www.sutter.gov/doc/government/depts/cr/crhome",
+      "reviewedUrl": "https://www.sutter.gov/government/county-departments/clerk-recorder/real-property-records",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.sutter.gov/government/county-departments/clerk-recorder/real-property-records"
+      ],
+      "decision": "Replaced legacy route with official real-property-records page.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 93,
+      "id": "county-ca-sutter-sheriff",
+      "title": "Sutter County, CA: sheriff civil unit",
+      "originalUrl": "https://www.suttersheriff.gov/divisions/support-services-division",
+      "reviewedUrl": "https://www.suttersheriff.gov/divisions/support-services-division",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.suttersheriff.gov/divisions/support-services-division"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 94,
+      "id": "county-ca-tulare-taxsale",
+      "title": "Tulare County, CA: tax sale",
+      "originalUrl": "https://tularecounty.ca.gov/treasurertaxcollector/tax-collector/tax-auction/",
+      "reviewedUrl": "https://tularecounty.ca.gov/treasurertaxcollector/tax-collector/tax-auction/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://tularecounty.ca.gov/treasurertaxcollector/tax-collector/tax-auction/",
+        "https://tularecounty.ca.gov/treasurertaxcollector/tax-collector/tax-auction"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 95,
+      "id": "county-ca-tulare-treasurer",
+      "title": "Tulare County, CA: treasurer / tax collector",
+      "originalUrl": "https://tularecounty.ca.gov/treasurertaxcollector/tax-collector",
+      "reviewedUrl": "https://tularecounty.ca.gov/treasurertaxcollector/tax-collector",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://tularecounty.ca.gov/treasurertaxcollector/tax-collector"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 96,
+      "id": "county-ca-tulare-assessor",
+      "title": "Tulare County, CA: assessor",
+      "originalUrl": "https://tularecounty.ca.gov/assessor/",
+      "reviewedUrl": "https://tularecounty.ca.gov/assessor/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://tularecounty.ca.gov/assessor/",
+        "https://tularecounty.ca.gov/assessor"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 97,
+      "id": "county-ca-yolo-taxsale",
+      "title": "Yolo County, CA: tax sale",
+      "originalUrl": "https://www.yolocounty.gov/government/general-government-departments/financial-services/property-tax/frequently-asked-questions",
+      "reviewedUrl": "https://www.yolocounty.gov/government/general-government-departments/financial-services/property-tax",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.yolocounty.gov/government/general-government-departments/financial-services/property-tax"
+      ],
+      "decision": "Replaced FAQ entry with property-tax page containing tax-sale information; removed inaccurate no-sale-page note.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 98,
+      "id": "county-ca-yolo-treasurer",
+      "title": "Yolo County, CA: treasurer / tax collector",
+      "originalUrl": "https://www.yolocounty.gov/government/general-government-departments/financial-services/property-tax",
+      "reviewedUrl": "https://www.yolocounty.gov/government/general-government-departments/financial-services/property-tax",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.yolocounty.gov/government/general-government-departments/financial-services/property-tax"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 99,
+      "id": "county-nv-carson-city-taxsale",
+      "title": "Carson City County, NV: tax sale",
+      "originalUrl": "https://www.carsoncity.gov/government/departments-g-z/treasurer/tax-sale",
+      "reviewedUrl": "https://www.carsoncity.gov/Home/Components/ServiceDirectory/ServiceDirectory/30/7656",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.carsoncity.gov/Home/Components/ServiceDirectory/ServiceDirectory/30/7656"
+      ],
+      "decision": "Used official tax-sale directory and current Treasurer referral; removed unsupported marketplace note.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 100,
+      "id": "county-nv-carson-city-treasurer",
+      "title": "Carson City County, NV: treasurer / tax collector",
+      "originalUrl": "https://www.carsoncity.gov/government/departments-g-z/treasurer",
+      "reviewedUrl": "https://www.carsoncity.gov/government/departments-g-z/treasurer",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.carsoncity.gov/government/departments-g-z/treasurer"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 101,
+      "id": "county-nv-carson-city-assessor",
+      "title": "Carson City County, NV: assessor",
+      "originalUrl": "https://www.carsoncity.gov/government/departments-a-f/assessor",
+      "reviewedUrl": "https://www.carsoncity.gov/government/departments-a-f/assessor",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.carsoncity.gov/government/departments-a-f/assessor"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 102,
+      "id": "county-nv-carson-city-recorder",
+      "title": "Carson City County, NV: recorder",
+      "originalUrl": "https://www.carsoncity.gov/government/departments-a-f/clerk-recorder/recorders-office",
+      "reviewedUrl": "https://www.carsoncity.gov/Home/Components/ServiceDirectory/ServiceDirectory/180/",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.carsoncity.gov/Home/Components/ServiceDirectory/ServiceDirectory/180/"
+      ],
+      "decision": "Used official grantor/grantee directory with real-property search link.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 103,
+      "id": "county-nv-carson-city-sheriff",
+      "title": "Carson City County, NV: sheriff civil unit",
+      "originalUrl": "https://www.carsoncity.gov/government/departments-g-z/sheriff-s-office/divisions/civil-records",
+      "reviewedUrl": "https://www.carsoncity.gov/government/departments-g-z/sheriff-s-office/divisions/civil-records",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.carsoncity.gov/government/departments-g-z/sheriff-s-office/divisions/civil-records"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 104,
+      "id": "county-nv-washoe-sheriff",
+      "title": "Washoe County, NV: sheriff civil unit",
+      "originalUrl": "https://www.washoesheriff.com/administrative_bureau/administrative-services-division/civil/civil-section.php",
+      "reviewedUrl": "https://www.washoesheriff.com/administrative_bureau/administrative-services-division/civil/civil-section.php",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.washoesheriff.com/administrative_bureau/administrative-services-division/civil/civil-section.php",
+        "https://washoesheriff.com/administrative_bureau/administrative-services-division/civil/civil-section.php"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 105,
+      "id": "county-tx-bell-recorder",
+      "title": "Bell County, TX: recorder",
+      "originalUrl": "https://www.bellcountytx.com/county_government/county_clerk/real_estate.php",
+      "reviewedUrl": "https://www.bellcountytx.com/county_government/county_clerk/real_estate.php",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.bellcountytx.com/county_government/county_clerk/real_estate.php"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 106,
+      "id": "county-tx-bell-sheriff",
+      "title": "Bell County, TX: sheriff civil unit",
+      "originalUrl": "https://www.bellcountytx.com/county_government/sheriff/",
+      "reviewedUrl": "https://www.bellcountytx.com/county_government/sheriff/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.bellcountytx.com/county_government/sheriff/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 107,
+      "id": "county-tx-brazoria-recorder",
+      "title": "Brazoria County, TX: recorder",
+      "originalUrl": "https://www.brazoriacountyclerktx.gov/",
+      "reviewedUrl": "https://www.brazoriacountyclerktx.gov/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.brazoriacountyclerktx.gov/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 108,
+      "id": "county-tx-brazoria-taxsale",
+      "title": "Brazoria County, TX: tax sale",
+      "originalUrl": "https://www.brazoriacountytx.gov/departments/tax-office/property-taxes/sheriff-sale-tax-resales",
+      "reviewedUrl": "https://www.brazoriacountytx.gov/departments/tax-office/property-taxes/sheriff-sale-tax-resales",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.brazoriacountytx.gov/departments/tax-office/property-taxes/sheriff-sale-tax-resales"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 109,
+      "id": "county-tx-brazoria-treasurer",
+      "title": "Brazoria County, TX: treasurer / tax collector",
+      "originalUrl": "https://www.brazoriacountytx.gov/departments/tax-office",
+      "reviewedUrl": "https://www.brazoriacountytx.gov/departments/tax-office",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.brazoriacountytx.gov/departments/tax-office"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 110,
+      "id": "county-tx-brazoria-sheriff",
+      "title": "Brazoria County, TX: sheriff civil unit",
+      "originalUrl": "https://www.brazoriacountytx.gov/departments/sheriff-s-office",
+      "reviewedUrl": "https://www.brazoriacountytx.gov/departments/sheriff-s-office",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.brazoriacountytx.gov/departments/sheriff-s-office",
+        "https://www.brazoriacountytx.gov/departments/tax-office/property-taxes/sheriff-sale-tax-resales",
+        "https://www.brazoriacountytx.gov/departments/tax-office",
+        "https://www.brazoriacountytx.gov/home/showpublisheddocument/21082/639099488880270000"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 111,
+      "id": "county-tx-brazos-sheriff",
+      "title": "Brazos County, TX: sheriff civil unit",
+      "originalUrl": "https://sheriff.brazoscountytx.gov/contact/",
+      "reviewedUrl": "https://sheriff.brazoscountytx.gov/contact/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://sheriff.brazoscountytx.gov/contact/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 112,
+      "id": "county-tx-dallas-taxsale",
+      "title": "Dallas County, TX: tax sale",
+      "originalUrl": "https://taxoffice.dallascounty.org/hc/en-us/articles/52851449825691-Sheriff-s-Sales",
+      "reviewedUrl": "https://www.dallascounty.org/departments/sheriff/writ-enforcement-section/",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.dallascounty.org/departments/sheriff/writ-enforcement-section/"
+      ],
+      "decision": "Used readable official sheriff tax-sale instructions; removed unverified resale description.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 113,
+      "id": "county-tx-delta-taxsale",
+      "title": "Delta County, TX: tax sale",
+      "originalUrl": "https://www.deltacountytx.com/",
+      "reviewedUrl": "https://www.deltacountytx.com/tax-assessor-collector/page/delinquent-tax-sales-0",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.deltacountytx.com/tax-assessor-collector/page/delinquent-tax-sales-0"
+      ],
+      "decision": "Used county delinquent-tax-sales page instead of homepage; kept homepage tax-account entry contact-only.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 114,
+      "id": "county-tx-delta-recorder",
+      "title": "Delta County, TX: recorder",
+      "originalUrl": "https://www.deltacountytx.com/county-district-clerk/page/deed-land-records",
+      "reviewedUrl": "https://www.deltacountytx.com/county-district-clerk/page/deed-land-records",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.deltacountytx.com/county-district-clerk/page/deed-land-records"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 115,
+      "id": "county-tx-delta-sheriff",
+      "title": "Delta County, TX: sheriff civil unit",
+      "originalUrl": "https://www.deltacountytx.com/sheriffs-office",
+      "reviewedUrl": "https://www.deltacountytx.com/sheriffs-office",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.deltacountytx.com/sheriffs-office"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 116,
+      "id": "county-tx-el-paso-assessor",
+      "title": "El Paso County, TX: assessor",
+      "originalUrl": "https://www.epcad.org/",
+      "reviewedUrl": "https://www.epcad.org/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.epcad.org/",
+        "https://epcad.org/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 117,
+      "id": "county-tx-erath-taxsale",
+      "title": "Erath County, TX: tax sale",
+      "originalUrl": "https://www.co.erath.tx.us/",
+      "reviewedUrl": "https://www.co.erath.tx.us/386/Tax-Sales",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.co.erath.tx.us/386/Tax-Sales"
+      ],
+      "decision": "Used actual Tax Sales page and separate Tax Assessor-Collector page.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 118,
+      "id": "county-tx-erath-sheriff",
+      "title": "Erath County, TX: sheriff civil unit",
+      "originalUrl": "https://www.co.erath.tx.us/214/Sheriffs-Office",
+      "reviewedUrl": "https://www.co.erath.tx.us/214/Sheriffs-Office",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.co.erath.tx.us/214/Sheriffs-Office"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 119,
+      "id": "county-tx-erath-recorder",
+      "title": "Erath County, TX: recorder",
+      "originalUrl": "https://www.co.erath.tx.us/156/County-Clerk",
+      "reviewedUrl": "https://www.co.erath.tx.us/156/County-Clerk",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.co.erath.tx.us/156/County-Clerk"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 120,
+      "id": "county-tx-galveston-taxsale",
+      "title": "Galveston County, TX: tax sale",
+      "originalUrl": "https://www.galvestoncountytx.gov/our-county/tax-assessor-collector/property-tax/sheriff-sale-information",
+      "reviewedUrl": "https://www.galvestoncountytx.gov/our-county/tax-assessor-collector/property-tax/sheriff-sale-information",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.galvestoncountytx.gov/our-county/tax-assessor-collector/property-tax/sheriff-sale-information"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 121,
+      "id": "county-tx-galveston-treasurer",
+      "title": "Galveston County, TX: treasurer / tax collector",
+      "originalUrl": "https://www.galvestoncountytx.gov/our-county/tax-assessor-collector/property-tax",
+      "reviewedUrl": "https://www.galvestoncountytx.gov/our-county/tax-assessor-collector/tax-office",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.galvestoncountytx.gov/our-county/tax-assessor-collector/tax-office",
+        "https://www.galvestoncountytx.gov/our-county/tax-assessor-collector/tax-office/"
+      ],
+      "decision": "Used official Tax Office entry for tax-account services.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 122,
+      "id": "county-tx-galveston-recorder",
+      "title": "Galveston County, TX: recorder",
+      "originalUrl": "https://www.galvestoncountytx.gov/our-county/county-clerk/records-search",
+      "reviewedUrl": "https://www.galvestoncountytx.gov/our-county/county-clerk/records-search",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.galvestoncountytx.gov/our-county/county-clerk/records-search"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 123,
+      "id": "county-tx-hays-taxsale",
+      "title": "Hays County, TX: tax sale",
+      "originalUrl": "https://www.hayscountytx.gov/tax-assessor/tax-sales",
+      "reviewedUrl": "https://www.hayscountytx.gov/m/faq?cat=25",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.hayscountytx.gov/m/faq?cat=25"
+      ],
+      "decision": "Used official tax-sale FAQ, which identifies county-authorized law firms.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 124,
+      "id": "county-tx-hays-treasurer",
+      "title": "Hays County, TX: treasurer / tax collector",
+      "originalUrl": "https://www.hayscountytx.gov/property-tax-payments",
+      "reviewedUrl": "https://www.hayscountytx.gov/175/Tax-Assessor-Collector",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.hayscountytx.gov/175/Tax-Assessor-Collector"
+      ],
+      "decision": "Used canonical Tax Assessor-Collector page.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 125,
+      "id": "county-tx-hays-assessor",
+      "title": "Hays County, TX: assessor",
+      "originalUrl": "https://www.hayscad.com/",
+      "reviewedUrl": "https://www.hayscad.com/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.hayscad.com/",
+        "https://hayscad.com/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 126,
+      "id": "county-tx-hays-recorder",
+      "title": "Hays County, TX: recorder",
+      "originalUrl": "https://www.hayscountytx.gov/county-clerk",
+      "reviewedUrl": "https://www.hayscountytx.gov/county-clerk",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.hayscountytx.gov/county-clerk"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 127,
+      "id": "county-tx-hays-sheriff",
+      "title": "Hays County, TX: sheriff civil unit",
+      "originalUrl": "https://www.hayscountytx.gov/174/Hays-County-Sheriffs-Office",
+      "reviewedUrl": "https://www.hayscountytx.gov/174/Hays-County-Sheriffs-Office",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.hayscountytx.gov/174/Hays-County-Sheriffs-Office"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 128,
+      "id": "county-tx-jack-taxsale",
+      "title": "Jack County, TX: tax sale",
+      "originalUrl": "https://www.jackcounty.org/",
+      "reviewedUrl": "https://www.jackcounty.texas.gov/county-tax-assessor-collector",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.jackcounty.texas.gov/county-tax-assessor-collector"
+      ],
+      "decision": "Used current official Tax Assessor-Collector page; removed unsupported expired-certificate warning.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 129,
+      "id": "county-tx-jack-recorder",
+      "title": "Jack County, TX: recorder",
+      "originalUrl": "https://www.jackcounty.texas.gov/county-clerk",
+      "reviewedUrl": "https://www.jackcounty.texas.gov/county-clerk",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.jackcounty.texas.gov/county-clerk"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 130,
+      "id": "county-tx-jefferson-recorder",
+      "title": "Jefferson County, TX: recorder",
+      "originalUrl": "https://jeffersoncountytx.gov/cclerk/Recording",
+      "reviewedUrl": "https://www.jeffcotxvotes.gov/county-clerk/recording-division/",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.jeffcotxvotes.gov/county-clerk/recording-division/"
+      ],
+      "decision": "Used new Clerk recording page; official county Clerk homepage confirms new website.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 131,
+      "id": "county-tx-jefferson-sheriff",
+      "title": "Jefferson County, TX: sheriff civil unit",
+      "originalUrl": "https://www.sheriff.jeffersoncountytx.gov/divisionsPage",
+      "reviewedUrl": "https://www.sheriff.jeffersoncountytx.gov/divisionsPage",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.sheriff.jeffersoncountytx.gov/divisionsPage"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 132,
+      "id": "county-tx-johnson-taxsale",
+      "title": "Johnson County, TX: tax sale",
+      "originalUrl": "https://www.johnsoncountytx.org/public-safety/constables/constable-sale",
+      "reviewedUrl": "https://www.johnsoncountytx.org/public-safety/constables/constable-sale",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.johnsoncountytx.org/public-safety/constables/constable-sale"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 133,
+      "id": "county-tx-johnson-recorder",
+      "title": "Johnson County, TX: recorder",
+      "originalUrl": "https://www.johnsoncountytx.org/government/county-clerk/land-records-vitals/real-property",
+      "reviewedUrl": "https://www.johnsoncountytx.org/government/county-clerk/land-records-vitals/real-property",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.johnsoncountytx.org/government/county-clerk/land-records-vitals/real-property"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 134,
+      "id": "county-tx-lubbock-sheriff",
+      "title": "Lubbock County, TX: sheriff civil unit",
+      "originalUrl": "https://lubbocksheriff.com/divisions",
+      "reviewedUrl": "https://lubbocksheriff.com/divisions",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://lubbocksheriff.com/divisions"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 135,
+      "id": "county-tx-mclennan-taxsale",
+      "title": "McLennan County, TX: tax sale",
+      "originalUrl": "https://www.mclennan.gov/tax",
+      "reviewedUrl": "https://www.mclennan.gov/218/Tax-Office",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.mclennan.gov/218/Tax-Office"
+      ],
+      "decision": "Used canonical Tax Office page; corrected no-sale-page note to county GovEase referral.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 136,
+      "id": "county-tx-mclennan-recorder",
+      "title": "McLennan County, TX: recorder",
+      "originalUrl": "https://www.mclennan.gov/166/County-Clerk",
+      "reviewedUrl": "https://www.mclennan.gov/166/County-Clerk",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.mclennan.gov/166/County-Clerk"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 137,
+      "id": "county-tx-mclennan-sheriff",
+      "title": "McLennan County, TX: sheriff civil unit",
+      "originalUrl": "https://www.mclennan.gov/479/Offices-Divisions",
+      "reviewedUrl": "https://www.mclennan.gov/479/Offices-Divisions",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.mclennan.gov/479/Offices-Divisions"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 138,
+      "id": "county-tx-montgomery-sheriff",
+      "title": "Montgomery County, TX: sheriff civil unit",
+      "originalUrl": "https://www.mctxsheriff.org/",
+      "reviewedUrl": "https://www.mctxsheriff.org/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.mctxsheriff.org/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 139,
+      "id": "county-tx-nacogdoches-recorder",
+      "title": "Nacogdoches County, TX: recorder",
+      "originalUrl": "https://www.co.nacogdoches.tx.us/countyoffices/countyclerk.asp?hl=en-US",
+      "reviewedUrl": "https://www.co.nacogdoches.tx.us/countyoffices/countyclerk.asp?hl=en-US",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.co.nacogdoches.tx.us/countyoffices/countyclerk.asp?hl=en-US"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 140,
+      "id": "county-tx-nueces-treasurer",
+      "title": "Nueces County, TX: treasurer / tax collector",
+      "originalUrl": "https://www.nuecesco.com/county-services/tax-assessor-collector",
+      "reviewedUrl": "https://www.nuecesco.com/county-services/tax-assessor-collector",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.nuecesco.com/county-services/tax-assessor-collector"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 141,
+      "id": "county-tx-nueces-sheriff",
+      "title": "Nueces County, TX: sheriff civil unit",
+      "originalUrl": "https://www.nuecesco.com/law-enforcement/sheriff/civil-process-fees",
+      "reviewedUrl": "https://www.nuecesco.com/law-enforcement/sheriff/civil-process-fees",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.nuecesco.com/law-enforcement/sheriff/civil-process-fees"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 142,
+      "id": "county-tx-nueces-taxsale",
+      "title": "Nueces County, TX: tax sale",
+      "originalUrl": "https://www.nuecesco.com/county-services/tax-assessor-collector/external-agencies",
+      "reviewedUrl": "https://www.nuecesco.com/county-services/tax-assessor-collector/external-agencies",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.nuecesco.com/county-services/tax-assessor-collector/external-agencies"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 143,
+      "id": "county-tx-nueces-recorder",
+      "title": "Nueces County, TX: recorder",
+      "originalUrl": "https://www.nuecesco.com/county-services/county-clerk/filing-department",
+      "reviewedUrl": "https://www.nuecesco.com/county-services/county-clerk/filing-department",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.nuecesco.com/county-services/county-clerk/filing-department"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 144,
+      "id": "county-tx-reeves-taxsale",
+      "title": "Reeves County, TX: tax sale",
+      "originalUrl": "https://www.reevescounty.org/",
+      "reviewedUrl": "https://www.reevescounty.org/departments/county-tax-assessor-collector",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.reevescounty.org/departments/county-tax-assessor-collector"
+      ],
+      "decision": "Used county tax-office contact page for sale inquiries; redirected collection entry to appraisal district identified by county.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 145,
+      "id": "county-tx-reeves-sheriff",
+      "title": "Reeves County, TX: sheriff civil unit",
+      "originalUrl": "https://www.reevescounty.org/departments/sheriff-s-office",
+      "reviewedUrl": "https://www.reevescounty.org/departments/sheriff-s-office",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.reevescounty.org/departments/sheriff-s-office"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 146,
+      "id": "county-tx-reeves-recorder",
+      "title": "Reeves County, TX: recorder",
+      "originalUrl": "https://www.reevescounty.org/departments/county-clerk",
+      "reviewedUrl": "https://www.reevescounty.org/departments/county-clerk",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.reevescounty.org/departments/county-clerk"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 147,
+      "id": "county-tx-throckmorton-treasurer",
+      "title": "Throckmorton County, TX: treasurer / tax collector",
+      "originalUrl": "https://www.throckmortoncad.org/",
+      "reviewedUrl": "https://www.throckmortoncad.org/",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.throckmortoncad.org/"
+      ],
+      "decision": "Removed unverified negative collection claim; described published appraisal-district search/payment links.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 148,
+      "id": "county-tx-williamson-taxsale",
+      "title": "Williamson County, TX: tax sale",
+      "originalUrl": "https://www.wilcotx.gov/DocumentCenter/View/4207/Tax-Sales-In-Williamson-County-Information-Sheet-PDF",
+      "reviewedUrl": "https://www.wilcotx.gov/762/Tax-Sales",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.wilcotx.gov/762/Tax-Sales"
+      ],
+      "decision": "Used official HTML Tax Sales page instead of PDF-only entry.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 149,
+      "id": "county-tx-williamson-treasurer",
+      "title": "Williamson County, TX: treasurer / tax collector",
+      "originalUrl": "https://www.wilcotx.gov/687/Tax-Assessor-Collector",
+      "reviewedUrl": "https://www.wilcotx.gov/687/Tax-Assessor-Collector",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.wilcotx.gov/687/Tax-Assessor-Collector"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 150,
+      "id": "county-tx-williamson-sheriff",
+      "title": "Williamson County, TX: sheriff civil unit",
+      "originalUrl": "https://www.wilcotx.gov/219/Civil-Division",
+      "reviewedUrl": "https://www.wilcotx.gov/393/Civil-Law-Enforcement",
+      "status": "corrected",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.wilcotx.gov/393/Civil-Law-Enforcement"
+      ],
+      "decision": "Replaced County Attorney civil-litigation page with Precinct 1 Constable civil-law-enforcement page.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 151,
+      "id": "county-tx-williamson-recorder",
+      "title": "Williamson County, TX: recorder",
+      "originalUrl": "https://www.wilcotx.gov/268/County-Clerk",
+      "reviewedUrl": "https://www.wilcotx.gov/268/County-Clerk",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.wilcotx.gov/268/County-Clerk"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 152,
+      "id": "county-ut-garfield-sheriff",
+      "title": "Garfield County, UT: sheriff civil unit",
+      "originalUrl": "https://www.garfield.utah.gov/Departments/Sheriff",
+      "reviewedUrl": "https://www.garfield.utah.gov/Departments/Sheriff",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "direct-page-content",
+      "evidenceUrls": [
+        "https://www.garfield.utah.gov/Departments/Sheriff"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    },
+    {
+      "number": 153,
+      "id": "county-ut-sevier-sheriff",
+      "title": "Sevier County, UT: sheriff civil unit",
+      "originalUrl": "https://www.scsoutah.com/",
+      "reviewedUrl": "https://www.scsoutah.com/",
+      "status": "verified-purpose",
+      "reviewed": "2026-10-10",
+      "method": "published-indexed-content-or-official-referral",
+      "evidenceUrls": [
+        "https://www.scsoutah.com/"
+      ],
+      "decision": "Published source purpose matches the site’s role and description. External interactive behavior was not tested.",
+      "browserInteractionTested": false
+    }
+  ]
+}
