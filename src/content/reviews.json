@@ -41,8 +41,8 @@
       "src/lib/foreclosure.ts"
     ],
     "reviewed": "2026-10-10",
-    "hash": "a04ea8a64af59067",
-    "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors. 2026-10-10: reviewed the changed accuracy, security or flow wording; this pass did not re-verify every linked source."
+    "hash": "3680fcf1f91ec8c8",
+    "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors. 2026-10-10: reviewed the changed accuracy, security or flow wording; this pass did not re-verify every linked source. 2026-10-10: bankruptcy-stay wording qualified against U.S. Courts guidance: exceptions, timing and court orders matter."
   },
   {
     "id": "checklists",
@@ -370,8 +370,8 @@
       "src/lib/lessons/taxes.ts"
     ],
     "reviewed": "2026-10-10",
-    "hash": "643b42314b262f45",
-    "note": "Reviewed absolute wording; replaced blanket investment prescriptions with individual decision guidance and clarified independent verification of emailed payment instructions. 2026-10-10: aligned appraisal guidance and the knowledge-check explanation with CFPB guidance; no guaranteed sale value or universal valuation method. Other source-check dates unchanged."
+    "hash": "d92c6d5ff8fb2d6d",
+    "note": "Reviewed absolute wording; replaced blanket investment prescriptions with individual decision guidance and clarified independent verification of emailed payment instructions. 2026-10-10: aligned appraisal guidance and the knowledge-check explanation with CFPB guidance; no guaranteed sale value or universal valuation method. Other source-check dates unchanged. 2026-10-10: bankruptcy-stay wording qualified against U.S. Courts guidance: exceptions, timing and court orders matter."
   },
   {
     "id": "decide",

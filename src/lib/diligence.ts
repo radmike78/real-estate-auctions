@@ -17,7 +17,7 @@ function flagChecks(flags: NonNullable<Property['flags']>): Check[] {
     {
       area: 'Bankruptcy',
       result: flags.bankruptcy ? 'flag' : 'ok',
-      detail: flags.bankruptcy ? 'A bankruptcy filing was detected. The automatic stay halts the sale until relief is granted.' : 'No filing matched to the owner (PACER check recommended).',
+      detail: flags.bankruptcy ? 'A bankruptcy filing was detected. An automatic stay may pause the sale; exceptions and court orders matter. Have an attorney check this case before relying on a sale date.' : 'No filing matched to the owner (PACER check recommended).',
     },
     { area: 'Easements and restrictions', result: 'manual', detail: 'Review the recorded CC&Rs, plat and easements.' },
     {
