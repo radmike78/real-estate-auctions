@@ -157,7 +157,7 @@ describe('disclaimers', () => {
     expect(SOURCES_AND_ADVICE).toMatch(/attorney, a tax advisor, a licensed real estate agent or broker, and a financial advisor/);
     expect(DISCLAIMERS.financing.text).toMatch(/don't make, arrange, broker or negotiate loans/);
     expect(DISCLAIMERS.financing.text).toMatch(/aren't responsible/);
-    expect(DISCLAIMERS.sales.text).toMatch(/don't take bids or money/);
+    expect(DISCLAIMERS.sales.text).toMatch(/don't handle property bids or purchase funds/);
     expect(DISCLAIMERS.professionals.text).toMatch(/pay to advertise/);
     expect(DISCLAIMERS.services.text).toMatch(/aren't a party/);
   });

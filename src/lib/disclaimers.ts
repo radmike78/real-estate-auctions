@@ -23,7 +23,7 @@ export const DISCLAIMERS: Record<DisclaimerKind, { title: string; text: string }
   sales: {
     title: 'Verify before you bid or buy',
     text:
-      "We aren't the seller, auctioneer, trustee or government agency, and we don't take bids or money. Sales can be paid off, postponed or " +
+      "We aren't the seller, auctioneer, trustee or government agency, and we don't handle property bids or purchase funds. Sales can be paid off, postponed or " +
       'cancelled at the last minute, and some liens may survive. Confirm everything with the official source, and get your own title, ' +
       'legal, tax, real estate, financial and inspection advice. Any purchase is between you and the seller, and at your own risk.',
   },

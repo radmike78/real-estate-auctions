@@ -35,7 +35,7 @@ export function stageLabel(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: De
 export function stageHint(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: Deal['plan'] }): string {
   const w = wayOf(d);
   switch (stage) {
-    case 'researching': return 'Checking whether it fits, before any offer or bid. No deadlines are running yet.';
+    case 'researching': return 'Checking whether it fits, before any offer or bid. Check listing, registration and seller deadlines while you research.';
     case 'offer': return w === 'offer' ? 'It checked out: you’re setting your price, the earnest money and your questions before you offer.' : 'It checked out: you’re setting your maximum bid and getting the funds ready.';
     case 'contract': return w === 'offer' ? 'The seller accepted your offer. The contract’s deadlines are running.' : 'You won the bid. Payment and recording deadlines are running.';
     case 'closed': return w === 'offer' ? 'It’s yours: insurance, locks, utilities and repairs come first.' : w === 'lien' ? 'You hold the certificate: track it until it’s paid off.' : 'The deed is yours: check redemption, possession and title before you remodel.';

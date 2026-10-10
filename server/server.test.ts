@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createServer, type Server } from 'node:http';
 import { webcrypto } from 'node:crypto';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createApp } from './app';
 import { openDb } from './db';
 import { hashPassword, verifyPassword, RateLimiter } from './auth';
@@ -435,6 +435,11 @@ describe('advertiser flow (running server)', () => {
     expect(tries.at(-1)).toBe(429);
   });
 
+  it('checks the full origin, including its scheme', async () => {
+    expect((await post('/api/applications/confirm', { token: 'invalid' }, { origin: base })).status).toBe(400);
+    expect((await post('/api/applications/confirm', { token: 'invalid' }, { origin: base.replace('http:', 'https:') })).status).toBe(403);
+  });
+
   it("failed logins for the admin's username can't lock the admin out of a network they've used", async () => {
     // Our earlier successful login came from 127.0.0.1. Flood failures for 'admin' from many addresses...
     for (let i = 0; i < 12; i++) await post('/api/admin/login', { username: 'admin', password: 'wrong' }, { 'x-fsf-request': '1', 'x-forwarded-for': `203.0.113.${100 + i}` });
@@ -452,6 +457,28 @@ describe('advertiser flow (running server)', () => {
 });
 
 describe('operations: health check and backups', () => {
+  it('does not log private email or claim delivery on a secure site without an email provider', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'fsf-no-mail-'));
+    const app = createApp({ dbPath: join(dir, 'app.db'), dataDir: join(dir, 'data'), distDir: null,
+      adminUsername: 'admin', adminPasswordHash: hashPassword('correct horse battery'),
+      directorySigningKey: null, feedPublicKey: null, baseUrl: 'https://fsf.example', secureCookies: true });
+    const server = createServer(app.handler);
+    const logs = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const warnings = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    try {
+      await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
+      const base = `http://127.0.0.1:${(server.address() as { port: number }).port}`;
+      const res = await fetch(base + '/api/alerts/signup', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: 'private@example.com', list: true }) });
+      expect(res.status).toBe(503);
+      expect(logs).not.toHaveBeenCalled();
+      expect(warnings).toHaveBeenCalledWith('Email service is not configured; message was not sent.');
+      expect(await (await fetch(base + '/api/features')).json()).toEqual({ email: false, payments: false });
+    } finally {
+      logs.mockRestore(); warnings.mockRestore();
+      await new Promise<void>((r) => server.close(() => r()));
+      app.db.close();
+    }
+  });
   it('answers /healthz and writes a consistent database backup', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'fsf-ops-'));
     const app = createApp({

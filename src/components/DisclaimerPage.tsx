@@ -110,7 +110,7 @@ export const SECTIONS: DrillSection[] = [
     content: () => (
       <ul>
         <li>We're an information service. Any sale, loan or service agreement is between you and the other party.</li>
-        <li>We don't sell property, run auctions, take bids, or hold or move money.</li>
+        <li>We don't sell property, run auctions, or handle property bids or purchase funds.</li>
         <li>We don't offer, make, arrange, broker or negotiate financing, and we don't guarantee credit.</li>
         <li>We don't represent buyers, sellers, borrowers or lenders, and we aren't a real estate broker, mortgage broker or insurance agent.</li>
         <li>We aren't a party to any agreement you make with a seller, lender, agent, contractor or anyone else you find through this site.</li>

@@ -138,6 +138,12 @@ export function createApp(config: AppConfig) {
   }
   /** Like deliver, but says when the email service's sending allowance is used up. */
   async function deliverOutcome(mail: Mail): Promise<'sent' | 'failed' | 'quota'> {
+    // The console sender is for local development. A public deployment must neither claim delivery
+    // nor print private messages and sign-in links when no email provider is configured.
+    if (mailer === consoleMailer && secure) {
+      console.warn('Email service is not configured; message was not sent.');
+      return 'failed';
+    }
     try {
       await mailer.send(mail);
       return 'sent';
@@ -255,13 +261,13 @@ export function createApp(config: AppConfig) {
   function assertSameOrigin(req: IncomingMessage) {
     const origin = req.headers.origin;
     if (!origin) return;
-    let host: string | null = null;
+    let requestOrigin: string | null = null;
     try {
-      host = new URL(origin).host;
+      requestOrigin = new URL(origin).origin;
     } catch {
       /* "null" (sandboxed frames) or garbage */
     }
-    if (host !== req.headers.host) throw new HttpError(403, 'Cross-origin request refused');
+    if (requestOrigin !== `${secure ? 'https' : 'http'}://${req.headers.host}`) throw new HttpError(403, 'Cross-origin request refused');
   }
   /** Custom header can't be sent cross-site without a CORS preflight, which we never allow. */
   function assertAppRequest(req: IncomingMessage) {

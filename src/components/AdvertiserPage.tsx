@@ -171,7 +171,7 @@ function PlanCard({ me, onChange }: { me: Me; onChange: () => void }) {
           <button className="btn big plan-cta" disabled={busy || !ready} onClick={() => open('/api/pro/checkout', { tier, ...(tier === 'premium_plus' ? { topic } : {}) })}>{busy ? 'Opening secure payment…' : areaCount > 1 ? `Start advertising in ${areaCount} areas` : 'Start advertising'}</button>
           {!p.foundingDiscount[tier] && <p className="small">Have a discount code? Enter it on the payment page.</p>}
           {p.foundingDiscount[tier] && <p className="small">Your founding-advertiser discount is applied on the payment page.</p>}
-          <p className="muted">You'll pay on Stripe's secure page. We never see or store your card details. Your profile goes live as soon as the payment clears.</p>
+          <p className="muted">You'll pay on Stripe's secure page. We never see or store your card details. After payment is confirmed, your profile can appear once approval, current license verification and placement requirements are met.</p>
           {p.hasCard && <button className="linkish" disabled={busy} onClick={() => open('/api/pro/billing-portal')}>Manage billing</button>}
         </>
       ) : (
