@@ -26,7 +26,10 @@ const INSURANCE: Record<StateCode, Lookup> = {
   NV: { who: 'Nevada Division of Insurance', url: 'https://di.nv.gov/nv/r/doi/licensing/search' },
   CA: { who: 'California Department of Insurance', url: 'https://cdicloud.insurance.ca.gov/cal/LicenseNumberSearch' },
   AZ: { who: 'Arizona Department of Insurance and Financial Institutions (license search)', url: 'https://difi.az.gov/license-search' },
-  UT: { who: 'Utah Insurance Department', url: 'https://insurance.utah.gov/' },
+  UT: { note: 'Check an agent or agency’s Utah license. On mobile, use Sircon.', links: [
+    { who: 'Utah Insurance Department license search (desktop)', url: 'https://licenseesearch.uid.utah.gov/s/' },
+    { who: 'Sircon license search (mobile or alternate)', url: 'https://www.sircon.com/ComplianceExpress/Inquiry/consumerInquiry.do?nonSscrb=Y' },
+  ] },
   TX: { who: 'Texas Department of Insurance (agent lookup)', url: 'https://www.tdi.texas.gov/agent/agent-lookup.html' },
 };
 
@@ -47,7 +50,7 @@ export const LICENSE_LOOKUPS: Partial<Record<ProKey, Record<StateCode, Lookup>>>
   inspector: {
     NV: { who: 'Nevada Real Estate Division (inspectors of structures)', url: 'https://red.prod.secure.nv.gov/Lookup/LicenseLookup.aspx' },
     CA: { note: 'No state license for home inspectors. Ask for proof of insurance and training, and a sample report.' },
-    AZ: { who: 'Arizona Board of Technical Registration', url: 'https://btr.az.gov/' },
+    AZ: { who: 'Arizona Board of Technical Registration: registered professional search', url: 'https://btr.az.gov/public/registered-professional-search' },
     UT: { who: 'Utah Division of Professional Licensing (Private Home Inspector license)', url: 'https://secure.utah.gov/llv/search/index.html' },
     TX: { who: 'Texas Real Estate Commission (TREC) license holder search (choose Inspector)', url: 'https://www.trec.texas.gov/license-search' },
   },

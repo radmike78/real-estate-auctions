@@ -370,8 +370,8 @@
       "src/lib/lessons/taxes.ts"
     ],
     "reviewed": "2026-10-10",
-    "hash": "f0b9c68c6cb6fe1c",
-    "note": "Reviewed the 153 outstanding source records and corrected the cited tax, windstorm and contract guidance. Source content includes official indexed copies and referrals; external browser interactions are untested. See docs/source-review-2026-10-10.json."
+    "hash": "8486043dbbab3684",
+    "note": "Verified direct destinations and official referrals; see docs/direct-link-review-2026-10-10.json. Search submissions and browser behavior not tested."
   },
   {
     "id": "decide",
@@ -394,8 +394,8 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-10",
-    "hash": "3b46980a05a4b3ff",
-    "note": "Reviewed the 153 outstanding source records; corrected tax eligibility and record-retention wording, TREC forms guidance and county office destinations. Source content review includes first-party indexed pages; browser interactions are untested. See docs/source-review-2026-10-10.json for per-record evidence."
+    "hash": "d4c5b735823beac5",
+    "note": "Verified direct destinations and official referrals; see docs/direct-link-review-2026-10-10.json. Search submissions and browser behavior not tested."
   },
   {
     "id": "analyze",
