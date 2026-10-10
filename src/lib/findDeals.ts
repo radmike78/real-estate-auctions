@@ -54,7 +54,7 @@ export const OTHER_SITES: { group: string; sites: DealSource[] }[] = [
   {
     group: 'Home listing sites',
     sites: [
-      { name: 'Zillow', url: 'https://www.zillow.com/', what: 'Homes listed for sale, with filters for foreclosures and bank-owned homes.' },
+      { name: 'Zillow', url: 'https://www.zillow.com/', what: 'Homes for sale, including foreclosure and bank-owned listings when available.' },
       { name: 'Realtor.com', url: 'https://www.realtor.com/', what: 'Homes listed by agents on the local MLS.' },
       { name: 'Redfin', url: 'https://www.redfin.com/', what: 'Homes listed for sale, with sold prices to compare.' },
     ],
@@ -136,7 +136,7 @@ export const countyOfficeCards = (state: StateCode, offices?: CountyOffices): De
         ? 'Civil services and judgment enforcement. Confirm any current property sales, notices and bidding rules with the office.'
         : label.what;
     const name = `${label.name}${office.contactOnly ? ' — contact / directory' : ''}`;
-    const what = `${description}${office.note ? ` ${office.note}` : ''} ${office.checked ? `Link last checked: ${office.checked}. Confirm current details with the office.` : 'No verification date recorded. Confirm this link and current details with the county before relying on it.'}`;
+    const what = `${description}${office.note ? ` ${office.note}` : ''} ${office.checked ? `Source reviewed: ${office.checked}. Confirm current details with the office.` : 'No verification date recorded. Confirm this link and current details with the county before relying on it.'}`;
     const previous = cards.get(office.url);
     if (previous) {
       previous.name += ` / ${name}`;

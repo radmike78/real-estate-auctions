@@ -5,7 +5,9 @@
 //   - Every https:// link on the site must be listed here (by exact URL, or by a listed `prefix`).
 //   - Listing sources (`role: 'listing'`) must be a government agency, Fannie Mae/Freddie Mac, the bank that owns
 //     the property, or the official seller the county names: never an auction marketplace or aggregator (CLAUDE.md).
-//   - `checked` is the date someone read the page and confirmed what the site says about it. Leave it null
+//   - `checked` is the date someone read the published content and matched the site's claims or source role.
+//     This can include an official indexed copy or an official referral; it is not an uptime or UI-test date.
+//     Record the review method in the audit. Leave it null
 //     until then: `npm run content:status` lists everything unchecked or older than 6 months.
 // When an official page changes, re-read it, fix the site's text, and update `checked` (and `note`).
 
@@ -32,7 +34,7 @@ export interface Source {
   /** Also covers every link that starts with `url` (for links built from a pattern, like NRS chapters). */
   prefix?: boolean;
   role: SourceRole;
-  /** The date the page's content was read and matched against the site (YYYY-MM-DD), or null if not yet. */
+  /** Published-content review date (YYYY-MM-DD), including indexed copies/referrals; not a browser-test date. */
   checked: string | null;
   /** Watched for changes by `npm run content:check-sources` (weekly on GitHub): pages whose rules can change
    *  between auctions. A change means: re-read it and update the site. */
@@ -51,6 +53,9 @@ const NRS = (ch: string, title: string, checked: string | null, note?: string): 
 });
 
 const LISTED: Source[] = [
+  { id: 'learn-taxes-record-period', title: 'IRS: how long to keep records', publisher: 'Internal Revenue Service', url: 'https://www.irs.gov/businesses/small-businesses-self-employed/how-long-should-i-keep-records', role: 'rules', checked: '2026-10-10' },
+  { id: 'learn-taxes-bonus-2026', title: 'IRS Notice 2026-11: bonus depreciation', publisher: 'Internal Revenue Service', url: 'https://www.irs.gov/pub/irs-drop/n-26-11.pdf', role: 'rules', checked: '2026-10-10' },
+
   {"id": "practice-deal-preapproval", "title": "CFPB: conditional preapproval", "publisher": "Consumer Financial Protection Bureau", "url": "https://www.consumerfinance.gov/owning-a-home/explore/get-a-preapproval-letter/", "role": "rules", "checked": "2026-10-09", "note": "Verified for the fictional core practice journey; applicability limits remain visible."},
   {"id": "practice-deal-closing", "title": "CFPB: closing activities", "publisher": "Consumer Financial Protection Bureau", "url": "https://www.consumerfinance.gov/owning-a-home/close/", "role": "rules", "checked": "2026-10-09", "note": "Verified for the fictional core practice journey; applicability limits remain visible."},
   {"id": "practice-deal-flood", "title": "FEMA official flood maps", "publisher": "Federal Emergency Management Agency", "url": "https://msc.fema.gov/", "role": "lookup", "checked": "2026-10-09", "note": "Verified for the fictional core practice journey; applicability limits remain visible."},
@@ -210,15 +215,15 @@ const LISTED: Source[] = [
   { id: 'tax-slco-exemption', title: 'Salt Lake County Assessor: primary residential exemption', publisher: 'Salt Lake County', url: 'https://prod.saltlakecounty.gov/assessor/file-for-a-residential-property-exemption/', role: 'rules', checked: '2026-10-04' },
   { id: 'cdi-fair-plan', title: 'California Department of Insurance: the California FAIR Plan', publisher: 'California Department of Insurance', url: 'https://www.insurance.ca.gov/01-consumers/200-wrr/California-FAIR-Plan.cfm', role: 'rules', checked: '2026-10-04' },
   { id: 'attom-flip-2025', title: 'ATTOM: 2025 year-end home flipping report', publisher: 'ATTOM', url: 'https://www.attomdata.com/news/market-trends/flipping/2025-year-end-home-flipping-report/', role: 'research', checked: '2026-10-04', note: '$65,981 typical gross profit, 25.5% gross return, 163 days to resell.' },
-  { id: 'nasba-cpa', title: 'NASBA licensee database (CPAverify)', publisher: 'National Association of State Boards of Accountancy', url: 'https://ald.nasba.org/search/cpa', role: 'lookup', checked: null, note: 'cpaverify.org redirects here; blocks automated checks, so confirm in a browser.' },
+  { id: 'nasba-cpa', title: 'NASBA licensee database (CPAverify)', publisher: 'National Association of State Boards of Accountancy', url: 'https://ald.nasba.org/search/cpa', role: 'lookup', checked: '2026-10-10', note: 'cpaverify.org redirects here; blocks automated checks, so confirm in a browser.' },
   { id: 'calbar-lookup', title: 'State Bar of California: attorney search', publisher: 'State Bar of California', url: 'https://apps.calbar.ca.gov/attorney/LicenseeSearch/QuickSearch', role: 'lookup', checked: '2026-10-04' },
   { id: 'azbar-directory', title: 'State Bar of Arizona: member directory', publisher: 'State Bar of Arizona', url: 'https://www.azbar.org/for-legal-professionals/practice-tools-management/member-directory/', role: 'lookup', checked: '2026-10-04' },
   { id: 'utahbar-directory', title: 'Utah State Bar: licensee directory', publisher: 'Utah State Bar', url: 'https://services.utahbar.org/Licensee-Directory', role: 'lookup', checked: '2026-10-06' },
   { id: 'cdi-license', title: 'California Department of Insurance: license search', publisher: 'California Department of Insurance', url: 'https://cdicloud.insurance.ca.gov/cal/LicenseNumberSearch', role: 'lookup', checked: '2026-10-04' },
   { id: 'cba', title: 'California Board of Accountancy: license search (Department of Consumer Affairs)', publisher: 'State of California', url: 'https://search.dca.ca.gov/', role: 'lookup', checked: '2026-10-06' },
-  { id: 'az-btr', title: 'Arizona Board of Technical Registration (home inspectors)', publisher: 'State of Arizona', url: 'https://btr.az.gov/', role: 'lookup', checked: null, note: 'Blocks automated checks; confirm the license search in a browser.' },
-  { id: 'az-difi', title: 'Arizona Department of Insurance and Financial Institutions (license search)', publisher: 'State of Arizona', url: 'https://difi.az.gov/license-search', role: 'lookup', checked: null, note: 'Blocks automated checks; confirm the license search in a browser.' },
-  { id: 'az-roc-search', title: 'Arizona Registrar of Contractors: contractor search', publisher: 'State of Arizona', url: 'https://roc.az.gov/contractor-search', role: 'lookup', checked: null, note: 'Blocks automated checks; confirm in a browser.' },
+  { id: 'az-btr', title: 'Arizona Board of Technical Registration (home inspectors)', publisher: 'State of Arizona', url: 'https://btr.az.gov/', role: 'lookup', checked: '2026-10-10', note: 'Official published licensing information reviewed; interactive search was not tested.' },
+  { id: 'az-difi', title: 'Arizona Department of Insurance and Financial Institutions (license search)', publisher: 'State of Arizona', url: 'https://difi.az.gov/license-search', role: 'lookup', checked: '2026-10-10', note: 'Official published licensing information reviewed; interactive search was not tested.' },
+  { id: 'az-roc-search', title: 'Arizona Registrar of Contractors: contractor search', publisher: 'State of Arizona', url: 'https://roc.az.gov/contractor-search', role: 'lookup', checked: '2026-10-10', note: 'Blocks automated checks; confirm in a browser.' },
   { id: 'ut-insurance', title: 'Utah Insurance Department', publisher: 'State of Utah', url: 'https://insurance.utah.gov/', role: 'lookup', checked: '2026-10-08', note: 'Department page reviewed; confirm license status in its public licensee lookup.' },
   { id: 'ut-realestate', title: 'Utah Division of Real Estate: license lookup', publisher: 'State of Utah', url: 'https://secure.utah.gov/rer/relv/search.html', role: 'lookup', checked: '2026-10-06' },
   { id: 'asc-appraiser-registry', title: 'Appraisal Subcommittee: national registry of appraisers', publisher: 'Appraisal Subcommittee of the Federal Financial Institutions Examination Council', url: 'https://www.asc.gov/appraiser', role: 'lookup', checked: '2026-10-03' },
@@ -388,7 +393,7 @@ const LISTED: Source[] = [
   { id: 'tx-houston-deed-restrictions', title: 'City of Houston: deed restriction FAQ', publisher: 'City of Houston Legal Department', url: 'https://www.houstontx.gov/legal/dr-faq.html', role: 'rules', checked: '2026-10-05', note: 'Houston has no zoning; the city enforces some deed restrictions.' },
   { id: 'tx-ust-r06', title: 'U.S. Trustee Program, Region 6 (Northern and Eastern Districts of Texas)', publisher: 'U.S. Department of Justice', url: 'https://www.justice.gov/ust/ust-regions-r06', role: 'lookup', checked: '2026-10-05' },
   { id: 'tx-ust-r07', title: 'U.S. Trustee Program, Region 7 (Southern and Western Districts of Texas)', publisher: 'U.S. Department of Justice', url: 'https://www.justice.gov/ust/ust-regions-r07', role: 'lookup', checked: '2026-10-05' },
-  { id: 'tx-22tac-537-11', title: '22 Tex. Admin. Code 537.11 (use of TREC forms)', publisher: 'Cornell LII (Texas Administrative Code)', url: 'https://www.law.cornell.edu/regulations/texas/22-Tex-Admin-Code-SS-537-11', role: 'rules', checked: null, note: 'Read on Cornell LII, not the official Texas Register; confirm there.' },
+  { id: 'tx-22tac-537-11', title: '22 Tex. Admin. Code 537.11 (use of TREC forms)', publisher: 'Texas Real Estate Commission', url: 'https://www.trec.texas.gov/node/634', role: 'rules', checked: '2026-10-10', note: 'Rule 537.11 cross-checked against TREC’s published rules.' },
   { id: 'tx-sos-direct', title: 'Texas Secretary of State: business search (SOSPortal)', publisher: 'Texas Secretary of State', url: 'https://www.sos.state.tx.us/corp/sosda/index.shtml', role: 'lookup', checked: '2026-10-05', note: '$1 per search.' },
   { id: 'tx-sos-ucc', title: 'Texas Secretary of State: UCC filings', publisher: 'Texas Secretary of State', url: 'https://www.sos.state.tx.us/ucc/index.shtml', role: 'lookup', checked: '2026-10-05' },
   { id: 'tx-talcb', title: 'TALCB license holder search (appraisers)', publisher: 'Texas Appraiser Licensing and Certification Board', url: 'https://www.talcb.texas.gov/license-search', role: 'lookup', checked: '2026-10-05' },
@@ -473,17 +478,17 @@ const LISTED: Source[] = [
   // themselves still need a read.
   { id: 'learn-fin-b3-6-02', title: 'Fannie Mae Selling Guide: debt-to-income ratios (B3-6-02)', publisher: 'Fannie Mae', url: 'https://selling-guide.fanniemae.com/sel/b3-6-02/debt-income-ratios', role: 'rules', checked: '2026-10-06', note: '36% manual, up to 45% with credit and reserves, 50% through DU.' },
   { id: 'learn-fin-b2-1-3-03', title: 'Fannie Mae Selling Guide: cash-out refinances (B2-1.3-03)', publisher: 'Fannie Mae', url: 'https://selling-guide.fanniemae.com/sel/b2-1.3-03/cash-out-refinance-transactions', role: 'rules', checked: '2026-10-06', note: 'First mortgage paid off must be 12 months old; delayed financing exception within six months of a cash purchase.' },
-  { id: 'learn-twia', title: 'Texas Windstorm Insurance Association', publisher: 'Texas Windstorm Insurance Association', url: 'https://www.twia.org/', role: 'rules', checked: null },
-  { id: 'learn-tdi-wind', title: 'Texas Department of Insurance: windstorm inspections (WPI-8)', publisher: 'Texas Department of Insurance', url: 'https://www.tdi.texas.gov/wind/index.html', role: 'rules', checked: null },
+  { id: 'learn-twia', title: 'Texas Windstorm Insurance Association', publisher: 'Texas Windstorm Insurance Association', url: 'https://www.twia.org/', role: 'rules', checked: '2026-10-10' },
+  { id: 'learn-tdi-wind', title: 'Texas Department of Insurance: windstorm inspections (WPI-8)', publisher: 'Texas Department of Insurance', url: 'https://www.tdi.texas.gov/wind/index.html', role: 'rules', checked: '2026-10-10' },
   { id: 'learn-car-contingencies', title: 'C.A.R. Quick Guide: navigating contingencies', publisher: 'California Association of REALTORS', url: 'https://www.car.org/-/media/CAR/Documents/Transaction-Center/PDF/QUICK-GUIDES/Quick-Guide---Navigating-Contingencies-in-the-Contract.pdf', role: 'rules', checked: '2026-10-06', note: '17-day default contingencies; Notice to Buyer to Perform gives 2 days.' },
   { id: 'learn-aar-contract', title: 'Arizona REALTORS: purchase contract series', publisher: 'Arizona Association of REALTORS', url: 'https://www.aaronline.com/?p=78755', role: 'rules', checked: '2026-10-06', note: '10-day inspection period by default.' },
-  { id: 'learn-taxes-p583', title: 'IRS Publication 583: records to keep', publisher: 'Internal Revenue Service', url: 'https://www.irs.gov/publications/p583', role: 'rules', checked: null },
-  { id: 'learn-taxes-niit', title: 'IRS: net investment income tax', publisher: 'Internal Revenue Service', url: 'https://www.irs.gov/individuals/net-investment-income-tax', role: 'rules', checked: null },
-  { id: 'learn-taxes-usc-168', title: '26 U.S.C. 168: depreciation and bonus depreciation', publisher: 'Legal Information Institute, Cornell Law School', url: 'https://www.law.cornell.edu/uscode/text/26/168', role: 'rules', checked: null, note: 'Confirm the page shows the 2025 amendment (100% bonus depreciation for property acquired after January 19, 2025; IRS Notice 2026-11).' },
-  { id: 'learn-taxes-usc-469', title: '26 U.S.C. 469: passive activity losses', publisher: 'Legal Information Institute, Cornell Law School', url: 'https://www.law.cornell.edu/uscode/text/26/469', role: 'rules', checked: null },
-  { id: 'learn-taxes-usc-453', title: '26 U.S.C. 453: installment method', publisher: 'Legal Information Institute, Cornell Law School', url: 'https://www.law.cornell.edu/uscode/text/26/453', role: 'rules', checked: null },
-  { id: 'learn-taxes-usc-1402', title: '26 U.S.C. 1402: self-employment income', publisher: 'Legal Information Institute, Cornell Law School', url: 'https://www.law.cornell.edu/uscode/text/26/1402', role: 'rules', checked: null },
-  { id: 'learn-taxes-nrs-375', title: 'NRS 375: real property transfer tax', publisher: 'Nevada Legislature', url: 'https://www.leg.state.nv.us/nrs/nrs-375.html', role: 'rules', checked: null },
+  { id: 'learn-taxes-p583', title: 'IRS Publication 583: records to keep', publisher: 'Internal Revenue Service', url: 'https://www.irs.gov/publications/p583', role: 'rules', checked: '2026-10-10' },
+  { id: 'learn-taxes-niit', title: 'IRS: net investment income tax', publisher: 'Internal Revenue Service', url: 'https://www.irs.gov/individuals/net-investment-income-tax', role: 'rules', checked: '2026-10-10' },
+  { id: 'learn-taxes-usc-168', title: '26 U.S.C. 168: depreciation and bonus depreciation', publisher: 'Legal Information Institute, Cornell Law School', url: 'https://www.law.cornell.edu/uscode/text/26/168', role: 'rules', checked: '2026-10-10', note: 'Confirm the page shows the 2025 amendment (100% bonus depreciation for property acquired after January 19, 2025; IRS Notice 2026-11).' },
+  { id: 'learn-taxes-usc-469', title: '26 U.S.C. 469: passive activity losses', publisher: 'Legal Information Institute, Cornell Law School', url: 'https://www.law.cornell.edu/uscode/text/26/469', role: 'rules', checked: '2026-10-10' },
+  { id: 'learn-taxes-usc-453', title: '26 U.S.C. 453: installment method', publisher: 'Legal Information Institute, Cornell Law School', url: 'https://www.law.cornell.edu/uscode/text/26/453', role: 'rules', checked: '2026-10-10' },
+  { id: 'learn-taxes-usc-1402', title: '26 U.S.C. 1402: self-employment income', publisher: 'Legal Information Institute, Cornell Law School', url: 'https://www.law.cornell.edu/uscode/text/26/1402', role: 'rules', checked: '2026-10-10' },
+  { id: 'learn-taxes-nrs-375', title: 'NRS 375: real property transfer tax', publisher: 'Nevada Legislature', url: 'https://www.leg.state.nv.us/nrs/nrs-375.html', role: 'rules', checked: '2026-10-10' },
   { id: 'learn-taxes-ftb-3840', title: 'California FTB Form 3840: like-kind exchanges', publisher: 'California Franchise Tax Board', url: 'https://www.ftb.ca.gov/file/personal/reporting-like-kind-exchanges.html', role: 'rules', checked: '2026-10-08' },
   { id: 'learn-taxes-ars-43-1011', title: 'A.R.S. 43-1011.01: income tax rate', publisher: 'Arizona Legislature', url: 'https://www.azleg.gov/ars/43/01011.01.htm', role: 'rules', checked: '2026-10-07' },
   { id: 'learn-taxes-ars-43-1022', title: 'A.R.S. 43-1022: subtractions, including 25% of long-term capital gains', publisher: 'Arizona Legislature', url: 'https://www.azleg.gov/ars/43/01022.htm', role: 'rules', checked: '2026-10-07' },
@@ -631,16 +636,16 @@ const LISTED: Source[] = [
   { id: 'learn-xcode-title57-chapter8a-57-8a-s106-html', title: 'Utah Code 57-8a-106: HOA payoff fee', publisher: 'Utah Legislature', url: 'https://le.utah.gov/xcode/Title57/Chapter8A/57-8a-S106.html', role: 'rules', checked: '2026-09-29' },
   { id: 'learn-ns-arizona-ariz-admin-code-ss-r4-28-1101', title: 'Arizona Administrative Code R4-28-1101: duties to clients and others', publisher: 'Legal Information Institute, Cornell Law School', url: 'https://www.law.cornell.edu/regulations/arizona/Ariz-Admin-Code-SS-R4-28-1101', role: 'rules', checked: '2026-09-29' },
   { id: 'learn-ations-utah-utah-admin-code-r162-2f-401a', title: 'Utah Administrative Code R162-2f-401a: agency and limited agency', publisher: 'Legal Information Institute, Cornell Law School', url: 'https://www.law.cornell.edu/regulations/utah/Utah-Admin-Code-R162-2f-401a', role: 'rules', checked: '2026-09-29' },
-  { id: 'hud-home', title: 'HUD Home Store', publisher: 'U.S. Department of Housing and Urban Development', url: 'https://www.hudhomestore.gov/', role: 'listing', checked: null },
-  { id: 'zillow', title: 'Zillow', publisher: 'Zillow Group', url: 'https://www.zillow.com/', role: 'other', checked: null },
-  { id: 'realtor-com', title: 'Realtor.com', publisher: 'Move, Inc.', url: 'https://www.realtor.com/', role: 'other', checked: null },
-  { id: 'redfin', title: 'Redfin', publisher: 'Redfin', url: 'https://www.redfin.com/', role: 'other', checked: null },
-  { id: 'auction-com', title: 'Auction.com', publisher: 'Auction.com', url: 'https://www.auction.com/', role: 'other', checked: null },
-  { id: 'xome', title: 'Xome', publisher: 'Xome', url: 'https://www.xome.com/', role: 'other', checked: null },
-  { id: 'hubzu', title: 'Hubzu', publisher: 'Hubzu', url: 'https://www.hubzu.com/', role: 'other', checked: null },
-  { id: 'bid4assets', title: 'Bid4Assets', publisher: 'Bid4Assets', url: 'https://www.bid4assets.com/', role: 'other', checked: null },
-  { id: 'loopnet', title: 'LoopNet', publisher: 'CoStar Group', url: 'https://www.loopnet.com/', role: 'other', checked: null },
-  { id: 'crexi', title: 'Crexi', publisher: 'Commercial Real Estate Exchange', url: 'https://www.crexi.com/', role: 'other', checked: null },
+  { id: 'hud-home', title: 'HUD Home Store', publisher: 'U.S. Department of Housing and Urban Development', url: 'https://www.hudhomestore.gov/', role: 'listing', checked: '2026-10-10' },
+  { id: 'zillow', title: 'Zillow', publisher: 'Zillow Group', url: 'https://www.zillow.com/', role: 'other', checked: '2026-10-10' },
+  { id: 'realtor-com', title: 'Realtor.com', publisher: 'Move, Inc.', url: 'https://www.realtor.com/', role: 'other', checked: '2026-10-10' },
+  { id: 'redfin', title: 'Redfin', publisher: 'Redfin', url: 'https://www.redfin.com/', role: 'other', checked: '2026-10-10' },
+  { id: 'auction-com', title: 'Auction.com', publisher: 'Auction.com', url: 'https://www.auction.com/', role: 'other', checked: '2026-10-10' },
+  { id: 'xome', title: 'Xome', publisher: 'Xome', url: 'https://www.xome.com/', role: 'other', checked: '2026-10-10' },
+  { id: 'hubzu', title: 'Hubzu', publisher: 'Hubzu', url: 'https://www.hubzu.com/', role: 'other', checked: '2026-10-10' },
+  { id: 'bid4assets', title: 'Bid4Assets', publisher: 'Bid4Assets', url: 'https://www.bid4assets.com/', role: 'other', checked: '2026-10-10' },
+  { id: 'loopnet', title: 'LoopNet', publisher: 'CoStar Group', url: 'https://www.loopnet.com/', role: 'other', checked: '2026-10-10' },
+  { id: 'crexi', title: 'Crexi', publisher: 'Commercial Real Estate Exchange', url: 'https://www.crexi.com/', role: 'other', checked: '2026-10-10' },
   { id: 'stripe-checkout', title: 'Stripe Checkout', publisher: 'Stripe', url: 'https://checkout.stripe.com/', prefix: true, role: 'payment', checked: null },
   { id: 'stripe-billing', title: 'Stripe billing portal', publisher: 'Stripe', url: 'https://billing.stripe.com/', prefix: true, role: 'payment', checked: null },
   { id: 'example', title: 'Placeholder addresses in fictional sample profiles', publisher: 'IANA example domain', url: 'https://example.com/', prefix: true, role: 'sample', checked: null },
