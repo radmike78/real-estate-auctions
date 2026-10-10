@@ -41,8 +41,8 @@
       "src/lib/foreclosure.ts"
     ],
     "reviewed": "2026-10-10",
-    "hash": "a04ea8a64af59067",
-    "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors. 2026-10-10: reviewed the changed accuracy, security or flow wording; this pass did not re-verify every linked source."
+    "hash": "3680fcf1f91ec8c8",
+    "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors. 2026-10-10: reviewed the changed accuracy, security or flow wording; this pass did not re-verify every linked source. 2026-10-10: bankruptcy-stay wording qualified against U.S. Courts guidance: exceptions, timing and court orders matter."
   },
   {
     "id": "checklists",
@@ -267,9 +267,9 @@
     "files": [
       "src/components/AboutPage.tsx"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "1f9dae1ba965b699",
-    "note": "Full content review (review round of 2026-09-27)."
+    "reviewed": "2026-10-10",
+    "hash": "517eacd3a239c9e6",
+    "note": "Full content review (review round of 2026-09-27). 2026-10-10: clarified property bids and purchase funds; investor use is free while professional advertising may be paid. Other source-check dates unchanged."
   },
   {
     "id": "advertise",
@@ -315,9 +315,9 @@
       "src/components/TermsPage.tsx",
       "src/lib/proVerification.ts"
     ],
-    "reviewed": "2026-10-08",
-    "hash": "7401b2ee218b07c1",
-    "note": "Updated the draft Terms with the Verified badge explanation: verification is not endorsement or a guarantee of work quality, advice or outcomes. Aligned advertiser eligibility, area and credential-display wording with alternative qualifications. Draft notice and Privacy remain unchanged."
+    "reviewed": "2026-10-10",
+    "hash": "ea9e6e724c59ed1c",
+    "note": "Updated the draft Terms with the Verified badge explanation: verification is not endorsement or a guarantee of work quality, advice or outcomes. Aligned advertiser eligibility, area and credential-display wording with alternative qualifications. Draft notice and Privacy remain unchanged. 2026-10-10: factual role wording only: the site does not handle property bids or purchase funds. This is not legal approval of the draft Terms; LEGAL_REVIEWED remains false."
   },
   {
     "id": "emails",
@@ -370,8 +370,8 @@
       "src/lib/lessons/taxes.ts"
     ],
     "reviewed": "2026-10-10",
-    "hash": "643b42314b262f45",
-    "note": "Reviewed absolute wording; replaced blanket investment prescriptions with individual decision guidance and clarified independent verification of emailed payment instructions. 2026-10-10: aligned appraisal guidance and the knowledge-check explanation with CFPB guidance; no guaranteed sale value or universal valuation method. Other source-check dates unchanged."
+    "hash": "d92c6d5ff8fb2d6d",
+    "note": "Reviewed absolute wording; replaced blanket investment prescriptions with individual decision guidance and clarified independent verification of emailed payment instructions. 2026-10-10: aligned appraisal guidance and the knowledge-check explanation with CFPB guidance; no guaranteed sale value or universal valuation method. Other source-check dates unchanged. 2026-10-10: bankruptcy-stay wording qualified against U.S. Courts guidance: exceptions, timing and court orders matter."
   },
   {
     "id": "decide",
