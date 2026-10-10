@@ -193,7 +193,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
 
   // 4. Before you commit
   const commit: CheckItem[] = [{ id: 'team', text: 'Have a real estate attorney or title company review anything you don’t understand.', href: '#/pros/attorney' }];
-  commit.push({ id: 'wire', text: 'Never follow payment instructions sent by email; call the title or escrow officer at a number you already know.' });
+  commit.push({ id: 'wire', text: 'Verify emailed payment instructions independently; call the title or escrow officer at a number you already know.' });
   if (auction) commit.push({ id: 'seller', text: 'Buy only from the official seller. Never contact homeowners facing foreclosure.' });
   groups.push({ title: 'Before you commit', items: commit });
   return groups;

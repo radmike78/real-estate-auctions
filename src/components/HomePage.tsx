@@ -42,7 +42,7 @@ export default function HomePage() {
           <h1>
             Become a real estate investor, <span className="grad">step by step.</span>
           </h1>
-          <p className="hero-sub">Learn it, practice it, then find and analyze real deals, from foreclosures and tax sales to bank-owned homes. You always buy from the official seller.</p>
+          <p className="hero-sub">Learn it, practice it, then find and analyze real deals, from foreclosures and tax sales to bank-owned homes. Use verified listing sources and work with the seller or their authorized representative.</p>
 
           {!mode && (
             <div className="start-choice" role="group" aria-label="How do you want to start?">
