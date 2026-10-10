@@ -1398,7 +1398,7 @@ export const DRILLS: Drill[] = [
         { label: 'Investigate', feedback: 'Good, at a lower price: read the leases, get estoppels, value on actual NOI with a cushion for turnover, and ask a commercial broker or appraiser to support the cap rate.' },
         { label: 'Pass', feedback: 'Reasonable if the seller won’t price on actual income.' },
       ],
-      expert: 'Investigate only at a price based on actual NOI: about $1.49 million at the same 7.5% cap rate the asking price implies, and lower for the lease risk. Ask a commercial broker or appraiser to support a cap rate from comparable sales and this property’s tenant, lease and condition risks; a professional appraisal is the best way to determine value. Paying for a pro forma is paying the seller for work you’d still have to do.',
+      expert: 'Investigate only at a price based on actual NOI: about $1.49 million at the same 7.5% cap rate the asking price implies, and lower for the lease risk. Ask a commercial broker or appraiser to support a cap rate from comparable sales and this property’s tenant, lease and condition risks; an appraisal provides an opinion of value, not a guaranteed sale price. Paying for a pro forma is paying the seller for work you’d still have to do.',
     },
   },
   {

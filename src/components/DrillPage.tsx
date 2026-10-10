@@ -394,7 +394,7 @@ function MissionCard({ m, a, set, fresh, total }: { m: Mission; a: Answers[strin
           })()}
           {right !== m.options.length && <button type="button" className="btn btn-secondary" onClick={() => set({ picks: [], done: false })}>Try this mission again</button>}
           <p className="drill-lesson">{m.lesson}</p>
-          {VALUE_MISSIONS.includes(m.id) && <p className="drill-lesson">On a real property, comparable sales give you an estimate. The best way to determine the value is a professional appraisal by a <a href="#/pros/appraiser">licensed appraiser</a>; until then, your <a href="#/pros/agent">real estate agent</a> can estimate it from recent sales.</p>}
+          {VALUE_MISSIONS.includes(m.id) && <p className="drill-lesson">On a real property, comparable sales give you an estimate. A <a href="#/pros/appraiser">licensed or certified appraiser</a> can provide a professional opinion of value, not a guaranteed sale price. Your <a href="#/pros/agent">real estate agent</a> can also estimate value from recent sales.</p>}
         </>
       )}
     </section>

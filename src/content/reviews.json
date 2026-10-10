@@ -147,8 +147,8 @@
       "src/practice/dealJourney.ts"
     ],
     "reviewed": "2026-10-10",
-    "hash": "ec01164166d719b4",
-    "note": "Restored the owner-approved encouragement: It never hurts to ask with evidence."
+    "hash": "63358cc978b30dd5",
+    "note": "Restored the owner-approved encouragement: It never hurts to ask with evidence. 2026-10-10: aligned appraisal guidance and the knowledge-check explanation with CFPB guidance; no guaranteed sale value or universal valuation method. Other source-check dates unchanged."
   },
   {
     "id": "calculator",
@@ -212,8 +212,8 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-10-10",
-    "hash": "7cdb4ed2d9eebfa8",
-    "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged. 2026-10-10: reviewed the changed accuracy, security or flow wording; this pass did not re-verify every linked source."
+    "hash": "44f7de79ea979611",
+    "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged. 2026-10-10: reviewed the changed accuracy, security or flow wording; this pass did not re-verify every linked source. 2026-10-10: aligned appraisal guidance and the knowledge-check explanation with CFPB guidance; no guaranteed sale value or universal valuation method. Other source-check dates unchanged."
   },
   {
     "id": "financing",
@@ -370,8 +370,8 @@
       "src/lib/lessons/taxes.ts"
     ],
     "reviewed": "2026-10-10",
-    "hash": "c774084bd7b94a58",
-    "note": "Reviewed absolute wording; replaced blanket investment prescriptions with individual decision guidance and clarified independent verification of emailed payment instructions."
+    "hash": "643b42314b262f45",
+    "note": "Reviewed absolute wording; replaced blanket investment prescriptions with individual decision guidance and clarified independent verification of emailed payment instructions. 2026-10-10: aligned appraisal guidance and the knowledge-check explanation with CFPB guidance; no guaranteed sale value or universal valuation method. Other source-check dates unchanged."
   },
   {
     "id": "decide",
@@ -423,7 +423,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-10",
-    "hash": "332282d37a2f0e39",
-    "note": "Reviewed service-specific credential checks, fair-housing rules across all supported states, and manufactured-community statistics against MHI; no broad draft policy revision. 2026-10-10: reviewed the changed accuracy, security or flow wording; this pass did not re-verify every linked source."
+    "hash": "db45d9ec5187c5ff",
+    "note": "Reviewed service-specific credential checks, fair-housing rules across all supported states, and manufactured-community statistics against MHI; no broad draft policy revision. 2026-10-10: reviewed the changed accuracy, security or flow wording; this pass did not re-verify every linked source. 2026-10-10: aligned appraisal guidance and the knowledge-check explanation with CFPB guidance; no guaranteed sale value or universal valuation method. Other source-check dates unchanged."
   }
 ]

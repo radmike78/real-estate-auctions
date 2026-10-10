@@ -32,7 +32,7 @@ export const markets: Lesson = {
             ],
           },
         },
-        'The table shows the usual starting point, not a fixed rule. A commercial appraisal can also weigh recent sales and the cost to rebuild, and a rented house or small multi-unit can be checked against its rent. This is a first screen. A professional appraisal is the best way to determine value, and your walk-away price is your own limit, not the appraised value.',
+        'The table shows the usual starting point, not a fixed rule. A commercial appraisal can also weigh recent sales and the cost to rebuild, and a rented house or small multi-unit can be checked against its rent. This is a first screen. A professional appraisal provides an opinion of value, not a guaranteed sale price. Your walk-away price is your own limit, not the appraised value.',
       ],
     },
     {
