@@ -39,7 +39,7 @@ export const SECTIONS: DrillSection[] = [
           professionals who advertise here. Using the site is free.
         </p>
         <p>
-          We don't sell property, run auctions, take bids or hold money. We aren't a real estate broker, lender, mortgage broker, insurance agent,
+          We don't sell property, run auctions, or handle property bids or purchase funds. We aren't a real estate broker, lender, mortgage broker, insurance agent,
           attorney or financial advisor, and we don't represent you. Nothing on the site is legal, tax, financial or investment advice, a title
           search, or a guarantee of title. See <a href="#/about">How DeedOwl works</a>.
         </p>

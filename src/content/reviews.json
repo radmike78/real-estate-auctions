@@ -315,9 +315,9 @@
       "src/components/TermsPage.tsx",
       "src/lib/proVerification.ts"
     ],
-    "reviewed": "2026-10-08",
-    "hash": "7401b2ee218b07c1",
-    "note": "Updated the draft Terms with the Verified badge explanation: verification is not endorsement or a guarantee of work quality, advice or outcomes. Aligned advertiser eligibility, area and credential-display wording with alternative qualifications. Draft notice and Privacy remain unchanged."
+    "reviewed": "2026-10-10",
+    "hash": "ea9e6e724c59ed1c",
+    "note": "Updated the draft Terms with the Verified badge explanation: verification is not endorsement or a guarantee of work quality, advice or outcomes. Aligned advertiser eligibility, area and credential-display wording with alternative qualifications. Draft notice and Privacy remain unchanged. 2026-10-10: factual role wording only: the site does not handle property bids or purchase funds. This is not legal approval of the draft Terms; LEGAL_REVIEWED remains false."
   },
   {
     "id": "emails",
