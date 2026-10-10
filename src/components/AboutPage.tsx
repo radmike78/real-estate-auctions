@@ -107,10 +107,10 @@ export const SECTIONS: DrillSection[] = [
     title: 'What this site will not do',
     icon: <IconStop />,
     tone: 'stop',
-    summary: "No fees, no bids, no promises that title is clear",
+    summary: "Free for investors; no property bids or title guarantees",
     content: () => (
       <ul>
-        <li>Take bids or hold money. It always links to the official sale instead.</li>
+        <li>Handle property bids or purchase funds. Use the seller’s official sale process.</li>
         <li>Say title is "clear." Only a title company or real-estate attorney can make that call.</li>
         <li>Guarantee a sale is still on. Always confirm with the trustee, treasurer or sheriff before bidding.</li>
         <li>Charge you. The site is free for buyers and investors, with no sign-up.</li>
