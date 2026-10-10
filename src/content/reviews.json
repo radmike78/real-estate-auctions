@@ -369,9 +369,9 @@
       "src/lib/strategies.ts",
       "src/lib/lessons/taxes.ts"
     ],
-    "reviewed": "2026-10-09",
-    "hash": "1b58e5c0a6702c3e",
-    "note": "Reviewed California FTB exchange-reporting correction and confirmed Utah House tax-rate source; include taxes lesson in future review hashes."
+    "reviewed": "2026-10-10",
+    "hash": "0b53426b392ad6aa",
+    "note": "Aligned seminar lesson summary and learning outcome with existing neutral financing guidance; removed blanket never-borrow wording."
   },
   {
     "id": "decide",
