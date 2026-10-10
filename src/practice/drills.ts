@@ -783,7 +783,7 @@ export const DRILLS: Drill[] = [
         question: 'A camera inspection shows roots and a cracked sewer line. Replacement is estimated at $8,000 to $15,000. The sale is as-is. What can you do within the inspection period?',
         multi: true,
         options: [
-          { label: 'Ask for a price reduction or credit, with the inspection report', good: true, why: 'As-is sellers often won’t repair, but they may lower the price. It never hurts to ask with evidence.' },
+          { label: 'Ask for a price reduction or credit, with the inspection report', good: true, why: 'As-is sellers often won’t repair, but they may lower the price. Evidence can support a request, but the seller may decline. Consider the contract, timing and your negotiating priorities.' },
           { label: 'Cancel within the inspection period if the numbers no longer work', good: true, why: 'That’s what the inspection period is for. Check your contract for the exact deadline.' },
           { label: 'Close anyway and hope the line lasts', good: false, why: 'A failed sewer line can flood the house and stop you from renting it.' },
           { label: 'Wait until after closing to decide', good: false, why: 'After the inspection period, you lose the easy way out.' },
@@ -2007,7 +2007,7 @@ export const DRILLS: Drill[] = [
       choices: [
         { label: 'Buy', feedback: 'It can be, if you planned for some cash staying in and the rental still covers its costs and reserves.' },
         { label: 'Investigate', feedback: 'Reasonable: question the appraisal with better comps if they exist, or keep the loan smaller.' },
-        { label: 'Pass', feedback: 'Only if you needed every dollar back for your next deal; that’s the risk BRRRR always carries.' },
+        { label: 'Pass', feedback: 'Passing can be reasonable if leaving cash in the property does not fit your finances, goals or risk tolerance. A refinance may return less cash than planned.' },
       ],
       expert: 'A BRRRR that leaves some cash in and pays for itself is a solid rental. The mistake is counting on getting every dollar back: plan for a lower appraisal, the waiting period and reserves.',
     },

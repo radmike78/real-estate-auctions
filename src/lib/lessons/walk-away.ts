@@ -3,7 +3,7 @@ import type { Lesson } from './types';
 export const walkAway: Lesson = {
   key: 'walk-away',
   minutes: 9,
-  intro: 'Most money in real estate is lost on deals that should never have been bought. Knowing when to walk away is a skill you can learn: set your limits before you look, then check each property against the numbers, the building, the title and the terms of sale.',
+  intro: 'Some losses can be avoided by recognizing when a deal does not fit your finances, goals or risk tolerance. Knowing when to walk away is a skill you can learn: set your limits before you look, then check each property against the numbers, the building, the title and the terms of sale.',
   takeaways: [
     'The numbers that say a deal doesn’t work.',
     'Building problems that cost far more than they look.',

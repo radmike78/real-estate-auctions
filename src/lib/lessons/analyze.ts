@@ -18,7 +18,7 @@ export const analyze: Lesson = {
         'When you buy a home to live in, feelings count, and they should. It’s where you’ll live, so you might pay more for the right school or backyard, and fight to keep it if something goes wrong. An investment is different. You’re buying a set of numbers: what it costs, what it earns, and what it will sell for. If the numbers don’t work, it’s the wrong property, however much you like it.',
         { table: { head: ['', 'A home to live in', 'An investment property'], rows: [
           ['Why you buy it', 'You want to live there', 'To make money: rent, a profit when you sell, or both'],
-          ['What sets your price', 'What it’s worth to you, within what you can afford', 'What the numbers support: value, rent and every cost. Never more.'],
+          ['What sets your price', 'What it’s worth to you, within what you can afford', 'Use supported value, rent and costs to set a price that fits your goals and risk tolerance.'],
           ['The kitchen, the view, the yard', 'Can be worth paying extra for', 'Matter only if they raise the rent or the sale price'],
           ['If the inspection or appraisal goes badly', 'You may stretch to keep the home you love', 'You renegotiate, or walk away'],
           ['Walking away', 'Hard, and sometimes not worth it', 'Normal. Most properties you look at should fail your numbers.'],

@@ -16,7 +16,7 @@ export default function SaleDocsPanel({ guideKey, state }: { guideKey: string; s
         <ul className="sale-doc-list">
           {saleDocsFor(guideKey, state).map((d) => <li key={d.name}><strong>{d.name}</strong> <span>{d.check}</span></li>)}
         </ul>
-        <p className="muted">The official notice and your contract always have the exact forms, amounts and deadlines.</p>
+        <p className="muted">Start with the official notice and your contract. Confirm applicable forms, amounts, deadlines and any missing details with the official seller and your own team.</p>
       </div>
       <div>
         <h3 className="guide-sub">What to say</h3>

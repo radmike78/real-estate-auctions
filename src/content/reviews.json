@@ -9,9 +9,9 @@
       "src/lib/planNext.ts",
       "src/lib/dealStage.ts"
     ],
-    "reviewed": "2026-10-09",
-    "hash": "0718f77b33719e0b",
-    "note": "Full content review (review round of 2026-09-27)."
+    "reviewed": "2026-10-10",
+    "hash": "8eb45784f73e6605",
+    "note": "Reviewed absolute wording; replaced blanket investment prescriptions with individual decision guidance and clarified independent verification of emailed payment instructions."
   },
   {
     "id": "search",
@@ -146,9 +146,9 @@
       "src/components/DealJourneyPage.tsx",
       "src/practice/dealJourney.ts"
     ],
-    "reviewed": "2026-10-09",
-    "hash": "926fa773c791b675",
-    "note": "Rechecked official CFPB, IRS, EPA, HUD, FEMA and Arizona sources; independently recalculated the case. Corrected edited-answer feedback and continuation, cash-budget visibility, reserve wording and self-review/checklist clarity."
+    "reviewed": "2026-10-10",
+    "hash": "7b26c4bc4d0a5fae",
+    "note": "Reviewed absolute wording; replaced blanket investment prescriptions with individual decision guidance and clarified independent verification of emailed payment instructions."
   },
   {
     "id": "calculator",
@@ -370,8 +370,8 @@
       "src/lib/lessons/taxes.ts"
     ],
     "reviewed": "2026-10-10",
-    "hash": "0b53426b392ad6aa",
-    "note": "Aligned seminar lesson summary and learning outcome with existing neutral financing guidance; removed blanket never-borrow wording."
+    "hash": "c774084bd7b94a58",
+    "note": "Reviewed absolute wording; replaced blanket investment prescriptions with individual decision guidance and clarified independent verification of emailed payment instructions."
   },
   {
     "id": "decide",
@@ -406,9 +406,9 @@
       "src/lib/analyze.ts",
       "src/lib/path.ts"
     ],
-    "reviewed": "2026-10-08",
-    "hash": "2fc66e7655299b74",
-    "note": "Reviewed audit calculator fixes and Claude integration, including migration of old input confirmations, region-stamp backup compatibility, full-precision coverage and before-income-tax labels."
+    "reviewed": "2026-10-10",
+    "hash": "79704cbf68fd8f8d",
+    "note": "Reviewed absolute wording; replaced blanket investment prescriptions with individual decision guidance and clarified independent verification of emailed payment instructions."
   },
   {
     "id": "toolkit",

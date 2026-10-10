@@ -9,7 +9,7 @@ export const PROPERTY_WHY = {
     yes: [
       {
         who: "First-time investors with little cash",
-        text: "It’s the easiest kind of property to understand and to finance. If you’ll really live in it, an owner-occupant loan can mean a small down payment. FHA expects you to move in within 60 days and stay at least a year, so only rent it out after that. And never take a home loan on a place you don’t plan to live in.",
+        text: "It’s the easiest kind of property to understand and to finance. If you’ll really live in it, an owner-occupant loan can mean a small down payment. FHA generally requires establishing the home as your principal residence within 60 days and intending to continue occupancy for at least a year. Ask your lender about the requirements and any applicable exceptions before changing its use. Match the loan to your intended use: investment-property loans may finance a home you do not plan to occupy. For an owner-occupant loan, give the lender accurate occupancy plans and confirm the requirements.",
         example: "HUD says FHA loans allow a down payment as low as 3.5% of the price on 1–4 unit homes. This is for buyers who will live there.",
         source: {
           label: "HUD: Loans (FHA)",
