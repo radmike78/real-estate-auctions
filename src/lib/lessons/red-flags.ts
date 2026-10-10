@@ -8,7 +8,7 @@ export const redFlags: Lesson = {
   takeaways: [
     'How the free event, paid workshop and coaching upsell funnel works.',
     'The warning signs regulators found again and again.',
-    'Why you should never borrow, open credit cards or tap retirement money to pay for training or to bid.',
+    'How to recognize pressure to borrow and compare financing options, costs and risks for your own situation.',
     'Where to check a company and where to report one.',
   ],
   sections: [
