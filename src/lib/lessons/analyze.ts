@@ -180,7 +180,7 @@ export const analyze: Lesson = {
   tryIt: { label: 'Analyze a deal', href: '#/analyze' },
   books: ['1259586189', '1947200127'],
   sources: [
-    { label: 'Texas Windstorm Insurance Association (TWIA)', url: 'https://www.twia.org/' },
+    { label: 'TWIA: coverage eligibility requirements', url: 'https://www.twia.org/coverage-eligibility/' },
     { label: 'Texas Department of Insurance: windstorm inspections and certificates', url: 'https://www.tdi.texas.gov/wind/index.html' },
     { label: 'CFPB: what are appraisals and why do I need to look at them?', url: 'https://www.consumerfinance.gov/ask-cfpb/what-are-appraisals-and-why-do-i-need-to-look-at-them-en-167/' },
     { label: 'Fannie Mae Selling Guide: comparable sales (B4-1.3-08)', url: 'https://selling-guide.fanniemae.com/sel/b4-1.3-08/comparable-sales' },

@@ -1,0 +1,777 @@
+{
+  "date": "2026-10-10",
+  "scope": "328 county-office homepage URLs reviewed for direct search destinations; targeted license and lesson links. This is not an interactive browser search test or a claim that every source URL is direct. Additional large-county record tools used in the learning section were followed from official office pages.",
+  "countyChanges": [
+    {
+      "county": "TX/Andrews",
+      "role": "assessor",
+      "old": "https://andrewscad.org/",
+      "url": "https://esearch.andrewscad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://andrewscad.org/"
+    },
+    {
+      "county": "TX/Angelina",
+      "role": "assessor",
+      "old": "https://www.angelinacad.org/",
+      "url": "https://esearch.angelinacad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://www.angelinacad.org/"
+    },
+    {
+      "county": "TX/Aransas",
+      "role": "assessor",
+      "old": "https://aransascad.org/",
+      "url": "https://esearch.aransascad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://aransascad.org/"
+    },
+    {
+      "county": "TX/Atascosa",
+      "role": "assessor",
+      "old": "https://atascosacad.com/",
+      "url": "https://esearch.atascosacad.com/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://atascosacad.com/"
+    },
+    {
+      "county": "TX/Bee",
+      "role": "assessor",
+      "old": "https://beecad.org/",
+      "url": "https://esearch.beecad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://beecad.org/"
+    },
+    {
+      "county": "TX/Bell",
+      "role": "assessor",
+      "old": "https://bellcad.org/",
+      "url": "https://belltx-search.gsacorp.io/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://bellcad.org/"
+    },
+    {
+      "county": "TX/Brazos",
+      "role": "assessor",
+      "old": "https://brazoscad.org/",
+      "url": "https://esearch.brazoscad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://brazoscad.org/"
+    },
+    {
+      "county": "TX/Brewster",
+      "role": "assessor",
+      "old": "https://brewstercotad.org/",
+      "url": "https://esearch.brewstercotad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://brewstercotad.org/"
+    },
+    {
+      "county": "TX/Burnet",
+      "role": "treasurer",
+      "old": "https://burnet-cad.org/",
+      "url": "https://esearch.burnet-cad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://burnet-cad.org/"
+    },
+    {
+      "county": "TX/Burnet",
+      "role": "assessor",
+      "old": "https://burnet-cad.org/",
+      "url": "https://esearch.burnet-cad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://burnet-cad.org/"
+    },
+    {
+      "county": "TX/Caldwell",
+      "role": "assessor",
+      "old": "https://caldwellcad.org/",
+      "url": "https://esearch.caldwellcad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://caldwellcad.org/"
+    },
+    {
+      "county": "TX/Calhoun",
+      "role": "assessor",
+      "old": "https://calhouncad.org/",
+      "url": "https://esearch.calhouncad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://calhouncad.org/"
+    },
+    {
+      "county": "TX/Cass",
+      "role": "assessor",
+      "old": "https://casscad.org/",
+      "url": "https://esearch.casscad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://casscad.org/"
+    },
+    {
+      "county": "TX/Castro",
+      "role": "assessor",
+      "old": "https://castrocad.org/",
+      "url": "https://esearch.castrocad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://castrocad.org/"
+    },
+    {
+      "county": "TX/Collin",
+      "role": "assessor",
+      "old": "https://collincad.org/",
+      "url": "https://esearch.collincad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://collincad.org/"
+    },
+    {
+      "county": "TX/Coryell",
+      "role": "assessor",
+      "old": "https://coryellcad.org/",
+      "url": "https://esearch.coryellcad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://coryellcad.org/"
+    },
+    {
+      "county": "TX/Dallam",
+      "role": "assessor",
+      "old": "https://dallamcad.org/",
+      "url": "https://esearch.dallamcad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://dallamcad.org/"
+    },
+    {
+      "county": "TX/Dimmit",
+      "role": "assessor",
+      "old": "https://dimmit-cad.org/",
+      "url": "https://esearch.dimmit-cad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://dimmit-cad.org/"
+    },
+    {
+      "county": "TX/Ellis",
+      "role": "treasurer",
+      "old": "https://ellistaxoffice.com/",
+      "url": "https://actweb.acttax.com/ellis/ellis/index.jsp",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://ellistaxoffice.com/"
+    },
+    {
+      "county": "TX/Erath",
+      "role": "assessor",
+      "old": "https://erath-cad.com/",
+      "url": "https://esearch.erath-cad.com/",
+      "method": "official-referral",
+      "evidenceUrl": "https://erath-cad.com/"
+    },
+    {
+      "county": "TX/Falls",
+      "role": "assessor",
+      "old": "https://fallscad.net/",
+      "url": "https://esearch.fallscad.net/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://fallscad.net/"
+    },
+    {
+      "county": "TX/Fort Bend",
+      "role": "assessor",
+      "old": "https://www.fbcad.org/",
+      "url": "https://esearch.fbcad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://www.fbcad.org/"
+    },
+    {
+      "county": "TX/Gillespie",
+      "role": "assessor",
+      "old": "https://gillespiecad.org/",
+      "url": "https://esearch.gillespiecad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://gillespiecad.org/"
+    },
+    {
+      "county": "TX/Gregg",
+      "role": "assessor",
+      "old": "https://gcad.org/",
+      "url": "https://search.gcad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://gcad.org/"
+    },
+    {
+      "county": "TX/Guadalupe",
+      "role": "assessor",
+      "old": "https://guadalupead.org/",
+      "url": "https://esearch.guadalupead.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://guadalupead.org/"
+    },
+    {
+      "county": "TX/Hale",
+      "role": "assessor",
+      "old": "https://www.halecad.org/",
+      "url": "https://esearch.halecad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://www.halecad.org/"
+    },
+    {
+      "county": "TX/Hardin",
+      "role": "assessor",
+      "old": "https://hardin-cad.org/",
+      "url": "https://esearch.hardin-cad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://hardin-cad.org/"
+    },
+    {
+      "county": "TX/Harris",
+      "role": "treasurer",
+      "old": "https://www.hctax.net/",
+      "url": "https://www.hctax.net/Property/ViewStatementReceipts",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://www.hctax.net/"
+    },
+    {
+      "county": "TX/Harris",
+      "role": "assessor",
+      "old": "https://hcad.org/",
+      "url": "https://search.hcad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://hcad.org/"
+    },
+    {
+      "county": "TX/Henderson",
+      "role": "assessor",
+      "old": "https://henderson-cad.org/",
+      "url": "https://propaccess.trueautomation.com/clientdb/?cid=83",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://henderson-cad.org/"
+    },
+    {
+      "county": "TX/Howard",
+      "role": "assessor",
+      "old": "https://howardcad.org/",
+      "url": "https://esearch.howardcad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://howardcad.org/"
+    },
+    {
+      "county": "TX/Jackson",
+      "role": "assessor",
+      "old": "https://jacksoncad.org/",
+      "url": "https://esearch.jacksoncad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://jacksoncad.org/"
+    },
+    {
+      "county": "TX/Jasper",
+      "role": "assessor",
+      "old": "https://jaspercad.org/",
+      "url": "https://esearch.jaspercad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://jaspercad.org/"
+    },
+    {
+      "county": "TX/Johnson",
+      "role": "assessor",
+      "old": "https://johnsoncad.com/",
+      "url": "https://johnsoncad.com/property-search/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://johnsoncad.com/"
+    },
+    {
+      "county": "TX/Kimble",
+      "role": "assessor",
+      "old": "https://kimblecad.org/",
+      "url": "https://esearch.kimblecad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://kimblecad.org/"
+    },
+    {
+      "county": "TX/Kinney",
+      "role": "treasurer",
+      "old": "https://kinneycad.org/",
+      "url": "https://esearch.kinneycad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://kinneycad.org/"
+    },
+    {
+      "county": "TX/Kinney",
+      "role": "assessor",
+      "old": "https://kinneycad.org/",
+      "url": "https://esearch.kinneycad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://kinneycad.org/"
+    },
+    {
+      "county": "TX/Lamb",
+      "role": "assessor",
+      "old": "https://lambcad.org/",
+      "url": "https://esearch.lambcad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://lambcad.org/"
+    },
+    {
+      "county": "TX/Lampasas",
+      "role": "assessor",
+      "old": "https://lampasascad.com/",
+      "url": "https://esearch.lampasascad.com/",
+      "method": "official-referral",
+      "evidenceUrl": "https://lampasascad.com/"
+    },
+    {
+      "county": "TX/Lavaca",
+      "role": "assessor",
+      "old": "https://lavacacad.com/",
+      "url": "https://esearch.lavacacad.com/",
+      "method": "official-referral",
+      "evidenceUrl": "https://lavacacad.com/"
+    },
+    {
+      "county": "TX/Llano",
+      "role": "assessor",
+      "old": "https://llanocad.net/",
+      "url": "https://esearch.llanocad.net/",
+      "method": "official-referral",
+      "evidenceUrl": "https://llanocad.net/"
+    },
+    {
+      "county": "TX/Mason",
+      "role": "assessor",
+      "old": "https://masoncad.org/",
+      "url": "https://esearch.masoncad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://masoncad.org/"
+    },
+    {
+      "county": "TX/Matagorda",
+      "role": "assessor",
+      "old": "https://matagorda-cad.org/",
+      "url": "https://esearch.matagorda-cad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://matagorda-cad.org/"
+    },
+    {
+      "county": "TX/Midland",
+      "role": "assessor",
+      "old": "https://midcad.org/",
+      "url": "https://www.southwestdatasolution.com/webindex.aspx?dbkey=MIDLANDCAD",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://midcad.org/"
+    },
+    {
+      "county": "TX/Moore",
+      "role": "assessor",
+      "old": "https://moorecad.org/",
+      "url": "https://esearch.moorecad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://moorecad.org/"
+    },
+    {
+      "county": "TX/Nacogdoches",
+      "role": "treasurer",
+      "old": "https://nacocad.org/",
+      "url": "https://esearch.nacocad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://nacocad.org/"
+    },
+    {
+      "county": "TX/Nacogdoches",
+      "role": "assessor",
+      "old": "https://nacocad.org/",
+      "url": "https://esearch.nacocad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://nacocad.org/"
+    },
+    {
+      "county": "TX/Oldham",
+      "role": "assessor",
+      "old": "https://oldhamcad.org/",
+      "url": "https://esearch.oldhamcad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://oldhamcad.org/"
+    },
+    {
+      "county": "TX/Orange",
+      "role": "assessor",
+      "old": "https://orangecad.net/",
+      "url": "https://esearch.orangecad.net/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://orangecad.net/"
+    },
+    {
+      "county": "TX/Presidio",
+      "role": "assessor",
+      "old": "https://presidiocad.org/",
+      "url": "https://esearch.presidiocad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://presidiocad.org/"
+    },
+    {
+      "county": "TX/Real",
+      "role": "assessor",
+      "old": "https://realcad.org/",
+      "url": "https://esearch.realcad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://realcad.org/"
+    },
+    {
+      "county": "TX/San Jacinto",
+      "role": "assessor",
+      "old": "https://sjcad.org/",
+      "url": "https://esearch.sjcad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://sjcad.org/"
+    },
+    {
+      "county": "TX/Shelby",
+      "role": "assessor",
+      "old": "https://www.shelbycad.com/",
+      "url": "https://esearch.shelbycad.com/",
+      "method": "official-referral",
+      "evidenceUrl": "https://www.shelbycad.com/"
+    },
+    {
+      "county": "TX/Starr",
+      "role": "assessor",
+      "old": "https://starrcad.org/",
+      "url": "https://esearch.starrcad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://starrcad.org/"
+    },
+    {
+      "county": "TX/Sutton",
+      "role": "assessor",
+      "old": "https://suttoncad.com/",
+      "url": "https://esearch.suttoncad.com/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://suttoncad.com/"
+    },
+    {
+      "county": "TX/Swisher",
+      "role": "assessor",
+      "old": "https://swisher-cad.org/",
+      "url": "https://esearch.swisher-cad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://swisher-cad.org/"
+    },
+    {
+      "county": "TX/Taylor",
+      "role": "assessor",
+      "old": "https://taylor-cad.org/",
+      "url": "https://esearch.taylor-cad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://taylor-cad.org/"
+    },
+    {
+      "county": "TX/Trinity",
+      "role": "assessor",
+      "old": "https://trinitycad.net/",
+      "url": "https://esearch.trinitycad.net/",
+      "method": "official-referral",
+      "evidenceUrl": "https://trinitycad.net/"
+    },
+    {
+      "county": "TX/Uvalde",
+      "role": "assessor",
+      "old": "https://uvaldecad.org/",
+      "url": "https://esearch.uvaldecad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://uvaldecad.org/"
+    },
+    {
+      "county": "TX/Victoria",
+      "role": "assessor",
+      "old": "https://victoriacad.org/",
+      "url": "https://esearch.victoriacad.org/",
+      "method": "official-referral",
+      "evidenceUrl": "https://victoriacad.org/"
+    },
+    {
+      "county": "TX/Willacy",
+      "role": "assessor",
+      "old": "https://willacycad.org/",
+      "url": "https://esearch.willacycad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://willacycad.org/"
+    },
+    {
+      "county": "TX/Williamson",
+      "role": "assessor",
+      "old": "https://www.wcad.org/",
+      "url": "https://search.wcad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://www.wcad.org/"
+    },
+    {
+      "county": "TX/Wilson",
+      "role": "assessor",
+      "old": "https://wilson-cad.org/",
+      "url": "https://esearch.wilson-cad.org/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://wilson-cad.org/"
+    },
+    {
+      "county": "TX/Zapata",
+      "role": "assessor",
+      "old": "https://zapatacad.com/",
+      "url": "https://esearch.zapatacad.com/",
+      "method": "retrieved-search-page",
+      "evidenceUrl": "https://zapatacad.com/"
+    },
+    {
+      "county": "TX/Zavala",
+      "role": "assessor",
+      "old": "https://zavalacad.com/",
+      "url": "https://esearch.zavalacad.com/",
+      "method": "official-referral",
+      "evidenceUrl": "https://zavalacad.com/"
+    },
+    {
+      "county": "AZ/Maricopa",
+      "role": "recorder",
+      "url": "https://recorder.maricopa.gov/recording/document-search.html",
+      "method": "retrieved-search-page",
+      "old": "https://recorder.maricopa.gov/",
+      "evidenceUrl": "https://recorder.maricopa.gov/"
+    },
+    {
+      "county": "AZ/Pima",
+      "role": "treasurer",
+      "url": "https://www.to.pima.gov/propertySearch/",
+      "method": "retrieved-search-page",
+      "old": "https://www.to.pima.gov/",
+      "evidenceUrl": "https://www.to.pima.gov/"
+    },
+    {
+      "county": "CA/Marin",
+      "role": "assessor",
+      "url": "https://apps.marincounty.gov/TaxRollSearch",
+      "method": "retrieved-consent-page",
+      "old": "https://www.arcc.marincounty.gov/",
+      "evidenceUrl": "https://www.arcc.marincounty.gov/"
+    },
+    {
+      "county": "CA/Sacramento",
+      "role": "recorder",
+      "url": "https://recordersdocumentindex.saccounty.gov/",
+      "method": "official-referral",
+      "old": "https://ccr.saccounty.gov/",
+      "evidenceUrl": "https://ccr.saccounty.gov/"
+    },
+    {
+      "county": "CA/Santa Cruz",
+      "role": "recorder",
+      "url": "https://santacruzcountyca-web.tylerhost.net/web",
+      "method": "retrieved-consent-page",
+      "old": "https://recorder.santacruzcountyca.gov/",
+      "evidenceUrl": "https://recorder.santacruzcountyca.gov/"
+    },
+    {
+      "county": "UT/Utah",
+      "role": "recorder",
+      "url": "https://www.utahcounty.gov/LandRecords/DocImgForm.asp",
+      "method": "retrieved-search-page",
+      "old": "https://recorder.utahcounty.gov/",
+      "evidenceUrl": "https://recorder.utahcounty.gov/"
+    },
+    {
+      "county": "TX/Coryell",
+      "role": "treasurer",
+      "url": "https://coryell.propertytaxpayments.net/search",
+      "method": "retrieved-search-page",
+      "old": "https://coryellcountytax.com/",
+      "evidenceUrl": "https://coryellcountytax.com/"
+    },
+    {
+      "county": "TX/Hill",
+      "role": "treasurer",
+      "url": "https://esearch.hilltax.org/",
+      "method": "official-referral",
+      "old": "https://www.hilltax.org/",
+      "evidenceUrl": "https://www.hilltax.org/"
+    },
+    {
+      "county": "TX/Potter",
+      "role": "treasurer",
+      "url": "https://www.pottercountytax.com/search",
+      "method": "retrieved-search-page",
+      "old": "https://www.pottercountytax.com/",
+      "evidenceUrl": "https://www.pottercountytax.com/"
+    },
+    {
+      "county": "TX/Travis",
+      "role": "assessor",
+      "url": "https://travis.prodigycad.com/property-search",
+      "method": "official-referral",
+      "old": "https://traviscad.org/",
+      "evidenceUrl": "https://traviscad.org/"
+    },
+    {
+      "county": "NV/Clark",
+      "role": "assessor",
+      "old": "https://www.clarkcountynv.gov/government/assessor/",
+      "url": "https://maps.clarkcountynv.gov/assessor/AssessorParcelDetail/site.aspx",
+      "method": "official-referral-and-page-retrieval",
+      "evidenceUrl": "https://www.clarkcountynv.gov/government/assessor/"
+    },
+    {
+      "county": "NV/Clark",
+      "role": "recorder",
+      "old": "https://www.clarkcountynv.gov/government/elected_officials/county_recorder/",
+      "url": "https://recorderecomm.clarkcountynv.gov/AcclaimWeb/Search/SearchTypeSimpleSearch",
+      "method": "official-referral-and-page-retrieval",
+      "evidenceUrl": "https://www.clarkcountynv.gov/government/elected_officials/county_recorder/"
+    },
+    {
+      "county": "NV/Washoe",
+      "role": "assessor",
+      "old": "https://www.washoecounty.gov/assessor/index.php",
+      "url": "https://www.washoecounty.gov/assessor/cama/index.php",
+      "method": "official-referral-and-page-retrieval",
+      "evidenceUrl": "https://www.washoecounty.gov/assessor/index.php"
+    },
+    {
+      "county": "NV/Washoe",
+      "role": "recorder",
+      "old": "https://www.washoecounty.gov/recorder/index.php",
+      "url": "https://icris.washoecounty.us/ssrecorder/",
+      "method": "official-referral-and-page-retrieval",
+      "evidenceUrl": "https://www.washoecounty.gov/recorder/index.php"
+    },
+    {
+      "county": "NV/Washoe",
+      "role": "treasurer",
+      "old": "https://www.washoecounty.gov/treas/",
+      "url": "https://nv-washoe.publicaccessnow.com/Treasurer/TaxSearch.aspx",
+      "method": "official-referral-and-page-retrieval",
+      "evidenceUrl": "https://www.washoecounty.gov/treas/"
+    },
+    {
+      "county": "TX/Dallas",
+      "role": "assessor",
+      "old": "https://www.dallascad.org/",
+      "url": "https://www.dallascad.org/SearchOwner.aspx",
+      "method": "official-referral-and-page-retrieval",
+      "evidenceUrl": "https://www.dallascad.org/"
+    },
+    {
+      "county": "UT/Salt Lake",
+      "role": "recorder",
+      "old": "https://www.saltlakecounty.gov/recorder/",
+      "url": "https://apps.saltlakecounty.gov/data-services/DataServicesAccess/PublicSearch.aspx",
+      "method": "official-referral-and-page-retrieval",
+      "evidenceUrl": "https://www.saltlakecounty.gov/recorder/"
+    },
+    {
+      "county": "CA/Los Angeles",
+      "role": "assessor",
+      "old": "https://assessor.lacounty.gov/",
+      "url": "https://portal.assessor.lacounty.gov/",
+      "method": "official-referral-and-page-retrieval",
+      "evidenceUrl": "https://assessor.lacounty.gov/"
+    },
+    {
+      "county": "NV/Clark",
+      "role": "treasurer",
+      "old": "https://www.clarkcountynv.gov/government/elected_officials/county_treasurer/",
+      "url": "https://trweb.co.clark.nv.us/",
+      "method": "official-referral",
+      "evidenceUrl": "https://www.clarkcountynv.gov/government/elected_officials/county_treasurer/"
+    },
+    {
+      "county": "CA/San Diego",
+      "role": "recorder",
+      "old": "https://www.sdarcc.gov/content/arcc/home/divisions/recorder-clerk.html",
+      "url": "https://arcc-acclaim.sdcounty.ca.gov/",
+      "method": "official-referral",
+      "evidenceUrl": "https://www.sdarcc.gov/content/arcc/home/divisions/recorder-clerk.html"
+    }
+  ],
+  "otherChanges": [
+    {
+      "id": "az-btr",
+      "title": "Arizona registered professional search",
+      "publisher": "Arizona Board of Technical Registration",
+      "url": "https://btr.az.gov/public/registered-professional-search",
+      "role": "lookup",
+      "checked": "2026-10-10",
+      "note": "Official indexed search reviewed; interactive search not tested."
+    },
+    {
+      "id": "ut-insurance",
+      "title": "Utah insurance license search (desktop)",
+      "publisher": "Utah Insurance Department",
+      "url": "https://licenseesearch.uid.utah.gov/s/",
+      "role": "lookup",
+      "checked": "2026-10-10",
+      "note": "Direct tool linked by the Department; interactive search not tested."
+    },
+    {
+      "id": "direct-ut-insurance-mobile",
+      "title": "Utah insurance license search (mobile or alternate)",
+      "publisher": "Utah Insurance Department / Sircon",
+      "url": "https://www.sircon.com/ComplianceExpress/Inquiry/consumerInquiry.do?nonSscrb=Y",
+      "role": "lookup",
+      "checked": "2026-10-10",
+      "note": "Direct mobile alternative linked by the Department; interactive search not tested."
+    },
+    {
+      "id": "learn-twia",
+      "title": "TWIA coverage eligibility requirements",
+      "publisher": "Texas Windstorm Insurance Association",
+      "url": "https://www.twia.org/coverage-eligibility/",
+      "role": "rules",
+      "checked": "2026-10-10"
+    }
+  ],
+  "limitations": [
+    "Search rendering, submitted queries, mobile interactions, and source-site logins were not browser-tested.",
+    "Official referrals were used where tools rejected automated retrieval.",
+    "Homepages already exposing a search form were retained.",
+    "Required disclaimer steps and clearly labeled office contacts remain."
+  ],
+  "learningChanges": [
+    {
+      "old": "https://www.clarkcountynv.gov/assessor",
+      "url": "https://maps.clarkcountynv.gov/assessor/AssessorParcelDetail/site.aspx"
+    },
+    {
+      "old": "https://www.clarkcountynv.gov/recorder",
+      "url": "https://recorderecomm.clarkcountynv.gov/AcclaimWeb/Search/SearchTypeSimpleSearch"
+    },
+    {
+      "old": "https://www.washoecounty.gov/assessor/",
+      "url": "https://www.washoecounty.gov/assessor/cama/index.php"
+    },
+    {
+      "old": "https://www.washoecounty.gov/recorder/",
+      "url": "https://icris.washoecounty.us/ssrecorder/"
+    },
+    {
+      "old": "https://www.washoecounty.gov/treas/",
+      "url": "https://nv-washoe.publicaccessnow.com/Treasurer/TaxSearch.aspx"
+    },
+    {
+      "old": "https://assessor.lacounty.gov/",
+      "url": "https://portal.assessor.lacounty.gov/"
+    },
+    {
+      "old": "https://www.sdarcc.gov/",
+      "url": "https://arcc-acclaim.sdcounty.ca.gov/"
+    },
+    {
+      "old": "https://www.sdttc.com/",
+      "url": "https://www.sdttc.com/content/ttc/en/tax-collection/property-tax-sales.html"
+    },
+    {
+      "old": "https://www.saltlakecounty.gov/recorder/",
+      "url": "https://apps.saltlakecounty.gov/data-services/DataServicesAccess/PublicSearch.aspx"
+    },
+    {
+      "old": "https://www.dallascad.org/",
+      "url": "https://www.dallascad.org/SearchOwner.aspx"
+    }
+  ],
+  "validation": {
+    "tests": "623 passed across 64 files",
+    "typecheck": "All four projects passed",
+    "build": "Vite build passed; existing large-chunk warning remains",
+    "prerender": "122 routes passed"
+  }
+}
