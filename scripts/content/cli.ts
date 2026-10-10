@@ -9,6 +9,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { FACTS } from '../../src/content/facts';
+import { checkPool } from './checkPool';
 import { SOURCES } from '../../src/content/sources';
 import { ageDays, loadReviews, pageHash, RECHECK_DAYS, REVIEWS_FILE, ROOT } from './ledger';
 
@@ -82,29 +83,40 @@ async function checkSources(update: boolean, reportFile?: string): Promise<numbe
   const blocked: string[] = [];
   const changed: string[] = [];
   const targets = SOURCES.filter((s) => s.role !== 'sample' && !(s.prefix && s.id === 'nrs'));
-  for (const s of targets) {
+  // A cancelled job still leaves an honest artifact rather than no report at all.
+  if (reportFile) writeFileSync(reportFile, `Source check incomplete: started checking ${targets.length} sources, but has not finished. Do not treat this as a successful verification.\n`);
+  const unchecked = await checkPool(targets, async (s) => {
     let res: Response;
     try {
       res = await fetch(s.url, { redirect: 'follow', signal: AbortSignal.timeout(20_000), headers: { 'user-agent': 'DeedOwl source check (+https://deedowl.com)' } });
     } catch (e) {
       broken.push(`${s.id}: couldn't connect (${(e as Error).message}) <${s.url}>`);
-      continue;
+      return;
     }
     if (res.status === 401 || res.status === 403 || res.status === 405 || res.status === 429 || (res.status >= 300 && res.status < 400)) {
       blocked.push(`${s.id}: the site refused an automated check (HTTP ${res.status}); open it yourself <${s.url}>`);
-      continue;
+      await res.body?.cancel().catch(() => {});
+      return;
     }
     if (!res.ok) {
       broken.push(`${s.id}: HTTP ${res.status} <${s.url}>`);
-      continue;
+      await res.body?.cancel().catch(() => {});
+      return;
     }
-    if (!s.watch) continue;
-    const buf = Buffer.from(await res.arrayBuffer());
+    if (!s.watch) { await res.body?.cancel().catch(() => {}); return; }
+    let buf: Buffer;
+    try {
+      buf = Buffer.from(await res.arrayBuffer());
+    } catch (e) {
+      blocked.push(`${s.id}: couldn't finish reading the source (${(e as Error).message}) <${s.url}>`);
+      return;
+    }
     const isPdf = /pdf/i.test(res.headers.get('content-type') ?? '') || buf.subarray(0, 4).toString() === '%PDF';
     const fp = createHash('sha256').update(isPdf ? buf : textOf(buf.toString('utf8'))).digest('hex').slice(0, 16);
     if (fingerprints[s.id] && fingerprints[s.id] !== fp) changed.push(`${s.id}: ${s.title} changed since it was last read <${s.url}>`);
     if (update || !fingerprints[s.id]) fingerprints[s.id] = fp;
-  }
+  });
+  if (unchecked) blocked.push(`${unchecked} sources were not checked within the time budget. This is an incomplete check; rerun it or review those sources manually.`);
   if (update || Object.keys(fingerprints).length) writeFileSync(FINGERPRINTS, `${JSON.stringify(fingerprints, null, 2)}\n`);
 
   const sections: [string, string[], string][] = [

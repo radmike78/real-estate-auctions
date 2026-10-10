@@ -89,7 +89,7 @@ export default function HomePage() {
           <p className="hero-foot">
             <span className="hero-trust"><IconStar /> Free, no sign-up</span>
             <span className="hero-trust"><IconShield /> Official sources first</span>
-            <span className="hero-trust"><IconCheckList /> We never take bids or money</span>
+            <span className="hero-trust"><IconCheckList /> No property bids or purchase funds handled here</span>
             {mode && (
               <button type="button" className="linkish" onClick={() => setMode(mode === 'guided' ? 'explore' : 'guided')}>
                 {mode === 'guided' ? 'Explore on your own' : 'Get guided step by step'}

@@ -232,7 +232,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
                       {online ? 'Official bidding site' : 'Official sale notice'} (sample: no real link)
                     </button>
                   )}
-                  <span className="muted small">We link to the official sale. We never take bids or money.</span>
+                  <span className="muted small">We link to the official sale. Property bids and purchase funds go through the seller’s process.</span>
                 </div>
               </>
             ),

@@ -188,7 +188,7 @@ Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: geolocation=(), camera=(), microphone=()
 ```
 
-The site never accepts bids, payments or account credentials. Every "Confirm" link goes to the official agency page.
+The site does not handle property bids or purchase funds. Property-sale confirmation links go to the official agency page. Advertising payments use Stripe; admin and advertiser authentication is handled by the protected API.
 
 ## 7. Staying up under attack (denial of service)
 

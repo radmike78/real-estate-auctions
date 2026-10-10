@@ -1,6 +1,14 @@
 node_modules
 dist
 *.log
+# Local credentials and database copies.
+.env
+.env.*
+*.pem
+*.key
+*.db
+*.sqlite
+*.sqlite3
 # ingestion runtime state and secrets
 ingest/state/
 ingest/.keys/

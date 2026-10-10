@@ -11,3 +11,12 @@ public/data/*.sig
 tools/video/*/out
 *.pem
 secrets*.env
+# Local credentials and database copies must not enter either image stage.
+.env
+.env.*
+**/.env
+**/.env.*
+*.key
+*.db
+*.sqlite
+*.sqlite3

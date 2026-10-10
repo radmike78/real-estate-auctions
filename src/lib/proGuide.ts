@@ -86,8 +86,8 @@ export const PRO_GUIDES: ProGuide[] = [
   {
     key: 'appraiser',
     title: 'Appraiser',
-    summary: 'A professional appraisal is the best way to determine value.',
-    does: 'A state-licensed or certified appraiser studies the property and recent sales of similar properties nearby. Then they write an appraisal: a professional opinion of its value. Value depends on the neighborhood, comparable sales, condition and the market. A professional appraisal is the best way to determine it. Your own numbers, and your agent’s, are estimates until then. Appraisers value upgrades by what buyers in that market pay for them, not by what they cost. So $70,000 of upgrades doesn’t necessarily make a home worth $70,000 more.',
+    summary: 'Provides a professional opinion of value for a defined purpose.',
+    does: 'A state-licensed or certified appraiser studies the property and recent sales of similar properties nearby. Then they write an appraisal: a professional opinion of its value. Value depends on the neighborhood, comparable sales, condition and the market. An appraisal is an opinion of value for a particular date and purpose, not a guarantee of the price a buyer will pay. Your own numbers and your agent’s are estimates too. Appraisers value upgrades by what buyers in that market pay for them, not by what they cost. So $70,000 of upgrades doesn’t necessarily make a home worth $70,000 more.',
     when: ['Before you set your maximum bid or offer: the value as it stands and after the repairs you plan.', 'Before you count on a refinance, since the lender’s appraisal sets the loan.', 'At an auction you often can’t go inside. Ask whether an exterior-only appraisal is possible, and allow for what it can’t see.'],
     find: ['Ask your real estate agent or lender for appraisers they trust. Your agent can estimate the value from recent comparable sales while you wait.'],
     ask: ['Are you licensed or certified in this state for this kind of property?', 'Can you value it both as it stands and after the repairs I plan?', 'Which comparable sales did you use, and why?', 'What does it cost, and how soon can you finish?'],
