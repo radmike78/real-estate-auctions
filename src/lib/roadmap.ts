@@ -53,7 +53,7 @@ export const ROADMAP_PHASES: Record<RoadmapStep['phase'], string> = {
 };
 
 export const ROADMAP_PATHS: Record<RoadmapPath, { label: string; hint: string }> = {
-  listing: { label: 'Through an agent', hint: 'A home listed for sale, bank-owned homes and short sales: you make an offer with conditions, then inspect before you’re committed.' },
+  listing: { label: 'Through an agent', hint: 'Listed homes, bank-owned homes and short sales: make an offer, then follow the agreed contract conditions and deadlines. Your right to inspect, cancel or recover a deposit depends on the contract and local law.' },
   auction: { label: 'At an auction', hint: 'Tax, foreclosure, sheriff and IRS sales of the property itself: you research first, then bid, usually with no inside look and no way out after you win.' },
   certificate: { label: 'Lien certificates', hint: 'Arizona tax liens and Nevada SID liens: you buy a lien that earns interest, not the property. Owners usually pay them off; you own the property only if a court or the law later gives it to you.' },
 };
@@ -63,6 +63,16 @@ const AUCTION: RoadmapPath[] = ['auction'];
 const LIEN: RoadmapPath[] = ['certificate'];
 const OWNERS: RoadmapPath[] = ['listing', 'auction'];
 const PROPERTY: RoadmapPath[] = ['listing', 'auction'];
+
+export const ROADMAP_PHASE_HELP: Record<RoadmapStep['phase'], string> = {
+  1: 'Set your goal and money limits.',
+  2: 'Choose an area, a purchase route and a way to pay.',
+  3: 'Try the process and identify the help you may need.',
+  4: 'Check the numbers, records and risks before committing.',
+  5: 'Follow the purchase rules, payment requirements and deadlines.',
+  6: 'Manage the property, or track your lien if you bought a certificate.',
+  7: 'Compare your options and their costs before deciding.',
+};
 
 /** From first idea to owning the property, in order. Phases 4 to 6 depend on how you buy. */
 export const ROADMAP: RoadmapStep[] = [
@@ -76,11 +86,11 @@ export const ROADMAP: RoadmapStep[] = [
     action: 'Answer the Decide questions', href: '#/decide',
   },
   {
-    id: 'money', phase: 1, title: 'Work out your investable cash',
+    id: 'money', phase: 1, title: 'Work out how much cash you can set aside',
     text: 'Find the most you could put into a deal without touching your emergency fund or money promised to other goals.',
     outcome: 'One number: your investable cash, written down with how you got it.',
-    steps: ['Add up savings and investments you could sell.', 'Take out an emergency fund (several months of household spending: you choose how many).', 'Take out money already promised to other goals in the next year.', 'If you have high-interest debt, plan to pay it off first.', 'Use the cash worksheet below to work it out.'],
-    stop: 'If the plan only works by using your emergency fund, or you carry high-interest debt, pause here and keep learning and practicing.',
+    steps: ['Add up savings and investments you could sell.', 'Take out an emergency fund (several months of household spending: you choose how many).', 'Take out money already promised to other goals in the next year.', 'Consider the cost of any high-interest debt and decide how much money to set aside for repayment.', 'Use the cash worksheet below to work it out.'],
+    stop: 'If the plan uses money you intended to protect for emergencies or debt payments, review your budget and the risks before committing. You can keep learning and practicing while you prepare.',
     doneWhen: 'You have an investable-cash number that leaves your emergency fund untouched.',
     action: 'Open the cash worksheet', href: '#/toolkit/cash',
   },
@@ -119,7 +129,7 @@ export const ROADMAP: RoadmapStep[] = [
     action: 'Research tools and market exercise', href: '#/learn/tools',
   },
   {
-    id: 'buybox', phase: 2, title: 'Write your buy box',
+    id: 'buybox', phase: 2, title: 'Write down what you’re looking for (buy box)',
     text: 'Set your limits before you look, so a property can’t talk you into it.',
     outcome: 'A saved buy box: area, property type, price limit, repair limit, return target and deal breakers.',
     steps: ['Fill in the buy box below.', 'Add at least three deal breakers, things that end a deal no matter the price.', 'Print or download it.'],
@@ -186,7 +196,7 @@ export const ROADMAP: RoadmapStep[] = [
     action: 'Open the lien practice', href: '#/practice?sale=sid',
   },
   {
-    id: 'paper', phase: 3, path: PROPERTY, title: 'Analyze real properties on paper',
+    id: 'paper', phase: 3, path: PROPERTY, title: 'Practice checking real properties without buying',
     text: 'Run the numbers on real properties in your buy box, with sources for every number, before you’re in a hurry.',
     outcome: 'At least three real properties analyzed, with one you’d pass on and why.',
     steps: ['Find three real properties that fit your buy box.', 'For each, write the rent or value and where it came from, every cost, and a bad-case version.', 'Write one reason you’d pass on at least one of them.'],
@@ -350,7 +360,7 @@ export const ROADMAP: RoadmapStep[] = [
   {
     id: 'offer', phase: 5, path: AGENT, title: 'Make your offer',
     guides: ['contract'], evidence: 'terms',
-    text: 'Offer at or below your maximum, with conditions (contingencies) that let you cancel and keep your deposit if something goes wrong.',
+    text: 'Discuss an offer at or below your planned maximum with your agent. Ask which contract conditions (contingencies) could let you cancel and recover your deposit, and what notices and deadlines apply. A refund is not automatic.',
     outcome: 'An accepted contract, and every deadline in it on your calendar.',
     steps: ['Set your maximum price from your analysis before you write the offer.', 'Ask your agent to include inspection, appraisal and loan contingencies, with deadlines you can meet.', 'Remember: it’s a contract only once the seller accepts in writing.', 'Put every deadline on your calendar the day it’s accepted.'],
     say: { to: 'Your agent', script: '“I’d like to offer [$price], with inspection, appraisal and loan contingencies. What deadlines are realistic for each, and what happens to my deposit if I cancel inside them?”' },
@@ -360,7 +370,7 @@ export const ROADMAP: RoadmapStep[] = [
     action: 'How to negotiate', href: '#/learn/negotiate',
   },
   {
-    id: 'deposit', phase: 5, path: AGENT, title: 'Send your earnest money safely',
+    id: 'deposit', phase: 5, path: AGENT, title: 'Send your purchase deposit safely (earnest money)',
     evidence: 'terms',
     text: 'Wiring fraud is common in real estate. Confirm instructions by phone before you send anything.',
     outcome: 'Your deposit received by escrow, confirmed in writing.',
@@ -383,7 +393,7 @@ export const ROADMAP: RoadmapStep[] = [
     action: 'Your team: inspector', href: '#/pros/inspector',
   },
   {
-    id: 'appraise', phase: 5, path: AGENT, title: 'Handle the appraisal',
+    id: 'appraise', phase: 5, path: AGENT, title: 'Check the lender’s property valuation (appraisal)',
     guides: ['appraisal'], evidence: 'terms',
     text: 'The lender orders an appraisal. If it comes in low, you can ask for a lower price, bring more cash, or cancel within your appraisal contingency.',
     outcome: 'The appraisal, and your decision before the appraisal deadline if it’s low.',
@@ -408,7 +418,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'loan-approval', phase: 5, path: AGENT, title: 'Confirm final financing and closing funds',
-    text: 'Pre-approval is conditional. Keep responding to underwriting requests while inspection, appraisal and title review proceed.',
+    text: 'Pre-approval is not a final loan approval. Send the information your lender needs for its final review (underwriting), while the property checks continue.',
     outcome: 'Written final approval, conditions resolved and verified funds available for closing.',
     steps: ['Ask your lender for its remaining conditions, rate-lock expiration and approval deadline.', 'Submit requested documents promptly and check the property meets the loan requirements.', 'Confirm final approval and the exact funds you must bring. Paying cash: confirm those funds are available by the closing deadline.'],
     docs: ['Final lender approval and condition list, or verified proof of closing funds'],
@@ -530,7 +540,7 @@ export const ROADMAP: RoadmapStep[] = [
     action: 'Lesson: after you close', href: '#/learn/after-closing',
   },
   {
-    id: 'a-before-remodel', phase: 6, path: AUCTION, title: 'Before you remodel: redemption, possession and title',
+    id: 'a-before-remodel', phase: 6, path: AUCTION, title: 'Before you remodel: check your rights',
     evidence: 'sale',
     text: 'Secure, insure and maintain the property right away, and fix what it needs to stay safe. Hold off on remodeling until any redemption period has ended, you have lawful possession, and a title company will insure the title or your attorney says what’s safe to do.',
     outcome: 'The redemption end date on your calendar, lawful possession, and a written answer from your title company or attorney before you remodel.',
@@ -563,7 +573,7 @@ export const ROADMAP: RoadmapStep[] = [
     action: 'Lesson: after you close', href: '#/learn/after-closing',
   },
   {
-    id: 'operate', phase: 6, path: OWNERS, title: 'Keep the books and the reserves',
+    id: 'operate', phase: 6, path: OWNERS, title: 'Track income, costs and money set aside',
     evidence: 'income',
     text: 'Track every dollar in and out each month, and set money aside for vacancies, repairs and big replacements.',
     outcome: 'Monthly records that match your bank account, and a reserve that meets your plan.',
@@ -596,7 +606,7 @@ export const ROADMAP: RoadmapStep[] = [
     action: 'Refinancing after a cash or hard-money buy', href: '#/learn/financing',
   },
   {
-    id: 'exit-sell', phase: 7, path: OWNERS, title: 'Sell it, knowing the tax first',
+    id: 'exit-sell', phase: 7, path: OWNERS, title: 'Check selling costs and taxes before you sell',
     text: 'For a flip, this is the payday; for a rental, it’s a choice. Know the selling costs and the tax before you list, so the net matches your plan.',
     outcome: 'A net-sheet before listing (price, commission, title and escrow, transfer tax, loan payoff, estimated tax) and a closed sale.',
     steps: [
@@ -611,7 +621,7 @@ export const ROADMAP: RoadmapStep[] = [
     action: 'Taxes from purchase to sale', href: '#/learn/taxes',
   },
   {
-    id: 'exit-1031', phase: 7, path: OWNERS, title: 'Trade up with a 1031 exchange (investment or business property, not flips)',
+    id: 'exit-1031', phase: 7, path: OWNERS, title: 'Consider a 1031 exchange (investment or business property, not flips)',
     text: 'Selling a rental to buy a bigger one? A 1031 exchange puts off the tax, but only if it’s set up before the sale closes and you meet the deadlines: 45 days to identify the replacement, and 180 days to close, or by your tax return’s due date with extensions, if that’s sooner.',
     outcome: 'A qualified intermediary in place before closing, the replacement identified in writing within 45 days, and the purchase closed within 180 days (file a tax extension if your return would be due sooner).',
     steps: [

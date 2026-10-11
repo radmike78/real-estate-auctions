@@ -9,7 +9,7 @@ export default function CheckYourself({ checks }: { checks: LessonCheck[] }) {
   return (
     <section className="check-yourself" aria-labelledby="check-head">
       <h2 id="check-head">Check yourself</h2>
-      <p className="muted">Answer from memory first, then look back if you need to. Nothing is saved or scored anywhere.</p>
+      <p className="muted">Answer from memory first, then look back if you need to. Your score appears here after you answer. It is not saved.</p>
       <ol className="check-list">
         {checks.map((c, i) => {
           const p = picked[i];
@@ -33,7 +33,7 @@ export default function CheckYourself({ checks }: { checks: LessonCheck[] }) {
                 </div>
                 {p !== null && (
                   <p className={`check-why ${p === c.answer ? 'right' : 'wrong'}`} role="status">
-                    <strong>{p === c.answer ? 'Right.' : 'Not quite.'}</strong> {c.why}
+                    <strong>{p === c.answer ? 'You’ve got it.' : 'Let’s take another look.'}</strong> {c.why}
                   </p>
                 )}
               </fieldset>

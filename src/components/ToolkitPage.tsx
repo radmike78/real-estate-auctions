@@ -4,7 +4,7 @@ import PageHero from './PageHero';
 import { STATES } from '../lib/regions';
 import { dropStateLead, forStateText, getMyState, useMyState } from '../lib/myState';
 import { fmtMoney } from '../lib/status';
-import { cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP_PATHS, ROADMAP_PHASES, roadmapFor, LIEN_STRATEGY, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
+import { cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP_PATHS, ROADMAP_PHASES, ROADMAP_PHASE_HELP, roadmapFor, LIEN_STRATEGY, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
 import { downloadText, fileName } from '../lib/download';
 import { cleanLog, logText } from '../lib/evidence';
 import { makeBackup, readBackup, restoreBackup } from '../lib/progressBackup';
@@ -121,11 +121,14 @@ function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: Step
     <div className="roadmap-step-body">
       <p>{dropStateLead(forStateText(myState, s.text), myState)}</p>
       <p className="roadmap-outcome"><strong>You’ll have:</strong> {s.outcome}</p>
-      <div className="roadmap-cols">
+      <div className="roadmap-actions">
         <div>
-          <h4>Do this</h4>
+          <h4>What to do</h4>
           <ol>{s.steps.map((x) => [x, dropStateLead(forStateText(myState, x), myState)]).filter(([, t]) => t).map(([x, t]) => <li key={x}>{t}</li>)}</ol>
         </div>
+      </div>
+      {(s.say || s.docs || s.guides?.length) ? <details className="roadmap-help">
+        <summary>More help: questions to ask and documents to check</summary>
         {(s.say || s.docs) && (
           <div>
             {s.say && (
@@ -142,12 +145,12 @@ function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: Step
             )}
           </div>
         )}
-      </div>
       {s.guides?.map((k) => docGuide(k)).filter((g) => g !== undefined).map((g) => <DocGuideView key={g.key} g={g} label={`How to read it: ${g.title}`} />)}
+      </details> : null}
       {deal && s.evidence && dealScoped(s) && <EvidenceArea key={`${deal.id}|${s.evidence}`} dealId={deal.id} dealName={deal.name} area={s.evidence} askFinding={status === 'done'} />}
       {!deal && s.evidence && dealScoped(s) && <p className="muted">Working on a real property? Save it in <a href="#/analyze">Analyze</a>, then choose it above to record what you find here.</p>}
       {s.id === 'goal' && <GoalField />}
-      {s.stop && forStateText(myState, s.stop) && <p className="roadmap-stop"><strong>Stop if:</strong> {dropStateLead(forStateText(myState, s.stop), myState)}</p>}
+      {s.stop && forStateText(myState, s.stop) && <p className="roadmap-stop"><strong>When to pause:</strong> {dropStateLead(forStateText(myState, s.stop), myState)}</p>}
       <p className="roadmap-done"><strong>Done when:</strong> {s.doneWhen}</p>
       {status !== 'done' && stepEvidence(s.id) && (
         <p className="roadmap-has" role="status">✓ {stepEvidence(s.id)} <button type="button" className="linkish" onClick={() => setStatus('done')}>Mark it done</button></p>
@@ -262,7 +265,8 @@ export function FirstDealRoadmap() {
   return (
     <section id="roadmap" aria-labelledby="roadmap-head">
       <h2 id="roadmap-head">Your investing roadmap</h2>
-      <p>Every real task of buying, from your first goal to owning it. Each task tells you what you’ll have when it’s done, exactly what to do, what to say and to whom, the documents involved, and when to stop. Mark a task done only when its “Done when” is true.</p>
+      <p>Start with your next step above. Open a phase below to see its checklist, then open a task for instructions. Mark it done when you have the result described—not just when you have read the page.</p>
+      <p className="muted">The steps depend on how you buy. Confirm the current sale rules, contract terms and local requirements with the official seller and appropriate professionals.</p>
       <div className="roadmap-path" role="group" aria-label="How you’ll buy">
         <span className="roadmap-path-label">How you’ll buy:</span>
         {/* Lien certificates are sold only in Arizona (tax liens) and Nevada (SID liens): other states don't see the route. */}
@@ -340,6 +344,7 @@ export function FirstDealRoadmap() {
               <span className="roadmap-phase-title">{ph.n}. {ph.title}</span>
               <span className="muted">{phDone === ph.steps.length ? '✓ All done' : `${phDone} of ${ph.steps.length} done`}</span>
             </summary>
+            <p className="roadmap-phase-help">{ROADMAP_PHASE_HELP[ph.n]}</p>
             <div className="roadmap-steps">
               {ph.steps.map((s) => {
                 const st = stateOf(s);
@@ -389,20 +394,20 @@ export function CashWorksheet() {
   );
   return (
     <section id="cash" aria-labelledby="cash-head">
-      <h2 id="cash-head">Your investable cash</h2>
-      <p>The most you could put into a deal without touching your safety net. Numbers stay in this browser.</p>
+      <h2 id="cash-head">Cash you can set aside for investing</h2>
+      <p>Start with money you could use, then subtract what you want to protect for emergencies, other goals and debt payments. This is a planning worksheet, not a loan approval. Numbers stay in this browser.</p>
       <div className="deal-fields cash-fields">
         {field('savings', 'Savings and investments you could sell')}
         {field('spending', 'Household spending each month')}
         {field('months', 'Emergency fund (months of spending)', 'A planning choice: many people keep 3 to 6 months or more.')}
         {field('promised', 'Set aside for other goals this year')}
-        {field('debt', 'High-interest debt to pay off', 'Credit cards and similar debt usually cost more than a deal earns.')}
+        {field('debt', 'Money set aside to repay high-interest debt', 'Enter the amount you plan to protect for debt payments. Consider interest costs and your other needs.')}
       </div>
       <dl className="cash-result">
         <div><dt>Emergency fund</dt><dd>{fmtMoney(fund)}</dd></div>
-        <div className="cash-main"><dt>Your investable cash</dt><dd>{fmtMoney(investable)}</dd></div>
+        <div className="cash-main"><dt>Cash left for your investing plan</dt><dd>{fmtMoney(investable)}</dd></div>
       </dl>
-      {c.savings > 0 && investable === 0 && <p className="roadmap-stop"><strong>Not yet.</strong> Build your emergency fund and pay off high-interest debt first. Keep learning and practicing in the meantime.</p>}
+      {c.savings > 0 && investable === 0 && <p className="roadmap-stop"><strong>Not yet.</strong> Your choices leave no cash for a deal in this worksheet. Review your savings, emergency fund and debt plan. You can keep learning and practicing while you prepare.</p>}
       {investable > 0 && <PriceFromCash cash={investable} />}
     </section>
   );
@@ -429,7 +434,7 @@ function PriceFromCash({ cash }: { cash: number }) {
   };
   return (
     <div className="price-from-cash">
-      <h3>What price your cash can support</h3>
+      <h3>Purchase-price estimate from your cash budget</h3>
       {Number.isFinite(price) ? (
         <p>
           With {a.downPct}% down, closing costs of about {a.closingPct}% and {a.reserveMonths} months of payments kept in reserve, your {fmtMoney(cash)} supports a price up to about <strong>{fmtMoney(price)}</strong>:
@@ -439,7 +444,7 @@ function PriceFromCash({ cash }: { cash: number }) {
         <p>With no down payment, closing costs or reserves, these assumptions don’t limit the price. Enter what your lender expects below to see a price.</p>
       )}
       <details>
-        <summary>Change the assumptions</summary>
+        <summary>Change the planning estimates</summary>
         <div className="deal-fields">
           {num('downPct', 'Down payment', '% of price')}
           {num('closingPct', 'Closing costs', '% of price')}
@@ -447,7 +452,7 @@ function PriceFromCash({ cash }: { cash: number }) {
           {num('ratePct', 'Loan rate', '% a year')}
           {num('taxInsPct', 'Property tax and insurance', '% of price a year')}
         </div>
-        <p className="muted small">25% down and 6 months of reserves are common for a rental you won’t live in; a home you’ll live in can need far less down. Your lender’s quote sets the real numbers.</p>
+        <p className="muted small">These are starting estimates, not loan requirements or an affordability decision. Down payment, interest rate and money kept in reserve depend on the loan and your situation. Confirm financing with your lender, and costs with the relevant providers.</p>
       </details>
       {Number.isFinite(price) && <button type="button" className="btn btn-secondary" onClick={useIt}>Use {fmtMoney(price)} in my buy box</button>}
     </div>
@@ -499,8 +504,8 @@ function BuyBoxBuilder() {
   const strategies = STRATEGY_OPTIONS.filter((s) => s !== LIEN_STRATEGY || lien || liensSoldIn(b.state || mine));
   return (
     <section id="buy-box" aria-labelledby="buybox-head">
-      <h2 id="buybox-head">Your buy box</h2>
-      <p>A buy box is the exact kind of property you’re looking for. Writing it down turns “I’ll know a deal when I see it” into a quick yes or no, and keeps you from chasing everything.</p>
+      <h2 id="buybox-head">What you’re looking for (your buy box)</h2>
+      <p>Write down your target area, property type, budget and limits. Investors call this a “buy box.” Use it to decide which properties deserve a closer look; it does not prove a property is a good deal.</p>
       <p className="buybox-help">Not sure of your numbers yet? That’s normal. Leave a field blank, start from an example, or work them out with <a href="#/decide">Decide</a> (your goal and budget) and the <a href="#/calculator">calculators</a>.{' '}
         <button type="button" className="linkish" onClick={() => { if (isBlank(b) || window.confirm('Replace your buy box with the example?')) setB({ ...b, ...EXAMPLE_BUY_BOX }); }}>Show an example</button>
       </p>
@@ -534,10 +539,10 @@ function BuyBoxBuilder() {
               <span>Bedrooms or units</span>
               <input type="text" maxLength={40} value={b.beds} onChange={(e) => set('beds', e.target.value)} placeholder="e.g. 3+ beds, or 2–4 units" />
             </label>
-            {money('priceMax', 'Highest price ($)', 'Not sure? A lender’s pre-approval or your cash limit sets it.')}
+            {money('priceMax', 'Highest price ($)', 'Use your own budget and financing information. Pre-approval does not guarantee a loan or show what you can comfortably afford.')}
             {money('repairsMax', 'Most repairs you’ll take on ($)', 'New investors often start with cosmetic work only.')}
             {money('cashMax', 'Cash you can put in, all in ($)', 'Down payment, closing costs, repairs and reserves.')}
-            {money('minCashFlow', 'Least cash flow per month ($)', 'For rentals, after every cost and the loan.')}
+            {money('minCashFlow', 'Minimum monthly cash left from a rental ($)', 'Your cash-flow target after operating costs, loan payments and planned reserves, before income tax.')}
           </>
         )}
       </div>
@@ -640,7 +645,7 @@ function TeamListSection() {
   return (
     <section id="team" aria-labelledby="team-head">
       <h2 id="team-head">Your team</h2>
-      <p>Your core team and the specialists your purchase may need. Fill in the roles that fit your plan. Write down who you chose, check the licenses or registrations required for their services and location, and note what they charge. For services that do not require a license, check relevant qualifications, experience and insurance. Qualifications do not replace a legally required license. Each role links to what they do and how to find one.</p>
+      <p>You may not need every role listed. Add the people your purchase needs and what they charge. Check any licenses or registrations required for their work and location. Where no license is required, check qualifications, experience and insurance. Experience does not replace a required license.</p>
       <ol className="team-list">
         {TEAM_ROLES.map((k) => {
           const g = proGuideByKey(k);
@@ -771,18 +776,18 @@ export default function ToolkitPage({ section }: { section?: string }) {
     <main className="page toolkit">
       <PageHero
         title={<>My <span className="grad">plan</span></>}
-        sub="Your real-world plan, one next step at a time: the roadmap of every task for an actual purchase (the progress that counts), a buy box to keep you focused, and every calculator and checklist on DeedOwl."
+        sub="Build your investing plan one step at a time. Start with the next task, then open the checklist or tools when you need more help."
       />
       {/* One panel: your goal, the next task, what it gives you and one Continue; for a saved property, its stage
           (which picks the task); the roadmap or evidence summary alongside; and the optional helper. */}
-      <PlanNext variant="plan" helper={<NarrowDown config={toolkitConfig()} intro="This page holds your whole plan and a lot of reference material. Tell us where you are and we’ll point you to the part to use first. Everything stays below." />} />
+      <PlanNext variant="plan" helper={<NarrowDown config={toolkitConfig()} intro="Tell us where you are in the process and we’ll suggest where to start." />} />
       <FirstDealRoadmap />
       <details className="plan-section"><summary>Your cash budget</summary><CashWorksheet /></details>
       <details className="plan-section"><summary>Your property criteria (buy box)</summary><BuyBoxBuilder /></details>
       <details className="plan-section"><summary>Your team and contacts</summary><TeamListSection /></details>
       <section className="plan-download" aria-labelledby="plan-dl-head">
         <h2 id="plan-dl-head">Print or share your plan</h2>
-        <p>A readable summary to keep or show your agent or lender (to move your progress to another device, use the backup below): your goal, your cash and what price it supports, your buy box, where you are on the roadmap, and your team with what to say to each, in one file.</p>
+        <p>Download a summary of your goal, budget, property preferences, checklist progress and contacts. You can keep it or share it with your agent or lender. To transfer saved progress to another browser or device, use the backup below.</p>
         <div className="decide-nav">
           <button type="button" className="btn" onClick={() => downloadText('my-investing-plan.txt', planText())}>Download my plan</button>
           <button type="button" className="btn btn-secondary" onClick={() => window.print()}>Print this page</button>
@@ -792,7 +797,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
       <Worksheets />
       <section id="paperwork" aria-labelledby="paperwork-head">
         <h2 id="paperwork-head">Read the paperwork</h2>
-        <p>The documents a purchase turns on, annotated: who gives each one to you and when, the parts to find, what you fill in and what a professional prepares, and how to check a corrected version. Open one when your roadmap task reaches it.</p>
+        <p>Open a document guide when you need it. Each guide explains who provides the document, what to check, and which parts you or a professional prepare.</p>
         {DOC_GUIDES.map((g) => <DocGuideView key={g.key} g={g} label={g.title} />)}
       </section>
       {TOOLKIT.map((g) => (

@@ -164,8 +164,8 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-11",
-    "hash": "8401b47c74775be9",
-    "note": "Reviewed changed wording and independently checked fictional cash-flow/cash-allocation figures; verified CFPB closing-disclosure guidance with applicability limits. Location confirmation, progressive disclosure, honest practice outcomes and exact multi-answer grading. No professional endorsement or novice usability testing claimed."
+    "hash": "76a5de8171393f03",
+    "note": "2026-10-11 plain-language edit review: preserved calculator formulas, route IDs, task completion criteria, state-specific details and source links. Checked changed preapproval/contract wording against CFPB guidance and points definition against CFPB Ask CFPB 136. Checklist document help is optional; task actions, cautions and completion controls remain visible. Learn change is feedback wording only; no lesson answers changed."
   },
   {
     "id": "deals",
@@ -370,8 +370,8 @@
       "src/lib/lessons/taxes.ts"
     ],
     "reviewed": "2026-10-11",
-    "hash": "ca1c4267be186499",
-    "note": "Reviewed changed wording and independently checked fictional cash-flow/cash-allocation figures; verified CFPB closing-disclosure guidance with applicability limits. Location confirmation, progressive disclosure, honest practice outcomes and exact multi-answer grading. No professional endorsement or novice usability testing claimed."
+    "hash": "4151c0b7c9b9cf4e",
+    "note": "2026-10-11 plain-language edit review: preserved calculator formulas, route IDs, task completion criteria, state-specific details and source links. Checked changed preapproval/contract wording against CFPB guidance and points definition against CFPB Ask CFPB 136. Checklist document help is optional; task actions, cautions and completion controls remain visible. Learn change is feedback wording only; no lesson answers changed."
   },
   {
     "id": "decide",
@@ -422,8 +422,8 @@
       "src/lib/planNext.ts",
       "src/lib/dealStage.ts"
     ],
-    "reviewed": "2026-10-10",
-    "hash": "db45d9ec5187c5ff",
-    "note": "Reviewed service-specific credential checks, fair-housing rules across all supported states, and manufactured-community statistics against MHI; no broad draft policy revision. 2026-10-10: reviewed the changed accuracy, security or flow wording; this pass did not re-verify every linked source. 2026-10-10: aligned appraisal guidance and the knowledge-check explanation with CFPB guidance; no guaranteed sale value or universal valuation method. Other source-check dates unchanged."
+    "reviewed": "2026-10-11",
+    "hash": "8279de4fe1c75ce1",
+    "note": "2026-10-11 plain-language edit review: preserved calculator formulas, route IDs, task completion criteria, state-specific details and source links. Checked changed preapproval/contract wording against CFPB guidance and points definition against CFPB Ask CFPB 136. Checklist document help is optional; task actions, cautions and completion controls remain visible. Learn change is feedback wording only; no lesson answers changed."
   }
 ]
