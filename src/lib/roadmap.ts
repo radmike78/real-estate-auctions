@@ -362,11 +362,11 @@ export const ROADMAP: RoadmapStep[] = [
     guides: ['contract'], evidence: 'terms',
     text: 'Discuss an offer at or below your planned maximum with your agent. Ask which contract conditions (contingencies) could let you cancel and recover your deposit, and what notices and deadlines apply. A refund is not automatic.',
     outcome: 'An accepted contract, and every deadline in it on your calendar.',
-    steps: ['Set your maximum price from your analysis before you write the offer.', 'Ask your agent to include inspection, appraisal and loan contingencies, with deadlines you can meet.', 'Remember: it’s a contract only once the seller accepts in writing.', 'Put every deadline on your calendar the day it’s accepted.'],
+    steps: ['Set your maximum price from your analysis before you write the offer.', 'Ask your agent to include inspection, appraisal and loan contingencies, with deadlines you can meet.', 'Ask your agent or attorney to confirm that the required signatures and acceptance steps are complete, and when the contract becomes binding under its terms and local law.', 'Confirm the effective date and what starts each deadline, then record the dates on your calendar.'],
     say: { to: 'Your agent', script: '“I’d like to offer [$price], with inspection, appraisal and loan contingencies. What deadlines are realistic for each, and what happens to my deposit if I cancel inside them?”' },
     docs: ['Purchase contract', 'Pre-approval letter or proof of funds'],
     stop: 'Don’t go above your maximum or drop your contingencies to win.',
-    doneWhen: 'The seller has accepted in writing, and every deadline is on your calendar.',
+    doneWhen: 'You have the completed contract, your agent or attorney has confirmed its effective date and deadline start points, and the dates are on your calendar.',
     action: 'How to negotiate', href: '#/learn/negotiate',
   },
   {

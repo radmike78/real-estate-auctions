@@ -164,8 +164,8 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-11",
-    "hash": "76a5de8171393f03",
-    "note": "2026-10-11 plain-language edit review: preserved calculator formulas, route IDs, task completion criteria, state-specific details and source links. Checked changed preapproval/contract wording against CFPB guidance and points definition against CFPB Ask CFPB 136. Checklist document help is optional; task actions, cautions and completion controls remain visible. Learn change is feedback wording only; no lesson answers changed."
+    "hash": "67d3a59e00df80de",
+    "note": "Reviewed follow-ups: qualified contract effective-date guidance; visible cash-budget limitation; direct tax-section link retaining property state without changing saved preference. No financial formulas or state tax rules changed."
   },
   {
     "id": "deals",
@@ -370,8 +370,8 @@
       "src/lib/lessons/taxes.ts"
     ],
     "reviewed": "2026-10-11",
-    "hash": "4151c0b7c9b9cf4e",
-    "note": "2026-10-11 plain-language edit review: preserved calculator formulas, route IDs, task completion criteria, state-specific details and source links. Checked changed preapproval/contract wording against CFPB guidance and points definition against CFPB Ask CFPB 136. Checklist document help is optional; task actions, cautions and completion controls remain visible. Learn change is feedback wording only; no lesson answers changed."
+    "hash": "17cb6d2994b8c5ee",
+    "note": "Reviewed follow-ups: qualified contract effective-date guidance; visible cash-budget limitation; direct tax-section link retaining property state without changing saved preference. No financial formulas or state tax rules changed."
   },
   {
     "id": "decide",
@@ -423,7 +423,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-11",
-    "hash": "8279de4fe1c75ce1",
-    "note": "2026-10-11 plain-language edit review: preserved calculator formulas, route IDs, task completion criteria, state-specific details and source links. Checked changed preapproval/contract wording against CFPB guidance and points definition against CFPB Ask CFPB 136. Checklist document help is optional; task actions, cautions and completion controls remain visible. Learn change is feedback wording only; no lesson answers changed."
+    "hash": "bf10dbf0cc81998c",
+    "note": "Reviewed follow-ups: qualified contract effective-date guidance; visible cash-budget limitation; direct tax-section link retaining property state without changing saved preference. No financial formulas or state tax rules changed."
   }
 ]

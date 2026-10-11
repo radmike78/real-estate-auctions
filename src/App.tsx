@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { stateByCode, type StateCode } from './lib/regions';
 import { currentRoute, isAppLink, navigate, onNavigate, replaceAddress, rewriteAppLinks, toPath, upgradeLegacyHash } from './lib/nav';
 import PageErrorBoundary from './components/PageErrorBoundary';
 import StrategyPage from './components/StrategyPage';
@@ -79,7 +80,7 @@ type Route =
   | { page: 'terms'; section?: string }
   | { page: 'analyze'; plan?: Plan; prefill?: Prefill }
   | { page: 'learn' }
-  | { page: 'lesson'; key: string }
+  | { page: 'lesson'; key: string; section?: string; state?: StateCode }
   | { page: 'reading' }
   | { page: 'propertyType'; slug: string }
   | { page: 'strategy'; slug?: string }
@@ -156,7 +157,11 @@ function parseHash(): Route {
   if (strat && (!strat[1] || strategyBySlug(strat[1]))) return { page: 'strategy', slug: strat[1] };
   const ptype = h.match(/^learn\/types\/([a-z-]{1,30})$/);
   if (ptype && topicBySlug(ptype[1])) return { page: 'propertyType', slug: ptype[1] };
-  if (lesson && lessonByKey(lesson[1])) return { page: 'lesson', key: lesson[1] };
+  if (lesson && lessonByKey(lesson[1])) {
+    const section = params.get('section') ?? '';
+    const state = stateByCode(params.get('state') ?? '')?.code as StateCode | undefined;
+    return { page: 'lesson', key: lesson[1], section: /^[a-z0-9-]{1,80}$/.test(section) ? section : undefined, state };
+  }
   if (h === 'decide') return { page: 'decide' };
   if (h === 'find-deals') return { page: 'finddeals' };
   if (h === 'deals') return { page: 'deals' };
@@ -220,7 +225,9 @@ export default function App() {
       const to = toPath(a.getAttribute('href')!);
       if (to === `${window.location.pathname}${window.location.search}`) {
         // Already here: a link to a section of this page (e.g. /toolkit/buy-box) scrolls to it; others go to the top.
-        const sec = document.getElementById(to.split('?')[0].split('/').pop() ?? '');
+        const requestedSection = new URLSearchParams(to.split('?')[1] ?? '').get('section');
+        const sec = document.getElementById(requestedSection ?? to.split('?')[0].split('/').pop() ?? '');
+        for (let p = sec; p; p = p.parentElement) if (p instanceof HTMLDetailsElement) p.open = true;
         return sec ? sec.scrollIntoView() : window.scrollTo(0, 0);
       }
       navigate(to);
@@ -318,7 +325,7 @@ export default function App() {
       {route.page === 'reading' && <ReadingPage />}
       {route.page === 'propertyType' && <PropertyTypePage slug={route.slug} />}
       {route.page === 'strategy' && <StrategyPage key={route.slug ?? ''} slug={route.slug} />}
-      {route.page === 'lesson' && <LessonPage key={route.key} lessonKey={route.key} />}
+      {route.page === 'lesson' && <LessonPage key={`${route.key}:${route.state ?? ''}`} lessonKey={route.key} section={route.section} state={route.state} />}
       {route.page === 'decide' && <DecidePage />}
       {route.page === 'finddeals' && <FindDealsPage />}
       {route.page === 'deals' && <DealsPage />}
