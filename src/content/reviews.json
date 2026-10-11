@@ -9,9 +9,9 @@
       "src/lib/planNext.ts",
       "src/lib/dealStage.ts"
     ],
-    "reviewed": "2026-10-10",
-    "hash": "c17a28985b39ffb2",
-    "note": "Reviewed absolute wording; replaced blanket investment prescriptions with individual decision guidance and clarified independent verification of emailed payment instructions. 2026-10-10: reviewed the changed accuracy, security or flow wording; this pass did not re-verify every linked source."
+    "reviewed": "2026-10-11",
+    "hash": "43ee6fe6e17cb324",
+    "note": "Reviewed changed wording and independently checked fictional cash-flow/cash-allocation figures; verified CFPB closing-disclosure guidance with applicability limits. Location confirmation, progressive disclosure, honest practice outcomes and exact multi-answer grading. No professional endorsement or novice usability testing claimed."
   },
   {
     "id": "search",
@@ -146,9 +146,9 @@
       "src/components/DealJourneyPage.tsx",
       "src/practice/dealJourney.ts"
     ],
-    "reviewed": "2026-10-10",
-    "hash": "63358cc978b30dd5",
-    "note": "Restored the owner-approved encouragement: It never hurts to ask with evidence. 2026-10-10: aligned appraisal guidance and the knowledge-check explanation with CFPB guidance; no guaranteed sale value or universal valuation method. Other source-check dates unchanged."
+    "reviewed": "2026-10-11",
+    "hash": "793bcf301d3a5079",
+    "note": "Reviewed changed wording and independently checked fictional cash-flow/cash-allocation figures; verified CFPB closing-disclosure guidance with applicability limits. Location confirmation, progressive disclosure, honest practice outcomes and exact multi-answer grading. No professional endorsement or novice usability testing claimed."
   },
   {
     "id": "calculator",
@@ -163,9 +163,9 @@
       "src/components/StrategyTabs.tsx",
       "src/lib/holdCalc.ts"
     ],
-    "reviewed": "2026-10-10",
-    "hash": "ebab949d658c9db1",
-    "note": "Reviewed audit calculator fixes and Claude integration, including migration of old input confirmations, region-stamp backup compatibility, full-precision coverage and before-income-tax labels. 2026-10-10: reviewed the changed accuracy, security or flow wording; this pass did not re-verify every linked source."
+    "reviewed": "2026-10-11",
+    "hash": "8401b47c74775be9",
+    "note": "Reviewed changed wording and independently checked fictional cash-flow/cash-allocation figures; verified CFPB closing-disclosure guidance with applicability limits. Location confirmation, progressive disclosure, honest practice outcomes and exact multi-answer grading. No professional endorsement or novice usability testing claimed."
   },
   {
     "id": "deals",
@@ -180,9 +180,9 @@
       "src/lib/planNext.ts",
       "src/lib/dealStage.ts"
     ],
-    "reviewed": "2026-10-10",
-    "hash": "b9cfa6e45cc82fe2",
-    "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged. 2026-10-10: reviewed the changed accuracy, security or flow wording; this pass did not re-verify every linked source."
+    "reviewed": "2026-10-11",
+    "hash": "4238eda35a05b80a",
+    "note": "Reviewed changed wording and independently checked fictional cash-flow/cash-allocation figures; verified CFPB closing-disclosure guidance with applicability limits. Location confirmation, progressive disclosure, honest practice outcomes and exact multi-answer grading. No professional endorsement or novice usability testing claimed."
   },
   {
     "id": "alerts",
@@ -294,9 +294,9 @@
       "src/components/RoleNotice.tsx",
       "src/lib/proVerification.ts"
     ],
-    "reviewed": "2026-10-10",
-    "hash": "a0f3133883317996",
-    "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy content is unchanged; the same verification explanation is now shared with the draft Terms. 2026-10-10: reviewed the changed accuracy, security or flow wording; this pass did not re-verify every linked source."
+    "reviewed": "2026-10-11",
+    "hash": "7b90835d91dd800c",
+    "note": "Reviewed changed wording and independently checked fictional cash-flow/cash-allocation figures; verified CFPB closing-disclosure guidance with applicability limits. Location confirmation, progressive disclosure, honest practice outcomes and exact multi-answer grading. No professional endorsement or novice usability testing claimed."
   },
   {
     "id": "privacy",
@@ -369,9 +369,9 @@
       "src/lib/strategies.ts",
       "src/lib/lessons/taxes.ts"
     ],
-    "reviewed": "2026-10-10",
-    "hash": "8486043dbbab3684",
-    "note": "Verified direct destinations and official referrals; see docs/direct-link-review-2026-10-10.json. Search submissions and browser behavior not tested."
+    "reviewed": "2026-10-11",
+    "hash": "ca1c4267be186499",
+    "note": "Reviewed changed wording and independently checked fictional cash-flow/cash-allocation figures; verified CFPB closing-disclosure guidance with applicability limits. Location confirmation, progressive disclosure, honest practice outcomes and exact multi-answer grading. No professional endorsement or novice usability testing claimed."
   },
   {
     "id": "decide",
@@ -406,9 +406,9 @@
       "src/lib/analyze.ts",
       "src/lib/path.ts"
     ],
-    "reviewed": "2026-10-10",
-    "hash": "79704cbf68fd8f8d",
-    "note": "Reviewed absolute wording; replaced blanket investment prescriptions with individual decision guidance and clarified independent verification of emailed payment instructions."
+    "reviewed": "2026-10-11",
+    "hash": "e4c41310a0f161e7",
+    "note": "Reviewed changed wording and independently checked fictional cash-flow/cash-allocation figures; verified CFPB closing-disclosure guidance with applicability limits. Location confirmation, progressive disclosure, honest practice outcomes and exact multi-answer grading. No professional endorsement or novice usability testing claimed."
   },
   {
     "id": "toolkit",

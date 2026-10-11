@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checklistFor, kindsFor, type Deal } from './analyze';
+import { checklistFor, cleanDeal, kindsFor, type Deal } from './analyze';
 
 const texts = (d: Parameters<typeof checklistFor>[0]) => checklistFor(d).flatMap((g) => g.items.map((i) => i.text)).join('\n');
 
@@ -36,4 +36,12 @@ describe('Analyze a deal checklist', () => {
     const contractor = checklistFor({ state: 'TX', county: 'Dallas', kind: 'listing', plan: 'flip' }).flatMap((g) => g.items).find((x) => x.id === 'contractor')!;
     expect(contractor.text).not.toMatch(/licensed in Texas/);
   });
+});
+
+it('keeps a location confirmation only for a valid property county', () => {
+  const d = { id: 'loc', state: 'NV', county: 'Clark', kind: 'listing', plan: 'rent', locationConfirmed: true };
+  expect(cleanDeal(d)?.locationConfirmed).toBe(true);
+  expect(cleanDeal({ ...d, locationConfirmed: 'true' })?.locationConfirmed).toBeUndefined();
+  expect(cleanDeal({ ...d, county: 'Wrong county' })?.locationConfirmed).toBeUndefined();
+  expect(cleanDeal({ ...d, locationConfirmed: undefined })?.locationConfirmed).toBeUndefined();
 });

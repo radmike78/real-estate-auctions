@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { AreaPicker } from './AreaPicker';
+import { navigate } from '../lib/nav';
+import { setMode } from '../lib/journey';
+import { planNow } from '../lib/planNext';
 
 const KEY = 'fsf.role-ack.v1';
 
@@ -72,7 +75,8 @@ export default function RoleNotice() {
         <p className="role-lead">DeedOwl teaches you, step by step, how to find, check and buy real estate, from listed homes to auctions, with properties from official sources.</p>
         {/* Optional: where they're buying, so the rules, official sources and professionals they see are local. */}
         <h3 className="area-dialog-head">Where are you buying? <span className="muted">(optional)</span></h3>
-        <AreaPicker optional onDone={close} doneLabel="Start learning" />
+        <AreaPicker optional onDone={() => { close(); setMode('guided'); navigate(planNow().task.href); }} doneLabel="Try the first decision" />
+        <button type="button" className="linkish" onClick={close}>Explore the website first</button>
       </div>
     </div>
   );

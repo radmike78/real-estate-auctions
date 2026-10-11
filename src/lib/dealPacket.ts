@@ -43,6 +43,9 @@ export interface PacketData {
   qa: PacketQA[];
   /** Earnest money (or a bidder deposit) you'll put up when you commit; 0 when not known yet. */
   earnest: number;
+  /** Separate fee, if applicable; credit is entered only after confirmation from the settlement professional. */
+  optionFee?: number;
+  depositCredit?: number;
   decisionWhy: string;
   conditions: string;
 }
@@ -73,7 +76,8 @@ export function cleanPacket(v: unknown): PacketData {
     return { role: str(r.role, 30), q: str(r.q, 500), a: str(r.a, 1000), on: DATE.test(on) ? on : '' };
   });
   const earnest = typeof o.earnest === 'number' && Number.isFinite(o.earnest) && o.earnest > 0 ? Math.min(o.earnest, 1e9) : 0;
-  return { fit, fitWhy: str(o.fitWhy, 600), dates, qa, earnest, ...(str(o.calendarReviewedFor, 30) ? { calendarReviewedFor: str(o.calendarReviewedFor, 30) } : {}), decisionWhy: str(o.decisionWhy, 1000), conditions: str(o.conditions, 1000) };
+  const amount = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && n > 0 ? Math.min(n, 1e9) : 0;
+  return { fit, fitWhy: str(o.fitWhy, 600), dates, qa, earnest, ...(amount(o.optionFee) ? { optionFee: amount(o.optionFee) } : {}), ...(amount(o.depositCredit) ? { depositCredit: amount(o.depositCredit) } : {}), ...(str(o.calendarReviewedFor, 30) ? { calendarReviewedFor: str(o.calendarReviewedFor, 30) } : {}), decisionWhy: str(o.decisionWhy, 1000), conditions: str(o.conditions, 1000) };
 }
 
 function loadAll(): Record<string, unknown> {
@@ -205,7 +209,7 @@ export const STRATEGY_LABEL: Record<Deal['plan'], string> = { rent: 'Keep and re
  */
 export function savedNumbers(d: Deal) {
   const offer = isOffer(d);
-  let rent: { price: number; monthly: number; cashIn: number; allIn: number; refi: boolean; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
+  let rent: { price: number; monthly: number; cashIn: number; allIn: number; repairs: number; possession: number; retained: number; refi: boolean; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
   let bid: {
     maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number; none: boolean; target: number;
     /** A loan pays part of the price or repairs (repair draws aren't modeled, so the cash figures assume the loan pays as costs come due). */
@@ -232,7 +236,7 @@ export function savedNumbers(d: Deal) {
       const v = sanitizeNumbers(rentRaw, RENT_DEFAULTS) as RentInputs;
       if (v.atPrice > 0) {
         const a = rentAtPrice(v, v.atPrice, offer);
-        rent = { price: v.atPrice, monthly: a.cashFlow / 12, cashIn: a.cashIn, allIn: a.allIn, refi: !offer && a.loan > 0, cashOnCash: a.cashOnCash, target: v.targetCocPct, stress: rentStress(v, v.atPrice, offer).map((s) => ({ label: s.label, monthly: s.monthly })) };
+        rent = { price: v.atPrice, monthly: a.cashFlow / 12, cashIn: a.cashIn, allIn: a.allIn, repairs: v.repairs * (1 + v.contingencyPct / 100), possession: v.possession, retained: v.reserveCash, refi: !offer && a.loan > 0, cashOnCash: a.cashOnCash, target: v.targetCocPct, stress: rentStress(v, v.atPrice, offer).map((s) => ({ label: s.label, monthly: s.monthly })) };
       }
     }
   } else if (d.plan === 'flip') {
@@ -398,7 +402,11 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   // 4. Cash needed, by when (from the deal's own strategy)
   const strategy = STRATEGY_LABEL[d.plan];
   const cash: string[] = [];
-  if (offer) cash.push(p.earnest ? `When you sign: ${money(p.earnest)} earnest money` : 'When you sign: earnest money (enter it below)');
+  if (offer) {
+    cash.push(p.earnest ? `By the contract's deposit deadline: ${money(p.earnest)} earnest money` : 'By the contract’s deposit deadline: earnest money (enter it below)');
+    if (p.optionFee) cash.push(`By the contract's fee deadline, if applicable: ${money(p.optionFee)} option fee, recorded separately from earnest money.`);
+    cash.push('A deposit or fee may be credited toward the purchase. Confirm its treatment with your title or escrow professional; do not add an amount twice.');
+  }
   else if (p.earnest) cash.push(`Before the sale: ${money(p.earnest)} bidder deposit`);
   let need = 0;
   // The price `need` is figured at, so the investable-cash line after the what-if says which price it means.
@@ -413,8 +421,21 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     } else {
       need = rent.cashIn;
       needAt = `At a ${money(rent.price)} price`;
-      cash.push(`${offer ? 'At closing' : 'From sale day until it’s rented'}, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: down payment or bid, closing costs and repairs you entered)`);
+      if (offer) {
+        const acquisition = Math.max(0, rent.cashIn - rent.repairs - rent.possession);
+        cash.push(`Acquisition cash estimate at a ${money(rent.price)} price, before deposit credits: ${money(acquisition)} (down payment and modeled purchase/loan costs; excludes repairs, possession costs and retained reserves).`);
+        if (p.depositCredit) {
+          cash.push(p.depositCredit <= acquisition && p.depositCredit <= p.earnest + (p.optionFee ?? 0)
+            ? `After ${money(p.depositCredit)} of confirmed deposit/fee credits: ${money(acquisition - p.depositCredit)} remaining acquisition cash in this planning estimate.`
+            : 'Review the confirmed credit: it exceeds the recorded deposit/fee payments or modeled acquisition cash. No remainder is calculated.');
+        }
+        cash.push(`Repair spending as work is done: ${money(rent.repairs)}, including the contingency. Possession costs, if needed: ${money(rent.possession)}.`);
+        cash.push(`Total modeled acquisition, repairs and possession cash: ${money(rent.cashIn)}. This is not the amount to wire at closing.`);
+        cash.push('Ask title/escrow and your lender for the actual cash to close and payment dates. Prepaid costs, escrow funding, prorations, credits and costs paid earlier can change it. Repair/lease-up carrying costs also need a separate budget if not included.');
+      } else cash.push(`From sale day until it’s rented, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: bid, buying costs and repairs you entered)`);
     }
+    cash.push(rent.retained > 0 ? `Retained property reserves: ${money(rent.retained)}, kept separately from the ${money(need)} modeled cash requirement.` : 'Retained property reserves: not entered. Set aside a separate amount for vacancies and unexpected costs.');
+    if (rent.retained > 0) need += rent.retained;
   } else if (bid?.none && !bid.at) {
     cash.push(`No price works with the numbers you entered in ${strategy}: the costs and your profit target take up the whole ${money(bid.exitValue)} resale value.`);
   } else if (bid) {
@@ -457,7 +478,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   } else {
     cash.push(`Run ${strategy} in Analyze to see the cash this deal needs.`);
   }
-  if (profile.investable > 0 && need > 0) cash.push(need > profile.investable ? `${needAt}, that’s ${money(need - profile.investable)} more than your investable cash: the deal doesn’t fit as entered.` : `${needAt}, that leaves ${money(profile.investable - need)} of your investable cash for surprises.`);
+  if (profile.investable > 0 && need > 0) cash.push(need > profile.investable ? `${needAt}, that’s ${money(need - profile.investable)} more than your investable cash: the deal doesn’t fit as entered.` : `${needAt}, that leaves ${money(profile.investable - need)} unallocated from your investable cash, after any retained reserves recorded above.`);
   const hasNums = hasSavedNumbers({ rent, bid, commercial });
   out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && (!offer || p.earnest) ? 'done' : hasNums || p.earnest ? 'started' : 'missing', lines: cash, fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 

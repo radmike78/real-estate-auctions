@@ -198,13 +198,13 @@ const RENT_GROUPS: CalcGroup<RentInputs>[] = [
     title: 'Renting it',
     fields: [
       { k: 'monthlyRent', label: 'Monthly rent', unit: '$', hint: 'From rented comparables nearby.' },
-      { k: 'vacancyPct', label: 'Vacancy and unpaid rent', unit: '%', hint: '5–8% is common for homes.' },
+      { k: 'vacancyPct', label: 'Vacancy and unpaid rent', unit: '%', hint: 'Use local evidence and your vacancy/nonpayment estimate.' },
       { k: 'propertyTaxYear', label: 'Property tax, per year', unit: '$' },
       { k: 'insuranceYear', label: 'Insurance, per year', unit: '$', hint: 'A landlord policy.' },
       { k: 'hoaMonthly', label: 'HOA dues, per month', unit: '$' },
       { k: 'managementPct', label: 'Property management', unit: '%', hint: 'Of rent collected. 0 if you manage it.' },
       { k: 'maintenancePct', label: 'Repairs and upkeep', unit: '%', hint: 'Of rent collected.' },
-      { k: 'capexPct', label: 'Big-item reserves', unit: '%', hint: 'Roof, HVAC, water heater.', more: 'Money set aside each month for large replacements. Leaving it out is the most common way rental numbers look better than they are.' },
+      { k: 'capexPct', label: 'Big-item reserves', unit: '%', hint: 'Roof, HVAC, water heater.', more: 'Money set aside each month for large replacements. Leaving it out can make rental cash flow look stronger than it is.' },
     ],
   },
   loanGroup<RentInputs>('Value after repairs', 'For the loan amount. Use sold comps.'),
@@ -213,7 +213,7 @@ const RENT_GROUPS: CalcGroup<RentInputs>[] = [
     fields: [
       { k: 'targetCocPct', label: 'Cash-on-cash return you want', unit: '%', hint: 'Yearly cash flow ÷ your cash in the deal.' },
       { k: 'minDscr', label: 'Your minimum income coverage', unit: 'x', hint: 'NOI ÷ loan payments. Your planning target, not a lender’s approval test.', when: (v) => v.loanPct > 0 },
-      { k: 'reserveCash', label: 'Cash you’ll still have after buying', unit: '$', hint: 'Savings left after closing and repairs.', more: 'Beginners run out of cash before they run out of deals. This shows how many months you could keep paying with no rent coming in.' },
+      { k: 'reserveCash', label: 'Cash you’ll still have after buying', unit: '$', hint: 'Savings left after closing and repairs.', more: 'This shows how many months you could keep paying with no rent coming in.' },
     ],
   },
 ];
@@ -474,13 +474,20 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const groups = offer ? forOffer(rt.groups) : rt.groups;
   // Numbers from your plan or the property (`start`) aren't our examples.
   const still = exampleLabels(visibleFields(groups, v), v, examples, typedKeys, new Set([...NOT_EXAMPLES, ...Object.keys(start)]));
+  const basics = new Set<keyof RentInputs>(['monthlyRent', 'propertyTaxYear', 'insuranceYear', 'repairs', 'loanPct', 'ratePct']);
+  const basicFields = groups.flatMap((g) => g.fields).filter((f) => basics.has(f.k));
+  const moreGroups = groups.map((g) => ({ ...g, fields: g.fields.filter((f) => !basics.has(f.k)) }));
   const allExample = !typed && Object.keys(start).length === 0;
   const word = offer ? 'Your offer' : 'Your bid';
   // Which price the panels below are figured at: yours once you enter it, else the target price.
   const at: PriceAt = v.atPrice > 0 ? { price: v.atPrice, label: `${word.toLowerCase()} of ${fmtMoney(v.atPrice)}` } : Number.isFinite(r.maxBid) && r.maxBid > 0 ? { price: r.maxBid, label: `the target price of ${fmtMoney(Math.round(r.maxBid))}` } : { price: v.value, label: `the ${fmtMoney(v.value)} value` };
   return (
     <div className="calc">
-      <div className="calc-inputs"><ExampleInputs labels={still} all={allExample} /><CalcFields groups={groups} values={v} onChange={set} /></div>
+      <div className="calc-inputs">
+        <ExampleInputs labels={still} all={allExample} />
+        <CalcFields groups={[{ title: 'Start with these numbers', fields: [{ k: 'atPrice', label: offer ? 'Your offer' : 'Your bid', unit: '$', hint: '0 leaves your price unset; the target-price estimate is still shown.' }, ...basicFields] }]} values={v} onChange={set} />
+        <details className="calc-assumptions"><summary>Review all other costs, loan terms and targets</summary><p className="muted small">These inputs are already included in the estimate, even while this section is closed. Review vacancy, upkeep, replacement reserves, acquisition costs and loan terms before using the result.</p><CalcFields groups={moreGroups} values={v} onChange={set} /></details>
+      </div>
       <div className="calc-results">
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
         {/* Your actual deal first; the price that would meet your goal second, each with its own heading bar and colour. */}

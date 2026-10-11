@@ -92,7 +92,7 @@ describe('saved learning decisions', () => {
   it('can complete the whole practice without purchasing a real property', () => {
     let p = emptyJourney();
     for (const c of CHAPTERS) for (const t of c.tasks) p = answerTask(p, c, t, t.kind === 'choice' ? t.options!.findIndex((x) => x.accepted) : t.kind === 'number' ? t.expected! : t.kind === 'check' ? t.checks! : 'I would revise the deal after checking the cash shortfall and confirming local rental rules with an attorney.');
-    expect(p.completed).toHaveLength(14);
+    expect(p.completed).toHaveLength(CHAPTERS.length);
     expect(resumeChapter(p)).toBe('workbook');
     expect(workbookText(p)).toContain('Not a real property plan');
   });
@@ -124,4 +124,29 @@ describe('content integrity', () => {
       else if (s.href.startsWith('#/learn/')) expect(lessonByKey(s.href.slice(8)), s.title).toBeTruthy();
     }
   });
+});
+
+it('requires the new budget reasoning and does not credit the old arithmetic alone', () => {
+  const c = CHAPTERS.find((x) => x.id === 'boundaries')!;
+  let p = answerTask(emptyJourney(), c, c.tasks[0], 110000);
+  expect(p.completed).not.toContain('boundaries');
+  p = answerTask(p, c, c.tasks[1], 'I would increase reserves by reducing the repair allocation only after a contractor confirms the scope. Otherwise I would revise the price or pass.');
+  expect(p.completed).toContain('boundaries');
+  expect(workbookText(p)).toContain('increase reserves');
+});
+it('grades the fresh-case multi-answer question exactly, including unsupported shortcuts', () => {
+  const c = CHAPTERS.find((x) => x.id === 'new-property')!;
+  const t = c.tasks.find((x) => x.id === 'new-evidence')!;
+  expect(accepts(t, t.checks)).toBe(true);
+  expect(accepts(t, [...t.checks!, t.distractors![0]])).toBe(false);
+  expect(accepts(t, t.checks!.slice(1))).toBe(false);
+  expect(accepts(t, [...t.checks!, t.checks![0]])).toBe(false);
+  expect(accepts(t, [...t.checks!.slice(1), t.distractors![0]])).toBe(false);
+  const math = c.tasks[0];
+  expect(2500 * .95 - 1000 - 150).toBe(1225);
+  expect(accepts(math, 1225)).toBe(true);
+  expect(accepts(math, 1375)).toBe(false); // NOI before the replacement reserve is not cash flow.
+  expect(accepts(c.tasks[2], 1)).toBe(true);
+  expect(accepts(c.tasks[2], 2)).toBe(true); // Both investigate and a reasoned pass are valid.
+  expect(accepts(c.tasks[2], 0)).toBe(false);
 });

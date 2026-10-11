@@ -67,7 +67,7 @@ export const AD_TOPICS: AdTopic[] = [
     caseStages: ['inspection'],
     editorial: {
       heading: 'Hiring an inspector or contractor',
-      body: 'Repairs are where most first deals go over budget. Questions to ask before you hire:',
+      body: 'Repairs can be a major source of unexpected costs. Questions to ask before you hire:',
       questions: [
         'Inspector: what does your inspection cover, and what does it leave out (roof, sewer line, pool)?',
         'Inspector: when will I get the written report, and can I come along?',

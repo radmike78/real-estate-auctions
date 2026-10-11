@@ -6,6 +6,7 @@ import { roadmapProgress } from '../lib/roadmapState';
 import { HomeArea } from './AreaPicker';
 import PlanNext, { ContinueButton } from './PlanNext';
 import { planNow } from '../lib/planNext';
+import { navigate } from '../lib/nav';
 
 
 // Straight to the tools and references, for "I know the basics".
@@ -46,7 +47,7 @@ export default function HomePage() {
 
           {!mode && (
             <div className="start-choice" role="group" aria-label="How do you want to start?">
-              <button type="button" className="start-card" onClick={() => setMode('guided')}>
+              <button type="button" className="start-card" onClick={() => { setMode('guided'); navigate(planNow().task.href); }}>
                 <strong>I’m new: guide me&nbsp;→</strong>
                 <span>One fictional property, short decisions, and a workbook that grows as you learn.</span>
               </button>
@@ -100,6 +101,8 @@ export default function HomePage() {
       </section>
 
       <section className="path" id="everything" aria-labelledby="path-head">
+        <details>
+        <summary>Explore everything DeedOwl offers</summary>
         <h2 id="path-head">Everything, in six steps</h2>
         <ol className="path-steps">
           {PATH.map((s) => {
@@ -121,14 +124,17 @@ export default function HomePage() {
             );
           })}
         </ol>
+        </details>
         {/* My plan's next step, the same one as the Continue above and in My plan: the progress that counts. */}
         <PlanNext variant="home" />
-        <h3 className="progress-kinds-head">How DeedOwl counts your progress</h3>
+        <details>
+        <summary>How DeedOwl counts your progress</summary>
         <ul className="progress-kinds" aria-label="How DeedOwl counts progress">
           <li><strong>My plan ({total} roadmap tasks)</strong> The real work of an actual purchase, and the one place your next step comes from. This is the progress that counts.</li>
           <li><strong>Build your first deal</strong> Short decisions on one fictional property. Your workbook records skills practiced; My plan tracks the work on a real investment.</li>
           <li><strong>Lessons and practice missions</strong> Supporting activities: each plan task links the ones that help with it. Missions are rehearsal on made-up deals; finishing them builds skill, but doesn’t mean you’re ready to buy.</li>
         </ul>
+        </details>
       </section>
     </main>
   );
