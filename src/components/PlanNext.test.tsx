@@ -1,3 +1,4 @@
+import { parse } from 'node-html-parser';
 import { beforeEach, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import PlanNext from './PlanNext';
@@ -31,4 +32,22 @@ it('shows parallel contract work and the actual next milestone, including when i
   expect(html).toContain('Who does what, and when');
   expect(html).toContain('Underwriting and appraisal');
   expect(html).toContain('Responsible people');
+});
+
+
+it('keeps checklist cautions, completion criteria and controls outside optional document help', () => {
+  const root = parse(renderToStaticMarkup(<FirstDealRoadmap />));
+  const help = root.querySelectorAll('.roadmap-help');
+  expect(help.length).toBeGreaterThan(0);
+  for (const panel of help) {
+    expect(panel.hasAttribute('open')).toBe(false);
+    expect(panel.querySelector('.roadmap-stop')).toBeNull();
+    expect(panel.querySelector('.roadmap-done')).toBeNull();
+    expect(panel.querySelector('.roadmap-status')).toBeNull();
+  }
+  for (const task of root.querySelectorAll('.roadmap-step-body')) {
+    expect(task.querySelector('.roadmap-actions ol')).not.toBeNull();
+    expect(task.querySelector('.roadmap-done')).not.toBeNull();
+    expect(task.querySelector('.roadmap-status')).not.toBeNull();
+  }
 });

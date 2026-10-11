@@ -38,7 +38,7 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
     title: 'The deal',
     fields: [
       { k: 'minimumBid', label: 'Opening (minimum) bid', unit: '$', hint: 'From the auction listing.', quick: true, more: 'The lowest bid the auction will accept, stated in the listing or notice of sale. Your maximum is worked out from the resale value and every cost; the results show how much room that leaves above the opening bid.' },
-      { k: 'exitValue', label: 'Resale value after repairs', unit: '$', hint: 'Conservative sold comps, not list prices.', quick: true, more: 'This is your estimate. Value depends on the neighborhood, recent comparable sales, condition and the market, and a licensed or certified appraiser can provide a professional opinion of value. An appraisal is not a guaranteed sale price. Your real estate agent can also estimate value from recent comparable sales. Don’t add the cost of upgrades to the value: appraisers count what buyers in that market pay for a feature, which is often less than it cost.' },
+      { k: 'exitValue', label: 'Resale value after repairs', unit: '$', hint: 'Use recent sales of similar properties, not asking prices.', quick: true, more: 'This is your estimate. Value depends on the neighborhood, recent comparable sales, condition and the market, and a licensed or certified appraiser can provide a professional opinion of value. An appraisal is not a guaranteed sale price. Your real estate agent can also estimate value from recent comparable sales. Don’t add the cost of upgrades to the value: appraisers count what buyers in that market pay for a feature, which is often less than it cost.' },
       { k: 'targetProfitPct', label: 'Profit you want', unit: '%', hint: 'Of the resale value. Your choice: big enough to absorb surprises.', quick: true, profitSwitch: true },
       { k: 'targetProfitMin', label: 'And at least', unit: '$', hint: 'A dollar minimum. Leave 0 for none.', when: (i) => !i.profitInDollars },
       { k: 'cashAvailable', label: 'Cash you can bring', unit: '$', hint: 'All the cash you can put in. Leave 0 for no limit.', quick: true, more: 'Most auctions want the full price in certified funds within hours or a few days (the notice of sale says exactly when), and repairs and holding costs come out of your pocket too. Your walk-away price never needs more cash than this, counting the bid, any buyer’s premium, repairs and every cost until you sell.' },
@@ -58,7 +58,7 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
     title: 'Fixing it up',
     fields: [
       { k: 'repairs', label: 'Repairs', unit: '$', hint: 'Often no inside look before an auction.', quick: true },
-      { k: 'contingencyPct', label: 'Repair contingency', unit: '%', hint: 'A cushion for surprises.' },
+      { k: 'contingencyPct', label: 'Extra room in the repair budget', unit: '%', hint: 'A cushion for surprises.' },
     ],
   },
   {
@@ -71,7 +71,7 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
       { k: 'monthlyCarry', label: 'Monthly holding costs', unit: '$', hint: 'Taxes, insurance, utilities and any HOA dues, each month you own it. A listed property’s estimate leaves out HOA dues: add them.' },
       { k: 'financedPct', label: 'Share financed after purchase', unit: '%', hint: 'Auctions need cash on the day.' },
       { k: 'interestRatePct', label: 'Interest rate (yearly)', unit: '%', when: (i) => i.financedPct > 0 },
-      { k: 'pointsPct', label: 'Lender points', unit: '%', when: (i) => i.financedPct > 0 },
+      { k: 'pointsPct', label: 'Upfront lender fee (points)', unit: '%', hint: 'Each point is 1% of the loan amount.', when: (i) => i.financedPct > 0 },
     ],
   },
   {

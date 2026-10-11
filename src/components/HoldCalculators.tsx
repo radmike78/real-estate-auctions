@@ -107,7 +107,7 @@ function buyGroup<T extends BuyInputs>(repairsLabel = 'Repairs'): CalcGroup<T> {
       { k: 'titleLegal', label: 'Title search, attorney, quiet title', unit: '$' },
       { k: 'possession', label: 'Getting possession', unit: '$', hint: 'Eviction attorney, relocation, locks.' },
       { k: 'repairs', label: repairsLabel, unit: '$', hint: 'To make it ready to rent.' },
-      { k: 'contingencyPct', label: 'Contingency', unit: '%', hint: 'A cushion for surprises.' },
+      { k: 'contingencyPct', label: 'Extra room in the repair budget', unit: '%', hint: 'A cushion for surprises.' },
     ] as CalcGroup<T>['fields'],
   };
 }
@@ -204,15 +204,15 @@ const RENT_GROUPS: CalcGroup<RentInputs>[] = [
       { k: 'hoaMonthly', label: 'HOA dues, per month', unit: '$' },
       { k: 'managementPct', label: 'Property management', unit: '%', hint: 'Of rent collected. 0 if you manage it.' },
       { k: 'maintenancePct', label: 'Repairs and upkeep', unit: '%', hint: 'Of rent collected.' },
-      { k: 'capexPct', label: 'Big-item reserves', unit: '%', hint: 'Roof, HVAC, water heater.', more: 'Money set aside each month for large replacements. Leaving it out can make rental cash flow look stronger than it is.' },
+      { k: 'capexPct', label: 'Money set aside for large replacements', unit: '%', hint: 'Roof, HVAC, water heater.', more: 'Money set aside each month for large replacements. Leaving it out can make rental cash flow look stronger than it is.' },
     ],
   },
   loanGroup<RentInputs>('Value after repairs', 'For the loan amount. Use sold comps.'),
   {
     title: 'Your target',
     fields: [
-      { k: 'targetCocPct', label: 'Cash-on-cash return you want', unit: '%', hint: 'Yearly cash flow ÷ your cash in the deal.' },
-      { k: 'minDscr', label: 'Your minimum income coverage', unit: 'x', hint: 'NOI ÷ loan payments. Your planning target, not a lender’s approval test.', when: (v) => v.loanPct > 0 },
+      { k: 'targetCocPct', label: 'Yearly cash return you want (cash-on-cash)', unit: '%', hint: 'Yearly cash flow ÷ your cash in the deal.' },
+      { k: 'minDscr', label: 'Your minimum income coverage', unit: 'x', hint: 'Income after operating expenses (NOI) ÷ loan payments. Your planning target, not a lender’s approval test.', when: (v) => v.loanPct > 0 },
       { k: 'reserveCash', label: 'Cash you’ll still have after buying', unit: '$', hint: 'Savings left after closing and repairs.', more: 'This shows how many months you could keep paying with no rent coming in.' },
     ],
   },

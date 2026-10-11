@@ -73,3 +73,12 @@
 .plan-section { padding: 16px 20px; margin-block: 16px; border: 1px solid var(--border, #dce1e8); border-radius: 12px; }
 .plan-section > summary { cursor: pointer; font-weight: 650; font-size: 1.2rem; }
 @media print { details::details-content { display: block !important; content-visibility: visible !important; } }
+
+/* Keep the short checklist and optional document help easy to scan. */
+.roadmap-phase-help { padding: 0 18px; color: var(--muted); }
+.roadmap-help { margin: 14px 0; padding: 12px 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); }
+.roadmap-help > summary { cursor: pointer; font-weight: 600; }
+@media print { .roadmap-help > summary { display: none; } .roadmap-help > *:not(summary) { display: block !important; } }
+
+.roadmap-actions h4 { margin: 10px 0 6px; }
+.roadmap-actions ol { margin: 0; padding-left: 22px; display: grid; gap: 4px; }
