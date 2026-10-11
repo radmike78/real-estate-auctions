@@ -118,9 +118,9 @@
       "src/lib/playbooks.ts",
       "src/lib/saleDocs.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "2ee92a87bb919120",
-    "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
+    "reviewed": "2026-10-11",
+    "hash": "19042b586bccf89b",
+    "note": "2026-10-11 targeted corrections: contract and refund qualifications, insurance use, quiz timing, and public California contract guidance. Changed claims checked against official sources; not a certification of all sources or device behavior."
   },
   {
     "id": "guides",
@@ -370,8 +370,8 @@
       "src/lib/lessons/taxes.ts"
     ],
     "reviewed": "2026-10-11",
-    "hash": "17cb6d2994b8c5ee",
-    "note": "Reviewed follow-ups: qualified contract effective-date guidance; visible cash-budget limitation; direct tax-section link retaining property state without changing saved preference. No financial formulas or state tax rules changed."
+    "hash": "99d5f4d3a32a5b7f",
+    "note": "2026-10-11 targeted corrections: contract and refund qualifications, insurance use, quiz timing, and public California contract guidance. Changed claims checked against official sources; not a certification of all sources or device behavior."
   },
   {
     "id": "decide",

@@ -18,7 +18,7 @@ export const afterClosing: Lesson = {
       heading: 'The first weeks',
       blocks: [
         { list: [
-          'Have insurance in place from the day you take ownership: a landlord policy, not a homeowner’s policy.',
+          'Arrange coverage for when you take on the property’s risk under your purchase agreement. Tell the insurer your actual occupancy and use; a long-term rental, home sharing, short-term rental, vacancy or renovation may need a different policy or endorsement.',
           'Once you have legal possession, change or rekey the locks and put utilities you’ll pay in your name. If a tenant stays, don’t change their unit’s locks: their lease continues.',
           'Open a separate bank account for the property, and keep every receipt from buying it and from repairs.',
           'Finish the repairs a tenant needs before you advertise: safety items first.',
@@ -182,6 +182,7 @@ export const afterClosing: Lesson = {
   ],
   tryIt: { label: 'Analyze a deal: Keep and rent', href: '#/analyze?plan=rent' },
   sources: [
+    { label: 'Texas Department of Insurance: matching coverage to rental use', url: 'https://tdi.texas.gov/tips/home-sharing.html' },
     { label: 'HUD: Fair Housing Act overview', url: 'https://www.hud.gov/helping-americans/fair-housing-act-overview' },
     { label: 'EPA: lead-based paint disclosure rule', url: 'https://www.epa.gov/lead/lead-based-paint-disclosure-rule-section-1018-title-x' },
     { label: 'IRS Publication 527: residential rental property', url: 'https://www.irs.gov/publications/p527' },
