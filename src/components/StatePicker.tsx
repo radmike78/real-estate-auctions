@@ -2,8 +2,10 @@ import { STATES, type StateCode } from '../lib/regions';
 import { useMyState } from '../lib/myState';
 
 /** "Your state" chooser, shared across the site: pages then show only that state's rules. */
-export default function StatePicker({ label = 'Your state' }: { label?: string }) {
-  const [state, setState] = useMyState();
+export default function StatePicker({ label = 'Your state', selection }: { label?: string; selection?: { state: StateCode | null; onChange: (state: StateCode | null) => void } }) {
+  const [myState, setMyState] = useMyState();
+  const state = selection ? selection.state : myState;
+  const setState = selection ? selection.onChange : setMyState;
   return (
     <div className="state-picker" role="group" aria-label={label}>
       <span className="state-picker-label">{label}</span>

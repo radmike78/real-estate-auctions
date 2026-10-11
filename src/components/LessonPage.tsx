@@ -1,5 +1,5 @@
 import { LESSON_CHAPTER, journeyHref } from '../practice/dealJourney';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { markLessonRead, useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import { LEARN_MODULES } from '../lib/learn';
@@ -177,7 +177,9 @@ function LessonBooks({ isbns }: { isbns: string[] }) {
 }
 
 /** One lesson in Learn (step 1): reading, key terms, sources, and the next lesson. */
-export default function LessonPage({ lessonKey }: { lessonKey: string }) {
+export const lessonSectionId = (heading: string) => heading.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+export default function LessonPage({ lessonKey, section, state }: { lessonKey: string; section?: string; state?: StateCode }) {
   const bodyRef = useRef<HTMLElement>(null);
   const endRef = useRef<HTMLElement>(null);
   useMarkStep('learn');
@@ -201,12 +203,22 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
   const ready = LEARN_MODULES.filter((x) => lessonByKey(x.key) || x.href);
   const next = ready[ready.indexOf(m) + 1];
   const nextHref = next && (lessonByKey(next.key) ? `#/learn/${next.key}` : next.href!);
-  const [st] = useMyState();
+  const [myState, setMyState] = useMyState();
+  // A property link opens that property's state without overwriting the visitor's saved preference.
+  const [linkedState, setLinkedState] = useState<StateCode | null | undefined>(state);
+  const st = linkedState === undefined ? myState : linkedState;
+  useEffect(() => {
+    if (!section) return;
+    const target = document.getElementById(section);
+    if (target instanceof HTMLDetailsElement) target.open = true;
+    target?.scrollIntoView();
+  }, [lessonKey, section, st]);
   // A section about one state ("Texas: getting a rental ready…") shows only for that state; its heading drops the
   // state name once that state is chosen, and "…, state by state" goes when only one state is shown.
   const sections = l.sections
     .filter((s) => showFor(st, s.heading))
     .map((s) => ({
+      id: lessonSectionId(s.heading),
       heading: st ? dropStateLead(s.heading, st).replace(/, state by state$/, '') : s.heading,
       blocks: s.blocks.map((b) => forState(b, st)).filter((b): b is LessonBlock => b !== null),
     }))
@@ -239,7 +251,7 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
         title={m.title}
         sub={oneState(l.intro, st)}
       />
-      {varies && <StatePicker label="Show rules for" />}
+      {varies && <StatePicker label="Show rules for" selection={{ state: st, onChange: linkedState === undefined ? setMyState : setLinkedState }} />}
       {/* Summary first, full width: what the reader will learn, then (on Types) help choosing, then the lesson. */}
       <section className="lesson-takeaways" aria-labelledby="takeaways">
         <h2 id="takeaways">What you’ll learn</h2>
@@ -255,7 +267,7 @@ export default function LessonPage({ lessonKey }: { lessonKey: string }) {
       )}
       <article className="lesson-body-text">
         {sections.map((s, index) => (
-          <details key={s.heading} className="lesson-topic" open={index === 0}>
+          <details key={s.id} id={s.id} className="lesson-topic" open={sections.some((x) => x.id === section) ? s.id === section : index === 0}>
             <summary><h2>{s.heading}</h2></summary>
             {s.blocks.map((b, i) => <Block key={i} b={b} marked={marked.get(b)} />)}
           </details>
