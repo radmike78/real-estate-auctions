@@ -66,6 +66,8 @@ export interface Deal {
   updatedAt: string;
   /** Set by the buyer; deals saved before stages existed have none, and My plan works one out (dealStage.ts). */
   stage?: DealStage;
+  /** Explicit confirmation for this property, not the visitor's general browsing area. */
+  locationConfirmed?: boolean;
 }
 
 export interface CheckItem {
@@ -244,6 +246,7 @@ export function cleanDeal(v: unknown): Deal | null {
     done: Array.isArray(d.done) ? d.done.filter((x): x is string => typeof x === 'string').slice(0, 500) : [],
     updatedAt: typeof d.updatedAt === 'string' && !Number.isNaN(Date.parse(d.updatedAt)) ? d.updatedAt : new Date().toISOString(),
     ...(isDealStage(d.stage) ? { stage: d.stage } : {}),
+    ...(d.locationConfirmed === true && typeof d.county === 'string' && st.counties.includes(d.county) ? { locationConfirmed: true } : {}),
   };
 }
 

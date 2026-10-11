@@ -26,8 +26,8 @@ export function ExampleInputs({ labels, all = false }: { labels: string[]; /** N
   return (
     <div className="calc-example-note" role="note">
       <strong>{all ? 'These are sample numbers, not your property.' : `${labels.length} ${labels.length === 1 ? 'input is' : 'inputs are'} still our example${labels.length === 1 ? '' : 's'}.`}</strong>{' '}
-      Replace {labels.length === 1 ? 'it' : 'each one'} with your own figure (the listing, comparables, quotes) before you trust the results:
-      <ul>{labels.map((l) => <li key={l}>{l}</li>)}</ul>
+      Replace {labels.length === 1 ? 'it' : 'each one'} with a supported figure before using the results to make a decision.
+      <details><summary>Review the {labels.length} example {labels.length === 1 ? 'input' : 'inputs'}</summary><ul>{labels.map((l) => <li key={l}>{l}</li>)}</ul></details>
     </div>
   );
 }

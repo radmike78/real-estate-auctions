@@ -53,6 +53,7 @@ const NRS = (ch: string, title: string, checked: string | null, note?: string): 
 });
 
 const LISTED: Source[] = [
+  { id: 'cfpb-cash-to-close', title: 'CFPB: Closing Disclosure and cash to close', publisher: 'Consumer Financial Protection Bureau', url: 'https://www.consumerfinance.gov/owning-a-home/closing-disclosure/', role: 'rules', checked: '2026-10-11', note: 'Read official explainer: cash to close is additional to amounts already paid; deposits and credits are accounted for in the transaction summary. Used with consumer-mortgage applicability limits, not as an investment settlement calculation.' },
   { id: 'direct-la-tax-bill', title: 'Los Angeles County: view property tax bill', publisher: 'Los Angeles County Treasurer and Tax Collector', url: 'https://ttc.lacounty.gov/request-duplicate-bill/', role: 'lookup', checked: '2026-10-10' },
   {"id": "az-btr", "title": "Arizona registered professional search", "publisher": "Arizona Board of Technical Registration", "url": "https://btr.az.gov/public/registered-professional-search", "role": "lookup", "checked": "2026-10-10", "note": "Official indexed search reviewed; interactive search not tested."},
   {"id": "ut-insurance", "title": "Utah insurance license search (desktop)", "publisher": "Utah Insurance Department", "url": "https://licenseesearch.uid.utah.gov/s/", "role": "lookup", "checked": "2026-10-10", "note": "Direct tool linked by the Department; interactive search not tested."},

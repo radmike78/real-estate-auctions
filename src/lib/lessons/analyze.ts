@@ -19,9 +19,9 @@ export const analyze: Lesson = {
         { table: { head: ['', 'A home to live in', 'An investment property'], rows: [
           ['Why you buy it', 'You want to live there', 'To make money: rent, a profit when you sell, or both'],
           ['What sets your price', 'What it’s worth to you, within what you can afford', 'Use supported value, rent and costs to set a price that fits your goals and risk tolerance.'],
-          ['The kitchen, the view, the yard', 'Can be worth paying extra for', 'Matter only if they raise the rent or the sale price'],
+          ['The kitchen, the view, the yard', 'Can be worth paying extra for', 'Evaluate their effect on income, resale value, costs and risk'],
           ['If the inspection or appraisal goes badly', 'You may stretch to keep the home you love', 'You renegotiate, or walk away'],
-          ['Walking away', 'Hard, and sometimes not worth it', 'Normal. Most properties you look at should fail your numbers.'],
+          ['Walking away', 'Hard, and sometimes not worth it', 'Reasonable when the evidence, numbers or risks do not fit your goals.'],
         ] } },
         'Ways to stay detached: write your maximum price before you see the property; judge it on your analysis, not the tour; don’t picture yourself living there; expect to lose some to other buyers or bidders; and have someone you trust check your numbers before you commit. If you’ll live in part of it and rent the rest, be honest about which choices are about your home and which are about the investment.',
       ],

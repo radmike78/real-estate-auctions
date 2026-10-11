@@ -14,7 +14,7 @@ class MemStorage {
 }
 
 const deal: Deal = { id: 'd1', name: '12 Test St', state: 'TX', county: 'Travis', kind: 'listing', plan: 'rent', notes: '', done: [], updatedAt: '2026-10-06T00:00:00Z' };
-const now = new Date('2026-10-06T15:00:00Z');
+const now = new Date(2026, 9, 6, 12); // Local calendar day, matching deadline calculations in any test timezone.
 
 beforeEach(() => {
   (globalThis as unknown as { localStorage: MemStorage }).localStorage = new MemStorage();
@@ -319,7 +319,7 @@ describe('the deal packet', () => {
       // It comes after the what-if at the walk-away price, so it has to say which price it means.
       expect(c.indexOf('What-if')).toBeLessThan(c.indexOf('At your offer of $190,000, that’s'));
       c = cash(250000);
-      expect(c).toMatch(/At your offer of \$190,000, that leaves \$37,000 of your investable cash for surprises\./);
+      expect(c).toMatch(/At your offer of \$190,000, that leaves \$37,000 unallocated from your investable cash/);
       save(base);
       expect(cash(200000)).toMatch(/At the asking price of \$200,000, that’s \$23,000 more than your investable cash/);
       // With a loan, the draw note comes last before it; the price is still named.
@@ -414,4 +414,22 @@ it('keeps unresolved overdue deadlines urgent until explicitly handled', () => {
   expect(nextDate(restored, now)?.what).toBe('Inspection');
   restored.dates[1].resolved = true;
   expect(nextDate(restored, now)).toBeNull();
+});
+
+it('separates rental acquisition, repair spending, reserves and confirmed deposit credits', () => {
+  localStorage.setItem('fsf.calc.rent.d1-offer.v1', JSON.stringify({ atPrice: 300000, value: 350000, loanPct: 75, loanCostPct: 2, transferTaxPer500: 2.55, titleLegal: 2500, repairs: 5000, contingencyPct: 15, possession: 0, reserveCash: 15000 }));
+  const p = { ...EMPTY_PACKET, earnest: 5000, optionFee: 200, depositCredit: 5000 };
+  const lines = packetSections(deal, p, now).find((x) => x.key === 'cash')!.lines.join('\n');
+  expect(lines).toContain('before deposit credits: $83,530');
+  expect(lines).toContain('$78,530 remaining acquisition cash');
+  expect(lines).toContain('Repair spending as work is done: $5,750');
+  expect(lines).toContain('Total modeled acquisition, repairs and possession cash: $89,280');
+  expect(lines).toContain('Retained property reserves: $15,000');
+  expect(lines).not.toContain('At closing, all in');
+  const bad = packetSections(deal, { ...p, depositCredit: 90000 }, now).find((x) => x.key === 'cash')!.lines.join('\n');
+  expect(bad).toContain('No remainder is calculated');
+  savePacket('analyzed:d1', p);
+  expect(loadPacket('analyzed:d1').depositCredit).toBe(5000);
+  expect(loadPacket('analyzed:d1').optionFee).toBe(200);
+  expect(dealPacketText(deal, p, now)).toContain('$78,530 remaining acquisition cash');
 });

@@ -135,6 +135,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const toggle = (id: string) => set({ done: deal.done.includes(id) ? deal.done.filter((x) => x !== id) : [...deal.done, id] });
 
   const saveNew = () => {
+    if (!deal.locationConfirmed) return;
     const d: Deal = { ...deal, id: `d${Date.now().toString(36)}`, name: deal.name.trim() || `${countyName(deal.county)} deal`, stage: 'researching' };
     carryDraftNumbers(d.id, d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short');
     const next = [d, ...saved];
@@ -173,13 +174,13 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           </label>
           <label className="field">
             <span>State</span>
-            <select value={deal.state} onChange={(e) => { const s = e.target.value as StateCode; const k = kindsFor(s).some((x) => x.key === deal.kind) ? deal.kind : 'listing'; set({ state: s, county: startCounty(s), kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); setMyState(s); }}>
+            <select value={deal.state} onChange={(e) => { const s = e.target.value as StateCode; const k = kindsFor(s).some((x) => x.key === deal.kind) ? deal.kind : 'listing'; set({ state: s, county: startCounty(s), locationConfirmed: false, kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); setMyState(s); }}>
               {STATES.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}
             </select>
           </label>
           <label className="field">
             <span>County</span>
-            <select value={deal.county} onChange={(e) => set({ county: e.target.value })}>
+            <select value={deal.county} onChange={(e) => set({ county: e.target.value, locationConfirmed: false })}>
               {st.counties.map((c) => <option key={c} value={c}>{countyName(c)}</option>)}
             </select>
           </label>
@@ -196,6 +197,11 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
             </select>
           </label>
         </div>
+        <label className="check">
+          <input type="checkbox" checked={!!deal.locationConfirmed} onChange={(e) => set({ locationConfirmed: e.target.checked })} />
+          I checked that this property is in {countyName(deal.county)}, {st.name}.
+        </label>
+        {!deal.locationConfirmed && <p className="muted" role="status">Confirm the property's location to open its local checklist and calculator. The starting area may be an example, not where this property is.</p>}
         <div className="deal-actions">
           {deal.id ? (
             <>
@@ -204,7 +210,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
               <button type="button" className="btn btn-secondary" onClick={() => { clearDraftNumbers(); setDeal(blank(deal.state)); }}>Start a new deal</button>
             </>
           ) : (
-            <button type="button" className="btn" onClick={saveNew}>Save this deal</button>
+            <button type="button" className="btn" disabled={!deal.locationConfirmed} onClick={saveNew}>Save this deal</button>
           )}
         </div>
         {saved.length > 0 && (
@@ -223,6 +229,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         )}
       </section>
 
+      {deal.locationConfirmed && <>
       <section className="deal-checklist" aria-labelledby="check-head">
         <h2 id="check-head">2. Your checklist <span className="muted">({doneCount} of {all.length} done)</span></h2>
         <p className="muted">For a {kindLabel(kinds.find((k) => k.key === deal.kind) ?? kinds[0], deal.state).replace(/^[A-Z][a-z]/, (m) => m.toLowerCase())} in {countyName(deal.county)}, {st.name}.</p>
@@ -260,7 +267,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       <section className="analyze-next" aria-labelledby="analyze-next-head">
         <h2 id="analyze-next-head">4. What’s next</h2>
         <p>Numbers work, and every checklist item above has an answer? Save the deal so you can come back to it, then follow the “Buy it” steps for this kind of sale in My plan.</p>
-        <p><strong>When to walk away:</strong> when the numbers say you’d lose money: {calcTabFor(deal.plan) === 'flip' ? 'the price you’d have to pay leaves no profit after repairs, holding and selling costs, or the profit is smaller than your goal' : calcTabFor(deal.plan) === 'lien' ? 'the interest you’d earn, after the wait to be paid, misses your goal' : 'the monthly cash flow is negative after reserves, or the long-term return misses your goal'}. Write down why in the notes, and move on to the next one. <a href="#/learn/walk-away">When to walk away</a></p>
+        <p><strong>Reasons to pause, revise or pass:</strong> {calcTabFor(deal.plan) === 'flip' ? 'the price you’d have to pay leaves no profit after repairs, holding and selling costs, or the profit is smaller than your goal' : calcTabFor(deal.plan) === 'lien' ? 'the interest you’d earn, after the wait to be paid, misses your goal' : 'the monthly cash flow is negative after reserves, or the long-term return misses your goal'}. Compare the tradeoffs with your goals and risk tolerance, and record your reasoning. Get appropriate professional guidance before committing. <a href="#/learn/walk-away">When to walk away</a></p>
         <div className="row">
           {!deal.id ? <button type="button" className="btn" onClick={saveNew}>Save this deal</button> : <a className="btn" href="#/deals">Open My deals</a>}
           <a href="#/toolkit">Your buying steps in My plan&nbsp;→</a>
@@ -269,6 +276,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       {/* One labeled ad from the kind of professional this plan needs (listings and bank-owned homes only). */}
       {adShows && <FixedAds pros={pros} categories={adCats} placeholder />}
       </div>
+      </>}
     </main>
   );
 }
