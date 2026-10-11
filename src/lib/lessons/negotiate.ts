@@ -16,14 +16,14 @@ export const negotiate: Lesson = {
     {
       heading: 'What an offer includes',
       blocks: [
-        'A written offer becomes a purchase contract when the seller accepts it. Besides the price, it sets:',
+        'An offer becomes binding when the required acceptance, signatures and delivery steps are complete under the agreement and applicable law. Ask your agent or attorney to confirm the effective date. Besides the price, it sets:',
         { list: [
-          'Earnest money: a good-faith deposit, usually held by the title or escrow company. If you cancel for a reason the contract allows, you get it back. If you back out otherwise, you can lose it.',
+          'Earnest money: a good-faith deposit, usually held by the title or escrow company. A valid cancellation may entitle you to a refund, but release procedures, disputes and nonrefundable fees can affect what you receive and when. If you back out without a contract right, you can lose it.',
           'Contingencies: conditions that let you cancel. It’s a good idea to make an offer contingent on getting financing and on a satisfactory inspection. Offers can also depend on the appraisal and a clear title.',
           'Deadlines: how many days you have for inspections, loan approval and closing. Missing one can waive your right to cancel.',
           'Who pays which costs, and what stays with the property.',
         ] },
-        'The seller can accept, reject or counter. Each counteroffer replaces the last one, so read every change before you sign.',
+        'The seller can accept, reject or counter. Read each counteroffer and confirm which written terms have been accepted before you sign.',
       ],
     },
     {
@@ -35,7 +35,7 @@ export const negotiate: Lesson = {
             head: ['State', 'Contract and deadlines', 'Who closes'],
             rows: [
               ['Nevada', 'The Realtors’ residential purchase agreement. You set the due diligence period (your window to inspect and cancel) in the contract; write the end date on your calendar.', 'A title company acts as escrow.'],
-              ['California', 'The C.A.R. Residential Purchase Agreement. Investigation, loan, appraisal and document-review contingencies default to 17 days after acceptance; after that the seller can give you a notice to remove them within 2 days or risk cancellation.', 'An escrow company (or a title company’s escrow), with the agent’s instructions.'],
+              ['California', 'The C.A.R. Residential Purchase Agreement. Use your signed agreement to find each contingency deadline and the rules for removing contingencies, delivering notices and cancellation. Have your agent confirm the dates; forms and negotiated terms can differ.', 'An escrow company (or a title company’s escrow), with the agent’s instructions.'],
               ['Arizona', 'The Arizona REALTORS® Residential Resale Purchase Contract, with a 10-day inspection period by default. Disapprove items or cancel in writing before it ends.', 'A title company acts as escrow.'],
               ['Utah', 'The state-approved Real Estate Purchase Contract (REPC). You and the seller set the due diligence, financing and appraisal, and settlement deadlines; missing the due diligence deadline can cost your earnest money.', 'A title company handles settlement.'],
               ['Texas', 'TREC’s One to Four Family Residential Contract (Resale). You buy an option period (your right to end the contract for any reason) for the number of days you negotiate. Deliver the option fee and earnest money to the escrow agent (usually the title company) within 3 days after the effective date; the option fee is then released to the seller. If that 3rd day is a Saturday, Sunday or legal holiday, you have until the end of the next day that isn’t one. Being late costs you different things: a late option fee means you have no option period, while late earnest money lets the seller end the contract (or use its other remedies) by notice before you deliver it. The option period ends at 5 p.m. local time on its last day, and the weekend and holiday extension for payments doesn’t move it. You end the contract by written notice (TREC 20-19, paragraph 5). Paragraph 7I covers the Seller’s Water Disclosure about groundwater and surface water rights: ask your agent which box is checked. If box 7I(2) applies because you haven’t received it yet, calendar when the seller must deliver it and your review deadline: you can end the contract within 7 days after you receive it, or before closing if that comes first, and if it never comes you can end it before closing. If box 1 (you’ve already received it) or box 3 (it isn’t required, because every statement in 7I(3) is true) is checked, there’s no new termination window; for box 3, note why. TREC’s condominium resale contract doesn’t include it.', 'A title company closes and issues the title policy.'],
@@ -49,7 +49,7 @@ export const negotiate: Lesson = {
     {
       heading: 'Negotiating after the inspection',
       blocks: [
-        'If your signed contract gives you an inspection or due diligence period and you’re not happy with what the inspection finds, you can usually cancel before that period ends, by following the contract’s notice steps. Your earnest money comes back, but the inspection fees and any separate nonrefundable payment (such as a Texas option fee) don’t. Miss the deadline or the notice steps, and your deposit can be at risk. A seller saying no to repairs doesn’t by itself give you a right to cancel; your contract does. Your agent or attorney can confirm which rights are still open. If repairs are needed, you can negotiate who makes or pays for them: ask the seller to fix items, lower the price, or give you a credit at closing.',
+        'If your signed contract gives you an inspection or due diligence period and you’re not happy with what the inspection finds, you can usually cancel before that period ends, by following the contract’s notice steps. A valid cancellation may entitle you to an earnest-money refund; escrow release steps or a dispute can delay it. Inspection fees and separate nonrefundable payments (such as a Texas option fee) generally aren’t refunded. Miss the deadline or the notice steps, and your deposit can be at risk. A seller saying no to repairs doesn’t by itself give you a right to cancel; your contract does. Your agent or attorney can confirm which rights are still open. If repairs are needed, you can negotiate who makes or pays for them: ask the seller to fix items, lower the price, or give you a credit at closing.',
         'Lenders limit how much a seller can put toward a buyer’s costs. On Fannie Mae loans, the cap on an investment property is 2% of the price or appraised value, whichever is lower. For a home you’ll live in, it’s 3% to 9% depending on your down payment.',
       ],
     },
@@ -112,7 +112,7 @@ export const negotiate: Lesson = {
           'Installment sale: the seller gets at least one payment after the year of the sale, as with seller financing. The seller may then spread the tax on the gain across the payments. Interest received is ordinary income.',
           'Seller credits: instead of a lower price, the seller pays part of your closing costs, within the lender’s limits above.',
         ] },
-        'Creative financing gets its own lesson later.',
+        { links: [{ label: 'Creative financing', url: '#/learn/creative', what: 'Explore seller financing, taking over loans and partnerships, with their risks and rules.' }] },
       ],
     },
     {
@@ -148,7 +148,7 @@ export const negotiate: Lesson = {
   tryIt: { label: 'Practice making an offer and closing a purchase', href: '#/practice' },
   books: ['0143118757', '0062407805'],
   sources: [
-    { label: 'C.A.R. Quick Guide: navigating contingencies in the contract', url: 'https://www.car.org/-/media/CAR/Documents/Transaction-Center/PDF/QUICK-GUIDES/Quick-Guide---Navigating-Contingencies-in-the-Contract.pdf' },
+    { label: 'California DRE: making an offer and contract contingencies', url: 'https://www.dre.ca.gov/Consumers/FirstHomeCalifornia.html#:~:text=Make%20an%20Offer' },
     { label: 'Arizona REALTORS®: residential resale purchase contract series', url: 'https://www.aaronline.com/?p=78755' },
     { label: 'CFPB: find the right home (contingencies)', url: 'https://www.consumerfinance.gov/owning-a-home/explore/find-the-right-home/' },
     { label: 'CFPB: schedule a home inspection', url: 'https://www.consumerfinance.gov/owning-a-home/close/schedule-a-home-inspection/' },

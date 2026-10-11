@@ -2070,7 +2070,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Offer subject to lender approval",
-      detail: "The seller signs your offer first. Then the listing agent sends the package to each lender. Your contract isn’t final until every lienholder approves in writing."
+      detail: "The seller signs your offer first. Then the listing agent sends the package to each lender. The signed agreement may already be binding, with performance subject to lender approval. Confirm each required approval and the contract’s deadlines before closing."
     },
     {
       title: "Check whether California’s equity purchaser law applies",

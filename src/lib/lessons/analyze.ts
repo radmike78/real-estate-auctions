@@ -72,7 +72,7 @@ export const analyze: Lesson = {
       heading: 'Insurance before you commit',
       blocks: [
         { list: [
-          'Landlord policy: a rental needs a landlord (dwelling) policy, not a homeowner’s policy. Ask your agent which kind fits how you’ll use it.',
+          'Insurance: tell your insurer how you’ll use the property. Long-term rentals, home sharing, short-term rentals, vacant homes and renovations can need different policies or endorsements. Get a quote for your actual use.',
           'Vacancy clause: many policies limit coverage once a home has been empty for a while, often 60 days in a row. That’s a typical repair period, so read the vacancy clause and ask about a vacant-home or builder’s risk policy.',
           'California wildfire areas: private insurers often say no. The California FAIR Plan mainly covers fire, so most owners add a separate policy for theft, water damage and liability. Get both quotes before you commit.',
           'Texas wind and hail deductibles: many policies have a separate wind and hail deductible set as a percentage of the dwelling coverage, often 1% or 2%. On $250,000 of coverage, 2% means you pay the first $5,000 of a hail claim. Put it in your reserves.',
@@ -145,7 +145,7 @@ export const analyze: Lesson = {
               ],
               [
                 'HOA documents',
-                'The owner gives a resale package (governing documents, dues, budget, reserves, lawsuits, fees). The buyer can cancel in writing until midnight of the fifth day after receiving it (NRS 116.4109).',
+                'The owner gives a resale package (governing documents, dues, budget, reserves, lawsuits, fees). The buyer can cancel in writing until midnight of the fifth calendar day after receiving it, provided you haven’t accepted conveyance and the resale is covered by NRS 116.4109. Exceptions in NRS 116.4101 can apply; confirm that your sale is covered.',
                 'The owner gives governing documents, financial and reserve disclosures, assessments, violation notices and rental limits before transfer (Civil Code 4525).',
                 'You get the association’s documents (rules, budget, reserves, insurance, lawsuits) within 10 days. In a planned community with fewer than 50 homes, or a condo with fewer than 50 units, the seller delivers them within 10 days after the offer is accepted. With 50 or more, the association delivers them within 10 days after the seller’s notice of the accepted offer. The association’s fee can’t be more than $400, plus up to $100 for a rush (A.R.S. 33-1260 and 33-1806).',
                 'Before closing, the seller gives the buyer the association’s recorded governing documents (Utah Code 57-8a-105.1 and 57-8-6.1). A payoff fee can’t be more than $50.',
@@ -180,6 +180,7 @@ export const analyze: Lesson = {
   tryIt: { label: 'Analyze a deal', href: '#/analyze' },
   books: ['1259586189', '1947200127'],
   sources: [
+    { label: 'Texas Department of Insurance: matching coverage to rental use', url: 'https://tdi.texas.gov/tips/home-sharing.html' },
     { label: 'TWIA: coverage eligibility requirements', url: 'https://www.twia.org/coverage-eligibility/' },
     { label: 'Texas Department of Insurance: windstorm inspections and certificates', url: 'https://www.tdi.texas.gov/wind/index.html' },
     { label: 'CFPB: what are appraisals and why do I need to look at them?', url: 'https://www.consumerfinance.gov/ask-cfpb/what-are-appraisals-and-why-do-i-need-to-look-at-them-en-167/' },
