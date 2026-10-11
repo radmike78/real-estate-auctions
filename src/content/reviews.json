@@ -40,9 +40,9 @@
       "src/lib/propertyViews.ts",
       "src/lib/foreclosure.ts"
     ],
-    "reviewed": "2026-10-10",
-    "hash": "3680fcf1f91ec8c8",
-    "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors. 2026-10-10: reviewed the changed accuracy, security or flow wording; this pass did not re-verify every linked source. 2026-10-10: bankruptcy-stay wording qualified against U.S. Courts guidance: exceptions, timing and court orders matter."
+    "reviewed": "2026-10-11",
+    "hash": "707dad0f5a4c820e",
+    "note": "Property checklist details and official links now use the property state, matching its full-guide link; calculator region uses the property location. This prevents a saved preference from mixing a different state into the property report. No calculation formulas changed."
   },
   {
     "id": "checklists",
@@ -51,9 +51,9 @@
       "src/components/BuyerChecklistBox.tsx",
       "src/lib/buyerChecklists.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "05ad5f816c2d7f76",
-    "note": "Full content review (review round of 2026-09-27)."
+    "reviewed": "2026-10-11",
+    "hash": "226d8f33c2dc9428",
+    "note": "Checklist state now follows an explicitly supplied property state for details and official links, consistent with the full-guide link. Saved visitor preferences still apply to general checklist pages. No checklist legal text or completion scoring changed."
   },
   {
     "id": "live",

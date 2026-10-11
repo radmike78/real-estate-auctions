@@ -28,6 +28,7 @@ import PhotosAndViews from './PhotosAndViews';
 import { parcelDigits, propertyViews } from '../lib/propertyViews';
 import BidCalculator, { setSavedExitValue } from './BidCalculator';
 import { DD_STEPS } from '../lib/ddFunnel';
+import { CalcRegion } from './calcRegion';
 import { forStateText } from '../lib/myState';
 import { STATES, type StateCode } from '../lib/regions';
 import DueDiligenceFunnel from './DueDiligenceFunnel';
@@ -405,6 +406,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   const open = !printAll && shownSections.some((x) => x.key === section);
 
   return (
+    <CalcRegion.Provider value={{ state: isStateCode(p.state) ? p.state : 'NV', county: p.county }}>
     <main className="page">
       <PageHero
         compact={open}
@@ -478,5 +480,6 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       <DrillDown sections={shownSections} active={section} baseHref={baseHref} label="Property sections" printAll={printAll} />
       <AdSpot spot="property" />
     </main>
+    </CalcRegion.Provider>
   );
 }

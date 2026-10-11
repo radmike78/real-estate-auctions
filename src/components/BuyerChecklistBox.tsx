@@ -33,7 +33,8 @@ export default function BuyerChecklistBox(props: { list: BuyerChecklist; variant
 
 function ChecklistInner({ list, variant = 'light', playbook: forced, guideState, noTag }: { list: BuyerChecklist; variant?: 'light' | 'wide'; playbook?: string; guideState?: string; noTag?: boolean }) {
   const [done, setDone] = useState<number[]>(() => load(list.key));
-  const [state] = useMyState();
+  const [chosenState] = useMyState();
+  const state = STATES.find((candidate) => candidate.code === guideState)?.code ?? chosenState;
   // Commercial and land versions share their sale type's playbook (keys like "tax-commercial-land").
   const playbook = forced ?? guideFor(PLAYBOOK_FOR[list.key.replace(/-(commercial|land)(-.*)?$/, '')], guideState ?? state);
 

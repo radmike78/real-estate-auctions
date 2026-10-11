@@ -124,3 +124,12 @@ it('keeps searchable snippets local and separates cached indexes by state', () =
   }
   expect(indexes.size).toBe(STATES.length);
 });
+
+import BuyerChecklistBox from './BuyerChecklistBox';
+import { CHECKLISTS } from '../lib/buyerChecklists';
+it('uses the property state for checklist content as well as the full-guide link', () => {
+  selectState('CA');
+  const root = parse(renderToStaticMarkup(<BuyerChecklistBox list={CHECKLISTS.tax} guideState="NV" />));
+  expect(mentionsOtherState('NV', root.text)).toBe(false);
+  expect(root.querySelector('a[href="#/playbooks/tax"]')).not.toBeNull();
+});
