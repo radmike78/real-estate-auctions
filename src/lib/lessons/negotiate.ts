@@ -135,8 +135,8 @@ export const negotiate: Lesson = {
     },
   ],
   terms: [
-    { term: 'Earnest money', meaning: 'A good-faith deposit made when an offer is accepted, credited toward the price at closing.' },
-    { term: 'Contingency', meaning: 'A condition in the contract that lets the buyer cancel, such as financing or inspection.' },
+    { term: 'Earnest money', meaning: 'A good-faith deposit due on the contract’s schedule, credited toward the price at closing.' },
+    { term: 'Contingency', meaning: 'A contract condition, such as financing or inspection, that may give the buyer a right to cancel under its stated grounds, deadlines and notice steps.' },
     { term: 'Seller credit (concession)', meaning: 'Money the seller puts toward the buyer’s closing costs.' },
     { term: 'As-is', meaning: 'Sold in its current condition, with no repairs by the seller.' },
     { term: '1031 exchange', meaning: 'A swap of one investment property for another that defers tax on the gain.' },
