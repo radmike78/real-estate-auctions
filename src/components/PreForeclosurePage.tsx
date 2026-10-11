@@ -235,7 +235,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
           {myState === 'TX' ? (
             <p>We don’t track Texas notices yet. Texas notices of sale are filed with the county clerk and posted on the county’s website at least 21 days before the first-Tuesday sale (Property Code 51.002(b), (f-1)). “Where to find notices” below says more.</p>
           ) : myState && myState !== 'NV' ? (
-            <p>We track Clark County, Nevada notices only so far. {otherGuide ? <>Our <a href={otherGuide[2]}>{otherGuide[1]} trustee sale guide</a> and “Where to find notices” below say where {stateName} notices are filed.</> : <>“Where to find notices” below says where {stateName} notices are filed.</>}</p>
+            <p>We don’t currently track local notices for your selected state. {otherGuide ? <>Our <a href={otherGuide[2]}>{otherGuide[1]} trustee sale guide</a> and “Where to find notices” below say where {stateName} notices are filed.</> : <>“Where to find notices” below says where {stateName} notices are filed.</>}</p>
           ) : (
             <p>Notices of default and sale will appear here once our feed of Clark County Recorder filings is connected.</p>
           )}

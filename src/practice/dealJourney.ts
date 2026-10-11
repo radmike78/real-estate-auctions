@@ -1,3 +1,4 @@
+import { getMyState } from '../lib/myState';
 // A location-neutral teaching case. Every number is fictional, not a market rate or a legal default.
 export const JOURNEY_KEY = 'deedowl.practice-deal.v1';
 export const JOURNEY_EVENT = 'deedowl:practice-deal';
@@ -174,5 +175,5 @@ export function workbookText(p: JourneyProgress): string {
     const a = p.answers[taskKey(c, t)];
     const display = t.kind === 'choice' && typeof a === 'number' ? t.options?.[a]?.text : Array.isArray(a) ? a.join('; ') : a;
     return `${t.question}\nAnswer: ${display ?? 'Not answered'}\n${accepts(t, a) ? t.kind === 'reflection' ? 'Self-reviewed explanation saved; not automatically graded' : 'Accepted practice answer' : 'Needs review'}`;
-  }), `Local check: ${c.local}`, '']), `Specialty challenges completed: ${p.specialtyDone.join(', ') || 'None yet'}`, 'WHAT-IF LAB (separate from teaching-case answers)', JSON.stringify(p.lab), `Modeled monthly cash: ${money(calculateDeal(p.lab).cash)}`, '', 'Official sources checked October 9, 2026', ...SOURCES.map((s) => `${s.title}: ${s.url}`)].join('\n');
+  }), `Local check: ${c.local}`, '']), `Specialty challenges completed: ${p.specialtyDone.join(', ') || 'None yet'}`, 'WHAT-IF LAB (separate from teaching-case answers)', JSON.stringify(p.lab), `Modeled monthly cash: ${money(calculateDeal(p.lab).cash)}`, '', 'Official sources checked October 9, 2026', ...SOURCES.filter((s) => s.id !== 'lien' || getMyState() === 'AZ').map((s) => `${s.title}: ${s.url}`)].join('\n');
 }

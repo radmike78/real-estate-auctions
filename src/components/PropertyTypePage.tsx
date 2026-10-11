@@ -6,7 +6,7 @@ import StoryList from './StoryList';
 import StatePicker from './StatePicker';
 import OwlNote from './OwlNote';
 import { useMarkStep } from '../lib/path';
-import { forStateText, showFor, statesOf, useMyState } from '../lib/myState';
+import { forStateText, showFor, mentionsOtherState, statesOf, useMyState } from '../lib/myState';
 import { PROPERTY_TOPICS, topicBySlug, topicHref } from '../lib/deep/propertyTopics';
 import { PROPERTY_DEEP } from '../lib/deep/propertyDeep';
 import { PROPERTY_WHY } from '../lib/lessons/propertyWhy';
@@ -41,23 +41,22 @@ const stateName = (c: StateCode) => STATES.find((s) => s.code === c)!.name;
 export default function PropertyTypePage({ slug }: { slug: string }) {
   const mainRef = useRef<HTMLElement>(null);
   useMarkStep('learn');
-  const [st, setSt] = useMyState();
+  const [st] = useMyState();
   const t = topicBySlug(slug)!;
   useLastActivity(`#/learn/types/${slug}`, `Property type: ${t.title}`);
   const d = PROPERTY_DEEP[t.key];
   const why = PROPERTY_WHY[t.key];
-  const keep = (x: string) => showFor(st, x) && forStateText(st, x) !== '';
+  const keep = (x: string) => showFor(st, x) && forStateText(st, x) !== '' && !mentionsOtherState(st, forStateText(st, x));
   const fit = (xs: string[]) => xs.filter(keep).map((x) => forStateText(st, x)).filter(Boolean);
   const i = PROPERTY_TOPICS.findIndex((x) => x.key === t.key);
   const next = PROPERTY_TOPICS[i + 1];
   // Stories: the chosen state's and national ones up front; others folded under "other places", so nothing is lost.
-  const stories = d?.stories ?? [];
+  const stories = (d?.stories ?? []).filter((story) => !mentionsOtherState(st, JSON.stringify(story)));
   const inCoverage = (w: Where) => w.national || w.states.length > 0;
   const mainStories = stories.filter((s) => {
     const w = whereOf(s);
     return st ? w.national || w.states.includes(st) : inCoverage(w);
   });
-  const otherStories = stories.filter((s) => !mainStories.includes(s));
   const placeOf = (s: Story) => {
     const w = whereOf(s);
     if (w.national) return 'National';
@@ -116,7 +115,7 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
         <section>
           <h2>By the numbers</h2>
           <ul className="deep-list">
-            {d.facts.filter((f) => keep(f.text)).map((f) => <li key={f.text}>{forStateText(st, f.text)} <a href={f.source.url} target="_blank" rel="noopener noreferrer">{f.source.label}&nbsp;↗</a></li>)}
+            {d.facts.filter((f) => keep(f.text) && !mentionsOtherState(st, f.source.label)).map((f) => <li key={f.text}>{forStateText(st, f.text)} <a href={f.source.url} target="_blank" rel="noopener noreferrer">{f.source.label}&nbsp;↗</a></li>)}
           </ul>
         </section>
       )}
@@ -127,15 +126,9 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
           {mainStories.length > 0 ? (
             <StoryList stories={mainStories} grid placeOf={placeOf} />
           ) : (
-            <OwlNote>We don’t have a story from {st ? stateName(st) : 'the states we cover'} for this kind of property yet. The ones below happened elsewhere, and the lessons still apply.</OwlNote>
+            <OwlNote>We don’t have a story from {st ? stateName(st) : 'the states we cover'} for this kind of property yet. The general guidance above can still help you research this property type.</OwlNote>
           )}
-          {otherStories.length > 0 && (
-            <details className="story-more" open={mainStories.length === 0}>
-              <summary>{st ? `Stories from other places (${otherStories.length})` : `Stories from outside the states we cover (${otherStories.length})`}</summary>
-              <StoryList stories={otherStories} grid placeOf={placeOf} />
-              {st && <p className="story-switch"><button type="button" className="btn btn-secondary" onClick={() => setSt(null)}>Show all states on this site</button></p>}
-            </details>
-          )}
+
         </section>
       )}
       {d && (

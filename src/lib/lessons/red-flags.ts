@@ -31,8 +31,8 @@ export const redFlags: Lesson = {
         { table: {
           head: ['Case', 'What regulators found', 'Outcome'],
           rows: [
-            ['Nudge and Response Marketing (FTC and the Utah Division of Consumer Protection, filed 2019)', 'Free events led to workshops of about $1,000 and coaching or advanced training of up to $30,000 to $40,000. The FTC said more than 95% of people who attended the seminars paid the company more than they made from real estate deals.', 'In 2023, the people who ran the companies agreed to pay $15 million and were banned from selling money-making opportunities. The celebrities who promoted it paid $1.7 million.'],
-            ['Zurixx (FTC and the Utah Division of Consumer Protection, filed 2019)', 'Workshops cost $1,997 and add-ons up to $41,297. Presenters told people to open new credit cards or raise their limits, and to list a higher income than they earned. To get some refunds, people had to promise not to post bad reviews or contact regulators.', 'Settled in 2022. In 2024 the FTC mailed more than $12 million in refunds to 25,563 people.'],
+            ['Nudge and Response Marketing (FTC case filed 2019)', 'Free events led to workshops of about $1,000 and coaching or advanced training of up to $30,000 to $40,000. The FTC said more than 95% of people who attended the seminars paid the company more than they made from real estate deals.', 'In 2023, the people who ran the companies agreed to pay $15 million and were banned from selling money-making opportunities. The celebrities who promoted it paid $1.7 million.'],
+            ['Zurixx (FTC case filed 2019)', 'Workshops cost $1,997 and add-ons up to $41,297. Presenters told people to open new credit cards or raise their limits, and to list a higher income than they earned. To get some refunds, people had to promise not to post bad reviews or contact regulators.', 'Settled in 2022. In 2024 the FTC mailed more than $12 million in refunds to 25,563 people.'],
           ],
         } },
         'In both cases the regulators found that most buyers never made back what they paid for the training.',

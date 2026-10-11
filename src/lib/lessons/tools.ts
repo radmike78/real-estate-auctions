@@ -50,7 +50,7 @@ export const tools: Lesson = {
           { label: 'Dallas County (TX) Clerk: recording', url: 'https://www.dallascounty.org/government/county-clerk/recording/', what: 'Recorded documents.' },
           { label: 'Dallas County (TX) Tax Office', url: 'https://www.dallascounty.org/departments/tax/', what: 'Property tax bills and payments.' },
         ] },
-        'For any other county, open Find deals: it links the official offices for every county in Nevada, California, Arizona, Utah and Texas. If you search instead, make sure the site ends in .gov or is linked from the county’s official website.',
+        'For any other county, open Find deals: it links the official offices for every county in your selected state. If you search instead, make sure the site ends in .gov or is linked from the county’s official website.',
         { links: [{ label: 'Find deals', url: '#/find-deals', what: 'Official county offices for every county in the five states we cover.' }] },
       ],
     },

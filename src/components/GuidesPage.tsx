@@ -39,7 +39,7 @@ export function StateSelect({ label, noun = 'guides' }: { label: string; noun?: 
         <span>{st ? 'Change state' : 'Choose:'}</span>
         <select value={mine ?? ''} onChange={(e) => setMine((e.target.value || null) as StateCode | null)}>
           {STATES.map((x) => <option key={x.code} value={x.code}>{x.name}</option>)}
-          <option value="">All states</option>
+          <option value="" disabled>Choose a state</option>
         </select>
       </label>
     </div>
@@ -77,19 +77,20 @@ export function GuideSearchForm({ initial = '', onSearch }: { initial?: string; 
 
 export default function GuidesPage({ initialQuery }: { initialQuery: string }) {
   const [q, setQ] = useState(initialQuery);
-  const [index, setIndex] = useState<GuideIndex | null>(null);
+  const [mine] = useMyState();
+  const [index, setIndex] = useState<{ state: StateCode | null; value: GuideIndex } | null>(null);
   const [failed, setFailed] = useState(false);
 
   // The index is built from the guide pages themselves, only once someone opens this page.
   useEffect(() => {
     let live = true;
     import('./guideIndex')
-      .then((m) => live && setIndex(m.guideIndex()))
+      .then((m) => live && setIndex({ state: mine, value: m.guideIndex() }))
       .catch(() => live && setFailed(true));
     return () => {
       live = false;
     };
-  }, []);
+  }, [mine]);
 
   const search = (next: string) => {
     setQ(next);
@@ -98,8 +99,7 @@ export default function GuidesPage({ initialQuery }: { initialQuery: string }) {
     replaceAddress(t ? `/guides?q=${encodeURIComponent(t)}` : '/guides');
   };
 
-  const [mine] = useMyState();
-  const results = useMemo(() => (index ? searchGuides(index, q, 20, mine) : null), [index, q, mine]);
+  const results = useMemo(() => (index && index.state === mine ? searchGuides(index.value, q, 20, mine) : null), [index, q, mine]);
   const searched = q.trim() !== '';
 
   return (

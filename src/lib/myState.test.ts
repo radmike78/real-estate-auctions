@@ -3,6 +3,8 @@ import { dropStateLead, showFor, statesOf } from './myState';
 
 describe('statesOf', () => {
   it('reads which states a line is about', () => {
+    expect(statesOf('In a California trustee sale covered by Civil Code 2924m')).toEqual(['CA']);
+    expect(statesOf('In a Nevada resale covered by NRS 116.4109')).toEqual(['NV']);
     expect(statesOf('In Nevada, a licensee must disclose')).toEqual(['NV']);
     expect(statesOf('Arizona and Utah have their own disclosure rules')).toEqual(['AZ', 'UT']);
     expect(statesOf('California: 3 months after a judicial foreclosure sale')).toEqual(['CA']);

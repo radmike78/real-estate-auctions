@@ -52,7 +52,7 @@ export default function NoListingsYet({ what = 'Property listings' }: { what?: s
   return (
     <div className="no-listings">
       {elsewhere ? (
-        <EmptyState title="Listings are connected for Clark County, Nevada so far">
+        <EmptyState title="No local listings are connected yet">
           <p>
             We connect official sources one at a time, and we only call a property for sale once a sale is on the official record. For {name},
             start at Find deals: it lists your county’s official offices and upcoming sales.

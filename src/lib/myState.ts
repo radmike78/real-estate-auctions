@@ -1,23 +1,25 @@
 // The visitor's state (NV, CA, AZ, UT or TX), chosen once and used across the site so people see only the rules
-// that apply where they invest. Kept only in this browser; null means "show all states".
+// that apply where they invest. Kept only in this browser; null means "choose a state before viewing local guidance".
 import { useEffect, useState } from 'react';
 import { STATES, type StateCode } from './regions';
 
 const KEY = 'deedowl.state.v1';
 const EVENT = 'deedowl:state';
+let inMemoryState: StateCode | null = null;
 
 const isState = (v: unknown): v is StateCode => STATES.some((s) => s.code === v);
 
 export function getMyState(): StateCode | null {
   try {
     const v = localStorage.getItem(KEY);
-    return isState(v) ? v : null;
+    return isState(v) ? v : inMemoryState;
   } catch {
-    return null;
+    return inMemoryState;
   }
 }
 
 export function setMyState(v: StateCode | null) {
+  inMemoryState = v;
   try {
     if (v) localStorage.setItem(KEY, v);
     else localStorage.removeItem(KEY);
@@ -46,12 +48,23 @@ const NAMES: [RegExp, StateCode][] = [
   [/Texas|\(TX\)|Harris County|Bexar|Travis County/, 'TX'],
 ];
 
+export const US_STATE_NAMES = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'];
+
+/** Historical examples from a different state do not belong on this state's page. */
+export function mentionsOtherState(state: StateCode | null, text: string): boolean {
+  const own = STATES.find((s) => s.code === state)?.name;
+  return US_STATE_NAMES.some((name) => name !== own && text.includes(name));
+}
+
+/** Explicit place references, including examples that do not begin with a state name. */
+export const statesMentioned = (text: string): StateCode[] => NAMES.filter(([re]) => re.test(text)).map(([, code]) => code);
+
 /**
  * The states a piece of text is specifically about, judged from how it starts: "In Nevada, …", "Arizona and Utah
  * have…", "Clark County (NV) Assessor", "NRS 107: …". Empty when the text applies everywhere.
  */
 export function statesOf(text: string): StateCode[] {
-  const lead = text.match(/^(?:In |For )?((?:(?:Nevada|California|Arizona|Utah|Texas)(?:,\s*|\s+and\s+|\s+or\s+)?)+)/);
+  const lead = text.match(/^(?:(?:In|For) (?:a |an )?)?((?:(?:Nevada|California|Arizona|Utah|Texas)(?:,\s*|\s+and\s+|\s+or\s+)?)+)/);
   if (lead) return NAMES.filter(([re]) => re.test(lead[1])).map(([, c]) => c);
   const head = text.slice(0, 60);
   const tagged = NAMES.filter(([re]) => re.test(head) && /^(?:[A-Z][\w.’' ]*\((?:NV|CA|AZ|UT|TX)\)|NRS\b|Washoe|San Diego County|Los Angeles County)/.test(text)).map(([, c]) => c);
@@ -101,6 +114,8 @@ export const forStateText = (state: StateCode | null, text: string) => {
     .filter((x) => {
       const tagged = statesOf(x).length > 0;
       dropped = tagged ? !showFor(state, x) : dropped && !GENERAL_AGAIN.test(x);
+      // A mid-sentence example or an unsupported state must not bypass the lead-in classifier.
+      if (mentionsOtherState(state, dropStateLead(x, state))) dropped = true;
       return !dropped;
     })
     .map((x) => dropStateLead(x, state))

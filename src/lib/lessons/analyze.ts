@@ -65,7 +65,7 @@ export const analyze: Lesson = {
             ],
           },
         },
-        'Ask the county assessor (in Texas, the appraisal district) what the bill will be for your use, and put that number in Analyze a deal.',
+        'Ask the local property-tax assessment office what the bill will be for your use, and put that number in Analyze a deal.',
       ],
     },
     {

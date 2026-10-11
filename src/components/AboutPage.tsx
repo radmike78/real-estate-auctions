@@ -33,6 +33,18 @@ function StatusList() {
   );
 }
 
+function SaleTypesInfo() {
+  const [state] = useMyState();
+  if (state !== 'NV') return <p>Read the <a href="#/playbooks">sale guides for your selected state</a> to check what you receive, payment requirements and redemption rights.</p>;
+  return (<div className="table-wrap">
+        <p className="muted">These examples use local sale procedures. For the rules where you invest, see the <a href="#/playbooks">sale guides</a> for your state.</p>
+        <table>
+          <thead><tr><th>Opportunity</th><th>What you receive</th><th>How it is sold</th></tr></thead>
+          <tbody>{SALE_TYPES.map(([a, b, c]) => <tr key={a}><td>{a}</td><td>{b}</td><td>{c}</td></tr>)}</tbody>
+        </table>
+      </div>);
+}
+
 export const SECTIONS: DrillSection[] = [
   {
     key: 'four-questions',
@@ -62,15 +74,7 @@ export const SECTIONS: DrillSection[] = [
     title: 'Types of sale',
     icon: <IconGavel />,
     summary: `${SALE_TYPES.length} kinds of forced sale: what you receive and how each is sold`,
-    content: () => (
-      <div className="table-wrap">
-        <p className="muted">These are Nevada’s rules (Clark County). California, Arizona, Utah and Texas differ: see the <a href="#/playbooks">sale guides</a> for your state.</p>
-        <table>
-          <thead><tr><th>Opportunity</th><th>What you receive</th><th>How it is sold</th></tr></thead>
-          <tbody>{SALE_TYPES.map(([a, b, c]) => <tr key={a}><td>{a}</td><td>{b}</td><td>{c}</td></tr>)}</tbody>
-        </table>
-      </div>
-    ),
+    content: () => <SaleTypesInfo />,
   },
   {
     key: 'sources',
@@ -80,9 +84,8 @@ export const SECTIONS: DrillSection[] = [
     content: () => (
       <>
         <p>
-          There is no single nationwide database. Today the live listings come from the Clark County, Nevada Treasurer’s tax-sale list
-          (checked against the County Assessor’s parcel records) and IRS sales in Nevada, California, Arizona, Utah and Texas. For
-          every county in those five states, Find Deals links the county’s own offices, and some counties’ upcoming tax sales, so you
+          There is no single nationwide database. Live listings come from a limited set of verified county tax-sale and IRS sources. Coverage varies by location. For
+          every county in your selected state, Find Deals links the county’s own offices, and some counties’ upcoming tax sales, so you
           can read the official list on the seller’s site. Learning pages say which state’s rules they cover and link the law or
           agency page they’re based on. How we check pages and fix errors, and how to tell us about one, is on <a href="#/disclaimer">How we help you invest</a>.
           County Recorder filings, court and sheriff records will be added one at a time, once each source’s terms allow it. Every fact
@@ -90,7 +93,7 @@ export const SECTIONS: DrillSection[] = [
         </p>
         {SHOW_SAMPLE_DATA ? (
           <p>
-            This version runs on <strong>fictional sample data for Clark County, Nevada</strong>. Before we connect a real source, we
+            This version runs on <strong>fictional sample data</strong>. Before we connect a real source, we
             review its terms of use and public-records rules.
           </p>
         ) : (

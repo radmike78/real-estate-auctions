@@ -191,14 +191,14 @@ function FilterSelect<T extends string>({ value, set, options, label }: Filter<T
 /** The drills on the Practice page, grouped by state, with the visitor's state first, and filters to narrow them. */
 export function DrillList() {
   const saved = load();
-  const next = DRILLS.find((d) => drillStatus(d, saved).state === 'started');
   const [mine] = useMyState();
+  const next = DRILLS.find((d) => (drillState(d) === null || drillState(d) === mine) && drillStatus(d, saved).state === 'started');
   const { mode } = useJourney();
   // Filters and the place in the list are kept for this visit, so coming back from a drill lands where you were.
   const remembered = readBrowse();
   const [showAll, setShowAll] = useState(remembered.showAll);
-  // With a state picked, only its drills show (plus ones that apply anywhere) until the reader asks for other states.
-  const [others, setOthers] = useState(remembered.others);
+  // With a state picked, only its drills show (plus ones that apply anywhere) throughout this page.
+  const others = false;
   const [stRaw, setSt] = useState<string>(remembered.st);
   const [topic, setTopic] = useState<'all' | TopicGroup>(remembered.topic);
   const [prog, setProg] = useState<'all' | 'new' | 'started' | 'done'>(remembered.prog);
@@ -209,7 +209,7 @@ export function DrillList() {
     const t = window.setTimeout(() => { window.scrollTo(0, y); writeBrowse({ ...readBrowse(), scrollY: 0 }); }, 60);
     return () => window.clearTimeout(t);
   }, []);
-  const onlyMine = !!mine && !others;
+  const onlyMine = !!mine;
   const st = onlyMine && stRaw !== 'all' && stRaw !== 'any' && stRaw !== mine ? 'all' : stRaw;
   const own = (d: Drill) => d.commercial || d.flipBrrrr || d.manufactured || d.land;
   // Every drill set in a state (a Nevada park, Arizona land) belongs to that state, whatever its group.
@@ -218,7 +218,7 @@ export function DrillList() {
     (st === 'all' ||(st === 'any' ? drillState(d) === null : drillState(d) === st)) &&
     (topic === 'all' || drillCard(d).group === topic) &&
     (prog === 'all' || drillStatus(d, saved).state === prog);
-  const states = onlyMine ? [mine] : [...(mine ? [mine] : []), ...Object.keys(STATE_NAMES).filter((k) => k !== mine)];
+  const states = mine ? [mine] : [];
   const groups: { key: string; title: string; drills: Drill[] }[] = [
     ...states.map((k) => ({ key: k, title: `${STATE_NAMES[k]} rules`, drills: DRILLS.filter((d) => !own(d) && drillState(d) === k) })),
     { key: 'any', title: 'Any state (federal rules and listed homes)', drills: DRILLS.filter((d) => !own(d) && drillState(d) === null) },
@@ -240,17 +240,12 @@ export function DrillList() {
   const listed = recommended.length ? shown.map((g) => ({ ...g, drills: g.drills.filter((d) => !recommended.includes(d)) })) : shown;
   const count = shown.reduce((n, g) => n + g.drills.length, 0);
   const filtered = st !== 'all' || topic !== 'all' || prog !== 'all';
-  const switchButton = mine && (
-    <button type="button" className="btn btn-secondary" onClick={() => { setOthers(!others); setSt('all'); }}>
-      {onlyMine ? 'Practice scenarios from other states' : `Show only ${STATE_NAMES[mine]} drills`}
-    </button>
-  );
+  const switchButton = null;
   return (
     <>
       {!guided && (
         <div className="drill-toolbar" role="group" aria-label="Choose which drills to show">
           {switchButton}
-          {!onlyMine && <FilterSelect label="State" value={st} set={setSt} options={[{ key: 'all', label: 'All states' }, ...states.map((k) => ({ key: k, label: STATE_NAMES[k] })), { key: 'any', label: 'Any state' }]} />}
           <FilterSelect label="Topic" value={topic} set={setTopic} options={[{ key: 'all', label: 'All topics' }, ...TOPIC_GROUPS]} />
           <FilterSelect label="Progress" value={prog} set={setProg} options={[{ key: 'all', label: 'All' }, { key: 'new', label: 'Not started' }, { key: 'started', label: 'In progress' }, { key: 'done', label: 'Completed' }]} />
           <span className="drill-filter-count" role="status">
@@ -435,6 +430,12 @@ export default function DrillPage({ id }: { id: string }) {
         <EmptyState title="We couldn’t find that drill"><p>It may have been renamed. <a href="#/practice">Back to Practice&nbsp;→</a></p></EmptyState>
       </main>
     );
+  if (drillState(d) && drillState(d) !== myState) return (
+    <main className="page"><h1>Choose this exercise’s state</h1>
+      <p>This exercise uses {STATE_NAMES[drillState(d)!]} rules. Change your investing state to open it, or return to your own practice.</p>
+      <a href="#/practice">Back to Practice</a>
+    </main>
+  );
   const mine = saved[d.id] ?? { answers: {} };
   const setMission = (mid: string, v: Answers[string]) => {
     if (v.done && !mine.answers[mid]?.done) setFresh(mid);

@@ -15,7 +15,7 @@ export const HELP: ByStateLines = {
   ],
   AZ: [
     { topic: 'Free legal help', text: 'In Arizona, legal aid offices and the AZCourtHelp.org self-help site (Arizona Bar Foundation, supported by the Arizona Supreme Court) help at no cost.', links: [['AZLawHelp.org', 'https://www.azlawhelp.org/'], ['Community Legal Services', 'https://clsaz.org/'], ['Southern Arizona Legal Aid', 'https://www.sazlegalaid.org/'], ['DNA People’s Legal Services (northern Arizona)', 'https://dnalegalservices.org/'], ['AZCourtHelp.org', 'https://azcourthelp.org/']] },
-    { topic: 'Mediation', text: 'In Arizona, we found no law that gives homeowners a right to foreclosure mediation like Nevada’s. Ask your servicer and a housing counselor about a modification, a repayment plan or a short sale.' },
+    { topic: 'Mediation', text: 'In Arizona, we found no law that gives homeowners a right to foreclosure mediation. Ask your servicer and a housing counselor about a modification, a repayment plan or a short sale.' },
   ],
   UT: [
     { topic: 'Free legal help', text: 'In Utah, Utah Legal Services helps with civil cases at no cost if you qualify, and you can apply online.', links: [['Utah Legal Services', 'https://www.utahlegalservices.org/']] },

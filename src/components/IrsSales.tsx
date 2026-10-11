@@ -14,8 +14,10 @@ import TrackButton from './TrackButton';
  * link so the buyer can check the parcel.
  */
 export default function IrsSales({ sales, ago }: { sales: FeedFederalSale[]; ago: (iso: string) => string }) {
-  const clark = sales.filter(isClarkSale);
-  const elsewhere = sales.filter((f) => !isClarkSale(f));
+  const [state] = useMyState();
+  const local = sales.filter((sale) => (sale.usState ?? 'NV') === state);
+  const clark = local.filter(isClarkSale);
+  const elsewhere = local.filter((f) => !isClarkSale(f));
   return (
     <>
       <ClarkIrsSales sales={clark} ago={ago} />
@@ -31,9 +33,9 @@ function OtherIrsSales({ sales, ago }: { sales: FeedFederalSale[]; ago: (iso: st
   const sorted = [...sales].sort((a, b) => Number(b.usState === mine) - Number(a.usState === mine) || a.saleStartsAt.localeCompare(b.saleStartsAt));
   return (
     <section aria-labelledby="irs-other-head">
-      <h2 id="irs-other-head">IRS sales elsewhere in Nevada, California, Arizona, Utah and Texas</h2>
+      <h2 id="irs-other-head">IRS sales in your selected state</h2>
       <p>
-        Outside Clark County these are shown as the IRS lists them: DeedOwl hasn’t matched the parcel to county records. Check the parcel
+        These records are shown as the IRS lists them: DeedOwl hasn’t matched the parcel to county records. Check the parcel
         number with the county assessor and read the IRS notice of sale before you bid. You get only the taxpayer’s interest, and senior
         liens stay. <a href="#/playbooks/irs">How IRS sales work&nbsp;→</a>
       </p>
