@@ -7,7 +7,7 @@ import { AD_TOPICS } from '../lib/adTopics';
 import { CAPS, TIER_INFO, type AdTier } from '../lib/adPlans';
 import { PlanCards, useAdPlans, type AdPlansInfo } from './PlanCards';
 import { useMyState } from '../lib/myState';
-import { STATES, stateByCode } from '../lib/regions';
+import { stateByCode } from '../lib/regions';
 import { regulatorFor } from '../lib/regulators';
 import { spotsOn } from '../lib/adSpots';
 import { useAdSpots } from './AdSpot';
@@ -34,7 +34,7 @@ export default function AdvertisePage() {
   return (
     <main className="page">
       <PageHero
-        eyebrow={<span className="eyebrow">For professionals · {STATES.map((s) => s.code).join(', ')}</span>}
+        eyebrow={<span className="eyebrow">For professionals · Local services</span>}
         title={<>Reach buyers at the moment <span className="grad">they need you</span></>}
         sub="People come here to buy auction, bank-owned and short-sale properties. They need agents, financing, title, insurance, inspectors, repairs, and legal and tax help."
       >
@@ -60,7 +60,7 @@ export default function AdvertisePage() {
 
       <h2>Who can advertise</h2>
       <p>
-        Professionals qualified to provide their advertised services in {STATES.map((s) => s.name).join(', ').replace(/, (?=[^,]*$)/, ' or ')}. You choose your state and
+        Professionals qualified to provide their advertised services in their selected service state. You choose your state and
         the counties you serve, and your ads show to buyers looking in that state.
         {st ? ` Each line below explains the verification checks in ${stateByCode(st)?.name}.` : ''}
       </p>

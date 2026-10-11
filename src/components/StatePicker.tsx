@@ -15,9 +15,7 @@ export default function StatePicker({ label = 'Your state', selection }: { label
             {s.name}
           </button>
         ))}
-        <button type="button" aria-pressed={state === null} className={state === null ? 'on' : ''} onClick={() => setState(null)}>
-          All states
-        </button>
+
       </div>
     </div>
   );

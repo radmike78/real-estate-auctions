@@ -204,7 +204,7 @@ export const DRILLS: Drill[] = [
         options: [
           { label: 'The property, by quitclaim deed from the treasurer, with no warranty of title', good: true, why: 'Right. The deed promises nothing about the title, so problems are yours to find and fix.' },
           { label: 'The property with a guaranteed clean title', good: false, why: 'No. A tax deed is a quitclaim with no warranty.' },
-          { label: 'A certificate that earns interest until the owner pays', good: false, why: 'That’s how Arizona’s tax lien sales work, not a Nevada tax deed sale.' },
+          { label: 'A certificate that earns interest until the owner pays', good: false, why: 'That describes a lien certificate, not this tax deed sale.' },
         ],
         lesson: 'In Nevada, there’s no redemption after the tax sale, but anyone claiming the land, usually the former owner, can sue to recover it for 2 years after the deed is delivered (NRS 361.600). Many title insurers won’t insure until that window passes or a quiet title action is done*.',
       },
@@ -373,7 +373,7 @@ export const DRILLS: Drill[] = [
         question: 'Pick the right answer.',
         multi: false,
         options: [
-          { label: 'It usually stays: the HOA lien ranks ahead only of liens recorded after its notice of delinquent assessment', good: true, why: 'Right (Civil Code 5680). California has no Nevada-style super-priority. Confirm with a title report.' },
+          { label: 'It usually stays: the HOA lien ranks ahead only of liens recorded after its notice of delinquent assessment', good: true, why: 'Right (Civil Code 5680). Confirm with a title report.' },
           { label: 'It’s wiped out, because the HOA foreclosed first', good: false, why: 'An earlier first deed of trust usually survives a California HOA sale.' },
         ],
         lesson: 'Your real cost is the bid plus the loan that stays.',

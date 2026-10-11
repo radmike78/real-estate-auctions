@@ -10,7 +10,7 @@ import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayer
 import { guidesFor } from '../lib/playbooks';
 import { STATES, stateByCode, type StateCode } from '../lib/regions';
 import { LICENSE_LOOKUPS, type Lookup } from '../lib/licenseLookups';
-import { useMyState, forStateText, showFor } from '../lib/myState';
+import { useMyState, forStateText, showFor, mentionsOtherState } from '../lib/myState';
 import { useMarkStep } from '../lib/path';
 import PathNext from './PathNext';
 import { PRO_GUIDES, proGuideByKey, type ProGuide, type ProKey } from '../lib/proGuide';
@@ -65,7 +65,7 @@ function StateLine() {
         Change state{' '}
         <select value={st} onChange={(e) => setSt((e.target.value || null) as StateCode | null)}>
           {STATES.map((x) => <option key={x.code} value={x.code}>{x.name}</option>)}
-          <option value="">All states</option>
+          <option value="" disabled>Choose a state</option>
         </select>
       </label>
     </p>
@@ -115,32 +115,9 @@ function ProStories({ stories, state }: { stories: Story[]; state: StateCode | n
     const sc = storyScope(s);
     return sc === 'nationwide' || (Array.isArray(sc) && (!state || sc.includes(state)));
   };
-  const own = order(state ? stories.filter(mine) : stories);
-  const other = order(state ? stories.filter((s) => !mine(s)) : []);
-  const name = state ? stateByCode(state)?.name : '';
-  // With none from this state, the best two from elsewhere (one that worked, one that went wrong) show; the rest wait.
-  const best = own.length ? [] : [other.find((s) => s.tone === 'good'), other.find((s) => s.tone === 'caution')].filter((s): s is Story => !!s);
-  const rest = other.filter((s) => !best.includes(s));
+  const own = order(stories.filter((story) => mine(story) && !mentionsOtherState(state, JSON.stringify(story))));
   const grid = (xs: Story[]) => <ul className="story-grid">{xs.map((s) => <StoryCard key={s.title} s={s} />)}</ul>;
-  return (
-    <>
-      {own.length > 0 && grid(own)}
-      {own.length === 0 && best.length > 0 && (
-        <>
-          <h4 className="story-other-head">From other states</h4>
-          <p className="muted">We don’t have a story from {name} yet. These happened elsewhere, where the rules may differ.</p>
-          {grid(best)}
-        </>
-      )}
-      {rest.length > 0 && (
-        <details className="story-other">
-          <summary>More stories from other states ({rest.length})</summary>
-          <p className="muted">These happened outside {name}, where the rules may differ.</p>
-          {grid(rest)}
-        </details>
-      )}
-    </>
-  );
+  return own.length ? grid(own) : <p className="muted">We don’t have a local story for this topic yet. Use the guidance and official sources for your selected state.</p>;
 }
 
 /** The saved buy box, when there is one, to fill the agent script's blanks. */

@@ -18,7 +18,6 @@ import OwlNote from './OwlNote';
 import { useLastActivity } from '../lib/journey';
 import { loadCase } from '../practice/caseProgress';
 import { caseFor, caseResume } from '../practice/rentalCase';
-import { STATES } from '../lib/regions';
 import AdSpot from './AdSpot';
 
 /** Each kind of sale keeps the same colour and icon as its drills. */
@@ -67,7 +66,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
   useMarkStep('practice');
   const [mine] = useMyState();
   const [cls, setCls] = useState<ClassFilter>('all');
-  const chosen = sale && (SALE_ORDER as string[]).includes(sale) ? (sale as SaleKey) : null;
+  const chosen = mine === 'NV' && sale && (SALE_ORDER as string[]).includes(sale) ? (sale as SaleKey) : null;
   const titleOf = (s: SaleKey) => playbookByKey(s)?.title ?? s;
   const cap = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
   useLastActivity(chosen ? `#/practice?sale=${chosen}` : '#/practice', chosen ? `Practice: ${titleOf(chosen)}` : 'Practice');
@@ -82,7 +81,6 @@ export default function PracticePage({ sale }: { sale?: string }) {
   const caseP = loadCase(practiceCase.state);
   const caseStarted = caseP.done.length > 0 || !!caseP.walked;
   const caseNext = caseResume(practiceCase.stages, caseP);
-  const myName = mine ? STATES.find((x) => x.code === mine)?.name ?? mine : null;
   // A visitor from another state: these runs follow Nevada rules, so they sit behind one switch, and that state's own
   // drills (step 3) come first.
   const otherState = !!mine && mine !== 'NV';
@@ -142,20 +140,13 @@ export default function PracticePage({ sale }: { sale?: string }) {
           <a className="btn big" href={`#/practice/case${caseStarted ? `/${caseNext.key}` : ''}`}>{!caseStarted ? 'Start the purchase\u00a0→' : caseNext.packet ? 'See your deal packet\u00a0→' : 'Continue the purchase\u00a0→'}</a>
           <span className="practice-case-meta">About 45 minutes · {practiceCase.property} · {practiceCase.stateName} rules{practiceCase.state === 'TX' ? ', with the TREC contract' : ''}</span>
         </div>
+        {!otherState && <>
         <h2 id="practice-auction" className="practice-step"><span aria-hidden>2</span> {otherState ? 'Auction practice: choose a kind of sale' : 'Nevada auction practice: choose a kind of sale'}</h2>
         <p className="practice-step-intro">Buy a fictional property at one kind of sale, step by step, from research to the day after.</p>
-        <p className="practice-nv-note" role="note">
-          {otherState
-            ? <>These step-by-step runs follow Clark County, Nevada rules. For your state, start with the <a href="#/practice" onClick={(e) => { e.preventDefault(); document.getElementById('practice-drills')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>{myName} drills in step 3</a>, and read the <a href="#/playbooks">{myName} sale guides</a>.</>
-            : <><strong>Nevada (Clark County) practice.</strong> These sales follow Clark County, Nevada rules. Other states’ rules are in the <a href="#/playbooks">sale guides</a>.</>}
-        </p>
-        {otherState ? (
-          <details className="practice-nv-runs">
-            <summary>Practice with Nevada rules <span className="muted">({auctionSales.length} kinds of sale)</span></summary>
-            {auctionTiles}
-          </details>
-        ) : auctionTiles}
-        <h2 id="practice-drills" className="practice-step"><span aria-hidden>3</span> Quick drills: would you buy it?</h2>
+        <p className="practice-nv-note" role="note"><strong>Clark County practice.</strong> These sales follow local rules. Check your county’s requirements before a real purchase.</p>
+        {auctionTiles}
+        </>}
+        <h2 id="practice-drills" className="practice-step"><span aria-hidden>{otherState ? 2 : 3}</span> Quick drills: would you buy it?</h2>
         <p className="practice-step-intro"><strong>Each drill is one short, made-up deal.</strong> Work through 2 to 4 missions (value it, check the rent, price the repairs, find the liens, run the numbers), then decide: Buy, Investigate or Pass. Missions are rehearsal: finishing them builds skill, not readiness to buy a real property.</p>
         <DrillList />
         </details>

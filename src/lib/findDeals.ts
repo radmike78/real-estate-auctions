@@ -43,7 +43,7 @@ export const COUNTY_PAGES: Record<string, DealSource[]> = {
     { name: 'Short sales', url: '#/short-sales', what: 'How short sales work in Nevada and how to find them through an agent.' },
     { name: 'Business assets & closures', url: '#/business-assets', what: 'Court, receiver and government sales of business property and equipment.' },
     { name: 'Pre-foreclosures (not for sale)', url: '#/pre-foreclosures', what: 'Notices recorded before a foreclosure auction, to follow toward the sale date.' },
-    { name: 'Sale guides', url: '#/playbooks', what: 'Rules for tax, trustee, HOA, sheriff and IRS sales in Nevada, California, Arizona, Utah and Texas, step by step.' },
+    { name: 'Sale guides', url: '#/playbooks', what: 'Rules for tax, trustee, HOA, sheriff and IRS sales in your selected state, step by step.' },
   ],
 };
 

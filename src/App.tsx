@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import StatePicker from './components/StatePicker';
+import { useMyState } from './lib/myState';
 import { stateByCode, type StateCode } from './lib/regions';
 import { currentRoute, isAppLink, navigate, onNavigate, replaceAddress, rewriteAppLinks, toPath, upgradeLegacyHash } from './lib/nav';
 import PageErrorBoundary from './components/PageErrorBoundary';
@@ -202,6 +204,7 @@ function parseHash(): Route {
 
 export default function App() {
   const features = useSiteFeatures();
+  const [chosenState] = useMyState();
   const [route, setRoute] = useState<Route>(parseHash);
   const [path, setPath] = useState(hashPath);
   // Counts real navigations. Search rewrites its own URL (replaceState) as filters change, so the route
@@ -293,6 +296,13 @@ export default function App() {
       <SiteHeader current={path} nav={nav} />
       <RoleNotice />
       <PageErrorBoundary key={nav}>
+      {!chosenState && !['privacy', 'terms', 'admin', 'advertiser', 'apply', 'applicationConfirm', 'advertise'].includes(route.page) ? (
+        <main className="page"><h1>Where do you want to invest?</h1>
+          <p>Choose one state to see its lessons, local guidance and practice. You can change it later.</p>
+          <StatePicker label="Choose your investing state" />
+          <p className="muted">County and city rules can differ within a state. Federal guidance will be labeled where it applies.</p>
+        </main>
+      ) : <>
       {route.page === 'home' && <HomePage />}
       {route.page === 'notFound' && (
         <main className="page empty-page">
@@ -342,6 +352,7 @@ export default function App() {
       {route.page === 'playbook' && <PlaybookPage key={route.key ?? ''} playbook={route.key} section={route.section} />}
       {route.page === 'advertiser' && <AdvertiserPage key={route.token ?? ''} token={route.token} />}
       {route.page === 'findpro' && <FindAProPage key={route.section ?? ''} section={route.section} />}
+      </>}
       </PageErrorBoundary>
       <footer className="footer">
         <span className="footer-note">{ROLE_SHORT} Our guides are general education, not legal, tax or financial advice.</span>

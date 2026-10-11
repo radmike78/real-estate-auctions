@@ -43,7 +43,7 @@ export const STATUS: Record<AcquisitionStatus, StatusInfo> = {
     label: 'Lien certificate only',
     tone: 'info',
     purchasable: false,
-    explanation: 'Only a lien is sold (an Arizona tax lien certificate or a Nevada SID lien), not the property. Buying it does not give you ownership of the property.',
+    explanation: 'Only a lien certificate is sold, not the property. Buying it does not give you ownership of the property.',
   },
   PRE_FORECLOSURE_NOT_YET_PURCHASABLE: {
     label: 'Pre-foreclosure',

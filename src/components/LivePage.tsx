@@ -47,7 +47,6 @@ export default function LivePage() {
   const [now, setNow] = useState(Date.now());
   const [cls, setCls] = useState<ClassFilter>('all');
   // County sales: the visitor's state only, until they ask for every state.
-  const [allCountySales, setAllCountySales] = useState(false);
   const [myState] = useMyState();
 
   // Keep "x min ago" and the expiry check current in an open tab.
@@ -57,16 +56,16 @@ export default function LivePage() {
   }, []);
 
   const expired = result?.ok && Date.parse(result.feed.expiresAt) <= now;
-  const listings = result?.ok && !expired ? result.feed.listings : [];
-  const certificates = result?.ok && !expired ? (result.feed.certificates ?? []) : [];
-  const federalSales = result?.ok && !expired ? (result.feed.federalSales ?? []) : [];
+  const listings = result?.ok && !expired ? result.feed.listings.filter(() => myState === 'NV') : [];
+  const certificates = result?.ok && !expired ? (result.feed.certificates ?? []).filter(() => myState === 'NV') : [];
+  const federalSales = result?.ok && !expired ? (result.feed.federalSales ?? []).filter((sale) => (sale.usState ?? 'NV') === myState) : [];
   const nothingLive = listings.length + certificates.length + federalSales.length === 0;
   const blocked = !!result && !result.ok && result.reason !== 'NOT_CONFIGURED' && result.reason !== 'MISSING';
   const features = useSiteFeatures();
   const shown = cls === 'all' ? listings : listings.filter((l) => classOfLandUse(l.landUse?.code) === cls);
 
   const allUpcoming = upcomingCountySales(new Date(now), { state: myState });
-  const countySales = myState && !allCountySales ? allUpcoming.filter((s) => s.state === myState) : allUpcoming;
+  const countySales = allUpcoming.filter((s) => s.state === myState);
   // The live feed covers Clark County, Nevada and IRS sales. A visitor from another state sees their own county sales first.
   const stateName = myState ? stateByCode(myState)?.name : null;
   const otherState = !!myState && myState !== 'NV';
@@ -78,37 +77,31 @@ export default function LivePage() {
         and minimum bid. Lists change up to the sale as owners pay their taxes, so check the county’s latest list before you bid.
       </p>
       {countySales.length > 0 ? <CountySales sales={countySales} /> : <OwlNote>No upcoming county tax sales listed for {stateName} yet.</OwlNote>}
-      {myState && (
-        <p className="county-sales-switch"><button type="button" className="btn btn-secondary" onClick={() => setAllCountySales(!allCountySales)}>
-          {allCountySales ? `Show only ${stateName} sales` : 'Show sales in other states'}
-        </button></p>
-      )}
+
     </section>
   );
   return (
     <main className="page">
       <PageHero
         title={<>Live <span className="grad">tax sales</span></>}
-        sub={otherState
-          ? `Upcoming ${stateName} county tax sales from each county’s own page, plus our live feed: Clark County, Nevada tax-sale parcels and IRS sales in the five states, re-checked against the official lists.`
-          : 'Upcoming county tax sales, plus Clark County, Nevada tax-sale parcels and IRS sales in Nevada, California, Arizona, Utah and Texas, re-checked against the official lists.'}
+        sub={`Upcoming ${stateName ?? 'local'} county tax sales and verified IRS sales in your selected state. Read each official sale notice before bidding.`}
       />
       {otherState && countySection}
       {!result && <p>Verifying listings…</p>}
 
       {result && nothingLive && (
-        <EmptyState title={blocked ? 'No live listings shown' : expired ? 'Listings are being re-verified' : otherState ? 'Live feed: no Clark County, Nevada or IRS sales verified right now' : 'No Clark County or IRS sales verified right now'}>
+        <EmptyState title={blocked ? 'No live listings shown' : expired ? 'Listings are being re-verified' : 'No verified listings in your selected state right now'}>
           <p>
             {blocked
               ? "The latest data didn't pass our security checks, so for your safety nothing is shown until verified data is published."
               : expired
                 ? 'The last verification has expired, so listings are hidden until fresh data is published.'
-                : `Nothing is verified as for sale right now: no Clark County, Nevada tax-sale parcels and no IRS sales in Nevada, California, Arizona, Utah or Texas. We re-check the official lists automatically, and parcels appear here as soon as a sale is scheduled and they pass our checks.${otherState ? '' : ' Other counties’ official sale lists are below.'}`}
+                : 'No property sales are verified for your selected state right now. Check your county’s official lists through Find Deals.'}
           </p>
           <p>
             Meanwhile, check the{' '}
-            <a href="https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList" target="_blank" rel="noreferrer noopener">
-              Clark County Treasurer’s official auction list ↗
+            <a href={myState === 'NV' ? 'https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList' : '#/find-deals'}>
+              {myState === 'NV' ? 'Clark County Treasurer’s official sale list ↗' : 'Your county’s official sale lists →'}
             </a>{' '}
             and the{' '}
             <a href="https://www.irsauctions.gov/" target="_blank" rel="noreferrer noopener">

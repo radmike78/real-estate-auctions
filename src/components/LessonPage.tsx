@@ -7,7 +7,7 @@ import { lessonByKey } from '../lib/lessons';
 import type { Lesson, LessonBlock } from '../lib/lessons/types';
 import { useMarkStep } from '../lib/path';
 import { fmtDate } from '../lib/status';
-import { dropStateLead, forStateText, showFor, statesOf, useMyState } from '../lib/myState';
+import { dropStateLead, forStateText, showFor, mentionsOtherState, statesOf, useMyState } from '../lib/myState';
 import { STATES, type StateCode } from '../lib/regions';
 import StatePicker from './StatePicker';
 import WhyBlock from './WhyBlock';
@@ -50,7 +50,7 @@ export function splitLead(text: string): [string | null, string] {
 }
 
 /** The block as it applies to one state: other states' rows, columns, items, sentences and paragraphs removed. */
-function forState(b: LessonBlock, st: StateCode | null): LessonBlock | null {
+export function forState(b: LessonBlock, st: StateCode | null): LessonBlock | null {
   if (!st) return b;
   const plain = (x: string) => oneState(dropStateKeyword(dropStateLead(forStateText(st, x), st), st), st);
   if (typeof b === 'string') {
@@ -68,8 +68,8 @@ function forState(b: LessonBlock, st: StateCode | null): LessonBlock | null {
     return links.length ? { links } : null;
   }
   if ('why' in b) {
-    const yes = b.why.yes.filter((p) => showFor(st, p.text)).map((p) => ({ ...p, text: plain(p.text) }));
-    const no = b.why.no.filter((p) => showFor(st, p.text)).map((p) => ({ ...p, text: plain(p.text) }));
+    const yes = b.why.yes.filter((p) => showFor(st, p.text)).map((p) => ({ ...p, text: plain(p.text), example: p.example && !mentionsOtherState(st, p.example) ? p.example : undefined }));
+    const no = b.why.no.filter((p) => showFor(st, p.text)).map((p) => ({ ...p, text: plain(p.text), example: p.example && !mentionsOtherState(st, p.example) ? p.example : undefined }));
     return yes.length || no.length ? { why: { ...b.why, yes, no } } : null;
   }
   const { head, rows } = b.table;
@@ -225,7 +225,7 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
     .filter((s) => s.blocks.length > 0);
   const sources = l.sources.filter((s) => showFor(st, s.label)).map((s) => ({ ...s, label: s.label.replace(` (${st})`, '') }));
   const allChecks = LESSON_CHECKS[lessonKey] ?? [];
-  const checks = allChecks.filter((c) => showFor(st, `${c.q} ${c.options.join(' ')} ${c.why}`));
+  const checks = allChecks.filter((c) => c.state ? c.state === st : showFor(st, `${c.q} ${c.options.join(' ')} ${c.why}`));
   const terms = l.terms
     .filter((t) => showFor(st, t.meaning))
     .map((t) => ({ ...t, meaning: forStateText(st, t.meaning) }))

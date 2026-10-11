@@ -41,6 +41,7 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
       </main>
     );
   }
+  if (mine !== 'NV') return <main className="page"><h1>This purchase exercise uses Nevada rules</h1><p>Return to Practice for exercises in your selected state.</p><a href="#/practice">Back to Practice</a></main>;
   const s = scenario;
   const update = (fn: (p: ScenarioProgress) => ScenarioProgress) =>
     setProgress((prev) => {

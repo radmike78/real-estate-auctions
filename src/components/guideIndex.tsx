@@ -13,6 +13,8 @@ import { sectionsFor as bankOwned } from './BankOwnedPage';
 import { sections as playbookSections } from './PlaybookPage';
 import HomeownerHelpPage from './HomeownerHelpPage';
 import { PLAYBOOKS, stateOf } from '../lib/playbooks';
+import { getMyState, forStateText, mentionsOtherState } from '../lib/myState';
+import { forState } from './LessonPage';
 import { stateByCode } from '../lib/regions';
 import { buildIndex, fromHtml, type GuideDoc, type GuideIndex } from '../lib/guideSearch';
 import { LESSONS } from '../lib/lessons';
@@ -61,7 +63,7 @@ function lessonDocs(): GuideDoc[] {
     const href = `#/learn/${l.key}`;
     const sources = l.sources.filter((x) => x.url.startsWith('https://'));
     return [
-      ...l.sections.map((sec) => ({ href, page, title: sec.heading, text: sec.blocks.map(blockText).join(' '), sources })),
+      ...l.sections.map((sec) => ({ href, page, title: sec.heading, text: sec.blocks.map((block) => forState(block, getMyState())).filter((block): block is LessonBlock => block !== null).map(blockText).join(' '), sources })),
       { href, page, title: 'Key terms', text: l.terms.map((t) => `${t.term}: ${t.meaning}`).join(' '), sources },
     ];
   });
@@ -105,11 +107,18 @@ export function guideDocs(): GuideDoc[] {
     ...fromSections('Privacy policy', '#/privacy', PRIVACY, 0.5),
     ...fromSections('Terms of use', '#/terms', TERMS, 0.5),
   );
-  return docs.filter((d) => d.text.length > 20);
+  const state = getMyState();
+  const scoped = state ? docs.filter((doc) => !doc.state || doc.state === state).map((doc) => ({
+    ...doc,
+    text: forStateText(state, doc.text),
+    sources: doc.sources.filter((source) => !mentionsOtherState(state, source.label)),
+  })).filter((doc) => !mentionsOtherState(state, `${doc.title} ${doc.page} ${doc.text}`)) : docs;
+  return scoped.filter((d) => d.text.length > 20);
 }
 
-let cached: GuideIndex | null = null;
+const cached = new Map<string, GuideIndex>();
 export function guideIndex(): GuideIndex {
-  cached ??= buildIndex(guideDocs());
-  return cached;
+  const key = getMyState() ?? 'unselected';
+  if (!cached.has(key)) cached.set(key, buildIndex(guideDocs()));
+  return cached.get(key)!;
 }

@@ -23,9 +23,9 @@
       "src/lib/saleSearch.ts",
       "src/lib/status.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "ce016a186da57fe9",
-    "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors."
+    "reviewed": "2026-10-11",
+    "hash": "dbcf359bf51bc49b",
+    "note": "State-isolation presentation audit across all five selections, including expanded pages and local quizzes. Removed cross-state comparisons and examples; retained local contract, county and professional-guidance qualifications. No new legal rules or financial calculations introduced."
   },
   {
     "id": "property",
@@ -40,9 +40,9 @@
       "src/lib/propertyViews.ts",
       "src/lib/foreclosure.ts"
     ],
-    "reviewed": "2026-10-10",
-    "hash": "3680fcf1f91ec8c8",
-    "note": "Reviewed 2026-09-27: source line (agency and last re-check time from the signed feed), sample-record label, number colors. 2026-10-10: reviewed the changed accuracy, security or flow wording; this pass did not re-verify every linked source. 2026-10-10: bankruptcy-stay wording qualified against U.S. Courts guidance: exceptions, timing and court orders matter."
+    "reviewed": "2026-10-11",
+    "hash": "707dad0f5a4c820e",
+    "note": "Property checklist details and official links now use the property state, matching its full-guide link; calculator region uses the property location. This prevents a saved preference from mixing a different state into the property report. No calculation formulas changed."
   },
   {
     "id": "checklists",
@@ -51,9 +51,9 @@
       "src/components/BuyerChecklistBox.tsx",
       "src/lib/buyerChecklists.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "05ad5f816c2d7f76",
-    "note": "Full content review (review round of 2026-09-27)."
+    "reviewed": "2026-10-11",
+    "hash": "226d8f33c2dc9428",
+    "note": "Checklist state now follows an explicitly supplied property state for details and official links, consistent with the full-guide link. Saved visitor preferences still apply to general checklist pages. No checklist legal text or completion scoring changed."
   },
   {
     "id": "live",
@@ -63,9 +63,9 @@
       "src/components/IrsSales.tsx",
       "src/components/SidCertificates.tsx"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "53bc04744171774b",
-    "note": "Full content review (review round of 2026-09-27)."
+    "reviewed": "2026-10-11",
+    "hash": "6705c5d2f6e9b81f",
+    "note": "Single-state presentation and search review: local search index and cache rebuilt per selected state; calculator feedback comparisons removed; official local listing links preserved. No calculation changes or new legal claims."
   },
   {
     "id": "preforeclosures",
@@ -73,9 +73,9 @@
     "files": [
       "src/components/PreForeclosurePage.tsx"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "3f012b7d69a62c78",
-    "note": "Full content review (review round of 2026-09-27)."
+    "reviewed": "2026-10-11",
+    "hash": "47fc6041462b221b",
+    "note": "State-isolation presentation review: one state at a time, explicit quiz scope, local-only practice and examples. Removed cross-state comparisons; retained contract, county and professional-guidance qualifications. No new legal rules or financial calculations introduced."
   },
   {
     "id": "shortsales",
@@ -94,9 +94,9 @@
       "src/components/BankOwnedPage.tsx",
       "src/lib/reoSources.ts"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "7691fb212c292dd2",
-    "note": "Re-checked after the 2026-09-27 source check (moved links, eviction wording, U.S. Bank, Sheriff payment terms, ADA citation)."
+    "reviewed": "2026-10-11",
+    "hash": "e538c4158cb4e97f",
+    "note": "State-isolation presentation review: one state at a time, explicit quiz scope, local-only practice and examples. Removed cross-state comparisons; retained contract, county and professional-guidance qualifications. No new legal rules or financial calculations introduced."
   },
   {
     "id": "businessassets",
@@ -128,9 +128,9 @@
     "files": [
       "src/components/GuidesPage.tsx"
     ],
-    "reviewed": "2026-10-07",
-    "hash": "39faa534cd2cc51e",
-    "note": "Full content review (review round of 2026-09-27)."
+    "reviewed": "2026-10-11",
+    "hash": "805d43850853d5db",
+    "note": "Single-state presentation and search review: local search index and cache rebuilt per selected state; calculator feedback comparisons removed; official local listing links preserved. No calculation changes or new legal claims."
   },
   {
     "id": "practice",
@@ -147,8 +147,8 @@
       "src/practice/dealJourney.ts"
     ],
     "reviewed": "2026-10-11",
-    "hash": "793bcf301d3a5079",
-    "note": "Reviewed changed wording and independently checked fictional cash-flow/cash-allocation figures; verified CFPB closing-disclosure guidance with applicability limits. Location confirmation, progressive disclosure, honest practice outcomes and exact multi-answer grading. No professional endorsement or novice usability testing claimed."
+    "hash": "bb2f08b9cfe8fea1",
+    "note": "State isolation only: removed comparisons with another state from drill feedback and calculator help. Existing local rules, answer scoring, risk guidance and calculation formulas retained."
   },
   {
     "id": "calculator",
@@ -164,8 +164,8 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-11",
-    "hash": "67d3a59e00df80de",
-    "note": "Reviewed follow-ups: qualified contract effective-date guidance; visible cash-budget limitation; direct tax-section link retaining property state without changing saved preference. No financial formulas or state tax rules changed."
+    "hash": "e721f5b0d745281f",
+    "note": "Single-state presentation and search review: local search index and cache rebuilt per selected state; calculator feedback comparisons removed; official local listing links preserved. No calculation changes or new legal claims."
   },
   {
     "id": "deals",
@@ -211,9 +211,9 @@
       "src/components/TeamBuilder.tsx",
       "src/lib/teamBuilder.ts"
     ],
-    "reviewed": "2026-10-10",
-    "hash": "44f7de79ea979611",
-    "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged. 2026-10-10: reviewed the changed accuracy, security or flow wording; this pass did not re-verify every linked source. 2026-10-10: aligned appraisal guidance and the knowledge-check explanation with CFPB guidance; no guaranteed sale value or universal valuation method. Other source-check dates unchanged."
+    "reviewed": "2026-10-11",
+    "hash": "f11298eb95834a60",
+    "note": "State-isolation presentation audit across all five selections, including expanded pages and local quizzes. Removed cross-state comparisons and examples; retained local contract, county and professional-guidance qualifications. No new legal rules or financial calculations introduced."
   },
   {
     "id": "financing",
@@ -267,9 +267,9 @@
     "files": [
       "src/components/AboutPage.tsx"
     ],
-    "reviewed": "2026-10-10",
-    "hash": "517eacd3a239c9e6",
-    "note": "Full content review (review round of 2026-09-27). 2026-10-10: clarified property bids and purchase funds; investor use is free while professional advertising may be paid. Other source-check dates unchanged."
+    "reviewed": "2026-10-11",
+    "hash": "10f48ae00a16faec",
+    "note": "State-isolation presentation audit across all five selections, including expanded pages and local quizzes. Removed cross-state comparisons and examples; retained local contract, county and professional-guidance qualifications. No new legal rules or financial calculations introduced."
   },
   {
     "id": "advertise",
@@ -280,9 +280,9 @@
       "src/lib/proApplication.ts",
       "src/lib/proVerification.ts"
     ],
-    "reviewed": "2026-10-10",
-    "hash": "852f876405b9ba9a",
-    "note": "Reviewed service-specific credential checks, fair-housing rules across all supported states, and manufactured-community statistics against MHI; no broad draft policy revision. 2026-10-10: reviewed the changed accuracy, security or flow wording; this pass did not re-verify every linked source."
+    "reviewed": "2026-10-11",
+    "hash": "1ddaae729b9a63c6",
+    "note": "State-isolation presentation audit across all five selections, including expanded pages and local quizzes. Removed cross-state comparisons and examples; retained local contract, county and professional-guidance qualifications. No new legal rules or financial calculations introduced."
   },
   {
     "id": "disclaimer",
@@ -370,8 +370,8 @@
       "src/lib/lessons/taxes.ts"
     ],
     "reviewed": "2026-10-11",
-    "hash": "99d5f4d3a32a5b7f",
-    "note": "2026-10-11 targeted corrections: contract and refund qualifications, insurance use, quiz timing, and public California contract guidance. Changed claims checked against official sources; not a certification of all sources or device behavior."
+    "hash": "c22e862eee4eb159",
+    "note": "Single-state lesson presentation and explicit quiz metadata audited for each supported selection. Historical examples from other locations filtered without changing their facts; legal qualifications and risk guidance retained."
   },
   {
     "id": "decide",
@@ -393,9 +393,9 @@
       "src/lib/findDeals.ts",
       "src/lib/regions.ts"
     ],
-    "reviewed": "2026-10-10",
-    "hash": "d4c5b735823beac5",
-    "note": "Verified direct destinations and official referrals; see docs/direct-link-review-2026-10-10.json. Search submissions and browser behavior not tested."
+    "reviewed": "2026-10-11",
+    "hash": "d9d0f5cdbda6c866",
+    "note": "State-isolation presentation audit across all five selections, including expanded pages and local quizzes. Removed cross-state comparisons and examples; retained local contract, county and professional-guidance qualifications. No new legal rules or financial calculations introduced."
   },
   {
     "id": "analyze",
@@ -408,7 +408,7 @@
     ],
     "reviewed": "2026-10-11",
     "hash": "e4c41310a0f161e7",
-    "note": "Reviewed changed wording and independently checked fictional cash-flow/cash-allocation figures; verified CFPB closing-disclosure guidance with applicability limits. Location confirmation, progressive disclosure, honest practice outcomes and exact multi-answer grading. No professional endorsement or novice usability testing claimed."
+    "note": "State isolation only: removed comparisons with another state from drill feedback and calculator help. Existing local rules, answer scoring, risk guidance and calculation formulas retained."
   },
   {
     "id": "toolkit",
