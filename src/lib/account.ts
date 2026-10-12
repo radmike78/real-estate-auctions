@@ -51,8 +51,8 @@ export async function refreshAccount(initial = false) {
 }
 export function useAccountRuntime(enabled: boolean) {
   useEffect(() => {
-    if (!enabled || guestChosen) return;
-    void refreshAccount(true);
+    if (!enabled) return;
+    if (!guestChosen) void refreshAccount(true);
     const refresh = () => { if (document.visibilityState === 'visible') void refreshAccount(); };
     const interval = setInterval(refresh, 60000);
     window.addEventListener('focus',refresh);
