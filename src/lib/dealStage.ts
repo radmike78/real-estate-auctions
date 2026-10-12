@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from './workStorage';
 // Where a saved deal stands (researching, preparing an offer or bid, under contract or won, closed, owned and
 // operating, or passed) and the tasks that belong to that stage. The stage picks the deal's next action in My plan:
 // a new candidate gets research and verification tasks, and the accepted-offer deadlines only appear once the seller

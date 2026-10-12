@@ -1,3 +1,4 @@
+import { useAccount } from '../lib/account';
 import { useEffect, useRef, useState } from 'react';
 import { useProperties } from '../data/live';
 import type { Property } from '../types';
@@ -149,6 +150,7 @@ function OwnedPortfolio({ deals }: { deals: ReturnType<typeof loadAnalyzed> }) {
 }
 
 export default function DealsPage() {
+  const account=useAccount();
   const [deals, setDeals] = useState(loadDeals);
   const { properties, loading, known } = useProperties();
   const [analyzed] = useState(loadAnalyzed);
@@ -217,7 +219,7 @@ export default function DealsPage() {
         <ul className="deal-list">{sorted.map((d) => <DealCard key={d.id} d={d} p={properties.find((x) => x.id === d.id)} loading={loading} known={known(d.id)} />)}</ul>
       )}
       <AdSpot spot="deals" />
-      <p className="muted">Saved only in this browser. Clearing your browser data removes it.</p>
+      <p className="muted">{account.account ? 'Use Save my work to keep these properties in your account. Notes are download-only and are not saved to your account.' : 'Saved only in this browser. Clearing your browser data removes it.'}</p>
     </main>
   );
 }

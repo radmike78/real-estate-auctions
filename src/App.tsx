@@ -1,3 +1,5 @@
+import AccountPage, { AccountBar } from './components/AccountPage';
+import { continueAsGuest, useAccountRuntime } from './lib/account';
 import { useEffect, useState } from 'react';
 import StatePicker from './components/StatePicker';
 import { useMyState } from './lib/myState';
@@ -62,6 +64,7 @@ import { useSiteFeatures } from './lib/siteFeatures';
 
 type Route =
   | { page: 'home' }
+  | { page: 'account' }
   | { page: 'search'; q: string; types: SaleType[]; statuses: AcquisitionStatus[]; cls: ClassFilter }
   | { page: 'property'; id: string; section?: string }
   | { page: 'about'; section?: string }
@@ -118,6 +121,7 @@ function parseHash(): Route {
   // Only known sale types / statuses are accepted from the URL.
   const list = (k: string) => (params.get(k) ?? '').split(',').filter(Boolean);
   if (h === '') return { page: 'home' };
+  if (h === 'account') return { page: 'account' };
   if (h === 'search') {
     return {
       page: 'search',
@@ -177,7 +181,7 @@ function parseHash(): Route {
     const sale = params.get('sale') ?? undefined;
     return { page: 'practice', sale: sale && /^[a-z]{2,12}$/.test(sale) ? sale : undefined };
   }
-  const tk = h.match(/^toolkit(?:\/(buy-box|cash|team|paperwork|roadmap))?$/);
+  const tk = h.match(/^toolkit(?:\/(buy-box|cash|team|paperwork|roadmap|backup))?$/);
   if (tk) return { page: 'toolkit', section: tk[1] };
   const drill = h.match(/^practice\/drills\/([a-z0-9-]{2,40})$/);
   if (drill) return { page: 'drill', id: drill[1] };
@@ -204,6 +208,7 @@ function parseHash(): Route {
 
 export default function App() {
   const features = useSiteFeatures();
+  const account = useAccountRuntime(!!features?.accounts);
   const [chosenState] = useMyState();
   const [route, setRoute] = useState<Route>(parseHash);
   const [path, setPath] = useState(hashPath);
@@ -256,7 +261,7 @@ export default function App() {
     if (link) link.href = `${window.location.origin}${pathname.replace(/\/?$/, '/')}`;
     // A page that doesn't exist shouldn't be indexed.
     let robots = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
-    if (route.page === 'notFound') {
+    if (route.page === 'notFound' || route.page === 'account') {
       if (!robots) {
         robots = document.createElement('meta');
         robots.name = 'robots';
@@ -293,10 +298,11 @@ export default function App() {
   return (
     <div className={`app${route.page === 'home' ? ' app-home' : ''}`}>
       <a className="skip-link" href="#content" onClick={(e) => { e.preventDefault(); const m = document.querySelector('main'); if (m) { m.setAttribute('tabindex', '-1'); m.focus(); } }}>Skip to content</a>
-      <SiteHeader current={path} nav={nav} />
-      <RoleNotice />
-      <PageErrorBoundary key={nav}>
-      {!chosenState && !['privacy', 'terms', 'admin', 'advertiser', 'apply', 'applicationConfirm', 'advertise'].includes(route.page) ? (
+      <SiteHeader key={account.account?.id ?? 'guest'} current={path} nav={nav} />
+      <AccountBar />
+      <RoleNotice key={account.account?.id ?? 'guest'} />
+      <PageErrorBoundary key={`${nav}:${account.account?.id ?? 'guest'}:${account.status === 'locked'}`}>
+      {account.status === 'loading' && !['account','privacy','terms','admin','advertiser','apply','applicationConfirm','advertise','alerts'].includes(route.page) ? <main className="page"><h1>Opening your workspace</h1><p role="status">Checking your sign-in and saved work…</p>{!account.account && <button className="btn btn-secondary" onClick={continueAsGuest}>Continue without an account</button>}</main> : account.status === 'locked' && !['account','privacy','terms','admin','advertiser','apply','applicationConfirm','advertise','alerts'].includes(route.page) ? <main className="page"><h1>Keep your unsaved work safe</h1><p>{account.message}</p><a className="btn" href="#/account">Download work or reopen your account</a></main> : !chosenState && !['account', 'privacy', 'terms', 'admin', 'advertiser', 'apply', 'applicationConfirm', 'advertise'].includes(route.page) ? (
         <main className="page"><h1>Where do you want to invest?</h1>
           <p>Choose one state to see its lessons, local guidance and practice. You can change it later.</p>
           <StatePicker label="Choose your investing state" />
@@ -304,6 +310,7 @@ export default function App() {
         </main>
       ) : <>
       {route.page === 'home' && <HomePage />}
+      {route.page === 'account' && <AccountPage />}
       {route.page === 'notFound' && (
         <main className="page empty-page">
           <img className="owl-empty" src="/logo.svg" alt="" width={128} height={128} />
@@ -358,6 +365,7 @@ export default function App() {
         <span className="footer-note">{ROLE_SHORT} Our guides are general education, not legal, tax or financial advice.</span>
         <span className="footer-note">{ASTERISK_NOTE}</span>
         <nav aria-label="Footer">
+          {features?.accounts && <a href="#/account">Save work (optional account)</a>}
           {features?.email && <a href="#/alerts">Email alerts</a>}
           <a href="#/homeowner-help">Homeowners: free help</a>
           <a href="#/about">How DeedOwl works</a>

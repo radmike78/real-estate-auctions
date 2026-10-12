@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from './workStorage';
 // The deal packet: one page per property you're analyzing that pulls together everything a decision needs and says
 // what's still missing. Most of it comes from what's already saved (the deal, its calculators, its evidence log,
 // your goal, buy box and team). This file adds the few things nothing else stores: whether it fits your buy box and

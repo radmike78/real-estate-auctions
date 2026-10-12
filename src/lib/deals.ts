@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from './workStorage';
 // "My deals": properties a buyer is working on, kept in this browser. Free, like everything for
 // buyers. Stores what the status was when saved, so changes stand out.
 

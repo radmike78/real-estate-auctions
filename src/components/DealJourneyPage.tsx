@@ -1,3 +1,4 @@
+import { useAccount } from '../lib/account';
 import { useEffect, useRef, useState } from 'react';
 import { useMyState } from '../lib/myState';
 import { downloadText } from '../lib/download';
@@ -19,6 +20,7 @@ export function CedarDrawing() {
 }
 
 export default function DealJourneyPage({ chapterKey }: { chapterKey?: string }) {
+  const account=useAccount();
   const [p, setP] = useState<JourneyProgress>(loadJourney);
   const [storageProblem, setStorageProblem] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
@@ -37,10 +39,11 @@ export default function DealJourneyPage({ chapterKey }: { chapterKey?: string })
       <a href="#/practice" className="deal-back">← Practice</a>
       <div className="deal-title-row"><div><p className="deal-kicker">BUILD YOUR FIRST DEAL · FICTIONAL PRACTICE</p><h1 ref={heading} tabIndex={-1}>{chapter?.title ?? (workbook ? 'Your deal workbook' : specialties ? 'Choose your next challenge' : 'One property. Better decisions.')}</h1><p>{chapter?.purpose ?? (workbook ? 'Your reasoning, numbers and questions, all in one place.' : specialties ? 'Keep the habits. Learn what changes for your investment.' : 'Learn the process by trying it. Follow Cedar House from its listing to life as a rental.')}</p></div>
       {!workbook && started && <a className="deal-workbook-link" href={journeyHref('workbook')}>Your workbook ↗</a>}</div>
-      <div className="deal-progress-row"><span>{p.completed.length} of {CHAPTERS.length} skills practiced</span><span>{storageProblem ? 'Not saved — download your workbook' : 'Progress stays in this browser'}</span></div>
+      <div className="deal-progress-row"><span>{p.completed.length} of {CHAPTERS.length} skills practiced</span><span>{storageProblem ? 'Not saved — download your workbook' : account.account ? 'Use Save my work to keep account progress' : 'Progress stays in this browser'}</span></div>
       <progress max={CHAPTERS.length} value={p.completed.length} aria-label="Practice chapters completed" />
     </header>
-    {storageProblem && <p className="deal-alert" role="status">This browser could not save your progress. Keep this page open and <button type="button" className="linkish" onClick={() => downloadText('deedowl-practice-workbook.txt', workbookText(p))}>download your workbook</button>. For another device, use My plan’s progress backup when browser storage is available.</p>}
+    {account.account && <p className="deal-input-hint">Account saves keep your choices, numbers and self-review completion. Written answers stay in this visit and your workbook download; write them again if you want to review them on another device.</p>}
+    {storageProblem && <p className="deal-alert" role="status">This browser could not save your progress. Keep this page open and <button type="button" className="linkish" onClick={() => downloadText('deedowl-practice-workbook.txt', workbookText(p))}>download your workbook</button>. Download your workbook to keep a readable copy. Optional account saving can keep supported choices and deal numbers across devices.</p>}
     <details className="deal-outline"><summary>See the journey {chapter && <span> · Chapter {current + 1} of {CHAPTERS.length}</span>}</summary><nav aria-label="Practice deal chapters"><a href={journeyHref()}>Start</a>{CHAPTERS.map((c, i) => <a key={c.id} href={journeyHref(c.id)} aria-current={c.id === chapter?.id ? 'step' : undefined}><span>{p.completed.includes(c.id) ? '✓' : i + 1}</span>{c.title}</a>)}<a href={journeyHref('workbook')}>Your workbook</a></nav></details>
     {unknown ? <section className="deal-task-card"><h2>That chapter isn’t in this exercise</h2><a className="btn" href={journeyHref()}>Open the practice deal</a></section> : workbook ? <Workbook p={p} /> : specialties ? <SpecialtyView p={p} update={update} /> : chapter ? <div className="deal-workspace">
       <section className="deal-main"><ChapterView key={chapter.id} chapter={chapter} p={p} update={update} /><div className="deal-reference"><details><summary>Why this works · explanations and sources</summary><p>{chapter.detail}</p><p className="deal-reviewed">{chapter.sources.length ? 'The linked official sources were checked October 9, 2026. ' : 'This chapter uses fictional case assumptions and practice judgments. '}Scenario figures are not verified market quotes or legal defaults.</p><ul>{SOURCES.filter((s) => chapter.sources.includes(s.id)).map((s) => <li key={s.id}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.title} ↗</a></li>)}</ul><a href={`#/learn/${chapter.lesson}`}>Read the related lesson →</a></details><details><summary>Check what varies where you invest</summary><p>{LOCAL_NOTE}</p></details></div></section>
@@ -63,12 +66,13 @@ function PropertyPanel({ chapter, p }: { chapter: Chapter; p: JourneyProgress })
 }
 
 function ChapterView({ chapter, p, update }: { chapter: Chapter; p: JourneyProgress; update: (p: JourneyProgress) => void }) {
-  const firstOpen = chapter.tasks.findIndex((t) => !accepts(t, p.answers[taskKey(chapter, t)]));
+  const taskComplete = (t: Task) => accepts(t,p.answers[taskKey(chapter,t)]) || (t.kind==='reflection' && p.reflectionDone?.includes(taskKey(chapter,t)) === true);
+  const firstOpen = chapter.tasks.findIndex(t => !taskComplete(t));
   const [taskIndex, setTaskIndex] = useState(firstOpen < 0 ? chapter.tasks.length - 1 : firstOpen);
   const [draftEdited, setDraftEdited] = useState(false);
   const task = chapter.tasks[taskIndex];
   const a = p.answers[taskKey(chapter, task)];
-  const accepted = accepts(task, a) && !draftEdited;
+  const accepted = taskComplete(task) && !draftEdited;
   const complete = p.completed.includes(chapter.id);
   const next = CHAPTERS[CHAPTERS.indexOf(chapter) + 1];
   const stepHeading = useRef<HTMLHeadingElement>(null);
@@ -77,9 +81,9 @@ function ChapterView({ chapter, p, update }: { chapter: Chapter; p: JourneyProgr
   return <>
     <div className="deal-evidence"><p className="deal-kicker">WHAT YOU KNOW</p><ul>{chapter.facts.map((f) => <li key={f}>{f}</li>)}</ul></div>
     {chapter.phase === 'contract' && <p className="deal-parallel"><strong>Keep the other work moving.</strong> Deposit, inspection, loan and title tasks run together; confirm every applicable deadline.</p>}
-    <section className="deal-task-card" aria-labelledby="deal-question"><div className="deal-task-top"><span>YOUR DECISION</span><span>{taskIndex + 1} of {chapter.tasks.length} in this chapter</span></div><h2 id="deal-question" ref={stepHeading} tabIndex={-1}>{task.question}</h2><TaskView key={task.id} task={task} answer={a} onDraftEdited={setDraftEdited} onAnswer={(answer) => update(answerTask(p, chapter, task, answer))} />
+    <section className="deal-task-card" aria-labelledby="deal-question"><div className="deal-task-top"><span>YOUR DECISION</span><span>{taskIndex + 1} of {chapter.tasks.length} in this chapter</span></div><h2 id="deal-question" ref={stepHeading} tabIndex={-1}>{task.question}</h2>{task.kind==='reflection' && !a && taskComplete(task) && <p className="deal-input-hint">Your self-review completion was saved. Its written answer was not stored in the account. You can continue, or write a new explanation to review it again.</p>}<TaskView key={task.id} task={task} answer={a} onDraftEdited={setDraftEdited} onAnswer={(answer) => update(answerTask(p, chapter, task, answer))} />
       {accepted && <div className="deal-task-next">{taskIndex < chapter.tasks.length - 1 ? <button type="button" className="btn deal-primary" onClick={() => changeTask(taskIndex + 1)}>Next decision →</button> : complete ? <><p className="deal-saved"><span aria-hidden>✓</span> {chapter.output}</p><a className="btn deal-primary" href={journeyHref(next?.id ?? 'workbook')}>{next?.id === 'parallel' ? 'Try the alternate purchase' : next ? 'Continue' : 'See your workbook'} →</a>{next?.id === 'parallel' && <p className="deal-alternate">We’ll simulate a $260,000 agreement. Your original decision stays saved.</p>}</> : <p>Review the other decisions in this chapter before continuing.</p>}</div>}
-      {chapter.tasks.length > 1 && <nav className="deal-task-nav" aria-label="Decisions in this chapter">{chapter.tasks.map((t, i) => <button key={t.id} type="button" onClick={() => changeTask(i)} aria-current={i === taskIndex ? 'step' : undefined}>{accepts(t, p.answers[taskKey(chapter, t)]) ? '✓ ' : ''}Decision {i + 1}</button>)}</nav>}
+      {chapter.tasks.length > 1 && <nav className="deal-task-nav" aria-label="Decisions in this chapter">{chapter.tasks.map((t, i) => <button key={t.id} type="button" onClick={() => changeTask(i)} aria-current={i === taskIndex ? 'step' : undefined}>{taskComplete(t) ? '✓ ' : ''}Decision {i + 1}</button>)}</nav>}
     </section>
     <p className="deal-local"><strong>For a real property:</strong> {chapter.local}</p>
   </>;
@@ -101,7 +105,7 @@ function TaskView({ task, answer, onAnswer, onDraftEdited }: { task: Task; answe
   return <>
     {task.kind === 'choice' ? <div className="deal-options">{task.options?.map((o, i) => <button type="button" key={o.text} aria-pressed={answer === i} className={`deal-option${answer === i ? ' selected' : ''}`} onClick={() => onAnswer(i)}><span className="deal-option-mark" aria-hidden>{answer === i ? '●' : '○'}</span>{o.text}</button>)}</div> : task.kind === 'check' ? <form onSubmit={(e) => { e.preventDefault(); if (!accepts(task, checks)) { setError(task.distractors?.length ? 'Select all supported checks and leave out the unsupported shortcuts.' : 'Check each applicable item before saving this practice checklist.'); return; } setError(''); onAnswer(checks); }}><div className="deal-checks">{checkOptions.map((x) => <label key={x}><input type="checkbox" checked={checks.includes(x)} onChange={(e) => { const nextChecks = e.target.checked ? [...checks, x] : checks.filter((v) => v !== x); setChecks(nextChecks); if (answer !== undefined) onAnswer(nextChecks); setError(''); }} />{x}</label>)}</div><button type="submit" className="btn btn-secondary">Save practice checklist</button></form> : <form onSubmit={(e) => { e.preventDefault(); if (task.kind === 'reflection') { if (draft.trim().length < 40 || !reviewed) { setError('Add your reasoning and review it against the checks shown.'); return; } setError(''); submitAnswer(draft.trim()); } else { const input = draft.replace(/[$,]/g, '').trim(); const value = Number(input); if (!input || !Number.isFinite(value)) { setError('Enter a number. Use a minus sign for a shortfall.'); return; } setError(''); submitAnswer(value); } }}>
       {task.kind === 'reflection' ? <><label className="deal-input-label" htmlFor="deal-answer">Your reasoning</label><textarea id="deal-answer" value={draft} maxLength={2000} rows={4} onChange={(e) => { setDraft(e.target.value); editDraft(); setReviewed(false); setError(''); }} placeholder="I would pass, revise or proceed because…" /><label className="deal-review-check"><input type="checkbox" checked={reviewed} onChange={(e) => { setReviewed(e.target.checked); editDraft(); }} />{task.reviewChecks ? 'I reviewed my explanation against the checks below.' : 'I included a financial result, a risk, and a source or professional to consult.'}</label>{task.reviewChecks && <ul className="deal-input-hint">{task.reviewChecks.map((x) => <li key={x}>{x}</li>)}</ul>}</> : <><label className="deal-input-label" htmlFor="deal-answer">Your answer in dollars</label><div className="deal-number-row"><span aria-hidden>$</span><input id="deal-answer" type="text" inputMode="decimal" value={draft} maxLength={30} aria-describedby="deal-answer-hint" onChange={(e) => { setDraft(e.target.value); editDraft(); setError(''); }} placeholder="0.00" /><button type="submit" className="btn deal-primary">Check my number</button></div><p id="deal-answer-hint" className="deal-input-hint">Use a minus sign if the result is below zero.</p></>}
-      {task.kind === 'reflection' && <p className="deal-input-hint">This is your self-review. DeedOwl saves your explanation; it does not grade your judgment or approve a purchase.</p>}
+      {task.kind === 'reflection' && <p className="deal-input-hint">This is your self-review. Your explanation stays in this visit (or on this device without an account) and can be downloaded; it does not grade your judgment or approve a purchase.</p>}
       {task.kind === 'reflection' && <button type="submit" className="btn deal-primary">Save my reasoning</button>}
     </form>}
     {edited && submitted && <p className="deal-input-hint" role="status">You edited this answer. {task.kind === 'reflection' ? 'Review and save it' : 'Check your new number'} before continuing. Your last saved answer remains in the workbook.</p>}

@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from './workStorage';
 // What My plan's roadmap has stored in this browser: the steps ticked, their statuses, the way of buying and the
 // property being worked on. Read here so the roadmap, the home page and My plan's next step all count the same way.
 import { loadDeals, type Deal } from './analyze';

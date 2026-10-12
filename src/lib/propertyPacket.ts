@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from './workStorage';
 // One file for a real property you're working on: your goal and cash, the property's numbers at your price with a
 // downside case, what you've verified and what's still open, who's doing what, where you are in the steps, and your
 // decision. Built from what's already saved in this browser; nothing new is stored.

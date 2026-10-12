@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from './workStorage';
 // How a visitor wants to start: "I'm new, guide me" (one recommended activity at a time) or "I know the basics, let
 // me explore" (straight to the tools and references). Optional and easy to change; every page still shows
 // everything. Kept only in this browser, with the lessons read to the end and the last activity opened, so a

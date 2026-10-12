@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useRef, useState } from 'react';
 import { proGuideByKey } from '../lib/proGuide';
 import { resolved, TEAM_QUESTIONS, teamFor, UNSURE, type TeamAnswers } from '../lib/teamBuilder';

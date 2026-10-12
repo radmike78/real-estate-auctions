@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useRef, useState } from 'react';
 import { AreaPicker } from './AreaPicker';
 import { useMyState } from '../lib/myState';

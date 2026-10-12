@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from '../lib/workStorage';
 import { shuffled } from '../lib/shuffle';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { currentProgress, GUIDED, guidedNext, useJourney, useLastActivity } from '../lib/journey';

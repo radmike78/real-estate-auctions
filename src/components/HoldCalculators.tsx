@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState } from 'react';
 import { readConfirmed, saveConfirmed } from '../lib/calcConfirmation';
 import type { BidInputs } from '../lib/bidCalc';

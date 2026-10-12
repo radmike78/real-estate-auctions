@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from './workStorage';
 // "I bought it": for a deal you closed on, the actual rent and costs month by month, against what you projected.
 // Kept in this browser like the rest of My deals.
 

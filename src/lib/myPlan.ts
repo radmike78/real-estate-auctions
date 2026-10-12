@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from './workStorage';
 // My plan's own records: your goal in a sentence, the team you've lined up, and what price your cash can support.
 // Kept in this browser like the rest of the plan, and included in progress backups.
 import { annualDebtService } from './holdCalc';

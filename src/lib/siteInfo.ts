@@ -16,7 +16,7 @@ export const SITE_INFO = {
 };
 
 /** Dates the current versions take effect (YYYY-MM-DD). Update when either page changes materially. */
-export const PRIVACY_EFFECTIVE = '2026-10-01';
+export const PRIVACY_EFFECTIVE = '2026-10-12';
 export const TERMS_EFFECTIVE = '2026-10-05';
 
 /** false = both pages show a "draft, under legal review" notice. */

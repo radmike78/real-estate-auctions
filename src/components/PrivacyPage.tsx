@@ -20,12 +20,12 @@ export const SECTIONS: DrillSection[] = [
     title: 'The short version',
     icon: <IconShield />,
     tone: 'go',
-    summary: 'No buyer accounts, no ad trackers, and we never sell your information',
+    summary: 'Accounts are optional, and we never sell your information',
     content: () => (
       <ul>
         <li>You can use the whole site without an account or sign-up.</li>
-        <li>Your saved deals, bid calculations and checklists stay in your own browser. They aren't sent to us.</li>
-        <li>We collect personal information only when you choose to contact a professional, sign up for email alerts, or apply to advertise.</li>
+        <li>Guest work stays in your browser. If you choose an account, supported property work, deal numbers and learning progress are sent to us when you save.</li>
+        <li>We collect personal information only when you choose to contact a professional, sign up for email alerts, create an optional learner account, or apply to advertise.</li>
         <li>We don't sell personal information, and we don't use advertising networks, third-party analytics services or tracking cookies.</li>
         <li>Our own server counts visits, page views and clicks on advertiser profiles, as daily totals. It doesn't follow you across other websites or build a profile of you. “Information we collect” explains how.</li>
       </ul>
@@ -56,6 +56,7 @@ export const SECTIONS: DrillSection[] = [
           If you add a profile photo, we keep a resized copy with its hidden data (such as location) removed. We never keep the original file.
           It appears on your profile only after we approve it, and you can remove it at any time.
         </p>
+        <h3>Optional learner accounts</h3><p>When account saving is available and you choose it, we store your verified email, optional first name, and supported property work and learning progress. Profile and work data are encrypted in the database. Our email provider receives your email and one-time sign-in message. We do not accept learner uploads or imports, and account saves exclude notes, contacts, written practice answers, personal cash worksheets, credit information and banking details. Account work stays separate from guest work; signed-in work is held in memory during the visit and cleared from the page on sign-out. You can download your work and delete your account on the account page.</p>
         <h3>When you visit</h3>
         <ul>
           <li>
@@ -71,7 +72,7 @@ export const SECTIONS: DrillSection[] = [
           </li>
           <li>
             <strong>Security.</strong> To block abuse, our server keeps network addresses in memory for a short time to limit how many requests
-            each one can make. Our server software doesn't write visitor logs. If someone tries to sign in to an administrator account, we keep the network address used, to protect against break-ins. If our email service isn't set up, messages we would have emailed, including lead messages, are written to our server's private log instead. Our hosting provider and our network provider (Cloudflare) may keep standard network logs for security.
+            each one can make. Our server software doesn't write visitor logs. If someone tries to sign in to an administrator account, we keep the network address used, to protect against break-ins. Local development can write test messages to a private log. The public server refuses to send messages when its email provider is not configured, and learner accounts require a real provider. Our hosting provider and our network provider (Cloudflare) may keep standard network logs for security.
           </li>
         </ul>
         <h3>Public records about properties</h3>
@@ -93,6 +94,7 @@ export const SECTIONS: DrillSection[] = [
         <li>To review, verify and publish advertiser listings, bill advertisers, and send them sign-in links, account notices and monthly reports.</li>
         <li>To show advertisers how their listing is doing, as totals only. They never see who viewed them.</li>
         <li>To see which parts of the site are used, as anonymous daily totals.</li>
+        <li>To send learner sign-in links and store supported work when an account holder chooses to save.</li>
         <li>To protect the site, prevent fraud and spam, and meet legal obligations.</li>
       </ul>
     ),
@@ -137,7 +139,7 @@ export const SECTIONS: DrillSection[] = [
         <p>
           To make the tools work without an account, some things are saved only in your own browser: your saved deals and notes, your bid
           calculator numbers, due-diligence and checklist ticks, your pre-foreclosure watchlist, whether you've seen the welcome notice, and the
-          version of the professionals directory you last saw (so an older, altered copy can be detected). We never receive them. Clearing your
+          version of the professionals directory you last saw (so an older, altered copy can be detected). Guest work is not sent to us; supported work is sent only when you choose an account save. Clearing your
           browser data deletes them.
         </p>
         <h3>Tracking across websites</h3>
@@ -169,12 +171,13 @@ export const SECTIONS: DrillSection[] = [
         <li><strong>Messages to professionals</strong>: deleted from our system after about 13 months. The professional keeps their own copy.</li>
         <li><strong>Email alerts</strong>: kept until you unsubscribe, which deletes your address and everything you signed up for. Sign-ups that are never confirmed are deleted after 2 days.</li>
         <li><strong>Daily visitor codes</strong>: 2 days. <strong>Daily counts</strong> (no personal information): kept for advertiser reports.</li>
+        <li><strong>Learner accounts and saved work</strong>: kept until you delete your account. Unused email sign-in links expire after 15 minutes and are removed by housekeeping. Deleting the account revokes its sessions and deletes its active saved work; backup copies expire under the configured backup policy.</li>
         <li><strong>Sign-in sessions</strong>: end after 1 hour without activity, and 8 hours at most.</li>
         <li>
           <strong>Advertiser applications and records</strong> (including applications that weren't approved): kept for legal, tax, accounting and
           fraud-prevention purposes, such as spotting repeat applications, until you ask us to delete them where the law allows.
         </li>
-        <li><strong>Backups</strong>: we keep 7 daily backups and may keep a continuous off-site copy, so deleted information can remain in a backup for up to 7 days.</li>
+        <li><strong>Backups</strong>: daily backups keep deleted information until they expire (7 daily copies by default). If an off-site backup service is used, its configured retention period also applies.</li>
       </ul>
     ),
   },

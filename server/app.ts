@@ -25,6 +25,7 @@
 //   GET  /api/admin/applications/:id/photo (pending photo) ; POST /api/admin/applications/:id/photo/(approve|reject)
 //   GET  /api/admin/email | /api/admin/email/list.csv ; POST /api/admin/email/test | /api/admin/email/send   (general email list)
 
+import { AccountError, openAccounts } from './accounts';
 import { isKnownCity, placeCounties } from './places';
 import { regulatorFor } from '../src/lib/regulators';
 import { randomBytes } from 'node:crypto';
@@ -66,6 +67,8 @@ export interface AppConfig {
   feedPublicKey: string | null;
   baseUrl: string; // public site URL used in emails
   mailer?: Mailer;
+  /** Optional learner accounts: a dedicated 32-byte encryption key, never a signing/admin key. */
+  accounts?: { encryptionKey: string };
   /** Most updates to the general list sent per day (0 = no limit). Keeps a free email plan's daily allowance
    *  free for sign-in links and alerts; the rest of an update goes out the next day. */
   broadcastDailyMax?: number;
@@ -239,13 +242,13 @@ export function createApp(config: AppConfig) {
     return Buffer.concat(chunks);
   }
 
-  async function readJson(req: IncomingMessage): Promise<Record<string, unknown>> {
+  async function readJson(req: IncomingMessage, limit = JSON_LIMIT): Promise<Record<string, unknown>> {
     if (!/^application\/json\b/i.test(req.headers['content-type'] ?? '')) throw new HttpError(415, 'Expected application/json');
     let size = 0;
     const chunks: Buffer[] = [];
     for await (const c of req) {
       size += (c as Buffer).length;
-      if (size > JSON_LIMIT) throw new HttpError(413, 'Request too large');
+      if (size > limit) throw new HttpError(413, 'Request too large');
       chunks.push(c as Buffer);
     }
     try {
@@ -706,8 +709,22 @@ export function createApp(config: AppConfig) {
     return sent;
   }
 
+  let accounts: ReturnType<typeof openAccounts> | null = null;
+  if (config.accounts && mailer !== consoleMailer) {
+    try {
+      accounts = openAccounts(db.raw, {
+        key: config.accounts.encryptionKey, baseUrl: base, secure, now, ip: clientIp,
+        json: req => readJson(req, 128 * 1024), write: assertAppRequest, send,
+        mail: mail => deliverFromForm(mail, true),
+      });
+    } catch {
+      console.error('Learner accounts could not start and remain off. Check their secret, public URL and database setup. Guest tools remain available.');
+    }
+  }
+
   async function handleApi(req: IncomingMessage, res: ServerResponse, path: string, url: URL) {
     const method = req.method ?? 'GET';
+    if (accounts && await accounts.handle(req, res, path)) return;
 
     // Live license lookups from official sources that allow them (server/licenses.ts).
     if (method === 'GET' && path === '/api/licenses') {
@@ -723,7 +740,7 @@ export function createApp(config: AppConfig) {
     }
 
     // What this server has set up, so pages say "coming soon" instead of offering sign-ups that can't work yet.
-    if (method === 'GET' && path === '/api/features') return send(res, 200, { email: mailer !== consoleMailer, payments: !!config.stripe });
+    if (method === 'GET' && path === '/api/features') return send(res, 200, { email: mailer !== consoleMailer, payments: !!config.stripe, accounts: !!accounts });
 
     // Which Mentor Connect ad spots are on, and who each shows (Admin → Ad spots; src/lib/adSpots.ts).
     if (method === 'GET' && path === '/api/ad-spots') return send(res, 200, { spots: cleanSpots(db.getSetting('adSpots')) }, { 'cache-control': 'no-cache' });
@@ -1536,7 +1553,7 @@ export function createApp(config: AppConfig) {
       if (path.startsWith('/api/')) return await handleApi(req, res, path, url);
       return serveStatic(req, res, path);
     } catch (e) {
-      if (e instanceof HttpError) return send(res, e.status, { error: e.message, ...e.body });
+      if (e instanceof HttpError || e instanceof AccountError) return send(res, e.status, { error: e.message, ...(e instanceof HttpError ? e.body : {}) });
       console.error(e);
       return send(res, 500, { error: 'Something went wrong.' });
     }
@@ -1545,6 +1562,7 @@ export function createApp(config: AppConfig) {
   /** Housekeeping: republish, purge old visitor hashes/sessions/leads, send last month's reports on the 1st. */
   function maintain() {
     const t = now();
+    accounts?.purge();
     publish();
     db.metrics.purgeSeen(pacificDay(new Date(t.getTime() - 2 * 86_400_000)));
     db.site.purgeSeen(pacificDay(new Date(t.getTime() - 2 * 86_400_000)));

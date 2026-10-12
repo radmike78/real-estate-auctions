@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from './workStorage';
 // The visitor's area: their state (myState.ts) plus, when they pick one, a city and the county it's in. Chosen when
 // they start (the welcome) or from "Your area" in the header, and used across the site for local information and
 // local professionals. Kept only in this browser. Changing the state elsewhere (the state picker) drops a city from

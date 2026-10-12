@@ -53,7 +53,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <section className="deals-empty">
           <img className="owl-empty" src="/logo.svg" alt="" width={112} height={112} />
           <h2>We couldn’t find that deal</h2>
-          <p>It may have been deleted, or saved in another browser. Packets are kept only in the browser where you made them.</p>
+          <p>It may have been deleted, or saved in another browser. Packets are not included in account saves. Keep a download of your packet.</p>
           <a className="btn big" href="#/deals">Back to My deals</a>
         </section>
       </main>
@@ -251,7 +251,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <OwnedTracker deal={deal} />
       </section>
       <AdSpot spot="dealPacket" />
-      <p className="muted">Saved only in this browser. Back it up from My plan. This packet records your own review; it doesn’t clear title or certify a deal.</p>
+      <p className="muted">This packet is not included in account saves. Download it to keep a copy; guest packets also stay in this browser. This packet records your own review; it doesn’t clear title or certify a deal.</p>
     </main>
   );
 }

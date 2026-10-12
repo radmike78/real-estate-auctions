@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from '../lib/workStorage';
 // Progress through "Buy a rental, start to finish", kept in this browser (and in the toolkit's backup).
 import type { Verdict } from './rentalCase';
 

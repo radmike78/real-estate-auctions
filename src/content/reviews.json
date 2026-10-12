@@ -10,8 +10,8 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-12",
-    "hash": "702e381290d35717",
-    "note": "Reviewed progressive disclosure and entry labels: all lesson and source content retained; relevant sections open on handoff; calculator defaults labeled as placeholders; no formulas, legal procedures or contract rights changed."
+    "hash": "326254ae4ee89b68",
+    "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
     "id": "search",
@@ -40,9 +40,9 @@
       "src/lib/propertyViews.ts",
       "src/lib/foreclosure.ts"
     ],
-    "reviewed": "2026-10-11",
-    "hash": "707dad0f5a4c820e",
-    "note": "Property checklist details and official links now use the property state, matching its full-guide link; calculator region uses the property location. This prevents a saved preference from mixing a different state into the property report. No calculation formulas changed."
+    "reviewed": "2026-10-12",
+    "hash": "003611f087978145",
+    "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
     "id": "checklists",
@@ -51,9 +51,9 @@
       "src/components/BuyerChecklistBox.tsx",
       "src/lib/buyerChecklists.ts"
     ],
-    "reviewed": "2026-10-11",
-    "hash": "226d8f33c2dc9428",
-    "note": "Checklist state now follows an explicitly supplied property state for details and official links, consistent with the full-guide link. Saved visitor preferences still apply to general checklist pages. No checklist legal text or completion scoring changed."
+    "reviewed": "2026-10-12",
+    "hash": "eb3c20dd2498f2aa",
+    "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
     "id": "live",
@@ -73,9 +73,9 @@
     "files": [
       "src/components/PreForeclosurePage.tsx"
     ],
-    "reviewed": "2026-10-11",
-    "hash": "47fc6041462b221b",
-    "note": "State-isolation presentation review: one state at a time, explicit quiz scope, local-only practice and examples. Removed cross-state comparisons; retained contract, county and professional-guidance qualifications. No new legal rules or financial calculations introduced."
+    "reviewed": "2026-10-12",
+    "hash": "6dfac6f4f937170b",
+    "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
     "id": "shortsales",
@@ -147,8 +147,8 @@
       "src/practice/dealJourney.ts"
     ],
     "reviewed": "2026-10-12",
-    "hash": "b3c1887eb961b35b",
-    "note": "Reviewed progressive disclosure and entry labels: all lesson and source content retained; relevant sections open on handoff; calculator defaults labeled as placeholders; no formulas, legal procedures or contract rights changed."
+    "hash": "0399b0729a938b75",
+    "note": "Reviewed account resume: choices and numbers preserved, reflection self-review completion explicitly distinguished from written answers and grades; restored reflections allow continuation without inventing text. Local risk guidance and formulas unchanged."
   },
   {
     "id": "calculator",
@@ -163,9 +163,9 @@
       "src/components/StrategyTabs.tsx",
       "src/lib/holdCalc.ts"
     ],
-    "reviewed": "2026-10-11",
-    "hash": "e721f5b0d745281f",
-    "note": "Single-state presentation and search review: local search index and cache rebuilt per selected state; calculator feedback comparisons removed; official local listing links preserved. No calculation changes or new legal claims."
+    "reviewed": "2026-10-12",
+    "hash": "e96a2a60c7099903",
+    "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
     "id": "deals",
@@ -181,8 +181,8 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-12",
-    "hash": "f9524d4fccb20cdb",
-    "note": "Reviewed progressive disclosure and entry labels: all lesson and source content retained; relevant sections open on handoff; calculator defaults labeled as placeholders; no formulas, legal procedures or contract rights changed."
+    "hash": "e5c54369cd03b1f2",
+    "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
     "id": "alerts",
@@ -211,9 +211,9 @@
       "src/components/TeamBuilder.tsx",
       "src/lib/teamBuilder.ts"
     ],
-    "reviewed": "2026-10-11",
-    "hash": "f11298eb95834a60",
-    "note": "State-isolation presentation audit across all five selections, including expanded pages and local quizzes. Removed cross-state comparisons and examples; retained local contract, county and professional-guidance qualifications. No new legal rules or financial calculations introduced."
+    "reviewed": "2026-10-12",
+    "hash": "4474c6e4f25ee051",
+    "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
     "id": "financing",
@@ -295,8 +295,8 @@
       "src/lib/proVerification.ts"
     ],
     "reviewed": "2026-10-12",
-    "hash": "101fd1f42a7f1473",
-    "note": "Hide repeated location controls after a state is selected; retain first-visit location selection and the header area editor. Educational and legal content unchanged."
+    "hash": "5d1df208d00506f2",
+    "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
     "id": "privacy",
@@ -304,9 +304,9 @@
     "files": [
       "src/components/PrivacyPage.tsx"
     ],
-    "reviewed": "2026-10-04",
-    "hash": "78dc2e5decd2f103",
-    "note": "Full content review (review round of 2026-09-27)."
+    "reviewed": "2026-10-12",
+    "hash": "223d03d4b0dee7ae",
+    "note": "Reviewed optional email/account data storage and provider-log wording against the implementation and OWASP guidance; guest access remains available when sign-in is slow or account settings fail. Account data/minimal fields, self-review metadata, manual saves and deletion scope accurately described; real delivery/deployment checks remain operator steps."
   },
   {
     "id": "terms",
@@ -380,9 +380,9 @@
       "src/components/DecidePage.tsx",
       "src/lib/decide.ts"
     ],
-    "reviewed": "2026-10-08",
-    "hash": "153aa4bad064a2c4",
-    "note": "Reviewed October 8 financing-copy changes against the owner’s individual-situation guidance and CFPB HELOC risk guidance. Removed blanket recommendations, retained repayment/home-loss and sales-pressure risks, and added relevant options, personal finances, risk tolerance, backup funding and independent professional advice."
+    "reviewed": "2026-10-12",
+    "hash": "0b264d6a934492d9",
+    "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
     "id": "finddeals",
@@ -407,8 +407,8 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-12",
-    "hash": "3b99cdee43f4eea8",
-    "note": "Reviewed progressive disclosure and entry labels: all lesson and source content retained; relevant sections open on handoff; calculator defaults labeled as placeholders; no formulas, legal procedures or contract rights changed."
+    "hash": "94e930966cdd059d",
+    "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
     "id": "toolkit",
@@ -423,7 +423,22 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-12",
-    "hash": "b834daaa6c91f0e3",
-    "note": "Reviewed progressive disclosure and entry labels: all lesson and source content retained; relevant sections open on handoff; calculator defaults labeled as placeholders; no formulas, legal procedures or contract rights changed."
+    "hash": "ca9efb35343e6ef5",
+    "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
+  },
+  {
+    "id": "account",
+    "title": "Optional learner accounts",
+    "files": [
+      "src/components/AccountPage.tsx",
+      "src/lib/account.ts",
+      "src/lib/workStorage.ts",
+      "src/lib/workKeys.ts",
+      "src/lib/cloudWork.ts",
+      "server/accounts.ts"
+    ],
+    "reviewed": "2026-10-12",
+    "hash": "108f7890ad913edd",
+    "note": "Reviewed optional verified email controls, same-owner resume, explicit guest choice, manual saves and supported download-only exclusions against code and OWASP guidance. Real email delivery and server-secret activation remain operator steps."
   }
 ]

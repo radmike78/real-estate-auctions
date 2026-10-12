@@ -1,3 +1,5 @@
+import { useAccount } from '../lib/account';
+import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState } from 'react';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
@@ -7,7 +9,7 @@ import { fmtMoney } from '../lib/status';
 import { cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP_PATHS, ROADMAP_PHASES, ROADMAP_PHASE_HELP, roadmapFor, LIEN_STRATEGY, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
 import { downloadText, fileName } from '../lib/download';
 import { cleanLog, logText } from '../lib/evidence';
-import { makeBackup, readBackup, restoreBackup } from '../lib/progressBackup';
+import { makeBackup } from '../lib/progressBackup';
 import { loadDeals as loadAnalyzed } from '../lib/analyze';
 import { docGuide, DOC_GUIDES } from '../lib/docGuides';
 import NarrowDown from './NarrowDown';
@@ -724,43 +726,18 @@ function Worksheets() {
 }
 
 function ProgressBackup() {
-  const [msg, setMsg] = useState('');
-  const onFile = async (input: HTMLInputElement) => {
-    const f = input.files?.[0];
-    input.value = ''; // so choosing the same file again still works
-    if (!f) return;
-    if (f.size > 4_000_000) return setMsg('That file is too large to be a DeedOwl backup.');
-    let text: string;
-    try {
-      text = await f.text();
-    } catch {
-      return setMsg('That file couldn’t be read.');
-    }
-    const r = readBackup(text);
-    if (!r.ok) return setMsg(r.error);
-    const count = Object.keys(r.data).length;
-    const when = r.saved ? ` saved ${new Date(r.saved).toLocaleString()}` : '';
-    if (!window.confirm(`Replace your progress in this browser with this backup${when} (${count} item${count === 1 ? '' : 's'})? Items in the backup replace what’s here now.`)) return setMsg('Nothing was changed.');
-    const n = restoreBackup(r.data);
-    setMsg(`Restored ${n} item${n === 1 ? '' : 's'}. Reloading…`);
-    setTimeout(() => window.location.reload(), 800);
-  };
+  const account = useAccount();
   return (
     <section id="backup" aria-labelledby="backup-head">
-      <h2 id="backup-head">Back up or move your progress</h2>
-      <p>You don’t need an account on DeedOwl: your roadmap, drills, practice runs, buy box, saved deals and evidence logs stay only in this browser. Download a backup file to keep them safe, or to restore them on another device. The backup never includes the links in your email alerts or advertiser emails.</p>
+      <h2 id="backup-head">Download your progress</h2>
+      <p>{account.account ? 'This downloads the work in your account workspace, including notes and written answers from this visit that are not saved to your account.' : 'Without an account, your work stays in this browser. Download a copy to read or keep for your records.'} Keep the file private: it may contain notes you entered. There is no file-upload or import option.</p>
       <div className="decide-nav">
         <button type="button" className="btn" onClick={() => downloadText(`deedowl-progress-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(makeBackup()), 'application/json')}>Download my progress</button>
-        <label className="btn btn-secondary file-btn">
-          Restore from a backup
-          <input type="file" accept="application/json,.json" onChange={(e) => onFile(e.target)} />
-        </label>
+        <a className="btn btn-secondary" href="#/account">Optional account saving</a>
       </div>
-      <p role="status" aria-live="polite">{msg}</p>
     </section>
   );
 }
-
 
 /** Everything free in one place: the first-deal roadmap, a buy box, and the calculators and checklists. */
 export default function ToolkitPage({ section }: { section?: string }) {
@@ -788,7 +765,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
       <details className="plan-section"><summary>Your team and contacts</summary><TeamListSection /></details>
       <section className="plan-download" aria-labelledby="plan-dl-head">
         <h2 id="plan-dl-head">Print or share your plan</h2>
-        <p>Download a summary of your goal, budget, property preferences, checklist progress and contacts. You can keep it or share it with your agent or lender. To transfer saved progress to another browser or device, use the backup below.</p>
+        <p>Download a summary of your goal, budget, property preferences, checklist progress and contacts. You can keep it or share it with your agent or lender. Optional account saving keeps supported property work and learning progress across devices. Downloads are readable records; there is no file-import option.</p>
         <div className="decide-nav">
           <button type="button" className="btn" onClick={() => downloadText('my-investing-plan.txt', planText())}>Download my plan</button>
           <button type="button" className="btn btn-secondary" onClick={() => window.print()}>Print this page</button>

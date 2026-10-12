@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useRef, useState } from 'react';
 import { AreaButton } from './AreaPicker';
 import { loadDeals, onDealsChange } from '../lib/deals';
@@ -123,6 +124,7 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
               <button type="button" className="more-mode" aria-pressed={mode === 'guided'} onClick={() => setMode('guided')}>Step by step</button>
               <button type="button" className="more-mode" aria-pressed={mode === 'explore'} onClick={() => setMode('explore')}>I’ll explore</button>
             </div>
+            {features?.accounts && <a href="#/account">Save work · optional account</a>}
             {MORE.map((g) => (
               <div key={g.group} className="more-group" role="group" aria-label={g.group}>
                 <span className="more-group-title" aria-hidden>{g.group}</span>
@@ -142,6 +144,7 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
         ) : null /* No "Start here" button: it only led back to the home page, which the logo already does. */}
       </nav>
       <AreaButton />
+      {features?.accounts && <a className="account-link" href="#/account">Save work</a>}
       <ThemeButton />
       <button ref={menuBtn} className="menu-btn" aria-expanded={open} aria-controls="site-nav" aria-label="Menu" onClick={() => setOpen(!open)}>
         <span /><span /><span />

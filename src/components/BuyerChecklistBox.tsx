@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from '../lib/workStorage';
 import { useState, type CSSProperties } from 'react';
 import { detailForState, officialFor, type BuyerChecklist } from '../lib/buyerChecklists';
 import { STATES } from '../lib/regions';

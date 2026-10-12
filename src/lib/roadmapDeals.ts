@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from './workStorage';
 // Per-property progress on the roadmap: steps 4 to 6 belong to one property, so with a property chosen their
 // progress is kept for that property. Kept apart from the page so removing a deal can forget it too.
 import { ROADMAP, type StepStatus } from './roadmap';
