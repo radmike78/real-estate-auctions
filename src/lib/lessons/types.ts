@@ -35,7 +35,7 @@ export interface Lesson {
   practiceLink?: { label: string; href: string } | null;
   /** Books from Recommended reading that fit this lesson (ISBN-10s), shown with their covers after the practice. */
   books?: string[];
-  sources: { label: string; url: string }[];
+  sources: { label: string; url: string; state?: import('../regions').StateCode }[];
   /** When the text was last checked against its sources (YYYY-MM-DD). */
   reviewed: string;
 }

@@ -3,7 +3,7 @@ import { emptyRow, EVIDENCE_AREAS, EVIDENCE_EVENT, GATES, loadLog, logText, save
 import { downloadText, fileName } from '../lib/download';
 
 /** For one deal: what you verified, where it came from and what's still open, then the decision it supports. */
-export default function EvidenceLog({ dealId, name }: { dealId: string; name: string }) {
+export default function EvidenceLog({ dealId, name, initiallyOpen = false }: { dealId: string; name: string; initiallyOpen?: boolean }) {
   const [log, setLog] = useState<Log>(() => loadLog(dealId));
   useReloadOnSave(dealId, setLog);
   // Saved on every change, so another editor of the same deal (a roadmap step) never works from an old copy.
@@ -17,7 +17,7 @@ export default function EvidenceLog({ dealId, name }: { dealId: string; name: st
   const set = (key: string, patch: Partial<EvidenceRow>) => update((l) => ({ ...l, rows: { ...l.rows, [key]: { ...(l.rows[key] ?? emptyRow()), ...patch } } }));
   const gate = GATES.find((g) => g.key === log.gate);
   return (
-    <details className="evidence-log">
+    <details className="evidence-log" open={initiallyOpen}>
       <summary>Verify: evidence log ({done} of {EVIDENCE_AREAS.length} checked{openCount ? `, ${openCount} open question${openCount === 1 ? '' : 's'}` : ''}){gate ? ` · ${gate.label}` : ''}</summary>
       <p className="muted small">For each area, record where the answer came from and when. A checkmark records your review; it doesn’t clear title or certify a deal. Get qualified local help for anything legal or title-related.</p>
       <ol className="evidence-areas">

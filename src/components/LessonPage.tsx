@@ -223,7 +223,7 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
       blocks: s.blocks.map((b) => forState(b, st)).filter((b): b is LessonBlock => b !== null),
     }))
     .filter((s) => s.blocks.length > 0);
-  const sources = l.sources.filter((s) => showFor(st, s.label)).map((s) => ({ ...s, label: s.label.replace(` (${st})`, '') }));
+  const sources = l.sources.filter((s) => (!s.state || s.state === st) && showFor(st, s.label)).map((s) => ({ ...s, label: s.label.replace(` (${st})`, '') }));
   const allChecks = LESSON_CHECKS[lessonKey] ?? [];
   const checks = allChecks.filter((c) => c.state ? c.state === st : showFor(st, `${c.q} ${c.options.join(' ')} ${c.why}`));
   const terms = l.terms
@@ -267,7 +267,7 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
       )}
       <article className="lesson-body-text">
         {sections.map((s, index) => (
-          <details key={s.id} id={s.id} className="lesson-topic" open={sections.some((x) => x.id === section) ? s.id === section : index === 0}>
+          <details key={s.id} id={s.id} className="lesson-topic" name="lesson-topics" open={sections.some((x) => x.id === section) ? s.id === section : index === 0}>
             <summary><h2>{s.heading}</h2></summary>
             {s.blocks.map((b, i) => <Block key={i} b={b} marked={marked.get(b)} />)}
           </details>

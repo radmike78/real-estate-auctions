@@ -222,6 +222,13 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
   // A visitor who chose another state (e.g. Texas) and landed on a Nevada guide gets a link to their own state's guide.
   const mineName = mine && mine !== stateOf(p) ? stateByCode(mine)?.name : null;
   const mineGuide = mineName ? playbookByKey(guideKey(mine!, kindOf(p.key)) ?? '') : null;
+  if (mineName) return (
+    <main className="page">
+      <h1>Open the guide for {mineName}</h1>
+      <p>This link is outside your selected investing state. Choose the matching local guide before reviewing sale procedures.</p>
+      <a className="btn" href={mineGuide ? `#/playbooks/${mineGuide.key}` : '#/playbooks'}>{mineGuide ? `Read ${mineGuide.title}` : 'Choose a local sale guide'} →</a>
+    </main>
+  );
   const drill = stateDrill(p);
   const s = sections(p);
   const open = s.some((x) => x.key === section);

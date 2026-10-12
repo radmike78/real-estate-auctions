@@ -339,7 +339,7 @@ export function FirstDealRoadmap() {
       {phases.map((ph) => {
         const phDone = ph.steps.filter(settled).length;
         return (
-          <details key={ph.n} className="roadmap-phase" open={openPhase === ph.n}>
+          <details key={ph.n} className="roadmap-phase" name="roadmap-phases" open={openPhase === ph.n}>
             <summary>
               <span className="roadmap-phase-title">{ph.n}. {ph.title}</span>
               <span className="muted">{phDone === ph.steps.length ? '✓ All done' : `${phDone} of ${ph.steps.length} done`}</span>
@@ -350,7 +350,7 @@ export function FirstDealRoadmap() {
                 const st = stateOf(s);
                 const wait = st === 'todo' ? later(s) : undefined;
                 return (
-                  <details key={s.id} className={`roadmap-step ${st}`}>
+                  <details key={s.id} name="roadmap-tasks" className={`roadmap-step ${st}`}>
                     <summary>
                       <span className="roadmap-step-title">{s.title}{wait && active && <span className="roadmap-later"> · Later stage: {stageLabel(wait, active)}</span>}</span>
                       <span className={`roadmap-chip ${st}`}>{STEP_STATUS_LABEL[st]}</span>
