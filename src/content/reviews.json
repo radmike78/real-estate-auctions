@@ -371,7 +371,7 @@
     ],
     "reviewed": "2026-10-12",
     "hash": "5075e1e6cfad3758",
-    "note": "Reviewed selected-state guide gate, Texas source jurisdiction, available practice targets, evidence deep-link opening and single-topic disclosure behavior. Financial formulas and legal procedures unchanged."
+    "note": "Source jurisdiction filtering also applies to guide search. Browser title refreshes when state gate clears. No change to financial or legal meaning."
   },
   {
     "id": "decide",
