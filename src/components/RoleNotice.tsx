@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AreaPicker } from './AreaPicker';
+import { useMyState } from '../lib/myState';
 import { navigate } from '../lib/nav';
 import { setMode } from '../lib/journey';
 import { planNow } from '../lib/planNext';
@@ -20,6 +21,7 @@ function acknowledged(): boolean {
  * "Before you commit" list, the sale and listing disclaimers, and the footer on every page.
  */
 export default function RoleNotice() {
+  const [state] = useMyState();
   const [open, setOpen] = useState(() => !acknowledged());
   const btn = useRef<HTMLButtonElement>(null);
   const dialog = useRef<HTMLDivElement>(null);
@@ -73,9 +75,10 @@ export default function RoleNotice() {
       <div ref={dialog} className="role-dialog" role="dialog" aria-modal="true" aria-labelledby="role-title">
         <h2 id="role-title" tabIndex={-1}>Welcome to DeedOwl</h2>
         <p className="role-lead">DeedOwl teaches you, step by step, how to find, check and buy real estate, from listed homes to auctions, with properties from official sources.</p>
-        {/* Optional: where they're buying, so the rules, official sources and professionals they see are local. */}
-        <h3 className="area-dialog-head">Where are you buying? <span className="muted">(optional)</span></h3>
-        <AreaPicker optional onDone={() => { close(); setMode('guided'); navigate(planNow().task.href); }} doneLabel="Try the first decision" />
+        {!state ? <>
+          <h3 className="area-dialog-head">Where are you buying?</h3>
+          <AreaPicker onDone={() => { close(); setMode('guided'); navigate(planNow().task.href); }} doneLabel="Try the first decision" />
+        </> : <button type="button" className="btn" onClick={() => { close(); setMode('guided'); navigate(planNow().task.href); }}>Try the first decision</button>}
         <button type="button" className="linkish" onClick={close}>Explore the website first</button>
       </div>
     </div>

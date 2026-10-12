@@ -9,9 +9,9 @@
       "src/lib/planNext.ts",
       "src/lib/dealStage.ts"
     ],
-    "reviewed": "2026-10-11",
-    "hash": "43ee6fe6e17cb324",
-    "note": "Reviewed changed wording and independently checked fictional cash-flow/cash-allocation figures; verified CFPB closing-disclosure guidance with applicability limits. Location confirmation, progressive disclosure, honest practice outcomes and exact multi-answer grading. No professional endorsement or novice usability testing claimed."
+    "reviewed": "2026-10-12",
+    "hash": "ea27bbcafde5c5fc",
+    "note": "Hide repeated location controls after a state is selected; retain first-visit location selection and the header area editor. Educational and legal content unchanged."
   },
   {
     "id": "search",
@@ -294,9 +294,9 @@
       "src/components/RoleNotice.tsx",
       "src/lib/proVerification.ts"
     ],
-    "reviewed": "2026-10-11",
-    "hash": "7b90835d91dd800c",
-    "note": "Reviewed changed wording and independently checked fictional cash-flow/cash-allocation figures; verified CFPB closing-disclosure guidance with applicability limits. Location confirmation, progressive disclosure, honest practice outcomes and exact multi-answer grading. No professional endorsement or novice usability testing claimed."
+    "reviewed": "2026-10-12",
+    "hash": "101fd1f42a7f1473",
+    "note": "Hide repeated location controls after a state is selected; retain first-visit location selection and the header area editor. Educational and legal content unchanged."
   },
   {
     "id": "privacy",
