@@ -75,7 +75,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
     <aside className="plan-now-side" aria-labelledby={`plan-now-where-${variant}`}>
       <h3 id={`plan-now-where-${variant}`}>Where you are</h3>
       {/* My plan shows this count once, at the top of its roadmap. */}
-      {!onPlan && (
+      {(
         <p className="plan-now-count">
           <span><strong>{prog.done} of {prog.total}</strong> roadmap tasks done</span>
           <span className="decide-bar" role="progressbar" aria-label="Investing roadmap" aria-valuemin={0} aria-valuemax={prog.total} aria-valuenow={prog.done}><span style={{ width: `${Math.round((prog.done / Math.max(1, prog.total)) * 100)}%` }} /></span>
@@ -95,7 +95,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           <p className="plan-now-evidence">Evidence: <strong>{checked} of {EVIDENCE_AREAS.length}</strong> areas checked. <a href={`#/deals/packet/${deal.id}`}>Open its deal packet&nbsp;→</a></p>
         </>
       ) : (
-        <PhaseSummary />
+        !onPlan && <details><summary>See the full journey</summary><PhaseSummary /></details>
       )}
       {!onPlan && <p><a href="#/toolkit">Open My plan&nbsp;→</a></p>}
     </aside>

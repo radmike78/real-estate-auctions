@@ -10,8 +10,8 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-12",
-    "hash": "ea27bbcafde5c5fc",
-    "note": "Hide repeated location controls after a state is selected; retain first-visit location selection and the header area editor. Educational and legal content unchanged."
+    "hash": "702e381290d35717",
+    "note": "Reviewed progressive disclosure and entry labels: all lesson and source content retained; relevant sections open on handoff; calculator defaults labeled as placeholders; no formulas, legal procedures or contract rights changed."
   },
   {
     "id": "search",
@@ -147,8 +147,8 @@
       "src/practice/dealJourney.ts"
     ],
     "reviewed": "2026-10-12",
-    "hash": "ffb810908db00f3c",
-    "note": "Reviewed selected-state guide gate, Texas source jurisdiction, available practice targets, evidence deep-link opening and single-topic disclosure behavior. Financial formulas and legal procedures unchanged."
+    "hash": "b3c1887eb961b35b",
+    "note": "Reviewed progressive disclosure and entry labels: all lesson and source content retained; relevant sections open on handoff; calculator defaults labeled as placeholders; no formulas, legal procedures or contract rights changed."
   },
   {
     "id": "calculator",
@@ -181,8 +181,8 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-12",
-    "hash": "22fdb67bd4533ac8",
-    "note": "Reviewed selected-state guide gate, Texas source jurisdiction, available practice targets, evidence deep-link opening and single-topic disclosure behavior. Financial formulas and legal procedures unchanged."
+    "hash": "f9524d4fccb20cdb",
+    "note": "Reviewed progressive disclosure and entry labels: all lesson and source content retained; relevant sections open on handoff; calculator defaults labeled as placeholders; no formulas, legal procedures or contract rights changed."
   },
   {
     "id": "alerts",
@@ -370,8 +370,8 @@
       "src/lib/lessons/taxes.ts"
     ],
     "reviewed": "2026-10-12",
-    "hash": "5075e1e6cfad3758",
-    "note": "Source jurisdiction filtering also applies to guide search. Browser title refreshes when state gate clears. No change to financial or legal meaning."
+    "hash": "d3c3c7beeb38eb88",
+    "note": "Reviewed progressive disclosure and entry labels: all lesson and source content retained; relevant sections open on handoff; calculator defaults labeled as placeholders; no formulas, legal procedures or contract rights changed."
   },
   {
     "id": "decide",
@@ -393,9 +393,9 @@
       "src/lib/findDeals.ts",
       "src/lib/regions.ts"
     ],
-    "reviewed": "2026-10-11",
-    "hash": "d9d0f5cdbda6c866",
-    "note": "State-isolation presentation audit across all five selections, including expanded pages and local quizzes. Removed cross-state comparisons and examples; retained local contract, county and professional-guidance qualifications. No new legal rules or financial calculations introduced."
+    "reviewed": "2026-10-12",
+    "hash": "5947c5202426e2ed",
+    "note": "Reviewed progressive disclosure and entry labels: all lesson and source content retained; relevant sections open on handoff; calculator defaults labeled as placeholders; no formulas, legal procedures or contract rights changed."
   },
   {
     "id": "analyze",
@@ -406,9 +406,9 @@
       "src/lib/analyze.ts",
       "src/lib/path.ts"
     ],
-    "reviewed": "2026-10-11",
-    "hash": "e4c41310a0f161e7",
-    "note": "State isolation only: removed comparisons with another state from drill feedback and calculator help. Existing local rules, answer scoring, risk guidance and calculation formulas retained."
+    "reviewed": "2026-10-12",
+    "hash": "3b99cdee43f4eea8",
+    "note": "Reviewed progressive disclosure and entry labels: all lesson and source content retained; relevant sections open on handoff; calculator defaults labeled as placeholders; no formulas, legal procedures or contract rights changed."
   },
   {
     "id": "toolkit",
@@ -423,7 +423,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-12",
-    "hash": "472da68af34b5fc9",
-    "note": "Reviewed selected-state guide gate, Texas source jurisdiction, available practice targets, evidence deep-link opening and single-topic disclosure behavior. Financial formulas and legal procedures unchanged."
+    "hash": "b834daaa6c91f0e3",
+    "note": "Reviewed progressive disclosure and entry labels: all lesson and source content retained; relevant sections open on handoff; calculator defaults labeled as placeholders; no formulas, legal procedures or contract rights changed."
   }
 ]

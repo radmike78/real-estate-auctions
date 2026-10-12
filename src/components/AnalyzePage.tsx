@@ -201,7 +201,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           <input type="checkbox" checked={!!deal.locationConfirmed} onChange={(e) => set({ locationConfirmed: e.target.checked })} />
           I checked that this property is in {countyName(deal.county)}, {st.name}.
         </label>
-        {!deal.locationConfirmed && <p className="muted" role="status">Confirm the property's location to open its local checklist and calculator. The starting area may be an example, not where this property is.</p>}
+        {!deal.locationConfirmed && <p className="muted" role="status">Choose the property’s actual location, purchase method and your plan, then confirm the location above. Starting choices are placeholders, not recommendations.</p>}
         <div className="deal-actions">
           {deal.id ? (
             <>
@@ -210,7 +210,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
               <button type="button" className="btn btn-secondary" onClick={() => { clearDraftNumbers(); setDeal(blank(deal.state)); }}>Start a new deal</button>
             </>
           ) : (
-            <button type="button" className="btn" disabled={!deal.locationConfirmed} onClick={saveNew}>Save this deal</button>
+            <button type="button" className="btn" onClick={() => { if (!deal.locationConfirmed) set({ locationConfirmed: true }); else saveNew(); }}>{deal.locationConfirmed ? 'Save this deal' : 'Confirm location and open my analysis'}</button>
           )}
         </div>
         {saved.length > 0 && (

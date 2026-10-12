@@ -57,6 +57,7 @@ function Band({ tone, icon, title, sub, children, id, other }: { tone: 'county' 
 
 export default function FindDealsPage() {
   useMarkStep('deals');
+  const openSources = (id: string) => { const target = document.getElementById(id); const panel = target?.closest('details'); if (panel) panel.open = true; target?.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
   useLastActivity('#/find-deals', 'Find deals');
   // The visitor's area (myArea.ts): their state and county, from the city they chose or picked here.
   const [mine, setMine] = useMyArea();
@@ -108,25 +109,29 @@ export default function FindDealsPage() {
         {!mine && <p className="muted">Showing Clark County, Nevada. Pick your state and county above to see the official sources where you want to buy.</p>}
       </PageHero>
 
-      <NarrowDown config={findDealsConfig()} intro="Answer two quick questions and we’ll point you to the best places to look first. Every source is still listed below." />
+      <NarrowDown config={findDealsConfig()} intro="Answer two quick questions and we’ll point you to the best places to look first. Other sources stay available in the expandable groups below." />
       {/* The Mentor Connect spot (Admin → Ad spots) beside the "found a property" help, above and apart from the official sources. */}
       <div className={adShows ? 'next-with-ad fd-next' : undefined}>
         <p className="page-starter"><strong>Buying a home listed for sale?</strong> Ask a licensed agent to set up a search of homes on the local listing service (MLS) that match your buy box (your written limits: area, property type, price and condition). <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p>
-        {adShows && <FixedAds pros={pros} categories={adCats} placeholder />}
+        
       </div>
       <section aria-labelledby="search-routine">
         <h2 id="search-routine">Turn a search into a candidate</h2>
-        <ol>
+        <p>Find one property that fits your limits, record its source and price, then save it in Analyze.</p>
+        <details><summary>See the five-step search routine</summary><ol>
           <li>Choose one area, property type and purchase route from your buy box.</li>
           <li>Search the sources below or ask your agent for matching MLS listings. Check availability and investor eligibility with the seller or listing agent.</li>
           <li>Record the address or parcel, source link, date checked, asking price or minimum bid, sale type and payment deadline.</li>
           <li>Screen it against your limits. In <a href="#/analyze">Analyze</a>, enter and save a candidate that fits; put the source and missing facts in its evidence log.</li>
           <li>Verify rent, value, repairs, title, occupancy, permitted use, insurance and financing before you decide whether to offer or bid. An initial calculation is a screen, not completed due diligence.</li>
-        </ol>
+        </ol></details>
+        <p className="muted">Before an offer or bid, verify costs, title, occupancy, permitted use, insurance and financing. An initial calculation is a screen, not completed due diligence.</p>
       </section>
+      <section aria-label="Choose a purchase route"><h2>How do you want to buy?</h2><p>Choose a route to open the relevant official sources. You can switch or browse the other groups.</p><button type="button" className="btn" onClick={() => openSources('deals-national')}>Listed or bank-owned property</button>{' '}<button type="button" className="btn btn-secondary" onClick={() => openSources('deals-county')}>County auction</button></section>
       <h2 className="section-title">Official sources</h2>
       <p className="muted">Government agencies, Fannie Mae and Freddie Mac, and the banks that own the homes: the sellers themselves.</p>
 
+      <details className="plan-section" name="deal-sources"><summary>County auctions and property research</summary>
       <Band id="deals-county" tone="county" icon={<IconFile />} title={`County offices: ${place}`} sub="The county’s own pages for tax sales, records and sheriff’s sales.">
         {officeCards.length > 0 ? (
           <>
@@ -160,6 +165,8 @@ export default function FindDealsPage() {
         })}</ul>
         <a className="band-link" href="#/learn/forced-sales">Read the lesson on forced sales&nbsp;→</a>
       </Band>
+      </details>
+      <details className="plan-section" name="deal-sources"><summary>Government and bank-owned listings</summary>
       <Band id="deals-national" tone="national" icon={<IconBank />} title={`Across ${st.name} and nationwide`} sub="Federal agencies, Fannie Mae and Freddie Mac, and banks selling homes they own.">
         {NATIONAL_GROUPS.map(([g, label]) => {
           const xs = nationalOfficialFor(st.name).filter((s) => s.group === g);
@@ -172,6 +179,9 @@ export default function FindDealsPage() {
         })}
       </Band>
 
+      </details>
+      {adShows && <FixedAds pros={pros} categories={adCats} placeholder />}
+      <details className="plan-section"><summary>Other listing and auction sites — not the official seller</summary>
       <h2 className="section-title">Other sites</h2>
       <p className="other-sites-note">
         <strong>Not the official seller.</strong> These listing sites and private auction companies can help you find properties, but listings may be
@@ -183,6 +193,7 @@ export default function FindDealsPage() {
         </Band>
       ))}
 
+      </details>
       <PathNext step="deals" />
     </main>
   );

@@ -33,7 +33,7 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
     if (moved.current) (step >= qs.length ? resultHead.current : progress.current)?.focus();
     moved.current = false;
   }, [step, qs.length, open]);
-  const jump = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const jump = (id: string) => { const target = document.getElementById(id); for (let p = target; p; p = p.parentElement) { if (p instanceof HTMLDetailsElement) p.open = true; } target?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 
   return (
     <section className="not-sure narrow" aria-labelledby="narrow-head">

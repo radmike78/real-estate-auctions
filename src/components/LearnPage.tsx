@@ -1,5 +1,5 @@
 import StatePicker from './StatePicker';
-import { DealJourneyEntry } from './DealJourneyPage';
+import { LESSON_CHAPTER, journeyHref } from '../practice/dealJourney';
 import PageHero from './PageHero';
 import PathNext from './PathNext';
 import { LEARN_MODULES, LEARN_PATHS } from '../lib/learn';
@@ -7,7 +7,6 @@ import NarrowDown from './NarrowDown';
 import { learnConfig } from '../lib/narrow';
 import { useMarkStep } from '../lib/path';
 import { lessonByKey } from '../lib/lessons';
-import { useState } from 'react';
 import { useJourney } from '../lib/journey';
 import { useMyState } from '../lib/myState';
 import { guidesFor } from '../lib/playbooks';
@@ -62,11 +61,11 @@ function SaleGuides() {
 /** Step 1 of the path: the lessons, in order. */
 export default function LearnPage() {
   useMarkStep('learn');
-  const { mode, read } = useJourney();
+  const { read } = useJourney();
   const [mine] = useMyState();
-  // Guided visitors see basics, financing and deal analysis; everything stays one click away.
-  const [showAll, setShowAll] = useState(false);
-  const paths = mode === 'guided' && !showAll ? LEARN_PATHS.slice(0, 3) : LEARN_PATHS;
+  const paths = LEARN_PATHS;
+  const next = LEARN_MODULES.find((m) => lessonByKey(m.key) && !read.includes(m.key)) ?? LEARN_MODULES[0];
+  const lesson = lessonByKey(next.key)!;
   return (
     <main className="page">
       <PageHero
@@ -74,8 +73,14 @@ export default function LearnPage() {
         title={<>Learn <span className="grad">real estate investing</span></>}
         sub="Residential and commercial: the markets, the property types, and how deals are found, analyzed and paid for."
       />
-      <DealJourneyEntry />
-      <StatePicker label="Show rules for" />
+      <section className="learn-path" aria-labelledby="learn-next">
+        <h2 id="learn-next">Your next lesson: {next.title}</h2>
+        <p>{oneState(lesson.takeaways[0], mine)}</p>
+        <a className="btn" href={`#/learn/${next.key}`}>Read the lesson →</a>
+        <p className="muted">{lesson.minutes} minutes. Then apply it to Cedar House, your fictional practice property.</p>
+        <a href={journeyHref(LESSON_CHAPTER[next.key])}>Practice this idea →</a>
+      </section>
+      <details className="plan-section"><summary>Browse all lessons</summary>
       <details><summary>Help choosing a strategy or lesson</summary>
       <section className="learn-money" aria-labelledby="learn-money">
         <div>
@@ -84,7 +89,7 @@ export default function LearnPage() {
         </div>
         <a className="btn" href="#/learn/strategies">Compare the strategies&nbsp;→</a>
       </section>
-      <NarrowDown config={learnConfig()} intro="Answer two quick questions and we’ll suggest which lessons to read first. Every lesson is still listed below." />
+      <NarrowDown config={learnConfig()} intro="Answer two quick questions and we’ll suggest which lessons to read first. Browse the lessons below, or follow your next lesson above." />
       </details>
       {paths.map((path) => (
         <section key={path.title} className="learn-path" aria-labelledby={`path-${path.keys[0]}`}>
@@ -124,12 +129,9 @@ export default function LearnPage() {
             })}
           </ol>
         </section>
-      )).flatMap((el, i, all) => (i === Math.min(3, all.length - 1) ? [el, <SaleGuides key="guides" />] : [el]))}
-      {paths.length < LEARN_PATHS.length && (
-        <p className="show-all-row">
-          <button type="button" className="btn btn-secondary" onClick={() => setShowAll(true)}>Show all {LEARN_MODULES.length} lessons</button>
-        </p>
-      )}
+      ))}
+      </details>
+      <details className="plan-section"><summary>Sale guides for your selected state</summary><StatePicker label="Show rules for" /><SaleGuides /></details>
       <AdSpot spot="learn" />
       <PathNext step="learn" />
     </main>
