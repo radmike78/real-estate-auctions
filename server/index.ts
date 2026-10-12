@@ -137,8 +137,14 @@ if (env.BROADCAST_DAILY_MAX !== undefined && env.BROADCAST_DAILY_MAX.trim() !== 
   broadcastDailyMax = n;
 }
 
+// Misconfigured optional accounts stay off without taking guest tools offline.
+const accountsEnabled = env.LEARNER_ACCOUNTS === '1';
+const accountKey = env.ACCOUNT_ENCRYPTION_KEY?.trim() ?? '';
+const accountsReady = accountsEnabled && /^[a-f0-9]{64}$/i.test(accountKey) && mailer !== consoleMailer && postmarkToken !== 'POSTMARK_API_TEST' && /^https:\/\//.test(baseUrl);
+if (accountsEnabled && !accountsReady) console.warn('Learner accounts are OFF: configure a dedicated 32-byte encryption key, HTTPS and a production email provider. Guest tools remain available.');
 const app = createApp({
   dbPath,
+  accounts: accountsReady ? { encryptionKey: accountKey } : undefined,
   dataDir: env.DATA_DIR ?? join(ROOT, 'public', 'data'),
   distDir: env.DIST_DIR === '' ? null : (env.DIST_DIR ?? join(ROOT, 'dist')),
   adminUsername: env.ADMIN_USERNAME,

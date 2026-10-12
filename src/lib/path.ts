@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from './workStorage';
 // The path to becoming an investor: the six steps the site is built around, in order. Progress (which steps
 // someone has opened) is kept only in this browser.
 import { useEffect, useState } from 'react';

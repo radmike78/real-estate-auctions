@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from '../lib/workStorage';
 import { getMyState } from '../lib/myState';
 // A location-neutral teaching case. Every number is fictional, not a market rate or a legal default.
 export const JOURNEY_KEY = 'deedowl.practice-deal.v1';
@@ -120,8 +121,8 @@ export const SPECIALTIES: Specialty[] = [
   { id: 'short-term', title: 'Short-term rental', facts: 'Nightly revenue looks attractive; licensing and permitted use are unresolved.', question: 'Can you treat the advertised projection as verified rental income?', answer: 'No — verify lawful use and the operating assumptions.', wrong: 'Yes — projected nightly rates establish the return.', explanation: 'Check local restrictions, HOA/insurance constraints, seasonality, occupancy, cleaning/platform costs and taxes.', href: '#/learn/after-closing' },
 ];
 export type Answer = string | number | string[];
-export interface JourneyProgress { answers: Record<string, Answer>; completed: string[]; lab: LabInputs; specialty?: string; specialtyDone: string[] }
-export const emptyJourney = (): JourneyProgress => ({ answers: {}, completed: [], lab: { ...DEFAULT_LAB }, specialtyDone: [] });
+export interface JourneyProgress { answers: Record<string, Answer>; completed: string[]; lab: LabInputs; specialty?: string; specialtyDone: string[]; reflectionDone?: string[] }
+export const emptyJourney = (): JourneyProgress => ({ answers: {}, completed: [], lab: { ...DEFAULT_LAB }, specialtyDone: [], reflectionDone: [] });
 export const taskKey = (chapter: Chapter, task: Task) => `${chapter.id}/${task.id}`;
 export function accepts(task: Task, answer: Answer | undefined): boolean {
   if (task.kind === 'choice') return typeof answer === 'number' && Number.isInteger(answer) && !!task.options?.[answer]?.accepted;
@@ -141,8 +142,13 @@ export function cleanJourney(value: unknown): JourneyProgress {
       else if (Array.isArray(a)) result.answers[k] = a.filter((x): x is string => typeof x === 'string').slice(0, 10);
     }
   }
+  // A cloud save records only that a reflection was self-reviewed, not its written text or a grade.
+  const reflections = CHAPTERS.flatMap(c=>c.tasks.filter(t=>t.kind==='reflection').map(t=>taskKey(c,t)));
+  result.reflectionDone = Array.isArray(v.reflectionDone) ? [...new Set(v.reflectionDone.filter((k): k is string=>typeof k==='string' && reflections.includes(k)))] : [];
+  for (const c of CHAPTERS) for (const t of c.tasks) if (t.kind==='reflection' && accepts(t,result.answers[taskKey(c,t)])) result.reflectionDone.push(taskKey(c,t));
+  result.reflectionDone = [...new Set(result.reflectionDone)];
   // Never trust restored completion flags without accepted corresponding answers.
-  result.completed = CHAPTERS.filter((c) => c.tasks.every((t) => accepts(t, result.answers[taskKey(c, t)]))).map((c) => c.id);
+  result.completed = CHAPTERS.filter((c) => c.tasks.every((t) => accepts(t, result.answers[taskKey(c, t)]) || (t.kind==='reflection' && result.reflectionDone?.includes(taskKey(c,t))))).map((c) => c.id);
   if (v.lab && typeof v.lab === 'object') {
     const lab = v.lab as LabInputs;
     try { calculateDeal(lab); if (lab.price < 200000 || lab.price > 350000 || lab.rent < 1800 || lab.rent > 3000 || lab.vacancy > 20 || lab.rate > 15) throw new Error('Outside lab controls'); result.lab = { price: lab.price, rent: lab.rent, vacancy: lab.vacancy, rate: lab.rate }; } catch { /* use defaults */ }
@@ -161,7 +167,7 @@ export function saveJourney(p: JourneyProgress): boolean {
   return saved;
 }
 export function answerTask(p: JourneyProgress, c: Chapter, t: Task, answer: Answer): JourneyProgress {
-  return cleanJourney({ ...p, answers: { ...p.answers, [taskKey(c, t)]: answer } });
+  return cleanJourney({ ...p, reflectionDone: t.kind==='reflection' ? (p.reflectionDone ?? []).filter(k=>k!==taskKey(c,t)) : p.reflectionDone, answers: { ...p.answers, [taskKey(c, t)]: answer } });
 }
 export const resumeChapter = (p: JourneyProgress) => CHAPTERS.find((c) => !p.completed.includes(c.id))?.id ?? 'workbook';
 export const journeyHref = (id?: string) => `#/practice/deal${id ? `/${id}` : ''}`;

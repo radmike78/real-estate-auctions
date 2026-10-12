@@ -1,6 +1,6 @@
 // Optional services: cache successful responses, retry failures, and bound every request.
 import { useEffect, useState } from 'react';
-export interface SiteFeatures { email: boolean; payments: boolean; unavailable?: boolean }
+export interface SiteFeatures { email: boolean; payments: boolean; accounts?: boolean; unavailable?: boolean }
 let known: SiteFeatures | null = null;
 let pending: Promise<SiteFeatures> | null = null;
 const listeners = new Set<(f: SiteFeatures | null) => void>();
@@ -17,7 +17,7 @@ export function loadSiteFeatures(): Promise<SiteFeatures> {
       if (!r.ok) throw new Error('Features unavailable');
       const f: unknown = await r.json();
       if (!f || typeof f !== 'object' || !('email' in f) || !('payments' in f) || typeof f.email !== 'boolean' || typeof f.payments !== 'boolean') throw new Error('Invalid features');
-      known = { email: f.email, payments: f.payments };
+      known = { email: f.email, payments: f.payments, ...('accounts' in f ? {accounts:f.accounts===true} : {}) };
       publish(known);
       return known;
     } catch {

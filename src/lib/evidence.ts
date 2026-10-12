@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from './workStorage';
 // The evidence log for a deal: for each thing to verify, where the answer came from, when it was checked, what
 // was found, what's still open, and who handles it by when. Plus the decision it supports. Kept in this browser.
 

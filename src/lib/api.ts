@@ -11,7 +11,7 @@ export class ApiError extends Error {
 }
 
 /** `auth` marks a signed-in (admin or advertiser) write; the server requires this header on those. */
-export async function api<T = Record<string, unknown>>(path: string, opts: { body?: unknown; auth?: boolean } = {}): Promise<T> {
+export async function api<T = Record<string, unknown>>(path: string, opts: { body?: unknown; auth?: boolean; signal?: AbortSignal } = {}): Promise<T> {
   const headers: Record<string, string> = {};
   if (opts.body !== undefined) headers['content-type'] = 'application/json';
   if (opts.auth) headers['x-fsf-request'] = '1';
@@ -23,6 +23,7 @@ export async function api<T = Record<string, unknown>>(path: string, opts: { bod
       body: opts.body === undefined ? undefined : JSON.stringify(opts.body),
       credentials: 'same-origin',
       cache: 'no-store',
+      signal: opts.signal,
     });
   } catch {
     throw new ApiError(0, "Couldn't reach the server. Check your connection and try again.", {});

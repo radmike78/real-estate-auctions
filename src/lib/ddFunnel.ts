@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from './workStorage';
 // The due-diligence funnel: 12 steps from "is this even a real opportunity?" to "a professional
 // has reviewed it". Each step groups the automated screening checks that belong to it and says how
 // to confirm them yourself. No hidden score: every finding shows its reason.

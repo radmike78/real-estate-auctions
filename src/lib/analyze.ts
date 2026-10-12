@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from './workStorage';
 import type { SaleType } from '../types';
 import { removeLog } from './evidence';
 import { forgetRoadmapDeal } from './roadmapDeals';

@@ -111,7 +111,7 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
               <a className="btn big" href={`#/practice/${s.id}`}>Finish: see your results&nbsp;→</a>
             )}
           </div>
-          {!stageDone(stage) && <p className="small muted">Work through every card to complete this step. You can come back any time; your progress stays in this browser.</p>}
+          {!stageDone(stage) && <p className="small muted">Work through every card to complete this step. Guest progress stays in this browser. If signed in, use Save my work to keep progress in your account.</p>}
         </section>
       )}
       {!stage && allDone && <Results s={s} progress={progress} />}
@@ -170,7 +170,7 @@ function Results({ s, progress }: { s: Scenario; progress: ScenarioProgress }) {
         <li><a href="#/pros">Learn who you need and how to find them</a></li>
         <li><a href="#/practice">Practice another kind of sale or property</a></li>
       </ul>
-      <p className="small muted">Practice results stay in this browser. Our guides are general education; for your own deal, work with qualified professionals.</p>
+      <p className="small muted">Guest results stay in this browser; account progress is kept when you use Save my work. Our guides are general education; for your own deal, work with qualified professionals.</p>
     </section>
   );
 }

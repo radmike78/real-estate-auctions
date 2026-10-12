@@ -472,7 +472,7 @@ describe('operations: health check and backups', () => {
       expect(res.status).toBe(503);
       expect(logs).not.toHaveBeenCalled();
       expect(warnings).toHaveBeenCalledWith('Email service is not configured; message was not sent.');
-      expect(await (await fetch(base + '/api/features')).json()).toEqual({ email: false, payments: false });
+      expect(await (await fetch(base + '/api/features')).json()).toEqual({ email: false, payments: false, accounts: false });
     } finally {
       logs.mockRestore(); warnings.mockRestore();
       await new Promise<void>((r) => server.close(() => r()));
@@ -502,7 +502,7 @@ describe('operations: health check and backups', () => {
     expect(res.headers.get('cache-control')).toBe('no-store');
     // Email is set up (a mailer was given); online payments aren't.
     const features = await fetch(`http://127.0.0.1:${(server.address() as { port: number }).port}/api/features`);
-    expect(await features.json()).toEqual({ email: true, payments: false });
+    expect(await features.json()).toEqual({ email: true, payments: false, accounts: false });
     await new Promise<void>((r) => server.close(() => r()));
 
     const copy = join(dir, 'backup.db');

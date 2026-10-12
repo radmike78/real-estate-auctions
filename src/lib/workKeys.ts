@@ -1,0 +1,50 @@
+// Browser-work keys. No auth credentials or email links.
+const EXACT = [
+  'deedowl.practice-deal.v1',
+  'deedowl.path.v1',
+  'deedowl.roadmap.v1',
+  'deedowl.roadmap.path.v1',
+  'deedowl.roadmap.status.v1',
+  'deedowl.roadmap.deal.v1',
+  'deedowl.roadmap.deals.v1',
+  'deedowl.cash.v1',
+  'deedowl.team.v1',
+  'deedowl.teamlist.v1',
+  'deedowl.goal.v1',
+  'deedowl.buybox.v1',
+  'deedowl.drills.v1',
+  'deedowl.decide.v1',
+  'deedowl.evidence.v1',
+  'deedowl.dealPacket.v1',
+  'deedowl.owned.v1',
+  'deedowl.analyze.v1',
+  'deedowl.analyze.current.v1',
+  'deedowl.area.v1',
+  'deedowl.state.v1',
+  'deedowl.mode.v1',
+  'deedowl.read.v1',
+  'deedowl.last.v1',
+  'fsf.practice.v1',
+  'deedowl.case.v1',
+  'deedowl.case.tx.v1',
+  'deedowl.case.ca.v1',
+  'deedowl.case.az.v1',
+  'deedowl.case.ut.v1',
+  'fsf.deals.v1',
+  'fsf.calc.rent.v1',
+  'fsf.calc.commercial.v1',
+  'fsf.calc.rent.offer.v1',
+  'fsf.calc.commercial.offer.v1',
+  'fsf.calc.lien.v1',
+  'fsf.calc.lien.az.v1',
+  'fsf.calc.sellerfinance.v1',
+  'fsf.calc.strategy.v1',
+  'fsf.bid.mode.v1',
+  'fsf.preforeclosure.watch.v1',
+];
+// Calculator keys also have a `.region` sibling (the county defaults the inputs were last set for), kept with them.
+export const PATTERN = /^fsf\.(dd|bid|income|checklist|calc\.rent|calc\.commercial)\.[A-Za-z0-9_-]{1,64}\.v1$|^fsf\.calc\.(rent|commercial)\.[A-Za-z0-9_-]{1,64}\.v1\.region$|^fsf\.calc\.(rent|commercial)\.v1\.region$|^fsf\.bid\.[A-Za-z0-9_-]{1,64}\.v1\.region$/;
+
+export const CONFIRMED = /^fsf\.(bid|calc\.(rent|commercial|lien|sellerfinance|strategy))(\.[A-Za-z0-9_-]{1,64})?(\.v1)?\.typed\.v1$/;
+export const backedUp = (key: string) => EXACT.includes(key) || PATTERN.test(key) || CONFIRMED.test(key);
+

@@ -2897,3 +2897,11 @@ dl.cash-result .cash-main { border-color: var(--accent); }
 }
 .calc-example-note details > summary { cursor: pointer; margin-top: 8px; font-weight: 650; }
 .home .path > details > summary:focus-visible, .calc-assumptions > summary:focus-visible, .calc-example-note details > summary:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 3px; }
+
+/* Optional account controls: one save action, with details on the account page. */
+.account-bar { display:flex; flex-wrap:wrap; align-items:center; gap:.75rem; padding:.75rem 1rem; background:var(--surface); border-bottom:1px solid var(--border); }
+.account-bar p { flex-basis:100%; margin:0; }
+.account-link { white-space:nowrap; font-size:.85rem; }
+.account-page > section, .account-page > details { margin-block:1.5rem; }
+.account-page input[type="email"], .account-page input[autocomplete="given-name"] { width:100%; }
+@media (max-width: 600px) { .account-link { display:none; } .account-bar .btn { padding:.5rem .75rem; } }

@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from './workStorage';
 // The visitor's state (NV, CA, AZ, UT or TX), chosen once and used across the site so people see only the rules
 // that apply where they invest. Kept only in this browser; null means "choose a state before viewing local guidance".
 import { useEffect, useState } from 'react';

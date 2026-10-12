@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from './workStorage';
 // A deliberate zero and a deliberate match to an example remain confirmed across devices.
 export const confirmationKey = (key: string) => `${key}.typed.v1`;
 

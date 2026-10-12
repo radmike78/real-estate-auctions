@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useRef, useState } from 'react';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
@@ -220,7 +221,7 @@ export default function DecidePage() {
               Start over
             </button>
           </div>
-          <p className="muted">Your answers and checked items are saved only in this browser.</p>
+          <p className="muted">Without an account, these answers stay in this browser. In an account workspace they last for this visit and can be downloaded; they are not included in account saves.</p>
         </section>
       )}
       <AdSpot spot="decide" />

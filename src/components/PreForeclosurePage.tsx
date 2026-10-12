@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from '../lib/workStorage';
 import { useMemo, useState } from 'react';
 import { PROPERTIES, SHOW_SAMPLE_DATA } from '../data';
 import { foreclosureTrack, PIPELINE, STAGE_INFO, type ForeclosureStage, type ForeclosureTrack } from '../lib/foreclosure';

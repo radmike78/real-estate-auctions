@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from '../lib/workStorage';
 // Practice progress, kept only in this browser: which tasks are done, and which answers were chosen.
 
 const KEY = 'fsf.practice.v1';

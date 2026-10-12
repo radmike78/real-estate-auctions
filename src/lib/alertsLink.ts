@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from './workStorage';
 // The visitor's email-alerts manage link, remembered in this browser after they open it, so tracking
 // another property is one click. It's only a convenience: they can forget it at any time, and every
 // alert email carries the same link.

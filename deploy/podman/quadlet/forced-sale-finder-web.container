@@ -14,6 +14,8 @@ EnvironmentFile=forced-sale-finder.env
 Secret=fsf-admin-password-hash,type=env,target=ADMIN_PASSWORD_HASH
 # Signs the advertiser directory. The listings key stays with the listings updater only.
 Secret=fsf-directory-signing-key,type=env,target=DIRECTORY_SIGNING_KEY
+# Optional verified learner accounts: enable LEARNER_ACCOUNTS=1 only after setup/testing.
+#Secret=fsf-account-encryption-key,type=env,target=ACCOUNT_ENCRYPTION_KEY
 # Email through Resend or Postmark: one of these two (install.sh turns on the right one; see README: Email).
 #Secret=fsf-resend-key,type=env,target=RESEND_API_KEY
 #Secret=fsf-postmark-token,type=env,target=POSTMARK_SERVER_TOKEN

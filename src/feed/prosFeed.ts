@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from '../lib/workStorage';
 // Signed professional directory (public/data/pros.json + .sig), written by the server when an
 // admin approves, re-verifies, bills or suspends an advertiser. The browser verifies the Ed25519
 // signature and expiry before showing any profile, and re-applies every listing rule, so a
