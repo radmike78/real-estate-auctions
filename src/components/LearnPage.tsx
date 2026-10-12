@@ -77,8 +77,8 @@ export default function LearnPage() {
         <h2 id="learn-next">Your next lesson: {next.title}</h2>
         <p>{oneState(lesson.takeaways[0], mine)}</p>
         <a className="btn" href={`#/learn/${next.key}`}>Read the lesson →</a>
-        <p className="muted">{lesson.minutes} minutes. Then apply it to Cedar House, your fictional practice property.</p>
-        <a href={journeyHref(LESSON_CHAPTER[next.key])}>Practice this idea →</a>
+        <p className="muted">{lesson.minutes} minutes.{LESSON_CHAPTER[next.key] && ' Then apply it to Cedar House, your fictional practice property.'}</p>
+        {LESSON_CHAPTER[next.key] && <a href={journeyHref(LESSON_CHAPTER[next.key])}>Practice this idea →</a>}
       </section>
       <details className="plan-section"><summary>Browse all lessons</summary>
       <details><summary>Help choosing a strategy or lesson</summary>

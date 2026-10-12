@@ -370,8 +370,8 @@
       "src/lib/lessons/taxes.ts"
     ],
     "reviewed": "2026-10-12",
-    "hash": "d3c3c7beeb38eb88",
-    "note": "Reviewed progressive disclosure and entry labels: all lesson and source content retained; relevant sections open on handoff; calculator defaults labeled as placeholders; no formulas, legal procedures or contract rights changed."
+    "hash": "70238417a957c87c",
+    "note": "Next-lesson practice links appear only where a matching Cedar House chapter exists; all source lesson content retained."
   },
   {
     "id": "decide",
