@@ -118,9 +118,9 @@
       "src/lib/playbooks.ts",
       "src/lib/saleDocs.ts"
     ],
-    "reviewed": "2026-10-11",
-    "hash": "19042b586bccf89b",
-    "note": "2026-10-11 targeted corrections: contract and refund qualifications, insurance use, quiz timing, and public California contract guidance. Changed claims checked against official sources; not a certification of all sources or device behavior."
+    "reviewed": "2026-10-12",
+    "hash": "650ee335b55d299a",
+    "note": "Reviewed selected-state guide gate, Texas source jurisdiction, available practice targets, evidence deep-link opening and single-topic disclosure behavior. Financial formulas and legal procedures unchanged."
   },
   {
     "id": "guides",
@@ -146,9 +146,9 @@
       "src/components/DealJourneyPage.tsx",
       "src/practice/dealJourney.ts"
     ],
-    "reviewed": "2026-10-11",
-    "hash": "bb2f08b9cfe8fea1",
-    "note": "State isolation only: removed comparisons with another state from drill feedback and calculator help. Existing local rules, answer scoring, risk guidance and calculation formulas retained."
+    "reviewed": "2026-10-12",
+    "hash": "ffb810908db00f3c",
+    "note": "Reviewed selected-state guide gate, Texas source jurisdiction, available practice targets, evidence deep-link opening and single-topic disclosure behavior. Financial formulas and legal procedures unchanged."
   },
   {
     "id": "calculator",
@@ -180,9 +180,9 @@
       "src/lib/planNext.ts",
       "src/lib/dealStage.ts"
     ],
-    "reviewed": "2026-10-11",
-    "hash": "4238eda35a05b80a",
-    "note": "Reviewed changed wording and independently checked fictional cash-flow/cash-allocation figures; verified CFPB closing-disclosure guidance with applicability limits. Location confirmation, progressive disclosure, honest practice outcomes and exact multi-answer grading. No professional endorsement or novice usability testing claimed."
+    "reviewed": "2026-10-12",
+    "hash": "22fdb67bd4533ac8",
+    "note": "Reviewed selected-state guide gate, Texas source jurisdiction, available practice targets, evidence deep-link opening and single-topic disclosure behavior. Financial formulas and legal procedures unchanged."
   },
   {
     "id": "alerts",
@@ -369,9 +369,9 @@
       "src/lib/strategies.ts",
       "src/lib/lessons/taxes.ts"
     ],
-    "reviewed": "2026-10-11",
-    "hash": "c22e862eee4eb159",
-    "note": "Single-state lesson presentation and explicit quiz metadata audited for each supported selection. Historical examples from other locations filtered without changing their facts; legal qualifications and risk guidance retained."
+    "reviewed": "2026-10-12",
+    "hash": "5075e1e6cfad3758",
+    "note": "Source jurisdiction filtering also applies to guide search. Browser title refreshes when state gate clears. No change to financial or legal meaning."
   },
   {
     "id": "decide",
@@ -422,8 +422,8 @@
       "src/lib/planNext.ts",
       "src/lib/dealStage.ts"
     ],
-    "reviewed": "2026-10-11",
-    "hash": "bf10dbf0cc81998c",
-    "note": "Reviewed follow-ups: qualified contract effective-date guidance; visible cash-budget limitation; direct tax-section link retaining property state without changing saved preference. No financial formulas or state tax rules changed."
+    "reviewed": "2026-10-12",
+    "hash": "472da68af34b5fc9",
+    "note": "Reviewed selected-state guide gate, Texas source jurisdiction, available practice targets, evidence deep-link opening and single-topic disclosure behavior. Financial formulas and legal procedures unchanged."
   }
 ]

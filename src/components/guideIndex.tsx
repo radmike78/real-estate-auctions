@@ -61,7 +61,7 @@ function lessonDocs(): GuideDoc[] {
     const title = LEARN_MODULES.find((m) => m.key === l.key)?.title ?? l.key;
     const page = `Lesson: ${title}`;
     const href = `#/learn/${l.key}`;
-    const sources = l.sources.filter((x) => x.url.startsWith('https://'));
+    const sources = l.sources.filter((x) => (!x.state || x.state === getMyState()) && x.url.startsWith('https://'));
     return [
       ...l.sections.map((sec) => ({ href, page, title: sec.heading, text: sec.blocks.map((block) => forState(block, getMyState())).filter((block): block is LessonBlock => block !== null).map(blockText).join(' '), sources })),
       { href, page, title: 'Key terms', text: l.terms.map((t) => `${t.term}: ${t.meaning}`).join(' '), sources },

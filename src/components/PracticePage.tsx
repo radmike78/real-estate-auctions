@@ -122,9 +122,9 @@ export default function PracticePage({ sale }: { sale?: string }) {
         <details className="practice-more" open={/practice\/drills/.test(window.location.pathname + window.location.hash)}><summary>More ways to practice: documents, auctions and quick drills</summary>
         {/* What kinds of practice there are, how long each takes, and a jump to each: pick by the time you have. */}
         <section className="practice-ways" aria-labelledby="practice-ways-head">
-          <h2 id="practice-ways-head" className="section-title">Three ways to practice</h2>
+          <h2 id="practice-ways-head" className="section-title">More ways to practice</h2>
           <div className="practice-sales">
-            {WAYS.map((w, i) => (
+            {WAYS.filter((w) => !otherState || w.id !== 'practice-auction').map((w, i) => (
               <a key={w.id} href="#/practice" className={`practice-sale-tile hue-${i}`} onClick={(e) => { e.preventDefault(); document.getElementById(w.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>
                 <span className="sale-tile-head"><span className="drill-card-icon"><TopicIcon topic={w.icon} /></span><strong>{w.title}</strong></span>
                 <span className="practice-way-time">{w.time}</span>

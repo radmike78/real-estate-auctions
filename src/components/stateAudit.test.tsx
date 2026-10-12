@@ -133,3 +133,35 @@ it('uses the property state for checklist content as well as the full-guide link
   expect(mentionsOtherState('NV', root.text)).toBe(false);
   expect(root.querySelector('a[href="#/playbooks/tax"]')).not.toBeNull();
 });
+
+it('does not render foreign sale procedures on a keyed guide or subsection', () => {
+  selectState('CA');
+  for (const section of [undefined, 'steps', 'documents']) {
+    const root = parse(renderToStaticMarkup(<PlaybookPage playbook="tax" section={section} />));
+    expect(root.text).toContain('Open the guide for California');
+    expect(root.text).not.toContain('Clark County');
+    expect(root.querySelector('a[href="#/playbooks/catax"]')).not.toBeNull();
+  }
+});
+
+it('keeps acronym-labeled Texas contract sources out of California lessons', () => {
+  selectState('CA');
+  const ca = parse(renderToStaticMarkup(<LessonPage lessonKey="negotiate" />));
+  expect(ca.querySelectorAll('.lesson-sources a').some((a) => a.getAttribute('href')?.includes('trec.texas.gov'))).toBe(false);
+  selectState('TX');
+  const tx = parse(renderToStaticMarkup(<LessonPage lessonKey="negotiate" />));
+  expect(tx.querySelectorAll('.lesson-sources a').some((a) => a.getAttribute('href')?.includes('trec.texas.gov'))).toBe(true);
+});
+
+it('offers only practice shortcuts whose target sections exist', () => {
+  for (const state of STATES) {
+    selectState(state.code);
+    const root = parse(renderToStaticMarkup(<PracticePage />));
+    const cards = root.querySelectorAll('.practice-ways a');
+    expect(cards.length).toBe(state.code === 'NV' ? 3 : 2);
+    expect(root.querySelector('#practice-case')).not.toBeNull();
+    expect(root.querySelector('#practice-drills')).not.toBeNull();
+    if (state.code === 'NV') expect(root.querySelector('#practice-auction')).not.toBeNull();
+    else expect(root.text).not.toContain('Choose a kind of sale');
+  }
+});

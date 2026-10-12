@@ -209,7 +209,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       <section className="deal-setup packet-section" aria-labelledby="packet-evidence">
         <Head k="evidence" />
         <Lines k="evidence" />
-        <EvidenceLog dealId={key} name={deal.name} />
+        <EvidenceLog dealId={key} name={deal.name} initiallyOpen={section === 'evidence'} />
       </section>
 
       <section className="deal-setup packet-section" aria-labelledby="packet-pros">
