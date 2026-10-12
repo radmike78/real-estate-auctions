@@ -19,6 +19,25 @@ The supported calculator inputs do not establish a loan offer, a guaranteed retu
 
 Off by default; missing or invalid optional settings disable accounts without stopping the guest site. Unconfigured deployments show account saving as coming soon, without a nonworking signup form.
 
+### One-command Podman setup
+
+From an up-to-date checkout of `main`, run as the **same Linux user** that installed DeedOwl:
+
+```bash
+bash deploy/podman/enable-learner-accounts.sh --check
+bash deploy/podman/enable-learner-accounts.sh
+```
+
+Do not add `sudo` to a rootless install. The script supports the standard root/rootless Quadlet locations; `FSF_QUADLET_DIR` and the existing `FSF_KEY_DIR` can override them. It requires Bash, Podman, systemd, Python 3, OpenSSL and flock, and an already running web container with the account code, HTTPS and a real configured email provider. It does not set up a new hosting platform or email subscription.
+
+The script never prints the encryption key. It creates `learner-account-key.hex` once, with owner-only permissions; reuses it on later runs; verifies it matches the Podman secret; and refuses to generate a replacement when existing account data needs its original key. It checks an existing encrypted profile with the candidate key before making changes. It backs up the web configuration privately, enables the feature and secret in the existing Quadlet, restarts **only the web service**, and checks internal health plus `accounts:true`. Expect a brief interruption. If restart or feature verification fails, it restores the prior configuration and attempts to verify recovery. Keys/secrets are retained, never deleted as rollback.
+
+Back up the key **separately in protected storage**. The script backs up configuration, not the database, and is not an off-site backup or restore test. After activation, perform the real email/two-device checks below. Internal feature checks do not test public Cloudflare/proxy rules or email delivery. There is no test email sent by the setup script.
+
+Bash syntax and mocked CLI integration tests cover read-only checking, key reuse/mismatch/loss protection, configuration preservation, root/rootless service selection, symlink refusal and rollback. These do not claim execution on your actual server.
+
+### Manual setup and final checks
+
 1. Confirm the real transactional mailer is configured (`RESEND_API_KEY` or `POSTMARK_SERVER_TOKEN`, plus verified `MAIL_FROM`). Console delivery and `POSTMARK_API_TEST` are unsuitable. Verify provider capacity and monitoring; accounts share the existing sign-in mail budget.
 2. Generate **a new, dedicated** 32-byte key in the secure server administration session, for example `openssl rand -hex 32`. Do not paste the key into a PR, chat, build argument or `VITE_*` variable. Store it as a server secret named `ACCOUNT_ENCRYPTION_KEY`. Never reuse admin credentials or signing keys.
 3. Preserve the encryption key separately in protected secret backup. Losing it makes saved profiles/work unreadable. Replacing it is not key rotation: a migration would be required. Protect database backups and configure/verify off-site retention. Test restoring database plus key on an isolated instance.
