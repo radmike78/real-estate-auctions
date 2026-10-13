@@ -17,6 +17,7 @@ it('opens the requested tax section for the property state without replacing the
   const root = parse(renderToStaticMarkup(<LessonPage lessonKey="analyze" section="your-tax-bill-after-you-buy" state="NV" />));
   const tax = root.querySelector('#your-tax-bill-after-you-buy');
   expect(tax?.hasAttribute('open')).toBe(true);
+  // A linked section opens alone, so the reader lands on it; the rest can be opened.
   expect(root.querySelectorAll('.lesson-topic[open]')).toHaveLength(1);
   expect(tax?.text).toContain('NRS 361.4722');
   expect(tax?.text).not.toContain('Proposition 13');
@@ -27,8 +28,9 @@ it('opens the requested tax section for the property state without replacing the
 it('keeps the normal lesson default when the section is missing or unknown', () => {
   for (const section of [undefined, 'missing-section']) {
     const root = parse(renderToStaticMarkup(<LessonPage lessonKey="analyze" section={section} />));
-    expect(root.querySelectorAll('.lesson-topic[open]')).toHaveLength(1);
-    expect(root.querySelector('.lesson-topic')?.hasAttribute('open')).toBe(true);
+    // Every section is open and searchable; none closes when another opens.
+    expect(root.querySelectorAll('.lesson-topic[open]')).toHaveLength(root.querySelectorAll('.lesson-topic').length);
+    expect(root.querySelector('.lesson-topic[name]')).toBeNull();
     expect(root.querySelector('.state-picker button[aria-pressed="true"]')?.text).toBe('California');
   }
 });

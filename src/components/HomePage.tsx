@@ -17,7 +17,7 @@ const EXPLORE = [
   { href: '#/find-deals', icon: <IconBank />, title: 'Find deals', what: 'Official sellers and sale lists for your county' },
   { href: '#/live', icon: <IconLayers />, title: 'Live tax sales', what: 'Upcoming county sales, plus Clark County and IRS parcels' },
   { href: '#/pros', icon: <IconBadge />, title: 'Your team', what: 'Who you need, what to ask, and how to check a license' },
-  { href: '#/practice', icon: <IconCheckList />, title: 'All practice', what: 'Full practice purchases and more than 40 drills' },
+  { href: '#/practice/drills', icon: <IconCheckList />, title: 'All practice', what: 'Full practice purchases and more than 40 drills' },
 ];
 
 // The homepage starts with an optional choice: be guided one step at a time, or go straight to the tools. The six-
@@ -103,7 +103,7 @@ export default function HomePage() {
       </section>
 
       <section className="path" id="everything" aria-labelledby="path-head">
-        <details>
+        <details open>
         <summary>Explore everything DeedOwl offers</summary>
         <h2 id="path-head">Everything, in six steps</h2>
         <ol className="path-steps">
