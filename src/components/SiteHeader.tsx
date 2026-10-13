@@ -31,9 +31,9 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
   useEffect(() => onDealsChange(() => setDeals(loadDeals().length)), []);
   const features = useSiteFeatures();
   const { mode } = useJourney();
-  // The Getting started link never pulls someone out of a task they're in the middle of (a practice purchase, a
-  // drill, their plan), where the page has its own next step.
-  const inTask = /^(practice\/[a-z]|toolkit)/.test(current);
+  // The Continue link never pulls someone out of a task they're in the middle of (a practice purchase, a
+  // drill, their plan), where the page has its own next step, and the home page already shows the same step.
+  const inTask = /^(practice\/[a-z]|toolkit)/.test(current) || current === '' || current === '/';
   // Only while the tour is My plan's next step (planNext.ts): with a real property or roadmap work under way, the one
   // Continue is in My plan, and this button would compete with it.
   const recommendation = planNow();

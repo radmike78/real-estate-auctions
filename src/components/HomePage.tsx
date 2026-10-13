@@ -6,7 +6,7 @@ import { roadmapProgress } from '../lib/roadmapState';
 import { HomeArea } from './AreaPicker';
 import { useMyState } from '../lib/myState';
 import PlanNext, { ContinueButton } from './PlanNext';
-import { planNow } from '../lib/planNext';
+import { planNow, planStarted } from '../lib/planNext';
 import { navigate } from '../lib/nav';
 
 
@@ -65,7 +65,7 @@ export default function HomePage() {
             <div className="guided-next">
               {/* One row of actions, one short line of why: no stack of separate lines before the six steps. */}
               <div className="hero-ctas">
-                <ContinueButton task={plan.task} dealId={plan.deal?.id} onPlan={false} label={`Continue: ${plan.task.label}`} />
+                <ContinueButton task={plan.task} dealId={plan.deal?.id} onPlan={false} label={`${planStarted(plan) ? 'Continue' : 'Start'}: ${plan.task.label}`} />
                 {continueLink}
               </div>
               <p>{plan.task.key === 'practice-deal' ? <><strong>Learn by doing:</strong> {plan.task.text}</> : <><strong>You’ll have:</strong> {plan.task.produces}.</>}</p>

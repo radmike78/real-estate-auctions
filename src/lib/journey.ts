@@ -5,6 +5,7 @@ import { workStorage as localStorage } from './workStorage';
 // returning visitor can continue where they left off.
 import { useEffect, useState } from 'react';
 import { QUESTIONS } from './decide';
+import { CHAPTERS, loadJourney } from '../practice/dealJourney';
 
 export type Mode = 'guided' | 'explore';
 
@@ -72,7 +73,7 @@ export function useJourney() {
   return { mode: getMode(), read: readLessons(), last: getLast() };
 }
 
-/** What the guided path checks to know a step is finished: real work, not a page visit. */
+/** Real work done in this browser (not page visits), for "continue where you left off". */
 export interface Progress {
   read: string[];
   /** Drill ids with a final call made. */
@@ -81,59 +82,6 @@ export interface Progress {
   decided: boolean;
   /** Roadmap steps ticked. */
   roadmapDone: number;
-}
-
-export interface GuidedStep {
-  key: string;
-  label: string;
-  why: string;
-  href: string;
-  done: (p: Progress) => boolean;
-}
-
-/** The starter path: a worked example first, then a beginner exercise, the background, a strategy and a plan. */
-export const GUIDED: GuidedStep[] = [
-  {
-    key: 'example',
-    label: 'Read: Analyzing a deal',
-    why: 'A worked example: what a rental costs, what it earns, and what to check before you commit.',
-    href: '#/learn/analyze',
-    done: (p) => p.read.includes('analyze'),
-  },
-  {
-    key: 'exercise',
-    label: 'Practice: would you buy this $265,000 rental?',
-    why: 'Your first exercise: value a fictional house from comparable sales, price the repairs, and decide.',
-    href: '#/practice/drills/rental-265',
-    done: (p) => p.drillsDone.includes('rental-265'),
-  },
-  {
-    key: 'intro',
-    label: 'Read: Residential vs. commercial',
-    why: 'A short introduction to how investment property is bought, valued and paid for.',
-    href: '#/learn/markets',
-    done: (p) => p.read.includes('markets'),
-  },
-  {
-    key: 'decide',
-    label: 'Decide: which strategy fits you',
-    why: 'A few questions about your money, time and goals, then the strategies that fit and their risks.',
-    href: '#/decide',
-    done: (p) => p.decided,
-  },
-  {
-    key: 'plan',
-    label: 'Start your plan',
-    why: 'Pick your goal and tick off the first steps of your investing roadmap.',
-    href: '#/toolkit',
-    done: (p) => p.roadmapDone > 0,
-  },
-];
-
-/** The first unfinished step and its position, or null when the starter path is done. */
-export function guidedNext(p: Progress): { step: GuidedStep; n: number } | null {
-  const i = GUIDED.findIndex((s) => !s.done(p));
-  return i < 0 ? null : { step: GUIDED[i], n: i + 1 };
 }
 
 /** Progress as this browser has it. */
@@ -159,5 +107,7 @@ export function unfinished(last: LastActivity | null, p: Progress): LastActivity
   if (lesson && p.read.includes(lesson[1])) return null;
   const drill = last.href.match(/^#\/practice\/drills\/([a-z0-9-]+)$/);
   if (drill && p.drillsDone.includes(drill[1])) return null;
+  // The practice deal with all its chapters done is finished too.
+  if (/^#\/practice\/deal(\/|$)/.test(last.href) && loadJourney().completed.length === CHAPTERS.length) return null;
   return last;
 }

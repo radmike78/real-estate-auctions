@@ -1,7 +1,8 @@
 import { workStorage as localStorage } from '../lib/workStorage';
 import { shuffled } from '../lib/shuffle';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { currentProgress, GUIDED, guidedNext, useJourney, useLastActivity } from '../lib/journey';
+import { useJourney, useLastActivity } from '../lib/journey';
+import { planNow } from '../lib/planNext';
 import PageHero from './PageHero';
 import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
@@ -490,11 +491,12 @@ export default function DrillPage({ id }: { id: string }) {
         <a className="btn btn-secondary" href={`#/analyze${calcPlanFor(d.id)}`}>Open the calculators</a>
       </div>
       {mode === 'guided' && (() => {
-        const g = guidedNext(currentProgress());
-        return g && g.step.href !== `#/practice/drills/${d.id}` ? (
+        // The same next step as My plan, the home page and the header: never a tour of its own.
+        const plan = planNow();
+        return plan.task.href !== `#/practice/drills/${d.id}` ? (
           <nav className="path-next" aria-label="Next step">
-            <span className="muted">Next in Getting started (stop {g.n} of {GUIDED.length})</span>
-            <a className="btn" href={g.step.href}>{g.step.label}&nbsp;→</a>
+            <span className="muted">Next: {plan.context}</span>
+            <a className="btn" href={plan.task.href}>{plan.task.label}&nbsp;→</a>
           </nav>
         ) : null;
       })()}

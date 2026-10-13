@@ -14,7 +14,7 @@ export interface PlanNow {
   /** Your goal in one sentence, or '' when it isn't written yet. */
   goal: string;
   source: 'deal' | 'starter' | 'roadmap';
-  /** Where the task comes from: "123 Main St · Researching", "Getting started · stop 2 of 5", "Roadmap · Get ready". */
+  /** Where the task comes from: "123 Main St · Researching", "Practice · Build your first deal", "Roadmap · Get ready". */
   context: string;
   task: PlanTask;
   deal?: Deal;
@@ -24,6 +24,13 @@ export interface PlanNow {
 }
 
 export const ROADMAP_TASK_HREF = '#/toolkit/roadmap';
+
+/** False until the practice deal has any work in it: the button then says Start, not Continue. */
+export function planStarted(now: PlanNow): boolean {
+  if (now.source !== 'starter') return true;
+  const p = loadJourney();
+  return p.completed.length > 0 || Object.keys(p.answers).length > 0;
+}
 
 /** The roadmap's next step for the learner (no property chosen): a step you walked away at stays next. */
 export function roadmapNextStep(): RoadmapStep | null {
