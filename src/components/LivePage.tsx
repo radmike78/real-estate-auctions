@@ -86,10 +86,19 @@ export default function LivePage() {
         title={<>Live <span className="grad">tax sales</span></>}
         sub={`Upcoming ${stateName ?? 'local'} county tax sales and verified IRS sales in your selected state. Read each official sale notice before bidding.`}
       />
-      {otherState && countySection}
       {!result && <p>Verifying listings…</p>}
+      {result && nothingLive && otherState && !blocked && !expired && (
+        <section aria-labelledby="live-feed-head">
+          <h2 id="live-feed-head">DeedOwl’s verified live feed</h2>
+          <OwlNote>
+            The live feed covers Clark County, Nevada tax sales and IRS sales. For {stateName}, the county lists below are the official source: open each county’s page for its properties and minimum bids.{' '}
+            <a href="#/find-deals">Every county’s offices&nbsp;→</a>
+          </OwlNote>
+        </section>
+      )}
+      {otherState && countySection}
 
-      {result && nothingLive && (
+      {result && nothingLive && !(otherState && !blocked && !expired) && (
         <EmptyState title={blocked ? 'No live listings shown' : expired ? 'Listings are being re-verified' : 'No verified listings in your selected state right now'}>
           <p>
             {blocked

@@ -157,7 +157,7 @@
 
 /* A short lesson outline, with the full explanation available on demand. */
 .lesson-topic { margin-block: 16px; padding: 16px 20px; border: 1px solid var(--border, #dce1e8); border-radius: 12px; }
-.lesson-topic > summary { cursor: pointer; }
+.lesson-topic > summary { cursor: pointer; padding: 8px 0; } /* a 44px tap target */
 .lesson-topic > summary h2 { display: inline; font-size: 1.25rem; margin: 0; }
 .lesson-topic[open] > summary { margin-bottom: 16px; }
 .lesson-terms summary, .plan-now summary { cursor: pointer; font-weight: 650; padding-block: 10px; }

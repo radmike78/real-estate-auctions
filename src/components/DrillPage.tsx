@@ -435,7 +435,7 @@ export default function DrillPage({ id }: { id: string }) {
   if (drillState(d) && drillState(d) !== myState) return (
     <main className="page"><h1>Choose this exercise’s state</h1>
       <p>This exercise uses {STATE_NAMES[drillState(d)!]} rules. Change your investing state to open it, or return to your own practice.</p>
-      <a href="#/practice">Back to Practice</a>
+      <p><a className="btn btn-secondary" href="#/practice">Back to Practice</a></p>
     </main>
   );
   const mine = saved[d.id] ?? { answers: {} };
