@@ -1,3 +1,4 @@
+import PageHero from './PageHero';
 import { useAccount } from '../lib/account';
 import { useEffect, useRef, useState } from 'react';
 import { useMyState } from '../lib/myState';
@@ -24,7 +25,7 @@ export default function DealJourneyPage({ chapterKey }: { chapterKey?: string })
   const [p, setP] = useState<JourneyProgress>(loadJourney);
   const [storageProblem, setStorageProblem] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
-  const heading = useRef<HTMLHeadingElement>(null);
+  const heading = useRef<HTMLSpanElement>(null);
   const chapter = CHAPTERS.find((c) => c.id === chapterKey);
   const workbook = chapterKey === 'workbook';
   const specialties = chapterKey === 'specialties';
@@ -35,13 +36,17 @@ export default function DealJourneyPage({ chapterKey }: { chapterKey?: string })
   const started = Object.keys(p.answers).length > 0;
   const current = chapter ? CHAPTERS.indexOf(chapter) : -1;
   return <main className="page deal-journey">
-    <header className="deal-journey-header">
-      <a href="#/practice" className="deal-back">← Practice</a>
-      <div className="deal-title-row"><div><p className="deal-kicker">BUILD YOUR FIRST DEAL · FICTIONAL PRACTICE</p><h1 ref={heading} tabIndex={-1}>{chapter?.title ?? (workbook ? 'Your deal workbook' : specialties ? 'Choose your next challenge' : 'One property. Better decisions.')}</h1><p>{chapter?.purpose ?? (workbook ? 'Your reasoning, numbers and questions, all in one place.' : specialties ? 'Keep the habits. Learn what changes for your investment.' : 'Learn the process by trying it. Follow Cedar House from its listing to life as a rental.')}</p></div>
-      {!workbook && started && <a className="deal-workbook-link" href={journeyHref('workbook')}>Your workbook ↗</a>}</div>
+    <PageHero
+      compact
+      top={<a href="#/practice">← Practice</a>}
+      eyebrow="Build your first deal · Fictional practice"
+      title={<span ref={heading} tabIndex={-1}>{chapter?.title ?? (workbook ? 'Your deal workbook' : specialties ? 'Choose your next challenge' : 'One property. Better decisions.')}</span>}
+      sub={chapter?.purpose ?? (workbook ? 'Your reasoning, numbers and questions, all in one place.' : specialties ? 'Keep the habits. Learn what changes for your investment.' : 'Learn the process by trying it. Follow Cedar House from its listing to life as a rental.')}
+      aside={!workbook && started ? <a className="deal-workbook-link" href={journeyHref('workbook')}>Your workbook ↗</a> : undefined}
+    >
       <div className="deal-progress-row"><span>{p.completed.length} of {CHAPTERS.length} skills practiced</span><span>{storageProblem ? 'Not saved — download your workbook' : account.account ? 'Use Save my work to keep account progress' : 'Progress stays in this browser'}</span></div>
       <progress max={CHAPTERS.length} value={p.completed.length} aria-label="Practice chapters completed" />
-    </header>
+    </PageHero>
     {account.account && <p className="deal-input-hint">Account saves keep your choices, numbers and self-review completion. Written answers stay in this visit and your workbook download; write them again if you want to review them on another device.</p>}
     {storageProblem && <p className="deal-alert" role="status">This browser could not save your progress. Keep this page open and <button type="button" className="linkish" onClick={() => downloadText('deedowl-practice-workbook.txt', workbookText(p))}>download your workbook</button>. Download your workbook to keep a readable copy. Optional account saving can keep supported choices and deal numbers across devices.</p>}
     <details className="deal-outline"><summary>See the journey {chapter && <span> · Chapter {current + 1} of {CHAPTERS.length}</span>}</summary><nav aria-label="Practice deal chapters"><a href={journeyHref()}>Start</a>{CHAPTERS.map((c, i) => <a key={c.id} href={journeyHref(c.id)} aria-current={c.id === chapter?.id ? 'step' : undefined}><span>{p.completed.includes(c.id) ? '✓' : i + 1}</span>{c.title}</a>)}<a href={journeyHref('workbook')}>Your workbook</a></nav></details>
