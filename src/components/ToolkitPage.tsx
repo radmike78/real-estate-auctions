@@ -396,7 +396,7 @@ export function CashWorksheet() {
   );
   return (
     <section id="cash" aria-labelledby="cash-head">
-      <h2 id="cash-head">Cash you can set aside for investing</h2>
+      <h2 id="cash-head">Your investable cash</h2>
       <p>Start with money you could use, then subtract what you want to protect for emergencies, other goals and debt payments. This is a planning worksheet, not a loan approval. Numbers stay in this browser.</p>
       <div className="deal-fields cash-fields">
         {field('savings', 'Savings and investments you could sell')}
@@ -407,7 +407,7 @@ export function CashWorksheet() {
       </div>
       <dl className="cash-result">
         <div><dt>Emergency fund</dt><dd>{fmtMoney(fund)}</dd></div>
-        <div className="cash-main"><dt>Cash left for your investing plan</dt><dd>{fmtMoney(investable)}</dd></div>
+        <div className="cash-main"><dt>Your investable cash</dt><dd>{fmtMoney(investable)}</dd></div>
       </dl>
       {c.savings > 0 && investable === 0 && <p className="roadmap-stop"><strong>Not yet.</strong> Your choices leave no cash for a deal in this worksheet. Review your savings, emergency fund and debt plan. You can keep learning and practicing while you prepare.</p>}
       {investable > 0 && <PriceFromCash cash={investable} />}
@@ -507,7 +507,7 @@ function BuyBoxBuilder() {
   const strategies = STRATEGY_OPTIONS.filter((s) => s !== LIEN_STRATEGY || lien || liensSoldIn(b.state || mine));
   return (
     <section id="buy-box" aria-labelledby="buybox-head">
-      <h2 id="buybox-head">What you’re looking for (your buy box)</h2>
+      <h2 id="buybox-head">Your buy box: what you’re looking for</h2>
       <p>Write down your target area, property type, budget and limits. Investors call this a “buy box.” Use it to decide which properties deserve a closer look; it does not prove a property is a good deal.</p>
       <p className="buybox-help">Not sure of your numbers yet? That’s normal. Leave a field blank, start from an example, or work them out with <a href="#/decide">Decide</a> (your goal and budget) and the <a href="#/calculator">calculators</a>.{' '}
         <button type="button" className="linkish" onClick={() => { if (isBlank(b) || window.confirm('Replace your buy box with the example?')) setB({ ...b, ...EXAMPLE_BUY_BOX }); }}>Show an example</button>
@@ -801,7 +801,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
       <PlanNext variant="plan" helper={<NarrowDown config={toolkitConfig()} intro="Tell us where you are in the process and we’ll suggest where to start." />} />
       <details className="plan-section" open={section === 'roadmap'}><summary>See my full roadmap</summary><FirstDealRoadmap /></details>
       <details className="plan-section"><summary>Your cash budget</summary><CashWorksheet /></details>
-      <details className="plan-section"><summary>Your property criteria (buy box)</summary><BuyBoxBuilder /></details>
+      <details className="plan-section"><summary>Your buy box</summary><BuyBoxBuilder /></details>
       <details className="plan-section"><summary>Your team and contacts</summary><TeamListSection /></details>
       <section className="plan-download" aria-labelledby="plan-dl-head">
         <h2 id="plan-dl-head">Print or share your plan</h2>

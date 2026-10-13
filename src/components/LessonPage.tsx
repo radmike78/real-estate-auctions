@@ -200,7 +200,8 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
     return () => io.disconnect();
   }, [lessonKey]);
   const l = lessonByKey(lessonKey)!;
-  const n = LEARN_MODULES.indexOf(m) + 1;
+  const lessonModules = LEARN_MODULES.filter((x) => !x.href);
+  const n = lessonModules.indexOf(m) + 1;
   const ready = LEARN_MODULES.filter((x) => lessonByKey(x.key) || x.href);
   const next = ready[ready.indexOf(m) + 1];
   const nextHref = next && (lessonByKey(next.key) ? `#/learn/${next.key}` : next.href!);
@@ -248,7 +249,7 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
     <main className="page lesson" ref={bodyRef}>
       <PageHero
         top={<a href="#/learn">← All lessons</a>}
-        eyebrow={<span className="eyebrow">Lesson {n} of {LEARN_MODULES.length} · {l.minutes} min</span>}
+        eyebrow={<span className="eyebrow">Lesson {n} of {lessonModules.length} · {l.minutes} min</span>}
         title={m.title}
         sub={oneState(l.intro, st)}
       />

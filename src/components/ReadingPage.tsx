@@ -16,7 +16,7 @@ export default function ReadingPage() {
     <main className="page lesson reading-page">
       <PageHero
         top={<a href="#/learn">← All lessons</a>}
-        eyebrow={<span className="eyebrow">Lesson {n} of {LEARN_MODULES.length}</span>}
+        eyebrow={<span className="eyebrow">After the {n - 1} lessons</span>}
         title="Recommended reading"
         sub="Books worth your time as a new investor, picked for plain, practical advice. No get-rich-quick titles or seminar sales pitches. Books with an Audible edition say so on the card."
       />

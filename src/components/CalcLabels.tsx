@@ -46,7 +46,7 @@ const money = (n: number) => (n < 0 ? `−${fmtMoney(Math.round(-n))}` : `+${fmt
 
 /**
  * The heading bar on a result block: the price it evaluates and what that price gives. "Your offer: $280,000 → −$510 a
- * month" (blue, solid) reads differently from "Target price: $123,205 → +$273 a month" (green, dashed), and the asking
+ * month" (blue, solid) reads differently from "Walk-away price: $123,205 → +$273 a month" (green, dashed), and the asking
  * price or opening bid gets a plain grey bar.
  */
 export function PriceHead({ kind, label, price, result, unit = 'a month', note, id, tag }: { kind: 'yours' | 'target' | 'listed'; label: string; price: number | null; /** Monthly cash flow or profit at that price. */ result?: number | null; unit?: string; note?: string; id?: string; /** Replaces the small label above the line. */ tag?: string }) {

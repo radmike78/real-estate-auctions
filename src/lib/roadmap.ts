@@ -86,7 +86,7 @@ export const ROADMAP: RoadmapStep[] = [
     action: 'Answer the Decide questions', href: '#/decide',
   },
   {
-    id: 'money', phase: 1, title: 'Work out how much cash you can set aside',
+    id: 'money', phase: 1, title: 'Work out your investable cash',
     text: 'Find the most you could put into a deal without touching your emergency fund or money promised to other goals.',
     outcome: 'One number: your investable cash, written down with how you got it.',
     steps: ['Add up savings and investments you could sell.', 'Take out an emergency fund (several months of household spending: you choose how many).', 'Take out money already promised to other goals in the next year.', 'If you have high-interest debt, plan to pay it off first.', 'Use the cash worksheet below to work it out.'],
@@ -129,7 +129,7 @@ export const ROADMAP: RoadmapStep[] = [
     action: 'Research tools and market exercise', href: '#/learn/tools',
   },
   {
-    id: 'buybox', phase: 2, title: 'Write down what you’re looking for (buy box)',
+    id: 'buybox', phase: 2, title: 'Write your buy box',
     text: 'Set your limits before you look, so a property can’t talk you into it.',
     outcome: 'A saved buy box: area, property type, price limit, repair limit, return target and deal breakers.',
     steps: ['Fill in the buy box below.', 'Add at least three deal breakers, things that end a deal no matter the price.', 'Print or download it.'],

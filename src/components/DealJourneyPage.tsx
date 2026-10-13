@@ -44,7 +44,7 @@ export default function DealJourneyPage({ chapterKey }: { chapterKey?: string })
       sub={chapter?.purpose ?? (workbook ? 'Your reasoning, numbers and questions, all in one place.' : specialties ? 'Keep the habits. Learn what changes for your investment.' : 'Learn the process by trying it. Follow Cedar House from its listing to life as a rental.')}
       aside={!workbook && started ? <a className="deal-workbook-link" href={journeyHref('workbook')}>Your workbook ↗</a> : undefined}
     >
-      <div className="deal-progress-row"><span>{p.completed.length} of {CHAPTERS.length} skills practiced</span><span>{storageProblem ? 'Not saved — download your workbook' : account.account ? 'Use Save my work to keep account progress' : 'Progress stays in this browser'}</span></div>
+      <div className="deal-progress-row"><span>{p.completed.length} of {CHAPTERS.length} chapters done</span><span>{storageProblem ? 'Not saved — download your workbook' : account.account ? 'Use Save my work to keep account progress' : 'Progress stays in this browser'}</span></div>
       <progress max={CHAPTERS.length} value={p.completed.length} aria-label="Practice chapters completed" />
     </PageHero>
     {account.account && <p className="deal-input-hint">Account saves keep your choices, numbers and self-review completion. Written answers stay in this visit and your workbook download; write them again if you want to review them on another device.</p>}
