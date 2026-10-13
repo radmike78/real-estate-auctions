@@ -45,7 +45,7 @@ export default function HomePage() {
           <h1>
             Become a real estate investor, <span className="grad">step by step.</span>
           </h1>
-          <p className="hero-sub">Learn it, practice it, then find and analyze real deals, from foreclosures and tax sales to bank-owned homes. Use verified listing sources and work with the seller or their authorized representative.</p>
+          <p className="hero-sub">Learn it, practice it, then find and analyze real deals, from foreclosures and tax sales to bank-owned homes. You always buy from the official seller.</p>
 
           {!mode && (
             <div className="start-choice" role="group" aria-label="How do you want to start?">
@@ -92,7 +92,7 @@ export default function HomePage() {
           <p className="hero-foot">
             <span className="hero-trust"><IconStar /> Free, no sign-up</span>
             <span className="hero-trust"><IconShield /> Official sources first</span>
-            <span className="hero-trust"><IconCheckList /> No property bids or purchase funds handled here</span>
+            <span className="hero-trust"><IconCheckList /> We never take bids or money</span>
             {mode && (
               <button type="button" className="linkish" onClick={() => setMode(mode === 'guided' ? 'explore' : 'guided')}>
                 {mode === 'guided' ? 'Explore on your own' : 'Get guided step by step'}

@@ -117,7 +117,7 @@ export const TOOLKIT: { group: string; items: { label: string; href: string; wha
       { label: 'Questions for a contractor', href: '#/pros/contractor', what: 'Licenses, bids, insurance and what went wrong for others.' },
       { label: 'Questions for a property manager', href: '#/pros/property_manager', what: 'Fees, screening, reports and the management agreement.' },
       { label: 'Questions for an inspector', href: '#/pros/inspector', what: 'What an inspection covers and what it misses.' },
-      { label: 'Questions for an appraiser', href: '#/pros/appraiser', what: 'What an appraisal is, how it differs from your agent’s estimate, and what an opinion of value can and cannot tell you.' },
+      { label: 'Questions for an appraiser', href: '#/pros/appraiser', what: 'What an appraisal is, how it differs from your agent’s estimate, and why it’s the best way to determine a property’s value.' },
     ],
   },
 ];

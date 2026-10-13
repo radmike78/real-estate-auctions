@@ -123,7 +123,7 @@ export const financing: Lesson = {
         FINANCING_POSITION,
         { list: [...FINANCING_FACTORS] },
         FINANCING_ADVICE,
-        'Do not let a seminar or coaching sales pitch decide how you finance a purchase. FTC cases found schemes that pressured people to borrow against their homes, credit cards or retirement savings. Evaluate the offer and the financing separately, with independent advice.',
+        'Don’t use home equity, credit cards or a 401(k) loan to pay for courses, coaching or an auction deposit. Seminar schemes the FTC shut down told people to do exactly that.',
         { links: [{ label: 'Seminar red flags', url: '#/learn/red-flags', what: 'How seminar and coaching schemes work, and the warning signs.' }] },
       ],
     },
