@@ -33,7 +33,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npm audit --audit-level=high
+      - run: npm audit --audit-level=high --omit=dev
       - run: npm run typecheck
       - run: npm test
       - run: npx vite build

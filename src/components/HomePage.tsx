@@ -3,8 +3,6 @@ import { IconBank, IconBadge, IconCalc, IconCheckList, IconFile, IconLayers, Ico
 import { PATH, useStepsSeen } from '../lib/path';
 import { currentProgress, setMode, unfinished, useJourney } from '../lib/journey';
 import { roadmapProgress } from '../lib/roadmapState';
-import { HomeArea } from './AreaPicker';
-import { useMyState } from '../lib/myState';
 import PlanNext, { ContinueButton } from './PlanNext';
 import { planNow, planStarted } from '../lib/planNext';
 import { navigate } from '../lib/nav';
@@ -23,7 +21,6 @@ const EXPLORE = [
 // The homepage starts with an optional choice: be guided one step at a time, or go straight to the tools. The six-
 // step path below always lists everything. All of it is kept only in this browser.
 export default function HomePage() {
-  const [state] = useMyState();
   const seen = useStepsSeen();
   const { mode, last: lastOpened } = useJourney();
   const progress = currentProgress();
@@ -41,7 +38,6 @@ export default function HomePage() {
         <div className="hero-grid" aria-hidden />
         <div className="hero-glow" aria-hidden />
         <div className="hero-inner">
-          {!state && <HomeArea />}
           <h1>
             Become a real estate investor, <span className="grad">step by step.</span>
           </h1>
