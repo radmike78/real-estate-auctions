@@ -1854,7 +1854,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     treasurer: { url: "https://esearch.nacocad.org/", checked: "2026-10-10", note: "In Nacogdoches County the appraisal district collects property taxes." },
     assessor: { url: "https://esearch.nacocad.org/", checked: "2026-10-10" },
     sheriff: { url: "https://www.nacogdochesco.gov/165/Sheriffs-Daily-Reports", checked: "2026-10-05" },
-    recorder: { url: "https://www.co.nacogdoches.tx.us/countyoffices/countyclerk.asp?hl=en-US", checked: "2026-10-10" },
+    recorder: { url: "https://www.nacogdochesco.gov/m/directory/department?did=9", checked: "2026-10-13" },
   },
   "TX/Navarro": {
     taxSale: { url: "https://www.co.navarro.tx.us/page/County.Assessor.Collector", checked: "2026-10-05", contactOnly: true, note: "No separate tax sale page is listed here. Contact the office for current sale notices and bidding rules." },
@@ -2578,11 +2578,11 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://tooelecountysheriff.org/", checked: "2026-10-07", note: "No civil page: call the Sheriff’s Office about sheriff’s sales." },
   },
   "UT/Uintah": {
-    taxSale: { url: "https://www.uintah.gov/departments/a_-_e_departments/clerk_auditor/index.php", checked: "2026-09-29", contactOnly: true, note: "No separate tax sale page is listed here. Contact the office for current sale notices and bidding rules. Recent sales ran online through Public Surplus; start from the county’s page for the current sale." },
-    treasurer: { url: "https://www.uintah.gov/departments/q_-_z_departments/treasurer/index.php", checked: "2026-09-29" },
-    assessor: { url: "https://www.uintah.gov/departments/a_-_e_departments/assessor/index.php", checked: "2026-09-29" },
-    recorder: { url: "https://www.uintah.gov/departments/q_-_z_departments/recorder/index.php", checked: "2026-09-29" },
-    sheriff: { url: "https://www.uintah.gov/departments/q_-_z_departments/sheriff_s_office/index.php", checked: "2026-09-29" },
+    taxSale: { url: "https://www.uintah.gov/169/Clerk-Auditor", checked: "2026-10-13", contactOnly: true, note: "No separate tax sale page is listed here. Contact the office for current sale notices and bidding rules. Recent sales ran online through Public Surplus; start from the county’s page for the current sale." },
+    treasurer: { url: "https://www.uintah.gov/213/Treasurer", checked: "2026-10-13" },
+    assessor: { url: "https://www.uintah.gov/164/Assessor", checked: "2026-10-13" },
+    recorder: { url: "https://www.uintah.gov/206/Recorder", checked: "2026-10-13" },
+    sheriff: { url: "https://www.uintah.gov/210/Sheriffs-Office", checked: "2026-10-13" },
   },
   "UT/Utah": {
     taxSale: { url: "https://auditor.utahcounty.gov/may-tax-sale", checked: "2026-09-29" },
