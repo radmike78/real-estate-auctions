@@ -10,7 +10,7 @@ it('offers only optional first-name/email signup, explicit storage consent and g
   const root=parse(renderToStaticMarkup(<Page/>));
   expect(root.querySelectorAll('input').map(x=>x.getAttribute('type') ?? 'text')).toEqual(['text','email','checkbox']);
   expect(root.querySelector('input[type="file"]')).toBeNull(); expect(root.text).toContain('Continue without an account');
-  expect(root.text).toContain('Notes, contacts, written practice answers and personal cash worksheets are not saved');
+  expect(root.text).toContain('Not saved to your account: notes, your team list (contacts), the cash worksheet, evidence logs, deal packets and written practice answers');
   expect(root.text).toContain('Guest work is not copied into an account automatically');
 });
 it('shows coming soon without a broken signup form when account saving is disabled',async()=>{

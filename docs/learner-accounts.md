@@ -10,7 +10,8 @@ This small first version reuses the Node server, SQLite database and existing tr
 - **Save my work** stores supported data. It is a manual save, not automatic cross-device syncing. A stale revision or changed account is refused instead of overwriting another save.
 - Downloads remain available; there is no learner upload or import interface/API.
 - The cloud allowlist covers property labels/location, sale type/plan/stage, deal checklists, recognized numerical calculator inputs (including the amount budgeted for a deal, not bank balances or account identifiers) and confirmation flags, saved listing references, lessons read, roadmap progress, practice choices/numbers and self-review completion.
-- No contacts, notes, evidence text, packet text, written practice answers, personal cash worksheets, credit information, banking details or files in cloud saves. Written reflection completion is a self-review marker, not a grade or purchase approval. Downloads can contain local-only writing: keep them private.
+- Also saved: the one-sentence goal, the buy box (without its notes), Decide answers, owned-property months (without notes) and the pre-foreclosure watchlist.
+- No contacts (team list), notes, evidence logs, deal packets, written practice answers, personal cash worksheets, credit information, banking details or files in cloud saves. The account page and the save message name what stays in the visit only, and the browser warns before that work is lost. Written reflection completion is a self-review marker, not a grade or purchase approval. Downloads can contain local-only writing: keep them private.
 - Deleting an account needs a fresh email sign-in in the preceding 15 minutes and revokes its sessions. Backup copies expire under the operator's configured backup retention.
 
 The supported calculator inputs do not establish a loan offer, a guaranteed return or legal approval. All existing state/local guidance and formulas remain in the teaching tools. Location preferences remain per device, so each device still chooses its investing location.
@@ -51,7 +52,7 @@ Rollback: set `LEARNER_ACCOUNTS=0` and restart the web server; guest functionali
 ## Security boundaries and evidence
 
 - 256-bit random, hashed, single-use 15-minute verification links; atomic consume; request-browser binding via HttpOnly cookie. GET does not activate an account. Tokens are in a URL fragment, removed from the address bar on the account page; they are not placed in HTTP query strings or route logs.
-- Separate learner session cookies, Secure/HttpOnly/SameSite=Strict with `__Host-` scope in production; eight-hour absolute and one-hour idle limits, rotation and server-side revocation. No admin/advertiser privilege crossover.
+- Separate learner session cookies, Secure/HttpOnly/SameSite=Strict with `__Host-` scope in production; 30-day absolute and 7-day idle limits for learners (admin sessions keep eight hours and one hour), rotation and server-side revocation. No admin/advertiser privilege crossover.
 - Server derives ownership from the authenticated session on every read/write. A body owner is only an additional switch-account guard, never a lookup selector.
 - Account POSTs require the application header and the configured public Origin. No account CORS allowance, arbitrary redirect, upload route or HTML rendering.
 - Strict shared schema/projection, bounded JSON, typed finite numbers, constant choice/task IDs, plain bounded property labels, parameterized SQL, rate limits and bounded pending sign-in records. Unknown submitted keys are rejected. Validation cannot identify every kind of private information a person could type into a property label; the UI explicitly asks for property labels without personal information.

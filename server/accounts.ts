@@ -3,7 +3,7 @@ import { createCipheriv, createDecipheriv, createHmac, randomBytes } from 'node:
 import type { DatabaseSync } from 'node:sqlite';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { domainToASCII } from 'node:url';
-import { newToken, parseCookies, RateLimiter, safeEqualStrings, sessionCookie, sha256, SESSION_IDLE_MS, SESSION_MAX_MS } from './auth';
+import { newToken, parseCookies, RateLimiter, safeEqualStrings, sessionCookie, sha256, LEARNER_SESSION_IDLE_MS, LEARNER_SESSION_MAX_MS } from './auth';
 import type { Mail } from './mailer';
 import { validCloudWork, type CloudWork } from '../src/lib/cloudWork';
 
@@ -64,7 +64,7 @@ export function openAccounts(db: DatabaseSync, o: Options) {
   const purge = () => {
     const at = time();
     db.prepare('DELETE FROM learner_links WHERE expires <= ?').run(at);
-    db.prepare('DELETE FROM learner_sessions WHERE created <= ? OR seen <= ?').run(at - SESSION_MAX_MS, at - SESSION_IDLE_MS);
+    db.prepare('DELETE FROM learner_sessions WHERE created <= ? OR seen <= ?').run(at - LEARNER_SESSION_MAX_MS, at - LEARNER_SESSION_IDLE_MS);
   };
   function write(req: IncomingMessage) {
     o.write(req);
@@ -76,7 +76,7 @@ export function openAccounts(db: DatabaseSync, o: Options) {
     if (!token || !TOKEN.test(token)) throw new AccountError(401, 'Sign in again to use saved work.');
     const hash = sha256(token);
     const s = db.prepare('SELECT account_id AS id, created, seen FROM learner_sessions WHERE token_hash = ?').get(hash) as {id:string;created:number;seen:number}|undefined;
-    if (!s || s.created <= time() - SESSION_MAX_MS || s.seen <= time() - SESSION_IDLE_MS) {
+    if (!s || s.created <= time() - LEARNER_SESSION_MAX_MS || s.seen <= time() - LEARNER_SESSION_IDLE_MS) {
       db.prepare('DELETE FROM learner_sessions WHERE token_hash = ?').run(hash);
       throw new AccountError(401, 'Your sign-in expired. Download any unsaved work, then sign in again.');
     }
@@ -131,7 +131,7 @@ export function openAccounts(db: DatabaseSync, o: Options) {
       const previous = parseCookies(req.headers.cookie)[cookie];
       if (previous) db.prepare('DELETE FROM learner_sessions WHERE token_hash = ?').run(sha256(previous));
       const token = newToken(); db.prepare('INSERT INTO learner_sessions VALUES (?, ?, ?, ?)').run(sha256(token),id,time(),time());
-      res.setHeader('set-cookie',[sessionCookie(cookie,token,'/',o.secure),sessionCookie(browserCookie,'','/',o.secure,0)]);
+      res.setHeader('set-cookie',[sessionCookie(cookie,token,'/',o.secure,LEARNER_SESSION_MAX_MS/1000),sessionCookie(browserCookie,'','/',o.secure,0)]);
       o.send(res,200,{account:info(id)}); return true;
     }
     if (method === 'GET' && path === '/api/account/me') { const s=session(req); o.send(res,200,{account:info(s.id)}); return true; }

@@ -1,3 +1,4 @@
+import { excludedWork } from '../lib/cloudWork';
 import { useEffect, useState } from 'react';
 import { accountApi, continueAsGuest, refreshAccount, returnToGuest, saveAccountWork, signOutAccount, useAccount, verifiedAccount } from '../lib/account';
 import { useSiteFeatures } from '../lib/siteFeatures';
@@ -31,14 +32,14 @@ export default function AccountPage() {
   return <main className="page account-page">
     <PageHero title="Save your work" sub="An account is optional. Keep your property work and learning progress across devices, for free." />
     {!features ? <p role="status">Checking account availability…</p> : !features.accounts ? <section><h2>Account saving: coming soon</h2><p>You can keep using the lessons, practice and tools, and download your work. Account saving will appear here once its secure setup is complete.</p><a className="btn" href="#/toolkit/backup">Download my progress</a></section> : <>
-      <p className="why-note">We save property details, deal numbers, checklists and supported lesson/practice progress. We don’t accept uploads or imports. Notes, contacts, written practice answers and personal cash worksheets are not saved to your account. Don’t enter SSNs, credit details, bank information or anyone’s personal information.</p>
+      <p className="why-note">We save property details, deal numbers, checklists, your goal, your buy box, your Decide answers, owned-property records and supported lesson and practice progress. We don’t accept uploads or imports. Not saved to your account: notes, your team list (contacts), the cash worksheet, evidence logs, deal packets and written practice answers. They last for this visit; the download keeps them. Don’t enter SSNs, credit details, bank information or anyone’s personal information.</p>
       {token && <section><h2>Verify your email</h2><p>This signs you in using the link you requested in this browser.</p><button className="btn" disabled={busy} onClick={() => void run(async () => { await verifiedAccount(token); setToken(''); })}>Verify email and sign in</button></section>}
       {s.status==='loading' ? <p role="status">Opening your saved work…</p> : s.status==='signed' || s.status==='locked' ? <>
         <section><h2>{s.account?.firstName ? `${s.account.firstName}’s workspace` : 'Your workspace'}</h2><p>Signed in as {s.account?.email}. Guest work stays separate on this device.</p>
           <p>Use <strong>Save my work</strong> after making changes. Unsaved account work lasts for this visit; save or download before closing the tab. Your chosen investing location stays on this device.</p>
           <div className="decide-nav"><a className="btn" href="#/analyze">Work on a property</a><a className="btn btn-secondary" href="#/learn">Continue learning</a><button className="btn btn-secondary" onClick={download}>Download my work</button></div>
           {s.account && <p>Last account save: {s.account.revision ? new Date(s.account.updatedAt).toLocaleString() : 'No work saved yet'}</p>}
-          <p>The download also includes notes and written answers from this visit that account saving excludes. Keep it private. It is a record for you to read; there is no file-import feature.</p>
+          <p>Kept only for this visit, never in your account: {[...excludedWork(workStorage), 'notes and written answers'].join(', ')}. The download includes them; keep it private. It is a record for you to read; there is no file-import feature.</p>
           {s.status==='locked' && <><p role="alert">{s.message}</p><button className="btn btn-secondary" disabled={busy} onClick={() => { if (window.confirm('Have you downloaded unsaved work? Reloading opens the saved account version and discards this visit’s unsaved account work.')) { returnToGuest(); void refreshAccount(true); } }}>Open saved account version</button></>}
         </section>
         <details><summary>Account controls</summary><p>Signing out clears the account workspace from this page. Save or download first. Your guest work remains on the device. Protect your email inbox: access to it can allow account sign-in.</p>
