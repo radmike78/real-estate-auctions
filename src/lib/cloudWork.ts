@@ -33,7 +33,8 @@ export const CLOUD_EXCLUDED: { key: string; label: string }[] = [
 export function excludedWork(storage: Storage): string[] {
   const out: string[] = [];
   for (const { key, label } of CLOUD_EXCLUDED) {
-    const v = storage.getItem(key);
+    let v: string | null = null;
+    try { v = storage.getItem(key); } catch { /* storage unavailable */ }
     if (v && !['{}', '[]', '""', 'null'].includes(v.trim())) out.push(label);
   }
   return out;

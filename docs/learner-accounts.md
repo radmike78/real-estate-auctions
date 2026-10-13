@@ -52,7 +52,7 @@ Rollback: set `LEARNER_ACCOUNTS=0` and restart the web server; guest functionali
 ## Security boundaries and evidence
 
 - 256-bit random, hashed, single-use 15-minute verification links; atomic consume; request-browser binding via HttpOnly cookie. GET does not activate an account. Tokens are in a URL fragment, removed from the address bar on the account page; they are not placed in HTTP query strings or route logs.
-- Separate learner session cookies, Secure/HttpOnly/SameSite=Strict with `__Host-` scope in production; eight-hour absolute and one-hour idle limits, rotation and server-side revocation. No admin/advertiser privilege crossover.
+- Separate learner session cookies, Secure/HttpOnly/SameSite=Strict with `__Host-` scope in production; 30-day absolute and 7-day idle limits for learners (admin sessions keep eight hours and one hour), rotation and server-side revocation. No admin/advertiser privilege crossover.
 - Server derives ownership from the authenticated session on every read/write. A body owner is only an additional switch-account guard, never a lookup selector.
 - Account POSTs require the application header and the configured public Origin. No account CORS allowance, arbitrary redirect, upload route or HTML rendering.
 - Strict shared schema/projection, bounded JSON, typed finite numbers, constant choice/task IDs, plain bounded property labels, parameterized SQL, rate limits and bounded pending sign-in records. Unknown submitted keys are rejected. Validation cannot identify every kind of private information a person could type into a property label; the UI explicitly asks for property labels without personal information.

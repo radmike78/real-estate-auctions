@@ -13,6 +13,9 @@ const scryptAsync = promisify(scrypt) as (pw: string, salt: Buffer, len: number,
 const SCRYPT = { N: 1 << 15, r: 8, p: 1, maxmem: 64 * 1024 * 1024 };
 export const SESSION_MAX_MS = 8 * 3_600_000;
 export const SESSION_IDLE_MS = 3_600_000;
+// Learners keep a longer sign-in than admins: nothing privileged is behind it, and a daily lockout would lose unsaved work.
+export const LEARNER_SESSION_MAX_MS = 30 * 86_400_000;
+export const LEARNER_SESSION_IDLE_MS = 7 * 86_400_000;
 
 export function hashPassword(password: string): string {
   if (password.length < 12) throw new Error('Admin password must be at least 12 characters.');

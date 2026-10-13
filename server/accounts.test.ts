@@ -51,7 +51,8 @@ describe('verified learner account boundary',()=>{
     const l=await link('expired@example.com'); date=new Date(date.getTime()+15*60_000);
     expect((await call('verify',{token:l.token},l.binding)).status).toBe(400);
     const a=await sign('learner@example.com');
-    date=new Date(date.getTime()+61*60_000); expect((await call('work',undefined,a.cookie)).status).toBe(401);
+    date=new Date(date.getTime()+6*86_400_000); expect((await call('work',undefined,a.cookie)).status).toBe(200); // 6 idle days: still signed in
+    date=new Date(date.getTime()+8*86_400_000); expect((await call('work',undefined,a.cookie)).status).toBe(401); // 8 idle days: expired
     const b=await sign('other@example.com'); expect((await call('logout',{},b.cookie)).status).toBe(200);
     expect((await call('work',undefined,b.cookie)).status).toBe(401);
   });

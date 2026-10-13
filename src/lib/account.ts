@@ -8,6 +8,13 @@ interface AccountState { status: 'off' | 'loading' | 'guest' | 'signed' | 'locke
 let state: AccountState = { status: 'off', account: null, dirty: false, saving: false, message: '' };
 let sequence = 0;
 let guestChosen = false;
+// A device marker set once this browser has signed in: guests never wait on "Opening your workspace".
+const HINT_KEY = 'deedowl.account.hint.v1';
+const hint = {
+  has: () => { try { return globalThis.localStorage?.getItem(HINT_KEY) === '1'; } catch { return false; } },
+  set: () => { try { globalThis.localStorage?.setItem(HINT_KEY, '1'); } catch { /* private mode */ } },
+  clear: () => { try { globalThis.localStorage?.removeItem(HINT_KEY); } catch { /* private mode */ } },
+};
 let workVersion = 0;
 let muted = false;
 const listeners = new Set<(s: AccountState) => void>();
@@ -36,6 +43,7 @@ export async function refreshAccount(initial = false) {
     const { account } = await accountApi<{account:Learner}>('me');
     if (seq !== sequence) return;
     if (!validAccount(account)) throw new Error('Account response could not be checked.');
+    hint.set();
     if (workspaceOwner() === account.id) { publish({status:'signed', account:{...account,revision:state.account?.revision ?? account.revision}}); return; }
     if (workspaceOwner()) { publish({status:'locked', message:'The account changed in another tab. Download any unsaved work before reloading.'}); return; }
     const saved = await accountApi<{owner:string;revision:number;updatedAt:string;data:CloudWork}>('work');
@@ -45,14 +53,21 @@ export async function refreshAccount(initial = false) {
     publish({status:'signed',account:{...account,revision:saved.revision,updatedAt:saved.updatedAt},dirty:false,message:''});
   } catch (e) {
     if (seq !== sequence) return;
-    if (workspaceOwner()) publish({status:'locked',message:e instanceof ApiError && e.status===401 ? e.message : 'Account saving is paused. Download unsaved work before reloading or leaving.'});
-    else publish({status:'guest',account:null,message:e instanceof ApiError && e.status===401 ? '' : 'Account saving is unavailable. You can continue without an account.'});
+    const expired = e instanceof ApiError && e.status===401;
+    if (expired) hint.clear();
+    if (!workspaceOwner()) { publish({status:'guest',account:null,message:expired ? '' : 'Account saving is unavailable. You can continue without an account.'}); return; }
+    const unsaved = state.dirty || excludedWork(workStorage).length > 0;
+    // Only unsaved work justifies locking every page: with nothing to lose, an expired sign-in just drops to guest.
+    if (expired && !unsaved) { guestChosen=true; workspace(null); publish({status:'guest',account:null,dirty:false,saving:false,message:'Your sign-in expired; everything was already saved. Open your account to sign in again.'}); }
+    else if (!unsaved) publish({message:'Account saving is unavailable right now. Your saved work is safe on the server.'});
+    else publish({status:'locked',message:expired ? e.message : 'Account saving is paused. Download unsaved work before reloading or leaving.'});
   }
 }
 export function useAccountRuntime(enabled: boolean) {
   useEffect(() => {
     if (!enabled) return;
-    if (!guestChosen) void refreshAccount(true);
+    if (!guestChosen && hint.has()) void refreshAccount(true);
+    else if (state.status === 'off') publish({status:'guest'});
     const refresh = () => { if (document.visibilityState === 'visible') void refreshAccount(); };
     const interval = setInterval(refresh, 60000);
     window.addEventListener('focus',refresh);
@@ -84,7 +99,7 @@ export async function saveAccountWork() {
 }
 export async function signOutAccount(remove = false) {
   await accountApi(remove ? 'delete' : 'logout', remove ? {owner:state.account?.id,confirm:'DELETE'} : {});
-  sequence++; guestChosen=true; workspace(null);
+  sequence++; guestChosen=true; workspace(null); hint.clear();
   publish({status:'guest',account:null,dirty:false,saving:false,message:remove ? 'Your account and its saved work were deleted.' : 'Signed out. Your guest work is still on this device.'});
 }
 export async function verifiedAccount(token: string) {

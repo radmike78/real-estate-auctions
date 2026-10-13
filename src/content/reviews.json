@@ -438,7 +438,7 @@
       "server/accounts.ts"
     ],
     "reviewed": "2026-10-13",
-    "hash": "267e217c6fea91f9",
+    "hash": "a3e7776c85a8ddc5",
     "note": "Reviewed guest opt-out and later account activation: focus/session checks remain installed, while explicit guest choice suppresses account requests until sign-in or reopening. Structured save scope, manual controls and OWASP boundaries unchanged; production activation remains gated."
   }
 ]
