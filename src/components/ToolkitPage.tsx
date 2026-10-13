@@ -9,7 +9,7 @@ import { fmtMoney } from '../lib/status';
 import { cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP_PATHS, ROADMAP_PHASES, ROADMAP_PHASE_HELP, roadmapFor, LIEN_STRATEGY, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
 import { downloadText, fileName } from '../lib/download';
 import { cleanLog, logText } from '../lib/evidence';
-import { makeBackup } from '../lib/progressBackup';
+import { makeBackup, readBackup, restoreBackup } from '../lib/progressBackup';
 import { loadDeals as loadAnalyzed } from '../lib/analyze';
 import { docGuide, DOC_GUIDES } from '../lib/docGuides';
 import NarrowDown from './NarrowDown';
@@ -159,7 +159,7 @@ function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: Step
       )}
       {s.skip && <p className="muted roadmap-skip"><strong>Doesn’t apply if:</strong> {s.skip}</p>}
       <div className="roadmap-status" role="group" aria-label={`Status: ${s.title}`}>
-        {(['todo', 'doing', 'waiting', 'done', 'stopped', ...(s.skip || status === 'na' ? (['na'] as const) : [])] as const).map((k) => (
+        {(['todo', 'doing', 'waiting', 'done', 'stopped', 'na'] as const).map((k) => (
           <button key={k} type="button" aria-pressed={status === k} onClick={() => setStatus(k)}>{STEP_STATUS_LABEL[k]}</button>
         ))}
         {s.href && <a className="btn" href={s.href}>{s.id === 'goal' && currentProgress().decided ? 'Review your Decide results' : s.action ?? 'Open'}&nbsp;→</a>}
@@ -582,7 +582,7 @@ function BuyBoxBuilder() {
         </p>
         {b.dealBreakers.length > 0 && <p><strong>I walk away if:</strong> {b.dealBreakers.map((d) => (/^[A-Z][a-z]/.test(d) ? d.charAt(0).toLowerCase() + d.slice(1) : d)).join('; ')}.</p>}
         <div className="decide-nav">
-          <button type="button" className="btn btn-secondary" onClick={() => window.print()}>Print</button>
+          <button type="button" className="btn btn-secondary" onClick={() => printWith('print-buybox')}>Print</button>
           <button type="button" className="btn btn-secondary" onClick={() => downloadText('my-buy-box.txt', buyBoxText(b, state?.name))}>Download</button>
           <button type="button" className="btn btn-secondary" onClick={() => setB({ ...EMPTY_BUY_BOX })}>Clear</button>
         </div>
@@ -725,16 +725,56 @@ function Worksheets() {
   );
 }
 
+/** Prints with a body class on, so a print rule can show one part of the page (the buy box's own Print button). */
+function printWith(cls: string) {
+  document.body.classList.add(cls);
+  const done = () => {
+    document.body.classList.remove(cls);
+    window.removeEventListener('afterprint', done);
+  };
+  window.addEventListener('afterprint', done);
+  window.print();
+}
+
 function ProgressBackup() {
   const account = useAccount();
+  const [msg, setMsg] = useState('');
+  // Guests get their download back into a browser here; nothing is uploaded. Signed in, the account holds the work.
+  const onFile = async (input: HTMLInputElement) => {
+    const f = input.files?.[0];
+    input.value = ''; // so choosing the same file again still works
+    if (!f) return;
+    if (f.size > 4_000_000) return setMsg('That file is too large to be a DeedOwl progress file.');
+    let text: string;
+    try {
+      text = await f.text();
+    } catch {
+      return setMsg('That file couldn’t be read.');
+    }
+    const r = readBackup(text);
+    if (!r.ok) return setMsg(r.error);
+    const count = Object.keys(r.data).length;
+    const when = r.saved ? ` saved ${new Date(r.saved).toLocaleString()}` : '';
+    if (!window.confirm(`Replace your progress in this browser with this file${when} (${count} item${count === 1 ? '' : 's'})? Items in the file replace what’s here now.`)) return setMsg('Nothing was changed.');
+    const n = restoreBackup(r.data);
+    setMsg(`Restored ${n} item${n === 1 ? '' : 's'}. Reloading…`);
+    setTimeout(() => window.location.reload(), 800);
+  };
   return (
     <section id="backup" aria-labelledby="backup-head">
       <h2 id="backup-head">Download your progress</h2>
-      <p>{account.account ? 'This downloads the work in your account workspace, including notes and written answers from this visit that are not saved to your account.' : 'Without an account, your work stays in this browser. Download a copy to read or keep for your records.'} Keep the file private: it may contain notes you entered. There is no file-upload or import option.</p>
+      <p>{account.account ? 'This downloads the work in your account workspace, including notes and written answers from this visit that are not saved to your account.' : 'Without an account, your work stays in this browser. Download a copy to read or keep for your records.'} Keep the file private: it may contain notes you entered.{account.account ? '' : ' To bring it back, load it here on the same or another device; nothing is sent anywhere.'}</p>
       <div className="decide-nav">
         <button type="button" className="btn" onClick={() => downloadText(`deedowl-progress-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(makeBackup()), 'application/json')}>Download my progress</button>
+        {!account.account && (
+          <label className="btn btn-secondary file-btn">
+            Load a progress file
+            <input type="file" accept="application/json,.json" onChange={(e) => onFile(e.target)} />
+          </label>
+        )}
         <a className="btn btn-secondary" href="#/account">Optional account saving</a>
       </div>
+      <p role="status" aria-live="polite">{msg}</p>
     </section>
   );
 }
@@ -768,7 +808,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
         <p>Download a summary of your goal, budget, property preferences, checklist progress and contacts. You can keep it or share it with your agent or lender. Optional account saving keeps supported property work and learning progress across devices. Downloads are readable records; there is no file-import option.</p>
         <div className="decide-nav">
           <button type="button" className="btn" onClick={() => downloadText('my-investing-plan.txt', planText())}>Download my plan</button>
-          <button type="button" className="btn btn-secondary" onClick={() => window.print()}>Print this page</button>
+          <button type="button" className="btn btn-secondary" onClick={() => { document.querySelectorAll<HTMLDetailsElement>('.toolkit details.plan-section').forEach((d) => { d.open = true; }); window.print(); }}>Print this page</button>
         </div>
       </section>
       <details className="plan-section"><summary id="reference-head">Worksheets, paperwork and tools</summary>

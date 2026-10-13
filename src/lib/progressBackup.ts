@@ -1,6 +1,6 @@
 import { workStorage as localStorage } from './workStorage';
 // Download learning progress from the current workspace. Optional accounts save only allowed structured work.
-// Downloads may include local-only notes; keep them private. There is no visitor upload/import control.
+// Downloads may include local-only notes; keep them private. A guest can load the file back into a browser on My plan.
 // Sign-in links and email-alert tokens are never included.
 import { cleanDeal } from './analyze';
 import { cleanPacket } from './dealPacket';

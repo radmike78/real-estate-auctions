@@ -145,6 +145,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     setDeal(d);
   };
   const remove = (id: string) => {
+    // One click used to wipe the packet, numbers and evidence; My deals asks first, so this does too.
+    if (!window.confirm('Delete this deal, with its numbers, deal packet and evidence log?')) return;
     const next = saved.filter((d) => d.id !== id);
     saveDeals(next);
     forgetDeal(id);
