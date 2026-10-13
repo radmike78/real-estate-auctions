@@ -3,7 +3,7 @@ import type { Lesson } from './types';
 export const redFlags: Lesson = {
   key: 'red-flags',
   minutes: 7,
-  intro: 'Free real estate seminars are often the first step of a sales funnel that ends with coaching packages costing tens of thousands of dollars. Federal and Utah regulators have shut several of them down. This lesson walks through those court cases so you can see how the schemes worked, spot the pattern and keep your money for actual deals.',
+  intro: 'Free real estate seminars are often the first step of a sales funnel that ends with coaching packages costing tens of thousands of dollars. Federal and state regulators have shut several of them down. This lesson walks through those court cases so you can see how the schemes worked, spot the pattern and keep your money for actual deals.',
   takeaways: [
     'How the free event, paid workshop and coaching upsell funnel works.',
     'The warning signs regulators found again and again.',
