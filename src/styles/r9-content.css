@@ -418,3 +418,6 @@
 .welcome-gate .role-lead { font-size: 1.1rem; line-height: 1.55; margin: 0 0 18px; }
 .welcome-gate h2 { margin-top: 24px; }
 .welcome-gate-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+
+/* Home: on tablets the headline would run under the owl watermark at the top right; leave it room. */
+@media (min-width: 701px) and (max-width: 1000px) { .simple-hero .hero-inner { padding-right: 140px; } }

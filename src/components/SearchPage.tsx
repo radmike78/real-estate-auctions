@@ -106,7 +106,7 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
   }
 
   return (
-    <div className="search-page">
+    <main className="search-page">
       <div className="search-top">
         <h1 className="search-title">
           {SHOW_SAMPLE_DATA ? 'Sample listings (practice data)' : filters.statuses.length > 0 && filters.statuses.every((s) => s === 'NOT_FOR_SALE_LIEN_ONLY') ? 'Liens on record in Clark County (not for sale)' : 'Properties for sale in Clark County'}
@@ -125,7 +125,7 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
           {getMyState() && getMyState() !== 'NV' && <> For real sales in your selected state, start at <a href="#/find-deals">Find deals</a>, which lists your county’s official offices.</>}
         </div>
       )}
-      <main className="search-layout">
+      <div className="search-layout">
         {/* On phones the filters fold away behind one button, so results start right under the search bar. */}
         <details className="filters-wrap" open={filtersOpen} onToggle={(e) => setFiltersOpen((e.target as HTMLDetailsElement).open)}>
           <summary>Filters{activeFilters > 0 && ` (${activeFilters} on)`}</summary>
@@ -158,7 +158,7 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
           {view === 'map' ? <MapView properties={results} onSearchArea={(bounds) => update({ bounds })} /> : <ResultsList properties={results} />}
           <Disclaimer kind="sales" compact />
         </section>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }

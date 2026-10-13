@@ -2209,7 +2209,7 @@ h3.topic-head { margin: 24px 0 10px; padding: 8px 14px; font-size: 1.2rem; borde
 .buybox-checks input { width: 18px; height: 18px; flex: none; margin-top: 3px; }
 .buybox-summary { margin-top: 14px; padding: 14px 16px; border-radius: 8px; background: var(--info-bg); }
 .buybox-summary h3 { margin-top: 0; }
-@media print { .site-header, .site-footer, .toolkit .page-hero, .toolkit section:not(#buy-box), .buybox-summary .decide-nav { display: none !important; } }
+@media print { body.print-buybox .site-header, body.print-buybox .site-footer, body.print-buybox .toolkit .page-hero, body.print-buybox .toolkit section:not(#buy-box), body.print-buybox .buybox-summary .decide-nav { display: none !important; } }
 .practice-grid.drill-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 .at-price { display: grid; gap: 10px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
 .at-price h4 { margin: 0; }

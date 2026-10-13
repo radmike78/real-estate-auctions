@@ -23,8 +23,8 @@
       "src/lib/saleSearch.ts",
       "src/lib/status.ts"
     ],
-    "reviewed": "2026-10-11",
-    "hash": "dbcf359bf51bc49b",
+    "reviewed": "2026-10-13",
+    "hash": "7cff5f9b5b912196",
     "note": "State-isolation presentation audit across all five selections, including expanded pages and local quizzes. Removed cross-state comparisons and examples; retained local contract, county and professional-guidance qualifications. No new legal rules or financial calculations introduced."
   },
   {
@@ -147,7 +147,7 @@
       "src/practice/dealJourney.ts"
     ],
     "reviewed": "2026-10-13",
-    "hash": "948b05aaf0422999",
+    "hash": "4ba275d56cc8a9f1",
     "note": "Reviewed account resume: choices and numbers preserved, reflection self-review completion explicitly distinguished from written answers and grades; restored reflections allow continuation without inventing text. Local risk guidance and formulas unchanged."
   },
   {
@@ -407,7 +407,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-13",
-    "hash": "47e9036c42a030aa",
+    "hash": "414d7916e79f1d3a",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -423,7 +423,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-13",
-    "hash": "e51351ffe2eaed30",
+    "hash": "ce548535b489d108",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
