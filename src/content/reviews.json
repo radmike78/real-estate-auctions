@@ -63,8 +63,8 @@
       "src/components/IrsSales.tsx",
       "src/components/SidCertificates.tsx"
     ],
-    "reviewed": "2026-10-11",
-    "hash": "6705c5d2f6e9b81f",
+    "reviewed": "2026-10-13",
+    "hash": "c5078b2f7a5f130b",
     "note": "Single-state presentation and search review: local search index and cache rebuilt per selected state; calculator feedback comparisons removed; official local listing links preserved. No calculation changes or new legal claims."
   },
   {
@@ -147,7 +147,7 @@
       "src/practice/dealJourney.ts"
     ],
     "reviewed": "2026-10-13",
-    "hash": "4a3a3e61a6db1942",
+    "hash": "c4c82ca042175c6b",
     "note": "Reviewed account resume: choices and numbers preserved, reflection self-review completion explicitly distinguished from written answers and grades; restored reflections allow continuation without inventing text. Local risk guidance and formulas unchanged."
   },
   {

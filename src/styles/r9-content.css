@@ -414,3 +414,12 @@
 
 /* Home: on tablets the headline would run under the owl watermark at the top right; leave it room. */
 @media (min-width: 701px) and (max-width: 1000px) { .simple-hero .hero-inner { padding-right: 140px; } }
+
+/* No ragged last row: an odd fifth card spans the row in two-column layouts (playbook survival grid), and five
+   option cards on tablets go three then two, like the financing options. */
+.survive-grid > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+@media (min-width: 701px) and (max-width: 1000px) {
+  .options-grid:not(.fin-options):has(> :nth-child(5):last-child) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .options-grid:not(.fin-options):has(> :nth-child(5):last-child) > * { grid-column: span 2; }
+  .options-grid:not(.fin-options):has(> :nth-child(5):last-child) > :nth-child(n+4) { grid-column: span 3; }
+}
