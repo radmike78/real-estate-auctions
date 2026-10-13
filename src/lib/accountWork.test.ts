@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, it } from 'vitest';
 import { workStorage, openWorkspace } from './workStorage';
-import { cloudFromStorage, projectCloudWork, validCloudWork } from './cloudWork';
+import { cloudFromStorage, excludedWork, projectCloudWork, validCloudWork } from './cloudWork';
 import { makeBackup } from './progressBackup';
 import { answerTask, CHAPTERS, emptyJourney, JOURNEY_KEY, cleanJourney } from '../practice/dealJourney';
 import { loadDeals } from './analyze';
@@ -69,4 +69,22 @@ it('rejects deeply nested hostile values without recursion errors or accepting e
   expect(validCloudWork({'fsf.calc.rent.v1':{monthlyRent:nested}})).toBe(false);
   expect(validCloudWork(JSON.parse('{"__proto__":{"polluted":true}}'))).toBe(false);
   expect(({} as Record<string,unknown>).polluted).toBeUndefined();
+});
+
+it('saves the goal, buy box, Decide answers and owned months without notes, and names what stays out',()=>{
+  workStorage.setItem('deedowl.goal.v1',JSON.stringify('Two rentals in five years'));
+  workStorage.setItem('deedowl.buybox.v1',JSON.stringify({state:'NV',area:'Henderson',types:['house'],priceMax:350000,notes:'private buy box note',dealBreakers:[]}));
+  workStorage.setItem('deedowl.decide.v1',JSON.stringify({answers:{goal:'income',cash:'10to50',bogus:'x',state:'NV'},done:['a']}));
+  workStorage.setItem('deedowl.owned.v1',JSON.stringify({p1:{boughtOn:'2026-01-15',months:[{month:'2026-02',rent:2000,costs:800,note:'tenant name'}]}}));
+  workStorage.setItem('fsf.preforeclosure.watch.v1',JSON.stringify({'nv-123':'notice','<x>':'bad'}));
+  workStorage.setItem('deedowl.cash.v1',JSON.stringify({savings:5}));
+  workStorage.setItem('deedowl.evidence.v1',JSON.stringify({d1:{rows:{}}}));
+  const safe=cloudFromStorage(workStorage);
+  expect(validCloudWork(safe)).toBe(true);
+  expect(JSON.stringify(safe)).not.toMatch(/private buy box note|tenant name|bogus|savings|<x>/);
+  expect(safe['deedowl.goal.v1']).toBe('Two rentals in five years');
+  expect(safe['deedowl.decide.v1']).toEqual({answers:{goal:'income',cash:'10to50',state:'NV'}});
+  expect(safe['fsf.preforeclosure.watch.v1']).toEqual({'nv-123':'notice'});
+  expect(validCloudWork(projectCloudWork(safe))).toBe(true); expect(projectCloudWork(safe)).toEqual(safe);
+  expect(excludedWork(workStorage)).toEqual(['the cash worksheet','evidence logs']);
 });

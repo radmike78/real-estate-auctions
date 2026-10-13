@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, ApiError } from './api';
-import { cloudFromStorage, validCloudWork, type CloudWork } from './cloudWork';
+import { cloudFromStorage, excludedWork, validCloudWork, type CloudWork } from './cloudWork';
 import { openWorkspace, onWorkspace, workStorage, workspaceOwner } from './workStorage';
 
 export interface Learner { id: string; firstName: string; email: string; revision: number; updatedAt: string }
@@ -60,7 +60,8 @@ export function useAccountRuntime(enabled: boolean) {
   }, [enabled]);
   const s=useAccount();
   useEffect(() => {
-    const protect = (e: BeforeUnloadEvent) => { if (workspaceOwner() && s.dirty) { e.preventDefault(); e.returnValue=''; } };
+    // Excluded work (cash worksheet, contacts, evidence, packets) lives only in this visit: warn before it is lost.
+    const protect = (e: BeforeUnloadEvent) => { if (workspaceOwner() && (s.dirty || excludedWork(workStorage).length)) { e.preventDefault(); e.returnValue=''; } };
     window.addEventListener('beforeunload',protect); return () => window.removeEventListener('beforeunload',protect);
   }, [s.dirty]);
   return s;
@@ -75,7 +76,7 @@ export async function saveAccountWork() {
     if (!validCloudWork(data)) throw new Error('This workspace is too large or contains an unsupported property label. Download it and keep fewer deals in your account.');
     const r=await accountApi<{revision:number;updatedAt:string}>('work',{owner,revision:state.account.revision,data});
     if (workspaceOwner()!==owner || !state.account) return;
-    publish({account:{...state.account,revision:r.revision,updatedAt:r.updatedAt},dirty:workVersion!==version,message:'Saved to your account. Notes, contacts and personal cash worksheets are not included.'});
+    publish({account:{...state.account,revision:r.revision,updatedAt:r.updatedAt},dirty:workVersion!==version,message:`Saved to your account. Not included: ${[...excludedWork(workStorage), 'notes and written answers'].join(', ')}.`});
   } catch (e) {
     if (workspaceOwner()!==owner) return;
     publish({message:(e as Error).message,...(e instanceof ApiError && [401,409].includes(e.status) ? {status:'locked' as const} : {})});

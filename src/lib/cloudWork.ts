@@ -1,5 +1,5 @@
 // Cloud saves accept structured property work and learning progress only, on both client and server.
-// Never send a browser backup, notes, contacts, cash worksheets, uploads or arbitrary JSON.
+// Never send a browser backup, notes, contacts, cash worksheets, evidence or packet text, uploads or arbitrary JSON.
 import { cleanDeal, checklistFor } from './analyze';
 import { ROADMAP } from './roadmap';
 import { cleanDealSteps } from './roadmapDeals';
@@ -15,8 +15,29 @@ import { STATUS } from './status';
 import { CHECKLISTS } from './buyerChecklists';
 import { INCOME_DEFAULTS } from './incomeValue';
 import { STATES } from './regions';
+import { cleanBuyBox } from './toolkit';
+import { cleanOwned } from './owned';
+import { QUESTIONS } from './decide';
+import { cleanGoal } from './myPlan';
 
 export type CloudWork = Record<string, unknown>;
+/** Work an account never stores (free text, contacts, personal finances). It lasts for the visit; downloads keep it. */
+export const CLOUD_EXCLUDED: { key: string; label: string }[] = [
+  { key: 'deedowl.cash.v1', label: 'the cash worksheet' },
+  { key: 'deedowl.teamlist.v1', label: 'your team list (contacts)' },
+  { key: 'deedowl.team.v1', label: 'team builder choices' },
+  { key: 'deedowl.evidence.v1', label: 'evidence logs' },
+  { key: 'deedowl.dealPacket.v1', label: 'deal packets' },
+];
+/** The excluded tools that hold something in this workspace right now. */
+export function excludedWork(storage: Storage): string[] {
+  const out: string[] = [];
+  for (const { key, label } of CLOUD_EXCLUDED) {
+    const v = storage.getItem(key);
+    if (v && !['{}', '[]', '""', 'null'].includes(v.trim())) out.push(label);
+  }
+  return out;
+}
 export const CLOUD_LIMIT = 120_000; // bytes; HTTP limit has room for the envelope
 const ID = /^[A-Za-z0-9_-]{1,64}$/;
 const record = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
@@ -106,6 +127,14 @@ export function projectCloudWork(input: unknown): CloudWork {
     else if (k === 'deedowl.roadmap.v1') out[k] = ids(v, ROADMAP.map(s => s.id));
     else if (k === 'deedowl.roadmap.status.v1' && record(v)) out[k] = Object.fromEntries(Object.entries(v).filter(([s, a]) => ROADMAP.some(x => x.id === s) && ['doing','waiting','stopped','na'].includes(String(a))));
     else if (k === 'deedowl.roadmap.deals.v1') out[k] = cleanDealSteps(v);
+    else if (k === 'deedowl.goal.v1' && typeof v === 'string') out[k] = cleanGoal(v);
+    else if (k === 'deedowl.buybox.v1' && record(v)) { const { notes: _notes, ...box } = cleanBuyBox(v); out[k] = box; }
+    else if (k === 'deedowl.decide.v1' && record(v)) {
+      const a = record(v.answers) ? v.answers : {};
+      out[k] = { answers: Object.fromEntries(QUESTIONS.flatMap(q => q.options.some(o => o.value === a[q.key]) ? [[q.key, a[q.key]]] : [])) };
+    }
+    else if (k === 'deedowl.owned.v1' && record(v)) out[k] = Object.fromEntries(Object.entries(cleanOwned(v)).map(([id, o]) => [id, { boughtOn: o.boughtOn, months: o.months.map(m => ({ month: m.month, rent: m.rent, costs: m.costs, note: '' })) }]));
+    else if (k === 'fsf.preforeclosure.watch.v1' && record(v)) out[k] = Object.fromEntries(Object.entries(v).filter(([id, s]) => ID.test(id) && typeof s === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(s)).slice(0, 500));
     else if (k === 'deedowl.roadmap.deal.v1' && typeof v === 'string' && /^(|none|analyzed:[A-Za-z0-9_-]{1,64})$/.test(v)) out[k] = v;
     else if (k === 'fsf.practice.v1') out[k] = auctionPractice(v);
     else if (k === 'deedowl.drills.v1') out[k] = drills(v);
