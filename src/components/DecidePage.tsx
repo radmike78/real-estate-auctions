@@ -1,6 +1,7 @@
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useRef, useState } from 'react';
-import { useLastActivity } from '../lib/journey';
+import { getMode, useLastActivity } from '../lib/journey';
+import { planNow } from '../lib/planNext';
 import PageHero from './PageHero';
 import OwlNote from './OwlNote';
 import { useMarkStep } from '../lib/path';
@@ -208,7 +209,7 @@ export default function DecidePage() {
             </ul>
           </details>
           <div className="decide-nav">
-            <a className="btn" href="#/toolkit/buy-box">Next: write your buy box&nbsp;→</a>
+            {getMode() === 'guided' ? (() => { const plan = planNow(); return <a className="btn" href={plan.task.href}>Next: {plan.task.label}&nbsp;→</a>; })() : <a className="btn" href="#/toolkit/buy-box">Next: write your buy box&nbsp;→</a>}
             <button type="button" className="btn btn-secondary" onClick={() => setStep(0)}>Change my answers</button>
             <button
               type="button"

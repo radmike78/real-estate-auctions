@@ -108,8 +108,8 @@
 .roadmap-cols:has(.script-box) h3 { margin: 18px 0 10px; padding: 8px 14px; font-size: 1.2rem; line-height: 1.3; border-left: 4px solid var(--accent-strong); background: var(--surface-2); border-radius: 8px; }
 .roadmap-cols:has(.script-box) > * > h3:first-child, .roadmap-cols:has(.script-box) .script-box:first-child > h3:first-child { margin-top: 0; }
 
-/* Header tour button: the full "Getting started: stop 1 of 5" where the menu has room, "Stop 1 of 5" (its title says
-   the rest) on mid-size screens so the header never runs off the side. */
+/* Header Continue button: "Continue learning" where the menu has room, "Continue" (its title says the rest) on
+   mid-size screens so the header never runs off the side. */
 .nav-cta-short { display: none; }
 @media (min-width: 901px) and (max-width: 1500px) {
   .nav-cta-long { display: none; }
@@ -413,3 +413,8 @@
   .search-top::after { content: ''; position: absolute; top: 8px; right: var(--gutter, 24px); width: 120px; height: 120px; background: url(/owl-watermark.svg) center / contain no-repeat; pointer-events: none; }
 }
 @media (min-width: 701px) and (prefers-color-scheme: dark) { .search-top::after { background-image: url(/owl-watermark-dark.svg); } }
+
+/* Welcome page (first visit, before a state is chosen): the welcome dialog's lead line, then the states and two ways in. */
+.welcome-gate .role-lead { font-size: 1.1rem; line-height: 1.55; margin: 0 0 18px; }
+.welcome-gate h2 { margin-top: 24px; }
+.welcome-gate-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }

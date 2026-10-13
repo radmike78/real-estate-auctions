@@ -6,7 +6,7 @@ import { setDealStage, wayOf, stageHint, stageLabel, type PlanTask } from '../li
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
-import { planNow, ROADMAP_TASK_HREF } from '../lib/planNext';
+import { planNow, planStarted, ROADMAP_TASK_HREF } from '../lib/planNext';
 import { ROADMAP_PHASES, roadmapFor } from '../lib/roadmap';
 import { DEAL_KEY } from '../lib/roadmapDeals';
 import { NO_DEAL, pathForDeal, planPath, PROGRESS_EVENT, progressChanged, ROADMAP_PATH_KEY, roadmapProgress, settledFor, focusDealId } from '../lib/roadmapState';
@@ -105,7 +105,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   return (
     <section className={`plan-now plan-now-${variant}${helper ? ' with-helper' : ''}`} aria-labelledby={`plan-now-head-${variant}`}>
       <div className="plan-now-main">
-        <h2 id={`plan-now-head-${variant}`}>{onPlan ? 'Your next step' : 'Your next real-world step'}</h2>
+        <h2 id={`plan-now-head-${variant}`}>{onPlan || now.source === 'starter' ? 'Your next step' : 'Your next real-world step'}</h2>
         <p className="plan-now-goal">
           <span className="plan-now-k">Your goal</span>
           {now.goal ? <span>{now.goal}</span> : <span>Not written yet. <a href="#/decide">Choose my goal</a> (a few questions), then write it in a sentence in your roadmap.</span>}
@@ -135,7 +135,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           <h3>{task.label}</h3>
           <p className="plan-now-produces"><strong>You’ll have:</strong> {task.produces}.</p>
           <div className="plan-now-actions">
-            <ContinueButton task={task} dealId={deal?.id} onPlan={onPlan} />
+            <ContinueButton task={task} dealId={deal?.id} onPlan={onPlan} label={planStarted(now) ? undefined : 'Start'} />
             {task.advance && deal && <button type="button" className="btn btn-secondary" onClick={() => setDealStage(deal.id, task.advance!.stage)}>{task.advance.label}</button>}
           </div>
           {task.support.length > 0 && (

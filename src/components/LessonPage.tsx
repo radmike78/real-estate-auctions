@@ -2,6 +2,7 @@ import { LESSON_CHAPTER, journeyHref } from '../practice/dealJourney';
 import { useEffect, useRef, useState } from 'react';
 import { markLessonRead, useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
+import PathNext from './PathNext';
 import { LEARN_MODULES } from '../lib/learn';
 import { lessonByKey } from '../lib/lessons';
 import type { Lesson, LessonBlock } from '../lib/lessons/types';
@@ -311,19 +312,12 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
         </details>
         <p className="muted">Checked {fmtDate(l.reviewed)}. General education, not legal, tax or financial advice.</p>
       </section>
-      <nav className="path-next" aria-label="Next lesson">
-        {next ? (
-          <>
-            <span className="muted">Next lesson</span>
-            <a className="btn" href={nextHref}>{next.title}&nbsp;→</a>
-          </>
-        ) : (
-          <>
-            <span className="muted">Next: step 2 of 6</span>
-            <a className="btn" href="#/decide">Decide&nbsp;→</a>
-          </>
-        )}
-      </nav>
+      {next ? (
+        <nav className="path-next" aria-label="Next lesson">
+          <span className="muted">Next lesson</span>
+          <a className="btn" href={nextHref}>{next.title}&nbsp;→</a>
+        </nav>
+      ) : <PathNext step="learn" />}
       <AdSpot spot="lesson" />
     </main>
   );

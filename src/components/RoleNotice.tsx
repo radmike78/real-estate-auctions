@@ -1,6 +1,5 @@
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useRef, useState } from 'react';
-import { AreaPicker } from './AreaPicker';
 import { useMyState } from '../lib/myState';
 import { navigate } from '../lib/nav';
 import { setMode } from '../lib/journey';
@@ -13,6 +12,15 @@ function acknowledged(): boolean {
     return localStorage.getItem(KEY) === '1';
   } catch {
     return false;
+  }
+}
+
+/** The welcome has been seen (the welcome page or this dialog): don't show it again. */
+export function acknowledgeWelcome() {
+  try {
+    localStorage.setItem(KEY, '1');
+  } catch {
+    /* private mode: show again next visit */
   }
 }
 
@@ -30,7 +38,6 @@ export default function RoleNotice() {
   const [home] = useState(() => window.location.pathname === '/' && !window.location.hash.startsWith('#/'));
   useEffect(() => {
     if (!open || !home) return;
-    // Start on "Where are you buying?": the first state button.
     // Focus the heading, not the first state: a focus ring on "Nevada" looked like it was already chosen.
     (dialog.current?.querySelector<HTMLElement>('#role-title') ?? btn.current)?.focus();
     // A modal keeps the keyboard inside it: Tab cycles through its own links and buttons, Escape closes it.
@@ -53,13 +60,11 @@ export default function RoleNotice() {
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [open, home]); // eslint-disable-line react-hooks/exhaustive-deps
-  if (!open) return null;
+  // Until a state is chosen, the welcome page (WelcomeGate) asks the one question; no dialog on top of it, and none
+  // afterwards either, since the welcome page acknowledges the welcome when it closes.
+  if (!open || !state || acknowledged()) return null;
   function close() {
-    try {
-      localStorage.setItem(KEY, '1');
-    } catch {
-      /* private mode: show again next visit */
-    }
+    acknowledgeWelcome();
     setOpen(false);
   }
   if (!home) {
@@ -76,10 +81,7 @@ export default function RoleNotice() {
       <div ref={dialog} className="role-dialog" role="dialog" aria-modal="true" aria-labelledby="role-title">
         <h2 id="role-title" tabIndex={-1}>Welcome to DeedOwl</h2>
         <p className="role-lead">DeedOwl teaches you, step by step, how to find, check and buy real estate, from listed homes to auctions, with properties from official sources.</p>
-        {!state ? <>
-          <h3 className="area-dialog-head">Where are you buying?</h3>
-          <AreaPicker onDone={() => { close(); setMode('guided'); navigate(planNow().task.href); }} doneLabel="Try the first decision" />
-        </> : <button type="button" className="btn" onClick={() => { close(); setMode('guided'); navigate(planNow().task.href); }}>Try the first decision</button>}
+        <button type="button" className="btn" onClick={() => { close(); setMode('guided'); navigate(planNow().task.href); }}>Try the first decision</button>
         <button type="button" className="linkish" onClick={close}>Explore the website first</button>
       </div>
     </div>
