@@ -80,8 +80,8 @@ export default function LearnPage() {
         <p className="muted">{lesson.minutes} minutes.{LESSON_CHAPTER[next.key] && ' Then apply it to Cedar House, your fictional practice property.'}</p>
         {LESSON_CHAPTER[next.key] && <a href={journeyHref(LESSON_CHAPTER[next.key])}>Practice this idea →</a>}
       </section>
-      <details className="plan-section"><summary>Browse all lessons</summary>
-      <details><summary>Help choosing a strategy or lesson</summary>
+      <NarrowDown config={learnConfig()} intro="Answer two quick questions and we’ll suggest which lessons to read first. Browse the lessons below, or follow your next lesson above." />
+      <details className="plan-section" open><summary>Browse all lessons</summary>
       <section className="learn-money" aria-labelledby="learn-money">
         <div>
           <h2 id="learn-money">Ways to make money</h2>
@@ -89,8 +89,6 @@ export default function LearnPage() {
         </div>
         <a className="btn" href="#/learn/strategies">Compare the strategies&nbsp;→</a>
       </section>
-      <NarrowDown config={learnConfig()} intro="Answer two quick questions and we’ll suggest which lessons to read first. Browse the lessons below, or follow your next lesson above." />
-      </details>
       {paths.map((path) => (
         <section key={path.title} className="learn-path" aria-labelledby={`path-${path.keys[0]}`}>
           <h2 id={`path-${path.keys[0]}`}>{path.title}</h2>

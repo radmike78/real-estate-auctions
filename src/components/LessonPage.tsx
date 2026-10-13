@@ -267,8 +267,8 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
         </section>
       )}
       <article className="lesson-body-text">
-        {sections.map((s, index) => (
-          <details key={s.id} id={s.id} className="lesson-topic" name="lesson-topics" open={sections.some((x) => x.id === section) ? s.id === section : index === 0}>
+        {sections.map((s) => (
+          <details key={s.id} id={s.id} className="lesson-topic" open={sections.some((x) => x.id === section) ? s.id === section : true}>
             <summary><h2>{s.heading}</h2></summary>
             {s.blocks.map((b, i) => <Block key={i} b={b} marked={marked.get(b)} />)}
           </details>
@@ -277,7 +277,7 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
       {/* Hiring help for this topic goes with the reading, before the terms and questions that wrap the lesson up. */}
       <TopicAd lesson={lessonKey} />
       <section className="lesson-terms" aria-labelledby="terms" ref={endRef}>
-        <details><summary id="terms">Terms explained ({terms.length})</summary>
+        <details open><summary id="terms">Terms explained ({terms.length})</summary>
         <dl>{terms.map((t) => <div key={t.term}><dt>{t.term}</dt><dd>{t.meaning}</dd></div>)}</dl></details>
       </section>
       {/* Questions about another state's rules are left out when you've chosen a state: its text is hidden above. */}

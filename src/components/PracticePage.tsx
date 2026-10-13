@@ -119,7 +119,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
         />
         <PracticeRibbon />
         <DealJourneyEntry />
-        <details className="practice-more" open={/practice\/drills/.test(window.location.pathname + window.location.hash)}><summary>More ways to practice: documents, auctions and quick drills</summary>
+        <details className="practice-more" open><summary>More ways to practice: documents, auctions and quick drills</summary>
         {/* What kinds of practice there are, how long each takes, and a jump to each: pick by the time you have. */}
         <section className="practice-ways" aria-labelledby="practice-ways-head">
           <h2 id="practice-ways-head" className="section-title">More ways to practice</h2>
