@@ -130,7 +130,8 @@ async function checkSources(update: boolean, reportFile?: string): Promise<numbe
     .join('\n\n');
   console.log(md || 'All sources reachable; no watched page changed.');
   if (reportFile) writeFileSync(reportFile, md);
-  return changed.length || broken.length || blocked.length ? 2 : 0;
+  // Blocked sites are listed in the report but don't open an issue: hundreds of government sites block bots.
+  return changed.length || broken.length ? 2 : 0;
 }
 
 const run = async () => {

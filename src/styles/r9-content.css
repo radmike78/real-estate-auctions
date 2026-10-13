@@ -134,13 +134,6 @@
   .site-header:has(.nav-cta) .area-btn:has(.area-code) { width: auto; padding: 6px 10px; }
 }
 
-/* Home state chips on phones: two even rows (three, then two) that line up edge to edge, not a ragged centred wrap. */
-@media (max-width: 560px) {
-  .home-states { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
-  .home-states > span { grid-column: span 2; display: flex; }
-  .home-states > span:nth-child(n + 4) { grid-column: span 3; }
-  .home-states button { flex: 1; min-width: 0; }
-}
 
 /* Directory filters on tablets: an even two-column grid, so the four boxes line up (with three, the search box takes
    the first row). */

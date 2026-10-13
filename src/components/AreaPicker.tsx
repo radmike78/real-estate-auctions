@@ -6,7 +6,6 @@ import { areaLabel, areaLong, useMyArea, type Area } from '../lib/myArea';
 import { loadPlaces, matchPlaces, type Place } from '../lib/places';
 import { STATES, countyName, type StateCode } from '../lib/regions';
 import { useModal } from '../lib/useModal';
-import PlaceCombobox from './PlaceCombobox';
 
 export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false }: { onDone?: () => void; doneLabel?: string; extra?: ReactNode; /** The done button works with no state chosen (it just closes). */ optional?: boolean }) {
   const [area, setArea] = useMyArea();
@@ -158,70 +157,6 @@ export function AreaDialog({ onClose }: { onClose: () => void }) {
       </div>
     </div>,
     document.body,
-  );
-}
-
-/**
- * The homepage's state pill: each state is a button. Choosing one shows an optional city search and a county list, so
- * the visitor can say where they're buying once; every other page then starts from it (and can still change it).
- */
-export function HomeArea() {
-  const [area, setArea] = useMyArea();
-  const st = area ? STATES.find((s) => s.code === area.state) : undefined;
-  // Once a city is chosen, only the states show; clicking a state (the current one too) opens the choices again.
-  const [open, setOpen] = useState(() => !area?.city);
-  // A city in more than one county waits here until the visitor says which county the property is in.
-  const [multi, setMulti] = useState<Place | null>(null);
-  const pickState = (code: StateCode) => {
-    if (area?.state !== code) setArea({ state: code, city: null, county: null });
-    setOpen(true);
-  };
-  return (
-    <div className="home-area">
-      <div className="eyebrow home-states" role="group" aria-label="Where are you buying? Choose a state">
-        {STATES.map((s) => (
-          <span key={s.code}>
-            <button type="button" aria-pressed={area?.state === s.code} className={area?.state === s.code ? 'on' : ''} onClick={() => pickState(s.code as StateCode)}
-              title={area?.state === s.code && area.city && !open ? `${areaLong(area)}: click to change` : undefined}>{s.name}</button>
-          </span>
-        ))}
-      </div>
-      {area && st && open && (
-        <div className="home-area-row">
-          <PlaceCombobox
-            key={`${area.state}-${area.city ?? ''}`}
-            state={area.state}
-            label={area.city ? <>City: <strong>{area.city}</strong></> : 'Your city or town (optional)'}
-            onPick={(p) => {
-              if (p.counties.length > 1 && !(area.county && p.counties.includes(area.county))) { setMulti(p); return; }
-              setMulti(null);
-              setArea({ state: area.state, city: p.name, county: area.county && p.counties.includes(area.county) ? area.county : p.counties[0] });
-              setOpen(false);
-            }}
-          />
-          {multi && (
-            <fieldset className="area-county">
-              <legend>{multi.name} is in more than one county. Which county is the property in?</legend>
-              <p className="small muted">Deeds, tax sales and courts go by county. Not sure? The appraisal district or tax bill for the address shows it.</p>
-              {multi.counties.map((c) => (
-                <label key={c} className="check"><input type="radio" name="home-area-county" onChange={() => { setArea({ state: area.state, city: multi.name, county: c }); setMulti(null); setOpen(false); }} /> {countyName(c)}</label>
-              ))}
-            </fieldset>
-          )}
-          <label className="field">
-            <span>Or a county</span>
-            <select value={area.county ?? ''} onChange={(e) => setArea({ state: area.state, city: null, county: e.target.value || null })}>
-              <option value="">All of {st.name}</option>
-              {st.counties.map((c) => <option key={c} value={c}>{countyName(c)}</option>)}
-            </select>
-          </label>
-          <p className="home-area-now">
-            Showing <strong>{areaLong(area)}</strong> across the site. You can change it on any page.{' '}
-            <button type="button" className="linkish" onClick={() => setArea(null)}>Clear</button>
-          </p>
-        </div>
-      )}
-    </div>
   );
 }
 

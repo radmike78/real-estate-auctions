@@ -67,18 +67,19 @@ export function useAccountRuntime(enabled: boolean) {
 }
 export async function saveAccountWork() {
   if (state.status !== 'signed' || !state.account || state.saving) return;
-  const owner=state.account.id; const version=workVersion; const seq=sequence;
+  // Tied to the workspace, not the refresh counter: a background session refresh must not strand this save.
+  const owner=state.account.id; const version=workVersion;
   publish({saving:true,message:''});
   try {
     const data=cloudFromStorage(workStorage);
     if (!validCloudWork(data)) throw new Error('This workspace is too large or contains an unsupported property label. Download it and keep fewer deals in your account.');
     const r=await accountApi<{revision:number;updatedAt:string}>('work',{owner,revision:state.account.revision,data});
-    if (seq!==sequence || workspaceOwner()!==owner) return;
-    publish({account:{...state.account!,revision:r.revision,updatedAt:r.updatedAt},dirty:workVersion!==version,message:'Saved to your account. Notes, contacts and personal cash worksheets are not included.'});
+    if (workspaceOwner()!==owner || !state.account) return;
+    publish({account:{...state.account,revision:r.revision,updatedAt:r.updatedAt},dirty:workVersion!==version,message:'Saved to your account. Notes, contacts and personal cash worksheets are not included.'});
   } catch (e) {
-    if (seq!==sequence || workspaceOwner()!==owner) return;
+    if (workspaceOwner()!==owner) return;
     publish({message:(e as Error).message,...(e instanceof ApiError && [401,409].includes(e.status) ? {status:'locked' as const} : {})});
-  } finally { if (seq===sequence) publish({saving:false}); }
+  } finally { publish({saving:false}); }
 }
 export async function signOutAccount(remove = false) {
   await accountApi(remove ? 'delete' : 'logout', remove ? {owner:state.account?.id,confirm:'DELETE'} : {});
