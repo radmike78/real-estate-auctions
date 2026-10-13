@@ -295,7 +295,7 @@
       "src/lib/proVerification.ts"
     ],
     "reviewed": "2026-10-13",
-    "hash": "e826f36587054266",
+    "hash": "1f7055038f14de9d",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
