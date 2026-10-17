@@ -24,7 +24,7 @@ export const LEARN_MODULES: LearnModule[] = [
   { key: 'who', title: 'Who invests where, and why', summary: 'The kinds of investors in each market, and why someone picks one property type over another.' },
   { key: 'financing', title: 'Traditional financing', summary: 'Mortgages, commercial loans, hard-money and bridge loans: how each works and what it costs.' },
   { key: 'creative', title: 'Creative financing', summary: 'Seller financing, partnerships and other structures, with the legal risks to know first.' },
-  { key: 'red-flags', title: 'Seminar red flags', summary: 'How seminar and coaching scams work, the warning signs regulators found, and why you should never borrow to learn or to bid.' },
+  { key: 'red-flags', title: 'Seminar red flags', summary: 'How seminar and coaching scams work, the warning signs regulators found, and how to evaluate financing without sales pressure.' },
   { key: 'analyze', title: 'Analyzing a deal', summary: 'Value, repairs, rents, expenses and returns: the numbers that decide whether a deal works.' },
   { key: 'walk-away', title: 'When to walk away', summary: 'The numbers, building problems, title and HOA issues and auction terms that should make you pass on a deal.' },
   { key: 'negotiate', title: 'Negotiating and structuring deals', summary: 'Making offers, negotiating terms, and putting a deal together when you can.' },
