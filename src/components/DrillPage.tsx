@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useJourney, useLastActivity } from '../lib/journey';
 import { planNow } from '../lib/planNext';
 import PageHero from './PageHero';
+import StatePicker from './StatePicker';
 import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
 import { useNoIndex } from '../lib/noindex';
@@ -433,9 +434,13 @@ export default function DrillPage({ id }: { id: string }) {
       </main>
     );
   if (drillState(d) && drillState(d) !== myState) return (
-    <main className="page"><h1>Choose this exercise’s state</h1>
-      <p>This exercise uses {STATE_NAMES[drillState(d)!]} rules. Change your investing state to open it, or return to your own practice.</p>
-      <p><a className="btn btn-secondary" href="#/practice">Back to Practice</a></p>
+    <main className="page">
+      <PageHero compact top={<a href="#/practice">← Practice</a>} title="Choose this exercise’s state" sub={`This exercise uses ${STATE_NAMES[drillState(d)!]} rules. Change your investing state to open it, or return to your own practice.`} />
+      <section aria-labelledby="drill-state-head">
+        <h2 id="drill-state-head">Your investing state</h2>
+        <StatePicker label="Show rules for" />
+        <p><a className="btn btn-secondary" href="#/practice">Back to Practice</a></p>
+      </section>
     </main>
   );
   const mine = saved[d.id] ?? { answers: {} };
