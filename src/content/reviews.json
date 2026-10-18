@@ -146,8 +146,8 @@
       "src/components/DealJourneyPage.tsx",
       "src/practice/dealJourney.ts"
     ],
-    "reviewed": "2026-10-17",
-    "hash": "7fd2c2e3f838ce57",
+    "reviewed": "2026-10-18",
+    "hash": "b6fa67bb3760d97e",
     "note": "Reviewed account resume: choices and numbers preserved, reflection self-review completion explicitly distinguished from written answers and grades; restored reflections allow continuation without inventing text. Local risk guidance and formulas unchanged."
   },
   {

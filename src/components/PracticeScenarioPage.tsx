@@ -2,6 +2,7 @@ import { shuffled } from '../lib/shuffle';
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
+import StatePicker from './StatePicker';
 import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
 import PracticeStateNote from './PracticeStateNote';
@@ -41,7 +42,16 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
       </main>
     );
   }
-  if (mine !== 'NV') return <main className="page"><h1>This purchase exercise uses Nevada rules</h1><p>Return to Practice for exercises in your selected state.</p><a href="#/practice">Back to Practice</a></main>;
+  if (mine !== 'NV') return (
+    <main className="page">
+      <PageHero compact top={<a href="#/practice">← Practice</a>} title="This purchase exercise uses Nevada rules" sub="Change your investing state to open it, or return to Practice for exercises in your selected state." />
+      <section aria-labelledby="scenario-state-head">
+        <h2 id="scenario-state-head">Your investing state</h2>
+        <StatePicker label="Show rules for" />
+        <p><a className="btn btn-secondary" href="#/practice">Back to Practice</a></p>
+      </section>
+    </main>
+  );
   const s = scenario;
   const update = (fn: (p: ScenarioProgress) => ScenarioProgress) =>
     setProgress((prev) => {
