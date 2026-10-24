@@ -217,4 +217,4 @@ The site is built to keep serving pages when someone floods it. Cloudflare (READ
 
 ## Reporting a vulnerability
 
-Please report security issues privately to the repository owner rather than opening a public issue.
+Please report security issues privately by email to support@mradsoftware.com rather than opening a public issue. Include the page or endpoint, the steps to reproduce, and what you observed. You will get a reply once the report has been read; please give us a reasonable time to fix a confirmed problem before describing it publicly.
