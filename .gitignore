@@ -22,3 +22,7 @@ public/data/pros.json.sig
 
 # video build output (voiceovers, recordings, renders)
 tools/video/*/out/
+
+# Build cache and review screenshots never belong in the repository.
+*.tsbuildinfo
+/*.png
