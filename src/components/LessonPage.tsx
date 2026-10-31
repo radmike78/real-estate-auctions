@@ -2,7 +2,7 @@ import { planNow } from '../lib/planNext';
 import { currentProgress, getMode } from '../lib/journey';
 import { LESSON_CHAPTER, journeyHref } from '../practice/dealJourney';
 import { useEffect, useRef, useState } from 'react';
-import { markLessonRead, useLastActivity } from '../lib/journey';
+import { markLessonRead, useJourney, useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import PathNext from './PathNext';
 import { LEARN_MODULES } from '../lib/learn';
@@ -183,6 +183,7 @@ function LessonBooks({ isbns }: { isbns: string[] }) {
 export const lessonSectionId = (heading: string) => heading.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 export default function LessonPage({ lessonKey, section, state }: { lessonKey: string; section?: string; state?: StateCode }) {
+  useJourney(); // re-render when this lesson is marked read, so the next-step bar moves on
   const bodyRef = useRef<HTMLElement>(null);
   const endRef = useRef<HTMLElement>(null);
   useMarkStep('learn');
@@ -323,7 +324,8 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
         // lesson stays available as a second link, so the page never shows two competing "next" buttons.
         const plan = getMode() === 'guided' ? planNow() : null;
         const planHref = plan && plan.task.href.replace(/^#/, '');
-        if (plan && (!next || planHref !== `/learn/${next.key}`)) {
+        // The plan never sends you back to the lesson you're on.
+        if (plan && planHref !== `/learn/${lessonKey}` && (!next || planHref !== `/learn/${next.key}`)) {
           return (
             <nav className="path-next" aria-label="Next step">
               <span className="muted">Next: {plan.context}</span>

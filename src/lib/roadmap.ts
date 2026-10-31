@@ -113,12 +113,12 @@ export const ROADMAP: RoadmapStep[] = [
 
   // 2. Make a plan
   {
-    id: 'market', phase: 2, title: 'Pick a county and a kind of sale',
+    id: 'market', phase: 2, title: 'Pick a county and how you’ll buy',
     text: 'Choose where you’ll buy, and exactly what kind of sale. A deed, a lien certificate and an offer through an agent are different purchases with different rules.',
     outcome: 'A state, a county, the kind of sale, and what you’d actually get (a deed, a certificate, or a contract to buy).',
-    steps: ['Choose your state and county, and read your state’s sale guide for the kind of sale you’re interested in.', 'Choose your route at the top of this roadmap: through an agent, at an auction, or lien certificates.', 'You’ll look at real sales in Find deals later, after practice and lining up your team.'],
+    steps: ['Choose your state and county. Buying a listed or bank-owned home through an agent? Read “Making an offer and closing”. At an auction or a lien sale? Read your state’s sale guide for that kind of sale.', 'Choose your route at the top of this roadmap: through an agent, at an auction, or lien certificates.', 'You’ll look at real properties in Find deals later, after practice and lining up your team.'],
     doneWhen: 'You know your county, the kind of sale, and what you’d get if you buy.',
-    action: 'Read your state’s sale guides', href: '#/playbooks',
+    action: 'How buying through an agent works', href: '#/learn/negotiate',
   },
   {
     id: 'market-compare', phase: 2, title: 'Compare two areas before choosing',
@@ -151,7 +151,7 @@ export const ROADMAP: RoadmapStep[] = [
     text: 'Work a full purchase with fictional paperwork before you risk money: the numbers, the documents and the decisions.',
     outcome: 'A practice deal packet: budget, deadline calendar, evidence log, your questions and your decisions.',
     steps: ['Finish practice part 1, Cedar House (the decisions), if you haven’t.', 'Work through practice part 2, Buy a rental (the paperwork).', 'Try at least three “Would you buy it?” drills.', 'Go back over any question you missed on the first try.'],
-    doneWhen: 'You have a finished practice deal packet, and three drills done.',
+    doneWhen: 'You have a finished practice deal packet. Three drills are a useful extra.',
     action: 'Start the practice purchase', href: '#/practice/case',
   },
   {
@@ -174,27 +174,6 @@ export const ROADMAP: RoadmapStep[] = [
     ],
     doneWhen: 'You have the three payoff results, a holding budget with later taxes, and a written attorney trigger.',
     action: 'Open the lien practice', href: '#/practice?sale=sid',
-  },
-  {
-    id: 'paper', phase: 3, path: PROPERTY, title: 'Practice checking real properties without buying',
-    text: 'Run the numbers on real properties in your buy box, with sources for every number, before you’re in a hurry.',
-    outcome: 'At least three real properties analyzed, with one you’d pass on and why.',
-    steps: ['Find three real properties that fit your buy box.', 'For each, write the rent or value and where it came from, every cost, and a bad-case version.', 'Write one reason you’d pass on at least one of them.'],
-    doneWhen: 'Three analyses are saved in Analyze with sources, and one has a written reason to pass.',
-    action: 'Open Analyze', href: '#/analyze',
-  },
-  {
-    id: 'c-paper', phase: 3, path: LIEN, title: 'Research real parcels on paper',
-    text: 'Pick parcels from your county’s published lien list and research them as if you were bidding. You’re judging the lien’s risk, not a property’s rent.',
-    outcome: 'Three parcels researched, with one you’d skip and why.',
-    steps: [
-      'Choose three parcels from the official list for your county’s next lien sale.',
-      'For each, write: the parcel number, what’s on the land and its assessed value (from the assessor), the lien amount, and the rate or bid rules.',
-      'Note anything that makes payoff or enforcement harder: other liens, a parcel too small or odd to use, or a property in bankruptcy.',
-      'Run each one in the lien calculator, and write one reason you’d skip at least one of them.',
-    ],
-    doneWhen: 'Three parcels are researched with sources, run in the lien calculator, and one has a written reason to skip.',
-    action: 'Open the lien calculator', href: '#/analyze?plan=lien',
   },
   {
     id: 'walk', phase: 3, title: 'Set your walk-away rules',
@@ -232,6 +211,27 @@ export const ROADMAP: RoadmapStep[] = [
     say: { to: 'Your bank', script: '“I may need a cashier’s check or a wire for [$amount] on [date] for a county sale. How long does each take, what does it cost, and what’s your daily limit?”' },
     doneWhen: 'You can show the funds in the required form by the sale’s deadline.',
     action: 'Read your sale guide', href: '#/playbooks',
+  },
+  {
+    id: 'paper', phase: 3, path: PROPERTY, title: 'Practice checking real properties without buying',
+    text: 'Run the numbers on real properties in your buy box, with sources for every number, before you’re in a hurry.',
+    outcome: 'At least three real properties analyzed, with one you’d pass on and why.',
+    steps: ['Find three real properties that fit your buy box in Find deals (official sellers, or listings your agent sends), then run each in Analyze.', 'For each, write the rent or value and where it came from, every cost, and a bad-case version.', 'Write one reason you’d pass on at least one of them.'],
+    doneWhen: 'Three analyses are saved in Analyze with sources, and one has a written reason to pass.',
+    action: 'Open Analyze', href: '#/analyze',
+  },
+  {
+    id: 'c-paper', phase: 3, path: LIEN, title: 'Research real parcels on paper',
+    text: 'Pick parcels from your county’s published lien list and research them as if you were bidding. You’re judging the lien’s risk, not a property’s rent.',
+    outcome: 'Three parcels researched, with one you’d skip and why.',
+    steps: [
+      'Choose three parcels from the official list for your county’s next lien sale.',
+      'For each, write: the parcel number, what’s on the land and its assessed value (from the assessor), the lien amount, and the rate or bid rules.',
+      'Note anything that makes payoff or enforcement harder: other liens, a parcel too small or odd to use, or a property in bankruptcy.',
+      'Run each one in the lien calculator, and write one reason you’d skip at least one of them.',
+    ],
+    doneWhen: 'Three parcels are researched with sources, run in the lien calculator, and one has a written reason to skip.',
+    action: 'Open the lien calculator', href: '#/analyze?plan=lien',
   },
 
   // 4. Find and check a deal: through an agent

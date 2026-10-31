@@ -1,3 +1,5 @@
+import { getMyArea } from '../lib/myArea';
+import type { StateCode } from '../lib/regions';
 import NarrowDown from './NarrowDown';
 import { useLastActivity } from '../lib/journey';
 import { guidesConfig } from '../lib/narrow';
@@ -83,14 +85,24 @@ import { useEffect } from 'react';
 import { replaceAddress } from '../lib/nav';
 import AdSpot from './AdSpot';
 
-/** The right calculator for the kind of sale: a lien's yield, an offer on a listed home, or an auction bid. */
+/** The right calculator for the kind of sale: a lien's yield, an offer on a listed home, or an auction bid. Links open
+ * Analyze already set to this guide's state and kind of sale, in the reader's county when it's in that state. */
 function calcNote(p: { key: string }) {
+  const pre = p.key.match(/^(ca|az|ut|tx)(?=[a-z]{3})/)?.[1];
   const kind = p.key.replace(/^(ca|az|ut|tx)(?=[a-z]{3})/, '');
+  const st = (pre ? pre.toUpperCase() : 'NV') as StateCode;
+  const saleKind: Record<string, string> = { tax: 'taxSale', foreclosure: 'trustee', sheriff: 'court', hoa: 'hoa', irs: 'irs', reo: 'reo', short: 'short' };
+  const area = getMyArea();
+  const county = area?.state === st && area.county ? area.county : GUIDE_COUNTY[st];
+  const href = (plan: string) => saleKind[kind] ? `#/analyze?${new URLSearchParams({ plan, state: st, county, kind: saleKind[kind] }).toString()}` : `#/analyze?plan=${plan}`;
   if (kind === 'sid' || kind === 'taxlien') return <>Work out what a certificate earns, counting the wait to be paid, with the <a href="#/analyze?plan=lien">lien calculator</a>.</>;
   if (kind === 'commercial') return <>Set your limit from the building’s income: <a href="#/analyze?plan=commercial">analyze this building’s income</a> (rent, vacancy, operating costs and replacement reserves). For a building you’ll renovate and resell, use <a href="#/analyze?plan=flip">fix and sell</a>.</>;
-  if (kind === 'reo' || kind === 'short') return <>Set your maximum offer before you make one: <a href="#/analyze?plan=rent">to keep and rent it</a>, or <a href="#/analyze?plan=flip">to fix and sell it</a>.</>;
-  return <>Set your limit before the sale: <a href="#/analyze?plan=rent">to keep and rent it</a>, or <a href="#/analyze?plan=flip">to fix and sell it</a>. When you’re ready, <a href="#/find-deals">find your county’s official sale list</a>.</>;
+  if (kind === 'reo' || kind === 'short') return <>Set your maximum offer before you make one: <a href={href('rent')}>to keep and rent it</a>, or <a href={href('flip')}>to fix and sell it</a>.</>;
+  return <>Set your limit before the sale: <a href={href('rent')}>to keep and rent it</a>, or <a href={href('flip')}>to fix and sell it</a>. When you’re ready, <a href="#/find-deals">find your county’s official sale list</a>.</>;
 }
+
+/** The county Analyze starts in for a guide's state, when the reader hasn't picked one there. */
+const GUIDE_COUNTY: Record<StateCode, string> = { NV: 'Clark', CA: 'Los Angeles', AZ: 'Maricopa', UT: 'Salt Lake', TX: 'Harris' };
 
 const isExternal = (u: string) => /^https:\/\//.test(u);
 

@@ -1,4 +1,4 @@
-import { parseCalcInput } from './CalcFields';
+import NumInput from './NumInput';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { shuffled } from '../lib/shuffle';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
@@ -345,7 +345,7 @@ function MissionCard({ m, a, set, fresh, total }: { m: Mission; a: Answers[strin
           <form className="drill-estimate" onSubmit={(e) => { e.preventDefault(); if (est !== undefined) set({ ...a, done: true }); }}>
             <label className="field">
               <span>{ESTIMATE_LABEL[m.id] ?? 'Your repair budget ($)'}</span>
-              <input type="text" inputMode="numeric" value={est ?? ''} onChange={(e) => set({ ...a, estimate: e.target.value === '' ? undefined : Math.max(0, parseCalcInput(e.target.value)) })} />
+              <NumInput blank value={est} onValue={(n) => set({ ...a, estimate: n })} />
             </label>
             <button type="submit" className="btn" disabled={est === undefined}>Compare</button>
           </form>

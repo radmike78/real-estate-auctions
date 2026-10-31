@@ -67,6 +67,9 @@ function forLink(d: Deal, plan?: Plan): Deal {
  * Step 6 of the path: describe a real deal, get the checklist for that sale in that state, and run the numbers.
  * `plan` comes from a link that promises a particular calculator.
  */
+/** A guide's link can name the plan too (keep and rent, fix and sell), when that plan fits the kind of sale. */
+const linkPlan = (d: Deal, plan?: Plan): Deal => (plan && plansFor(d.kind).includes(plan) ? { ...d, plan } : d);
+
 export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: Prefill } = {}) {
   useMarkStep('analyze');
   useLastActivity('#/analyze', 'Analyze a deal');
@@ -100,13 +103,13 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       return forLink(cur, plan);
     }
     keepUnsaved();
-    return fromListing(prefill);
+    return linkPlan(fromListing(prefill), plan);
   });
   // A property opened from a DeedOwl listing arrives filled in; the address then goes back to plain /analyze.
   useEffect(() => {
     if (!prefill) return;
     setSaved(loadDeals());
-    setDeal(fromListing(prefill));
+    setDeal(linkPlan(fromListing(prefill), plan));
     setMyState(prefill.state);
     replaceAddress('/analyze');
   }, [prefill]);

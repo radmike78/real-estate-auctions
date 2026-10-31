@@ -12,7 +12,7 @@ export default function StickyResult({ label, value, bad = false }: { label: str
     const calc = ref.current?.closest('.calc');
     const results = calc?.querySelector('.calc-results');
     if (!calc || !results || typeof IntersectionObserver === 'undefined') return;
-    const io = new IntersectionObserver(([e]) => setResultsVisible(e.isIntersecting), { threshold: 0.15 });
+    const io = new IntersectionObserver(([e]) => setResultsVisible(e.isIntersecting), { threshold: 0 });
     const ioCalc = new IntersectionObserver(([e]) => setCalcInView(e.isIntersecting), { threshold: 0 });
     io.observe(results);
     ioCalc.observe(calc);

@@ -74,7 +74,7 @@ describe('the deal packet', () => {
     const secs = packetSections(deal, EMPTY_PACKET, now);
     expect(secs.map((s) => s.key)).toEqual(['plan', 'property', 'dates', 'cash', 'numbers', 'evidence', 'pros', 'decision']);
     expect(secs.every((s) => s.status === 'missing')).toBe(true);
-    expect(nextAction(deal, EMPTY_PACKET, now).text).toMatch(/Keep and rent/);
+    expect(nextAction(deal, EMPTY_PACKET, now).text).toMatch(/Run the rental numbers/);
   });
 
   it('puts a deadline within a week ahead of everything else', () => {

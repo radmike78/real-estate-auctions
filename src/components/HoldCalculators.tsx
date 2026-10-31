@@ -1,4 +1,4 @@
-import { parseCalcInput } from './CalcFields';
+import NumInput from './NumInput';
 import StickyResult from './StickyResult';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState } from 'react';
@@ -264,7 +264,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word }: { v: RentInputs; sta
       <PriceHead id="at-price-head" kind="yours" label={word} price={price > 0 ? price : null} result={price > 0 ? a.cashFlow / 12 : null} note={price > 0 ? 'Your actual price: the result for the property as you’d buy it.' : 'Enter the price you’d pay to see this property’s own result.'} />
       <label className="field">
         <span>{word} ($)</span>
-        <input type="text" inputMode="numeric" value={price || ''} onChange={(e) => { const n = parseCalcInput(e.target.value); setPrice(Number.isFinite(n) ? Math.min(1e9, Math.max(0, n)) : 0); }} />
+        <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
       </label>
       {price > 0 && (
         <p className={`calc-verdict ${a.cashFlow > 0 && (coc === null || coc >= target) ? 'good' : 'bad'}`} role="status">
@@ -363,7 +363,7 @@ function StrComparison({ v }: { v: RentInputs }) {
         {STR_FIELDS.map((f) => (
           <label key={f.k} className="field">
             <span>{f.label} ({f.unit})</span>
-            <input type="text" inputMode="decimal" value={s[f.k]} onChange={(e) => setS({ ...s, [f.k]: Math.max(0, parseCalcInput(e.target.value) || 0) })} />
+            <NumInput value={s[f.k]} onValue={(n) => setS({ ...s, [f.k]: n ?? 0 })} />
           </label>
         ))}
       </div>
@@ -394,7 +394,7 @@ function HoldAndSell({ v, onPrice, target = 0 }: { v: RentInputs; onPrice: boole
   const field = (k: keyof HoldSellInputs, label: string, unit: string) => (
     <label className="field">
       <span>{label} ({unit})</span>
-      <input type="text" inputMode="decimal" value={h[k]} onChange={(e) => setH({ ...h, [k]: Math.max(0, parseCalcInput(e.target.value) || 0) })} />
+      <NumInput value={h[k]} onValue={(n) => setH({ ...h, [k]: n ?? 0 })} />
     </label>
   );
   return (
@@ -579,7 +579,7 @@ function CommercialAtPrice({ v, offer, setPrice, target }: { v: CommercialInputs
   return (
     <section className="calc-at-price" aria-label="Commercial results at your price">
       <PriceHead kind="yours" label={word} price={a?.price ?? null} result={a ? a.cashFlow / 12 : null} note="Your actual price, using the income, costs, lease-up period and loan entered above." />
-      <label className="field"><span>{word} ($)</span><input type="text" inputMode="decimal" value={v.atPrice || ''} onChange={(e) => { const n = parseCalcInput(e.target.value); setPrice(Number.isFinite(n) ? Math.min(1e9, Math.max(0, n)) : 0); }} /></label>
+      <label className="field"><span>{word} ($)</span><NumInput blank max={1e9} value={v.atPrice} onValue={(n) => setPrice(n ?? 0)} /></label>
       {Number.isFinite(target) && target > 0 && <button type="button" className="linkish" onClick={() => setPrice(target)}>Use the walk-away price ({fmtMoney(target)})</button>}
       {!a ? <p>Enter the asking price or your proposed price to compare this property with your targets.</p> : <>
         <p className={meets ? 'notice' : 'caution'}>{meets ? 'Meets your return-on-cost and coverage targets with these numbers.' : 'Misses your return-on-cost or coverage target, or has no positive cash flow.'} Verify the income, costs and loan terms before relying on this result.</p>
@@ -741,6 +741,7 @@ export function SellerFinanceCalculator() {
           loan. Have an attorney or title company prepare the note and deed of trust, record them, and use escrow for payments. <a href="#/learn/creative">Seller financing rules in your state&nbsp;→</a>
         </p>
       </div>
+      <StickyResult label={r.balloon > 0 ? 'Balloon due' : 'Monthly payment'} value={fmtMoney(Math.round(r.balloon > 0 ? r.balloon : r.monthly))} bad={r.balloon > 0} />
     </div>
   );
 }

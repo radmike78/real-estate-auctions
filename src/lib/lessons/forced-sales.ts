@@ -94,7 +94,7 @@ export const forcedSales: Lesson = {
       heading: 'Before any forced sale',
       blocks: [
         { list: [
-          'Read the official notice and the seller’s rules: deposit, payment deadline, and what the deed promises.',
+          'Read the official notice and the seller’s rules: deposit, payment deadline, and what you get (a deed or, where your county sells liens, a lien certificate).',
           'Get a title search. Which liens survive depends on the kind of sale.',
           'Expect to buy as-is, usually without seeing inside.',
           'Check whether the owner has filed bankruptcy, which can stop a sale.',
@@ -166,6 +166,6 @@ export const forcedSales: Lesson = {
     { label: 'HUD Home Store', url: 'https://www.hudhomestore.gov/' },
     { label: 'Federal Reserve: Protecting Tenants at Foreclosure Act restored', url: 'https://www.federalreserve.gov/supervisionreg/caletters/caltr1804.htm' },
   ],
-  practice: 'Find your county’s official sale page and write down the deposit, the payment deadline and what the deed promises.',
+  practice: 'Find your county’s official sale page and write down the deposit, the payment deadline and what you get (a deed or, where your county sells liens, a lien certificate).',
   reviewed: '2026-10-05',
 };

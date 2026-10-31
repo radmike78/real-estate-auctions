@@ -1,4 +1,4 @@
-import { parseCalcInput } from './CalcFields';
+import NumInput from './NumInput';
 import { syncRoadmapCredits } from '../lib/journey';
 import { useAccount } from '../lib/account';
 import { workStorage as localStorage } from '../lib/workStorage';
@@ -428,7 +428,7 @@ function PriceFromCash({ cash }: { cash: number }) {
   const num = (k: keyof PriceAssumptions, label: string, unit: string) => (
     <label className="field">
       <span>{label} ({unit})</span>
-      <input type="text" inputMode="decimal" value={a[k]} onChange={(e) => { const n = parseCalcInput(e.target.value); setA((x) => ({ ...x, [k]: Number.isFinite(n) && n >= 0 ? Math.min(n, 100) : 0 })); }} />
+      <NumInput percent max={100} value={a[k]} onValue={(n) => setA((x) => ({ ...x, [k]: n ?? 0 }))} />
     </label>
   );
   const useIt = () => {
@@ -501,7 +501,7 @@ function BuyBoxBuilder() {
   const money = (k: 'priceMax' | 'repairsMax' | 'cashMax' | 'minCashFlow', label: string, hint?: string) => (
     <label className="field">
       <span>{label}</span>
-      <input type="text" inputMode="numeric" value={b[k] || ''} onChange={(e) => set(k, Math.max(0, parseCalcInput(e.target.value) || 0))} />
+      <NumInput blank value={b[k]} onValue={(n) => set(k, n ?? 0)} />
       {hint && <small className="muted">{hint}</small>}
     </label>
   );

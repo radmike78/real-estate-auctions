@@ -10,14 +10,14 @@ import { planNow, planStarted } from '../lib/planNext';
 import { navigate } from '../lib/nav';
 
 
-// Straight to the tools and references, for "I know the basics".
+// Straight to the tools and references, for "I know the basics", in the site's order (practice, team, deals, analyze).
 const EXPLORE = [
-  { href: '#/analyze', icon: <IconCalc />, title: 'Analyze a deal', what: 'Your walk-away price, with every cost' },
   { href: '#/playbooks', icon: <IconFile />, title: 'Sale guides', what: 'Tax, foreclosure, sheriff, HOA, IRS and bank-owned sales, by state' },
+  { href: '#/practice/drills', icon: <IconCheckList />, title: 'All practice', what: 'Full practice purchases and more than 40 drills' },
+  { href: '#/pros', icon: <IconBadge />, title: 'Your team', what: 'Who you need, what to ask, and how to check a license' },
   { href: '#/find-deals', icon: <IconBank />, title: 'Find deals', what: 'Official sellers and sale lists for your county' },
   { href: '#/live', icon: <IconLayers />, title: 'Live tax sales', what: 'County tax sale dates and lists, with verified parcels when we have them' },
-  { href: '#/pros', icon: <IconBadge />, title: 'Your team', what: 'Who you need, what to ask, and how to check a license' },
-  { href: '#/practice/drills', icon: <IconCheckList />, title: 'All practice', what: 'Full practice purchases and more than 40 drills' },
+  { href: '#/analyze', icon: <IconCalc />, title: 'Analyze a deal', what: 'Your walk-away price, with every cost' },
 ];
 
 // The homepage starts with an optional choice: be guided one step at a time, or go straight to the tools. The six-
