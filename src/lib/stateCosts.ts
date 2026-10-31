@@ -159,7 +159,12 @@ export function redemptionPresetsFor(state: StateCode): Record<string, Redemptio
  */
 export function redemptionChoicesFor(state: StateCode, kind: string): { keys: string[]; start: string; confirm?: string } {
   const has = (k: string) => k in redemptionPresetsFor(state);
-  if (kind === 'irs') return { keys: ['irs'], start: 'irs' };
+  if (kind === 'irs')
+    return {
+      keys: ['irs', 'none'],
+      start: 'irs',
+      confirm: 'An IRS administrative (seizure) sale has a 180-day redemption at 20% a year (26 U.S.C. 6337). A court-ordered sale follows its court order instead, which may allow no redemption*. Check the notice of sale.',
+    };
   if (kind === 'taxSale' && state === 'TX')
     return {
       keys: ['txTaxHomestead', 'txTaxOther'],

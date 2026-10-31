@@ -110,6 +110,9 @@ const loadMode = (): 'quick' | 'detailed' => {
   }
 };
 
+/** The fields an offer forces to zero (see offerInputs); kept from storage when an offer is edited. */
+const auctionOnly = (v: BidInputs) => ({ cashAvailable: v.cashAvailable, buyerPremiumPct: v.buyerPremiumPct, redemptionMonths: v.redemptionMonths, redemptionRatePct: v.redemptionRatePct, redemptionDaily: v.redemptionDaily, redemptionFlat: v.redemptionFlat, redemptionFlat2Pct: v.redemptionFlat2Pct, loanAtClosing: v.loanAtClosing });
+
 function load(id: string | undefined, defaults: BidInputs): BidInputs {
   if (!id) return defaults;
   try {
@@ -195,7 +198,10 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   function save(next: BidInputs) {
     if (!storeId) return;
     try {
-      localStorage.setItem(KEY(storeId), JSON.stringify(next));
+      // An offer shows no cash limit, buyer's premium or redemption wait, but the deal's auction numbers are kept:
+      // switching the kind of sale back to an auction must not find them wiped.
+      const out = offer ? { ...next, ...auctionOnly(load(storeId, next)) } : next;
+      localStorage.setItem(KEY(storeId), JSON.stringify(out));
     } catch {
       /* storage unavailable */
     }

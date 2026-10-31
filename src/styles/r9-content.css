@@ -423,3 +423,8 @@
   .options-grid:not(.fin-options):has(> :nth-child(5):last-child) > * { grid-column: span 2; }
   .options-grid:not(.fin-options):has(> :nth-child(5):last-child) > :nth-child(n+4) { grid-column: span 3; }
 }
+
+/* Deep-link visitors with no state yet: a one-line state choice above the page instead of the full welcome. */
+.state-bar { padding: 10px var(--gutter, 24px); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.state-bar .state-picker { margin: 0; }
+.welcome-gate .note[role="alert"] { margin-top: 12px; }

@@ -226,6 +226,8 @@ export function createApp(config: AppConfig) {
   const trustedAdminIps = new Map<string, number>();
   const TRUSTED_IP_MS = 30 * 86_400_000;
 
+  // First path segments the app has pages for (src/App.tsx parseHash). Any other address is a 404.
+  const APP_ROUTES = new Set(['', 'about', 'account', 'admin', 'advertise', 'advertiser', 'agents', 'alerts', 'analyze', 'bank-owned', 'business-assets', 'calculator', 'deals', 'decide', 'disclaimer', 'financing', 'find-a-pro', 'find-deals', 'guides', 'homeowner-help', 'learn', 'live', 'playbooks', 'practice', 'pre-foreclosures', 'privacy', 'pro', 'pros', 'property', 'search', 'short-sales', 'terms', 'toolkit']);
   function send(res: ServerResponse, status: number, body: unknown, headers: Record<string, string> = {}) {
     res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...headers });
     res.end(JSON.stringify(body));
@@ -1485,6 +1487,7 @@ export function createApp(config: AppConfig) {
     let file = resolve(baseDir, normalize(rel));
     if (file !== baseDir && !file.startsWith(baseDir + sep)) return send(res, 404, { error: 'Not found' });
     let info;
+    let notFoundPage = false;
     try {
       info = statSync(file);
       // A folder of the built site serves its index.html: the crawlable copies of each page (scripts/prerender.ts).
@@ -1496,12 +1499,20 @@ export function createApp(config: AppConfig) {
       // Pages are normal paths (/practice/drills/x): one without a pre-built copy gets the app, which shows the
       // page (or its own "not found"). Missing files (anything with an extension) and data stay 404s.
       if (fromData || /\.[a-z0-9]{1,8}$/i.test(path) || path.startsWith('/assets/')) return send(res, 404, { error: 'Not found' });
-      file = join(baseDir, 'index.html');
+      // The bare app (no home-page title, canonical or text), so a page without its own pre-built copy isn't taken for
+      // the home page. Unknown addresses get it with a 404, so typos aren't indexed as pages.
+      file = join(baseDir, 'app.html');
       try {
         info = statSync(file);
       } catch {
-        return send(res, 404, { error: 'Not found' });
+        file = join(baseDir, 'index.html');
+        try {
+          info = statSync(file);
+        } catch {
+          return send(res, 404, { error: 'Not found' });
+        }
       }
+      if (!APP_ROUTES.has(path.split('/')[1] ?? '')) notFoundPage = true;
     }
     if (!info.isFile()) return send(res, 404, { error: 'Not found' });
     // Only Vite's content-hashed build files can be cached forever. Everything else (index.html, the
@@ -1513,11 +1524,11 @@ export function createApp(config: AppConfig) {
       'cache-control': hashed ? 'public, max-age=31536000, immutable' : 'no-cache',
       etag,
     };
-    if (!hashed && req.headers['if-none-match'] === etag) {
+    if (!hashed && !notFoundPage && req.headers['if-none-match'] === etag) {
       res.writeHead(304, headers);
       return res.end();
     }
-    res.writeHead(200, { ...headers, 'content-length': info.size });
+    res.writeHead(notFoundPage ? 404 : 200, { ...headers, 'content-length': info.size });
     if (req.method === 'HEAD') return res.end();
     // pipeline() handles errors (a file removed mid-deploy, too many open files): the response is
     // closed instead of the error crashing the whole server.

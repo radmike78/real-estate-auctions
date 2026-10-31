@@ -132,6 +132,17 @@ export function pages(): Page[] {
     ['/analyze/', 'Analyze a real estate deal', 'Free calculators for a maximum bid, flips, rentals, tax lien certificates and commercial income, with what each number means.'],
     ['/learn/reading/', 'Recommended real estate investing books', 'Books worth reading for new investors, picked for plain, practical advice, with no get-rich-quick titles or seminar sales pitches.'],
     ['/homeowner-help/', 'Facing foreclosure? Free help', 'Free, trustworthy help for homeowners and renters facing foreclosure, scams to avoid, and how to claim surplus money after a sale.'],
+    ['/about/', 'How DeedOwl works', 'What DeedOwl does and doesn’t do, where its information comes from, and how to use it safely.'],
+    ['/bank-owned/', 'Bank-owned and government homes', `Where lenders, Fannie Mae, Freddie Mac, HUD and the VA list the homes they own in ${STATES}, and how buying one works.`],
+    ['/short-sales/', 'Buying a short sale', 'How a short sale works, how long lender approval takes, and how to make an offer through a licensed agent.'],
+    ['/pre-foreclosures/', 'Pre-foreclosures: notices of default and sale', 'What a recorded notice of default or sale means, how to follow one to its official sale, and what not to do.'],
+    ['/business-assets/', 'Business closures and their property', 'How property from closing businesses is sold through courts, trustees, receivers and the sheriff, and how to buy from the official seller.'],
+    ['/live/', 'Live tax sales', `Upcoming county tax sales and verified IRS sales in ${STATES}, with links to each county’s official list.`],
+    ['/financing/', 'Financing your investment', 'Loan types for investors, what lenders check, and how to compare offers with a qualified lender.'],
+    ['/guides/', 'Sale guides by state', `Step-by-step guides to tax sales, foreclosure auctions, HOA sales, IRS sales and bank-owned homes in ${STATES}.`],
+    ['/disclaimer/', 'How we help you invest', 'What DeedOwl is responsible for, what you are, and why every deal is yours to research and decide.'],
+    ['/privacy/', 'Privacy policy', 'What DeedOwl collects, why, how long it keeps it, and your choices.'],
+    ['/terms/', 'Terms of use', 'The terms for using DeedOwl and for advertising on it.'],
   ];
   for (const [path, title, description] of simple) out.push({ path, title: `${title} · DeedOwl`, description, body: `<h1>${esc(title)}</h1><p>${esc(description)}</p>` });
   out.push({ path: '/practice/deal/', title: 'Build your first deal · DeedOwl', description: 'One fictional property, short interactive decisions, and a saved workbook from budget to ownership.', body: `<h1>Build your first deal</h1><p>Practice on fictional Cedar House. Learn to check evidence, compare funding, test costs, handle surprises and decide whether to proceed or pass.</p><ul>${CHAPTERS.map((c) => `<li>${link(`/practice/deal/${c.id}/`, c.title)}: ${esc(c.purpose)}</li>`).join('')}</ul><p>Finer details vary by location, financing and contract. Check current local rules before acting.</p>` });
@@ -160,6 +171,8 @@ export function sitemap(all: Page[]): string {
 
 if (process.argv[1]?.endsWith('prerender.ts')) {
   const template = readFileSync(join(DIST, 'index.html'), 'utf8');
+  // The untouched app shell, served for pages without their own copy (server/app.ts): no home title or canonical.
+  writeFileSync(join(DIST, 'app.html'), template);
   const all = pages();
   for (const p of all) {
     const dir = join(DIST, p.path);
