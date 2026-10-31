@@ -1,3 +1,4 @@
+import { practiceConfig } from '../lib/narrow';
 import { it, expect, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { parse } from 'node-html-parser';
@@ -157,8 +158,11 @@ it('offers only practice shortcuts whose target sections exist', () => {
   for (const state of STATES) {
     selectState(state.code);
     const root = parse(renderToStaticMarkup(<PracticePage />));
-    const cards = root.querySelectorAll('.practice-ways a');
-    expect(cards.length).toBe(state.code === 'NV' ? 3 : 2);
+    // Every place the "Not sure where to start?" helper can jump to exists on this state's page.
+    const c = practiceConfig(state.code === 'NV');
+    for (const started of ['yes', 'no']) for (const buy of ['agent', 'auction']) {
+      for (const pick of c.result({ started, buy })) if (pick.scrollTo) expect(root.querySelector(`#${pick.scrollTo}`), `${state.code} ${pick.scrollTo}`).not.toBeNull();
+    }
     expect(root.querySelector('#practice-case')).not.toBeNull();
     expect(root.querySelector('#practice-drills')).not.toBeNull();
     if (state.code === 'NV') expect(root.querySelector('#practice-auction')).not.toBeNull();
