@@ -172,7 +172,7 @@ export function learnConfig(): NarrowConfig {
 }
 
 /** My plan: which part of the page to use first, for where someone is right now. */
-export function toolkitConfig(): NarrowConfig {
+export function toolkitConfig(next?: { label: string; href: string }): NarrowConfig {
   return {
     questions: [
       {
@@ -203,11 +203,13 @@ export function toolkitConfig(): NarrowConfig {
         { label: 'Worksheets to download', scrollTo: 'worksheets', why: 'Records you’ll want from day one.' },
         { label: 'Your roadmap', scrollTo: 'roadmap', why: 'The last steps: owning it, and what comes next.' },
       ];
+      // "Just starting" leads with the same next step as the Next box beside it, so the page gives one first step.
       return [
+        ...(next ? [{ label: `Your next step: ${next.label}`, href: next.href, why: 'The same next step as “Your next step” on this page, in the site’s order: decide, learn, practice, then line up your team.' }] : []),
         { label: 'Your investable cash', scrollTo: 'cash', why: 'What you can put in without touching your emergency money, and the price that supports.' },
         { label: 'Your buy box', scrollTo: 'buy-box', why: 'The price, area and kind of property you’re looking for, so you can say no fast.' },
         { label: 'Your investing roadmap', scrollTo: 'roadmap', why: 'Every step from here to owning it, in order.' },
-      ];
+      ].slice(0, 3);
     },
   };
 }

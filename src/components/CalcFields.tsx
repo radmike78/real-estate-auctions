@@ -18,8 +18,12 @@ export interface CalcGroup<T> {
 }
 
 const unitText = (u: Unit) => (u === '$/500' ? 'per $500' : u === 'mo' ? 'months' : u === '%/yr' ? '% a year' : u === '%/mo' ? '% a month' : u === 'yr' ? 'years' : u === 'x' ? '×' : '%');
+/** A typed number, allowing thousands separators ("250,000"). */
+export const parseCalcInput = (text: string) => Number(text.replace(/,/g, '').trim());
+/** How a value shows when you're not typing in it: dollar amounts with thousands separators. */
+const shown = (n: number, unit: Unit) => (unit === '$' && Number.isFinite(n) ? n.toLocaleString('en-US', { maximumFractionDigits: 2 }) : String(n));
 export function calculatorInputError(text: string, unit: Unit): string | null {
-  const n = Number(text);
+  const n = parseCalcInput(text);
   if (!text.trim() || !Number.isFinite(n)) return 'Enter a number. Results use the last valid value.';
   const max = unit === '%' ? 100 : 1e10;
   if (n < 0 || n > max) return `Enter a number from 0 to ${max.toLocaleString('en-US')}. Results use the last valid value.`;
@@ -46,18 +50,16 @@ export default function CalcFields<T extends object>({ groups, values, onChange 
                     {f.unit === '$' && <i aria-hidden>$</i>}
                     <input
                       id={`${uid}-${f.k}`}
-                      type="number"
+                      type="text"
                       inputMode="decimal"
-                      min={0}
-                      max={f.unit === '%' ? 100 : 1e10}
-                      step="any"
-                      value={draft[f.k] ?? String((values as Record<string, number>)[f.k])}
+                      autoComplete="off"
+                      value={draft[f.k] ?? shown((values as Record<string, number>)[f.k], f.unit)}
                       aria-invalid={draft[f.k] !== undefined && !!calculatorInputError(draft[f.k]!, f.unit)}
                       aria-describedby={[f.hint ? `${uid}-${f.k}-hint` : '', draft[f.k] !== undefined && calculatorInputError(draft[f.k]!, f.unit) ? `${uid}-${f.k}-error` : ''].filter(Boolean).join(' ') || undefined}
                       onInput={(e) => {
                         const text = e.currentTarget.value;
                         setDraft((d) => ({ ...d, [f.k]: text }));
-                        if (!calculatorInputError(text, f.unit)) onChange(f.k, Number(text));
+                        if (!calculatorInputError(text, f.unit)) onChange(f.k, parseCalcInput(text));
                       }}
                       onBlur={() => {
                         if (draft[f.k] !== undefined && calculatorInputError(draft[f.k]!, f.unit)) return;
