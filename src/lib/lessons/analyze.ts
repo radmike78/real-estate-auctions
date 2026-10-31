@@ -23,7 +23,15 @@ export const analyze: Lesson = {
           ['If the inspection or appraisal goes badly', 'You may stretch to keep the home you love', 'You renegotiate, or walk away'],
           ['Walking away', 'Hard, and sometimes not worth it', 'Normal. Many properties you look at won’t fit your numbers.'],
         ] } },
-        'Ways to stay detached: write your walk-away price (the most you’ll pay) before you see the property; judge it on your analysis, not the tour; don’t picture yourself living there; expect to lose some to other buyers or bidders; and have someone you trust check your numbers before you commit. If you’ll live in part of it and rent the rest, be honest about which choices are about your home and which are about the investment.',
+        'Ways to stay detached:',
+        { list: [
+          'Write your walk-away price (the most you’ll pay) before you see the property.',
+          'Judge it on your analysis, not the tour.',
+          'Don’t picture yourself living there.',
+          'Expect to lose some to other buyers or bidders.',
+          'Have someone you trust check your numbers before you commit.',
+        ] },
+        'If you’ll live in part of it and rent the rest, be honest about which choices are about your home and which are about the investment.',
       ],
     },
     {
@@ -161,7 +169,7 @@ export const analyze: Lesson = {
               ],
               [
                 'HOA documents',
-                'The owner gives a resale package (governing documents, dues, current and expected assessments, budget, reserves, unpaid judgments, pending lawsuits, fees). The buyer can cancel in writing until midnight of the fifth calendar day after receiving it. That holds only before the buyer accepts conveyance (that is, as long as the sale hasn’t closed)*, and only if NRS 116.4109 covers the resale. Exceptions in NRS 116.4101 can apply; confirm that your sale is covered.',
+                'The owner gives a resale package (governing documents, dues, current and expected assessments, budget, reserves, unpaid judgments, pending lawsuits, fees). You can cancel in writing until midnight of the fifth calendar day after you receive the package, as long as the sale hasn’t closed yet.* Some sales are exempt (NRS 116.4101); ask your agent or the HOA whether yours is covered (NRS 116.4109).',
                 'The owner gives governing documents, financial and reserve disclosures, assessments, violation notices and rental limits before transfer (Civil Code 4525).',
                 'You get the association’s documents (rules, budget, reserves, insurance, lawsuits) within 10 days. In a planned community with fewer than 50 homes, or a condo with fewer than 50 units, the seller delivers them within 10 days after the offer is accepted. With 50 or more, the association delivers them within 10 days after the seller’s notice of the accepted offer. The association’s fee can’t be more than $400, plus up to $100 for a rush (A.R.S. 33-1260 and 33-1806).',
                 'Before closing, the seller gives the buyer the association’s recorded governing documents and a link to the state’s educational materials for HOA buyers (Utah Code 57-8a-105.1 and 57-8-6.1, as amended in 2026). A payoff fee can’t be more than $50.',

@@ -275,7 +275,6 @@ function GuideBody({ g }: { g: ProGuide }) {
           header={
             <>
               <h3 className="part-head">Listed on DeedOwl{st ? ` (${stateByCode(st)?.name})` : ''}</h3>
-              <p className="small muted pro-guide-ads">Listed professionals are paid advertisements. Check any license yourself before you hire.</p>
             </>
           }
           notice={<Disclaimer kind={g.key === 'lender' || g.key === 'private_lender' ? 'financing' : 'professionals'} compact />}

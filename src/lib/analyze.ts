@@ -26,7 +26,7 @@ export const SALE_KINDS: SaleKindInfo[] = [
   { key: 'listing', label: 'Regular listing (agent or owner)' },
   { key: 'reo', label: 'Bank-owned or government home (REO, HUD)' },
   { key: 'short', label: 'Short sale (the seller’s lender must approve)' },
-  { key: 'trustee', label: 'Foreclosure auction (trustee sale)' },
+  { key: 'trustee', label: 'Foreclosure auction (trustee’s sale)' },
   { key: 'taxSale', label: 'County tax sale (the property)', states: ['NV', 'CA', 'UT', 'TX'] },
   { key: 'lien', label: 'Tax lien sale', states: ['AZ', 'NV'], labelIn: { NV: 'SID lien certificate', AZ: 'Tax lien sale (lien certificate)' } },
   { key: 'court', label: 'Sheriff’s or court sale' },

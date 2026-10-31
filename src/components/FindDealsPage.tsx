@@ -112,16 +112,15 @@ export default function FindDealsPage() {
       <NarrowDown config={findDealsConfig()} intro="Answer two quick questions and we’ll point you to the best places to look first. Other sources stay available in the expandable groups below." />
       <p className="page-starter"><strong>Buying a home listed for sale?</strong> Ask a licensed agent to set up a search of homes on the local listing service (MLS) that match your buy box (your written limits: area, property type, price and condition). <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p>
       <section aria-labelledby="search-routine">
-        <h2 id="search-routine">Turn a search into a candidate</h2>
+        <h2 id="search-routine">Turn a search into one property worth checking</h2>
         <p>Find one property that fits your limits, record its source and price, then save it in Analyze.</p>
         <details><summary>See the five-step search routine</summary><ol>
-          <li>Choose one area, property type and purchase route from your buy box.</li>
-          <li>Search the sources below or ask your agent for matching MLS listings. Check availability and investor eligibility with the seller or listing agent.</li>
+          <li>Pick one area, property type and way of buying (listed home or auction) from your buy box.</li>
+          <li>Search the sources below or ask your agent for matching MLS listings. Ask the seller or listing agent whether it’s still for sale and whether investors can buy it.</li>
           <li>Record the address or parcel, source link, date checked, asking price or minimum bid, sale type and payment deadline.</li>
-          <li>Screen it against your limits. In <a href="#/analyze">Analyze</a>, enter and save a candidate that fits; put the source and missing facts in its evidence log.</li>
-          <li>Verify rent, value, repairs, title, occupancy, permitted use, insurance and financing before you decide whether to offer or bid. An initial calculation is a screen, not completed due diligence.</li>
+          <li>Screen it against your limits. In <a href="#/analyze">Analyze</a>, enter and save a property that fits; put the source and missing facts in its evidence log.</li>
+          <li>Before you offer or bid, check the rent, value, repairs, title, who lives there, allowed use, insurance and loan. A quick calculation is only a first screen.</li>
         </ol></details>
-        <p className="muted">Before an offer or bid, verify costs, title, occupancy, permitted use, insurance and financing. An initial calculation is a screen, not completed due diligence.</p>
       </section>
       <section aria-label="Choose a purchase route"><h2>How do you want to buy?</h2><p>Choose a route to open the relevant official sources. You can switch or browse the other groups.</p><button type="button" className="btn" onClick={() => openSources('deals-national')}>Listed or bank-owned property</button>{' '}<button type="button" className="btn btn-secondary" onClick={() => openSources('deals-county')}>County auction</button></section>
       <h2 className="section-title">Official sources</h2>
@@ -177,10 +176,10 @@ export default function FindDealsPage() {
 
       </details>
       {adShows && <FixedAds pros={pros} categories={adCats} placeholder />}
-      <details className="plan-section"><summary>Other listing and auction sites — not the official seller</summary>
+      <details className="plan-section"><summary>Other sites (not the official seller)</summary>
       <h2 className="section-title">Other sites</h2>
       <p className="other-sites-note">
-        <strong>Not the official seller.</strong> These listing sites and private auction companies can help you find properties, but listings may be
+        These listing sites and private auction companies can help you find properties, but listings may be
         out of date or already sold, and auction companies add their own fees. Confirm every property with the seller, and read each site’s terms.
       </p>
       {OTHER_SITES.map((g, i) => (

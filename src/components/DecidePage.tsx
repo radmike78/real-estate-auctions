@@ -234,7 +234,7 @@ export default function DecidePage() {
               Start over
             </button>
           </div>
-          <p className="muted">Without an account, these answers stay in this browser. In an account workspace they last for this visit and can be downloaded; they are not included in account saves.</p>
+          <p className="muted">Without an account, these answers stay in this browser. Signed in? These answers last only for this visit and aren’t saved to your account. Download them if you want to keep them.</p>
         </section>
       )}
       <AdSpot spot="decide" />

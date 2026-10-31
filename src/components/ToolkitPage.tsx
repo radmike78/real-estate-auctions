@@ -336,7 +336,7 @@ export function FirstDealRoadmap() {
           {nextAdShows && <FixedAds key={next.id} pros={pros} categories={nextAdCats} placeholder />}
         </div>
       ) : (
-        <p className="next-step" role="status">Follow “Your next step” above. Use the task details below to record each milestone; contract tasks may run at the same time.</p>
+        <p className="next-step" role="status">Use the task details below to record each milestone; contract tasks may run at the same time.</p>
       )}
       <h3 className="roadmap-all-head">All tasks</h3>
       {phases.map((ph) => {
@@ -408,7 +408,7 @@ export function CashWorksheet() {
       </div>
       <dl className="cash-result">
         <div><dt>Emergency fund</dt><dd>{fmtMoney(fund)}</dd></div>
-        <div className="cash-main"><dt>Your investable cash</dt><dd>{fmtMoney(investable)}</dd></div>
+        <div className="cash-main"><dt>What you can invest</dt><dd>{fmtMoney(investable)}</dd></div>
       </dl>
       {c.savings > 0 && investable === 0 && <p className="roadmap-stop"><strong>Not yet.</strong> Your choices leave no cash for a deal in this worksheet. Review your savings, emergency fund and debt plan. You can keep learning and practicing while you prepare.</p>}
       {investable > 0 && <PriceFromCash cash={investable} />}

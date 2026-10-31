@@ -261,7 +261,7 @@ export const DRILLS: Drill[] = [
       {
         kind: 'pick',
         id: 'mortgage',
-        title: 'Mission 1: The Recorder shows the lender paid the HOA’s priority amount 10 days before the sale',
+        title: 'Mission 1: County records show the lender paid the HOA’s priority share (the part of the HOA lien that comes first) 10 days before the sale',
         question: 'What happens to the $195,000 first mortgage?',
         multi: false,
         options: [

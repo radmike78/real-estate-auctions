@@ -56,5 +56,5 @@ it('shows the cash gap even when the lab meets the monthly target', () => {
   expect(html).toContain('$122,500.00');
   expect(html).toContain('$12,500.00');
   expect(html).toContain('over budget');
-  expect(html).toContain('Before repair/lease-up holding costs');
+  expect(html).toContain('Not counting costs while you repair and find a tenant');
 });
