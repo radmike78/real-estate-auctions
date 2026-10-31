@@ -1,3 +1,5 @@
+import NarrowDown from './NarrowDown';
+import { practiceConfig } from '../lib/narrow';
 import PracticeStateNote from './PracticeStateNote';
 import { DealJourneyEntry } from './DealJourneyPage';
 import { getMyState, useMyState } from '../lib/myState';
@@ -37,13 +39,6 @@ const SALE_BLURB: Record<SaleKey, string> = {
   irs: 'The IRS sells property it seized for unpaid federal taxes.',
   sid: 'You buy the county’s lien for unpaid improvement-district charges: a debt that earns interest, not the property.',
 };
-
-/** The kinds of practice, shortest commitment last, each jumping to its section below. */
-const WAYS: { id: string; icon: Topic; title: string; time: string; what: string; go: string }[] = [
-  { id: 'practice-case', icon: 'rental', title: 'A full purchase', time: 'About 45 minutes', what: 'Buy a rental from budget to first tenant, with the paperwork and the calls when things go wrong.', go: 'Go to the full purchase' },
-  { id: 'practice-auction', icon: 'trustee', title: 'Auction practice', time: 'One sale, step by step', what: 'Pick a kind of sale (tax, foreclosure, HOA, sheriff, IRS) and buy a fictional property at it.', go: 'Choose a kind of sale' },
-  { id: 'practice-drills', icon: 'tax', title: 'Quick drills', time: 'One short deal each', what: 'Work 2 to 4 missions on one made-up deal, then decide: Buy, Investigate or Pass.', go: 'See the drills' },
-];
 
 /** One plain line, not a banner: readers skip anything styled like a notice. */
 export function PracticeRibbon() {
@@ -119,21 +114,8 @@ export default function PracticePage({ sale }: { sale?: string }) {
         />
         <PracticeRibbon />
         <DealJourneyEntry />
-        <details className="practice-more" open><summary>More ways to practice: documents, auctions and quick drills</summary>
-        {/* What kinds of practice there are, how long each takes, and a jump to each: pick by the time you have. */}
-        <section className="practice-ways" aria-labelledby="practice-ways-head">
-          <h2 id="practice-ways-head" className="section-title">More ways to practice</h2>
-          <div className="practice-sales">
-            {WAYS.filter((w) => !otherState || w.id !== 'practice-auction').map((w, i) => (
-              <a key={w.id} href="#/practice" className={`practice-sale-tile hue-${i}`} onClick={(e) => { e.preventDefault(); document.getElementById(w.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>
-                <span className="sale-tile-head"><span className="drill-card-icon"><TopicIcon topic={w.icon} /></span><strong>{w.title}</strong></span>
-                <span className="practice-way-time">{w.time}</span>
-                <span className="muted">{w.what}</span>
-                <span className="practice-card-foot"><span className="practice-way-go">{w.go} <span aria-hidden>↓</span></span></span>
-              </a>
-            ))}
-          </div>
-        </section>
+        <NarrowDown config={practiceConfig(!otherState)} intro="Answer two quick questions and we’ll point you to the best practice to start with. Everything else stays on this page below." />
+        <details className="practice-more" open><summary>All the ways to practice: a full purchase, auctions and quick drills</summary>
         <h2 id="practice-case" className="practice-step"><span aria-hidden>1</span> Buy a rental, start to finish</h2>
         <p className="practice-step-intro">Work one fictional purchase from your budget to the first months of renting it out. Read teaching versions of the paperwork (comparables, a loan quote, an inspection report, a title commitment, a closing statement), each with a guide to reading the real form, and make the calls when things go wrong. You finish with your own deal packet: a budget, a deadline calendar, an evidence log and your questions for each professional.</p>
         <div className="practice-case-go">

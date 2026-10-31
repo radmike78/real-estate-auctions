@@ -209,3 +209,34 @@ export function toolkitConfig(): NarrowConfig {
     },
   };
 }
+
+/** Practice: where to start among the practice deal, the full purchase, auction practice and the drills. */
+export function practiceConfig(auctionPracticeHere: boolean): NarrowConfig {
+  return {
+    questions: [
+      {
+        key: 'started',
+        question: 'Have you worked through Build your first deal (Cedar House)?',
+        options: [
+          { value: 'no', label: 'Not yet' },
+          { value: 'yes', label: 'Yes, or most of it' },
+        ],
+        suggest: () => ({ value: 'no', why: 'Start there: it’s one short decision at a time, and it builds the practice workbook the rest of this page uses.' }),
+      },
+      BUY_Q,
+    ],
+    result: ({ started, buy }) => {
+      const picks: NarrowPick[] = [];
+      if (started !== 'yes') picks.push({ label: 'Build your first deal', href: '#/practice/deal', why: 'Short decisions on one fictional rental, from the ad’s rent claim to your first month as an owner.' });
+      if (buy === 'auction') {
+        picks.push(auctionPracticeHere
+          ? { label: 'Auction practice', scrollTo: 'practice-auction', why: 'Buy a fictional property at one kind of sale, step by step, from research to the day after.' }
+          : { label: 'Your state’s sale guides', href: '#/playbooks', why: 'Auction practice uses Clark County, Nevada rules. Your state’s guides show how its own sales work.' });
+      } else {
+        picks.push({ label: 'Buy a rental, start to finish', scrollTo: 'practice-case', why: 'About 45 minutes. The paperwork and calls of a purchase through an agent, with a deal packet at the end.' });
+      }
+      picks.push({ label: 'Quick drills', scrollTo: 'practice-drills', why: 'One short made-up deal each: value it, check the rent, find the liens, then decide Buy, Investigate or Pass.' });
+      return picks.slice(0, 3);
+    },
+  };
+}
