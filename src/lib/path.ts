@@ -19,7 +19,7 @@ export interface PathStep {
 // problems alone): decide, learn, rehearse at no risk, then line up professionals, find, analyze and buy.
 export const PATH: PathStep[] = [
   { key: 'decide', n: 1, label: 'Decide', href: '#/decide', blurb: 'Your goal and your investable cash first, then the strategies that fit them (about 2 minutes).' },
-  { key: 'learn', n: 2, label: 'Learn', href: '#/learn', blurb: 'How investing works, starting with the lessons for the strategy you chose.' },
+  { key: 'learn', n: 2, label: 'Learn', href: '#/learn', blurb: 'How investing works, starting with property types and the seminar pitches to avoid; your strategy’s lessons are listed in Decide.' },
   { key: 'practice', n: 3, label: 'Practice', href: '#/practice', blurb: 'Buy a fictional property step by step before you risk real money.' },
   { key: 'team', n: 4, label: 'Your team', href: '#/pros', blurb: 'Line up a lender, agent and the other professionals before you make an offer or bid.' },
   { key: 'deals', n: 5, label: 'Find deals', href: '#/find-deals', blurb: 'Where to look in your state and county, starting with official sources.' },

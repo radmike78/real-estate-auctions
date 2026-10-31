@@ -6,6 +6,7 @@ import PageHero from './PageHero';
 import OwlNote from './OwlNote';
 import { useMarkStep, stepEyebrow } from '../lib/path';
 import { linkLabel } from '../lib/linkLabel';
+import { creditStep } from '../lib/roadmapState';
 import { DECIDE_KEY, notYetWhy, QUESTIONS, rank, stateNote, type Answers } from '../lib/decide';
 import { strategyHref } from '../lib/strategies';
 import { stateByCode, type StateCode } from '../lib/regions';
@@ -43,6 +44,8 @@ function load(): Saved {
 function save(s: Saved) {
   try {
     localStorage.setItem(DECIDE_KEY, JSON.stringify(s));
+    // Finishing Decide is the roadmap's "Choose one strategy" step.
+    if (QUESTIONS.every((q) => typeof s.answers[q.key] === 'string')) creditStep('strategy');
   } catch {
     /* private mode: not kept */
   }
@@ -210,6 +213,7 @@ export default function DecidePage() {
           </details>
           <div className="decide-nav">
             {getMode() === 'guided' ? (() => { const plan = planNow(); return <a className="btn" href={plan.task.href}>Next: {plan.task.label}&nbsp;→</a>; })() : <><a className="btn" href="#/learn">Next: step 2 of 6 · Learn&nbsp;→</a> <a href="#/toolkit/buy-box">Write your buy box&nbsp;→</a></>}
+            <a href="#/toolkit/cash">Turn your cash range into one number (2 minutes)&nbsp;→</a>
             <button type="button" className="btn btn-secondary" onClick={() => setStep(0)}>Change my answers</button>
             <button
               type="button"

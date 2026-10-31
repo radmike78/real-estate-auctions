@@ -10,7 +10,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "38a1df034d1caf37",
+    "hash": "e57be34c43176623",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -118,7 +118,7 @@
       "src/lib/saleDocs.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "fc6be2d6395357dc",
+    "hash": "5bc6ffb523a3249a",
     "note": "Reviewed selected-state guide gate, Texas source jurisdiction, available practice targets, evidence deep-link opening and single-topic disclosure behavior. Financial formulas and legal procedures unchanged."
   },
   {
@@ -146,7 +146,7 @@
       "src/practice/dealJourney.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "c36ed76fc0a90f34",
+    "hash": "2f7826e8fe1e0f0b",
     "note": "Reviewed account resume: choices and numbers preserved, reflection self-review completion explicitly distinguished from written answers and grades; restored reflections allow continuation without inventing text. Local risk guidance and formulas unchanged."
   },
   {
@@ -163,7 +163,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "aade81405b35d056",
+    "hash": "4004a6ea129f7dd0",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -180,7 +180,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "4e5dec7da56b83de",
+    "hash": "3331b5d1d71a6a7d",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -368,7 +368,7 @@
       "src/lib/lessons/taxes.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "36abb38e4379ded6",
+    "hash": "e07a511186fed05b",
     "note": "Next-lesson practice links appear only where a matching Cedar House chapter exists; all source lesson content retained."
   },
   {
@@ -379,7 +379,7 @@
       "src/lib/decide.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "6e8eaf565497fd86",
+    "hash": "908c949594e1621d",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -405,7 +405,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "b384f2da74e61dbb",
+    "hash": "dd51d378759583d7",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -421,7 +421,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "f1154f5f3e93c667",
+    "hash": "5b921a45101ec258",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -435,8 +435,8 @@
       "src/lib/cloudWork.ts",
       "server/accounts.ts"
     ],
-    "reviewed": "2026-10-13",
-    "hash": "a3e7776c85a8ddc5",
+    "reviewed": "2026-10-31",
+    "hash": "d9aa18395cd09e70",
     "note": "Reviewed guest opt-out and later account activation: focus/session checks remain installed, while explicit guest choice suppresses account requests until sign-in or reopening. Structured save scope, manual controls and OWASP boundaries unchanged; production activation remains gated."
   }
 ]

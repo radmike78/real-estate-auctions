@@ -1,3 +1,4 @@
+import { calculatorInputError, parseCalcInput } from './CalcFields';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { readConfirmed, saveConfirmed } from '../lib/calcConfirmation';
 import { useEffect, useId, useState } from 'react';
@@ -158,7 +159,7 @@ export function savedMaxBid(id: string): number | null {
 const pct = (profit: number, exit: number) => (exit > 0 ? ` (${Math.round((profit / exit) * 100)}% of resale value)` : '');
 // Typed text becomes a number: empty or invalid counts as 0, negatives are not allowed.
 const toNum = (v: string) => {
-  const n = Number(v.replace(/,/g, '').trim());
+  const n = parseCalcInput(v);
   return Number.isFinite(n) && n > 0 ? n : 0;
 };
 
@@ -299,10 +300,12 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       }
       return next;
     });
-  const set = (k: keyof BidInputs, text: string) => {
+  const set = (k: keyof BidInputs, text: string, unit?: string) => {
     trackAction('calculator_used', true);
     markTyped(k);
     setDraft((d) => ({ ...d, [k]: text }));
+    // Something that isn't a number keeps the last valid value (and shows why) instead of quietly becoming 0.
+    if (calculatorInputError(text, (unit ?? '$') as never)) return;
     // Changing the redemption numbers by hand means the rule you confirmed may no longer be the one used.
     update({ [k]: clampInput(k, toNum(text)), ...(k.startsWith('redemption') && k !== 'redemptionChecked' ? { redemptionChecked: 0 } : {}) });
   };
@@ -403,11 +406,13 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                         autoComplete="off"
                         value={draft[f.k] ?? (f.unit === '$' ? (i[f.k] ?? 0).toLocaleString('en-US', { maximumFractionDigits: 2 }) : String(i[f.k]))}
                         aria-describedby={hintFor(f) ? `${uid}-${f.k}-hint` : undefined}
-                        onChange={(e) => set(f.k, e.target.value)} onInput={() => markTyped(f.k)}
-                        onBlur={() => setDraft((d) => ({ ...d, [f.k]: undefined }))}
+                        aria-invalid={draft[f.k] !== undefined && !!calculatorInputError(draft[f.k]!, f.unit as never)}
+                        onChange={(e) => set(f.k, e.target.value, f.unit)} onInput={() => markTyped(f.k)}
+                        onBlur={() => { if (draft[f.k] !== undefined && calculatorInputError(draft[f.k]!, f.unit as never)) return; setDraft((d) => ({ ...d, [f.k]: undefined })); }}
                       />
                       {f.unit !== '$' && <i aria-hidden>{unitText(f.unit)}</i>}
                     </span>
+                    {draft[f.k] !== undefined && calculatorInputError(draft[f.k]!, f.unit as never) && <small className="deal-urgent" role="status">{calculatorInputError(draft[f.k]!, f.unit as never)}</small>}
                     <span className="calc-hint">
                       {hintFor(f) && <small className="muted" id={`${uid}-${f.k}-hint`}>{hintFor(f)}</small>}
                       {moreForField(f) && (
@@ -546,13 +551,13 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         <>
         <div className="calc-field calc-bid">
           <label className="calc-label" htmlFor={`${uid}-bid`}>Check {offer ? 'an offer' : 'a bid'}</label>
-          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="number" inputMode="decimal" min={0} step="any" value={bidText} placeholder={offer ? 'e.g. the offer you plan to make' : 'e.g. a bid you expect to beat'} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); update({ proposedPrice: clampInput('proposedPrice', toNum(e.target.value)) }); }} /></span>
+          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="text" inputMode="decimal" autoComplete="off" value={bidText} placeholder={offer ? 'e.g. the offer you plan to make' : 'e.g. a bid you expect to beat'} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); update({ proposedPrice: clampInput('proposedPrice', toNum(e.target.value)) }); }} /></span>
         </div>
         {atBid && profit !== null && <PriceHead kind="yours" label={yours} price={bid} result={profit} unit="profit" note={`Estimated cash you’d put in at this price, under these assumptions (through repairs and holding until it sells): ${fmtMoney(Math.round(cashNeededAtBid(i, bid)))}.${saveAs && !propertyId ? ' Saved with this deal as your price; its deal packet uses it.' : propertyId ? ' Saved for this property in this browser.' : ''}`} />}
         {atBid && profit !== null && !needsValue && (
           <div className={`calc-verdict ${over ? 'bad' : 'good'}`} role="status">
             {over ? (
-              <><strong>Above your walk-away price.</strong> At {fmtMoney(bid)} this deal no longer meets your {r.limitedBy === 'cash' && bid <= r.profitBid ? 'cash limit' : 'target'}. Profit would be {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}. {offer ? 'Don’t offer more.' : 'Stop bidding.'}</>
+              <><strong>Above your walk-away price.</strong> At {fmtMoney(bid)} this deal no longer meets your {r.limitedBy === 'cash' && bid <= r.profitBid ? 'cash limit' : 'target'}. Profit would be {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}. Past your walk-away price, this deal no longer meets your own numbers.</>
             ) : (
               <><strong>Within your walk-away price.</strong> Estimated profit {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}.</>
             )}

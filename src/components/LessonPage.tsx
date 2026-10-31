@@ -1,3 +1,5 @@
+import { planNow } from '../lib/planNext';
+import { currentProgress, getMode } from '../lib/journey';
 import { LESSON_CHAPTER, journeyHref } from '../practice/dealJourney';
 import { useEffect, useRef, useState } from 'react';
 import { markLessonRead, useLastActivity } from '../lib/journey';
@@ -253,7 +255,10 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
         title={m.title}
         sub={oneState(l.intro, st)}
       />
-      {varies && <StatePicker label="Show rules for" selection={{ state: st, onChange: linkedState === undefined ? setMyState : setLinkedState }} />}
+      {/* A reader who arrived here first (from a search, say) learns where the step-by-step start is, in one line. */}
+      {getMode() === null && !currentProgress().decided && <p className="lesson-new-here">New to investing? Start with step 1: <a href="#/decide">Decide (about 2 minutes)&nbsp;→</a> Or keep reading this lesson.</p>}
+      {/* With no state chosen, the bar above the page asks for one, so the lesson doesn't show a second picker. */}
+      {varies && st && <StatePicker label="Show rules for" selection={{ state: st, onChange: linkedState === undefined ? setMyState : setLinkedState }} />}
       {/* Summary first, full width: what the reader will learn, then (on Types) help choosing, then the lesson. */}
       <section className="lesson-takeaways" aria-labelledby="takeaways">
         <h2 id="takeaways">What you’ll learn</h2>
@@ -313,12 +318,27 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
         </details>
         <p className="muted">Checked {fmtDate(l.reviewed)}. General education, not legal, tax or financial advice.</p>
       </section>
-      {next ? (
-        <nav className="path-next" aria-label="Next lesson">
-          <span className="muted">Next lesson</span>
-          <a className="btn" href={nextHref}>{next.title}&nbsp;→</a>
-        </nav>
-      ) : <PathNext step="learn" />}
+      {(() => {
+        // Guided readers follow their plan: when its next step isn't the next lesson, the plan leads and the next
+        // lesson stays available as a second link, so the page never shows two competing "next" buttons.
+        const plan = getMode() === 'guided' ? planNow() : null;
+        const planHref = plan && plan.task.href.replace(/^#/, '');
+        if (plan && (!next || planHref !== `/learn/${next.key}`)) {
+          return (
+            <nav className="path-next" aria-label="Next step">
+              <span className="muted">Next: {plan.context}</span>
+              <a className="btn" href={plan.task.href}>{plan.task.label}&nbsp;→</a>
+              {next && <a href={nextHref}>Or keep reading: {next.title}&nbsp;→</a>}
+            </nav>
+          );
+        }
+        return next ? (
+          <nav className="path-next" aria-label="Next lesson">
+            <span className="muted">Next lesson</span>
+            <a className="btn" href={nextHref}>{next.title}&nbsp;→</a>
+          </nav>
+        ) : <PathNext step="learn" />;
+      })()}
       <AdSpot spot="lesson" />
     </main>
   );

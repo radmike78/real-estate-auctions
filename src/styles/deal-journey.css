@@ -55,3 +55,5 @@
 
 /* The chapter title takes focus when a chapter opens (screen readers hear it); no ring for that programmatic focus. */
 .deal-journey .page-hero h1 > span:focus { outline: none; }
+.deal-builds-on, .deal-lesson-first { margin: 0 0 12px; }
+.deal-builds-on { padding: 10px 14px; border-radius: 10px; background: var(--surface-2); border-left: 4px solid var(--accent-strong); }

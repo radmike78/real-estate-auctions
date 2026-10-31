@@ -72,7 +72,7 @@ export const walkAway: Lesson = {
           'The price you pay usually includes the wholesaler’s fee for assigning the contract. Compare it with recent sales of similar homes, not with the wholesaler’s repair estimate.',
           'You may get no inspection period. If the contract won’t let you inspect, treat it like an as-is auction and budget for the worst case, or walk away.',
           'Use your own title company. Ask it to confirm who owns the home and what liens are on it before you put up money.',
-          'Put your deposit only into escrow with that title company. Never pay a deposit or fee straight to the wholesaler.',
+          'Put your deposit only into escrow with that title company. Pay a deposit only into escrow with the title company, not to the wholesaler directly.',
         ] },
         'In Arizona, a wholesaler selling a contract for a home with fewer than five units must tell you in writing, before you sign, that they hold only an equitable interest in the home. They must also say they may not be able to transfer the title to you. If they don’t, you can cancel any time before closing and get all your earnest money back (A.R.S. 44-5101).',
         'In Texas, anyone selling an option or assigning a purchase contract must tell you in writing, before you sign, that they’re selling only a contract interest. They must also say they don’t hold legal title, and they must tell the owner too (Property Code 5.0205). If they don’t tell you, they’re acting as a real estate broker, which needs a license (Occupations Code 1101.0045). In Nevada, California and Utah, check the current rules on selling or assigning a purchase contract with a real estate attorney or the state’s real estate agency.',

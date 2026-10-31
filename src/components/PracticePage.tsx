@@ -7,7 +7,7 @@ import { useMarkStep, stepEyebrow } from '../lib/path';
 import PathNext from './PathNext';
 import { useEffect, useState } from 'react';
 import PageHero from './PageHero';
-import { DrillList, hasSavedDrillScroll, TopicIcon } from './DrillPage';
+import { DrillList, hasSavedDrillScroll, TopicIcon, presetDrillTopic } from './DrillPage';
 import { HUE_COUNT, type Topic } from '../practice/drillCards';
 import ClassSwitch from './ClassSwitch';
 import type { ClassFilter } from '../lib/propertyClass';
@@ -79,6 +79,15 @@ export default function PracticePage({ sale }: { sale?: string }) {
   // A visitor from another state: these runs follow Nevada rules, so they sit behind one switch, and that state's own
   // drills (step 3) come first.
   const otherState = !!mine && mine !== 'NV';
+  // Auction practice follows Clark County, Nevada rules. A link to it from another state (a lesson, the roadmap) opens
+  // the auction drills instead, which cover that state's own sales.
+  const toAuctionDrills = otherState && !!sale;
+  useState(() => { if (toAuctionDrills) presetDrillTopic('auctions'); });
+  useEffect(() => {
+    if (!toAuctionDrills) return;
+    const t = window.setTimeout(() => document.getElementById('practice-drills')?.scrollIntoView({ block: 'start' }), 80);
+    return () => window.clearTimeout(t);
+  }, [toAuctionDrills]);
   // SID lien certificates are a Clark County, Nevada sale only: not offered to visitors from other states.
   const auctionSales = SALE_ORDER.filter((s) => s !== 'sid' || !mine || mine === 'NV');
   const auctionTiles = (
@@ -115,20 +124,20 @@ export default function PracticePage({ sale }: { sale?: string }) {
         <PracticeRibbon />
         <DealJourneyEntry />
         <NarrowDown config={practiceConfig(!otherState)} intro="Answer two quick questions and we’ll point you to the best practice to start with. Everything else stays on this page below." />
-        <details className="practice-more" open><summary>All the ways to practice: a full purchase, auctions and quick drills</summary>
-        <h2 id="practice-case" className="practice-step"><span aria-hidden>1</span> Part 2: buy a rental, start to finish</h2>
+        <details className="practice-more" open><summary>All the ways to practice: {otherState ? 'a full purchase and quick drills, including auction drills' : 'a full purchase, auctions and quick drills'}</summary>
+        <h2 id="practice-case" className="practice-step">Part 2: buy a rental, start to finish</h2>
         <p className="practice-step-intro">After Build your first deal (part 1, the decisions), this is the paperwork. Work one fictional purchase from your budget to the first months of renting it out. Read teaching versions of the paperwork (comparables, a loan quote, an inspection report, a title commitment, a closing statement), each with a guide to reading the real form, and make the calls when things go wrong. You finish with your own deal packet: a budget, a deadline calendar, an evidence log and your questions for each professional.</p>
         <div className="practice-case-go">
           <a className="btn big" href={`#/practice/case${caseStarted ? `/${caseNext.key}` : ''}`}>{!caseStarted ? 'Start the purchase\u00a0→' : caseNext.packet ? 'See your deal packet\u00a0→' : 'Continue the purchase\u00a0→'}</a>
           <span className="practice-case-meta">About 45 minutes · {practiceCase.property} · {practiceCase.stateName} rules{practiceCase.state === 'TX' ? ', with the TREC contract' : ''}</span>
         </div>
         {!otherState && <>
-        <h2 id="practice-auction" className="practice-step"><span aria-hidden>2</span> {otherState ? 'Auction practice: choose a kind of sale' : 'Nevada auction practice: choose a kind of sale'}</h2>
+        <h2 id="practice-auction" className="practice-step">{otherState ? 'Auction practice: choose a kind of sale' : 'Nevada auction practice: choose a kind of sale'}</h2>
         <p className="practice-step-intro">Buy a fictional property at one kind of sale, step by step, from research to the day after.</p>
         <p className="practice-nv-note" role="note"><strong>Clark County practice.</strong> These sales follow local rules. Check your county’s requirements before a real purchase.</p>
         {auctionTiles}
         </>}
-        <h2 id="practice-drills" className="practice-step"><span aria-hidden>{otherState ? 2 : 3}</span> Quick drills: would you buy it?</h2>
+        <h2 id="practice-drills" className="practice-step">Quick drills: would you buy it?</h2>
         <p className="practice-step-intro"><strong>Each drill is one short, made-up deal.</strong> Work through 2 to 4 missions (value it, check the rent, price the repairs, find the liens, run the numbers), then decide: Buy, Investigate or Pass. Missions are rehearsal: finishing them builds skill, not readiness to buy a real property.</p>
         <DrillList />
         </details>

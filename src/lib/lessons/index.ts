@@ -16,6 +16,6 @@ import { veterans } from './veterans';
 import { walkAway } from './walk-away';
 import { whoInvests } from './who-invests';
 
-export const LESSONS: Lesson[] = [markets, typesOfProperty, whoInvests, analyze, walkAway, negotiate, structuring, financing, creative, redFlags, tools, forcedSales, afterClosing, taxes, veterans];
+export const LESSONS: Lesson[] = [typesOfProperty, redFlags, tools, analyze, financing, creative, walkAway, negotiate, forcedSales, afterClosing, taxes, markets, whoInvests, structuring, veterans];
 
 export const lessonByKey = (key: string) => LESSONS.find((l) => l.key === key);

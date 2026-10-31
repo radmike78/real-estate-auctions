@@ -18,8 +18,8 @@ export interface CalcGroup<T> {
 }
 
 const unitText = (u: Unit) => (u === '$/500' ? 'per $500' : u === 'mo' ? 'months' : u === '%/yr' ? '% a year' : u === '%/mo' ? '% a month' : u === 'yr' ? 'years' : u === 'x' ? '×' : '%');
-/** A typed number, allowing thousands separators ("250,000"). */
-export const parseCalcInput = (text: string) => Number(text.replace(/,/g, '').trim());
+/** A typed number, allowing thousands separators, a dollar sign and a percent sign ("$250,000", "7%"). */
+export const parseCalcInput = (text: string) => Number(text.replace(/[,\s$]/g, '').replace(/%$/, ''));
 /** How a value shows when you're not typing in it: dollar amounts with thousands separators. */
 const shown = (n: number, unit: Unit) => (unit === '$' && Number.isFinite(n) ? n.toLocaleString('en-US', { maximumFractionDigits: 2 }) : String(n));
 export function calculatorInputError(text: string, unit: Unit): string | null {

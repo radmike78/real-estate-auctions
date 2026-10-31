@@ -1,3 +1,4 @@
+import PathNext from './PathNext';
 import PageHero from './PageHero';
 import { LEARN_MODULES } from '../lib/learn';
 import { AMAZON_TAG, BOOK_GROUPS } from '../lib/books';
@@ -36,10 +37,8 @@ export default function ReadingPage() {
         </section>
       ))}
       <p className="muted book-foot">Also free: your public library, and the official sources listed in each lesson.</p>
-      <nav className="path-next" aria-label="Next step">
-        <span className="muted">That’s the last lesson. Next, step 3 of 6:</span>
-        <a className="btn" href="#/practice">Practice buying&nbsp;→</a>
-      </nav>
+      <p className="muted">You’ve reached the end of Learn.</p>
+      <PathNext step="learn" />
       {AMAZON_TAG && <p className="fine-print">As an Amazon Associate, DeedOwl earns from qualifying purchases.</p>}
     </main>
   );

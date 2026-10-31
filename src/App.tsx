@@ -27,10 +27,13 @@ import { useSiteFeatures } from './lib/siteFeatures';
 
 // Each page loads its own code when first opened, so the first visit downloads only what it shows.
 // After a new deploy an open tab may ask for a page file that no longer exists: reload once to get the new files.
+const RELOAD_KEY = 'deedowl.chunk-reload';
+/** Session storage, or null where the browser blocks site storage (reading it can throw). */
+const session = () => { try { return window.sessionStorage; } catch { return null; } };
 function page<T extends ComponentType<any>>(load: () => Promise<{ default: T }>) {
-  return lazy(() => load().then((m) => { sessionStorage.removeItem('deedowl.chunk-reload'); return m; }).catch((err: unknown) => {
-    let tried = true;
-    try { tried = sessionStorage.getItem('deedowl.chunk-reload') === '1'; if (!tried) sessionStorage.setItem('deedowl.chunk-reload', '1'); } catch { /* storage blocked */ }
+  return lazy(() => load().then((m) => { try { session()?.removeItem(RELOAD_KEY); } catch { /* blocked */ } return m; }).catch((err: unknown) => {
+    let tried = true; // storage blocked: don't risk a reload loop
+    try { const st = session(); if (st) { tried = st.getItem(RELOAD_KEY) === '1'; if (!tried) st.setItem(RELOAD_KEY, '1'); } } catch { /* blocked */ }
     if (!tried) { window.location.reload(); return new Promise<{ default: T }>(() => {}); }
     throw err;
   }));

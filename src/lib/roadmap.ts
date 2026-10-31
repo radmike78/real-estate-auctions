@@ -116,9 +116,9 @@ export const ROADMAP: RoadmapStep[] = [
     id: 'market', phase: 2, title: 'Pick a county and a kind of sale',
     text: 'Choose where you’ll buy, and exactly what kind of sale. A deed, a lien certificate and an offer through an agent are different purchases with different rules.',
     outcome: 'A state, a county, the kind of sale, and what you’d actually get (a deed, a certificate, or a contract to buy).',
-    steps: ['Choose your state and county in Find deals and look at which sales happen there.', 'Read the sale guide for the kind of sale you’re interested in.', 'Choose your route at the top of this roadmap: through an agent, at an auction, or lien certificates.'],
+    steps: ['Choose your state and county, and read your state’s sale guide for the kind of sale you’re interested in.', 'Choose your route at the top of this roadmap: through an agent, at an auction, or lien certificates.', 'You’ll look at real sales in Find deals later, after practice and lining up your team.'],
     doneWhen: 'You know your county, the kind of sale, and what you’d get if you buy.',
-    action: 'Find sales near you', href: '#/find-deals',
+    action: 'Read your state’s sale guides', href: '#/playbooks',
   },
   {
     id: 'market-compare', phase: 2, title: 'Compare two areas before choosing',
@@ -158,9 +158,9 @@ export const ROADMAP: RoadmapStep[] = [
     id: 'a-practice', phase: 3, path: AUCTION, title: 'Finish a practice auction',
     text: 'Work one auction purchase with fictional paperwork before you risk money: the notice, the title search, your maximum bid, sale day and what comes after.',
     outcome: 'A finished practice sale, your written maximum bid with how you set it, and three drills done.',
-    steps: ['In Practice, choose the kind of sale you plan to use (a tax sale or a foreclosure sale) and work one property to the end.', 'Write your maximum bid and the costs behind it before sale day in the practice.', 'Try at least three “Would you buy it?” drills, including one with liens that survive the sale.'],
-    doneWhen: 'One practice sale is finished, with a written maximum bid, and three drills are done.',
-    action: 'Choose a practice sale', href: '#/practice',
+    steps: ['In Practice, choose the kind of sale you plan to use (a tax sale or a foreclosure sale) and work one property to the end. Auction practice follows Clark County, Nevada rules; outside Nevada, do three auction drills instead and read your state’s sale guide.', 'Write your maximum bid and the costs behind it before sale day in the practice.', 'Try at least three “Would you buy it?” drills, including one with liens that survive the sale.'],
+    doneWhen: 'One practice sale (or, outside Nevada, three auction drills) is finished, with a written maximum bid, and three drills are done.',
+    action: 'Choose a practice sale', href: '#/practice?sale=tax',
   },
   {
     id: 'c-practice', phase: 3, path: LIEN, title: 'Practice a lien purchase',
@@ -473,7 +473,7 @@ export const ROADMAP: RoadmapStep[] = [
     docs: ['Bidder registration form', 'Deposit receipt', 'A W-9 if the seller asks'],
     stop: 'Set your maximum before the sale, from your own numbers, and decide ahead of time what you’ll do if bidding passes it. Your situation, finances and risk tolerance decide where that line is. Losing an auction usually costs only your research and any non-refundable fees; overpaying can cost much more.',
     doneWhen: 'You bid within your maximum, or walked away.',
-    action: 'Practice an auction', href: '#/practice',
+    action: 'Practice an auction', href: '#/practice?sale=tax',
   },
   {
     id: 'a-pay', phase: 5, path: AUCTION, title: 'Pay, and get the right paperwork',

@@ -43,6 +43,23 @@ export const dealScoped = (s: RoadmapStep) => s.phase >= 4;
 
 /** Ticked roadmap steps (the learner's own, not a property's). */
 export const roadmapDone = () => readKey(ROADMAP_KEY, [] as string[], cleanIds);
+
+const CREDITED_KEY = 'deedowl.roadmap.credited.v1';
+/** Roadmap steps the site ticks for you when you do the work elsewhere: Decide (choose a strategy), the seminar red
+ * flags lesson. Each is ticked once, so a reader who unticks it keeps it unticked. */
+export const AUTO_STEPS: readonly string[] = ['strategy', 'avoid'];
+export function creditStep(id: string) {
+  try {
+    const credited = readKey(CREDITED_KEY, [] as string[], cleanIds);
+    if (credited.includes(id)) return;
+    localStorage.setItem(CREDITED_KEY, JSON.stringify([...credited, id]));
+    const done = roadmapDone();
+    if (!done.includes(id)) localStorage.setItem(ROADMAP_KEY, JSON.stringify([...done, id]));
+    progressChanged();
+  } catch {
+    /* storage unavailable */
+  }
+}
 /** How the visitor plans to buy: through an agent, at an auction, or lien certificates. */
 export const roadmapPath = () => readKey(ROADMAP_PATH_KEY, 'listing' as RoadmapPath, cleanPath);
 /** The route that fits a property's kind of sale. */

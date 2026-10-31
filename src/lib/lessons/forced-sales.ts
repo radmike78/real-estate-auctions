@@ -123,7 +123,7 @@ export const forcedSales: Lesson = {
     { term: 'Quiet title action', meaning: 'A court case that confirms you own the property free of old owners’ claims, so a title company will insure it.' },
   ],
   tryIt: { label: 'Find your county’s sale offices', href: '#/find-deals' },
-  practiceLink: { label: 'Practice an auction purchase with fictional paperwork', href: '#/practice?sale=tax' },
+  practiceLink: { label: 'Practice auction decisions', href: '#/practice?sale=tax' },
   sources: [
     { label: 'Fannie Mae HomePath: residential purchase and sale contract', url: 'https://homepath.fanniemae.com/images/documents/Residential_Real_Estate_Contract.pdf' },
     { label: 'HUD: prospective buyer FAQs (foreclosure sales)', url: 'https://www.hud.gov/sites/dfiles/Housing/images/BuyerFAQs.pdf' },

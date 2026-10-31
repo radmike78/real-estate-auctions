@@ -1,3 +1,4 @@
+import { syncRoadmapCredits } from '../lib/journey';
 import { useAccount } from '../lib/account';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState } from 'react';
@@ -781,6 +782,7 @@ function ProgressBackup() {
 
 /** Everything free in one place: the first-deal roadmap, a buy box, and the calculators and checklists. */
 export default function ToolkitPage({ section }: { section?: string }) {
+  useEffect(() => syncRoadmapCredits(), []);
   useLastActivity('#/toolkit', 'My plan');
   useEffect(() => {
     if (!section) return;
