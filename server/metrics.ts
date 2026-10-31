@@ -13,6 +13,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import type { Db, LeadRow, MetricKind } from './db';
 import { pacificDay, pacificToIso } from '../src/lib/time';
 import { isSiteAction, isSitePage, SITE_ACTIONS, SITE_PAGES, type SiteAction, type SitePage } from '../src/lib/siteStats';
+import { AD_PLACEMENTS } from '../src/lib/adSpots';
 
 export const BOT_UA = /bot|crawl|spider|slurp|preview|headless|lighthouse|monitor|curl|wget|python|scrapy|httpclient/i;
 
@@ -37,6 +38,8 @@ export interface MetricsSummary {
   contactClicks: number; // phone + email + website
   contactRate: number | null; // unique contact clicks / unique profile views
   daily: { day: string; views: number; contacts: number; leads: number }[];
+  /** Ad views and clicks by placement (category page, Find deals, Analyze…), most-seen first. */
+  bySpot: { spot: string; label: string; shown: number; clicks: number }[];
 }
 
 export function summarize(db: Db, proId: string, from: string, to: string): MetricsSummary {
@@ -44,7 +47,18 @@ export function summarize(db: Db, proId: string, from: string, to: string): Metr
   const blank = () => ({ total: 0, uniques: 0 });
   const totals = { impression: blank(), profile_view: blank(), phone_click: blank(), email_click: blank(), website_click: blank(), lead: blank(), ad_impression: blank(), ad_click: blank() };
   const byDay = new Map<string, { views: number; contacts: number; leads: number }>();
+  const spots = new Map<string, { shown: number; clicks: number }>();
   for (const r of rows) {
+    const at = String(r.kind).indexOf('@');
+    if (at > 0) {
+      const spot = String(r.kind).slice(at + 1);
+      const x = spots.get(spot) ?? { shown: 0, clicks: 0 };
+      if (String(r.kind).startsWith('ad_impression@')) x.shown += r.total;
+      else x.clicks += r.uniques;
+      spots.set(spot, x);
+      continue;
+    }
+    if (!(r.kind in totals)) continue;
     totals[r.kind].total += r.total;
     totals[r.kind].uniques += r.uniques;
     const d = byDay.get(r.day) ?? { views: 0, contacts: 0, leads: 0 };
@@ -67,6 +81,7 @@ export function summarize(db: Db, proId: string, from: string, to: string): Metr
     contactClicks: totals.phone_click.total + totals.email_click.total + totals.website_click.total,
     contactRate: totals.profile_view.uniques ? contactUniques / totals.profile_view.uniques : null,
     daily,
+    bySpot: [...spots].map(([spot, v]) => ({ spot, label: AD_PLACEMENTS[spot] ?? spot, ...v })).sort((a, b) => b.shown - a.shown),
   };
 }
 

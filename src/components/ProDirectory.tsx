@@ -130,7 +130,7 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
       )}
       {picking && <AreaDialog onClose={() => { setPicking(false); setWide(false); }} />}
       {/* Paid Featured ads sit apart from the list below, which keeps the same rotation for every advertiser. */}
-      {featured && !loading && !error && <FeaturedAds pros={pros} categories={active} />}
+      {featured && !loading && !error && <FeaturedAds spot="directory" pros={pros} categories={active} />}
       {!none && showCategoryFilter && categories.length > 1 && (
         <div className="chip-tabs" role="group" aria-label="Type">
           <button aria-pressed={cat === 'any'} onClick={() => setCat('any')}>All</button>

@@ -335,12 +335,14 @@ describe('advertiser flow (running server)', () => {
     await ev({ kind: 'phone_click', proId: agentId });
     await ev({ kind: 'profile_view', proId: agentId }, { 'user-agent': 'Googlebot/2.1' }); // bot
     expect((await ev({ kind: 'lead', proId: agentId })).status).toBe(400); // leads only via the form
-    await ev({ kind: 'ad_impression', proIds: [agentId, 'f'.repeat(24)] });
-    await ev({ kind: 'ad_click', proId: agentId });
+    await ev({ kind: 'ad_impression', proIds: [agentId, 'f'.repeat(24)], spot: 'finddeals' });
+    await ev({ kind: 'ad_click', proId: agentId, spot: 'finddeals' });
+    await ev({ kind: 'ad_impression', proIds: [agentId], spot: 'not-a-placement' });
     const m = await (await admin(`/api/admin/applications/${agentId}/metrics`)).json();
     expect(m.totals.impression.total).toBe(1);
-    expect(m.totals.ad_impression.total).toBe(1);
+    expect(m.totals.ad_impression.total).toBe(2); // an unknown placement still counts, just not by placement
     expect(m.totals.ad_click.uniques).toBe(1);
+    expect(m.bySpot).toEqual([{ spot: 'finddeals', label: 'Find deals', shown: 1, clicks: 1 }]);
     expect(m.totals.profile_view).toEqual({ total: 4, uniques: 2 });
     expect(m.totals.phone_click.uniques).toBe(1);
     expect(m.contactRate).toBe(0.5);

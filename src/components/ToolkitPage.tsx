@@ -334,7 +334,7 @@ export function FirstDealRoadmap() {
             <h3>{next.title}</h3>
             <StepBody s={next} status={stateOf(next)} setStatus={(v) => setStatus(next, v)} deal={deal} />
           </div>
-          {nextAdShows && <FixedAds key={next.id} pros={pros} categories={nextAdCats} placeholder />}
+          {nextAdShows && <FixedAds spot="toolkit" key={next.id} pros={pros} categories={nextAdCats} placeholder />}
         </div>
       ) : (
         <p className="next-step" role="status">Use the task details below to record each milestone; contract tasks may run at the same time.</p>

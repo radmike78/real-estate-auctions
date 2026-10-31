@@ -47,7 +47,7 @@ export function useAdShows(categories: readonly unknown[]): boolean {
 export const inArea = (pros: Pro[], area: Area | null) => prosInArea(pros, area);
 
 /** One advertiser inside an ad box. The contact button opens their profile, where the contact form is. */
-export function AdCard({ p }: { p: Pro }) {
+export function AdCard({ p, spot }: { p: Pro; spot?: string }) {
   const info = CATEGORIES[p.category];
   const company = p.company && p.company !== p.name ? p.company : p.name;
   return (
@@ -59,33 +59,33 @@ export function AdCard({ p }: { p: Pro }) {
         {company !== p.name && <span className="small">{company}</span>}
         {p.licenseId && <span className="small muted">{shortLicenseLabel(p.category, p.state)} {p.licenseId}</span>}
         <p className="ad-card-line">{p.adLine ?? p.headline}</p>
-        <a className="btn btn-secondary" href={`#/pros/${p.id}`} onClick={() => track('ad_click', p.id)}>Contact {company}</a>
+        <a className="btn btn-secondary" href={`#/pros/${p.id}`} onClick={() => track('ad_click', p.id, spot)}>Contact {company}</a>
       </div>
     </div>
   );
 }
 
 /** Counts an ad box being shown, once per advertiser per page view. */
-export function useAdImpressions(shown: Pro[]) {
+export function useAdImpressions(shown: Pro[], spot?: string) {
   const seen = useMemo(() => new Set<string>(), []);
   const key = shown.map((p) => p.id).join();
   useEffect(() => {
     const fresh = shown.map((p) => p.id).filter((id) => !seen.has(id));
     fresh.forEach((id) => seen.add(id));
-    if (fresh.length) track('ad_impression', fresh);
+    if (fresh.length) track('ad_impression', fresh, spot);
   }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 /** Fixed ads at enabled placements, filtered by category and the visitor's area. */
-export function FixedAds({ pros: all, categories, placeholder = false, featured = false, area: forArea }: { pros: Pro[]; categories: Category[]; placeholder?: boolean; featured?: boolean; /** The place the page is about (a deal's county), instead of the visitor's chosen area. */ area?: Area | null }) {
+export function FixedAds({ pros: all, categories, placeholder = false, featured = false, area: forArea, spot }: { pros: Pro[]; categories: Category[]; placeholder?: boolean; featured?: boolean; /** The place the page is about (a deal's county), instead of the visitor's chosen area. */ area?: Area | null; /** The placement, for the advertiser's report. */ spot?: string }) {
   const shown = useFixedShown(all, categories, forArea);
-  useAdImpressions(shown);
+  useAdImpressions(shown, spot);
   const label = featured ? 'Featured ad' : 'Advertisement';
   if (!shown.length) return placeholder ? <AdSpace kind={label} /> : null;
   return (
     <aside className="ad-box featured-ads" aria-label={label}>
       <div className="ad-box-label">{label}</div>
-      <div className="ad-box-grid">{shown.map((p) => <AdCard key={p.id} p={p} />)}</div>
+      <div className="ad-box-grid">{shown.map((p) => <AdCard key={p.id} p={p} spot={spot} />)}</div>
       <p className="ad-fine-print">{AD_FINE_PRINT}</p>
     </aside>
   );
@@ -97,8 +97,8 @@ export function useFixedShown(all: Pro[], categories: Category[], forArea?: Area
   return fixedPool(inArea(all, forArea === undefined ? mine : forArea).filter((p) => isListable(p)), categories);
 }
 
-export function FeaturedAds(props: { pros: Pro[]; categories: Category[]; placeholder?: boolean }) {
-  return <FixedAds {...props} featured />;
+export function FeaturedAds(props: { pros: Pro[]; categories: Category[]; placeholder?: boolean; spot?: string }) {
+  return <FixedAds spot="category" {...props} featured />;
 }
 
 /** One Rotating-plan advertiser in the Your Team ad, selected once per page view. */
@@ -107,12 +107,12 @@ export function RotatingAd({ pros: all, placeholder = false }: { pros: Pro[]; pl
   const pros = inArea(all, area);
   const pool = rotatingPool(pros.filter((p) => isListable(p))).map((p) => p.id).join();
   const shown = useMemo(() => pickRandom(pros.filter((p) => pool.split(',').includes(p.id)), 1), [pool]); // eslint-disable-line react-hooks/exhaustive-deps
-  useAdImpressions(shown);
+  useAdImpressions(shown, 'team');
   if (!shown.length) return placeholder ? <AdSpace kind="Advertisement" /> : null;
   return (
     <aside className="ad-box rotating-ad" aria-label="Advertisement">
       <div className="ad-box-label">Advertisement</div>
-      <AdCard p={shown[0]} />
+      <AdCard p={shown[0]} spot="team" />
       <p className="ad-fine-print">{AD_FINE_PRINT}</p>
     </aside>
   );

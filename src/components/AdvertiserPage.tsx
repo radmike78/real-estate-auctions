@@ -317,6 +317,8 @@ interface Summary {
   totals: Record<'impression' | 'profile_view' | 'phone_click' | 'email_click' | 'website_click' | 'lead' | 'ad_impression' | 'ad_click', { total: number; uniques: number }>;
   contactRate: number | null;
   daily: { day: string; views: number; contacts: number; leads: number }[];
+  /** Ad views and clicks by placement; absent from older servers. */
+  bySpot?: { spot: string; label: string; shown: number; clicks: number }[];
 }
 interface Lead {
   id: string;
@@ -584,6 +586,18 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
             <div className="kpi"><span className="kpi-label">Visitors who reached out</span><strong>{summary.contactRate === null ? '—' : `${Math.round(summary.contactRate * 100)}%`}</strong><span className="kpi-sub">contact clicks ÷ profile views</span></div>
           </section>
 
+          {!!summary.bySpot?.length && (
+            <section aria-labelledby="by-spot-head">
+              <h2 id="by-spot-head">Where your ad was seen</h2>
+              <div className="table-wrap">
+                <table>
+                  <thead><tr><th scope="col">Placement</th><th scope="col" className="num">Shown</th><th scope="col" className="num">Clicked</th></tr></thead>
+                  <tbody>{summary.bySpot.map((x) => <tr key={x.spot}><td>{x.label}</td><td className="num">{x.shown.toLocaleString()}</td><td className="num">{x.clicks.toLocaleString()}</td></tr>)}</tbody>
+                </table>
+              </div>
+              <p className="small muted">Counts only: we record the placement’s name, never the page address or who saw it. “Clicked” counts each visitor once a day.</p>
+            </section>
+          )}
           <div className="viz-root">
             <div className="row" style={{ justifyContent: 'space-between' }}>
               <h2>Daily activity</h2>
