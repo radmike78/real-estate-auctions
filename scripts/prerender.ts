@@ -56,7 +56,7 @@ const NAV = [
   ['/', 'Home'],
   ['/learn/', 'Learn'],
   ['/decide/', 'Decide'],
-  ['/pros/', 'Your Team'],
+  ['/pros/', 'Your team'],
   ['/practice/', 'Practice'],
   ['/find-deals/', 'Find deals'],
   ['/analyze/', 'Analyze a deal'],
@@ -154,7 +154,7 @@ export function pages(): Page[] {
 
 export function render(template: string, p: Page): string {
   const canonical = `${SITE}${p.path}`;
-  const nav = `<nav><ul>${NAV.map(([h, t]) => `<li>${link(h, t)}</li>`).join('')}</ul></nav>`;
+  const nav = `<nav class="pre-nav"><a class="pre-logo" href="/"><img src="/logo.svg" alt="" width="32" height="32"> DeedOwl</a><ul>${NAV.map(([h, t]) => `<li>${link(h, t)}</li>`).join('')}</ul></nav>`;
   return template
     // Pages live in sub-folders, so every local file the template loads must be addressed from the site root.
     .replace(/(src|href)="\.?\/?(?!\/|https?:)([^"]+)"/g, (_m, attr: string, f: string) => `${attr}="/${f}"`)

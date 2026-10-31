@@ -119,7 +119,7 @@ function buyGroup<T extends BuyInputs>(repairsLabel = 'Repairs'): CalcGroup<T> {
  */
 function forOffer<T>(groups: CalcGroup<T>[]): CalcGroup<T>[] {
   const relabel: Record<string, { label?: string; hint?: string; more?: string }> = {
-    cashAvailable: { label: 'Cash you can put in, all in', hint: 'Down payment, closing costs and repairs. 0 for no limit.', more: 'Starts at your investable cash from My plan: subtract the reserves your lender wants you to keep. Your walk-away price never needs more cash than this.' },
+    cashAvailable: { label: 'Your investable cash for this deal (all in)', hint: 'Down payment, closing costs and repairs. 0 for no limit.', more: 'Starts at your investable cash from My plan: subtract the reserves your lender wants you to keep. Your walk-away price never needs more cash than this.' },
     transferTaxPer500: { hint: 'Your contract says who pays. Enter 0 if the seller pays it.' },
     survivingLiens: { label: 'Liens you’d have to pay', hint: 'Usually paid off at closing. Check the title report.' },
     titleLegal: { label: 'Closing costs: title, escrow, recording', hint: 'Lender fees go in “Loan costs” below.', more: 'Your Loan Estimate or the lender’s term sheet and the escrow officer’s estimate have the real figures. Together with lender fees, closing costs often run 2–4% of the price.' },
@@ -314,7 +314,7 @@ function LenderView({ v, at: atP, onPrice }: { v: RentInputs; at: PriceAt; onPri
   const r = lenderView(v, at, onPrice);
   return (
     <details className="deal-lab hold-sell">
-      <summary><h4>How a lender sees this rent</h4></summary>
+      <summary><span className="summary-h4">How a lender sees this rent</span></summary>
       <p className="small muted">Cash flow is your view. Lenders run their own tests on the {fmtMoney(Math.round(r.loan))} loan, at {atP.label}.</p>
       <dl className="calc-kv">
         <div><dt>Full monthly payment with taxes, insurance and HOA (PITIA)</dt><dd>{fmtMoney(Math.round(r.pitia))}</dd></div>
@@ -355,7 +355,7 @@ function StrComparison({ v }: { v: RentInputs }) {
   const r = strCompare(v, s, ut ? 1 / 0.55 : 1);
   return (
     <details className="deal-lab hold-sell">
-      <summary><h4>Rent it by the night instead?</h4></summary>
+      <summary><span className="summary-h4">Rent it by the night instead?</span></summary>
       <p className="small muted">Uses this rental’s taxes, insurance, HOA and repair set-asides. First check that the city, county and HOA allow it, and get a short-term rental insurance quote. <a href="#/learn/after-closing">Can I rent it short-term?&nbsp;→</a></p>
       <div className="row">
         {STR_FIELDS.map((f) => (
@@ -397,7 +397,7 @@ function HoldAndSell({ v, onPrice, target = 0 }: { v: RentInputs; onPrice: boole
   );
   return (
     <details className="deal-lab hold-sell">
-      <summary><h4>If you keep it and sell later</h4></summary>
+      <summary><span className="summary-h4">If you keep it and sell later</span></summary>
       <p className="small muted">{at > 0 && <>At {atWhat}, {fmtMoney(at)}. </>}Rent and costs grow together; the loan payment stays the same. Before income tax: depreciation you took is taxed when you sell (see <a href="#/learn/taxes">Taxes from purchase to sale</a>).</p>
       <div className="row">{field('years', 'Years you keep it', 'years')}{field('appreciationPct', 'Value growth a year', '%')}{field('rentGrowthPct', 'Rent growth a year', '%')}{field('sellingCostPct', 'Selling costs', '% of price')}</div>
       {!r ? (

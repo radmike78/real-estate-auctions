@@ -436,7 +436,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       <div className="calc-results" id={`${uid}-results`}>
         <p className="small muted">Profit estimates are before income tax. Review taxes on a sale with your tax adviser.</p>
         {unconfirmed && (
-          <div className="caution calc-unconfirmed" role="status">
+          <div className="caution calc-unconfirmed">
             <strong>Redemption rule not confirmed.</strong> {choices?.confirm} Your walk-away price now uses{' '}
             {ruleNow === 'custom'
               ? <>your own numbers: a {Math.round(i.redemptionMonths)}-month wait. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
@@ -485,7 +485,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         )}
         {!needsValue && i.minimumBid > 0 && <PriceHead kind="listed" tag={offer ? 'From the listing' : 'From the sale notice'} label={w.Opening} price={i.minimumBid} result={atOpening} unit="profit" note={`Estimated cash you’d put in at this price, under these assumptions (through repairs and holding until it sells): ${fmtMoney(Math.round(openingCash))}.`} />}
         {!needsValue && i.minimumBid > 0 && (
-          <div className={`calc-verdict ${dealFails || cashShort ? 'bad' : 'good'}`} role="status">
+          <div className={`calc-verdict ${dealFails || cashShort ? 'bad' : 'good'}`}>
             {dealFails ? (
               offer ? (
                 <><strong>Misses your target at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below your {fmtMoney(Math.round(target))} target. {r.maxBid > 0 ? <>Offer no more than {fmtMoney(r.maxBid)}, or pass.</> : 'Pass, or change your plan.'}</>

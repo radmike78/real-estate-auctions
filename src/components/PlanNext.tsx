@@ -107,7 +107,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           <p className="plan-now-evidence">Evidence: <strong>{checked} of {EVIDENCE_AREAS.length}</strong> areas checked. <a href={`#/deals/packet/${deal.id}`}>Open its deal packet&nbsp;→</a></p>
         </>
       ) : (
-        !onPlan && <details><summary>See the full journey</summary><PhaseSummary /></details>
+        !onPlan && <details><summary>See all roadmap phases</summary><PhaseSummary /></details>
       )}
       {!onPlan && <p><a href="#/toolkit">Open My plan&nbsp;→</a></p>}
     </aside>

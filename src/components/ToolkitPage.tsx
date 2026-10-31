@@ -436,7 +436,7 @@ function PriceFromCash({ cash }: { cash: number }) {
   };
   return (
     <div className="price-from-cash">
-      <h3>Purchase-price estimate from your cash budget</h3>
+      <h3>What price your investable cash supports</h3>
       {Number.isFinite(price) ? (
         <p>
           With {a.downPct}% down, closing costs of about {a.closingPct}% and {a.reserveMonths} months of payments kept in reserve, your {fmtMoney(cash)} supports a price up to about <strong>{fmtMoney(price)}</strong>:
@@ -800,7 +800,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
           (which picks the task); the roadmap or evidence summary alongside; and the optional helper. */}
       <PlanNext variant="plan" helper={<NarrowDown config={toolkitConfig()} intro="Tell us where you are in the process and we’ll suggest where to start." />} />
       <details className="plan-section" open={section === 'roadmap'}><summary>See my full roadmap</summary><FirstDealRoadmap /></details>
-      <details className="plan-section"><summary>Your cash budget</summary><CashWorksheet /></details>
+      <details className="plan-section"><summary>Your investable cash</summary><CashWorksheet /></details>
       <details className="plan-section"><summary>Your buy box</summary><BuyBoxBuilder /></details>
       <details className="plan-section"><summary>Your team and contacts</summary><TeamListSection /></details>
       <section className="plan-download" aria-labelledby="plan-dl-head">
