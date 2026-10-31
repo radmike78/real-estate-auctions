@@ -81,7 +81,7 @@ export function propertyPacketText(d: Deal): string {
   lines.push('', `DECISION: ${gate ? gate.label : 'not decided yet'}`, '');
 
   const per = cleanDealSteps(read(DEAL_STEPS_KEY))[`analyzed:${d.id}`];
-  lines.push('WHERE YOU ARE (steps 4 to 6 for this property)');
+  lines.push('WHERE YOU ARE (roadmap phases 4 to 7 for this property)');
   const steps = ROADMAP.filter((s) => s.phase >= 4);
   const seen = new Set<string>();
   for (const s of steps) {

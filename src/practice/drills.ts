@@ -953,7 +953,7 @@ export const DRILLS: Drill[] = [
         { label: 'Investigate', feedback: 'Wise before the next sale: know the 2924m window and tenant rights before you bid.' },
         { label: 'Pass', feedback: 'Reasonable if your cash can’t sit idle for up to 45 days without a guaranteed property.' },
       ],
-      expert: 'Bidding can make sense, but treat the win as conditional for up to 45 days, keep the money ready, and plan for the tenant. Never start work before the sale is final.',
+      expert: 'Bidding can make sense, but treat the win as conditional for up to 45 days, keep the money ready, and plan for the tenant. Money spent on work before the sale is final may not come back if the sale doesn’t go through, so most buyers wait.',
     },
   },
   {

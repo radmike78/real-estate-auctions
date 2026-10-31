@@ -824,7 +824,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         year: "2023",
         title: "Investors say their money went to a different deal",
         happened: "A group of 123 investors gave a syndicator $12.4 million to buy a 643-unit Houston complex. Their lawsuit says the purchase never happened, and that the money was quietly moved to a larger deal that collapsed and the deposit was lost. Some had used retirement savings. When this was reported, the claims were allegations in a lawsuit.",
-        lesson: "Passive investors have little control. Check county records to verify the property was actually bought, and never invest money you cannot afford to lose.",
+        lesson: "Passive investors have little control. Check county records to verify the property was actually bought, A syndication can lose all the money in it, so weigh how much you could lose against your own finances and risk tolerance, and have a qualified professional review the offering before you invest.",
         source: {
           label: "Bisnow: Multifamily Investors Sue Troubled Applesway Over Alleged $12.4M Fraud (May 30, 2023)",
           url: "https://www.bisnow.com/houston/news/multifamily/123-houston-multifamily-investors-sue-troubled-applesway-over-alleged-fraud-119157"

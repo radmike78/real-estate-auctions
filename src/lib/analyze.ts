@@ -38,8 +38,8 @@ export const kindsFor = (st: StateCode) => SALE_KINDS.filter((k) => !k.states ||
 export const kindLabel = (k: SaleKindInfo, st: StateCode) => k.labelIn?.[st] ?? k.label;
 
 export const PLANS: { key: Plan; label: string }[] = [
-  { key: 'flip', label: 'Fix and sell' },
-  { key: 'rent', label: 'Keep and rent' },
+  { key: 'flip', label: 'Fix and flip (fix and sell)' },
+  { key: 'rent', label: 'Buy and hold (keep and rent)' },
   { key: 'commercial', label: 'Commercial income' },
   { key: 'lien', label: 'Hold the lien for interest' },
 ];

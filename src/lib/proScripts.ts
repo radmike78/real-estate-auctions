@@ -16,7 +16,7 @@ export interface ProScript {
 export const PRO_SCRIPTS: Record<ProKey, ProScript> = {
   agent: {
     say: '“I’m looking for a [kind of property] in [area] under [$price], to [live in / rent / fix and sell]. Have you helped buyers with this? Before I sign anything, could you walk me through your buyer agreement: what you’ll do, how you’re paid and by whom, how long it lasts, and how either of us can end it?”',
-    bring: ['Your buy box', 'A pre-approval letter or proof of funds'],
+    bring: ['Your buy box: a short list of the area, property type and top price you want', 'A pre-approval letter or proof of funds'],
     get: ['A written buyer agreement: what they’ll do, how they’re paid and by whom, how long it lasts and how to end it', 'Recent comparable sales for any home you offer on'],
   },
   lender: {
