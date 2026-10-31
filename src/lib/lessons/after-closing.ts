@@ -107,7 +107,7 @@ export const afterClosing: Lesson = {
             ],
           },
         },
-        'Never buy a home that only works as a nightly rental before you confirm a license is possible.',
+        'If a home only works as a nightly rental, confirm a license is possible before you commit; without one, the plan may not work.',
       ],
     },
     {

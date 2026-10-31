@@ -18,10 +18,10 @@ export const analyze: Lesson = {
         'When you buy a home to live in, feelings count, and they should. It’s where you’ll live, so you might pay more for the right school or backyard, and fight to keep it if something goes wrong. An investment is different. You’re buying a set of numbers: what it costs, what it earns, and what it will sell for. If the numbers don’t work, it’s the wrong property, however much you like it.',
         { table: { head: ['', 'A home to live in', 'An investment property'], rows: [
           ['Why you buy it', 'You want to live there', 'To make money: rent, a profit when you sell, or both'],
-          ['What sets your price', 'What it’s worth to you, within what you can afford', 'What the numbers support: value, rent and every cost. Never more.'],
+          ['What sets your price', 'What it’s worth to you, within what you can afford', 'What the numbers support: value, rent and every cost. Paying more means accepting a lower return.'],
           ['The kitchen, the view, the yard', 'Can be worth paying extra for', 'Matter only if they raise the rent or the sale price'],
           ['If the inspection or appraisal goes badly', 'You may stretch to keep the home you love', 'You renegotiate, or walk away'],
-          ['Walking away', 'Hard, and sometimes not worth it', 'Normal. Most properties you look at should fail your numbers.'],
+          ['Walking away', 'Hard, and sometimes not worth it', 'Normal. Many properties you look at won’t fit your numbers.'],
         ] } },
         'Ways to stay detached: write your maximum price before you see the property; judge it on your analysis, not the tour; don’t picture yourself living there; expect to lose some to other buyers or bidders; and have someone you trust check your numbers before you commit. If you’ll live in part of it and rent the rest, be honest about which choices are about your home and which are about the investment.',
       ],
@@ -103,7 +103,7 @@ export const analyze: Lesson = {
     {
       heading: 'Rules of thumb, and their limits',
       blocks: [
-        'Flippers often quote a “70% rule”: offer no more than 70% of the after-repair value, minus repairs. It’s an informal shortcut, not a standard, and it doesn’t fit every market or price range. Use it to screen deals, then run your own numbers with real costs. For auctions, set your top bid before the sale and don’t go past it.',
+        'Flippers often quote a “70% rule”: offer no more than 70% of the after-repair value, minus repairs. It’s an informal shortcut, not a standard, and it doesn’t fit every market or price range. Use it to screen deals, then run your own numbers with real costs. For auctions, set your top bid before the sale, so you know when the price stops fitting your numbers.',
         'Watch for “gross profit” in flipping reports. ATTOM reported that the typical U.S. flip in 2025 made $65,981 in gross profit, a 25.5% return, the lowest since 2008, and took 163 days to resell. Gross profit is only the sale price minus the purchase price. It leaves out repairs, holding and selling costs.',
         { table: { head: ['A typical 2025 flip', 'Amount'], rows: [
           ['Bought for about $259,000, sold for about $325,000 (gross profit)', '$66,000'],
@@ -148,7 +148,7 @@ export const analyze: Lesson = {
                 'The owner gives a resale package (governing documents, dues, budget, reserves, lawsuits, fees). The buyer can cancel in writing until midnight of the fifth calendar day after receiving it, provided you haven’t accepted conveyance and the resale is covered by NRS 116.4109. Exceptions in NRS 116.4101 can apply; confirm that your sale is covered.',
                 'The owner gives governing documents, financial and reserve disclosures, assessments, violation notices and rental limits before transfer (Civil Code 4525).',
                 'You get the association’s documents (rules, budget, reserves, insurance, lawsuits) within 10 days. In a planned community with fewer than 50 homes, or a condo with fewer than 50 units, the seller delivers them within 10 days after the offer is accepted. With 50 or more, the association delivers them within 10 days after the seller’s notice of the accepted offer. The association’s fee can’t be more than $400, plus up to $100 for a rush (A.R.S. 33-1260 and 33-1806).',
-                'Before closing, the seller gives the buyer the association’s recorded governing documents (Utah Code 57-8a-105.1 and 57-8-6.1). A payoff fee can’t be more than $50.',
+                'Before closing, the seller gives the buyer the association’s recorded governing documents and a link to the state’s educational materials for HOA buyers (Utah Code 57-8a-105.1 and 57-8-6.1, as amended in 2026). A payoff fee can’t be more than $50.',
                 'Within 10 business days of a written request, the association delivers its restrictions, bylaws, rules and a resale certificate. The certificate lists dues, approved special assessments, unpaid amounts, reserves, the budget and pending lawsuits (Property Code 207.003).',
               ],
               [

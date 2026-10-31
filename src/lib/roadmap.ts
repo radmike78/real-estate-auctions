@@ -471,7 +471,7 @@ export const ROADMAP: RoadmapStep[] = [
     outcome: 'You bid within your maximum, or walked away.',
     steps: ['Register and pay any deposit by the deadline.', 'Check for postponements or cancellations on the day.', 'Bid up to your maximum. If it goes higher, stop.'],
     docs: ['Bidder registration form', 'Deposit receipt', 'A W-9 if the seller asks'],
-    stop: 'Never bid past your maximum. Losing an auction costs nothing.',
+    stop: 'Set your maximum before the sale, from your own numbers, and decide ahead of time what you’ll do if bidding passes it. Your situation, finances and risk tolerance decide where that line is. Losing an auction usually costs only your research and any non-refundable fees; overpaying can cost much more.',
     doneWhen: 'You bid within your maximum, or walked away.',
     action: 'Practice an auction', href: '#/practice',
   },

@@ -242,7 +242,7 @@ const NEVADA: Playbook[] = [
     example: {
       title: 'The $9,000 condo',
       story: 'A condo worth about $260,000 went to an HOA sale with a $9,000 opening bid. The Recorder showed the lender had paid the HOA’s priority amount ten days before the sale.',
-      lesson: 'The $190,000 first mortgage would survive. That made the real cost about $199,000, plus unpaid dues and repairs. Not a bargain. Walk away.',
+      lesson: 'The $190,000 first mortgage would survive. That made the real cost about $199,000, plus unpaid dues and repairs. Not a bargain at that price, so the buyer walked away.',
     },
     team: [T.attorney, T.title, T.lender, T.insurance, T.eviction, T.contractor, T.agent],
     sources: [
@@ -278,11 +278,11 @@ const NEVADA: Playbook[] = [
       wipedOut: ['The judgment lien being enforced', 'Junior liens, in most cases'],
       mayStay: ['Mortgages and liens senior to the judgment', 'Property taxes', 'The 1-year redemption right'],
     },
-    mistakes: [{ mistake: 'Treating it like a quick flip', prevent: 'Plan to hold for at least a year before improving or reselling.' }],
+    mistakes: [{ mistake: 'Treating it like a quick flip', prevent: 'Expect to wait out the 1-year redemption period before you can count on keeping or reselling it.' }],
     example: {
       title: 'A year of waiting',
       story: 'A buyer paid $120,000 at a sheriff’s sale and started repairs. Eleven months later the debtor redeemed. The debtor repaid the price plus 1% a month, but not the repair spending.',
-      lesson: 'The interest covered the wait, not the repairs. Any rent collected during the year is also subtracted from the payoff (NRS 21.250). Don’t improve a property until the redemption period ends.',
+      lesson: 'The interest covered the wait, not the repairs. Any rent collected during the year is also subtracted from the payoff (NRS 21.250). Repairs aren’t repaid if the owner redeems, so many buyers hold off on improvements until the redemption period ends.',
     },
     team: [T.attorney, T.title, T.insurance, T.agent],
     sources: [

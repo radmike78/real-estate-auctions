@@ -828,7 +828,7 @@ export const STATE_GUIDES: Playbook[] = [
   example: {
     title: "Illustrative example (fictional)",
     story: "Sam, a fictional buyer, plans to bid on a house at a trustee’s sale. His title report shows the loan being foreclosed is a second mortgage. A first mortgage of $210,000 is recorded ahead of it. The lender opens with a credit bid of $45,000. Sam realizes that if he wins at $60,000, he still takes the house subject to the $210,000 first loan. He stops bidding.",
-    lesson: "A trustee sale only clears liens junior to the loan being foreclosed. Always know which loan is being foreclosed and what comes ahead of it."
+    lesson: "A trustee sale only clears liens junior to the loan being foreclosed. Before you bid, find out which loan is being foreclosed and what comes ahead of it."
   },
   sources: [
     {
@@ -2713,7 +2713,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Choose a buyer’s agent who can submit to each seller",
-      detail: "HUD bids must come through a HUD-registered broker. Fannie Mae requires your agent to be registered in HomePath to submit offers. Ask your agent how each bank’s listing agent takes offers. Use only the official seller sites and the MLS listing, never third-party auction sites."
+      detail: "HUD bids must come through a HUD-registered broker. Fannie Mae requires your agent to be registered in HomePath to submit offers. Ask your agent how each bank’s listing agent takes offers. Start from the official seller sites (HUD Home Store, HomePath, HomeSteps) and the MLS listing. If a bank sells through an auction it chose, confirm the bank is the owner of record, and check the buyer’s premium and whether the bank must approve the winning bid before you register. DeedOwl doesn’t list homes from auction marketplaces."
     },
     {
       title: "Know the owner-occupant priority periods",

@@ -2188,7 +2188,7 @@ export const DRILLS: Drill[] = [
         { label: 'Investigate', feedback: 'Good: read the park’s rules and lot-rent history, and compare sales in the same park.' },
         { label: 'Pass', feedback: 'Reasonable if the park limits rentals or lot rent keeps climbing.' },
       ],
-      expert: 'Investigate. A home in a park can cash-flow, but the park controls the lot rent and the rules. Buy only if the park allows rentals and the deal still pays at higher lot rent. Deal with the seller or the seller’s agent and the park manager; never pressure the owner of a home that isn’t for sale.',
+      expert: 'Investigate. A home in a park can cash-flow, but the park controls the lot rent and the rules. It works only if the park allows rentals and the deal still pays at higher lot rent. Deal with the seller or the seller’s agent and the park manager; never pressure the owner of a home that isn’t for sale.',
     },
   },
   {

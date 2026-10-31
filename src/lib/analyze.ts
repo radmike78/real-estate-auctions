@@ -107,7 +107,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
       NV: 'Condo or HOA home: read the resale package; you can cancel in writing until midnight of the fifth day after you get it (NRS 116.4109).',
       CA: 'Condo or HOA home: get the governing documents, budget, reserves and rental limits before you commit (Civil Code 4525).',
       AZ: 'Condo or HOA home: the association’s rules, budget, reserves and any lawsuits must reach you within 10 days. With 50 or more homes or units, the association sends them after the seller’s notice of the accepted offer; in a planned community with fewer than 50 homes or a condo with fewer than 50 units, the seller sends them after accepting your offer; the association’s fee is capped at $400 (A.R.S. 33-1806; condos 33-1260).',
-      UT: 'Condo or HOA home: the seller must give you the association’s recorded governing documents before closing (Utah Code 57-8a-105.1, 57-8-6.1).',
+      UT: 'Condo or HOA home: the seller must give you the association’s recorded governing documents and a link to the state’s educational materials for HOA buyers before closing (Utah Code 57-8a-105.1, 57-8-6.1).',
       TX: 'Condo or HOA home: get the resale certificate and the association’s rules, budget and fees before the deadline in the HOA addendum (Property Code 207.003 for a subdivision HOA, 82.157 for a condo). Ask your agent which TREC addendum your contract uses.',
     };
     sale.push({ id: 'hoa-docs', text: hoa[st] });
@@ -130,7 +130,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     if (st === 'NV') sale.push({ id: 'nv-trustee', text: 'Nevada: the sale comes at least 3 months after the notice of default; the notice of sale is posted 20 days before. Ask the trustee how and when you must pay.' });
     if (st === 'CA') sale.push({ id: 'ca-trustee', text: 'California: bring proof you can pay the full bid in cash or cashier’s checks. On homes of one to four units, tenants can match, and other eligible bidders can beat, the winning bid within 15 to 45 days after the sale, so it isn’t final right away.' });
     if (st === 'AZ') sale.push({ id: 'az-trustee', text: 'Arizona: if you win, you pay the full bid by 5 p.m. the next business day.' });
-    if (st === 'TX') sale.push({ id: 'tx-trustee', text: 'Texas: trustee sales happen on the first Tuesday of the month, between 10 a.m. and 4 p.m., with at least 21 days’ notice (Property Code 51.002). You pay when the bid is accepted, as the trustee directs. After a mortgage foreclosure the owner can’t buy it back; after a property tax loan foreclosure they can (Tax Code 32.06(k)).' });
+    if (st === 'TX') sale.push({ id: 'tx-trustee', text: 'Texas: trustee sales happen on the first Tuesday of the month, between 10 a.m. and 4 p.m., with at least 21 days’ notice (Property Code 51.002). You pay when the bid is accepted, as the trustee directs. After a mortgage foreclosure the owner can’t buy it back; after a property tax loan foreclosure they can (Tax Code 32.06(k), (k-1)).' });
     if (st === 'UT') sale.push({ id: 'ut-trustee', text: 'Utah: your bid can’t be withdrawn, you pay as the trustee directs, and the trustee’s deed has no right of redemption.' });
   }
   if (d.kind === 'taxSale') {
@@ -179,7 +179,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
 
   // 3. Money and plan
   const money: CheckItem[] = [];
-  money.push({ id: 'numbers', text: d.plan === 'lien' ? 'Work out what the lien earns per year, counting the wait to be paid (calculator below).' : `Set your maximum ${auction ? 'bid' : 'price'} with every cost counted (calculator below), and don’t go past it.` });
+  money.push({ id: 'numbers', text: d.plan === 'lien' ? 'Work out what the lien earns per year, counting the wait to be paid (calculator below).' : `Set your maximum ${auction ? 'bid' : 'price'} with every cost counted (calculator below). Past it, the deal no longer meets your own numbers.` });
   money.push({ id: 'funds', text: auction ? 'Have the money ready: most auctions want cash or cashier’s checks on a tight deadline.' : 'Get pre-approved, or have proof of funds, before you offer.', href: '#/pros/lender' });
   if (d.plan === 'flip') {
     money.push({ id: 'arv', text: 'Base your resale value on sold homes already in finished condition, not asking prices.' });

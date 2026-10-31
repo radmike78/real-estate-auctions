@@ -312,7 +312,7 @@ export const STRATEGIES: Strategy[] = [
       { id: 'au-county', text: 'Find your county’s official sale pages: dates, deposit, payment deadline and what the deed promises.', href: '#/find-deals' },
       { id: 'au-cash', text: 'Have the money ready: most auctions want cash or cashier’s checks within a day or two.' },
       { id: 'au-research', text: 'Research every property: title, liens that survive, occupants and any bankruptcy.', href: '#/learn/tools' },
-      { id: 'au-max', text: 'Set your maximum bid before the sale and don’t go past it.', href: '#/analyze?plan=flip' },
+      { id: 'au-max', text: 'Set your maximum bid before the sale, so you know when the price stops fitting your numbers.', href: '#/analyze?plan=flip' },
       { id: 'au-redeem', text: 'Plan for any redemption period and for occupants, who have legal rights.' },
       { id: 'au-practice', text: 'Practice a purchase first.', href: '#/practice' },
       { id: 'au-seller', text: 'Buy only from the official seller. Never contact homeowners facing foreclosure.' },
@@ -452,7 +452,7 @@ export function stateNote(key: StrategyKey, state?: string): string | null {
   if (key === 'auction' && st === 'CA') return 'California trustee-sale winning bids on homes of one to four units aren’t final right away: tenants can match, and other eligible bidders can beat, the winning bid within 15 to 45 days (Civil Code 2924m).';
   if (key === 'auction' && st === 'NV') return 'Our step-by-step guides cover each kind of sale in Clark County, Nevada.';
   if (key === 'auction' && st === 'UT') return 'Utah counties hold their tax sale each May or June, four years after the taxes went delinquent.';
-  if (key === 'auction' && st === 'TX') return 'Texas counties don’t sell tax liens. A sheriff or constable sells the property itself, usually on the first Tuesday of the month, and the owner can still redeem it for 180 days, or 2 years for a homestead, land designated for agricultural use or a mineral interest, by paying your price and costs plus 25% (or 50% in the second year of a 2-year period). Trustee auctions after a mortgage foreclosure have no redemption; a property tax loan foreclosure does (Tax Code 32.06(k)).';
+  if (key === 'auction' && st === 'TX') return 'Texas counties don’t sell tax liens. A sheriff or constable sells the property itself, usually on the first Tuesday of the month, and the owner can still redeem it for 180 days, or 2 years for a homestead, land designated for agricultural use or a mineral interest, by paying your price and costs plus a premium: 25% in the first year or 50% in the second for a homestead, agricultural land or mineral interest, or up to 25% for other property (Tax Code 34.21). Trustee auctions after a mortgage foreclosure have no redemption; a property tax loan foreclosure does (Tax Code 32.06(k), (k-1)).';
   if (key === 'rental' && st === 'TX') return 'A rental gets no homestead exemption, so its property tax bill is often much higher than an owner-occupant’s. Check the full tax rate for the address before you run the numbers.';
   if ((key === 'househack' || key === 'rental') && st === 'CA') return 'California limits most rent increases in a 12-month period to 5% plus inflation or 10%, whichever is lower. There are exemptions, so check the rules for your property.';
   return null;

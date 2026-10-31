@@ -285,7 +285,7 @@ const bidDecision = (maxBid: number, compare: { label: string; amount: number },
     question: `Your maximum ${auction ? 'bid' : 'offer'} is ${money(maxBid)}. The ${compare.label.toLowerCase()} is ${money(compare.amount)}. What do you do?`,
     choices: works
       ? [
-          { label: `${auction ? 'Go to the sale' : 'Make an offer'}, and never ${auction ? 'bid' : 'go'} above ${money(maxBid)}`, correct: true, feedback: 'Right. Your maximum is set before the sale, when you’re calm, and you stick to it.' },
+          { label: `${auction ? 'Go to the sale' : 'Make an offer'}, with ${money(maxBid)} as your top ${auction ? 'bid' : 'price'}`, correct: true, feedback: 'Right. You set your maximum before the sale, when you’re calm, from your own numbers. Past it, this deal no longer fits them.' },
           { label: 'Decide how high to go when you’re there', correct: false, feedback: `That’s how buyers overpay. Your maximum is ${money(maxBid)}: it already includes every cost and your target profit.` },
         ]
       : [

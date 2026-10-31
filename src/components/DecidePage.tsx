@@ -147,13 +147,13 @@ export default function DecidePage() {
           <p className="muted">Ranked from your answers. This is a starting point, not advice; talk with qualified professionals before you commit money.</p>
           {notYetWhy(saved.answers) && (
             <OwlNote>
-              <strong>Not yet: build your cushion first.</strong>{' '}
+              <strong>Worth checking first: your cushion.</strong>{' '}
               {notYetWhy(saved.answers) === 'debt'
-                ? 'Pay down high-interest debt before you buy. Card interest costs more than most deals earn, and a lender will count that debt against you.'
+                ? 'High-interest debt can cost more each year than a rental earns,* and lenders count it against you. Many people pay it down before buying; your situation, finances and risk tolerance decide what fits you.'
                 : notYetWhy(saved.answers) === 'nofund'
-                  ? 'Save an emergency fund before you buy. Every strategy has surprises, and without savings a vacancy or a repair can force you to borrow at high rates or sell at a loss.'
-                  : 'With under $10,000, no purchase strategy fits yet: an auction wants the full price in cash within days, and a flip or a rental needs a down payment, closing costs and reserves. Build your investable cash first.'}{' '}
-              Meanwhile, learn and practice for free. Home equity and other financing depend on your situation; DeedOwl does not recommend for or against a method. Compare your finances, possible losses, risk tolerance and backup funding with qualified financial, investment, tax and legal professionals. <a href="#/learn/financing">Compare financing options&nbsp;→</a>{' '}<a href="#/learn/red-flags">Seminar red flags&nbsp;→</a>
+                  ? 'Every strategy has surprises. Without an emergency fund, one vacancy or repair can force you to borrow at high rates or sell at a loss. Many investors build one first; what fits depends on your situation.'
+                  : 'Under $10,000 makes most purchases hard: an auction wants the full price in cash within days, and a loan needs a down payment, closing costs and reserves. Some low-down-payment programs exist; a loan officer can tell you what you’d qualify for.'}{' '}
+              Meanwhile, learn and practice for free. Financing choices depend on your situation. <a href="#/learn/financing">Compare financing options&nbsp;→</a>{' '}<a href="#/learn/red-flags">Seminar red flags&nbsp;→</a>
             </OwlNote>
           )}
           <ol className="decide-matches">
