@@ -14,7 +14,7 @@ import { linkLabel } from '../lib/linkLabel';
 import { investorProfile } from '../lib/myPlan';
 import { fmtMoney } from '../lib/status';
 import { getMyArea } from '../lib/myArea';
-import { analyzeAdCategories } from '../lib/contextAds';
+import { analyzeAdCategories, analyzeAllowsAds } from '../lib/contextAds';
 import { FixedAds, useAdShows } from './AdBoxes';
 import { useSpotCategories } from './AdSpot';
 import { useDirectory } from './ProDirectory';
@@ -67,6 +67,9 @@ function forLink(d: Deal, plan?: Plan): Deal {
  * Step 6 of the path: describe a real deal, get the checklist for that sale in that state, and run the numbers.
  * `plan` comes from a link that promises a particular calculator.
  */
+/** A guide's link can name the plan too (keep and rent, fix and sell), when that plan fits the kind of sale. */
+const linkPlan = (d: Deal, plan?: Plan): Deal => (plan && plansFor(d.kind).includes(plan) ? { ...d, plan } : d);
+
 export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: Prefill } = {}) {
   useMarkStep('analyze');
   useLastActivity('#/analyze', 'Analyze a deal');
@@ -100,13 +103,13 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       return forLink(cur, plan);
     }
     keepUnsaved();
-    return fromListing(prefill);
+    return linkPlan(fromListing(prefill), plan);
   });
   // A property opened from a DeedOwl listing arrives filled in; the address then goes back to plain /analyze.
   useEffect(() => {
     if (!prefill) return;
     setSaved(loadDeals());
-    setDeal(fromListing(prefill));
+    setDeal(linkPlan(fromListing(prefill), plan));
     setMyState(prefill.state);
     replaceAddress('/analyze');
   }, [prefill]);
@@ -180,7 +183,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
 
   // The Mentor Connect spot beside What's next (Admin → Ad spots); automatic: by plan, listings and bank-owned only.
   const { pros } = useDirectory();
-  const adCats = useSpotCategories('analyze', analyzeAdCategories(deal.kind, deal.plan));
+  // Even an owner's fixed list never shows on forced sales or lien certificates (contextAds.ts).
+  const spotCats = useSpotCategories('analyze', analyzeAdCategories(deal.kind, deal.plan));
+  const adCats = analyzeAllowsAds(deal.kind) ? spotCats : [];
   const adShows = useAdShows(adCats);
 
   return (

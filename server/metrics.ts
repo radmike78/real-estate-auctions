@@ -173,7 +173,8 @@ export function monthlyReportText(name: string, month: string, s: MetricsSummary
     `  Contact requests (leads) sent to you:            ${leadCount}\n` +
     `  Visitors who contacted you:                      ${pct}\n` +
     (s.totals.ad_impression.total || s.totals.ad_click.total
-      ? `  Times your ad box was shown (Featured or topic):  ${s.totals.ad_impression.total}\n` + `  Clicks on your ad box:                           ${s.totals.ad_click.uniques}\n`
+      ? `  Times your ad box was shown (all placements):    ${s.totals.ad_impression.total}\n` + `  Clicks on your ad box:                           ${s.totals.ad_click.uniques}\n` +
+        s.bySpot.slice(0, 5).map((x) => `    ${x.label}: ${x.shown} shown, ${x.clicks} clicked\n`).join('')
       : '') +
     `\n` +
     `See daily details and download your leads: ${dashboardUrl}\n\n` +

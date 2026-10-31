@@ -1,7 +1,7 @@
 import { planNow, planStarted } from '../lib/planNext';
 import { getMode } from '../lib/journey';
 import StatePicker from './StatePicker';
-import { LESSON_CHAPTER, journeyHref } from '../practice/dealJourney';
+import { LESSON_CHAPTER, journeyHref, lessonChapter } from '../practice/dealJourney';
 import PageHero from './PageHero';
 import PathNext from './PathNext';
 import { LEARN_MODULES, LEARN_PATHS } from '../lib/learn';
@@ -90,10 +90,10 @@ export default function LearnPage() {
         <p>You’ll learn: {oneState(lesson.takeaways[0], mine).replace(/^[A-Z](?![A-Z])/, (c) => c.toLowerCase())}</p>
         <a className="btn" href={`#/learn/${next.key}`}>Read the lesson →</a>
         <p className="muted">{lesson.minutes} minutes.{LESSON_CHAPTER[next.key] && ' Then apply it to Cedar House, your fictional practice property.'}</p>
-        {LESSON_CHAPTER[next.key] && <a href={journeyHref(LESSON_CHAPTER[next.key])}>Practice this idea →</a>}
+        {LESSON_CHAPTER[next.key] && <a href={journeyHref(lessonChapter(next.key, getMode() === 'guided'))}>Practice this idea →</a>}
       </section>
       )}
-      <NarrowDown config={learnConfig()} intro="Answer two quick questions and we’ll suggest which lessons to read first. Browse the lessons below, or follow your next lesson above." />
+      <NarrowDown config={learnConfig()} intro="Answer two quick questions and we’ll suggest which lessons to read first. Browse the lessons below, or follow your next step above." />
       <details className="plan-section" open><summary>Browse all lessons</summary>
       <section className="learn-money" aria-labelledby="learn-money">
         <div>

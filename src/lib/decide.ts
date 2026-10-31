@@ -395,11 +395,11 @@ export const STRATEGIES: Strategy[] = [
       time: 'You can start today.',
     },
     checklist: [
-      { id: 'pr-lessons', text: 'Take the first five lessons.', href: '#/learn' },
-      { id: 'pr-practice', text: 'Complete a practice purchase, and three auction drills (auction practice uses Nevada rules; outside Nevada, the drills cover your state).', href: '#/practice' },
-      { id: 'pr-paper', text: 'Analyze three real listings on paper with the calculator.', href: '#/analyze' },
-      { id: 'pr-credit', text: 'Talk with a loan officer about what you’d qualify for and how to improve it.', href: '#/pros/lender' },
+      { id: 'pr-lessons', text: 'Take the two Start-here lessons, then the lessons for your strategy.', href: '#/learn' },
+      { id: 'pr-practice', text: 'Finish the practice purchase (parts 1 and 2). Optional: three auction drills, which use your state’s rules.', href: '#/practice' },
       { id: 'pr-team', text: 'Learn who’s on a deal team and when you need each one.', href: '#/pros' },
+      { id: 'pr-credit', text: 'Talk with a loan officer about what you’d qualify for and how to improve it.', href: '#/pros/lender' },
+      { id: 'pr-paper', text: 'After the practice purchase, analyze three real listings on paper.', href: '#/analyze' },
       { id: 'pr-again', text: 'Come back to Decide when your savings or goals change.' },
     ],
   },
@@ -458,7 +458,7 @@ export function stateNote(key: StrategyKey, state?: string): string | null {
   if (key === 'auction' && st === 'CA') return 'California trustee-sale winning bids on homes of one to four units aren’t final right away: tenants can match, and other eligible bidders can beat, the winning bid within 15 to 45 days (Civil Code 2924m).';
   if (key === 'auction' && st === 'NV') return 'Our step-by-step guides cover each kind of sale in Clark County, Nevada.';
   if (key === 'auction' && st === 'UT') return 'Utah counties hold their tax sale each May or June, four years after the taxes went delinquent.';
-  if (key === 'auction' && st === 'TX') return 'Texas counties don’t sell tax liens. A sheriff or constable sells the property itself, usually on the first Tuesday of the month, and the owner can still redeem it for 180 days, or 2 years for a homestead, land designated for agricultural use or a mineral interest, by paying your price and costs plus a premium: 25% in the first year or 50% in the second for a homestead, agricultural land or mineral interest, or up to 25% for other property (Tax Code 34.21). Trustee auctions after a mortgage foreclosure have no redemption; a property tax loan foreclosure does (Tax Code 32.06(k), (k-1)).';
+  if (key === 'auction' && st === 'TX') return 'Texas counties don’t sell tax liens. A sheriff or constable sells the property itself, usually on the first Tuesday of the month. The owner can still buy it back (redeem it) by paying your price and costs plus a premium. For a homestead, agricultural land or a mineral interest, the owner has 2 years: a 25% premium in the first year, 50% in the second. For other property, the owner has 180 days and a premium of up to 25% (Tax Code 34.21). Trustee auctions after a mortgage foreclosure have no buy-back right; a property tax loan foreclosure does (Tax Code 32.06(k), (k-1)).';
   if (key === 'rental' && st === 'TX') return 'A rental gets no homestead exemption, so its property tax bill is often much higher than an owner-occupant’s. Check the full tax rate for the address before you run the numbers.';
   if ((key === 'househack' || key === 'rental') && st === 'CA') return 'California limits most rent increases in a 12-month period to 5% plus inflation or 10%, whichever is lower. There are exemptions, so check the rules for your property.';
   return null;

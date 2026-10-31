@@ -8,6 +8,15 @@ import { QUESTIONS } from './decide';
 import { CHAPTERS, loadJourney } from '../practice/dealJourney';
 import { trackAction } from './track';
 import { creditStep } from './roadmapState';
+import { getMyState } from './myState';
+import { loadCase } from '../practice/caseProgress';
+import { caseFor, caseResume } from '../practice/rentalCase';
+
+/** Whether practice part 2 (Buy a rental, start to finish) is finished for the reader's state. */
+export function practicePart2Done(): boolean {
+  const pc = caseFor(getMyState());
+  return caseResume(pc.stages, loadCase(pc.state)).packet;
+}
 
 export type Mode = 'guided' | 'explore';
 
@@ -114,6 +123,8 @@ export function unfinished(last: LastActivity | null, p: Progress): LastActivity
   if (drill && p.drillsDone.includes(drill[1])) return null;
   // The practice deal with all its chapters done is finished too.
   if (/^#\/practice\/deal(\/|$)/.test(last.href) && loadJourney().completed.length === CHAPTERS.length) return null;
+  // So is the practice purchase once its deal packet is done.
+  if (/^#\/practice\/case(\/|$)/.test(last.href) && practicePart2Done()) return null;
   return last;
 }
 
@@ -122,4 +133,5 @@ export function unfinished(last: LastActivity | null, p: Progress): LastActivity
 export function syncRoadmapCredits() {
   if (currentProgress().decided) creditStep('strategy');
   if (readLessons().includes('red-flags')) creditStep('avoid');
+  if (practicePart2Done()) creditStep('practice');
 }

@@ -1,4 +1,4 @@
-import { parseCalcInput } from './CalcFields';
+import NumInput from './NumInput';
 import { syncRoadmapCredits } from '../lib/journey';
 import { useAccount } from '../lib/account';
 import { workStorage as localStorage } from '../lib/workStorage';
@@ -30,7 +30,7 @@ import { loadCase } from '../practice/caseProgress';
 import { caseFor, tasksFor } from '../practice/rentalCase';
 import { proGuideByKey } from '../lib/proGuide';
 import { PRO_SCRIPTS } from '../lib/proScripts';
-import { stepAdCategories } from '../lib/contextAds';
+import { stepAdCategories, stepAllowsAds } from '../lib/contextAds';
 import { FixedAds, useAdShows } from './AdBoxes';
 import { useSpotCategories } from './AdSpot';
 import { useDirectory } from './ProDirectory';
@@ -233,7 +233,9 @@ export function FirstDealRoadmap() {
     return !!stage && stage !== 'passed' && !!st && dealScoped(s) && DEAL_STAGES.indexOf(st) > DEAL_STAGES.indexOf(stage) ? st : undefined;
   };
   // The Mentor Connect spot beside the next step (Admin → Ad spots); automatic: whoever the step says to call.
-  const nextAdCats = useSpotCategories('toolkit', next ? stepAdCategories(next, path) : []);
+  // Even an owner's fixed list never shows beside an official seller or off the agent route (contextAds.ts).
+  const stepCats = useSpotCategories('toolkit', next ? stepAdCategories(next, path) : []);
+  const nextAdCats = next && stepAllowsAds(next, path) ? stepCats : [];
   const nextAdShows = useAdShows(nextAdCats);
   // The phase holding the next step starts open; after that, phases stay as the reader leaves them.
   const [openPhase, setOpenPhase] = useState(() => next?.phase ?? 1);
@@ -426,7 +428,7 @@ function PriceFromCash({ cash }: { cash: number }) {
   const num = (k: keyof PriceAssumptions, label: string, unit: string) => (
     <label className="field">
       <span>{label} ({unit})</span>
-      <input type="text" inputMode="decimal" value={a[k]} onChange={(e) => { const n = parseCalcInput(e.target.value); setA((x) => ({ ...x, [k]: Number.isFinite(n) && n >= 0 ? Math.min(n, 100) : 0 })); }} />
+      <NumInput percent max={100} value={a[k]} onValue={(n) => setA((x) => ({ ...x, [k]: n ?? 0 }))} />
     </label>
   );
   const useIt = () => {
@@ -499,7 +501,7 @@ function BuyBoxBuilder() {
   const money = (k: 'priceMax' | 'repairsMax' | 'cashMax' | 'minCashFlow', label: string, hint?: string) => (
     <label className="field">
       <span>{label}</span>
-      <input type="text" inputMode="numeric" value={b[k] || ''} onChange={(e) => set(k, Math.max(0, parseCalcInput(e.target.value) || 0))} />
+      <NumInput blank value={b[k]} onValue={(n) => set(k, n ?? 0)} />
       {hint && <small className="muted">{hint}</small>}
     </label>
   );
@@ -808,7 +810,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
       <details className="plan-section"><summary>Your team and contacts</summary><TeamListSection /></details>
       <section className="plan-download" aria-labelledby="plan-dl-head">
         <h2 id="plan-dl-head">Print or share your plan</h2>
-        <p>Download a summary of your goal, budget, property preferences, checklist progress and contacts. You can keep it or share it with your agent or lender. Optional account saving keeps supported property work and learning progress across devices. Downloads are readable records; there is no file-import option.</p>
+        <p>Download a summary of your goal, budget, property preferences, checklist progress and contacts. You can keep it or share it with your agent or lender. Optional account saving keeps supported property work and learning progress across devices. This summary is for reading and sharing; it can’t be loaded back. To move your work to another browser, use Download my progress below.</p>
         <div className="decide-nav">
           <button type="button" className="btn" onClick={() => downloadText('my-investing-plan.txt', planText())}>Download my plan</button>
           <button type="button" className="btn btn-secondary" onClick={() => { document.querySelectorAll<HTMLDetailsElement>('.toolkit details.plan-section').forEach((d) => { d.open = true; }); window.print(); }}>Print this page</button>

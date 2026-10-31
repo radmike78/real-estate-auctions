@@ -236,6 +236,7 @@ export default function App() {
 
   useEffect(() => {
     const onNav = () => {
+      releasePrerender(); // the first page's prerendered copy belongs to that page only
       upgradeLegacyHash(); // an old "#/x" address set by anything still writing hashes
       setRoute(parseHash());
       setPath(hashPath());
@@ -297,11 +298,16 @@ export default function App() {
   }, [path]); // eslint-disable-line react-hooks/exhaustive-deps
   // Each page gets its own browser-tab title from its main heading (bookmarks, history, screen readers).
   useEffect(() => {
-    const t = window.setTimeout(() => {
-      const h1 = document.querySelector('main h1, h1')?.textContent?.trim();
+    const set = () => {
+      const h1 = document.querySelector('main:not(.prerender-hold) h1')?.textContent?.trim();
       document.title = route.page === 'home' || !h1 ? 'DeedOwl · Learn real estate investing, step by step' : `${h1.slice(0, 70)} · DeedOwl`;
-    }, 60);
-    return () => window.clearTimeout(t);
+    };
+    const t = window.setTimeout(set, 60);
+    // A page whose code is still loading gets its title once its heading appears (watched for a few seconds).
+    const mo = typeof MutationObserver === 'undefined' ? null : new MutationObserver(set);
+    mo?.observe(document.body, { childList: true, subtree: true });
+    const stop = window.setTimeout(() => mo?.disconnect(), 8000);
+    return () => { window.clearTimeout(t); window.clearTimeout(stop); mo?.disconnect(); };
   }, [path, chosenState]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     const onClick = (e: MouseEvent) => {

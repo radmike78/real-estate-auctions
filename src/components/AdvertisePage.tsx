@@ -65,7 +65,7 @@ export default function AdvertisePage() {
       </section>
 
       <h2>What your ad looks like</h2>
-      <p>A labeled ad in its own box, in the areas you choose, placed where buyers decide who to call: after “What to say” on your category’s page, on Find deals, and beside the next step in My plan. Its button opens your profile page, where buyers send you a contact request.</p>
+      <p>A labeled ad in its own box, in the areas you choose, placed where buyers decide who to call: after “What to say” on your category’s page and, depending on your category, on Find deals, Analyze a deal or beside the next step in My plan (see “Where your category appears”). Its button opens your profile page, where buyers send you a contact request.</p>
       <AdPreview tag="Example" category="agent" state={st ?? 'NV'} name="Jordan Example" company="Example Realty" licenseId="00000 (example)" line="Helping first-time investors buy rentals and bank-owned homes in your county." />
 
       <p className="small muted" role="note">{VERIFIED_NOTICE}</p>
@@ -109,21 +109,22 @@ export default function AdvertisePage() {
       </ol>
 
       <h2>Where your category appears</h2>
-      <p>Every advertiser gets a Featured ad on their category’s page, after “What to say”. These are the other places each kind of professional shows, on the placements that are on today.</p>
+      <p>Spotlight and Mentor Connect advertisers get a Featured ad on their category’s page, after “What to say”, and also show at the placements below for their kind of professional (the ones that are on today). Rotating advertisers take turns in the ad at the top of Your team.</p>
       <div className="table-wrap"><table className="lesson-table where-cats">
-        <thead><tr><th scope="col">Professional</th><th scope="col">Also shown on</th></tr></thead>
+        <thead><tr><th scope="col">Professional</th><th scope="col">Spotlight and Mentor Connect also show on</th></tr></thead>
         <tbody>
           {(Object.keys(CATEGORIES) as Category[]).map((c) => {
             const where: string[] = [];
             for (const spot of AD_SPOTS) {
               if (spot.key === 'analyze') {
                 const plans = spotCategories(spotSettings, 'analyze', [c]).includes(c) ? analyzePlansFor(c) : [];
-                if (plans.length) where.push(`Analyze a deal (${plans.map((p) => PLAN_WORD[p]).join(', ')} on listed and bank-owned homes)`);
+                if (plans.length) where.push(`Analyze a deal (${plans.map((p) => PLAN_WORD[p]).join(' and ')} plans; listed, bank-owned and short-sale homes)`);
               } else if (spot.key === 'toolkit') {
                 const steps = spotCategories(spotSettings, 'toolkit', [c]).includes(c) ? stepsFor(c, ROADMAP) : [];
                 if (steps.length) where.push(`My plan (${steps.map((st) => `“${st.title}”`).join(', ')})`);
               } else if (spotCategories(spotSettings, spot.key).includes(c)) where.push(spot.label);
             }
+            if (CATEGORIES[c].financing) where.unshift('Financing page (Featured ad)');
             return <tr key={c}><th scope="row">{CATEGORIES[c].label}</th><td>{where.length ? where.join('; ') : 'Your category’s page only, for now'}</td></tr>;
           })}
         </tbody>
@@ -135,7 +136,7 @@ export default function AdvertisePage() {
         <li><strong>Rotating ad: </strong>Rotating advertisers of every kind in the visitor’s area take turns in one ad box at the top of the Your team page; one is chosen at random on each page view. Spotlight and Mentor Connect do not take part.</li>
         <li><strong>Limited spots: </strong>up to {CAPS.listing} advertisers per category and {CAPS.featured} Featured ad spots per category in each city, so ads stay useful.</li>
         <li><strong>Featured ads (Spotlight): </strong>a separate, labeled Featured ad on your category’s page for your city or county, above the list. Every eligible fixed advertiser in the visitor’s selected area shows on each page view; neither selection nor order rotates. Fixed ads also appear at site placements that match your category and area{mentorSpots.length ? <> (now: {mentorSpots.map((s) => s.label).join(', ')})</> : null}.</li>
-        <li><strong>Counties and cities: </strong>a whole county takes one spot in each of its cities, so county and city advertisers share the same spots: no one gets a city to themselves. An advertiser appears once in a box, however many of its areas cover the visitor. Where no one has bought a spot, your category’s page and Your team show an “Advertise here” box; other pages show nothing.</li>
+        <li><strong>Counties and cities: </strong>a whole county takes one spot in each of its cities, so county and city advertisers share the same spots: no one gets a city to themselves. An advertiser appears once in a box, however many of its areas cover the visitor. Where no one has bought a spot, your category’s page, Your team, Find deals, the next step in My plan and the Financing page show an “Advertise here” box; other pages show nothing.</li>
         <li><strong>Topic ads: </strong>they appear beside {AD_TOPICS.map((t) => t.label.toLowerCase()).join(', ')} topics. Agents, lenders, title and escrow companies and attorneys share up to {CAPS.topicSettlement} spots per topic, shown together without rotation. Other kinds of professionals get {CAPS.topicOther} spot per topic, shown every time.</li>
         <li><strong>Mentor Connect: </strong>everything in Spotlight, plus an optional fixed ad beside one Learn or Practice topic you choose.</li>
         <li><strong>What we don’t do: </strong>every ad is labeled as paid. We don’t rank professionals, charge per lead or per closing, or take a share of any transaction, and we aren’t a party to any agreement between you and a buyer.</li>

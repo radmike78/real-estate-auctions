@@ -1,4 +1,4 @@
-import { parseCalcInput } from './CalcFields';
+import NumInput from './NumInput';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { shuffled } from '../lib/shuffle';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
@@ -257,7 +257,7 @@ export function DrillList() {
           <FilterSelect label="Topic" value={topic} set={setTopic} options={[{ key: 'all', label: 'All topics' }, ...TOPIC_GROUPS]} />
           <FilterSelect label="Progress" value={prog} set={setProg} options={[{ key: 'all', label: 'All' }, { key: 'new', label: 'Not started' }, { key: 'started', label: 'In progress' }, { key: 'done', label: 'Completed' }]} />
           <span className="drill-filter-count" role="status">
-            {onlyMine ? `${STATE_NAMES[mine]} and any-state drills: ` : ''}{count} of {DRILLS.length}
+            Showing {count} of {DRILLS.length} drills{onlyMine ? `: ${STATE_NAMES[mine]} and any-state` : ''}
             {filtered && <> · <button type="button" className="linkish" onClick={() => { setSt('all'); setTopic('all'); setProg('all'); }}>Clear filters</button></>}
           </span>
         </div>
@@ -345,7 +345,7 @@ function MissionCard({ m, a, set, fresh, total }: { m: Mission; a: Answers[strin
           <form className="drill-estimate" onSubmit={(e) => { e.preventDefault(); if (est !== undefined) set({ ...a, done: true }); }}>
             <label className="field">
               <span>{ESTIMATE_LABEL[m.id] ?? 'Your repair budget ($)'}</span>
-              <input type="text" inputMode="numeric" value={est ?? ''} onChange={(e) => set({ ...a, estimate: e.target.value === '' ? undefined : Math.max(0, parseCalcInput(e.target.value)) })} />
+              <NumInput blank value={est} onValue={(n) => set({ ...a, estimate: n })} />
             </label>
             <button type="submit" className="btn" disabled={est === undefined}>Compare</button>
           </form>

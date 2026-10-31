@@ -284,7 +284,7 @@ const MAX_DEALS = 50;
 const dealCalcKeys = (id: string) => [
   ...['rent', 'commercial'].flatMap((k) => [`fsf.calc.${k}.${id}.v1`, `fsf.calc.${k}.${id}-offer.v1`, `fsf.calc.${k}.${id}.v1.region`, `fsf.calc.${k}.${id}-offer.v1.region`]),
   `fsf.bid.analyzed-${id}.v1`,
-  ...['', '-az'].flatMap((az) => [`fsf.calc.lien.${id}${az}.v1`, `fsf.calc.lien.${id}${az}.v1.typed.v1`, `fsf.calc.lien.${id}${az}.typed.v1`]),
+  ...['', '-az'].flatMap((az) => [`fsf.calc.lien.${id}${az}.v1`, `fsf.calc.lien.${id}${az}.v1.region`, `fsf.calc.lien.${id}${az}.v1.typed.v1`, `fsf.calc.lien.${id}${az}.typed.v1`]),
   `fsf.bid.analyzed-${id}.v1.region`,
   `fsf.bid.analyzed-${id}.v1.typed.v1`,
   `fsf.bid.analyzed-${id}.typed.v1`,

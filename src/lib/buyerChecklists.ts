@@ -93,15 +93,21 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     key: 'foreclosure',
     forSale: true,
     title: 'Buying at a foreclosure auction',
-    intro: 'Trustee sales (most Nevada foreclosures) and court-ordered sales after a mortgage default.',
+    intro: 'Trustee sales and court-ordered sales after a mortgage default.',
     items: [
       { text: "Cashier's checks for your full bid", detail: 'Trustees usually require certified funds at the sale. Bring several checks to match different bid amounts.' },
       { text: 'Government-issued photo ID' },
       { text: 'Cash or a hard-money or bridge loan arranged in advance', detail: "Regular mortgages can't fund a trustee sale." },
-      { text: 'A title search', detail: 'Property taxes and the HOA super-priority lien survive. Check for IRS and other senior liens.' },
+      { text: 'A title search', detail: 'Unpaid property taxes usually survive the sale. Check for IRS and other senior liens, and ask your title company which liens survive where you buy.',
+        detailFor: { NV: 'In Nevada, property taxes and the HOA super-priority lien survive (NRS 116.3116). Check for IRS and other senior liens.' } },
       { text: 'Confirmation the sale is still on', detail: 'Call the trustee the day before. Postponements and cancellations are common.' },
-      { text: 'An as-is repair budget and an occupancy plan', detail: 'You won’t get to see inside. Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act), and a lease can run to its end unless the buyer will live there. For homes with up to 4 units, Nevada also requires a written notice of the change of ownership. Tenants keep their lease rights for a notice period, generally at least 60 days (NRS 40.255). You take over the landlord’s duties, including responsibility for the security deposits tenants already paid, so find out the amounts and budget for them (NRS 118A.244). Former owners get a 3-day notice (NRS 40.255). Budget for an eviction attorney.' },
-      { text: 'For court-ordered sales: time for redemption', detail: 'In Nevada, the owner can buy the property back (redeem) for up to 1 year after a court-ordered sale, so your money may be tied up. Other states’ periods differ: see the sale guide.' },
+      { text: 'An as-is repair budget and an occupancy plan', detail: 'You won’t get to see inside. Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act), and a lease can run to its end unless the buyer will live there. Your state adds its own notice and deposit rules: see your sale guide and ask your attorney. Budget for an eviction attorney.',
+        detailFor: {
+          NV: 'You won’t get to see inside. Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act), and a lease can run to its end unless the buyer will live there. For homes with up to 4 units, Nevada also requires a written notice of the change of ownership. Tenants keep their lease rights for a notice period, generally at least 60 days (NRS 40.255). You take over the landlord’s duties, including responsibility for the security deposits tenants already paid, so find out the amounts and budget for them (NRS 118A.244). Former owners get a 3-day notice (NRS 40.255). Budget for an eviction attorney.',
+          TX: 'You won’t get to see inside. Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act), and a lease can run to its end unless the buyer will live there. In Texas, if a tenant who pays on time was there before the sale and you won’t continue the lease, you must give at least 30 days’ written notice to vacate (Property Code 24.005(b)); the federal 90 days can still apply. Budget for an eviction attorney.',
+        } },
+      { text: 'For court-ordered sales: time for redemption', detail: 'After some court-ordered sales the owner can buy the property back (redeem) for a set time, so your money may be tied up. See your state’s sale guide for the period.',
+        detailFor: { NV: 'In Nevada, the owner can buy the property back (redeem) for up to 1 year after a court-ordered sale, so your money may be tied up (NRS 21.210).' } },
     ],
   },
   reo: {
@@ -200,13 +206,13 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     items: [
       { text: 'Certified funds', detail: 'Each sale notice (the sheriff’s or the IRS’s) sets the deposit and how to pay. Read it for each sale.' },
       { text: 'Government-issued photo ID' },
-      { text: 'Time for redemption', detail: 'Sheriff sales: depends on the state (Nevada 1 year; Arizona 6 months; Utah 180 days; California none to 1 year; Texas generally none, except after tax sales and HOA foreclosures*). In most of these states, where there’s a redemption period you get a certificate first and the deed later. Texas is different: after a tax sale you get the deed at once, and the redemption clock runs from the day it’s recorded (Tax Code 34.01, 34.21). IRS sales: the owner can redeem for 180 days, and you get the deed after that.',
+      { text: 'Time for redemption', detail: 'Sheriff sales: depends on the state (Nevada 1 year; Arizona 6 months; Utah 180 days; California none to 1 year; Texas generally none, except after tax sales, property tax loan foreclosures and HOA foreclosures*). In most of these states, where there’s a redemption period you get a certificate first and the deed later. Texas is different: after a tax sale you get the deed at once, and the redemption clock runs from the day it’s recorded (Tax Code 34.01, 34.21). IRS sales: the owner can redeem for 180 days, and you get the deed after that.',
         detailFor: {
           NV: 'In Nevada, the owner can redeem for 1 year after a sheriff’s sale (NRS 21.210). You get a certificate of sale first and the deed after the year ends. IRS sales: the owner can redeem for 180 days (26 U.S.C. 6337); you get a certificate of sale first and the deed after that.',
           CA: 'In California, most execution sales have no redemption. After a court foreclosure that allows a deficiency judgment, the owner can redeem for 3 months if the sale paid the debt in full, or 1 year if it didn’t (Code of Civil Procedure 729.010, 729.030). IRS sales: the owner can redeem for 180 days (26 U.S.C. 6337); you get a certificate of sale first and the deed after that.',
           AZ: 'In Arizona, the owner can redeem for 6 months after a sheriff’s sale, or 30 days if the property was abandoned (A.R.S. 12-1282). You get a certificate of sale first and the deed after that. IRS sales: the owner can redeem for 180 days (26 U.S.C. 6337); you get a certificate of sale first and the deed after that.',
           UT: 'In Utah, the owner can redeem for 180 days after a sheriff’s sale (URCP 69C). You get a certificate of sale first and the deed after that. IRS sales: the owner can redeem for 180 days (26 U.S.C. 6337); you get a certificate of sale first and the deed after that.',
-          TX: 'In Texas, a mortgage or trustee sale has no redemption. After a tax sale, a property tax loan foreclosure or an HOA foreclosure, you get the deed at once, but the owner can still buy it back for a set time (Tax Code 34.21, 32.06(k-1); Property Code 209.011, 82.113). IRS sales: the owner can redeem for 180 days (26 U.S.C. 6337); you get a certificate of sale first and the deed after that.',
+          TX: 'In Texas, a sheriff’s or constable’s execution sale and a mortgage trustee sale have no redemption (Civil Practice and Remedies Code 34.045). After a tax sale, a trustee sale that forecloses a property tax loan, or an HOA foreclosure, you get the deed at once, but the owner can still buy it back for a set time (Tax Code 34.21, 32.06(k-1); Property Code 209.011, 82.113). IRS sales: the owner can redeem for 180 days (26 U.S.C. 6337); you get a certificate of sale first and the deed after that.',
         },
       },
       { text: 'A title search', detail: "You receive only the debtor's or taxpayer's interest. Senior liens stay." },
@@ -354,7 +360,9 @@ function reword(list: BuyerChecklist, wording: Record<string, Partial<ChecklistI
   const items = list.items.flatMap((item) => {
     if (!(item.text in wording)) return [item];
     const change = wording[item.text];
-    return change ? [{ ...item, ...change }] : [];
+    if (!change) return [];
+    // New wording replaces the state versions too, unless it brings its own.
+    return [change.detail !== undefined && change.detailFor === undefined ? { ...item, ...change, detailFor: undefined } : { ...item, ...change }];
   });
   return {
     ...list,

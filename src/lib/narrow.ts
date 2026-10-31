@@ -225,7 +225,7 @@ export function practiceConfig(auctionPracticeHere: boolean): NarrowConfig {
           { value: 'no', label: 'Not yet' },
           { value: 'yes', label: 'Yes, or most of it' },
         ],
-        suggest: () => ({ value: 'no', why: 'Start there: it’s one short decision at a time, and it builds the practice workbook the rest of this page uses.' }),
+        suggest: () => ({ value: 'no', why: 'Start there: it’s one short decision at a time, and it teaches the checks that Part 2 and the drills use.' }),
       },
       BUY_Q,
     ],
@@ -235,7 +235,7 @@ export function practiceConfig(auctionPracticeHere: boolean): NarrowConfig {
       if (buy === 'auction') {
         picks.push(auctionPracticeHere
           ? { label: 'Auction practice', scrollTo: 'practice-auction', why: 'Buy a fictional property at one kind of sale, step by step, from research to the day after.' }
-          : { label: 'Your state’s sale guides', href: '#/playbooks', why: 'Auction practice uses Clark County, Nevada rules. Your state’s guides show how its own sales work.' });
+          : { label: 'Your state’s sale guides', href: '#/playbooks', why: 'Your state’s guides show how its own sales work, step by step; the auction drills below practice the decisions.' });
       } else {
         picks.push({ label: 'Practice part 2: Buy a rental', scrollTo: 'practice-case', why: 'About 45 minutes. The paperwork and calls of a purchase through an agent, with a deal packet at the end.' });
       }

@@ -1,4 +1,4 @@
-import { parseCalcInput } from './CalcFields';
+import NumInput from './NumInput';
 import { useEffect, useState } from 'react';
 import PageHero from './PageHero';
 import EvidenceLog from './EvidenceLog';
@@ -191,12 +191,12 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <Head k="cash" />
         <label className="field">
           <span>{deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short' ? 'Earnest money deposit' : 'Bidder deposit, if the sale requires one'}</span>
-          <input type="text" inputMode="decimal" value={p.earnest || ''} onChange={(e) => update({ earnest: Math.max(0, parseCalcInput(e.target.value) || 0) })} />
+          <NumInput blank value={p.earnest} onValue={(n) => update({ earnest: n ?? 0 })} />
         </label>
         {(deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short') && <details><summary>Separate fees and confirmed deposit credits</summary>
           <p className="muted small">If your saved amount combined earnest money and an option fee, split them here. Enter only credits your title or escrow professional has confirmed. Include any uncredited fee once in your calculator’s acquisition costs; this field does not add it automatically.</p>
-          <label className="field"><span>Option fee, if applicable</span><input type="text" inputMode="decimal" value={p.optionFee || ''} onChange={(e) => update({ optionFee: Math.min(1e9, Math.max(0, parseCalcInput(e.target.value) || 0)) })} /></label>
-          <label className="field"><span>Confirmed deposit/fee credits toward closing</span><input type="text" inputMode="decimal" value={p.depositCredit || ''} onChange={(e) => update({ depositCredit: Math.min(1e9, Math.max(0, parseCalcInput(e.target.value) || 0)) })} /></label>
+          <label className="field"><span>Option fee, if applicable</span><NumInput blank max={1e9} value={p.optionFee} onValue={(n) => update({ optionFee: n ?? 0 })} /></label>
+          <label className="field"><span>Confirmed deposit/fee credits toward closing</span><NumInput blank max={1e9} value={p.depositCredit} onValue={(n) => update({ depositCredit: n ?? 0 })} /></label>
           <p className="muted small"><a href="https://www.consumerfinance.gov/owning-a-home/closing-disclosure/" target="_blank" rel="noopener noreferrer">CFPB: understand cash to close ↗</a>. This consumer-mortgage example may use different documents from your investment purchase.</p>
         </details>}
         <Lines k="cash" />

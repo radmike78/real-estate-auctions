@@ -135,6 +135,7 @@ export const veterans: Lesson = {
     { label: 'California: Military and Veterans Code, CalVet purchase contracts', url: 'https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=MVC&division=4.&title=&part=&chapter=6.&article=3.1' },
     { label: 'Arizona: A.R.S. 42-11111 (veteran exemptions)', url: 'https://www.azleg.gov/ars/42/11111.htm' },
     { label: 'Arizona: Mohave County Assessor, 2026 exemption amounts', url: 'https://www.mohave.gov/departments/assessor/program-enrollment/exemptions/' },
+    { label: 'Utah: State Tax Commission, Publication 36 (disabled veterans’ exemption)', url: 'https://files.tax.utah.gov/tax/forms/pubs/pub-36.pdf' },
     { label: 'Utah: State Tax Commission, property tax relief table', url: 'https://files.tax.utah.gov/propertytax/media/tax-relief.pdf' },
     { label: 'Utah: Utah Housing, veteran homebuyer grant FAQ', url: 'https://utahhousingcorp.org/pdf/Veteran_Grant_FAQ.pdf' },
     { label: 'Texas: Tax Code 11.131 (100% disabled veteran homestead)', url: 'https://tcss.legis.texas.gov/resources/TX/htm/TX.11.htm#11.131' },

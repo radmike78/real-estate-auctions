@@ -5,7 +5,7 @@
 import { CHAPTERS, journeyHref, loadJourney, resumeChapter } from '../practice/dealJourney';
 import { loadDeals, type Deal, type DealStage } from './analyze';
 import { dealNextTask, stageLabel, stageOf, stageTasks, type PlanTask } from './dealStage';
-import { currentProgress, getMode, readLessons } from './journey';
+import { currentProgress, getMode, practicePart2Done, readLessons } from './journey';
 import { getMyState } from './myState';
 import { loadCase } from '../practice/caseProgress';
 import { caseFor, caseResume } from '../practice/rentalCase';
@@ -60,12 +60,16 @@ export const roadmapTask = (s: RoadmapStep): PlanTask => ({
   text: `${s.title}.`,
 });
 
+
 export function planNow(now = new Date()): PlanNow {
   const goal = readKey(GOAL_KEY, '', cleanGoal).trim();
   const deals = loadDeals();
   const focus = focusDealId(deals);
   const deal = deals.find((d) => `analyzed:${d.id}` === focus);
-  if (deal) {
+  // A guided beginner who saved a property while still learning keeps the guided steps first, until the practice
+  // purchase is done; a deal that has moved past researching (an offer, a contract) always leads.
+  const guidedLearning = getMode() === 'guided' && !practicePart2Done() && !!deal && stageOf(deal) === 'researching';
+  if (deal && !guidedLearning) {
     const stage = stageOf(deal);
     return { goal, source: 'deal', context: `${deal.name} · ${stageLabel(stage, deal)}`, task: dealNextTask(deal, undefined, now, stage), deal, stage, tasks: stageTasks(deal, stage, undefined, now) };
   }
@@ -75,8 +79,11 @@ export function planNow(now = new Date()): PlanNow {
   const roadmapStarted = roadmapFor(planPath(deals)).filter((s) => !AUTO_STEPS.includes(s.id)).some(settledFor(''));
   const practice = loadJourney();
   const practiceDone = practice.completed.length === CHAPTERS.length;
-  if (getMode() !== 'explore' && !roadmapStarted && !practiceDone && practice.completed.length === 0 && Object.keys(practice.answers).length === 0) {
-    if (!currentProgress().decided) {
+  const learning = getMode() !== 'explore' && !roadmapStarted && !practiceDone;
+  // Decide comes first unless the reader already started the practice deal; the two Start-here lessons stay ahead of
+  // practice until one of its chapters is finished, even if a lesson's practice link was tried early.
+  if (learning && practice.completed.length === 0) {
+    if (!currentProgress().decided && Object.keys(practice.answers).length === 0) {
       return { goal, source: 'starter', context: 'Step 1 · Decide', task: { key: 'decide', label: 'Decide: your goal and investable cash', produces: 'the strategies that fit your money, time and goals, in about 2 minutes', href: '#/decide', support: [], done: false, text: 'A few questions about your goal, your cash and your time.' } };
     }
     const read = readLessons();

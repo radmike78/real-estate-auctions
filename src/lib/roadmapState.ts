@@ -46,8 +46,8 @@ export const roadmapDone = () => readKey(ROADMAP_KEY, [] as string[], cleanIds);
 
 const CREDITED_KEY = 'deedowl.roadmap.credited.v1';
 /** Roadmap steps the site ticks for you when you do the work elsewhere: Decide (choose a strategy), the seminar red
- * flags lesson. Each is ticked once, so a reader who unticks it keeps it unticked. */
-export const AUTO_STEPS: readonly string[] = ['strategy', 'avoid'];
+ * flags lesson, the practice purchase (part 2's deal packet). Each is ticked once, so a reader who unticks it keeps it unticked. */
+export const AUTO_STEPS: readonly string[] = ['strategy', 'avoid', 'practice'];
 export function creditStep(id: string) {
   try {
     const credited = readKey(CREDITED_KEY, [] as string[], cleanIds);

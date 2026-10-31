@@ -76,7 +76,7 @@ export const forcedSales: Lesson = {
           'Arizona: 6 months after a judicial foreclosure sale, or 30 days if the judgment found the property both abandoned and not used mainly for farming or grazing. After that, junior lienholders can redeem in turn, 5 days each (A.R.S. 12-1282).',
           'Utah: 180 days after a sheriff’s sale.',
           'Texas execution sales: no right to redeem after a sheriff’s or constable’s execution sale. The deed passes only what the debtor owned, so older liens stay (Civil Practice and Remedies Code 34.045).',
-          'Texas HOA foreclosures: the owner has 180 days after the association mails notice, or 90 days after the sale for a condo (Property Code 209.011 and 82.113).',
+          'Texas HOA foreclosures: the owner can buy it back until 180 days after the association mails written notice of the sale, or, for a condo, until 90 days after the sale (Property Code 209.011 and 82.113).',
         ] },
       ],
     },
@@ -94,7 +94,7 @@ export const forcedSales: Lesson = {
       heading: 'Before any forced sale',
       blocks: [
         { list: [
-          'Read the official notice and the seller’s rules: deposit, payment deadline, and what the deed promises.',
+          'Read the official notice and the seller’s rules: deposit, payment deadline, and what you get (a deed or, where your county sells liens, a lien certificate).',
           'Get a title search. Which liens survive depends on the kind of sale.',
           'Expect to buy as-is, usually without seeing inside.',
           'Check whether the owner has filed bankruptcy, which can stop a sale.',
@@ -166,6 +166,6 @@ export const forcedSales: Lesson = {
     { label: 'HUD Home Store', url: 'https://www.hudhomestore.gov/' },
     { label: 'Federal Reserve: Protecting Tenants at Foreclosure Act restored', url: 'https://www.federalreserve.gov/supervisionreg/caletters/caltr1804.htm' },
   ],
-  practice: 'Find your county’s official sale page and write down the deposit, the payment deadline and what the deed promises.',
+  practice: 'Find your county’s official sale page and write down the deposit, the payment deadline and what you get (a deed or, where your county sells liens, a lien certificate).',
   reviewed: '2026-10-05',
 };

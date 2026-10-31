@@ -1,3 +1,4 @@
+import { syncRoadmapCredits } from '../lib/journey';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState, type ReactNode } from 'react';
 import '../styles/r8-plan.css';
@@ -61,6 +62,7 @@ export function ContinueButton({ task, dealId, onPlan, label }: { task: PlanTask
  * start?" helper beside it and the roadmap or evidence summary alongside on wide screens.
  */
 export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'; helper?: ReactNode }) {
+  useEffect(() => syncRoadmapCredits(), []);
   usePlanTick();
   const now = planNow();
   const { task, deal, stage } = now;

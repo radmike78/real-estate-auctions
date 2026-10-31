@@ -16,7 +16,8 @@ export const structuring: Lesson = {
       blocks: [
         'How you take title decides who owns what and what happens when an owner dies. As tenants in common, each owner has a share they can leave to their heirs. Joint ownership with a valid right of survivorship works differently: when one owner dies, the others own the property. Whether you have that right depends on your state’s rules and on how the deed or agreement is written. Investors also buy through companies such as LLCs or partnerships. The right choice depends on liability, taxes, financing and estate plans, so ask a real estate attorney and a tax advisor.',
         'In California, Nevada, Arizona and Utah, a joint tenancy that the deed clearly creates generally carries the right of survivorship.*',
-        'In Texas, owning property together doesn’t create a right of survivorship by itself: the owners must agree to it in writing, and it can’t be inferred just from joint ownership (Estates Code 111.001). Spouses can make their community property pass to the survivor only with a written agreement signed by both (Estates Code 112.052). Have your attorney or title company confirm the deed or agreement says what you want before closing.',
+        'In Texas, owning property together doesn’t create a right of survivorship by itself: the owners must agree to it in writing, and it can’t be inferred just from joint ownership (Estates Code 111.001). Spouses can make their community property pass to the survivor only with a written agreement signed by both (Estates Code 112.052).',
+        'Wherever you buy, have your attorney or title company confirm the deed or agreement says what you want before closing.',
       ],
     },
     {
@@ -26,7 +27,7 @@ export const structuring: Lesson = {
         { list: [
           'If you sign a personal guarantee on a loan, you owe that debt yourself, LLC or not. Many lenders ask investors for one.',
           'Keep the LLC’s money in its own bank account. Mixing personal and business money can weaken the protection.',
-          'Moving a home that has a mortgage into an LLC can let the lender call the whole loan due. Federal law protects some transfers from that, like moving the home into a living trust where you stay a beneficiary, but it doesn’t list transfers to an LLC (12 U.S.C. 1701j-3). Fannie Mae’s servicers must allow the transfer if Fannie Mae bought or securitized the loan on or after June 1, 2016, you control or own most of the LLC, and, for a home you bought to live in, moving out doesn’t break the loan’s occupancy promise (usually 12 months). To refinance later with a Fannie Mae loan, the home must go back into a person’s name. For any loan, ask your loan servicer in writing before you sign a deed.',
+          'Moving a home that has a mortgage into an LLC can let the lender call the whole loan due. Federal law protects some transfers from that, like moving the home into a living trust where you stay a beneficiary, but it doesn’t list transfers to an LLC (12 U.S.C. 1701j-3). Fannie Mae’s servicers must allow the transfer when all of these are true: Fannie Mae bought or securitized the loan on or after June 1, 2016; you control or own most of the LLC; and, if you bought the home to live in, you’ve already met the loan’s promise to live there (usually 12 months). To refinance later with a Fannie Mae loan, the home must go back into a person’s name. For any loan, ask your loan servicer in writing before you sign a deed.',
         ] },
         {
           table: {

@@ -26,7 +26,7 @@ const BY_PLAN: Record<Plan, Category[]> = {
 
 /** The advertisers for Analyze a deal: by plan, and only for a listing or a bank-owned home. */
 export function analyzeAdCategories(kind: SaleKind, plan: Plan): Category[] {
-  return kind === 'listing' || kind === 'reo' || kind === 'short' ? BY_PLAN[plan] : [];
+  return analyzeAllowsAds(kind) ? BY_PLAN[plan] : [];
 }
 
 /** Who a My plan step says to call, as advertiser categories ("Each professional" and officials match none). */
@@ -52,3 +52,10 @@ export function stepAdCategories(step: RoadmapStep, path: RoadmapPath): Category
 export const analyzePlansFor = (cat: Category): Plan[] => (Object.keys(BY_PLAN) as Plan[]).filter((p) => BY_PLAN[p].includes(cat));
 /** For the Advertise page: the My plan steps (through an agent) that show this kind of professional. */
 export const stepsFor = (cat: Category, steps: RoadmapStep[]): RoadmapStep[] => steps.filter((st) => stepAdCategories(st, 'listing').includes(cat));
+
+/** Whether Analyze may show ads for this kind of sale at all (an owner's fixed list included): buying through an agent only. */
+export const analyzeAllowsAds = (kind: SaleKind) => kind === 'listing' || kind === 'reo' || kind === 'short';
+/** Whether a My plan step may show ads at all (an owner's fixed list included): the agent route, and never beside an
+ * official seller (county, treasurer, trustee, sheriff). */
+export const stepAllowsAds = (step: RoadmapStep, path: RoadmapPath) =>
+  path === 'listing' && (!step.path || step.path.includes('listing')) && !!step.say && !/county|treasurer|trustee|sheriff/i.test(step.say.to);

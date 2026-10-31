@@ -89,7 +89,7 @@ export const spotsOn = (settings: SpotSettings) => AD_SPOTS.filter((s) => settin
  * rotating ad, the professional list and topic ads. Shared by the browser (what it reports) and the server (what it accepts). */
 export const AD_PLACEMENTS: Record<string, string> = {
   category: 'Your category’s page (Featured ad)',
-  directory: 'The professional list',
+  directory: 'Financing page (Featured ad)',
   team: 'Your team (rotating ad)',
   topic: 'Learn and Practice topic ad',
   ...Object.fromEntries(AD_SPOTS.map((s) => [s.key, s.label])),
