@@ -41,7 +41,7 @@ export default function DealJourneyPage({ chapterKey }: { chapterKey?: string })
     <PageHero
       compact
       top={<a href="#/practice">← Practice</a>}
-      eyebrow="Practice part 1 · Build your first deal · Fictional"
+      eyebrow="Practice part 1 · Cedar House (the decisions) · Fictional"
       title={<span ref={heading} tabIndex={-1}>{chapter?.title ?? (workbook ? 'Your deal workbook' : specialties ? 'Choose your next challenge' : 'One property. Better decisions.')}</span>}
       sub={chapter?.purpose ?? (workbook ? 'Your reasoning, numbers and questions, all in one place.' : specialties ? 'Keep the habits. Learn what changes for your investment.' : 'Learn the process by trying it. Follow Cedar House from its listing to life as a rental.')}
       aside={!workbook && started ? <a className="deal-workbook-link" href={journeyHref('workbook')}>Your workbook ↗</a> : undefined}
@@ -156,5 +156,5 @@ function SpecialtyView({ p, update }: { p: JourneyProgress; update: (p: JourneyP
 export function DealJourneyEntry({ compact = false }: { compact?: boolean }) {
   const [p] = useState(loadJourney);
   const started = Object.keys(p.answers).length > 0;
-  return <section className={`deal-entry${compact ? ' compact' : ''}`} aria-label="Build your first deal"><div><p className="deal-kicker">PART 1 · THE DECISIONS · FICTIONAL PRACTICE</p><h2>Build your first deal.</h2><p>One property, one decision at a time. Check the numbers, handle surprises, and save your reasoning as you learn.</p><a className="btn deal-primary" href={journeyHref(started ? resumeChapter(p) : undefined)}>{p.completed.length === CHAPTERS.length ? 'Review your deal' : started ? 'Continue your deal' : 'Meet your practice property'} →</a><span className="deal-entry-note">{started ? `${p.completed.length} of ${CHAPTERS.length} skills practiced` : 'About 30 minutes in all: 15 short chapters, one decision at a time. No signup.'}</span></div>{!compact && <div className="deal-entry-art"><CedarDrawing /><span>CEDAR HOUSE / PRACTICE FILE 01</span></div>}</section>;
+  return <section className={`deal-entry${compact ? ' compact' : ''}`} aria-label="Build your first deal"><div><p className="deal-kicker">PRACTICE PART 1 · CEDAR HOUSE (THE DECISIONS) · FICTIONAL</p><h2>Build your first deal.</h2><p>One property, one decision at a time. Check the numbers, handle surprises, and save your reasoning as you learn.</p><a className="btn deal-primary" href={journeyHref(started ? resumeChapter(p) : undefined)}>{p.completed.length === CHAPTERS.length ? 'Review your deal' : started ? 'Continue your deal' : 'Meet your practice property'} →</a><span className="deal-entry-note">{started ? `${p.completed.length} of ${CHAPTERS.length} skills practiced` : 'About 30 minutes in all: 15 short chapters, one decision at a time. No signup.'}</span></div>{!compact && <div className="deal-entry-art"><CedarDrawing /><span>CEDAR HOUSE / PRACTICE FILE 01</span></div>}</section>;
 }

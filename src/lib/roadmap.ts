@@ -150,7 +150,7 @@ export const ROADMAP: RoadmapStep[] = [
     id: 'practice', phase: 3, path: AGENT, title: 'Finish a practice purchase',
     text: 'Work a full purchase with fictional paperwork before you risk money: the numbers, the documents and the decisions.',
     outcome: 'A practice deal packet: budget, deadline calendar, evidence log, your questions and your decisions.',
-    steps: ['Finish part 1, “Build your first deal” (the decisions), if you haven’t.', 'Work through part 2, “Buy a rental, start to finish” (the paperwork).', 'Try at least three “Would you buy it?” drills.', 'Go back over any question you missed on the first try.'],
+    steps: ['Finish practice part 1, Cedar House (the decisions), if you haven’t.', 'Work through practice part 2, Buy a rental (the paperwork).', 'Try at least three “Would you buy it?” drills.', 'Go back over any question you missed on the first try.'],
     doneWhen: 'You have a finished practice deal packet, and three drills done.',
     action: 'Start the practice purchase', href: '#/practice/case',
   },

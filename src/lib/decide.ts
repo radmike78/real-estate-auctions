@@ -395,7 +395,7 @@ export const STRATEGIES: Strategy[] = [
     },
     checklist: [
       { id: 'pr-lessons', text: 'Take the first five lessons.', href: '#/learn' },
-      { id: 'pr-practice', text: 'Complete a practice purchase for two kinds of sale.', href: '#/practice' },
+      { id: 'pr-practice', text: 'Complete a practice purchase, and three auction drills (auction practice uses Nevada rules; outside Nevada, the drills cover your state).', href: '#/practice' },
       { id: 'pr-paper', text: 'Analyze three real listings on paper with the calculator.', href: '#/analyze' },
       { id: 'pr-credit', text: 'Talk with a loan officer about what you’d qualify for and how to improve it.', href: '#/pros/lender' },
       { id: 'pr-team', text: 'Learn who’s on a deal team and when you need each one.', href: '#/pros' },

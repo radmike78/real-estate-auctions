@@ -109,7 +109,7 @@ export const CHAPTERS: Chapter[] = [
 ];
 // Only lessons whose idea a Cedar House chapter really practices. Seminar red flags, forced sales and residential vs.
 // commercial have their own practice links instead (the lesson's practiceLink or tryIt).
-export const LESSON_CHAPTER: Record<string, string> = { types: 'candidate', who: 'boundaries', financing: 'funding', creative: 'funding', analyze: 'numbers', 'walk-away': 'setback', negotiate: 'offer', tools: 'candidate', 'after-closing': 'ownership', taxes: 'ownership' };
+export const LESSON_CHAPTER: Record<string, string> = { types: 'candidate', who: 'markets', financing: 'funding', creative: 'funding', analyze: 'numbers', 'walk-away': 'setback', negotiate: 'offer', tools: 'candidate', 'after-closing': 'ownership', taxes: 'ownership' };
 export interface Specialty { id: string; title: string; question: string; facts: string; answer: string; wrong: string; explanation: string; href: string }
 export const SPECIALTIES: Specialty[] = [
   { id: 'multifamily', title: 'Small multifamily', facts: 'Four units: three current leases and one vacancy.', question: 'Can you count four times the advertised rent as actual income?', answer: 'No — build a unit-by-unit rent roll.', wrong: 'Yes — all four units earn the advertisement’s rent.', explanation: 'Separate in-place rent, estimates, lease terms, deposits and vacancy costs. Check lawful lease and deposit handover.', href: '#/learn/types/duplex-fourplex' },

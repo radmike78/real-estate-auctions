@@ -132,7 +132,7 @@ export default function HomePage() {
         <summary>How DeedOwl counts your progress</summary>
         <ul className="progress-kinds" aria-label="How DeedOwl counts progress">
           <li><strong>My plan ({total} roadmap tasks)</strong> The real work of an actual purchase, and the one place your next step comes from. This is the progress that counts.</li>
-          <li><strong>Build your first deal</strong> Short decisions on one fictional property. Your workbook records the chapters you’ve done; My plan tracks the work on a real investment.</li>
+          <li><strong>Practice part 1: Cedar House</strong> Short decisions on one fictional property. Your workbook records the chapters you’ve done; My plan tracks the work on a real investment.</li>
           <li><strong>Lessons and practice missions</strong> Supporting activities: each plan task links the ones that help with it. Missions are rehearsal on made-up deals; finishing them builds skill, but doesn’t mean you’re ready to buy.</li>
         </ul>
         </details>
