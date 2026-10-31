@@ -279,7 +279,7 @@
       "src/lib/proVerification.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "5b077e07cb1c2822",
+    "hash": "c05c96b931c0d4eb",
     "note": "State-isolation presentation audit across all five selections, including expanded pages and local quizzes. Removed cross-state comparisons and examples; retained local contract, county and professional-guidance qualifications. No new legal rules or financial calculations introduced."
   },
   {

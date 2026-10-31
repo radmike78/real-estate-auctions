@@ -117,3 +117,30 @@ export function RotatingAd({ pros: all, placeholder = false }: { pros: Pro[]; pl
     </aside>
   );
 }
+
+/**
+ * A static picture of an ad (no link, no tracking): the Advertise page's example and the live preview while applying.
+ * Uses the same layout as AdCard, so what a professional sees is what buyers will see.
+ */
+export function AdPreview({ category, state, name, company, licenseId, line, tag }: { category: Category | ''; state: import('../lib/regions').StateCode; name: string; company: string; licenseId: string; line: string; tag: string }) {
+  const shownName = name.trim() || 'Your name';
+  const shownCompany = company.trim() && company.trim() !== shownName ? company.trim() : '';
+  return (
+    <aside className="ad-box featured-ads ad-example" aria-label={`${tag} ad`}>
+      <div className="ad-box-label">Advertisement · {tag}</div>
+      <div className="ad-box-grid">
+        <div className="ad-card">
+          <ProAvatar name={shownName} />
+          <div className="ad-card-body">
+            <div className="pro-kicker">{category ? CATEGORIES[category].label : 'Your category'} <span className="badge tone-info">{tag}</span></div>
+            <strong className="ad-card-name">{shownName}</strong>
+            {shownCompany && <span className="small">{shownCompany}</span>}
+            {licenseId.trim() && category && <span className="small muted">{shortLicenseLabel(category, state)} {licenseId.trim()}</span>}
+            <p className="ad-card-line">{line.trim() || 'Your ad line, or your headline if you leave the ad line blank.'}</p>
+            <span className="btn btn-secondary" aria-disabled="true">Contact {shownCompany || shownName}</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+}
