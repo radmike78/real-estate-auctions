@@ -1,3 +1,4 @@
+import { parseCalcInput } from './CalcFields';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useId, useState } from 'react';
 import { incomeValue, sanitizeIncome, type IncomeInputs } from '../lib/incomeValue';
@@ -30,7 +31,7 @@ export default function IncomeValue({ propertyId, onUse }: { propertyId: string;
   const set = (k: keyof IncomeInputs, text: string) => {
     trackAction('calculator_used', true);
     setDraft((d) => ({ ...d, [k]: text }));
-    const n = Number(text);
+    const n = parseCalcInput(text);
     const next = { ...i, [k]: Number.isFinite(n) && n > 0 ? n : 0 };
     setI(next);
     try {
@@ -52,7 +53,7 @@ export default function IncomeValue({ propertyId, onUse }: { propertyId: string;
               <span className="calc-label">{f.label}</span>
               <span className="calc-input">
                 {f.unit === '$' && <i aria-hidden>$</i>}
-                <input id={`${uid}-${f.k}`} type="number" inputMode="decimal" min={0} step="any" value={draft[f.k] ?? String(i[f.k])} onChange={(e) => set(f.k, e.target.value)} />
+                <input id={`${uid}-${f.k}`} type="text" inputMode="decimal" value={draft[f.k] ?? String(i[f.k])} onChange={(e) => set(f.k, e.target.value)} />
                 {f.unit === '%' && <i aria-hidden>%</i>}
               </span>
               <span className="small muted">{f.hint}</span>

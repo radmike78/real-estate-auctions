@@ -1,3 +1,5 @@
+import { parseCalcInput } from './CalcFields';
+import StickyResult from './StickyResult';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState } from 'react';
 import { readConfirmed, saveConfirmed } from '../lib/calcConfirmation';
@@ -262,7 +264,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word }: { v: RentInputs; sta
       <PriceHead id="at-price-head" kind="yours" label={word} price={price > 0 ? price : null} result={price > 0 ? a.cashFlow / 12 : null} note={price > 0 ? 'Your actual price: the result for the property as you’d buy it.' : 'Enter the price you’d pay to see this property’s own result.'} />
       <label className="field">
         <span>{word} ($)</span>
-        <input type="number" inputMode="numeric" min={0} max={1e9} step={1000} value={price || ''} onChange={(e) => { const n = Number(e.target.value); setPrice(Number.isFinite(n) ? Math.min(1e9, Math.max(0, n)) : 0); }} />
+        <input type="text" inputMode="numeric" value={price || ''} onChange={(e) => { const n = parseCalcInput(e.target.value); setPrice(Number.isFinite(n) ? Math.min(1e9, Math.max(0, n)) : 0); }} />
       </label>
       {price > 0 && (
         <p className={`calc-verdict ${a.cashFlow > 0 && (coc === null || coc >= target) ? 'good' : 'bad'}`} role="status">
@@ -361,7 +363,7 @@ function StrComparison({ v }: { v: RentInputs }) {
         {STR_FIELDS.map((f) => (
           <label key={f.k} className="field">
             <span>{f.label} ({f.unit})</span>
-            <input type="number" inputMode="decimal" min={0} step="any" value={s[f.k]} onChange={(e) => setS({ ...s, [f.k]: Math.max(0, Number(e.target.value) || 0) })} />
+            <input type="text" inputMode="decimal" value={s[f.k]} onChange={(e) => setS({ ...s, [f.k]: Math.max(0, parseCalcInput(e.target.value) || 0) })} />
           </label>
         ))}
       </div>
@@ -392,7 +394,7 @@ function HoldAndSell({ v, onPrice, target = 0 }: { v: RentInputs; onPrice: boole
   const field = (k: keyof HoldSellInputs, label: string, unit: string) => (
     <label className="field">
       <span>{label} ({unit})</span>
-      <input type="number" inputMode="decimal" min={0} step="any" value={h[k]} onChange={(e) => setH({ ...h, [k]: Math.max(0, Number(e.target.value) || 0) })} />
+      <input type="text" inputMode="decimal" value={h[k]} onChange={(e) => setH({ ...h, [k]: Math.max(0, parseCalcInput(e.target.value) || 0) })} />
     </label>
   );
   return (
@@ -500,6 +502,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         <LenderView v={v} at={at} onPrice={offer} />
         <StrComparison v={v} />
       </div>
+      <StickyResult label={offer ? 'Price that meets your target' : 'Walk-away price'} value={r.noBidWorks ? 'No price works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks} />
     </div>
   );
 }
@@ -564,6 +567,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
         })()}
         <HoldResults commercial r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} headLabel="Walk-away price" />
       </div>
+      <StickyResult label="Walk-away price" value={r.noBidWorks ? 'No price works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks} />
     </div>
   );
 }
@@ -575,7 +579,7 @@ function CommercialAtPrice({ v, offer, setPrice, target }: { v: CommercialInputs
   return (
     <section className="calc-at-price" aria-label="Commercial results at your price">
       <PriceHead kind="yours" label={word} price={a?.price ?? null} result={a ? a.cashFlow / 12 : null} note="Your actual price, using the income, costs, lease-up period and loan entered above." />
-      <label className="field"><span>{word} ($)</span><input type="number" min={0} max={1e9} step={1000} value={v.atPrice || ''} onChange={(e) => { const n = Number(e.target.value); setPrice(Number.isFinite(n) ? Math.min(1e9, Math.max(0, n)) : 0); }} /></label>
+      <label className="field"><span>{word} ($)</span><input type="text" inputMode="decimal" value={v.atPrice || ''} onChange={(e) => { const n = parseCalcInput(e.target.value); setPrice(Number.isFinite(n) ? Math.min(1e9, Math.max(0, n)) : 0); }} /></label>
       {Number.isFinite(target) && target > 0 && <button type="button" className="linkish" onClick={() => setPrice(target)}>Use the walk-away price ({fmtMoney(target)})</button>}
       {!a ? <p>Enter the asking price or your proposed price to compare this property with your targets.</p> : <>
         <p className={meets ? 'notice' : 'caution'}>{meets ? 'Meets your return-on-cost and coverage targets with these numbers.' : 'Misses your return-on-cost or coverage target, or has no positive cash flow.'} Verify the income, costs and loan terms before relying on this result.</p>
@@ -681,6 +685,7 @@ export function LienCalculator({ storageKey }: { storageKey?: string } = {}) {
           </>
         )}
       </div>
+      <StickyResult label="Your yearly yield" value={pctText(y.yearlyYield)} />
     </div>
   );
 }
