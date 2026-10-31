@@ -59,7 +59,7 @@ export default function AdvertisePage() {
       </section>
 
       <h2>What your ad looks like</h2>
-      <p>A labeled ad beside the page’s content, in the areas you choose. Its button opens your profile page, where buyers send you a contact request.</p>
+      <p>A labeled ad in its own box, in the areas you choose, placed where buyers decide who to call: after “What to say” on your category’s page, on Find deals, and beside the next step in My plan. Its button opens your profile page, where buyers send you a contact request.</p>
       {/* A static mock (no link, no tracking): fictional names, so it works when sample data is off. */}
       <aside className="ad-box featured-ads ad-example" aria-label="Example ad">
         <div className="ad-box-label">Advertisement · Example</div>
@@ -121,12 +121,12 @@ export default function AdvertisePage() {
       <h2>How placement works</h2>
       <ul className="ad-placement">
         <li><strong>Directory list: </strong>every listed professional appears in a fair rotating order, whatever plan they pay for.</li>
-        <li><strong>Rotating ad: </strong>only the Rotating plan takes turns in the ad at the top of the Your Team page. Spotlight and Mentor Connect do not participate.</li>
+        <li><strong>Rotating ad: </strong>Rotating advertisers of every kind in the visitor’s area take turns in one ad box at the top of the Your team page; one is chosen at random on each page view. Spotlight and Mentor Connect do not take part.</li>
         <li><strong>Limited spots: </strong>up to {CAPS.listing} advertisers per category and {CAPS.featured} Featured ad spots per category in each city, so ads stay useful.</li>
-        <li><strong>Featured ads (Spotlight): </strong>a separate, labeled Featured ad on your category’s page for your city or county, above the list. Every eligible fixed advertiser in the visitor’s selected area shows on each page view; neither selection nor order rotates. Fixed ads also appear at available, enabled site placements that match the category and area.</li>
-        <li><strong>Counties and cities: </strong>a whole county takes one spot in each of its cities, so county and city advertisers share the same spots: no one gets a city to themselves. An advertiser appears once in a box, however many of its areas cover the visitor, and a spot no one has bought shows an “Advertisement space” box.</li>
+        <li><strong>Featured ads (Spotlight): </strong>a separate, labeled Featured ad on your category’s page for your city or county, above the list. Every eligible fixed advertiser in the visitor’s selected area shows on each page view; neither selection nor order rotates. Fixed ads also appear at site placements that match your category and area{mentorSpots.length ? <> (now: {mentorSpots.map((s) => s.label).join(', ')})</> : null}.</li>
+        <li><strong>Counties and cities: </strong>a whole county takes one spot in each of its cities, so county and city advertisers share the same spots: no one gets a city to themselves. An advertiser appears once in a box, however many of its areas cover the visitor. Where no one has bought a spot, your category’s page and Your team show an “Advertise here” box; other pages show nothing.</li>
         <li><strong>Topic ads: </strong>they appear beside {AD_TOPICS.map((t) => t.label.toLowerCase()).join(', ')} topics. Agents, lenders, title and escrow companies and attorneys share up to {CAPS.topicSettlement} spots per topic, shown together without rotation. Other kinds of professionals get {CAPS.topicOther} spot per topic, shown every time.</li>
-        <li><strong>Mentor Connect: </strong>includes Spotlight’s fixed placements, plus an optional fixed ad beside one Learn or Practice topic you choose. Fixed site placements{mentorSpots.length ? <> (now: {mentorSpots.map((s) => s.label).join(', ')})</> : null}.</li>
+        <li><strong>Mentor Connect: </strong>everything in Spotlight, plus an optional fixed ad beside one Learn or Practice topic you choose.</li>
         <li><strong>What we don’t do: </strong>every ad is labeled as paid. We don’t rank professionals, charge per lead or per closing, or take a share of any transaction, and we aren’t a party to any agreement between you and a buyer.</li>
       </ul>
       <p className="small muted">Already listed? <a href="#/advertiser">Sign in to your dashboard&nbsp;→</a></p>

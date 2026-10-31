@@ -245,8 +245,8 @@
       "src/components/LeadForm.tsx",
       "src/lib/proVerification.ts"
     ],
-    "reviewed": "2026-10-08",
-    "hash": "76ac14137cab8d4d",
+    "reviewed": "2026-10-31",
+    "hash": "ce5c0462c48d65b8",
     "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy content is unchanged; the same verification explanation is now shared with the draft Terms."
   },
   {
@@ -279,7 +279,7 @@
       "src/lib/proVerification.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "0ccf71ec0929768e",
+    "hash": "5b077e07cb1c2822",
     "note": "State-isolation presentation audit across all five selections, including expanded pages and local quizzes. Removed cross-state comparisons and examples; retained local contract, county and professional-guidance qualifications. No new legal rules or financial calculations introduced."
   },
   {
@@ -392,7 +392,7 @@
       "src/lib/regions.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "aeab4840a39906cd",
+    "hash": "0e6e98b9d03ec5d9",
     "note": "Reviewed progressive disclosure and entry labels: all lesson and source content retained; relevant sections open on handoff; calculator defaults labeled as placeholders; no formulas, legal procedures or contract rights changed."
   },
   {

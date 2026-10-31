@@ -95,7 +95,7 @@ export const SHORT_LICENSE_LABEL: Record<Category, string> = {
 };
 
 /** Fine print under every ad box. */
-export const AD_FINE_PRINT = 'Paid ad. DeedOwl checks required licenses or registrations, and alternative qualifications where no state license applies but doesn’t recommend, rank or review them. Compare more than one.';
+export const AD_FINE_PRINT = 'Paid ad. DeedOwl checks required licenses or registrations (or other qualifications where no state license applies). It doesn’t recommend, rank or review advertisers. Compare more than one.';
 
 /** One advertiser's current spot: what counts toward the caps. */
 export interface Placement {
