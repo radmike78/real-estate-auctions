@@ -2386,7 +2386,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Set your maximum bid",
-      detail: "Add these to your price: the surviving first mortgage, unpaid property taxes, any mechanic’s liens and repairs. Mechanic’s liens keep their place in line, since the HOA lien doesn’t change their priority (A.R.S. 33-1807). If the total is near the home’s value, walk away. Use Analyze a deal (Fix and sell) to find your walk-away price."
+      detail: "Add these to your price: the surviving first mortgage, unpaid property taxes, any mechanic’s liens and repairs. Mechanic’s liens keep their place in line, since the HOA lien doesn’t change their priority (A.R.S. 33-1807). If the total is near the home’s value, the deal may leave little or no room for profit or surprises; many buyers pass at that point. Use Analyze a deal (Fix and sell) to find your walk-away price."
     },
     {
       title: "Confirm the sale is still on",

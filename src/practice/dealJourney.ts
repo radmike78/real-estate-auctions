@@ -173,6 +173,14 @@ export function answerTask(p: JourneyProgress, c: Chapter, t: Task, answer: Answ
 }
 export const resumeChapter = (p: JourneyProgress) => CHAPTERS.find((c) => !p.completed.includes(c.id))?.id ?? 'workbook';
 export const journeyHref = (id?: string) => `#/practice/deal${id ? `/${id}` : ''}`;
+
+/** The practice chapter a lesson links to. A guided reader who hasn't finished a chapter yet starts at chapter 1, so
+ *  the practice deal is worked in order. */
+export function lessonChapter(lessonKey: string, guided: boolean): string | undefined {
+  const id = LESSON_CHAPTER[lessonKey];
+  if (!id) return undefined;
+  return guided && loadJourney().completed.length === 0 ? CHAPTERS[0].id : id;
+}
 export function originalDecision(p: JourneyProgress): string {
   const c = CHAPTERS.find((x) => x.id === 'numbers')!; const t = c.tasks.find((x) => x.id === 'decision')!;
   const a = p.answers[taskKey(c, t)];

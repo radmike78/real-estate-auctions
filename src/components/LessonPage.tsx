@@ -1,6 +1,6 @@
 import { planNow } from '../lib/planNext';
 import { currentProgress, getMode } from '../lib/journey';
-import { LESSON_CHAPTER, journeyHref } from '../practice/dealJourney';
+import { LESSON_CHAPTER, journeyHref, lessonChapter } from '../practice/dealJourney';
 import { useEffect, useRef, useState } from 'react';
 import { markLessonRead, useJourney, useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
@@ -246,7 +246,7 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
     }
   // The practice button matches the practice task; the lesson's other link sits beside it only when it differs.
   const practiceLink = l.practiceLink === undefined ? l.tryIt : l.practiceLink;
-  const dealChapter = LESSON_CHAPTER[lessonKey];
+  const dealChapter = lessonChapter(lessonKey, getMode() === 'guided');
   const extraTry = l.tryIt && l.tryIt !== practiceLink ? l.tryIt : null;
   return (
     <main className="page lesson" ref={bodyRef}>
@@ -294,7 +294,7 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
           <h2 id="practice-head">Put it into practice</h2>
           {dealChapter ? <div className="deal-lesson-link">
             <p>Apply this lesson to Cedar House, your continuing fictional practice deal.</p>
-            <a className="btn deal-primary" href={journeyHref(dealChapter)}>Try this decision →</a>
+            <a className="btn deal-primary" href={journeyHref(dealChapter)}>{dealChapter === LESSON_CHAPTER[lessonKey] ? 'Try this decision' : 'Start the practice deal at chapter 1'} →</a>
             <details><summary>Other ways to apply this lesson</summary>
               {l.practice && <p>{oneState(l.practice, st)}</p>}
               {practiceLink && <a href={practiceLink.href}>{practiceLink.label} →</a>}

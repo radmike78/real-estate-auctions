@@ -21,3 +21,16 @@ describe('lesson list items for every reader', () => {
     expect(lost).toEqual([]);
   });
 });
+
+describe('roadmap steps for every reader', () => {
+  it('keep each general step visible in every state', async () => {
+    const { ROADMAP } = await import('../roadmap');
+    const lost: string[] = [];
+    for (const step of ROADMAP) for (const x of step.steps) {
+      if (LEAD.test(x) || statesMentioned(x).length === 0) continue;
+      const hidden = STATES.filter((s) => !forStateText(s.code, x).trim());
+      if (hidden.length >= 3) lost.push(`${step.id}: ${x.slice(0, 80)} (hidden for ${hidden.map((s) => s.code).join(', ')})`);
+    }
+    expect(lost).toEqual([]);
+  });
+});

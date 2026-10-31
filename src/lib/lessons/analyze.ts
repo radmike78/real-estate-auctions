@@ -88,7 +88,7 @@ export const analyze: Lesson = {
           'Flood: most homeowner policies don’t cover flood. Check the flood zone and price a flood policy if you need one.',
           'Flood insurance a lender requires: say a home is in a high-risk flood area and has a mortgage from a federally regulated or insured lender (most banks and credit unions), or a loan backed by Fannie Mae, Freddie Mac, FHA or VA. Then it must have flood insurance for the life of the loan (42 U.S.C. 4012a), and that can change your numbers.',
           'Flood policy wait: a new NFIP flood policy usually takes 30 days to start, unless you buy it along with a loan at closing. So a cash buyer may want to apply before the sale closes.',
-          'Written quote: get a written quote, or a binder for an auction, before your inspection period ends or before you bid. If no one will insure it at a price that works, walk away.',
+          'Written quote: get a written quote, or a binder for an auction, before your inspection period ends or before you bid. If no one will insure it at a price that works, that’s often a reason to pass; your situation and risk tolerance decide.',
         ] },
       ],
     },
@@ -169,7 +169,7 @@ export const analyze: Lesson = {
               ],
               [
                 'HOA documents',
-                'The owner gives a resale package (governing documents, dues, current and expected assessments, budget, reserves, unpaid judgments, pending lawsuits, fees). You can cancel in writing until midnight of the fifth calendar day after you receive the package, as long as the sale hasn’t closed yet.* Some sales are exempt (NRS 116.4101); ask your agent or the HOA whether yours is covered (NRS 116.4109).',
+                'The owner gives a resale package (governing documents, dues, current and expected assessments, budget, reserves, unpaid judgments, pending lawsuits, fees). You can cancel in writing until midnight of the fifth calendar day after you receive the package, as long as the sale hasn’t closed yet (NRS 116.4109(2)). Some sales are exempt (NRS 116.4101); ask your agent or the HOA whether yours is covered (NRS 116.4109).',
                 'The owner gives governing documents, financial and reserve disclosures, assessments, violation notices and rental limits before transfer (Civil Code 4525).',
                 'You get the association’s documents (rules, budget, reserves, insurance, lawsuits) within 10 days. In a planned community with fewer than 50 homes, or a condo with fewer than 50 units, the seller delivers them within 10 days after the offer is accepted. With 50 or more, the association delivers them within 10 days after the seller’s notice of the accepted offer. The association’s fee can’t be more than $400, plus up to $100 for a rush (A.R.S. 33-1260 and 33-1806).',
                 'Before closing, the seller gives the buyer the association’s recorded governing documents and a link to the state’s educational materials for HOA buyers (Utah Code 57-8a-105.1 and 57-8-6.1, as amended in 2026). A payoff fee can’t be more than $50.',

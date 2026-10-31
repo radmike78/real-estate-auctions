@@ -1788,7 +1788,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         year: "2023",
         title: "New registration law puts a host’s income on hold",
         happened: "New York City’s Local Law 18 took effect in September 2023. Hosts renting for under 30 days had to register, live in the home during stays and host no more than two guests. A Bronx host who had rented space since 2011 met the rules but was still waiting for approval as Airbnb blocked new bookings. He said the income had helped him pay his mortgage.",
-        lesson: "Short-term rental income can vanish when a city changes its rules. Never buy a property that only works as a nightly rental without checking local law.",
+        lesson: "Short-term rental income can vanish when a city changes its rules. If a property only works as a nightly rental, check local law before you commit; without a permit, the plan may not work.",
         source: {
           label: "Spectrum News NY1: New law cracking down on short-term rentals takes effect (Sept. 3, 2023)",
           url: "https://ny1.com/nyc/all-boroughs/news/2023/09/03/new-law-cracks-down-on-short-term-rentals"
@@ -2112,7 +2112,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         year: "1977",
         title: "Desert lots sold on promises of a boom",
         happened: "From the late 1950s on, a developer sold lots in a planned Mojave Desert city to more than 73,000 people. Many were recruited through a sales-training program. The developer promised the area would boom, but the growth never came. The Federal Trade Commission sued. In 1977 the company settled and was ordered to pay what was then the largest consumer refund in FTC history.",
-        lesson: "Never buy land on a seller’s promise of future growth. Check what is actually built, planned and selling nearby.",
+        lesson: "A seller’s promise of future growth isn’t evidence. Check what is actually built, planned and selling nearby before you decide.",
         source: {
           label: "LAist: 60 years of deception and land sales in California City: 7 takeaways from my investigative podcast (Sept. 2, 2020)",
           url: "https://laist.com/2020/09/02/california_city_podcast_investigation_lawsuit_takeaways.php"
