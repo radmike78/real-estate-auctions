@@ -284,6 +284,7 @@ const MAX_DEALS = 50;
 const dealCalcKeys = (id: string) => [
   ...['rent', 'commercial'].flatMap((k) => [`fsf.calc.${k}.${id}.v1`, `fsf.calc.${k}.${id}-offer.v1`, `fsf.calc.${k}.${id}.v1.region`, `fsf.calc.${k}.${id}-offer.v1.region`]),
   `fsf.bid.analyzed-${id}.v1`,
+  ...['', '-az'].flatMap((az) => [`fsf.calc.lien.${id}${az}.v1`, `fsf.calc.lien.${id}${az}.v1.typed.v1`, `fsf.calc.lien.${id}${az}.typed.v1`]),
   `fsf.bid.analyzed-${id}.v1.region`,
   `fsf.bid.analyzed-${id}.v1.typed.v1`,
   `fsf.bid.analyzed-${id}.typed.v1`,
@@ -312,7 +313,7 @@ export function clearDraftNumbers() {
   try {
     // Analyze's unsaved drafts. The plain rent and commercial keys belong to Analyze alone (the old Calculators page
     // now opens Analyze), so a new deal never starts from the last deal's rent, costs or price.
-    for (const k of ['fsf.calc.rent.v1', 'fsf.calc.commercial.v1', 'fsf.calc.rent.offer.v1', 'fsf.calc.commercial.offer.v1', 'fsf.bid.analyze-draft.v1']) {
+    for (const k of ['fsf.calc.rent.v1', 'fsf.calc.commercial.v1', 'fsf.calc.rent.offer.v1', 'fsf.calc.commercial.offer.v1', 'fsf.bid.analyze-draft.v1', 'fsf.calc.lien.v1', 'fsf.calc.lien.az.v1']) {
       localStorage.removeItem(k);
       localStorage.removeItem(`${k}.region`);
       localStorage.removeItem(`${k}.typed.v1`);
@@ -330,6 +331,8 @@ export function carryDraftNumbers(id: string, offer: boolean) {
       [offer ? 'fsf.calc.rent.offer.v1' : 'fsf.calc.rent.v1', `fsf.calc.rent.${id}${offer ? '-offer' : ''}.v1`],
       [offer ? 'fsf.calc.commercial.offer.v1' : 'fsf.calc.commercial.v1', `fsf.calc.commercial.${id}${offer ? '-offer' : ''}.v1`],
       ['fsf.bid.analyze-draft.v1', `fsf.bid.analyzed-${id}.v1`],
+      ['fsf.calc.lien.v1', `fsf.calc.lien.${id}.v1`],
+      ['fsf.calc.lien.az.v1', `fsf.calc.lien.${id}-az.v1`],
     ];
     for (const [from, to] of moves) {
       const v = localStorage.getItem(from);

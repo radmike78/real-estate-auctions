@@ -1,3 +1,5 @@
+import { planNow, planStarted } from '../lib/planNext';
+import { getMode } from '../lib/journey';
 import StatePicker from './StatePicker';
 import { LESSON_CHAPTER, journeyHref } from '../practice/dealJourney';
 import PageHero from './PageHero';
@@ -66,6 +68,7 @@ export default function LearnPage() {
   const paths = LEARN_PATHS;
   const next = LEARN_MODULES.find((m) => lessonByKey(m.key) && !read.includes(m.key)) ?? LEARN_MODULES[0];
   const lesson = lessonByKey(next.key)!;
+  const guidedPlan = getMode() === 'guided' ? planNow() : null;
   return (
     <main className="page">
       <PageHero
@@ -73,6 +76,15 @@ export default function LearnPage() {
         title={<>Learn <span className="grad">real estate investing</span></>}
         sub="Residential and commercial: the markets, the property types, and how deals are found, analyzed and paid for."
       />
+      {guidedPlan && !guidedPlan.task.href.startsWith('#/learn/') ? (
+      <section className="learn-path" aria-labelledby="learn-next">
+        {/* Guided readers past the Start-here lessons: the plan's next step leads, the next lesson stays one link away. */}
+        <h2 id="learn-next">Your next step: {guidedPlan.task.label}</h2>
+        <p>{guidedPlan.task.text}</p>
+        <a className="btn" href={guidedPlan.task.href}>{planStarted(guidedPlan) ? 'Continue' : 'Start'}&nbsp;→</a>
+        <p className="muted">Or keep reading: <a href={`#/learn/${next.key}`}>{next.title}&nbsp;→</a></p>
+      </section>
+      ) : (
       <section className="learn-path" aria-labelledby="learn-next">
         <h2 id="learn-next">Your next lesson: {next.title}</h2>
         <p>You’ll learn: {oneState(lesson.takeaways[0], mine).replace(/^[A-Z](?![A-Z])/, (c) => c.toLowerCase())}</p>
@@ -80,11 +92,12 @@ export default function LearnPage() {
         <p className="muted">{lesson.minutes} minutes.{LESSON_CHAPTER[next.key] && ' Then apply it to Cedar House, your fictional practice property.'}</p>
         {LESSON_CHAPTER[next.key] && <a href={journeyHref(LESSON_CHAPTER[next.key])}>Practice this idea →</a>}
       </section>
+      )}
       <NarrowDown config={learnConfig()} intro="Answer two quick questions and we’ll suggest which lessons to read first. Browse the lessons below, or follow your next lesson above." />
       <details className="plan-section" open><summary>Browse all lessons</summary>
       <section className="learn-money" aria-labelledby="learn-money">
         <div>
-          <h2 id="learn-money">Start here: ways to make money</h2>
+          <h2 id="learn-money">Before the lessons: ways to make money</h2>
           <p>Renting, flipping, BRRRR, auctions, apartments and more, each with how the money is made and what goes wrong.</p>
         </div>
         <a className="btn" href="#/learn/strategies">Compare the strategies&nbsp;→</a>

@@ -26,17 +26,17 @@ export const structuring: Lesson = {
         { list: [
           'If you sign a personal guarantee on a loan, you owe that debt yourself, LLC or not. Many lenders ask investors for one.',
           'Keep the LLC’s money in its own bank account. Mixing personal and business money can weaken the protection.',
-          'Moving a home that has a mortgage into an LLC can let the lender call the whole loan due. Federal law protects some transfers from that, like moving the home into a living trust where you stay a beneficiary, but it doesn’t list transfers to an LLC (12 U.S.C. 1701j-3). Fannie Mae’s servicers must allow the transfer if Fannie Mae bought or securitized the loan on or after June 1, 2016 and you control or own most of the LLC. To refinance later, the home must go back into your own name. For any loan, ask your loan servicer in writing before you sign a deed.',
+          'Moving a home that has a mortgage into an LLC can let the lender call the whole loan due. Federal law protects some transfers from that, like moving the home into a living trust where you stay a beneficiary, but it doesn’t list transfers to an LLC (12 U.S.C. 1701j-3). Fannie Mae’s servicers must allow the transfer if Fannie Mae bought or securitized the loan on or after June 1, 2016, you control or own most of the LLC, and, for a home you bought to live in, moving out doesn’t break the loan’s occupancy promise (usually 12 months). To refinance later, the home must go back into your own name. For any loan, ask your loan servicer in writing before you sign a deed.',
         ] },
         {
           table: {
             head: ['State', 'Yearly state cost of an LLC'],
             rows: [
               ['Nevada', '$350 a year in Nevada: a $150 annual list plus a $200 state business license. Filing the articles costs $75 (NRS 86.561, 86.263 and 76.130).'],
-              ['California', 'At least $800 a year in California tax, even if the LLC earns nothing or loses money, until you cancel it. The first payment is due by the 15th day of the 4th month after you form it. A fee is added once total income reaches $250,000 (Franchise Tax Board).'],
+              ['California', 'At least $800 a year in California tax, even if the LLC earns nothing or loses money, until you cancel it. The first payment is due by the 15th day of the 4th month after you form it. A fee is added once total income reaches $250,000 (Franchise Tax Board). Filing the Articles of Organization costs $70, and a $20 Statement of Information is due within 90 days and every 2 years after (Secretary of State).'],
               ['Arizona', 'Arizona LLCs file no annual report. Filing the articles costs $50 (Arizona Corporation Commission). If your statutory agent is outside Maricopa and Pima counties, you must also pay to publish notice of the filing in a newspaper.'],
               ['Utah', 'An $18 renewal each year in Utah. Filing the certificate of organization costs $59 (Utah Division of Corporations, 2026 fee schedule).'],
-              ['Texas', 'No Texas franchise tax is due if total revenue is $2.65 million or less (2026 and 2027 reports), but every LLC still files a Public Information Report with the Comptroller each year. Filing the certificate of formation costs $300 (Texas Comptroller; Tax Code 171.203; Business Organizations Code 4.152 and 4.154).'],
+              ['Texas', 'No Texas franchise tax is due if total revenue is $2.65 million or less (2026 and 2027 reports), but every LLC still files a Public Information Report with the Comptroller each year (Tax Code 171.203). Filing the certificate of formation with the Texas Secretary of State costs $300 (Business Organizations Code 4.152 and 4.154).'],
             ],
           },
         },

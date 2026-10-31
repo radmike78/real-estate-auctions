@@ -7,6 +7,7 @@ import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions'
 import { allowsAlternativeQualifications, regulatorFor } from '../lib/regulators';
 import { VERIFIED_NOTICE } from '../lib/proVerification';
 import PageHero from './PageHero';
+import { AdPreview } from './AdBoxes';
 import PlaceCombobox from './PlaceCombobox';
 import { api, ApiError } from '../lib/api';
 import EmptyState from './EmptyState';
@@ -288,6 +289,9 @@ export default function AdvertiseApplyPage({ initialCategory }: { initialCategor
                   <small className="muted">{(f.adLine ?? '').trim().length}/180 · plain text</small>
                   {errors.adLine && <span className="field-error">{errors.adLine}</span>}
                 </label>
+                <h3>How your ad will look</h3>
+                <AdPreview tag="Preview" category={f.category as Category | ''} state={state} name={f.name} company={f.company} licenseId={f.licenseId} line={(f.adLine ?? '').trim() || f.headline} />
+                <p className="small muted">After approval you can add a photo or logo from your dashboard; until then your initials show.</p>
                 <div className="content-rules" role="note">
                   <h3>Ad line rules</h3>
                   <ul>{AD_LINE_RULES.map((r) => <li key={r}>{r}</li>)}</ul>

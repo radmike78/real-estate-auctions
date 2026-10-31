@@ -113,6 +113,10 @@ function readBrowse(): Browse {
 }
 /** Whether the drill list will restore a saved place on the page (coming back from a drill). */
 export const hasSavedDrillScroll = () => readBrowse().scrollY > 0;
+/** Open the drill list filtered to one topic (for example auctions), before the list mounts. */
+export function presetDrillTopic(topic: TopicGroup) {
+  writeBrowse({ ...readBrowse(), topic, prog: 'all', scrollY: 0 });
+}
 function writeBrowse(b: Browse) {
   try { sessionStorage.setItem(BROWSE_KEY, JSON.stringify(b)); } catch { /* private mode: not kept */ }
 }

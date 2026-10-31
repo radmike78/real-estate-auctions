@@ -6,10 +6,13 @@ import { CHAPTERS, journeyHref, loadJourney, resumeChapter } from '../practice/d
 import { loadDeals, type Deal, type DealStage } from './analyze';
 import { dealNextTask, stageLabel, stageOf, stageTasks, type PlanTask } from './dealStage';
 import { currentProgress, getMode, readLessons } from './journey';
+import { getMyState } from './myState';
+import { loadCase } from '../practice/caseProgress';
+import { caseFor, caseResume } from '../practice/rentalCase';
 import { LEARN_MODULES } from './learn';
 import { cleanGoal, GOAL_KEY } from './myPlan';
 import { ROADMAP_PHASES, roadmapFor, type RoadmapStep } from './roadmap';
-import { cleanStatus, focusDealId, planPath, readKey, roadmapDone, settledFor, STATUS_KEY } from './roadmapState';
+import { AUTO_STEPS, cleanStatus, focusDealId, planPath, readKey, roadmapDone, settledFor, STATUS_KEY } from './roadmapState';
 
 export interface PlanNow {
   /** Your goal in one sentence, or '' when it isn't written yet. */
@@ -31,6 +34,7 @@ const START_LESSONS = 2;
 /** False until the practice deal has any work in it: the button then says Start, not Continue. */
 export function planStarted(now: PlanNow): boolean {
   if (now.source !== 'starter') return true;
+  if (now.task.key === 'practice-case') return loadCase(caseFor(getMyState()).state).done.length > 0;
   if (now.task.key !== 'practice-deal') return false;
   const p = loadJourney();
   return p.completed.length > 0 || Object.keys(p.answers).length > 0;
@@ -67,10 +71,11 @@ export function planNow(now = new Date()): PlanNow {
   }
   // Before any real work, unless you said you know the basics, the site's order: Decide (your goal and cash), the
   // "Start here" lessons, then the practice deal.
-  const roadmapStarted = roadmapFor(planPath(deals)).some(settledFor(''));
+  // Steps the site ticked for you (Decide, the red flags lesson) don't count as starting the roadmap.
+  const roadmapStarted = roadmapFor(planPath(deals)).filter((s) => !AUTO_STEPS.includes(s.id)).some(settledFor(''));
   const practice = loadJourney();
   const practiceDone = practice.completed.length === CHAPTERS.length;
-  if (getMode() !== 'explore' && !roadmapStarted && !practiceDone && practice.completed.length === 0) {
+  if (getMode() !== 'explore' && !roadmapStarted && !practiceDone && practice.completed.length === 0 && Object.keys(practice.answers).length === 0) {
     if (!currentProgress().decided) {
       return { goal, source: 'starter', context: 'Step 1 · Decide', task: { key: 'decide', label: 'Decide: your goal and investable cash', produces: 'the strategies that fit your money, time and goals, in about 2 minutes', href: '#/decide', support: [], done: false, text: 'A few questions about your goal, your cash and your time.' } };
     }
@@ -83,6 +88,16 @@ export function planNow(now = new Date()): PlanNow {
   if (getMode() !== 'explore' && !roadmapStarted && !practiceDone) {
     const chapter = CHAPTERS.find((c) => c.id === resumeChapter(practice))!;
     return { goal, source: 'starter', context: 'Step 3 · Practice: build your first deal', task: { key: 'practice-deal', label: chapter.title, produces: 'practical experience checking a deal, recorded in your workbook', href: journeyHref(chapter.id), support: [], done: false, text: chapter.purpose } };
+  }
+  // Practice part 2 (the paperwork) follows part 1 before the roadmap takes over.
+  if (getMode() !== 'explore' && !roadmapStarted && practiceDone) {
+    const pc = caseFor(getMyState());
+    const prog = loadCase(pc.state);
+    const next = caseResume(pc.stages, prog);
+    if (!next.packet) {
+      const started = prog.done.length > 0;
+      return { goal, source: 'starter', context: 'Step 3 · Practice part 2: the paperwork', task: { key: 'practice-case', label: 'Buy a rental, start to finish', produces: 'a practice deal packet: budget, deadline calendar, evidence log and your questions', href: `#/practice/case${started ? `/${next.key}` : ''}`, support: [], done: false, text: 'Work one fictional purchase with the paperwork, about 45 minutes.' } };
+    }
   }
   const step = roadmapNextStep();
   if (step) return { goal, source: 'roadmap', context: `Roadmap · ${ROADMAP_PHASES[step.phase]}`, task: roadmapTask(step) };

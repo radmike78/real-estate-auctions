@@ -76,7 +76,6 @@ export default function ProProfilePage({ id }: { id: string }) {
           <h3>Languages</h3>
           <p>{p.languages.join(', ')}</p>
         </section>
-        <Disclaimer kind={info.financing ? 'financing' : p.category === 'agent' ? 'professionals' : 'services'} />
         </div>
 
         <div className="side-col">
@@ -105,6 +104,8 @@ export default function ProProfilePage({ id }: { id: string }) {
         )}
         </div>
       </div>
+      {/* The longer disclosure comes after the contact form, so on phones the form isn't buried under two notices. */}
+      <Disclaimer kind={info.financing ? 'financing' : p.category === 'agent' ? 'professionals' : 'services'} />
     </main>
   );
 }

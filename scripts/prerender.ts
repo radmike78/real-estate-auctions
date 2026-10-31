@@ -140,7 +140,6 @@ export function pages(): Page[] {
     ['/live/', 'Live tax sales', `Upcoming county tax sales and verified IRS sales in ${STATES}, with links to each county’s official list.`],
     ['/financing/', 'Financing your investment', 'Loan types for investors, what lenders check, and how to compare offers with a qualified lender.'],
     ['/guides/', 'Sale guides by state', `Step-by-step guides to tax sales, foreclosure auctions, HOA sales, IRS sales and bank-owned homes in ${STATES}.`],
-    ['/disclaimer/', 'How we help you invest', 'What DeedOwl is responsible for, what you are, and why every deal is yours to research and decide.'],
     ['/privacy/', 'Privacy policy', 'What DeedOwl collects, why, how long it keeps it, and your choices.'],
     ['/terms/', 'Terms of use', 'The terms for using DeedOwl and for advertising on it.'],
   ];

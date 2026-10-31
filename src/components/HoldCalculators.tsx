@@ -640,9 +640,10 @@ const AZ_LIEN_GROUPS: CalcGroup<LienInputs>[] = [
 
 const AZ_LIEN_DEFAULTS: LienInputs = { price: 2_000, fees: 10, ratePctMonth: 0.75, monthsToRedeem: 12, payoutDelayMonths: 1 };
 
-export function LienCalculator() {
+export function LienCalculator({ storageKey }: { storageKey?: string } = {}) {
   const az = useCalcRegion().state === 'AZ';
-  const [v, set, typed, typedKeys] = useSaved<LienInputs>(az ? 'fsf.calc.lien.az.v1' : 'fsf.calc.lien.v1', az ? AZ_LIEN_DEFAULTS : LIEN_DEFAULTS);
+  // A saved deal keeps its own numbers; an unsaved one uses the draft key, which moves to the deal when it's saved.
+  const [v, set, typed, typedKeys] = useSaved<LienInputs>(storageKey ?? (az ? 'fsf.calc.lien.az.v1' : 'fsf.calc.lien.v1'), az ? AZ_LIEN_DEFAULTS : LIEN_DEFAULTS);
   const y = lienYield(v);
   const groups = az ? AZ_LIEN_GROUPS : LIEN_GROUPS;
   const still = exampleLabels(visibleFields(groups, v), v, az ? AZ_LIEN_DEFAULTS : LIEN_DEFAULTS, typedKeys);

@@ -1,3 +1,5 @@
+import { roadmapDone } from '../lib/roadmapState';
+import { loadDeals } from '../lib/analyze';
 import { IconBank, IconBadge, IconCalc, IconCheckList, IconFile, IconLayers, IconShield, IconStar } from './Icons';
 
 import { PATH, useStepsSeen } from '../lib/path';
@@ -13,7 +15,7 @@ const EXPLORE = [
   { href: '#/analyze', icon: <IconCalc />, title: 'Analyze a deal', what: 'Your walk-away price, with every cost' },
   { href: '#/playbooks', icon: <IconFile />, title: 'Sale guides', what: 'Tax, foreclosure, sheriff, HOA, IRS and bank-owned sales, by state' },
   { href: '#/find-deals', icon: <IconBank />, title: 'Find deals', what: 'Official sellers and sale lists for your county' },
-  { href: '#/live', icon: <IconLayers />, title: 'Live tax sales', what: 'Upcoming county sales, plus Clark County and IRS parcels' },
+  { href: '#/live', icon: <IconLayers />, title: 'Live tax sales', what: 'County tax sale dates and lists, with verified parcels when we have them' },
   { href: '#/pros', icon: <IconBadge />, title: 'Your team', what: 'Who you need, what to ask, and how to check a license' },
   { href: '#/practice/drills', icon: <IconCheckList />, title: 'All practice', what: 'Full practice purchases and more than 40 drills' },
 ];
@@ -125,7 +127,7 @@ export default function HomePage() {
         </details>
         {/* My plan's next step, the same one as the Continue above and in My plan: the progress that counts. */}
         {/* Explorers asked to skip the guided start: their plan box appears once they've started a plan. */}
-        {(mode !== 'explore' || planStarted(plan)) && <PlanNext variant="home" />}
+        {(mode !== 'explore' || roadmapDone().length > 0 || loadDeals().length > 0) && <PlanNext variant="home" />}
         <details>
         <summary>How DeedOwl counts your progress</summary>
         <ul className="progress-kinds" aria-label="How DeedOwl counts progress">

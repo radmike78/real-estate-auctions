@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { QUESTIONS } from './decide';
 import { CHAPTERS, loadJourney } from '../practice/dealJourney';
 import { trackAction } from './track';
+import { creditStep } from './roadmapState';
 
 export type Mode = 'guided' | 'explore';
 
@@ -46,6 +47,7 @@ export function markLessonRead(key: string) {
   if (done.includes(key)) return;
   write(READ_KEY, [...done, key]);
   trackAction('lesson_finished'); // a count only: never which lesson or who
+  if (key === 'red-flags') creditStep('avoid');
 }
 
 export interface LastActivity {
@@ -113,4 +115,11 @@ export function unfinished(last: LastActivity | null, p: Progress): LastActivity
   // The practice deal with all its chapters done is finished too.
   if (/^#\/practice\/deal(\/|$)/.test(last.href) && loadJourney().completed.length === CHAPTERS.length) return null;
   return last;
+}
+
+/** Ticks the roadmap steps already done elsewhere (Decide, the red flags lesson), for work done before the roadmap
+ * learned to tick them. Each step is ticked at most once, so a reader's own untick stays. */
+export function syncRoadmapCredits() {
+  if (currentProgress().decided) creditStep('strategy');
+  if (readLessons().includes('red-flags')) creditStep('avoid');
 }
