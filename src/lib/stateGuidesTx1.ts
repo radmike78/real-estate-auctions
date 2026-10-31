@@ -641,7 +641,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       title: "Set your maximum bid",
-      detail: "Add up any surviving mortgage, unpaid property taxes, future dues, repairs and holding costs. Remember your money is tied up for the whole buy-back period: about 7 months for a subdivision (180 days after a notice mailed up to 30 days after the sale), 90 days for a condo. Use the walk-away price calculator."
+      detail: "Add up any surviving mortgage, unpaid property taxes, future dues, repairs and holding costs. Remember your money is tied up for the whole buy-back period: about 7 months for a subdivision (180 days after a notice mailed up to 30 days after the sale), 90 days for a condo. Use Analyze a deal (Fix and sell) to find your walk-away price."
     },
     {
       title: "Bid and pay as directed",

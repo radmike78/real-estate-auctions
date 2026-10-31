@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import { cleanSpots, DEFAULT_SPOTS, spotCategories, type SpotSettings } from '../lib/adSpots';
 import type { Category } from '../lib/pros';
-import { FixedAds } from './AdBoxes';
+import { FixedAds, useFixedShown } from './AdBoxes';
 import { useDirectory } from './ProDirectory';
 
 // Read once per visit and shared by every spot on every page; the defaults hold until (or unless) the server answers.
@@ -50,10 +50,16 @@ export function useSpotCategories(key: string, auto?: Category[]): Category[] {
  * and fixed, labeled ads in the visitor's area, held by a placeholder while no advertiser fills it.
  * Nothing at all while the owner has the spot off.
  */
+// Pages where professionals look before advertising keep an "Advertise here" box while no one fills the spot.
+// Elsewhere (lessons, missions, guides, deals) an empty spot shows nothing, so readers don't meet empty boxes.
+const PLACEHOLDER_SPOTS = new Set(['financing']);
+
 export default function AdSpot({ spot, auto }: { spot: string; auto?: Category[] }) {
   const cats = useSpotCategories(spot, auto);
   const { pros } = useDirectory();
+  const shown = useFixedShown(pros, cats);
   if (!cats.length) return null;
+  if (!shown.length && !PLACEHOLDER_SPOTS.has(spot)) return null;
   return (
     <section className="ad-spot" aria-labelledby={`ad-spot-${spot}`}>
       <h2 id={`ad-spot-${spot}`} className="section-title">Want to ask someone about this?</h2>

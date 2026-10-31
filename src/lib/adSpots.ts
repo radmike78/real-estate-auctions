@@ -27,7 +27,7 @@ const BUYER_TEAM: Category[] = ['agent', ...LENDERS, 'title_escrow', 'attorney',
 const INVESTOR_TEAM: Category[] = [...BUYER_TEAM, 'insurance', 'property_manager', 'contractor', 'cpa', 'private_lender'];
 
 export const AD_SPOTS: AdSpot[] = [
-  { key: 'finddeals', label: 'Find Deals', where: 'beside “Found a property?”, above the official sources', categories: BUYER_TEAM, on: true },
+  { key: 'finddeals', label: 'Find deals', where: 'beside “Found a property?”, above the official sources', categories: BUYER_TEAM, on: true },
   { key: 'analyze', label: 'Analyze a deal', where: 'beside “What’s next”', categories: INVESTOR_TEAM, auto: true, on: true },
   { key: 'toolkit', label: 'My plan', where: 'beside “Your next step”', categories: INVESTOR_TEAM, auto: true, on: true },
   { key: 'deals', label: 'My deals', where: 'after your saved deals', categories: INVESTOR_TEAM },

@@ -166,12 +166,12 @@ export default function DecidePage() {
                     <span className="path-n" aria-hidden>{i + 1}</span>
                     <div>
                       <h3>{m.strategy.title}</h3>
-                      {i > 0 && m.cautions.length > 0 && <p className="decide-later">Possible later, once the gaps under “Watch” are resolved</p>}
+                      {i > 0 && m.cautions.length > 0 && <p className="decide-later">Could fit later</p>}
                       <p>{m.strategy.what} {m.strategy.key !== 'practice' && <a href={strategyHref(m.strategy.key)}>How it makes money&nbsp;→</a>}</p>
                     </div>
                   </div>
                   {m.fits.length > 0 && <p className="decide-why"><strong>Fits</strong> {m.fits.join('; ')}.</p>}
-                  {m.cautions.length > 0 && <p className="decide-why caution"><strong>Watch</strong> {m.cautions.join('; ')}.</p>}
+                  {m.cautions.length > 0 && <p className="decide-why caution"><strong>Holding it back:</strong> {m.cautions.join('; ')}.</p>}
                   {note && <p className="decide-note">{note}</p>}
                   {m.strategy.key === 'auction' && <p className="decide-note">{AUCTION_REALITY}</p>}
                   <dl className="decide-risk" aria-label="Risk check">
@@ -202,7 +202,7 @@ export default function DecidePage() {
             <ul>
               {rank(saved.answers).slice(3).map((m) => (
                 <li key={m.strategy.key}>
-                  <strong>{m.strategy.title}.</strong> {m.cautions.length ? `Watch: ${m.cautions.join('; ')}.` : 'It fits your answers less well than the three above.'}
+                  <strong>{m.strategy.title}.</strong> {m.cautions.length ? `Holding it back: ${m.cautions.join('; ')}.` : 'It fits your answers less well than the three above.'}
                   {m.strategy.key === 'auction' && <> {AUCTION_REALITY}</>}
                 </li>
               ))}

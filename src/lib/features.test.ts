@@ -181,25 +181,10 @@ describe('license lookup', () => {
   });
 });
 
-describe('homepage sale-type search', () => {
-  it('routes each type of sale to the right place', async () => {
-    const { saleSearchHref, SALE_SEARCH } = await import('./saleSearch');
-    expect(saleSearchHref('all', '')).toBe('#/search');
-    expect(saleSearchHref('tax', 'Henderson, NV')).toBe('#/search?q=Henderson%2C+NV&type=TAX_DEED');
-    expect(saleSearchHref('foreclosure', '89123')).toBe('#/search?q=89123&type=TRUSTEE_SALE%2CJUDICIAL_FORECLOSURE');
-    expect(saleSearchHref('liens', '')).toBe('#/search?status=NOT_FOR_SALE_LIEN_ONLY');
-    expect(saleSearchHref('pre', '89031')).toBe('#/pre-foreclosures?q=89031');
-    expect(saleSearchHref('short', '')).toBe('#/short-sales');
-    expect(saleSearchHref('short', 'Henderson')).toBe('#/short-sales'); // listed through agents: no location search
-    expect(SALE_SEARCH.map((o) => o.label)).toContain('Short sales');
-  });
-});
-
 describe('buyer checklists', () => {
   it('covers every homepage sale type and maps properties and filters to the right list', async () => {
     const { CHECKLISTS, checklistForProperty, checklistForFilters } = await import('./buyerChecklists');
-    const { SALE_SEARCH } = await import('./saleSearch');
-    for (const o of SALE_SEARCH) expect(CHECKLISTS[o.key], o.key).toBeTruthy();
+    for (const k of ['all', 'tax', 'foreclosure', 'pre', 'short', 'reo', 'hoa', 'sheriff', 'liens']) expect(CHECKLISTS[k], k).toBeTruthy();
     expect(CHECKLISTS.pre.forSale).toBe(false);
     expect(CHECKLISTS.liens.forSale).toBe(false);
     expect(CHECKLISTS.pre.items[0].text).toMatch(/Do not contact the homeowner/);

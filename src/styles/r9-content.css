@@ -428,3 +428,12 @@
 .state-bar { padding: 10px var(--gutter, 24px); background: var(--surface-2); border-bottom: 1px solid var(--border); }
 .state-bar .state-picker { margin: 0; }
 .welcome-gate .note[role="alert"] { margin-top: 12px; }
+
+/* Decide results on phones: each checklist item's link goes under its text, so the text keeps the card's width. */
+@media (max-width: 600px) {
+  .decide-checklist li { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .decide-checklist a { margin-left: 28px; }
+  .decide-match { padding: 14px; }
+  .decide-match .check-fold { border: 0; padding: 0; }
+  .owl-note { align-items: flex-start; }
+}

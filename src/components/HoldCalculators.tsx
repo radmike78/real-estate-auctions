@@ -556,6 +556,12 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
       <div className="calc-results">
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
         <CommercialAtPrice v={v} offer={offer} setPrice={(price) => set('atPrice', price)} target={r.maxBid} />
+        {n.byLine && (() => {
+          const blank = ([['opTaxYear', 'property tax'], ['opInsuranceYear', 'insurance'], ['opRepairsYear', 'repairs'], ['opUtilitiesYear', 'utilities'], ['opManagementPct', 'management']] as const).filter(([k]) => !(Number(v[k]) > 0)).map(([, label]) => label);
+          if (!blank.length) return null;
+          const estimate = Math.round((n.collected * Math.min(Number(v.expensePct) || 0, 100)) / 100);
+          return <p className="verify" role="status"><strong>Check your cost lines.</strong> Once you enter any line, the lines replace the {v.expensePct}% estimate, and blank lines count as $0. Still blank: {blank.join(', ')}. Your lines total {fmtMoney(Math.round(n.expenses))} a year; the % estimate was {fmtMoney(estimate)}.</p>;
+        })()}
         <HoldResults commercial r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} headLabel="Walk-away price" />
       </div>
     </div>

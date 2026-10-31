@@ -1582,7 +1582,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Set your maximum bid",
-      detail: "Add up any surviving loan balance and unpaid property taxes. Add the dues that keep coming after you buy, and repairs. If a first deed of trust stays on the home, its lender can foreclose on you if the loan isn’t paid. Use the walk-away price calculator."
+      detail: "Add up any surviving loan balance and unpaid property taxes. Add the dues that keep coming after you buy, and repairs. If a first deed of trust stays on the home, its lender can foreclose on you if the loan isn’t paid. Use Analyze a deal (Fix and sell) to find your walk-away price."
     },
     {
       title: "Bid and pay",
@@ -2386,7 +2386,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Set your maximum bid",
-      detail: "Add these to your price: the surviving first mortgage, unpaid property taxes, any mechanic’s liens and repairs. Mechanic’s liens keep their place in line, since the HOA lien doesn’t change their priority (A.R.S. 33-1807). If the total is near the home’s value, walk away. Use the walk-away price calculator."
+      detail: "Add these to your price: the surviving first mortgage, unpaid property taxes, any mechanic’s liens and repairs. Mechanic’s liens keep their place in line, since the HOA lien doesn’t change their priority (A.R.S. 33-1807). If the total is near the home’s value, walk away. Use Analyze a deal (Fix and sell) to find your walk-away price."
     },
     {
       title: "Confirm the sale is still on",
@@ -3211,7 +3211,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Set your maximum bid",
-      detail: "Add up the surviving mortgage balance, unpaid property taxes, future dues, repairs and your holding costs. Use the walk-away price calculator. A cheap opening bid can be very expensive once the first mortgage is added."
+      detail: "Add up the surviving mortgage balance, unpaid property taxes, future dues, repairs and your holding costs. Use Analyze a deal (Fix and sell) to find your walk-away price. A cheap opening bid can be very expensive once the first mortgage is added."
     },
     {
       title: "Bid and pay as directed",
@@ -3386,7 +3386,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Set your maximum bid",
-      detail: "Add any senior mortgage, unpaid Utah property taxes, repairs, and 180 days of holding costs. Use the walk-away price calculator."
+      detail: "Add any senior mortgage, unpaid Utah property taxes, repairs, and 180 days of holding costs. Use Analyze a deal (Fix and sell) to find your walk-away price."
     },
     {
       title: "Bid and pay as the notice requires",

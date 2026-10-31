@@ -90,3 +90,7 @@
 }
 
 /* Every drill group uses the same columns (styles.css), so cards line up from one group to the next. */
+
+/* Main actions on practice cards use the site's one button color; each card keeps its own color on the band and icon. */
+.drill-card-go, .practice-way-go { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+.drill-card-go.quiet { background: transparent; color: var(--accent-strong); }

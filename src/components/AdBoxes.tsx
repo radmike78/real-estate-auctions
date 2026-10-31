@@ -77,9 +77,8 @@ export function useAdImpressions(shown: Pro[]) {
 }
 
 /** Fixed ads at enabled placements, filtered by category and the visitor's area. */
-export function FixedAds({ pros: all, categories, placeholder = false, featured = false }: { pros: Pro[]; categories: Category[]; placeholder?: boolean; featured?: boolean }) {
-  const [area] = useMyArea();
-  const shown = fixedPool(inArea(all, area).filter((p) => isListable(p)), categories);
+export function FixedAds({ pros: all, categories, placeholder = false, featured = false, area: forArea }: { pros: Pro[]; categories: Category[]; placeholder?: boolean; featured?: boolean; /** The place the page is about (a deal's county), instead of the visitor's chosen area. */ area?: Area | null }) {
+  const shown = useFixedShown(all, categories, forArea);
   useAdImpressions(shown);
   const label = featured ? 'Featured ad' : 'Advertisement';
   if (!shown.length) return placeholder ? <AdSpace kind={label} /> : null;
@@ -90,6 +89,12 @@ export function FixedAds({ pros: all, categories, placeholder = false, featured 
       <p className="ad-fine-print">{AD_FINE_PRINT}</p>
     </aside>
   );
+}
+
+/** The fixed-plan advertisers a box shows: listable, in the area (the page's own place when given, else the visitor's), in these categories. */
+export function useFixedShown(all: Pro[], categories: Category[], forArea?: Area | null): Pro[] {
+  const [mine] = useMyArea();
+  return fixedPool(inArea(all, forArea === undefined ? mine : forArea).filter((p) => isListable(p)), categories);
 }
 
 export function FeaturedAds(props: { pros: Pro[]; categories: Category[]; placeholder?: boolean }) {

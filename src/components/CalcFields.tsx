@@ -41,7 +41,7 @@ export default function CalcFields<T extends object>({ groups, values, onChange 
             <div className="calc-grid">
               {fields.map((f) => (
                 <div key={f.k} className="calc-field">
-                  <label className="calc-label" htmlFor={`${uid}-${f.k}`}>{f.label}</label>
+                  <label className="calc-label" htmlFor={`${uid}-${f.k}`}>{f.label}<span className="sr-only">{f.unit === '$' ? ', in dollars' : f.unit === 'x' ? ', times' : `, ${unitText(f.unit).replace('%', 'percent')}`}</span></label>
                   <span className="calc-input">
                     {f.unit === '$' && <i aria-hidden>$</i>}
                     <input

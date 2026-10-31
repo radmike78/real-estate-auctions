@@ -16,7 +16,7 @@ export const walkAway: Lesson = {
     {
       heading: 'Decide before you fall for it',
       blocks: [
-        'Write your maximum price and your deal breakers before you see a property, in your buy box (a short written list of what you’ll buy and what you won’t). Once you’ve toured a house or spent weeks on research, it’s hard to let go. Passing on a bad deal is a good result, not a failure. An investment isn’t a home you’re fighting to keep: if the numbers don’t work, let it go. Another property will come along.',
+        'Write your walk-away price (the most you’ll pay) and your deal breakers before you see a property, in your buy box (a short written list of what you’ll buy and what you won’t). Once you’ve toured a house or spent weeks on research, it’s hard to let go. Passing on a bad deal is a good result, not a failure. An investment isn’t a home you’re fighting to keep: if the numbers don’t work, let it go. Another property will come along.',
         { links: [{ label: 'Write your buy box', url: '#/toolkit/buy-box', what: 'Your price limit, the cash you’ll put in, and the problems you won’t take on.' }] },
       ],
     },
@@ -96,7 +96,7 @@ export const walkAway: Lesson = {
       heading: 'Walk-away checklist',
       blocks: [
         { list: [
-          'Is it inside my buy box and below my maximum price?',
+          'Is it inside my buy box and below my walk-away price?',
           'Do the numbers still work with rent 10% lower and repairs 20% higher?',
           'Did I use rents and sales that actually happened, for similar homes?',
           'Has an inspector checked the roof, systems, foundation and sewer?',
