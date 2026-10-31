@@ -123,9 +123,19 @@ export function createLicenseSearch(fetchImpl: typeof fetch = fetch, now: () => 
   const cache = new Map<string, { at: number; value: LicenseSearch }>();
 
   async function get(url: string, accept: string): Promise<string> {
-    const res = await fetchImpl(url, { headers: { 'user-agent': UA, accept }, redirect: 'follow', signal: AbortSignal.timeout(12_000) });
-    if (!res.ok) throw new Error(`status ${res.status}`);
-    // Redirects are followed only within the two official hosts.
+    // Redirects are followed by hand, at most 3, and only to https on the official hosts, checked before each request.
+    let target = url;
+    let res: Response | undefined;
+    for (let hop = 0; hop <= 3; hop++) {
+      const u = new URL(target);
+      if (u.protocol !== 'https:' || !FETCH_HOSTS.has(u.hostname)) throw new Error('unexpected host');
+      res = await fetchImpl(target, { headers: { 'user-agent': UA, accept }, redirect: 'manual', signal: AbortSignal.timeout(12_000) });
+      const loc = res.status >= 300 && res.status < 400 ? res.headers.get('location') : null;
+      if (!loc) break;
+      if (hop === 3) throw new Error('too many redirects');
+      target = new URL(loc, target).toString();
+    }
+    if (!res || !res.ok) throw new Error(`status ${res?.status}`);
     if (res.url && !FETCH_HOSTS.has(new URL(res.url).hostname)) throw new Error('unexpected host');
     const len = Number(res.headers.get('content-length') ?? 0);
     if (len > MAX_BODY) throw new Error('too large');

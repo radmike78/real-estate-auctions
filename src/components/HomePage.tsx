@@ -10,7 +10,7 @@ import { navigate } from '../lib/nav';
 
 // Straight to the tools and references, for "I know the basics".
 const EXPLORE = [
-  { href: '#/analyze', icon: <IconCalc />, title: 'Analyze a deal', what: 'Your maximum bid or offer, with every cost' },
+  { href: '#/analyze', icon: <IconCalc />, title: 'Analyze a deal', what: 'Your walk-away price, with every cost' },
   { href: '#/playbooks', icon: <IconFile />, title: 'Sale guides', what: 'Tax, foreclosure, sheriff, HOA, IRS and bank-owned sales, by state' },
   { href: '#/find-deals', icon: <IconBank />, title: 'Find deals', what: 'Official sellers and sale lists for your county' },
   { href: '#/live', icon: <IconLayers />, title: 'Live tax sales', what: 'Upcoming county sales, plus Clark County and IRS parcels' },

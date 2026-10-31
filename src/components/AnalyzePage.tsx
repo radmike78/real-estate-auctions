@@ -302,7 +302,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         </div>
       </section>
       {/* One labeled ad from the kind of professional this plan needs (listings and bank-owned homes only). */}
-      {adShows && <FixedAds pros={pros} categories={adCats} placeholder />}
+      {adShows && <FixedAds pros={pros} categories={adCats} area={{ state: deal.state, county: deal.county, city: null }} />}
       </div>
       </>}
     </main>

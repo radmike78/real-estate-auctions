@@ -23,7 +23,7 @@ export const analyze: Lesson = {
           ['If the inspection or appraisal goes badly', 'You may stretch to keep the home you love', 'You renegotiate, or walk away'],
           ['Walking away', 'Hard, and sometimes not worth it', 'Normal. Many properties you look at won’t fit your numbers.'],
         ] } },
-        'Ways to stay detached: write your maximum price before you see the property; judge it on your analysis, not the tour; don’t picture yourself living there; expect to lose some to other buyers or bidders; and have someone you trust check your numbers before you commit. If you’ll live in part of it and rent the rest, be honest about which choices are about your home and which are about the investment.',
+        'Ways to stay detached: write your walk-away price (the most you’ll pay) before you see the property; judge it on your analysis, not the tour; don’t picture yourself living there; expect to lose some to other buyers or bidders; and have someone you trust check your numbers before you commit. If you’ll live in part of it and rent the rest, be honest about which choices are about your home and which are about the investment.',
       ],
     },
     {
@@ -73,7 +73,7 @@ export const analyze: Lesson = {
       blocks: [
         { list: [
           'Insurance: tell your insurer how you’ll use the property. Long-term rentals, home sharing, short-term rentals, vacant homes and renovations can need different policies or endorsements. Get a quote for your actual use.',
-          'Vacancy clause: many policies limit coverage once a home has been empty for a while, often 60 days in a row. That’s a typical repair period, so read the vacancy clause and ask about a vacant-home or builder’s risk policy.',
+          'Vacancy clause: many policies limit coverage once a home has been empty for a while, often 60 days in a row.* That’s a typical repair period, so read the vacancy clause and ask about a vacant-home or builder’s risk policy.',
           'California wildfire areas: private insurers often say no. The California FAIR Plan mainly covers fire, so most owners add a separate policy for theft, water damage and liability. Get both quotes before you commit.',
           'Texas wind and hail deductibles: many policies have a separate wind and hail deductible set as a percentage of the dwelling coverage, often 1% or 2%. On $250,000 of coverage, 2% means you pay the first $5,000 of a hail claim. Put it in your reserves.',
           'Texas coastal windstorm: a private policy may exclude wind and hail. TWIA offers coverage for eligible properties in its coastal service area after a denial from an authorized insurer. The property must have a windstorm certificate of compliance (WPI-8 or WPI-8-E from the Texas Department of Insurance, or WPI-8-C from TWIA), with limited exceptions. Ask an insurance agent to check the address, certificates and eligibility, and get a written quote before you commit. Windstorm coverage doesn’t include flood.',

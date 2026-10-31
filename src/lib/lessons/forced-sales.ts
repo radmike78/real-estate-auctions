@@ -87,7 +87,7 @@ export const forcedSales: Lesson = {
           'Evaluate how you will pay before you bid. Home equity, savings or other financing may be options depending on your situation; DeedOwl does not recommend for or against any method. Compare your current finances, repayment ability, risk tolerance and possible losses, including risks to your home or 401(k). Check alternative funding if your first plan fails, and seek independent financial, investment, tax and legal advice. Most forced sales are final and as-is.',
           'Plan for people living there. Owners and tenants have legal rights, and removing them takes a court process.',
         ] },
-        'Find Deals lists each county’s tax sale page and records offices. Never contact homeowners facing foreclosure. Buy from the official seller.',
+        'Find deals lists each county’s tax sale page and records offices. Never contact homeowners facing foreclosure. Buy from the official seller.',
         'Our step-by-step guides walk you through each kind of sale in your state, every step from the notice to getting possession.',
         { links: [
           { label: 'Nevada guides (Clark County)', url: '#/playbooks?state=NV', what: 'Tax sales, lien certificates, foreclosure auctions, HOA foreclosures, sheriff sales, IRS sales, bank-owned homes, commercial property and short sales.' },

@@ -68,8 +68,8 @@ export const financing: Lesson = {
         'A DSCR loan (debt service coverage ratio) is approved mainly on the property’s rent instead of your income. The lender divides the monthly rent by the monthly payment with taxes, insurance and any HOA dues. Many want 1.0 or more; a higher ratio gets better terms. Commercial lenders figure DSCR differently: they first subtract operating costs from the rent (that’s net operating income), then divide by the year’s loan payments. So the same property shows a lower ratio on a commercial loan.',
         { list: [
           'Example: rent of $2,400 and a full payment of $2,000 is a ratio of 1.2.',
-          'They’re made by private lenders, not Fannie Mae or Freddie Mac, so terms vary widely. Down payments of 20% to 25% and higher rates than a regular loan are common.',
-          'Many have a prepayment penalty for the first three to five years. Ask how it’s figured before you plan to sell or refinance early.',
+          'They’re made by private lenders, not Fannie Mae or Freddie Mac, so terms vary widely. Down payments of 20% to 25% and higher rates than a regular loan are common.*',
+          'Many have a prepayment penalty for the first three to five years.* Ask how it’s figured before you plan to sell or refinance early.',
           'Many lend to an LLC, usually with your personal guarantee.',
         ] },
         'Have ready: the lease or the appraiser’s rent estimate, your LLC papers if the LLC borrows, bank statements showing the down payment and reserves, and your credit report.',
@@ -94,7 +94,7 @@ export const financing: Lesson = {
         'Private lenders and hard-money lenders make loans secured by the property, often short-term. People use them for projects like flips when a bank loan doesn’t fit. Terms vary widely, so compare the rate, points, fees, term, and what happens if you can’t repay on time. Get every term in writing.',
         { list: [
           'They lend on the deal more than on you: often a share of the price and repairs (loan-to-cost), capped at a share of the value after repairs.',
-          'Expect points paid up front, interest-only payments, and a term of about 6 to 18 months, with fees to extend it.',
+          'Expect points paid up front, interest-only payments, and a term of about 6 to 18 months, with fees to extend it.*',
           'Repair money usually comes in draws: you pay for work first, the lender inspects, then reimburses. Plan cash for the gap.',
           'Have ready: the purchase contract, a scope of work with contractor bids, the after-repair value with comparable sales, your track record, and how you’ll repay (a sale or a refinance).',
         ] },

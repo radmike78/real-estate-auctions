@@ -85,7 +85,7 @@ export const SECTIONS: DrillSection[] = [
       <>
         <p>
           There is no single nationwide database. Live listings come from a limited set of verified county tax-sale and IRS sources. Coverage varies by location. For
-          every county in your selected state, Find Deals links the county’s own offices, and some counties’ upcoming tax sales, so you
+          every county in your selected state, Find deals links the county’s own offices, and some counties’ upcoming tax sales, so you
           can read the official list on the seller’s site. Learning pages say which state’s rules they cover and link the law or
           agency page they’re based on. How we check pages and fix errors, and how to tell us about one, is on <a href="#/disclaimer">How we help you invest</a>.
           County Recorder filings, court and sheriff records will be added one at a time, once each source’s terms allow it. Every fact

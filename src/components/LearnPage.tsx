@@ -75,7 +75,7 @@ export default function LearnPage() {
       />
       <section className="learn-path" aria-labelledby="learn-next">
         <h2 id="learn-next">Your next lesson: {next.title}</h2>
-        <p>{oneState(lesson.takeaways[0], mine)}</p>
+        <p>You’ll learn: {oneState(lesson.takeaways[0], mine).replace(/^[A-Z](?![A-Z])/, (c) => c.toLowerCase())}</p>
         <a className="btn" href={`#/learn/${next.key}`}>Read the lesson →</a>
         <p className="muted">{lesson.minutes} minutes.{LESSON_CHAPTER[next.key] && ' Then apply it to Cedar House, your fictional practice property.'}</p>
         {LESSON_CHAPTER[next.key] && <a href={journeyHref(LESSON_CHAPTER[next.key])}>Practice this idea →</a>}
@@ -102,7 +102,8 @@ export default function LearnPage() {
                 <li key={m.key}>
                   {href ? (
                     <a className="lesson-card ready" href={href}>
-                      <span className="lesson-n" aria-hidden>{i + 1}</span>
+                      {/* Only lessons are numbered, so the count matches "Lesson N of M"; extras like the reading list get a plus. */}
+                      <span className="lesson-n" aria-hidden>{lessonByKey(m.key) ? i + 1 : '+'}</span>
                       <span className="lesson-body">
                         <strong>{m.title}</strong>
                         <span>{oneState(m.summary, mine)}</span>

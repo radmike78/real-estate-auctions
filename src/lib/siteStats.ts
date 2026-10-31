@@ -5,22 +5,27 @@
 /** Public sections of the site. Admin and advertiser pages are never counted. */
 export const SITE_PAGES = {
   home: 'Home',
+  learn: 'Learn and lessons',
+  decide: 'Decide',
+  finddeals: 'Find deals',
+  analyze: 'Analyze a deal',
+  toolkit: 'My plan',
   search: 'Property search',
   property: 'Property pages',
   live: 'Live tax sales',
-  preforeclosures: 'Pre-foreclosure tracker',
+  preforeclosures: 'Pre-foreclosures',
   shortsales: 'Short sales guide',
   bankowned: 'Bank-owned & government homes',
   businessassets: 'Business assets & closures',
   playbook: 'Learn: how each sale works',
   guides: 'Search the guides',
   practice: 'Practice buying',
-  calculator: 'Maximum bid calculator',
+  calculator: 'Calculator (old address)',
   deals: 'My deals',
   alerts: 'Email alerts',
-  agents: 'Find an agent',
+  agents: 'Find an agent (old address)',
   financing: 'Financing',
-  pros: 'Title, insurance & repairs',
+  pros: 'Your team',
   pro: 'Advertiser profiles',
   homeowner: 'Homeowner help',
   about: 'How it works',
@@ -31,7 +36,8 @@ export type SitePage = keyof typeof SITE_PAGES;
 
 /** Actions that show people researching and acting on deals. */
 export const SITE_ACTIONS = {
-  calculator_used: 'Used the max bid calculator',
+  calculator_used: 'Used a calculator (Analyze a deal)',
+  lesson_finished: 'Finished a lesson',
   deal_saved: 'Saved a deal',
   photos_opened: 'Opened photos & views',
   official_source: 'Went to an official government source',
@@ -46,7 +52,10 @@ export const isSiteAction = (k: unknown): k is SiteAction => typeof k === 'strin
 export function sitePageFor(route: string): SitePage | null {
   if (route === 'admin' || route === 'advertiser' || route === 'applicationConfirm') return null;
   if (route === 'apply') return 'advertise';
-  if (route === 'practiceRun' || route === 'practiceCase' || route === 'practiceDeal') return 'practice';
+  if (route === 'practiceRun' || route === 'practiceCase' || route === 'practiceDeal' || route === 'drill') return 'practice';
+  if (route === 'lesson' || route === 'strategy' || route === 'propertyType' || route === 'reading') return 'learn';
+  if (route === 'dealPacket') return 'deals';
+  if (route === 'findpro') return 'pros';
   if (route === 'disclaimer' || route === 'privacy' || route === 'terms') return 'other';
   return isSitePage(route) ? route : 'other';
 }

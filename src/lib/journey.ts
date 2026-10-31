@@ -6,6 +6,7 @@ import { workStorage as localStorage } from './workStorage';
 import { useEffect, useState } from 'react';
 import { QUESTIONS } from './decide';
 import { CHAPTERS, loadJourney } from '../practice/dealJourney';
+import { trackAction } from './track';
 
 export type Mode = 'guided' | 'explore';
 
@@ -42,7 +43,9 @@ const isKeys = (v: unknown): v is string[] => Array.isArray(v) && v.every((x) =>
 export const readLessons = (): string[] => read(READ_KEY, isKeys) ?? [];
 export function markLessonRead(key: string) {
   const done = readLessons();
-  if (!done.includes(key)) write(READ_KEY, [...done, key]);
+  if (done.includes(key)) return;
+  write(READ_KEY, [...done, key]);
+  trackAction('lesson_finished'); // a count only: never which lesson or who
 }
 
 export interface LastActivity {

@@ -43,7 +43,7 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
     return (
       <div className="empty">
         <OwlNote big>No properties match. Try a nearby ZIP code or remove some filters.</OwlNote>
-        <p className="muted">Property listings come only from official sellers we can verify. For your selected county, <a href="#/find-deals">Find Deals</a> lists that county’s official sale lists.</p>
+        <p className="muted">Property listings come only from official sellers we can verify. For your selected county, <a href="#/find-deals">Find deals</a> lists that county’s official sale lists.</p>
       </div>
     );
   }

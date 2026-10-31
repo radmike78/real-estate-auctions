@@ -36,7 +36,7 @@ export default function AdvertisePage() {
       <PageHero
         eyebrow={<span className="eyebrow">For professionals · Local services</span>}
         title={<>Reach buyers at the moment <span className="grad">they need you</span></>}
-        sub="People come here to buy auction, bank-owned and short-sale properties. They need agents, financing, title, insurance, inspectors, repairs, and legal and tax help."
+        sub="People come here to learn real estate investing step by step, practice on sample deals, then analyze real listed and bank-owned homes in their county. Along the way they need agents, lenders, title and escrow, inspectors, contractors, insurance, and legal and tax help."
       >
         {!features || features.unavailable ? <FeatureStatus features={features} /> : (
           <div className="row">

@@ -105,7 +105,7 @@ export default function LivePage() {
               ? "The latest data didn't pass our security checks, so for your safety nothing is shown until verified data is published."
               : expired
                 ? 'The last verification has expired, so listings are hidden until fresh data is published.'
-                : 'No property sales are verified for your selected state right now. Check your county’s official lists through Find Deals.'}
+                : 'No property sales are verified for your selected state right now. Check your county’s official lists through Find deals.'}
           </p>
           <p>
             Meanwhile, check the{' '}

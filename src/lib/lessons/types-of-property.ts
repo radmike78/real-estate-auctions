@@ -22,7 +22,7 @@ export const typesOfProperty: Lesson = {
             head: ['Type', 'What it is', 'What to know'],
             rows: [
               ['Single-family house', 'One home on its own lot.', 'Often has familiar home-loan options; rental demand and resale prospects depend on the local market. Valued by comparable sales.'],
-              ['Condo or townhouse', 'A home that shares walls or grounds with others, under an association (HOA). “Condo” is a way of owning: your unit plus a share of the common areas. A townhouse is a building style that may be a condo or come with its own lot.', 'HOA dues are paid on top of the mortgage. They can run from a few hundred to more than a thousand dollars a month. Read the HOA’s rules on renting.'],
+              ['Condo or townhouse', 'A home that shares walls or grounds with others, under an association (HOA). “Condo” is a way of owning: your unit plus a share of the common areas. A townhouse is a building style that may be a condo or come with its own lot.', 'HOA dues are paid on top of the mortgage. They can run from a few hundred to more than a thousand dollars a month.* Read the HOA’s rules on renting.'],
               ['Duplex, triplex, fourplex (2–4 units)', 'One building or lot with two to four homes.', 'Still residential for lending. If you live in one unit, you can use a home loan, including FHA. With FHA, three or four units need more savings after closing, and the rents must cover the payment (FHA’s self-sufficiency test).'],
               ['Manufactured home', 'A factory-built home made to the federal HUD Code.', 'Every one built on or after June 15, 1976 must carry a HUD certification label. Financing depends on whether you own the land under it or rent it.'],
             ],

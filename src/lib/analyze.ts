@@ -307,7 +307,6 @@ export function forgetDeal(id: string) {
   }
 }
 
-/** When a new deal is saved, the numbers typed before saving become that deal's numbers. */
 /** Forget the unsaved calculator numbers, so a new deal starts from your plan's starting numbers. */
 export function clearDraftNumbers() {
   try {
@@ -324,6 +323,7 @@ export function clearDraftNumbers() {
   }
 }
 
+/** When a new deal is saved, the numbers typed before saving become that deal's numbers. */
 export function carryDraftNumbers(id: string, offer: boolean) {
   try {
     const moves: [string, string][] = [

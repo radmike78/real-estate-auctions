@@ -125,6 +125,16 @@ describe('live lookups through the site API', () => {
     await expect(createLicenseSearch(fake)('attorney', 'Smith')).rejects.toThrow(/unexpected host/);
   });
 
+  it('does not request a redirect target outside the official hosts', async () => {
+    const asked: string[] = [];
+    const fake = (async (u: string | URL | Request) => {
+      asked.push(String(u));
+      return new Response(null, { status: 302, headers: { location: 'http://169.254.169.254/latest' } });
+    }) as typeof fetch;
+    await expect(createLicenseSearch(fake)('attorney', 'Smith')).rejects.toThrow(/unexpected host/);
+    expect(asked.every((u) => new URL(u).hostname.endsWith('nvbar.org'))).toBe(true);
+  });
+
   it('serves /api/licenses, validates input, and reports an unreachable source', async () => {
     let down = false;
     const dir = mkdtempSync(join(tmpdir(), 'fsf-lic-'));

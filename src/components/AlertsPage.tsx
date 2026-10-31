@@ -136,7 +136,7 @@ function SignUp() {
               <label className="check attest">
                 <input type="checkbox" checked={f.list} onChange={(e) => setF({ ...f, list: e.target.checked })} />
                 <span>
-                  <strong>General updates:</strong> new Clark County, Nevada auction lists, new guides and site news. A few emails a month at most. We don’t send sale alerts for other counties yet: watch your county’s page in Find Deals.
+                  <strong>General updates:</strong> new Clark County, Nevada auction lists, new guides and site news. A few emails a month at most. We don’t send sale alerts for other counties yet: watch your county’s page in Find deals.
                   {errors.list && <span className="field-error"> {errors.list}</span>}
                 </span>
               </label>
