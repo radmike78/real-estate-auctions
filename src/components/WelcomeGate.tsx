@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import PageHero from './PageHero';
+import { IconCheckList, IconShield, IconStar } from './Icons';
 import StatePicker from './StatePicker';
 import { useMyState } from '../lib/myState';
 import type { StateCode } from '../lib/regions';
@@ -16,6 +17,7 @@ export default function WelcomeGate() {
   const [, setMyState] = useMyState();
   const [pick, setPick] = useState<StateCode | null>(null);
   const [needPick, setNeedPick] = useState(false);
+  const startRef = useRef<HTMLElement>(null);
   const pickerRef = useRef<HTMLDivElement>(null);
   const go = (guided: boolean) => {
     if (!pick) {
@@ -38,11 +40,11 @@ export default function WelcomeGate() {
         <h2 id="welcome-state-head">1. Where do you want to invest?</h2>
         <p>Choose one state. Lessons, sale rules and practice then show that state. You can change it any time from the header.</p>
         <div ref={pickerRef}>
-          <StatePicker label="Your investing state" selection={{ state: pick, onChange: (s) => { setPick(s); setNeedPick(false); } }} />
+          <StatePicker label="Your investing state" selection={{ state: pick, onChange: (s) => { setPick(s); setNeedPick(false); requestAnimationFrame(() => startRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })); } }} />
         </div>
         <p className="muted">County and city rules can differ within a state. Federal rules are labeled where they apply.</p>
       </section>
-      <section aria-labelledby="welcome-start-head">
+      <section aria-labelledby="welcome-start-head" ref={startRef}>
         <h2 id="welcome-start-head">2. How do you want to start?</h2>
         <div className="row welcome-gate-actions">
           <button type="button" className="btn" onClick={() => go(true)}>I’m new: guide me step by step</button>
@@ -50,6 +52,11 @@ export default function WelcomeGate() {
         </div>
         <p className="muted">Guided starts with a few questions about your goal and cash (about 2 minutes), then the first lessons and a made-up property to practice on. Explore opens the home page with every tool.</p>
         {needPick && <p className="note" role="alert">Choose a state above first.</p>}
+        <p className="hero-foot welcome-trust">
+          <span className="hero-trust"><IconStar /> Free, no sign-up</span>
+          <span className="hero-trust"><IconShield /> Official sources first</span>
+          <span className="hero-trust"><IconCheckList /> We never take bids or money</span>
+        </p>
       </section>
     </main>
   );
