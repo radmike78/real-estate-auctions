@@ -1,7 +1,7 @@
 import { workStorage as localStorage } from '../lib/workStorage';
 import { readConfirmed, saveConfirmed } from '../lib/calcConfirmation';
 import { useEffect, useId, useState } from 'react';
-import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, INPUT_MAX, maxSafeBid, profitAtBid, redemptionOutcome, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs, offerInputs, cashNeededAtBid, DRAW_NOTE } from '../lib/bidCalc';
+import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, maxSafeBid, profitAtBid, redemptionOutcome, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs, offerInputs, cashNeededAtBid, DRAW_NOTE } from '../lib/bidCalc';
 import { offeredRedemptionRules, redemptionChoicesFor, redemptionPresetsFor, taxSaleWait, transferTaxFor } from '../lib/stateCosts';
 import { useCalcRegion } from './calcRegion';
 import { fmtMoney } from '../lib/status';
@@ -158,7 +158,7 @@ export function savedMaxBid(id: string): number | null {
 const pct = (profit: number, exit: number) => (exit > 0 ? ` (${Math.round((profit / exit) * 100)}% of resale value)` : '');
 // Typed text becomes a number: empty or invalid counts as 0, negatives are not allowed.
 const toNum = (v: string) => {
-  const n = Number(v);
+  const n = Number(v.replace(/,/g, '').trim());
   return Number.isFinite(n) && n > 0 ? n : 0;
 };
 
@@ -386,7 +386,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                   return (
                   <div key={f0.k} className="calc-field">
                     <span className="calc-label-row">
-                      <label className="calc-label" htmlFor={`${uid}-${f.k}`}>{f.label}</label>
+                      <label className="calc-label" htmlFor={`${uid}-${f.k}`}>{f.label}<span className="sr-only">{f.unit === '$' ? ', in dollars' : `, ${unitText(f.unit).replace('%', 'percent')}`}</span></label>
                       {f0.profitSwitch && (
                         <span className="calc-unit-switch" role="group" aria-label="Profit as a percent or dollars">
                           <button type="button" aria-pressed={!i.profitInDollars} onClick={() => { setDraft((d) => ({ ...d, targetProfitMin: undefined })); update({ profitInDollars: 0 }); }}>%</button>
@@ -398,12 +398,10 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                       {f.unit === '$' && <i aria-hidden>$</i>}
                       <input
                         id={`${uid}-${f.k}`}
-                        type="number"
+                        type="text"
                         inputMode="decimal"
-                        min={0}
-                        max={INPUT_MAX[f.k]}
-                        step="any"
-                        value={draft[f.k] ?? String(i[f.k])}
+                        autoComplete="off"
+                        value={draft[f.k] ?? (f.unit === '$' ? (i[f.k] ?? 0).toLocaleString('en-US', { maximumFractionDigits: 2 }) : String(i[f.k]))}
                         aria-describedby={hintFor(f) ? `${uid}-${f.k}-hint` : undefined}
                         onChange={(e) => set(f.k, e.target.value)} onInput={() => markTyped(f.k)}
                         onBlur={() => setDraft((d) => ({ ...d, [f.k]: undefined }))}

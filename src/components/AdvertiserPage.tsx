@@ -634,7 +634,7 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
           add them to marketing lists or robocalls without consent). Leads are kept for 13 months.
         </p>
       </section>
-      <p className="small muted">Counts exclude known bots and repeat clicks by the same visitor on the same day. We don't track visitors across days or collect anything that identifies them.</p>
+      <p className="small muted">Days run midnight to midnight Pacific time (Las Vegas), for every advertiser. Counts exclude known bots and repeat clicks by the same visitor on the same day. We don't track visitors across days or collect anything that identifies them.</p>
     </main>
   );
 }

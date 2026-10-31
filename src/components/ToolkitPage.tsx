@@ -798,7 +798,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
       />
       {/* One panel: your goal, the next task, what it gives you and one Continue; for a saved property, its stage
           (which picks the task); the roadmap or evidence summary alongside; and the optional helper. */}
-      <PlanNext variant="plan" helper={<NarrowDown config={toolkitConfig()} intro="Tell us where you are in the process and we’ll suggest where to start." />} />
+      <PlanNext variant="plan" helper={<NarrowDown config={toolkitConfig((() => { const t = planNow().task; return { label: t.label, href: t.href }; })())} intro="Tell us where you are in the process and we’ll suggest where to start." />} />
       <details className="plan-section" open={section === 'roadmap'}><summary>See my full roadmap</summary><FirstDealRoadmap /></details>
       <details className="plan-section"><summary>Your investable cash</summary><CashWorksheet /></details>
       <details className="plan-section"><summary>Your buy box</summary><BuyBoxBuilder /></details>

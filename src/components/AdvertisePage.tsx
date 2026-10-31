@@ -1,3 +1,4 @@
+import ProAvatar from './ProAvatar';
 import { VERIFIED_NOTICE } from '../lib/proVerification';
 import FeatureStatus from './FeatureStatus';
 import PageHero from './PageHero';
@@ -56,6 +57,26 @@ export default function AdvertisePage() {
           <div key={t} className="option-card"><h3>{t}</h3><p>{d}</p></div>
         ))}
       </section>
+
+      <h2>What your ad looks like</h2>
+      <p>A labeled ad beside the page’s content, in the areas you choose. Its button opens your profile page, where buyers send you a contact request.</p>
+      {/* A static mock (no link, no tracking): fictional names, so it works when sample data is off. */}
+      <aside className="ad-box featured-ads ad-example" aria-label="Example ad">
+        <div className="ad-box-label">Advertisement · Example</div>
+        <div className="ad-box-grid">
+          <div className="ad-card">
+            <ProAvatar name="Jordan Example" />
+            <div className="ad-card-body">
+              <div className="pro-kicker">Real estate agent <span className="badge tone-info">Example</span></div>
+              <strong className="ad-card-name">Jordan Example</strong>
+              <span className="small">Example Realty</span>
+              <span className="small muted">License #00000 (example)</span>
+              <p className="ad-card-line">Helping first-time investors buy rentals and bank-owned homes in your county.</p>
+              <span className="btn btn-secondary" aria-disabled="true">Contact Example Realty</span>
+            </div>
+          </div>
+        </div>
+      </aside>
 
       <p className="small muted" role="note">{VERIFIED_NOTICE}</p>
 
