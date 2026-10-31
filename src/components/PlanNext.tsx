@@ -7,9 +7,20 @@ import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
 import { planNow, planStarted, ROADMAP_TASK_HREF } from '../lib/planNext';
+import { DECIDE_KEY, rank, type Answers } from '../lib/decide';
+import { currentProgress } from '../lib/journey';
 import { ROADMAP_PHASES, roadmapFor } from '../lib/roadmap';
 import { DEAL_KEY } from '../lib/roadmapDeals';
 import { NO_DEAL, pathForDeal, planPath, PROGRESS_EVENT, progressChanged, ROADMAP_PATH_KEY, roadmapProgress, settledFor, focusDealId } from '../lib/roadmapState';
+
+/** The top strategy from a finished Decide quiz, so "Your goal" points forward instead of back to the quiz. */
+function decidedPick(): string | null {
+  if (!currentProgress().decided) return null;
+  try {
+    const answers = (JSON.parse(localStorage.getItem(DECIDE_KEY) ?? 'null') as { answers?: Answers } | null)?.answers;
+    return answers ? rank(answers)[0]?.strategy.title ?? null : null;
+  } catch { return null; }
+}
 
 const write = (key: string, v: unknown) => {
   try {
@@ -108,7 +119,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
         <h2 id={`plan-now-head-${variant}`}>{onPlan || now.source === 'starter' ? 'Your next step' : 'Your next real-world step'}</h2>
         <p className="plan-now-goal">
           <span className="plan-now-k">Your goal</span>
-          {now.goal ? <span>{now.goal}</span> : <span>Not written yet. <a href="#/decide">Choose my goal</a> (a few questions), then write it in a sentence in your roadmap.</span>}
+          {now.goal ? <span>{now.goal}</span> : decidedPick() ? <span>Not written yet. Decide suggests <strong>{decidedPick()}</strong>. <a href={ROADMAP_TASK_HREF}>Put your goal in one sentence&nbsp;→</a></span> : <span>Not written yet. <a href="#/decide">Choose my goal</a> (a few questions), then write it in a sentence in your roadmap.</span>}
         </p>
         {onPlan && deals.length > 0 && (
           <div className="plan-now-deal">

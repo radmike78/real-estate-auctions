@@ -9,8 +9,8 @@
       "src/lib/planNext.ts",
       "src/lib/dealStage.ts"
     ],
-    "reviewed": "2026-10-13",
-    "hash": "4f2d53a188e5fd5d",
+    "reviewed": "2026-10-31",
+    "hash": "a2f39fec38519c95",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -164,7 +164,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "75a0676b030f37b5",
+    "hash": "b53f57831556394e",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -180,8 +180,8 @@
       "src/lib/planNext.ts",
       "src/lib/dealStage.ts"
     ],
-    "reviewed": "2026-10-13",
-    "hash": "ecf6c1e4ba361c4f",
+    "reviewed": "2026-10-31",
+    "hash": "259e6337e56955ec",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -280,8 +280,8 @@
       "src/lib/proApplication.ts",
       "src/lib/proVerification.ts"
     ],
-    "reviewed": "2026-10-11",
-    "hash": "1ddaae729b9a63c6",
+    "reviewed": "2026-10-31",
+    "hash": "bfc33c0cfc90a7c4",
     "note": "State-isolation presentation audit across all five selections, including expanded pages and local quizzes. Removed cross-state comparisons and examples; retained local contract, county and professional-guidance qualifications. No new legal rules or financial calculations introduced."
   },
   {
@@ -423,7 +423,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "12d496de2820d0ac",
+    "hash": "51cb006786b8da78",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
