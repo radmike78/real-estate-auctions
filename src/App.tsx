@@ -1,56 +1,19 @@
 import AccountPage, { AccountBar } from './components/AccountPage';
 import { continueAsGuest, useAccountRuntime } from './lib/account';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState, type ComponentType } from 'react';
 import WelcomeGate, { StateBar } from './components/WelcomeGate';
 import { useMyState } from './lib/myState';
 import { stateByCode, type StateCode } from './lib/regions';
 import { currentRoute, isAppLink, navigate, onNavigate, replaceAddress, rewriteAppLinks, toPath, upgradeLegacyHash } from './lib/nav';
 import PageErrorBoundary from './components/PageErrorBoundary';
-import StrategyPage from './components/StrategyPage';
 import { strategyBySlug } from './lib/strategies';
-import SearchPage from './components/SearchPage';
 import HomePage from './components/HomePage';
 import SiteHeader from './components/SiteHeader';
-import PropertyPage from './components/PropertyPage';
-import AboutPage from './components/AboutPage';
-import LivePage from './components/LivePage';
-import PreForeclosurePage from './components/PreForeclosurePage';
-import ShortSalesPage from './components/ShortSalesPage';
-import BankOwnedPage from './components/BankOwnedPage';
-import BusinessAssetsPage from './components/BusinessAssetsPage';
-import FindAProPage from './components/FindAProPage';
 import { proGuideByKey } from './lib/proGuide';
-import AdminPage from './components/AdminPage';
-import AdvertisePage from './components/AdvertisePage';
-import AdvertiseApplyPage from './components/AdvertiseApplyPage';
-import ApplicationConfirmPage from './components/ApplicationConfirmPage';
-import FinancingPage from './components/FinancingPage';
-import ProProfilePage from './components/ProProfilePage';
-import AdvertiserPage from './components/AdvertiserPage';
-import PrivacyPage from './components/PrivacyPage';
-import TermsPage from './components/TermsPage';
-import LessonPage from './components/LessonPage';
-import ReadingPage from './components/ReadingPage';
-import PropertyTypePage from './components/PropertyTypePage';
 import { lessonByKey } from './lib/lessons';
 import { topicBySlug } from './lib/deep/propertyTopics';
 import { planParam, prefillParam, type Plan, type Prefill } from './lib/analyze';
-import LearnPage from './components/LearnPage';
-import DecidePage from './components/DecidePage';
-import FindDealsPage from './components/FindDealsPage';
-import AnalyzePage from './components/AnalyzePage';
-import PracticePage from './components/PracticePage';
-import DealJourneyPage from './components/DealJourneyPage';
-import PracticeScenarioPage from './components/PracticeScenarioPage';
-import RentalCasePage from './components/RentalCasePage';
-import DrillPage from './components/DrillPage';
-import ToolkitPage from './components/ToolkitPage';
-import PlaybookPage from './components/PlaybookPage';
-import DealsPage from './components/DealsPage';
-import DealPacketPage from './components/DealPacketPage';
-import HomeownerHelpPage from './components/HomeownerHelpPage';
-import GuidesPage from './components/GuidesPage';
-import AlertsPage, { type AlertsMode } from './components/AlertsPage';
+import type { AlertsMode } from './components/AlertsPage';
 import RoleNotice from './components/RoleNotice';
 import { ASTERISK_NOTE, ROLE_SHORT } from './lib/disclaimers';
 import { isCategory, type Category } from './lib/pros';
@@ -61,6 +24,55 @@ import { outboundAction, sitePageFor } from './lib/siteStats';
 import { parseClass, type ClassFilter } from './lib/propertyClass';
 import { trackAction, trackPage } from './lib/track';
 import { useSiteFeatures } from './lib/siteFeatures';
+
+// Each page loads its own code when first opened, so the first visit downloads only what it shows.
+// After a new deploy an open tab may ask for a page file that no longer exists: reload once to get the new files.
+function page<T extends ComponentType<any>>(load: () => Promise<{ default: T }>) {
+  return lazy(() => load().then((m) => { sessionStorage.removeItem('deedowl.chunk-reload'); return m; }).catch((err: unknown) => {
+    let tried = true;
+    try { tried = sessionStorage.getItem('deedowl.chunk-reload') === '1'; if (!tried) sessionStorage.setItem('deedowl.chunk-reload', '1'); } catch { /* storage blocked */ }
+    if (!tried) { window.location.reload(); return new Promise<{ default: T }>(() => {}); }
+    throw err;
+  }));
+}
+const StrategyPage = page(() => import('./components/StrategyPage'));
+const SearchPage = page(() => import('./components/SearchPage'));
+const PropertyPage = page(() => import('./components/PropertyPage'));
+const AboutPage = page(() => import('./components/AboutPage'));
+const LivePage = page(() => import('./components/LivePage'));
+const PreForeclosurePage = page(() => import('./components/PreForeclosurePage'));
+const ShortSalesPage = page(() => import('./components/ShortSalesPage'));
+const BankOwnedPage = page(() => import('./components/BankOwnedPage'));
+const BusinessAssetsPage = page(() => import('./components/BusinessAssetsPage'));
+const FindAProPage = page(() => import('./components/FindAProPage'));
+const AdminPage = page(() => import('./components/AdminPage'));
+const AdvertisePage = page(() => import('./components/AdvertisePage'));
+const AdvertiseApplyPage = page(() => import('./components/AdvertiseApplyPage'));
+const ApplicationConfirmPage = page(() => import('./components/ApplicationConfirmPage'));
+const FinancingPage = page(() => import('./components/FinancingPage'));
+const ProProfilePage = page(() => import('./components/ProProfilePage'));
+const AdvertiserPage = page(() => import('./components/AdvertiserPage'));
+const PrivacyPage = page(() => import('./components/PrivacyPage'));
+const TermsPage = page(() => import('./components/TermsPage'));
+const LessonPage = page(() => import('./components/LessonPage'));
+const ReadingPage = page(() => import('./components/ReadingPage'));
+const PropertyTypePage = page(() => import('./components/PropertyTypePage'));
+const LearnPage = page(() => import('./components/LearnPage'));
+const DecidePage = page(() => import('./components/DecidePage'));
+const FindDealsPage = page(() => import('./components/FindDealsPage'));
+const AnalyzePage = page(() => import('./components/AnalyzePage'));
+const PracticePage = page(() => import('./components/PracticePage'));
+const DealJourneyPage = page(() => import('./components/DealJourneyPage'));
+const PracticeScenarioPage = page(() => import('./components/PracticeScenarioPage'));
+const RentalCasePage = page(() => import('./components/RentalCasePage'));
+const DrillPage = page(() => import('./components/DrillPage'));
+const ToolkitPage = page(() => import('./components/ToolkitPage'));
+const PlaybookPage = page(() => import('./components/PlaybookPage'));
+const DealsPage = page(() => import('./components/DealsPage'));
+const DealPacketPage = page(() => import('./components/DealPacketPage'));
+const HomeownerHelpPage = page(() => import('./components/HomeownerHelpPage'));
+const GuidesPage = page(() => import('./components/GuidesPage'));
+const AlertsPage = page(() => import('./components/AlertsPage'));
 
 type Route =
   | { page: 'home' }
@@ -302,6 +314,7 @@ export default function App() {
       <AccountBar />
       <RoleNotice key={account.account?.id ?? 'guest'} />
       <PageErrorBoundary key={`${nav}:${account.account?.id ?? 'guest'}:${account.status === 'locked'}`}>
+      <Suspense fallback={<main className="page"><p className="muted" role="status">Loading…</p></main>}>
       {account.status === 'loading' && !['account','privacy','terms','admin','advertiser','apply','applicationConfirm','advertise','alerts'].includes(route.page) ? <main className="page"><h1>Opening your workspace</h1><p role="status">Checking your sign-in and saved work…</p>{!account.account && <button className="btn btn-secondary" onClick={continueAsGuest}>Continue without an account</button>}</main> : account.status === 'locked' && !['account','privacy','terms','admin','advertiser','apply','applicationConfirm','advertise','alerts'].includes(route.page) ? <main className="page"><h1>Keep your unsaved work safe</h1><p>{account.message}</p><a className="btn" href="#/account">Download work or reopen your account</a></main> : !chosenState && route.page === 'home' ? (
         <WelcomeGate />
       ) : <>
@@ -357,6 +370,7 @@ export default function App() {
       {route.page === 'advertiser' && <AdvertiserPage key={route.token ?? ''} token={route.token} />}
       {route.page === 'findpro' && <FindAProPage key={route.section ?? ''} section={route.section} />}
       </>}
+      </Suspense>
       </PageErrorBoundary>
       <footer className="footer">
         <span className="footer-note">{ROLE_SHORT} Our guides are general education, not legal, tax or financial advice.</span>
