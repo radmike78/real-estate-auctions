@@ -3,6 +3,8 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import DealJourneyPage from './DealJourneyPage';
 import { CHAPTERS, JOURNEY_KEY, answerTask, emptyJourney, saveJourney } from '../practice/dealJourney';
 import { planNow } from '../lib/planNext';
+import { DECIDE_KEY, QUESTIONS } from '../lib/decide';
+import { markLessonRead } from '../lib/journey';
 import { saveDeals, type Deal } from '../lib/analyze';
 
 beforeEach(() => {
@@ -24,6 +26,13 @@ it('renders each chapter with a local check and accessible answer controls', () 
 });
 it('keeps real property tasks ahead of the learning journey and uses one beginner recommendation', () => {
   localStorage.setItem('deedowl.mode.v1', JSON.stringify('guided'));
+  // The site's order: Decide, then Learn's two "Start here" lessons, then the practice deal.
+  expect(planNow().task.href).toBe('#/decide');
+  localStorage.setItem(DECIDE_KEY, JSON.stringify({ answers: Object.fromEntries(QUESTIONS.map((q) => [q.key, q.options[0].value])), done: [] }));
+  expect(planNow().task.href).toBe('#/learn/types');
+  markLessonRead('types');
+  expect(planNow().task.href).toBe('#/learn/red-flags');
+  markLessonRead('red-flags');
   expect(planNow().task.href).toBe('#/practice/deal/first-decision');
   const c = CHAPTERS[0];
   saveJourney(answerTask(emptyJourney(), c, c.tasks[0], 1));

@@ -122,7 +122,7 @@ const ROADMAP_HREF = '#/toolkit/roadmap';
 const L = {
   analyze: { label: 'Lesson: Analyzing a deal', href: '#/learn/analyze' },
   rentMission: { label: 'Practice missions: would you buy this $265,000 rental?', href: '#/practice/drills/rental-265' },
-  negotiate: { label: 'Lesson: Negotiating and structuring deals', href: '#/learn/negotiate' },
+  negotiate: { label: 'Lesson: Making an offer and closing', href: '#/learn/negotiate' },
   walkAway: { label: 'Lesson: When to walk away', href: '#/learn/walk-away' },
   afterClosing: { label: 'Lesson: Running a rental', href: '#/learn/after-closing' },
   guides: { label: 'Your sale guide', href: '#/playbooks' },

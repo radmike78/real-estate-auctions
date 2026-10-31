@@ -5,7 +5,7 @@ import PathNext from './PathNext';
 import { LEARN_MODULES, LEARN_PATHS } from '../lib/learn';
 import NarrowDown from './NarrowDown';
 import { learnConfig } from '../lib/narrow';
-import { useMarkStep } from '../lib/path';
+import { useMarkStep, stepEyebrow } from '../lib/path';
 import { lessonByKey } from '../lib/lessons';
 import { useJourney } from '../lib/journey';
 import { useMyState } from '../lib/myState';
@@ -58,7 +58,7 @@ function SaleGuides() {
   );
 }
 
-/** Step 1 of the path: the lessons, in order. */
+/** Step 2 of the path: the lessons, in order. */
 export default function LearnPage() {
   useMarkStep('learn');
   const { read } = useJourney();
@@ -69,7 +69,7 @@ export default function LearnPage() {
   return (
     <main className="page">
       <PageHero
-        eyebrow={<span className="eyebrow">Step 1 of 6</span>}
+        eyebrow={<span className="eyebrow">{stepEyebrow('learn')}</span>}
         title={<>Learn <span className="grad">real estate investing</span></>}
         sub="Residential and commercial: the markets, the property types, and how deals are found, analyzed and paid for."
       />
@@ -84,7 +84,7 @@ export default function LearnPage() {
       <details className="plan-section" open><summary>Browse all lessons</summary>
       <section className="learn-money" aria-labelledby="learn-money">
         <div>
-          <h2 id="learn-money">Ways to make money</h2>
+          <h2 id="learn-money">Start here: ways to make money</h2>
           <p>Renting, flipping, BRRRR, auctions, apartments and more, each with how the money is made and what goes wrong.</p>
         </div>
         <a className="btn" href="#/learn/strategies">Compare the strategies&nbsp;→</a>

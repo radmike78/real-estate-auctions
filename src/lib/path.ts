@@ -14,14 +14,23 @@ export interface PathStep {
   blurb: string;
 }
 
+// The order follows the CFPB's homebuying steps (know your goal and budget first; meet lenders once you have a budget
+// and priorities, before an offer) and learning research (beginners learn best from worked examples before solving
+// problems alone): decide, learn, rehearse at no risk, then line up professionals, find, analyze and buy.
 export const PATH: PathStep[] = [
-  { key: 'learn', n: 1, label: 'Learn', href: '#/learn', blurb: 'How real estate investing works: markets, property types, deals and financing.' },
-  { key: 'decide', n: 2, label: 'Decide', href: '#/decide', blurb: 'Choose the kind of property and market that fits your money, time and goals.' },
-  { key: 'team', n: 3, label: 'Your team', href: '#/pros', blurb: 'Who helps with a purchase, when you need them, and how to find them.' },
-  { key: 'practice', n: 4, label: 'Practice', href: '#/practice', blurb: 'Buy a fictional property step by step before you risk real money.' },
+  { key: 'decide', n: 1, label: 'Decide', href: '#/decide', blurb: 'Your goal and your investable cash first, then the strategies that fit them (about 2 minutes).' },
+  { key: 'learn', n: 2, label: 'Learn', href: '#/learn', blurb: 'How investing works, starting with the lessons for the strategy you chose.' },
+  { key: 'practice', n: 3, label: 'Practice', href: '#/practice', blurb: 'Buy a fictional property step by step before you risk real money.' },
+  { key: 'team', n: 4, label: 'Your team', href: '#/pros', blurb: 'Line up a lender, agent and the other professionals before you make an offer or bid.' },
   { key: 'deals', n: 5, label: 'Find deals', href: '#/find-deals', blurb: 'Where to look in your state and county, starting with official sources.' },
   { key: 'analyze', n: 6, label: 'Analyze a deal', href: '#/analyze', blurb: 'Run the numbers on a real deal and work through buying it.' },
 ];
+
+/** "Step N of 6" for a step's page header. */
+export const stepEyebrow = (key: StepKey) => {
+  const st = PATH.find((x) => x.key === key)!;
+  return `Step ${st.n} of ${PATH.length}`;
+};
 
 const KEY = 'deedowl.path.v1';
 

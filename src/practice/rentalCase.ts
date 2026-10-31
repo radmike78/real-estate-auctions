@@ -1155,7 +1155,7 @@ function buildCase(c: CaseConfig) {
       ],
       log: [{ area: 'Contract', finding: `Signed at ${$(offer)}. ${c.depositLog(N)}, confirmed by phone before wiring.` }],
       dates: typeof c.dates === 'function' ? c.dates(N) : c.dates,
-      learnMore: [{ label: 'Lesson: negotiating', href: '#/learn/negotiate' }],
+      learnMore: [{ label: 'Lesson: making an offer and closing', href: '#/learn/negotiate' }],
     },
     {
       key: 'inspection',

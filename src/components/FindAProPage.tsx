@@ -12,7 +12,7 @@ import { guidesFor } from '../lib/playbooks';
 import { STATES, stateByCode, type StateCode } from '../lib/regions';
 import { LICENSE_LOOKUPS, type Lookup } from '../lib/licenseLookups';
 import { useMyState, forStateText, showFor, mentionsOtherState } from '../lib/myState';
-import { useMarkStep } from '../lib/path';
+import { useMarkStep, stepEyebrow } from '../lib/path';
 import PathNext from './PathNext';
 import { PRO_GUIDES, proGuideByKey, type ProGuide, type ProKey } from '../lib/proGuide';
 import WhyBlock from './WhyBlock';
@@ -308,7 +308,7 @@ export default function FindAProPage({ section }: { section?: string }) {
       <PageHero
         compact={open || build}
         top={open || build ? <a href="#/pros">← Your team</a> : undefined}
-        eyebrow={open || build ? undefined : <span className="eyebrow">Step 3 of 6</span>}
+        eyebrow={open || build ? undefined : <span className="eyebrow">{stepEyebrow('team')}</span>}
         title={open ? proGuideByKey(section)!.title : build ? <>Build <span className="grad">your team</span></> : <>Your <span className="grad">team</span></>}
         sub={open ? undefined : build ? undefined : 'Who helps with a purchase, when you need each one, and how to find them.'}
       />

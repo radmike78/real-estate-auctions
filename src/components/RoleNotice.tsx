@@ -81,7 +81,7 @@ export default function RoleNotice() {
       <div ref={dialog} className="role-dialog" role="dialog" aria-modal="true" aria-labelledby="role-title">
         <h2 id="role-title" tabIndex={-1}>Welcome to DeedOwl</h2>
         <p className="role-lead">DeedOwl teaches you, step by step, how to find, check and buy real estate, from listed homes to auctions, with properties from official sources.</p>
-        <button type="button" className="btn" onClick={() => { close(); setMode('guided'); navigate(planNow().task.href); }}>Try the first decision</button>
+        <button type="button" className="btn" onClick={() => { close(); setMode('guided'); navigate(planNow().task.href); }}>Start with Decide: 2 minutes</button>
         <button type="button" className="linkish" onClick={close}>Explore the website first</button>
       </div>
     </div>

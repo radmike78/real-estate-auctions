@@ -1,4 +1,4 @@
-// Decide (step 2): a few questions that point to the investing strategies that fit someone's money, time and
+// Decide (step 1): a few questions that point to the investing strategies that fit someone's money, time and
 // goals, each with a checklist of what to do next. Answers and ticked items stay in this browser.
 import type { StateCode } from './regions';
 

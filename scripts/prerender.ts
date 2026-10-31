@@ -54,10 +54,10 @@ export interface Page {
 
 const NAV = [
   ['/', 'Home'],
-  ['/learn/', 'Learn'],
   ['/decide/', 'Decide'],
-  ['/pros/', 'Your team'],
+  ['/learn/', 'Learn'],
   ['/practice/', 'Practice'],
+  ['/pros/', 'Your team'],
   ['/find-deals/', 'Find deals'],
   ['/analyze/', 'Analyze a deal'],
 ] as const;
