@@ -121,7 +121,7 @@ export const analyze: Lesson = {
           ['Cash-on-cash return', 'About −2.8%', 'About 2.9%'],
           ['Gross rent multiplier ($300,000 ÷ $28,800)', 'About 10.4', 'About 10.4'],
         ] } },
-        'Same building, same cap rate: the loan decides whether you make or lose money. With the $240,000 loan, the payments plus the reserve are bigger than the NOI. Borrow $150,000 instead and the payments drop to about $11,975 a year, so cash flow is about +$4,985. Run NOI − loan payments − reserves with your own loan amount, rate and term, rather than comparing the cap rate with the interest rate.',
+        'Same building, same cap rate: the loan decides whether you make or lose money. With the $240,000 loan, the payments plus the reserve are bigger than the NOI. Borrow $150,000 instead and the payments drop to about $11,975 a year, so cash flow is about +$4,985. Run NOI − loan payments − reserves with your own loan amount, rate and term, rather than assuming a good cap rate means good cash flow. A cap rate ignores the loan.',
       ],
     },
     {

@@ -158,9 +158,9 @@ export const ROADMAP: RoadmapStep[] = [
     id: 'a-practice', phase: 3, path: AUCTION, title: 'Finish a practice auction',
     text: 'Work one auction purchase with fictional paperwork before you risk money: the notice, the title search, your maximum bid, sale day and what comes after.',
     outcome: 'A finished practice sale, your written maximum bid with how you set it, and three drills done.',
-    steps: ['In Practice, choose the kind of sale you plan to use (a tax sale or a foreclosure sale) and work one property to the end. Auction practice follows Clark County, Nevada rules; outside Nevada, do three auction drills instead and read your state’s sale guide.', 'Write your maximum bid and the costs behind it before sale day in the practice.', 'Try at least three “Would you buy it?” drills, including one with liens that survive the sale.'],
-    doneWhen: 'One practice sale (or, outside Nevada, three auction drills) is finished, with a written maximum bid, and three drills are done.',
-    action: 'Choose a practice sale', href: '#/practice?sale=tax',
+    steps: ['In Practice, do three auction drills for your state (topic: Auctions and tax liens), then read your state’s sale guide for the kind of sale you plan to use. Where Practice offers a full practice auction for your state, work one property to the end.', 'Write your maximum bid and the costs behind it before sale day in the practice.', 'Try at least three “Would you buy it?” drills, including one with liens that survive the sale.'],
+    doneWhen: 'You’ve finished three auction drills (and a full practice auction where your state has one), with the maximum bid you’d have set written down for one of them.',
+    action: 'Practice an auction', href: '#/practice?sale=tax',
   },
   {
     id: 'c-practice', phase: 3, path: LIEN, title: 'Practice a lien purchase',

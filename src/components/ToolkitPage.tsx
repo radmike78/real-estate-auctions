@@ -810,7 +810,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
       <details className="plan-section"><summary>Your team and contacts</summary><TeamListSection /></details>
       <section className="plan-download" aria-labelledby="plan-dl-head">
         <h2 id="plan-dl-head">Print or share your plan</h2>
-        <p>Download a summary of your goal, budget, property preferences, checklist progress and contacts. You can keep it or share it with your agent or lender. Optional account saving keeps supported property work and learning progress across devices. Downloads are readable records; there is no file-import option.</p>
+        <p>Download a summary of your goal, budget, property preferences, checklist progress and contacts. You can keep it or share it with your agent or lender. Optional account saving keeps supported property work and learning progress across devices. This summary is for reading and sharing; it can’t be loaded back. To move your work to another browser, use Download my progress below.</p>
         <div className="decide-nav">
           <button type="button" className="btn" onClick={() => downloadText('my-investing-plan.txt', planText())}>Download my plan</button>
           <button type="button" className="btn btn-secondary" onClick={() => { document.querySelectorAll<HTMLDetailsElement>('.toolkit details.plan-section').forEach((d) => { d.open = true; }); window.print(); }}>Print this page</button>

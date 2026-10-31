@@ -93,7 +93,7 @@ export default function LearnPage() {
         {LESSON_CHAPTER[next.key] && <a href={journeyHref(LESSON_CHAPTER[next.key])}>Practice this idea →</a>}
       </section>
       )}
-      <NarrowDown config={learnConfig()} intro="Answer two quick questions and we’ll suggest which lessons to read first. Browse the lessons below, or follow your next lesson above." />
+      <NarrowDown config={learnConfig()} intro="Answer two quick questions and we’ll suggest which lessons to read first. Browse the lessons below, or follow your next step above." />
       <details className="plan-section" open><summary>Browse all lessons</summary>
       <section className="learn-money" aria-labelledby="learn-money">
         <div>

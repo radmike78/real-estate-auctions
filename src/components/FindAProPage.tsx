@@ -355,7 +355,7 @@ export default function FindAProPage({ section }: { section?: string }) {
       {all ? (
         <section className="pros-all" aria-labelledby="pros-all-head">
           <h2 id="pros-all-head">The professionals</h2>
-          <p className="muted">Most first-time buyers need six of these, whatever the kind of sale: an agent, a lender, a title company, an attorney, an inspector and an insurance agent. Paying cash, you can skip the lender. The team and any required roles vary by location and sale type.</p>
+          <p className="muted">For a home bought through an agent, most first-time buyers need six of these: an agent, a lender, a title company, an attorney, an inspector and an insurance agent. Paying cash, you can skip the lender. At an auction you usually can’t inspect and must pay in cash, so the core team is title, an attorney and insurance. The team and any required roles vary by location and sale type.</p>
           <DrillDown sections={sections} baseHref="#/pros" label="Professionals" titled />
         </section>
       ) : open && (

@@ -257,7 +257,7 @@ export function DrillList() {
           <FilterSelect label="Topic" value={topic} set={setTopic} options={[{ key: 'all', label: 'All topics' }, ...TOPIC_GROUPS]} />
           <FilterSelect label="Progress" value={prog} set={setProg} options={[{ key: 'all', label: 'All' }, { key: 'new', label: 'Not started' }, { key: 'started', label: 'In progress' }, { key: 'done', label: 'Completed' }]} />
           <span className="drill-filter-count" role="status">
-            {onlyMine ? `${STATE_NAMES[mine]} and any-state drills: ` : ''}{count} of {DRILLS.length}
+            Showing {count} of {DRILLS.length} drills{onlyMine ? `: ${STATE_NAMES[mine]} and any-state` : ''}
             {filtered && <> · <button type="button" className="linkish" onClick={() => { setSt('all'); setTopic('all'); setProg('all'); }}>Clear filters</button></>}
           </span>
         </div>
