@@ -68,7 +68,7 @@ export default function AdSpot({ spot, auto }: { spot: string; auto?: Category[]
           <p>Licensed professionals in your area advertise on DeedOwl. DeedOwl doesn’t recommend any of them: check the license, ask what they charge, and compare more than one before you hire.</p>
           <p><a href="#/pros">Who does what on your team&nbsp;→</a></p>
         </div>
-        <FixedAds pros={pros} categories={cats} placeholder />
+        <FixedAds pros={pros} categories={cats} placeholder spot={spot} />
       </div>
     </section>
   );

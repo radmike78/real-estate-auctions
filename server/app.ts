@@ -45,6 +45,7 @@ import { METRIC_KINDS, openDb, type ApplicationRow, type Db, type MetricKind } f
 import { buildProsFeed, placements, toPro, writeSignedJson } from './directory';
 import { PHOTO_MAX_BYTES, PhotoError, processPhoto } from './photos';
 import { isSiteAction, isSitePage } from '../src/lib/siteStats';
+import { isAdPlacement } from '../src/lib/adSpots';
 import { visitorIp } from './cloudflare';
 import { alertsAddEmail, alertsConfirmEmail, broadcastEmail, alertsManageLinkEmail, alertsWelcomeEmail, searchDigestEmail, trackedChangesEmail, approvedEmail, confirmationEmail, consoleMailer, leadEmail, leadReceiptEmail, loginLinkEmail, MailError, maskEmail, paymentFailedEmail, type Mail, type Mailer } from './mailer';
 import { ALERT_LIMITS, CONFIRM_TTL_MS, openAlerts, openBroadcasts, type Subscriber } from './alerts';
@@ -833,7 +834,13 @@ export function createApp(config: AppConfig) {
       if (!METRIC_KINDS.includes(kind) || kind === 'lead') throw new HttpError(400, 'Unknown event');
       const ids = (kind === 'impression' || kind === 'ad_impression' ? (Array.isArray(body.proIds) ? body.proIds : []) : [body.proId]).slice(0, 50);
       const live = listed();
-      for (const id of new Set(ids)) if (typeof id === 'string' && live.has(id)) db.metrics.record(id, day, kind, visitor);
+      // Ad views and clicks may name their placement (a fixed list), kept as its own daily count for the advertiser's report.
+      const spot = (kind === 'ad_impression' || kind === 'ad_click') && isAdPlacement(body.spot) ? body.spot : null;
+      for (const id of new Set(ids)) {
+        if (typeof id !== 'string' || !live.has(id)) continue;
+        db.metrics.record(id, day, kind, visitor);
+        if (spot) db.metrics.record(id, day, `${kind}@${spot}` as MetricKind, visitor);
+      }
       return send(res, 204, {});
     }
 

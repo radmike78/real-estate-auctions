@@ -84,3 +84,14 @@ export function spotCategories(settings: SpotSettings, key: string, auto: Catego
 
 /** The spots that are on, for the Advertise page. */
 export const spotsOn = (settings: SpotSettings) => AD_SPOTS.filter((s) => settings[s.key]?.on);
+
+/** Every ad placement an advertiser's report can name: the page spots above plus the category page, the Your team
+ * rotating ad, the professional list and topic ads. Shared by the browser (what it reports) and the server (what it accepts). */
+export const AD_PLACEMENTS: Record<string, string> = {
+  category: 'Your category’s page (Featured ad)',
+  directory: 'The professional list',
+  team: 'Your team (rotating ad)',
+  topic: 'Learn and Practice topic ad',
+  ...Object.fromEntries(AD_SPOTS.map((s) => [s.key, s.label])),
+};
+export const isAdPlacement = (k: unknown): k is string => typeof k === 'string' && Object.prototype.hasOwnProperty.call(AD_PLACEMENTS, k);

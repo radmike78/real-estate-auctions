@@ -7,10 +7,13 @@ export type TrackKind = 'impression' | 'profile_view' | 'phone_click' | 'email_c
 
 const real = (id: string) => /^[a-f0-9]{24}$/.test(id);
 
-export function track(kind: TrackKind, ids: string | string[]) {
+/** `spot`: which ad placement showed it (category page, Your team, Find deals, Analyze, My plan, a topic or a page spot),
+ * so an advertiser's report can say where their ad worked. A placement name only, never the page address. */
+export function track(kind: TrackKind, ids: string | string[], spot?: string) {
   const list = (Array.isArray(ids) ? ids : [ids]).filter(real);
   if (!list.length) return;
-  const body = JSON.stringify(kind === 'impression' || kind === 'ad_impression' ? { kind, proIds: list.slice(0, 50) } : { kind, proId: list[0] });
+  const where = spot && (kind === 'ad_impression' || kind === 'ad_click') ? { spot } : {};
+  const body = JSON.stringify(kind === 'impression' || kind === 'ad_impression' ? { kind, proIds: list.slice(0, 50), ...where } : { kind, proId: list[0], ...where });
   try {
     void fetch('/api/events', { method: 'POST', headers: { 'content-type': 'application/json' }, body, keepalive: true, credentials: 'omit' }).catch(() => {});
   } catch {

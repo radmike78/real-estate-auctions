@@ -1,3 +1,8 @@
+import { AD_SPOTS, spotCategories } from '../lib/adSpots';
+import { analyzePlansFor, stepsFor } from '../lib/contextAds';
+import { ROADMAP } from '../lib/roadmap';
+
+const PLAN_WORD: Record<string, string> = { flip: 'fix and flip', rent: 'buy and hold', commercial: 'commercial', lien: 'lien' };
 import { VERIFIED_NOTICE } from '../lib/proVerification';
 import FeatureStatus from './FeatureStatus';
 import PageHero from './PageHero';
@@ -27,7 +32,8 @@ const GROUP_LABEL: Partial<Record<(typeof GROUPS)[number], string>> = { Ownershi
 const capitalize = (x: string) => x.charAt(0).toUpperCase() + x.slice(1);
 
 export default function AdvertisePage() {
-  const mentorSpots = spotsOn(useAdSpots());
+  const spotSettings = useAdSpots();
+  const mentorSpots = spotsOn(spotSettings);
   const features = useSiteFeatures();
   const open = advertisingOpen(features);
   const plans = useAdPlans();
@@ -101,6 +107,27 @@ export default function AdvertisePage() {
         <li><strong>Choose your areas and plan, pay by card and go live</strong><span>A monthly fee for each area, at the plan you choose, paid securely through Stripe. Cancel any time.</span></li>
         <li><strong>Track your results</strong><span>Sign in any time with a one-time email link to see your numbers and leads.</span></li>
       </ol>
+
+      <h2>Where your category appears</h2>
+      <p>Every advertiser gets a Featured ad on their category’s page, after “What to say”. These are the other places each kind of professional shows, on the placements that are on today.</p>
+      <div className="table-wrap"><table className="lesson-table where-cats">
+        <thead><tr><th scope="col">Professional</th><th scope="col">Also shown on</th></tr></thead>
+        <tbody>
+          {(Object.keys(CATEGORIES) as Category[]).map((c) => {
+            const where: string[] = [];
+            for (const spot of AD_SPOTS) {
+              if (spot.key === 'analyze') {
+                const plans = spotCategories(spotSettings, 'analyze', [c]).includes(c) ? analyzePlansFor(c) : [];
+                if (plans.length) where.push(`Analyze a deal (${plans.map((p) => PLAN_WORD[p]).join(', ')} on listed and bank-owned homes)`);
+              } else if (spot.key === 'toolkit') {
+                const steps = spotCategories(spotSettings, 'toolkit', [c]).includes(c) ? stepsFor(c, ROADMAP) : [];
+                if (steps.length) where.push(`My plan (${steps.map((st) => `“${st.title}”`).join(', ')})`);
+              } else if (spotCategories(spotSettings, spot.key).includes(c)) where.push(spot.label);
+            }
+            return <tr key={c}><th scope="row">{CATEGORIES[c].label}</th><td>{where.length ? where.join('; ') : 'Your category’s page only, for now'}</td></tr>;
+          })}
+        </tbody>
+      </table></div>
 
       <h2>How placement works</h2>
       <ul className="ad-placement">

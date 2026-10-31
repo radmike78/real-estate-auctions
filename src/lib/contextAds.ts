@@ -47,3 +47,8 @@ export function stepAdCategories(step: RoadmapStep, path: RoadmapPath): Category
   const to = step.say?.to ?? '';
   return BY_CONTACT.find(([re]) => re.test(to))?.[1] ?? [];
 }
+
+/** For the Advertise page: the Analyze plans that show this kind of professional, by plan key. */
+export const analyzePlansFor = (cat: Category): Plan[] => (Object.keys(BY_PLAN) as Plan[]).filter((p) => BY_PLAN[p].includes(cat));
+/** For the Advertise page: the My plan steps (through an agent) that show this kind of professional. */
+export const stepsFor = (cat: Category, steps: RoadmapStep[]): RoadmapStep[] => steps.filter((st) => stepAdCategories(st, 'listing').includes(cat));

@@ -58,12 +58,12 @@ function LicenseLinks({ topic, state, chosen }: { topic: AdTopic; state: StateCo
 /** Every eligible Mentor Connect advertiser linked to this topic, in stable order. */
 function TopicAdBox({ topic, pros }: { topic: AdTopic; pros: Pro[] }) {
   const shown = pros.filter((p) => p.tier === 'premium_plus' && !p.adsOff && p.adTopic === topic.key && topic.categories.includes(p.category) && isListable(p)).sort((a, b) => a.id.localeCompare(b.id));
-  useAdImpressions(shown);
+  useAdImpressions(shown, 'topic');
   if (!shown.length) return null;
   return (
     <aside className="ad-box topic-ad" aria-label="Advertisement">
       <div className="ad-box-label">Advertisement</div>
-      <div className="ad-box-grid">{shown.map((p) => <AdCard key={p.id} p={p} />)}</div>
+      <div className="ad-box-grid">{shown.map((p) => <AdCard key={p.id} p={p} spot="topic" />)}</div>
       <p className="ad-fine-print">{AD_FINE_PRINT}</p>
     </aside>
   );
