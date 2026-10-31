@@ -45,6 +45,7 @@ export default function AdvertisePage() {
         )}
       </PageHero>
 
+      <h2>What you get</h2>
       <section className="options-grid" aria-label="What you get">
         {[
           ['Your own profile page', 'A dedicated page with your photo or logo, services, service areas, languages and a Verified badge.'],

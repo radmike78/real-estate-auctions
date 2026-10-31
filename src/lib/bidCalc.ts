@@ -310,7 +310,7 @@ export function maxBidSteps(i: BidInputs): { label: string; amount: number }[] {
   const exit = Math.round(nz(i.exitValue));
   const rows = costs.filter(([, v]) => v > 0).map(([label, v]) => ({ label, amount: -Math.round(v) }));
   const profit = exit + rows.reduce((a, x) => a + x.amount, 0) - bid;
-  return [{ label: 'Resale value after repairs', amount: exit }, ...rows, { label: 'Your profit', amount: -profit }];
+  return [{ label: 'Resale value after repairs', amount: exit }, ...rows, { label: 'Profit you want (set aside)', amount: -profit }];
 }
 
 /**
