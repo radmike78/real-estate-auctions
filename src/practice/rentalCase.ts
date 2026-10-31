@@ -815,7 +815,7 @@ function buildCase(c: CaseConfig) {
     {
       key: 'cash',
       title: 'Your goal and your cash',
-      outcome: 'Your goal in one sentence, and the most cash you can put into a deal without touching your safety net.',
+      outcome: 'Your goal in one sentence, and the most cash you can put into a deal without touching your emergency fund.',
       brief: [
         'Before you look at a single house, work out how much you can safely invest. In this practice case, you want a rental you’ll hold for at least 10 years. You’re fine with little or no monthly profit at first, as long as the rent covers the costs.',
         `Your emergency fund stays out of the deal. Here you keep ${cushionMonths} months of household spending. That’s a planning choice, not a rule: some people keep more.`,
@@ -851,7 +851,7 @@ function buildCase(c: CaseConfig) {
           choices: [
             { label: 'Keep the emergency fund separate. The deal has to fit inside your investable cash.', verdict: 'best', why: 'A rental adds risk: a vacancy, a repair or a job loss can all hit at once. Your emergency fund is what keeps a bad month from forcing a sale.' },
             { label: 'Use half of it. Rentals usually work out.', verdict: 'poor', why: 'Most of what goes wrong with a rental costs money right away. Plan for the bad month, not the usual one.' },
-            { label: 'Use all of it, then rebuild it from the rent.', verdict: 'poor', why: 'Many rentals bring in little cash in the first years, so it could take a very long time to rebuild. Keep the safety net.' },
+            { label: 'Use all of it, then rebuild it from the rent.', verdict: 'poor', why: 'Many rentals bring in little cash in the first years, so it could take a very long time to rebuild. Keep the emergency fund.' },
           ],
           ifDifferent: 'If you had high-interest debt, paying it off would usually come before investing. That’s why Decide puts Practice first for people with no emergency fund or high-interest debt.',
         },

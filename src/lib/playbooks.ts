@@ -53,7 +53,7 @@ const NEVADA: Playbook[] = [
     plain: 'The house itself, but the county makes no promise that the title is clear.',
     forSale: true,
     glance: [
-      { label: 'Run by', value: 'Clark County Treasurer, as trustee for the state and county' },
+      { label: 'Run by', value: 'Clark County Treasurer (holds the property in trust for the state and county)' },
       { label: 'How often', value: 'Usually in May. Some years add a December or February auction. Some years have none: the Treasurer holds one only if needed. Dates are posted on the Treasurer’s website. There is no mailing list.' },
       { label: 'Where', value: 'In person, Commission Chambers, 500 S. Grand Central Pkwy (confirm in the notice)' },
       { label: 'Register', value: 'Opens about 3–4 weeks before and closes about a week before. Capped at 280 bidders. No registration on the day.' },

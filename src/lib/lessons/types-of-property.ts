@@ -86,6 +86,11 @@ export const typesOfProperty: Lesson = {
     { term: 'HUD Code', meaning: 'Federal construction and safety standards for manufactured homes.' },
     { term: 'Zoning', meaning: 'Local rules on how land can be used and what can be built on it.' },
     { term: 'Improved property', meaning: 'Land with buildings, roads or utilities already in place.' },
+    { term: 'FHA loan', meaning: 'A home loan insured by the Federal Housing Administration, with a small down payment, for a home you’ll live in.' },
+    { term: 'Fannie Mae', meaning: 'A government-sponsored company that buys home loans from lenders and sets rules many lenders follow.' },
+    { term: 'Owner-occupant', meaning: 'A buyer who lives in the home as their main residence.' },
+    { term: 'Special assessment', meaning: 'An extra charge the HOA bills owners, often for a big repair its savings don’t cover.' },
+    { term: 'Reserve study', meaning: 'A report on the HOA’s savings for future big repairs, and whether they’re enough.' },
   ],
   tryIt: { label: 'Practice buying a residential or commercial property', href: '#/practice' },
   sources: [

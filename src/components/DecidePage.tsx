@@ -7,7 +7,7 @@ import OwlNote from './OwlNote';
 import { useMarkStep, stepEyebrow } from '../lib/path';
 import { linkLabel } from '../lib/linkLabel';
 import { creditStep } from '../lib/roadmapState';
-import { DECIDE_KEY, notYetWhy, QUESTIONS, rank, stateNote, type Answers } from '../lib/decide';
+import { DECIDE_KEY, joinReasons, notYetWhy, QUESTIONS, rank, stateNote, type Answers } from '../lib/decide';
 import { strategyHref } from '../lib/strategies';
 import { stateByCode, type StateCode } from '../lib/regions';
 import { getMyState, setMyState } from '../lib/myState';
@@ -96,6 +96,9 @@ export default function DecidePage() {
 
   const q = QUESTIONS[step];
   const matches = step >= QUESTIONS.length ? rank(saved.answers).slice(0, 3) : [];
+  // The same “What you keep owing” warning on two or more cards is shown once, above them.
+  const owing = matches.map((m) => m.strategy.risk.ongoing).filter((x): x is string => !!x);
+  const sharedOwing = owing.find((x) => owing.filter((y) => y === x).length > 1);
   const stateName = stateByCode(saved.answers.state ?? '')?.name;
 
   return (
@@ -150,13 +153,18 @@ export default function DecidePage() {
           <p className="muted">Ranked from your answers. This is a starting point, not advice; talk with qualified professionals before you commit money.</p>
           {notYetWhy(saved.answers) && (
             <OwlNote>
-              <strong>Worth checking first: your cushion.</strong>{' '}
+              <strong>Worth checking first: {notYetWhy(saved.answers) === 'debt' ? 'your debt' : notYetWhy(saved.answers) === 'nofund' ? 'your emergency fund' : 'your savings'}.</strong>{' '}
               {notYetWhy(saved.answers) === 'debt'
                 ? 'High-interest debt can cost more each year than a rental earns,* and lenders count it against you. Many people pay it down before buying; your situation, finances and risk tolerance decide what fits you.'
                 : notYetWhy(saved.answers) === 'nofund'
                   ? 'Every strategy has surprises. Without an emergency fund, one vacancy or repair can force you to borrow at high rates or sell at a loss. Many investors build one first; what fits depends on your situation.'
                   : 'Under $10,000 makes most purchases hard: an auction wants the full price in cash within days, and a loan needs a down payment, closing costs and reserves. Some low-down-payment programs exist; a loan officer can tell you what you’d qualify for.'}{' '}
-              Meanwhile, learn and practice for free. Financing choices depend on your situation. <a href="#/learn/financing">Compare financing options&nbsp;→</a>{' '}<a href="#/learn/red-flags">Seminar red flags&nbsp;→</a>
+              Meanwhile, learn and practice for free. <a href="#/learn/financing">Compare financing options&nbsp;→</a>{' '}<a href="#/learn/red-flags">Seminar red flags&nbsp;→</a>
+            </OwlNote>
+          )}
+          {sharedOwing && (
+            <OwlNote>
+              <strong>What you keep owing with {joinReasons(matches.filter((m) => m.strategy.risk.ongoing === sharedOwing).map((m) => m.strategy.title))}:</strong> {sharedOwing}
             </OwlNote>
           )}
           <ol className="decide-matches">
@@ -173,14 +181,14 @@ export default function DecidePage() {
                       <p>{m.strategy.what} {m.strategy.key !== 'practice' && <a href={strategyHref(m.strategy.key)}>How it makes money&nbsp;→</a>}</p>
                     </div>
                   </div>
-                  {m.fits.length > 0 && <p className="decide-why"><strong>Fits</strong> {m.fits.join('; ')}.</p>}
-                  {m.cautions.length > 0 && <p className="decide-why caution"><strong>Holding it back:</strong> {m.cautions.join('; ')}.</p>}
+                  {m.fits.length > 0 && <p className="decide-why"><strong>Fits you</strong> because you {joinReasons(m.fits)}.</p>}
+                  {m.cautions.length > 0 && <p className="decide-why caution"><strong>Holding it back:</strong> you {joinReasons(m.cautions)}.</p>}
                   {note && <p className="decide-note">{note}</p>}
                   {m.strategy.key === 'auction' && <p className="decide-note">{AUCTION_REALITY}</p>}
                   <dl className="decide-risk" aria-label="Risk check">
                     <div><dt>What could go seriously wrong</dt><dd>{m.strategy.risk.worst}</dd></div>
                     <div><dt>Cash needed to start</dt><dd>{m.strategy.risk.atRisk}</dd></div>
-                    {m.strategy.risk.ongoing && <div><dt>What you keep owing</dt><dd>{m.strategy.risk.ongoing}</dd></div>}
+                    {m.strategy.risk.ongoing && m.strategy.risk.ongoing !== sharedOwing && <div><dt>What you keep owing</dt><dd>{m.strategy.risk.ongoing}</dd></div>}
                     <div><dt>Time to a first deal</dt><dd>{m.strategy.risk.time}</dd></div>
                   </dl>
                   <CheckFold title="Your checklist" done={doneCount} total={m.strategy.checklist.length} open={i === 0}>
@@ -205,14 +213,14 @@ export default function DecidePage() {
             <ul>
               {rank(saved.answers).slice(3).map((m) => (
                 <li key={m.strategy.key}>
-                  <strong>{m.strategy.title}.</strong> {m.cautions.length ? `Holding it back: ${m.cautions.join('; ')}.` : 'It fits your answers less well than the three above.'}
+                  <strong>{m.strategy.title}.</strong> {m.cautions.length ? `Ranks lower because you ${joinReasons(m.cautions)}.` : 'It fits your answers less well than the three above.'}
                   {m.strategy.key === 'auction' && <> {AUCTION_REALITY}</>}
                 </li>
               ))}
             </ul>
           </details>
           <div className="decide-nav">
-            {getMode() === 'guided' ? (() => { const plan = planNow(); return <a className="btn" href={plan.task.href}>Next: {plan.task.label}&nbsp;→</a>; })() : <><a className="btn" href="#/learn">Next: step 2 of 6 · Learn&nbsp;→</a> <a href="#/toolkit/buy-box">Write your buy box&nbsp;→</a></>}
+            {getMode() === 'guided' ? (() => { const plan = planNow(); return <a className="btn" href={plan.task.href}>Next: {plan.task.label}&nbsp;→</a>; })() : <><a className="btn" href="#/learn">Next: step 2 of 6 · Learn&nbsp;→</a> <a href="#/toolkit/buy-box">Write your buy box (your price, area and deal-breakers)&nbsp;→</a></>}
             <a href="#/toolkit/cash">Turn your cash range into one number (2 minutes)&nbsp;→</a>
             <button type="button" className="btn btn-secondary" onClick={() => setStep(0)}>Change my answers</button>
             <button
@@ -226,7 +234,7 @@ export default function DecidePage() {
               Start over
             </button>
           </div>
-          <p className="muted">Without an account, these answers stay in this browser. In an account workspace they last for this visit and can be downloaded; they are not included in account saves.</p>
+          <p className="muted">Without an account, these answers stay in this browser. Signed in? These answers last only for this visit and aren’t saved to your account. Download them if you want to keep them.</p>
         </section>
       )}
       <AdSpot spot="decide" />

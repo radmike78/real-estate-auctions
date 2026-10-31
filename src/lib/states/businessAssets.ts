@@ -55,7 +55,7 @@ export const BUYING: ByStateLines = {
     { text: 'In Arizona, most liens on business equipment and inventory are filed with the Arizona Secretary of State. Liens on fixtures may be filed with the county recorder instead (A.R.S. 47-9501). For a company organized in another state, search that state too. Vehicle liens show on the title.' },
   ],
   UT: [
-    { text: 'In Utah, when someone sells their business or stock of goods, unpaid sales tax is a lien on their property. The buyer must hold back enough of the price until the seller shows a receipt from the State Tax Commission, or a certificate that no taxes are due. If the buyer doesn’t, the buyer becomes personally liable for sales taxes the seller collected but didn’t pay, and unlike Nevada’s rule, there is no “up to what you paid” cap (Utah Code 59-12-112).' },
+    { text: 'In Utah, when someone sells their business or stock of goods, unpaid sales tax is a lien on their property. The buyer must hold back enough of the price until the seller shows a receipt from the State Tax Commission, or a certificate that no taxes are due. If the buyer doesn’t, the buyer becomes personally liable for sales taxes the seller collected but didn’t pay, and the law sets no cap on that amount (Utah Code 59-12-112).' },
     { text: 'In Utah, lenders file UCC financing statements with the Division of Corporations and Commercial Code, and fixture filings go to the county recorder (Utah Code 70A-9a-501). For an out-of-state company, search the state where it is organized.' },
     { text: 'In Utah, the current Uniform Commercial Code (Title 70A) has no bulk sales chapter. Creditors won’t get a bulk-sale notice, so do your own lien and tax searches.' },
   ],

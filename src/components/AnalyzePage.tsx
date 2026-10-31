@@ -229,7 +229,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           <input type="checkbox" checked={!!deal.locationConfirmed} onChange={(e) => set({ locationConfirmed: e.target.checked })} />
           I checked that this property is in {countyName(deal.county)}, {st.name}.
         </label>
-        {!deal.locationConfirmed && <p className="muted" role="status">Choose the property’s actual location, purchase method and your plan, then confirm the location above. Starting choices are placeholders, not recommendations.</p>}
+        {!deal.locationConfirmed && <p className="muted" role="status">Choose the property’s county, kind of sale and your plan, then tick the box above to confirm the location. Starting choices are placeholders, not recommendations.</p>}
         <div className="deal-actions">
           {deal.id ? (
             <>

@@ -26,7 +26,7 @@ export const SALE_KINDS: SaleKindInfo[] = [
   { key: 'listing', label: 'Regular listing (agent or owner)' },
   { key: 'reo', label: 'Bank-owned or government home (REO, HUD)' },
   { key: 'short', label: 'Short sale (the seller’s lender must approve)' },
-  { key: 'trustee', label: 'Foreclosure auction (trustee sale)' },
+  { key: 'trustee', label: 'Foreclosure auction (trustee’s sale)' },
   { key: 'taxSale', label: 'County tax sale (the property)', states: ['NV', 'CA', 'UT', 'TX'] },
   { key: 'lien', label: 'Tax lien sale', states: ['AZ', 'NV'], labelIn: { NV: 'SID lien certificate', AZ: 'Tax lien sale (lien certificate)' } },
   { key: 'court', label: 'Sheriff’s or court sale' },
@@ -38,8 +38,8 @@ export const kindsFor = (st: StateCode) => SALE_KINDS.filter((k) => !k.states ||
 export const kindLabel = (k: SaleKindInfo, st: StateCode) => k.labelIn?.[st] ?? k.label;
 
 export const PLANS: { key: Plan; label: string }[] = [
-  { key: 'flip', label: 'Fix and sell' },
-  { key: 'rent', label: 'Keep and rent' },
+  { key: 'flip', label: 'Fix and flip (fix and sell)' },
+  { key: 'rent', label: 'Buy and hold (keep and rent)' },
   { key: 'commercial', label: 'Commercial income' },
   { key: 'lien', label: 'Hold the lien for interest' },
 ];

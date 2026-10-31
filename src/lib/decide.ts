@@ -10,7 +10,8 @@ export interface Question {
   help?: string;
   /** How the answer reads in "fits because…" lines. */
   label: string;
-  options: { value: string; text: string }[];
+  /** Each answer, and how it reads after “you” in the “Fits you because…” lines. */
+  options: { value: string; text: string; why?: string }[];
 }
 
 export const QUESTIONS: Question[] = [
@@ -19,11 +20,11 @@ export const QUESTIONS: Question[] = [
     ask: 'What do you want most from investing?',
     label: 'your goal',
     options: [
-      { value: 'income', text: 'Monthly income from rent' },
-      { value: 'growth', text: 'Build wealth over the long run' },
-      { value: 'quick', text: 'Profit from buying and reselling' },
-      { value: 'handsoff', text: 'Invest without owning or managing a building' },
-      { value: 'learn', text: 'I’m not sure yet; I want to learn first' },
+      { value: 'income', text: 'Monthly income from rent', why: 'want monthly income from rent' },
+      { value: 'growth', text: 'Build wealth over the long run', why: 'want to build wealth over the long run' },
+      { value: 'quick', text: 'Profit from buying and reselling', why: 'want profit from buying and reselling' },
+      { value: 'handsoff', text: 'Invest without owning or managing a building', why: 'want to invest without owning or managing a building' },
+      { value: 'learn', text: 'I’m not sure yet; I want to learn first', why: 'want to learn first' },
     ],
   },
   {
@@ -32,10 +33,10 @@ export const QUESTIONS: Question[] = [
     help: 'Savings you can invest after keeping an emergency fund. Include closing and repair costs.',
     label: 'your budget',
     options: [
-      { value: 'under10', text: 'Under $10,000' },
-      { value: '10to50', text: '$10,000 to $50,000' },
-      { value: '50to150', text: '$50,000 to $150,000' },
-      { value: 'over150', text: 'More than $150,000' },
+      { value: 'under10', text: 'Under $10,000', why: 'have under $10,000 to invest' },
+      { value: '10to50', text: '$10,000 to $50,000', why: 'have $10,000 to $50,000 to invest' },
+      { value: '50to150', text: '$50,000 to $150,000', why: 'have $50,000 to $150,000 to invest' },
+      { value: 'over150', text: 'More than $150,000', why: 'have more than $150,000 to invest' },
     ],
   },
   {
@@ -44,9 +45,9 @@ export const QUESTIONS: Question[] = [
     help: 'Deals go over budget. Savings for emergencies and no high-interest debt keep a surprise from becoming a crisis.',
     label: 'your savings and debts',
     options: [
-      { value: 'ready', text: 'I have an emergency fund and no high-interest debt' },
-      { value: 'debt', text: 'I carry credit card or other high-interest debt' },
-      { value: 'nofund', text: 'I don’t have an emergency fund yet' },
+      { value: 'ready', text: 'I have an emergency fund and no high-interest debt', why: 'have an emergency fund and no high-interest debt' },
+      { value: 'debt', text: 'I carry credit card or other high-interest debt', why: 'carry high-interest debt' },
+      { value: 'nofund', text: 'I don’t have an emergency fund yet', why: 'don’t have an emergency fund yet' },
     ],
   },
   {
@@ -54,10 +55,10 @@ export const QUESTIONS: Question[] = [
     ask: 'How would you pay for it?',
     label: 'how you’d pay',
     options: [
-      { value: 'live', text: 'A home loan, and I’d live in the property' },
-      { value: 'invest', text: 'A loan for an investment property I won’t live in' },
-      { value: 'cash', text: 'Cash only' },
-      { value: 'unsure', text: 'Not sure what I’d qualify for' },
+      { value: 'live', text: 'A home loan, and I’d live in the property', why: 'would use a home loan and live in the property' },
+      { value: 'invest', text: 'A loan for an investment property I won’t live in', why: 'would use a loan for a property you won’t live in' },
+      { value: 'cash', text: 'Cash only', why: 'would pay cash only' },
+      { value: 'unsure', text: 'Not sure what I’d qualify for', why: 'aren’t sure what loan you’d qualify for' },
     ],
   },
   {
@@ -65,9 +66,9 @@ export const QUESTIONS: Question[] = [
     ask: 'How much time can you give it?',
     label: 'your time',
     options: [
-      { value: 'monthly', text: 'A few hours a month' },
-      { value: 'weekly', text: 'A few hours a week' },
-      { value: 'parttime', text: '10 hours a week or more' },
+      { value: 'monthly', text: 'A few hours a month', why: 'have a few hours a month' },
+      { value: 'weekly', text: 'A few hours a week', why: 'have a few hours a week' },
+      { value: 'parttime', text: '10 hours a week or more', why: 'have 10 hours a week or more' },
     ],
   },
   {
@@ -75,9 +76,9 @@ export const QUESTIONS: Question[] = [
     ask: 'Repairs and tenants: how hands-on do you want to be?',
     label: 'how hands-on you are',
     options: [
-      { value: 'diy', text: 'I’ll handle a lot myself' },
-      { value: 'hire', text: 'I’ll hire contractors and a property manager' },
-      { value: 'none', text: 'I don’t want to deal with either' },
+      { value: 'diy', text: 'I’ll handle a lot myself', why: 'will handle a lot yourself' },
+      { value: 'hire', text: 'I’ll hire contractors and a property manager', why: 'will hire contractors and a property manager' },
+      { value: 'none', text: 'I don’t want to deal with either', why: 'don’t want to deal with repairs or tenants' },
     ],
   },
   {
@@ -86,9 +87,9 @@ export const QUESTIONS: Question[] = [
     help: 'Higher-risk strategies can pay more, and can lose more.',
     label: 'your comfort with risk',
     options: [
-      { value: 'low', text: 'Low: I’d rather go slow and steady' },
-      { value: 'medium', text: 'Medium: some surprises are OK' },
-      { value: 'high', text: 'High: I could lose all the cash I put in, and owe more on a loan, and still be OK' },
+      { value: 'low', text: 'Low: I’d rather go slow and steady', why: 'want low risk' },
+      { value: 'medium', text: 'Medium: some surprises are OK', why: 'are OK with some surprises' },
+      { value: 'high', text: 'High: I could lose all the cash I put in, and owe more on a loan, and still be OK', why: 'can take a high risk of loss' },
     ],
   },
   {
@@ -96,9 +97,9 @@ export const QUESTIONS: Question[] = [
     ask: 'Residential or commercial?',
     label: 'the market you picked',
     options: [
-      { value: 'res', text: 'Residential: houses, condos, 2–4 units' },
-      { value: 'com', text: 'Commercial: apartments, retail, office, industrial' },
-      { value: 'unsure', text: 'Not sure yet' },
+      { value: 'res', text: 'Residential: houses, condos, 2–4 units', why: 'picked residential' },
+      { value: 'com', text: 'Commercial: apartments, retail, office, industrial', why: 'picked commercial' },
+      { value: 'unsure', text: 'Not sure yet', why: 'aren’t sure yet about residential or commercial' },
     ],
   },
   {
@@ -279,7 +280,7 @@ export const STRATEGIES: Strategy[] = [
       time: 'Months to buy and renovate, then months more before you can refinance.',
     },
     checklist: [
-      { id: 'br-lessons', text: 'Read the lessons on analyzing a deal and traditional financing.', href: '#/learn/analyze' },
+      { id: 'br-lessons', text: 'Read “Refinancing after a cash or hard-money purchase” in the financing lesson, then the lesson on analyzing a deal.', href: '#/learn/financing' },
       { id: 'br-refi', text: 'Before you buy, ask a lender what they’ll lend on a cash-out refinance, how long you must own it first, and what they need from the appraisal.', href: '#/pros/lender' },
       { id: 'br-arv', text: 'Estimate the value after repairs from sold homes already in finished condition, and plan for an appraisal that comes in lower.' },
       { id: 'br-rehab', text: 'Get a written bid from a qualified contractor (licensed where required) and add a cushion for what you can’t see.', href: '#/pros/contractor' },
@@ -395,7 +396,7 @@ export const STRATEGIES: Strategy[] = [
     },
     checklist: [
       { id: 'pr-lessons', text: 'Take the first five lessons.', href: '#/learn' },
-      { id: 'pr-practice', text: 'Complete a practice purchase for two kinds of sale.', href: '#/practice' },
+      { id: 'pr-practice', text: 'Complete a practice purchase, and three auction drills (auction practice uses Nevada rules; outside Nevada, the drills cover your state).', href: '#/practice' },
       { id: 'pr-paper', text: 'Analyze three real listings on paper with the calculator.', href: '#/analyze' },
       { id: 'pr-credit', text: 'Talk with a loan officer about what you’d qualify for and how to improve it.', href: '#/pros/lender' },
       { id: 'pr-team', text: 'Learn who’s on a deal team and when you need each one.', href: '#/pros' },
@@ -407,17 +408,22 @@ export const STRATEGIES: Strategy[] = [
 export interface Match {
   strategy: Strategy;
   score: number;
-  /** Answers that point toward this strategy. */
+  /** Answers that point toward this strategy, as phrases that follow “you”. */
   fits: string[];
   /** Answers that point away from it. */
   cautions: string[];
 }
 
-/** The answer as it reads mid-sentence: first letter lowercased, except "I". */
+/** The answer as it reads after “you”: “have under $10,000 to invest”. */
 function answerText(q: Question, v: string) {
-  const t = q.options.find((o) => o.value === v)?.text ?? v;
-  return /^I[’ ]/.test(t) ? t : t[0].toLowerCase() + t.slice(1);
+  const o = q.options.find((x) => x.value === v);
+  if (o?.why) return o.why;
+  const t = o?.text ?? v;
+  return `chose ${q.label}: ${/^I[’ ]/.test(t) ? t : t[0].toLowerCase() + t.slice(1)}`;
 }
+
+/** Reasons joined as one phrase: “a, b and c”. */
+export const joinReasons = (r: string[]) => (r.length < 2 ? r.join('') : `${r.slice(0, -1).join(', ')} and ${r[r.length - 1]}`);
 
 /**
  * Without savings, with high-interest debt, or with under $10,000 to invest, the honest answer is "not yet": no purchase
@@ -438,8 +444,8 @@ export function rank(answers: Answers): Match[] {
       const v = answers[q.key];
       const w = v ? (s.weights[q.key]?.[v] ?? 0) : 0;
       score += w;
-      if (v && w >= 3) fits.push(`${q.label}: ${answerText(q, v)}`);
-      if (v && w <= -2) cautions.push(`${q.label}: ${answerText(q, v)}`);
+      if (v && w >= 3) fits.push(answerText(q, v));
+      if (v && w <= -2) cautions.push(answerText(q, v));
     }
     return { strategy: s, score, fits, cautions };
   }).sort((a, b) => notYet(answers, b) - notYet(answers, a) || b.score - a.score);

@@ -66,7 +66,7 @@ export const PRO_GUIDES: ProGuide[] = [
   {
     key: 'attorney',
     title: 'Real estate attorney',
-    summary: 'Explains your rights, reviews liens and sale problems, and handles quiet title.',
+    summary: 'Explains your rights, reviews liens and sale problems, and can file a quiet-title case (a court order that settles who owns it).',
     does: 'A real estate attorney reviews the sale and any title problems and tells you what survives the sale. When a title company needs a quiet title action, they file it.',
     when: ['Tax sales, foreclosure auctions, HOA and sheriff sales, and lien certificates.', 'Any time there are surviving liens, a challenge to the sale, or people living in the property.'],
     find: ['Look up the lawyer with the state bar where the property is, using the lookup on this page. It shows any discipline.', 'Ask for an attorney who handles quiet title and foreclosure matters in the county where the property is.'],
@@ -86,7 +86,7 @@ export const PRO_GUIDES: ProGuide[] = [
   {
     key: 'appraiser',
     title: 'Appraiser',
-    summary: 'A professional appraisal is the best way to determine value.',
+    summary: 'Gives a written opinion of what a property is worth on a date. A professional appraisal is the best way to determine value.',
     does: 'A state-licensed or certified appraiser studies the property and recent sales of similar properties nearby. Then they write an appraisal: a professional opinion of its value. Value depends on the neighborhood, comparable sales, condition and the market. A professional appraisal is the best way to determine it: an opinion of value for a particular date and purpose, not a guarantee of the price a buyer will pay. Your own numbers, and your agent’s, are estimates until then. Appraisers value upgrades by what buyers in that market pay for them, not by what they cost. So $70,000 of upgrades doesn’t necessarily make a home worth $70,000 more.',
     when: ['Before you set your maximum bid or offer: the value as it stands and after the repairs you plan.', 'Before you count on a refinance, since the lender’s appraisal sets the loan.', 'At an auction you often can’t go inside. Ask whether an exterior-only appraisal is possible, and allow for what it can’t see.'],
     find: ['Ask your real estate agent or lender for appraisers they trust. Your agent can estimate the value from recent comparable sales while you wait.'],
@@ -135,7 +135,7 @@ export const PRO_GUIDES: ProGuide[] = [
   {
     key: 'eviction',
     title: 'Eviction help',
-    summary: 'The legal way to take possession when someone still lives there.',
+    summary: 'An eviction attorney or service handles the court process when someone still lives in a home you bought.',
     does: 'If people still live in a property you bought, you have to follow a legal process to take possession. You can’t change the locks or remove people or belongings yourself.',
     when: ['Right after a tax, foreclosure, HOA or sheriff sale, if the property is occupied.', 'Former owners and tenants get different notice periods; tenants often get more time.', 'After a foreclosure, tenants who rented from the former owner usually get at least 90 days’ notice under federal law. A real lease signed before the foreclosure sale transferred title may let them stay until it ends, unless you will live in the home yourself. Ask your attorney whether the tenant qualifies.'],
     find: ['An attorney who handles evictions after foreclosure. Check them with the state bar, using the lookup on this page.', 'In Nevada, Clark County’s eviction page explains the steps; in Las Vegas Township, Metro police officers carry out court-ordered lockouts.', 'In Nevada, Clark County says its fast “summary eviction” can’t be used to remove a former owner, or the former owner’s tenant, after a foreclosure; those cases need an attorney.'],
@@ -144,7 +144,7 @@ export const PRO_GUIDES: ProGuide[] = [
   {
     key: 'environmental',
     title: 'Environmental consultant',
-    summary: 'For commercial property: a Phase I check for contamination.',
+    summary: 'For commercial property: a Phase I environmental report, a records-and-site check for past contamination.',
     does: 'An environmental consultant does a Phase I environmental site assessment. That’s a records search, interviews and a site visit, looking for past uses that could have left pollution behind.',
     when: ['Commercial property, before you take title: cleanup can cost more than the price.', 'Vacant land with a past commercial or industrial use, such as an old gas station or dry cleaner.'],
     find: ['Ask a commercial lender or broker for consultants who do Phase I assessments.'],

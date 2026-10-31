@@ -84,7 +84,7 @@ export default function HomeownerHelpPage() {
         <h2>Watch out for foreclosure scams</h2>
         <ul className="hh-lead">
           <li><strong>Fees in advance: </strong>Never pay anyone up front who promises to “save” your home. Counselors above are free.</li>
-          <li><strong>Your deed: </strong>Never sign it over, and never sign papers you don’t understand.</li>
+          <li><strong>Your deed: </strong>Be very wary of anyone who asks you to sign your deed over to them to “save” your home; that is a common scam. A deed in lieu of foreclosure with your own lender is a different, legitimate option. Have a HUD-approved housing counselor or an attorney review any deed or agreement before you sign, and don’t sign papers you don’t understand.</li>
           <li><strong>Strangers who contact you: </strong>Be wary of anyone who reaches out because they saw your home in public records.</li>
         </ul>
         <ByState lines={SCAMS} />

@@ -301,10 +301,10 @@ export function FirstDealRoadmap() {
         </label>
         <p className="muted">
           {deal
-            ? `Parts 4 to 7 (find, buy, own, then sell, refinance or trade) are tracked for ${deal.name} only, and what you record goes into its evidence log. Parts 1 to 3 are yours, whatever the property.`
+            ? `Phases 4 to 7 (find, buy, own, then sell, refinance or trade) are tracked for ${deal.name} only, and what you record goes into its evidence log. Phases 1 to 3 are yours, whatever the property.`
             : deals.length
-              ? 'Choose a property to track parts 4 to 7 for it. Each property keeps its own progress and evidence.'
-              : 'To track parts 4 to 7 for a real property, save it in Analyze first. Each property keeps its own progress and evidence.'}
+              ? 'Choose a property to track phases 4 to 7 (find, buy, own and sell) for it. Each property keeps its own progress and evidence.'
+              : 'To track phases 4 to 7 (find, buy, own and sell) for a real property, save it in Analyze first. Each property keeps its own progress and evidence.'}
         </p>
       </div>
       {active && stage && (
@@ -336,7 +336,7 @@ export function FirstDealRoadmap() {
           {nextAdShows && <FixedAds key={next.id} pros={pros} categories={nextAdCats} placeholder />}
         </div>
       ) : (
-        <p className="next-step" role="status">Follow “Your next step” above. Use the task details below to record each milestone; contract tasks may run at the same time.</p>
+        <p className="next-step" role="status">Use the task details below to record each milestone; contract tasks may run at the same time.</p>
       )}
       <h3 className="roadmap-all-head">All tasks</h3>
       {phases.map((ph) => {
@@ -344,7 +344,7 @@ export function FirstDealRoadmap() {
         return (
           <details key={ph.n} className="roadmap-phase" name="roadmap-phases" open={openPhase === ph.n}>
             <summary>
-              <span className="roadmap-phase-title">{ph.n}. {ph.title}</span>
+              <span className="roadmap-phase-title">Phase {ph.n}: {ph.title}</span>
               <span className="muted">{phDone === ph.steps.length ? '✓ All done' : `${phDone} of ${ph.steps.length} done`}</span>
             </summary>
             <p className="roadmap-phase-help">{ROADMAP_PHASE_HELP[ph.n]}</p>
@@ -408,7 +408,7 @@ export function CashWorksheet() {
       </div>
       <dl className="cash-result">
         <div><dt>Emergency fund</dt><dd>{fmtMoney(fund)}</dd></div>
-        <div className="cash-main"><dt>Your investable cash</dt><dd>{fmtMoney(investable)}</dd></div>
+        <div className="cash-main"><dt>What you can invest</dt><dd>{fmtMoney(investable)}</dd></div>
       </dl>
       {c.savings > 0 && investable === 0 && <p className="roadmap-stop"><strong>Not yet.</strong> Your choices leave no cash for a deal in this worksheet. Review your savings, emergency fund and debt plan. You can keep learning and practicing while you prepare.</p>}
       {investable > 0 && <PriceFromCash cash={investable} />}

@@ -87,7 +87,7 @@ export function planNow(now = new Date()): PlanNow {
   }
   if (getMode() !== 'explore' && !roadmapStarted && !practiceDone) {
     const chapter = CHAPTERS.find((c) => c.id === resumeChapter(practice))!;
-    return { goal, source: 'starter', context: 'Step 3 · Practice: build your first deal', task: { key: 'practice-deal', label: chapter.title, produces: 'practical experience checking a deal, recorded in your workbook', href: journeyHref(chapter.id), support: [], done: false, text: chapter.purpose } };
+    return { goal, source: 'starter', context: 'Step 3 · Practice part 1: Cedar House (the decisions)', task: { key: 'practice-deal', label: chapter.title, produces: 'practical experience checking a deal, recorded in your workbook', href: journeyHref(chapter.id), support: [], done: false, text: chapter.purpose } };
   }
   // Practice part 2 (the paperwork) follows part 1 before the roadmap takes over.
   if (getMode() !== 'explore' && !roadmapStarted && practiceDone) {
@@ -96,7 +96,7 @@ export function planNow(now = new Date()): PlanNow {
     const next = caseResume(pc.stages, prog);
     if (!next.packet) {
       const started = prog.done.length > 0;
-      return { goal, source: 'starter', context: 'Step 3 · Practice part 2: the paperwork', task: { key: 'practice-case', label: 'Buy a rental, start to finish', produces: 'a practice deal packet: budget, deadline calendar, evidence log and your questions', href: `#/practice/case${started ? `/${next.key}` : ''}`, support: [], done: false, text: 'Work one fictional purchase with the paperwork, about 45 minutes.' } };
+      return { goal, source: 'starter', context: 'Step 3 · Practice part 2: Buy a rental (the paperwork)', task: { key: 'practice-case', label: 'Buy a rental, start to finish', produces: 'a practice deal packet: budget, deadline calendar, evidence log and your questions', href: `#/practice/case${started ? `/${next.key}` : ''}`, support: [], done: false, text: 'Work one fictional purchase with the paperwork, about 45 minutes.' } };
     }
   }
   const step = roadmapNextStep();

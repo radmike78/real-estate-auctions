@@ -60,7 +60,7 @@ export const redFlags: Lesson = {
       blocks: [
         FINANCING_POSITION,
         { list: [...FINANCING_FACTORS] },
-        'Being pressured to borrow for training, coaching or an auction deposit is a warning sign about the sales pitch. It is not a reason to recommend one financing method for everyone. Credit card interest has averaged about 21% a year since 2023 (Federal Reserve G.19), and you owe the debt whether or not a deal happens. If a 401(k) loan isn’t repaid on schedule, it’s treated as a withdrawal: you owe income tax on it, and you may also owe a 10% early-withdrawal tax if you’re under 59½ (IRS).',
+        'Pressure to borrow for training, coaching or an auction deposit is a warning sign about the seller, not about any loan. Credit card interest has averaged about 21% a year since 2023 (Federal Reserve G.19), and you owe the debt whether or not a deal happens. If a 401(k) loan isn’t repaid on schedule, it’s treated as a withdrawal: you owe income tax on it, and you may also owe a 10% early-withdrawal tax if you’re under 59½ (IRS).',
         'Most forced sales, including tax sales and trustee’s sales, require cash or certified funds soon after the auction. Most also don’t refund your money if the property has problems. Check the payment deadline and consider how a loss would affect your finances before you bid.',
         FINANCING_ADVICE,
         'Everything you need to start is free: county sale rules, public records, the lessons on this site, and your library.',
