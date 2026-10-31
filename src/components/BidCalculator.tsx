@@ -84,6 +84,9 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
 
 // A listed or bank-owned home: you make an offer instead of bidding. Auction-only fields (buyer's premium, cash on
 // auction day, redemption) drop out and the words change; the math is the same.
+/** A field's unit by key, for checking a typed value outside the field list. */
+const fieldUnit = (k: string) => GROUPS.flatMap((g) => g.fields).find((f) => f.k === k)?.unit;
+
 const OFFER_FIELDS: Partial<Record<keyof BidInputs, Partial<Field>>> = {
   minimumBid: { label: 'Asking price', hint: 'From the listing.', more: 'What the seller is asking. Your maximum offer is worked out from the resale value and every cost; the results show how it compares with the asking price.' },
   survivingLiens: { label: 'Liens you’d have to pay', hint: 'Usually paid off at closing. Check the title report.' },
@@ -603,7 +606,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       {/* On phones the results sit below every input, so keep the answer in view while typing. */}
       <button type="button" hidden={resultsVisible || !calcInView} className={`calc-sticky${r.noBidWorks && !needsValue ? ' bad' : ''}`} onClick={() => document.getElementById(`${uid}-results`)?.scrollIntoView({ behavior: 'smooth' })}>
         <span>Walk-away price</span>
-        <strong>{needsValue ? 'Enter a resale value' : cashShort ? 'Not enough cash' : r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
+        <strong>{Object.entries(draft).some(([k, t]) => t !== undefined && calculatorInputError(t, (fieldUnit(k) ?? '$') as never)) ? 'Fix the highlighted number' : needsValue ? 'Add resale value' : cashShort ? 'Not enough cash' : r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
         <span className="calc-sticky-go">See details&nbsp;↓</span>
       </button>
     </div>

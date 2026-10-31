@@ -947,9 +947,9 @@ small { font-size: 0.95rem; }
   .page-hero-top > a { flex-basis: 100%; }
 }
 
-/* Max-bid bar pinned to the bottom of the screen on phones and tablets. */
-.calc-sticky { display: none; }
-@media (max-width: 1000px) {
+/* The calculator's headline number pinned to the bottom of the screen while its full results are out of view (all widths). */
+.calc-sticky[hidden] { display: none !important; }
+@media all {
   .calc { padding-bottom: 76px; }
   .calc-sticky {
     display: flex; align-items: center; gap: 12px; position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 30;
@@ -961,6 +961,7 @@ small { font-size: 0.95rem; }
   .calc-sticky strong { font-family: var(--font-display); font-size: 1.5rem; }
   .calc-sticky-go { margin-left: auto; font-weight: 600; white-space: nowrap; }
 }
+@media (min-width: 1001px) { .calc-sticky { left: auto; right: 24px; bottom: 20px; width: 30rem; } }
 @media (max-width: 420px) { .calc-sticky-go { display: none; } }
 @media print { .calc-sticky { display: none !important; } }
 
@@ -2923,3 +2924,15 @@ dl.cash-result .cash-main { border-color: var(--accent); }
   }
   .ad-box:not(.ad-space) .ad-box-grid:has(> .ad-card:only-child) .ad-card-body > .btn { grid-column: 2; grid-row: 1 / span 5; align-self: center; }
 }
+/* The prerendered copy kept on screen while the first page's code loads (src/lib/firstPaint.ts). */
+.prerender-hold h1 { font-size: clamp(2rem, 4vw, 2.8rem); margin: 8px 0 12px; }
+.prerender-hold table { width: 100%; border-collapse: collapse; }
+.prerender-hold th, .prerender-hold td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+
+/* Check and cross marks use the theme-tuned colors, which keep 3:1 contrast in light and dark. */
+.why-yes h4 span { color: var(--go); }
+.why-no h4 span { color: var(--stop); }
+/* Phone tap targets: disclosure titles, decision tabs and stand-alone links get at least 44px. */
+.page summary, .deal-task-nav button { min-height: 44px; }
+.page summary:not(.lesson-topic > summary) { padding-block: 10px; }
+.lookup-card a, .disclaimer a, .verify-card a:not(.btn), .lesson-try a, .plan-now a:not(.btn) { display: inline-flex; align-items: center; min-height: 44px; }

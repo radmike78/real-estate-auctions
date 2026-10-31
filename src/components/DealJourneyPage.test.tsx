@@ -50,11 +50,18 @@ it('shows incomplete workbook output and handles an unknown chapter explicitly',
   expect(renderToStaticMarkup(<DealJourneyPage chapterKey="unknown" />)).toContain('That chapter isn’t');
 });
 it('shows the cash gap even when the lab meets the monthly target', () => {
-  saveJourney({ ...emptyJourney(), lab: { price: 350000, rent: 3000, vacancy: 5, rate: 7 } });
+  const nc = CHAPTERS.find((c) => c.id === 'numbers')!;
+  saveJourney({ ...answerTask(emptyJourney(), nc, nc.tasks.find((t) => t.kind === 'number')!, -21.93), lab: { price: 350000, rent: 3000, vacancy: 5, rate: 7 } });
   const html = renderToStaticMarkup(<DealJourneyPage chapterKey="numbers" />);
   expect(html).toContain('$163.58');
   expect(html).toContain('$122,500.00');
   expect(html).toContain('$12,500.00');
   expect(html).toContain('over budget');
   expect(html).toContain('Not counting costs while you repair and find a tenant');
+});
+it('keeps the numbers chapter answer hidden until the question is answered', () => {
+  saveJourney({ ...emptyJourney(), lab: { price: 300000, rent: 2500, vacancy: 5, rate: 7 } });
+  const html = renderToStaticMarkup(<DealJourneyPage chapterKey="numbers" />);
+  expect(html).not.toContain('21.93');
+  expect(html).toContain('Answer this chapter’s question first');
 });

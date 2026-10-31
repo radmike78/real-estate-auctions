@@ -6,6 +6,7 @@ import { useMyState } from './lib/myState';
 import { stateByCode, type StateCode } from './lib/regions';
 import { currentRoute, isAppLink, navigate, onNavigate, replaceAddress, rewriteAppLinks, toPath, upgradeLegacyHash } from './lib/nav';
 import PageErrorBoundary from './components/PageErrorBoundary';
+import { prerendered, releasePrerender } from './lib/firstPaint';
 import { strategyBySlug } from './lib/strategies';
 import HomePage from './components/HomePage';
 import SiteHeader from './components/SiteHeader';
@@ -230,6 +231,8 @@ export default function App() {
   // Counts real navigations. Search rewrites its own URL (replaceState) as filters change, so the route
   // alone can look unchanged when someone clicks back to plain #/search; this makes that a fresh page.
   const [nav, setNav] = useState(0);
+  // The prerendered first page is only right until the reader moves to another page.
+  useEffect(() => { if (nav > 0) releasePrerender(); }, [nav]);
 
   useEffect(() => {
     const onNav = () => {
@@ -317,7 +320,7 @@ export default function App() {
       <AccountBar />
       <RoleNotice key={account.account?.id ?? 'guest'} />
       <PageErrorBoundary key={`${nav}:${account.account?.id ?? 'guest'}:${account.status === 'locked'}`}>
-      <Suspense fallback={<main className="page"><p className="muted" role="status">Loading…</p></main>}>
+      <Suspense fallback={prerendered() ? <main className="page prerender-hold" aria-busy="true" dangerouslySetInnerHTML={{ __html: prerendered()! }} /> : <main className="page"><p className="muted" role="status">Loading…</p></main>}>
       {account.status === 'loading' && !['account','privacy','terms','admin','advertiser','apply','applicationConfirm','advertise','alerts'].includes(route.page) ? <main className="page"><h1>Opening your workspace</h1><p role="status">Checking your sign-in and saved work…</p>{!account.account && <button className="btn btn-secondary" onClick={continueAsGuest}>Continue without an account</button>}</main> : account.status === 'locked' && !['account','privacy','terms','admin','advertiser','apply','applicationConfirm','advertise','alerts'].includes(route.page) ? <main className="page"><h1>Keep your unsaved work safe</h1><p>{account.message}</p><a className="btn" href="#/account">Download work or reopen your account</a></main> : !chosenState && route.page === 'home' ? (
         <WelcomeGate />
       ) : <>

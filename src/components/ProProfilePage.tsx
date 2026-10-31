@@ -49,13 +49,13 @@ export default function ProProfilePage({ id }: { id: string }) {
           <p className="lede">{p.headline}</p>
           <div className="contact">
             {!p.isSample && tel && <a className="btn" href={tel} onClick={() => track('phone_click', p.id)}>Call {fmtPhone(p.phone!)}</a>}
-            {mail && <a className="btn btn-secondary" href={mail} onClick={() => track('email_click', p.id)}>Email</a>}
-            {web && <a className="btn btn-secondary" href={web} target="_blank" rel="noreferrer noopener nofollow" onClick={() => track('website_click', p.id)}>Website&nbsp;↗</a>}
+            {!p.isSample && mail && <a className="btn btn-secondary" href={mail} onClick={() => track('email_click', p.id)}>Email</a>}
+            {!p.isSample && web && <a className="btn btn-secondary" href={web} target="_blank" rel="noreferrer noopener nofollow" onClick={() => track('website_click', p.id)}>Website&nbsp;↗</a>}
           </div>
         </div>
         <span className="ad-label">Advertisement{p.isSample ? ' · sample profile' : ''}</span>
       </section>
-      <PaidAdNotice />
+      {p.isSample ? <p className="paid-ad-notice" role="note"><strong>Sample profile.</strong> A fictional example of how an advertiser’s page looks. No real person or business is behind it.</p> : <PaidAdNotice />}
 
       <div className="profile-grid">
         <div className="main-col">

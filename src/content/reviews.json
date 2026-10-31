@@ -23,7 +23,7 @@
       "src/lib/status.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "94e21dbc7f496afd",
+    "hash": "9453862c7d59c869",
     "note": "State-isolation presentation audit across all five selections, including expanded pages and local quizzes. Removed cross-state comparisons and examples; retained local contract, county and professional-guidance qualifications. No new legal rules or financial calculations introduced."
   },
   {
@@ -146,7 +146,7 @@
       "src/practice/dealJourney.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "8c8b4b1f3495281d",
+    "hash": "01831e55794fb8e0",
     "note": "Reviewed account resume: choices and numbers preserved, reflection self-review completion explicitly distinguished from written answers and grades; restored reflections allow continuation without inventing text. Local risk guidance and formulas unchanged."
   },
   {
@@ -163,7 +163,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "2ccfefe98189614b",
+    "hash": "2dc7bebb52a69073",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -180,7 +180,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "1fa854e0fbc9cb77",
+    "hash": "ad8f67fb11b7fbc0",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -246,7 +246,7 @@
       "src/lib/proVerification.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "ce5c0462c48d65b8",
+    "hash": "dc9e51cf297e2948",
     "note": "Reviewed Verified badge and explanation: verification is not endorsement or a guarantee of work quality. Required-license checks and identity verification remain mandatory; the application and approval wording support the existing alternative-qualification cases. Privacy content is unchanged; the same verification explanation is now shared with the draft Terms."
   },
   {
@@ -421,7 +421,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-10-31",
-    "hash": "bbaf6c8cea6d635a",
+    "hash": "e27aa768f40b4821",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {

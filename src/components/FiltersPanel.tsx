@@ -1,3 +1,4 @@
+import { parseCalcInput } from './CalcFields';
 import type { AcquisitionStatus, SaleType } from '../types';
 import type { Filters } from '../lib/search';
 import { STATUS } from '../lib/status';
@@ -20,7 +21,7 @@ function toggle<T>(list: T[], item: T): T[] {
 
 // Blank means no limit; negatives and nonsense count as no limit too.
 const num = (v: string) => {
-  const n = Number(v);
+  const n = parseCalcInput(v);
   return v === '' || !Number.isFinite(n) || n < 0 ? null : n;
 };
 
@@ -76,11 +77,11 @@ export default function FiltersPanel({ filters: f, onChange, onReset }: Props) {
         <legend>Money</legend>
         <label>
           Max minimum bid
-          <input type="number" min={0} step={1000} placeholder="Any" value={f.maxMinimumBid ?? ''} onChange={(e) => onChange({ maxMinimumBid: num(e.target.value) })} />
+          <input type="text" inputMode="decimal" placeholder="Any" value={f.maxMinimumBid ?? ''} onChange={(e) => onChange({ maxMinimumBid: num(e.target.value) })} />
         </label>
         <label>
           Min est. spread
-          <input type="number" step={5000} placeholder="Any" value={f.minEquity ?? ''} onChange={(e) => onChange({ minEquity: num(e.target.value) })} />
+          <input type="text" inputMode="decimal" placeholder="Any" value={f.minEquity ?? ''} onChange={(e) => onChange({ minEquity: num(e.target.value) })} />
         </label>
       </fieldset>
 

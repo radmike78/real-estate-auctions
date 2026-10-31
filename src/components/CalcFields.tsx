@@ -24,7 +24,9 @@ export const parseCalcInput = (text: string) => Number(text.replace(/[,\s$]/g, '
 const shown = (n: number, unit: Unit) => (unit === '$' && Number.isFinite(n) ? n.toLocaleString('en-US', { maximumFractionDigits: 2 }) : String(n));
 export function calculatorInputError(text: string, unit: Unit): string | null {
   const n = parseCalcInput(text);
-  if (!text.trim() || !Number.isFinite(n)) return 'Enter a number. Results use the last valid value.';
+  // Commas only as thousands separators ("1,500" yes, "1,2,3" no), with an optional "$" in front and "%" after.
+  const shape = /^\s*\$?\s*(?:\d{1,3}(?:,\d{3})+|\d*)(?:\.\d*)?\s*%?\s*$/;
+  if (!text.trim() || !Number.isFinite(n) || !shape.test(text) || !/\d/.test(text)) return 'Enter a number. Results use the last valid value.';
   const max = unit === '%' ? 100 : 1e10;
   if (n < 0 || n > max) return `Enter a number from 0 to ${max.toLocaleString('en-US')}. Results use the last valid value.`;
   return null;
