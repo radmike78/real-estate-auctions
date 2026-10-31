@@ -105,8 +105,10 @@ export const forcedSales: Lesson = {
     { term: 'Trustee sale', meaning: 'An out-of-court foreclosure auction held by the trustee under a deed of trust.' },
     { term: 'Right of redemption', meaning: 'The owner’s right to buy the property back for a time after certain sales.' },
     { term: 'Quitclaim deed', meaning: 'A deed that passes whatever interest the seller has, with no promise that title is clear.' },
+    { term: 'Quiet title action', meaning: 'A court case that confirms you own the property free of old owners’ claims, so a title company will insure it.' },
   ],
   tryIt: { label: 'Find your county’s sale offices', href: '#/find-deals' },
+  practiceLink: { label: 'Practice an auction purchase with fictional paperwork', href: '#/practice?sale=tax' },
   sources: [
     { label: 'NRS 361: property tax and tax sales (361.570, 361.585, 361.595)', url: 'https://www.leg.state.nv.us/NRS/NRS-361.html' },
     { label: 'California Revenue and Taxation Code 3691: when tax-defaulted property can be sold', url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=3691' },

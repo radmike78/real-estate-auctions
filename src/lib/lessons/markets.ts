@@ -32,7 +32,7 @@ export const markets: Lesson = {
             ],
           },
         },
-        'The table shows the usual starting point, not a fixed rule. A commercial appraisal can also weigh recent sales and the cost to rebuild, and a rented house or small multi-unit can be checked against its rent. This is a first screen. A professional appraisal provides an opinion of value, not a guaranteed sale price. Your walk-away price is your own limit, not the appraised value.',
+        'The table shows the usual starting point, not a fixed rule. A commercial appraisal can also weigh recent sales and the cost to rebuild, and a rented house or small multi-unit can be checked against its rent. This is a first screen. A professional appraisal provides an opinion of value, not a guaranteed sale price. The most you’ll pay is your own decision, set by your numbers, not by the appraisal.',
       ],
     },
     {
@@ -46,8 +46,8 @@ export const markets: Lesson = {
     {
       heading: 'How loans differ',
       blocks: [
-        'Most home loans on one to four units follow the rules of Fannie Mae, Freddie Mac or the FHA, though private DSCR, portfolio and hard-money loans on the same homes set their own rules (see the financing lesson). If you’ll live in the property, an FHA loan can cover about 96.5% of the price on a home with up to four units. With FHA, three or four units come with two extra rules. First, the rent has to carry the loan. The lender starts with the appraiser’s market rent for all units, including yours, and takes off 25%, or the appraiser’s estimate for vacancy and upkeep if that’s bigger. What’s left must cover the full monthly payment, including taxes, insurance and FHA mortgage insurance (HUD Handbook 4000.1). Second, you need three months of payments in savings after closing. Ask the lender to run the rent test before you pay for an appraisal or inspection.',
-        'Commercial loans are sized on the property’s income. Lenders look at the loan-to-value ratio (LTV) and the debt service coverage ratio (DSCR), which is how many times the NOI covers the loan payments. Federal bank regulators give an example: an office loan at 75% LTV and 1.30x DSCR, paid as if over 20 years, with the rest due as a balloon after five. Lenders also look at who guarantees the loan.',
+        'Home loans on one to four units mostly follow Fannie Mae, Freddie Mac or FHA rules. If you’ll live there, FHA can lend about 96.5% of the price. Three- and four-unit homes have extra rent and savings tests (see the financing lesson).',
+        'Commercial loans are sized on the property’s income. Lenders check that the NOI covers the loan payments with room to spare (the debt service coverage ratio, or DSCR), and they also look at the loan-to-value ratio (LTV) and who guarantees the loan.',
       ],
     },
     {

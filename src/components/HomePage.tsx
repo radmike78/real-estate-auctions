@@ -124,7 +124,8 @@ export default function HomePage() {
         </ol>
         </details>
         {/* My plan's next step, the same one as the Continue above and in My plan: the progress that counts. */}
-        <PlanNext variant="home" />
+        {/* Explorers asked to skip the guided start: their plan box appears once they've started a plan. */}
+        {(mode !== 'explore' || planStarted(plan)) && <PlanNext variant="home" />}
         <details>
         <summary>How DeedOwl counts your progress</summary>
         <ul className="progress-kinds" aria-label="How DeedOwl counts progress">

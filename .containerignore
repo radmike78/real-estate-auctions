@@ -20,3 +20,5 @@ secrets*.env
 *.db
 *.sqlite
 *.sqlite3
+# Agent worktrees and local tool state
+.claude
