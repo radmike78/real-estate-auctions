@@ -71,17 +71,34 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   useMarkStep('analyze');
   useLastActivity('#/analyze', 'Analyze a deal');
   const [mine] = useMyState();
-  // A property opened from a listing never wipes unsaved work: a started, unsaved deal is saved to My deals first.
-  const keepUnsaved = () => {
-    const cur = loadCurrent(mine ?? 'NV');
-    if (cur.id || (!cur.name.trim() && !cur.notes.trim() && cur.done.length === 0)) return;
+  // Nothing typed is ever wiped: a started, unsaved deal is saved to My deals, with its numbers, before a listing
+  // or a change of state replaces it. Returns the deal's state when one was saved, for the notice.
+  const [keptNote, setKeptNote] = useState('');
+  const keepUnsaved = (): string | null => {
+    let cur: Deal | null = null;
+    try {
+      cur = cleanDeal(JSON.parse(localStorage.getItem(CURRENT) ?? 'null'));
+    } catch {
+      return null;
+    }
+    if (!cur || cur.id || (!cur.name.trim() && !cur.notes.trim() && cur.done.length === 0)) return null;
     const all = loadDeals();
-    if (all.some((x) => x.updatedAt === cur.updatedAt && x.name.trim() === (cur.name.trim() || `${countyName(cur.county)} deal`))) return;
+    if (all.some((x) => x.updatedAt === cur.updatedAt && x.name.trim() === (cur.name.trim() || `${countyName(cur.county)} deal`))) return null;
     const d = { ...cur, id: `d${Date.now().toString(36)}`, name: cur.name.trim() || `${countyName(cur.county)} deal` };
     saveDeals([d, ...all]);
+    carryDraftNumbers(d.id, d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short');
+    return `Your unsaved ${stateByCode(d.state)?.name ?? ''} deal “${d.name}” was saved to My deals.`;
   };
   const [deal, setDeal] = useState<Deal>(() => {
-    if (!prefill) return forLink(loadCurrent(mine ?? 'NV'), plan);
+    if (!prefill) {
+      const cur = loadCurrent(mine ?? 'NV');
+      // The working deal is in another state than the one now chosen: keep it in My deals before starting fresh.
+      if (!cur.id && !cur.name && !cur.notes && cur.done.length === 0) {
+        const kept = keepUnsaved();
+        if (kept) setTimeout(() => setKeptNote(kept), 0);
+      }
+      return forLink(cur, plan);
+    }
     keepUnsaved();
     return fromListing(prefill);
   });
@@ -123,7 +140,14 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   }, [deal]);
   // Choosing a state elsewhere on the site moves a new, unsaved deal to it.
   useEffect(() => {
-    if (mine && !deal.id && mine !== deal.state) setDeal(blank(mine));
+    if (mine && !deal.id && mine !== deal.state) {
+      const kept = keepUnsaved();
+      if (kept) {
+        setKeptNote(kept);
+        setSaved(loadDeals());
+      }
+      setDeal(blank(mine));
+    }
   }, [mine]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const set = (patch: Partial<Deal>) => setDeal((d) => ({ ...d, ...patch, updatedAt: new Date().toISOString() }));
@@ -166,6 +190,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         title={<>Analyze <span className="grad">a deal</span></>}
         sub="Found one you like? Tell us about it, get the checklist for that kind of sale in your state, and know your number before you offer or bid."
       />
+      {keptNote && <p className="note" role="status">{keptNote} <a href="#/deals">Open My deals&nbsp;→</a></p>}
 
       <section className="deal-setup" aria-labelledby="setup-head">
         <h2 id="setup-head">1. Tell us about the property you found</h2>

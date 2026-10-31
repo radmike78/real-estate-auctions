@@ -311,8 +311,9 @@ export function forgetDeal(id: string) {
 /** Forget the unsaved calculator numbers, so a new deal starts from your plan's starting numbers. */
 export function clearDraftNumbers() {
   try {
-    // Only Analyze's own drafts: the plain rent and commercial keys are also the Calculators page's numbers.
-    for (const k of ['fsf.calc.rent.offer.v1', 'fsf.calc.commercial.offer.v1', 'fsf.bid.analyze-draft.v1']) {
+    // Analyze's unsaved drafts. The plain rent and commercial keys belong to Analyze alone (the old Calculators page
+    // now opens Analyze), so a new deal never starts from the last deal's rent, costs or price.
+    for (const k of ['fsf.calc.rent.v1', 'fsf.calc.commercial.v1', 'fsf.calc.rent.offer.v1', 'fsf.calc.commercial.offer.v1', 'fsf.bid.analyze-draft.v1']) {
       localStorage.removeItem(k);
       localStorage.removeItem(`${k}.region`);
       localStorage.removeItem(`${k}.typed.v1`);

@@ -1,7 +1,7 @@
 import AccountPage, { AccountBar } from './components/AccountPage';
 import { continueAsGuest, useAccountRuntime } from './lib/account';
 import { useEffect, useState } from 'react';
-import WelcomeGate from './components/WelcomeGate';
+import WelcomeGate, { StateBar } from './components/WelcomeGate';
 import { useMyState } from './lib/myState';
 import { stateByCode, type StateCode } from './lib/regions';
 import { currentRoute, isAppLink, navigate, onNavigate, replaceAddress, rewriteAppLinks, toPath, upgradeLegacyHash } from './lib/nav';
@@ -302,9 +302,10 @@ export default function App() {
       <AccountBar />
       <RoleNotice key={account.account?.id ?? 'guest'} />
       <PageErrorBoundary key={`${nav}:${account.account?.id ?? 'guest'}:${account.status === 'locked'}`}>
-      {account.status === 'loading' && !['account','privacy','terms','admin','advertiser','apply','applicationConfirm','advertise','alerts'].includes(route.page) ? <main className="page"><h1>Opening your workspace</h1><p role="status">Checking your sign-in and saved work…</p>{!account.account && <button className="btn btn-secondary" onClick={continueAsGuest}>Continue without an account</button>}</main> : account.status === 'locked' && !['account','privacy','terms','admin','advertiser','apply','applicationConfirm','advertise','alerts'].includes(route.page) ? <main className="page"><h1>Keep your unsaved work safe</h1><p>{account.message}</p><a className="btn" href="#/account">Download work or reopen your account</a></main> : !chosenState && !['account', 'privacy', 'terms', 'admin', 'advertiser', 'apply', 'applicationConfirm', 'advertise'].includes(route.page) ? (
+      {account.status === 'loading' && !['account','privacy','terms','admin','advertiser','apply','applicationConfirm','advertise','alerts'].includes(route.page) ? <main className="page"><h1>Opening your workspace</h1><p role="status">Checking your sign-in and saved work…</p>{!account.account && <button className="btn btn-secondary" onClick={continueAsGuest}>Continue without an account</button>}</main> : account.status === 'locked' && !['account','privacy','terms','admin','advertiser','apply','applicationConfirm','advertise','alerts'].includes(route.page) ? <main className="page"><h1>Keep your unsaved work safe</h1><p>{account.message}</p><a className="btn" href="#/account">Download work or reopen your account</a></main> : !chosenState && route.page === 'home' ? (
         <WelcomeGate />
       ) : <>
+      {!chosenState && !['account', 'privacy', 'terms', 'admin', 'advertiser', 'apply', 'applicationConfirm', 'advertise', 'notFound'].includes(route.page) && <StateBar />}
       {route.page === 'home' && <HomePage />}
       {route.page === 'account' && <AccountPage />}
       {route.page === 'notFound' && (

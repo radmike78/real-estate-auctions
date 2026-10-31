@@ -46,3 +46,21 @@ describe('calculator numbers follow a deal', () => {
   });
 });
 
+
+describe('a new auction deal never starts from the last one (review round 17)', () => {
+  it('saving an auction deal moves its rent and commercial numbers and clears the drafts', () => {
+    localStorage.setItem('fsf.calc.rent.v1', JSON.stringify({ monthlyRent: 3333 }));
+    localStorage.setItem('fsf.calc.commercial.v1', JSON.stringify({ noi: 90000 }));
+    carryDraftNumbers('dA', false);
+    expect(localStorage.getItem('fsf.calc.rent.dA.v1')).toContain('3333');
+    expect(localStorage.getItem('fsf.calc.rent.v1')).toBeNull();
+    expect(localStorage.getItem('fsf.calc.commercial.v1')).toBeNull();
+  });
+  it('starting a new deal clears the unsaved rent and commercial numbers', () => {
+    localStorage.setItem('fsf.calc.rent.v1', JSON.stringify({ monthlyRent: 3333 }));
+    localStorage.setItem('fsf.calc.rent.v1.region', '2.55');
+    clearDraftNumbers();
+    expect(localStorage.getItem('fsf.calc.rent.v1')).toBeNull();
+    expect(localStorage.getItem('fsf.calc.rent.v1.region')).toBeNull();
+  });
+});
