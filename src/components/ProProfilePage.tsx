@@ -44,7 +44,7 @@ export default function ProProfilePage({ id }: { id: string }) {
       <section className="profile-hero">
         <ProAvatar name={p.name} photo={p.photo} big />
         <div>
-          <div className="pro-kicker">{info.label} · {p.company}</div>
+          <div className="pro-kicker">{info.label}{p.company && p.company !== p.name ? ` · ${p.company}` : ''}</div>
           <h1>{p.name}</h1>
           <p className="lede">{p.headline}</p>
           <div className="contact">

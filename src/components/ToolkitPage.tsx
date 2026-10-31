@@ -30,7 +30,7 @@ import { loadCase } from '../practice/caseProgress';
 import { caseFor, tasksFor } from '../practice/rentalCase';
 import { proGuideByKey } from '../lib/proGuide';
 import { PRO_SCRIPTS } from '../lib/proScripts';
-import { stepAdCategories } from '../lib/contextAds';
+import { stepAdCategories, stepAllowsAds } from '../lib/contextAds';
 import { FixedAds, useAdShows } from './AdBoxes';
 import { useSpotCategories } from './AdSpot';
 import { useDirectory } from './ProDirectory';
@@ -233,7 +233,9 @@ export function FirstDealRoadmap() {
     return !!stage && stage !== 'passed' && !!st && dealScoped(s) && DEAL_STAGES.indexOf(st) > DEAL_STAGES.indexOf(stage) ? st : undefined;
   };
   // The Mentor Connect spot beside the next step (Admin → Ad spots); automatic: whoever the step says to call.
-  const nextAdCats = useSpotCategories('toolkit', next ? stepAdCategories(next, path) : []);
+  // Even an owner's fixed list never shows beside an official seller or off the agent route (contextAds.ts).
+  const stepCats = useSpotCategories('toolkit', next ? stepAdCategories(next, path) : []);
+  const nextAdCats = next && stepAllowsAds(next, path) ? stepCats : [];
   const nextAdShows = useAdShows(nextAdCats);
   // The phase holding the next step starts open; after that, phases stay as the reader leaves them.
   const [openPhase, setOpenPhase] = useState(() => next?.phase ?? 1);

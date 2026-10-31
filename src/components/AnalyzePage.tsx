@@ -14,7 +14,7 @@ import { linkLabel } from '../lib/linkLabel';
 import { investorProfile } from '../lib/myPlan';
 import { fmtMoney } from '../lib/status';
 import { getMyArea } from '../lib/myArea';
-import { analyzeAdCategories } from '../lib/contextAds';
+import { analyzeAdCategories, analyzeAllowsAds } from '../lib/contextAds';
 import { FixedAds, useAdShows } from './AdBoxes';
 import { useSpotCategories } from './AdSpot';
 import { useDirectory } from './ProDirectory';
@@ -180,7 +180,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
 
   // The Mentor Connect spot beside What's next (Admin → Ad spots); automatic: by plan, listings and bank-owned only.
   const { pros } = useDirectory();
-  const adCats = useSpotCategories('analyze', analyzeAdCategories(deal.kind, deal.plan));
+  // Even an owner's fixed list never shows on forced sales or lien certificates (contextAds.ts).
+  const spotCats = useSpotCategories('analyze', analyzeAdCategories(deal.kind, deal.plan));
+  const adCats = analyzeAllowsAds(deal.kind) ? spotCats : [];
   const adShows = useAdShows(adCats);
 
   return (

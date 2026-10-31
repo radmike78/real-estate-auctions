@@ -595,7 +595,7 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
                   <tbody>{summary.bySpot.map((x) => <tr key={x.spot}><td>{x.label}</td><td className="num">{x.shown.toLocaleString()}</td><td className="num">{x.clicks.toLocaleString()}</td></tr>)}</tbody>
                 </table>
               </div>
-              <p className="small muted">Counts only: we record the placement’s name, never the page address or who saw it. “Clicked” counts each visitor once a day.</p>
+              <p className="small muted">Counts only: we record the placement’s name, never the page address or who saw it. “Clicked” counts each visitor once a day in each place, so a visitor who clicks in two places counts in both rows. Views from before October 31, 2026 aren’t broken down by placement.</p>
             </section>
           )}
           <div className="viz-root">
