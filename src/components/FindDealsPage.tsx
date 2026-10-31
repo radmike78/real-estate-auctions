@@ -8,7 +8,7 @@ import { IconBank, IconBuilding, IconGavel, IconHome, IconLayers, IconSteps, Ico
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
 import { COUNTY_PAGES, nationalOfficialFor, officeLabelsFor, countyOfficeCards, OTHER_SITES, STATE_SALES, WHERE_TO_LOOK, countyKey, type DealSource } from '../lib/findDeals';
 import { COUNTY_OFFICES } from '../lib/countyOffices';
-import { useMarkStep } from '../lib/path';
+import { useMarkStep, stepEyebrow } from '../lib/path';
 import { useMyArea } from '../lib/myArea';
 import CountySales from './CountySales';
 import { upcomingCountySales } from '../lib/countySales';
@@ -78,7 +78,7 @@ export default function FindDealsPage() {
   return (
     <main className="page">
       <PageHero
-        eyebrow={<span className="eyebrow">Step 5 of 6</span>}
+        eyebrow={<span className="eyebrow">{stepEyebrow('deals')}</span>}
         title={<>Find <span className="grad">deals</span></>}
         sub="Where to look for properties in your area, starting with the official sellers."
       >

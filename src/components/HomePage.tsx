@@ -47,7 +47,7 @@ export default function HomePage() {
             <div className="start-choice" role="group" aria-label="How do you want to start?">
               <button type="button" className="start-card" onClick={() => { setMode('guided'); navigate(planNow().task.href); }}>
                 <strong>I’m new: guide me&nbsp;→</strong>
-                <span>One fictional property, short decisions, and a workbook that grows as you learn.</span>
+                <span>Your goal and cash first (2 minutes), then the first lessons, then a fictional property to practice on.</span>
               </button>
               <button type="button" className="start-card" onClick={() => setMode('explore')}>
                 <strong>I know the basics: let me explore&nbsp;→</strong>
@@ -64,7 +64,7 @@ export default function HomePage() {
                 <ContinueButton task={plan.task} dealId={plan.deal?.id} onPlan={false} label={`${planStarted(plan) ? 'Continue' : 'Start'}: ${plan.task.label}`} />
                 {continueLink}
               </div>
-              <p>{plan.task.key === 'practice-deal' ? <><strong>Learn by doing:</strong> {plan.task.text}</> : <><strong>You’ll have:</strong> {plan.task.produces}.</>}</p>
+              <p>{plan.task.key === 'practice-deal' || plan.task.key === 'decide' || plan.task.key.startsWith('lesson-') ? <><strong>{plan.context}:</strong> {plan.task.text}</> : <><strong>You’ll have:</strong> {plan.task.produces}.</>}</p>
             </div>
           )}
 

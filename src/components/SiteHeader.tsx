@@ -9,10 +9,10 @@ import { planNow } from '../lib/planNext';
 // The tasks people come for, one click away. Everything else is under More, grouped.
 // The logo is the link home.
 const PRIMARY = [
-  ['#/learn', 'Learn'],
   ['#/decide', 'Decide'],
-  ['#/pros', 'Your team'],
+  ['#/learn', 'Learn'],
   ['#/practice', 'Practice'],
+  ['#/pros', 'Your team'],
   ['#/find-deals', 'Find deals'],
   ['#/analyze', 'Analyze'],
   ['#/toolkit', 'My plan'],

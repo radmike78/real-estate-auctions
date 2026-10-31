@@ -48,7 +48,7 @@ export default function WelcomeGate() {
           <button type="button" className="btn" onClick={() => go(true)}>I’m new: guide me step by step</button>
           <button type="button" className="btn btn-secondary" onClick={() => go(false)}>I know the basics: let me explore</button>
         </div>
-        <p className="muted">Guided starts a short practice decision on a made-up property. Explore opens the home page with every tool.</p>
+        <p className="muted">Guided starts with a few questions about your goal and cash (about 2 minutes), then the first lessons and a made-up property to practice on. Explore opens the home page with every tool.</p>
         {needPick && <p className="note" role="alert">Choose a state above first.</p>}
       </section>
     </main>

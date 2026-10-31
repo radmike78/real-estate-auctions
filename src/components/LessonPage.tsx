@@ -177,7 +177,7 @@ function LessonBooks({ isbns }: { isbns: string[] }) {
   );
 }
 
-/** One lesson in Learn (step 1): reading, key terms, sources, and the next lesson. */
+/** One lesson in Learn (step 2): reading, key terms, sources, and the next lesson. */
 export const lessonSectionId = (heading: string) => heading.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 export default function LessonPage({ lessonKey, section, state }: { lessonKey: string; section?: string; state?: StateCode }) {

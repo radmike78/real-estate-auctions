@@ -5,7 +5,7 @@ import { replaceAddress } from '../lib/nav';
 import PageHero from './PageHero';
 import { Calculators } from './CalculatorPage';
 import { CalcRegion } from './calcRegion';
-import { useMarkStep } from '../lib/path';
+import { useMarkStep, stepEyebrow } from '../lib/path';
 import { dropStateLead, useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
 import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
@@ -186,7 +186,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   return (
     <main className="page analyze">
       <PageHero
-        eyebrow={<span className="eyebrow">Step 6 of 6</span>}
+        eyebrow={<span className="eyebrow">{stepEyebrow('analyze')}</span>}
         title={<>Analyze <span className="grad">a deal</span></>}
         sub="Found one you like? Tell us about it, get the checklist for that kind of sale in your state, and know your number before you offer or bid."
       />

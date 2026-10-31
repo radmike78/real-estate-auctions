@@ -159,7 +159,9 @@ export function learnConfig(): NarrowConfig {
       },
     ],
     result: ({ goal, know }) => {
-      const basics = lesson('markets', 'The two markets, who buys in each, and how prices are set: the base for everything else.');
+      // New readers start with how their strategy makes money (Learn's first block), then the numbered lessons.
+      const way = (slug: string, title: string) => ({ label: title, href: `#/learn/strategies/${slug}`, why: 'How this strategy makes money, what it takes and what goes wrong: the frame for every lesson after it.' });
+      const basics = goal === 'commercial' ? lesson('markets', 'How commercial property differs from homes: who buys, how prices are set, loans and leases.') : goal === 'auction' ? way('auctions', 'Tax and foreclosure auctions') : goal === 'flip' ? way('fix-and-flip', 'Fix and flip') : way('buy-and-hold', 'Buy and hold a rental');
       const numbers = lesson('analyze', 'How to run the numbers on a property and find the price that still works.');
       if (goal === 'commercial') return [know === 'new' ? basics : lesson('types', 'What each kind of commercial property earns and where it goes wrong.'), numbers, lesson('financing', 'How commercial loans differ: bigger down payments, income-based approval and shorter terms.')];
       if (goal === 'auction') return [...(know === 'new' ? [basics] : []), lesson('forced-sales', 'How each kind of auction works in your state, and what survives the sale.'), numbers, ...(know === 'new' ? [] : [lesson('walk-away', 'The warning signs that should stop a bid.')])];

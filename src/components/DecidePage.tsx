@@ -4,7 +4,7 @@ import { getMode, useLastActivity } from '../lib/journey';
 import { planNow } from '../lib/planNext';
 import PageHero from './PageHero';
 import OwlNote from './OwlNote';
-import { useMarkStep } from '../lib/path';
+import { useMarkStep, stepEyebrow } from '../lib/path';
 import { linkLabel } from '../lib/linkLabel';
 import { DECIDE_KEY, notYetWhy, QUESTIONS, rank, stateNote, type Answers } from '../lib/decide';
 import { strategyHref } from '../lib/strategies';
@@ -48,7 +48,7 @@ function save(s: Saved) {
   }
 }
 
-/** Step 2 of the path: a few questions, then the strategies that fit and a checklist for each. */
+/** Step 1 of the path: a few questions, then the strategies that fit and a checklist for each. */
 export default function DecidePage() {
   useMarkStep('decide');
   useLastActivity('#/decide', 'Decide: which strategy fits you');
@@ -98,7 +98,7 @@ export default function DecidePage() {
   return (
     <main className="page decide">
       <PageHero
-        eyebrow={<span className="eyebrow">Step 2 of 6</span>}
+        eyebrow={<span className="eyebrow">{stepEyebrow('decide')}</span>}
         title={<>Decide <span className="grad">your focus</span></>}
         sub={q ? `Answer ${total === 9 ? 'nine' : total === 8 ? 'eight' : total} quick questions about your money, time and goals. You’ll get the strategies that fit best and a checklist for each.` : undefined}
       />
@@ -209,7 +209,7 @@ export default function DecidePage() {
             </ul>
           </details>
           <div className="decide-nav">
-            {getMode() === 'guided' ? (() => { const plan = planNow(); return <a className="btn" href={plan.task.href}>Next: {plan.task.label}&nbsp;→</a>; })() : <a className="btn" href="#/toolkit/buy-box">Next: write your buy box&nbsp;→</a>}
+            {getMode() === 'guided' ? (() => { const plan = planNow(); return <a className="btn" href={plan.task.href}>Next: {plan.task.label}&nbsp;→</a>; })() : <><a className="btn" href="#/learn">Next: step 2 of 6 · Learn&nbsp;→</a> <a href="#/toolkit/buy-box">Write your buy box&nbsp;→</a></>}
             <button type="button" className="btn btn-secondary" onClick={() => setStep(0)}>Change my answers</button>
             <button
               type="button"

@@ -5,7 +5,8 @@
 import { CHAPTERS, journeyHref, loadJourney, resumeChapter } from '../practice/dealJourney';
 import { loadDeals, type Deal, type DealStage } from './analyze';
 import { dealNextTask, stageLabel, stageOf, stageTasks, type PlanTask } from './dealStage';
-import { getMode } from './journey';
+import { currentProgress, getMode, readLessons } from './journey';
+import { LEARN_MODULES } from './learn';
 import { cleanGoal, GOAL_KEY } from './myPlan';
 import { ROADMAP_PHASES, roadmapFor, type RoadmapStep } from './roadmap';
 import { cleanStatus, focusDealId, planPath, readKey, roadmapDone, settledFor, STATUS_KEY } from './roadmapState';
@@ -24,10 +25,13 @@ export interface PlanNow {
 }
 
 export const ROADMAP_TASK_HREF = '#/toolkit/roadmap';
+/** How many of Learn's first lessons (its "Start here" group) a guided beginner reads before the practice deal. */
+const START_LESSONS = 2;
 
 /** False until the practice deal has any work in it: the button then says Start, not Continue. */
 export function planStarted(now: PlanNow): boolean {
   if (now.source !== 'starter') return true;
+  if (now.task.key !== 'practice-deal') return false;
   const p = loadJourney();
   return p.completed.length > 0 || Object.keys(p.answers).length > 0;
 }
@@ -61,13 +65,24 @@ export function planNow(now = new Date()): PlanNow {
     const stage = stageOf(deal);
     return { goal, source: 'deal', context: `${deal.name} · ${stageLabel(stage, deal)}`, task: dealNextTask(deal, undefined, now, stage), deal, stage, tasks: stageTasks(deal, stage, undefined, now) };
   }
-  // Before any real work, the practice deal comes first, unless you said you know the basics.
+  // Before any real work, unless you said you know the basics, the site's order: Decide (your goal and cash), the
+  // "Start here" lessons, then the practice deal.
   const roadmapStarted = roadmapFor(planPath(deals)).some(settledFor(''));
   const practice = loadJourney();
   const practiceDone = practice.completed.length === CHAPTERS.length;
+  if (getMode() !== 'explore' && !roadmapStarted && !practiceDone && practice.completed.length === 0) {
+    if (!currentProgress().decided) {
+      return { goal, source: 'starter', context: 'Step 1 · Decide', task: { key: 'decide', label: 'Decide: your goal and investable cash', produces: 'the strategies that fit your money, time and goals, in about 2 minutes', href: '#/decide', support: [], done: false, text: 'A few questions about your goal, your cash and your time.' } };
+    }
+    const read = readLessons();
+    const lesson = LEARN_MODULES.slice(0, START_LESSONS).find((m) => !read.includes(m.key));
+    if (lesson) {
+      return { goal, source: 'starter', context: 'Step 2 · Learn', task: { key: `lesson-${lesson.key}`, label: `Lesson: ${lesson.title}`, produces: 'the basics you’ll use in the practice deal', href: `#/learn/${lesson.key}`, support: [], done: false, text: lesson.summary } };
+    }
+  }
   if (getMode() !== 'explore' && !roadmapStarted && !practiceDone) {
     const chapter = CHAPTERS.find((c) => c.id === resumeChapter(practice))!;
-    return { goal, source: 'starter', context: 'Practice · Build your first deal', task: { key: 'practice-deal', label: chapter.title, produces: 'practical experience checking a deal, recorded in your workbook', href: journeyHref(chapter.id), support: [], done: false, text: chapter.purpose } };
+    return { goal, source: 'starter', context: 'Step 3 · Practice: build your first deal', task: { key: 'practice-deal', label: chapter.title, produces: 'practical experience checking a deal, recorded in your workbook', href: journeyHref(chapter.id), support: [], done: false, text: chapter.purpose } };
   }
   const step = roadmapNextStep();
   if (step) return { goal, source: 'roadmap', context: `Roadmap · ${ROADMAP_PHASES[step.phase]}`, task: roadmapTask(step) };

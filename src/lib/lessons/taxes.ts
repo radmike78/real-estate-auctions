@@ -127,7 +127,7 @@ export const taxes: Lesson = {
       heading: 'Owning through an LLC',
       blocks: [
         'A single-member LLC doesn’t change your federal income tax by default: the rental still goes on your own return. It can limit liability, but it adds yearly state fees and filings, can complicate loans, and doesn’t protect you from your own mistakes. Decide with an attorney and a CPA.',
-        { links: [{ label: 'Owning through an LLC', url: '#/learn/negotiate', what: 'Liability, loans and each state’s yearly LLC costs, in the lesson on negotiating and structuring deals.' }] },
+        { links: [{ label: 'Owning through an LLC', url: '#/learn/structuring', what: 'Liability, loans and each state’s yearly LLC costs, in the lesson on holding title and structuring deals.' }] },
       ],
     },
     {

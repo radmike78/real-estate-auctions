@@ -13,6 +13,21 @@ export const forcedSales: Lesson = {
   ],
   sections: [
     {
+      heading: 'How a forced sale differs from a regular purchase',
+      blocks: [
+        {
+          table: {
+            head: ['', 'How it differs'],
+            rows: [
+              ['Auctions', 'Usually as-is, with no inspection or financing contingency. Expect a deposit, often by cashier’s check, and full payment in cash on a short deadline. Bidding sets the price, so decide your maximum bid before the sale. Each guide lists the rules for that kind of sale.'],
+              ['Bank-owned (REO)', 'The bank’s own contract and addenda usually replace the standard forms. Fannie Mae’s contract, for example, sells the home as-is and sets a short inspection period; check the contract for the deadline. It doesn’t require the seller to make repairs. If you don’t like the inspection results, you can usually cancel and get your earnest money back only within that inspection period and by the notice the addendum requires.* Once the period ends, the seller refusing repairs doesn’t let you cancel.'],
+              ['Short sales', 'The owner sells for less than the loan balance, and the lender has to agree. Expect a long wait for that approval, because the lender, not only the owner, must accept the price.'],
+            ],
+          },
+        },
+      ],
+    },
+    {
       heading: 'Tax sales',
       blocks: [
         {
@@ -110,6 +125,9 @@ export const forcedSales: Lesson = {
   tryIt: { label: 'Find your county’s sale offices', href: '#/find-deals' },
   practiceLink: { label: 'Practice an auction purchase with fictional paperwork', href: '#/practice?sale=tax' },
   sources: [
+    { label: 'Fannie Mae HomePath: residential purchase and sale contract', url: 'https://homepath.fanniemae.com/images/documents/Residential_Real_Estate_Contract.pdf' },
+    { label: 'HUD: prospective buyer FAQs (foreclosure sales)', url: 'https://www.hud.gov/sites/dfiles/Housing/images/BuyerFAQs.pdf' },
+    { label: 'CFPB: what is a short sale?', url: 'https://www.consumerfinance.gov/ask-cfpb/what-is-a-short-sale-en-290/' },
     { label: 'NRS 361: property tax and tax sales (361.570, 361.585, 361.595)', url: 'https://www.leg.state.nv.us/NRS/NRS-361.html' },
     { label: 'California Revenue and Taxation Code 3691: when tax-defaulted property can be sold', url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=3691' },
     { label: 'California Revenue and Taxation Code 3698.5: minimum bid', url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=3698.5' },

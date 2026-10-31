@@ -178,7 +178,7 @@ export const analyze: Lesson = {
             ],
           },
         },
-        'In Texas, the TREC resale contract also covers the Seller’s Water Disclosure about water rights; the Negotiating and structuring deals lesson explains when it’s due and your deadline to end the contract.',
+        'In Texas, the TREC resale contract also covers the Seller’s Water Disclosure about water rights; the Making an offer and closing lesson explains when it’s due and your deadline to end the contract.',
         'In Arizona, sellers and agents can’t be sued for not telling you that a home was the site of a death or felony, that someone with HIV lived there, or that it’s near a sex offender (A.R.S. 32-2156).',
         'In Utah, sellers and their agents aren’t liable for not telling you that a home was the site of a homicide, suicide or other felony, or that someone with HIV lived there (Utah Code 57-1-37).',
         'In Texas, sellers and their agents don’t have to tell you about a death on the property from natural causes, suicide or an accident unrelated to its condition, or that someone who lived there had HIV or AIDS (Property Code 5.008(c)).',
