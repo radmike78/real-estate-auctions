@@ -509,7 +509,7 @@ function BuyBoxBuilder() {
     <section id="buy-box" aria-labelledby="buybox-head">
       <h2 id="buybox-head">Your buy box: what you’re looking for</h2>
       <p>Write down your target area, property type, budget and limits. Investors call this a “buy box.” Use it to decide which properties deserve a closer look; it does not prove a property is a good deal.</p>
-      <p className="buybox-help">Not sure of your numbers yet? That’s normal. Leave a field blank, start from an example, or work them out with <a href="#/decide">Decide</a> (your goal and budget) and the <a href="#/calculator">calculators</a>.{' '}
+      <p className="buybox-help">Not sure of your numbers yet? That’s normal. Leave a field blank, start from an example, or work them out with <a href="#/decide">Decide</a> (your goal and budget) and the <a href="#/analyze">Analyze a deal</a>.{' '}
         <button type="button" className="linkish" onClick={() => { if (isBlank(b) || window.confirm('Replace your buy box with the example?')) setB({ ...b, ...EXAMPLE_BUY_BOX }); }}>Show an example</button>
       </p>
       <div className="buybox-grid">
