@@ -43,7 +43,7 @@ export const walkAway: Lesson = {
           'Sewer and septic: a camera inspection of the sewer line, or a septic inspection, costs little compared with replacing one.',
           'Unpermitted work: additions or garage conversions without permits. Check the permit history with the city or county building department. You may have to permit, fix or remove them.',
           'Water, mold and fire: signs of water damage, mold or past fire damage.',
-          'Flood risk: look up the flood zone on FEMA’s Flood Map Service Center. If a home is in a high-risk flood area and has a mortgage from a federally regulated or insured lender (most banks and credit unions), or a loan backed by Fannie Mae, Freddie Mac, FHA or VA, it must have flood insurance for the life of the loan (42 U.S.C. 4012a), and that can change your numbers.',
+          'Flood risk: look up the flood zone on FEMA’s Flood Map Service Center. If a home is in a high-risk flood area and has a mortgage from a federally regulated or insured lender (most banks and credit unions), or a loan backed by Fannie Mae, Freddie Mac, FHA or VA, it must have flood insurance for the life of the loan (42 U.S.C. 4012a), and that can change your numbers. A new NFIP flood policy usually takes 30 days to start unless you buy it along with a loan at closing, so a cash buyer may want to apply before the sale closes.',
           'Lead paint: homes built before 1978 come with federal lead disclosure rules, and sales at foreclosure are exempt from them. “Check before you commit” in the Analyzing a deal lesson explains what you get and what to plan for.',
           'Insurance: get a quote before you commit. If no one will insure the property at a workable price, that’s a deal breaker.',
         ] },

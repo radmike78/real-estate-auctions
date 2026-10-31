@@ -281,7 +281,7 @@ export const TX_GUIDES_1: Playbook[] = [
     },
     {
       title: "Check for a home equity loan",
-      detail: "A Texas home equity loan, reverse mortgage or property tax loan needs a court order before the trustee can sell. A property tax loan also gives the owner a buy-back right after the sale (Tax Code 32.06(k)). Lenders usually get it through a quick Rule 736 case (Rule 735.1). The order must be attached to the trustee’s deed (Rule 736.12). If the owner files a separate lawsuit by 5 p.m. on the Monday before the sale, the case stops. A sale held anyway is void. The trustee then must return your money within 10 business days (Rule 736.11)."
+      detail: "A Texas home equity loan, reverse mortgage or property tax loan needs a court order before the trustee can sell. A property tax loan also gives the owner a buy-back right after the sale (Tax Code 32.06(k), (k-1)). Lenders usually get it through a quick Rule 736 case (Rule 735.1). The order must be attached to the trustee’s deed (Rule 736.12). If the owner files a separate lawsuit by 5 p.m. on the Monday before the sale, the case stops. A sale held anyway is void. The trustee then must return your money within 10 business days (Rule 736.11)."
     },
     {
       title: "Research the property and the title",
@@ -311,7 +311,7 @@ export const TX_GUIDES_1: Playbook[] = [
   survives: {
     wipedOut: [
       "The deed of trust being foreclosed",
-      "The owner’s rights after a mortgage foreclosure. (A property tax loan foreclosure has a buy-back period: Tax Code 32.06(k).)",
+      "The owner’s rights after a mortgage foreclosure. (A property tax loan foreclosure has a buy-back period: Tax Code 32.06(k), (k-1).)",
       "Liens recorded after the foreclosed deed of trust, in most cases*"
     ],
     mayStay: [

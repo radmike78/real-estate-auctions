@@ -200,7 +200,15 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     items: [
       { text: 'Certified funds', detail: 'Each sale notice (the sheriff’s or the IRS’s) sets the deposit and how to pay. Read it for each sale.' },
       { text: 'Government-issued photo ID' },
-      { text: 'Time for redemption', detail: 'Sheriff sales: depends on the state (Nevada 1 year; Arizona 6 months; Utah 180 days; California none to 1 year; Texas generally none, except after tax sales and HOA foreclosures*). Where there’s a redemption period, you get a certificate first and the deed later. IRS sales: the owner can redeem for 180 days, and you get the deed after that.' },
+      { text: 'Time for redemption', detail: 'Sheriff sales: depends on the state (Nevada 1 year; Arizona 6 months; Utah 180 days; California none to 1 year; Texas generally none, except after tax sales and HOA foreclosures*). In most of these states, where there’s a redemption period you get a certificate first and the deed later. Texas is different: after a tax sale you get the deed at once, and the redemption clock runs from the day it’s recorded (Tax Code 34.01, 34.21). IRS sales: the owner can redeem for 180 days, and you get the deed after that.',
+        detailFor: {
+          NV: 'In Nevada, the owner can redeem for 1 year after a sheriff’s sale (NRS 21.210). You get a certificate of sale first and the deed after the year ends. IRS sales: the owner can redeem for 180 days (26 U.S.C. 6337); you get a certificate of sale first and the deed after that.',
+          CA: 'In California, most execution sales have no redemption. After a court foreclosure that allows a deficiency judgment, the owner can redeem for 3 months if the sale paid the debt in full, or 1 year if it didn’t (Code of Civil Procedure 729.010, 729.030). IRS sales: the owner can redeem for 180 days (26 U.S.C. 6337); you get a certificate of sale first and the deed after that.',
+          AZ: 'In Arizona, the owner can redeem for 6 months after a sheriff’s sale, or 30 days if the property was abandoned (A.R.S. 12-1282). You get a certificate of sale first and the deed after that. IRS sales: the owner can redeem for 180 days (26 U.S.C. 6337); you get a certificate of sale first and the deed after that.',
+          UT: 'In Utah, the owner can redeem for 180 days after a sheriff’s sale (URCP 69C). You get a certificate of sale first and the deed after that. IRS sales: the owner can redeem for 180 days (26 U.S.C. 6337); you get a certificate of sale first and the deed after that.',
+          TX: 'In Texas, a mortgage or trustee sale has no redemption. After a tax sale, a property tax loan foreclosure or an HOA foreclosure, you get the deed at once, but the owner can still buy it back for a set time (Tax Code 34.21, 32.06(k-1); Property Code 209.011, 82.113). IRS sales: the owner can redeem for 180 days (26 U.S.C. 6337); you get a certificate of sale first and the deed after that.',
+        },
+      },
       { text: 'A title search', detail: "You receive only the debtor's or taxpayer's interest. Senior liens stay." },
       { text: 'Cash or hard-money financing arranged in advance' },
       CONFIRM,

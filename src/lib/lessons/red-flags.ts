@@ -32,7 +32,7 @@ export const redFlags: Lesson = {
         { table: {
           head: ['Case', 'What regulators found', 'Outcome'],
           rows: [
-            ['Nudge and Response Marketing (FTC case filed 2019)', 'Free events led to workshops of about $1,000 and coaching or advanced training of up to $30,000 to $40,000. The FTC said more than 95% of people who attended the seminars paid the company more than they made from real estate deals.', 'In 2023, the people who ran the companies agreed to pay $15 million and were banned from selling money-making opportunities. The celebrities who promoted it paid $1.7 million.'],
+            ['Nudge and Response Marketing (FTC case filed 2019)', 'Free events led to workshops of about $1,000 and coaching or advanced training that the FTC said could cost as much as $30,000 more. In a survey cited by the FTC, more than 95% of seminar customers paid the company more than they made from real estate deals.', 'In 2023, the people who ran the companies agreed to pay $15 million and were banned from selling money-making opportunities. The celebrities who promoted it paid $1.7 million.'],
             ['Zurixx (FTC case filed 2019)', 'Workshops cost $1,997 and add-ons up to $41,297. Presenters told people to open new credit cards or raise their limits, and to list a higher income than they earned. To get some refunds, people had to promise not to post bad reviews or contact regulators.', 'Settled in 2022. In 2024 the FTC mailed more than $12 million in refunds to 25,563 people.'],
           ],
         } },
@@ -60,7 +60,7 @@ export const redFlags: Lesson = {
       blocks: [
         FINANCING_POSITION,
         { list: [...FINANCING_FACTORS] },
-        'Being pressured to borrow for training, coaching or an auction deposit is a warning sign about the sales pitch. It is not a reason to recommend one financing method for everyone. Card interest has averaged over 20% a year (Federal Reserve), and you owe the debt whether or not a deal happens. If a 401(k) loan isn’t repaid on schedule, it’s treated as a withdrawal: you owe income tax on it, and you may also owe a 10% early-withdrawal tax if you’re under 59½ (IRS).',
+        'Being pressured to borrow for training, coaching or an auction deposit is a warning sign about the sales pitch. It is not a reason to recommend one financing method for everyone. Credit card interest has averaged about 21% a year since 2023 (Federal Reserve G.19), and you owe the debt whether or not a deal happens. If a 401(k) loan isn’t repaid on schedule, it’s treated as a withdrawal: you owe income tax on it, and you may also owe a 10% early-withdrawal tax if you’re under 59½ (IRS).',
         'Most forced sales, including tax sales and trustee’s sales, require cash or certified funds soon after the auction. Most also don’t refund your money if the property has problems. Check the payment deadline and consider how a loss would affect your finances before you bid.',
         FINANCING_ADVICE,
         'Everything you need to start is free: county sale rules, public records, the lessons on this site, and your library.',

@@ -52,7 +52,7 @@ export const STRATEGY_GUIDES: StrategyGuide[] = [
     watchFor: [
       'The listing’s rent and the seller’s tax bill are rarely yours: check leased comparables and your own tax bill.',
       'Known replacements (roof, water heater, HVAC) belong in the numbers before you offer.',
-      'A thin cushion: keep at least six months of payments in savings after closing.',
+      'A thin cushion: lenders often want several months of payments in savings after closing; how much more you keep depends on your situation and risk tolerance.',
     ],
     calc: { label: 'Run it in Keep and rent', href: '#/analyze?plan=rent' },
     practice: [{ label: 'Buy a rental, start to finish', href: '#/practice/case' }, { label: 'Practice: is a rental worth it at this price?', href: '#/practice/drills/rental-265' }],

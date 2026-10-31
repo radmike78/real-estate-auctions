@@ -117,10 +117,10 @@ export function redemptionPresetsFor(state: StateCode): Record<string, Redemptio
   if (state === 'TX')
     return {
       none: NONE,
-      // Tax Code 34.21(a), (e): a flat 25% (first year) or 50% (second year) of the price and costs; 180 days and at
+      // Tax Code 34.21(a), (e): 25% (first year) or 50% (second year) of the price and costs; 180 days and at
       // most 25% for other property. Measured from the day the deed is filed for record.
       txTaxHomestead: { label: 'Tax sale, homestead, agricultural land or mineral interest: 2 years, +25% (first year) or +50% (second)', months: 24, ratePct: 25, daily: 0, flat: 1, flat2Pct: 50 },
-      txTaxOther: { label: 'Tax sale, other property: 180 days, up to +25% of the price', months: 6, ratePct: 25, daily: 0, flat: 1, flat2Pct: 0 },
+      txTaxOther: { label: 'Tax sale, other property: 180 days, up to +25% of your price and costs', months: 6, ratePct: 25, daily: 0, flat: 1, flat2Pct: 0 },
       // Tax Code 32.06(k), (k-1): after a trustee sale foreclosing a transferred property tax lien, the owner or an earlier
       // mortgage's servicer can redeem by paying 125% of the price (first year) or 150% (second year), plus costs.
       txTaxLoanLong: { label: 'Property tax loan foreclosure, homestead, agricultural land or mineral interest: 2 years, +25% (first year) or +50% (second)', months: 24, ratePct: 25, daily: 0, flat: 1, flat2Pct: 50 },

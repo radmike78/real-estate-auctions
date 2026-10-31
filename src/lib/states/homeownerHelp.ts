@@ -3,6 +3,10 @@
 import type { ByStateLines } from '../../components/ByState';
 import { TX_HOMEOWNER_HELP, TX_HOMEOWNER_DEADLINES, TX_HOMEOWNER_SCAMS, TX_HOMEOWNER_TENANTS } from './texas';
 
+// CalAssist Mortgage Fund stops taking applications on November 2, 2026 (calassistmortgagefund.org, read 2026-10-31).
+// The line switches to the closed wording after that day, Pacific time.
+const CALASSIST_OPEN = Date.now() < Date.parse('2026-11-03T08:00:00Z');
+
 export const HELP: ByStateLines = {
   NV: [
     { topic: 'Foreclosure mediation', text: 'In Nevada, if you live in the home, you can ask the district court for foreclosure mediation, a meeting with your lender and a neutral mediator. File your petition within 30 days after the notice of default is served (NRS 107.086). It costs a $25 filing fee plus your half of the mediation fee, and the law caps the total mediation fee at $500. In Clark County, the Eighth Judicial District Court runs it.', links: [['Foreclosure mediation (Clark County courts)', 'https://www.clarkcountycourts.us/departments/adr/foreclosure-mediation/']] },
@@ -10,7 +14,7 @@ export const HELP: ByStateLines = {
   ],
   CA: [
     { topic: 'Counselor number from your servicer', text: 'In California, before your servicer can record a notice of default on the home you live in (first mortgage, 1 to 4 units), it has to give you HUD’s toll-free number for finding a housing counselor, (800) 569-4287 (Civil Code 2923.5 and 2923.55).' },
-    { topic: 'Disaster mortgage help', text: 'In California, the state’s Mortgage Relief Program no longer takes applications. If a qualified disaster between January 1, 2023 and January 8, 2025 destroyed your primary home or left it uninhabitable, and you’re under the income limit, CalHFA’s CalAssist Mortgage Fund may pay up to 12 months of your mortgage (capped at $100,000). It’s a grant you don’t repay, applying is free, and applications close November 2, 2026 (or sooner if the money runs out).', links: [['CalAssist Mortgage Fund (CalHFA)', 'https://www.calassistmortgagefund.org/']] },
+    { topic: 'Disaster mortgage help', text: CALASSIST_OPEN ? 'In California, the state’s Mortgage Relief Program no longer takes applications. If a qualified disaster between January 1, 2023 and January 8, 2025 destroyed your primary home or left it uninhabitable, and you’re under the income limit, CalHFA’s CalAssist Mortgage Fund may pay up to 12 months of your mortgage (capped at $100,000). It’s a grant you don’t repay, applying is free, and applications close November 2, 2026 (or sooner if the money runs out).' : 'In California, the state’s Mortgage Relief Program and CalHFA’s CalAssist Mortgage Fund (for homes damaged in 2023 to early 2025 disasters) no longer take new applications; CalAssist stopped on November 2, 2026. Ask a HUD-approved housing counselor, (800) 569-4287, about current disaster or hardship help.', links: [['CalAssist Mortgage Fund (CalHFA)', 'https://www.calassistmortgagefund.org/']] },
     { topic: 'Free legal help', text: 'In California, LawHelpCA lists free legal aid offices by county, and the courts run self-help centers for people without a lawyer.', links: [['LawHelpCA', 'https://www.lawhelpca.org/'], ['California Courts Self-Help Guide', 'https://selfhelp.courts.ca.gov/']] },
   ],
   AZ: [
