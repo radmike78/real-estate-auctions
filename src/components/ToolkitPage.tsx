@@ -279,7 +279,7 @@ export function FirstDealRoadmap() {
       {/* After a switch to a state that doesn't sell lien certificates, the route says so and offers the auction route. */}
       {path === 'certificate' && mine && !liensSoldIn(mine) && (
         <p className="notice" role="status">Lien certificates are sold in Arizona and Nevada, not {STATES.find((x) => x.code === mine)?.name ?? mine}.{' '}
-          <button type="button" className="linkish" onClick={() => choosePath('auction')}>Switch to buying at an auction</button>
+          <button type="button" className="linkish" onClick={() => { choosePath('auction'); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.roadmap-path button[aria-pressed="true"]')?.focus()); }}>Switch to buying at an auction</button>
         </p>
       )}
       <div className="roadmap-deal">

@@ -92,7 +92,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   // Nothing typed is ever wiped: a started, unsaved deal is saved to My deals, with its numbers, before a listing
   // or a change of state replaces it. Returns the deal's state when one was saved, for the notice.
   // The "just opened" marker is read once, when the page first loads its deal.
-  useEffect(() => { try { localStorage.removeItem(OPENED_KEY); localStorage.removeItem(KEPT_NOTE_KEY); } catch { /* storage unavailable */ } }, []);
+  // The kept-draft note shows once. (The "opened on purpose" marker stays while that deal is the one open.)
+  useEffect(() => { try { localStorage.removeItem(KEPT_NOTE_KEY); } catch { /* storage unavailable */ } }, []);
   const [keptNote, setKeptNote] = useState(() => {
     // Left by openDeal when a started deal was saved before another was opened elsewhere on the site.
     try {
@@ -278,7 +279,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
             <ul>
               {saved.map((d) => (
                 <li key={d.id} className={d.id === deal.id ? 'on' : ''}>
-                  <button type="button" className="linkish" onClick={() => { const kept = keepUnsaved(); if (kept) { setKeptNote(kept); setSaved(loadDeals()); setDeal({ ...d, updatedAt: new Date().toISOString() }); } else setDeal(d); }}>{d.name}</button>
+                  <button type="button" className="linkish" onClick={() => { try { localStorage.setItem(OPENED_KEY, JSON.stringify(d.id)); } catch { /* storage unavailable */ } const kept = keepUnsaved(); if (kept) { setKeptNote(kept); setSaved(loadDeals()); setDeal({ ...d, updatedAt: new Date().toISOString() }); } else setDeal(d); }}>{d.name}</button>
                   <span className="muted"> · {countyName(d.county)}, {d.state}</span>
                   <button type="button" className="linkish danger" aria-label={`Delete ${d.name}`} onClick={() => remove(d.id)}>Delete</button>
                 </li>
