@@ -1,3 +1,5 @@
+import { roadmapNextStep } from '../lib/planNext';
+import { roadmapPath } from '../lib/roadmapState';
 import PathNext from './PathNext';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useRef, useState } from 'react';
@@ -40,8 +42,12 @@ function planFromBuyBox(): Plan {
   return 'flip';
 }
 
+// A new deal starts on the kind of sale your roadmap route is about, so saving a practice analysis keeps the route.
+const kindForRoute = (): SaleKind => { const r = roadmapPath(); return r === 'auction' ? 'trustee' : r === 'certificate' ? 'lien' : 'listing'; };
+
 function blank(st: StateCode): Deal {
-  return { id: '', name: '', state: st, county: startCounty(st), kind: 'listing', plan: planFromBuyBox(), notes: '', done: [], updatedAt: new Date().toISOString() };
+  const kind = kindForRoute();
+  return { id: '', name: '', state: st, county: startCounty(st), kind, plan: kind === 'lien' ? 'lien' : planFromBuyBox(), notes: '', done: [], updatedAt: new Date().toISOString() };
 }
 
 function loadCurrent(st: StateCode): Deal {
@@ -312,7 +318,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       <div className={adShows ? 'next-with-ad' : undefined}>
       <section className="analyze-next" aria-labelledby="analyze-next-head">
         <h2 id="analyze-next-head">4. What’s next</h2>
-        <p>Numbers work, and every checklist item above has an answer? Save the deal so you can come back to it, then follow the “Buy it” steps for this kind of sale in My plan.</p>
+        <p>{['paper', 'c-paper'].includes(roadmapNextStep()?.id ?? '') ? 'Practicing without buying? Save this analysis so you can compare it with the next ones, and mark the task done in My plan when you’ve analyzed enough.' : 'Numbers work, and every checklist item above has an answer? Save the deal so you can come back to it, then follow the “Buy it” steps for this kind of sale in My plan.'}</p>
         <p><strong>Reasons to pause, revise or pass:</strong> {calcTabFor(deal.plan) === 'flip' ? 'the price you’d have to pay leaves no profit after repairs, holding and selling costs, or the profit is smaller than your goal' : calcTabFor(deal.plan) === 'lien' ? 'the interest you’d earn, after the wait to be paid, misses your goal' : 'the monthly cash flow is negative after reserves, or the long-term return misses your goal'}. Compare the tradeoffs with your goals and risk tolerance, and record your reasoning. Get appropriate professional guidance before committing. <a href="#/learn/walk-away">When to walk away</a></p>
         <div className="row">
           {!deal.id ? <button type="button" className="btn" onClick={saveNew}>Save this deal</button> : <a className="btn" href="#/deals">Open My deals</a>}

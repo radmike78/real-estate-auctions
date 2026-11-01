@@ -10,7 +10,7 @@ import { useMyState } from '../lib/myState';
 import { proGuideByKey } from '../lib/proGuide';
 import { isListable, type Pro } from '../lib/pros';
 import { stateByCode, type StateCode } from '../lib/regions';
-import { AdCard, inArea, useAdImpressions } from './AdBoxes';
+import { AdCard, inArea } from './AdBoxes';
 import { useMyArea } from '../lib/myArea';
 import { useDirectory } from './ProDirectory';
 
@@ -58,7 +58,6 @@ function LicenseLinks({ topic, state, chosen }: { topic: AdTopic; state: StateCo
 /** Every eligible Mentor Connect advertiser linked to this topic, in stable order. */
 function TopicAdBox({ topic, pros }: { topic: AdTopic; pros: Pro[] }) {
   const shown = pros.filter((p) => p.tier === 'premium_plus' && !p.adsOff && p.adTopic === topic.key && topic.categories.includes(p.category) && isListable(p)).sort((a, b) => a.id.localeCompare(b.id));
-  useAdImpressions(shown, 'topic');
   if (!shown.length) return null;
   return (
     <aside className="ad-box topic-ad" aria-label="Advertisement">

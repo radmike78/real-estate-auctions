@@ -1,3 +1,4 @@
+import { stepContext } from '../lib/planNext';
 import NumInput from './NumInput';
 import { syncRoadmapCredits } from '../lib/journey';
 import { useAccount } from '../lib/account';
@@ -322,7 +323,7 @@ export function FirstDealRoadmap() {
       {!deal && planNow().source === 'roadmap' && next ? (
         <div>
           <div className="roadmap-next" id="roadmap-next">
-            <p className="roadmap-next-label">Next roadmap task · {ROADMAP_PHASES[next.phase]}{scoped(next) ? ` · ${deal!.name}` : ''}</p>
+            <p className="roadmap-next-label">Next task · {stepContext(next)}{scoped(next) ? ` · ${deal!.name}` : ''}</p>
             <h3>{next.title}</h3>
             <StepBody s={next} status={stateOf(next)} setStatus={(v) => setStatus(next, v)} deal={deal} />
           </div>

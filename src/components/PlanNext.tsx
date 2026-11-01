@@ -2,8 +2,8 @@ import { syncRoadmapCredits } from '../lib/journey';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState, type ReactNode } from 'react';
 import '../styles/r8-plan.css';
-import { DEAL_STAGES, loadDeals, openDeal, type DealStage } from '../lib/analyze';
-import { setDealStage, wayOf, stageHint, stageLabel, type PlanTask } from '../lib/dealStage';
+import { DEAL_STAGES, loadDeals, openDeal, type Deal, type DealStage } from '../lib/analyze';
+import { setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask } from '../lib/dealStage';
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
@@ -186,6 +186,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
         )}
       </div>
       {(!onPlan || (deal && now.tasks && stage)) ? side : onPlan && now.source === 'roadmap' ? <PlanStepAd /> : null}
+      {onPlan && deal && stage && <PlanStepAd deal={deal} stage={stage} />}
       {helper && <div className="plan-now-help">{helper}</div>}
     </section>
   );
@@ -193,9 +194,11 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
 
 /** My plan, beside "Your next step": one labeled ad for whoever that step says to call (contextAds.ts), buying through
  *  an agent only, never beside an official seller. */
-function PlanStepAd() {
-  const step = roadmapNextStep();
-  const path = planPath();
+function PlanStepAd({ deal, stage }: { deal?: Deal; stage?: DealStage } = {}) {
+  // With a property in focus, the roadmap step for its stage (make an offer, inspect, title, insurance, close).
+  const path = deal ? pathForDeal(deal) : planPath();
+  const settled = settledFor(deal ? `analyzed:${deal.id}` : '');
+  const step = deal && stage ? roadmapFor(path).find((s) => STAGE_STEPS[stage].includes(s.id) && !settled(s)) ?? null : roadmapNextStep();
   const cats = useSpotCategories('toolkit', step ? stepAdCategories(step, path) : []);
   const allowed = step && stepAllowsAds(step, path) ? cats : [];
   const { pros } = useDirectory();

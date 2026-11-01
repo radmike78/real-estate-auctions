@@ -1,7 +1,7 @@
 // Paid ad boxes: the advertiser speaking, never DeedOwl. Each box is labeled at the top ("Featured ad" or
 // "Advertisement"), shows who is advertising and their license, and ends with the same fine print. Nothing here
 // ranks or recommends anyone; fixed ads show all eligible advertisers; only the Rotating plan selects one at random.
-import { useEffect, useMemo, useRef, type RefObject } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { AD_FINE_PRINT, fixedPool, pickRandom, rotatingPool } from '../lib/adPlans';
 import { shortLicenseLabel } from '../lib/regulators';
 import { CATEGORIES, isListable, type Category, type Pro } from '../lib/pros';
@@ -52,8 +52,20 @@ export const inArea = (pros: Pro[], area: Area | null) => prosInArea(pros, area)
 export function AdCard({ p, spot }: { p: Pro; spot?: string }) {
   const info = CATEGORIES[p.category];
   const company = p.company && p.company !== p.name ? p.company : p.name;
+  // One view, counted once the card itself is at least half on screen (not when the page renders, and not for
+  // cards further down a long box that were never scrolled to).
+  const card = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = card.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.intersectionRatio >= 0.5)) { track('ad_impression', [p.id], spot); io.disconnect(); }
+    }, { threshold: [0.5] });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [p.id, spot]);
   return (
-    <div className="ad-card">
+    <div className="ad-card" ref={card}>
       <ProAvatar name={p.name} photo={p.photo} />
       <div className="ad-card-body">
         <div className="pro-kicker">{info.label}{p.isSample && <span className="badge tone-info">Sample</span>}</div>
@@ -67,37 +79,14 @@ export function AdCard({ p, spot }: { p: Pro; spot?: string }) {
   );
 }
 
-/** Counts an ad box being shown, once per advertiser per page view. With `box`, only once the box is on screen
- *  (a box inside a closed panel, or never scrolled to, isn't counted). */
-export function useAdImpressions(shown: Pro[], spot?: string, box?: RefObject<HTMLElement | null>) {
-  const seen = useMemo(() => new Set<string>(), []);
-  const key = shown.map((p) => p.id).join();
-  useEffect(() => {
-    const count = () => {
-      const fresh = shown.map((p) => p.id).filter((id) => !seen.has(id));
-      fresh.forEach((id) => seen.add(id));
-      if (fresh.length) track('ad_impression', fresh, spot);
-    };
-    const el = box?.current;
-    if (!el || typeof IntersectionObserver === 'undefined') { if (!box) count(); return; }
-    // Half the box on screen, or half the screen filled by a box taller than the screen (a long list on a phone).
-    const io = new IntersectionObserver((entries) => {
-      if (entries.some((e) => e.intersectionRatio >= 0.5 || e.intersectionRect.height >= window.innerHeight / 2)) { count(); io.disconnect(); }
-    }, { threshold: [0, 0.1, 0.25, 0.5] });
-    io.observe(el);
-    return () => io.disconnect();
-  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
-}
 
 /** Fixed ads at enabled placements, filtered by category and the visitor's area. */
 export function FixedAds({ pros: all, categories, placeholder = false, featured = false, area: forArea, spot }: { pros: Pro[]; categories: Category[]; placeholder?: boolean; featured?: boolean; /** The place the page is about (a deal's county), instead of the visitor's chosen area. */ area?: Area | null; /** The placement, for the advertiser's report. */ spot?: string }) {
   const shown = useFixedShown(all, categories, forArea);
-  const box = useRef<HTMLElement>(null);
-  useAdImpressions(shown, spot, box);
   const label = featured ? 'Featured ad' : 'Advertisement';
   if (!shown.length) return placeholder ? <AdSpace kind={label} /> : null;
   return (
-    <aside ref={box} className="ad-box featured-ads" aria-label={label}>
+    <aside className="ad-box featured-ads" aria-label={label}>
       <div className="ad-box-label">{label}</div>
       <div className="ad-box-grid">{shown.map((p) => <AdCard key={p.id} p={p} spot={spot} />)}</div>
       <p className="ad-fine-print">{AD_FINE_PRINT}</p>
@@ -121,7 +110,6 @@ export function RotatingAd({ pros: all, placeholder = false }: { pros: Pro[]; pl
   const pros = inArea(all, area);
   const pool = rotatingPool(pros.filter((p) => isListable(p))).map((p) => p.id).join();
   const shown = useMemo(() => pickRandom(pros.filter((p) => pool.split(',').includes(p.id)), 1), [pool]); // eslint-disable-line react-hooks/exhaustive-deps
-  useAdImpressions(shown, 'team');
   if (!shown.length) return placeholder ? <AdSpace kind="Advertisement" /> : null;
   return (
     <aside className="ad-box rotating-ad" aria-label="Advertisement">
