@@ -372,8 +372,6 @@ const cleanCash = (v: unknown): Cash => {
 };
 export function CashWorksheet() {
   const [c, setC] = useState<Cash>(() => read(CASH_KEY, cleanCash(null), cleanCash));
-  // What's typed is kept as text (so "4." or "5,200.5" can be finished); the number behind it drives the result.
-  const [draft, setDraft] = useState<Partial<Record<keyof Cash, string>>>({});
   useEffect(() => {
     write(CASH_KEY, c);
     planChanged();
@@ -383,7 +381,7 @@ export function CashWorksheet() {
   const field = (k: keyof Cash, label: string, hint?: string) => (
     <label className="field">
       <span>{label}</span>
-      <input inputMode="decimal" value={draft[k] ?? (c[k] ? String(c[k]) : '')} placeholder="0" onChange={(e) => { const t = e.target.value; setDraft((d) => ({ ...d, [k]: t })); const v = Number(t.replace(/[$,\s]/g, '')); setC((x) => ({ ...x, [k]: Number.isFinite(v) && v >= 0 ? v : 0 })); }} />
+      <NumInput blank value={c[k] || undefined} placeholder="0" onValue={(v) => setC((x) => ({ ...x, [k]: v ?? 0 }))} />
       {hint && <small className="muted">{hint}</small>}
     </label>
   );
