@@ -2,7 +2,7 @@ import { analyzeAllowsAds } from '../lib/contextAds';
 import NumInput from './NumInput';
 import { useEffect, useState } from 'react';
 import PageHero from './PageHero';
-import EvidenceLog from './EvidenceLog';
+import EvidenceLog, { DecisionGate } from './EvidenceLog';
 import { kindLabel, loadDeals, openDeal, SALE_KINDS } from '../lib/analyze';
 import { countyName } from '../lib/regions';
 import { dateGuide, dealPacketText, FIT_LABEL, loadPacket, packetSections, savePacket, suggestedDates, type Fit, type PacketData, type SectionStatus } from '../lib/dealPacket';
@@ -237,7 +237,8 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
 
       <section className="deal-setup packet-section" aria-labelledby="packet-decision">
         <Head k="decision" />
-        <p className="muted">Choose Investigate, Pass or Proceed under “Decision” at the end of the evidence log in the section above (open the log if it’s closed). Write down why, and anything that must be true before you sign or bid.</p>
+        <DecisionGate dealId={deal.id} />
+        <p className="muted">Write down why, and anything that must be true before you sign or bid. The same choice shows at the end of the evidence log.</p>
         <label className="field wide">
           <span>Why</span>
           <textarea rows={2} maxLength={1000} value={p.decisionWhy} onChange={(e) => update({ decisionWhy: e.target.value })} />

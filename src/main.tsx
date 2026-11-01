@@ -31,3 +31,10 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 );
+
+// Calculator "?" notes close with Escape or a tap anywhere else, like other pop-ups.
+if (typeof document !== 'undefined') {
+  const closeNotes = (keep?: Element | null) => document.querySelectorAll('details.calc-more[open]').forEach((d) => { if (d !== keep) d.removeAttribute('open'); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeNotes(); });
+  document.addEventListener('pointerdown', (e) => closeNotes((e.target as Element | null)?.closest?.('details.calc-more')));
+}
