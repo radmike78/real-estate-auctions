@@ -1590,8 +1590,11 @@ export function createApp(config: AppConfig) {
     db.purgeStale(t.toISOString());
     sendBroadcasts().catch((e) => console.error('Sending the email update failed:', e)); // resume a send interrupted by a restart
     const day = pacificDay(t);
-    if (day.endsWith('-01')) {
-      const prev = new Date(Date.parse(`${day}T12:00:00Z`) - 86_400_000).toISOString().slice(0, 7);
+    // Last month's reports go out on the 1st, and are retried through the 5th if the mail service was down (each
+    // advertiser's report is recorded as sent, so nobody gets two).
+    if (Number(day.slice(8, 10)) <= 5) {
+      const [yy, mm] = day.split('-').map(Number);
+      const prev = new Date(Date.UTC(yy, mm - 2, 1)).toISOString().slice(0, 7);
       sendMonthlyReports(prev);
     }
   }

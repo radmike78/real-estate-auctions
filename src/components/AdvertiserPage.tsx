@@ -572,7 +572,7 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
         <span className="small muted">{fmtDate(range.from)} – {fmtDate(range.to)}</span>
       </div>
 
-      {t && summaryFailed && <OwlNote>Your results couldn’t load just now. Your ad is still running. Try again in a few minutes, or choose another date range.</OwlNote>}
+      {summaryFailed && <OwlNote>Your results couldn’t load just now. Your ad is still running. Try again in a few minutes, or choose another date range.</OwlNote>}
       {t && summary && (
         <>
           <section className="kpis" aria-label="Results">

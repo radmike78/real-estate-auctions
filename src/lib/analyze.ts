@@ -69,6 +69,9 @@ export interface Deal {
   stage?: DealStage;
   /** Explicit confirmation for this property, not the visitor's general browsing area. */
   locationConfirmed?: boolean;
+  /** Saved during paper practice: an analysis to learn from, not a property you're buying. My plan never picks it
+   *  on its own; choose it in My plan to work on it. */
+  practice?: boolean;
 }
 
 export interface CheckItem {
@@ -250,6 +253,7 @@ export function cleanDeal(v: unknown): Deal | null {
     updatedAt: typeof d.updatedAt === 'string' && !Number.isNaN(Date.parse(d.updatedAt)) ? d.updatedAt : new Date().toISOString(),
     ...(isDealStage(d.stage) ? { stage: d.stage } : {}),
     ...(d.locationConfirmed === true && typeof d.county === 'string' && st.counties.includes(d.county) ? { locationConfirmed: true } : {}),
+    ...(d.practice === true ? { practice: true } : {}),
   };
 }
 

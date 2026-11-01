@@ -89,14 +89,10 @@ export function planNow(now = new Date()): PlanNow {
   // A guided beginner who saved a property while still learning keeps the guided steps first, until the practice
   // purchase is done; a deal that has moved past researching (an offer, a contract) always leads.
   const researching = !!deal && stageOf(deal) === 'researching';
-  // So does a reader practicing paper analyses ("Practice checking real properties without buying"): saving one
-  // doesn't turn the plan into that property's buying steps.
-  // Unless you chose that property in My plan: then it's the one you're working on.
+  // Unless you chose that property in My plan: then it's the one you're working on. (Practice analyses saved during
+  // paper practice are left out of the focus altogether: roadmapState.focusDealId.)
   const picked = !!deal && rawDealChoice() === `analyzed:${deal.id}`;
-  // Until the roadmap reaches the property's own steps (paper practice, finding a sale), a researching analysis is
-  // practice, not the property you're buying.
-  const paperPractice = researching && !picked && ['paper', 'c-paper', 'find', 'a-find', 'c-sale'].includes(roadmapNextStep()?.id ?? '');
-  const guidedLearning = !picked && ((getMode() === 'guided' && !practicePart2Done() && researching) || paperPractice);
+  const guidedLearning = !picked && getMode() === 'guided' && !practicePart2Done() && researching;
   if (deal && !guidedLearning) {
     const stage = stageOf(deal);
     return { goal, source: 'deal', context: `${deal.name} · ${stageLabel(stage, deal)}`, task: dealNextTask(deal, undefined, now, stage), deal, stage, tasks: stageTasks(deal, stage, undefined, now) };

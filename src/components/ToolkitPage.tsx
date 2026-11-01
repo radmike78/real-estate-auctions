@@ -241,8 +241,9 @@ export function FirstDealRoadmap() {
     else n[id] = v;
     return n;
   };
-  const setStatus = (s: RoadmapStep, v: StepStatus | 'done' | 'todo') => {
-    if (scoped(s)) {
+  // `learner`: your own progress, even with a property in focus (the practice-time task shown above the roadmap).
+  const setStatus = (s: RoadmapStep, v: StepStatus | 'done' | 'todo', learner = false) => {
+    if (scoped(s) && !learner) {
       const k = deal!.id;
       const cur = perDeal[k] ?? { done: [], status: {} };
       const all = { ...perDeal, [k]: { done: nextDone(cur.done, s.id, v), status: nextStatus(cur.status, s.id, v) } };
@@ -293,7 +294,7 @@ export function FirstDealRoadmap() {
             }}
           >
             <option value="">None yet (learning)</option>
-            {deals.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}</option>)}
+            {deals.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : ""}</option>)}
           </select>
         </label>
         <p className="muted">
@@ -334,7 +335,7 @@ export function FirstDealRoadmap() {
         <div className="roadmap-next" id="roadmap-next">
           <p className="roadmap-next-label">Next task · {stepContext(learnerNext)}</p>
           <h3>{learnerNext.title}</h3>
-          <StepBody s={learnerNext} status={stateOf(learnerNext)} setStatus={(v) => setStatus(learnerNext, v)} />
+          <StepBody s={learnerNext} status={done.includes(learnerNext.id) ? 'done' : status[learnerNext.id] ?? 'todo'} setStatus={(v) => setStatus(learnerNext, v, true)} />
         </div>
       ) : (
         <p className="next-step" role="status">Use the task details below to record each milestone{stage === 'contract' ? '; contract tasks may run at the same time' : ''}.</p>
@@ -478,6 +479,7 @@ const liensSoldIn = (st: string | null | undefined) => !st || st === 'AZ' || st 
 
 function BuyBoxBuilder() {
   const [mine] = useMyState();
+  const [switched, setSwitched] = useState('');
   const [b, setB] = useState<BuyBox>(() => read(BUYBOX_KEY, { ...EMPTY_BUY_BOX, state: getMyState() ?? '' }, cleanBuyBox));
   useEffect(() => {
     write(BUYBOX_KEY, b);
@@ -512,9 +514,10 @@ function BuyBoxBuilder() {
       {/* After a state switch, the buy box still names the old state: say so, and offer to move it. */}
       {mine && b.state && b.state !== mine && (
         <p className="notice" role="status">Your buy box is for {STATES.find((x) => x.code === b.state)?.name ?? b.state}, but you’ve chosen {STATES.find((x) => x.code === mine)?.name ?? mine}.{' '}
-          <button type="button" className="linkish" onClick={() => setB({ ...b, state: mine, area: '' })}>Switch it to {STATES.find((x) => x.code === mine)?.name ?? mine}</button>
+          <button type="button" className="linkish" onClick={() => { setSwitched(b.area ? `Switched to ${STATES.find((x) => x.code === mine)?.name ?? mine}. Your area (${b.area}) was cleared: add one there.` : `Switched to ${STATES.find((x) => x.code === mine)?.name ?? mine}.`); setB({ ...b, state: mine, area: '' }); }}>Switch it to {STATES.find((x) => x.code === mine)?.name ?? mine}</button>
         </p>
       )}
+      {switched && <p className="notice" role="status">{switched}</p>}
       <p className="buybox-help">Not sure of your numbers yet? That’s normal. Leave a field blank, start from an example, or work them out with <a href="#/decide">Decide</a> (your goal and budget) and <a href="#/analyze">Analyze a deal</a> (what a property costs).{' '}
         <button type="button" className="linkish" onClick={() => { if (isBlank(b) || window.confirm('Replace your buy box with the example?')) setB({ ...b, ...EXAMPLE_BUY_BOX }); }}>Show an example</button>
       </p>

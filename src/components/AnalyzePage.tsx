@@ -53,6 +53,11 @@ function blank(st: StateCode): Deal {
 function loadCurrent(st: StateCode): Deal {
   try {
     const v = cleanDeal(JSON.parse(localStorage.getItem(CURRENT) ?? 'null'));
+    // An untouched draft (no name, notes or ticks) follows your route's kind of sale, like a new one.
+    if (v && (!st || v.state === st) && !v.id && !v.name.trim() && !v.notes.trim() && v.done.length === 0 && v.kind !== kindForRoute(v.state)) {
+      const kind = kindForRoute(v.state);
+      return { ...v, kind, plan: kind === 'lien' ? 'lien' : v.plan === 'lien' ? planFromBuyBox() : v.plan };
+    }
     if (v && (!st || v.state === st)) return v;
   } catch {
     /* start fresh */
@@ -175,7 +180,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
 
   const saveNew = () => {
     if (!deal.locationConfirmed) return;
-    const d: Deal = { ...deal, id: `d${Date.now().toString(36)}`, name: deal.name.trim() || `${countyName(deal.county)} deal`, stage: 'researching' };
+    // Saved while the roadmap is on paper practice (or finding a property): a practice analysis.
+    const practicing = ['paper', 'c-paper', 'find', 'a-find', 'c-sale'].includes(roadmapNextStep()?.id ?? '');
+    const d: Deal = { ...deal, id: `d${Date.now().toString(36)}`, name: deal.name.trim() || `${countyName(deal.county)} deal`, stage: 'researching', ...(practicing ? { practice: true } : {}) };
     carryDraftNumbers(d.id, d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short');
     const next = [d, ...saved];
     saveDeals(next);
