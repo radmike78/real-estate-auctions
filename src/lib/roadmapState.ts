@@ -80,8 +80,10 @@ export const rawDealChoice = () => readKey(DEAL_KEY, '', (v) => (typeof v === 's
 export function focusDealId(deals: Deal[] = loadDeals()): string {
   const chosen = rawDealChoice();
   if (chosen === NO_DEAL) return '';
-  if (chosen && deals.some((d) => `analyzed:${d.id}` === chosen)) return chosen;
-  const recent = [...deals].filter((d) => d.stage !== 'passed').sort((x, y) => y.updatedAt.localeCompare(x.updatedAt))[0];
+  // A chosen property you've since passed on gives way to the next one you save.
+  if (chosen && deals.some((d) => `analyzed:${d.id}` === chosen && (d.stage !== 'passed' || !deals.some((x) => x.stage !== 'passed' && !x.practice && x.updatedAt > d.updatedAt)))) return chosen;
+  // Practice analyses are never picked on their own.
+  const recent = [...deals].filter((d) => d.stage !== 'passed' && !d.practice).sort((x, y) => y.updatedAt.localeCompare(x.updatedAt))[0];
   return recent ? `analyzed:${recent.id}` : '';
 }
 

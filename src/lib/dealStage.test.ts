@@ -164,6 +164,15 @@ describe('My plan’s one Continue', () => {
     expect(p.tasks?.length).toBeGreaterThan(3);
   });
 
+  it('never picks a practice analysis on its own, and moves on from a chosen property you passed on', () => {
+    saveDeals([{ ...deal, practice: true }]);
+    expect(focusDealId()).toBe('');
+    localStorage.setItem(DEAL_KEY, JSON.stringify('analyzed:d1'));
+    expect(focusDealId()).toBe('analyzed:d1'); // chosen in My plan: it's the one you're working on
+    saveDeals([{ ...deal, stage: 'passed' }, { ...deal, id: 'd2', name: '9 New St', updatedAt: '2026-10-07T00:00:00Z' }]);
+    expect(focusDealId()).toBe('analyzed:d2');
+  });
+
   it('falls back to the roadmap when “None yet” is chosen, and skips deals you passed on', () => {
     saveDeals([deal]);
     localStorage.setItem(DEAL_KEY, JSON.stringify(NO_DEAL));

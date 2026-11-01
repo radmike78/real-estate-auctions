@@ -294,7 +294,7 @@ export function FirstDealRoadmap() {
             }}
           >
             <option value="">None yet (learning)</option>
-            {deals.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}</option>)}
+            {deals.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : ""}</option>)}
           </select>
         </label>
         <p className="muted">

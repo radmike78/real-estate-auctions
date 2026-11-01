@@ -1,3 +1,5 @@
+import { CURRENT_KEY, openDeal } from '../lib/analyze';
+import { workStorage as localStorage } from '../lib/workStorage';
 import { getMode } from '../lib/journey';
 import { PATH, type StepKey } from '../lib/path';
 import { planNow } from '../lib/planNext';
@@ -13,12 +15,15 @@ export default function PathNext({ step }: { step: StepKey }) {
     // The roadmap is done and its last task (Find your next property) is this page, or Analyze: nothing to link to.
     if (plan.task.key === 'next-deal' && (step === 'analyze' || page(plan.task.href) === here)) return null;
     // A property's own task done on this page (enter its numbers): it ticks itself, so just say so.
-    if (here && plan.source === 'deal' && page(plan.task.href) === here) {
+    // On Analyze, only when the property open there is the one the task is about.
+    const openHere = (() => { try { return (JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null') as { id?: string } | null)?.id === plan.deal?.id; } catch { return false; } })();
+    if (here && plan.source === 'deal' && page(plan.task.href) === here && (step !== 'analyze' || openHere)) {
       if (step !== 'analyze') return null; // you're on it, and only Analyze ticks a property's task by itself
       return <nav className="path-next" aria-label="Next step"><span className="muted">You’re on your next step: {plan.task.label}. It’s marked done once you’ve entered it here.</span></nav>;
     }
     // Practice is rehearsal: a real task that links to it ("Register and bid") still happens at the real sale.
-    if (here && step !== 'practice' && page(plan.task.support[0]?.href) === here) {
+    // (A practice task itself, "Finish a practice auction", is done here.)
+    if (here && (step !== 'practice' || /practice$/.test(plan.task.key)) && page(plan.task.support[0]?.href) === here) {
       return (
         <nav className="path-next" aria-label="Next step">
           <span className="muted">You’re on your next step: {plan.task.label}. When you have {plan.task.produces}, mark it done in My plan.</span>
@@ -29,7 +34,8 @@ export default function PathNext({ step }: { step: StepKey }) {
     return (
       <nav className="path-next" aria-label="Next step">
         <span className="muted">Next: {plan.context}</span>
-        <a className="btn" href={plan.task.href}>{plan.task.label}&nbsp;→</a>
+        {/* A property's task opens that property in Analyze, not whichever analysis was open last. */}
+        <a className="btn" href={plan.task.href} onClick={(e) => { if (plan.task.openDeal && plan.deal) { e.preventDefault(); openDeal(plan.deal); } }}>{plan.task.label}&nbsp;→</a>
       </nav>
     );
   }
