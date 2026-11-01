@@ -242,7 +242,7 @@ export const ROADMAP: RoadmapStep[] = [
     id: 'a-funds', phase: 3, path: [...AUCTION, ...LIEN], title: 'Have the funds the sale requires',
     text: 'Auctions and lien sales want cash or certified funds, often a deposit to register and the rest within a short deadline.',
     outcome: 'Money in the form and amount your sale requires, available by the deadline.',
-    steps: ['Read the official bidder rules for the deposit, form of payment and deadline.', 'Ask your bank how long a cashier’s check or wire takes, and what it costs.', 'Keep a cushion for costs after the sale: recording, back taxes or liens that stay, insurance and repairs.'],
+    steps: ['Read the official bidder rules for the deposit, form of payment and deadline.', 'Ask your bank how long a cashier’s check or wire takes, and what it costs.', 'Keep a cushion for costs after the sale: at an auction, recording, back taxes or liens that stay, insurance and repairs; with a lien certificate, the later years’ taxes you may pay to protect it.'],
     say: { to: 'Your bank', script: '“I may need a cashier’s check or a wire for [$amount] on [date] for a county sale. How long does each take, what does it cost, and what’s your daily limit?”' },
     doneWhen: 'You can show the funds in the required form by the sale’s deadline.',
     action: 'Read your sale guide', href: '#/playbooks',

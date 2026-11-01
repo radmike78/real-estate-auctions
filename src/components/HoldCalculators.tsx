@@ -4,7 +4,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState } from 'react';
 import { readConfirmed, saveConfirmed } from '../lib/calcConfirmation';
 import type { BidInputs } from '../lib/bidCalc';
-import { COMMERCIAL_DEFAULTS, commercialAtPrice, commercialLines, lenderView, STR_DEFAULTS, strCompare, type StrInputs, HOLD_SELL_DEFAULTS, SELLER_FINANCE_DEFAULTS, sellerFinance, type SellerFinanceInputs, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs, withoutOldValueExample, refiOnExampleValue, rentVerdict, withPlanCash, noRealisticPrice, noRealisticAdvice } from '../lib/holdCalc';
+import { COMMERCIAL_DEFAULTS, commercialAtPrice, commercialLines, lenderView, STR_DEFAULTS, strCompare, type StrInputs, HOLD_SELL_DEFAULTS, SELLER_FINANCE_DEFAULTS, sellerFinance, type SellerFinanceInputs, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs, withoutOldValueExample, refiOnExampleValue, rentVerdict, withPlanCash, noRealisticPrice, noRealisticAdvice, fhaMonthlyMi } from '../lib/holdCalc';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 import CalcFields, { type CalcGroup } from './CalcFields';
@@ -283,7 +283,7 @@ function PlanCashNote({ need, planCash, offer, auctionDay = 0 }: { need: number;
 }
 
 /** The rental at a price you type: every step from rent to cash flow, with its assumptions. */
-function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, cashTyped = false }: { v: RentInputs; start: number; onPrice: boolean; setPrice: (n: number) => void; /** "Your offer" or "Your bid". */ word: string; /** The refinance is still on our example value. */ exampleValue?: boolean; /** The cash limit is one you typed (else it follows My plan). */ cashTyped?: boolean }) {
+function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, cashTyped = false, targetTyped = true }: { /** The return target was typed (else it's our example). */ targetTyped?: boolean; v: RentInputs; start: number; onPrice: boolean; setPrice: (n: number) => void; /** "Your offer" or "Your bid". */ word: string; /** The refinance is still on our example value. */ exampleValue?: boolean; /** The cash limit is one you typed (else it follows My plan). */ cashTyped?: boolean }) {
   // You plan to live in one unit (Decide: a home loan and live in it): a loss is your own housing cost, not a failed deal.
   const livingThere = onPrice && !!investorProfile().ownerOccupant;
   // The refinance on our example value: its return isn't this property's. Blank: no refinance counted, the rest is real.
@@ -314,7 +314,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
       </label>
       {price > 0 && (
         <p className={`calc-verdict ${rentVerdict({ cashFlow: a.cashFlow, cashOnCash: coc, targetPct: v.targetCocPct, cashShort, exampleRefi, living: livingThere })}`} role="status">
-          <strong>{livingThere && !exampleRefi ? (Math.round(Math.abs(a.cashFlow) / 12) === 0 ? 'The rent you collect about breaks even with every cost.' : a.cashFlow < 0 ? `Living there would cost you about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month, after any rent you collect.` : `The rent you collect would cover every cost, with about ${fmtMoney(Math.round(a.cashFlow / 12))} a month to spare.`) : exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; your target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; your target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; your target: ${v.targetCocPct}%.`}</strong>{' '}
+          <strong>{livingThere && !exampleRefi ? (Math.round(Math.abs(a.cashFlow) / 12) === 0 ? 'The rent you collect about breaks even with every cost.' : a.cashFlow < 0 ? `Living there would cost you about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month, after any rent you collect.` : `The rent you collect would cover every cost, with about ${fmtMoney(Math.round(a.cashFlow / 12))} a month to spare.`) : exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.`}</strong>{' '}
           {blankRefi && 'No refinance is counted yet: enter the value after repairs to include it. '}
           {cashShort && <>It needs about {fmtMoney(Math.round(needed))} of your cash, more than {limitWords}. </>}
           {exampleRefi ? null : a.cashFlow <= 0
@@ -581,26 +581,24 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
         {/* Your actual deal first; the price that would meet your goal second, each with its own heading bar and colour. */}
         {offer && investorProfile().ownerOccupant && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
-        <AtThisPrice v={v} start={noReal ? NaN : r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} cashTyped={typedKeys.has('cashAvailable')} />
+        <AtThisPrice v={v} start={noReal ? NaN : r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} cashTyped={typedKeys.has('cashAvailable')} targetTyped={typedKeys.has('targetCocPct')} />
         {living ? (
           <details className="calc-assumptions">
             <summary>Investor yardstick: the price that meets an investor’s {v.targetCocPct}% return</summary>
             <p className="muted small">You plan to live there, so this isn’t your limit: it’s what an investor renting out the whole property would pay for that return. Your own limit is the monthly cost you’re comfortable with and the loan your lender approves.</p>
             <HoldResults r={r} title="Price that meets an investor’s target" target={`Gives a ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} noRealistic={noReal} hasLoan={v.loanPct > 0 && (offer || v.value > 0)} supported={uncapped.noBidWorks ? NaN : uncapped.maxBid} />
           </details>
-        ) : <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} noRealistic={noReal} hasLoan={v.loanPct > 0 && (offer || v.value > 0)} supported={uncapped.noBidWorks ? NaN : uncapped.maxBid} />}
+        ) : <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives ${typedKeys.has('targetCocPct') ? 'your' : 'our example'} ${v.targetCocPct}% cash-on-cash return${typedKeys.has('targetCocPct') ? '' : ' (set your own under “Review all other costs, loan terms and targets”)'}, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} noRealistic={noReal} hasLoan={v.loanPct > 0 && (offer || v.value > 0)} supported={uncapped.noBidWorks ? NaN : uncapped.maxBid} />}
         {walkShort && <PlanCashNote need={walkNeed} planCash={planCash} offer={false} auctionDay={r.cashAtAuction} />}
         {/* Under 20% down on a purchase loan: mortgage insurance isn't in the payment here. FHA (live-in buyers only) annual
             premiums for 30-year loans from HUD Mortgagee Letter 2023-05: 0.50% / 0.55% (95% or less / over 95% of value)
             up to a $726,200 base loan, 0.70% / 0.75% above it. */}
         {offer && v.loanPct > 80 && (() => {
-          const base = v.atPrice > 0 ? (v.value > 0 ? Math.min(v.atPrice, v.value) : v.atPrice) : 0;
-          const loan = base * v.loanPct / 100;
           const live = !!investorProfile().ownerOccupant;
-          const rate = (loan > 726200 ? 0.70 : 0.50) + (v.loanPct > 95 ? 0.05 : 0);
-          // HUD's table here is for loans over 15 years; a shorter loan pays less (ask the lender).
           const long = !(v.years > 0 && v.years <= 15);
-          const mi = live && long && loan > 0 ? Math.round(loan * rate / 100 / 12) : 0;
+          const f = live ? fhaMonthlyMi(v) : null;
+          const rate = f?.rate ?? ((v.atPrice * v.loanPct / 100 > 726200 ? 0.70 : 0.50) + (v.loanPct > 95 ? 0.05 : 0));
+          const mi = f?.monthly ?? 0;
           return <p className="calc-note small" role="note"><strong>Mortgage insurance isn’t counted yet.</strong> {live
             ? <>With under 20% down, most loans add it. An FHA loan (for a home you live in) charges 1.75% of the loan upfront and, {long ? <>on a loan over 15 years, {rate.toFixed(2)}% a year at this loan size and down payment{mi > 0 ? ` (about ${fmtMoney(mi)} a month here)` : ''}, per HUD Mortgagee Letter 2023-05</> : 'a lower yearly rate on a 15-year loan (ask the lender for it)'}; a conventional loan adds private mortgage insurance instead.</>
             : <>With under 20% down, a conventional loan usually adds private mortgage insurance (FHA loans are for homes the buyer lives in).</>} It isn’t in the monthly cost above: until there’s a separate box for it, add your lender’s monthly figure to “HOA dues, per month” so the cost includes it.</p>;
@@ -691,7 +689,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
         })()}
         {/* An auction purchase's later loan is sized on the value: with no value entered, no loan is counted. */}
         {!offer && v.loanPct > 0 && !(v.value > 0) && <p className="calc-note small" role="note"><strong>No loan is counted yet: the value is blank.</strong> A loan after an auction is sized on the value an appraisal would support. Enter it (under the loan terms) to include the loan in the cash and the walk-away price.</p>}
-        <HoldResults commercial r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} headLabel="Walk-away price" noRealistic={noReal} hasLoan={v.loanPct > 0 && (offer || v.value > 0)} supported={uncapped.noBidWorks ? NaN : uncapped.maxBid} />
+        <HoldResults commercial r={r} title="Walk-away price for the income" target={`Yields ${typedKeys.has('targetCapPct') ? 'your' : 'our example'} ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} headLabel="Walk-away price" noRealistic={noReal} hasLoan={v.loanPct > 0 && (offer || v.value > 0)} supported={uncapped.noBidWorks ? NaN : uncapped.maxBid} />
         {walkShort && <PlanCashNote need={walkNeed} planCash={planCash} offer={offer} auctionDay={r.cashAtAuction} />}
       </div>
       <StickyResult label="Walk-away price" value={noReal ? 'No realistic price' : r.noBidWorks ? 'No price works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks || noReal} />
@@ -761,7 +759,7 @@ const AZ_LIEN_GROUPS: CalcGroup<LienInputs>[] = [
     title: 'The certificate',
     fields: [
       { k: 'price', label: 'Lien amount you pay', unit: '$', hint: 'The unpaid taxes, interest and fees on the lien.' },
-      { k: 'fees', label: 'Fees you pay', unit: '$', hint: 'Up to $10 processing per lien; not repaid.', more: 'The treasurer may charge a processing fee of up to $10 per lien (A.R.S. 42-18116), which the owner doesn’t repay. Paying later years’ taxes adds a $5 fee each time.' },
+      { k: 'fees', label: 'Fees you pay', unit: '$', hint: 'Up to $10 processing per lien, plus a $10 fee for each certificate; not repaid. Confirm both in the county’s sale terms.', more: 'The treasurer may charge a processing fee of up to $10 per lien (A.R.S. 42-18116) and collects a $10 fee for each certificate (A.R.S. 42-18118), which the owner doesn’t repay. Paying later years’ taxes adds a $5 fee each time.' },
       { k: 'ratePctMonth', label: 'Interest', unit: '%/mo', hint: 'The rate you win, divided by 12. At most 16% a year (1.33% a month).', more: 'Bidders bid the interest rate down from 16% a year; the lien earns simple interest at the winning rate from the first day of the next month, and part of a month counts as a whole month (A.R.S. 42-18053 and 42-18114).' },
     ],
   },

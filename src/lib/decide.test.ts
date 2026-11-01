@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { QUESTIONS, rank, STRATEGIES, type Answers } from './decide';
+import { stateNote, QUESTIONS, rank, STRATEGIES, type Answers } from './decide';
 
 const top = (a: Answers) => rank(a)[0].strategy.key;
 
@@ -58,4 +58,11 @@ it('marks the strategy that serves the reader’s goal, even when it ranks lower
   const r = rank({ goal: 'quick', cash: '50to150', ready: 'ready', borrow: 'invest', time: 'weekly', hands: 'hire', risk: 'medium', market: 'res' });
   expect(r.find((m) => m.strategy.key === 'flip')!.goalFit).toBe(true);
   expect(r.find((m) => m.strategy.key === 'rental')!.goalFit).toBe(false);
+});
+
+it('gives Clark County’s SID note only to Clark County (or no county) readers', () => {
+  expect(stateNote('auction', 'NV', 'Clark')).toMatch(/Clark County/);
+  expect(stateNote('auction', 'NV', null)).toMatch(/Clark County/);
+  expect(stateNote('auction', 'NV', 'Washoe')).not.toMatch(/Clark/);
+  expect(stateNote('passive', 'NV', 'Washoe')).toBeNull();
 });

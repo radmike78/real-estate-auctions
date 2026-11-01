@@ -1,4 +1,5 @@
 import { workStorage as localStorage } from '../lib/workStorage';
+import { getMyArea } from '../lib/myArea';
 import { useEffect, useRef, useState } from 'react';
 import { getMode, practicePart2Done, readLessons, useLastActivity } from '../lib/journey';
 import { planNow } from '../lib/planNext';
@@ -185,7 +186,7 @@ export default function DecidePage() {
           )}
           <ol className="decide-matches">
             {matches.map((m, i) => {
-              const note = stateNote(m.strategy.key, saved.answers.state);
+              const note = stateNote(m.strategy.key, saved.answers.state, getMyArea()?.county);
               const doneCount = m.strategy.checklist.filter((c) => saved.done.includes(c.id) || seenDone(c)).length;
               return (
                 <li key={m.strategy.key} className="decide-match">

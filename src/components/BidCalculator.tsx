@@ -11,6 +11,7 @@ import { trackAction } from '../lib/track';
 import { ExampleInputs, ExampleResults, PriceHead, exampleLabels } from './CalcLabels';
 
 /** Read from the listing or set by the county or the sale's rules: never listed as one of our examples. */
+const nz = (n: unknown) => (typeof n === 'number' && Number.isFinite(n) ? n : 0);
 const NOT_EXAMPLES = new Set<string>(['minimumBid', 'transferTaxPer500', 'cashAvailable', 'redemptionMonths', 'redemptionRatePct', 'targetProfitMin']);
 
 const KEY = (id: string) => `fsf.bid.${id}.v1`;
@@ -336,7 +337,11 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const over = bid > 0 && bid > r.maxBid;
   const target = requiredProfit(i);
   // The profit target is still our starting 15%: say it's ours, not yours.
-  const targetIsExample = !typedKeys.has('targetProfitPct') && !typedKeys.has('targetProfitMin') && !typedKeys.has('profitInDollars');
+  // Our example 15% still sets the target: you haven't set the percent (or switched to dollars), and any minimum you
+  // typed is below it.
+  const pctShare = (nz(i.exitValue) * nz(i.targetProfitPct)) / 100;
+  const targetIsExample = !typedKeys.has('targetProfitPct') && !typedKeys.has('profitInDollars') && !i.profitInDollars && (!typedKeys.has('targetProfitMin') || pctShare >= nz(i.targetProfitMin));
+  const minBelowExample = targetIsExample && typedKeys.has('targetProfitMin') && nz(i.targetProfitMin) > 0;
   // One wording for the target everywhere on this calculator (My deals and the packet use the same test).
   const tw = targetIsExample ? 'our example profit target' : 'your profit target';
   const gw = targetIsExample ? 'our example profit target' : 'your goal';
@@ -501,7 +506,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                   : `Even at $0, costs leave less than ${tw}. Walk away or change your plan.`
                 : r.limitedBy === 'cash'
                   ? `Set by the cash you can bring: the ${w.bid} plus every cost until you sell (repairs, holding, fees). Your profit target alone would allow ${fmtMoney(r.profitBid)}.`
-                  : noDollarTarget ? 'No profit target set yet: enter the dollar profit you want under “Profit you want”.' : targetIsExample ? `Leaves our example profit target, ${i.targetProfitPct}% of the resale value (${fmtMoney(Math.round(target))}), after every cost. Set your own under “Profit you want”. Not a guarantee.` : `Leaves your ${fmtMoney(Math.round(target))} profit target after every cost, based on your numbers. Not a guarantee.`}
+                  : noDollarTarget ? 'No profit target set yet: enter the dollar profit you want under “Profit you want”.' : targetIsExample ? `Leaves our example profit target, ${i.targetProfitPct}% of the resale value (${fmtMoney(Math.round(target))})${minBelowExample ? `, which is more than your ${fmtMoney(nz(i.targetProfitMin))} minimum` : ''}, after every cost. Set your own percent under “Profit you want”. Not a guarantee.` : `Leaves your ${fmtMoney(Math.round(target))} profit target after every cost, based on your numbers. Not a guarantee.`}
               {!r.noBidWorks && !(i.minimumBid > 0) && unenteredNote}
             </small>
           </div>

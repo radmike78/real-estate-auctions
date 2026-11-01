@@ -1,4 +1,5 @@
 import { useLastActivity } from '../lib/journey';
+import { getMyArea } from '../lib/myArea';
 import { useMarkStep } from '../lib/path';
 import { stateNote } from '../lib/decide';
 import { LEARN_MODULES } from '../lib/learn';
@@ -54,7 +55,7 @@ export default function StrategyPage({ slug }: { slug?: string }) {
   const g = slug ? strategyBySlug(slug) : undefined;
   if (!g) return <StrategyIndex />;
   const s = strategyOf(g);
-  const note = stateNote(g.key, st ?? undefined);
+  const note = stateNote(g.key, st ?? undefined, getMyArea()?.county);
   const i = STRATEGY_GUIDES.indexOf(g);
   const next = STRATEGY_GUIDES[i + 1];
   return (

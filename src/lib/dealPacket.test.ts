@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { Deal } from './analyze';
-import { cleanPacket, savedNumbers, dealPacketText, EMPTY_PACKET, flipBudget, flipBudgetLine, loadPacket, nextAction, nextDate, packetSections, savePacket, suggestedDates, dateGuide } from './dealPacket';
+import { teamRolesFor, cleanPacket, savedNumbers, dealPacketText, EMPTY_PACKET, flipBudget, flipBudgetLine, loadPacket, nextAction, nextDate, packetSections, savePacket, suggestedDates, dateGuide } from './dealPacket';
 import { saveLog, cleanLog } from './evidence';
 import { stageTasks } from './dealStage';
 import { dealNumbers } from './propertyPacket';
@@ -578,4 +578,20 @@ it('calls an untouched profit target our example', () => {
   localStorage.setItem('fsf.bid.analyzed-d1.v1.typed.v1', JSON.stringify(['minimumBid', 'exitValue', 'repairs']));
   const nums = packetSections({ ...deal, plan: 'flip' }, EMPTY_PACKET, now).find((s) => s.key === 'numbers')!.lines.join('\n');
   expect(nums).toMatch(/our example target \$/);
+});
+
+it('keeps calling the 15% our example when only a lower minimum was typed', () => {
+  localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 200000, exitValue: 400000, repairs: 20000, targetProfitMin: 30000 }));
+  localStorage.setItem('fsf.bid.analyzed-d1.v1.typed.v1', JSON.stringify(['minimumBid', 'exitValue', 'repairs', 'targetProfitMin']));
+  expect(savedNumbers({ ...deal, plan: 'flip' }).bid!.targetTyped).toBe(false);
+  localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 200000, exitValue: 400000, repairs: 20000, targetProfitMin: 90000 }));
+  expect(savedNumbers({ ...deal, plan: 'flip' }).bid!.targetTyped).toBe(true);
+});
+
+it('lists the Utah REPC deadlines for a Utah offer, and the commercial team for a commercial offer', () => {
+  const ut = dateGuide({ kind: 'listing', state: 'UT', plan: 'rent' }).map((x) => x.what).join('; ');
+  expect(ut).toMatch(/Seller Disclosure Deadline; Due Diligence Deadline; Financing & Appraisal Deadline; Settlement Deadline/);
+  expect(ut).not.toMatch(/Inspection period ends/);
+  const roles = teamRolesFor({ ...deal, state: 'CA', plan: 'commercial' });
+  expect(roles).not.toContain('home_inspector');
 });

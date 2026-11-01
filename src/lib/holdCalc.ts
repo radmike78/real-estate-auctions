@@ -634,6 +634,19 @@ export function cashAndPropertyWeak(r: HoldResult, uncapped: HoldResult, value: 
   return r.noBidWorks && r.limitedBy === 'cash' && !uncapped.noBidWorks && Number.isFinite(uncapped.maxBid) && nz(value) > 0 && uncapped.maxBid < nz(value) * 0.1;
 }
 
+/**
+ * FHA's yearly mortgage insurance, per month, on a purchase loan over 80% of the price (HUD Mortgagee Letter 2023-05,
+ * loans over 15 years): 0.50% / 0.55% a year (95% or less / over 95% of value) up to a $726,200 base loan, 0.70% / 0.75%
+ * above it. Null when it doesn't apply (no price, 80% or less, or a 15-year loan, which pays a lower rate).
+ */
+export function fhaMonthlyMi(v: Pick<RentInputs, 'atPrice' | 'value' | 'loanPct' | 'years'>): { rate: number; monthly: number } | null {
+  if (!(nz(v.atPrice) > 0) || !(nz(v.loanPct) > 80) || (nz(v.years) > 0 && nz(v.years) <= 15)) return null;
+  const base = nz(v.value) > 0 ? Math.min(nz(v.atPrice), nz(v.value)) : nz(v.atPrice);
+  const loan = base * nz(v.loanPct) / 100;
+  const rate = (loan > 726200 ? 0.70 : 0.50) + (nz(v.loanPct) > 95 ? 0.05 : 0);
+  return { rate, monthly: Math.round(loan * rate / 100 / 12) };
+}
+
 /** What to do when no realistic price fits your cash, one wording for the calculators and the packet. */
 export function noRealisticAdvice(offer: boolean, hasLoan: boolean): string {
   if (hasLoan) return 'Bring more cash, or skip this one.';

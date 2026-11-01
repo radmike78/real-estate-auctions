@@ -500,8 +500,10 @@ export function rank(answers: Answers): Match[] {
 }
 
 /** A state-specific note for a strategy, when the rules differ. */
-export function stateNote(key: StrategyKey, state?: string): string | null {
+export function stateNote(key: StrategyKey, state?: string, county?: string | null): string | null {
   const st = state as StateCode | undefined;
+  // Nevada's SID lien sales are Clark County's: another county's reader gets the statewide note instead.
+  if (st === 'NV' && county && county !== 'Clark' && (key === 'auction' || key === 'passive')) return key === 'auction' ? 'The trustee, tax and sheriff sale guides apply statewide; check your county treasurer for any special assessment lien sales there.' : null;
   if (key === 'auction' && st === 'AZ') return 'Arizona counties sell tax liens, not the property: you earn interest until the owner pays, and can seek a deed only after three years. Or, if you or the owner ask and the property is likely to sell for more than $2,500 above what’s owed, the court must order an auction instead, and you’re paid in cash (A.R.S. 42-18204). Separately, the county board of supervisors auctions land the state already took by tax deed (A.R.S. 42-18301 to 42-18303). Competition often bids the rate far below the 16% cap, so expect modest interest, not a property. Trustee auctions sell the property itself.';
   if (key === 'auction' && st === 'CA') return 'California trustee-sale winning bids on homes of one to four units aren’t final right away: eligible bidders have 15 days after the sale to say they’ll bid, and up to 45 days to make that bid (Civil Code 2924m).';
   if (key === 'auction' && st === 'NV') return 'Our step-by-step guides cover each kind of sale in Clark County, Nevada. Clark County also sells special assessment (SID) lien certificates: you earn interest until the owner pays, and you don’t get the property. To follow that path, choose Lien certificates under “How you’ll buy” in My plan.';

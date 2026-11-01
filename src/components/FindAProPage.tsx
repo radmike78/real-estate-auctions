@@ -300,9 +300,12 @@ export default function FindAProPage({ section }: { section?: string }) {
   const [sale, setSale] = useState<string>(() => {
     // The property open in Analyze (a saved one) decides first: its own kind of sale.
     try {
-      const cur = JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null') as { id?: string; kind?: Deal['kind']; state?: string } | null;
+      const cur = JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null') as { id?: string; kind?: Deal['kind']; state?: string; plan?: Deal['plan'] } | null;
+      const pre0 = mine === 'NV' ? '' : (mine ?? '').toLowerCase();
       if (cur?.id && cur.kind && cur.state === mine) {
-        const k = cur.kind === 'listing' ? 'listing' : guideKeyFor({ kind: cur.kind, state: mine });
+        // A commercial building bought through an agent or from a bank: the commercial team.
+        const offerKind = cur.kind === 'listing' || cur.kind === 'reo' || cur.kind === 'short';
+        const k = cur.plan === 'commercial' && offerKind ? `${pre0}commercial` : cur.kind === 'listing' ? 'listing' : guideKeyFor({ kind: cur.kind, state: mine });
         if (k === 'listing' || guidesFor(mine).some((p) => p.key === k)) return k;
       }
     } catch { /* storage unavailable */ }
@@ -310,7 +313,11 @@ export default function FindAProPage({ section }: { section?: string }) {
     const pre = mine === 'NV' ? '' : (mine ?? '').toLowerCase();
     const want = r === 'auction' ? `${pre}foreclosure` : r === 'certificate' ? (mine === 'NV' ? 'sid' : 'aztaxlien') : '';
     if (want && guidesFor(mine).some((p) => p.key === want)) return want;
-    // The agent route (the roadmap's default): the team for a listed home.
+    // The agent route (the roadmap's default): the team for a listed home, or the commercial team for a commercial buy box.
+    try {
+      const box = JSON.parse(localStorage.getItem('deedowl.buybox.v1') ?? 'null') as { strategy?: unknown } | null;
+      if (mine && r === 'listing' && box?.strategy === 'Apartments and commercial property' && guidesFor(mine).some((p) => p.key === `${pre}commercial`)) return `${pre}commercial`;
+    } catch { /* storage unavailable */ }
     return mine && r === 'listing' ? 'listing' : 'start';
   });
   const { pros } = useDirectory();

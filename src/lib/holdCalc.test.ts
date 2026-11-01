@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cashAndPropertyWeak, noRealisticPrice, allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialAtPrice, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice, loanAt, withoutOldValueExample, refiOnExampleValue, refiValueWords, rentVerdict } from './holdCalc';
+import { fhaMonthlyMi, cashAndPropertyWeak, noRealisticPrice, allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialAtPrice, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice, loanAt, withoutOldValueExample, refiOnExampleValue, refiValueWords, rentVerdict } from './holdCalc';
 import { rentalStartFor } from './stateCosts';
 
 describe('rent / hold', () => {
@@ -288,4 +288,11 @@ it('names both when the cash doesn’t cover the costs and the deal itself suppo
   // A deal that works on its own, with too little cash: only the cash.
   const ok = { ...RENT_DEFAULTS, cashAvailable: 20000 };
   expect(cashAndPropertyWeak(rentMaxBid(ok, false), rentMaxBid({ ...ok, cashAvailable: 0 }, false), ok.value)).toBe(false);
+});
+
+it('works out FHA mortgage insurance from HUD’s table (ML 2023-05)', () => {
+  expect(fhaMonthlyMi({ atPrice: 400000, value: 0, loanPct: 90, years: 30 })).toEqual({ rate: 0.5, monthly: 150 });
+  expect(fhaMonthlyMi({ atPrice: 800000, value: 0, loanPct: 96.5, years: 30 })!.rate).toBeCloseTo(0.75);
+  expect(fhaMonthlyMi({ atPrice: 400000, value: 0, loanPct: 80, years: 30 })).toBeNull();
+  expect(fhaMonthlyMi({ atPrice: 400000, value: 0, loanPct: 96.5, years: 15 })).toBeNull();
 });
