@@ -244,7 +244,8 @@ it('gives one verdict rule for Analyze, My deals and the packet', () => {
   expect(rentVerdict({ ...base, cashShort: true, exampleRefi: true })).toBe('bad'); // short of cash wins
   expect(rentVerdict({ ...base, exampleRefi: true })).toBe('neutral');
   expect(rentVerdict({ ...base, cashOnCash: 0.05 })).toBe('bad');
-  expect(rentVerdict({ ...base, cashOnCash: 0.05, living: true })).toBe('bad'); // positive but misses target: same rule
+  expect(rentVerdict({ ...base, cashOnCash: 0.05, living: true })).toBe('good'); // living there with rent to spare: no investor target
+  expect(rentVerdict({ ...base, cashOnCash: 0.05, living: true, cashShort: true })).toBe('bad');
   expect(rentVerdict({ ...base, cashFlow: -500, cashOnCash: -0.02, living: true })).toBe('neutral'); // a living cost
   expect(rentVerdict({ ...base, cashFlow: -500, cashOnCash: -0.02 })).toBe('bad');
   expect(rentVerdict({ ...base, cashOnCash: null })).toBe('good'); // all cash back

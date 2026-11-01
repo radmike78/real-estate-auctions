@@ -79,11 +79,11 @@ export function countyTaxLine(state: StateCode, county?: string): { short: strin
  */
 export function ownerOccupiedTaxNote(state: StateCode): string {
   switch (state) {
-    case 'TX': return 'That’s a rental’s rate: a home you live in can get the homestead exemption, which lowers it; apply with the appraisal district.*';
-    case 'NV': return 'That’s a rental’s rate: in Nevada a home you live in gets a lower cap on yearly tax increases (3%) rather than a lower rate; ask the county assessor.*';
-    case 'CA': return 'That’s a rental’s rate: a home you live in can get the homeowners’ exemption, which takes a little off the assessed value; ask the county assessor.*';
-    case 'AZ': return 'That’s a rental’s rate: a home you live in can get the homeowner rebate on part of the school tax (up to $600 a year); ask the county assessor.*';
-    case 'UT': return 'A home you live in gets the same main-home rate as a long-term rental with a tenant’s declaration; ask the county assessor.*';
+    case 'TX': return 'That’s a rental’s figure: a home you live in can get the homestead exemption, which lowers the value it’s taxed on; apply with the appraisal district.*';
+    case 'NV': return 'In Nevada a home you live in pays the same rate as a rental, but its yearly tax increase is capped at 3% (a rental’s cap can be up to 8%); ask the county assessor.*';
+    case 'CA': return 'That’s a rental’s figure: a home you live in can get the homeowners’ exemption, which takes a little off the assessed value; ask the county assessor.*';
+    case 'AZ': return 'That’s a rental’s figure: a home you live in can get the homeowner rebate on part of the school tax (up to $600 a year); ask the county assessor.*';
+    case 'UT': return 'A home you live in gets the same main-home exemption a long-term rental gets once you, the owner, file the assessor’s declaration that it’s a tenant’s main home; ask the county assessor.*';
   }
 }
 

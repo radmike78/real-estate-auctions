@@ -609,11 +609,13 @@ export function withPlanCash<T extends { cashAvailable: number }>(v: T, offer: b
 
 /**
  * Keep and rent's verdict at your price, one rule for Analyze, My deals and the packet: short of cash is bad; a
- * refinance on our example value, or a monthly cost of living there, is neutral (not this property's result); otherwise
- * good when cash flow is positive and the return meets the target.
+ * refinance on our example value, or a monthly cost of living there, is neutral (not this property's result); living
+ * there with rent to spare is good (the investor's return target doesn't apply); otherwise good when cash flow is
+ * positive and the return meets the target.
  */
 export function rentVerdict(o: { cashFlow: number; cashOnCash: number | null; targetPct: number; cashShort: boolean; exampleRefi: boolean; living: boolean }): 'good' | 'bad' | 'neutral' {
   if (o.cashShort) return 'bad';
   if (o.exampleRefi || (o.living && o.cashFlow <= 0)) return 'neutral';
+  if (o.living) return 'good';
   return o.cashFlow > 0 && (o.cashOnCash === null || o.cashOnCash >= o.targetPct / 100) ? 'good' : 'bad';
 }

@@ -427,7 +427,7 @@ function commercialPriceText(capPct: number, maxBid: number, limitedBy: Commerci
   const roc = pct1(capOnCost);
   if (limitedBy === 'cash') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by ${cashLimit(offer)}: ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
   if (limitedBy === 'dscr') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by the lender’s minimum coverage (DSCR): ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
-  return lower ? `highest price ${money(maxBid)}` : `Highest price for a ${capPct}% return on cost: ${money(maxBid)}`;
+  return lower ? `highest price ${money(maxBid)}` : `Highest price for ${/^(8|11|18)(\.|$)|^8/.test(String(capPct)) ? 'an' : 'a'} ${capPct}% return on cost: ${money(maxBid)}`;
 }
 
 export type SectionStatus = 'done' | 'started' | 'missing';

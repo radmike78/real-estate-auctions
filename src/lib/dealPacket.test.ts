@@ -519,3 +519,10 @@ it('says no bid at the opening bid fits, instead of a what-if below it', () => {
   const nums = s.find((x) => x.key === 'numbers')!.lines.join('\n');
   expect(nums).not.toMatch(/If [^:]+: walk-away price \$/);
 });
+
+it('says “an 8%” return on cost', () => {
+  const auction: Deal = { ...deal, kind: 'trustee', plan: 'commercial' };
+  localStorage.setItem('fsf.calc.commercial.d1.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 8 }));
+  const t = packetSections(auction, EMPTY_PACKET, now).find((s) => s.key === 'numbers')!.lines.join('\n');
+  expect(t).toMatch(/Highest price for an 8% return on cost/);
+});

@@ -539,7 +539,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const valueBase = v.value > 0 ? v.value : (start.value ?? RENT_DEFAULTS.value);
   const taxBase = taxOnPrice ? v.atPrice : valueBase;
   const taxHere = rate ? taxAt(taxBase, rate.pct) : 0;
-  const taxAtWords = taxOnPrice ? `At your ${fmtMoney(v.atPrice)} ${offer ? 'offer' : 'bid'}` : v.atPrice > 0 ? `The county taxes its value, not your bid: at a ${fmtMoney(taxBase)} value` : `At a ${fmtMoney(taxBase)} ${priceState ? 'price' : 'value'}`;
+  const taxAtWords = taxOnPrice ? `At your ${fmtMoney(v.atPrice)} ${offer ? 'offer' : 'bid'}` : v.atPrice > 0 ? `Tax is on the property’s value, not your bid: at ${v.value > 0 && !typedKeys.has('value') && !('value' in start) ? `our ${fmtMoney(taxBase)} example value` : `a ${fmtMoney(taxBase)} value`}` : `At a ${fmtMoney(taxBase)} ${priceState ? 'price' : 'value'}`;
   const withTaxHint = (gs: CalcGroup<RentInputs>[]) => (rate && taxHere !== v.propertyTaxYear
     ? gs.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} ${taxAtWords}: about ${fmtMoney(taxHere)}.`.trim() } : f)) }))
     : gs);
