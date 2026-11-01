@@ -228,6 +228,13 @@ export function ownNumbers(d: Deal): boolean {
   return true;
 }
 
+/** A fix-and-sell deal with its resale value typed but its repairs not yet (typed, or 0): the one thing missing. */
+export function flipNeedsRepairs(d: Deal): boolean {
+  if (d.plan !== 'flip') return false;
+  const typed = readConfirmed(`fsf.bid.analyzed-${d.id}.v1`);
+  return typed.has('exitValue') && !ownNumbers(d);
+}
+
 export function savedNumbers(d: Deal) {
   const offer = isOffer(d);
   // Example numbers aren't the property's numbers: nothing is reported until its own are typed.
@@ -355,6 +362,8 @@ export function flipBudgetLine(d: Deal): string | null {
 export function hasSavedNumbers(n: ReturnType<typeof savedNumbers>): boolean {
   return !!(n.rent || n.bid || n.lien || (n.commercial && !n.commercial.noTarget));
 }
+
+const REPAIRS_NEEDED = (strategy: string) => `Enter the repairs in ${strategy} (type 0 if there truly are none). Until then this deal’s walk-away price doesn’t count them, so it isn’t shown here.`;
 
 const commercialNoTarget = (strategy: string, overCap = false) => overCap
   ? `The price is over $1 billion with the rent and costs you entered in ${strategy}: check them for a typo.`
@@ -515,12 +524,14 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     cash.push(`Certificate price ${money(lien.price)} plus fees ${money(lien.fees)}: ${money(need)}, paid at the sale (confirm the payment deadline and method in the county’s sale terms).`);
   } else if (d.plan === 'lien') {
     cash.push('The certificate price and fees, from the Lien certificate calculator in Analyze.');
+  } else if (flipNeedsRepairs(d)) {
+    cash.push(REPAIRS_NEEDED(strategy));
   } else {
     cash.push(`Run ${strategy} in Analyze to see the cash this deal needs.`);
   }
   if (profile.investable > 0 && need > 0) cash.push(need > profile.investable ? `${needAt}, that’s ${money(need - profile.investable)} more than your investable cash: the deal doesn’t fit as entered.` : `${needAt}, that leaves ${money(profile.investable - need)} unallocated from your investable cash, after any retained reserves recorded above.`);
   const hasNums = hasSavedNumbers({ rent, bid, commercial, lien });
-  out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && (!offer || p.earnest) ? 'done' : hasNums || p.earnest ? 'started' : 'missing', lines: cash, fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
+  out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: cash, fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 
   // 5. Numbers: base and downside, for the deal's strategy only
   const nums: string[] = ['Returns, profit and cash flow are before income tax; personal taxes and depreciation are not included.', `Strategy: ${strategy}. These are the numbers you saved in its calculator; other strategies’ calculators aren’t counted.`];
@@ -558,10 +569,11 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     nums.push(`  If paid off in ${lien.later.months} months instead: ${yr(lien.later.yearly)} (profit after fees ${money(lien.later.profit)})`);
     nums.push('  If it’s never paid off: no payoff comes; your cash stays in until you enforce the lien, which usually takes an attorney and more cost.*');
   }
-  if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');
+  if (!hasNums && flipNeedsRepairs(d)) nums.push(REPAIRS_NEEDED(strategy));
+  else if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');
   // Done only once there's a downside to look at, not just the base case.
   const downside = !!lien || (rent && rent.stress.length > 1) || (bid && bid.stress.length > 1) || (commercial && (commercial.none || commercial.stress.length > 0));
-  out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: downside && !bid?.unentered.length ? 'done' : hasNums ? 'started' : 'missing', lines: nums, fix: { label: 'Open in Analyze', href: '#/analyze' } });
+  out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: downside && !bid?.unentered.length ? 'done' : hasNums || flipNeedsRepairs(d) ? 'started' : 'missing', lines: nums, fix: { label: 'Open in Analyze', href: '#/analyze' } });
 
   // 6. Evidence
   const checked = EVIDENCE_AREAS.filter((a) => log.rows[a.key]?.done);

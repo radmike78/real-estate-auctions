@@ -377,7 +377,7 @@ export function clearDraftNumbers() {
 export function restoreDraftNumbers(id: string, offer: boolean): boolean {
   let found = false;
   try {
-    clearDraftNumbers();
+    // Only the calculators this deal has numbers in: another tab's unsaved draft in the rest stays as it is.
     const moves: [string, string][] = [
       [`fsf.calc.rent.${id}${offer ? '-offer' : ''}.v1`, offer ? 'fsf.calc.rent.offer.v1' : 'fsf.calc.rent.v1'],
       [`fsf.calc.commercial.${id}${offer ? '-offer' : ''}.v1`, offer ? 'fsf.calc.commercial.offer.v1' : 'fsf.calc.commercial.v1'],
@@ -393,7 +393,9 @@ export function restoreDraftNumbers(id: string, offer: boolean): boolean {
       for (const suffix of ['.region', '.typed.v1']) {
         const x = localStorage.getItem(`${from}${suffix}`);
         if (x !== null) localStorage.setItem(`${to}${suffix}`, x);
+        else localStorage.removeItem(`${to}${suffix}`);
       }
+      localStorage.removeItem(to.replace(/\.v1$/, '.typed.v1'));
     }
   } catch {
     /* storage unavailable */
