@@ -264,6 +264,8 @@ export function savedNumbers(d: Deal) {
   let rent: { price: number; monthly: number; cashIn: number; allIn: number; repairs: number; possession: number; retained: number; refi: boolean; noLoan: boolean; exampleValue: boolean; refiValue: number; cashLimit: number; cashTyped: boolean; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
   let bid: {
     maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number; none: boolean; target: number;
+    /** No bid works only because of the cash entered: the deal itself works up to `profitBid`. */
+    cashBlocked: boolean; profitBid: number;
     /** A loan pays part of the price or repairs (repair draws aren't modeled, so the cash figures assume the loan pays as costs come due). */
     financed: boolean;
     unentered: string[];
@@ -321,7 +323,7 @@ export function savedNumbers(d: Deal) {
         const pp = proposedPriceOf(i);
         const at = pp ? { ...resultAtPrice(i, pp.price), source: pp.source } : null;
         const stress = stressCases(i).map((c) => ({ label: c.label, maxBid: maxSafeBid(c.inputs).maxBid, profit: pp ? resultAtPrice(c.inputs, pp.price).profit : null }));
-        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0, limitedBy: r.limitedBy, cashTyped: !offer && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable'), cashLimit: !offer && i.cashAvailable > 0 && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable') ? i.cashAvailable : 0, unentered: unenteredCosts(i, readConfirmed(`fsf.bid.analyzed-${d.id}.v1`), offer) };
+        bid = { cashBlocked: r.noBidWorks && r.profitBid > 0, profitBid: r.profitBid, maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0, limitedBy: r.limitedBy, cashTyped: !offer && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable'), cashLimit: !offer && i.cashAvailable > 0 && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable') ? i.cashAvailable : 0, unentered: unenteredCosts(i, readConfirmed(`fsf.bid.analyzed-${d.id}.v1`), offer) };
       }
     }
   } else if (d.plan === 'commercial' && own) {
@@ -357,7 +359,7 @@ export function savedNumbers(d: Deal) {
     }
   }
   // A lien certificate: its yield at the wait you entered, then paid later, from the Lien certificate calculator.
-  let lien: { price: number; fees: number; months: number; yearly: number | null; profit: number; later: { months: number; yearly: number | null; profit: number } | null } | null = null;
+  let lien: { overCap: boolean; price: number; fees: number; months: number; yearly: number | null; profit: number; later: { months: number; yearly: number | null; profit: number } | null } | null = null;
   if (d.plan === 'lien' && own) {
     const raw = read(lienKey(d)) as Partial<LienInputs> | null;
     if (raw && typeof raw === 'object' && typeof raw.price === 'number' && raw.price > 0) {
@@ -367,7 +369,7 @@ export function savedNumbers(d: Deal) {
       // building), or Arizona's 3 years before a holder can go to court. Past that you're enforcing, not waiting.
       const laterMonths = d.state === 'NV' ? 24 : 36;
       const l = laterMonths > v.monthsToRedeem ? lienYield({ ...v, monthsToRedeem: laterMonths }) : null;
-      lien = { price: v.price, fees: v.fees, months: v.monthsToRedeem, yearly: y.yearlyYield, profit: y.profit, later: l ? { months: laterMonths, yearly: l.yearlyYield, profit: l.profit } : null };
+      lien = { overCap: v.ratePctMonth > (d.state === 'AZ' ? 16 / 12 : 1) + 0.001, price: v.price, fees: v.fees, months: v.monthsToRedeem, yearly: y.yearlyYield, profit: y.profit, later: l ? { months: laterMonths, yearly: l.yearlyYield, profit: l.profit } : null };
     }
   }
   return { rent, bid, commercial, lien };
@@ -539,7 +541,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     cash.push(rent.retained > 0 ? `Retained property reserves: ${money(rent.retained)}, kept separately from the ${money(need)} modeled cash requirement.` : 'Retained property reserves: not entered. Set aside a separate amount for vacancies and unexpected costs.');
     if (rent.retained > 0) need += rent.retained;
   } else if (bid?.none && !bid.at) {
-    cash.push(`No price works with the numbers you entered in ${strategy}: the costs and your profit target take up the whole ${money(bid.exitValue)} resale value.`);
+    cash.push(bid.cashBlocked ? `No bid fits the cash you entered in ${strategy}: the deal itself meets your goal up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than you entered.` : `No price works with the numbers you entered in ${strategy}: the costs and your profit target take up the whole ${money(bid.exitValue)} resale value.`);
   } else if (bid) {
     // Your own price first; the walk-away price is a separate what-if (the most you'd pay), never your price.
     const a = bid.at;
@@ -614,7 +616,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     const a = bid.at;
     if (a) nums.push(`${priceName(a.source, offer, true)} (${a.source === 'yours' ? 'your actual price' : offer ? 'used until you enter your own offer' : 'the lowest you could pay, used until you enter your own bid'}): ${money(a.price)} → estimated profit ${money(a.profit)} (your target ${money(bid.target)}${a.profit < bid.target ? ', so it falls short' : ''}), based on a ${money(bid.exitValue)} resale value`);
     const belowOpening = !bid.none && a?.source === 'listed' && bid.maxBid < a.price;
-    nums.push(bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and your profit target` : `What-if: walk-away price ${money(bid.maxBid)}, the most you could pay and still meet your goal (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : 'this deal doesn’t meet your goal'} as entered` : ''}`);
+    nums.push(bid.none && bid.cashBlocked ? `No bid fits the cash you entered: the deal itself meets your goal up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than that` : bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and your profit target` : `What-if: walk-away price ${money(bid.maxBid)}, the most you could pay and still meet your goal (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : 'this deal doesn’t meet your goal'} as entered` : ''}`);
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
     const floor = a?.source === 'listed' ? a.price : 0;
     for (const s of bid.stress.slice(1)) {
@@ -629,7 +631,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
   else if (commercial?.none) nums.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered`);
   else if (commercial) {
-    nums.push(`${commercialPriceText(commercial.capPct, commercial.maxBid, commercial.limitedBy, commercial.capOnCost, offer, false, commercial.value ?? 0)}, on ${money(commercial.noi)} a year of net operating income`);
+    const priceText = commercialPriceText(commercial.capPct, commercial.maxBid, commercial.limitedBy, commercial.capOnCost, offer, false, commercial.value ?? 0);
+    nums.push(/no realistic/.test(priceText) ? `${priceText}.` : `${priceText}, on ${money(commercial.noi)} a year of net operating income`);
     for (const s of commercial.stress) {
       // Cash sets both prices: the lower rent doesn't move it, so say so instead of repeating the same figure as news.
       const same = s.limitedBy === 'cash' && commercial.limitedBy === 'cash' && s.maxBid === commercial.maxBid;
@@ -638,6 +641,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   if (lien) {
     const yr = (y: number | null) => (y === null ? 'no yield' : `${(y * 100).toFixed(1)}% a year`);
+    if (lien.overCap) nums.push(`The interest rate entered is more than ${d.state === 'AZ' ? 'Arizona’s legal maximum of 16% a year (1.33% a month)' : 'Nevada’s 1% a month'}, so these yields are too high: enter the monthly rate in Lien certificate.`);
     nums.push(`Certificate ${money(lien.price)}: if paid off in ${lien.months} months, ${yr(lien.yearly)} on your cash (profit after fees ${money(lien.profit)})`);
     nums.push('  Downside, if it’s never paid off: no payoff comes; your cash stays in until you enforce the lien, which usually takes an attorney and more cost.*');
     if (lien.later) nums.push(`  If it takes longer, to ${lien.later.months} months: your ${money(lien.price)} is tied up ${lien.later.months - lien.months} months more, earning ${yr(lien.later.yearly)} (profit after fees ${money(lien.later.profit)}); add any later taxes or assessments you pay to protect the lien.`);

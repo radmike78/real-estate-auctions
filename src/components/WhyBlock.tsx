@@ -23,9 +23,9 @@ function Point({ p }: { p: WhyPoint }) {
 }
 
 /** "Why you would / Why you wouldn't", side by side on wide screens and stacked on phones. */
-export default function WhyBlock({ title, yes, no, yesLabel = 'Why you would', noLabel = 'Why you wouldn’t', more }: { title?: string; yes: WhyPoint[]; no: WhyPoint[]; yesLabel?: string; noLabel?: string; more?: { href: string; label: string } }) {
+export default function WhyBlock({ title, yes, no, yesLabel = 'Why you would', noLabel = 'Why you wouldn’t', more, level }: { title?: string; yes: WhyPoint[]; no: WhyPoint[]; yesLabel?: string; noLabel?: string; more?: { href: string; label: string }; /** The column headings' level, when the block sits under a heading other than an h2. */ level?: 3 | 4 }) {
   // One level below the block's own title, or below the page section's h2 when there's no title.
-  const H = title ? 'h4' : 'h3';
+  const H = level ? (`h${level}` as 'h3' | 'h4') : title ? 'h4' : 'h3';
   return (
     <div className="why-block">
       {title && <h3 className="why-title">{title}</h3>}

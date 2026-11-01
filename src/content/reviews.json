@@ -10,7 +10,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "5d867e0697acb0b3",
+    "hash": "a6afc4af75f33810",
     "note": "Reviewed 2026-11-01 (rounds 33-36): rent calculator example value and refinance sizing restored to the pre-round-32 formulas; county property tax rates from official state sources set the starting tax (stateCosts.rentalStartFor/taxAt); plan-cash checks, example-value and living-there wording added. Formulas checked by unit tests and browser runs."
   },
   {
@@ -163,7 +163,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "1fbbf3264aad1bf2",
+    "hash": "2a96833e4e43c97d",
     "note": "Reviewed 2026-11-01 (rounds 33-36): rent calculator example value and refinance sizing restored to the pre-round-32 formulas; county property tax rates from official state sources set the starting tax (stateCosts.rentalStartFor and taxAt); plan-cash checks, example-value and living-there wording added. Formulas checked by unit tests and browser runs."
   },
   {
@@ -180,7 +180,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "1fbe18095fc6938d",
+    "hash": "67f1734a9841aa9b",
     "note": "Reviewed 2026-11-01 (rounds 33-36): rent calculator example value and refinance sizing restored to the pre-round-32 formulas; county property tax rates from official state sources set the starting tax (stateCosts.rentalStartFor and taxAt); plan-cash checks, example-value and living-there wording added. Formulas checked by unit tests and browser runs."
   },
   {
@@ -210,7 +210,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "b6a303b81b8603ae",
+    "hash": "480ac410d480537a",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -368,7 +368,7 @@
       "src/lib/lessons/taxes.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "6c7cde7ee8ef710b",
+    "hash": "da5b01393fc27943",
     "note": "Next-lesson practice links appear only where a matching Cedar House chapter exists; all source lesson content retained."
   },
   {
@@ -405,7 +405,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "f89cc24997e51480",
+    "hash": "6c82182db8bcbd91",
     "note": "Reviewed 2026-11-01 (rounds 33-36): rent calculator example value and refinance sizing restored to the pre-round-32 formulas; county property tax rates from official state sources set the starting tax (stateCosts.rentalStartFor and taxAt); plan-cash checks, example-value and living-there wording added. Formulas checked by unit tests and browser runs."
   },
   {
@@ -421,7 +421,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "82827aa2628e7de2",
+    "hash": "e0cb0d76c40d0c20",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {

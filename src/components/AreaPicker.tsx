@@ -43,6 +43,7 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
     setCounty(p.counties.length === 1 ? p.counties[0] : null);
     setOpen(false);
   };
+  const st = STATES.find((x) => x.code === state);
   const needsCounty = !!picked && picked.counties.length > 1 && !(county && picked.counties.includes(county));
   const save = () => {
     if (!state) {
@@ -50,7 +51,8 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
       return;
     }
     if (needsCounty) return;
-    const a: Area = picked && county ? { state, city: picked.name, county } : { state, city: null, county: null };
+    // A city (and its county), or just a county, or just the state.
+    const a: Area = picked && county ? { state, city: picked.name, county } : !picked && county && st?.counties.includes(county) ? { state, city: null, county } : { state, city: null, county: null };
     setArea(a);
     onDone?.();
   };
@@ -104,6 +106,15 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
           )}
           {places && open && !picked && typed.trim().length > 1 && !matches.length && (
             <p className="small muted">No city by that name in {STATES.find((s) => s.code === state)?.name}. Check the spelling, or skip it for now.</p>
+          )}
+          {!picked && st && (
+            <label className="field">
+              <span>Or just your county <span className="muted">(optional)</span></span>
+              <select value={county && st.counties.includes(county) ? county : ''} onChange={(e) => setCounty(e.target.value || null)}>
+                <option value="">Not chosen</option>
+                {st.counties.map((c) => <option key={c} value={c}>{countyName(c)}</option>)}
+              </select>
+            </label>
           )}
           {picked && picked.counties.length > 1 && (
             <fieldset className="area-county">

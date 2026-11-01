@@ -288,7 +288,9 @@ export function explainRent(i: RentInputs, price = nz(i.value), onPrice = false,
   const stress = rentStress(i, price, onPrice);
   const base = stress[0].monthly;
   const out: string[] = [];
-  if (base <= 0 && living) {
+  if (living && Math.round(Math.abs(base)) === 0) {
+    out.push('With your numbers, the rent you collect about breaks even with every cost. Compare what living there costs you with what you pay to live where you are now.');
+  } else if (base <= 0 && living) {
     out.push(`With your numbers, living there costs you about ${money(base)} a month after the rent you collect${nz(i.loanPct) > 0 ? ' and the loan payment' : ''}. Compare that with what you pay to live where you are now.`);
   } else if (base <= 0) {
     out.push(`With your numbers, this rental loses about ${money(base)} a month after all costs${nz(i.loanPct) > 0 ? ' and the loan payment' : ''}. Unless the rent can be higher or the costs lower, it isn’t a rental that pays for itself.`);

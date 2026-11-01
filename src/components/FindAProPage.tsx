@@ -245,7 +245,7 @@ function GuideBody({ g }: { g: ProGuide }) {
       )}
       <p className="pro-next"><a className="btn" href="#/toolkit/team">Add them to your team in My{NBSP}plan{NBSP}→</a></p>
       {PRO_WHY[g.key] && <h3 className="part-head">Should you hire one?</h3>}
-      {PRO_WHY[g.key] && <WhyBlock yes={PRO_WHY[g.key].yes} no={PRO_WHY[g.key].no} yesLabel="Why you would hire one" noLabel="Why you might not, or when to be careful" />}
+      {PRO_WHY[g.key] && <WhyBlock yes={PRO_WHY[g.key].yes} no={PRO_WHY[g.key].no} yesLabel="Why you would hire one" noLabel="Why you might not, or when to be careful" level={4} />}
       {overview.length > 0 && (
         <details className="pro-fold">
           <summary><h3 className="part-head">The details: how working with one goes, and the evidence</h3></summary>

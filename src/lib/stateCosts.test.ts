@@ -4,7 +4,8 @@ import { offeredRedemptionRules, ownerOccupiedTaxNote, redemptionChoicesFor, red
 
 describe('state deal costs', () => {
   it('words the live-in tax note by each state’s own program, asterisked', () => {
-    for (const st of ['NV', 'CA', 'AZ', 'UT', 'TX'] as const) expect(ownerOccupiedTaxNote(st).endsWith('*')).toBe(true);
+    for (const st of ['NV', 'CA', 'AZ', 'TX'] as const) expect(ownerOccupiedTaxNote(st).endsWith('*')).toBe(true);
+    expect(ownerOccupiedTaxNote('UT')).toMatch(/59-2-103\.5/); // confirmed in Utah Code, so no asterisk
     expect(ownerOccupiedTaxNote('NV')).toMatch(/3%/);
     expect(ownerOccupiedTaxNote('NV')).not.toMatch(/homestead/i);
     expect(ownerOccupiedTaxNote('TX')).toMatch(/homestead exemption/);

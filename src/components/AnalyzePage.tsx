@@ -324,7 +324,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           </label>
           <label className="field">
             <span>State</span>
-            <select value={deal.state} onChange={(e) => { const s = e.target.value as StateCode; const k = kindsFor(s).some((x) => x.key === deal.kind) ? deal.kind : 'listing'; set({ state: s, county: startCounty(s), countyChosen: false, locationConfirmed: false, kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); setMyState(s); }}>
+            <select value={deal.state} onChange={(e) => { const s = e.target.value as StateCode; setMyState(s); /* first, so the starting county is your area's in that state */ const k = kindsFor(s).some((x) => x.key === deal.kind) ? deal.kind : 'listing'; set({ state: s, county: startCounty(s), countyChosen: false, locationConfirmed: false, kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); }}>
               {STATES.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}
             </select>
           </label>

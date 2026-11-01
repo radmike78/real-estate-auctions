@@ -137,7 +137,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
                 {deals.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : ""}</option>)}
               </select>
             </label>
-            {!focus && deals.some((d) => !d.practice) && <p className="muted small">Your saved property, {deals.find((d) => !d.practice)!.name || 'unnamed'}, waits while you finish the lessons and practice. Choose it here to work on it now.</p>}
+            {!focus && deals.some((d) => !d.practice) && <p className="muted small">{deals.filter((d) => !d.practice).length > 1 ? `Your ${deals.filter((d) => !d.practice).length} saved properties wait` : `Your saved property, ${deals.find((d) => !d.practice)!.name || 'unnamed'}, waits`} while you finish the lessons and practice. Choose {deals.filter((d) => !d.practice).length > 1 ? 'one' : 'it'} here to work on it now.</p>}
             {deal && stage && (
               <label className="field">
                 <span>Where it stands</span>
