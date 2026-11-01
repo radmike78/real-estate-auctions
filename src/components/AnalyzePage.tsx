@@ -50,6 +50,20 @@ function blank(st: StateCode): Deal {
   return { id: '', name: '', state: st, county: startCounty(st), kind, plan: kind === 'lien' ? 'lien' : planFromBuyBox(), notes: '', done: [], updatedAt: new Date().toISOString() };
 }
 
+const DELETED_NOTE = 'This deal was deleted from My deals (perhaps in another tab). What you typed is still here, unsaved: save it again to keep it.';
+
+/** False only when the saved list can be read and no longer holds this deal (deleted elsewhere). */
+function stillSaved(id: string): boolean {
+  try {
+    if (localStorage.getItem('deedowl.analyze.v1') === null) return true;
+  } catch {
+    return true;
+  }
+  return loadDeals().some((d) => d.id === id);
+}
+
+let deletedOnLoad = false;
+
 function loadCurrent(st: StateCode): Deal {
   try {
     const v = cleanDeal(JSON.parse(localStorage.getItem(CURRENT) ?? 'null'));
@@ -57,7 +71,15 @@ function loadCurrent(st: StateCode): Deal {
     let opened: unknown = null;
     try { opened = JSON.parse(localStorage.getItem(OPENED_KEY) ?? 'null'); } catch { /* storage unavailable */ }
     if (v && v.practice && !savingPractice() && opened !== v.id) return blank(st || v.state);
-    if (v && (!st || v.state === st)) return v;
+    if (v && (!st || v.state === st)) {
+      // Deleted from My deals since: keep what was typed as a new, unsaved deal (the note says so).
+      if (v.id && !stillSaved(v.id)) {
+        deletedOnLoad = true;
+        const { stage: _stage, practice: _practice, ...rest } = v;
+        return { ...rest, id: '' };
+      }
+      return v;
+    }
   } catch {
     /* start fresh */
   }
@@ -109,7 +131,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   };
   const [deal, setDeal] = useState<Deal>(() => {
     if (!prefill) {
+      deletedOnLoad = false;
       const cur = loadCurrent(mine ?? 'NV');
+      if (deletedOnLoad) setTimeout(() => setKeptNote(DELETED_NOTE), 0);
       // The working deal is in another state than the one now chosen: keep it in My deals before starting fresh.
       if (!cur.id && !cur.name && !cur.notes && cur.done.length === 0) {
         const kept = keepUnsaved();
@@ -153,6 +177,14 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       localStorage.setItem(CURRENT, JSON.stringify(deal));
     } catch {
       /* private mode */
+    }
+    if (deal.id && !stillSaved(deal.id)) {
+      // Deleted elsewhere while open here: don't bring it back or report it saved.
+      const { stage: _stage, practice: _practice, ...rest } = deal;
+      setKeptNote(DELETED_NOTE);
+      setSaved(loadDeals());
+      setDeal({ ...rest, id: '' });
+      return;
     }
     if (deal.id) {
       setSaved(() => {
