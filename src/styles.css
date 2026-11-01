@@ -2971,3 +2971,12 @@ dl.cash-result .cash-main { border-color: var(--accent); }
   .roadmap-chip { margin-left: 0; }
   .roadmap-status .btn { flex: 1 1 100%; margin-left: 0; white-space: normal; justify-content: center; }
 }
+
+/* Phones: an open roadmap step sits inside several cards; thinner inner padding gives its text the screen. The phase
+   and step cards (and the section's heading bar) stay. */
+@media (max-width: 480px) {
+  .toolkit .plan-section { padding: 12px 10px; }
+  .page section#roadmap { padding: 12px 0; border: 0; }
+  .roadmap-steps { padding: 0 6px 8px; }
+  .roadmap-step .roadmap-step-body { padding: 0 10px 12px; }
+}
