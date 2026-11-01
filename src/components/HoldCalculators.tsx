@@ -134,7 +134,6 @@ function buyGroup<T extends BuyInputs>(repairsLabel = 'Repairs'): CalcGroup<T> {
 function forOffer<T>(groups: CalcGroup<T>[]): CalcGroup<T>[] {
   const relabel: Record<string, { label?: string; hint?: string; more?: string }> = {
     cashAvailable: { label: 'Your investable cash for this deal (all in)', hint: 'Down payment, closing costs and repairs. 0 for no limit.', more: 'Follows your investable cash in My plan until you type your own figure here: subtract the reserves your lender wants you to keep. Your walk-away price never needs more cash than this.' },
-    transferTaxPer500: { hint: 'Your contract says who pays. Enter 0 if the seller pays it.' },
     survivingLiens: { label: 'Liens you’d have to pay', hint: 'Usually paid off at closing. Check the title report.' },
     titleLegal: { label: 'Closing costs: title, escrow, recording', hint: 'Lender fees go in “Loan costs” below.', more: 'Your Loan Estimate or the lender’s term sheet and the escrow officer’s estimate have the real figures. Together with lender fees, closing costs often run 2–4% of the price.' },
     possession: { hint: 'Only if a tenant or the owner stays after closing.' },
@@ -144,7 +143,8 @@ function forOffer<T>(groups: CalcGroup<T>[]): CalcGroup<T>[] {
   return groups.map((g) => ({
     ...g,
     title: g.title === 'Loan after you buy' ? 'Your loan' : g.title,
-    fields: g.fields.filter((f) => f.k !== 'buyerPremiumPct').map((f) => ({ ...f, ...relabel[f.k as string] })) as CalcGroup<T>['fields'],
+    // The transfer tax keeps the state's own note (Texas has none) and adds who pays it on a contract.
+    fields: g.fields.filter((f) => f.k !== 'buyerPremiumPct').map((f) => (f.k === 'transferTaxPer500' ? { ...f, hint: f.hint && /no transfer tax/i.test(f.hint) ? f.hint : `${f.hint ? `${f.hint} ` : ''}Your contract says who pays; enter 0 if the seller pays it.` } : { ...f, ...relabel[f.k as string] })) as CalcGroup<T>['fields'],
   }));
 }
 
@@ -480,15 +480,15 @@ function HoldAndSell({ v, onPrice, target = 0, exampleValue = false }: { v: Rent
 /** A price the panels are figured at, and how to say which one it is. */
 type PriceAt = { price: number; label: string };
 
-function RentDealLab({ v, at: atP, onPrice }: { v: RentInputs; at: PriceAt; onPrice: boolean }) {
+function RentDealLab({ v, at: atP, onPrice, living = false }: { v: RentInputs; at: PriceAt; onPrice: boolean; /** You plan to live there: a loss is your monthly cost of living there. */ living?: boolean }) {
   const at = atP.price;
   const rows = rentStress(v, at, onPrice);
   const [ticked, setTicked] = useState<string[]>([]);
   return (
     <div className="deal-lab">
       <h4>Explain this deal at {atP.label}</h4>
-      <ul className="deal-explain">{explainRent(v, at, onPrice).map((x) => <li key={x}>{x}</li>)}</ul>
-      <h4>Stress test: cash flow per month at {atP.label}</h4>
+      <ul className="deal-explain">{explainRent(v, at, onPrice, living).map((x) => <li key={x}>{x}</li>)}</ul>
+      <h4>Stress test: {living ? 'what living there costs or leaves you' : 'cash flow'} per month at {atP.label}</h4>
       <table className="deal-stress">
         <tbody>
           {rows.map((r) => (
@@ -596,7 +596,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         )}
         {/* No price to figure them at yet (no offer, no walk-away price, no value): ask for one instead of showing $0. */}
         {at.price > 0 ? <CashCushion v={v} price={at.price} at={at.label} onPrice={offer} /> : null}
-        {at.price > 0 ? <RentDealLab v={v} at={at} onPrice={offer} /> : <p className="calc-note small">Enter {offer ? 'your offer (the asking price)' : 'your bid'} to see the cash cushion, the stress test and how a lender sees this rent at that price.</p>}
+        {at.price > 0 ? <RentDealLab v={v} at={at} onPrice={offer} living={living} /> : <p className="calc-note small">Enter {offer ? 'your offer (the asking price)' : 'your bid'} to see the cash cushion, the stress test and how a lender sees this rent at that price.</p>}
         <HoldAndSell v={v} onPrice={offer} target={r.maxBid} exampleValue={v.value === RENT_DEFAULTS.value && !typedKeys.has('value')} />
         {at.price > 0 ? <LenderView v={v} at={at} onPrice={offer} /> : null}
         <StrComparison v={v} />
@@ -650,7 +650,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
   const r = commercialMaxBid(v, offer);
   const n = commercialNoi(v);
   // Commercial cash doesn't follow My plan (the results compare with it instead), so its help says so.
-  const groups = (offer ? forOffer(ct.groups) : ct.groups).map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'cashAvailable' ? { ...f, more: 'Enter the cash you can put in. Left at 0, nothing caps the price here; the results still compare the cash it needs with your investable cash in My plan. Subtract the reserves your lender wants you to keep.' } : f)) }));
+  const groups = (offer ? forOffer(ct.groups) : ct.groups).map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'loanPct' && offer ? { ...f, hint: 'Commercial lenders often lend 65–75% of the price or value; use your lender’s figure. 0 for all cash.*' } : f.k === 'cashAvailable' ? { ...f, more: 'Enter the cash you can put in. Left at 0, nothing caps the price here; the results still compare the cash it needs with your investable cash in My plan. Subtract the reserves your lender wants you to keep.' } : f)) }));
   const still = exampleLabels(visibleFields(groups, v), v, COMMERCIAL_DEFAULTS, typedKeys, new Set([...NOT_EXAMPLES, ...Object.keys(start)]));
   const allExample = !typed && Object.keys(start).length === 0;
   // Commercial cash isn't taken from My plan: with no cash entered here (a typed 0 is no limit), compare the cash the
@@ -766,11 +766,15 @@ export function LienCalculator({ storageKey }: { storageKey?: string } = {}) {
   const y = lienYield(v);
   const groups = az ? AZ_LIEN_GROUPS : LIEN_GROUPS;
   const still = exampleLabels(visibleFields(groups, v), v, az ? AZ_LIEN_DEFAULTS : LIEN_DEFAULTS, typedKeys);
+  // Above the legal rate (Arizona: 16% a year, A.R.S. 42-18053; Nevada: 1% a month, NRS 271.610): usually a yearly rate
+  // typed into the monthly box.
+  const overCap = v.ratePctMonth > (az ? 16 / 12 : 1) + 0.001;
   return (
     <div className="calc">
       <div className="calc-inputs"><ExampleInputs labels={still} all={!typed} /><CalcFields groups={groups} values={v} onChange={set} /></div>
       <div className="calc-results">
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
+        {overCap && <p className="calc-verdict bad" role="note"><strong>That’s more than {az ? 'Arizona’s legal maximum of 16% a year (1.33% a month)' : 'Nevada’s 1% a month'}.</strong> {az ? 'Enter the yearly rate you won divided by 12 (10% a year is 0.83% a month).' : 'Check the rate in the notice of sale and enter it as a monthly rate.'}</p>}
         <div className="calc-max" role="status">
           <span>Your yearly yield</span>
           <strong>{pctText(y.yearlyYield)}</strong>

@@ -283,15 +283,17 @@ export function rentStress(i: RentInputs, price = nz(i.value), onPrice = false):
 }
 
 /** The deal in plain words: what it earns, what could break it, and what to check before going further. */
-export function explainRent(i: RentInputs, price = nz(i.value), onPrice = false): string[] {
+export function explainRent(i: RentInputs, price = nz(i.value), onPrice = false, living = false): string[] {
   const money = (n: number) => `$${Math.round(Math.abs(n)).toLocaleString('en-US')}`;
   const stress = rentStress(i, price, onPrice);
   const base = stress[0].monthly;
   const out: string[] = [];
-  if (base <= 0) {
+  if (base <= 0 && living) {
+    out.push(`With your numbers, living there costs you about ${money(base)} a month after the rent you collect${nz(i.loanPct) > 0 ? ' and the loan payment' : ''}. Compare that with what you pay to live where you are now.`);
+  } else if (base <= 0) {
     out.push(`With your numbers, this rental loses about ${money(base)} a month after all costs${nz(i.loanPct) > 0 ? ' and the loan payment' : ''}. Unless the rent can be higher or the costs lower, it isn’t a rental that pays for itself.`);
   } else {
-    out.push(`With your numbers, this rental brings in about ${money(base)} a month after all costs${nz(i.loanPct) > 0 ? ' and the loan payment' : ''}.`);
+    out.push(living ? `With your numbers, the rent you collect covers every cost${nz(i.loanPct) > 0 ? ' and the loan payment' : ''}, with about ${money(base)} a month to spare.` : `With your numbers, this rental brings in about ${money(base)} a month after all costs${nz(i.loanPct) > 0 ? ' and the loan payment' : ''}.`);
     const breaks = stress.slice(1).filter((s) => s.monthly < 0);
     if (breaks.length) out.push(`It turns negative if any of these happen: ${breaks.map((s) => s.label.toLowerCase()).join('; ')}.`);
     const ins = stress.find((s) => s.key === 'insurance')!;

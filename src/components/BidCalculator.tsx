@@ -540,7 +540,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
             {!offer && <div><dt>Cash needed on auction day, at the walk-away price</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
             <div><dt>Estimated cash you’d put in, at the walk-away price, under these assumptions</dt><dd>{fmtMoney(r.cashPeak)}</dd></div>
             {i.financedPct > 0 && r.cashToStabilize < r.cashPeak && <div><dt>Cash left in after the loan funds, at the walk-away price</dt><dd>{fmtMoney(r.cashToStabilize)}</dd></div>}
-            <div><dt>Profit at the walk-away price</dt><dd>{fmtMoney(Math.round(r.profit))}</dd></div>
+            <div><dt>Profit at the walk-away price</dt><dd>{fmtMoney(Math.abs(r.profit - target) < 2 ? Math.round(target) : Math.round(r.profit))}</dd></div>
             <div><dt>Return on your cash, per year, if it sells on schedule</dt><dd>{yr(r.yearlyReturn)}</dd></div>
             <div><dt>Break-even {w.bid} (zero profit)</dt><dd>{fmtMoney(r.breakEvenBid)}</dd></div>
           </dl>

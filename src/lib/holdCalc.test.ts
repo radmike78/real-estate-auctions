@@ -250,3 +250,11 @@ it('gives one verdict rule for Analyze, My deals and the packet', () => {
   expect(rentVerdict({ ...base, cashFlow: -500, cashOnCash: -0.02 })).toBe('bad');
   expect(rentVerdict({ ...base, cashOnCash: null })).toBe('good'); // all cash back
 });
+
+it('explains a live-in buyer’s numbers as the cost of living there', () => {
+  const i = { ...RENT_DEFAULTS, monthlyRent: 100, loanPct: 0 };
+  const lines = explainRent(i, 350000, true, true);
+  expect(lines[0]).toMatch(/living there costs you about \$[\d,]+ a month after the rent you collect/);
+  expect(lines.join(' ')).not.toMatch(/isn’t a rental that pays for itself/);
+  expect(explainRent(i, 350000, true)[0]).toMatch(/this rental loses about/);
+});

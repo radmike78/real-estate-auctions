@@ -249,6 +249,8 @@ describe('maximum bid as a subtraction', () => {
       const steps = maxBidSteps(i);
       expect(steps[0].label).toBe('Resale value after repairs');
       expect(steps.reduce((a, s) => a + s.amount, 0)).toBe(maxSafeBid(i).profitBid);
+      // The set-aside reads as your target (the headline's figure), not a dollar off it from rounding.
+      expect(Math.abs(-steps[steps.length - 1].amount - Math.round(requiredProfit(i)))).toBeLessThanOrEqual(0);
     }
   });
 

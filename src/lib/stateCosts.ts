@@ -83,7 +83,7 @@ export function ownerOccupiedTaxNote(state: StateCode): string {
     case 'NV': return 'In Nevada a home you live in pays the same rate as a rental, but its yearly tax increase is capped at 3% (a rental’s cap can be up to 8%); ask the county assessor.*';
     case 'CA': return 'That’s a rental’s figure: a home you live in can get the homeowners’ exemption, which takes a little off the assessed value; ask the county assessor.*';
     case 'AZ': return 'That’s a rental’s figure: a home you live in can get the homeowner rebate on part of the school tax (up to $600 a year); ask the county assessor.*';
-    case 'UT': return 'That rate already counts Utah’s main-home (primary residential) exemption, and a home you live in gets it too; some counties ask the owner to sign a statement that it’s their main home. Ask the county assessor.*';
+    case 'UT': return 'A home you live in as your main home gets Utah’s 45% residential exemption (it’s taxed on 55% of its value), like the rental rate here. After you buy, the county may ask you to file a residential exemption application; a unit you rent to a tenant as their main home needs the assessor’s tenant declaration. Ask the county assessor.*';
   }
 }
 

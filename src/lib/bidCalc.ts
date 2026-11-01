@@ -309,7 +309,15 @@ export function maxBidSteps(i: BidInputs): { label: string; amount: number }[] {
   ];
   const exit = Math.round(nz(i.exitValue));
   const rows = costs.filter(([, v]) => v > 0).map(([label, v]) => ({ label, amount: -Math.round(v) }));
-  const profit = exit + rows.reduce((a, x) => a + x.amount, 0) - bid;
+  let profit = exit + rows.reduce((a, x) => a + x.amount, 0) - bid;
+  // Rounding each cost can leave the profit a dollar or two off your target: show the target, and let the largest
+  // cost line carry the rounding, so the lines still add up and the target reads the same as the headline.
+  const want = Math.round(requiredProfit(i));
+  if (rows.length && profit !== want && Math.abs(profit - want) <= 2) {
+    const big = rows.reduce((m, x) => (x.amount < m.amount ? x : m), rows[0]);
+    big.amount += want - profit;
+    profit = want;
+  }
   return [{ label: 'Resale value after repairs', amount: exit }, ...rows, { label: 'Profit you want (set aside)', amount: -profit }];
 }
 

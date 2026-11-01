@@ -133,10 +133,11 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
             <label className="field">
               <span>Property you’re working on</span>
               <select value={focus} onChange={(e) => chooseDeal(e.target.value)}>
-                <option value="">None yet (learning)</option>
+                <option value="">{deals.some((d) => !d.practice) ? 'Learning first' : 'None yet (learning)'}</option>
                 {deals.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : ""}</option>)}
               </select>
             </label>
+            {!focus && deals.some((d) => !d.practice) && <p className="muted small">Your saved property, {deals.find((d) => !d.practice)!.name || 'unnamed'}, waits while you finish the lessons and practice. Choose it here to work on it now.</p>}
             {deal && stage && (
               <label className="field">
                 <span>Where it stands</span>
