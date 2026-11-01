@@ -74,7 +74,7 @@ export const roadmapTask = (s: RoadmapStep): PlanTask => ({
   href: ROADMAP_TASK_HREF,
   support: s.href ? [{ label: s.action ?? 'Open', href: s.href }] : [],
   done: false,
-  text: `${s.title}.`,
+  text: s.text,
 });
 
 
@@ -85,7 +85,11 @@ export function planNow(now = new Date()): PlanNow {
   const deal = deals.find((d) => `analyzed:${d.id}` === focus);
   // A guided beginner who saved a property while still learning keeps the guided steps first, until the practice
   // purchase is done; a deal that has moved past researching (an offer, a contract) always leads.
-  const guidedLearning = getMode() === 'guided' && !practicePart2Done() && !!deal && stageOf(deal) === 'researching';
+  const researching = !!deal && stageOf(deal) === 'researching';
+  // So does a reader practicing paper analyses ("Practice checking real properties without buying"): saving one
+  // doesn't turn the plan into that property's buying steps.
+  const paperPractice = researching && ['paper', 'c-paper'].includes(roadmapNextStep()?.id ?? '');
+  const guidedLearning = (getMode() === 'guided' && !practicePart2Done() && researching) || paperPractice;
   if (deal && !guidedLearning) {
     const stage = stageOf(deal);
     return { goal, source: 'deal', context: `${deal.name} · ${stageLabel(stage, deal)}`, task: dealNextTask(deal, undefined, now, stage), deal, stage, tasks: stageTasks(deal, stage, undefined, now) };
@@ -93,7 +97,9 @@ export function planNow(now = new Date()): PlanNow {
   // Before any real work, unless you said you know the basics, the site's order: Decide (your goal and cash), the
   // "Start here" lessons, then the practice deal.
   // Steps the site ticked for you (Decide, the red flags lesson) don't count as starting the roadmap.
-  const roadmapStarted = roadmapFor(planPath(deals)).filter((s) => !AUTO_STEPS.includes(s.id)).some(settledFor(''));
+  // Only work from the team on counts as starting the roadmap: ticking a planning task early (your cash, a county)
+  // doesn't skip the lessons and practice.
+  const roadmapStarted = roadmapFor(planPath(deals)).filter((s) => s.phase >= 3 && !AUTO_STEPS.includes(s.id)).some(settledFor(''));
   const practice = loadJourney();
   const practiceDone = practice.completed.length === CHAPTERS.length;
   const learning = getMode() !== 'explore' && !roadmapStarted && !practiceDone;

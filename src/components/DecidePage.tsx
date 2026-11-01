@@ -1,6 +1,6 @@
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useRef, useState } from 'react';
-import { getMode, useLastActivity } from '../lib/journey';
+import { getMode, practicePart2Done, readLessons, useLastActivity } from '../lib/journey';
 import { planNow } from '../lib/planNext';
 import PageHero from './PageHero';
 import OwlNote from './OwlNote';
@@ -39,6 +39,15 @@ function load(): Saved {
     /* ignore */
   }
   return { answers: mine ? { state: mine } : {}, done: [] };
+}
+
+/** Checklist items the site can see you've done: a lesson read ("Read …" linking to it) or a practice purchase
+ *  finished ("Practice …" linking to Practice). */
+function seenDone(c: { text: string; href?: string }): boolean {
+  const lesson = c.href?.match(/^#\/learn\/([a-z-]+)$/);
+  if (lesson && /^(Read|Learn)\b/.test(c.text)) return readLessons().includes(lesson[1]);
+  if (c.href === '#/practice' && /^Practice\b/.test(c.text)) return practicePart2Done();
+  return false;
 }
 
 function save(s: Saved) {
@@ -173,7 +182,7 @@ export default function DecidePage() {
           <ol className="decide-matches">
             {matches.map((m, i) => {
               const note = stateNote(m.strategy.key, saved.answers.state);
-              const doneCount = m.strategy.checklist.filter((c) => saved.done.includes(c.id)).length;
+              const doneCount = m.strategy.checklist.filter((c) => saved.done.includes(c.id) || seenDone(c)).length;
               return (
                 <li key={m.strategy.key} className="decide-match">
                   <div className="decide-match-head">
@@ -199,7 +208,7 @@ export default function DecidePage() {
                     {m.strategy.checklist.map((c) => (
                       <li key={c.id}>
                         <label>
-                          <input type="checkbox" checked={saved.done.includes(c.id)} onChange={() => toggle(c.id)} />
+                          <input type="checkbox" checked={saved.done.includes(c.id) || seenDone(c)} disabled={seenDone(c)} onChange={() => toggle(c.id)} />
                           <span>{c.text}</span>
                         </label>
                         {c.href && <a href={c.href}>{linkLabel(c.href)}&nbsp;→</a>}

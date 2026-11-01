@@ -37,7 +37,9 @@ export default function SiteHeader({ current, nav: navCount = 0 }: { current: st
   // Only while the tour is My plan's next step (planNext.ts): with a real property or roadmap work under way, the one
   // Continue is in My plan, and this button would compete with it.
   const recommendation = planNow();
-  const nextStep = mode === 'guided' && !inTask && recommendation.source === 'starter' ? recommendation.task : null;
+  // Never a link to the page you're on (a lesson you're reading, the Decide questions).
+  const here = recommendation.task.href.replace(/^#\//, '') === current.split('?')[0];
+  const nextStep = mode === 'guided' && !inTask && !here && recommendation.source === 'starter' ? recommendation.task : null;
   const [open, setOpen] = useState(false);
   const nav = useRef<HTMLElement>(null);
   const menuBtn = useRef<HTMLButtonElement>(null);

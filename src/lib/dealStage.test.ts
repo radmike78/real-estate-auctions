@@ -177,6 +177,15 @@ describe('My plan’s one Continue', () => {
     expect(focusDealId()).toBe('');
   });
 
+  it('keeps a guided beginner on the lessons when they tick a planning task early', () => {
+    localStorage.setItem('deedowl.mode.v1', JSON.stringify('guided'));
+    localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: Object.fromEntries(['goal', 'cash', 'ready', 'borrow', 'time', 'hands', 'risk', 'market', 'state'].map((k) => [k, 'x'])), done: [] }));
+    localStorage.setItem('deedowl.roadmap.v1', JSON.stringify(['money']));
+    const p = planNow(now);
+    expect(p.context).toBe('Step 2 · Learn');
+    expect(p.task.key).toMatch(/^lesson-/);
+  });
+
   it('starts a brand-new visitor on Decide, and someone who knows the basics on the roadmap', () => {
     const fresh = planNow(now);
     expect(fresh.source).toBe('starter');

@@ -43,7 +43,7 @@ export const typesOfProperty: Lesson = {
             head: ['Type', 'What it is', 'What to know'],
             rows: [
               ['Multifamily (5+ units)', 'Apartment buildings.', 'Financed with commercial-style loans and valued by income. Many tenants, so one vacancy hurts less.'],
-              ['Retail', 'Stores, shopping centers, restaurants.', 'Depends on tenants’ businesses doing well. Leases are often triple-net.'],
+              ['Retail', 'Stores, shopping centers, restaurants.', 'Depends on tenants’ businesses doing well. Leases are often triple-net: the tenant pays the taxes, insurance and upkeep on top of rent.'],
               ['Office', 'Buildings leased to businesses.', 'Long leases, but vacancies can last. Hybrid work cut demand for some offices.'],
               ['Industrial', 'Warehouses, distribution and light manufacturing.', 'Simple buildings, often with one tenant on a long lease.'],
               ['Mixed-use', 'Shops or offices plus homes in one building.', 'Combines residential and commercial rules, tenants and risks.'],
