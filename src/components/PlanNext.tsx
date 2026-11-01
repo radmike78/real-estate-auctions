@@ -116,6 +116,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
         !onPlan && <details><summary>See all roadmap phases</summary><PhaseSummary /></details>
       )}
       {!onPlan && <p><a href="#/toolkit">Open My plan&nbsp;→</a></p>}
+      {onPlan && deal && stage && <PlanStepAd deal={deal} stage={stage} inline />}
     </aside>
   );
 
@@ -186,7 +187,6 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
         )}
       </div>
       {(!onPlan || (deal && now.tasks && stage)) ? side : onPlan && now.source === 'roadmap' ? <PlanStepAd /> : null}
-      {onPlan && deal && stage && <PlanStepAd deal={deal} stage={stage} />}
       {helper && <div className="plan-now-help">{helper}</div>}
     </section>
   );
@@ -194,7 +194,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
 
 /** My plan, beside "Your next step": one labeled ad for whoever that step says to call (contextAds.ts), buying through
  *  an agent only, never beside an official seller. */
-function PlanStepAd({ deal, stage }: { deal?: Deal; stage?: DealStage } = {}) {
+function PlanStepAd({ deal, stage, inline = false }: { deal?: Deal; stage?: DealStage; /** Inside the "Where you are" panel, not a panel of its own. */ inline?: boolean } = {}) {
   // With a property in focus, the roadmap step for its stage (make an offer, inspect, title, insurance, close).
   const path = deal ? pathForDeal(deal) : planPath();
   const settled = settledFor(deal ? `analyzed:${deal.id}` : '');
@@ -203,7 +203,9 @@ function PlanStepAd({ deal, stage }: { deal?: Deal; stage?: DealStage } = {}) {
   const allowed = step && stepAllowsAds(step, path) ? cats : [];
   const { pros } = useDirectory();
   const shows = useAdShows(allowed, pros);
-  return shows && step ? <div className="plan-now-side"><FixedAds spot="toolkit" key={step.id} pros={pros} categories={allowed} placeholder /></div> : null;
+  if (!shows || !step) return null;
+  const ad = <FixedAds spot="toolkit" key={step.id} pros={pros} categories={allowed} placeholder />;
+  return inline ? ad : <div className="plan-now-side">{ad}</div>;
 }
 
 /** Without a property: the roadmap's phases, each with how many of its steps are done. */

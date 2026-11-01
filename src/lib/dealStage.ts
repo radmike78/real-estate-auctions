@@ -47,7 +47,7 @@ export function stageHint(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: Dea
 
 /** The roadmap steps (roadmap.ts) that belong to each stage, so the roadmap's next step follows the deal's stage. */
 export const STAGE_STEPS: Record<DealStage, string[]> = {
-  researching: ['find', 'evidence', 'quotes', 'agree', 'a-find', 'a-research', 'a-value', 'a-insure', 'c-sale', 'c-research', 'c-budget'],
+  researching: ['find', 'evidence', 'quotes', 'a-find', 'a-research', 'a-value', 'a-insure', 'c-sale', 'c-research', 'c-budget'],
   offer: ['offer', 'a-max', 'a-bid', 'c-bid'],
   contract: ['deposit', 'inspect', 'appraise', 'title', 'loan-approval', 'bind-insurance', 'walkthrough', 'close', 'a-pay', 'a-possess'],
   closed: ['first-week', 'a-before-remodel', 'repairs', 'rent', 'c-own'],

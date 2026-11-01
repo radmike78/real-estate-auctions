@@ -2459,11 +2459,11 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.daviscountyutah.gov/sheriff/law-enforcement/justice-services", checked: "2026-09-29" },
   },
   "UT/Duchesne": {
-    taxSale: { url: "https://duchesne.utah.gov/gov/elected-officials/clerk-auditor/delinquent-tax/", checked: "2026-09-29", note: "Recent sales ran online through Public Surplus; start from the county’s page for the current sale." },
-    treasurer: { url: "https://duchesne.utah.gov/gov/elected-officials/treasurer/", checked: "2026-09-29" },
-    assessor: { url: "https://duchesne.utah.gov/gov/elected-officials/assessor/", checked: "2026-09-29" },
-    recorder: { url: "https://duchesne.utah.gov/gov/elected-officials/recorder/", checked: "2026-09-29" },
-    sheriff: { url: "https://duchesne.utah.gov/gov/elected-officials/sheriff/civil-process/", checked: "2026-09-29" },
+    taxSale: { url: "https://duchesne.utah.gov/delinquent-tax-property-sale-and-surplus-sale/", checked: "2026-11-01", note: "Recent sales ran online through Public Surplus; start from the county’s page for the current sale." },
+    treasurer: { url: "https://duchesne.utah.gov/departments/duchesne-county-treasurer/", checked: "2026-11-01" },
+    assessor: { url: "https://duchesne.utah.gov/departments/assessors-office/", checked: "2026-11-01" },
+    recorder: { url: "https://duchesne.utah.gov/departments/recorders-office/", checked: "2026-11-01" },
+    sheriff: { url: "https://duchesne.utah.gov/civil-process-services-and-fees/", checked: "2026-11-01" },
   },
   "UT/Emery": {
     taxSale: { url: "https://emery.utah.gov/may-properties-tax-sale/", checked: "2026-09-29" },
