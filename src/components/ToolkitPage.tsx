@@ -151,7 +151,7 @@ function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: Step
       {s.guides?.map((k) => docGuide(k)).filter((g) => g !== undefined).map((g) => <DocGuideView key={g.key} g={g} label={`How to read it: ${g.title}`} />)}
       </details> : null}
       {deal && s.evidence && dealScoped(s) && <EvidenceArea key={`${deal.id}|${s.evidence}`} dealId={deal.id} dealName={deal.name} area={s.evidence} askFinding={status === 'done'} />}
-      {!deal && s.evidence && dealScoped(s) && <p className="muted">Working on a real property? Save it in <a href="#/analyze">Analyze</a>, then choose it above to record what you find here.</p>}
+      {!deal && s.evidence && dealScoped(s) && <p className="muted">Working on a real property? Save it in <a href="#/analyze">Analyze</a> (it becomes the property you’re working on, shown above) to record what you find here.</p>}
       {s.id === 'goal' && <GoalField />}
       {s.stop && forStateText(myState, s.stop) && <p className="roadmap-stop"><strong>When to pause:</strong> {dropStateLead(forStateText(myState, s.stop), myState)}</p>}
       <p className="roadmap-done"><strong>Done when:</strong> {s.doneWhen}</p>
@@ -277,9 +277,9 @@ export function FirstDealRoadmap() {
         <span className="muted">{dropStateLead(forStateText(getMyState(), ROADMAP_PATHS[path].hint), getMyState())}</span>
       </div>
       {/* After a switch to a state that doesn't sell lien certificates, the route says so and offers the auction route. */}
-      {path === 'certificate' && mine && !liensSoldIn(mine) && (
+      {path === 'certificate' && mine && !liensSoldIn(mine) && !(active && active.kind === 'lien' && liensSoldIn(active.state)) && (
         <p className="notice" role="status">Lien certificates are sold in Arizona and Nevada, not {STATES.find((x) => x.code === mine)?.name ?? mine}.{' '}
-          <button type="button" className="linkish" onClick={() => choosePath('auction')}>Switch to buying at an auction</button>
+          <button type="button" className="linkish" onClick={() => { choosePath('auction'); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.roadmap-path button[aria-pressed="true"]')?.focus()); }}>Switch to buying at an auction</button>
         </p>
       )}
       <div className="roadmap-deal">

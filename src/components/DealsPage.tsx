@@ -187,7 +187,7 @@ export default function DealsPage() {
                 <li key={d.id} className="deal-card">
                   <div className="deal-head">
                     <div>
-                      <h3><button type="button" className="linkish" onClick={() => openDeal(d)}>{d.name}</button></h3>
+                      <h3><button type="button" className="linkish" onClick={() => openDeal(d)}>{d.name}</button>{d.practice && <span className="muted"> (practice analysis)</span>}</h3>
                       <p className="muted"><strong>{stageLabel(stageOf(d), d)}</strong> · {kindLabel(k, d.state)} · {countyName(d.county)}, {d.state} · checklist {done} of {all.length} done</p>
                       {(() => {
                         const n = dealNumbers(d);
