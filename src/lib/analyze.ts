@@ -247,10 +247,22 @@ export function keepUnsavedDraft(): Deal | null {
   return d;
 }
 
+/** A note for Analyze to show once: an unsaved deal was saved to My deals before another one was opened. */
+export const KEPT_NOTE_KEY = 'deedowl.analyze.kept.v1';
+/** The deal just opened on purpose (so Analyze shows it even if it's a practice analysis). */
+export const OPENED_KEY = 'deedowl.analyze.opened.v1';
 export function openDeal(d: Deal) {
-  keepUnsavedDraft(); // opening a saved deal never throws away one you started
+  const kept = keepUnsavedDraft(); // opening a saved deal never throws away one you started
   try {
+    if (kept) {
+      // The deal you opened stays the one you're working on (the kept draft is newer otherwise), and Analyze says what was saved.
+      const now = new Date().toISOString();
+      saveDeals(loadDeals().map((x) => (x.id === d.id ? { ...x, updatedAt: now } : x)));
+      d = { ...d, updatedAt: now };
+      localStorage.setItem(KEPT_NOTE_KEY, JSON.stringify(`Your unsaved ${stateByCode(kept.state)?.name ?? ''} deal “${kept.name}” was saved to My deals.`));
+    }
     localStorage.setItem(CURRENT_KEY, JSON.stringify(d));
+    localStorage.setItem(OPENED_KEY, JSON.stringify(d.id));
   } catch {
     /* private mode */
   }
