@@ -587,9 +587,12 @@ export function withoutOldValueExample(v: RentInputs, offer: boolean, typed: Rea
 }
 
 /**
- * An auction rental's later refinance still sized on our example value after repairs (a loan entered, the value not):
- * its "all your cash back" is the example's, not the property's.
+ * An auction rental's later refinance with no real value after repairs yet (a loan entered, the value still our example,
+ * or blank): its loan and return aren't the property's. A blank value means no refinance is counted at all.
  */
 export function refiOnExampleValue(v: RentInputs, offer: boolean, typed: ReadonlySet<string>): boolean {
-  return !offer && v.loanPct > 0 && v.value === RENT_DEFAULTS.value && !typed.has('value');
+  return !offer && v.loanPct > 0 && (!(v.value > 0) || (v.value === RENT_DEFAULTS.value && !typed.has('value')));
 }
+
+/** How a refinance with no real value after repairs is figured, in words (for refiOnExampleValue's case). */
+export const refiValueWords = (value: number) => (value > 0 ? `the loan is on our example value after repairs` : 'no refinance is counted until you enter the value after repairs');

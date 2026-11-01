@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialAtPrice, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice, loanAt, withoutOldValueExample } from './holdCalc';
+import { allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialAtPrice, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice, loanAt, withoutOldValueExample, refiOnExampleValue, refiValueWords } from './holdCalc';
 import { rentalStartFor } from './stateCosts';
 
 describe('rent / hold', () => {
@@ -223,4 +223,16 @@ it('drops the old $350,000 value example only from a listed home’s untyped num
 
 it('starts a state’s rental property tax from the example value, never at $0', () => {
   for (const st of ['NV', 'CA', 'AZ', 'UT', 'TX'] as const) expect(rentalStartFor(st, RENT_DEFAULTS.value).propertyTaxYear).toBeGreaterThan(0);
+});
+
+it('flags an auction refinance whose value after repairs is still the example or blank, and nothing else', () => {
+  const v = { ...RENT_DEFAULTS, loanPct: 75 };
+  expect(refiOnExampleValue(v, false, new Set())).toBe(true);
+  expect(refiOnExampleValue({ ...v, value: 0 }, false, new Set())).toBe(true);
+  expect(refiOnExampleValue(v, false, new Set(['value']))).toBe(false);
+  expect(refiOnExampleValue({ ...v, value: 280_000 }, false, new Set())).toBe(false);
+  expect(refiOnExampleValue({ ...v, loanPct: 0 }, false, new Set())).toBe(false);
+  expect(refiOnExampleValue(v, true, new Set())).toBe(false);
+  expect(refiValueWords(350_000)).toContain('example value');
+  expect(refiValueWords(0)).toContain('no refinance is counted');
 });

@@ -61,10 +61,12 @@ export function countyTaxLine(state: StateCode, county?: string): { short: strin
   const c = countyTaxRate(state, county);
   if (!c || !county) return null;
   const s = COUNTY_TAX_RATES[state];
+  // Carson City is a consolidated city, not a county by that name.
+  const place = /\bCity$/.test(county) ? county : `${county} County`;
   const range = c.low !== null && c.high !== null ? ` Inside the county it runs about ${pctWord(c.low)} to ${pctWord(c.high)}, depending on the city, school district and special districts at the address.` : ' The rate at a given address can differ from the county’s average.';
   return {
-    short: `Starts from ${county} County’s ${s.year} rate for a rental, about ${pctWord(c.pct)} of ${OF_WORDS[s.of]} a year, applied to the calculator’s value. For your property, use about ${pctWord(c.pct)} of its ${s.of === 'price' ? 'price' : 'value'}, or better, the county’s figure for it.`,
-    detail: `The starting figure is ${s.how}, from the ${s.source}.${range}`,
+    short: `${place}’s ${s.year} rate for a rental: about ${pctWord(c.pct)} of ${OF_WORDS[s.of]} a year. For a first estimate, multiply your ${s.of === 'price' ? 'price' : 'price or value'} by it; better, use the county’s figure for the property.`,
+    detail: `That rate is ${s.how}, from the ${s.source}.${range}`,
   };
 }
 

@@ -268,9 +268,9 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false }
         <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
       </label>
       {price > 0 && (
-        <p className={`calc-verdict ${a.cashFlow > 0 && (coc === null || coc >= target) ? 'good' : 'bad'}`} role="status">
-          <strong>{coc === null && exampleValue ? `Refinance figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value: enter the value after repairs to see what the loan returns; your target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; your target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; your target: ${v.targetCocPct}%.`}</strong>{' '}
-          {a.cashFlow <= 0
+        <p className={`calc-verdict${exampleValue ? '' : a.cashFlow > 0 && (coc === null || coc >= target) ? ' good' : ' bad'}`} role="status">
+          <strong>{exampleValue ? `Not this property’s return yet: ${v.value > 0 ? `the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value` : 'no refinance is counted, because the value after repairs is blank'}. Enter the value after repairs to see the loan and your return; your target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; your target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; your target: ${v.targetCocPct}%.`}</strong>{' '}
+          {exampleValue ? null : a.cashFlow <= 0
             ? `It loses about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month after every cost. Investigate whether the price, the costs or your plan should change, or walk away.`
             : coc !== null && coc < target
               ? `Cash flow is positive (about ${fmtMoney(Math.round(a.cashFlow / 12))} a month), but it misses your goal. Investigate whether the price, the costs or the goal should change.`
@@ -401,7 +401,7 @@ function HoldAndSell({ v, onPrice, target = 0 }: { v: RentInputs; onPrice: boole
   return (
     <details className="deal-lab hold-sell">
       <summary><span className="summary-h4">If you keep it and sell later</span></summary>
-      <p className="small muted">{at > 0 && (v.atPrice > 0 ? <>At {atWhat}, {fmtMoney(at)}. </> : v.value > 0 ? <>Figured as if you paid the property’s full value, {fmtMoney(at)}, because you haven’t entered your price; enter it above to see this at your price. </> : <>At {atWhat}, {fmtMoney(at)}. </>)}Rent and costs grow together; the loan payment stays the same. Before income tax: depreciation you took is taxed when you sell (see <a href="#/learn/taxes">Taxes from purchase to sale</a>).</p>
+      <p className="small muted">{at > 0 && (v.atPrice > 0 ? <>At {atWhat}, {fmtMoney(at)}. </> : v.value > 0 ? <>Figured as if you paid {v.value === RENT_DEFAULTS.value ? 'our example value' : 'the value entered'}, {fmtMoney(at)}, because you haven’t entered your price; enter it above to see this at your price. </> : <>At {atWhat}, {fmtMoney(at)}. </>)}Rent and costs grow together; the loan payment stays the same. Before income tax: depreciation you took is taxed when you sell (see <a href="#/learn/taxes">Taxes from purchase to sale</a>).</p>
       <div className="row">{field('years', 'Years you keep it', 'years')}{field('appreciationPct', 'Value growth a year', '%')}{field('rentGrowthPct', 'Rent growth a year', '%')}{field('sellingCostPct', 'Selling costs', '% of price')}</div>
       {!r ? (
         <p>Enter your price or the appraised value to see a hold-and-sell result.</p>
@@ -500,7 +500,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} />
         {/* An auction rental's later refinance is sized on the value after repairs: say so while that's still our example. */}
         {exampleValue && (
-          <p className="calc-note small" role="note"><strong>The refinance is figured on our {fmtMoney(RENT_DEFAULTS.value)} example value.</strong> Enter the value an appraisal would support after repairs (under “Review all other costs, loan terms and targets”) before you rely on the loan, the cash left in or the walk-away price.</p>
+          <p className="calc-note small" role="note"><strong>{v.value > 0 ? <>The refinance is figured on our {fmtMoney(RENT_DEFAULTS.value)} example value.</> : 'No refinance is counted: the value after repairs is blank.'}</strong> Enter the value an appraisal would support after repairs (under “Review all other costs, loan terms and targets”) before you rely on the loan, the cash left in or the walk-away price.</p>
         )}
         {/* No price to figure them at yet (no offer, no walk-away price, no value): ask for one instead of showing $0. */}
         {at.price > 0 ? <CashCushion v={v} price={at.price} at={at.label} onPrice={offer} /> : null}

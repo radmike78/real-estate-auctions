@@ -28,7 +28,7 @@ function read(key: string): unknown {
  * The rental numbers saved for a deal at the price you'd pay, or null until a price is entered in Keep and rent. Only
  * for a deal saved with the Keep and rent strategy: another strategy's deal never shows leftover rental numbers.
  */
-export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCash: number | null; target: number; cashIn: number; exampleValue: boolean } | null {
+export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCash: number | null; target: number; cashIn: number; exampleValue: boolean; refiValue: number } | null {
   // Only the property's own numbers (the rent typed), never the calculator's examples.
   if (d.plan !== 'rent' || !ownNumbers(d)) return null;
   const offer = d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short';
@@ -38,7 +38,7 @@ export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCa
   const v = withoutOldValueExample(sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs, offer, typed);
   if (!(v.atPrice > 0)) return null;
   const a = rentAtPrice(v, v.atPrice, offer);
-  return { price: v.atPrice, monthly: a.cashFlow / 12, cashOnCash: a.cashOnCash, target: v.targetCocPct, cashIn: a.cashIn, exampleValue: refiOnExampleValue(v, offer, typed) };
+  return { price: v.atPrice, monthly: a.cashFlow / 12, cashOnCash: a.cashOnCash, target: v.targetCocPct, cashIn: a.cashIn, exampleValue: refiOnExampleValue(v, offer, typed), refiValue: v.value };
 }
 
 export function propertyPacketText(d: Deal): string {
