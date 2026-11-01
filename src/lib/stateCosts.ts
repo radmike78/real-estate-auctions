@@ -1,6 +1,7 @@
 // State and county costs the deal calculators need: transfer tax and what a redemption repays. From each state's
 // statutes (see src/content/sources.ts); Nevada is the default, matching Clark County.
 import type { StateCode } from './regions';
+import { COUNTY_TAX_RATES, type CountyTaxRate, type StateTaxRates } from './countyTaxRates';
 
 export interface TransferTax {
   per500: number;
@@ -37,11 +38,43 @@ export function transferTaxFor(state: StateCode, county: string): TransferTax {
  */
 const RENTAL_TAX_RATE: Record<StateCode, number> = { NV: 0.006, CA: 0.0115, AZ: 0.0065, UT: 0.0055, TX: 0.02 };
 const RENTAL_INSURANCE: Record<StateCode, number> = { NV: 1_300, CA: 1_600, AZ: 1_500, UT: 1_100, TX: 2_700 };
-export function rentalStartFor(state: StateCode, value: number): { propertyTaxYear: number; insuranceYear: number } {
-  return { propertyTaxYear: Math.round((value * RENTAL_TAX_RATE[state]) / 50) * 50, insuranceYear: RENTAL_INSURANCE[state] };
+/** The county's published rate for a rental (% a year), or null when the county isn't one we have. */
+export function countyTaxRate(state: StateCode, county?: string): CountyTaxRate | null {
+  return (county && COUNTY_TAX_RATES[state]?.counties[county]) || null;
 }
 
-export function propertyTaxHint(state: StateCode): { hint: string; more: string } {
+export function rentalStartFor(state: StateCode, value: number, county?: string): { propertyTaxYear: number; insuranceYear: number } {
+  // The county's own published rate when we have it, else the state's rough rate.
+  const c = countyTaxRate(state, county);
+  const rate = c ? c.pct / 100 : RENTAL_TAX_RATE[state];
+  return { propertyTaxYear: Math.round((value * rate) / 50) * 50, insuranceYear: RENTAL_INSURANCE[state] };
+}
+
+const OF_WORDS: Record<StateTaxRates['of'], string> = { price: 'the price', market: 'the value', fcv: 'the assessor’s full cash value', taxable: 'the county’s taxable value' };
+const pctWord = (n: number) => `${n.toLocaleString('en-US', { maximumFractionDigits: 2 })}%`;
+
+/**
+ * Where the starting property tax comes from: a short line (the county's published rate and year) and the detail
+ * (what the rate is, its source and its range inside the county).
+ */
+export function countyTaxLine(state: StateCode, county?: string): { short: string; detail: string } | null {
+  const c = countyTaxRate(state, county);
+  if (!c || !county) return null;
+  const s = COUNTY_TAX_RATES[state];
+  const range = c.low !== null && c.high !== null ? ` Inside the county it runs about ${pctWord(c.low)} to ${pctWord(c.high)}, depending on the city, school district and special districts at the address.` : ' The rate at a given address can differ from the county’s average.';
+  return {
+    short: `Starts at ${county} County’s ${s.year} rate for a rental, about ${pctWord(c.pct)} of ${OF_WORDS[s.of]} a year. Replace it with the county’s figure for the property.`,
+    detail: `The starting figure is ${s.how}, from the ${s.source}.${range}`,
+  };
+}
+
+export function propertyTaxHint(state: StateCode, county?: string): { hint: string; more: string } {
+  const h = propertyTaxRules(state);
+  const line = countyTaxLine(state, county);
+  return line ? { hint: `${line.short} ${h.hint}`, more: `${line.detail} ${h.more}` } : h;
+}
+
+function propertyTaxRules(state: StateCode): { hint: string; more: string } {
   if (state === 'CA')
     return {
       hint: 'Use about 1% of your price plus local charges, not the seller’s bill.',
@@ -54,7 +87,7 @@ export function propertyTaxHint(state: StateCode): { hint: string; more: string 
     };
   if (state === 'TX')
     return {
-      hint: 'A rental gets no homestead exemption, so expect a higher bill. The example uses about 2% of value: replace it with the appraisal district’s numbers.',
+      hint: 'A rental gets no homestead exemption, so expect a higher bill than the seller’s. Check the appraisal district’s numbers for the property.',
       more: 'In Texas, the appraisal district values the property and each local taxing unit (county, city, school district and special districts like MUDs) sets its own rate. A home you live in can get the homestead exemption, including $140,000 off the school district value (Tax Code 11.13). A rental or second home can’t, so its bill can be much higher than the seller’s. You can protest the value by May 15, or 30 days after the notice was delivered if that’s later (Tax Code 41.44).',
     };
   if (state === 'UT')

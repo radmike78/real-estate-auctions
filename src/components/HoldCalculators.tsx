@@ -21,7 +21,7 @@ import { propertyTaxHint, rentalStartFor, transferTaxFor } from '../lib/stateCos
 function useRegionTax<T extends BuyInputs>(groups: CalcGroup<T>[]): { groups: CalcGroup<T>[]; per500: number } {
   const r = useCalcRegion();
   const tax = transferTaxFor(r.state, r.county);
-  const pt = propertyTaxHint(r.state);
+  const pt = propertyTaxHint(r.state, r.county);
   return {
     per500: tax.per500,
     groups: groups.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'transferTaxPer500' ? { ...f, hint: tax.hint, more: tax.more } : f.k === 'propertyTaxYear' ? { ...f, hint: pt.hint, more: pt.more } : f)) })),
@@ -31,7 +31,17 @@ function useRegionTax<T extends BuyInputs>(groups: CalcGroup<T>[]): { groups: Ca
 const pctText = (x: number | null) => (x === null ? '—' : `${(Math.round(x * 1000) / 10).toLocaleString()}%`);
 
 /** Inputs kept in this browser (per property when there is one); rebuilt safely from storage. */
-function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> = {}, sig = JSON.stringify(force)): [T, (k: keyof T & string, v: number) => void, boolean, ReadonlySet<string>] {
+/**
+ * `softSig` (the county): when only it changes, `force` fills just the fields you haven't typed (a county's starting
+ * tax), so moving a deal to another county never replaces a number you entered. Stored with `sig` as "sig#softSig".
+ */
+function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> = {}, sig = JSON.stringify(force), softSig = ''): [T, (k: keyof T & string, v: number) => void, boolean, ReadonlySet<string>] {
+  const want = softSig ? `${sig}#${softSig}` : sig;
+  const hardPart = (stored: string | null) => (stored ?? '').split('#')[0];
+  const untypedForce = (): Partial<T> => {
+    const typedNow = readConfirmed(key);
+    return Object.fromEntries(Object.entries(force).filter(([k]) => !typedNow.has(k))) as Partial<T>;
+  };
   // `force` holds the region's values (its transfer tax, a rental's starting tax and insurance). They replace saved
   // numbers only when the region (`sig`) changes, so a number the user typed survives switching tabs and reloading.
   // Whether any number here is the user's own (typed now or kept from before), or all are the starting examples.
@@ -48,26 +58,44 @@ function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> 
       // Nothing typed yet: start from the region's values (a stored region alone doesn't mean numbers were kept).
       if (raw === null) return { ...defaults, ...force };
       const saved = sanitizeNumbers(JSON.parse(raw), defaults);
-      return localStorage.getItem(`${key}.region`) === sig ? saved : { ...saved, ...force };
+      const stored = localStorage.getItem(`${key}.region`);
+      if (stored === want) return saved;
+      // Another state (or transfer tax): its starting numbers replace the old ones. Only another county: only the
+      // fields you haven't typed.
+      return hardPart(stored) === sig ? { ...saved, ...untypedForce() } : { ...saved, ...force };
     } catch {
       return { ...defaults, ...force };
     }
   });
   useEffect(() => {
+    let soft = false;
     try {
-      if (localStorage.getItem(`${key}.region`) === sig) return;
-      localStorage.setItem(`${key}.region`, sig);
+      const stored = localStorage.getItem(`${key}.region`);
+      if (stored === want) return;
+      soft = hardPart(stored) === sig;
+      localStorage.setItem(`${key}.region`, want);
     } catch {
       return;
     }
-    setV((cur) => ({ ...cur, ...force }));
+    const apply = soft ? untypedForce() : force;
+    // Kept in storage too (when numbers are saved), so a reload, My deals and the packet see the same figures.
+    const keep = (next: T) => {
+      try {
+        if (localStorage.getItem(key) !== null) localStorage.setItem(key, JSON.stringify(next));
+      } catch {
+        /* storage unavailable */
+      }
+      return next;
+    };
+    setV((cur) => keep({ ...cur, ...apply }));
+    if (soft) return;
     setTypedKeys((fields) => {
       const next = new Set(fields);
       Object.keys(force).forEach((field) => next.delete(field));
       saveConfirmed(key, next);
       return next;
     });
-  }, [key, sig]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [key, want]); // eslint-disable-line react-hooks/exhaustive-deps
   // The fields confirmed for this saved calculator: they're yours even when the number matches our example.
   const [typedKeys, setTypedKeys] = useState<ReadonlySet<string>>(() => readConfirmed(key));
   const set = (k: keyof T & string, n: number) => {
@@ -465,12 +493,12 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const region = useCalcRegion();
   // In a deal with a state, the example tax and insurance follow that state (a Texas rental's tax is about three
   // times a Nevada one's); they're starting numbers only and give way to anything typed or prefilled.
-  const stateStart = regional ? rentalStartFor(region.state, start.value ?? RENT_DEFAULTS.value) : {};
+  const stateStart = regional ? rentalStartFor(region.state, start.value ?? RENT_DEFAULTS.value, region.county) : {};
   const examples = { ...RENT_DEFAULTS, ...stateStart, ...(offer ? OFFER_START : {}) };
   // On a change of state, the state's starting tax and insurance replace the old state's (a Texas tax bill is no
   // guide to a Nevada one), except figures the property itself supplied (`start`).
   const stateForce: Partial<RentInputs> = regional ? Object.fromEntries(Object.entries(stateStart).filter(([k]) => !(k in start))) : {};
-  const [saved, set, typed, typedKeys] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...examples, ...start }, regional ? { transferTaxPer500: rt.per500, ...stateForce } : {}, regional ? `${rt.per500}|${region.state}` : '{}');
+  const [saved, set, typed, typedKeys] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...examples, ...start }, regional ? { transferTaxPer500: rt.per500, ...stateForce } : {}, regional ? `${rt.per500}|${region.state}` : '{}', regional ? region.county : '');
   const v = offer ? { ...withoutOldValueExample(saved, true, typedKeys), buyerPremiumPct: 0 } : saved;
   const r = rentMaxBid(v, offer);
   const n = rentNoi(v);
