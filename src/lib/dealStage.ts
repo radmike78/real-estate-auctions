@@ -1,3 +1,4 @@
+import { readConfirmed } from './calcConfirmation';
 import { workStorage as localStorage } from './workStorage';
 // Where a saved deal stands (researching, preparing an offer or bid, under contract or won, closed, owned and
 // operating, or passed) and the tasks that belong to that stage. The stage picks the deal's next action in My plan:
@@ -155,7 +156,13 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
   const per = dealProgress(`analyzed:${d.id}`);
   const stepDone = (id: string) => per.done.includes(id) || per.status[id] === 'na';
   const nums = savedNumbers(d);
-  const hasNums = d.plan === 'lien' || hasSavedNumbers(nums);
+  // Numbers count once they're the property's own: its rent (or resale value) typed in, not the calculator's examples
+  // left in place behind one click on "Use the walk-away price".
+  const offerKey = d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short' ? '-offer' : '';
+  const ownInputs = d.plan === 'rent' ? readConfirmed(`fsf.calc.rent.${d.id}${offerKey}.v1`).has('monthlyRent')
+    : d.plan === 'flip' ? readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('exitValue')
+    : d.plan === 'commercial' ? readConfirmed(`fsf.calc.commercial.${d.id}${offerKey}.v1`).has('monthlyRent') : true;
+  const hasNums = d.plan === 'lien' || (hasSavedNumbers(nums) && ownInputs);
   const tx = d.state === 'TX';
   const out: PlanTask[] = [];
 

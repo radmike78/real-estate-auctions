@@ -20,7 +20,8 @@ const deal: Deal = { id: 'd1', name: '123 Main St', state: 'TX', county: 'Travis
 const now = new Date('2026-10-06T15:00:00Z');
 const last = <T,>(a: T[]): T | undefined => a[a.length - 1];
 // A rental analysis saved at $280,000, as the reviewer did: numbers, but no offer made.
-const withNumbers = () => localStorage.setItem('fsf.calc.rent.d1-offer.v1', JSON.stringify({ value: 280000, atPrice: 280000, monthlyRent: 2200 }));
+// Numbers the reader typed (the rent among them), not the calculator's examples.
+const withNumbers = () => { localStorage.setItem('fsf.calc.rent.d1-offer.v1', JSON.stringify({ value: 280000, atPrice: 280000, monthlyRent: 2200 })); localStorage.setItem('fsf.calc.rent.d1-offer.v1.typed.v1', JSON.stringify(['value', 'atPrice', 'monthlyRent'])); };
 
 beforeEach(() => {
   (globalThis as unknown as { localStorage: MemStorage }).localStorage = new MemStorage();
@@ -82,6 +83,14 @@ describe('the next action follows the stage', () => {
 
   it('runs the numbers first when there are none', () => {
     expect(dealNextTask(deal, EMPTY_PACKET, now).openDeal).toBe(true);
+  });
+
+  it('counts the numbers only once the property’s own rent is typed, not the examples behind one click', () => {
+    localStorage.setItem('fsf.calc.rent.d1-offer.v1', JSON.stringify({ value: 280000, atPrice: 280000, monthlyRent: 2200 }));
+    localStorage.setItem('fsf.calc.rent.d1-offer.v1.typed.v1', JSON.stringify(['atPrice']));
+    expect(stageTasks(deal, 'researching', EMPTY_PACKET, now).find((t) => t.key === 'numbers')?.done).toBe(false);
+    withNumbers();
+    expect(stageTasks(deal, 'researching', EMPTY_PACKET, now).find((t) => t.key === 'numbers')?.done).toBe(true);
   });
 
   it('moves a researched deal on only after a decision', () => {

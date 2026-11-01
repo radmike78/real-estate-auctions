@@ -1,3 +1,4 @@
+import { planPath } from '../lib/roadmapState';
 import { type ReactNode } from 'react';
 import NarrowDown from './NarrowDown';
 import { findDealsConfig } from '../lib/narrow';
@@ -61,6 +62,8 @@ export default function FindDealsPage() {
   useLastActivity('#/find-deals', 'Find deals');
   // The visitor's area (myArea.ts): their state and county, from the city they chose or picked here.
   const [mine, setMine] = useMyArea();
+  // Auction and lien-certificate readers (their roadmap route) start at the county sources, not the agent's MLS search.
+  const countyRoute = planPath() !== 'listing';
   const { pros } = useDirectory();
   const adCats = useSpotCategories('finddeals');
   const adShows = useAdShows(adCats, pros);
@@ -110,7 +113,7 @@ export default function FindDealsPage() {
       </PageHero>
 
       <NarrowDown config={findDealsConfig()} intro="Answer two quick questions and we’ll point you to the best places to look first. Other sources stay available in the expandable groups below." />
-      <p className="page-starter"><strong>Buying a home listed for sale?</strong> Ask a licensed agent to set up a search of homes on the local listing service (MLS) that match your buy box (your written limits: area, property type, price and condition). <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p>
+      {countyRoute ? <p className="page-starter"><strong>Buying at a county sale?</strong> Start with the county auctions and sale calendars below: they come from the official seller. <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p> : <p className="page-starter"><strong>Buying a home listed for sale?</strong> Ask a licensed agent to set up a search of homes on the local listing service (MLS) that match your buy box (your written limits: area, property type, price and condition). <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p>}
       <section aria-labelledby="search-routine">
         <h2 id="search-routine">Turn a search into one property worth checking</h2>
         <p>Find one property that fits your limits, record its source and price, then save it in Analyze.</p>
@@ -122,11 +125,11 @@ export default function FindDealsPage() {
           <li>Before you offer or bid, check the rent, value, repairs, title, who lives there, allowed use, insurance and loan. A quick calculation is only a first screen.</li>
         </ol></details>
       </section>
-      <section aria-label="Choose a purchase route"><h2>How do you want to buy?</h2><p>Choose a route to open the relevant official sources. You can switch or browse the other groups.</p><button type="button" className="btn" onClick={() => openSources('deals-national')}>Listed or bank-owned property</button>{' '}<button type="button" className="btn btn-secondary" onClick={() => openSources('deals-county')}>County auction</button></section>
+      <section aria-label="Choose a purchase route"><h2>How do you want to buy?</h2><p>Choose a route to open the relevant official sources. You can switch or browse the other groups.</p><button type="button" className={countyRoute ? 'btn btn-secondary' : 'btn'} onClick={() => openSources('deals-national')}>Listed or bank-owned property</button>{' '}<button type="button" className={countyRoute ? 'btn' : 'btn btn-secondary'} onClick={() => openSources('deals-county')}>County auction</button></section>
       <h2 className="section-title">Official sources</h2>
       <p className="muted">Government agencies, Fannie Mae and Freddie Mac, and the banks that own the homes: the sellers themselves.</p>
 
-      <details className="plan-section" name="deal-sources"><summary>County auctions and property research</summary>
+      <details className="plan-section" name="deal-sources" open={countyRoute || undefined}><summary>County auctions and property research</summary>
       <Band id="deals-county" tone="county" icon={<IconFile />} title={`County offices: ${place}`} sub="The county’s own pages for tax sales, records and sheriff’s sales.">
         {officeCards.length > 0 ? (
           <>
