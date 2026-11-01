@@ -1492,7 +1492,7 @@ html { scroll-padding-top: 88px; }
 .calc-more { position: relative; }
 .calc-more summary { list-style: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 0.9rem; color: var(--accent); background: var(--surface-2); cursor: pointer; }
 .calc-more summary::-webkit-details-marker { display: none; }
-.calc-more[open] summary { background: var(--accent); color: #fff; }
+.calc-more[open] summary { background: var(--accent-strong); color: #fff; } /* deeper blue: white stays readable in dark mode */
 .calc-more p { position: absolute; right: 0; top: 30px; z-index: 5; width: min(300px, 80vw); max-height: min(50vh, 260px); overflow-y: auto; margin: 0; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); box-shadow: 0 16px 36px -16px rgb(0 0 0 / 0.6); }
 .calc-note { padding: 12px 14px; border-radius: 12px; background: var(--surface-2); margin: 0; }
 .calc-note p { margin: 4px 0 0; }

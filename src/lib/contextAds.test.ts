@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { analyzeAdCategories, stepAdCategories } from './contextAds';
+import { analyzeAdCategories, findDealsAllowsAds, stepAdCategories } from './contextAds';
 import { ROADMAP, type RoadmapPath } from './roadmap';
 import { CATEGORIES } from './pros';
 import type { SaleKind } from './analyze';
@@ -12,6 +12,12 @@ describe('"at the moment you need one" ads', () => {
       for (const plan of ['flip', 'rent', 'commercial', 'lien'] as const) expect(analyzeAdCategories(kind, plan), `${kind}/${plan}`).toEqual([]);
     }
     expect(analyzeAdCategories('listing', 'lien')).toEqual([]);
+  });
+
+  it('Find deals: ads only on the agent (listing) route', () => {
+    expect(findDealsAllowsAds('listing')).toBe(true);
+    expect(findDealsAllowsAds('auction')).toBe(false);
+    expect(findDealsAllowsAds('certificate')).toBe(false);
   });
 
   it('My plan: never on auction or lien-certificate routes, nor on steps for those routes only', () => {

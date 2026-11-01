@@ -190,6 +190,21 @@ describe('the deal packet', () => {
     expect(numbers()).toMatch(/Highest price for a 9% return on cost: \$[\d,]+/);
   });
 
+  it('compares a commercial deal’s cash with My plan’s, and a typed 0 means no limit', () => {
+    const auction: Deal = { ...deal, kind: 'trustee', plan: 'commercial' };
+    const cash = () => packetSections(auction, EMPTY_PACKET, now).find((s) => s.key === 'cash')!.lines.join('\n');
+    localStorage.setItem('deedowl.cash.v1', JSON.stringify({ savings: 100000 }));
+    localStorage.setItem('fsf.calc.commercial.d1.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 9, atPrice: 500000 }));
+    expect(cash()).toMatch(/At your actual price of \$500,000, that’s \$[\d,]+ more than your investable cash: the deal doesn’t fit as entered\./);
+    expect(savedNumbers(auction).commercial!.atNeed).toBeGreaterThan(500000);
+    // A 0 typed in Commercial income is no limit: no comparison with My plan.
+    localStorage.setItem('fsf.calc.commercial.d1.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 9, atPrice: 500000, cashAvailable: 0 }));
+    localStorage.setItem('fsf.calc.commercial.d1.v1.typed.v1', JSON.stringify(['monthlyRent', 'targetCapPct', 'atPrice', 'cashAvailable']));
+    expect(savedNumbers(auction).commercial!.cashTyped).toBe(true);
+    expect(cash()).not.toMatch(/investable cash/);
+    localStorage.removeItem('deedowl.cash.v1');
+  });
+
   it('flags a commercial price over $1 billion as a likely typo, not a missing target', () => {
     const offer: Deal = { ...deal, plan: 'commercial' };
     localStorage.setItem('fsf.calc.commercial.d1-offer.v1', JSON.stringify({ monthlyRent: 1e9, targetCapPct: 9 }));

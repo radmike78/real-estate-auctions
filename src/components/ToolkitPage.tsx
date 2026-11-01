@@ -511,7 +511,7 @@ function PriceFromCash({ cash }: { cash: number }) {
     // Only the cash limit changes. A price limit already there stays (it may be yours): say when it's more than the cash.
     write(BUYBOX_KEY, { ...b, cashMax: Math.round(cash) });
     window.dispatchEvent(new CustomEvent(PLAN_EVENT));
-    setSavedNote(`Saved: a ${fmtMoney(Math.round(cash))} cash limit in your buy box.${b.priceMax > cash ? ` Its ${b.strategy === LIEN_STRATEGY ? '“Most for one certificate”' : 'price limit'} is still ${fmtMoney(b.priceMax)}, more than this cash: lower it if it no longer fits.` : ''}`);
+    setSavedNote(`Saved: ${fmtMoney(Math.round(cash))} as the cash limit in your buy box.${b.priceMax > cash ? ` Its ${b.strategy === LIEN_STRATEGY ? '“Most for one certificate”' : 'price limit'} is still ${fmtMoney(b.priceMax)}, more than this cash: lower it if it no longer fits.` : ''}`);
   };
   if (payingCash) return (
     <div className="price-from-cash">
@@ -550,7 +550,7 @@ function PriceFromCash({ cash }: { cash: number }) {
           // The area's own property tax rate, so the estimate can match it (Texas rates are often 2% or more alone).
           const area = getMyArea();
           const line = area?.county ? countyTaxLine(area.state, area.county) : null;
-          return line ? <p className="muted small">Property tax alone, {line.short.replace(/\.$/, '')}; add insurance to it for this estimate.{area && (area.state === 'NV' || area.state === 'AZ') ? ' That rate is on the county’s value, which is often below the price, so using it here errs on the high side.' : ''}</p> : null;
+          return line ? <p className="muted small">Property tax alone, {line.short.replace(/\.$/, '')}; add insurance to it for this estimate.{area && (area.state === 'NV' || area.state === 'AZ') ? ' That rate is on the county’s value, which is often below the price.' : ''}</p> : null;
         })()}
         <p className="muted small">These are starting estimates, not loan requirements or an affordability decision. Down payment, interest rate and money kept in reserve depend on the loan and your situation. Confirm financing with your lender, and costs with the relevant providers.</p>
       </details>

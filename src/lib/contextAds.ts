@@ -64,6 +64,8 @@ export const playbookAllowsAds = (key: string) => key === 'reo' || key === 'shor
 export const lessonAllowsAds = (key: string) => key !== 'forced-sales';
 const FORCED_DRILL = /trustee|tax-|hoa-|sheriff|irs|foreclos|receiver|short-sale|lien|surplus/;
 export const drillAllowsAds = (id: string) => !FORCED_DRILL.test(id);
+/** Find deals shows ads only on the agent (listing) route: auction and lien readers start at the official sellers. */
+export const findDealsAllowsAds = (path: RoadmapPath) => path === 'listing';
 /** Whether a My plan step may show ads at all (an owner's fixed list included): the agent route, and never beside an
  * official seller (county, treasurer, trustee, sheriff). */
 export const stepAllowsAds = (step: RoadmapStep, path: RoadmapPath) =>

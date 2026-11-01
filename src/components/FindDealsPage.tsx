@@ -1,4 +1,5 @@
 import { planPath } from '../lib/roadmapState';
+import { findDealsAllowsAds } from '../lib/contextAds';
 import { guideKeyFor } from '../lib/dealPacket';
 import { type ReactNode } from 'react';
 import NarrowDown from './NarrowDown';
@@ -181,7 +182,7 @@ export default function FindDealsPage() {
       </Band>
 
       </details>
-      {adShows && <FixedAds spot="finddeals" pros={pros} categories={adCats} placeholder />}
+      {adShows && findDealsAllowsAds(planPath()) && <FixedAds spot="finddeals" pros={pros} categories={adCats} placeholder />}
       <details className="plan-section"><summary>Other sites (not the official seller)</summary>
       <h2 className="section-title">Other sites</h2>
       <p className="other-sites-note">

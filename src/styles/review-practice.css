@@ -71,7 +71,7 @@
 /* ---------- Full purchase case ---------- */
 .case .practice-tag { white-space: normal; max-width: 100%; border-radius: 14px; } /* wraps inside its pill at any width */
 .nowrap-arrow { white-space: nowrap; }
-.case-steps-hint { display: none; }
+.case-steps-hint, .table-swipe-hint { display: none; }
 .practice-stages.case-stages a { justify-content: flex-start; min-height: 48px; }
 @media (min-width: 601px) {
   /* Equal columns, so the steps wrap into even rows instead of 9 and 3. */
@@ -85,7 +85,7 @@
   /* One row to swipe: a hint and a fade at the edge show there's more. */
   .drill .practice-tag { white-space: nowrap; font-size: 0.82rem; }
   .drill-rules-note { margin: 8px 0 0; }
-  .case-steps-hint { display: block; margin: 0 0 6px; font-size: 0.95rem; font-weight: 600; color: var(--text); }
+  .case-steps-hint, .table-swipe-hint { display: block; margin: 0 0 6px; font-size: 0.95rem; font-weight: 600; color: var(--text); }
   .practice-stages.case-stages { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 36px), transparent); padding-right: 28px; }
 }
 

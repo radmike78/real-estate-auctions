@@ -288,6 +288,10 @@ export function savedNumbers(d: Deal) {
     capOnCost: number | null;
     /** A cash limit entered in Commercial income (0: none). */
     cashLimit?: number;
+    /** A cash figure was typed there (a typed 0 means no limit, as the field says). */
+    cashTyped?: boolean;
+    /** Your own cash needed at your price: all in before an auction's refinance, else the cash you put in. */
+    atNeed?: number;
     at?: ReturnType<typeof commercialAtPrice> & { price: number };
     stress: { label: string; maxBid: number | null; limitedBy?: CommercialLimit; capOnCost?: number | null }[];
   } | null = null;
@@ -334,8 +338,15 @@ export function savedNumbers(d: Deal) {
           const stress = low.noBidWorks ? [{ label: 'Rent 10% lower', maxBid: null }] : Number.isFinite(low.maxBid) ? [{ label: 'Rent 10% lower', maxBid: low.maxBid, limitedBy: low.limitedBy, capOnCost: low.capOnCost }] : [];
           commercial = { maxBid: r.maxBid, noi: r.noi, capPct: v.targetCapPct, cashLeft: r.cashLeft, allIn: r.allIn, refi: !offer && r.debtService > 0, none: false, noTarget: false, overCap: false, limitedBy: r.limitedBy, capOnCost: r.capOnCost, stress };
         }
-        if (commercial) commercial.cashLimit = v.cashAvailable > 0 ? v.cashAvailable : 0;
-        if (commercial && v.atPrice > 0) commercial.at = commercialAtPrice(v, v.atPrice, offer);
+        if (commercial) {
+          commercial.cashLimit = v.cashAvailable > 0 ? v.cashAvailable : 0;
+          commercial.cashTyped = readConfirmed(`fsf.calc.commercial.${d.id}${offer ? '-offer' : ''}.v1`).has('cashAvailable');
+        }
+        if (commercial && v.atPrice > 0) {
+          const a = commercialAtPrice(v, v.atPrice, offer);
+          commercial.at = a;
+          commercial.atNeed = !offer && a.loan > 0 ? a.allIn : a.cashIn;
+        }
       }
     }
   }
@@ -544,7 +555,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     if (bid.financed) cash.push(DRAW_NOTE);
   } else if (commercial?.at) {
     const a = commercial.at;
-    need = !offer && a.loan > 0 ? a.allIn : a.cashIn;
+    need = commercial.atNeed ?? (!offer && a.loan > 0 ? a.allIn : a.cashIn);
     needAt = `At your actual price of ${money(a.price)}`;
     cash.push(`${needAt}: ${money(need)} needed ${!offer && a.loan > 0 ? 'before a refinance closes (loan fees are paid at refinancing)' : 'from your own cash, including the loan’s points and fees'}.`);
   } else if (commercial?.noTarget) {
@@ -570,7 +581,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   // The same limit the calculator uses: the cash you entered there, else My plan's investable cash.
   const entered = rent?.cashLimit || bid?.cashLimit || commercial?.cashLimit || 0;
-  const typedNoLimit = !(entered > 0) && (rent?.cashTyped || bid?.cashTyped || false);
+  const typedNoLimit = !(entered > 0) && (rent?.cashTyped || bid?.cashTyped || commercial?.cashTyped || false);
   const limit = entered > 0 ? entered : typedNoLimit ? 0 : profile.investable;
   const limitWord = entered > 0 ? `the cash you entered in ${strategy}` : 'your investable cash';
   if (limit > 0 && need > 0) cash.push(need > limit ? `${needAt}, that’s ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered.` : `${needAt}, that leaves ${money(limit - need)} unallocated from ${limitWord}, after any retained reserves recorded above.`);

@@ -592,6 +592,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
 
         <H>If things go differently</H>
         <p className="small muted calc-grid-note">Highest {w.bid} that still meets your profit target if the resale value (rows) or repairs (columns) come in differently{i.cashAvailable > 0 ? ', before your cash limit' : ''}.</p>
+        <p className="table-swipe-hint" aria-hidden>Swipe the table to see every column&nbsp;→</p>
         <div className="table-wrap">
           <table className="calc-stress calc-grid-table">
             <thead>

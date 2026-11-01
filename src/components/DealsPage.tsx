@@ -164,10 +164,20 @@ function OtherNumbers({ d }: { d: Deal }) {
     if (commercial.at) {
       const a = commercial.at;
       const missed = a.cashFlow < 0 || (a.capOnCost !== null && a.capOnCost * 100 < commercial.capPct);
-      return <p className={missed ? 'deal-urgent' : undefined}>At your price, {fmtMoney(a.price)}: {a.cashFlow < 0 ? `loses ${fmtMoney(Math.round(-a.cashFlow / 12))}` : `${fmtMoney(Math.round(a.cashFlow / 12))} cash flow`} a month{a.capOnCost !== null ? ` · ${(a.capOnCost * 100).toFixed(1)}% return on cost (target ${commercial.capPct}%)` : ''}</p>;
+      // The same cash check as Commercial income: the cash entered there, else My plan's (a typed 0 is no limit).
+      const planCash = investorProfile().investable;
+      const limit = commercial.cashLimit && commercial.cashLimit > 0 ? commercial.cashLimit : commercial.cashTyped ? 0 : planCash;
+      const need = commercial.atNeed ?? 0;
+      const short = limit > 0 && need > limit;
+      return <p className={missed || short ? 'deal-urgent' : undefined}>At your price, {fmtMoney(a.price)}: {a.cashFlow < 0 ? `loses ${fmtMoney(Math.round(-a.cashFlow / 12))}` : `${fmtMoney(Math.round(a.cashFlow / 12))} cash flow`} a month{a.capOnCost !== null ? ` · ${(a.capOnCost * 100).toFixed(1)}% return on cost (target ${commercial.capPct}%)` : ''}{short ? ` · needs about ${fmtMoney(Math.round(need))} of your cash (${commercial.cashLimit && commercial.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}</p>;
     }
     if (commercial.noTarget) return <p className="muted">No target return entered yet: open it and enter the cap rate you require under Commercial income.</p>;
-    return <p>Highest price for your {commercial.capPct}% return on cost: {fmtMoney(commercial.maxBid)} · {fmtMoney(Math.round(commercial.noi))} a year of net operating income</p>;
+    // The cash at that price, against the cash entered in Commercial income, else My plan's (as the packet counts it).
+    const planCash = investorProfile().investable;
+    const limit = commercial.cashLimit && commercial.cashLimit > 0 ? commercial.cashLimit : commercial.cashTyped ? 0 : planCash;
+    const need = commercial.refi ? commercial.allIn : commercial.cashLeft;
+    const short = limit > 0 && need > limit;
+    return <p className={short ? 'deal-urgent' : undefined}>Highest price for your {commercial.capPct}% return on cost: {fmtMoney(commercial.maxBid)} · {fmtMoney(Math.round(commercial.noi))} a year of net operating income{short ? ` · needs about ${fmtMoney(Math.round(need))} of your cash at that price (${commercial.cashLimit && commercial.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}</p>;
   }
   if (bid) {
     if (bid.none) return <p className="deal-urgent">No price works at a {fmtMoney(bid.exitValue)} resale value with these costs and your profit target.</p>;

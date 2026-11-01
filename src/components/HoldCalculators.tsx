@@ -260,6 +260,27 @@ const OFTEN_FORGOTTEN = [
 ];
 
 /** Stress tests, the deal in plain words, and a checklist of easy-to-forget costs. */
+/** Opens the section holding a calculator field (if it's folded away), then scrolls to and focuses the field. */
+function focusCalcField(from: HTMLElement, k: string) {
+  const f = from.closest('.calc')?.querySelector<HTMLInputElement>(`input[id$="-${k}"]`);
+  if (!f) return;
+  const d = f.closest('details');
+  if (d && !d.open) d.open = true;
+  f.scrollIntoView({ block: 'center' });
+  f.focus({ preventScroll: true });
+}
+
+/** The walk-away price needs more cash than My plan shows, and no cash limit is entered here to cap it. */
+function PlanCashNote({ need, planCash, offer }: { need: number; planCash: number; offer: boolean }) {
+  return (
+    <p className="calc-verdict bad" role="note">
+      <strong>This needs about {fmtMoney(Math.round(need))} of your cash at the walk-away price; My plan shows {fmtMoney(Math.round(planCash))} of investable cash.</strong>{' '}
+      {offer ? 'Enter the cash you can put in to cap your price at what you have, or compare a loan with a lender.' : 'Enter the cash you can bring (an auction wants the full amount by its payment deadline) to cap the bid at what you have, or compare a loan with a lender.'}{' '}
+      <button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>Enter your cash</button>
+    </p>
+  );
+}
+
 /** The rental at a price you type: every step from rent to cash flow, with its assumptions. */
 function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, cashTyped = false }: { v: RentInputs; start: number; onPrice: boolean; setPrice: (n: number) => void; /** "Your offer" or "Your bid". */ word: string; /** The refinance is still on our example value. */ exampleValue?: boolean; /** The cash limit is one you typed (else it follows My plan). */ cashTyped?: boolean }) {
   // You plan to live in one unit (Decide: a home loan and live in it): a loss is your own housing cost, not a failed deal.
@@ -527,6 +548,12 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const word = offer ? 'Your offer' : 'Your bid';
   // Which price the panels below are figured at: yours once you enter it, else the target price.
   const at: PriceAt = v.atPrice > 0 ? { price: v.atPrice, label: `${word.toLowerCase()} of ${fmtMoney(v.atPrice)}` } : Number.isFinite(r.maxBid) && r.maxBid > 0 ? { price: r.maxBid, label: `your walk-away price of ${fmtMoney(Math.round(r.maxBid))}` } : { price: v.value, label: `the ${fmtMoney(v.value)} value` };
+  // An auction rental's cash isn't taken from My plan (an offer's is, so its price is already capped): with no cash
+  // entered here, compare the cash the walk-away price needs (all of it until a refinance) with My plan's.
+  const planCash = investorProfile().investable;
+  const walk = !offer && !r.noBidWorks && Number.isFinite(r.maxBid) && r.maxBid > 0 ? rentAtPrice(v, Math.round(r.maxBid), false) : null;
+  const walkNeed = walk ? (walk.loan > 0 ? walk.allIn : walk.cashIn) : 0;
+  const walkShort = !!walk && !(v.cashAvailable > 0) && !typedKeys.has('cashAvailable') && planCash > 0 && walkNeed > planCash;
   return (
     <div className="calc">
       <div className="calc-inputs">
@@ -540,6 +567,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         {offer && investorProfile().ownerOccupant && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
         <AtThisPrice v={v} start={r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} cashTyped={typedKeys.has('cashAvailable')} />
         <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} />
+        {walkShort && <PlanCashNote need={walkNeed} planCash={planCash} offer={false} />}
         {/* An auction rental's later refinance is sized on the value after repairs: say so while that's still our example. */}
         {exampleValue && (
           <p className="calc-note small" role="note"><strong>{v.value > 0 ? <>The refinance is figured on our {fmtMoney(RENT_DEFAULTS.value)} example value.</> : 'No refinance is counted: the value after repairs is blank.'}</strong> Enter the value an appraisal would support after repairs (under “Review all other costs, loan terms and targets”) before you rely on the loan, the cash left in or the walk-away price.</p>
@@ -602,12 +630,19 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
   const groups = offer ? forOffer(ct.groups) : ct.groups;
   const still = exampleLabels(visibleFields(groups, v), v, COMMERCIAL_DEFAULTS, typedKeys, new Set([...NOT_EXAMPLES, ...Object.keys(start)]));
   const allExample = !typed && Object.keys(start).length === 0;
+  // Commercial cash isn't taken from My plan: with no cash entered here (a typed 0 is no limit), compare the cash the
+  // walk-away price needs (all of it until an auction's refinance) with My plan's.
+  const planCash = investorProfile().investable;
+  const cashTyped = typedKeys.has('cashAvailable');
+  const walk = !r.noBidWorks && Number.isFinite(r.maxBid) && r.maxBid > 0 ? commercialAtPrice(v, Math.round(r.maxBid), offer) : null;
+  const walkNeed = walk ? (!offer && walk.loan > 0 ? walk.allIn : walk.cashIn) : 0;
+  const walkShort = !!walk && !(v.cashAvailable > 0) && !cashTyped && planCash > 0 && walkNeed > planCash;
   return (
     <div className="calc">
       <div className="calc-inputs"><ExampleInputs labels={still} all={allExample} /><CalcFields groups={groups} values={v} onChange={set} /></div>
       <div className="calc-results">
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
-        <CommercialAtPrice v={v} offer={offer} setPrice={(price) => set('atPrice', price)} target={r.maxBid} />
+        <CommercialAtPrice v={v} offer={offer} setPrice={(price) => set('atPrice', price)} target={r.maxBid} cashTyped={cashTyped} />
         {n.byLine && (() => {
           const blank = ([['opTaxYear', 'property tax'], ['opInsuranceYear', 'insurance'], ['opRepairsYear', 'repairs'], ['opUtilitiesYear', 'utilities'], ['opManagementPct', 'management']] as const).filter(([k]) => !(Number(v[k]) > 0)).map(([, label]) => label);
           if (!blank.length) return null;
@@ -617,24 +652,30 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
         {/* An auction purchase's later loan is sized on the value: with no value entered, no loan is counted. */}
         {!offer && v.loanPct > 0 && !(v.value > 0) && <p className="calc-note small" role="note"><strong>No loan is counted yet: the value is blank.</strong> A loan after an auction is sized on the value an appraisal would support. Enter it (under the loan terms) to include the loan in the cash and the walk-away price.</p>}
         <HoldResults commercial r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} headLabel="Walk-away price" />
+        {walkShort && <PlanCashNote need={walkNeed} planCash={planCash} offer={offer} />}
       </div>
       <StickyResult label="Walk-away price" value={r.noBidWorks ? 'No price works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks} />
     </div>
   );
 }
 
-function CommercialAtPrice({ v, offer, setPrice, target }: { v: CommercialInputs; offer: boolean; setPrice: (n: number) => void; target: number }) {
+function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false }: { v: CommercialInputs; offer: boolean; setPrice: (n: number) => void; target: number; /** A cash figure was typed here (a typed 0 is no limit). */ cashTyped?: boolean }) {
   const a = v.atPrice > 0 ? commercialAtPrice(v, v.atPrice, offer) : null;
   const word = offer ? 'Your offer' : 'Your bid';
   const meets = a && a.capOnCost !== null && a.capOnCost * 100 >= v.targetCapPct && a.loanOk && a.cashFlow > 0;
+  // Your own cash at this price (all of it until an auction's refinance), against the cash entered here, else My plan's.
+  const planCash = investorProfile().investable;
+  const need = a ? (!offer && a.loan > 0 ? a.allIn : a.cashIn) : 0;
+  const planShort = !!a && !(v.cashAvailable > 0) && !cashTyped && planCash > 0 && need > planCash;
   return (
     <section className="calc-at-price" aria-label="Commercial results at your price">
       <PriceHead kind="yours" label={word} price={a?.price ?? null} result={a ? a.cashFlow / 12 : null} note="Your actual price, using the income, costs, lease-up period and loan entered above." />
       <label className="field"><span>{word} ($)</span><NumInput blank max={1e9} value={v.atPrice} onValue={(n) => setPrice(n ?? 0)} /></label>
       {Number.isFinite(target) && target > 0 && <button type="button" className="linkish" onClick={() => setPrice(target)}>Use the walk-away price ({fmtMoney(target)})</button>}
       {!a ? <p>Enter the asking price or your proposed price to compare this property with your targets.</p> : <>
-        <p className={meets ? 'notice' : 'caution'}>{meets ? 'Meets your return-on-cost and coverage targets with these numbers.' : 'Misses your return-on-cost or coverage target, or has no positive cash flow.'} Verify the income, costs and loan terms before relying on this result.</p>
-        {v.cashAvailable > 0 && (offer ? a.cashIn : a.allIn) > v.cashAvailable && <p className="caution">Your entered cash does not cover this price and the modeled costs.</p>}
+        <p className={meets && !planShort && !(v.cashAvailable > 0 && need > v.cashAvailable) ? 'notice' : 'caution'}>{meets ? 'Meets your return-on-cost and coverage targets with these numbers.' : 'Misses your return-on-cost or coverage target, or has no positive cash flow.'} Verify the income, costs and loan terms before relying on this result.</p>
+        {v.cashAvailable > 0 && need > v.cashAvailable && <p className="caution">Your entered cash does not cover this price and the modeled costs.</p>}
+        {planShort && <p className="caution">It needs about {fmtMoney(Math.round(need))} of your cash, more than the {fmtMoney(Math.round(planCash))} of investable cash in My plan. <button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>Enter your cash</button></p>}
         {!offer && a.loan > 0 && <p className="caution">The loan is a later refinance, not cash available at the auction. Until it closes, the full purchase and costs are your cash.</p>}
         <dl className="calc-kv">
           <div><dt>Net operating income, per year</dt><dd>{fmtMoney(Math.round(a.noi))}</dd></div>
