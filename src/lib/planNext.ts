@@ -130,7 +130,7 @@ export function planNow(now = new Date()): PlanNow {
     const pc = caseFor(getMyState());
     const prog = loadCase(pc.state);
     const next = caseResume(pc.stages, prog);
-    if (!next.packet) {
+    if (!next.packet && !practicePart2Done()) {
       const started = prog.done.length > 0;
       return { goal, source: 'starter', context: 'Step 3 · Practice part 2: Buy a rental (the paperwork)', task: { key: 'practice-case', label: 'Buy a rental, start to finish', produces: 'a practice deal packet: budget, deadline calendar, evidence log and your questions', href: `#/practice/case${started ? `/${next.key}` : ''}`, support: [], done: false, text: 'Work one fictional purchase with the paperwork, about 45 minutes.' } };
     }

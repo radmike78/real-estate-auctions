@@ -12,10 +12,17 @@ import { getMyState } from './myState';
 import { loadCase } from '../practice/caseProgress';
 import { caseFor, caseResume } from '../practice/rentalCase';
 
-/** Whether practice part 2 (Buy a rental, start to finish) is finished for the reader's state. */
+/** Whether practice part 2 (Buy a rental, start to finish) is finished: for the reader's state, or already credited
+ *  on the roadmap (finished under another state before switching, so the plan doesn't send you back to it). */
 export function practicePart2Done(): boolean {
   const pc = caseFor(getMyState());
-  return caseResume(pc.stages, loadCase(pc.state)).packet;
+  if (caseResume(pc.stages, loadCase(pc.state)).packet) return true;
+  try {
+    const credited: unknown = JSON.parse(localStorage.getItem('deedowl.roadmap.credited.v1') ?? '[]');
+    return Array.isArray(credited) && credited.includes('practice');
+  } catch {
+    return false;
+  }
 }
 
 export type Mode = 'guided' | 'explore';

@@ -295,7 +295,7 @@ function AdLineCard({ me, onChange }: { me: Me; onChange: () => void }) {
         {me.profile.adLine ? <>Live: “{me.profile.adLine}”</> : 'No ad line yet: your ad boxes show your headline.'}
         {me.profile.adLinePending && <> · Waiting for review: “{me.profile.adLinePending}”</>}
       </p>
-      <label className="field">
+      <label className="field wide">
         <span>Ad line (optional)</span>
         <textarea rows={2} maxLength={180} value={line} onChange={(e) => setLine(e.target.value)} aria-invalid={!!local} />
         <small className="muted">{line.trim().length}/180 · plain text</small>
@@ -600,7 +600,7 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
           )}
           <div className="viz-root">
             <div className="row" style={{ justifyContent: 'space-between' }}>
-              <h2>Daily activity</h2>
+              <h2 className="page-section-title">Daily activity</h2>
               <button className="linkish" onClick={() => setShowTable(!showTable)}>{showTable ? 'Show charts' : 'Show as table'}</button>
             </div>
             {showTable ? (
@@ -623,7 +623,7 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
 
       <section>
         <div className="row" style={{ justifyContent: 'space-between' }}>
-          <h2>Leads ({leads.length})</h2>
+          <h2 className="page-section-title">Leads ({leads.length})</h2>
           <a className="btn btn-secondary" href={`/api/pro/leads.csv?from=${range.from}&to=${range.to}`}>Download CSV</a>
         </div>
         {leads.length === 0 && <OwlNote>No leads in this period yet.</OwlNote>}
