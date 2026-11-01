@@ -69,7 +69,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         }
       },
       {
-        text: "In 2023, Austin, Dallas, San Antonio and Houston (Texas) and Salt Lake City (Utah) had some of the worst flip profit margins. Phoenix, Las Vegas, Sacramento and Tucson saw big drops in flipping.",
+        text: "In 2023, several Sun Belt metros had some of the worst flip profit margins and big drops in flipping. In Texas, that included Austin, Dallas, San Antonio and Houston. In Utah, it included Salt Lake City. In Arizona, it included Phoenix and Tucson. In Nevada, it included Las Vegas. In California, it included Sacramento.",
         source: {
           label: "FOX 11 Los Angeles: House flipping down nearly 30% as profits drop, data reveals (2024, citing ATTOM)",
           url: "https://www.foxla.com/news/house-flipping-down-profits-drop-real-estate"
@@ -501,7 +501,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
   manufactured: {
     overview: [
       "A manufactured home is built in a factory to a federal code and moved to a site. It is often the cheapest way to own a home. The big question is the land. If you own the land too, the home can be financed and valued much like a regular house. If the home sits on a rented lot in a park, you own the house but pay “lot rent” to the park owner. Since moving the home is costly or impossible, you have little power if the rent goes up.",
-      "Since about 2015, investors and private equity firms have bought many parks and raised lot rents sharply. AP reported increases of 87% at one Iowa park, and at another, owned by Utah-based Havenpark, rent and fees nearly doubled. Some residents have fought back by buying their parks as resident-owned cooperatives (ROCs), often with help from nonprofits like ROC USA and state funds. In California, residents of a Fresno County park bought theirs in 2024 using state programs.",
+      "Since about 2015, investors and private equity firms have bought many parks and raised lot rents sharply. Some residents have fought back by buying their parks as resident-owned cooperatives (ROCs), often with help from nonprofits like ROC USA and state funds. AP reported increases of 87% at one Iowa park, and at another, owned by Utah-based Havenpark, rent and fees nearly doubled. In California, residents of a Fresno County park bought their park as a cooperative in 2024 using state programs.",
       "Loans on homes without land are usually “chattel” loans (personal-property loans). They make up about 42% of manufactured home purchase loans and have higher interest rates and fewer protections than mortgages (CFPB). Older homes in parks often lose value instead of gaining it. State law matters too. Nevada requires 90 days’ written notice before a lot-rent increase (NRS 118B.150). California has its Mobilehome Residency Law, and some of its cities and counties have local rent control."
     ],
     bestFor: [
@@ -1286,7 +1286,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
   industrial: {
     overview: [
       "Industrial property includes warehouses, distribution centers, and smaller ‘flex’ or light-industrial buildings used for storage, light manufacturing, contractors and showrooms. The buildings are simple, often described as four walls with a lot of air in between. Tenants usually pay most operating costs under triple-net leases.",
-      "Online shopping drove a huge boom from 2020 to 2022. Vacancy fell to record lows (1.3% in Southern Nevada in 2022), and rents jumped. New warehouses were often fully leased before construction finished. Developers then built a lot of new space, especially in the Inland Empire and Phoenix.",
+      "Online shopping drove a huge boom from 2020 to 2022. Vacancy fell to record lows and rents jumped. New warehouses were often fully leased before construction finished, and developers then built a lot of new space. In Nevada, vacancy in Southern Nevada fell to 1.3% in 2022. In California, much of the new space went up in the Inland Empire. In Arizona, much of it went up around Phoenix.",
       "Since 2023 demand has cooled. Amazon and other companies gave back space, vacancy rose in the Inland Empire and Phoenix, and rents slipped. Large new buildings without tenants are the most exposed. Small, well-located buildings that local businesses need tend to hold up better."
     ],
     bestFor: [

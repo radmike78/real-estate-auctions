@@ -713,7 +713,7 @@ const SELLER_FINANCE_GROUPS: CalcGroup<SellerFinanceInputs>[] = [
 ];
 
 /** Seller financing next to a bank loan: the payment, the balloon and how you'd pay it, and the cash it saves now. */
-export function SellerFinanceCalculator() {
+export function SellerFinanceCalculator({ sticky = true }: { /** Off where it sits under another calculator, so only one pinned bar shows. */ sticky?: boolean } = {}) {
   const [v, set, typed, typedKeys] = useSaved<SellerFinanceInputs>('fsf.calc.sellerfinance.v1', SELLER_FINANCE_DEFAULTS);
   const r = sellerFinance(v);
   const still = exampleLabels(visibleFields(SELLER_FINANCE_GROUPS, v), v, SELLER_FINANCE_DEFAULTS, typedKeys);
@@ -741,7 +741,7 @@ export function SellerFinanceCalculator() {
           loan. Have an attorney or title company prepare the note and deed of trust, record them, and use escrow for payments. <a href="#/learn/creative">Seller financing rules in your state&nbsp;→</a>
         </p>
       </div>
-      <StickyResult label={r.balloon > 0 ? 'Balloon due' : 'Monthly payment'} value={fmtMoney(Math.round(r.balloon > 0 ? r.balloon : r.monthly))} bad={r.balloon > 0} />
+      {sticky && <StickyResult label={r.balloon > 0 ? 'Balloon due' : 'Monthly payment'} value={fmtMoney(Math.round(r.balloon > 0 ? r.balloon : r.monthly))} bad={r.balloon > 0} />}
     </div>
   );
 }

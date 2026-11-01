@@ -13,11 +13,13 @@ export default function StickyResult({ label, value, bad = false }: { label: str
   useEffect(() => {
     const calc = ref.current?.closest('.calc');
     if (!calc) return;
-    // aria-invalid is set when the box re-renders, so check after that.
-    const check = () => requestAnimationFrame(() => setInvalid(!!calc.querySelector('input[aria-invalid="true"]')));
-    calc.addEventListener('input', check);
-    calc.addEventListener('focusout', check);
-    return () => { calc.removeEventListener('input', check); calc.removeEventListener('focusout', check); };
+    // Follows every box's aria-invalid, however it changes (typing, or a button that sets the number).
+    const check = () => setInvalid(!!calc.querySelector('input[aria-invalid="true"]'));
+    check();
+    if (typeof MutationObserver === 'undefined') return;
+    const mo = new MutationObserver(check);
+    mo.observe(calc, { subtree: true, childList: true, attributes: true, attributeFilter: ['aria-invalid'] });
+    return () => mo.disconnect();
   }, []);
   useEffect(() => {
     const calc = ref.current?.closest('.calc');

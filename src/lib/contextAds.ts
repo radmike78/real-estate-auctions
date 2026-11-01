@@ -45,7 +45,9 @@ const BY_CONTACT: [RegExp, Category[]][] = [
 export function stepAdCategories(step: RoadmapStep, path: RoadmapPath): Category[] {
   if (path !== 'listing' || (step.path && !step.path.includes('listing'))) return [];
   const to = step.say?.to ?? '';
-  return BY_CONTACT.find(([re]) => re.test(to))?.[1] ?? [];
+  const byContact = BY_CONTACT.find(([re]) => re.test(to))?.[1] ?? [];
+  // A step whose help is the inspector's page ("Inspect, then decide") also shows inspectors, beside whoever you call.
+  return step.href === '#/pros/inspector' && !byContact.includes('home_inspector') ? [...byContact, 'home_inspector'] : byContact;
 }
 
 /** For the Advertise page: the Analyze plans that show this kind of professional, by plan key. */
@@ -57,7 +59,8 @@ export const stepsFor = (cat: Category, steps: RoadmapStep[]): RoadmapStep[] => 
 export const analyzeAllowsAds = (kind: SaleKind) => kind === 'listing' || kind === 'reo' || kind === 'short';
 /** The same rule for the owner's fixed ad spots, which can be switched on for every guide, lesson, drill, property
  *  page or deal packet: none of them shows an ad where the page is about a forced sale or a lien. */
-export const playbookAllowsAds = (key: string) => key === 'reo' || key === 'short' || key === 'commercial';
+// Not the commercial guide either: it mostly covers tax, trustee and receiver sales.
+export const playbookAllowsAds = (key: string) => key === 'reo' || key === 'short';
 export const lessonAllowsAds = (key: string) => key !== 'forced-sales';
 const FORCED_DRILL = /trustee|tax-|hoa-|sheriff|irs|foreclos|receiver|short-sale|lien|surplus/;
 export const drillAllowsAds = (id: string) => !FORCED_DRILL.test(id);

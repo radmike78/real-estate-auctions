@@ -45,11 +45,14 @@ export function planStarted(now: PlanNow): boolean {
 export function stepContext(step: RoadmapStep): string {
   const steps = roadmapFor(planPath());
   const at = steps.findIndex((s) => s.id === step.id);
-  const team = steps.findIndex((s) => s.id === 'team');
-  const find = steps.findIndex((s) => s.id === 'find');
+  const team = steps.findIndex((s) => /(^|-)team$/.test(s.id));
+  // Finding a property starts with the first phase-4 step on every route (find, a-find, c-sale).
+  const find = steps.findIndex((s) => s.phase >= 4);
   const phase = ROADMAP_PHASES[step.phase];
-  if (at < 0 || team < 0 || find < 0 || step.phase >= 5) return `Roadmap · ${phase}`;
-  if (at < team) return `Step 4 · Your team · first, ${phase.charAt(0).toLowerCase()}${phase.slice(1)}`;
+  // Only after practice: before it, the plan is still on steps 1 to 3.
+  const practiced = loadJourney().completed.length === CHAPTERS.length;
+  if (!practiced || at < 0 || team < 0 || find < 0 || step.phase >= 5) return `Roadmap · ${phase}`;
+  if (at < team) return 'Step 4 · Your team · first, finish your plan';
   if (at < find) return 'Step 4 · Your team';
   return 'Step 5 · Find deals';
 }

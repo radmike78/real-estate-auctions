@@ -6,8 +6,8 @@ import { DRILLS } from '../practice/drills';
 
 describe('no ads on forced-sale pages', () => {
   it('keeps sale guides for forced sales and liens ad-free', () => {
-    for (const k of ['tax', 'foreclosure', 'hoa', 'sheriff', 'irs', 'sid']) expect(playbookAllowsAds(k), k).toBe(false);
-    for (const k of ['reo', 'short', 'commercial']) expect(playbookAllowsAds(k), k).toBe(true);
+    for (const k of ['tax', 'foreclosure', 'hoa', 'sheriff', 'irs', 'sid', 'commercial']) expect(playbookAllowsAds(k), k).toBe(false);
+    for (const k of ['reo', 'short']) expect(playbookAllowsAds(k), k).toBe(true);
   });
   it('keeps the forced-sales lesson and forced-sale drills ad-free', () => {
     expect(lessonAllowsAds('forced-sales')).toBe(false);

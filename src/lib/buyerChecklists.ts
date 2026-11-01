@@ -98,7 +98,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: "Cashier's checks for your full bid", detail: 'Trustees usually require certified funds at the sale. Bring several checks to match different bid amounts.',
         detailFor: {
           AZ: 'Arizona trustees require a $10,000 deposit, in a form the trustee accepts, before you can bid. Pay the rest by 5 p.m. the next business day (A.R.S. 33-810, 33-811). Have the full amount ready by then.',
-          UT: 'The notice of sale says whether a deposit is required, and you pay the way the trustee directs (Utah Code 57-1-27). Call the trustee’s office to ask what funds it accepts and by when.',
+          UT: 'The notice of sale says whether the winning bidder must make a deposit and how much, and you pay the price the way the trustee directs (Utah Code 57-1-27, 57-1-28). Call the trustee’s office to ask what funds it accepts and by when.',
         } },
       { text: 'Government-issued photo ID' },
       { text: 'Cash or a hard-money or bridge loan arranged in advance', detail: "Regular mortgages can't fund a trustee sale." },

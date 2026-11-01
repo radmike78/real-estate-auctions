@@ -29,7 +29,7 @@ const CURRENT = CURRENT_KEY;
 function planFromBuyBox(): Plan {
   try {
     const s = (JSON.parse(localStorage.getItem('deedowl.buybox.v1') ?? 'null') as { strategy?: unknown } | null)?.strategy;
-    if (typeof s === 'string' && /rental|rent the others|BRRRR/.test(s)) return 'rent';
+    if (typeof s === 'string' && s.trim()) return /rental|rent the others|BRRRR/.test(s) ? 'rent' : 'flip';
     // No strategy in the buy box: the goal from Decide (rent or long-run growth opens Keep and rent).
     const goal = (JSON.parse(localStorage.getItem('deedowl.decide.v1') ?? 'null') as { answers?: { goal?: unknown } } | null)?.answers?.goal;
     if (goal === 'income' || goal === 'growth') return 'rent';
@@ -301,7 +301,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           <details className="plan-section" id="seller-financing">
             <summary>If the seller offers financing</summary>
             <p>The payment, the balloon you’d owe, and the cash it saves against a bank loan.</p>
-            <SellerFinanceCalculator />
+            <SellerFinanceCalculator sticky={false} />
           </details>
         )}
       </CalcRegion.Provider>

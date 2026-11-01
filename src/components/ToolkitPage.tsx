@@ -30,10 +30,6 @@ import { loadCase } from '../practice/caseProgress';
 import { caseFor, tasksFor } from '../practice/rentalCase';
 import { proGuideByKey } from '../lib/proGuide';
 import { PRO_SCRIPTS } from '../lib/proScripts';
-import { stepAdCategories, stepAllowsAds } from '../lib/contextAds';
-import { FixedAds, useAdShows } from './AdBoxes';
-import { useSpotCategories } from './AdSpot';
-import { useDirectory } from './ProDirectory';
 
 const BUYBOX_KEY = 'deedowl.buybox.v1';
 
@@ -182,7 +178,6 @@ export function FirstDealRoadmap() {
   // The property in focus: the one chosen here or at the top of My plan, else the one you worked on last.
   const [dealId, setDealId] = useState(() => focusDealId());
   const [perDeal, setPerDeal] = useState<DealSteps>(() => read(DEAL_STEPS_KEY, {}, cleanDealSteps));
-  const { pros } = useDirectory();
   // Saved when you change something (not on every visit), then every "next step" on the site is told.
   const save = (key: string, v: unknown) => {
     write(key, v);
@@ -234,11 +229,6 @@ export function FirstDealRoadmap() {
     const st = stageOfStep(s.id);
     return !!stage && stage !== 'passed' && !!st && dealScoped(s) && DEAL_STAGES.indexOf(st) > DEAL_STAGES.indexOf(stage) ? st : undefined;
   };
-  // The Mentor Connect spot beside the next step (Admin → Ad spots); automatic: whoever the step says to call.
-  // Even an owner's fixed list never shows beside an official seller or off the agent route (contextAds.ts).
-  const stepCats = useSpotCategories('toolkit', next ? stepAdCategories(next, path) : []);
-  const nextAdCats = next && stepAllowsAds(next, path) ? stepCats : [];
-  const nextAdShows = useAdShows(nextAdCats, pros);
   // The phase holding the next step starts open; after that, phases stay as the reader leaves them.
   const [openPhase, setOpenPhase] = useState(() => next?.phase ?? 1);
   useEffect(() => { setOpenPhase(next?.phase ?? 1); }, [deal?.id, stage]);
@@ -330,15 +320,12 @@ export function FirstDealRoadmap() {
         </p>
       )}
       {!deal && planNow().source === 'roadmap' && next ? (
-        // Beside the next step, one labeled Mentor Connect ad (nextAdCats). Automatic: whoever the step says to call,
-        // buying through an agent only, never on auction or lien-certificate steps (contextAds.ts).
-        <div className={nextAdShows ? 'next-with-ad' : undefined}>
+        <div>
           <div className="roadmap-next" id="roadmap-next">
             <p className="roadmap-next-label">Next roadmap task · {ROADMAP_PHASES[next.phase]}{scoped(next) ? ` · ${deal!.name}` : ''}</p>
             <h3>{next.title}</h3>
             <StepBody s={next} status={stateOf(next)} setStatus={(v) => setStatus(next, v)} deal={deal} />
           </div>
-          {nextAdShows && <FixedAds spot="toolkit" key={next.id} pros={pros} categories={nextAdCats} placeholder />}
         </div>
       ) : (
         <p className="next-step" role="status">Use the task details below to record each milestone; contract tasks may run at the same time.</p>

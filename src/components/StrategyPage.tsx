@@ -134,7 +134,8 @@ export default function StrategyPage({ slug }: { slug?: string }) {
       <nav className="path-next" aria-label="Next">
         {next ? <><span className="muted">Next strategy</span><a className="btn" href={`#/learn/strategies/${next.slug}`}>{strategyOf(next).title}&nbsp;→</a></> : <a className="btn" href="#/decide">Choose yours in Decide&nbsp;→</a>}
       </nav>
-      <AdSpot spot="learn" />
+      {/* No ad on the auctions strategy: it is about forced sales (contextAds.ts). */}
+      <AdSpot spot="learn" allow={g.slug !== 'auctions'} />
     </main>
   );
 }

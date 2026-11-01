@@ -1,4 +1,4 @@
-import { calculatorInputError, parseCalcInput } from './CalcFields';
+import { calculatorInputError, midNumber, parseCalcInput } from './CalcFields';
 import { useEffect, useState } from 'react';
 import type { Deal } from '../lib/analyze';
 import { flipBudget, flipBudgetLine, savedNumbers } from '../lib/dealPacket';
@@ -90,7 +90,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>
         <button type="button" className="btn" disabled={rent === '' || costs === '' || negative || unreadable} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
       </div>
-      {unreadable && <p className="caution small" role="alert">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
+      {unreadable && ![rent, costs].some(midNumber) && <p className="caution small" role="status">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
       {negative && <p className="caution small" role="alert">Enter rent and costs as $0 or more. Record a refund to a tenant as a cost.</p>}
       <p className="small muted">Count everything you paid that month: the loan, taxes, insurance, HOA, repairs, management and utilities, and any money you moved into your repair savings.</p>
       {s.months > 0 ? (
