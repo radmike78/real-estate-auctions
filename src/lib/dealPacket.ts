@@ -9,7 +9,7 @@ import { kindLabel, SALE_KINDS, type Deal } from './analyze';
 import { costsAtBid, maxSafeBid, offerInputs, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, unenteredCosts, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
 import { cleanBuyBox, EMPTY_BUY_BOX, type BuyBox } from './toolkit';
 import { areasFor, GATES, loadLog } from './evidence';
-import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, LIEN_DEFAULTS, lienYield, sanitizeNumbers, withoutOldValueExample, type CommercialInputs, type LienInputs, type RentInputs } from './holdCalc';
+import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, LIEN_DEFAULTS, lienYield, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, type CommercialInputs, type LienInputs, type RentInputs } from './holdCalc';
 import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
@@ -261,7 +261,7 @@ export function savedNumbers(d: Deal) {
   const offer = isOffer(d);
   // Example numbers aren't the property's numbers: nothing is reported until its own are typed.
   const own = ownNumbers(d);
-  let rent: { price: number; monthly: number; cashIn: number; allIn: number; repairs: number; possession: number; retained: number; refi: boolean; noLoan: boolean; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
+  let rent: { price: number; monthly: number; cashIn: number; allIn: number; repairs: number; possession: number; retained: number; refi: boolean; noLoan: boolean; exampleValue: boolean; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
   let bid: {
     maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number; none: boolean; target: number;
     /** A loan pays part of the price or repairs (repair draws aren't modeled, so the cash figures assume the loan pays as costs come due). */
@@ -290,7 +290,7 @@ export function savedNumbers(d: Deal) {
       const v = withoutOldValueExample(sanitizeNumbers(rentRaw, RENT_DEFAULTS) as RentInputs, offer, readConfirmed(key));
       if (v.atPrice > 0) {
         const a = rentAtPrice(v, v.atPrice, offer);
-        rent = { price: v.atPrice, monthly: a.cashFlow / 12, cashIn: a.cashIn, allIn: a.allIn, repairs: v.repairs * (1 + v.contingencyPct / 100), possession: v.possession, retained: v.reserveCash, refi: !offer && a.loan > 0, noLoan: !(a.loan > 0), cashOnCash: a.cashOnCash, target: v.targetCocPct, stress: rentStress(v, v.atPrice, offer).map((s) => ({ label: s.label, monthly: s.monthly })) };
+        rent = { price: v.atPrice, monthly: a.cashFlow / 12, cashIn: a.cashIn, allIn: a.allIn, repairs: v.repairs * (1 + v.contingencyPct / 100), possession: v.possession, retained: v.reserveCash, refi: !offer && a.loan > 0, noLoan: !(a.loan > 0), exampleValue: refiOnExampleValue(v, offer, readConfirmed(key)), cashOnCash: a.cashOnCash, target: v.targetCocPct, stress: rentStress(v, v.atPrice, offer).map((s) => ({ label: s.label, monthly: s.monthly })) };
       }
     }
   } else if (d.plan === 'flip' && own) {
@@ -329,15 +329,17 @@ export function savedNumbers(d: Deal) {
     }
   }
   // A lien certificate: its yield at the wait you entered, then paid later, from the Lien certificate calculator.
-  let lien: { price: number; fees: number; months: number; yearly: number | null; profit: number; later: { months: number; yearly: number | null; profit: number } } | null = null;
+  let lien: { price: number; fees: number; months: number; yearly: number | null; profit: number; later: { months: number; yearly: number | null; profit: number } | null } | null = null;
   if (d.plan === 'lien' && own) {
     const raw = read(lienKey(d)) as Partial<LienInputs> | null;
     if (raw && typeof raw === 'object' && typeof raw.price === 'number' && raw.price > 0) {
       const v = sanitizeNumbers(raw, LIEN_DEFAULTS) as LienInputs;
       const y = lienYield(v);
-      const laterMonths = Math.max(24, v.monthsToRedeem * 2);
-      const l = lienYield({ ...v, monthsToRedeem: laterMonths });
-      lien = { price: v.price, fees: v.fees, months: v.monthsToRedeem, yearly: y.yearlyYield, profit: y.profit, later: { months: laterMonths, yearly: l.yearlyYield, profit: l.profit } };
+      // The longest wait worth showing: the end of the owner's time to pay off (Nevada SID: up to 2 years with a
+      // building), or Arizona's 3 years before a holder can go to court. Past that you're enforcing, not waiting.
+      const laterMonths = d.state === 'NV' ? 24 : 36;
+      const l = laterMonths > v.monthsToRedeem ? lienYield({ ...v, monthsToRedeem: laterMonths }) : null;
+      lien = { price: v.price, fees: v.fees, months: v.monthsToRedeem, yearly: y.yearlyYield, profit: y.profit, later: l ? { months: laterMonths, yearly: l.yearlyYield, profit: l.profit } : null };
     }
   }
   return { rent, bid, commercial, lien };
@@ -485,7 +487,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       need = rent.allIn;
       needAt = `At a ${money(rent.price)} price`;
       cash.push(`From sale day until the refinance closes, all in: ${money(rent.allIn)} at a ${money(rent.price)} price (from ${strategy}: bid, buying costs and repairs you entered)`);
-      cash.push(`After a refinance, if approved: ${rent.cashIn > 0 ? `${money(rent.cashIn)} of your cash left in` : 'the loan returns all your cash'}`);
+      cash.push(rent.exampleValue ? 'After a refinance: figured on our example value after repairs, not this property’s. Enter the value after repairs in Keep and rent to see what a refinance would return.' : `After a refinance, if approved: ${rent.cashIn > 0 ? `${money(rent.cashIn)} of your cash left in` : 'the loan returns all your cash'}`);
     } else {
       need = rent.cashIn;
       needAt = `At a ${money(rent.price)} price`;
@@ -560,7 +562,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   // 5. Numbers: base and downside, for the deal's strategy only
   const nums: string[] = ['Returns, profit and cash flow are before income tax; personal taxes and depreciation are not included.', `Strategy: ${strategy}. These are the numbers you saved in its calculator; other strategies’ calculators aren’t counted.`];
   if (rent) {
-    nums.push(`${offer ? 'Your offer' : 'Your bid'} (your actual price): ${money(rent.price)} → monthly cash flow ${money(rent.monthly)}; ${rent.cashOnCash === null ? 'all your cash back' : `${(rent.cashOnCash * 100).toFixed(1)}% a year on your cash`} (target ${rent.target}%)`);
+    nums.push(`${offer ? 'Your offer' : 'Your bid'} (your actual price): ${money(rent.price)} → monthly cash flow ${money(rent.monthly)}; ${rent.exampleValue ? 'return not shown: the refinance is still figured on our example value after repairs' : rent.cashOnCash === null ? 'all your cash back' : `${(rent.cashOnCash * 100).toFixed(1)}% a year on your cash`} (target ${rent.target}%)`);
     for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase()}: ${money(s.monthly)} a month`);
   }
   if (bid) {
@@ -590,8 +592,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   if (lien) {
     const yr = (y: number | null) => (y === null ? 'no yield' : `${(y * 100).toFixed(1)}% a year`);
     nums.push(`Certificate ${money(lien.price)}: if paid off in ${lien.months} months, ${yr(lien.yearly)} on your cash (profit after fees ${money(lien.profit)})`);
-    nums.push(`  If paid off in ${lien.later.months} months instead: ${yr(lien.later.yearly)} (profit after fees ${money(lien.later.profit)})`);
-    nums.push('  If it’s never paid off: no payoff comes; your cash stays in until you enforce the lien, which usually takes an attorney and more cost.*');
+    nums.push('  Downside, if it’s never paid off: no payoff comes; your cash stays in until you enforce the lien, which usually takes an attorney and more cost.*');
+    if (lien.later) nums.push(`  If it takes longer, to ${lien.later.months} months: your ${money(lien.price)} is tied up ${lien.later.months - lien.months} months more, earning ${yr(lien.later.yearly)} (profit after fees ${money(lien.later.profit)}); add any later taxes or assessments you pay to protect the lien.`);
   }
   if (!hasNums && flipNeedsRepairs(d)) nums.push(REPAIRS_NEEDED(strategy));
   else if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');

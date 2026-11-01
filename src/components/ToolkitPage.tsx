@@ -24,7 +24,7 @@ import { cleanStatus, creditStep, dealScoped, focusDealId, NO_DEAL, pathForDeal,
 import { stageLabel, stageOf, stageOfStep, STAGE_STEPS, DEAL_STAGES } from '../lib/dealStage';
 import PlanNext from './PlanNext';
 import { planNow } from '../lib/planNext';
-import { cashForPrice, cleanGoal, cleanTeamList, GOAL_KEY, PLAN_EVENT, PRICE_DEFAULTS, priceForCash, TEAM_LIST_KEY, TEAM_ROLES, type PriceAssumptions, type TeamList, type TeamMember } from '../lib/myPlan';
+import { cashForPrice, cleanGoal, investorProfile, cleanTeamList, GOAL_KEY, PLAN_EVENT, PRICE_DEFAULTS, priceForCash, TEAM_LIST_KEY, TEAM_ROLES, type PriceAssumptions, type TeamList, type TeamMember } from '../lib/myPlan';
 import { currentProgress } from '../lib/journey';
 import { DECIDE_KEY, QUESTIONS, rank, type Answers } from '../lib/decide';
 import { loadCase } from '../practice/caseProgress';
@@ -108,14 +108,28 @@ function GoalField() {
   };
   // A written goal ticks "Write your goal" (a full sentence, so a stray letter doesn't).
   const settle = (v: string) => { if (v.trim().length >= 12) { creditStep('goal'); progressChanged(); } };
+  // Leaving the box by pressing a button (the step's own "Done"): tick it after that click, not before it. Ticking on
+  // the press would move the card on, and the click would land on the next step's "Done".
+  const settleAfterPress = (v: string) => {
+    if (Date.now() - lastPointerDown > 100) { settle(v); return; }
+    let done = false;
+    const run = () => { if (done) return; done = true; window.removeEventListener('click', after); setTimeout(() => settle(v), 0); };
+    const after = () => run();
+    window.addEventListener('click', after, { once: true });
+    setTimeout(run, 1500); // the press didn't end in a click (dragged away)
+  };
   return (
     <label className="field roadmap-goal">
       <span>Your goal, in one sentence</span>
-      <textarea rows={2} maxLength={400} value={g} onChange={(e) => change(e.target.value)} onBlur={(e) => settle(e.target.value)} placeholder="e.g. A rental I’ll hold 10 years, where the rent covers the costs. About 6 hours a week." />
+      <textarea rows={2} maxLength={400} value={g} onChange={(e) => change(e.target.value)} onBlur={(e) => settleAfterPress(e.target.value)} placeholder="e.g. A rental I’ll hold 10 years, where the rent covers the costs. About 6 hours a week." />
       {!g.trim() && fromDecide && <button type="button" className="linkish" onClick={() => { change(fromDecide); settle(fromDecide); }}>Start from my Decide answers: “{fromDecide}”</button>}
     </label>
   );
 }
+
+// When the last press began: a box that loses focus right after one was left by pressing something.
+let lastPointerDown = 0;
+if (typeof window !== 'undefined') window.addEventListener('pointerdown', () => { lastPointerDown = Date.now(); }, true);
 
 /** One roadmap step, opened: what you'll have, what to do, what to say, the documents, when to stop, and when it's done. */
 function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: StepStatus | 'done' | 'todo'; setStatus: (v: StepStatus | 'done' | 'todo') => void; deal?: { id: string; name: string; kind?: string } }) {
@@ -442,6 +456,29 @@ function PriceFromCash({ cash }: { cash: number }) {
     window.dispatchEvent(new CustomEvent(PLAN_EVENT));
     document.getElementById('buy-box')?.scrollIntoView();
   };
+  // Paying cash (Decide: cash only), or buying at an auction or a lien sale (no loan at the sale): the cash is the limit
+  // for the price and everything else, so no loan-sized price.
+  const route = roadmapPath();
+  const atSale = route === 'auction' || route === 'certificate';
+  const payingCash = atSale || investorProfile().loan === 'cash';
+  const useCash = () => {
+    const b = read(BUYBOX_KEY, { ...EMPTY_BUY_BOX, state: getMyState() ?? '' }, cleanBuyBox);
+    write(BUYBOX_KEY, { ...b, cashMax: Math.round(cash) });
+    window.dispatchEvent(new CustomEvent(PLAN_EVENT));
+    document.getElementById('buy-box')?.scrollIntoView();
+  };
+  if (payingCash) return (
+    <div className="price-from-cash">
+      <h3>What your investable cash covers</h3>
+      <p>
+        {route === 'certificate'
+          ? <>Buying lien certificates, your {fmtMoney(cash)} is the most you’d tie up: the certificate prices and fees, paid by the county’s deadline, plus any later taxes you pay to protect them. A certificate can take years to pay off, or not pay at all.</>
+          : <>Paying cash, your {fmtMoney(cash)} is your limit for the price plus closing costs, repairs and reserves{atSale ? '. An auction wants the full amount by its payment deadline, with no loan at the sale' : ''}. Leave room for repairs and holding costs, so the price itself is less than {fmtMoney(cash)}.</>}
+      </p>
+      <p className="muted" role="note">A planning limit, not advice. What you tie up in one deal depends on your situation, finances and risk tolerance.</p>
+      <button type="button" className="btn btn-secondary" onClick={useCash}>Use {fmtMoney(Math.round(cash))} as the cash limit in my buy box</button>
+    </div>
+  );
   return (
     <div className="price-from-cash">
       <h3>What price your investable cash supports</h3>

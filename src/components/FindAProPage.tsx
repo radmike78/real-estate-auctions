@@ -364,8 +364,8 @@ export default function FindAProPage({ section }: { section?: string }) {
           {team && (
             <>
               <p className="muted">
-                {book ? <>For {book.short.toLowerCase()}, in the order you’ll usually need them.</> : <>For a home listed for sale, the way most first rentals are bought, in the order you’ll usually need them.</>}{' '}
-                {book ? <a href={`#/playbooks/${book.key}`}>How {book.short.toLowerCase()} work{NBSP}→</a> : <a href="#/practice/case">Practice a listed purchase, start to finish{NBSP}→</a>}
+                {book ? <>{book.short}: the team, in the order you’ll usually need them.</> : <>For a home listed for sale, the way most first rentals are bought, in the order you’ll usually need them.</>}{' '}
+                {book ? <a href={`#/playbooks/${book.key}`}>Read the guide: {book.short}{NBSP}→</a> : <a href="#/practice/case">Practice a listed purchase, start to finish{NBSP}→</a>}
               </p>
               <TeamList team={team} />
             </>

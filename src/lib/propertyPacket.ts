@@ -5,7 +5,7 @@ import { workStorage as localStorage } from './workStorage';
 import { kindLabel, SALE_KINDS, type Deal } from './analyze';
 import { ownNumbers } from './dealPacket';
 import { EVIDENCE_AREAS, GATES, loadLog } from './evidence';
-import { rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, withoutOldValueExample, type RentInputs } from './holdCalc';
+import { rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, type RentInputs } from './holdCalc';
 import { readConfirmed } from './calcConfirmation';
 import { cleanGoal, cleanTeamList, GOAL_KEY, investorProfile, TEAM_LIST_KEY, TEAM_ROLES } from './myPlan';
 import { proGuideByKey } from './proGuide';
@@ -28,16 +28,17 @@ function read(key: string): unknown {
  * The rental numbers saved for a deal at the price you'd pay, or null until a price is entered in Keep and rent. Only
  * for a deal saved with the Keep and rent strategy: another strategy's deal never shows leftover rental numbers.
  */
-export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCash: number | null; target: number; cashIn: number } | null {
+export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCash: number | null; target: number; cashIn: number; exampleValue: boolean } | null {
   // Only the property's own numbers (the rent typed), never the calculator's examples.
   if (d.plan !== 'rent' || !ownNumbers(d)) return null;
   const offer = d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short';
   const raw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
   if (!raw) return null;
-  const v = withoutOldValueExample(sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs, offer, readConfirmed(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`));
+  const typed = readConfirmed(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
+  const v = withoutOldValueExample(sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs, offer, typed);
   if (!(v.atPrice > 0)) return null;
   const a = rentAtPrice(v, v.atPrice, offer);
-  return { price: v.atPrice, monthly: a.cashFlow / 12, cashOnCash: a.cashOnCash, target: v.targetCocPct, cashIn: a.cashIn };
+  return { price: v.atPrice, monthly: a.cashFlow / 12, cashOnCash: a.cashOnCash, target: v.targetCocPct, cashIn: a.cashIn, exampleValue: refiOnExampleValue(v, offer, typed) };
 }
 
 export function propertyPacketText(d: Deal): string {

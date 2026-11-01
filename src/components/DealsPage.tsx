@@ -13,13 +13,14 @@ import { daysUntil, whenLabel } from './ResultsList';
 import PageHero from './PageHero';
 import EvidenceLog from './EvidenceLog';
 import { removeLog } from '../lib/evidence';
-import { kindLabel, loadDeals as loadAnalyzed, openDeal, SALE_KINDS, checklistFor } from '../lib/analyze';
+import { kindLabel, loadDeals as loadAnalyzed, openDeal, SALE_KINDS, checklistFor, type Deal } from '../lib/analyze';
 import { ownedSummary } from '../lib/owned';
 import { projectedMonthly, useOwned } from './OwnedTracker';
 import { countyName } from '../lib/regions';
 import StatusBadge from './StatusBadge';
 import { dealNumbers } from '../lib/propertyPacket';
-import { nextAction } from '../lib/dealPacket';
+import { nextAction, savedNumbers } from '../lib/dealPacket';
+import { investorProfile } from '../lib/myPlan';
 import { stageLabel, stageOf, setDealStage } from '../lib/dealStage';
 import AdSpot from './AdSpot';
 
@@ -151,6 +152,24 @@ function OwnedPortfolio({ deals }: { deals: ReturnType<typeof loadAnalyzed> }) {
   );
 }
 
+/** A fix-and-sell or lien deal's numbers in one line, from the same figures as its deal packet. */
+function OtherNumbers({ d }: { d: Deal }) {
+  if (d.plan !== 'flip' && d.plan !== 'lien') return null;
+  const { bid, lien } = savedNumbers(d);
+  if (bid) {
+    if (bid.none) return <p className="deal-urgent">No price works at a {fmtMoney(bid.exitValue)} resale value with these costs and your profit target.</p>;
+    const planCash = investorProfile().investable;
+    const short = planCash > 0 && bid.cashPeak > planCash;
+    return (
+      <p className={short ? 'deal-urgent' : undefined}>
+        Walk-away price {fmtMoney(bid.maxBid)} · needs about {fmtMoney(Math.round(bid.cashPeak))} of your cash at that price{short ? ` (My plan: ${fmtMoney(Math.round(planCash))})` : ''}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}
+      </p>
+    );
+  }
+  if (lien) return <p>{fmtMoney(lien.price)} certificate · {lien.yearly === null ? 'no yield' : `${(lien.yearly * 100).toFixed(1)}% a year`} if paid off in {lien.months} months</p>;
+  return <p className="muted">No numbers yet: open it and enter {d.plan === 'flip' ? 'the resale value and repairs under Fix and sell' : 'the certificate price under Lien certificate'}.</p>;
+}
+
 export default function DealsPage() {
   const account=useAccount();
   const [deals, setDeals] = useState(loadDeals);
@@ -194,9 +213,9 @@ export default function DealsPage() {
                         const n = dealNumbers(d);
                         return n ? (
                           <p className={n.monthly <= 0 || (n.cashOnCash !== null && n.cashOnCash < n.target / 100) ? 'deal-urgent' : undefined}>
-                            At your price, {fmtMoney(n.price)}: {n.monthly < 0 ? `loses ${fmtMoney(Math.round(-n.monthly))}` : `${fmtMoney(Math.round(n.monthly))} cash flow`} a month · {n.cashOnCash === null ? 'all your cash back' : `${(n.cashOnCash * 100).toFixed(1)}% a year on ${fmtMoney(Math.round(n.cashIn))} of your cash`} (target {n.target}%)
+                            At your price, {fmtMoney(n.price)}: {n.monthly < 0 ? `loses ${fmtMoney(Math.round(-n.monthly))}` : `${fmtMoney(Math.round(n.monthly))} cash flow`} a month · {n.exampleValue ? 'refinance figured on an example value: enter the value after repairs' : n.cashOnCash === null ? 'all your cash back' : `${(n.cashOnCash * 100).toFixed(1)}% a year on ${fmtMoney(Math.round(n.cashIn))} of your cash`} (target {n.target}%)
                           </p>
-                        ) : d.plan === 'rent' ? <p className="muted">No numbers yet: open it and enter the price you’d pay under Keep and rent.</p> : null;
+                        ) : d.plan === 'rent' ? <p className="muted">No numbers yet: open it and enter the price you’d pay under Keep and rent.</p> : <OtherNumbers d={d} />;
                       })()}
                       <p><strong>Next action.</strong> {nextAction(d).text}</p>
                     </div>

@@ -469,7 +469,10 @@ it('reads a lien certificate’s numbers from the lien calculator once the price
   localStorage.setItem('fsf.calc.lien.l1.v1.typed.v1', JSON.stringify(['price']));
   const text = dealPacketText(lien, EMPTY_PACKET, new Date('2026-10-06T00:00:00Z'));
   expect(text).toContain('Certificate price $1,500');
-  expect(text).toContain('If it’s never paid off');
+  expect(text).toContain('Downside, if it’s never paid off');
+  // The longer wait stops at Nevada's 2-year redemption period, and comes after the downside.
+  expect(text).toContain('If it takes longer, to 24 months: your $1,500 is tied up 16 months more');
+  expect(text.indexOf('Downside')).toBeLessThan(text.indexOf('If it takes longer'));
   expect(text).not.toContain('No numbers yet');
 });
 

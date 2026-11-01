@@ -160,7 +160,11 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
   const out: PlanTask[] = [];
 
   const numbers = () => {
-    if (d.plan === 'lien') return;
+    // A lien certificate: the price and the wait, from the Lien certificate calculator (done once the price is typed).
+    if (d.plan === 'lien') {
+      out.push(task({ key: 'numbers', label: `Run the lien numbers for ${n}: the price, the rate and the wait`, produces: 'its yearly yield if it’s paid on time and if it takes longer, saved with the deal', href: '#/analyze', openDeal: true, support: [L.analyze], done: !!nums.lien, doneLabel: 'Calculated: verify the inputs' }));
+      return;
+    }
     const verb = w === 'offer' ? 'pay' : 'bid';
     out.push(task({
       key: 'numbers',

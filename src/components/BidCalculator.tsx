@@ -6,6 +6,7 @@ import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_R
 import { offeredRedemptionRules, redemptionChoicesFor, redemptionPresetsFor, taxSaleWait, transferTaxFor } from '../lib/stateCosts';
 import { useCalcRegion } from './calcRegion';
 import { fmtMoney } from '../lib/status';
+import { investorProfile } from '../lib/myPlan';
 import { trackAction } from '../lib/track';
 import { ExampleInputs, ExampleResults, PriceHead, exampleLabels } from './CalcLabels';
 
@@ -350,6 +351,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const stickyBad = Object.entries(draft).some(([k, t]) => t !== undefined && visibleKeys.has(k) && !!shownInputError(t, (fieldUnit(k) ?? '$') as never, `${uid}-${k}`));
   const still = exampleLabels(GROUPS.flatMap((g) => g.fields.filter(shown).map((f) => (offer && OFFER_FIELDS[f.k] ? { ...f, ...OFFER_FIELDS[f.k] } : f))), i, offer ? offerInputs(defaults) : defaults, typedKeys, NOT_EXAMPLES);
   const yours = offer ? 'Your offer' : 'Your bid';
+  const planCash = investorProfile().investable;
   // Costs still at $0 that nobody entered: unknown, not confirmed zero. Typing 0 confirms there's none.
   const unentered = unenteredCosts(i, typedKeys, offer);
   const unenteredNote = unentered.length > 0 && (
@@ -487,6 +489,10 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
             </small>
           </div>
           )
+        )}
+        {/* No cash limit entered here, but My plan has your investable cash and this needs more: say so by the price. */}
+        {!needsValue && !r.noBidWorks && !(i.cashAvailable > 0) && planCash > 0 && r.cashPeak > planCash && (
+          <p className="calc-note small" role="note"><strong>This needs about {fmtMoney(Math.round(r.cashPeak))} of your cash at the walk-away price; My plan shows {fmtMoney(Math.round(planCash))} of investable cash.</strong> {offer ? 'Offer only what fits your cash (with any loan your lender approves), or compare a loan with a lender.' : <>Enter the cash you can bring (an auction wants the full amount by its payment deadline) to cap the {w.bid} at what you have, or compare a loan with a lender.</>}</p>
         )}
         {!needsValue && i.minimumBid > 0 && <PriceHead kind="listed" tag={offer ? 'From the listing' : 'From the sale notice'} label={w.Opening} price={i.minimumBid} result={atOpening} unit="profit" note={`Estimated cash you’d put in at this price, under these assumptions (through repairs and holding until it sells): ${fmtMoney(Math.round(openingCash))}.`} />}
         {!needsValue && i.minimumBid > 0 && (

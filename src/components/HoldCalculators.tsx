@@ -4,7 +4,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState } from 'react';
 import { readConfirmed, saveConfirmed } from '../lib/calcConfirmation';
 import type { BidInputs } from '../lib/bidCalc';
-import { COMMERCIAL_DEFAULTS, commercialAtPrice, commercialLines, lenderView, STR_DEFAULTS, strCompare, type StrInputs, HOLD_SELL_DEFAULTS, SELLER_FINANCE_DEFAULTS, sellerFinance, type SellerFinanceInputs, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs, withoutOldValueExample } from '../lib/holdCalc';
+import { COMMERCIAL_DEFAULTS, commercialAtPrice, commercialLines, lenderView, STR_DEFAULTS, strCompare, type StrInputs, HOLD_SELL_DEFAULTS, SELLER_FINANCE_DEFAULTS, sellerFinance, type SellerFinanceInputs, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs, withoutOldValueExample, refiOnExampleValue } from '../lib/holdCalc';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 import CalcFields, { type CalcGroup } from './CalcFields';
@@ -278,7 +278,7 @@ const OFTEN_FORGOTTEN = [
 
 /** Stress tests, the deal in plain words, and a checklist of easy-to-forget costs. */
 /** The rental at a price you type: every step from rent to cash flow, with its assumptions. */
-function AtThisPrice({ v, start, onPrice, setPrice, word }: { v: RentInputs; start: number; onPrice: boolean; setPrice: (n: number) => void; /** "Your offer" or "Your bid". */ word: string }) {
+function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false }: { v: RentInputs; start: number; onPrice: boolean; setPrice: (n: number) => void; /** "Your offer" or "Your bid". */ word: string; /** The refinance is still on our example value. */ exampleValue?: boolean }) {
   const walkAway = Number.isFinite(start) && start > 0 ? Math.round(start) : 0;
   // The price you'd actually pay is saved with the deal; the walk-away price is only used when you choose it.
   const price = v.atPrice;
@@ -296,7 +296,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word }: { v: RentInputs; sta
       </label>
       {price > 0 && (
         <p className={`calc-verdict ${a.cashFlow > 0 && (coc === null || coc >= target) ? 'good' : 'bad'}`} role="status">
-          <strong>{coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; your target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; your target: ${v.targetCocPct}%.`}</strong>{' '}
+          <strong>{coc === null && exampleValue ? `Refinance figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value: enter the value after repairs to see what the loan returns; your target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; your target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; your target: ${v.targetCocPct}%.`}</strong>{' '}
           {a.cashFlow <= 0
             ? `It loses about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month after every cost. Investigate whether the price, the costs or your plan should change, or walk away.`
             : coc !== null && coc < target
@@ -501,6 +501,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const [saved, set, typed, typedKeys] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...examples, ...start }, regional ? { transferTaxPer500: rt.per500, ...stateForce } : {}, regional ? `${rt.per500}|${region.state}` : '{}', regional ? region.county : '');
   const v = offer ? { ...withoutOldValueExample(saved, true, typedKeys), buyerPremiumPct: 0 } : saved;
   const r = rentMaxBid(v, offer);
+  const exampleValue = refiOnExampleValue(v, offer, typedKeys);
   const n = rentNoi(v);
   const groups = offer ? forOffer(rt.groups) : rt.groups;
   // Numbers from your plan or the property (`start`) aren't our examples.
@@ -522,10 +523,10 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
       <div className="calc-results">
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
         {/* Your actual deal first; the price that would meet your goal second, each with its own heading bar and colour. */}
-        <AtThisPrice v={v} start={r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} />
+        <AtThisPrice v={v} start={r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} />
         <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} />
         {/* An auction rental's later refinance is sized on the value after repairs: say so while that's still our example. */}
-        {!offer && v.loanPct > 0 && !typedKeys.has('value') && v.value === RENT_DEFAULTS.value && (
+        {exampleValue && (
           <p className="calc-note small" role="note"><strong>The refinance is figured on our {fmtMoney(RENT_DEFAULTS.value)} example value.</strong> Enter the value an appraisal would support after repairs (under “Review all other costs, loan terms and targets”) before you rely on the loan, the cash left in or the walk-away price.</p>
         )}
         {/* No price to figure them at yet (no offer, no walk-away price, no value): ask for one instead of showing $0. */}

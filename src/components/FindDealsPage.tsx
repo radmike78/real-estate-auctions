@@ -1,4 +1,5 @@
 import { planPath } from '../lib/roadmapState';
+import { guideKeyFor } from '../lib/dealPacket';
 import { type ReactNode } from 'react';
 import NarrowDown from './NarrowDown';
 import { findDealsConfig } from '../lib/narrow';
@@ -113,6 +114,8 @@ export default function FindDealsPage() {
       </PageHero>
 
       <NarrowDown config={findDealsConfig()} intro="Answer two quick questions and we’ll point you to the best places to look first. Other sources stay available in the expandable groups below." />
+      {/* Trustee's (foreclosure) sales have no county list: say where their notices are, beside the county offices. */}
+      {planPath() === 'auction' && <p className="page-starter"><strong>A trustee’s (foreclosure) sale?</strong> There’s no county sale list for these. The notice of sale names the trustee, the date and the place, and is recorded, posted or published as {st.name} law requires: look for it at the county records office below or in a local newspaper’s legal notices, and confirm the date with the trustee named on it. <a href={`#/playbooks/${guideKeyFor({ kind: 'trustee', state: st.code })}`}>How trustee sales work in {st.name}&nbsp;→</a></p>}
       {countyRoute ? <p className="page-starter"><strong>Buying at a county sale?</strong> Start with the county auctions and sale calendars below: they come from the official seller. <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p> : <p className="page-starter"><strong>Buying a home listed for sale?</strong> Ask a licensed agent to set up a search of homes on the local listing service (MLS) that match your buy box (your written limits: area, property type, price and condition). <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p>}
       <section aria-labelledby="search-routine">
         <h2 id="search-routine">Turn a search into one property worth checking</h2>
