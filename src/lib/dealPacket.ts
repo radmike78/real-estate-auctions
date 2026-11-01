@@ -1,3 +1,4 @@
+import { readConfirmed } from './calcConfirmation';
 import { workStorage as localStorage } from './workStorage';
 // The deal packet: one page per property you're analyzing that pulls together everything a decision needs and says
 // what's still missing. Most of it comes from what's already saved (the deal, its calculators, its evidence log,
@@ -208,8 +209,20 @@ export const STRATEGY_LABEL: Record<Deal['plan'], string> = { rent: 'Keep and re
  * in another strategy's calculator (say, a Fix and sell walk-away price from before the deal switched to Keep and
  * rent) are never shown: they'd answer a different question.
  */
+/** Whether a deal's numbers are its own: the rent (or resale value) typed in, not the calculator's examples left in
+ *  place behind one click on "Use the walk-away price". Lien certificates have no such input. */
+export function ownNumbers(d: Deal): boolean {
+  const offerKey = isOffer(d) ? '-offer' : '';
+  if (d.plan === 'rent') return readConfirmed(`fsf.calc.rent.${d.id}${offerKey}.v1`).has('monthlyRent');
+  if (d.plan === 'flip') return readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('exitValue');
+  if (d.plan === 'commercial') return readConfirmed(`fsf.calc.commercial.${d.id}${offerKey}.v1`).has('monthlyRent');
+  return true;
+}
+
 export function savedNumbers(d: Deal) {
   const offer = isOffer(d);
+  // Example numbers aren't the property's numbers: nothing is reported until its own are typed.
+  const own = ownNumbers(d);
   let rent: { price: number; monthly: number; cashIn: number; allIn: number; repairs: number; possession: number; retained: number; refi: boolean; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
   let bid: {
     maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number; none: boolean; target: number;
@@ -231,7 +244,7 @@ export function savedNumbers(d: Deal) {
     at?: ReturnType<typeof commercialAtPrice> & { price: number };
     stress: { label: string; maxBid: number | null; limitedBy?: CommercialLimit; capOnCost?: number | null }[];
   } | null = null;
-  if (d.plan === 'rent') {
+  if (d.plan === 'rent' && own) {
     const rentRaw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
     if (rentRaw) {
       const v = sanitizeNumbers(rentRaw, RENT_DEFAULTS) as RentInputs;
@@ -240,7 +253,7 @@ export function savedNumbers(d: Deal) {
         rent = { price: v.atPrice, monthly: a.cashFlow / 12, cashIn: a.cashIn, allIn: a.allIn, repairs: v.repairs * (1 + v.contingencyPct / 100), possession: v.possession, retained: v.reserveCash, refi: !offer && a.loan > 0, cashOnCash: a.cashOnCash, target: v.targetCocPct, stress: rentStress(v, v.atPrice, offer).map((s) => ({ label: s.label, monthly: s.monthly })) };
       }
     }
-  } else if (d.plan === 'flip') {
+  } else if (d.plan === 'flip' && own) {
     const bidRaw = read(`fsf.bid.analyzed-${d.id}.v1`);
     if (bidRaw && typeof bidRaw === 'object') {
       const saved: BidInputs = sanitizeInputs(bidRaw, BLANK_INPUTS);
@@ -253,7 +266,7 @@ export function savedNumbers(d: Deal) {
         bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0 };
       }
     }
-  } else if (d.plan === 'commercial') {
+  } else if (d.plan === 'commercial' && own) {
     const raw = read(`fsf.calc.commercial.${d.id}${offer ? '-offer' : ''}.v1`);
     if (raw) {
       const v = sanitizeNumbers(raw, COMMERCIAL_DEFAULTS) as CommercialInputs;

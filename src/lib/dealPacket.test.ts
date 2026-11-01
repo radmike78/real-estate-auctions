@@ -1,15 +1,22 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { Deal } from './analyze';
-import { cleanPacket, dealPacketText, EMPTY_PACKET, flipBudget, flipBudgetLine, loadPacket, nextAction, nextDate, packetSections, savePacket, suggestedDates, dateGuide } from './dealPacket';
+import { cleanPacket, savedNumbers, dealPacketText, EMPTY_PACKET, flipBudget, flipBudgetLine, loadPacket, nextAction, nextDate, packetSections, savePacket, suggestedDates, dateGuide } from './dealPacket';
 import { saveLog, cleanLog } from './evidence';
 import { stageTasks } from './dealStage';
 import { dealNumbers } from './propertyPacket';
 import { cashNeededAtBid, offerInputs, profitAtBid, sanitizeInputs, BLANK_INPUTS } from './bidCalc';
 
+// Numbers a test stores for a deal's calculator count as typed by the reader (as they would be in the app), unless the
+// test stores its own typed list.
 class MemStorage {
   private m = new Map<string, string>();
   getItem(k: string) { return this.m.get(k) ?? null; }
-  setItem(k: string, v: string) { this.m.set(k, v); }
+  setItem(k: string, v: string) {
+    this.m.set(k, v);
+    if (/^fsf\.(calc\.(rent|commercial)\.|bid\.analyzed-)[A-Za-z0-9_-]+\.v1$/.test(k) && !this.m.has(`${k}.typed.v1`)) {
+      try { this.m.set(`${k}.typed.v1`, JSON.stringify(Object.keys(JSON.parse(v) as object))); } catch { /* not JSON */ }
+    }
+  }
   removeItem(k: string) { this.m.delete(k); }
 }
 
@@ -417,7 +424,7 @@ it('keeps unresolved overdue deadlines urgent until explicitly handled', () => {
 });
 
 it('separates rental acquisition, repair spending, reserves and confirmed deposit credits', () => {
-  localStorage.setItem('fsf.calc.rent.d1-offer.v1', JSON.stringify({ atPrice: 300000, value: 350000, loanPct: 75, loanCostPct: 2, transferTaxPer500: 2.55, titleLegal: 2500, repairs: 5000, contingencyPct: 15, possession: 0, reserveCash: 15000 }));
+  localStorage.setItem('fsf.calc.rent.d1-offer.v1', JSON.stringify({ atPrice: 300000, value: 350000, monthlyRent: 2400, loanPct: 75, loanCostPct: 2, transferTaxPer500: 2.55, titleLegal: 2500, repairs: 5000, contingencyPct: 15, possession: 0, reserveCash: 15000 }));
   const p = { ...EMPTY_PACKET, earnest: 5000, optionFee: 200, depositCredit: 5000 };
   const lines = packetSections(deal, p, now).find((x) => x.key === 'cash')!.lines.join('\n');
   expect(lines).toContain('before deposit credits: $83,530');
@@ -432,4 +439,12 @@ it('separates rental acquisition, repair spending, reserves and confirmed deposi
   expect(loadPacket('analyzed:d1').depositCredit).toBe(5000);
   expect(loadPacket('analyzed:d1').optionFee).toBe(200);
   expect(dealPacketText(deal, p, now)).toContain('$78,530 remaining acquisition cash');
+});
+
+it('reports no numbers while only the calculator’s examples are in place (the price clicked, the rent not typed)', () => {
+  localStorage.setItem('fsf.calc.rent.d1-offer.v1.typed.v1', JSON.stringify(['atPrice']));
+  localStorage.setItem('fsf.calc.rent.d1-offer.v1', JSON.stringify({ atPrice: 300000, value: 350000, monthlyRent: 2400 }));
+  expect(savedNumbers(deal).rent).toBeNull();
+  localStorage.setItem('fsf.calc.rent.d1-offer.v1.typed.v1', JSON.stringify(['atPrice', 'monthlyRent']));
+  expect(savedNumbers(deal).rent).not.toBeNull();
 });

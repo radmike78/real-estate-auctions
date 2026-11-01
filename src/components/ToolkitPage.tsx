@@ -164,6 +164,7 @@ function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: Step
           <button key={k} type="button" aria-pressed={status === k} onClick={() => setStatus(k)}>{STEP_STATUS_LABEL[k]}</button>
         ))}
         {s.href && <a className="btn" href={s.href}>{s.id === 'goal' && currentProgress().decided ? 'Review your Decide results' : s.action ?? 'Open'}&nbsp;→</a>}
+        {s.also && <a className="btn btn-secondary" href={s.also.href}>{s.also.label}&nbsp;→</a>}
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { workStorage as localStorage } from './workStorage';
 // downside case, what you've verified and what's still open, who's doing what, where you are in the steps, and your
 // decision. Built from what's already saved in this browser; nothing new is stored.
 import { kindLabel, SALE_KINDS, type Deal } from './analyze';
+import { ownNumbers } from './dealPacket';
 import { EVIDENCE_AREAS, GATES, loadLog } from './evidence';
 import { rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, type RentInputs } from './holdCalc';
 import { cleanGoal, cleanTeamList, GOAL_KEY, investorProfile, TEAM_LIST_KEY, TEAM_ROLES } from './myPlan';
@@ -27,7 +28,8 @@ function read(key: string): unknown {
  * for a deal saved with the Keep and rent strategy: another strategy's deal never shows leftover rental numbers.
  */
 export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCash: number | null; target: number; cashIn: number } | null {
-  if (d.plan !== 'rent') return null;
+  // Only the property's own numbers (the rent typed), never the calculator's examples.
+  if (d.plan !== 'rent' || !ownNumbers(d)) return null;
   const offer = d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short';
   const raw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
   if (!raw) return null;
