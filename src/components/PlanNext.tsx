@@ -198,7 +198,9 @@ function PlanStepAd({ deal, stage, inline = false }: { deal?: Deal; stage?: Deal
   // With a property in focus, the roadmap step for its stage (make an offer, inspect, title, insurance, close).
   const path = deal ? pathForDeal(deal) : planPath();
   const settled = settledFor(deal ? `analyzed:${deal.id}` : '');
-  const step = deal && stage ? roadmapFor(path).find((s) => STAGE_STEPS[stage].includes(s.id) && !settled(s)) ?? null : roadmapNextStep();
+  // The stage's first open step that names someone to call ("Find a property" names no one).
+  const open = deal && stage ? roadmapFor(path).filter((s) => STAGE_STEPS[stage].includes(s.id) && !settled(s)) : [];
+  const step = deal && stage ? open.find((s) => stepAllowsAds(s, path) && stepAdCategories(s, path).length > 0) ?? open[0] ?? null : roadmapNextStep();
   const cats = useSpotCategories('toolkit', step ? stepAdCategories(step, path) : []);
   const allowed = step && stepAllowsAds(step, path) ? cats : [];
   const { pros } = useDirectory();

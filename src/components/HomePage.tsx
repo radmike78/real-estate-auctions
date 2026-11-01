@@ -130,7 +130,7 @@ export default function HomePage() {
         {(mode !== 'explore' || roadmapDone().length > 0 || loadDeals().length > 0) && <PlanNext variant="home" />}
         <details>
         <summary>How DeedOwl counts your progress</summary>
-        <p>My plan ({total} roadmap tasks) counts your real progress, and your next step comes from it. Practice and lessons build skill; only the scam-warning lesson and finishing practice part 2 tick roadmap tasks for you. Practice missions are rehearsal on made-up deals, so finishing them doesn’t mean you’re ready to buy.</p>
+        <p>My plan ({total} roadmap tasks) counts your real progress, and your next step comes from it. Practice and lessons build skill. A few things tick roadmap tasks for you: finishing Decide, writing your goal, the scam-warning lesson and, through an agent, finishing practice part 2. Practice missions are rehearsal on made-up deals, so finishing them doesn’t mean you’re ready to buy.</p>
         </details>
       </section>
     </main>

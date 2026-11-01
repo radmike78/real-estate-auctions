@@ -92,6 +92,11 @@ const dealChosen = () => rawDealChoice() !== '';
 export function planPath(deals: Deal[] = loadDeals()): RoadmapPath {
   if (dealChosen()) return roadmapPath();
   const d = deals.find((x) => `analyzed:${x.id}` === focusDealId(deals));
+  // A route you picked holds while the property in focus is still being researched (a practice analysis, a listing
+  // your agent sent): only a deal you've moved on with (an offer, a bid, a contract) changes the route.
+  let picked = false;
+  try { picked = localStorage.getItem(ROADMAP_PATH_KEY) !== null; } catch { /* storage unavailable */ }
+  if (d && picked && (!d.stage || d.stage === 'researching')) return roadmapPath();
   return d ? pathForDeal(d) : roadmapPath();
 }
 
