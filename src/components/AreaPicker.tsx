@@ -13,7 +13,9 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
   const [typed, setTyped] = useState(area?.city ?? '');
   const [places, setPlaces] = useState<Place[] | null>(null);
   const [picked, setPicked] = useState<Place | null>(null);
-  const [county, setCounty] = useState<string | null>(area?.county ?? null);
+  // The county of a city picked from the list, and, apart from it, a county chosen on its own (no city).
+  const [county, setCounty] = useState<string | null>(area?.city ? area.county : null);
+  const [countyOnly, setCountyOnly] = useState<string | null>(area && !area.city ? area.county : null);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
   const listId = useId();
@@ -45,7 +47,7 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
   };
   const st = STATES.find((x) => x.code === state);
   // A city typed but not picked from the list is unfinished: pick it, or clear the box (never save an older county).
-  const unfinished = !picked && typed.trim().length > 0;
+  const unfinished = !!places && !picked && typed.trim().length > 0;
   const needsCounty = !!picked && picked.counties.length > 1 && !(county && picked.counties.includes(county));
   const save = () => {
     if (!state) {
@@ -54,7 +56,7 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
     }
     if (needsCounty || unfinished) return;
     // A city (and its county), or just a county, or just the state.
-    const a: Area = picked && county ? { state, city: picked.name, county } : !picked && county && st?.counties.includes(county) ? { state, city: null, county } : { state, city: null, county: null };
+    const a: Area = picked && county ? { state, city: picked.name, county } : !picked && countyOnly && st?.counties.includes(countyOnly) ? { state, city: null, county: countyOnly } : { state, city: null, county: null };
     setArea(a);
     onDone?.();
   };
@@ -65,7 +67,7 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
         <legend>Your state</legend>
         {STATES.map((s) => (
           <button key={s.code} type="button" aria-pressed={state === s.code} className={state === s.code ? 'on' : ''}
-            onClick={() => { if (state !== s.code) { setState(s.code as StateCode); setPicked(null); setTyped(''); setCounty(null); } }}>
+            onClick={() => { if (state !== s.code) { setState(s.code as StateCode); setPicked(null); setTyped(''); setCounty(null); setCountyOnly(null); } }}>
             {s.name}
           </button>
         ))}
@@ -85,7 +87,7 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
               placeholder={places ? 'Start typing, e.g. Henderson' : 'Loading cities…'}
               disabled={!places}
               value={typed}
-              onChange={(e) => { setTyped(e.target.value); if (picked || e.target.value.trim()) setCounty(null); /* a city's county goes with it */ setPicked(null); setOpen(true); setActive(0); }}
+              onChange={(e) => { setTyped(e.target.value); if (picked) setCounty(null); /* that city's county goes with it */ setPicked(null); setOpen(true); setActive(0); }}
               onFocus={() => setOpen(true)}
               onKeyDown={(e) => {
                 if (!matches.length) return;
@@ -107,12 +109,12 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
             </ul>
           )}
           {places && open && !picked && typed.trim().length > 1 && !matches.length && (
-            <p className="small muted">No city by that name in {STATES.find((s) => s.code === state)?.name}. Check the spelling, or skip it for now.</p>
+            <p className="small muted">No city by that name in {STATES.find((s) => s.code === state)?.name}. Check the spelling, or clear the box to skip it.</p>
           )}
           {!picked && st && !typed.trim() && (
             <label className="field">
               <span>Or just your county <span className="muted">(optional)</span></span>
-              <select value={county && st.counties.includes(county) ? county : ''} onChange={(e) => setCounty(e.target.value || null)}>
+              <select value={countyOnly && st.counties.includes(countyOnly) ? countyOnly : ''} onChange={(e) => setCountyOnly(e.target.value || null)}>
                 <option value="">Not chosen</option>
                 {st.counties.map((c) => <option key={c} value={c}>{countyName(c)}</option>)}
               </select>

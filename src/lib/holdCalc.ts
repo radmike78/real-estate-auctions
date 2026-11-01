@@ -618,10 +618,19 @@ export function withPlanCash<T extends { cashAvailable: number }>(v: T, offer: b
  */
 export function noRealisticPrice(r: HoldResult, uncapped: HoldResult, value: number): boolean {
   if (r.limitedBy !== 'cash' || uncapped.noBidWorks) return false;
+  // The deal's own price is under a tenth of the value too: the property's numbers are the problem, not the cash.
+  if (nz(value) > 0 && Number.isFinite(uncapped.maxBid) && uncapped.maxBid < nz(value) * 0.1) return false;
   if (r.noBidWorks) return true;
   if (!Number.isFinite(r.maxBid)) return false;
-  const floor = Number.isFinite(uncapped.maxBid) && uncapped.maxBid > 0 ? uncapped.maxBid * 0.1 : nz(value) * 0.1;
+  // What the deal itself supports, else a tenth of the value, else (no target, no value) a year of its income.
+  const floor = Number.isFinite(uncapped.maxBid) && uncapped.maxBid > 0 ? uncapped.maxBid * 0.1 : nz(value) > 0 ? nz(value) * 0.1 : Math.max(0, r.noi);
   return floor > 0 && r.maxBid < floor;
+}
+
+/** What to do when no realistic price fits your cash, one wording for the calculators and the packet. */
+export function noRealisticAdvice(offer: boolean, hasLoan: boolean): string {
+  if (hasLoan) return 'Bring more cash, or skip this one.';
+  return offer ? 'Bring more cash, plan a loan with a lender, or skip this one.' : 'Bring more cash, line up financing with a lender before the sale (an auction wants the full amount by its payment deadline), or skip this one.';
 }
 
 /**

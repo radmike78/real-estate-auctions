@@ -9,7 +9,7 @@ import { kindLabel, SALE_KINDS, type Deal } from './analyze';
 import { costsAtBid, maxSafeBid, offerInputs, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, unenteredCosts, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
 import { cleanBuyBox, EMPTY_BUY_BOX, type BuyBox } from './toolkit';
 import { areasFor, GATES, loadLog } from './evidence';
-import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, LIEN_DEFAULTS, lienYield, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, refiValueWords, withPlanCash, noRealisticPrice, type CommercialInputs, type LienInputs, type RentInputs } from './holdCalc';
+import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, LIEN_DEFAULTS, lienYield, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, refiValueWords, withPlanCash, noRealisticPrice, noRealisticAdvice, type CommercialInputs, type LienInputs, type RentInputs } from './holdCalc';
 import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
@@ -302,6 +302,10 @@ export function savedNumbers(d: Deal) {
     noRealistic?: boolean;
     /** Cash due on sale day at your bid: the bid plus any buyer's premium (an auction). */
     atSaleDay?: number;
+    /** Cash due on sale day at the highest price (an auction). */
+    saleDay?: number;
+    /** A loan is entered. */
+    hasLoan?: boolean;
     at?: ReturnType<typeof commercialAtPrice> & { price: number };
     stress: { label: string; maxBid: number | null; limitedBy?: CommercialLimit; capOnCost?: number | null }[];
   } | null = null;
@@ -354,6 +358,8 @@ export function savedNumbers(d: Deal) {
           commercial.value = v.value > 0 ? v.value : 0;
           // Only the cash entered is short (Commercial income says "No realistic price fits your cash").
           commercial.noRealistic = noRealisticPrice(r, commercialMaxBid({ ...v, cashAvailable: 0 }, offer), v.value);
+          commercial.hasLoan = v.loanPct > 0;
+          commercial.saleDay = r.noBidWorks || !Number.isFinite(r.cashAtAuction) ? 0 : r.cashAtAuction;
           commercial.cashTyped = readConfirmed(`fsf.calc.commercial.${d.id}${offer ? '-offer' : ''}.v1`).has('cashAvailable');
         }
         if (commercial && v.atPrice > 0) {
@@ -577,17 +583,18 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     const a = commercial.at;
     need = commercial.atNeed ?? (!offer && a.loan > 0 ? a.allIn : a.cashIn);
     needAt = `At your actual price of ${money(a.price)}`;
-    if (!offer) cash.push(`On sale day, at your bid of ${money(a.price)}: ${money(commercial.atSaleDay ?? a.price)} (bid plus any buyer’s premium, in the form the sale requires)`);
+    if (!offer) cash.push(`On sale day, at your bid of ${money(a.price)}: ${money(commercial.atSaleDay ?? a.price)} (bid plus any buyer’s premium, in the form the sale requires).`);
     cash.push(`${needAt}: ${money(need)} needed ${!offer && a.loan > 0 ? 'before a refinance closes (loan fees are paid at refinancing)' : a.loan > 0 ? 'from your own cash, including the loan’s points and fees' : 'from your own cash'}.`);
   } else if (commercial?.noTarget) {
     cash.push(commercialNoTarget(strategy, commercial.overCap));
   } else if (commercial?.noRealistic) {
-    cash.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered in ${strategy}: ${commercial.none ? 'it doesn’t cover the repairs and costs, before any price' : `it covers the costs but leaves only about ${money(commercial.maxBid)} for the price`}. Bring more cash, plan a loan with a lender, or skip this one.`);
+    cash.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered in ${strategy}: ${commercial.none ? 'it doesn’t cover the repairs and costs, before any price' : `it covers the costs but leaves only about ${money(commercial.maxBid)} for the price`}. ${noRealisticAdvice(offer, !!commercial.hasLoan)}`);
   } else if (commercial?.none) {
     cash.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered in ${strategy}.`);
   } else if (commercial) {
     need = commercial.refi ? commercial.allIn : commercial.cashLeft;
     needAt = `At your highest price of ${money(commercial.maxBid)}`;
+    if (!offer && (commercial.saleDay ?? 0) > 0) cash.push(`On sale day, at your highest price of ${money(commercial.maxBid)}: ${money(commercial.saleDay!)} (bid plus any buyer’s premium, in the form the sale requires).`);
     cash.push(commercial.refi
       ? `All in at your highest price, until a refinance closes: ${money(commercial.allIn)}; after a refinance, if approved: ${money(commercial.cashLeft)} left in (from ${strategy})`
       : `All in at your highest price: ${money(commercial.allIn)}, with ${money(commercial.cashLeft)} of your own cash left in (from ${strategy})`);
@@ -639,7 +646,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     nums.push(`Your ${offer ? 'offer' : 'bid'} (your actual price): ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; cash left in ${money(a.cashIn)}; return on total cost ${pct1(a.capOnCost)}; ${a.dscr === null ? 'no loan' : `income coverage ${a.dscr.toFixed(3)} (${a.loanOk ? 'meets' : 'below'} your minimum)`}`);
   }
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
-  else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. Without that cash limit the deal meets your ${commercial.capPct}% return on cost`);
+  else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. ${commercial.capPct > 0 ? `Without that cash limit the deal meets your ${commercial.capPct}% return on cost` : 'Without that cash limit the numbers work'}`);
   else if (commercial?.none) nums.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered`);
   else if (commercial) {
     const priceText = commercialPriceText(commercial.capPct, commercial.maxBid, commercial.limitedBy, commercial.capOnCost, offer, false, !!commercial.noRealistic);
@@ -652,10 +659,10 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   if (lien) {
     const yr = (y: number | null) => (y === null ? 'no yield' : `${(y * 100).toFixed(1)}% a year`);
-    if (lien.overCap) nums.push(`The interest rate entered is more than ${d.state === 'AZ' ? 'Arizona’s legal maximum of 16% a year (1.33% a month)' : 'Nevada’s 1% a month'}, so these yields are too high: enter the monthly rate in Lien certificate.`);
-    nums.push(`Certificate ${money(lien.price)}: if paid off in ${lien.months} months, ${yr(lien.yearly)} on your cash (profit after fees ${money(lien.profit)})`);
+    if (lien.overCap) nums.push(`The interest rate entered is more than ${d.state === 'AZ' ? 'Arizona’s legal maximum of 16% a year (1.33% a month)' : 'Nevada’s 1% a month'}, so no yield is shown: enter the monthly rate in Lien certificate.`);
+    if (!lien.overCap) nums.push(`Certificate ${money(lien.price)}: if paid off in ${lien.months} months, ${yr(lien.yearly)} on your cash (profit after fees ${money(lien.profit)})`);
     nums.push('  Downside, if it’s never paid off: no payoff comes; your cash stays in until you enforce the lien, which usually takes an attorney and more cost.*');
-    if (lien.later) nums.push(`  If it takes longer, to ${lien.later.months} months: your ${money(lien.price)} is tied up ${lien.later.months - lien.months} months more, earning ${yr(lien.later.yearly)} (profit after fees ${money(lien.later.profit)}); add any later taxes or assessments you pay to protect the lien.`);
+    if (lien.later && !lien.overCap) nums.push(`  If it takes longer, to ${lien.later.months} months: your ${money(lien.price)} is tied up ${lien.later.months - lien.months} months more, earning ${yr(lien.later.yearly)} (profit after fees ${money(lien.later.profit)}); add any later taxes or assessments you pay to protect the lien.`);
   }
   // A saved deal's state or county changed in Analyze and isn't confirmed yet: its costs still follow the old place.
   if (hasNums && !d.locationConfirmed) nums.push(UNCONFIRMED_PLACE);

@@ -643,13 +643,14 @@ function BuyBoxBuilder() {
         <label className="field">
           <span>Counties, cities or neighborhoods</span>
           <input type="text" maxLength={200} value={b.area} onChange={(e) => set('area', e.target.value)} />
-          {(() => {
-            // Your area (from the county step or the header), offered when this is still empty, for the same state.
-            const my = getMyArea();
-            const words = my?.county && (!b.state || b.state === my.state) ? (my.city ? `${my.city}, ${countyName(my.county)}` : countyName(my.county)) : '';
-            return !b.area.trim() && words ? <button type="button" className="linkish small" onClick={() => { set('area', words); if (!b.state) set('state', my!.state); }}>Use my area ({words})</button> : null;
-          })()}
         </label>
+        {(() => {
+          // Your area (from the county step or the header), offered when this is still empty, for the same state.
+          const my = getMyArea();
+          const cn = my?.county ? countyName(my.county) : '';
+          const words = my?.county && (!b.state || b.state === my.state) ? (my.city && my.city !== cn ? `${my.city}, ${cn}` : cn) : '';
+          return !b.area.trim() && words ? <button type="button" className="linkish small" onClick={() => { set('area', words); if (!b.state) set('state', my!.state); }}>Use my area ({words})</button> : null;
+        })()}
         <label className="field">
           <span>Strategy</span>
           <select value={b.strategy} onChange={(e) => set('strategy', e.target.value)}>
