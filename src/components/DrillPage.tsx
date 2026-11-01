@@ -199,7 +199,7 @@ function FilterSelect<T extends string>({ value, set, options, label }: Filter<T
 
 /** The drills on the Practice page, grouped by state, with the visitor's state first, and filters to narrow them. */
 /** `presetTopic`: this visit was sent to one topic (the roadmap's auction practice); guided readers see that topic. */
-export function DrillList({ presetTopic }: { presetTopic?: TopicGroup } = {}) {
+export function DrillList({ presetTopic, liensFirst = false }: { presetTopic?: TopicGroup; liensFirst?: boolean } = {}) {
   const saved = load();
   const [mine] = useMyState();
   const next = DRILLS.find((d) => (drillState(d) === null || drillState(d) === mine) && drillStatus(d, saved).state === 'started');
@@ -245,9 +245,10 @@ export function DrillList({ presetTopic }: { presetTopic?: TopicGroup } = {}) {
   const guided = mode === 'guided' && !showAll;
   // Sent to one topic (the roadmap's auction practice): that topic's drills for your state, not the general three.
   const inPreset = (d: Drill) => (!onlyMine || drillState(d) === null || drillState(d) === mine) && drillCard(d).group === presetTopic;
-  const topicDrills = guided && presetTopic ? DRILLS.filter(inPreset) : [];
+  // Sent from lien practice: the lien drills lead.
+  const topicDrills = guided && presetTopic ? DRILLS.filter(inPreset).sort((a, b) => (liensFirst ? Number(/lien/.test(b.id)) - Number(/lien/.test(a.id)) : 0)) : [];
   // Lien sales are Arizona and Nevada only: elsewhere the auction topic is just auctions.
-  const topicLabel = presetTopic === 'auctions' && mine !== 'AZ' && mine !== 'NV' ? 'Auction' : TOPIC_GROUPS.find((g) => g.key === presetTopic)?.label ?? 'These';
+  const topicLabel = presetTopic === 'auctions' ? (mine !== 'AZ' && mine !== 'NV' ? 'Auction' : liensFirst ? 'Tax lien and auction' : 'Auction and tax lien') : TOPIC_GROUPS.find((g) => g.key === presetTopic)?.label ?? 'These';
   const topicTitle = `${topicLabel} drills${mine ? ` for ${STATE_NAMES[mine]}` : ''}`;
   const shown = guided ? [topicDrills.length ? { key: 'topic', title: topicTitle, drills: topicDrills } : { key: 'starter', title: 'Start with these three', drills: starter }] : groups;
   // Explorers see the same three first, above the full list, until they filter it.

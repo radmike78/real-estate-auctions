@@ -309,6 +309,10 @@ export default function FindAProPage({ section }: { section?: string }) {
       ? LISTING_TEAM.map((k) => proGuideByKey(k)!).map((g) => ({ role: g.title, when: g.summary, href: `#/pros/${g.key}` }))
       : null;
 
+  const teamCats = team && sale !== 'start'
+    ? new Set(team.flatMap((t) => proGuideByKey(t.href?.replace(/^#\/pros\//, '') ?? '')?.directory ?? []))
+    : null;
+
   return (
     <main className="page pros-page">
       <PageHero
@@ -358,7 +362,8 @@ export default function FindAProPage({ section }: { section?: string }) {
           )}
         </section>
       )}
-      {all && <div className="pros-ad-row"><RotatingAd pros={pros} placeholder /></div>}
+      {/* With a sale's team shown, the ad comes from one of that team's roles (no lender ad under a cash-only team). */}
+      {all && <div className="pros-ad-row"><RotatingAd pros={teamCats ? pros.filter((x) => teamCats.has(x.category)) : pros} placeholder /></div>}
       {all ? (
         <section className="pros-all" aria-labelledby="pros-all-head">
           <h2 id="pros-all-head">The professionals</h2>

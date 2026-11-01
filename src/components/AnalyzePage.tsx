@@ -221,7 +221,13 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     const on = (e: StorageEvent) => {
       if (e.key !== null && e.key !== 'deedowl.analyze.v1') return;
       setSaved(storedDeals());
-      setDeal((d) => (d.id && !stillSaved(d.id) ? { ...d } : d));
+      setDeal((d) => {
+        if (!d.id) return d;
+        if (!stillSaved(d.id)) return { ...d }; // deleted there: the save effect turns it into a draft
+        // Changed in the other tab since: show that version, so this tab doesn't save its older copy over it.
+        const there = loadDeals().find((x) => x.id === d.id);
+        return there && there.updatedAt > d.updatedAt ? there : d;
+      });
     };
     window.addEventListener('storage', on);
     return () => window.removeEventListener('storage', on);
@@ -424,10 +430,10 @@ function ProfileNote({ deal }: { deal: Deal }) {
   const parts: string[] = [];
   if (listed && p.investable > 0) parts.push(`${fmtMoney(p.investable)} of investable cash (your limit for a listed home)`);
   if (listed && p.loan === 'cash') parts.push('paying cash');
-  else if (listed && p.loan === 'yes' && p.ownerOccupant) parts.push('a home loan you’d live in (owner-occupant loans can need less down than an investor loan: enter your lender’s figure)');
+  else if (listed && p.loan === 'yes' && p.ownerOccupant) parts.push('a home loan you’d live in (the loan field starts at the 75% investor example; owner-occupant loans can need less down, so replace it with your lender’s figure); no property manager, since you’d live there');
   else if (listed && p.loan === 'yes') parts.push('a loan (a common 75% of the price for a listed rental, until your lender quotes)');
-  if (p.manager === true && !p.ownerOccupant) parts.push('a property manager (8% of rent)');
-  else if (p.manager === false) parts.push('managing it yourself');
+  if (!p.ownerOccupant && p.manager === true) parts.push('a property manager (8% of rent)');
+  else if (!p.ownerOccupant && p.manager === false) parts.push('managing it yourself');
   if (!parts.length) return null;
   return <p className="muted analyze-profile">From your plan: {parts.join('; ')}. These fill in a new deal’s starting numbers. Change any of them below; they aren’t loan terms anyone approved. <a href="#/toolkit">Edit your plan</a></p>;
 }

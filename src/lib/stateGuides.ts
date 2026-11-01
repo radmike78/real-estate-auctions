@@ -710,7 +710,7 @@ export const STATE_GUIDES: Playbook[] = [
       url: "https://www.to.pima.gov/taxLienSale/"
     }
   ],
-  team: [TEAM.attorney, TEAM.title, TEAM.cpa],
+  team: [TEAM.lienAttorney, TEAM.lienTitle, TEAM.lienCpa],
   lastReviewed: REVIEWED,
   state: 'AZ'
 },

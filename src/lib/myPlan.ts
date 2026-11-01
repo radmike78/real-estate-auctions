@@ -108,7 +108,8 @@ export function profileStart(p: InvestorProfile, offer: boolean): Record<string,
   // Living in it: owner-occupant loans can need less down, so the lender's figure goes in, not an investor's 75%;
   // and you're on site, so no manager is assumed.
   else if (p.loan === 'yes' && offer && !p.ownerOccupant) out.loanPct = 75;
-  if (p.manager === true && !p.ownerOccupant) out.managementPct = 8;
+  if (p.ownerOccupant) out.managementPct = 0; // you live there: on site
+  else if (p.manager === true) out.managementPct = 8;
   else if (p.manager === false) out.managementPct = 0;
   if (offer && p.investable > 0) out.cashAvailable = Math.round(p.investable);
   return out;

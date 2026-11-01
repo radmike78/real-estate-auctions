@@ -2716,7 +2716,7 @@ cite.cite { font-style: normal; font-size: max(0.82em, 15px); color: var(--muted
 .county-sale .row > * { flex: 0 0 auto; width: auto; margin: 0; }
 
 /* Deal packet: each part's status beside its heading, the next action on top. */
-.packet-status { font-size: 0.8rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; vertical-align: middle; margin-left: 8px; white-space: nowrap; }
+.packet-status { font-size: 0.8rem; font-weight: 600; padding: 2px 10px; border-radius: 999px; vertical-align: middle; margin-left: 8px; white-space: nowrap; letter-spacing: 0; }
 .packet-status.done { background: var(--go-bg); color: var(--go); }
 .packet-status.started { background: var(--info-bg); color: var(--info); }
 .packet-status.missing { background: var(--caution-bg); color: var(--caution); }
@@ -2964,3 +2964,10 @@ dl.cash-result .cash-main { border-color: var(--accent); }
 .calc-more[open] p { z-index: 40; }
 /* Advertiser dashboard header on phones: name on its own line, buttons below it. */
 @media (max-width: 600px) { .track-head { flex-direction: column; align-items: stretch; } .track-head .row { flex-wrap: wrap; } }
+
+/* Phones: the status chip drops under the step title instead of squeezing it; the step's buttons stack. */
+@media (max-width: 480px) {
+  .roadmap-step > summary { flex-wrap: wrap; }
+  .roadmap-chip { margin-left: 0; }
+  .roadmap-status .btn { white-space: nowrap; }
+}

@@ -127,7 +127,7 @@ function forOffer<T>(groups: CalcGroup<T>[]): CalcGroup<T>[] {
     titleLegal: { label: 'Closing costs: title, escrow, recording', hint: 'Lender fees go in “Loan costs” below.', more: 'Your Loan Estimate or the lender’s term sheet and the escrow officer’s estimate have the real figures. Together with lender fees, closing costs often run 2–4% of the price.' },
     possession: { hint: 'Only if a tenant or the owner stays after closing.' },
     value: { label: 'Appraised value', hint: 'The value the lender’s appraisal supports. The loan uses the lower of this and the price.', more: 'Homes are appraised mainly from recent sales nearby; commercial appraisals also weigh the income and the cost to rebuild. A seller’s or agent’s estimate isn’t an appraisal. Replace this, and the loan percentage, with your lender’s numbers when you have them.' },
-    loanPct: { label: 'Loan, % of the price or value (lower)', hint: '75% (25% down) is common for a rental you won’t live in. 0 for all cash.', more: 'Lenders lend a % of the price or the appraised value, whichever is lower. A lower price means a smaller loan and a lower payment. Ask your lender for their limits.' },
+    loanPct: { label: 'Loan, % of the price or value (lower)', hint: '75% (25% down) is common for a rental you won’t live in; living in it, use your lender’s figure. 0 for all cash.', more: 'Lenders lend a % of the price or the appraised value, whichever is lower. A lower price means a smaller loan and a lower payment. Ask your lender for their limits.' },
   };
   return groups.map((g) => ({
     ...g,
@@ -137,7 +137,7 @@ function forOffer<T>(groups: CalcGroup<T>[]): CalcGroup<T>[] {
 }
 
 /** Starting numbers for a listed home: no possession cost, closing costs and a common rental loan. */
-const OFFER_START = { possession: 0, titleLegal: 2_500, repairs: 5_000, loanPct: 75, ratePct: 7 };
+const OFFER_START = { possession: 0, titleLegal: 2_500, repairs: 5_000, loanPct: 75, ratePct: 7, value: 0 }; // value 0: the loan is sized on your price until an appraised value is entered
 /** A listed home's numbers are kept apart from an auction's, since the costs and the loan work differently. */
 const offerKey = (key: string) => key.replace(/\.v1$/, '.offer.v1');
 

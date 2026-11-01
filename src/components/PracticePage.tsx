@@ -139,7 +139,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
         </>}
         <h2 id="practice-drills" className="practice-step">Quick drills: would you buy it?</h2>
         <p className="practice-step-intro"><strong>Each drill is one short, made-up deal.</strong> Work through 2 to 4 missions (value it, check the rent, price the repairs, find the liens, run the numbers), then decide: Buy, Investigate or Pass. Missions are rehearsal: finishing them builds skill, not readiness to buy a real property.</p>
-        <DrillList presetTopic={toAuctionDrills ? 'auctions' : undefined} />
+        <DrillList presetTopic={toAuctionDrills ? 'auctions' : undefined} liensFirst={sale === 'sid'} />
         </details>
         <PathNext step="practice" />
         <AdSpot spot="practice" allow={!chosen} />

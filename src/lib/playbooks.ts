@@ -143,7 +143,7 @@ const NEVADA: Playbook[] = [
       story: 'A $2,000 certificate redeemed after 8 months pays $160 in interest (1% a month, simple). The money arrives about 30–60 days after the owner pays.',
       lesson: 'It’s a slow, modest return. It depends on patience and paperwork. It is not a shortcut to owning homes.',
     },
-    team: [T.title, T.attorney, T.cpa],
+    team: [T.lienTitle, T.lienAttorney, T.lienCpa],
     sources: [
       { label: 'Clark County Treasurer FAQs (special assessment certificates)', url: TREASURER_FAQ },
       { label: 'Notice of sale, published by Assessment Management Group for Clark County and the cities', url: 'https://www.amgnv.com/notice-of-sale.asp' },

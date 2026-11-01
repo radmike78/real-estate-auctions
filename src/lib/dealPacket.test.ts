@@ -472,3 +472,12 @@ it('reads a lien certificate’s numbers from the lien calculator once the price
   expect(text).toContain('If it’s never paid off');
   expect(text).not.toContain('No numbers yet');
 });
+
+it('says the repairs are what’s missing when only a flip’s resale value is typed', () => {
+  const flip: Deal = { ...deal, id: 'f2', kind: 'trustee', plan: 'flip', state: 'NV', county: 'Clark' };
+  localStorage.setItem('fsf.bid.analyzed-f2.v1.typed.v1', JSON.stringify(['exitValue']));
+  localStorage.setItem('fsf.bid.analyzed-f2.v1', JSON.stringify({ exitValue: 400000, repairs: 0 }));
+  const text = dealPacketText(flip, EMPTY_PACKET, new Date('2026-10-06T00:00:00Z'));
+  expect(text).toContain('Enter the repairs in');
+  expect(text).not.toContain('No numbers yet');
+});

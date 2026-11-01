@@ -29,7 +29,7 @@
 .lesson-table tbody th { white-space: normal; width: 1%; min-width: 11rem; }
 @media (max-width: 700px) { .lesson-table tbody th { width: auto; min-width: 0; } } /* stacked cards on phones: the row name spans the card */
 .lesson-table.cols-2 tbody th { width: auto; }
-.lesson-table.cols-2 td { width: 12rem; white-space: nowrap; }
+.lesson-table.cols-2 td { white-space: normal; }
 @media (min-width: 1200px) { .lesson-table th, .lesson-table td { font-size: 1.05rem; } }
 
 /* Practice: the task's own button, plus a separate secondary one when the lesson has another link. */

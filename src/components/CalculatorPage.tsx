@@ -35,6 +35,20 @@ function BeforeYouCommit({ plan, state }: { plan?: string; state?: StateCode }) 
   const name = state ? stateByCode(state)?.name : undefined;
   // Renting rules matter only when you'd keep it and rent it out.
   const renting = plan !== 'flip' && plan !== 'lien';
+  // A lien certificate isn't the property: no tax bill, insurance or repairs of your own; these checks instead.
+  if (plan === 'lien') return (
+    <section className="before-commit" aria-labelledby="before-commit-head">
+      <h3 id="before-commit-head">Before you commit, check these</h3>
+      <ul>
+        <li><strong>The county’s bidder rules and payment deadline,</strong> from the treasurer’s own sale page.</li>
+        <li><strong>Later years’ taxes</strong> you may pay to protect the lien, in your holding budget.</li>
+        <li><strong>The parcel itself:</strong> would you accept owning it if the lien is never paid?</li>
+        <li><strong>When you’d call an attorney</strong> to enforce an unpaid lien, and what that would cost.</li>
+        <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney and tax advisor before you bid.</li>
+      </ul>
+      <p className="muted small">Can’t check one yet? Get the answer before you bid.</p>
+    </section>
+  );
   return (
     <section className="before-commit" aria-labelledby="before-commit-head">
       <h3 id="before-commit-head">Before you commit, check these</h3>

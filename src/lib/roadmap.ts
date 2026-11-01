@@ -159,7 +159,7 @@ export const ROADMAP: RoadmapStep[] = [
   {
     id: 'a-practice', phase: 3, path: AUCTION, title: 'Finish a practice auction',
     text: 'Work one auction purchase with fictional paperwork before you risk money: the notice, the title search, your maximum bid, sale day and what comes after.',
-    outcome: 'A finished practice sale, your written maximum bid with how you set it, and three drills done.',
+    outcome: 'Three auction drills done for your state (and a full practice sale where Practice offers one), with your written maximum bid and how you set it.',
     steps: ['In Practice, do three auction drills for your state (topic: Auctions and tax liens), then read your state’s sale guide for the kind of sale you plan to use. Where Practice offers a full practice auction for your state, work one property to the end.', 'Write your maximum bid and the costs behind it before sale day in the practice.', 'Try at least three “Would you buy it?” drills, including one with liens that survive the sale.'],
     doneWhen: 'You’ve finished three auction drills (and a full practice auction where your state has one), with the maximum bid you’d have set written down for one of them.',
     action: 'Practice an auction', href: '#/practice?sale=tax',
@@ -337,7 +337,8 @@ export const ROADMAP: RoadmapStep[] = [
     say: { to: 'County treasurer', script: '“I’d like to bid at your lien sale. Where are the bidder rules and the list? How do I register, what fees apply, and when and how is payment due?”' },
     docs: ['Bidder registration', 'A W-9 if the county asks for one (for reporting interest you earn)'],
     doneWhen: 'You’re registered, and the sale rules are saved.',
-    action: 'Read the lien guides', href: '#/playbooks',
+    action: 'Your county’s lien sale page', href: '#/find-deals',
+    also: { label: 'Read the lien guides', href: '#/playbooks' },
   },
   {
     id: 'c-research', phase: 4, path: LIEN, title: 'Research every parcel',
