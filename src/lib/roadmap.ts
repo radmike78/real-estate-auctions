@@ -32,6 +32,8 @@ export interface RoadmapStep {
   /** What the link does, so a learner knows where it goes. */
   action?: string;
   href?: string;
+  /** A second place the task's steps send you (the lien calculator). */
+  also?: { label: string; href: string };
   /** The ways of buying it applies to; steps without it apply to all three. */
   path?: RoadmapPath[];
   /** When the step can be marked “Doesn't apply”, and why (e.g. a rental step on a flip). */
@@ -174,6 +176,7 @@ export const ROADMAP: RoadmapStep[] = [
     ],
     doneWhen: 'You have the three payoff results, a holding budget with later taxes, and a written attorney trigger.',
     action: 'Open Practice', href: '#/practice',
+    also: { label: 'Open the lien calculator', href: '#/analyze?plan=lien' },
   },
   {
     id: 'walk', phase: 3, title: 'Set your walk-away rules',

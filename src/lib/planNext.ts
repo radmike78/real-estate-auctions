@@ -75,7 +75,7 @@ export const roadmapTask = (s: RoadmapStep): PlanTask => ({
   label: s.title,
   produces: s.outcome.charAt(0).toLowerCase() + s.outcome.slice(1).replace(/\.$/, ''),
   href: ROADMAP_TASK_HREF,
-  support: s.href ? [{ label: s.action ?? 'Open', href: s.href }] : [],
+  support: [...(s.href ? [{ label: s.action ?? 'Open', href: s.href }] : []), ...(s.also ? [s.also] : [])],
   done: false,
   text: s.text,
 });

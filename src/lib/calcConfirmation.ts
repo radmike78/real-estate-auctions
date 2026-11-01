@@ -9,6 +9,10 @@ export function readConfirmed(key: string, storage: Storage = localStorage): Rea
   } catch { return new Set(); }
 }
 
+/** Fired when a calculator's typed fields change, so a page's "next step" can update as you type. */
+export const CONFIRMED_EVENT = 'deedowl:calc-confirmed';
+
 export function saveConfirmed(key: string, fields: ReadonlySet<string>, storage: Storage = localStorage) {
   try { storage.setItem(confirmationKey(key), JSON.stringify([...fields])); storage.removeItem(key.replace(/\.v1$/, '.typed.v1')); } catch { /* storage unavailable */ }
+  if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent(CONFIRMED_EVENT));
 }

@@ -64,6 +64,11 @@ function stillSaved(id: string): boolean {
 
 let deletedOnLoad = false;
 
+/** The stage stored with a saved deal (it's changed in My deals, My plan or the packet, not here). */
+function storedStage(id: string) {
+  return loadDeals().find((d) => d.id === id)?.stage;
+}
+
 function loadCurrent(st: StateCode): Deal {
   try {
     const v = cleanDeal(JSON.parse(localStorage.getItem(CURRENT) ?? 'null'));
@@ -71,6 +76,11 @@ function loadCurrent(st: StateCode): Deal {
     let opened: unknown = null;
     try { opened = JSON.parse(localStorage.getItem(OPENED_KEY) ?? 'null'); } catch { /* storage unavailable */ }
     if (v && v.practice && !savingPractice() && opened !== v.id) return blank(st || v.state);
+    // A property you passed on stays in My deals; the next one starts fresh instead of renaming it.
+    if (v && v.id && opened !== v.id && storedStage(v.id) === 'passed') return blank(st || v.state);
+    // An untouched blank left on a regular listing from before you chose an auction or lien route starts again, on the
+    // kind of sale that route is about.
+    if (v && !v.id && !v.name.trim() && !v.notes.trim() && v.done.length === 0 && !v.locationConfirmed && v.kind === 'listing' && kindForRoute(st || v.state) !== 'listing') return blank(st || v.state);
     if (v && (!st || v.state === st)) {
       // Deleted from My deals since: keep what was typed as a new, unsaved deal (the note says so).
       if (v.id && !stillSaved(v.id)) {
@@ -258,6 +268,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
 
       <section className="deal-setup" aria-labelledby="setup-head">
         <h2 id="setup-head">1. Tell us about the property you found</h2>
+        {deal.id && saved.find((d) => d.id === deal.id)?.stage === 'passed' && (
+          <p className="note" role="status">You passed on “{deal.name}”. Changes here update it in My deals. Looking at a different property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(deal.state)); }}>Start a new deal</button></p>
+        )}
         <p className="muted">Found a property on an official list, a listing site or from your agent? Enter it here. You’ll get the checklist for that kind of sale in that county, and the calculator for your plan. Save it to come back to it in My deals.</p>
         <div className="deal-fields">
           <label className="field wide">
@@ -348,7 +361,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
 
       <section className="deal-numbers" aria-labelledby="numbers">
       <h2 id="numbers" ref={numbersRef}>3. Run the numbers</h2>
-      <ProfileNote />
+      <ProfileNote deal={deal} />
       <CalcRegion.Provider value={{ state: deal.state, county: deal.county }}>
         <Calculators key={`${deal.id}-${deal.state}-${deal.county}-${deal.kind}`} dealId={deal.id || undefined} onAnalyze initial={calcTabFor(deal.plan)} onTab={(k) => { const p = PLANS.find((x) => calcTabFor(x.key) === k)?.key; if (p && p !== deal.plan && plans.some((x) => x.key === p)) set({ plan: p }); }} state={deal.state} saleKind={deal.kind} offer={deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short'} lien={deal.kind === 'lien'} />
         {/* For a listed, bank-owned or short-sale home, the seller may offer to carry the loan. */}
@@ -384,14 +397,18 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
 }
 
 /** What a new deal's starting numbers take from your plan, said once, so nothing changes silently. */
-function ProfileNote() {
+function ProfileNote({ deal }: { deal: Deal }) {
+  // The plan fills in only the numbers this calculator uses: cash and a loan for a listed home, management for a rental.
+  if (deal.kind === 'lien') return null;
+  const listed = deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short';
+  const renting = deal.plan === 'rent' || deal.plan === 'commercial';
   const p = investorProfile();
   const parts: string[] = [];
-  if (p.investable > 0) parts.push(`${fmtMoney(p.investable)} of investable cash (your limit for a listed home)`);
-  if (p.loan === 'cash') parts.push('paying cash');
-  else if (p.loan === 'yes') parts.push('a loan (a common 75% of the price for a listed rental, until your lender quotes)');
-  if (p.manager === true) parts.push('a property manager (8% of rent)');
-  else if (p.manager === false) parts.push('managing it yourself');
+  if (listed && p.investable > 0) parts.push(`${fmtMoney(p.investable)} of investable cash (your limit for a listed home)`);
+  if (listed && p.loan === 'cash') parts.push('paying cash');
+  else if (listed && p.loan === 'yes') parts.push('a loan (a common 75% of the price for a listed rental, until your lender quotes)');
+  if (renting && p.manager === true) parts.push('a property manager (8% of rent)');
+  else if (renting && p.manager === false) parts.push('managing it yourself');
   if (!parts.length) return null;
   return <p className="muted analyze-profile">From your plan: {parts.join('; ')}. These fill in a new deal’s starting numbers. Change any of them below; they aren’t loan terms anyone approved. <a href="#/toolkit">Edit your plan</a></p>;
 }

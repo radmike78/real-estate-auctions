@@ -242,7 +242,10 @@ export function DrillList() {
     .map((id) => DRILLS.find((d) => d.id === id))
     .filter((d): d is Drill => !!d);
   const guided = mode === 'guided' && !showAll;
-  const shown = guided ? [{ key: 'starter', title: 'Start with these three', drills: starter }] : groups;
+  // Sent to one topic (the roadmap's auction practice): that topic's drills for your state, not the general three.
+  const topicDrills = guided && topic !== 'all' ? DRILLS.filter(keep) : [];
+  const topicTitle = `${TOPIC_GROUPS.find((g) => g.key === topic)?.label ?? 'These'} drills${mine ? ` for ${STATE_NAMES[mine]}` : ''}`;
+  const shown = guided ? [topicDrills.length ? { key: 'topic', title: topicTitle, drills: topicDrills } : { key: 'starter', title: 'Start with these three', drills: starter }] : groups;
   // Explorers see the same three first, above the full list, until they filter it.
   const recommended = !guided && st === 'all' && topic === 'all' && prog === 'all' ? starter : [];
   // A recommended drill shows once, up top, not again in its group below.
