@@ -12,7 +12,7 @@ import { CalcRegion } from './calcRegion';
 import { useMarkStep, stepEyebrow } from '../lib/path';
 import { dropStateLead, useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { CURRENT_KEY, KEPT_NOTE_KEY, OPENED_KEY, keepUnsavedDraft, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
+import { CURRENT_KEY, KEPT_NOTE_KEY, OPENED_KEY, keepUnsavedDraft, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, restoreDraftNumbers, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
 import CheckFold from './CheckFold';
 import { linkLabel } from '../lib/linkLabel';
 import { investorProfile } from '../lib/myPlan';
@@ -51,6 +51,15 @@ function blank(st: StateCode): Deal {
 }
 
 const DELETED_NOTE = 'This deal was deleted from My deals (perhaps in another tab). What you typed is still here, unsaved: save it again to keep it.';
+const DELETED_NO_NUMBERS_NOTE = 'This deal was deleted from My deals (perhaps in another tab). Its name, county, checklist and notes are still here, unsaved; its numbers were deleted with it. Save it again to keep it.';
+let deletedNote = DELETED_NOTE;
+
+/** A saved deal deleted elsewhere, as a new unsaved deal: numbers still stored under its id move to the draft. */
+function asDraft(d: Deal): Deal {
+  deletedNote = restoreDraftNumbers(d.id, d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short') ? DELETED_NOTE : DELETED_NO_NUMBERS_NOTE;
+  const { stage: _stage, practice: _practice, ...rest } = d;
+  return { ...rest, id: '' };
+}
 
 /** False only when the saved list can be read and no longer holds this deal (deleted elsewhere). */
 function stillSaved(id: string): boolean {
@@ -80,13 +89,12 @@ function loadCurrent(st: StateCode): Deal {
     if (v && v.id && opened !== v.id && storedStage(v.id) === 'passed') return blank(st || v.state);
     // An untouched blank left on a regular listing from before you chose an auction or lien route starts again, on the
     // kind of sale that route is about.
-    if (v && !v.id && !v.name.trim() && !v.notes.trim() && v.done.length === 0 && !v.locationConfirmed && v.kind === 'listing' && kindForRoute(st || v.state) !== 'listing') return blank(st || v.state);
+    if (v && !v.id && !v.name.trim() && !v.notes.trim() && v.done.length === 0 && !v.locationConfirmed && v.kind === 'listing' && v.county === startCounty(v.state) && v.plan === planFromBuyBox() && kindForRoute(st || v.state) !== 'listing') return blank(st || v.state);
     if (v && (!st || v.state === st)) {
       // Deleted from My deals since: keep what was typed as a new, unsaved deal (the note says so).
       if (v.id && !stillSaved(v.id)) {
         deletedOnLoad = true;
-        const { stage: _stage, practice: _practice, ...rest } = v;
-        return { ...rest, id: '' };
+        return asDraft(v);
       }
       return v;
     }
@@ -143,7 +151,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     if (!prefill) {
       deletedOnLoad = false;
       const cur = loadCurrent(mine ?? 'NV');
-      if (deletedOnLoad) setTimeout(() => setKeptNote(DELETED_NOTE), 0);
+      if (deletedOnLoad) { const n = deletedNote; setTimeout(() => setKeptNote(n), 0); }
       // The working deal is in another state than the one now chosen: keep it in My deals before starting fresh.
       if (!cur.id && !cur.name && !cur.notes && cur.done.length === 0) {
         const kept = keepUnsaved();
@@ -190,10 +198,10 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     }
     if (deal.id && !stillSaved(deal.id)) {
       // Deleted elsewhere while open here: don't bring it back or report it saved.
-      const { stage: _stage, practice: _practice, ...rest } = deal;
-      setKeptNote(DELETED_NOTE);
+      const draft = asDraft(deal);
+      setKeptNote(deletedNote);
       setSaved(loadDeals());
-      setDeal({ ...rest, id: '' });
+      setDeal(draft);
       return;
     }
     if (deal.id) {
@@ -208,6 +216,16 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       });
     }
   }, [deal]);
+  // Another tab changed the saved deals (deleted this one): check now, not only when a field here changes.
+  useEffect(() => {
+    const on = (e: StorageEvent) => {
+      if (e.key !== null && e.key !== 'deedowl.analyze.v1') return;
+      setSaved(storedDeals());
+      setDeal((d) => (d.id && !stillSaved(d.id) ? { ...d } : d));
+    };
+    window.addEventListener('storage', on);
+    return () => window.removeEventListener('storage', on);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   // Choosing a state elsewhere on the site moves a new, unsaved deal to it.
   useEffect(() => {
     if (mine && !deal.id && mine !== deal.state) {
@@ -398,17 +416,16 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
 
 /** What a new deal's starting numbers take from your plan, said once, so nothing changes silently. */
 function ProfileNote({ deal }: { deal: Deal }) {
-  // The plan fills in only the numbers this calculator uses: cash and a loan for a listed home, management for a rental.
-  if (deal.kind === 'lien') return null;
+  // Only Keep and rent starts from your plan's cash, loan and management.
+  if (deal.plan !== 'rent') return null;
   const listed = deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short';
-  const renting = deal.plan === 'rent' || deal.plan === 'commercial';
   const p = investorProfile();
   const parts: string[] = [];
   if (listed && p.investable > 0) parts.push(`${fmtMoney(p.investable)} of investable cash (your limit for a listed home)`);
   if (listed && p.loan === 'cash') parts.push('paying cash');
   else if (listed && p.loan === 'yes') parts.push('a loan (a common 75% of the price for a listed rental, until your lender quotes)');
-  if (renting && p.manager === true) parts.push('a property manager (8% of rent)');
-  else if (renting && p.manager === false) parts.push('managing it yourself');
+  if (p.manager === true) parts.push('a property manager (8% of rent)');
+  else if (p.manager === false) parts.push('managing it yourself');
   if (!parts.length) return null;
   return <p className="muted analyze-profile">From your plan: {parts.join('; ')}. These fill in a new deal’s starting numbers. Change any of them below; they aren’t loan terms anyone approved. <a href="#/toolkit">Edit your plan</a></p>;
 }

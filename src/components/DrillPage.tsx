@@ -198,7 +198,8 @@ function FilterSelect<T extends string>({ value, set, options, label }: Filter<T
 }
 
 /** The drills on the Practice page, grouped by state, with the visitor's state first, and filters to narrow them. */
-export function DrillList() {
+/** `presetTopic`: this visit was sent to one topic (the roadmap's auction practice); guided readers see that topic. */
+export function DrillList({ presetTopic }: { presetTopic?: TopicGroup } = {}) {
   const saved = load();
   const [mine] = useMyState();
   const next = DRILLS.find((d) => (drillState(d) === null || drillState(d) === mine) && drillStatus(d, saved).state === 'started');
@@ -243,8 +244,9 @@ export function DrillList() {
     .filter((d): d is Drill => !!d);
   const guided = mode === 'guided' && !showAll;
   // Sent to one topic (the roadmap's auction practice): that topic's drills for your state, not the general three.
-  const topicDrills = guided && topic !== 'all' ? DRILLS.filter(keep) : [];
-  const topicTitle = `${TOPIC_GROUPS.find((g) => g.key === topic)?.label ?? 'These'} drills${mine ? ` for ${STATE_NAMES[mine]}` : ''}`;
+  const inPreset = (d: Drill) => (!onlyMine || drillState(d) === null || drillState(d) === mine) && drillCard(d).group === presetTopic;
+  const topicDrills = guided && presetTopic ? DRILLS.filter(inPreset) : [];
+  const topicTitle = `${TOPIC_GROUPS.find((g) => g.key === presetTopic)?.label ?? 'These'} drills${mine ? ` for ${STATE_NAMES[mine]}` : ''}`;
   const shown = guided ? [topicDrills.length ? { key: 'topic', title: topicTitle, drills: topicDrills } : { key: 'starter', title: 'Start with these three', drills: starter }] : groups;
   // Explorers see the same three first, above the full list, until they filter it.
   const recommended = !guided && st === 'all' && topic === 'all' && prog === 'all' ? starter : [];
