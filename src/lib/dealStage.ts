@@ -181,7 +181,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
 
   if (stage === 'researching') {
     // Once you've chosen Pass, moving it to Passed comes first, ahead of research you no longer need.
-    if (log.gate === 'pass') out.push(task({ key: 'stage', label: `Mark ${n} as passed`, produces: 'the property in Passed, and your plan on to your next property', href: packetHref(d, 'decision'), setStage: 'passed', done: false }));
+    if (log.gate === 'pass') out.push(task({ key: 'stage', label: `Mark ${n} as passed`, produces: 'the property in Passed, and your plan moved on to your next property', href: packetHref(d, 'decision'), setStage: 'passed', done: false }));
     numbers();
     if (w === 'offer') {
       area('sale', `Confirm who is selling ${n}, and what exactly is sold`, 'the listing or official notice in its evidence log, with the source and the date you checked', [L.findDeals]);

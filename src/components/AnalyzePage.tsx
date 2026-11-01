@@ -132,9 +132,11 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       /* private mode */
     }
     if (deal.id) {
-      setSaved((list) => {
+      setSaved(() => {
+        // Built from what's stored, not this page's copy, so a deal saved elsewhere meanwhile (a kept draft) stays.
         // The stage is changed in My plan or the deal packet, not here: keep the one stored with the deal.
-        const stage = loadDeals().find((d) => d.id === deal.id)?.stage ?? deal.stage;
+        const list = loadDeals();
+        const stage = list.find((d) => d.id === deal.id)?.stage ?? deal.stage;
         const next = list.map((d) => (d.id === deal.id ? { ...deal, ...(stage ? { stage } : {}) } : d));
         saveDeals(next);
         return next;
@@ -254,7 +256,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
             <ul>
               {saved.map((d) => (
                 <li key={d.id} className={d.id === deal.id ? 'on' : ''}>
-                  <button type="button" className="linkish" onClick={() => { const kept = keepUnsaved(); if (kept) setKeptNote(kept); setDeal(d); }}>{d.name}</button>
+                  <button type="button" className="linkish" onClick={() => { const kept = keepUnsaved(); if (kept) { setKeptNote(kept); setSaved(loadDeals()); } setDeal(d); }}>{d.name}</button>
                   <span className="muted"> · {countyName(d.county)}, {d.state}</span>
                   <button type="button" className="linkish danger" aria-label={`Delete ${d.name}`} onClick={() => remove(d.id)}>Delete</button>
                 </li>

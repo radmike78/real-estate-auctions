@@ -154,11 +154,11 @@ export default function DealsPage() {
   const account=useAccount();
   const [deals, setDeals] = useState(loadDeals);
   const { properties, loading, known } = useProperties();
-  const [analyzed] = useState(loadAnalyzed);
+  const [analyzed, setAnalyzed] = useState(loadAnalyzed);
   useEffect(() => onDealsChange(() => setDeals(loadDeals())), []);
   // A decision in an evidence log changes the card's next action: re-read it.
   const [, bump] = useState(0);
-  useEffect(() => { const on = () => bump((n) => n + 1); window.addEventListener(EVIDENCE_EVENT, on); return () => window.removeEventListener(EVIDENCE_EVENT, on); }, []);
+  useEffect(() => { const on = () => { bump((n) => n + 1); setAnalyzed(loadAnalyzed()); }; window.addEventListener(EVIDENCE_EVENT, on); return () => window.removeEventListener(EVIDENCE_EVENT, on); }, []);
   const sorted = [...deals].sort((a, b) => {
     // Upcoming sales soonest first, then sales that have passed, then anything without a date.
     const rank = (id: string) => {
@@ -204,7 +204,7 @@ export default function DealsPage() {
                       <button type="button" className="btn btn-secondary" onClick={() => openDeal(d)}>Open&nbsp;→</button>
                     </div>
                   </div>
-                  <EvidenceLog dealId={`analyzed:${d.id}`} name={d.name} onPass={stageOf(d) === 'passed' ? undefined : () => setDealStage(d.id, 'passed')} />
+                  <EvidenceLog dealId={`analyzed:${d.id}`} name={d.name} onPass={stageOf(d) === 'passed' ? undefined : () => { setDealStage(d.id, 'passed'); setAnalyzed(loadAnalyzed()); }} />
                 </li>
               );
             })}
