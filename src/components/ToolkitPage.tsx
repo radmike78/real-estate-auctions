@@ -75,7 +75,7 @@ function stepEvidence(id: string): string | null {
   }
   if (id === 'c-buybox') {
     const b = read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox);
-    return b.strategy === LIEN_STRATEGY && b.cashMax > 0 && b.notes.trim() ? 'Your buy box shows Lien certificates, the cash you’ll tie up and your limits in its notes.' : null;
+    return b.strategy === LIEN_STRATEGY && b.cashMax > 0 && b.priceMax > 0 ? 'Your buy box shows Lien certificates, the cash you’ll tie up and the most for one certificate.' : null;
   }
   if (id === 'practice') {
     const c = caseFor(getMyState());
@@ -511,7 +511,7 @@ function PriceFromCash({ cash }: { cash: number }) {
     // Only the cash limit changes. A price limit already there stays (it may be yours): say when it's more than the cash.
     write(BUYBOX_KEY, { ...b, cashMax: Math.round(cash) });
     window.dispatchEvent(new CustomEvent(PLAN_EVENT));
-    setSavedNote(`Saved: a ${fmtMoney(Math.round(cash))} cash limit in your buy box.${b.priceMax > cash ? ` Its price limit is still ${fmtMoney(b.priceMax)}, more than this cash: lower it if it no longer fits.` : ''}`);
+    setSavedNote(`Saved: a ${fmtMoney(Math.round(cash))} cash limit in your buy box.${b.priceMax > cash ? ` Its ${b.strategy === LIEN_STRATEGY ? '“Most for one certificate”' : 'price limit'} is still ${fmtMoney(b.priceMax)}, more than this cash: lower it if it no longer fits.` : ''}`);
   };
   if (payingCash) return (
     <div className="price-from-cash">

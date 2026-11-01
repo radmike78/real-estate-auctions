@@ -323,12 +323,10 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           </label>
           <label className="field">
             <span>Kind of sale</span>
-            <select value={deal.kind} onChange={(e) => { const k = e.target.value as SaleKind; set({ kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); }}>
+            <select value={deal.kind} aria-describedby={deal.state === 'TX' && deal.kind === 'court' ? 'tx-court-note' : undefined} onChange={(e) => { const k = e.target.value as SaleKind; set({ kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); }}>
               {kinds.map((k) => <option key={k.key} value={k.key}>{kindLabel(k, deal.state)}</option>)}
             </select>
           </label>
-          {/* Texas tax sales are held by the sheriff or a constable: picking the sheriff's sale would drop the owner's buy-back. */}
-          {deal.state === 'TX' && deal.kind === 'court' && <p className="muted small field wide">Buying at a Texas tax sale? The sheriff or a constable holds those too: choose “County tax sale (the property)” so the owner’s right to buy it back is counted.</p>}
           <label className="field">
             <span>Your plan</span>
             <select value={deal.plan} onChange={(e) => set({ plan: e.target.value as Plan })}>
@@ -336,6 +334,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
             </select>
           </label>
         </div>
+        {/* Texas tax sales are held by the sheriff or a constable: picking the sheriff's sale would drop the owner's buy-back. */}
+        {deal.state === 'TX' && deal.kind === 'court' && <p className="muted small" id="tx-court-note">Buying at a Texas tax sale? The sheriff or a constable holds those too: choose “County tax sale (the property)” so the owner’s right to buy it back is counted.</p>}
         <label className="check">
           <input type="checkbox" checked={!!deal.locationConfirmed} onChange={(e) => set({ locationConfirmed: e.target.checked })} />
           I checked that this property is in {countyName(deal.county)}, {st.name}.

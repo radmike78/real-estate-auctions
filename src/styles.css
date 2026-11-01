@@ -2986,3 +2986,14 @@ dl.cash-result .cash-main { border-color: var(--accent); }
 @media (max-width: 600px) {
   .deal-card .deal-head { flex-direction: column; align-items: stretch; }
 }
+
+/* Phones: a result row with a warning stacks (label, then value and warning), so the warning isn't a one-word column. */
+@media (max-width: 600px) {
+  .calc-kv div:has(.deal-urgent) { display: block; }
+  .calc-kv dd:has(.deal-urgent) { text-align: left; margin-top: 2px; overflow-wrap: anywhere; }
+}
+/* Dark mode: the filled "bad" result boxes keep a deep red, so their white text stays readable (about 7.9:1). */
+:root[data-theme="dark"] .calc-max.bad, :root[data-theme="dark"] .calc-sticky.bad { background: #9f1239; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .calc-max.bad, :root:not([data-theme="light"]) .calc-sticky.bad { background: #9f1239; }
+}

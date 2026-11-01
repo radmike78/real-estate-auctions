@@ -282,6 +282,8 @@ export function savedNumbers(d: Deal) {
     limitedBy: CommercialLimit;
     /** Return on cost at the walk-away price (NOI / all in), or null. */
     capOnCost: number | null;
+    /** A cash limit entered in Commercial income (0: none). */
+    cashLimit?: number;
     at?: ReturnType<typeof commercialAtPrice> & { price: number };
     stress: { label: string; maxBid: number | null; limitedBy?: CommercialLimit; capOnCost?: number | null }[];
   } | null = null;
@@ -327,6 +329,7 @@ export function savedNumbers(d: Deal) {
           const stress = low.noBidWorks ? [{ label: 'Rent 10% lower', maxBid: null }] : Number.isFinite(low.maxBid) ? [{ label: 'Rent 10% lower', maxBid: low.maxBid, limitedBy: low.limitedBy, capOnCost: low.capOnCost }] : [];
           commercial = { maxBid: r.maxBid, noi: r.noi, capPct: v.targetCapPct, cashLeft: r.cashLeft, allIn: r.allIn, refi: !offer && r.debtService > 0, none: false, noTarget: false, overCap: false, limitedBy: r.limitedBy, capOnCost: r.capOnCost, stress };
         }
+        if (commercial) commercial.cashLimit = v.cashAvailable > 0 ? v.cashAvailable : 0;
         if (commercial && v.atPrice > 0) commercial.at = commercialAtPrice(v, v.atPrice, offer);
       }
     }
@@ -561,7 +564,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     cash.push(`Run ${strategy} in Analyze to see the cash this deal needs.`);
   }
   // The same limit the calculator uses: the cash you entered there, else My plan's investable cash.
-  const entered = rent?.cashLimit || bid?.cashLimit || 0;
+  const entered = rent?.cashLimit || bid?.cashLimit || commercial?.cashLimit || 0;
   const limit = entered > 0 ? entered : profile.investable;
   const limitWord = entered > 0 ? `the cash you entered in ${strategy}` : 'your investable cash';
   if (limit > 0 && need > 0) cash.push(need > limit ? `${needAt}, that’s ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered.` : `${needAt}, that leaves ${money(limit - need)} unallocated from ${limitWord}, after any retained reserves recorded above.`);

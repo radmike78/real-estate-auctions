@@ -290,7 +290,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false }
         <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
       </label>
       {price > 0 && (
-        <p className={`calc-verdict${exampleRefi ? ' neutral' : cashShort || !(a.cashFlow > 0 && (coc === null || coc >= target)) ? ' bad' : ' good'}`} role="status">
+        <p className={`calc-verdict${cashShort ? ' bad' : exampleRefi || (livingThere && a.cashFlow <= 0) ? ' neutral' : !(a.cashFlow > 0 && (coc === null || coc >= target)) ? ' bad' : ' good'}`} role="status">
           <strong>{exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; your target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; your target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; your target: ${v.targetCocPct}%.`}</strong>{' '}
           {blankRefi && 'No refinance is counted yet: enter the value after repairs to include it. '}
           {cashShort && <>It needs about {fmtMoney(Math.round(needed))} of your cash, more than {limitWords}. </>}
