@@ -63,7 +63,7 @@ export function countyTaxLine(state: StateCode, county?: string): { short: strin
   const s = COUNTY_TAX_RATES[state];
   const range = c.low !== null && c.high !== null ? ` Inside the county it runs about ${pctWord(c.low)} to ${pctWord(c.high)}, depending on the city, school district and special districts at the address.` : ' The rate at a given address can differ from the county’s average.';
   return {
-    short: `Starts at ${county} County’s ${s.year} rate for a rental, about ${pctWord(c.pct)} of ${OF_WORDS[s.of]} a year. Replace it with the county’s figure for the property.`,
+    short: `Starts from ${county} County’s ${s.year} rate for a rental, about ${pctWord(c.pct)} of ${OF_WORDS[s.of]} a year, applied to the calculator’s value. For your property, use about ${pctWord(c.pct)} of its ${s.of === 'price' ? 'price' : 'value'}, or better, the county’s figure for it.`,
     detail: `The starting figure is ${s.how}, from the ${s.source}.${range}`,
   };
 }

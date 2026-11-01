@@ -111,12 +111,21 @@ function GoalField() {
   // Leaving the box by pressing a button (the step's own "Done"): tick it after that click, not before it. Ticking on
   // the press would move the card on, and the click would land on the next step's "Done".
   const settleAfterPress = (v: string) => {
-    if (Date.now() - lastPointerDown > 100) { settle(v); return; }
+    if (!pressing) { settle(v); return; }
+    // However long the press lasts: tick after its click, or shortly after it's released without one (dragged away).
     let done = false;
-    const run = () => { if (done) return; done = true; window.removeEventListener('click', after); setTimeout(() => settle(v), 0); };
-    const after = () => run();
-    window.addEventListener('click', after, { once: true });
-    setTimeout(run, 1500); // the press didn't end in a click (dragged away)
+    const run = () => {
+      if (done) return;
+      done = true;
+      window.removeEventListener('click', run, true);
+      window.removeEventListener('pointerup', released, true);
+      window.removeEventListener('pointercancel', released, true);
+      setTimeout(() => settle(v), 0);
+    };
+    const released = () => setTimeout(run, 400);
+    window.addEventListener('click', run, true);
+    window.addEventListener('pointerup', released, true);
+    window.addEventListener('pointercancel', released, true);
   };
   return (
     <label className="field roadmap-goal">
@@ -127,9 +136,14 @@ function GoalField() {
   );
 }
 
-// When the last press began: a box that loses focus right after one was left by pressing something.
-let lastPointerDown = 0;
-if (typeof window !== 'undefined') window.addEventListener('pointerdown', () => { lastPointerDown = Date.now(); }, true);
+// Whether a press (mouse button, finger) is down now: a box that loses focus during one was left by pressing something.
+let pressing = false;
+if (typeof window !== 'undefined') {
+  window.addEventListener('pointerdown', () => { pressing = true; }, true);
+  const up = () => { setTimeout(() => { pressing = false; }, 0); };
+  window.addEventListener('pointerup', up, true);
+  window.addEventListener('pointercancel', up, true);
+}
 
 /** One roadmap step, opened: what you'll have, what to do, what to say, the documents, when to stop, and when it's done. */
 function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: StepStatus | 'done' | 'todo'; setStatus: (v: StepStatus | 'done' | 'todo') => void; deal?: { id: string; name: string; kind?: string } }) {
@@ -457,8 +471,15 @@ function PriceFromCash({ cash }: { cash: number }) {
     document.getElementById('buy-box')?.scrollIntoView();
   };
   // Paying cash (Decide: cash only), or buying at an auction or a lien sale (no loan at the sale): the cash is the limit
-  // for the price and everything else, so no loan-sized price.
-  const route = roadmapPath();
+  // for the price and everything else, so no loan-sized price. The route is the one the roadmap shows (planPath), and
+  // follows a change to it at once.
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const on = () => setTick((n) => n + 1);
+    window.addEventListener(PROGRESS_EVENT, on);
+    return () => window.removeEventListener(PROGRESS_EVENT, on);
+  }, []);
+  const route = planPath();
   const atSale = route === 'auction' || route === 'certificate';
   const payingCash = atSale || investorProfile().loan === 'cash';
   const useCash = () => {

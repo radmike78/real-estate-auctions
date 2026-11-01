@@ -256,7 +256,8 @@ export function openDeal(d: Deal) {
   try {
     if (kept) {
       // The deal you opened stays the one you're working on (the kept draft is newer otherwise), and Analyze says what was saved.
-      const now = new Date().toISOString();
+      // After both its own last edit and the kept draft's, even when either is ahead of this device's clock.
+      const now = nextStamp([d.updatedAt, kept.updatedAt].sort().pop() ?? d.updatedAt);
       saveDeals(loadDeals().map((x) => (x.id === d.id ? { ...x, updatedAt: now } : x)));
       d = { ...d, updatedAt: now };
       localStorage.setItem(KEPT_NOTE_KEY, JSON.stringify(`Your unsaved ${stateByCode(kept.state)?.name ?? ''} deal “${kept.name}” was saved to My deals.`));

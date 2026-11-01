@@ -159,7 +159,8 @@ function OtherNumbers({ d }: { d: Deal }) {
   if (bid) {
     if (bid.none) return <p className="deal-urgent">No price works at a {fmtMoney(bid.exitValue)} resale value with these costs and your profit target.</p>;
     const planCash = investorProfile().investable;
-    const short = planCash > 0 && bid.cashPeak > planCash;
+    // The same rule as Fix and sell: no warning once a cash limit is entered there (the price is already capped by it).
+    const short = !(bid.cashLimit > 0) && planCash > 0 && bid.cashPeak > planCash;
     return (
       <p className={short ? 'deal-urgent' : undefined}>
         Walk-away price {fmtMoney(bid.maxBid)} · needs about {fmtMoney(Math.round(bid.cashPeak))} of your cash at that price{short ? ` (My plan: ${fmtMoney(Math.round(planCash))})` : ''}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}
@@ -167,7 +168,7 @@ function OtherNumbers({ d }: { d: Deal }) {
     );
   }
   if (lien) return <p>{fmtMoney(lien.price)} certificate · {lien.yearly === null ? 'no yield' : `${(lien.yearly * 100).toFixed(1)}% a year`} if paid off in {lien.months} months</p>;
-  return <p className="muted">No numbers yet: open it and enter {d.plan === 'flip' ? 'the resale value and repairs under Fix and sell' : 'the certificate price under Lien certificate'}.</p>;
+  return <p className="muted">No numbers yet: open it and enter {d.plan === 'flip' ? 'the resale value and repairs under Fix and flip (fix and sell)' : 'the certificate price under Lien certificate'}.</p>;
 }
 
 export default function DealsPage() {
@@ -212,8 +213,8 @@ export default function DealsPage() {
                       {(() => {
                         const n = dealNumbers(d);
                         return n ? (
-                          <p className={n.monthly <= 0 || (n.cashOnCash !== null && n.cashOnCash < n.target / 100) ? 'deal-urgent' : undefined}>
-                            At your price, {fmtMoney(n.price)}: {n.monthly < 0 ? `loses ${fmtMoney(Math.round(-n.monthly))}` : `${fmtMoney(Math.round(n.monthly))} cash flow`} a month · {n.exampleValue ? 'refinance figured on an example value: enter the value after repairs' : n.cashOnCash === null ? 'all your cash back' : `${(n.cashOnCash * 100).toFixed(1)}% a year on ${fmtMoney(Math.round(n.cashIn))} of your cash`} (target {n.target}%)
+                          <p className={!n.exampleValue && (n.monthly <= 0 || (n.cashOnCash !== null && n.cashOnCash < n.target / 100)) ? 'deal-urgent' : undefined}>
+                            At your price, {fmtMoney(n.price)}: {n.monthly < 0 ? `loses ${fmtMoney(Math.round(-n.monthly))}` : `${fmtMoney(Math.round(n.monthly))} cash flow`} a month{n.exampleValue ? ' with a loan on an example value' : ''} · {n.exampleValue ? 'enter the value after repairs to see the real loan and return' : n.cashOnCash === null ? 'all your cash back' : `${(n.cashOnCash * 100).toFixed(1)}% a year on ${fmtMoney(Math.round(n.cashIn))} of your cash`} (target {n.target}%)
                           </p>
                         ) : d.plan === 'rent' ? <p className="muted">No numbers yet: open it and enter the price you’d pay under Keep and rent.</p> : <OtherNumbers d={d} />;
                       })()}
