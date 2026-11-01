@@ -176,7 +176,9 @@ export function cloudFromStorage(storage: Storage): CloudWork {
   const raw: Record<string, unknown> = {};
   for (let i = 0; i < storage.length; i++) {
     const k = storage.key(i); if (!k) continue;
-    try { raw[k] = JSON.parse(storage.getItem(k) ?? 'null'); } catch { if (plainTextKey(k)) raw[k]=storage.getItem(k); }
+    // Plain-text keys (region stamps, the calculator mode) are kept as written, even when they look like JSON.
+    if (plainTextKey(k)) { raw[k] = storage.getItem(k); continue; }
+    try { raw[k] = JSON.parse(storage.getItem(k) ?? 'null'); } catch { /* not JSON: not saved */ }
   }
   const out=projectCloudWork(raw);
   const before=raw['deedowl.analyze.v1'];

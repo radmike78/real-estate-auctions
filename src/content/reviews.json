@@ -10,7 +10,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "1bec2e8a809abb54",
+    "hash": "df44d8e10c4d2213",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -180,7 +180,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "86eebd23c6ae92a3",
+    "hash": "3b4df43fceea8dfb",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -421,7 +421,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "c4eba286eaf81ee7",
+    "hash": "baabb5f3f66dd9e2",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -436,7 +436,7 @@
       "server/accounts.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "9e49d2f44f244c1f",
+    "hash": "da6befb8deb13d19",
     "note": "Reviewed guest opt-out and later account activation: focus/session checks remain installed, while explicit guest choice suppresses account requests until sign-in or reopening. Structured save scope, manual controls and OWASP boundaries unchanged; production activation remains gated."
   }
 ]

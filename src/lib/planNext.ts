@@ -95,6 +95,7 @@ export function planNow(now = new Date()): PlanNow {
   const picked = !!deal && rawDealChoice() === `analyzed:${deal.id}`;
   // Until the roadmap reaches the property's own steps (paper practice, finding a sale), a researching analysis is
   // practice, not the property you're buying.
+  // (Before paper practice, a saved property is the one you're working on; the switch happens only for that stretch.)
   const paperPractice = researching && !picked && ['paper', 'c-paper', 'find', 'a-find', 'c-sale'].includes(roadmapNextStep()?.id ?? '');
   const guidedLearning = !picked && ((getMode() === 'guided' && !practicePart2Done() && researching) || paperPractice);
   if (deal && !guidedLearning) {

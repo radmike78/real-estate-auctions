@@ -241,8 +241,9 @@ export function FirstDealRoadmap() {
     else n[id] = v;
     return n;
   };
-  const setStatus = (s: RoadmapStep, v: StepStatus | 'done' | 'todo') => {
-    if (scoped(s)) {
+  // `learner`: your own progress, even with a property in focus (the practice-time task shown above the roadmap).
+  const setStatus = (s: RoadmapStep, v: StepStatus | 'done' | 'todo', learner = false) => {
+    if (scoped(s) && !learner) {
       const k = deal!.id;
       const cur = perDeal[k] ?? { done: [], status: {} };
       const all = { ...perDeal, [k]: { done: nextDone(cur.done, s.id, v), status: nextStatus(cur.status, s.id, v) } };
@@ -334,7 +335,7 @@ export function FirstDealRoadmap() {
         <div className="roadmap-next" id="roadmap-next">
           <p className="roadmap-next-label">Next task · {stepContext(learnerNext)}</p>
           <h3>{learnerNext.title}</h3>
-          <StepBody s={learnerNext} status={stateOf(learnerNext)} setStatus={(v) => setStatus(learnerNext, v)} />
+          <StepBody s={learnerNext} status={done.includes(learnerNext.id) ? 'done' : status[learnerNext.id] ?? 'todo'} setStatus={(v) => setStatus(learnerNext, v, true)} />
         </div>
       ) : (
         <p className="next-step" role="status">Use the task details below to record each milestone{stage === 'contract' ? '; contract tasks may run at the same time' : ''}.</p>
