@@ -274,9 +274,12 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false }
   const price = v.atPrice;
   const a = rentAtPrice(v, price, onPrice);
   const coc = a.cashOnCash;
+  // Needs more cash than you have (the cash entered here, else My plan's): never a green verdict. Before a refinance, all in.
+  const needed = !onPrice && a.loan > 0 ? a.allIn : a.cashIn;
+  const cashShort = price > 0 && cashLimit > 0 && needed > cashLimit;
   const target = v.targetCocPct / 100;
   const mo = (n: number) => fmtMoney(Math.round(n / 12));
-  const neg = (n: number) => (n > 0 ? `−${mo(n)}` : mo(0));
+  const neg = (n: number) => (n > 0 ? `−\u2060${mo(n)}` : mo(0)); // word joiner: the minus never wraps away from the amount
   return (
     <section className="at-price price-block price-block-yours" aria-labelledby="at-price-head">
       <PriceHead id="at-price-head" kind="yours" label={word} price={price > 0 ? price : null} result={price > 0 ? a.cashFlow / 12 : null} note={price > 0 ? 'Your actual price: the result for the property as you’d buy it.' : 'Enter the price you’d pay to see this property’s own result.'} />
@@ -285,14 +288,15 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false }
         <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
       </label>
       {price > 0 && (
-        <p className={`calc-verdict${exampleRefi ? '' : a.cashFlow > 0 && (coc === null || coc >= target) ? ' good' : ' bad'}`} role="status">
+        <p className={`calc-verdict${exampleRefi ? ' neutral' : cashShort || !(a.cashFlow > 0 && (coc === null || coc >= target)) ? ' bad' : ' good'}`} role="status">
           <strong>{exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; your target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; your target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; your target: ${v.targetCocPct}%.`}</strong>{' '}
           {blankRefi && 'No refinance is counted yet: enter the value after repairs to include it. '}
+          {cashShort && <>It needs about {fmtMoney(Math.round(needed))} of your cash, more than {limitWords}. <button type="button" className="linkish" onClick={(e) => { const f = e.currentTarget.closest('.calc')?.querySelector<HTMLInputElement>('input[id$="-cashAvailable"]'); if (!f) return; for (let d = f.closest('details'); d; d = d.parentElement?.closest('details') ?? null) d.open = true; f.scrollIntoView({ block: 'center' }); f.focus({ preventScroll: true }); }}>Enter your cash</button>{' '}</>}
           {exampleRefi ? null : a.cashFlow <= 0
             ? `It loses about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month after every cost. Investigate whether the price, the costs or your plan should change, or walk away.`
             : coc !== null && coc < target
               ? `Cash flow is positive (about ${fmtMoney(Math.round(a.cashFlow / 12))} a month), but it misses your goal. Investigate whether the price, the costs or the goal should change.`
-              : `It meets your target at this price, based on your numbers. Check each number against evidence before you rely on it.`}
+              : cashShort ? 'The return meets your target, but the cash it needs doesn’t fit what you have.' : `It meets your target at this price, based on your numbers. Check each number against evidence before you rely on it.`}
         </p>
       )}
       {price === 0 && <p className="muted small">Enter the price you’d pay (the asking price, or your offer) to see your numbers at that price.</p>}

@@ -511,7 +511,7 @@ function PriceFromCash({ cash }: { cash: number }) {
     // Only the cash limit changes. A price limit already there stays (it may be yours): say when it's more than the cash.
     write(BUYBOX_KEY, { ...b, cashMax: Math.round(cash) });
     window.dispatchEvent(new CustomEvent(PLAN_EVENT));
-    setSavedNote(`Saved: a ${fmtMoney(Math.round(cash))} cash limit in your buy box.${b.priceMax > cash ? ` Its price limit is still ${fmtMoney(b.priceMax)}, more than this cash: lower it if you’re paying cash.` : ''}`);
+    setSavedNote(`Saved: a ${fmtMoney(Math.round(cash))} cash limit in your buy box.${b.priceMax > cash ? ` Its price limit is still ${fmtMoney(b.priceMax)}, more than this cash: lower it if it no longer fits.` : ''}`);
   };
   if (payingCash) return (
     <div className="price-from-cash">

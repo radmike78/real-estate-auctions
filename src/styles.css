@@ -844,6 +844,7 @@ small { font-size: 0.95rem; }
 .calc-verdict { padding: 14px 16px; border-radius: 12px; }
 .calc-verdict.good { background: var(--go-bg); color: var(--go); }
 .calc-verdict.bad { background: var(--stop-bg); color: var(--stop); }
+.calc-verdict.neutral { background: var(--surface-2); border: 1px solid var(--border); color: var(--text); }
 .calc-verdict strong { display: block; font-size: 1.1rem; }
 .calc-breakdown summary { cursor: pointer; font-weight: 700; color: var(--accent); }
 .calc-stress { width: 100%; }

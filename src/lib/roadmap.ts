@@ -145,7 +145,7 @@ export const ROADMAP: RoadmapStep[] = [
     outcome: 'Notes comparing two counties’ lien sales, the one you chose and why.',
     steps: ['For each county, read the treasurer’s sale page: when the sale is, how it’s run (online or in person) and how bidding works.', 'Note how many parcels are offered and what kinds (vacant land, homes, commercial).', 'Note how payment works, the deadlines and any fees.', 'Record sources, dates and open questions in your buy-box notes.'],
     doneWhen: 'You compared two counties’ sales and recorded why you chose one, with sources and open questions.',
-    skip: 'Your state sells these certificates in only one county (in Nevada, SID lien certificates are a Clark County sale): read that county’s sale page instead, and mark this “Doesn’t apply to me”.',
+    skip: 'Your state sells these certificates in only one county: read that county’s sale page instead, and mark this “Doesn’t apply to me”.',
     action: 'Your county’s lien sale page', href: '#/find-deals',
   },
   {

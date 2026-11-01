@@ -68,7 +68,7 @@ export function countyTaxLine(state: StateCode, county?: string): { short: strin
   const place = /\bCity$/.test(county) ? county : `${county} County`;
   const range = c.low !== null && c.high !== null ? ` Inside the county it runs about ${pctWord(c.low)} to ${pctWord(c.high)}, depending on the city, school district and special districts at the address.` : ' The rate at a given address can differ from the county’s average.';
   return {
-    short: `${place}: about ${pctWord(c.pct)} of ${OF_SHORT[s.of]} a year (${s.year} rental rate).`,
+    short: `${place}: about ${pctWord(c.pct)} of ${OF_SHORT[s.of]} a year (${s.year} rental rate${s.of === 'taxable' || s.of === 'fcv' ? '; on a price it errs high' : ''}).`,
     detail: `The starting figure here is this rate on the calculator’s example value; once you enter your price, the hint works out the rate on it for you to enter. Use the county’s figure for your property when you have it. For a first estimate, multiply your ${s.of === 'price' ? 'price' : 'price or value'} by ${pctWord(c.pct)}. That rate is ${s.how}, from the ${s.source}.${range}`,
   };
 }
