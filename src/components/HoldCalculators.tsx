@@ -107,7 +107,7 @@ function buyGroup<T extends BuyInputs>(repairsLabel = 'Repairs'): CalcGroup<T> {
       { k: 'buyerPremiumPct', label: "Buyer's premium", unit: '%', hint: 'Auction fee on top of your bid, if any.' },
       { k: 'transferTaxPer500', label: 'Transfer tax', unit: '$/500', hint: 'Clark County: $2.55 per $500.' },
       { k: 'survivingLiens', label: 'Liens that stay with the property', unit: '$', hint: 'Confirm with a title search.' },
-      { k: 'titleLegal', label: 'Title search, attorney, quiet title', unit: '$' },
+      { k: 'titleLegal', label: 'Title search, attorney, quiet title', unit: '$', hint: 'Quiet title: a court case that confirms you own it free of old claims; some title companies require one before they insure.' },
       { k: 'possession', label: 'Getting possession', unit: '$', hint: 'Eviction attorney, relocation, locks.' },
       { k: 'repairs', label: repairsLabel, unit: '$', hint: 'To make it ready to rent.' },
       { k: 'contingencyPct', label: 'Extra room in the repair budget', unit: '%', hint: 'A cushion for surprises.' },
@@ -389,7 +389,7 @@ function HoldAndSell({ v, onPrice, target = 0 }: { v: RentInputs; onPrice: boole
   // below value as a gain you haven't made). With neither, the target price; with none of them, no result.
   const tgt = Number.isFinite(target) && target > 0 ? Math.round(target) : 0;
   const at = v.atPrice > 0 ? v.atPrice : v.value > 0 ? v.value : tgt;
-  const atWhat = v.atPrice > 0 ? 'your price' : v.value > 0 ? 'the property’s value' : 'the target price';
+  const atWhat = v.atPrice > 0 ? 'your price' : v.value > 0 ? 'the property’s value' : 'your walk-away price';
   const r = holdAndSell(v, at, h, onPrice);
   const field = (k: keyof HoldSellInputs, label: string, unit: string) => (
     <label className="field">
@@ -400,7 +400,7 @@ function HoldAndSell({ v, onPrice, target = 0 }: { v: RentInputs; onPrice: boole
   return (
     <details className="deal-lab hold-sell">
       <summary><span className="summary-h4">If you keep it and sell later</span></summary>
-      <p className="small muted">{at > 0 && <>At {atWhat}, {fmtMoney(at)}. </>}Rent and costs grow together; the loan payment stays the same. Before income tax: depreciation you took is taxed when you sell (see <a href="#/learn/taxes">Taxes from purchase to sale</a>).</p>
+      <p className="small muted">{at > 0 && (v.atPrice > 0 ? <>At {atWhat}, {fmtMoney(at)}. </> : v.value > 0 ? <>Figured as if you paid the property’s full value, {fmtMoney(at)}, because you haven’t entered your price; enter it above to see this at your price. </> : <>At {atWhat}, {fmtMoney(at)}. </>)}Rent and costs grow together; the loan payment stays the same. Before income tax: depreciation you took is taxed when you sell (see <a href="#/learn/taxes">Taxes from purchase to sale</a>).</p>
       <div className="row">{field('years', 'Years you keep it', 'years')}{field('appreciationPct', 'Value growth a year', '%')}{field('rentGrowthPct', 'Rent growth a year', '%')}{field('sellingCostPct', 'Selling costs', '% of price')}</div>
       {!r ? (
         <p>Enter your price or the appraised value to see a hold-and-sell result.</p>
@@ -483,7 +483,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const allExample = !typed && Object.keys(start).length === 0;
   const word = offer ? 'Your offer' : 'Your bid';
   // Which price the panels below are figured at: yours once you enter it, else the target price.
-  const at: PriceAt = v.atPrice > 0 ? { price: v.atPrice, label: `${word.toLowerCase()} of ${fmtMoney(v.atPrice)}` } : Number.isFinite(r.maxBid) && r.maxBid > 0 ? { price: r.maxBid, label: `the target price of ${fmtMoney(Math.round(r.maxBid))}` } : { price: v.value, label: `the ${fmtMoney(v.value)} value` };
+  const at: PriceAt = v.atPrice > 0 ? { price: v.atPrice, label: `${word.toLowerCase()} of ${fmtMoney(v.atPrice)}` } : Number.isFinite(r.maxBid) && r.maxBid > 0 ? { price: r.maxBid, label: `your walk-away price of ${fmtMoney(Math.round(r.maxBid))}` } : { price: v.value, label: `the ${fmtMoney(v.value)} value` };
   return (
     <div className="calc">
       <div className="calc-inputs">

@@ -1,3 +1,4 @@
+import { drillAllowsAds } from '../lib/contextAds';
 import NumInput from './NumInput';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { shuffled } from '../lib/shuffle';
@@ -342,7 +343,7 @@ function MissionCard({ m, a, set, fresh, total }: { m: Mission; a: Answers[strin
         <p>{m.question}</p>
         <ul>{m.items.map((i) => <li key={i.label}>{i.label}{done && <span className="muted"> · example {fmtMoney(i.low)}–{fmtMoney(i.high)}. {i.note}</span>}</li>)}</ul>
         {!done ? (
-          <form className="drill-estimate" onSubmit={(e) => { e.preventDefault(); if (est !== undefined) set({ ...a, done: true }); }}>
+          <form className="drill-estimate" onSubmit={(e) => { e.preventDefault(); if (est !== undefined && !e.currentTarget.querySelector('[aria-invalid="true"]')) set({ ...a, done: true }); }}>
             <label className="field">
               <span>{ESTIMATE_LABEL[m.id] ?? 'Your repair budget ($)'}</span>
               <NumInput blank value={est} onValue={(n) => set({ ...a, estimate: n })} />
@@ -510,7 +511,7 @@ export default function DrillPage({ id }: { id: string }) {
           </nav>
         ) : null;
       })()}
-      <AdSpot spot="drill" />
+      <AdSpot spot="drill" allow={drillAllowsAds(d.id)} />
     </main>
   );
 }

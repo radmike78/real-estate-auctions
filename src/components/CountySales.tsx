@@ -68,7 +68,7 @@ export default function CountySales({ sales }: { sales: CountySale[] }) {
                 <ul className="county-sale-dates">
                   {s.registerBy && <li>Register and pay the deposit by {fmtDateTime(s.registerBy, tz)}</li>}
                   {s.registerDay && <li>{s.registerWhat ?? 'Register'} by {day(s.registerDay)}</li>}
-                  {s.redeemBy && <li>Owners can pay the taxes until {fmtDateTime(s.redeemBy, tz)}, so properties come off the list before the sale</li>}
+                  {s.redeemBy && <li>Owners can pay the taxes until {fmtDateTime(s.redeemBy, tz)}. Any property paid off by then is pulled from the sale.</li>}
                 </ul>
               )}
               {s.bidRules?.length ? (

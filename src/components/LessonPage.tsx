@@ -1,5 +1,6 @@
-import { planNow } from '../lib/planNext';
-import { currentProgress, getMode } from '../lib/journey';
+import { lessonAllowsAds } from '../lib/contextAds';
+import { planNow, START_LESSONS } from '../lib/planNext';
+import { currentProgress, getMode, readLessons } from '../lib/journey';
 import { LESSON_CHAPTER, journeyHref, lessonChapter } from '../practice/dealJourney';
 import { useEffect, useRef, useState } from 'react';
 import { markLessonRead, useJourney, useLastActivity } from '../lib/journey';
@@ -247,6 +248,8 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
   // The practice button matches the practice task; the lesson's other link sits beside it only when it differs.
   const practiceLink = l.practiceLink === undefined ? l.tryIt : l.practiceLink;
   const dealChapter = lessonChapter(lessonKey, getMode() === 'guided');
+  // A guided reader still has a Start-here lesson to read: the practice link waits its turn, as a secondary link.
+  const startLessonsLeft = getMode() === 'guided' && LEARN_MODULES.slice(0, START_LESSONS).some((x) => !readLessons().includes(x.key));
   const extraTry = l.tryIt && l.tryIt !== practiceLink ? l.tryIt : null;
   return (
     <main className="page lesson" ref={bodyRef}>
@@ -269,7 +272,7 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
       {lessonKey === 'types' && (
         <section className="not-sure" aria-labelledby="types-not-sure">
           <h2 id="types-not-sure">Not sure which kind of property fits you?</h2>
-          <p>There are a lot of choices below. Answer a few questions about your money, time and goals, and we’ll suggest the kinds of property that fit. Every type is still listed here.</p>
+          <p>There are a lot of choices below. Answer a few quick questions about your money, time and goals, and we’ll suggest the strategies that fit you, including whether to start with homes or commercial property. Every type is still listed here.</p>
           <a className="btn" href="#/decide">Help me choose&nbsp;→</a>
         </section>
       )}
@@ -294,7 +297,9 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
           <h2 id="practice-head">Put it into practice</h2>
           {dealChapter ? <div className="deal-lesson-link">
             <p>Apply this lesson to Cedar House, your continuing fictional practice deal.</p>
-            <a className="btn deal-primary" href={journeyHref(dealChapter)}>{dealChapter === LESSON_CHAPTER[lessonKey] ? 'Try this decision' : 'Start the practice deal at chapter 1'} →</a>
+            {startLessonsLeft
+              ? <a className="btn btn-secondary" href={journeyHref(dealChapter)}>After the Start-here lessons: try it on Cedar House →</a>
+              : <a className="btn deal-primary" href={journeyHref(dealChapter)}>{dealChapter === LESSON_CHAPTER[lessonKey] ? 'Try this decision' : 'Start the practice deal at chapter 1'} →</a>}
             <details><summary>Other ways to apply this lesson</summary>
               {l.practice && <p>{oneState(l.practice, st)}</p>}
               {practiceLink && <a href={practiceLink.href}>{practiceLink.label} →</a>}
@@ -341,7 +346,7 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
           </nav>
         ) : <PathNext step="learn" />;
       })()}
-      <AdSpot spot="lesson" />
+      <AdSpot spot="lesson" allow={lessonAllowsAds(lessonKey)} />
     </main>
   );
 }

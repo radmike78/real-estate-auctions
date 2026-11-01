@@ -29,7 +29,7 @@ export interface PlanNow {
 
 export const ROADMAP_TASK_HREF = '#/toolkit/roadmap';
 /** How many of Learn's first lessons (its "Start here" group) a guided beginner reads before the practice deal. */
-const START_LESSONS = 2;
+export const START_LESSONS = 2;
 
 /** False until the practice deal has any work in it: the button then says Start, not Continue. */
 export function planStarted(now: PlanNow): boolean {
@@ -38,6 +38,20 @@ export function planStarted(now: PlanNow): boolean {
   if (now.task.key !== 'practice-deal') return false;
   const p = loadJourney();
   return p.completed.length > 0 || Object.keys(p.answers).length > 0;
+}
+
+/** A roadmap step named by the site's six steps, so pages agree on where you are: the planning tasks before the team
+ *  belong to step 4 (they're what you bring to your team), then the team itself, then Find deals from "find" on. */
+export function stepContext(step: RoadmapStep): string {
+  const steps = roadmapFor(planPath());
+  const at = steps.findIndex((s) => s.id === step.id);
+  const team = steps.findIndex((s) => s.id === 'team');
+  const find = steps.findIndex((s) => s.id === 'find');
+  const phase = ROADMAP_PHASES[step.phase];
+  if (at < 0 || team < 0 || find < 0 || step.phase >= 5) return `Roadmap · ${phase}`;
+  if (at < team) return `Step 4 · Your team · first, ${phase.charAt(0).toLowerCase()}${phase.slice(1)}`;
+  if (at < find) return 'Step 4 · Your team';
+  return 'Step 5 · Find deals';
 }
 
 /** The roadmap's next step for the learner (no property chosen): a step you walked away at stays next. */
@@ -82,10 +96,11 @@ export function planNow(now = new Date()): PlanNow {
   const learning = getMode() !== 'explore' && !roadmapStarted && !practiceDone;
   // Decide comes first unless the reader already started the practice deal; the two Start-here lessons stay ahead of
   // practice until one of its chapters is finished, even if a lesson's practice link was tried early.
-  if (learning && practice.completed.length === 0) {
-    if (!currentProgress().decided && Object.keys(practice.answers).length === 0) {
-      return { goal, source: 'starter', context: 'Step 1 · Decide', task: { key: 'decide', label: 'Decide: your goal and investable cash', produces: 'the strategies that fit your money, time and goals, in about 2 minutes', href: '#/decide', support: [], done: false, text: 'A few questions about your goal, your cash and your time.' } };
-    }
+  if (learning && practice.completed.length === 0 && !currentProgress().decided && Object.keys(practice.answers).length === 0) {
+    return { goal, source: 'starter', context: 'Step 1 · Decide', task: { key: 'decide', label: 'Decide: your goal and investable cash', produces: 'the strategies that fit your money, time and goals, in about 2 minutes', href: '#/decide', support: [], done: false, text: 'A few questions about your goal, your cash and your time.' } };
+  }
+  // The two Start-here lessons stay next until both are read, even if a lesson's practice link was tried early.
+  if (learning) {
     const read = readLessons();
     const lesson = LEARN_MODULES.slice(0, START_LESSONS).find((m) => !read.includes(m.key));
     if (lesson) {
@@ -107,7 +122,7 @@ export function planNow(now = new Date()): PlanNow {
     }
   }
   const step = roadmapNextStep();
-  if (step) return { goal, source: 'roadmap', context: `Roadmap · ${ROADMAP_PHASES[step.phase]}`, task: roadmapTask(step) };
+  if (step) return { goal, source: 'roadmap', context: stepContext(step), task: roadmapTask(step) };
   return {
     goal,
     source: 'roadmap',

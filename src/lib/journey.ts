@@ -121,6 +121,9 @@ export function unfinished(last: LastActivity | null, p: Progress): LastActivity
   if (lesson && p.read.includes(lesson[1])) return null;
   const drill = last.href.match(/^#\/practice\/drills\/([a-z0-9-]+)$/);
   if (drill && p.drillsDone.includes(drill[1])) return null;
+  // A practice chapter already done isn't left unfinished.
+  const chapter = last.href.match(/^#\/practice\/deal\/([a-z-]+)$/);
+  if (chapter && loadJourney().completed.includes(chapter[1])) return null;
   // The practice deal with all its chapters done is finished too.
   if (/^#\/practice\/deal(\/|$)/.test(last.href) && loadJourney().completed.length === CHAPTERS.length) return null;
   // So is the practice purchase once its deal packet is done.
@@ -134,4 +137,5 @@ export function syncRoadmapCredits() {
   if (currentProgress().decided) creditStep('strategy');
   if (readLessons().includes('red-flags')) creditStep('avoid');
   if (practicePart2Done()) creditStep('practice');
+  try { if ((JSON.parse(localStorage.getItem('deedowl.goal.v1') ?? '""') as string).trim().length >= 12) creditStep('goal'); } catch { /* unreadable goal: nothing to credit */ }
 }

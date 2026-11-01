@@ -181,7 +181,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           </div>
         )}
       </div>
-      {side}
+      {(!onPlan || (deal && now.tasks && stage)) && side}
       {helper && <div className="plan-now-help">{helper}</div>}
     </section>
   );

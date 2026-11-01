@@ -48,6 +48,9 @@ function save(s: Saved) {
     if (QUESTIONS.every((q) => typeof s.answers[q.key] === 'string')) creditStep('strategy');
   } catch {
     /* private mode: not kept */
+  } finally {
+    // The header's Continue and Home move on to the next step right away.
+    window.dispatchEvent(new CustomEvent('deedowl:journey'));
   }
 }
 
@@ -234,7 +237,7 @@ export default function DecidePage() {
               Start over
             </button>
           </div>
-          <p className="muted">Without an account, these answers stay in this browser. Signed in? These answers last only for this visit and aren’t saved to your account. Download them if you want to keep them.</p>
+          <p className="muted">Your answers are kept in this browser. To keep a copy, <a href="#/toolkit/backup">download your progress</a> in My plan.</p>
         </section>
       )}
       <AdSpot spot="decide" />

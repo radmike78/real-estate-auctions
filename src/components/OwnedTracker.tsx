@@ -1,4 +1,4 @@
-import { parseCalcInput } from './CalcFields';
+import { calculatorInputError, parseCalcInput } from './CalcFields';
 import { useEffect, useState } from 'react';
 import type { Deal } from '../lib/analyze';
 import { flipBudget, flipBudgetLine, savedNumbers } from '../lib/dealPacket';
@@ -65,10 +65,12 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   }
   const s = ownedSummary(o, projected);
   const negative = parseCalcInput(rent) < 0 || parseCalcInput(costs) < 0;
+  // A misplaced comma ("250,00") would record a number ten or a hundred times off, so it's refused, not guessed.
+  const unreadable = !negative && [rent, costs].some((t) => t.trim() !== '' && !!calculatorInputError(t, '$'));
   const add = () => {
     const r = parseCalcInput(rent);
     const c = parseCalcInput(costs);
-    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || !Number.isFinite(r) || !Number.isFinite(c) || r < 0 || c < 0) return;
+    if (unreadable || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || !Number.isFinite(r) || !Number.isFinite(c) || r < 0 || c < 0) return;
     put({ ...o, months: [{ month, rent: Math.max(0, r), costs: Math.max(0, c), note: note.slice(0, 200) }, ...o.months.filter((m) => m.month !== month)].sort((a, b) => b.month.localeCompare(a.month)) });
     setRent('');
     setCosts('');
@@ -86,8 +88,9 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         <label className="field"><span>Rent collected ($)</span><input type="text" inputMode="decimal" value={rent} onChange={(e) => setRent(e.target.value)} /></label>
         <label className="field"><span>Everything you paid ($)</span><input type="text" inputMode="decimal" value={costs} onChange={(e) => setCosts(e.target.value)} /></label>
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>
-        <button type="button" className="btn" disabled={rent === '' || costs === '' || negative} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
+        <button type="button" className="btn" disabled={rent === '' || costs === '' || negative || unreadable} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
       </div>
+      {unreadable && <p className="caution small" role="alert">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
       {negative && <p className="caution small" role="alert">Enter rent and costs as $0 or more. Record a refund to a tenant as a cost.</p>}
       <p className="small muted">Count everything you paid that month: the loan, taxes, insurance, HOA, repairs, management and utilities, and any money you moved into your repair savings.</p>
       {s.months > 0 ? (

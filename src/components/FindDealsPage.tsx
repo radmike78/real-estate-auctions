@@ -63,7 +63,7 @@ export default function FindDealsPage() {
   const [mine, setMine] = useMyArea();
   const { pros } = useDirectory();
   const adCats = useSpotCategories('finddeals');
-  const adShows = useAdShows(adCats);
+  const adShows = useAdShows(adCats, pros);
   const state: StateCode = mine?.state ?? 'NV';
   const area = { state, county: mine?.county ?? DEFAULT_COUNTY[state] };
   const setArea = (a: { state: StateCode; county: string }) =>
