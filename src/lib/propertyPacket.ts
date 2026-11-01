@@ -5,7 +5,8 @@ import { workStorage as localStorage } from './workStorage';
 import { kindLabel, SALE_KINDS, type Deal } from './analyze';
 import { ownNumbers } from './dealPacket';
 import { EVIDENCE_AREAS, GATES, loadLog } from './evidence';
-import { rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, type RentInputs } from './holdCalc';
+import { rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, withoutOldValueExample, type RentInputs } from './holdCalc';
+import { readConfirmed } from './calcConfirmation';
 import { cleanGoal, cleanTeamList, GOAL_KEY, investorProfile, TEAM_LIST_KEY, TEAM_ROLES } from './myPlan';
 import { proGuideByKey } from './proGuide';
 import { countyName } from './regions';
@@ -33,7 +34,7 @@ export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCa
   const offer = d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short';
   const raw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
   if (!raw) return null;
-  const v = sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs;
+  const v = withoutOldValueExample(sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs, offer, readConfirmed(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`));
   if (!(v.atPrice > 0)) return null;
   const a = rentAtPrice(v, v.atPrice, offer);
   return { price: v.atPrice, monthly: a.cashFlow / 12, cashOnCash: a.cashOnCash, target: v.targetCocPct, cashIn: a.cashIn };
@@ -51,7 +52,7 @@ export function propertyPacketText(d: Deal): string {
   const raw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
   lines.push('THE NUMBERS (estimates from your inputs)');
   if (raw) {
-    const v = sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs;
+    const v = withoutOldValueExample(sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs, offer, readConfirmed(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`));
     if (v.atPrice > 0) {
       const a = rentAtPrice(v, v.atPrice, offer);
       lines.push(

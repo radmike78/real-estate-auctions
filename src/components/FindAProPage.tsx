@@ -10,6 +10,8 @@ import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPercent, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
 import { guidesFor } from '../lib/playbooks';
 import { roadmapPath } from '../lib/roadmapState';
+import { CURRENT_KEY, type Deal } from '../lib/analyze';
+import { guideKeyFor } from '../lib/dealPacket';
 import { STATES, stateByCode, type StateCode } from '../lib/regions';
 import { LICENSE_LOOKUPS, type Lookup } from '../lib/licenseLookups';
 import { useMyState, forStateText, showFor, mentionsOtherState } from '../lib/myState';
@@ -296,6 +298,14 @@ export default function FindAProPage({ section }: { section?: string }) {
   const [mine, setMine] = useMyState();
   // Opens on the kind of sale your roadmap route is about (an auction, a lien certificate), when your state has it.
   const [sale, setSale] = useState<string>(() => {
+    // The property open in Analyze (a saved one) decides first: its own kind of sale.
+    try {
+      const cur = JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null') as { id?: string; kind?: Deal['kind']; state?: string } | null;
+      if (cur?.id && cur.kind && cur.state === mine) {
+        const k = cur.kind === 'listing' ? 'listing' : guideKeyFor({ kind: cur.kind, state: mine });
+        if (k === 'listing' || guidesFor(mine).some((p) => p.key === k)) return k;
+      }
+    } catch { /* storage unavailable */ }
     const r = roadmapPath();
     const pre = mine === 'NV' ? '' : (mine ?? '').toLowerCase();
     const want = r === 'auction' ? `${pre}foreclosure` : r === 'certificate' ? (mine === 'NV' ? 'sid' : 'aztaxlien') : '';

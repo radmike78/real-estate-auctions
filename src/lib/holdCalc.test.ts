@@ -20,12 +20,12 @@ describe('rent / hold', () => {
   });
 
   it('a refinance leaves less cash in the deal, so you can pay more, and checks the loan coverage', () => {
-    const cash = rentMaxBid({ ...RENT_DEFAULTS, loanPct: 0 });
-    const refi = rentMaxBid({ ...RENT_DEFAULTS, loanPct: 50 });
+    const cash = rentMaxBid({ ...RENT_DEFAULTS, value: 350_000, loanPct: 0 });
+    const refi = rentMaxBid({ ...RENT_DEFAULTS, value: 350_000, loanPct: 50 });
     expect(refi.debtService).toBeGreaterThan(0);
     expect(refi.dscr).not.toBeNull();
     expect(refi.maxBid).not.toBe(cash.maxBid);
-    const heavy = rentMaxBid({ ...RENT_DEFAULTS, loanPct: 80, ratePct: 10 });
+    const heavy = rentMaxBid({ ...RENT_DEFAULTS, value: 350_000, loanPct: 80, ratePct: 10 });
     expect(heavy.loanOk).toBe(heavy.dscr! >= RENT_DEFAULTS.minDscr);
   });
 
@@ -204,4 +204,10 @@ describe('actual commercial price and exact coverage', () => {
     expect(commercialAtPrice(i, 100000, false).leaseUpDebt).toBe(0);
     expect(commercialMaxBid(i, true).maxBid).not.toBe(a.price);
   });
+});
+
+it('sizes a refinance on your price until you enter a value (no example value inflates it)', () => {
+  const i = { ...RENT_DEFAULTS, loanPct: 75 };
+  expect(loanAt(i, 120_000)).toBe(90_000);
+  expect(loanAt({ ...i, value: 200_000 }, 120_000)).toBe(150_000);
 });

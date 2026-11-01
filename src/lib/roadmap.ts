@@ -232,6 +232,7 @@ export const ROADMAP: RoadmapStep[] = [
     steps: ['Find three real properties that fit your buy box in Find deals (official sale lists, or listings from your agent if you buy through one), then run each in Analyze.', 'For each, write the rent or value and where it came from, every cost, and a bad-case version.', 'Write one reason you’d pass on at least one of them.'],
     doneWhen: 'Three analyses are saved in Analyze with sources, and one has a written reason to pass.',
     action: 'Open Analyze', href: '#/analyze',
+    also: { label: 'Find properties (Find deals)', href: '#/find-deals' },
   },
   {
     id: 'c-paper', phase: 3, path: LIEN, title: 'Research real parcels on paper',
@@ -245,6 +246,7 @@ export const ROADMAP: RoadmapStep[] = [
     ],
     doneWhen: 'Three parcels are researched with sources, run in the lien calculator, and one has a written reason to skip.',
     action: 'Open the lien calculator', href: '#/analyze?plan=lien',
+    also: { label: 'Your county’s lien list (Find deals)', href: '#/find-deals' },
   },
 
   // 4. Find and check a deal: through an agent

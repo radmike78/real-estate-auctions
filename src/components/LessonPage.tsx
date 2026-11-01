@@ -154,7 +154,7 @@ function Block({ b, marked }: { b: LessonBlock; marked?: Piece[][] }) {
     );
   return (
     <div className="table-wrap">
-      <table className={`lesson-table cols-${b.table.head.length}${b.table.rows.some((r) => r[0].length > 30) ? ' long-first' : ''}`}>
+      <table className={`lesson-table cols-${b.table.head.length}${b.table.rows.some((r) => r[0].length > 30) ? ' long-first' : ''}${b.table.rows.every((r) => r.slice(1).every((c) => c.length <= 24)) ? ' short-values' : ''}`}>
         <thead><tr>{b.table.head.map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
         <tbody>
           {b.table.rows.map((r) => (

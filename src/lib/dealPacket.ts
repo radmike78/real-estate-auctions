@@ -8,10 +8,11 @@ import { workStorage as localStorage } from './workStorage';
 import { kindLabel, SALE_KINDS, type Deal } from './analyze';
 import { costsAtBid, maxSafeBid, offerInputs, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, unenteredCosts, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
 import { cleanBuyBox, EMPTY_BUY_BOX, type BuyBox } from './toolkit';
-import { EVIDENCE_AREAS, GATES, loadLog } from './evidence';
-import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, LIEN_DEFAULTS, lienYield, sanitizeNumbers, type CommercialInputs, type LienInputs, type RentInputs } from './holdCalc';
-import { cleanGoal, GOAL_KEY, investorProfile, TEAM_ROLES } from './myPlan';
-import { proGuideByKey } from './proGuide';
+import { areasFor, GATES, loadLog } from './evidence';
+import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, LIEN_DEFAULTS, lienYield, sanitizeNumbers, withoutOldValueExample, type CommercialInputs, type LienInputs, type RentInputs } from './holdCalc';
+import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
+import { PLAYBOOKS } from './playbooks';
+import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
 import { dealNextTask, stageLabel, stageOf } from './dealStage';
 
@@ -213,6 +214,27 @@ export const STRATEGY_LABEL: Record<Deal['plan'], string> = { rent: 'Keep and re
  *  place behind one click on "Use the walk-away price". Lien certificates have no such input. */
 const lienKey = (d: Deal) => `fsf.calc.lien.${d.id}${d.state === 'AZ' ? '-az' : ''}.v1`;
 
+const GUIDE_FOR: Partial<Record<Deal['kind'], string>> = { trustee: 'foreclosure', taxSale: 'tax', court: 'sheriff', hoa: 'hoa', irs: 'irs', reo: 'reo', short: 'short' };
+const LISTING_ROLES: ProKey[] = ['agent', 'lender', 'inspector', 'title', 'insurance', 'property_manager'];
+
+/**
+ * The professionals this kind of sale usually needs (the team Your team shows for it), without a lender when your plan
+ * says you're paying cash. Every other role can still be picked for a question.
+ */
+/** The sale guide for a deal's kind of sale in its state ('' for a regular listing). */
+export function guideKeyFor(d: Pick<Deal, 'kind' | 'state'>): string {
+  const pre = d.state === 'NV' ? '' : d.state.toLowerCase();
+  return d.kind === 'lien' ? (d.state === 'NV' ? 'sid' : 'aztaxlien') : GUIDE_FOR[d.kind] ? `${pre}${GUIDE_FOR[d.kind]}` : '';
+}
+
+export function teamRolesFor(d: Deal): ProKey[] {
+  const key = guideKeyFor(d);
+  const book = key ? PLAYBOOKS.find((p) => p.key === key) : undefined;
+  const roles = book ? [...new Set(book.team.map((t) => t.pro).filter((k): k is ProKey => !!k))] : LISTING_ROLES;
+  const cash = investorProfile().loan === 'cash';
+  return roles.filter((k) => !(cash && (k === 'lender' || k === 'private_lender')));
+}
+
 export function ownNumbers(d: Deal): boolean {
   const offerKey = isOffer(d) ? '-offer' : '';
   if (d.plan === 'rent') return readConfirmed(`fsf.calc.rent.${d.id}${offerKey}.v1`).has('monthlyRent');
@@ -239,7 +261,7 @@ export function savedNumbers(d: Deal) {
   const offer = isOffer(d);
   // Example numbers aren't the property's numbers: nothing is reported until its own are typed.
   const own = ownNumbers(d);
-  let rent: { price: number; monthly: number; cashIn: number; allIn: number; repairs: number; possession: number; retained: number; refi: boolean; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
+  let rent: { price: number; monthly: number; cashIn: number; allIn: number; repairs: number; possession: number; retained: number; refi: boolean; noLoan: boolean; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
   let bid: {
     maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number; none: boolean; target: number;
     /** A loan pays part of the price or repairs (repair draws aren't modeled, so the cash figures assume the loan pays as costs come due). */
@@ -264,10 +286,11 @@ export function savedNumbers(d: Deal) {
   if (d.plan === 'rent' && own) {
     const rentRaw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
     if (rentRaw) {
-      const v = sanitizeNumbers(rentRaw, RENT_DEFAULTS) as RentInputs;
+      const key = `fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`;
+      const v = withoutOldValueExample(sanitizeNumbers(rentRaw, RENT_DEFAULTS) as RentInputs, offer, readConfirmed(key));
       if (v.atPrice > 0) {
         const a = rentAtPrice(v, v.atPrice, offer);
-        rent = { price: v.atPrice, monthly: a.cashFlow / 12, cashIn: a.cashIn, allIn: a.allIn, repairs: v.repairs * (1 + v.contingencyPct / 100), possession: v.possession, retained: v.reserveCash, refi: !offer && a.loan > 0, cashOnCash: a.cashOnCash, target: v.targetCocPct, stress: rentStress(v, v.atPrice, offer).map((s) => ({ label: s.label, monthly: s.monthly })) };
+        rent = { price: v.atPrice, monthly: a.cashFlow / 12, cashIn: a.cashIn, allIn: a.allIn, repairs: v.repairs * (1 + v.contingencyPct / 100), possession: v.possession, retained: v.reserveCash, refi: !offer && a.loan > 0, noLoan: !(a.loan > 0), cashOnCash: a.cashOnCash, target: v.targetCocPct, stress: rentStress(v, v.atPrice, offer).map((s) => ({ label: s.label, monthly: s.monthly })) };
       }
     }
   } else if (d.plan === 'flip' && own) {
@@ -468,7 +491,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       needAt = `At a ${money(rent.price)} price`;
       if (offer) {
         const acquisition = Math.max(0, rent.cashIn - rent.repairs - rent.possession);
-        cash.push(`Acquisition cash estimate at a ${money(rent.price)} price, before deposit credits: ${money(acquisition)} (down payment and modeled purchase/loan costs; excludes repairs, possession costs and retained reserves).`);
+        cash.push(`Acquisition cash estimate at a ${money(rent.price)} price, before deposit credits: ${money(acquisition)} (${rent.noLoan ? 'the price and modeled buying costs, paying cash' : 'down payment and modeled purchase/loan costs'}; excludes repairs, possession costs and retained reserves).`);
         if (p.depositCredit) {
           cash.push(p.depositCredit <= acquisition && p.depositCredit <= p.earnest + (p.optionFee ?? 0)
             ? `After ${money(p.depositCredit)} of confirmed deposit/fee credits: ${money(acquisition - p.depositCredit)} remaining acquisition cash in this planning estimate.`
@@ -577,13 +600,14 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: downside && !bid?.unentered.length ? 'done' : hasNums || flipNeedsRepairs(d) ? 'started' : 'missing', lines: nums, fix: { label: 'Open in Analyze', href: '#/analyze' } });
 
   // 6. Evidence
-  const checked = EVIDENCE_AREAS.filter((a) => log.rows[a.key]?.done);
-  const open = EVIDENCE_AREAS.map((a) => ({ a, r: log.rows[a.key] })).filter(({ r }) => r?.open && !r.done);
+  const areas = areasFor(d.kind);
+  const checked = areas.filter((a) => log.rows[a.key]?.done);
+  const open = areas.map((a) => ({ a, r: log.rows[a.key] })).filter(({ r }) => r?.open && !r.done);
   out.push({
     key: 'evidence',
     title: 'What you’ve verified, and what’s open',
-    status: checked.length === EVIDENCE_AREAS.length ? 'done' : checked.length || open.length ? 'started' : 'missing',
-    lines: [`${checked.length} of ${EVIDENCE_AREAS.length} areas checked${checked.length ? `: ${checked.map((x) => x.title).join(', ')}` : ''}`, ...open.map(({ a, r }) => `Open (${a.title}): ${r.open}${r.owner ? `, ${r.owner}` : ''}`), ...EVIDENCE_AREAS.filter((a) => !log.rows[a.key]?.done && !log.rows[a.key]?.open).map((a) => `Not checked: ${a.title}`)],
+    status: checked.length === areas.length ? 'done' : checked.length || open.length ? 'started' : 'missing',
+    lines: [`${checked.length} of ${areas.length} areas checked${checked.length ? `: ${checked.map((x) => x.title).join(', ')}` : ''}`, ...open.map(({ a, r }) => `Open (${a.title}): ${r.open}${r.owner ? `, ${r.owner}` : ''}`), ...areas.filter((a) => !log.rows[a.key]?.done && !log.rows[a.key]?.open).map((a) => `Not checked: ${a.title}`)],
   });
 
   // 7. Professionals
@@ -595,7 +619,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     status: answered.length && !waiting.length ? 'done' : p.qa.length ? 'started' : 'missing',
     lines: p.qa.length
       ? p.qa.filter((x) => x.q).map((x) => `${proGuideByKey(x.role as never)?.title ?? 'Other'}: ${x.q} → ${x.a ? `${x.a}${x.on ? ` (${x.on})` : ''}` : 'waiting for an answer'}`)
-      : [`Write down the question this deal raises for each of: ${TEAM_ROLES.map((k) => proGuideByKey(k)?.title ?? k).join(', ')}.`],
+      : [`Write down the question this deal raises for each of: ${teamRolesFor(d).map((k) => proGuideByKey(k)?.title ?? k).join(', ')}. Add any other professional you’ll use.`],
   });
 
   // 8. Decision

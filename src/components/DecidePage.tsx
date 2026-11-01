@@ -7,7 +7,7 @@ import OwlNote from './OwlNote';
 import { useMarkStep, stepEyebrow } from '../lib/path';
 import { linkLabel } from '../lib/linkLabel';
 import { creditStep } from '../lib/roadmapState';
-import { DECIDE_KEY, joinReasons, notYetWhy, QUESTIONS, rank, stateNote, type Answers, CASH_AT_RISK, CASH_LOAN_STEP, usesLoanDown } from '../lib/decide';
+import { DECIDE_KEY, joinReasons, notYetWhy, QUESTIONS, rank, stateNote, type Answers, asAnswered } from '../lib/decide';
 import { strategyHref } from '../lib/strategies';
 import { stateByCode, type StateCode } from '../lib/regions';
 import { getMyState, setMyState } from '../lib/myState';
@@ -110,7 +110,8 @@ export default function DecidePage() {
   const toggle = (id: string) => setSaved((s) => ({ ...s, done: s.done.includes(id) ? s.done.filter((x) => x !== id) : [...s.done, id] }));
 
   const q = QUESTIONS[step];
-  const matches = step >= QUESTIONS.length ? rank(saved.answers).slice(0, 3) : [];
+  // Each result as it applies to these answers (paying cash: the cash version of its loan wording).
+  const matches = step >= QUESTIONS.length ? rank(saved.answers).slice(0, 3).map((m) => ({ ...m, strategy: asAnswered(m.strategy, saved.answers) })) : [];
   // The same “What you keep owing” warning on two or more cards is shown once, above them.
   const owing = matches.map((m) => m.strategy.risk.ongoing).filter((x): x is string => !!x);
   const sharedOwing = owing.find((x) => owing.filter((y) => y === x).length > 1);
@@ -202,7 +203,7 @@ export default function DecidePage() {
                   {m.strategy.key === 'auction' && <p className="decide-note">{AUCTION_REALITY}</p>}
                   <dl className="decide-risk" aria-label="Risk check">
                     <div><dt>What could go seriously wrong</dt><dd>{m.strategy.risk.worst}</dd></div>
-                    <div><dt>Cash needed to start</dt><dd>{saved.answers.borrow === 'cash' && usesLoanDown(m.strategy.risk.atRisk) ? CASH_AT_RISK : m.strategy.risk.atRisk}</dd></div>
+                    <div><dt>Cash needed to start</dt><dd>{m.strategy.risk.atRisk}</dd></div>
                     {m.strategy.risk.ongoing && m.strategy.risk.ongoing !== sharedOwing && <div><dt>What you keep owing</dt><dd>{m.strategy.risk.ongoing}</dd></div>}
                     <div><dt>Time to a first deal</dt><dd>{m.strategy.risk.time}</dd></div>
                   </dl>
@@ -212,7 +213,7 @@ export default function DecidePage() {
                       <li key={c.id}>
                         <label>
                           <input type="checkbox" checked={saved.done.includes(c.id) || seenDone(c)} disabled={seenDone(c)} onChange={() => toggle(c.id)} />
-                          <span>{saved.answers.borrow === 'cash' && /-loan$/.test(c.id) ? CASH_LOAN_STEP : c.text}{seenDone(c) && <span className="muted"> (done: the site saw you finish it)</span>}</span>
+                          <span>{c.text}{seenDone(c) && <span className="muted"> (done: the site saw you finish it)</span>}</span>
                         </label>
                         {c.href && <a href={c.href}>{linkLabel(c.href)}&nbsp;→</a>}
                       </li>

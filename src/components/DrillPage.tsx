@@ -246,7 +246,7 @@ export function DrillList({ presetTopic, liensFirst = false }: { presetTopic?: T
   // Sent to one topic (the roadmap's auction practice): that topic's drills for your state, not the general three.
   const inPreset = (d: Drill) => (!onlyMine || drillState(d) === null || drillState(d) === mine) && drillCard(d).group === presetTopic;
   // Sent from lien practice: the lien drills lead.
-  const topicDrills = guided && presetTopic ? DRILLS.filter(inPreset).sort((a, b) => (liensFirst ? Number(/lien/.test(b.id)) - Number(/lien/.test(a.id)) : 0)) : [];
+  const topicDrills = guided && presetTopic ? DRILLS.filter(inPreset).sort((a, b) => (liensFirst ? Number(/^(tax-lien|sid)/.test(b.id)) - Number(/^(tax-lien|sid)/.test(a.id)) : 0) || Number(/^irs/.test(a.id)) - Number(/^irs/.test(b.id))) : [];
   // Lien sales are Arizona and Nevada only: elsewhere the auction topic is just auctions.
   const topicLabel = presetTopic === 'auctions' ? (mine !== 'AZ' && mine !== 'NV' ? 'Auction' : liensFirst ? 'Tax lien and auction' : 'Auction and tax lien') : TOPIC_GROUPS.find((g) => g.key === presetTopic)?.label ?? 'These';
   const topicTitle = `${topicLabel} drills${mine ? ` for ${STATE_NAMES[mine]}` : ''}`;

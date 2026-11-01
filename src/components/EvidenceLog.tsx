@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { emptyRow, EVIDENCE_AREAS, EVIDENCE_EVENT, GATES, loadLog, logText, saveLog, type EvidenceLog as Log, type EvidenceRow } from '../lib/evidence';
+import { areasFor, emptyRow, EVIDENCE_AREAS, EVIDENCE_EVENT, GATES, loadLog, logText, saveLog, type EvidenceLog as Log, type EvidenceRow } from '../lib/evidence';
 import { downloadText, fileName } from '../lib/download';
 
 /** For one deal: what you verified, where it came from and what's still open, then the decision it supports. */
-export default function EvidenceLog({ dealId, name, initiallyOpen = false, onPass }: { dealId: string; name: string; initiallyOpen?: boolean; /** Offered after choosing Pass: move the property to Passed. */ onPass?: () => void }) {
+export default function EvidenceLog({ dealId, name, kind, initiallyOpen = false, onPass }: { dealId: string; name: string; /** The kind of sale (a lien certificate's areas differ). */ kind?: string; initiallyOpen?: boolean; /** Offered after choosing Pass: move the property to Passed. */ onPass?: () => void }) {
   const [log, setLog] = useState<Log>(() => loadLog(dealId));
+  const areas = areasFor(kind);
   const [passedNow, setPassedNow] = useState(false);
   // Focus the confirmation once, when it appears (not on every re-render while you type elsewhere).
   const passedRef = useRef<HTMLParagraphElement>(null);
@@ -16,16 +17,16 @@ export default function EvidenceLog({ dealId, name, initiallyOpen = false, onPas
     saveLog(dealId, next);
     setLog(next);
   };
-  const done = EVIDENCE_AREAS.filter((a) => log.rows[a.key]?.done).length;
-  const openCount = EVIDENCE_AREAS.filter((a) => (log.rows[a.key]?.open ?? '').trim()).length;
+  const done = areas.filter((a) => log.rows[a.key]?.done).length;
+  const openCount = areas.filter((a) => (log.rows[a.key]?.open ?? '').trim()).length;
   const set = (key: string, patch: Partial<EvidenceRow>) => update((l) => ({ ...l, rows: { ...l.rows, [key]: { ...(l.rows[key] ?? emptyRow()), ...patch } } }));
   const gate = GATES.find((g) => g.key === log.gate);
   return (
     <details className="evidence-log" open={initiallyOpen}>
-      <summary>Verify: evidence log ({done} of {EVIDENCE_AREAS.length} checked{openCount ? `, ${openCount} open question${openCount === 1 ? '' : 's'}` : ''}){gate ? ` · ${gate.label}` : ''}</summary>
+      <summary>Verify: evidence log ({done} of {areas.length} checked{openCount ? `, ${openCount} open question${openCount === 1 ? '' : 's'}` : ''}){gate ? ` · ${gate.label}` : ''}</summary>
       <p className="muted small">For each area, record where the answer came from and when. A checkmark records your review; it doesn’t clear title or certify a deal. Get qualified local help for anything legal or title-related.</p>
       <ol className="evidence-areas">
-        {EVIDENCE_AREAS.map((a) => {
+        {areas.map((a) => {
           const r = log.rows[a.key] ?? emptyRow();
           return (
             <li key={a.key}>

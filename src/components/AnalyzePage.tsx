@@ -205,6 +205,12 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       return;
     }
     if (deal.id) {
+      // The stored copy is newer (another tab typed since): don't write this older copy over it; show the newer one.
+      const there = loadDeals().find((x) => x.id === deal.id);
+      if (there && there.updatedAt > deal.updatedAt) {
+        setDeal(there);
+        return;
+      }
       setSaved(() => {
         // Built from what's stored, not this page's copy, so a deal saved elsewhere meanwhile (a kept draft) stays.
         // The stage is changed in My plan or the deal packet, not here: keep the one stored with the deal.
@@ -434,6 +440,7 @@ function ProfileNote({ deal }: { deal: Deal }) {
   else if (listed && p.loan === 'yes') parts.push('a loan (a common 75% of the price for a listed rental, until your lender quotes)');
   if (!p.ownerOccupant && p.manager === true) parts.push('a property manager (8% of rent)');
   else if (!p.ownerOccupant && p.manager === false) parts.push('managing it yourself');
+  if (listed && p.loan === 'cash' && !(p.investable > 0)) parts.push('your investable cash isn’t worked out yet in My plan, so the price that meets your target has no cash limit (work it out to cap it at what you have)');
   if (!parts.length) return null;
   return <p className="muted analyze-profile">From your plan: {parts.join('; ')}. These fill in a new deal’s starting numbers. Change any of them below; they aren’t loan terms anyone approved. <a href="#/toolkit">Edit your plan</a></p>;
 }
