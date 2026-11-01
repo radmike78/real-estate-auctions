@@ -76,6 +76,6 @@ export function areaLong(a: Area): string {
 /** "Henderson, NV", "Clark County, NV" or "Nevada". */
 export function areaLabel(a: Area): string {
   if (a.city) return `${a.city}, ${a.state}`;
-  if (a.county) return `${a.county} County, ${a.state}`;
+  if (a.county) return `${countyName(a.county)}, ${a.state}`;
   return stateByCode(a.state)?.name ?? a.state;
 }

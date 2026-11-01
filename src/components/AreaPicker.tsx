@@ -83,7 +83,7 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
               placeholder={places ? 'Start typing, e.g. Henderson' : 'Loading cities…'}
               disabled={!places}
               value={typed}
-              onChange={(e) => { setTyped(e.target.value); setPicked(null); setOpen(true); setActive(0); }}
+              onChange={(e) => { setTyped(e.target.value); if (picked) setCounty(null); /* that city's county goes with it */ setPicked(null); setOpen(true); setActive(0); }}
               onFocus={() => setOpen(true)}
               onKeyDown={(e) => {
                 if (!matches.length) return;

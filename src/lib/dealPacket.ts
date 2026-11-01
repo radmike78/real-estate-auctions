@@ -9,7 +9,7 @@ import { kindLabel, SALE_KINDS, type Deal } from './analyze';
 import { costsAtBid, maxSafeBid, offerInputs, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, unenteredCosts, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
 import { cleanBuyBox, EMPTY_BUY_BOX, type BuyBox } from './toolkit';
 import { areasFor, GATES, loadLog } from './evidence';
-import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, LIEN_DEFAULTS, lienYield, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, refiValueWords, withPlanCash, type CommercialInputs, type LienInputs, type RentInputs } from './holdCalc';
+import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, LIEN_DEFAULTS, lienYield, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, refiValueWords, withPlanCash, noRealisticPrice, type CommercialInputs, type LienInputs, type RentInputs } from './holdCalc';
 import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
@@ -298,6 +298,8 @@ export function savedNumbers(d: Deal) {
     minDscr?: number;
     /** The value once leased, as entered (0: blank). */
     value?: number;
+    /** No realistic price fits the cash entered: it doesn't cover the costs, or leaves almost nothing for the price. */
+    noRealistic?: boolean;
     at?: ReturnType<typeof commercialAtPrice> & { price: number };
     stress: { label: string; maxBid: number | null; limitedBy?: CommercialLimit; capOnCost?: number | null }[];
   } | null = null;
@@ -348,6 +350,8 @@ export function savedNumbers(d: Deal) {
           commercial.cashLimit = v.cashAvailable > 0 ? v.cashAvailable : 0;
           commercial.minDscr = v.minDscr;
           commercial.value = v.value > 0 ? v.value : 0;
+          // Only the cash entered is short (Commercial income says "No realistic price fits your cash").
+          commercial.noRealistic = noRealisticPrice(r, commercialMaxBid({ ...v, cashAvailable: 0 }, offer), v.value);
           commercial.cashTyped = readConfirmed(`fsf.calc.commercial.${d.id}${offer ? '-offer' : ''}.v1`).has('cashAvailable');
         }
         if (commercial && v.atPrice > 0) {
@@ -431,10 +435,10 @@ const pct1 = (x: number | null | undefined) => (x === null || x === undefined ? 
 /** The commercial walk-away price, worded by what sets it: your target return, your cash, or the lender's coverage. */
 /** The calculator's own words for the cash limit: "put in" for a listed property (down payment, closing costs and repairs), "bring" at an auction. */
 const cashLimit = (offer: boolean) => (offer ? 'the cash you can put in' : 'the cash you can bring');
-function commercialPriceText(capPct: number, maxBid: number, limitedBy: CommercialLimit | undefined, capOnCost: number | null | undefined, offer: boolean, lower = false, value = 0): string {
+function commercialPriceText(capPct: number, maxBid: number, limitedBy: CommercialLimit | undefined, capOnCost: number | null | undefined, offer: boolean, lower = false, noRealistic = false): string {
   const roc = pct1(capOnCost);
   // Under a tenth of the value: the cash goes to the costs, leaving almost nothing for the price (as the calculator says).
-  if (limitedBy === 'cash' && value > 0 && maxBid < value * 0.1) return `${lower ? 'walk-away price' : 'Walk-away price'}, set by ${cashLimit(offer)}: ${money(maxBid)}. That leaves almost nothing for the price, so no realistic ${offer ? 'offer' : 'bid'} fits this cash`;
+  if (noRealistic) return `${lower ? 'walk-away price' : 'Walk-away price'}, set by ${cashLimit(offer)}: ${money(maxBid)}. That leaves almost nothing for the price, so no realistic ${offer ? 'offer' : 'bid'} fits this cash`;
   if (limitedBy === 'cash') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by ${cashLimit(offer)}: ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
   if (limitedBy === 'dscr') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by the lender’s minimum coverage (DSCR): ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
   return lower ? `highest price ${money(maxBid)}` : `Highest price for ${/^(8|11|18)(\.|$)|^8/.test(String(capPct)) ? 'an' : 'a'} ${capPct}% return on cost: ${money(maxBid)}`;
@@ -573,6 +577,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     cash.push(`${needAt}: ${money(need)} needed ${!offer && a.loan > 0 ? 'before a refinance closes (loan fees are paid at refinancing)' : 'from your own cash, including the loan’s points and fees'}.`);
   } else if (commercial?.noTarget) {
     cash.push(commercialNoTarget(strategy, commercial.overCap));
+  } else if (commercial?.noRealistic) {
+    cash.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered in ${strategy}: ${commercial.none ? 'it doesn’t cover the repairs and costs, before any price' : `it covers the costs but leaves only about ${money(commercial.maxBid)} for the price`}. Bring more cash, plan a loan with a lender, or skip this one.`);
   } else if (commercial?.none) {
     cash.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered in ${strategy}.`);
   } else if (commercial) {
@@ -629,11 +635,12 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     nums.push(`Your ${offer ? 'offer' : 'bid'} (your actual price): ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; cash left in ${money(a.cashIn)}; return on total cost ${pct1(a.capOnCost)}; ${a.dscr === null ? 'no loan' : `income coverage ${a.dscr.toFixed(3)} (${a.loanOk ? 'meets' : 'below'} your minimum)`}`);
   }
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
+  else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. Without that cash limit the deal meets your ${commercial.capPct}% return on cost`);
   else if (commercial?.none) nums.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered`);
   else if (commercial) {
-    const priceText = commercialPriceText(commercial.capPct, commercial.maxBid, commercial.limitedBy, commercial.capOnCost, offer, false, commercial.value ?? 0);
+    const priceText = commercialPriceText(commercial.capPct, commercial.maxBid, commercial.limitedBy, commercial.capOnCost, offer, false, !!commercial.noRealistic);
     nums.push(/no realistic/.test(priceText) ? `${priceText}.` : `${priceText}, on ${money(commercial.noi)} a year of net operating income`);
-    for (const s of commercial.stress) {
+    for (const s of commercial.noRealistic ? [] : commercial.stress) {
       // Cash sets both prices: the lower rent doesn't move it, so say so instead of repeating the same figure as news.
       const same = s.limitedBy === 'cash' && commercial.limitedBy === 'cash' && s.maxBid === commercial.maxBid;
       nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid !== null && s.maxBid > 0 ? (same ? `still ${money(s.maxBid)}, set by ${cashLimit(offer)}${pct1(s.capOnCost) ? ` (return on cost at that price: ${pct1(s.capOnCost)})` : ''}` : commercialPriceText(commercial.capPct, s.maxBid, s.limitedBy, s.capOnCost, offer, true)) : 'no price works'}`);

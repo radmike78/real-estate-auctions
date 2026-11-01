@@ -4,7 +4,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState } from 'react';
 import { readConfirmed, saveConfirmed } from '../lib/calcConfirmation';
 import type { BidInputs } from '../lib/bidCalc';
-import { COMMERCIAL_DEFAULTS, commercialAtPrice, commercialLines, lenderView, STR_DEFAULTS, strCompare, type StrInputs, HOLD_SELL_DEFAULTS, SELLER_FINANCE_DEFAULTS, sellerFinance, type SellerFinanceInputs, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs, withoutOldValueExample, refiOnExampleValue, rentVerdict, withPlanCash } from '../lib/holdCalc';
+import { COMMERCIAL_DEFAULTS, commercialAtPrice, commercialLines, lenderView, STR_DEFAULTS, strCompare, type StrInputs, HOLD_SELL_DEFAULTS, SELLER_FINANCE_DEFAULTS, sellerFinance, type SellerFinanceInputs, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs, withoutOldValueExample, refiOnExampleValue, rentVerdict, withPlanCash, noRealisticPrice } from '../lib/holdCalc';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 import CalcFields, { type CalcGroup } from './CalcFields';
@@ -166,11 +166,8 @@ function loanGroup<T extends LoanInputs>(valueLabel: string, valueHint: string):
   };
 }
 
-/** A price capped by your cash so low (under a tenth of the value) that no realistic bid or offer fits that cash. */
-const cashTiny = (r: HoldResult, floor: number) => !r.noBidWorks && Number.isFinite(r.maxBid) && r.limitedBy === 'cash' && floor > 0 && r.maxBid < floor;
-
-function HoldResults({ r, title, target, noiNote, minDscr, offer = false, examples = 0, allExample = false, commercial = false, headLabel = 'Walk-away price', realFloor = 0 }: { r: HoldResult; title: string; /** A cash-capped price below this leaves almost nothing for the bid: no realistic price fits the cash. */ realFloor?: number; target: string; noiNote: string; minDscr: number; offer?: boolean; /** How many inputs are still starting examples. */ examples?: number; /** Every number is still a starting example. */ allExample?: boolean; /** Commercial: no residential lender panel to point to. */ commercial?: boolean; /** The heading bar's name for the price this block evaluates. */ headLabel?: string }) {
-  const tiny = cashTiny(r, realFloor);
+function HoldResults({ r, title, target, noiNote, minDscr, offer = false, examples = 0, allExample = false, commercial = false, headLabel = 'Walk-away price', noRealistic = false }: { r: HoldResult; title: string; /** No realistic price fits the cash (noRealisticPrice). */ noRealistic?: boolean; target: string; noiNote: string; minDscr: number; offer?: boolean; /** How many inputs are still starting examples. */ examples?: number; /** Every number is still a starting example. */ allExample?: boolean; /** Commercial: no residential lender panel to point to. */ commercial?: boolean; /** The heading bar's name for the price this block evaluates. */ headLabel?: string }) {
+  const tiny = noRealistic;
   const priced = !r.noBidWorks && Number.isFinite(r.maxBid) && !tiny;
   return (
     <section className="price-block price-block-target" aria-label={`${headLabel}: the price that meets your goal`}>
@@ -178,7 +175,7 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false, exampl
       <ExampleResults count={examples} all={allExample} />
       <div className={`calc-max${r.noBidWorks || tiny ? ' bad' : ''}`} role="status">
         <span>{title}</span>
-        {tiny ? <><strong>{offer ? 'No realistic offer fits your cash' : 'No realistic bid fits your cash'}</strong><small>Your cash covers the repairs and costs but leaves only about {fmtMoney(r.maxBid)} for the price. {r.debtService > 0 ? 'Bring more cash, or skip this one.' : 'Bring more cash, plan a loan with a lender, or skip this one.'}</small></> : <><strong>{r.noBidWorks ? (offer ? 'No offer works' : 'No bid works') : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : r.overCap ? 'More than $1 billion' : 'No limit yet'}</strong>
+        {tiny ? <><strong>{offer ? 'No realistic offer fits your cash' : 'No realistic bid fits your cash'}</strong><small>{r.noBidWorks ? 'Your cash doesn’t cover the repairs and costs, before any price. Without that cash limit the numbers work; the cash is what’s short.' : `Your cash covers the repairs and costs but leaves only about ${fmtMoney(r.maxBid)} for the price.`} {r.debtService > 0 ? 'Bring more cash, or skip this one.' : 'Bring more cash, plan a loan with a lender, or skip this one.'}</small></> : <><strong>{r.noBidWorks ? (offer ? 'No offer works' : 'No bid works') : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : r.overCap ? 'More than $1 billion' : 'No limit yet'}</strong>
         <small>{r.noBidWorks ? (r.loanTooBig ? 'The refinance you entered costs more a year than the property earns, so no price works with that loan. Try a smaller loan, or run it all cash.' : 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.') : !Number.isFinite(r.maxBid) && r.overCap ? 'Check the rent and costs you entered: a price that high is almost always a typo.' : !Number.isFinite(r.maxBid) ? (offer ? 'Enter the return you want, or the cash you can put in, to get a walk-away price.' : 'Enter the return you want, or the cash you can bring, to get a walk-away price.') : r.limitedBy === 'cash' ? (offer ? 'Set by the cash you can put in: the down payment, closing costs and repairs.' : 'Set by the cash you can bring: the bid and every cost until it’s ready to rent.') : r.limitedBy === 'dscr' ? (commercial ? 'Set by the minimum debt-service coverage you entered: above this price the loan is too big for the income.' : 'Set by your minimum income-coverage target: above this price the income does not cover loan payments by the margin you chose. See “How a lender sees this rent” for lender tests.') : target}</small></>}
       </div>
       {!offer && r.debtService > 0 && priced && (
@@ -529,6 +526,8 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const [saved, set, typed, typedKeys] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...examples, ...start }, regional ? { transferTaxPer500: rt.per500, ...stateForce } : {}, regional ? `${rt.per500}|${region.state}` : '{}');
   const v = offer ? { ...withPlanCash(withoutOldValueExample(saved, true, typedKeys), true, typedKeys, investorProfile().investable), buyerPremiumPct: 0 } : saved;
   const r = rentMaxBid(v, offer);
+  // No realistic price fits your cash (only the cash is short): the panels and buttons don't use the capped price.
+  const noReal = noRealisticPrice(r, rentMaxBid({ ...v, cashAvailable: 0 }, offer), v.value);
   const exampleValue = refiOnExampleValue(v, offer, typedKeys);
   const n = rentNoi(v);
   // Once you've entered your price, the tax hint works out the county's rate on it, for you to enter: the box itself
@@ -563,7 +562,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   // You plan to live there (Decide: a home loan and live in it): the investor's walk-away price is a yardstick only, so
   // the panels below wait for your offer instead of using it.
   const living = offer && !!investorProfile().ownerOccupant;
-  const at: PriceAt = v.atPrice > 0 ? { price: v.atPrice, label: `${word.toLowerCase()} of ${fmtMoney(v.atPrice)}` } : living || cashTiny(r, v.value * 0.1) ? { price: 0, label: '' } : Number.isFinite(r.maxBid) && r.maxBid > 0 ? { price: r.maxBid, label: `your walk-away price of ${fmtMoney(Math.round(r.maxBid))}` } : { price: v.value, label: `the ${fmtMoney(v.value)} value` };
+  const at: PriceAt = v.atPrice > 0 ? { price: v.atPrice, label: `${word.toLowerCase()} of ${fmtMoney(v.atPrice)}` } : living || noReal ? { price: 0, label: '' } : Number.isFinite(r.maxBid) && r.maxBid > 0 ? { price: r.maxBid, label: `your walk-away price of ${fmtMoney(Math.round(r.maxBid))}` } : { price: v.value, label: `the ${fmtMoney(v.value)} value` };
   // An auction rental's cash isn't taken from My plan (an offer's is, so its price is already capped): with no cash
   // entered here, compare the cash the walk-away price needs (all of it until a refinance) with My plan's.
   const planCash = investorProfile().investable;
@@ -581,14 +580,14 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
         {/* Your actual deal first; the price that would meet your goal second, each with its own heading bar and colour. */}
         {offer && investorProfile().ownerOccupant && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
-        <AtThisPrice v={v} start={cashTiny(r, v.value * 0.1) ? NaN : r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} cashTyped={typedKeys.has('cashAvailable')} />
+        <AtThisPrice v={v} start={noReal ? NaN : r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} cashTyped={typedKeys.has('cashAvailable')} />
         {living ? (
           <details className="calc-assumptions">
             <summary>Investor yardstick: the price that meets an investor’s {v.targetCocPct}% return</summary>
             <p className="muted small">You plan to live there, so this isn’t your limit: it’s what an investor renting out the whole property would pay for that return. Your own limit is the monthly cost you’re comfortable with and the loan your lender approves.</p>
-            <HoldResults r={r} title="Price that meets an investor’s target" target={`Gives a ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} realFloor={v.value * 0.1} />
+            <HoldResults r={r} title="Price that meets an investor’s target" target={`Gives a ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} noRealistic={noReal} />
           </details>
-        ) : <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} realFloor={v.value * 0.1} />}
+        ) : <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} noRealistic={noReal} />}
         {walkShort && <PlanCashNote need={walkNeed} planCash={planCash} offer={false} auctionDay={r.cashAtAuction} />}
         {/* An auction rental's later refinance is sized on the value after repairs: say so while that's still our example. */}
         {exampleValue && (
@@ -597,11 +596,11 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         {/* No price to figure them at yet (no offer, no walk-away price, no value): ask for one instead of showing $0. */}
         {at.price > 0 ? <CashCushion v={v} price={at.price} at={at.label} onPrice={offer} /> : null}
         {at.price > 0 ? <RentDealLab v={v} at={at} onPrice={offer} living={living} /> : <p className="calc-note small">Enter {offer ? 'your offer (the asking price)' : 'your bid'} to see the cash cushion, the stress test and how a lender sees this rent at that price.</p>}
-        <HoldAndSell v={v} onPrice={offer} target={r.maxBid} exampleValue={v.value === RENT_DEFAULTS.value && !typedKeys.has('value')} />
+        <HoldAndSell v={v} onPrice={offer} target={living || noReal ? 0 : r.maxBid} exampleValue={v.value === RENT_DEFAULTS.value && !typedKeys.has('value')} />
         {at.price > 0 ? <LenderView v={v} at={at} onPrice={offer} /> : null}
         <StrComparison v={v} />
       </div>
-      {!living && <StickyResult label={offer ? 'Price that meets your target' : 'Walk-away price'} value={r.noBidWorks ? 'No price works' : cashTiny(r, v.value * 0.1) ? 'No realistic price' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks || cashTiny(r, v.value * 0.1)} />}
+      {!living && <StickyResult label={offer ? 'Price that meets your target' : 'Walk-away price'} value={noReal ? 'No realistic price' : r.noBidWorks ? 'No price works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks || noReal} />}
     </div>
   );
 }
@@ -648,6 +647,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
   const [saved, set, typed, typedKeys] = useSaved<CommercialInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...COMMERCIAL_DEFAULTS, ...start }, regional ? { transferTaxPer500: ct.per500 } : {});
   const v = offer ? { ...saved, buyerPremiumPct: 0 } : saved;
   const r = commercialMaxBid(v, offer);
+  const noReal = noRealisticPrice(r, commercialMaxBid({ ...v, cashAvailable: 0 }, offer), v.value);
   const n = commercialNoi(v);
   // Commercial cash doesn't follow My plan (the results compare with it instead), so its help says so.
   const groups = (offer ? forOffer(ct.groups) : ct.groups).map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'loanPct' && offer ? { ...f, hint: 'Commercial lenders often lend 65–75% of the price or value; use your lender’s figure. 0 for all cash.*' } : f.k === 'cashAvailable' ? { ...f, more: 'Enter the cash you can put in, and the price is capped at what it covers. Until you type a figure, the results compare the cash it needs with your investable cash in My plan; a 0 you type means no limit and no comparison. Subtract the reserves your lender wants you to keep.' } : f)) }));
@@ -665,7 +665,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
       <div className="calc-inputs"><ExampleInputs labels={still} all={allExample} /><CalcFields groups={groups} values={v} onChange={set} /></div>
       <div className="calc-results">
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
-        <CommercialAtPrice v={v} offer={offer} setPrice={(price) => set('atPrice', price)} target={cashTiny(r, v.value * 0.1) ? NaN : r.maxBid} cashTyped={cashTyped} />
+        <CommercialAtPrice v={v} offer={offer} setPrice={(price) => set('atPrice', price)} target={noReal ? NaN : r.maxBid} cashTyped={cashTyped} />
         {n.byLine && (() => {
           const blank = ([['opTaxYear', 'property tax'], ['opInsuranceYear', 'insurance'], ['opRepairsYear', 'repairs'], ['opUtilitiesYear', 'utilities'], ['opManagementPct', 'management']] as const).filter(([k]) => !(Number(v[k]) > 0)).map(([, label]) => label);
           if (!blank.length) return null;
@@ -674,10 +674,10 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
         })()}
         {/* An auction purchase's later loan is sized on the value: with no value entered, no loan is counted. */}
         {!offer && v.loanPct > 0 && !(v.value > 0) && <p className="calc-note small" role="note"><strong>No loan is counted yet: the value is blank.</strong> A loan after an auction is sized on the value an appraisal would support. Enter it (under the loan terms) to include the loan in the cash and the walk-away price.</p>}
-        <HoldResults commercial r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} headLabel="Walk-away price" realFloor={v.value * 0.1} />
+        <HoldResults commercial r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} headLabel="Walk-away price" noRealistic={noReal} />
         {walkShort && <PlanCashNote need={walkNeed} planCash={planCash} offer={offer} auctionDay={r.cashAtAuction} />}
       </div>
-      <StickyResult label="Walk-away price" value={r.noBidWorks ? 'No price works' : cashTiny(r, v.value * 0.1) ? 'No realistic price' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks || cashTiny(r, v.value * 0.1)} />
+      <StickyResult label="Walk-away price" value={noReal ? 'No realistic price' : r.noBidWorks ? 'No price works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks || noReal} />
     </div>
   );
 }

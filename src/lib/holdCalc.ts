@@ -612,6 +612,19 @@ export function withPlanCash<T extends { cashAvailable: number }>(v: T, offer: b
 }
 
 /**
+ * No realistic price fits your cash: the cash you can put in caps the price at nothing (it doesn't cover the repairs
+ * and costs), or at under a tenth of what the deal itself supports (or of the value, when nothing else caps it). Only
+ * the cash is to blame: when the deal fails without the cash limit too, it's the property's numbers, not this.
+ */
+export function noRealisticPrice(r: HoldResult, uncapped: HoldResult, value: number): boolean {
+  if (r.limitedBy !== 'cash' || uncapped.noBidWorks) return false;
+  if (r.noBidWorks) return true;
+  if (!Number.isFinite(r.maxBid)) return false;
+  const floor = Number.isFinite(uncapped.maxBid) && uncapped.maxBid > 0 ? uncapped.maxBid * 0.1 : nz(value) * 0.1;
+  return floor > 0 && r.maxBid < floor;
+}
+
+/**
  * Keep and rent's verdict at your price, one rule for Analyze, My deals and the packet: short of cash is bad; a
  * refinance on our example value, or a monthly cost of living there, is neutral (not this property's result); living
  * there with rent to spare is good (the investor's return target doesn't apply); otherwise good when cash flow is

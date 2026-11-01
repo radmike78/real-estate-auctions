@@ -163,7 +163,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "2a96833e4e43c97d",
+    "hash": "d316a94ef10c8975",
     "note": "Reviewed 2026-11-01 (rounds 33-36): rent calculator example value and refinance sizing restored to the pre-round-32 formulas; county property tax rates from official state sources set the starting tax (stateCosts.rentalStartFor and taxAt); plan-cash checks, example-value and living-there wording added. Formulas checked by unit tests and browser runs."
   },
   {
@@ -180,7 +180,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "67f1734a9841aa9b",
+    "hash": "22001e73c5768581",
     "note": "Reviewed 2026-11-01 (rounds 33-36): rent calculator example value and refinance sizing restored to the pre-round-32 formulas; county property tax rates from official state sources set the starting tax (stateCosts.rentalStartFor and taxAt); plan-cash checks, example-value and living-there wording added. Formulas checked by unit tests and browser runs."
   },
   {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialAtPrice, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice, loanAt, withoutOldValueExample, refiOnExampleValue, refiValueWords, rentVerdict } from './holdCalc';
+import { noRealisticPrice, allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialAtPrice, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice, loanAt, withoutOldValueExample, refiOnExampleValue, refiValueWords, rentVerdict } from './holdCalc';
 import { rentalStartFor } from './stateCosts';
 
 describe('rent / hold', () => {
@@ -257,4 +257,21 @@ it('explains a live-in buyer’s numbers as the cost of living there', () => {
   expect(lines[0]).toMatch(/living there costs you about \$[\d,]+ a month after the rent you collect/);
   expect(lines.join(' ')).not.toMatch(/isn’t a rental that pays for itself/);
   expect(explainRent(i, 350000, true)[0]).toMatch(/this rental loses about/);
+});
+
+it('blames the cash, not the property, when only the cash is short', () => {
+  const v = { ...RENT_DEFAULTS, cashAvailable: 20000 };
+  const r = rentMaxBid(v, false);
+  expect(r.noBidWorks).toBe(true);
+  expect(noRealisticPrice(r, rentMaxBid({ ...v, cashAvailable: 0 }, false), v.value)).toBe(true);
+  // A blank value: the floor comes from the price the deal itself supports.
+  const c = { ...COMMERCIAL_DEFAULTS, monthlyRent: 10000, targetCapPct: 9, cashAvailable: 80000, value: 0 };
+  const rc = commercialMaxBid(c, true);
+  expect(noRealisticPrice(rc, commercialMaxBid({ ...c, cashAvailable: 0 }, true), 0)).toBe(rc.limitedBy === 'cash');
+  // Plenty of cash: a real price.
+  const ok = { ...RENT_DEFAULTS, cashAvailable: 400000 };
+  expect(noRealisticPrice(rentMaxBid(ok, false), rentMaxBid({ ...ok, cashAvailable: 0 }, false), ok.value)).toBe(false);
+  // The property fails without the cash limit too: its numbers, not the cash.
+  const bad = { ...RENT_DEFAULTS, monthlyRent: 100, cashAvailable: 20000 };
+  expect(noRealisticPrice(rentMaxBid(bad, false), rentMaxBid({ ...bad, cashAvailable: 0 }, false), bad.value)).toBe(false);
 });

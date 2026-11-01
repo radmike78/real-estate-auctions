@@ -169,7 +169,7 @@ describe('the deal packet', () => {
     const auction: Deal = { ...deal, kind: 'trustee', plan: 'commercial' };
     const numbers = () => packetSections(auction, EMPTY_PACKET, now).find((s) => s.key === 'numbers')!.lines.join('\n');
     // Cash binds before the 9% target does.
-    localStorage.setItem('fsf.calc.commercial.d1.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 9, cashAvailable: 100000 }));
+    localStorage.setItem('fsf.calc.commercial.d1.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 9, cashAvailable: 300000 }));
     let t = numbers();
     expect(t).toMatch(/Walk-away price, set by the cash you can bring: \$[\d,]+ \(return on cost at that price: [\d.]+%\)/);
     expect(t).not.toMatch(/Highest price for a 9% return/);
@@ -361,7 +361,7 @@ describe('the deal packet', () => {
 
   it('words the commercial cash limit as the calculator does: “put in” for a listed property, “bring” at an auction', () => {
     const offer: Deal = { ...deal, plan: 'commercial' };
-    localStorage.setItem('fsf.calc.commercial.d1-offer.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 9, cashAvailable: 100000, loanPct: 0 }));
+    localStorage.setItem('fsf.calc.commercial.d1-offer.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 9, cashAvailable: 300000, loanPct: 0 }));
     const t = packetSections(offer, EMPTY_PACKET, now).find((s) => s.key === 'numbers')!.lines.join('\n');
     expect(t).toMatch(/Walk-away price, set by the cash you can put in: \$[\d,]+/);
     expect(t).toMatch(/If rent 10% lower: still \$[\d,]+, set by the cash you can put in/);
@@ -555,4 +555,13 @@ it('says no realistic bid fits when the cash leaves almost nothing for a commerc
   expect(c.maxBid).toBeLessThan(100000);
   const t = packetSections(auction, EMPTY_PACKET, now).find((s) => s.key === 'numbers')!.lines.join('\n');
   expect(t).toMatch(/That leaves almost nothing for the price, so no realistic bid fits this cash/);
+});
+
+it('says the cash entered, not the income, blocks a commercial deal', () => {
+  const auction: Deal = { ...deal, kind: 'trustee', plan: 'commercial' };
+  localStorage.setItem('fsf.calc.commercial.d1.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 9, cashAvailable: 60000 }));
+  const s = packetSections(auction, EMPTY_PACKET, now);
+  const all = s.map((x) => x.lines.join('\n')).join('\n');
+  expect(all).toMatch(/No realistic bid fits the cash you entered/);
+  expect(all).not.toMatch(/No price meets your 9% return on cost/);
 });
