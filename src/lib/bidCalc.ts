@@ -400,3 +400,16 @@ export function sanitizeInputs(saved: unknown, defaults: BidInputs): BidInputs {
   if (typeof pp === 'number' && clampInput('proposedPrice', pp) > 0) out.proposedPrice = clampInput('proposedPrice', pp);
   return out;
 }
+
+// Costs that start at $0 rather than at an estimate, so a $0 here may just mean nobody entered it yet.
+const ZERO_CHECK: [keyof BidInputs, string][] = [
+  ['repairs', 'repairs'],
+  ['titleLegal', 'title search, attorney and quiet title'],
+  ['possession', 'getting possession'],
+  ['monthlyCarry', 'monthly holding costs'],
+];
+
+/** The costs still at $0 that nobody entered (unknown, not a confirmed zero: typing 0 confirms there's none). */
+export function unenteredCosts(i: BidInputs, typed: ReadonlySet<string>, offer: boolean): string[] {
+  return ZERO_CHECK.filter(([k]) => !((i[k] ?? 0) > 0) && !typed.has(k) && !(offer && k === 'possession')).map(([k, l]) => (offer && k === 'titleLegal' ? 'title insurance, escrow and attorney' : l));
+}

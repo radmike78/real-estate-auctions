@@ -370,6 +370,38 @@ export function clearDraftNumbers() {
   }
 }
 
+/**
+ * A saved deal deleted elsewhere while it was open here: any numbers still stored under its id become the unsaved
+ * draft's numbers again, and the rest of what was kept for it is removed (nothing left behind).
+ */
+export function restoreDraftNumbers(id: string, offer: boolean): boolean {
+  let found = false;
+  try {
+    clearDraftNumbers();
+    const moves: [string, string][] = [
+      [`fsf.calc.rent.${id}${offer ? '-offer' : ''}.v1`, offer ? 'fsf.calc.rent.offer.v1' : 'fsf.calc.rent.v1'],
+      [`fsf.calc.commercial.${id}${offer ? '-offer' : ''}.v1`, offer ? 'fsf.calc.commercial.offer.v1' : 'fsf.calc.commercial.v1'],
+      [`fsf.bid.analyzed-${id}.v1`, 'fsf.bid.analyze-draft.v1'],
+      [`fsf.calc.lien.${id}.v1`, 'fsf.calc.lien.v1'],
+      [`fsf.calc.lien.${id}-az.v1`, 'fsf.calc.lien.az.v1'],
+    ];
+    for (const [from, to] of moves) {
+      const v = localStorage.getItem(from);
+      if (v === null) continue;
+      found = true;
+      localStorage.setItem(to, v);
+      for (const suffix of ['.region', '.typed.v1']) {
+        const x = localStorage.getItem(`${from}${suffix}`);
+        if (x !== null) localStorage.setItem(`${to}${suffix}`, x);
+      }
+    }
+  } catch {
+    /* storage unavailable */
+  }
+  forgetDeal(id);
+  return found;
+}
+
 /** When a new deal is saved, the numbers typed before saving become that deal's numbers. */
 export function carryDraftNumbers(id: string, offer: boolean) {
   try {

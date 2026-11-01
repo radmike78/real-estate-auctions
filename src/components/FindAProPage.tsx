@@ -9,6 +9,7 @@ import { AreaLine } from './AreaPicker';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPercent, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
 import { guidesFor } from '../lib/playbooks';
+import { roadmapPath } from '../lib/roadmapState';
 import { STATES, stateByCode, type StateCode } from '../lib/regions';
 import { LICENSE_LOOKUPS, type Lookup } from '../lib/licenseLookups';
 import { useMyState, forStateText, showFor, mentionsOtherState } from '../lib/myState';
@@ -287,13 +288,19 @@ function GuideBody({ g }: { g: ProGuide }) {
 /** "Your deal team" (the Your team tab): who helps with a forced-sale purchase, when you need each one, and how to find them. */
 export default function FindAProPage({ section }: { section?: string }) {
   useMarkStep('team');
-  const [sale, setSale] = useState<string>('start');
   const open = !!section && !!proGuideByKey(section);
   const build = section === 'build';
   useLastActivity(open ? `#/pros/${section}` : '#/pros', open ? `Your team: ${proGuideByKey(section!)!.title}` : 'Your team');
   const all = !open && !build; // the full page: #/pros (and the old #/pros/all)
   const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
   const [mine, setMine] = useMyState();
+  // Opens on the kind of sale your roadmap route is about (an auction, a lien certificate), when your state has it.
+  const [sale, setSale] = useState<string>(() => {
+    const r = roadmapPath();
+    const pre = mine === 'NV' ? '' : (mine ?? '').toLowerCase();
+    const want = r === 'auction' ? `${pre}foreclosure` : r === 'certificate' ? (mine === 'NV' ? 'sid' : 'aztaxlien') : '';
+    return want && guidesFor(mine).some((p) => p.key === want) ? want : 'start';
+  });
   const { pros } = useDirectory();
   const book = mine ? guidesFor(mine).find((p) => p.key === sale) : undefined;
   const team = book

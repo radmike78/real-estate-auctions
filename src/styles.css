@@ -2542,6 +2542,7 @@ cite.cite { font-style: normal; font-size: max(0.82em, 15px); color: var(--muted
 .roadmap-status button { min-height: 40px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font: inherit; font-size: 0.95rem; cursor: pointer; }
 .roadmap-status button[aria-pressed="true"] { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
 .roadmap-status .btn { margin-left: auto; }
+.roadmap-status .btn + .btn { margin-left: 0; }
 .roadmap-walked { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--go); background: var(--surface); }
 .cash-result { font-size: 1.15rem; margin-top: 14px; }
 .sale-doc-list { list-style: none; padding: 0; display: grid; gap: 10px; }
