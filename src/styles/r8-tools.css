@@ -77,3 +77,6 @@
 .practice-state-note .practice-state-first a.btn { color: var(--surface); }
 @media (max-width: 899px) { .practice-run-state .run-state-wide { display: none; } }
 .role-dialog #role-title:focus { outline: none; }
+/* A price head can be an h3 (directly under a section's h2): keep the h4 look, not the section's h3 style. */
+.calc h3.price-head { margin: 0; font-size: 1.05rem; font-weight: 600; line-height: 1.35; }
+.calc-results > h3.price-head { margin-top: 0; }

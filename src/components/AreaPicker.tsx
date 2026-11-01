@@ -44,13 +44,15 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
     setOpen(false);
   };
   const st = STATES.find((x) => x.code === state);
+  // A city typed but not picked from the list is unfinished: pick it, or clear the box (never save an older county).
+  const unfinished = !picked && typed.trim().length > 0;
   const needsCounty = !!picked && picked.counties.length > 1 && !(county && picked.counties.includes(county));
   const save = () => {
     if (!state) {
       if (optional) onDone?.();
       return;
     }
-    if (needsCounty) return;
+    if (needsCounty || unfinished) return;
     // A city (and its county), or just a county, or just the state.
     const a: Area = picked && county ? { state, city: picked.name, county } : !picked && county && st?.counties.includes(county) ? { state, city: null, county } : { state, city: null, county: null };
     setArea(a);
@@ -83,7 +85,7 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
               placeholder={places ? 'Start typing, e.g. Henderson' : 'Loading cities…'}
               disabled={!places}
               value={typed}
-              onChange={(e) => { setTyped(e.target.value); if (picked) setCounty(null); /* that city's county goes with it */ setPicked(null); setOpen(true); setActive(0); }}
+              onChange={(e) => { setTyped(e.target.value); if (picked || e.target.value.trim()) setCounty(null); /* a city's county goes with it */ setPicked(null); setOpen(true); setActive(0); }}
               onFocus={() => setOpen(true)}
               onKeyDown={(e) => {
                 if (!matches.length) return;
@@ -107,7 +109,7 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
           {places && open && !picked && typed.trim().length > 1 && !matches.length && (
             <p className="small muted">No city by that name in {STATES.find((s) => s.code === state)?.name}. Check the spelling, or skip it for now.</p>
           )}
-          {!picked && st && (
+          {!picked && st && !typed.trim() && (
             <label className="field">
               <span>Or just your county <span className="muted">(optional)</span></span>
               <select value={county && st.counties.includes(county) ? county : ''} onChange={(e) => setCounty(e.target.value || null)}>
@@ -128,8 +130,9 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
         </div>
       )}
       <div className="row">
-        <button type="button" className="btn" disabled={(!state && !optional) || needsCounty} onClick={save}>{doneLabel}</button>
+        <button type="button" className="btn" disabled={(!state && !optional) || needsCounty || unfinished} onClick={save}>{doneLabel}</button>
         {needsCounty && <span className="small muted">Choose the county first.</span>}
+        {unfinished && !needsCounty && <span className="small muted">Choose a city from the list, or clear the city box.</span>}
         {extra ?? (area && <button type="button" className="btn btn-secondary" onClick={() => { setArea(null); onDone?.(); }}>Clear my area</button>)}
       </div>
     </div>

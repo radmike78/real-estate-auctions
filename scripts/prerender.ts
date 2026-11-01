@@ -159,7 +159,7 @@ export function render(template: string, p: Page): string {
     .replace(/(src|href)="\.?\/?(?!\/|https?:)([^"]+)"/g, (_m, attr: string, f: string) => `${attr}="/${f}"`)
     .replace(/<title>[^<]*<\/title>/, `<title>${esc(p.title)}</title>\n    <link rel="canonical" href="${esc(canonical)}" />\n    <meta property="og:title" content="${esc(p.title)}" />\n    <meta property="og:description" content="${esc(p.description)}" />\n    <meta property="og:url" content="${esc(canonical)}" />`)
     .replace(/<meta name="description" content="[^"]*" \/>/, `<meta name="description" content="${esc(p.description)}" />`)
-    .replace('<div id="root"></div>', `<div id="root">${nav}<main style="min-height:100vh">${p.body.length < 2000 ? '<noscript><p>This page’s tools need JavaScript. The lessons in Learn work without it.</p></noscript>' : ''}${p.body}</main></div>`);
+    .replace('<div id="root"></div>', `<div id="root">${nav}<main style="min-height:100vh">${p.body.length < 2000 ? p.body.replace(/(<\/h1>)/, '$1<noscript><p>Parts of this page need JavaScript. The lessons in Learn work without it.</p></noscript>') : p.body}</main></div>`);
 }
 
 export function sitemap(all: Page[]): string {

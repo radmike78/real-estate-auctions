@@ -209,6 +209,7 @@ function OtherNumbers({ d }: { d: Deal }) {
       </p>
     );
   }
+  if (lien?.overCap) return <p className="deal-urgent">{fmtMoney(lien.price)} certificate · the interest rate entered is above {d.state === 'AZ' ? 'Arizona’s legal maximum of 16% a year' : 'Nevada’s 1% a month'}: fix it under Lien certificate to see the yield.</p>;
   if (lien) return <p>{fmtMoney(lien.price)} certificate · {lien.yearly === null ? 'no yield' : `${(lien.yearly * 100).toFixed(1)}% a year`} if paid off in {lien.months} months</p>;
   return <p className="muted">No numbers yet: open it and enter {d.plan === 'flip' ? 'the resale value and repairs under Fix and flip (fix and sell)' : d.plan === 'commercial' ? 'the rent under Commercial income' : 'the certificate price under Lien certificate'}.</p>;
 }

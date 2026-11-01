@@ -182,7 +182,6 @@ export default function FindDealsPage() {
       </Band>
 
       </details>
-      {adShows && findDealsAllowsAds(planPath()) && <FixedAds spot="finddeals" pros={pros} categories={adCats} placeholder />}
       <details className="plan-section"><summary>Other sites (not the official seller)</summary>
       <h2 className="section-title">Other sites</h2>
       <p className="other-sites-note">
@@ -197,6 +196,13 @@ export default function FindDealsPage() {
 
       </details>
       <PathNext step="deals" />
+      {/* Apart from the official sources and the other sites: its own heading, at the end of the page. */}
+      {adShows && findDealsAllowsAds(planPath()) && (
+        <section aria-labelledby="fd-ads-head">
+          <h2 id="fd-ads-head" className="section-title">Local professionals (paid ads)</h2>
+          <FixedAds spot="finddeals" pros={pros} categories={adCats} placeholder />
+        </section>
+      )}
     </main>
   );
 }

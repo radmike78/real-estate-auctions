@@ -171,11 +171,11 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false, exampl
   const priced = !r.noBidWorks && Number.isFinite(r.maxBid) && !tiny;
   return (
     <section className="price-block price-block-target" aria-label={`${headLabel}: the price that meets your goal`}>
-      <PriceHead kind="target" label={headLabel} price={priced ? r.maxBid : null} result={priced ? r.cashFlow / 12 : null} note={priced ? 'Not the result at your price: this is the most you could pay and still meet your goal.' : undefined} />
+      {!tiny && <PriceHead level={3} kind="target" label={headLabel} price={priced ? r.maxBid : null} result={priced ? r.cashFlow / 12 : null} note={priced ? 'Not the result at your price: this is the most you could pay and still meet your goal.' : undefined} />}
       <ExampleResults count={examples} all={allExample} />
       <div className={`calc-max${r.noBidWorks || tiny ? ' bad' : ''}`} role="status">
         <span>{title}</span>
-        {tiny ? <><strong>{offer ? 'No realistic offer fits your cash' : 'No realistic bid fits your cash'}</strong><small>{r.noBidWorks ? 'Your cash doesn’t cover the repairs and costs, before any price. Without that cash limit the numbers work; the cash is what’s short.' : `Your cash covers the repairs and costs but leaves only about ${fmtMoney(r.maxBid)} for the price.`} {r.debtService > 0 ? 'Bring more cash, or skip this one.' : 'Bring more cash, plan a loan with a lender, or skip this one.'}</small></> : <><strong>{r.noBidWorks ? (offer ? 'No offer works' : 'No bid works') : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : r.overCap ? 'More than $1 billion' : 'No limit yet'}</strong>
+        {tiny ? <><strong>{offer ? 'No realistic offer fits your cash' : 'No realistic bid fits your cash'}</strong><small>{r.noBidWorks ? 'Your cash doesn’t cover the repairs and costs, before any price. Without that cash limit the numbers work; the cash is what’s short.' : `Your cash covers the repairs and costs but leaves only about ${fmtMoney(r.maxBid)} for the price.`} {r.debtService > 0 ? 'Bring more cash, or skip this one.' : offer ? 'Bring more cash, plan a loan with a lender, or skip this one.' : 'Bring more cash, line up financing with a lender before the sale (an auction wants the full amount by its payment deadline), or skip this one.'}</small></> : <><strong>{r.noBidWorks ? (offer ? 'No offer works' : 'No bid works') : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : r.overCap ? 'More than $1 billion' : 'No limit yet'}</strong>
         <small>{r.noBidWorks ? (r.loanTooBig ? 'The refinance you entered costs more a year than the property earns, so no price works with that loan. Try a smaller loan, or run it all cash.' : 'The income doesn’t cover the costs and your target at any price. Walk away or change your plan.') : !Number.isFinite(r.maxBid) && r.overCap ? 'Check the rent and costs you entered: a price that high is almost always a typo.' : !Number.isFinite(r.maxBid) ? (offer ? 'Enter the return you want, or the cash you can put in, to get a walk-away price.' : 'Enter the return you want, or the cash you can bring, to get a walk-away price.') : r.limitedBy === 'cash' ? (offer ? 'Set by the cash you can put in: the down payment, closing costs and repairs.' : 'Set by the cash you can bring: the bid and every cost until it’s ready to rent.') : r.limitedBy === 'dscr' ? (commercial ? 'Set by the minimum debt-service coverage you entered: above this price the loan is too big for the income.' : 'Set by your minimum income-coverage target: above this price the income does not cover loan payments by the margin you chose. See “How a lender sees this rent” for lender tests.') : target}</small></>}
       </div>
       {!offer && r.debtService > 0 && priced && (
@@ -307,7 +307,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
   const neg = (n: number) => (n > 0 ? `−\u2060${mo(n)}` : mo(0)); // word joiner: the minus never wraps away from the amount
   return (
     <section className="at-price price-block price-block-yours" aria-labelledby="at-price-head">
-      <PriceHead id="at-price-head" kind="yours" label={word} price={price > 0 ? price : null} result={price > 0 ? a.cashFlow / 12 : null} note={price > 0 ? 'Your actual price: the result for the property as you’d buy it.' : 'Enter the price you’d pay to see this property’s own result.'} />
+      <PriceHead level={3} id="at-price-head" kind="yours" label={word} price={price > 0 ? price : null} result={price > 0 ? a.cashFlow / 12 : null} note={price > 0 ? 'Your actual price: the result for the property as you’d buy it.' : 'Enter the price you’d pay to see this property’s own result.'} />
       <label className="field">
         <span>{word} ($)</span>
         <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
@@ -573,7 +573,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
     <div className="calc">
       <div className="calc-inputs">
         <ExampleInputs labels={still} all={allExample} />
-        <CalcFields groups={[{ title: 'Start with these numbers', fields: [{ k: 'atPrice', label: offer ? 'Your offer' : 'Your bid', unit: '$', hint: '0 leaves your price unset; the target-price estimate is still shown.' }, ...basicFields] }]} values={v} onChange={set} />
+        <CalcFields groups={[{ title: 'Start with these numbers', fields: [{ k: 'atPrice', label: offer ? 'Your offer' : 'Your bid', unit: '$', hint: living ? 'Enter the asking price or your offer to see what living there costs; an investor’s price is under Investor yardstick.' : '0 leaves your price unset; the target-price estimate is still shown.' }, ...basicFields] }]} values={v} onChange={set} />
         <details className="calc-assumptions"><summary>Review all other costs, loan terms and targets</summary><p className="muted small">These inputs are already included in the estimate, even while this section is closed. Review vacancy, upkeep, replacement reserves, acquisition costs and loan terms before using the result.</p><CalcFields groups={moreGroups} values={v} onChange={set} /></details>
       </div>
       <div className="calc-results">
@@ -692,7 +692,7 @@ function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false }: { 
   const planShort = !!a && !(v.cashAvailable > 0) && !cashTyped && planCash > 0 && need > planCash;
   return (
     <section className="calc-at-price" aria-label="Commercial results at your price">
-      <PriceHead kind="yours" label={word} price={a?.price ?? null} result={a ? a.cashFlow / 12 : null} note="Your actual price, using the income, costs, lease-up period and loan entered above." />
+      <PriceHead level={3} kind="yours" label={word} price={a?.price ?? null} result={a ? a.cashFlow / 12 : null} note="Your actual price, using the income, costs, lease-up period and loan entered above." />
       <label className="field"><span>{word} ($)</span><NumInput blank max={1e9} value={v.atPrice} onValue={(n) => setPrice(n ?? 0)} /></label>
       {Number.isFinite(target) && target > 0 && <button type="button" className="linkish" onClick={() => setPrice(target)}>Use the walk-away price ({fmtMoney(target)})</button>}
       {!a ? <p>Enter the asking price or your proposed price to compare this property with your targets.</p> : <>
@@ -775,10 +775,10 @@ export function LienCalculator({ storageKey }: { storageKey?: string } = {}) {
       <div className="calc-results">
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
         {overCap && <p className="calc-verdict bad" role="note"><strong>That’s more than {az ? 'Arizona’s legal maximum of 16% a year (1.33% a month)' : 'Nevada’s 1% a month'}.</strong> {az ? 'Enter the yearly rate you won divided by 12 (10% a year is 0.83% a month).' : 'Check the rate in the notice of sale and enter it as a monthly rate.'}</p>}
-        <div className="calc-max" role="status">
+        <div className={`calc-max${overCap ? ' bad' : ''}`} role="status">
           <span>Your yearly yield</span>
-          <strong>{pctText(y.yearlyYield)}</strong>
-          <small>On the cash you put in, counting the wait until you’re paid. Not a guarantee.</small>
+          <strong>{overCap ? 'Check the rate' : pctText(y.yearlyYield)}</strong>
+          <small>{overCap ? 'The rate entered is above the legal maximum, so the yield it gives isn’t possible.' : 'On the cash you put in, counting the wait until you’re paid. Not a guarantee.'}</small>
         </div>
         <ExampleResults count={still.length} all={!typed} what="yield" />
         <dl className="calc-kv">
@@ -804,7 +804,7 @@ export function LienCalculator({ storageKey }: { storageKey?: string } = {}) {
           </>
         )}
       </div>
-      <StickyResult label="Your yearly yield" value={pctText(y.yearlyYield)} />
+      <StickyResult label="Your yearly yield" value={overCap ? 'Check the rate' : pctText(y.yearlyYield)} bad={overCap} />
     </div>
   );
 }
