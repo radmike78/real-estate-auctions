@@ -12,7 +12,7 @@ import { caseFor, caseResume } from '../practice/rentalCase';
 import { LEARN_MODULES } from './learn';
 import { cleanGoal, GOAL_KEY } from './myPlan';
 import { ROADMAP_PHASES, roadmapFor, type RoadmapStep } from './roadmap';
-import { AUTO_STEPS, cleanStatus, focusDealId, planPath, readKey, roadmapDone, settledFor, STATUS_KEY } from './roadmapState';
+import { AUTO_STEPS, cleanStatus, rawDealChoice, focusDealId, planPath, readKey, roadmapDone, settledFor, STATUS_KEY } from './roadmapState';
 
 export interface PlanNow {
   /** Your goal in one sentence, or '' when it isn't written yet. */
@@ -91,8 +91,10 @@ export function planNow(now = new Date()): PlanNow {
   const researching = !!deal && stageOf(deal) === 'researching';
   // So does a reader practicing paper analyses ("Practice checking real properties without buying"): saving one
   // doesn't turn the plan into that property's buying steps.
-  const paperPractice = researching && ['paper', 'c-paper'].includes(roadmapNextStep()?.id ?? '');
-  const guidedLearning = (getMode() === 'guided' && !practicePart2Done() && researching) || paperPractice;
+  // Unless you chose that property in My plan: then it's the one you're working on.
+  const picked = !!deal && rawDealChoice() === `analyzed:${deal.id}`;
+  const paperPractice = researching && !picked && ['paper', 'c-paper'].includes(roadmapNextStep()?.id ?? '');
+  const guidedLearning = !picked && ((getMode() === 'guided' && !practicePart2Done() && researching) || paperPractice);
   if (deal && !guidedLearning) {
     const stage = stageOf(deal);
     return { goal, source: 'deal', context: `${deal.name} · ${stageLabel(stage, deal)}`, task: dealNextTask(deal, undefined, now, stage), deal, stage, tasks: stageTasks(deal, stage, undefined, now) };

@@ -71,7 +71,7 @@ export const pathForDeal = (d: Pick<Deal, 'kind'>): RoadmapPath => (d.kind === '
  */
 export const NO_DEAL = 'none';
 
-const rawDealChoice = () => readKey(DEAL_KEY, '', (v) => (typeof v === 'string' && (v === NO_DEAL || DEAL_ID.test(v)) ? v : ''));
+export const rawDealChoice = () => readKey(DEAL_KEY, '', (v) => (typeof v === 'string' && (v === NO_DEAL || DEAL_ID.test(v)) ? v : ''));
 
 /**
  * The property My plan is working on: the one chosen in the roadmap, or, if none was chosen, the deal touched most
