@@ -352,6 +352,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const still = exampleLabels(GROUPS.flatMap((g) => g.fields.filter(shown).map((f) => (offer && OFFER_FIELDS[f.k] ? { ...f, ...OFFER_FIELDS[f.k] } : f))), i, offer ? offerInputs(defaults) : defaults, typedKeys, NOT_EXAMPLES);
   const yours = offer ? 'Your offer' : 'Your bid';
   const planCash = investorProfile().investable;
+  // No cash entered here, and My plan's cash doesn't cover the opening bid with every cost (the packet says the same).
+  const planShort = !offer && !dealFails && !cashShort && i.minimumBid > 0 && !(i.cashAvailable > 0) && planCash > 0 && openingCash > planCash;
   // Costs still at $0 that nobody entered: unknown, not confirmed zero. Typing 0 confirms there's none.
   const unentered = unenteredCosts(i, typedKeys, offer);
   const unenteredNote = unentered.length > 0 && (
@@ -492,17 +494,19 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         )}
         {/* No cash limit entered here, but My plan has your investable cash and this needs more: say so by the price. */}
         {!needsValue && !r.noBidWorks && !(i.cashAvailable > 0) && planCash > 0 && r.cashPeak > planCash && (
-          <p className="calc-note small" role="note"><strong>This needs about {fmtMoney(Math.round(r.cashPeak))} of your cash at the walk-away price; My plan shows {fmtMoney(Math.round(planCash))} of investable cash.</strong> {offer ? 'Offer only what fits your cash (with any loan your lender approves), or compare a loan with a lender.' : <>Enter the cash you can bring (an auction wants the full amount by its payment deadline) to cap the {w.bid} at what you have, or compare a loan with a lender.</>}</p>
+          <p className="calc-verdict bad" role="note"><strong>This needs about {fmtMoney(Math.round(r.cashPeak))} of your cash at the walk-away price; My plan shows {fmtMoney(Math.round(planCash))} of investable cash.</strong> {offer ? 'Offer only what fits your cash (with any loan your lender approves), or compare a loan with a lender.' : <>Enter the cash you can bring (an auction wants the full amount by its payment deadline) to cap the {w.bid} at what you have, or compare a loan with a lender. <button type="button" className="linkish" onClick={() => { const f = document.getElementById(`${uid}-cashAvailable`); f?.scrollIntoView({ block: 'center' }); f?.focus({ preventScroll: true }); }}>Enter your cash</button></>}</p>
         )}
         {!needsValue && i.minimumBid > 0 && <PriceHead kind="listed" tag={offer ? 'From the listing' : 'From the sale notice'} label={w.Opening} price={i.minimumBid} result={atOpening} unit="profit" note={`Estimated cash you’d put in at this price, under these assumptions (through repairs and holding until it sells): ${fmtMoney(Math.round(openingCash))}.`} />}
         {!needsValue && i.minimumBid > 0 && (
-          <div className={`calc-verdict ${dealFails || cashShort ? 'bad' : 'good'}`}>
+          <div className={`calc-verdict ${dealFails || cashShort || planShort ? 'bad' : 'good'}`}>
             {dealFails ? (
               offer ? (
                 <><strong>Misses your target at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below your {fmtMoney(Math.round(target))} target. {r.maxBid > 0 ? <>Offer no more than {fmtMoney(r.maxBid)}, or pass.</> : 'Pass, or change your plan.'}</>
               ) : (
                 <><strong>Doesn’t work at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below your {fmtMoney(Math.round(target))} target. Skip this one or change your plan.</>
               )
+            ) : planShort ? (
+              <><strong>The cash in My plan doesn’t cover the {w.opening}.</strong> The deal works (about {fmtMoney(Math.round(atOpening))} profit at {fmtMoney(i.minimumBid)}), but with repairs and every cost until you sell you’d need about {fmtMoney(Math.round(openingCash))}, and My plan shows {fmtMoney(Math.round(planCash))}. Enter the cash you can bring to see the most you could bid, or skip this one.</>
             ) : cashShort ? (
               <><strong>Your cash doesn’t cover the {w.opening}.</strong> The deal works (about {fmtMoney(Math.round(atOpening))} profit at {fmtMoney(i.minimumBid)}), but with repairs and every cost until you sell you’d need about {fmtMoney(Math.round(openingCash))}, and you entered {fmtMoney(i.cashAvailable)}.</>
             ) : (

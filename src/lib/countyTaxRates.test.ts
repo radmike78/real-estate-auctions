@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { COUNTY_TAX_RATES } from './countyTaxRates';
 import { STATES } from './regions';
-import { countyTaxLine, countyTaxRate, propertyTaxHint, rentalStartFor } from './stateCosts';
+import { countyTaxLine, countyTaxRate, propertyTaxHint, rentalStartFor, taxAtPrice } from './stateCosts';
 
 // A rental's yearly tax as a % of value, by state: wide enough for every county, narrow enough to catch a slipped
 // decimal (a rate per $100 entered as a %, or a % entered as a fraction).
@@ -32,11 +32,26 @@ it('starts a rental’s property tax from the county’s rate, and from the stat
 
 it('says where the starting tax comes from, with the year and the range inside the county', () => {
   const h = propertyTaxHint('TX', 'Harris');
-  expect(h.hint).toContain('Harris County’s 2025 rate for a rental: about 2.44%');
-  expect(countyTaxLine('NV', 'Carson City')?.short).toMatch(/^Carson City’s 2026 rate/);
+  expect(h.hint).toBe('Harris County: about 2.44% of value a year (2025 rental rate).');
+  // One short line: the state's rules are in the details.
+  expect(h.more).toContain('the starting tax here follows it at this rate');
+  expect(h.more).toContain('homestead');
+  expect(countyTaxLine('NV', 'Carson City')?.short).toBe('Carson City: about 1.24% of taxable value a year (2026 rental rate).');
   expect(h.more).toContain('Texas Comptroller of Public Accounts');
   expect(h.more).toContain('1.51% to 4.32%');
-  expect(countyTaxLine('CA', 'Kern')?.short).toContain('about 1.25% of the price');
+  expect(countyTaxLine('CA', 'Kern')?.short).toContain('about 1.25% of price');
   expect(countyTaxLine('NV', 'Clark')?.short).toContain('taxable value');
   expect(propertyTaxHint('TX').hint).not.toContain('County’s');
+});
+
+it('figures a starting tax on your price once you enter one, and leaves a typed tax alone', () => {
+  const start = rentalStartFor('TX', 350_000, 'Harris').propertyTaxYear;
+  const none = new Set<string>();
+  expect(taxAtPrice({ propertyTaxYear: start, atPrice: 230_000 }, 'TX', 'Harris', none, 350_000, 2_400)).toBe(5_600);
+  expect(taxAtPrice({ propertyTaxYear: start, atPrice: 0 }, 'TX', 'Harris', none, 350_000, 2_400)).toBe(start);
+  expect(taxAtPrice({ propertyTaxYear: 7_000, atPrice: 230_000 }, 'TX', 'Harris', none, 350_000, 2_400)).toBe(5_600); // the old statewide start
+  expect(taxAtPrice({ propertyTaxYear: 2_400, atPrice: 230_000 }, 'TX', 'Harris', none, 350_000, 2_400)).toBe(5_600); // the flat example
+  expect(taxAtPrice({ propertyTaxYear: 4_321, atPrice: 230_000 }, 'TX', 'Harris', none, 350_000, 2_400)).toBe(4_321); // someone's own figure
+  expect(taxAtPrice({ propertyTaxYear: start, atPrice: 230_000 }, 'TX', 'Harris', new Set(['propertyTaxYear']), 350_000, 2_400)).toBe(start);
+  expect(taxAtPrice({ propertyTaxYear: start, atPrice: 230_000 }, 'TX', 'Nowhere', none, 350_000, 2_400)).toBe(start);
 });

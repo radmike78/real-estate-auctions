@@ -10,6 +10,7 @@ import { readConfirmed } from './calcConfirmation';
 import { cleanGoal, cleanTeamList, GOAL_KEY, investorProfile, TEAM_LIST_KEY, TEAM_ROLES } from './myPlan';
 import { proGuideByKey } from './proGuide';
 import { countyName } from './regions';
+import { taxAtPrice } from './stateCosts';
 import { ROADMAP, STEP_STATUS_LABEL } from './roadmap';
 import { cleanDealSteps, DEAL_STEPS_KEY } from './roadmapDeals';
 
@@ -28,17 +29,18 @@ function read(key: string): unknown {
  * The rental numbers saved for a deal at the price you'd pay, or null until a price is entered in Keep and rent. Only
  * for a deal saved with the Keep and rent strategy: another strategy's deal never shows leftover rental numbers.
  */
-export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCash: number | null; target: number; cashIn: number; exampleValue: boolean; refiValue: number } | null {
+export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCash: number | null; target: number; cashIn: number; exampleValue: boolean; refiValue: number; /** Cash needed (until a refinance closes) and the cash limit entered in Keep and rent (0: none). */ cashNeeded: number; cashLimit: number; /** Cash flow after a later refinance (an auction rental with a loan). */ refi: boolean } | null {
   // Only the property's own numbers (the rent typed), never the calculator's examples.
   if (d.plan !== 'rent' || !ownNumbers(d)) return null;
   const offer = d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short';
   const raw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
   if (!raw) return null;
   const typed = readConfirmed(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
-  const v = withoutOldValueExample(sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs, offer, typed);
+  const v0 = withoutOldValueExample(sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs, offer, typed);
+  const v = { ...v0, propertyTaxYear: taxAtPrice(v0, d.state, d.county, typed, RENT_DEFAULTS.value, RENT_DEFAULTS.propertyTaxYear) };
   if (!(v.atPrice > 0)) return null;
   const a = rentAtPrice(v, v.atPrice, offer);
-  return { price: v.atPrice, monthly: a.cashFlow / 12, cashOnCash: a.cashOnCash, target: v.targetCocPct, cashIn: a.cashIn, exampleValue: refiOnExampleValue(v, offer, typed), refiValue: v.value };
+  return { price: v.atPrice, monthly: a.cashFlow / 12, cashOnCash: a.cashOnCash, target: v.targetCocPct, cashIn: a.cashIn, exampleValue: refiOnExampleValue(v, offer, typed), refiValue: v.value, cashNeeded: !offer && a.loan > 0 ? a.allIn : a.cashIn, cashLimit: v.cashAvailable > 0 ? v.cashAvailable : 0, refi: !offer && a.loan > 0 };
 }
 
 export function propertyPacketText(d: Deal): string {

@@ -9,6 +9,8 @@ import PageHero from './PageHero';
 import { STATES } from '../lib/regions';
 import { dropStateLead, forStateText, getMyState, useMyState } from '../lib/myState';
 import { fmtMoney } from '../lib/status';
+import { getMyArea } from '../lib/myArea';
+import { countyTaxLine } from '../lib/stateCosts';
 import { cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP_PATHS, ROADMAP_PHASES, ROADMAP_PHASE_HELP, roadmapFor, LIEN_STRATEGY, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
 import { downloadText, fileName } from '../lib/download';
 import { cleanLog, logText } from '../lib/evidence';
@@ -71,6 +73,10 @@ function stepEvidence(id: string): string | null {
     const b = read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox);
     return b.area && b.types.length && b.priceMax && b.dealBreakers.length ? 'Your buy box has an area, property types, a price limit and deal breakers.' : null;
   }
+  if (id === 'c-buybox') {
+    const b = read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox);
+    return b.strategy === LIEN_STRATEGY && b.cashMax > 0 ? 'Your buy box shows Lien certificates and the cash you’ll tie up.' : null;
+  }
   if (id === 'practice') {
     const c = caseFor(getMyState());
     const p = loadCase(c.state);
@@ -130,7 +136,24 @@ function GoalField() {
   return (
     <label className="field roadmap-goal">
       <span>Your goal, in one sentence</span>
-      <textarea rows={2} maxLength={400} value={g} onChange={(e) => change(e.target.value)} onBlur={(e) => settleAfterPress(e.target.value)} placeholder="e.g. A rental I’ll hold 10 years, where the rent covers the costs. About 6 hours a week." />
+      <textarea rows={2} maxLength={400} value={g} onChange={(e) => change(e.target.value)} onBlur={(e) => {
+        // Moving on within this step (Tab to its "Done"): leave the ticking to that button, so the step doesn't move
+        // away from under the keyboard. Leaving the step ticks it as before.
+        const here = e.currentTarget.closest('.roadmap-next, .roadmap-step');
+        const value = e.target.value;
+        if (here && e.relatedTarget instanceof Node && here.contains(e.relatedTarget)) {
+          // Tick it once focus leaves the step without "Done" (Tab on past it, or a click elsewhere).
+          const left = (ev: Event) => {
+            const to = (ev as FocusEvent).relatedTarget;
+            if (to instanceof Node && here.contains(to)) return;
+            here.removeEventListener('focusout', left);
+            settleAfterPress(value);
+          };
+          here.addEventListener('focusout', left);
+          return;
+        }
+        settleAfterPress(value);
+      }} placeholder="e.g. A rental I’ll hold 10 years, where the rent covers the costs. About 6 hours a week." />
       {!g.trim() && fromDecide && <button type="button" className="linkish" onClick={() => { change(fromDecide); settle(fromDecide); }}>Start from my Decide answers: “{fromDecide}”</button>}
     </label>
   );
@@ -452,6 +475,17 @@ export function CashWorksheet() {
 }
 
 /** What price your investable cash can support with a loan: down payment, closing costs and the lender's reserves. */
+/** Open the buy box (and any closed section around it), bring it into view and put focus on its first field. */
+function showBuyBox() {
+  const el = document.getElementById('buy-box');
+  if (!el) return;
+  for (let d = el.closest('details'); d; d = d.parentElement?.closest('details') ?? null) d.open = true;
+  setTimeout(() => {
+    el.scrollIntoView({ block: 'start' });
+    el.querySelector<HTMLElement>('input, select, textarea')?.focus({ preventScroll: true });
+  }, 0);
+}
+
 function PriceFromCash({ cash }: { cash: number }) {
   // Starts from the assumptions saved with the buy box, if a price was set here before.
   const [a, setA] = useState<PriceAssumptions>(() => read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox).priceAssumptions ?? PRICE_DEFAULTS);
@@ -468,7 +502,7 @@ function PriceFromCash({ cash }: { cash: number }) {
     // The assumptions go with the price, so the buy box checks it the same way instead of with our defaults.
     write(BUYBOX_KEY, { ...b, priceMax: price, cashMax: Math.round(cash), priceAssumptions: a });
     window.dispatchEvent(new CustomEvent(PLAN_EVENT));
-    document.getElementById('buy-box')?.scrollIntoView();
+    showBuyBox();
   };
   // Paying cash (Decide: cash only), or buying at an auction or a lien sale (no loan at the sale): the cash is the limit
   // for the price and everything else, so no loan-sized price. The route is the one the roadmap shows (planPath), and
@@ -482,11 +516,16 @@ function PriceFromCash({ cash }: { cash: number }) {
   const route = planPath();
   const atSale = route === 'auction' || route === 'certificate';
   const payingCash = atSale || investorProfile().loan === 'cash';
+  const [savedNote, setSavedNote] = useState('');
   const useCash = () => {
     const b = read(BUYBOX_KEY, { ...EMPTY_BUY_BOX, state: getMyState() ?? '' }, cleanBuyBox);
-    write(BUYBOX_KEY, { ...b, cashMax: Math.round(cash) });
+    // A price this worksheet set earlier from a loan (it saved its loan assumptions with it) no longer applies.
+    const loanPrice = !!b.priceAssumptions;
+    const { priceAssumptions: _a, ...rest } = b;
+    write(BUYBOX_KEY, { ...(loanPrice ? { ...rest, priceMax: 0 } : b), cashMax: Math.round(cash) });
     window.dispatchEvent(new CustomEvent(PLAN_EVENT));
-    document.getElementById('buy-box')?.scrollIntoView();
+    setSavedNote(`Saved: a ${fmtMoney(Math.round(cash))} cash limit in your buy box${loanPrice ? ', and the earlier loan-based price limit was cleared' : ''}.`);
+    showBuyBox();
   };
   if (payingCash) return (
     <div className="price-from-cash">
@@ -498,6 +537,7 @@ function PriceFromCash({ cash }: { cash: number }) {
       </p>
       <p className="muted" role="note">A planning limit, not advice. What you tie up in one deal depends on your situation, finances and risk tolerance.</p>
       <button type="button" className="btn btn-secondary" onClick={useCash}>Use {fmtMoney(Math.round(cash))} as the cash limit in my buy box</button>
+      {savedNote && <p className="muted small" role="status">{savedNote}</p>}
     </div>
   );
   return (
@@ -520,6 +560,12 @@ function PriceFromCash({ cash }: { cash: number }) {
           {num('ratePct', 'Loan rate', '% a year')}
           {num('taxInsPct', 'Property tax and insurance', '% of price a year')}
         </div>
+        {(() => {
+          // The area's own property tax rate, so the estimate can match it (Texas rates are often 2% or more alone).
+          const area = getMyArea();
+          const line = area?.county ? countyTaxLine(area.state, area.county) : null;
+          return line ? <p className="muted small">Property tax alone, {line.short.replace(/\.$/, '')}; add insurance to it for this estimate.</p> : null;
+        })()}
         <p className="muted small">These are starting estimates, not loan requirements or an affordability decision. Down payment, interest rate and money kept in reserve depend on the loan and your situation. Confirm financing with your lender, and costs with the relevant providers.</p>
       </details>
       <p className="muted" role="note">Cash-budget estimate—not loan approval or proof you can afford the monthly costs. Check ongoing expenses, repairs and your lender’s requirements before using it as a price limit.</p>

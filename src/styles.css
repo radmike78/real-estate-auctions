@@ -2980,3 +2980,8 @@ dl.cash-result .cash-main { border-color: var(--accent); }
   .roadmap-steps { padding: 0 6px 8px; }
   .roadmap-step .roadmap-step-body { padding: 0 10px 12px; }
 }
+
+/* Phones: a saved deal's buttons go under its details, so its summary lines get the card's width. */
+@media (max-width: 600px) {
+  .deal-card .deal-head { flex-direction: column; align-items: stretch; }
+}

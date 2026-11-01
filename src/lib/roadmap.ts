@@ -123,7 +123,7 @@ export const ROADMAP: RoadmapStep[] = [
     action: 'Sale guides: every way to buy', href: '#/playbooks',
   },
   {
-    id: 'market-compare', phase: 2, title: 'Compare two areas before choosing',
+    id: 'market-compare', phase: 2, path: PROPERTY, title: 'Compare two areas before choosing',
     text: 'An affordable property is not enough: check whether the area supports your strategy.',
     outcome: 'Notes comparing two areas, your chosen area and the evidence behind your choice.',
     steps: ['Compare recent sold and rented properties, competing listings and time on market for the property type you want.', 'Use Census data for housing and population context, and local employment data for economic context. Area averages are not proof of rent for a particular home.', 'Check local rental rules, zoning, property taxes, insurance availability and hazards.', 'Ask a local agent and property manager to challenge your assumptions. Record sources, dates and unresolved questions in your buy-box notes.'],
@@ -131,11 +131,28 @@ export const ROADMAP: RoadmapStep[] = [
     action: 'Research tools and market exercise', href: '#/learn/tools',
   },
   {
-    id: 'buybox', phase: 2, title: 'Write your buy box',
+    id: 'buybox', phase: 2, path: PROPERTY, title: 'Write your buy box',
     text: 'Set your limits before you look, so a property can’t talk you into it.',
     outcome: 'A saved buy box: area, property type, price limit, repair limit, return target and deal breakers.',
     steps: ['Fill in the buy box below.', 'Add at least three deal breakers, things that end a deal no matter the price.', 'Print or download it.'],
     doneWhen: 'Your buy box has an area, a property type, a price limit and deal breakers.',
+    action: 'Fill in your buy box', href: '#/toolkit/buy-box',
+  },
+  // Lien certificates: you judge a county's sale and a lien's risk, not a market's rents or a property's repairs.
+  {
+    id: 'c-compare', phase: 2, path: LIEN, title: 'Compare two counties’ lien sales',
+    text: 'Counties run their lien sales differently. Compare two before you choose where to buy.',
+    outcome: 'Notes comparing two counties’ lien sales, the one you chose and why.',
+    steps: ['For each county, read the treasurer’s sale page: when the sale is, how it’s run (online or in person) and how bidding works.', 'Note how many parcels are offered and what kinds (vacant land, homes, commercial).', 'Note how payment works, the deadlines and any fees.', 'Record sources, dates and open questions in your buy-box notes.'],
+    doneWhen: 'You compared two counties’ sales and recorded why you chose one, with sources and open questions.',
+    action: 'Your county’s lien sale page', href: '#/find-deals',
+  },
+  {
+    id: 'c-buybox', phase: 2, path: LIEN, title: 'Write your lien limits',
+    text: 'Set your limits before the sale, so a list of parcels can’t talk you into tying up more than you meant to.',
+    outcome: 'Saved limits: the cash you’ll tie up in certificates, the most per certificate, the longest wait you’ll accept and the parcels you’ll skip.',
+    steps: ['Choose Lien certificates as your strategy in the buy box below and enter the cash you’ll tie up.', 'Write the most you’ll pay for one certificate and the longest you’re willing to wait to be paid.', 'Add the parcels you’ll skip no matter the rate (for example, land you’d never want to own if the lien isn’t paid).'],
+    doneWhen: 'Your buy box shows Lien certificates, the cash you’ll tie up and the parcels you’ll skip.',
     action: 'Fill in your buy box', href: '#/toolkit/buy-box',
   },
   {

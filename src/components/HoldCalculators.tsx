@@ -15,7 +15,8 @@ import { ExampleInputs, ExampleResults, PriceHead, exampleLabels } from './CalcL
 const visibleFields = <T,>(groups: CalcGroup<T>[], v: T) => groups.flatMap((g) => g.fields.filter((f) => !f.when || f.when(v)));
 /** Set by the county (transfer tax) or not a number you choose: never listed as an example. */
 const NOT_EXAMPLES = new Set(['transferTaxPer500', 'buyerPremiumPct', 'atPrice']);
-import { propertyTaxHint, rentalStartFor, transferTaxFor } from '../lib/stateCosts';
+import { investorProfile } from '../lib/myPlan';
+import { propertyTaxHint, rentalStartFor, taxAtPrice, transferTaxFor } from '../lib/stateCosts';
 
 /** The purchase-cost fields worded for the deal's state and county, starting at its transfer tax. */
 /** `countyTax`: the starting property tax follows the county (a deal's calculator), so the hint names the county. */
@@ -33,8 +34,13 @@ const pctText = (x: number | null) => (x === null ? '—' : `${(Math.round(x * 1
 
 /** Inputs kept in this browser (per property when there is one); rebuilt safely from storage. */
 function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> = {}, sig = JSON.stringify(force)): [T, (k: keyof T & string, v: number) => void, boolean, ReadonlySet<string>] {
-  // `force` holds the region's values (its transfer tax, a rental's starting tax and insurance). They replace saved
-  // numbers only when the region (`sig`) changes, so a number the user typed survives switching tabs and reloading.
+  // `force` holds the region's values (its transfer tax, a rental's starting tax and insurance). When the region (`sig`)
+  // changes they replace the starting numbers, never one the user typed: a typed number stays, through a change of
+  // county or state, switching tabs and reloading.
+  const untypedForce = (): Partial<T> => {
+    const typedNow = readConfirmed(key);
+    return Object.fromEntries(Object.entries(force).filter(([k]) => !typedNow.has(k))) as Partial<T>;
+  };
   // Whether any number here is the user's own (typed now or kept from before), or all are the starting examples.
   const [typed, setTyped] = useState(() => {
     try {
@@ -49,7 +55,7 @@ function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> 
       // Nothing typed yet: start from the region's values (a stored region alone doesn't mean numbers were kept).
       if (raw === null) return { ...defaults, ...force };
       const saved = sanitizeNumbers(JSON.parse(raw), defaults);
-      return localStorage.getItem(`${key}.region`) === sig ? saved : { ...saved, ...force };
+      return localStorage.getItem(`${key}.region`) === sig ? saved : { ...saved, ...untypedForce() };
     } catch {
       return { ...defaults, ...force };
     }
@@ -61,11 +67,15 @@ function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> 
     } catch {
       return;
     }
-    setV((cur) => ({ ...cur, ...force }));
-    setTypedKeys((fields) => {
-      const next = new Set(fields);
-      Object.keys(force).forEach((field) => next.delete(field));
-      saveConfirmed(key, next);
+    const apply = untypedForce();
+    setV((cur) => {
+      const next = { ...cur, ...apply };
+      // Kept in storage too (when numbers are saved), so a reload, My deals and the packet show the same figures.
+      try {
+        if (localStorage.getItem(key) !== null) localStorage.setItem(key, JSON.stringify(next));
+      } catch {
+        /* storage unavailable */
+      }
       return next;
     });
   }, [key, sig]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -252,6 +262,10 @@ const OFTEN_FORGOTTEN = [
 /** Stress tests, the deal in plain words, and a checklist of easy-to-forget costs. */
 /** The rental at a price you type: every step from rent to cash flow, with its assumptions. */
 function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false }: { v: RentInputs; start: number; onPrice: boolean; setPrice: (n: number) => void; /** "Your offer" or "Your bid". */ word: string; /** The refinance is still on our example value. */ exampleValue?: boolean }) {
+  // Your cash limit: the cash entered here, else My plan's investable cash (an auction rental starts with no limit).
+  const planCash = investorProfile().investable;
+  const cashLimit = v.cashAvailable > 0 ? v.cashAvailable : planCash;
+  const limitWords = v.cashAvailable > 0 ? `the ${fmtMoney(v.cashAvailable)} you can put in` : `the ${fmtMoney(Math.round(planCash))} of investable cash in My plan`;
   const walkAway = Number.isFinite(start) && start > 0 ? Math.round(start) : 0;
   // The price you'd actually pay is saved with the deal; the walk-away price is only used when you choose it.
   const price = v.atPrice;
@@ -297,8 +311,8 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false }
         {a.loan > 0 && <div><dt>Loan principal ({Math.min(v.loanPct, 100)}% of {onPrice ? `${fmtMoney(v.value > 0 ? Math.min(price, v.value) : price)}, the lower of the price and the value` : `the ${fmtMoney(v.value)} value`})</dt><dd>{fmtMoney(Math.round(a.loan))}</dd></div>}
         {a.loan > 0 && <div><dt>Loan fees ({v.loanCostPct}% of principal)</dt><dd>{fmtMoney(Math.round(a.loan * v.loanCostPct / 100))}</dd></div>}
         {a.loan > 0 && <div><dt>Net loan proceeds after loan fees</dt><dd>{fmtMoney(Math.round(a.loan * (1 - v.loanCostPct / 100)))}</dd></div>}
-        {!onPrice && a.loan > 0 && <div><dt>Your cash until the refinance closes</dt><dd>{fmtMoney(Math.round(a.allIn))}{v.cashAvailable > 0 && a.allIn > v.cashAvailable && <span className="deal-urgent"> · more than the {fmtMoney(v.cashAvailable)} you can put in</span>}</dd></div>}
-        <div><dt>{!onPrice && a.loan > 0 ? 'Your cash left in after the refinance, if approved' : 'Your cash in the deal'}</dt><dd>{a.cashIn > 0 ? fmtMoney(Math.round(a.cashIn)) : 'None: the loan covers it'}{(onPrice || !(a.loan > 0)) && v.cashAvailable > 0 && a.cashIn > v.cashAvailable && <span className="deal-urgent"> · more than the {fmtMoney(v.cashAvailable)} you can put in</span>}</dd></div>
+        {!onPrice && a.loan > 0 && <div><dt>Your cash until the refinance closes</dt><dd>{fmtMoney(Math.round(a.allIn))}{cashLimit > 0 && a.allIn > cashLimit && <span className="deal-urgent"> · more than {limitWords}</span>}</dd></div>}
+        <div><dt>{!onPrice && a.loan > 0 ? 'Your cash left in after the refinance, if approved' : 'Your cash in the deal'}</dt><dd>{a.cashIn > 0 ? fmtMoney(Math.round(a.cashIn)) : 'None: the loan covers it'}{(onPrice || !(a.loan > 0)) && cashLimit > 0 && a.cashIn > cashLimit && <span className="deal-urgent"> · more than {limitWords}</span>}</dd></div>
         <div><dt>Cash-on-cash return: yearly cash flow ÷ your cash in</dt><dd>{a.cashOnCash === null ? 'All your cash is back' : pctText(a.cashOnCash)}</dd></div>
         <div><dt>Cap rate on the price: NOI ÷ price</dt><dd>{pctText(a.capOnPrice)}</dd></div>
         <div><dt>Cap rate on everything you pay</dt><dd>{pctText(a.capOnCost)}</dd></div>
@@ -468,17 +482,20 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   // times a Nevada one's); they're starting numbers only and give way to anything typed or prefilled.
   const stateStart = regional ? rentalStartFor(region.state, start.value ?? RENT_DEFAULTS.value, region.county) : {};
   const examples = { ...RENT_DEFAULTS, ...stateStart, ...(offer ? OFFER_START : {}) };
-  // On a change of state, the state's starting tax and insurance replace the old state's (a Texas tax bill is no
-  // guide to a Nevada one), except figures the property itself supplied (`start`).
+  // On a change of state or county, its starting tax and insurance replace the old ones (a Texas tax bill is no
+  // guide to a Nevada one), except figures the property itself supplied (`start`) and numbers you typed (useSaved).
   const stateForce: Partial<RentInputs> = regional ? Object.fromEntries(Object.entries(stateStart).filter(([k]) => !(k in start))) : {};
   const [saved, set, typed, typedKeys] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...examples, ...start }, regional ? { transferTaxPer500: rt.per500, ...stateForce } : {}, regional ? `${rt.per500}|${region.state}` : '{}');
-  const v = offer ? { ...withoutOldValueExample(saved, true, typedKeys), buyerPremiumPct: 0 } : saved;
+  const v0 = offer ? { ...withoutOldValueExample(saved, true, typedKeys), buyerPremiumPct: 0 } : saved;
+  // A starting tax follows your price once you enter it (the county's rate on it); a tax you typed stays.
+  const taxed = regional ? taxAtPrice(v0, region.state, region.county, typedKeys, start.value ?? RENT_DEFAULTS.value, RENT_DEFAULTS.propertyTaxYear) : v0.propertyTaxYear;
+  const v = taxed === v0.propertyTaxYear ? v0 : { ...v0, propertyTaxYear: taxed };
   const r = rentMaxBid(v, offer);
   const exampleValue = refiOnExampleValue(v, offer, typedKeys);
   const n = rentNoi(v);
   const groups = offer ? forOffer(rt.groups) : rt.groups;
   // Numbers from your plan or the property (`start`) aren't our examples.
-  const still = exampleLabels(visibleFields(groups, v), v, examples, typedKeys, new Set([...NOT_EXAMPLES, ...Object.keys(start)]));
+  const still = exampleLabels(visibleFields(groups, v), v, { ...examples, propertyTaxYear: taxed === v0.propertyTaxYear ? examples.propertyTaxYear : taxed }, typedKeys, new Set([...NOT_EXAMPLES, ...Object.keys(start)]));
   const basics = new Set<keyof RentInputs>(['monthlyRent', 'propertyTaxYear', 'insuranceYear', 'repairs', 'loanPct', 'ratePct']);
   const basicFields = groups.flatMap((g) => g.fields).filter((f) => basics.has(f.k));
   const moreGroups = groups.map((g) => ({ ...g, fields: g.fields.filter((f) => !basics.has(f.k)) }));

@@ -50,8 +50,21 @@ export function rentalStartFor(state: StateCode, value: number, county?: string)
   return { propertyTaxYear: Math.round((value * rate) / 50) * 50, insuranceYear: RENTAL_INSURANCE[state] };
 }
 
-const OF_WORDS: Record<StateTaxRates['of'], string> = { price: 'the price', market: 'the value', fcv: 'the assessor’s full cash value', taxable: 'the county’s taxable value' };
+const OF_SHORT: Record<StateTaxRates['of'], string> = { price: 'price', market: 'value', fcv: 'full cash value', taxable: 'taxable value' };
 const pctWord = (n: number) => `${n.toLocaleString('en-US', { maximumFractionDigits: 2 })}%`;
+
+/**
+ * A rental's property tax at your price: once you've entered a price, a tax that's still one of our starting figures
+ * (the county's or the state's rate on the example value, or the flat example) becomes the county's rate on your price.
+ * A tax you typed is yours and stays.
+ */
+export function taxAtPrice(v: { propertyTaxYear: number; atPrice: number }, state: StateCode, county: string | undefined, typed: ReadonlySet<string>, exampleValue: number, flatExample: number): number {
+  const c = countyTaxRate(state, county);
+  if (!c || typed.has('propertyTaxYear') || !(v.atPrice > 0)) return v.propertyTaxYear;
+  const starts = new Set([rentalStartFor(state, exampleValue, county).propertyTaxYear, rentalStartFor(state, exampleValue).propertyTaxYear, flatExample]);
+  if (!starts.has(v.propertyTaxYear)) return v.propertyTaxYear;
+  return Math.round((v.atPrice * c.pct) / 100 / 50) * 50;
+}
 
 /**
  * Where the starting property tax comes from: a short line (the county's published rate and year) and the detail
@@ -65,15 +78,16 @@ export function countyTaxLine(state: StateCode, county?: string): { short: strin
   const place = /\bCity$/.test(county) ? county : `${county} County`;
   const range = c.low !== null && c.high !== null ? ` Inside the county it runs about ${pctWord(c.low)} to ${pctWord(c.high)}, depending on the city, school district and special districts at the address.` : ' The rate at a given address can differ from the county’s average.';
   return {
-    short: `${place}’s ${s.year} rate for a rental: about ${pctWord(c.pct)} of ${OF_WORDS[s.of]} a year. For a first estimate, multiply your ${s.of === 'price' ? 'price' : 'price or value'} by it; better, use the county’s figure for the property.`,
-    detail: `That rate is ${s.how}, from the ${s.source}.${range}`,
+    short: `${place}: about ${pctWord(c.pct)} of ${OF_SHORT[s.of]} a year (${s.year} rental rate).`,
+    detail: `Once you enter your price, the starting tax here follows it at this rate; use the county’s figure for your property when you have it. For a first estimate, multiply your ${s.of === 'price' ? 'price' : 'price or value'} by ${pctWord(c.pct)}. That rate is ${s.how}, from the ${s.source}.${range}`,
   };
 }
 
 export function propertyTaxHint(state: StateCode, county?: string): { hint: string; more: string } {
   const h = propertyTaxRules(state);
   const line = countyTaxLine(state, county);
-  return line ? { hint: `${line.short} ${h.hint}`, more: `${line.detail} ${h.more}` } : h;
+  // With a county rate, the hint is one short line; the state's rules move into the details.
+  return line ? { hint: line.short, more: `${line.detail} ${h.hint} ${h.more}` } : h;
 }
 
 function propertyTaxRules(state: StateCode): { hint: string; more: string } {
