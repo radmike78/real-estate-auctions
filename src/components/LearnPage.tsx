@@ -81,7 +81,7 @@ export default function LearnPage() {
       <section className="learn-path" aria-labelledby="learn-next">
         {/* Guided readers past the Start-here lessons: the plan's next step leads, the next lesson stays one link away. */}
         <h2 id="learn-next">Your next step: {guidedPlan.task.label}</h2>
-        <p>{guidedPlan.task.text}</p>
+        <p>{guidedPlan.task.text && guidedPlan.task.text.replace(/\.$/, '') !== guidedPlan.task.label ? guidedPlan.task.text : `You’ll have ${guidedPlan.task.produces}.`}</p>
         <a className="btn" href={guidedPlan.task.href} onClick={(e) => { if (guidedPlan.task.openDeal && guidedPlan.deal) { e.preventDefault(); openDeal(guidedPlan.deal); } }}>{planStarted(guidedPlan) ? 'Continue' : 'Start'}&nbsp;→</a>
         <p className="muted">Or keep reading: <a href={`#/learn/${next.key}`}>{next.title}&nbsp;→</a></p>
       </section>

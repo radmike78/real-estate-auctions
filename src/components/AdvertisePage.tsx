@@ -110,6 +110,7 @@ export default function AdvertisePage() {
 
       <h2>Where your category appears</h2>
       <p>Spotlight and Mentor Connect advertisers get a Featured ad on their category’s page, after “What to say”, and also show at the placements below for their kind of professional (the ones that are on today). Rotating advertisers take turns in the ad at the top of Your team.</p>
+      <p>No ads appear on pages about forced sales (tax, trustee, HOA, sheriff and IRS sales) or lien certificates, or on pages for homeowners and business closures, so an ad is never placed beside owners in distress.</p>
       <div className="table-wrap"><table className="lesson-table where-cats">
         <thead><tr><th scope="col">Professional</th><th scope="col">Spotlight and Mentor Connect also show on</th></tr></thead>
         <tbody>
