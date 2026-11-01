@@ -155,8 +155,14 @@ function OwnedPortfolio({ deals }: { deals: ReturnType<typeof loadAnalyzed> }) {
 
 /** A fix-and-sell or lien deal's numbers in one line, from the same figures as its deal packet. */
 function OtherNumbers({ d }: { d: Deal }) {
-  if (d.plan !== 'flip' && d.plan !== 'lien') return null;
-  const { bid, lien } = savedNumbers(d);
+  if (d.plan !== 'flip' && d.plan !== 'lien' && d.plan !== 'commercial') return null;
+  const { bid, lien, commercial } = savedNumbers(d);
+  if (commercial) {
+    if (commercial.at) return <p>At your price, {fmtMoney(commercial.at.price)}: {commercial.at.cashFlow < 0 ? `loses ${fmtMoney(Math.round(-commercial.at.cashFlow / 12))}` : `${fmtMoney(Math.round(commercial.at.cashFlow / 12))} cash flow`} a month · {fmtMoney(Math.round(commercial.noi))} a year of net operating income</p>;
+    if (commercial.none) return <p className="deal-urgent">No price meets your {commercial.capPct}% return on cost with the income and costs entered.</p>;
+    if (commercial.noTarget) return <p className="muted">No target return entered yet: open it and enter the cap rate you require under Commercial income.</p>;
+    return <p>Highest price for your {commercial.capPct}% return on cost: {fmtMoney(commercial.maxBid)} · {fmtMoney(Math.round(commercial.noi))} a year of net operating income</p>;
+  }
   if (bid) {
     if (bid.none) return <p className="deal-urgent">No price works at a {fmtMoney(bid.exitValue)} resale value with these costs and your profit target.</p>;
     const planCash = investorProfile().investable;
@@ -169,7 +175,7 @@ function OtherNumbers({ d }: { d: Deal }) {
     );
   }
   if (lien) return <p>{fmtMoney(lien.price)} certificate · {lien.yearly === null ? 'no yield' : `${(lien.yearly * 100).toFixed(1)}% a year`} if paid off in {lien.months} months</p>;
-  return <p className="muted">No numbers yet: open it and enter {d.plan === 'flip' ? 'the resale value and repairs under Fix and flip (fix and sell)' : 'the certificate price under Lien certificate'}.</p>;
+  return <p className="muted">No numbers yet: open it and enter {d.plan === 'flip' ? 'the resale value and repairs under Fix and flip (fix and sell)' : d.plan === 'commercial' ? 'the rent under Commercial income' : 'the certificate price under Lien certificate'}.</p>;
 }
 
 export default function DealsPage() {
@@ -223,6 +229,7 @@ export default function DealsPage() {
                           </p>
                         ) : d.plan === 'rent' ? <p className="muted">No numbers yet: open it and enter the price you’d pay under Keep and rent.</p> : <OtherNumbers d={d} />;
                       })()}
+                      {!d.locationConfirmed && <p className="muted">The location changed and isn’t confirmed yet: open it in Analyze and confirm it so its costs follow the new place.</p>}
                       <p><strong>Next action.</strong> {nextAction(d).text}</p>
                     </div>
                     <div className="deal-actions">

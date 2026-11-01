@@ -391,6 +391,8 @@ export function hasSavedNumbers(n: ReturnType<typeof savedNumbers>): boolean {
   return !!(n.rent || n.bid || n.lien || (n.commercial && !n.commercial.noTarget));
 }
 
+const UNCONFIRMED_PLACE = 'The location changed in Analyze and isn’t confirmed yet: costs that follow the state and county (transfer tax, insurance, property tax) update once you confirm it there.';
+
 const REPAIRS_NEEDED = (strategy: string) => `Enter the repairs in ${strategy} (type 0 if there truly are none). Until then this deal’s walk-away price doesn’t count them, so it isn’t shown here.`;
 
 const commercialNoTarget = (strategy: string, overCap = false) => overCap
@@ -598,6 +600,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     nums.push('  Downside, if it’s never paid off: no payoff comes; your cash stays in until you enforce the lien, which usually takes an attorney and more cost.*');
     if (lien.later) nums.push(`  If it takes longer, to ${lien.later.months} months: your ${money(lien.price)} is tied up ${lien.later.months - lien.months} months more, earning ${yr(lien.later.yearly)} (profit after fees ${money(lien.later.profit)}); add any later taxes or assessments you pay to protect the lien.`);
   }
+  // A saved deal's state or county changed in Analyze and isn't confirmed yet: its costs still follow the old place.
+  if (hasNums && !d.locationConfirmed) nums.push(UNCONFIRMED_PLACE);
   if (!hasNums && flipNeedsRepairs(d)) nums.push(REPAIRS_NEEDED(strategy));
   else if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');
   // Done only once there's a downside to look at, not just the base case.

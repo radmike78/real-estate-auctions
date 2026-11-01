@@ -43,11 +43,13 @@ export function countyTaxRate(state: StateCode, county?: string): CountyTaxRate 
   return (county && COUNTY_TAX_RATES[state]?.counties[county]) || null;
 }
 
+/** A yearly tax from a value and a rate in % (rounded to $50), one rule for the starting figure and the hint alike. */
+export const taxAt = (value: number, pct: number) => Math.round(Math.round(value * pct) / 100 / 50) * 50; // inner round: float noise (2.15 × 350,000)
+
 export function rentalStartFor(state: StateCode, value: number, county?: string): { propertyTaxYear: number; insuranceYear: number } {
   // The county's own published rate when we have it, else the state's rough rate.
   const c = countyTaxRate(state, county);
-  const rate = c ? c.pct / 100 : RENTAL_TAX_RATE[state];
-  return { propertyTaxYear: Math.round((value * rate) / 50) * 50, insuranceYear: RENTAL_INSURANCE[state] };
+  return { propertyTaxYear: taxAt(value, c ? c.pct : RENTAL_TAX_RATE[state] * 100), insuranceYear: RENTAL_INSURANCE[state] };
 }
 
 const OF_SHORT: Record<StateTaxRates['of'], string> = { price: 'price', market: 'value', fcv: 'full cash value', taxable: 'taxable value' };

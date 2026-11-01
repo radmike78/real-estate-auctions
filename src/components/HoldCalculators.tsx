@@ -16,7 +16,7 @@ const visibleFields = <T,>(groups: CalcGroup<T>[], v: T) => groups.flatMap((g) =
 /** Set by the county (transfer tax) or not a number you choose: never listed as an example. */
 const NOT_EXAMPLES = new Set(['transferTaxPer500', 'buyerPremiumPct', 'atPrice']);
 import { investorProfile } from '../lib/myPlan';
-import { countyTaxRate, propertyTaxHint, rentalStartFor, transferTaxFor } from '../lib/stateCosts';
+import { countyTaxRate, propertyTaxHint, rentalStartFor, taxAt, transferTaxFor } from '../lib/stateCosts';
 
 /** The purchase-cost fields worded for the deal's state and county, starting at its transfer tax. */
 /** `countyTax`: the starting property tax follows the county (a deal's calculator), so the hint names the county. */
@@ -499,7 +499,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   // (It also covers a box that still holds another county's starting figure.)
   const rate = regional && !typedKeys.has('propertyTaxYear') ? countyTaxRate(region.state, region.county) : null;
   const taxBase = v.atPrice > 0 ? v.atPrice : (start.value ?? RENT_DEFAULTS.value);
-  const taxHere = rate ? Math.round((taxBase * rate.pct) / 100 / 50) * 50 : 0;
+  const taxHere = rate ? taxAt(taxBase, rate.pct) : 0;
   const withTaxHint = (gs: CalcGroup<RentInputs>[]) => (rate && taxHere !== v.propertyTaxYear
     ? gs.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} At ${v.atPrice > 0 ? `your ${fmtMoney(v.atPrice)} ${offer ? 'offer' : 'bid'}` : `a ${fmtMoney(taxBase)} price`}: about ${fmtMoney(taxHere)}.`.trim() } : f)) }))
     : gs);
@@ -599,6 +599,8 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
           const estimate = Math.round((n.collected * Math.min(Number(v.expensePct) || 0, 100)) / 100);
           return <p className="verify" role="status"><strong>Check your cost lines.</strong> Once you enter any line, the lines replace the {v.expensePct}% estimate, and blank lines count as $0. Still blank: {blank.join(', ')}. Your lines total {fmtMoney(Math.round(n.expenses))} a year; the % estimate was {fmtMoney(estimate)}.</p>;
         })()}
+        {/* An auction purchase's later loan is sized on the value: with no value entered, no loan is counted. */}
+        {!offer && v.loanPct > 0 && !(v.value > 0) && <p className="calc-note small" role="note"><strong>No loan is counted yet: the value is blank.</strong> A loan after an auction is sized on the value an appraisal would support. Enter it (under the loan terms) to include the loan in the cash and the walk-away price.</p>}
         <HoldResults commercial r={r} title="Walk-away price for the income" target={`Yields your ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} headLabel="Walk-away price" />
       </div>
       <StickyResult label="Walk-away price" value={r.noBidWorks ? 'No price works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks} />

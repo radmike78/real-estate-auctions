@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { COUNTY_TAX_RATES } from './countyTaxRates';
 import { STATES } from './regions';
-import { countyTaxLine, countyTaxRate, propertyTaxHint, rentalStartFor } from './stateCosts';
+import { countyTaxLine, countyTaxRate, propertyTaxHint, rentalStartFor, taxAt } from './stateCosts';
 
 // A rental's yearly tax as a % of value, by state: wide enough for every county, narrow enough to catch a slipped
 // decimal (a rate per $100 entered as a %, or a % entered as a fraction).
@@ -44,3 +44,10 @@ it('says where the starting tax comes from, with the year and the range inside t
   expect(propertyTaxHint('TX').hint).not.toContain('County’s');
 });
 
+
+it('rounds a tax the same way for the starting figure and the hint, without float noise', () => {
+  expect(taxAt(350_000, 2.15)).toBe(7_550); // 7,525 exactly: rounds up to the next $50
+  for (const [county, r] of Object.entries(COUNTY_TAX_RATES.TX.counties)) {
+    expect(rentalStartFor('TX', 350_000, county).propertyTaxYear, county).toBe(taxAt(350_000, r.pct));
+  }
+});
