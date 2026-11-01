@@ -852,7 +852,7 @@ export const DRILLS: Drill[] = [
     id: 'tax-lien-az',
     title: 'An Arizona tax lien: what will you really earn?',
     teaser: 'You can bid on a $2,400 tax lien. The rate starts at 16%, and bidders bid it down.',
-    where: 'A fictional lien at an Arizona county tax lien sale. At the February sale, Arizona sells liens, not the property. (Land the state already took by tax deed is sold separately by the county.)',
+    where: 'A fictional lien at an Arizona county tax lien sale. At the February sale, the county sells liens, not the property. (Land the state already took by tax deed is sold separately by the county.)',
     facts: [
       { label: 'Sale', value: 'County treasurer’s tax lien sale, Arizona, in February' },
       { label: 'Lien amount', value: '$2,400 of taxes, interest and fees' },
@@ -868,7 +868,7 @@ export const DRILLS: Drill[] = [
         multi: false,
         options: [
           { label: 'A certificate of purchase: a lien that earns interest at my bid rate until the owner pays', good: true, why: 'Right. You can ask a court for a treasurer’s deed only after 3 years, if the lien is still unpaid. Or, if you or the owner ask and the property is likely to sell for more than $2,500 above what’s owed, the court must order an auction instead, and you’re paid in cash (A.R.S. 42-18204).' },
-          { label: 'The land', good: false, why: 'At the February sale, Arizona sells liens, not the property.' },
+          { label: 'The land', good: false, why: 'At the February sale, the county sells liens, not the property.' },
         ],
         lesson: 'Most liens are redeemed: plan on interest, not on getting the land.',
       },

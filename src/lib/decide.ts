@@ -423,6 +423,11 @@ function answerText(q: Question, v: string) {
 }
 
 /** Reasons joined as one phrase: “a, b and c”. */
+/** Paying cash (Decide: cash only): the loan parts of a result become cash ones. */
+export const CASH_AT_RISK = 'Paying cash: the full price, plus closing costs, repairs and reserves. Compare that with your cash; a loan is one option to discuss with a lender.';
+export const CASH_LOAN_STEP = 'Paying cash: get proof of funds (a recent statement or a bank letter) instead of a loan pre-approval.';
+export const usesLoanDown = (atRisk: string) => /^The down payment/.test(atRisk);
+
 export const joinReasons = (r: string[]) => (r.length < 2 ? r.join('') : `${r.slice(0, -1).join(', ')} and ${r[r.length - 1]}`);
 
 /**

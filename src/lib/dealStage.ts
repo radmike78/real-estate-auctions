@@ -165,7 +165,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     out.push(task({
       key: 'numbers',
       label: d.plan === 'rent' ? `Run the rental numbers for ${n} at the price you’d ${verb}` : d.plan === 'flip' ? `Set your walk-away price for ${n} (fix and sell)` : `Run the income numbers for ${n}`,
-      produces: d.plan === 'rent' ? 'its monthly cash flow, the cash it needs and downside cases, saved with the deal' : d.plan === 'flip' ? 'the most you can pay and still make your profit, with every cost counted' : 'the most its income supports at your target return',
+      produces: d.plan === 'rent' ? 'its monthly cash flow, the cash it needs and downside cases, saved with the deal' : d.plan === 'flip' ? 'the most you can pay and still make your profit from your resale value and repairs (enter title, possession and holding costs, or 0, before you rely on it)' : 'the most its income supports at your target return',
       href: '#/analyze',
       openDeal: true,
       support: d.plan === 'rent' ? [L.analyze, L.rentMission] : [L.analyze],
