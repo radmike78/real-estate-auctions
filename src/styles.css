@@ -2919,9 +2919,11 @@ dl.cash-result .cash-main { border-color: var(--accent); }
 #root > main:not([class]) th, #root > main:not([class]) td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
 
 /* Filled ad boxes look finished: a solid border (dashed is kept for the empty "Advertise here" box), and on wide
-   screens each card runs across the box with its contact button at the right. */
+   boxes each card runs across the box with its contact button at the right. */
 .ad-box:not(.ad-space) { border-style: solid; border-width: 1px; }
-@media (min-width: 900px) {
+/* Keyed to the box's own width, not the screen's: in a side column (Analyze, My plan, topic ads) the card stays stacked. */
+.ad-box { container-type: inline-size; }
+@container (min-width: 620px) {
   .ad-box:not(.ad-space) .ad-box-grid:has(> .ad-card:only-child) .ad-card,
   .ad-box:not(.ad-space) .ad-box-grid:has(> .ad-card:nth-child(2):last-child) .ad-card { align-items: center; }
   .ad-box:not(.ad-space) .ad-box-grid:has(> .ad-card:only-child) .ad-card-body {
@@ -2943,3 +2945,5 @@ dl.cash-result .cash-main { border-color: var(--accent); }
 .page summary, .deal-task-nav button { min-height: 44px; }
 .page summary:not(.lesson-topic > summary) { padding-block: 10px; }
 .lookup-card a, .disclaimer a, .verify-card a:not(.btn), .lesson-try a, .plan-now a:not(.btn) { display: inline-flex; align-items: center; min-height: 44px; }
+/* Profile page: the contact card's heading fits its narrow side column (the name doesn't wrap to three big lines). */
+.side-col h2 { font-size: 1.3rem; line-height: 1.3; }

@@ -54,11 +54,12 @@ export function useSpotCategories(key: string, auto?: Category[]): Category[] {
 // Elsewhere (lessons, missions, guides, deals) an empty spot shows nothing, so readers don't meet empty boxes.
 const PLACEHOLDER_SPOTS = new Set(['financing']);
 
-export default function AdSpot({ spot, auto }: { spot: string; auto?: Category[] }) {
+/** `allow`: false on a page about a forced sale or a lien (contextAds.ts), where no ad shows even with the spot on. */
+export default function AdSpot({ spot, auto, allow = true }: { spot: string; auto?: Category[]; allow?: boolean }) {
   const cats = useSpotCategories(spot, auto);
   const { pros } = useDirectory();
   const shown = useFixedShown(pros, cats);
-  if (!cats.length) return null;
+  if (!allow || !cats.length) return null;
   if (!shown.length && !PLACEHOLDER_SPOTS.has(spot)) return null;
   return (
     <section className="ad-spot" aria-labelledby={`ad-spot-${spot}`}>

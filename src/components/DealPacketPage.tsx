@@ -1,3 +1,4 @@
+import { analyzeAllowsAds } from '../lib/contextAds';
 import NumInput from './NumInput';
 import { useEffect, useState } from 'react';
 import PageHero from './PageHero';
@@ -251,7 +252,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <h2 id="packet-owned">After you buy: actual results</h2>
         <OwnedTracker deal={deal} />
       </section>
-      <AdSpot spot="dealPacket" />
+      <AdSpot spot="dealPacket" allow={analyzeAllowsAds(deal.kind)} />
       <p className="muted">This packet is not included in account saves. Download it to keep a copy; guest packets also stay in this browser. This packet records your own review; it doesn’t clear title or certify a deal.</p>
     </main>
   );

@@ -1,3 +1,4 @@
+import { fmtDate } from './status';
 // Find Deals: where to look for properties, by state and county. Official sources first; other sites (listing
 // portals and auction marketplaces) only in their own, clearly labeled list (CLAUDE.md).
 import { REO_SOURCES, reoWhatFor } from './reoSources';
@@ -85,7 +86,7 @@ export const STATE_SALES: Record<StateCode, string[]> = {
   ],
   CA: [
     'Tax sales: the tax collector sells tax-defaulted property after 5 years (3 for nonresidential commercial), usually online.',
-    'Foreclosures: trustee auctions at least 3 months after the notice of default; on 1–4 unit homes, tenants can match, and other eligible bidders can beat, the winning bid within 15 to 45 days. The owner can’t redeem afterward. If the sale wiped out a junior federal tax lien, the United States can still redeem within 120 days (26 USC 7425).',
+    'Foreclosures: trustee auctions at least 3 months after the notice of default; on 1–4 unit homes, eligible bidders have 15 days after the sale to say they’ll bid, and up to 45 days to make that bid (Civil Code 2924m). The owner can’t redeem afterward. If the sale wiped out a junior federal tax lien, the United States can still redeem within 120 days (26 USC 7425).',
   ],
   AZ: [
     'Tax sales: the county treasurer sells tax liens, not property, each February; bidders bid the interest rate down from 16%. Separately, the county board of supervisors auctions land the state already took by tax deed (A.R.S. 42-18301 to 42-18303).',
@@ -136,7 +137,7 @@ export const countyOfficeCards = (state: StateCode, offices?: CountyOffices): De
         ? 'Civil services and judgment enforcement. Confirm any current property sales, notices and bidding rules with the office.'
         : label.what;
     const name = `${label.name}${office.contactOnly ? ' — contact / directory' : ''}`;
-    const what = `${description}${office.note ? ` ${office.note}` : ''} ${office.checked ? `Source reviewed: ${office.checked}. Confirm current details with the office.` : 'No verification date recorded. Confirm this link and current details with the county before relying on it.'}`;
+    const what = `${description}${office.note ? ` ${office.note}` : ''} ${office.checked ? `Reviewed ${fmtDate(office.checked)}.${/Confirm /.test(description) ? '' : ' Confirm current details with the office.'}` : 'No verification date recorded. Confirm this link and current details with the county before relying on it.'}`;
     const previous = cards.get(office.url);
     if (previous) {
       previous.name += ` / ${name}`;

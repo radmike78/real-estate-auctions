@@ -6,6 +6,17 @@ import { planNow } from '../lib/planNext';
 export default function PathNext({ step }: { step: StepKey }) {
   if (getMode() === 'guided') {
     const plan = planNow();
+    const here = PATH.find((s) => s.key === step)?.href;
+    // The plan's task is done on this very page (Find deals, Your team): say so, instead of a link that goes to My plan
+    // and straight back.
+    if (here && plan.task.support[0]?.href === here) {
+      return (
+        <nav className="path-next" aria-label="Next step">
+          <span className="muted">You’re on your next step: {plan.task.label}. When you have {plan.task.produces}, mark it done in My plan.</span>
+          <a className="btn btn-secondary" href={plan.task.href}>Mark it done in My plan&nbsp;→</a>
+        </nav>
+      );
+    }
     return (
       <nav className="path-next" aria-label="Next step">
         <span className="muted">Next: {plan.context}</span>

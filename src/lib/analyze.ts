@@ -128,7 +128,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
   if (auction) sale.push({ id: 'confirm-sale', text: 'Confirm the sale with the official seller the day before: sales are often postponed, paid off or cancelled.' });
   if (d.kind === 'trustee') {
     if (st === 'NV') sale.push({ id: 'nv-trustee', text: 'Nevada: the sale comes at least 3 months after the notice of default; the notice of sale is posted 20 days before. Ask the trustee how and when you must pay.' });
-    if (st === 'CA') sale.push({ id: 'ca-trustee', text: 'California: bring proof you can pay the full bid in cash or cashier’s checks. On homes of one to four units, tenants can match, and other eligible bidders can beat, the winning bid within 15 to 45 days after the sale, so it isn’t final right away.' });
+    if (st === 'CA') sale.push({ id: 'ca-trustee', text: 'California: bring proof you can pay the full bid in cash or cashier’s checks. On homes of one to four units, eligible bidders have 15 days after the sale to say they’ll bid, and up to 45 days to make that bid (Civil Code 2924m), so it isn’t final right away.' });
     if (st === 'AZ') sale.push({ id: 'az-trustee', text: 'Arizona: if you win, you pay the full bid by 5 p.m. the next business day.' });
     if (st === 'TX') sale.push({ id: 'tx-trustee', text: 'Texas: trustee sales happen on the first Tuesday of the month, between 10 a.m. and 4 p.m., with at least 21 days’ notice (Property Code 51.002). You pay when the bid is accepted, as the trustee directs. After a mortgage foreclosure the owner can’t buy it back; after a property tax loan foreclosure they can (Tax Code 32.06(k), (k-1)).' });
     if (st === 'UT') sale.push({ id: 'ut-trustee', text: 'Utah: your bid can’t be withdrawn, you pay as the trustee directs, and the trustee’s deed has no right of redemption.' });
@@ -191,7 +191,9 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     money.push({ id: 'insurance', text: 'Get landlord insurance quotes before you commit.', href: '#/pros/insurance' });
   }
   if (d.plan === 'commercial') money.push({ id: 'noi', text: 'Get the rent roll and operating statements, and check NOI, cap rate and debt coverage with a commercial lender.', href: '#/learn/analyze' });
-  if (d.kind !== 'lien' && (auction || d.kind === 'reo')) money.push({ id: 'occupants', text: `Plan for occupants: find out whether they’re the former owner or tenants, and get any lease. Removing anyone takes a court process. After a foreclosure, federal law gives tenants with a genuine lease or rental at least 90 days’ notice, or the rest of their lease unless you’ll live there yourself${st === 'TX' ? '; Texas’s shorter notice doesn’t cut that' : ''}. Ask an attorney how this applies to your sale before you give any notice.` });
+  // The federal tenant rule is for foreclosures (trustee, court, HOA, and the bank-owned home after one), not tax or IRS sales.
+  const foreclosure = ['trustee', 'court', 'hoa', 'reo'].includes(d.kind);
+  if (d.kind !== 'lien' && (auction || d.kind === 'reo')) money.push({ id: 'occupants', text: `Plan for occupants: find out whether they’re the former owner or tenants, and get any lease. Removing anyone takes a court process. ${foreclosure ? `After a foreclosure, federal law gives tenants with a genuine lease or rental at least 90 days’ notice, or the rest of their lease unless you’ll live there yourself${st === 'TX' ? '; Texas’s shorter notice doesn’t cut that' : ''}. Ask an attorney how this applies to your sale before you give any notice.` : 'Ask an attorney which notice rules apply after this kind of sale before you give any notice.*'}` });
   groups.push({ title: 'Money and plan', items: money });
 
   // 4. Before you commit

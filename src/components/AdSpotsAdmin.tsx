@@ -45,10 +45,10 @@ export default function AdSpotsAdmin() {
       <h2 id="ad-spots-head" className="section-title">Fixed ad spots</h2>
       <p>
         Turn on the places where Spotlight and Mentor Connect advertisers appear together in a labeled ad, and choose which kinds of professionals each one shows.
-        Spotlight and Mentor Connect advertisers in the visitor’s area appear; a spot with no advertiser yet shows an “Advertisement space” box that points
+        Spotlight and Mentor Connect advertisers in the visitor’s area appear; a spot with no advertiser yet shows nothing, except Financing, which shows an “Advertise here” box that points
         professionals to the Advertise page. {on} of {AD_SPOTS.length} spots are on.
       </p>
-      <p className="small muted">Pages for homeowners (homeowner help, pre-foreclosures, surplus money) and business closures have no ad spots: an ad there could reach owners in distress.</p>
+      <p className="small muted">Pages for homeowners (homeowner help, pre-foreclosures, surplus money) and business closures have no ad spots: an ad there could reach owners in distress. Guides, lessons, drills, property pages and deal packets about forced sales or liens never show an ad, even with their spot on.</p>
       <ul className="ad-spot-list">
         {AD_SPOTS.map((s) => {
           const v = spots[s.key];

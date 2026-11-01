@@ -32,12 +32,14 @@ export function AdSpace({ kind }: { kind: string }) {
 }
 
 /**
- * Whether an ad spot with these categories shows anything: a RotatingAd with a placeholder always renders a box while
- * advertising is open, and nothing while it isn't. Pages use it to give the ad a column only when there is one.
+ * Whether an ad spot with these categories shows anything: the "Advertise here" placeholder while advertising is
+ * open, and paid advertisers in the area whenever there are any (an outage of the features check or email being off
+ * hides only the placeholder). Pages use it to give the ad a column only when there is one.
  */
-export function useAdShows(categories: readonly unknown[]): boolean {
+export function useAdShows(categories: Category[], pros: Pro[] = [], area?: Area | null): boolean {
   const features = useSiteFeatures();
-  return categories.length > 0 && advertisingOpen(features);
+  const shown = useFixedShown(pros, categories, area);
+  return categories.length > 0 && (advertisingOpen(features) || shown.length > 0);
 }
 
 /**

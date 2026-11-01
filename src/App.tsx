@@ -300,7 +300,9 @@ export default function App() {
   useEffect(() => {
     const set = () => {
       const h1 = document.querySelector('main:not(.prerender-hold) h1')?.textContent?.trim();
-      document.title = route.page === 'home' || !h1 ? 'DeedOwl · Learn real estate investing, step by step' : `${h1.slice(0, 70)} · DeedOwl`;
+      // Still loading (no heading yet): keep the title the page arrived with, rather than the generic one.
+      if (route.page !== 'home' && !h1) return;
+      document.title = route.page === 'home' ? 'DeedOwl · Learn real estate investing, step by step' : `${h1!.slice(0, 70)} · DeedOwl`;
     };
     const t = window.setTimeout(set, 60);
     // A page whose code is still loading gets its title once its heading appears (watched for a few seconds).

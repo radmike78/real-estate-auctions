@@ -1,3 +1,4 @@
+import { playbookAllowsAds } from '../lib/contextAds';
 import { getMyArea } from '../lib/myArea';
 import type { StateCode } from '../lib/regions';
 import NarrowDown from './NarrowDown';
@@ -292,7 +293,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
       {!open && PRACTICE_SALES.has(p.key) && <p className="playbook-note"><a className="btn" href={`#/practice?sale=${p.key}`}>Practice this kind of sale (Nevada rules), hands-on&nbsp;→</a></p>}
       {!open && drill && <p className="playbook-note"><a className="btn" href={`#/practice/drills/${drill}`}>Practice this kind of sale with the {stateByCode(stateOf(p))?.name ?? ''} drill, hands-on&nbsp;→</a></p>}
       {!open && p.key === 'commercial' && <p className="playbook-note"><a className="btn btn-secondary" href="#/practice">Practice buying commercial property, hands-on&nbsp;→</a></p>}
-      <AdSpot spot="playbook" />
+      <AdSpot spot="playbook" allow={playbookAllowsAds(p.key)} />
     </main>
   );
 }

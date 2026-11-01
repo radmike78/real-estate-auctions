@@ -19,7 +19,7 @@ import { toolkitConfig } from '../lib/narrow';
 import DocGuideView from './DocGuideView';
 import { EvidenceArea } from './EvidenceLog';
 import { cleanDealSteps, DEAL_KEY, DEAL_STEPS_KEY, type DealSteps } from '../lib/roadmapDeals';
-import { cleanStatus, dealScoped, focusDealId, NO_DEAL, pathForDeal, planPath, PROGRESS_EVENT, progressChanged, ROADMAP_KEY, ROADMAP_PATH_KEY, roadmapDone, roadmapPath, roadmapProgress, STATUS_KEY } from '../lib/roadmapState';
+import { cleanStatus, creditStep, dealScoped, focusDealId, NO_DEAL, pathForDeal, planPath, PROGRESS_EVENT, progressChanged, ROADMAP_KEY, ROADMAP_PATH_KEY, roadmapDone, roadmapPath, roadmapProgress, STATUS_KEY } from '../lib/roadmapState';
 import { stageLabel, stageOf, stageOfStep, STAGE_STEPS, DEAL_STAGES } from '../lib/dealStage';
 import PlanNext from './PlanNext';
 import { planNow } from '../lib/planNext';
@@ -109,11 +109,13 @@ function GoalField() {
     write(GOAL_KEY, v);
     window.dispatchEvent(new CustomEvent(PLAN_EVENT));
   };
+  // A written goal ticks "Write your goal" (a full sentence, so a stray letter doesn't).
+  const settle = (v: string) => { if (v.trim().length >= 12) { creditStep('goal'); progressChanged(); } };
   return (
     <label className="field roadmap-goal">
       <span>Your goal, in one sentence</span>
-      <textarea rows={2} maxLength={400} value={g} onChange={(e) => change(e.target.value)} placeholder="e.g. A rental I’ll hold 10 years, where the rent covers the costs. About 6 hours a week." />
-      {!g.trim() && fromDecide && <button type="button" className="linkish" onClick={() => change(fromDecide)}>Start from my Decide answers: “{fromDecide}”</button>}
+      <textarea rows={2} maxLength={400} value={g} onChange={(e) => change(e.target.value)} onBlur={(e) => settle(e.target.value)} placeholder="e.g. A rental I’ll hold 10 years, where the rent covers the costs. About 6 hours a week." />
+      {!g.trim() && fromDecide && <button type="button" className="linkish" onClick={() => { change(fromDecide); settle(fromDecide); }}>Start from my Decide answers: “{fromDecide}”</button>}
     </label>
   );
 }
@@ -236,7 +238,7 @@ export function FirstDealRoadmap() {
   // Even an owner's fixed list never shows beside an official seller or off the agent route (contextAds.ts).
   const stepCats = useSpotCategories('toolkit', next ? stepAdCategories(next, path) : []);
   const nextAdCats = next && stepAllowsAds(next, path) ? stepCats : [];
-  const nextAdShows = useAdShows(nextAdCats);
+  const nextAdShows = useAdShows(nextAdCats, pros);
   // The phase holding the next step starts open; after that, phases stay as the reader leaves them.
   const [openPhase, setOpenPhase] = useState(() => next?.phase ?? 1);
   useEffect(() => { setOpenPhase(next?.phase ?? 1); }, [deal?.id, stage]);

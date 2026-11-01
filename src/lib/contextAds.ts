@@ -31,7 +31,7 @@ export function analyzeAdCategories(kind: SaleKind, plan: Plan): Category[] {
 
 /** Who a My plan step says to call, as advertiser categories ("Each professional" and officials match none). */
 const BY_CONTACT: [RegExp, Category[]][] = [
-  [/^loan officer\b/i, LENDERS],
+  [/^(loan officer|lender)\b/i, LENDERS],
   [/^your bank\b/i, ['bank', 'credit_union']],
   [/^(your agent|appraiser or agent)\b/i, ['agent']],
   [/^insurance agent\b/i, ['insurance']],
@@ -55,6 +55,12 @@ export const stepsFor = (cat: Category, steps: RoadmapStep[]): RoadmapStep[] => 
 
 /** Whether Analyze may show ads for this kind of sale at all (an owner's fixed list included): buying through an agent only. */
 export const analyzeAllowsAds = (kind: SaleKind) => kind === 'listing' || kind === 'reo' || kind === 'short';
+/** The same rule for the owner's fixed ad spots, which can be switched on for every guide, lesson, drill, property
+ *  page or deal packet: none of them shows an ad where the page is about a forced sale or a lien. */
+export const playbookAllowsAds = (key: string) => key === 'reo' || key === 'short' || key === 'commercial';
+export const lessonAllowsAds = (key: string) => key !== 'forced-sales';
+const FORCED_DRILL = /trustee|tax-|hoa-|sheriff|irs|foreclos|receiver|short-sale|lien|surplus/;
+export const drillAllowsAds = (id: string) => !FORCED_DRILL.test(id);
 /** Whether a My plan step may show ads at all (an owner's fixed list included): the agent route, and never beside an
  * official seller (county, treasurer, trustee, sheriff). */
 export const stepAllowsAds = (step: RoadmapStep, path: RoadmapPath) =>

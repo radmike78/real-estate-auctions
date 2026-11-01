@@ -261,8 +261,8 @@ export const DRILLS: Drill[] = [
       {
         kind: 'pick',
         id: 'mortgage',
-        title: 'Mission 1: County records show the lender paid the HOA’s priority share (the part of the HOA lien that comes first) 10 days before the sale',
-        question: 'What happens to the $195,000 first mortgage?',
+        title: 'Mission 1: The lender paid the HOA’s priority share. Does the mortgage survive?',
+        question: 'County records show the lender paid the HOA’s priority share (the part of the HOA lien that comes first) 10 days before the sale. What happens to the $195,000 first mortgage?',
         multi: false,
         options: [
           { label: 'It survives: I’d own the condo subject to the $195,000 loan', good: true, why: 'Right. When the lender pays the priority amount at least 5 days before the sale, the first deed of trust stays. The same is true if Fannie Mae or Freddie Mac owns the loan.' },

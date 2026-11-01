@@ -118,7 +118,7 @@ export const ROADMAP: RoadmapStep[] = [
     outcome: 'A state, a county, the kind of sale, and what you’d actually get (a deed, a certificate, or a contract to buy).',
     steps: ['Choose your state and county. Buying a listed or bank-owned home through an agent? Read “Making an offer and closing”. At an auction or a lien sale? Read your state’s sale guide for that kind of sale.', 'Choose your route at the top of this roadmap: through an agent, at an auction, or lien certificates.', 'You’ll look at real properties in Find deals later, after practice and lining up your team.'],
     doneWhen: 'You know your county, the kind of sale, and what you’d get if you buy.',
-    action: 'How buying through an agent works', href: '#/learn/negotiate',
+    action: 'Sale guides: every way to buy', href: '#/playbooks',
   },
   {
     id: 'market-compare', phase: 2, title: 'Compare two areas before choosing',
@@ -431,6 +431,7 @@ export const ROADMAP: RoadmapStep[] = [
     outcome: 'Written confirmation of coverage, exclusions, deductible and effective date.',
     steps: ['Confirm the property, named insured, use and coverage with the insurer.', 'Arrange the effective date with your insurer and closing team so there is no ownership coverage gap.', 'Give the lender any required proof before closing.'],
     doneWhen: 'Coverage is confirmed in writing with the effective date coordinated with closing.',
+    say: { to: 'Insurance agent', script: '“I’m closing on [address] on [date] and will use it as a [rental / renovation / vacant property]. Can you confirm in writing that the policy covers that use, the deductible, the exclusions and the effective date?”' },
     evidence: 'insurance', action: 'Questions for your insurer', href: '#/pros/insurance',
   },
   {

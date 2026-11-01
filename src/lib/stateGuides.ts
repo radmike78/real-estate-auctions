@@ -218,7 +218,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "1 to 4 unit homes",
-      value: "The sale is not final right away. Eligible tenants, owner-occupants and certain nonprofits and public agencies have 15 days to say they plan to bid, and up to 45 days to make that bid (Civ 2924m, in effect until January 1, 2031)."
+      value: "The sale is not final right away. Eligible tenants, buyers who will live in the home (prospective owner-occupants) and certain nonprofits and public agencies have 15 days to say they plan to bid, and up to 45 days to make that bid (Civ 2924m, in effect until January 1, 2031)."
     },
     {
       label: "Liens",

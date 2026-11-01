@@ -1,4 +1,4 @@
-import { parseCalcInput } from './CalcFields';
+import { calculatorInputError, parseCalcInput } from './CalcFields';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useId, useState } from 'react';
 import { incomeValue, sanitizeIncome, type IncomeInputs } from '../lib/incomeValue';
@@ -31,6 +31,7 @@ export default function IncomeValue({ propertyId, onUse }: { propertyId: string;
   const set = (k: keyof IncomeInputs, text: string) => {
     trackAction('calculator_used', true);
     setDraft((d) => ({ ...d, [k]: text }));
+    if (text.trim() !== '' && calculatorInputError(text, '$')) return; // keeps the last valid number
     const n = parseCalcInput(text);
     const next = { ...i, [k]: Number.isFinite(n) && n > 0 ? n : 0 };
     setI(next);
@@ -53,7 +54,8 @@ export default function IncomeValue({ propertyId, onUse }: { propertyId: string;
               <span className="calc-label">{f.label}</span>
               <span className="calc-input">
                 {f.unit === '$' && <i aria-hidden>$</i>}
-                <input id={`${uid}-${f.k}`} type="text" inputMode="decimal" value={draft[f.k] ?? String(i[f.k])} onChange={(e) => set(f.k, e.target.value)} />
+                <input id={`${uid}-${f.k}`} type="text" inputMode="decimal" value={draft[f.k] ?? String(i[f.k])} aria-invalid={!!draft[f.k]?.trim() && !!calculatorInputError(draft[f.k]!, '$')} aria-describedby={draft[f.k]?.trim() && calculatorInputError(draft[f.k]!, '$') ? `${uid}-${f.k}-err` : undefined} onChange={(e) => set(f.k, e.target.value)} />
+                {!!draft[f.k]?.trim() && calculatorInputError(draft[f.k]!, '$') && <small className="deal-urgent" role="status" id={`${uid}-${f.k}-err`}>{calculatorInputError(draft[f.k]!, '$')}</small>}
                 {f.unit === '%' && <i aria-hidden>%</i>}
               </span>
               <span className="small muted">{f.hint}</span>

@@ -478,7 +478,8 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       </div>
 
       <DrillDown sections={shownSections} active={section} baseHref={baseHref} label="Property sections" printAll={printAll} />
-      <AdSpot spot="property" />
+      {/* Property pages list forced sales (tax, trustee, IRS); only a bank-owned home may carry an ad. */}
+      <AdSpot spot="property" allow={s?.saleType === 'REO'} />
     </main>
     </CalcRegion.Provider>
   );

@@ -44,7 +44,7 @@ export const SALE_DOCS: Record<SaleKindKey, SaleDoc[]> = {
     TITLE_SEARCH,
     FUNDS,
     RECEIPT,
-    { name: 'The tax deed', check: 'Usually a deed with no promises about the title. Confirm it’s recorded in your name. A title company may want a quiet title case before it will insure the property: ask an attorney what that costs.' },
+    { name: 'The tax deed', check: 'Usually a deed with no promises about the title. Confirm it’s recorded in your name. A title company may want a quiet title case (a court case that confirms you own it free of old claims) before it will insure the property: ask an attorney what that costs.' },
   ],
   taxlien: [
     NOTICE,
@@ -204,14 +204,16 @@ const HOA_DEED: Partial<Record<string, SaleDoc>> = {
 // Clark County Treasurer payment forms. Tax deed sale: the May 2025 auction notice lists cash, cashier's check or money
 // order for the final payment, while the Treasurer's FAQ also lists wire. SID lien sale: the FAQ lists only cash,
 // cashier's check or money order.
-const NV_FUNDS_DEED: SaleDoc = { name: 'Cash, cashier’s check or money order', check: 'The May 2025 notice didn’t list wire for the final payment, though the Treasurer’s FAQ does. Confirm in the current notice, and have the exact amount ready by the payment deadline.' };
+const NV_FUNDS_DEED: SaleDoc = { name: 'Cash, cashier’s check or money order', check: 'Plan on cash, a cashier’s check or a money order. The May 2025 notice didn’t list wire for the final payment, though the Treasurer’s FAQ mentions it, so confirm in the current notice, and have the exact amount ready by the payment deadline.' };
+// Clark County's form takes only an individual's name (Trustee Auction Registration Form), so its guide says so here.
+const NV_REGISTRATION: SaleDoc = { name: 'Bidder registration form', check: 'Clark County requires an individual’s name, not a company, LLC or trust, and the deed goes to exactly that name. To hold it in an entity, record your own deed afterward (ask an attorney first).' };
 const NV_FUNDS_SID: SaleDoc = { name: 'Cash, cashier’s check or money order', check: 'The forms the Clark County Treasurer lists for this sale; wire isn’t listed. Confirm them in the current notice, and have the exact amount ready by the payment deadline.' };
 
 export function saleDocsFor(guideKey: string, state: string): SaleDoc[] {
   const kind = saleKindOf(guideKey);
   if (state === 'TX' && TX_DOCS[kind]) return TX_DOCS[kind];
   const nvFunds = state !== 'NV' ? undefined : kind === 'deed' ? NV_FUNDS_DEED : kind === 'sid' ? NV_FUNDS_SID : undefined;
-  const docs = SALE_DOCS[kind].filter((d) => state === 'NV' || !/super-priority/.test(d.name)).map((d) => (nvFunds && d === FUNDS ? nvFunds : d));
+  const docs = SALE_DOCS[kind].filter((d) => state === 'NV' || !/super-priority/.test(d.name)).map((d) => (nvFunds && d === FUNDS ? nvFunds : state === 'NV' && kind === 'deed' && d.name === 'Bidder registration form' ? NV_REGISTRATION : d));
   const deed = kind === 'hoa' ? HOA_DEED[state] : undefined;
   return deed ? docs.map((d) => (/^Certificate of sale, then the deed/.test(d.name) ? deed : d)) : docs;
 }
