@@ -2,7 +2,7 @@ import { calculatorInputError, parseCalcInput, shownInputError } from './CalcFie
 import { workStorage as localStorage } from '../lib/workStorage';
 import { readConfirmed, saveConfirmed } from '../lib/calcConfirmation';
 import { useEffect, useId, useReducer, useState } from 'react';
-import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, maxSafeBid, profitAtBid, redemptionOutcome, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs, offerInputs, cashNeededAtBid, DRAW_NOTE } from '../lib/bidCalc';
+import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, maxSafeBid, profitAtBid, redemptionOutcome, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs, offerInputs, cashNeededAtBid, DRAW_NOTE, unenteredCosts } from '../lib/bidCalc';
 import { offeredRedemptionRules, redemptionChoicesFor, redemptionPresetsFor, taxSaleWait, transferTaxFor } from '../lib/stateCosts';
 import { useCalcRegion } from './calcRegion';
 import { fmtMoney } from '../lib/status';
@@ -96,13 +96,6 @@ const OFFER_FIELDS: Partial<Record<keyof BidInputs, Partial<Field>>> = {
   financedPct: { label: 'Share of the price and repairs financed', hint: 'The part of the price and repairs your loan covers. Rehab loans often pay repairs in draws after the work, so you front that cash first.' },
   holdingMonths: { hint: 'From closing until the resale closes.', more: 'Repairs, time on the market and the buyer’s escrow. Count every month you pay the loan, taxes, insurance and utilities.' },
 };
-// Costs that start at $0 rather than at an estimate, so a $0 here may just mean nobody entered it yet.
-const ZERO_CHECK: [keyof BidInputs, string][] = [
-  ['repairs', 'repairs'],
-  ['titleLegal', 'title search, attorney and quiet title'],
-  ['possession', 'getting possession'],
-  ['monthlyCarry', 'monthly holding costs'],
-];
 const OFFER_HIDDEN = new Set<keyof BidInputs>(['buyerPremiumPct', 'cashAvailable', 'redemptionMonths', 'redemptionRatePct']);
 
 const MODE_KEY = 'fsf.bid.mode.v1';
@@ -358,7 +351,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const still = exampleLabels(GROUPS.flatMap((g) => g.fields.filter(shown).map((f) => (offer && OFFER_FIELDS[f.k] ? { ...f, ...OFFER_FIELDS[f.k] } : f))), i, offer ? offerInputs(defaults) : defaults, typedKeys, NOT_EXAMPLES);
   const yours = offer ? 'Your offer' : 'Your bid';
   // Costs still at $0 that nobody entered: unknown, not confirmed zero. Typing 0 confirms there's none.
-  const unentered = ZERO_CHECK.filter(([k]) => !((i[k] ?? 0) > 0) && !typedKeys.has(k) && !(offer && k === 'possession')).map(([k, l]) => (offer && k === 'titleLegal' ? 'title insurance, escrow and attorney' : l));
+  const unentered = unenteredCosts(i, typedKeys, offer);
   const unenteredNote = unentered.length > 0 && (
     <><br /><strong>Still at $0 because nothing was entered: {unentered.join('; ')}.</strong> Enter each cost (switch to Detailed for the ones not shown), or type 0 if there truly is none, before you rely on this.</>
   );

@@ -71,6 +71,8 @@ export function priceForCash(cash: number, a: PriceAssumptions = PRICE_DEFAULTS)
 /** What you told DeedOwl about yourself (Decide and the cash worksheet), as starting numbers for a new deal. */
 export interface InvestorProfile {
   loan: 'yes' | 'cash' | 'unsure' | null;
+  /** You plan to live in it (Decide: a home loan and live in it): owner-occupant loan terms, not an investor's. */
+  ownerOccupant?: boolean;
   manager: boolean | null;
   investable: number;
 }
@@ -95,6 +97,7 @@ export function investorProfile(): InvestorProfile {
     loan: b === 'cash' ? 'cash' : b === 'live' || b === 'invest' ? 'yes' : b === 'unsure' ? 'unsure' : null,
     manager: h === 'diy' ? false : h === 'hire' || h === 'none' ? true : null,
     investable,
+    ...(b === 'live' ? { ownerOccupant: true } : {}),
   };
 }
 
@@ -102,8 +105,10 @@ export function investorProfile(): InvestorProfile {
 export function profileStart(p: InvestorProfile, offer: boolean): Record<string, number> {
   const out: Record<string, number> = {};
   if (p.loan === 'cash') out.loanPct = 0;
-  else if (p.loan === 'yes' && offer) out.loanPct = 75;
-  if (p.manager === true) out.managementPct = 8;
+  // Living in it: owner-occupant loans can need less down, so the lender's figure goes in, not an investor's 75%;
+  // and you're on site, so no manager is assumed.
+  else if (p.loan === 'yes' && offer && !p.ownerOccupant) out.loanPct = 75;
+  if (p.manager === true && !p.ownerOccupant) out.managementPct = 8;
   else if (p.manager === false) out.managementPct = 0;
   if (offer && p.investable > 0) out.cashAvailable = Math.round(p.investable);
   return out;

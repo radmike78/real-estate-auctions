@@ -145,6 +145,6 @@ export function planNow(now = new Date()): PlanNow {
   };
 }
 
-// A deal saved while the roadmap is on paper practice is a practice analysis (analyze.ts marks it). Only paper practice:
-// at "Find a property" you're saving the real one.
-setPracticeCheck(() => ['paper', 'c-paper'].includes(roadmapNextStep()?.id ?? ''));
+// A deal saved while the roadmap is on a practice step (paper practice, auction or lien practice) is a practice analysis
+// (analyze.ts marks it). At "Find a property" you're saving the real one.
+setPracticeCheck(() => ['paper', 'c-paper', 'a-practice', 'c-practice'].includes(roadmapNextStep()?.id ?? ''));

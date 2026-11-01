@@ -448,3 +448,27 @@ it('reports no numbers while only the calculator’s examples are in place (the 
   localStorage.setItem('fsf.calc.rent.d1-offer.v1.typed.v1', JSON.stringify(['atPrice', 'monthlyRent']));
   expect(savedNumbers(deal).rent).not.toBeNull();
 });
+
+it('counts a fix-and-sell walk-away price only once the repairs are entered too', () => {
+  const flip: Deal = { ...deal, id: 'f1', kind: 'trustee', plan: 'flip', state: 'NV', county: 'Clark' };
+  localStorage.setItem('fsf.bid.analyzed-f1.v1.typed.v1', JSON.stringify(['exitValue']));
+  localStorage.setItem('fsf.bid.analyzed-f1.v1', JSON.stringify({ exitValue: 400000, repairs: 0, titleLegal: 0, possession: 0, monthlyCarry: 0 }));
+  expect(savedNumbers(flip).bid).toBeNull();
+  localStorage.setItem('fsf.bid.analyzed-f1.v1.typed.v1', JSON.stringify(['exitValue', 'repairs']));
+  const b = savedNumbers(flip).bid;
+  expect(b).not.toBeNull();
+  // Title, possession and holding were never entered: the packet says the numbers don't count them.
+  expect(b!.unentered.length).toBeGreaterThan(0);
+  expect(dealPacketText(flip, EMPTY_PACKET, new Date('2026-10-06T00:00:00Z'))).toContain('Still $0 because not entered');
+});
+
+it('reads a lien certificate’s numbers from the lien calculator once the price is typed', () => {
+  const lien: Deal = { ...deal, id: 'l1', kind: 'lien', plan: 'lien', state: 'NV', county: 'Clark' };
+  localStorage.setItem('fsf.calc.lien.l1.v1', JSON.stringify({ price: 1500, fees: 0, ratePctMonth: 1, monthsToRedeem: 8, payoutDelayMonths: 1.5 }));
+  expect(savedNumbers(lien).lien).toBeNull();
+  localStorage.setItem('fsf.calc.lien.l1.v1.typed.v1', JSON.stringify(['price']));
+  const text = dealPacketText(lien, EMPTY_PACKET, new Date('2026-10-06T00:00:00Z'));
+  expect(text).toContain('Certificate price $1,500');
+  expect(text).toContain('If it’s never paid off');
+  expect(text).not.toContain('No numbers yet');
+});

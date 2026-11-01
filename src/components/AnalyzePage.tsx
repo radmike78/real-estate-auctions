@@ -50,8 +50,8 @@ function blank(st: StateCode): Deal {
   return { id: '', name: '', state: st, county: startCounty(st), kind, plan: kind === 'lien' ? 'lien' : planFromBuyBox(), notes: '', done: [], updatedAt: new Date().toISOString() };
 }
 
-const DELETED_NOTE = 'This deal was deleted from My deals (perhaps in another tab). What you typed is still here, unsaved: save it again to keep it.';
-const DELETED_NO_NUMBERS_NOTE = 'This deal was deleted from My deals (perhaps in another tab). Its name, county, checklist and notes are still here, unsaved; its numbers were deleted with it. Save it again to keep it.';
+const DELETED_NOTE = 'This deal was deleted (perhaps in another tab). What you typed is still here, unsaved: save it again to keep it.';
+const DELETED_NO_NUMBERS_NOTE = 'This deal was deleted (perhaps in another tab). Its name, county, checklist and notes are still here, unsaved; its numbers were deleted with it. Save it again to keep it.';
 let deletedNote = DELETED_NOTE;
 
 /** A saved deal deleted elsewhere, as a new unsaved deal: numbers still stored under its id move to the draft. */
@@ -343,7 +343,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
             <ul>
               {saved.map((d) => (
                 <li key={d.id} className={d.id === deal.id ? 'on' : ''}>
-                  <button type="button" className="linkish" onClick={() => { try { localStorage.setItem(OPENED_KEY, JSON.stringify(d.id)); } catch { /* storage unavailable */ } const kept = keepUnsaved(); if (kept) { setKeptNote(kept); setSaved(loadDeals()); setDeal({ ...d, updatedAt: new Date().toISOString() }); } else setDeal(d); }}>{d.name}{d.practice ? ' (practice)' : ''}</button>
+                  <button type="button" className="linkish" onClick={() => { try { localStorage.setItem(OPENED_KEY, JSON.stringify(d.id)); } catch { /* storage unavailable */ } const kept = keepUnsaved(); if (kept) { setKeptNote(kept); setSaved(loadDeals()); setDeal({ ...d, updatedAt: new Date().toISOString() }); } else setDeal(d); }}>{d.name}{d.practice ? ' (practice)' : ''}{d.stage === 'passed' ? ' (passed)' : ''}</button>
                   <span className="muted"> · {countyName(d.county)}, {d.state}</span>
                   <button type="button" className="linkish danger" aria-label={`Delete ${d.name}`} onClick={() => remove(d.id)}>Delete</button>
                 </li>
@@ -424,8 +424,9 @@ function ProfileNote({ deal }: { deal: Deal }) {
   const parts: string[] = [];
   if (listed && p.investable > 0) parts.push(`${fmtMoney(p.investable)} of investable cash (your limit for a listed home)`);
   if (listed && p.loan === 'cash') parts.push('paying cash');
+  else if (listed && p.loan === 'yes' && p.ownerOccupant) parts.push('a home loan you’d live in (owner-occupant loans can need less down than an investor loan: enter your lender’s figure)');
   else if (listed && p.loan === 'yes') parts.push('a loan (a common 75% of the price for a listed rental, until your lender quotes)');
-  if (p.manager === true) parts.push('a property manager (8% of rent)');
+  if (p.manager === true && !p.ownerOccupant) parts.push('a property manager (8% of rent)');
   else if (p.manager === false) parts.push('managing it yourself');
   if (!parts.length) return null;
   return <p className="muted analyze-profile">From your plan: {parts.join('; ')}. These fill in a new deal’s starting numbers. Change any of them below; they aren’t loan terms anyone approved. <a href="#/toolkit">Edit your plan</a></p>;

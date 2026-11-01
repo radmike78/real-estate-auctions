@@ -175,7 +175,7 @@ export const ROADMAP: RoadmapStep[] = [
       'Write the point where you’d ask an attorney about enforcing the lien, and what that would cost.',
     ],
     doneWhen: 'You have the three payoff results, a holding budget with later taxes, and a written attorney trigger.',
-    action: 'Open Practice', href: '#/practice',
+    action: 'Open lien practice', href: '#/practice?sale=sid',
     also: { label: 'Open the lien calculator', href: '#/analyze?plan=lien' },
   },
   {
