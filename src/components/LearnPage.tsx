@@ -90,7 +90,7 @@ export default function LearnPage() {
         <p>You’ll learn: {oneState(lesson.takeaways[0], mine).replace(/^[A-Z](?![A-Z])/, (c) => c.toLowerCase())}</p>
         <a className="btn" href={`#/learn/${next.key}`}>Read the lesson →</a>
         <p className="muted">{lesson.minutes} minutes.{LESSON_CHAPTER[next.key] && ' Then apply it to Cedar House, your fictional practice property.'}</p>
-        {LESSON_CHAPTER[next.key] && <a href={journeyHref(lessonChapter(next.key, true))}>Practice this idea →</a>}
+        {LESSON_CHAPTER[next.key] && (guidedPlan?.task.key.startsWith('lesson-') ? <a href={journeyHref(lessonChapter(next.key, true))}>After the Start-here lessons: try it on Cedar House →</a> : <a href={journeyHref(lessonChapter(next.key, true))}>Practice this idea →</a>)}
       </section>
       )}
       <NarrowDown config={learnConfig()} intro="Answer two quick questions and we’ll suggest which lessons to read first. Browse the lessons below, or follow your next step above." />

@@ -1,3 +1,4 @@
+import PathNext from './PathNext';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useRef, useState } from 'react';
 import { useLastActivity } from '../lib/journey';
@@ -322,6 +323,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       {adShows && <FixedAds spot="analyze" pros={pros} categories={adCats} area={{ state: deal.state, county: deal.county, city: null }} />}
       </div>
       </>}
+      {/* Guided: the plan's next step, or that this page is it (practice analyses, real costs). */}
+      <PathNext step="analyze" />
     </main>
   );
 }
