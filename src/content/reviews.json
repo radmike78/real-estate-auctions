@@ -10,7 +10,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "29ec627cd42753aa",
+    "hash": "3c0d8dffad9e3451",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -51,7 +51,7 @@
       "src/lib/buyerChecklists.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "d52f37ad23276b91",
+    "hash": "77d72c8497cc33e4",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -163,7 +163,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "758aa2654d022f83",
+    "hash": "4161eacd6f5007e9",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -180,7 +180,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "0bd3af754917379d",
+    "hash": "f2a81478a6071092",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -210,7 +210,7 @@
       "src/lib/teamBuilder.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "df2ada0ee052d3e0",
+    "hash": "548e12941f7b1aa8",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -368,7 +368,7 @@
       "src/lib/lessons/taxes.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "a0152f7a72a9849e",
+    "hash": "f1a792395ac88d3f",
     "note": "Next-lesson practice links appear only where a matching Cedar House chapter exists; all source lesson content retained."
   },
   {
@@ -405,7 +405,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "b510ea9d889d4315",
+    "hash": "966a33fddd79e724",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -421,7 +421,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "321c68e11180111e",
+    "hash": "e738c7fa2ca7c7cf",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {

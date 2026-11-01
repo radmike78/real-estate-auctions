@@ -25,7 +25,9 @@ describe('"at the moment you need one" ads', () => {
     const listing = ROADMAP.filter((s) => !s.path || s.path.includes('listing'));
     const by = (to: RegExp) => listing.filter((s) => to.test(s.say?.to ?? '')).map((s) => stepAdCategories(s, 'listing'));
     expect(by(/^Insurance agent/).every((c) => c.join() === 'insurance')).toBe(true);
-    expect(by(/^Your agent/).every((c) => c.join() === 'agent')).toBe(true);
+    expect(by(/^Your agent/).every((c) => c[0] === 'agent')).toBe(true);
+    // The inspection step also shows inspectors, beside the agent you call.
+    expect(stepAdCategories(ROADMAP.find((s) => s.href === '#/pros/inspector')!, 'listing')).toEqual(['agent', 'home_inspector']);
     expect(by(/^(Title|Escrow)/).every((c) => c.join() === 'title_escrow')).toBe(true);
     expect(by(/^Loan officer/)[0]).toEqual(['loan_officer', 'mortgage_company', 'bank', 'credit_union']);
     for (const s of ROADMAP) {

@@ -115,8 +115,13 @@ export const forStateText = (state: StateCode | null, text: string) => {
     .filter((x) => {
       const tagged = statesOf(x).length > 0;
       dropped = tagged ? !showFor(state, x) : dropped && !GENERAL_AGAIN.test(x);
-      // A mid-sentence example or an unsupported state must not bypass the lead-in classifier.
-      if (mentionsOtherState(state, dropStateLead(x, state))) dropped = true;
+      // A mid-sentence example from another covered state must not bypass the lead-in classifier: it and what follows
+      // go. A state outside our five ("as Arkansas found") drops only its own sentence; what follows is general again.
+      const plain = dropStateLead(x, state);
+      if (mentionsOtherState(state, plain)) {
+        if (statesMentioned(plain).some((c) => c !== state)) dropped = true;
+        else return false;
+      }
       return !dropped;
     })
     .map((x) => dropStateLead(x, state))

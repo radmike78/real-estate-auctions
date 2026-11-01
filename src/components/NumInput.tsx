@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState, type InputHTMLAttributes } from 'react';
-import { calculatorInputError, parseCalcInput } from './CalcFields';
+import { calculatorInputError, midNumber, parseCalcInput } from './CalcFields';
 
 /**
  * A number field that keeps exactly what you type ("3.", "1,2") while you type, and passes on a number only once the
@@ -19,6 +19,7 @@ export default function NumInput({ value, onValue, blank = false, max, percent =
   const [draft, setDraft] = useState<string | null>(null);
   const sent = useRef(value);
   const focused = useRef(false);
+  const [hasFocus, setHasFocus] = useState(false);
   const errId = useId();
   // A change from outside (an example, a reset, another field) replaces whatever is half-typed here.
   useEffect(() => {
@@ -26,7 +27,8 @@ export default function NumInput({ value, onValue, blank = false, max, percent =
     sent.current = value;
   }, [value]);
   const shown = draft ?? (value === undefined || (blank && !value) ? '' : value.toLocaleString('en-US', { maximumFractionDigits: 4 }));
-  const error = draft !== null && draft.trim() !== '' ? calculatorInputError(draft, percent ? '%' : '$') : null;
+  // While you're still typing a comma number ("250," on the way to 250,000), no message yet.
+  const error = draft !== null && draft.trim() !== '' && !(hasFocus && midNumber(draft)) ? calculatorInputError(draft, percent ? '%' : '$') : null;
   useEffect(() => { onValidity?.(!error); }, [!error]); // eslint-disable-line react-hooks/exhaustive-deps
   const send = (n: number | undefined) => { sent.current = n; onValue(n); };
   return (
@@ -39,7 +41,7 @@ export default function NumInput({ value, onValue, blank = false, max, percent =
         aria-invalid={error ? true : undefined}
         aria-describedby={[rest['aria-describedby'], error ? errId : ''].filter(Boolean).join(' ') || undefined}
         value={shown}
-        onFocus={(e) => { focused.current = true; rest.onFocus?.(e); }}
+        onFocus={(e) => { focused.current = true; setHasFocus(true); rest.onFocus?.(e); }}
         onChange={(e) => {
           const t = e.target.value;
           setDraft(t);
@@ -48,7 +50,7 @@ export default function NumInput({ value, onValue, blank = false, max, percent =
           const n = Math.max(0, parseCalcInput(t));
           send(max !== undefined ? Math.min(n, max) : n);
         }}
-        onBlur={(e) => { focused.current = false; if (!error) setDraft(null); rest.onBlur?.(e); }}
+        onBlur={(e) => { focused.current = false; setHasFocus(false); if (!draft || !calculatorInputError(draft, percent ? '%' : '$')) setDraft(null); rest.onBlur?.(e); }}
       />
       {error && <small className="deal-urgent num-error" role="status" id={errId}>{error}</small>}
     </>

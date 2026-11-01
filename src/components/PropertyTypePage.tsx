@@ -145,8 +145,8 @@ export default function PropertyTypePage({ slug }: { slug: string }) {
         <section className="lesson-sources">
           <h2>Where this comes from</h2>
           <details className="sources-more">
-            <summary>See the {d.sources.filter((s) => keep(s.label)).length} sources we checked</summary>
-            <ul className="source-links">{d.sources.filter((s) => keep(s.label)).map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.label}&nbsp;↗</a></li>)}</ul>
+            <summary>See the {d.sources.filter((s) => keep(s.label) && !mentionsOtherState(st, s.label)).length} sources we checked</summary>
+            <ul className="source-links">{d.sources.filter((s) => keep(s.label) && !mentionsOtherState(st, s.label)).map((s) => <li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.label}&nbsp;↗</a></li>)}</ul>
           </details>
           <p className="muted">General education, not legal, tax or financial advice. Stories describe what happened to others; your results depend on your own deal.</p>
         </section>

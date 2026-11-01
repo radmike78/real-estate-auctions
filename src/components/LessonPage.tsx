@@ -1,6 +1,6 @@
 import { lessonAllowsAds } from '../lib/contextAds';
 import { planNow, START_LESSONS } from '../lib/planNext';
-import { currentProgress, getMode, readLessons } from '../lib/journey';
+import { currentProgress, getMode } from '../lib/journey';
 import { LESSON_CHAPTER, journeyHref, lessonChapter } from '../practice/dealJourney';
 import { useEffect, useRef, useState } from 'react';
 import { markLessonRead, useJourney, useLastActivity } from '../lib/journey';
@@ -249,7 +249,7 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
   const practiceLink = l.practiceLink === undefined ? l.tryIt : l.practiceLink;
   const dealChapter = lessonChapter(lessonKey, getMode() === 'guided');
   // A guided reader still has a Start-here lesson to read: the practice link waits its turn, as a secondary link.
-  const startLessonsLeft = getMode() === 'guided' && LEARN_MODULES.slice(0, START_LESSONS).some((x) => !readLessons().includes(x.key));
+  const startLessonsLeft = getMode() === 'guided' && (() => { const t = planNow().task.key; return t.startsWith('lesson-') && LEARN_MODULES.slice(0, START_LESSONS).some((x) => `lesson-${x.key}` === t); })();
   const extraTry = l.tryIt && l.tryIt !== practiceLink ? l.tryIt : null;
   return (
     <main className="page lesson" ref={bodyRef}>

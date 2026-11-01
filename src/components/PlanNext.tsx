@@ -7,7 +7,11 @@ import { setDealStage, wayOf, stageHint, stageLabel, type PlanTask } from '../li
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
-import { planNow, planStarted, ROADMAP_TASK_HREF } from '../lib/planNext';
+import { planNow, planStarted, roadmapNextStep, ROADMAP_TASK_HREF } from '../lib/planNext';
+import { stepAdCategories, stepAllowsAds } from '../lib/contextAds';
+import { useSpotCategories } from './AdSpot';
+import { useDirectory } from './ProDirectory';
+import { FixedAds, useAdShows } from './AdBoxes';
 import { DECIDE_KEY, rank, type Answers } from '../lib/decide';
 import { currentProgress } from '../lib/journey';
 import { ROADMAP_PHASES, roadmapFor } from '../lib/roadmap';
@@ -181,10 +185,22 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           </div>
         )}
       </div>
-      {(!onPlan || (deal && now.tasks && stage)) && side}
+      {(!onPlan || (deal && now.tasks && stage)) ? side : onPlan && now.source === 'roadmap' ? <PlanStepAd /> : null}
       {helper && <div className="plan-now-help">{helper}</div>}
     </section>
   );
+}
+
+/** My plan, beside "Your next step": one labeled ad for whoever that step says to call (contextAds.ts), buying through
+ *  an agent only, never beside an official seller. */
+function PlanStepAd() {
+  const step = roadmapNextStep();
+  const path = planPath();
+  const cats = useSpotCategories('toolkit', step ? stepAdCategories(step, path) : []);
+  const allowed = step && stepAllowsAds(step, path) ? cats : [];
+  const { pros } = useDirectory();
+  const shows = useAdShows(allowed, pros);
+  return shows && step ? <div className="plan-now-side"><FixedAds spot="toolkit" key={step.id} pros={pros} categories={allowed} placeholder /></div> : null;
 }
 
 /** Without a property: the roadmap's phases, each with how many of its steps are done. */

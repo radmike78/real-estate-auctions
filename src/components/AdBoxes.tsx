@@ -1,7 +1,7 @@
 // Paid ad boxes: the advertiser speaking, never DeedOwl. Each box is labeled at the top ("Featured ad" or
 // "Advertisement"), shows who is advertising and their license, and ends with the same fine print. Nothing here
 // ranks or recommends anyone; fixed ads show all eligible advertisers; only the Rotating plan selects one at random.
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef, type RefObject } from 'react';
 import { AD_FINE_PRINT, fixedPool, pickRandom, rotatingPool } from '../lib/adPlans';
 import { shortLicenseLabel } from '../lib/regulators';
 import { CATEGORIES, isListable, type Category, type Pro } from '../lib/pros';
@@ -67,25 +67,34 @@ export function AdCard({ p, spot }: { p: Pro; spot?: string }) {
   );
 }
 
-/** Counts an ad box being shown, once per advertiser per page view. */
-export function useAdImpressions(shown: Pro[], spot?: string) {
+/** Counts an ad box being shown, once per advertiser per page view. With `box`, only once the box is on screen
+ *  (a box inside a closed panel, or never scrolled to, isn't counted). */
+export function useAdImpressions(shown: Pro[], spot?: string, box?: RefObject<HTMLElement | null>) {
   const seen = useMemo(() => new Set<string>(), []);
   const key = shown.map((p) => p.id).join();
   useEffect(() => {
-    const fresh = shown.map((p) => p.id).filter((id) => !seen.has(id));
-    fresh.forEach((id) => seen.add(id));
-    if (fresh.length) track('ad_impression', fresh, spot);
+    const count = () => {
+      const fresh = shown.map((p) => p.id).filter((id) => !seen.has(id));
+      fresh.forEach((id) => seen.add(id));
+      if (fresh.length) track('ad_impression', fresh, spot);
+    };
+    const el = box?.current;
+    if (!el || typeof IntersectionObserver === 'undefined') { if (!box) count(); return; }
+    const io = new IntersectionObserver((entries) => { if (entries.some((e) => e.isIntersecting)) { count(); io.disconnect(); } }, { threshold: 0.5 });
+    io.observe(el);
+    return () => io.disconnect();
   }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 /** Fixed ads at enabled placements, filtered by category and the visitor's area. */
 export function FixedAds({ pros: all, categories, placeholder = false, featured = false, area: forArea, spot }: { pros: Pro[]; categories: Category[]; placeholder?: boolean; featured?: boolean; /** The place the page is about (a deal's county), instead of the visitor's chosen area. */ area?: Area | null; /** The placement, for the advertiser's report. */ spot?: string }) {
   const shown = useFixedShown(all, categories, forArea);
-  useAdImpressions(shown, spot);
+  const box = useRef<HTMLElement>(null);
+  useAdImpressions(shown, spot, box);
   const label = featured ? 'Featured ad' : 'Advertisement';
   if (!shown.length) return placeholder ? <AdSpace kind={label} /> : null;
   return (
-    <aside className="ad-box featured-ads" aria-label={label}>
+    <aside ref={box} className="ad-box featured-ads" aria-label={label}>
       <div className="ad-box-label">{label}</div>
       <div className="ad-box-grid">{shown.map((p) => <AdCard key={p.id} p={p} spot={spot} />)}</div>
       <p className="ad-fine-print">{AD_FINE_PRINT}</p>

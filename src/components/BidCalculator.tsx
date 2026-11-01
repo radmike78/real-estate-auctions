@@ -1,7 +1,7 @@
-import { calculatorInputError, parseCalcInput } from './CalcFields';
+import { calculatorInputError, parseCalcInput, shownInputError } from './CalcFields';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { readConfirmed, saveConfirmed } from '../lib/calcConfirmation';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useReducer, useState } from 'react';
 import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, maxSafeBid, profitAtBid, redemptionOutcome, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs, offerInputs, cashNeededAtBid, DRAW_NOTE } from '../lib/bidCalc';
 import { offeredRedemptionRules, redemptionChoicesFor, redemptionPresetsFor, taxSaleWait, transferTaxFor } from '../lib/stateCosts';
 import { useCalcRegion } from './calcRegion';
@@ -284,8 +284,10 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const [draft, setDraft] = useState<Partial<Record<keyof BidInputs, string>>>({});
   // Your own offer or bid is kept with a saved deal, so its packet shows the result at your price.
   const [bidText, setBidText] = useState<string>(() => (i.proposedPrice ? String(i.proposedPrice) : ''));
-  const bidBad = bidText.trim() !== '' && !!calculatorInputError(bidText, '$');
-  const bid = Math.min(bidBad ? i.proposedPrice ?? 0 : toNum(bidText), 1e10); // a misplaced comma keeps the last valid price
+  const [, rerender] = useReducer((n: number) => n + 1, 0); // shows a held-back message once you leave the box
+  const bidInvalid = bidText.trim() !== '' && !!calculatorInputError(bidText, '$');
+  const bidBad = bidText.trim() !== '' && !!shownInputError(bidText, '$', `${uid}-bid`);
+  const bid = Math.min(bidInvalid ? i.proposedPrice ?? 0 : toNum(bidText), 1e10); // a misplaced comma keeps the last valid price
   const H = headingLevel === 2 ? 'h2' : 'h3';
   const update = (patch: Partial<BidInputs>) =>
     setI((cur) => {
@@ -410,14 +412,14 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                         autoComplete="off"
                         value={draft[f.k] ?? (f.unit === '$' ? (i[f.k] ?? 0).toLocaleString('en-US', { maximumFractionDigits: 2 }) : String(i[f.k]))}
                         aria-describedby={hintFor(f) ? `${uid}-${f.k}-hint` : undefined}
-                        aria-invalid={draft[f.k] !== undefined && !!calculatorInputError(draft[f.k]!, f.unit as never)}
+                        aria-invalid={draft[f.k] !== undefined && !!shownInputError(draft[f.k]!, f.unit as never, `${uid}-${f.k}`)}
                         onChange={(e) => set(f.k, e.target.value, f.unit)} onInput={() => markTyped(f.k)}
-                        onBlur={() => { if (draft[f.k] !== undefined && calculatorInputError(draft[f.k]!, f.unit as never)) return; setDraft((d) => ({ ...d, [f.k]: undefined })); }}
+                        onBlur={() => { if (draft[f.k] !== undefined && calculatorInputError(draft[f.k]!, f.unit as never)) { setDraft((d) => ({ ...d })); return; } setDraft((d) => ({ ...d, [f.k]: undefined })); }}
                       />
                       {f.unit !== '$' && <i aria-hidden>{unitText(f.unit)}</i>}
                     </span>
                     <span className="calc-hint">
-                      {draft[f.k] !== undefined && calculatorInputError(draft[f.k]!, f.unit as never) && <small className="deal-urgent calc-error" role="status">{calculatorInputError(draft[f.k]!, f.unit as never)}</small>}
+                      {draft[f.k] !== undefined && shownInputError(draft[f.k]!, f.unit as never, `${uid}-${f.k}`) && <small className="deal-urgent calc-error" role="status">{shownInputError(draft[f.k]!, f.unit as never, `${uid}-${f.k}`)}</small>}
                       {hintFor(f) && <small className="muted" id={`${uid}-${f.k}-hint`}>{hintFor(f)}</small>}
                       {moreForField(f) && (
                         <details className="calc-more">
@@ -555,7 +557,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         <>
         <div className="calc-field calc-bid">
           <label className="calc-label" htmlFor={`${uid}-bid`}>Check {offer ? 'an offer' : 'a bid'}</label>
-          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="text" inputMode="decimal" autoComplete="off" value={bidText} placeholder={offer ? 'e.g. the offer you plan to make' : 'e.g. a bid you expect to beat'} aria-invalid={bidBad || undefined} aria-describedby={bidBad ? `${uid}-bid-err` : undefined} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); if (e.target.value.trim() !== '' && calculatorInputError(e.target.value, '$')) return; update({ proposedPrice: clampInput('proposedPrice', toNum(e.target.value)) }); }} /></span>
+          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="text" inputMode="decimal" autoComplete="off" value={bidText} placeholder={offer ? 'e.g. the offer you plan to make' : 'e.g. a bid you expect to beat'} aria-invalid={bidBad || undefined} aria-describedby={bidBad ? `${uid}-bid-err` : undefined} onBlur={rerender} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); if (e.target.value.trim() !== '' && calculatorInputError(e.target.value, '$')) return; update({ proposedPrice: clampInput('proposedPrice', toNum(e.target.value)) }); }} /></span>
           {bidBad && <small className="deal-urgent" role="status" id={`${uid}-bid-err`}>{calculatorInputError(bidText, '$')}</small>}
         </div>
         {atBid && profit !== null && <PriceHead kind="yours" label={yours} price={bid} result={profit} unit="profit" note={`Estimated cash you’d put in at this price, under these assumptions (through repairs and holding until it sells): ${fmtMoney(Math.round(cashNeededAtBid(i, bid)))}.${saveAs && !propertyId ? ' Saved with this deal as your price; its deal packet uses it.' : propertyId ? ' Saved for this property in this browser.' : ''}`} />}
@@ -608,7 +610,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       {/* On phones the results sit below every input, so keep the answer in view while typing. */}
       <button type="button" hidden={resultsVisible || !calcInView} className={`calc-sticky${r.noBidWorks && !needsValue ? ' bad' : ''}`} onClick={() => document.getElementById(`${uid}-results`)?.scrollIntoView({ behavior: 'smooth' })}>
         <span>Walk-away price</span>
-        <strong>{Object.entries(draft).some(([k, t]) => t !== undefined && calculatorInputError(t, (fieldUnit(k) ?? '$') as never)) ? 'Fix the highlighted number' : needsValue ? 'Add resale value' : cashShort ? 'Not enough cash' : r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
+        <strong>{Object.entries(draft).some(([k, t]) => t !== undefined && !!shownInputError(t, (fieldUnit(k) ?? '$') as never, `${uid}-${k}`)) ? 'Fix the highlighted number' : needsValue ? 'Add resale value' : cashShort ? 'Not enough cash' : r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
         <span className="calc-sticky-go">See details&nbsp;↓</span>
       </button>
     </div>
