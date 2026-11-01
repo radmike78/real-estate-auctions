@@ -37,7 +37,7 @@ export default function StickyResult({ label, value, bad = false }: { label: str
     <button ref={ref} type="button" hidden={resultsVisible || !calcInView} className={`calc-sticky${bad || invalid ? ' bad' : ''}`}
       onClick={() => { const calc = ref.current?.closest('.calc'); (invalid ? calc?.querySelector<HTMLElement>('input[aria-invalid="true"]') : calc?.querySelector('.calc-results .calc-max') ?? calc?.querySelector('.calc-results'))?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}>
       <span>{invalid ? 'Results paused' : label}</span>
-      <strong>{invalid ? 'Fix the highlighted number' : value}</strong>
+      <strong>{invalid ? 'Fix the red box' : value}</strong>
       <span className="calc-sticky-go">{invalid ? 'Go to it' : 'See details'}&nbsp;↓</span>
     </button>
   );

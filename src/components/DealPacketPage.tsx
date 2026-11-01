@@ -159,7 +159,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           <button type="button" className="btn btn-secondary" onClick={() => update({ dates: [...p.dates, { when: '', what: '', who: '' }] })}>Add a date</button>
         </div>
         <label className="field">
-          <span><input type="checkbox" checked={p.calendarReviewedFor === stageOf(deal)} disabled={!p.dates.length || p.dates.some((d) => !d.when || !d.what.trim() || !d.who.trim())} onChange={(e) => update({ calendarReviewedFor: e.target.checked ? stageOf(deal) : undefined })} /> I checked every applicable deadline for this stage against the signed contract or official notice, including who acts and how notice must be delivered.</span>
+          <span><input type="checkbox" checked={p.calendarReviewedFor === stageOf(deal)} disabled={!p.dates.length || p.dates.some((d) => !d.when || !d.what.trim() || !d.who.trim())} onChange={(e) => update({ calendarReviewedFor: e.target.checked ? stageOf(deal) : undefined })} /> I checked every applicable deadline for this stage against the signed contract or official notice, including who acts and how notice must be delivered.{(!p.dates.length || p.dates.some((d) => !d.when || !d.what.trim() || !d.who.trim())) && <span className="muted"> (Fill in the date, task and who handles it for every entry first.)</span>}</span>
         </label>
         <p className="muted small">Past dates stay open until you mark them handled. Confirm completion or an agreed resolution with your team. Fill in the date, task and responsible person for each applicable deadline; remove entries that do not apply. Ask your agent or attorney to confirm the calendar. Adding or changing a date requires another review.</p>
         <Lines k="dates" />

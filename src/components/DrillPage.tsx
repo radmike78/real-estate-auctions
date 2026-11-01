@@ -392,7 +392,7 @@ function MissionCard({ m, a, set, fresh, total }: { m: Mission; a: Answers[strin
             const ok = right === m.options.length;
             const best = m.options.filter((o) => o.good).map((o) => `“${o.label}”`).join(' and ');
             const text = m.multi
-              ? ok ? 'Exactly the choices an experienced investor would make. Read why below each one.' : `Not quite: you matched ${right} of ${m.options.length} choices. An experienced investor would pick ${best}. Read why below each one.`
+              ? ok ? 'Exactly the choices an experienced investor would make. Read why with each choice above.' : `Not quite: you matched ${right} of ${m.options.length} choices. An experienced investor would pick ${best}. Read why below each one.`
               : ok ? 'Correct. Read why below.' : `Not quite. An experienced investor would choose ${best}. Read why below each choice.`;
             return <Feedback focus={fresh} tone={ok ? 'good' : 'bad'}>{text}</Feedback>;
           })()}

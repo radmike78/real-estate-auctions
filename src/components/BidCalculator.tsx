@@ -284,6 +284,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const [draft, setDraft] = useState<Partial<Record<keyof BidInputs, string>>>({});
   // Your own offer or bid is kept with a saved deal, so its packet shows the result at your price.
   const [bidText, setBidText] = useState<string>(() => (i.proposedPrice ? String(i.proposedPrice) : ''));
+  const stickyBad = Object.entries(draft).some(([k, t]) => t !== undefined && !!shownInputError(t, (fieldUnit(k) ?? '$') as never, `${uid}-${k}`));
   const [, rerender] = useReducer((n: number) => n + 1, 0); // shows a held-back message once you leave the box
   const bidInvalid = bidText.trim() !== '' && !!calculatorInputError(bidText, '$');
   const bidBad = bidText.trim() !== '' && !!shownInputError(bidText, '$', `${uid}-bid`);
@@ -608,10 +609,10 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       </div>
 
       {/* On phones the results sit below every input, so keep the answer in view while typing. */}
-      <button type="button" hidden={resultsVisible || !calcInView} className={`calc-sticky${r.noBidWorks && !needsValue ? ' bad' : ''}`} onClick={() => document.getElementById(`${uid}-results`)?.scrollIntoView({ behavior: 'smooth' })}>
-        <span>Walk-away price</span>
-        <strong>{Object.entries(draft).some(([k, t]) => t !== undefined && !!shownInputError(t, (fieldUnit(k) ?? '$') as never, `${uid}-${k}`)) ? 'Fix the highlighted number' : needsValue ? 'Add resale value' : cashShort ? 'Not enough cash' : r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
-        <span className="calc-sticky-go">See details&nbsp;↓</span>
+      <button type="button" hidden={resultsVisible || !calcInView} className={`calc-sticky${(r.noBidWorks && !needsValue) || stickyBad ? ' bad' : ''}`} onClick={() => (stickyBad ? document.querySelector<HTMLElement>(`.calc input[aria-invalid="true"]`) : document.getElementById(`${uid}-results`))?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>
+        <span>{stickyBad ? 'Results paused' : 'Walk-away price'}</span>
+        <strong>{stickyBad ? 'Fix the red box' : needsValue ? 'Add resale value' : cashShort ? 'Not enough cash' : r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
+        <span className="calc-sticky-go">{stickyBad ? 'Go to it' : 'See details'}&nbsp;↓</span>
       </button>
     </div>
   );
