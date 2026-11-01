@@ -237,7 +237,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
 
       <section className="deal-setup packet-section" aria-labelledby="packet-decision">
         <Head k="decision" />
-        <DecisionGate dealId={key} />
+        <DecisionGate dealId={key} onPass={stageOf(deal) === 'passed' ? undefined : () => { setDealStage(deal.id, 'passed'); }} />
         <p className="muted">Write down why, and anything that must be true before you sign or bid. The same choice shows at the end of the evidence log.</p>
         <label className="field wide">
           <span>Why</span>

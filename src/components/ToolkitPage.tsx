@@ -1,4 +1,4 @@
-import { stepContext } from '../lib/planNext';
+import { roadmapNextStep, stepContext } from '../lib/planNext';
 import NumInput from './NumInput';
 import { syncRoadmapCredits } from '../lib/journey';
 import { useAccount } from '../lib/account';
@@ -261,6 +261,7 @@ export function FirstDealRoadmap() {
     setPath(k);
     save(ROADMAP_PATH_KEY, k);
   };
+  const learnerNext = deal && planNow().source === 'roadmap' ? roadmapNextStep() : null;
   return (
     <section id="roadmap" aria-labelledby="roadmap-head">
       <h2 id="roadmap-head">Your investing roadmap</h2>
@@ -328,8 +329,15 @@ export function FirstDealRoadmap() {
             <StepBody s={next} status={stateOf(next)} setStatus={(v) => setStatus(next, v)} deal={deal} />
           </div>
         </div>
+      ) : deal && learnerNext ? (
+        // Practice analyses saved, but the plan is still on your own task (paper practice, finding a sale): show it here.
+        <div className="roadmap-next" id="roadmap-next">
+          <p className="roadmap-next-label">Next task · {stepContext(learnerNext)}</p>
+          <h3>{learnerNext.title}</h3>
+          <StepBody s={learnerNext} status={stateOf(learnerNext)} setStatus={(v) => setStatus(learnerNext, v)} />
+        </div>
       ) : (
-        <p className="next-step" role="status">Use the task details below to record each milestone; contract tasks may run at the same time.</p>
+        <p className="next-step" role="status">Use the task details below to record each milestone{stage === 'contract' ? '; contract tasks may run at the same time' : ''}.</p>
       )}
       <h3 className="roadmap-all-head">All tasks</h3>
       {phases.map((ph) => {
@@ -501,6 +509,12 @@ function BuyBoxBuilder() {
     <section id="buy-box" aria-labelledby="buybox-head">
       <h2 id="buybox-head">Your buy box: what you’re looking for</h2>
       <p>Write down your target area, property type, budget and limits. Investors call this a “buy box.” Use it to decide which properties deserve a closer look; it does not prove a property is a good deal.</p>
+      {/* After a state switch, the buy box still names the old state: say so, and offer to move it. */}
+      {mine && b.state && b.state !== mine && (
+        <p className="notice" role="status">Your buy box is for {STATES.find((x) => x.code === b.state)?.name ?? b.state}, but you’ve chosen {STATES.find((x) => x.code === mine)?.name ?? mine}.{' '}
+          <button type="button" className="linkish" onClick={() => setB({ ...b, state: mine, area: '' })}>Switch it to {STATES.find((x) => x.code === mine)?.name ?? mine}</button>
+        </p>
+      )}
       <p className="buybox-help">Not sure of your numbers yet? That’s normal. Leave a field blank, start from an example, or work them out with <a href="#/decide">Decide</a> (your goal and budget) and <a href="#/analyze">Analyze a deal</a> (what a property costs).{' '}
         <button type="button" className="linkish" onClick={() => { if (isBlank(b) || window.confirm('Replace your buy box with the example?')) setB({ ...b, ...EXAMPLE_BUY_BOX }); }}>Show an example</button>
       </p>

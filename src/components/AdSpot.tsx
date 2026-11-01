@@ -64,7 +64,8 @@ export default function AdSpot({ spot, auto, allow = true }: { spot: string; aut
   return (
     <section className="ad-spot" aria-labelledby={`ad-spot-${spot}`}>
       <h2 id={`ad-spot-${spot}`} className="section-title">Want to ask someone about this?</h2>
-      <div className="next-with-ad">
+      {/* Text first, then the ads across the section's width (cards side by side), not squeezed into a side strip. */}
+      <div className="ad-spot-body">
         <div>
           <p>Licensed professionals in your area advertise on DeedOwl. DeedOwl doesn’t recommend any of them: check the license, ask what they charge, and compare more than one before you hire.</p>
           <p><a href="#/pros">Who does what on your team&nbsp;→</a></p>

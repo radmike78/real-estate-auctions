@@ -128,7 +128,8 @@ export const COUNTY_SALES: CountySale[] = [
   {
     // https://jeffcotax.com/property-tax/delinquent-tax-sale/ (Jefferson County Tax Office), checked 2026-10-06: "2026 SHERIFF
     // SALE DATES *Subject to change* ... December 1, 2026 – Original Sheriff Sale"; "Once the sale begins at 10:00 am, no one
-    // will be allowed to obtain a bidder number." The place isn't on the page.
+    // will be allowed to obtain a bidder number." Checked 2026-11-01: the revised notice of sale (PDF) is posted and names the
+    // place: "In the Jury Impaneling Room, of the Courthouse of Jefferson County, located at 1085 Pearl Street, 1st Floor".
     id: 'tx-jefferson-2026-12',
     state: 'TX',
     county: 'Jefferson',
@@ -141,13 +142,14 @@ export const COUNTY_SALES: CountySale[] = [
     redeemBy: null,
     registerBy: null,
     saleUrl: 'https://jeffcotax.com/property-tax/delinquent-tax-sale/',
-    listUrl: null,
+    listUrl: 'https://jeffcotax.com/wp-content/uploads/2026/10/December-1-2026-Notice-of-Sale-Revised.pdf',
+    place: 'Jury Impaneling Room, Jefferson County Courthouse, 1085 Pearl Street (1st floor), Beaumont',
     bidRules: [
       'Request the tax office’s Statement of No Delinquent Taxes Owed ahead of time, and be registered before the sale starts at 10 a.m.',
       'Buying in a company’s name: bring its assumed name certificate, or its Franchise Tax Account Status with the officers listed.',
       'Pay in cash or by cashier’s check to the Jefferson County Sheriff’s Department by 4 p.m. on sale day.',
     ],
-    checkedOn: '2026-10-06',
+    checkedOn: '2026-11-01',
   },
   {
     // https://www.randallcounty.gov/293/Sheriff-Sale and its sale flyer (DocumentCenter/View/2583), checked 2026-10-06:

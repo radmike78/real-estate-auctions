@@ -1,3 +1,4 @@
+import { plainTextKey } from './workKeys';
 // Guest work remains on this device. Signed-in work lives in memory, loaded from the verified account.
 // Never leave a previous account's work in localStorage or fall back to guest keys while signed in.
 import { backedUp } from './workKeys';
@@ -13,7 +14,7 @@ export const onWorkspace = (fn: () => void) => { listeners.add(fn); return () =>
 function changed() { for (const fn of listeners) fn(); }
 export function openWorkspace(id: string | null, values: Record<string, unknown> = {}) {
   owner = id;
-  memory = new Map(Object.entries(values).filter(([k]) => privateKey(k)).map(([k, v]) => [k, ['fsf.bid.mode.v1','fsf.calc.strategy.v1'].includes(k) ? String(v) : JSON.stringify(v)]));
+  memory = new Map(Object.entries(values).filter(([k]) => privateKey(k)).map(([k, v]) => [k, plainTextKey(k) ? String(v) : JSON.stringify(v)]));
   generation++;
   changed();
 }

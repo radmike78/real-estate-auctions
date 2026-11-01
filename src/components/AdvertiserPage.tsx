@@ -398,9 +398,10 @@ function PhotoCard({ me, onChange }: { me: Me; onChange: () => void }) {
 }
 
 export function ranges(): Record<string, { label: string; from: string; to: string }> {
-  const day = (offset: number) => new Date(Date.now() - offset * 86_400_000).toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
-  const today = day(0);
-  const [y, m] = today.split('-').map(Number);
+  // Calendar days counted back from today's Pacific date (not 24-hour blocks, which drift across daylight-saving changes).
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+  const [y, m, d] = today.split('-').map(Number);
+  const day = (offset: number) => new Date(Date.UTC(y, m - 1, d - offset)).toISOString().slice(0, 10);
   const lastMonthStart = new Date(Date.UTC(y, m - 2, 1)).toISOString().slice(0, 10);
   const lastMonthEnd = new Date(Date.UTC(y, m - 1, 0)).toISOString().slice(0, 10);
   return {
@@ -508,10 +509,12 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
     });
   }
 
+  const [summaryFailed, setSummaryFailed] = useState(false);
   useEffect(() => {
     if (!me || me === 'loading') return;
     const qs = `?from=${range.from}&to=${range.to}`;
-    api<Summary>(`/api/pro/metrics${qs}`).then(setSummary).catch(() => setSummary(null));
+    setSummaryFailed(false);
+    api<Summary>(`/api/pro/metrics${qs}`).then(setSummary).catch(() => { setSummary(null); setSummaryFailed(true); });
     api<{ leads: Lead[] }>(`/api/pro/leads${qs}`).then((r) => setLeads(r.leads)).catch(() => setLeads([]));
   }, [me, range.from, range.to]);
 
@@ -569,6 +572,7 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
         <span className="small muted">{fmtDate(range.from)} – {fmtDate(range.to)}</span>
       </div>
 
+      {t && summaryFailed && <OwlNote>Your results couldn’t load just now. Your ad is still running. Try again in a few minutes, or choose another date range.</OwlNote>}
       {t && summary && (
         <>
           <section className="kpis" aria-label="Results">

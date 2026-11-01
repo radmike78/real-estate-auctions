@@ -2956,3 +2956,10 @@ dl.cash-result .cash-main { border-color: var(--accent); }
 @media (min-width: 901px) { .kpis:has(> :nth-child(6)) { grid-template-columns: 1.4fr repeat(5, 1fr); } }
 @media (max-width: 900px) { .kpis:has(> :nth-child(6):last-child) > :last-child { grid-column: 1 / -1; } }
 .lead-list li { overflow-wrap: anywhere; }
+
+.ad-spot-body { display: grid; gap: 14px; }
+.ad-spot-body > div > p:last-child { margin-bottom: 0; }
+/* An open "?" note sits above the pinned results bar. */
+.calc-more[open] p { z-index: 40; }
+/* Advertiser dashboard header on phones: name on its own line, buttons below it. */
+@media (max-width: 600px) { .track-head { flex-direction: column; align-items: stretch; } .track-head .row { flex-wrap: wrap; } }

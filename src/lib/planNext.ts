@@ -12,7 +12,7 @@ import { caseFor, caseResume } from '../practice/rentalCase';
 import { LEARN_MODULES } from './learn';
 import { cleanGoal, GOAL_KEY } from './myPlan';
 import { ROADMAP_PHASES, roadmapFor, type RoadmapStep } from './roadmap';
-import { AUTO_STEPS, cleanStatus, focusDealId, planPath, readKey, roadmapDone, settledFor, STATUS_KEY } from './roadmapState';
+import { AUTO_STEPS, cleanStatus, rawDealChoice, focusDealId, planPath, readKey, roadmapDone, settledFor, STATUS_KEY } from './roadmapState';
 
 export interface PlanNow {
   /** Your goal in one sentence, or '' when it isn't written yet. */
@@ -91,8 +91,12 @@ export function planNow(now = new Date()): PlanNow {
   const researching = !!deal && stageOf(deal) === 'researching';
   // So does a reader practicing paper analyses ("Practice checking real properties without buying"): saving one
   // doesn't turn the plan into that property's buying steps.
-  const paperPractice = researching && ['paper', 'c-paper'].includes(roadmapNextStep()?.id ?? '');
-  const guidedLearning = (getMode() === 'guided' && !practicePart2Done() && researching) || paperPractice;
+  // Unless you chose that property in My plan: then it's the one you're working on.
+  const picked = !!deal && rawDealChoice() === `analyzed:${deal.id}`;
+  // Until the roadmap reaches the property's own steps (paper practice, finding a sale), a researching analysis is
+  // practice, not the property you're buying.
+  const paperPractice = researching && !picked && ['paper', 'c-paper', 'find', 'a-find', 'c-sale'].includes(roadmapNextStep()?.id ?? '');
+  const guidedLearning = !picked && ((getMode() === 'guided' && !practicePart2Done() && researching) || paperPractice);
   if (deal && !guidedLearning) {
     const stage = stageOf(deal);
     return { goal, source: 'deal', context: `${deal.name} · ${stageLabel(stage, deal)}`, task: dealNextTask(deal, undefined, now, stage), deal, stage, tasks: stageTasks(deal, stage, undefined, now) };
@@ -141,6 +145,6 @@ export function planNow(now = new Date()): PlanNow {
     goal,
     source: 'roadmap',
     context: 'Roadmap · every step done',
-    task: { key: 'next-deal', label: 'Find your next property', produces: 'a new candidate saved in Analyze, starting at Researching', href: '#/find-deals', support: [{ label: 'Analyze a deal', href: '#/analyze' }], done: false, text: 'Find your next property.' },
+    task: { key: 'next-deal', label: planPath() === 'certificate' ? 'Find your next lien sale' : 'Find your next property', produces: 'a new candidate saved in Analyze, starting at Researching', href: '#/find-deals', support: [{ label: 'Analyze a deal', href: '#/analyze' }], done: false, text: 'Find your next property.' },
   };
 }

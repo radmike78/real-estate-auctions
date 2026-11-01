@@ -72,6 +72,7 @@ export function readBackup(text: string): { ok: true; data: Record<string, strin
       parsed = JSON.parse(val);
     } catch {
       if (k === 'deedowl.state.v1' && /^[A-Z]{2}$/.test(val)) data[k] = val;
+      if ((k === 'fsf.bid.mode.v1' && ['quick', 'detailed'].includes(val)) || (k === 'fsf.calc.strategy.v1' && /^[a-z]{1,20}$/.test(val))) data[k] = val;
       if (PATTERN.test(k) && k.endsWith('.region') && val.length <= 1000) data[k] = val; // every saved value is JSON except the chosen state code
       continue;
     }

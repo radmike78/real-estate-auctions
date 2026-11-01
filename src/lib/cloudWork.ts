@@ -1,3 +1,4 @@
+import { plainTextKey } from './workKeys';
 // Cloud saves accept structured property work and learning progress only, on both client and server.
 // Never send a browser backup, notes, contacts, cash worksheets, evidence or packet text, uploads or arbitrary JSON.
 import { cleanDeal, checklistFor } from './analyze';
@@ -49,7 +50,7 @@ const stamp = (v: unknown) => typeof v === 'string' && /^\d{4}-\d\d-\d\dT[0-9:.]
 const label = (v: unknown) => typeof v === 'string' && v.length <= 120 && !/[<>\u0000-\u001f\u007f]/.test(v) && !/\b\d{3}-\d{2}-\d{4}\b|\b(?:\d{4}[ -]){3}\d{4}\b/.test(v);
 const BID_FIELDS = 'exitValue repairs contingencyPct buyerPremiumPct transferTaxPer500 survivingLiens titleLegal possession redemptionMonths redemptionRatePct redemptionDaily redemptionFlat redemptionFlat2Pct redemptionChecked holdingMonths monthlyCarry financedPct loanAtClosing interestRatePct pointsPct sellingCostPct targetProfitPct targetProfitMin profitInDollars proposedPrice cashAvailable'.split(' ');
 const numericKeys = [...new Set([...BID_FIELDS, ...Object.keys(RENT_DEFAULTS), ...Object.keys(COMMERCIAL_DEFAULTS), ...Object.keys(LIEN_DEFAULTS), ...Object.keys(SELLER_FINANCE_DEFAULTS), ...Object.keys(HOLD_SELL_DEFAULTS), ...Object.keys(STR_DEFAULTS), ...Object.keys(INCOME_DEFAULTS)])];
-const CALC = /^fsf\.(bid\.[A-Za-z0-9_-]{1,64}|income\.[A-Za-z0-9_-]{1,64}|calc\.(rent|commercial)(\.[A-Za-z0-9_-]{1,64})?|calc\.lien(\.az)?|calc\.sellerfinance|calc\.strategy)\.v1$/;
+const CALC = /^fsf\.(bid\.[A-Za-z0-9_-]{1,64}|income\.[A-Za-z0-9_-]{1,64}|calc\.(rent|commercial)(\.[A-Za-z0-9_-]{1,64})?|calc\.lien(\.[A-Za-z0-9_-]{1,64})?|calc\.sellerfinance|calc\.strategy)\.v1$/;
 const TYPED = /^fsf\.(bid|calc\.(rent|commercial|lien|sellerfinance|strategy))(\.[A-Za-z0-9_-]{1,64})?(\.v1)?\.typed\.v1$/;
 function deal(v: unknown): unknown {
   if (!record(v) || !ID.test(String(v.id)) || !label(v.name) || !stamp(v.updatedAt)) return null;
@@ -126,6 +127,7 @@ export function projectCloudWork(input: unknown): CloudWork {
     else if (k === 'deedowl.mode.v1' && ['guided','explore'].includes(String(v))) out[k] = v;
     else if (['deedowl.path.v1','deedowl.roadmap.path.v1'].includes(k) && ['listing','auction','certificate'].includes(String(v))) out[k] = v;
     else if (k === 'deedowl.roadmap.v1') out[k] = ids(v, ROADMAP.map(s => s.id));
+    else if (k === 'deedowl.roadmap.credited.v1') out[k] = ids(v, ROADMAP.map(s => s.id));
     else if (k === 'deedowl.roadmap.status.v1' && record(v)) out[k] = Object.fromEntries(Object.entries(v).filter(([s, a]) => ROADMAP.some(x => x.id === s) && ['doing','waiting','stopped','na'].includes(String(a))));
     else if (k === 'deedowl.roadmap.deals.v1') out[k] = cleanDealSteps(v);
     else if (k === 'deedowl.goal.v1' && typeof v === 'string') out[k] = cleanGoal(v);
@@ -146,7 +148,8 @@ export function projectCloudWork(input: unknown): CloudWork {
     }
     else if (k === 'fsf.deals.v1' && Array.isArray(v)) out[k] = v.slice(0,200).filter(x=>record(x) && ID.test(String(x.id)) && stamp(x.savedAt)).map(x=>({id:x.id,savedAt:x.savedAt,statusAtSave:Object.prototype.hasOwnProperty.call(STATUS,String(x.statusAtSave)) ? x.statusAtSave : null,postponementsAtSave:number(x.postponementsAtSave) && x.postponementsAtSave>=0 ? x.postponementsAtSave : 0}));
     else if (/^fsf\.calc\.(rent|commercial)\.offer\.v1$/.test(k) && number(v)) out[k] = v;
-    else if (/^fsf\.(bid|calc\.(rent|commercial))(\.[A-Za-z0-9_-]{1,64})?\.v1\.region$/.test(k) && number(v)) out[k]=v;
+    // The region stamp: a number for Fix and flip, a short signature ("2.55|NV", or the starting values as JSON) for the others.
+    else if (/^fsf\.(bid|calc\.(rent|commercial))(\.[A-Za-z0-9_-]{1,64})?\.v1\.region$/.test(k) && (number(v) || (typeof v === 'string' && /^[\w.|:{}",-]{1,160}$/.test(v)))) out[k]=v;
     else if (k === 'fsf.calc.strategy.v1' && ['flip','rent','commercial','lien','sellerfinance','str'].includes(String(v))) out[k]=v;
     else if (k === 'deedowl.analyze.v1' && Array.isArray(v)) out[k] = v.slice(0, 50).map(deal).filter(Boolean);
     else if (k === 'deedowl.analyze.current.v1' && deal(v)) out[k] = deal(v);
@@ -173,7 +176,7 @@ export function cloudFromStorage(storage: Storage): CloudWork {
   const raw: Record<string, unknown> = {};
   for (let i = 0; i < storage.length; i++) {
     const k = storage.key(i); if (!k) continue;
-    try { raw[k] = JSON.parse(storage.getItem(k) ?? 'null'); } catch { if (['fsf.bid.mode.v1','fsf.calc.strategy.v1'].includes(k)) raw[k]=storage.getItem(k); }
+    try { raw[k] = JSON.parse(storage.getItem(k) ?? 'null'); } catch { if (plainTextKey(k)) raw[k]=storage.getItem(k); }
   }
   const out=projectCloudWork(raw);
   const before=raw['deedowl.analyze.v1'];

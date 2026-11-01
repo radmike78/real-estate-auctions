@@ -268,8 +268,8 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.mariposacounty.gov/82/Sheriffs-Office", checked: "2026-10-08", contactOnly: true },
   },
   "CA/Mendocino": {
-    taxSale: { url: "https://www.mendocinocounty.gov/government/collections/treasurer-tax-collector/tax-defaulted-property-auction", checked: "2026-10-10" },
-    treasurer: { url: "https://www.mendocinocounty.gov/government/collections/treasurer-tax-collector", checked: "2026-10-10" },
+    taxSale: { url: "https://www.mendocinocounty.gov/All-Departments/Treasurer-Tax-Collector/Tax-Defaulted-Property-Auction", checked: "2026-11-01" },
+    treasurer: { url: "https://www.mendocinocounty.gov/All-Departments/Treasurer-Tax-Collector", checked: "2026-11-01" },
     assessor: { url: "https://www.mendocinocounty.gov/government/assessor-county-clerk-recorder-elections", checked: "2026-10-10" },
     recorder: { url: "https://www.mendocinocounty.gov/government/assessor-county-clerk-recorder-elections/county-recorder", checked: "2026-10-10" },
     sheriff: { url: "https://mendocinosheriff.org/civil-division/", checked: "2026-10-08" },
@@ -1383,7 +1383,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   "TX/Henderson": {
     taxSale: { url: "https://www.henderson-county.com/207/County-Tax-Assessor-Collector", checked: "2026-10-05", note: "The tax office sends tax sale questions to its delinquent-tax law firms (McCreary, Veselka, Bragg & Allen and Linebarger Goggan Blair & Sampson); bidders need a written statement from the tax office ($10, valid 90 days)." },
     treasurer: { url: "https://www.henderson-county.com/207/County-Tax-Assessor-Collector", checked: "2026-10-05" },
-    assessor: { url: "https://propaccess.trueautomation.com/clientdb/?cid=83", checked: "2026-10-10" },
+    assessor: { url: "https://henderson-cad.org/", checked: "2026-11-01" },
     recorder: { url: "https://www.henderson-county.com/204/County-Clerk", checked: "2026-10-05" },
     sheriff: { url: "https://www.henderson-county.com/250/Sheriff", checked: "2026-10-05" },
   },
@@ -2336,7 +2336,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     treasurer: { url: "https://wichitatax.com/", checked: "2026-10-08" },
     assessor: { url: "https://wadtx.com/", checked: "2026-10-05" },
     sheriff: { url: "https://wichitacountysheriffsoffice.org/", checked: "2026-10-08", contactOnly: true },
-    taxSale: { url: "https://wichitacountysheriffsoffice.org/tax-sales/", checked: "2026-10-08" },
+    taxSale: { url: "https://wichitacountysheriffsoffice.org/bureaus/civil-division/", checked: "2026-11-01", contactOnly: true },
     recorder: { url: "https://wichitacountytx.com/locations/county-clerk/", checked: "2026-10-08" },
   },
   "TX/Wilbarger": {
