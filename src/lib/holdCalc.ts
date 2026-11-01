@@ -86,13 +86,10 @@ function bidForAllIn(i: BuyInputs, limit: number): number {
   return Math.max(0, Math.floor((limit - fixed) / perBid));
 }
 
-/**
- * The loan at a price: on the lower of price and value for a purchase loan, on the value for a later refinance (on the
- * price until a value is entered: no example value inflates it).
- */
+/** The loan at a price: on the lower of price and value for a purchase loan, on the value for a later refinance. */
 export function loanAt(i: LoanInputs, price: number, onPrice = false): number {
   const pct = Math.min(nz(i.loanPct), 100) / 100;
-  if (!onPrice) return (nz(i.value) || nz(price)) * pct;
+  if (!onPrice) return nz(i.value) * pct;
   const base = nz(i.value) > 0 ? Math.min(nz(price), nz(i.value)) : nz(price);
   return base * pct;
 }
@@ -383,7 +380,7 @@ export function lienYield(raw: LienInputs): { interest: number; payoff: number; 
 export const RENT_DEFAULTS: RentInputs = {
   cashAvailable: 0, buyerPremiumPct: 0, transferTaxPer500: 2.55, survivingLiens: 0, titleLegal: 500, possession: 300, repairs: 25_000, contingencyPct: 15,
   monthlyRent: 2_200, vacancyPct: 6, propertyTaxYear: 2_400, insuranceYear: 1_400, hoaMonthly: 0, managementPct: 8, maintenancePct: 5, capexPct: 5,
-  value: 0, loanPct: 0, ratePct: 7.5, years: 30, loanCostPct: 2, targetCocPct: 8, minDscr: 1.25, reserveCash: 0, atPrice: 0,
+  value: 350_000, loanPct: 0, ratePct: 7.5, years: 30, loanCostPct: 2, targetCocPct: 8, minDscr: 1.25, reserveCash: 0, atPrice: 0,
 };
 
 export const COMMERCIAL_DEFAULTS: CommercialInputs = {
@@ -582,8 +579,9 @@ export function strCompare(i: RentInputs, s: StrInputs, strTaxFactor = 1) {
 
 /**
  * Before the loan on a listed home was sized on your price, its rent calculator started with a $350,000 appraised value
- * example. Numbers saved then still hold it, unmarked: unless you typed it, it's dropped (the loan uses your price).
+ * example. A listed home's numbers saved then still hold it, unmarked: unless you typed it, it's dropped (the loan uses
+ * your price). An auction rental keeps its value: it's the example value after repairs that a later refinance uses.
  */
-export function withoutOldValueExample(v: RentInputs, _offer: boolean, typed: ReadonlySet<string>): RentInputs {
-  return v.value === 350_000 && !typed.has('value') ? { ...v, value: 0 } : v;
+export function withoutOldValueExample(v: RentInputs, offer: boolean, typed: ReadonlySet<string>): RentInputs {
+  return offer && v.value === RENT_DEFAULTS.value && !typed.has('value') ? { ...v, value: 0 } : v;
 }

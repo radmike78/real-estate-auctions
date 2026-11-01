@@ -468,3 +468,14 @@ export function prefillParam(params: URLSearchParams): Prefill | undefined {
   if (!st || !st.counties.includes(county) || !kind || !SALE_KINDS.some((k) => k.key === kind)) return undefined;
   return { name: (params.get('name') ?? '').slice(0, 80), state: st.code, county, kind };
 }
+
+/**
+ * The time stamp for an edit: now, or just after the deal's last one when that is ahead of this device's clock (a copy
+ * saved on a device whose clock runs fast). An edit is always newer than the copy it changed, so it's never mistaken
+ * for an older copy and dropped.
+ */
+export function nextStamp(prev: string): string {
+  const now = Date.now();
+  const last = Date.parse(prev);
+  return new Date(Number.isFinite(last) && last >= now ? last + 1 : now).toISOString();
+}

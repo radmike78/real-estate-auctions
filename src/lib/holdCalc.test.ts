@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialAtPrice, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice, loanAt } from './holdCalc';
+import { allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialAtPrice, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice, loanAt, withoutOldValueExample } from './holdCalc';
+import { rentalStartFor } from './stateCosts';
 
 describe('rent / hold', () => {
   it('works out net operating income from rent, vacancy and costs', () => {
@@ -20,12 +21,12 @@ describe('rent / hold', () => {
   });
 
   it('a refinance leaves less cash in the deal, so you can pay more, and checks the loan coverage', () => {
-    const cash = rentMaxBid({ ...RENT_DEFAULTS, value: 350_000, loanPct: 0 });
-    const refi = rentMaxBid({ ...RENT_DEFAULTS, value: 350_000, loanPct: 50 });
+    const cash = rentMaxBid({ ...RENT_DEFAULTS, loanPct: 0 });
+    const refi = rentMaxBid({ ...RENT_DEFAULTS, loanPct: 50 });
     expect(refi.debtService).toBeGreaterThan(0);
     expect(refi.dscr).not.toBeNull();
     expect(refi.maxBid).not.toBe(cash.maxBid);
-    const heavy = rentMaxBid({ ...RENT_DEFAULTS, value: 350_000, loanPct: 80, ratePct: 10 });
+    const heavy = rentMaxBid({ ...RENT_DEFAULTS, loanPct: 80, ratePct: 10 });
     expect(heavy.loanOk).toBe(heavy.dscr! >= RENT_DEFAULTS.minDscr);
   });
 
@@ -206,8 +207,20 @@ describe('actual commercial price and exact coverage', () => {
   });
 });
 
-it('sizes a refinance on your price until you enter a value (no example value inflates it)', () => {
-  const i = { ...RENT_DEFAULTS, loanPct: 75 };
-  expect(loanAt(i, 120_000)).toBe(90_000);
-  expect(loanAt({ ...i, value: 200_000 }, 120_000)).toBe(150_000);
+it('sizes a later refinance on the value, and a purchase loan on the lower of price and value', () => {
+  const i = { ...RENT_DEFAULTS, loanPct: 75, value: 200_000 };
+  expect(loanAt(i, 120_000)).toBe(150_000);
+  expect(loanAt(i, 120_000, true)).toBe(90_000);
+  expect(loanAt({ ...i, value: 0 }, 120_000, true)).toBe(90_000);
+});
+
+it('drops the old $350,000 value example only from a listed home’s untyped numbers', () => {
+  const v = { ...RENT_DEFAULTS };
+  expect(withoutOldValueExample(v, true, new Set()).value).toBe(0);
+  expect(withoutOldValueExample(v, true, new Set(['value'])).value).toBe(350_000);
+  expect(withoutOldValueExample(v, false, new Set()).value).toBe(350_000);
+});
+
+it('starts a state’s rental property tax from the example value, never at $0', () => {
+  for (const st of ['NV', 'CA', 'AZ', 'UT', 'TX'] as const) expect(rentalStartFor(st, RENT_DEFAULTS.value).propertyTaxYear).toBeGreaterThan(0);
 });

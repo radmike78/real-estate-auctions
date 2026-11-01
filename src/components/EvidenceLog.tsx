@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { areasFor, emptyRow, EVIDENCE_AREAS, EVIDENCE_EVENT, GATES, loadLog, logText, saveLog, type EvidenceLog as Log, type EvidenceRow } from '../lib/evidence';
+import { areasFor, emptyRow, EVIDENCE_EVENT, GATES, loadLog, logText, saveLog, type EvidenceLog as Log, type EvidenceRow } from '../lib/evidence';
 import { downloadText, fileName } from '../lib/download';
 
 /** For one deal: what you verified, where it came from and what's still open, then the decision it supports. */
@@ -57,7 +57,7 @@ export default function EvidenceLog({ dealId, name, kind, initiallyOpen = false,
           : log.gate === 'pass' && onPass && <p><button type="button" className="btn btn-secondary" onClick={() => { onPass(); setPassedNow(true); }}>Move it to Passed</button></p>}
       </fieldset>
       {log.gate === 'proceed' && openCount > 0 && <p className="caution" role="status">You still have {openCount} open question{openCount === 1 ? '' : 's'}. Resolve them before you commit money.</p>}
-      <button type="button" className="btn btn-secondary" onClick={() => downloadText(fileName(`evidence log ${name}`, 'txt'), logText(name, log))}>Download the log</button>
+      <button type="button" className="btn btn-secondary" onClick={() => downloadText(fileName(`evidence log ${name}`, 'txt'), logText(name, log, kind))}>Download the log</button>
     </details>
   );
 }
@@ -66,8 +66,8 @@ export default function EvidenceLog({ dealId, name, kind, initiallyOpen = false,
  * One area of one deal's evidence log, inside a roadmap step: the property it's about, and the same fields as the
  * full log, saved to it. `askFinding` reminds the reader to record what they found when they mark the step done.
  */
-export function EvidenceArea({ dealId, dealName, area, askFinding }: { dealId: string; dealName: string; area: string; askFinding?: boolean }) {
-  const a = EVIDENCE_AREAS.find((x) => x.key === area);
+export function EvidenceArea({ dealId, dealName, area, askFinding, kind }: { dealId: string; dealName: string; area: string; askFinding?: boolean; /** The deal's kind of sale (a lien certificate's areas differ). */ kind?: string }) {
+  const a = areasFor(kind).find((x) => x.key === area);
   const [log, setLog] = useState<Log>(() => loadLog(dealId));
   useReloadOnSave(dealId, setLog);
   if (!a) return null;

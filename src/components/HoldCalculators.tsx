@@ -471,7 +471,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   // guide to a Nevada one), except figures the property itself supplied (`start`).
   const stateForce: Partial<RentInputs> = regional ? Object.fromEntries(Object.entries(stateStart).filter(([k]) => !(k in start))) : {};
   const [saved, set, typed, typedKeys] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...examples, ...start }, regional ? { transferTaxPer500: rt.per500, ...stateForce } : {}, regional ? `${rt.per500}|${region.state}` : '{}');
-  const v = offer ? { ...withoutOldValueExample(saved, true, typedKeys), buyerPremiumPct: 0 } : withoutOldValueExample(saved, false, typedKeys);
+  const v = offer ? { ...withoutOldValueExample(saved, true, typedKeys), buyerPremiumPct: 0 } : saved;
   const r = rentMaxBid(v, offer);
   const n = rentNoi(v);
   const groups = offer ? forOffer(rt.groups) : rt.groups;
@@ -496,6 +496,10 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         {/* Your actual deal first; the price that would meet your goal second, each with its own heading bar and colour. */}
         <AtThisPrice v={v} start={r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} />
         <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} />
+        {/* An auction rental's later refinance is sized on the value after repairs: say so while that's still our example. */}
+        {!offer && v.loanPct > 0 && !typedKeys.has('value') && v.value === RENT_DEFAULTS.value && (
+          <p className="calc-note small" role="note"><strong>The refinance is figured on our {fmtMoney(RENT_DEFAULTS.value)} example value.</strong> Enter the value an appraisal would support after repairs (under “Review all other costs, loan terms and targets”) before you rely on the loan, the cash left in or the walk-away price.</p>
+        )}
         {/* No price to figure them at yet (no offer, no walk-away price, no value): ask for one instead of showing $0. */}
         {at.price > 0 ? <CashCushion v={v} price={at.price} at={at.label} onPrice={offer} /> : null}
         {at.price > 0 ? <RentDealLab v={v} at={at} onPrice={offer} /> : <p className="calc-note small">Enter {offer ? 'your offer (the asking price)' : 'your bid'} to see the cash cushion, the stress test and how a lender sees this rent at that price.</p>}

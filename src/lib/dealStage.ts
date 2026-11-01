@@ -8,7 +8,7 @@ import { workStorage as localStorage } from './workStorage';
 // team, public records and the county only.
 import { CURRENT_KEY, DEAL_STAGES, isDealStage, loadDeals, saveDeals, type Deal, type DealStage } from './analyze';
 import { loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
-import { EVIDENCE_AREAS, loadLog, type EvidenceLog } from './evidence';
+import { areasFor, loadLog, type EvidenceLog } from './evidence';
 import { loadOwned, type Owned } from './owned';
 import { proGuideByKey } from './proGuide';
 import { dealProgress, progressChanged } from './roadmapState';
@@ -318,7 +318,7 @@ export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.i
       return { key: 'date', label: text, produces: 'the deadline met, with what you did noted in its deal packet', href: `#/deals/packet/${d.id}/dates`, support: [], done: false, urgent: true, text };
     }
     const log = loadLog(`analyzed:${d.id}`);
-    const openRow = EVIDENCE_AREAS.map((a) => ({ a, r: log.rows[a.key] })).find(({ r }) => r?.open && !r.done);
+    const openRow = areasFor(d.kind).map((a) => ({ a, r: log.rows[a.key] })).find(({ r }) => r?.open && !r.done);
     if (openRow) {
       const text = `Get an answer to: ${openRow.r.open}${openRow.r.owner ? ` (${openRow.r.owner})` : ''}.`;
       return { key: 'open', label: text, produces: `the answer recorded under “${openRow.a.title}” in its evidence log`, href: `#/deals/packet/${d.id}/evidence`, support: [], done: false, urgent: true, text };

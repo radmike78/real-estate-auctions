@@ -46,6 +46,8 @@ function BeforeYouCommit({ plan, state, saleKind }: { plan?: string; state?: Sta
         <li><strong>Any right to buy it back (redemption)</strong> and how long it lasts for this kind of sale in your state.*</li>
         <li><strong>Who lives there,</strong> and the court process to get possession.</li>
         <li><strong>Insurance from the day it’s yours.</strong> <a href="#/learn/analyze">What to ask</a></li>
+        <li><strong>Your tax bill, not the last owner’s.</strong> It can change when you buy or rent it out. <a href={`#/learn/analyze?section=your-tax-bill-after-you-buy${state ? `&state=${state}` : ''}`}>{name ? `${name} property tax rules` : 'Property tax rules by state'}</a></li>
+        {renting && <li><strong>The rules for renting it:</strong> HOA limits, short-term rental rules and local rent rules.</li>}
         <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney, tax advisor and financial advisor before you bid.</li>
       </ul>
       <p className="muted small">Can’t check one yet? Get the answer before you bid.</p>
