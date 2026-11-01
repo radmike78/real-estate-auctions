@@ -37,9 +37,9 @@ function block(b: LessonBlock): string {
   if (typeof b === 'string') return `<p>${esc(b)}</p>`;
   if ('list' in b) return list(b.list);
   if ('table' in b)
-    return `<table><thead><tr>${b.table.head.map((h) => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${b.table.rows
+    return `<div class="table-wrap"><table class="lesson-table"><thead><tr>${b.table.head.map((h) => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${b.table.rows
       .map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join('')}</tr>`)
-      .join('')}</tbody></table>`;
+      .join('')}</tbody></table></div>`;
   if ('links' in b) return `<ul>${b.links.map((x) => `<li>${link(x.url.startsWith('#/') ? pathOf(x.url) : x.url, x.label)}: ${esc(x.what)}</li>`).join('')}</ul>`;
   return `<h3>${esc(b.why.title)}</h3><h4>Why you would</h4>${list(b.why.yes.map((p) => `${p.who}: ${p.text}`))}<h4>Why you wouldn’t</h4>${list(b.why.no.map((p) => `${p.who}: ${p.text}`))}`;
 }

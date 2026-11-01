@@ -205,7 +205,7 @@ export default function DealsPage() {
                       <button type="button" className="btn btn-secondary" onClick={() => openDeal(d)}>Open&nbsp;→</button>
                     </div>
                   </div>
-                  <EvidenceLog dealId={`analyzed:${d.id}`} name={d.name} onPass={stageOf(d) === 'passed' ? undefined : () => { setDealStage(d.id, 'passed'); setAnalyzed(loadAnalyzed()); }} />
+                  <EvidenceLog dealId={`analyzed:${d.id}`} name={d.name} kind={d.kind} onPass={stageOf(d) === 'passed' ? undefined : () => { setDealStage(d.id, 'passed'); setAnalyzed(loadAnalyzed()); }} />
                 </li>
               );
             })}

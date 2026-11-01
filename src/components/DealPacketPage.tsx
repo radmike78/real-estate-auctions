@@ -5,7 +5,7 @@ import PageHero from './PageHero';
 import EvidenceLog, { DecisionGate } from './EvidenceLog';
 import { kindLabel, loadDeals, openDeal, SALE_KINDS } from '../lib/analyze';
 import { countyName } from '../lib/regions';
-import { dateGuide, dealPacketText, FIT_LABEL, loadPacket, packetSections, savePacket, suggestedDates, type Fit, type PacketData, type SectionStatus } from '../lib/dealPacket';
+import { dateGuide, dealPacketText, FIT_LABEL, loadPacket, packetSections, savePacket, suggestedDates, type Fit, type PacketData, type SectionStatus, teamRolesFor } from '../lib/dealPacket';
 import { TEAM_ROLES } from '../lib/myPlan';
 import { proGuideByKey } from '../lib/proGuide';
 import { downloadText, fileName } from '../lib/download';
@@ -211,7 +211,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       <section className="deal-setup packet-section" aria-labelledby="packet-evidence">
         <Head k="evidence" />
         <Lines k="evidence" />
-        <EvidenceLog dealId={key} name={deal.name} initiallyOpen={section === 'evidence'} />
+        <EvidenceLog dealId={key} name={deal.name} kind={deal.kind} initiallyOpen={section === 'evidence'} />
       </section>
 
       <section className="deal-setup packet-section" aria-labelledby="packet-pros">
@@ -231,7 +231,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
             </li>
           ))}
         </ul>
-        <button type="button" className="btn btn-secondary" onClick={() => update({ qa: [...p.qa, { role: TEAM_ROLES[p.qa.length % TEAM_ROLES.length], q: '', a: '', on: '' }] })}>Add a question</button>
+        <button type="button" className="btn btn-secondary" onClick={() => { const team = teamRolesFor(deal); update({ qa: [...p.qa, { role: team.length ? team[p.qa.length % team.length] : TEAM_ROLES[p.qa.length % TEAM_ROLES.length], q: '', a: '', on: '' }] }); }}>Add a question</button>
         <Lines k="pros" />
       </section>
 
@@ -251,7 +251,8 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       </section>
       <section className="deal-setup packet-section" aria-labelledby="packet-owned">
         <h2 id="packet-owned">After you buy: actual results</h2>
-        <OwnedTracker deal={deal} />
+        {/* A lien certificate earns interest, not rent: no monthly rent tracker. */}
+        {deal.kind === 'lien' ? <p>Holding the certificate? Keep the county’s certificate record, any later taxes you pay to protect it, and the payoff when the owner redeems, with your notes and the county’s receipts.</p> : <OwnedTracker deal={deal} />}
       </section>
       <AdSpot spot="dealPacket" allow={analyzeAllowsAds(deal.kind)} />
       <p className="muted">This packet is not included in account saves. Download it to keep a copy; guest packets also stay in this browser. This packet records your own review; it doesn’t clear title or certify a deal.</p>

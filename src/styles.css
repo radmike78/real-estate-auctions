@@ -2969,5 +2969,5 @@ dl.cash-result .cash-main { border-color: var(--accent); }
 @media (max-width: 480px) {
   .roadmap-step > summary { flex-wrap: wrap; }
   .roadmap-chip { margin-left: 0; }
-  .roadmap-status .btn { white-space: nowrap; }
+  .roadmap-status .btn { flex: 1 1 100%; margin-left: 0; white-space: normal; justify-content: center; }
 }

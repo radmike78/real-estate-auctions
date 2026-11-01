@@ -70,6 +70,7 @@
 
 /* ---------- Full purchase case ---------- */
 .case .practice-tag { white-space: nowrap; max-width: 100%; }
+@media (max-width: 700px) { .case .practice-tag { white-space: normal; border-radius: 14px; } }
 .nowrap-arrow { white-space: nowrap; }
 .case-steps-hint { display: none; }
 .practice-stages.case-stages a { justify-content: flex-start; min-height: 48px; }

@@ -471,7 +471,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   // guide to a Nevada one), except figures the property itself supplied (`start`).
   const stateForce: Partial<RentInputs> = regional ? Object.fromEntries(Object.entries(stateStart).filter(([k]) => !(k in start))) : {};
   const [saved, set, typed, typedKeys] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...examples, ...start }, regional ? { transferTaxPer500: rt.per500, ...stateForce } : {}, regional ? `${rt.per500}|${region.state}` : '{}');
-  const v = offer ? { ...withoutOldValueExample(saved, true, typedKeys), buyerPremiumPct: 0 } : saved;
+  const v = offer ? { ...withoutOldValueExample(saved, true, typedKeys), buyerPremiumPct: 0 } : withoutOldValueExample(saved, false, typedKeys);
   const r = rentMaxBid(v, offer);
   const n = rentNoi(v);
   const groups = offer ? forOffer(rt.groups) : rt.groups;

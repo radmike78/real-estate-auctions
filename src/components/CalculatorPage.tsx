@@ -25,17 +25,32 @@ export function Calculators({ initial, onTab, state, offer = false, dealId, onAn
         ].filter((s) => (s.key !== 'lien' || (lien && (!state || state === 'NV' || state === 'AZ'))) && (s.key !== 'seller' || offer || !state)).map((s) => (s.key === 'lien' && state === 'AZ' ? { ...s, label: 'Tax lien', about: 'What an Arizona tax lien certificate earns per year at the rate you win, counting the wait to be paid.' } : s))}
       />
       <p className="muted small">The results are only as good as the numbers you enter; they aren’t a guarantee of profit.</p>
-      <BeforeYouCommit plan={initial} state={state} />
+      <BeforeYouCommit plan={initial} state={state} saleKind={saleKind} />
     </>
   );
 }
 
 /** The checks that most often change a beginner's numbers, shown where the decision is made. */
-function BeforeYouCommit({ plan, state }: { plan?: string; state?: StateCode }) {
+function BeforeYouCommit({ plan, state, saleKind }: { plan?: string; state?: StateCode; saleKind?: string }) {
   const name = state ? stateByCode(state)?.name : undefined;
   // Renting rules matter only when you'd keep it and rent it out.
   const renting = plan !== 'flip' && plan !== 'lien';
   // A lien certificate isn't the property: no tax bill, insurance or repairs of your own; these checks instead.
+  // A forced sale (auction): paid to the officer or trustee on the sale's terms, often with no inside look.
+  if (saleKind && ['trustee', 'taxSale', 'court', 'hoa', 'irs'].includes(saleKind) && plan !== 'lien') return (
+    <section className="before-commit" aria-labelledby="before-commit-head">
+      <h3 id="before-commit-head">Before you commit, check these</h3>
+      <ul>
+        <li><strong>The sale’s payment rules:</strong> the form, amount and deadline, paid to the officer or trustee, from the official notice.</li>
+        <li><strong>Liens and taxes that survive this sale,</strong> from a title search.</li>
+        <li><strong>Any right to buy it back (redemption)</strong> and how long it lasts for this kind of sale in your state.*</li>
+        <li><strong>Who lives there,</strong> and the court process to get possession.</li>
+        <li><strong>Insurance from the day it’s yours.</strong> <a href="#/learn/analyze">What to ask</a></li>
+        <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney, tax advisor and financial advisor before you bid.</li>
+      </ul>
+      <p className="muted small">Can’t check one yet? Get the answer before you bid.</p>
+    </section>
+  );
   if (plan === 'lien') return (
     <section className="before-commit" aria-labelledby="before-commit-head">
       <h3 id="before-commit-head">Before you commit, check these</h3>

@@ -137,7 +137,7 @@ export interface Strategy {
   /** The honest downside: the worst realistic outcome, the money at stake, and how long a first deal takes. */
   /** atRisk is the cash needed to start, not a loss limit; ongoing says what you keep owing and how you could lose more. */
   /** cashAtRisk: the cash needed to start for a reader paying cash, when atRisk is about a loan's down payment. */
-  risk: { worst: string; atRisk: string; cashAtRisk?: string; ongoing?: string; time: string };
+  risk: { worst: string; atRisk: string; ongoing?: string; time: string };
   checklist: ChecklistItem[];
 }
 
@@ -163,7 +163,6 @@ export const STRATEGIES: Strategy[] = [
     risk: {
       worst: 'A unit sits empty or a tenant stops paying, and you still owe the whole mortgage on the home you live in.',
       atRisk: 'Your down payment, closing costs and the reserves your lender requires.',
-      cashAtRisk: 'Paying cash: the full price, plus closing costs and reserves. Living in one unit is how most buyers get an owner-occupant loan, so compare that with a lender before you decide.',
       ongoing: 'You owe every loan payment, tax and insurance bill even when a unit is empty or repairs run over. If you can’t pay, you can lose the property and the equity in it, so you can lose more than the cash you start with.',
       time: 'Months: pre-approval, a search, then a closing like any home purchase.',
     },
@@ -194,7 +193,6 @@ export const STRATEGIES: Strategy[] = [
     risk: {
       worst: 'Vacancy, a tenant who stops paying or a big repair leaves you paying the mortgage yourself. Evictions take a court case.',
       atRisk: 'The down payment: at least 15% (one unit) to 25% (two to four units) on Fannie Mae investment loans, plus closing costs and reserves.',
-      cashAtRisk: CASH_AT_RISK,
       ongoing: 'You owe every loan payment, tax and insurance bill even when a unit is empty or repairs run over. If you can’t pay, you can lose the property and the equity in it, so you can lose more than the cash you start with.',
       time: 'Months: pre-approval, a search and a closing, then finding a tenant.',
     },
@@ -262,7 +260,7 @@ export const STRATEGIES: Strategy[] = [
       { id: 'fl-arv', text: 'Estimate the after-repair value from sold homes already in finished condition; use the 70% rule only as a first screen.' },
       { id: 'fl-rehab', text: 'Learn to estimate repairs, and add a cushion for what you can’t see.', href: '#/learn/reading' },
       { id: 'fl-team', text: 'Line up a qualified contractor (licensed where required), a qualified inspector and an agent before you buy.', href: '#/pros/contractor' },
-      { id: 'fl-money', text: 'Arrange financing before you offer, and compare every term of a hard-money loan.', href: '#/learn/financing' },
+      { id: 'fl-money', text: 'Arrange financing before you offer, and compare every term of a hard-money loan.', href: '#/learn/financing', cashText: 'Paying cash: get proof of funds before you offer; a loan is one option to discuss with a lender.' },
       { id: 'fl-costs', text: 'Budget buying, holding and selling costs, not just the repairs.', href: '#/analyze?plan=flip' },
       { id: 'fl-permits', text: 'Check permit rules with the city or county building department.' },
       { id: 'fl-practice', text: 'Practice a purchase from start to finish first.', href: '#/practice' },
@@ -345,7 +343,6 @@ export const STRATEGIES: Strategy[] = [
     risk: {
       worst: 'The income doesn’t cover the loan payment. Commercial loans can come with balloon payments and personal guarantees.',
       atRisk: 'A larger down payment than on a home loan, plus reserves and the cost of inspections and reports.',
-      cashAtRisk: 'Paying cash: the full price, plus reserves and the cost of inspections and reports. A loan is one option to discuss with a commercial lender.',
       ongoing: 'Every loan payment, tax bill and repair, even when units are empty. A personal guarantee can make you owe more than the property is worth, and a balloon payment can force a sale or refinance at a bad time.',
       time: 'Months: commercial due diligence and loans take longer than for a house.',
     },
@@ -433,6 +430,39 @@ function answerText(q: Question, v: string) {
 }
 
 /** Reasons joined as one phrase: “a, b and c”. */
+/** The risk lines for a reader paying cash (Decide: cash only), where the usual ones are about a loan. */
+const CASH_RISK: Partial<Record<StrategyKey, Partial<Strategy['risk']>>> = {
+  househack: {
+    atRisk: 'Paying cash: the full price, plus closing costs and reserves. Living in one unit is how most buyers get an owner-occupant loan, so compare that with a lender before you decide.',
+    time: 'Months: a search, then a closing like any home purchase.',
+  },
+  rental: {
+    atRisk: CASH_AT_RISK,
+    worst: 'Vacancy, a tenant who stops paying or a big repair leaves you paying the costs yourself. Evictions take a court case.',
+    time: 'Months: a search and a closing, then finding a tenant.',
+  },
+  flip: { worst: 'Repairs run over, the market slows, and you sell for less than you put in while paying taxes, insurance and utilities every month.' },
+  apartments: {
+    atRisk: 'Paying cash: the full price, plus reserves and the cost of inspections and reports. A loan is one option to discuss with a commercial lender.',
+    worst: 'The income doesn’t cover the taxes, insurance and repairs, and units sit empty longer than you planned.',
+    time: 'Months: commercial due diligence takes longer than for a house.',
+  },
+};
+
+/** A result as it applies to these answers: a reader paying cash gets the cash version of loan wording. */
+export function asAnswered(s: Strategy, a: Answers): Strategy {
+  if (a.borrow !== 'cash') return s;
+  const ongoing = s.risk.ongoing
+    ?.replace('You owe every loan payment, tax and insurance bill', 'You owe every tax, insurance and repair bill')
+    .replace('Every loan payment, tax bill and repair', 'Every tax bill and repair')
+    .replace(' A personal guarantee can make you owe more than the property is worth, and a balloon payment can force a sale or refinance at a bad time.', '');
+  return {
+    ...s,
+    risk: { ...s.risk, ...(ongoing ? { ongoing } : {}), ...CASH_RISK[s.key] },
+    checklist: s.checklist.map((c) => (c.cashText ? { ...c, text: c.cashText } : c)),
+  };
+}
+
 export const joinReasons = (r: string[]) => (r.length < 2 ? r.join('') : `${r.slice(0, -1).join(', ')} and ${r[r.length - 1]}`);
 
 /**
