@@ -502,6 +502,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       const what = `What-if, at your walk-away price of ${money(bid.maxBid)} (the most you could pay, not your price)`;
       cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} on sale day; estimated cash you’d put in ${money(bid.cashPeak)}`);
     }
+    if (bid.unentered.length) cash.push(`Doesn’t include costs still at $0 because not entered: ${bid.unentered.join('; ')}.`);
     if (bid.financed) cash.push(DRAW_NOTE);
   } else if (commercial?.at) {
     const a = commercial.at;
@@ -531,7 +532,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   if (profile.investable > 0 && need > 0) cash.push(need > profile.investable ? `${needAt}, that’s ${money(need - profile.investable)} more than your investable cash: the deal doesn’t fit as entered.` : `${needAt}, that leaves ${money(profile.investable - need)} unallocated from your investable cash, after any retained reserves recorded above.`);
   const hasNums = hasSavedNumbers({ rent, bid, commercial, lien });
-  out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: cash, fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
+  out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: cash, fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 
   // 5. Numbers: base and downside, for the deal's strategy only
   const nums: string[] = ['Returns, profit and cash flow are before income tax; personal taxes and depreciation are not included.', `Strategy: ${strategy}. These are the numbers you saved in its calculator; other strategies’ calculators aren’t counted.`];

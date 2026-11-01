@@ -247,7 +247,7 @@ export function DrillList({ presetTopic }: { presetTopic?: TopicGroup } = {}) {
   const inPreset = (d: Drill) => (!onlyMine || drillState(d) === null || drillState(d) === mine) && drillCard(d).group === presetTopic;
   const topicDrills = guided && presetTopic ? DRILLS.filter(inPreset) : [];
   // Lien sales are Arizona and Nevada only: elsewhere the auction topic is just auctions.
-  const topicLabel = presetTopic === 'auctions' && mine !== 'AZ' && mine !== 'NV' ? 'Auction' : TOPIC_GROUPS.find((g) => g.key === presetTopic)?.label ?? 'These';
+  const topicLabel = presetTopic === 'auctions' ? (mine !== 'AZ' && mine !== 'NV' ? 'Auction' : 'Auction and tax lien') : TOPIC_GROUPS.find((g) => g.key === presetTopic)?.label ?? 'These';
   const topicTitle = `${topicLabel} drills${mine ? ` for ${STATE_NAMES[mine]}` : ''}`;
   const shown = guided ? [topicDrills.length ? { key: 'topic', title: topicTitle, drills: topicDrills } : { key: 'starter', title: 'Start with these three', drills: starter }] : groups;
   // Explorers see the same three first, above the full list, until they filter it.
