@@ -105,6 +105,7 @@ export function DecisionGate({ dealId, onPass }: { dealId: string; /** Offered a
   const [log, setLog] = useState<Log>(() => loadLog(dealId));
   useReloadOnSave(dealId, setLog);
   const choose = (gate: Log['gate']) => { const next = { ...loadLog(dealId), gate }; saveLog(dealId, next); setLog(next); };
+  const [moved, setMoved] = useState(false);
   return (
     <fieldset className="evidence-gate">
       <legend>Your decision</legend>
@@ -114,7 +115,8 @@ export function DecisionGate({ dealId, onPass }: { dealId: string; /** Offered a
           <span><strong>{g.label}</strong> <span className="muted">{g.when}</span></span>
         </label>
       ))}
-      {log.gate === 'pass' && onPass && <p><button type="button" className="btn btn-secondary" onClick={onPass}>Move it to Passed</button> <span className="muted small">My plan then stops asking for research on it.</span></p>}
+      {moved ? <p role="status"><strong>Moved to Passed.</strong> My plan moves on to your next property.</p>
+        : log.gate === 'pass' && onPass && <p><button type="button" className="btn btn-secondary" onClick={() => { onPass(); setMoved(true); }}>Move it to Passed</button> <span className="muted small">My plan then stops asking for research on it.</span></p>}
     </fieldset>
   );
 }

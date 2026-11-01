@@ -91,7 +91,9 @@ describe('the next action follows the stage', () => {
     const t = dealNextTask(deal, p, now, 'researching');
     expect(t.setStage).toBe('offer');
     saveLog('analyzed:d1', cleanLog({ rows: {}, gate: 'pass' }));
-    expect(last(stageTasks(deal, 'researching', p, now))?.setStage).toBe('passed');
+    // Pass chosen: moving it to Passed is the next task, ahead of the research still open.
+    expect(stageTasks(deal, 'researching', p, now)[0]?.setStage).toBe('passed');
+    expect(dealNextTask(deal, { ...EMPTY_PACKET }, now, 'researching').setStage).toBe('passed');
   });
 
   it('prepares an offer, then waits for the seller to accept', () => {

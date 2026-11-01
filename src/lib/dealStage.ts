@@ -180,6 +180,8 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
   const findNext = () => out.push(task({ key: 'next', label: 'Find your next property', produces: 'a new candidate saved in Analyze, starting at Researching', href: '#/find-deals', support: [L.findDeals, L.analyze], done: false }));
 
   if (stage === 'researching') {
+    // Once you've chosen Pass, moving it to Passed comes first, ahead of research you no longer need.
+    if (log.gate === 'pass') out.push(task({ key: 'stage', label: `Mark ${n} as passed`, produces: 'it moves to Passed, and your plan moves on to the next property', href: packetHref(d, 'decision'), setStage: 'passed', done: false }));
     numbers();
     if (w === 'offer') {
       area('sale', `Confirm who is selling ${n}, and what exactly is sold`, 'the listing or official notice in its evidence log, with the source and the date you checked', [L.findDeals]);
@@ -197,8 +199,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     }
     fit();
     decide();
-    if (log.gate === 'pass') out.push(task({ key: 'stage', label: `Mark ${n} as passed`, produces: 'it moves to Passed, and your plan moves on to the next property', href: packetHref(d, 'decision'), setStage: 'passed', done: false }));
-    else out.push(task({
+    if (log.gate !== 'pass') out.push(task({
       key: 'stage',
       label: `Move ${n} to ${stageLabel('offer', d)}`,
       produces: w === 'offer' ? 'the offer tasks for it: your price, the earnest money and your professionals’ questions' : 'the bidding tasks for it: your maximum bid, the funds the sale requires and the dates',

@@ -479,6 +479,7 @@ const liensSoldIn = (st: string | null | undefined) => !st || st === 'AZ' || st 
 
 function BuyBoxBuilder() {
   const [mine] = useMyState();
+  const [switched, setSwitched] = useState('');
   const [b, setB] = useState<BuyBox>(() => read(BUYBOX_KEY, { ...EMPTY_BUY_BOX, state: getMyState() ?? '' }, cleanBuyBox));
   useEffect(() => {
     write(BUYBOX_KEY, b);
@@ -513,9 +514,10 @@ function BuyBoxBuilder() {
       {/* After a state switch, the buy box still names the old state: say so, and offer to move it. */}
       {mine && b.state && b.state !== mine && (
         <p className="notice" role="status">Your buy box is for {STATES.find((x) => x.code === b.state)?.name ?? b.state}, but you’ve chosen {STATES.find((x) => x.code === mine)?.name ?? mine}.{' '}
-          <button type="button" className="linkish" onClick={() => setB({ ...b, state: mine, area: '' })}>Switch it to {STATES.find((x) => x.code === mine)?.name ?? mine}</button>
+          <button type="button" className="linkish" onClick={() => { setSwitched(b.area ? `Switched to ${STATES.find((x) => x.code === mine)?.name ?? mine}. Your area (${b.area}) was cleared: add one there.` : `Switched to ${STATES.find((x) => x.code === mine)?.name ?? mine}.`); setB({ ...b, state: mine, area: '' }); }}>Switch it to {STATES.find((x) => x.code === mine)?.name ?? mine}</button>
         </p>
       )}
+      {switched && <p className="notice" role="status">{switched}</p>}
       <p className="buybox-help">Not sure of your numbers yet? That’s normal. Leave a field blank, start from an example, or work them out with <a href="#/decide">Decide</a> (your goal and budget) and <a href="#/analyze">Analyze a deal</a> (what a property costs).{' '}
         <button type="button" className="linkish" onClick={() => { if (isBlank(b) || window.confirm('Replace your buy box with the example?')) setB({ ...b, ...EXAMPLE_BUY_BOX }); }}>Show an example</button>
       </p>
