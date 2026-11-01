@@ -81,7 +81,7 @@ export function ownerOccupiedTaxNote(state: StateCode): string {
   switch (state) {
     case 'TX': return 'That’s a rental’s figure: a home you live in can get the homestead exemption, which lowers the value it’s taxed on; apply with the appraisal district.*';
     case 'NV': return 'In Nevada a home you live in pays the same rate as a rental, but its yearly tax increase is capped at 3% (a rental’s cap can be up to 8%); ask the county assessor.*';
-    case 'CA': return 'That’s a rental’s figure: a home you live in can get the homeowners’ exemption, which takes a little off the assessed value; ask the county assessor.*';
+    case 'CA': return 'That’s a rental’s figure: a home that’s your main home on January 1 can get the homeowners’ exemption, a $7,000 reduction in its taxable value (about $70 a year at the 1% base rate); claim it with the county assessor.';
     case 'AZ': return 'That’s a rental’s figure: a home you live in can get the homeowner rebate on part of the school tax (up to $600 a year); ask the county assessor.*';
     case 'UT': return 'A home you live in as your main home gets Utah’s 45% residential exemption (it’s taxed on 55% of its value), like the rental rate here. After you buy, the county may ask you to file a residential exemption application; a unit you rent to a tenant as their main home needs the assessor’s tenant declaration (Utah Code 59-2-103, 59-2-103.5). Ask the county assessor.';
   }

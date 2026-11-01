@@ -7,12 +7,12 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState } from 'react';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
-import { STATES } from '../lib/regions';
+import { STATES, countyName } from '../lib/regions';
 import { dropStateLead, forStateText, getMyState, useMyState } from '../lib/myState';
 import { fmtMoney } from '../lib/status';
 import { getMyArea } from '../lib/myArea';
 import { countyTaxLine } from '../lib/stateCosts';
-import { cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP_PATHS, ROADMAP_PHASES, ROADMAP_PHASE_HELP, roadmapFor, LIEN_STRATEGY, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
+import { cleanAssumptions, cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP_PATHS, ROADMAP_PHASES, ROADMAP_PHASE_HELP, roadmapFor, LIEN_STRATEGY, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
 import { downloadText, fileName } from '../lib/download';
 import { cleanLog, logText } from '../lib/evidence';
 import { makeBackup, readBackup, restoreBackup } from '../lib/progressBackup';
@@ -477,9 +477,13 @@ function showBuyBox() {
   }, 0);
 }
 
+const ESTIMATES_KEY = 'deedowl.cash.estimates.v1';
+
 function PriceFromCash({ cash }: { cash: number }) {
-  // Starts from the assumptions saved with the buy box, if a price was set here before.
-  const [a, setA] = useState<PriceAssumptions>(() => read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox).priceAssumptions ?? PRICE_DEFAULTS);
+  // Starts from the estimates you last changed here, else those saved with the buy box, else ours. A change is kept
+  // at once (a live-in buyer's 3.5% down shouldn't go back to 25% on the next visit).
+  const [a, setA0] = useState<PriceAssumptions>(() => read(ESTIMATES_KEY, null, cleanAssumptions) ?? read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox).priceAssumptions ?? PRICE_DEFAULTS);
+  const setA = (f: (x: PriceAssumptions) => PriceAssumptions) => setA0((x) => { const n = f(x); write(ESTIMATES_KEY, n); return n; });
   const price = priceForCash(cash, a);
   const c = cashForPrice(Number.isFinite(price) ? price : 0, a);
   const num = (k: keyof PriceAssumptions, label: string, unit: string) => (
@@ -639,6 +643,12 @@ function BuyBoxBuilder() {
         <label className="field">
           <span>Counties, cities or neighborhoods</span>
           <input type="text" maxLength={200} value={b.area} onChange={(e) => set('area', e.target.value)} />
+          {(() => {
+            // Your area (from the county step or the header), offered when this is still empty, for the same state.
+            const my = getMyArea();
+            const words = my?.county && (!b.state || b.state === my.state) ? (my.city ? `${my.city}, ${countyName(my.county)}` : countyName(my.county)) : '';
+            return !b.area.trim() && words ? <button type="button" className="linkish small" onClick={() => { set('area', words); if (!b.state) set('state', my!.state); }}>Use my area ({words})</button> : null;
+          })()}
         </label>
         <label className="field">
           <span>Strategy</span>

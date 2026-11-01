@@ -76,7 +76,7 @@ export function cleanBuyBox(v: unknown): BuyBox {
 }
 
 /** Saved price assumptions, if they're all numbers in range (percentages and months up to 100). */
-function cleanAssumptions(v: unknown): PriceAssumptions | undefined {
+export function cleanAssumptions(v: unknown): PriceAssumptions | undefined {
   if (!v || typeof v !== 'object') return undefined;
   const o = v as Record<string, unknown>;
   const keys = ['downPct', 'closingPct', 'reserveMonths', 'ratePct', 'taxInsPct'] as const;

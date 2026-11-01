@@ -13,7 +13,7 @@ import { useSpotCategories } from './AdSpot';
 import { useDirectory } from './ProDirectory';
 import { FixedAds, useAdShows } from './AdBoxes';
 import { DECIDE_KEY, rank, type Answers } from '../lib/decide';
-import { currentProgress } from '../lib/journey';
+import { currentProgress, getMode, practicePart2Done } from '../lib/journey';
 import { ROADMAP_PHASES, roadmapFor } from '../lib/roadmap';
 import { DEAL_KEY } from '../lib/roadmapDeals';
 import { NO_DEAL, pathForDeal, planPath, PROGRESS_EVENT, progressChanged, ROADMAP_PATH_KEY, roadmapProgress, settledFor, focusDealId } from '../lib/roadmapState';
@@ -137,7 +137,13 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
                 {deals.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : ""}</option>)}
               </select>
             </label>
-            {!focus && deals.some((d) => !d.practice) && <p className="muted small">{deals.filter((d) => !d.practice).length > 1 ? `Your ${deals.filter((d) => !d.practice).length} saved properties wait` : `Your saved property, ${deals.find((d) => !d.practice)!.name || 'unnamed'}, waits`} while you finish the lessons and practice. Choose {deals.filter((d) => !d.practice).length > 1 ? 'one' : 'it'} here to work on it now.</p>}
+            {(() => {
+              // Only while a guided beginner is still learning (as My plan's next task says), and only properties
+              // still being researched: a passed one isn't waiting.
+              const waiting = deals.filter((d) => !d.practice && d.stage !== 'passed');
+              if (focus || !waiting.length || getMode() !== 'guided' || practicePart2Done()) return null;
+              return <p className="muted small">{waiting.length > 1 ? `Your ${waiting.length} saved properties wait` : `Your saved property, ${waiting[0].name || 'unnamed'}, waits`} while you finish the lessons and practice. Choose {waiting.length > 1 ? 'one' : 'it'} here to work on it now.</p>;
+            })()}
             {deal && stage && (
               <label className="field">
                 <span>Where it stands</span>

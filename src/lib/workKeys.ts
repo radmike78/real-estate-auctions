@@ -9,6 +9,7 @@ const EXACT = [
   'deedowl.roadmap.deal.v1',
   'deedowl.roadmap.deals.v1',
   'deedowl.cash.v1',
+  'deedowl.cash.estimates.v1',
   'deedowl.team.v1',
   'deedowl.teamlist.v1',
   'deedowl.goal.v1',

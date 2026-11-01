@@ -185,7 +185,7 @@ function OtherNumbers({ d }: { d: Deal }) {
     if (bid.none && bid.cashBlocked) return <p className="deal-urgent">No bid fits the cash you entered: the deal itself meets your goal at bids up to {fmtMoney(bid.profitBid)}, but every cost until you sell needs more than the cash you entered.</p>;
     if (bid.none) return <p className="deal-urgent">No price works at a {fmtMoney(bid.exitValue)} resale value with these costs and your profit target.</p>;
     // Below the opening bid (or asking price): no bid you'd make works, whatever the walk-away price says.
-    if (bid.at?.source === 'listed' && bid.maxBid < bid.at.price) return <p className="deal-urgent">{bid.at.profit >= bid.target && bid.limitedBy === 'cash' ? 'Your cash doesn’t cover' : 'Doesn’t meet your profit target at'} the {d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short' ? 'asking price' : 'opening bid'} of {fmtMoney(bid.at.price)}.</p>;
+    if (bid.at?.source === 'listed' && bid.maxBid < bid.at.price) return <p className="deal-urgent">{bid.at.profit >= bid.target && bid.limitedBy === 'cash' ? 'Your cash doesn’t cover this deal at' : 'Doesn’t meet your profit target at'} the {d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short' ? 'asking price' : 'opening bid'} of {fmtMoney(bid.at.price)}.</p>;
     const planCash = investorProfile().investable;
     // The same rule as Fix and sell: no warning once a cash limit is entered there (the price is already capped by it).
     const short = !(bid.cashLimit > 0) && !bid.cashTyped && planCash > 0 && bid.cashPeak > planCash;

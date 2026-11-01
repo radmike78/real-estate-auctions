@@ -300,6 +300,8 @@ export function savedNumbers(d: Deal) {
     value?: number;
     /** No realistic price fits the cash entered: it doesn't cover the costs, or leaves almost nothing for the price. */
     noRealistic?: boolean;
+    /** Cash due on sale day at your bid: the bid plus any buyer's premium (an auction). */
+    atSaleDay?: number;
     at?: ReturnType<typeof commercialAtPrice> & { price: number };
     stress: { label: string; maxBid: number | null; limitedBy?: CommercialLimit; capOnCost?: number | null }[];
   } | null = null;
@@ -357,6 +359,7 @@ export function savedNumbers(d: Deal) {
         if (commercial && v.atPrice > 0) {
           const a = commercialAtPrice(v, v.atPrice, offer);
           commercial.at = a;
+          commercial.atSaleDay = Math.round(v.atPrice * (1 + (offer ? 0 : Math.max(0, v.buyerPremiumPct || 0)) / 100));
           commercial.atNeed = !offer && a.loan > 0 ? a.allIn : a.cashIn;
         }
       }
@@ -574,7 +577,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     const a = commercial.at;
     need = commercial.atNeed ?? (!offer && a.loan > 0 ? a.allIn : a.cashIn);
     needAt = `At your actual price of ${money(a.price)}`;
-    cash.push(`${needAt}: ${money(need)} needed ${!offer && a.loan > 0 ? 'before a refinance closes (loan fees are paid at refinancing)' : 'from your own cash, including the loan’s points and fees'}.`);
+    if (!offer) cash.push(`On sale day, at your bid of ${money(a.price)}: ${money(commercial.atSaleDay ?? a.price)} (bid plus any buyer’s premium, in the form the sale requires)`);
+    cash.push(`${needAt}: ${money(need)} needed ${!offer && a.loan > 0 ? 'before a refinance closes (loan fees are paid at refinancing)' : a.loan > 0 ? 'from your own cash, including the loan’s points and fees' : 'from your own cash'}.`);
   } else if (commercial?.noTarget) {
     cash.push(commercialNoTarget(strategy, commercial.overCap));
   } else if (commercial?.noRealistic) {
