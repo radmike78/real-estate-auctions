@@ -337,7 +337,13 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const target = requiredProfit(i);
   // The profit target is still our starting 15%: say it's ours, not yours.
   const targetIsExample = !typedKeys.has('targetProfitPct') && !typedKeys.has('targetProfitMin') && !typedKeys.has('profitInDollars');
-  const steps = maxBidSteps(i);
+  // One wording for the target everywhere on this calculator (My deals and the packet use the same test).
+  const tw = targetIsExample ? 'our example profit target' : 'your profit target';
+  const gw = targetIsExample ? 'our example profit target' : 'your goal';
+  // A dollar target left at $0: no target yet, not a $0 goal.
+  const noDollarTarget = !!i.profitInDollars && !(i.targetProfitMin > 0);
+  const steps0 = maxBidSteps(i);
+  const steps = targetIsExample ? steps0.map((x) => ({ ...x, label: x.label.replace('your target:', 'our example target:') })) : steps0;
   const atOpening = i.minimumBid > 0 ? profitAtBid(i, i.minimumBid) : 0;
   // The deal itself fails at the opening bid, or only the cash you entered falls short of it.
   const dealFails = i.minimumBid > 0 && r.profitBid < i.minimumBid;
@@ -407,8 +413,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                       <label className="calc-label" htmlFor={`${uid}-${f.k}`}>{f.label}<span className="sr-only">{f.unit === '$' ? ', in dollars' : `, ${unitText(f.unit).replace('%', 'percent')}`}</span></label>
                       {f0.profitSwitch && (
                         <span className="calc-unit-switch" role="group" aria-label="Profit as a percent or dollars">
-                          <button type="button" aria-pressed={!i.profitInDollars} onClick={() => { setDraft((d) => ({ ...d, targetProfitMin: undefined })); update({ profitInDollars: 0 }); }}>%</button>
-                          <button type="button" aria-pressed={!!i.profitInDollars} onClick={() => { setDraft((d) => ({ ...d, targetProfitMin: undefined })); update({ profitInDollars: 1 }); }}>$</button>
+                          <button type="button" aria-pressed={!i.profitInDollars} onClick={() => { setDraft((d) => ({ ...d, targetProfitMin: undefined })); update({ profitInDollars: 0 }); markTyped('profitInDollars'); }}>%</button>
+                          <button type="button" aria-pressed={!!i.profitInDollars} onClick={() => { setDraft((d) => ({ ...d, targetProfitMin: undefined })); update({ profitInDollars: 1 }); markTyped('profitInDollars'); }}>$</button>
                         </span>
                       )}
                     </span>
@@ -470,7 +476,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <p className="small muted">Redemption rule confirmed by you: {ruleNow === 'custom' ? `your own numbers, a ${Math.round(i.redemptionMonths)}-month wait` : offered[ruleNow]?.label}. <button type="button" className="linkish" onClick={() => update({ redemptionChecked: 0 })}>Undo</button></p>
         )}
         <ExampleResults count={needsValue ? 0 : still.length} />
-        {!needsValue && !r.noBidWorks && !cashShort && <PriceHead level={headingLevel === 2 ? 3 : 4} kind="target" label="Walk-away price" price={r.noBidWorks || cashShort ? null : r.maxBid} result={r.noBidWorks || cashShort ? null : r.profit} unit="profit" note={r.noBidWorks || cashShort ? undefined : `Not the result at ${yours.toLowerCase()}: this is the most you could pay and still meet your goal.`} />}
+        {!needsValue && !r.noBidWorks && !cashShort && <PriceHead level={headingLevel === 2 ? 3 : 4} kind="target" label="Walk-away price" price={r.noBidWorks || cashShort ? null : r.maxBid} result={r.noBidWorks || cashShort ? null : r.profit} unit="profit" note={r.noBidWorks || cashShort ? undefined : `Not the result at ${yours.toLowerCase()}: this is the most you could pay and still meet ${gw}.`} />}
         {needsValue ? (
           <div className="calc-max" role="status">
             <span>Walk-away price</span>
@@ -492,10 +498,10 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
               {r.noBidWorks
                 ? r.limitedBy === 'cash' && r.profitBid > 0
                   ? `Your cash doesn’t cover the repairs and costs until you sell, even before a ${w.bid}. Your profit target alone would allow ${fmtMoney(r.profitBid)}.`
-                  : 'Even at $0, costs leave less than your profit target. Walk away or change your plan.'
+                  : `Even at $0, costs leave less than ${tw}. Walk away or change your plan.`
                 : r.limitedBy === 'cash'
                   ? `Set by the cash you can bring: the ${w.bid} plus every cost until you sell (repairs, holding, fees). Your profit target alone would allow ${fmtMoney(r.profitBid)}.`
-                  : targetIsExample ? `Leaves our example profit target, ${i.targetProfitPct}% of the resale value (${fmtMoney(Math.round(target))}), after every cost. Set your own under “Profit you want”. Not a guarantee.` : `Leaves your ${fmtMoney(Math.round(target))} profit target after every cost, based on your numbers. Not a guarantee.`}
+                  : noDollarTarget ? 'No profit target set yet: enter the dollar profit you want under “Profit you want”.' : targetIsExample ? `Leaves our example profit target, ${i.targetProfitPct}% of the resale value (${fmtMoney(Math.round(target))}), after every cost. Set your own under “Profit you want”. Not a guarantee.` : `Leaves your ${fmtMoney(Math.round(target))} profit target after every cost, based on your numbers. Not a guarantee.`}
               {!r.noBidWorks && !(i.minimumBid > 0) && unenteredNote}
             </small>
           </div>
@@ -510,9 +516,9 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <div className={`calc-verdict ${dealFails || cashShort || planShort ? 'bad' : 'good'}`}>
             {dealFails ? (
               offer ? (
-                <><strong>Misses your target at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below your {fmtMoney(Math.round(target))} target. {r.maxBid > 0 ? <>Offer no more than {fmtMoney(r.maxBid)}, or pass.</> : 'Pass, or change your plan.'}</>
+                <><strong>Misses your target at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below {targetIsExample ? 'our example' : 'your'} {fmtMoney(Math.round(target))} target. {r.maxBid > 0 ? <>Offer no more than {fmtMoney(r.maxBid)}, or pass.</> : 'Pass, or change your plan.'}</>
               ) : (
-                <><strong>Doesn’t work at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below your {fmtMoney(Math.round(target))} target. Skip this one or change your plan.</>
+                <><strong>Doesn’t work at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below {targetIsExample ? 'our example' : 'your'} {fmtMoney(Math.round(target))} target. Skip this one or change your plan.</>
               )
             ) : planShort ? (
               <><strong>The cash in My plan doesn’t cover this deal at the {w.opening}.</strong> The deal works (about {fmtMoney(Math.round(atOpening))} profit at {fmtMoney(i.minimumBid)}), but with repairs and every cost until you sell you’d need about {fmtMoney(Math.round(openingCash))}, and My plan shows {fmtMoney(Math.round(planCash))}. Enter the cash you can bring to see the most you could bid, or skip this one. <button type="button" className="linkish" onClick={() => { const f = document.getElementById(`${uid}-cashAvailable`); f?.scrollIntoView({ block: 'center' }); f?.focus({ preventScroll: true }); }}>Enter your cash</button></>
@@ -520,7 +526,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
               <><strong>Your cash doesn’t cover this deal at the {w.opening}.</strong> The deal works (about {fmtMoney(Math.round(atOpening))} profit at {fmtMoney(i.minimumBid)}), but with repairs and every cost until you sell you’d need about {fmtMoney(Math.round(openingCash))}, and you entered {fmtMoney(i.cashAvailable)}.</>
             ) : (
               offer ? (
-                <><strong>Meets your profit target at the {w.opening}, with the numbers entered.</strong> Your most is {fmtMoney(r.maxBid)}, but you don’t have to offer more than {fmtMoney(i.minimumBid)}: start lower if the market allows. Going past {fmtMoney(r.maxBid)} means accepting less than the profit you asked for. At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}.{unenteredNote}</>
+                <><strong>Meets {tw} at the {w.opening}, with the numbers entered.</strong> Your most is {fmtMoney(r.maxBid)}, but you don’t have to offer more than {fmtMoney(i.minimumBid)}: start lower if the market allows. Going past {fmtMoney(r.maxBid)} means accepting less than the profit you asked for. At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}.{unenteredNote}</>
               ) : (
                 <><strong>{fmtMoney(r.maxBid - i.minimumBid)} of room above the {w.opening}.</strong> Bidding starts at {fmtMoney(i.minimumBid)}; stop at {fmtMoney(r.maxBid)}. At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}.{unenteredNote}</>
               )
@@ -542,7 +548,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
             {!offer && <div><dt>Cash needed on auction day, at the walk-away price</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
             <div><dt>Estimated cash you’d put in, at the walk-away price, under these assumptions</dt><dd>{fmtMoney(r.cashPeak)}</dd></div>
             {i.financedPct > 0 && r.cashToStabilize < r.cashPeak && <div><dt>Cash left in after the loan funds, at the walk-away price</dt><dd>{fmtMoney(r.cashToStabilize)}</dd></div>}
-            <div><dt>Profit at the walk-away price{Math.round(r.profit) !== Math.round(target) ? ` (your target: ${fmtMoney(Math.round(target))})` : ''}</dt><dd>{fmtMoney(Math.round(r.profit))}</dd></div>
+            <div><dt>Profit at the walk-away price{Math.round(r.profit) !== Math.round(target) ? ` (${targetIsExample ? 'our example target' : 'your target'}: ${fmtMoney(Math.round(target))})` : ''}</dt><dd>{fmtMoney(Math.round(r.profit))}</dd></div>
             <div><dt>Return on your cash, per year, if it sells on schedule</dt><dd>{yr(r.yearlyReturn)}</dd></div>
             <div><dt>Break-even {w.bid} (zero profit)</dt><dd>{fmtMoney(r.breakEvenBid)}</dd></div>
           </dl>
@@ -602,7 +608,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         )}
 
         <H>If things go differently</H>
-        <p className="small muted calc-grid-note">Highest {w.bid} that still meets your profit target if the resale value (rows) or repairs (columns) come in differently{i.cashAvailable > 0 ? ', before your cash limit' : ''}.</p>
+        <p className="small muted calc-grid-note">Highest {w.bid} that still meets {tw} if the resale value (rows) or repairs (columns) come in differently{i.cashAvailable > 0 ? ', before your cash limit' : ''}.</p>
         <p className="table-swipe-hint" aria-hidden>Swipe the table to see every column&nbsp;→</p>
         <div className="table-wrap">
           <table className="calc-stress calc-grid-table">

@@ -9,7 +9,7 @@ import { kindLabel, SALE_KINDS, type Deal } from './analyze';
 import { costsAtBid, maxSafeBid, offerInputs, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, unenteredCosts, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
 import { cleanBuyBox, EMPTY_BUY_BOX, type BuyBox } from './toolkit';
 import { areasFor, GATES, loadLog } from './evidence';
-import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, LIEN_DEFAULTS, lienYield, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, refiValueWords, withPlanCash, noRealisticPrice, noRealisticAdvice, type CommercialInputs, type LienInputs, type RentInputs } from './holdCalc';
+import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, LIEN_DEFAULTS, lienYield, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, refiValueWords, withPlanCash, noRealisticPrice, noRealisticAdvice, cashAndPropertyWeak, type CommercialInputs, type LienInputs, type RentInputs } from './holdCalc';
 import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
@@ -168,7 +168,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   const tx = d.state === 'TX';
   // A commercial building isn't bought on a home contract (Texas: TREC's one-to-four-family form), so no home-form dates.
   if (d.plan === 'commercial' && isOffer(d)) return [
-    ...names(['Contract signed (commercial contracts vary: take each date below from your signed contract)', 'Earnest money due', 'Feasibility (due-diligence) period ends', 'Title and survey objections due', ...(d.kind === 'short' ? ['Lienholder approval deadline (from the short sale addendum)'] : []), 'Loan approval deadline', 'Closing']),
+    ...names(['Contract signed', 'Earnest money due', 'Feasibility (due-diligence) period ends', 'Title and survey objections due', ...(d.kind === 'short' ? ['Lienholder approval deadline (from the short sale addendum)'] : []), 'Loan approval deadline', 'Closing']),
   ];
   if (d.kind === 'short') return [...names(['Contract signed']), ...(tx ? TX_DEPOSIT_DATES : []), ...names(['Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)']), ...(tx ? [TX_SHORT_OPTION_END, txDisclosureDate(true), txHoaDate(true), TX_TITLE_DATE, txWaterDate(true), txAppraisalDate(true), ...txLoanDates(true)] : names(['Inspection period ends', 'Loan approval deadline'])), ...names(['Closing'])];
   if (isOffer(d)) return [...names(['Offer accepted (Day 0)']), ...(tx ? TX_DEPOSIT_DATES : names(['Earnest money due'])), ...(tx ? [TX_OPTION_END, txDisclosureDate(false), txHoaDate(false), TX_TITLE_DATE, txWaterDate(false), txAppraisalDate(false), ...txLoanDates(false)] : names(['Inspection period ends', 'Appraisal deadline', 'Loan approval deadline'])), ...names(['Closing'])];
@@ -312,6 +312,8 @@ export function savedNumbers(d: Deal) {
     saleDay?: number;
     /** A loan is entered. */
     hasLoan?: boolean;
+    /** Cash short and the deal itself supports under a tenth of the value: that price (0: not this case). */
+    weakSupported?: number;
     at?: ReturnType<typeof commercialAtPrice> & { price: number };
     stress: { label: string; maxBid: number | null; limitedBy?: CommercialLimit; capOnCost?: number | null }[];
   } | null = null;
@@ -363,7 +365,9 @@ export function savedNumbers(d: Deal) {
           commercial.minDscr = v.minDscr;
           commercial.value = v.value > 0 ? v.value : 0;
           // Only the cash entered is short (Commercial income says "No realistic price fits your cash").
-          commercial.noRealistic = noRealisticPrice(r, commercialMaxBid({ ...v, cashAvailable: 0 }, offer), v.value);
+          const unc = commercialMaxBid({ ...v, cashAvailable: 0 }, offer);
+          commercial.noRealistic = noRealisticPrice(r, unc, v.value);
+          commercial.weakSupported = cashAndPropertyWeak(r, unc, v.value) ? unc.maxBid : 0;
           commercial.hasLoan = v.loanPct > 0 && (offer || v.value > 0);
           commercial.saleDay = r.noBidWorks || !Number.isFinite(r.cashAtAuction) ? 0 : r.cashAtAuction;
           commercial.cashTyped = readConfirmed(`fsf.calc.commercial.${d.id}${offer ? '-offer' : ''}.v1`).has('cashAvailable');
@@ -522,7 +526,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     status: calendarComplete(p, stageOf(d)) ? 'done' : dated.length ? 'started' : 'missing',
     lines: dated.length
       ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${x.when}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : ' — open'}`), nd ? `Next: ${nd.what}, ${nd.days < 0 ? `overdue by ${-nd.days} days` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : 'All dated items are marked handled.']
-      : [`Add the dates from the ${offer ? 'contract' : 'official notice'}: ${suggestedDates(d).join('; ')}.`],
+      : [`Add the dates from the ${offer ? 'contract' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
   });
 
   // 4. Cash needed, by when (from the deal's own strategy)
@@ -598,6 +602,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     cash.push(commercialNoTarget(strategy, commercial.overCap));
   } else if (commercial?.noRealistic) {
     cash.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered in ${strategy}: ${commercial.none ? 'it doesn’t cover the repairs and costs, before any price' : `it covers the costs but leaves only about ${money(commercial.maxBid)} for the price`}. ${noRealisticAdvice(offer, !!commercial.hasLoan)}`);
+  } else if (commercial?.none && commercial.weakSupported) {
+    cash.push(`The income supports a price of only about ${money(commercial.weakSupported)}, far below the value, and the cash you entered in ${strategy} doesn’t cover the costs either. Check the rent and costs, or skip this one.`);
   } else if (commercial?.none) {
     cash.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered in ${strategy}.`);
   } else if (commercial) {
@@ -656,6 +662,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
   else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. ${commercial.capPct > 0 ? `Without that cash limit the deal meets your ${commercial.capPct}% return on cost` : 'Without that cash limit the numbers work'}`);
+  else if (commercial?.none && commercial.weakSupported) nums.push(`The income supports a price of only about ${money(commercial.weakSupported)}, far below the value, and the cash you entered doesn’t cover the costs either`);
   else if (commercial?.none) nums.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered`);
   else if (commercial) {
     const priceText = commercialPriceText(commercial.capPct, commercial.maxBid, commercial.limitedBy, commercial.capOnCost, offer, false, !!commercial.noRealistic);

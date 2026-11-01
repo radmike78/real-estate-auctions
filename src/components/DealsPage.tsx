@@ -160,6 +160,7 @@ function OtherNumbers({ d }: { d: Deal }) {
   if (commercial) {
     // The same order as the deal packet: no price works, a price over $1 billion (a typo), no target, then your price.
     if (commercial.noRealistic && (commercial.none || !commercial.at)) return <p className="deal-urgent">No realistic price fits the cash you entered: {commercial.none ? 'it doesn’t cover the repairs and costs, before any price' : `it covers the costs but leaves only about ${fmtMoney(commercial.maxBid)} for the price`}.</p>;
+    if (commercial.none && commercial.weakSupported) return <p className="deal-urgent">The income supports a price of only about {fmtMoney(commercial.weakSupported)}, far below the value, and the cash you entered doesn’t cover the costs either.</p>;
     if (commercial.none) return <p className="deal-urgent">No price meets your {commercial.capPct}% return on cost with the income and costs entered.</p>;
     if (commercial.noTarget && commercial.overCap) return <p className="deal-urgent">The price comes out over $1 billion with the rent and costs entered: check them for a typo.</p>;
     if (commercial.at) {

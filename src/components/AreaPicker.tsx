@@ -93,6 +93,7 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
               aria-controls={listId}
               aria-autocomplete="list"
               aria-activedescendant={matches.length ? `${listId}-${active}` : undefined}
+              aria-describedby={unfinished ? `${listId}-unfinished` : undefined}
               autoComplete="off"
               placeholder={places ? 'Start typing, e.g. Henderson' : 'Loading cities…'}
               disabled={!places}
@@ -144,7 +145,7 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
       <div className="row">
         <button type="button" className="btn" disabled={(!state && !optional) || needsCounty} onClick={save}>{doneLabel}</button>
         {needsCounty && <span className="small muted">Choose the county first.</span>}
-        {unfinished && !needsCounty && <span className="small muted" role="status">Choose a city from the list, or clear the city box.</span>}
+        {unfinished && !needsCounty && <span className="small muted" role="status" id={`${listId}-unfinished`}>Choose a city from the list, or clear the city box.</span>}
         {extra ?? (area && <button type="button" className="btn btn-secondary" onClick={() => { setArea(null); onDone?.(); }}>Clear my area</button>)}
       </div>
     </div>

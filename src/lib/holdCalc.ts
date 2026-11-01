@@ -618,14 +618,20 @@ export function withPlanCash<T extends { cashAvailable: number }>(v: T, offer: b
  */
 export function noRealisticPrice(r: HoldResult, uncapped: HoldResult, value: number): boolean {
   if (r.limitedBy !== 'cash' || uncapped.noBidWorks) return false;
+  // The deal's own price is under a tenth of the value: the property's numbers are the problem, so more cash wouldn't fix
+  // it (cashAndPropertyWeak words that case).
+  if (nz(value) > 0 && Number.isFinite(uncapped.maxBid) && uncapped.maxBid < nz(value) * 0.1) return false;
   // The cash doesn't even cover the costs, while the deal works without that limit: the cash is short.
   if (r.noBidWorks) return true;
-  // The deal's own price is under a tenth of the value too: the property's numbers are the problem, not the cash.
-  if (nz(value) > 0 && Number.isFinite(uncapped.maxBid) && uncapped.maxBid < nz(value) * 0.1) return false;
   if (!Number.isFinite(r.maxBid)) return false;
   // What the deal itself supports, else a tenth of the value, else (no target, no value) a year of its income.
   const floor = Number.isFinite(uncapped.maxBid) && uncapped.maxBid > 0 ? uncapped.maxBid * 0.1 : nz(value) > 0 ? nz(value) * 0.1 : Math.max(0, r.noi);
   return floor > 0 && r.maxBid < floor;
+}
+
+/** The cash doesn't cover the costs, and the deal itself supports under a tenth of the value: both are short. */
+export function cashAndPropertyWeak(r: HoldResult, uncapped: HoldResult, value: number): boolean {
+  return r.noBidWorks && r.limitedBy === 'cash' && !uncapped.noBidWorks && Number.isFinite(uncapped.maxBid) && nz(value) > 0 && uncapped.maxBid < nz(value) * 0.1;
 }
 
 /** What to do when no realistic price fits your cash, one wording for the calculators and the packet. */

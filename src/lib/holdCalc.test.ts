@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { noRealisticPrice, allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialAtPrice, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice, loanAt, withoutOldValueExample, refiOnExampleValue, refiValueWords, rentVerdict } from './holdCalc';
+import { cashAndPropertyWeak, noRealisticPrice, allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialAtPrice, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice, loanAt, withoutOldValueExample, refiOnExampleValue, refiValueWords, rentVerdict } from './holdCalc';
 import { rentalStartFor } from './stateCosts';
 
 describe('rent / hold', () => {
@@ -276,9 +276,16 @@ it('blames the cash, not the property, when only the cash is short', () => {
   expect(noRealisticPrice(rentMaxBid(bad, false), rentMaxBid({ ...bad, cashAvailable: 0 }, false), bad.value)).toBe(false);
 });
 
-it('blames the cash when it doesn’t cover the costs, even if the deal’s own price is low against the value', () => {
+it('names both when the cash doesn’t cover the costs and the deal itself supports almost nothing', () => {
   const v = { ...RENT_DEFAULTS, monthlyRent: 900, cashAvailable: 20000 };
   const r = rentMaxBid(v, false);
   const unc = rentMaxBid({ ...v, cashAvailable: 0 }, false);
-  if (r.noBidWorks && !unc.noBidWorks) expect(noRealisticPrice(r, unc, v.value)).toBe(true);
+  expect(r.noBidWorks).toBe(true);
+  expect(unc.maxBid).toBeLessThan(v.value * 0.1);
+  // Not "the cash is what's short": more cash wouldn't fix this deal.
+  expect(noRealisticPrice(r, unc, v.value)).toBe(false);
+  expect(cashAndPropertyWeak(r, unc, v.value)).toBe(true);
+  // A deal that works on its own, with too little cash: only the cash.
+  const ok = { ...RENT_DEFAULTS, cashAvailable: 20000 };
+  expect(cashAndPropertyWeak(rentMaxBid(ok, false), rentMaxBid({ ...ok, cashAvailable: 0 }, false), ok.value)).toBe(false);
 });
