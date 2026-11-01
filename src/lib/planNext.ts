@@ -3,7 +3,7 @@
 // core practice deal; otherwise the next step of the investing roadmap. Lessons and practice missions are
 // supporting activities, linked from the task they help with.
 import { CHAPTERS, journeyHref, loadJourney, resumeChapter } from '../practice/dealJourney';
-import { loadDeals, type Deal, type DealStage } from './analyze';
+import { loadDeals, setPracticeCheck, type Deal, type DealStage } from './analyze';
 import { dealNextTask, stageLabel, stageOf, stageTasks, type PlanTask } from './dealStage';
 import { currentProgress, getMode, practicePart2Done, readLessons } from './journey';
 import { getMyState } from './myState';
@@ -144,3 +144,7 @@ export function planNow(now = new Date()): PlanNow {
     task: { key: 'next-deal', label: planPath() === 'certificate' ? 'Find your next lien sale' : 'Find your next property', produces: 'a new candidate saved in Analyze, starting at Researching', href: '#/find-deals', support: [{ label: 'Analyze a deal', href: '#/analyze' }], done: false, text: 'Find your next property.' },
   };
 }
+
+// A deal saved while the roadmap is on paper practice is a practice analysis (analyze.ts marks it). Only paper practice:
+// at "Find a property" you're saving the real one.
+setPracticeCheck(() => ['paper', 'c-paper'].includes(roadmapNextStep()?.id ?? ''));

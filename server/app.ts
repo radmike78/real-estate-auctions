@@ -693,8 +693,11 @@ export function createApp(config: AppConfig) {
   const reportsInFlight = new Set<string>();
   function sendMonthlyReports(month: string): number {
     const { from, to } = monthRange(month);
+    const monthEnd = pacificDaysToUtc(from, to).end;
     let sent = 0;
     for (const row of db.listByStatus('APPROVED')) {
+      // Nothing to report for a month that ended before they applied (the retry days fall in the next month).
+      if (row.createdAt > monthEnd) continue;
       const key = `${month}|${row.id}`;
       if (reportsInFlight.has(key) || db.reports.wasSent(row.id, month)) continue;
       reportsInFlight.add(key);
