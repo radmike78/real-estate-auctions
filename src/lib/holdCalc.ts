@@ -576,3 +576,11 @@ export function strCompare(i: RentInputs, s: StrInputs, strTaxFactor = 1) {
     furnishingPaybackYears: noi - ltNoi > 0 ? Math.round((nz(s.furnishing) / (noi - ltNoi)) * 10) / 10 : null,
   };
 }
+
+/**
+ * Before the loan on a listed home was sized on your price, its rent calculator started with a $350,000 appraised value
+ * example. Numbers saved then still hold it, unmarked: unless you typed it, it's dropped (the loan uses your price).
+ */
+export function withoutOldValueExample(v: RentInputs, offer: boolean, typed: ReadonlySet<string>): RentInputs {
+  return offer && v.value === 350_000 && !typed.has('value') ? { ...v, value: 0 } : v;
+}

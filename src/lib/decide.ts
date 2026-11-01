@@ -124,6 +124,8 @@ export interface ChecklistItem {
   id: string;
   text: string;
   href?: string;
+  /** What this step says to a reader paying cash (Decide: cash only), when the step is about a loan. */
+  cashText?: string;
 }
 
 export interface Strategy {
@@ -134,9 +136,14 @@ export interface Strategy {
   weights: Partial<Record<Exclude<QuestionKey, 'state'>, Record<string, number>>>;
   /** The honest downside: the worst realistic outcome, the money at stake, and how long a first deal takes. */
   /** atRisk is the cash needed to start, not a loss limit; ongoing says what you keep owing and how you could lose more. */
-  risk: { worst: string; atRisk: string; ongoing?: string; time: string };
+  /** cashAtRisk: the cash needed to start for a reader paying cash, when atRisk is about a loan's down payment. */
+  risk: { worst: string; atRisk: string; cashAtRisk?: string; ongoing?: string; time: string };
   checklist: ChecklistItem[];
 }
+
+/** Paying cash (Decide: cash only): the loan parts of a result become cash ones. */
+export const CASH_AT_RISK = 'Paying cash: the full price, plus closing costs, repairs and reserves. Compare that with your cash; a loan is one option to discuss with a lender.';
+export const CASH_LOAN_STEP = 'Paying cash: get proof of funds (a recent statement or a bank letter) instead of a loan pre-approval.';
 
 export const STRATEGIES: Strategy[] = [
   {
@@ -156,12 +163,13 @@ export const STRATEGIES: Strategy[] = [
     risk: {
       worst: 'A unit sits empty or a tenant stops paying, and you still owe the whole mortgage on the home you live in.',
       atRisk: 'Your down payment, closing costs and the reserves your lender requires.',
+      cashAtRisk: 'Paying cash: the full price, plus closing costs and reserves. Living in one unit is how most buyers get an owner-occupant loan, so compare that with a lender before you decide.',
       ongoing: 'You owe every loan payment, tax and insurance bill even when a unit is empty or repairs run over. If you can’t pay, you can lose the property and the equity in it, so you can lose more than the cash you start with.',
       time: 'Months: pre-approval, a search, then a closing like any home purchase.',
     },
     checklist: [
       { id: 'hh-lesson', text: 'Read the traditional financing lesson: FHA and VA loans for a home you’ll live in.', href: '#/learn/financing' },
-      { id: 'hh-lender', text: 'Talk to a licensed loan officer about pre-approval for a 2–4 unit home you’ll live in.', href: '#/pros/lender' },
+      { id: 'hh-lender', text: 'Talk to a licensed loan officer about pre-approval for a 2–4 unit home you’ll live in.', href: '#/pros/lender', cashText: 'Paying cash: get proof of funds (a recent statement or a bank letter); a loan officer can still show you what an owner-occupant loan would change.' },
       { id: 'hh-reserves', text: 'Save for closing costs and reserves. An FHA loan on 3–4 units needs three months of payments left in savings after closing, and the rents must pass FHA’s self-sufficiency test.' },
       { id: 'hh-rules', text: 'Learn your state’s landlord-tenant rules and any local rent rules.' },
       { id: 'hh-agent', text: 'Find a buyer’s agent who knows small multi-unit homes.', href: '#/pros/agent' },
@@ -186,13 +194,14 @@ export const STRATEGIES: Strategy[] = [
     risk: {
       worst: 'Vacancy, a tenant who stops paying or a big repair leaves you paying the mortgage yourself. Evictions take a court case.',
       atRisk: 'The down payment: at least 15% (one unit) to 25% (two to four units) on Fannie Mae investment loans, plus closing costs and reserves.',
+      cashAtRisk: CASH_AT_RISK,
       ongoing: 'You owe every loan payment, tax and insurance bill even when a unit is empty or repairs run over. If you can’t pay, you can lose the property and the equity in it, so you can lose more than the cash you start with.',
       time: 'Months: pre-approval, a search and a closing, then finding a tenant.',
     },
     checklist: [
       { id: 'rt-lessons', text: 'Read the lessons on analyzing a deal and traditional financing.', href: '#/learn/analyze' },
       { id: 'rt-market', text: 'Pick an area: check rents from homes like these that actually rented nearby, taxes and flood risk. HUD’s Fair Market Rent is only a rough area benchmark.', href: '#/learn/tools' },
-      { id: 'rt-loan', text: 'Get pre-approved for an investment property loan; lenders often want six months of payments in reserve.', href: '#/pros/lender' },
+      { id: 'rt-loan', text: 'Get pre-approved for an investment property loan; lenders often want six months of payments in reserve.', href: '#/pros/lender', cashText: CASH_LOAN_STEP },
       { id: 'rt-manage', text: 'Decide whether you’ll manage it yourself or hire a property manager, and get quotes.', href: '#/pros/property_manager' },
       { id: 'rt-numbers', text: 'Run the numbers with vacancy, repairs and management, and know your cash flow.', href: '#/analyze?plan=rent' },
       { id: 'rt-insure', text: 'Get landlord insurance quotes before you make an offer.', href: '#/pros/insurance' },
@@ -336,13 +345,14 @@ export const STRATEGIES: Strategy[] = [
     risk: {
       worst: 'The income doesn’t cover the loan payment. Commercial loans can come with balloon payments and personal guarantees.',
       atRisk: 'A larger down payment than on a home loan, plus reserves and the cost of inspections and reports.',
+      cashAtRisk: 'Paying cash: the full price, plus reserves and the cost of inspections and reports. A loan is one option to discuss with a commercial lender.',
       ongoing: 'Every loan payment, tax bill and repair, even when units are empty. A personal guarantee can make you owe more than the property is worth, and a balloon payment can force a sale or refinance at a bad time.',
       time: 'Months: commercial due diligence and loans take longer than for a house.',
     },
     checklist: [
       { id: 'ap-lessons', text: 'Read the lessons on residential vs. commercial and traditional financing.', href: '#/learn/markets' },
       { id: 'ap-noi', text: 'Learn to read rent rolls and operating statements: NOI, cap rate and debt coverage.', href: '#/learn/analyze' },
-      { id: 'ap-lender', text: 'Talk with commercial lenders about down payment, DSCR, balloon terms and recourse.', href: '#/pros/lender' },
+      { id: 'ap-lender', text: 'Talk with commercial lenders about down payment, DSCR, balloon terms and recourse.', href: '#/pros/lender', cashText: 'Paying cash: get proof of funds; if you’d consider a loan later, ask commercial lenders about terms and recourse.' },
       { id: 'ap-team', text: 'Build a team: commercial broker, real estate attorney, CPA and property manager.', href: '#/pros' },
       { id: 'ap-partners', text: 'If you’ll raise money from others, learn the securities rules first.', href: '#/learn/creative' },
       { id: 'ap-calc', text: 'Run the numbers in the commercial income calculator.', href: '#/analyze?plan=commercial' },
@@ -423,11 +433,6 @@ function answerText(q: Question, v: string) {
 }
 
 /** Reasons joined as one phrase: “a, b and c”. */
-/** Paying cash (Decide: cash only): the loan parts of a result become cash ones. */
-export const CASH_AT_RISK = 'Paying cash: the full price, plus closing costs, repairs and reserves. Compare that with your cash; a loan is one option to discuss with a lender.';
-export const CASH_LOAN_STEP = 'Paying cash: get proof of funds (a recent statement or a bank letter) instead of a loan pre-approval.';
-export const usesLoanDown = (atRisk: string) => /^The down payment/.test(atRisk);
-
 export const joinReasons = (r: string[]) => (r.length < 2 ? r.join('') : `${r.slice(0, -1).join(', ')} and ${r[r.length - 1]}`);
 
 /**

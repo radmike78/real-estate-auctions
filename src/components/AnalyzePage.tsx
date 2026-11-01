@@ -205,6 +205,12 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       return;
     }
     if (deal.id) {
+      // The stored copy is newer (another tab typed since): don't write this older copy over it; show the newer one.
+      const there = loadDeals().find((x) => x.id === deal.id);
+      if (there && there.updatedAt > deal.updatedAt) {
+        setDeal(there);
+        return;
+      }
       setSaved(() => {
         // Built from what's stored, not this page's copy, so a deal saved elsewhere meanwhile (a kept draft) stays.
         // The stage is changed in My plan or the deal packet, not here: keep the one stored with the deal.
