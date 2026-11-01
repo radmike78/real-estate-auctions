@@ -36,8 +36,9 @@ export default function PathNext({ step }: { step: StepKey }) {
     if (here && (step !== 'practice' || /practice$/.test(plan.task.key)) && page(plan.task.support[0]?.href) === here) {
       return (
         <nav className="path-next" aria-label="Next step">
-          <span className="muted">You’re on your next step: {plan.task.label}. When you have {plan.task.produces}, mark it done in My plan.</span>
-          <a className="btn btn-secondary" href={plan.task.href}>Mark it done in My plan&nbsp;→</a>
+          {/* A property's task is recorded in its deal packet (evidence log); a roadmap task is ticked in My plan. */}
+          <span className="muted">You’re on your next step: {plan.task.label}. When you have {plan.task.produces}, {plan.source === 'deal' ? 'record it in its deal packet' : 'mark it done in My plan'}.</span>
+          <a className="btn btn-secondary" href={plan.task.href}>{plan.source === 'deal' ? 'Record it in the deal packet' : 'Mark it done in My plan'}&nbsp;→</a>
         </nav>
       );
     }

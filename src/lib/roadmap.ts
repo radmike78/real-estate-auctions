@@ -6,6 +6,8 @@
 // Accuracy rules: steps describe the usual process in plain words, never a state's deadlines or forms as universal
 // rules. State-specific details live in the sale guides the steps link to. Scripts never involve contacting a
 // homeowner, an occupant or a former owner (site rule): official sellers, your own team and the county only.
+import { getMyState } from './myState';
+import type { StateCode } from './regions';
 
 export type RoadmapPath = 'listing' | 'auction' | 'certificate';
 
@@ -38,6 +40,8 @@ export interface RoadmapStep {
   path?: RoadmapPath[];
   /** When the step can be marked “Doesn't apply”, and why (e.g. a rental step on a flip). */
   skip?: string;
+  /** States where this step doesn't exist (Nevada has one county selling lien certificates: nothing to compare). */
+  notIn?: StateCode[];
   /** Annotated guides to the documents this step turns on (docGuides.ts). */
   guides?: string[];
   /** The evidence-log area this step fills in for the deal you're working on (evidence.ts). */
@@ -145,23 +149,23 @@ export const ROADMAP: RoadmapStep[] = [
     outcome: 'Notes comparing two counties’ lien sales, the one you chose and why.',
     steps: ['For each county, read the treasurer’s sale page: when the sale is, how it’s run (online or in person) and how bidding works.', 'Note how many parcels are offered and what kinds (vacant land, homes, commercial).', 'Note how payment works, the deadlines and any fees.', 'Record sources, dates and open questions in your buy-box notes.'],
     doneWhen: 'You compared two counties’ sales and recorded why you chose one, with sources and open questions.',
-    skip: 'Your state sells these certificates in only one county: read that county’s sale page instead, and mark this “Doesn’t apply to me”.',
+    notIn: ['NV'],
     action: 'Your county’s lien sale page', href: '#/find-deals',
   },
   {
     id: 'c-buybox', phase: 2, path: LIEN, title: 'Write your lien limits',
     text: 'Set your limits before the sale, so a list of parcels can’t talk you into tying up more than you meant to.',
     outcome: 'Saved limits: the cash you’ll tie up in certificates, the most per certificate, the longest wait you’ll accept and the parcels you’ll skip.',
-    steps: ['Choose Lien certificates as your strategy in the buy box below and enter the cash you’ll tie up.', 'In the buy box notes, write the most you’ll pay for one certificate and the longest you’re willing to wait to be paid.', 'In the notes too, list the parcels you’ll skip no matter the rate (for example, land you’d never want to own if the lien isn’t paid).'],
+    steps: ['Choose Lien certificates as your strategy in the buy box below and enter the cash you’ll tie up.', 'Enter the most you’ll pay for one certificate in its field, and in the buy box notes write the longest you’re willing to wait to be paid.', 'In the notes too, list the parcels you’ll skip no matter the rate (for example, land you’d never want to own if the lien isn’t paid).'],
     doneWhen: 'Your buy box shows Lien certificates and the cash you’ll tie up, with your other limits in its notes.',
     action: 'Fill in your buy box', href: '#/toolkit/buy-box',
   },
   {
     id: 'financing', phase: 2, title: 'Know how you’ll pay',
-    text: 'Compare the ways of paying for your kind of purchase. Most auctions and lien sales need cash or certified funds, on a short deadline.',
+    text: 'Compare the ways of paying for your kind of purchase: through an agent, usually a loan with a down payment; at most auctions and lien sales, cash or certified funds on a short deadline.',
     outcome: 'How you’ll pay, and the cash you need on top of any loan.',
-    steps: ['Read the financing lesson.', 'For an auction or lien sale, read your sale guide’s payment rules: deposit, form of payment, and deadline.', 'Write down where the money comes from and when it has to be there.'],
-    doneWhen: 'You know how you’ll pay and that you can meet the sale’s payment rules.',
+    steps: ['Read the financing lesson.', 'Buying through an agent: ask a lender which loan fits, the down payment and the cash to close. At an auction or lien sale: read your sale guide’s payment rules (deposit, form of payment and deadline).', 'Write down where the money comes from and when it has to be there.'],
+    doneWhen: 'You know how you’ll pay, and that you can meet the payment rules for your kind of purchase.',
     action: 'Compare ways to pay', href: '#/learn/financing',
   },
 
@@ -208,10 +212,11 @@ export const ROADMAP: RoadmapStep[] = [
     id: 'team', phase: 3, title: 'Line up your team',
     text: 'Know who you’ll call for each part of the deal, and check their licenses before you need them.',
     outcome: 'A name and a checked license for each role your route needs.',
-    steps: ['Build your team list in Your team for your kind of purchase.', 'Check each license with the state lookup.', 'Ask each one what they charge, how fast they can act, and what they won’t do.'],
+    steps: ['See which roles your kind of purchase needs in Your team, then write each one’s name in your team list in My plan.', 'Check each license with the state lookup.', 'Ask each one what they charge, how fast they can act, and what they won’t do.'],
     say: { to: 'Each professional', script: '“I’m planning to buy [kind of property] in [county] through [kind of sale]. Have you worked on this kind of purchase? What do you charge, how quickly can you act, and what would you need from me?”' },
     doneWhen: 'Every role your route needs has a name, a checked license where one is required, and written fees.',
-    action: 'Build your team', href: '#/pros',
+    action: 'Who your route needs', href: '#/pros',
+    also: { label: 'Your team list (My plan)', href: '#/toolkit/team' },
   },
   {
     id: 'lender', phase: 3, path: AGENT, title: 'Get pre-approved, or document your cash',
@@ -671,7 +676,8 @@ export const ROADMAP: RoadmapStep[] = [
 ];
 
 /** The steps for one way of buying. */
-export const roadmapFor = (path: RoadmapPath) => ROADMAP.filter((s) => !s.path || s.path.includes(path));
+/** The roadmap for a route, without the steps that don't exist in your state (`notIn`). */
+export const roadmapFor = (path: RoadmapPath, state: StateCode | null = getMyState()) => ROADMAP.filter((s) => (!s.path || s.path.includes(path)) && !(state && s.notIn?.includes(state)));
 
 /** The roadmap for buying through an agent (the default). */
 export const FIRST_DEAL: RoadmapStep[] = roadmapFor('listing');

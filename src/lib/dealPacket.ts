@@ -603,6 +603,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   // A saved deal's state or county changed in Analyze and isn't confirmed yet: its costs still follow the old place.
   if (hasNums && !d.locationConfirmed) nums.push(UNCONFIRMED_PLACE);
   if (!hasNums && flipNeedsRepairs(d)) nums.push(REPAIRS_NEEDED(strategy));
+  else if (!hasNums && d.plan === 'rent') nums.push(`No numbers yet: type the property’s rent, and the price you’d pay, in ${strategy}. Our example rent doesn’t count.`);
   else if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');
   // Done only once there's a downside to look at, not just the base case.
   const downside = !!lien || (rent && rent.stress.length > 1) || (bid && bid.stress.length > 1) || (commercial && (commercial.none || commercial.stress.length > 0));

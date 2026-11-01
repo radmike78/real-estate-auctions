@@ -262,6 +262,8 @@ const OFTEN_FORGOTTEN = [
 /** Stress tests, the deal in plain words, and a checklist of easy-to-forget costs. */
 /** The rental at a price you type: every step from rent to cash flow, with its assumptions. */
 function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false }: { v: RentInputs; start: number; onPrice: boolean; setPrice: (n: number) => void; /** "Your offer" or "Your bid". */ word: string; /** The refinance is still on our example value. */ exampleValue?: boolean }) {
+  // You plan to live in one unit (Decide: a home loan and live in it): a loss is your own housing cost, not a failed deal.
+  const livingThere = onPrice && !!investorProfile().ownerOccupant;
   // The refinance on our example value: its return isn't this property's. Blank: no refinance counted, the rest is real.
   const exampleRefi = exampleValue && v.value > 0;
   const blankRefi = exampleValue && !(v.value > 0);
@@ -293,7 +295,9 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false }
           {blankRefi && 'No refinance is counted yet: enter the value after repairs to include it. '}
           {cashShort && <>It needs about {fmtMoney(Math.round(needed))} of your cash, more than {limitWords}. <button type="button" className="linkish" onClick={(e) => { const f = e.currentTarget.closest('.calc')?.querySelector<HTMLInputElement>('input[id$="-cashAvailable"]'); if (!f) return; for (let d = f.closest('details'); d; d = d.parentElement?.closest('details') ?? null) d.open = true; f.scrollIntoView({ block: 'center' }); f.focus({ preventScroll: true }); }}>Enter your cash</button>{' '}</>}
           {exampleRefi ? null : a.cashFlow <= 0
-            ? `It loses about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month after every cost. Investigate whether the price, the costs or your plan should change, or walk away.`
+            ? livingThere
+              ? `After the rent from the other units, living there would cost you about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month: compare that with what you pay to live where you are now.`
+              : `It loses about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month after every cost. Investigate whether the price, the costs or your plan should change, or walk away.`
             : coc !== null && coc < target
               ? `Cash flow is positive (about ${fmtMoney(Math.round(a.cashFlow / 12))} a month), but it misses your goal. Investigate whether the price, the costs or the goal should change.`
               : cashShort ? 'The return meets your target, but the cash it needs doesn’t fit what you have.' : `It meets your target at this price, based on your numbers. Check each number against evidence before you rely on it.`}
@@ -527,6 +531,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
       <div className="calc-results">
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
         {/* Your actual deal first; the price that would meet your goal second, each with its own heading bar and colour. */}
+        {offer && investorProfile().ownerOccupant && <p className="calc-note small" role="note"><strong>Living in one unit?</strong> Enter only the rent from the units you’ll rent out. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
         <AtThisPrice v={v} start={r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} />
         <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} />
         {/* An auction rental's later refinance is sized on the value after repairs: say so while that's still our example. */}
