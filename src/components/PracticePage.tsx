@@ -142,7 +142,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
         <DrillList />
         </details>
         <PathNext step="practice" />
-        <AdSpot spot="practice" />
+        <AdSpot spot="practice" allow={!chosen} />
       </main>
     );
   }
@@ -191,7 +191,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
         Each practice run follows the rules for this kind of sale in Clark County, from our <a href="#/playbooks">guides</a>. The people you
         contact are fictional and their replies are simulated, so nothing is sent anywhere.
       </p>
-      <AdSpot spot="practice" />
+      <AdSpot spot="practice" allow={!chosen} />
     </main>
   );
 }

@@ -236,6 +236,16 @@ export const ROADMAP: RoadmapStep[] = [
 
   // 4. Find and check a deal: through an agent
   {
+    id: 'agree', phase: 4, path: AGENT, title: 'Sign a clear agreement with your agent',
+    text: 'Know exactly what your agent will do and how they’re paid before they write an offer for you.',
+    outcome: 'A signed buyer agreement you understand: what the agent does, how and how much they’re paid, and how long it lasts.',
+    steps: ['Ask for the buyer agreement before you tour or make an offer.', 'Read what it says about pay, who pays it, and how to end it.', 'Ask about anything you don’t understand before you sign.'],
+    say: { to: 'Your agent', script: '“Before I sign, could you walk me through what you’ll do for me, how you’re paid and by whom, how long this lasts, and how either of us can end it?”' },
+    docs: ['Buyer agreement (sometimes called a buyer representation or buyer broker agreement)'],
+    doneWhen: 'You’ve signed an agreement and can explain its pay terms in your own words.',
+    action: 'Your team: agent', href: '#/pros/agent',
+  },
+  {
     id: 'find', phase: 4, path: AGENT, title: 'Find a property and screen it',
     evidence: 'sale',
     text: 'Find a real listing that fits your buy box, then decide quickly whether it deserves more work.',
@@ -266,16 +276,6 @@ export const ROADMAP: RoadmapStep[] = [
     stop: 'If it can’t be insured at a price that works, or the HOA bans your plan, walk away.',
     doneWhen: 'Your Analyze numbers use a real insurance quote, the tax after purchase and the HOA dues.',
     action: 'Analyze a deal', href: '#/analyze',
-  },
-  {
-    id: 'agree', phase: 4, path: AGENT, title: 'Sign a clear agreement with your agent',
-    text: 'Know exactly what your agent will do and how they’re paid before they write an offer for you.',
-    outcome: 'A signed buyer agreement you understand: what the agent does, how and how much they’re paid, and how long it lasts.',
-    steps: ['Ask for the buyer agreement before you tour or make an offer.', 'Read what it says about pay, who pays it, and how to end it.', 'Ask about anything you don’t understand before you sign.'],
-    say: { to: 'Your agent', script: '“Before I sign, could you walk me through what you’ll do for me, how you’re paid and by whom, how long this lasts, and how either of us can end it?”' },
-    docs: ['Buyer agreement (sometimes called a buyer representation or buyer broker agreement)'],
-    doneWhen: 'You’ve signed an agreement and can explain its pay terms in your own words.',
-    action: 'Your team: agent', href: '#/pros/agent',
   },
 
   // 4. Find and check a deal: at an auction
