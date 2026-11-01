@@ -276,6 +276,12 @@ export function FirstDealRoadmap() {
         ))}
         <span className="muted">{dropStateLead(forStateText(getMyState(), ROADMAP_PATHS[path].hint), getMyState())}</span>
       </div>
+      {/* After a switch to a state that doesn't sell lien certificates, the route says so and offers the auction route. */}
+      {path === 'certificate' && mine && !liensSoldIn(mine) && (
+        <p className="notice" role="status">Lien certificates are sold in Arizona and Nevada, not {STATES.find((x) => x.code === mine)?.name ?? mine}.{' '}
+          <button type="button" className="linkish" onClick={() => choosePath('auction')}>Switch to buying at an auction</button>
+        </p>
+      )}
       <div className="roadmap-deal">
         <label className="field">
           <span>Which property are you working on?</span>

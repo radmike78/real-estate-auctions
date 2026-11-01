@@ -12,7 +12,7 @@ import { CalcRegion } from './calcRegion';
 import { useMarkStep, stepEyebrow } from '../lib/path';
 import { dropStateLead, useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { CURRENT_KEY, keepUnsavedDraft, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
+import { CURRENT_KEY, KEPT_NOTE_KEY, OPENED_KEY, keepUnsavedDraft, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
 import CheckFold from './CheckFold';
 import { linkLabel } from '../lib/linkLabel';
 import { investorProfile } from '../lib/myPlan';
@@ -53,6 +53,10 @@ function blank(st: StateCode): Deal {
 function loadCurrent(st: StateCode): Deal {
   try {
     const v = cleanDeal(JSON.parse(localStorage.getItem(CURRENT) ?? 'null'));
+    // Paper practice is over (or you moved on): the practice analysis left open isn't where the real property goes.
+    let opened: unknown = null;
+    try { opened = JSON.parse(localStorage.getItem(OPENED_KEY) ?? 'null'); } catch { /* storage unavailable */ }
+    if (v && v.practice && !savingPractice() && opened !== v.id) return blank(st || v.state);
     if (v && (!st || v.state === st)) return v;
   } catch {
     /* start fresh */
@@ -87,7 +91,17 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const [mine] = useMyState();
   // Nothing typed is ever wiped: a started, unsaved deal is saved to My deals, with its numbers, before a listing
   // or a change of state replaces it. Returns the deal's state when one was saved, for the notice.
-  const [keptNote, setKeptNote] = useState('');
+  // The "just opened" marker is read once, when the page first loads its deal.
+  useEffect(() => { try { localStorage.removeItem(OPENED_KEY); localStorage.removeItem(KEPT_NOTE_KEY); } catch { /* storage unavailable */ } }, []);
+  const [keptNote, setKeptNote] = useState(() => {
+    // Left by openDeal when a started deal was saved before another was opened elsewhere on the site.
+    try {
+      const v: unknown = JSON.parse(localStorage.getItem(KEPT_NOTE_KEY) ?? 'null');
+      return typeof v === 'string' ? v : '';
+    } catch {
+      return '';
+    }
+  });
   const keepUnsaved = (): string | null => {
     const d = keepUnsavedDraft();
     return d ? `Your unsaved ${stateByCode(d.state)?.name ?? ''} deal “${d.name}” was saved to My deals.` : null;
@@ -132,9 +146,11 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       /* private mode */
     }
     if (deal.id) {
-      setSaved((list) => {
+      setSaved(() => {
+        // Built from what's stored, not this page's copy, so a deal saved elsewhere meanwhile (a kept draft) stays.
         // The stage is changed in My plan or the deal packet, not here: keep the one stored with the deal.
-        const stage = loadDeals().find((d) => d.id === deal.id)?.stage ?? deal.stage;
+        const list = loadDeals();
+        const stage = list.find((d) => d.id === deal.id)?.stage ?? deal.stage;
         const next = list.map((d) => (d.id === deal.id ? { ...deal, ...(stage ? { stage } : {}) } : d));
         saveDeals(next);
         return next;
@@ -254,7 +270,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
             <ul>
               {saved.map((d) => (
                 <li key={d.id} className={d.id === deal.id ? 'on' : ''}>
-                  <button type="button" className="linkish" onClick={() => { const kept = keepUnsaved(); if (kept) setKeptNote(kept); setDeal(d); }}>{d.name}</button>
+                  <button type="button" className="linkish" onClick={() => { const kept = keepUnsaved(); if (kept) { setKeptNote(kept); setSaved(loadDeals()); } setDeal(d); }}>{d.name}</button>
                   <span className="muted"> · {countyName(d.county)}, {d.state}</span>
                   <button type="button" className="linkish danger" aria-label={`Delete ${d.name}`} onClick={() => remove(d.id)}>Delete</button>
                 </li>

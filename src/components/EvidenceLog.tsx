@@ -5,6 +5,7 @@ import { downloadText, fileName } from '../lib/download';
 /** For one deal: what you verified, where it came from and what's still open, then the decision it supports. */
 export default function EvidenceLog({ dealId, name, initiallyOpen = false, onPass }: { dealId: string; name: string; initiallyOpen?: boolean; /** Offered after choosing Pass: move the property to Passed. */ onPass?: () => void }) {
   const [log, setLog] = useState<Log>(() => loadLog(dealId));
+  const [passedNow, setPassedNow] = useState(false);
   useReloadOnSave(dealId, setLog);
   // Saved on every change, so another editor of the same deal (a roadmap step) never works from an old copy.
   const update = (f: (l: Log) => Log) => {
@@ -48,7 +49,8 @@ export default function EvidenceLog({ dealId, name, initiallyOpen = false, onPas
             <span><strong>{g.label}</strong> <span className="muted">{g.when}</span></span>
           </label>
         ))}
-        {log.gate === 'pass' && onPass && <p><button type="button" className="btn btn-secondary" onClick={onPass}>Move it to Passed</button></p>}
+        {passedNow && log.gate === 'pass' ? <p role="status" tabIndex={-1} ref={(el) => el?.focus()}><strong>Moved to Passed.</strong> My plan moves on to your next property.</p>
+          : log.gate === 'pass' && onPass && <p><button type="button" className="btn btn-secondary" onClick={() => { onPass(); setPassedNow(true); }}>Move it to Passed</button></p>}
       </fieldset>
       {log.gate === 'proceed' && openCount > 0 && <p className="caution" role="status">You still have {openCount} open question{openCount === 1 ? '' : 's'}. Resolve them before you commit money.</p>}
       <button type="button" className="btn btn-secondary" onClick={() => downloadText(fileName(`evidence log ${name}`, 'txt'), logText(name, log))}>Download the log</button>
