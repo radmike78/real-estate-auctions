@@ -389,7 +389,8 @@ describe('advertiser flow (running server)', () => {
   });
 
   it('sends monthly reports once per month', async () => {
-    const month = new Date().toISOString().slice(0, 7);
+    // Views are counted by Pacific-time day, so the current month is Pacific time's (on the 1st in UTC it can still be last month there).
+    const month = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit' }).format(new Date());
     const r1 = await (await admin('/api/admin/reports', { month })).json();
     const r2 = await (await admin('/api/admin/reports', { month })).json();
     expect([r1.sent, r2.sent]).toEqual([2, 0]);

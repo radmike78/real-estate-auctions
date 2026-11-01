@@ -415,8 +415,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                       />
                       {f.unit !== '$' && <i aria-hidden>{unitText(f.unit)}</i>}
                     </span>
-                    {draft[f.k] !== undefined && calculatorInputError(draft[f.k]!, f.unit as never) && <small className="deal-urgent" role="status">{calculatorInputError(draft[f.k]!, f.unit as never)}</small>}
                     <span className="calc-hint">
+                      {draft[f.k] !== undefined && calculatorInputError(draft[f.k]!, f.unit as never) && <small className="deal-urgent calc-error" role="status">{calculatorInputError(draft[f.k]!, f.unit as never)}</small>}
                       {hintFor(f) && <small className="muted" id={`${uid}-${f.k}-hint`}>{hintFor(f)}</small>}
                       {moreForField(f) && (
                         <details className="calc-more">

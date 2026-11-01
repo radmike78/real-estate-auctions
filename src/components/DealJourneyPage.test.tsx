@@ -1,6 +1,6 @@
-import { beforeEach, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import DealJourneyPage from './DealJourneyPage';
+import DealJourneyPage, { parseAnswer } from './DealJourneyPage';
 import { CHAPTERS, JOURNEY_KEY, answerTask, emptyJourney, saveJourney } from '../practice/dealJourney';
 import { planNow } from '../lib/planNext';
 import { DECIDE_KEY, QUESTIONS } from '../lib/decide';
@@ -64,4 +64,11 @@ it('keeps the numbers chapter answer hidden until the question is answered', () 
   const html = renderToStaticMarkup(<DealJourneyPage chapterKey="numbers" />);
   expect(html).not.toContain('21.93');
   expect(html).toContain('Answer this chapter’s question first');
+});
+
+describe('typed practice answers', () => {
+  it('read any minus sign, dash or parentheses as below zero', () => {
+    for (const x of ['-21.93', '−21.93', '–21.93', '-$21.93', '$-21.93', '(21.93)', '- 21.93']) expect(Number(parseAnswer(x))).toBe(-21.93);
+    expect(Number(parseAnswer('$1,250'))).toBe(1250);
+  });
 });

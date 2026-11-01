@@ -126,7 +126,7 @@ export const financing: Lesson = {
       heading: 'Using equity you already have',
       blocks: [
         'A home equity line of credit (HELOC) lets you borrow repeatedly against your home’s equity. A cash-out refinance replaces your mortgage with a bigger one and pays you the difference, usually with closing costs. Both put your home on the line: if you can’t repay, you could lose it.',
-        'In Texas, a home equity loan, line of credit or cash-out refinance on your homestead is limited by the state constitution: all loans on the home together can’t exceed 80% of its market value, and the loan can’t close until 12 days after you apply or get the required notice (Texas Constitution, article XVI, section 50(a)(6)). Ask the lender how these limits apply to you.',
+        'In Texas, a home equity loan, line of credit or cash-out refinance on your homestead is limited by the state constitution: all loans on the home together can’t exceed 80% of its market value, and the loan can’t close until 12 days after you apply or get the required notice, whichever is later (Texas Constitution, article XVI, section 50(a)(6)). Ask the lender how these limits apply to you.',
         FINANCING_POSITION,
         { list: [...FINANCING_FACTORS] },
         FINANCING_ADVICE,
