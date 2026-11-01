@@ -146,7 +146,7 @@
       "src/practice/dealJourney.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "2a1b789c627004fd",
+    "hash": "4350b0e2a4a73c2a",
     "note": "Reviewed account resume: choices and numbers preserved, reflection self-review completion explicitly distinguished from written answers and grades; restored reflections allow continuation without inventing text. Local risk guidance and formulas unchanged."
   },
   {
@@ -405,7 +405,7 @@
       "src/lib/path.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "690bb3f105e6ff38",
+    "hash": "2a52e9a6dfdcdd18",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {

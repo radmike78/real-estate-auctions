@@ -256,6 +256,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     const next = [d, ...storedDeals()];
     saveDeals(next);
     setSaved(next);
+    setKeptNote(''); // a note about the last deal (deleted elsewhere, kept) is done once this one is saved
     setDeal(d);
   };
   const remove = (id: string) => {

@@ -246,7 +246,9 @@ export function DrillList({ presetTopic }: { presetTopic?: TopicGroup } = {}) {
   // Sent to one topic (the roadmap's auction practice): that topic's drills for your state, not the general three.
   const inPreset = (d: Drill) => (!onlyMine || drillState(d) === null || drillState(d) === mine) && drillCard(d).group === presetTopic;
   const topicDrills = guided && presetTopic ? DRILLS.filter(inPreset) : [];
-  const topicTitle = `${TOPIC_GROUPS.find((g) => g.key === presetTopic)?.label ?? 'These'} drills${mine ? ` for ${STATE_NAMES[mine]}` : ''}`;
+  // Lien sales are Arizona and Nevada only: elsewhere the auction topic is just auctions.
+  const topicLabel = presetTopic === 'auctions' && mine !== 'AZ' && mine !== 'NV' ? 'Auction' : TOPIC_GROUPS.find((g) => g.key === presetTopic)?.label ?? 'These';
+  const topicTitle = `${topicLabel} drills${mine ? ` for ${STATE_NAMES[mine]}` : ''}`;
   const shown = guided ? [topicDrills.length ? { key: 'topic', title: topicTitle, drills: topicDrills } : { key: 'starter', title: 'Start with these three', drills: starter }] : groups;
   // Explorers see the same three first, above the full list, until they filter it.
   const recommended = !guided && st === 'all' && topic === 'all' && prog === 'all' ? starter : [];
