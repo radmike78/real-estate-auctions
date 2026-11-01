@@ -43,10 +43,10 @@ function planFromBuyBox(): Plan {
 }
 
 // A new deal starts on the kind of sale your roadmap route is about, so saving a practice analysis keeps the route.
-const kindForRoute = (): SaleKind => { const r = roadmapPath(); return r === 'auction' ? 'trustee' : r === 'certificate' ? 'lien' : 'listing'; };
+const kindForRoute = (st: StateCode): SaleKind => { const r = roadmapPath(); return r === 'auction' ? 'trustee' : r === 'certificate' && (st === 'NV' || st === 'AZ') ? 'lien' : 'listing'; };
 
 function blank(st: StateCode): Deal {
-  const kind = kindForRoute();
+  const kind = kindForRoute(st);
   return { id: '', name: '', state: st, county: startCounty(st), kind, plan: kind === 'lien' ? 'lien' : planFromBuyBox(), notes: '', done: [], updatedAt: new Date().toISOString() };
 }
 

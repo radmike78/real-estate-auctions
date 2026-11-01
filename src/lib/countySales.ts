@@ -328,8 +328,8 @@ export const COUNTY_SALES: CountySale[] = [
     redeemBy: null,
     registerBy: null,
     saleUrl: 'https://www.mohave.gov/departments/clerk-of-the-board/over-the-counter-tax-deed-sales/',
-    listUrl: 'https://www.mohave.gov/media/usylp0qc/otc_td_list_1026.pdf',
-    checkedOn: '2026-10-05',
+    listUrl: 'https://www.mohave.gov/media/lexkhrwq/otc_td_list_1126.pdf',
+    checkedOn: '2026-11-01',
   },
   {
     // https://www.cochise.az.gov/903/2026-Over-the-Counter-Tax-Deed-Land-Sale, checked 2026-10-05: "Sale Opens: October 19,

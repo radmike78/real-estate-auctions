@@ -54,7 +54,7 @@ export const US_STATE_NAMES = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'Cali
 /** Historical examples from a different state do not belong on this state's page. */
 // Names that contain a state's name but aren't about that state: a Las Vegas casino, a Las Vegas shopping center, a
 // California county, newspapers.
-const NOT_A_STATE = /Texas Station|Maryland Square|Nevada County|New York Times|Hawaii Tribune-Herald/g;
+const NOT_A_STATE = /Texas Station|Maryland Square|Nevada County|New York Times|Hawaii Tribune-Herald|Billings, Montana|S\.D\. West Virginia/g;
 export function mentionsOtherState(state: StateCode | null, text: string): boolean {
   const own = STATES.find((s) => s.code === state)?.name;
   const plain = text.replace(NOT_A_STATE, '');
