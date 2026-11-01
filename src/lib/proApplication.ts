@@ -8,6 +8,7 @@ import { CATEGORIES, CREDIT_PROFILES, isCategory, servicesFor, type Category } f
 import { allowsAlternativeQualifications, regulatorFor } from './regulators';
 import { MAX_AD_AREAS, type AdArea } from './adAreas';
 import { STATES, stateByCode, type StateCode } from './regions';
+import { pacificDay } from './time';
 
 /** Most counties, and most cities, one application can list as its service area. */
 export const MAX_SERVICE_COUNTIES = 20;
@@ -272,7 +273,7 @@ export interface LicenseVerification {
   identityMethod?: string;
 }
 
-export function approvalBlockers(category: Category, v: Partial<LicenseVerification>, today = new Date().toISOString().slice(0, 10), state: StateCode = 'NV'): string[] {
+export function approvalBlockers(category: Category, v: Partial<LicenseVerification>, today = pacificDay(new Date()), state: StateCode = 'NV'): string[] {
   const out: string[] = [];
   if (!isCategory(category)) return ['Unknown category.'];
   const info = CATEGORIES[category];

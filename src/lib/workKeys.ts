@@ -49,3 +49,6 @@ export const PATTERN = /^fsf\.(dd|bid|income|checklist|calc\.rent|calc\.commerci
 export const CONFIRMED = /^fsf\.(bid|calc\.(rent|commercial|lien|sellerfinance|strategy))(\.[A-Za-z0-9_-]{1,64})?(\.v1)?\.typed\.v1$/;
 export const backedUp = (key: string) => EXACT.includes(key) || PATTERN.test(key) || CONFIRMED.test(key);
 
+
+/** Keys stored as plain text rather than JSON: the calculator mode and tab, and region stamps ("2.55|NV"). */
+export const plainTextKey = (k: string) => k === 'fsf.bid.mode.v1' || k === 'fsf.calc.strategy.v1' || /\.region$/.test(k);

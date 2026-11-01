@@ -398,9 +398,10 @@ function PhotoCard({ me, onChange }: { me: Me; onChange: () => void }) {
 }
 
 export function ranges(): Record<string, { label: string; from: string; to: string }> {
-  const day = (offset: number) => new Date(Date.now() - offset * 86_400_000).toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
-  const today = day(0);
-  const [y, m] = today.split('-').map(Number);
+  // Calendar days counted back from today's Pacific date (not 24-hour blocks, which drift across daylight-saving changes).
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles' });
+  const [y, m, d] = today.split('-').map(Number);
+  const day = (offset: number) => new Date(Date.UTC(y, m - 1, d - offset)).toISOString().slice(0, 10);
   const lastMonthStart = new Date(Date.UTC(y, m - 2, 1)).toISOString().slice(0, 10);
   const lastMonthEnd = new Date(Date.UTC(y, m - 1, 0)).toISOString().slice(0, 10);
   return {

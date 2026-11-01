@@ -10,9 +10,11 @@ export default function PathNext({ step }: { step: StepKey }) {
     // The plan's task is done on this very page (Find deals, Your team): say so, instead of a link that goes to My plan
     // and straight back.
     const page = (h?: string) => h?.split('?')[0];
-    if (plan.task.key === 'next-deal' && step === 'analyze') return null; // the roadmap is done: nothing to mark
+    // The roadmap is done and its last task (Find your next property) is this page, or Analyze: nothing to link to.
+    if (plan.task.key === 'next-deal' && (step === 'analyze' || page(plan.task.href) === here)) return null;
     // A property's own task done on this page (enter its numbers): it ticks itself, so just say so.
     if (here && plan.source === 'deal' && page(plan.task.href) === here) {
+      if (step !== 'analyze') return null; // you're on it, and only Analyze ticks a property's task by itself
       return <nav className="path-next" aria-label="Next step"><span className="muted">You’re on your next step: {plan.task.label}. It’s marked done once you’ve entered it here.</span></nav>;
     }
     if (here && page(plan.task.support[0]?.href) === here) {
