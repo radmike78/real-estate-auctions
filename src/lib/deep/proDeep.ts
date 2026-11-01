@@ -33,7 +33,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     checklist: [
       "Look up the agent’s license with the state regulator (the official lookup is below) and check for discipline.",
-      "Make sure the agent is licensed in the state where the property is. Nevada has disciplined California brokers acting on Nevada deals without a Nevada license.",
+      "Make sure the agent is licensed in the state where the property is. In Nevada, regulators have disciplined brokers from another state who acted on Nevada deals without a Nevada license.",
       "Ask in writing whether the agent or brokerage also represents the seller, what representation arrangement your state allows, and what advice they can give you. In Texas, ask about intermediary representation and whether separate agents will be appointed.",
       "Read the buyer agreement: pay amount, who pays, how long it lasts, and how to end it.",
       "Ask the agent for the public-record facts, such as assessor square footage, permits and HOA resale packages. Ask them to say plainly what they have not verified.",
@@ -322,7 +322,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     overview: [
       "A hard-money or private lender makes short-term loans backed mainly by the property, not your income. Investors use them to buy and repair a house fast, then sell or refinance. The trade-off is price. Rates are usually well above bank mortgage rates, plus points and fees, and terms are short. Get today’s quotes in writing. Many loans end in a large balloon payment.",
       "These lenders lend on the property’s value, so they may lend to people who can’t actually repay. Fake “private lenders” also collect upfront fees and never fund the loan. In California, the DFPI has ordered several of these fake lenders to stop. NPR reported on a Florida homeowner whose hard-money refinance started at 10% and rose to 12%, with a heavy prepayment penalty; the home headed toward foreclosure.",
-      "If you are the one lending, or investing in a hard-money fund, the risks flip. Borrowers default, projects stall, and dishonest brokers can misuse money. In California, a hard-money broker’s collapse cost hundreds of people more than $20 million. Las Vegas hard-money fund investors also lost heavily in the recession."
+      "If you are the one lending, or investing in a hard-money fund, the risks flip. Borrowers default, projects stall, and dishonest brokers can misuse money. In California, a hard-money broker’s collapse cost hundreds of people more than $20 million. In Nevada, Las Vegas hard-money fund investors also lost heavily in the recession."
     ],
     bestFor: [
       "Experienced renovators with a tested budget and a clear exit (sale or refinance) within the loan term.",
@@ -946,7 +946,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     notFor: [
       "Owners who want to pay cash to the lowest bidder with no contract. Nevada's contractor board (NSCB) tells homeowners never to pay in cash.",
-      "Rental or flip owners who assume a recovery fund will cover them. Nevada’s and Arizona’s funds focus on owner-occupied homes.",
+      "Rental or flip owners who assume a recovery fund will cover them. In Nevada and Arizona, the recovery funds focus on owner-occupied homes.",
       "Projects where a contractor asks for a large deposit up front. In California the down payment limit is 10% or $1,000, whichever is less.",
       "People who can’t take the time to check a license number against the state board’s website."
     ],
@@ -1421,7 +1421,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     overview: [
       "A property manager finds and screens tenants, collects rent, handles repairs and keeps owners’ and tenants’ money in trust accounts. In Nevada, managing rentals for others requires a real estate license plus a property management permit. In Texas, collecting rent for someone else from a tenant in a single-family home counts as real estate brokerage, which needs a TREC license (Occupations Code 1101.002). Check your state’s real estate regulator for the licensing rules that apply to managers there.",
       "The biggest risk is the trust account. If a manager mixes or spends owner rents and tenant deposits, owners can lose months of rent. They can still owe tenants their deposits back. Nevada regulators found one Las Vegas broker’s security deposit account held $15 when his records said $185,343.",
-      "A license lets you check that the manager is allowed to do the work, see any discipline, and file a complaint with the state regulator. Separately, a state recovery fund can repay some losses caused by licensees, but only certain claimants and claims qualify, usually after a court judgment, and only up to set limits. A recovery fund doesn’t insure your investment or cover every rental problem. In California, it’s the Department of Real Estate’s Consumer Recovery Account. In Nevada, the Real Estate Education, Research and Recovery Fund. In Arizona, the Real Estate Recovery Fund. In Texas, the Real Estate Recovery Trust Account. In Utah, the Real Estate Education, Research, and Recovery Fund (Utah Code 61-2f-503)."
+      "A license lets you check that the manager is allowed to do the work, see any discipline, and file a complaint with the state regulator. Separately, a state recovery fund can repay some losses caused by licensees, but only certain claimants and claims qualify, usually after a court judgment, and only up to set limits. A recovery fund doesn’t insure your investment or cover every rental problem. In California, it’s the Department of Real Estate’s Consumer Recovery Account. In Nevada, it’s the Real Estate Education, Research and Recovery Fund. In Arizona, it’s the Real Estate Recovery Fund. In Texas, it’s the Real Estate Recovery Trust Account. In Utah, it’s the Real Estate Education, Research, and Recovery Fund (Utah Code 61-2f-503)."
     ],
     bestFor: [
       "Out-of-state investors who can’t handle showings, repairs and rent collection themselves.",

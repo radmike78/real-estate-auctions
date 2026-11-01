@@ -97,9 +97,11 @@ export function planNow(now = new Date()): PlanNow {
   // Before any real work, unless you said you know the basics, the site's order: Decide (your goal and cash), the
   // "Start here" lessons, then the practice deal.
   // Steps the site ticked for you (Decide, the red flags lesson) don't count as starting the roadmap.
-  // Only work from the team on counts as starting the roadmap: ticking a planning task early (your cash, a county)
-  // doesn't skip the lessons and practice.
-  const roadmapStarted = roadmapFor(planPath(deals)).filter((s) => s.phase >= 3 && !AUTO_STEPS.includes(s.id)).some(settledFor(''));
+  // Only work from the team step on counts as starting the roadmap: ticking a planning or practice task early
+  // (your cash, your walk-away rules) doesn't skip the lessons and practice.
+  const steps = roadmapFor(planPath(deals));
+  const fromTeam = Math.max(0, steps.findIndex((s) => /(^|-)team$/.test(s.id)));
+  const roadmapStarted = steps.slice(fromTeam).filter((s) => !AUTO_STEPS.includes(s.id)).some(settledFor(''));
   const practice = loadJourney();
   const practiceDone = practice.completed.length === CHAPTERS.length;
   const learning = getMode() !== 'explore' && !roadmapStarted && !practiceDone;

@@ -45,7 +45,8 @@ function load(): Saved {
  *  finished ("Practice …" linking to Practice). */
 function seenDone(c: { text: string; href?: string }): boolean {
   const lesson = c.href?.match(/^#\/learn\/([a-z-]+)$/);
-  if (lesson && /^(Read|Learn)\b/.test(c.text)) return readLessons().includes(lesson[1]);
+  // Only an item about one lesson: "Read the lessons on X and Y" stays yours to tick.
+  if (lesson && /^(Read|Learn)\b/.test(c.text) && !/\blessons\b/.test(c.text)) return readLessons().includes(lesson[1]);
   if (c.href === '#/practice' && /^Practice\b/.test(c.text)) return practicePart2Done();
   return false;
 }
@@ -209,7 +210,7 @@ export default function DecidePage() {
                       <li key={c.id}>
                         <label>
                           <input type="checkbox" checked={saved.done.includes(c.id) || seenDone(c)} disabled={seenDone(c)} onChange={() => toggle(c.id)} />
-                          <span>{c.text}</span>
+                          <span>{c.text}{seenDone(c) && <span className="muted"> (done: the site saw you finish it)</span>}</span>
                         </label>
                         {c.href && <a href={c.href}>{linkLabel(c.href)}&nbsp;→</a>}
                       </li>

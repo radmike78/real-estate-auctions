@@ -43,6 +43,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   const o = all[deal.id];
   const [month, setMonth] = useState(thisMonth);
   const [rent, setRent] = useState('');
+  const [focusBox, setFocusBox] = useState<'rent' | 'costs' | null>(null);
   const [costs, setCosts] = useState('');
   const [note, setNote] = useState('');
   const projected = projectedMonthly(deal);
@@ -67,6 +68,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   const negative = parseCalcInput(rent) < 0 || parseCalcInput(costs) < 0;
   // A misplaced comma ("250,00") would record a number ten or a hundred times off, so it's refused, not guessed.
   const unreadable = !negative && [rent, costs].some((t) => t.trim() !== '' && !!calculatorInputError(t, '$'));
+  // Each box's message waits while you're still typing a comma number in it ("1,25" on the way to 1,250).
+  const showBad = (t: string, box: 'rent' | 'costs') => t.trim() !== '' && !!calculatorInputError(t, '$') && !(focusBox === box && midNumber(t));
   const add = () => {
     const r = parseCalcInput(rent);
     const c = parseCalcInput(costs);
@@ -85,12 +88,12 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
       <div className="row owned-add">
         <label className="field"><span>Bought on</span><input type="date" value={o.boughtOn} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
         <label className="field"><span>Month</span><input type="month" value={month} onChange={(e) => setMonth(e.target.value)} /></label>
-        <label className="field"><span>Rent collected ($)</span><input type="text" inputMode="decimal" value={rent} onChange={(e) => setRent(e.target.value)} /></label>
-        <label className="field"><span>Everything you paid ($)</span><input type="text" inputMode="decimal" value={costs} onChange={(e) => setCosts(e.target.value)} /></label>
+        <label className="field"><span>Rent collected ($)</span><input type="text" inputMode="decimal" value={rent} aria-invalid={showBad(rent, 'rent') || undefined} onFocus={() => setFocusBox('rent')} onBlur={() => setFocusBox(null)} onChange={(e) => setRent(e.target.value)} /></label>
+        <label className="field"><span>Everything you paid ($)</span><input type="text" inputMode="decimal" value={costs} aria-invalid={showBad(costs, 'costs') || undefined} onFocus={() => setFocusBox('costs')} onBlur={() => setFocusBox(null)} onChange={(e) => setCosts(e.target.value)} /></label>
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>
         <button type="button" className="btn" disabled={rent === '' || costs === '' || negative || unreadable} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
       </div>
-      {unreadable && ![rent, costs].some(midNumber) && <p className="caution small" role="status">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
+      {(showBad(rent, 'rent') || showBad(costs, 'costs')) && <p className="caution small" role="status">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
       {negative && <p className="caution small" role="alert">Enter rent and costs as $0 or more. Record a refund to a tenant as a cost.</p>}
       <p className="small muted">Count everything you paid that month: the loan, taxes, insurance, HOA, repairs, management and utilities, and any money you moved into your repair savings.</p>
       {s.months > 0 ? (

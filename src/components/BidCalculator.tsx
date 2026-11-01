@@ -284,7 +284,6 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const [draft, setDraft] = useState<Partial<Record<keyof BidInputs, string>>>({});
   // Your own offer or bid is kept with a saved deal, so its packet shows the result at your price.
   const [bidText, setBidText] = useState<string>(() => (i.proposedPrice ? String(i.proposedPrice) : ''));
-  const stickyBad = Object.entries(draft).some(([k, t]) => t !== undefined && !!shownInputError(t, (fieldUnit(k) ?? '$') as never, `${uid}-${k}`));
   const [, rerender] = useReducer((n: number) => n + 1, 0); // shows a held-back message once you leave the box
   const bidInvalid = bidText.trim() !== '' && !!calculatorInputError(bidText, '$');
   const bidBad = bidText.trim() !== '' && !!shownInputError(bidText, '$', `${uid}-bid`);
@@ -353,6 +352,9 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const noTransferTax = tax.per500 === 0 && !i.transferTaxPer500;
   const shown = (f: Field) => (mode === 'detailed' || f.quick) && (!f.when || f.when(i)) && !(offer && OFFER_HIDDEN.has(f.k)) && !(noTransferTax && f.k === 'transferTaxPer500');
   // Which inputs on screen still hold our starting estimates (the listing's own numbers don't count).
+  // Only boxes on screen (Quick hides some): a typo left in a hidden box doesn't pause the results.
+  const visibleKeys = new Set(GROUPS.flatMap((g) => g.fields.filter(shown)).map((f) => f.k as string));
+  const stickyBad = Object.entries(draft).some(([k, t]) => t !== undefined && visibleKeys.has(k) && !!shownInputError(t, (fieldUnit(k) ?? '$') as never, `${uid}-${k}`));
   const still = exampleLabels(GROUPS.flatMap((g) => g.fields.filter(shown).map((f) => (offer && OFFER_FIELDS[f.k] ? { ...f, ...OFFER_FIELDS[f.k] } : f))), i, offer ? offerInputs(defaults) : defaults, typedKeys, NOT_EXAMPLES);
   const yours = offer ? 'Your offer' : 'Your bid';
   // Costs still at $0 that nobody entered: unknown, not confirmed zero. Typing 0 confirms there's none.
