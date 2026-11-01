@@ -69,8 +69,22 @@ export function countyTaxLine(state: StateCode, county?: string): { short: strin
   const range = c.low !== null && c.high !== null ? ` Inside the county it runs about ${pctWord(c.low)} to ${pctWord(c.high)}, depending on the city, school district and special districts at the address.` : ' The rate at a given address can differ from the county’s average.';
   return {
     short: `${place}: about ${pctWord(c.pct)} of ${OF_SHORT[s.of]} a year (${s.year} rental rate${s.of === 'taxable' || s.of === 'fcv' ? '; on a price it errs high' : ''}).`,
-    detail: `The starting figure here is this rate on the calculator’s example value; once you enter your price, the hint works out the rate on it for you to enter. Use the county’s figure for your property when you have it. For a first estimate, multiply your ${s.of === 'price' ? 'price' : 'price or value'} by ${pctWord(c.pct)}. That rate is ${s.how}, from the ${s.source}.${range}`,
+    detail: `The starting figure here is this rate on the calculator’s example value; once you enter your price, the hint works out the rate on it for you to enter (at an auction, on the value instead wherever the county taxes its own value, not the price you pay). Use the county’s figure for your property when you have it. For a first estimate, multiply your ${s.of === 'price' ? 'price' : 'price or value'} by ${pctWord(c.pct)}. That rate is ${s.how}, from the ${s.source}.${range}`,
   };
+}
+
+/**
+ * What changes when you live in the home instead of renting it out, by state (each state's own program, not a
+ * general "homestead exemption"). Ends with an asterisk: whether a home qualifies is the county's decision.
+ */
+export function ownerOccupiedTaxNote(state: StateCode): string {
+  switch (state) {
+    case 'TX': return 'That’s a rental’s rate: a home you live in can get the homestead exemption, which lowers it; apply with the appraisal district.*';
+    case 'NV': return 'That’s a rental’s rate: in Nevada a home you live in gets a lower cap on yearly tax increases (3%) rather than a lower rate; ask the county assessor.*';
+    case 'CA': return 'That’s a rental’s rate: a home you live in can get the homeowners’ exemption, which takes a little off the assessed value; ask the county assessor.*';
+    case 'AZ': return 'That’s a rental’s rate: a home you live in can get the homeowner rebate on part of the school tax (up to $600 a year); ask the county assessor.*';
+    case 'UT': return 'A home you live in gets the same main-home rate as a long-term rental with a tenant’s declaration; ask the county assessor.*';
+  }
 }
 
 export function propertyTaxHint(state: StateCode, county?: string): { hint: string; more: string } {

@@ -16,7 +16,8 @@ const visibleFields = <T,>(groups: CalcGroup<T>[], v: T) => groups.flatMap((g) =
 /** Set by the county (transfer tax) or not a number you choose: never listed as an example. */
 const NOT_EXAMPLES = new Set(['transferTaxPer500', 'buyerPremiumPct', 'atPrice']);
 import { investorProfile } from '../lib/myPlan';
-import { countyTaxRate, propertyTaxHint, rentalStartFor, taxAt, transferTaxFor } from '../lib/stateCosts';
+import { countyTaxRate, ownerOccupiedTaxNote, propertyTaxHint, rentalStartFor, taxAt, transferTaxFor } from '../lib/stateCosts';
+import { COUNTY_TAX_RATES } from '../lib/countyTaxRates';
 
 /** The purchase-cost fields worded for the deal's state and county, starting at its transfer tax. */
 /** `countyTax`: the starting property tax follows the county (a deal's calculator), so the hint names the county. */
@@ -264,8 +265,7 @@ const OFTEN_FORGOTTEN = [
 function focusCalcField(from: HTMLElement, k: string) {
   const f = from.closest('.calc')?.querySelector<HTMLInputElement>(`input[id$="-${k}"]`);
   if (!f) return;
-  const d = f.closest('details');
-  if (d && !d.open) d.open = true;
+  for (let d = f.closest('details'); d; d = d.parentElement?.closest('details') ?? null) d.open = true;
   f.scrollIntoView({ block: 'center' });
   f.focus({ preventScroll: true });
 }
@@ -313,19 +313,21 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
       </label>
       {price > 0 && (
         <p className={`calc-verdict ${rentVerdict({ cashFlow: a.cashFlow, cashOnCash: coc, targetPct: v.targetCocPct, cashShort, exampleRefi, living: livingThere })}`} role="status">
-          <strong>{exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; your target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; your target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; your target: ${v.targetCocPct}%.`}</strong>{' '}
+          <strong>{livingThere && !exampleRefi ? (a.cashFlow <= 0 ? `Living there would cost you about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month, after any rent you collect.` : `The rent you collect would cover every cost, with about ${fmtMoney(Math.round(a.cashFlow / 12))} a month to spare.`) : exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; your target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; your target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; your target: ${v.targetCocPct}%.`}</strong>{' '}
           {blankRefi && 'No refinance is counted yet: enter the value after repairs to include it. '}
           {cashShort && <>It needs about {fmtMoney(Math.round(needed))} of your cash, more than {limitWords}. </>}
           {exampleRefi ? null : a.cashFlow <= 0
             ? livingThere
-              ? `After any rent you collect, living there would cost you about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month: compare that with what you pay to live where you are now.`
+              ? 'Compare that with what you pay to live where you are now.'
               : `It loses about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month after every cost. Investigate whether the price, the costs or your plan should change, or walk away.`
+            : livingThere
+              ? 'Check each number against evidence before you rely on it.'
             : coc !== null && coc < target
               ? `Cash flow is positive (about ${fmtMoney(Math.round(a.cashFlow / 12))} a month), but it misses your goal. Investigate whether the price, the costs or the goal should change.`
               : cashShort ? 'The return meets your target, but the cash it needs doesn’t fit what you have.' : `It meets your target at this price, based on your numbers. Check each number against evidence before you rely on it.`}
         </p>
       )}
-      {price > 0 && cashShort && <p className="small"><button type="button" className="linkish" onClick={(e) => { const f = e.currentTarget.closest('.calc')?.querySelector<HTMLInputElement>('input[id$="-cashAvailable"]'); if (!f) return; for (let d = f.closest('details'); d; d = d.parentElement?.closest('details') ?? null) d.open = true; f.scrollIntoView({ block: 'center' }); f.focus({ preventScroll: true }); }}>Enter your cash</button></p>}
+      {price > 0 && cashShort && <p className="small"><button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>Enter your cash</button></p>}
       {price === 0 && <p className="muted small">Enter the price you’d pay (the asking price, or your offer) to see your numbers at that price.</p>}
       {walkAway > 0 && price !== walkAway && !livingThere && <button type="button" className="linkish" onClick={() => setPrice(walkAway)}>Use the walk-away price ({fmtMoney(walkAway)})</button>}
       {price > 0 && (<>
@@ -351,7 +353,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         <div><dt>Cash-on-cash return: yearly cash flow ÷ your cash in</dt><dd>{a.cashOnCash === null ? 'All your cash is back' : pctText(a.cashOnCash)}</dd></div>
         <div><dt>Cap rate on the price: NOI ÷ price</dt><dd>{pctText(a.capOnPrice)}</dd></div>
         <div><dt>Cap rate on everything you pay</dt><dd>{pctText(a.capOnCost)}</dd></div>
-        {a.dscr !== null && <div><dt>Income coverage: NOI ÷ loan payments</dt><dd>{a.dscr.toFixed(2)}×{a.dscr < v.minDscr && <span className="deal-urgent"> · below your {v.minDscr}× income-coverage target; check the lender’s separate requirements</span>}</dd></div>}
+        {a.dscr !== null && <div><dt>Income coverage: NOI ÷ loan payments</dt><dd>{a.dscr.toFixed(2)}×{a.dscr < v.minDscr && (livingThere ? <span> · below the {v.minDscr}× an investor’s lender looks for; a home loan you live in is judged mainly on your own income</span> : <span className="deal-urgent"> · below your {v.minDscr}× income-coverage target; check the lender’s separate requirements</span>)}</dd></div>}
       </dl>
       </>)}
       <p className="muted small">Uses the rent, costs and loan you entered above; taxes and insurance are counted in operating costs, not in the loan payment. Your cash in doesn’t include reserves you keep in the bank. An estimate, not advice.</p>
@@ -529,15 +531,22 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   // never changes on its own (so the walk-away price doesn't move as you try prices).
   // (It also covers a box that still holds another county's starting figure.)
   const rate = regional && !typedKeys.has('propertyTaxYear') ? countyTaxRate(region.state, region.county) : null;
-  const taxBase = v.atPrice > 0 ? v.atPrice : (start.value ?? RENT_DEFAULTS.value);
+  // The base the tax is figured on. California resets it to the price you pay (Proposition 13); elsewhere the county
+  // taxes its own value, so an auction bid (often far below value) is no guide: use the value instead. A listed
+  // home's price is close to its value, so an offer stays the base there.
+  const priceState = COUNTY_TAX_RATES[region.state]?.of === 'price';
+  const taxOnPrice = v.atPrice > 0 && (offer || priceState);
+  const valueBase = v.value > 0 ? v.value : (start.value ?? RENT_DEFAULTS.value);
+  const taxBase = taxOnPrice ? v.atPrice : valueBase;
   const taxHere = rate ? taxAt(taxBase, rate.pct) : 0;
+  const taxAtWords = taxOnPrice ? `At your ${fmtMoney(v.atPrice)} ${offer ? 'offer' : 'bid'}` : v.atPrice > 0 ? `The county taxes its value, not your bid: at a ${fmtMoney(taxBase)} value` : `At a ${fmtMoney(taxBase)} ${priceState ? 'price' : 'value'}`;
   const withTaxHint = (gs: CalcGroup<RentInputs>[]) => (rate && taxHere !== v.propertyTaxYear
-    ? gs.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} At ${v.atPrice > 0 ? `your ${fmtMoney(v.atPrice)} ${offer ? 'offer' : 'bid'}` : `a ${fmtMoney(taxBase)} price`}: about ${fmtMoney(taxHere)}.`.trim() } : f)) }))
+    ? gs.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} ${taxAtWords}: about ${fmtMoney(taxHere)}.`.trim() } : f)) }))
     : gs);
   const groups0 = withTaxHint(offer ? forOffer(rt.groups) : rt.groups);
   // Living there: that's a rental's rate; a home you live in may get an owner-occupant (homestead) exemption.
   const groups = offer && investorProfile().ownerOccupant
-    ? groups0.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} That’s a rental’s rate: a home you live in may qualify for a homestead exemption that lowers it; ask the county.*`.trim() } : f)) }))
+    ? groups0.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} ${ownerOccupiedTaxNote(region.state)}`.trim() } : f)) }))
     : groups0;
   // Numbers from your plan or the property (`start`) aren't our examples.
   const still = exampleLabels(visibleFields(groups, v), v, examples, typedKeys, new Set([...NOT_EXAMPLES, ...Object.keys(start)]));
@@ -553,6 +562,8 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const planCash = investorProfile().investable;
   const walk = !offer && !r.noBidWorks && Number.isFinite(r.maxBid) && r.maxBid > 0 ? rentAtPrice(v, Math.round(r.maxBid), false) : null;
   const walkNeed = walk ? (walk.loan > 0 ? walk.allIn : walk.cashIn) : 0;
+  // You plan to live there (Decide: a home loan and live in it): the investor's walk-away price is a yardstick only.
+  const living = offer && !!investorProfile().ownerOccupant;
   const walkShort = !!walk && !(v.cashAvailable > 0) && !typedKeys.has('cashAvailable') && planCash > 0 && walkNeed > planCash;
   return (
     <div className="calc">
@@ -566,7 +577,13 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         {/* Your actual deal first; the price that would meet your goal second, each with its own heading bar and colour. */}
         {offer && investorProfile().ownerOccupant && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
         <AtThisPrice v={v} start={r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} cashTyped={typedKeys.has('cashAvailable')} />
-        <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} />
+        {living ? (
+          <details className="calc-assumptions">
+            <summary>Investor yardstick: the price that meets an investor’s {v.targetCocPct}% return</summary>
+            <p className="muted small">You plan to live there, so this isn’t your limit: it’s what an investor renting out the whole property would pay for that return. Your own limit is the monthly cost you’re comfortable with and the loan your lender approves.</p>
+            <HoldResults r={r} title="Price that meets an investor’s target" target={`Gives a ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} />
+          </details>
+        ) : <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} />}
         {walkShort && <PlanCashNote need={walkNeed} planCash={planCash} offer={false} />}
         {/* An auction rental's later refinance is sized on the value after repairs: say so while that's still our example. */}
         {exampleValue && (
@@ -579,7 +596,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         {at.price > 0 ? <LenderView v={v} at={at} onPrice={offer} /> : null}
         <StrComparison v={v} />
       </div>
-      <StickyResult label={offer ? 'Price that meets your target' : 'Walk-away price'} value={r.noBidWorks ? 'No price works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks} />
+      {!living && <StickyResult label={offer ? 'Price that meets your target' : 'Walk-away price'} value={r.noBidWorks ? 'No price works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks} />}
     </div>
   );
 }

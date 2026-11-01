@@ -1,8 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { redemptionOutcome, ruleOf, START_INPUTS } from './bidCalc';
-import { offeredRedemptionRules, redemptionChoicesFor, redemptionPresetsFor, transferTaxFor } from './stateCosts';
+import { offeredRedemptionRules, ownerOccupiedTaxNote, redemptionChoicesFor, redemptionPresetsFor, transferTaxFor } from './stateCosts';
 
 describe('state deal costs', () => {
+  it('words the live-in tax note by each state’s own program, asterisked', () => {
+    for (const st of ['NV', 'CA', 'AZ', 'UT', 'TX'] as const) expect(ownerOccupiedTaxNote(st).endsWith('*')).toBe(true);
+    expect(ownerOccupiedTaxNote('NV')).toMatch(/3%/);
+    expect(ownerOccupiedTaxNote('NV')).not.toMatch(/homestead/i);
+    expect(ownerOccupiedTaxNote('TX')).toMatch(/homestead exemption/);
+  });
+
   it('uses each state’s transfer tax per $500', () => {
     expect(transferTaxFor('NV', 'Clark').per500).toBe(2.55);
     expect(transferTaxFor('NV', 'Washoe').per500).toBe(2.05);

@@ -32,8 +32,10 @@ const CURRENT = CURRENT_KEY;
 function planFromBuyBox(): Plan {
   try {
     const s = (JSON.parse(localStorage.getItem('deedowl.buybox.v1') ?? 'null') as { strategy?: unknown } | null)?.strategy;
-    if (typeof s === 'string' && s.trim()) return /rental|rent the others|BRRRR/.test(s) ? 'rent' : 'flip';
-    // No strategy in the buy box: the goal from Decide (rent or long-run growth opens Keep and rent).
+    if (typeof s === 'string' && /rental|rent the others|BRRRR/.test(s)) return 'rent';
+    if (s === 'Fix and flip') return 'flip';
+    // No strategy, or one that doesn't say rent or flip (auctions, bank-owned homes, still deciding): the goal from
+    // Decide (rent or long-run growth opens Keep and rent).
     const goal = (JSON.parse(localStorage.getItem('deedowl.decide.v1') ?? 'null') as { answers?: { goal?: unknown } } | null)?.answers?.goal;
     if (goal === 'income' || goal === 'growth') return 'rent';
   } catch {
@@ -43,7 +45,13 @@ function planFromBuyBox(): Plan {
 }
 
 // A new deal starts on the kind of sale your roadmap route is about, so saving a practice analysis keeps the route.
-const kindForRoute = (st: StateCode): SaleKind => { const r = roadmapPath(); return r === 'auction' ? 'trustee' : r === 'certificate' && (st === 'NV' || st === 'AZ') ? 'lien' : 'listing'; };
+// On the auction route, the kind of auction you last saved in this state (a Texas tax-sale buyer keeps tax sales),
+// else a trustee's sale.
+const lastAuctionKind = (st: StateCode): SaleKind => {
+  const k = loadDeals().filter((d) => d.state === st && !d.practice && d.kind !== 'lien' && d.kind !== 'listing' && d.kind !== 'reo' && d.kind !== 'short').sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0]?.kind;
+  return k && kindsFor(st).some((x) => x.key === k) ? k : 'trustee';
+};
+const kindForRoute = (st: StateCode): SaleKind => { const r = roadmapPath(); return r === 'auction' ? lastAuctionKind(st) : r === 'certificate' && (st === 'NV' || st === 'AZ') ? 'lien' : 'listing'; };
 
 function blank(st: StateCode): Deal {
   const kind = kindForRoute(st);
@@ -97,6 +105,8 @@ function loadCurrent(st: StateCode): Deal {
         deletedOnLoad = true;
         return asDraft(v);
       }
+      // An untouched unsaved draft still on the state's default county, from before you chose your area: use your area's.
+      if (!v.id && !v.name.trim() && !v.notes.trim() && v.done.length === 0 && !v.locationConfirmed && v.county === DEFAULT_COUNTY[v.state] && startCounty(v.state) !== v.county) return { ...v, county: startCounty(v.state) };
       return v;
     }
   } catch {
@@ -302,6 +312,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         <h2 id="setup-head">1. Tell us about the property you found</h2>
         {deal.id && saved.find((d) => d.id === deal.id)?.stage === 'passed' && (
           <p className="note" role="status">You passed on “{deal.name}”. Changes here update it in My deals. Looking at a different property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(deal.state)); }}>Start a new deal</button></p>
+        )}
+        {deal.id && deal.practice && !savingPractice() && saved.find((d) => d.id === deal.id)?.stage !== 'passed' && (
+          <p className="note" role="status">This is your practice analysis “{deal.name}”. Changes here update it in My deals, and it stays a practice analysis. Found a real property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(deal.state)); }}>Start a new deal</button></p>
         )}
         <p className="muted">Found a property on an official list, a listing site or from your agent? Enter it here. You’ll get the checklist for that kind of sale in that county, and the calculator for your plan. Save it to come back to it in My deals.</p>
         <div className="deal-fields">

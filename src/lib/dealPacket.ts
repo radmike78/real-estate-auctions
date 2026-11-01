@@ -467,7 +467,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const boxLines = [
     `Goal: ${goal || 'not written yet'}`,
     `Investable cash: ${profile.investable > 0 ? money(profile.investable) : 'not worked out yet'}`,
-    box.priceMax || box.types.length ? `Buy box: ${[box.types.join(', '), box.priceMax ? `up to ${money(box.priceMax)}` : '', box.cashMax ? `${money(box.cashMax)} of cash at most` : '', box.minCashFlow ? `at least ${money(box.minCashFlow)} a month` : ''].filter(Boolean).join('; ')}` : 'Buy box: not set up yet',
+    box.priceMax || box.types.length ? `Buy box: ${[box.types.join(', '), box.priceMax ? `up to ${money(box.priceMax)}` : '', box.cashMax ? `${money(box.cashMax)} of cash at most${profile.investable > 0 && box.cashMax > profile.investable ? ` (more than the ${money(profile.investable)} of investable cash you have now: update your buy box if it no longer fits)` : ''}` : '', box.minCashFlow ? `at least ${money(box.minCashFlow)} a month` : ''].filter(Boolean).join('; ')}` : 'Buy box: not set up yet',
     p.fit ? `This property: ${FIT_LABEL[p.fit]}${p.fitWhy ? `, because ${p.fitWhy}` : ''}` : 'This property: not judged against your buy box yet',
   ];
   out.push({ key: 'plan', title: 'Your plan and buy box', status: p.fit && p.fitWhy && goal ? 'done' : p.fit || goal || box.priceMax ? 'started' : 'missing', lines: boxLines, fix: !goal || !box.priceMax ? { label: 'Goal, cash and buy box in My plan', href: '#/toolkit' } : undefined });
@@ -547,7 +547,10 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       needAt = `At your walk-away price of ${money(bid.maxBid)}`;
       cash.push(`No ${offer ? 'offer or asking price' : 'bid or opening bid'} entered yet: add it in ${strategy} to see the cash at your own price.`);
     }
-    if (!bid.none) {
+    // A walk-away price below the opening bid (or asking price) is no price you could pay: say so instead of a what-if.
+    if (!bid.none && a?.source === 'listed' && bid.maxBid < a.price) {
+      cash.push(`No ${offer ? 'offer at or above the asking price' : 'bid at or above the opening bid'} of ${money(a.price)} ${a.profit >= bid.target && bid.limitedBy === 'cash' ? 'fits your cash' : 'meets your goal'} as entered: the most that would is ${money(bid.maxBid)}, below it.`);
+    } else if (!bid.none) {
       const what = `What-if, at your walk-away price of ${money(bid.maxBid)} (the most you could pay, not your price)`;
       cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} on sale day; estimated cash you’d put in ${money(bid.cashPeak)}`);
     }
@@ -590,7 +593,12 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
 
   // 5. Numbers: base and downside, for the deal's strategy only
   const nums: string[] = ['Returns, profit and cash flow are before income tax; personal taxes and depreciation are not included.', `Strategy: ${strategy}. These are the numbers you saved in its calculator; other strategies’ calculators aren’t counted.`];
-  if (rent) {
+  // You plan to live there: a monthly loss is what living there costs you (as Keep and rent and My deals say).
+  const living = !!rent && offer && !!profile.ownerOccupant;
+  if (rent && living) {
+    nums.push(`Your offer (your actual price): ${money(rent.price)} → ${rent.monthly < 0 ? `living there costs you about ${money(-rent.monthly)} a month after any rent you collect` : `the rent you collect covers every cost, with about ${money(rent.monthly)} a month to spare`}. Compare that with what you pay to live where you are now; the return target is an investor’s yardstick.`);
+    for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase()}: ${s.monthly < 0 ? `living there costs about ${money(-s.monthly)} a month` : `${money(s.monthly)} a month to spare`}`);
+  } else if (rent) {
     nums.push(`${offer ? 'Your offer' : 'Your bid'} (your actual price): ${money(rent.price)} → monthly cash flow ${money(rent.monthly)}${rent.exampleValue ? ` (${refiValueWords(rent.refiValue)})` : rent.refi ? ' after the refinance' : ''}; ${rent.exampleValue && rent.refiValue > 0 ? 'return not shown until you enter the value after repairs' : rent.cashOnCash === null ? 'all your cash back' : `${(rent.cashOnCash * 100).toFixed(1)}% a year on your cash`} (target ${rent.target}%)`);
     for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase()}: ${money(s.monthly)} a month`);
   }
@@ -600,8 +608,9 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     const belowOpening = !bid.none && a?.source === 'listed' && bid.maxBid < a.price;
     nums.push(bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and your profit target` : `What-if: walk-away price ${money(bid.maxBid)}, the most you could pay and still meet your goal (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : 'this deal doesn’t meet your goal'} as entered` : ''}`);
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
+    const floor = a?.source === 'listed' ? a.price : 0;
     for (const s of bid.stress.slice(1)) {
-      const walk = s.maxBid > 0 ? `walk-away price ${money(s.maxBid)}` : 'no price works';
+      const walk = s.maxBid > 0 && floor > 0 && s.maxBid < floor ? `below the ${offer ? 'asking price' : 'opening bid'} (walk-away price ${money(s.maxBid)})` : s.maxBid > 0 ? `walk-away price ${money(s.maxBid)}` : 'no price works';
       nums.push(`  If ${s.label.toLowerCase()}: ${a && s.profit !== null ? `profit ${money(s.profit)} at ${money(a.price)}; ${walk}` : walk}`);
     }
   }

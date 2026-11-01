@@ -293,10 +293,10 @@ describe('the deal packet', () => {
       save(base);
       const nums = section('numbers');
       // Resale 10% lower: $270,000 − $200,000 − $23,000 repairs − $21,600 selling = $25,400.
-      expect(nums).toMatch(/If resale value 10% lower: profit \$25,400 at \$200,000; walk-away price \$184,900/);
+      expect(nums).toMatch(/If resale value 10% lower: profit \$25,400 at \$200,000; below the asking price \(walk-away price \$184,900\)/);
       // Repairs 25% higher: $28,750 with the cushion, so $300,000 − $200,000 − $28,750 − $24,000 = $47,250.
       expect(nums).toMatch(/If repairs 25% higher: profit \$47,250 at \$200,000; walk-away price \$202,250/);
-      expect(nums).toMatch(/If all three at once: profit \$[\d,]+ at \$200,000; walk-away price \$179,150/);
+      expect(nums).toMatch(/If all three at once: profit \$[\d,]+ at \$200,000; below the asking price \(walk-away price \$179,150\)/);
     });
 
     it('counts financing and holding costs at your own price', () => {
@@ -498,4 +498,24 @@ it('says the repairs are what’s missing when only a flip’s resale value is t
   const text = dealPacketText(flip, EMPTY_PACKET, new Date('2026-10-06T00:00:00Z'));
   expect(text).toContain('Enter the repairs in');
   expect(text).not.toContain('No numbers yet');
+});
+
+it('words a live-in buyer’s rental numbers as the monthly cost of living there', () => {
+  localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { borrow: 'live' } }));
+  localStorage.setItem('fsf.calc.rent.d1-offer.v1', JSON.stringify({ atPrice: 380000, value: 380000, monthlyRent: 1400, loanPct: 96.5 }));
+  const nums = packetSections(deal, EMPTY_PACKET, now).find((x) => x.key === 'numbers')!.lines.join('\n');
+  expect(nums).toMatch(/Your offer \(your actual price\): \$380,000 → living there costs you about \$[\d,]+ a month after any rent you collect/);
+  expect(nums).not.toMatch(/a year on your cash/);
+  localStorage.removeItem('deedowl.decide.v1');
+});
+
+it('says no bid at the opening bid fits, instead of a what-if below it', () => {
+  const auction: Deal = { ...deal, kind: 'trustee', plan: 'flip' };
+  localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 200000, exitValue: 300000, repairs: 20000, contingencyPct: 15, transferTaxPer500: 0, titleLegal: 0, possession: 0, holdingMonths: 0, monthlyCarry: 0, financedPct: 0, sellingCostPct: 8, targetProfitPct: 15, cashAvailable: 156000 }));
+  const s = packetSections(auction, EMPTY_PACKET, now);
+  const cash = s.find((x) => x.key === 'cash')!.lines.join('\n');
+  expect(cash).toMatch(/No bid at or above the opening bid of \$200,000 fits your cash as entered: the most that would is \$[\d,]+, below it\./);
+  expect(cash).not.toMatch(/What-if, at your walk-away price/);
+  const nums = s.find((x) => x.key === 'numbers')!.lines.join('\n');
+  expect(nums).not.toMatch(/If [^:]+: walk-away price \$/);
 });

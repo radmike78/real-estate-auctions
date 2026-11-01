@@ -186,6 +186,18 @@ function OtherNumbers({ d }: { d: Deal }) {
     const planCash = investorProfile().investable;
     // The same rule as Fix and sell: no warning once a cash limit is entered there (the price is already capped by it).
     const short = !(bid.cashLimit > 0) && !bid.cashTyped && planCash > 0 && bid.cashPeak > planCash;
+    // Your own bid or offer first (as Fix and sell shows it), with its cash against your limit; then the walk-away price.
+    if (bid.at?.source === 'yours') {
+      const a = bid.at;
+      const limit = bid.cashLimit > 0 ? bid.cashLimit : bid.cashTyped ? 0 : planCash;
+      const mine = limit > 0 && a.cashPeak > limit;
+      const word = d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short' ? 'offer' : 'bid';
+      return (
+        <p className={mine || a.profit < bid.target || a.price > bid.maxBid ? 'deal-urgent' : undefined}>
+          At your {word}, {fmtMoney(a.price)}: profit about {fmtMoney(Math.round(a.profit))} · needs about {fmtMoney(Math.round(a.cashPeak))} of your cash{mine ? ` (${bid.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''} · walk-away price {fmtMoney(bid.maxBid)}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}
+        </p>
+      );
+    }
     return (
       <p className={short ? 'deal-urgent' : undefined}>
         Walk-away price {fmtMoney(bid.maxBid)} · needs about {fmtMoney(Math.round(bid.cashPeak))} of your cash at that price{short ? ` (My plan: ${fmtMoney(Math.round(planCash))})` : ''}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}

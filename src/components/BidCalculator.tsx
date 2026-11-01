@@ -354,6 +354,10 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const planCash = investorProfile().investable;
   // No cash entered here, and My plan's cash doesn't cover the opening bid with every cost (the packet says the same).
   const planShort = !offer && !dealFails && !cashShort && i.minimumBid > 0 && !(i.cashAvailable > 0) && !typedKeys.has('cashAvailable') && planCash > 0 && openingCash > planCash;
+  // Your own bid's cash against your limit: the cash entered here, else My plan's (a typed 0 is no limit).
+  const bidCashLimit = i.cashAvailable > 0 ? i.cashAvailable : typedKeys.has('cashAvailable') ? 0 : planCash;
+  const bidCash = bid > 0 ? cashNeededAtBid(i, bid) : 0;
+  const bidShort = bid > 0 && bidCashLimit > 0 && bidCash > bidCashLimit;
   // Costs still at $0 that nobody entered: unknown, not confirmed zero. Typing 0 confirms there's none.
   const unentered = unenteredCosts(i, typedKeys, offer);
   const unenteredNote = unentered.length > 0 && (
@@ -568,9 +572,11 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         </div>
         {atBid && profit !== null && <PriceHead kind="yours" label={yours} price={bid} result={profit} unit="profit" note={`Estimated cash you’d put in at this price, under these assumptions (through repairs and holding until it sells): ${fmtMoney(Math.round(cashNeededAtBid(i, bid)))}.${saveAs && !propertyId ? ' Saved with this deal as your price; its deal packet uses it.' : propertyId ? ' Saved for this property in this browser.' : ''}`} />}
         {atBid && profit !== null && !needsValue && (
-          <div className={`calc-verdict ${over ? 'bad' : 'good'}`} role="status">
+          <div className={`calc-verdict ${over || bidShort ? 'bad' : 'good'}`} role="status">
             {over ? (
               <><strong>Above your walk-away price.</strong> At {fmtMoney(bid)} this deal no longer meets your {r.limitedBy === 'cash' && bid <= r.profitBid ? 'cash limit' : 'target'}. Profit would be {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}. Past your walk-away price, this deal no longer meets your own numbers.</>
+            ) : bidShort ? (
+              <><strong>Within your walk-away price, but it needs more cash than {i.cashAvailable > 0 ? 'you entered' : 'My plan shows'}.</strong> Estimated profit {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}. At {fmtMoney(bid)} you’d put in about {fmtMoney(Math.round(bidCash))} of your cash; {i.cashAvailable > 0 ? `you entered ${fmtMoney(i.cashAvailable)}` : `My plan shows ${fmtMoney(Math.round(planCash))} of investable cash`}.{i.cashAvailable > 0 ? null : <> <button type="button" className="linkish" onClick={() => { const f = document.getElementById(`${uid}-cashAvailable`); f?.scrollIntoView({ block: 'center' }); f?.focus({ preventScroll: true }); }}>Enter your cash</button></>}</>
             ) : (
               <><strong>Within your walk-away price.</strong> Estimated profit {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}.</>
             )}

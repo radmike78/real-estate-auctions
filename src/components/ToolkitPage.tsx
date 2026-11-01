@@ -1,4 +1,5 @@
 import { roadmapNextStep, stepContext } from '../lib/planNext';
+import { AreaLine } from './AreaPicker';
 import NumInput from './NumInput';
 import { syncRoadmapCredits } from '../lib/journey';
 import { useAccount } from '../lib/account';
@@ -193,6 +194,7 @@ function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: Step
       {deal && s.evidence && dealScoped(s) && <EvidenceArea key={`${deal.id}|${s.evidence}`} dealId={deal.id} dealName={deal.name} area={s.evidence} askFinding={status === 'done'} kind={deal.kind} />}
       {!deal && s.evidence && dealScoped(s) && <p className="muted">Working on a real property? Save it in <a href="#/analyze">Analyze</a> (it becomes the property you’re working on, shown above) to record what you find here.</p>}
       {s.id === 'goal' && <GoalField />}
+      {s.id === 'market' && <AreaLine what="Your sources, rules and checklists follow it." />}
       {s.stop && forStateText(myState, s.stop) && <p className="roadmap-stop"><strong>When to pause:</strong> {dropStateLead(forStateText(myState, s.stop), myState)}</p>}
       <p className="roadmap-done"><strong>Done when:</strong> {s.doneWhen}</p>
       {status !== 'done' && stepEvidence(s.id) && (
@@ -560,6 +562,14 @@ function PriceFromCash({ cash }: { cash: number }) {
   );
 }
 
+/** The buy-box strategy as the end of the summary sentence ("…, to fix and flip"). */
+function strategyPhrase(st: string): string {
+  if (st === 'Bank-owned and government homes') return ', to buy bank-owned and government homes';
+  if (st === 'Tax and foreclosure auctions') return ', to buy at tax and foreclosure auctions';
+  if (st === 'Still deciding') return ', strategy still to be decided';
+  return `, to ${st.charAt(0).toLowerCase()}${st.slice(1)}`;
+}
+
 /** The top strategy from Decide, as a buy-box strategy, if Decide has been answered. */
 const DECIDE_STRATEGY: Record<string, string> = {
   rental: 'Buy and hold a rental', househack: 'Live in one unit, rent the others', brrrr: 'Buy, fix, rent and refinance (BRRRR)', flip: 'Fix and flip', reo: 'Bank-owned and government homes', auction: 'Tax and foreclosure auctions',
@@ -662,6 +672,13 @@ function BuyBoxBuilder() {
           <strong>Your price limit needs more cash than you have.</strong> At {fmtMoney(b.priceMax)}, {pa.downPct}% down, about {pa.closingPct}% closing costs and {pa.reserveMonths} months of reserves take about {fmtMoney(Math.round(cashForPrice(b.priceMax, pa).total))}, more than your {fmtMoney(b.cashMax)}. Lower the price, or check a lower down payment with your lender.
         </p>
       )}
+      {(() => {
+        // The cash limit here was set before My plan's investable cash went down: offer the current figure.
+        const now = Math.round(investorProfile().investable);
+        return b.cashMax > 0 && now > 0 && b.cashMax > now ? (
+          <p className="note" role="status">Your cash limit here, {fmtMoney(b.cashMax)}, is more than the {fmtMoney(now)} of investable cash My plan shows now. <button type="button" className="linkish" onClick={() => set('cashMax', now)}>Use {fmtMoney(now)}</button></p>
+        ) : null;
+      })()}
       <fieldset className="buybox-checks">
         <legend>Property types</legend>
         {PROPERTY_TYPE_OPTIONS.map((t) => <label key={t}><input type="checkbox" checked={b.types.includes(t)} onChange={() => toggle('types', t)} /> {t}</label>)}
@@ -680,7 +697,7 @@ function BuyBoxBuilder() {
           {lien ? `Lien certificates on ${b.types.length ? b.types.join(', ').toLowerCase() : 'any kind of parcel'}` : b.types.length ? b.types.join(', ') : 'Any property type'}
           {b.beds && !lien ? ` (${b.beds})` : ''}
           {b.area ? ` in ${b.area}${state ? `, ${state.name}` : ''}` : state ? `, anywhere in ${state.name}` : ' in any area'}
-          {b.strategy && !lien ? `, to ${b.strategy.charAt(0).toLowerCase()}${b.strategy.slice(1)}` : ''}.
+          {b.strategy && !lien ? strategyPhrase(b.strategy) : ''}.
           {b.priceMax ? (lien ? ` Up to ${fmtMoney(b.priceMax)} for one certificate.` : ` Price up to ${fmtMoney(b.priceMax)}.`) : ''}
           {b.repairsMax && !lien ? ` Repairs up to ${fmtMoney(b.repairsMax)}.` : ''}
           {b.cashMax ? ` No more than ${fmtMoney(b.cashMax)} of my cash in it.` : ''}
