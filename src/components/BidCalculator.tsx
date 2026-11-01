@@ -353,7 +353,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const yours = offer ? 'Your offer' : 'Your bid';
   const planCash = investorProfile().investable;
   // No cash entered here, and My plan's cash doesn't cover the opening bid with every cost (the packet says the same).
-  const planShort = !offer && !dealFails && !cashShort && i.minimumBid > 0 && !(i.cashAvailable > 0) && planCash > 0 && openingCash > planCash;
+  const planShort = !offer && !dealFails && !cashShort && i.minimumBid > 0 && !(i.cashAvailable > 0) && !typedKeys.has('cashAvailable') && planCash > 0 && openingCash > planCash;
   // Costs still at $0 that nobody entered: unknown, not confirmed zero. Typing 0 confirms there's none.
   const unentered = unenteredCosts(i, typedKeys, offer);
   const unenteredNote = unentered.length > 0 && (
@@ -493,7 +493,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           )
         )}
         {/* No cash limit entered here, but My plan has your investable cash and this needs more: say so by the price. */}
-        {!needsValue && !r.noBidWorks && !planShort && !(i.cashAvailable > 0) && planCash > 0 && r.cashPeak > planCash && (
+        {!needsValue && !r.noBidWorks && !planShort && !(i.cashAvailable > 0) && !typedKeys.has('cashAvailable') && planCash > 0 && r.cashPeak > planCash && (
           <p className="calc-verdict bad" role="note"><strong>This needs about {fmtMoney(Math.round(r.cashPeak))} of your cash at the walk-away price; My plan shows {fmtMoney(Math.round(planCash))} of investable cash.</strong> {offer ? 'Offer only what fits your cash (with any loan your lender approves), or compare a loan with a lender.' : <>Enter the cash you can bring (an auction wants the full amount by its payment deadline) to cap the {w.bid} at what you have, or compare a loan with a lender. <button type="button" className="linkish" onClick={() => { const f = document.getElementById(`${uid}-cashAvailable`); f?.scrollIntoView({ block: 'center' }); f?.focus({ preventScroll: true }); }}>Enter your cash</button></>}</p>
         )}
         {!needsValue && i.minimumBid > 0 && <PriceHead kind="listed" tag={offer ? 'From the listing' : 'From the sale notice'} label={w.Opening} price={i.minimumBid} result={atOpening} unit="profit" note={`Estimated cash you’d put in at this price, under these assumptions (through repairs and holding until it sells): ${fmtMoney(Math.round(openingCash))}.`} />}

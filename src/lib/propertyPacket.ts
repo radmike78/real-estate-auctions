@@ -28,7 +28,7 @@ function read(key: string): unknown {
  * The rental numbers saved for a deal at the price you'd pay, or null until a price is entered in Keep and rent. Only
  * for a deal saved with the Keep and rent strategy: another strategy's deal never shows leftover rental numbers.
  */
-export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCash: number | null; target: number; cashIn: number; exampleValue: boolean; refiValue: number; /** Cash needed (until a refinance closes) and the cash limit entered in Keep and rent (0: none). */ cashNeeded: number; cashLimit: number; /** Cash flow after a later refinance (an auction rental with a loan). */ refi: boolean } | null {
+export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCash: number | null; target: number; cashIn: number; exampleValue: boolean; refiValue: number; /** Cash needed (until a refinance closes) and the cash limit entered in Keep and rent (0: none). */ cashNeeded: number; cashLimit: number; /** You typed the cash limit (a typed 0: no limit). */ cashTyped: boolean; /** Cash flow after a later refinance (an auction rental with a loan). */ refi: boolean } | null {
   // Only the property's own numbers (the rent typed), never the calculator's examples.
   if (d.plan !== 'rent' || !ownNumbers(d)) return null;
   const offer = d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short';
@@ -38,7 +38,7 @@ export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCa
   const v = withPlanCash(withoutOldValueExample(sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs, offer, typed), offer, typed, investorProfile().investable);
   if (!(v.atPrice > 0)) return null;
   const a = rentAtPrice(v, v.atPrice, offer);
-  return { price: v.atPrice, monthly: a.cashFlow / 12, cashOnCash: a.cashOnCash, target: v.targetCocPct, cashIn: a.cashIn, exampleValue: refiOnExampleValue(v, offer, typed), refiValue: v.value, cashNeeded: !offer && a.loan > 0 ? a.allIn : a.cashIn, cashLimit: typed.has('cashAvailable') && v.cashAvailable > 0 ? v.cashAvailable : 0, refi: !offer && a.loan > 0 };
+  return { price: v.atPrice, monthly: a.cashFlow / 12, cashOnCash: a.cashOnCash, target: v.targetCocPct, cashIn: a.cashIn, exampleValue: refiOnExampleValue(v, offer, typed), refiValue: v.value, cashNeeded: !offer && a.loan > 0 ? a.allIn : a.cashIn, cashLimit: typed.has('cashAvailable') && v.cashAvailable > 0 ? v.cashAvailable : 0, cashTyped: typed.has('cashAvailable'), refi: !offer && a.loan > 0 };
 }
 
 export function propertyPacketText(d: Deal): string {

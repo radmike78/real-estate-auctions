@@ -21,7 +21,7 @@ import StatusBadge from './StatusBadge';
 import { dealNumbers } from '../lib/propertyPacket';
 import { nextAction, savedNumbers } from '../lib/dealPacket';
 import { investorProfile } from '../lib/myPlan';
-import { refiValueWords } from '../lib/holdCalc';
+import { refiValueWords, rentVerdict } from '../lib/holdCalc';
 import { stageLabel, stageOf, setDealStage } from '../lib/dealStage';
 import AdSpot from './AdSpot';
 
@@ -172,10 +172,10 @@ function OtherNumbers({ d }: { d: Deal }) {
   if (bid) {
     if (bid.none) return <p className="deal-urgent">No price works at a {fmtMoney(bid.exitValue)} resale value with these costs and your profit target.</p>;
     // Below the opening bid (or asking price): no bid you'd make works, whatever the walk-away price says.
-    if (bid.at?.source === 'listed' && bid.maxBid < bid.at.price) return <p className="deal-urgent">{bid.limitedBy === 'cash' ? 'Your cash doesn’t cover' : 'Doesn’t meet your profit target at'} the {d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short' ? 'asking price' : 'opening bid'} of {fmtMoney(bid.at.price)}.</p>;
+    if (bid.at?.source === 'listed' && bid.maxBid < bid.at.price) return <p className="deal-urgent">{bid.at.profit >= bid.target && bid.limitedBy === 'cash' ? 'Your cash doesn’t cover' : 'Doesn’t meet your profit target at'} the {d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short' ? 'asking price' : 'opening bid'} of {fmtMoney(bid.at.price)}.</p>;
     const planCash = investorProfile().investable;
     // The same rule as Fix and sell: no warning once a cash limit is entered there (the price is already capped by it).
-    const short = !(bid.cashLimit > 0) && planCash > 0 && bid.cashPeak > planCash;
+    const short = !(bid.cashLimit > 0) && !bid.cashTyped && planCash > 0 && bid.cashPeak > planCash;
     return (
       <p className={short ? 'deal-urgent' : undefined}>
         Walk-away price {fmtMoney(bid.maxBid)} · needs about {fmtMoney(Math.round(bid.cashPeak))} of your cash at that price{short ? ` (My plan: ${fmtMoney(Math.round(planCash))})` : ''}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}
@@ -229,12 +229,12 @@ export default function DealsPage() {
                         const n = dealNumbers(d);
                         // The same check as Keep and rent: the cash it needs against My plan's, unless a limit was entered there.
                         const planCash = investorProfile().investable;
-                        const limit = n && n.cashLimit > 0 ? n.cashLimit : planCash;
+                        const limit = n && n.cashLimit > 0 ? n.cashLimit : n?.cashTyped ? 0 : planCash;
                         const short = !!n && limit > 0 && n.cashNeeded > limit;
                         // You plan to live there: a monthly loss is what living there costs you (as Keep and rent says).
                         const living = !!n && !!investorProfile().ownerOccupant && (d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short');
                         return n ? (
-                          <p className={short || (!living && !(n.exampleValue && n.refiValue > 0) && (n.monthly <= 0 || (n.cashOnCash !== null && n.cashOnCash < n.target / 100))) ? 'deal-urgent' : undefined}>
+                          <p className={rentVerdict({ cashFlow: n.monthly, cashOnCash: n.cashOnCash, targetPct: n.target, cashShort: short, exampleRefi: n.exampleValue && n.refiValue > 0, living }) === 'bad' ? 'deal-urgent' : undefined}>
                             At your price, {fmtMoney(n.price)}: {n.monthly < 0 ? living ? `living there costs you about ${fmtMoney(Math.round(-n.monthly))}` : `loses ${fmtMoney(Math.round(-n.monthly))}` : `${fmtMoney(Math.round(n.monthly))} cash flow`} a month{n.exampleValue ? ` (${refiValueWords(n.refiValue)})` : n.refi ? ' after the refinance' : ''} · {n.exampleValue && n.refiValue > 0 ? 'enter the value after repairs to see the return' : n.cashOnCash === null ? 'all your cash back' : `${(n.cashOnCash * 100).toFixed(1)}% a year on ${fmtMoney(Math.round(n.cashIn))} of your cash`} (target {n.target}%){short ? ` · needs about ${fmtMoney(Math.round(n.cashNeeded))} of your cash (${n.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}
                           </p>
                         ) : d.plan === 'rent' ? <p className="muted">No numbers yet: open it and type its rent, and the price you’d pay, under Keep and rent (our example rent doesn’t count).</p> : <OtherNumbers d={d} />;

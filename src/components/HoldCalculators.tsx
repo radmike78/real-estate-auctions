@@ -4,7 +4,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState } from 'react';
 import { readConfirmed, saveConfirmed } from '../lib/calcConfirmation';
 import type { BidInputs } from '../lib/bidCalc';
-import { COMMERCIAL_DEFAULTS, commercialAtPrice, commercialLines, lenderView, STR_DEFAULTS, strCompare, type StrInputs, HOLD_SELL_DEFAULTS, SELLER_FINANCE_DEFAULTS, sellerFinance, type SellerFinanceInputs, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs, withoutOldValueExample, refiOnExampleValue, withPlanCash } from '../lib/holdCalc';
+import { COMMERCIAL_DEFAULTS, commercialAtPrice, commercialLines, lenderView, STR_DEFAULTS, strCompare, type StrInputs, HOLD_SELL_DEFAULTS, SELLER_FINANCE_DEFAULTS, sellerFinance, type SellerFinanceInputs, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs, withoutOldValueExample, refiOnExampleValue, rentVerdict, withPlanCash } from '../lib/holdCalc';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 import CalcFields, { type CalcGroup } from './CalcFields';
@@ -269,7 +269,8 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
   const blankRefi = exampleValue && !(v.value > 0);
   // Your cash limit: the cash entered here, else My plan's investable cash (an auction rental starts with no limit).
   const planCash = investorProfile().investable;
-  const cashLimit = v.cashAvailable > 0 ? v.cashAvailable : planCash;
+  // A 0 you typed means no limit (as the field says); left untouched, My plan's cash is the limit.
+  const cashLimit = v.cashAvailable > 0 ? v.cashAvailable : cashTyped ? 0 : planCash;
   const limitWords = v.cashAvailable > 0 && cashTyped ? `the ${fmtMoney(v.cashAvailable)} you can put in` : `the ${fmtMoney(Math.round(cashLimit))} of investable cash in My plan`;
   const walkAway = Number.isFinite(start) && start > 0 ? Math.round(start) : 0;
   // The price you'd actually pay is saved with the deal; the walk-away price is only used when you choose it.
@@ -290,7 +291,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
       </label>
       {price > 0 && (
-        <p className={`calc-verdict${cashShort ? ' bad' : exampleRefi || (livingThere && a.cashFlow <= 0) ? ' neutral' : !(a.cashFlow > 0 && (coc === null || coc >= target)) ? ' bad' : ' good'}`} role="status">
+        <p className={`calc-verdict ${rentVerdict({ cashFlow: a.cashFlow, cashOnCash: coc, targetPct: v.targetCocPct, cashShort, exampleRefi, living: livingThere })}`} role="status">
           <strong>{exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; your target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; your target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; your target: ${v.targetCocPct}%.`}</strong>{' '}
           {blankRefi && 'No refinance is counted yet: enter the value after repairs to include it. '}
           {cashShort && <>It needs about {fmtMoney(Math.round(needed))} of your cash, more than {limitWords}. </>}

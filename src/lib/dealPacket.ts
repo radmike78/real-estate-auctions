@@ -261,7 +261,7 @@ export function savedNumbers(d: Deal) {
   const offer = isOffer(d);
   // Example numbers aren't the property's numbers: nothing is reported until its own are typed.
   const own = ownNumbers(d);
-  let rent: { price: number; monthly: number; cashIn: number; allIn: number; repairs: number; possession: number; retained: number; refi: boolean; noLoan: boolean; exampleValue: boolean; refiValue: number; cashLimit: number; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
+  let rent: { price: number; monthly: number; cashIn: number; allIn: number; repairs: number; possession: number; retained: number; refi: boolean; noLoan: boolean; exampleValue: boolean; refiValue: number; cashLimit: number; cashTyped: boolean; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
   let bid: {
     maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number; none: boolean; target: number;
     /** A loan pays part of the price or repairs (repair draws aren't modeled, so the cash figures assume the loan pays as costs come due). */
@@ -271,6 +271,8 @@ export function savedNumbers(d: Deal) {
     cashLimit: number;
     /** What sets the walk-away price (your cash, or your profit target). */
     limitedBy: string;
+    /** You typed the cash limit (a typed 0: no limit). */
+    cashTyped: boolean;
     /** The result at your own price (your offer or bid, or else the asking price or opening bid); null when none is entered. */
     at: { price: number; source: 'yours' | 'listed'; profit: number; cashOnDay: number; cashPeak: number; cashLeft: number } | null;
     /** Each downside case: the walk-away price, and the profit at your own price (null when no price is entered). */
@@ -298,7 +300,7 @@ export function savedNumbers(d: Deal) {
       const v = withPlanCash(withoutOldValueExample(sanitizeNumbers(rentRaw, RENT_DEFAULTS) as RentInputs, offer, typedRent), offer, typedRent, investorProfile().investable);
       if (v.atPrice > 0) {
         const a = rentAtPrice(v, v.atPrice, offer);
-        rent = { price: v.atPrice, monthly: a.cashFlow / 12, cashIn: a.cashIn, allIn: a.allIn, repairs: v.repairs * (1 + v.contingencyPct / 100), possession: v.possession, retained: v.reserveCash, refi: !offer && a.loan > 0, noLoan: !(a.loan > 0), exampleValue: refiOnExampleValue(v, offer, typedRent), refiValue: v.value, cashLimit: typedRent.has('cashAvailable') && v.cashAvailable > 0 ? v.cashAvailable : 0, cashOnCash: a.cashOnCash, target: v.targetCocPct, stress: rentStress(v, v.atPrice, offer).map((s) => ({ label: s.label, monthly: s.monthly })) };
+        rent = { price: v.atPrice, monthly: a.cashFlow / 12, cashIn: a.cashIn, allIn: a.allIn, repairs: v.repairs * (1 + v.contingencyPct / 100), possession: v.possession, retained: v.reserveCash, refi: !offer && a.loan > 0, noLoan: !(a.loan > 0), exampleValue: refiOnExampleValue(v, offer, typedRent), refiValue: v.value, cashLimit: typedRent.has('cashAvailable') && v.cashAvailable > 0 ? v.cashAvailable : 0, cashTyped: typedRent.has('cashAvailable'), cashOnCash: a.cashOnCash, target: v.targetCocPct, stress: rentStress(v, v.atPrice, offer).map((s) => ({ label: s.label, monthly: s.monthly })) };
       }
     }
   } else if (d.plan === 'flip' && own) {
@@ -311,7 +313,7 @@ export function savedNumbers(d: Deal) {
         const pp = proposedPriceOf(i);
         const at = pp ? { ...resultAtPrice(i, pp.price), source: pp.source } : null;
         const stress = stressCases(i).map((c) => ({ label: c.label, maxBid: maxSafeBid(c.inputs).maxBid, profit: pp ? resultAtPrice(c.inputs, pp.price).profit : null }));
-        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0, limitedBy: r.limitedBy, cashLimit: i.cashAvailable > 0 && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable') ? i.cashAvailable : 0, unentered: unenteredCosts(i, readConfirmed(`fsf.bid.analyzed-${d.id}.v1`), offer) };
+        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0, limitedBy: r.limitedBy, cashTyped: readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable'), cashLimit: i.cashAvailable > 0 && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable') ? i.cashAvailable : 0, unentered: unenteredCosts(i, readConfirmed(`fsf.bid.analyzed-${d.id}.v1`), offer) };
       }
     }
   } else if (d.plan === 'commercial' && own) {
@@ -568,7 +570,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   // The same limit the calculator uses: the cash you entered there, else My plan's investable cash.
   const entered = rent?.cashLimit || bid?.cashLimit || commercial?.cashLimit || 0;
-  const limit = entered > 0 ? entered : profile.investable;
+  const typedNoLimit = !(entered > 0) && (rent?.cashTyped || bid?.cashTyped || false);
+  const limit = entered > 0 ? entered : typedNoLimit ? 0 : profile.investable;
   const limitWord = entered > 0 ? `the cash you entered in ${strategy}` : 'your investable cash';
   if (limit > 0 && need > 0) cash.push(need > limit ? `${needAt}, that’s ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered.` : `${needAt}, that leaves ${money(limit - need)} unallocated from ${limitWord}, after any retained reserves recorded above.`);
   const hasNums = hasSavedNumbers({ rent, bid, commercial, lien });
@@ -584,7 +587,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     const a = bid.at;
     if (a) nums.push(`${priceName(a.source, offer, true)} (${a.source === 'yours' ? 'your actual price' : offer ? 'used until you enter your own offer' : 'the lowest you could pay, used until you enter your own bid'}): ${money(a.price)} → estimated profit ${money(a.profit)} (your target ${money(bid.target)}${a.profit < bid.target ? ', so it falls short' : ''}), based on a ${money(bid.exitValue)} resale value`);
     const belowOpening = !bid.none && a?.source === 'listed' && bid.maxBid < a.price;
-    nums.push(bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and your profit target` : `What-if: walk-away price ${money(bid.maxBid)}, the most you could pay and still meet your goal (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : 'this deal doesn’t meet your goal'} as entered` : ''}`);
+    nums.push(bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and your profit target` : `What-if: walk-away price ${money(bid.maxBid)}, the most you could pay and still meet your goal (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : 'this deal doesn’t meet your goal'} as entered` : ''}`);
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
     for (const s of bid.stress.slice(1)) {
       const walk = s.maxBid > 0 ? `walk-away price ${money(s.maxBid)}` : 'no price works';

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialAtPrice, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice, loanAt, withoutOldValueExample, refiOnExampleValue, refiValueWords } from './holdCalc';
+import { allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialAtPrice, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice, loanAt, withoutOldValueExample, refiOnExampleValue, refiValueWords, rentVerdict } from './holdCalc';
 import { rentalStartFor } from './stateCosts';
 
 describe('rent / hold', () => {
@@ -235,4 +235,17 @@ it('flags an auction refinance whose value after repairs is still the example or
   expect(refiOnExampleValue(v, true, new Set())).toBe(false);
   expect(refiValueWords(350_000)).toContain('example value');
   expect(refiValueWords(0)).toContain('no refinance is counted');
+});
+
+it('gives one verdict rule for Analyze, My deals and the packet', () => {
+  const base = { cashFlow: 1200, cashOnCash: 0.09, targetPct: 8, cashShort: false, exampleRefi: false, living: false };
+  expect(rentVerdict(base)).toBe('good');
+  expect(rentVerdict({ ...base, cashShort: true })).toBe('bad');
+  expect(rentVerdict({ ...base, cashShort: true, exampleRefi: true })).toBe('bad'); // short of cash wins
+  expect(rentVerdict({ ...base, exampleRefi: true })).toBe('neutral');
+  expect(rentVerdict({ ...base, cashOnCash: 0.05 })).toBe('bad');
+  expect(rentVerdict({ ...base, cashOnCash: 0.05, living: true })).toBe('bad'); // positive but misses target: same rule
+  expect(rentVerdict({ ...base, cashFlow: -500, cashOnCash: -0.02, living: true })).toBe('neutral'); // a living cost
+  expect(rentVerdict({ ...base, cashFlow: -500, cashOnCash: -0.02 })).toBe('bad');
+  expect(rentVerdict({ ...base, cashOnCash: null })).toBe('good'); // all cash back
 });
