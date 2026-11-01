@@ -344,7 +344,7 @@ export const ROADMAP: RoadmapStep[] = [
     steps: ['Check each parcel on the county map: access, size, zoning and use.', 'Leave out slivers, drainage strips and land with no access.', 'Check for other liens and special assessments.'],
     stop: 'If you wouldn’t want to own the parcel, don’t bid on it.',
     doneWhen: 'Your list has only parcels you checked and would be willing to own.',
-    action: 'Arizona tax lien guide', href: '#/playbooks/aztaxlien',
+    action: 'Lien guides', href: '#/playbooks',
   },
   {
     id: 'c-budget', phase: 4, path: LIEN, title: 'Budget for the whole holding period',

@@ -70,8 +70,8 @@ export default function CalcFields<T extends object>({ groups, values, onChange 
                     />
                     {f.unit !== '$' && <i aria-hidden>{unitText(f.unit)}</i>}
                   </span>
-                  {draft[f.k] !== undefined && calculatorInputError(draft[f.k]!, f.unit) && <small className="deal-urgent" role="status" id={`${uid}-${f.k}-error`}>{calculatorInputError(draft[f.k]!, f.unit)}</small>}
                   <span className="calc-hint">
+                    {draft[f.k] !== undefined && calculatorInputError(draft[f.k]!, f.unit) && <small className="deal-urgent calc-error" role="status" id={`${uid}-${f.k}-error`}>{calculatorInputError(draft[f.k]!, f.unit)}</small>}
                     {f.hint && <small className="muted" id={`${uid}-${f.k}-hint`}>{f.hint}</small>}
                     {f.more && (
                       <details className="calc-more">

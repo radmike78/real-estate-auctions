@@ -424,7 +424,7 @@ function SignIn() {
     setMsg(r.message);
   }
   // Sign-in links go by email: until email is set up, the form can't work.
-  if (!features || features.unavailable) return <main className="page"><PageHero title="Advertiser sign-in" /><FeatureStatus features={features} /></main>;
+  if (!features || features.unavailable) return <main className="page"><PageHero title="Advertiser sign-in" /><FeatureStatus features={features} what="Advertiser sign-in isn’t" /></main>;
   if (!features.email)
     return (
       <main className="page">

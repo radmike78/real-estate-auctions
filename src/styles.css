@@ -1481,6 +1481,11 @@ html { scroll-padding-top: 88px; }
 .calc-rule { display: grid; gap: 6px; margin: 0 0 16px; }
 .calc-hint { display: flex; align-items: flex-start; gap: 8px; min-height: 1.4em; }
 .calc-hint small { flex: 1; }
+/* An invalid entry's message sits above the hint, in the same row, so the two never overlap. */
+.calc-hint { flex-wrap: wrap; }
+.calc-hint .calc-error { flex-basis: 100%; }
+.owl-note-retry { display: block; margin-top: 10px; }
+.calc-input:has(input[aria-invalid='true']) { border-color: var(--stop); }
 .calc-more { position: relative; }
 .calc-more summary { list-style: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 0.9rem; color: var(--accent); background: var(--surface-2); cursor: pointer; }
 .calc-more summary::-webkit-details-marker { display: none; }
@@ -2925,6 +2930,8 @@ dl.cash-result .cash-main { border-color: var(--accent); }
   .ad-box:not(.ad-space) .ad-box-grid:has(> .ad-card:only-child) .ad-card-body > .btn { grid-column: 2; grid-row: 1 / span 5; align-self: center; }
 }
 /* The prerendered copy kept on screen while the first page's code loads (src/lib/firstPaint.ts). */
+/* Holds the footer below the screen until the page's code arrives, so it doesn't jump down on a slow phone. */
+.prerender-hold { min-height: 100vh; }
 .prerender-hold h1 { font-size: clamp(2rem, 4vw, 2.8rem); margin: 8px 0 12px; }
 .prerender-hold table { width: 100%; border-collapse: collapse; }
 .prerender-hold th, .prerender-hold td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); vertical-align: top; }

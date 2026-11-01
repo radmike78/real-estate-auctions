@@ -39,8 +39,8 @@
       "src/lib/propertyViews.ts",
       "src/lib/foreclosure.ts"
     ],
-    "reviewed": "2026-10-31",
-    "hash": "5437ce1f68f84507",
+    "reviewed": "2026-11-01",
+    "hash": "4d84b3e02958bd26",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -50,8 +50,8 @@
       "src/components/BuyerChecklistBox.tsx",
       "src/lib/buyerChecklists.ts"
     ],
-    "reviewed": "2026-10-31",
-    "hash": "ef96fda0c168c52d",
+    "reviewed": "2026-11-01",
+    "hash": "7d79c231b39e7e81",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -145,8 +145,8 @@
       "src/components/DealJourneyPage.tsx",
       "src/practice/dealJourney.ts"
     ],
-    "reviewed": "2026-10-31",
-    "hash": "c0667218de767d32",
+    "reviewed": "2026-11-01",
+    "hash": "5ef03cdf66536ae6",
     "note": "Reviewed account resume: choices and numbers preserved, reflection self-review completion explicitly distinguished from written answers and grades; restored reflections allow continuation without inventing text. Local risk guidance and formulas unchanged."
   },
   {
@@ -162,8 +162,8 @@
       "src/components/StrategyTabs.tsx",
       "src/lib/holdCalc.ts"
     ],
-    "reviewed": "2026-10-31",
-    "hash": "3adebc1a3e811a78",
+    "reviewed": "2026-11-01",
+    "hash": "76d26220316274e9",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -191,8 +191,8 @@
       "src/components/TrackButton.tsx",
       "src/components/SearchAlertButton.tsx"
     ],
-    "reviewed": "2026-10-31",
-    "hash": "5bdcd0e0cc9af19d",
+    "reviewed": "2026-11-01",
+    "hash": "5ee4617b68bcd6db",
     "note": "Reviewed changed audit and Claude Round 15 wording. Fixed ad tiers, input provenance, actual commercial price, tax labels, lender disclosures, Arizona scope and Texas representation; corrected Nevada deposit guidance against NRS 624.970. Existing source-check dates are unchanged."
   },
   {
@@ -209,8 +209,8 @@
       "src/components/TeamBuilder.tsx",
       "src/lib/teamBuilder.ts"
     ],
-    "reviewed": "2026-10-31",
-    "hash": "853ae7027146eccd",
+    "reviewed": "2026-11-01",
+    "hash": "df2ada0ee052d3e0",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {
@@ -367,8 +367,8 @@
       "src/lib/strategies.ts",
       "src/lib/lessons/taxes.ts"
     ],
-    "reviewed": "2026-10-31",
-    "hash": "1451422a07ddbc06",
+    "reviewed": "2026-11-01",
+    "hash": "dbe564d27bade2c4",
     "note": "Next-lesson practice links appear only where a matching Cedar House chapter exists; all source lesson content retained."
   },
   {
@@ -420,8 +420,8 @@
       "src/lib/planNext.ts",
       "src/lib/dealStage.ts"
     ],
-    "reviewed": "2026-10-31",
-    "hash": "269145a81f5f9b94",
+    "reviewed": "2026-11-01",
+    "hash": "0c2d0808f8986c93",
     "note": "Reviewed optional account storage boundaries and download-only wording against implemented behavior and OWASP guidance. Property, financing, legal guidance and calculation formulas unchanged; numeric deal budgets retained to avoid changing results. Account activation is gated and real delivery/browser checks remain operator steps."
   },
   {

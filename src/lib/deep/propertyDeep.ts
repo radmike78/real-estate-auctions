@@ -386,7 +386,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     overview: [
       "A small multifamily property is a duplex, triplex or fourplex: one building (or lot) with two to four homes. Lenders treat it as a home, not a commercial building, so if you live in one unit you can use owner-occupant loans such as FHA (often 3.5% down) or a VA loan (no down payment with full entitlement and the lender’s approval). Living in one unit and renting out the others to cut your housing cost is called “house hacking.”",
       "The upside is real: tenants’ rent can cover a big share of the mortgage, and you build landlord skills while living on site. The downside is that you’re now a landlord to your neighbors, handling repairs, late rent and evictions. Lenders and underwriters often count only about 75% of expected rent to allow for vacancies. During the pandemic eviction bans, many small landlords had tenants stop paying and ended up selling.",
-      "Rules depend on the state and county. In California, buildings with three or more units must have balconies, decks and stairs inspected (Health and Safety Code 17973, SB 721). Local rent control there may also limit increases. Check local rules before you buy."
+      "Rules depend on the state and county, so check local rules before you buy. In California, buildings with three or more units must have balconies, decks and stairs inspected (Health and Safety Code 17973, SB 721). Local rent control there may also limit increases."
     ],
     bestFor: [
       "First-time buyers who will live in one unit and want rent to offset their mortgage.",
@@ -1991,7 +1991,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     overview: [
       "Raw land is property with no house or building on it. It may cost less to keep up than a building (no tenants, few repairs), but taxes, loan interest, weed and fire rules, access and security still cost money. And it usually earns nothing until it is built on, farmed, leased or sold. Its value depends on access, water, utilities, zoning and growth nearby.",
       "Many cheap lots, including lots sold at county tax sales, are cheap for a reason: no legal road access, no water or power, steep or flood-prone ground, or rules that prevent building. In Arizona, a 1980 law requires subdivisions of six or more lots inside the state’s groundwater Active Management Areas (such as the Phoenix area) to prove a 100-year water supply. In Arizona, outside those areas, lots can usually be sold even when the water supply is inadequate, as long as that is disclosed (unless the county or town has adopted Arizona’s mandatory water-adequacy rule*), and lot splits of five or fewer avoided the rule. Arizona passed an ‘Ag-to-Urban’ law in 2025 that lets some builders in the Phoenix and Pinal areas use water credits from retired farmland. In Arizona, homes in Rio Verde Foothills lost their hauled water supply from Scottsdale in 2023.",
-      "Land also attracts scams. For decades, promoters sold desert lots in California City sight unseen, with promises of future growth. Today the FBI warns of impostors who pose as the owners of vacant land and sell it to buyers who never meet them. Land can pay off well for patient owners when a town grows toward it, but that can take decades."
+      "Land can pay off well for patient owners when a town grows toward it, but that can take decades. Land also attracts scams: the FBI warns of impostors who pose as the owners of vacant land and sell it to buyers who never meet them. For decades, promoters also sold desert lots in California City sight unseen, with promises of future growth."
     ],
     bestFor: [
       "Patient, long-term holders who can pay taxes for years without income.",
@@ -2020,7 +2020,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     checklist: [
       "Visit the land and verify the seller, in person or through a title company. Be wary of rushed, below-market sales by email or text only (FBI warning signs).",
       "Confirm legal access: a recorded road or easement, not just a dirt track.",
-      "Confirm water. In Arizona, check the state water department rules for the area; outside its Active Management Areas, lots can often be sold even when water is inadequate, so read the water disclosure. Ask whether a well is allowed and how deep nearby wells go.",
+      "Confirm water. Ask whether a well is allowed and how deep nearby wells go. In Arizona, check the state water department rules for the area; outside its Active Management Areas, lots can often be sold even when water is inadequate, so read the water disclosure.",
       "Check zoning, minimum lot size and whether a building permit is possible.",
       "Look up the flood zone on FEMA flood maps and check for wetlands, steep slopes or other limits.",
       "Buy title insurance and get a survey. At tax sales, read the county’s terms about what the deed does and doesn’t guarantee."

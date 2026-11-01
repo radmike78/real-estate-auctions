@@ -137,7 +137,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   const reviews = count('review');
   const surviving = liens.filter((l) => l.outcome === 'LIKELY_SURVIVES').length;
   const commercial = classOfType(p.propertyType) === 'commercial';
-  const baseChecklist = checklistForProperty(s?.saleType ?? null, p.status);
+  const baseChecklist = checklistForProperty(s?.saleType ?? null, p.status, { state: p.state, county: p.county });
   const worded = commercial ? forCommercial(baseChecklist) : baseChecklist;
   const checklist = p.propertyType === 'Vacant Land' || p.propertyType === 'Commercial Land' ? forLand(worded) : worded;
   const saleBook = playbookForSale(s?.saleType);

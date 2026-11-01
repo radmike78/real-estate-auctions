@@ -212,7 +212,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
           CA: 'In California, most execution sales have no redemption. After a court foreclosure that allows a deficiency judgment, the owner can redeem for 3 months if the sale paid the debt in full, or 1 year if it didn’t (Code of Civil Procedure 729.010, 729.030). IRS sales: the owner can redeem for 180 days (26 U.S.C. 6337); you get a certificate of sale first and the deed after that.',
           AZ: 'In Arizona, the owner can redeem for 6 months after a sheriff’s sale, or 30 days if the property was abandoned (A.R.S. 12-1282). You get a certificate of sale first and the deed after that. IRS sales: the owner can redeem for 180 days (26 U.S.C. 6337); you get a certificate of sale first and the deed after that.',
           UT: 'In Utah, the owner can redeem for 180 days after a sheriff’s sale (URCP 69C). You get a certificate of sale first and the deed after that. IRS sales: the owner can redeem for 180 days (26 U.S.C. 6337); you get a certificate of sale first and the deed after that.',
-          TX: 'In Texas, a sheriff’s or constable’s execution sale and a mortgage trustee sale have no redemption (Civil Practice and Remedies Code 34.045). After a tax sale, a trustee sale that forecloses a property tax loan, or an HOA foreclosure, you get the deed at once, but the owner can still buy it back for a set time (Tax Code 34.21, 32.06(k-1); Property Code 209.011, 82.113). IRS sales: the owner can redeem for 180 days (26 U.S.C. 6337); you get a certificate of sale first and the deed after that.',
+          TX: 'In Texas, a sheriff’s or constable’s execution sale and a mortgage trustee sale have no redemption period.* The officer’s deed gives you what the debtor owned, at once (Civil Practice and Remedies Code 34.045). After a tax sale, a trustee sale that forecloses a property tax loan, or an HOA foreclosure, you get the deed at once, but the owner can still buy it back for a set time (Tax Code 34.21, 32.06(k-1); Property Code 209.011, 82.113). IRS sales: the owner can redeem for 180 days (26 U.S.C. 6337); you get a certificate of sale first and the deed after that.',
         },
       },
       { text: 'A title search', detail: "You receive only the debtor's or taxpayer's interest. Senior liens stay." },
@@ -286,19 +286,23 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
 };
 
 /** Checklist for a property, from its sale type or status. */
-export function checklistForProperty(saleType: SaleType | null, status: AcquisitionStatus): BuyerChecklist {
+export function checklistForProperty(saleType: SaleType | null, status: AcquisitionStatus, where?: { state?: string | null; county?: string | null }): BuyerChecklist {
   if (status === 'PRE_FORECLOSURE_NOT_YET_PURCHASABLE') return CHECKLISTS.pre;
   if (status === 'NOT_FOR_SALE_LIEN_ONLY') return CHECKLISTS.liens;
+  // The tax-sale and SID lists follow Clark County's Treasurer, and the HOA list Nevada law. A property elsewhere
+  // gets the general list, which points to its own state's sale guide. With no place given, the lists apply as written.
+  const nv = !where || where.state === 'NV';
+  const clark = nv && (!where || !where.county || /^clark\b/i.test(where.county));
   switch (saleType) {
     case 'TAX_DEED':
-      return CHECKLISTS.tax;
+      return clark ? CHECKLISTS.tax : CHECKLISTS.all;
     case 'TAX_LIEN_CERTIFICATE':
-      return CHECKLISTS.sid;
+      return clark ? CHECKLISTS.sid : CHECKLISTS.all;
     case 'TRUSTEE_SALE':
     case 'JUDICIAL_FORECLOSURE':
       return CHECKLISTS.foreclosure;
     case 'HOA_FORECLOSURE':
-      return CHECKLISTS.hoa;
+      return nv ? CHECKLISTS.hoa : CHECKLISTS.all;
     case 'SHERIFF_EXECUTION':
     case 'FEDERAL_TAX_SEIZURE':
       return CHECKLISTS.sheriff;
